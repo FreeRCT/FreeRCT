@@ -36,7 +36,7 @@ bool VideoSystem::Initialize()
 	if (this->initialized) return true;
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) return false;
 
-	this->video = SDL_SetVideoMode(800, 600, 15, SDL_HWSURFACE);
+	this->video = SDL_SetVideoMode(800, 600, 8, SDL_HWSURFACE);
 	if (this->video == NULL) {
 		SDL_Quit();
 		return false;
@@ -54,3 +54,30 @@ void VideoSystem::Shutdown()
 		this->initialized = false;
 	}
 }
+
+/**
+ * Get horizontal size of the screen.
+ * @return Number of pixels of the screen horizontally.
+ */
+uint16 VideoSystem::GetXSize() const
+{
+	assert(this->initialized);
+
+	int w = SDL_GetVideoSurface()->w;
+	assert(w >= 0 && w <= 0xFFFF);
+	return (uint16)w;
+}
+
+/**
+ * Get vertical size of the screen.
+ * @return Number of pixels of the screen vertically.
+ */
+uint16 VideoSystem::GetYSize() const
+{
+	assert(this->initialized);
+
+	int h = SDL_GetVideoSurface()->w;
+	assert(h >= 0 && h <= 0xFFFF);
+	return (uint16)h;
+}
+

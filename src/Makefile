@@ -13,9 +13,9 @@ CXXFLAGS=-Wall -g
 INCLUDES=-I/usr/include/SDL
 LIBS=-lSDL
 
-CXXFILES=voxel_map.cpp main.cpp video.cpp
+CXXFILES=voxel_map.cpp main.cpp video.cpp window.cpp sprite_store.cpp
 OBJFILES=$(CXXFILES:.cpp=.o)
-TARGET=stackedtiles
+TARGET=freerct
 
 $(TARGET): $(OBJFILES)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJFILES) $(LIBS)

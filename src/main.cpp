@@ -11,6 +11,8 @@
 
 #include "stdafx.h"
 #include "video.h"
+#include "voxel_map.h"
+#include "window.h"
 
 int main(void)
 {
@@ -20,6 +22,14 @@ int main(void)
 		fprintf(stderr, "Failed to initialize window, aborting\n");
 		exit(1);
 	}
+
+	_world.SetWorldSize(32, 32);
+	SetVideo(&vid);
+	/* TEMP */
+	uint16 width  = vid.GetXSize();
+	uint16 height = vid.GetYSize();
+	assert(width >= 20 && height >= 20);
+	Window *w = new Window(5, 5, width - 10, height - 10);
 
 	bool finished = false;
 	while (!finished) {
@@ -48,6 +58,7 @@ int main(void)
 				break;
 
 			case SDL_VIDEOEXPOSE: {
+				UpdateWindows();
 				break;
 			}
 

@@ -97,13 +97,31 @@ public:
 		return this->GetStack(x, y)->Get(z, create);
 	}
 
+	/**
+	 * Get X size of the world.
+	 * @return Length of the world in X direction.
+	 */
+	FORCEINLINE uint16 GetXSize() const
+	{
+		return this->x_size;
+	}
+
+	/**
+	 * Get Y size of the world.
+	 * @return Length of the world in Y direction.
+	 */
+	FORCEINLINE uint16 GetYSize() const
+	{
+		return this->y_size;
+	}
+
+private:
 	uint16 x_size; ///< Current max x size.
 	uint16 y_size; ///< Current max y size.
 
-private:
 	VoxelStack stacks[WORLD_X_SIZE * WORLD_Y_SIZE]; ///< All voxel stacks in the world.
 };
 
-extern VoxelWorld *_world;
+extern VoxelWorld _world;
 
 #endif

@@ -7,31 +7,24 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file video.h Video handling. */
+/** @file sprite_store.h Sprite storage data structure. */
 
-#ifndef VIDEO_H
-#define VIDEO_H
+#ifndef SPRITE_STORE_H
+#define SPRITE_STORE_H
 
-#include "SDL.h"
+class Sprite;
 
-/**
- * Class representing the video system.
- */
-class VideoSystem {
+/** Storage of all sprites. */
+class SpriteStore {
 public:
-	VideoSystem();
-	~VideoSystem();
+	SpriteStore();
+	~SpriteStore();
 
-	bool Initialize();
-	void Shutdown();
+	void Load();
 
-	uint16 GetXSize() const;
-	uint16 GetYSize() const;
-
-private:
-	bool initialized;   ///< Video system is initialized.
-
-	SDL_Surface *video; ///< Video surface.
+	const Sprite *GetSurfaceSprite(uint type, uint slope);
 };
+
+extern SpriteStore _sprite_store;
 
 #endif

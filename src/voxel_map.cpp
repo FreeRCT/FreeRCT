@@ -13,6 +13,8 @@
 #include "voxel_map.h"
 #include "memory.h"
 
+VoxelWorld _world; ///< The game world.
+
 static const uint MAX_VOXEL_STACK_SIZE = 64; ///< At most a stack of 64 voxels.
 
 /** Default constructor. */
