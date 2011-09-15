@@ -49,7 +49,7 @@ bool VideoSystem::Initialize()
 
 /**
  * Set up the palette for the video surface.
- * @param palette Palette to use.
+ * @param pd Palette to use.
  */
 void VideoSystem::SetPalette(const PaletteData *pd)
 {

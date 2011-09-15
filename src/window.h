@@ -44,6 +44,13 @@ public:
 
 	virtual void OnDraw();
 
+	/**
+	 * Convert 3D position to a 2D position.
+	 * @param x X position in the game world.
+	 * @param y Y position in the game world.
+	 * @param z Z position in the game world.
+	 * @return X and Y position in 2D.
+	 */
 	FORCEINLINE Point ComputeXY(int32 x, int32 y, int32 z)
 	{
 		Point p;
