@@ -1,0 +1,9 @@
+Very quick how-to
+=================
+
+$ cd rcd
+$ python make_groundsprites.py
+$ cd ../src
+$ make
+$ ./freerct
+
