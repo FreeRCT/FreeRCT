@@ -96,17 +96,23 @@ def encode(data, xoffset, yoffset):
     ymax  = None
     xbase = None
     xmax  = None
-    y_lines = {}
     for y,seqs in data:
         if ybase is None or y < ybase: ybase = y
         if ymax  is None or y > ymax:  ymax  = y
-        line = []
-        offset = 0
         for idx,(x,pixs) in enumerate(seqs):
             assert len(pixs) > 0
             if xbase is None or x < xbase: xbase = x
             if xmax  is None or x + len(pixs) - 1 > xmax:  xmax  = x + len(pixs) - 1
 
+    ylength = ymax - ybase + 1
+    xlength = xmax - xbase + 1
+
+    y_lines = {}
+    for y,seqs in data:
+        line = []
+        offset = 0
+        for idx,(x,pixs) in enumerate(seqs):
+            x -= xbase
             if idx + 1 == len(seqs):
                 add = 128
             else:
@@ -121,13 +127,10 @@ def encode(data, xoffset, yoffset):
                 pixs = pixs[255:]
                 offset = x
             line = line + [add+x-offset, len(pixs)] + pixs
-            x += len(pixs)
-            offset = x
+            offset = x + len(pixs)
 
         y_lines[y] = line
 
-    ylength = ymax - ybase + 1
-    xlength = xmax - xbase + 1
 
     pix_blk = Pixels8Bpp(xlength, ylength)
     for y in range(ybase, ybase+ylength):
@@ -408,6 +411,25 @@ class RCD(object):
         self.write(output)
         output.close()
 
+def dump_line(y, line, width):
+    xpos = 0
+    offset = 0
+    l = "%2d" % y
+    while True:
+        relpos = ord(line[offset])
+        count  = ord(line[offset+1])
+        xpos = xpos + (relpos & 127)
+        newx = xpos + count
+        bad = ""
+        if newx > width:
+            bad = "<==========="
+        print "%s: %d-%d%s" % (l, xpos, newx, bad)
+        l = "  "
+        xpos = newx
+        offset = offset + 2 + count
+        if (relpos & 128): break
+
+
 #
 # Main program
 #
@@ -448,11 +470,15 @@ palb_num = file_data.add_block(pb)
 spr = {}
 for name, blkdata in tdict.iteritems():
     xoff, yoff, pixblk = blkdata
+    print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" % (name, pixblk.width, pixblk.height, xoff, yoff)
+    #for idx, d in enumerate(pixblk.line_data):
+    #    dump_line(idx, d, pixblk.width)
+    #print
     pix_blknum = file_data.add_block(pixblk)
     spr_blk = Sprite(xoff, yoff, pix_blknum, palb_num)
     spr[name] = file_data.add_block(spr_blk)
 
-surf = Surface(64, 32)
+surf = Surface(64, 16)
 for name, sprb_num in spr.iteritems():
     surf.add_sprite(name, sprb_num)
 file_data.add_block(surf)
