@@ -126,6 +126,21 @@ void VideoSystem::UnlockSurface()
 }
 
 /**
+ * Fill the entire surface with a single colour.
+ * @param colour Colour to fill with.
+ */
+void VideoSystem::FillSurface(uint8 colour)
+{
+	SDL_Surface *s = SDL_GetVideoSurface();
+	for (int y = 0; y < s->h; y++) {
+		for (int x = 0; x < s->w; x++) {
+			((uint8 *)(s->pixels))[x + s->pitch * y] = colour;
+		}
+	}
+}
+
+
+/**
  * Blit pixels from the \a spr relative to \a img_base into the rectangle \a rect.
  * @param img_base Base coordinate of the sprite data.
  * @param spr The sprite to blit.

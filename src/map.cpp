@@ -146,6 +146,8 @@ void VoxelWorld::MakeBump(uint16 x, uint16 y, int16 z)
 	v = GetVoxel(x+1, y-1, z,   true); v->SetSurface(TCB_EAST);
 	v = GetVoxel(x+1, y,   z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_EAST));
 	v = GetVoxel(x+1, y+1, z,   true); v->SetSurface(TCB_NORTH);
+
+	v = GetVoxel(x, y, z, true); v->SetEmpty();
 }
 
 /**

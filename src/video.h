@@ -35,6 +35,7 @@ public:
 
 	void LockSurface();
 	void UnlockSurface();
+	void FillSurface(uint8 colour);
 	void BlitImage(const Point &img_base, const Sprite *spr, const Rectangle & rect);
 
 private:

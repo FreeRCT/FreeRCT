@@ -59,6 +59,12 @@ public:
 		this->slope = slope;
 	}
 
+	/** Set the voxel to empty. */
+	FORCEINLINE void SetEmpty()
+	{
+		this->type = VT_EMPTY;
+	}
+
 protected:
 	uint32 type: 2;  ///< Type of the voxel. @see VoxelType
 	uint32 slope: 5; ///< Slope of the tile.
