@@ -11,7 +11,7 @@
 
 #include "stdafx.h"
 #include "video.h"
-#include "voxel_map.h"
+#include "map.h"
 #include "window.h"
 
 int main(void)

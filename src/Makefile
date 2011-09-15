@@ -13,7 +13,7 @@ CXXFLAGS=-Wall -g
 INCLUDES=-I/usr/include/SDL
 LIBS=-lSDL
 
-CXXFILES=voxel_map.cpp main.cpp video.cpp window.cpp sprite_store.cpp
+CXXFILES=map.cpp main.cpp video.cpp window.cpp sprite_store.cpp
 OBJFILES=$(CXXFILES:.cpp=.o)
 TARGET=freerct
 

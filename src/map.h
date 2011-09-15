@@ -7,10 +7,10 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file voxel_map.h Definition of voxels in the world. */
+/** @file map.h Definition of voxels in the world. */
 
-#ifndef VOXEL_MAP_H
-#define VOXEL_MAP_H
+#ifndef MAP_H
+#define MAP_H
 
 #include "tile.h"
 
