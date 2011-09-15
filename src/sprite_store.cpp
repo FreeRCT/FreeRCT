@@ -519,10 +519,19 @@ void SpriteStore::AddBlock(RcdBlock *block)
  * @param size Sprite size.
  * @param orient Orientation.
  * @return Requested sprite if available.
- * @todo XXX Implement me.
+ * @todo Steep handling is sub-optimal, perhaps use #TC_NORTH,  #TC_EAST, #TC_SOUTH, #TC_WEST instead of a bit encoding?
  */
 const Sprite *SpriteStore::GetSurfaceSprite(uint type, uint8 slope, uint8 size, ViewOrientation orient)
 {
-	return NULL;
+	if (!this->surface) return NULL;
+	if (this->surface->width != size) return NULL;
+	if ((slope & TCB_STEEP) == 0) {
+		assert(slope < 15);
+		return this->surface->surf_orient[orient].non_steep[slope];
+	}
+	if ((slope & TCB_NORTH) != 0) return this->surface->surf_orient[orient].steep[TC_NORTH];
+	if ((slope & TCB_EAST)  != 0) return this->surface->surf_orient[orient].steep[TC_EAST];
+	if ((slope & TCB_WEST)  != 0) return this->surface->surf_orient[orient].steep[TC_WEST];
+	return this->surface->surf_orient[orient].steep[TC_SOUTH];
 }
 
