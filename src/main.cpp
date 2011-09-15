@@ -13,11 +13,20 @@
 #include "video.h"
 #include "map.h"
 #include "window.h"
+#include "sprite_store.h"
 
 int main(void)
 {
 	VideoSystem vid;
 
+	/* Load RCD file. */
+	const char *err_msg = _sprite_store.Load("../rcd/groundsprites.rcd");
+	if (err_msg != NULL) {
+		fprintf(stderr, "Failed to load '../rcd/groundsprites.rcd'\n(%s)\n", err_msg);
+		exit(1);
+	}
+
+	/* Initialize video. */
 	if (!vid.Initialize()) {
 		fprintf(stderr, "Failed to initialize window, aborting\n");
 		exit(1);

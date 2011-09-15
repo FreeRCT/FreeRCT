@@ -20,6 +20,8 @@ enum ViewOrientation {
 	VOR_EAST  = TC_EAST,  ///< View with top of the world to the east.
 	VOR_SOUTH = TC_SOUTH, ///< View with top of the world to the south.
 	VOR_WEST  = TC_WEST,  ///< View with top of the world to the west.
+
+	VOR_NUM_ORIENT = 4,   ///< Number of orientations.
 };
 
 /**
