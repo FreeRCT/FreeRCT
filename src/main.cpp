@@ -35,6 +35,7 @@ int main(void)
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(0);
+	_world.MakeBump(8, 12, 0);
 	SetVideo(&vid);
 	/* TEMP */
 	uint16 width  = vid.GetXSize();

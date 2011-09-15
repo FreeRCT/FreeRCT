@@ -128,6 +128,27 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 }
 
 /**
+ * Make a nice bump in the world.
+ * @param x xpos
+ * @param y ypos
+ * @param z zpos
+ * @todo Temporary, remove me after implementing world manipulation code.
+ */
+void VoxelWorld::MakeBump(uint16 x, uint16 y, int16 z)
+{
+	Voxel *v;
+	v = GetVoxel(x-1, y-1, z,   true); v->SetSurface(TCB_SOUTH);
+	v = GetVoxel(x-1, y,   z,   true); v->SetSurface((Slope)(TCB_SOUTH | TCB_WEST));
+	v = GetVoxel(x-1, y+1, z,   true); v->SetSurface(TCB_WEST);
+	v = GetVoxel(x,   y-1, z,   true); v->SetSurface((Slope)(TCB_SOUTH | TCB_EAST));
+	v = GetVoxel(x,   y,   z+1, true); v->SetSurface(SL_FLAT);
+	v = GetVoxel(x,   y+1, z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_WEST));
+	v = GetVoxel(x+1, y-1, z,   true); v->SetSurface(TCB_EAST);
+	v = GetVoxel(x+1, y,   z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_EAST));
+	v = GetVoxel(x+1, y+1, z,   true); v->SetSurface(TCB_NORTH);
+}
+
+/**
  * Get a voxel stack.
  * @param x X coordinate of the stack.
  * @param y Y coordinate of the stack.

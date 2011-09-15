@@ -92,6 +92,7 @@ public:
 
 	void SetWorldSize(uint16 xs, uint16 ys);
 	void MakeFlatWorld(int16 z);
+	void MakeBump(uint16 x, uint16 y, int16 z);
 
 	VoxelStack *GetStack(uint16 x, uint16 y);
 
