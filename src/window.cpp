@@ -15,7 +15,7 @@
 #include "video.h"
 
 /**
- * Window manager.
+ * %Window manager class, manages the window stack.
  */
 class WindowManager {
 public:
@@ -31,7 +31,7 @@ public:
 	VideoSystem *video; ///< Video output device.
 };
 
-static WindowManager _manager; ///< Window manager.
+static WindowManager _manager; ///< %Window manager.
 
 /**
  * Default constructor.
@@ -50,7 +50,7 @@ Viewport::Viewport(int x, int y, uint w, uint h)
 }
 
 /**
- * Window constructor.
+ * %Window constructor.
  * @param xp X position top-left corner.
  * @param yp Y position top-left corner.
  * @param wp Width of the window.
@@ -77,7 +77,7 @@ void Window::OnDraw()
 }
 
 /**
- * Window manager default constructor.
+ * %Window manager default constructor.
  * @todo Move this to a separate InitWindowSystem, together with #SetVideo?
  */
 WindowManager::WindowManager()
@@ -88,7 +88,7 @@ WindowManager::WindowManager()
 	this->video = NULL;
 };
 
-/** Window manager destructor. */
+/** %Window manager destructor. */
 WindowManager::~WindowManager()
 {
 	while (this->top != NULL) {
@@ -98,7 +98,7 @@ WindowManager::~WindowManager()
 
 /**
  * Set the video output device.
- * @param video Video output to use for drawing windows.
+ * @param vid Video output to use for drawing windows.
  */
 void SetVideo(VideoSystem *vid)
 {

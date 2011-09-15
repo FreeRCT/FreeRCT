@@ -31,7 +31,7 @@ public:
 
 
 /**
- * Window base class, extremely simple (just a viewport).
+ * %Window base class, extremely simple (just a viewport).
  * @todo Make it a real window with widgets, title bar, and stuff.
  */
 class Window {

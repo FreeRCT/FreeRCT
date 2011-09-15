@@ -14,19 +14,34 @@
 
 SpriteStore _sprite_store; ///< Sprite storage.
 
+/** %Sprite storage constructor. */
 SpriteStore::SpriteStore()
 {
 }
 
+/** %Sprite storage destructor. */
 SpriteStore::~SpriteStore()
 {
 }
 
+/**
+ * Load sprites from the disk.
+ * @todo XXX Implement me!
+ */
 void SpriteStore::Load()
 {
 }
 
-const Sprite *SpriteStore::GetSurfaceSprite(uint type, uint slope)
+/**
+ * Get a surface sprite.
+ * @param type Type of surface.
+ * @param slope Slope definition.
+ * @param size Sprite size.
+ * @param orient Orientation.
+ * @return Requested sprite if available.
+ * @todo XXX Implement me.
+ */
+const Sprite *SpriteStore::GetSurfaceSprite(uint type, uint8 slope, uint8 size, ViewOrientation orient)
 {
 	return NULL;
 }

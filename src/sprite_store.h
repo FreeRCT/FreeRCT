@@ -12,6 +12,8 @@
 #ifndef SPRITE_STORE_H
 #define SPRITE_STORE_H
 
+#include "orientation.h"
+
 class Sprite;
 
 /** Storage of all sprites. */
@@ -22,7 +24,7 @@ public:
 
 	void Load();
 
-	const Sprite *GetSurfaceSprite(uint type, uint slope);
+	const Sprite *GetSurfaceSprite(uint type, uint8 slope, uint8 size, ViewOrientation orient);
 };
 
 extern SpriteStore _sprite_store;
