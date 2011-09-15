@@ -48,7 +48,7 @@ void VoxelStack::Clear()
  * @note The old stack must fit in the new stack.
  * @todo If contents of a voxel is cleared, it might be released from the stack. Currently that is never done.
  */
-bool VoxelStack::MakeVoxelStack(int new_base, uint new_height)
+bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 {
 	assert(new_height > 0);
 	if (new_height > MAX_VOXEL_STACK_SIZE) return false;
@@ -110,6 +110,20 @@ void VoxelWorld::SetWorldSize(uint16 xs, uint16 ys)
 	/* Clear the world. */
 	for (uint pos = 0; pos < WORLD_X_SIZE * WORLD_Y_SIZE; pos++) {
 		this->stacks[pos].Clear();
+	}
+}
+
+/**
+ * Creates a world of flat tiles.
+ * @param z Height of the tiles.
+ */
+void VoxelWorld::MakeFlatWorld(int16 z)
+{
+	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
+		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
+			Voxel *v = GetVoxel(xpos, ypos, z, true);
+			v->SetSurface(SL_FLAT);
+		}
 	}
 }
 

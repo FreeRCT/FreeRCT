@@ -13,6 +13,10 @@
 #define VIDEO_H
 
 #include "SDL.h"
+#include "geometry.h"
+
+class Sprite;
+class PaletteData;
 
 /**
  * Class representing the video system.
@@ -23,10 +27,15 @@ public:
 	~VideoSystem();
 
 	bool Initialize();
+	void SetPalette(const PaletteData *pd);
 	void Shutdown();
 
 	uint16 GetXSize() const;
 	uint16 GetYSize() const;
+
+	void LockSurface();
+	void UnlockSurface();
+	void BlitImage(const Point &img_base, const Sprite *spr, const Rectangle & rect);
 
 private:
 	bool initialized;   ///< Video system is initialized.

@@ -23,7 +23,7 @@ public:
 	RcdBlock();
 	virtual ~RcdBlock();
 
-	RcdBlock *next;
+	RcdBlock *next; ///< Pointer to next block.
 };
 
 /** Palette of 8bpp images. */
@@ -58,7 +58,7 @@ public:
 typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data blocks.
 
 /**
- * Sprite data.
+ * %Sprite data.
  * @todo Move the offsets to the image data.
  */
 class Sprite : public RcdBlock {
@@ -112,7 +112,8 @@ public:
 	const char *Load(const char *fname);
 	void AddBlock(RcdBlock *block);
 
-	const Sprite *GetSurfaceSprite(uint type, uint8 slope, uint8 size, ViewOrientation orient);
+	const Sprite *GetSurfaceSprite(uint type, uint8 slope, uint16 size, ViewOrientation orient);
+	const PaletteData *GetPalette();
 
 	RcdBlock *blocks; ///< List of loaded Rcd data blocks.
 	SurfaceData *surface; ///< Surface data.

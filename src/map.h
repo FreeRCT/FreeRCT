@@ -49,6 +49,16 @@ public:
 		return (Slope)this->slope;
 	}
 
+	/**
+	 * Set the voxel to a surface type.
+	 * @param slope %Slope of the surface.
+	 */
+	FORCEINLINE void SetSurface(Slope slope)
+	{
+		this->type = VT_SURFACE;
+		this->slope = slope;
+	}
+
 protected:
 	uint32 type: 2;  ///< Type of the voxel. @see VoxelType
 	uint32 slope: 5; ///< Slope of the tile.
@@ -67,10 +77,10 @@ public:
 	Voxel *Get(int16 z, bool create);
 
 	Voxel *voxels; ///< Voxel array at this stack.
-	int base;      ///< Height of the bottom voxel.
-	uint height;   ///< Number of voxels in the stack.
+	int16 base;    ///< Height of the bottom voxel.
+	uint16 height; ///< Number of voxels in the stack.
 protected:
-	bool MakeVoxelStack(int new_base, uint new_height);
+	bool MakeVoxelStack(int16 new_base, uint16 new_height);
 };
 
 /**
@@ -81,6 +91,7 @@ public:
 	VoxelWorld();
 
 	void SetWorldSize(uint16 xs, uint16 ys);
+	void MakeFlatWorld(int16 z);
 
 	VoxelStack *GetStack(uint16 x, uint16 y);
 

@@ -32,11 +32,13 @@
  * indicated by a corner bit.
  */
 enum Slope {
-	TC_NORTH, ///< North corner bit number.
-	TC_EAST,  ///< East corner bit number.
-	TC_SOUTH, ///< South corner bit number.
-	TC_WEST,  ///< West corner bit number.
-	TC_STEEP, ///< Steep slope.
+	SL_FLAT = 0,  ///< Flat slope.
+
+	TC_NORTH = 0, ///< North corner bit number.
+	TC_EAST,      ///< East corner bit number.
+	TC_SOUTH,     ///< South corner bit number.
+	TC_WEST,      ///< West corner bit number.
+	TC_STEEP,     ///< Steep slope.
 
 	TCB_NORTH = 1 << TC_NORTH, ///< Bit denoting north corner is raised.
 	TCB_EAST  = 1 << TC_EAST,  ///< Bit denoting east corner is raised.

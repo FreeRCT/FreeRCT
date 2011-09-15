@@ -31,14 +31,18 @@ int main(void)
 		fprintf(stderr, "Failed to initialize window, aborting\n");
 		exit(1);
 	}
+	vid.SetPalette(_sprite_store.GetPalette());
 
-	_world.SetWorldSize(32, 32);
+	_world.SetWorldSize(20, 21);
+	_world.MakeFlatWorld(0);
 	SetVideo(&vid);
 	/* TEMP */
 	uint16 width  = vid.GetXSize();
 	uint16 height = vid.GetYSize();
 	assert(width >= 20 && height >= 20);
-	Window *w = new Window(5, 5, width - 10, height - 10);
+	new Viewport(5, 5, width - 10, height - 10);
+
+	UpdateWindows();
 
 	bool finished = false;
 	while (!finished) {

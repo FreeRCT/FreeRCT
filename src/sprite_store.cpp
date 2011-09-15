@@ -160,7 +160,7 @@ bool RcdFile::GetBlob(void *address, size_t length)
 
 /**
  * Check whether the read version matches with the expected version.
- * @param version Expected version.
+ * @param ver Expected version.
  * @return Expected version was loaded.
  * @todo In the future, we may want to have a fallback for loading previous versions, which makes this function useless.
  */
@@ -323,7 +323,15 @@ Sprite::~Sprite()
 	/* Do not release the RCD blocks. */
 }
 
-
+/**
+ * Load a sprite from the RCD file.
+ * @param rcd_file File to load from.
+ * @param length Length of the sprite block.
+ * @param images Already loaded image data blocks.
+ * @param palettes Already loaded palette blocks.
+ * @return Load was successful.
+ * @pre File pointer is at first byte of the block.
+ */
 bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images, const PaletteMap &palettes)
 {
 	if (length != 12) return false;
@@ -513,6 +521,17 @@ void SpriteStore::AddBlock(RcdBlock *block)
 }
 
 /**
+ * Get a palette.
+ * @todo Take the right one, instead of a pseudo-random one.
+ */
+const PaletteData *SpriteStore::GetPalette()
+{
+	if (this->surface == NULL) return NULL;
+	if (this->surface->surf_orient[VOR_NORTH].non_steep[0] == NULL) return NULL;
+	return this->surface->surf_orient[VOR_NORTH].non_steep[0]->palette;
+}
+
+/**
  * Get a surface sprite.
  * @param type Type of surface.
  * @param slope Slope definition.
@@ -521,7 +540,7 @@ void SpriteStore::AddBlock(RcdBlock *block)
  * @return Requested sprite if available.
  * @todo Steep handling is sub-optimal, perhaps use #TC_NORTH,  #TC_EAST, #TC_SOUTH, #TC_WEST instead of a bit encoding?
  */
-const Sprite *SpriteStore::GetSurfaceSprite(uint type, uint8 slope, uint8 size, ViewOrientation orient)
+const Sprite *SpriteStore::GetSurfaceSprite(uint type, uint8 slope, uint16 size, ViewOrientation orient)
 {
 	if (!this->surface) return NULL;
 	if (this->surface->width != size) return NULL;
