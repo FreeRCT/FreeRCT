@@ -299,7 +299,7 @@ bool ImageData::Load(RcdFile *rcd_file, size_t length)
 			xpos += (rel_pos & 127) + count;
 			offset += 2 + count;
 			if ((rel_pos & 128) == 0) {
-				if (xpos >= this->width || offset > length) return false;
+				if (xpos >= this->width || offset >= length) return false;
 			} else {
 				if (xpos > this->width || offset > length) return false;
 				break;
@@ -338,17 +338,21 @@ bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images, cons
 	this->xoffset = rcd_file->GetInt16();
 	this->yoffset = rcd_file->GetInt16();
 
-	/* Find the image data block. */
+	/* Find the image data block (required). */
 	uint32 img_blk = rcd_file->GetUInt32();
 	ImageMap::const_iterator img_iter = images.find(img_blk);
 	if (img_iter == images.end()) return false;
 	this->img_data = (*img_iter).second;
 
-	/* Find the palette block. */
+	/* Find the palette block (if used). */
 	uint32 pal_blk = rcd_file->GetUInt32();
-	PaletteMap::const_iterator pal_iter = palettes.find(pal_blk);
-	if (pal_iter == palettes.end()) return false;
-	this->palette = (*pal_iter).second;
+	if (pal_blk == 0) {
+		this->palette = NULL;
+	} else {
+		PaletteMap::const_iterator pal_iter = palettes.find(pal_blk);
+		if (pal_iter == palettes.end()) return false;
+		this->palette = (*pal_iter).second;
+	}
 
 	return true;
 }
@@ -390,12 +394,18 @@ bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprite
 	for (uint orient = VOR_NORTH; orient < VOR_NUM_ORIENT; orient++) {
 		for (uint sprnum = 0; sprnum < 19; sprnum++) {
 			uint32 val = rcd_file->GetUInt32();
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			if (sprnum < 15) {
-				this->surf_orient[orient].non_steep[sprnum] = (*iter).second;
+			Sprite *spr;
+			if (val == 0) {
+				spr = NULL;
 			} else {
-				this->surf_orient[orient].steep[sprnum - 15] = (*iter).second;
+				SpriteMap::const_iterator iter = sprites.find(val);
+				if (iter == sprites.end()) return false;
+				spr = (*iter).second;
+			}
+			if (sprnum < 15) {
+				this->surf_orient[orient].non_steep[sprnum] = spr;
+			} else {
+				this->surf_orient[orient].steep[sprnum - 15] = spr;
 			}
 		}
 	}
