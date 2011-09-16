@@ -143,11 +143,15 @@ void VoxelWorld::MakeBump(uint16 x, uint16 y, int16 z)
 	v = GetVoxel(x,   y-1, z,   true); v->SetSurface((Slope)(TCB_SOUTH | TCB_EAST));
 	v = GetVoxel(x,   y,   z+1, true); v->SetSurface(SL_FLAT);
 	v = GetVoxel(x,   y+1, z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_WEST));
-	v = GetVoxel(x+1, y-1, z,   true); v->SetSurface(TCB_EAST);
-	v = GetVoxel(x+1, y,   z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_EAST));
-	v = GetVoxel(x+1, y+1, z,   true); v->SetSurface(TCB_NORTH);
+	v = GetVoxel(x+1, y-1, z,   true); v->SetSurface((Slope)(TCB_SOUTH | TCB_EAST));
+	v = GetVoxel(x+1, y,   z+1, true); v->SetSurface(SL_FLAT);
+	v = GetVoxel(x+1, y+1, z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_WEST));
+	v = GetVoxel(x+2, y-1, z,   true); v->SetSurface(TCB_EAST);
+	v = GetVoxel(x+2, y,   z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_EAST));
+	v = GetVoxel(x+2, y+1, z,   true); v->SetSurface(TCB_NORTH);
 
 	v = GetVoxel(x, y, z, true); v->SetEmpty();
+	v = GetVoxel(x+1, y, z, true); v->SetEmpty();
 }
 
 /**

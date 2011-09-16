@@ -13,6 +13,7 @@
 #define WINDOW_H
 
 #include "geometry.h"
+#include "orientation.h"
 
 /**
  * %Window base class, extremely simple (just a viewport).
@@ -54,17 +55,42 @@ public:
 	FORCEINLINE Point ComputeXY(int32 x, int32 y, int32 z)
 	{
 		Point p;
-		p.x = ((y - x) * this->tile_width / 2) >> 8;
-		p.y = ((x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
+		switch (this->orientation) {
+			case VOR_NORTH:
+				p.x = ((y - x) * this->tile_width / 2) >> 8;
+				p.y = ((x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
+				break;
+
+			case VOR_EAST:
+				p.x = (-(x + y) * this->tile_width / 2) >> 8;
+				p.y = ((y - x) * this->tile_width / 4 - z * this->tile_height) >> 8;
+				break;
+
+			case VOR_SOUTH:
+				p.x = ((x - y) * this->tile_width / 2) >> 8;
+				p.y = (-(x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
+				break;
+
+			case VOR_WEST:
+				p.x = ((x + y) * this->tile_width / 2) >> 8;
+				p.y = ((x - y) * this->tile_width / 4 - z * this->tile_height) >> 8;
+				break;
+
+			default:
+				NOT_REACHED();
+		}
 		return p;
 	}
+
+	void Rotate(int direction);
 
 	int32 xview; ///< X position of the center point of the viewport.
 	int32 yview; ///< Y position of the center point of the viewport.
 	int32 zview; ///< Z position of the center point of the viewport.
 
-	uint16 tile_width;  ///< Width of a tile.
-	uint16 tile_height; ///< Height of a tile.
+	uint16 tile_width;           ///< Width of a tile.
+	uint16 tile_height;          ///< Height of a tile.
+	ViewOrientation orientation; ///< Direction of view.
 };
 
 class VideoSystem;

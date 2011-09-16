@@ -112,5 +112,14 @@ assert_compile(sizeof(uint8)  == 1);
  */
 #define lastof(x) (&x[lengthof(x) - 1])
 
+/**
+ * Report a fatal error.
+ * @param str Format of the error.
+ */
+void NORETURN CDECL error(const char *str, ...) WARN_FORMAT(1, 2);
+
+/** Macro for reporting reaching an 'impossible' position in the code. */
+#define NOT_REACHED() error("NOT_REACHED triggered at line %i of %s", __LINE__, __FILE__)
+
 
 #endif

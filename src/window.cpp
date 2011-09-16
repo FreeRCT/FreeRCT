@@ -80,6 +80,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h)
 
 	this->tile_width  = 64;
 	this->tile_height = 16;
+	this->orientation = VOR_NORTH;
 }
 
 /** Data temporary needed for drawing. */
@@ -106,21 +107,31 @@ typedef std::multimap<int32, DrawData> DrawImages;
 
 	DrawImages draw_images;
 
-	for (uint16 xpos = 0; xpos < _world.GetXSize(); xpos++) {
-		for (uint16 ypos = 0; ypos < _world.GetYSize(); ypos++) {
+	int dx, dy; // Offset of the 'north' corner of a view relative to the real north corner.
+	int sx, sy; // Direction of x and y in sorting.
+	switch (this->orientation) {
+		case VOR_NORTH: dx = 0;   dy = 0;   sx =  1; sy =  1; break;
+		case VOR_EAST:  dx = 0;   dy = 256; sx =  1; sy = -1; break;
+		case VOR_SOUTH: dx = 256; dy = 256; sx = -1; sy = -1; break;
+		case VOR_WEST:  dx = 256; dy = 0;   sx = -1; sy =  1; break;
+		default:        NOT_REACHED();
+	}
+
+	for (int xpos = 0; xpos < _world.GetXSize(); xpos++) {
+		for (int ypos = 0; ypos < _world.GetYSize(); ypos++) {
 			VoxelStack *stack = _world.GetStack(xpos, ypos);
 			for (int16 count = 0; count < stack->height; count++) {
 				Voxel *v = &stack->voxels[count];
 				if (v->GetType() != VT_SURFACE) continue;
 				Slope sl = v->GetSlope();
-				const Sprite *spr = _sprite_store.GetSurfaceSprite(0, sl, this->tile_width, VOR_NORTH);
-				if (spr == NULL || spr->img_data == NULL) continue;
-				Point north_corner = this->ComputeXY(xpos * 256, ypos * 256, (stack->base + count) * 256);
+				const Sprite *spr = _sprite_store.GetSurfaceSprite(0, sl, this->tile_width, this->orientation);
+				if (spr == NULL) continue;
+				Point north_corner = this->ComputeXY(xpos * 256 + dx, ypos * 256 + dy, (stack->base + count) * 256);
 				Rectangle spr_rect = Rectangle(north_corner.x + spr->xoffset, north_corner.y + spr->yoffset,
 						spr->img_data->width, spr->img_data->height);
 				if (rect.Intersects(spr_rect)) {
 					std::pair<int32, DrawData> p;
-					p.first = xpos * 256 + ypos * 256 + (stack->base + count) * 256;
+					p.first = sx * xpos * 256 + sy * ypos * 256 + (stack->base + count) * 256;
 					p.second.spr = spr;
 					p.second.base.x = spr_rect.base.x - rect.base.x + this->x;
 					p.second.base.y = spr_rect.base.y - rect.base.y + this->y;
@@ -144,6 +155,15 @@ typedef std::multimap<int32, DrawData> DrawImages;
 	vid->UnlockSurface();
 }
 
+/**
+ * Rotate 90 degrees clockwise or anti-clockwise.
+ * @param direction Direction of turn (positive means clockwise).
+ */
+void Viewport::Rotate(int direction)
+{
+	this->orientation = (ViewOrientation)((this->orientation + VOR_NUM_ORIENT + ((direction > 0) ? 1 : -1)) % VOR_NUM_ORIENT);
+	// XXX this->MarkDirty();
+}
 
 /**
  * %Window manager default constructor.

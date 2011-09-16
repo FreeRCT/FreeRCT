@@ -15,6 +15,23 @@
 #include "window.h"
 #include "sprite_store.h"
 
+/**
+ * Error handling for fatal non-user errors.
+ * @param s the string to print.
+ * @note \b Never returns.
+ */
+void CDECL error(const char *s, ...)
+{
+	va_list va;
+
+	va_start(va, s);
+	vfprintf(stderr, s, va);
+	va_end(va);
+
+	abort();
+}
+
+/** Main entry point. */
 int main(void)
 {
 	VideoSystem vid;
@@ -35,18 +52,18 @@ int main(void)
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(0);
-	_world.MakeBump(8, 12, 0);
+	_world.MakeBump(4, 6, 0);
 	SetVideo(&vid);
 	/* TEMP */
 	uint16 width  = vid.GetXSize();
 	uint16 height = vid.GetYSize();
 	assert(width >= 20 && height >= 20);
-	new Viewport(5, 5, width - 10, height - 10);
-
-	UpdateWindows();
+	Viewport *w = new Viewport(5, 5, width - 10, height - 10);
 
 	bool finished = false;
 	while (!finished) {
+		UpdateWindows();
+
 		SDL_Event event;
 		if (SDL_WaitEvent(&event) != 1) break; // Error detected while waiting.
 
@@ -58,9 +75,11 @@ int main(void)
 						break;
 
 					case SDLK_LEFT:
+						w->Rotate(-1);
 						break;
 
 					case SDLK_RIGHT:
+						w->Rotate(1);
 						break;
 
 					default:
@@ -72,7 +91,7 @@ int main(void)
 				break;
 
 			case SDL_VIDEOEXPOSE: {
-				UpdateWindows();
+				/*UpdateWindows();*/
 				break;
 			}
 
