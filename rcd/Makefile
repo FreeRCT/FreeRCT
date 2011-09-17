@@ -6,20 +6,12 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
+PYTHON=python
 
-.PHONY: doc viewdoc build run
+.PHONY: build
 
-build:
-	$(MAKE) -C src
+build: groundsprites.rcd
 
-run:
-	$(MAKE) -C src run
+groundsprites.rcd: make_groundsprites.py ../sprites/GroundTileTemplate64px_8bpp.png
+	$(PYTHON) make_groundsprites.py
 
-doc:
-	doxygen Doxyfile
-	@if test -s doxygen_warnings.txt;\
-	then echo "Warnings generated, see doxygen_warnings.txt.";\
-	fi
-
-viewdoc: doc
-	firefox doc/html/index.html

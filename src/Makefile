@@ -6,7 +6,7 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
-.PHONY: run clean
+.PHONY: run clean rcd
 
 CXX=g++
 CXXFLAGS=-Wall -g
@@ -22,6 +22,9 @@ $(TARGET): $(OBJFILES)
 
 run: $(TARGET)
 	./$(TARGET)
+
+rcd:
+	$(MAKE) -C ../rcd
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
