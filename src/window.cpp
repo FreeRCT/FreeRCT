@@ -61,6 +61,15 @@ Window::~Window()
 }
 
 /**
+ * Mark windows as being dirty (needing a repaint).
+ * @todo Marking the whole display as needing a repaint is too crude.
+ */
+void Window::MarkDirty()
+{
+	_manager.video->MarkDisplayDirty();
+}
+
+/**
  * Paint the window to the screen.
  */
 /* virtual */ void Window::OnDraw()
@@ -162,7 +171,7 @@ typedef std::multimap<int32, DrawData> DrawImages;
 void Viewport::Rotate(int direction)
 {
 	this->orientation = (ViewOrientation)((this->orientation + VOR_NUM_ORIENT + ((direction > 0) ? 1 : -1)) % VOR_NUM_ORIENT);
-	// XXX this->MarkDirty();
+	this->MarkDirty();
 }
 
 /**
@@ -265,7 +274,7 @@ bool WindowManager::HasWindow(Window *w)
  */
 void UpdateWindows()
 {
-	if (_manager.video == NULL) return;
+	if (_manager.video == NULL || !_manager.video->DisplayNeedsRepaint()) return;
 
 	Window *w = _manager.bottom;
 	while (w != NULL) {
@@ -273,3 +282,4 @@ void UpdateWindows()
 		w = w->higher;
 	}
 }
+

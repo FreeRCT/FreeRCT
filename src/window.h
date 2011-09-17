@@ -32,6 +32,8 @@ public:
 	Window *higher; ///< Window above this window (managed by #WindowManager).
 	Window *lower;  ///< Window below this window (managed by #WindowManager).
 
+	void MarkDirty();
+
 	virtual void OnDraw();
 };
 

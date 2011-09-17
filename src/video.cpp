@@ -44,6 +44,7 @@ bool VideoSystem::Initialize()
 	}
 
 	this->initialized = true;
+	this->dirty = true; // Ensure it gets painted.
 	return true;
 }
 
@@ -72,6 +73,7 @@ void VideoSystem::Shutdown()
 	if (this->initialized) {
 		SDL_Quit();
 		this->initialized = false;
+		this->dirty = false;
 	}
 }
 
@@ -105,6 +107,8 @@ uint16 VideoSystem::GetYSize() const
  * Make the whole surface getting copied to the display.
  * @todo A somewhat less crude system would be nice, but it will have to wait
  *       until the window system is fleshed out more.
+ *
+ * @warning The #VideoSystem::dirty flag is not updated here!!
  */
 static void UpdateScreen()
 {
@@ -123,6 +127,7 @@ void VideoSystem::UnlockSurface()
 {
 	SDL_UnlockSurface(SDL_GetVideoSurface());
 	UpdateScreen();
+	this->dirty = false;
 }
 
 /**

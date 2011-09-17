@@ -33,6 +33,21 @@ public:
 	uint16 GetXSize() const;
 	uint16 GetYSize() const;
 
+	/**
+	 * Query whether the display needs to be repainted.
+	 * @return Display needs an update.
+	 */
+	FORCEINLINE bool DisplayNeedsRepaint()
+	{
+		return this->dirty;
+	}
+
+	/** Mark the display as being out of date (it needs the be repainted). */
+	FORCEINLINE void MarkDisplayDirty()
+	{
+		this->dirty = true;
+	}
+
 	void LockSurface();
 	void UnlockSurface();
 	void FillSurface(uint8 colour);
@@ -40,6 +55,7 @@ public:
 
 private:
 	bool initialized;   ///< Video system is initialized.
+	bool dirty;         ///< Video display needs being repainted.
 
 	SDL_Surface *video; ///< Video surface.
 };
