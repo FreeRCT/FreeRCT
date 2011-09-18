@@ -44,6 +44,8 @@ bool VideoSystem::Initialize()
 		return false;
 	}
 
+	SDL_WM_SetCaption("FreeRCT", "FreeRCT");
+
 	this->initialized = true;
 	this->dirty = true; // Ensure it gets painted.
 	return true;
