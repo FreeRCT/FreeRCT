@@ -15,19 +15,25 @@
 #include "geometry.h"
 #include "orientation.h"
 
+/** Available types of windows. */
+enum WindowTypes {
+	WC_MAINDISPLAY, ///< Main display of the world.
+};
+
 /**
  * %Window base class, extremely simple (just a viewport).
  * @todo Make it a real window with widgets, title bar, and stuff.
  */
 class Window {
 public:
-	Window(int x, int y, uint w, uint h);
+	Window(int x, int y, uint w, uint h, WindowTypes wtype);
 	virtual ~Window();
 
-	int x;       ///< X position of top-left corner.
-	int y;       ///< Y position of top-left corner.
-	uint width;  ///< Width of the window.
-	uint height; ///< Height of the window.
+	int x;             ///< X position of top-left corner.
+	int y;             ///< Y position of top-left corner.
+	uint width;        ///< Width of the window.
+	uint height;       ///< Height of the window.
+	WindowTypes wtype; ///< Window type.
 
 	Window *higher; ///< Window above this window (managed by #WindowManager).
 	Window *lower;  ///< Window below this window (managed by #WindowManager).
@@ -101,5 +107,6 @@ void SetVideo(VideoSystem *vid);
 VideoSystem *GetVideo();
 
 void UpdateWindows();
+Window *GetWindowByType(WindowTypes wtype);
 
 #endif

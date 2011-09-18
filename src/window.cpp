@@ -43,7 +43,8 @@ static WindowManager _manager; ///< %Window manager.
  * @param wp Width of the window.
  * @param hp Height of the window.
  */
-Window::Window(int xp, int yp, uint wp, uint hp) : x(xp), y(yp), width(wp), height(hp)
+Window::Window(int xp, int yp, uint wp, uint hp, WindowTypes wtype) :
+		x(xp), y(yp), width(wp), height(hp), wtype(wtype)
 {
 	this->higher = NULL;
 	this->lower  = NULL;
@@ -81,7 +82,7 @@ void Window::MarkDirty()
  * Default constructor.
  * @todo Make #Viewport a derived class of #Window.
  */
-Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h)
+Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDISPLAY)
 {
 	this->xview = _world.GetXSize() * 256 / 2;
 	this->yview = _world.GetYSize() * 256 / 2;
@@ -285,3 +286,17 @@ void UpdateWindows()
 	}
 }
 
+/**
+ * Find an opened window by window type.
+ * @param wtype %Window type to look for.
+ * @return The window with the requested type if it is opened, else \c NULL.
+ */
+Window *GetWindowByType(WindowTypes wtype)
+{
+	Window *w = _manager.top;
+	while (w != NULL) {
+		if (w->wtype == wtype) return w;
+		w = w->lower;
+	}
+	return NULL;
+}
