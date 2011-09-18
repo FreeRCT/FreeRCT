@@ -59,7 +59,11 @@ void VideoSystem::SetPalette(const PaletteData *pd)
 	assert(this->initialized);
 
 	SDL_Color colours[256];
-	for (uint i = 0; i < 256; i++) {
+	/* Colour 0 is black. */
+	colours[0].r = 0;
+	colours[0].g = 0;
+	colours[0].b = 0;
+	for (uint i = 1; i < 256; i++) {
 		colours[i].r = pd->colours[i][0];
 		colours[i].g = pd->colours[i][1];
 		colours[i].b = pd->colours[i][2];

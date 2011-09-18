@@ -155,7 +155,7 @@ typedef std::multimap<int32, DrawData> DrawImages;
 	VideoSystem *vid = GetVideo();
 	vid->LockSurface();
 
-	/*vid->FillSurface(21); Fill window with a bright yellow background for leak checking. */
+	vid->FillSurface(0); // Black background.
 
 	for (DrawImages::const_iterator iter = draw_images.begin(); iter != draw_images.end(); iter++) {
 		vid->BlitImage((*iter).second.base, (*iter).second.spr, wind_rect);
