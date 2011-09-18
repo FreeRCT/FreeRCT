@@ -14,6 +14,7 @@
 #include "map.h"
 #include "window.h"
 #include "sprite_store.h"
+#include "input.h"
 
 /**
  * Error handling for fatal non-user errors.
@@ -87,13 +88,40 @@ int main(void)
 				}
 				break;
 
+			case SDL_MOUSEMOTION:
+				_input.MouseMoveEvent(event.motion.x, event.motion.y);
+				break;
+
+			case SDL_MOUSEBUTTONUP:
+			case SDL_MOUSEBUTTONDOWN:
+				switch (event.button.button) {
+					case SDL_BUTTON_WHEELDOWN:
+						_input.MouseMoveEvent(event.button.x, event.button.y);
+						_input.MouseWheelEvent(1);
+						break;
+
+					case SDL_BUTTON_WHEELUP:
+						_input.MouseMoveEvent(event.button.x, event.button.y);
+						_input.MouseWheelEvent(-1);
+						break;
+
+					case SDL_BUTTON_LEFT:
+						_input.MouseMoveEvent(event.button.x, event.button.y);
+						_input.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
+						break;
+
+					default:
+						break;
+				}
+				break;
+
 			case SDL_USEREVENT:
 				break;
 
-			case SDL_VIDEOEXPOSE: {
-				/*UpdateWindows();*/
+			case SDL_VIDEOEXPOSE:
+				vid.MarkDisplayDirty();
+				UpdateWindows();
 				break;
-			}
 
 			case SDL_QUIT:
 				finished = true;
