@@ -113,7 +113,6 @@ public:
 	void AddBlock(RcdBlock *block);
 
 	const Sprite *GetSurfaceSprite(uint type, uint8 slope, uint16 size, ViewOrientation orient);
-	const PaletteData *GetPalette();
 
 	RcdBlock *blocks; ///< List of loaded Rcd data blocks.
 	SurfaceData *surface; ///< Surface data.

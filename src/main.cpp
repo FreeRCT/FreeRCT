@@ -49,7 +49,7 @@ int main(void)
 		fprintf(stderr, "Failed to initialize window, aborting\n");
 		exit(1);
 	}
-	vid.SetPalette(_sprite_store.GetPalette());
+	vid.SetPalette();
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(0);

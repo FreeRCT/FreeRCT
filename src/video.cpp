@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "video.h"
 #include "sprite_store.h"
+#include "palette.h"
 
 /**
  * Default constructor, does nothing, never goes wrong.
@@ -52,21 +53,15 @@ bool VideoSystem::Initialize()
  * Set up the palette for the video surface.
  * @param pd Palette to use.
  */
-void VideoSystem::SetPalette(const PaletteData *pd)
+void VideoSystem::SetPalette()
 {
-	if (pd == NULL) return;
-
 	assert(this->initialized);
 
 	SDL_Color colours[256];
-	/* Colour 0 is black. */
-	colours[0].r = 0;
-	colours[0].g = 0;
-	colours[0].b = 0;
-	for (uint i = 1; i < 256; i++) {
-		colours[i].r = pd->colours[i][0];
-		colours[i].g = pd->colours[i][1];
-		colours[i].b = pd->colours[i][2];
+	for (uint i = 0; i < 256; i++) {
+		colours[i].r = _palette[i][0];
+		colours[i].g = _palette[i][1];
+		colours[i].b = _palette[i][2];
 	}
 	SDL_SetColors(SDL_GetVideoSurface(), colours, 0, 256);
 }

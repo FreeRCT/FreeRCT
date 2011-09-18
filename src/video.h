@@ -27,7 +27,7 @@ public:
 	~VideoSystem();
 
 	bool Initialize();
-	void SetPalette(const PaletteData *pd);
+	void SetPalette();
 	void Shutdown();
 
 	uint16 GetXSize() const;

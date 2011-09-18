@@ -531,17 +531,6 @@ void SpriteStore::AddBlock(RcdBlock *block)
 }
 
 /**
- * Get a palette.
- * @todo Take the right one, instead of a pseudo-random one.
- */
-const PaletteData *SpriteStore::GetPalette()
-{
-	if (this->surface == NULL) return NULL;
-	if (this->surface->surf_orient[VOR_NORTH].non_steep[0] == NULL) return NULL;
-	return this->surface->surf_orient[VOR_NORTH].non_steep[0]->palette;
-}
-
-/**
  * Get a surface sprite.
  * @param type Type of surface.
  * @param slope Slope definition.
