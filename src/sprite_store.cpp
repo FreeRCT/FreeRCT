@@ -189,7 +189,7 @@ PaletteData::PaletteData() : RcdBlock()
 	for (int i = 0; i < 256; i++) {
 		this->colours[i][0] = 0;
 		this->colours[i][1] = 0;
-		this->colours[i][3] = 0;
+		this->colours[i][2] = 0;
 	}
 }
 
@@ -215,14 +215,14 @@ bool PaletteData::Load(RcdFile *rcd_file, size_t length)
 	while (i < count) {
 		this->colours[i][0] = rcd_file->GetUInt8();
 		this->colours[i][1] = rcd_file->GetUInt8();
-		this->colours[i][3] = rcd_file->GetUInt8();
+		this->colours[i][2] = rcd_file->GetUInt8();
 		i++;
 	}
 	/* Clear remaining entries. */
 	while (i < 256) {
 		this->colours[i][0] = 0;
 		this->colours[i][1] = 0;
-		this->colours[i][3] = 0;
+		this->colours[i][2] = 0;
 		i++;
 	}
 
