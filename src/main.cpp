@@ -61,6 +61,8 @@ int main(void)
 	assert(width >= 20 && height >= 20);
 	Viewport *w = new Viewport(5, 5, width - 10, height - 10);
 
+	_input.SetMouseMode(MM_TILE_TERRAFORM);
+
 	bool finished = false;
 	while (!finished) {
 		UpdateWindows();

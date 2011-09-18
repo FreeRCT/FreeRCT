@@ -10,6 +10,7 @@
 /** @file window.h %Window handling functions. */
 
 #include "stdafx.h"
+#include "math_func.h"
 #include "window.h"
 #include "map.h"
 #include "video.h"
@@ -173,6 +174,48 @@ void Viewport::Rotate(int direction)
 {
 	this->orientation = (ViewOrientation)((this->orientation + VOR_NUM_ORIENT + ((direction > 0) ? 1 : -1)) % VOR_NUM_ORIENT);
 	this->MarkDirty();
+}
+
+/**
+ * Move the viewport a number of screen pixels.
+ * @param dx Horizontal shift in screen pixels.
+ * @param dy Vertical shift in screen pixels.
+ */
+void Viewport::MoveViewport(int dx, int dy)
+{
+	int32 new_x, new_y;
+	switch (this->orientation) {
+		case VOR_NORTH:
+			new_x = this->xview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_y = this->yview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			break;
+
+		case VOR_EAST:
+			new_x = this->xview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_y = this->yview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			break;
+
+		case VOR_SOUTH:
+			new_x = this->xview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_y = this->yview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			break;
+
+		case VOR_WEST:
+			new_x = this->xview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_y = this->yview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+
+	new_x = Clamp<int32>(new_x, 0, _world.GetXSize() * 256);
+	new_y = Clamp<int32>(new_y, 0, _world.GetYSize() * 256);
+	if (new_x != this->xview || new_y != this->yview) {
+		this->xview = new_x;
+		this->yview = new_y;
+		this->MarkDirty();
+	}
 }
 
 /**

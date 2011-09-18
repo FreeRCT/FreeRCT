@@ -91,6 +91,7 @@ public:
 	}
 
 	void Rotate(int direction);
+	void MoveViewport(int dx, int dy);
 
 	int32 xview; ///< X position of the center point of the viewport.
 	int32 yview; ///< Y position of the center point of the viewport.

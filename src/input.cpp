@@ -35,6 +35,20 @@ public:
 	GenericInput *manager; ///< Generic input handler.
 };
 
+/** Mouse mode to terraform (single) tiles. */
+class TileMouseMode : public MouseMode {
+public:
+	TileMouseMode(GenericInput *manager);
+
+	virtual void Start();
+	virtual void Stop();
+
+	virtual void MouseMoveEvent(int newx, int newy);
+	virtual void MouseButtonEvent(MouseButtons button, bool pressed);
+
+	bool dragging; ///< Mouse is used for dragging.
+};
+
 /** Default constructor. */
 MouseMode::MouseMode(GenericInput *manager)
 {
@@ -76,6 +90,37 @@ MouseMode::~MouseMode()
 	/* Default mouse mode does not care for mouse buttons. */
 }
 
+
+
+TileMouseMode::TileMouseMode(GenericInput *manager) : MouseMode(manager)
+{
+	this->Start();
+}
+
+/* virtual */ void TileMouseMode::Start()
+{
+	this->dragging = false;
+}
+
+/* virtual */ void TileMouseMode::Stop()
+{
+	this->dragging = false;
+}
+
+/* virtual */ void TileMouseMode::MouseMoveEvent(int newx, int newy)
+{
+	if (this->dragging) {
+		Viewport *w = static_cast<Viewport *>(GetWindowByType(WC_MAINDISPLAY));
+		if (w != NULL) w->MoveViewport(newx - this->manager->mouse_x, newy - this->manager->mouse_y);
+	}
+}
+
+/* virtual */ void TileMouseMode::MouseButtonEvent(MouseButtons button, bool pressed)
+{
+	if (button != MB_LEFT) return;
+	this->dragging = pressed;
+}
+
 GenericInput::GenericInput()
 {
 	this->buttons = MB_NONE;
@@ -94,7 +139,18 @@ GenericInput::~GenericInput()
  */
 void GenericInput::SetMouseMode(MouseModes mode)
 {
+	static TileMouseMode *tile_mode = NULL;
+
 	switch (mode) {
+		case MM_TILE_TERRAFORM:
+			if (tile_mode == NULL) tile_mode = new TileMouseMode(this);
+
+			if (this->handler == tile_mode) return;
+			if (this->handler != NULL) this->handler->Stop();
+			this->handler = tile_mode;
+			this->handler->Start();
+			break;
+
 		default:
 			NOT_REACHED();
 	}
