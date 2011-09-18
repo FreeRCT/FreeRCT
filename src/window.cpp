@@ -215,6 +215,7 @@ VideoSystem *GetVideo()
 /**
  * Add a window to the window stack.
  * @param w Window to add.
+ * @todo Implement Z priorities.
  */
 void WindowManager::AddTostack(Window *w)
 {
@@ -223,6 +224,7 @@ void WindowManager::AddTostack(Window *w)
 
 	w->lower = this->top;
 	w->higher = NULL;
+	this->top = w;
 	if (this->bottom == NULL) this->bottom = w;
 }
 
