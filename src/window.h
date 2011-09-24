@@ -54,40 +54,39 @@ public:
 	virtual void OnDraw();
 
 	/**
-	 * Convert 3D position to a 2D position.
+	 * Convert 3D position to the horizontal 2D position.
 	 * @param x X position in the game world.
 	 * @param y Y position in the game world.
 	 * @param z Z position in the game world.
-	 * @return X and Y position in 2D.
+	 * @return X position in 2D.
 	 */
-	FORCEINLINE Point ComputeXY(int32 x, int32 y, int32 z)
+	FORCEINLINE int32 ComputeX(int32 x, int32 y)
 	{
-		Point p;
 		switch (this->orientation) {
-			case VOR_NORTH:
-				p.x = ((y - x) * this->tile_width / 2) >> 8;
-				p.y = ((x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
-				break;
-
-			case VOR_EAST:
-				p.x = (-(x + y) * this->tile_width / 2) >> 8;
-				p.y = ((y - x) * this->tile_width / 4 - z * this->tile_height) >> 8;
-				break;
-
-			case VOR_SOUTH:
-				p.x = ((x - y) * this->tile_width / 2) >> 8;
-				p.y = (-(x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
-				break;
-
-			case VOR_WEST:
-				p.x = ((x + y) * this->tile_width / 2) >> 8;
-				p.y = ((x - y) * this->tile_width / 4 - z * this->tile_height) >> 8;
-				break;
-
-			default:
-				NOT_REACHED();
+			case VOR_NORTH: return ((y - x)  * this->tile_width / 2) >> 8;
+			case VOR_EAST:  return (-(x + y) * this->tile_width / 2) >> 8;
+			case VOR_SOUTH: return ((x - y)  * this->tile_width / 2) >> 8;
+			case VOR_WEST:  return ((x + y)  * this->tile_width / 2) >> 8;
+			default: NOT_REACHED();
 		}
-		return p;
+	}
+
+	/**
+	 * Convert 3D position to the vertical 2D position.
+	 * @param x X position in the game world.
+	 * @param y Y position in the game world.
+	 * @param z Z position in the game world.
+	 * @return Y position in 2D.
+	 */
+	FORCEINLINE int32 ComputeY(int32 x, int32 y, int32 z)
+	{
+		switch (this->orientation) {
+			case VOR_NORTH: return ((x + y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_EAST:  return ((y - x)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_SOUTH: return (-(x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_WEST:  return ((x - y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			default: NOT_REACHED();
+		}
 	}
 
 	void Rotate(int direction);

@@ -109,10 +109,9 @@ typedef std::multimap<int32, DrawData> DrawImages;
 /** @todo Do this less stupid. Drawing the whole world is not going to work in general. */
 /* virtual */ void Viewport::OnDraw()
 {
-	Point center = this->ComputeXY(this->xview, this->yview, this->zview);
 	Rectangle rect;
-	rect.base.x = center.x - this->width / 2;
-	rect.base.y = center.y - this->height / 2;
+	rect.base.x = this->ComputeX(this->xview, this->yview) - this->width / 2;
+	rect.base.y = this->ComputeY(this->xview, this->yview, this->zview) - this->height / 2;
 	rect.width = this->width;
 	rect.height = this->height;
 
@@ -130,15 +129,22 @@ typedef std::multimap<int32, DrawData> DrawImages;
 
 	for (int xpos = 0; xpos < _world.GetXSize(); xpos++) {
 		for (int ypos = 0; ypos < _world.GetYSize(); ypos++) {
+			int32 north_x = ComputeX(xpos * 256 + dx, ypos * 256 + dy);
+			if (north_x + this->tile_width / 2 <= (int32)rect.base.x) continue; // Right of voxel column is at left of window.
+			if (north_x - this->tile_width / 2 >= (int32)(rect.base.x + this->width)) continue; // Left of the window.
+
 			VoxelStack *stack = _world.GetStack(xpos, ypos);
 			for (int16 count = 0; count < stack->height; count++) {
+				int32 north_y = this->ComputeY(xpos * 256 + dx, ypos * 256 + dy, (stack->base + count) * 256);
+				if (north_y >= (int32)(rect.base.y + this->height)) continue; // Voxel is below the window.
+				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)rect.base.y) break; // Above the window and rising!
+
 				Voxel *v = &stack->voxels[count];
 				if (v->GetType() != VT_SURFACE) continue;
 				Slope sl = v->GetSlope();
 				const Sprite *spr = _sprite_store.GetSurfaceSprite(0, sl, this->tile_width, this->orientation);
 				if (spr == NULL) continue;
-				Point north_corner = this->ComputeXY(xpos * 256 + dx, ypos * 256 + dy, (stack->base + count) * 256);
-				Rectangle spr_rect = Rectangle(north_corner.x + spr->xoffset, north_corner.y + spr->yoffset,
+				Rectangle spr_rect = Rectangle(north_x + spr->xoffset, north_y + spr->yoffset,
 						spr->img_data->width, spr->img_data->height);
 				if (rect.Intersects(spr_rect)) {
 					std::pair<int32, DrawData> p;
