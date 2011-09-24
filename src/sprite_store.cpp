@@ -16,6 +16,29 @@ SpriteStore _sprite_store; ///< Sprite storage.
 
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
+/** %Sprite indices of ground/surface sprites after rotation of the view. */
+static const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
+	{ 0,  0,  0,  0},
+	{ 1,  8,  4,  2},
+	{ 2,  1,  8,  4},
+	{ 3,  9, 12,  6},
+	{ 4,  2,  1,  8},
+	{ 5, 10,  5, 10},
+	{ 6,  3,  9, 12},
+	{ 7, 11, 13, 14},
+	{ 8,  4,  2,  1},
+	{ 9, 12,  6,  3},
+	{10,  5, 10,  5},
+	{11, 13, 14,  7},
+	{12,  6,  3,  9},
+	{13, 14,  7, 11},
+	{14,  7, 11, 13},
+	{15, 18, 17, 16},
+	{16, 15, 18, 17},
+	{17, 16, 15, 18},
+	{18, 17, 16, 15},
+};
+
 
 /** Class representing a RCD file. */
 class RcdFile {
@@ -359,9 +382,7 @@ bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images, cons
 
 SurfaceOrientationSprites::SurfaceOrientationSprites() : RcdBlock()
 {
-	uint i;
-	for (i = 0; i < lengthof(this->non_steep); i++) this->non_steep[i] = NULL;
-	for (i = 0; i < lengthof(this->steep); i++) this->steep[i] = NULL;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
 }
 
 SurfaceOrientationSprites::~SurfaceOrientationSprites()
@@ -386,13 +407,13 @@ SurfaceData::~SurfaceData()
  */
 bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 {
-	if (length != 2 + 2 + 4 * 19 * 4) return false;
+	if (length != 2 + 2 + 4 * NUM_SLOPE_SPRITES * 4) return false;
 
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
 
 	for (uint orient = VOR_NORTH; orient < VOR_NUM_ORIENT; orient++) {
-		for (uint sprnum = 0; sprnum < 19; sprnum++) {
+		for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
 			uint32 val = rcd_file->GetUInt32();
 			Sprite *spr;
 			if (val == 0) {
@@ -402,11 +423,7 @@ bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprite
 				if (iter == sprites.end()) return false;
 				spr = (*iter).second;
 			}
-			if (sprnum < 15) {
-				this->surf_orient[orient].non_steep[sprnum] = spr;
-			} else {
-				this->surf_orient[orient].steep[sprnum - 15] = spr;
-			}
+			this->surf_orient[orient].sprites[sprnum] = spr;
 		}
 	}
 	return true;
@@ -533,23 +550,17 @@ void SpriteStore::AddBlock(RcdBlock *block)
 /**
  * Get a surface sprite.
  * @param type Type of surface.
- * @param slope Slope definition.
+ * @param surf_spr Surface sprite index.
  * @param size Sprite size.
  * @param orient Orientation.
  * @return Requested sprite if available.
  * @todo Steep handling is sub-optimal, perhaps use #TC_NORTH,  #TC_EAST, #TC_SOUTH, #TC_WEST instead of a bit encoding?
  */
-const Sprite *SpriteStore::GetSurfaceSprite(uint type, uint8 slope, uint16 size, ViewOrientation orient)
+const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 size, ViewOrientation orient)
 {
 	if (!this->surface) return NULL;
 	if (this->surface->width != size) return NULL;
-	if ((slope & TCB_STEEP) == 0) {
-		assert(slope < 15);
-		return this->surface->surf_orient[orient].non_steep[slope];
-	}
-	if ((slope & TCB_NORTH) != 0) return this->surface->surf_orient[orient].steep[TC_NORTH];
-	if ((slope & TCB_EAST)  != 0) return this->surface->surf_orient[orient].steep[TC_EAST];
-	if ((slope & TCB_WEST)  != 0) return this->surface->surf_orient[orient].steep[TC_WEST];
-	return this->surface->surf_orient[orient].steep[TC_SOUTH];
+
+	return this->surface->surf_orient[0].sprites[_slope_rotation[surf_spr][orient]];
 }
 

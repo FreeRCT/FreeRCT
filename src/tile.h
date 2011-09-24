@@ -25,6 +25,8 @@
 #ifndef TILE_H
 #define TILE_H
 
+#include "enum_type.h"
+
 /**
  * Slope description of a surface tile.
  * If not #TCB_STEEP, at most three of the four #TCB_NORTH, #TCB_EAST,
@@ -47,7 +49,34 @@ enum Slope {
 
 	TCB_STEEP = 1 << TC_STEEP, ///< Bit denoting it is a steep slope.
 };
+DECLARE_ENUM_AS_BIT_SET(Slope)
 
+static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a surface tile.
+
+/**
+ * Expand a slope sprite number to its bit-encoded form for easier manipulating.
+ * @param v %Sprite slope number.
+ * @return Expanded slope.
+ */
+FORCEINLINE Slope ExpandSlope(uint8 v)
+{
+	if (v < 15) return (Slope)v;
+	return TCB_STEEP | (Slope)(1 << (v-15));
+}
+
+/**
+ * Implode an expanded slope back to its sprite number.
+ * @param s Expanded slope to implode.
+ * @return Equivalent sprite number.
+ */
+FORCEINLINE uint8 ImplodeSlope(Slope s)
+{
+	if ((s & TCB_STEEP) == 0) return s;
+	if ((s & TCB_NORTH) != 0) return 15;
+	if ((s & TCB_EAST)  != 0) return 16;
+	if ((s & TCB_SOUTH) != 0) return 17;
+	return 18;
+}
 
 #endif
 

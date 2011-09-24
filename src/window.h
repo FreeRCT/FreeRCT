@@ -64,9 +64,9 @@ public:
 	{
 		switch (this->orientation) {
 			case VOR_NORTH: return ((y - x)  * this->tile_width / 2) >> 8;
-			case VOR_EAST:  return (-(x + y) * this->tile_width / 2) >> 8;
+			case VOR_WEST:  return (-(x + y) * this->tile_width / 2) >> 8;
 			case VOR_SOUTH: return ((x - y)  * this->tile_width / 2) >> 8;
-			case VOR_WEST:  return ((x + y)  * this->tile_width / 2) >> 8;
+			case VOR_EAST:  return ((x + y)  * this->tile_width / 2) >> 8;
 			default: NOT_REACHED();
 		}
 	}
@@ -82,9 +82,9 @@ public:
 	{
 		switch (this->orientation) {
 			case VOR_NORTH: return ((x + y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
-			case VOR_EAST:  return ((y - x)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_WEST:  return ((y - x)  * this->tile_width / 4 - z * this->tile_height) >> 8;
 			case VOR_SOUTH: return (-(x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
-			case VOR_WEST:  return ((x - y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_EAST:  return ((x - y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
 			default: NOT_REACHED();
 		}
 	}

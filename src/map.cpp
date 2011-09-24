@@ -122,7 +122,7 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
 		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
 			Voxel *v = GetVoxel(xpos, ypos, z, true);
-			v->SetSurface(SL_FLAT);
+			v->SetSurfaceSprite(ImplodeSlope(SL_FLAT));
 		}
 	}
 }
@@ -137,18 +137,18 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 void VoxelWorld::MakeBump(uint16 x, uint16 y, int16 z)
 {
 	Voxel *v;
-	v = GetVoxel(x-1, y-1, z,   true); v->SetSurface(TCB_SOUTH);
-	v = GetVoxel(x-1, y,   z,   true); v->SetSurface((Slope)(TCB_SOUTH | TCB_WEST));
-	v = GetVoxel(x-1, y+1, z,   true); v->SetSurface(TCB_WEST);
-	v = GetVoxel(x,   y-1, z,   true); v->SetSurface((Slope)(TCB_SOUTH | TCB_EAST));
-	v = GetVoxel(x,   y,   z+1, true); v->SetSurface(SL_FLAT);
-	v = GetVoxel(x,   y+1, z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_WEST));
-	v = GetVoxel(x+1, y-1, z,   true); v->SetSurface((Slope)(TCB_SOUTH | TCB_EAST));
-	v = GetVoxel(x+1, y,   z+1, true); v->SetSurface(SL_FLAT);
-	v = GetVoxel(x+1, y+1, z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_WEST));
-	v = GetVoxel(x+2, y-1, z,   true); v->SetSurface(TCB_EAST);
-	v = GetVoxel(x+2, y,   z,   true); v->SetSurface((Slope)(TCB_NORTH | TCB_EAST));
-	v = GetVoxel(x+2, y+1, z,   true); v->SetSurface(TCB_NORTH);
+	v = GetVoxel(x-1, y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH));
+	v = GetVoxel(x-1, y,   z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH | TCB_WEST));
+	v = GetVoxel(x-1, y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_WEST));
+	v = GetVoxel(x,   y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH | TCB_EAST));
+	v = GetVoxel(x,   y,   z+1, true); v->SetSurfaceSprite(ImplodeSlope(SL_FLAT));
+	v = GetVoxel(x,   y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH | TCB_WEST));
+	v = GetVoxel(x+1, y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH | TCB_EAST));
+	v = GetVoxel(x+1, y,   z+1, true); v->SetSurfaceSprite(ImplodeSlope(SL_FLAT));
+	v = GetVoxel(x+1, y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH | TCB_WEST));
+	v = GetVoxel(x+2, y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_EAST));
+	v = GetVoxel(x+2, y,   z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH | TCB_EAST));
+	v = GetVoxel(x+2, y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH));
 
 	v = GetVoxel(x, y, z, true); v->SetEmpty();
 	v = GetVoxel(x+1, y, z, true); v->SetEmpty();

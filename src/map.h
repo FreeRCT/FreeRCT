@@ -54,21 +54,22 @@ public:
 	}
 
 	/**
-	 * Get the slope of the surface.
+	 * Get the slope sprite of the surface.
 	 * @return Surface slope.
 	 */
-	FORCEINLINE Slope GetSlope() const {
-		return (Slope)this->slope;
+	FORCEINLINE uint8 GetSurfaceSprite() const {
+		return this->surface;
 	}
 
 	/**
 	 * Set the voxel to a surface type.
-	 * @param slope %Slope of the surface.
+	 * @param slope_spr %Slope sprite of the surface.
 	 */
-	FORCEINLINE void SetSurface(Slope slope)
+	FORCEINLINE void SetSurfaceSprite(uint8 slope_spr)
 	{
+		assert(slope_spr < NUM_SLOPE_SPRITES);
 		this->type = VT_SURFACE;
-		this->slope = slope;
+		this->surface = slope_spr;
 	}
 
 	/** Set the voxel to empty. */
@@ -80,8 +81,8 @@ public:
 	void AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, int ypos, int zpos, int32 north_x, int32 north_y, DrawImages &draw_images);
 
 protected:
-	uint32 type: 2;  ///< Type of the voxel. @see VoxelType
-	uint32 slope: 5; ///< Slope of the tile.
+	uint8 type;      ///< Type of the voxel. @see VoxelType
+	uint8 surface;   ///< Slope sprite of the tile.
 };
 
 

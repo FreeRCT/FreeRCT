@@ -123,8 +123,7 @@ void Voxel::AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, i
 
 	if (this->GetType() != VT_SURFACE) return;
 
-	Slope sl = this->GetSlope();
-	const Sprite *spr = _sprite_store.GetSurfaceSprite(0, sl, vport->tile_width, vport->orientation);
+	const Sprite *spr = _sprite_store.GetSurfaceSprite(0, this->GetSurfaceSprite(), vport->tile_width, vport->orientation);
 	if (spr == NULL) return;
 
 	Rectangle spr_rect = Rectangle(north_x + spr->xoffset, north_y + spr->yoffset, spr->img_data->width, spr->img_data->height);
@@ -215,8 +214,8 @@ void Viewport::MoveViewport(int dx, int dy)
 			break;
 
 		case VOR_EAST:
-			new_x = this->xview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			new_y = this->yview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_x = this->xview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_y = this->yview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
 			break;
 
 		case VOR_SOUTH:
@@ -225,8 +224,8 @@ void Viewport::MoveViewport(int dx, int dy)
 			break;
 
 		case VOR_WEST:
-			new_x = this->xview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			new_y = this->yview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_x = this->xview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_y = this->yview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
 			break;
 
 		default:
