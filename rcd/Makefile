@@ -12,6 +12,6 @@ PYTHON=python
 
 build: groundsprites.rcd
 
-groundsprites.rcd: make_groundsprites.py ../sprites/GroundTileTemplate64px_8bpp.png
-	$(PYTHON) make_groundsprites.py
+groundsprites.rcd: grass_tile0.py ../sprites/GroundTileTemplate64px_8bpp.png
+	$(PYTHON) grass_tile0.py
 

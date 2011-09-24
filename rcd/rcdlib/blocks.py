@@ -23,9 +23,9 @@ class Block(object):
 
         assert len(name) == 4
 
-    def write(self, output):
-        output.store_text(self.name)
-        output.uint32(self.version)
+    def write(self, out):
+        out.store_text(self.name)
+        out.uint32(self.version)
 
 
 class FileHeader(Block):
@@ -43,9 +43,9 @@ class DataBlock(Block):
     def __init__(self, name, version):
         Block.__init__(self, name, version)
 
-    def write(self, output):
-        Block.write(self, output)
-        output.uint32(self.get_size())
+    def write(self, out):
+        Block.write(self, out)
+        out.uint32(self.get_size())
 
     def get_size(self):
         """
@@ -96,13 +96,13 @@ class Palette8Bpp(DataBlock):
         assert len(self.rgbs) >= 1 and len(self.rgbs) <= 256
         return 2 + 3 * len(self.rgbs)
 
-    def write(self, output):
-        DataBlock.write(self, output)
-        output.uint16(len(self.rgbs))
+    def write(self, out):
+        DataBlock.write(self, out)
+        out.uint16(len(self.rgbs))
         for r,g,b in self.rgbs:
-            output.uint8(r)
-            output.uint8(g)
-            output.uint8(b)
+            out.uint8(r)
+            out.uint8(g)
+            out.uint8(b)
 
 class Pixels8Bpp(DataBlock):
     """
@@ -131,20 +131,20 @@ class Pixels8Bpp(DataBlock):
 
         return 2 + 2 + 4 * self.height + total
 
-    def write(self, output):
+    def write(self, out):
         assert len(self.line_data) == self.height
-        DataBlock.write(self, output)
-        output.uint16(self.width)
-        output.uint16(self.height)
+        DataBlock.write(self, out)
+        out.uint16(self.width)
+        out.uint16(self.height)
         offset = 4 * self.height
         for line in self.line_data:
             if line is not None:
-                output.uint32(offset)
+                out.uint32(offset)
                 offset = offset + len(line)
             else:
-                output.uint32(0)
+                out.uint32(0)
         for line in self.line_data:
-            output.store_text(line)
+            out.store_text(line)
 
     def is_equal(self, other):
         return self.width == other.width and self.height == other.height \
@@ -164,12 +164,12 @@ class Sprite(DataBlock):
     def get_size(self):
         return 2+2+4+4
 
-    def write(self, output):
-        DataBlock.write(self, output)
-        output.int16(self.xoff)
-        output.int16(self.yoff)
-        output.uint32(self.img_block)
-        output.uint32(self.palette_block)
+    def write(self, out):
+        DataBlock.write(self, out)
+        out.int16(self.xoff)
+        out.int16(self.yoff)
+        out.uint32(self.img_block)
+        out.uint32(self.palette_block)
 
     def is_equal(self, other):
         return self.xoff == other.xoff and self.yoff == other.yoff \
@@ -199,25 +199,25 @@ class Surface(DataBlock):
     def get_size(self):
         return 2 + 2 + 4*19*4
 
-    def write(self, output):
-        DataBlock.write(self, output)
-        output.uint16(self.tile_width)
-        output.uint16(self.z_height)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('n')],
-                          output)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('e')],
-                          output)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('s')],
-                          output)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('w')],
-                          output)
+    def write(self, out):
+        DataBlock.write(self, out)
+        out.uint16(self.tile_width)
+        out.uint16(self.z_height)
+        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('n')], out)
+        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('e')], out)
+        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('s')], out)
+        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('w')], out)
+        #['', 'n', 'e', 'en', 's', 'ns', 'es', 'ens', 'w', 'nw', 'ew', 'enw', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
+        #['', 'e', 's', 'es', 'w', 'ew', 'sw', 'esw', 'n', 'en', 'ns', 'ens', 'nw', 'enw', 'nsw', 'E', 'S', 'W', 'N']
+        #['', 's', 'w', 'sw', 'n', 'ns', 'nw', 'nsw', 'e', 'es', 'ew', 'esw', 'en', 'ens', 'enw', 'S', 'W', 'N', 'E']
+        #['', 'w', 'n', 'nw', 'e', 'ew', 'en', 'enw', 's', 'sw', 'ns', 'nsw', 'es', 'esw', 'ens', 'W', 'N', 'E', 'S']
 
-    def write_blocks(self, blocks, output):
+    def write_blocks(self, blocks, out):
         for block in blocks:
             if block is None:
-                output.uint32(0)
+                out.uint32(0)
             else:
-                output.uint32(block)
+                out.uint32(block)
 
 
     def spr_names(self, orientation = 'n'):
