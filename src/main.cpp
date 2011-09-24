@@ -68,69 +68,69 @@ int main(void)
 		UpdateWindows();
 
 		SDL_Event event;
-		if (SDL_WaitEvent(&event) != 1) break; // Error detected while waiting.
+		while (!finished && SDL_PollEvent(&event)) {
+			switch(event.type) {
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym) {
+						case SDLK_q:
+							finished = true;
+							break;
 
-		switch(event.type) {
-			case SDL_KEYDOWN:
-				switch (event.key.keysym.sym) {
-					case SDLK_q:
-						finished = true;
-						break;
+						case SDLK_LEFT:
+							w->Rotate(-1);
+							break;
 
-					case SDLK_LEFT:
-						w->Rotate(-1);
-						break;
+						case SDLK_RIGHT:
+							w->Rotate(1);
+							break;
 
-					case SDLK_RIGHT:
-						w->Rotate(1);
-						break;
+						default:
+							break;
+					}
+					break;
 
-					default:
-						break;
-				}
-				break;
+				case SDL_MOUSEMOTION:
+					_input.MouseMoveEvent(event.motion.x, event.motion.y);
+					break;
 
-			case SDL_MOUSEMOTION:
-				_input.MouseMoveEvent(event.motion.x, event.motion.y);
-				break;
+				case SDL_MOUSEBUTTONUP:
+				case SDL_MOUSEBUTTONDOWN:
+					switch (event.button.button) {
+						case SDL_BUTTON_WHEELDOWN:
+							_input.MouseMoveEvent(event.button.x, event.button.y);
+							_input.MouseWheelEvent(1);
+							break;
 
-			case SDL_MOUSEBUTTONUP:
-			case SDL_MOUSEBUTTONDOWN:
-				switch (event.button.button) {
-					case SDL_BUTTON_WHEELDOWN:
-						_input.MouseMoveEvent(event.button.x, event.button.y);
-						_input.MouseWheelEvent(1);
-						break;
+						case SDL_BUTTON_WHEELUP:
+							_input.MouseMoveEvent(event.button.x, event.button.y);
+							_input.MouseWheelEvent(-1);
+							break;
 
-					case SDL_BUTTON_WHEELUP:
-						_input.MouseMoveEvent(event.button.x, event.button.y);
-						_input.MouseWheelEvent(-1);
-						break;
+						case SDL_BUTTON_LEFT:
+							_input.MouseMoveEvent(event.button.x, event.button.y);
+							_input.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
+							break;
 
-					case SDL_BUTTON_LEFT:
-						_input.MouseMoveEvent(event.button.x, event.button.y);
-						_input.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
-						break;
+						default:
+							break;
+					}
+					break;
 
-					default:
-						break;
-				}
-				break;
+				case SDL_USEREVENT:
+					break;
 
-			case SDL_USEREVENT:
-				break;
+				case SDL_VIDEOEXPOSE:
+					vid.MarkDisplayDirty();
+					UpdateWindows();
+					break;
 
-			case SDL_VIDEOEXPOSE:
-				vid.MarkDisplayDirty();
-				UpdateWindows();
-				break;
+				case SDL_QUIT:
+					finished = true;
+					break;
 
-			case SDL_QUIT:
-				finished = true;
-				break;
-
-			default:
-				break; // Ignore other events.
+				default:
+					break; // Ignore other events.
+			}
 		}
 	}
 
