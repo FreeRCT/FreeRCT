@@ -49,7 +49,7 @@ struct Rectangle {
 	 * @param rect Other rectangle.
 	 * @return Rectangles intersect with each other.
 	 */
-	bool Intersects(const Rectangle &rect)
+	bool Intersects(const Rectangle &rect) const
 	{
 		if (rect.base.x >= this->base.x + this->width) return false;
 		if (rect.base.x + rect.width <= this->base.x) return false;

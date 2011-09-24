@@ -14,9 +14,8 @@
 #include "window.h"
 #include "map.h"
 #include "video.h"
+#include "palette.h"
 #include "sprite_store.h"
-
-#include <map>
 
 /**
  * %Window manager class, manages the window stack.
@@ -101,10 +100,44 @@ struct DrawData {
 };
 
 /**
- * Map of distance to image.
- * Used for temporary sorting and storage of images drawn at the viewport.
+ * Add sprites of the voxel to the set of sprites to draw.
+ * @param vport %Viewport being drawn.
+ * @param 2D rectangle of the visible area relative to the center point of \a vport.
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param north_x X coordinate of the voxel base 2D position.
+ * @param north_y Y coordinate of the voxel base 2D position.
+ * @param draw_images [inout] Collected sprites to draw so far.
  */
-typedef std::multimap<int32, DrawData> DrawImages;
+void Voxel::AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, int ypos, int zpos, int32 north_x, int32 north_y, DrawImages &draw_images)
+{
+	int sx, sy; // Direction of x and y in sorting.
+	switch (vport->orientation) {
+		case VOR_NORTH: sx =  1; sy =  1; break;
+		case VOR_EAST:  sx =  1; sy = -1; break;
+		case VOR_SOUTH: sx = -1; sy = -1; break;
+		case VOR_WEST:  sx = -1; sy =  1; break;
+		default:        NOT_REACHED();
+	}
+
+	if (this->GetType() != VT_SURFACE) return;
+
+	Slope sl = this->GetSlope();
+	const Sprite *spr = _sprite_store.GetSurfaceSprite(0, sl, vport->tile_width, vport->orientation);
+	if (spr == NULL) return;
+
+	Rectangle spr_rect = Rectangle(north_x + spr->xoffset, north_y + spr->yoffset, spr->img_data->width, spr->img_data->height);
+	if (rect.Intersects(spr_rect)) {
+		std::pair<int32, DrawData> p;
+		p.first = sx * xpos * 256 + sy * ypos * 256 + zpos * 256;
+		p.second.spr = spr;
+		p.second.base.x = spr_rect.base.x - rect.base.x + vport->x;
+		p.second.base.y = spr_rect.base.y - rect.base.y + vport->y;
+		draw_images.insert(p);
+	}
+}
+
 
 /** @todo Do this less stupid. Drawing the whole world is not going to work in general. */
 /* virtual */ void Viewport::OnDraw()
@@ -118,12 +151,11 @@ typedef std::multimap<int32, DrawData> DrawImages;
 	DrawImages draw_images;
 
 	int dx, dy; // Offset of the 'north' corner of a view relative to the real north corner.
-	int sx, sy; // Direction of x and y in sorting.
 	switch (this->orientation) {
-		case VOR_NORTH: dx = 0;   dy = 0;   sx =  1; sy =  1; break;
-		case VOR_EAST:  dx = 0;   dy = 256; sx =  1; sy = -1; break;
-		case VOR_SOUTH: dx = 256; dy = 256; sx = -1; sy = -1; break;
-		case VOR_WEST:  dx = 256; dy = 0;   sx = -1; sy =  1; break;
+		case VOR_NORTH: dx = 0;   dy = 0;   break;
+		case VOR_EAST:  dx = 0;   dy = 256; break;
+		case VOR_SOUTH: dx = 256; dy = 256; break;
+		case VOR_WEST:  dx = 256; dy = 0;   break;
 		default:        NOT_REACHED();
 	}
 
@@ -139,21 +171,7 @@ typedef std::multimap<int32, DrawData> DrawImages;
 				if (north_y >= (int32)(rect.base.y + this->height)) continue; // Voxel is below the window.
 				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)rect.base.y) break; // Above the window and rising!
 
-				Voxel *v = &stack->voxels[count];
-				if (v->GetType() != VT_SURFACE) continue;
-				Slope sl = v->GetSlope();
-				const Sprite *spr = _sprite_store.GetSurfaceSprite(0, sl, this->tile_width, this->orientation);
-				if (spr == NULL) continue;
-				Rectangle spr_rect = Rectangle(north_x + spr->xoffset, north_y + spr->yoffset,
-						spr->img_data->width, spr->img_data->height);
-				if (rect.Intersects(spr_rect)) {
-					std::pair<int32, DrawData> p;
-					p.first = sx * xpos * 256 + sy * ypos * 256 + (stack->base + count) * 256;
-					p.second.spr = spr;
-					p.second.base.x = spr_rect.base.x - rect.base.x + this->x;
-					p.second.base.y = spr_rect.base.y - rect.base.y + this->y;
-					draw_images.insert(p);
-				}
+				stack->voxels[count].AddSprites(this, rect, xpos, ypos, stack->base + count, north_x, north_y, draw_images);
 			}
 		}
 	}
@@ -163,7 +181,7 @@ typedef std::multimap<int32, DrawData> DrawImages;
 	VideoSystem *vid = GetVideo();
 	vid->LockSurface();
 
-	vid->FillSurface(0); // Black background.
+	vid->FillSurface(COL_BACKGROUND); // Black background.
 
 	for (DrawImages::const_iterator iter = draw_images.begin(); iter != draw_images.end(); iter++) {
 		vid->BlitImage((*iter).second.base, (*iter).second.spr, wind_rect);
