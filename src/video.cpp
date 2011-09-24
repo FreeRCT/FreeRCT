@@ -134,14 +134,15 @@ void VideoSystem::UnlockSurface()
 /**
  * Fill the entire surface with a single colour.
  * @param colour Colour to fill with.
+ * @pre Surface must be locked.
  */
 void VideoSystem::FillSurface(uint8 colour)
 {
 	SDL_Surface *s = SDL_GetVideoSurface();
+	uint8 *pixels = (uint8 *)s->pixels;
 	for (int y = 0; y < s->h; y++) {
-		for (int x = 0; x < s->w; x++) {
-			((uint8 *)(s->pixels))[x + s->pitch * y] = colour;
-		}
+		memset(pixels, colour, s->w);
+		pixels += s->pitch;
 	}
 }
 
@@ -151,6 +152,7 @@ void VideoSystem::FillSurface(uint8 colour)
  * @param img_base Base coordinate of the sprite data.
  * @param spr The sprite to blit.
  * @param rect Coordinates to stay within.
+ * @pre Surface must be locked.
  */
 void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr, const Rectangle & rect)
 {
