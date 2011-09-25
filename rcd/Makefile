@@ -10,8 +10,18 @@ PYTHON=python
 
 .PHONY: build
 
-build: groundsprites.rcd
+build: borderhighlight_8bpp64.rcd cornerhighlight_8bb64.rcd \
+	foundation_8bpp64.rcd groundtile_8bpp64.rcd
 
-groundsprites.rcd: grass_tile0.py ../sprites/GroundTileTemplate64px_8bpp.png
-	$(PYTHON) grass_tile0.py
+borderhighlight_8bpp64.rcd: borderhighlight_8bpp64.py ../sprites/borderhighlight8bpp64_masked.png
+	$(PYTHON) borderhighlight_8bpp64.py
 
+foundation_8bpp64.rcd: foundation_8bpp64.py ../sprites/foundationtemplate8bpp64_masked.png
+	$(PYTHON) foundation_8bpp64.py
+
+groundtile_8bpp64.rcd: groundtile_8bpp64.py ../sprites/groundtiletemplatetemplate8bpp64_masked.png
+	$(PYTHON) groundtile_8bpp64.py
+
+cornerhighlight_8bb64.rcd: cornerhighlight_8bb64.py ../sprites/cornerhighlight8bpp64_masked.png
+	$(PYTHON) cornerhighlight_8bb64.py --output cornerhighlight_8bb64.rcd \
+		../sprites/cornerhighlight8bpp64_masked.png

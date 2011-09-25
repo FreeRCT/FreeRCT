@@ -7,19 +7,34 @@
 #
 from rcdlib import spritegrid, blocks
 
-std_layout = [['',   '',   '',   ''   ],
-              ['n',  'e',  's',  'w'  ],
-              ['ne', 'es', 'sw', 'nw' ],
-              ['ns', 'ew', 'ns', 'ew' ],
-              ['nes','esw','nsw','new'],
-              ['N',  'E',  'S',  'W']]
-
-GRASS = 16
-SAND  = 32
+std_layout = [['n#',   'e#',   's#',   'w#'   ],
+              ['n#n',  'e#e',  's#s',  'w#w'  ],
+              ['n#ne', 'e#es', 's#sw', 'w#nw' ],
+              ['n#ns', 'e#ew', 's#ns', 'w#ew' ],
+              ['n#nes','e#esw','s#nsw','w#new'],
+              ['n#N',  'e#E',  's#S',  'w#W'],
+              ['e#',   's#',   'w#',   'n#'   ],
+              ['e#n',  's#e',  'w#s',  'n#w'  ],
+              ['e#ne', 's#es', 'w#sw', 'n#nw' ],
+              ['e#ns', 's#ew', 'w#ns', 'n#ew' ],
+              ['e#nes','s#esw','w#nsw','n#new'],
+              ['e#N',  's#E',  'w#S',  'n#W'],
+              ['s#',   'w#',   'n#',   'e#'   ],
+              ['s#n',  'w#e',  'n#s',  'e#w'  ],
+              ['s#ne', 'w#es', 'n#sw', 'e#nw' ],
+              ['s#ns', 'w#ew', 'n#ns', 'e#ew' ],
+              ['s#nes','w#esw','n#nsw','e#new'],
+              ['s#N',  'w#E',  'n#S',  'e#W'],
+              ['w#',   'n#',   'e#',   's#'   ],
+              ['w#n',  'n#e',  'e#s',  's#w'  ],
+              ['w#ne', 'n#es', 'e#sw', 's#nw' ],
+              ['w#ns', 'n#ew', 'e#ns', 's#ew' ],
+              ['w#nes','n#esw','e#nsw','s#new'],
+              ['w#N',  'n#E',  'e#S',  's#W']]
 
 def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     """
-    Split the ground tiles sprite into pieces.
+    Split the corner tiles sprite into pieces.
 
     @param fname: Image file name.
     @type  fname: C{str}
@@ -50,7 +65,7 @@ def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     return images
 
 
-def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
+def write_cornerselectRCD(images, tile_width, tile_height, dest_fname):
     """
     Write an RCD file with ground sprites.
 
@@ -63,9 +78,6 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
     @param tile_height: Height of a Z level in pixels.
     @type  tile_height: C{int}
 
-    @param ground_type: Type of ground.
-    @type  ground_type: C{int}
-
     @param dest_fname: Name of RCD file to write.
     @type  dest_fname: C{str}
     """
@@ -73,7 +85,7 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
 
     spr = {} # name -> sprite block number
     for name, img_obj in images.iteritems():
-        print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
+        print "%6s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
         pix_blknum = file_data.add_block(pxl_blk)
@@ -81,9 +93,13 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
         spr[name] = file_data.add_block(spr_blk)
 
     needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
-    spr_blocks = [spr[name] for name in needed]
-    surf = blocks.Surface(tile_width, tile_height, ground_type, spr_blocks)
-    file_data.add_block(surf)
+    tcor = blocks.CornerTile(tile_width, tile_height)
+    for d in 'nesw':
+        for n in needed:
+            name = '%s#%s' % (d, n)
+            tcor.set_value(name, spr[name])
+
+    file_data.add_block(tcor)
 
     file_data.to_file(dest_fname)
 

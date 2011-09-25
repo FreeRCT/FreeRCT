@@ -7,6 +7,8 @@
 #
 from rcdlib import output
 
+needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
+
 class Block(object):
     """
     A block in the rcd file (base class).
@@ -71,6 +73,93 @@ class DataBlock(Block):
         @return Equality between self and other.
         """
         raise NotImplementedError("Implement me in %s" % type(self))
+
+class GeneralDataBlock(Block):
+    """
+    General data block class.
+    """
+    def __init__(self, name, version, fields, values):
+        Block.__init__(self, name, version)
+        self.fields = fields
+        self.values = values
+
+    def write(self, out):
+        Block.write(self, out)
+        out.uint32(self.get_size())
+        for fldname, fldtype in self.fields:
+            if fldtype == 'int16':
+                out.int16(self.values[fldname])
+            elif fldtype == 'uint16':
+                out.uint16(self.values[fldname])
+            elif fldtype == 'uint32':
+                out.uint32(self.values[fldname])
+            elif fldtype == 'block':
+                out.uint32(self.values[fldname])
+            else:
+                assert False # Unknown field type.
+
+    def get_size(self):
+        """
+        Compute size of the block, and return it to the caller.
+        """
+        sizes = {'int16':2, 'uint16':2, 'uint32':4, 'block':4}
+        total = 0
+        for fldname, fldtype in self.fields:
+            total = total + sizes[fldtype]
+        return total
+
+    def __cmp__(self, other):
+        raise NotImplementedError("No general comparison available, only equality!")
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+        return self.is_equal(other)
+
+    def is_equal(self, other):
+        """
+        Check whether you are the same as L{other}.
+        @pre Classes are the same.
+        @return Equality between self and other.
+        """
+        for fldname, fldtype in self.fields:
+            if self.values[fldname] != other.values[fldname]:
+                return False
+        return True
+
+    def set_value(self, name, val):
+        self.values[name] = val
+
+class Foundation(GeneralDataBlock):
+    def __init__(self, found_type, tile_width, tile_height):
+        fields = [('found_type', 'uint16'),
+                  ('tile_width', 'uint16'),
+                  ('tile_height', 'uint16'),
+                  ('se_e', 'block'),
+                  ('se_s', 'block'),
+                  ('se_se', 'block'),
+                  ('sw_s', 'block'),
+                  ('sw_w', 'block'),
+                  ('sw_sw', 'block')]
+        values = {'found_type': found_type,
+                  'tile_width': tile_width,
+                  'tile_height': tile_height}
+        GeneralDataBlock.__init__(self, 'FUND', 1, fields, values)
+
+class CornerTile(GeneralDataBlock):
+    def __init__(self, tile_width, tile_height):
+        fields = [('tile_width', 'uint16'),
+                  ('tile_height', 'uint16')]
+        fields.extend([('n#'+n, 'block') for n in needed])
+        fields.extend([('e#'+n, 'block') for n in needed])
+        fields.extend([('s#'+n, 'block') for n in needed])
+        fields.extend([('w#'+n, 'block') for n in needed])
+        values = {'tile_width': tile_width,
+                  'tile_height': tile_height}
+        GeneralDataBlock.__init__(self, 'TCOR', 1, fields, values)
 
 
 class Palette8Bpp(DataBlock):
@@ -144,7 +233,8 @@ class Pixels8Bpp(DataBlock):
             else:
                 out.uint32(0)
         for line in self.line_data:
-            out.store_text(line)
+            if line is not None:
+                out.store_text(line)
 
     def is_equal(self, other):
         return self.width == other.width and self.height == other.height \
@@ -154,63 +244,45 @@ class Sprite(DataBlock):
     """
     SPRT data block.
     """
-    def __init__(self, xoff, yoff, img_block, palette_block):
-        DataBlock.__init__(self, 'SPRT', 1)
+    def __init__(self, xoff, yoff, img_block):
+        DataBlock.__init__(self, 'SPRT', 2)
         self.xoff = xoff # signed
         self.yoff = yoff # signed
         self.img_block = img_block
-        self.palette_block = palette_block
 
     def get_size(self):
-        return 2+2+4+4
+        return 2+2+4
 
     def write(self, out):
         DataBlock.write(self, out)
         out.int16(self.xoff)
         out.int16(self.yoff)
         out.uint32(self.img_block)
-        out.uint32(self.palette_block)
 
     def is_equal(self, other):
         return self.xoff == other.xoff and self.yoff == other.yoff \
-                and self.img_block == other.img_block \
-                and self.palette_block == other.palette_block
+                and self.img_block == other.img_block
 
 class Surface(DataBlock):
     """
     Game block 'SURF'
     """
-    def __init__(self, tile_width, z_height):
-        DataBlock.__init__(self, 'SURF', 1)
+    def __init__(self, tile_width, z_height, ground_type, sprites):
+        DataBlock.__init__(self, 'SURF', 3)
         self.tile_width = tile_width
         self.z_height = z_height
-        self.sprites = dict((self.sort_name(x), None) for x in self.spr_names())
-
-    def add_sprite(self, name, spr_block):
-        name = self.sort_name(name)
-        assert name in self.sprites
-        self.sprites[name] = spr_block
-
-    def sort_name(self, name):
-        tmp = list(name)
-        tmp.sort()
-        return ''.join(tmp)
+        self.ground_type = ground_type
+        self.sprites = sprites
 
     def get_size(self):
-        return 2 + 2 + 4*19*4
+        return 2 + 2 + 2 + 19*4
 
     def write(self, out):
         DataBlock.write(self, out)
         out.uint16(self.tile_width)
         out.uint16(self.z_height)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('n')], out)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('e')], out)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('s')], out)
-        self.write_blocks([self.sprites[self.sort_name(name)] for name in self.spr_names('w')], out)
-        #['', 'n', 'e', 'en', 's', 'ns', 'es', 'ens', 'w', 'nw', 'ew', 'enw', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
-        #['', 'e', 's', 'es', 'w', 'ew', 'sw', 'esw', 'n', 'en', 'ns', 'ens', 'nw', 'enw', 'nsw', 'E', 'S', 'W', 'N']
-        #['', 's', 'w', 'sw', 'n', 'ns', 'nw', 'nsw', 'e', 'es', 'ew', 'esw', 'en', 'ens', 'enw', 'S', 'W', 'N', 'E']
-        #['', 'w', 'n', 'nw', 'e', 'ew', 'en', 'enw', 's', 'sw', 'ns', 'nsw', 'es', 'esw', 'ens', 'W', 'N', 'E', 'S']
+        out.uint16(self.ground_type)
+        self.write_blocks(self.sprites, out)
 
     def write_blocks(self, blocks, out):
         for block in blocks:
@@ -219,36 +291,43 @@ class Surface(DataBlock):
             else:
                 out.uint32(block)
 
+    def is_equal(self, other):
+        return self.tile_width == other.tile_width \
+                and self.z_height == other.z_height \
+                and self.ground_type == other.ground_type \
+                and self.sprites == other.sprites
 
-    def spr_names(self, orientation = 'n'):
-        """
-        Return names of the sprites in the right order.
-        """
-        if orientation == 'n':
-            n,e,s,w = 'n', 'e', 's', 'w'
-        elif orientation == 'e':
-            n,e,s,w = 'e', 's', 'w', 'n'
-        elif orientation == 's':
-            n,e,s,w = 's', 'w', 'n', 'e'
-        elif orientation == 'w':
-            n,e,s,w = 'w', 'n', 'e', 's'
-        else:
-            assert 0 # Wrong orientation.
+class TileSelection(DataBlock):
+    """
+    Game block 'TSEL'
+    """
+    def __init__(self, tile_width, z_height, sprites):
+        DataBlock.__init__(self, 'TSEL', 1)
+        self.tile_width = tile_width
+        self.z_height = z_height
+        self.sprites = sprites
 
-        sprites = []
-        for i in range(15):
-            txt = ''
-            if i & 1: txt = txt + n
-            if i & 2: txt = txt + e
-            if i & 4: txt = txt + s
-            if i & 8: txt = txt + w
-            sprites.append(txt)
-        return sprites + [n.upper(), e.upper(), s.upper(), w.upper()]
+    def get_size(self):
+        return 2 + 2 + 19*4
+
+    def write(self, out):
+        DataBlock.write(self, out)
+        out.uint16(self.tile_width)
+        out.uint16(self.z_height)
+        self.write_blocks(self.sprites, out)
+
+    def write_blocks(self, blocks, out):
+        for block in blocks:
+            if block is None:
+                out.uint32(0)
+            else:
+                out.uint32(block)
 
     def is_equal(self, other):
         return self.tile_width == other.tile_width \
                 and self.z_height == other.z_height \
                 and self.sprites == other.sprites
+
 
 class RCD(object):
     """

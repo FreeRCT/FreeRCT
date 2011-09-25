@@ -10,6 +10,7 @@
 # Try to load an RCD file.
 # Code is separate from the RCD creation by design.
 #
+import sys
 
 class RCD(object):
     def __init__(self, fname):
@@ -35,7 +36,7 @@ class RCD(object):
         val = self.uint16(offset)
         return val | (self.uint16(offset + 2) << 16)
 
-blocks = {'8PAL' : 1, '8PXL' : 1, 'SPRT' : 1, 'SURF' : 1}
+blocks = {'8PAL' : 1, '8PXL' : 1, 'SPRT' : 2, 'SURF' : 3}
 
 def list_blocks(rcd):
     sz = rcd.get_size()
@@ -68,5 +69,10 @@ def list_blocks(rcd):
         offset = offset + 12 + length
     assert offset == sz
 
-rcd = RCD('groundsprites.rcd')
-list_blocks(rcd)
+if len(sys.argv) == 1:
+    print "Missing RCD file argument."
+    sys.exit(1)
+
+for f in sys.argv[1:]:
+    rcd = RCD(f)
+    list_blocks(rcd)

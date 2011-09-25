@@ -252,10 +252,10 @@ def split_spritegrid(fname, xoffset, yoffset, xsize, ysize, layout):
 
     if xcount * xsize != im.size[0]:
         print "Warning: File %s has width %s while using only %s*%s=%s pixel columns." \
-                % (fname, im.width, xcount, xsize, xcount * xsize)
+                % (fname, im.size[0], xcount, xsize, xcount * xsize)
     if ycount * ysize != im.size[1]:
         print "Warning: File %s has height %s while using only %s*%s=%s pixel rows." \
-                % (fname, im.height, ycount, ysize, ycount * ysize)
+                % (fname, im.size[1], ycount, ysize, ycount * ysize)
 
     imgs = {}
     for x in range(xcount):

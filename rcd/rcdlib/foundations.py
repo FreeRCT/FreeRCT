@@ -7,15 +7,13 @@
 #
 from rcdlib import spritegrid, blocks
 
-std_layout = [['',   '',   '',   ''   ],
-              ['n',  'e',  's',  'w'  ],
-              ['ne', 'es', 'sw', 'nw' ],
-              ['ns', 'ew', 'ns', 'ew' ],
-              ['nes','esw','nsw','new'],
-              ['N',  'E',  'S',  'W']]
+std_layout = [['se_se', 'sw_sw'],
+              ['se_e',  'sw_w'],
+              ['se_s',  'sw_s']]
 
-GRASS = 16
-SAND  = 32
+GROUND = 16
+WOOD   = 32
+BRICK  = 48
 
 def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     """
@@ -50,7 +48,7 @@ def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     return images
 
 
-def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
+def write_foundationRCD(images, tile_width, tile_height, found_type, dest_fname):
     """
     Write an RCD file with ground sprites.
 
@@ -63,8 +61,8 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
     @param tile_height: Height of a Z level in pixels.
     @type  tile_height: C{int}
 
-    @param ground_type: Type of ground.
-    @type  ground_type: C{int}
+    @param found_type: Type of foundation.
+    @type  found_type: C{int}
 
     @param dest_fname: Name of RCD file to write.
     @type  dest_fname: C{str}
@@ -73,17 +71,18 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
 
     spr = {} # name -> sprite block number
     for name, img_obj in images.iteritems():
-        print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
+        print "%6s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
         pix_blknum = file_data.add_block(pxl_blk)
         spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
         spr[name] = file_data.add_block(spr_blk)
 
-    needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
-    spr_blocks = [spr[name] for name in needed]
-    surf = blocks.Surface(tile_width, tile_height, ground_type, spr_blocks)
-    file_data.add_block(surf)
+    found = blocks.Foundation(found_type, tile_width, tile_height)
+    needed = ['se_e', 'se_s', 'se_se', 'sw_s', 'sw_w', 'sw_sw']
+    for name in needed:
+        found.set_value(name, spr[name])
+    file_data.add_block(found)
 
     file_data.to_file(dest_fname)
 

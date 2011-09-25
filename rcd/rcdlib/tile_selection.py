@@ -50,9 +50,9 @@ def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     return images
 
 
-def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
+def write_tileselectRCD(images, tile_width, tile_height, dest_fname):
     """
-    Write an RCD file with ground sprites.
+    Write an RCD file with tile selection sprites.
 
     @param images: Images of the ground. Mapping of name to image.
     @type  images: C{dict} of C{str} to L{ImageObject}
@@ -62,9 +62,6 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
 
     @param tile_height: Height of a Z level in pixels.
     @type  tile_height: C{int}
-
-    @param ground_type: Type of ground.
-    @type  ground_type: C{int}
 
     @param dest_fname: Name of RCD file to write.
     @type  dest_fname: C{str}
@@ -82,7 +79,7 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
 
     needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
     spr_blocks = [spr[name] for name in needed]
-    surf = blocks.Surface(tile_width, tile_height, ground_type, spr_blocks)
+    surf = blocks.TileSelection(tile_width, tile_height, spr_blocks)
     file_data.add_block(surf)
 
     file_data.to_file(dest_fname)
