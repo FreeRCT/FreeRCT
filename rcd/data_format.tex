@@ -8,7 +8,7 @@
 \usepackage[a4paper]{geometry}
 \title{File format of the \texttt{$*$.rcd} data files}
 \author{Alberth}
-\date{Version 1}
+\date{Built \today}
 
 \begin{document}
 \maketitle
@@ -40,22 +40,6 @@ gets number 1, the second block number 2, etc.
 
 A reference to data block 0 means `not present'.
 
-\subsection{Palette data block}
-A data block stating the palette of a 8bpp image.
-
-\begin{center}
-\begin{tabular}{|r|c|l|} \hline
-\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
- 0 & 4 & Magic string `8PAL' \\
- 4 & 4 & Version number of the block `1'. \\
- 8 & 4 & Length of the block excluding magic string, version, and length. \\
-12 & 2 & \textit{count}, number of palette entries (should be at least 1 and at most 256). \\
-14 & 3*\textit{count} & Palette data, 3 bytes RGB{} data for each entry. \\ \hline
- ? & \multicolumn{2}{l|}{Variable length} \\ \hline
-\end{tabular}
-\end{center}
-
-
 
 \subsection{Sprite Pixels}
 A data block containing the actual image of a sprite (in 8bpp).
@@ -68,7 +52,7 @@ A data block containing the actual image of a sprite (in 8bpp).
  8 & 4 & Length of the block excluding magic string, version, and length. \\
 12 & 2 & Width of the image. \\
 14 & 2 & $h$, height of the image. \\
-16 & $4*h$ & jump table to start of pixel data of each line. Offset is relative to the first \\
+16 & $4*h$ & Jump table to pixel data of each line. Offset is relative to the first \\
    &       & entry of the jump table. Value 0 means there is no data for that line. \\
  ? &    ?  & Pixels of each line. \\ \hline
  ? & \multicolumn{2}{l|}{Variable length} \\ \hline
@@ -102,14 +86,14 @@ Data of a single sprite.
 \begin{center}
 \begin{tabular}{|r|c|l|} \hline
 \textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
- 0 & 4 & Magic string `SPRT' \\
- 4 & 4 & Version number of the block `1'. \\
- 8 & 4 & Length of the block excluding magic string, version, and length. \\
-12 & 2 & (signed) X-offset. \\
-14 & 2 & (signed) Y-offset. \\
-16 & 4 & Sprite image data. \\
-18 & 4 & Palette data. \\ \hline
-22 & \multicolumn{2}{l|}{Total length} \\ \hline
+   0 &  4 & Magic string `SPRT' \\
+   4 &  4 & Version number of the block `2'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & (signed) X-offset. \\
+  14 &  2 & (signed) Y-offset. \\
+  16 &  4 & Sprite image data. \\
+  20 &  0 & (removed in version 2) Palette data. \\ \hline
+  20 & \multicolumn{2}{l|}{Total length} \\ \hline
 \end{tabular}
 \end{center}
 
@@ -118,65 +102,175 @@ Data of a single sprite.
 A game block is a piece of data useful for the game. Normally it refers to one
 or more data blocks.
 
+\subsection{Tile surface sprite sub-block}
+In several game blocks you can find a set of sprite for the ground. Below is
+the layout of such a sub-block.
+Note that the sprites should look to the north (thus, the sprite at 4 has its
+back corner up).
+
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Flat surface tile. \\
+   4 &  4 & North corner up. \\
+   8 &  4 & East corner up. \\
+  12 &  4 & North, east corners up. \\
+  16 &  4 & South corner up. \\
+  20 &  4 & North, south corners up. \\
+  24 &  4 & East, south corners up. \\
+  28 &  4 & North, east, south corners up. \\
+  32 &  4 & West, north corners up. \\
+  36 &  4 & West, east corners up. \\
+  40 &  4 & West, north, east corners up. \\
+  44 &  4 & West, south corners up. \\
+  48 &  4 & West, north, south corners up. \\
+  52 &  4 & West, east, south corners up. \\
+  56 &  4 & Steep north slope. \\
+  60 &  4 & Steep east slope. \\
+  64 &  4 & Steep south slope. \\
+  68 &  4 & Steep west slope. \\ \hline
+  72 & \multicolumn{2}{l|}{Total length of the sub-block} \\ \hline
+\end{tabular}
+\end{center}
+
+
 \subsection{Ground tiles block}
 A set of ground tiles that form a smooth surface.
 
 \begin{center}
 \begin{tabular}{|r|c|l|} \hline
 \textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
-  0 & 4 & Magic string `SURF' \\
-  4 & 4 & Version number of the block `2'. \\
-  8 & 4 & Length of the block excluding magic string, version, and length. \\
- 12 & 2 & (added in version 2) Type of ground. \\
- 14 & 2 & Width of a tile of the surface. \\
- 16 & 2 & Change in Z height (in pixels) when going up or down a tile level. \\
- 18 & 76 & 19 sprite block references for the tile when viewing towards north. \\
- 94 & 76 & 19 sprite block references for the tile when viewing towards east.  \\
-170 & 76 & 19 sprite block references for the tile when viewing towards south. \\
-246 & 76 & 19 sprite block references for the tile when viewing towards west.  \\ \hline
-322 & \multicolumn{2}{l|}{Total length} \\ \hline
+   0 &  4 & Magic string `SURF' \\
+   4 &  4 & Version number of the block `3'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & (added in version 2) Type of ground. \\
+  14 &  2 & Width of a tile of the surface. \\
+  16 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
+  18 & 72 & Tile surface sprite sub-block for north viewing direction. \\
+  90 &  0 & (removed in version 3) Tile surface sprite sub-block for east viewing direction. \\
+  90 &  0 & (removed in version 3) Tile surface sprite sub-block for south viewing direction. \\
+  90 &  0 & (removed in version 3) Tile surface sprite sub-block for west viewing direction. \\ \hline
+  90 & \multicolumn{2}{l|}{Total length} \\ \hline
 \end{tabular}
 \end{center}
 
+\medskip
+\noindent
 Known types of ground:
 \begin{itemize}
 \item Empty (0) Reserved, do not use in the RCD{} file.
-\item Grass (16-19) Green grass gound, with increasing length grass on it.
+\item Grass (16-19) Green grass ground, with increasing length grass on it.
 \item Sand  (32) Desert `ground'.
 \end{itemize}
 
-The 19 sprite entries of a view contain
+%%
+%%
+%%
+\subsection{Tile selection}
+A tile selection cursor. It is very similar to ground tiles, except there is
+no type.
 
 \begin{center}
 \begin{tabular}{|r|c|l|} \hline
 \textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
- 0 & 4 & Flat surface tile. \\
- 4 & 4 & North corner up. \\
- 8 & 4 & East corner up. \\
-12 & 4 & North, east corners up. \\
-16 & 4 & South corner up. \\
-20 & 4 & North, south corners up. \\
-24 & 4 & East, south corners up. \\
-28 & 4 & North, east, south corners up. \\
-32 & 4 & West, north corners up. \\
-36 & 4 & West, east corners up. \\
-40 & 4 & West, north, east corners up. \\
-44 & 4 & West, south corners up. \\
-48 & 4 & West, north, south corners up. \\
-52 & 4 & West, east, south corners up. \\
-56 & 4 & Steep north slope. \\
-64 & 4 & Steep east slope. \\
-72 & 4 & Steep south slope. \\
-76 & 4 & Steep west slope. \\ \hline
+   0 &  4 & Magic string `TSEL' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Width of a tile of the surface. \\
+  14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
+  16 & 72 & Tile surface sprite sub-block. \\ \hline
+  88 & \multicolumn{2}{l|}{Total length} \\ \hline
 \end{tabular}
 \end{center}
-Note that this entries are about \textit{real} (unrotated) corners. In other
-words, at a given tile the same entry is used independent of the view
-orientation.
 
-Note: \textit{Whether this is a sane decision remains to be seen, it is
-probably not clear until rendering of multi-tile pieces is implemented.}
+\subsection{Tile area selection}
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `TARE' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Width of a tile of the surface. \\
+  14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
+  16 & 72 & Tile surface sprite sub-block. \\ \hline
+  88 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
 
+
+\subsection{Patrol area selection}
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `PARE' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Width of a tile of the surface. \\
+  14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
+  16 & 72 & Tile surface sprite sub-block. \\ \hline
+  88 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Tile corner selection block}
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `TCOR' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Width of a tile of the surface. \\
+  14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
+  16 & 72 & Tile surface sprite sub-block for selected corner pointing north. \\
+  88 & 72 & Tile surface sprite sub-block for selected corner pointing east. \\
+ 160 & 72 & Tile surface sprite sub-block for selected corner pointing south. \\
+ 232 & 72 & Tile surface sprite sub-block for selected corner pointing west. \\ \hline
+ 304 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Shops/stalls}
+One tile objects.
+
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `SHOP' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Width of a tile of the surface. \\
+  14 &  2 & Height of the shop in voxels. \\
+  16 &  4 & View to the north where the entrance is at the NE edge. \\
+  20 &  4 & View to the north where the entrance is at the SE edge. \\
+  24 &  4 & View to the north where the entrance is at the SW edge. \\
+  28 &  4 & View to the north where the entrance is at the NW edge. \\ \hline
+  32 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Build direction arrows}
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `BDIR' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Width of a tile of the surface. \\
+  14 &  4 & Arrow pointing to NE edge. \\
+  18 &  4 & Arrow pointing to SE edge. \\
+  22 &  4 & Arrow pointing to SW edge. \\
+  26 &  4 & Arrow pointing to NW edge. \\ \hline
+  30 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+
+%%
+%%
+%%
 \subsection{Foundations block}
 Vertical foundations to close gaps in the smooth surface.
 
@@ -199,6 +293,8 @@ Vertical foundations to close gaps in the smooth surface.
 \end{tabular}
 \end{center}
 
+\medskip
+\noindent
 Known types of foundation:
 \begin{itemize}
 \item Empty (0) Reserved, do not use in the RCD{} file.
@@ -209,6 +305,120 @@ Known types of foundation:
 
 The tile width and z-height are used to ensure the foundations match with the
 surface tiles.
+
+\subsection{Path block}
+Path coverage is a set of at most 47 images. Paths can connect to
+neighbouring tiles through four edges, optionally also covering the corner
+between two connecting edges.
+
+Starting at offset 14 are the sprite block numbers of each sprite. As normal,
+use 0 to denote absence of a sprite. Two letter words in the description
+denote an edge connects, one letter words denote the corner is covered.
+
+\medskip
+\noindent
+Known types of path surface:
+\begin{itemize}
+\item Empty (0) Reserved, do not use in the RCD{} file.
+\item Concrete (16)
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `PATH' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Type of path surface. \\
+  14 &  4 & - (empty) \\
+  18 &  4 & NE \\
+  22 &  4 & SE \\
+  26 &  4 & NE, SE \\
+  30 &  4 & NE, SE, E \\
+  34 &  4 & SW \\
+  38 &  4 & NE, SW \\
+  42 &  4 & SE, SW \\
+  46 &  4 & SE, SW, S \\
+  50 &  4 & NE, SE, SW \\
+  54 &  4 & NE, SE, SW, E \\
+  58 &  4 & NE, SE, SW, S \\
+  62 &  4 & NE, SE, SW, E, S \\
+  66 &  4 & NW \\
+  70 &  4 & NE, NW \\
+  74 &  4 & NE, NW, N \\
+  78 &  4 & NW, SE \\
+  82 &  4 & NE, NW, SE \\
+  86 &  4 & NE, NW, SE, N \\
+  90 &  4 & NE, NW, SE, E \\
+  94 &  4 & NE, NW, SE, N, E \\
+  98 &  4 & NW, SW \\
+ 102 &  4 & NW, SW, W \\
+ 106 &  4 & NE, NW, SW \\
+ 110 &  4 & NE, NW, SW, N \\
+ 114 &  4 & NE, NW, SW, W \\
+ 118 &  4 & NE, NW, SW, N, W \\
+ 122 &  4 & NW, SE, SW \\
+ 126 &  4 & NW, SE, SW, S \\
+ 130 &  4 & NW, SE, SW, W \\
+ 134 &  4 & NW, SE, SW, S, W \\
+ 138 &  4 & NE, NW, SE, SW \\
+ 142 &  4 & NE, NW, SE, SW, N \\
+ 146 &  4 & NE, NW, SE, SW, E \\
+ 150 &  4 & NE, NW, SE, SW, N, E \\
+ 154 &  4 & NE, NW, SE, SW, S \\
+ 158 &  4 & NE, NW, SE, SW, N, S \\
+ 162 &  4 & NE, NW, SE, SW, E, S \\
+ 166 &  4 & NE, NW, SE, SW, N, E, S \\
+ 170 &  4 & NE, NW, SE, SW, W \\
+\multicolumn{3}{|l|}{\textit{Table continued at next page}} \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\multicolumn{3}{|l|}{\textit{Path sprites continued}} \\
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+ 174 &  4 & NE, NW, SE, SW, N, W \\
+ 178 &  4 & NE, NW, SE, SW, E, W \\
+ 182 &  4 & NE, NW, SE, SW, N, E, W \\
+ 186 &  4 & NE, NW, SE, SW, S, W \\
+ 190 &  4 & NE, NW, SE, SW, N, S, W \\
+ 194 &  4 & NE, NW, SE, SW, E, S, W \\
+ 198 &  4 & NE, NW, SE, SW, N, E, S, W \\ \hline
+ 202 & \multicolumn{2}{l|}{Length of one view direction.} \\ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Platforms}
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `PLAT' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Width of a tile of the surface. \\
+  14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
+  16 &  2 & Platform type. \\
+  18 &  4 & Flat platform for north and south view. \\
+  22 &  4 & Flat platform for east and west view. \\
+  26 &  4 & Platform is raised at the NE edge. \\
+  30 &  4 & Platform is raised at the SE edge. \\
+  34 &  4 & Platform is raised at the SW edge. \\
+  38 &  4 & Platform is raised at the NW edge. \\ \hline
+  42 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+Platform type:
+\begin{itemize}
+\item Empty 0, do not use.
+\item Wood 16.
+\end{itemize}
+
+
+\subsection{Platform supports}
+-rotation?
+-steep slopes?
 
 %%
 %%
