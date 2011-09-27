@@ -203,56 +203,6 @@ RcdBlock::~RcdBlock()
 {
 }
 
-/**
- * Default constructor.
- * Clears all data.
- */
-PaletteData::PaletteData() : RcdBlock()
-{
-	for (int i = 0; i < 256; i++) {
-		this->colours[i][0] = 0;
-		this->colours[i][1] = 0;
-		this->colours[i][2] = 0;
-	}
-}
-
-/** Destructor. */
-PaletteData::~PaletteData()
-{
-}
-
-/**
- * Load palette data from the RCD file.
- * @param rcd_file File to load from.
- * @param length Length of the palette data block.
- * @return Load was successful.
- * @pre File pointer is at first byte of the block.
- */
-bool PaletteData::Load(RcdFile *rcd_file, size_t length)
-{
-	uint16 count = rcd_file->GetUInt16();
-	if (count < 1u || count > 256u ||
-	length != 2 + 3 * (size_t)count) return false;
-
-	uint i = 0;
-	while (i < count) {
-		this->colours[i][0] = rcd_file->GetUInt8();
-		this->colours[i][1] = rcd_file->GetUInt8();
-		this->colours[i][2] = rcd_file->GetUInt8();
-		i++;
-	}
-	/* Clear remaining entries. */
-	while (i < 256) {
-		this->colours[i][0] = 0;
-		this->colours[i][1] = 0;
-		this->colours[i][2] = 0;
-		i++;
-	}
-
-	return true;
-}
-
-
 
 ImageData::ImageData() : RcdBlock()
 {
@@ -335,7 +285,6 @@ bool ImageData::Load(RcdFile *rcd_file, size_t length)
 
 Sprite::Sprite() : RcdBlock()
 {
-	this->palette = NULL;
 	this->img_data = NULL;
 	this->xoffset = 0;
 	this->yoffset = 0;
@@ -351,13 +300,12 @@ Sprite::~Sprite()
  * @param rcd_file File to load from.
  * @param length Length of the sprite block.
  * @param images Already loaded image data blocks.
- * @param palettes Already loaded palette blocks.
  * @return Load was successful.
  * @pre File pointer is at first byte of the block.
  */
-bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images, const PaletteMap &palettes)
+bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images)
 {
-	if (length != 12) return false;
+	if (length != 8) return false;
 	this->xoffset = rcd_file->GetInt16();
 	this->yoffset = rcd_file->GetInt16();
 
@@ -367,31 +315,12 @@ bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images, cons
 	if (img_iter == images.end()) return false;
 	this->img_data = (*img_iter).second;
 
-	/* Find the palette block (if used). */
-	uint32 pal_blk = rcd_file->GetUInt32();
-	if (pal_blk == 0) {
-		this->palette = NULL;
-	} else {
-		PaletteMap::const_iterator pal_iter = palettes.find(pal_blk);
-		if (pal_iter == palettes.end()) return false;
-		this->palette = (*pal_iter).second;
-	}
-
 	return true;
-}
-
-SurfaceOrientationSprites::SurfaceOrientationSprites() : RcdBlock()
-{
-	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
-}
-
-SurfaceOrientationSprites::~SurfaceOrientationSprites()
-{
-	/* Do not free the RCD blocks. */
 }
 
 SurfaceData::SurfaceData() : RcdBlock()
 {
+	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = NULL;
 }
 
 SurfaceData::~SurfaceData()
@@ -407,24 +336,24 @@ SurfaceData::~SurfaceData()
  */
 bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 {
-	if (length != 2 + 2 + 4 * NUM_SLOPE_SPRITES * 4) return false;
+	if (length != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
+	this->type   = rcd_file->GetUInt16();
+	if (!((this->type >= 16 && this->type <= 19) || this->type == 32)) return false; // Unknown type of surface.
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
 
-	for (uint orient = VOR_NORTH; orient < VOR_NUM_ORIENT; orient++) {
-		for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-			uint32 val = rcd_file->GetUInt32();
-			Sprite *spr;
-			if (val == 0) {
-				spr = NULL;
-			} else {
-				SpriteMap::const_iterator iter = sprites.find(val);
-				if (iter == sprites.end()) return false;
-				spr = (*iter).second;
-			}
-			this->surf_orient[orient].sprites[sprnum] = spr;
+	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
 		}
+		this->surface[sprnum] = spr;
 	}
 	return true;
 }
@@ -452,7 +381,8 @@ SpriteStore::~SpriteStore()
  * Load sprites from the disk.
  * @param filename Name of the RCD file to load.
  * @return Error message if load failed, else \c NULL.
- * @todo Try to re-use already loaded blocks. This is at least useful for palettes.
+ * @todo Try to re-use already loaded blocks.
+ * @todo Code will use last loaded surface as grass.
  */
 const char *SpriteStore::Load(const char *filename)
 {
@@ -463,7 +393,6 @@ const char *SpriteStore::Load(const char *filename)
 	RcdFile rcd_file(filename);
 	if (!rcd_file.CheckFileHeader()) return "Could not read header";
 
-	PaletteMap palettes; // Palettes loaded from this file.
 	ImageMap   images;   // Images loaded from this file.
 	SpriteMap  sprites;  // Sprites loaded from this file.
 
@@ -480,19 +409,6 @@ const char *SpriteStore::Load(const char *filename)
 
 		if (length + 12 > remain) return false; // Not enough data in the file.
 
-		if (strcmp(name, "8PAL") == 0 && version == 1) {
-			PaletteData *pal_data = new PaletteData;
-			if (!pal_data->Load(&rcd_file, length)) {
-				delete pal_data;
-				return "Palette data loading failed";
-			}
-			this->AddBlock(pal_data);
-
-			std::pair<uint, PaletteData *> p(blk_num, pal_data);
-			palettes.insert(p);
-			continue;
-		}
-
 		if (strcmp(name, "8PXL") == 0 && version == 1) {
 			ImageData *img_data = new ImageData;
 			if (!img_data->Load(&rcd_file, length)) {
@@ -506,9 +422,9 @@ const char *SpriteStore::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "SPRT") == 0 && version == 1) {
+		if (strcmp(name, "SPRT") == 0 && version == 2) {
 			Sprite *spr = new Sprite;
-			if (!spr->Load(&rcd_file, length, images, palettes)) {
+			if (!spr->Load(&rcd_file, length, images)) {
 				delete spr;
 				return "Sprite load failed.";
 			}
@@ -519,7 +435,7 @@ const char *SpriteStore::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "SURF") == 0 && version == 1) {
+		if (strcmp(name, "SURF") == 0 && version == 3) {
 			SurfaceData *surf = new SurfaceData;
 			if (!surf->Load(&rcd_file, length, sprites)) {
 				delete surf;
@@ -561,6 +477,6 @@ const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 s
 	if (!this->surface) return NULL;
 	if (this->surface->width != size) return NULL;
 
-	return this->surface->surf_orient[0].sprites[_slope_rotation[surf_spr][orient]];
+	return this->surface->surface[_slope_rotation[surf_spr][orient]];
 }
 

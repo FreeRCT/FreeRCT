@@ -279,9 +279,9 @@ class Surface(DataBlock):
 
     def write(self, out):
         DataBlock.write(self, out)
+        out.uint16(self.ground_type)
         out.uint16(self.tile_width)
         out.uint16(self.z_height)
-        out.uint16(self.ground_type)
         self.write_blocks(self.sprites, out)
 
     def write_blocks(self, blocks, out):

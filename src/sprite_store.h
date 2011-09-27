@@ -26,19 +26,6 @@ public:
 	RcdBlock *next; ///< Pointer to next block.
 };
 
-/** Palette of 8bpp images. */
-class PaletteData : public RcdBlock {
-public:
-	PaletteData();
-	~PaletteData();
-
-	bool Load(RcdFile *rcd_file, size_t length);
-
-	uint8 colours[256][3]; ///< 256 RGB colours.
-};
-
-typedef std::map<uint32, PaletteData *> PaletteMap; ///< Map of loaded palette data blocks.
-
 /** Image data of 8bpp images. */
 class ImageData : public RcdBlock {
 public:
@@ -66,24 +53,14 @@ public:
 	Sprite();
 	~Sprite();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &images, const PaletteMap &palettes);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &images);
 
-	PaletteData *palette; ///< Palette of the sprite.
 	ImageData *img_data;  ///< Image data of the sprite.
 	int16 xoffset;        ///< Horizontal offset of the image.
 	int16 yoffset;        ///< Vertical offset of the image.
 };
 
 typedef std::map<uint32, Sprite *> SpriteMap; ///< Map of loaded sprite blocks.
-
-/** Sprites that make a surface for one orientation. */
-class SurfaceOrientationSprites : public RcdBlock {
-public:
-	SurfaceOrientationSprites();
-	~SurfaceOrientationSprites();
-
-	Sprite *sprites[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slope.
-};
 
 /** A surface in all orientations. */
 class SurfaceData : public RcdBlock {
@@ -95,7 +72,8 @@ public:
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
-	SurfaceOrientationSprites surf_orient[VOR_NUM_ORIENT]; ///< Sprites of the surface, in each view orientation.
+	uint16 type;   ///< Type of surface.
+	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
 };
 
 
