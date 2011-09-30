@@ -70,8 +70,13 @@ enum Paths {
 	PATH_NE_NW_SE_SW_N_S_W,
 	PATH_NE_NW_SE_SW_E_S_W,
 	PATH_NE_NW_SE_SW_N_E_S_W,
+	PATH_COUNT,         ///< Number of flat path sprites.
 
-	PATH_COUNT,         ///< Number of path sprites.
+	PATH_RAMP_NE = PATH_COUNT,
+	PATH_RAMP_NW,
+	PATH_RAMP_SE,
+	PATH_RAMP_SW,
+
 	PATH_INVALID = 255, ///< Invalid path.
 
 	PATHBIT_N  = 0,     ///< Bit number for north corner in expanded notation.

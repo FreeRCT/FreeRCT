@@ -306,6 +306,7 @@ class TileSelection(DataBlock):
         self.tile_width = tile_width
         self.z_height = z_height
         self.sprites = sprites
+        assert len(self.sprites) == 19
 
     def get_size(self):
         return 2 + 2 + 19*4
@@ -325,6 +326,41 @@ class TileSelection(DataBlock):
 
     def is_equal(self, other):
         return self.tile_width == other.tile_width \
+                and self.z_height == other.z_height \
+                and self.sprites == other.sprites
+
+class Paths(DataBlock):
+    """
+    Game block 'PATH'
+    """
+    def __init__(self, path_type, tile_width, z_height, sprites):
+        DataBlock.__init__(self, 'PATH', 1)
+        self.path_type = path_type
+        self.tile_width = tile_width
+        self.z_height = z_height
+        self.sprites = sprites
+        assert len(self.sprites) == 51
+
+    def get_size(self):
+        return 2 + 2 + 2 + 51*4
+
+    def write(self, out):
+        DataBlock.write(self, out)
+        out.uint16(self.path_type)
+        out.uint16(self.tile_width)
+        out.uint16(self.z_height)
+        self.write_blocks(self.sprites, out)
+
+    def write_blocks(self, blocks, out):
+        for block in blocks:
+            if block is None:
+                out.uint32(0)
+            else:
+                out.uint32(block)
+
+    def is_equal(self, other):
+        return self.path_type == other.path_type \
+                and self.tile_width == other.tile_width \
                 and self.z_height == other.z_height \
                 and self.sprites == other.sprites
 

@@ -307,13 +307,15 @@ The tile width and z-height are used to ensure the foundations match with the
 surface tiles.
 
 \subsection{Path block}
-Path coverage is a set of at most 47 images. Paths can connect to
+Path coverage is a set of at most 47 flat images. Paths can connect to
 neighbouring tiles through four edges, optionally also covering the corner
 between two connecting edges.
 
 Starting at offset 14 are the sprite block numbers of each sprite. As normal,
 use 0 to denote absence of a sprite. Two letter words in the description
 denote an edge connects, one letter words denote the corner is covered.
+
+Besides the maximal 47 flat sprites there are also 4 sprites with one edge raised.
 
 \medskip
 \noindent
@@ -330,46 +332,48 @@ Known types of path surface:
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
   12 &  2 & Type of path surface. \\
-  14 &  4 & - (empty) \\
-  18 &  4 & NE \\
-  22 &  4 & SE \\
-  26 &  4 & NE, SE \\
-  30 &  4 & NE, SE, E \\
-  34 &  4 & SW \\
-  38 &  4 & NE, SW \\
-  42 &  4 & SE, SW \\
-  46 &  4 & SE, SW, S \\
-  50 &  4 & NE, SE, SW \\
-  54 &  4 & NE, SE, SW, E \\
-  58 &  4 & NE, SE, SW, S \\
-  62 &  4 & NE, SE, SW, E, S \\
-  66 &  4 & NW \\
-  70 &  4 & NE, NW \\
-  74 &  4 & NE, NW, N \\
-  78 &  4 & NW, SE \\
-  82 &  4 & NE, NW, SE \\
-  86 &  4 & NE, NW, SE, N \\
-  90 &  4 & NE, NW, SE, E \\
-  94 &  4 & NE, NW, SE, N, E \\
-  98 &  4 & NW, SW \\
- 102 &  4 & NW, SW, W \\
- 106 &  4 & NE, NW, SW \\
- 110 &  4 & NE, NW, SW, N \\
- 114 &  4 & NE, NW, SW, W \\
- 118 &  4 & NE, NW, SW, N, W \\
- 122 &  4 & NW, SE, SW \\
- 126 &  4 & NW, SE, SW, S \\
- 130 &  4 & NW, SE, SW, W \\
- 134 &  4 & NW, SE, SW, S, W \\
- 138 &  4 & NE, NW, SE, SW \\
- 142 &  4 & NE, NW, SE, SW, N \\
- 146 &  4 & NE, NW, SE, SW, E \\
- 150 &  4 & NE, NW, SE, SW, N, E \\
- 154 &  4 & NE, NW, SE, SW, S \\
- 158 &  4 & NE, NW, SE, SW, N, S \\
- 162 &  4 & NE, NW, SE, SW, E, S \\
- 166 &  4 & NE, NW, SE, SW, N, E, S \\
- 170 &  4 & NE, NW, SE, SW, W \\
+  14 &  2 & Width of a tile. \\
+  16 &  2 & Change in Z height of the tiles. \\
+  18 &  4 & - (empty) \\
+  22 &  4 & NE \\
+  26 &  4 & SE \\
+  30 &  4 & NE, SE \\
+  34 &  4 & NE, SE, E \\
+  38 &  4 & SW \\
+  42 &  4 & NE, SW \\
+  46 &  4 & SE, SW \\
+  50 &  4 & SE, SW, S \\
+  54 &  4 & NE, SE, SW \\
+  58 &  4 & NE, SE, SW, E \\
+  62 &  4 & NE, SE, SW, S \\
+  66 &  4 & NE, SE, SW, E, S \\
+  70 &  4 & NW \\
+  74 &  4 & NE, NW \\
+  78 &  4 & NE, NW, N \\
+  82 &  4 & NW, SE \\
+  86 &  4 & NE, NW, SE \\
+  90 &  4 & NE, NW, SE, N \\
+  94 &  4 & NE, NW, SE, E \\
+  98 &  4 & NE, NW, SE, N, E \\
+ 102 &  4 & NW, SW \\
+ 106 &  4 & NW, SW, W \\
+ 110 &  4 & NE, NW, SW \\
+ 114 &  4 & NE, NW, SW, N \\
+ 118 &  4 & NE, NW, SW, W \\
+ 122 &  4 & NE, NW, SW, N, W \\
+ 126 &  4 & NW, SE, SW \\
+ 130 &  4 & NW, SE, SW, S \\
+ 134 &  4 & NW, SE, SW, W \\
+ 138 &  4 & NW, SE, SW, S, W \\
+ 142 &  4 & NE, NW, SE, SW \\
+ 146 &  4 & NE, NW, SE, SW, N \\
+ 150 &  4 & NE, NW, SE, SW, E \\
+ 154 &  4 & NE, NW, SE, SW, N, E \\
+ 158 &  4 & NE, NW, SE, SW, S \\
+ 162 &  4 & NE, NW, SE, SW, N, S \\
+ 166 &  4 & NE, NW, SE, SW, E, S \\
+ 170 &  4 & NE, NW, SE, SW, N, E, S \\
+ 174 &  4 & NE, NW, SE, SW, W \\
 \multicolumn{3}{|l|}{\textit{Table continued at next page}} \\ \hline
 \end{tabular}
 \end{center}
@@ -378,14 +382,18 @@ Known types of path surface:
 \begin{tabular}{|r|c|l|} \hline
 \multicolumn{3}{|l|}{\textit{Path sprites continued}} \\
 \textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
- 174 &  4 & NE, NW, SE, SW, N, W \\
- 178 &  4 & NE, NW, SE, SW, E, W \\
- 182 &  4 & NE, NW, SE, SW, N, E, W \\
- 186 &  4 & NE, NW, SE, SW, S, W \\
- 190 &  4 & NE, NW, SE, SW, N, S, W \\
- 194 &  4 & NE, NW, SE, SW, E, S, W \\
- 198 &  4 & NE, NW, SE, SW, N, E, S, W \\ \hline
- 202 & \multicolumn{2}{l|}{Length of one view direction.} \\ \hline
+ 178 &  4 & NE, NW, SE, SW, N, W \\
+ 182 &  4 & NE, NW, SE, SW, E, W \\
+ 186 &  4 & NE, NW, SE, SW, N, E, W \\
+ 190 &  4 & NE, NW, SE, SW, S, W \\
+ 194 &  4 & NE, NW, SE, SW, N, S, W \\
+ 198 &  4 & NE, NW, SE, SW, E, S, W \\
+ 202 &  4 & NE, NW, SE, SW, N, E, S, W \\
+ 206 &  4 & NE edge up. \\
+ 210 &  4 & NW edge up. \\
+ 214 &  4 & SE edge up. \\
+ 218 &  4 & SW edge up. \\ \hline
+ 222 & \multicolumn{2}{l|}{Length of one view direction.} \\ \hline
 \end{tabular}
 \end{center}
 
