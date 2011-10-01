@@ -88,8 +88,11 @@ def write_cornerselectRCD(images, tile_width, tile_height, dest_fname):
         print "%6s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
-        pix_blknum = file_data.add_block(pxl_blk)
-        spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
+        if pxl_blk is not None:
+            pix_blknum = file_data.add_block(pxl_blk)
+            spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
+        else:
+            spr_blk = None
         spr[name] = file_data.add_block(spr_blk)
 
     needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
@@ -97,7 +100,10 @@ def write_cornerselectRCD(images, tile_width, tile_height, dest_fname):
     for d in 'nesw':
         for n in needed:
             name = '%s#%s' % (d, n)
-            tcor.set_value(name, spr[name])
+            if spr[name] is None:
+                tcor.set_value(name, 0)
+            else:
+                tcor.set_value(name, spr[name])
 
     file_data.add_block(tcor)
 

@@ -74,14 +74,20 @@ def write_foundationRCD(images, tile_width, tile_height, found_type, dest_fname)
         print "%6s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
-        pix_blknum = file_data.add_block(pxl_blk)
-        spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
+        if pxl_blk is not None:
+            pix_blknum = file_data.add_block(pxl_blk)
+            spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
+        else:
+            spr_blk = None
         spr[name] = file_data.add_block(spr_blk)
 
     found = blocks.Foundation(found_type, tile_width, tile_height)
     needed = ['se_e', 'se_s', 'se_se', 'sw_s', 'sw_w', 'sw_sw']
     for name in needed:
-        found.set_value(name, spr[name])
+        if spr[name] is None:
+            found.set_value(name, 0)
+        else:
+            found.set_value(name, spr[name])
     file_data.add_block(found)
 
     file_data.to_file(dest_fname)

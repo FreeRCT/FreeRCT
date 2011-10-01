@@ -374,6 +374,9 @@ class RCD(object):
         self.blocks = []
 
     def add_block(self, block):
+        if block is None:
+            return None
+
         for idx, blk in enumerate(self.blocks):
             if blk == block:
                 return idx + 1

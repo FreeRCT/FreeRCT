@@ -6,12 +6,21 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
+RCDFILES=borderhighlight_8bpp64.rcd cornerhighlight_8bpp64.rcd \
+	foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd
+
 PYTHON=python
 
-.PHONY: build
+.PHONY: build clean
 
-build: borderhighlight_8bpp64.rcd cornerhighlight_8bpp64.rcd \
-	foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd
+build: $(RCDFILES)
+
+clean:
+	for i in $(RCDFILES);\
+	do if test -f $$i;\
+	   then rm $$i;\
+	   fi;\
+	done
 
 borderhighlight_8bpp64.rcd: borderhighlight_8bpp64.py ../sprites/borderhighlight8bpp64_masked.png
 	$(PYTHON) borderhighlight_8bpp64.py

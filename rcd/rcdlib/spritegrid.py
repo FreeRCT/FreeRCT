@@ -167,8 +167,14 @@ class ImageObject(object):
 
         @param skip_crop: If C{True}, skip cropping.
         @type  skip_crop: C{bool}
+
+        @return: 8PXL block if it is a valid sprite, else C{None}
+        @rtype:  :L{Pixels8Bpp} or C{None}
         """
         if not skip_crop: self.crop(trans)
+
+        if self.xsize == 0 or self.ysize == 0:
+            return None
 
         y_lines = {}
         for y in range(self.ysize):
