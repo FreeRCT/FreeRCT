@@ -69,14 +69,20 @@ typedef unsigned char byte; ///< Unsigned 8 bit wide data type.
  * typically when templates are involved, try assert_tcompile() in those cases. */
 #if defined(__STDCXX_VERSION__) || defined(__GXX_EXPERIMENTAL_CXX0X__) || defined(__GXX_EXPERIMENTAL_CPP0X__) || defined(static_assert)
 	/* __STDCXX_VERSION__ is c++0x feature macro, __GXX_EXPERIMENTAL_CXX0X__ is used by gcc, __GXX_EXPERIMENTAL_CPP0X__ by icc */
+	/** Compile-time assertion check macro. */
 	#define assert_compile(expr) static_assert(expr, #expr )
+	/** Compile-time assertion check macro. */
 	#define assert_tcompile(expr) assert_compile(expr)
 #elif defined(__OS2__)
 	/* Disabled for OS/2 */
+	/** Compile-time assertion check macro. */
 	#define assert_compile(expr)
+	/** Compile-time assertion check macro. */
 	#define assert_tcompile(expr) assert_compile(expr)
 #else
+	/** Compile-time assertion check macro. */
 	#define assert_compile(expr) typedef int __ct_assert__[1 - 2 * !(expr)]
+	/** Compile-time assertion check macro. */
 	#define assert_tcompile(expr) assert(expr)
 #endif
 

@@ -103,7 +103,7 @@ public:
 	Sprite *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
 };
 
-/** Path sprites. */
+/** %Path sprites. */
 class Path : public RcdBlock {
 public:
 	Path();
@@ -127,7 +127,7 @@ enum FoundationType {
 	FDT_COUNT,       ///< Number of foundation types.
 };
 
-/** Foundation sprites. */
+/** %Foundation sprites. */
 class Foundation : public RcdBlock {
 public:
 	Foundation();
