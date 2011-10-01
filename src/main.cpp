@@ -38,9 +38,9 @@ int main(void)
 	VideoSystem vid;
 
 	/* Load RCD file. */
-	const char *err_msg = _sprite_store.Load("../rcd/groundtile_8bpp64.rcd");
+	const char *err_msg = _sprite_store.LoadRcdFiles();
 	if (err_msg != NULL) {
-		fprintf(stderr, "Failed to load '../rcd/groundtile_8bpp64.rcd'\n(%s)\n", err_msg);
+		fprintf(stderr, "Failed to load RCD files\n(%s)\n", err_msg);
 		exit(1);
 	}
 

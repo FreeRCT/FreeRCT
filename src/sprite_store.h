@@ -13,6 +13,7 @@
 #define SPRITE_STORE_H
 
 #include "orientation.h"
+#include "path.h"
 #include <map>
 
 class RcdFile;
@@ -76,6 +77,69 @@ public:
 	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
 };
 
+/** Highlight the currently selected ground tile with a selection cursor. */
+class TileSelection : public RcdBlock {
+public:
+	TileSelection();
+	~TileSelection();
+
+	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+
+	uint16 width;  ///< Width of a tile.
+	uint16 height; ///< Height of a tile.
+	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites with a selection cursor.
+};
+
+/** Highlight the currently selected corner of a ground tile with a corner selection sprite. */
+class TileCorners : public RcdBlock {
+public:
+	TileCorners();
+	~TileCorners();
+
+	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+
+	uint16 width;  ///< Width of a tile.
+	uint16 height; ///< Height of a tile.
+	Sprite *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
+};
+
+/** Path sprites. */
+class Path : public RcdBlock {
+public:
+	Path();
+	~Path();
+
+	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+
+	uint16 type;   ///< Type of the path. @see PathTypes
+	uint16 width;  ///< Width of a tile.
+	uint16 height; ///< Height of a tile.
+	Sprite *sprites[PATH_COUNT]; ///< Path sprites, may contain \c NULL sprites.
+};
+
+/** Types of foundations. */
+enum FoundationType {
+	FDT_INVALID = 0, ///< Invalid foundation type.
+	FDT_GROUND,      ///< Bare (ground) foundation type.
+	FDT_WOOD,        ///< Foundation is covered with wood.
+	FDT_BRICK,       ///< Foundation is made of bricks.
+
+	FDT_COUNT,       ///< Number of foundation types.
+};
+
+/** Foundation sprites. */
+class Foundation : public RcdBlock {
+public:
+	Foundation();
+	~Foundation();
+
+	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+
+	uint16 type;        ///< Type of the foundation. @see FoundationType
+	uint16 width;       ///< Width of a tile.
+	uint16 height;      ///< Height of a tile.
+	Sprite *sprites[6]; ///< Foundation sprites.
+};
 
 /**
  * Storage of all sprites.
@@ -86,13 +150,20 @@ public:
 	SpriteStore();
 	~SpriteStore();
 
-	const char *Load(const char *fname);
+	const char *LoadRcdFiles();
 	void AddBlock(RcdBlock *block);
 
 	const Sprite *GetSurfaceSprite(uint8 type, uint8 slope, uint16 size, ViewOrientation orient);
 
-	RcdBlock *blocks; ///< List of loaded Rcd data blocks.
-	SurfaceData *surface; ///< Surface data.
+protected:
+	const char *Load(const char *fname);
+
+	RcdBlock *blocks;           ///< List of loaded Rcd data blocks.
+	SurfaceData *surface;       ///< Surface data.
+	Foundation *foundation;     ///< Foundation.
+	TileSelection *tile_select; ///< Tile selection sprites.
+	TileCorners *tile_corners;  ///< Tile corner sprites.
+	Path *path_sprites;         ///< Path sprites.
 };
 
 extern SpriteStore _sprite_store;

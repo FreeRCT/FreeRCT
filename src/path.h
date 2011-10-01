@@ -16,13 +16,13 @@
  * Available path sprites.
  * The list of sprites for drawing a path cover. Conceptually, a path can connect to each of the four
  * edges (NE, NW, SE, and SW). If both edges of a corner are present, the corner itself may also be
- * covered (N, E, S, W). This leads to #PATH_COUNT sprites listed below.
+ * covered (N, E, S, W). This leads to #PATH_FLAT_COUNT sprites listed below.
  *
  * This list is good for drawing and listing sprites, but is hard for editing path coverage.
  * For this reason #_path_expand and its reverse operation #_path_implode exist. They translate the
  * sprite number to/from a bitwise representation which is easier for manipulation.
  */
-enum Paths {
+enum PathSprites {
 	PATH_EMPTY, ///< Path without edges or corners.
 	PATH_NE,
 	PATH_SE,
@@ -70,12 +70,13 @@ enum Paths {
 	PATH_NE_NW_SE_SW_N_S_W,
 	PATH_NE_NW_SE_SW_E_S_W,
 	PATH_NE_NW_SE_SW_N_E_S_W,
-	PATH_COUNT,         ///< Number of flat path sprites.
+	PATH_FLAT_COUNT,    ///< Number of flat path sprites.
 
-	PATH_RAMP_NE = PATH_COUNT,
+	PATH_RAMP_NE = PATH_FLAT_COUNT,
 	PATH_RAMP_NW,
 	PATH_RAMP_SE,
 	PATH_RAMP_SW,
+	PATH_COUNT,         ///< Number of path sprites.
 
 	PATH_INVALID = 255, ///< Invalid path.
 
@@ -87,6 +88,13 @@ enum Paths {
 	PATHBIT_SE = 5,     ///< Bit number for south-east edge in expanded notation.
 	PATHBIT_SW = 6,     ///< Bit number for south-west edge in expanded notation.
 	PATHBIT_NW = 7,     ///< Bit number for north-west edge in expanded notation.
+};
+
+/** Available path types. */
+enum PathTypes {
+	PT_INVALID = 0,  ///< Invalid path type.
+	PT_CONCRETE = 1, ///< Concrete path type.
+	PT_COUNT,        ///< Number of available path types.
 };
 
 extern const uint8 _path_expand[];

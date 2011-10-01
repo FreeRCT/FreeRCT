@@ -11,6 +11,8 @@
 
 #include "stdafx.h"
 #include "sprite_store.h"
+#include "fileio.h"
+#include "string_func.h"
 
 SpriteStore _sprite_store; ///< Sprite storage.
 
@@ -320,6 +322,9 @@ bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images)
 
 SurfaceData::SurfaceData() : RcdBlock()
 {
+	this->width = 0;
+	this->height = 0;
+	this->type = 0;
 	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = NULL;
 }
 
@@ -359,11 +364,192 @@ bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprite
 }
 
 
+TileSelection::TileSelection() : RcdBlock()
+{
+	this->width = 0;
+	this->height = 0;
+	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = NULL;
+}
+
+TileSelection::~TileSelection()
+{
+}
+
+/**
+ * Load a tile selection block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool TileSelection::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
+
+	this->width  = rcd_file->GetUInt16();
+	this->height = rcd_file->GetUInt16();
+
+	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		this->surface[sprnum] = spr;
+	}
+	return true;
+}
+
+
+Path::Path() : RcdBlock()
+{
+	this->type = PT_INVALID;
+	this->width = 0;
+	this->height = 0;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
+}
+
+Path::~Path()
+{
+}
+
+/**
+ * Load a path sprites block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool Path::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
+
+	this->type = rcd_file->GetUInt16() / 16;
+	if (this->type == PT_INVALID || this->type >= PT_COUNT) return false;
+
+	this->width  = rcd_file->GetUInt16();
+	this->height = rcd_file->GetUInt16();
+
+	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		this->sprites[sprnum] = spr;
+	}
+	return true;
+}
+
+
+TileCorners::TileCorners() : RcdBlock()
+{
+	this->width = 0;
+	this->height = 0;
+	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
+		for (uint i = 0; i < NUM_SLOPE_SPRITES; i++) {
+			this->sprites[v][i] = NULL;
+		}
+	}
+}
+
+TileCorners::~TileCorners()
+{
+}
+
+/**
+ * Load a path sprites block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool TileCorners::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) return false;
+
+	this->width  = rcd_file->GetUInt16();
+	this->height = rcd_file->GetUInt16();
+
+	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
+		for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
+			uint32 val = rcd_file->GetUInt32();
+			Sprite *spr;
+			if (val == 0) {
+				spr = NULL;
+			} else {
+				SpriteMap::const_iterator iter = sprites.find(val);
+				if (iter == sprites.end()) return false;
+				spr = (*iter).second;
+			}
+			this->sprites[v][sprnum] = spr;
+		}
+	}
+	return true;
+}
+
+
+Foundation::Foundation() : RcdBlock()
+{
+	this->type = FDT_INVALID;
+	this->width = 0;
+	this->height = 0;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
+}
+
+Foundation::~Foundation()
+{
+}
+
+/**
+ * Load a path sprites block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 2 + 2 + 2 + 4 * 6) return false;
+
+	this->type = rcd_file->GetUInt16() / 16;
+	if (this->type == FDT_INVALID || this->type >= FDT_COUNT) return false;
+
+	this->width  = rcd_file->GetUInt16();
+	this->height = rcd_file->GetUInt16();
+
+	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		this->sprites[sprnum] = spr;
+	}
+	return true;
+}
+
 /** %Sprite storage constructor. */
 SpriteStore::SpriteStore()
 {
 	this->blocks = NULL;
 	this->surface = NULL;
+	this->foundation = NULL;
+	this->tile_select = NULL;
+	this->tile_corners = NULL;
+	this->path_sprites = NULL;
 }
 
 /** %Sprite storage destructor. */
@@ -375,6 +561,10 @@ SpriteStore::~SpriteStore()
 		this->blocks = next_block;
 	}
 	this->surface = NULL; // Released above.
+	this->foundation = NULL;
+	this->tile_select = NULL;
+	this->tile_corners = NULL;
+	this->path_sprites = NULL;
 }
 
 /**
@@ -447,10 +637,81 @@ const char *SpriteStore::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(name, "TSEL") == 0 && version == 1) {
+			TileSelection *tsel = new TileSelection;
+			if (!tsel->Load(&rcd_file, length, sprites)) {
+				delete tsel;
+				return "Tile-selection block loading failed.";
+			}
+			this->AddBlock(tsel);
+
+			this->tile_select = tsel;
+			continue;
+		}
+
+		if (strcmp(name, "PATH") == 0 && version == 1) {
+			Path *block = new Path;
+			if (!block->Load(&rcd_file, length, sprites)) {
+				delete block;
+				return "Path-sprites block loading failed.";
+			}
+			this->AddBlock(block);
+
+			this->path_sprites = block;
+			continue;
+		}
+
+		if (strcmp(name, "TCOR") == 0 && version == 1) {
+			TileCorners *block = new TileCorners;
+			if (!block->Load(&rcd_file, length, sprites)) {
+				delete block;
+				return "Tile-corners block loading failed.";
+			}
+			this->AddBlock(block);
+
+			this->tile_corners = block;
+			continue;
+		}
+
+		if (strcmp(name, "FUND") == 0 && version == 1) {
+			Foundation *block = new Foundation;
+			if (!block->Load(&rcd_file, length, sprites)) {
+				delete block;
+				return "Foundation block loading failed.";
+			}
+			this->AddBlock(block);
+
+			this->foundation = block;
+			continue;
+		}
+
 		/* Unknown block in the RCD file. Abort. */
 		fprintf(stderr, "Unknown RCD block '%s'\n", name);
 		return "Unknown RCD block";
 	}
+}
+
+/**
+ * Load all useful RCD files into the program.
+ * @return Error message if loading failed, \c NULL if all went well.
+ */
+const char *SpriteStore::LoadRcdFiles()
+{
+	DirectoryReader *reader = MakeDirectoryReader();
+	const char *mesg = NULL;
+
+	reader->OpenPath("../rcd");
+	while (mesg == NULL) {
+		const char *name = reader->NextFile();
+		if (name == NULL) break;
+		if (!StrEndsWith(name, ".rcd", false)) continue;
+		
+		mesg = this->Load(name);
+	}
+	reader->ClosePath();
+	delete reader;
+
+	return mesg;
 }
 
 /**
