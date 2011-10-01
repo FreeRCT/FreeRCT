@@ -22,10 +22,10 @@ public:
 	MouseMode(GenericInput *manager);
 	virtual ~MouseMode();
 
-	/* Setup the mouse mode. */
+	/** Setup the mouse mode. */
 	virtual void Start() = 0;
 
-	/* De-activate the mouse mode. */
+	/** De-activate the mouse mode. */
 	virtual void Stop() = 0;
 
 	virtual void MouseMoveEvent(int newx, int newy);
@@ -49,7 +49,10 @@ public:
 	bool dragging; ///< Mouse is used for dragging.
 };
 
-/** Default constructor. */
+/**
+ * Default constructor.
+ * @param manager Input manager.
+ */
 MouseMode::MouseMode(GenericInput *manager)
 {
 	this->manager = manager;
@@ -91,7 +94,10 @@ MouseMode::~MouseMode()
 }
 
 
-
+/**
+ * Default constructor.
+ * @param manager Input manager.
+ */
 TileMouseMode::TileMouseMode(GenericInput *manager) : MouseMode(manager)
 {
 	this->Start();

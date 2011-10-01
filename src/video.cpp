@@ -51,10 +51,7 @@ bool VideoSystem::Initialize()
 	return true;
 }
 
-/**
- * Set up the palette for the video surface.
- * @param pd Palette to use.
- */
+/** Set up the palette for the video surface. */
 void VideoSystem::SetPalette()
 {
 	assert(this->initialized);
@@ -109,7 +106,7 @@ uint16 VideoSystem::GetYSize() const
  * @todo A somewhat less crude system would be nice, but it will have to wait
  *       until the window system is fleshed out more.
  *
- * @warning The #VideoSystem::dirty flag is not updated here!!
+ * @warning The VideoSystem::dirty flag is not updated here!!
  */
 static void UpdateScreen()
 {

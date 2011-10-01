@@ -50,7 +50,6 @@ public:
 
 	bool CheckFileHeader();
 
-	bool LoadName(char *name);
 	bool CheckVersion(uint32 version);
 	bool GetBlob(void *address, size_t length);
 
@@ -152,23 +151,11 @@ bool RcdFile::CheckFileHeader()
 	if (this->Remaining() < 8) return false;
 
 	char name[5];
-	this->LoadName(name);
+	this->GetBlob(name, 4);
 	name[4] = '\0';
 	if (strcmp(name, "RCDF") != 0) return false;
 	if (!this->CheckVersion(1)) return false;
 	return true;
-}
-
-/**
- * Load a name (of 4 characters) from the file.
- * @param name Start address of the name.
- * @return Name was read successfully.
- * @deprecated Replace with \c this->GetBlob(name,4)
- * @todo Replace calls with calls to #GetBlob.
- */
-bool RcdFile::LoadName(char *name)
-{
-	return this->GetBlob(name, 4);
 }
 
 /**
@@ -593,7 +580,7 @@ const char *SpriteStore::Load(const char *filename)
 
 		if (remain < 12) return "Insufficient space for a block"; // Not enough for a rcd block header, abort.
 
-		if (!rcd_file.LoadName(name)) return "Loading block name failed";
+		if (!rcd_file.GetBlob(name, 4)) return "Loading block name failed";
 		version = rcd_file.GetUInt32();
 		length = rcd_file.GetUInt32();
 

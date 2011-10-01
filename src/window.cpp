@@ -42,6 +42,7 @@ static WindowManager _manager; ///< %Window manager.
  * @param yp Y position top-left corner.
  * @param wp Width of the window.
  * @param hp Height of the window.
+ * @param wtype %Window type (for finding a window in the stack).
  */
 Window::Window(int xp, int yp, uint wp, uint hp, WindowTypes wtype) :
 		x(xp), y(yp), width(wp), height(hp), wtype(wtype)
@@ -102,7 +103,7 @@ struct DrawData {
 /**
  * Add sprites of the voxel to the set of sprites to draw.
  * @param vport %Viewport being drawn.
- * @param 2D rectangle of the visible area relative to the center point of \a vport.
+ * @param rect 2D rectangle of the visible area relative to the center point of \a vport.
  * @param xpos X coordinate of the voxel.
  * @param ypos Y coordinate of the voxel.
  * @param zpos Z coordinate of the voxel.

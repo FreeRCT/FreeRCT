@@ -39,11 +39,11 @@
 #endif /* __GNUC__ */
 
 
-typedef unsigned char byte;
+typedef unsigned char byte; ///< Unsigned 8 bit wide data type.
 
 /* This is already defined in unix, but not in QNX Neutrino (6.x)*/
 #if (!defined(UNIX) && !defined(__CYGWIN__) && !defined(__BEOS__) && !defined(__HAIKU__) && !defined(__MORPHOS__)) || defined(__QNXNTO__)
-	typedef unsigned int uint;
+	typedef unsigned int uint; ///< Unsigned integer data type.
 #endif
 
 #if defined(TROUBLED_INTS)
@@ -54,14 +54,14 @@ typedef unsigned char byte;
 	typedef unsigned int uint32_ugly_hack;
 	typedef signed int int32_ugly_hack;
 #else
-	typedef unsigned char    uint8;
-	typedef   signed char     int8;
-	typedef unsigned short   uint16;
-	typedef   signed short    int16;
-	typedef unsigned int     uint32;
-	typedef   signed int      int32;
-	typedef unsigned __int64 uint64;
-	typedef   signed __int64  int64;
+	typedef unsigned char    uint8;  ///< Unsigned 8 bit wide data type.
+	typedef   signed char     int8;  ///< Signed 8 bit wide data type.
+	typedef unsigned short   uint16; ///< Unsigned 16 bit wide data type.
+	typedef   signed short    int16; ///< Signed 16 bit wide data type.
+	typedef unsigned int     uint32; ///< Unsigned 32 bit wide data type.
+	typedef   signed int      int32; ///< Signed 32 bit wide data type.
+	typedef unsigned __int64 uint64; ///< Unsigned 64 bit wide data type.
+	typedef   signed __int64  int64; ///< Signed 64 bit wide data type.
 #endif /* !TROUBLED_INTS */
 
 /* Compile time assertions. Prefer c++0x static_assert().
@@ -81,10 +81,10 @@ typedef unsigned char byte;
 #endif
 
 /* Check that the types have the byte sizes like we are using them. */
-assert_compile(sizeof(uint64) == 8);
-assert_compile(sizeof(uint32) == 4);
-assert_compile(sizeof(uint16) == 2);
-assert_compile(sizeof(uint8)  == 1);
+assert_compile(sizeof(uint64) == 8); ///< Check size of #uint64 type.
+assert_compile(sizeof(uint32) == 4); ///< Check size of #uint32 type.
+assert_compile(sizeof(uint16) == 2); ///< Check size of #uint16 type.
+assert_compile(sizeof(uint8)  == 1); ///< Check size of #uint8 type.
 
 /**
  * Return the length of an fixed size array.

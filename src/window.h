@@ -57,7 +57,6 @@ public:
 	 * Convert 3D position to the horizontal 2D position.
 	 * @param x X position in the game world.
 	 * @param y Y position in the game world.
-	 * @param z Z position in the game world.
 	 * @return X position in 2D.
 	 */
 	FORCEINLINE int32 ComputeX(int32 x, int32 y)
