@@ -728,3 +728,11 @@ const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 s
 	return this->surface->surface[_slope_rotation[surf_spr][orient]];
 }
 
+/**
+ * Are there sufficient graphics loaded to display something?
+ * @return Sufficient data has been loaded.
+ */
+bool SpriteStore::HaveSufficientGraphics() const
+{
+	return this->surface != NULL; // Check that we loaded ground sprites.
+}

@@ -155,6 +155,8 @@ public:
 
 	const Sprite *GetSurfaceSprite(uint8 type, uint8 slope, uint16 size, ViewOrientation orient);
 
+	bool HaveSufficientGraphics() const;
+
 protected:
 	const char *Load(const char *fname);
 

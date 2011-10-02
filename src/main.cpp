@@ -44,6 +44,10 @@ int main(void)
 		exit(1);
 	}
 
+	if (!_sprite_store.HaveSufficientGraphics()) {
+		fprintf(stderr, "Insufficient graphics loaded, some parts may not be displayed correctly.\n");
+	}
+
 	/* Initialize video. */
 	if (!vid.Initialize()) {
 		fprintf(stderr, "Failed to initialize window, aborting\n");
