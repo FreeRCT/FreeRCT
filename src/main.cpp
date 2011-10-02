@@ -32,6 +32,23 @@ void CDECL error(const char *s, ...)
 	abort();
 }
 
+/**
+ * Callback from the SDL timer.
+ * @param interval Timer interval.
+ * @param param Dummy parameter.
+ * @return New interval.
+ */
+static uint32 NextFrame(uint32 interval, void *param)
+{
+	SDL_Event event;
+
+	/* Push a 'UserEvent' onto the queue to denote time passage. */
+	event.type = SDL_USEREVENT; // Other fields are "don't care"
+	SDL_PushEvent(&event);
+
+	return interval;
+}
+
 /** Main entry point. */
 int main(void)
 {
@@ -67,16 +84,25 @@ int main(void)
 
 	_input.SetMouseMode(MM_TILE_TERRAFORM);
 
+	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);
+
 	bool finished = false;
 	while (!finished) {
+		/* For every frame do... */
 		UpdateWindows();
 
-		SDL_Event event;
-		while (!finished && SDL_PollEvent(&event)) {
+		bool next_frame = false;
+		while (!next_frame) {
+			SDL_Event event;
+			if (!SDL_WaitEvent(&event)) {
+				finished = true; // Error in the event stream, quit.
+				break;
+			}
 			switch(event.type) {
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym) {
 						case SDLK_q:
+							next_frame = true;
 							finished = true;
 							break;
 
@@ -121,6 +147,7 @@ int main(void)
 					break;
 
 				case SDL_USEREVENT:
+					next_frame = true;
 					break;
 
 				case SDL_VIDEOEXPOSE:
@@ -129,6 +156,7 @@ int main(void)
 					break;
 
 				case SDL_QUIT:
+					next_frame = true;
 					finished = true;
 					break;
 
@@ -137,6 +165,8 @@ int main(void)
 			}
 		}
 	}
+
+	SDL_RemoveTimer(timer_id); // Drop the timer.
 
 	vid.Shutdown();
 	exit(0);

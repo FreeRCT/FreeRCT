@@ -36,7 +36,7 @@ VideoSystem::~VideoSystem()
 bool VideoSystem::Initialize()
 {
 	if (this->initialized) return true;
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) return false;
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return false;
 
 	this->video = SDL_SetVideoMode(800, 600, 8, SDL_HWSURFACE);
 	if (this->video == NULL) {
