@@ -14,7 +14,6 @@
 #include "map.h"
 #include "window.h"
 #include "sprite_store.h"
-#include "input.h"
 
 /**
  * Error handling for fatal non-user errors.
@@ -82,7 +81,7 @@ int main(void)
 	assert(width >= 20 && height >= 20);
 	Viewport *w = new Viewport(5, 5, width - 10, height - 10);
 
-	_input.SetMouseMode(MM_TILE_TERRAFORM);
+	w->SetMouseMode(MM_TILE_TERRAFORM);
 
 	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);
 
@@ -119,27 +118,43 @@ int main(void)
 					}
 					break;
 
-				case SDL_MOUSEMOTION:
-					_input.MouseMoveEvent(event.motion.x, event.motion.y);
+				case SDL_MOUSEMOTION: {
+					Point16 p;
+					p.x = event.button.x;
+					p.y = event.button.y;
+					_manager.MouseMoveEvent(p);
 					break;
+				}
 
 				case SDL_MOUSEBUTTONUP:
 				case SDL_MOUSEBUTTONDOWN:
 					switch (event.button.button) {
-						case SDL_BUTTON_WHEELDOWN:
-							_input.MouseMoveEvent(event.button.x, event.button.y);
-							_input.MouseWheelEvent(1);
+						case SDL_BUTTON_WHEELDOWN: {
+							Point16 p;
+							p.x = event.button.x;
+							p.y = event.button.y;
+							_manager.MouseMoveEvent(p);
+							_manager.MouseWheelEvent(1);
 							break;
+						}
 
-						case SDL_BUTTON_WHEELUP:
-							_input.MouseMoveEvent(event.button.x, event.button.y);
-							_input.MouseWheelEvent(-1);
+						case SDL_BUTTON_WHEELUP: {
+							Point16 p;
+							p.x = event.button.x;
+							p.y = event.button.y;
+							_manager.MouseMoveEvent(p);
+							_manager.MouseWheelEvent(-1);
 							break;
+						}
 
-						case SDL_BUTTON_LEFT:
-							_input.MouseMoveEvent(event.button.x, event.button.y);
-							_input.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
+						case SDL_BUTTON_LEFT: {
+							Point16 p;
+							p.x = event.button.x;
+							p.y = event.button.y;
+							_manager.MouseMoveEvent(p);
+							_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
 							break;
+						}
 
 						default:
 							break;

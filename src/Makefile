@@ -13,7 +13,7 @@ CXXFLAGS=-Wall -g
 INCLUDES=-I/usr/include/SDL
 LIBS=-lSDL
 
-CXXFILES=fileio.cpp input.cpp main.cpp map.cpp palette.cpp path.cpp \
+CXXFILES=fileio.cpp main.cpp map.cpp palette.cpp path.cpp \
 	sprite_store.cpp string_func.cpp video.cpp window.cpp
 
 OBJFILES=$(CXXFILES:.cpp=.o)

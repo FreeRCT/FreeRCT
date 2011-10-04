@@ -18,6 +18,23 @@ struct Point {
 	int32 y; ///< Y coordinate.
 };
 
+/** A 2D point in space with 16 bit precision. */
+struct Point16 {
+	int16 x; ///< X coordinate.
+	int16 y; ///< Y coordinate.
+};
+
+/**
+ * Test for point equality.
+ * @param p First point to compare.
+ * @param q Second point to compare.
+ * @return Points are logically equal (same x and y position).
+ */
+FORCEINLINE bool operator==(const Point16 &p, const Point16 &q)
+{
+	return p.x == q.x && p.y == q.y;
+}
+
 /** An area in 2D. */
 struct Rectangle {
 	/** Default constructor. */

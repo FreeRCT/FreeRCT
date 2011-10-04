@@ -17,24 +17,7 @@
 #include "palette.h"
 #include "sprite_store.h"
 
-/**
- * %Window manager class, manages the window stack.
- */
-class WindowManager {
-public:
-	WindowManager();
-	~WindowManager();
-
-	bool HasWindow(Window *w);
-	void AddTostack(Window *w);
-	Window *RemoveFromStack(Window *w);
-
-	Window *top;        ///< Top-most window in the window stack.
-	Window *bottom;     ///< Lowest window in the window stack.
-	VideoSystem *video; ///< Video output device.
-};
-
-static WindowManager _manager; ///< %Window manager.
+WindowManager _manager; ///< %Window manager.
 
 /**
  * %Window constructor. It automatically adds the window to the window stack.
@@ -71,17 +54,35 @@ void Window::MarkDirty()
 	_manager.video->MarkDisplayDirty();
 }
 
+/** Paint the window to the screen. */
+/* virtual */ void Window::OnDraw() { }
+
 /**
- * Paint the window to the screen.
+ * Mouse moved to new position.
+ * @param pos New position.
  */
-/* virtual */ void Window::OnDraw()
-{
-}
-
+/* virtual */ void Window::OnMouseMoveEvent(const Point16 &pos) { }
 
 /**
- * Default constructor.
- * @todo Make #Viewport a derived class of #Window.
+ * Mouse buttons changed state.
+ * @param state Updated state. @see MouseButtons
+ */
+/* virtual */ void Window::OnMouseButtonEvent(uint8 state) { }
+
+/**
+ * Mousewheel rotated.
+ * @param direction Direction of change (\c +1 or \c -1).
+ */
+/* virtual */ void Window::OnMouseWheelEvent(int direction) { }
+
+/** Mouse entered window. */
+/* virtual */ void Window::OnMouseEnterEvent() { }
+
+/** Mouse left window. */
+/* virtual */ void Window::OnMouseLeaveEvent() { }
+
+/**
+ * %Viewport constructor.
  */
 Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDISPLAY)
 {
@@ -92,6 +93,11 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 	this->tile_width  = 64;
 	this->tile_height = 16;
 	this->orientation = VOR_NORTH;
+
+	this->mouse_mode = MM_INACTIVE;
+	this->mouse_pos.x = 0;
+	this->mouse_pos.y = 0;
+	this->mouse_state = 0;
 }
 
 /** Data temporary needed for drawing. */
@@ -242,6 +248,56 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
+void Viewport::SetMouseMode(MouseMode mode)
+{
+	assert(mode < MM_COUNT);
+	this->mouse_state = 0;
+	this->mouse_mode = mode;
+}
+
+/* virtual */ void Viewport::OnMouseMoveEvent(const Point16 &pos)
+{
+	switch (this->mouse_mode) {
+		case MM_INACTIVE:
+			break;
+
+		case MM_TILE_TERRAFORM:
+			if (pos == this->mouse_pos) break;
+			if ((this->mouse_state & MB_LEFT) != 0) {
+				/* Drag the window if button is pressed down. */
+				this->MoveViewport(pos.x - this->mouse_pos.x, pos.y - this->mouse_pos.y);
+			}
+			this->mouse_pos = pos;
+			break;
+
+		default: NOT_REACHED();
+	}
+}
+
+/* virtual */ void Viewport::OnMouseButtonEvent(uint8 state)
+{
+	switch (this->mouse_mode) {
+		case MM_INACTIVE:
+			break;
+
+		case MM_TILE_TERRAFORM:
+			this->mouse_state = state & MB_CURRENT;
+			break;
+
+		default: NOT_REACHED();
+	}
+}
+
+/* virtual */ void Viewport::OnMouseEnterEvent()
+{
+	this->mouse_state = 0;
+}
+
+/* virtual */ void Viewport::OnMouseLeaveEvent()
+{
+	this->mouse_state = 0;
+}
+
 /**
  * %Window manager default constructor.
  * @todo Move this to a separate InitWindowSystem, together with #SetVideo?
@@ -250,6 +306,12 @@ WindowManager::WindowManager()
 {
 	this->top = NULL;
 	this->bottom = NULL;
+
+	/* Mouse event handling. */
+	this->mouse_pos.x = -10000; // A very unlikely position for a window.
+	this->mouse_pos.y = -10000;
+	this->current_window = NULL;
+	this->mouse_state = 0;
 
 	this->video = NULL;
 };
@@ -336,6 +398,67 @@ bool WindowManager::HasWindow(Window *w)
 		v = v->lower;
 	}
 	return false;
+}
+
+Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
+{
+	Window *w = this->top;
+	while (w != NULL) {
+		if (pos.x > w->x && pos.y > w->y && pos.x < w->x + (int)w->width && pos.y < w->y + (int)w->height) break;
+		w = w->lower;
+	}
+	return w;
+}
+
+void WindowManager::MouseMoveEvent(const Point16 &pos)
+{
+	if (pos == this->mouse_pos) return;
+	this->mouse_pos = pos;
+
+	this->UpdateCurrentWindow();
+	if (this->current_window != NULL) this->current_window->OnMouseMoveEvent(pos);
+}
+
+/**
+ * Update the #current_window variable.
+ * This may happen when the mouse has moved, but also because of a change in the window stack.
+ * @return Window has changed.
+ * @todo Hook a call to this function into the window stack changing code.
+ */
+bool WindowManager::UpdateCurrentWindow()
+{
+	Window *w = this->FindWindowByPosition(this->mouse_pos);
+	if (w == this->current_window) return false;
+
+	/* Windows are different, send mouse leave/enter events. */
+	if (this->current_window != NULL && this->HasWindow(this->current_window)) this->current_window->OnMouseLeaveEvent();
+
+	this->current_window = w;
+	if (this->current_window != NULL) this->current_window->OnMouseEnterEvent();
+	return true;
+}
+
+void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
+{
+	assert(button == MB_LEFT || button == MB_MIDDLE || button == MB_RIGHT);
+	uint8 newstate = this->mouse_state;
+	if (pressed) {
+		newstate |= button;
+	} else {
+		newstate &= ~button;
+	}
+
+	this->UpdateCurrentWindow();
+	if (newstate != this->mouse_state && this->current_window != NULL) {
+		this->current_window->OnMouseButtonEvent((this->mouse_state << 4) | newstate);
+	}
+	this->mouse_state = newstate;
+}
+
+void WindowManager::MouseWheelEvent(int direction)
+{
+	this->UpdateCurrentWindow();
+	if (this->current_window != NULL) this->current_window->OnMouseWheelEvent(direction);
 }
 
 /**

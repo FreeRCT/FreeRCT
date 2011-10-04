@@ -15,9 +15,30 @@
 #include "geometry.h"
 #include "orientation.h"
 
+class VideoSystem;
+
 /** Available types of windows. */
 enum WindowTypes {
 	WC_MAINDISPLAY, ///< Main display of the world.
+};
+
+/** Known mouse buttons. */
+enum MouseButtons {
+	MB_LEFT   = 1, ///< Left button down.
+	MB_MIDDLE = 2, ///< Middle button down.
+	MB_RIGHT  = 4, ///< Right button down.
+
+	MB_CURRENT  = 0x07, ///< Bitmask for current mouse state.
+	MB_PREVIOUS = 0x70, ///< Bitmask for previous mouse state.
+};
+DECLARE_ENUM_AS_BIT_SET(MouseButtons)
+
+/** Known mouse modes. */
+enum MouseMode {
+	MM_INACTIVE,       ///< Inactive mode.
+	MM_TILE_TERRAFORM, ///< Terraforming tiles.
+
+	MM_COUNT,          ///< Number of mouse modes.
 };
 
 /**
@@ -41,6 +62,11 @@ public:
 	void MarkDirty();
 
 	virtual void OnDraw();
+	virtual void OnMouseMoveEvent(const Point16 &pos);
+	virtual void OnMouseButtonEvent(uint8 state);
+	virtual void OnMouseWheelEvent(int direction);
+	virtual void OnMouseEnterEvent();
+	virtual void OnMouseLeaveEvent();
 };
 
 /**
@@ -91,6 +117,12 @@ public:
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
 
+	void SetMouseMode(MouseMode mode);
+	virtual void OnMouseMoveEvent(const Point16 &pos);
+	virtual void OnMouseButtonEvent(uint8 state);
+	virtual void OnMouseEnterEvent();
+	virtual void OnMouseLeaveEvent();
+
 	int32 xview; ///< X position of the center point of the viewport.
 	int32 yview; ///< Y position of the center point of the viewport.
 	int32 zview; ///< Z position of the center point of the viewport.
@@ -98,9 +130,44 @@ public:
 	uint16 tile_width;           ///< Width of a tile.
 	uint16 tile_height;          ///< Height of a tile.
 	ViewOrientation orientation; ///< Direction of view.
+
+private:
+	MouseMode mouse_mode; ///< Mode of the mouse, decides how to react to mouse clicks, drags, etc.
+	Point16 mouse_pos;    ///< Last known position of the mouse.
+	uint8 mouse_state;    ///< Last known state of the mouse buttons.
 };
 
-class VideoSystem;
+/**
+ * %Window manager class, manages the window stack.
+ */
+class WindowManager {
+public:
+	WindowManager();
+	~WindowManager();
+
+	bool HasWindow(Window *w);
+	void AddTostack(Window *w);
+	Window *RemoveFromStack(Window *w);
+
+	void MouseMoveEvent(const Point16 &pos);
+	void MouseButtonEvent(MouseButtons button, bool pressed);
+	void MouseWheelEvent(int direction);
+
+	Window *top;        ///< Top-most window in the window stack.
+	Window *bottom;     ///< Lowest window in the window stack.
+	VideoSystem *video; ///< Video output device.
+
+private:
+	Window *FindWindowByPosition(const Point16 &pos) const;
+	bool UpdateCurrentWindow();
+
+	Point16 mouse_pos;      ///< Last reported mouse position.
+	Window *current_window; ///< 'Current' window under the mouse.
+	uint8 mouse_state;      ///< Last reported mouse button state (lower 4 bits).
+};
+
+extern WindowManager _manager;
+
 
 void SetVideo(VideoSystem *vid);
 VideoSystem *GetVideo();
