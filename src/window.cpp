@@ -416,7 +416,13 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 	this->mouse_pos = pos;
 
 	this->UpdateCurrentWindow();
-	if (this->current_window != NULL) this->current_window->OnMouseMoveEvent(pos);
+	if (this->current_window != NULL) {
+		/* Compute position relative to window origin. */
+		Point16 pos2;
+		pos2.x = pos.x - this->current_window->x;
+		pos2.y = pos.y - this->current_window->y;
+		this->current_window->OnMouseMoveEvent(pos2);
+	}
 }
 
 /**
