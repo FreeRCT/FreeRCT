@@ -156,6 +156,24 @@ int main(void)
 							break;
 						}
 
+						case SDL_BUTTON_MIDDLE: {
+							Point16 p;
+							p.x = event.button.x;
+							p.y = event.button.y;
+							_manager.MouseMoveEvent(p);
+							_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
+							break;
+						}
+
+						case SDL_BUTTON_RIGHT: {
+							Point16 p;
+							p.x = event.button.x;
+							p.y = event.button.y;
+							_manager.MouseMoveEvent(p);
+							_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
+							break;
+						}
+
 						default:
 							break;
 					}

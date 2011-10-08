@@ -263,7 +263,7 @@ void Viewport::SetMouseMode(MouseMode mode)
 
 		case MM_TILE_TERRAFORM:
 			if (pos == this->mouse_pos) break;
-			if ((this->mouse_state & MB_LEFT) != 0) {
+			if ((this->mouse_state & MB_RIGHT) != 0) {
 				/* Drag the window if button is pressed down. */
 				this->MoveViewport(pos.x - this->mouse_pos.x, pos.y - this->mouse_pos.y);
 			}
