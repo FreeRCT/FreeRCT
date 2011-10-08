@@ -248,6 +248,10 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
+/**
+ * Set mode of the mouse interaction of the viewport.
+ * @param mode New mode.
+ */
 void Viewport::SetMouseMode(MouseMode mode)
 {
 	assert(mode < MM_COUNT);
@@ -400,6 +404,11 @@ bool WindowManager::HasWindow(Window *w)
 	return false;
 }
 
+/**
+ * Find the window that covers a given position of the display.
+ * @param pos Position of the display.
+ * @return The window displayed at the given position, or \c NULL if no window.
+ */
 Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 {
 	Window *w = this->top;
@@ -410,6 +419,10 @@ Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 	return w;
 }
 
+/**
+ * Mouse moved to new coordinates.
+ * @param pos New position of the mouse.
+ */
 void WindowManager::MouseMoveEvent(const Point16 &pos)
 {
 	if (pos == this->mouse_pos) return;
@@ -444,6 +457,11 @@ bool WindowManager::UpdateCurrentWindow()
 	return true;
 }
 
+/**
+ * A mouse button was pressed or released.
+ * @param button The button that changed state.
+ * @param pressed The button was pressed (\c false means it was released instead).
+ */
 void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 {
 	assert(button == MB_LEFT || button == MB_MIDDLE || button == MB_RIGHT);
@@ -461,6 +479,10 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 	this->mouse_state = newstate;
 }
 
+/**
+ * The mouse wheel has been turned.
+ * @param direction Direction of the turn (either \c +1 or \c -1).
+ */
 void WindowManager::MouseWheelEvent(int direction)
 {
 	this->UpdateCurrentWindow();
