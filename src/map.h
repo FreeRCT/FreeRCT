@@ -17,8 +17,10 @@
 
 #include <map>
 
-static const int WORLD_X_SIZE = 128; ///< Maximal length of the X side (North-West side) of the world.
-static const int WORLD_Y_SIZE = 128; ///< Maximal length of the Y side (North-East side) of the world.
+static const int WORLD_X_SIZE = 128;        ///< Maximal length of the X side (North-West side) of the world.
+static const int WORLD_Y_SIZE = 128;        ///< Maximal length of the Y side (North-East side) of the world.
+static const int MAX_VOXEL_STACK_SIZE = 64; ///< At most a stack of 64 voxels.
+
 
 /** Types of voxels. */
 enum VoxelType {

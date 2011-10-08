@@ -15,8 +15,6 @@
 
 VoxelWorld _world; ///< The game world.
 
-static const uint MAX_VOXEL_STACK_SIZE = 64; ///< At most a stack of 64 voxels.
-
 /** Default constructor. */
 VoxelStack::VoxelStack()
 {
@@ -51,7 +49,8 @@ void VoxelStack::Clear()
 bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 {
 	assert(new_height > 0);
-	if (new_height > MAX_VOXEL_STACK_SIZE) return false;
+	/* Make sure the voxels live between 0 and MAX_VOXEL_STACK_SIZE. */
+	if (new_base < 0 || new_base + (int)new_height > MAX_VOXEL_STACK_SIZE) return false;
 
 	Voxel *new_voxels = Calloc<Voxel>(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_height));
