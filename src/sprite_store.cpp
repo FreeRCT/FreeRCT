@@ -272,6 +272,34 @@ bool ImageData::Load(RcdFile *rcd_file, size_t length)
 	return true;
 }
 
+/**
+ * Return the pixel-value of the provided position.
+ * @param xoffset Horizontal offset in the sprite.
+ * @param yoffset Vertical offset in the sprite.
+ * @return Pixel value at the given postion, or \c 0 if transparent.
+ */
+uint8 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
+{
+	if (xoffset >= this->width) return 0;
+	if (yoffset >= this->height) return 0;
+
+	uint32 offset = this->table[yoffset];
+	if (offset == INVALID_JUMP) return 0;
+
+	uint16 xpos = 0;
+	while (xpos < xoffset) {
+		uint8 rel_pos = this->data[offset];
+		uint8 count = this->data[offset + 1];
+		xpos += (rel_pos & 127);
+		if (xpos > xoffset) return 0;
+		if (xoffset - xpos < count) return this->data[offset + 2 + xoffset - xpos];
+		xpos += count;
+		offset += 2 + count;
+		if ((rel_pos & 128) != 0) break;
+	}
+	return 0;
+}
+
 Sprite::Sprite() : RcdBlock()
 {
 	this->img_data = NULL;

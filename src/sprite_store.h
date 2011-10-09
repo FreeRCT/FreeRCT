@@ -36,6 +36,8 @@ public:
 
 	bool Load(RcdFile *rcd_file, size_t length);
 
+	uint8 GetPixel(uint16 xoffset, uint16 yoffset) const;
+
 	uint16 width;  ///< Width of the image.
 	uint16 height; ///< Height of the image.
 	uint32 *table; ///< The jump table. For missing entries, #INVALID_JUMP is used.
@@ -56,6 +58,16 @@ public:
 	~Sprite();
 
 	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &images);
+
+	/**
+	 * Return the pixel-value of the provided position.
+	 * @param xoffset Horizontal offset in the sprite.
+	 * @param yoffset Vertical offset in the sprite.
+	 * @return Pixel value at the given postion, or \c 0 if transparent.
+	 */
+	FORCEINLINE uint8 GetPixel(uint16 xoffset, uint16 yoffset) const {
+		return img_data->GetPixel(xoffset, yoffset);
+	}
 
 	ImageData *img_data;  ///< Image data of the sprite.
 	int16 xoffset;        ///< Horizontal offset of the image.
