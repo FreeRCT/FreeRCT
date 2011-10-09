@@ -66,7 +66,9 @@ void Voxel::AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, i
 
 	if (this->GetType() != VT_SURFACE) return;
 
-	const Sprite *spr = _sprite_store.GetSurfaceSprite(0, this->GetSurfaceSprite(), vport->tile_width, vport->orientation);
+	const SurfaceVoxelData *svd = this->GetSurface();
+	if (svd->ground.type == GTP_INVALID) return;
+	const Sprite *spr = _sprite_store.GetSurfaceSprite(svd->ground.type, svd->ground.slope, vport->tile_width, vport->orientation);
 	if (spr == NULL) return;
 
 	Rectangle spr_rect = Rectangle(north_x + spr->xoffset, north_y + spr->yoffset, spr->img_data->width, spr->img_data->height);

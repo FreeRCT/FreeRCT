@@ -123,7 +123,11 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
 		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
 			Voxel *v = GetVoxel(xpos, ypos, z, true);
-			v->SetSurfaceSprite(ImplodeSlope(SL_FLAT));
+			SurfaceVoxelData svd;
+			svd.ground.type = GTP_GRASS0;
+			svd.ground.slope = ImplodeSlope(SL_FLAT);
+			svd.foundation.type = FDT_INVALID;
+			v->SetSurface(svd);
 		}
 	}
 }
@@ -138,18 +142,33 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 void VoxelWorld::MakeBump(uint16 x, uint16 y, int16 z)
 {
 	Voxel *v;
-	v = GetVoxel(x-1, y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH));
-	v = GetVoxel(x-1, y,   z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH | TCB_WEST));
-	v = GetVoxel(x-1, y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_WEST));
-	v = GetVoxel(x,   y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH | TCB_EAST));
-	v = GetVoxel(x,   y,   z+1, true); v->SetSurfaceSprite(ImplodeSlope(SL_FLAT));
-	v = GetVoxel(x,   y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH | TCB_WEST));
-	v = GetVoxel(x+1, y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_SOUTH | TCB_EAST));
-	v = GetVoxel(x+1, y,   z+1, true); v->SetSurfaceSprite(ImplodeSlope(SL_FLAT));
-	v = GetVoxel(x+1, y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH | TCB_WEST));
-	v = GetVoxel(x+2, y-1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_EAST));
-	v = GetVoxel(x+2, y,   z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH | TCB_EAST));
-	v = GetVoxel(x+2, y+1, z,   true); v->SetSurfaceSprite(ImplodeSlope(TCB_NORTH));
+	SurfaceVoxelData svd;
+
+	svd.ground.type = GTP_GRASS0;
+	svd.foundation.type = FDT_INVALID;
+
+#define MK(dx, dy, dz, gslope) \
+	v = GetVoxel(x+(dx), y+(dy), z+(dz), true); \
+	svd.ground.slope = ImplodeSlope(gslope); \
+	v->SetSurface(svd);
+
+	MK(-1, -1, 0, TCB_SOUTH);
+	MK(-1,  0, 0, (TCB_SOUTH | TCB_WEST));
+	MK(-1,  1, 0, TCB_WEST);
+
+	MK( 0, -1, 0, (TCB_SOUTH | TCB_EAST));
+	MK( 0,  0, 1, SL_FLAT);
+	MK( 0,  1, 0, (TCB_NORTH | TCB_WEST));
+
+	MK( 1, -1, 0, (TCB_SOUTH | TCB_EAST));
+	MK( 1,  0, 1, SL_FLAT);
+	MK( 1,  1, 0, (TCB_NORTH | TCB_WEST));
+
+	MK( 2, -1, 0, TCB_EAST);
+	MK( 2,  0, 0, (TCB_NORTH | TCB_EAST));
+	MK( 2,  1, 0, TCB_NORTH);
+
+#undef MK
 
 	v = GetVoxel(x, y, z, true); v->SetEmpty();
 	v = GetVoxel(x+1, y, z, true); v->SetEmpty();

@@ -39,6 +39,35 @@ struct DrawData;
  */
 typedef std::multimap<int32, DrawData> DrawImages;
 
+/** Description of ground. */
+struct GroundVoxelData {
+	uint8 type;  ///< Type of ground.
+	uint8 slope; ///< Slope of the ground;
+};
+
+/** Description of foundation. */
+struct FoundationVoxelData {
+	uint8 type;  ///< Type of foundation.
+	uint8 slope; ///< Slopes of the foundation (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
+};
+
+/** Description of the earth surface (combined ground and foundations). */
+struct SurfaceVoxelData {
+	GroundVoxelData     ground;     ///< Ground sprite at this location.
+	FoundationVoxelData foundation; ///< Foundation sprite at this location.
+};
+
+/**
+ * Description of a referenced voxel.
+ * For structures larger than a single voxel, only the base voxel contains a description.
+ * The other voxels reference to the base voxel for their sprites.
+ */
+struct ReferenceVoxelData {
+	uint16 xpos; ///< Base voxel X coordinate.
+	uint16 ypos; ///< Base voxel Y coordinate.
+	uint8  zpos; ///< Base voxel Z coordinate.
+};
+
 /**
  * One voxel cell in the world.
  * @todo Handle #VT_COASTER voxels.
@@ -56,22 +85,33 @@ public:
 	}
 
 	/**
-	 * Get the slope sprite of the surface.
+	 * Get the surface data.
+	 * @return Surface data (ground tile and foundation).
+	 */
+	FORCEINLINE SurfaceVoxelData *GetSurface() {
+		assert(this->type == VT_SURFACE);
+		return &this->surface;
+	}
+
+	/**
+	 * Get the surface data for read-only access.
 	 * @return Surface slope.
 	 */
-	FORCEINLINE uint8 GetSurfaceSprite() const {
-		return this->surface;
+	FORCEINLINE const SurfaceVoxelData *GetSurface() const {
+		assert(this->type == VT_SURFACE);
+		return &this->surface;
 	}
 
 	/**
 	 * Set the voxel to a surface type.
 	 * @param slope_spr %Slope sprite of the surface.
 	 */
-	FORCEINLINE void SetSurfaceSprite(uint8 slope_spr)
+	FORCEINLINE void SetSurface(const SurfaceVoxelData &vd)
 	{
-		assert(slope_spr < NUM_SLOPE_SPRITES);
 		this->type = VT_SURFACE;
-		this->surface = slope_spr;
+		assert(vd.ground.type == GTP_INVALID || vd.ground.slope < NUM_SLOPE_SPRITES);
+		assert(vd.foundation.type < FDT_COUNT);
+		this->surface = vd;
 	}
 
 	/** Set the voxel to empty. */
@@ -82,9 +122,11 @@ public:
 
 	void AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, int ypos, int zpos, int32 north_x, int32 north_y, DrawImages &draw_images);
 
-protected:
-	uint8 type;      ///< Type of the voxel. @see VoxelType
-	uint8 surface;   ///< Slope sprite of the tile.
+	uint8 type; ///< Type of the voxel. @see VoxelType
+	union {
+		SurfaceVoxelData surface;
+		ReferenceVoxelData reference;
+	};
 };
 
 
