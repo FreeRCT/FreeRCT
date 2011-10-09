@@ -28,6 +28,8 @@ public:
 
 	void SetMouseMode(MouseMode mode);
 
+	void ComputeCursorPosition();
+
 	int32 xview; ///< X position of the center point of the viewport.
 	int32 yview; ///< Y position of the center point of the viewport.
 	int32 zview; ///< Z position of the center point of the viewport.
@@ -40,6 +42,10 @@ private:
 	MouseMode mouse_mode; ///< Mode of the mouse, decides how to react to mouse clicks, drags, etc.
 	Point16 mouse_pos;    ///< Last known position of the mouse.
 	uint8 mouse_state;    ///< Last known state of the mouse buttons.
+
+	uint16 xvoxel;        ///< X position of the voxel with the mouse cursor.
+	uint16 yvoxel;        ///< Y position of the voxel with the mouse cursor.
+	uint8  zvoxel;        ///< Z position of the voxel with the mouse cursor.
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual void OnMouseButtonEvent(uint8 state);
