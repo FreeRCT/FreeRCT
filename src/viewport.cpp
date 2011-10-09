@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file viewport.cpp %Window handling functions. */
+/** @file viewport.cpp %Viewport window code. */
 
 #include "stdafx.h"
 #include "math_func.h"
@@ -16,6 +16,237 @@
 #include "video.h"
 #include "palette.h"
 #include "sprite_store.h"
+
+#include <map>
+
+/** Search the world for voxels to render. */
+class VoxelCollector {
+public:
+	VoxelCollector(int32 xview, int32 yview, int32 zview, uint16 width, uint16 height, ViewOrientation orient);
+	virtual ~VoxelCollector();
+
+	void SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height);
+
+	void Collect();
+
+	/**
+	 * Convert 3D position to the horizontal 2D position.
+	 * @param x X position in the game world.
+	 * @param y Y position in the game world.
+	 * @return X position in 2D.
+	 */
+	FORCEINLINE int32 ComputeX(int32 x, int32 y)
+	{
+		switch (this->orient) {
+			case VOR_NORTH: return ((y - x)  * this->tile_width / 2) >> 8;
+			case VOR_WEST:  return (-(x + y) * this->tile_width / 2) >> 8;
+			case VOR_SOUTH: return ((x - y)  * this->tile_width / 2) >> 8;
+			case VOR_EAST:  return ((x + y)  * this->tile_width / 2) >> 8;
+			default: NOT_REACHED();
+		}
+	}
+
+	/**
+	 * Convert 3D position to the vertical 2D position.
+	 * @param x X position in the game world.
+	 * @param y Y position in the game world.
+	 * @param z Z position in the game world.
+	 * @return Y position in 2D.
+	 */
+	FORCEINLINE int32 ComputeY(int32 x, int32 y, int32 z)
+	{
+		switch (this->orient) {
+			case VOR_NORTH: return ((x + y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_WEST:  return ((y - x)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_SOUTH: return (-(x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
+			case VOR_EAST:  return ((x - y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
+			default: NOT_REACHED();
+		}
+	}
+
+	int32 xview; ///< X position of the center point of the display.
+	int32 yview; ///< Y position of the center point of the display.
+	int32 zview; ///< Z position of the center point of the display.
+
+	uint16 tile_width;      ///< Width of a tile.
+	uint16 tile_height;     ///< Height of a tile.
+	ViewOrientation orient; ///< Direction of view.
+
+	Rectangle rect; ///< Screen area of interest.
+
+protected:
+	/**
+	 * Handle a voxel that should be collected.
+	 * @param voxel %Voxel to add.
+	 * @param xpos X world position.
+	 * @param ypos Y world position.
+	 * @param zpos Z world position.
+	 * @param xnorth X coordinate of the north corner at the display.
+	 * @param ynorth y coordinate of the north corner at the display.
+	 * @note Implement in a derived class.
+	 */
+	virtual void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) = 0;
+};
+
+/** Data temporary needed for drawing. */
+struct DrawData {
+	const Sprite *spr; ///< Sprite to draw.
+	Point base;        ///< Base coordinate of the image, relative to top-left of the window.
+};
+
+/**
+ * Map of distance to image.
+ * Used for temporary sorting and storage of images drawn at the viewport.
+ */
+typedef std::multimap<int32, DrawData> DrawImages;
+
+/**
+ * Collect sprites to draw in a viewport.
+ */
+class SpriteCollector : public VoxelCollector {
+public:
+	SpriteCollector(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient);
+	~SpriteCollector();
+
+	void SetXYOffset(int16 xoffset, int16 yoffset);
+
+	DrawImages draw_images; ///< Sprites to draw ordered by viewing distance.
+	int16 xoffset; ///< Horizontal offset of the top-left coordinate to the top-left of the display.
+	int16 yoffset; ///< Vertical offset of the top-left coordinate to the top-left of the display.
+
+protected:
+	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
+};
+
+/**
+ * Constructor.
+ * @param xview X world position of the origin.
+ * @param yview Y world position of the origin.
+ * @param zview Z world position of the origin.
+ * @param tile_width Width of a tile at the display.
+ * @param tile_height Height of a tile in the display.
+ * @patam orient View orientation.
+ */
+VoxelCollector::VoxelCollector(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient)
+{
+	this->xview = xview;
+	this->yview = yview;
+	this->zview = zview;
+	this->tile_width = tile_width;
+	this->tile_height = tile_height;
+	this->orient = orient;
+}
+
+/* Destructor. */
+VoxelCollector::~VoxelCollector()
+{
+}
+
+/**
+ * Set screen area of interest (relative to the (#xview, #yview, and #zview position).
+ * @param xpos Horizontal position of the top-left corner.
+ * @param ypos Vertical position of the top-left corner.
+ * @oaram width Width of the area.
+ * @param height Height of the area.
+ */
+void VoxelCollector::SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height)
+{
+	this->rect.base.x = this->ComputeX(this->xview, this->yview) + xpos;
+	this->rect.base.y = this->ComputeY(this->xview, this->yview, this->zview) + ypos;
+	this->rect.width = width;
+	this->rect.height = height;
+}
+
+/**
+ * Perform the collecting cycle.
+ * This part walks over the voxels, and call #CollectVoxel for each useful voxel.
+ * A derived class may then inspect the voxel in more detail.
+ * @todo Add referenced voxels map here.
+ * @todo Do this less stupid. Walking the whole world is not going to work in general.
+ */
+void VoxelCollector::Collect()
+{
+	for (uint xpos = 0; xpos < _world.GetXSize(); xpos++) {
+		int32 world_x = (xpos + ((this->orient == VOR_SOUTH || this->orient == VOR_WEST) ? 1 : 0)) * 256;
+		for (uint ypos = 0; ypos < _world.GetYSize(); ypos++) {
+			int32 world_y = (ypos + ((this->orient == VOR_SOUTH || this->orient == VOR_EAST) ? 1 : 0)) * 256;
+			int32 north_x = ComputeX(world_x, world_y);
+			if (north_x + this->tile_width / 2 <= (int32)this->rect.base.x) continue; // Right of voxel column is at left of window.
+			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
+
+			VoxelStack *stack = _world.GetStack(xpos, ypos);
+			for (int count = 0; count < stack->height; count++) {
+				uint zpos = stack->base + count;
+				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
+				if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
+				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
+
+				this->CollectVoxel(&stack->voxels[count], xpos, ypos, zpos, north_x, north_y);
+			}
+		}
+	}
+}
+
+/**
+ * Constructor of sprites collector.
+ */
+SpriteCollector::SpriteCollector(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient) :
+		VoxelCollector(xview, yview, zview, tile_width, tile_height, orient)
+{
+	this->draw_images.clear();
+}
+
+SpriteCollector::~SpriteCollector()
+{
+}
+
+/**
+ * Set the offset of the top-left coordinate of the collect window to the top-left of the display.
+ * @param xoffset Horizontal offset.
+ * @param yoffset Vertical offset.
+ */
+void SpriteCollector::SetXYOffset(int16 xoffset, int16 yoffset)
+{
+	this->xoffset = xoffset;
+	this->yoffset = yoffset;
+}
+
+/**
+ * Add all sprites of the voxel to the set of sprites to draw.
+ * @param voxel %Voxel to add.
+ * @param xpos X world position.
+ * @param ypos Y world position.
+ * @param zpos Z world position.
+ * @param xnorth X coordinate of the north corner at the display.
+ * @param ynorth y coordinate of the north corner at the display.
+ */
+void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth)
+{
+	int sx = (this->orient == VOR_NORTH || this->orient == VOR_EAST) ? 256 : -256;
+	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 256 : -256;
+
+	switch (voxel->GetType()) {
+		case VT_SURFACE: {
+			const SurfaceVoxelData *svd = voxel->GetSurface();
+			if (svd->ground.type == GTP_INVALID) break;
+			const Sprite *spr = _sprite_store.GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->tile_width, this->orient);
+			if (spr != NULL) {
+				std::pair<int32, DrawData> p;
+				p.first = sx * xpos + sy * ypos + zpos * 256;
+				p.second.spr = spr;
+				p.second.base.x = this->xoffset + xnorth + spr->xoffset - this->rect.base.x;
+				p.second.base.y = this->yoffset + ynorth + spr->yoffset - this->rect.base.y;
+				draw_images.insert(p);
+			}
+			/* TODO: svd->foundation */
+
+			break;
+		}
+
+		default:
+			break;
+	}
+}
 
 /**
  * %Viewport constructor.
@@ -36,89 +267,13 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 	this->mouse_state = 0;
 }
 
-/** Data temporary needed for drawing. */
-struct DrawData {
-	const Sprite *spr; ///< Sprite to draw.
-	Point base;        ///< Base coordinate of the image, relative to top-left of the window.
-};
-
-/**
- * Add sprites of the voxel to the set of sprites to draw.
- * @param vport %Viewport being drawn.
- * @param rect 2D rectangle of the visible area relative to the center point of \a vport.
- * @param xpos X coordinate of the voxel.
- * @param ypos Y coordinate of the voxel.
- * @param zpos Z coordinate of the voxel.
- * @param north_x X coordinate of the voxel base 2D position.
- * @param north_y Y coordinate of the voxel base 2D position.
- * @param draw_images [inout] Collected sprites to draw so far.
- */
-void Voxel::AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, int ypos, int zpos, int32 north_x, int32 north_y, DrawImages &draw_images)
-{
-	int sx, sy; // Direction of x and y in sorting.
-	switch (vport->orientation) {
-		case VOR_NORTH: sx =  1; sy =  1; break;
-		case VOR_EAST:  sx =  1; sy = -1; break;
-		case VOR_SOUTH: sx = -1; sy = -1; break;
-		case VOR_WEST:  sx = -1; sy =  1; break;
-		default:        NOT_REACHED();
-	}
-
-	if (this->GetType() != VT_SURFACE) return;
-
-	const SurfaceVoxelData *svd = this->GetSurface();
-	if (svd->ground.type == GTP_INVALID) return;
-	const Sprite *spr = _sprite_store.GetSurfaceSprite(svd->ground.type, svd->ground.slope, vport->tile_width, vport->orientation);
-	if (spr == NULL) return;
-
-	Rectangle spr_rect = Rectangle(north_x + spr->xoffset, north_y + spr->yoffset, spr->img_data->width, spr->img_data->height);
-	if (rect.Intersects(spr_rect)) {
-		std::pair<int32, DrawData> p;
-		p.first = sx * xpos * 256 + sy * ypos * 256 + zpos * 256;
-		p.second.spr = spr;
-		p.second.base.x = spr_rect.base.x - rect.base.x + vport->x;
-		p.second.base.y = spr_rect.base.y - rect.base.y + vport->y;
-		draw_images.insert(p);
-	}
-}
-
-
-/** @todo Do this less stupid. Drawing the whole world is not going to work in general. */
 /* virtual */ void Viewport::OnDraw()
 {
-	Rectangle rect;
-	rect.base.x = this->ComputeX(this->xview, this->yview) - this->width / 2;
-	rect.base.y = this->ComputeY(this->xview, this->yview, this->zview) - this->height / 2;
-	rect.width = this->width;
-	rect.height = this->height;
+	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
+	collector.SetWindowSize(-(int16)this->width / 2, -(int16)this->height / 2, this->width, this->height);
+	collector.SetXYOffset(this->x, this->y);
+	collector.Collect();
 
-	DrawImages draw_images;
-
-	int dx, dy; // Offset of the 'north' corner of a view relative to the real north corner.
-	switch (this->orientation) {
-		case VOR_NORTH: dx = 0;   dy = 0;   break;
-		case VOR_EAST:  dx = 0;   dy = 256; break;
-		case VOR_SOUTH: dx = 256; dy = 256; break;
-		case VOR_WEST:  dx = 256; dy = 0;   break;
-		default:        NOT_REACHED();
-	}
-
-	for (int xpos = 0; xpos < _world.GetXSize(); xpos++) {
-		for (int ypos = 0; ypos < _world.GetYSize(); ypos++) {
-			int32 north_x = ComputeX(xpos * 256 + dx, ypos * 256 + dy);
-			if (north_x + this->tile_width / 2 <= (int32)rect.base.x) continue; // Right of voxel column is at left of window.
-			if (north_x - this->tile_width / 2 >= (int32)(rect.base.x + this->width)) continue; // Left of the window.
-
-			VoxelStack *stack = _world.GetStack(xpos, ypos);
-			for (int16 count = 0; count < stack->height; count++) {
-				int32 north_y = this->ComputeY(xpos * 256 + dx, ypos * 256 + dy, (stack->base + count) * 256);
-				if (north_y >= (int32)(rect.base.y + this->height)) continue; // Voxel is below the window.
-				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)rect.base.y) break; // Above the window and rising!
-
-				stack->voxels[count].AddSprites(this, rect, xpos, ypos, stack->base + count, north_x, north_y, draw_images);
-			}
-		}
-	}
 
 	Rectangle wind_rect = Rectangle(this->x, this->y, this->width, this->height); // XXX Why not use this in the window itself?
 
@@ -127,7 +282,7 @@ void Voxel::AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, i
 
 	vid->FillSurface(COL_BACKGROUND); // Black background.
 
-	for (DrawImages::const_iterator iter = draw_images.begin(); iter != draw_images.end(); iter++) {
+	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		vid->BlitImage((*iter).second.base, (*iter).second.spr, wind_rect);
 	}
 

@@ -15,7 +15,6 @@
 #include "tile.h"
 #include "geometry.h"
 
-#include <map>
 
 static const int WORLD_X_SIZE = 128;        ///< Maximal length of the X side (North-West side) of the world.
 static const int WORLD_Y_SIZE = 128;        ///< Maximal length of the Y side (North-East side) of the world.
@@ -29,15 +28,6 @@ enum VoxelType {
 	VT_COASTER,   ///< Voxel contains part of a coaster.
 	VT_REFERENCE, ///< Voxel contains part of the referenced voxel.
 };
-
-class Viewport;
-struct DrawData;
-
-/**
- * Map of distance to image.
- * Used for temporary sorting and storage of images drawn at the viewport.
- */
-typedef std::multimap<int32, DrawData> DrawImages;
 
 /** Description of ground. */
 struct GroundVoxelData {
@@ -119,8 +109,6 @@ public:
 	{
 		this->type = VT_EMPTY;
 	}
-
-	void AddSprites(const Viewport *vport, const Rectangle &rect, int xpos, int ypos, int zpos, int32 north_x, int32 north_y, DrawImages &draw_images);
 
 	uint8 type; ///< Type of the voxel. @see VoxelType
 	union {
