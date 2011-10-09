@@ -8,9 +8,25 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 from rcdlib import tile_selection
+import argparse
 
-fname = '../sprites/borderhighlight8bpp64_masked.png'
+parser = argparse.ArgumentParser(description='Process a border highlight image.')
+parser.add_argument(dest='image_file', metavar='img-file', type=str,
+                   help='Image file contains the border highlight sprites')
+parser.add_argument('--output', dest='output', action='store',
+                   metavar='rcd-file', help='Output RCD file')
+args = parser.parse_args()
 
-images = tile_selection.split_image(fname, -32, -33, 64, 64)
-tile_selection.write_tileselectRCD(images, 64, 16, 'borderhighlight_8bpp64.rcd')
+if args.output is None:
+    if args.image_file.lower().endswidth('.png'):
+        out_name = args.image_file[:-4] + '.rcd'
+    else:
+        out_name = args.image_file + '.rcd'
+else:
+    out_name = args.output
+
+
+
+images = tile_selection.split_image(args.image_file, -32, -33, 64, 64)
+tile_selection.write_tileselectRCD(images, 64, 16, out_name)
 

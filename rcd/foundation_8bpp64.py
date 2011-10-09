@@ -8,9 +8,25 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 from rcdlib import foundations
+import argparse
+
+parser = argparse.ArgumentParser(description='Process a foundation image.')
+parser.add_argument(dest='image_file', metavar='img-file', type=str,
+                   help='Image file contains the foundation sprites')
+parser.add_argument('--output', dest='output', action='store',
+                   metavar='rcd-file', help='Output RCD file')
+args = parser.parse_args()
+
+if args.output is None:
+    if args.image_file.lower().endswidth('.png'):
+        out_name = args.image_file[:-4] + '.rcd'
+    else:
+        out_name = args.image_file + '.rcd'
+else:
+    out_name = args.output
 
 fname = '../sprites/foundationtemplate8bpp64_masked.png'
 
-images = foundations.split_image(fname, -32, -33, 64, 64)
-foundations.write_foundationRCD(images, 64, 16, foundations.GROUND, 'foundation_8bpp64.rcd')
+images = foundations.split_image(args.image_file, -32, -33, 64, 64)
+foundations.write_foundationRCD(images, 64, 16, foundations.GROUND, out_name)
 

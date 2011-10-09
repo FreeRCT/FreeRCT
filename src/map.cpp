@@ -133,6 +133,15 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 }
 
 /**
+ * @fn MK(dx, dy, dz, gslope)
+ * Local macro for generating a tile of the bump.
+ * @param dx X offset.
+ * @param dy Y offset.
+ * @param dz Z offset.
+ * @param gslope Expanded ground slope.
+ */
+
+/**
  * Make a nice bump in the world.
  * @param x xpos
  * @param y ypos

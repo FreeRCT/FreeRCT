@@ -23,13 +23,16 @@ clean:
 	done
 
 borderhighlight_8bpp64.rcd: borderhighlight_8bpp64.py ../sprites/borderhighlight8bpp64_masked.png
-	$(PYTHON) borderhighlight_8bpp64.py
+	$(PYTHON) borderhighlight_8bpp64.py --output borderhighlight_8bpp64.rcd \
+		../sprites/borderhighlight8bpp64_masked.png
 
 foundation_8bpp64.rcd: foundation_8bpp64.py ../sprites/foundationtemplate8bpp64_masked.png
-	$(PYTHON) foundation_8bpp64.py
+	$(PYTHON) foundation_8bpp64.py --output foundation_8bpp64.rcd \
+		../sprites/foundationtemplate8bpp64_masked.png
 
 groundtile_8bpp64.rcd: groundtile_8bpp64.py ../sprites/groundtiletemplatetemplate8bpp64_masked.png
-	$(PYTHON) groundtile_8bpp64.py
+	$(PYTHON) groundtile_8bpp64.py --output groundtile_8bpp64.rcd \
+		../sprites/groundtiletemplatetemplate8bpp64_masked.png
 
 cornerhighlight_8bpp64.rcd: cornerhighlight_8bpp64.py ../sprites/cornerhighlight8bpp64_masked.png
 	$(PYTHON) cornerhighlight_8bpp64.py --output cornerhighlight_8bpp64.rcd \

@@ -93,8 +93,8 @@ public:
 	}
 
 	/**
-	 * Set the voxel to a surface type.
-	 * @param slope_spr %Slope sprite of the surface.
+	 * Set the surface.
+	 * @param vd Surface data of the voxel.
 	 */
 	FORCEINLINE void SetSurface(const SurfaceVoxelData &vd)
 	{

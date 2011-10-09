@@ -8,8 +8,23 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 from rcdlib import ground_tiles
+import argparse
 
-fname = '../sprites/groundtiletemplatetemplate8bpp64_masked.png'
+parser = argparse.ArgumentParser(description='Process a corner select image.')
+parser.add_argument(dest='image_file', metavar='img-file', type=str,
+                   help='Image file contains the corner selection sprites')
+parser.add_argument('--output', dest='output', action='store',
+                   metavar='rcd-file', help='Output RCD file')
+args = parser.parse_args()
+
+if args.output is None:
+    if args.image_file.lower().endswidth('.png'):
+        out_name = args.image_file[:-4] + '.rcd'
+    else:
+        out_name = args.image_file + '.rcd'
+else:
+    out_name = args.output
+
 
 lout = ground_tiles.std_layout
 dummy_lout = [['x' for _v in row] for row in lout]
@@ -18,6 +33,6 @@ dummy_lout = [['x' for _v in row] for row in lout]
 # grid. We are only interested in the non-grid ones, so the grid tiles get a
 # dummy name.
 
-images = ground_tiles.split_image(fname, -32, -33, 64, 64, dummy_lout + lout)
+images = ground_tiles.split_image(args.image_file, -32, -33, 64, 64, dummy_lout + lout)
 
-ground_tiles.write_groundRCD(images, 64, 16, ground_tiles.GRASS, 'groundtile_8bpp64.rcd')
+ground_tiles.write_groundRCD(images, 64, 16, ground_tiles.GRASS, out_name)

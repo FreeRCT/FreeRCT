@@ -77,7 +77,7 @@ public:
 protected:
 	/**
 	 * Handle a voxel that should be collected.
-	 * @param voxel %Voxel to add.
+	 * @param vx   %Voxel to add.
 	 * @param xpos X world position.
 	 * @param ypos Y world position.
 	 * @param zpos Z world position.
@@ -129,6 +129,15 @@ protected:
 /** Find the sprite and pixel under the mouse cursor. */
 class PixelFinder : public VoxelCollector {
 public:
+	/**
+	 * Constructor for collecting the sprite displayed at the mouse cursor.
+	 * @param xview X world position of the origin.
+	 * @param yview Y world position of the origin.
+	 * @param zview Z world position of the origin.
+	 * @param tile_width Width of a tile at the display.
+	 * @param tile_height Height of a tile in the display.
+	 * @param orient View orientation.
+	 */
 	PixelFinder(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient);
 	~PixelFinder();
 
@@ -151,7 +160,7 @@ protected:
  * @param zview Z world position of the origin.
  * @param tile_width Width of a tile at the display.
  * @param tile_height Height of a tile in the display.
- * @patam orient View orientation.
+ * @param orient View orientation.
  */
 VoxelCollector::VoxelCollector(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient)
 {
@@ -172,7 +181,7 @@ VoxelCollector::~VoxelCollector()
  * Set screen area of interest (relative to the (#xview, #yview, and #zview position).
  * @param xpos Horizontal position of the top-left corner.
  * @param ypos Vertical position of the top-left corner.
- * @oaram width Width of the area.
+ * @param width Width of the area.
  * @param height Height of the area.
  */
 void VoxelCollector::SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height)
