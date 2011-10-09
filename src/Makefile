@@ -14,7 +14,7 @@ INCLUDES=-I/usr/include/SDL
 LIBS=-lSDL
 
 CXXFILES=fileio.cpp main.cpp map.cpp palette.cpp path.cpp \
-	sprite_store.cpp string_func.cpp video.cpp window.cpp
+	sprite_store.cpp string_func.cpp video.cpp viewport.cpp window.cpp
 
 OBJFILES=$(CXXFILES:.cpp=.o)
 TARGET=freerct

@@ -12,7 +12,7 @@
 #include "stdafx.h"
 #include "video.h"
 #include "map.h"
-#include "window.h"
+#include "viewport.h"
 #include "sprite_store.h"
 
 /**
