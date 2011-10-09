@@ -15,10 +15,6 @@ parser.add_argument(dest='image_file', metavar='img-file', type=str,
                    help='Image file contains the path sprites')
 parser.add_argument('--output', dest='output', action='store',
                    metavar='rcd-file', help='Output RCD file')
-#parser.add_argument('-w, --width', dest='tile_width', action='store', default=64,
-#                   metavar='tile_width', help='Width of a tile (left to right) in pixels.')
-#parser.add_argument('-h, --height', dest='tile_height', action='store', default=16,
-#                   metavar='tile_height', help='Height of a tile in pixels.')
 args = parser.parse_args()
 
 if args.output is None:

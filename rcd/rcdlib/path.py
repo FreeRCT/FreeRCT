@@ -8,22 +8,23 @@
 from rcdlib import spritegrid, blocks
 
 # Sprites as laid out in the source image.
-std_layout = [['empty',             'empty',             'empty',             'empty'],
-              ['ne',                'se',                'sw',                'nw'],
-              ['ne_se',             'se_sw',             'nw_sw',             'ne_nw'],
-              ['ne_sw',             'nw_se',             'ne_sw',             'nw_se'],
-              ['ne_se_sw',          'nw_se_sw',          'ne_nw_sw',          'ne_nw_se'],
-              ['ne_nw_se_sw',       'ne_nw_se_sw',       'ne_nw_se_sw',       'ne_nw_se_sw'],
-              ['ne_se_e',           'se_sw_s',           'nw_sw_w',           'ne_nw_n'],
-              ['ne_se_sw_e',        'nw_se_sw_s',        'ne_nw_sw_w',        'ne_nw_se_n'],
-              ['ne_se_sw_s',        'nw_se_sw_w',        'ne_nw_sw_n',        'ne_nw_se_e'],
-              ['ne_se_sw_e_s',      'nw_se_sw_s_w',      'ne_nw_sw_n_w',      'ne_nw_se_n_e'],
-              ['ne_nw_se_sw_n_s_w', 'ne_nw_se_sw_n_e_w', 'ne_nw_se_sw_n_e_s', 'ne_nw_se_sw_e_s_w'],
-              ['ne_nw_se_sw_n_w',   'ne_nw_se_sw_n_e',   'ne_nw_se_sw_e_s',   'ne_nw_se_sw_s_w'],
-              ['ne_nw_se_sw_n_s',   'ne_nw_se_sw_e_w',   'ne_nw_se_sw_n_s',   'ne_nw_se_sw_e_w'],
-              ['ne_nw_se_sw_n',     'ne_nw_se_sw_e',     'ne_nw_se_sw_s',     'ne_nw_se_sw_w'],
-              ['ne_nw_se_sw',       'ne_nw_se_sw',       'ne_nw_se_sw',       'ne_nw_se_sw'],
-              ['ramp_sw',           'ramp_nw',           'ramp_ne',           'ramp_se']]
+std_layout = [['empty',               'empty',               'empty',               'empty'],
+              ['ne',                  'se',                  'sw',                  'nw'],
+              ['ne_se',               'se_sw',               'nw_sw',               'ne_nw'],
+              ['ne_sw',               'nw_se',               'ne_sw',               'nw_se'],
+              ['ne_se_sw',            'nw_se_sw',            'ne_nw_sw',            'ne_nw_se'],
+              ['ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw'],
+              ['ne_se_e',             'se_sw_s',             'nw_sw_w',             'ne_nw_n'],
+              ['ne_se_sw_e',          'nw_se_sw_s',          'ne_nw_sw_w',          'ne_nw_se_n'],
+              ['ne_se_sw_s',          'nw_se_sw_w',          'ne_nw_sw_n',          'ne_nw_se_e'],
+              ['ne_se_sw_e_s',        'nw_se_sw_s_w',        'ne_nw_sw_n_w',        'ne_nw_se_n_e'],
+              ['ne_nw_se_sw_n_s_w',   'ne_nw_se_sw_n_e_w',   'ne_nw_se_sw_n_e_s',   'ne_nw_se_sw_e_s_w'],
+              ['ne_nw_se_sw_n_w',     'ne_nw_se_sw_n_e',     'ne_nw_se_sw_e_s',     'ne_nw_se_sw_s_w'],
+              ['ne_nw_se_sw_n_s',     'ne_nw_se_sw_e_w',     'ne_nw_se_sw_n_s',     'ne_nw_se_sw_e_w'],
+              ['ne_nw_se_sw_n',       'ne_nw_se_sw_e',       'ne_nw_se_sw_s',       'ne_nw_se_sw_w'],
+              ['ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw'],
+              ['ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w'],
+              ['ramp_sw',             'ramp_nw',             'ramp_ne',             'ramp_se']]
 
 # Sprites in the order of the RCD file.
 sprites = ['empty', 'ne', 'se', 'ne_se', 'ne_se_e', 'sw', 'ne_sw', 'se_sw',
