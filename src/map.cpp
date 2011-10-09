@@ -53,7 +53,7 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 	if (new_base < 0 || new_base + (int)new_height > MAX_VOXEL_STACK_SIZE) return false;
 
 	Voxel *new_voxels = Calloc<Voxel>(new_height);
-	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_height));
+	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
 	MemCpy<Voxel>(new_voxels + (new_base - this->base), this->voxels, this->height);
 
 	free(this->voxels);
@@ -71,12 +71,14 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
  */
 Voxel *VoxelStack::Get(int16 z, bool create)
 {
+	if (z < 0 || z >= MAX_VOXEL_STACK_SIZE) return NULL;
+
 	if (this->height == 0) {
 		if (!create || !this->MakeVoxelStack(z, 1)) return NULL;
 	} else if (z < this->base) {
-		if (!create || !this->MakeVoxelStack(z, this->height + base - z)) return NULL;
+		if (!create || !this->MakeVoxelStack(z, this->height + this->base - z)) return NULL;
 	} else if ((uint)(z - this->base) >= this->height) {
-		if (!create || !this->MakeVoxelStack(this->base, z + 1)) return NULL;
+		if (!create || !this->MakeVoxelStack(this->base, z - this->base + 1)) return NULL;
 	}
 
 	assert(z >= this->base);

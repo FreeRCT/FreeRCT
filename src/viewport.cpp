@@ -24,7 +24,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 {
 	this->xview = _world.GetXSize() * 256 / 2;
 	this->yview = _world.GetYSize() * 256 / 2;
-	this->zview = 0 * 256;
+	this->zview = 8 * 256;
 
 	this->tile_width  = 64;
 	this->tile_height = 16;

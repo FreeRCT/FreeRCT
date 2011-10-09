@@ -72,8 +72,8 @@ int main(void)
 	vid.SetPalette();
 
 	_world.SetWorldSize(20, 21);
-	_world.MakeFlatWorld(0);
-	_world.MakeBump(4, 6, 0);
+	_world.MakeFlatWorld(8);
+	_world.MakeBump(4, 6, 8);
 	SetVideo(&vid);
 	/* TEMP */
 	uint16 width  = vid.GetXSize();
