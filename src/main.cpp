@@ -78,8 +78,8 @@ int main(void)
 	/* TEMP */
 	uint16 width  = vid.GetXSize();
 	uint16 height = vid.GetYSize();
-	assert(width >= 20 && height >= 20);
-	Viewport *w = new Viewport(5, 5, width - 10, height - 10);
+	assert(width >= 120 && height >= 120);
+	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
 
 	w->SetMouseMode(MM_TILE_TERRAFORM);
 
