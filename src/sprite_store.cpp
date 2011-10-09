@@ -748,13 +748,13 @@ void SpriteStore::AddBlock(RcdBlock *block)
 }
 
 /**
- * Get a surface sprite.
+ * Get a ground sprite.
  * @param type Type of surface.
  * @param surf_spr Surface sprite index.
  * @param size Sprite size.
  * @param orient Orientation.
  * @return Requested sprite if available.
- * @todo Steep handling is sub-optimal, perhaps use #TC_NORTH,  #TC_EAST, #TC_SOUTH, #TC_WEST instead of a bit encoding?
+ * @todo Use the ground type as well for getting the sprite.
  */
 const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 size, ViewOrientation orient)
 {
@@ -762,6 +762,21 @@ const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 s
 	if (this->surface->width != size) return NULL;
 
 	return this->surface->surface[_slope_rotation[surf_spr][orient]];
+}
+
+/**
+ * Get a mouse tile cursor sprite.
+ * @param surf_spr Surface sprite index.
+ * @param size Sprite size.
+ * @param orient Orientation.
+ * @return Requested sprite if available.
+ */
+const Sprite *SpriteStore::GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrientation orient)
+{
+	if (!this->tile_select) return NULL;
+	if (this->tile_select->width != size) return NULL;
+
+	return this->tile_select->surface[_slope_rotation[surf_spr][orient]];
 }
 
 /**
