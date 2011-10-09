@@ -14,6 +14,7 @@
 
 #include "orientation.h"
 #include "path.h"
+#include "tile.h"
 #include <map>
 
 class RcdFile;
@@ -73,7 +74,7 @@ public:
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
-	uint16 type;   ///< Type of surface.
+	uint8 type;    ///< Type of surface.
 	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
 };
 
@@ -115,16 +116,6 @@ public:
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
 	Sprite *sprites[PATH_COUNT]; ///< Path sprites, may contain \c NULL sprites.
-};
-
-/** Types of foundations. */
-enum FoundationType {
-	FDT_INVALID = 0, ///< Invalid foundation type.
-	FDT_GROUND,      ///< Bare (ground) foundation type.
-	FDT_WOOD,        ///< Foundation is covered with wood.
-	FDT_BRICK,       ///< Foundation is made of bricks.
-
-	FDT_COUNT,       ///< Number of foundation types.
 };
 
 /** %Foundation sprites. */

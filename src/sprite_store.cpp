@@ -330,8 +330,16 @@ bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprite
 {
 	if (length != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
-	this->type   = rcd_file->GetUInt16();
-	if (!((this->type >= 16 && this->type <= 19) || this->type == 32)) return false; // Unknown type of surface.
+	uint16 gt = rcd_file->GetUInt16(); // Ground type bytes.
+	uint8 type = GTP_INVALID;
+	if (gt == 16) type = GTP_GRASS0;
+	if (gt == 17) type = GTP_GRASS1;
+	if (gt == 18) type = GTP_GRASS2;
+	if (gt == 19) type = GTP_GRASS3;
+	if (gt == 32) type = GTP_DESERT;
+	if (type == GTP_INVALID) return false; // Unknown type of ground.
+
+	this->type = type;
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
 

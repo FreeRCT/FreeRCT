@@ -78,5 +78,28 @@ FORCEINLINE uint8 ImplodeSlope(Slope s)
 	return 18;
 }
 
+/** Available ground types. */
+enum GroundType {
+	GTP_INVALID, ///< Invalid ground type.
+	GTP_GRASS0,  ///< Short grass type.
+	GTP_GRASS1,  ///< Normal grass type.
+	GTP_GRASS2,  ///< Long grass type.
+	GTP_GRASS3,  ///< Rough grass type.
+	GTP_DESERT,  ///< Desert ground type.
+
+	GTP_COUNT,   ///< Number of ground types.
+};
+
+/** Types of foundations. */
+enum FoundationType {
+	FDT_INVALID = 0, ///< Invalid foundation type.
+	FDT_GROUND,      ///< Bare (ground) foundation type.
+	FDT_WOOD,        ///< Foundation is covered with wood.
+	FDT_BRICK,       ///< Foundation is made of bricks.
+
+	FDT_COUNT,       ///< Number of foundation types.
+};
+
+
 #endif
 
