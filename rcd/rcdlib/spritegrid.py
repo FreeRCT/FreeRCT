@@ -270,3 +270,39 @@ def split_spritegrid(fname, xoffset, yoffset, xsize, ysize, layout):
                                              x * xsize, y * ysize, xsize, ysize)
 
     return imgs
+
+def equal_shaped_images(im1, im2):
+    """
+    Verify whether both images are the same with respect to transparency.
+    (That is, do they have the same non-transparent shape?)
+
+    @param im1: First image.
+    @type  im1: L{ImageObject}
+
+    @param im2: Second image.
+    @type  im2: L{ImageObject}
+
+    @return: Whether both images have the same non-transparent shape.
+    @rtype:  C{bool}
+    """
+    im1.crop()
+    im2.crop()
+
+    if im1.xsize != im2.xsize:
+        print "Horizontal size not the same."
+        return False
+    if im1.ysize != im2.ysize:
+        print "Vertical size not the same."
+        return False
+
+    for y in range(im1.ysize):
+        for x in range(im1.xsize):
+            p1 = im1.im.getpixel((im1.xpos + x, im1.ypos + y))
+            p2 = im2.im.getpixel((im2.xpos + x, im2.ypos + y))
+            if p1 == 0 and p2 == 0: continue
+            if p1 != 0 and p2 != 0: continue
+
+            print "Different at " + str((x, y))
+            return False
+
+    return True

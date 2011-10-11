@@ -15,6 +15,8 @@ parser.add_argument(dest='image_file', metavar='img-file', type=str,
                    help='Image file contains the path sprites')
 parser.add_argument('--output', dest='output', action='store',
                    metavar='rcd-file', help='Output RCD file')
+parser.add_argument('--verbose', action='store_true', default=False,
+                    help="Output size and offset of the sprites.")
 args = parser.parse_args()
 
 if args.output is None:
@@ -27,5 +29,5 @@ else:
 
 
 images = path.split_image(args.image_file, -32, -33, 64, 64)
-path.write_pathRCD(images, path.CONCRETE, 64, 16, out_name)
+path.write_pathRCD(images, path.CONCRETE, 64, 16, args.verbose, out_name)
 

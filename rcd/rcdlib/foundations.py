@@ -48,7 +48,7 @@ def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     return images
 
 
-def write_foundationRCD(images, tile_width, tile_height, found_type, dest_fname):
+def write_foundationRCD(images, tile_width, tile_height, found_type, verbose, dest_fname):
     """
     Write an RCD file with ground sprites.
 
@@ -64,6 +64,9 @@ def write_foundationRCD(images, tile_width, tile_height, found_type, dest_fname)
     @param found_type: Type of foundation.
     @type  found_type: C{int}
 
+    @param verbose: Be verbose about size and offsets of generated sprites.
+    @type  verbose: C{bool}
+
     @param dest_fname: Name of RCD file to write.
     @type  dest_fname: C{str}
     """
@@ -71,7 +74,8 @@ def write_foundationRCD(images, tile_width, tile_height, found_type, dest_fname)
 
     spr = {} # name -> sprite block number
     for name, img_obj in images.iteritems():
-        print "%6s: width=%d, height=%d, xoff=%d, yoff=%d" \
+        if verbose:
+            print "%6s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
         if pxl_blk is not None:

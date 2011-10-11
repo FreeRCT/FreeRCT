@@ -15,6 +15,8 @@ parser.add_argument(dest='image_file', metavar='img-file', type=str,
                    help='Image file contains the foundation sprites')
 parser.add_argument('--output', dest='output', action='store',
                    metavar='rcd-file', help='Output RCD file')
+parser.add_argument('--verbose', action='store_true', default=False,
+                    help="Output size and offset of the sprites.")
 args = parser.parse_args()
 
 if args.output is None:
@@ -28,5 +30,5 @@ else:
 fname = '../sprites/foundationtemplate8bpp64_masked.png'
 
 images = foundations.split_image(args.image_file, -32, -33, 64, 64)
-foundations.write_foundationRCD(images, 64, 16, foundations.GROUND, out_name)
+foundations.write_foundationRCD(images, 64, 16, foundations.GROUND, args.verbose, out_name)
 

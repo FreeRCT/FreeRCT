@@ -73,7 +73,7 @@ def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
 
 CONCRETE = 16
 
-def write_pathRCD(images, path_type, tile_width, tile_height, dest_fname):
+def write_pathRCD(images, path_type, tile_width, tile_height, verbose, dest_fname):
     """
     Write an RCD file with path sprites.
 
@@ -89,6 +89,9 @@ def write_pathRCD(images, path_type, tile_width, tile_height, dest_fname):
     @param tile_height: Height of a Z level in pixels.
     @type  tile_height: C{int}
 
+    @param verbose: Be verbose about size and offsets of generated sprites.
+    @type  verbose: C{bool}
+
     @param dest_fname: Name of RCD file to write.
     @type  dest_fname: C{str}
     """
@@ -96,7 +99,8 @@ def write_pathRCD(images, path_type, tile_width, tile_height, dest_fname):
 
     spr = {} # name -> sprite block number
     for name, img_obj in images.iteritems():
-        print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
+        if verbose:
+            print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
         if pxl_blk is not None:

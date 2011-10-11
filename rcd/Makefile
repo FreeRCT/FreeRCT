@@ -30,8 +30,10 @@ foundation_8bpp64.rcd: foundation_8bpp64.py ../sprites_src/terrain/foundation/te
 	$(PYTHON) foundation_8bpp64.py --output foundation_8bpp64.rcd \
 		../sprites_src/terrain/foundation/template8bpp64_masked.png
 
-groundtile_8bpp64.rcd: groundtile_8bpp64.py ../sprites_src/terrain/groundtiles/template8bpp64_masked.png
-	$(PYTHON) groundtile_8bpp64.py --output groundtile_8bpp64.rcd \
+groundtile_8bpp64.rcd: groundtile_8bpp64.py ../sprites_src/terrain/groundtiles/template8bpp64_masked.png ../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png
+	$(PYTHON) groundtile_8bpp64.py \
+		--output groundtile_8bpp64.rcd \
+		--test ../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png \
 		../sprites_src/terrain/groundtiles/template8bpp64_masked.png
 
 cornerhighlight_8bpp64.rcd: cornerhighlight_8bpp64.py ../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png

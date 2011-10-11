@@ -7,6 +7,9 @@
 #
 from rcdlib import spritegrid, blocks
 
+equal_shaped_images = spritegrid.equal_shaped_images
+
+
 std_layout = [['',   '',   '',   ''   ],
               ['n',  'e',  's',  'w'  ],
               ['ne', 'es', 'sw', 'nw' ],
@@ -50,7 +53,7 @@ def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     return images
 
 
-def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
+def write_groundRCD(images, tile_width, tile_height, ground_type, verbose, dest_fname):
     """
     Write an RCD file with ground sprites.
 
@@ -66,6 +69,10 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
     @param ground_type: Type of ground.
     @type  ground_type: C{int}
 
+    @param verbose: Be verbose about the size and offsets of the processed
+                    sprites.
+    @param verbose: C{bool}
+
     @param dest_fname: Name of RCD file to write.
     @type  dest_fname: C{str}
     """
@@ -73,7 +80,7 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, dest_fname):
 
     spr = {} # name -> sprite block number
     for name, img_obj in images.iteritems():
-        print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
+        if verbose: print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
         if pxl_blk is not None:

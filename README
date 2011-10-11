@@ -1,9 +1,18 @@
 Very quick how-to
 =================
 
-$ cd rcd
-$ python make_groundsprites.py
-$ cd ../src
-$ make
-$ ./freerct
+1. Build RCD files
 
+  $ cd rcd
+  $ make
+
+2. Build the program
+
+  $ cd ../src
+  $ make
+
+3. Run the program
+
+  $ ./freerct
+
+Rotate with left/right cursor, drag with right mouse-button.
