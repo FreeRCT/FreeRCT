@@ -57,7 +57,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -74,29 +74,29 @@
        sodipodi:nodetypes="ccccc" />
     <path
        style="fill:#b74700;fill-opacity:1;stroke:none"
-       d="m 0,812.36218 114,0 -114,114 z"
+       d="m 0,812.36218 120,0 -40,80 -80,40 z"
        id="rect3004-7"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
+       sodipodi:nodetypes="ccccc" />
     <path
        inkscape:connector-curvature="0"
        style="fill:#db4f00;fill-opacity:1;stroke:none"
-       d="m 126,812.36218 114,0 0,114 z"
+       d="m 120,812.36218 120,0 0,120 -80,-40 z"
        id="rect3004-4-4"
-       sodipodi:nodetypes="cccc" />
+       sodipodi:nodetypes="ccccc" />
     <path
        inkscape:connector-curvature="0"
        style="fill:#ff6f17;fill-opacity:1;stroke:none"
-       d="m 0,938.36218 114,114.00002 -114,0 z"
+       d="m 0,932.36218 80,40 40,80.00002 -120,0 z"
        id="rect3004-0-0"
-       sodipodi:nodetypes="cccc"
+       sodipodi:nodetypes="ccccc"
        inkscape:export-xdpi="768"
        inkscape:export-ydpi="768" />
     <path
        inkscape:connector-curvature="0"
        style="fill:#ff8b33;fill-opacity:1;stroke:none"
-       d="m 240,938.36218 0,114.00002 -114,0 z"
+       d="m 240,932.36218 0,120.00002 -120,0 40,-80.00002 z"
        id="rect3004-9-9"
-       sodipodi:nodetypes="cccc" />
+       sodipodi:nodetypes="ccccc" />
   </g>
 </svg>
