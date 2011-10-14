@@ -285,8 +285,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				p.first = sx * xpos + sy * ypos + zpos * 256;
 				p.second.spr = spr;
 				p.second.cursor = mspr;
-				p.second.base.x = this->xoffset + xnorth + spr->xoffset - this->rect.base.x;
-				p.second.base.y = this->yoffset + ynorth + spr->yoffset - this->rect.base.y;
+				p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
+				p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
 				draw_images.insert(p);
 			}
 			/* TODO: svd->foundation */

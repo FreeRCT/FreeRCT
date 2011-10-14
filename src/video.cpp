@@ -159,18 +159,21 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr, const Rect
 	/* Check that rect is completely inside the screen. */
 	assert(rect.base.x >= 0 && rect.base.y >= 0 && rect.width <= s->w && rect.height < s->h);
 
+	int32 x_base = img_base.x + spr->xoffset;
+	int32 y_base = img_base.y + spr->yoffset;
+
 	/* Image is entirely outside the rectangle. */
-	if (img_base.x >= rect.base.x + rect.width) return;
-	if (img_base.x + img_data->width <= rect.base.x) return;
-	if (img_base.y >= rect.base.y + rect.height) return;
-	if (img_base.y + img_data->height <= rect.base.y) return;
+	if (x_base >= rect.base.x + rect.width) return;
+	if (x_base + img_data->width <= rect.base.x) return;
+	if (y_base >= rect.base.y + rect.height) return;
+	if (y_base + img_data->height <= rect.base.y) return;
 
-	int width  = (img_base.x + img_data->width  <= rect.base.x + rect.width)  ? img_data->width  : rect.base.x + rect.width  - img_base.x;
-	int height = (img_base.y + img_data->height <= rect.base.y + rect.height) ? img_data->height : rect.base.y + rect.height - img_base.y;
+	int width  = (x_base + img_data->width  <= rect.base.x + rect.width)  ? img_data->width  : rect.base.x + rect.width  - x_base;
+	int height = (y_base + img_data->height <= rect.base.y + rect.height) ? img_data->height : rect.base.y + rect.height - y_base;
 
-	int xoff = (img_base.x >= rect.base.x) ? 0 : rect.base.x - img_base.x;
+	int xoff = (x_base >= rect.base.x) ? 0 : rect.base.x - x_base;
 	int xlen = (width > xoff) ? width - xoff : 0;
-	int yoff = (img_base.y >= rect.base.y) ? 0 : rect.base.y - img_base.y;
+	int yoff = (y_base >= rect.base.y) ? 0 : rect.base.y - y_base;
 	int ylen = (height > yoff) ? height - yoff : 0;
 
 	int xend = xoff + xlen;
@@ -201,8 +204,8 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr, const Rect
 
 				while (count > 0) {
 					/* Blit pixel. */
-					assert(xpos + img_base.x < s->w);
-					((uint8 *)(s->pixels))[xpos + img_base.x + s->pitch * (img_base.y + yoff)] = *pixels;
+					assert(xpos + x_base < s->w);
+					((uint8 *)(s->pixels))[xpos + x_base + s->pitch * (y_base + yoff)] = *pixels;
 
 					pixels++;
 					xpos++;
