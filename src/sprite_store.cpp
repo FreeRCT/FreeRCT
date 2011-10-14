@@ -788,6 +788,21 @@ const Sprite *SpriteStore::GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrie
 }
 
 /**
+ * Get a mouse tile corner sprite.
+ * @param surf_spr Surface sprite index.
+ * @param size Sprite size.
+ * @param orient Orientation (selected corner).
+ * @return Requested sprite if available.
+ */
+const Sprite *SpriteStore::GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrientation orient, ViewOrientation cursor)
+{
+	if (!this->tile_corners) return NULL;
+	if (this->tile_corners->width != size) return NULL;
+
+	return this->tile_corners->sprites[cursor][_slope_rotation[surf_spr][orient]];
+}
+
+/**
  * Are there sufficient graphics loaded to display something?
  * @return Sufficient data has been loaded.
  */

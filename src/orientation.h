@@ -22,6 +22,7 @@ enum ViewOrientation {
 	VOR_WEST  = TC_WEST,  ///< View with top of the world to the west.
 
 	VOR_NUM_ORIENT = 4,   ///< Number of orientations.
+	VOR_INVALID = 4,      ///< Invalid orientation.
 };
 
 /**
@@ -29,7 +30,7 @@ enum ViewOrientation {
  * @param vor Input view orientation.
  * @return Rotated view orientation.
  */
-static inline ViewOrientation RotateClockwise(const ViewOrientation& vor)
+static inline ViewOrientation RotateClockwise(const ViewOrientation &vor)
 {
 	return (ViewOrientation)((vor + 1) & 3);
 }
@@ -39,9 +40,31 @@ static inline ViewOrientation RotateClockwise(const ViewOrientation& vor)
  * @param vor Input view orientation.
  * @return Rotated view orientation.
  */
-static inline ViewOrientation RotateCounterClockwise(const ViewOrientation& vor)
+static inline ViewOrientation RotateCounterClockwise(const ViewOrientation &vor)
 {
 	return (ViewOrientation)((vor + 3) & 3);
+}
+
+/**
+ * Add two view orientations together.
+ * @param vor1 First orientation.
+ * @param vor2 Second orientation.
+ * @return Summed orientation.
+ */
+static inline ViewOrientation AddOrientations(const ViewOrientation &vor1, const ViewOrientation &vor2)
+{
+	return (ViewOrientation)((vor1 + vor2) & 3);
+}
+
+/**
+ * Subtract two view orientations from each other.
+ * @param vor1 First orientation.
+ * @param vor2 Second orientation.
+ * @return Resulting orientation.
+ */
+static inline ViewOrientation SubtractOrientations(const ViewOrientation &vor1, const ViewOrientation &vor2)
+{
+	return (ViewOrientation)((vor1 + 4 - vor2) & 3);
 }
 
 #endif

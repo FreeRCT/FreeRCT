@@ -43,9 +43,10 @@ private:
 	Point16 mouse_pos;    ///< Last known position of the mouse.
 	uint8 mouse_state;    ///< Last known state of the mouse buttons.
 
-	uint16 xvoxel;        ///< X position of the voxel with the mouse cursor.
-	uint16 yvoxel;        ///< Y position of the voxel with the mouse cursor.
-	uint8  zvoxel;        ///< Z position of the voxel with the mouse cursor.
+	uint16 xvoxel;          ///< X position of the voxel with the mouse cursor.
+	uint16 yvoxel;          ///< Y position of the voxel with the mouse cursor.
+	uint8  zvoxel;          ///< Z position of the voxel with the mouse cursor.
+	ViewOrientation cursor; ///< Cursor orientation (#VOR_INVALID means entire ground tile).
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual void OnMouseButtonEvent(uint8 state);

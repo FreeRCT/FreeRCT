@@ -110,7 +110,7 @@ public:
 	~SpriteCollector();
 
 	void SetXYOffset(int16 xoffset, int16 yoffset);
-	void SetMouseCursor(uint16 xpos, uint16 ypos, uint8 zpos);
+	void SetMouseCursor(uint16 xpos, uint16 ypos, uint8 zpos, ViewOrientation cursor);
 
 	DrawImages draw_images; ///< Sprites to draw ordered by viewing distance.
 	int16 xoffset; ///< Horizontal offset of the top-left coordinate to the top-left of the display.
@@ -120,6 +120,7 @@ public:
 	uint16 mousex;          ///< X position of the voxel with the mouse cursor.
 	uint16 mousey;          ///< Y position of the voxel with the mouse cursor.
 	uint8  mousez;          ///< Z position of the voxel with the mouse cursor.
+	ViewOrientation cursor; ///< Cursor type (one corner, or the entire tile).
 
 protected:
 	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
@@ -137,6 +138,7 @@ public:
 	 * @param tile_width Width of a tile at the display.
 	 * @param tile_height Height of a tile in the display.
 	 * @param orient View orientation.
+	 * @param cursor Cursor type.
 	 */
 	PixelFinder(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient);
 	~PixelFinder();
@@ -230,6 +232,7 @@ SpriteCollector::SpriteCollector(int32 xview, int32 yview, int32 zview, uint16 t
 {
 	this->draw_images.clear();
 	this->draw_mouse_cursor = false;
+	this->cursor = VOR_INVALID;
 }
 
 SpriteCollector::~SpriteCollector()
@@ -250,12 +253,13 @@ void SpriteCollector::SetXYOffset(int16 xoffset, int16 yoffset)
 /**
  * Set position of the mouse cursor.
  */
-void SpriteCollector::SetMouseCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+void SpriteCollector::SetMouseCursor(uint16 xpos, uint16 ypos, uint8 zpos, ViewOrientation cursor)
 {
 	this->draw_mouse_cursor = true;
 	this->mousex = xpos;
 	this->mousey = ypos;
 	this->mousez = zpos;
+	this->cursor = cursor;
 }
 
 /**
@@ -278,8 +282,14 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			if (svd->ground.type == GTP_INVALID) break;
 			const Sprite *spr = _sprite_store.GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->tile_width, this->orient);
 			if (spr != NULL) {
-				const Sprite *mspr = (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) ?
-						_sprite_store.GetCursorSprite(svd->ground.slope, this->tile_width, this->orient) : NULL;
+				const Sprite *mspr = NULL;
+				if (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) {
+					if (this->cursor == VOR_INVALID) {
+						mspr = _sprite_store.GetCursorSprite(svd->ground.slope, this->tile_width, this->orient);
+					} else {
+						mspr = _sprite_store.GetCornerSprite(svd->ground.slope, this->tile_width, this->orient, this->cursor);
+					}
+				}
 
 				std::pair<int32, DrawData> p;
 				p.first = sx * xpos + sy * ypos + zpos * 256;
@@ -333,7 +343,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
 			if (svd->ground.type == GTP_INVALID) break;
-			const Sprite *spr = _sprite_store.GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->tile_width, this->orient);
+			const Sprite *spr = _sprite_store.GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->tile_width, this->orient);
 			if (spr == NULL) break;
 			int32 dist = sx * xpos + sy * ypos + zpos * 256;
 			if (this->found && dist <= this->distance) break;
@@ -383,6 +393,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 	this->xvoxel = 0;
 	this->yvoxel = 0;
 	this->zvoxel = 0;
+	this->cursor = VOR_INVALID;
 }
 
 /* virtual */ void Viewport::OnDraw()
@@ -390,7 +401,10 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
 	collector.SetWindowSize(-(int16)this->width / 2, -(int16)this->height / 2, this->width, this->height);
 	collector.SetXYOffset(this->x, this->y);
-	if (this->mouse_mode == MM_TILE_TERRAFORM) collector.SetMouseCursor(this->xvoxel, this->yvoxel, this->zvoxel);
+	if (this->mouse_mode == MM_TILE_TERRAFORM) {
+		ViewOrientation vor = (this->cursor != VOR_INVALID) ? SubtractOrientations(this->cursor, this->orientation) : VOR_INVALID;
+		collector.SetMouseCursor(this->xvoxel, this->yvoxel, this->zvoxel, vor);
+	}
 	collector.Collect();
 
 
@@ -421,11 +435,22 @@ void Viewport::ComputeCursorPosition()
 	PixelFinder collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
 	collector.SetWindowSize(xp, yp, 1, 1);
 	collector.Collect();
+	if (!collector.found) return; // Not at a tile.
 
-	if (collector.found && (collector.xvoxel != this->xvoxel || collector.yvoxel != this->yvoxel || collector.zvoxel != this->zvoxel)) {
+	ViewOrientation orient;
+	switch (collector.pixel) {
+		case 181: orient = AddOrientations(VOR_NORTH, this->orientation); break;
+		case 182: orient = AddOrientations(VOR_EAST,  this->orientation); break;
+		case 184: orient = AddOrientations(VOR_WEST,  this->orientation); break;
+		case 185: orient = AddOrientations(VOR_SOUTH, this->orientation); break;
+		default:  orient = VOR_INVALID; break;
+	}
+
+	if (collector.xvoxel != this->xvoxel || collector.yvoxel != this->yvoxel || collector.zvoxel != this->zvoxel || this->cursor != orient) {
 		this->xvoxel = collector.xvoxel;
 		this->yvoxel = collector.yvoxel;
 		this->zvoxel = collector.zvoxel;
+		this->cursor = orient;
 		this->MarkDirty();
 	}
 }

@@ -158,6 +158,7 @@ public:
 
 	const Sprite *GetSurfaceSprite(uint8 type, uint8 slope, uint16 size, ViewOrientation orient);
 	const Sprite *GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrientation orient);
+	const Sprite *GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrientation orient, ViewOrientation cursor);
 
 	bool HaveSufficientGraphics() const;
 
