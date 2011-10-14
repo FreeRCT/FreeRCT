@@ -99,8 +99,8 @@ public:
 	FORCEINLINE void SetSurface(const SurfaceVoxelData &vd)
 	{
 		this->type = VT_SURFACE;
-		assert(vd.ground.type == GTP_INVALID || vd.ground.slope < NUM_SLOPE_SPRITES);
-		assert(vd.foundation.type < FDT_COUNT);
+		assert(vd.ground.type == GTP_INVALID || (vd.ground.type < GTP_COUNT && vd.ground.slope < NUM_SLOPE_SPRITES));
+		assert(vd.foundation.type == FDT_INVALID || vd.foundation.type < FDT_COUNT);
 		this->surface = vd;
 	}
 

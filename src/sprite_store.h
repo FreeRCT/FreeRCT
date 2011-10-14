@@ -165,11 +165,12 @@ protected:
 	const char *Load(const char *fname);
 
 	RcdBlock *blocks;           ///< List of loaded Rcd data blocks.
-	SurfaceData *surface;       ///< Surface data.
-	Foundation *foundation;     ///< Foundation.
-	TileSelection *tile_select; ///< Tile selection sprites.
-	TileCorners *tile_corners;  ///< Tile corner sprites.
-	Path *path_sprites;         ///< Path sprites.
+
+	SurfaceData *surface[GTP_COUNT];   ///< Surface data.
+	Foundation *foundation[FDT_COUNT]; ///< Foundation.
+	TileSelection *tile_select;        ///< Tile selection sprites.
+	TileCorners *tile_corners;         ///< Tile corner sprites.
+	Path *path_sprites;                ///< Path sprites.
 };
 
 extern SpriteStore _sprite_store;

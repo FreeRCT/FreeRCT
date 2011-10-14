@@ -365,6 +365,7 @@ bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprite
 	if (gt == 18) type = GTP_GRASS2;
 	if (gt == 19) type = GTP_GRASS3;
 	if (gt == 32) type = GTP_DESERT;
+	if (gt == 48) type = GTP_CURSOR_TEST;
 	if (type == GTP_INVALID) return false; // Unknown type of ground.
 
 	this->type = type;
@@ -543,8 +544,12 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites
 {
 	if (length != 2 + 2 + 2 + 4 * 6) return false;
 
-	this->type = rcd_file->GetUInt16() / 16;
-	if (this->type == FDT_INVALID || this->type >= FDT_COUNT) return false;
+	uint16 type = rcd_file->GetUInt16();
+	this->type = FDT_INVALID;
+	if (type == 16) this->type = FDT_GROUND;
+	if (type == 32) this->type = FDT_WOOD;
+	if (type == 48) this->type = FDT_BRICK;
+	if (this->type == FDT_INVALID) return false;
 
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
@@ -568,8 +573,8 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites
 SpriteStore::SpriteStore()
 {
 	this->blocks = NULL;
-	this->surface = NULL;
-	this->foundation = NULL;
+	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = NULL;
+	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = NULL;
 	this->tile_select = NULL;
 	this->tile_corners = NULL;
 	this->path_sprites = NULL;
@@ -583,8 +588,9 @@ SpriteStore::~SpriteStore()
 		delete this->blocks;
 		this->blocks = next_block;
 	}
-	this->surface = NULL; // Released above.
-	this->foundation = NULL;
+	/* Clear pointers to (now) garbage, due to releasing all blocks above. */
+	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = NULL;
+	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = NULL;
 	this->tile_select = NULL;
 	this->tile_corners = NULL;
 	this->path_sprites = NULL;
@@ -656,7 +662,8 @@ const char *SpriteStore::Load(const char *filename)
 			}
 			this->AddBlock(surf);
 
-			this->surface = surf;
+			assert(surf->type < GTP_COUNT);
+			this->surface[surf->type] = surf;
 			continue;
 		}
 
@@ -704,7 +711,8 @@ const char *SpriteStore::Load(const char *filename)
 			}
 			this->AddBlock(block);
 
-			this->foundation = block;
+			assert(block->type < FDT_COUNT);
+			this->foundation[block->type] = block;
 			continue;
 		}
 
@@ -754,14 +762,14 @@ void SpriteStore::AddBlock(RcdBlock *block)
  * @param size Sprite size.
  * @param orient Orientation.
  * @return Requested sprite if available.
- * @todo Use the ground type as well for getting the sprite.
+ * @todo Move this code closer to the sprite selection code.
  */
 const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 size, ViewOrientation orient)
 {
-	if (!this->surface) return NULL;
-	if (this->surface->width != size) return NULL;
+	if (!this->surface[type]) return NULL;
+	if (this->surface[type]->width != size) return NULL;
 
-	return this->surface->surface[_slope_rotation[surf_spr][orient]];
+	return this->surface[type]->surface[_slope_rotation[surf_spr][orient]];
 }
 
 /**
