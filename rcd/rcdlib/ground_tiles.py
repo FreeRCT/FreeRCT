@@ -19,6 +19,7 @@ std_layout = [['',   '',   '',   ''   ],
 
 GRASS = 16
 SAND  = 32
+CURSOR_TEST = 48
 
 def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     """

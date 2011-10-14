@@ -7,6 +7,7 @@
 #
 
 RCDFILES=borderhighlight_8bpp64.rcd cornerhighlight_8bpp64.rcd \
+	cursor_groundtile_8bpp64.rcd \
 	foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd
 
 PYTHON=python
@@ -35,6 +36,11 @@ groundtile_8bpp64.rcd: groundtile_8bpp64.py ../sprites_src/terrain/groundtiles/t
 		--output groundtile_8bpp64.rcd \
 		--test ../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png \
 		../sprites_src/terrain/groundtiles/template8bpp64_masked.png
+
+cursor_groundtile_8bpp64.rcd: cursor_groundtile_8bpp64.py ../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png
+	$(PYTHON) cursor_groundtile_8bpp64.py \
+		--output cursor_groundtile_8bpp64.rcd \
+		../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png
 
 cornerhighlight_8bpp64.rcd: cornerhighlight_8bpp64.py ../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png
 	$(PYTHON) cornerhighlight_8bpp64.py --output cornerhighlight_8bpp64.rcd \
