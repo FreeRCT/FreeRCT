@@ -54,7 +54,7 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 
 	Voxel *new_voxels = Calloc<Voxel>(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
-	MemCpy<Voxel>(new_voxels + (new_base - this->base), this->voxels, this->height);
+	MemCpy<Voxel>(new_voxels + (this->base - new_base), this->voxels, this->height);
 
 	free(this->voxels);
 	this->voxels = new_voxels;
