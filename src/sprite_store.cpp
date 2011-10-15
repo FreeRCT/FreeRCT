@@ -792,6 +792,7 @@ const Sprite *SpriteStore::GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrie
  * @param surf_spr Surface sprite index.
  * @param size Sprite size.
  * @param orient Orientation (selected corner).
+ * @param cursor Ground cursor orientation.
  * @return Requested sprite if available.
  */
 const Sprite *SpriteStore::GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrientation orient, ViewOrientation cursor)

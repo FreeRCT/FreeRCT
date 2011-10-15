@@ -138,7 +138,6 @@ public:
 	 * @param tile_width Width of a tile at the display.
 	 * @param tile_height Height of a tile in the display.
 	 * @param orient View orientation.
-	 * @param cursor Cursor type.
 	 */
 	PixelFinder(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient);
 	~PixelFinder();
