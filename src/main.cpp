@@ -134,7 +134,7 @@ int main(void)
 							p.x = event.button.x;
 							p.y = event.button.y;
 							_manager.MouseMoveEvent(p);
-							if (event.type == SDL_MOUSEBUTTONDOWN) _manager.MouseWheelEvent(1);
+							if (event.type == SDL_MOUSEBUTTONDOWN) _manager.MouseWheelEvent(-1);
 							break;
 						}
 
@@ -143,7 +143,7 @@ int main(void)
 							p.x = event.button.x;
 							p.y = event.button.y;
 							_manager.MouseMoveEvent(p);
-							if (event.type == SDL_MOUSEBUTTONDOWN) _manager.MouseWheelEvent(-1);
+							if (event.type == SDL_MOUSEBUTTONDOWN) _manager.MouseWheelEvent(1);
 							break;
 						}
 
