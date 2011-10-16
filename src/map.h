@@ -42,7 +42,10 @@ struct FoundationVoxelData {
 	uint8 slope; ///< Slopes of the foundation (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
 };
 
-/** Description of the earth surface (combined ground and foundations). */
+/**
+ * Description of the earth surface (combined ground and foundations).
+ * @note As steep slopes are two voxels high, they have a reference voxel above them.
+ */
 struct SurfaceVoxelData {
 	GroundVoxelData     ground;     ///< Ground sprite at this location.
 	FoundationVoxelData foundation; ///< Foundation sprite at this location.
@@ -238,6 +241,7 @@ public:
 	~TerrainChanges();
 
 	bool ChangeCorner(const Point &pos, Slope corner, int direction);
+	void ChangeWorld(int direction);
 
 private:
 	Point base;   ///< Base position of the smooth changing world.

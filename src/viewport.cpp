@@ -544,6 +544,9 @@ void Viewport::ChangeTerrain(int direction)
 	}
 
 	if (ok) {
+		changes.ChangeWorld(direction);
+		this->ComputeCursorPosition();
+		this->MarkDirty();
 	}
 }
 

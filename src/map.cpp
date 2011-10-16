@@ -342,7 +342,7 @@ GroundData *TerrainChanges::GetGroundData(const Point &pos)
  * Change the height of a corner. Call this function for every corner you want to change.
  * @param pos Position of the voxel stack.
  * @param corner Corner to change.
- * @param direction of change.
+ * @param direction Direction of change.
  * @return Change is OK for the map.
  */
 bool TerrainChanges::ChangeCorner(const Point &pos, Slope corner, int direction)
@@ -386,3 +386,65 @@ bool TerrainChanges::ChangeCorner(const Point &pos, Slope corner, int direction)
 	return true;
 }
 
+/**
+ * Perform the proposed changes.
+ * @param direction Direction of change.
+ */
+void TerrainChanges::ChangeWorld(int direction)
+{
+	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); iter++) {
+		const Point &pos = (*iter).first;
+		const GroundData &gd = (*iter).second;
+		if (gd.modified == 0) continue;
+
+		VoxelStack *vs = _world.GetStack(pos.x, pos.y);
+		Voxel *v = vs->Get(gd.height, false);
+		SurfaceVoxelData *pvd = v->GetSurface();
+		uint8 gtype = pvd->ground.type;
+		uint8 ftype = pvd->foundation.type;
+		/* Clear existing ground and foundations. */
+		v->SetEmpty();
+		if ((gd.orig_slope & TCB_STEEP) != 0) vs->Get(gd.height + 1, false)->SetEmpty();
+
+		uint8 new_heights[4];
+		uint8 max_h = 0;
+		uint8 min_h = 255;
+		for (uint corner = 0; corner < 4; corner++) {
+			uint8 height = gd.GetOrigHeight((Slope)corner);
+			if (gd.GetCornerModified((Slope)corner)) {
+				assert((direction > 0 && height < 255) || (direction < 0 && height > 0));
+				height += direction;
+			}
+			new_heights[corner] = height;
+			if (max_h < height) max_h = height;
+			if (min_h > height) min_h = height;
+		}
+		v = vs->Get(min_h, true);
+		SurfaceVoxelData svd;
+		svd.ground.type = gtype;
+		svd.foundation.type = ftype;
+		svd.foundation.slope = 0; // XXX Needs further work.
+		if (max_h - min_h <= 1) {
+			/* Normal slope. */
+			svd.ground.slope = ImplodeSlope(((new_heights[TC_NORTH] > min_h) ? TCB_NORTH : (Slope)0)
+					| ((new_heights[TC_EAST]  > min_h) ? TCB_EAST  : (Slope)0)
+					| ((new_heights[TC_SOUTH] > min_h) ? TCB_SOUTH : (Slope)0)
+					| ((new_heights[TC_WEST]  > min_h) ? TCB_WEST  : (Slope)0));
+			v->SetSurface(svd);
+		} else {
+			assert(max_h - min_h == 2);
+			int corner;
+			for (corner = 0; corner < 4; corner++) {
+				if (new_heights[corner] == max_h) break;
+			}
+			assert(corner <= TC_WEST);
+			svd.ground.slope = ImplodeSlope(TCB_STEEP | (Slope)(1 << corner));
+			v->SetSurface(svd);
+			ReferenceVoxelData rvd;
+			rvd.xpos = pos.x;
+			rvd.ypos = pos.y;
+			rvd.zpos = min_h;
+			vs->Get(min_h + 1, true)->SetReference(rvd);
+		}
+	}
+}
