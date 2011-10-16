@@ -61,7 +61,6 @@ struct ReferenceVoxelData {
 /**
  * One voxel cell in the world.
  * @todo Handle #VT_COASTER voxels.
- * @todo Handle #VT_REFERENCE voxels.
  * @todo handle paths in a #VT_SURFACE voxel.
  */
 struct Voxel {
@@ -102,6 +101,33 @@ public:
 		assert(vd.ground.type == GTP_INVALID || (vd.ground.type < GTP_COUNT && vd.ground.slope < NUM_SLOPE_SPRITES));
 		assert(vd.foundation.type == FDT_INVALID || vd.foundation.type < FDT_COUNT);
 		this->surface = vd;
+	}
+
+	/**
+	 * Get the referenced voxel.
+	 * @return Referenced voxel position.
+	 */
+	FORCEINLINE const ReferenceVoxelData *GetReference()
+	{
+		assert(this->type == VT_REFERENCE);
+		return &this->reference;
+	}
+
+	/**
+	 * Get the referenced voxel for read-only access.
+	 * @return Referenced voxel position.
+	 */
+	FORCEINLINE const ReferenceVoxelData *GetReference() const
+	{
+		assert(this->type == VT_REFERENCE);
+		return &this->reference;
+	}
+
+	/** Set the referenced voxel. */
+	FORCEINLINE void SetReference(const ReferenceVoxelData &rvd)
+	{
+		this->type = VT_REFERENCE;
+		this->reference = rvd;
 	}
 
 	/** Set the voxel to empty. */
