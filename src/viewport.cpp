@@ -90,7 +90,7 @@ protected:
 
 /** Data temporary needed for drawing. */
 struct DrawData {
-	const Sprite *spr;    ///< Sprite to draw.
+	const Sprite *spr;    ///< %Sprite to draw.
 	const Sprite *cursor; ///< Mouse cursor to draw.
 	Point base;           ///< Base coordinate of the image, relative to top-left of the window.
 };

@@ -95,8 +95,8 @@ enum GroundType {
 /** Types of foundations. */
 enum FoundationType {
 	FDT_GROUND, ///< Bare (ground) foundation type.
-	FDT_WOOD,   ///< Foundation is covered with wood.
-	FDT_BRICK,  ///< Foundation is made of bricks.
+	FDT_WOOD,   ///< %Foundation is covered with wood.
+	FDT_BRICK,  ///< %Foundation is made of bricks.
 
 	FDT_COUNT,  ///< Number of foundation types.
 

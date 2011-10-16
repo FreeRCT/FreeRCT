@@ -25,9 +25,9 @@ static const int MAX_VOXEL_STACK_SIZE = 64; ///< At most a stack of 64 voxels.
 /** Types of voxels. */
 enum VoxelType {
 	VT_EMPTY,     ///< Empty voxel.
-	VT_SURFACE,   ///< Voxel contains path and/or earthy surface.
-	VT_COASTER,   ///< Voxel contains part of a coaster.
-	VT_REFERENCE, ///< Voxel contains part of the referenced voxel.
+	VT_SURFACE,   ///< %Voxel contains path and/or earthy surface.
+	VT_COASTER,   ///< %Voxel contains part of a coaster.
+	VT_REFERENCE, ///< %Voxel contains part of the referenced voxel.
 };
 
 /** Description of ground. */

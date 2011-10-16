@@ -21,6 +21,12 @@ struct VoxelCorner {
 	Slope corner;   ///< Corner of the voxel (#TC_NORTH, #TC_EAST, #TC_SOUTH or #TC_WEST).
 };
 
+/**
+ * Description of neighbouring corners of a corner at a ground tile.
+ * #left_neighbour and #right_neighbour are neighbours at the same tile, while
+ * #neighbour_tiles list neighbouring corners at the three tiles around the
+ * corner.
+ */
 struct CornerNeighbours {
 	Slope left_neighbour;           ///< Left neighbouring corner.
 	Slope right_neighbour;          ///< Right neighbouring corner.
@@ -277,10 +283,10 @@ uint8 GroundData::GetOrigHeight(Slope corner) const
  * @param corner Corner to set.
  * @return corner is modified.
  */
-void GroundData::SetCornerModified(Slope slope)
+void GroundData::SetCornerModified(Slope corner)
 {
-	assert(slope == TC_NORTH || slope == TC_EAST || slope == TC_SOUTH || slope == TC_WEST);
-	this->modified |= 1 << slope;
+	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
+	this->modified |= 1 << corner;
 }
 
 /**
@@ -288,10 +294,10 @@ void GroundData::SetCornerModified(Slope slope)
  * @param corner Corner to test.
  * @return corner is modified.
  */
-bool GroundData::GetCornerModified(Slope slope) const
+bool GroundData::GetCornerModified(Slope corner) const
 {
-	assert(slope == TC_NORTH || slope == TC_EAST || slope == TC_SOUTH || slope == TC_WEST);
-	return (this->modified & (1 << slope)) != 0;
+	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
+	return (this->modified & (1 << corner)) != 0;
 }
 
 /**

@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file path.h Path definitions. */
+/** @file path.h %Path definitions. */
 
 #ifndef PATH_H
 #define PATH_H
@@ -23,7 +23,7 @@
  * sprite number to/from a bitwise representation which is easier for manipulation.
  */
 enum PathSprites {
-	PATH_EMPTY, ///< Path without edges or corners.
+	PATH_EMPTY, ///< %Path without edges or corners.
 	PATH_NE,
 	PATH_SE,
 	PATH_NE_SE,

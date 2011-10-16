@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sprite_store.h Sprite storage data structure. */
+/** @file sprite_store.h %Sprite storage data structure. */
 
 #ifndef SPRITE_STORE_H
 #define SPRITE_STORE_H
