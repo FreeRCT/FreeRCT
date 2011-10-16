@@ -15,6 +15,7 @@
 #include "tile.h"
 #include "geometry.h"
 
+#include <map>
 
 static const int WORLD_X_SIZE = 128;        ///< Maximal length of the X side (North-West side) of the world.
 static const int WORLD_Y_SIZE = 128;        ///< Maximal length of the Y side (North-East side) of the world.
@@ -32,7 +33,7 @@ enum VoxelType {
 /** Description of ground. */
 struct GroundVoxelData {
 	uint8 type;  ///< Type of ground.
-	uint8 slope; ///< Slope of the ground;
+	uint8 slope; ///< Slope of the ground (imploded);
 };
 
 /** Description of foundation. */
@@ -174,6 +175,7 @@ public:
 	void MakeBump(uint16 x, uint16 y, int16 z);
 
 	VoxelStack *GetStack(uint16 x, uint16 y);
+	uint8 GetGroundHeight(uint16 x, uint16 y);
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.
@@ -211,6 +213,40 @@ private:
 	uint16 y_size; ///< Current max y size.
 
 	VoxelStack stacks[WORLD_X_SIZE * WORLD_Y_SIZE]; ///< All voxel stacks in the world.
+};
+
+/** Ground data + modification storage. */
+struct GroundData {
+	uint8 height;     ///< Height of the voxel with ground.
+	uint8 orig_slope; ///< Original slope data.
+	uint8 modified;   ///< Raised or lowered corners.
+
+	GroundData(uint8 height, uint8 orig_slope);
+
+	uint8 GetOrigHeight(Slope corner) const;
+	bool GetCornerModified(Slope corner) const;
+	void SetCornerModified(Slope corner);
+};
+
+/** Map of voxels to ground modification data. */
+typedef std::map<Point, GroundData> GroundModificationMap;
+
+/** Store and manage terrain changes. */
+class TerrainChanges {
+public:
+	TerrainChanges(const Point &base, uint16 xsize, uint16 ysize);
+	~TerrainChanges();
+
+	bool ChangeCorner(const Point &pos, Slope corner, int direction);
+
+private:
+	Point base;   ///< Base position of the smooth changing world.
+	uint16 xsize; ///< Horizontal size of the smooth changing world.
+	uint16 ysize; ///< Vertical size of the smooth changing world.
+
+	GroundModificationMap changes; ///< Registered changes.
+
+	GroundData *GetGroundData(const Point &pos);
 };
 
 extern VoxelWorld _world;

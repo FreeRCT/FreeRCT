@@ -15,6 +15,27 @@
 
 VoxelWorld _world; ///< The game world.
 
+/** Structure describing a corner at a voxel stack. */
+struct VoxelCorner {
+	Point16 rel_xy; ///< Relative voxel stack position.
+	Slope corner;   ///< Corner of the voxel (#TC_NORTH, #TC_EAST, #TC_SOUTH or #TC_WEST).
+};
+
+struct CornerNeighbours {
+	Slope left_neighbour;           ///< Left neighbouring corner.
+	Slope right_neighbour;          ///< Right neighbouring corner.
+	VoxelCorner neighbour_tiles[3]; ///< Neighbouring corners at other tiles.
+};
+
+/** Neighbouring corners of each corner. */
+static const CornerNeighbours neighbours[4] = {
+	{TC_EAST,  TC_WEST,  { {{-1, -1}, TC_SOUTH}, {{-1,  0}, TC_WEST }, {{ 0, -1}, TC_EAST }} }, // TC_NORTH
+	{TC_NORTH, TC_SOUTH, { {{-1,  0}, TC_SOUTH}, {{-1,  1}, TC_WEST }, {{ 0,  1}, TC_NORTH}} }, // TC_EAST
+	{TC_EAST,  TC_WEST,  { {{ 0,  1}, TC_WEST }, {{ 1,  1}, TC_NORTH}, {{ 1,  0}, TC_EAST }} }, //<TC_SOUTH
+	{TC_SOUTH, TC_NORTH, { {{ 0, -1}, TC_SOUTH}, {{ 1, -1}, TC_EAST }, {{ 1,  0}, TC_NORTH}} }, // TC_WEST
+};
+
+
 /** Default constructor. */
 VoxelStack::VoxelStack()
 {
@@ -196,5 +217,172 @@ VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y)
 	assert(y < WORLD_Y_SIZE && y < this->y_size);
 
 	return &this->stacks[x + y*WORLD_X_SIZE];
+}
+
+/**
+ * Return height of the ground at the given voxel stack.
+ * @param x Horizontal position.
+ * @param y Vertical position.
+ * @return Height of the ground.
+ */
+uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y)
+{
+	VoxelStack *vs = this->GetStack(x, y);
+	for (int16 i = vs->height - 1; i >= 0; i--) {
+		const Voxel &v = vs->voxels[i];
+		if (v.GetType() != VT_SURFACE) continue;
+		const SurfaceVoxelData *svd = v.GetSurface();
+		if (svd->ground.type < GTP_COUNT && svd->ground.type != GTP_INVALID) {
+			assert(vs->base + i >= 0 && vs->base + i <= 255);
+			return (uint8)(vs->base + i);
+		}
+	}
+	NOT_REACHED();
+}
+
+
+/**
+ * Construct a #GroundData structure.
+ * @param height Height of the voxel containing the surface.
+ * @param orig_slope Original slope (that is, before the raise or lower).
+ */
+GroundData::GroundData(uint8 height, uint8 orig_slope)
+{
+	this->height = height;
+	this->orig_slope = orig_slope;
+	this->modified = 0;
+}
+
+/**
+ * Get original height (before changing).
+ * @param corner Corner to get height.
+ * @return Original height of the indicated corner.
+ */
+uint8 GroundData::GetOrigHeight(Slope corner) const
+{
+	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
+	if ((this->orig_slope & TCB_STEEP) == 0) { // Normal slope.
+		if ((this->orig_slope & (1 << corner)) == 0) return this->height;
+		return this->height + 1;
+	}
+	// Steep slope.
+	if ((this->orig_slope & (1 << corner)) != 0) return this->height + 2;
+	corner = (Slope)((corner + 2) % 4);
+	if ((this->orig_slope & (1 << corner)) != 0) return this->height;
+	return this->height + 1;
+}
+
+/**
+ * Set the given corner as modified.
+ * @param corner Corner to set.
+ * @return corner is modified.
+ */
+void GroundData::SetCornerModified(Slope slope)
+{
+	assert(slope == TC_NORTH || slope == TC_EAST || slope == TC_SOUTH || slope == TC_WEST);
+	this->modified |= 1 << slope;
+}
+
+/**
+ * Return whether the given corner is modified or not.
+ * @param corner Corner to test.
+ * @return corner is modified.
+ */
+bool GroundData::GetCornerModified(Slope slope) const
+{
+	assert(slope == TC_NORTH || slope == TC_EAST || slope == TC_SOUTH || slope == TC_WEST);
+	return (this->modified & (1 << slope)) != 0;
+}
+
+/**
+ * Terrain changes storage constructor.
+ * @param base Base coordinate of the part of the world which is smoothly updated.
+ * @param xsize Horizontal size of the world part.
+ * @param ysize Vertical size of the world part.
+ */
+TerrainChanges::TerrainChanges(const Point &base, uint16 xsize, uint16 ysize)
+{
+	assert(base.x >= 0 && base.y >= 0 && xsize > 0 && ysize > 0
+			&& base.x + xsize <= _world.GetXSize() && base.y + ysize <= _world.GetYSize());
+	this->base = base;
+	this->xsize = xsize;
+	this->ysize = ysize;
+}
+
+/** Destructor. */
+TerrainChanges::~TerrainChanges()
+{
+}
+
+/**
+ * Get ground data of a voxel stack.
+ * @param pos Voxel stack position.
+ * @return Pointer to the ground data, or \c NULL if outside the world.
+ */
+GroundData *TerrainChanges::GetGroundData(const Point &pos)
+{
+	if (pos.x < this->base.x || pos.x >= this->base.x + this->xsize) return NULL;
+	if (pos.y < this->base.y || pos.y >= this->base.y + this->ysize) return NULL;
+
+	GroundModificationMap::iterator iter = this->changes.find(pos);
+	if (iter == this->changes.end()) {
+		uint8 height = _world.GetGroundHeight(pos.x, pos.y);
+		const Voxel *v = _world.GetVoxel(pos.x, pos.y, height);
+		assert(v != NULL && v->GetType() == VT_SURFACE);
+		const SurfaceVoxelData *svd = v->GetSurface();
+		assert(svd->ground.type != GTP_INVALID);
+		std::pair<Point, GroundData> p(pos, GroundData(height, ExpandSlope(svd->ground.slope)));
+		iter = this->changes.insert(p).first;
+	}
+	return &(*iter).second;
+}
+
+
+/**
+ * Change the height of a corner. Call this function for every corner you want to change.
+ * @param pos Position of the voxel stack.
+ * @param corner Corner to change.
+ * @param direction of change.
+ * @return Change is OK for the map.
+ */
+bool TerrainChanges::ChangeCorner(const Point &pos, Slope corner, int direction)
+{
+	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
+	assert(direction == 1 || direction == -1);
+
+	GroundData *gd = this->GetGroundData(pos);
+	if (gd == NULL) return true; // Out of the bounds in the world, silently ignore.
+	if (gd->GetCornerModified(corner)) return true; // Corner already changed.
+
+	uint8 old_height = gd->GetOrigHeight(corner);
+	if (direction > 0 && old_height == MAX_VOXEL_STACK_SIZE) return false; // Cannot change above top.
+	if (direction < 0 && old_height == 0) return false; // Cannot change below bottom.
+
+	gd->SetCornerModified(corner); // Mark corner as modified.
+
+	/* Change neighbouring corners at the same tile. */
+	if (direction > 0) {
+		uint8 h = gd->GetOrigHeight(neighbours[corner].left_neighbour);
+		if (h < old_height && !this->ChangeCorner(pos, neighbours[corner].left_neighbour, direction)) return false;
+		h = gd->GetOrigHeight(neighbours[corner].right_neighbour);
+		if (h < old_height && !this->ChangeCorner(pos, neighbours[corner].right_neighbour, direction)) return false;
+	} else {
+		uint8 h = gd->GetOrigHeight(neighbours[corner].left_neighbour);
+		if (h > old_height && !this->ChangeCorner(pos, neighbours[corner].left_neighbour, direction)) return false;
+		h = gd->GetOrigHeight(neighbours[corner].right_neighbour);
+		if (h > old_height && !this->ChangeCorner(pos, neighbours[corner].right_neighbour, direction)) return false;
+	}
+
+	for (uint i = 0; i < 3; i++) {
+		const VoxelCorner &vc = neighbours[corner].neighbour_tiles[i];
+		Point pos2;
+		pos2.x = pos.x + vc.rel_xy.x;
+		pos2.y = pos.y + vc.rel_xy.y;
+		gd = this->GetGroundData(pos2);
+		if (gd == NULL) continue;
+		uint height = gd->GetOrigHeight(vc.corner);
+		if (old_height == height && !this->ChangeCorner(pos2, vc.corner, direction)) return false;
+	}
+	return true;
 }
 

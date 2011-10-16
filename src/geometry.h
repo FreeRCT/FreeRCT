@@ -18,6 +18,18 @@ struct Point {
 	int32 y; ///< Y coordinate.
 };
 
+/**
+ * Test for point order.
+ * @param p First point to compare.
+ * @param q Second point to compare.
+ * @return Points \a p is less than point \a q.
+ */
+FORCEINLINE bool operator<(const Point &p, const Point &q)
+{
+	if (p.x != q.x) return p.x < q.x;
+	return p.y < q.y;
+}
+
 /** A 2D point in space with 16 bit precision. */
 struct Point16 {
 	int16 x; ///< X coordinate.
