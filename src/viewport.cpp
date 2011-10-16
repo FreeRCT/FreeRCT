@@ -508,6 +508,46 @@ void Viewport::MoveViewport(int dx, int dy)
 }
 
 /**
+ * Modify terrain (#MM_TILE_TERRAFORM mode).
+ * @param direction Direction of movement.
+ * @pre #xvoxel, #yvoxel, #zvoxel denote the currently selected voxel.
+ * @pre #cursor denotes the currently selected (part of the) tile.
+ */
+void Viewport::ChangeTerrain(int direction)
+{
+	Point p;
+	p.x = 0;
+	p.y = 0;
+	TerrainChanges changes(p, _world.GetXSize(), _world.GetYSize());
+
+	p.x = this->xvoxel;
+	p.y = this->yvoxel;
+
+	bool ok = false;
+	switch (this->cursor) {
+		case VOR_NORTH:
+		case VOR_EAST:
+		case VOR_SOUTH:
+		case VOR_WEST:
+			ok = changes.ChangeCorner(p, (Slope)this->cursor, direction);
+			break;
+
+		case VOR_INVALID:
+			ok = changes.ChangeCorner(p, TC_NORTH, direction);
+			if (ok) ok = changes.ChangeCorner(p, TC_EAST, direction);
+			if (ok) ok = changes.ChangeCorner(p, TC_SOUTH, direction);
+			if (ok) ok = changes.ChangeCorner(p, TC_WEST, direction);
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+
+	if (ok) {
+	}
+}
+
+/**
  * Set mode of the mouse interaction of the viewport.
  * @param mode New mode.
  */
@@ -548,6 +588,20 @@ void Viewport::SetMouseMode(MouseMode mode)
 
 		case MM_TILE_TERRAFORM:
 			this->mouse_state = state & MB_CURRENT;
+			break;
+
+		default: NOT_REACHED();
+	}
+}
+
+/* virtual */ void Viewport::OnMouseWheelEvent(int direction)
+{
+	switch (this->mouse_mode) {
+		case MM_INACTIVE:
+			break;
+
+		case MM_TILE_TERRAFORM:
+			ChangeTerrain(direction);
 			break;
 
 		default: NOT_REACHED();
