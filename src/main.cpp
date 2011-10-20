@@ -73,7 +73,6 @@ int main(void)
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);
-	_world.MakeBump(4, 6, 8);
 	_manager.video = &vid;
 	/* TEMP */
 	uint16 width  = vid.GetXSize();

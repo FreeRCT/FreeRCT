@@ -160,57 +160,6 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 }
 
 /**
- * @fn MK(dx, dy, dz, gslope)
- * Local macro for generating a tile of the bump.
- * @param dx X offset.
- * @param dy Y offset.
- * @param dz Z offset.
- * @param gslope Expanded ground slope.
- */
-
-/**
- * Make a nice bump in the world.
- * @param x xpos
- * @param y ypos
- * @param z zpos
- * @todo Temporary, remove me after implementing world manipulation code.
- */
-void VoxelWorld::MakeBump(uint16 x, uint16 y, int16 z)
-{
-	Voxel *v;
-	SurfaceVoxelData svd;
-
-	svd.ground.type = GTP_GRASS0;
-	svd.foundation.type = FDT_INVALID;
-
-#define MK(dx, dy, dz, gslope) \
-	v = GetVoxel(x+(dx), y+(dy), z+(dz), true); \
-	svd.ground.slope = ImplodeSlope(gslope); \
-	v->SetSurface(svd);
-
-	MK(-1, -1, 0, TCB_SOUTH);
-	MK(-1,  0, 0, (TCB_SOUTH | TCB_WEST));
-	MK(-1,  1, 0, TCB_WEST);
-
-	MK( 0, -1, 0, (TCB_SOUTH | TCB_EAST));
-	MK( 0,  0, 1, SL_FLAT);
-	MK( 0,  1, 0, (TCB_NORTH | TCB_WEST));
-
-	MK( 1, -1, 0, (TCB_SOUTH | TCB_EAST));
-	MK( 1,  0, 1, SL_FLAT);
-	MK( 1,  1, 0, (TCB_NORTH | TCB_WEST));
-
-	MK( 2, -1, 0, TCB_EAST);
-	MK( 2,  0, 0, (TCB_NORTH | TCB_EAST));
-	MK( 2,  1, 0, TCB_NORTH);
-
-#undef MK
-
-	v = GetVoxel(x, y, z, true); v->SetEmpty();
-	v = GetVoxel(x+1, y, z, true); v->SetEmpty();
-}
-
-/**
  * Get a voxel stack.
  * @param x X coordinate of the stack.
  * @param y Y coordinate of the stack.
