@@ -409,7 +409,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 
 	Rectangle wind_rect = Rectangle(this->x, this->y, this->width, this->height); // XXX Why not use this in the window itself?
 
-	VideoSystem *vid = GetVideo();
+	VideoSystem *vid = _manager.video;
 	vid->LockSurface();
 
 	vid->FillSurface(COL_BACKGROUND); // Black background.

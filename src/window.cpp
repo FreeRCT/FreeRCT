@@ -80,7 +80,7 @@ void Window::MarkDirty()
 
 /**
  * %Window manager default constructor.
- * @todo Move this to a separate InitWindowSystem, together with #SetVideo?
+ * @todo Move this to a separate InitWindowSystem?
  */
 WindowManager::WindowManager()
 {
@@ -102,24 +102,6 @@ WindowManager::~WindowManager()
 	while (this->top != NULL) {
 		delete this->RemoveFromStack(this->top);
 	}
-}
-
-/**
- * Set the video output device.
- * @param vid Video output to use for drawing windows.
- */
-void SetVideo(VideoSystem *vid)
-{
-	_manager.video = vid;
-}
-
-/**
- * Get the video output device.
- * @return Video device.
- */
-VideoSystem *GetVideo()
-{
-	return _manager.video;
 }
 
 /**
