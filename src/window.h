@@ -100,10 +100,6 @@ private:
 
 extern WindowManager _manager;
 
-
-void SetVideo(VideoSystem *vid);
-VideoSystem *GetVideo();
-
 void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype);
 
