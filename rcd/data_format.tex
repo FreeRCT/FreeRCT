@@ -12,6 +12,7 @@
 
 \begin{document}
 \maketitle
+\tableofcontents
 
 %%
 %%
@@ -437,6 +438,179 @@ Platform type:
 %%
 %%
 %%
+\section{GUI}
+GUI{} sprites, in various forms.
+
+\subsection{Generic GUI{} border sprites}
+The most common form of a widget is a rectangular shape.
+To draw such a shape, nine sprites are needed around the border of the
+rectangle.
+
+\smallskip
+\begin{center}
+\begin{tabular}{ccc}
+top-left    & top-middle    & top-right \\
+left        & middle        & right \\
+bottom-left & bottom-middle & bottom-right
+\end{tabular}
+\end{center}
+
+The `top-left', `top-right', `bottom-left' and `bottom-right' sprites are used
+for the corners of the widget or window. The `top-middle', `middle', and
+`bottom-middle' should be equally wide, and are used to insert horizontal
+space between the left and the right part (with step size equal to the width
+of the sprites. The `left', `middle', and `right' do the same, except their
+common height is used for vertical resizing.
+
+Except for the `top-left' sprite any of the sprites can be dropped. If you leave out
+`top-middle', `middle', or `bottom-middle', horizontal resizing is not
+possible. If you leave out `left', `middle', or `right' vertical resizing is
+not possible.
+If you leave out `top-right', the `top-right', `right', and `bottom-right'
+sprites are considered not needed. Similarly for the `bottom-left' sprite.
+Supplying the `top-right' sprite but leaving out `bottom-right' (and similarly
+for `bottom-left' and `bottom-right') gives undefined behaviour.
+
+A sprite coverage of the edge has four border width parameters (top, left,
+right, and bottom), measured in pixels.
+In addition, a horizontal and a vertical
+offset needs to be specified relative to the bounding box of the widget
+contents.
+
+That leads to the following block:
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `GBOR' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Widget type. \\
+  14 &  1 & Border width of the top edge. \\
+  15 &  1 & Border width of the left edge. \\
+  16 &  1 & Border width of the right edge. \\
+  17 &  1 & Border width of the bottom edge. \\
+  18 &  1 & Minimal width of the border. \\
+  19 &  1 & Minimal height of the border. \\
+  20 &  1 & Horizontal stepsize of the border. \\
+  21 &  1 & Vertical stepsize of the border. \\
+  22 &  4 & Top-left sprite. \\
+  26 &  4 & Top-middle sprite. \\
+  30 &  4 & Top-right sprite. \\
+  34 &  4 & Left sprite. \\
+  38 &  4 & Middle sprite. \\
+  42 &  4 & Right sprite. \\
+  46 &  4 & Bottom-left sprite. \\
+  50 &  4 & Bottom-middle sprite. \\
+  54 &  4 & Bottom-right sprite. \\
+  58 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+Known widget types:
+\begin{itemize}
+\item 0 Invalid, do not use.
+\item 16 Window border.
+\item 32 Titlebar.
+\item 48 button,
+      49 pressed button,
+      52 rounded button,
+      53 pressed rounded button.
+\item 64 frame
+\item 80 inset frame
+\end{itemize}
+
+\subsection{Checkbox and radio buttons}
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `GCHK' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  2 & Widget type. \\
+  14 &  4 & Empty. \\
+  18 &  4 & Filled. \\
+  22 &  4 & Empty pressed. \\
+  26 &  4 & Filled pressed. \\
+  30 &  4 & Shaded empty button. \\
+  34 &  4 & Shaded filled button. \\
+  38 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+Known widget types:
+\begin{itemize}
+\item 96 Checkbox.
+\item 112 Radio-button.
+\end{itemize}
+
+\subsection{Slider-bar elements}
+For slider-bar GUI elements, the following block
+should be used.
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `GSLI' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  1 & Minimal length of the bar. \\
+  13 &  1 & Stepsize of the bar. \\
+  14 &  1 & Width of the slider button. \\
+  15 &  2 & Widget type. \\
+  17 &  4 & Left sprite. \\
+  21 &  4 & Middle sprite. \\
+  25 &  4 & Right sprite. \\
+  29 &  4 & Slider button. \\
+  33 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+Known slider-bar widget types:
+\begin{itemize}
+\item 128 Horizontal slider bar + button
+\item 129 Shaded horizontal slider bar + button
+\item 144 Vertical slider bar + button
+\item 145 Shaded vertical slider bar + button
+\end{itemize}
+
+
+\subsection{Scroll-bar elements}
+For scroll-bar GUI elements, the following block
+should be used.
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+\textbf{Offset} & \textbf{Length} & \textbf{Contents description} \\ \hline
+   0 &  4 & Magic string `GSCL' \\
+   4 &  4 & Version number of the block `1'. \\
+   8 &  4 & Length of the block excluding magic string, version, and length. \\
+  12 &  1 & Minimal length scrollbar. \\
+  13 &  1 & Stepsize of background. \\
+  14 &  1 & Minimal length bar. \\
+  15 &  1 & Stepsize of bar. \\
+  16 &  2 & Widget type. \\
+  18 &  4 & Left button. \\
+  22 &  4 & Right button. \\
+  26 &  4 & Left bar bottom (the background). \\
+  30 &  4 & Middle bar bottom (the background). \\
+  34 &  4 & Right bar bottom (the background). \\
+  38 &  4 & Left bar top. \\
+  42 &  4 & Middle bar top. \\
+  46 &  4 & Right bar top. \\
+  50 & \multicolumn{2}{l|}{Total length} \\ \hline
+\end{tabular}
+\end{center}
+
+Known scroll-bar widget types:
+\begin{itemize}
+\item 160 Horizontal scroll bar + button
+\item 161 Shaded horizontal scroll bar + button
+\item 176 Vertical scroll bar + button (left = top, right = bottom).
+\item 177 Shaded vertical scroll bar + button (left = top, right = bottom).
+\end{itemize}
+
+
+%%
+%%
+%%
 \newpage
 \section{Future}
 
@@ -454,5 +628,6 @@ To do:
 \end{itemize}
 
 \end{document}
+% 'a,'b ! count_offset
 
-%vim: set spell
+% vim: set spell
