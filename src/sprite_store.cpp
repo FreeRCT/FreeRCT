@@ -19,7 +19,7 @@ SpriteManager _sprite_manager; ///< Sprite manager.
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
 /** %Sprite indices of ground/surface sprites after rotation of the view. */
-static const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
+const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
 	{ 0,  0,  0,  0},
 	{ 1,  8,  4,  2},
 	{ 2,  1,  8,  4},
@@ -569,15 +569,102 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites
 	return true;
 }
 
-/** %Sprite manager constructor. */
-SpriteManager::SpriteManager()
+
+/**
+ * Storage constructor for a single size.
+ * @param _size Width of the tile stored in this object.
+ */
+SpriteStorage::SpriteStorage(uint16 _size) : size(_size)
 {
-	this->blocks = NULL;
+	this->Clear();
+}
+
+SpriteStorage::~SpriteStorage()
+{
+	this->Clear();
+}
+
+/** Clear all data from the storage. */
+void SpriteStorage::Clear()
+{
 	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = NULL;
 	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = NULL;
 	this->tile_select = NULL;
 	this->tile_corners = NULL;
 	this->path_sprites = NULL;
+}
+
+/**
+ * Add ground tile sprites.
+ * @param sd New ground tile sprites.
+ * @pre Width of the ground tile sprites must match with #size.
+ */
+void SpriteStorage::AddSurfaceSprite(SurfaceData *sd)
+{
+	assert(sd->width == this->size);
+	assert(sd->type < GTP_COUNT);
+	this->surface[sd->type] = sd;
+}
+
+/**
+ * Add tile selection sprites.
+ * @param tsel New tile selection sprites.
+ * @pre Width of the tile selection sprites must match with #size.
+ */
+void SpriteStorage::AddTileSelection(TileSelection *tsel)
+{
+	assert(tsel->width == this->size);
+	this->tile_select = tsel;
+}
+
+/**
+ * Add tile corner sprites.
+ * @param tc New tile corner sprites.
+ * @pre Width of the tile corner sprites must match with #size.
+ */
+void SpriteStorage::AddTileCorners(TileCorners *tc)
+{
+	assert(tc->width == this->size);
+	this->tile_corners = tc;
+}
+
+/**
+ * Add foundation sprite.
+ * @param fnd New foundation sprite.
+ * @pre Width of the foundation sprite must match with #size.
+ */
+void SpriteStorage::AddFoundations(Foundation *fnd)
+{
+	assert(fnd->width == this->size);
+	assert(fnd->type < FDT_COUNT);
+	this->foundation[fnd->type] = fnd;
+}
+
+/**
+ * Add path sprites.
+ * @param path %Path sprites to add.
+ * @pre Width of the path sprites must match with #size.
+ */
+void SpriteStorage::AddPath(Path *path)
+{
+	assert(path->width == this->size);
+	this->path_sprites = path;
+}
+
+/**
+ * Is the collection complete enough to be used in a display?
+ * @return Sufficient data has been loaded.
+ */
+bool SpriteStorage::HasSufficientGraphics() const
+{
+	return this->surface != NULL; // Check that ground tiles got loaded.
+}
+
+
+/** %Sprite manager constructor. */
+SpriteManager::SpriteManager() : store(64)
+{
+	this->blocks = NULL;
 }
 
 /** %Sprite manager destructor. */
@@ -588,12 +675,7 @@ SpriteManager::~SpriteManager()
 		delete this->blocks;
 		this->blocks = next_block;
 	}
-	/* Clear pointers to (now) garbage, due to releasing all blocks above. */
-	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = NULL;
-	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = NULL;
-	this->tile_select = NULL;
-	this->tile_corners = NULL;
-	this->path_sprites = NULL;
+	/* Sprite stores will be deleted soon as well. */
 }
 
 /**
@@ -662,8 +744,7 @@ const char *SpriteManager::Load(const char *filename)
 			}
 			this->AddBlock(surf);
 
-			assert(surf->type < GTP_COUNT);
-			this->surface[surf->type] = surf;
+			this->store.AddSurfaceSprite(surf);
 			continue;
 		}
 
@@ -675,7 +756,7 @@ const char *SpriteManager::Load(const char *filename)
 			}
 			this->AddBlock(tsel);
 
-			this->tile_select = tsel;
+			this->store.AddTileSelection(tsel);
 			continue;
 		}
 
@@ -687,7 +768,7 @@ const char *SpriteManager::Load(const char *filename)
 			}
 			this->AddBlock(block);
 
-			this->path_sprites = block;
+			this->store.AddPath(block);
 			continue;
 		}
 
@@ -699,7 +780,7 @@ const char *SpriteManager::Load(const char *filename)
 			}
 			this->AddBlock(block);
 
-			this->tile_corners = block;
+			this->store.AddTileCorners(block);
 			continue;
 		}
 
@@ -711,8 +792,7 @@ const char *SpriteManager::Load(const char *filename)
 			}
 			this->AddBlock(block);
 
-			assert(block->type < FDT_COUNT);
-			this->foundation[block->type] = block;
+			this->store.AddFoundations(block);
 			continue;
 		}
 
@@ -756,58 +836,23 @@ void SpriteManager::AddBlock(RcdBlock *block)
 }
 
 /**
- * Get a ground sprite.
- * @param type Type of surface.
- * @param surf_spr Surface sprite index.
- * @param size Sprite size.
- * @param orient Orientation.
- * @return Requested sprite if available.
- * @todo Move this code closer to the sprite selection code.
- */
-const Sprite *SpriteManager::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 size, ViewOrientation orient)
-{
-	if (!this->surface[type]) return NULL;
-	if (this->surface[type]->width != size) return NULL;
-
-	return this->surface[type]->surface[_slope_rotation[surf_spr][orient]];
-}
-
-/**
- * Get a mouse tile cursor sprite.
- * @param surf_spr Surface sprite index.
- * @param size Sprite size.
- * @param orient Orientation.
- * @return Requested sprite if available.
- */
-const Sprite *SpriteManager::GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrientation orient)
-{
-	if (!this->tile_select) return NULL;
-	if (this->tile_select->width != size) return NULL;
-
-	return this->tile_select->surface[_slope_rotation[surf_spr][orient]];
-}
-
-/**
- * Get a mouse tile corner sprite.
- * @param surf_spr Surface sprite index.
- * @param size Sprite size.
- * @param orient Orientation (selected corner).
- * @param cursor Ground cursor orientation.
- * @return Requested sprite if available.
- */
-const Sprite *SpriteManager::GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrientation orient, ViewOrientation cursor)
-{
-	if (!this->tile_corners) return NULL;
-	if (this->tile_corners->width != size) return NULL;
-
-	return this->tile_corners->sprites[cursor][_slope_rotation[surf_spr][orient]];
-}
-
-/**
  * Are there sufficient graphics loaded to display something?
  * @return Sufficient data has been loaded.
  */
-bool SpriteManager::HaveSufficientGraphics() const
+bool SpriteManager::HasSufficientGraphics() const
 {
-	return this->surface != NULL; // Check that we loaded ground sprites.
+	return this->store.HasSufficientGraphics();
 }
+
+/**
+ * Get a sprite store of a given size.
+ * @param size Requested size.
+ * @return %Sprite store with sprites of the requested size, if it exists, else \c NULL.
+ * @todo Add support for other sprite sizes as well.
+ */
+const SpriteStorage *SpriteManager::GetSprites(uint16 size) const
+{
+	if (size != 64) return NULL;
+	return &this->store;
+}
+

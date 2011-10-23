@@ -17,6 +17,8 @@
 #include "tile.h"
 #include <map>
 
+extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
+
 class RcdFile;
 
 /** Block of data from a RCD file. */
@@ -144,6 +146,74 @@ public:
 	Sprite *sprites[6]; ///< Foundation sprites.
 };
 
+/**
+ * Storage of all sprites for a single tile size.
+ * @note The data does not belong to this class, it is managed by #SpriteManager instead.
+ */
+class SpriteStorage {
+public:
+	SpriteStorage(uint16 size);
+	~SpriteStorage();
+
+	void AddSurfaceSprite(SurfaceData *sd);
+	void AddTileSelection(TileSelection *tsel);
+	void AddTileCorners(TileCorners *tc);
+	void AddFoundations(Foundation *fnd);
+	void AddPath(Path *path);
+
+	bool HasSufficientGraphics() const;
+
+	/**
+	 * Get a ground sprite.
+	 * @param type Type of surface.
+	 * @param surf_spr Surface sprite index.
+	 * @param orient Orientation.
+	 * @return Requested sprite if available.
+	 * @todo Move this code closer to the sprite selection code.
+	 */
+	const Sprite *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
+	{
+		if (!this->surface[type]) return NULL;
+		return this->surface[type]->surface[_slope_rotation[surf_spr][orient]];
+	}
+
+	/**
+	 * Get a mouse tile cursor sprite.
+	 * @param surf_spr Surface sprite index.
+	 * @param orient Orientation.
+	 * @return Requested sprite if available.
+	 */
+	const Sprite *GetCursorSprite(uint8 surf_spr, ViewOrientation orient) const
+	{
+		if (!this->tile_select) return NULL;
+		return this->tile_select->surface[_slope_rotation[surf_spr][orient]];
+	}
+
+	/**
+	 * Get a mouse tile corner sprite.
+	 * @param surf_spr Surface sprite index.
+	 * @param orient Orientation (selected corner).
+	 * @param cursor Ground cursor orientation.
+	 * @return Requested sprite if available.
+	 */
+	const Sprite *GetCornerSprite(uint8 surf_spr, ViewOrientation orient, ViewOrientation cursor) const
+	{
+		if (!this->tile_corners) return NULL;
+		return this->tile_corners->sprites[cursor][_slope_rotation[surf_spr][orient]];
+	}
+
+	const uint16 size; ///< Width of the tile.
+
+	SurfaceData *surface[GTP_COUNT];   ///< Surface data.
+	Foundation *foundation[FDT_COUNT]; ///< Foundation.
+	TileSelection *tile_select;        ///< Tile selection sprites.
+	TileCorners *tile_corners;         ///< Tile corner sprites.
+	Path *path_sprites;                ///< Path sprites.
+
+protected:
+	void Clear();
+};
+
 /** Storage and management of all sprites. */
 class SpriteManager {
 public:
@@ -153,22 +223,15 @@ public:
 	const char *LoadRcdFiles();
 	void AddBlock(RcdBlock *block);
 
-	const Sprite *GetSurfaceSprite(uint8 type, uint8 slope, uint16 size, ViewOrientation orient);
-	const Sprite *GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrientation orient);
-	const Sprite *GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrientation orient, ViewOrientation cursor);
-
-	bool HaveSufficientGraphics() const;
+	bool HasSufficientGraphics() const;
+	const SpriteStorage *GetSprites(uint16 size) const;
 
 protected:
 	const char *Load(const char *fname);
 
-	RcdBlock *blocks;           ///< List of loaded Rcd data blocks.
+	RcdBlock *blocks;    ///< List of loaded Rcd data blocks.
 
-	SurfaceData *surface[GTP_COUNT];   ///< Surface data.
-	Foundation *foundation[FDT_COUNT]; ///< Foundation.
-	TileSelection *tile_select;        ///< Tile selection sprites.
-	TileCorners *tile_corners;         ///< Tile corner sprites.
-	Path *path_sprites;                ///< Path sprites.
+	SpriteStorage store; ///< %Sprite storage of size 64.
 };
 
 extern SpriteManager _sprite_manager;

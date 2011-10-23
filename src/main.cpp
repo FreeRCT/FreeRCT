@@ -60,7 +60,7 @@ int main(void)
 		exit(1);
 	}
 
-	if (!_sprite_manager.HaveSufficientGraphics()) {
+	if (!_sprite_manager.HasSufficientGraphics()) {
 		fprintf(stderr, "Insufficient graphics loaded, some parts may not be displayed correctly.\n");
 	}
 

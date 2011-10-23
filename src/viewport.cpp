@@ -68,9 +68,10 @@ public:
 	int32 yview; ///< Y position of the center point of the display.
 	int32 zview; ///< Z position of the center point of the display.
 
-	uint16 tile_width;      ///< Width of a tile.
-	uint16 tile_height;     ///< Height of a tile.
-	ViewOrientation orient; ///< Direction of view.
+	uint16 tile_width;            ///< Width of a tile.
+	uint16 tile_height;           ///< Height of a tile.
+	ViewOrientation orient;       ///< Direction of view.
+	const SpriteStorage *sprites; ///< Sprite collection of the right size.
 
 	Rectangle rect; ///< Screen area of interest.
 
@@ -171,6 +172,9 @@ VoxelCollector::VoxelCollector(int32 xview, int32 yview, int32 zview, uint16 til
 	this->tile_width = tile_width;
 	this->tile_height = tile_height;
 	this->orient = orient;
+
+	this->sprites = _sprite_manager.GetSprites(this->tile_width);
+	assert(this->sprites != NULL);
 }
 
 /* Destructor. */
@@ -279,14 +283,14 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
 			if (svd->ground.type == GTP_INVALID) break;
-			const Sprite *spr = _sprite_manager.GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->tile_width, this->orient);
+			const Sprite *spr = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
 			if (spr != NULL) {
 				const Sprite *mspr = NULL;
 				if (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) {
 					if (this->cursor == VOR_INVALID) {
-						mspr = _sprite_manager.GetCursorSprite(svd->ground.slope, this->tile_width, this->orient);
+						mspr = this->sprites->GetCursorSprite(svd->ground.slope, this->orient);
 					} else {
-						mspr = _sprite_manager.GetCornerSprite(svd->ground.slope, this->tile_width, this->orient, this->cursor);
+						mspr = this->sprites->GetCornerSprite(svd->ground.slope, this->orient, this->cursor);
 					}
 				}
 
@@ -342,7 +346,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
 			if (svd->ground.type == GTP_INVALID) break;
-			const Sprite *spr = _sprite_manager.GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->tile_width, this->orient);
+			const Sprite *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->orient);
 			if (spr == NULL) break;
 			int32 dist = sx * xpos + sy * ypos + zpos * 256;
 			if (this->found && dist <= this->distance) break;
