@@ -1,0 +1,6 @@
+rcd/rcdlib/.*\.pyc$
+rcd/.*\.rcd$
+rcd/data_format.aux
+rcd/data_format.log
+src/.*\.o$
+src/.*\.d$
