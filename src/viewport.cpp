@@ -545,7 +545,11 @@ void Viewport::ChangeTerrain(int direction)
 
 	if (ok) {
 		changes.ChangeWorld(direction);
-		this->ComputeCursorPosition();
+		/* Move voxel selection along with the terrain to allow another mousewheel event at the same place.
+		 * Note that the mouse cursor position is not changed at all, it still points at the original position.
+		 * The coupling is restored with the next mouse movement.
+		 */
+		this->zvoxel = _world.GetGroundHeight(this->xvoxel, this->yvoxel);
 		this->MarkDirty();
 	}
 }
