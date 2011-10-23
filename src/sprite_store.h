@@ -144,14 +144,11 @@ public:
 	Sprite *sprites[6]; ///< Foundation sprites.
 };
 
-/**
- * Storage of all sprites.
- * @todo We may want to have more than one surface.
- */
-class SpriteStore {
+/** Storage and management of all sprites. */
+class SpriteManager {
 public:
-	SpriteStore();
-	~SpriteStore();
+	SpriteManager();
+	~SpriteManager();
 
 	const char *LoadRcdFiles();
 	void AddBlock(RcdBlock *block);
@@ -174,6 +171,6 @@ protected:
 	Path *path_sprites;                ///< Path sprites.
 };
 
-extern SpriteStore _sprite_store;
+extern SpriteManager _sprite_manager;
 
 #endif

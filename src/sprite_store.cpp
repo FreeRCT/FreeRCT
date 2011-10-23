@@ -14,7 +14,7 @@
 #include "fileio.h"
 #include "string_func.h"
 
-SpriteStore _sprite_store; ///< Sprite storage.
+SpriteManager _sprite_manager; ///< Sprite manager.
 
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
@@ -569,8 +569,8 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites
 	return true;
 }
 
-/** %Sprite storage constructor. */
-SpriteStore::SpriteStore()
+/** %Sprite manager constructor. */
+SpriteManager::SpriteManager()
 {
 	this->blocks = NULL;
 	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = NULL;
@@ -580,8 +580,8 @@ SpriteStore::SpriteStore()
 	this->path_sprites = NULL;
 }
 
-/** %Sprite storage destructor. */
-SpriteStore::~SpriteStore()
+/** %Sprite manager destructor. */
+SpriteManager::~SpriteManager()
 {
 	while (this->blocks != NULL) {
 		RcdBlock *next_block = this->blocks->next;
@@ -603,7 +603,7 @@ SpriteStore::~SpriteStore()
  * @todo Try to re-use already loaded blocks.
  * @todo Code will use last loaded surface as grass.
  */
-const char *SpriteStore::Load(const char *filename)
+const char *SpriteManager::Load(const char *filename)
 {
 	char name[5];
 	name[4] = '\0';
@@ -726,7 +726,7 @@ const char *SpriteStore::Load(const char *filename)
  * Load all useful RCD files into the program.
  * @return Error message if loading failed, \c NULL if all went well.
  */
-const char *SpriteStore::LoadRcdFiles()
+const char *SpriteManager::LoadRcdFiles()
 {
 	DirectoryReader *reader = MakeDirectoryReader();
 	const char *mesg = NULL;
@@ -749,7 +749,7 @@ const char *SpriteStore::LoadRcdFiles()
  * Add a RCD data block to the list of managed blocks.
  * @param block New block to add.
  */
-void SpriteStore::AddBlock(RcdBlock *block)
+void SpriteManager::AddBlock(RcdBlock *block)
 {
 	block->next = this->blocks;
 	this->blocks = block;
@@ -764,7 +764,7 @@ void SpriteStore::AddBlock(RcdBlock *block)
  * @return Requested sprite if available.
  * @todo Move this code closer to the sprite selection code.
  */
-const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 size, ViewOrientation orient)
+const Sprite *SpriteManager::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 size, ViewOrientation orient)
 {
 	if (!this->surface[type]) return NULL;
 	if (this->surface[type]->width != size) return NULL;
@@ -779,7 +779,7 @@ const Sprite *SpriteStore::GetSurfaceSprite(uint8 type, uint8 surf_spr, uint16 s
  * @param orient Orientation.
  * @return Requested sprite if available.
  */
-const Sprite *SpriteStore::GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrientation orient)
+const Sprite *SpriteManager::GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrientation orient)
 {
 	if (!this->tile_select) return NULL;
 	if (this->tile_select->width != size) return NULL;
@@ -795,7 +795,7 @@ const Sprite *SpriteStore::GetCursorSprite(uint8 surf_spr, uint16 size, ViewOrie
  * @param cursor Ground cursor orientation.
  * @return Requested sprite if available.
  */
-const Sprite *SpriteStore::GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrientation orient, ViewOrientation cursor)
+const Sprite *SpriteManager::GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrientation orient, ViewOrientation cursor)
 {
 	if (!this->tile_corners) return NULL;
 	if (this->tile_corners->width != size) return NULL;
@@ -807,7 +807,7 @@ const Sprite *SpriteStore::GetCornerSprite(uint8 surf_spr, uint16 size, ViewOrie
  * Are there sufficient graphics loaded to display something?
  * @return Sufficient data has been loaded.
  */
-bool SpriteStore::HaveSufficientGraphics() const
+bool SpriteManager::HaveSufficientGraphics() const
 {
 	return this->surface != NULL; // Check that we loaded ground sprites.
 }

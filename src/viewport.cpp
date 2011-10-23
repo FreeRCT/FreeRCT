@@ -279,14 +279,14 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
 			if (svd->ground.type == GTP_INVALID) break;
-			const Sprite *spr = _sprite_store.GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->tile_width, this->orient);
+			const Sprite *spr = _sprite_manager.GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->tile_width, this->orient);
 			if (spr != NULL) {
 				const Sprite *mspr = NULL;
 				if (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) {
 					if (this->cursor == VOR_INVALID) {
-						mspr = _sprite_store.GetCursorSprite(svd->ground.slope, this->tile_width, this->orient);
+						mspr = _sprite_manager.GetCursorSprite(svd->ground.slope, this->tile_width, this->orient);
 					} else {
-						mspr = _sprite_store.GetCornerSprite(svd->ground.slope, this->tile_width, this->orient, this->cursor);
+						mspr = _sprite_manager.GetCornerSprite(svd->ground.slope, this->tile_width, this->orient, this->cursor);
 					}
 				}
 
@@ -342,7 +342,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
 			if (svd->ground.type == GTP_INVALID) break;
-			const Sprite *spr = _sprite_store.GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->tile_width, this->orient);
+			const Sprite *spr = _sprite_manager.GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->tile_width, this->orient);
 			if (spr == NULL) break;
 			int32 dist = sx * xpos + sy * ypos + zpos * 256;
 			if (this->found && dist <= this->distance) break;

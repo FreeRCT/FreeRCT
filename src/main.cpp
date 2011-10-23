@@ -54,13 +54,13 @@ int main(void)
 	VideoSystem vid;
 
 	/* Load RCD file. */
-	const char *err_msg = _sprite_store.LoadRcdFiles();
+	const char *err_msg = _sprite_manager.LoadRcdFiles();
 	if (err_msg != NULL) {
 		fprintf(stderr, "Failed to load RCD files\n(%s)\n", err_msg);
 		exit(1);
 	}
 
-	if (!_sprite_store.HaveSufficientGraphics()) {
+	if (!_sprite_manager.HaveSufficientGraphics()) {
 		fprintf(stderr, "Insufficient graphics loaded, some parts may not be displayed correctly.\n");
 	}
 
