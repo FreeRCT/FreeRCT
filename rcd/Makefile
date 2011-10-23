@@ -6,7 +6,7 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
-RCDFILES=borderhighlight_8bpp64.rcd cornerhighlight_8bpp64.rcd \
+RCDFILES=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd cornerhighlight_8bpp64.rcd \
 	cursor_groundtile_8bpp64.rcd \
 	foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd
 
@@ -49,3 +49,7 @@ cornerhighlight_8bpp64.rcd: cornerhighlight_8bpp64.py ../sprites_src/terrain/gro
 path_8bpp64.rcd: path_8bpp64.py ../sprites_src/paths/path/template8bpp64.png
 	$(PYTHON) path_8bpp64.py --output path_8bpp64.rcd \
 		../sprites_src/paths/path/template8bpp64.png
+
+buildarrows_8bpp64.rcd: buildarrows_8bpp64.py ../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png
+	$(PYTHON) buildarrows_8bpp64.py --output buildarrows_8bpp64.rcd \
+		../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png

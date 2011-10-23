@@ -147,6 +147,21 @@ public:
 };
 
 /**
+ * Displayed object.
+ * (For now, just the arrows pointing in the build direction, hopefully also usable for other 1x1 tile objects.)
+ */
+class DisplayedObject : public RcdBlock {
+public:
+	DisplayedObject();
+	~DisplayedObject();
+
+	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+
+	uint16 width;       ///< Width of the tile.
+	Sprite *sprites[4]; ///< Object displayed towards NE, SE, SW, NW edges.
+};
+
+/**
  * Storage of all sprites for a single tile size.
  * @note The data does not belong to this class, it is managed by #SpriteManager instead.
  */
@@ -160,6 +175,7 @@ public:
 	void AddTileCorners(TileCorners *tc);
 	void AddFoundations(Foundation *fnd);
 	void AddPath(Path *path);
+	void AddBuildArrows(DisplayedObject *obj);
 
 	bool HasSufficientGraphics() const;
 
@@ -173,7 +189,7 @@ public:
 	 */
 	const Sprite *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
 	{
-		if (!this->surface[type]) return NULL;
+		if (this->surface[type] == NULL) return NULL;
 		return this->surface[type]->surface[_slope_rotation[surf_spr][orient]];
 	}
 
@@ -185,7 +201,7 @@ public:
 	 */
 	const Sprite *GetCursorSprite(uint8 surf_spr, ViewOrientation orient) const
 	{
-		if (!this->tile_select) return NULL;
+		if (this->tile_select == NULL) return NULL;
 		return this->tile_select->surface[_slope_rotation[surf_spr][orient]];
 	}
 
@@ -198,8 +214,21 @@ public:
 	 */
 	const Sprite *GetCornerSprite(uint8 surf_spr, ViewOrientation orient, ViewOrientation cursor) const
 	{
-		if (!this->tile_corners) return NULL;
+		if (this->tile_corners == NULL) return NULL;
 		return this->tile_corners->sprites[cursor][_slope_rotation[surf_spr][orient]];
+	}
+
+	/**
+	 * Get an arrow for indicating the build direction of paths and tracks.
+	 * @param spr_num Sprite index.
+	 * @param orient Orientation of the view.
+	 * @return Requested arrow sprite if available.
+	 */
+	const Sprite *GetArrowSprite(uint8 spr_num, ViewOrientation orient) const
+	{
+		if (this->build_arrows == NULL) return NULL;
+		assert(spr_num < 4);
+		return this->build_arrows->sprites[spr_num];
 	}
 
 	const uint16 size; ///< Width of the tile.
@@ -209,6 +238,7 @@ public:
 	TileSelection *tile_select;        ///< Tile selection sprites.
 	TileCorners *tile_corners;         ///< Tile corner sprites.
 	Path *path_sprites;                ///< Path sprites.
+	DisplayedObject *build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 
 protected:
 	void Clear();

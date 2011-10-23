@@ -77,6 +77,13 @@ class DataBlock(Block):
 class GeneralDataBlock(Block):
     """
     General data block class.
+
+    @ivar fields: Mapping of name to type for the fields in the block, where type is one of
+                  int8, uint8, int16 uint16 uint32 block.
+    @type fields: C{list} of (C{str}, C{str})
+
+    @ivar values: Mapping of fields to numeric values.
+    @type values: C{dict} of C{str} to C{int}
     """
     def __init__(self, name, version, fields, values):
         Block.__init__(self, name, version)
@@ -87,7 +94,11 @@ class GeneralDataBlock(Block):
         Block.write(self, out)
         out.uint32(self.get_size())
         for fldname, fldtype in self.fields:
-            if fldtype == 'int16':
+            if fldtype == 'int8':
+                out.int8(self.values[fldname])
+            elif fldtype == 'uint8':
+                out.uint8(self.values[fldname])
+            elif fldtype == 'int16':
                 out.int16(self.values[fldname])
             elif fldtype == 'uint16':
                 out.uint16(self.values[fldname])
@@ -96,13 +107,13 @@ class GeneralDataBlock(Block):
             elif fldtype == 'block':
                 out.uint32(self.values[fldname])
             else:
-                assert False # Unknown field type.
+                raise ValueError("Unknown field-type: %r" % fldtype)
 
     def get_size(self):
         """
         Compute size of the block, and return it to the caller.
         """
-        sizes = {'int16':2, 'uint16':2, 'uint32':4, 'block':4}
+        sizes = {'int8':1, 'uint8':1, 'int16':2, 'uint16':2, 'uint32':4, 'block':4}
         total = 0
         for fldname, fldtype in self.fields:
             total = total + sizes[fldtype]

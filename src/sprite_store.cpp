@@ -569,6 +569,44 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites
 	return true;
 }
 
+DisplayedObject::DisplayedObject()
+{
+	this->width = 0;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
+}
+
+DisplayedObject::~DisplayedObject()
+{
+}
+
+/**
+ * Load a displayed object block.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 2 + 4*4) return false;
+
+	this->width = rcd_file->GetUInt16();
+
+	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		this->sprites[sprnum] = spr;
+	}
+	return true;
+}
+
 
 /**
  * Storage constructor for a single size.
@@ -592,6 +630,7 @@ void SpriteStorage::Clear()
 	this->tile_select = NULL;
 	this->tile_corners = NULL;
 	this->path_sprites = NULL;
+	this->build_arrows = NULL;
 }
 
 /**
@@ -649,6 +688,17 @@ void SpriteStorage::AddPath(Path *path)
 {
 	assert(path->width == this->size);
 	this->path_sprites = path;
+}
+
+/**
+ * Add build arrow sprites.
+ * @param obj Arrow sprites to add.
+ * @pre Width of the arrow sprites must match with #size.
+ */
+void SpriteStorage::AddBuildArrows(DisplayedObject *obj)
+{
+	assert(obj->width == this->size);
+	this->build_arrows = obj;
 }
 
 /**
@@ -793,6 +843,18 @@ const char *SpriteManager::Load(const char *filename)
 			this->AddBlock(block);
 
 			this->store.AddFoundations(block);
+			continue;
+		}
+
+		if (strcmp(name, "BDIR") == 0 && version == 1) {
+			DisplayedObject *block = new DisplayedObject;
+			if (!block->Load(&rcd_file, length, sprites)) {
+				delete block;
+				return "Build arrows block loading failed.";
+			}
+			this->AddBlock(block);
+
+			this->store.AddBuildArrows(block);
 			continue;
 		}
 
