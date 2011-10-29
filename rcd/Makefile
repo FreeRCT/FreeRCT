@@ -8,11 +8,11 @@
 
 RCDFILES=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd cornerhighlight_8bpp64.rcd \
 	cursor_groundtile_8bpp64.rcd \
-	foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd
+	gui.rcd foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd
 
 PYTHON=python
 
-.PHONY: build clean
+.PHONY: build clean doc
 
 build: $(RCDFILES)
 
@@ -22,6 +22,12 @@ clean:
 	   then rm $$i;\
 	   fi;\
 	done
+
+# Build documentation (run it several times to get the referenced pages correct)
+doc:
+	pdflatex data_format.tex
+	pdflatex data_format.tex
+	pdflatex data_format.tex
 
 borderhighlight_8bpp64.rcd: borderhighlight_8bpp64.py ../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png
 	$(PYTHON) borderhighlight_8bpp64.py --output borderhighlight_8bpp64.rcd \
@@ -53,3 +59,6 @@ path_8bpp64.rcd: path_8bpp64.py ../sprites_src/paths/path/template8bpp64.png
 buildarrows_8bpp64.rcd: buildarrows_8bpp64.py ../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png
 	$(PYTHON) buildarrows_8bpp64.py --output buildarrows_8bpp64.rcd \
 		../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png
+
+gui.rcd: guis.py ../sprites_src/gui/GUIEles.png
+	$(PYTHON) guis.py

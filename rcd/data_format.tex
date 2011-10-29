@@ -516,6 +516,7 @@ Known widget types:
       52 rounded button,
       53 pressed rounded button.
 \item 64 frame
+\item 68 panel
 \item 80 inset frame
 \end{itemize}
 
@@ -587,15 +588,20 @@ should be used.
   14 &  1 & Minimal length bar. \\
   15 &  1 & Stepsize of bar. \\
   16 &  2 & Widget type. \\
-  18 &  4 & Left button. \\
-  22 &  4 & Right button. \\
-  26 &  4 & Left bar bottom (the background). \\
-  30 &  4 & Middle bar bottom (the background). \\
-  34 &  4 & Right bar bottom (the background). \\
-  38 &  4 & Left bar top. \\
-  42 &  4 & Middle bar top. \\
-  46 &  4 & Right bar top. \\
-  50 & \multicolumn{2}{l|}{Total length} \\ \hline
+  18 &  4 & Left/up button. \\
+  22 &  4 & Right/down button. \\ \hline
+  26 &  4 & Left/up pressed button. \\
+  30 &  4 & Right/down pressed button. \\ \hline
+  34 &  4 & Left/top bar bottom (the background). \\
+  38 &  4 & Middle bar bottom (the background). \\
+  42 &  4 & Right/down bar bottom (the background). \\ \hline
+  46 &  4 & Left/top bar top. \\
+  50 &  4 & Middle bar top. \\
+  54 &  4 & Right/down bar top. \\ \hline
+  58 &  4 & Left/top pressed bar top. \\
+  62 &  4 & Middle pressed bar top. \\
+  66 &  4 & Right/down pressed bar top. \\ \hline
+  70 & \multicolumn{2}{l|}{Total length} \\ \hline
 \end{tabular}
 \end{center}
 
@@ -603,8 +609,8 @@ Known scroll-bar widget types:
 \begin{itemize}
 \item 160 Horizontal scroll bar + button
 \item 161 Shaded horizontal scroll bar + button
-\item 176 Vertical scroll bar + button (left = top, right = bottom).
-\item 177 Shaded vertical scroll bar + button (left = top, right = bottom).
+\item 176 Vertical scroll bar + button
+\item 177 Shaded vertical scroll bar + button
 \end{itemize}
 
 

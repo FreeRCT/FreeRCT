@@ -13,8 +13,10 @@
 #include "sprite_store.h"
 #include "fileio.h"
 #include "string_func.h"
+#include "math_func.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
+GuiSprites _gui_sprites; ///< Gui sprites.
 
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
@@ -608,6 +610,344 @@ bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sp
 }
 
 
+/** Clear the border sprite data. */
+void BorderSpriteData::Clear()
+{
+	this->border_top = 0;
+	this->border_left = 0;
+	this->border_right = 0;
+	this->border_bottom = 0;
+
+	this->min_width = 0;
+	this->min_height = 0;
+	this->hor_stepsize = 0;
+	this->vert_stepsize = 0;
+
+	for (int i = 0; i < WBS_COUNT; i++) {
+		this->normal[i] = NULL;
+		this->pressed[i] = NULL;
+	}
+}
+
+/**
+ * Check whether the border sprite data is actually loaded.
+ * @return Whether the sprite data is loaded.
+ */
+bool BorderSpriteData::IsLoaded() const
+{
+	return this->min_width != 0 && this->min_height != 0;
+}
+
+/**
+ * Load checkable sprite data.
+ * @param rcd_file RCD file being loaded.
+ * @param length Length of the block to load.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ */
+bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 2 + 8*1 + WBS_COUNT * 4) return false;
+
+	/* Select sprites to save to. */
+	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	BorderSpriteData *sprdata = NULL;
+	bool pressed = false;
+	switch (tp) {
+		case 32: sprdata = &this->titlebar;       pressed = false; break;
+		case 48: sprdata = &this->button;         pressed = false; break;
+		case 49: sprdata = &this->button;         pressed = true;  break;
+		case 52: sprdata = &this->rounded_button; pressed = false; break;
+		case 53: sprdata = &this->rounded_button; pressed = true;  break;
+		case 64: sprdata = &this->frame;          pressed = false; break;
+		case 68: sprdata = &this->panel;          pressed = false; break;
+		case 80: sprdata = &this->inset_frame;    pressed = false; break;
+		default:
+			return false;
+	}
+
+	sprdata->border_top    = rcd_file->GetUInt8();
+	sprdata->border_left   = rcd_file->GetUInt8();
+	sprdata->border_right  = rcd_file->GetUInt8();
+	sprdata->border_bottom = rcd_file->GetUInt8();
+	sprdata->min_width     = rcd_file->GetUInt8();
+	sprdata->min_height    = rcd_file->GetUInt8();
+	sprdata->hor_stepsize  = rcd_file->GetUInt8();
+	sprdata->vert_stepsize = rcd_file->GetUInt8();
+
+	for (uint sprnum = 0; sprnum < WBS_COUNT; sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		if (pressed) {
+			sprdata->pressed[sprnum] = spr;
+		} else {
+			sprdata->normal[sprnum] = spr;
+		}
+	}
+	return true;
+}
+
+/** Completely clear the data of the checkable sprites. */
+void CheckableWidgetSpriteData::Clear()
+{
+	this->width = 0;
+	this->height = 0;
+
+	for (uint sprnum = 0; sprnum < WCS_COUNT; sprnum++) {
+		this->sprites[sprnum] = NULL;
+	}
+}
+
+/**
+ * Check whether the checkable sprite data is actually loaded.
+ * @return Whether the sprite data is loaded.
+ */
+bool CheckableWidgetSpriteData::IsLoaded() const
+{
+	return this->width != 0 && this->height != 0;
+}
+
+/**
+ * Load checkable sprite data.
+ * @param rcd_file RCD file being loaded.
+ * @param length Length of the block to load.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ * @todo Load width and height from the RCD file too.
+ */
+bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 2 + WCS_COUNT * 4) return false;
+
+	/* Select sprites to save to. */
+	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	CheckableWidgetSpriteData *sprdata = NULL;
+	switch (tp) {
+		case 96:  sprdata = &this->checkbox; break;
+		case 112: sprdata = &this->radio_button; break;
+		default:
+			return false;
+	}
+
+	sprdata->width = 0;
+	sprdata->height = 0;
+	for (uint sprnum = 0; sprnum < WCS_COUNT; sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		sprdata->sprites[sprnum] = spr;
+
+		if (spr != NULL) {
+			sprdata->width = max(sprdata->width, spr->img_data->width);
+			sprdata->height = max(sprdata->height, spr->img_data->height);
+		}
+	}
+	return true;
+}
+
+/** Clear sprite data of a slider bar. */
+void SliderSpriteData::Clear()
+{
+	this->min_bar_length = 0;
+	this->stepsize = 0;
+	this->height = 0;
+
+	for (uint sprnum = 0; sprnum < WSS_COUNT; sprnum++) {
+		this->normal[sprnum] = NULL;
+		this->shaded[sprnum] = NULL;
+	}
+}
+
+/**
+ * Check whether the slider bar sprite data is actually loaded.
+ * @return Whether the sprite data is loaded.
+ */
+bool SliderSpriteData::IsLoaded() const
+{
+	return this->min_bar_length != 0 && this->height != 0;
+}
+
+/**
+ * Load slider bar sprite data.
+ * @param rcd_file RCD file being loaded.
+ * @param length Length of the block to load.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ * @todo Move widget_type further to the top in the RCD file block.
+ */
+bool GuiSprites::LoadGSLI(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 3 * 1 + 2 + WSS_COUNT * 4) return false;
+
+	uint8 min_length = rcd_file->GetUInt8();
+	uint8 stepsize = rcd_file->GetUInt8();
+	uint8 height = rcd_file->GetUInt8();
+
+	/* Select sprites to save to. */
+	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	SliderSpriteData *sprdata = NULL;
+	bool shaded = false;
+	switch (tp) {
+		case 128: sprdata = &this->hor_slider;  shaded = false; break;
+		case 129: sprdata = &this->hor_slider;  shaded = true;  break;
+		case 144: sprdata = &this->vert_slider; shaded = false; break;
+		case 145: sprdata = &this->vert_slider; shaded = true;  break;
+		default:
+			return false;
+	}
+
+	sprdata->min_bar_length = min_length;
+	sprdata->stepsize = stepsize;
+	sprdata->height = height;
+
+	for (uint sprnum = 0; sprnum < WSS_COUNT; sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		if (shaded) {
+			sprdata->shaded[sprnum] = spr;
+		} else {
+			sprdata->normal[sprnum] = spr;
+		}
+	}
+	return true;
+}
+
+/** Clear the scrollbar sprite data. */
+void ScrollbarSpriteData::Clear()
+{
+	this->min_length_all = 0;
+	this->min_length_slider = 0;
+	this->stepsize_bar = 0;
+	this->stepsize_slider = 0;
+	this->height = 0;
+
+	for (uint sprnum = 0; sprnum < WLS_COUNT; sprnum++) {
+		this->normal[sprnum] = NULL;
+		this->shaded[sprnum] = NULL;
+	}
+}
+
+/**
+ * Check whether the scrollbar sprite data is actually loaded.
+ * @return Whether the sprite data is loaded.
+ */
+bool ScrollbarSpriteData::IsLoaded() const
+{
+	return this->min_length_all != 0 && this->height != 0;
+}
+
+/**
+ * Load scroll bar sprite data.
+ * @param rcd_file RCD file being loaded.
+ * @param length Length of the block to load.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ * @todo Move widget_type further to the top in the RCD file block.
+ * @todo Add width of the scrollbar in the RCD file block.
+ */
+bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 4*1 + 2 + WLS_COUNT * 4) return false;
+
+	uint8 min_length_bar = rcd_file->GetUInt8();
+	uint8 stepsize_back = rcd_file->GetUInt8();
+	uint8 min_slider = rcd_file->GetUInt8();
+	uint8 stepsize_slider = rcd_file->GetUInt8();
+
+	/* Select sprites to save to. */
+	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	ScrollbarSpriteData *sprdata = NULL;
+	bool shaded = false;
+	bool vertical = false;
+	switch (tp) {
+		case 160: sprdata = &this->hor_scroll;  shaded = false; vertical = false; break;
+		case 161: sprdata = &this->hor_scroll;  shaded = true;  vertical = false; break;
+		case 176: sprdata = &this->vert_scroll; shaded = false; vertical = true;  break;
+		case 177: sprdata = &this->vert_scroll; shaded = true;  vertical = true;  break;
+		default:
+			return false;
+	}
+
+	sprdata->min_length_all = min_length_bar;
+	sprdata->stepsize_bar = stepsize_back;
+	sprdata->min_length_slider = min_slider;
+	sprdata->stepsize_slider = stepsize_slider;
+
+	uint16 max_width = 0;
+	uint16 max_height = 0;
+	for (uint sprnum = 0; sprnum < WLS_COUNT; sprnum++) {
+		uint32 val = rcd_file->GetUInt32();
+		Sprite *spr;
+		if (val == 0) {
+			spr = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			spr = (*iter).second;
+		}
+		if (shaded) {
+			sprdata->shaded[sprnum] = spr;
+		} else {
+			sprdata->normal[sprnum] = spr;
+		}
+
+		if (spr != NULL) {
+			max_width = max(max_width, spr->img_data->width);
+			max_height = max(max_height, spr->img_data->height);
+		}
+	}
+
+	sprdata->height = (vertical) ? max_width : max_height;
+	return true;
+}
+
+/** Default constructor. */
+GuiSprites::GuiSprites()
+{
+	this->Clear();
+}
+
+/** Clear all Gui sprite data. */
+void GuiSprites::Clear()
+{
+	this->titlebar.Clear();
+	this->button.Clear();
+	this->rounded_button.Clear();
+	this->frame.Clear();
+	this->panel.Clear();
+	this->inset_frame.Clear();
+
+	this->checkbox.Clear();
+	this->radio_button.Clear();
+
+	this->hor_slider.Clear();
+	this->vert_slider.Clear();
+
+	this->hor_scroll.Clear();
+	this->vert_scroll.Clear();
+}
+
+
 /**
  * Storage constructor for a single size.
  * @param _size Width of the tile stored in this object.
@@ -758,7 +1098,7 @@ const char *SpriteManager::Load(const char *filename)
 		version = rcd_file.GetUInt32();
 		length = rcd_file.GetUInt32();
 
-		if (length + 12 > remain) return false; // Not enough data in the file.
+		if (length + 12 > remain) return "Not enough data"; // Not enough data in the file.
 
 		if (strcmp(name, "8PXL") == 0 && version == 1) {
 			ImageData *img_data = new ImageData;
@@ -855,6 +1195,34 @@ const char *SpriteManager::Load(const char *filename)
 			this->AddBlock(block);
 
 			this->store.AddBuildArrows(block);
+			continue;
+		}
+
+		if (strcmp(name, "GCHK") == 0 && version == 1) {
+			if (!_gui_sprites.LoadGCHK(&rcd_file, length, sprites)) {
+				return "Loading Checkable Gui sprites failed.";
+			}
+			continue;
+		}
+
+		if (strcmp(name, "GBOR") == 0 && version == 1) {
+			if (!_gui_sprites.LoadGBOR(&rcd_file, length, sprites)) {
+				return "Loading Border Gui sprites failed.";
+			}
+			continue;
+		}
+
+		if (strcmp(name, "GSLI") == 0 && version == 1) {
+			if (!_gui_sprites.LoadGSLI(&rcd_file, length, sprites)) {
+				return "Loading Slider bar Gui sprites failed.";
+			}
+			continue;
+		}
+
+		if (strcmp(name, "GSCL") == 0 && version == 1) {
+			if (!_gui_sprites.LoadGSCL(&rcd_file, length, sprites)) {
+				return "Loading Scrollbar Gui sprites failed.";
+			}
 			continue;
 		}
 

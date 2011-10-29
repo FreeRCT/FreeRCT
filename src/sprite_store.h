@@ -161,6 +161,153 @@ public:
 	Sprite *sprites[4]; ///< Object displayed towards NE, SE, SW, NW edges.
 };
 
+
+/** Sprites of a border. */
+enum WidgetBorderSprites {
+	WBS_TOP_LEFT,      ///< Top left corner.
+	WBS_TOP_MIDDLE,    ///< Top center edge.
+	WBS_TOP_RIGHT,     ///< Top right corner.
+	WBS_MIDDLE_LEFT,   ///< Left edge.
+	WBS_MIDDLE_MIDDLE, ///< Center sprite.
+	WBS_MIDDLE_RIGHT,  ///< Right edge.
+	WBS_BOTTOM_LEFT,   ///< Bottom left corner.
+	WBS_BOTTOM_MIDDLE, ///< Bottom center edge.
+	WBS_BOTTOM_RIGHT,  ///< Bottom right corner.
+
+	WBS_COUNT,         ///< Number of sprites of a border.
+};
+
+/** Sprite data of a border. */
+struct BorderSpriteData {
+	void Clear();
+
+	bool IsLoaded() const;
+
+	uint8 border_top;    ///< Extra space at the top.
+	uint8 border_left;   ///< Extra space at the left.
+	uint8 border_right;  ///< Extra space at the right,
+	uint8 border_bottom; ///< Extra space at the bottom.
+
+	uint16 min_width;    ///< Minimal width of content.
+	uint16 min_height;   ///< Minimal height of content.
+	uint8 hor_stepsize;  ///< Width increment size.
+	uint8 vert_stepsize; ///< Height increment size.
+
+	Sprite *normal[WBS_COUNT];  ///< Sprites to draw for a normal border.
+	Sprite *pressed[WBS_COUNT]; ///< Sprites to draw for a pressed border.
+};
+
+/** Sprites of checkable sprites, like checkbox or radio button. */
+enum WidgetCheckableSprites {
+	WCS_EMPTY,           ///< Check mark is off.
+	WCS_CHECKED,         ///< Check mark is on.
+	WCS_EMPTY_PRESSED,   ///< Empty button is pressed.
+	WCS_CHECKED_PRESSED, ///< Button with check mark is pressed.
+	WCS_SHADED_EMPTY,    ///< Empty shaded button.
+	WCS_SHADED_CHECKED,  ///< Filled shaded button.
+
+	WCS_COUNT,           ///< Number of sprites for a checkable widget.
+};
+
+/** Sprite data of a checkable sprite. */
+struct CheckableWidgetSpriteData {
+	void Clear();
+
+	bool IsLoaded() const;
+
+	uint16 width;  ///< Width of the sprite.
+	uint16 height; ///< Height of the sprite.
+
+	Sprite *sprites[WCS_COUNT]; ///< Sprites to draw.
+};
+
+/** Slider sprites. */
+enum WidgetSliderSprites {
+	WSS_LEFT_BED,   ///< Left/up bar sprite.
+	WSS_MIDDLE_BED, ///< Middle bar sprite.
+	WSS_RIGHT_BED,  ///< Right/down sprite.
+	WSS_BUTTON,     ///< Button sprite.
+
+	WSS_COUNT,      ///< Number of sprites of a slider bar.
+};
+
+/** Sprite data of a slider bar. */
+struct SliderSpriteData {
+	void Clear();
+
+	bool IsLoaded() const;
+
+	uint16 min_bar_length; ///< Minimal length of a slider bar.
+	uint8 stepsize;        ///< Length increment size.
+	uint8 height;          ///< Height/width of the bar.
+
+	Sprite *normal[WSS_COUNT]; ///< Sprites for normal slider.
+	Sprite *shaded[WSS_COUNT]; ///< Sprites for shaded slider.
+};
+
+/** Scrollbar sprites. */
+enum WidgetScrollbarSprites {
+	WLS_LEFT_BUTTON,           ///< Left/up unpressed button.
+	WLS_LEFT_PRESSED_BUTTON,   ///< Left/up pressed button.
+	WLS_RIGHT_BUTTON,          ///< Right/down unpressed button.
+	WLS_RIGHT_PRESSED_BUTTON,  ///< Right/down pressed button.
+	WLS_LEFT_BED,              ///< Left/up part of the slider underground.
+	WLS_MIDDLE_BED,            ///< Middle part of the slider underground.
+	WLS_RIGHT_BED,             ///< Right/down part of the slider underground.
+	WLS_LEFT_SLIDER,           ///< Left/up slider part.
+	WLS_MIDDLE_SLIDER,         ///< Middle slider part.
+	WLS_RIGHT_SLIDER,          ///< Right/down slider part.
+	WLS_LEFT_PRESSED_SLIDER,   ///< Left/up slider part, pressed.
+	WLS_MIDDLE_PRESSED_SLIDER, ///< Middle slider part, pressed.
+	WLS_RIGHT_PRESSED_SLIDER,  ///< Right/down slider part, pressed.
+
+	WLS_COUNT,                 ///< Number of scrollbar sprites.
+};
+
+/** Sprite data of a scrollbar. */
+struct ScrollbarSpriteData {
+	void Clear();
+
+	bool IsLoaded() const;
+
+	uint16 min_length_all;    ///< Total minimal length of the bar.
+	uint16 min_length_slider; ///< Minimal length of the slider.
+	uint8 stepsize_bar;       ///< Length increment of the slider underground.
+	uint8 stepsize_slider;    ///< Length increment of the slider.
+	uint16 height;            ///< Height/width of the entire bar.
+
+	Sprite *normal[WLS_COUNT]; ///< Sprites for a normal scrollbar.
+	Sprite *shaded[WLS_COUNT]; ///< Sprites for a shaded scrollbar.
+};
+
+/** Sprites of the gui. */
+struct GuiSprites {
+	GuiSprites();
+
+	void Clear();
+	bool LoadGBOR(RcdFile*, size_t, const SpriteMap&);
+	bool LoadGCHK(RcdFile*, size_t, const SpriteMap&);
+	bool LoadGSLI(RcdFile*, size_t, const SpriteMap&);
+	bool LoadGSCL(RcdFile*, size_t, const SpriteMap&);
+
+	BorderSpriteData titlebar;              ///< Title bar sprite data.
+	BorderSpriteData button;                ///< Normal button sprite data.
+	BorderSpriteData rounded_button;        ///< Rounded button sprite data.
+	BorderSpriteData frame;                 ///< Frame sprite data.
+	BorderSpriteData panel;                 ///< Panel sprite data.
+	BorderSpriteData inset_frame;           ///< Inset frame sprite data.
+
+	CheckableWidgetSpriteData checkbox;     ///< Check box sprite data.
+	CheckableWidgetSpriteData radio_button; ///< Radio button sprite data.
+
+	SliderSpriteData hor_slider;            ///< Horizontal slider bar sprite data.
+	SliderSpriteData vert_slider;           ///< Vertical slider bar sprite data.
+
+	ScrollbarSpriteData hor_scroll;         ///< Horizontal scroll bar sprite data.
+	ScrollbarSpriteData vert_scroll;        ///< Vertical scroll bar sprite data.
+};
+
+
 /**
  * Storage of all sprites for a single tile size.
  * @note The data does not belong to this class, it is managed by #SpriteManager instead.
@@ -265,5 +412,6 @@ protected:
 };
 
 extern SpriteManager _sprite_manager;
+extern GuiSprites _gui_sprites;
 
 #endif

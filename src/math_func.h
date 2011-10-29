@@ -18,24 +18,48 @@
  * Clamp a value between an interval.
  *
  * This function returns a value which is between the given interval of
- * \a min and \a max. If the given value is in this interval the value itself
+ * \a lower and \a upper. If the given value is in this interval the value itself
  * is returned otherwise the border of the interval is returned, according
  * which side of the interval was 'left'.
  *
- * @note The \a min value must be less or equal of \a max or you get some
+ * @note The \a lower value must be less or equal of \a upper or you get some
  *       unexpected results.
  * @param a The value to clamp/truncate.
- * @param min The minimum of the interval.
- * @param max the maximum of the interval.
- * @returns A value between \a min and \a max which is closest to \a a.
+ * @param lower The minimum of the interval.
+ * @param upper the maximum of the interval.
+ * @returns A value between \a lower and \a upper which is closest to \a a.
  */
 template <typename T>
-static FORCEINLINE T Clamp(const T a, const T min, const T max)
+static FORCEINLINE T Clamp(const T a, const T lower, const T upper)
 {
-	assert(min <= max);
-	if (a <= min) return min;
-	if (a >= max) return max;
+	assert(lower <= upper);
+	if (a <= lower) return lower;
+	if (a >= upper) return upper;
 	return a;
+}
+
+/**
+ * Compute smallest value of both arguments.
+ * @param a First value.
+ * @param b Second value.
+ * @return Smallest of \a a and \a b.
+ */
+template <typename T>
+static FORCEINLINE T min(const T a, const T b)
+{
+	return (a < b) ? a : b;
+}
+
+/**
+ * Compute biggest value of both arguments.
+ * @param a First value.
+ * @param b Second value.
+ * @return Biggest of \a a and \a b.
+ */
+template <typename T>
+static FORCEINLINE T max(const T a, const T b)
+{
+	return (a < b) ? b : a;
 }
 
 #endif
