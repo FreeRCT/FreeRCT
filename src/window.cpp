@@ -17,14 +17,9 @@ WindowManager _manager; ///< %Window manager.
 
 /**
  * %Window constructor. It automatically adds the window to the window stack.
- * @param xp X position top-left corner.
- * @param yp Y position top-left corner.
- * @param wp Width of the window.
- * @param hp Height of the window.
  * @param wtype %Window type (for finding a window in the stack).
  */
-Window::Window(int xp, int yp, uint wp, uint hp, WindowTypes wtype) :
-		x(xp), y(yp), width(wp), height(hp), wtype(wtype)
+Window::Window(WindowTypes wtype) : rect(0, 0, 0, 0), wtype(wtype)
 {
 	this->higher = NULL;
 	this->lower  = NULL;
@@ -39,6 +34,28 @@ Window::Window(int xp, int yp, uint wp, uint hp, WindowTypes wtype) :
 Window::~Window()
 {
 	assert(!_manager.HasWindow(this));
+}
+
+/**
+ * Set the initial size of a window.
+ * @param width Initial width of the new window.
+ * @param height Initial height of the new window.
+ */
+void Window::SetSize(uint width, uint height)
+{
+	this->rect.width = width;
+	this->rect.height = height;
+}
+
+/**
+ * Set the initial position of the top-left corner of the window.
+ * @param x Initial X position.
+ * @param y Initial Y position.
+ */
+void Window::SetPosition(int x, int y)
+{
+	this->rect.base.x = x;
+	this->rect.base.y = y;
 }
 
 /**
@@ -171,7 +188,10 @@ Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 {
 	Window *w = this->top;
 	while (w != NULL) {
-		if (pos.x > w->x && pos.y > w->y && pos.x < w->x + (int)w->width && pos.y < w->y + (int)w->height) break;
+		if (pos.x > w->rect.base.x
+				&& pos.y > w->rect.base.y
+				&& pos.x < w->rect.base.x + (int)w->rect.width
+				&& pos.y < w->rect.base.y + (int)w->rect.height) break;
 		w = w->lower;
 	}
 	return w;
@@ -190,8 +210,8 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 	if (this->current_window != NULL) {
 		/* Compute position relative to window origin. */
 		Point16 pos2;
-		pos2.x = pos.x - this->current_window->x;
-		pos2.y = pos.y - this->current_window->y;
+		pos2.x = pos.x - this->current_window->rect.base.x;
+		pos2.y = pos.y - this->current_window->rect.base.y;
 		this->current_window->OnMouseMoveEvent(pos2);
 	}
 }

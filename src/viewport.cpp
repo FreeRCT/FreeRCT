@@ -378,7 +378,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 /**
  * %Viewport constructor.
  */
-Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDISPLAY)
+Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 {
 	this->xview = _world.GetXSize() * 256 / 2;
 	this->yview = _world.GetYSize() * 256 / 2;
@@ -397,21 +397,22 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 	this->yvoxel = 0;
 	this->zvoxel = 0;
 	this->cursor = VOR_INVALID;
+
+	this->SetSize(w, h);
+	this->SetPosition(x, y);
 }
 
 /* virtual */ void Viewport::OnDraw()
 {
 	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
-	collector.SetWindowSize(-(int16)this->width / 2, -(int16)this->height / 2, this->width, this->height);
-	collector.SetXYOffset(this->x, this->y);
+	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
+	collector.SetXYOffset(this->rect.base.x, this->rect.base.y);
 	if (this->mouse_mode == MM_TILE_TERRAFORM) {
 		ViewOrientation vor = (this->cursor != VOR_INVALID) ? SubtractOrientations(this->cursor, this->orientation) : VOR_INVALID;
 		collector.SetMouseCursor(this->xvoxel, this->yvoxel, this->zvoxel, vor);
 	}
 	collector.Collect();
 
-
-	Rectangle wind_rect = Rectangle(this->x, this->y, this->width, this->height); // XXX Why not use this in the window itself?
 
 	VideoSystem *vid = _manager.video;
 	vid->LockSurface();
@@ -420,8 +421,8 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		/* Blit sprite, and optionally, the cursor sprite. */
-		vid->BlitImage((*iter).second.base, (*iter).second.spr, wind_rect);
-		if ((*iter).second.cursor != NULL) vid->BlitImage((*iter).second.base, (*iter).second.cursor, wind_rect);
+		vid->BlitImage((*iter).second.base, (*iter).second.spr, this->rect);
+		if ((*iter).second.cursor != NULL) vid->BlitImage((*iter).second.base, (*iter).second.cursor, this->rect);
 	}
 
 	vid->UnlockSurface();
@@ -433,8 +434,8 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(x, y, w, h, WC_MAINDIS
  */
 void Viewport::ComputeCursorPosition()
 {
-	int16 xp = this->mouse_pos.x - this->width / 2;
-	int16 yp = this->mouse_pos.y - this->height / 2;
+	int16 xp = this->mouse_pos.x - this->rect.width / 2;
+	int16 yp = this->mouse_pos.y - this->rect.height / 2;
 	PixelFinder collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
 	collector.SetWindowSize(xp, yp, 1, 1);
 	collector.Collect();

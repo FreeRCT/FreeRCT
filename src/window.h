@@ -47,17 +47,17 @@ enum MouseMode {
  */
 class Window {
 public:
-	Window(int x, int y, uint w, uint h, WindowTypes wtype);
+	Window(WindowTypes wtype);
 	virtual ~Window();
 
-	int x;             ///< X position of top-left corner.
-	int y;             ///< Y position of top-left corner.
-	uint width;        ///< Width of the window.
-	uint height;       ///< Height of the window.
+	Rectangle rect;    ///< Screen area covered by the window.
 	WindowTypes wtype; ///< Window type.
 
 	Window *higher; ///< Window above this window (managed by #WindowManager).
 	Window *lower;  ///< Window below this window (managed by #WindowManager).
+
+	void SetSize(uint width, uint height);
+	void SetPosition(int x, int y);
 
 	void MarkDirty();
 
