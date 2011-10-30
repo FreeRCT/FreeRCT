@@ -31,9 +31,11 @@ VideoSystem::~VideoSystem()
 
 /**
  * Initialize the video system, preparing it for use.
+ * @param font_name Name of the font file to load.
+ * @param font_size Size of the font.
  * @return Whether initialization was a success.
  */
-bool VideoSystem::Initialize()
+bool VideoSystem::Initialize(const char *font_name, int font_size)
 {
 	if (this->initialized) return true;
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return false;
@@ -45,6 +47,19 @@ bool VideoSystem::Initialize()
 	}
 
 	SDL_WM_SetCaption("FreeRCT", "FreeRCT");
+
+	if (TTF_Init() != 0) {
+		SDL_Quit();
+		return false;
+	}
+
+	this->font = TTF_OpenFont(font_name, font_size);
+	if (this->font == NULL) {
+		TTF_Quit();
+		SDL_Quit();
+		return false;
+	}
+
 
 	this->initialized = true;
 	this->dirty = true; // Ensure it gets painted.
@@ -69,6 +84,8 @@ void VideoSystem::SetPalette()
 void VideoSystem::Shutdown()
 {
 	if (this->initialized) {
+		TTF_CloseFont(this->font);
+		TTF_Quit();
 		SDL_Quit();
 		this->initialized = false;
 		this->dirty = false;

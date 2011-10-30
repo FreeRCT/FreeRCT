@@ -65,7 +65,7 @@ int main(void)
 	}
 
 	/* Initialize video. */
-	if (!vid.Initialize()) {
+	if (!vid.Initialize("/usr/share/fonts/gnu-free/FreeSans.ttf", 12)) {
 		fprintf(stderr, "Failed to initialize window, aborting\n");
 		exit(1);
 	}

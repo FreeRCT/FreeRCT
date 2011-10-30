@@ -13,6 +13,7 @@
 #define VIDEO_H
 
 #include "SDL.h"
+#include "SDL_ttf.h"
 #include "geometry.h"
 
 class Sprite;
@@ -26,7 +27,7 @@ public:
 	VideoSystem();
 	~VideoSystem();
 
-	bool Initialize();
+	bool Initialize(const char *font_name, int font_size);
 	void SetPalette();
 	void Shutdown();
 
@@ -57,6 +58,7 @@ private:
 	bool initialized;   ///< Video system is initialized.
 	bool dirty;         ///< Video display needs being repainted.
 
+	TTF_Font *font;     ///< Opened text font.
 	SDL_Surface *video; ///< Video surface.
 };
 

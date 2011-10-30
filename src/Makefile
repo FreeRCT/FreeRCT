@@ -11,7 +11,7 @@
 CXX=g++
 CXXFLAGS=-Wall -g
 INCLUDES=-I/usr/include/SDL
-LIBS=-lSDL
+LIBS=-lSDL -lSDL_ttf
 
 CXXFILES=fileio.cpp main.cpp map.cpp palette.cpp path.cpp \
 	sprite_store.cpp string_func.cpp video.cpp viewport.cpp window.cpp
