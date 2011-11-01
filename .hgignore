@@ -1,6 +1,11 @@
-rcd/rcdlib/.*\.pyc$
-rcd/.*\.rcd$
-rcd/data_format.aux
-rcd/data_format.log
-src/.*\.o$
-src/.*\.d$
+^rcd/rcdlib/.*\.pyc$
+^rcd/.*\.rcd$
+^rcd/data_format.aux$
+^rcd/data_format.log$
+^rcd/data_format.toc$
+^src/.*\.o$
+^src/.*\.d$
+^doc/html/
+.*\.swp$
+^doxygen_warnings\.txt$
+
