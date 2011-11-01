@@ -1054,12 +1054,14 @@ bool SpriteStorage::HasSufficientGraphics() const
 /** %Sprite manager constructor. */
 SpriteManager::SpriteManager() : store(64)
 {
+	_gui_sprites.Clear();
 	this->blocks = NULL;
 }
 
 /** %Sprite manager destructor. */
 SpriteManager::~SpriteManager()
 {
+	_gui_sprites.Clear();
 	while (this->blocks != NULL) {
 		RcdBlock *next_block = this->blocks->next;
 		delete this->blocks;
