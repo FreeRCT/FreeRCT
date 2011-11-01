@@ -141,8 +141,13 @@ void VideoSystem::LockSurface()
 void VideoSystem::UnlockSurface()
 {
 	SDL_UnlockSurface(SDL_GetVideoSurface());
+}
+
+/** Finish repainting, perform the final steps. */
+void VideoSystem::FinishRepaint()
+{
 	UpdateScreen();
-	this->dirty = false;
+	MarkDisplayClean();
 }
 
 /**

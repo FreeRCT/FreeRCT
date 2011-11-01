@@ -133,6 +133,7 @@ void WindowManager::AddTostack(Window *w)
 
 	w->lower = this->top;
 	w->higher = NULL;
+	if (this->top != NULL) this->top->higher = w;
 	this->top = w;
 	if (this->bottom == NULL) this->bottom = w;
 }
@@ -269,7 +270,7 @@ void WindowManager::MouseWheelEvent(int direction)
 
 /**
  * Redraw (parts of) the windows.
- * @todo Do this much less stupid.
+ * @todo [medium/difficult] Do this much less stupid.
  */
 void UpdateWindows()
 {
@@ -280,6 +281,8 @@ void UpdateWindows()
 		w->OnDraw();
 		w = w->higher;
 	}
+
+	_manager.video->FinishRepaint();
 }
 
 /**

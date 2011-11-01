@@ -49,10 +49,18 @@ public:
 		this->dirty = true;
 	}
 
+	/** Mark the display as being up-to-date. */
+	FORCEINLINE void MarkDisplayClean()
+	{
+		this->dirty = false;
+	}
+
 	void LockSurface();
 	void UnlockSurface();
 	void FillSurface(uint8 colour);
 	void BlitImage(const Point &img_base, const Sprite *spr, const Rectangle & rect);
+
+	void FinishRepaint();
 
 private:
 	bool initialized;   ///< Video system is initialized.
