@@ -179,7 +179,7 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr, const Rect
 	ImageData *img_data = spr->img_data;
 
 	/* Check that rect is completely inside the screen. */
-	assert(rect.base.x >= 0 && rect.base.y >= 0 && rect.width <= s->w && rect.height < s->h);
+	assert(rect.base.x >= 0 && rect.base.y >= 0 && rect.base.x + rect.width <= s->w && rect.base.y + rect.height <= s->h);
 
 	int32 x_base = img_base.x + spr->xoffset;
 	int32 y_base = img_base.y + spr->yoffset;
