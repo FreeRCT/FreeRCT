@@ -13,6 +13,7 @@
 #include "video.h"
 #include "sprite_store.h"
 #include "palette.h"
+#include "math_func.h"
 
 /**
  * Default constructor, does nothing, never goes wrong.
@@ -150,18 +151,31 @@ void VideoSystem::FinishRepaint()
 	MarkDisplayClean();
 }
 
+
 /**
- * Fill the entire surface with a single colour.
+ * Fill the rectangle with a single colour.
  * @param colour Colour to fill with.
+ * @param rect %Rectangle to fill.
  * @pre Surface must be locked.
  */
-void VideoSystem::FillSurface(uint8 colour)
+void VideoSystem::FillSurface(uint8 colour, const Rectangle &rect)
 {
 	SDL_Surface *s = SDL_GetVideoSurface();
-	uint8 *pixels = (uint8 *)s->pixels;
-	for (int y = 0; y < s->h; y++) {
-		memset(pixels, colour, s->w);
+
+	int x = Clamp((int)rect.base.x, 0, s->w);
+	int w = Clamp((int)(rect.base.x + rect.width), 0, s->w);
+	int y = Clamp((int)rect.base.y, 0, s->h);
+	int h = Clamp((int)(rect.base.y + rect.height), 0, s->h);
+
+	w -= x;
+	h -= y;
+	if (w == 0 || h == 0) return;
+
+	uint8 *pixels = ((uint8 *)s->pixels) + x + y * s->pitch;
+	while (h > 0) {
+		memset(pixels, colour, w);
 		pixels += s->pitch;
+		h--;
 	}
 }
 

@@ -414,7 +414,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	collector.Collect();
 
 
-	vid->FillSurface(COL_BACKGROUND); // Black background.
+	vid->FillSurface(COL_BACKGROUND, this->rect); // Black background.
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		/* Blit sprite, and optionally, the cursor sprite. */
