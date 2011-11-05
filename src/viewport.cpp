@@ -402,7 +402,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	this->SetPosition(x, y);
 }
 
-/* virtual */ void Viewport::OnDraw()
+/* virtual */ void Viewport::OnDraw(VideoSystem *vid)
 {
 	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
@@ -414,9 +414,6 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	collector.Collect();
 
 
-	VideoSystem *vid = _manager.video;
-	vid->LockSurface();
-
 	vid->FillSurface(COL_BACKGROUND); // Black background.
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
@@ -424,8 +421,6 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 		vid->BlitImage((*iter).second.base, (*iter).second.spr, this->rect);
 		if ((*iter).second.cursor != NULL) vid->BlitImage((*iter).second.base, (*iter).second.cursor, this->rect);
 	}
-
-	vid->UnlockSurface();
 }
 
 /**

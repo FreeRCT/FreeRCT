@@ -67,8 +67,12 @@ void Window::MarkDirty()
 	_manager.video->MarkDisplayDirty();
 }
 
-/** Paint the window to the screen. */
-/* virtual */ void Window::OnDraw() { }
+/**
+ * Paint the window to the screen.
+ * @param video Video blitter.
+ * @note The window manager already locked the surface.
+ */
+/* virtual */ void Window::OnDraw(VideoSystem *video) { }
 
 /**
  * Mouse moved to new position.
@@ -278,7 +282,10 @@ void UpdateWindows()
 
 	Window *w = _manager.bottom;
 	while (w != NULL) {
-		w->OnDraw();
+		_manager.video->LockSurface();
+		w->OnDraw(_manager.video);
+		_manager.video->UnlockSurface();
+
 		w = w->higher;
 	}
 

@@ -61,7 +61,7 @@ public:
 
 	void MarkDirty();
 
-	virtual void OnDraw();
+	virtual void OnDraw(VideoSystem *video);
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual void OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
