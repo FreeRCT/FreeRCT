@@ -16,6 +16,7 @@
 #include "orientation.h"
 
 class VideoSystem;
+class Viewport;
 
 /** Available types of windows. */
 enum WindowTypes {
@@ -102,5 +103,7 @@ extern WindowManager _manager;
 
 void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype);
+
+Viewport *ShowMainDisplay();
 
 #endif

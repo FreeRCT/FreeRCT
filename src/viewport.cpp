@@ -628,3 +628,14 @@ void Viewport::SetMouseMode(MouseMode mode)
 	this->mouse_state = 0;
 }
 
+/** Open the main isometric display window. */
+Viewport *ShowMainDisplay()
+{
+	uint16 width  = _manager.video->GetXSize();
+	uint16 height = _manager.video->GetYSize();
+	assert(width >= 120 && height >= 120);
+	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
+
+	w->SetMouseMode(MM_TILE_TERRAFORM);
+	return w;
+}

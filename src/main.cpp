@@ -14,6 +14,7 @@
 #include "map.h"
 #include "viewport.h"
 #include "sprite_store.h"
+#include "window.h"
 
 /**
  * Error handling for fatal non-user errors.
@@ -74,13 +75,8 @@ int main(void)
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);
 	_manager.video = &vid;
-	/* TEMP */
-	uint16 width  = vid.GetXSize();
-	uint16 height = vid.GetYSize();
-	assert(width >= 120 && height >= 120);
-	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
 
-	w->SetMouseMode(MM_TILE_TERRAFORM);
+	Viewport *w = ShowMainDisplay();
 
 	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);
 
