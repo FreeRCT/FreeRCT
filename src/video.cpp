@@ -306,31 +306,75 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle &rect)
 	}
 }
 
+/**
+ * Blit a pixel to an area of \a numx times \a numy sprites.
+ * @param cr Clipped rectangle.
+ * @param val Pixel value to blit.
+ * @param xmin Minimal x position.
+ * @param ymin Minimal y position.
+ * @param numx Number of horizontal count.
+ * @param numy Number of vertical count.
+ * @param width Width of an image.
+ * @param height Height of an image.
+ */
+static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
+		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val)
+{
+	const int32 xend = xmin + numx * width;
+	const int32 yend = ymin + numy * height;
+	while (ymin < yend) {
+		if (ymin >= cr.height) return;
+
+		if (ymin >= 0) {
+			uint8 *scr = scr_base;
+			int32 x = xmin;
+			while (x < xend) {
+				if (x >= cr.width) break;
+				if (x >= 0) *scr = val;
+
+				x += width;
+				scr += width;
+			}
+		}
+		ymin += height;
+		scr_base += height * cr.pitch;
+	}
+}
 
 /**
  * Blit pixels from the \a spr relative to \a img_base into the area.
- * @param img_base Base coordinate of the sprite data.
+ * @param x_base Base X coordinate of the sprite data.
+ * @param y_base Base Y coordinate of the sprite data.
  * @param spr The sprite to blit.
+ * @param numx Number of sprites to draw in horizontal direction.
+ * @param numy Number of sprites to draw in vertical direction.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr)
+void VideoSystem::BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy)
 {
-	ImageData *img_data = spr->img_data;
-
-	int32 x_base = img_base.x + spr->xoffset;
-	int32 y_base = img_base.y + spr->yoffset;
-
 	this->blit_rect.ValidateAddress();
 
-	/* Image is entirely outside the rectangle. */
-	if (x_base >= this->blit_rect.width  || x_base + img_data->width <= 0) return;
-	if (y_base >= this->blit_rect.height || y_base + img_data->height <= 0) return;
+	x_base += spr->xoffset;
+	y_base += spr->yoffset;
 
-	int yoff = (y_base >= 0) ? 0 : -y_base;
+	ImageData *img_data = spr->img_data;
 
-	uint8 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * (y_base + yoff);
-	while (yoff < img_data->height) {
-		if (y_base + yoff >= this->blit_rect.height) return;
+	/* Don't draw wildly outside the screen. */
+	while (numx > 0 && x_base + img_data->width < 0) {
+		x_base += img_data->width; numx--;
+	}
+	while (numx > 0 && x_base + (numx - 1) * img_data->width >= this->blit_rect.width) numx--;
+	if (numx == 0) return;
+
+	while (numy > 0 && y_base + img_data->height < 0) {
+		y_base += img_data->height; numy--;
+	}
+	while (numy > 0 && y_base + (numy - 1) * img_data->height >= this->blit_rect.height) numy--;
+	if (numy == 0) return;
+
+	uint8 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
+	int32 ypos = y_base;
+	for (int yoff = 0; yoff < img_data->height; yoff++) {
 		uint32 offset = img_data->table[yoff];
 		if (offset != ImageData::INVALID_JUMP) {
 			int32 xpos = x_base;
@@ -344,10 +388,7 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr)
 				xpos += rel_off & 127;
 				src_base += rel_off & 127;
 				while (count > 0) {
-					if (xpos >= 0) {
-						if (xpos >= this->blit_rect.width) goto end_line;
-						*src_base = *pixels; // Blit pixel.
-					}
+					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, img_data->width, img_data->height, *pixels);
 					pixels++;
 					xpos++;
 					src_base++;
@@ -356,9 +397,8 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr)
 				if ((rel_off & 128) != 0) break;
 			}
 		}
-end_line:
-		yoff++;
 		line_base += this->blit_rect.pitch;
+		ypos++;
 	}
 }
 

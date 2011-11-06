@@ -84,7 +84,43 @@ public:
 	void LockSurface();
 	void UnlockSurface();
 	void FillSurface(uint8 colour, const Rectangle &rect);
-	void BlitImage(const Point &img_base, const Sprite *spr);
+
+	/**
+	 * Blit pixels from the \a spr relative to \a img_base into the area.
+	 * @param img_base Base coordinate of the sprite data.
+	 * @param spr The sprite to blit.
+	 * @pre Surface must be locked.
+	 */
+	FORCEINLINE void BlitImage(const Point &img_base, const Sprite *spr)
+	{
+		this->BlitImages(img_base.x, img_base.y, spr, 1, 1);
+	}
+
+	/**
+	 * Blit a row of sprites.
+	 * @param xmin Start X position.
+	 * @param numx Number of sprites to draw.
+	 * @param y Y position.
+	 * @param spr Sprite to draw.
+	 */
+	FORCEINLINE void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const Sprite *spr)
+	{
+		this->BlitImages(xmin, y, spr, numx, 1);
+	}
+
+	/**
+	 * Blit a column of sprites.
+	 * @param ymin Start Y position.
+	 * @param numy Number of sprites to draw.
+	 * @param x X position.
+	 * @param spr Sprite to draw.
+	 */
+	FORCEINLINE void BlitVertical(int32 ymin, uint16 numy, int32 x, const Sprite *spr)
+	{
+		this->BlitImages(x, ymin, spr, 1, numy);
+	}
+
+	void BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy);
 
 	void FinishRepaint();
 
