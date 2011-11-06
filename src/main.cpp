@@ -76,6 +76,7 @@ int main(void)
 	_world.MakeFlatWorld(8);
 	_manager.video = &vid;
 
+	ShowToolbar();
 	Viewport *w = ShowMainDisplay();
 
 	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);

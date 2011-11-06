@@ -21,6 +21,7 @@ class Viewport;
 /** Available types of windows. */
 enum WindowTypes {
 	WC_MAINDISPLAY, ///< Main display of the world.
+	WC_TOOLBAR,     ///< Main toolbar.
 };
 
 /** Known mouse buttons. */
@@ -105,5 +106,6 @@ void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype);
 
 Viewport *ShowMainDisplay();
+void ShowToolbar();
 
 #endif
