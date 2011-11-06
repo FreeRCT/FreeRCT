@@ -15,6 +15,112 @@
 #include "palette.h"
 #include "math_func.h"
 
+ClippedRectangle::ClippedRectangle()
+{
+	this->absx = 0;
+	this->absy = 0;
+	this->width = 0;
+	this->height = 0;
+	this->address = NULL; this->pitch = 0;
+}
+
+/**
+ * Construct a clipped rectangle from coordinates.
+ * @param x Topleft x position.
+ * @param y Topleft y position.
+ * @param w Width.
+ * @param h Height.
+ */
+ClippedRectangle::ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h)
+{
+	this->absx = x;
+	this->absy = y;
+	this->width = w;
+	this->height = h;
+	this->address = NULL; this->pitch = 0;
+}
+
+/**
+ * Construct a clipped rectangle inside an existing one.
+ * @param cr Existing rectangle.
+ * @param x Topleft x position.
+ * @param y Topleft y position.
+ * @param w Width.
+ * @param h Height.
+ * @note Rectangle is clipped to the old one.
+ */
+ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 y, uint16 w, uint16 h)
+{
+	if (x >= cr.width || y >= cr.height) {
+		this->absx = 0;
+		this->absy = 0;
+		this->width = 0;
+		this->height = 0;
+		this->address = NULL; this->pitch = 0;
+		return;
+	}
+	if (x + w > cr.width)  w = cr.width - x;
+	if (y + h > cr.height) h = cr.height - y;
+
+	this->absx = cr.absx + x;
+	this->absy = cr.absy + y;
+	this->width = w;
+	this->height = h;
+	this->address = NULL; this->pitch = 0;
+}
+
+/**
+ * Construct an area based on a rectangle.
+ * @param rect %Rectangle to use as source.
+ */
+ClippedRectangle::ClippedRectangle(const Rectangle &rect)
+{
+	this->absx   = (rect.base.x >= 0) ? (uint16)rect.base.x : 0;
+	this->absy   = (rect.base.y >= 0) ? (uint16)rect.base.y : 0;
+	this->width  = (rect.width  >= 0) ? (uint16)rect.width  : 0;
+	this->height = (rect.height >= 0) ? (uint16)rect.height : 0;
+	this->address = NULL; this->pitch = 0;
+}
+
+/**
+ * Copy constructor.
+ * @param cr Existing clipped rectangle.
+ */
+ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr)
+{
+	this->absx = cr.absx;
+	this->absy = cr.absy;
+	this->width = cr.width;
+	this->height = cr.height;
+	this->address = cr.address; this->pitch = cr.pitch;
+}
+
+/**
+ * Assignment operator override.
+ * @param cr Existing clipped rectangle.
+ */
+ClippedRectangle &ClippedRectangle::operator=(const ClippedRectangle &cr)
+{
+	if (this != &cr) {
+		this->absx = cr.absx;
+		this->absy = cr.absy;
+		this->width = cr.width;
+		this->height = cr.height;
+		this->address = cr.address; this->pitch = cr.pitch;
+	}
+	return *this;
+}
+
+/** Initialize the #address if not done already. */
+void ClippedRectangle::ValidateAddress()
+{
+	if (this->address == NULL) {
+		SDL_Surface *s = SDL_GetVideoSurface();
+		this->pitch = s->pitch;
+		this->address = ((uint8 *)(s->pixels)) + this->absx + this->absy * s->pitch;
+	}
+}
+
 /**
  * Default constructor, does nothing, never goes wrong.
  * Call #Initialize to initialize the system.
@@ -61,10 +167,30 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 		return false;
 	}
 
-
 	this->initialized = true;
 	this->dirty = true; // Ensure it gets painted.
+
+	this->blit_rect = ClippedRectangle(0, 0, this->GetXSize(), this->GetYSize());
 	return true;
+}
+
+/**
+ * Set the clipped area.
+ * @param cr New clipped blitting area.
+ */
+void VideoSystem::SetClippedRectangle(const ClippedRectangle &cr)
+{
+	this->blit_rect = cr;
+}
+
+/**
+ * Get the current clipped blitting area.
+ * @return Current clipped area.
+ */
+ClippedRectangle VideoSystem::GetClippedRectangle()
+{
+	this->blit_rect.ValidateAddress();
+	return this->blit_rect;
 }
 
 /** Set up the palette for the video surface. */

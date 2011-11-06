@@ -19,6 +19,29 @@
 class Sprite;
 class PaletteData;
 
+/** Clipped rectangle. */
+class ClippedRectangle {
+public:
+	ClippedRectangle();
+	ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h);
+	ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 y, uint16 w, uint16 h);
+	ClippedRectangle(const Rectangle &rect);
+
+	ClippedRectangle(const ClippedRectangle &cr);
+	ClippedRectangle &operator=(const ClippedRectangle &cr);
+
+	void ValidateAddress();
+
+	uint16 absx;    ///< Absolute X position in the screen of the top-left.
+	uint16 absy;    ///< Absolute Y position in the screen of the top-left.
+	uint16 width;   ///< Number of columns.
+	uint16 height;  ///< Number of rows.
+
+	uint8 *address; ///< Base address. @note Call #ValidateAddress prior to use.
+	uint16 pitch;   ///< Pitch of a row in bytes. @note Call #ValidateAddress prior to use.
+};
+
+
 /**
  * Class representing the video system.
  */
@@ -55,6 +78,9 @@ public:
 		this->dirty = false;
 	}
 
+	void SetClippedRectangle(const ClippedRectangle &cr);
+	ClippedRectangle GetClippedRectangle();
+
 	void LockSurface();
 	void UnlockSurface();
 	void FillSurface(uint8 colour, const Rectangle &rect);
@@ -66,8 +92,9 @@ private:
 	bool initialized;   ///< Video system is initialized.
 	bool dirty;         ///< Video display needs being repainted.
 
-	TTF_Font *font;     ///< Opened text font.
-	SDL_Surface *video; ///< Video surface.
+	TTF_Font *font;             ///< Opened text font.
+	SDL_Surface *video;         ///< Video surface.
+	ClippedRectangle blit_rect; ///< Rectangle to blit in.
 };
 
 #endif
