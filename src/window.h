@@ -51,10 +51,10 @@ public:
 	virtual ~Window();
 
 	Rectangle rect;    ///< Screen area covered by the window.
-	WindowTypes wtype; ///< Window type.
+	WindowTypes wtype; ///< %Window type.
 
-	Window *higher; ///< Window above this window (managed by #WindowManager).
-	Window *lower;  ///< Window below this window (managed by #WindowManager).
+	Window *higher; ///< %Window above this window (managed by #WindowManager).
+	Window *lower;  ///< %Window below this window (managed by #WindowManager).
 
 	void SetSize(uint width, uint height);
 	void SetPosition(int x, int y);

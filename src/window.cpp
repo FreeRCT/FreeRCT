@@ -126,20 +126,50 @@ WindowManager::~WindowManager()
 }
 
 /**
+ * Get the z-priority of a window type (higher number means further up in the window stack).
+ * @param wt Window type.
+ * @return Z-priority of the provided type.
+ */
+static uint GetWindowZPriority(WindowTypes wt)
+{
+	switch (wt) {
+		default:             return 5; // 'Normal' window.
+		case WC_MAINDISPLAY: return 0; // Main display at the bottom of the stack.
+	}
+	NOT_REACHED();
+}
+
+/**
  * Add a window to the window stack.
  * @param w Window to add.
- * @todo Implement Z priorities.
  */
 void WindowManager::AddTostack(Window *w)
 {
 	assert(w->lower == NULL && w->higher == NULL);
 	assert(!this->HasWindow(w));
 
-	w->lower = this->top;
-	w->higher = NULL;
-	if (this->top != NULL) this->top->higher = w;
-	this->top = w;
-	if (this->bottom == NULL) this->bottom = w;
+	uint w_prio = GetWindowZPriority(w->wtype);
+	if (this->top == NULL || w_prio > GetWindowZPriority(this->top->wtype)) {
+		/* Add to the top. */
+		w->lower = this->top;
+		w->higher = NULL;
+		if (this->top != NULL) this->top->higher = w;
+		this->top = w;
+		if (this->bottom == NULL) this->bottom = w;
+		return;
+	}
+	Window *stack = this->top;
+	while (stack->lower != NULL && w_prio < GetWindowZPriority(stack->lower->wtype)) stack = stack->lower;
+
+	w->lower = stack->lower;
+	if (stack->lower != NULL) {
+		stack->lower->higher = w;
+	} else {
+		assert(this->bottom == stack);
+		this->bottom = w;
+	}
+	w->higher = stack;
+	stack->lower = w;
 }
 
 /**
