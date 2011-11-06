@@ -323,24 +323,18 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr)
 	this->blit_rect.ValidateAddress();
 
 	/* Image is entirely outside the rectangle. */
-	if (x_base >= this->blit_rect.width) return;
-	if (x_base + img_data->width <= 0) return;
-	if (y_base >= this->blit_rect.height) return;
-	if (y_base + img_data->height <= 0) return;
+	if (x_base >= this->blit_rect.width  || x_base + img_data->width <= 0) return;
+	if (y_base >= this->blit_rect.height || y_base + img_data->height <= 0) return;
 
-	int width  = (x_base + img_data->width  <= this->blit_rect.width)  ? img_data->width  : this->blit_rect.width  - x_base;
-	int height = (y_base + img_data->height <= this->blit_rect.height) ? img_data->height : this->blit_rect.height - y_base;
+	int yoff = (y_base >= 0) ? 0 : -y_base;
 
-	int xoff = (x_base >= 0) ? 0 : - x_base;
-	int xlen = (width > xoff) ? width - xoff : 0;
-	int yoff = (y_base >= 0) ? 0 : - y_base;
-	int ylen = (height > yoff) ? height - yoff : 0;
-
-	int xend = xoff + xlen;
-	while (ylen > 0) {
+	uint8 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * (y_base + yoff);
+	while (yoff < img_data->height) {
+		if (y_base + yoff >= this->blit_rect.height) return;
 		uint32 offset = img_data->table[yoff];
 		if (offset != ImageData::INVALID_JUMP) {
-			uint16 xpos = 0;
+			int32 xpos = x_base;
+			uint8 *src_base = line_base;
 			for (;;) {
 				uint8 rel_off = img_data->data[offset];
 				uint8 count   = img_data->data[offset + 1];
@@ -348,28 +342,15 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr)
 				offset += 2 + count;
 
 				xpos += rel_off & 127;
-				if (xpos >= xend) break; // Past the end.
-				if (xpos < xoff) {
-					if (xpos + count <= xoff) {
-						/* Entirely before. */
-						if ((rel_off & 128) != 0) break;
-						xpos += count;
-						continue;
-					}
-					/* Partially before. */
-					count  -= xoff - xpos;
-					pixels += xoff - xpos;
-					xpos   += xoff - xpos;
-				}
-
+				src_base += rel_off & 127;
 				while (count > 0) {
-					/* Blit pixel. */
-					assert(xpos + x_base < this->blit_rect.width);
-					this->blit_rect.address[xpos + x_base + this->blit_rect.pitch * (y_base + yoff)] = *pixels;
-
+					if (xpos >= 0) {
+						if (xpos >= this->blit_rect.width) goto end_line;
+						*src_base = *pixels; // Blit pixel.
+					}
 					pixels++;
 					xpos++;
-					if (xpos >= xend) goto end_line;
+					src_base++;
 					count--;
 				}
 				if ((rel_off & 128) != 0) break;
@@ -377,7 +358,7 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr)
 		}
 end_line:
 		yoff++;
-		ylen--;
+		line_base += this->blit_rect.pitch;
 	}
 }
 
