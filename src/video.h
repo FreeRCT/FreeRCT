@@ -84,7 +84,7 @@ public:
 	void LockSurface();
 	void UnlockSurface();
 	void FillSurface(uint8 colour, const Rectangle &rect);
-	void BlitImage(const Point &img_base, const Sprite *spr, const Rectangle & rect);
+	void BlitImage(const Point &img_base, const Sprite *spr);
 
 	void FinishRepaint();
 

@@ -283,6 +283,7 @@ void VideoSystem::FinishRepaint()
  * @param colour Colour to fill with.
  * @param rect %Rectangle to fill.
  * @pre Surface must be locked.
+ * @todo Make it use #ClippedRectangle too.
  */
 void VideoSystem::FillSurface(uint8 colour, const Rectangle &rect)
 {
@@ -307,35 +308,32 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle &rect)
 
 
 /**
- * Blit pixels from the \a spr relative to \a img_base into the rectangle \a rect.
+ * Blit pixels from the \a spr relative to \a img_base into the area.
  * @param img_base Base coordinate of the sprite data.
  * @param spr The sprite to blit.
- * @param rect Coordinates to stay within.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr, const Rectangle & rect)
+void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr)
 {
-	SDL_Surface *s = SDL_GetVideoSurface();
 	ImageData *img_data = spr->img_data;
-
-	/* Check that rect is completely inside the screen. */
-	assert(rect.base.x >= 0 && rect.base.y >= 0 && rect.base.x + rect.width <= s->w && rect.base.y + rect.height <= s->h);
 
 	int32 x_base = img_base.x + spr->xoffset;
 	int32 y_base = img_base.y + spr->yoffset;
 
+	this->blit_rect.ValidateAddress();
+
 	/* Image is entirely outside the rectangle. */
-	if (x_base >= rect.base.x + rect.width) return;
-	if (x_base + img_data->width <= rect.base.x) return;
-	if (y_base >= rect.base.y + rect.height) return;
-	if (y_base + img_data->height <= rect.base.y) return;
+	if (x_base >= this->blit_rect.width) return;
+	if (x_base + img_data->width <= 0) return;
+	if (y_base >= this->blit_rect.height) return;
+	if (y_base + img_data->height <= 0) return;
 
-	int width  = (x_base + img_data->width  <= rect.base.x + rect.width)  ? img_data->width  : rect.base.x + rect.width  - x_base;
-	int height = (y_base + img_data->height <= rect.base.y + rect.height) ? img_data->height : rect.base.y + rect.height - y_base;
+	int width  = (x_base + img_data->width  <= this->blit_rect.width)  ? img_data->width  : this->blit_rect.width  - x_base;
+	int height = (y_base + img_data->height <= this->blit_rect.height) ? img_data->height : this->blit_rect.height - y_base;
 
-	int xoff = (x_base >= rect.base.x) ? 0 : rect.base.x - x_base;
+	int xoff = (x_base >= 0) ? 0 : - x_base;
 	int xlen = (width > xoff) ? width - xoff : 0;
-	int yoff = (y_base >= rect.base.y) ? 0 : rect.base.y - y_base;
+	int yoff = (y_base >= 0) ? 0 : - y_base;
 	int ylen = (height > yoff) ? height - yoff : 0;
 
 	int xend = xoff + xlen;
@@ -366,8 +364,8 @@ void VideoSystem::BlitImage(const Point &img_base, const Sprite *spr, const Rect
 
 				while (count > 0) {
 					/* Blit pixel. */
-					assert(xpos + x_base < s->w);
-					((uint8 *)(s->pixels))[xpos + x_base + s->pitch * (y_base + yoff)] = *pixels;
+					assert(xpos + x_base < this->blit_rect.width);
+					this->blit_rect.address[xpos + x_base + this->blit_rect.pitch * (y_base + yoff)] = *pixels;
 
 					pixels++;
 					xpos++;

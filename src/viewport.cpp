@@ -236,6 +236,8 @@ SpriteCollector::SpriteCollector(int32 xview, int32 yview, int32 zview, uint16 t
 	this->draw_images.clear();
 	this->draw_mouse_cursor = false;
 	this->cursor = VOR_INVALID;
+	this->xoffset = 0;
+	this->yoffset = 0;
 }
 
 SpriteCollector::~SpriteCollector()
@@ -406,7 +408,6 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 {
 	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
-	collector.SetXYOffset(this->rect.base.x, this->rect.base.y);
 	if (this->mouse_mode == MM_TILE_TERRAFORM) {
 		ViewOrientation vor = (this->cursor != VOR_INVALID) ? SubtractOrientations(this->cursor, this->orientation) : VOR_INVALID;
 		collector.SetMouseCursor(this->xvoxel, this->yvoxel, this->zvoxel, vor);
@@ -416,17 +417,19 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 
 	vid->FillSurface(COL_BACKGROUND, this->rect); // Black background.
 
+	ClippedRectangle cr = vid->GetClippedRectangle();
+	vid->SetClippedRectangle(this->rect);
+
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		/* Blit sprite, and optionally, the cursor sprite. */
-		vid->BlitImage((*iter).second.base, (*iter).second.spr, this->rect);
-		if ((*iter).second.cursor != NULL) vid->BlitImage((*iter).second.base, (*iter).second.cursor, this->rect);
+		vid->BlitImage((*iter).second.base, (*iter).second.spr);
+		if ((*iter).second.cursor != NULL) vid->BlitImage((*iter).second.base, (*iter).second.cursor);
 	}
+
+	vid->SetClippedRectangle(cr);
 }
 
-/**
- * Compute position of the mouse cursor, and update the display if necessary.
- * @todo Use pixel information to decide type of cursor to display.
- */
+/** Compute position of the mouse cursor, and update the display if necessary. */
 void Viewport::ComputeCursorPosition()
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
