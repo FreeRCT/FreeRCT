@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sprite_store.h %Sprite storage functions. */
+/** @file sprite_store.cpp %Sprite storage functions. */
 
 #include "stdafx.h"
 #include "sprite_store.h"

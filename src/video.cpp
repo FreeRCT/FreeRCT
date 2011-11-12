@@ -309,13 +309,14 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle &rect)
 /**
  * Blit a pixel to an area of \a numx times \a numy sprites.
  * @param cr Clipped rectangle.
- * @param val Pixel value to blit.
+ * @param scr_base Base address of the screen array.
  * @param xmin Minimal x position.
  * @param ymin Minimal y position.
  * @param numx Number of horizontal count.
  * @param numy Number of vertical count.
  * @param width Width of an image.
  * @param height Height of an image.
+ * @param val Pixel value to blit.
  */
 static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
 		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val)

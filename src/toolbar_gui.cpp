@@ -14,6 +14,7 @@
 #include "widget.h"
 #include "video.h"
 
+/** Main toolbar. */
 class ToolbarWindow : public Window {
 public:
 	ToolbarWindow();

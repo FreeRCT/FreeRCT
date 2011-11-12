@@ -17,12 +17,13 @@
 
 /**
  * Draw border sprites around some contents.
+ * @param vid Video display.
  * @param bsd Border sprites to use.
  * @param pressed Draw pressed down sprites.
  * @param rect Content rectangle to draw around.
- * @todo [easy] Argh, another #_manager.video why is there no _video thingie instead?
+ * @todo [easy] Argh, another _manager.video why is there no _video thingie instead?
  * @todo [??] Similarly, needing to state the bounding box 'screen' seems weird and is not the right solution.
- * @todo #include "window.h" in widgets?!?
+ * @todo \c include "window.h" in widgets?!?
  */
 static void DrawBorderSprites(VideoSystem *vid, const BorderSpriteData &bsd, bool pressed, const Rectangle &rect)
 {
@@ -64,6 +65,7 @@ static void DrawBorderSprites(VideoSystem *vid, const BorderSpriteData &bsd, boo
 
 /**
  * Draw a panel at the given coordinates.
+ * @param vid Video display.
  * @param rect Outer rectangle to draw in.
  * @todo [difficult] Outer rectangle does not sound very useful in general.
  */
