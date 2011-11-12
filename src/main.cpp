@@ -15,6 +15,7 @@
 #include "viewport.h"
 #include "sprite_store.h"
 #include "window.h"
+#include "config_reader.h"
 
 /**
  * Error handling for fatal non-user errors.
@@ -53,6 +54,7 @@ static uint32 NextFrame(uint32 interval, void *param)
 int main(void)
 {
 	VideoSystem vid;
+	ConfigFile cfg_file;
 
 	/* Load RCD file. */
 	const char *err_msg = _sprite_manager.LoadRcdFiles();
@@ -65,9 +67,21 @@ int main(void)
 		fprintf(stderr, "Insufficient graphics loaded, some parts may not be displayed correctly.\n");
 	}
 
+	cfg_file.Load("freerct.cfg");
+	const char *font_path = cfg_file.GetValue("font", "medium-path");
+	const char *font_size_text = cfg_file.GetValue("font", "medium-size");
+	if (font_path == NULL || *font_path == '\0' || font_size_text == NULL || *font_size_text == '\0') {
+		fprintf(stderr,"Failed to find font settings. Did you make a 'freerct.cfg' file next to the 'freerct' program?\n");
+		fprintf(stderr,"Example content (you may need to change the path and.or the size):\n"
+		               "[font]\n"
+		               "medium-size = 12\n"
+		               "medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf\n");
+		exit(1);
+	}
+
 	/* Initialize video. */
-	if (!vid.Initialize("/usr/share/fonts/gnu-free/FreeSans.ttf", 12)) {
-		fprintf(stderr, "Failed to initialize window, aborting\n");
+	if (!vid.Initialize(font_path, atoi(font_size_text))) {
+		fprintf(stderr, "Failed to initialize window or the font, aborting\n");
 		exit(1);
 	}
 	vid.SetPalette();

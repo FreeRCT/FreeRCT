@@ -13,6 +13,7 @@
 #define STRING_FUNC_H
 
 char *SafeStrncpy(char *dest, const char *src, int size);
+char *StrDup(const char *src);
 
 bool StrEndsWith(const char *str, const char *end, bool case_sensitive);
 

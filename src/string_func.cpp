@@ -29,6 +29,20 @@ char *SafeStrncpy(char *dest, const char *src, int size)
 }
 
 /**
+ * Duplicate a string.
+ * @param src Source string.
+ * @return Copy of the string in its own memory.
+ */
+char *StrDup(const char *src)
+{
+	size_t n = strlen(src);
+	char *mem = (char *)malloc(n + 1);
+	assert(mem != NULL);
+
+	return SafeStrncpy(mem, src, n + 1);
+}
+
+/**
  * Test whether \a str ends with \a end.
  * @param str String to check.
  * @param end Expected end text.
