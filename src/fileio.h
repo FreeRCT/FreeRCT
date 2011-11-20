@@ -34,6 +34,31 @@ public:
 	virtual bool EntryIsDirectory() = 0;
 };
 
+/** Class representing a RCD file. */
+class RcdFile {
+public:
+	RcdFile(const char *fname);
+	~RcdFile();
+
+	bool CheckFileHeader();
+
+	bool CheckVersion(uint32 version);
+	bool GetBlob(void *address, size_t length);
+
+	uint8 GetUInt8();
+	uint16 GetUInt16();
+	uint32 GetUInt32();
+	int16 GetInt16();
+
+	size_t Remaining();
+
+private:
+	FILE *fp;         ///< File handle of the opened file.
+	size_t file_pos;  ///< Position in the opened file.
+	size_t file_size; ///< Size of the opened file.
+};
+
+
 DirectoryReader *MakeDirectoryReader();
 
 #endif
