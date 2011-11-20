@@ -16,6 +16,7 @@
 #include "sprite_store.h"
 #include "window.h"
 #include "config_reader.h"
+#include "language.h"
 
 /**
  * Error handling for fatal non-user errors.
@@ -62,6 +63,8 @@ int main(void)
 		fprintf(stderr, "Failed to load RCD files\n(%s)\n", err_msg);
 		exit(1);
 	}
+
+	InitLanguage();
 
 	if (!_sprite_manager.HasSufficientGraphics()) {
 		fprintf(stderr, "Insufficient graphics loaded, some parts may not be displayed correctly.\n");
@@ -210,6 +213,8 @@ int main(void)
 	}
 
 	SDL_RemoveTimer(timer_id); // Drop the timer.
+
+	UninitLanguage();
 
 	vid.Shutdown();
 	exit(0);
