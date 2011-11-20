@@ -943,7 +943,7 @@ const char *SpriteManager::Load(const char *filename)
 	uint32 version, length;
 
 	RcdFile rcd_file(filename);
-	if (!rcd_file.CheckFileHeader()) return "Could not read header";
+	if (!rcd_file.CheckFileHeader("RCDF", 1)) return "Could not read header";
 
 	ImageMap   images;   // Images loaded from this file.
 	SpriteMap  sprites;  // Sprites loaded from this file.

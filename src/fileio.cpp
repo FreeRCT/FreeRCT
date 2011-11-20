@@ -241,9 +241,11 @@ uint32 RcdFile::GetUInt32()
 
 /**
  * Check whether the file header makes sense, and has the right version.
+ * @param hdr_name Header name (should be 4 chars long).
+ * @param version Header version.
  * @return The header seems correct.
  */
-bool RcdFile::CheckFileHeader()
+bool RcdFile::CheckFileHeader(const char *hdr_name, uint32 version)
 {
 	if (this->fp == NULL) return false;
 	if (this->Remaining() < 8) return false;
@@ -251,8 +253,8 @@ bool RcdFile::CheckFileHeader()
 	char name[5];
 	this->GetBlob(name, 4);
 	name[4] = '\0';
-	if (strcmp(name, "RCDF") != 0) return false;
-	if (!this->CheckVersion(1)) return false;
+	if (strcmp(name, hdr_name) != 0) return false;
+	if (!this->CheckVersion(version)) return false;
 	return true;
 }
 
