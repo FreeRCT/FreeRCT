@@ -47,7 +47,7 @@ FORCEINLINE bool operator==(const Point16 &p, const Point16 &q)
 	return p.x == q.x && p.y == q.y;
 }
 
-/** An area in 2D. */
+/** An area in 2D using 32 bit coordinates. */
 struct Rectangle {
 	/** Default constructor. */
 	Rectangle()
@@ -91,5 +91,38 @@ struct Rectangle {
 	int32 width;  ///< Width of the rectangle.
 	int32 height; ///< Height of the rectangle.
 };
+
+/** An area in 2D using 16 bit coordinates. */
+struct Rectangle16 {
+	/** Default constructor. */
+	Rectangle16()
+	{
+		this->base.x = 0;
+		this->base.y = 0;
+		this->width  = 0;
+		this->height = 0;
+	}
+
+	/**
+	 * Construct a rectangle with the given data.
+	 * @param x X position of the top-left edge.
+	 * @param y Y position of the top-left edge.
+	 * @param w Width of the rectangle.
+	 * @param h Height of the rectangle.
+	 */
+	Rectangle16(int16 x, int16 y, uint16 w, uint16 h)
+	{
+		this->base.x = x;
+		this->base.y = y;
+		this->width  = w;
+		this->height = h;
+	}
+
+	Point16 base;  ///< Base coordinate.
+	uint16 width;  ///< Width of the rectangle.
+	uint16 height; ///< Height of the rectangle.
+};
+
+
 
 #endif
