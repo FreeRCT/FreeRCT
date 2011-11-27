@@ -88,10 +88,10 @@ int main(void)
 		exit(1);
 	}
 	vid.SetPalette();
+	_video = &vid;
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);
-	_manager.video = &vid;
 
 	ShowToolbar();
 	Viewport *w = ShowMainDisplay();

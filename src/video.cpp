@@ -15,6 +15,9 @@
 #include "palette.h"
 #include "math_func.h"
 
+VideoSystem *_video = NULL; ///< Global address of the video sub-system.
+
+/** Default constructor of a clipped rectangle. */
 ClippedRectangle::ClippedRectangle()
 {
 	this->absx = 0;

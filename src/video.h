@@ -133,4 +133,6 @@ private:
 	ClippedRectangle blit_rect; ///< Rectangle to blit in.
 };
 
+extern VideoSystem *_video;
+
 #endif

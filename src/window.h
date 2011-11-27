@@ -15,7 +15,6 @@
 #include "geometry.h"
 #include "orientation.h"
 
-class VideoSystem;
 class Viewport;
 
 /** Available types of windows. */
@@ -63,7 +62,7 @@ public:
 
 	void MarkDirty();
 
-	virtual void OnDraw(VideoSystem *video);
+	virtual void OnDraw();
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual void OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
@@ -89,7 +88,6 @@ public:
 
 	Window *top;        ///< Top-most window in the window stack.
 	Window *bottom;     ///< Lowest window in the window stack.
-	VideoSystem *video; ///< Video output device.
 
 private:
 	Window *FindWindowByPosition(const Point16 &pos) const;

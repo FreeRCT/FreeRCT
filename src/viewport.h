@@ -21,7 +21,7 @@ class Viewport : public Window {
 public:
 	Viewport(int x, int y, uint w, uint h);
 
-	virtual void OnDraw(VideoSystem *video);
+	virtual void OnDraw();
 
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);

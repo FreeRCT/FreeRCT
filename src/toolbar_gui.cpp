@@ -20,7 +20,7 @@ public:
 	ToolbarWindow();
 	virtual ~ToolbarWindow();
 
-	virtual void OnDraw(VideoSystem *vid);
+	virtual void OnDraw();
 };
 
 
@@ -35,9 +35,9 @@ ToolbarWindow::~ToolbarWindow()
 {
 }
 
-void ToolbarWindow::OnDraw(VideoSystem *vid)
+void ToolbarWindow::OnDraw()
 {
-	DrawPanel(vid, this->rect);
+	DrawPanel(this->rect);
 }
 
 /** Open the main toolbar window. */

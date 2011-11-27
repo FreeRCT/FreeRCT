@@ -14,8 +14,6 @@
 
 #include "geometry.h"
 
-class VideoSystem;
-
 static const int INVALID_WIDGET_INDEX = -1; ///< Widget number of invalid index.
 
 /** Available widget types. */
@@ -208,7 +206,7 @@ WidgetPart SetEqualSize(bool hor_equal, bool vert_equal);
 WidgetPart WidgetReference(int widnum);
 WidgetPart EndContainer();
 
-void DrawPanel(VideoSystem *vid, const Rectangle &rect);
+void DrawPanel(const Rectangle &rect);
 CoreWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest);
 
 #endif

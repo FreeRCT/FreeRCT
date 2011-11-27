@@ -404,7 +404,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	this->SetPosition(x, y);
 }
 
-/* virtual */ void Viewport::OnDraw(VideoSystem *vid)
+/* virtual */ void Viewport::OnDraw()
 {
 	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
@@ -415,18 +415,18 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	collector.Collect();
 
 
-	vid->FillSurface(COL_BACKGROUND, this->rect); // Black background.
+	_video->FillSurface(COL_BACKGROUND, this->rect); // Black background.
 
-	ClippedRectangle cr = vid->GetClippedRectangle();
-	vid->SetClippedRectangle(this->rect);
+	ClippedRectangle cr = _video->GetClippedRectangle();
+	_video->SetClippedRectangle(this->rect);
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		/* Blit sprite, and optionally, the cursor sprite. */
-		vid->BlitImage((*iter).second.base, (*iter).second.spr);
-		if ((*iter).second.cursor != NULL) vid->BlitImage((*iter).second.base, (*iter).second.cursor);
+		_video->BlitImage((*iter).second.base, (*iter).second.spr);
+		if ((*iter).second.cursor != NULL) _video->BlitImage((*iter).second.base, (*iter).second.cursor);
 	}
 
-	vid->SetClippedRectangle(cr);
+	_video->SetClippedRectangle(cr);
 }
 
 /** Compute position of the mouse cursor, and update the display if necessary. */
@@ -631,8 +631,8 @@ void Viewport::SetMouseMode(MouseMode mode)
 /** Open the main isometric display window. */
 Viewport *ShowMainDisplay()
 {
-	uint16 width  = _manager.video->GetXSize();
-	uint16 height = _manager.video->GetYSize();
+	uint16 width  = _video->GetXSize();
+	uint16 height = _video->GetYSize();
 	assert(width >= 120 && height >= 120);
 	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
 

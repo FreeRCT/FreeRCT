@@ -64,15 +64,14 @@ void Window::SetPosition(int x, int y)
  */
 void Window::MarkDirty()
 {
-	_manager.video->MarkDisplayDirty();
+	_video->MarkDisplayDirty();
 }
 
 /**
  * Paint the window to the screen.
- * @param video Video blitter.
  * @note The window manager already locked the surface.
  */
-/* virtual */ void Window::OnDraw(VideoSystem *video) { }
+/* virtual */ void Window::OnDraw() { }
 
 /**
  * Mouse moved to new position.
@@ -113,8 +112,6 @@ WindowManager::WindowManager()
 	this->mouse_pos.y = -10000;
 	this->current_window = NULL;
 	this->mouse_state = 0;
-
-	this->video = NULL;
 };
 
 /** %Window manager destructor. */
@@ -308,18 +305,18 @@ void WindowManager::MouseWheelEvent(int direction)
  */
 void UpdateWindows()
 {
-	if (_manager.video == NULL || !_manager.video->DisplayNeedsRepaint()) return;
+	if (_video == NULL || !_video->DisplayNeedsRepaint()) return;
 
 	Window *w = _manager.bottom;
 	while (w != NULL) {
-		_manager.video->LockSurface();
-		w->OnDraw(_manager.video);
-		_manager.video->UnlockSurface();
+		_video->LockSurface();
+		w->OnDraw();
+		_video->UnlockSurface();
 
 		w = w->higher;
 	}
 
-	_manager.video->FinishRepaint();
+	_video->FinishRepaint();
 }
 
 /**
