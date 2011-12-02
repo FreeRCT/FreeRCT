@@ -498,7 +498,7 @@ bool BorderSpriteData::IsLoaded() const
 }
 
 /**
- * Load checkable sprite data.
+ * Load sprites of a GUI widget border.
  * @param rcd_file RCD file being loaded.
  * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
@@ -574,7 +574,7 @@ bool CheckableWidgetSpriteData::IsLoaded() const
 }
 
 /**
- * Load checkable sprite data.
+ * Load checkbox and radio button gui sprites.
  * @param rcd_file RCD file being loaded.
  * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.

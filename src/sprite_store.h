@@ -177,7 +177,7 @@ enum WidgetBorderSprites {
 	WBS_COUNT,         ///< Number of sprites of a border.
 };
 
-/** Sprite data of a border. */
+/** %Sprite data of a border. */
 struct BorderSpriteData {
 	void Clear();
 
@@ -209,7 +209,7 @@ enum WidgetCheckableSprites {
 	WCS_COUNT,           ///< Number of sprites for a checkable widget.
 };
 
-/** Sprite data of a checkable sprite. */
+/** %Sprite data of a checkable sprite. */
 struct CheckableWidgetSpriteData {
 	void Clear();
 
@@ -231,7 +231,7 @@ enum WidgetSliderSprites {
 	WSS_COUNT,      ///< Number of sprites of a slider bar.
 };
 
-/** Sprite data of a slider bar. */
+/** %Sprite data of a slider bar. */
 struct SliderSpriteData {
 	void Clear();
 
@@ -264,7 +264,7 @@ enum WidgetScrollbarSprites {
 	WLS_COUNT,                 ///< Number of scrollbar sprites.
 };
 
-/** Sprite data of a scrollbar. */
+/** %Sprite data of a scrollbar. */
 struct ScrollbarSpriteData {
 	void Clear();
 
