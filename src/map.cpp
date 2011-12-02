@@ -17,8 +17,8 @@ VoxelWorld _world; ///< The game world.
 
 /** Structure describing a corner at a voxel stack. */
 struct VoxelCorner {
-	Point16 rel_xy; ///< Relative voxel stack position.
-	Slope corner;   ///< Corner of the voxel (#TC_NORTH, #TC_EAST, #TC_SOUTH or #TC_WEST).
+	Point16 rel_xy;   ///< Relative voxel stack position.
+	TileSlope corner; ///< Corner of the voxel (#TC_NORTH, #TC_EAST, #TC_SOUTH or #TC_WEST).
 };
 
 /**
@@ -28,8 +28,8 @@ struct VoxelCorner {
  * corner.
  */
 struct CornerNeighbours {
-	Slope left_neighbour;           ///< Left neighbouring corner.
-	Slope right_neighbour;          ///< Right neighbouring corner.
+	TileSlope left_neighbour;       ///< Left neighbouring corner.
+	TileSlope right_neighbour;      ///< Right neighbouring corner.
 	VoxelCorner neighbour_tiles[3]; ///< Neighbouring corners at other tiles.
 };
 
@@ -152,7 +152,7 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 			Voxel *v = GetVoxel(xpos, ypos, z, true);
 			SurfaceVoxelData svd;
 			svd.ground.type = GTP_GRASS0;
-			svd.ground.slope = ImplodeSlope(SL_FLAT);
+			svd.ground.slope = ImplodeTileSlope(SL_FLAT);
 			svd.foundation.type = FDT_INVALID;
 			v->SetSurface(svd);
 		}
@@ -213,7 +213,7 @@ GroundData::GroundData(uint8 height, uint8 orig_slope)
  * @param corner Corner to get height.
  * @return Original height of the indicated corner.
  */
-uint8 GroundData::GetOrigHeight(Slope corner) const
+uint8 GroundData::GetOrigHeight(TileSlope corner) const
 {
 	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
 	if ((this->orig_slope & TCB_STEEP) == 0) { // Normal slope.
@@ -222,7 +222,7 @@ uint8 GroundData::GetOrigHeight(Slope corner) const
 	}
 	// Steep slope.
 	if ((this->orig_slope & (1 << corner)) != 0) return this->height + 2;
-	corner = (Slope)((corner + 2) % 4);
+	corner = (TileSlope)((corner + 2) % 4);
 	if ((this->orig_slope & (1 << corner)) != 0) return this->height;
 	return this->height + 1;
 }
@@ -232,7 +232,7 @@ uint8 GroundData::GetOrigHeight(Slope corner) const
  * @param corner Corner to set.
  * @return corner is modified.
  */
-void GroundData::SetCornerModified(Slope corner)
+void GroundData::SetCornerModified(TileSlope corner)
 {
 	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
 	this->modified |= 1 << corner;
@@ -243,7 +243,7 @@ void GroundData::SetCornerModified(Slope corner)
  * @param corner Corner to test.
  * @return corner is modified.
  */
-bool GroundData::GetCornerModified(Slope corner) const
+bool GroundData::GetCornerModified(TileSlope corner) const
 {
 	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
 	return (this->modified & (1 << corner)) != 0;
@@ -286,7 +286,7 @@ GroundData *TerrainChanges::GetGroundData(const Point &pos)
 		assert(v != NULL && v->GetType() == VT_SURFACE);
 		const SurfaceVoxelData *svd = v->GetSurface();
 		assert(svd->ground.type != GTP_INVALID);
-		std::pair<Point, GroundData> p(pos, GroundData(height, ExpandSlope(svd->ground.slope)));
+		std::pair<Point, GroundData> p(pos, GroundData(height, ExpandTileSlope(svd->ground.slope)));
 		iter = this->changes.insert(p).first;
 	}
 	return &(*iter).second;
@@ -300,7 +300,7 @@ GroundData *TerrainChanges::GetGroundData(const Point &pos)
  * @param direction Direction of change.
  * @return Change is OK for the map.
  */
-bool TerrainChanges::ChangeCorner(const Point &pos, Slope corner, int direction)
+bool TerrainChanges::ChangeCorner(const Point &pos, TileSlope corner, int direction)
 {
 	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
 	assert(direction == 1 || direction == -1);
@@ -365,8 +365,8 @@ void TerrainChanges::ChangeWorld(int direction)
 		uint8 max_h = 0;
 		uint8 min_h = 255;
 		for (uint corner = 0; corner < 4; corner++) {
-			uint8 height = gd.GetOrigHeight((Slope)corner);
-			if (gd.GetCornerModified((Slope)corner)) {
+			uint8 height = gd.GetOrigHeight((TileSlope)corner);
+			if (gd.GetCornerModified((TileSlope)corner)) {
 				assert((direction > 0 && height < 255) || (direction < 0 && height > 0));
 				height += direction;
 			}
@@ -381,10 +381,10 @@ void TerrainChanges::ChangeWorld(int direction)
 		svd.foundation.slope = 0; // XXX Needs further work.
 		if (max_h - min_h <= 1) {
 			/* Normal slope. */
-			svd.ground.slope = ImplodeSlope(((new_heights[TC_NORTH] > min_h) ? TCB_NORTH : (Slope)0)
-					| ((new_heights[TC_EAST]  > min_h) ? TCB_EAST  : (Slope)0)
-					| ((new_heights[TC_SOUTH] > min_h) ? TCB_SOUTH : (Slope)0)
-					| ((new_heights[TC_WEST]  > min_h) ? TCB_WEST  : (Slope)0));
+			svd.ground.slope = ImplodeTileSlope(((new_heights[TC_NORTH] > min_h) ? TCB_NORTH : SL_FLAT)
+					| ((new_heights[TC_EAST]  > min_h) ? TCB_EAST  : SL_FLAT)
+					| ((new_heights[TC_SOUTH] > min_h) ? TCB_SOUTH : SL_FLAT)
+					| ((new_heights[TC_WEST]  > min_h) ? TCB_WEST  : SL_FLAT));
 			v->SetSurface(svd);
 		} else {
 			assert(max_h - min_h == 2);
@@ -393,7 +393,7 @@ void TerrainChanges::ChangeWorld(int direction)
 				if (new_heights[corner] == max_h) break;
 			}
 			assert(corner <= TC_WEST);
-			svd.ground.slope = ImplodeSlope(TCB_STEEP | (Slope)(1 << corner));
+			svd.ground.slope = ImplodeTileSlope(TCB_STEEP | (TileSlope)(1 << corner));
 			v->SetSurface(svd);
 			ReferenceVoxelData rvd;
 			rvd.xpos = pos.x;

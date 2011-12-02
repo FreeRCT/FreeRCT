@@ -33,7 +33,7 @@
  * #TCB_SOUTH, and #TCB_WEST may be set. If #TCB_STEEP, the top corner is
  * indicated by a corner bit.
  */
-enum Slope {
+enum TileSlope {
 	SL_FLAT = 0,  ///< Flat slope.
 
 	TC_NORTH = 0, ///< North corner bit number.
@@ -49,7 +49,7 @@ enum Slope {
 
 	TCB_STEEP = 1 << TC_STEEP, ///< Bit denoting it is a steep slope.
 };
-DECLARE_ENUM_AS_BIT_SET(Slope)
+DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
 static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a surface tile.
 
@@ -58,10 +58,10 @@ static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a
  * @param v %Sprite slope number.
  * @return Expanded slope.
  */
-FORCEINLINE Slope ExpandSlope(uint8 v)
+FORCEINLINE TileSlope ExpandTileSlope(uint8 v)
 {
-	if (v < 15) return (Slope)v;
-	return TCB_STEEP | (Slope)(1 << (v-15));
+	if (v < 15) return (TileSlope)v;
+	return TCB_STEEP | (TileSlope)(1 << (v-15));
 }
 
 /**
@@ -69,7 +69,7 @@ FORCEINLINE Slope ExpandSlope(uint8 v)
  * @param s Expanded slope to implode.
  * @return Equivalent sprite number.
  */
-FORCEINLINE uint8 ImplodeSlope(Slope s)
+FORCEINLINE uint8 ImplodeTileSlope(TileSlope s)
 {
 	if ((s & TCB_STEEP) == 0) return s;
 	if ((s & TCB_NORTH) != 0) return 15;

@@ -532,7 +532,7 @@ void Viewport::ChangeTerrain(int direction)
 		case VOR_EAST:
 		case VOR_SOUTH:
 		case VOR_WEST:
-			ok = changes.ChangeCorner(p, (Slope)this->cursor, direction);
+			ok = changes.ChangeCorner(p, (TileSlope)this->cursor, direction);
 			break;
 
 		case VOR_INVALID:

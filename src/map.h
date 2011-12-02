@@ -225,9 +225,9 @@ struct GroundData {
 
 	GroundData(uint8 height, uint8 orig_slope);
 
-	uint8 GetOrigHeight(Slope corner) const;
-	bool GetCornerModified(Slope corner) const;
-	void SetCornerModified(Slope corner);
+	uint8 GetOrigHeight(TileSlope corner) const;
+	bool GetCornerModified(TileSlope corner) const;
+	void SetCornerModified(TileSlope corner);
 };
 
 /** Map of voxels to ground modification data. */
@@ -239,7 +239,7 @@ public:
 	TerrainChanges(const Point &base, uint16 xsize, uint16 ysize);
 	~TerrainChanges();
 
-	bool ChangeCorner(const Point &pos, Slope corner, int direction);
+	bool ChangeCorner(const Point &pos, TileSlope corner, int direction);
 	void ChangeWorld(int direction);
 
 private:
