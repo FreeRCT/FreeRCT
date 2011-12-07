@@ -53,6 +53,17 @@ DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
 static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a surface tile.
 
+/** Edges of a tile, starts at NE direction, and rotates clockwise. */
+enum TileEdge {
+	EDGE_NE,    ///< North-east edge.
+	EDGE_SE,    ///< South-east edge.
+	EDGE_SW,    ///< South-west edge.
+	EDGE_NW,    ///< North-west edge.
+
+	EDGE_COUNT, ///< Number of edges.
+};
+
+
 /**
  * Expand a slope sprite number to its bit-encoded form for easier manipulating.
  * @param v %Sprite slope number.
@@ -101,6 +112,22 @@ enum FoundationType {
 	FDT_COUNT,  ///< Number of foundation types.
 
 	FDT_INVALID, ///< Invalid foundation type.
+};
+
+/** Path and track slopes. */
+enum TrackSlope {
+	TSL_DOWN,                            ///< Gently down.
+	TSL_FLAT,                            ///< Horizontal slope.
+	TSL_UP,                              ///< Gently up.
+	TSL_COUNT_GENTLE,                    ///< Number of gentle slopes.
+
+	TSL_STEEP_DOWN = TSL_COUNT_GENTLE,   ///< Steeply downwards.
+	TSL_STEEP_UP,                        ///< Steeply upwards.
+	TSL_COUNT_STEEP,                     ///< Number of gentle and steep slopes.
+
+	TSL_STRAIGHT_DOWN = TSL_COUNT_STEEP, ///< Vertically down.
+	TSL_STRAIGHT_UP,                     ///< Vertically up.
+	TSL_COUNT_VERTICAL,                  ///< Number of slopes if also going straight up and down.
 };
 
 

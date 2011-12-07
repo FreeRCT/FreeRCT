@@ -14,6 +14,7 @@
 #include "fileio.h"
 #include "string_func.h"
 #include "math_func.h"
+#include "table/gui_sprites.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
 GuiSprites _gui_sprites; ///< Gui sprites.
@@ -1145,5 +1146,24 @@ const SpriteStorage *SpriteManager::GetSprites(uint16 size) const
 {
 	if (size != 64) return NULL;
 	return &this->store;
+}
+
+/**
+ * Get the image data for the GUI according to the table in <tt>table/gui_sprites.h</tt>.
+ * @param number Number of the sprite to get.
+ * @return The sprite if available, else \c NULL.
+ * @todo Add lots of missing sprites.
+ * @todo Make this more efficient; linearly trying every entry scales badly.
+ */
+const ImageData *SpriteManager::GetTableSprite(uint16 number) const
+{
+	if (number == SPR_GUI_BULLDOZER) return NULL;
+	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
+		return NULL;
+	}
+	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
+		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH)->img_data;
+	}
+	return NULL;
 }
 

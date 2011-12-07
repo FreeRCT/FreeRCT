@@ -375,7 +375,7 @@ public:
 	{
 		if (this->build_arrows == NULL) return NULL;
 		assert(spr_num < 4);
-		return this->build_arrows->sprites[spr_num];
+		return this->build_arrows->sprites[(spr_num + orient) % 4];
 	}
 
 	const uint16 size; ///< Width of the tile.
@@ -402,6 +402,7 @@ public:
 
 	bool HasSufficientGraphics() const;
 	const SpriteStorage *GetSprites(uint16 size) const;
+	const ImageData *GetTableSprite(uint16 number) const;
 
 protected:
 	const char *Load(const char *fname);
