@@ -62,4 +62,7 @@ static FORCEINLINE T max(const T a, const T b)
 	return (a < b) ? b : a;
 }
 
+int GreatestCommonDivisor(int a, int b);
+int LeastCommonMultiple(int a, int b);
+
 #endif
