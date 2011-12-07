@@ -14,6 +14,8 @@
 
 #include "geometry.h"
 
+struct BorderSpriteData;
+
 static const int INVALID_WIDGET_INDEX = -1; ///< Widget number of invalid index.
 
 /** Available widget types. */
@@ -55,6 +57,8 @@ public:
 	BaseWidget(WidgetType wtype);
 	virtual ~BaseWidget();
 
+	virtual void SetupMinimalSize(BaseWidget **wid_array);
+
 	WidgetType wtype; ///< Widget type.
 	int16 number;     ///< Widget number.
 
@@ -66,6 +70,12 @@ public:
 	uint16 resize_x;  ///< Horizontal resize step.
 	uint16 resize_y;  ///< Vertical resize step.
 	uint8 paddings[PAD_COUNT]; ///< Padding.
+
+protected:
+	void SetWidget(BaseWidget **wid_array);
+
+	void InitMinimalSize(uint16 content_width, uint16 content_height, uint16 border_hor, uint16 border_vert);
+	void InitMinimalSize(const BorderSpriteData *bsd, uint16 content_width, uint16 content_height);
 };
 
 /** Flags of the #LeafWidget widget. */
@@ -85,6 +95,8 @@ class LeafWidget : public BaseWidget {
 public:
 	LeafWidget(WidgetType wtype);
 
+	virtual void SetupMinimalSize(BaseWidget **wid_array);
+
 	uint8 flags;    ///< Flags of the leaf widget. @see LeafWidgetFlags
 	uint8 colour;   ///< Colour of the widget.
 	uint16 tooltip; ///< Tool-tip of the widget.
@@ -98,6 +110,8 @@ class DataWidget : public LeafWidget {
 public:
 	DataWidget(WidgetType wtype);
 
+	virtual void SetupMinimalSize(BaseWidget **wid_array);
+
 	uint16 value; ///< String number or sprite id.
 };
 
@@ -108,6 +122,8 @@ public:
 class ScrollbarWidget : public LeafWidget {
 public:
 	ScrollbarWidget(WidgetType wtype);
+
+	virtual void SetupMinimalSize(BaseWidget **wid_array);
 
 	int16 canvas_widget; ///< Widget number of the canvas.
 };
@@ -121,6 +137,8 @@ public:
 	BackgroundWidget(WidgetType wtype);
 	virtual ~BackgroundWidget();
 
+	virtual void SetupMinimalSize(BaseWidget **wid_array);
+
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
 
@@ -130,20 +148,34 @@ enum EqualSize {
 	EQS_VERTICAL   = 2, ///< Try to keep equal size for all widgets in vertical direction.
 };
 
+/** Data about a row or a column. */
+struct RowColData {
+	uint16 min_size; ///< Minimal size.
+	uint16 fill;     ///< Fill step.
+	uint16 resize;   ///< Resize step.
+
+	void InitRowColData();
+	void Merge(uint16 min_size, uint16 fill, uint16 resize);
+};
+
 /** Base class for intermediate (that is, non-leaf) widget. */
 class IntermediateWidget : public BaseWidget {
 public:
 	IntermediateWidget(uint8 num_rows, uint8 num_cols);
 	~IntermediateWidget();
 
+	virtual void SetupMinimalSize(BaseWidget **wid_array);
+
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
 
-	uint8 num_rows; ///< Number of rows.
-	uint8 num_cols; ///< Number of columns.
-	uint8 flags;    ///< Equal size flags.
-
 	BaseWidget **childs; ///< Grid of child widget pointers.
+	RowColData *rows;    ///< Row data.
+	RowColData *columns; ///< Column data.
+	uint8 num_rows;      ///< Number of rows.
+	uint8 num_cols;      ///< Number of columns.
+	uint8 flags;         ///< Equal size flags.
+
 };
 
 

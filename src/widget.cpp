@@ -134,6 +134,64 @@ BaseWidget::~BaseWidget()
 {
 }
 
+/**
+ * Initialize the minimal size of the widget based on the width and height of the content, and the necessary border space.
+ * @param content_width Minimal width of the content.
+ * @param content_height Minimal height of the content.
+ * @param border_hor Horizontal border space.
+ * @param border_vert Vertical border space.
+ */
+void BaseWidget::InitMinimalSize(uint16 content_width, uint16 content_height, uint16 border_hor, uint16 border_vert)
+{
+	this->min_x = max(this->min_x, (uint16)(content_width  + border_hor  + this->paddings[PAD_LEFT] + this->paddings[PAD_RIGHT]));
+	this->min_y = max(this->min_y, (uint16)(content_height + border_vert + this->paddings[PAD_TOP] + this->paddings[PAD_BOTTOM]));
+}
+
+/**
+ * Initialize the minimal size of the widget based on the width and height of the content, and the border sprites.
+ * @param bsd Used border sprites.
+ * @param content_width Minimal width of the content.
+ * @param content_height Minimal height of the content.
+ */
+void BaseWidget::InitMinimalSize(const BorderSpriteData *bsd, uint16 content_width, uint16 content_height)
+{
+	content_width = max(content_width, bsd->min_width);
+	if (bsd->hor_stepsize > 0) content_width = bsd->min_width + (content_width - bsd->min_width + bsd->hor_stepsize - 1) % bsd->hor_stepsize;
+
+	content_height = max(content_height, bsd->min_height);
+	if (bsd->vert_stepsize > 0) content_height = bsd->min_height + (content_height - bsd->min_height + bsd->vert_stepsize - 1) % bsd->vert_stepsize;
+
+	this->InitMinimalSize(content_width, content_height,  bsd->border_left + bsd->border_right, bsd->border_top + bsd->border_bottom);
+	this->fill_x = LeastCommonMultiple(this->fill_x, bsd->hor_stepsize);
+	this->fill_y = LeastCommonMultiple(this->fill_y, bsd->vert_stepsize);
+	this->resize_x = LeastCommonMultiple(this->resize_x, bsd->hor_stepsize);
+	this->resize_y = LeastCommonMultiple(this->resize_y, bsd->vert_stepsize);
+}
+
+/**
+ * Add the widget to the widget array \a wid_array.
+ * @param wid_array The widget array.
+ */
+void BaseWidget::SetWidget(BaseWidget **wid_array)
+{
+	if (this->number < 0) return;
+	assert(wid_array[this->number] == NULL);
+	wid_array[this->number] = this;
+}
+
+/**
+ * Set up minimal size (#min_x and #min_y), fill step (#fill_x and #fill_y) and resize step (#resize_x and #resize_y) of the widget.
+ * In addition, if the widget has a non-negative widget number, add the widget to the \a wid_array after verifying the position is still empty.
+ * @param wid_array [out] Array of widget pointers.
+ * @todo Add support for #WT_CLOSEBOX and #WT_RESIZEBOX (using _gui_sprites.panel ?).
+ */
+/* virtual */ void BaseWidget::SetupMinimalSize(BaseWidget **wid_array)
+{
+	this->SetWidget(wid_array);
+
+	assert(this->wtype == WT_EMPTY);
+	// Do nothing (all variables are already set while converting from widget parts).
+}
 
 /**
  * Base class leaf widget constructor.
@@ -147,6 +205,20 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 }
 
 /**
+ * Compute smallest size of the widget.
+ * @param wid_array [out] Array of widget pointers.
+ */
+/* virtual */ void LeafWidget::SetupMinimalSize(BaseWidget **wid_array)
+{
+	this->SetWidget(wid_array);
+
+	assert(this->wtype == WT_RADIOBUTTON);
+	this->InitMinimalSize(_gui_sprites.radio_button.width, _gui_sprites.radio_button.height, 0, 0);
+	this->fill_x = 0; this->fill_y = 0;
+	this->resize_x = 0; this->resize_y = 0;
+}
+
+/**
  * Data widget constructor.
  * @param wtype %Widget type.
  */
@@ -156,12 +228,81 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 }
 
 /**
+ * Compute smallest size of the widget.
+ * @param wid_array [out] Array of widget pointers.
+ */
+/* virtual */ void DataWidget::SetupMinimalSize(BaseWidget **wid_array)
+{
+	this->SetWidget(wid_array);
+
+	const BorderSpriteData *bsd;
+	switch (this->wtype) {
+		case WT_TITLEBAR:
+			bsd = &_gui_sprites.titlebar;
+			break;
+
+		case WT_LEFT_TEXT:
+		case WT_CENTERED_TEXT:
+		case WT_RIGHT_TEXT:
+			bsd = NULL;
+			break;
+
+		case WT_TEXTBUTTON:
+		case WT_IMAGEBUTTON:
+			bsd = &_gui_sprites.button;
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+
+	if (this->wtype == WT_IMAGEBUTTON) {
+		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
+		this->InitMinimalSize(bsd, imgdata->width, imgdata->height);
+	} else {
+		int width, height;
+		const char *text = _language->GetText(this->value);
+		_video->GetTextSize(text, &width, &height);
+		if (bsd != NULL) {
+			this->InitMinimalSize(bsd, width, height);
+		} else {
+			this->InitMinimalSize(width, height, 0, 0);
+		}
+	}
+}
+
+/**
  * Scrollbar widget constructor.
  * @param wtype %Widget type.
  */
 ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 {
 	this->canvas_widget = canvas_widget;
+}
+
+/**
+ * Compute smallest size of the widget.
+ * @param wid_array [out] Array of widget pointers.
+ */
+/* virtual */ void ScrollbarWidget::SetupMinimalSize(BaseWidget **wid_array)
+{
+	this->SetWidget(wid_array);
+
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		this->min_x = _gui_sprites.vert_scroll.height;
+		this->min_y = _gui_sprites.vert_scroll.min_length_all;
+		this->fill_x = _gui_sprites.vert_scroll.stepsize_bar;
+		this->fill_y = 0;
+		this->resize_x = _gui_sprites.vert_scroll.stepsize_bar;
+		this->resize_y = 0;
+	} else {
+		this->min_x = _gui_sprites.vert_scroll.min_length_all;
+		this->min_y = _gui_sprites.vert_scroll.height;
+		this->fill_x = 0;
+		this->fill_y = _gui_sprites.vert_scroll.stepsize_bar;
+		this->resize_x = 0;
+		this->resize_y = _gui_sprites.vert_scroll.stepsize_bar;
+	}
 }
 
 /**
@@ -179,6 +320,50 @@ BackgroundWidget::~BackgroundWidget()
 }
 
 /**
+ * Compute smallest size of the widget.
+ * @param wid_array [out] Array of widget pointers.
+ */
+/* virtual */ void BackgroundWidget::SetupMinimalSize(BaseWidget **wid_array)
+{
+	this->SetWidget(wid_array);
+
+	if (this->child != NULL) {
+		this->child->SetupMinimalSize(wid_array);
+		this->min_x = this->child->min_x;
+		this->min_y = this->child->min_y;
+		this->fill_x = this->child->fill_x;
+		this->fill_y = this->child->fill_y;
+		this->resize_x = this->child->resize_x;
+		this->resize_y = this->child->resize_y;
+	}
+	this->InitMinimalSize(&_gui_sprites.panel, this->min_x, this->min_y);
+}
+
+
+/** Initialize the row/column data. */
+void RowColData::InitRowColData()
+{
+	this->min_size = 0;
+	this->fill = 1;
+	this->resize = 1;
+
+}
+
+/**
+ * Merge a new minimal size, fill step, and resize step into the data.
+ * @param min_size Minimal size to merge.
+ * @param fill Fill step to merge.
+ * @param resize Resize step to merge.
+ */
+void RowColData::Merge(uint16 min_size, uint16 fill, uint16 resize)
+{
+	this->min_size = max(this->min_size, min_size);
+	this->fill = LeastCommonMultiple(this->fill, fill);
+	this->resize = LeastCommonMultiple(this->resize, resize);
+}
+
+
+/**
  * Constructor for intermediate widgets.
  * @param num_rows Number of rows. Use \c 0 for 'manual' claiming.
  * @param num_cols Number of columns. Use \c 0 for 'manual' claiming.
@@ -186,10 +371,12 @@ BackgroundWidget::~BackgroundWidget()
  */
 IntermediateWidget::IntermediateWidget(uint8 num_rows, uint8 num_cols) : BaseWidget(WT_GRID)
 {
+	this->childs = NULL;
+	this->rows = NULL;
+	this->columns = NULL;
 	this->num_rows = num_rows;
 	this->num_cols = num_cols;
 
-	this->childs = NULL;
 	if (this->num_cols > 0 && this->num_rows > 0) this->ClaimMemory();
 }
 
@@ -204,24 +391,27 @@ void IntermediateWidget::ClaimMemory()
 
 	this->childs = (BaseWidget **)malloc(num_rows * num_cols * sizeof(BaseWidget **));
 	assert(this->childs != NULL);
-	for (uint8 y = 0; y < this->num_rows; y++) {
-		for (uint8 x = 0; x < this->num_cols; x++) {
-			this->childs[y * this->num_cols + x] = NULL;
-		}
+	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+		this->childs[idx] = NULL;
 	}
+
+	this->rows = (RowColData *)malloc(this->num_rows * sizeof(RowColData));
+	assert(this->rows != NULL);
+
+	this->columns = (RowColData *)malloc(this->num_cols * sizeof(RowColData));
+	assert(this->columns != NULL);
 }
 
 IntermediateWidget::~IntermediateWidget()
 {
 	if (this->childs != NULL) {
-		for (uint8 y = 0; y < this->num_rows; y++) {
-			for (uint8 x = 0; x < this->num_cols; x++) {
-				BaseWidget *w = this->childs[y * this->num_cols + x];
-				if (w != NULL) delete w;
-			}
+		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+			delete this->childs[idx];
 		}
 		free(this->childs);
 	}
+	free(this->rows);
+	free(this->columns);
 }
 
 /**
@@ -233,9 +423,86 @@ IntermediateWidget::~IntermediateWidget()
 void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 {
 	assert(x < this->num_cols && y < this->num_rows);
-	assert(this->childs[y * this->num_cols + x] == NULL);
-	this->childs[y * this->num_cols + x] = w;
+	assert(this->childs[y * (uint16)this->num_cols + x] == NULL);
+	this->childs[y * (uint16)this->num_cols + x] = w;
 }
+
+/**
+ * Compute smallest size of the widget.
+ * @param wid_array [out] Array of widget pointers.
+ */
+/* virtual */ void IntermediateWidget::SetupMinimalSize(BaseWidget **wid_array)
+{
+	this->SetWidget(wid_array);
+
+	/* Step 1: Initialize rows and columns. */
+	for (uint8 y = 0; y < this->num_rows; y++) {
+		this->rows[y].InitRowColData();
+	}
+	for (uint8 x = 0; x < this->num_cols; x++) {
+		this->columns[x].InitRowColData();
+	}
+
+	/* Step 2: Process child widgets. */
+	for (uint8 y = 0; y < this->num_rows; y++) {
+		for (uint8 x = 0; x < this->num_cols; x++) {
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			bw->SetupMinimalSize(wid_array);
+			this->rows[y].Merge(bw->min_y, bw->fill_y, bw->resize_y);
+			this->columns[x].Merge(bw->min_x, bw->fill_x, bw->resize_x);
+		}
+	}
+
+	/* Step 3: Compute vertical fields. */
+	uint16 max_minsize = 0;
+	if ((this->flags & EQS_VERTICAL) != 0) { // Equal sizes vertically requested, do a pre-size computation.
+		for (uint8 y = 0; y < this->num_rows; y++) {
+			max_minsize = max(max_minsize, this->rows[y].min_size);
+		}
+	}
+
+	this->min_y = this->paddings[PAD_BOTTOM];
+	this->fill_y = 0;
+	this->resize_y = 0;
+	for (uint8 y = 0; y < this->num_rows; y++) {
+		this->min_y += (y == 0) ? this->paddings[PAD_TOP] : this->paddings[PAD_VERTICAL];
+		if ((this->flags & EQS_VERTICAL) != 0 && this->rows[y].fill > 0) {
+			this->min_y += max_minsize;
+		} else {
+			this->min_y += this->rows[y].min_size;
+		}
+		if (this->rows[y].fill > 0 && (this->fill_y == 0 || this->fill_y > this->rows[y].fill)) this->fill_y = this->rows[y].fill;
+		if (this->rows[y].resize > 0 && (this->resize_y == 0 || this->resize_y > this->rows[y].resize)) {
+			this->resize_y = this->rows[y].resize;
+		}
+	}
+
+	/* Step 4: Compute horizontal fields. */
+	max_minsize = 0;
+	if ((this->flags & EQS_HORIZONTAL) != 0) { // Equal sizes vertically requested, do a pre-size computation.
+		for (uint8 x = 0; x < this->num_cols; x++) {
+			max_minsize = max(max_minsize, this->columns[x].min_size);
+		}
+	}
+
+	this->min_x = this->paddings[PAD_RIGHT];
+	this->fill_x = 0;
+	this->resize_x = 0;
+	for (uint8 x = 0; x < this->num_cols; x++) {
+		this->min_x += (x == 0) ? this->paddings[PAD_LEFT] : this->paddings[PAD_HORIZONTAL];
+		if ((this->flags & EQS_HORIZONTAL) != 0 && this->columns[x].fill > 0) {
+			this->min_x += max_minsize;
+		} else {
+			this->min_x += this->columns[x].min_size;
+		}
+		if (this->columns[x].fill > 0 && (this->fill_x == 0 || this->fill_x > this->columns[x].fill)) this->fill_x = this->columns[x].fill;
+		if (this->columns[x].resize > 0 && (this->resize_x == 0 || this->resize_x > this->columns[x].resize)) {
+			this->resize_x = this->columns[x].resize;
+		}
+	}
+}
+
+
 
 /**
  * Create a new #WT_GRID widget.
