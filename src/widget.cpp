@@ -111,8 +111,7 @@ BaseWidget::~BaseWidget()
  */
 LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 {
-	this->pressed = false;
-	this->shaded = false;
+	this->flags = 0;
 	this->colour = 0;
 	this->tooltip = STR_NULL;
 }

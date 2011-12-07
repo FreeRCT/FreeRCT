@@ -68,6 +68,14 @@ public:
 	uint8 paddings[PAD_COUNT]; ///< Padding.
 };
 
+/** Flags of the #LeafWidget widget. */
+enum LeafWidgetFlags {
+	LWF_CHECKED = 1, ///< Widget is checked (on/off).
+	LWF_PRESSED = 2, ///< Widget is pressed (button up/down).
+	LWF_SHADED  = 4, ///< Widget is shaded (enabled/disabled).
+};
+DECLARE_ENUM_AS_BIT_SET(LeafWidgetFlags)
+
 /**
  * Base class for a (visible) leaf widget.
  * Implements #WT_RADIOBUTTON
@@ -77,8 +85,7 @@ class LeafWidget : public BaseWidget {
 public:
 	LeafWidget(WidgetType wtype);
 
-	bool pressed;   ///< Is widget pushed down?
-	bool shaded;    ///< Is widget disabled?
+	uint8 flags;    ///< Flags of the leaf widget. @see LeafWidgetFlags
 	uint8 colour;   ///< Colour of the widget.
 	uint16 tooltip; ///< Tool-tip of the widget.
 };
