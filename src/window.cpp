@@ -7,10 +7,14 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file window.cpp %Window handling functions. */
+/**
+ * @file window.cpp %Window handling functions.
+ * @todo [low] Consider the case where we don't have a video system.
+ */
 
 #include "stdafx.h"
 #include "window.h"
+#include "widget.h"
 #include "video.h"
 
 WindowManager _manager; ///< %Window manager.
@@ -41,7 +45,7 @@ Window::~Window()
  * @param width Initial width of the new window.
  * @param height Initial height of the new window.
  */
-void Window::SetSize(uint width, uint height)
+/* virtual */ void Window::SetSize(uint width, uint height)
 {
 	this->rect.width = width;
 	this->rect.height = height;
@@ -96,6 +100,62 @@ void Window::MarkDirty()
 
 /** Mouse left window. */
 /* virtual */ void Window::OnMouseLeaveEvent() { }
+
+/**
+ * Gui window constructor.
+ * @param wtype %Window type (for finding a window in the stack).
+ * @note Initialize the widget tree from the derived window class.
+ */
+GuiWindow::GuiWindow(WindowTypes wtype) : Window(wtype)
+{
+	this->tree = NULL;
+	this->widgets = NULL;
+}
+
+GuiWindow::~GuiWindow()
+{
+	if (this->tree != NULL) delete this->tree;
+	free(this->widgets);
+}
+
+/**
+ * Set the size of the window.
+ * @param width Initial width of the new window.
+ * @param height Initial height of the new window.
+ */
+/* virtual */ void GuiWindow::SetSize(uint width, uint height)
+{
+	// XXX Do nothing for now, in the future, this should cause a window resize.
+}
+
+/**
+ * Construct the widget tree of the window, and initialize the window with it.
+ * @param parts %Widget parts describing the window.
+ * @param length Number of parts.
+ * @pre The tree has not been setup before.
+ */
+void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
+{
+	assert(_video != NULL); // Needed for font-size calculations.
+	assert(this->tree == NULL && this->widgets == NULL);
+
+	int16 biggest;
+	this->tree = MakeWidgetTree(parts, length, &biggest);
+
+	if (biggest >= 0) {
+		this->widgets = (BaseWidget **)malloc(sizeof(BaseWidget *) * (biggest + 1));
+		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = NULL;
+	}
+
+	this->tree->SetupMinimalSize(this->widgets);
+	Rectangle16 min_rect(0, 0, this->tree->min_x, this->tree->min_y);
+	this->tree->SetSmallestSizePosition(min_rect);
+}
+
+/* virtual */ void GuiWindow::OnDraw()
+{
+	this->tree->Draw(this->rect.base);
+}
 
 
 /**

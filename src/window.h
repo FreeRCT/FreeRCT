@@ -16,6 +16,8 @@
 #include "orientation.h"
 
 class Viewport;
+class BaseWidget;
+class WidgetPart;
 
 /** Available types of windows. */
 enum WindowTypes {
@@ -57,7 +59,7 @@ public:
 	Window *higher; ///< %Window above this window (managed by #WindowManager).
 	Window *lower;  ///< %Window below this window (managed by #WindowManager).
 
-	void SetSize(uint width, uint height);
+	virtual void SetSize(uint width, uint height);
 	void SetPosition(int x, int y);
 
 	void MarkDirty();
@@ -69,6 +71,23 @@ public:
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
 };
+
+/** Base class for windows with a widget tree. */
+class GuiWindow : public Window {
+public:
+	GuiWindow(WindowTypes wtype);
+	virtual ~GuiWindow();
+	virtual void OnDraw();
+
+	virtual void SetSize(uint width, uint height);
+
+protected:
+	BaseWidget *tree;     ///< Tree of widgets.
+	BaseWidget **widgets; ///< Array of widgets with a non-negative index.
+
+	void SetupWidgetTree(const WidgetPart *parts, int length);
+};
+
 
 /**
  * %Window manager class, manages the window stack.

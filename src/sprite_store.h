@@ -280,7 +280,17 @@ struct ScrollbarSpriteData {
 	Sprite *shaded[WLS_COUNT]; ///< Sprites for a shaded scrollbar.
 };
 
-/** Sprites of the gui. */
+/**
+ * Sprites of the gui.
+ * @todo Add widget for rounded_button
+ * @todo Add widget for inset_frame
+ * @todo Add widget for checkbox
+ * @todo Add widget for radio_button
+ * @todo Add widget for hor_slider
+ * @todo Add widget for vert_slider
+ * @todo Add sprites for resize box (currently a button)
+ * @todo Add sprites for close box (currently a button)
+ */
 struct GuiSprites {
 	GuiSprites();
 

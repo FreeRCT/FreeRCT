@@ -1,6 +1,13 @@
 # Generic Gui strings
 STR_TITLEBAR_TIP                                :Click at the title bar to raise the window, drag the title bar to drag the window.
 
+# Toolbar gui strings
+STR_TOOLBAR_GUI_QUIT                            :Quit
+STR_TOOLBAR_GUI_QUIT_PROGRAM                    :Quit the program.
+STR_TOOLBAR_GUI_PATHS                           :Paths
+STR_TOOLBAR_GUI_BUILD_PATHS                     :Build paths and queues.
+
+
 # Path gui strings
 STR_PATH_GUI_TITLE                              :Paths
 STR_PATH_GUI_FOLLOW_GROUND                      :Follow the ground.

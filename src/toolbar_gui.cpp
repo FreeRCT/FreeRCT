@@ -14,8 +14,10 @@
 #include "widget.h"
 #include "video.h"
 
+#include "table/strings.h"
+
 /** Main toolbar. */
-class ToolbarWindow : public Window {
+class ToolbarWindow : public GuiWindow {
 public:
 	ToolbarWindow();
 	virtual ~ToolbarWindow();
@@ -23,10 +25,24 @@ public:
 	virtual void OnDraw();
 };
 
+/** Widget numbers of the toolbar Gui. */
+enum ToolbarGuiWidgets {
+	TB_GUI_QUIT,  ///< Quit program button.
+	TB_GUI_PATHS, ///< Build paths button.
+};
+
+/** Widget parts of the toolbar Gui. */
+static const WidgetPart _toolbar_widgets[] = {
+	Intermediate(1, 0),
+		Widget(WT_TEXTBUTTON, TB_GUI_QUIT, 0), SetData(STR_TOOLBAR_GUI_QUIT, STR_TOOLBAR_GUI_QUIT_PROGRAM),
+		Widget(WT_TEXTBUTTON, TB_GUI_PATHS, 0), SetData(STR_TOOLBAR_GUI_PATHS, STR_TOOLBAR_GUI_BUILD_PATHS),
+	EndContainer(),
+};
 
 
-ToolbarWindow::ToolbarWindow() : Window(WC_TOOLBAR)
+ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 {
+	this->SetupWidgetTree(_toolbar_widgets, lengthof(_toolbar_widgets));
 	this->SetSize(200, 50);
 	this->SetPosition(0, 0);
 }
