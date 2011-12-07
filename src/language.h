@@ -33,6 +33,8 @@ public:
 
 	const char *Load(const char *fname);
 
+	const char *GetText(uint16 number);
+
 	uint16 num_texts; ///< Number of strings in the language.
 	char *text;       ///< The actual text (all of it).
 	char **strings;   ///< #num_texts indices into #text.

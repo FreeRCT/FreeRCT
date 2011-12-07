@@ -98,6 +98,26 @@ const char *Language::Load(const char *fname)
 }
 
 /**
+ * Get string number \a number.
+ * @param number string number to get.
+ * @return String corresponding to the number (not owned by the caller, so don't free it).
+ */
+const char *Language::GetText(uint16 number)
+{
+	if (number < STRING_TABLE_START) {
+		switch (number) {
+			case STR_NULL:  return NULL;
+			case STR_EMPTY: return "";
+			default: NOT_REACHED();
+		}
+	}
+
+	number -= STRING_TABLE_START;
+	if (number >= this->num_texts) return "Invalid string number";
+	return this->strings[number];
+}
+
+/**
  * Initialize language support.
  * @todo Implement me.
  */
