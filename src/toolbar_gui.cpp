@@ -20,9 +20,6 @@
 class ToolbarWindow : public GuiWindow {
 public:
 	ToolbarWindow();
-	virtual ~ToolbarWindow();
-
-	virtual void OnDraw();
 };
 
 /** Widget numbers of the toolbar Gui. */
@@ -43,18 +40,10 @@ static const WidgetPart _toolbar_widgets[] = {
 ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 {
 	this->SetupWidgetTree(_toolbar_widgets, lengthof(_toolbar_widgets));
-	this->SetSize(200, 50);
-	this->SetPosition(0, 0);
+	this->SetPosition(10, 0);
+	this->MarkDirty();
 }
 
-ToolbarWindow::~ToolbarWindow()
-{
-}
-
-void ToolbarWindow::OnDraw()
-{
-	DrawPanel(this->rect);
-}
 
 /** Open the main toolbar window. */
 void ShowToolbar()
