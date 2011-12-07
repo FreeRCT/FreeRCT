@@ -406,3 +406,16 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint
 	}
 }
 
+/**
+ * Get the text-size of a string.
+ * @param text Text to calculate.
+ * @param width [out] Resulting width.
+ * @param height [out] Resulting height.
+ */
+void VideoSystem::GetTextSize(const char *text, int *width, int *height)
+{
+	if (TTF_SizeUTF8(this->font, text, width, height) != 0) {
+		*width = 0;
+		*height = 0;
+	}
+}

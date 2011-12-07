@@ -124,6 +124,8 @@ public:
 
 	void FinishRepaint();
 
+	void GetTextSize(const char *text, int *width, int *height);
+
 private:
 	bool initialized;   ///< Video system is initialized.
 	bool dirty;         ///< Video display needs being repainted.
