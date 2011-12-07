@@ -98,6 +98,36 @@ BaseWidget::BaseWidget(WidgetType wtype)
 	this->resize_x = 0;
 	this->resize_y = 0;
 	for (int i = 0; i < PAD_COUNT; i++) this->paddings[i] = 0;
+
+	switch (wtype) {
+		case WT_TITLEBAR:
+			this->fill_x = 1;
+			this->resize_x = 1;
+			break;
+
+		case WT_LEFT_TEXT:
+		case WT_CENTERED_TEXT:
+		case WT_RIGHT_TEXT:
+			this->fill_x = 1;
+			break;
+
+		case WT_TEXTBUTTON:
+			this->fill_x = 1;
+			this->fill_y = 1;
+			break;
+
+		case WT_VERT_SCROLLBAR:
+			this->fill_y = 1;
+			this->resize_y = 1;
+			break;
+
+		case WT_HOR_SCROLLBAR:
+			this->fill_x = 1;
+			this->resize_x = 1;
+			break;
+
+		default: break; // Default: Leave all zero.
+	}
 }
 
 BaseWidget::~BaseWidget()
