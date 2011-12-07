@@ -419,3 +419,58 @@ void VideoSystem::GetTextSize(const char *text, int *width, int *height)
 		*height = 0;
 	}
 }
+
+/**
+ * Blit text to the screen.
+ * @param text Text to display.
+ * @param xpos Absolute horizontal position at the display.
+ * @param ypos Absolute vertical position at the display.
+ * @param colour Colour of the text.
+ * @todo Do this much smarter.
+ */
+void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
+{
+	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
+	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, text, col);
+	if (surf == NULL) {
+		fprintf(stderr, "Rendering text failed (%s)\n", TTF_GetError());
+		return;
+	}
+
+	if (surf->format->BitsPerPixel != 8 || surf->format->BytesPerPixel != 1) {
+		fprintf(stderr, "Rendering text failed (Wrong surface format)\n");
+		return;
+	}
+
+	SDL_Surface *sdest = SDL_GetVideoSurface();
+	this->LockSurface();
+
+	uint8 *src = ((uint8 *)surf->pixels);
+	uint8 *dest = ((uint8 *)sdest->pixels) + xpos + ypos * sdest->pitch;
+	uint h = surf->h;
+	while (h > 0) {
+		if (ypos >= 0 && ypos < surf->h) {
+			uint8 *src2 = src;
+			uint8 *dest2 = dest;
+			uint w = surf->w;
+			int x = xpos;
+			while (w > 0) {
+				if (x >= 0 && x < sdest->w) {
+					if (*src2 != 0) *dest2 = colour;
+				}
+				src2++;
+				dest2++;
+				x++;
+				w--;
+			}
+		}
+		ypos++;
+		src  += surf->pitch;
+		dest += sdest->pitch;
+		h--;
+	}
+
+	this->UnlockSurface();
+	SDL_FreeSurface(surf);
+}
+

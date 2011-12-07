@@ -205,6 +205,15 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 }
 
 /**
+ * Draw the widget.
+ * @param base Base address of the window.
+ */
+/* virtual */ void BaseWidget::Draw(const Point &base)
+{
+	/* Nothing to do for WT_EMPTY */
+}
+
+/**
  * Base class leaf widget constructor.
  * @param wtype %Widget type.
  */
@@ -227,6 +236,17 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	this->InitMinimalSize(_gui_sprites.radio_button.width, _gui_sprites.radio_button.height, 0, 0);
 	this->fill_x = 0; this->fill_y = 0;
 	this->resize_x = 0; this->resize_y = 0;
+}
+
+/* virtual */ void LeafWidget::Draw(const Point &base)
+{
+	int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
+	if ((this->flags & LWF_SHADED) != 0) {
+		spr_num += WCS_SHADED_EMPTY;
+	} else if ((this->flags & LWF_PRESSED) != 0) {
+		spr_num += WCS_EMPTY_PRESSED;
+	}
+	_video->BlitImage(this->pos.base.x, this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num]);
 }
 
 /**
@@ -282,6 +302,51 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	}
 }
 
+/* virtual */ void DataWidget::Draw(const Point &base)
+{
+	const BorderSpriteData *bsd;
+	switch (this->wtype) {
+		case WT_TITLEBAR:
+			bsd = &_gui_sprites.titlebar;
+			break;
+
+		case WT_LEFT_TEXT:
+		case WT_CENTERED_TEXT:
+		case WT_RIGHT_TEXT:
+			bsd = NULL;
+			break;
+
+		case WT_TEXTBUTTON:
+		case WT_IMAGEBUTTON:
+			bsd = &_gui_sprites.button;
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+	int left = base.x + this->pos.base.x + this->paddings[PAD_LEFT];
+	int top = base.y + this->pos.base.y + this->paddings[PAD_TOP];
+	int right = base.x + this->pos.base.x + this->pos.width - this->paddings[PAD_RIGHT];
+	int bottom = base.y + this->pos.base.y + this->pos.height - this->paddings[PAD_BOTTOM];
+	if (bsd != NULL) {
+		left += bsd->border_left;
+		top += bsd->border_top;
+		right -= bsd->border_right;
+		bottom -= bsd->border_bottom;
+		assert(right - left + 1 >= 0);
+		assert(bottom - top + 1 >= 0);
+
+		Rectangle rect(left, top, right - left + 1, bottom - top + 1);
+		DrawBorderSprites(*bsd, false, rect);
+	}
+	if (this->wtype == WT_IMAGEBUTTON) {
+		// XXX const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
+	} else {
+		const char *text = _language->GetText(this->value);
+		_video->BlitText(text, left, top, 21);
+	}
+}
+
 /**
  * Scrollbar widget constructor.
  * @param wtype %Widget type.
@@ -314,6 +379,11 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 		this->resize_x = 0;
 		this->resize_y = _gui_sprites.vert_scroll.stepsize_bar;
 	}
+}
+
+/* virtual */ void ScrollbarWidget::Draw(const Point &base)
+{
+	// XXX To do.
 }
 
 /**
@@ -372,6 +442,12 @@ BackgroundWidget::~BackgroundWidget()
 		Rectangle16 rect_child(left, top, right - left, bottom - top);
 		this->child->SetSmallestSizePosition(rect_child);
 	}
+}
+
+/* virtual */ void BackgroundWidget::Draw(const Point &base)
+{
+	if (this->child != NULL) this->child->Draw(base);
+	// XXX To do
 }
 
 
@@ -618,6 +694,13 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 			left += this->columns[x].min_size;
 		}
 		top += this->rows[y].min_size;
+	}
+}
+
+/* virtual */ void IntermediateWidget::Draw(const Point &base)
+{
+	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+		this->childs[idx]->Draw(base);
 	}
 }
 

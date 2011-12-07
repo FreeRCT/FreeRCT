@@ -97,6 +97,18 @@ public:
 	}
 
 	/**
+	 * Blit pixels from the \a spr relative to \a img_base into the area.
+	 * @param x Horizontal base coordinate.
+	 * @param y Vertical base coordinate.
+	 * @param spr The sprite to blit.
+	 * @pre Surface must be locked.
+	 */
+	FORCEINLINE void BlitImage(int x, int y, const Sprite *spr)
+	{
+		this->BlitImages(x, y, spr, 1, 1);
+	}
+
+	/**
 	 * Blit a row of sprites.
 	 * @param xmin Start X position.
 	 * @param numx Number of sprites to draw.
@@ -125,6 +137,7 @@ public:
 	void FinishRepaint();
 
 	void GetTextSize(const char *text, int *width, int *height);
+	void BlitText(const char *text, int xpos, int ypos, uint8 colour);
 
 private:
 	bool initialized;   ///< Video system is initialized.
