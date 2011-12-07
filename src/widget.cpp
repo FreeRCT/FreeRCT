@@ -190,7 +190,18 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 	this->SetWidget(wid_array);
 
 	assert(this->wtype == WT_EMPTY);
-	// Do nothing (all variables are already set while converting from widget parts).
+	/* Do nothing (all variables are already set while converting from widget parts). */
+}
+
+/**
+ * Set the minimal size of the widget, and assign \a rect to the current position and size.
+ * @param rect Smallest size, and suggested position of the (entire) widget.
+ */
+/* virtual */ void BaseWidget::SetSmallestSizePosition(const Rectangle16 &rect)
+{
+	this->pos = rect;
+	this->min_x = rect.width;
+	this->min_y = rect.height;
 }
 
 /**
@@ -339,6 +350,30 @@ BackgroundWidget::~BackgroundWidget()
 	this->InitMinimalSize(&_gui_sprites.panel, this->min_x, this->min_y);
 }
 
+/* virtual */ void BackgroundWidget::SetSmallestSizePosition(const Rectangle16 &rect)
+{
+	this->pos = rect;
+	this->min_x = rect.width;
+	this->min_y = rect.height;
+
+	if (this->child != NULL) {
+		uint16 left = rect.base.x;
+		uint16 right = left + rect.width; // One pixel further than right, actually.
+		left += this->paddings[PAD_LEFT] + _gui_sprites.panel.border_left;
+		right -= this->paddings[PAD_RIGHT] - _gui_sprites.panel.border_right;
+		if (right < left) right = left;
+
+		uint16 top = rect.base.y;
+		uint16 bottom = top + rect.height; // One pixel below the bottom, actually.
+		top += this->paddings[PAD_TOP] + _gui_sprites.panel.border_top;
+		bottom -= this->paddings[PAD_BOTTOM] - _gui_sprites.panel.border_bottom;
+		if (bottom < top) bottom = top;
+
+		Rectangle16 rect_child(left, top, right - left, bottom - top);
+		this->child->SetSmallestSizePosition(rect_child);
+	}
+}
+
 
 /** Initialize the row/column data. */
 void RowColData::InitRowColData()
@@ -459,18 +494,19 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		for (uint8 y = 0; y < this->num_rows; y++) {
 			max_minsize = max(max_minsize, this->rows[y].min_size);
 		}
+		for (uint8 y = 0; y < this->num_rows; y++) {
+			if (this->rows[y].fill > 0) {
+				uint16 diff = max_minsize - this->rows[y].min_size;
+				this->rows[y].min_size += diff - diff % this->rows[y].fill;
+			}
+		}
 	}
 
 	this->min_y = this->paddings[PAD_BOTTOM];
 	this->fill_y = 0;
 	this->resize_y = 0;
 	for (uint8 y = 0; y < this->num_rows; y++) {
-		this->min_y += (y == 0) ? this->paddings[PAD_TOP] : this->paddings[PAD_VERTICAL];
-		if ((this->flags & EQS_VERTICAL) != 0 && this->rows[y].fill > 0) {
-			this->min_y += max_minsize;
-		} else {
-			this->min_y += this->rows[y].min_size;
-		}
+		this->min_y += ((y == 0) ? this->paddings[PAD_TOP] : this->paddings[PAD_VERTICAL]) + this->rows[y].min_size;
 		if (this->rows[y].fill > 0 && (this->fill_y == 0 || this->fill_y > this->rows[y].fill)) this->fill_y = this->rows[y].fill;
 		if (this->rows[y].resize > 0 && (this->resize_y == 0 || this->resize_y > this->rows[y].resize)) {
 			this->resize_y = this->rows[y].resize;
@@ -483,22 +519,105 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		for (uint8 x = 0; x < this->num_cols; x++) {
 			max_minsize = max(max_minsize, this->columns[x].min_size);
 		}
+		for (uint8 x = 0; x < this->num_cols; x++) {
+			if (this->columns[x].fill > 0) {
+				uint16 diff = max_minsize - this->columns[x].min_size;
+				this->columns[x].min_size += diff - diff % this->columns[x].fill;
+			}
+		}
 	}
 
 	this->min_x = this->paddings[PAD_RIGHT];
 	this->fill_x = 0;
 	this->resize_x = 0;
 	for (uint8 x = 0; x < this->num_cols; x++) {
-		this->min_x += (x == 0) ? this->paddings[PAD_LEFT] : this->paddings[PAD_HORIZONTAL];
-		if ((this->flags & EQS_HORIZONTAL) != 0 && this->columns[x].fill > 0) {
-			this->min_x += max_minsize;
-		} else {
-			this->min_x += this->columns[x].min_size;
-		}
+		this->min_x += ((x == 0) ? this->paddings[PAD_LEFT] : this->paddings[PAD_HORIZONTAL]) + this->columns[x].min_size;
 		if (this->columns[x].fill > 0 && (this->fill_x == 0 || this->fill_x > this->columns[x].fill)) this->fill_x = this->columns[x].fill;
 		if (this->columns[x].resize > 0 && (this->resize_x == 0 || this->resize_x > this->columns[x].resize)) {
 			this->resize_x = this->columns[x].resize;
 		}
+	}
+}
+
+/** @todo Handle RTL languages too. */
+/* virtual */ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
+{
+	this->pos = rect;
+
+	/* Distribute additional vertical size over fillable children. */
+	uint16 diff = this->paddings[PAD_BOTTOM];
+	uint8 count = 0;
+	uint16 max_step = 0;
+	for (uint8 y = 0; y < this->num_rows; y++) {
+		diff += ((y == 0) ? this->paddings[PAD_TOP] : this->paddings[PAD_VERTICAL]) + this->rows[y].min_size;
+		if (this->rows[y].fill > 0) {
+			if (count == 0 || this->rows[y].fill > max_step) max_step = this->rows[y].fill;
+			count++;
+		}
+	}
+	diff = (diff > rect.width) ? diff - rect.width : 0;
+
+	while (diff > 0 && count > 0) {
+		uint16 new_max = 0;
+		for (uint8 y = 0; y < this->num_rows; y++) {
+			if (this->rows[y].fill == 0 || this->rows[y].fill > max_step) continue;
+			if (this->rows[y].fill == max_step) {
+				uint16 increment = diff / count;
+				increment -= increment % max_step;
+				this->rows[y].min_size += increment;
+				diff -= increment;
+				count--;
+				continue;
+			}
+			new_max = max(new_max, this->rows[y].fill);
+		}
+		max_step = new_max;
+	}
+
+	/* Distribute additional horizontal size over fillable children. */
+	diff = this->paddings[PAD_RIGHT];
+	count = 0;
+	max_step = 0;
+	for (uint8 x = 0; x < this->num_cols; x++) {
+		diff += ((x == 0) ? this->paddings[PAD_LEFT] : this->paddings[PAD_HORIZONTAL]) + this->columns[x].min_size;
+		if (this->columns[x].fill > 0) {
+			if (count == 0 || this->columns[x].fill > max_step) max_step = this->columns[x].fill;
+			count++;
+		}
+	}
+	diff = (diff > rect.height) ? diff - rect.height : 0;
+
+	while (diff > 0 && count > 0) {
+		uint16 new_max = 0;
+		for (uint8 x = 0; x < this->num_cols; x++) {
+			if (this->columns[x].fill == 0 || this->columns[x].fill > max_step) continue;
+			if (this->columns[x].fill == max_step) {
+				uint16 increment = diff / count;
+				increment -= increment % max_step;
+				this->columns[x].min_size += increment;
+				diff -= increment;
+				count--;
+				continue;
+			}
+			new_max = max(new_max, this->columns[x].fill);
+		}
+		max_step = new_max;
+	}
+
+	/* Tell the children about the allocated sizes. */
+	uint16 top = rect.base.y;
+	for (uint8 y = 0; y < this->num_rows; y++) {
+		top += (y == 0) ? this->paddings[PAD_TOP] : this->paddings[PAD_VERTICAL];
+		uint16 left = rect.base.x;
+		for (uint8 x = 0; x < this->num_cols; x++) {
+			left += (x == 0) ? this->paddings[PAD_LEFT] : this->paddings[PAD_HORIZONTAL];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			Rectangle16 rect2(left, top, this->columns[x].min_size, this->rows[y].min_size);
+			bw->SetSmallestSizePosition(rect2);
+
+			left += this->columns[x].min_size;
+		}
+		top += this->rows[y].min_size;
 	}
 }
 

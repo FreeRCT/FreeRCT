@@ -118,6 +118,33 @@ struct Rectangle16 {
 		this->height = h;
 	}
 
+	/**
+	 * Copy constructor.
+	 * @param rect Rectangle to copy.
+	 */
+	Rectangle16(const Rectangle16 &rect)
+	{
+		this->base.x = rect.base.x;
+		this->base.y = rect.base.y;
+		this->width  = rect.width;
+		this->height = rect.height;
+	}
+
+	/**
+	 * Assignment operator
+	 * @param rect Rectangle to copy.
+	 */
+	Rectangle16 &operator=(const Rectangle16 &rect)
+	{
+		if (this != &rect) {
+			this->base.x = rect.base.x;
+			this->base.y = rect.base.y;
+			this->width  = rect.width;
+			this->height = rect.height;
+		}
+		return *this;
+	}
+
 	Point16 base;  ///< Base coordinate.
 	uint16 width;  ///< Width of the rectangle.
 	uint16 height; ///< Height of the rectangle.

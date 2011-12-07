@@ -58,6 +58,7 @@ public:
 	virtual ~BaseWidget();
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 
 	WidgetType wtype; ///< Widget type.
 	int16 number;     ///< Widget number.
@@ -138,6 +139,7 @@ public:
 	virtual ~BackgroundWidget();
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
@@ -165,6 +167,7 @@ public:
 	~IntermediateWidget();
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
