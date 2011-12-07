@@ -32,7 +32,6 @@ enum WidgetType {
 	WT_HOR_SCROLLBAR,  ///< Scrollbar widget.
 	WT_VERT_SCROLLBAR, ///< Scrollbar widget.
 	WT_GRID,           ///< Intermediate widget.
-	WT_REFERENCE,      ///< Reference to an existing widget.
 };
 
 /** Padding space around widgets. */
@@ -47,37 +46,25 @@ enum PaddingDirection {
 	PAD_COUNT,      ///< Number of paddings.
 };
 
-/** Base class for all widget. */
-class CoreWidget {
+/**
+ * Base class for all widgets.
+ * Also implements #WT_EMPTY, #WT_CLOSEBOX, #WT_RESIZEBOX.
+ */
+class BaseWidget {
 public:
-	CoreWidget(WidgetType wtype);
-	virtual ~CoreWidget();
+	BaseWidget(WidgetType wtype);
+	virtual ~BaseWidget();
 
 	WidgetType wtype; ///< Widget type.
 	int16 number;     ///< Widget number.
-};
 
-/** Reference to another widget. */
-class ReferenceWidget : public CoreWidget {
-public:
-	ReferenceWidget(int widnum);
-};
-
-/**
- * Base class for the displayed widgets.
- * Also implements #WT_EMPTY, #WT_CLOSEBOX, #WT_RESIZEBOX.
- */
-class BaseWidget : public CoreWidget {
-public:
-	BaseWidget(WidgetType wtype);
-
-	uint16 min_x;    ///< Minimal horizontal size.
-	uint16 min_y;    ///< Minimal vertical size.
-	Rectangle16 pos; ///< Current position and size (relative to window top-left edge).
-	uint16 fill_x;   ///< Horizontal fill step.
-	uint16 fill_y;   ///< Vertical fill step.
-	uint16 resize_x; ///< Horizontal resize step.
-	uint16 resize_y; ///< Vertical resize step.
+	uint16 min_x;     ///< Minimal horizontal size.
+	uint16 min_y;     ///< Minimal vertical size.
+	Rectangle16 pos;  ///< Current position and size (relative to window top-left edge).
+	uint16 fill_x;    ///< Horizontal fill step.
+	uint16 fill_y;    ///< Vertical fill step.
+	uint16 resize_x;  ///< Horizontal resize step.
+	uint16 resize_y;  ///< Vertical resize step.
 	uint8 paddings[PAD_COUNT]; ///< Padding.
 };
 
@@ -127,7 +114,7 @@ public:
 	BackgroundWidget(WidgetType wtype);
 	virtual ~BackgroundWidget();
 
-	CoreWidget *child; ///< Child widget displayed on top of the background widget.
+	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
 
 /** Equal size settings of child widgets. */
@@ -142,14 +129,14 @@ public:
 	IntermediateWidget(uint8 num_rows, uint8 num_cols);
 	~IntermediateWidget();
 
-	void AddChild(uint8 col, uint8 row, CoreWidget *sub);
+	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
 
 	uint8 num_rows; ///< Number of rows.
 	uint8 num_cols; ///< Number of columns.
 	uint8 flags;    ///< Equal size flags.
 
-	CoreWidget **childs; ///< Grid of child widget pointers.
+	BaseWidget **childs; ///< Grid of child widget pointers.
 };
 
 
@@ -165,7 +152,6 @@ enum WidgetPartType {
 	WPT_VERT_PIP,         ///< Set vertical PIP.
 	WPT_DATA,             ///< Additional data values.
 	WPT_EQUAL_SIZE,       ///< Define how sizing of child widgets behaves.
-	WPT_REFERENCE,        ///< Reference to another widget.
 	WPT_END_CON,          ///< End of container or row.
 };
 
@@ -188,7 +174,6 @@ public:
 			uint16 tip;       ///< Tool tip string. Use #STR_NULL for no tip.
 		} dat;                    ///< Additional data of the widget.
 		Point16 size;             ///< Data for #WPT_MIN_SIZE, #WPT_FILL, #WPT_RESIZE.
-		int16 reference;          ///< Reference to a widget.
 		uint8 flags;              ///< Equal size flags for intermediate widgets.
 		uint8 padding[PAD_COUNT]; ///< Data for #WPT_PADDING, #WPT_HOR_PIP, #WPT_VERT_PIP.
 	} data; ///< Data of the widget part.
@@ -203,10 +188,9 @@ WidgetPart SetHorPIP(uint8 pre, uint8 inter, uint8 post);
 WidgetPart SetVertPIP(uint8 pre, uint8 inter, uint8 post);
 WidgetPart SetData(uint16 data, uint16 tip);
 WidgetPart SetEqualSize(bool hor_equal, bool vert_equal);
-WidgetPart WidgetReference(int widnum);
 WidgetPart EndContainer();
 
 void DrawPanel(const Rectangle &rect);
-CoreWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest);
+BaseWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest);
 
 #endif

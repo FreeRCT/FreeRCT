@@ -76,34 +76,16 @@ void DrawPanel(const Rectangle &rect)
 	DrawBorderSprites(bsd, false, rect2);
 }
 
-/**
- * Constructor of all widgets.
- */
-CoreWidget::CoreWidget(WidgetType wtype)
-{
-	this->wtype = wtype;
-	this->number = INVALID_WIDGET_INDEX;
-}
-
-CoreWidget::~CoreWidget()
-{
-}
-
-/**
- * Reference to another widget.
- * @param widnum %Widget number of the referenced widget.
- */
-ReferenceWidget::ReferenceWidget(int widnum) : CoreWidget(WT_REFERENCE)
-{
-	this->number = widnum;
-}
 
 /**
  * Base class widget constructor.
  * @param wtype %Widget type.
  */
-BaseWidget::BaseWidget(WidgetType wtype) : CoreWidget(wtype)
+BaseWidget::BaseWidget(WidgetType wtype)
 {
+	this->wtype = wtype;
+	this->number = INVALID_WIDGET_INDEX;
+
 	this->min_x = 0;
 	this->min_y = 0;
 	this->pos.base.x = 0;
@@ -116,6 +98,10 @@ BaseWidget::BaseWidget(WidgetType wtype) : CoreWidget(wtype)
 	this->resize_x = 0;
 	this->resize_y = 0;
 	for (int i = 0; i < PAD_COUNT; i++) this->paddings[i] = 0;
+}
+
+BaseWidget::~BaseWidget()
+{
 }
 
 
@@ -187,7 +173,7 @@ void IntermediateWidget::ClaimMemory()
 	assert(this->num_cols > 0 && this->num_rows > 0);
 	assert(this->childs == NULL);
 
-	this->childs = (CoreWidget **)malloc(num_rows * num_cols * sizeof(CoreWidget **));
+	this->childs = (BaseWidget **)malloc(num_rows * num_cols * sizeof(BaseWidget **));
 	assert(this->childs != NULL);
 	for (uint8 y = 0; y < this->num_rows; y++) {
 		for (uint8 x = 0; x < this->num_cols; x++) {
@@ -201,7 +187,7 @@ IntermediateWidget::~IntermediateWidget()
 	if (this->childs != NULL) {
 		for (uint8 y = 0; y < this->num_rows; y++) {
 			for (uint8 x = 0; x < this->num_cols; x++) {
-				CoreWidget *w = this->childs[y * this->num_cols + x];
+				BaseWidget *w = this->childs[y * this->num_cols + x];
 				if (w != NULL) delete w;
 			}
 		}
@@ -215,7 +201,7 @@ IntermediateWidget::~IntermediateWidget()
  * @param y Vertical index of the child in the grid.
  * @param w Child widget to add.
  */
-void IntermediateWidget::AddChild(uint8 x, uint8 y, CoreWidget *w)
+void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 {
 	assert(x < this->num_cols && y < this->num_rows);
 	assert(this->childs[y * this->num_cols + x] == NULL);
@@ -407,40 +393,19 @@ WidgetPart EndContainer()
 }
 
 /**
- * Hook a child widget again into the intermediate widget.
- * @param widnum Widget number of the child widget.
- * @return Widget part containing the provided data for storage in an array.
- */
-WidgetPart WidgetReference(int widnum)
-{
-	WidgetPart part;
-
-	assert(widnum >= 0);
-	part.type = WPT_REFERENCE;
-	part.data.reference = widnum;
-	return part;
-}
-
-
-/**
  * Construct a widget from widget parts.
  * @param parts Base of parts array.
  * @param remaining Number of parts still available.
  * @param dest Pointer for storing the constructed widget.
  * @return Read number of parts.
  */
-static int MakeWidget(const WidgetPart *parts, int remaining, CoreWidget **dest)
+static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 {
 	int num_used = 0;
 
 	*dest = NULL;
 	while (num_used < remaining) {
 		switch (parts->type) {
-			case WPT_REFERENCE:
-				if (*dest != NULL) return num_used;
-				*dest = new ReferenceWidget(parts->data.reference);
-				return num_used + 1;
-
 			case WPT_NEW_WIDGET: {
 				if (*dest != NULL) return num_used;
 				switch (parts->data.new_widget.wtype) {
@@ -553,7 +518,7 @@ static int MakeWidget(const WidgetPart *parts, int remaining, CoreWidget **dest)
 	return num_used;
 }
 
-static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, CoreWidget **dest, int16 *biggest);
+static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget **dest, int16 *biggest);
 
 /**
  * Fill a row of an intermediate widget with its children.
@@ -565,7 +530,7 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, CoreWidget 
  * @param biggest [out] Pointer to stored biggest widget index number.
  * @return Number of used parts.
  */
-static int FillWidgetRow(const WidgetPart *parts, int remaining_parts, CoreWidget **widgets, int remaining_widgets, uint8 *cols, int16 *biggest)
+static int FillWidgetRow(const WidgetPart *parts, int remaining_parts, BaseWidget **widgets, int remaining_widgets, uint8 *cols, int16 *biggest)
 {
 	int total_used = 0;
 
@@ -609,13 +574,13 @@ static int FillWidget(const WidgetPart *parts, int remaining_parts, Intermediate
 	int total_used = 0;
 
 	static const int MAX_CHILDS = 500;
-	CoreWidget *grid[500];
+	BaseWidget *grid[500];
 	for (int i = 0; i < 500; i++) grid[i] = NULL;
 
 	bool need_claim_memory = wid->num_rows == 0 || wid->num_cols == 0;
 
 	int remaining_widgets = MAX_CHILDS;
-	CoreWidget **widgets = &grid[0];
+	BaseWidget **widgets = &grid[0];
 	uint8 r = 0;
 	for (;;) {
 		int used = FillWidgetRow(parts, remaining_parts, widgets, remaining_widgets, &wid->num_cols, biggest);
@@ -662,7 +627,7 @@ static int FillWidget(const WidgetPart *parts, int remaining_parts, Intermediate
  * @param biggest [out] Pointer to stored biggest widget index number.
  * @return Number of used parts for the tree.
  */
-static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, CoreWidget **dest, int16 *biggest)
+static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget **dest, int16 *biggest)
 {
 	int total_used = 0;
 
@@ -705,9 +670,9 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, CoreWidget 
  * @param biggest [out] Pointer to stored biggest widget index number.
  * @return Constructed widget tree.
  */
-CoreWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest)
+BaseWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest)
 {
-	CoreWidget *root = NULL;
+	BaseWidget *root = NULL;
 	*biggest = INVALID_WIDGET_INDEX;
 	MakeWidgetSubTree(parts, length, &root, biggest);
 	return root;
