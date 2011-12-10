@@ -148,6 +148,8 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	}
 
 	this->tree->SetupMinimalSize(this->widgets);
+	this->rect = Rectangle32(0, 0, this->tree->min_x, this->tree->min_y);
+
 	Rectangle16 min_rect(0, 0, this->tree->min_x, this->tree->min_y);
 	this->tree->SetSmallestSizePosition(min_rect);
 }
