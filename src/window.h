@@ -31,8 +31,9 @@ enum MouseButtons {
 	MB_MIDDLE = 2, ///< Middle button down.
 	MB_RIGHT  = 4, ///< Right button down.
 
-	MB_CURRENT  = 0x07, ///< Bitmask for current mouse state.
-	MB_PREVIOUS = 0x70, ///< Bitmask for previous mouse state.
+	MB_CURRENT    = 0x07, ///< Bitmask for current mouse state.
+	MB_PREVIOUS   = 0x70, ///< Bitmask for previous mouse state.
+	MB_PREV_SHIFT = 4,    ///< Amount of shifting to get previous mouse state.
 };
 DECLARE_ENUM_AS_BIT_SET(MouseButtons)
 
@@ -118,6 +119,8 @@ private:
 };
 
 extern WindowManager _manager;
+
+bool IsLeftClick(uint8 state);
 
 void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype);
