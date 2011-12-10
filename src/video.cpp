@@ -50,7 +50,7 @@ ClippedRectangle::ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h)
  * @param y Topleft y position.
  * @param w Width.
  * @param h Height.
- * @note Rectangle is clipped to the old one.
+ * @note %Rectangle is clipped to the old one.
  */
 ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 y, uint16 w, uint16 h)
 {
@@ -76,7 +76,7 @@ ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 
  * Construct an area based on a rectangle.
  * @param rect %Rectangle to use as source.
  */
-ClippedRectangle::ClippedRectangle(const Rectangle &rect)
+ClippedRectangle::ClippedRectangle(const Rectangle32 &rect)
 {
 	this->absx   = (rect.base.x >= 0) ? (uint16)rect.base.x : 0;
 	this->absy   = (rect.base.y >= 0) ? (uint16)rect.base.y : 0;
@@ -288,7 +288,7 @@ void VideoSystem::FinishRepaint()
  * @pre Surface must be locked.
  * @todo Make it use #ClippedRectangle too.
  */
-void VideoSystem::FillSurface(uint8 colour, const Rectangle &rect)
+void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
 {
 	SDL_Surface *s = SDL_GetVideoSurface();
 

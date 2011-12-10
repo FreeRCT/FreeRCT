@@ -24,7 +24,7 @@
  * @param rect Content rectangle to draw around.
  * @todo [??] Similarly, needing to state the bounding box 'screen' seems weird and is not the right solution.
  */
-static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle &rect)
+static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect)
 {
 	Point32 pt;
 	const Sprite * const *spr_base = pressed ? bsd.pressed : bsd.normal;
@@ -322,7 +322,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		assert(right - left + 1 >= 0);
 		assert(bottom - top + 1 >= 0);
 
-		Rectangle rect(left, top, right - left + 1, bottom - top + 1);
+		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
 		DrawBorderSprites(*bsd, false, rect);
 	}
 	if (this->wtype == WT_IMAGEBUTTON) {

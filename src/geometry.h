@@ -53,9 +53,9 @@ FORCEINLINE bool operator==(const Point<CT> &p, const Point<CT> &q)
 }
 
 /** An area in 2D using 32 bit coordinates. */
-struct Rectangle {
+struct Rectangle32 {
 	/** Default constructor. */
-	Rectangle()
+	Rectangle32()
 	{
 		this->base.x = 0;
 		this->base.y = 0;
@@ -70,7 +70,7 @@ struct Rectangle {
 	 * @param w Width of the rectangle.
 	 * @param h Height of the rectangle.
 	 */
-	Rectangle(int32 x, int32 y, int32 w, int32 h)
+	Rectangle32(int32 x, int32 y, int32 w, int32 h)
 	{
 		this->base.x = x;
 		this->base.y = y;
@@ -83,7 +83,7 @@ struct Rectangle {
 	 * @param rect Other rectangle.
 	 * @return Rectangles intersect with each other.
 	 */
-	bool Intersects(const Rectangle &rect) const
+	bool Intersects(const Rectangle32 &rect) const
 	{
 		if (rect.base.x >= this->base.x + this->width) return false;
 		if (rect.base.x + rect.width <= this->base.x) return false;
@@ -125,7 +125,7 @@ struct Rectangle16 {
 
 	/**
 	 * Copy constructor.
-	 * @param rect Rectangle to copy.
+	 * @param rect %Rectangle to copy.
 	 */
 	Rectangle16(const Rectangle16 &rect)
 	{
@@ -137,7 +137,7 @@ struct Rectangle16 {
 
 	/**
 	 * Assignment operator
-	 * @param rect Rectangle to copy.
+	 * @param rect %Rectangle to copy.
 	 */
 	Rectangle16 &operator=(const Rectangle16 &rect)
 	{

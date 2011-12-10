@@ -53,7 +53,7 @@ public:
 	Window(WindowTypes wtype);
 	virtual ~Window();
 
-	Rectangle rect;    ///< Screen area covered by the window.
+	Rectangle32 rect;  ///< Screen area covered by the window.
 	WindowTypes wtype; ///< %Window type.
 
 	Window *higher; ///< %Window above this window (managed by #WindowManager).

@@ -73,7 +73,7 @@ public:
 	ViewOrientation orient;       ///< Direction of view.
 	const SpriteStorage *sprites; ///< Sprite collection of the right size.
 
-	Rectangle rect; ///< Screen area of interest.
+	Rectangle32 rect; ///< Screen area of interest.
 
 protected:
 	/**

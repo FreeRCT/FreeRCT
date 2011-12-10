@@ -25,7 +25,7 @@ public:
 	ClippedRectangle();
 	ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h);
 	ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 y, uint16 w, uint16 h);
-	ClippedRectangle(const Rectangle &rect);
+	ClippedRectangle(const Rectangle32 &rect);
 
 	ClippedRectangle(const ClippedRectangle &cr);
 	ClippedRectangle &operator=(const ClippedRectangle &cr);
@@ -83,7 +83,7 @@ public:
 
 	void LockSurface();
 	void UnlockSurface();
-	void FillSurface(uint8 colour, const Rectangle &rect);
+	void FillSurface(uint8 colour, const Rectangle32 &rect);
 
 	/**
 	 * Blit pixels from the \a spr relative to \a img_base into the area.
@@ -145,7 +145,7 @@ private:
 
 	TTF_Font *font;             ///< Opened text font.
 	SDL_Surface *video;         ///< Video surface.
-	ClippedRectangle blit_rect; ///< Rectangle to blit in.
+	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
 };
 
 extern VideoSystem *_video;
