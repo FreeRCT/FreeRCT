@@ -12,11 +12,20 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-/** A 2D point in space. */
-struct Point32 {
-	int32 x; ///< X coordinate.
-	int32 y; ///< Y coordinate.
+/**
+ * Generic point template.
+ * @tparam CT Type of the coordinates.
+ */
+template <typename CT>
+struct Point {
+	typedef CT CoordType; ///< Type of the coordinate value.
+
+	CT x; ///< X coordinate.
+	CT y; ///< Y coordinate.
 };
+
+typedef Point<int32> Point32; ///< 32 bit 2D point.
+typedef Point<int16> Point16; ///< 16 bit 2D point.
 
 /**
  * Test for point order.
@@ -24,17 +33,12 @@ struct Point32 {
  * @param q Second point to compare.
  * @return Points \a p is less than point \a q.
  */
-FORCEINLINE bool operator<(const Point32 &p, const Point32 &q)
+template <typename CT>
+FORCEINLINE bool operator<(const Point<CT> &p, const Point<CT> &q)
 {
 	if (p.x != q.x) return p.x < q.x;
 	return p.y < q.y;
 }
-
-/** A 2D point in space with 16 bit precision. */
-struct Point16 {
-	int16 x; ///< X coordinate.
-	int16 y; ///< Y coordinate.
-};
 
 /**
  * Test for point equality.
@@ -42,7 +46,8 @@ struct Point16 {
  * @param q Second point to compare.
  * @return Points are logically equal (same x and y position).
  */
-FORCEINLINE bool operator==(const Point16 &p, const Point16 &q)
+template <typename CT>
+FORCEINLINE bool operator==(const Point<CT> &p, const Point<CT> &q)
 {
 	return p.x == q.x && p.y == q.y;
 }
