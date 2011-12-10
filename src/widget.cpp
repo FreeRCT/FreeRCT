@@ -62,20 +62,6 @@ static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const R
 	_video->BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy);
 }
 
-/**
- * Draw a panel at the given coordinates.
- * @param rect Outer rectangle to draw in.
- * @todo [difficult] Outer rectangle does not sound very useful in general.
- */
-void DrawPanel(const Rectangle &rect)
-{
-	const BorderSpriteData &bsd = _gui_sprites.panel;
-	Rectangle rect2(rect.base.x + bsd.border_left, rect.base.y + bsd.border_top,
-			rect.width - bsd.border_left -  bsd.border_right, rect.height - bsd.border_top - bsd.border_bottom);
-
-	DrawBorderSprites(bsd, false, rect2);
-}
-
 
 /**
  * Base class widget constructor.

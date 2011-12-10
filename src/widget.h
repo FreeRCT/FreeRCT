@@ -238,7 +238,6 @@ WidgetPart SetData(uint16 data, uint16 tip);
 WidgetPart SetEqualSize(bool hor_equal, bool vert_equal);
 WidgetPart EndContainer();
 
-void DrawPanel(const Rectangle &rect);
 BaseWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest);
 
 #endif
