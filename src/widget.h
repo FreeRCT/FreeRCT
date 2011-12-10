@@ -101,6 +101,60 @@ public:
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void Draw(const Point32 &base);
 
+	/**
+	 * Is the 'checked' flag on?
+	 * @return whether the 'checked' flag is set.
+	 */
+	bool IsChecked() const
+	{
+		return (this->flags & LWF_CHECKED) != 0;
+	}
+
+	/**
+	 * Is the 'pressed' flag on?
+	 * @return whether the 'pressed' flag is set.
+	 */
+	bool IsPressed() const
+	{
+		return (this->flags & LWF_PRESSED) != 0;
+	}
+
+	/**
+	 * Is the 'shaded' flag on?
+	 * @return whether the 'shaded' flag is set.
+	 */
+	bool IsShaded() const
+	{
+		return (this->flags & LWF_SHADED) != 0;
+	}
+
+	/**
+	 * Set the 'checked' flag to the new value.
+	 * @param value New value of the 'checked' flag.
+	 */
+	void SetChecked(bool value)
+	{
+		this->flags = (value) ? (this->flags | LWF_CHECKED) : (this->flags & ~LWF_CHECKED);
+	}
+
+	/**
+	 * Set the 'pressed' flag to the new value.
+	 * @param value New value of the 'pressed' flag.
+	 */
+	void SetPressed(bool value)
+	{
+		this->flags = (value) ? (this->flags | LWF_PRESSED) : (this->flags & ~LWF_PRESSED);
+	}
+
+	/**
+	 * Set the 'shaded' flag to the new value.
+	 * @param value New value of the 'shaded' flag.
+	 */
+	void SetShaded(bool value)
+	{
+		this->flags = (value) ? (this->flags | LWF_SHADED) : (this->flags & ~LWF_SHADED);
+	}
+
 	uint8 flags;    ///< Flags of the leaf widget. @see LeafWidgetFlags
 	uint8 colour;   ///< Colour of the widget.
 	uint16 tooltip; ///< Tool-tip of the widget.
