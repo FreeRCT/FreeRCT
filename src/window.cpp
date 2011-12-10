@@ -118,6 +118,8 @@ void Window::MarkDirty()
  */
 GuiWindow::GuiWindow(WindowTypes wtype) : Window(wtype)
 {
+	this->mouse_pos.x = -1;
+	this->mouse_pos.y = -1;
 	this->tree = NULL;
 	this->widgets = NULL;
 }
@@ -169,6 +171,32 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	this->tree->Draw(this->rect.base);
 }
 
+/* virtual */ void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
+{
+	this->mouse_pos = pos;
+}
+
+/* virtual */ void GuiWindow::OnMouseButtonEvent(uint8 state)
+{
+	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return;
+
+	BaseWidget *bw = this->tree->GetWidgetByPosition(this->mouse_pos);
+	if (bw != NULL && bw->number >= 0) this->OnClick(bw->number);
+}
+
+/* virtual */ void GuiWindow::OnMouseLeaveEvent()
+{
+	this->mouse_pos.x = -1;
+	this->mouse_pos.y = -1;
+}
+
+/**
+ * A click with the left button at a widget has been detected.
+ * @param widget %Widget number.
+ */
+/* virtual */ void GuiWindow::OnClick(int16 widget)
+{
+}
 
 /**
  * %Window manager default constructor.

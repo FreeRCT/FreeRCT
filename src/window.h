@@ -82,11 +82,18 @@ public:
 
 	virtual void SetSize(uint width, uint height);
 
+	virtual void OnMouseMoveEvent(const Point16 &pos);
+	virtual void OnMouseButtonEvent(uint8 state);
+	virtual void OnMouseLeaveEvent();
+
 protected:
+	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
 	BaseWidget *tree;     ///< Tree of widgets.
 	BaseWidget **widgets; ///< Array of widgets with a non-negative index.
 
 	void SetupWidgetTree(const WidgetPart *parts, int length);
+
+	virtual void OnClick(int16 widget);
 };
 
 

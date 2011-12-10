@@ -60,6 +60,7 @@ public:
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const Point32 &base);
+	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 
 	WidgetType wtype; ///< Widget type.
 	int16 number;     ///< Widget number.
@@ -174,6 +175,7 @@ public:
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const Point32 &base);
+	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();

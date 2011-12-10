@@ -200,6 +200,17 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 }
 
 /**
+ * Get the widget at the given relative window position.
+ * @param pt Relative point.
+ * @return The widget underneath the point, or \c NULL.
+ */
+/* virtual */ BaseWidget *BaseWidget::GetWidgetByPosition(const Point16 &pt)
+{
+	if (this->pos.IsPointInside(pt)) return this;
+	return NULL;
+}
+
+/**
  * Base class leaf widget constructor.
  * @param wtype %Widget type.
  */
@@ -690,6 +701,17 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	}
 }
 
+/* virtual */ BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
+{
+	BaseWidget *res = NULL;
+	if (this->pos.IsPointInside(pt)) {
+		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+			res = this->childs[idx]->GetWidgetByPosition(pt);
+			if (res != NULL) break;
+		}
+	}
+	return res;
+}
 
 
 /**
