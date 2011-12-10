@@ -52,10 +52,15 @@ FORCEINLINE bool operator==(const Point<CT> &p, const Point<CT> &q)
 	return p.x == q.x && p.y == q.y;
 }
 
-/** An area in 2D using 32 bit coordinates. */
-struct Rectangle32 {
+/**
+ * An area in 2D.
+ * @tparam PT Base point type.
+ * @tparam SZ Size type.
+ */
+template <typename PT, typename SZ>
+struct Rectangle {
 	/** Default constructor. */
-	Rectangle32()
+	Rectangle()
 	{
 		this->base.x = 0;
 		this->base.y = 0;
@@ -70,52 +75,7 @@ struct Rectangle32 {
 	 * @param w Width of the rectangle.
 	 * @param h Height of the rectangle.
 	 */
-	Rectangle32(int32 x, int32 y, int32 w, int32 h)
-	{
-		this->base.x = x;
-		this->base.y = y;
-		this->width  = w;
-		this->height = h;
-	}
-
-	/**
-	 * Do the rectangles intersect with each other?
-	 * @param rect Other rectangle.
-	 * @return Rectangles intersect with each other.
-	 */
-	bool Intersects(const Rectangle32 &rect) const
-	{
-		if (rect.base.x >= this->base.x + this->width) return false;
-		if (rect.base.x + rect.width <= this->base.x) return false;
-		if (rect.base.y >= this->base.y + this->height) return false;
-		if (rect.base.y + rect.height <= this->base.y) return false;
-		return true;
-	}
-
-	Point32 base; ///< Base coordinate.
-	int32 width;  ///< Width of the rectangle.
-	int32 height; ///< Height of the rectangle.
-};
-
-/** An area in 2D using 16 bit coordinates. */
-struct Rectangle16 {
-	/** Default constructor. */
-	Rectangle16()
-	{
-		this->base.x = 0;
-		this->base.y = 0;
-		this->width  = 0;
-		this->height = 0;
-	}
-
-	/**
-	 * Construct a rectangle with the given data.
-	 * @param x X position of the top-left edge.
-	 * @param y Y position of the top-left edge.
-	 * @param w Width of the rectangle.
-	 * @param h Height of the rectangle.
-	 */
-	Rectangle16(int16 x, int16 y, uint16 w, uint16 h)
+	Rectangle(typename PT::CoordType x, typename PT::CoordType y, SZ w, SZ h)
 	{
 		this->base.x = x;
 		this->base.y = y;
@@ -127,7 +87,7 @@ struct Rectangle16 {
 	 * Copy constructor.
 	 * @param rect %Rectangle to copy.
 	 */
-	Rectangle16(const Rectangle16 &rect)
+	Rectangle(const Rectangle<PT, SZ> &rect)
 	{
 		this->base.x = rect.base.x;
 		this->base.y = rect.base.y;
@@ -139,7 +99,7 @@ struct Rectangle16 {
 	 * Assignment operator
 	 * @param rect %Rectangle to copy.
 	 */
-	Rectangle16 &operator=(const Rectangle16 &rect)
+	Rectangle &operator=(const Rectangle<PT, SZ> &rect)
 	{
 		if (this != &rect) {
 			this->base.x = rect.base.x;
@@ -150,11 +110,26 @@ struct Rectangle16 {
 		return *this;
 	}
 
-	Point16 base;  ///< Base coordinate.
-	uint16 width;  ///< Width of the rectangle.
-	uint16 height; ///< Height of the rectangle.
+	/**
+	 * Do the rectangles intersect with each other?
+	 * @param rect Other rectangle.
+	 * @return Rectangles intersect with each other.
+	 */
+	bool Intersects(const Rectangle<PT, SZ> &rect) const
+	{
+		if (rect.base.x >= this->base.x + this->width) return false;
+		if (rect.base.x + rect.width <= this->base.x) return false;
+		if (rect.base.y >= this->base.y + this->height) return false;
+		if (rect.base.y + rect.height <= this->base.y) return false;
+		return true;
+	}
+
+	PT base;   ///< Base coordinate.
+	SZ width;  ///< Width of the rectangle.
+	SZ height; ///< Height of the rectangle.
 };
 
-
+typedef Rectangle<Point16, uint16> Rectangle16; ///< %Rectangle with 16 bit values.
+typedef Rectangle<Point32, uint32> Rectangle32; ///< %Rectangle with 16 bit values.
 
 #endif
