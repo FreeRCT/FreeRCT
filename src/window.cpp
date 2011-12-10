@@ -282,10 +282,7 @@ Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 {
 	Window *w = this->top;
 	while (w != NULL) {
-		if (pos.x > w->rect.base.x
-				&& pos.y > w->rect.base.y
-				&& pos.x < w->rect.base.x + (int)w->rect.width
-				&& pos.y < w->rect.base.y + (int)w->rect.height) break;
+		if (w->rect.IsPointInside(pos)) break;
 		w = w->lower;
 	}
 	return w;

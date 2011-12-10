@@ -124,6 +124,20 @@ struct Rectangle {
 		return true;
 	}
 
+	/**
+	 * Is a given coordinate inside the rectangle?
+	 * @param pt %Point to test.
+	 * @tparam CT Coordinate type of the point (implicit).
+	 * @return The given coordinate is inside the rectangle.
+	 */
+	template <typename CT>
+	bool IsPointInside(const Point<CT> &pt)
+	{
+		if (this->base.x > pt.x || this->base.x + (typename PT::CoordType)this->width  <= pt.x) return false;
+		if (this->base.y > pt.y || this->base.y + (typename PT::CoordType)this->height <= pt.y) return false;
+		return true;
+	}
+
 	PT base;   ///< Base coordinate.
 	SZ width;  ///< Width of the rectangle.
 	SZ height; ///< Height of the rectangle.
