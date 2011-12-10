@@ -93,7 +93,7 @@ protected:
 struct DrawData {
 	const Sprite *spr;    ///< %Sprite to draw.
 	const Sprite *cursor; ///< Mouse cursor to draw.
-	Point base;           ///< Base coordinate of the image, relative to top-left of the window.
+	Point32 base;         ///< Base coordinate of the image, relative to top-left of the window.
 };
 
 /**
@@ -518,7 +518,7 @@ void Viewport::MoveViewport(int dx, int dy)
  */
 void Viewport::ChangeTerrain(int direction)
 {
-	Point p;
+	Point32 p;
 	p.x = 0;
 	p.y = 0;
 	TerrainChanges changes(p, _world.GetXSize(), _world.GetYSize());

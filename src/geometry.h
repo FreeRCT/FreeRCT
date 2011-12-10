@@ -13,7 +13,7 @@
 #define GEOMETRY_H
 
 /** A 2D point in space. */
-struct Point {
+struct Point32 {
 	int32 x; ///< X coordinate.
 	int32 y; ///< Y coordinate.
 };
@@ -24,7 +24,7 @@ struct Point {
  * @param q Second point to compare.
  * @return Points \a p is less than point \a q.
  */
-FORCEINLINE bool operator<(const Point &p, const Point &q)
+FORCEINLINE bool operator<(const Point32 &p, const Point32 &q)
 {
 	if (p.x != q.x) return p.x < q.x;
 	return p.y < q.y;
@@ -87,7 +87,7 @@ struct Rectangle {
 		return true;
 	}
 
-	Point base;    ///< Base coordinate.
+	Point32 base; ///< Base coordinate.
 	int32 width;  ///< Width of the rectangle.
 	int32 height; ///< Height of the rectangle.
 };

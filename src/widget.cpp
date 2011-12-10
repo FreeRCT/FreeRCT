@@ -26,7 +26,7 @@
  */
 static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle &rect)
 {
-	Point pt;
+	Point32 pt;
 	const Sprite * const *spr_base = pressed ? bsd.pressed : bsd.normal;
 
 	pt.x = rect.base.x;
@@ -194,7 +194,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * Draw the widget.
  * @param base Base address of the window.
  */
-/* virtual */ void BaseWidget::Draw(const Point &base)
+/* virtual */ void BaseWidget::Draw(const Point32 &base)
 {
 	/* Nothing to do for WT_EMPTY */
 }
@@ -224,7 +224,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	this->resize_x = 0; this->resize_y = 0;
 }
 
-/* virtual */ void LeafWidget::Draw(const Point &base)
+/* virtual */ void LeafWidget::Draw(const Point32 &base)
 {
 	int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
 	if ((this->flags & LWF_SHADED) != 0) {
@@ -288,7 +288,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	}
 }
 
-/* virtual */ void DataWidget::Draw(const Point &base)
+/* virtual */ void DataWidget::Draw(const Point32 &base)
 {
 	const BorderSpriteData *bsd;
 	switch (this->wtype) {
@@ -367,7 +367,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 	}
 }
 
-/* virtual */ void ScrollbarWidget::Draw(const Point &base)
+/* virtual */ void ScrollbarWidget::Draw(const Point32 &base)
 {
 	// XXX To do.
 }
@@ -430,7 +430,7 @@ BackgroundWidget::~BackgroundWidget()
 	}
 }
 
-/* virtual */ void BackgroundWidget::Draw(const Point &base)
+/* virtual */ void BackgroundWidget::Draw(const Point32 &base)
 {
 	if (this->child != NULL) this->child->Draw(base);
 	// XXX To do
@@ -683,7 +683,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	}
 }
 
-/* virtual */ void IntermediateWidget::Draw(const Point &base)
+/* virtual */ void IntermediateWidget::Draw(const Point32 &base)
 {
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 		this->childs[idx]->Draw(base);

@@ -91,7 +91,7 @@ public:
 	 * @param spr The sprite to blit.
 	 * @pre Surface must be locked.
 	 */
-	FORCEINLINE void BlitImage(const Point &img_base, const Sprite *spr)
+	FORCEINLINE void BlitImage(const Point32 &img_base, const Sprite *spr)
 	{
 		this->BlitImages(img_base.x, img_base.y, spr, 1, 1);
 	}

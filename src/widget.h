@@ -59,7 +59,7 @@ public:
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const Point &base);
+	virtual void Draw(const Point32 &base);
 
 	WidgetType wtype; ///< Widget type.
 	int16 number;     ///< Widget number.
@@ -98,7 +98,7 @@ public:
 	LeafWidget(WidgetType wtype);
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
-	virtual void Draw(const Point &base);
+	virtual void Draw(const Point32 &base);
 
 	uint8 flags;    ///< Flags of the leaf widget. @see LeafWidgetFlags
 	uint8 colour;   ///< Colour of the widget.
@@ -114,7 +114,7 @@ public:
 	DataWidget(WidgetType wtype);
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
-	virtual void Draw(const Point &base);
+	virtual void Draw(const Point32 &base);
 
 	uint16 value; ///< String number or sprite id.
 };
@@ -128,7 +128,7 @@ public:
 	ScrollbarWidget(WidgetType wtype);
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
-	virtual void Draw(const Point &base);
+	virtual void Draw(const Point32 &base);
 
 	int16 canvas_widget; ///< Widget number of the canvas.
 };
@@ -144,7 +144,7 @@ public:
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const Point &base);
+	virtual void Draw(const Point32 &base);
 
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
@@ -173,7 +173,7 @@ public:
 
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const Point &base);
+	virtual void Draw(const Point32 &base);
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();

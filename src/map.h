@@ -231,25 +231,25 @@ struct GroundData {
 };
 
 /** Map of voxels to ground modification data. */
-typedef std::map<Point, GroundData> GroundModificationMap;
+typedef std::map<Point32, GroundData> GroundModificationMap;
 
 /** Store and manage terrain changes. */
 class TerrainChanges {
 public:
-	TerrainChanges(const Point &base, uint16 xsize, uint16 ysize);
+	TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize);
 	~TerrainChanges();
 
-	bool ChangeCorner(const Point &pos, TileSlope corner, int direction);
+	bool ChangeCorner(const Point32 &pos, TileSlope corner, int direction);
 	void ChangeWorld(int direction);
 
 private:
-	Point base;   ///< Base position of the smooth changing world.
+	Point32 base; ///< Base position of the smooth changing world.
 	uint16 xsize; ///< Horizontal size of the smooth changing world.
 	uint16 ysize; ///< Vertical size of the smooth changing world.
 
 	GroundModificationMap changes; ///< Registered changes.
 
-	GroundData *GetGroundData(const Point &pos);
+	GroundData *GetGroundData(const Point32 &pos);
 };
 
 extern VoxelWorld _world;

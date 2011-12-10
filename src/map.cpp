@@ -255,7 +255,7 @@ bool GroundData::GetCornerModified(TileSlope corner) const
  * @param xsize Horizontal size of the world part.
  * @param ysize Vertical size of the world part.
  */
-TerrainChanges::TerrainChanges(const Point &base, uint16 xsize, uint16 ysize)
+TerrainChanges::TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize)
 {
 	assert(base.x >= 0 && base.y >= 0 && xsize > 0 && ysize > 0
 			&& base.x + xsize <= _world.GetXSize() && base.y + ysize <= _world.GetYSize());
@@ -274,7 +274,7 @@ TerrainChanges::~TerrainChanges()
  * @param pos Voxel stack position.
  * @return Pointer to the ground data, or \c NULL if outside the world.
  */
-GroundData *TerrainChanges::GetGroundData(const Point &pos)
+GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 {
 	if (pos.x < this->base.x || pos.x >= this->base.x + this->xsize) return NULL;
 	if (pos.y < this->base.y || pos.y >= this->base.y + this->ysize) return NULL;
@@ -286,7 +286,7 @@ GroundData *TerrainChanges::GetGroundData(const Point &pos)
 		assert(v != NULL && v->GetType() == VT_SURFACE);
 		const SurfaceVoxelData *svd = v->GetSurface();
 		assert(svd->ground.type != GTP_INVALID);
-		std::pair<Point, GroundData> p(pos, GroundData(height, ExpandTileSlope(svd->ground.slope)));
+		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(svd->ground.slope)));
 		iter = this->changes.insert(p).first;
 	}
 	return &(*iter).second;
@@ -300,7 +300,7 @@ GroundData *TerrainChanges::GetGroundData(const Point &pos)
  * @param direction Direction of change.
  * @return Change is OK for the map.
  */
-bool TerrainChanges::ChangeCorner(const Point &pos, TileSlope corner, int direction)
+bool TerrainChanges::ChangeCorner(const Point32 &pos, TileSlope corner, int direction)
 {
 	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
 	assert(direction == 1 || direction == -1);
@@ -330,7 +330,7 @@ bool TerrainChanges::ChangeCorner(const Point &pos, TileSlope corner, int direct
 
 	for (uint i = 0; i < 3; i++) {
 		const VoxelCorner &vc = neighbours[corner].neighbour_tiles[i];
-		Point pos2;
+		Point32 pos2;
 		pos2.x = pos.x + vc.rel_xy.x;
 		pos2.y = pos.y + vc.rel_xy.y;
 		gd = this->GetGroundData(pos2);
@@ -348,7 +348,7 @@ bool TerrainChanges::ChangeCorner(const Point &pos, TileSlope corner, int direct
 void TerrainChanges::ChangeWorld(int direction)
 {
 	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); iter++) {
-		const Point &pos = (*iter).first;
+		const Point32 &pos = (*iter).first;
 		const GroundData &gd = (*iter).second;
 		if (gd.modified == 0) continue;
 
