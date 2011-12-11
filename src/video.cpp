@@ -426,6 +426,7 @@ void VideoSystem::GetTextSize(const char *text, int *width, int *height)
  * @param xpos Absolute horizontal position at the display.
  * @param ypos Absolute vertical position at the display.
  * @param colour Colour of the text.
+ * @pre Surfaces must be locked before calling this function.
  * @todo Do this much smarter.
  */
 void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
@@ -443,7 +444,6 @@ void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
 	}
 
 	SDL_Surface *sdest = SDL_GetVideoSurface();
-	this->LockSurface();
 
 	uint8 *src = ((uint8 *)surf->pixels);
 	uint8 *dest = ((uint8 *)sdest->pixels) + xpos + ypos * sdest->pitch;
@@ -470,7 +470,6 @@ void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
 		h--;
 	}
 
-	this->UnlockSurface();
 	SDL_FreeSurface(surf);
 }
 
