@@ -112,6 +112,7 @@ public:
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);
 	void MouseWheelEvent(int direction);
+	void Tick();
 
 	Window *top;        ///< Top-most window in the window stack.
 	Window *bottom;     ///< Lowest window in the window stack.

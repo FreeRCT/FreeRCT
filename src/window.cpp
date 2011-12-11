@@ -416,6 +416,12 @@ void UpdateWindows()
 	_video->FinishRepaint();
 }
 
+/** A tick has passed, update whatever must be updated. */
+void WindowManager::Tick()
+{
+	UpdateWindows();
+}
+
 /**
  * Find an opened window by window type.
  * @param wtype %Window type to look for.

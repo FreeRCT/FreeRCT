@@ -101,7 +101,7 @@ int main(void)
 	bool finished = false;
 	while (!finished) {
 		/* For every frame do... */
-		UpdateWindows();
+		_manager.Tick();
 
 		bool next_frame = false;
 		while (!next_frame) {
