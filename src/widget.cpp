@@ -447,6 +447,17 @@ BackgroundWidget::~BackgroundWidget()
 	// XXX To do
 }
 
+/* virtual */ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
+{
+	if (this->pos.IsPointInside(pt)) {
+		if (this->child != NULL) {
+			BaseWidget *res = this->child->GetWidgetByPosition(pt);
+			if (res != NULL) return res;
+		}
+		return this;
+	}
+	return NULL;
+}
 
 /** Initialize the row/column data. */
 void RowColData::InitRowColData()

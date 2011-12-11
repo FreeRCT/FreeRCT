@@ -200,6 +200,7 @@ public:
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const Point32 &base);
+	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
