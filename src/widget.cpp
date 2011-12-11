@@ -263,7 +263,8 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 {
 	this->SetWidget(wid_array);
 
-	const BorderSpriteData *bsd;
+	const BorderSpriteData *bsd = NULL;
+	uint8 pressable = 0; // Add extra space for a pressable widget.
 	switch (this->wtype) {
 		case WT_TITLEBAR:
 			bsd = &_gui_sprites.titlebar;
@@ -272,12 +273,12 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		case WT_LEFT_TEXT:
 		case WT_CENTERED_TEXT:
 		case WT_RIGHT_TEXT:
-			bsd = NULL;
 			break;
 
 		case WT_TEXTBUTTON:
 		case WT_IMAGEBUTTON:
 			bsd = &_gui_sprites.button;
+			pressable = 1;
 			break;
 
 		default:
@@ -286,22 +287,23 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 
 	if (this->wtype == WT_IMAGEBUTTON) {
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-		this->InitMinimalSize(bsd, imgdata->width, imgdata->height);
+		this->InitMinimalSize(bsd, imgdata->width + pressable, imgdata->height + pressable);
 	} else {
 		int width, height;
 		const char *text = _language->GetText(this->value);
 		_video->GetTextSize(text, &width, &height);
 		if (bsd != NULL) {
-			this->InitMinimalSize(bsd, width, height);
+			this->InitMinimalSize(bsd, width + pressable, height + pressable);
 		} else {
-			this->InitMinimalSize(width, height, 0, 0);
+			this->InitMinimalSize(width + pressable, height + pressable, 0, 0);
 		}
 	}
 }
 
 /* virtual */ void DataWidget::Draw(const Point32 &base)
 {
-	const BorderSpriteData *bsd;
+	const BorderSpriteData *bsd = NULL;
+	uint8 pressed = 0;
 	switch (this->wtype) {
 		case WT_TITLEBAR:
 			bsd = &_gui_sprites.titlebar;
@@ -310,12 +312,12 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		case WT_LEFT_TEXT:
 		case WT_CENTERED_TEXT:
 		case WT_RIGHT_TEXT:
-			bsd = NULL;
 			break;
 
 		case WT_TEXTBUTTON:
 		case WT_IMAGEBUTTON:
 			bsd = &_gui_sprites.button;
+			pressed = this->IsPressed() ? 1 : 0;
 			break;
 
 		default:
@@ -334,13 +336,13 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		assert(bottom - top + 1 >= 0);
 
 		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
-		DrawBorderSprites(*bsd, false, rect);
+		DrawBorderSprites(*bsd, (pressed != 0), rect);
 	}
 	if (this->wtype == WT_IMAGEBUTTON) {
 		// XXX const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 	} else {
 		const char *text = _language->GetText(this->value);
-		_video->BlitText(text, left, top, 21);
+		_video->BlitText(text, left + pressed, top + pressed, 21);
 	}
 }
 
