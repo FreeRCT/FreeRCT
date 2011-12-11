@@ -35,6 +35,7 @@ bool IsLeftClick(uint8 state)
  */
 Window::Window(WindowTypes wtype) : rect(0, 0, 0, 0), wtype(wtype)
 {
+	this->timeout = 0;
 	this->higher = NULL;
 	this->lower  = NULL;
 
@@ -112,6 +113,12 @@ void Window::MarkDirty()
 /* virtual */ void Window::OnMouseLeaveEvent() { }
 
 /**
+ * Timeout callback.
+ * Called when #timeout decremented to 0.
+ */
+/* virtual */ void Window::TimeoutCallback() { }
+
+/**
  * Gui window constructor.
  * @param wtype %Window type (for finding a window in the stack).
  * @note Initialize the widget tree from the derived window class.
@@ -181,7 +188,16 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return;
 
 	BaseWidget *bw = this->tree->GetWidgetByPosition(this->mouse_pos);
-	if (bw != NULL && bw->number >= 0) this->OnClick(bw->number);
+	if (bw != NULL) {
+		LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
+		if (lw != NULL) {
+			/* 'Press' the button, and set a timeout for 'releasing' it again. */
+			lw->SetPressed(true);
+			this->timeout = 4;
+		}
+		if (bw->number >= 0) this->OnClick(bw->number);
+		this->MarkDirty();
+	}
 }
 
 /* virtual */ void GuiWindow::OnMouseLeaveEvent()
@@ -196,6 +212,11 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  */
 /* virtual */ void GuiWindow::OnClick(int16 widget)
 {
+}
+
+/* virtual */ void GuiWindow::TimeoutCallback()
+{
+	this->tree->RaiseButtons(this->rect.base);
 }
 
 /**
@@ -419,6 +440,15 @@ void UpdateWindows()
 /** A tick has passed, update whatever must be updated. */
 void WindowManager::Tick()
 {
+	Window *w = _manager.top;
+	while (w != NULL) {
+		if (w->timeout > 0) {
+			w->timeout--;
+			if (w->timeout == 0) w->TimeoutCallback();
+		}
+		w = w->lower;
+	}
+
 	UpdateWindows();
 }
 

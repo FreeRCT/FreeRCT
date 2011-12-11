@@ -57,6 +57,11 @@ public:
 	Rectangle32 rect;  ///< Screen area covered by the window.
 	WindowTypes wtype; ///< %Window type.
 
+	/**
+	 * Timeout counter.
+	 * Decremented on each iteration. When it reaches 0, #TimeoutCallback is called.
+	 */
+	uint8 timeout;
 	Window *higher; ///< %Window above this window (managed by #WindowManager).
 	Window *lower;  ///< %Window below this window (managed by #WindowManager).
 
@@ -71,6 +76,8 @@ public:
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
+
+	virtual void TimeoutCallback();
 };
 
 /** Base class for windows with a widget tree. */
@@ -85,6 +92,7 @@ public:
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual void OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseLeaveEvent();
+	virtual void TimeoutCallback();
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
