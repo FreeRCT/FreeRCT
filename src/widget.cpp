@@ -211,6 +211,14 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 }
 
 /**
+ * Raise all buttons in the tree.
+ * @param base Base position of the window.
+ */
+/* virtual */ void BaseWidget::RaiseButtons(const Point32 &base)
+{
+}
+
+/**
  * Base class leaf widget constructor.
  * @param wtype %Widget type.
  */
@@ -244,6 +252,14 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 		spr_num += WCS_EMPTY_PRESSED;
 	}
 	_video->BlitImage(this->pos.base.x, this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num]);
+}
+
+/* virtual */ void LeafWidget::RaiseButtons(const Point32 &base)
+{
+	if (this->IsPressed()) {
+		this->SetPressed(false);
+		_video->MarkDisplayDirty(); // XXX base + this->pos;
+	}
 }
 
 /**
@@ -459,6 +475,11 @@ BackgroundWidget::~BackgroundWidget()
 		return this;
 	}
 	return NULL;
+}
+
+/* virtual */ void BackgroundWidget::RaiseButtons(const Point32 &base)
+{
+	if (this->child != NULL) this->child->RaiseButtons(base);
 }
 
 /** Initialize the row/column data. */
@@ -724,6 +745,13 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		}
 	}
 	return res;
+}
+
+/* virtual */ void IntermediateWidget::RaiseButtons(const Point32 &base)
+{
+	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+		this->childs[idx]->RaiseButtons(base);
+	}
 }
 
 
