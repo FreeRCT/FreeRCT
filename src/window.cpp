@@ -79,7 +79,7 @@ void Window::SetPosition(int x, int y)
  */
 void Window::MarkDirty()
 {
-	_video->MarkDisplayDirty();
+	_video->MarkDisplayDirty(this->rect);
 }
 
 /**
@@ -194,9 +194,9 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 			/* 'Press' the button, and set a timeout for 'releasing' it again. */
 			lw->SetPressed(true);
 			this->timeout = 4;
+			lw->MarkDirty(this->rect.base);
 		}
 		if (bw->number >= 0) this->OnClick(bw->number);
-		this->MarkDirty();
 	}
 }
 

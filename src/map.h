@@ -233,7 +233,10 @@ struct GroundData {
 /** Map of voxels to ground modification data. */
 typedef std::map<Point32, GroundData> GroundModificationMap;
 
-/** Store and manage terrain changes. */
+/**
+ * Store and manage terrain changes.
+ * @todo Enable pulling the screen min/max coordinates from it, so we can give a good estimate of the area to redraw.
+ */
 class TerrainChanges {
 public:
 	TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize);

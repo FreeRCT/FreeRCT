@@ -66,17 +66,8 @@ public:
 		return this->dirty;
 	}
 
-	/** Mark the display as being out of date (it needs the be repainted). */
-	FORCEINLINE void MarkDisplayDirty()
-	{
-		this->dirty = true;
-	}
-
-	/** Mark the display as being up-to-date. */
-	FORCEINLINE void MarkDisplayClean()
-	{
-		this->dirty = false;
-	}
+	void MarkDisplayDirty();
+	void MarkDisplayDirty(const Rectangle32 &rect);
 
 	void SetClippedRectangle(const ClippedRectangle &cr);
 	ClippedRectangle GetClippedRectangle();
@@ -146,6 +137,8 @@ private:
 	TTF_Font *font;             ///< Opened text font.
 	SDL_Surface *video;         ///< Video surface.
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
+
+	void MarkDisplayClean();
 };
 
 extern VideoSystem *_video;

@@ -219,6 +219,16 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 }
 
 /**
+ * Denote the widget as being needed to redraw.
+ * @param base %Window base coordinate.
+ */
+void BaseWidget::MarkDirty(const Point32 &base)
+{
+	Rectangle32 rect = Rectangle32(base.x + this->pos.base.x, base.y + this->pos.base.y, this->pos.width, this->pos.height);
+	_video->MarkDisplayDirty(rect);
+}
+
+/**
  * Base class leaf widget constructor.
  * @param wtype %Widget type.
  */
@@ -258,7 +268,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 {
 	if (this->IsPressed()) {
 		this->SetPressed(false);
-		_video->MarkDisplayDirty(); // XXX base + this->pos;
+		this->MarkDirty(base);
 	}
 }
 

@@ -177,6 +177,28 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	return true;
 }
 
+/** Mark the entire display as being out of date (it needs the be repainted). */
+void VideoSystem::MarkDisplayDirty()
+{
+	this->dirty = true;
+}
+
+/**
+ * Mark the stated area of the screen as being out of date.
+ * @param rect %Rectangle which is out of date.
+ * @todo Keep an administration of the rectangle(s??) to update, and update just that part.
+ */
+void VideoSystem::MarkDisplayDirty(const Rectangle32 &rect)
+{
+	this->dirty = true;
+}
+
+/** Mark the display as being up-to-date. */
+void VideoSystem::MarkDisplayClean()
+{
+	this->dirty = false;
+}
+
 /**
  * Set the clipped area.
  * @param cr New clipped blitting area.

@@ -429,7 +429,10 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	_video->SetClippedRectangle(cr);
 }
 
-/** Compute position of the mouse cursor, and update the display if necessary. */
+/**
+ * Compute position of the mouse cursor, and update the display if necessary.
+ * @todo It may be possible to give a more accurate estimate of what parts of the screen to redraw.
+ */
 void Viewport::ComputeCursorPosition()
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
