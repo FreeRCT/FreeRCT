@@ -93,12 +93,14 @@ def add_checkbox(im, rcd, wid_type, coords):
     chk = Checkbox(wid_type, imgs)
     rcd.add_block(chk)
 
+# x1/x2 are both part of the sprite, so width is 1 longer
 def _width(x1, y1, x2, y2):
-    if x1 > x2: return x1 - x2
-    return x2 - x1
+    if x1 > x2: return x1 - x2 + 1
+    return x2 - x1 + 1
+# y1/y2 are both part of the sprite, so height is 1 longer
 def _height(x1, y1, x2, y2):
-    if y1 > y2: return y1 - y2
-    return y2 - y1
+    if y1 > y2: return y1 - y2 + 1
+    return y2 - y1 + 1
 
 def _sumwidth_seq(imgdata, seq):
     """
@@ -120,7 +122,7 @@ def _minwidth(imgdata):
              _sumwidth_seq(imgdata, ['bottom-left', 'bottom-middle', 'bottom-right'])])
     s = s - imgdata['left-border'] - imgdata['right-border']
     assert s > 0
-    return 0
+    return s
 
 def _minheight(imgdata):
     s = min([_sumheight_seq(imgdata, ['top-left', 'left', 'bottom-left']),
@@ -128,7 +130,7 @@ def _minheight(imgdata):
              _sumheight_seq(imgdata, ['top-right', 'right', 'bottom-right'])])
     s = s - imgdata['top-border'] - imgdata['bottom-border']
     assert s > 0
-    return 0
+    return s
 
 def _hor_stepsize(imgdata):
     sizes = [_width(*imgdata['top-middle']),
