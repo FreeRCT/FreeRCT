@@ -78,10 +78,15 @@ ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 
  */
 ClippedRectangle::ClippedRectangle(const Rectangle32 &rect)
 {
-	this->absx   = (rect.base.x >= 0) ? (uint16)rect.base.x : 0;
-	this->absy   = (rect.base.y >= 0) ? (uint16)rect.base.y : 0;
-	this->width  = (rect.width  >= 0) ? (uint16)rect.width  : 0;
-	this->height = (rect.height >= 0) ? (uint16)rect.height : 0;
+	int32 left   = max(0, rect.base.x);
+	int32 right  = max(left, rect.base.x + (int32)rect.width);
+	int32 top    = max(0, rect.base.y);
+	int32 bottom = max(top, rect.base.y + (int32)rect.height);
+
+	this->absx   = left;
+	this->absy   = top;
+	this->width  = right - left;
+	this->height = bottom - top;
 	this->address = NULL; this->pitch = 0;
 }
 
@@ -308,26 +313,120 @@ void VideoSystem::FinishRepaint()
  * @param colour Colour to fill with.
  * @param rect %Rectangle to fill.
  * @pre Surface must be locked.
- * @todo Make it use #ClippedRectangle too.
  */
 void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
 {
-	SDL_Surface *s = SDL_GetVideoSurface();
+	ClippedRectangle cr = this->GetClippedRectangle();
 
-	int x = Clamp((int)rect.base.x, 0, s->w);
-	int w = Clamp((int)(rect.base.x + rect.width), 0, s->w);
-	int y = Clamp((int)rect.base.y, 0, s->h);
-	int h = Clamp((int)(rect.base.y + rect.height), 0, s->h);
+	int x = Clamp((int)rect.base.x, 0, (int)cr.width);
+	int w = Clamp((int)(rect.base.x + rect.width), 0, (int)cr.width);
+	int y = Clamp((int)rect.base.y, 0, (int)cr.height);
+	int h = Clamp((int)(rect.base.y + rect.height), 0, (int)cr.height);
 
 	w -= x;
 	h -= y;
 	if (w == 0 || h == 0) return;
 
-	uint8 *pixels = ((uint8 *)s->pixels) + x + y * s->pitch;
+	uint8 *pixels = cr.address + x + y * cr.pitch;
 	while (h > 0) {
 		memset(pixels, colour, w);
-		pixels += s->pitch;
+		pixels += cr.pitch;
 		h--;
+	}
+}
+
+/**
+ * Blit pixels from the \a spr relative to #blit_rect into the area.
+ * @param img_base Coordinate of the sprite data.
+ * @param spr The sprite to blit.
+ * @pre Surface must be locked.
+ */
+void VideoSystem::BlitImage(const Point32 &img_base, const Sprite *spr)
+{
+	this->BlitImage(img_base.x + spr->xoffset, img_base.y + spr->yoffset, spr->img_data);
+}
+
+/**
+ * Blit pixels from the \a spr relative to #blit_rect into the area.
+ * @param x Horizontal base coordinate.
+ * @param y Vertical base coordinate.
+ * @param spr The sprite to blit.
+ * @pre Surface must be locked.
+ */
+void VideoSystem::BlitImage(int x, int y, const Sprite *spr)
+{
+	this->BlitImage(x + spr->xoffset, y + spr->yoffset, spr->img_data);
+}
+
+/**
+ * Blit an image at the specified position (top-left position) relative to #blit_rect.
+ * @param x Horizontal position.
+ * @param y Vertical position.
+ * @pre Surface must be locked.
+ */
+void VideoSystem::BlitImage(int x, int y, const ImageData *img)
+{
+	int im_left = 0;
+	int im_top = 0;
+	int im_right = img->width;
+	int im_bottom = img->height;
+	if (x < 0) {
+		im_left = -x;
+		if (im_left >= im_right) return;
+		x = 0;
+	}
+	if (y < 0) {
+		im_top = -y;
+		if (im_top >= im_bottom) return;
+		y = 0;
+	}
+
+	this->blit_rect.ValidateAddress();
+	if (x >= this->blit_rect.width || y >= this->blit_rect.height) return;
+
+	if (x + im_right > this->blit_rect.width) {
+		im_right = this->blit_rect.width - x;
+		if (im_left >= im_right) return;
+	}
+	if (y + im_bottom > this->blit_rect.height) {
+		im_bottom = this->blit_rect.height - y;
+		if (im_top >= im_bottom) return;
+	}
+
+	uint8 *base = this->blit_rect.address + x + y * this->blit_rect.pitch;
+	for (; im_top < im_bottom; im_top++) {
+		uint8 *dest = base;
+		uint32 offset = img->table[im_top];
+		if (offset == ImageData::INVALID_JUMP) continue;
+
+		int xpos = 0;
+		for (;;) {
+			uint8 rel_off = img->data[offset];
+			uint8 count   = img->data[offset + 1];
+			uint8 *pixels = &img->data[offset + 2];
+			offset += 2 + count;
+
+			if (xpos + (rel_off & 127) >= im_left) {
+				if (xpos >= im_left) {
+					dest += (rel_off & 127);
+				} else {
+					dest += (rel_off & 127) + xpos - im_left;
+				}
+			}
+			xpos += rel_off & 127;
+
+			for (; count > 0; count--) {
+				if (xpos >= im_right) break;
+				if (xpos >= im_left) {
+					*dest = *pixels;
+					dest++;
+				}
+				xpos++;
+				pixels++;
+			}
+			if (xpos >= im_right || (rel_off & 128) != 0) break;
+		}
+		base += this->blit_rect.pitch;
 	}
 }
 
@@ -449,7 +548,6 @@ void VideoSystem::GetTextSize(const char *text, int *width, int *height)
  * @param ypos Absolute vertical position at the display.
  * @param colour Colour of the text.
  * @pre Surfaces must be locked before calling this function.
- * @todo Do this much smarter.
  */
 void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
 {
@@ -465,30 +563,36 @@ void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
 		return;
 	}
 
-	SDL_Surface *sdest = SDL_GetVideoSurface();
+	this->blit_rect.ValidateAddress();
 
 	uint8 *src = ((uint8 *)surf->pixels);
-	uint8 *dest = ((uint8 *)sdest->pixels) + xpos + ypos * sdest->pitch;
-	uint h = surf->h;
+	uint8 *dest = this->blit_rect.address + xpos + ypos * this->blit_rect.pitch;
+	int h = surf->h;
+	if (ypos < 0) {
+		h += ypos;
+		ypos = 0;
+	}
 	while (h > 0) {
-		if (ypos >= 0 && ypos < surf->h) {
-			uint8 *src2 = src;
-			uint8 *dest2 = dest;
-			uint w = surf->w;
-			int x = xpos;
-			while (w > 0) {
-				if (x >= 0 && x < sdest->w) {
-					if (*src2 != 0) *dest2 = colour;
-				}
-				src2++;
-				dest2++;
-				x++;
-				w--;
-			}
+		if (ypos >= this->blit_rect.height) break;
+		uint8 *src2 = src;
+		uint8 *dest2 = dest;
+		int w = surf->w;
+		int x = xpos;
+		if (x < 0) {
+			w += x;
+			x = 0;
+		}
+		while (w > 0) {
+			if (x >= this->blit_rect.width) break;
+			if (*src2 != 0) *dest2 = colour;
+			src2++;
+			dest2++;
+			x++;
+			w--;
 		}
 		ypos++;
 		src  += surf->pitch;
-		dest += sdest->pitch;
+		dest += this->blit_rect.pitch;
 		h--;
 	}
 

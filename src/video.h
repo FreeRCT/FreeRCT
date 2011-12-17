@@ -17,6 +17,7 @@
 #include "geometry.h"
 
 class Sprite;
+class ImageData;
 class PaletteData;
 
 /** Clipped rectangle. */
@@ -76,28 +77,9 @@ public:
 	void UnlockSurface();
 	void FillSurface(uint8 colour, const Rectangle32 &rect);
 
-	/**
-	 * Blit pixels from the \a spr relative to \a img_base into the area.
-	 * @param img_base Base coordinate of the sprite data.
-	 * @param spr The sprite to blit.
-	 * @pre Surface must be locked.
-	 */
-	FORCEINLINE void BlitImage(const Point32 &img_base, const Sprite *spr)
-	{
-		this->BlitImages(img_base.x, img_base.y, spr, 1, 1);
-	}
-
-	/**
-	 * Blit pixels from the \a spr relative to \a img_base into the area.
-	 * @param x Horizontal base coordinate.
-	 * @param y Vertical base coordinate.
-	 * @param spr The sprite to blit.
-	 * @pre Surface must be locked.
-	 */
-	FORCEINLINE void BlitImage(int x, int y, const Sprite *spr)
-	{
-		this->BlitImages(x, y, spr, 1, 1);
-	}
+	void BlitImage(const Point32 &img_base, const Sprite *spr);
+	void BlitImage(int x, int y, const Sprite *spr);
+	void BlitImage(int x, int y, const ImageData *img);
 
 	/**
 	 * Blit a row of sprites.
