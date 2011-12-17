@@ -142,10 +142,10 @@ void BaseWidget::InitMinimalSize(uint16 content_width, uint16 content_height, ui
 void BaseWidget::InitMinimalSize(const BorderSpriteData *bsd, uint16 content_width, uint16 content_height)
 {
 	content_width = max(content_width, bsd->min_width);
-	if (bsd->hor_stepsize > 0) content_width = bsd->min_width + (content_width - bsd->min_width + bsd->hor_stepsize - 1) % bsd->hor_stepsize;
+	if (bsd->hor_stepsize > 0) content_width = bsd->min_width + (content_width - bsd->min_width + bsd->hor_stepsize - 1) / bsd->hor_stepsize;
 
 	content_height = max(content_height, bsd->min_height);
-	if (bsd->vert_stepsize > 0) content_height = bsd->min_height + (content_height - bsd->min_height + bsd->vert_stepsize - 1) % bsd->vert_stepsize;
+	if (bsd->vert_stepsize > 0) content_height = bsd->min_height + (content_height - bsd->min_height + bsd->vert_stepsize - 1) / bsd->vert_stepsize;
 
 	this->InitMinimalSize(content_width, content_height,  bsd->border_left + bsd->border_right, bsd->border_top + bsd->border_bottom);
 	this->fill_x = LeastCommonMultiple(this->fill_x, bsd->hor_stepsize);
@@ -175,8 +175,24 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
-	assert(this->wtype == WT_EMPTY);
-	/* Do nothing (all variables are already set while converting from widget parts). */
+	switch (this->wtype) {
+		case WT_EMPTY:
+			/* Do nothing (all variables are already set while converting from widget parts). */
+			break;
+
+		case WT_CLOSEBOX:
+		case WT_RESIZEBOX:
+			this->min_x = max((uint16)10, this->min_x);
+			this->min_y = max((uint16)10, this->min_y);
+			this->fill_x = 0;
+			this->fill_y = 1;
+			this->resize_x = 0;
+			this->resize_y = 0;
+			break;
+
+		default:
+			NOT_REACHED();
+	}
 }
 
 /**
@@ -261,7 +277,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	} else if ((this->flags & LWF_PRESSED) != 0) {
 		spr_num += WCS_EMPTY_PRESSED;
 	}
-	_video->BlitImage(this->pos.base.x, this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num]);
+	_video->BlitImage(base.x + this->pos.base.x, base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num]);
 }
 
 /* virtual */ void LeafWidget::RaiseButtons(const Point32 &base)
@@ -313,7 +329,12 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 
 	if (this->wtype == WT_IMAGEBUTTON) {
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-		this->InitMinimalSize(bsd, imgdata->width + pressable, imgdata->height + pressable);
+		if (imgdata != NULL) {
+			this->InitMinimalSize(bsd, imgdata->width + pressable, imgdata->height + pressable);
+		} else {
+			/* Weird/unknown image, just draw an empty box. */
+			this->InitMinimalSize(bsd, 10 + pressable, 10 + pressable);
+		}
 	} else {
 		int width, height;
 		const char *text = _language->GetText(this->value);
@@ -365,7 +386,8 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		DrawBorderSprites(*bsd, (pressed != 0), rect);
 	}
 	if (this->wtype == WT_IMAGEBUTTON) {
-		// XXX const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
+		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
+		if (imgdata != NULL) _video->BlitImage(left + pressed, top + pressed, imgdata);
 	} else {
 		const char *text = _language->GetText(this->value);
 		_video->BlitText(text, left + pressed, top + pressed, 21);
@@ -471,8 +493,21 @@ BackgroundWidget::~BackgroundWidget()
 
 /* virtual */ void BackgroundWidget::Draw(const Point32 &base)
 {
+	int left = base.x + this->pos.base.x + this->paddings[PAD_LEFT];
+	int top = base.y + this->pos.base.y + this->paddings[PAD_TOP];
+	int right = base.x + this->pos.base.x + this->pos.width - this->paddings[PAD_RIGHT];
+	int bottom = base.y + this->pos.base.y + this->pos.height - this->paddings[PAD_BOTTOM];
+	left += _gui_sprites.panel.border_left;
+	top += _gui_sprites.panel.border_top;
+	right -= _gui_sprites.panel.border_right;
+	bottom -= _gui_sprites.panel.border_bottom;
+	assert(right - left + 1 >= 0);
+	assert(bottom - top + 1 >= 0);
+
+	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
+	DrawBorderSprites(_gui_sprites.panel, false, rect);
+
 	if (this->child != NULL) this->child->Draw(base);
-	// XXX To do
 }
 
 /* virtual */ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
@@ -672,7 +707,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 			count++;
 		}
 	}
-	diff = (diff > rect.width) ? diff - rect.width : 0;
+	diff = (diff < rect.height) ? rect.height - diff : 0;
 
 	while (diff > 0 && count > 0) {
 		uint16 new_max = 0;
@@ -702,7 +737,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 			count++;
 		}
 	}
-	diff = (diff > rect.height) ? diff - rect.height : 0;
+	diff = (diff < rect.width) ? rect.width - diff : 0;
 
 	while (diff > 0 && count > 0) {
 		uint16 new_max = 0;
