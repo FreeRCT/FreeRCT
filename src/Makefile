@@ -16,7 +16,7 @@ INCLUDES=-I/usr/include/SDL
 LIBS=-lSDL -lSDL_ttf
 
 CXXFILES=config_reader.cpp fileio.cpp language.cpp main.cpp map.cpp math_func.cpp \
-	palette.cpp path.cpp \
+	palette.cpp path.cpp path_gui.cpp \
 	sprite_store.cpp string_func.cpp toolbar_gui.cpp video.cpp \
 	viewport.cpp widget.cpp window.cpp
 

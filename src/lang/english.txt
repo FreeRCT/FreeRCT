@@ -10,8 +10,8 @@ STR_TOOLBAR_GUI_BUILD_PATHS                     :Build paths and queues.
 
 # Path gui strings
 STR_PATH_GUI_TITLE                              :Paths
-STR_PATH_GUI_FOLLOW_GROUND                      :Follow the ground.
-STR_PATH_GUI_FREE_BUILD                         :Build anywhere.
+STR_PATH_GUI_FOLLOW_GROUND                      :Follow the ground
+STR_PATH_GUI_FREE_BUILD                         :Build anywhere
 STR_PATH_GUI_BULLDOZER_TIP                      :Click to remove the last built path and get your money back
                                                  (works until you close the window).
 STR_PATH_GUI_SLOPE_DOWN                         :Build path downwards.

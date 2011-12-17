@@ -21,8 +21,9 @@ class WidgetPart;
 
 /** Available types of windows. */
 enum WindowTypes {
-	WC_MAINDISPLAY, ///< Main display of the world.
-	WC_TOOLBAR,     ///< Main toolbar.
+	WC_MAINDISPLAY,  ///< Main display of the world.
+	WC_TOOLBAR,      ///< Main toolbar.
+	WC_PATH_BUILDER, ///< Path build gui.
 };
 
 /** Known mouse buttons. */
@@ -143,5 +144,6 @@ Window *GetWindowByType(WindowTypes wtype);
 
 Viewport *ShowMainDisplay();
 void ShowToolbar();
+void ShowPathBuildGui();
 
 #endif

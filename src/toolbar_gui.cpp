@@ -20,6 +20,8 @@
 class ToolbarWindow : public GuiWindow {
 public:
 	ToolbarWindow();
+
+	virtual void OnClick(int16 number);
 };
 
 /** Widget numbers of the toolbar Gui. */
@@ -44,6 +46,18 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 	this->MarkDirty();
 }
 
+/* virtual */ void ToolbarWindow::OnClick(int16 number)
+{
+	switch (number) {
+		case TB_GUI_QUIT:
+			// Todo: Popup a 'Quit?' dialogue window.
+			break;
+
+		case TB_GUI_PATHS:
+			ShowPathBuildGui();
+			break;
+	}
+}
 
 /** Open the main toolbar window. */
 void ShowToolbar()
