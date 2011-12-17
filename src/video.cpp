@@ -362,6 +362,7 @@ void VideoSystem::BlitImage(int x, int y, const Sprite *spr)
  * Blit an image at the specified position (top-left position) relative to #blit_rect.
  * @param x Horizontal position.
  * @param y Vertical position.
+ * @param img The sprite image data to blit.
  * @pre Surface must be locked.
  */
 void VideoSystem::BlitImage(int x, int y, const ImageData *img)

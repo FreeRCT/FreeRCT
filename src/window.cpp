@@ -21,7 +21,7 @@ WindowManager _manager; ///< %Window manager.
 
 /**
  * Does the mouse button state express a left-click?
- * @param Mouse button state (as given in #Window::OnMouseButtonEvent).
+ * @param state Mouse button state (as given in #Window::OnMouseButtonEvent).
  * @return The state expresses a left button click down event.
  */
 bool IsLeftClick(uint8 state)
