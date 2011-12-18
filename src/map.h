@@ -22,7 +22,10 @@ static const int WORLD_Y_SIZE = 128;        ///< Maximal length of the Y side (N
 static const int MAX_VOXEL_STACK_SIZE = 64; ///< At most a stack of 64 voxels.
 
 
-/** Types of voxels. */
+/**
+ * Types of voxels.
+ * @ingroup map_group
+ */
 enum VoxelType {
 	VT_EMPTY,     ///< Empty voxel.
 	VT_SURFACE,   ///< %Voxel contains path and/or earthy surface.
@@ -30,13 +33,19 @@ enum VoxelType {
 	VT_REFERENCE, ///< %Voxel contains part of the referenced voxel.
 };
 
-/** Description of ground. */
+/**
+ * Description of ground.
+ * @ingroup map_group
+ */
 struct GroundVoxelData {
 	uint8 type;  ///< Type of ground.
 	uint8 slope; ///< Slope of the ground (imploded);
 };
 
-/** Description of foundation. */
+/**
+ * Description of foundation.
+ * @ingroup map_group
+ */
 struct FoundationVoxelData {
 	uint8 type;  ///< Type of foundation.
 	uint8 slope; ///< Slopes of the foundation (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
@@ -45,6 +54,7 @@ struct FoundationVoxelData {
 /**
  * Description of the earth surface (combined ground and foundations).
  * @note As steep slopes are two voxels high, they have a reference voxel above them.
+ * @ingroup map_group
  */
 struct SurfaceVoxelData {
 	GroundVoxelData     ground;     ///< Ground sprite at this location.
@@ -55,6 +65,7 @@ struct SurfaceVoxelData {
  * Description of a referenced voxel.
  * For structures larger than a single voxel, only the base voxel contains a description.
  * The other voxels reference to the base voxel for their sprites.
+ * @ingroup map_group
  */
 struct ReferenceVoxelData {
 	uint16 xpos; ///< Base voxel X coordinate.
@@ -66,6 +77,7 @@ struct ReferenceVoxelData {
  * One voxel cell in the world.
  * @todo Handle #VT_COASTER voxels.
  * @todo handle paths in a #VT_SURFACE voxel.
+ * @ingroup map_group
  */
 struct Voxel {
 public:
@@ -150,6 +162,7 @@ public:
 
 /**
  * One column of voxels.
+ * @ingroup map_group
  */
 class VoxelStack {
 public:
@@ -168,6 +181,7 @@ protected:
 
 /**
  * A world of voxels.
+ * @ingroup map_group
  */
 class VoxelWorld {
 public:
@@ -217,7 +231,10 @@ private:
 	VoxelStack stacks[WORLD_X_SIZE * WORLD_Y_SIZE]; ///< All voxel stacks in the world.
 };
 
-/** Ground data + modification storage. */
+/**
+ * Ground data + modification storage.
+ * @ingroup map_group
+ */
 struct GroundData {
 	uint8 height;     ///< Height of the voxel with ground.
 	uint8 orig_slope; ///< Original slope data.
@@ -230,12 +247,16 @@ struct GroundData {
 	void SetCornerModified(TileSlope corner);
 };
 
-/** Map of voxels to ground modification data. */
+/**
+ * Map of voxels to ground modification data.
+ * @ingroup map_group
+ */
 typedef std::map<Point32, GroundData> GroundModificationMap;
 
 /**
  * Store and manage terrain changes.
  * @todo Enable pulling the screen min/max coordinates from it, so we can give a good estimate of the area to redraw.
+ * @ingroup map_group
  */
 class TerrainChanges {
 public:

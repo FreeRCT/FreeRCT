@@ -32,6 +32,7 @@
  * If not #TCB_STEEP, at most three of the four #TCB_NORTH, #TCB_EAST,
  * #TCB_SOUTH, and #TCB_WEST may be set. If #TCB_STEEP, the top corner is
  * indicated by a corner bit.
+ * @ingroup map_group
  */
 enum TileSlope {
 	SL_FLAT = 0,  ///< Flat slope.
@@ -53,7 +54,10 @@ DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
 static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a surface tile.
 
-/** Edges of a tile, starts at NE direction, and rotates clockwise. */
+/**
+ * Edges of a tile, starts at NE direction, and rotates clockwise.
+ * @ingroup map_group
+ */
 enum TileEdge {
 	EDGE_NE,    ///< North-east edge.
 	EDGE_SE,    ///< South-east edge.
@@ -68,6 +72,7 @@ enum TileEdge {
  * Expand a slope sprite number to its bit-encoded form for easier manipulating.
  * @param v %Sprite slope number.
  * @return Expanded slope.
+ * @ingroup map_group
  */
 FORCEINLINE TileSlope ExpandTileSlope(uint8 v)
 {
@@ -79,6 +84,7 @@ FORCEINLINE TileSlope ExpandTileSlope(uint8 v)
  * Implode an expanded slope back to its sprite number.
  * @param s Expanded slope to implode.
  * @return Equivalent sprite number.
+ * @ingroup map_group
  */
 FORCEINLINE uint8 ImplodeTileSlope(TileSlope s)
 {
@@ -89,7 +95,10 @@ FORCEINLINE uint8 ImplodeTileSlope(TileSlope s)
 	return 18;
 }
 
-/** Available ground types. */
+/**
+ * Available ground types.
+ * @ingroup map_group
+ */
 enum GroundType {
 	GTP_GRASS0,      ///< Short grass type.
 	GTP_GRASS1,      ///< Normal grass type.
@@ -103,7 +112,10 @@ enum GroundType {
 	GTP_INVALID,     ///< Invalid ground type.
 };
 
-/** Types of foundations. */
+/**
+ * Types of foundations.
+ * @ingroup map_group
+ */
 enum FoundationType {
 	FDT_GROUND, ///< Bare (ground) foundation type.
 	FDT_WOOD,   ///< %Foundation is covered with wood.
@@ -114,7 +126,10 @@ enum FoundationType {
 	FDT_INVALID, ///< Invalid foundation type.
 };
 
-/** Path and track slopes. */
+/**
+ * Path and track slopes.
+ * @ingroup map_group
+ */
 enum TrackSlope {
 	TSL_DOWN,                            ///< Gently down.
 	TSL_FLAT,                            ///< Horizontal slope.

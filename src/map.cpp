@@ -9,13 +9,24 @@
 
 /** @file map.cpp Voxels of the world. */
 
+/**
+ * @defgroup map_group World map data and code
+ */
+
 #include "stdafx.h"
 #include "map.h"
 #include "memory.h"
 
-VoxelWorld _world; ///< The game world.
+/**
+ * The game world.
+ * @ingroup map_group
+ */
+VoxelWorld _world;
 
-/** Structure describing a corner at a voxel stack. */
+/**
+ * Structure describing a corner at a voxel stack.
+ * @ingroup map_group
+ */
 struct VoxelCorner {
 	Point16 rel_xy;   ///< Relative voxel stack position.
 	TileSlope corner; ///< Corner of the voxel (#TC_NORTH, #TC_EAST, #TC_SOUTH or #TC_WEST).
@@ -26,6 +37,7 @@ struct VoxelCorner {
  * #left_neighbour and #right_neighbour are neighbours at the same tile, while
  * #neighbour_tiles list neighbouring corners at the three tiles around the
  * corner.
+ * @ingroup map_group
  */
 struct CornerNeighbours {
 	TileSlope left_neighbour;       ///< Left neighbouring corner.
@@ -33,7 +45,10 @@ struct CornerNeighbours {
 	VoxelCorner neighbour_tiles[3]; ///< Neighbouring corners at other tiles.
 };
 
-/** Neighbouring corners of each corner. */
+/**
+ * Neighbouring corners of each corner.
+ * @ingroup map_group
+ */
 static const CornerNeighbours neighbours[4] = {
 	{TC_EAST,  TC_WEST,  { {{-1, -1}, TC_SOUTH}, {{-1,  0}, TC_WEST }, {{ 0, -1}, TC_EAST }} }, // TC_NORTH
 	{TC_NORTH, TC_SOUTH, { {{-1,  0}, TC_SOUTH}, {{-1,  1}, TC_WEST }, {{ 0,  1}, TC_NORTH}} }, // TC_EAST

@@ -21,7 +21,10 @@ extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
 
 class RcdFile;
 
-/** Block of data from a RCD file. */
+/**
+ * Block of data from a RCD file.
+ * @ingroup sprites_group
+ */
 class RcdBlock {
 public:
 	RcdBlock();
@@ -30,7 +33,10 @@ public:
 	RcdBlock *next; ///< Pointer to next block.
 };
 
-/** Image data of 8bpp images. */
+/**
+ * Image data of 8bpp images.
+ * @ingroup sprites_group
+ */
 class ImageData : public RcdBlock {
 public:
 	ImageData();
@@ -53,6 +59,7 @@ typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data bl
 /**
  * %Sprite data.
  * @todo Move the offsets to the image data.
+ * @ingroup sprites_group
  */
 class Sprite : public RcdBlock {
 public:
@@ -78,7 +85,10 @@ public:
 
 typedef std::map<uint32, Sprite *> SpriteMap; ///< Map of loaded sprite blocks.
 
-/** A surface in all orientations. */
+/**
+ * A surface in all orientations.
+ * @ingroup sprites_group
+ */
 class SurfaceData : public RcdBlock {
 public:
 	SurfaceData();
@@ -92,7 +102,10 @@ public:
 	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
 };
 
-/** Highlight the currently selected ground tile with a selection cursor. */
+/**
+ * Highlight the currently selected ground tile with a selection cursor.
+ * @ingroup sprites_group
+ */
 class TileSelection : public RcdBlock {
 public:
 	TileSelection();
@@ -105,7 +118,10 @@ public:
 	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites with a selection cursor.
 };
 
-/** Highlight the currently selected corner of a ground tile with a corner selection sprite. */
+/**
+ * Highlight the currently selected corner of a ground tile with a corner selection sprite.
+ * @ingroup sprites_group
+ */
 class TileCorners : public RcdBlock {
 public:
 	TileCorners();
@@ -118,7 +134,10 @@ public:
 	Sprite *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
 };
 
-/** %Path sprites. */
+/**
+ * %Path sprites.
+ * @ingroup sprites_group
+ */
 class Path : public RcdBlock {
 public:
 	Path();
@@ -132,7 +151,10 @@ public:
 	Sprite *sprites[PATH_COUNT]; ///< Path sprites, may contain \c NULL sprites.
 };
 
-/** %Foundation sprites. */
+/**
+ * %Foundation sprites.
+ * @ingroup sprites_group
+ */
 class Foundation : public RcdBlock {
 public:
 	Foundation();
@@ -149,6 +171,7 @@ public:
 /**
  * Displayed object.
  * (For now, just the arrows pointing in the build direction, hopefully also usable for other 1x1 tile objects.)
+ * @ingroup sprites_group
  */
 class DisplayedObject : public RcdBlock {
 public:
@@ -162,7 +185,10 @@ public:
 };
 
 
-/** Sprites of a border. */
+/**
+ * Sprites of a border.
+ * @ingroup gui_sprites_group
+ */
 enum WidgetBorderSprites {
 	WBS_TOP_LEFT,      ///< Top left corner.
 	WBS_TOP_MIDDLE,    ///< Top center edge.
@@ -177,7 +203,10 @@ enum WidgetBorderSprites {
 	WBS_COUNT,         ///< Number of sprites of a border.
 };
 
-/** %Sprite data of a border. */
+/**
+ * %Sprite data of a border.
+ * @ingroup gui_sprites_group
+ */
 struct BorderSpriteData {
 	void Clear();
 
@@ -197,7 +226,10 @@ struct BorderSpriteData {
 	Sprite *pressed[WBS_COUNT]; ///< Sprites to draw for a pressed border.
 };
 
-/** Sprites of checkable sprites, like checkbox or radio button. */
+/**
+ * Sprites of checkable sprites, like checkbox or radio button.
+ * @ingroup gui_sprites_group
+ */
 enum WidgetCheckableSprites {
 	WCS_EMPTY,           ///< Check mark is off.
 	WCS_CHECKED,         ///< Check mark is on.
@@ -209,7 +241,10 @@ enum WidgetCheckableSprites {
 	WCS_COUNT,           ///< Number of sprites for a checkable widget.
 };
 
-/** %Sprite data of a checkable sprite. */
+/**
+ * %Sprite data of a checkable sprite.
+ * @ingroup gui_sprites_group
+ */
 struct CheckableWidgetSpriteData {
 	void Clear();
 
@@ -221,7 +256,10 @@ struct CheckableWidgetSpriteData {
 	Sprite *sprites[WCS_COUNT]; ///< Sprites to draw.
 };
 
-/** Slider sprites. */
+/**
+ * Slider sprites.
+ * @ingroup gui_sprites_group
+ */
 enum WidgetSliderSprites {
 	WSS_LEFT_BED,   ///< Left/up bar sprite.
 	WSS_MIDDLE_BED, ///< Middle bar sprite.
@@ -231,7 +269,10 @@ enum WidgetSliderSprites {
 	WSS_COUNT,      ///< Number of sprites of a slider bar.
 };
 
-/** %Sprite data of a slider bar. */
+/**
+ * %Sprite data of a slider bar.
+ * @ingroup gui_sprites_group
+ */
 struct SliderSpriteData {
 	void Clear();
 
@@ -245,7 +286,10 @@ struct SliderSpriteData {
 	Sprite *shaded[WSS_COUNT]; ///< Sprites for shaded slider.
 };
 
-/** Scrollbar sprites. */
+/**
+ * Scrollbar sprites.
+ * @ingroup gui_sprites_group
+ */
 enum WidgetScrollbarSprites {
 	WLS_LEFT_BUTTON,           ///< Left/up unpressed button.
 	WLS_LEFT_PRESSED_BUTTON,   ///< Left/up pressed button.
@@ -264,7 +308,10 @@ enum WidgetScrollbarSprites {
 	WLS_COUNT,                 ///< Number of scrollbar sprites.
 };
 
-/** %Sprite data of a scrollbar. */
+/**
+ * %Sprite data of a scrollbar.
+ * @ingroup gui_sprites_group
+ */
 struct ScrollbarSpriteData {
 	void Clear();
 
@@ -290,6 +337,7 @@ struct ScrollbarSpriteData {
  * @todo Add widget for vert_slider
  * @todo Add sprites for resize box (currently a button)
  * @todo Add sprites for close box (currently a button)
+ * @ingroup gui_sprites_group
  */
 struct GuiSprites {
 	GuiSprites();
@@ -321,6 +369,7 @@ struct GuiSprites {
 /**
  * Storage of all sprites for a single tile size.
  * @note The data does not belong to this class, it is managed by #SpriteManager instead.
+ * @ingroup sprites_group
  */
 class SpriteStorage {
 public:
@@ -401,7 +450,10 @@ protected:
 	void Clear();
 };
 
-/** Storage and management of all sprites. */
+/**
+ * Storage and management of all sprites.
+ * @ingroup sprites_group
+ */
 class SpriteManager {
 public:
 	SpriteManager();

@@ -16,6 +16,7 @@
 
 /**
  * Class for displaying parts of the world.
+ * @ingroup viewport_group
  */
 class Viewport : public Window {
 public:

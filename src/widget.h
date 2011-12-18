@@ -18,7 +18,10 @@ struct BorderSpriteData;
 
 static const int INVALID_WIDGET_INDEX = -1; ///< Widget number of invalid index.
 
-/** Available widget types. */
+/**
+ * Available widget types.
+ * @ingroup widget_group
+ */
 enum WidgetType {
 	WT_EMPTY,          ///< Empty widget (used for creating empty space and/or centering).
 	WT_TITLEBAR,       ///< Title of the window.
@@ -36,7 +39,10 @@ enum WidgetType {
 	WT_GRID,           ///< Intermediate widget.
 };
 
-/** Padding space around widgets. */
+/**
+ * Padding space around widgets.
+ * @ingroup widget_group
+ */
 enum PaddingDirection {
 	PAD_TOP,        ///< Padding at the top.
 	PAD_LEFT,       ///< Padding at the left.
@@ -51,6 +57,7 @@ enum PaddingDirection {
 /**
  * Base class for all widgets.
  * Also implements #WT_EMPTY, #WT_CLOSEBOX, #WT_RESIZEBOX.
+ * @ingroup widget_group
  */
 class BaseWidget {
 public:
@@ -84,7 +91,10 @@ protected:
 	void InitMinimalSize(const BorderSpriteData *bsd, uint16 content_width, uint16 content_height);
 };
 
-/** Flags of the #LeafWidget widget. */
+/**
+ * Flags of the #LeafWidget widget.
+ * @ingroup widget_group
+ */
 enum LeafWidgetFlags {
 	LWF_CHECKED = 1, ///< Widget is checked (on/off).
 	LWF_PRESSED = 2, ///< Widget is pressed (button up/down).
@@ -96,6 +106,7 @@ DECLARE_ENUM_AS_BIT_SET(LeafWidgetFlags)
  * Base class for a (visible) leaf widget.
  * Implements #WT_RADIOBUTTON
  * @todo use #LeafWidget::colour.
+ * @ingroup widget_group
  */
 class LeafWidget : public BaseWidget {
 public:
@@ -165,8 +176,9 @@ public:
 };
 
 /**
- * Data widget
+ * Data widget.
  * Implements #WT_TITLEBAR, #WT_LEFT_TEXT, #WT_CENTERED_TEXT, #WT_RIGHT_TEXT, #WT_TEXTBUTTON and #WT_IMAGEBUTTON.
+ * @ingroup widget_group
  */
 class DataWidget : public LeafWidget {
 public:
@@ -181,6 +193,7 @@ public:
 /**
  * Scrollbar widget.
  * Implements #WT_HOR_SCROLLBAR and #WT_VERT_SCROLLBAR.
+ * @ingroup widget_group
  */
 class ScrollbarWidget : public LeafWidget {
 public:
@@ -195,6 +208,7 @@ public:
 /**
  * Base class for canvas-like widgets.
  * Implements #WT_PANEL
+ * @ingroup widget_group
  */
 class BackgroundWidget : public LeafWidget {
 public:
@@ -210,13 +224,19 @@ public:
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
 
-/** Equal size settings of child widgets. */
+/**
+ * Equal size settings of child widgets.
+ * @ingroup widget_group
+ */
 enum EqualSize {
 	EQS_HORIZONTAL = 1, ///< Try to keep equal size for all widgets in horizontal direction.
 	EQS_VERTICAL   = 2, ///< Try to keep equal size for all widgets in vertical direction.
 };
 
-/** Data about a row or a column. */
+/**
+ * Data about a row or a column.
+ * @ingroup widget_group
+ */
 struct RowColData {
 	uint16 min_size; ///< Minimal size.
 	uint16 fill;     ///< Fill step.
@@ -226,7 +246,10 @@ struct RowColData {
 	void Merge(uint16 min_size, uint16 fill, uint16 resize);
 };
 
-/** Base class for intermediate (that is, non-leaf) widget. */
+/**
+ * Base class for intermediate (that is, non-leaf) widget.
+ * @ingroup widget_group
+ */
 class IntermediateWidget : public BaseWidget {
 public:
 	IntermediateWidget(uint8 num_rows, uint8 num_cols);
@@ -251,7 +274,10 @@ public:
 };
 
 
-/** Available widget parts. */
+/**
+ * Available widget parts.
+ * @ingroup widget_parts_group
+ */
 enum WidgetPartType {
 	WPT_NEW_WIDGET,       ///< Start a new widget.
 	WPT_NEW_INTERMEDIATE, ///< Start a new widget.
@@ -266,7 +292,10 @@ enum WidgetPartType {
 	WPT_END_CON,          ///< End of container or row.
 };
 
-/** Class for describing a widget-tree in linear source code. */
+/**
+ * Class for describing a widget-tree in linear source code.
+ * @ingroup widget_parts_group
+ */
 class WidgetPart {
 public:
 	WidgetPartType type; ///< Type of this widget part.

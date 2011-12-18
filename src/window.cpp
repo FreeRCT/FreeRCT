@@ -12,17 +12,31 @@
  * @todo [low] Consider the case where we don't have a video system.
  */
 
+/**
+ * @defgroup window_group %Window code
+ */
+
+/**
+ * @defgroup gui_group Actual windows
+ * @ingroup window_group
+ */
+
 #include "stdafx.h"
 #include "window.h"
 #include "widget.h"
 #include "video.h"
 
-WindowManager _manager; ///< %Window manager.
+/**
+ * %Window manager.
+ * @ingroup window_group
+ */
+WindowManager _manager;
 
 /**
  * Does the mouse button state express a left-click?
  * @param state Mouse button state (as given in #Window::OnMouseButtonEvent).
  * @return The state expresses a left button click down event.
+ * @ingroup window_group
  */
 bool IsLeftClick(uint8 state)
 {
@@ -247,6 +261,7 @@ WindowManager::~WindowManager()
  * Get the z-priority of a window type (higher number means further up in the window stack).
  * @param wt Window type.
  * @return Z-priority of the provided type.
+ * @ingroup window_group
  */
 static uint GetWindowZPriority(WindowTypes wt)
 {
@@ -420,6 +435,7 @@ void WindowManager::MouseWheelEvent(int direction)
 /**
  * Redraw (parts of) the windows.
  * @todo [medium/difficult] Do this much less stupid.
+ * @ingroup window_group
  */
 void UpdateWindows()
 {
@@ -456,6 +472,7 @@ void WindowManager::Tick()
  * Find an opened window by window type.
  * @param wtype %Window type to look for.
  * @return The window with the requested type if it is opened, else \c NULL.
+ * @ingroup window_group
  */
 Window *GetWindowByType(WindowTypes wtype)
 {

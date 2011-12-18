@@ -85,6 +85,7 @@ void ConfigFile::Clear()
  * Is the given character a white space character?
  * @param k Provided character.
  * @return The provided character is a white space character.
+ * @ingroup fileio_group
  */
 static bool IsSpace(char k)
 {
@@ -97,6 +98,7 @@ static bool IsSpace(char k)
  * @param last If supplied, the terminator of the string, \c NULL means only the start is supplied.
  * @return Line with stripped front and end.
  * @note Supplied line may be modified.
+ * @ingroup fileio_group
  */
 static char *StripWhitespace(char *first, char *last = NULL)
 {

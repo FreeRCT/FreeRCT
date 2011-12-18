@@ -19,14 +19,20 @@ class Viewport;
 class BaseWidget;
 class WidgetPart;
 
-/** Available types of windows. */
+/**
+ * Available types of windows.
+ * @ingroup window_group
+ */
 enum WindowTypes {
 	WC_MAINDISPLAY,  ///< Main display of the world.
 	WC_TOOLBAR,      ///< Main toolbar.
 	WC_PATH_BUILDER, ///< Path build gui.
 };
 
-/** Known mouse buttons. */
+/**
+ * Known mouse buttons.
+ * @ingroup window_group
+ */
 enum MouseButtons {
 	MB_LEFT   = 1, ///< Left button down.
 	MB_MIDDLE = 2, ///< Middle button down.
@@ -38,7 +44,10 @@ enum MouseButtons {
 };
 DECLARE_ENUM_AS_BIT_SET(MouseButtons)
 
-/** Known mouse modes. */
+/**
+ * Known mouse modes.
+ * @ingroup window_group
+ */
 enum MouseMode {
 	MM_INACTIVE,       ///< Inactive mode.
 	MM_TILE_TERRAFORM, ///< Terraforming tiles.
@@ -47,8 +56,8 @@ enum MouseMode {
 };
 
 /**
- * %Window base class, extremely simple (just a viewport).
- * @todo Make it a real window with widgets, title bar, and stuff.
+ * %Window base class.
+ * @ingroup window_group
  */
 class Window {
 public:
@@ -81,7 +90,10 @@ public:
 	virtual void TimeoutCallback();
 };
 
-/** Base class for windows with a widget tree. */
+/**
+ * Base class for windows with a widget tree.
+ * @ingroup window_group
+ */
 class GuiWindow : public Window {
 public:
 	GuiWindow(WindowTypes wtype);
@@ -108,6 +120,7 @@ protected:
 
 /**
  * %Window manager class, manages the window stack.
+ * @ingroup window_group
  */
 class WindowManager {
 public:

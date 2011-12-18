@@ -9,6 +9,15 @@
 
 /** @file sprite_store.cpp %Sprite storage functions. */
 
+/**
+ * @defgroup sprites_group Sprites and sprite handling
+ */
+
+/**
+ * @defgroup gui_sprites_group Gui sprites and sprite handling
+ * @ingroup sprites_group
+ */
+
 #include "stdafx.h"
 #include "sprite_store.h"
 #include "fileio.h"
@@ -21,7 +30,10 @@ GuiSprites _gui_sprites; ///< Gui sprites.
 
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
-/** %Sprite indices of ground/surface sprites after rotation of the view. */
+/**
+ * %Sprite indices of ground/surface sprites after rotation of the view.
+ * @ingroup sprites_group
+ */
 const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
 	{ 0,  0,  0,  0},
 	{ 1,  8,  4,  2},

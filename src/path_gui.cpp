@@ -16,7 +16,10 @@
 #include "table/strings.h"
 #include "table/gui_sprites.h"
 
-/** Path build Gui. */
+/**
+ * Path build Gui.
+ * @ingroup gui_group
+ */
 class PathBuildGui : public GuiWindow {
 public:
 	PathBuildGui();
@@ -24,7 +27,10 @@ public:
 	virtual void OnClick(int16 number);
 };
 
-/** Widget numbers of the path build Gui. */
+/**
+ * Widget numbers of the path build Gui.
+ * @ingroup gui_group
+ */
 enum PathBuildWidgets {
 	PATH_GUI_FOLLOW_GROUND,      ///< Radio button 'follow ground'.
 	PATH_GUI_FOLLOW_GROUND_TEXT, ///< Text label with 'follow ground'.
@@ -49,7 +55,10 @@ static const int SPR_SE_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_SE; ///< Spr
 static const int SPR_SW_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_SW; ///< Sprite for building in SW direction.
 static const int SPR_NW_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_NW; ///< Sprite for building in NW direction.
 
-/** Widget parts of the path build Gui. */
+/**
+ * Widget parts of the path build Gui.
+ * @ingroup gui_group
+ */
 static const WidgetPart _path_build_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
@@ -90,7 +99,10 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER)
 {
 }
 
-
+/**
+ * Open the path build gui.
+ * @ingroup gui_group
+ */
 void ShowPathBuildGui()
 {
 	new PathBuildGui();

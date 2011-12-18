@@ -18,11 +18,20 @@
 #include "language.h"
 
 /**
+ * @defgroup widget_group Widgets and supporting functions of the program
+ */
+
+/**
+ * @defgroup widget_parts_group %Widget parts for specifying windows
+ * @ingroup widget_group
+ */
+
+/**
  * Draw border sprites around some contents.
  * @param bsd Border sprites to use.
  * @param pressed Draw pressed down sprites.
  * @param rect Content rectangle to draw around.
- * @todo [??] Similarly, needing to state the bounding box 'screen' seems weird and is not the right solution.
+ * @ingroup widget_group
  */
 static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect)
 {
@@ -805,6 +814,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
  * @param num_rows Number of rows.
  * @param num_cols Number of columns.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart Intermediate(uint8 num_rows, uint8 num_cols)
 {
@@ -822,6 +832,7 @@ WidgetPart Intermediate(uint8 num_rows, uint8 num_cols)
  * @param number Widget number.
  * @param colour Widget colour.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart Widget(WidgetType wtype, int16 number, uint8 colour)
 {
@@ -839,6 +850,7 @@ WidgetPart Widget(WidgetType wtype, int16 number, uint8 colour)
  * @param x Horizontal minimal size.
  * @param y Vertical minimal size.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetMinimalSize(uint8 x, uint8 y)
 {
@@ -855,6 +867,7 @@ WidgetPart SetMinimalSize(uint8 x, uint8 y)
  * @param x Horizontal fill step.
  * @param y Vertical fill step.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetFill(uint8 x, uint8 y)
 {
@@ -871,6 +884,7 @@ WidgetPart SetFill(uint8 x, uint8 y)
  * @param x Horizontal resize step.
  * @param y Vertical resize step.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetResize(uint8 x, uint8 y)
 {
@@ -889,6 +903,7 @@ WidgetPart SetResize(uint8 x, uint8 y)
  * @param bottom Padding at the bottom.
  * @param left Padding at the left.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetPadding(uint8 top, uint8 right, uint8 bottom, uint8 left)
 {
@@ -909,6 +924,7 @@ WidgetPart SetPadding(uint8 top, uint8 right, uint8 bottom, uint8 left)
  * @param inter Vertical padding between elements.
  * @param post Padding at the right.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetHorPIP(uint8 pre, uint8 inter, uint8 post)
 {
@@ -928,6 +944,7 @@ WidgetPart SetHorPIP(uint8 pre, uint8 inter, uint8 post)
  * @param inter Horizontal padding between elements.
  * @param post Padding at the bottom.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetVertPIP(uint8 pre, uint8 inter, uint8 post)
 {
@@ -946,6 +963,7 @@ WidgetPart SetVertPIP(uint8 pre, uint8 inter, uint8 post)
  * @param value Additional data of the widget (string or sprite id).
  * @param tip Tool tip text.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetData(uint16 value, uint16 tip)
 {
@@ -962,6 +980,7 @@ WidgetPart SetData(uint16 value, uint16 tip)
  * @param hor_equal Try to keep all childs equally wide.
  * @param vert_equal Try to keep all child equally high.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart SetEqualSize(bool hor_equal, bool vert_equal)
 {
@@ -975,6 +994,7 @@ WidgetPart SetEqualSize(bool hor_equal, bool vert_equal)
 /**
  * Denote the end of a container.
  * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
  */
 WidgetPart EndContainer()
 {
@@ -990,6 +1010,7 @@ WidgetPart EndContainer()
  * @param remaining Number of parts still available.
  * @param dest Pointer for storing the constructed widget.
  * @return Read number of parts.
+ * @ingroup widget_parts_group
  */
 static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 {
@@ -1121,6 +1142,7 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
  * @param cols [inout] Number of elements of a row. \c 0 means it is not known.
  * @param biggest [out] Pointer to stored biggest widget index number.
  * @return Number of used parts.
+ * @ingroup widget_parts_group
  */
 static int FillWidgetRow(const WidgetPart *parts, int remaining_parts, BaseWidget **widgets, int remaining_widgets, uint8 *cols, int16 *biggest)
 {
@@ -1160,6 +1182,7 @@ static int FillWidgetRow(const WidgetPart *parts, int remaining_parts, BaseWidge
  * @param wid Intermediate widget to fill.
  * @param biggest [out] Pointer to stored biggest widget index number.
  * @return Number of used parts for the children.
+ * @ingroup widget_parts_group
  */
 static int FillWidget(const WidgetPart *parts, int remaining_parts, IntermediateWidget *wid, int16 *biggest)
 {
@@ -1218,6 +1241,7 @@ static int FillWidget(const WidgetPart *parts, int remaining_parts, Intermediate
  * @param dest Pointer for storing the constructed widget tree.
  * @param biggest [out] Pointer to stored biggest widget index number.
  * @return Number of used parts for the tree.
+ * @ingroup widget_parts_group
  */
 static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget **dest, int16 *biggest)
 {
@@ -1261,6 +1285,7 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
  * @param length Number of parts available.
  * @param biggest [out] Pointer to stored biggest widget index number.
  * @return Constructed widget tree.
+ * @ingroup widget_parts_group
  */
 BaseWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest)
 {

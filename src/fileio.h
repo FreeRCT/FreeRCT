@@ -18,6 +18,7 @@
  * - After creation (with the #MakeDirectoryReader function), call #OpenPath to open the directory.
  * - A new entry of the directory is returned with every call to #NextEntry.
  * - At the end, call #ClosePath to allow the object to cleanup, and get ready for a next use.
+ * @ingroup fileio_group
  */
 class DirectoryReader {
 public:
@@ -34,7 +35,10 @@ public:
 	virtual bool EntryIsDirectory() = 0;
 };
 
-/** Class representing a RCD file. */
+/**
+ * Class representing a RCD file.
+ * @ingroup fileio_group
+ */
 class RcdFile {
 public:
 	RcdFile(const char *fname);

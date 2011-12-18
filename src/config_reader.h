@@ -14,7 +14,10 @@
 
 #include <list>
 
-/** Item in a configuration file (a key/value pair). */
+/**
+ * Item in a configuration file (a key/value pair).
+ * @ingroup fileio_group
+ */
 class ConfigItem {
 public:
 	ConfigItem(const char *key, const char *value);
@@ -27,10 +30,14 @@ public:
 /**
  * A list of items.
  * @todo [medium] A std::list of items is overkill, a single linked list is more than enough.
+ * @ingroup fileio_group
  */
 typedef std::list<ConfigItem *> ConfigItemList;
 
-/** Section in a configuration file (a set of related items). */
+/**
+ * Section in a configuration file (a set of related items).
+ * @ingroup fileio_group
+ */
 class ConfigSection {
 public:
 	ConfigSection(const char *sect_name);
@@ -45,10 +52,14 @@ public:
 /**
  * A list of sections.
  * @todo [medium] A std::list of sections is overkill, a single linked list is more than enough.
+ * @ingroup fileio_group
  */
 typedef std::list<ConfigSection *> ConfigSectionList;
 
-/** A configuration file. */
+/**
+ * A configuration file.
+ * @ingroup fileio_group
+ */
 class ConfigFile {
 public:
 	ConfigFile();

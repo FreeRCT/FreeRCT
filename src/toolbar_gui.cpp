@@ -16,7 +16,10 @@
 
 #include "table/strings.h"
 
-/** Main toolbar. */
+/**
+ * Main toolbar.
+ * @ingroup gui_group
+ */
 class ToolbarWindow : public GuiWindow {
 public:
 	ToolbarWindow();
@@ -24,13 +27,19 @@ public:
 	virtual void OnClick(int16 number);
 };
 
-/** Widget numbers of the toolbar Gui. */
+/**
+ * Widget numbers of the toolbar Gui.
+ * @ingroup gui_group
+ */
 enum ToolbarGuiWidgets {
 	TB_GUI_QUIT,  ///< Quit program button.
 	TB_GUI_PATHS, ///< Build paths button.
 };
 
-/** Widget parts of the toolbar Gui. */
+/**
+ * Widget parts of the toolbar Gui.
+ * @ingroup gui_group
+ */
 static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
 		Widget(WT_TEXTBUTTON, TB_GUI_QUIT, 0), SetData(STR_TOOLBAR_GUI_QUIT, STR_TOOLBAR_GUI_QUIT_PROGRAM),
@@ -59,7 +68,10 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 	}
 }
 
-/** Open the main toolbar window. */
+/**
+ * Open the main toolbar window.
+ * @ingroup gui_group
+ */
 void ShowToolbar()
 {
 	new ToolbarWindow();

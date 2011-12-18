@@ -9,6 +9,11 @@
 
 /** @file viewport.cpp %Viewport window code. */
 
+/**
+ * @defgroup viewport_group %Viewport (main display) code and data
+ * @ingroup window_group
+ */
+
 #include "stdafx.h"
 #include "math_func.h"
 #include "viewport.h"
@@ -19,7 +24,10 @@
 
 #include <map>
 
-/** Search the world for voxels to render. */
+/**
+ * Search the world for voxels to render.
+ * @ingroup viewport_group
+ */
 class VoxelCollector {
 public:
 	VoxelCollector(int32 xview, int32 yview, int32 zview, uint16 width, uint16 height, ViewOrientation orient);
@@ -89,7 +97,10 @@ protected:
 	virtual void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) = 0;
 };
 
-/** Data temporary needed for drawing. */
+/**
+ * Data temporary needed for drawing.
+ * @ingroup viewport_group
+ */
 struct DrawData {
 	const Sprite *spr;    ///< %Sprite to draw.
 	const Sprite *cursor; ///< Mouse cursor to draw.
@@ -99,11 +110,13 @@ struct DrawData {
 /**
  * Map of distance to image.
  * Used for temporary sorting and storage of images drawn at the viewport.
+ * @ingroup viewport_group
  */
 typedef std::multimap<int32, DrawData> DrawImages;
 
 /**
  * Collect sprites to draw in a viewport.
+ * @ingroup viewport_group
  */
 class SpriteCollector : public VoxelCollector {
 public:
@@ -128,7 +141,10 @@ protected:
 };
 
 
-/** Find the sprite and pixel under the mouse cursor. */
+/**
+ * Find the sprite and pixel under the mouse cursor.
+ * @ingroup viewport_group
+ */
 class PixelFinder : public VoxelCollector {
 public:
 	/**
@@ -631,7 +647,10 @@ void Viewport::SetMouseMode(MouseMode mode)
 	this->mouse_state = 0;
 }
 
-/** Open the main isometric display window. */
+/**
+ * Open the main isometric display window.
+ * @ingroup viewport_group
+ */
 Viewport *ShowMainDisplay()
 {
 	uint16 width  = _video->GetXSize();

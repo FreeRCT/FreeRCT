@@ -9,6 +9,10 @@
 
 /** @file fileio.cpp File IO functions. */
 
+/**
+ * @defgroup fileio_group File IO
+ */
+
 #include "stdafx.h"
 #include "fileio.h"
 #include "string_func.h"
@@ -79,7 +83,10 @@ const char *DirectoryReader::NextFile()
 }
 
 
-/** Directory reader for a unix system. */
+/**
+ * Directory reader for a unix system.
+ * @ingroup fileio_group
+ */
 class UnixDirectoryReader : public DirectoryReader {
 public:
 	UnixDirectoryReader();
@@ -157,6 +164,7 @@ UnixDirectoryReader::~UnixDirectoryReader()
 /**
  * Construct a directory reader object (specific for the operating system).
  * @return A directory reader.
+ * @ingroup fileio_group
  */
 DirectoryReader *MakeDirectoryReader()
 {
