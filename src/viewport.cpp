@@ -627,7 +627,7 @@ void Viewport::SetMouseMode(ViewportMouseMode mode)
 	}
 }
 
-/* virtual */ void Viewport::OnMouseButtonEvent(uint8 state)
+/* virtual */ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 {
 	switch (this->mouse_mode) {
 		case MM_INACTIVE:
@@ -639,6 +639,7 @@ void Viewport::SetMouseMode(ViewportMouseMode mode)
 
 		default: NOT_REACHED();
 	}
+	return WMME_NONE;
 }
 
 /* virtual */ void Viewport::OnMouseWheelEvent(int direction)

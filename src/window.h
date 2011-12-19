@@ -45,6 +45,16 @@ enum MouseButtons {
 DECLARE_ENUM_AS_BIT_SET(MouseButtons)
 
 /**
+ * Mouse events of the window manager. Value is returned from the Window::OnMouseButtonEvent.
+ * @ingroup window_group
+ */
+enum WmMouseEvent {
+	WMME_NONE,         ///< Do nothing special.
+	WMME_CLOSE_WINDOW, ///< Close the window.
+	WMME_MOVE_WINDOW,  ///< Initiate a window move.
+};
+
+/**
  * %Window base class.
  * @ingroup window_group
  */
@@ -71,7 +81,7 @@ public:
 
 	virtual void OnDraw();
 	virtual void OnMouseMoveEvent(const Point16 &pos);
-	virtual void OnMouseButtonEvent(uint8 state);
+	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
@@ -92,7 +102,7 @@ public:
 	virtual void SetSize(uint width, uint height);
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
-	virtual void OnMouseButtonEvent(uint8 state);
+	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseLeaveEvent();
 	virtual void TimeoutCallback();
 

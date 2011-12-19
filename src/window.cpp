@@ -112,7 +112,10 @@ void Window::MarkDirty()
  * Mouse buttons changed state.
  * @param state Updated state. @see MouseButtons
  */
-/* virtual */ void Window::OnMouseButtonEvent(uint8 state) { }
+/* virtual */ WmMouseEvent Window::OnMouseButtonEvent(uint8 state)
+{
+	return WMME_NONE;
+}
 
 /**
  * Mousewheel rotated.
@@ -197,12 +200,15 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	this->mouse_pos = pos;
 }
 
-/* virtual */ void GuiWindow::OnMouseButtonEvent(uint8 state)
+/* virtual */ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 {
-	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return;
+	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return WMME_NONE;
 
 	BaseWidget *bw = this->tree->GetWidgetByPosition(this->mouse_pos);
 	if (bw != NULL) {
+		if (bw->wtype == WT_TITLEBAR) return WMME_MOVE_WINDOW;
+		if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
+
 		LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
 		if (lw != NULL) {
 			/* 'Press' the button, and set a timeout for 'releasing' it again. */
@@ -212,6 +218,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 		}
 		if (bw->number >= 0) this->OnClick(bw->number);
 	}
+	return WMME_NONE;
 }
 
 /* virtual */ void GuiWindow::OnMouseLeaveEvent()
@@ -418,7 +425,22 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 
 	this->UpdateCurrentWindow();
 	if (newstate != this->mouse_state && this->current_window != NULL) {
-		this->current_window->OnMouseButtonEvent((this->mouse_state << 4) | newstate);
+		WmMouseEvent me = this->current_window->OnMouseButtonEvent((this->mouse_state << 4) | newstate);
+		switch (me) {
+			case WMME_NONE:
+				break;
+
+			case WMME_MOVE_WINDOW:
+				// XXX Implement me.
+				break;
+
+			case WMME_CLOSE_WINDOW:
+				this->DeleteWindow(this->current_window);
+				break;
+
+			default:
+				NOT_REACHED();
+		}
 	}
 	this->mouse_state = newstate;
 }

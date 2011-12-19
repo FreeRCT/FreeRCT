@@ -61,7 +61,7 @@ private:
 	ViewOrientation cursor; ///< Cursor orientation (#VOR_INVALID means entire ground tile).
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
-	virtual void OnMouseButtonEvent(uint8 state);
+	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
