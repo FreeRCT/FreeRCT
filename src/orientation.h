@@ -14,7 +14,10 @@
 
 #include "tile.h"
 
-/** Direction of view. */
+/**
+ * Direction of view.
+ * @ingroup map_group
+ */
 enum ViewOrientation {
 	VOR_NORTH = TC_NORTH, ///< View with top of the world to the north.
 	VOR_EAST  = TC_EAST,  ///< View with top of the world to the east.
@@ -29,6 +32,7 @@ enum ViewOrientation {
  * Rotate view 90 degrees clockwise.
  * @param vor Input view orientation.
  * @return Rotated view orientation.
+ * @ingroup map_group
  */
 static inline ViewOrientation RotateClockwise(const ViewOrientation &vor)
 {
@@ -39,6 +43,7 @@ static inline ViewOrientation RotateClockwise(const ViewOrientation &vor)
  * Rotate view 90 degrees counter clockwise.
  * @param vor Input view orientation.
  * @return Rotated view orientation.
+ * @ingroup map_group
  */
 static inline ViewOrientation RotateCounterClockwise(const ViewOrientation &vor)
 {
@@ -50,6 +55,7 @@ static inline ViewOrientation RotateCounterClockwise(const ViewOrientation &vor)
  * @param vor1 First orientation.
  * @param vor2 Second orientation.
  * @return Summed orientation.
+ * @ingroup map_group
  */
 static inline ViewOrientation AddOrientations(const ViewOrientation &vor1, const ViewOrientation &vor2)
 {
@@ -61,6 +67,7 @@ static inline ViewOrientation AddOrientations(const ViewOrientation &vor1, const
  * @param vor1 First orientation.
  * @param vor2 Second orientation.
  * @return Resulting orientation.
+ * @ingroup map_group
  */
 static inline ViewOrientation SubtractOrientations(const ViewOrientation &vor1, const ViewOrientation &vor2)
 {

@@ -13,6 +13,10 @@
  * @defgroup fileio_group File IO
  */
 
+/**
+ * @defgroup fileio_group File IO
+ */
+
 #include "stdafx.h"
 #include "fileio.h"
 #include "string_func.h"

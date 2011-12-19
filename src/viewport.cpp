@@ -14,6 +14,11 @@
  * @ingroup window_group
  */
 
+/**
+ * @defgroup viewport_group %Viewport (main display) code and data
+ * @ingroup window_group
+ */
+
 #include "stdafx.h"
 #include "math_func.h"
 #include "viewport.h"
