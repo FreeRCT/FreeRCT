@@ -58,7 +58,7 @@ Window::Window(WindowTypes wtype) : rect(0, 0, 0, 0), wtype(wtype)
 
 /**
  * Destructor.
- * Do not call directly, delete the return value of #WindowManager::RemoveFromStack instead.
+ * Do not call directly, use #WindowManager::DeleteWindow instead.
  */
 Window::~Window()
 {
@@ -253,7 +253,7 @@ WindowManager::WindowManager()
 WindowManager::~WindowManager()
 {
 	while (this->top != NULL) {
-		delete this->RemoveFromStack(this->top);
+		this->DeleteWindow(this->top);
 	}
 }
 
@@ -306,11 +306,11 @@ void WindowManager::AddTostack(Window *w)
 }
 
 /**
- * Remove a window from the stack.
+ * Delete a window.
  * @param w Window to remove.
  * @return Removed window.
  */
-Window *WindowManager::RemoveFromStack(Window *w)
+void WindowManager::DeleteWindow(Window *w)
 {
 	assert(this->HasWindow(w));
 
@@ -328,7 +328,8 @@ Window *WindowManager::RemoveFromStack(Window *w)
 
 	w->higher = NULL;
 	w->lower  = NULL;
-	return w;
+	w->MarkDirty();
+	delete w;
 }
 
 /**

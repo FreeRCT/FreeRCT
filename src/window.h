@@ -118,7 +118,7 @@ public:
 
 	bool HasWindow(Window *w);
 	void AddTostack(Window *w);
-	Window *RemoveFromStack(Window *w);
+	void DeleteWindow(Window *w);
 
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);
