@@ -15,6 +15,17 @@
 #include "window.h"
 
 /**
+ * Known mouse modes.
+ * @ingroup viewport_group
+ */
+enum ViewportMouseMode {
+	MM_INACTIVE,       ///< Inactive mode.
+	MM_TILE_TERRAFORM, ///< Terraforming tiles.
+
+	MM_COUNT,          ///< Number of mouse modes.
+};
+
+/**
  * Class for displaying parts of the world.
  * @ingroup viewport_group
  */
@@ -27,7 +38,7 @@ public:
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
 
-	void SetMouseMode(MouseMode mode);
+	void SetMouseMode(ViewportMouseMode mode);
 
 	void ComputeCursorPosition();
 
@@ -40,9 +51,9 @@ public:
 	ViewOrientation orientation; ///< Direction of view.
 
 private:
-	MouseMode mouse_mode; ///< Mode of the mouse, decides how to react to mouse clicks, drags, etc.
-	Point16 mouse_pos;    ///< Last known position of the mouse.
-	uint8 mouse_state;    ///< Last known state of the mouse buttons.
+	ViewportMouseMode mouse_mode; ///< Mode of the mouse, decides how to react to mouse clicks, drags, etc.
+	Point16 mouse_pos;            ///< Last known position of the mouse.
+	uint8 mouse_state;            ///< Last known state of the mouse buttons.
 
 	uint16 xvoxel;          ///< X position of the voxel with the mouse cursor.
 	uint16 yvoxel;          ///< Y position of the voxel with the mouse cursor.

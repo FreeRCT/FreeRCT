@@ -598,7 +598,7 @@ void Viewport::ChangeTerrain(int direction)
  * Set mode of the mouse interaction of the viewport.
  * @param mode New mode.
  */
-void Viewport::SetMouseMode(MouseMode mode)
+void Viewport::SetMouseMode(ViewportMouseMode mode)
 {
 	assert(mode < MM_COUNT);
 	this->mouse_state = 0;

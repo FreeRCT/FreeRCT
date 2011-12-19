@@ -45,17 +45,6 @@ enum MouseButtons {
 DECLARE_ENUM_AS_BIT_SET(MouseButtons)
 
 /**
- * Known mouse modes.
- * @ingroup window_group
- */
-enum MouseMode {
-	MM_INACTIVE,       ///< Inactive mode.
-	MM_TILE_TERRAFORM, ///< Terraforming tiles.
-
-	MM_COUNT,          ///< Number of mouse modes.
-};
-
-/**
  * %Window base class.
  * @ingroup window_group
  */
