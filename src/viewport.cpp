@@ -305,28 +305,41 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
-			if (svd->ground.type == GTP_INVALID) break;
-			const Sprite *spr = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
-			if (spr != NULL) {
-				const Sprite *mspr = NULL;
-				if (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) {
-					if (this->cursor == VOR_INVALID) {
-						mspr = this->sprites->GetCursorSprite(svd->ground.slope, this->orient);
-					} else {
-						mspr = this->sprites->GetCornerSprite(svd->ground.slope, this->orient, this->cursor);
+			if (svd->ground.type != GTP_INVALID) {
+				const Sprite *spr = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
+				if (spr != NULL) {
+					const Sprite *mspr = NULL;
+					if (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) {
+						if (this->cursor == VOR_INVALID) {
+							mspr = this->sprites->GetCursorSprite(svd->ground.slope, this->orient);
+						} else {
+							mspr = this->sprites->GetCornerSprite(svd->ground.slope, this->orient, this->cursor);
+						}
 					}
-				}
 
-				std::pair<int32, DrawData> p;
-				p.first = sx * xpos + sy * ypos + zpos * 256;
-				p.second.spr = spr;
-				p.second.cursor = mspr;
-				p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
-				p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
-				draw_images.insert(p);
+					std::pair<int32, DrawData> p;
+					p.first = sx * xpos + sy * ypos + zpos * 256;
+					p.second.spr = spr;
+					p.second.cursor = mspr;
+					p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
+					p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
+					draw_images.insert(p);
+				}
 			}
 			/* TODO: svd->foundation */
 
+			if (svd->path.type != PT_INVALID) {
+				const Sprite *spr = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
+				if (spr != NULL) {
+					std::pair<int32, DrawData> p;
+					p.first = sx * xpos + sy * ypos + zpos * 256 + 1;
+					p.second.spr = spr;
+					p.second.cursor = NULL;
+					p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
+					p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
+					draw_images.insert(p);
+				}
+			}
 			break;
 		}
 

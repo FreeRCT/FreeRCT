@@ -169,6 +169,7 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 			svd.ground.type = GTP_GRASS0;
 			svd.ground.slope = ImplodeTileSlope(SL_FLAT);
 			svd.foundation.type = FDT_INVALID;
+			svd.path.type = PT_INVALID;
 			v->SetSurface(svd);
 		}
 	}
@@ -372,6 +373,7 @@ void TerrainChanges::ChangeWorld(int direction)
 		SurfaceVoxelData *pvd = v->GetSurface();
 		uint8 gtype = pvd->ground.type;
 		uint8 ftype = pvd->foundation.type;
+		uint8 ptype = pvd->path.type;
 		/* Clear existing ground and foundations. */
 		v->SetEmpty();
 		if ((gd.orig_slope & TCB_STEEP) != 0) vs->Get(gd.height + 1, false)->SetEmpty();
@@ -394,6 +396,8 @@ void TerrainChanges::ChangeWorld(int direction)
 		svd.ground.type = gtype;
 		svd.foundation.type = ftype;
 		svd.foundation.slope = 0; // XXX Needs further work.
+		svd.path.type = ptype;
+		svd.path.slope = 0; // XXX Needs further work.
 		if (max_h - min_h <= 1) {
 			/* Normal slope. */
 			svd.ground.slope = ImplodeTileSlope(((new_heights[TC_NORTH] > min_h) ? TCB_NORTH : SL_FLAT)

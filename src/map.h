@@ -13,6 +13,7 @@
 #define MAP_H
 
 #include "tile.h"
+#include "path.h"
 #include "geometry.h"
 
 #include <map>
@@ -34,12 +35,21 @@ enum VoxelType {
 };
 
 /**
+ * Description of a path tile.
+ * @ingroup map_group
+ */
+struct PathVoxelData {
+	uint8 type;  ///< Type of path.
+	uint8 slope; ///< Slope of the path (imploded).
+};
+
+/**
  * Description of ground.
  * @ingroup map_group
  */
 struct GroundVoxelData {
 	uint8 type;  ///< Type of ground.
-	uint8 slope; ///< Slope of the ground (imploded);
+	uint8 slope; ///< Slope of the ground (imploded).
 };
 
 /**
@@ -57,6 +67,7 @@ struct FoundationVoxelData {
  * @ingroup map_group
  */
 struct SurfaceVoxelData {
+	PathVoxelData       path;       ///< Path sprite at this location.
 	GroundVoxelData     ground;     ///< Ground sprite at this location.
 	FoundationVoxelData foundation; ///< Foundation sprite at this location.
 };
@@ -76,7 +87,6 @@ struct ReferenceVoxelData {
 /**
  * One voxel cell in the world.
  * @todo Handle #VT_COASTER voxels.
- * @todo handle paths in a #VT_SURFACE voxel.
  * @ingroup map_group
  */
 struct Voxel {
@@ -114,6 +124,7 @@ public:
 	FORCEINLINE void SetSurface(const SurfaceVoxelData &vd)
 	{
 		this->type = VT_SURFACE;
+		assert(vd.path.type == PT_INVALID || (vd.path.type < PT_COUNT && vd.path.slope < PATH_COUNT));
 		assert(vd.ground.type == GTP_INVALID || (vd.ground.type < GTP_COUNT && vd.ground.slope < NUM_SLOPE_SPRITES));
 		assert(vd.foundation.type == FDT_INVALID || vd.foundation.type < FDT_COUNT);
 		this->surface = vd;

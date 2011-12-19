@@ -21,6 +21,7 @@
  * This list is good for drawing and listing sprites, but is hard for editing path coverage.
  * For this reason #_path_expand and its reverse operation #_path_implode exist. They translate the
  * sprite number to/from a bitwise representation which is easier for manipulation.
+ * @todo Have ramps with path sprites without edges.
  */
 enum PathSprites {
 	PATH_EMPTY, ///< %Path without edges or corners.

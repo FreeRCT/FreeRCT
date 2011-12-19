@@ -400,6 +400,21 @@ public:
 	}
 
 	/**
+	 * Get a path tile sprite.
+	 * @param type Type of path. @see PathTypes
+	 * @param slope Slope of the path (in #VOR_NORTH orientation).
+	 * @param orient Display orientation.
+	 * @return Requested sprite if available.
+	 * @todo [low] \a type is not used due to lack of other path types (sprites).
+	 * @todo [high] Support the other orientations too.
+	 */
+	const Sprite *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
+	{
+		// this->path[type] is not used, as there exists only one type of paths.
+		return this->path_sprites->sprites[slope];
+	}
+
+	/**
 	 * Get a mouse tile cursor sprite.
 	 * @param surf_spr Surface sprite index.
 	 * @param orient Orientation.
