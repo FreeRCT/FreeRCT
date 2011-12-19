@@ -25,6 +25,7 @@
 #include "window.h"
 #include "widget.h"
 #include "video.h"
+#include "palette.h"
 
 /**
  * %Window manager.
@@ -463,6 +464,12 @@ void WindowManager::MouseWheelEvent(int direction)
 void UpdateWindows()
 {
 	if (_video == NULL || !_video->DisplayNeedsRepaint()) return;
+
+	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
+	 * windows truly disappear (even if there is no other window behind it).
+	 */
+	Rectangle32 rect(0, 0, _video->GetXSize(), _video->GetYSize());
+	_video->FillSurface(COL_BACKGROUND, rect);
 
 	Window *w = _manager.bottom;
 	while (w != NULL) {
