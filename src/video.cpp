@@ -581,6 +581,9 @@ void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
 		int x = xpos;
 		if (x < 0) {
 			w += x;
+			if (w <= 0) break;
+			dest2 -= x;
+			src2 -= x;
 			x = 0;
 		}
 		while (w > 0) {
