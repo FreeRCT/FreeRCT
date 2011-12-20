@@ -55,6 +55,15 @@ enum WmMouseEvent {
 };
 
 /**
+ * Available mouse modes of the window manager.
+ * @ingroup window_group
+ */
+enum WmMouseModes {
+	WMMM_PASS_THROUGH, ///< No special mode, pass events on to the windows.
+	WMMM_MOVE_WINDOW,  ///< Move the current window.
+};
+
+/**
  * %Window base class.
  * @ingroup window_group
  */
@@ -142,9 +151,14 @@ private:
 	Window *FindWindowByPosition(const Point16 &pos) const;
 	bool UpdateCurrentWindow();
 
+	void StartWindowMove();
+
 	Point16 mouse_pos;      ///< Last reported mouse position.
 	Window *current_window; ///< 'Current' window under the mouse.
 	uint8 mouse_state;      ///< Last reported mouse button state (lower 4 bits).
+	uint8 mouse_mode;       ///< Mouse mode of the window manager. @see WmMouseModes
+
+	Point16 move_offset;    ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
 };
 
 extern WindowManager _manager;

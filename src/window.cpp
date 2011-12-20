@@ -255,6 +255,7 @@ WindowManager::WindowManager()
 	this->mouse_pos.y = -10000;
 	this->current_window = NULL;
 	this->mouse_state = 0;
+	this->mouse_mode = WMMM_PASS_THROUGH;
 };
 
 /** %Window manager destructor. */
@@ -381,12 +382,37 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 	this->mouse_pos = pos;
 
 	this->UpdateCurrentWindow();
-	if (this->current_window != NULL) {
-		/* Compute position relative to window origin. */
-		Point16 pos2;
-		pos2.x = pos.x - this->current_window->rect.base.x;
-		pos2.y = pos.y - this->current_window->rect.base.y;
-		this->current_window->OnMouseMoveEvent(pos2);
+	if (this->current_window == NULL) {
+		this->mouse_mode = WMMM_PASS_THROUGH;
+		return;
+	}
+
+	switch (this->mouse_mode) {
+		case WMMM_PASS_THROUGH: {
+			/* Compute position relative to window origin. */
+			Point16 pos2;
+			pos2.x = pos.x - this->current_window->rect.base.x;
+			pos2.y = pos.y - this->current_window->rect.base.y;
+			this->current_window->OnMouseMoveEvent(pos2);
+			break;
+		}
+
+		case WMMM_MOVE_WINDOW: {
+			if ((this->mouse_state & MB_LEFT) != MB_LEFT) {
+				this->mouse_mode = WMMM_PASS_THROUGH;
+				return;
+			}
+			this->current_window->MarkDirty();
+			Point32 new_pos;
+			new_pos.x = pos.x - this->move_offset.x;
+			new_pos.y = pos.y - this->move_offset.y;
+			this->current_window->rect.base = new_pos;
+			this->current_window->MarkDirty();
+			break;
+		}
+
+		default:
+			NOT_REACHED();
 	}
 }
 
@@ -410,6 +436,26 @@ bool WindowManager::UpdateCurrentWindow()
 }
 
 /**
+ * Initiate a window movement operation.
+ */
+void WindowManager::StartWindowMove()
+{
+	if (this->current_window == NULL) {
+		this->mouse_mode = WMMM_PASS_THROUGH;
+		return;
+	}
+
+	if (!this->current_window->rect.IsPointInside(this->mouse_pos)) {
+		this->mouse_mode = WMMM_PASS_THROUGH;
+		return;
+	}
+
+	this->move_offset.x = this->mouse_pos.x - this->current_window->rect.base.x;
+	this->move_offset.y = this->mouse_pos.y - this->current_window->rect.base.y;
+	this->mouse_mode = WMMM_MOVE_WINDOW;
+}
+
+/**
  * A mouse button was pressed or released.
  * @param button The button that changed state.
  * @param pressed The button was pressed (\c false means it was released instead).
@@ -425,23 +471,40 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 	}
 
 	this->UpdateCurrentWindow();
-	if (newstate != this->mouse_state && this->current_window != NULL) {
-		WmMouseEvent me = this->current_window->OnMouseButtonEvent((this->mouse_state << 4) | newstate);
-		switch (me) {
-			case WMME_NONE:
-				break;
+	if (this->current_window == NULL) {
+		this->mouse_mode = WMMM_PASS_THROUGH;
+		this->mouse_state = newstate;
+		return;
+	}
 
-			case WMME_MOVE_WINDOW:
-				// XXX Implement me.
-				break;
+	switch (this->mouse_mode) {
+		case WMMM_PASS_THROUGH:
+			if (newstate != this->mouse_state) {
+				WmMouseEvent me = this->current_window->OnMouseButtonEvent((this->mouse_state << 4) | newstate);
+				switch (me) {
+					case WMME_NONE:
+						break;
 
-			case WMME_CLOSE_WINDOW:
-				this->DeleteWindow(this->current_window);
-				break;
+					case WMME_MOVE_WINDOW:
+						this->StartWindowMove();
+						break;
 
-			default:
-				NOT_REACHED();
-		}
+					case WMME_CLOSE_WINDOW:
+						this->DeleteWindow(this->current_window);
+						break;
+
+					default:
+						NOT_REACHED();
+				}
+			}
+			break;
+
+		case WMMM_MOVE_WINDOW:
+			this->mouse_mode = WMMM_PASS_THROUGH; // Mouse clicks stop window movement.
+			break;
+
+		default:
+			NOT_REACHED();
 	}
 	this->mouse_state = newstate;
 }
