@@ -155,6 +155,7 @@ GuiWindow::GuiWindow(WindowTypes wtype) : Window(wtype)
 	this->mouse_pos.y = -1;
 	this->tree = NULL;
 	this->widgets = NULL;
+	this->num_widgets = 0;
 	this->SetHighlight(true);
 }
 
@@ -189,6 +190,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	this->tree = MakeWidgetTree(parts, length, &biggest);
 
 	if (biggest >= 0) {
+		this->num_widgets = biggest + 1;
 		this->widgets = (BaseWidget **)malloc(sizeof(BaseWidget *) * (biggest + 1));
 		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = NULL;
 	}

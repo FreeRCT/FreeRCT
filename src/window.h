@@ -125,13 +125,44 @@ public:
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
-	BaseWidget *tree;     ///< Tree of widgets.
-	BaseWidget **widgets; ///< Array of widgets with a non-negative index.
 
 	void SetupWidgetTree(const WidgetPart *parts, int length);
 
+	template <typename WID>
+	FORCEINLINE WID *GetWidget(uint wnum);
+
 	virtual void OnClick(int16 widget);
+
+private:
+	BaseWidget *tree;     ///< Tree of widgets.
+	BaseWidget **widgets; ///< Array of widgets with a non-negative index (use #GetWidget to get the widgets from this array).
+	uint16 num_widgets;   ///< Number of widgets in #widgets.
 };
+
+/**
+ * Get the widget.
+ * @tparam WID %Widget class.
+ * @param wnum %Widget number to get.
+ * @return Address of the widget.
+ */
+template <typename WID>
+FORCEINLINE WID *GuiWindow::GetWidget(uint wnum)
+{
+	assert(wnum < this->num_widgets);
+	return dynamic_cast<WID *>(this->widgets[wnum]);
+}
+
+/**
+ * Specialized template for #BaseWidget
+ * @param wnum %Widget number to get.
+ * @return Address of the base widget.
+ */
+template <>
+FORCEINLINE BaseWidget *GuiWindow::GetWidget(uint wnum)
+{
+	assert(wnum < this->num_widgets);
+	return this->widgets[wnum];
+}
 
 
 /**
