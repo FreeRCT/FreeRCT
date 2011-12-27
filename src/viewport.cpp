@@ -107,9 +107,11 @@ protected:
  * @ingroup viewport_group
  */
 struct DrawData {
-	const Sprite *spr;    ///< %Sprite to draw.
-	const Sprite *cursor; ///< Mouse cursor to draw.
-	Point32 base;         ///< Base coordinate of the image, relative to top-left of the window.
+	const Sprite *cursor;     ///< Mouse cursor to draw.
+	const Sprite *path;       ///< Path sprite to draw.
+	const Sprite *ground;     ///< Surface tile to draw.
+	const Sprite *foundation; ///< Foundations to draw.
+	Point32 base;             ///< Base coordinate of the image, relative to top-left of the window.
 };
 
 /**
@@ -305,40 +307,37 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
-			if (svd->ground.type != GTP_INVALID) {
-				const Sprite *spr = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
-				if (spr != NULL) {
-					const Sprite *mspr = NULL;
-					if (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) {
-						if (this->cursor == VOR_INVALID) {
-							mspr = this->sprites->GetCursorSprite(svd->ground.slope, this->orient);
-						} else {
-							mspr = this->sprites->GetCornerSprite(svd->ground.slope, this->orient, this->cursor);
-						}
-					}
-
-					std::pair<int32, DrawData> p;
-					p.first = sx * xpos + sy * ypos + zpos * 256;
-					p.second.spr = spr;
-					p.second.cursor = mspr;
-					p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
-					p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
-					draw_images.insert(p);
+			const Sprite *surf;
+			if (svd->ground.type == GTP_INVALID) {
+				surf = NULL;
+			} else {
+				surf = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
+			}
+			const Sprite *path;
+			if (svd->path.type == PT_INVALID) {
+				path = NULL;
+			} else {
+				path = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
+			}
+			const Sprite *mspr = NULL;
+			if (this->draw_mouse_cursor && xpos == this->mousex && ypos == this->mousey && zpos == this->mousez) {
+				if (this->cursor == VOR_INVALID) {
+					mspr = this->sprites->GetCursorSprite(svd->ground.slope, this->orient);
+				} else {
+					mspr = this->sprites->GetCornerSprite(svd->ground.slope, this->orient, this->cursor);
 				}
 			}
-			/* TODO: svd->foundation */
 
-			if (svd->path.type != PT_INVALID) {
-				const Sprite *spr = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
-				if (spr != NULL) {
-					std::pair<int32, DrawData> p;
-					p.first = sx * xpos + sy * ypos + zpos * 256 + 1;
-					p.second.spr = spr;
-					p.second.cursor = NULL;
-					p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
-					p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
-					draw_images.insert(p);
-				}
+			if (surf != NULL || mspr != NULL || path != NULL) {
+				std::pair<int32, DrawData> p;
+				p.first = sx * xpos + sy * ypos + zpos * 256;
+				p.second.cursor = mspr;
+				p.second.path = path;
+				p.second.ground = surf;
+				p.second.foundation = NULL; // TODO svd->foundation.
+				p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
+				p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
+				draw_images.insert(p);
 			}
 			break;
 		}
@@ -455,9 +454,11 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	_video->SetClippedRectangle(this->rect);
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
-		/* Blit sprite, and optionally, the cursor sprite. */
-		_video->BlitImage((*iter).second.base, (*iter).second.spr);
-		if ((*iter).second.cursor != NULL) _video->BlitImage((*iter).second.base, (*iter).second.cursor);
+		const DrawData &dd = (*iter).second;
+		if (dd.foundation != NULL) _video->BlitImage(dd.base, dd.foundation);
+		if (dd.ground != NULL) _video->BlitImage(dd.base, dd.ground);
+		if (dd.path != NULL) _video->BlitImage(dd.base, dd.path);
+		if (dd.cursor != NULL) _video->BlitImage(dd.base, dd.cursor);
 	}
 
 	_video->SetClippedRectangle(cr);
