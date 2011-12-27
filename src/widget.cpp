@@ -106,7 +106,8 @@ BaseWidget::BaseWidget(WidgetType wtype)
 			this->fill_x = 1;
 			break;
 
-		case WT_TEXTBUTTON:
+		case WT_TEXT_BUTTON:
+		case WT_TEXT_PUSHBUTTON:
 			this->fill_x = 1;
 			this->fill_y = 1;
 			break;
@@ -326,33 +327,35 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		case WT_RIGHT_TEXT:
 			break;
 
-		case WT_TEXTBUTTON:
-		case WT_IMAGEBUTTON:
+		case WT_TEXT_BUTTON:
+		case WT_TEXT_PUSHBUTTON:
 			bsd = &_gui_sprites.button;
 			pressable = 1;
 			break;
+
+		case WT_IMAGE_BUTTON:
+		case WT_IMAGE_PUSHBUTTON: {
+			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
+			if (imgdata != NULL) {
+				this->InitMinimalSize(&_gui_sprites.button, imgdata->width + 1, imgdata->height + 1);
+			} else {
+				/* Weird/unknown image, just draw an empty box. */
+				this->InitMinimalSize(&_gui_sprites.button, 10 + 1, 10 + 1);
+			}
+			return;
+		}
 
 		default:
 			NOT_REACHED();
 	}
 
-	if (this->wtype == WT_IMAGEBUTTON) {
-		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-		if (imgdata != NULL) {
-			this->InitMinimalSize(bsd, imgdata->width + pressable, imgdata->height + pressable);
-		} else {
-			/* Weird/unknown image, just draw an empty box. */
-			this->InitMinimalSize(bsd, 10 + pressable, 10 + pressable);
-		}
+	int width, height;
+	const char *text = _language->GetText(this->value);
+	_video->GetTextSize(text, &width, &height);
+	if (bsd != NULL) {
+		this->InitMinimalSize(bsd, width + pressable, height + pressable);
 	} else {
-		int width, height;
-		const char *text = _language->GetText(this->value);
-		_video->GetTextSize(text, &width, &height);
-		if (bsd != NULL) {
-			this->InitMinimalSize(bsd, width + pressable, height + pressable);
-		} else {
-			this->InitMinimalSize(width + pressable, height + pressable, 0, 0);
-		}
+		this->InitMinimalSize(width + pressable, height + pressable, 0, 0);
 	}
 }
 
@@ -370,8 +373,10 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		case WT_RIGHT_TEXT:
 			break;
 
-		case WT_TEXTBUTTON:
-		case WT_IMAGEBUTTON:
+		case WT_TEXT_BUTTON:
+		case WT_IMAGE_BUTTON:
+		case WT_TEXT_PUSHBUTTON:
+		case WT_IMAGE_PUSHBUTTON:
 			bsd = &_gui_sprites.button;
 			pressed = this->IsPressed() ? 1 : 0;
 			break;
@@ -394,7 +399,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
 		DrawBorderSprites(*bsd, (pressed != 0), rect);
 	}
-	if (this->wtype == WT_IMAGEBUTTON) {
+	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 		if (imgdata != NULL) _video->BlitImage(left + pressed, top + pressed, imgdata);
 	} else {
@@ -1032,8 +1037,10 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 						*dest = new BackgroundWidget(WT_PANEL);
 						break;
 
-					case WT_TEXTBUTTON:
-					case WT_IMAGEBUTTON:
+					case WT_TEXT_BUTTON:
+					case WT_IMAGE_BUTTON:
+					case WT_TEXT_PUSHBUTTON:
+					case WT_IMAGE_PUSHBUTTON:
 					case WT_TITLEBAR:
 					case WT_LEFT_TEXT:
 					case WT_CENTERED_TEXT:

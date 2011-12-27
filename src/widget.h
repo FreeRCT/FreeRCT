@@ -23,20 +23,22 @@ static const int INVALID_WIDGET_INDEX = -1; ///< Widget number of invalid index.
  * @ingroup widget_group
  */
 enum WidgetType {
-	WT_EMPTY,          ///< Empty widget (used for creating empty space and/or centering).
-	WT_TITLEBAR,       ///< Title of the window.
-	WT_CLOSEBOX,       ///< Close box.
-	WT_RESIZEBOX,      ///< Resize box.
-	WT_LEFT_TEXT,      ///< Text label with left-aligned text.
-	WT_CENTERED_TEXT,  ///< Text label with centered text.
-	WT_RIGHT_TEXT,     ///< Text label with right-aligned text.
-	WT_PANEL,          ///< Panel.
-	WT_TEXTBUTTON,     ///< Button with text.
-	WT_IMAGEBUTTON,    ///< Button with a sprite.
-	WT_RADIOBUTTON,    ///< Radio button widget.
-	WT_HOR_SCROLLBAR,  ///< Scrollbar widget.
-	WT_VERT_SCROLLBAR, ///< Scrollbar widget.
-	WT_GRID,           ///< Intermediate widget.
+	WT_EMPTY,            ///< Empty widget (used for creating empty space and/or centering).
+	WT_TITLEBAR,         ///< Title of the window.
+	WT_CLOSEBOX,         ///< Close box.
+	WT_RESIZEBOX,        ///< Resize box.
+	WT_LEFT_TEXT,        ///< Text label with left-aligned text.
+	WT_CENTERED_TEXT,    ///< Text label with centered text.
+	WT_RIGHT_TEXT,       ///< Text label with right-aligned text.
+	WT_PANEL,            ///< Panel.
+	WT_TEXT_BUTTON,      ///< Button with text (bi-stable).
+	WT_IMAGE_BUTTON,     ///< Button with a sprite (bi-stable).
+	WT_TEXT_PUSHBUTTON,  ///< Button with text (mono-stable).
+	WT_IMAGE_PUSHBUTTON, ///< Button with a sprite (mono-stable).
+	WT_RADIOBUTTON,      ///< Radio button widget.
+	WT_HOR_SCROLLBAR,    ///< Scrollbar widget.
+	WT_VERT_SCROLLBAR,   ///< Scrollbar widget.
+	WT_GRID,             ///< Intermediate widget.
 };
 
 /**
@@ -177,7 +179,7 @@ public:
 
 /**
  * Data widget.
- * Implements #WT_TITLEBAR, #WT_LEFT_TEXT, #WT_CENTERED_TEXT, #WT_RIGHT_TEXT, #WT_TEXTBUTTON and #WT_IMAGEBUTTON.
+ * Implements #WT_TITLEBAR, #WT_LEFT_TEXT, #WT_CENTERED_TEXT, #WT_RIGHT_TEXT, #WT_TEXT_BUTTON, #WT_IMAGE_BUTTON, #WT_TEXT_PUSHBUTTON, and #WT_IMAGE_PUSHBUTTON.
  * @ingroup widget_group
  */
 class DataWidget : public LeafWidget {

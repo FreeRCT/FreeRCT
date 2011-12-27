@@ -230,8 +230,10 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 		if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
 
 		LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
-		if (lw != NULL) {
-			/* 'Press' the button, and set a timeout for 'releasing' it again. */
+		if (lw != NULL && lw->IsShaded()) return WMME_NONE;
+
+		if (bw->wtype == WT_TEXT_PUSHBUTTON || bw->wtype == WT_IMAGE_PUSHBUTTON) {
+			/* For mono-stable buttons, 'press' the button, and set a timeout for 'releasing' it again. */
 			lw->SetPressed(true);
 			this->timeout = 4;
 			lw->MarkDirty(this->rect.base);
