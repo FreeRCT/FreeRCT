@@ -577,6 +577,7 @@ IntermediateWidget::IntermediateWidget(uint8 num_rows, uint8 num_cols) : BaseWid
 	this->columns = NULL;
 	this->num_rows = num_rows;
 	this->num_cols = num_cols;
+	this->flags = 0;
 
 	if (this->num_cols > 0 && this->num_rows > 0) this->ClaimMemory();
 }
