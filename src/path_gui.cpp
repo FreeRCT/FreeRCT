@@ -105,6 +105,7 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER)
  */
 void ShowPathBuildGui()
 {
+	if (HighlightWindowByType(WC_PATH_BUILDER)) return;
 	new PathBuildGui();
 }
 

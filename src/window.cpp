@@ -53,6 +53,7 @@ Window::Window(WindowTypes wtype) : rect(0, 0, 0, 0), wtype(wtype)
 	this->timeout = 0;
 	this->higher = NULL;
 	this->lower  = NULL;
+	this->flags  = 0;
 
 	_manager.AddTostack(this); // Add to window stack.
 }
@@ -137,6 +138,13 @@ void Window::MarkDirty()
 /* virtual */ void Window::TimeoutCallback() { }
 
 /**
+ * Enable or disable highlighting. Base class does nothing.
+ * If enabled, the #timeout is used to automatically disable it again.
+ * @param value New highlight value.
+ */
+/* virtual */ void Window::SetHighlight(bool value) { }
+
+/**
  * Gui window constructor.
  * @param wtype %Window type (for finding a window in the stack).
  * @note Initialize the widget tree from the derived window class.
@@ -147,6 +155,7 @@ GuiWindow::GuiWindow(WindowTypes wtype) : Window(wtype)
 	this->mouse_pos.y = -1;
 	this->tree = NULL;
 	this->widgets = NULL;
+	this->SetHighlight(true);
 }
 
 GuiWindow::~GuiWindow()
@@ -194,6 +203,16 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 /* virtual */ void GuiWindow::OnDraw()
 {
 	this->tree->Draw(this->rect.base);
+	if ((this->flags & WF_HIGHLIGHT) != 0) {
+		Point16 top_left     = {this->rect.base.x,                        this->rect.base.y};
+		Point16 top_right    = {this->rect.base.x + this->rect.width - 1, this->rect.base.y};
+		Point16 bottom_left  = {this->rect.base.x,                        this->rect.base.y + this->rect.height - 1};
+		Point16 bottom_right = {this->rect.base.x + this->rect.width - 1, this->rect.base.y + this->rect.height - 1};
+		_video->DrawLine(top_left, top_right, COL_HIGHLIGHT);
+		_video->DrawLine(top_left, bottom_left, COL_HIGHLIGHT);
+		_video->DrawLine(top_right, bottom_right, COL_HIGHLIGHT);
+		_video->DrawLine(bottom_left, bottom_right, COL_HIGHLIGHT);
+	}
 }
 
 /* virtual */ void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
@@ -239,6 +258,18 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 /* virtual */ void GuiWindow::TimeoutCallback()
 {
 	this->tree->RaiseButtons(this->rect.base);
+	if ((this->flags & WF_HIGHLIGHT) != 0) this->SetHighlight(false);
+}
+
+/* virtual */ void GuiWindow::SetHighlight(bool value)
+{
+	if (value) {
+		this->flags |= WF_HIGHLIGHT;
+		this->timeout = 5;
+	} else {
+		this->flags &= ~WF_HIGHLIGHT;
+	}
+	this->MarkDirty();
 }
 
 /**
@@ -575,4 +606,17 @@ Window *GetWindowByType(WindowTypes wtype)
 		w = w->lower;
 	}
 	return NULL;
+}
+
+/**
+ * Highlight a window of a given type.
+ * @param wtype %Window type to look for.
+ * @return A window has been highlighted.
+ * @ingroup window_group
+ */
+bool HighlightWindowByType(WindowTypes wtype)
+{
+	Window *w = GetWindowByType(wtype);
+	if (w != NULL) w->SetHighlight(true);
+	return w != NULL;
 }

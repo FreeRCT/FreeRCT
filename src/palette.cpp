@@ -14,7 +14,7 @@
 
 const uint8 _palette[256][3] = {
 	{   0,   0,   0}, //  0 COL_BACKGROUND (background behind world display)
-	{   0,   0,   0}, //  1 unused
+	{ 255, 255, 255}, //  1 COL_HIGHLIGHT (full white to highlight window edge)
 	{   0,   0,   0}, //  2 unused
 	{   0,   0,   0}, //  3 unused
 	{   0,   0,   0}, //  4 unused

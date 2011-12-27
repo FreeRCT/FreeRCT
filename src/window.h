@@ -29,6 +29,11 @@ enum WindowTypes {
 	WC_PATH_BUILDER, ///< Path build gui.
 };
 
+/** Various state flags of the %Window. */
+enum WindowFlags {
+	WF_HIGHLIGHT = 1 << 0, ///< %Window edge is highlighted.
+};
+
 /**
  * Known mouse buttons.
  * @ingroup window_group
@@ -80,6 +85,7 @@ public:
 	 * Decremented on each iteration. When it reaches 0, #TimeoutCallback is called.
 	 */
 	uint8 timeout;
+	uint8 flags;    ///< %Window flags. @see WindowFlags
 	Window *higher; ///< %Window above this window (managed by #WindowManager).
 	Window *lower;  ///< %Window below this window (managed by #WindowManager).
 
@@ -96,6 +102,7 @@ public:
 	virtual void OnMouseLeaveEvent();
 
 	virtual void TimeoutCallback();
+	virtual void SetHighlight(bool value);
 };
 
 /**
@@ -114,6 +121,7 @@ public:
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseLeaveEvent();
 	virtual void TimeoutCallback();
+	virtual void SetHighlight(bool value);
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
@@ -167,6 +175,7 @@ bool IsLeftClick(uint8 state);
 
 void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype);
+bool HighlightWindowByType(WindowTypes wtype);
 
 Viewport *ShowMainDisplay();
 void ShowToolbar();

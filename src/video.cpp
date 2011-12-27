@@ -603,3 +603,55 @@ void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
 	SDL_FreeSurface(surf);
 }
 
+/**
+ * Draw a line from \a start to \a end using the specified \a colour.
+ * @param start Starting point at the screen.
+ * @param end End point at the screen.
+ * @param colour Colour to use.
+ */
+void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colour)
+{
+	int16 dx, inc_x, dy, inc_y;
+	if (start.x > end.x) {
+		dx = start.x - end.x;
+		inc_x = -1;
+	} else{
+		dx = end.x - start.x;
+		inc_x = 1;
+	}
+	if (start.y > end.y) {
+		dy = start.y - end.y;
+		inc_y = -1;
+	} else{
+		dy = end.y - start.y;
+		inc_y = 1;
+	}
+
+	int16 step = min(dx, dy);
+	int16 pos_x = start.x;
+	int16 pos_y = start.y;
+	int16 sum_x = 0;
+	int16 sum_y = 0;
+
+	this->blit_rect.ValidateAddress();
+	uint8 *dest = this->blit_rect.address + pos_x + pos_y * this->blit_rect.pitch;
+
+	do {
+		/* Blit pixel. */
+		if (pos_x >= 0 && pos_x < this->blit_rect.width && pos_y >= 0 && pos_y < this->blit_rect.height) {
+			*dest = colour;
+		}
+		sum_x += step;
+		sum_y += step;
+		if (sum_x >= dy) {
+			pos_x += inc_x;
+			dest += inc_x;
+			sum_x -= dy;
+		}
+		if (sum_y >= dx) {
+			pos_y += inc_y;
+			dest += inc_y * this->blit_rect.pitch;
+			sum_y -= dx;
+		}
+	} while (pos_x != end.x || pos_y != end.y);
+}

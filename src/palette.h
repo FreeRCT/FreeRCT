@@ -15,6 +15,7 @@
 /** Colours. */
 enum PaletteColours {
 	COL_BACKGROUND = 0,     ///< Index of background behind the world display.
+	COL_HIGHLIGHT  = 1,     ///< Index of window highlighting edge colour when (re)opening.
 
 	COL_SERIES_START = 10,  ///< Index of the first series.
 	COL_SERIES_LENGTH = 12, ///< Number of shades in a single run.

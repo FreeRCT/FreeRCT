@@ -111,6 +111,7 @@ public:
 
 	void GetTextSize(const char *text, int *width, int *height);
 	void BlitText(const char *text, int xpos, int ypos, uint8 colour);
+	void DrawLine(const Point16 &start, const Point16 &end, uint8 colour);
 
 private:
 	bool initialized;   ///< Video system is initialized.
