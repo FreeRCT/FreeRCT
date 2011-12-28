@@ -38,7 +38,8 @@ public:
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
 
-	void SetMouseMode(ViewportMouseMode mode);
+	void SetMouseModeState(ViewportMouseMode mode, uint8 state = 0);
+	ViewportMouseMode GetMouseMode();
 
 	void ComputeCursorPosition();
 

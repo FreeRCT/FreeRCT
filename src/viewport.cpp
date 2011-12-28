@@ -502,7 +502,8 @@ void Viewport::ComputeCursorPosition()
 void Viewport::Rotate(int direction)
 {
 	this->orientation = (ViewOrientation)((this->orientation + VOR_NUM_ORIENT + ((direction > 0) ? 1 : -1)) % VOR_NUM_ORIENT);
-	this->ComputeCursorPosition();
+	Point16 pt = this->mouse_pos;
+	this->OnMouseMoveEvent(pt);
 	this->MarkDirty();
 }
 
@@ -513,6 +514,8 @@ void Viewport::Rotate(int direction)
  */
 void Viewport::MoveViewport(int dx, int dy)
 {
+	if (dx == 0 && dy == 0) return;
+
 	int32 new_x, new_y;
 	switch (this->orientation) {
 		case VOR_NORTH:
@@ -596,30 +599,40 @@ void Viewport::ChangeTerrain(int direction)
 }
 
 /**
- * Set mode of the mouse interaction of the viewport.
- * @param mode New mode.
+ * Set mode and state of the mouse interaction of the viewport.
+ * @param mode Possibly new mode.
+ * @param state State within the mouse mode.
  */
-void Viewport::SetMouseMode(ViewportMouseMode mode)
+void Viewport::SetMouseModeState(ViewportMouseMode mode, uint8 state)
 {
 	assert(mode < MM_COUNT);
-	this->mouse_state = 0;
+	this->mouse_state = state;
 	this->mouse_mode = mode;
+}
+
+/**
+ * Get the current mode of mouse interaction of the viewport.
+ * @return Current mouse mode.
+ */
+ViewportMouseMode Viewport::GetMouseMode()
+{
+	return this->mouse_mode;
 }
 
 /* virtual */ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 {
+	Point16 old_mouse_pos = this->mouse_pos;
+	this->mouse_pos = pos;
+
 	switch (this->mouse_mode) {
 		case MM_INACTIVE:
 			break;
 
 		case MM_TILE_TERRAFORM:
-			if (pos == this->mouse_pos) break;
 			if ((this->mouse_state & MB_RIGHT) != 0) {
 				/* Drag the window if button is pressed down. */
-				this->MoveViewport(pos.x - this->mouse_pos.x, pos.y - this->mouse_pos.y);
-				this->mouse_pos = pos;
+				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
 			} else {
-				this->mouse_pos = pos;
 				this->ComputeCursorPosition();
 			}
 			break;
@@ -678,6 +691,6 @@ Viewport *ShowMainDisplay()
 	assert(width >= 120 && height >= 120);
 	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
 
-	w->SetMouseMode(MM_TILE_TERRAFORM);
+	w->SetMouseModeState(MM_TILE_TERRAFORM);
 	return w;
 }
