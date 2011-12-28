@@ -1,5 +1,5 @@
 # Generic Gui strings
-STR_TITLEBAR_TIP                                :Click at the title bar to raise the window, drag the title bar to drag the window.
+STR_TITLEBAR_TIP                                :Click at the title bar to raise the window, drag the title bar to move the window.
 
 # Toolbar gui strings
 STR_TOOLBAR_GUI_QUIT                            :Quit
@@ -10,15 +10,27 @@ STR_TOOLBAR_GUI_BUILD_PATHS                     :Build paths and queues.
 
 # Path gui strings
 STR_PATH_GUI_TITLE                              :Paths
-STR_PATH_GUI_FOLLOW_GROUND                      :Follow the ground
-STR_PATH_GUI_FREE_BUILD                         :Build anywhere
+STR_PATH_GUI_LONG                               :Long
+STR_PATH_GUI_BUY                                :Buy
+STR_PATH_GUI_REMOVE                             :Remove
+STR_PATH_GUI_LONG_TIP                           :Build a long path.
+STR_PATH_GUI_BUY_TIP                            :Buy a path tile.
 STR_PATH_GUI_BULLDOZER_TIP                      :Click to remove the last built path and get your money back
                                                  (works until you close the window).
-STR_PATH_GUI_SLOPE_DOWN                         :Build path downwards.
-STR_PATH_GUI_SLOPE_FLAT                         :Build path horizontally.
-STR_PATH_GUI_SLOPE_UP                           :Build path upwards.
-STR_PATH_GUI_NW_DIRECTION                       :Build path in north-west direction.
-STR_PATH_GUI_NE_DIRECTION                       :Build path in north-east direction.
-STR_PATH_GUI_SW_DIRECTION                       :Build path in south-west direction.
-STR_PATH_GUI_SE_DIRECTION                       :Build path in south-east direction.
+STR_PATH_GUI_SLOPE_DOWN                         :Down
+STR_PATH_GUI_SLOPE_FLAT                         :Level
+STR_PATH_GUI_SLOPE_UP                           :Up
+STR_PATH_GUI_SLOPE_DOWN_TIP                     :Build path downwards.
+STR_PATH_GUI_SLOPE_FLAT_TIP                     :Build path horizontally.
+STR_PATH_GUI_SLOPE_UP_TIP                       :Build path upwards.
+
+STR_PATH_GUI_FORWARD                            :Forward
+STR_PATH_GUI_BACKWARD                           :Back
+STR_PATH_GUI_FORWARD_TIP                        :Move a tile forward.
+STR_PATH_GUI_BACKWARD_TIP                       :Move a tile backward.
+
+STR_PATH_GUI_NW_DIRECTION_TIP                   :Build path in north-west direction.
+STR_PATH_GUI_NE_DIRECTION_TIP                   :Build path in north-east direction.
+STR_PATH_GUI_SW_DIRECTION_TIP                   :Build path in south-west direction.
+STR_PATH_GUI_SE_DIRECTION_TIP                   :Build path in south-east direction.
 

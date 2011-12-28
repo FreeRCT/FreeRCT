@@ -32,22 +32,18 @@ public:
  * @ingroup gui_group
  */
 enum PathBuildWidgets {
-	PATH_GUI_FOLLOW_GROUND,      ///< Radio button 'follow ground'.
-	PATH_GUI_FOLLOW_GROUND_TEXT, ///< Text label with 'follow ground'.
-	PATH_GUI_FREE_BUILD,         ///< Radio button 'build freely'.
-	PATH_GUI_FREE_BUILD_TEXT,    ///< Text label with 'build freely'.
 	PATH_GUI_SLOPE_DOWN,         ///< Button 'go down'.
 	PATH_GUI_SLOPE_FLAT,         ///< Button 'flat'.
 	PATH_GUI_SLOPE_UP,           ///< Button 'go up'.
-	PATH_GUI_PREVIEW,            ///< Preview of the path canvas.
-	PATH_GUI_COST,               ///< Cost canvas.
-	PATH_GUI_NW_DIRECTION,       ///< Build arrow in NW direction.
-	PATH_GUI_SW_DIRECTION,       ///< Build arrow in SW direction.
 	PATH_GUI_NE_DIRECTION,       ///< Build arrow in NE direction.
 	PATH_GUI_SE_DIRECTION,       ///< Build arrow in SE direction.
-	PATH_GUI_BULLDOZE,           ///< Bulldoze sprite button.
-	PATH_GUI_PATHS,              ///< Available paths canvas.
-	PATH_GUI_SCROLL,             ///< Scrollbar of #PATH_GUI_PATHS.
+	PATH_GUI_SW_DIRECTION,       ///< Build arrow in SW direction.
+	PATH_GUI_NW_DIRECTION,       ///< Build arrow in NW direction.
+	PATH_GUI_FORWARD,            ///< Move the arrow a path tile forward.
+	PATH_GUI_BACKWARD,           ///< Move the arrow a path tile backward.
+	PATH_GUI_LONG,               ///< Build a long path.
+	PATH_GUI_BUY,                ///< Buy a path tile.
+	PATH_GUI_REMOVE,             ///< Remove a path tile.
 };
 
 static const int SPR_NE_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_NE; ///< Sprite for building in NE direction.
@@ -67,22 +63,41 @@ static const WidgetPart _path_build_gui_parts[] = {
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, 0),
 			Intermediate(0, 1),
-				/* 'Follow ground' radio button, and slope up/plane/down buttons. */
-				Intermediate(2, 2), // 2 rows, 2 columns
-					/* Follow the ground while building. */
-					Widget(WT_RADIOBUTTON, PATH_GUI_FOLLOW_GROUND, 0),
-					Widget(WT_CENTERED_TEXT, PATH_GUI_FOLLOW_GROUND_TEXT, 0), SetData(STR_PATH_GUI_FOLLOW_GROUND, STR_NULL),
-					/* Build in the air. */
-					Widget(WT_RADIOBUTTON, PATH_GUI_FREE_BUILD, 0),
-					Widget(WT_CENTERED_TEXT, PATH_GUI_FREE_BUILD_TEXT, 0), SetData(STR_PATH_GUI_FREE_BUILD, STR_NULL),
-				Intermediate(1, 3), SetPadding(5, 0, 0, 0),
+				Intermediate(1, 5), SetPadding(5, 5, 0, 5),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
-					/* Direction. */
-					Intermediate(2, 2), SetHorPIP(5, 2, 5), SetVertPIP(5, 2, 5),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_NW_DIRECTION, 0), SetData(SPR_NW_DIRECTION, STR_PATH_GUI_NW_DIRECTION),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_NE_DIRECTION, 0), SetData(SPR_NE_DIRECTION, STR_PATH_GUI_NE_DIRECTION),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_SW_DIRECTION, 0), SetData(SPR_SW_DIRECTION, STR_PATH_GUI_SW_DIRECTION),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_SE_DIRECTION, 0), SetData(SPR_SE_DIRECTION, STR_PATH_GUI_SE_DIRECTION),
+					/* Slope down/level/up. */
+					Widget(WT_TEXT_BUTTON, PATH_GUI_SLOPE_DOWN, 0),
+							SetData(STR_PATH_GUI_SLOPE_DOWN, STR_PATH_GUI_SLOPE_DOWN_TIP),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_SLOPE_FLAT, 0), SetPadding(0, 0, 0, 5),
+							SetData(STR_PATH_GUI_SLOPE_FLAT, STR_PATH_GUI_SLOPE_FLAT_TIP),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_SLOPE_UP, 0), SetPadding(0, 0, 0, 5),
+							SetData(STR_PATH_GUI_SLOPE_UP, STR_PATH_GUI_SLOPE_UP_TIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+				Intermediate(1, 3), SetPadding(5, 5, 0, 5),
+					/* Four arrows direction. */
+					Intermediate(2, 2), SetHorPIP(0, 2, 5), SetVertPIP(0, 2, 0),
+						Widget(WT_IMAGE_BUTTON, PATH_GUI_NW_DIRECTION, 0),
+								SetData(SPR_NW_DIRECTION, STR_PATH_GUI_NW_DIRECTION_TIP),
+						Widget(WT_IMAGE_BUTTON, PATH_GUI_NE_DIRECTION, 0),
+								SetData(SPR_NE_DIRECTION, STR_PATH_GUI_NE_DIRECTION_TIP),
+						Widget(WT_IMAGE_BUTTON, PATH_GUI_SW_DIRECTION, 0),
+								SetData(SPR_SW_DIRECTION, STR_PATH_GUI_SW_DIRECTION_TIP),
+						Widget(WT_IMAGE_BUTTON, PATH_GUI_SE_DIRECTION, 0),
+								SetData(SPR_SE_DIRECTION, STR_PATH_GUI_SE_DIRECTION_TIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+					/* Forward/backward. */
+					Intermediate(2, 1),
+						Widget(WT_TEXT_BUTTON, PATH_GUI_FORWARD, 0),
+								SetData(STR_PATH_GUI_FORWARD, STR_PATH_GUI_FORWARD_TIP),
+						Widget(WT_TEXT_BUTTON, PATH_GUI_BACKWARD, 0),
+								SetData(STR_PATH_GUI_BACKWARD, STR_PATH_GUI_BACKWARD_TIP),
+				Intermediate(1, 7), SetPadding(5, 5, 5, 5), SetHorPIP(0, 2, 0),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_LONG, 0), SetData(STR_PATH_GUI_LONG, STR_PATH_GUI_LONG_TIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_BUY, 0), SetData(STR_PATH_GUI_BUY, STR_PATH_GUI_BUY_TIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_REMOVE, 0), SetData(STR_PATH_GUI_REMOVE, STR_PATH_GUI_BULLDOZER_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
 			EndContainer(),
 	EndContainer(),
