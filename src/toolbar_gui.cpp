@@ -24,6 +24,7 @@ class ToolbarWindow : public GuiWindow {
 public:
 	ToolbarWindow();
 
+	virtual Point32 OnInitialPosition();
 	virtual void OnClick(int16 number);
 };
 
@@ -51,8 +52,12 @@ static const WidgetPart _toolbar_widgets[] = {
 ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 {
 	this->SetupWidgetTree(_toolbar_widgets, lengthof(_toolbar_widgets));
-	this->SetPosition(10, 0);
-	this->MarkDirty();
+}
+
+/* virtual */ Point32 ToolbarWindow::OnInitialPosition()
+{
+	static const Point32 pt = {10, 0};
+	return pt;
 }
 
 /* virtual */ void ToolbarWindow::OnClick(int16 number)

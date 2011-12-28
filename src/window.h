@@ -91,6 +91,7 @@ public:
 
 	virtual void SetSize(uint width, uint height);
 	void SetPosition(int x, int y);
+	virtual Point32 OnInitialPosition();
 
 	void MarkDirty();
 
@@ -183,6 +184,8 @@ public:
 	void MouseButtonEvent(MouseButtons button, bool pressed);
 	void MouseWheelEvent(int direction);
 	void Tick();
+
+	Point16 GetMousePosition() const;
 
 	Window *top;        ///< Top-most window in the window stack.
 	Window *bottom;     ///< Lowest window in the window stack.

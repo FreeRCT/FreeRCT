@@ -91,8 +91,6 @@ static const WidgetPart _path_build_gui_parts[] = {
 PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER)
 {
 	this->SetupWidgetTree(_path_build_gui_parts, lengthof(_path_build_gui_parts));
-	this->SetPosition(200, 20);
-	this->MarkDirty();
 }
 
 /* virtual */ void PathBuildGui::OnClick(int16 number)

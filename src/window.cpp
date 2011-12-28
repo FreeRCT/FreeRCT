@@ -25,6 +25,7 @@
 #include "window.h"
 #include "widget.h"
 #include "video.h"
+#include "math_func.h"
 #include "palette.h"
 
 /**
@@ -32,6 +33,8 @@
  * @ingroup window_group
  */
 WindowManager _manager;
+
+static uint GetWindowZPriority(WindowTypes wt);
 
 /**
  * Does the mouse button state express a left-click?
@@ -83,10 +86,133 @@ Window::~Window()
  * @param x Initial X position.
  * @param y Initial Y position.
  */
-void Window::SetPosition(int x, int y)
+void Window::SetPosition(int32 x, int32 y)
 {
 	this->rect.base.x = x;
 	this->rect.base.y = y;
+}
+
+/** Compute the initial position of a window. */
+class ComputeInitialPosition {
+public:
+	ComputeInitialPosition();
+
+	Point32 FindPosition(Window *w);
+
+	bool IsScreenEmpty(const Rectangle32 &rect);
+
+protected:
+	int base_pos; ///< Base position of a new window.
+	Window *skip; ///< Window to skip in the search.
+
+	static const int GAP; ///< Gap between the old and the new window.
+};
+
+const int ComputeInitialPosition::GAP = 5;
+
+
+ComputeInitialPosition::ComputeInitialPosition()
+{
+	this->base_pos = 10;
+	this->skip = NULL;
+}
+
+/**
+ * Get distance of a position to the mouse.
+ * @param pt Queried point.
+ * @return Estimated distance.
+ * @todo [easy] Estimate is pretty stupid, and can be improved. (Partly diagonal + partly horizontal or vertical suffices.)
+ */
+static int GetDistanceToMouse(const Point32 &pt)
+{
+	Point16 mouse_pos = _manager.GetMousePosition();
+	return abs(mouse_pos.x - pt.x) + abs(mouse_pos.y - pt.y);
+}
+
+/**
+ * Find an initial position for new window \a w.
+ * @param w New window to position.
+ * @return Best position of the window.
+ * @pre Size of the window has been decided.
+ */
+Point32 ComputeInitialPosition::FindPosition(Window *new_w)
+{
+	static const Point16 test_positions[] = {
+		{0, 1}, {0, 2}, {3, 1}, {3, 2},
+		{1, 0}, {2, 0}, {1, 3}, {2, 3}
+	};
+
+	int32 x[4], y[4];
+
+	this->skip = new_w;
+
+	Point32 best;
+	best.x = this->base_pos;
+	best.y = this->base_pos;
+
+	bool found_empty = false;
+	for (Window *w = _manager.top; w != NULL; w = w->lower) {
+		if (w == new_w) continue;
+		x[0] = w->rect.base.x - new_w->rect.width - GAP;
+		x[1] = w->rect.base.x;
+		x[2] = w->rect.base.x + w->rect.width - new_w->rect.width;
+		x[3] = w->rect.base.x + w->rect.width + GAP;
+
+		y[0] = w->rect.base.y - new_w->rect.height - GAP;
+		y[1] = w->rect.base.y;
+		y[2] = w->rect.base.y + w->rect.height - new_w->rect.height;
+		y[3] = w->rect.base.y + w->rect.height + GAP;
+
+		for (uint i = 0; i < lengthof(test_positions); i++) {
+			Point32 pt;
+			pt.x = x[test_positions[i].x];
+			pt.y = y[test_positions[i].y];
+			if (this->IsScreenEmpty(Rectangle32(pt.x, pt.y, new_w->rect.width, new_w->rect.height))) {
+				if (!found_empty || GetDistanceToMouse(best) > GetDistanceToMouse(pt)) {
+					best = pt;
+					found_empty = true;
+				}
+			}
+		}
+	}
+
+	if (best.x == this->base_pos) {
+		this->base_pos += 10;
+		if (this->base_pos + 100 > _video->GetYSize()) this->base_pos = 10;
+	}
+
+	return best;
+}
+
+/**
+ * Is the screen empty below the rectangle?
+ * @param rect Area to test.
+ * @return Tested area is clear.
+ */
+bool ComputeInitialPosition::IsScreenEmpty(const Rectangle32 &rect)
+{
+	uint new_prio = GetWindowZPriority(this->skip->wtype);
+
+	if (rect.base.x < 0 || rect.base.y < 0
+			|| rect.base.x + rect.width  > _video->GetXSize()
+			|| rect.base.y + rect.height > _video->GetYSize()) return false;
+
+	for (Window *w = _manager.top; w != NULL; w = w->lower) {
+		if (w == this->skip || new_prio > GetWindowZPriority(w->wtype)) continue;
+		if (w->rect.Intersects(rect)) return false;
+	}
+	return true;
+}
+
+/**
+ * Find a nice initial position for the new window.
+ * @return Initial position of the window.
+ */
+/* virtual */ Point32 Window::OnInitialPosition()
+{
+	static ComputeInitialPosition compute_pos;
+
+	return compute_pos.FindPosition(this);
 }
 
 /**
@@ -208,6 +334,11 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 
 	Rectangle16 min_rect(0, 0, this->tree->min_x, this->tree->min_y);
 	this->tree->SetSmallestSizePosition(min_rect);
+
+	Point32 pt = this->OnInitialPosition();
+	this->SetPosition(pt.x, pt.y);
+
+	this->MarkDirty();
 }
 
 /* virtual */ void GuiWindow::OnDraw()
@@ -404,6 +535,15 @@ Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 		w = w->lower;
 	}
 	return w;
+}
+
+/**
+ * Return the current mouse position.
+ * @return The last reported mouse position.
+ */
+Point16 WindowManager::GetMousePosition() const
+{
+	return this->mouse_pos;
 }
 
 /**

@@ -117,10 +117,10 @@ struct Rectangle {
 	 */
 	bool Intersects(const Rectangle<PT, SZ> &rect) const
 	{
-		if (rect.base.x >= this->base.x + this->width) return false;
-		if (rect.base.x + rect.width <= this->base.x) return false;
-		if (rect.base.y >= this->base.y + this->height) return false;
-		if (rect.base.y + rect.height <= this->base.y) return false;
+		if (rect.base.x >= this->base.x + (typename PT::CoordType)this->width) return false;
+		if (rect.base.x + (typename PT::CoordType)rect.width <= (typename PT::CoordType)this->base.x) return false;
+		if (rect.base.y >= this->base.y + (typename PT::CoordType)this->height) return false;
+		if (rect.base.y + (typename PT::CoordType)rect.height <= this->base.y) return false;
 		return true;
 	}
 
