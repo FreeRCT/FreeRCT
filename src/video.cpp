@@ -655,3 +655,20 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colou
 		}
 	} while (pos_x != end.x || pos_y != end.y);
 }
+
+/**
+ * Draw a rectangle at the screen.
+ * @param rect %Rectangle to draw.
+ * @param colour Colour to use.
+ */
+void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint8 colour)
+{
+	Point16 top_left     = {rect.base.x,                  rect.base.y};
+	Point16 top_right    = {rect.base.x + rect.width - 1, rect.base.y};
+	Point16 bottom_left  = {rect.base.x,                  rect.base.y + rect.height - 1};
+	Point16 bottom_right = {rect.base.x + rect.width - 1, rect.base.y + rect.height - 1};
+	this->DrawLine(top_left, top_right, COL_HIGHLIGHT);
+	this->DrawLine(top_left, bottom_left, COL_HIGHLIGHT);
+	this->DrawLine(top_right, bottom_right, COL_HIGHLIGHT);
+	this->DrawLine(bottom_left, bottom_right, COL_HIGHLIGHT);
+}

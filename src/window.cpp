@@ -205,16 +205,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 /* virtual */ void GuiWindow::OnDraw()
 {
 	this->tree->Draw(this->rect.base);
-	if ((this->flags & WF_HIGHLIGHT) != 0) {
-		Point16 top_left     = {this->rect.base.x,                        this->rect.base.y};
-		Point16 top_right    = {this->rect.base.x + this->rect.width - 1, this->rect.base.y};
-		Point16 bottom_left  = {this->rect.base.x,                        this->rect.base.y + this->rect.height - 1};
-		Point16 bottom_right = {this->rect.base.x + this->rect.width - 1, this->rect.base.y + this->rect.height - 1};
-		_video->DrawLine(top_left, top_right, COL_HIGHLIGHT);
-		_video->DrawLine(top_left, bottom_left, COL_HIGHLIGHT);
-		_video->DrawLine(top_right, bottom_right, COL_HIGHLIGHT);
-		_video->DrawLine(bottom_left, bottom_right, COL_HIGHLIGHT);
-	}
+	if ((this->flags & WF_HIGHLIGHT) != 0) _video->DrawRectangle(this->rect, COL_HIGHLIGHT);
 }
 
 /* virtual */ void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
