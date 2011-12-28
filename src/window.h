@@ -103,6 +103,7 @@ public:
 
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);
+	virtual void OnChange(int code, uint32 parameter);
 };
 
 /**
@@ -207,6 +208,7 @@ bool IsLeftClick(uint8 state);
 void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype);
 bool HighlightWindowByType(WindowTypes wtype);
+void NotifyChange(WindowTypes wtype, int code, uint32 parameter);
 
 Viewport *ShowMainDisplay();
 void ShowToolbar();

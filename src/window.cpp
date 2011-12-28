@@ -145,6 +145,14 @@ void Window::MarkDirty()
 /* virtual */ void Window::SetHighlight(bool value) { }
 
 /**
+ * An important (window-specific) change has happened.
+ * @param code Unique identification of the change.
+ * @param parameter Parameter of the \a code.
+ * @note Meaning of number values are documented near this method in derived classes.
+ */
+/* virtual */ void Window::OnChange(int code, uint32 parameter) { }
+
+/**
  * Gui window constructor.
  * @param wtype %Window type (for finding a window in the stack).
  * @note Initialize the widget tree from the derived window class.
@@ -601,6 +609,18 @@ Window *GetWindowByType(WindowTypes wtype)
 		w = w->lower;
 	}
 	return NULL;
+}
+
+/**
+ * Notify the window of the given type of the change with the specified number.
+ * @param wtype %Window type to look for.
+ * @param code Unique change number.
+ * @param parameter Parameter of the change number
+ */
+void NotifyChange(WindowTypes wtype, int code, uint32 parameter)
+{
+	Window *w = GetWindowByType(wtype);
+	if (w != NULL) w->OnChange(code, parameter);
 }
 
 /**
