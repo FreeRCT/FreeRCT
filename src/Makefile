@@ -40,11 +40,8 @@ rcd:
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-%.d: %.cpp
+%.d: %.cpp table/strings.h
 	$(CXX) -MM $(CXXFLAGS) $(INCLUDES) $< | sed 's,\($*\)\.o[ :]*,\1.o $@ : ,' > $@
-
-language.cpp: table/strings.h
-toolbar_gui.cpp: table/strings.h
 
 table/strings.h: lang/english.txt ../rcd/process_languages.py
 	if test ! -d table;\
