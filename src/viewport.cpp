@@ -30,6 +30,46 @@
 #include <map>
 
 /**
+ * Convert 3D position to the horizontal 2D position.
+ * @param x X position in the game world.
+ * @param y Y position in the game world.
+ * @param orient Orientation.
+ * @param width Tile width in pixels.
+ * @return X position in 2D.
+ */
+static FORCEINLINE int32 ComputeXFunction(int32 x, int32 y, ViewOrientation orient, uint16 width)
+{
+	switch (orient) {
+		case VOR_NORTH: return ((y - x)  * width / 2) >> 8;
+		case VOR_WEST:  return (-(x + y) * width / 2) >> 8;
+		case VOR_SOUTH: return ((x - y)  * width / 2) >> 8;
+		case VOR_EAST:  return ((x + y)  * width / 2) >> 8;
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Convert 3D position to the vertical 2D position.
+ * @param x X position in the game world.
+ * @param y Y position in the game world.
+ * @param z Z position in the game world.
+ * @param orient Orientation.
+ * @param width Tile width in pixels.
+ * @param height Tile height in pixels.
+ * @return Y position in 2D.
+ */
+static FORCEINLINE int32 ComputeYFunction(int32 x, int32 y, int32 z, ViewOrientation orient, uint16 width, uint16 height)
+{
+	switch (orient) {
+		case VOR_NORTH: return ((x + y)  * width / 4 - z * height) >> 8;
+		case VOR_WEST:  return ((y - x)  * width / 4 - z * height) >> 8;
+		case VOR_SOUTH: return (-(x + y) * width / 4 - z * height) >> 8;
+		case VOR_EAST:  return ((x - y)  * width / 4 - z * height) >> 8;
+		default: NOT_REACHED();
+	}
+}
+
+/**
  * Search the world for voxels to render.
  * @ingroup viewport_group
  */
@@ -50,13 +90,7 @@ public:
 	 */
 	FORCEINLINE int32 ComputeX(int32 x, int32 y)
 	{
-		switch (this->orient) {
-			case VOR_NORTH: return ((y - x)  * this->tile_width / 2) >> 8;
-			case VOR_WEST:  return (-(x + y) * this->tile_width / 2) >> 8;
-			case VOR_SOUTH: return ((x - y)  * this->tile_width / 2) >> 8;
-			case VOR_EAST:  return ((x + y)  * this->tile_width / 2) >> 8;
-			default: NOT_REACHED();
-		}
+		return ComputeXFunction(x, y, this->orient, this->tile_width);
 	}
 
 	/**
@@ -68,13 +102,7 @@ public:
 	 */
 	FORCEINLINE int32 ComputeY(int32 x, int32 y, int32 z)
 	{
-		switch (this->orient) {
-			case VOR_NORTH: return ((x + y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
-			case VOR_WEST:  return ((y - x)  * this->tile_width / 4 - z * this->tile_height) >> 8;
-			case VOR_SOUTH: return (-(x + y) * this->tile_width / 4 - z * this->tile_height) >> 8;
-			case VOR_EAST:  return ((x - y)  * this->tile_width / 4 - z * this->tile_height) >> 8;
-			default: NOT_REACHED();
-		}
+		return ComputeYFunction(x, y, z, this->orient, this->tile_width, this->tile_height);
 	}
 
 	int32 xview; ///< X position of the center point of the display.
@@ -437,6 +465,29 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 	this->SetPosition(x, y);
 }
 
+/**
+ * Get relative X position of a point in the world (used for marking window pats dirty).
+ * @param xpos X world position.
+ * @param ypos Y world position.
+ * @return Relative X position.
+ */
+int32 Viewport::ComputeX(int32 xpos, int32 ypos)
+{
+	return ComputeXFunction(xpos, ypos, this->orientation, this->tile_width);
+}
+
+/**
+ * Get relative Y position of a point in the world (used for marking window pats dirty).
+ * @param xpos X world position.
+ * @param ypos Y world position.
+ * @param zpos Z world position.
+ * @return Relative Y position.
+ */
+int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
+{
+	return ComputeYFunction(xpos, ypos, zpos, this->orientation, this->tile_width, this->tile_height);
+}
+
 /* virtual */ void Viewport::OnDraw()
 {
 	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
@@ -465,6 +516,75 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY)
 }
 
 /**
+ * Mark a voxel as in need of getting painted.
+ * @param xpos X position of the voxel.
+ * @param ypos Y position of the voxel.
+ * @param zpos Z position of the voxel.
+ * @todo Examine the voxel to decide the size of the area to mark as dirty.
+ */
+void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int8 zpos)
+{
+	int32 center_x = this->ComputeX(this->xview, this->yview) - this->rect.base.x - this->rect.width / 2;
+	int32 center_y = this->ComputeY(this->xview, this->yview, this->zview) - this->rect.base.y - this->rect.height / 2;
+
+	int height; // Height of the voxel (in voxels).
+	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
+	if (v == NULL) {
+		height = 1;
+	} else {
+		VoxelType vt = v->GetType();
+		if (vt == VT_REFERENCE) {
+			const ReferenceVoxelData *rvd = v->GetReference();
+			xpos = rvd->xpos;
+			ypos = rvd->ypos;
+			zpos = rvd->zpos;
+			v = _world.GetVoxel(xpos, ypos, zpos);
+			vt = v->GetType();
+		}
+		switch (v->GetType()) {
+			case VT_EMPTY:
+				height = 1;
+				break;
+
+			case VT_SURFACE: {
+				const SurfaceVoxelData *svd = v->GetSurface();
+				if (svd->ground.type == GTP_INVALID) {
+					height = 1;
+				} else {
+					TileSlope tslope = ExpandTileSlope(svd->ground.slope);
+					height = ((tslope & TCB_STEEP) != 0) ? 2 : 1;
+				}
+				break;
+			}
+
+			case VT_COASTER: // XXX Not implemented yet.
+			default: NOT_REACHED();
+		}
+	}
+
+	Rectangle32 rect;
+	const Point16 *pt;
+
+	pt = &_corner_dxy[this->orientation];
+	rect.base.y = this->ComputeY((xpos + pt->x) * 256, (ypos + pt->y) * 256, (zpos + height) * 256) - center_y;
+
+	pt = &_corner_dxy[RotateCounterClockwise(this->orientation)];
+	rect.base.x = this->ComputeX((xpos + pt->x) * 256, (ypos + pt->y) * 256) - center_x;
+
+	pt = &_corner_dxy[RotateClockwise(this->orientation)];
+	int32 d = this->ComputeX((xpos + pt->x) * 256, (ypos + pt->y) * 256) - center_x;
+	assert(d >= rect.base.x);
+	rect.width = d - rect.base.x + 1;
+
+	pt = &_corner_dxy[RotateClockwise(RotateClockwise(this->orientation))];
+	d = this->ComputeY((xpos + pt->x) * 256, (ypos + pt->y) * 256, zpos * 256) - center_y;
+	assert(d >= rect.base.y);
+	rect.height = d - rect.base.y + 1;
+
+	_video->MarkDisplayDirty(rect);
+}
+
+/**
  * Compute position of the mouse cursor, and update the display if necessary.
  * @todo It may be possible to give a more accurate estimate of what parts of the screen to redraw.
  */
@@ -487,11 +607,12 @@ void Viewport::ComputeCursorPosition()
 	}
 
 	if (collector.xvoxel != this->xvoxel || collector.yvoxel != this->yvoxel || collector.zvoxel != this->zvoxel || this->cursor != orient) {
+		this->MarkVoxelDirty(this->xvoxel, this->yvoxel, this->zvoxel);
 		this->xvoxel = collector.xvoxel;
 		this->yvoxel = collector.yvoxel;
 		this->zvoxel = collector.zvoxel;
 		this->cursor = orient;
-		this->MarkDirty();
+		this->MarkVoxelDirty(this->xvoxel, this->yvoxel, this->zvoxel);
 	}
 }
 
@@ -594,7 +715,11 @@ void Viewport::ChangeTerrain(int direction)
 		 * The coupling is restored with the next mouse movement.
 		 */
 		this->zvoxel = _world.GetGroundHeight(this->xvoxel, this->yvoxel);
-		this->MarkDirty();
+		GroundModificationMap::const_iterator iter;
+		for (iter = changes.changes.begin(); iter != changes.changes.end(); iter++) {
+			const Point32 &pt = (*iter).first;
+			this->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);
+		}
 	}
 }
 

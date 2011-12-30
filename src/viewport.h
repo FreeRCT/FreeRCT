@@ -33,6 +33,7 @@ class Viewport : public Window {
 public:
 	Viewport(int x, int y, uint w, uint h);
 
+	void MarkVoxelDirty(int16 xpos, int16 ypos, int8 zpos);
 	virtual void OnDraw();
 
 	void Rotate(int direction);
@@ -68,6 +69,9 @@ private:
 	virtual void OnMouseLeaveEvent();
 
 	void ChangeTerrain(int direction);
+
+	int32 ComputeX(int32 xpos, int32 ypos);
+	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 };
 
 #endif

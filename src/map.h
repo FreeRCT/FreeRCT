@@ -277,12 +277,12 @@ public:
 	bool ChangeCorner(const Point32 &pos, TileSlope corner, int direction);
 	void ChangeWorld(int direction);
 
+	GroundModificationMap changes; ///< Registered changes.
+
 private:
 	Point32 base; ///< Base position of the smooth changing world.
 	uint16 xsize; ///< Horizontal size of the smooth changing world.
 	uint16 ysize; ///< Vertical size of the smooth changing world.
-
-	GroundModificationMap changes; ///< Registered changes.
 
 	GroundData *GetGroundData(const Point32 &pos);
 };
