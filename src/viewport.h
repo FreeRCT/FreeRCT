@@ -14,6 +14,8 @@
 
 #include "window.h"
 
+class Viewport;
+
 /**
  * Known mouse modes.
  * @ingroup viewport_group
@@ -23,6 +25,90 @@ enum ViewportMouseMode {
 	MM_TILE_TERRAFORM, ///< Terraforming tiles.
 
 	MM_COUNT,          ///< Number of mouse modes.
+};
+
+/**
+ * Available cursor types.
+ * @ingroup viewport_group
+ */
+enum CursorType {
+	CUR_TYPE_NORTH,    ///< Show a N corner highlight.
+	CUR_TYPE_EAST,     ///< Show a E corner highlight.
+	CUR_TYPE_SOUTH,    ///< Show a S corner highlight.
+	CUR_TYPE_WEST,     ///< Show a W corner highlight.
+	CUR_TYPE_TILE,     ///< Show a tile highlight.
+	CUR_TYPE_ARROW_NE, ///< Show a build arrow in the NE direction.
+	CUR_TYPE_ARROW_SE, ///< Show a build arrow in the SE direction.
+	CUR_TYPE_ARROW_SW, ///< Show a build arrow in the SW direction.
+	CUR_TYPE_ARROW_NW, ///< Show a build arrow in the NW direction.
+
+	CUR_TYPE_INVALID,  ///< Invalid/unused cursor.
+};
+
+/**
+ * Data about a cursor.
+ * @ingroup viewport_group
+ */
+class Cursor {
+public:
+	Cursor(Viewport *vp)
+	{
+		this->vp = vp;
+		this->xpos = 0;
+		this->ypos = 0;
+		this->zpos = 0;
+		this->type = CUR_TYPE_INVALID;
+	}
+
+	Viewport *vp;    ///< Parent viewport object.
+
+	uint16 xpos;     ///< %Voxel x position of the cursor.
+	uint16 ypos;     ///< %Voxel y position of the cursor.
+	uint8  zpos;     ///< %Voxel z position of the cursor.
+	CursorType type; ///< Type of cursor.
+
+	FORCEINLINE void MarkDirty();
+
+	/**
+	 * Set a cursor.
+	 * @param xpos X position of the voxel containing the cursor.
+	 * @param ypos Y position of the voxel containing the cursor.
+	 * @param zpos Z position of the voxel containing the cursor.
+	 * @param type Type of cursor to set.
+	 * @param always Always set the cursor (else, only set it if it changed).
+	 * @return Cursor has been set/changed.
+	 */
+	bool SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always = false)
+	{
+		if (!always && this->xpos == xpos && this->ypos == ypos && this->zpos == zpos && this->type == type) return false;
+		this->MarkDirty();
+		this->xpos = xpos;
+		this->ypos = ypos;
+		this->zpos = zpos;
+		this->type = type;
+		this->MarkDirty();
+		return true;
+	}
+
+	/**
+	 * Get a cursor.
+	 * @param xpos Expected x coordinate of the cursor.
+	 * @param ypos Expected y coordinate of the cursor.
+	 * @param zpos Expected z coordinate of the cursor.
+	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c NULL.
+	 */
+	FORCEINLINE CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+	{
+		if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
+		return this->type;
+	}
+
+	/** Mark the cursor as being invalid, and update the viewport if necessary. */
+	void SetInvalid()
+	{
+		this->MarkDirty();
+		this->type = CUR_TYPE_INVALID;
+	}
 };
 
 /**
@@ -43,6 +129,7 @@ public:
 	ViewportMouseMode GetMouseMode();
 
 	void ComputeCursorPosition();
+	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
 
 	int32 xview; ///< X position of the center point of the viewport.
 	int32 yview; ///< Y position of the center point of the viewport.
@@ -51,16 +138,12 @@ public:
 	uint16 tile_width;           ///< Width of a tile.
 	uint16 tile_height;          ///< Height of a tile.
 	ViewOrientation orientation; ///< Direction of view.
+	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
 
 private:
 	ViewportMouseMode mouse_mode; ///< Mode of the mouse, decides how to react to mouse clicks, drags, etc.
 	Point16 mouse_pos;            ///< Last known position of the mouse.
 	uint8 mouse_state;            ///< Last known state of the mouse buttons.
-
-	uint16 xvoxel;          ///< X position of the voxel with the mouse cursor.
-	uint16 yvoxel;          ///< Y position of the voxel with the mouse cursor.
-	uint8  zvoxel;          ///< Z position of the voxel with the mouse cursor.
-	ViewOrientation cursor; ///< Cursor orientation (#VOR_INVALID means entire ground tile).
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
@@ -73,5 +156,11 @@ private:
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 };
+
+/** Update the cursor at the screen. */
+FORCEINLINE void Cursor::MarkDirty()
+{
+	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+}
 
 #endif

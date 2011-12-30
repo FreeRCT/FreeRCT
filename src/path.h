@@ -22,6 +22,7 @@
  * For this reason #_path_expand and its reverse operation #_path_implode exist. They translate the
  * sprite number to/from a bitwise representation which is easier for manipulation.
  * @todo Have ramps with path sprites without edges.
+ * @ingroup map_group
  */
 enum PathSprites {
 	PATH_EMPTY, ///< %Path without edges or corners.
@@ -73,11 +74,11 @@ enum PathSprites {
 	PATH_NE_NW_SE_SW_N_E_S_W,
 	PATH_FLAT_COUNT,    ///< Number of flat path sprites.
 
-	PATH_RAMP_NE = PATH_FLAT_COUNT,
-	PATH_RAMP_NW,
-	PATH_RAMP_SE,
-	PATH_RAMP_SW,
-	PATH_COUNT,         ///< Number of path sprites.
+	PATH_RAMP_NE = PATH_FLAT_COUNT, ///< Ramp from NE up to SW.
+	PATH_RAMP_NW,                   ///< Ramp from NW up to SE.
+	PATH_RAMP_SE,                   ///< Ramp from SE up to NW.
+	PATH_RAMP_SW,                   ///< Ramp from SW up to NE.
+	PATH_COUNT,                     ///< Number of path sprites.
 
 	PATH_INVALID = 255, ///< Invalid path.
 
@@ -91,7 +92,10 @@ enum PathSprites {
 	PATHBIT_NW = 7,     ///< Bit number for north-west edge in expanded notation.
 };
 
-/** Available path types. */
+/**
+ * Available path types.
+ * @ingroup map_group
+ */
 enum PathTypes {
 	PT_INVALID = 0,  ///< Invalid path type.
 	PT_CONCRETE = 1, ///< Concrete path type.

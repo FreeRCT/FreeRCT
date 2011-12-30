@@ -131,7 +131,7 @@ static int GetDistanceToMouse(const Point32 &pt)
 
 /**
  * Find an initial position for new window \a w.
- * @param w New window to position.
+ * @param new_w New window to position.
  * @return Best position of the window.
  * @pre Size of the window has been decided.
  */

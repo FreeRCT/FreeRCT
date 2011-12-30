@@ -15,6 +15,7 @@
 /**
  * Expansion of path sprite number to a value using path bits (#PATHBIT_N, #PATHBIT_E, #PATHBIT_S, #PATHBIT_W,
  * #PATHBIT_NE, #PATHBIT_SE, #PATHBIT_SW, and #PATHBIT_NW).
+ * @ingroup map_group
  */
 const uint8 _path_expand[] = {
 	  0, // PATH_EMPTY
@@ -70,6 +71,7 @@ const uint8 _path_expand[] = {
  * Inverse operation of #_path_expand. #PATH_INVALID means there is no sprite defined for this combination.
  * Note that even if a sprite is defined in this table, a particular path type may not have a sprite for
  * every combination (for example, queue paths have no corner bits at all).
+ * @ingroup map_group
  */
 const uint8 _path_implode[256] = {
 	PATH_EMPTY,               PATH_INVALID,             PATH_INVALID,             PATH_INVALID,
