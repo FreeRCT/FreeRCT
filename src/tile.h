@@ -154,6 +154,7 @@ enum TrackSlope {
 
 extern const uint8 _corners_at_edge[EDGE_COUNT];
 extern const Point16 _corner_dxy[4];
+extern const Point16 _tile_dxy[EDGE_COUNT];
 
 #endif
 

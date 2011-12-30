@@ -17,7 +17,7 @@ const uint8 _corners_at_edge[EDGE_COUNT] = {
 	TCB_NORTHEAST, ///< EDGE_NE
 	TCB_SOUTHEAST, ///< EDGE_SE
 	TCB_SOUTHWEST, ///< EDGE_SW
-	TCB_SOUTHEAST, ///< EDGE_SE
+	TCB_NORTHWEST, ///< EDGE_NW
 };
 
 /** Corner dx/dy (relative to northern corner) of a corner of a tile. */
@@ -28,3 +28,10 @@ const Point16 _corner_dxy[4] = {
 	{1, 0}, ///< TC_WEST
 };
 
+/** Tile dx/dy of the tile connected to the given edge. */
+const Point16 _tile_dxy[EDGE_COUNT] = {
+	{-1,  0}, ///< EDGE_NE
+	{ 0,  1}, ///< EDGE_SE
+	{ 1,  0}, ///< EDGE_SW
+	{ 0, -1}, ///< EDGE_NW
+};
