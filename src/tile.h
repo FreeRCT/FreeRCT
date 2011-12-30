@@ -26,6 +26,7 @@
 #define TILE_H
 
 #include "enum_type.h"
+#include "geometry.h"
 
 /**
  * Slope description of a surface tile.
@@ -49,6 +50,12 @@ enum TileSlope {
 	TCB_WEST  = 1 << TC_WEST,  ///< Bit denoting west corner is raised.
 
 	TCB_STEEP = 1 << TC_STEEP, ///< Bit denoting it is a steep slope.
+
+	TCB_NORTHEAST = TCB_NORTH | TCB_EAST, ///< Both north and east corners are raised.
+	TCB_NORTHWEST = TCB_NORTH | TCB_WEST, ///< Both north and west corners are raised.
+	TCB_SOUTHEAST = TCB_SOUTH | TCB_EAST, ///< Both south and east corners are raised.
+	TCB_SOUTHWEST = TCB_SOUTH | TCB_WEST, ///< Both south and west corners are raised.
+
 };
 DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
@@ -145,6 +152,8 @@ enum TrackSlope {
 	TSL_COUNT_VERTICAL,                  ///< Number of slopes if also going straight up and down.
 };
 
+extern const uint8 _corners_at_edge[EDGE_COUNT];
+extern const Point16 _corner_dxy[4];
 
 #endif
 
