@@ -626,9 +626,9 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int8 zpos)
 
 /**
  * Compute position of the mouse cursor, and update the display if necessary.
- * @todo It may be possible to give a more accurate estimate of what parts of the screen to redraw.
+ * @param select_corner Not only select the voxel but also the corner.
  */
-void Viewport::ComputeCursorPosition()
+void Viewport::ComputeCursorPosition(bool select_corner)
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
@@ -637,13 +637,15 @@ void Viewport::ComputeCursorPosition()
 	collector.Collect();
 	if (!collector.found) return; // Not at a tile.
 
-	CursorType cur_type;
-	switch (collector.pixel) {
-		case 181: cur_type = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
-		case 182: cur_type = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
-		case 184: cur_type = (CursorType)AddOrientations(VOR_WEST,  this->orientation); break;
-		case 185: cur_type = (CursorType)AddOrientations(VOR_SOUTH, this->orientation); break;
-		default:  cur_type = CUR_TYPE_TILE; break;
+	CursorType cur_type = CUR_TYPE_TILE;
+	if (select_corner) {
+		switch (collector.pixel) {
+			case 181: cur_type = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
+			case 182: cur_type = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
+			case 184: cur_type = (CursorType)AddOrientations(VOR_WEST,  this->orientation); break;
+			case 185: cur_type = (CursorType)AddOrientations(VOR_SOUTH, this->orientation); break;
+			default: break;
+		}
 	}
 	this->tile_cursor.SetCursor(collector.xvoxel, collector.yvoxel, collector.zvoxel, cur_type);
 }
@@ -791,7 +793,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 				/* Drag the window if button is pressed down. */
 				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
 			} else {
-				this->ComputeCursorPosition();
+				this->ComputeCursorPosition(true);
 			}
 			break;
 

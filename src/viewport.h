@@ -128,7 +128,7 @@ public:
 	void SetMouseModeState(ViewportMouseMode mode, uint8 state = 0);
 	ViewportMouseMode GetMouseMode();
 
-	void ComputeCursorPosition();
+	void ComputeCursorPosition(bool select_corner);
 	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
 
 	int32 xview; ///< X position of the center point of the viewport.
