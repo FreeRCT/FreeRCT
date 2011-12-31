@@ -262,7 +262,7 @@ void VoxelCollector::Collect()
 			if (north_x + this->tile_width / 2 <= (int32)this->rect.base.x) continue; // Right of voxel column is at left of window.
 			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
 
-			VoxelStack *stack = _world.GetStack(xpos, ypos);
+			const VoxelStack *stack = _world.GetStack(xpos, ypos);
 			for (int count = 0; count < stack->height; count++) {
 				uint zpos = stack->base + count;
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);

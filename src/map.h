@@ -131,16 +131,6 @@ public:
 	}
 
 	/**
-	 * Get the referenced voxel.
-	 * @return Referenced voxel position.
-	 */
-	FORCEINLINE const ReferenceVoxelData *GetReference()
-	{
-		assert(this->type == VT_REFERENCE);
-		return &this->reference;
-	}
-
-	/**
 	 * Get the referenced voxel for read-only access.
 	 * @return Referenced voxel position.
 	 */
@@ -181,9 +171,10 @@ public:
 	~VoxelStack();
 
 	void Clear();
-	Voxel *Get(int16 z, bool create);
+	const Voxel *Get(int16 z) const;
+	Voxel *GetCreate(int16 z, bool create);
 
-	Voxel *voxels; ///< Voxel array at this stack.
+	Voxel *voxels; ///< %Voxel array at this stack.
 	int16 base;    ///< Height of the bottom voxel.
 	uint16 height; ///< Number of voxels in the stack.
 protected:
@@ -201,8 +192,21 @@ public:
 	void SetWorldSize(uint16 xs, uint16 ys);
 	void MakeFlatWorld(int16 z);
 
-	VoxelStack *GetStack(uint16 x, uint16 y);
-	uint8 GetGroundHeight(uint16 x, uint16 y);
+	VoxelStack *GetModifyStack(uint16 x, uint16 y);
+	const VoxelStack *GetStack(uint16 x, uint16 y) const;
+	uint8 GetGroundHeight(uint16 x, uint16 y) const;
+
+	/**
+	 * Get a voxel in the world by voxel coordinate.
+	 * @param x X coordinate of the voxel.
+	 * @param y Y coordinate of the voxel.
+	 * @param z Z coordinate of the voxel.
+	 * @return Address of the voxel (if it exists).
+	 */
+	FORCEINLINE const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
+	{
+		return this->GetStack(x, y)->Get(z);
+	}
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.
@@ -212,9 +216,9 @@ public:
 	 * @param create If the requested voxel does not exist, try to create it.
 	 * @return Address of the voxel (if it exists or could be created).
 	 */
-	FORCEINLINE Voxel *GetVoxel(uint16 x, uint16 y, int16 z, bool create = false)
+	FORCEINLINE Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
 	{
-		return this->GetStack(x, y)->Get(z, create);
+		return this->GetModifyStack(x, y)->GetCreate(z, create);
 	}
 
 	/**

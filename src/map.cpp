@@ -108,10 +108,27 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 /**
  * Get a voxel in the world by voxel coordinate.
  * @param z Z coordinate of the voxel.
+ * @return Address of the voxel (if it exists or could be created).
+ */
+const Voxel *VoxelStack::Get(int16 z) const
+{
+	if (z < 0 || z >= MAX_VOXEL_STACK_SIZE) return NULL;
+
+	if (this->height == 0 || z < this->base || (uint)(z - this->base) >= this->height) return NULL;
+
+	assert(z >= this->base);
+	z -= this->base;
+	assert((uint16)z < this->height);
+	return &this->voxels[(uint16)z];
+}
+
+/**
+ * Get a voxel in the world by voxel coordinate. Create one if needed.
+ * @param z Z coordinate of the voxel.
  * @param create If the requested voxel does not exist, try to create it.
  * @return Address of the voxel (if it exists or could be created).
  */
-Voxel *VoxelStack::Get(int16 z, bool create)
+Voxel *VoxelStack::GetCreate(int16 z, bool create)
 {
 	if (z < 0 || z >= MAX_VOXEL_STACK_SIZE) return NULL;
 
@@ -164,7 +181,7 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 {
 	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
 		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
-			Voxel *v = GetVoxel(xpos, ypos, z, true);
+			Voxel *v = GetCreateVoxel(xpos, ypos, z, true);
 			SurfaceVoxelData svd;
 			svd.ground.type = GTP_GRASS0;
 			svd.ground.slope = ImplodeTileSlope(SL_FLAT);
@@ -182,7 +199,22 @@ void VoxelWorld::MakeFlatWorld(int16 z)
  * @return The requested voxel stack.
  * @pre The coordinate must exist within the world.
  */
-VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y)
+VoxelStack *VoxelWorld::GetModifyStack(uint16 x, uint16 y)
+{
+	assert(x < WORLD_X_SIZE && x < this->x_size);
+	assert(y < WORLD_Y_SIZE && y < this->y_size);
+
+	return &this->stacks[x + y*WORLD_X_SIZE];
+}
+
+/**
+ * Get a voxel stack.
+ * @param x X coordinate of the stack.
+ * @param y Y coordinate of the stack.
+ * @return The requested voxel stack.
+ * @pre The coordinate must exist within the world.
+ */
+const VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y) const
 {
 	assert(x < WORLD_X_SIZE && x < this->x_size);
 	assert(y < WORLD_Y_SIZE && y < this->y_size);
@@ -196,9 +228,9 @@ VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y)
  * @param y Vertical position.
  * @return Height of the ground.
  */
-uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y)
+uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y) const
 {
-	VoxelStack *vs = this->GetStack(x, y);
+	const VoxelStack *vs = this->GetStack(x, y);
 	for (int16 i = vs->height - 1; i >= 0; i--) {
 		const Voxel &v = vs->voxels[i];
 		if (v.GetType() != VT_SURFACE) continue;
@@ -368,15 +400,15 @@ void TerrainChanges::ChangeWorld(int direction)
 		const GroundData &gd = (*iter).second;
 		if (gd.modified == 0) continue;
 
-		VoxelStack *vs = _world.GetStack(pos.x, pos.y);
-		Voxel *v = vs->Get(gd.height, false);
+		VoxelStack *vs = _world.GetModifyStack(pos.x, pos.y);
+		Voxel *v = vs->GetCreate(gd.height, false);
 		SurfaceVoxelData *pvd = v->GetSurface();
 		uint8 gtype = pvd->ground.type;
 		uint8 ftype = pvd->foundation.type;
 		uint8 ptype = pvd->path.type;
 		/* Clear existing ground and foundations. */
 		v->SetEmpty();
-		if ((gd.orig_slope & TCB_STEEP) != 0) vs->Get(gd.height + 1, false)->SetEmpty();
+		if ((gd.orig_slope & TCB_STEEP) != 0) vs->GetCreate(gd.height + 1, false)->SetEmpty();
 
 		uint8 new_heights[4];
 		uint8 max_h = 0;
@@ -391,7 +423,7 @@ void TerrainChanges::ChangeWorld(int direction)
 			if (max_h < height) max_h = height;
 			if (min_h > height) min_h = height;
 		}
-		v = vs->Get(min_h, true);
+		v = vs->GetCreate(min_h, true);
 		SurfaceVoxelData svd;
 		svd.ground.type = gtype;
 		svd.foundation.type = ftype;
@@ -418,7 +450,7 @@ void TerrainChanges::ChangeWorld(int direction)
 			rvd.xpos = pos.x;
 			rvd.ypos = pos.y;
 			rvd.zpos = min_h;
-			vs->Get(min_h + 1, true)->SetReference(rvd);
+			vs->GetCreate(min_h + 1, true)->SetReference(rvd);
 		}
 	}
 }
