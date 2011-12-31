@@ -560,50 +560,52 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
  * @param xpos X position of the voxel.
  * @param ypos Y position of the voxel.
  * @param zpos Z position of the voxel.
+ * @param height Number of voxels to mark above ths specified coordinate (\c 0 means inspect the voxel itself).
  * @todo Examine the voxel to decide the size of the area to mark as dirty.
  */
-void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int8 zpos)
+void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 {
-	int32 center_x = this->ComputeX(this->xview, this->yview) - this->rect.base.x - this->rect.width / 2;
-	int32 center_y = this->ComputeY(this->xview, this->yview, this->zview) - this->rect.base.y - this->rect.height / 2;
-
-	int height; // Height of the voxel (in voxels).
-	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
-	if (v == NULL) {
-		height = 1;
-	} else {
-		VoxelType vt = v->GetType();
-		if (vt == VT_REFERENCE) {
-			const ReferenceVoxelData *rvd = v->GetReference();
-			xpos = rvd->xpos;
-			ypos = rvd->ypos;
-			zpos = rvd->zpos;
-			v = _world.GetVoxel(xpos, ypos, zpos);
-			vt = v->GetType();
-		}
-		switch (v->GetType()) {
-			case VT_EMPTY:
-				height = 1;
-				break;
-
-			case VT_SURFACE: {
-				const SurfaceVoxelData *svd = v->GetSurface();
-				if (svd->ground.type == GTP_INVALID) {
-					height = 1;
-				} else {
-					TileSlope tslope = ExpandTileSlope(svd->ground.slope);
-					height = ((tslope & TCB_STEEP) != 0) ? 2 : 1;
-				}
-				break;
+	if (height <= 0) {
+		const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
+		if (v == NULL) {
+			height = 1;
+		} else {
+			VoxelType vt = v->GetType();
+			if (vt == VT_REFERENCE) {
+				const ReferenceVoxelData *rvd = v->GetReference();
+				xpos = rvd->xpos;
+				ypos = rvd->ypos;
+				zpos = rvd->zpos;
+				v = _world.GetVoxel(xpos, ypos, zpos);
+				vt = v->GetType();
 			}
+			switch (v->GetType()) {
+				case VT_EMPTY:
+					height = 1;
+					break;
 
-			case VT_COASTER: // XXX Not implemented yet.
-			default: NOT_REACHED();
+				case VT_SURFACE: {
+					const SurfaceVoxelData *svd = v->GetSurface();
+					if (svd->ground.type == GTP_INVALID) {
+						height = 1;
+					} else {
+						TileSlope tslope = ExpandTileSlope(svd->ground.slope);
+						height = ((tslope & TCB_STEEP) != 0) ? 2 : 1;
+					}
+					break;
+				}
+
+				case VT_COASTER: // XXX Not implemented yet.
+				default: NOT_REACHED();
+			}
 		}
 	}
 
 	Rectangle32 rect;
 	const Point16 *pt;
+
+	int32 center_x = this->ComputeX(this->xview, this->yview) - this->rect.base.x - this->rect.width / 2;
+	int32 center_y = this->ComputeY(this->xview, this->yview, this->zview) - this->rect.base.y - this->rect.height / 2;
 
 	pt = &_corner_dxy[this->orientation];
 	rect.base.y = this->ComputeY((xpos + pt->x) * 256, (ypos + pt->y) * 256, (zpos + height) * 256) - center_y;

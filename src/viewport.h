@@ -119,7 +119,7 @@ class Viewport : public Window {
 public:
 	Viewport(int x, int y, uint w, uint h);
 
-	void MarkVoxelDirty(int16 xpos, int16 ypos, int8 zpos);
+	void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height = 0);
 	virtual void OnDraw();
 
 	void Rotate(int direction);
