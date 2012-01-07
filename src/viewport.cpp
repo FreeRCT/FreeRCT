@@ -560,8 +560,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
  * @param xpos X position of the voxel.
  * @param ypos Y position of the voxel.
  * @param zpos Z position of the voxel.
- * @param height Number of voxels to mark above ths specified coordinate (\c 0 means inspect the voxel itself).
- * @todo Examine the voxel to decide the size of the area to mark as dirty.
+ * @param height Number of voxels to mark above the specified coordinate (\c 0 means inspect the voxel itself).
  */
 void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 {
