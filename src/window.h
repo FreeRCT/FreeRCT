@@ -132,6 +132,18 @@ protected:
 	template <typename WID>
 	FORCEINLINE WID *GetWidget(WidgetNumber wnum);
 
+	template <typename WID>
+	FORCEINLINE const WID *GetWidget(WidgetNumber wnum) const;
+
+	void SetWidgetChecked(WidgetNumber widget, bool value);
+	bool IsWidgetChecked(WidgetNumber widget) const;
+
+	void SetWidgetPressed(WidgetNumber widget, bool value);
+	bool IsWidgetPressed(WidgetNumber widget) const;
+
+	void SetWidgetShaded(WidgetNumber widget, bool value);
+	bool IsWidgetShaded(WidgetNumber widget) const;
+
 	virtual void OnClick(WidgetNumber widget);
 
 private:
@@ -154,12 +166,37 @@ FORCEINLINE WID *GuiWindow::GetWidget(WidgetNumber wnum)
 }
 
 /**
+ * Get the widget.
+ * @tparam WID %Widget class.
+ * @param wnum %Widget number to get.
+ * @return Address of the widget.
+ */
+template <typename WID>
+FORCEINLINE const WID *GuiWindow::GetWidget(WidgetNumber wnum) const
+{
+	assert(wnum < this->num_widgets);
+	return dynamic_cast<WID *>(this->widgets[wnum]);
+}
+
+/**
  * Specialized template for #BaseWidget
  * @param wnum %Widget number to get.
  * @return Address of the base widget.
  */
 template <>
 FORCEINLINE BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum)
+{
+	assert(wnum < this->num_widgets);
+	return this->widgets[wnum];
+}
+
+/**
+ * Specialized template for #BaseWidget
+ * @param wnum %Widget number to get.
+ * @return Address of the base widget.
+ */
+template <>
+FORCEINLINE const BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum) const
 {
 	assert(wnum < this->num_widgets);
 	return this->widgets[wnum];

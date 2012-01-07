@@ -388,6 +388,72 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 {
 }
 
+/**
+ * Set the checked state of the given widget.
+ * @param widget %Widget number.
+ * @param value New checked state value.
+ */
+void GuiWindow::SetWidgetChecked(WidgetNumber widget, bool value)
+{
+	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
+	lw->SetChecked(value);
+	lw->Draw(this->rect.base);
+}
+
+/**
+ * Is widget \a widget checked?
+ * @param widget %Widget number to use.
+ * @return Whether the widget is checked.
+ */
+bool GuiWindow::IsWidgetChecked(WidgetNumber widget) const
+{
+	return this->GetWidget<LeafWidget>(widget)->IsChecked();
+}
+
+/**
+ * Set the pressed state of the given widget.
+ * @param widget %Widget number.
+ * @param value New pressed state value.
+ */
+void GuiWindow::SetWidgetPressed(WidgetNumber widget, bool value)
+{
+	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
+	lw->SetChecked(value);
+	lw->Draw(this->rect.base);
+}
+
+/**
+ * Is widget \a widget pressed?
+ * @param widget %Widget number to use.
+ * @return Whether the widget is pressed.
+ */
+bool GuiWindow::IsWidgetPressed(WidgetNumber widget) const
+{
+	return this->GetWidget<LeafWidget>(widget)->IsChecked();
+}
+
+/**
+ * Set the shaded state of the given widget.
+ * @param widget %Widget number.
+ * @param value New shaded state value.
+ */
+void GuiWindow::SetWidgetShaded(WidgetNumber widget, bool value)
+{
+	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
+	lw->SetChecked(value);
+	lw->Draw(this->rect.base);
+}
+
+/**
+ * Is widget \a widget shaded?
+ * @param widget %Widget number to use.
+ * @return Whether the widget is shaded.
+ */
+bool GuiWindow::IsWidgetShaded(WidgetNumber widget) const
+{
+	return this->GetWidget<LeafWidget>(widget)->IsChecked();
+}
+
 /* virtual */ void GuiWindow::TimeoutCallback()
 {
 	this->tree->RaiseButtons(this->rect.base);
