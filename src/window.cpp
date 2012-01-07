@@ -396,8 +396,10 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 void GuiWindow::SetWidgetChecked(WidgetNumber widget, bool value)
 {
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
-	lw->SetChecked(value);
-	lw->Draw(this->rect.base);
+	if (lw->IsChecked() != value) {
+		lw->SetChecked(value);
+		lw->Draw(this->rect.base);
+	}
 }
 
 /**
@@ -418,8 +420,10 @@ bool GuiWindow::IsWidgetChecked(WidgetNumber widget) const
 void GuiWindow::SetWidgetPressed(WidgetNumber widget, bool value)
 {
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
-	lw->SetChecked(value);
-	lw->Draw(this->rect.base);
+	if (lw->IsPressed() != value) {
+		lw->SetPressed(value);
+		lw->Draw(this->rect.base);
+	}
 }
 
 /**
@@ -429,7 +433,7 @@ void GuiWindow::SetWidgetPressed(WidgetNumber widget, bool value)
  */
 bool GuiWindow::IsWidgetPressed(WidgetNumber widget) const
 {
-	return this->GetWidget<LeafWidget>(widget)->IsChecked();
+	return this->GetWidget<LeafWidget>(widget)->IsPressed();
 }
 
 /**
@@ -440,8 +444,10 @@ bool GuiWindow::IsWidgetPressed(WidgetNumber widget) const
 void GuiWindow::SetWidgetShaded(WidgetNumber widget, bool value)
 {
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
-	lw->SetChecked(value);
-	lw->Draw(this->rect.base);
+	if (lw->IsShaded() != value) {
+		lw->SetShaded(value);
+		lw->Draw(this->rect.base);
+	}
 }
 
 /**
@@ -451,7 +457,20 @@ void GuiWindow::SetWidgetShaded(WidgetNumber widget, bool value)
  */
 bool GuiWindow::IsWidgetShaded(WidgetNumber widget) const
 {
-	return this->GetWidget<LeafWidget>(widget)->IsChecked();
+	return this->GetWidget<LeafWidget>(widget)->IsShaded();
+}
+
+/**
+ * Change the state of a set of radio buttons.
+ * @param wids Array of widgets, terminate with #INVALID_WIDGET_INDEX.
+ * @param selected Current selected widget of the radio buttons.
+ */
+void GuiWindow::SetRadioButtonsState(const WidgetNumber *wids, WidgetNumber selected)
+{
+	while (*wids != INVALID_WIDGET_INDEX) {
+		this->SetWidgetPressed(*wids, *wids == selected);
+		wids++;
+	}
 }
 
 /* virtual */ void GuiWindow::TimeoutCallback()
