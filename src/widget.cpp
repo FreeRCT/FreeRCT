@@ -305,6 +305,8 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 {
 	this->value = 0;
+	this->value_width = 0;
+	this->value_height = 0;
 }
 
 /**
@@ -337,11 +339,14 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		case WT_IMAGE_PUSHBUTTON: {
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 			if (imgdata != NULL) {
-				this->InitMinimalSize(&_gui_sprites.button, imgdata->width + 1, imgdata->height + 1);
+				this->value_width = imgdata->width;
+				this->value_height = imgdata->height;
 			} else {
 				/* Weird/unknown image, just draw an empty box. */
-				this->InitMinimalSize(&_gui_sprites.button, 10 + 1, 10 + 1);
+				this->value_width = 10;
+				this->value_height = 10;
 			}
+			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
 			return;
 		}
 
@@ -349,16 +354,16 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			NOT_REACHED();
 	}
 
-	int width, height;
 	const char *text = _language->GetText(this->value);
-	_video->GetTextSize(text, &width, &height);
+	_video->GetTextSize(text, &this->value_width, &this->value_height);
 	if (bsd != NULL) {
-		this->InitMinimalSize(bsd, width + pressable, height + pressable);
+		this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
 	} else {
-		this->InitMinimalSize(width + pressable, height + pressable, 0, 0);
+		this->InitMinimalSize(this->value_width + pressable, this->value_height + pressable, 0, 0);
 	}
 }
 
+/** @todo Fix the hardcoded colour of the text. */
 /* virtual */ void DataWidget::Draw(const Point32 &base)
 {
 	const BorderSpriteData *bsd = NULL;
@@ -399,12 +404,14 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
 		DrawBorderSprites(*bsd, (pressed != 0), rect);
 	}
+	int xoffset = left + (right + 1 - left - this->value_width) / 2;
+	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-		if (imgdata != NULL) _video->BlitImage(left + pressed, top + pressed, imgdata);
+		if (imgdata != NULL) _video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata);
 	} else {
 		const char *text = _language->GetText(this->value);
-		_video->BlitText(text, left + pressed, top + pressed, 21);
+		_video->BlitText(text, xoffset + pressed, yoffset + pressed, 21);
 	}
 }
 

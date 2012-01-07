@@ -191,7 +191,9 @@ public:
 	virtual void SetupMinimalSize(BaseWidget **wid_array);
 	virtual void Draw(const Point32 &base);
 
-	uint16 value; ///< String number or sprite id.
+	uint16 value;     ///< String number or sprite id.
+	int value_width;  ///< Width of the image or the string.
+	int value_height; ///< Height of the image or the string.
 };
 
 /**
