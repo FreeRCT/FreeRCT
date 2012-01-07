@@ -148,8 +148,6 @@ private:
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
-	virtual void OnMouseEnterEvent();
-	virtual void OnMouseLeaveEvent();
 
 	void ChangeTerrain(int direction);
 

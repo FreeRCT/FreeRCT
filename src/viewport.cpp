@@ -832,16 +832,6 @@ ViewportMouseMode Viewport::GetMouseMode()
 	}
 }
 
-/* virtual */ void Viewport::OnMouseEnterEvent()
-{
-	this->mouse_state = 0;
-}
-
-/* virtual */ void Viewport::OnMouseLeaveEvent()
-{
-	this->mouse_state = 0;
-}
-
 /**
  * Open the main isometric display window.
  * @ingroup viewport_group
