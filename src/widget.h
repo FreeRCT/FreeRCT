@@ -16,7 +16,9 @@
 
 struct BorderSpriteData;
 
-static const int INVALID_WIDGET_INDEX = -1; ///< Widget number of invalid index.
+typedef int16 WidgetNumber; ///< Type of a widget number.
+
+static const WidgetNumber INVALID_WIDGET_INDEX = -1; ///< Widget number of invalid index.
 
 /**
  * Available widget types.
@@ -74,8 +76,8 @@ public:
 
 	void MarkDirty(const Point32 &base);
 
-	WidgetType wtype; ///< Widget type.
-	int16 number;     ///< Widget number.
+	WidgetType wtype;    ///< Widget type.
+	WidgetNumber number; ///< Widget number.
 
 	uint16 min_x;     ///< Minimal horizontal size.
 	uint16 min_y;     ///< Minimal vertical size.
@@ -321,7 +323,7 @@ public:
 	} data; ///< Data of the widget part.
 };
 
-WidgetPart Widget(WidgetType wtype, int16 number, uint8 colour);
+WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour);
 WidgetPart Intermediate(uint8 num_rows, uint8 num_cols = 0);
 WidgetPart SetFill(uint8 x, uint8 y);
 WidgetPart SetResize(uint8 x, uint8 y);

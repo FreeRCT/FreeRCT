@@ -840,7 +840,7 @@ WidgetPart Intermediate(uint8 num_rows, uint8 num_cols)
  * @return Widget part containing the provided data for storage in an array.
  * @ingroup widget_parts_group
  */
-WidgetPart Widget(WidgetType wtype, int16 number, uint8 colour)
+WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour)
 {
 	WidgetPart part;
 

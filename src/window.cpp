@@ -23,7 +23,6 @@
 
 #include "stdafx.h"
 #include "window.h"
-#include "widget.h"
 #include "video.h"
 #include "math_func.h"
 #include "palette.h"
@@ -385,7 +384,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  * A click with the left button at a widget has been detected.
  * @param widget %Widget number.
  */
-/* virtual */ void GuiWindow::OnClick(int16 widget)
+/* virtual */ void GuiWindow::OnClick(WidgetNumber widget)
 {
 }
 

@@ -11,7 +11,6 @@
 
 #include "stdafx.h"
 #include "window.h"
-#include "widget.h"
 #include "language.h"
 #include "table/strings.h"
 #include "table/gui_sprites.h"
@@ -108,7 +107,7 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER)
 	this->SetupWidgetTree(_path_build_gui_parts, lengthof(_path_build_gui_parts));
 }
 
-/* virtual */ void PathBuildGui::OnClick(int16 number)
+/* virtual */ void PathBuildGui::OnClick(WidgetNumber number)
 {
 }
 

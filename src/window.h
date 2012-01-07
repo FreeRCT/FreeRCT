@@ -14,10 +14,9 @@
 
 #include "geometry.h"
 #include "orientation.h"
+#include "widget.h"
 
 class Viewport;
-class BaseWidget;
-class WidgetPart;
 
 /**
  * Available types of windows.
@@ -131,9 +130,9 @@ protected:
 	void SetupWidgetTree(const WidgetPart *parts, int length);
 
 	template <typename WID>
-	FORCEINLINE WID *GetWidget(uint wnum);
+	FORCEINLINE WID *GetWidget(WidgetNumber wnum);
 
-	virtual void OnClick(int16 widget);
+	virtual void OnClick(WidgetNumber widget);
 
 private:
 	BaseWidget *tree;     ///< Tree of widgets.
@@ -148,7 +147,7 @@ private:
  * @return Address of the widget.
  */
 template <typename WID>
-FORCEINLINE WID *GuiWindow::GetWidget(uint wnum)
+FORCEINLINE WID *GuiWindow::GetWidget(WidgetNumber wnum)
 {
 	assert(wnum < this->num_widgets);
 	return dynamic_cast<WID *>(this->widgets[wnum]);
@@ -160,7 +159,7 @@ FORCEINLINE WID *GuiWindow::GetWidget(uint wnum)
  * @return Address of the base widget.
  */
 template <>
-FORCEINLINE BaseWidget *GuiWindow::GetWidget(uint wnum)
+FORCEINLINE BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum)
 {
 	assert(wnum < this->num_widgets);
 	return this->widgets[wnum];

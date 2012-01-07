@@ -11,7 +11,6 @@
 
 #include "stdafx.h"
 #include "window.h"
-#include "widget.h"
 #include "video.h"
 
 #include "table/strings.h"
@@ -25,7 +24,7 @@ public:
 	ToolbarWindow();
 
 	virtual Point32 OnInitialPosition();
-	virtual void OnClick(int16 number);
+	virtual void OnClick(WidgetNumber number);
 };
 
 /**
@@ -60,7 +59,7 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 	return pt;
 }
 
-/* virtual */ void ToolbarWindow::OnClick(int16 number)
+/* virtual */ void ToolbarWindow::OnClick(WidgetNumber number)
 {
 	switch (number) {
 		case TB_GUI_QUIT:
