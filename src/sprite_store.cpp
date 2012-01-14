@@ -18,15 +18,6 @@
  * @ingroup sprites_group
  */
 
-/**
- * @defgroup sprites_group Sprites and sprite handling
- */
-
-/**
- * @defgroup gui_sprites_group Gui sprites and sprite handling
- * @ingroup sprites_group
- */
-
 #include "stdafx.h"
 #include "sprite_store.h"
 #include "fileio.h"
