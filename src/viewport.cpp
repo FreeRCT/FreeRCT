@@ -371,19 +371,22 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
-			const Sprite *surf;
-			if (svd->ground.type == GTP_INVALID) {
-				surf = NULL;
-			} else {
-				surf = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
-			}
 			const Sprite *path;
 			if (svd->path.type == PT_INVALID) {
 				path = NULL;
 			} else {
 				path = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
 			}
-			const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, svd->ground.slope);
+			const Sprite *surf;
+			uint8 gslope;
+			if (svd->ground.type == GTP_INVALID) {
+				surf = NULL;
+				gslope = SL_FLAT;
+			} else {
+				surf = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
+				gslope = svd->ground.slope;
+			}
+			const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
 
 			if (surf != NULL || mspr != NULL || path != NULL) {
 				std::pair<int32, DrawData> p;
