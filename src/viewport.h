@@ -23,6 +23,7 @@ class Viewport;
 enum ViewportMouseMode {
 	MM_INACTIVE,       ///< Inactive mode.
 	MM_TILE_TERRAFORM, ///< Terraforming tiles.
+	MM_PATH_BUILDING,  ///< Construct paths.
 
 	MM_COUNT,          ///< Number of mouse modes.
 };
@@ -165,6 +166,25 @@ private:
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 };
 
+/** Helper for storing data and state about the path building process. */
+class PathBuildData {
+public:
+	PathBuildData();
+
+	void Reset();
+	void SetPathGui(bool opened);
+
+	bool IsTileClickValid(int16 xpos, int16 ypos, int8 zpos);
+	void TileClicked();
+
+	uint8 GetArrowDirections();
+
+	bool tile_selected;   ///< #Viewport::tile_cursor contains the currently selected tile.
+	bool path_gui_opened; ///< Path gui is open.
+	bool world_additions; ///< #_additions has additions to the world.
+};
+
+
 /** Update the cursor at the screen. */
 FORCEINLINE void Cursor::MarkDirty()
 {
@@ -172,5 +192,8 @@ FORCEINLINE void Cursor::MarkDirty()
 }
 
 Viewport *GetViewport();
+void SetViewportMousemode();
+
+extern PathBuildData _path_builder;
 
 #endif

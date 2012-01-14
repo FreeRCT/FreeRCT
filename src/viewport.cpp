@@ -638,7 +638,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 /* virtual */ void Viewport::OnDraw()
 {
-	SpriteCollector collector(this, (this->mouse_mode == MM_TILE_TERRAFORM));
+	SpriteCollector collector(this, (this->mouse_mode == MM_TILE_TERRAFORM || this->mouse_mode == MM_PATH_BUILDING));
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 
@@ -918,6 +918,18 @@ ViewportMouseMode Viewport::GetMouseMode()
 			}
 			break;
 
+		case MM_PATH_BUILDING:
+			if ((this->mouse_state & MB_RIGHT) != 0) {
+				/* Drag the window if button is pressed down. */
+				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
+			} else {
+				/* Only update tile cursor if no tile selected yet. */
+				if (!_path_builder.tile_selected && this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
+					this->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
+				}
+			}
+			break;
+
 		default: NOT_REACHED();
 	}
 }
@@ -932,6 +944,20 @@ ViewportMouseMode Viewport::GetMouseMode()
 			this->mouse_state = state & MB_CURRENT;
 			break;
 
+		case MM_PATH_BUILDING:
+			this->mouse_state = state & MB_CURRENT;
+			if ((this->mouse_state & MB_LEFT) != 0) { // Left-click -> select current tile.
+				uint16 xvoxel, yvoxel;
+				uint8 zvoxel;
+				CursorType cur_type;
+				if (!this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) break;
+				if (_path_builder.IsTileClickValid(xvoxel, yvoxel, zvoxel)) {
+					this->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
+					_path_builder.TileClicked();
+				}
+			}
+			break;
+
 		default: NOT_REACHED();
 	}
 	return WMME_NONE;
@@ -941,6 +967,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 {
 	switch (this->mouse_mode) {
 		case MM_INACTIVE:
+		case MM_PATH_BUILDING:
 			break;
 
 		case MM_TILE_TERRAFORM:
@@ -964,6 +991,29 @@ Viewport *GetViewport()
 }
 
 /**
+ * Decide the most appropriate mouse mode of the viewport, depending on available windows.
+ * @todo Perhaps force a redraw/recompute in some way to ensure the right state is displayed?
+ */
+void SetViewportMousemode()
+{
+	Window *w;
+
+	Viewport *vp = GetViewport();
+
+	w = GetWindowByType(WC_PATH_BUILDER);
+	if (w != NULL) {
+		_path_builder.Reset(); // Reset path building interaction.
+		vp->SetMouseModeState(MM_PATH_BUILDING);
+		return;
+	}
+
+	vp->SetMouseModeState(MM_TILE_TERRAFORM);
+	vp->tile_cursor.SetInvalid();
+	vp->arrow_cursor.SetInvalid();
+	_path_builder.Reset();
+}
+
+/**
  * Open the main isometric display window.
  * @ingroup viewport_group
  */
@@ -974,6 +1024,6 @@ Viewport *ShowMainDisplay()
 	assert(width >= 120 && height >= 120);
 	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
 
-	w->SetMouseModeState(MM_TILE_TERRAFORM);
+	SetViewportMousemode();
 	return w;
 }
