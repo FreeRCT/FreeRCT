@@ -161,4 +161,6 @@ FORCEINLINE void Cursor::MarkDirty()
 	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
 }
 
+Viewport *GetViewport();
+
 #endif

@@ -832,6 +832,18 @@ ViewportMouseMode Viewport::GetMouseMode()
 }
 
 /**
+ * Get the address of the viewport window.
+ * @pre %Viewport is assumed to be available.
+ * @return Address of the viewport.
+ */
+Viewport *GetViewport()
+{
+	Viewport *v = dynamic_cast<Viewport *>(GetWindowByType(WC_MAINDISPLAY));
+	assert(v != NULL);
+	return v;
+}
+
+/**
  * Open the main isometric display window.
  * @ingroup viewport_group
  */
