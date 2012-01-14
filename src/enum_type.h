@@ -27,5 +27,20 @@
 	FORCEINLINE mask_t &operator ^= (mask_t &m1, mask_t m2) { m1 = m1 ^ m2; return m1; } \
 	FORCEINLINE mask_t  operator ~  (mask_t  m) { return (mask_t)(~(int)m); }
 
+/** Add post-increment and post-decrement operators to an enum. */
+#define DECLARE_POSTFIX_INCREMENT(type) \
+	inline type operator ++(type& e, int) \
+	{ \
+		type e_org = e; \
+		e = (type)((int)e + 1); \
+		return e_org; \
+	} \
+	inline type operator --(type& e, int) \
+	{ \
+		type e_org = e; \
+		e = (type)((int)e - 1); \
+		return e_org; \
+	}
+
 #endif
 

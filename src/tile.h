@@ -66,13 +66,16 @@ static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a
  * @ingroup map_group
  */
 enum TileEdge {
-	EDGE_NE,    ///< North-east edge.
+	EDGE_BEGIN, ///< First valid edge.
+	EDGE_NE = EDGE_BEGIN, ///< North-east edge.
 	EDGE_SE,    ///< South-east edge.
 	EDGE_SW,    ///< South-west edge.
 	EDGE_NW,    ///< North-west edge.
 
 	EDGE_COUNT, ///< Number of edges.
+	INVALID_EDGE = EDGE_COUNT, ///< Invalid edge (to denote lack of an edge).
 };
+DECLARE_POSTFIX_INCREMENT(TileEdge)
 
 
 /**
@@ -138,7 +141,8 @@ enum FoundationType {
  * @ingroup map_group
  */
 enum TrackSlope {
-	TSL_DOWN,                            ///< Gently down.
+	TSL_BEGIN,                           ///< First track slope.
+	TSL_DOWN = TSL_BEGIN,                ///< Gently down.
 	TSL_FLAT,                            ///< Horizontal slope.
 	TSL_UP,                              ///< Gently up.
 	TSL_COUNT_GENTLE,                    ///< Number of gentle slopes.
@@ -151,6 +155,7 @@ enum TrackSlope {
 	TSL_STRAIGHT_UP,                     ///< Vertically up.
 	TSL_COUNT_VERTICAL,                  ///< Number of slopes if also going straight up and down.
 };
+DECLARE_POSTFIX_INCREMENT(TrackSlope)
 
 extern const uint8 _corners_at_edge[EDGE_COUNT];
 extern const Point16 _corner_dxy[4];
