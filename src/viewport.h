@@ -142,6 +142,7 @@ public:
 	uint16 tile_height;          ///< Height of a tile.
 	ViewOrientation orientation; ///< Direction of view.
 	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
+	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
 
 private:
 	ViewportMouseMode mouse_mode; ///< Mode of the mouse, decides how to react to mouse clicks, drags, etc.

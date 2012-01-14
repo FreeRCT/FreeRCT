@@ -303,6 +303,7 @@ void Viewport::EnableWorldAdditions()
 	this->additions_enabled = true;
 	this->additions_displayed = true;
 	_additions.MarkDirty(this);
+	this->arrow_cursor.MarkDirty();
 	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
 }
 
@@ -313,6 +314,7 @@ void Viewport::DisableWorldAdditions()
 	if (this-additions_displayed) {
 		this->additions_displayed = false;
 		_additions.MarkDirty(this);
+		this->arrow_cursor.MarkDirty();
 	}
 	this->timeout = 0;
 }
@@ -324,6 +326,7 @@ void Viewport::DisableWorldAdditions()
 
 	this->additions_displayed = !this->additions_displayed;
 	_additions.MarkDirty(this);
+	this->arrow_cursor.MarkDirty();
 	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
 }
 
@@ -371,6 +374,10 @@ void SpriteCollector::SetMouseCursors(Viewport *vp)
  */
 CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
 {
+	if (this->additions_enabled && !this->additions_displayed) {
+		CursorType ct = this->arrow_cursor.GetCursor(xpos, ypos, zpos);
+		if (ct != CUR_TYPE_INVALID) return ct;
+	}
 	return this->tile_cursor.GetCursor(xpos, ypos, zpos);
 }
 
@@ -542,7 +549,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 /**
  * %Viewport constructor.
  */
-Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_cursor(this)
+Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_cursor(this), arrow_cursor(this)
 {
 	this->xview = _world.GetXSize() * 256 / 2;
 	this->yview = _world.GetYSize() * 256 / 2;
