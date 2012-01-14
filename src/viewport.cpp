@@ -198,15 +198,6 @@ protected:
  */
 class PixelFinder : public VoxelCollector {
 public:
-	/**
-	 * Constructor for collecting the sprite displayed at the mouse cursor.
-	 * @param xview X world position of the origin.
-	 * @param yview Y world position of the origin.
-	 * @param zview Z world position of the origin.
-	 * @param tile_width Width of a tile at the display.
-	 * @param tile_height Height of a tile in the display.
-	 * @param orient View orientation.
-	 */
 	PixelFinder(Viewport *vp);
 	~PixelFinder();
 
