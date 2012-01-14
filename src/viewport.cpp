@@ -432,6 +432,22 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	int sx = (this->orient == VOR_NORTH || this->orient == VOR_EAST) ? 256 : -256;
 	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 256 : -256;
 
+	if (voxel == NULL) {
+		const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
+		if (mspr != NULL) {
+			std::pair<int32, DrawData> p;
+			p.first = sx * xpos + sy * ypos + zpos * 256;
+			p.second.cursor = mspr;
+			p.second.path = NULL;
+			p.second.ground = NULL;
+			p.second.foundation = NULL;
+			p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
+			p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
+			draw_images.insert(p);
+		}
+		return;
+	}
+
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
@@ -466,7 +482,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			break;
 		}
 
-		default:
+		default: {
 			const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 			if (mspr != NULL) {
 				std::pair<int32, DrawData> p;
@@ -480,6 +496,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				draw_images.insert(p);
 			}
 			break;
+		}
 	}
 }
 
