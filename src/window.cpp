@@ -461,16 +461,39 @@ bool GuiWindow::IsWidgetShaded(WidgetNumber widget) const
 }
 
 /**
- * Change the state of a set of radio buttons.
+ * Change the state of a set of radio buttons (#WT_RADIOBUTTON or bi-stable button widgets).
  * @param wids Array of widgets, terminate with #INVALID_WIDGET_INDEX.
  * @param selected Current selected widget of the radio buttons.
  */
-void GuiWindow::SetRadioButtonsState(const WidgetNumber *wids, WidgetNumber selected)
+void GuiWindow::SetRadioButtonsSelected(const WidgetNumber *wids, WidgetNumber selected)
 {
 	while (*wids != INVALID_WIDGET_INDEX) {
-		this->SetWidgetPressed(*wids, *wids == selected);
+		BaseWidget *wid = this->GetWidget<BaseWidget>(*wids);
+		if (wid->wtype == WT_RADIOBUTTON) {
+			this->SetWidgetChecked(*wids, *wids == selected);
+		} else {
+			this->SetWidgetPressed(*wids, *wids == selected);
+		}
 		wids++;
 	}
+}
+
+/**
+ * Find the currently selected widget from a set of radio buttons (#WT_RADIOBUTTON or bi-stable button widgets).
+ * @param wids Array of widgets, terminate with #INVALID_WIDGET_INDEX.
+ * @return Currently pressed widget, or #INVALID_WIDGET_INDEX if none found.
+ */
+WidgetNumber GuiWindow::GetSelectedRadioButton(const WidgetNumber *wids)
+{
+	while (*wids != INVALID_WIDGET_INDEX) {
+		LeafWidget *wid = this->GetWidget<LeafWidget>(*wids);
+		if (!wid->IsShaded()) {
+			if ((wid->wtype == WT_RADIOBUTTON && wid->IsChecked()) ||
+					(wid->wtype != WT_RADIOBUTTON && wid->IsPressed())) return *wids;
+		}
+		wids++;
+	}
+	return INVALID_WIDGET_INDEX;
 }
 
 /* virtual */ void GuiWindow::TimeoutCallback()
