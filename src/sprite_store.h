@@ -449,7 +449,7 @@ public:
 	{
 		if (this->build_arrows == NULL) return NULL;
 		assert(spr_num < 4);
-		return this->build_arrows->sprites[(spr_num + orient) % 4];
+		return this->build_arrows->sprites[(spr_num + 4 - orient) % 4];
 	}
 
 	const uint16 size; ///< Width of the tile.
