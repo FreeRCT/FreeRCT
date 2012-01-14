@@ -773,6 +773,8 @@ void Viewport::Rotate(int direction)
 	Point16 pt = this->mouse_pos;
 	this->OnMouseMoveEvent(pt);
 	this->MarkDirty();
+
+	NotifyChange(WC_PATH_BUILDER, CHG_VIEWPORT_ROTATED, direction);
 }
 
 /**
