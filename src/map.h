@@ -174,6 +174,9 @@ public:
 	const Voxel *Get(int16 z) const;
 	Voxel *GetCreate(int16 z, bool create);
 
+	VoxelStack *Copy() const;
+	void MoveStack(VoxelStack *old_stack);
+
 	Voxel *voxels; ///< %Voxel array at this stack.
 	int16 base;    ///< Height of the bottom voxel.
 	uint16 height; ///< Number of voxels in the stack.
@@ -195,6 +198,17 @@ public:
 	VoxelStack *GetModifyStack(uint16 x, uint16 y);
 	const VoxelStack *GetStack(uint16 x, uint16 y) const;
 	uint8 GetGroundHeight(uint16 x, uint16 y) const;
+
+	/**
+	 * Move a voxel stack to this world. May destroy the original stack in the process.
+	 * @param x X coordinate of the stack.
+	 * @param y Y coordinate of the stack.
+	 * @param old_stack Source stack.
+	 */
+	void MoveStack(uint16 x, uint16 y, VoxelStack *old_stack)
+	{
+		this->GetModifyStack(x, y)->MoveStack(old_stack);
+	}
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.
@@ -289,6 +303,57 @@ private:
 	uint16 ysize; ///< Vertical size of the smooth changing world.
 
 	GroundData *GetGroundData(const Point32 &pos);
+};
+
+/**
+ * Map of x/y positions to voxel stacks.
+ * @ingroup map_group
+ */
+typedef std::map<Point32, VoxelStack *> VoxelStackMap;
+
+/**
+ * Proposed additions to #_world.
+ * Temporary buffer to make changes in the world, and show them to the user
+ * without having them really in the game until the user confirms.
+ */
+class WorldAdditions {
+public:
+	WorldAdditions();
+	~WorldAdditions();
+
+	void Clear();
+	void Commit();
+
+	VoxelStack *GetModifyStack(uint16 x, uint16 y);
+	const VoxelStack *GetStack(uint16 x, uint16 y) const;
+
+	/**
+	 * Get a voxel in the world by voxel coordinate.
+	 * @param x X coordinate of the voxel.
+	 * @param y Y coordinate of the voxel.
+	 * @param z Z coordinate of the voxel.
+	 * @return Address of the voxel (if it exists).
+	 */
+	FORCEINLINE const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
+	{
+		return this->GetStack(x, y)->Get(z);
+	}
+
+	/**
+	 * Get a voxel in the world by voxel coordinate.
+	 * @param x X coordinate of the voxel.
+	 * @param y Y coordinate of the voxel.
+	 * @param z Z coordinate of the voxel.
+	 * @param create If the requested voxel does not exist, try to create it.
+	 * @return Address of the voxel (if it exists or could be created).
+	 */
+	FORCEINLINE Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
+	{
+		return this->GetModifyStack(x, y)->GetCreate(z, create);
+	}
+
+protected:
+	VoxelStackMap modified_stacks; ///< Modified voxel stacks.
 };
 
 extern VoxelWorld _world;

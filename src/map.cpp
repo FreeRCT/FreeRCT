@@ -106,6 +106,20 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 }
 
 /**
+ * Make a copy of self.
+ * @return The copied structure.
+ */
+VoxelStack *VoxelStack::Copy() const
+{
+	VoxelStack *vs = new VoxelStack;
+	if (this->height > 0) {
+		vs->MakeVoxelStack(this->base, this->height);
+		MemCpy(vs->voxels, this->voxels, this->height);
+	}
+	return vs;
+}
+
+/**
  * Get a voxel in the world by voxel coordinate.
  * @param z Z coordinate of the voxel.
  * @return Address of the voxel (if it exists or could be created).
@@ -189,6 +203,52 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 			svd.path.type = PT_INVALID;
 			v->SetSurface(svd);
 		}
+	}
+}
+
+/**
+ * Move a voxel stack to this world. May destroy the original stack in the process.
+ * @param vs Source stack.
+ */
+void VoxelStack::MoveStack(VoxelStack *vs)
+{
+	/* Clean up the stack a bit before copying it. */
+	for (uint i = 0; i < vs->height; i++) {
+		Voxel *v = &vs->voxels[i];
+		if (v->GetType() == VT_SURFACE) {
+			const SurfaceVoxelData *svd = v->GetSurface();
+			if (svd->path.type == PT_INVALID && svd->ground.type == GTP_INVALID && svd->foundation.type == FDT_INVALID) v->SetEmpty();
+		}
+	}
+
+	/* Get the lower & upper bound on used voxels. Note that it should always contain at least one surface voxel. */
+	uint low = 0;
+	while (vs->voxels[low].GetType() == VT_EMPTY) {
+		assert(low < vs->height);
+		low++;
+	}
+	uint high = vs->height - 1;
+	while (vs->voxels[high].GetType() == VT_EMPTY) high--;
+
+	if ((high - low + 1) * 2 > this->height) {
+		if (this->height == vs->height) {
+			MemCpy(this->voxels, vs->voxels, this->height);
+		} else {
+			assert(vs->height > this->height);
+			/* New stack is higher. Free this->voxels, and move new stack to this. */
+			this->base = vs->base;
+			this->height = vs->height;
+			free(this->voxels);
+			this->voxels = vs->voxels;
+			vs->voxels = NULL;
+			vs->base = 0;
+			vs->height = 0;
+		}
+	} else {
+		/* Lots of wasted voxels, let's make a new stack. */
+		this->Clear();
+		this->MakeVoxelStack(low, high - low + 1);
+		MemCpy(this->voxels, vs->voxels + low, high - low + 1);
 	}
 }
 
@@ -453,4 +513,70 @@ void TerrainChanges::ChangeWorld(int direction)
 			vs->GetCreate(min_h + 1, true)->SetReference(rvd);
 		}
 	}
+}
+
+WorldAdditions::WorldAdditions()
+{
+}
+
+WorldAdditions::~WorldAdditions()
+{
+	this->Clear();
+}
+
+/** Remove all modifications. */
+void WorldAdditions::Clear()
+{
+	VoxelStackMap::iterator iter;
+	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); iter++) {
+		delete (*iter).second;
+	}
+	this->modified_stacks.clear();
+}
+
+/** Move modifications to the 'real' #_world. */
+void WorldAdditions::Commit()
+{
+	VoxelStackMap::iterator iter;
+	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); iter++) {
+		Point32 pt = (*iter).first;
+		_world.MoveStack(pt.x, pt.y, (*iter).second);
+	}
+	this->Clear();
+}
+
+/**
+ * Get a voxel stack with the purpose of modifying it. If necessary, a copy from the #_world stack is made.
+ * @param x X coordinate of the stack.
+ * @param y Y coordinate of the stack.
+ * @return The requested voxel stack.
+ */
+VoxelStack *WorldAdditions::GetModifyStack(uint16 x, uint16 y)
+{
+	Point32 pt;
+	pt.x = x;
+	pt.y = y;
+
+	VoxelStackMap::iterator iter = this->modified_stacks.find(pt);
+	if (iter != this->modified_stacks.end()) return (*iter).second;
+	std::pair<Point32, VoxelStack *> p(pt, _world.GetStack(x, y)->Copy());
+	iter = this->modified_stacks.insert(p).first;
+	return (*iter).second;
+}
+
+/**
+ * Get a voxel stack (read-only) either from the modifications, or from the 'real' #_world.
+ * @param x X coordinate of the stack.
+ * @param y Y coordinate of the stack.
+ * @return The requested voxel stack.
+ */
+const VoxelStack *WorldAdditions::GetStack(uint16 x, uint16 y) const
+{
+	Point32 pt;
+	pt.x = x;
+	pt.y = y;
+
+	VoxelStackMap::const_iterator iter = this->modified_stacks.find(pt);
+	if (iter != this->modified_stacks.end()) return (*iter).second;
+	return _world.GetStack(x, y);
 }
