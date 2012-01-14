@@ -94,7 +94,7 @@ static FORCEINLINE int32 ComputeYFunction(int32 x, int32 y, int32 z, ViewOrienta
  */
 class VoxelCollector {
 public:
-	VoxelCollector(int32 xview, int32 yview, int32 zview, uint16 width, uint16 height, ViewOrientation orient);
+	VoxelCollector(Viewport *vp, bool draw_above_stack);
 	virtual ~VoxelCollector();
 
 	void SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height);
@@ -132,6 +132,8 @@ public:
 	uint16 tile_height;           ///< Height of a tile.
 	ViewOrientation orient;       ///< Direction of view.
 	const SpriteStorage *sprites; ///< Sprite collection of the right size.
+	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c NULL.
+	bool draw_above_stack;        ///< Also draw voxels above the voxel stack (for cursors).
 
 	Rectangle32 rect; ///< Screen area of interest.
 
@@ -174,17 +176,15 @@ typedef std::multimap<int32, DrawData> DrawImages;
  */
 class SpriteCollector : public VoxelCollector {
 public:
-	SpriteCollector(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient);
+	SpriteCollector(Viewport *vp, bool enable_cursors);
 	~SpriteCollector();
 
 	void SetXYOffset(int16 xoffset, int16 yoffset);
-	void SetMouseCursors(Viewport *vp);
 
 	DrawImages draw_images; ///< Sprites to draw ordered by viewing distance.
 	int16 xoffset; ///< Horizontal offset of the top-left coordinate to the top-left of the display.
 	int16 yoffset; ///< Vertical offset of the top-left coordinate to the top-left of the display.
-
-	Viewport *vp;  ///< Parent viewport holding the cursors if not \c NULL.
+	bool enable_cursors; ///< Enable cursor drawing.
 
 protected:
 	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
@@ -207,7 +207,7 @@ public:
 	 * @param tile_height Height of a tile in the display.
 	 * @param orient View orientation.
 	 */
-	PixelFinder(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient);
+	PixelFinder(Viewport *vp);
 	~PixelFinder();
 
 	bool   found;    ///< Found a solution.
@@ -223,22 +223,21 @@ protected:
 
 
 /**
- * Constructor.
- * @param xview X world position of the origin.
- * @param yview Y world position of the origin.
- * @param zview Z world position of the origin.
- * @param tile_width Width of a tile at the display.
- * @param tile_height Height of a tile in the display.
- * @param orient View orientation.
+ * Base class constructor.
+ * @param vp %Viewport querying the voxel information.
+ * @param draw_above_stack Also vist the cursors above a voxel stack.
+ * @todo Can we remove some variables, as \a vp is stored now as well?
  */
-VoxelCollector::VoxelCollector(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient)
+VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
 {
-	this->xview = xview;
-	this->yview = yview;
-	this->zview = zview;
-	this->tile_width = tile_width;
-	this->tile_height = tile_height;
-	this->orient = orient;
+	this->vp = vp;
+	this->xview = vp->xview;
+	this->yview = vp->yview;
+	this->zview = vp->zview;
+	this->tile_width = vp->tile_width;
+	this->tile_height = vp->tile_height;
+	this->orient = vp->orientation;
+	this->draw_above_stack = draw_above_stack;
 
 	this->sprites = _sprite_manager.GetSprites(this->tile_width);
 	assert(this->sprites != NULL);
@@ -332,14 +331,15 @@ void Viewport::DisableWorldAdditions()
 
 /**
  * Constructor of sprites collector.
+ * @param vp %Viewport that needs the sprites.
+ * @param enable_cursors Also collect cursors.
  */
-SpriteCollector::SpriteCollector(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient) :
-		VoxelCollector(xview, yview, zview, tile_width, tile_height, orient)
+SpriteCollector::SpriteCollector(Viewport *vp, bool enable_cursors) : VoxelCollector(vp, true)
 {
 	this->draw_images.clear();
-	this->vp = NULL;
 	this->xoffset = 0;
 	this->yoffset = 0;
+	this->enable_cursors = enable_cursors;
 }
 
 SpriteCollector::~SpriteCollector()
@@ -355,14 +355,6 @@ void SpriteCollector::SetXYOffset(int16 xoffset, int16 yoffset)
 {
 	this->xoffset = xoffset;
 	this->yoffset = yoffset;
-}
-
-/**
- * Set position of the mouse cursor.
- */
-void SpriteCollector::SetMouseCursors(Viewport *vp)
-{
-	this->vp = vp;
 }
 
 /**
@@ -391,7 +383,7 @@ CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
  */
 const Sprite *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope)
 {
-	if (this->vp == NULL) return NULL;
+	if (!this->enable_cursors) return NULL;
 
 	CursorType ctype = this->vp->GetCursorAtPos(xpos, ypos, zpos);
 	switch (ctype) {
@@ -500,9 +492,11 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	}
 }
 
-
-PixelFinder::PixelFinder(int32 xview, int32 yview, int32 zview, uint16 tile_width, uint16 tile_height, ViewOrientation orient) :
-		VoxelCollector(xview, yview, zview, tile_width, tile_height, orient)
+/**
+ * Constructor of the tile position finder.
+ * @param vp %Viewport that needs the tile position.
+ */
+PixelFinder::PixelFinder(Viewport *vp) : VoxelCollector(vp, false)
 {
 	this->found = false;
 	this->distance = 0;
@@ -610,11 +604,8 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 /* virtual */ void Viewport::OnDraw()
 {
-	SpriteCollector collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
+	SpriteCollector collector(this, (this->mouse_mode == MM_TILE_TERRAFORM));
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
-	if (this->mouse_mode == MM_TILE_TERRAFORM) {
-		collector.SetMouseCursors(this);
-	}
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 
 
@@ -712,7 +703,7 @@ void Viewport::ComputeCursorPosition(bool select_corner)
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
-	PixelFinder collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
+	PixelFinder collector(this);
 	collector.SetWindowSize(xp, yp, 1, 1);
 	collector.Collect(false);
 	if (!collector.found) return; // Not at a tile.
