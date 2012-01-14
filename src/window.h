@@ -28,6 +28,12 @@ enum WindowTypes {
 	WC_PATH_BUILDER, ///< Path build gui.
 };
 
+/** Codes of the #NotifyChange function, which gets forwarded through the #Window::OnChange method. */
+enum ChangeCodes {
+	CHG_UPDATE_BUTTONS,   ///< Recompute the state of the buttons.
+	CHG_VIEWPORT_ROTATED, ///< Viewport rotated.
+};
+
 /** Various state flags of the %Window. */
 enum WindowFlags {
 	WF_HIGHLIGHT = 1 << 0, ///< %Window edge is highlighted.
