@@ -398,7 +398,7 @@ void GuiWindow::SetWidgetChecked(WidgetNumber widget, bool value)
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
 	if (lw->IsChecked() != value) {
 		lw->SetChecked(value);
-		lw->Draw(this->rect.base);
+		lw->MarkDirty(this->rect.base);
 	}
 }
 
@@ -422,7 +422,7 @@ void GuiWindow::SetWidgetPressed(WidgetNumber widget, bool value)
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
 	if (lw->IsPressed() != value) {
 		lw->SetPressed(value);
-		lw->Draw(this->rect.base);
+		lw->MarkDirty(this->rect.base);
 	}
 }
 
@@ -446,7 +446,7 @@ void GuiWindow::SetWidgetShaded(WidgetNumber widget, bool value)
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
 	if (lw->IsShaded() != value) {
 		lw->SetShaded(value);
-		lw->Draw(this->rect.base);
+		lw->MarkDirty(this->rect.base);
 	}
 }
 
