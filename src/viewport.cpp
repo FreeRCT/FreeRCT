@@ -25,6 +25,30 @@
 #include <map>
 
 /**
+ * Proposed additions to the game world. Not part of the game itself, but they are displayed by calling
+ * #EnableWorldAdditions (and stopped being displayed with #DisableWorldAdditions).
+ * The additions will flash on and off to show they are not decided yet.
+ */
+WorldAdditions _additions;
+
+static const int ADDITIONS_TIMEOUT_LENGTH = 35; ///< Length of the time interval of displaying or not displaying world additions.
+
+
+/** Enable flashing display of showing proposed game world additions to the player. */
+void EnableWorldAdditions()
+{
+	Viewport *vp = GetViewport();
+	vp->EnableWorldAdditions();
+}
+
+/** Disable flashing display of showing proposed game world additions to the player. */
+void DisableWorldAdditions()
+{
+	Viewport *vp = GetViewport();
+	vp->DisableWorldAdditions();
+}
+
+/**
  * Convert 3D position to the horizontal 2D position.
  * @param x X position in the game world.
  * @param y Y position in the game world.
@@ -75,7 +99,7 @@ public:
 
 	void SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height);
 
-	void Collect();
+	void Collect(bool use_additions);
 
 	/**
 	 * Convert 3D position to the horizontal 2D position.
@@ -244,10 +268,11 @@ void VoxelCollector::SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 
  * Perform the collecting cycle.
  * This part walks over the voxels, and call #CollectVoxel for each useful voxel.
  * A derived class may then inspect the voxel in more detail.
+ * @param use_additions Use the #_additions voxels for drawing.
  * @todo Add referenced voxels map here.
  * @todo Do this less stupid. Walking the whole world is not going to work in general.
  */
-void VoxelCollector::Collect()
+void VoxelCollector::Collect(bool use_additions)
 {
 	for (uint xpos = 0; xpos < _world.GetXSize(); xpos++) {
 		int32 world_x = (xpos + ((this->orient == VOR_SOUTH || this->orient == VOR_WEST) ? 1 : 0)) * 256;
@@ -257,7 +282,7 @@ void VoxelCollector::Collect()
 			if (north_x + this->tile_width / 2 <= (int32)this->rect.base.x) continue; // Right of voxel column is at left of window.
 			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
 
-			const VoxelStack *stack = _world.GetStack(xpos, ypos);
+			const VoxelStack *stack = use_additions ? _additions.GetStack(xpos, ypos) : _world.GetStack(xpos, ypos);
 			for (int count = 0; count < stack->height; count++) {
 				uint zpos = stack->base + count;
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
@@ -268,6 +293,38 @@ void VoxelCollector::Collect()
 			}
 		}
 	}
+}
+
+/** Enable flashing display of showing proposed game world additions to the player. */
+void Viewport::EnableWorldAdditions()
+{
+	if (this->additions_enabled) return;
+
+	this->additions_enabled = true;
+	this->additions_displayed = true;
+	_additions.MarkDirty(this);
+	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
+}
+
+/** Disable flashing display of showing proposed game world additions to the player. */
+void Viewport::DisableWorldAdditions()
+{
+	this->additions_enabled = false;
+	if (this-additions_displayed) {
+		this->additions_displayed = false;
+		_additions.MarkDirty(this);
+	}
+	this->timeout = 0;
+}
+
+/** Toggle display of world additions (in #_additions) if enabled. */
+/* virtual */ void Viewport::TimeoutCallback()
+{
+	if (!this->additions_enabled) return;
+
+	this->additions_displayed = !this->additions_displayed;
+	_additions.MarkDirty(this);
+	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
 }
 
 /**
@@ -534,7 +591,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	if (this->mouse_mode == MM_TILE_TERRAFORM) {
 		collector.SetMouseCursors(this);
 	}
-	collector.Collect();
+	collector.Collect(this->additions_enabled && this->additions_displayed);
 
 
 	_video->FillSurface(COL_BACKGROUND, this->rect); // Black background.
@@ -633,7 +690,7 @@ void Viewport::ComputeCursorPosition(bool select_corner)
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
 	PixelFinder collector(this->xview, this->yview, this->zview, this->tile_width, this->tile_height, this->orientation);
 	collector.SetWindowSize(xp, yp, 1, 1);
-	collector.Collect();
+	collector.Collect(false);
 	if (!collector.found) return; // Not at a tile.
 
 	CursorType cur_type = CUR_TYPE_TILE;

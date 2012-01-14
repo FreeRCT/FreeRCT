@@ -16,6 +16,7 @@
 #include "stdafx.h"
 #include "map.h"
 #include "memory.h"
+#include "viewport.h"
 
 /**
  * The game world.
@@ -579,4 +580,18 @@ const VoxelStack *WorldAdditions::GetStack(uint16 x, uint16 y) const
 	VoxelStackMap::const_iterator iter = this->modified_stacks.find(pt);
 	if (iter != this->modified_stacks.end()) return (*iter).second;
 	return _world.GetStack(x, y);
+}
+
+/**
+ * Mark the additions in the display as outdated, so they get repainted.
+ * @param vp %Viewport displaying the world.
+ */
+void WorldAdditions::MarkDirty(Viewport *vp)
+{
+	VoxelStackMap::const_iterator iter;
+	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); iter++) {
+		const Point32 pt = (*iter).first;
+		const VoxelStack *vstack = (*iter).second;
+		if (vstack != NULL) vp->MarkVoxelDirty(pt.x, pt.x, vstack->base, vstack->height);
+	}
 }

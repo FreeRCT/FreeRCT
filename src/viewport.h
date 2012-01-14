@@ -131,6 +131,9 @@ public:
 	void ComputeCursorPosition(bool select_corner);
 	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
 
+	void EnableWorldAdditions();
+	void DisableWorldAdditions();
+
 	int32 xview; ///< X position of the center point of the viewport.
 	int32 yview; ///< Y position of the center point of the viewport.
 	int32 zview; ///< Z position of the center point of the viewport.
@@ -145,9 +148,14 @@ private:
 	Point16 mouse_pos;            ///< Last known position of the mouse.
 	uint8 mouse_state;            ///< Last known state of the mouse buttons.
 
+	bool additions_enabled;       ///< Flashing of world additions is enabled.
+	bool additions_displayed;     ///< Additions in #_additions are displayed to the user.
+
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
+
+	virtual void TimeoutCallback();
 
 	void ChangeTerrain(int direction);
 
