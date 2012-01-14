@@ -130,6 +130,7 @@ public:
 
 	void ComputeCursorPosition(bool select_corner);
 	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
+	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 
 	void EnableWorldAdditions();
 	void DisableWorldAdditions();

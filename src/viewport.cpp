@@ -282,14 +282,27 @@ void VoxelCollector::Collect(bool use_additions)
 			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
 
 			const VoxelStack *stack = use_additions ? _additions.GetStack(xpos, ypos) : _world.GetStack(xpos, ypos);
-			for (int count = 0; count < stack->height; count++) {
-				uint zpos = stack->base + count;
+			uint zpos = stack->base;
+			for (int count = 0; count < stack->height; zpos++, count++) {
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
 				if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
 				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
 
 				this->CollectVoxel(&stack->voxels[count], xpos, ypos, zpos, north_x, north_y);
 			}
+			/* Possibly cursors should be drawn above this. */
+			if (this->draw_above_stack) {
+				uint8 zmax = this->vp->GetMaxCursorHeight(xpos, ypos, zpos);
+				zpos++;
+				for (; zpos <= zmax; zpos++) {
+					int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
+					if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
+					if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
+
+					this->CollectVoxel(NULL, xpos, ypos, zpos, north_x, north_y);
+				}
+			}
+
 		}
 	}
 }
@@ -371,6 +384,27 @@ CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
 		if (ct != CUR_TYPE_INVALID) return ct;
 	}
 	return this->tile_cursor.GetCursor(xpos, ypos, zpos);
+}
+
+/**
+ * Get the highest voxel that should be examined in a voxel stack (since cursors may be placed above all voxels).
+ * @param xpos X position of the voxel stack.
+ * @param ypos Y position of the voxel stack.
+ * @param zpos Z position of the top voxel.
+ * @return Highest voxel to draw.
+ */
+uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	if (this->arrow_cursor.type != CUR_TYPE_INVALID && this->additions_enabled && !this->additions_displayed
+			&& this->arrow_cursor.xpos == xpos && this->arrow_cursor.ypos == ypos && this->arrow_cursor.zpos > zpos) {
+		zpos = this->arrow_cursor.zpos;
+	}
+	if (this->tile_cursor.type != CUR_TYPE_INVALID
+			&& this->tile_cursor.xpos == xpos && this->tile_cursor.ypos == ypos && this->tile_cursor.zpos > zpos) {
+		zpos = this->tile_cursor.zpos;
+	}
+	assert(zpos < 255);
+	return zpos;
 }
 
 /**
