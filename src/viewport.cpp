@@ -730,29 +730,37 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 }
 
 /**
- * Compute position of the mouse cursor, and update the display if necessary.
+ * Compute position of the mouse cursor, and return the result.
  * @param select_corner Not only select the voxel but also the corner.
+ * @param xvoxel [out] Pointer to store the X coordinate of the selected voxel.
+ * @param yvoxel [out] Pointer to store the Y coordinate of the selected voxel.
+ * @param zvoxel [out] Pointer to store the Z coordinate of the selected voxel.
+ * @param cur_type [out] Pointer to store the cursor type.
+ * @return A voxel coordinate was calculated.
  */
-void Viewport::ComputeCursorPosition(bool select_corner)
+bool Viewport::ComputeCursorPosition(bool select_corner, uint16 *xvoxel, uint16 *yvoxel, uint8 *zvoxel, CursorType *cur_type)
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
 	PixelFinder collector(this);
 	collector.SetWindowSize(xp, yp, 1, 1);
 	collector.Collect(false);
-	if (!collector.found) return; // Not at a tile.
+	if (!collector.found) return false; // Not at a tile.
 
-	CursorType cur_type = CUR_TYPE_TILE;
+	*cur_type = CUR_TYPE_TILE;
 	if (select_corner) {
 		switch (collector.pixel) {
-			case 181: cur_type = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
-			case 182: cur_type = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
-			case 184: cur_type = (CursorType)AddOrientations(VOR_WEST,  this->orientation); break;
-			case 185: cur_type = (CursorType)AddOrientations(VOR_SOUTH, this->orientation); break;
+			case 181: *cur_type = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
+			case 182: *cur_type = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
+			case 184: *cur_type = (CursorType)AddOrientations(VOR_WEST,  this->orientation); break;
+			case 185: *cur_type = (CursorType)AddOrientations(VOR_SOUTH, this->orientation); break;
 			default: break;
 		}
 	}
-	this->tile_cursor.SetCursor(collector.xvoxel, collector.yvoxel, collector.zvoxel, cur_type);
+	*xvoxel = collector.xvoxel;
+	*yvoxel = collector.yvoxel;
+	*zvoxel = collector.zvoxel;
+	return true;
 }
 
 /**
@@ -886,6 +894,10 @@ ViewportMouseMode Viewport::GetMouseMode()
 
 /* virtual */ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 {
+	uint16 xvoxel, yvoxel;
+	uint8 zvoxel;
+	CursorType cur_type;
+
 	Point16 old_mouse_pos = this->mouse_pos;
 	this->mouse_pos = pos;
 
@@ -898,7 +910,9 @@ ViewportMouseMode Viewport::GetMouseMode()
 				/* Drag the window if button is pressed down. */
 				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
 			} else {
-				this->ComputeCursorPosition(true);
+				if (this->ComputeCursorPosition(true, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
+					this->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
+				}
 			}
 			break;
 

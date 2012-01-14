@@ -128,7 +128,7 @@ public:
 	void SetMouseModeState(ViewportMouseMode mode, uint8 state = 0);
 	ViewportMouseMode GetMouseMode();
 
-	void ComputeCursorPosition(bool select_corner);
+	bool ComputeCursorPosition(bool select_corner, uint16 *xvoxel, uint16 *yvoxel, uint8 *zvoxel, CursorType *cur_type);
 	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 
