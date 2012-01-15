@@ -391,7 +391,6 @@ public:
 	 * @param surf_spr Surface sprite index.
 	 * @param orient Orientation.
 	 * @return Requested sprite if available.
-	 * @todo Move this code closer to the sprite selection code.
 	 */
 	const Sprite *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
 	{
@@ -406,12 +405,11 @@ public:
 	 * @param orient Display orientation.
 	 * @return Requested sprite if available.
 	 * @todo [low] \a type is not used due to lack of other path types (sprites).
-	 * @todo [high] Support the other orientations too.
 	 */
 	const Sprite *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
 	{
 		// this->path[type] is not used, as there exists only one type of paths.
-		return this->path_sprites->sprites[slope];
+		return this->path_sprites->sprites[_path_roation[slope][orient]];
 	}
 
 	/**

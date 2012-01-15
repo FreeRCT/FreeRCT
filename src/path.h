@@ -103,7 +103,8 @@ enum PathTypes {
 };
 
 extern const uint8 _path_expand[];
-extern const uint8 _path_implode[];
+extern const uint8 _path_implode[256];
+extern const uint8 _path_roation[PATH_COUNT][4];
 
 #endif
 
