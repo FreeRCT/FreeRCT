@@ -529,7 +529,7 @@ void PathBuildGui::SetWorldAdditions()
 			SurfaceVoxelData svd;
 			svd.path.type = PT_CONCRETE;
 			svd.path.slope = GetPathSprite((TrackSlope)(wnum - PATH_GUI_SLOPE_DOWN),
-					(TileEdge)((this->selected_dir + 2 + 4 - vp->orientation) % 4));
+					(TileEdge)((this->selected_dir + 2) % 4));
 			svd.ground.type = GTP_INVALID;
 			svd.foundation.type = FDT_INVALID;
 			v->SetSurface(svd);
@@ -537,7 +537,7 @@ void PathBuildGui::SetWorldAdditions()
 			SurfaceVoxelData *svd = v->GetSurface();
 			svd->path.type = PT_CONCRETE;
 			svd->path.slope = GetPathSprite((TrackSlope)(wnum - PATH_GUI_SLOPE_DOWN),
-					(TileEdge)((this->selected_dir + 2 + 4 - vp->orientation) % 4));
+					(TileEdge)((this->selected_dir + 2) % 4));
 		}
 		_path_builder.world_additions = true;
 	}
