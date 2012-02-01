@@ -38,14 +38,14 @@ static const int ADDITIONS_TIMEOUT_LENGTH = 35; ///< Length of the time interval
 void EnableWorldAdditions()
 {
 	Viewport *vp = GetViewport();
-	vp->EnableWorldAdditions();
+	if (vp != NULL) vp->EnableWorldAdditions();
 }
 
 /** Disable flashing display of showing proposed game world additions to the player. */
 void DisableWorldAdditions()
 {
 	Viewport *vp = GetViewport();
-	vp->DisableWorldAdditions();
+	if (vp != NULL) vp->DisableWorldAdditions();
 }
 
 /**
@@ -971,14 +971,12 @@ ViewportMouseMode Viewport::GetMouseMode()
 
 /**
  * Get the address of the viewport window.
- * @pre %Viewport is assumed to be available.
  * @return Address of the viewport.
+ * @note Function may return \c NULL.
  */
 Viewport *GetViewport()
 {
-	Viewport *v = dynamic_cast<Viewport *>(GetWindowByType(WC_MAINDISPLAY));
-	assert(v != NULL);
-	return v;
+	return dynamic_cast<Viewport *>(GetWindowByType(WC_MAINDISPLAY));
 }
 
 /**
@@ -990,6 +988,7 @@ void SetViewportMousemode()
 	Window *w;
 
 	Viewport *vp = GetViewport();
+	if (vp == NULL) return;
 
 	w = GetWindowByType(WC_PATH_BUILDER);
 	if (w != NULL) {

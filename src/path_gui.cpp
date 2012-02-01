@@ -270,6 +270,7 @@ uint8 PathBuildData::GetArrowDirections()
 	if (!this->tile_selected) return 0;
 
 	Viewport *vp = GetViewport();
+	if (vp == NULL) return 0;
 	return GetPathAttachPoints(vp->tile_cursor.xpos, vp->tile_cursor.ypos, vp->tile_cursor.zpos);
 }
 
@@ -385,7 +386,8 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER)
 PathBuildGui::~PathBuildGui()
 {
 	_path_builder.SetPathGui(false);
-	if (GetViewport()->GetMouseMode() == MM_PATH_BUILDING) SetViewportMousemode();
+	Viewport *vp = GetViewport();
+	if (vp != NULL && vp->GetMouseMode() == MM_PATH_BUILDING) SetViewportMousemode();
 }
 
 /** Array with slope selection widget numbers. */
@@ -413,6 +415,7 @@ static const WidgetNumber _direction_widgets[] = {
 		case PATH_GUI_SW_DIRECTION:
 		case PATH_GUI_NW_DIRECTION: {
 			Viewport *vp = GetViewport();
+			if (vp == NULL) break;
 			TileEdge edge = (TileEdge)AddOrientations((ViewOrientation)(number - PATH_GUI_NE_DIRECTION), vp->orientation);
 			this->selected_dir = edge;
 			this->SetButtons();
@@ -426,6 +429,7 @@ static const WidgetNumber _direction_widgets[] = {
 			if (_path_builder.world_additions) {
 				_additions.Commit();
 				Viewport *vp = GetViewport();
+				if (vp == NULL) break;
 				WidgetNumber wnum = this->GetSelectedRadioButton(_slope_widgets);
 				Point16 dxy = _tile_dxy[this->selected_dir];
 				if ((vp->tile_cursor.xpos == 0 && dxy.x < 0) || (vp->tile_cursor.ypos == 0 && dxy.y < 0)
@@ -461,6 +465,7 @@ static const WidgetNumber _direction_widgets[] = {
 void PathBuildGui::SetButtons()
 {
 	Viewport *vp = GetViewport();
+	if (vp == NULL) return;
 	/* Update the arrow cursor. */
 	if (this->selected_dir != INVALID_EDGE) {
 		Point16 dxy = _tile_dxy[this->selected_dir];
@@ -519,6 +524,7 @@ void PathBuildGui::SetWorldAdditions()
 	if (wnum == INVALID_WIDGET_INDEX) return;
 
 	Viewport *vp = GetViewport();
+	if (vp == NULL) return;
 	uint8 allowed_slopes = CanBuildPathFromEdge(vp->arrow_cursor.xpos,
 			vp->arrow_cursor.ypos, vp->arrow_cursor.zpos, (TileEdge)((this->selected_dir + 2) % 4));
 
@@ -560,6 +566,7 @@ void PathBuildGui::SetWorldAdditions()
 			if (this->build_directions == 0) {
 				this->selected_dir = INVALID_EDGE;
 				Viewport *vp = GetViewport();
+				if (vp == NULL) break;
 				vp->arrow_cursor.SetInvalid();
 				_path_builder.tile_selected = false;
 				this->SetButtons();
