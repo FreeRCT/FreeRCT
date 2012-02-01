@@ -154,6 +154,8 @@ enum TrackSlope {
 	TSL_STRAIGHT_DOWN = TSL_COUNT_STEEP, ///< Vertically down.
 	TSL_STRAIGHT_UP,                     ///< Vertically up.
 	TSL_COUNT_VERTICAL,                  ///< Number of slopes if also going straight up and down.
+
+	TSL_INVALID = TSL_COUNT_VERTICAL,    ///< Invalid track slope.
 };
 DECLARE_POSTFIX_INCREMENT(TrackSlope)
 
