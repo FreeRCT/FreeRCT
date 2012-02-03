@@ -21,6 +21,7 @@
 #include "video.h"
 #include "palette.h"
 #include "sprite_store.h"
+#include "path_build.h"
 
 #include <map>
 
@@ -914,7 +915,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
 			} else {
 				/* Only update tile cursor if no tile selected yet. */
-				if (!_path_builder.tile_selected && this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
+				if (_path_builder.state == PBS_WAIT_VOXEL && this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
 					this->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
 				}
 			}
@@ -941,10 +942,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 				uint8 zvoxel;
 				CursorType cur_type;
 				if (!this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) break;
-				if (_path_builder.IsTileClickValid(xvoxel, yvoxel, zvoxel)) {
-					this->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
-					_path_builder.TileClicked();
-				}
+				_path_builder.TileClicked(xvoxel, yvoxel, zvoxel);
 			}
 			break;
 
