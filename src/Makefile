@@ -15,7 +15,8 @@ CXXFLAGS=-Wall -g
 INCLUDES=-I/usr/include/SDL
 LIBS=-lSDL -lSDL_ttf
 
-CXXFILES=config_reader.cpp fileio.cpp language.cpp main.cpp map.cpp math_func.cpp \
+CXXFILES=config_reader.cpp dates.cpp \
+	fileio.cpp language.cpp main.cpp map.cpp math_func.cpp \
 	palette.cpp path.cpp path_build.cpp path_gui.cpp \
 	sprite_store.cpp string_func.cpp \
 	tile_func.cpp toolbar_gui.cpp video.cpp \

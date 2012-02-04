@@ -1,6 +1,19 @@
 # Generic Gui strings
 STR_TITLEBAR_TIP                                :Click at the title bar to raise the window, drag the title bar to move the window.
 
+STR_MONTH_JANUARY                               :January
+STR_MONTH_FEBRUARY                              :February
+STR_MONTH_MARCH                                 :March
+STR_MONTH_APRIL                                 :April
+STR_MONTH_MAY                                   :May
+STR_MONTH_JUNE                                  :June
+STR_MONTH_JULY                                  :July
+STR_MONTH_AUGUST                                :August
+STR_MONTH_SEPTEMBER                             :September
+STR_MONTH_OCTOBER                               :October
+STR_MONTH_NOVEMBER                              :November
+STR_MONTH_DECEMBER                              :December
+
 # Toolbar gui strings
 STR_TOOLBAR_GUI_QUIT                            :Quit
 STR_TOOLBAR_GUI_QUIT_PROGRAM                    :Quit the program.

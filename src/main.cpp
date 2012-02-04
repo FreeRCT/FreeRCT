@@ -17,6 +17,7 @@
 #include "window.h"
 #include "config_reader.h"
 #include "language.h"
+#include "dates.h"
 
 /**
  * Error handling for fatal non-user errors.
@@ -102,6 +103,7 @@ int main(void)
 	while (!finished) {
 		/* For every frame do... */
 		_manager.Tick();
+		DateOnTick();
 
 		bool next_frame = false;
 		while (!next_frame) {
