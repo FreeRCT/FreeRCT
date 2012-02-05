@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file path_build.cpp Path building manager code. */
+/** @file path_build.cpp %Path building manager code. */
 
 #include "stdafx.h"
 #include "path_build.h"
@@ -212,7 +212,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 	return edges;
 }
 
-
+/** Default constructor. */
 PathBuildManager::PathBuildManager()
 {
 	this->state = PBS_IDLE;
@@ -279,7 +279,7 @@ void PathBuildManager::SelectArrow(TileEdge direction)
  * See whether moving in the indicated direction of the tile position is possible/makes sense.
  * @param direction Direction of movement.
  * @param delta_z Proposed change of Z height.
- * @param need_path Voxel should contain a path.
+ * @param need_path %Voxel should contain a path.
  * @return Tile cursor position was moved.
  */
 bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
@@ -543,6 +543,10 @@ void PathBuildManager::SelectLong()
 	return; // XXX Not implemented currently
 }
 
+/**
+ * User selected 'buy' or 'remove'. Perform the action, and update the path build state.
+ * @param buying If \c true, user selected 'buy'.
+ */
 void PathBuildManager::SelectBuyRemove(bool buying)
 {
 	if (buying) {

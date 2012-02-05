@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file path_build.h Path building manager declarations. */
+/** @file path_build.h %Path building manager declarations. */
 
 #ifndef PATH_BUILD_H
 #define PATH_BUILD_H
