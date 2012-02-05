@@ -195,3 +195,42 @@ const uint8 _path_roation[PATH_COUNT][4] = {
 	{PATH_RAMP_SW,             PATH_RAMP_SE,             PATH_RAMP_NE,             PATH_RAMP_NW            },
 };
 
+
+/**
+ * Set the edge of a path sprite. Also updates the corner pieces of the flat path tiles.
+ * @param slope Current path slope (imploded).
+ * @param edge Edge to set or unset.
+ * @param connect If \c true, connect to the edge, else remove the connection.
+ * @return (Possibly) updated path slope.
+ */
+uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
+{
+	const uint8 north_edges = (1 << PATHBIT_NE) | (1 << PATHBIT_NW);
+	const uint8 south_edges = (1 << PATHBIT_SE) | (1 << PATHBIT_SW);
+	const uint8 east_edges  = (1 << PATHBIT_NE) | (1 << PATHBIT_SE);
+	const uint8 west_edges  = (1 << PATHBIT_NW) | (1 << PATHBIT_SW);
+
+	if (slope >= PATH_FLAT_COUNT) return slope; // Ramps do not have edge to connect.
+
+	slope = _path_expand[slope];
+	uint8 bit_value;
+	switch (edge) {
+		case EDGE_NE: bit_value = 1 << PATHBIT_NE; break;
+		case EDGE_SE: bit_value = 1 << PATHBIT_SE; break;
+		case EDGE_SW: bit_value = 1 << PATHBIT_SW; break;
+		case EDGE_NW: bit_value = 1 << PATHBIT_NW; break;
+		default: NOT_REACHED();
+	}
+	if (connect) {
+		slope |= bit_value;
+	} else {
+		slope &= ~bit_value;
+	}
+
+	slope &= ~((1 << PATHBIT_N) | (1 << PATHBIT_E) | (1 << PATHBIT_S) | (1 << PATHBIT_W));
+	if ((slope & north_edges) == north_edges) slope |= 1 << PATHBIT_N;
+	if ((slope & south_edges) == south_edges) slope |= 1 << PATHBIT_S;
+	if ((slope & east_edges)  == east_edges)  slope |= 1 << PATHBIT_E;
+	if ((slope & west_edges)  == west_edges)  slope |= 1 << PATHBIT_W;
+	return _path_implode[slope];
+}

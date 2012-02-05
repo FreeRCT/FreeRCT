@@ -411,6 +411,69 @@ bool PathBuildManager::ComputeWorldAdditions(SurfaceVoxelData *svd, uint16 *xpos
 	return false;
 }
 
+/**
+ * Add edges of the neighbouring path tiles in #_additions.
+ * @param xpos X coordinate of the central voxel with a path tile.
+ * @param ypos Y coordinate of the central voxel with a path tile.
+ * @param zpos Z coordinate of the central voxel with a path tile.
+ * @param slope Path slope of the central voxel.
+ * @param use_additions Use #_additions rather than #_world.
+ * @param add_edges If set, add edges (else, remove them).
+ * @return Updated slope at the central voxel.
+ */
+static uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, bool use_additions, bool add_edges)
+{
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		int delta_z = 0;
+		if (slope >= PATH_FLAT_COUNT) {
+			if (_path_down_from_edge[edge] == slope) {
+				delta_z = 1;
+			} else if (_path_up_from_edge[edge] != slope) {
+				continue;
+			}
+		}
+		Point16 dxy = _tile_dxy[edge];
+		if ((dxy.x < 0 && xpos == 0) || (dxy.x > 0 && xpos == _world.GetXSize() - 1)) continue;
+		if ((dxy.y < 0 && ypos == 0) || (dxy.y > 0 && ypos == _world.GetYSize() - 1)) continue;
+
+		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
+		bool modified = false;
+		if (delta_z <= 0 || zpos < MAX_VOXEL_STACK_SIZE - 1) {
+			Voxel *v;
+			if (use_additions) {
+				v = _additions.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			} else {
+				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			}
+			if (v != NULL && v->GetType() == VT_SURFACE) {
+				SurfaceVoxelData *svd = v->GetSurface();
+				if (svd->path.type != PT_INVALID) {
+					svd->path.slope = SetPathEdge(svd->path.slope, edge2, add_edges);
+					modified = true;
+				}
+			}
+		}
+		delta_z--;
+		if (delta_z >= 0 || zpos > 0) {
+			Voxel *v;
+			if (use_additions) {
+				v = _additions.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			} else {
+				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			}
+			if (v != NULL && v->GetType() == VT_SURFACE) {
+				SurfaceVoxelData *svd = v->GetSurface();
+				if (svd->path.type != PT_INVALID) {
+					svd->path.slope = SetPathEdge(svd->path.slope, edge2, add_edges);
+					modified = true;
+				}
+			}
+		}
+		if (modified && slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, add_edges);
+	}
+	return slope;
+}
+
 /** Update the state of the path build process. */
 void PathBuildManager::UpdateState()
 {
@@ -496,6 +559,7 @@ void PathBuildManager::UpdateState()
 			SurfaceVoxelData svd;
 			if (this->ComputeWorldAdditions(&svd, &xpos, &ypos, &zpos)) {
 				Voxel *v = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
+				svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
 				v->SetSurface(svd);
 			}
 			EnableWorldAdditions();
@@ -561,9 +625,13 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		if (v == NULL || v->GetType() != VT_SURFACE) return;
 		SurfaceVoxelData *svd = v->GetSurface();
 		if (svd->path.type == PT_INVALID) return;
+
 		svd->path.type = PT_INVALID;
+		AddRemovePathEdges(this->xpos, this->ypos, this->zpos, svd->path.slope, false, false); // Change the neighbouring paths too.
+
 		Viewport *vp = GetViewport();
 		if (vp) vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+
 		/* Short-cut version of this->SelectMovement(false), as that function fails after removing the path. */
 		TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
 		bool move_up = (svd->path.slope == _path_down_from_edge[edge]);

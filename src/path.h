@@ -12,6 +12,8 @@
 #ifndef PATH_H
 #define PATH_H
 
+#include "tile.h"
+
 /**
  * Available path sprites.
  * The list of sprites for drawing a path cover. Conceptually, a path can connect to each of the four
@@ -105,6 +107,8 @@ enum PathTypes {
 extern const uint8 _path_expand[];
 extern const uint8 _path_implode[256];
 extern const uint8 _path_roation[PATH_COUNT][4];
+
+uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect);
 
 #endif
 
