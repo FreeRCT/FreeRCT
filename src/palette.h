@@ -12,6 +12,30 @@
 #ifndef PALETTE_H
 #define PALETTE_H
 
+/** Names of colour ranges. */
+enum ColourRange {
+	COL_RANGE_GREY,
+	COL_RANGE_GREEN_BROWN,
+	COL_RANGE_BROWN,
+	COL_RANGE_YELLOW,
+	COL_RANGE_DARK_RED,
+	COL_RANGE_DARK_GREEN,
+	COL_RANGE_LIGHT_GREEN,
+	COL_RANGE_GREEN,
+	COL_RANGE_LIGHT_RED,
+	COL_RANGE_DARK_BLUE,
+	COL_RANGE_BLUE,
+	COL_RANGE_LIGHT_BLUE,
+	COL_RANGE_PURPLE,
+	COL_RANGE_RED,
+	COL_RANGE_ORANGE,
+	COL_RANGE_SEA_GREEN,
+	COL_RANGE_PINK,
+	COL_RANGE_BEIGE,
+
+	COL_RANGE_COUNT, ///< Number of colour ranges.
+};
+
 /** Colours. */
 enum PaletteColours {
 	COL_BACKGROUND = 0,     ///< Index of background behind the world display.
@@ -19,9 +43,18 @@ enum PaletteColours {
 
 	COL_SERIES_START = 10,  ///< Index of the first series.
 	COL_SERIES_LENGTH = 12, ///< Number of shades in a single run.
-	COL_NUMBER_SERIES = 18, ///< Number of series.
-	COL_SERIES_END = COL_SERIES_START + COL_NUMBER_SERIES * COL_SERIES_LENGTH, ///< First colour after the series.
+	COL_SERIES_END = COL_SERIES_START + COL_RANGE_COUNT * COL_SERIES_LENGTH, ///< First colour after the series.
 };
+
+/**
+ * Get the index of the base colour of a colour range.
+ * @param cr Colour range to use.
+ * @return Palette index of the first colour of the given colour range.
+ */
+inline uint8 GetColourRangeBase(ColourRange cr)
+{
+	return COL_SERIES_START + cr * COL_SERIES_LENGTH;
+}
 
 extern const uint8 _palette[256][3]; ///< The 8bpp FreeRCT palette.
 
