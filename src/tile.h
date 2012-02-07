@@ -84,7 +84,7 @@ DECLARE_POSTFIX_INCREMENT(TileEdge)
  * @return Expanded slope.
  * @ingroup map_group
  */
-FORCEINLINE TileSlope ExpandTileSlope(uint8 v)
+inline TileSlope ExpandTileSlope(uint8 v)
 {
 	if (v < 15) return (TileSlope)v;
 	return TCB_STEEP | (TileSlope)(1 << (v-15));
@@ -96,7 +96,7 @@ FORCEINLINE TileSlope ExpandTileSlope(uint8 v)
  * @return Equivalent sprite number.
  * @ingroup map_group
  */
-FORCEINLINE uint8 ImplodeTileSlope(TileSlope s)
+inline uint8 ImplodeTileSlope(TileSlope s)
 {
 	if ((s & TCB_STEEP) == 0) return s;
 	if ((s & TCB_NORTH) != 0) return 15;

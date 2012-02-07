@@ -136,10 +136,10 @@ protected:
 	void SetupWidgetTree(const WidgetPart *parts, int length);
 
 	template <typename WID>
-	FORCEINLINE WID *GetWidget(WidgetNumber wnum);
+	inline WID *GetWidget(WidgetNumber wnum);
 
 	template <typename WID>
-	FORCEINLINE const WID *GetWidget(WidgetNumber wnum) const;
+	inline const WID *GetWidget(WidgetNumber wnum) const;
 
 	void SetWidgetChecked(WidgetNumber widget, bool value);
 	bool IsWidgetChecked(WidgetNumber widget) const;
@@ -168,7 +168,7 @@ private:
  * @return Address of the widget.
  */
 template <typename WID>
-FORCEINLINE WID *GuiWindow::GetWidget(WidgetNumber wnum)
+inline WID *GuiWindow::GetWidget(WidgetNumber wnum)
 {
 	assert(wnum < this->num_widgets);
 	return dynamic_cast<WID *>(this->widgets[wnum]);
@@ -181,7 +181,7 @@ FORCEINLINE WID *GuiWindow::GetWidget(WidgetNumber wnum)
  * @return Address of the widget.
  */
 template <typename WID>
-FORCEINLINE const WID *GuiWindow::GetWidget(WidgetNumber wnum) const
+inline const WID *GuiWindow::GetWidget(WidgetNumber wnum) const
 {
 	assert(wnum < this->num_widgets);
 	return dynamic_cast<WID *>(this->widgets[wnum]);
@@ -193,7 +193,7 @@ FORCEINLINE const WID *GuiWindow::GetWidget(WidgetNumber wnum) const
  * @return Address of the base widget.
  */
 template <>
-FORCEINLINE BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum)
+inline BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum)
 {
 	assert(wnum < this->num_widgets);
 	return this->widgets[wnum];
@@ -205,7 +205,7 @@ FORCEINLINE BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum)
  * @return Address of the base widget.
  */
 template <>
-FORCEINLINE const BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum) const
+inline const BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum) const
 {
 	assert(wnum < this->num_widgets);
 	return this->widgets[wnum];

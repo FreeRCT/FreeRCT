@@ -34,7 +34,7 @@ typedef Point<int16> Point16; ///< 16 bit 2D point.
  * @return Points \a p is less than point \a q.
  */
 template <typename CT>
-FORCEINLINE bool operator<(const Point<CT> &p, const Point<CT> &q)
+inline bool operator<(const Point<CT> &p, const Point<CT> &q)
 {
 	if (p.x != q.x) return p.x < q.x;
 	return p.y < q.y;
@@ -47,7 +47,7 @@ FORCEINLINE bool operator<(const Point<CT> &p, const Point<CT> &q)
  * @return Points are logically equal (same x and y position).
  */
 template <typename CT>
-FORCEINLINE bool operator==(const Point<CT> &p, const Point<CT> &q)
+inline bool operator==(const Point<CT> &p, const Point<CT> &q)
 {
 	return p.x == q.x && p.y == q.y;
 }

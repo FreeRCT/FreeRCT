@@ -57,7 +57,7 @@ void DisableWorldAdditions()
  * @param width Tile width in pixels.
  * @return X position in 2D.
  */
-static FORCEINLINE int32 ComputeXFunction(int32 x, int32 y, ViewOrientation orient, uint16 width)
+static inline int32 ComputeXFunction(int32 x, int32 y, ViewOrientation orient, uint16 width)
 {
 	switch (orient) {
 		case VOR_NORTH: return ((y - x)  * width / 2) >> 8;
@@ -78,7 +78,7 @@ static FORCEINLINE int32 ComputeXFunction(int32 x, int32 y, ViewOrientation orie
  * @param height Tile height in pixels.
  * @return Y position in 2D.
  */
-static FORCEINLINE int32 ComputeYFunction(int32 x, int32 y, int32 z, ViewOrientation orient, uint16 width, uint16 height)
+static inline int32 ComputeYFunction(int32 x, int32 y, int32 z, ViewOrientation orient, uint16 width, uint16 height)
 {
 	switch (orient) {
 		case VOR_NORTH: return ((x + y)  * width / 4 - z * height) >> 8;
@@ -108,7 +108,7 @@ public:
 	 * @param y Y position in the game world.
 	 * @return X position in 2D.
 	 */
-	FORCEINLINE int32 ComputeX(int32 x, int32 y)
+	inline int32 ComputeX(int32 x, int32 y)
 	{
 		return ComputeXFunction(x, y, this->orient, this->tile_width);
 	}
@@ -120,7 +120,7 @@ public:
 	 * @param z Z position in the game world.
 	 * @return Y position in 2D.
 	 */
-	FORCEINLINE int32 ComputeY(int32 x, int32 y, int32 z)
+	inline int32 ComputeY(int32 x, int32 y, int32 z)
 	{
 		return ComputeYFunction(x, y, z, this->orient, this->tile_width, this->tile_height);
 	}

@@ -97,7 +97,7 @@ public:
 	 * Get the type of the voxel.
 	 * @return Voxel type.
 	 */
-	FORCEINLINE VoxelType GetType() const {
+	inline VoxelType GetType() const {
 		return (VoxelType)this->type;
 	}
 
@@ -105,7 +105,7 @@ public:
 	 * Get the surface data.
 	 * @return Surface data (ground tile and foundation).
 	 */
-	FORCEINLINE SurfaceVoxelData *GetSurface() {
+	inline SurfaceVoxelData *GetSurface() {
 		assert(this->type == VT_SURFACE);
 		return &this->surface;
 	}
@@ -114,7 +114,7 @@ public:
 	 * Get the surface data for read-only access.
 	 * @return Surface slope.
 	 */
-	FORCEINLINE const SurfaceVoxelData *GetSurface() const {
+	inline const SurfaceVoxelData *GetSurface() const {
 		assert(this->type == VT_SURFACE);
 		return &this->surface;
 	}
@@ -123,7 +123,7 @@ public:
 	 * Set the surface.
 	 * @param vd Surface data of the voxel.
 	 */
-	FORCEINLINE void SetSurface(const SurfaceVoxelData &vd)
+	inline void SetSurface(const SurfaceVoxelData &vd)
 	{
 		this->type = VT_SURFACE;
 		assert(vd.path.type == PT_INVALID || (vd.path.type < PT_COUNT && vd.path.slope < PATH_COUNT));
@@ -136,21 +136,21 @@ public:
 	 * Get the referenced voxel for read-only access.
 	 * @return Referenced voxel position.
 	 */
-	FORCEINLINE const ReferenceVoxelData *GetReference() const
+	inline const ReferenceVoxelData *GetReference() const
 	{
 		assert(this->type == VT_REFERENCE);
 		return &this->reference;
 	}
 
 	/** Set the referenced voxel. */
-	FORCEINLINE void SetReference(const ReferenceVoxelData &rvd)
+	inline void SetReference(const ReferenceVoxelData &rvd)
 	{
 		this->type = VT_REFERENCE;
 		this->reference = rvd;
 	}
 
 	/** Set the voxel to empty. */
-	FORCEINLINE void SetEmpty()
+	inline void SetEmpty()
 	{
 		this->type = VT_EMPTY;
 	}
@@ -219,7 +219,7 @@ public:
 	 * @param z Z coordinate of the voxel.
 	 * @return Address of the voxel (if it exists).
 	 */
-	FORCEINLINE const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
+	inline const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
 	{
 		return this->GetStack(x, y)->Get(z);
 	}
@@ -232,7 +232,7 @@ public:
 	 * @param create If the requested voxel does not exist, try to create it.
 	 * @return Address of the voxel (if it exists or could be created).
 	 */
-	FORCEINLINE Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
+	inline Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
 	{
 		return this->GetModifyStack(x, y)->GetCreate(z, create);
 	}
@@ -241,7 +241,7 @@ public:
 	 * Get X size of the world.
 	 * @return Length of the world in X direction.
 	 */
-	FORCEINLINE uint16 GetXSize() const
+	inline uint16 GetXSize() const
 	{
 		return this->x_size;
 	}
@@ -250,7 +250,7 @@ public:
 	 * Get Y size of the world.
 	 * @return Length of the world in Y direction.
 	 */
-	FORCEINLINE uint16 GetYSize() const
+	inline uint16 GetYSize() const
 	{
 		return this->y_size;
 	}
@@ -336,7 +336,7 @@ public:
 	 * @param z Z coordinate of the voxel.
 	 * @return Address of the voxel (if it exists).
 	 */
-	FORCEINLINE const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
+	inline const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
 	{
 		return this->GetStack(x, y)->Get(z);
 	}
@@ -349,7 +349,7 @@ public:
 	 * @param create If the requested voxel does not exist, try to create it.
 	 * @return Address of the voxel (if it exists or could be created).
 	 */
-	FORCEINLINE Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
+	inline Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
 	{
 		return this->GetModifyStack(x, y)->GetCreate(z, create);
 	}

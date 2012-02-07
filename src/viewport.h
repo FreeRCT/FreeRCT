@@ -68,7 +68,7 @@ public:
 	uint8  zpos;     ///< %Voxel z position of the cursor.
 	CursorType type; ///< Type of cursor.
 
-	FORCEINLINE void MarkDirty();
+	inline void MarkDirty();
 
 	/**
 	 * Set a cursor.
@@ -98,7 +98,7 @@ public:
 	 * @param zpos Expected z coordinate of the cursor.
 	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c NULL.
 	 */
-	FORCEINLINE CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+	inline CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
 	{
 		if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
 		return this->type;
@@ -167,7 +167,7 @@ private:
 };
 
 /** Update the cursor at the screen. */
-FORCEINLINE void Cursor::MarkDirty()
+inline void Cursor::MarkDirty()
 {
 	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
 }

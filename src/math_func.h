@@ -30,7 +30,7 @@
  * @returns A value between \a lower and \a upper which is closest to \a a.
  */
 template <typename T>
-static FORCEINLINE T Clamp(const T a, const T lower, const T upper)
+static inline T Clamp(const T a, const T lower, const T upper)
 {
 	assert(lower <= upper);
 	if (a <= lower) return lower;
@@ -45,7 +45,7 @@ static FORCEINLINE T Clamp(const T a, const T lower, const T upper)
  * @return Smallest of \a a and \a b.
  */
 template <typename T>
-static FORCEINLINE T min(const T a, const T b)
+static inline T min(const T a, const T b)
 {
 	return (a < b) ? a : b;
 }
@@ -57,7 +57,7 @@ static FORCEINLINE T min(const T a, const T b)
  * @return Biggest of \a a and \a b.
  */
 template <typename T>
-static FORCEINLINE T max(const T a, const T b)
+static inline T max(const T a, const T b)
 {
 	return (a < b) ? b : a;
 }

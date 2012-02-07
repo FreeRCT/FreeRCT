@@ -62,7 +62,7 @@ public:
 	 * Query whether the display needs to be repainted.
 	 * @return Display needs an update.
 	 */
-	FORCEINLINE bool DisplayNeedsRepaint()
+	inline bool DisplayNeedsRepaint()
 	{
 		return this->dirty;
 	}
@@ -88,7 +88,7 @@ public:
 	 * @param y Y position.
 	 * @param spr Sprite to draw.
 	 */
-	FORCEINLINE void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const Sprite *spr)
+	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const Sprite *spr)
 	{
 		this->BlitImages(xmin, y, spr, numx, 1);
 	}
@@ -100,7 +100,7 @@ public:
 	 * @param x X position.
 	 * @param spr Sprite to draw.
 	 */
-	FORCEINLINE void BlitVertical(int32 ymin, uint16 numy, int32 x, const Sprite *spr)
+	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const Sprite *spr)
 	{
 		this->BlitImages(x, ymin, spr, 1, numy);
 	}

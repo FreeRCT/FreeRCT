@@ -29,7 +29,6 @@
 /* Stuff for GCC */
 #if defined(__GNUC__)
 	#define NORETURN __attribute__ ((noreturn))
-	#define FORCEINLINE inline
 	#define CDECL
 	#define __int64 long long
 	#define GCC_PACK __attribute__((packed))

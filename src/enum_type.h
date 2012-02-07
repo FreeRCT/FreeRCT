@@ -19,13 +19,13 @@
  * @tparam mask_t Enum type.
  */
 #define DECLARE_ENUM_AS_BIT_SET(mask_t) \
-	FORCEINLINE mask_t  operator |  (mask_t  m1, mask_t m2) { return (mask_t)((int)m1 | m2); } \
-	FORCEINLINE mask_t  operator &  (mask_t  m1, mask_t m2) { return (mask_t)((int)m1 & m2); } \
-	FORCEINLINE mask_t  operator ^  (mask_t  m1, mask_t m2) { return (mask_t)((int)m1 ^ m2); } \
-	FORCEINLINE mask_t &operator |= (mask_t &m1, mask_t m2) { m1 = m1 | m2; return m1; } \
-	FORCEINLINE mask_t &operator &= (mask_t &m1, mask_t m2) { m1 = m1 & m2; return m1; } \
-	FORCEINLINE mask_t &operator ^= (mask_t &m1, mask_t m2) { m1 = m1 ^ m2; return m1; } \
-	FORCEINLINE mask_t  operator ~  (mask_t  m) { return (mask_t)(~(int)m); }
+	inline mask_t  operator |  (mask_t  m1, mask_t m2) { return (mask_t)((int)m1 | m2); } \
+	inline mask_t  operator &  (mask_t  m1, mask_t m2) { return (mask_t)((int)m1 & m2); } \
+	inline mask_t  operator ^  (mask_t  m1, mask_t m2) { return (mask_t)((int)m1 ^ m2); } \
+	inline mask_t &operator |= (mask_t &m1, mask_t m2) { m1 = m1 | m2; return m1; } \
+	inline mask_t &operator &= (mask_t &m1, mask_t m2) { m1 = m1 & m2; return m1; } \
+	inline mask_t &operator ^= (mask_t &m1, mask_t m2) { m1 = m1 ^ m2; return m1; } \
+	inline mask_t  operator ~  (mask_t  m) { return (mask_t)(~(int)m); }
 
 /** Add post-increment and post-decrement operators to an enum. */
 #define DECLARE_POSTFIX_INCREMENT(type) \

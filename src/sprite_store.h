@@ -74,7 +74,7 @@ public:
 	 * @param yoffset Vertical offset in the sprite.
 	 * @return Pixel value at the given postion, or \c 0 if transparent.
 	 */
-	FORCEINLINE uint8 GetPixel(uint16 xoffset, uint16 yoffset) const {
+	inline uint8 GetPixel(uint16 xoffset, uint16 yoffset) const {
 		return img_data->GetPixel(xoffset, yoffset);
 	}
 
