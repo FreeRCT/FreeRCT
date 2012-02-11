@@ -177,7 +177,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 	if (zpos >= MAX_VOXEL_STACK_SIZE - 1) return 0; // the voxel containing the flat path, and one above it.
 
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
-	if (v->GetType() != VT_SURFACE) return 0; // XXX Maybe also handle referenced surface voxels?
+	if (v == NULL || v->GetType() != VT_SURFACE) return 0; // XXX Maybe also handle referenced surface voxels?
 	const SurfaceVoxelData *svd = v->GetSurface();
 
 	uint8 edges = 0;
