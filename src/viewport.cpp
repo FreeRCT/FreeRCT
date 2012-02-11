@@ -769,6 +769,42 @@ void Viewport::Rotate(int direction)
 }
 
 /**
+ * Compute the horizontal translation in world coordinates of the viewing center to move it \a dx / \a dy pixels.
+ * @param dx Horizontal shift in screen pixels.
+ * @param dy Vertical shift in screen pixels.
+ * @return New X and Y coordinates of the center point.
+ */
+Point32 Viewport::ComputeHorizontalTranslation(int dx, int dy)
+{
+	Point32 new_xy;
+	switch (this->orientation) {
+		case VOR_NORTH:
+			new_xy.x = this->xview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.y = this->yview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			break;
+
+		case VOR_EAST:
+			new_xy.x = this->xview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.y = this->yview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			break;
+
+		case VOR_SOUTH:
+			new_xy.x = this->xview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.y = this->yview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			break;
+
+		case VOR_WEST:
+			new_xy.x = this->xview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.y = this->yview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+	return new_xy;
+}
+
+/**
  * Move the viewport a number of screen pixels.
  * @param dx Horizontal shift in screen pixels.
  * @param dy Vertical shift in screen pixels.
@@ -777,34 +813,9 @@ void Viewport::MoveViewport(int dx, int dy)
 {
 	if (dx == 0 && dy == 0) return;
 
-	int32 new_x, new_y;
-	switch (this->orientation) {
-		case VOR_NORTH:
-			new_x = this->xview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			new_y = this->yview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			break;
-
-		case VOR_EAST:
-			new_x = this->xview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			new_y = this->yview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			break;
-
-		case VOR_SOUTH:
-			new_x = this->xview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			new_y = this->yview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			break;
-
-		case VOR_WEST:
-			new_x = this->xview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			new_y = this->yview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			break;
-
-		default:
-			NOT_REACHED();
-	}
-
-	new_x = Clamp<int32>(new_x, 0, _world.GetXSize() * 256);
-	new_y = Clamp<int32>(new_y, 0, _world.GetYSize() * 256);
+	Point32 new_xy = this->ComputeHorizontalTranslation(dx, dy);
+	int32 new_x = Clamp<int32>(new_xy.x, 0, _world.GetXSize() * 256 - 1);
+	int32 new_y = Clamp<int32>(new_xy.y, 0, _world.GetYSize() * 256 - 1);
 	if (new_x != this->xview || new_y != this->yview) {
 		this->xview = new_x;
 		this->yview = new_y;

@@ -162,6 +162,7 @@ private:
 
 	void ChangeTerrain(int direction);
 
+	Point32 ComputeHorizontalTranslation(int dx, int dy);
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 };
