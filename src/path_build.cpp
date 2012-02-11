@@ -250,7 +250,7 @@ void PathBuildManager::SetPathGuiState(bool opened)
  */
 void PathBuildManager::TileClicked(uint16 xpos, uint16 ypos, uint8 zpos)
 {
-	if (this->state == PBS_IDLE) return;
+	if (this->state == PBS_IDLE || this->state > PBS_WAIT_BUY) return;
 	uint8 dirs = GetPathAttachPoints(xpos, ypos, zpos);
 	if (dirs == 0) return;
 
@@ -268,7 +268,7 @@ void PathBuildManager::TileClicked(uint16 xpos, uint16 ypos, uint8 zpos)
  */
 void PathBuildManager::SelectArrow(TileEdge direction)
 {
-	if (this->state < PBS_WAIT_ARROW || direction >= INVALID_EDGE) return;
+	if (this->state < PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || direction >= INVALID_EDGE) return;
 	if ((this->allowed_arrows & (0x11 << direction)) == 0) return;
 	this->selected_arrow = direction;
 	this->state = PBS_WAIT_SLOPE;
@@ -311,7 +311,7 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
  */
 void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 {
-	if (this->state <= PBS_WAIT_ARROW || edge == INVALID_EDGE) return;
+	if (this->state <= PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || edge == INVALID_EDGE) return;
 
 	/* First try to find a voxel with a path at it. */
 	if (this->TryMove(edge, 0, true)) return;
@@ -330,7 +330,7 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
  */
 void PathBuildManager::SelectMovement(bool move_forward)
 {
-	if (this->state <= PBS_WAIT_ARROW) return;
+	if (this->state <= PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY) return;
 
 	TileEdge edge = (move_forward) ? this->selected_arrow : (TileEdge)((this->selected_arrow + 2) % 4);
 
@@ -359,7 +359,7 @@ void PathBuildManager::SelectMovement(bool move_forward)
  */
 void PathBuildManager::ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, uint8 *zpos)
 {
-	assert(this->state > PBS_WAIT_ARROW);
+	assert(this->state > PBS_WAIT_ARROW && this->state <= PBS_WAIT_BUY);
 	assert(this->selected_arrow != INVALID_EDGE);
 
 	Point16 dxy = _tile_dxy[this->selected_arrow];
@@ -485,7 +485,7 @@ void PathBuildManager::UpdateState()
 	}
 
 	/* The tile cursor is controlled by the viewport if waiting for a voxel or earlier. */
-	if (vp != NULL && this->state > PBS_WAIT_VOXEL) {
+	if (vp != NULL && this->state > PBS_WAIT_VOXEL && this->state <= PBS_WAIT_BUY) {
 		vp->tile_cursor.SetCursor(this->xpos, this->ypos, this->zpos, CUR_TYPE_TILE);
 	}
 
@@ -513,7 +513,7 @@ void PathBuildManager::UpdateState()
 
 	/* Set the arrow cursor. Note that display is controlled later. */
 	if (vp != NULL) {
-		if (this->state > PBS_WAIT_ARROW) {
+		if (this->state > PBS_WAIT_ARROW && this->state <= PBS_WAIT_BUY) {
 			uint16 x_arrow, y_arrow;
 			uint8 z_arrow;
 			this->ComputeArrowCursorPosition(&x_arrow, &y_arrow, &z_arrow);
@@ -620,7 +620,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		this->SelectMovement(true);
 	} else {
 		// Removing a path tile.
-		if (this->state <= PBS_WAIT_VOXEL) return;
+		if (this->state <= PBS_WAIT_VOXEL || this->state > PBS_WAIT_BUY) return;
 		Voxel *v = _world.GetCreateVoxel(this->xpos, this->ypos, this->zpos, false);
 		if (v == NULL || v->GetType() != VT_SURFACE) return;
 		SurfaceVoxelData *svd = v->GetSurface();

@@ -23,6 +23,8 @@ enum PathBuildState {
 	PBS_WAIT_ARROW, ///< Wait for an arrow direction to be selected.
 	PBS_WAIT_SLOPE, ///< Wait for a slope to be selected.
 	PBS_WAIT_BUY,   ///< Path-building has a tile and a slope proposed in #_additions, wait for 'buy'.
+	PBS_LONG_BUILD, ///< Build a 'long' path.
+	PBS_LONG_BUY,   ///< Wait for buying the long path.
 };
 
 /** Helper for storing data and state about the path building process. */
@@ -73,7 +75,7 @@ private:
  */
 inline uint8 PathBuildManager::GetAllowedArrows() const
 {
-	if (this->state < PBS_WAIT_ARROW) return 0;
+	if (this->state < PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY) return 0;
 	return this->allowed_arrows | (this->allowed_arrows >> 4);
 }
 
@@ -83,7 +85,7 @@ inline uint8 PathBuildManager::GetAllowedArrows() const
  */
 inline TileEdge PathBuildManager::GetSelectedArrow() const
 {
-	if (this->state <= PBS_WAIT_ARROW) return INVALID_EDGE;
+	if (this->state <= PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY) return INVALID_EDGE;
 	return this->selected_arrow;
 }
 
@@ -93,7 +95,7 @@ inline TileEdge PathBuildManager::GetSelectedArrow() const
  */
 inline uint8 PathBuildManager::GetAllowedSlopes() const
 {
-	if (this->state < PBS_WAIT_SLOPE) return 0;
+	if (this->state < PBS_WAIT_SLOPE || this->state > PBS_WAIT_BUY) return 0;
 	return this->allowed_slopes;
 }
 
@@ -103,7 +105,7 @@ inline uint8 PathBuildManager::GetAllowedSlopes() const
  */
 inline TrackSlope PathBuildManager::GetSelectedSlope() const
 {
-	if (this->state <= PBS_WAIT_SLOPE) return TSL_INVALID;
+	if (this->state <= PBS_WAIT_SLOPE || this->state > PBS_WAIT_BUY) return TSL_INVALID;
 	return this->selected_slope;
 }
 
@@ -122,7 +124,7 @@ inline bool PathBuildManager::GetBuyIsEnabled() const
  */
 inline bool PathBuildManager::GetForwardIsEnabled() const
 {
-	return this->state > PBS_WAIT_ARROW;
+	return this->state > PBS_WAIT_ARROW && this->state <= PBS_WAIT_BUY;
 }
 
 /**
@@ -131,7 +133,7 @@ inline bool PathBuildManager::GetForwardIsEnabled() const
  */
 inline bool PathBuildManager::GetBackwardIsEnabled() const
 {
-	return this->state > PBS_WAIT_ARROW;
+	return this->state > PBS_WAIT_ARROW && this->state <= PBS_WAIT_BUY;
 }
 
 extern PathBuildManager _path_builder;
