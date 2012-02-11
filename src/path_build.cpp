@@ -14,6 +14,7 @@
 #include "map.h"
 #include "window.h"
 #include "viewport.h"
+#include "math_func.h"
 
 PathBuildManager _path_builder; ///< Path build manager.
 
@@ -564,7 +565,7 @@ void PathBuildManager::UpdateState()
 			}
 			EnableWorldAdditions();
 		} else {
-			DisableWorldAdditions();
+			if (this->state != PBS_LONG_BUILD && this->state != PBS_LONG_BUY) DisableWorldAdditions();
 		}
 	}
 
@@ -604,7 +605,162 @@ void PathBuildManager::SelectSlope(TrackSlope slope)
 /** Enter long path building mode. */
 void PathBuildManager::SelectLong()
 {
-	return; // XXX Not implemented currently
+	if (this->state == PBS_LONG_BUY || this->state == PBS_LONG_BUILD) {
+		/* Disable long mode. */
+		this->state = PBS_WAIT_ARROW;
+		this->UpdateState();
+	} else if (this->state < PBS_WAIT_ARROW) {
+		return;
+	} else {
+		/* Enable long mode. */
+		this->state = PBS_LONG_BUILD;
+		this->xlong = _world.GetXSize();
+		this->ylong = _world.GetYSize();
+		this->zlong = MAX_VOXEL_STACK_SIZE;
+		this->UpdateState();
+	}
+}
+
+/**
+ * Is the \a change a good direction to get from \a src to \a dst?
+ * @param change Direction of change (\c -1, \c 0, or \c +1).
+ * @param src Starting point.
+ * @param dst Destination.
+ * @return The \a change direction is good.
+ */
+static bool GoodDirection(int16 change, uint16 src, uint16 dst) {
+	if (change > 0  && src >= dst) return false;
+	if (change == 0 && src != dst) return false;
+	if (change < 0  && src <= dst) return false;
+	return true;
+}
+
+/**
+ * Build a path from #_path_builder xpos/ypos to the mouse cursor position.
+ * @todo Also allow laying path tiles on a #VT_SURFACE voxel with ground. It just needs careful checking that the path is at or above the ground.
+ * @todo The path/ground check probably already exists somewhere, re-factor it for re-use here.
+ */
+void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
+{
+	static const TrackSlope slope_prios_down[] = {TSL_DOWN, TSL_FLAT, TSL_UP,   TSL_INVALID}; // Order of preference when going down.
+	static const TrackSlope slope_prios_flat[] = {TSL_FLAT, TSL_UP,   TSL_DOWN, TSL_INVALID}; // Order of preference when at the right height.
+	static const TrackSlope slope_prios_up[]   = {TSL_UP,   TSL_FLAT, TSL_DOWN, TSL_INVALID}; // Order of preference when going up.
+
+	Viewport *vp = GetViewport();
+	if (vp == NULL) return;
+
+	int c1, c2, c3;
+	switch (vp->orientation) {
+		case VOR_NORTH: c1 =  1; c2 =  2; c3 =  2; break;
+		case VOR_EAST:  c1 = -1; c2 = -2; c3 =  2; break;
+		case VOR_SOUTH: c1 =  1; c2 = -2; c3 = -2; break;
+		case VOR_WEST:  c1 = -1; c2 =  2; c3 = -2; break;
+		default: NOT_REACHED();
+	}
+
+	int32 vx, vy, vz;
+	vy = this->ypos * 256 + 128;
+	int32 lambda_y = vy - mousexy.y; // Distance to constant Y plane at current tile cursor.
+	vx = this->xpos * 256 + 128;
+	int32 lambda_x = vx - mousexy.x; // Distance to constant X plane at current tile cursor.
+
+	if (abs(lambda_x) < abs(lambda_y)) {
+		/* X constant. */
+		vx /= 256;
+		vy = Clamp<int32>(mousexy.y + c1 * lambda_x, 0, _world.GetYSize() * 256 - 1) / 256;
+		vz = Clamp<int32>(vp->zview + c3 * lambda_x, 0, MAX_VOXEL_STACK_SIZE * 256 - 1) / 256;
+	} else {
+		/* Y constant. */
+		vx = Clamp<int32>(mousexy.x + c1 * lambda_y, 0, _world.GetXSize() * 256 - 1) / 256;
+		vy /= 256;
+		vz = Clamp<int32>(vp->zview + c2 * lambda_y, 0, MAX_VOXEL_STACK_SIZE * 256 - 1) / 256;
+	}
+
+	if (this->xlong != vx || this->ylong != vy || this->zlong != vz) {
+		this->xlong = vx;
+		this->ylong = vy;
+		this->zlong = vz;
+
+		_additions.Clear();
+		vx = this->xpos;
+		vy = this->ypos;
+		vz = this->zpos;
+		/* Find the right direction from the selected tile to the current cursor location. */
+		TileEdge direction;
+		Point16 dxy;
+		for (direction = EDGE_BEGIN; direction < EDGE_COUNT; direction++) {
+			dxy = _tile_dxy[direction];
+			if (!GoodDirection(dxy.x, vx, this->xlong) || !GoodDirection(dxy.y, vy, this->ylong)) continue;
+			break;
+		}
+		if (direction == EDGE_COUNT) return;
+
+		/* 'Walk' to the cursor as long as possible. */
+		while (vx != this->xlong || vy != this->ylong) {
+			uint8 slopes = CanBuildPathFromEdge(vx, vy, vz, direction);
+			const TrackSlope *slope_prio;
+			/* Get order of slope preference. */
+			if (vz > this->zlong) {
+				slope_prio = slope_prios_down;
+			} else if (vz == this->zlong) {
+				slope_prio = slope_prios_flat;
+			} else {
+				slope_prio = slope_prios_up;
+			}
+			/* Find best slope, and take it. */
+			while (*slope_prio != TSL_INVALID) {
+				if ((slopes & (1 << *slope_prio)) != 0) {
+					vx += dxy.x;
+					vy += dxy.y;
+					/* Decide path tile. */
+					uint8 path_tile;
+					if (*slope_prio == TSL_UP) {
+						path_tile = _path_down_from_edge[direction];
+					} else if (*slope_prio == TSL_DOWN) {
+						path_tile = _path_up_from_edge[direction];
+						vz--;
+					} else {
+						path_tile = PATH_EMPTY;
+					}
+					/* Add path tile to the voxel. */
+					Voxel *v = _additions.GetCreateVoxel(vx, vy, vz, true);
+					if (v->GetType() == VT_EMPTY) {
+						SurfaceVoxelData svd;
+						svd.foundation.type = FDT_INVALID;
+						svd.path.type = PT_CONCRETE;
+						svd.path.slope = AddRemovePathEdges(vx, vy, vz, path_tile, true, true);
+						svd.ground.type = GTP_INVALID;
+						v->SetSurface(svd);
+					} else if (v->GetType() == VT_SURFACE) {
+						// XXX Handle this more careful, paths may exist and/or ground may exist here.
+						SurfaceVoxelData *svd = v->GetSurface();
+						svd->path.type = PT_CONCRETE;
+						svd->path.slope = AddRemovePathEdges(vx, vy, vz, path_tile, true, true);
+					} else {
+						vx = this->xlong; // Run into some weird voxel, abort path building.
+						vy = this->ylong;
+						break;
+					}
+
+					if (*slope_prio == TSL_UP) {
+						vz++;
+					}
+					break; // End finding a good slope.
+				}
+				slope_prio++;
+			}
+			if (*slope_prio == TSL_INVALID) break;
+		}
+		vp->EnableWorldAdditions();
+	}
+}
+
+/** Confirm that the current long path is the selection to build. */
+void PathBuildManager::ConfirmLongPath()
+{
+	if (this->state == PBS_LONG_BUY || this->state != PBS_LONG_BUILD) return;
+	this->state = PBS_LONG_BUY; // Switch to 'buy' mode.
+	this->UpdateState();
 }
 
 /**
@@ -614,6 +770,16 @@ void PathBuildManager::SelectLong()
 void PathBuildManager::SelectBuyRemove(bool buying)
 {
 	if (buying) {
+		// Buy a long path.
+		if (this->state == PBS_LONG_BUY) {
+			_additions.Commit();
+			this->xpos = this->xlong;
+			this->ypos = this->ylong;
+			this->zpos = this->zlong;
+			this->state = PBS_WAIT_ARROW;
+			this->UpdateState();
+			return;
+		}
 		// Buying a path tile.
 		if (this->state != PBS_WAIT_BUY) return;
 		_additions.Commit();

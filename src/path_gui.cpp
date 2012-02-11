@@ -203,7 +203,8 @@ void PathBuildGui::SetButtons()
 	this->SetWidgetShaded(PATH_GUI_REMOVE,   !_path_builder.GetRemoveIsEnabled());
 	this->SetWidgetShaded(PATH_GUI_FORWARD,  !_path_builder.GetForwardIsEnabled());
 	this->SetWidgetShaded(PATH_GUI_BACKWARD, !_path_builder.GetBackwardIsEnabled());
-	this->SetWidgetShaded(PATH_GUI_LONG, true); // XXX Implement me.
+	this->SetWidgetShaded(PATH_GUI_LONG,     !_path_builder.GetLongButtonIsEnabled());
+	this->SetWidgetPressed(PATH_GUI_LONG,     _path_builder.GetLongButtonIsPressed());
 }
 
 /* virtual */ void PathBuildGui::OnChange(int code, uint32 parameter)

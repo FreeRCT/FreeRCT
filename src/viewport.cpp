@@ -921,7 +921,10 @@ ViewportMouseMode Viewport::GetMouseMode()
 			break;
 
 		case MM_PATH_BUILDING:
-			if ((this->mouse_state & MB_RIGHT) != 0) {
+			if (_path_builder.state == PBS_LONG_BUILD) {
+				_path_builder.ComputeNewLongPath(this->ComputeHorizontalTranslation(this->rect.width / 2 - this->mouse_pos.x,
+						this->rect.height / 2 - this->mouse_pos.y));
+			} else if ((this->mouse_state & MB_RIGHT) != 0) {
 				/* Drag the window if button is pressed down. */
 				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
 			} else {
@@ -949,11 +952,15 @@ ViewportMouseMode Viewport::GetMouseMode()
 		case MM_PATH_BUILDING:
 			this->mouse_state = state & MB_CURRENT;
 			if ((this->mouse_state & MB_LEFT) != 0) { // Left-click -> select current tile.
-				uint16 xvoxel, yvoxel;
-				uint8 zvoxel;
-				CursorType cur_type;
-				if (!this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) break;
-				_path_builder.TileClicked(xvoxel, yvoxel, zvoxel);
+				if (_path_builder.state == PBS_LONG_BUILD || _path_builder.state == PBS_LONG_BUY) {
+					_path_builder.ConfirmLongPath();
+				} else {
+					uint16 xvoxel, yvoxel;
+					uint8 zvoxel;
+					CursorType cur_type;
+					if (!this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) break;
+					_path_builder.TileClicked(xvoxel, yvoxel, zvoxel);
+				}
 			}
 			break;
 

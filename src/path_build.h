@@ -36,6 +36,8 @@ public:
 	void SetPathGuiState(bool opened);
 
 	void TileClicked(uint16 xpos, uint16 ypos, uint8 zpos);
+	void ComputeNewLongPath(const Point32 &mousexy);
+	void ConfirmLongPath();
 	void SelectArrow(TileEdge direction);
 	void SelectSlope(TrackSlope slope);
 	void SelectMovement(bool move_forward);
@@ -50,13 +52,18 @@ public:
 	       bool GetRemoveIsEnabled() const;
 	inline bool GetForwardIsEnabled() const;
 	inline bool GetBackwardIsEnabled() const;
+	inline bool GetLongButtonIsEnabled() const;
+	inline bool GetLongButtonIsPressed() const;
 
 	PathBuildState state;      ///< State of the path building process.
 
 private:
 	uint16 xpos;               ///< X coordinate of the selected voxel.
+	uint16 xlong;              ///< X coordinate of the long path destination voxel.
 	uint16 ypos;               ///< Y coordinate of the selected voxel.
+	uint16 ylong;              ///< Y coordinate of the long path destination voxel.
 	uint8  zpos;               ///< Z coordinate of the selected voxel.
+	uint8  zlong;              ///< Z coordinate of the long path destination voxel.
 	uint8 allowed_arrows;      ///< Allowed build directions from the voxel (bitset of #TileEdge, lower 4 bits are at bottom, upper 4 bits at top).
 	TileEdge selected_arrow;   ///< Last selected build direction (#INVALID_EDGE if none has been chosen).
 	uint8 allowed_slopes;      ///< Allowed slope directions for the build direction.
@@ -115,7 +122,7 @@ inline TrackSlope PathBuildManager::GetSelectedSlope() const
  */
 inline bool PathBuildManager::GetBuyIsEnabled() const
 {
-	return this->state == PBS_WAIT_BUY;
+	return this->state == PBS_WAIT_BUY || this->state == PBS_LONG_BUY;
 }
 
 /**
@@ -134,6 +141,24 @@ inline bool PathBuildManager::GetForwardIsEnabled() const
 inline bool PathBuildManager::GetBackwardIsEnabled() const
 {
 	return this->state > PBS_WAIT_ARROW && this->state <= PBS_WAIT_BUY;
+}
+
+/**
+ * Is the 'long' mode button enabled?
+ * @return Button is enabled.
+ */
+inline bool PathBuildManager::GetLongButtonIsEnabled() const
+{
+	return this->state > PBS_WAIT_VOXEL;
+}
+
+/**
+ * Is the 'long' mode button pressed?
+ * @return Button is pressed.
+ */
+inline bool PathBuildManager::GetLongButtonIsPressed() const
+{
+	return this->state == PBS_LONG_BUY || this->state == PBS_LONG_BUILD;
 }
 
 extern PathBuildManager _path_builder;
