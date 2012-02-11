@@ -16,8 +16,6 @@ Here you can do the following things:
 Path building
 -------------
 
-NOT EVERYTHING WORKS YET AS DESCRIBED BELOW (BUT WE ARE WORKING ON IT)
-
 A path can be build by opening the path gui. Click 'Paths' in the toolbar. A
 window appears with the following buttons:
 
@@ -27,6 +25,9 @@ window appears with the following buttons:
 - 'Forward' and 'Backward' to move the selected tile in the selected
   horizontal direction.
 - 'Long' to build a long path in one go.
+  Place the tile cursor, then click 'Long'. A path will be constructed to the
+  position of the mouse. Click to fixate the position. Then click 'Buy' to
+  buy the new path.
 - 'Buy' to build a path next to the currently selected tile, in the indicated
   directions (both horizontal and vertical). The currently selected tile will
   move to the newly bought path.
