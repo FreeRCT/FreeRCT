@@ -11,14 +11,12 @@ from rcdlib import spritegrid, blocks
 std_layout = [['ne', 'se', 'sw', 'nw']]
 
 class Arrows(blocks.GeneralDataBlock):
-    def __init__(self, tile_width, spr_blocks):
+    def __init__(self, values):
         fields = [('width', 'uint16'),
                   ('ne', 'block'),
                   ('se', 'block'),
                   ('sw', 'block'),
                   ('nw', 'block')]
-        values = {'width': tile_width}
-        values.update(spr_blocks)
         blocks.GeneralDataBlock.__init__(self, "BDIR", 1, fields, values)
 
 
@@ -89,7 +87,8 @@ def write_arrowRCD(images, tile_width, verbose, dest_fname):
         spr[name] = file_data.add_block(spr_blk)
 
     spr_blocks = dict((name, spr.get(name)) for name in sprites)
-    surf = Arrows(tile_width, spr_blocks)
+    spr_blocks['width'] = tile_width
+    surf = Arrows(spr_blocks)
     file_data.add_block(surf)
 
     file_data.to_file(dest_fname)

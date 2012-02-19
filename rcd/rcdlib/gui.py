@@ -14,7 +14,7 @@ CHECKBOX=96
 RADIO_BUTTON=112
 
 class Checkbox(blocks.GeneralDataBlock):
-    def __init__(self, widget_num, spr_blocks):
+    def __init__(self, values):
         fields = [('widget_num', 'uint16'),
                   ('empty', 'block'),
                   ('filled', 'block'),
@@ -22,8 +22,6 @@ class Checkbox(blocks.GeneralDataBlock):
                   ('pressed-filled', 'block'),
                   ('shaded', 'block'),
                   ('shaded-filled', 'block')]
-        values = {'widget_num' : widget_num}
-        values.update(spr_blocks)
         blocks.GeneralDataBlock.__init__(self, "GCHK", 1, fields, values)
 
 #: Name of the 9 sprites decorating a rectangle.
@@ -90,7 +88,8 @@ def add_checkbox(im, rcd, wid_type, coords):
 
         imgs[name] = rcd.add_block(spr_blk)
 
-    chk = Checkbox(wid_type, imgs)
+    imgs['widget_num'] = wid_type
+    chk = Checkbox(imgs)
     rcd.add_block(chk)
 
 # x1/x2 are both part of the sprite, so width is 1 longer
