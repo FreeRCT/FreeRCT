@@ -9,6 +9,7 @@ from rcdlib import output
 
 needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
 
+# {{{ class Block(object):
 class Block(object):
     """
     A block in the rcd file (base class).
@@ -28,16 +29,16 @@ class Block(object):
     def write(self, out):
         out.store_text(self.name)
         out.uint32(self.version)
-
-
+# }}}
+# {{{ class FileHeader(Block):
 class FileHeader(Block):
     """
     Header of the file.
     """
     def __init__(self):
         Block.__init__(self, 'RCDF', 1)
-
-
+# }}}
+# {{{ class DataBlock(Block):
 class DataBlock(Block):
     """
     Base class for a data block.
@@ -73,7 +74,8 @@ class DataBlock(Block):
         @return Equality between self and other.
         """
         raise NotImplementedError("Implement me in %s" % type(self))
-
+# }}}
+# {{{ class GeneralDataBlock(Block):
 class GeneralDataBlock(Block):
     """
     General data block class.
@@ -143,7 +145,8 @@ class GeneralDataBlock(Block):
 
     def set_value(self, name, val):
         self.values[name] = val
-
+# }}}
+# {{{ class Foundation(GeneralDataBlock):
 class Foundation(GeneralDataBlock):
     def __init__(self, found_type, tile_width, tile_height):
         fields = [('found_type', 'uint16'),
@@ -159,7 +162,8 @@ class Foundation(GeneralDataBlock):
                   'tile_width': tile_width,
                   'tile_height': tile_height}
         GeneralDataBlock.__init__(self, 'FUND', 1, fields, values)
-
+# }}}
+# {{{ class CornerTile(GeneralDataBlock):
 class CornerTile(GeneralDataBlock):
     def __init__(self, tile_width, tile_height):
         fields = [('tile_width', 'uint16'),
@@ -171,8 +175,8 @@ class CornerTile(GeneralDataBlock):
         values = {'tile_width': tile_width,
                   'tile_height': tile_height}
         GeneralDataBlock.__init__(self, 'TCOR', 1, fields, values)
-
-
+# }}}
+# {{{ class Palette8Bpp(DataBlock):
 class Palette8Bpp(DataBlock):
     """
     8PAL block (not used any more).
@@ -203,7 +207,8 @@ class Palette8Bpp(DataBlock):
             out.uint8(r)
             out.uint8(g)
             out.uint8(b)
-
+# }}}
+# {{{ class Pixels8Bpp(DataBlock):
 class Pixels8Bpp(DataBlock):
     """
     8PXL block.
@@ -250,7 +255,8 @@ class Pixels8Bpp(DataBlock):
     def is_equal(self, other):
         return self.width == other.width and self.height == other.height \
                 and self.line_data == other.line_data
-
+# }}}
+# {{{ class Sprite(GeneralDataBlock):
 class Sprite(DataBlock):
     """
     SPRT data block.
@@ -273,7 +279,8 @@ class Sprite(DataBlock):
     def is_equal(self, other):
         return self.xoff == other.xoff and self.yoff == other.yoff \
                 and self.img_block == other.img_block
-
+# }}}
+# {{{class Surface(DataBlock):
 class Surface(DataBlock):
     """
     Game block 'SURF'
@@ -307,7 +314,8 @@ class Surface(DataBlock):
                 and self.z_height == other.z_height \
                 and self.ground_type == other.ground_type \
                 and self.sprites == other.sprites
-
+# }}}
+# {{{ class TileSelection(DataBlock):
 class TileSelection(DataBlock):
     """
     Game block 'TSEL'
@@ -339,7 +347,8 @@ class TileSelection(DataBlock):
         return self.tile_width == other.tile_width \
                 and self.z_height == other.z_height \
                 and self.sprites == other.sprites
-
+# }}}
+# {{{ class Paths(DataBlock):
 class Paths(DataBlock):
     """
     Game block 'PATH'
@@ -374,8 +383,8 @@ class Paths(DataBlock):
                 and self.tile_width == other.tile_width \
                 and self.z_height == other.z_height \
                 and self.sprites == other.sprites
-
-
+# }}}
+# {{{ class RCD(object):
 class RCD(object):
     """
     A RCD (Roller Coaster Data) file.
@@ -405,4 +414,5 @@ class RCD(object):
         out.set_file(fname)
         self.write(out)
         out.close()
+# }}}
 
