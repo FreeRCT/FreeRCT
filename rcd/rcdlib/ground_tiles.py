@@ -91,8 +91,7 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, verbose, dest_
             spr_blk = None
         spr[name] = file_data.add_block(spr_blk)
 
-    needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
-    spr_blocks = [spr[name] for name in needed]
+    spr_blocks = dict(('n#' + d[0], d[1]) for d in spr.iteritems())
     surf = blocks.Surface(tile_width, tile_height, ground_type, spr_blocks)
     file_data.add_block(surf)
 

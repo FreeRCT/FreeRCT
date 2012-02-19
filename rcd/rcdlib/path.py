@@ -26,19 +26,6 @@ std_layout = [['empty',               'empty',               'empty',           
               ['ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w'],
               ['ramp_sw',             'ramp_nw',             'ramp_ne',             'ramp_se']]
 
-# Sprites in the order of the RCD file.
-sprites = ['empty', 'ne', 'se', 'ne_se', 'ne_se_e', 'sw', 'ne_sw', 'se_sw',
-    'se_sw_s', 'ne_se_sw', 'ne_se_sw_e', 'ne_se_sw_s', 'ne_se_sw_e_s', 'nw',
-    'ne_nw', 'ne_nw_n', 'nw_se', 'ne_nw_se', 'ne_nw_se_n', 'ne_nw_se_e',
-    'ne_nw_se_n_e', 'nw_sw', 'nw_sw_w', 'ne_nw_sw', 'ne_nw_sw_n',
-    'ne_nw_sw_w', 'ne_nw_sw_n_w', 'nw_se_sw', 'nw_se_sw_s', 'nw_se_sw_w',
-    'nw_se_sw_s_w', 'ne_nw_se_sw', 'ne_nw_se_sw_n', 'ne_nw_se_sw_e',
-    'ne_nw_se_sw_n_e', 'ne_nw_se_sw_s', 'ne_nw_se_sw_n_s', 'ne_nw_se_sw_e_s',
-    'ne_nw_se_sw_n_e_s', 'ne_nw_se_sw_w', 'ne_nw_se_sw_n_w',
-    'ne_nw_se_sw_e_w', 'ne_nw_se_sw_n_e_w', 'ne_nw_se_sw_s_w',
-    'ne_nw_se_sw_n_s_w', 'ne_nw_se_sw_e_s_w', 'ne_nw_se_sw_n_e_s_w',
-    'ramp_ne', 'ramp_nw', 'ramp_se', 'ramp_sw']
-
 def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     """
     Split the path tiles sprite into pieces.
@@ -110,8 +97,7 @@ def write_pathRCD(images, path_type, tile_width, tile_height, verbose, dest_fnam
             spr_blk = None
         spr[name] = file_data.add_block(spr_blk)
 
-    spr_blocks = [spr.get(name) for name in sprites]
-    surf = blocks.Paths(path_type, tile_width, tile_height, spr_blocks)
+    surf = blocks.Paths(path_type, tile_width, tile_height, spr)
     file_data.add_block(surf)
 
     file_data.to_file(dest_fname)

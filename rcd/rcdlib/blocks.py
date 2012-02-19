@@ -257,132 +257,69 @@ class Pixels8Bpp(DataBlock):
                 and self.line_data == other.line_data
 # }}}
 # {{{ class Sprite(GeneralDataBlock):
-class Sprite(DataBlock):
+class Sprite(GeneralDataBlock):
     """
     SPRT data block.
     """
     def __init__(self, xoff, yoff, img_block):
-        DataBlock.__init__(self, 'SPRT', 2)
-        self.xoff = xoff # signed
-        self.yoff = yoff # signed
-        self.img_block = img_block
-
-    def get_size(self):
-        return 2+2+4
-
-    def write(self, out):
-        DataBlock.write(self, out)
-        out.int16(self.xoff)
-        out.int16(self.yoff)
-        out.uint32(self.img_block)
-
-    def is_equal(self, other):
-        return self.xoff == other.xoff and self.yoff == other.yoff \
-                and self.img_block == other.img_block
+        fields = [('x_offset', 'int16'),
+                  ('y_offset', 'int16'),
+                  ('image', 'block')]
+        values = {'x_offset' : xoff, 'y_offset' : yoff, 'image' : img_block}
+        GeneralDataBlock.__init__(self, 'SPRT', 2, fields, values)
 # }}}
-# {{{class Surface(DataBlock):
-class Surface(DataBlock):
+# {{{ class Surface(GeneralDataBlock):
+class Surface(GeneralDataBlock):
     """
     Game block 'SURF'
     """
     def __init__(self, tile_width, z_height, ground_type, sprites):
-        DataBlock.__init__(self, 'SURF', 3)
-        self.tile_width = tile_width
-        self.z_height = z_height
-        self.ground_type = ground_type
-        self.sprites = sprites
-
-    def get_size(self):
-        return 2 + 2 + 2 + 19*4
-
-    def write(self, out):
-        DataBlock.write(self, out)
-        out.uint16(self.ground_type)
-        out.uint16(self.tile_width)
-        out.uint16(self.z_height)
-        self.write_blocks(self.sprites, out)
-
-    def write_blocks(self, blocks, out):
-        for block in blocks:
-            if block is None:
-                out.uint32(0)
-            else:
-                out.uint32(block)
-
-    def is_equal(self, other):
-        return self.tile_width == other.tile_width \
-                and self.z_height == other.z_height \
-                and self.ground_type == other.ground_type \
-                and self.sprites == other.sprites
+        fields = [('ground_type', 'uint16'),
+                  ('tile_width', 'uint16'),
+                  ('z_height', 'uint16')]
+        fields.extend([('n#'+n, 'block') for n in needed])
+        sprites['ground_type'] = ground_type
+        sprites['tile_width'] = tile_width
+        sprites['z_height'] = z_height
+        GeneralDataBlock.__init__(self, 'SURF', 3, fields, sprites)
 # }}}
-# {{{ class TileSelection(DataBlock):
-class TileSelection(DataBlock):
+# {{{ class TileSelection(GeneralDataBlock):
+class TileSelection(GeneralDataBlock):
     """
     Game block 'TSEL'
     """
     def __init__(self, tile_width, z_height, sprites):
-        DataBlock.__init__(self, 'TSEL', 1)
-        self.tile_width = tile_width
-        self.z_height = z_height
-        self.sprites = sprites
-        assert len(self.sprites) == 19
-
-    def get_size(self):
-        return 2 + 2 + 19*4
-
-    def write(self, out):
-        DataBlock.write(self, out)
-        out.uint16(self.tile_width)
-        out.uint16(self.z_height)
-        self.write_blocks(self.sprites, out)
-
-    def write_blocks(self, blocks, out):
-        for block in blocks:
-            if block is None:
-                out.uint32(0)
-            else:
-                out.uint32(block)
-
-    def is_equal(self, other):
-        return self.tile_width == other.tile_width \
-                and self.z_height == other.z_height \
-                and self.sprites == other.sprites
+        fields = [('tile_width', 'uint16'), ('z_height', 'uint16')]
+        fields.extend([('n#'+n, 'block') for n in needed])
+        sprites['tile_width'] = tile_width
+        sprites['z_height'] = z_height
+        GeneralDataBlock.__init__(self, 'TSEL', 1, fields, sprites)
 # }}}
-# {{{ class Paths(DataBlock):
-class Paths(DataBlock):
+# {{{ class Paths(GeneralDataBlock):
+path_sprite_names = ['empty', 'ne', 'se', 'ne_se', 'ne_se_e', 'sw', 'ne_sw',
+    'se_sw', 'se_sw_s', 'ne_se_sw', 'ne_se_sw_e', 'ne_se_sw_s', 'ne_se_sw_e_s',
+    'nw', 'ne_nw', 'ne_nw_n', 'nw_se', 'ne_nw_se', 'ne_nw_se_n', 'ne_nw_se_e',
+    'ne_nw_se_n_e', 'nw_sw', 'nw_sw_w', 'ne_nw_sw', 'ne_nw_sw_n', 'ne_nw_sw_w',
+    'ne_nw_sw_n_w', 'nw_se_sw', 'nw_se_sw_s', 'nw_se_sw_w', 'nw_se_sw_s_w',
+    'ne_nw_se_sw', 'ne_nw_se_sw_n', 'ne_nw_se_sw_e', 'ne_nw_se_sw_n_e',
+    'ne_nw_se_sw_s', 'ne_nw_se_sw_n_s', 'ne_nw_se_sw_e_s', 'ne_nw_se_sw_n_e_s',
+    'ne_nw_se_sw_w', 'ne_nw_se_sw_n_w', 'ne_nw_se_sw_e_w', 'ne_nw_se_sw_n_e_w',
+    'ne_nw_se_sw_s_w', 'ne_nw_se_sw_n_s_w', 'ne_nw_se_sw_e_s_w',
+    'ne_nw_se_sw_n_e_s_w', 'ramp_ne', 'ramp_nw', 'ramp_se', 'ramp_sw']
+
+class Paths(GeneralDataBlock):
     """
     Game block 'PATH'
     """
     def __init__(self, path_type, tile_width, z_height, sprites):
-        DataBlock.__init__(self, 'PATH', 1)
-        self.path_type = path_type
-        self.tile_width = tile_width
-        self.z_height = z_height
-        self.sprites = sprites
-        assert len(self.sprites) == 51
-
-    def get_size(self):
-        return 2 + 2 + 2 + 51*4
-
-    def write(self, out):
-        DataBlock.write(self, out)
-        out.uint16(self.path_type)
-        out.uint16(self.tile_width)
-        out.uint16(self.z_height)
-        self.write_blocks(self.sprites, out)
-
-    def write_blocks(self, blocks, out):
-        for block in blocks:
-            if block is None:
-                out.uint32(0)
-            else:
-                out.uint32(block)
-
-    def is_equal(self, other):
-        return self.path_type == other.path_type \
-                and self.tile_width == other.tile_width \
-                and self.z_height == other.z_height \
-                and self.sprites == other.sprites
+        fields = [('path_type', 'uint16'),
+                  ('tile_width', 'uint16'),
+                  ('z_height', 'uint16')]
+        fields.extend([(name, 'block') for name in path_sprite_names])
+        sprites['path_type'] = path_type
+        sprites['tile_width'] = tile_width
+        sprites['z_height'] = z_height
+        GeneralDataBlock.__init__(self, 'PATH', 1, fields, sprites)
 # }}}
 # {{{ class RCD(object):
 class RCD(object):
