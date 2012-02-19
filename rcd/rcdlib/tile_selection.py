@@ -85,7 +85,9 @@ def write_tileselectRCD(images, tile_width, tile_height, verbose, dest_fname):
         spr[name] = file_data.add_block(spr_blk)
 
     spr_blocks = dict(('n#' + d[0], d[1]) for d in spr.iteritems())
-    surf = blocks.TileSelection(tile_width, tile_height, spr_blocks)
+    spr_blocks['tile_width'] = tile_width
+    spr_blocks['z_height'] = tile_height
+    surf = blocks.TileSelection(spr_blocks)
     file_data.add_block(surf)
 
     file_data.to_file(dest_fname)

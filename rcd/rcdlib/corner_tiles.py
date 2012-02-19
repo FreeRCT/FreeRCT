@@ -99,16 +99,9 @@ def write_cornerselectRCD(images, tile_width, tile_height, verbose, dest_fname):
             spr_blk = None
         spr[name] = file_data.add_block(spr_blk)
 
-    needed = ['', 'n', 'e', 'ne', 's', 'ns', 'es', 'nes', 'w', 'nw', 'ew', 'new', 'sw', 'nsw', 'esw', 'N', 'E', 'S', 'W']
-    tcor = blocks.CornerTile(tile_width, tile_height)
-    for d in 'nesw':
-        for n in needed:
-            name = '%s#%s' % (d, n)
-            if spr[name] is None:
-                tcor.set_value(name, 0)
-            else:
-                tcor.set_value(name, spr[name])
-
+    spr['tile_width'] = tile_width
+    spr['tile_height'] = tile_height
+    tcor = blocks.CornerTile(spr)
     file_data.add_block(tcor)
 
     file_data.to_file(dest_fname)

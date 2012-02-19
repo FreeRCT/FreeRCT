@@ -212,7 +212,10 @@ class ImageObject(object):
             else:
                 image_data.append(None)
 
-        return blocks.Pixels8Bpp(self.xsize, self.ysize, image_data)
+        values = {'width'  : self.xsize,
+                  'height' : self.ysize,
+                  'lines'  : image_data}
+        return blocks.Pixels8Bpp(values)
 
 
 

@@ -160,13 +160,10 @@ class GeneralDataBlock(Block):
             if self.values[fldname] != other.values[fldname]:
                 return False
         return True
-
-    def set_value(self, name, val):
-        self.values[name] = val
 # }}}
 # {{{ class Foundation(GeneralDataBlock):
 class Foundation(GeneralDataBlock):
-    def __init__(self, found_type, tile_width, tile_height):
+    def __init__(self, values):
         fields = [('found_type', 'uint16'),
                   ('tile_width', 'uint16'),
                   ('tile_height', 'uint16'),
@@ -176,22 +173,17 @@ class Foundation(GeneralDataBlock):
                   ('sw_s', 'block'),
                   ('sw_w', 'block'),
                   ('sw_sw', 'block')]
-        values = {'found_type': found_type,
-                  'tile_width': tile_width,
-                  'tile_height': tile_height}
         GeneralDataBlock.__init__(self, 'FUND', 1, fields, values)
 # }}}
 # {{{ class CornerTile(GeneralDataBlock):
 class CornerTile(GeneralDataBlock):
-    def __init__(self, tile_width, tile_height):
+    def __init__(self, values):
         fields = [('tile_width', 'uint16'),
                   ('tile_height', 'uint16')]
         fields.extend([('n#'+n, 'block') for n in needed])
         fields.extend([('e#'+n, 'block') for n in needed])
         fields.extend([('s#'+n, 'block') for n in needed])
         fields.extend([('w#'+n, 'block') for n in needed])
-        values = {'tile_width': tile_width,
-                  'tile_height': tile_height}
         GeneralDataBlock.__init__(self, 'TCOR', 1, fields, values)
 # }}}
 # {{{ class Pixels8Bpp(GeneralDataBlock):
@@ -199,10 +191,9 @@ class Pixels8Bpp(GeneralDataBlock):
     """
     8PXL block.
     """
-    def __init__(self, width, height, line_data):
+    def __init__(self, values):
         fields = [('width', 'uint16'), ('height', 'uint16'),
                   ('lines', 'image_data')]
-        values = {'width' : width, 'height' : height, 'lines' : line_data}
         GeneralDataBlock.__init__(self, '8PXL', 1, fields, values)
 # }}}
 # {{{ class Sprite(GeneralDataBlock):
@@ -222,27 +213,22 @@ class Surface(GeneralDataBlock):
     """
     Game block 'SURF'
     """
-    def __init__(self, tile_width, z_height, ground_type, sprites):
+    def __init__(self, values):
         fields = [('ground_type', 'uint16'),
                   ('tile_width', 'uint16'),
                   ('z_height', 'uint16')]
         fields.extend([('n#'+n, 'block') for n in needed])
-        sprites['ground_type'] = ground_type
-        sprites['tile_width'] = tile_width
-        sprites['z_height'] = z_height
-        GeneralDataBlock.__init__(self, 'SURF', 3, fields, sprites)
+        GeneralDataBlock.__init__(self, 'SURF', 3, fields, values)
 # }}}
 # {{{ class TileSelection(GeneralDataBlock):
 class TileSelection(GeneralDataBlock):
     """
     Game block 'TSEL'
     """
-    def __init__(self, tile_width, z_height, sprites):
+    def __init__(self, values):
         fields = [('tile_width', 'uint16'), ('z_height', 'uint16')]
         fields.extend([('n#'+n, 'block') for n in needed])
-        sprites['tile_width'] = tile_width
-        sprites['z_height'] = z_height
-        GeneralDataBlock.__init__(self, 'TSEL', 1, fields, sprites)
+        GeneralDataBlock.__init__(self, 'TSEL', 1, fields, values)
 # }}}
 # {{{ class Paths(GeneralDataBlock):
 path_sprite_names = ['empty', 'ne', 'se', 'ne_se', 'ne_se_e', 'sw', 'ne_sw',
@@ -260,15 +246,12 @@ class Paths(GeneralDataBlock):
     """
     Game block 'PATH'
     """
-    def __init__(self, path_type, tile_width, z_height, sprites):
+    def __init__(self, values):
         fields = [('path_type', 'uint16'),
                   ('tile_width', 'uint16'),
                   ('z_height', 'uint16')]
         fields.extend([(name, 'block') for name in path_sprite_names])
-        sprites['path_type'] = path_type
-        sprites['tile_width'] = tile_width
-        sprites['z_height'] = z_height
-        GeneralDataBlock.__init__(self, 'PATH', 1, fields, sprites)
+        GeneralDataBlock.__init__(self, 'PATH', 1, fields, values)
 # }}}
 # {{{ class RCD(object):
 class RCD(object):

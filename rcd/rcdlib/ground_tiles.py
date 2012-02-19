@@ -91,8 +91,11 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, verbose, dest_
             spr_blk = None
         spr[name] = file_data.add_block(spr_blk)
 
-    spr_blocks = dict(('n#' + d[0], d[1]) for d in spr.iteritems())
-    surf = blocks.Surface(tile_width, tile_height, ground_type, spr_blocks)
+    values = dict(('n#' + d[0], d[1]) for d in spr.iteritems())
+    values['ground_type'] = ground_type
+    values['tile_width'] = tile_width
+    values['z_height'] = tile_height
+    surf = blocks.Surface(values)
     file_data.add_block(surf)
 
     file_data.to_file(dest_fname)

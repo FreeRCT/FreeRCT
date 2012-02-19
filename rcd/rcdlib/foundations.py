@@ -85,13 +85,10 @@ def write_foundationRCD(images, tile_width, tile_height, found_type, verbose, de
             spr_blk = None
         spr[name] = file_data.add_block(spr_blk)
 
-    found = blocks.Foundation(found_type, tile_width, tile_height)
-    needed = ['se_e', 'se_s', 'se_se', 'sw_s', 'sw_w', 'sw_sw']
-    for name in needed:
-        if spr[name] is None:
-            found.set_value(name, 0)
-        else:
-            found.set_value(name, spr[name])
+    spr['found_type'] = found_type
+    spr['tile_width'] = tile_width
+    spr['tile_height'] = tile_height
+    found = blocks.Foundation(spr)
     file_data.add_block(found)
 
     file_data.to_file(dest_fname)
