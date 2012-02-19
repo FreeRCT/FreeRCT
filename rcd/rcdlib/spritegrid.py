@@ -204,15 +204,15 @@ class ImageObject(object):
             y_lines[y] = line
 
 
-        pix_blk = blocks.Pixels8Bpp(self.xsize, self.ysize)
+        image_data = []
         for y in range(self.ysize):
             line = y_lines.get(y, [])
             if len(line) > 0:
-                pix_blk.add_line(''.join(chr(k) for k in line))
+                image_data.append(''.join(chr(k) for k in line))
             else:
-                pix_blk.add_line(None)
+                image_data.append(None)
 
-        return pix_blk
+        return blocks.Pixels8Bpp(self.xsize, self.ysize, image_data)
 
 
 

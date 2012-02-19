@@ -196,22 +196,11 @@ class Pixels8Bpp(GeneralDataBlock):
     """
     8PXL block.
     """
-    def __init__(self, width, height):
+    def __init__(self, width, height, line_data):
         fields = [('width', 'uint16'), ('height', 'uint16'),
                   ('lines', 'image_data')]
-        values = {'width' : width, 'height' : height}
+        values = {'width' : width, 'height' : height, 'lines' : line_data}
         GeneralDataBlock.__init__(self, '8PXL', 1, fields, values)
-        self.line_data = []
-
-    def add_line(self, line):
-        """
-        Append the data for one scan line. Insert 'None' for absent data.
-        @param line: Scanline data.
-        @type  line: Either a C{str} or C{None}
-        """
-        self.line_data.append(line)
-        self.set_value('lines', self.line_data)
-
 # }}}
 # {{{ class Sprite(GeneralDataBlock):
 class Sprite(GeneralDataBlock):
