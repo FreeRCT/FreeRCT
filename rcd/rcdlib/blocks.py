@@ -103,20 +103,23 @@ class GeneralDataBlock(Block):
         Block.write(self, out)
         out.uint32(self.get_size())
         for fldname, fldtype in self.fields:
+            value = self.values[fldname]
             if fldtype == 'int8':
-                out.int8(self.values[fldname])
+                out.int8(value)
             elif fldtype == 'uint8':
-                out.uint8(self.values[fldname])
+                out.uint8(value)
             elif fldtype == 'int16':
-                out.int16(self.values[fldname])
+                out.int16(value)
             elif fldtype == 'uint16':
-                out.uint16(self.values[fldname])
+                out.uint16(value)
             elif fldtype == 'uint32':
-                out.uint32(self.values[fldname])
+                out.uint32(value)
             elif fldtype == 'block':
-                out.uint32(self.values[fldname])
+                if value is None:
+                    value = 0
+                out.uint32(value)
             elif fldtype == 'image_data':
-                write_image_data(out, self.values[fldname])
+                write_image_data(out, value)
             else:
                 raise ValueError("Unknown field-type: %r" % fldtype)
 
