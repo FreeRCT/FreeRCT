@@ -76,6 +76,50 @@ class DataBlock(Block):
         raise NotImplementedError("Implement me in %s" % type(self))
 # }}}
 # {{{ class GeneralDataBlock(Block):
+
+def get_image_data_size(line_data, height):
+    """
+    Compute the size (in bytes) for the pixel data.
+
+    @param line_data: Data of each line, C{None} means the line is empty.
+    @type  line_data: C{str} or C{None}
+
+    @param height: Expected height of the image data.
+    @type  height: C{int}
+
+    @return: The size of the data field in the rcd file.
+    @rtype:  C{int}
+    """
+    assert height == len(line_data) # Paranoia check
+    total = 0
+    for line in line_data:
+        total = total + 4
+        if line is not None:
+            total = total + len(line)
+    return total
+
+def write_image_data(out, line_data):
+    """
+    Write the image data.
+
+    @param out: Output stream.
+    @type  out: L{Output}
+
+    @param line_data: Data of each line, C{None} means the line is empty.
+    @type  line_data: C{str} or C{None}
+    """
+    offset = 4 * len(line_data)
+    for line in line_data:
+        if line is not None:
+            out.uint32(offset)
+            offset = offset + len(line)
+        else:
+            out.uint32(0)
+    for line in line_data:
+        if line is not None:
+            out.store_text(line)
+
+
 class GeneralDataBlock(Block):
     """
     General data block class.
@@ -108,6 +152,8 @@ class GeneralDataBlock(Block):
                 out.uint32(self.values[fldname])
             elif fldtype == 'block':
                 out.uint32(self.values[fldname])
+            elif fldtype == 'image_data':
+                write_image_data(out, self.values[fldname])
             else:
                 raise ValueError("Unknown field-type: %r" % fldtype)
 
@@ -118,7 +164,13 @@ class GeneralDataBlock(Block):
         sizes = {'int8':1, 'uint8':1, 'int16':2, 'uint16':2, 'uint32':4, 'block':4}
         total = 0
         for fldname, fldtype in self.fields:
-            total = total + sizes[fldtype]
+            size = sizes.get(fldtype)
+            if size is not None:
+                total = total + size
+            elif fldtype == 'image_data':
+                total = total + get_image_data_size(self.values[fldname], self.values['height'])
+            else:
+                raise ValueError("Unknown field-type: %r" % fldtype)
         return total
 
     def __cmp__(self, other):
@@ -208,15 +260,16 @@ class Palette8Bpp(DataBlock):
             out.uint8(g)
             out.uint8(b)
 # }}}
-# {{{ class Pixels8Bpp(DataBlock):
-class Pixels8Bpp(DataBlock):
+# {{{ class Pixels8Bpp(GeneralDataBlock):
+class Pixels8Bpp(GeneralDataBlock):
     """
     8PXL block.
     """
     def __init__(self, width, height):
-        DataBlock.__init__(self, '8PXL', 1)
-        self.width  = width
-        self.height = height
+        fields = [('width', 'uint16'), ('height', 'uint16'),
+                  ('lines', 'image_data')]
+        values = {'width' : width, 'height' : height}
+        GeneralDataBlock.__init__(self, '8PXL', 1, fields, values)
         self.line_data = []
 
     def add_line(self, line):
@@ -226,35 +279,8 @@ class Pixels8Bpp(DataBlock):
         @type  line: Either a C{str} or C{None}
         """
         self.line_data.append(line)
+        self.set_value('lines', self.line_data)
 
-    def get_size(self):
-        assert len(self.line_data) == self.height
-        total = 0
-        for line in self.line_data:
-            if line is not None:
-                total = total + len(line)
-
-        return 2 + 2 + 4 * self.height + total
-
-    def write(self, out):
-        assert len(self.line_data) == self.height
-        DataBlock.write(self, out)
-        out.uint16(self.width)
-        out.uint16(self.height)
-        offset = 4 * self.height
-        for line in self.line_data:
-            if line is not None:
-                out.uint32(offset)
-                offset = offset + len(line)
-            else:
-                out.uint32(0)
-        for line in self.line_data:
-            if line is not None:
-                out.store_text(line)
-
-    def is_equal(self, other):
-        return self.width == other.width and self.height == other.height \
-                and self.line_data == other.line_data
 # }}}
 # {{{ class Sprite(GeneralDataBlock):
 class Sprite(GeneralDataBlock):
