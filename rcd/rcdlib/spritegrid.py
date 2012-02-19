@@ -269,8 +269,10 @@ def split_spritegrid(fname, xoffset, yoffset, xsize, ysize, layout):
     imgs = {}
     for x in range(xcount):
         for y in range(ycount):
-            imgs[layout[y][x]] = ImageObject(im, xoffset, yoffset,
-                                             x * xsize, y * ysize, xsize, ysize)
+            img = ImageObject(im, xoffset, yoffset, x * xsize, y * ysize,
+                              xsize, ysize)
+            img.crop()
+            imgs[layout[y][x]] = img
 
     return imgs
 

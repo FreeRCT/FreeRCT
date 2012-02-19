@@ -50,9 +50,6 @@ def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
     """
     if layout is None: layout = std_layout
     images = spritegrid.split_spritegrid(fname, xoffset, yoffset, xsize, ysize, layout)
-    for img in images.itervalues():
-        img.crop()
-
     return images
 
 def write_arrowRCD(images, tile_width, verbose, dest_fname):
