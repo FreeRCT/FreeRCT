@@ -38,43 +38,6 @@ class FileHeader(Block):
     def __init__(self):
         Block.__init__(self, 'RCDF', 1)
 # }}}
-# {{{ class DataBlock(Block):
-class DataBlock(Block):
-    """
-    Base class for a data block.
-    """
-    def __init__(self, name, version):
-        Block.__init__(self, name, version)
-
-    def write(self, out):
-        Block.write(self, out)
-        out.uint32(self.get_size())
-
-    def get_size(self):
-        """
-        Compute size of the block, and return it to the caller.
-        """
-        raise NotImplementedError("Implement me in %s" % type(self))
-
-    def __cmp__(self, other):
-        raise NotImplementedError("No general comparison available, only equality!")
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __eq__(self, other):
-        if type(self) is not type(other):
-            return False
-        return self.is_equal(other)
-
-    def is_equal(self, other):
-        """
-        Check whether you are the same as L{other}.
-        @pre Classes are the same.
-        @return Equality between self and other.
-        """
-        raise NotImplementedError("Implement me in %s" % type(self))
-# }}}
 # {{{ class GeneralDataBlock(Block):
 
 def get_image_data_size(line_data, height):
@@ -227,38 +190,6 @@ class CornerTile(GeneralDataBlock):
         values = {'tile_width': tile_width,
                   'tile_height': tile_height}
         GeneralDataBlock.__init__(self, 'TCOR', 1, fields, values)
-# }}}
-# {{{ class Palette8Bpp(DataBlock):
-class Palette8Bpp(DataBlock):
-    """
-    8PAL block (not used any more).
-    """
-    def __init__(self):
-        DataBlock.__init__(self, '8PAL', 1)
-        self.rgbs = []
-
-    def add_rgb(self, rgb):
-        self.rgbs.append(rgb)
-
-    def set_palette(self, im):
-        im = im.copy()
-        lut = im.resize((256, 1))
-        lut.putdata(range(256))
-        lut = lut.convert("RGB").getdata()
-        for rgb in lut:
-            self.add_rgb(rgb)
-
-    def get_size(self):
-        assert len(self.rgbs) >= 1 and len(self.rgbs) <= 256
-        return 2 + 3 * len(self.rgbs)
-
-    def write(self, out):
-        DataBlock.write(self, out)
-        out.uint16(len(self.rgbs))
-        for r,g,b in self.rgbs:
-            out.uint8(r)
-            out.uint8(g)
-            out.uint8(b)
 # }}}
 # {{{ class Pixels8Bpp(GeneralDataBlock):
 class Pixels8Bpp(GeneralDataBlock):
