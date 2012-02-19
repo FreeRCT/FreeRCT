@@ -7,7 +7,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import path
+from rcdlib import spritegrid, path
 import argparse
 
 parser = argparse.ArgumentParser(description='Process a path sprites image.')
@@ -27,7 +27,26 @@ if args.output is None:
 else:
     out_name = args.output
 
+# Sprites as laid out in the source image.
+std_layout = [['empty',               'empty',               'empty',               'empty'],
+              ['ne',                  'se',                  'sw',                  'nw'],
+              ['ne_se',               'se_sw',               'nw_sw',               'ne_nw'],
+              ['ne_sw',               'nw_se',               'ne_sw',               'nw_se'],
+              ['ne_se_sw',            'nw_se_sw',            'ne_nw_sw',            'ne_nw_se'],
+              ['ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw'],
+              ['ne_se_e',             'se_sw_s',             'nw_sw_w',             'ne_nw_n'],
+              ['ne_se_sw_e',          'nw_se_sw_s',          'ne_nw_sw_w',          'ne_nw_se_n'],
+              ['ne_se_sw_s',          'nw_se_sw_w',          'ne_nw_sw_n',          'ne_nw_se_e'],
+              ['ne_se_sw_e_s',        'nw_se_sw_s_w',        'ne_nw_sw_n_w',        'ne_nw_se_n_e'],
+              ['ne_nw_se_sw_n_s_w',   'ne_nw_se_sw_n_e_w',   'ne_nw_se_sw_n_e_s',   'ne_nw_se_sw_e_s_w'],
+              ['ne_nw_se_sw_n_w',     'ne_nw_se_sw_n_e',     'ne_nw_se_sw_e_s',     'ne_nw_se_sw_s_w'],
+              ['ne_nw_se_sw_n_s',     'ne_nw_se_sw_e_w',     'ne_nw_se_sw_n_s',     'ne_nw_se_sw_e_w'],
+              ['ne_nw_se_sw_n',       'ne_nw_se_sw_e',       'ne_nw_se_sw_s',       'ne_nw_se_sw_w'],
+              ['ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw',         'ne_nw_se_sw'],
+              ['ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w', 'ne_nw_se_sw_n_e_s_w'],
+              ['ramp_sw',             'ramp_nw',             'ramp_ne',             'ramp_se']]
 
-images = path.split_image(args.image_file, -32, -33, 64, 64)
+
+images = spritegrid.split_spritegrid(args.image_file, -32, -33, 64, 64, std_layout)
 path.write_pathRCD(images, path.CONCRETE, 64, 16, args.verbose, out_name)
 

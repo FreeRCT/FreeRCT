@@ -7,7 +7,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import ground_tiles
+from rcdlib import spritegrid, ground_tiles
 import argparse, sys
 
 parser = argparse.ArgumentParser(description='Process a ground tiles image.')
@@ -36,9 +36,9 @@ dummy_lout = [['x' for _v in row] for row in lout]
 # grid. We are only interested in the non-grid ones, so the grid tiles get a
 # dummy name.
 
-images = ground_tiles.split_image(args.image_file, -32, -33, 64, 64, dummy_lout + lout)
+images = spritegrid.split_spritegrid(args.image_file, -32, -33, 64, 64, dummy_lout + lout)
 if args.testtiles is not None:
-    test_images = ground_tiles.split_image(args.testtiles, -32, -33, 64, 64)
+    test_images = spritegrid.split_spritegrid(args.testtiles, -32, -33, 64, 64, ground_tiles.std_layout)
     for im_name, img in test_images.iteritems():
         if not ground_tiles.equal_shaped_images(images[im_name], img):
             print "Ground tile image and tile cursor position '" + im_name + "' differ"

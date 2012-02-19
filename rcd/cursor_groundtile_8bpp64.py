@@ -7,7 +7,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import ground_tiles
+from rcdlib import spritegrid, ground_tiles
 import argparse, sys
 
 parser = argparse.ArgumentParser(description='Process a cursor test tiles image.')
@@ -27,5 +27,5 @@ if args.output is None:
 else:
     out_name = args.output
 
-images = ground_tiles.split_image(args.image_file, -32, -33, 64, 64)
+images = spritegrid.split_spritegrid(args.image_file, -32, -33, 64, 64, ground_tiles.std_layout)
 ground_tiles.write_groundRCD(images, 64, 16, ground_tiles.CURSOR_TEST, args.verbose, out_name)

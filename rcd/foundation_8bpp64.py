@@ -7,7 +7,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import foundations
+from rcdlib import spritegrid, foundations
 import argparse
 
 parser = argparse.ArgumentParser(description='Process a foundation image.')
@@ -29,6 +29,10 @@ else:
 
 fname = '../sprites/foundationtemplate8bpp64_masked.png'
 
-images = foundations.split_image(args.image_file, -32, -33, 64, 64)
+std_layout = [['se_se', 'sw_sw'],
+              ['se_e',  'sw_w'],
+              ['se_s',  'sw_s']]
+
+images = spritegrid.split_spritegrid(args.image_file, -32, -33, 64, 64, std_layout)
 foundations.write_foundationRCD(images, 64, 16, foundations.GROUND, args.verbose, out_name)
 

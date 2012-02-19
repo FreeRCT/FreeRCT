@@ -5,45 +5,11 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import spritegrid, blocks
-
-std_layout = [['se_se', 'sw_sw'],
-              ['se_e',  'sw_w'],
-              ['se_s',  'sw_s']]
+from rcdlib import blocks
 
 GROUND = 16
 WOOD   = 32
 BRICK  = 48
-
-def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
-    """
-    Split the ground tiles sprite into pieces.
-
-    @param fname: Image file name.
-    @type  fname: C{str}
-
-    @param xoffset: Horizontal offset of the sprite for the top-left pixel.
-    @type  xoffset: C{int}
-
-    @param yoffset: Vertical offset of the sprite for the top-left pixel.
-    @type  yoffset: C{int}
-
-    @param xsize: Horizontal size of a sprite in the image.
-    @type  xsize: C{int}
-
-    @param ysize: Vertical size of a sprite in the image.
-    @type  ysize: C{int}
-
-    @param layout: Layout of sprites in the images as a 2D grid (by name).
-                   If not specified it is L{std_layout}
-    @type  layout: C{list} of C{list} of C{str}
-
-    @return: Mapping of sprite names to sprite objects.
-    """
-    if layout is None: layout = std_layout
-    images = spritegrid.split_spritegrid(fname, xoffset, yoffset, xsize, ysize, layout)
-    return images
-
 
 def write_foundationRCD(images, tile_width, tile_height, found_type, verbose, dest_fname):
     """

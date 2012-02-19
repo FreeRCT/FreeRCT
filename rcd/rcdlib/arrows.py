@@ -7,9 +7,6 @@
 #
 from rcdlib import spritegrid, blocks
 
-# Sprites as laid out in the source image.
-std_layout = [['ne', 'se', 'sw', 'nw']]
-
 class Arrows(blocks.GeneralDataBlock):
     def __init__(self, values):
         fields = [('width', 'uint16'),
@@ -22,35 +19,6 @@ class Arrows(blocks.GeneralDataBlock):
 
 # Sprites in the order of the RCD file.
 sprites = ['ne', 'se', 'sw', 'nw']
-
-def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
-    """
-    Split the path tiles sprite into pieces.
-
-    @param fname: Image file name.
-    @type  fname: C{str}
-
-    @param xoffset: Horizontal offset of the sprite for the top-left pixel.
-    @type  xoffset: C{int}
-
-    @param yoffset: Vertical offset of the sprite for the top-left pixel.
-    @type  yoffset: C{int}
-
-    @param xsize: Horizontal size of a sprite in the image.
-    @type  xsize: C{int}
-
-    @param ysize: Vertical size of a sprite in the image.
-    @type  ysize: C{int}
-
-    @param layout: Layout of sprites in the images as a 2D grid (by name).
-                   If not specified it is L{std_layout}
-    @type  layout: C{list} of C{list} of C{str}
-
-    @return: Mapping of sprite names to sprite objects.
-    """
-    if layout is None: layout = std_layout
-    images = spritegrid.split_spritegrid(fname, xoffset, yoffset, xsize, ysize, layout)
-    return images
 
 def write_arrowRCD(images, tile_width, verbose, dest_fname):
     """

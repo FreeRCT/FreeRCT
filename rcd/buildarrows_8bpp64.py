@@ -7,7 +7,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import arrows
+from rcdlib import spritegrid, arrows
 import argparse
 
 parser = argparse.ArgumentParser(description='Process a build arrows image.')
@@ -27,7 +27,9 @@ if args.output is None:
 else:
     out_name = args.output
 
+# Sprites as laid out in the source image.
+std_layout = [['ne', 'se', 'sw', 'nw']]
 
-images = arrows.split_image(args.image_file, -32, -33, 64, 64)
+images = spritegrid.split_spritegrid(args.image_file, -32, -33, 64, 64, std_layout)
 arrows.write_arrowRCD(images, 64, args.verbose, out_name)
 

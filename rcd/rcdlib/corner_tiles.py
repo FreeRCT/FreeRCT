@@ -5,61 +5,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import spritegrid, blocks
-
-std_layout = [['n#',   'e#',   's#',   'w#'   ],
-              ['n#n',  'e#e',  's#s',  'w#w'  ],
-              ['n#ne', 'e#es', 's#sw', 'w#nw' ],
-              ['n#ns', 'e#ew', 's#ns', 'w#ew' ],
-              ['n#nes','e#esw','s#nsw','w#new'],
-              ['n#N',  'e#E',  's#S',  'w#W'],
-              ['e#',   's#',   'w#',   'n#'   ],
-              ['e#n',  's#e',  'w#s',  'n#w'  ],
-              ['e#ne', 's#es', 'w#sw', 'n#nw' ],
-              ['e#ns', 's#ew', 'w#ns', 'n#ew' ],
-              ['e#nes','s#esw','w#nsw','n#new'],
-              ['e#N',  's#E',  'w#S',  'n#W'],
-              ['s#',   'w#',   'n#',   'e#'   ],
-              ['s#n',  'w#e',  'n#s',  'e#w'  ],
-              ['s#ne', 'w#es', 'n#sw', 'e#nw' ],
-              ['s#ns', 'w#ew', 'n#ns', 'e#ew' ],
-              ['s#nes','w#esw','n#nsw','e#new'],
-              ['s#N',  'w#E',  'n#S',  'e#W'],
-              ['w#',   'n#',   'e#',   's#'   ],
-              ['w#n',  'n#e',  'e#s',  's#w'  ],
-              ['w#ne', 'n#es', 'e#sw', 's#nw' ],
-              ['w#ns', 'n#ew', 'e#ns', 's#ew' ],
-              ['w#nes','n#esw','e#nsw','s#new'],
-              ['w#N',  'n#E',  'e#S',  's#W']]
-
-def split_image(fname, xoffset, yoffset, xsize, ysize, layout=None):
-    """
-    Split the corner tiles sprite into pieces.
-
-    @param fname: Image file name.
-    @type  fname: C{str}
-
-    @param xoffset: Horizontal offset of the sprite for the top-left pixel.
-    @type  xoffset: C{int}
-
-    @param yoffset: Vertical offset of the sprite for the top-left pixel.
-    @type  yoffset: C{int}
-
-    @param xsize: Horizontal size of a sprite in the image.
-    @type  xsize: C{int}
-
-    @param ysize: Vertical size of a sprite in the image.
-    @type  ysize: C{int}
-
-    @param layout: Layout of sprites in the images as a 2D grid (by name).
-                   If not specified it is L{std_layout}
-    @type  layout: C{list} of C{list} of C{str}
-
-    @return: Mapping of sprite names to sprite objects.
-    """
-    if layout is None: layout = std_layout
-    images = spritegrid.split_spritegrid(fname, xoffset, yoffset, xsize, ysize, layout)
-    return images
+from rcdlib import blocks
 
 
 def write_cornerselectRCD(images, tile_width, tile_height, verbose, dest_fname):
