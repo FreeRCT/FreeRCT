@@ -46,17 +46,7 @@ def write_groundRCD(images, tile_width, tile_height, ground_type, verbose, dest_
     """
     file_data = blocks.RCD()
 
-    spr = {} # name -> sprite block number
-    for name, img_obj in images.iteritems():
-        if verbose: print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
-                % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
-        pxl_blk = img_obj.make_8PXL(skip_crop = True)
-        if pxl_blk is not None:
-            pix_blknum = file_data.add_block(pxl_blk)
-            spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
-        else:
-            spr_blk = None
-        spr[name] = file_data.add_block(spr_blk)
+    spr = spritegrid.save_sprites(file_data, images, verbose)
 
     values = dict(('n#' + d[0], d[1]) for d in spr.iteritems())
     values['ground_type'] = ground_type
