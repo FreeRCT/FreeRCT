@@ -5,7 +5,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import blocks
+from rcdlib import spritegrid, blocks
 
 CONCRETE = 16
 
@@ -33,18 +33,7 @@ def write_pathRCD(images, path_type, tile_width, tile_height, verbose, dest_fnam
     """
     file_data = blocks.RCD()
 
-    spr = {} # name -> sprite block number
-    for name, img_obj in images.iteritems():
-        if verbose:
-            print "%4s: width=%d, height=%d, xoff=%d, yoff=%d" \
-                % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
-        pxl_blk = img_obj.make_8PXL(skip_crop = True)
-        if pxl_blk is not None:
-            pix_blknum = file_data.add_block(pxl_blk)
-            spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
-        else:
-            spr_blk = None
-        spr[name] = file_data.add_block(spr_blk)
+    spr = spritegrid.save_sprites(file_data, images, verbose)
     spr['path_type'] = path_type
     spr['tile_width'] = tile_width
     spr['z_height'] = tile_height
