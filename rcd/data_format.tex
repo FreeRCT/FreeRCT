@@ -145,7 +145,7 @@ A set of ground tiles that form a smooth surface.
    4 &  4 & Version number of the block `3'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
   12 &  2 & (added in version 2) Type of ground. \\
-  14 &  2 & Width of a tile of the surface. \\
+  14 &  2 & Zoom-width of a tile of the surface. \\
   16 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
   18 & 72 & Tile surface sprite sub-block for north viewing direction. \\
   90 &  0 & (removed in version 3) Tile surface sprite sub-block for east viewing direction. \\
@@ -183,7 +183,7 @@ no type.
    0 &  4 & Magic string `TSEL' \\
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
-  12 &  2 & Width of a tile of the surface. \\
+  12 &  2 & Zoom-width of a tile of the surface. \\
   14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
   16 & 72 & Tile surface sprite sub-block. \\ \hline
   88 & \multicolumn{2}{l|}{Total length} \\ \hline
@@ -197,7 +197,7 @@ no type.
    0 &  4 & Magic string `TARE' \\
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
-  12 &  2 & Width of a tile of the surface. \\
+  12 &  2 & zoom-width of a tile of the surface. \\
   14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
   16 & 72 & Tile surface sprite sub-block. \\ \hline
   88 & \multicolumn{2}{l|}{Total length} \\ \hline
@@ -212,7 +212,7 @@ no type.
    0 &  4 & Magic string `PARE' \\
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
-  12 &  2 & Width of a tile of the surface. \\
+  12 &  2 & Zoom-width of a tile of the surface. \\
   14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
   16 & 72 & Tile surface sprite sub-block. \\ \hline
   88 & \multicolumn{2}{l|}{Total length} \\ \hline
@@ -227,7 +227,7 @@ no type.
    0 &  4 & Magic string `TCOR' \\
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
-  12 &  2 & Width of a tile of the surface. \\
+  12 &  2 & Zoom-width of a tile of the surface. \\
   14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
   16 & 72 & Tile surface sprite sub-block for selected corner pointing north. \\
   88 & 72 & Tile surface sprite sub-block for selected corner pointing east. \\
@@ -247,7 +247,7 @@ One tile objects.
    0 &  4 & Magic string `SHOP' \\
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
-  12 &  2 & Width of a tile of the surface. \\
+  12 &  2 & Zoom-width of a tile of the surface. \\
   14 &  2 & Height of the shop in voxels. \\
   16 &  4 & View to the north where the entrance is at the NE edge. \\
   20 &  4 & View to the north where the entrance is at the SE edge. \\
@@ -265,7 +265,7 @@ One tile objects.
    0 &  4 & Magic string `BDIR' \\
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
-  12 &  2 & Width of a tile of the surface. \\
+  12 &  2 & Zoom-width of a tile of the surface. \\
   14 &  4 & Arrow pointing to NE edge. \\
   18 &  4 & Arrow pointing to SE edge. \\
   22 &  4 & Arrow pointing to SW edge. \\
@@ -288,7 +288,7 @@ Vertical foundations to close gaps in the smooth surface.
   4 &  4 & Version number of the block `1'. \\
   8 &  4 & Length of the block excluding magic string, version, and length. \\
  12 &  2 & Type of foundation. \\
- 14 &  2 & Width of a tile. \\
+ 14 &  2 & Zoom-width of a tile. \\
  16 &  2 & Change in Z height of the tiles. \\
  18 &  4 & Vertical south-east foundation, east up, south down. \\
  22 &  4 & Vertical south-east foundation, east down, south up. \\
@@ -339,7 +339,7 @@ Known types of path surface:
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
   12 &  2 & Type of path surface. \\
-  14 &  2 & Width of a tile. \\
+  14 &  2 & Zoom-width of a tile. \\
   16 &  2 & Change in Z height of the tiles. \\
   18 &  4 & - (empty) \\
   22 &  4 & NE \\
@@ -411,7 +411,7 @@ Known types of path surface:
    0 &  4 & Magic string `PLAT' \\
    4 &  4 & Version number of the block `1'. \\
    8 &  4 & Length of the block excluding magic string, version, and length. \\
-  12 &  2 & Width of a tile of the surface. \\
+  12 &  2 & Zoom-width of a tile of the surface. \\
   14 &  2 & Change in Z height (in pixels) when going up or down a tile level. \\
   16 &  2 & Platform type. \\
   18 &  4 & Flat platform for north and south view. \\

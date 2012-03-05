@@ -14,7 +14,10 @@ PYTHON=python
 
 .PHONY: build clean doc
 
-build: $(RCDFILES)
+#build: $(RCDFILES)
+build: gui.rcd
+	$(PYTHON) convert.py -d structdef.xml -g freerct.xml
+
 
 clean:
 	for i in $(RCDFILES);\
@@ -28,37 +31,6 @@ doc:
 	pdflatex data_format.tex
 	pdflatex data_format.tex
 	pdflatex data_format.tex
-
-borderhighlight_8bpp64.rcd: borderhighlight_8bpp64.py ../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png
-	$(PYTHON) borderhighlight_8bpp64.py --output borderhighlight_8bpp64.rcd \
-		../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png
-
-foundation_8bpp64.rcd: foundation_8bpp64.py ../sprites_src/terrain/foundation/template8bpp64_masked.png
-	$(PYTHON) foundation_8bpp64.py --output foundation_8bpp64.rcd \
-		../sprites_src/terrain/foundation/template8bpp64_masked.png
-
-groundtile_8bpp64.rcd: groundtile_8bpp64.py ../sprites_src/terrain/groundtiles/template8bpp64_masked.png ../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png
-	$(PYTHON) groundtile_8bpp64.py \
-		--output groundtile_8bpp64.rcd \
-		--test ../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png \
-		../sprites_src/terrain/groundtiles/template8bpp64_masked.png
-
-cursor_groundtile_8bpp64.rcd: cursor_groundtile_8bpp64.py ../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png
-	$(PYTHON) cursor_groundtile_8bpp64.py \
-		--output cursor_groundtile_8bpp64.rcd \
-		../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png
-
-cornerhighlight_8bpp64.rcd: cornerhighlight_8bpp64.py ../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png
-	$(PYTHON) cornerhighlight_8bpp64.py --output cornerhighlight_8bpp64.rcd \
-		../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png
-
-path_8bpp64.rcd: path_8bpp64.py ../sprites_src/paths/path/template8bpp64.png
-	$(PYTHON) path_8bpp64.py --output path_8bpp64.rcd \
-		../sprites_src/paths/path/template8bpp64.png
-
-buildarrows_8bpp64.rcd: buildarrows_8bpp64.py ../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png
-	$(PYTHON) buildarrows_8bpp64.py --output buildarrows_8bpp64.rcd \
-		../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png
 
 gui.rcd: guis.py ../sprites_src/gui/GUIEles.png
 	$(PYTHON) guis.py

@@ -10,6 +10,37 @@
 from PIL import Image
 from rcdlib import gui, blocks
 
+normalized_keys = {'left'          : 'leftup',
+                   'left-pressed'  : 'leftup-pressed',
+                   'right'         : 'rightdown',
+                   'right-pressed' : 'rightdown-pressed',
+                   'left-under'    : 'leftup-under',
+                   'middle-under'  : 'middle-under',
+                   'right-under'   : 'rightdown-under',
+                   'left-select'   : 'leftup-select',
+                   'middle-select' : 'middle-select',
+                   'right-select'  : 'rightdown-select',
+                   'down'          : 'rightdown',
+                   'down-pressed'  : 'rightdown-pressed',
+                   'up'            : 'leftup',
+                   'up-pressed'    : 'leftup-pressed',
+                   'up-under'      : 'leftup-under',
+                   'middle-under'  : 'middle-under',
+                   'down-under'    : 'rightdown-under',
+                   'up-select'     : 'leftup-select',
+                   'middle-select' : 'middle-select',
+                   'down-select'   : 'rightdown-select', }
+
+def normalize_scroll(bar):
+    """
+    Normalize the name of the scrollbar data.
+    """
+    norm_bar = {}
+    for k, v in bar.iteritems():
+        norm_bar[normalized_keys[k]] = v
+    return norm_bar
+
+
 checkbox = {'empty'         : ( 0, 0,  15, 15),
             'pressed'       : (17, 0,  32, 15),
             'filled'        : (34, 0,  49, 15), # rtl ?
@@ -229,6 +260,7 @@ file_data = blocks.RCD()
 
 gui.add_checkbox(im, file_data, gui.CHECKBOX, checkbox)
 gui.add_checkbox(im, file_data, gui.RADIO_BUTTON, radio)
+
 gui.add_decoration(im, file_data, gui.TITLEBAR, titlebar)
 gui.add_decoration(im, file_data, gui.BUTTON, button_up) # First use of button_up
 gui.add_decoration(im, file_data, gui.PRESSED_BUTTON, button_down)
@@ -237,9 +269,14 @@ gui.add_decoration(im, file_data, gui.PANEL, button_up) # Second use of button_u
 gui.add_decoration(im, file_data, gui.INSET_FRAME, inset_frame)
 gui.add_decoration(im, file_data, gui.ROUNDED_BUTTON, rounded_button_up)
 gui.add_decoration(im, file_data, gui.PRESSED_ROUNDED_BUTTON, rounded_button_down)
-gui.add_scrollbar(im, file_data, gui.HOR_NORMAL_SCROLLBAR, hor_scrollbar)
-gui.add_scrollbar(im, file_data, gui.HOR_SHADED_SCROLLBAR, shaded_hor_scrollbar)
-gui.add_scrollbar(im, file_data, gui.VERT_NORMAL_SCROLLBAR, ver_scrollbar)
-gui.add_scrollbar(im, file_data, gui.VERT_SHADED_SCROLLBAR, shaded_ver_scrollbar)
+
+bar = normalize_scroll(hor_scrollbar)
+gui.add_scrollbar(im, file_data, gui.HOR_NORMAL_SCROLLBAR, bar)
+bar = normalize_scroll(shaded_hor_scrollbar)
+gui.add_scrollbar(im, file_data, gui.HOR_SHADED_SCROLLBAR, bar)
+bar = normalize_scroll(ver_scrollbar)
+gui.add_scrollbar(im, file_data, gui.VERT_NORMAL_SCROLLBAR, bar)
+bar = normalize_scroll(shaded_ver_scrollbar)
+gui.add_scrollbar(im, file_data, gui.VERT_SHADED_SCROLLBAR, bar)
 
 file_data.to_file(dest_fname)

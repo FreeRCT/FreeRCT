@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rcdfiles>
+	<!-- Build direction arrows -->
+	<file target="buildarrows_8bpp64.rcd" magic="RCDF" version="1">
+		<gameblock magic="BDIR" version="1">
+			<field name="width" value="64" />  <!-- Zoom-width -->
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png"
+			       names="ne,se,sw,nw"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
+	</file>
+
+	<!-- Border highlight sprites. -->
+	<file target="borderhighlight_8bpp64.rcd" magic="RCDF" version="1">
+		<gameblock magic="TSEL" version="1">
+			<field name="tile_width" value="64"/>
+			<field name="z_height"   value="16"/>
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png"
+			       names="n#,   n#,   n#,   n#
+			             |n#n,  n#e,  n#s,  n#w
+			             |n#ne, n#es, n#sw, n#nw
+			             |n#ns, n#ew, n#ns, n#ew
+			             |n#nes,n#esw,n#nsw,n#new
+			             |n#N,  n#E,  n#S,  n#W"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
+	</file>
+
+	<!-- Tile corner sprites. -->
+	<file target="cornerhighlight_8bpp64.rcd" magic="RCDF" version="1">
+		<gameblock magic="TCOR" version="1">
+			<field name="tile_width"  value="64"/>
+			<field name="tile_height" value="16"/>
+
+			<image name="e#" x-base="64" y-base="0"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#N" x-base="0" y-base="704"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#E" x-base="64" y-base="320"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#S" x-base="128" y-base="1472"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#W" x-base="192" y-base="1088"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#esw" x-base="64" y-base="256"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#es" x-base="64" y-base="128"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#new" x-base="192" y-base="1024"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#ew" x-base="192" y-base="960"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#e" x-base="64" y-base="64"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#ne" x-base="0" y-base="512"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#nes" x-base="0" y-base="640"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#ns" x-base="0" y-base="576"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#nsw" x-base="128" y-base="1408"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#nw" x-base="192" y-base="896"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#n" x-base="0" y-base="448"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#sw" x-base="128" y-base="1216"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#s" x-base="128" y-base="1280"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="e#w" x-base="192" y-base="832"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+
+			<image name="n#esw" x-base="64" y-base="1408"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#es" x-base="64" y-base="1216"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#new" x-base="192" y-base="640"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#ew" x-base="192" y-base="576"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#e" x-base="64" y-base="1280"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#E" x-base="64" y-base="1472"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#nes" x-base="0" y-base="256"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#ne" x-base="0" y-base="128"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#ns" x-base="0" y-base="192"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#nw" x-base="192" y-base="512"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#N" x-base="0" y-base="320"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#n" x-base="0" y-base="64"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#nsw" x-base="128" y-base="1024"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#sw" x-base="128" y-base="896"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#S" x-base="128" y-base="1088"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#s" x-base="128" y-base="832"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#w" x-base="192" y-base="448"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#W" x-base="192" y-base="704"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="n#" x-base="0" y-base="0"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+
+			<image name="s#esw" x-base="64" y-base="640"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#es" x-base="64" y-base="512"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#ew" x-base="64" y-base="576"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#e" x-base="64" y-base="448"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#E" x-base="64" y-base="704"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#nes" x-base="0" y-base="1024"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#new" x-base="192" y-base="1408"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#ne" x-base="0" y-base="896"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#ns" x-base="0" y-base="960"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#N" x-base="0" y-base="1088"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#n" x-base="0" y-base="832"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#nsw" x-base="128" y-base="256"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#sw" x-base="128" y-base="128"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#S" x-base="128" y-base="320"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#s" x-base="128" y-base="64"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#nw" x-base="192" y-base="1216"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#w" x-base="192" y-base="1280"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#W" x-base="192" y-base="1472"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="s#" x-base="128" y-base="0"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+
+			<image name="w#" x-base="192" y-base="0"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#N" x-base="0" y-base="1472"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#E" x-base="64" y-base="1088"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#S" x-base="128" y-base="704"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#W" x-base="192" y-base="320"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#esw" x-base="64" y-base="1024"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#es" x-base="64" y-base="896"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#new" x-base="192" y-base="256"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#ew" x-base="192" y-base="192"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#e" x-base="64" y-base="832"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#ne" x-base="0" y-base="1216"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#nes" x-base="0" y-base="1408"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#n" x-base="0" y-base="1280"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#ns" x-base="128" y-base="576"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#nsw" x-base="128" y-base="640"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#sw" x-base="128" y-base="512"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#s" x-base="128" y-base="448"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#nw" x-base="192" y-base="128"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+			<image name="w#w" x-base="192" y-base="64"
+					fname="../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png"
+					width="64" height="64" x-offset="-32" y-offset="-33"/>
+		</gameblock>
+	</file>
+
+	<!-- Cursor position test sprites. -->
+	<file target="cursor_groundtile_8bpp64.rcd" magic="RCDF" version="1">
+		<gameblock magic="SURF" version="3">
+			<field name="tile_width"  value="64"/>
+			<field name="z_height"    value="16"/>
+			<field name="ground_type" value="48"/> <!-- CURSOR_TEST type -->
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png"
+			       names="n#,   n#,   n#,   n#
+			             |n#n,  n#e,  n#s,  n#w
+			             |n#ne, n#es, n#sw, n#nw
+			             |n#ns, n#ew, n#ns, n#ew
+			             |n#nes,n#esw,n#nsw,n#new
+			             |n#N,  n#E,  n#S,  n#W"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
+	</file>
+
+	<!-- Ground surface sprites. -->
+	<file target="groundtile_8bpp64.rcd" magic="RCDF" version="1">
+		<gameblock magic="SURF" version="3">
+			<field name="tile_width"  value="64"/>
+			<field name="z_height"    value="16"/>
+			<field name="ground_type" value="16"/> <!-- GRASS type -->
+			<sheet x-base="0" y-base="384" x-step="64" y-step="64"
+			       fname="../sprites_src/terrain/groundtiles/template8bpp64_masked.png"
+			       names="n#,   n#,   n#,   n#
+			             |n#n,  n#e,  n#s,  n#w
+			             |n#ne, n#es, n#sw, n#nw
+			             |n#ns, n#ew, n#ns, n#ew
+			             |n#nes,n#esw,n#nsw,n#new
+			             |n#N,  n#E,  n#S,  n#W"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
+	</file>
+
+	<file target="foundation_8bpp64.rcd" magic="RCDF" version="1">
+		<gameblock magic="FUND" version="1">
+			<field name="found_type" value="16"/> <!-- GROUND type -->
+			<field name="tile_width"  value="64"/>
+			<field name="tile_height" value="16"/>
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/terrain/foundation/template8bpp64_masked.png"
+			       names="se_se, sw_sw
+			             |se_e,  sw_w
+			             |se_s,  sw_s"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
+	</file>
+
+	<file target="path_8bpp64.rcd" magic="RCDF" version="1">
+		<gameblock magic="PATH" version="1">
+			<field name="path_type"  value="16"/> <!-- CONCRETE type -->
+			<field name="tile_width" value="64"/>
+			<field name="z_height"   value="16"/>
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/paths/path/template8bpp64.png"
+			       names="empty,               empty,               empty,               empty
+			             |ne,                  se,                  sw,                  nw
+			             |ne_se,               se_sw,               nw_sw,               ne_nw
+			             |ne_sw,               nw_se,               ne_sw,               nw_se
+			             |ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
+			             |ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw
+			             |ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
+			             |ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
+			             |ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
+			             |ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
+			             |ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
+			             |ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
+			             |ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w
+			             |ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
+			             |ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw
+			             |ne_nw_se_sw_n_e_s_w, ne_nw_se_sw_n_e_s_w, ne_nw_se_sw_n_e_s_w, ne_nw_se_sw_n_e_s_w
+			             |ramp_sw,             ramp_nw,             ramp_ne,             ramp_se"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
+	</file>
+</rcdfiles>

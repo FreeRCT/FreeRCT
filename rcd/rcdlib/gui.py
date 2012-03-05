@@ -13,46 +13,10 @@ from rcdlib import spritegrid, blocks
 CHECKBOX=96
 RADIO_BUTTON=112
 
-class Checkbox(blocks.GeneralDataBlock):
-    def __init__(self, values):
-        fields = [('widget_num', 'uint16'),
-                  ('empty', 'block'),
-                  ('filled', 'block'),
-                  ('pressed', 'block'),
-                  ('pressed-filled', 'block'),
-                  ('shaded', 'block'),
-                  ('shaded-filled', 'block')]
-        blocks.GeneralDataBlock.__init__(self, "GCHK", 1, fields, values)
-
 #: Name of the 9 sprites decorating a rectangle.
 decorating_sprites = ['top-left', 'top-middle', 'top-right',
                       'left', 'middle', 'right',
                       'bottom-left', 'bottom-middle', 'bottom-right']
-
-class RectDecoration(blocks.GeneralDataBlock):
-    def __init__(self, values):
-        fields = [('widget_num', 'uint16'),
-                  ('border-width-top', 'uint8'),
-                  ('border-width-left', 'uint8'),
-                  ('border-width-right', 'uint8'),
-                  ('border-width-bottom', 'uint8'),
-                  ('min-width-rect', 'uint8'),
-                  ('min-height-rect', 'uint8'),
-                  ('hor-stepsize', 'uint8'),
-                  ('vert-stepsize', 'uint8')] \
-                  + [(name, 'block') for name in decorating_sprites]
-        blocks.GeneralDataBlock.__init__(self, "GBOR", 1, fields, values)
-
-class Scrollbar(blocks.GeneralDataBlock):
-    def __init__(self, names, values):
-        fields = [('minimal-length-scrollbar', 'uint8'),
-                  ('stepsize-scrollbar', 'uint8'),
-                  ('minimal-length-select', 'uint8'),
-                  ('stepsize-select', 'uint8'),
-                  ('widget_num', 'uint16')] + \
-                 [(name, 'block') for name in names]
-        blocks.GeneralDataBlock.__init__(self, "GSCL", 1, fields, values)
-
 
 def add_checkbox(im, rcd, wid_type, coords):
     """
@@ -89,7 +53,8 @@ def add_checkbox(im, rcd, wid_type, coords):
         imgs[name] = rcd.add_block(spr_blk)
 
     imgs['widget_num'] = wid_type
-    chk = Checkbox(imgs)
+    chk = blocks.block_factory.get_block('GCHK', 1)
+    chk.set_values(imgs)
     rcd.add_block(chk)
 
 # x1/x2 are both part of the sprite, so width is 1 longer
@@ -208,7 +173,8 @@ def add_decoration(im, rcd, widget_num, imgdata):
     imgs['hor-stepsize'] = _hor_stepsize(imgdata)
     imgs['vert-stepsize'] = _vert_stepsize(imgdata)
 
-    deco = RectDecoration(imgs)
+    deco = blocks.block_factory.get_block('GBOR', 1)
+    deco.set_values(imgs)
     rcd.add_block(deco)
 
 HOR_NORMAL_SCROLLBAR = 160
@@ -233,21 +199,16 @@ def add_scrollbar(im, rcd, widget_num, imgdata):
                     {top/left/right/bottom}-border width setting.
     @type  imgdata: C{dict} of C{str} to various.
     """
-    if widget_num == HOR_SHADED_SCROLLBAR or widget_num == HOR_NORMAL_SCROLLBAR:
-        left, right = 'left', 'right'
-    else:
-        left, right = 'up', 'down'
-
-    names = [left, right,
-             left+'-pressed', right+'-pressed',
-             left+'-under', 'middle-under', right+'-under',
-             left+'-select', 'middle-select', right+'-select',
-             left+'-pressed-select', 'middle-pressed-select', right+'-pressed-select']
+    names = ['leftup', 'rightdown',
+             'leftup-pressed', 'rightdown-pressed',
+             'leftup-under', 'middle-under', 'rightdown-under',
+             'leftup-select', 'middle-select', 'rightdown-select',
+             'leftup-pressed-select', 'middle-pressed-select', 'rightdown-pressed-select']
 
     # No pressed variants available yet, re-use the unpressed ones.
-    imgdata[left+'-pressed-select'] = imgdata[left+'-select']
+    imgdata['leftup-pressed-select'] = imgdata['leftup-select']
     imgdata['middle-pressed-select'] = imgdata['middle-select']
-    imgdata[right+'-pressed-select'] = imgdata[right+'-select']
+    imgdata['rightdown-pressed-select'] = imgdata['rightdown-select']
 
 
 
@@ -274,8 +235,8 @@ def add_scrollbar(im, rcd, widget_num, imgdata):
 
         imgs[name] = rcd.add_block(spr_blk)
 
-    scroll_len = [imos[left], imos[right], imos[left+'-under'], imos[right+'-under'], imos['middle-under']]
-    select_len = [imos[left+'-select'], imos['middle-select'], imos[right+'-select']]
+    scroll_len = [imos['leftup'], imos['rightdown'], imos['leftup-under'], imos['rightdown-under'], imos['middle-under']]
+    select_len = [imos['leftup-select'], imos['middle-select'], imos['rightdown-select']]
     scroll_step = imos['middle-under']
     select_step = imos['middle-select']
 
@@ -291,5 +252,6 @@ def add_scrollbar(im, rcd, widget_num, imgdata):
         imgs['stepsize-scrollbar'] = scroll_step.ysize
         imgs['stepsize-select'] = select_step.ysize
 
-    scroll = Scrollbar(names, imgs)
+    scroll = blocks.block_factory.get_block('GSCL', 1)
+    scroll.set_values(imgs)
     rcd.add_block(scroll)

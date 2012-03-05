@@ -8,6 +8,26 @@
 from PIL import Image
 from rcdlib import blocks
 
+class ImageLoader(object):
+    """
+    Manager class for loaded images.
+    """
+    def __init__(self):
+        self.last_fname = None
+        self.last_img = None
+
+    def get_img(self, fname):
+        if fname == self.last_fname:
+            return self.last_img
+
+        self.last_fname = fname
+        self.last_img = Image.open(fname)
+        assert self.last_img.mode == 'P' # 'P' means 8bpp indexed
+        return self.last_img
+
+image_loader = ImageLoader()
+
+
 class ImageObject(object):
     """
     Class representing an image of a sprite.
