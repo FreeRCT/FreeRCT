@@ -89,21 +89,29 @@ uint16 Date::GetMonthName(int month) const
 
 /**
  * Update the day.
- * It does not care about leap years.
+ * @return Set of bits what parts of the date have changed.
+ * @note It does not care about leap years.
+ * @see DateTickChanges
  */
-void DateOnTick()
+uint8 DateOnTick()
 {
+	uint8 result = 0;
+
 	_date.frac++;
 	if (_date.frac >= TICK_COUNT_PER_DAY) {
 		_date.frac = 0;
 		_date.day++;
+		result |= DTC_DAY;
 		if (_date.day > _days_per_month[_date.month - 1]) {
 			_date.day = 1;
 			_date.month++;
+			result |= DTC_MONTH;
 			if (_date.month > 12) {
 				_date.month = 1;
 				_date.year++;
+				result |= DTC_YEAR;
 			}
 		}
 	}
+	return result;
 }
