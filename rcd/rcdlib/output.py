@@ -64,7 +64,7 @@ class Output(object):
         """
         raise NotImplementedError("Implement me in %r" % type(self))
 
-# wordt niet gebruikt ?
+
 class MemoryOutput(Output):
     """
     Output class for storing data in memory.
@@ -114,9 +114,3 @@ class FileOutput(Output):
     def store_magic(self, mag):
         self.magiccount = self.magiccount + 1
         self.store_text(mag)
-        
-    def tell(self):
-        """
-        return the counted magic blocks, used for reference
-        """
-        return self.magiccount
