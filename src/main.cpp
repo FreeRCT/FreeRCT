@@ -18,6 +18,7 @@
 #include "config_reader.h"
 #include "language.h"
 #include "dates.h"
+#include "people.h"
 
 /**
  * Error handling for fatal non-user errors.
@@ -103,7 +104,9 @@ int main(void)
 	while (!finished) {
 		/* For every frame do... */
 		_manager.Tick();
-		DateOnTick();
+		uint8 changes = DateOnTick();
+		_guests.OnAnimate(30); // Fixed rate animation.
+		if ((changes & DTC_DAY) != 0) _guests.OnNewDay();
 
 		bool next_frame = false;
 		while (!next_frame) {
