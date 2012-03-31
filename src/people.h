@@ -58,12 +58,12 @@ template <typename PersonType, int SIZE> bool operator !=(const BlockIterator<Pe
  */
 template <typename PersonType, int SIZE>
 class BlockIterator {
-	friend bool operator!=<>(const BlockIterator &iter1, const BlockIterator &iter2);
+	friend bool operator!=<>(const BlockIterator<PersonType, SIZE> &iter1, const BlockIterator<PersonType, SIZE> &iter2);
 public:
 	BlockIterator();
 	BlockIterator(Block<PersonType, SIZE> *block, int index);
-	BlockIterator(const BlockIterator &iter);
-	BlockIterator &operator=(const BlockIterator &iter);
+	BlockIterator(const BlockIterator<PersonType, SIZE> &iter);
+	BlockIterator &operator=(const BlockIterator<PersonType, SIZE> &iter);
 	BlockIterator operator++(int);
 	PersonType *operator*();
 
@@ -279,7 +279,7 @@ public:
 /**
  * All our guests.
  * @todo Allow to have several blocks of guests.
- * @todo @OnNewDay is not good, we should do a few guests every tick instead of all at the same time.
+ * @todo #Guests::OnNewDay is not good, we should do a few guests every tick instead of all at the same time.
  */
 class Guests {
 public:
