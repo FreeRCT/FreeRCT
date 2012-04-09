@@ -90,7 +90,7 @@ def convert(def_fname, data_fname):
                     assert data.field_def.type in ('int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32')
                     blockdata[data.name] = int(data.value)
                 else:
-                    assert data.field_def.type == 'block'
+                    assert data.field_def.type == 'sprite'
                     im = spritegrid.image_loader.get_img(data.fname)
                     im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset, data.x_base, data.y_base, data.width, data.height)
                     pxl_blk = im_obj.make_8PXL()

@@ -122,7 +122,7 @@ class GeneralDataBlock(Block):
                 out.uint16(value)
             elif fldtype == 'uint32':
                 out.uint32(value)
-            elif fldtype == 'block':
+            elif fldtype in ('sprite', 'block'):
                 if value is None:
                     value = 0
                 out.uint32(value)
@@ -135,7 +135,7 @@ class GeneralDataBlock(Block):
         """
         Compute size of the block, and return it to the caller.
         """
-        sizes = {'int8':1, 'uint8':1, 'int16':2, 'uint16':2, 'uint32':4, 'block':4}
+        sizes = {'int8':1, 'uint8':1, 'int16':2, 'uint16':2, 'uint32':4, 'sprite':4, 'block':4}
         total = 0
         for fldname, fldtype in self.fields:
             size = sizes.get(fldtype)

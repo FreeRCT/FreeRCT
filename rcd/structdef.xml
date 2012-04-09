@@ -3,22 +3,22 @@
 <structures magic="RCDF" version="1">
 	<block magic="BDIR" minversion="1" maxversion="1">
 		<field name="width" type="uint16">Zoom-width of a tile of the surface</field>
-		<field name="ne"    type="block">North-east direction</field>
-		<field name="se"    type="block">South-east direction</field>
-		<field name="sw"    type="block">South-west direction</field>
-		<field name="nw"    type="block">North-west direction</field>
+		<field name="ne"    type="sprite">North-east direction</field>
+		<field name="se"    type="sprite">South-east direction</field>
+		<field name="sw"    type="sprite">South-west direction</field>
+		<field name="nw"    type="sprite">North-west direction</field>
 	</block>
 
 	<block magic="FUND" minversion="1" maxversion="1">
 		<field name="found_type"  type="uint16">Type of foundation</field>
 		<field name="tile_width"  type="uint16">Zoom-width of a tile</field>
 		<field name="tile_height" type="uint16">Change in Z height of the tiles</field>
-		<field name="se_e"        type="block">Vertical south-east foundation, east up, south down</field>
-		<field name="se_s"        type="block">Vertical south-east foundation, east down, south up</field>
-		<field name="se_se"       type="block">Vertical south-east foundation, east up, south up</field>
-		<field name="sw_s"        type="block">Vertical south-west foundation, south up, west down</field>
-		<field name="sw_w"        type="block">Vertical south-west foundation, south down, west up</field>
-		<field name="sw_sw"       type="block">Vertical south-west foundation, south up, west up</field>
+		<field name="se_e"        type="sprite">Vertical south-east foundation, east up, south down</field>
+		<field name="se_s"        type="sprite">Vertical south-east foundation, east down, south up</field>
+		<field name="se_se"       type="sprite">Vertical south-east foundation, east up, south up</field>
+		<field name="sw_s"        type="sprite">Vertical south-west foundation, south up, west down</field>
+		<field name="sw_w"        type="sprite">Vertical south-west foundation, south down, west up</field>
+		<field name="sw_sw"       type="sprite">Vertical south-west foundation, south up, west up</field>
 	</block>
 
 	<block magic="GBOR" minversion="1" maxversion="1">
@@ -31,25 +31,25 @@
 		<field name="min-height-rect"     type="uint8"/>
 		<field name="hor-stepsize"        type="uint8"/>
 		<field name="vert-stepsize"       type="uint8"/>
-		<field name="top-left"            type="block"/>
-		<field name="top-middle"          type="block"/>
-		<field name="top-right"           type="block"/>
-		<field name="left"                type="block"/>
-		<field name="middle"              type="block"/>
-		<field name="right"               type="block"/>
-		<field name="bottom-left"         type="block"/>
-		<field name="bottom-middle"       type="block"/>
-		<field name="bottom-right"        type="block"/>
+		<field name="top-left"            type="sprite"/>
+		<field name="top-middle"          type="sprite"/>
+		<field name="top-right"           type="sprite"/>
+		<field name="left"                type="sprite"/>
+		<field name="middle"              type="sprite"/>
+		<field name="right"               type="sprite"/>
+		<field name="bottom-left"         type="sprite"/>
+		<field name="bottom-middle"       type="sprite"/>
+		<field name="bottom-right"        type="sprite"/>
 	</block>
 
 	<block magic="GCHK" minversion="1" maxversion="1">
 		<field name="widget_num"     type="uint16"/>
-		<field name="empty"          type="block"/>
-		<field name="filled"         type="block"/>
-		<field name="pressed"        type="block"/>
-		<field name="pressed-filled" type="block"/>
-		<field name="shaded"         type="block"/>
-		<field name="shaded-filled"  type="block"/>
+		<field name="empty"          type="sprite"/>
+		<field name="filled"         type="sprite"/>
+		<field name="pressed"        type="sprite"/>
+		<field name="pressed-filled" type="sprite"/>
+		<field name="shaded"         type="sprite"/>
+		<field name="shaded-filled"  type="sprite"/>
 	</block>
 
 	<block magic="GSCL" minversion="1" maxversion="1">
@@ -58,19 +58,19 @@
 		<field name="minimal-length-select"    type="uint8"/>
 		<field name="stepsize-select"          type="uint8"/>
 		<field name="widget_num"               type="uint16"/>
-		<field name="leftup"                   type="block"/>
-		<field name="rightdown"                type="block"/>
-		<field name="leftup-pressed"           type="block"/>
-		<field name="rightdown-pressed"        type="block"/>
-		<field name="leftup-under"             type="block"/>
-		<field name="middle-under"             type="block"/>
-		<field name="rightdown-under"          type="block"/>
-		<field name="leftup-select"            type="block"/>
-		<field name="middle-select"            type="block"/>
-		<field name="rightdown-select"         type="block"/>
-		<field name="leftup-pressed-select"    type="block"/>
-		<field name="middle-pressed-select"    type="block"/>
-		<field name="rightdown-pressed-select" type="block"/>
+		<field name="leftup"                   type="sprite"/>
+		<field name="rightdown"                type="sprite"/>
+		<field name="leftup-pressed"           type="sprite"/>
+		<field name="rightdown-pressed"        type="sprite"/>
+		<field name="leftup-under"             type="sprite"/>
+		<field name="middle-under"             type="sprite"/>
+		<field name="rightdown-under"          type="sprite"/>
+		<field name="leftup-select"            type="sprite"/>
+		<field name="middle-select"            type="sprite"/>
+		<field name="rightdown-select"         type="sprite"/>
+		<field name="leftup-pressed-select"    type="sprite"/>
+		<field name="middle-pressed-select"    type="sprite"/>
+		<field name="rightdown-pressed-select" type="sprite"/>
 	</block>
 
 	<block magic="GSLI" minversion="1" maxversion="2">
@@ -81,32 +81,32 @@
 		<field name="width"      type="uint8"  maxversion="1"              >Width of the slider button</field>
 		<field name="width"      type="uint8"                minversion="2">Width of the slider button</field>
 		<field name="widgettype" type="uint16">Widget type</field>
-		<field name="left"       type="block"/>
+		<field name="left"       type="sprite"/>
 	</block>
 
 	<block magic="PARE" minversion="1" maxversion="1">
 		<field name="tile_width"  type="uint16"/>
 		<field name="z_height"    type="uint16"/>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="block"/>
-		<field name="n#n"   type="block"/>
-		<field name="n#e"   type="block"/>
-		<field name="n#ne"  type="block"/>
-		<field name="n#s"   type="block"/>
-		<field name="n#ns"  type="block"/>
-		<field name="n#es"  type="block"/>
-		<field name="n#nes" type="block"/>
-		<field name="n#w"   type="block"/>
-		<field name="n#nw"  type="block"/>
-		<field name="n#ew"  type="block"/>
-		<field name="n#new" type="block"/>
-		<field name="n#sw"  type="block"/>
-		<field name="n#nsw" type="block"/>
-		<field name="n#esw" type="block"/>
-		<field name="n#N"   type="block"/>
-		<field name="n#E"   type="block"/>
-		<field name="n#S"   type="block"/>
-		<field name="n#W"   type="block"/>
+		<field name="n#"    type="sprite"/>
+		<field name="n#n"   type="sprite"/>
+		<field name="n#e"   type="sprite"/>
+		<field name="n#ne"  type="sprite"/>
+		<field name="n#s"   type="sprite"/>
+		<field name="n#ns"  type="sprite"/>
+		<field name="n#es"  type="sprite"/>
+		<field name="n#nes" type="sprite"/>
+		<field name="n#w"   type="sprite"/>
+		<field name="n#nw"  type="sprite"/>
+		<field name="n#ew"  type="sprite"/>
+		<field name="n#new" type="sprite"/>
+		<field name="n#sw"  type="sprite"/>
+		<field name="n#nsw" type="sprite"/>
+		<field name="n#esw" type="sprite"/>
+		<field name="n#N"   type="sprite"/>
+		<field name="n#E"   type="sprite"/>
+		<field name="n#S"   type="sprite"/>
+		<field name="n#W"   type="sprite"/>
 	</block>
 
 	<block magic="PATH" minversion="1" maxversion="1">
@@ -114,78 +114,78 @@
 		<field name="tile_width" type="uint16"/>
 		<field name="z_height"   type="uint16"/>
 		<!-- sprites for the path. -->
-		<field name="empty"               type="block"/>
-		<field name="ne"                  type="block"/>
-		<field name="se"                  type="block"/>
-		<field name="ne_se"               type="block"/>
-		<field name="ne_se_e"             type="block"/>
-		<field name="sw"                  type="block"/>
-		<field name="ne_sw"               type="block"/>
-		<field name="se_sw"               type="block"/>
-		<field name="se_sw_s"             type="block"/>
-		<field name="ne_se_sw"            type="block"/>
-		<field name="ne_se_sw_e"          type="block"/>
-		<field name="ne_se_sw_s"          type="block"/>
-		<field name="ne_se_sw_e_s"        type="block"/>
-		<field name="nw"                  type="block"/>
-		<field name="ne_nw"               type="block"/>
-		<field name="ne_nw_n"             type="block"/>
-		<field name="nw_se"               type="block"/>
-		<field name="ne_nw_se"            type="block"/>
-		<field name="ne_nw_se_n"          type="block"/>
-		<field name="ne_nw_se_e"          type="block"/>
-		<field name="ne_nw_se_n_e"        type="block"/>
-		<field name="nw_sw"               type="block"/>
-		<field name="nw_sw_w"             type="block"/>
-		<field name="ne_nw_sw"            type="block"/>
-		<field name="ne_nw_sw_n"          type="block"/>
-		<field name="ne_nw_sw_w"          type="block"/>
-		<field name="ne_nw_sw_n_w"        type="block"/>
-		<field name="nw_se_sw"            type="block"/>
-		<field name="nw_se_sw_s"          type="block"/>
-		<field name="nw_se_sw_w"          type="block"/>
-		<field name="nw_se_sw_s_w"        type="block"/>
-		<field name="ne_nw_se_sw"         type="block"/>
-		<field name="ne_nw_se_sw_n"       type="block"/>
-		<field name="ne_nw_se_sw_e"       type="block"/>
-		<field name="ne_nw_se_sw_n_e"     type="block"/>
-		<field name="ne_nw_se_sw_s"       type="block"/>
-		<field name="ne_nw_se_sw_n_s"     type="block"/>
-		<field name="ne_nw_se_sw_e_s"     type="block"/>
-		<field name="ne_nw_se_sw_n_e_s"   type="block"/>
-		<field name="ne_nw_se_sw_w"       type="block"/>
-		<field name="ne_nw_se_sw_n_w"     type="block"/>
-		<field name="ne_nw_se_sw_e_w"     type="block"/>
-		<field name="ne_nw_se_sw_n_e_w"   type="block"/>
-		<field name="ne_nw_se_sw_s_w"     type="block"/>
-		<field name="ne_nw_se_sw_n_s_w"   type="block"/>
-		<field name="ne_nw_se_sw_e_s_w"   type="block"/>
-		<field name="ne_nw_se_sw_n_e_s_w" type="block"/>
-		<field name="ramp_ne"             type="block"/>
-		<field name="ramp_nw"             type="block"/>
-		<field name="ramp_se"             type="block"/>
-		<field name="ramp_sw"             type="block"/>
+		<field name="empty"               type="sprite"/>
+		<field name="ne"                  type="sprite"/>
+		<field name="se"                  type="sprite"/>
+		<field name="ne_se"               type="sprite"/>
+		<field name="ne_se_e"             type="sprite"/>
+		<field name="sw"                  type="sprite"/>
+		<field name="ne_sw"               type="sprite"/>
+		<field name="se_sw"               type="sprite"/>
+		<field name="se_sw_s"             type="sprite"/>
+		<field name="ne_se_sw"            type="sprite"/>
+		<field name="ne_se_sw_e"          type="sprite"/>
+		<field name="ne_se_sw_s"          type="sprite"/>
+		<field name="ne_se_sw_e_s"        type="sprite"/>
+		<field name="nw"                  type="sprite"/>
+		<field name="ne_nw"               type="sprite"/>
+		<field name="ne_nw_n"             type="sprite"/>
+		<field name="nw_se"               type="sprite"/>
+		<field name="ne_nw_se"            type="sprite"/>
+		<field name="ne_nw_se_n"          type="sprite"/>
+		<field name="ne_nw_se_e"          type="sprite"/>
+		<field name="ne_nw_se_n_e"        type="sprite"/>
+		<field name="nw_sw"               type="sprite"/>
+		<field name="nw_sw_w"             type="sprite"/>
+		<field name="ne_nw_sw"            type="sprite"/>
+		<field name="ne_nw_sw_n"          type="sprite"/>
+		<field name="ne_nw_sw_w"          type="sprite"/>
+		<field name="ne_nw_sw_n_w"        type="sprite"/>
+		<field name="nw_se_sw"            type="sprite"/>
+		<field name="nw_se_sw_s"          type="sprite"/>
+		<field name="nw_se_sw_w"          type="sprite"/>
+		<field name="nw_se_sw_s_w"        type="sprite"/>
+		<field name="ne_nw_se_sw"         type="sprite"/>
+		<field name="ne_nw_se_sw_n"       type="sprite"/>
+		<field name="ne_nw_se_sw_e"       type="sprite"/>
+		<field name="ne_nw_se_sw_n_e"     type="sprite"/>
+		<field name="ne_nw_se_sw_s"       type="sprite"/>
+		<field name="ne_nw_se_sw_n_s"     type="sprite"/>
+		<field name="ne_nw_se_sw_e_s"     type="sprite"/>
+		<field name="ne_nw_se_sw_n_e_s"   type="sprite"/>
+		<field name="ne_nw_se_sw_w"       type="sprite"/>
+		<field name="ne_nw_se_sw_n_w"     type="sprite"/>
+		<field name="ne_nw_se_sw_e_w"     type="sprite"/>
+		<field name="ne_nw_se_sw_n_e_w"   type="sprite"/>
+		<field name="ne_nw_se_sw_s_w"     type="sprite"/>
+		<field name="ne_nw_se_sw_n_s_w"   type="sprite"/>
+		<field name="ne_nw_se_sw_e_s_w"   type="sprite"/>
+		<field name="ne_nw_se_sw_n_e_s_w" type="sprite"/>
+		<field name="ramp_ne"             type="sprite"/>
+		<field name="ramp_nw"             type="sprite"/>
+		<field name="ramp_se"             type="sprite"/>
+		<field name="ramp_sw"             type="sprite"/>
 	</block>
 
 	<block magic="PLAT" minversion="1" maxversion="1">
 		<field name="width"   type="uint16">Zoom-width of a tile of the surface</field>
 		<field name="height"  type="uint16">Change in Z height of the tiles</field>
 		<field name="type"    type="uint16">Platform type</field>
-		<field name="ns"      type="block">Flat platform for north and south view</field>
-		<field name="ew"      type="block">Flat platform for east and west view</field>
-		<field name="ramp-ne" type="block">Platform is raised at the NE edge</field>
-		<field name="ramp-se" type="block">Platform is raised at the SE edge</field>
-		<field name="ramp-sw" type="block">Platform is raised at the SW edge</field>
-		<field name="ramp-nw" type="block">Platform is raised at the NW edge</field>
+		<field name="ns"      type="sprite">Flat platform for north and south view</field>
+		<field name="ew"      type="sprite">Flat platform for east and west view</field>
+		<field name="ramp-ne" type="sprite">Platform is raised at the NE edge</field>
+		<field name="ramp-se" type="sprite">Platform is raised at the SE edge</field>
+		<field name="ramp-sw" type="sprite">Platform is raised at the SW edge</field>
+		<field name="ramp-nw" type="sprite">Platform is raised at the NW edge</field>
 	</block>
 
 	<block magic="SHOP" minversion="1" maxversion="1">
 		<field name="width"  type="uint16">Zoom-width of a tile of the surface</field>
 		<field name="height" type="uint16">Height of the shop in voxels.</field>
-		<field name="ne"     type="block">North-east direction</field>
-		<field name="se"     type="block">South-east direction</field>
-		<field name="sw"     type="block">South-west direction</field>
-		<field name="nw"     type="block">North-west direction</field>
+		<field name="ne"     type="sprite">North-east direction</field>
+		<field name="se"     type="sprite">South-east direction</field>
+		<field name="sw"     type="sprite">South-west direction</field>
+		<field name="nw"     type="sprite">North-west direction</field>
 	</block>
 
 	<block magic="SURF" minversion="3" maxversion="3">
@@ -193,159 +193,159 @@
 		<field name="tile_width"  type="uint16"/>
 		<field name="z_height"    type="uint16"/>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="block"/>
-		<field name="n#n"   type="block"/>
-		<field name="n#e"   type="block"/>
-		<field name="n#ne"  type="block"/>
-		<field name="n#s"   type="block"/>
-		<field name="n#ns"  type="block"/>
-		<field name="n#es"  type="block"/>
-		<field name="n#nes" type="block"/>
-		<field name="n#w"   type="block"/>
-		<field name="n#nw"  type="block"/>
-		<field name="n#ew"  type="block"/>
-		<field name="n#new" type="block"/>
-		<field name="n#sw"  type="block"/>
-		<field name="n#nsw" type="block"/>
-		<field name="n#esw" type="block"/>
-		<field name="n#N"   type="block"/>
-		<field name="n#E"   type="block"/>
-		<field name="n#S"   type="block"/>
-		<field name="n#W"   type="block"/>
+		<field name="n#"    type="sprite"/>
+		<field name="n#n"   type="sprite"/>
+		<field name="n#e"   type="sprite"/>
+		<field name="n#ne"  type="sprite"/>
+		<field name="n#s"   type="sprite"/>
+		<field name="n#ns"  type="sprite"/>
+		<field name="n#es"  type="sprite"/>
+		<field name="n#nes" type="sprite"/>
+		<field name="n#w"   type="sprite"/>
+		<field name="n#nw"  type="sprite"/>
+		<field name="n#ew"  type="sprite"/>
+		<field name="n#new" type="sprite"/>
+		<field name="n#sw"  type="sprite"/>
+		<field name="n#nsw" type="sprite"/>
+		<field name="n#esw" type="sprite"/>
+		<field name="n#N"   type="sprite"/>
+		<field name="n#E"   type="sprite"/>
+		<field name="n#S"   type="sprite"/>
+		<field name="n#W"   type="sprite"/>
 	</block>
 
 	<block magic="TARE" minversion="1" maxversion="1">
 		<field name="tile_width"  type="uint16"/>
 		<field name="z_height"    type="uint16"/>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="block"/>
-		<field name="n#n"   type="block"/>
-		<field name="n#e"   type="block"/>
-		<field name="n#ne"  type="block"/>
-		<field name="n#s"   type="block"/>
-		<field name="n#ns"  type="block"/>
-		<field name="n#es"  type="block"/>
-		<field name="n#nes" type="block"/>
-		<field name="n#w"   type="block"/>
-		<field name="n#nw"  type="block"/>
-		<field name="n#ew"  type="block"/>
-		<field name="n#new" type="block"/>
-		<field name="n#sw"  type="block"/>
-		<field name="n#nsw" type="block"/>
-		<field name="n#esw" type="block"/>
-		<field name="n#N"   type="block"/>
-		<field name="n#E"   type="block"/>
-		<field name="n#S"   type="block"/>
-		<field name="n#W"   type="block"/>
+		<field name="n#"    type="sprite"/>
+		<field name="n#n"   type="sprite"/>
+		<field name="n#e"   type="sprite"/>
+		<field name="n#ne"  type="sprite"/>
+		<field name="n#s"   type="sprite"/>
+		<field name="n#ns"  type="sprite"/>
+		<field name="n#es"  type="sprite"/>
+		<field name="n#nes" type="sprite"/>
+		<field name="n#w"   type="sprite"/>
+		<field name="n#nw"  type="sprite"/>
+		<field name="n#ew"  type="sprite"/>
+		<field name="n#new" type="sprite"/>
+		<field name="n#sw"  type="sprite"/>
+		<field name="n#nsw" type="sprite"/>
+		<field name="n#esw" type="sprite"/>
+		<field name="n#N"   type="sprite"/>
+		<field name="n#E"   type="sprite"/>
+		<field name="n#S"   type="sprite"/>
+		<field name="n#W"   type="sprite"/>
 	</block>
 
 	<block magic="TCOR" minversion="1" maxversion="1">
 		<field name="tile_width"  type="uint16">Zoom-width of a tile</field>
 		<field name="tile_height" type="uint16">Change in Z height of the tiles</field>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="block"/>
-		<field name="n#n"   type="block"/>
-		<field name="n#e"   type="block"/>
-		<field name="n#ne"  type="block"/>
-		<field name="n#s"   type="block"/>
-		<field name="n#ns"  type="block"/>
-		<field name="n#es"  type="block"/>
-		<field name="n#nes" type="block"/>
-		<field name="n#w"   type="block"/>
-		<field name="n#nw"  type="block"/>
-		<field name="n#ew"  type="block"/>
-		<field name="n#new" type="block"/>
-		<field name="n#sw"  type="block"/>
-		<field name="n#nsw" type="block"/>
-		<field name="n#esw" type="block"/>
-		<field name="n#N"   type="block"/>
-		<field name="n#E"   type="block"/>
-		<field name="n#S"   type="block"/>
-		<field name="n#W"   type="block"/>
+		<field name="n#"    type="sprite"/>
+		<field name="n#n"   type="sprite"/>
+		<field name="n#e"   type="sprite"/>
+		<field name="n#ne"  type="sprite"/>
+		<field name="n#s"   type="sprite"/>
+		<field name="n#ns"  type="sprite"/>
+		<field name="n#es"  type="sprite"/>
+		<field name="n#nes" type="sprite"/>
+		<field name="n#w"   type="sprite"/>
+		<field name="n#nw"  type="sprite"/>
+		<field name="n#ew"  type="sprite"/>
+		<field name="n#new" type="sprite"/>
+		<field name="n#sw"  type="sprite"/>
+		<field name="n#nsw" type="sprite"/>
+		<field name="n#esw" type="sprite"/>
+		<field name="n#N"   type="sprite"/>
+		<field name="n#E"   type="sprite"/>
+		<field name="n#S"   type="sprite"/>
+		<field name="n#W"   type="sprite"/>
 		<!-- sprites viewed to the east. -->
-		<field name="e#"    type="block"/>
-		<field name="e#n"   type="block"/>
-		<field name="e#e"   type="block"/>
-		<field name="e#ne"  type="block"/>
-		<field name="e#s"   type="block"/>
-		<field name="e#ns"  type="block"/>
-		<field name="e#es"  type="block"/>
-		<field name="e#nes" type="block"/>
-		<field name="e#w"   type="block"/>
-		<field name="e#nw"  type="block"/>
-		<field name="e#ew"  type="block"/>
-		<field name="e#new" type="block"/>
-		<field name="e#sw"  type="block"/>
-		<field name="e#nsw" type="block"/>
-		<field name="e#esw" type="block"/>
-		<field name="e#N"   type="block"/>
-		<field name="e#E"   type="block"/>
-		<field name="e#S"   type="block"/>
-		<field name="e#W"   type="block"/>
+		<field name="e#"    type="sprite"/>
+		<field name="e#n"   type="sprite"/>
+		<field name="e#e"   type="sprite"/>
+		<field name="e#ne"  type="sprite"/>
+		<field name="e#s"   type="sprite"/>
+		<field name="e#ns"  type="sprite"/>
+		<field name="e#es"  type="sprite"/>
+		<field name="e#nes" type="sprite"/>
+		<field name="e#w"   type="sprite"/>
+		<field name="e#nw"  type="sprite"/>
+		<field name="e#ew"  type="sprite"/>
+		<field name="e#new" type="sprite"/>
+		<field name="e#sw"  type="sprite"/>
+		<field name="e#nsw" type="sprite"/>
+		<field name="e#esw" type="sprite"/>
+		<field name="e#N"   type="sprite"/>
+		<field name="e#E"   type="sprite"/>
+		<field name="e#S"   type="sprite"/>
+		<field name="e#W"   type="sprite"/>
 		<!-- sprites viewed to the south. -->
-		<field name="s#"    type="block"/>
-		<field name="s#n"   type="block"/>
-		<field name="s#e"   type="block"/>
-		<field name="s#ne"  type="block"/>
-		<field name="s#s"   type="block"/>
-		<field name="s#ns"  type="block"/>
-		<field name="s#es"  type="block"/>
-		<field name="s#nes" type="block"/>
-		<field name="s#w"   type="block"/>
-		<field name="s#nw"  type="block"/>
-		<field name="s#ew"  type="block"/>
-		<field name="s#new" type="block"/>
-		<field name="s#sw"  type="block"/>
-		<field name="s#nsw" type="block"/>
-		<field name="s#esw" type="block"/>
-		<field name="s#N"   type="block"/>
-		<field name="s#E"   type="block"/>
-		<field name="s#S"   type="block"/>
-		<field name="s#W"   type="block"/>
+		<field name="s#"    type="sprite"/>
+		<field name="s#n"   type="sprite"/>
+		<field name="s#e"   type="sprite"/>
+		<field name="s#ne"  type="sprite"/>
+		<field name="s#s"   type="sprite"/>
+		<field name="s#ns"  type="sprite"/>
+		<field name="s#es"  type="sprite"/>
+		<field name="s#nes" type="sprite"/>
+		<field name="s#w"   type="sprite"/>
+		<field name="s#nw"  type="sprite"/>
+		<field name="s#ew"  type="sprite"/>
+		<field name="s#new" type="sprite"/>
+		<field name="s#sw"  type="sprite"/>
+		<field name="s#nsw" type="sprite"/>
+		<field name="s#esw" type="sprite"/>
+		<field name="s#N"   type="sprite"/>
+		<field name="s#E"   type="sprite"/>
+		<field name="s#S"   type="sprite"/>
+		<field name="s#W"   type="sprite"/>
 		<!-- sprites viewed to the west. -->
-		<field name="w#"    type="block"/>
-		<field name="w#n"   type="block"/>
-		<field name="w#e"   type="block"/>
-		<field name="w#ne"  type="block"/>
-		<field name="w#s"   type="block"/>
-		<field name="w#ns"  type="block"/>
-		<field name="w#es"  type="block"/>
-		<field name="w#nes" type="block"/>
-		<field name="w#w"   type="block"/>
-		<field name="w#nw"  type="block"/>
-		<field name="w#ew"  type="block"/>
-		<field name="w#new" type="block"/>
-		<field name="w#sw"  type="block"/>
-		<field name="w#nsw" type="block"/>
-		<field name="w#esw" type="block"/>
-		<field name="w#N"   type="block"/>
-		<field name="w#E"   type="block"/>
-		<field name="w#S"   type="block"/>
-		<field name="w#W"   type="block"/>
+		<field name="w#"    type="sprite"/>
+		<field name="w#n"   type="sprite"/>
+		<field name="w#e"   type="sprite"/>
+		<field name="w#ne"  type="sprite"/>
+		<field name="w#s"   type="sprite"/>
+		<field name="w#ns"  type="sprite"/>
+		<field name="w#es"  type="sprite"/>
+		<field name="w#nes" type="sprite"/>
+		<field name="w#w"   type="sprite"/>
+		<field name="w#nw"  type="sprite"/>
+		<field name="w#ew"  type="sprite"/>
+		<field name="w#new" type="sprite"/>
+		<field name="w#sw"  type="sprite"/>
+		<field name="w#nsw" type="sprite"/>
+		<field name="w#esw" type="sprite"/>
+		<field name="w#N"   type="sprite"/>
+		<field name="w#E"   type="sprite"/>
+		<field name="w#S"   type="sprite"/>
+		<field name="w#W"   type="sprite"/>
 	</block>
 
 	<block magic="TSEL" minversion="1" maxversion="1">
 		<field name="tile_width"  type="uint16"/>
 		<field name="z_height"    type="uint16"/>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="block"/>
-		<field name="n#n"   type="block"/>
-		<field name="n#e"   type="block"/>
-		<field name="n#ne"  type="block"/>
-		<field name="n#s"   type="block"/>
-		<field name="n#ns"  type="block"/>
-		<field name="n#es"  type="block"/>
-		<field name="n#nes" type="block"/>
-		<field name="n#w"   type="block"/>
-		<field name="n#nw"  type="block"/>
-		<field name="n#ew"  type="block"/>
-		<field name="n#new" type="block"/>
-		<field name="n#sw"  type="block"/>
-		<field name="n#nsw" type="block"/>
-		<field name="n#esw" type="block"/>
-		<field name="n#N"   type="block"/>
-		<field name="n#E"   type="block"/>
-		<field name="n#S"   type="block"/>
-		<field name="n#W"   type="block"/>
+		<field name="n#"    type="sprite"/>
+		<field name="n#n"   type="sprite"/>
+		<field name="n#e"   type="sprite"/>
+		<field name="n#ne"  type="sprite"/>
+		<field name="n#s"   type="sprite"/>
+		<field name="n#ns"  type="sprite"/>
+		<field name="n#es"  type="sprite"/>
+		<field name="n#nes" type="sprite"/>
+		<field name="n#w"   type="sprite"/>
+		<field name="n#nw"  type="sprite"/>
+		<field name="n#ew"  type="sprite"/>
+		<field name="n#new" type="sprite"/>
+		<field name="n#sw"  type="sprite"/>
+		<field name="n#nsw" type="sprite"/>
+		<field name="n#esw" type="sprite"/>
+		<field name="n#N"   type="sprite"/>
+		<field name="n#E"   type="sprite"/>
+		<field name="n#S"   type="sprite"/>
+		<field name="n#W"   type="sprite"/>
 	</block>
 </structures>
