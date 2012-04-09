@@ -74,12 +74,15 @@
 	</block>
 
 	<block magic="GSLI" minversion="1" maxversion="2">
-		<field name="min-length" type="uint8"  maxversion="1"              >Minimal length of the bar</field>
-		<field name="min-length" type="uint16"               minversion="2">Minimal length of the bar</field>
-		<field name="stepsize"   type="uint8"  maxversion="1"              >Stepsize of the bar</field>
-		<field name="stepsize"   type="uint16"               minversion="2">Stepsize of the bar</field>
-		<field name="width"      type="uint8"  maxversion="1"              >Width of the slider button</field>
-		<field name="width"      type="uint16"               minversion="2">Width of the slider button</field>
+		<field name="min-length" type="uint8"  minversion="1" maxversion="1">Minimal length of the bar</field>
+		<field name="min-length" type="uint16" minversion="2"               >Minimal length of the bar</field>
+
+		<field name="stepsize"   type="uint8"  minversion="1" maxversion="1">Stepsize of the bar</field>
+		<field name="stepsize"   type="uint16" minversion="2"               >Stepsize of the bar</field>
+
+		<field name="width"      type="uint8"  minversion="1" maxversion="1">Width of the slider button</field>
+		<field name="width"      type="uint16" minversion="2"               >Width of the slider button</field>
+
 		<field name="widgettype" type="uint16">Widget type</field>
 		<field name="left"       type="sprite"/>
 	</block>
