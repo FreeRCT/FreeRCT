@@ -7,7 +7,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import spritegrid, structdef_loader, data_loader, blocks
+from rcdlib import spritegrid, structdef_loader, data_loader, blocks, datatypes
 import sys, getopt
 
 def usage():
@@ -52,6 +52,7 @@ def main():
 def convert(def_fname, data_fname):
     struct_defs = structdef_loader.loadfromDOM(def_fname)
 
+    dt_factory = datatypes.factory
     data_files = data_loader.loadfromDOM(data_fname)
     for dfile in data_files.files:
         if dfile.magic != 'RCDF' or dfile.version != 1:
@@ -101,7 +102,7 @@ def convert(def_fname, data_fname):
                     else:
                         blockdata[data.name] = 0
 
-            fields = [(fdef.name, fdef.type) for fdef  in flddefs]
+            fields = [(fdef.name, dt_factory.get_type(fdef.type)) for fdef  in flddefs]
             dblk = blocks.GeneralDataBlock(block.magic, block.version, fields, None)
             dblk.set_values(blockdata)
             file_blocks.add_block(dblk)

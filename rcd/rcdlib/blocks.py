@@ -5,7 +5,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import output, structdef_loader
+from rcdlib import output, structdef_loader, datatypes
 
 # {{{ class Block(object):
 class Block(object):
@@ -38,56 +38,12 @@ class FileHeader(Block):
 # }}}
 # {{{ class GeneralDataBlock(Block):
 
-def get_image_data_size(line_data, height):
-    """
-    Compute the size (in bytes) for the pixel data.
-
-    @param line_data: Data of each line, C{None} means the line is empty.
-    @type  line_data: C{str} or C{None}
-
-    @param height: Expected height of the image data.
-    @type  height: C{int}
-
-    @return: The size of the data field in the rcd file.
-    @rtype:  C{int}
-    """
-    assert height == len(line_data) # Paranoia check
-    total = 0
-    for line in line_data:
-        total = total + 4
-        if line is not None:
-            total = total + len(line)
-    return total
-
-def write_image_data(out, line_data):
-    """
-    Write the image data.
-
-    @param out: Output stream.
-    @type  out: L{Output}
-
-    @param line_data: Data of each line, C{None} means the line is empty.
-    @type  line_data: C{str} or C{None}
-    """
-    offset = 4 * len(line_data)
-    for line in line_data:
-        if line is not None:
-            out.uint32(offset)
-            offset = offset + len(line)
-        else:
-            out.uint32(0)
-    for line in line_data:
-        if line is not None:
-            out.store_text(line)
-
-
 class GeneralDataBlock(Block):
     """
     General data block class.
 
-    @ivar fields: Mapping of name to type for the fields in the block, where
-                  type is one of int8, uint8, int16 uint16 uint32 block.
-    @type fields: C{list} of (C{str}, C{str})
+    @ivar fields: Mapping of name to type for the fields in the block.
+    @type fields: C{list} of (C{str}, L{DataType})
 
     @ivar values: Mapping of fields to numeric values.
     @type values: C{dict} of C{str} to C{int}, or C{None} if not available
@@ -97,6 +53,11 @@ class GeneralDataBlock(Block):
         Block.__init__(self, name, version)
         self.fields = fields
         self.values = values
+
+        # Check the values of the dictionary.
+        for fn, fd in self.fields:
+            if not isinstance(fd, datatypes.DataType):
+                raise RuntimeError("field: name=%r, type=%r is wrong" % (fn, fd))
 
     def set_values(self, values):
         """
@@ -111,40 +72,15 @@ class GeneralDataBlock(Block):
         Block.write(self, out)
         out.uint32(self.get_size())
         for fldname, fldtype in self.fields:
-            value = self.values[fldname]
-            if fldtype == 'int8':
-                out.int8(value)
-            elif fldtype == 'uint8':
-                out.uint8(value)
-            elif fldtype == 'int16':
-                out.int16(value)
-            elif fldtype == 'uint16':
-                out.uint16(value)
-            elif fldtype == 'uint32':
-                out.uint32(value)
-            elif fldtype in ('sprite', 'block'):
-                if value is None:
-                    value = 0
-                out.uint32(value)
-            elif fldtype == 'image_data':
-                write_image_data(out, value)
-            else:
-                raise ValueError("Unknown field-type: %r" % fldtype)
+            fldtype.write(out, self.values[fldname])
 
     def get_size(self):
         """
         Compute size of the block, and return it to the caller.
         """
-        sizes = {'int8':1, 'uint8':1, 'int16':2, 'uint16':2, 'uint32':4, 'sprite':4, 'block':4}
         total = 0
         for fldname, fldtype in self.fields:
-            size = sizes.get(fldtype)
-            if size is not None:
-                total = total + size
-            elif fldtype == 'image_data':
-                total = total + get_image_data_size(self.values[fldname], self.values['height'])
-            else:
-                raise ValueError("Unknown field-type: %r" % fldtype)
+            total = total + fldtype.get_size(self.values[fldname])
         return total
 
     def __cmp__(self, other):
@@ -185,7 +121,7 @@ class GameBlockFactory(object):
         if block is None or version < block.minversion or version > block.maxversion:
             raise ValueError("Cannot find gameblock %r, %r" % (name, version))
 
-        fields = [(f.name, f.type) for f in block.get_fields(version)]
+        fields = [(f.name, datatypes.factory.get_type(f.type)) for f in block.get_fields(version)]
         gb = GeneralDataBlock(name, version, fields, None)
         return gb
 
@@ -198,8 +134,9 @@ class Pixels8Bpp(GeneralDataBlock):
     8PXL block.
     """
     def __init__(self, values):
-        fields = [('width', 'uint16'), ('height', 'uint16'),
-                  ('lines', 'image_data')]
+        fields = [('width',  datatypes.UINT16_TYPE),
+                  ('height', datatypes.UINT16_TYPE),
+                  ('lines',  datatypes.IMAGE_DATA_TYPE)]
         GeneralDataBlock.__init__(self, '8PXL', 1, fields, values)
 # }}}
 # {{{ class Sprite(GeneralDataBlock):
@@ -208,9 +145,9 @@ class Sprite(GeneralDataBlock):
     SPRT data block.
     """
     def __init__(self, xoff, yoff, img_block):
-        fields = [('x_offset', 'int16'),
-                  ('y_offset', 'int16'),
-                  ('image', 'block')]
+        fields = [('x_offset', datatypes.INT16_TYPE),
+                  ('y_offset', datatypes.INT16_TYPE),
+                  ('image',    datatypes.BLOCK_TYPE)]
         values = {'x_offset' : xoff, 'y_offset' : yoff, 'image' : img_block}
         GeneralDataBlock.__init__(self, 'SPRT', 2, fields, values)
 # }}}
