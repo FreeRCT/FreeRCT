@@ -50,7 +50,7 @@ def main():
 
 
 def convert(def_fname, data_fname):
-    struct_defs = structdef_loader.loadfromDOM(def_fname)
+    struct_defs = blocks.block_factory.struct_def
 
     dt_factory = datatypes.factory
     data_files = data_loader.loadfromDOM(data_fname)

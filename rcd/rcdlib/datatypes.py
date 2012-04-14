@@ -186,7 +186,9 @@ class DataTypeFactory(object):
         if self.types is None:
             self.init_types()
 
-        assert dt.name not in self.types
+        if dt.name in self.types:
+            raise ValueError("Adding data type %r while already exists is not allowed." % dt.name)
+
         self.types[dt.name] = dt
 
 
