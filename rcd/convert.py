@@ -74,6 +74,7 @@ def convert(def_fname, data_fname):
             avail = set(block.fields.iterkeys())
             seen = set()
             blockdata = {}
+            fields = []
             for flddef in flddefs:
                 if flddef.name not in avail:
                     raise ValueError("Field %r is missing in data block %r" % (flddef.name, block.magic))
@@ -87,11 +88,12 @@ def convert(def_fname, data_fname):
                 seen.add(flddef.name)
 
 
+                data_type = dt_factory.get_type(flddef.type)
                 if isinstance(data, data_loader.RcdDataField):
-                    assert data.field_def.type in ('int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32')
+                    assert data_type.name in ('int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32')
                     blockdata[data.name] = int(data.value)
                 else:
-                    assert data.field_def.type == 'sprite'
+                    assert data_type.name == 'sprite'
                     im = spritegrid.image_loader.get_img(data.fname)
                     im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset, data.x_base, data.y_base, data.width, data.height)
                     pxl_blk = im_obj.make_8PXL()
@@ -102,7 +104,8 @@ def convert(def_fname, data_fname):
                     else:
                         blockdata[data.name] = 0
 
-            fields = [(fdef.name, dt_factory.get_type(fdef.type)) for fdef  in flddefs]
+                fields.append((flddef.name, data_type))
+
             dblk = blocks.GeneralDataBlock(block.magic, block.version, fields, None)
             dblk.set_values(blockdata)
             file_blocks.add_block(dblk)
