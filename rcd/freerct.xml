@@ -274,7 +274,7 @@
 		<gameblock magic="SURF" version="3">
 			<field name="tile_width"  value="64"/>
 			<field name="z_height"    value="16"/>
-			<field name="ground_type" value="48"/> <!-- CURSOR_TEST type -->
+			<field name="ground_type" value="cursor"/>
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
 			       fname="../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png"
 			       names="n#,   n#,   n#,   n#
@@ -292,7 +292,7 @@
 		<gameblock magic="SURF" version="3">
 			<field name="tile_width"  value="64"/>
 			<field name="z_height"    value="16"/>
-			<field name="ground_type" value="16"/> <!-- GRASS type -->
+			<field name="ground_type" value="the_green"/>
 			<sheet x-base="0" y-base="384" x-step="64" y-step="64"
 			       fname="../sprites_src/terrain/groundtiles/template8bpp64_masked.png"
 			       names="n#,   n#,   n#,   n#
@@ -307,7 +307,7 @@
 
 	<file target="foundation_8bpp64.rcd" magic="RCDF" version="1">
 		<gameblock magic="FUND" version="1">
-			<field name="found_type" value="16"/> <!-- GROUND type -->
+			<field name="found_type" value="ground"/>
 			<field name="tile_width"  value="64"/>
 			<field name="tile_height" value="16"/>
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
@@ -321,7 +321,7 @@
 
 	<file target="path_8bpp64.rcd" magic="RCDF" version="1">
 		<gameblock magic="PATH" version="1">
-			<field name="path_type"  value="16"/> <!-- CONCRETE type -->
+			<field name="path_type"  value="concrete"/>
 			<field name="tile_width" value="64"/>
 			<field name="z_height"   value="16"/>
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"

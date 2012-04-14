@@ -9,8 +9,16 @@
 		<field name="nw"    type="sprite">North-west direction</field>
 	</block>
 
+	<!-- Foundations -->
+	<enum name="FoundationType" type="uint16">
+		<value name="reserved" value="0">Empty, do not use</value>
+		<value name="ground"   value="16">Ground</value>
+		<value name="wood"     value="32">Wood</value>
+		<value name="brick"    value="48">Stone bricks</value>
+	</enum>
+
 	<block magic="FUND" minversion="1" maxversion="1">
-		<field name="found_type"  type="uint16">Type of foundation</field>
+		<field name="found_type"  type="FoundationType">Type of foundation</field>
 		<field name="tile_width"  type="uint16">Zoom-width of a tile</field>
 		<field name="tile_height" type="uint16">Change in Z height of the tiles</field>
 		<field name="se_e"        type="sprite">Vertical south-east foundation, east up, south down</field>
@@ -21,8 +29,22 @@
 		<field name="sw_sw"       type="sprite">Vertical south-west foundation, south up, west up</field>
 	</block>
 
+	<!-- Widget border sprites -->
+	<enum name="BorderWidgetType" type="uint16">
+		<value name="reserved"               value="0">Invalid, do not use</value>
+		<value name="window_border"          value="16">Window border</value>
+		<value name="titlebar"               value="32">Titlebar</value>
+		<value name="button"                 value="48">button</value>
+		<value name="pressed_button"         value="49">pressed button</value>
+		<value name="rounded_button"         value="52">rounded button</value>
+		<value name="pressed_rounded_button" value="53">pressed rounded button</value>
+		<value name="frame"                  value="64">frame</value>
+		<value name="panel"                  value="68">panel</value>
+		<value name="inset"                  value="80">inset frame</value>
+	</enum>
+
 	<block magic="GBOR" minversion="1" maxversion="1">
-		<field name="widget_num" type="uint16"/>
+		<field name="widget_num" type="BorderWidgetType"/>
 		<field name="border-width-top"    type="uint8"/>
 		<field name="border-width-left"   type="uint8"/>
 		<field name="border-width-right"  type="uint8"/>
@@ -42,8 +64,15 @@
 		<field name="bottom-right"        type="sprite"/>
 	</block>
 
+	<!-- Check widgets -->
+	<enum name="CheckWidgetType" type="uint16">
+		<value name="reserved"     value="0">Invalid, do not use</value>
+		<value name="check_box"    value="96">Check box</value>
+		<value name="radio_button" value="112">Radio button</value>
+	</enum>
+
 	<block magic="GCHK" minversion="1" maxversion="1">
-		<field name="widget_num"     type="uint16"/>
+		<field name="widget_num"     type="CheckWidgetType"/>
 		<field name="empty"          type="sprite"/>
 		<field name="filled"         type="sprite"/>
 		<field name="pressed"        type="sprite"/>
@@ -52,12 +81,19 @@
 		<field name="shaded-filled"  type="sprite"/>
 	</block>
 
+	<enum name="ScrollbarWidgetType" type="uint16">
+		<value name="hor"         value="160">Horizontal scroll bar + button</value>
+		<value name="shaded_hor"  value="161">Shaded horizontal scroll bar + button</value>
+		<value name="vert"        value="176">Vertical scroll bar + button</value>
+		<value name="shaded_vert" value="177">Shaded vertical scroll bar + button</value>
+	</enum>
+
 	<block magic="GSCL" minversion="1" maxversion="1">
 		<field name="minimal-length-scrollbar" type="uint8"/>
 		<field name="stepsize-scrollbar"       type="uint8"/>
 		<field name="minimal-length-select"    type="uint8"/>
 		<field name="stepsize-select"          type="uint8"/>
-		<field name="widget_num"               type="uint16"/>
+		<field name="widget_num"               type="ScrollbarWidgetType"/>
 		<field name="leftup"                   type="sprite"/>
 		<field name="rightdown"                type="sprite"/>
 		<field name="leftup-pressed"           type="sprite"/>
@@ -73,6 +109,13 @@
 		<field name="rightdown-pressed-select" type="sprite"/>
 	</block>
 
+	<enum name="SliderWidgetType" type="uint16">
+		<value name="hor"         value="128">Horizontal slider bar + button</value>
+		<value name="shaded_hor"  value="129">Shaded horizontal slider bar + button</value>
+		<value name="vert"        value="144">Vertical slider bar + button</value>
+		<value name="shaded_vert" value="145">Shaded vertical slider bar + button</value>
+	</enum>
+
 	<block magic="GSLI" minversion="1" maxversion="2">
 		<field name="min-length" type="uint8"  minversion="1" maxversion="1">Minimal length of the bar</field>
 		<field name="min-length" type="uint16" minversion="2"               >Minimal length of the bar</field>
@@ -83,7 +126,7 @@
 		<field name="width"      type="uint8"  minversion="1" maxversion="1">Width of the slider button</field>
 		<field name="width"      type="uint16" minversion="2"               >Width of the slider button</field>
 
-		<field name="widgettype" type="uint16">Widget type</field>
+		<field name="widgettype" type="SliderWidgetType">Widget type</field>
 		<field name="left"       type="sprite"/>
 	</block>
 
@@ -112,8 +155,14 @@
 		<field name="n#W"   type="sprite"/>
 	</block>
 
+	<!-- Path sprites -->
+	<enum name="PathType" type="uint16">
+		<value name="reserved" value="0">Empty, do not use</value>
+		<value name="concrete" value="16">Concrete paths</value>
+	</enum>
+
 	<block magic="PATH" minversion="1" maxversion="1">
-		<field name="path_type"  type="uint16"/>
+		<field name="path_type"  type="PathType"/>
 		<field name="tile_width" type="uint16"/>
 		<field name="z_height"   type="uint16"/>
 		<!-- sprites for the path. -->
@@ -170,10 +219,16 @@
 		<field name="ramp_sw"             type="sprite"/>
 	</block>
 
+	<!-- Platforms (flat areas to support a path in the air) -->
+	<enum name="PlatformType" type="uint16">
+		<value name="reserved" value="0">Empty, do not use</value>
+		<value name="wood"     value="16">Wooden platforms</value>
+	</enum>
+
 	<block magic="PLAT" minversion="1" maxversion="1">
 		<field name="width"   type="uint16">Zoom-width of a tile of the surface</field>
 		<field name="height"  type="uint16">Change in Z height of the tiles</field>
-		<field name="type"    type="uint16">Platform type</field>
+		<field name="type"    type="PlatformType">Platform type</field>
 		<field name="ns"      type="sprite">Flat platform for north and south view</field>
 		<field name="ew"      type="sprite">Flat platform for east and west view</field>
 		<field name="ramp-ne" type="sprite">Platform is raised at the NE edge</field>
@@ -191,8 +246,19 @@
 		<field name="nw"     type="sprite">North-west direction</field>
 	</block>
 
+	<!-- Ground surface sprites -->
+	<enum name="GroundType" type="uint16">
+		<value name="reserved"     value="0">Reserved value, do not use.</value>
+		<value name="the_green"    value="16">Just mowed grass</value>
+		<value name="short_grass"  value="17">Short grass</value>
+		<value name="medium_grass" value="18">Medium grass</value>
+		<value name="long_grass"   value="19">Long grass</value>
+		<value name="sand"         value="32">Desert ground</value>
+		<value name="cursor"       value="48">Special ground tiles to decide the point of clicking</value>
+	</enum>
+
 	<block magic="SURF" minversion="3" maxversion="3">
-		<field name="ground_type" type="uint16"/>
+		<field name="ground_type" type="GroundType"/>
 		<field name="tile_width"  type="uint16"/>
 		<field name="z_height"    type="uint16"/>
 		<!-- sprites viewed to the north. -->
