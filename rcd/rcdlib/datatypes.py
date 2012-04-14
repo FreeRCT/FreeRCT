@@ -79,6 +79,48 @@ class NumericDataType(DataType):
     def write(self, out, value):
         self._writer[self.name](out, value)
 
+class EnumerationDataType(DataType):
+    """
+    Data type of an enumeration. Thin layer on top of a normal numeric data type.
+
+    @ivar values: Mapping of names to values.
+    @type values: C{dict} of C{unicode} to C{int}
+
+    @ivar data_type: Underlying data type.
+    @type data_type: L{DataType}
+    """
+    def __init__(self, name, values, type):
+        """
+        Construct a L{EnumerationDataType}.
+
+        @param name: Name of the enumeration.
+        @type  name: C{unicode}
+
+        @param values: Mapping of names to values.
+        @type  values: C{dict} of C{unicode} to C{unicode}
+
+        @param type: Name of the underlying data type.
+        @type  type: C{unicode}
+        """
+        DataType.__init__(self, name)
+        self.data_type = factory.get_type(type)
+        self.values = {}
+        for n,v in values.iteritems():
+            self.values[n] = self.data_type.convert(v)
+
+    def get_size(self, value):
+        value = self.values.get(value, value)
+        return self.data_type.get_size(value)
+
+    def convert(self, value):
+        v = self.values.get(value)
+        if v is not None:
+            return v
+        return self.data_type.convert(value)
+
+    def write(self, out, value):
+        self.data_type.write(out, value)
+
 
 class BlockReference(DataType):
     """
