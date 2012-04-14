@@ -90,8 +90,10 @@ def convert(def_fname, data_fname):
 
                 data_type = dt_factory.get_type(flddef.type)
                 if isinstance(data, data_loader.RcdDataField):
-                    assert data_type.name in ('int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32')
-                    blockdata[data.name] = int(data.value)
+                    value = data_type.convert(data.value)
+                    if value is None:
+                        raise ValueError("Value %r of field %r in data block %r is incorrect" % (data.value, flddef.name, block.magic))
+                    blockdata[data.name] = value
                 else:
                     assert data_type.name == 'sprite'
                     im = spritegrid.image_loader.get_img(data.fname)

@@ -5,6 +5,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
+import re
 
 class DataType(object):
     """
@@ -38,6 +39,9 @@ class DataType(object):
         raise NotImplementedError("Implement me in %r" % type(self))
 
 
+num_pat = re.compile(u'\\d+$')
+
+
 class NumericDataType(DataType):
     """
     Simple numeric data type.
@@ -54,6 +58,23 @@ class NumericDataType(DataType):
 
     def get_size(self, value):
         return self.SIZES[self.name]
+
+    def convert(self, value):
+        """
+        Convert textual value to numeric value (which can be written to the output).
+
+        @param value: Textual value
+        @type  value: C{unicode}
+
+        @return: Numeric value, ready for writing, if syntax is ok (else C{None}).
+        @rtype:  C{int} or C{None}
+
+        @todo: Performing conversion as part of the data type seems more generic than just with numeric types.
+        """
+        m = num_pat.match(value)
+        if m:
+            return int(value)
+        return None
 
     def write(self, out, value):
         self._writer[self.name](out, value)
