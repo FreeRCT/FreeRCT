@@ -143,6 +143,11 @@ class RcdGameBlock(RcdMagic):
                 img.loadfromDOM(n)
                 self.fields[img.name] = img
 
+            elif n.tagName == "frames":
+                fld = RcdFramesField()
+                fld.loadfromDOM(n)
+                self.fields[fld.name] = fld
+
 # }}}
 
 # {{{ class RcdField(object):
@@ -279,6 +284,108 @@ def get_sheet_images(node):
             img.fname = fname
             images.append(img)
     return images
+
+# }}}
+# {{{ class RcdFramesField(RcdField):
+class RcdFramesField(RcdField):
+    """
+    A field containing a sequence of animation frames.
+
+    @ivar name: Name of the frames.
+    @type name: C{unicode}
+
+    @ivar frames: Animation frames.
+    @type frames: C{list} of L{RcdFrame}
+    """
+    def __init__(self):
+        RcdField.__init__(self)
+        self.frames = []
+
+    def loadfromDOM(self, node):
+        """
+        Load the contents of the 'frames' node.
+
+        @param node: DOM node containing the frames.
+        @type  node: L{xml.dom.minidom.ElementNode}
+        """
+        self.name = node.getAttribute("name")
+        self.frames = []
+        for frame in node.getElementsByTagName("frame"):
+            f = RcdFrame()
+            f.loadfromDOM(frame)
+            self.frames.append(f)
+
+class RcdFrame(RcdField):
+    """
+    A class containing a single frame of an animation.
+
+    @ivar x_base: Base X position of the image. Default 0.
+    @type x_base: C{int}
+
+    @ivar y_base: Base Y position of the image. Default 0.
+    @type y_base: C{int}
+
+    @ivar width: Width of the image.
+    @type width: C{int}
+
+    @ivar height: Height of the image.
+    @type height: C{int}
+
+    @ivar x_offset: X offset of the image. Default 0.
+    @type x_offset: C{int}
+
+    @ivar y_offset: Y offset of the image. Default 0.
+    @type y_offset: C{int}
+
+    @ivar fname: Filename.
+    @type fname: C{unicode}
+
+    @ivar duration: Length of the frame in milli seconds.
+    @type duration: C{int}
+
+    @ivar game_dx: X movement after displaying this frame.
+    @type game_dx: C{int}
+
+    @ivar game_dy: Y movement after displaying this frame.
+    @type game_dy: C{int}
+
+    @ivar number: Number indicating the frame ID.
+                  Used to switch between animations when the zoom changes.
+    @type number: C{int}
+
+    @ivar transp: Transparent colour. Default 0.
+    @type transp: C{int}
+    """
+    def __init__(self):
+        RcdField.__init__(self)
+        self.name = None
+        self.x_base = 0
+        self.y_base = 0
+        self.width = None
+        self.height = None
+        self.fname = None
+        self.x_offset = 0
+        self.y_offset = 0
+        self.duration = 0
+        self.game_dx = 0
+        self.game_dy = 0
+        self.number = 0
+        self.transp = 0
+
+    def loadfromDOM(self, node):
+        self.name     = node.getAttribute("name")
+        self.x_base   = int(get_opt_DOM(node, 'x-base', u"0"))
+        self.y_base   = int(get_opt_DOM(node, 'y-base', u"0"))
+        self.width    = int(node.getAttribute("width"))
+        self.height   = int(node.getAttribute("height"))
+        self.x_offset = int(get_opt_DOM(node, "x-offset", u"0"))
+        self.y_offset = int(get_opt_DOM(node, "y-offset", u"0"))
+        self.fname    = node.getAttribute("fname")
+        self.duration = int(node.getAttribute("duration"))
+        self.game_dx  = int(node.getAttribute("game-dx"))
+        self.game_dy  = int(node.getAttribute("game-dy"))
+        self.number   = int(node.getAttribute("number"))
+        self.transp   = int(get_opt_DOM(node, 'transparent', u"0"))
 
 # }}}
 
