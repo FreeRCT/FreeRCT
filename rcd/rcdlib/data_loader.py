@@ -11,6 +11,7 @@ Game data loaded from file.
 from xml.dom import minidom
 from xml.dom.minidom import Node
 
+# {{{ def get_opt_DOM(node, name, default):
 def get_opt_DOM(node, name, default):
     """
     Get an optional value from the DOM node.
@@ -30,7 +31,8 @@ def get_opt_DOM(node, name, default):
     if node.hasAttribute(name): return node.getAttribute(name)
     return default
 
-
+# }}}
+# {{{ class RcdFiles(object):
 class RcdFiles(object):
     """
     Class representing the rcd files to create.
@@ -48,7 +50,8 @@ class RcdFiles(object):
             f.loadfromDOM(n)
             self.files.append(f)
 
-
+# }}}
+# {{{ class RcdMagic(object):
 class RcdMagic(object):
     """
     Data and block magic numbers.
@@ -67,7 +70,8 @@ class RcdMagic(object):
         self.magic = node.getAttribute("magic")
         self.version = int(node.getAttribute("version"))
 
-
+# }}}
+# {{{ class RcdFile(RcdMagic):
 class RcdFile(RcdMagic):
     """
     Class representing a single RCD data file.
@@ -98,6 +102,8 @@ class RcdFile(RcdMagic):
             g.loadfromDOM(n)
             self.blocks.append(g)
 
+# }}}
+# {{{ class RcdGameBlock(RcdMagic):
 class RcdGameBlock(RcdMagic):
     """
     Game block of an rcd file.
@@ -137,7 +143,9 @@ class RcdGameBlock(RcdMagic):
                 img.loadfromDOM(n)
                 self.fields[img.name] = img
 
+# }}}
 
+# {{{ class RcdField(object):
 class RcdField(object):
     """
     Base class of a field in the game data file.
@@ -148,8 +156,8 @@ class RcdField(object):
     def __init__(self):
         self.field_def = None
 
-
-
+# }}}
+# {{{ class RcdDataField(RcdField):
 class RcdDataField(RcdField):
     """
     A 'simple' data field.
@@ -175,6 +183,8 @@ class RcdDataField(RcdField):
         self.name = node.getAttribute("name")
         self.value = node.getAttribute("value")
 
+# }}}
+# {{{ class RcdImageField(RcdField):
 class RcdImageField(RcdField):
     """
     An image in a field.
@@ -202,6 +212,11 @@ class RcdImageField(RcdField):
 
     @ivar fname: Filename.
     @type fname: C{unicode}
+
+    @ivar transp: Transparent colour. Default 0.
+    @type transp: C{int}
+
+    @todo L{transp} is likely not implemented.
     """
     def __init__(self):
         RcdField.__init__(self)
@@ -213,6 +228,7 @@ class RcdImageField(RcdField):
         self.fname = None
         self.x_offset = 0
         self.y_offset = 0
+        self.transp = 0
 
     def loadfromDOM(self, node):
         self.name     = node.getAttribute("name")
@@ -225,7 +241,8 @@ class RcdImageField(RcdField):
         self.fname    = node.getAttribute("fname")
         self.transp   = int(get_opt_DOM(node, 'transparent', u"0"))
 
-
+# }}}
+# {{{ def get_sheet_images(node):
 def get_sheet_images(node):
     """
     Construct the images that are laid out in a image sheet.
@@ -263,7 +280,7 @@ def get_sheet_images(node):
             images.append(img)
     return images
 
-
+# }}}
 
 
 def loadfromDOM(fname):

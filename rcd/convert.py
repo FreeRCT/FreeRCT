@@ -92,12 +92,14 @@ def convert(def_fname, data_fname):
                 if isinstance(data, data_loader.RcdDataField):
                     value = data_type.convert(data.value)
                     if value is None:
-                        raise ValueError("Value %r of field %r in data block %r is incorrect" % (data.value, flddef.name, block.magic))
+                        raise ValueError("Value %r of field %r in data block %r is incorrect" %
+                                         (data.value, flddef.name, block.magic))
                     blockdata[data.name] = value
                 else:
                     assert data_type.name == 'sprite'
                     im = spritegrid.image_loader.get_img(data.fname)
-                    im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset, data.x_base, data.y_base, data.width, data.height)
+                    im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset,
+                                                    data.x_base, data.y_base, data.width, data.height)
                     pxl_blk = im_obj.make_8PXL()
                     if pxl_blk is not None:
                         pix_blknum = file_blocks.add_block(pxl_blk)
