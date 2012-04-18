@@ -642,4 +642,57 @@ Known scroll-bar widget types:
  - 177 Shaded vertical scroll bar + button.
 
 
+Animation
+~~~~~~~~~
+Animation sequences are defined using the 'ANIM' block.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'ANIM'.
+   4       4    Version number of the block '1'.
+   8       4    Length of the block excluding magic string, version, and
+                  length.
+  12       2    Zoom width of a tile.
+  14       1    Person type.
+  15       2    Animation type.
+  17       2    Frame count (called 'f').
+  19     f*10   Data of all frames.
+   ?            Variable length.
+======  ======  ==========================================================
+
+A person type defines for which kind of persons the animation can be used:
+ - Any (0) Any kind of person (eg persons are not shown).
+ - Pillar (8) Guests from the Pillar Planet (test graphics).
+ - Eartch (16) More familiar kinds of persons,
+
+The animation type defines what the animation really shows. Currently, the
+following animations exist:
+ - Walk in north-east direction (1). May be looped.
+ - Walk in south-east direction (2). May be looped.
+ - Walk in south-west direction (3). May be looped.
+ - Walk in north-west direction (4). May be looped.
+
+Finally the actual frames of the animation are listed, prefixed by how
+many frames to expect. The animation type decides whether or not an animation
+can be repeated by looping.
+A single frame consists of the following data.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Sprite.
+   4       2    Duration of the frame in milli seconds.
+   6       2    (signed) X position change after displaying the frame.
+   8       2    (signed) Y position change after displaying the frame.
+  10       2    Frame number.
+  12            Total length.
+======  ======  ==========================================================
+
+The frame number should correspond with frame numbers of the same animation,
+but at a different zoom width. It allows for looking up an equivalent stage in
+another animation, for nice transitions, in case the zoom width changes during
+the game.
+
+
 .. vim: set spell tw=78

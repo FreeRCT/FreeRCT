@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <structures magic="RCDF" version="1">
+	<enum name="PersonType" type="uint8">
+		<value name="any"    value="0">Any person type is fine (eg no visible persons in the animation)</value>
+		<value name="pillar" value="8">Guests from the Planet of Pillar (test graphics)</value>
+		<value name="earth"  value="16">A more common kind of people</value>
+	</enum>
+
+	<enum name="AnimationType" type="uint16">
+		<value name="walk_ne" value="1">Walk in north-east direction</value>
+		<value name="walk_se" value="2">Walk in south-east direction</value>
+		<value name="walk_sw" value="3">Walk in south-west direction</value>
+		<value name="walk_nw" value="4">Walk in north-west direction</value>
+	</enum>
+
+	<block magic="ANIM" minversion="1" maxversion="1">
+		<field name="width"       type="uint16">Zoom-width of a tile of the surface</field>
+		<field name="person_type" type="PersonType">Type of persons in the animation</field>
+		<field name="anim_type"   type="AnimationType">Animation being defined</field>
+		<field name="frame"       type="frame_count">Frames of the animation</field>
+	</block>
+
 	<block magic="BDIR" minversion="1" maxversion="1">
 		<field name="width" type="uint16">Zoom-width of a tile of the surface</field>
 		<field name="ne"    type="sprite">North-east direction</field>
