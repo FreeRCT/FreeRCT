@@ -184,6 +184,54 @@ public:
 	Sprite *sprites[4]; ///< Object displayed towards NE, SE, SW, NW edges.
 };
 
+/** One frame in an animation. */
+struct AnimationFrame {
+	Sprite *sprite;       ///< %Sprite to display.
+	uint16 duration;      ///< Length of this frame in milli seconds.
+	int16 dx;             ///< Person movement in X direction after displaying this frame.
+	int16 dy;             ///< Person movement in Y direction after displaying this frame.
+	uint16 number;        ///< Frame number of this animation.
+	AnimationFrame *next; ///< Pointer to next frame (or \c NULL if no next frame).
+};
+
+/** Available animations. */
+enum AnimationType {
+	ANIM_WALK_NE = 1,          ///< Walk in north-east direction.
+	ANIM_WALK_SE = 2,          ///< Walk in south-east direction.
+	ANIM_WALK_SW = 3,          ///< Walk in south-west direction.
+	ANIM_WALK_NW = 4,          ///< Walk in north-west direction.
+
+	ANIM_BEGIN = ANIM_WALK_NE, ///< First animation.
+	ANIM_LAST  = ANIM_WALK_NW, ///< Last animation.
+	ANIM_INVALID = 0xFF,       ///< Invalid animation.
+};
+
+/** Types of persons shown in the animation. */
+enum PersonType {
+	PERSONS_ANY = 0,    ///< No people displayed in the animation.
+	PERSONS_PILLAR = 1, ///< People from the planet of Pillars (test graphics).
+	PERSONS_EATYH = 2,  ///< Earth-bound people.
+
+	PERSONS_INVALID = 0xFF, ///< Invalid person type.
+};
+
+/** Data structure holding a single animation. */
+class Animation : public RcdBlock {
+public:
+	Animation();
+	~Animation();
+
+	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+
+	uint16 width;            ///< Width of the tile.
+	uint16 frame_count;      ///< Number of frames.
+	uint8 person_type;       ///< Type of persons supported by this animation.
+	AnimationType anim_type; ///< Animation ID.
+
+	AnimationFrame *frames;  ///< Frames of the animation.
+};
+
+typedef std::multimap<AnimationType, Animation *> AnimationsMap; ///< Multi-map of available animations.
 
 /**
  * Sprites of a border.
@@ -382,6 +430,7 @@ public:
 	void AddFoundations(Foundation *fnd);
 	void AddPath(Path *path);
 	void AddBuildArrows(DisplayedObject *obj);
+	void AddAnimation(Animation *anim);
 
 	bool HasSufficientGraphics() const;
 
@@ -458,6 +507,7 @@ public:
 	TileCorners *tile_corners;         ///< Tile corner sprites.
 	Path *path_sprites;                ///< Path sprites.
 	DisplayedObject *build_arrows;     ///< Arrows displaying build direction of paths and tracks.
+	AnimationsMap animations;          ///< Available animations.
 
 protected:
 	void Clear();

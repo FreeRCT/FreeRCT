@@ -443,7 +443,7 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites
 	return true;
 }
 
-DisplayedObject::DisplayedObject()
+DisplayedObject::DisplayedObject() : RcdBlock()
 {
 	this->width = 0;
 	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
@@ -481,6 +481,77 @@ bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sp
 	return true;
 }
 
+/** %Animation default constructor. */
+Animation::Animation() : RcdBlock()
+{
+	this->width = 0;
+	this->frame_count = 0;
+	this->person_type = PERSONS_INVALID;
+	this->anim_type = ANIM_INVALID;
+	this->frames = NULL;
+}
+
+/** %Animation destructor. */
+Animation::~Animation()
+{
+	free(this->frames);
+}
+
+/**
+ * Load an animation.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool Animation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
+
+	if (length < BASE_LENGTH) return false;
+	this->width = rcd_file->GetUInt16();
+
+	uint8 pt = rcd_file->GetUInt8();
+	switch (pt) {
+		case  0: this->person_type = PERSONS_ANY; break;
+		case  8: this->person_type = PERSONS_PILLAR; break;
+		case 16: this->person_type = PERSONS_EATYH; break;
+		default: return false;
+	}
+	uint16 at = rcd_file->GetUInt16();
+	if (at < ANIM_BEGIN || at > ANIM_LAST) return false;
+	this->anim_type = (AnimationType)at;
+
+	this->frame_count = rcd_file->GetUInt16();
+	if (length != BASE_LENGTH + this->frame_count * 12) return false;
+	this->frames = (AnimationFrame *)malloc(this->frame_count * sizeof(AnimationFrame));
+	if (this->frames == NULL) return false;
+
+	for (uint i = 0; i < this->frame_count; i++) {
+		AnimationFrame *frame = this->frames + i;
+
+		uint32 val = rcd_file->GetUInt32();
+		if (val == 0) {
+			frame->sprite = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			frame->sprite = (*iter).second;
+		}
+
+		frame->duration = rcd_file->GetUInt16();
+		if (frame->duration == 0 || frame->duration >= 1000) return false; // Arbitrary sanity limit.
+
+		frame->dx = rcd_file->GetInt16();
+		if (frame->dx < -100 || frame->dx > 100) return false; // Arbitrary sanity limit.
+
+		frame->dy = rcd_file->GetInt16();
+		if (frame->dy < -100 || frame->dy > 100) return false; // Arbitrary sanity limit.
+
+		frame->number = rcd_file->GetUInt16();
+	}
+	return true;
+}
 
 /** Clear the border sprite data. */
 void BorderSpriteData::Clear()
@@ -843,6 +914,7 @@ void SpriteStorage::Clear()
 	this->tile_corners = NULL;
 	this->path_sprites = NULL;
 	this->build_arrows = NULL;
+	this->animations.clear(); // Blocks get deleted through the 'this->blocks'.
 }
 
 /**
@@ -911,6 +983,17 @@ void SpriteStorage::AddBuildArrows(DisplayedObject *obj)
 {
 	assert(obj->width == this->size);
 	this->build_arrows = obj;
+}
+
+/**
+ * Add an animation to the sprite storage.
+ * @param anim %Animation object to add.
+ * @pre Width of the animation sprites must match with #size.
+ */
+void SpriteStorage::AddAnimation(Animation *anim)
+{
+	assert(anim->width == this->size);
+	this->animations.insert(std::make_pair(anim->anim_type, anim));
 }
 
 /**
@@ -1097,6 +1180,21 @@ const char *SpriteManager::Load(const char *filename)
 			if (!_gui_sprites.LoadGSCL(&rcd_file, length, sprites)) {
 				return "Loading Scrollbar Gui sprites failed.";
 			}
+			continue;
+		}
+
+		if (strcmp(name, "ANIM") == 0 && version == 1) {
+			Animation *anim = new Animation();
+			if (!anim->Load(&rcd_file, length, sprites)) {
+				delete anim;
+				return "Animation failed to load.";
+			}
+			if (anim->person_type == PERSONS_INVALID || anim->anim_type == ANIM_INVALID) {
+				delete anim;
+				return "Unknown animation.";
+			}
+			this->AddBlock(anim);
+			this->store.AddAnimation(anim);
 			continue;
 		}
 

@@ -664,7 +664,7 @@ Offset  Length  Description
 A person type defines for which kind of persons the animation can be used:
  - Any (0) Any kind of person (eg persons are not shown).
  - Pillar (8) Guests from the Pillar Planet (test graphics).
- - Eartch (16) More familiar kinds of persons,
+ - Earth (16) Earth-bound persons,
 
 The animation type defines what the animation really shows. Currently, the
 following animations exist:
