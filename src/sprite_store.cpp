@@ -525,8 +525,9 @@ bool Animation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 12) return false;
 	this->frames = (AnimationFrame *)malloc(this->frame_count * sizeof(AnimationFrame));
-	if (this->frames == NULL) return false;
+	if (this->frames == NULL || this->frame_count == 0) return false;
 
+	AnimationFrame *prev = NULL;
 	for (uint i = 0; i < this->frame_count; i++) {
 		AnimationFrame *frame = this->frames + i;
 
@@ -549,7 +550,11 @@ bool Animation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 		if (frame->dy < -100 || frame->dy > 100) return false; // Arbitrary sanity limit.
 
 		frame->number = rcd_file->GetUInt16();
+
+		if (prev != NULL) prev->next = frame;
+		prev = frame;
 	}
+	prev->next = this->frames; // All animations loop back to the first frame currently.
 	return true;
 }
 
