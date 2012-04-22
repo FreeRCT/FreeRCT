@@ -40,6 +40,25 @@ bool Random::Success(int perc)
 }
 
 /**
+ * Draw a number from an uniform distribution. Lower bound is \c 0, upper bound is \a incl_upper (inclusive).
+ * @param incl_upper Inclusive upper bound.
+ * @return Value drawn from the distribution within the set limits.
+ */
+uint16 Random::Uniform(uint16 incl_upper)
+{
+	uint length = 1;
+	uint32 val = 2;
+	while (val <= incl_upper) {
+		val <<= 1;
+		length++;
+	}
+	for (;;) {
+		val = this->DrawNumber() >> (32 - length);
+		if (val <= incl_upper) return val;
+	}
+}
+
+/**
  * Draw a random 32 bit number ('ranqd1' generator in Numerical Recipes).
  * @return New random number on every call.
  * @note Higher bits are more random than the low ones.
