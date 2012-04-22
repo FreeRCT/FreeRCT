@@ -27,7 +27,9 @@ public:
 	Person();
 	virtual ~Person();
 
-	uint16 id; ///< Unique id (also depends on derived class).
+	uint16 id;  ///< Unique id (also depends on derived class).
+protected:
+	Random rnd; ///< Random number generator for deciding how the person reacts.
 };
 
 class Guest : public Person {
@@ -45,7 +47,8 @@ public:
 	const char *GetName() const;
 
 private:
-	char *name; ///< Name of the guest. \c NULL means it has a default name ("Guest XYZ").
+	char *name;      ///< Name of the guest. \c NULL means it has a default name ("Guest XYZ").
+	uint8 happiness; ///< Happiness of the guest (values are 0-100).
 };
 
 /* Forward declarations. */

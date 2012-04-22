@@ -16,7 +16,7 @@
 
 Guests _guests; ///< Guests in the world/park.
 
-Person::Person()
+Person::Person() : rnd()
 {
 }
 
@@ -39,6 +39,7 @@ Guest::~Guest()
 void Guest::Activate()
 {
 	this->name = NULL;
+	this->happiness = 50 + this->rnd.Uniform(50);
 
 }
 
@@ -65,7 +66,8 @@ void Guest::OnAnimate(int delay)
  */
 bool Guest::DailyUpdate()
 {
-	return true; // Guests never leave currently.
+	this->happiness = max(0, this->happiness - 2);
+	return this->happiness > 10; // De-activate if at or below 10.
 }
 
 /**
