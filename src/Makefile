@@ -8,11 +8,13 @@
 
 .PHONY: run clean rcd lang
 
+OBJDIR=objects
+
 PYTHON=python
 
 CXX=g++
 CXXFLAGS=-Wall -g
-INCLUDES=-I/usr/include/SDL
+INCLUDES=-I$(OBJDIR) -I/usr/include/SDL
 LIBS=-lSDL -lSDL_ttf
 
 CXXFILES=config_reader.cpp dates.cpp \
@@ -23,7 +25,8 @@ CXXFILES=config_reader.cpp dates.cpp \
 	tile_func.cpp toolbar_gui.cpp video.cpp \
 	viewport.cpp widget.cpp window.cpp
 
-OBJFILES=$(CXXFILES:.cpp=.o)
+OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
+DEPFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.d))
 TARGET=freerct
 
 $(TARGET): $(OBJFILES)
@@ -40,24 +43,21 @@ lang: ../rcd/english.lang
 rcd:
 	$(MAKE) -C ../rcd
 
-%.o: %.cpp
+$(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-%.d: %.cpp table/strings.h
-	$(CXX) -MM $(CXXFLAGS) $(INCLUDES) $< | sed 's,\($*\)\.o[ :]*,\1.o $@ : ,' > $@
+$(OBJDIR)/%.d: %.cpp $(OBJDIR)/table/strings.h
+	$(CXX) -MM $(CXXFLAGS) $(INCLUDES) $< | sed 's,\($*\)\.o[ :]*,$(OBJDIR)/\1.o $@ : ,' > $@
 
-table/strings.h: lang/english.txt ../rcd/process_languages.py
-	if test ! -d table;\
-	then mkdir table;\
-	fi
-	$(PYTHON) ../rcd/process_languages.py --directory lang --output-include table/strings.h
+$(OBJDIR)/table/strings.h: lang/english.txt ../rcd/process_languages.py
+	$(PYTHON) ../rcd/process_languages.py --directory lang --output-include $@
 
 clean:
-	for i in $(OBJFILES) $(CXXFILES:.cpp=.d) table/strings.h $(TARGET);\
+	for i in $(OBJFILES) $(DEPFILES) $(OBJDIR)/table/strings.h $(TARGET);\
 	do if test -f $$i; then rm $$i; fi;\
 	done
 
 ifndef NODEPS
-include $(CXXFILES:.cpp=.d)
+include $(DEPFILES)
 endif
 
