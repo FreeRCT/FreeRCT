@@ -92,7 +92,7 @@ const char *Guest::GetName() const
 }
 
 
-GuestBlock::GuestBlock(uint16 base_id) : Block<Guest, 512>(base_id)
+GuestBlock::GuestBlock(uint16 base_id) : Block<Guest, GUEST_BLOCK_SIZE>(base_id)
 {
 }
 

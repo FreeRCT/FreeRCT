@@ -14,6 +14,8 @@
 
 #include "random.h"
 
+static const int GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
+
 /**
  * Common base class of a person in the world.
  *
@@ -271,7 +273,7 @@ void Block<PersonType, SIZE>::DeActivate(PersonType *pt)
 
 
 /** A block of guests. */
-class GuestBlock: public Block<Guest, 512> {
+class GuestBlock: public Block<Guest, GUEST_BLOCK_SIZE> {
 public:
 	GuestBlock(uint16 base_id);
 };
