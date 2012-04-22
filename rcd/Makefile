@@ -8,7 +8,8 @@
 
 RCDFILES=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd cornerhighlight_8bpp64.rcd \
 	cursor_groundtile_8bpp64.rcd \
-	gui.rcd foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd
+	gui.rcd foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd \
+	people_animation.rcd
 
 PYTHON=python
 
