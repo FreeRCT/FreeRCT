@@ -10,6 +10,7 @@
 /** @file people.cpp People in the world. */
 
 #include "stdafx.h"
+#include "map.h"
 #include "dates.h"
 #include "people.h"
 #include "math_func.h"
@@ -35,8 +36,11 @@ Guest::~Guest()
 	free(this->name);
 }
 
-/** Mark this guest as 'in use'. */
-void Guest::Activate()
+/**
+ * Mark this guest as 'in use'.
+ * @param start Start x/y voxel stack for entering the world.
+ */
+void Guest::Activate(const Point16 &start)
 {
 	this->name = NULL;
 	this->happiness = 50 + this->rnd.Uniform(50);
@@ -102,8 +106,66 @@ GuestBlock::GuestBlock(uint16 base_id) : Block<Guest, GUEST_BLOCK_SIZE>(base_id)
 {
 }
 
+/**
+ * Check that the voxel stack at the given coordinate is a good spot to use as entry point for new guests.
+ * @param x X position at the edge.
+ * @param y Y position at the edge.
+ * @return The given position is a good starting point.
+ */
+static bool IsGoodEdgeRoad(int16 x, int16 y)
+{
+	if (x < 0 || y < 0) return false;
+	int16 z = _world.GetGroundHeight(x, y);
+	const Voxel *vs = _world.GetVoxel(x, y, z);
+	const SurfaceVoxelData *svd = vs->GetSurface();
+	return svd->path.type == PT_CONCRETE && svd->path.slope < PATH_FLAT_COUNT;
+}
+
+/**
+ * Try to find a voxel at the edge of the world that can be used as entry point for guests.
+ * @return The x/y coordinate at the edge of the world of a usable voxelstack, else an off-world coordinate.
+ */
+static Point16 FindEdgeRoad()
+{
+	Point16 pt;
+
+	int16 highest_x = _world.GetXSize() - 1;
+	int16 highest_y = _world.GetYSize() - 1;
+	for (int x = 1; x < highest_x; x++) {
+		if (IsGoodEdgeRoad(x, 0)) {
+			pt.x = x;
+			pt.y = 0;
+			return pt;
+		}
+		if (IsGoodEdgeRoad(x, highest_y)) {
+			pt.x = x;
+			pt.y = highest_y;
+			return pt;
+		}
+	}
+	for (int y = 1; y < highest_y; y++) {
+		if (IsGoodEdgeRoad(0, y)) {
+			pt.x = 0;
+			pt.y = y;
+			return pt;
+		}
+		if (IsGoodEdgeRoad(highest_x, y)) {
+			pt.x = highest_x;
+			pt.y = y;
+			return pt;
+		}
+	}
+
+	pt.x = -1;
+	pt.y = -1;
+	return pt;
+}
+
+
 Guests::Guests() : block(0), rnd()
 {
+	this->start_voxel.x = -1;
+	this->start_voxel.y = -1;
 	this->daily_frac = 0;
 	this->next_daily_index = 0;
 }
@@ -147,13 +209,19 @@ void Guests::DoTick()
 
 /**
  * A new day arrived, handle daily chores of the park.
+ * @todo Chance of spawning a new guest should depends on popularity (and be configurable for a level).
  */
 void Guests::OnNewDay()
 {
 	if (this->rnd.Success1024(512)) {
+		if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) {
+			printf("New guest, but no road\n");
+			this->start_voxel = FindEdgeRoad();
+			if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
+		}
 		printf("New guest!\n");
 		Guest *g = this->block.GetNew();
-		if (g != NULL) g->Activate();
+		if (g != NULL) g->Activate(this->start_voxel);
 	}
 }
 

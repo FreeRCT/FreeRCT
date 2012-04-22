@@ -40,7 +40,7 @@ public:
 	void OnAnimate(int delay);
 	bool DailyUpdate();
 
-	void Activate();
+	void Activate(const Point16 &start);
 	void DeActivate();
 
 	void SetName(const char *name);
@@ -319,6 +319,7 @@ public:
 private:
 	GuestBlock block;     ///< The data of all actual guests.
 	Random rnd;           ///< Random number generator for creating new guests.
+	Point16 start_voxel;  ///< Entry x/y coordinate of the voxel stack at the edge.
 	int daily_frac;       ///< Frame counter.
 	int next_daily_index; ///< Index of the next guest to give daily service.
 };
