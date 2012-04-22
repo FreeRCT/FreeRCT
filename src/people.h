@@ -36,7 +36,7 @@ public:
 	virtual ~Guest();
 
 	void OnAnimate(int delay);
-	void OnNewDay();
+	bool DailyUpdate();
 
 	void Activate();
 	void DeActivate();
@@ -174,6 +174,28 @@ public:
 	PersonType *GetNew();
 	void DeActivate(PersonType *p);
 
+	/**
+	 * Is entry \a index active?
+	 * @param index Queried entry number.
+	 * @return %Block element with the given index is active.
+	 */
+	inline bool IsActive(int index)
+	{
+		if (index < 0 || index >= SIZE) return false;
+		uint32 bit = ((uint32)1) << ((uint)index % 32);
+		return (this->actives[(uint)index / 32] & bit) != 0;
+	}
+
+	/**
+	 * Get the data of a person.
+	 * @param index Queried entry number.
+	 * @return Reference to the data of the queried person.
+	 */
+	inline PersonType &Get(int index)
+	{
+		return this->element[index];
+	}
+
 	iterator begin();
 	iterator end();
 
@@ -281,7 +303,6 @@ public:
 /**
  * All our guests.
  * @todo Allow to have several blocks of guests.
- * @todo #Guests::OnNewDay is not good, we should do a few guests every tick instead of all at the same time.
  */
 class Guests {
 public:
@@ -289,11 +310,14 @@ public:
 	~Guests();
 
 	void OnAnimate(int delay);
+	void DoTick();
 	void OnNewDay();
 
 private:
-	GuestBlock block; ///< The data of all actual guests.
-	Random rnd;       ///< Random number generator for creating new guests.
+	GuestBlock block;     ///< The data of all actual guests.
+	Random rnd;           ///< Random number generator for creating new guests.
+	int daily_frac;       ///< Frame counter.
+	int next_daily_index; ///< Index of the next guest to give daily service.
 };
 
 extern Guests _guests;

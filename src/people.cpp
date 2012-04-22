@@ -10,7 +10,9 @@
 /** @file people.cpp People in the world. */
 
 #include "stdafx.h"
+#include "dates.h"
 #include "people.h"
+#include "math_func.h"
 
 Guests _guests; ///< Guests in the world/park.
 
@@ -40,7 +42,7 @@ void Guest::Activate()
 
 }
 
-/** Mark this guest as 'not in use'. */
+/** Mark this guest as 'not in use'. (Called by #Guests.) */
 void Guest::DeActivate()
 {
 	free(this->name);
@@ -58,10 +60,12 @@ void Guest::OnAnimate(int delay)
 
 /**
  * Daily ponderings of a guest.
- * @todo [high] Function is empty, make it so something useful instead.
+ * @return If \c false, de-activate the guest.
+ * @todo Make de-activation a bit more random.
  */
-void Guest::OnNewDay()
+bool Guest::DailyUpdate()
 {
+	return true; // Guests never leave currently.
 }
 
 /**
@@ -96,8 +100,10 @@ GuestBlock::GuestBlock(uint16 base_id) : Block<Guest, GUEST_BLOCK_SIZE>(base_id)
 {
 }
 
-Guests::Guests() : block(0)
+Guests::Guests() : block(0), rnd()
 {
+	this->daily_frac = 0;
+	this->next_daily_index = 0;
 }
 
 Guests::~Guests()
@@ -116,16 +122,36 @@ void Guests::OnAnimate(int delay)
 	}
 }
 
+/** A new frame arrived, perform the daily call for some of the guests. */
+void Guests::DoTick()
+{
+	this->daily_frac++;
+	int end_index = min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
+	while (this->next_daily_index < end_index) {
+		if (this->block.IsActive(this->next_daily_index)) {
+			Guest &g = this->block.Get(this->next_daily_index);
+			if (!g.DailyUpdate()) {
+				printf("Guest %d is leaving\n", g.id);
+				this->block.DeActivate(&g);
+			}
+		}
+		this->next_daily_index++;
+	}
+	if (this->next_daily_index >= GUEST_BLOCK_SIZE) {
+		this->daily_frac = 0;
+		this->next_daily_index = 0;
+	}
+}
+
 /**
- * A new day arrived, perform 'all guests' type of daily updates.
- * @todo The daily update of each guest must be implemented in a different way than through here.
+ * A new day arrived, handle daily chores of the park.
  */
 void Guests::OnNewDay()
 {
 	if (this->rnd.Success1024(512)) {
 		printf("New guest!\n");
 		Guest *g = this->block.GetNew();
-		g->Activate();
+		if (g != NULL) g->Activate();
 	}
 }
 
