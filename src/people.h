@@ -127,7 +127,7 @@ BlockIterator<PersonType, SIZE> BlockIterator<PersonType, SIZE>::operator++(int)
 		for (;;) {
 			this->index++;
 			if (this->index >= SIZE) break;
-			uint32 bit = 1 << (this->index % 32);
+			uint32 bit = ((uint32)1) << (this->index % 32);
 			if ((block->actives[this->index / 32] & bit) != 0) break;
 		}
 	}
@@ -246,7 +246,7 @@ template <typename PersonType, int SIZE>
 PersonType *Block<PersonType, SIZE>::GetNew()
 {
 	for (uint idx = 0; idx < (uint)SIZE; idx++) {
-		uint32 bit = 1 << (idx % 32);
+		uint32 bit = ((uint32)1) << (idx % 32);
 		if ((this->actives[idx / 32] & bit) == 0) {
 			this->actives[idx / 32] |= bit;
 			return &this->element[idx];
@@ -267,7 +267,7 @@ void Block<PersonType, SIZE>::DeActivate(PersonType *pt)
 	assert(pt->id >= this->base_id && pt->id < this->base_id + SIZE);
 	uint16 idx = pt->id - this->base_id;
 	assert(pt == &this->element[idx]);
-	uint32 bit = 1 << (idx % 32);
+	uint32 bit = ((uint32)1) << (idx % 32);
 	this->actives[idx / 32] &= ~bit;
 }
 
