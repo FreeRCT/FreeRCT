@@ -33,6 +33,12 @@ public:
 	Person();
 	virtual ~Person();
 
+	bool OnAnimate(int delay);
+	bool DailyUpdate();
+
+	void Activate(const Point16 &start, uint8 person_type);
+	void DeActivate();
+
 	void SetName(const char *name);
 	const char *GetName() const;
 
@@ -51,18 +57,6 @@ protected:
 	union {
 		GuestData guest; ///< Guest data (only valid if #PersonIsAGuest holds for #type).
 	} u; ///< Person-type specific data.
-};
-
-class Guest : public Person {
-public:
-	Guest();
-	virtual ~Guest();
-
-	void OnAnimate(int delay);
-	bool DailyUpdate();
-
-	void Activate(const Point16 &start, uint8 person_type);
-	void DeActivate();
 };
 
 /* Forward declarations. */
@@ -312,7 +306,7 @@ void Block<PersonType, SIZE>::DeActivate(PersonType *pt)
 
 
 /** A block of guests. */
-class GuestBlock: public Block<Guest, GUEST_BLOCK_SIZE> {
+class GuestBlock: public Block<Person, GUEST_BLOCK_SIZE> {
 public:
 	GuestBlock(uint16 base_id);
 };

@@ -59,23 +59,15 @@ const char *Person::GetName() const
 	return buffer;
 }
 
-
-Guest::Guest() : Person()
-{
-}
-
-Guest::~Guest()
-{
-}
-
 /**
- * Mark this guest as 'in use'.
+ * Mark this person as 'in use'.
  * @param start Start x/y voxel stack for entering the world.
  * @param person_type Type of person getting activated.
  */
-void Guest::Activate(const Point16 &start, uint8 person_type)
+void Person::Activate(const Point16 &start, uint8 person_type)
 {
 	assert(this->type == PERSON_INVALID);
+	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
 	this->name = NULL;
@@ -86,8 +78,8 @@ void Guest::Activate(const Point16 &start, uint8 person_type)
 
 }
 
-/** Mark this guest as 'not in use'. (Called by #Guests.) */
-void Guest::DeActivate()
+/** Mark this person as 'not in use'. (Called by #Guests.) */
+void Person::DeActivate()
 {
 	if (this->type == PERSON_INVALID) return;
 
@@ -97,20 +89,22 @@ void Guest::DeActivate()
 }
 
 /**
- * Update the animation of the guest.
+ * Update the animation of the person.
  * @param delay Amount of milli seconds since the last update.
+ * @return If \c false, de-activate the person.
  * @todo [high] Function is empty, make it so something useful instead.
  */
-void Guest::OnAnimate(int delay)
+bool Person::OnAnimate(int delay)
 {
+	return true;
 }
 
 /**
- * Daily ponderings of a guest.
- * @return If \c false, de-activate the guest.
+ * Daily ponderings of a person.
+ * @return If \c false, de-activate the person.
  * @todo Make de-activation a bit more random.
  */
-bool Guest::DailyUpdate()
+bool Person::DailyUpdate()
 {
 	if (!PersonIsAGuest(this->type)) return false;
 
@@ -119,7 +113,7 @@ bool Guest::DailyUpdate()
 }
 
 
-GuestBlock::GuestBlock(uint16 base_id) : Block<Guest, GUEST_BLOCK_SIZE>(base_id)
+GuestBlock::GuestBlock(uint16 base_id) : Block<Person, GUEST_BLOCK_SIZE>(base_id)
 {
 }
 
@@ -210,7 +204,7 @@ void Guests::DoTick()
 	int end_index = min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
 	while (this->next_daily_index < end_index) {
 		if (this->block.IsActive(this->next_daily_index)) {
-			Guest &g = this->block.Get(this->next_daily_index);
+			Person &g = this->block.Get(this->next_daily_index);
 			if (!g.DailyUpdate()) {
 				printf("Guest %d is leaving\n", g.id);
 				g.DeActivate();
@@ -239,7 +233,7 @@ void Guests::OnNewDay()
 			if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
 		}
 		printf("New guest!\n");
-		Guest *g = this->block.GetNew();
+		Person *g = this->block.GetNew();
 		if (g != NULL) g->Activate(this->start_voxel, PERSON_PILLAR);
 	}
 }
