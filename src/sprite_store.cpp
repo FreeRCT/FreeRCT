@@ -486,7 +486,7 @@ Animation::Animation() : RcdBlock()
 {
 	this->width = 0;
 	this->frame_count = 0;
-	this->person_type = PERSONS_INVALID;
+	this->person_type = PERSON_INVALID;
 	this->anim_type = ANIM_INVALID;
 	this->frames = NULL;
 }
@@ -513,9 +513,9 @@ bool Animation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 
 	uint8 pt = rcd_file->GetUInt8();
 	switch (pt) {
-		case  0: this->person_type = PERSONS_ANY; break;
-		case  8: this->person_type = PERSONS_PILLAR; break;
-		case 16: this->person_type = PERSONS_EATYH; break;
+		case  0: this->person_type = PERSON_ANY; break;
+		case  8: this->person_type = PERSON_PILLAR; break;
+		case 16: this->person_type = PERSON_EARTH; break;
 		default: return false;
 	}
 	uint16 at = rcd_file->GetUInt16();
@@ -1194,7 +1194,7 @@ const char *SpriteManager::Load(const char *filename)
 				delete anim;
 				return "Animation failed to load.";
 			}
-			if (anim->person_type == PERSONS_INVALID || anim->anim_type == ANIM_INVALID) {
+			if (anim->person_type == PERSON_INVALID || anim->anim_type == ANIM_INVALID) {
 				delete anim;
 				return "Unknown animation.";
 			}

@@ -19,6 +19,7 @@ Guests _guests; ///< Guests in the world/park.
 
 Person::Person() : rnd()
 {
+	this->type = PERSON_INVALID;
 	this->name = NULL;
 }
 
@@ -67,9 +68,13 @@ Guest::~Guest()
 /**
  * Mark this guest as 'in use'.
  * @param start Start x/y voxel stack for entering the world.
+ * @param person_type Type of person getting activated.
  */
-void Guest::Activate(const Point16 &start)
+void Guest::Activate(const Point16 &start, uint8 person_type)
 {
+	assert(this->type == PERSON_INVALID);
+
+	this->type = person_type;
 	this->name = NULL;
 	this->happiness = 50 + this->rnd.Uniform(50);
 
@@ -78,6 +83,9 @@ void Guest::Activate(const Point16 &start)
 /** Mark this guest as 'not in use'. (Called by #Guests.) */
 void Guest::DeActivate()
 {
+	if (this->type == PERSON_INVALID) return;
+
+	this->type = PERSON_INVALID;
 	free(this->name);
 	this->name = NULL;
 }
@@ -212,6 +220,7 @@ void Guests::DoTick()
 /**
  * A new day arrived, handle daily chores of the park.
  * @todo Chance of spawning a new guest should depends on popularity (and be configurable for a level).
+ * @todo Person type should be configurable too.
  */
 void Guests::OnNewDay()
 {
@@ -223,7 +232,7 @@ void Guests::OnNewDay()
 		}
 		printf("New guest!\n");
 		Guest *g = this->block.GetNew();
-		if (g != NULL) g->Activate(this->start_voxel);
+		if (g != NULL) g->Activate(this->start_voxel, PERSON_PILLAR);
 	}
 }
 

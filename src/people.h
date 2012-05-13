@@ -12,15 +12,17 @@
 #ifndef PEOPLE_H
 #define PEOPLE_H
 
+#include "person_type.h"
 #include "random.h"
 
 static const int GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
+
 
 /**
  * Common base class of a person in the world.
  *
  * Persons are stored in contiguous blocks of memory, which makes the constructor and destructor useless.
- * Instead, \c Activate and \c DeActivate methods are used for this purpose.
+ * Instead, \c Activate and \c DeActivate methods are used for this purpose. The #type variable controls the state of the entry.
  */
 class Person {
 public:
@@ -31,6 +33,12 @@ public:
 	const char *GetName() const;
 
 	uint16 id;  ///< Unique id (also depends on derived class).
+	/**
+	 * Type of person.
+	 * #PERSON_INVALID means the entry is not used.
+	 * @see PersonType
+	 */
+	uint8 type;
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
@@ -45,7 +53,7 @@ public:
 	void OnAnimate(int delay);
 	bool DailyUpdate();
 
-	void Activate(const Point16 &start);
+	void Activate(const Point16 &start, uint8 person_type);
 	void DeActivate();
 
 private:

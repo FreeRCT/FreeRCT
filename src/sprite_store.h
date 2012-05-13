@@ -15,6 +15,7 @@
 #include "orientation.h"
 #include "path.h"
 #include "tile.h"
+#include "person_type.h"
 #include <map>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
@@ -204,15 +205,6 @@ enum AnimationType {
 	ANIM_BEGIN = ANIM_WALK_NE, ///< First animation.
 	ANIM_LAST  = ANIM_WALK_NW, ///< Last animation.
 	ANIM_INVALID = 0xFF,       ///< Invalid animation.
-};
-
-/** Types of persons shown in the animation. */
-enum PersonType {
-	PERSONS_ANY = 0,    ///< No people displayed in the animation.
-	PERSONS_PILLAR = 1, ///< People from the planet of Pillars (test graphics).
-	PERSONS_EATYH = 2,  ///< Earth-bound people.
-
-	PERSONS_INVALID = 0xFF, ///< Invalid person type.
 };
 
 /** Data structure holding a single animation. */
