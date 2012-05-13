@@ -27,9 +27,14 @@ public:
 	Person();
 	virtual ~Person();
 
+	void SetName(const char *name);
+	const char *GetName() const;
+
 	uint16 id;  ///< Unique id (also depends on derived class).
+
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
+	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
 };
 
 class Guest : public Person {
@@ -43,11 +48,7 @@ public:
 	void Activate(const Point16 &start);
 	void DeActivate();
 
-	void SetName(const char *name);
-	const char *GetName() const;
-
 private:
-	char *name;      ///< Name of the guest. \c NULL means it has a default name ("Guest XYZ").
 	uint8 happiness; ///< Happiness of the guest (values are 0-100).
 };
 

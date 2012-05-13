@@ -19,21 +19,49 @@ Guests _guests; ///< Guests in the world/park.
 
 Person::Person() : rnd()
 {
+	this->name = NULL;
 }
 
 Person::~Person()
 {
+	free(this->name);
+}
+
+/**
+ * Set the name of a guest.
+ * @param name New name of the guest.
+ * @note Currently unused.
+ */
+void Person::SetName(const char *name)
+{
+	int length = strlen(name);
+	this->name = (char *)malloc(length + 1);
+	memcpy(this->name, name, length);
+	this->name[length] = '\0';
+}
+
+/**
+ * Query the name of the person.
+ * The name is returned in memory owned by the person. Do not free this data. It may change on each call.
+ * @return Static buffer containing the name of the person.
+ * @note Currently not used.
+ */
+const char *Person::GetName() const
+{
+	static char buffer[16];
+
+	if (this->name != NULL) return this->name;
+	sprintf(buffer, "guest %u", this->id);
+	return buffer;
 }
 
 
 Guest::Guest() : Person()
 {
-	this->name = NULL;
 }
 
 Guest::~Guest()
 {
-	free(this->name);
 }
 
 /**
@@ -72,33 +100,6 @@ bool Guest::DailyUpdate()
 {
 	this->happiness = max(0, this->happiness - 2);
 	return this->happiness > 10; // De-activate if at or below 10.
-}
-
-/**
- * Set the name of a guest.
- * @param name New name of the guest.
- * @note Currently unused.
- */
-void Guest::SetName(const char *name)
-{
-	int length = strlen(name);
-	this->name = (char *)malloc(length + 1);
-	memcpy(this->name, name, length);
-	this->name[length] = '\0';
-}
-
-/**
- * Query the name of the guest.
- * @return Static buffer containing the name of the guest.
- * @note Currently not used.
- */
-const char *Guest::GetName() const
-{
-	static char buffer[16];
-
-	if (this->name != NULL) return this->name;
-	sprintf(buffer, "guest %u", this->id);
-	return buffer;
 }
 
 
