@@ -35,6 +35,8 @@ Person::~Person()
  */
 void Person::SetName(const char *name)
 {
+	assert(PersonIsAGuest(this->type));
+
 	int length = strlen(name);
 	this->name = (char *)malloc(length + 1);
 	memcpy(this->name, name, length);
@@ -51,6 +53,7 @@ const char *Person::GetName() const
 {
 	static char buffer[16];
 
+	assert(PersonIsAGuest(this->type));
 	if (this->name != NULL) return this->name;
 	sprintf(buffer, "guest %u", this->id);
 	return buffer;

@@ -19,7 +19,20 @@ enum PersonType {
 	PERSON_EARTH  = 2, ///< Earth-bound guests.
 
 	PERSON_INVALID = 0xFF, ///< Invalid person type.
+
+	PERSON_MIN_GUEST = PERSON_ANY,   ///< First value of a guest.
+	PERSON_MAX_GUEST = PERSON_EARTH, ///< Last value of a guest.
 };
+
+/**
+ * Function to decide whehter a person type is a guest or not.
+ * @param type Person type to test.
+ * @return Whether the given person type is a guest.
+ */
+static inline bool PersonIsAGuest(uint8 type)
+{
+	return type >= PERSON_MIN_GUEST && type <= PERSON_MAX_GUEST;
+}
 
 #endif
 
