@@ -49,7 +49,7 @@ public:
 	void DeActivate();
 
 private:
-	uint8 happiness; ///< Happiness of the guest (values are 0-100).
+	int16 happiness; ///< Happiness of the guest (values are 0-100).
 };
 
 /* Forward declarations. */

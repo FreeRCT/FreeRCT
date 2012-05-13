@@ -197,6 +197,7 @@ void Guests::DoTick()
 			Guest &g = this->block.Get(this->next_daily_index);
 			if (!g.DailyUpdate()) {
 				printf("Guest %d is leaving\n", g.id);
+				g.DeActivate();
 				this->block.DeActivate(&g);
 			}
 		}
