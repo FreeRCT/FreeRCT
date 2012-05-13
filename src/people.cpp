@@ -79,7 +79,10 @@ void Guest::Activate(const Point16 &start, uint8 person_type)
 
 	this->type = person_type;
 	this->name = NULL;
-	this->happiness = 50 + this->rnd.Uniform(50);
+
+	if (PersonIsAGuest(this->type)) {
+		this->u.guest.happiness = 50 + this->rnd.Uniform(50);
+	}
 
 }
 
@@ -109,8 +112,10 @@ void Guest::OnAnimate(int delay)
  */
 bool Guest::DailyUpdate()
 {
-	this->happiness = max(0, this->happiness - 2);
-	return this->happiness > 10; // De-activate if at or below 10.
+	if (!PersonIsAGuest(this->type)) return false;
+
+	this->u.guest.happiness = max(0, this->u.guest.happiness - 2);
+	return this->u.guest.happiness > 10; // De-activate if at or below 10.
 }
 
 

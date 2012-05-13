@@ -17,6 +17,10 @@
 
 static const int GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
 
+/** Data of a guest. */
+struct GuestData {
+	int16 happiness; ///< Happiness of the guest (values are 0-100).
+};
 
 /**
  * Common base class of a person in the world.
@@ -43,6 +47,10 @@ public:
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
 	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
+
+	union {
+		GuestData guest; ///< Guest data (only valid if #PersonIsAGuest holds for #type).
+	} u; ///< Person-type specific data.
 };
 
 class Guest : public Person {
@@ -55,9 +63,6 @@ public:
 
 	void Activate(const Point16 &start, uint8 person_type);
 	void DeActivate();
-
-private:
-	int16 happiness; ///< Happiness of the guest (values are 0-100).
 };
 
 /* Forward declarations. */
