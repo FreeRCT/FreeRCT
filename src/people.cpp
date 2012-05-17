@@ -179,7 +179,7 @@ void PersonList::Remove(Person *p)
  * Get the person from the head of the list.
  * @return %Person at the head of the list.
  */
-Person *PersonList::Get()
+Person *PersonList::RemoveHead()
 {
 	Person *p = this->first;
 	assert(p != NULL);
@@ -187,9 +187,29 @@ Person *PersonList::Get()
 	return p;
 }
 
-GuestBlock::GuestBlock(uint16 base_id) : Block<Person, GUEST_BLOCK_SIZE>(base_id)
+GuestBlock::GuestBlock(uint16 base_id)
 {
+	for (uint i = 0; i < lengthof(this->persons); i++) {
+		this->persons[i].id = base_id;
+		base_id++;
+	}
 }
+
+/**
+ * Add all persons to the provided list.
+ * @param pl %Person list to add the persons to.
+ */
+void GuestBlock::AddAll(PersonList *pl)
+{
+	/* Add in reverse order so the first retrieval is the first person in this block. */
+	uint i = lengthof(this->persons) - 1;
+	for (;;) {
+		pl->AddFirst(this->Get(i));
+		if (i == 0) break;
+		i--;
+	}
+}
+
 
 /**
  * Check that the voxel stack at the given coordinate is a good spot to use as entry point for new guests.
@@ -249,6 +269,8 @@ static Point16 FindEdgeRoad()
 
 Guests::Guests() : block(0), rnd()
 {
+	this->block.AddAll(&this->free);
+
 	this->start_voxel.x = -1;
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
@@ -265,9 +287,14 @@ Guests::~Guests()
  */
 void Guests::OnAnimate(int delay)
 {
-	GuestBlock::iterator iter;
-	for (iter = block.begin(); iter != block.end(); iter++) {
-		(*iter)->OnAnimate(delay);
+	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
+		Person *p = this->block.Get(i);
+		if (p->type == PERSON_INVALID) continue;
+
+		if (!p->OnAnimate(delay)) {
+			p->DeActivate();
+			this->free.AddFirst(p);
+		}
 	}
 }
 
@@ -277,17 +304,15 @@ void Guests::DoTick()
 	this->daily_frac++;
 	int end_index = min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
 	while (this->next_daily_index < end_index) {
-		if (this->block.IsActive(this->next_daily_index)) {
-			Person &g = this->block.Get(this->next_daily_index);
-			if (!g.DailyUpdate()) {
-				printf("Guest %d is leaving\n", g.id);
-				g.DeActivate();
-				this->block.DeActivate(&g);
-			}
+		Person *p = this->block.Get(this->next_daily_index);
+		if (p->type != PERSON_INVALID && !p->DailyUpdate()) {
+			printf("Guest %d is leaving\n", p->id);
+			p->DeActivate();
+			this->free.AddFirst(p);
 		}
 		this->next_daily_index++;
 	}
-	if (this->next_daily_index >= GUEST_BLOCK_SIZE) {
+	if (this->next_daily_index >= (int)GUEST_BLOCK_SIZE) {
 		this->daily_frac = 0;
 		this->next_daily_index = 0;
 	}
@@ -306,9 +331,11 @@ void Guests::OnNewDay()
 			this->start_voxel = FindEdgeRoad();
 			if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
 		}
+
+		if (this->free.IsEmpty()) return; // No more quests available.
 		printf("New guest!\n");
-		Person *g = this->block.GetNew();
-		if (g != NULL) g->Activate(this->start_voxel, PERSON_PILLAR);
+		Person *p = this->free.RemoveHead();
+		if (p != NULL) p->Activate(this->start_voxel, PERSON_PILLAR);
 	}
 }
 
