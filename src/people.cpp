@@ -21,6 +21,8 @@ Person::Person() : rnd()
 {
 	this->type = PERSON_INVALID;
 	this->name = NULL;
+	this->next = NULL;
+	this->prev = NULL;
 }
 
 Person::~Person()
@@ -112,6 +114,78 @@ bool Person::DailyUpdate()
 	return this->u.guest.happiness > 10; // De-activate if at or below 10.
 }
 
+
+/** Default constructor of the person list. */
+PersonList::PersonList()
+{
+	this->first = NULL;
+	this->last = NULL;
+}
+
+/** Destructor of the person list. */
+PersonList::~PersonList()
+{
+	// Silently let go of the persons in the list.
+}
+
+/**
+ * Are there any persons in the list?
+ * @return \c true iff at least one person is in the list.
+ */
+bool PersonList::IsEmpty()
+{
+	return this->first == NULL;
+}
+
+/**
+ * Add person to the head of the list.
+ * @param p %Person to add.
+ */
+void PersonList::AddFirst(Person *p)
+{
+	p->prev = NULL;
+	p->next = this->first;
+	if (this->first == NULL) {
+		this->last = p;
+		this->first = p;
+	} else {
+		this->first->prev = p;
+		this->first = p;
+	}
+}
+
+/**
+ * Remove a person from the list.
+ * @param p %Person to remove.
+ */
+void PersonList::Remove(Person *p)
+{
+	if (p->prev == NULL) {
+		assert(this->first == p);
+		this->first = p->next;
+	} else {
+		p->prev->next = p->next;
+	}
+
+	if (p->next == NULL) {
+		assert(this->last == p);
+		this->last = p->prev;
+	} else {
+		p->next->prev = p->prev;
+	}
+}
+
+/**
+ * Get the person from the head of the list.
+ * @return %Person at the head of the list.
+ */
+Person *PersonList::Get()
+{
+	Person *p = this->first;
+	assert(p != NULL);
+	this->Remove(p);
+	return p;
+}
 
 GuestBlock::GuestBlock(uint16 base_id) : Block<Person, GUEST_BLOCK_SIZE>(base_id)
 {

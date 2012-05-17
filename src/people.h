@@ -50,6 +50,9 @@ public:
 	 */
 	uint8 type;
 
+	Person *next; ///< Next person in the linked list.
+	Person *prev; ///< Previous person in the linked list.
+
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
 	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
@@ -57,6 +60,23 @@ protected:
 	union {
 		GuestData guest; ///< Guest data (only valid if #PersonIsAGuest holds for #type).
 	} u; ///< Person-type specific data.
+};
+
+/** Manager of a doubly linked list of persons. */
+class PersonList {
+public:
+	PersonList();
+	~PersonList();
+
+	bool IsEmpty();
+
+	void AddFirst(Person *p);
+	void Remove(Person *p);
+	Person *Get();
+
+protected:
+	Person *first; ///< First person in the list.
+	Person *last;  ///< Last person in the list.
 };
 
 /* Forward declarations. */
