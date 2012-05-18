@@ -1,0 +1,52 @@
+# Dutch translation
+# provided by Kenney Vleugels, at May 17, 2012.
+
+# Generic Gui strings
+STR_TITLEBAR_TIP                                :Klik op de titelbalk om het venster te verhogen, sleep de titelbalk om het venster te verplaatsen.
+
+STR_MONTH_JANUARY                               :Januari
+STR_MONTH_FEBRUARY                              :Februari
+STR_MONTH_MARCH                                 :Maart
+STR_MONTH_APRIL                                 :April
+STR_MONTH_MAY                                   :Mei
+STR_MONTH_JUNE                                  :Juni
+STR_MONTH_JULY                                  :Juli
+STR_MONTH_AUGUST                                :Augustus
+STR_MONTH_SEPTEMBER                             :September
+STR_MONTH_OCTOBER                               :Oktober
+STR_MONTH_NOVEMBER                              :November
+STR_MONTH_DECEMBER                              :December
+
+# Toolbar gui strings
+STR_TOOLBAR_GUI_QUIT                            :Afsluiten
+STR_TOOLBAR_GUI_QUIT_PROGRAM                    :Sluit het programma.
+STR_TOOLBAR_GUI_PATHS                           :Paden
+STR_TOOLBAR_GUI_BUILD_PATHS                     :Bouw paden en wachtrijen.
+
+
+# Path gui strings
+STR_PATH_GUI_TITLE                              :Paden
+STR_PATH_GUI_LONG                               :Lang
+STR_PATH_GUI_BUY                                :Kopen
+STR_PATH_GUI_REMOVE                             :Verwijderen
+STR_PATH_GUI_LONG_TIP                           :Bouw een lang pad.
+STR_PATH_GUI_BUY_TIP                            :Koop een pad tegel.
+STR_PATH_GUI_BULLDOZER_TIP                      :Klik om het laatst geplaatse pad te verwijderen en je geld terug te krijgen
+                                                 (werkt totdat je het venster sluit).
+STR_PATH_GUI_SLOPE_DOWN                         :Omlaag
+STR_PATH_GUI_SLOPE_FLAT                         :Vlak
+STR_PATH_GUI_SLOPE_UP                           :Omhoog
+STR_PATH_GUI_SLOPE_DOWN_TIP                     :Bouw pad omlaag.
+STR_PATH_GUI_SLOPE_FLAT_TIP                     :Bouw pad vlak.
+STR_PATH_GUI_SLOPE_UP_TIP                       :Bouw pad omhoog.
+
+STR_PATH_GUI_FORWARD                            :Vooruit
+STR_PATH_GUI_BACKWARD                           :Terug
+STR_PATH_GUI_FORWARD_TIP                        :Beweeg een tegel voorwaards.
+STR_PATH_GUI_BACKWARD_TIP                       :Beweeg een tegel terug.
+
+STR_PATH_GUI_NW_DIRECTION_TIP                   :Bouw pad in noord-westelijke richting.
+STR_PATH_GUI_NE_DIRECTION_TIP                   :Bouw pad in noord-oostelijke richting.
+STR_PATH_GUI_SW_DIRECTION_TIP                   :Bouw pad in zuid-westelijke richting.
+STR_PATH_GUI_SE_DIRECTION_TIP                   :Bouw pad in zuid-oostelijke richting.
+
