@@ -141,7 +141,7 @@ public:
 protected:
 	/**
 	 * Handle a voxel that should be collected.
-	 * @param vx   %Voxel to add.
+	 * @param vx   %Voxel to add, \c NULL means 'cursor above stack'.
 	 * @param xpos X world position.
 	 * @param ypos Y world position.
 	 * @param zpos Z world position.
@@ -436,7 +436,7 @@ const Sprite *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, ui
 
 /**
  * Add all sprites of the voxel to the set of sprites to draw.
- * @param voxel %Voxel to add.
+ * @param voxel %Voxel to add, \c NULL means 'cursor above stack.
  * @param xpos X world position.
  * @param ypos Y world position.
  * @param zpos Z world position.
@@ -537,7 +537,7 @@ PixelFinder::~PixelFinder()
 
 /**
  * Find the closest sprite.
- * @param voxel %Voxel to examine.
+ * @param voxel %Voxel to examine, \c NULL means 'cursor above stack'.
  * @param xpos X world position.
  * @param ypos Y world position.
  * @param zpos Z world position.
@@ -549,6 +549,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 	int sx = (this->orient == VOR_NORTH || this->orient == VOR_EAST) ? 256 : -256;
 	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 256 : -256;
 
+	if (voxel == NULL) return; // Ignore cursors, they are not clickable.
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
