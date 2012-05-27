@@ -36,19 +36,14 @@ public:
 	bool OnAnimate(int delay);
 	bool DailyUpdate();
 
-	void Activate(const Point16 &start, uint8 person_type);
+	void Activate(const Point16 &start, PersonType person_type);
 	void DeActivate();
 
 	void SetName(const char *name);
 	const char *GetName() const;
 
-	uint16 id;  ///< Unique id of the person.
-	/**
-	 * Type of person.
-	 * #PERSON_INVALID means the entry is not used.
-	 * @see PersonType
-	 */
-	uint8 type;
+	uint16 id;       ///< Unique id of the person.
+	PersonType type; ///< Type of person.
 
 	Person *next; ///< Next person in the linked list.
 	Person *prev; ///< Previous person in the linked list.

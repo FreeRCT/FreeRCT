@@ -66,7 +66,7 @@ const char *Person::GetName() const
  * @param start Start x/y voxel stack for entering the world.
  * @param person_type Type of person getting activated.
  */
-void Person::Activate(const Point16 &start, uint8 person_type)
+void Person::Activate(const Point16 &start, PersonType person_type)
 {
 	assert(this->type == PERSON_INVALID);
 	assert(person_type != PERSON_INVALID);

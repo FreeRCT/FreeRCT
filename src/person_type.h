@@ -25,7 +25,7 @@ enum PersonType {
 };
 
 /**
- * Function to decide whehter a person type is a guest or not.
+ * Function to decide whether a person type is a guest or not.
  * @param type Person type to test.
  * @return Whether the given person type is a guest.
  */
