@@ -57,6 +57,36 @@ static const CornerNeighbours neighbours[4] = {
 	{TC_SOUTH, TC_NORTH, { {{ 0, -1}, TC_SOUTH}, {{ 1, -1}, TC_EAST }, {{ 1,  0}, TC_NORTH}} }, // TC_WEST
 };
 
+/**
+ * Copy a voxel.
+ * @param dest Destination address.
+ * @param src Source address.
+ */
+static inline void CopyVoxel(Voxel *dest, Voxel *src)
+{
+	dest->type = src->type;
+	if (src->type == VT_SURFACE) {
+		dest->surface = src->surface;
+	} else if (src->type == VT_REFERENCE) {
+		dest->reference = src->reference;
+	}
+}
+
+/**
+ * Copy a stack of voxels.
+ * @param dest Destination address.
+ * @param src Source address.
+ * @param count Number of voxels to copy.
+ */
+static void CopyStackData(Voxel *dest, Voxel *src, int count)
+{
+	while (count > 0) {
+		CopyVoxel(dest, src);
+		dest++;
+		src++;
+		count--;
+	}
+}
 
 /** Default constructor. */
 VoxelStack::VoxelStack()
@@ -97,7 +127,7 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 
 	Voxel *new_voxels = Calloc<Voxel>(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
-	MemCpy<Voxel>(new_voxels + (this->base - new_base), this->voxels, this->height);
+	CopyStackData(new_voxels + (this->base - new_base), this->voxels, this->height);
 
 	free(this->voxels);
 	this->voxels = new_voxels;
@@ -115,7 +145,7 @@ VoxelStack *VoxelStack::Copy() const
 	VoxelStack *vs = new VoxelStack;
 	if (this->height > 0) {
 		vs->MakeVoxelStack(this->base, this->height);
-		MemCpy(vs->voxels, this->voxels, this->height);
+		CopyStackData(vs->voxels, this->voxels, this->height);
 	}
 	return vs;
 }
@@ -233,7 +263,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 
 	if ((high - low + 1) * 2 > this->height) {
 		if (this->height == vs->height) {
-			MemCpy(this->voxels, vs->voxels, this->height);
+			CopyStackData(this->voxels, vs->voxels, this->height);
 		} else {
 			assert(vs->height > this->height);
 			/* New stack is higher. Free this->voxels, and move new stack to this. */
@@ -249,7 +279,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 		/* Lots of wasted voxels, let's make a new stack. */
 		this->Clear();
 		this->MakeVoxelStack(low, high - low + 1);
-		MemCpy(this->voxels, vs->voxels + low, high - low + 1);
+		CopyStackData(this->voxels, vs->voxels + low, high - low + 1);
 	}
 }
 
