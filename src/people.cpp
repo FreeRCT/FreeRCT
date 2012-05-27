@@ -12,8 +12,8 @@
 #include "stdafx.h"
 #include "map.h"
 #include "dates.h"
-#include "people.h"
 #include "math_func.h"
+#include "people.h"
 
 Guests _guests; ///< Guests in the world/park.
 
@@ -23,6 +23,8 @@ Person::Person() : rnd()
 	this->name = NULL;
 	this->next = NULL;
 	this->prev = NULL;
+
+	this->offset = this->rnd.Uniform(100);
 }
 
 Person::~Person()

@@ -22,8 +22,45 @@ struct GuestData {
 	int16 happiness; ///< Happiness of the guest (values are 0-100).
 };
 
+ /**
+ * Limits that exist at the tile.
+ *
+ * There are four limits in X direction (NE of tile, low x limit, high x limit, and SW of tile),
+ * and four limits in Y direction (NW of tile, low y limit, high y limit, and SE of tile). Low and
+ * high is created by means of a random offset from the center, to prevent all guests from walking
+ * at a single line.
+ *
+ * Since you can walk the tile in two directions (incrementing x/y or decrementing x/y), the middle
+ * limits have a below/above notion as well.
+ */
+enum WalkLimit {
+	WLM_NE_EDGE,      ///< Continue until the north-east edge (X <   0). Hitting this limit implies we have arrived at a new tile.
+	WLM_SE_EDGE,      ///< Continue until the south-east edge (Y > 255). Hitting this limit implies we have arrived at a new tile.
+	WLM_SW_EDGE,      ///< Continue until the south-west edge (X > 255). Hitting this limit implies we have arrived at a new tile.
+	WLM_NW_EDGE,      ///< Continue until the north-west edge (Y <   0). Hitting this limit implies we have arrived at a new tile.
+	WLM_BELOW_LOW_X,  ///< Continue until we are below the low  x limit at the tile.
+	WLM_BELOW_HIGH_X, ///< Continue until we are below the high x limit at the tile.
+	WLM_ABOVE_LOW_X,  ///< Continue until we are above the low  x limit at the tile.
+	WLM_ABOVE_HIGH_X, ///< Continue until we are above the high x limit at the tile.
+	WLM_BELOW_LOW_Y,  ///< Continue until we are below the low  y limit at the tile.
+	WLM_BELOW_HIGH_Y, ///< Continue until we are below the high y limit at the tile.
+	WLM_ABOVE_LOW_Y,  ///< Continue until we are above the low  y limit at the tile.
+	WLM_ABOVE_HIGH_Y, ///< Continue until we are above the high y limit at the tile.
+
+	WLM_INVALID, ///< Invalid limit, should not be encountered while walking.
+
+	WLM_OFF_TILE_LIMIT_LAST = WLM_NW_EDGE, ///< Last limit that fires when reaching off-tile.
+};
+
+/** Walk animation to use to walk a part of the tile. */
+struct WalkInformation {
+	AnimationType anim_type; ///< Animation to display.
+	uint8 limit_type;        ///< Limit to end use of this animation. @see WalkLimit
+};
+
+
 /**
- * Common base class of a person in the world.
+ * Class of a person in the world.
  *
  * Persons are stored in contiguous blocks of memory, which makes the constructor and destructor useless.
  * Instead, \c Activate and \c DeActivate methods are used for this purpose. The #type variable controls the state of the entry.
@@ -51,6 +88,14 @@ public:
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
 	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
+
+	int16 x_vox;  ///< %Voxel index in X direction of the person (if #type is not invalid).
+	int16 y_vox;  ///< %Voxel index in Y direction of the person (if #type is not invalid).
+	int16 z_vox;  ///< %Voxel index in Z direction of the person (if #type is not invalid).
+	int16 x_pos;  ///< X position of the person inside the voxel (0..255).
+	int16 y_pos;  ///< Y position of the person inside the voxel (0..255).
+	int16 z_pos;  ///< Z position of the person inside the voxel (0..255).
+	int16 offset; ///< Offset with respect to center of paths walked on (0..100).
 
 	union {
 		GuestData guest; ///< Guest data (only valid if #PersonIsAGuest holds for #type).

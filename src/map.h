@@ -15,6 +15,7 @@
 #include "tile.h"
 #include "path.h"
 #include "geometry.h"
+#include "sprite_store.h"
 #include "people.h"
 
 #include <map>
