@@ -1,0 +1,9 @@
+Track components:
+Coordinate system:
+[point name]=([x], [y], [z]),  ([dx], [dy], [dz]),  [roll]
+             point coordinates control point coords point roll
+256 x per voxel, 256 y per voxel, 128 z per voxel
+
+Collision bounds:
+([x], [y]): [a][b][c][d]
+voxel       collision bitmask
