@@ -221,6 +221,24 @@ public:
 
 typedef std::multimap<AnimationType, Animation *> AnimationsMap; ///< Multi-map of available animations.
 
+/** Data structure holding sprite of an animation. */
+class AnimationSprites: public RcdBlock {
+public:
+	AnimationSprites();
+	~AnimationSprites();
+
+	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+
+	uint16 width;            ///< Width of the tile.
+	uint8 person_type;       ///< Type of persons supported by this animation.
+	AnimationType anim_type; ///< Animation ID.
+	uint16 frame_count;      ///< Number of frames.
+
+	Sprite **sprites;        ///< Sprites of the animation.
+};
+
+typedef std::multimap<AnimationType, AnimationSprites *> AnimationSpritesMap; ///< Multi-map of available animation sprites.
+
 /**
  * Sprites of a border.
  * @ingroup gui_sprites_group
@@ -418,6 +436,8 @@ public:
 	void AddFoundations(Foundation *fnd);
 	void AddPath(Path *path);
 	void AddBuildArrows(DisplayedObject *obj);
+	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
+	void AddAnimationSprites(AnimationSprites *an_spr);
 
 	bool HasSufficientGraphics() const;
 
@@ -494,6 +514,7 @@ public:
 	TileCorners *tile_corners;         ///< Tile corner sprites.
 	Path *path_sprites;                ///< Path sprites.
 	DisplayedObject *build_arrows;     ///< Arrows displaying build direction of paths and tracks.
+	AnimationSpritesMap animations;    ///< %Animation sprites ordered by animation type.
 
 protected:
 	void Clear();

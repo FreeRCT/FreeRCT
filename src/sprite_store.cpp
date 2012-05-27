@@ -497,6 +497,21 @@ Animation::~Animation()
 }
 
 /**
+ * Decode a read value to the internal representation of a person type.
+ * @param pt Value read from the file.
+ * @return Decoded person type, or #PERSON_INVALID when decoding fails.
+ */
+static PersonType DecodePersonType(uint8 pt)
+{
+	switch (pt) {
+		case  0: return PERSON_ANY;
+		case  8: return PERSON_PILLAR;
+		case 16: return PERSON_EARTH;
+		default: return PERSON_INVALID;
+	}
+}
+
+/**
  * Load an animation.
  * @param rcd_file RCD file used for loading.
  * @param length Length of the data part of the block.
@@ -507,13 +522,9 @@ bool Animation::Load(RcdFile *rcd_file, size_t length)
 	const uint BASE_LENGTH = 1 + 2 + 2;
 
 	if (length < BASE_LENGTH) return false;
-	uint8 pt = rcd_file->GetUInt8();
-	switch (pt) {
-		case  0: this->person_type = PERSON_ANY; break;
-		case  8: this->person_type = PERSON_PILLAR; break;
-		case 16: this->person_type = PERSON_EARTH; break;
-		default: return false;
-	}
+	this->person_type = DecodePersonType(rcd_file->GetUInt8());
+	if (this->person_type == PERSON_INVALID) return false;
+
 	uint16 at = rcd_file->GetUInt16();
 	if (at < ANIM_BEGIN || at > ANIM_LAST) return false;
 	this->anim_type = (AnimationType)at;
@@ -534,6 +545,61 @@ bool Animation::Load(RcdFile *rcd_file, size_t length)
 
 		frame->dy = rcd_file->GetInt16();
 		if (frame->dy < -100 || frame->dy > 100) return false; // Arbitrary sanity limit.
+	}
+	return true;
+}
+
+/** Animation sprites default constructor. */
+AnimationSprites::AnimationSprites() : RcdBlock()
+{
+	this->width = 0;
+	this->frame_count = 0;
+	this->person_type = PERSON_INVALID;
+	this->anim_type = ANIM_INVALID;
+	this->sprites = NULL;
+}
+
+/** Animation sprites destructor. */
+AnimationSprites::~AnimationSprites()
+{
+	free(this->sprites);
+}
+
+/**
+ * Load the sprites of an animation.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
+
+	if (length < BASE_LENGTH) return false;
+	this->width = rcd_file->GetUInt16();
+
+	this->person_type = DecodePersonType(rcd_file->GetUInt8());
+	if (this->person_type == PERSON_INVALID) return false;
+
+	uint16 at = rcd_file->GetUInt16();
+	if (at < ANIM_BEGIN || at > ANIM_LAST) return false;
+	this->anim_type = (AnimationType)at;
+
+	this->frame_count = rcd_file->GetUInt16();
+	if (length != BASE_LENGTH + this->frame_count * 4) return false;
+	this->sprites = (Sprite **)malloc(this->frame_count * sizeof(Sprite *));
+	if (this->sprites == NULL || this->frame_count == 0) return false;
+
+	for (uint i = 0; i < this->frame_count; i++) {
+		uint32 val = rcd_file->GetUInt32();
+		if (val == 0) {
+			this->sprites[i] = NULL;
+		} else {
+			SpriteMap::const_iterator iter = sprites.find(val);
+			if (iter == sprites.end()) return false;
+			this->sprites[i] = (*iter).second;
+		}
 	}
 	return true;
 }
@@ -899,6 +965,7 @@ void SpriteStorage::Clear()
 	this->tile_corners = NULL;
 	this->path_sprites = NULL;
 	this->build_arrows = NULL;
+	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
 }
 
 /**
@@ -967,6 +1034,37 @@ void SpriteStorage::AddBuildArrows(DisplayedObject *obj)
 {
 	assert(obj->width == this->size);
 	this->build_arrows = obj;
+}
+
+/**
+ * Remove any sprites that were loaded for the provided animation.
+ * @param anim_type %Animation type to remove.
+ * @param pers_type Person type to remove.
+ */
+void SpriteStorage::RemoveAnimations(AnimationType anim_type, PersonType pers_type)
+{
+	AnimationSpritesMap::iterator iter = this->animations.find(anim_type);
+	for (;;) {
+		if (iter == this->animations.end()) return;
+		AnimationSprites *an_spr = (*iter).second;
+		if (an_spr->anim_type != anim_type) return;
+		if (an_spr->person_type == pers_type) {
+			AnimationSpritesMap::iterator iter2 = iter;
+			iter2++;
+			this->animations.erase(iter);
+			iter = iter2;
+		}
+	}
+}
+
+/**
+ * Add an animation to the sprite manager.
+ * @param an_spr %Animation sprites to add.
+ */
+void SpriteStorage::AddAnimationSprites(AnimationSprites *an_spr)
+{
+	assert(an_spr->width == this->size);
+	this->animations.insert(std::make_pair(an_spr->anim_type, an_spr));
 }
 
 /**
@@ -1169,6 +1267,22 @@ const char *SpriteManager::Load(const char *filename)
 			}
 			this->AddBlock(anim);
 			this->AddAnimation(anim);
+			this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
+			continue;
+		}
+
+		if (strcmp(name, "ANSP") == 0 && version == 1) {
+			AnimationSprites *an_spr = new AnimationSprites();
+			if (!an_spr->Load(&rcd_file, length, sprites)) {
+				delete an_spr;
+				return "Animation sprites failed to load.";
+			}
+			if (an_spr->person_type == PERSON_INVALID || an_spr->anim_type == ANIM_INVALID) {
+				delete an_spr;
+				return "Unknown animation.";
+			}
+			this->AddBlock(an_spr);
+			this->store.AddAnimationSprites(an_spr);
 			continue;
 		}
 
