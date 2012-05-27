@@ -97,9 +97,19 @@ protected:
 	int16 z_pos;  ///< Z position of the person inside the voxel (0..255).
 	int16 offset; ///< Offset with respect to center of paths walked on (0..100).
 
+	const WalkInformation *walk;  ///< Walk animation sequence being performed.
+	const AnimationFrame *frames; ///< Animation frames of the current animation.
+	uint16 frame_count;           ///< Number of frames in #frames.
+	uint16 frame_index;           ///< Currently displayed frame of #frames.
+	int16 frame_time;             ///< Remaining display time of this frame.
+
 	union {
 		GuestData guest; ///< Guest data (only valid if #PersonIsAGuest holds for #type).
 	} u; ///< Person-type specific data.
+
+	void DecideMoveDirection();
+	void WalkTheWalk(const WalkInformation *walk);
+	void MarkDirty();
 };
 
 /** Manager of a doubly linked list of persons. */

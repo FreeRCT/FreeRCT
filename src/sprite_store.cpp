@@ -1377,3 +1377,21 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	return NULL;
 }
 
+/**
+ * Get the animation frames of the requested animation for the provided type of person.
+ * @param anim_type %Animation to retrieve.
+ * @param per_type %Animation should feature this type of person.
+ * @return The requested animation if it is available, else \c NULL is returned.
+ */
+const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType per_type) const
+{
+	AnimationsMap::const_iterator iter = this->animations.find(anim_type);
+	while (iter != this->animations.end()) {
+		const Animation *anim = (*iter).second;
+		if (anim->anim_type != anim_type) break;
+		if (anim->person_type == per_type) return anim;
+		iter++;
+	}
+	return NULL;
+}
+

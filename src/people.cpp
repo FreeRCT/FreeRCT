@@ -14,6 +14,7 @@
 #include "dates.h"
 #include "math_func.h"
 #include "people.h"
+#include "viewport.h"
 
 Guests _guests; ///< Guests in the world/park.
 
@@ -71,6 +72,7 @@ const char *Person::GetName() const
  * @param x_pos X position in the voxel.
  * @param y_pos Y position in the voxel.
  * @return Z height of the path in the voxel at the give position.
+ * @todo Make it work at sloped surface too, in case the person ends up at path-less land.
  */
 static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int16 y_pos)
 {
@@ -100,6 +102,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	this->type = person_type;
 	this->name = NULL;
 
+	/* Do a little extra for guests. */
 	if (PersonIsAGuest(this->type)) {
 		this->u.guest.happiness = 50 + this->rnd.Uniform(50);
 	}
@@ -124,6 +127,166 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 		this->y_pos = 255;
 	}
 	this->z_pos = GetZHeight(this->x_vox, this->y_vox, this->z_vox, this->x_pos, this->y_pos);
+
+	this->DecideMoveDirection();
+}
+
+/** Walk from NE edge back to NE edge. */
+static const WalkInformation walk_ne_ne[] = {
+	{ANIM_WALK_SW, WLM_ABOVE_HIGH_X}, {ANIM_WALK_SE, WLM_ABOVE_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NE edge to SE edge. */
+static const WalkInformation walk_ne_se[] = {
+	{ANIM_WALK_SW, WLM_ABOVE_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NE edge to SW edge. */
+static const WalkInformation walk_ne_sw[] = {
+	{ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NE edge to NW edge. */
+static const WalkInformation walk_ne_nw[] = {
+	{ANIM_WALK_SW, WLM_ABOVE_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/** Walk from SE edge to NE edge. */
+static const WalkInformation walk_se_ne[] = {
+	{ANIM_WALK_NW, WLM_BELOW_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SE edge back to SE edge. */
+static const WalkInformation walk_se_se[] = {
+	{ANIM_WALK_NW, WLM_BELOW_LOW_Y},  {ANIM_WALK_SW, WLM_ABOVE_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SE edge to SW edge. */
+static const WalkInformation walk_se_sw[] = {
+	{ANIM_WALK_NW, WLM_BELOW_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE }, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SE edge to NW edge. */
+static const WalkInformation walk_se_nw[] = {
+	{ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/** Walk from SW edge to NE edge. */
+static const WalkInformation walk_sw_ne[] = {
+	{ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SW edge to SE edge. */
+static const WalkInformation walk_sw_se[] = {
+	{ANIM_WALK_NE, WLM_BELOW_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SW edge back to SW edge. */
+static const WalkInformation walk_sw_sw[] = {
+	{ANIM_WALK_NE, WLM_BELOW_LOW_X},  {ANIM_WALK_NW, WLM_BELOW_LOW_Y}, {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SW edge to NW edge. */
+static const WalkInformation walk_sw_nw[] = {
+{ANIM_WALK_NE, WLM_BELOW_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/** Walk from NW edge to NE edge. */
+static const WalkInformation walk_nw_ne[] = {
+	{ANIM_WALK_SE, WLM_ABOVE_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NW edge to SE edge. */
+static const WalkInformation walk_nw_se[] = {
+	{ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NW edge to SW edge. */
+static const WalkInformation walk_nw_sw[] = {
+	{ANIM_WALK_SE, WLM_ABOVE_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NW edge back to NW edge. */
+static const WalkInformation walk_nw_nw[] = {
+	{ANIM_WALK_SE, WLM_ABOVE_HIGH_Y}, {ANIM_WALK_NE, WLM_BELOW_LOW_X}, {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/**
+ * Decide where to go from the current position.
+ * @todo In case of walking downwards, it will get here with an initialized z-height in an empty voxel.
+ */
+void Person::DecideMoveDirection()
+{
+	/* Which way can the guest leave? */
+	uint8 exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions by default.
+	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
+	if (v->GetType() == VT_SURFACE) {
+		const SurfaceVoxelData *svd = v->GetSurface();
+		if (svd->path.type != PT_INVALID) {
+			uint8 slope = svd->path.slope;
+			if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
+				exits &= _path_expand[slope]; // Masks to exits only, as that's what 'exits' contains here.
+			} else { // At a path ramp.
+				exits = (slope == PATH_RAMP_NE || slope == PATH_RAMP_SW) ?
+						((1 << PATHBIT_NE) | (1 << PATHBIT_SW)) : ((1 << PATHBIT_SE) | (1 << PATHBIT_NW));
+			}
+		}
+	}
+
+	const WalkInformation *walks[4]; // Walks that can be done at this tile.
+	int walk_count = 0;
+
+	/* Decide at what edge the person is. */
+	assert(this->x_pos >= 0 && this->x_pos < 256);
+	assert(this->y_pos >= 0 && this->y_pos < 256);
+	int x = (this->x_pos < 128) ? this->x_pos : 255 - this->x_pos;
+	int y = (this->y_pos < 128) ? this->y_pos : 255 - this->y_pos;
+
+	if (x < y) {
+		if (this->x_pos < 128) { // at NE edge.
+			if ((exits & (1 << PATHBIT_SE)) != 0) walks[walk_count++] = walk_ne_se;
+			if ((exits & (1 << PATHBIT_SW)) != 0) walks[walk_count++] = walk_ne_sw;
+			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_ne_nw;
+			if (walk_count == 0) walks[walk_count++] = walk_ne_ne;
+		} else { // at SW edge.
+			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_sw_ne;
+			if ((exits & (1 << PATHBIT_SE)) != 0) walks[walk_count++] = walk_sw_se;
+			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_sw_nw;
+			if (walk_count == 0) walks[walk_count++] = walk_sw_sw;
+		}
+	} else {
+		if (this->y_pos < 128) { // at NW edge.
+			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_nw_ne;
+			if ((exits & (1 << PATHBIT_SE)) != 0) walks[walk_count++] = walk_nw_se;
+			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_nw_nw;
+			if (walk_count == 0) walks[walk_count++] = walk_nw_nw;
+		} else { // at SE edge.
+			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_se_ne;
+			if ((exits & (1 << PATHBIT_SW)) != 0) walks[walk_count++] = walk_se_sw;
+			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_se_nw;
+			if (walk_count == 0) walks[walk_count++] = walk_se_se;
+		}
+	}
+
+	assert(walk_count > 0);
+	const WalkInformation *new_walk;
+	if (walk_count == 1) {
+		new_walk = walks[0];
+	} else {
+		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
+	}
+
+	this->WalkTheWalk(new_walk);
+}
+
+/**
+ * Perform the animation sequence as provided.
+ * @param walk Walk information describing the animations to perform.
+ */
+void Person::WalkTheWalk(const WalkInformation *walk)
+{
+	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
+	if (anim == NULL || anim->frame_count == 0) {
+		this->walk = NULL;
+		this->frames = NULL;
+		this->frame_count = 0;
+		return;
+	}
+
+	this->walk = walk;
+	this->frames = anim->frames;
+	this->frame_count = anim->frame_count;
+	this->frame_index = 0;
+	this->frame_time = this->frames[this->frame_index].duration;
+	this->MarkDirty();
 }
 
 /** Mark this person as 'not in use'. (Called by #Guests.) */
@@ -141,11 +304,91 @@ void Person::DeActivate()
  * Update the animation of the person.
  * @param delay Amount of milli seconds since the last update.
  * @return If \c false, de-activate the person.
- * @todo [high] Function is empty, make it so something useful instead.
  */
 bool Person::OnAnimate(int delay)
 {
+	this->frame_time -= delay;
+	if (this->frame_time > 0) return true;
+
+	this->MarkDirty(); // Marks the entire voxel dirty, which should be big enough even after moving.
+
+	if (this->frames == NULL || this->frame_count == 0) return false;
+	uint16 index = this->frame_index;
+	const AnimationFrame *frame = &this->frames[index];
+	this->x_pos += frame->dx;
+	this->y_pos += frame->dy;
+
+	bool reached;
+	switch (this->walk->limit_type) {
+		case WLM_NE_EDGE:      reached = (this->x_pos < 0);   break;
+		case WLM_SE_EDGE:      reached = (this->y_pos > 255); break;
+		case WLM_SW_EDGE:      reached = (this->x_pos > 255); break;
+		case WLM_NW_EDGE:      reached = (this->y_pos < 0);   break;
+		case WLM_BELOW_LOW_X:  reached = (this->x_pos < 128 - this->offset); break;
+		case WLM_BELOW_HIGH_X: reached = (this->x_pos < 128 + this->offset); break;
+		case WLM_ABOVE_LOW_X:  reached = (this->x_pos > 128 - this->offset); break;
+		case WLM_ABOVE_HIGH_X: reached = (this->x_pos > 128 + this->offset); break;
+		case WLM_BELOW_LOW_Y:  reached = (this->y_pos < 128 - this->offset); break;
+		case WLM_BELOW_HIGH_Y: reached = (this->y_pos < 128 + this->offset); break;
+		case WLM_ABOVE_LOW_Y:  reached = (this->y_pos > 128 - this->offset); break;
+		case WLM_ABOVE_HIGH_Y: reached = (this->y_pos > 128 + this->offset); break;
+		default: NOT_REACHED();
+	}
+
+	if (!reached) {
+		/* Not reached the end, do the next frame. */
+		index++;
+		if (this->frame_count <= index) index = 0;
+		this->frame_index = index;
+		this->frame_time = this->frames[index].duration;
+
+		this->z_pos = GetZHeight(this->x_vox, this->y_vox, this->z_vox, this->x_pos, this->y_pos);
+		return true;
+	}
+
+	/* Reached the goal, start the next walk. */
+	if (this->walk->limit_type <= WLM_OFF_TILE_LIMIT_LAST) {
+		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
+		/* Not only the end of this walk, but the end of the entire walk at the tile. */
+		if (this->x_pos < 0) {
+			this->x_vox--;
+			this->x_pos += 256;
+		} else if (this->x_pos > 255) {
+			this->x_vox++;
+			this->x_pos -= 256;
+		}
+		if (this->y_pos < 0) {
+			this->y_vox--;
+			this->y_pos += 256;
+		} else if (this->y_pos > 255) {
+			this->y_vox++;
+			this->y_pos -= 256;
+		}
+		if (this->z_pos > 128) {
+			this->z_vox++;
+			this->z_pos = 0;
+		}
+		assert(this->x_pos >= 0 && this->x_pos < 256);
+		assert(this->y_pos >= 0 && this->y_pos < 256);
+
+		/* If the guest ended up off-world, quit. */
+		if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
+				this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
+			return false;
+		}
+		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
+		this->DecideMoveDirection();
+		return true;
+	}
+	this->WalkTheWalk(this->walk + 1);
 	return true;
+}
+
+/** Mark the screen where this person is, as dirty so it is repainted the next time. */
+void Person::MarkDirty()
+{
+	Viewport *vp = GetViewport();
+	if (vp != NULL) vp->MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
 }
 
 /**

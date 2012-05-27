@@ -536,6 +536,7 @@ public:
 	const SpriteStorage *GetSprites(uint16 size) const;
 	void AddAnimation(Animation *anim);
 	const ImageData *GetTableSprite(uint16 number) const;
+	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
 
 protected:
 	const char *Load(const char *fname);
