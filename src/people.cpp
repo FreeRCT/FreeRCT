@@ -294,7 +294,10 @@ void Person::DeActivate()
 {
 	if (this->type == PERSON_INVALID) return;
 
-	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
+	if (_world.VoxelExists(this->x_vox, this->y_vox, this->z_vox)) {
+		/* If not wandered off-world, remove the person from the voxel person list. */
+		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
+	}
 	this->type = PERSON_INVALID;
 	free(this->name);
 	this->name = NULL;

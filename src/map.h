@@ -274,6 +274,22 @@ public:
 		return this->y_size;
 	}
 
+	/**
+	 * Does the provided voxel exist in the world?
+	 * @param x X coordinate of the voxel.
+	 * @param y Y coordinate of the voxel.
+	 * @param z Z coordinate of the voxel.
+	 * @return Whether a voxel with content exists at the given position.
+	 */
+	inline bool VoxelExists(int16 x, int16 y, int16 z) const
+	{
+		if (x < 0 || x >= (int)this->GetXSize()) return false;
+		if (y < 0 || y >= (int)this->GetYSize()) return false;
+		const VoxelStack *vs = this->GetStack(x, y);
+		if (z < vs->base || z >= vs->base + (int)vs->height) return false;
+		return true;
+	}
+
 private:
 	uint16 x_size; ///< Current max x size.
 	uint16 y_size; ///< Current max y size.
