@@ -14,11 +14,18 @@
 		<value name="walk_nw" value="4">Walk in north-west direction</value>
 	</enum>
 
-	<block magic="ANIM" minversion="1" maxversion="1">
-		<field name="width"       type="uint16">Zoom-width of a tile of the surface</field>
+	<block magic="ANIM" minversion="1" maxversion="2">
+		<field name="width"       type="uint16"        minversion="1" maxversion="1">Zoom-width of a tile of the surface</field>
 		<field name="person_type" type="PersonType">Type of persons in the animation</field>
 		<field name="anim_type"   type="AnimationType">Animation being defined</field>
-		<field name="frame"       type="frame_count">Frames of the animation</field>
+		<field name="frames"      type="frame_defs">Definition of the frames</field>
+	</block>
+
+	<block magic="ANSP" minversion="1" maxversion="1">
+		<field name="width"       type="uint16">Zoom-width of a tile</field>
+		<field name="person_type" type="PersonType">Type of persons in the animation</field>
+		<field name="anim_type"   type="AnimationType">Animation being defined</field>
+		<field name="frames"      type="frame_images">Sprites of the animation for a single tile width</field>
 	</block>
 
 	<block magic="BDIR" minversion="1" maxversion="1">

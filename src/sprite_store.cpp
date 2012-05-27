@@ -484,7 +484,6 @@ bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sp
 /** %Animation default constructor. */
 Animation::Animation() : RcdBlock()
 {
-	this->width = 0;
 	this->frame_count = 0;
 	this->person_type = PERSON_INVALID;
 	this->anim_type = ANIM_INVALID;
@@ -501,16 +500,13 @@ Animation::~Animation()
  * Load an animation.
  * @param rcd_file RCD file used for loading.
  * @param length Length of the data part of the block.
- * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Animation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool Animation::Load(RcdFile *rcd_file, size_t length)
 {
-	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
+	const uint BASE_LENGTH = 1 + 2 + 2;
 
 	if (length < BASE_LENGTH) return false;
-	this->width = rcd_file->GetUInt16();
-
 	uint8 pt = rcd_file->GetUInt8();
 	switch (pt) {
 		case  0: this->person_type = PERSON_ANY; break;
@@ -523,22 +519,12 @@ bool Animation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 	this->anim_type = (AnimationType)at;
 
 	this->frame_count = rcd_file->GetUInt16();
-	if (length != BASE_LENGTH + this->frame_count * 12) return false;
+	if (length != BASE_LENGTH + this->frame_count * 6) return false;
 	this->frames = (AnimationFrame *)malloc(this->frame_count * sizeof(AnimationFrame));
 	if (this->frames == NULL || this->frame_count == 0) return false;
 
-	AnimationFrame *prev = NULL;
 	for (uint i = 0; i < this->frame_count; i++) {
 		AnimationFrame *frame = this->frames + i;
-
-		uint32 val = rcd_file->GetUInt32();
-		if (val == 0) {
-			frame->sprite = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			frame->sprite = (*iter).second;
-		}
 
 		frame->duration = rcd_file->GetUInt16();
 		if (frame->duration == 0 || frame->duration >= 1000) return false; // Arbitrary sanity limit.
@@ -548,13 +534,7 @@ bool Animation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 
 		frame->dy = rcd_file->GetInt16();
 		if (frame->dy < -100 || frame->dy > 100) return false; // Arbitrary sanity limit.
-
-		frame->number = rcd_file->GetUInt16();
-
-		if (prev != NULL) prev->next = frame;
-		prev = frame;
 	}
-	prev->next = this->frames; // All animations loop back to the first frame currently.
 	return true;
 }
 
@@ -919,7 +899,6 @@ void SpriteStorage::Clear()
 	this->tile_corners = NULL;
 	this->path_sprites = NULL;
 	this->build_arrows = NULL;
-	this->animations.clear(); // Blocks get deleted through the 'this->blocks'.
 }
 
 /**
@@ -991,17 +970,6 @@ void SpriteStorage::AddBuildArrows(DisplayedObject *obj)
 }
 
 /**
- * Add an animation to the sprite storage.
- * @param anim %Animation object to add.
- * @pre Width of the animation sprites must match with #size.
- */
-void SpriteStorage::AddAnimation(Animation *anim)
-{
-	assert(anim->width == this->size);
-	this->animations.insert(std::make_pair(anim->anim_type, anim));
-}
-
-/**
  * Is the collection complete enough to be used in a display?
  * @return Sufficient data has been loaded.
  */
@@ -1022,6 +990,7 @@ SpriteManager::SpriteManager() : store(64)
 SpriteManager::~SpriteManager()
 {
 	_gui_sprites.Clear();
+	this->animations.clear(); // Blocks get deleted through the 'this->blocks' below.
 	while (this->blocks != NULL) {
 		RcdBlock *next_block = this->blocks->next;
 		delete this->blocks;
@@ -1188,9 +1157,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "ANIM") == 0 && version == 1) {
+		if (strcmp(name, "ANIM") == 0 && version == 2) {
 			Animation *anim = new Animation();
-			if (!anim->Load(&rcd_file, length, sprites)) {
+			if (!anim->Load(&rcd_file, length)) {
 				delete anim;
 				return "Animation failed to load.";
 			}
@@ -1199,7 +1168,7 @@ const char *SpriteManager::Load(const char *filename)
 				return "Unknown animation.";
 			}
 			this->AddBlock(anim);
-			this->store.AddAnimation(anim);
+			this->AddAnimation(anim);
 			continue;
 		}
 
@@ -1264,6 +1233,15 @@ const SpriteStorage *SpriteManager::GetSprites(uint16 size) const
 {
 	if (size != 64) return NULL;
 	return &this->store;
+}
+
+/**
+ * Add an animation to the sprite manager.
+ * @param anim %Animation object to add.
+ */
+void SpriteManager::AddAnimation(Animation *anim)
+{
+	this->animations.insert(std::make_pair(anim->anim_type, anim));
 }
 
 /**

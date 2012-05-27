@@ -100,7 +100,11 @@ class GeneralDataBlock(Block):
         @pre Classes are the same.
         @return Equality between self and other.
         """
-        for fldname, fldtype in self.fields:
+        s_names = set(f[0] for f in self.fields)
+        o_names = set(f[0] for f in other.fields)
+        c_names = s_names.intersection(o_names)
+        if len(c_names) != len(s_names) or len(c_names) != len(o_names): return False
+        for fldname in c_names:
             if self.values[fldname] != other.values[fldname]:
                 return False
         return True

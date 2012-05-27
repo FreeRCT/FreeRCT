@@ -121,24 +121,37 @@ class EnumerationDataType(DataType):
     def write(self, out, value):
         self.data_type.write(out, value)
 
-class CountedFrames(DataType):
+class FrameDefinitions(DataType):
     """
-    Data type of a sequence of frames.
+    Data type of a sequence of frame definitions.
     """
     def __init__(self):
-        DataType.__init__(self, 'frame_count')
+        DataType.__init__(self, 'frame_defs')
 
     def get_size(self, value):
-        return 2 + 12 * len(value)
+        return 2 + 6 * len(value)
 
     def write(self, out, value):
         out.uint16(len(value))
         for fr_data in value:
-            out.uint32(fr_data.sprite_blk)
             out.uint16(fr_data.duration)
             out.int16(fr_data.game_dx)
             out.int16(fr_data.game_dy)
-            out.uint16(fr_data.number)
+
+class FrameImages(DataType):
+    """
+    Data type of a sequence of images.
+    """
+    def __init__(self):
+        DataType.__init__(self, 'frame_images')
+
+    def get_size(self, value):
+        return 2 + 4 * len(value)
+
+    def write(self, out, value):
+        out.uint16(len(value))
+        for fr_data in value:
+            out.uint32(fr_data)
 
 
 class BlockReference(DataType):
@@ -213,7 +226,8 @@ INT32_TYPE  = NumericDataType('int32')
 SPRITE_TYPE = BlockReference('sprite')
 BLOCK_TYPE  = BlockReference('block')
 IMAGE_DATA_TYPE = ImageDataType()
-COUNTED_FRAMES = CountedFrames()
+FRAME_IMAGES = FrameImages()
+FRAME_DEFINTIONS = FrameDefinitions()
 
 
 class DataTypeFactory(object):
@@ -237,7 +251,9 @@ class DataTypeFactory(object):
         self.add_type(SPRITE_TYPE)
         self.add_type(BLOCK_TYPE)
         self.add_type(IMAGE_DATA_TYPE)
-        self.add_type(COUNTED_FRAMES)
+#        self.add_type(COUNTED_FRAMES)
+        self.add_type(FRAME_IMAGES)
+        self.add_type(FRAME_DEFINTIONS)
 
     def add_type(self, dt):
         """

@@ -644,20 +644,33 @@ Known scroll-bar widget types:
 
 Animation
 ~~~~~~~~~
-Animation sequences are defined using the 'ANIM' block.
+Animations have two layers. The conceptual definition is in an 'ANIM'
+block. This definition contains the number of frames the timing, and the
+change in x and/or y position. These changes are in the internal voxel
+coordinate system (256 units to get from one side to the opposite side).
+
+The sprites associated with an animation (at a tile width) are in 'ANSP'
+blocks. The latter get erased when the former is defined.
+Since the 'ANIM' sequence has to be useful for the largest tile width, for
+smaller tile sizes, an animation may contain more frames than really needed.
+Also, some changes in x or y may not be visible as they are in the sub-pixel
+range at the smaller tile size. The expected (and allowed) solution can be to
+display the same sprite in more frames.
+
+
+Animation sequences (without the sprites) are defined using the 'ANIM' block.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'ANIM'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block '2'.
    8       4    Length of the block excluding magic string, version, and
                   length.
-  12       2    Zoom width of a tile.
-  14       1    Person type.
-  15       2    Animation type.
-  17       2    Frame count (called 'f').
-  19     f*10   Data of all frames.
+  12       1    Person type.
+  13       2    Animation type.
+  15       2    Frame count (called 'f').
+  17      f*6   Data of all frames.
    ?            Variable length.
 ======  ======  ==========================================================
 
@@ -681,18 +694,33 @@ A single frame consists of the following data.
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
-   0       4    Sprite.
-   4       2    Duration of the frame in milli seconds.
-   6       2    (signed) X position change after displaying the frame.
-   8       2    (signed) Y position change after displaying the frame.
-  10       2    Frame number.
-  12            Total length.
+   0       2    Duration of the frame in milli seconds.
+   2       2    (signed) X position change after displaying the frame.
+   4       2    (signed) Y position change after displaying the frame.
+   6            Total length.
 ======  ======  ==========================================================
 
-The frame number should correspond with frame numbers of the same animation,
-but at a different zoom width. It allows for looking up an equivalent stage in
-another animation, for nice transitions, in case the zoom width changes during
-the game.
+Position changes are in the 256 unit inside-voxel coordinate system.The z
+position is derived from the world data.
 
+
+Sprites of an animation sequence for a given tile width are then in an 'ANSP'
+block, defined below. The frame count should match with the count in the
+'ANIM' block.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'ANSP'.
+   4       4    Version number of the block '1'.
+   8       4    Length of the block excluding magic string, version, and
+                  length.
+  12       2    Zoom-width of a tile.
+  14       1    Person type.
+  15       2    Animation type.
+  17       2    Frame count (called 'f').
+  19      f*4   Sprite for each frame.
+   ?            Variable length.
+======  ======  ==========================================================
 
 .. vim: set spell tw=78

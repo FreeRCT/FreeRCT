@@ -184,6 +184,72 @@ class PictureDump(object):
 
         self.xpos = self.xpos + w + 10
 
+def dump_SPRT_2(rcd, offset):
+    print "    SPRT x-offset: " + str(rcd.int16(offset + 12))
+    print "    SPRT y-offset: " + str(rcd.int16(offset + 14))
+    print "    SPRT 8pxl: " + str(rcd.uint32(offset + 16))
+
+def dump_FUND_1(rcd, offset):
+    print "    FUND type: "   + str(rcd.uint16(offset + 12))
+    print "    FUND width: "  + str(rcd.uint16(offset + 14))
+    print "    FUND height: " + str(rcd.uint16(offset + 16))
+    print "    FUND se_e: "   + str(rcd.uint32(offset + 18))
+    print "    FUND se_s: "   + str(rcd.uint32(offset + 22))
+    print "    FUND se_es: "  + str(rcd.uint32(offset + 26))
+    print "    FUND ws_s: "   + str(rcd.uint32(offset + 30))
+    print "    FUND ws_w: "   + str(rcd.uint32(offset + 34))
+    print "    FUND ws_ws: "  + str(rcd.uint32(offset + 38))
+
+def dump_TCOR_1(rcd, offset):
+    print "    TCOR width: "  + str(rcd.uint16(offset + 12))
+    print "    TCOR height: " + str(rcd.uint16(offset + 14))
+    tcor_img('n#', rcd, offset + 16)
+    tcor_img('e#', rcd, offset + 16 + 76)
+    tcor_img('s#', rcd, offset + 16 + 76 + 76)
+    tcor_img('w#', rcd, offset + 16 + 76 + 76 + 76)
+
+def dump_ANIM_2(rcd, offset):
+    print "    ANIM person-type: " + str(rcd.uint8(offset + 12))
+    print "    ANIM anim-type: "   + str(rcd.uint16(offset + 13))
+    count = rcd.uint16(offset + 15)
+    print "    ANIM frame-count: " + str(count)
+    i = 0
+    offset += 17
+    while i < count and i < 5:
+        d = rcd.uint16(offset)
+        dx = rcd.int16(offset+2)
+        dy = rcd.int16(offset+4)
+        line = "    ANIM frame %d: duration=%d, dx=%d, dy=%d" % (i, d, dx, dy)
+        print line
+        offset += 6
+        i = i + 1
+    if i < count:
+        print "    ANIM: Skipped %d frames" % (count - i)
+
+def dump_ANSP_1(rcd, offset):
+    print "    ANSP zoom-width: "  + str(rcd.uint16(offset + 12))
+    print "    ANSP person-type: " + str(rcd.uint8(offset + 14))
+    print "    ANSP anim-type: "   + str(rcd.uint16(offset + 15))
+    count = rcd.uint16(offset + 17)
+    print "    ANSP frame-count: " + str(count)
+    i = 0
+    offset += 19
+    blocks = []
+    while i < count and i < 16:
+        blocks.append(str(rcd.uint32(offset)))
+        i = i + 1
+        offset = offset + 4
+    if i < count:
+        blocks.append("...")
+    print "    ANSP sprites: " + ", ".join(blocks)
+
+dump_funcs = {('SPRT', 2): dump_SPRT_2,
+              ('FUND', 1): dump_FUND_1,
+              ('TCOR', 1): dump_TCOR_1,
+              ('ANIM', 2): dump_ANIM_2,
+              ('ANSP', 1): dump_ANSP_1,
+             }
+
 
 def list_blocks(rcd):
     stat = {}
@@ -219,30 +285,11 @@ def list_blocks(rcd):
         if name == "8PXL" and version == 1:
             pd.add_image(rcd, offset, number)
 
-        elif name == 'SPRT' and version == 2:
-            print "    SPRT block %d" % number
-            print "    SPRT x-offset: " + str(rcd.int16(offset + 12))
-            print "    SPRT y-offset: " + str(rcd.int16(offset + 14))
-            print "    SPRT 8pxl: " + str(rcd.uint32(offset + 16))
-
-        elif name == 'FUND' and version == 1:
-            print "    FUND type: "   + str(rcd.uint16(offset + 12))
-            print "    FUND width: "  + str(rcd.uint16(offset + 14))
-            print "    FUND height: " + str(rcd.uint16(offset + 16))
-            print "    FUND se_e: "   + str(rcd.uint32(offset + 18))
-            print "    FUND se_s: "   + str(rcd.uint32(offset + 22))
-            print "    FUND se_es: "  + str(rcd.uint32(offset + 26))
-            print "    FUND ws_s: "   + str(rcd.uint32(offset + 30))
-            print "    FUND ws_w: "   + str(rcd.uint32(offset + 34))
-            print "    FUND ws_ws: "  + str(rcd.uint32(offset + 38))
-
-        elif name == "TCOR" and version == 1:
-            print "    TCOR width: "  + str(rcd.uint16(offset + 12))
-            print "    TCOR height: " + str(rcd.uint16(offset + 14))
-            tcor_img('n#', rcd, offset + 16)
-            tcor_img('e#', rcd, offset + 16 + 76)
-            tcor_img('s#', rcd, offset + 16 + 76 + 76)
-            tcor_img('w#', rcd, offset + 16 + 76 + 76 + 76)
+        else:
+            # Dump the block if there exists a function for it.
+            fn = dump_funcs.get((name, version))
+            if fn is not None:
+                fn(rcd, offset)
 
         print
 

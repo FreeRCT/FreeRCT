@@ -52,9 +52,6 @@ class FrameData(object):
     """
     Data of a frame in the RCD file.
 
-    @ivar sprite_blk: Block number containing the sprite.
-    @type sprite_blk: C{int}
-
     @ivar duration: Duration of the frame in milli seconds.
     @type duration: C{int}
 
@@ -63,45 +60,22 @@ class FrameData(object):
 
     @ivar game_dy: Signed movement in Y direction after displaying the frame.
     @type game_dy: C{int}
-
-    @ivar number: Frame number.
-    @type number: C{int}
     """
     def __init__(self):
-        self.blocknum = None
         self.duration = None
         self.game_dx = None
         self.game_dy = None
-        self.number = None
 
-    def setup(self, data, file_blocks):
+    def setup(self, data):
         """
         Initialize the frame.
 
         @param data: The L{RcdFrame} to load the data from.
         @type  data: L{RcdFrame}
-
-        @param file_blocks: Destination RCD file.
-        @type  file_blocks: L{blocks.RCD}
         """
-        assert isinstance(data, data_loader.RcdFrame)
-
-        im = spritegrid.image_loader.get_img(data.fname)
-        im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset,
-                                        data.x_base, data.y_base, data.width, data.height)
-        pxl_blk = im_obj.make_8PXL()
-        if pxl_blk is not None:
-            pix_blknum = file_blocks.add_block(pxl_blk)
-            spr_blk = blocks.Sprite(im_obj.xoffset, im_obj.yoffset, pix_blknum)
-            self.sprite_blk = file_blocks.add_block(spr_blk)
-        else:
-            self.sprite_blk = 0
-            print "Warning: Sprite %r could not be created" % data.fname
-
         self.duration = data.duration
         self.game_dx = data.game_dx
         self.game_dy = data.game_dy
-        self.number = data.number
 
 
 def convert(def_fname, data_fname):
@@ -150,14 +124,32 @@ def convert(def_fname, data_fname):
                         raise ValueError("Value %r of field %r in data block %r is incorrect" %
                                          (data.value, flddef.name, block.magic))
                     blockdata[data.name] = value
-                elif isinstance(data, data_loader.RcdFramesField):
-                    assert data_type.name == 'frame_count'
+
+                elif isinstance(data, data_loader.RcdFrameDefinitions):
+                    assert data_type.name == 'frame_defs'
                     frames = []
                     for fr in data.frames:
                         new_fr = FrameData()
-                        new_fr.setup(fr, file_blocks)
+                        new_fr.setup(fr)
                         frames.append(new_fr)
                     blockdata[data.name] = frames
+
+                elif isinstance(data, data_loader.RcdFrameImages):
+                    assert data_type.name == 'frame_images'
+                    imgs = []
+                    for img in data.images:
+                        im = spritegrid.image_loader.get_img(img.fname)
+                        im_obj = spritegrid.ImageObject(im, img.x_offset, img.y_offset,
+                                                    img.x_base, img.y_base, img.width, img.height)
+                        pxl_blk = im_obj.make_8PXL()
+                        if pxl_blk is not None:
+                            pix_blknum = file_blocks.add_block(pxl_blk)
+                            spr_blk = blocks.Sprite(im_obj.xoffset, im_obj.yoffset, pix_blknum)
+                            imgs.append(file_blocks.add_block(spr_blk))
+                        else:
+                            imgs.append(0)
+                    blockdata[data.name] = imgs
+
                 else:
                     assert data_type.name == 'sprite'
                     im = spritegrid.image_loader.get_img(data.fname)

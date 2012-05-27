@@ -348,52 +348,76 @@
 	</file>
 
 	<file target="people_animation.rcd" magic="RCDF" version="1">
-		<gameblock magic="ANIM" version="1">
+		<!-- NE walking -->
+		<gameblock magic="ANIM" version="2">
+			<field name="person_type" value="pillar"/>
+			<field name="anim_type"   value="walk_ne"/>
+			<frame_defs name="frames">
+				<frame duration="40" game-dx="-4" game-dy="0"/>
+			</frame_defs>
+		</gameblock>
+		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_ne"/>
-			<frames name="frame">
-				<frame x-base="0" y-base="0"  width="10" height="27"
-				       fname="../sprites/pillar.png"
-				       x-offset="-5" y-offset="-17" duration="40"
-				       game-dx="-1" game-dy="0" number="0"/>
-			</frames>
+			<frame_images name="frames">
+				<image x-base="0" y-base="0"  width="10" height="27"
+				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+			</frame_images>
 		</gameblock>
 
-		<gameblock magic="ANIM" version="1">
+		<!-- SE walking -->
+		<gameblock magic="ANIM" version="2">
+			<field name="person_type" value="pillar"/>
+			<field name="anim_type"   value="walk_se"/>
+			<frame_defs name="frames">
+				<frame duration="40" game-dx="0" game-dy="4"/>
+			</frame_defs>
+		</gameblock>
+		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_se"/>
-			<frames name="frame">
-				<frame x-base="0" y-base="0"  width="10" height="27"
-				       fname="../sprites/pillar.png"
-				       x-offset="-5" y-offset="-17" duration="40"
-				       game-dx="0" game-dy="1" number="0"/>
-			</frames>
+			<frame_images name="frames">
+				<image x-base="0" y-base="0"  width="10" height="27"
+				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+			</frame_images>
 		</gameblock>
 
-		<gameblock magic="ANIM" version="1">
+		<!-- SW walking -->
+		<gameblock magic="ANIM" version="2">
+			<field name="person_type" value="pillar"/>
+			<field name="anim_type"   value="walk_sw"/>
+			<frame_defs name="frames">
+				<frame duration="40" game-dx="4" game-dy="0"/>
+			</frame_defs>
+		</gameblock>
+		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_sw"/>
-			<frames name="frame">
-				<frame x-base="0" y-base="0"  width="10" height="27"
-				       fname="../sprites/pillar.png"
-				       x-offset="-5" y-offset="-17" duration="40"
-				       game-dx="1" game-dy="0" number="0"/>
-			</frames>
+			<frame_images name="frames">
+				<image x-base="0" y-base="0"  width="10" height="27"
+				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+			</frame_images>
 		</gameblock>
 
-		<gameblock magic="ANIM" version="1">
+		<!-- NW walking -->
+		<gameblock magic="ANIM" version="2">
+			<field name="person_type" value="pillar"/>
+			<field name="anim_type"   value="walk_nw"/>
+			<frame_defs name="frames">
+				<frame duration="40" game-dx="0" game-dy="-4"/>
+			</frame_defs>
+		</gameblock>
+		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_nw"/>
-			<frames name="frame">
-				<frame x-base="0" y-base="0"  width="10" height="27"
-				       fname="../sprites/pillar.png"
-				       x-offset="-5" y-offset="-17" duration="40"
-				       game-dx="0" game-dy="-1" number="0"/>
-			</frames>
+			<frame_images name="frames">
+				<image x-base="0" y-base="0"  width="10" height="27"
+				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+			</frame_images>
 		</gameblock>
 	</file>
 </rcdfiles>

@@ -187,12 +187,9 @@ public:
 
 /** One frame in an animation. */
 struct AnimationFrame {
-	Sprite *sprite;       ///< %Sprite to display.
 	uint16 duration;      ///< Length of this frame in milli seconds.
 	int16 dx;             ///< Person movement in X direction after displaying this frame.
 	int16 dy;             ///< Person movement in Y direction after displaying this frame.
-	uint16 number;        ///< Frame number of this animation.
-	AnimationFrame *next; ///< Pointer to next frame (or \c NULL if no next frame).
 };
 
 /** Available animations. */
@@ -213,9 +210,8 @@ public:
 	Animation();
 	~Animation();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length);
 
-	uint16 width;            ///< Width of the tile.
 	uint16 frame_count;      ///< Number of frames.
 	uint8 person_type;       ///< Type of persons supported by this animation.
 	AnimationType anim_type; ///< Animation ID.
@@ -422,7 +418,6 @@ public:
 	void AddFoundations(Foundation *fnd);
 	void AddPath(Path *path);
 	void AddBuildArrows(DisplayedObject *obj);
-	void AddAnimation(Animation *anim);
 
 	bool HasSufficientGraphics() const;
 
@@ -499,7 +494,6 @@ public:
 	TileCorners *tile_corners;         ///< Tile corner sprites.
 	Path *path_sprites;                ///< Path sprites.
 	DisplayedObject *build_arrows;     ///< Arrows displaying build direction of paths and tracks.
-	AnimationsMap animations;          ///< Available animations.
 
 protected:
 	void Clear();
@@ -519,14 +513,16 @@ public:
 
 	bool HasSufficientGraphics() const;
 	const SpriteStorage *GetSprites(uint16 size) const;
+	void AddAnimation(Animation *anim);
 	const ImageData *GetTableSprite(uint16 number) const;
 
 protected:
 	const char *Load(const char *fname);
 
-	RcdBlock *blocks;    ///< List of loaded Rcd data blocks.
+	RcdBlock *blocks;         ///< List of loaded Rcd data blocks.
 
-	SpriteStorage store; ///< %Sprite storage of size 64.
+	SpriteStorage store;      ///< %Sprite storage of size 64.
+	AnimationsMap animations; ///< Available animations.
 };
 
 extern SpriteManager _sprite_manager;
