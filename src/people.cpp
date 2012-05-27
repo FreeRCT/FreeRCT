@@ -64,6 +64,30 @@ const char *Person::GetName() const
 }
 
 /**
+ * Compute the height of the path in the given voxel, at the given x/y position.
+ * @param x_vox X coordinate of the voxel.
+ * @param y_vox Y coordinate of the voxel.
+ * @param z_vox Z coordinate of the voxel.
+ * @param x_pos X position in the voxel.
+ * @param y_pos Y position in the voxel.
+ * @return Z height of the path in the voxel at the give position.
+ */
+static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int16 y_pos)
+{
+	const Voxel *v = _world.GetVoxel(x_vox, y_vox, z_vox);
+	const SurfaceVoxelData *svd = v->GetSurface();
+	int8 slope = svd->path.slope;
+	if (slope < PATH_FLAT_COUNT) return 0;
+	switch (slope) {
+		case PATH_RAMP_NE: return 255 - x_pos;
+		case PATH_RAMP_NW: return 255 - y_pos;
+		case PATH_RAMP_SE: return y_pos;
+		case PATH_RAMP_SW: return x_pos;
+		default: NOT_REACHED();
+	}
+}
+
+/**
  * Mark this person as 'in use'.
  * @param start Start x/y voxel stack for entering the world.
  * @param person_type Type of person getting activated.
@@ -80,6 +104,26 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 		this->u.guest.happiness = 50 + this->rnd.Uniform(50);
 	}
 
+	/* Set up initial position. */
+	this->x_vox = start.x;
+	this->y_vox = start.y;
+	this->z_vox = _world.GetGroundHeight(start.x, start.y);
+	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
+
+	if (start.x == 0) {
+		this->x_pos = 0;
+		this->y_pos = 128 - this->offset;
+	} else if (start.x == _world.GetXSize() - 1) {
+		this->x_pos = 255;
+		this->y_pos = 128 + this->offset;
+	} else if (start.y == 0) {
+		this->x_pos = 128 + this->offset;
+		this->y_pos = 0;
+	} else {
+		this->x_pos = 128 - this->offset;
+		this->y_pos = 255;
+	}
+	this->z_pos = GetZHeight(this->x_vox, this->y_vox, this->z_vox, this->x_pos, this->y_pos);
 }
 
 /** Mark this person as 'not in use'. (Called by #Guests.) */
@@ -87,6 +131,7 @@ void Person::DeActivate()
 {
 	if (this->type == PERSON_INVALID) return;
 
+	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
 	this->type = PERSON_INVALID;
 	free(this->name);
 	this->name = NULL;
@@ -162,6 +207,12 @@ void PersonList::AddFirst(Person *p)
  */
 void PersonList::Remove(Person *p)
 {
+	/* Paranoia check, the person should be in this list. */
+	assert(p != NULL);
+	Person *here = this->first;
+	while (here != NULL && here != p) here = here->next;
+	assert(here == p);
+
 	if (p->prev == NULL) {
 		assert(this->first == p);
 		this->first = p->next;
