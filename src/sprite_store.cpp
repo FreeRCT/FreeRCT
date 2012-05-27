@@ -1203,9 +1203,12 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		/* Unknown block in the RCD file. Abort. */
-		fprintf(stderr, "Unknown RCD block '%s'\n", name);
-		return "Unknown RCD block";
+		/* Unknown block in the RCD file. Skip the block. */
+		fprintf(stderr, "Unknown RCD block '%s', version %d, ignoring it\n", name, version);
+		while (length > 0) {
+			rcd_file.GetUInt8();
+			length--;
+		}
 	}
 }
 
