@@ -15,6 +15,7 @@
 #include "tile.h"
 #include "path.h"
 #include "geometry.h"
+#include "people.h"
 
 #include <map>
 
@@ -160,6 +161,8 @@ public:
 		SurfaceVoxelData surface;
 		ReferenceVoxelData reference;
 	};
+
+	PersonList persons; ///< Persons present in this voxel.
 };
 
 
@@ -176,7 +179,7 @@ public:
 	const Voxel *Get(int16 z) const;
 	Voxel *GetCreate(int16 z, bool create);
 
-	VoxelStack *Copy() const;
+	VoxelStack *Copy(bool copyPersons) const;
 	void MoveStack(VoxelStack *old_stack);
 
 	Voxel *voxels; ///< %Voxel array at this stack.
@@ -222,6 +225,21 @@ public:
 	inline const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
 	{
 		return this->GetStack(x, y)->Get(z);
+	}
+
+	/**
+	 * Get the person list associated with a voxel.
+	 * @param x X coordinate of the voxel.
+	 * @param y Y coordinate of the voxel.
+	 * @param z Z coordinate of the voxel.
+	 * @return The person list of the voxel.
+	 * @note The voxel has to exist.
+	 */
+	inline PersonList &GetPersonList(uint16 x, uint16 y, int16 z)
+	{
+		Voxel *v = this->GetCreateVoxel(x, y, z, false);
+		assert(v != NULL);
+		return v->persons;
 	}
 
 	/**

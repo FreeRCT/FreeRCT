@@ -59,11 +59,12 @@ protected:
 
 /** Manager of a doubly linked list of persons. */
 class PersonList {
+	friend void CopyPersonList(PersonList &dest, const PersonList &src);
 public:
 	PersonList();
 	~PersonList();
 
-	bool IsEmpty();
+	bool IsEmpty() const;
 
 	void AddFirst(Person *p);
 	void Remove(Person *p);
@@ -73,6 +74,8 @@ protected:
 	Person *first; ///< First person in the list.
 	Person *last;  ///< Last person in the list.
 };
+
+void CopyPersonList(PersonList &dest, const PersonList &src);
 
 
 /** A block of guests. */

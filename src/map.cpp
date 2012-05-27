@@ -17,6 +17,7 @@
 #include "map.h"
 #include "memory.h"
 #include "viewport.h"
+#include "math_func.h"
 
 /**
  * The game world.
@@ -61,8 +62,9 @@ static const CornerNeighbours neighbours[4] = {
  * Copy a voxel.
  * @param dest Destination address.
  * @param src Source address.
+ * @param copyPersons Copy the person list too.
  */
-static inline void CopyVoxel(Voxel *dest, Voxel *src)
+static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 {
 	dest->type = src->type;
 	if (src->type == VT_SURFACE) {
@@ -77,11 +79,12 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src)
  * @param dest Destination address.
  * @param src Source address.
  * @param count Number of voxels to copy.
+ * @param copyPersons Copy the person list too.
  */
-static void CopyStackData(Voxel *dest, Voxel *src, int count)
+static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copyPersons)
 {
 	while (count > 0) {
-		CopyVoxel(dest, src);
+		CopyVoxel(dest, src, copyPersons);
 		dest++;
 		src++;
 		count--;
@@ -127,7 +130,7 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 
 	Voxel *new_voxels = Calloc<Voxel>(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
-	CopyStackData(new_voxels + (this->base - new_base), this->voxels, this->height);
+	CopyStackData(new_voxels + (this->base - new_base), this->voxels, this->height, true);
 
 	free(this->voxels);
 	this->voxels = new_voxels;
@@ -138,14 +141,15 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 
 /**
  * Make a copy of self.
+ * @param copyPersons Copy the person list too.
  * @return The copied structure.
  */
-VoxelStack *VoxelStack::Copy() const
+VoxelStack *VoxelStack::Copy(bool copyPersons) const
 {
 	VoxelStack *vs = new VoxelStack;
 	if (this->height > 0) {
 		vs->MakeVoxelStack(this->base, this->height);
-		CopyStackData(vs->voxels, this->voxels, this->height);
+		CopyStackData(vs->voxels, this->voxels, this->height, copyPersons);
 	}
 	return vs;
 }
@@ -243,44 +247,69 @@ void VoxelWorld::MakeFlatWorld(int16 z)
  */
 void VoxelStack::MoveStack(VoxelStack *vs)
 {
-	/* Clean up the stack a bit before copying it. */
-	for (uint i = 0; i < vs->height; i++) {
+	/* Clean up the stack a bit before copying it, and get lowest and highest non-empty voxel. */
+	int vs_first = 0;
+	int vs_last = 0;
+	for (int i = 0; i < (int)vs->height; i++) {
 		Voxel *v = &vs->voxels[i];
-		if (v->GetType() == VT_SURFACE) {
-			const SurfaceVoxelData *svd = v->GetSurface();
-			if (svd->path.type == PT_INVALID && svd->ground.type == GTP_INVALID && svd->foundation.type == FDT_INVALID) v->SetEmpty();
+		assert(v->persons.IsEmpty()); // There should be no persons in the stack being moved.
+		switch (v->GetType()) {
+			case VT_SURFACE: {
+				const SurfaceVoxelData *svd = v->GetSurface();
+				if (svd->path.type != PT_INVALID || svd->ground.type != GTP_INVALID || svd->foundation.type != FDT_INVALID) {
+					vs_last = i;
+					break;
+				}
+				v->SetEmpty();
+				/* FALL-THROUGH */
+			}
+
+			case VT_EMPTY:
+				if (vs_first == i) vs_first++;
+				break;
+
+			case VT_COASTER:
+			case VT_REFERENCE:
+				vs_last = i;
+				break;
+
+			default: NOT_REACHED();
 		}
 	}
 
-	/* Get the lower & upper bound on used voxels. Note that it should always contain at least one surface voxel. */
-	uint low = 0;
-	while (vs->voxels[low].GetType() == VT_EMPTY) {
-		assert(low < vs->height);
-		low++;
-	}
-	uint high = vs->height - 1;
-	while (vs->voxels[high].GetType() == VT_EMPTY) high--;
+	/* There should be at least one surface voxel. */
+	assert(vs_first <= vs_last);
 
-	if ((high - low + 1) * 2 > this->height) {
-		if (this->height == vs->height) {
-			CopyStackData(this->voxels, vs->voxels, this->height);
+	/* Examine current stack with respect to persons. */
+	int old_first = 0;
+	int old_last = 0;
+	for (int i = 0; i < (int)this->height; i++) {
+		const Voxel *v = &this->voxels[i];
+		if (v->persons.IsEmpty()) {
+			if (old_first == i) old_first++;
 		} else {
-			assert(vs->height > this->height);
-			/* New stack is higher. Free this->voxels, and move new stack to this. */
-			this->base = vs->base;
-			this->height = vs->height;
-			free(this->voxels);
-			this->voxels = vs->voxels;
-			vs->voxels = NULL;
-			vs->base = 0;
-			vs->height = 0;
+			old_last = i;
 		}
-	} else {
-		/* Lots of wasted voxels, let's make a new stack. */
-		this->Clear();
-		this->MakeVoxelStack(low, high - low + 1);
-		CopyStackData(this->voxels, vs->voxels + low, high - low + 1);
 	}
+
+	int new_base = min(vs->base + vs_first, this->base + old_first);
+	int new_height = max(vs->base + vs_last, this->base + old_last) - new_base + 1;
+	assert(new_base >= 0 && new_height > 0);
+
+	/* Make a new stack. Copy new surface, then copy the persons. */
+	Voxel *new_voxels = Calloc<Voxel>(new_height);
+	CopyStackData(new_voxels + (vs->base + vs_first) - new_base, vs->voxels + vs_first, vs_last - vs_first + 1, false);
+	int i = (this->base + old_first) - new_base;
+	while (old_first <= old_last) {
+		CopyPersonList(new_voxels[i].persons, this->voxels[old_first].persons);
+		i++;
+		old_first++;
+	}
+
+	this->base = new_base;
+	this->height = new_height;
+	free(this->voxels);
+	this->voxels = new_voxels;
 }
 
 /**
@@ -590,7 +619,7 @@ VoxelStack *WorldAdditions::GetModifyStack(uint16 x, uint16 y)
 
 	VoxelStackMap::iterator iter = this->modified_stacks.find(pt);
 	if (iter != this->modified_stacks.end()) return (*iter).second;
-	std::pair<Point32, VoxelStack *> p(pt, _world.GetStack(x, y)->Copy());
+	std::pair<Point32, VoxelStack *> p(pt, _world.GetStack(x, y)->Copy(false));
 	iter = this->modified_stacks.insert(p).first;
 	return (*iter).second;
 }

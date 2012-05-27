@@ -132,7 +132,7 @@ PersonList::~PersonList()
  * Are there any persons in the list?
  * @return \c true iff at least one person is in the list.
  */
-bool PersonList::IsEmpty()
+bool PersonList::IsEmpty() const
 {
 	return this->first == NULL;
 }
@@ -187,6 +187,22 @@ Person *PersonList::RemoveHead()
 	return p;
 }
 
+/**
+ * Copy a person list. The source is not modified.
+ * @param dest Destination of the copying process.
+ * @param src Source of the copying process.
+ */
+void CopyPersonList(PersonList &dest, const PersonList &src)
+{
+	dest.first = src.first;
+	dest.last  = src.last;
+}
+
+
+/**
+ * Guest block constructor. Fills the id of the persons with an incrementing number.
+ * @param base_id Id number of the first person in this block.
+ */
 GuestBlock::GuestBlock(uint16 base_id)
 {
 	for (uint i = 0; i < lengthof(this->persons); i++) {
