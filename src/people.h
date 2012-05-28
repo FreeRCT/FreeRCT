@@ -85,10 +85,6 @@ public:
 	Person *next; ///< Next person in the linked list.
 	Person *prev; ///< Previous person in the linked list.
 
-protected:
-	Random rnd; ///< Random number generator for deciding how the person reacts.
-	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
-
 	int16 x_vox;  ///< %Voxel index in X direction of the person (if #type is not invalid).
 	int16 y_vox;  ///< %Voxel index in Y direction of the person (if #type is not invalid).
 	int16 z_vox;  ///< %Voxel index in Z direction of the person (if #type is not invalid).
@@ -102,6 +98,10 @@ protected:
 	uint16 frame_count;           ///< Number of frames in #frames.
 	uint16 frame_index;           ///< Currently displayed frame of #frames.
 	int16 frame_time;             ///< Remaining display time of this frame.
+
+protected:
+	Random rnd; ///< Random number generator for deciding how the person reacts.
+	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
 
 	union {
 		GuestData guest; ///< Guest data (only valid if #PersonIsAGuest holds for #type).
@@ -125,7 +125,6 @@ public:
 	void Remove(Person *p);
 	Person *RemoveHead();
 
-protected:
 	Person *first; ///< First person in the list.
 	Person *last;  ///< Last person in the list.
 };
