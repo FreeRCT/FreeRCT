@@ -523,6 +523,28 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			break;
 		}
 	}
+
+	const Person *pers = voxel->persons.first;
+	while (pers != NULL) {
+		// XXX Check that the person is actually in this voxel.
+
+		AnimationType anim_type = pers->walk->anim_type;
+		const Sprite *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
+		if (anim_spr != NULL) {
+			std::pair<int32, DrawData> p;
+			int x_off = ComputeX(pers->x_pos, pers->y_pos);
+			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
+			p.first = sx * xpos + sy * ypos + x_off + y_off + zpos * 256 + 130;
+			p.second.cursor = anim_spr;
+			p.second.path = NULL;
+			p.second.ground = NULL;
+			p.second.foundation = NULL;
+			p.second.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
+			p.second.base.y = this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off;
+			draw_images.insert(p);
+		}
+		pers = pers->next;
+	}
 }
 
 /**
