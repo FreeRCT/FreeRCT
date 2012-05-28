@@ -454,8 +454,8 @@ const Sprite *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, ui
  */
 void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth)
 {
-	int sx = (this->orient == VOR_NORTH || this->orient == VOR_EAST) ? 256 : -256;
-	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 256 : -256;
+	int sx = (this->orient == VOR_NORTH || this->orient == VOR_EAST) ? 128 : -128;
+	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 128 : -128;
 
 	if (voxel == NULL) {
 		const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
