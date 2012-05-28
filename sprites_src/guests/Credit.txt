@@ -1,0 +1,4 @@
+Guest model and walk cycle based on "AN Man Walk Cycle" by Abdre Souza
+
+AN_man_walk_cycle-andre_souza1.blend
+http://www.blendswap.com/blends/durian/an_man_walk_cycle-andre_souza/
