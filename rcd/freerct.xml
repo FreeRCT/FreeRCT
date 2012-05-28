@@ -362,7 +362,7 @@
 			<field name="anim_type"   value="walk_ne"/>
 			<frame_images name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
-				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
 			</frame_images>
 		</gameblock>
 
@@ -380,7 +380,7 @@
 			<field name="anim_type"   value="walk_se"/>
 			<frame_images name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
-				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
 			</frame_images>
 		</gameblock>
 
@@ -398,7 +398,7 @@
 			<field name="anim_type"   value="walk_sw"/>
 			<frame_images name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
-				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
 			</frame_images>
 		</gameblock>
 
@@ -416,7 +416,7 @@
 			<field name="anim_type"   value="walk_nw"/>
 			<frame_images name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
-				       x-offset="-5" y-offset="-17" fname="../sprites/pillar.png"/>
+				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
 			</frame_images>
 		</gameblock>
 	</file>
