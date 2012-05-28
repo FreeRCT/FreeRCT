@@ -506,6 +506,32 @@ public:
 		return this->build_arrows->sprites[(spr_num + 4 - orient) % 4];
 	}
 
+	/**
+	 * Get a sprite of an animation.
+	 * @param anim_type Type of animation to retrieve.
+	 * @param pers_type Type of person to retrieve.
+	 * @param frame_index Index of the frame to display.
+	 * @param orient Orientation of the view.
+	 * @return The sprite, if it is available.
+	 * @todo [high] Pulling animations from a map for drawing sprites is too expensive.
+	 */
+	const Sprite *GetAnimationSprite(AnimationType anim_type, uint16 frame_index, PersonType pers_type, ViewOrientation view) const
+	{
+		/* anim_type = 1..4, normalize with -1, subtract orientation,
+		 * add 4 + mod 4 to get the normalized animation, +1 to get the real animation. */
+		anim_type = (AnimationType)(1 + (4 + (anim_type - 1) - view) % 4);
+
+		AnimationSpritesMap::const_iterator iter = this->animations.find(anim_type);
+		while (iter != this->animations.end()) {
+			const AnimationSprites *asp = (*iter).second;
+
+			if (asp->anim_type != anim_type) return NULL;
+			if (asp->person_type == pers_type) return asp->sprites[frame_index];
+			iter++;
+		}
+		return NULL;
+	}
+
 	const uint16 size; ///< Width of the tile.
 
 	SurfaceData *surface[GTP_COUNT];   ///< Surface data.
