@@ -246,7 +246,7 @@ void Person::DecideMoveDirection()
 		if (this->y_pos < 128) { // at NW edge.
 			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_nw_ne;
 			if ((exits & (1 << PATHBIT_SE)) != 0) walks[walk_count++] = walk_nw_se;
-			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_nw_nw;
+			if ((exits & (1 << PATHBIT_SW)) != 0) walks[walk_count++] = walk_nw_sw;
 			if (walk_count == 0) walks[walk_count++] = walk_nw_nw;
 		} else { // at SE edge.
 			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_se_ne;
@@ -642,13 +642,13 @@ void Guests::OnNewDay()
 {
 	if (this->rnd.Success1024(512)) {
 		if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) {
-			printf("New guest, but no road\n");
+			/* New guest, but no road. */
 			this->start_voxel = FindEdgeRoad();
 			if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
 		}
 
 		if (this->free.IsEmpty()) return; // No more quests available.
-		printf("New guest!\n");
+		/* New guest! */
 		Person *p = this->free.RemoveHead();
 		if (p != NULL) p->Activate(this->start_voxel, PERSON_PILLAR);
 	}
