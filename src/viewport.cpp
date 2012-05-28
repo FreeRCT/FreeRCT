@@ -190,6 +190,9 @@ public:
 protected:
 	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
 	const Sprite *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope);
+
+	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
+	Point16 north_offsets[4];
 };
 
 
@@ -344,6 +347,11 @@ SpriteCollector::SpriteCollector(Viewport *vp, bool enable_cursors) : VoxelColle
 	this->xoffset = 0;
 	this->yoffset = 0;
 	this->enable_cursors = enable_cursors;
+
+	this->north_offsets[VOR_NORTH].x = 0;                     this->north_offsets[VOR_NORTH].y = 0;
+	this->north_offsets[VOR_EAST].x  = -this->tile_width / 2; this->north_offsets[VOR_EAST].y  = this->tile_width / 4;
+	this->north_offsets[VOR_SOUTH].x = 0;                     this->north_offsets[VOR_SOUTH].y = this->tile_width / 2;
+	this->north_offsets[VOR_WEST].x  = this->tile_width / 2;  this->north_offsets[VOR_WEST].y  = this->tile_width / 4;
 }
 
 SpriteCollector::~SpriteCollector()
