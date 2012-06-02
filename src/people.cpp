@@ -668,7 +668,8 @@ void Guests::DoTick()
  */
 void Guests::OnNewDay()
 {
-	if (this->rnd.Success1024(512)) {
+	PersonType ptype = PERSON_PILLAR;
+	if (this->CanUsePersonType(ptype) && this->rnd.Success1024(512)) {
 		if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) {
 			/* New guest, but no road. */
 			this->start_voxel = FindEdgeRoad();
@@ -678,7 +679,7 @@ void Guests::OnNewDay()
 		if (this->free.IsEmpty()) return; // No more quests available.
 		/* New guest! */
 		Person *p = this->free.RemoveHead();
-		if (p != NULL) p->Activate(this->start_voxel, PERSON_PILLAR);
+		if (p != NULL) p->Activate(this->start_voxel, ptype);
 	}
 }
 
