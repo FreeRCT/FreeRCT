@@ -511,7 +511,7 @@ public:
 	 * @param anim_type Type of animation to retrieve.
 	 * @param pers_type Type of person to retrieve.
 	 * @param frame_index Index of the frame to display.
-	 * @param orient Orientation of the view.
+	 * @param view Orientation of the view.
 	 * @return The sprite, if it is available.
 	 * @todo [high] Pulling animations from a map for drawing sprites is too expensive.
 	 */
