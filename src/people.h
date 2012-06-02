@@ -162,6 +162,9 @@ public:
 	Guests();
 	~Guests();
 
+	void Initialize();
+	bool CanUsePersonType(PersonType ptype);
+
 	void OnAnimate(int delay);
 	void DoTick();
 	void OnNewDay();
@@ -173,7 +176,10 @@ private:
 	Point16 start_voxel;  ///< Entry x/y coordinate of the voxel stack at the edge.
 	int daily_frac;       ///< Frame counter.
 	int next_daily_index; ///< Index of the next guest to give daily service.
+
+	uint16 valid_ptypes;  ///< Person types that can be used.
 };
+assert_compile(PERSON_MAX_GUEST - PERSON_MIN_GUEST + 1 <= 16); ///< Verify that all person types fit in #Guests::valid_ptypes
 
 extern Guests _guests;
 

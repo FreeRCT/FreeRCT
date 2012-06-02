@@ -203,6 +203,7 @@ enum AnimationType {
 	ANIM_LAST  = ANIM_WALK_NW, ///< Last animation.
 	ANIM_INVALID = 0xFF,       ///< Invalid animation.
 };
+DECLARE_POSTFIX_INCREMENT(AnimationType)
 
 /** Data structure holding a single animation. */
 class Animation : public RcdBlock {

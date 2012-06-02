@@ -94,6 +94,7 @@ int main(void)
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);
+	_guests.Initialize();
 
 	ShowToolbar();
 	Viewport *w = ShowMainDisplay();

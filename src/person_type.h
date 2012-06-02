@@ -23,6 +23,7 @@ enum PersonType {
 	PERSON_MIN_GUEST = PERSON_ANY,   ///< First value of a guest.
 	PERSON_MAX_GUEST = PERSON_EARTH, ///< Last value of a guest.
 };
+DECLARE_POSTFIX_INCREMENT(PersonType)
 
 /**
  * Function to decide whether a person type is a guest or not.

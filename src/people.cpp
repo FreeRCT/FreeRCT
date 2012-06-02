@@ -590,10 +590,38 @@ Guests::Guests() : block(0), rnd()
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
 	this->next_daily_index = 0;
+	this->valid_ptypes = 0;
 }
 
 Guests::~Guests()
 {
+}
+
+/** After loading the RCD files, check what resources actually exist. */
+void Guests::Initialize()
+{
+	this->valid_ptypes = 0;
+	for (PersonType pertype = PERSON_MIN_GUEST; pertype <= PERSON_MAX_GUEST; pertype++) {
+		bool usable = true;
+		for (AnimationType antype = ANIM_BEGIN; antype <= ANIM_LAST; antype++) {
+			if (_sprite_manager.GetAnimation(antype, pertype) == NULL) {
+				usable = false;
+				break;
+			}
+		}
+		if (usable) this->valid_ptypes |= 1u << (pertype - PERSON_MIN_GUEST);
+	}
+}
+
+/**
+ * Can guests of the given person type be used for the level?
+ * @param ptype %Person type to examine.
+ * @return Whether the given person type can be used for playing a level.
+ */
+bool Guests::CanUsePersonType(PersonType ptype)
+{
+	if (ptype < PERSON_MIN_GUEST || ptype > PERSON_MAX_GUEST) return false;
+	return (this->valid_ptypes & (1 << (ptype - PERSON_MIN_GUEST))) != 0;
 }
 
 /**
