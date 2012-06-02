@@ -6,17 +6,20 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
-RCDFILES=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd cornerhighlight_8bpp64.rcd \
-	cursor_groundtile_8bpp64.rcd \
-	gui.rcd foundation_8bpp64.rcd groundtile_8bpp64.rcd path_8bpp64.rcd \
-	people_animation.rcd
+GAMEDATA=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd \
+	cornerhighlight_8bpp64.rcd cursor_groundtile_8bpp64.rcd foundation_8bpp64.rcd \
+	groundtile_8bpp64.rcd path_8bpp64.rcd people_animation.rcd
 
+GUIDATA=gui.rcd
+
+RCDFILES=$(GAMEDATA) $(GUIDATA)
 PYTHON=python
 
-.PHONY: build clean doc
+.PHONY: build clean
 
-#build: $(RCDFILES)
-build: gui.rcd
+build: $(GAMEDATA) $(GUIDATA)
+
+$(GAMEDATA): freerct.xml structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g freerct.xml
 
 
@@ -26,12 +29,6 @@ clean:
 	   then rm $$i;\
 	   fi;\
 	done
-
-# Build documentation (run it several times to get the referenced pages correct)
-doc:
-	pdflatex data_format.tex
-	pdflatex data_format.tex
-	pdflatex data_format.tex
 
 gui.rcd: guis.py ../sprites_src/gui/GUIEles.png
 	$(PYTHON) guis.py

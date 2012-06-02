@@ -6,7 +6,7 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
-.PHONY: run clean rcd lang
+.PHONY: run clean rcd lang all
 
 OBJDIR=objects
 
@@ -28,6 +28,18 @@ CXXFILES=config_reader.cpp dates.cpp \
 OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
 DEPFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.d))
 TARGET=freerct
+
+all: lang rcd $(TARGET)
+	@if test ! -f freerct.cfg;\
+	then echo;\
+	     echo "Failed to find font settings. Did you make a 'freerct.cfg' file next to the 'freerct' program?";\
+	     echo "Example content (you need to change the path and/or the size to something that exists at your system):";\
+	     echo "[font]";\
+	     echo "medium-size = 12";\
+	     echo "medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf";\
+	     exit 1;\
+	fi
+
 
 $(TARGET): $(OBJFILES)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJFILES) $(LIBS)
