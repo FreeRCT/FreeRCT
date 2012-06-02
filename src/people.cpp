@@ -274,12 +274,7 @@ void Person::DecideMoveDirection()
 void Person::WalkTheWalk(const WalkInformation *walk)
 {
 	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
-	if (anim == NULL || anim->frame_count == 0) {
-		this->walk = NULL;
-		this->frames = NULL;
-		this->frame_count = 0;
-		return;
-	}
+	assert(anim != NULL && anim->frame_count != 0);
 
 	this->walk = walk;
 	this->frames = anim->frames;
