@@ -22,6 +22,8 @@ enum StringTable {
 	STR_GENERIC_COUNT,   ///< Number of generic strings.
 };
 
+typedef uint16 StringID; ///< Type of a string value.
+
 /**
  * Class for retrieving language strings.
  * @todo Implement me.
@@ -33,7 +35,7 @@ public:
 
 	const char *Load(const char *fname);
 
-	const char *GetText(uint16 number);
+	const char *GetText(StringID number);
 
 	uint16 num_texts; ///< Number of strings in the language.
 	char *text;       ///< The actual text (all of it).

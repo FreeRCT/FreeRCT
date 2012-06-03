@@ -65,7 +65,7 @@ Date &Date::operator=(const Date &d)
  * @param month Month number (1-based). Use \c 0 to get the name of the current month.
  * @return String number containing the month name.
  */
-uint16 Date::GetMonthName(int month) const
+StringID Date::GetMonthName(int month) const
 {
 	static const uint16 month_names[] = {
 		STR_MONTH_JANUARY,

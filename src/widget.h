@@ -13,6 +13,7 @@
 #define WIDGET_H
 
 #include "geometry.h"
+#include "language.h"
 
 struct BorderSpriteData;
 
@@ -174,9 +175,9 @@ public:
 		this->flags = (value) ? (this->flags | LWF_SHADED) : (this->flags & ~LWF_SHADED);
 	}
 
-	uint8 flags;    ///< Flags of the leaf widget. @see LeafWidgetFlags
-	uint8 colour;   ///< Colour of the widget.
-	uint16 tooltip; ///< Tool-tip of the widget.
+	uint8 flags;      ///< Flags of the leaf widget. @see LeafWidgetFlags
+	uint8 colour;     ///< Colour of the widget.
+	StringID tooltip; ///< Tool-tip of the widget.
 };
 
 /**

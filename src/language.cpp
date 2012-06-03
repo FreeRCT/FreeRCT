@@ -102,7 +102,7 @@ const char *Language::Load(const char *fname)
  * @param number string number to get.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
  */
-const char *Language::GetText(uint16 number)
+const char *Language::GetText(StringID number)
 {
 	if (number < STRING_TABLE_START) {
 		switch (number) {
