@@ -1,4 +1,6 @@
 //ImageJ macros for managing renders
+//Note there are issues with using these scripts in ImageJ versions later than 1.44 (due to changes in handling of transparency)
+//ImageJ version 1.44 is known to work correctly.
 
 //Key resource arrays
 //Tile widths to expect for renders
