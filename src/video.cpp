@@ -341,9 +341,9 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
  * @param spr The sprite to blit.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImage(const Point32 &img_base, const Sprite *spr)
+void VideoSystem::BlitImage(const Point32 &img_base, const Sprite *spr, const Recolouring &recolour, int16 shift)
 {
-	this->BlitImage(img_base.x + spr->xoffset, img_base.y + spr->yoffset, spr->img_data);
+	this->BlitImage(img_base.x + spr->xoffset, img_base.y + spr->yoffset, spr->img_data, recolour, shift);
 }
 
 /**
@@ -353,9 +353,9 @@ void VideoSystem::BlitImage(const Point32 &img_base, const Sprite *spr)
  * @param spr The sprite to blit.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImage(int x, int y, const Sprite *spr)
+void VideoSystem::BlitImage(int x, int y, const Sprite *spr, const Recolouring &recolour, int16 shift)
 {
-	this->BlitImage(x + spr->xoffset, y + spr->yoffset, spr->img_data);
+	this->BlitImage(x + spr->xoffset, y + spr->yoffset, spr->img_data, recolour, shift);
 }
 
 /**
@@ -365,7 +365,7 @@ void VideoSystem::BlitImage(int x, int y, const Sprite *spr)
  * @param img The sprite image data to blit.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImage(int x, int y, const ImageData *img)
+void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift)
 {
 	int im_left = 0;
 	int im_top = 0;
@@ -419,7 +419,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img)
 			for (; count > 0; count--) {
 				if (xpos >= im_right) break;
 				if (xpos >= im_left) {
-					*dest = *pixels;
+					*dest = recolour.Recolour(*pixels, shift);
 					dest++;
 				}
 				xpos++;
@@ -444,8 +444,10 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img)
  * @param val Pixel value to blit.
  */
 static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
-		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val)
+		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val,
+		const Recolouring &recolour)
 {
+	val = recolour.Recolour(val, 0); // No shift here
 	const int32 xend = xmin + numx * width;
 	const int32 yend = ymin + numy * height;
 	while (ymin < yend) {
@@ -476,7 +478,7 @@ static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
  * @param numy Number of sprites to draw in vertical direction.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy)
+void VideoSystem::BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy, const Recolouring &recolour)
 {
 	this->blit_rect.ValidateAddress();
 
@@ -514,7 +516,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint
 				xpos += rel_off & 127;
 				src_base += rel_off & 127;
 				while (count > 0) {
-					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, img_data->width, img_data->height, *pixels);
+					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, img_data->width, img_data->height, *pixels, recolour);
 					pixels++;
 					xpos++;
 					src_base++;

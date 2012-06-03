@@ -15,6 +15,7 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include "geometry.h"
+#include "palette.h"
 
 class Sprite;
 class ImageData;
@@ -77,9 +78,9 @@ public:
 	void UnlockSurface();
 	void FillSurface(uint8 colour, const Rectangle32 &rect);
 
-	void BlitImage(const Point32 &img_base, const Sprite *spr);
-	void BlitImage(int x, int y, const Sprite *spr);
-	void BlitImage(int x, int y, const ImageData *img);
+	void BlitImage(const Point32 &img_base, const Sprite *spr, const Recolouring &recolour, int16 shift);
+	void BlitImage(int x, int y, const Sprite *spr, const Recolouring &recolour, int16 shift);
+	void BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift);
 
 	/**
 	 * Blit a row of sprites.
@@ -88,9 +89,9 @@ public:
 	 * @param y Y position.
 	 * @param spr Sprite to draw.
 	 */
-	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const Sprite *spr)
+	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const Sprite *spr, const Recolouring &recolour)
 	{
-		this->BlitImages(xmin, y, spr, numx, 1);
+		this->BlitImages(xmin, y, spr, numx, 1, recolour);
 	}
 
 	/**
@@ -100,12 +101,12 @@ public:
 	 * @param x X position.
 	 * @param spr Sprite to draw.
 	 */
-	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const Sprite *spr)
+	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const Sprite *spr, const Recolouring &recolour)
 	{
-		this->BlitImages(x, ymin, spr, 1, numy);
+		this->BlitImages(x, ymin, spr, 1, numy, recolour);
 	}
 
-	void BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy);
+	void BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy, const Recolouring &recolour);
 
 	void FinishRepaint();
 

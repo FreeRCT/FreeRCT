@@ -663,7 +663,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	SpriteCollector collector(this, (this->mouse_mode == MM_TILE_TERRAFORM || this->mouse_mode == MM_PATH_BUILDING));
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.Collect(this->additions_enabled && this->additions_displayed);
-
+	Recolouring recolour;
 
 	_video->FillSurface(COL_BACKGROUND, this->rect); // Black background.
 
@@ -672,10 +672,10 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		const DrawData &dd = (*iter).second;
-		if (dd.foundation != NULL) _video->BlitImage(dd.base, dd.foundation);
-		if (dd.ground != NULL) _video->BlitImage(dd.base, dd.ground);
-		if (dd.path != NULL) _video->BlitImage(dd.base, dd.path);
-		if (dd.cursor != NULL) _video->BlitImage(dd.base, dd.cursor);
+		if (dd.foundation != NULL) _video->BlitImage(dd.base, dd.foundation, recolour, 0);
+		if (dd.ground != NULL)     _video->BlitImage(dd.base, dd.ground,     recolour, 0);
+		if (dd.path != NULL)       _video->BlitImage(dd.base, dd.path,       recolour, 0);
+		if (dd.cursor != NULL)     _video->BlitImage(dd.base, dd.cursor,     recolour, 0);
 	}
 
 	_video->SetClippedRectangle(cr);

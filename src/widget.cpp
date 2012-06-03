@@ -31,44 +31,47 @@
  * @param bsd Border sprites to use.
  * @param pressed Draw pressed down sprites.
  * @param rect Content rectangle to draw around.
+ * @param colour Colour range to use.
  * @ingroup widget_group
  */
-static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect)
+static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, uint8 colour)
 {
 	Point32 pt;
 	const Sprite * const *spr_base = pressed ? bsd.pressed : bsd.normal;
+	Recolouring rc;
+	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y;
-	_video->BlitImage(pt, spr_base[WBS_TOP_LEFT]);
+	_video->BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, 0);
 	int xleft = pt.x + spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->img_data->width;
 	int ytop = pt.y + spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->img_data->height;
 
 	pt.x = rect.base.x + rect.width - 1;
-	_video->BlitImage(pt, spr_base[WBS_TOP_RIGHT]);
+	_video->BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, 0);
 	int xright = pt.x + spr_base[WBS_TOP_RIGHT]->xoffset;
 
 	uint16 numx = (xright - xleft) / spr_base[WBS_TOP_MIDDLE]->img_data->width;
-	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_TOP_MIDDLE]);
+	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_TOP_MIDDLE], rc);
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y + rect.height - 1;
-	_video->BlitImage(pt, spr_base[WBS_BOTTOM_LEFT]);
+	_video->BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, 0);
 	int ybot = pt.y + spr_base[WBS_BOTTOM_LEFT]->yoffset;
 
 	uint16 numy = (ybot - ytop) / spr_base[WBS_MIDDLE_LEFT]->img_data->height;
-	_video->BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_LEFT]);
+	_video->BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_LEFT], rc);
 
 	pt.x = rect.base.x + rect.width - 1;
 	pt.y = rect.base.y + rect.height - 1;
-	_video->BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT]);
+	_video->BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT], rc, 0);
 
-	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_BOTTOM_MIDDLE]);
+	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_BOTTOM_MIDDLE], rc);
 
 	pt.x = rect.base.x + rect.width - 1;
-	_video->BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_RIGHT]);
+	_video->BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_RIGHT], rc);
 
-	_video->BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy);
+	_video->BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
 }
 
 
@@ -287,7 +290,9 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	} else if ((this->flags & LWF_PRESSED) != 0) {
 		spr_num += WCS_EMPTY_PRESSED;
 	}
-	_video->BlitImage(base.x + this->pos.base.x, base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num]);
+	Recolouring rc;
+	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)this->colour);
+	_video->BlitImage(base.x + this->pos.base.x, base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num], rc, 0);
 }
 
 /* virtual */ void LeafWidget::RaiseButtons(const Point32 &base)
@@ -402,13 +407,16 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		assert(bottom - top + 1 >= 0);
 
 		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
-		DrawBorderSprites(*bsd, (pressed != 0), rect);
+		DrawBorderSprites(*bsd, (pressed != 0), rect, this->colour);
 	}
 	int xoffset = left + (right + 1 - left - this->value_width) / 2;
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-		if (imgdata != NULL) _video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata);
+		if (imgdata != NULL) {
+			Recolouring rc;
+			_video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
+		}
 	} else {
 		const char *text = _language->GetText(this->value);
 		_video->BlitText(text, xoffset + pressed, yoffset + pressed, 21);
@@ -526,7 +534,7 @@ BackgroundWidget::~BackgroundWidget()
 	assert(bottom - top + 1 >= 0);
 
 	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
-	DrawBorderSprites(_gui_sprites.panel, false, rect);
+	DrawBorderSprites(_gui_sprites.panel, false, rect, this->colour);
 
 	if (this->child != NULL) this->child->Draw(base);
 }
