@@ -474,6 +474,9 @@ GUI
 ~~~
 GUI sprites, in various forms.
 
+All GUI sprites should use the BEIGE ranges, that is colours 214 to 225
+(inclusive).
+
 Generic GUI border sprites
 --------------------------
 The most common form of a widget is a rectangular shape.
@@ -482,7 +485,9 @@ rectangle.
 
         +-------------+---------------+--------------+
         | top-left    | top-middle    | top-right    |
+        +-------------+---------------+--------------+
         | left        | middle        | right        |
+        +-------------+---------------+--------------+
         | bottom-left | bottom-middle | bottom-right |
         +-------------+---------------+--------------+
 
