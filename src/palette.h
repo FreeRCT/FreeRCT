@@ -12,6 +12,8 @@
 #ifndef PALETTE_H
 #define PALETTE_H
 
+#include "language.h"
+
 /** Names of colour ranges. */
 enum ColourRange {
 	COL_RANGE_GREY,
@@ -55,6 +57,52 @@ inline uint8 GetColourRangeBase(ColourRange cr)
 {
 	return COL_SERIES_START + cr * COL_SERIES_LENGTH;
 }
+
+/**
+ * Sprite recolouring information.
+ * All information of a sprite recolouring. The gradient colour shift is handled separately, as it changes often.
+ */
+class Recolouring {
+public:
+	Recolouring();
+	Recolouring(const Recolouring &sr);
+	Recolouring &operator=(const Recolouring &sr);
+	void SetRecolouring(ColourRange orig, ColourRange dest);
+
+	/**
+	 * Compute the colour of a pixel with recolouring.
+	 * @param orig Original colour.
+	 * @return Colour value after recolouring.
+	 */
+	inline int Recolour(int orig, int shift) const
+	{
+		if (orig < COL_SERIES_START || orig >= COL_SERIES_END) return orig;
+		int i = (orig - COL_SERIES_START) / COL_SERIES_LENGTH;
+		int j = this->range_map[i];
+		orig += (j - i) * COL_SERIES_LENGTH + shift;
+		int base = GetColourRangeBase((ColourRange)j);
+		if (orig < base) return base;
+		if (orig > base + COL_SERIES_LENGTH - 1) return base + COL_SERIES_LENGTH - 1;
+		return orig;
+	}
+
+	uint8 range_map[COL_RANGE_COUNT];   ///< Mapping of each colour range to another one.
+};
+
+/**
+ * Editable recolouring.
+ * Names and tooltips allow explanation of the colours that can be changed.
+ */
+class EditableRecolouring : public Recolouring {
+public:
+	EditableRecolouring();
+	EditableRecolouring(const EditableRecolouring &sr);
+	EditableRecolouring &operator=(const EditableRecolouring &sr);
+	void SetRecolouring(ColourRange orig, ColourRange dest, StringID name = STR_NULL, StringID tooltip = STR_NULL);
+
+	StringID name_map[COL_RANGE_COUNT]; ///< Names of the colours of the sprite.
+	StringID tip_map[COL_RANGE_COUNT];  ///< Tooltips of the colours.
+};
 
 extern const uint8 _palette[256][3]; ///< The 8bpp FreeRCT palette.
 
