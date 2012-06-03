@@ -32,7 +32,7 @@ T *Calloc(size_t count)
  * @param count Number of data elements.
  */
 template <class T>
-void MemCpy(T *dest, T *src, size_t count)
+void MemCpy(T *dest, const T *src, size_t count)
 {
 	memcpy(dest, src, sizeof(T) * count);
 }
