@@ -48,7 +48,8 @@ macro "8bpp-ize Renders [q]" {
 			if (File.exists(path+name+"8bpp\\"+tilew[i]+"_"+str+".png")==false || overwrite==true) {
 				//Open and resize the shadeless image
 				open(path+name+"\\"+tilew[lengthOf(tilew)-1]+"m_"+str+".png");
-				run("Size...", "width="+tilew[i]+" height="+tilew[i]+" interpolation=None");
+				ar=getHeight()/getWidth();
+				run("Size...", "width="+tilew[i]+" height="+tilew[i]*ar+" interpolation=None");
 				run("Select All");
 				run("Copy");
 				close();
