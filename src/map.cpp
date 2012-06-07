@@ -18,6 +18,8 @@
 #include "memory.h"
 #include "viewport.h"
 #include "math_func.h"
+#include "sprite_store.h"
+#include "people.h"
 
 /**
  * The game world.
@@ -72,6 +74,7 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 	} else if (src->type == VT_REFERENCE) {
 		dest->reference = src->reference;
 	}
+	if (copyPersons) CopyPersonList(dest->persons, src->persons);
 }
 
 /**
