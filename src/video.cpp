@@ -339,6 +339,8 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
  * Blit pixels from the \a spr relative to #blit_rect into the area.
  * @param img_base Coordinate of the sprite data.
  * @param spr The sprite to blit.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
  * @pre Surface must be locked.
  */
 void VideoSystem::BlitImage(const Point32 &img_base, const Sprite *spr, const Recolouring &recolour, int16 shift)
@@ -351,6 +353,8 @@ void VideoSystem::BlitImage(const Point32 &img_base, const Sprite *spr, const Re
  * @param x Horizontal base coordinate.
  * @param y Vertical base coordinate.
  * @param spr The sprite to blit.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
  * @pre Surface must be locked.
  */
 void VideoSystem::BlitImage(int x, int y, const Sprite *spr, const Recolouring &recolour, int16 shift)
@@ -363,6 +367,8 @@ void VideoSystem::BlitImage(int x, int y, const Sprite *spr, const Recolouring &
  * @param x Horizontal position.
  * @param y Vertical position.
  * @param img The sprite image data to blit.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
  * @pre Surface must be locked.
  */
 void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift)
@@ -442,6 +448,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
  * @param width Width of an image.
  * @param height Height of an image.
  * @param val Pixel value to blit.
+ * @param recolour Sprite recolouring definition.
  */
 static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
 		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val,
@@ -476,6 +483,7 @@ static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
  * @param spr The sprite to blit.
  * @param numx Number of sprites to draw in horizontal direction.
  * @param numy Number of sprites to draw in vertical direction.
+ * @param recolour Sprite recolouring definition.
  * @pre Surface must be locked.
  */
 void VideoSystem::BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy, const Recolouring &recolour)

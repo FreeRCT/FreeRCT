@@ -88,6 +88,7 @@ public:
 	 * @param numx Number of sprites to draw.
 	 * @param y Y position.
 	 * @param spr Sprite to draw.
+	 * @param recolour Sprite recolouring definition.
 	 */
 	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const Sprite *spr, const Recolouring &recolour)
 	{
@@ -100,6 +101,7 @@ public:
 	 * @param numy Number of sprites to draw.
 	 * @param x X position.
 	 * @param spr Sprite to draw.
+	 * @param recolour Sprite recolouring definition.
 	 */
 	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const Sprite *spr, const Recolouring &recolour)
 	{

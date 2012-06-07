@@ -72,6 +72,7 @@ public:
 	/**
 	 * Compute the colour of a pixel with recolouring.
 	 * @param orig Original colour.
+	 * @param shift Gradient shift in the target range.
 	 * @return Colour value after recolouring.
 	 */
 	inline int Recolour(int orig, int shift) const
