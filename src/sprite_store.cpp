@@ -1118,7 +1118,7 @@ const char *SpriteManager::Load(const char *filename)
 
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
-		size_t remain = rcd_file.Remaining();
+		size_t remain = rcd_file.GetRemaining();
 		if (remain == 0) return NULL; // End reached.
 
 		if (remain < 12) return "Insufficient space for a block"; // Not enough for a rcd block header, abort.

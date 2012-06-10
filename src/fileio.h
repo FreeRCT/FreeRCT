@@ -53,7 +53,7 @@ public:
 	uint32 GetUInt32();
 	int16 GetInt16();
 
-	size_t Remaining();
+	size_t GetRemaining();
 
 private:
 	FILE *fp;         ///< File handle of the opened file.

@@ -46,7 +46,7 @@ const char *Language::Load(const char *fname)
 	if (!rcd_file.CheckFileHeader("RCDS", 1)) return "Could not read header";
 
 	/* Load language block (only one expected). */
-	size_t remain = rcd_file.Remaining();
+	size_t remain = rcd_file.GetRemaining();
 	if (remain < 12) return "Insufficient space for a block"; // Not enough for a rcd block header, abort.
 
 	if (!rcd_file.GetBlob(name, 4)) return "Loading block name failed";
@@ -91,7 +91,7 @@ const char *Language::Load(const char *fname)
 	 * the 'offset++' below the while makes this check hold. */
 	if (idx != num_texts || offset != length) return "Wrong language text format";
 
-	remain = rcd_file.Remaining();
+	remain = rcd_file.GetRemaining();
 	if (remain != 0) return "Unexpected additional block";
 
 	return NULL;

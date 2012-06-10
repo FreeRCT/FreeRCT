@@ -196,9 +196,9 @@ RcdFile::~RcdFile()
 
 /**
  * Get length of data not yet read.
- * @return Remaining data.
+ * @return Count of remaining data.
  */
-size_t RcdFile::Remaining()
+size_t RcdFile::GetRemaining()
 {
 	return (this->file_size >= this->file_pos) ? this->file_size - this->file_pos : 0;
 }
@@ -256,7 +256,7 @@ uint32 RcdFile::GetUInt32()
 bool RcdFile::CheckFileHeader(const char *hdr_name, uint32 version)
 {
 	if (this->fp == NULL) return false;
-	if (this->Remaining() < 8) return false;
+	if (this->GetRemaining() < 8) return false;
 
 	char name[5];
 	this->GetBlob(name, 4);
