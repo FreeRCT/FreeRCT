@@ -16,9 +16,13 @@ STR_MONTH_DECEMBER                              :December
 
 # Toolbar gui strings
 STR_TOOLBAR_GUI_QUIT                            :Quit
-STR_TOOLBAR_GUI_QUIT_PROGRAM                    :Quit the program.
+STR_TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM            :Quit the program
 STR_TOOLBAR_GUI_PATHS                           :Paths
-STR_TOOLBAR_GUI_BUILD_PATHS                     :Build paths and queues.
+STR_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS             :Build paths and queues
+STR_TOOLBAR_GUI_SAVE                            :Save
+STR_TOOLBAR_GUI_TOOLTIP_SAVE_GAME               :Save the game
+STR_TOOLBAR_GUI_LOAD                            :Load
+STR_TOOLBAR_GUI_TOOLTIP_LOAD_GAME               :Load a game
 
 # Quit program strings
 STR_QUIT_CAPTION                                :Quit program?

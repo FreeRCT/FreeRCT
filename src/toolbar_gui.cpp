@@ -37,6 +37,8 @@ public:
 enum ToolbarGuiWidgets {
 	TB_GUI_QUIT,  ///< Quit program button.
 	TB_GUI_PATHS, ///< Build paths button.
+	TB_GUI_SAVE,  ///< Save game button.
+	TB_GUI_LOAD,  ///< Load game button.
 };
 
 /**
@@ -45,8 +47,10 @@ enum ToolbarGuiWidgets {
  */
 static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
-		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_QUIT, 0), SetData(STR_TOOLBAR_GUI_QUIT, STR_TOOLBAR_GUI_QUIT_PROGRAM),
-		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_PATHS, 0), SetData(STR_TOOLBAR_GUI_PATHS, STR_TOOLBAR_GUI_BUILD_PATHS),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_QUIT,  COL_RANGE_BROWN), SetData(STR_TOOLBAR_GUI_QUIT,  STR_TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_PATHS, COL_RANGE_BROWN), SetData(STR_TOOLBAR_GUI_PATHS, STR_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_SAVE,  COL_RANGE_BROWN), SetData(STR_TOOLBAR_GUI_SAVE,  STR_TOOLBAR_GUI_TOOLTIP_SAVE_GAME),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_LOAD,  COL_RANGE_BROWN), SetData(STR_TOOLBAR_GUI_LOAD,  STR_TOOLBAR_GUI_TOOLTIP_LOAD_GAME),
 	EndContainer(),
 };
 
@@ -71,6 +75,14 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 
 		case TB_GUI_PATHS:
 			ShowPathBuildGui();
+			break;
+
+		case TB_GUI_SAVE:
+			// XXX Implement me
+			break;
+
+		case TB_GUI_LOAD:
+			// XXX Implement me
 			break;
 	}
 }
