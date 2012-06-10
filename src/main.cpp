@@ -10,6 +10,7 @@
 /** @file main.cpp Main program. */
 
 #include "stdafx.h"
+#include "freerct.h"
 #include "video.h"
 #include "map.h"
 #include "viewport.h"
@@ -19,6 +20,8 @@
 #include "language.h"
 #include "dates.h"
 #include "people.h"
+
+static bool _finish; ///< Finish execution of the program.
 
 /**
  * Error handling for fatal non-user errors.
@@ -34,6 +37,12 @@ void CDECL error(const char *s, ...)
 	va_end(va);
 
 	abort();
+}
+
+/** End the program. */
+void QuitProgram()
+{
+	_finish = true;
 }
 
 /**
@@ -92,6 +101,8 @@ int main(void)
 	vid.SetPalette();
 	_video = &vid;
 
+	_finish = false;
+
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);
 	_guests.Initialize();
@@ -101,8 +112,7 @@ int main(void)
 
 	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);
 
-	bool finished = false;
-	while (!finished) {
+	while (!_finish) {
 		/* For every frame do... */
 		_manager.Tick();
 		_guests.DoTick();
@@ -111,18 +121,17 @@ int main(void)
 		if ((changes & DTC_DAY) != 0) _guests.OnNewDay();
 
 		bool next_frame = false;
-		while (!next_frame) {
+		while (!next_frame && !_finish) {
 			SDL_Event event;
 			if (!SDL_WaitEvent(&event)) {
-				finished = true; // Error in the event stream, quit.
+				QuitProgram(); // Error in the event stream, quit.
 				break;
 			}
 			switch(event.type) {
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym) {
 						case SDLK_q:
-							next_frame = true;
-							finished = true;
+							QuitProgram();
 							break;
 
 						case SDLK_LEFT:
@@ -209,8 +218,7 @@ int main(void)
 					break;
 
 				case SDL_QUIT:
-					next_frame = true;
-					finished = true;
+					QuitProgram();
 					break;
 
 				default:
