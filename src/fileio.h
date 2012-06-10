@@ -46,7 +46,6 @@ public:
 
 	bool CheckFileHeader(const char *hdr_name, uint32 version);
 
-	bool CheckVersion(uint32 version);
 	bool GetBlob(void *address, size_t length);
 
 	uint8 GetUInt8();

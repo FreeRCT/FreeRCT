@@ -262,8 +262,8 @@ bool RcdFile::CheckFileHeader(const char *hdr_name, uint32 version)
 	this->GetBlob(name, 4);
 	name[4] = '\0';
 	if (strcmp(name, hdr_name) != 0) return false;
-	if (!this->CheckVersion(version)) return false;
-	return true;
+	uint32 val = this->GetUInt32();
+	return val == version;
 }
 
 /**
@@ -276,16 +276,4 @@ bool RcdFile::GetBlob(void *address, size_t length)
 {
 	this->file_pos += length;
 	return fread(address, length, 1, this->fp) == 1;
-}
-
-/**
- * Check whether the read version matches with the expected version.
- * @param ver Expected version.
- * @return Expected version was loaded.
- * @todo In the future, we may want to have a fallback for loading previous versions, which makes this function useless.
- */
-bool RcdFile::CheckVersion(uint32 ver)
-{
-	uint32 val = this->GetUInt32();
-	return val == ver;
 }
