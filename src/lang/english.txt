@@ -20,6 +20,11 @@ STR_TOOLBAR_GUI_QUIT_PROGRAM                    :Quit the program.
 STR_TOOLBAR_GUI_PATHS                           :Paths
 STR_TOOLBAR_GUI_BUILD_PATHS                     :Build paths and queues.
 
+# Quit program strings
+STR_QUIT_CAPTION                                :Quit program?
+STR_QUIT_MESSAGE                                :Quit the program?
+STR_QUIT_NO                                     :No
+STR_QUIT_YES                                    :Yes
 
 # Path gui strings
 STR_PATH_GUI_TITLE                              :Paths

@@ -10,10 +10,13 @@
 /** @file toolbar_gui.cpp Main toolbar window code. */
 
 #include "stdafx.h"
+#include "freerct.h"
 #include "window.h"
 #include "video.h"
 
 #include "table/strings.h"
+
+void ShowQuitProgram();
 
 /**
  * Main toolbar.
@@ -63,7 +66,7 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 {
 	switch (number) {
 		case TB_GUI_QUIT:
-			// Todo: Popup a 'Quit?' dialogue window.
+			ShowQuitProgram();
 			break;
 
 		case TB_GUI_PATHS:
@@ -79,4 +82,74 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 void ShowToolbar()
 {
 	new ToolbarWindow();
+}
+
+
+class QuitProgramWindow : public GuiWindow {
+public:
+	QuitProgramWindow();
+
+	virtual Point32 OnInitialPosition();
+	virtual void OnClick(WidgetNumber number);
+};
+
+/**
+ * Widget numbers of the quit-program window.
+ * @ingroup gui_group
+ */
+enum QuitProgramWidgets {
+	QP_MESSAGE, ///< Displayed message.
+	QP_YES,     ///< 'yes' button.
+	QP_NO,      ///< 'no' button.
+};
+
+/** Window definition of the quit program gui. */
+static const WidgetPart _quit_program_widgets[] = {
+	Intermediate(0, 1),
+		Intermediate(1, 0),
+			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(STR_QUIT_CAPTION, STR_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
+		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),
+			Intermediate(2,0),
+				Widget(WT_CENTERED_TEXT, QP_MESSAGE, COL_RANGE_RED),
+						SetData(STR_QUIT_MESSAGE, STR_NULL), SetPadding(5, 5, 5, 5),
+			EndContainer(),
+			Intermediate(1, 5), SetPadding(0, 0, 3, 0),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+				Widget(WT_TEXT_PUSHBUTTON, QP_NO, COL_RANGE_YELLOW), SetData(STR_QUIT_NO, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+				Widget(WT_TEXT_PUSHBUTTON, QP_YES, COL_RANGE_YELLOW), SetData(STR_QUIT_YES, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+			EndContainer(),
+};
+
+/* virtual */ Point32 QuitProgramWindow::OnInitialPosition()
+{
+	Point32 pt;
+	pt.x = (_video->GetXSize() - this->rect.width) / 2;
+	pt.y = (_video->GetYSize() - this->rect.height)/ 2;
+	return pt;
+}
+
+/** Default constructor. */
+QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT)
+{
+	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
+}
+
+
+/* virtual */ void QuitProgramWindow::OnClick(WidgetNumber number)
+{
+	if (number == QP_YES) QuitProgram();
+	_manager.DeleteWindow(this);
+}
+
+/** Ask the user whether the program should be stopped. */
+void ShowQuitProgram()
+{
+	Window *w = GetWindowByType(WC_QUIT);
+	if (w != NULL) _manager.DeleteWindow(w);
+
+	new QuitProgramWindow();
 }

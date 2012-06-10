@@ -25,6 +25,7 @@ class Viewport;
 enum WindowTypes {
 	WC_MAINDISPLAY,  ///< Main display of the world.
 	WC_TOOLBAR,      ///< Main toolbar.
+	WC_QUIT,         ///< Quit program window.
 	WC_PATH_BUILDER, ///< Path build gui.
 };
 
