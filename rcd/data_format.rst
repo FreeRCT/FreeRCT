@@ -646,6 +646,48 @@ Known scroll-bar widget types:
  - 176 Vertical scroll bar + button.
  - 177 Shaded vertical scroll bar + button.
 
+Gui button sprites
+~~~~~~~~~~~~~~~~~~
+Sprites for use at buttons in the gui.
+
+Gui slope selection
+...................
+Several elements come with different slopes, and the user needs to select the
+right one. The sprites below shows the available slopes to the user.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'GSLP' (Gui slopes).
+   4       4    Version number of the block '1'.
+   8       4    Length of the block excluding magic string, version, and
+                  length.
+  12       4    Slope going vertically down.
+  16       4    Slope going steeply down.
+  20       4    Slope going gently down.
+  24       4    Level slope.
+  28       4    Slope going gently up.
+  32       4    Slope going steeply up.
+  36       4    Slope going vertically up.
+  40            Total length.
+======  ======  ==========================================================
+
+Similarly, below are sprites for expressing rotation.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'GROT' (Gui rotation).
+   4       4    Version number of the block '1'.
+   8       4    Length of the block excluding magic string, version, and
+                  length.
+  12       4    Flat rotation positive direction (counter clock wise)
+  16       4    Flat rotation negative direction (clock wise)
+  20       4    Diametric rotation positive direction (counter clock wise)
+  24       4    Diametric rotation negative direction (clock wise)
+  28            Total length.
+======  ======  ==========================================================
+
 
 Animation
 ~~~~~~~~~

@@ -157,6 +157,23 @@
 		<field name="left"       type="sprite"/>
 	</block>
 
+	<block magic="GSLP" minversion="1" maxversion="1">
+		<field name="vert-down"   type="sprite">Slope vertically down</field>
+		<field name="steep-down"  type="sprite">Slope steeply down</field>
+		<field name="gentle-down" type="sprite">Slope gently down</field>
+		<field name="level"       type="sprite">Level slope</field>
+		<field name="gentle-up"   type="sprite">Slope gently up</field>
+		<field name="steep-up"    type="sprite">Slope steeply up</field>
+		<field name="vert-up"     type="sprite">Slope vertically up</field>
+	</block>
+
+	<block magic="GROT" minversion="1" maxversion="1">
+		<field name="2d-positive" type="sprite">Flat rotation, positive direction</field>
+		<field name="2d-negative" type="sprite">Flat rotation, negative direction</field>
+		<field name="3d-positive" type="sprite">Diametric rotation, positive direction</field>
+		<field name="3d-negative" type="sprite">Diametric rotation, negative direction</field>
+	</block>
+
 	<block magic="PARE" minversion="1" maxversion="1">
 		<field name="tile_width"  type="uint16"/>
 		<field name="z_height"    type="uint16"/>
