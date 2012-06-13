@@ -209,6 +209,26 @@ bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images)
 	return true;
 }
 
+/**
+ * Get a sprite reference from the \a rcd_file, retrieve the corresponding sprite, and put it in the destionation.
+ * @param rcd_file File to load from.
+ * @param sprites Sprites already loaded from this file.
+ * @param spr[out] Pointer to write the loaded sprite to.
+ * @return Loading was successful.
+ */
+static bool LoadSpriteFromFile(RcdFile *rcd_file, const SpriteMap &sprites, Sprite **spr)
+{
+	uint32 val = rcd_file->GetUInt32();
+	if (val == 0) {
+		*spr = NULL;
+		return true;
+	}
+	SpriteMap::const_iterator iter = sprites.find(val);
+	if (iter == sprites.end()) return false;
+	*spr = (*iter).second;
+	return true;
+}
+
 SurfaceData::SurfaceData() : RcdBlock()
 {
 	this->width = 0;
@@ -247,16 +267,7 @@ bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprite
 	this->height = rcd_file->GetUInt16();
 
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
-		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
-		this->surface[sprnum] = spr;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->surface[sprnum])) return false;
 	}
 	return true;
 }
@@ -288,16 +299,7 @@ bool TileSelection::Load(RcdFile *rcd_file, size_t length, const SpriteMap &spri
 	this->height = rcd_file->GetUInt16();
 
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
-		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
-		this->surface[sprnum] = spr;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->surface[sprnum])) return false;
 	}
 	return true;
 }
@@ -333,16 +335,7 @@ bool Path::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
 	this->height = rcd_file->GetUInt16();
 
 	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
-		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
-		this->sprites[sprnum] = spr;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
 	}
 	return true;
 }
@@ -379,16 +372,7 @@ bool TileCorners::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprite
 
 	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
 		for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-			uint32 val = rcd_file->GetUInt32();
-			Sprite *spr;
-			if (val == 0) {
-				spr = NULL;
-			} else {
-				SpriteMap::const_iterator iter = sprites.find(val);
-				if (iter == sprites.end()) return false;
-				spr = (*iter).second;
-			}
-			this->sprites[v][sprnum] = spr;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[v][sprnum])) return false;
 		}
 	}
 	return true;
@@ -429,16 +413,7 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites
 	this->height = rcd_file->GetUInt16();
 
 	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
-		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
-		this->sprites[sprnum] = spr;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
 	}
 	return true;
 }
@@ -467,16 +442,7 @@ bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sp
 	this->width = rcd_file->GetUInt16();
 
 	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
-		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
-		this->sprites[sprnum] = spr;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
 	}
 	return true;
 }
@@ -592,14 +558,7 @@ bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const SpriteMap &s
 	if (this->sprites == NULL || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {
-		uint32 val = rcd_file->GetUInt32();
-		if (val == 0) {
-			this->sprites[i] = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			this->sprites[i] = (*iter).second;
-		}
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[i])) return false;
 	}
 	return true;
 }
@@ -670,19 +629,10 @@ bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 	sprdata->vert_stepsize = rcd_file->GetUInt8();
 
 	for (uint sprnum = 0; sprnum < WBS_COUNT; sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
-		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
 		if (pressed) {
-			sprdata->pressed[sprnum] = spr;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->pressed[sprnum])) return false;
 		} else {
-			sprdata->normal[sprnum] = spr;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->normal[sprnum])) return false;
 		}
 	}
 	return true;
@@ -733,15 +683,8 @@ bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 	sprdata->width = 0;
 	sprdata->height = 0;
 	for (uint sprnum = 0; sprnum < WCS_COUNT; sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
 		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
+		if (!LoadSpriteFromFile(rcd_file, sprites, &spr)) return false;
 		sprdata->sprites[sprnum] = spr;
 
 		if (spr != NULL) {
@@ -808,19 +751,10 @@ bool GuiSprites::LoadGSLI(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 	sprdata->height = height;
 
 	for (uint sprnum = 0; sprnum < WSS_COUNT; sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
-		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
 		if (shaded) {
-			sprdata->shaded[sprnum] = spr;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->shaded[sprnum])) return false;
 		} else {
-			sprdata->normal[sprnum] = spr;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->normal[sprnum])) return false;
 		}
 	}
 	return true;
@@ -890,15 +824,9 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 	uint16 max_width = 0;
 	uint16 max_height = 0;
 	for (uint sprnum = 0; sprnum < WLS_COUNT; sprnum++) {
-		uint32 val = rcd_file->GetUInt32();
 		Sprite *spr;
-		if (val == 0) {
-			spr = NULL;
-		} else {
-			SpriteMap::const_iterator iter = sprites.find(val);
-			if (iter == sprites.end()) return false;
-			spr = (*iter).second;
-		}
+		if (!LoadSpriteFromFile(rcd_file, sprites, &spr)) return false;
+
 		if (shaded) {
 			sprdata->shaded[sprnum] = spr;
 		} else {
