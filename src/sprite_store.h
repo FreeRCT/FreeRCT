@@ -402,6 +402,8 @@ struct GuiSprites {
 	bool LoadGCHK(RcdFile*, size_t, const SpriteMap&);
 	bool LoadGSLI(RcdFile*, size_t, const SpriteMap&);
 	bool LoadGSCL(RcdFile*, size_t, const SpriteMap&);
+	bool LoadGSLP(RcdFile*, size_t, const SpriteMap&);
+	bool LoadGROT(RcdFile*, size_t, const SpriteMap&);
 
 	BorderSpriteData titlebar;              ///< Title bar sprite data.
 	BorderSpriteData button;                ///< Normal button sprite data.
@@ -418,6 +420,12 @@ struct GuiSprites {
 
 	ScrollbarSpriteData hor_scroll;         ///< Horizontal scroll bar sprite data.
 	ScrollbarSpriteData vert_scroll;        ///< Vertical scroll bar sprite data.
+
+	Sprite *slope_select[TSL_COUNT_VERTICAL]; ///< Slope selection sprites.
+	Sprite *rot_2d_pos;                     ///< 2D rotation positive direction.
+	Sprite *rot_2d_neg;                     ///< 2D rotation negative direction.
+	Sprite *rot_3d_pos;                     ///< 3D rotation positive direction.
+	Sprite *rot_3d_neg;                     ///< 3D rotation negative direction.
 };
 
 

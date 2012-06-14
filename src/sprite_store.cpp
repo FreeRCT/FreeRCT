@@ -843,6 +843,41 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 	return true;
 }
 
+/**
+ * Load Gui slope selection sprites.
+ * @param rcd_file RCD file being loaded.
+ * @param length Length of the block to load.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ */
+bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
+
+	if (length != 4 * lengthof(indices)) return false;
+	for (uint i = 0; i < lengthof(indices); i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
+	}
+	return true;
+}
+
+/**
+ * Load Gui slope selection sprites.
+ * @param rcd_file RCD file being loaded.
+ * @param length Length of the block to load.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ */
+bool GuiSprites::LoadGROT(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+{
+	if (length != 4 * 4) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_pos)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_neg)) return false;
+	return true;
+}
+
 /** Default constructor. */
 GuiSprites::GuiSprites()
 {
@@ -867,6 +902,12 @@ void GuiSprites::Clear()
 
 	this->hor_scroll.Clear();
 	this->vert_scroll.Clear();
+
+	for (uint i = 0; i < lengthof(this->slope_select); i++) this->slope_select[i] = NULL;
+	this->rot_2d_pos = NULL;
+	this->rot_2d_neg = NULL;
+	this->rot_3d_pos = NULL;
+	this->rot_3d_neg = NULL;
 }
 
 
@@ -1183,6 +1224,20 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(name, "GSLP") == 0 && version == 1) {
+			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites)) {
+				return "Loading slope selection Gui sprites failed.";
+			}
+			continue;
+		}
+
+		if (strcmp(name, "GROT") == 0 && version == 1) {
+			if (!_gui_sprites.LoadGROT(&rcd_file, length, sprites)) {
+				return "Loading rotation Gui sprites failed.";
+			}
+			continue;
+		}
+
 		if (strcmp(name, "ANIM") == 0 && version == 2) {
 			Animation *anim = new Animation();
 			if (!anim->Load(&rcd_file, length)) {
@@ -1297,7 +1352,7 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 {
 	if (number == SPR_GUI_BULLDOZER) return NULL;
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
-		return NULL;
+		return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START]->img_data;
 	}
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
 		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH)->img_data;

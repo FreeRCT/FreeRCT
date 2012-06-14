@@ -72,12 +72,12 @@ static const WidgetPart _path_build_gui_parts[] = {
 				Intermediate(1, 5), SetPadding(5, 5, 0, 5),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
 					/* Slope down/level/up. */
-					Widget(WT_TEXT_BUTTON, PATH_GUI_SLOPE_DOWN, 0),
-							SetData(STR_PATH_GUI_SLOPE_DOWN, STR_PATH_GUI_SLOPE_DOWN_TIP),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_SLOPE_FLAT, 0), SetPadding(0, 0, 0, 5),
-							SetData(STR_PATH_GUI_SLOPE_FLAT, STR_PATH_GUI_SLOPE_FLAT_TIP),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_SLOPE_UP, 0), SetPadding(0, 0, 0, 5),
-							SetData(STR_PATH_GUI_SLOPE_UP, STR_PATH_GUI_SLOPE_UP_TIP),
+					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_DOWN, 0),
+							SetData(SPR_GUI_SLOPES_START + TSL_DOWN, STR_PATH_GUI_SLOPE_DOWN_TIP),
+					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_FLAT, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_FLAT, STR_PATH_GUI_SLOPE_FLAT_TIP),
+					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_UP, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_UP, STR_PATH_GUI_SLOPE_UP_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
 				Intermediate(1, 3), SetPadding(5, 5, 0, 5),
 					/* Four arrows direction. */
