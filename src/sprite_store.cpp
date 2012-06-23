@@ -1365,6 +1365,7 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
  * @param anim_type %Animation to retrieve.
  * @param per_type %Animation should feature this type of person.
  * @return The requested animation if it is available, else \c NULL is returned.
+ * @todo Put this in a static array to make rendering people much cheaper.
  */
 const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType per_type) const
 {

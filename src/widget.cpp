@@ -38,7 +38,7 @@ static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const R
 {
 	Point32 pt;
 	const Sprite * const *spr_base = pressed ? bsd.pressed : bsd.normal;
-	Recolouring rc;
+	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
 
 	pt.x = rect.base.x;
@@ -290,7 +290,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	} else if ((this->flags & LWF_PRESSED) != 0) {
 		spr_num += WCS_EMPTY_PRESSED;
 	}
-	Recolouring rc;
+	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)this->colour);
 	_video->BlitImage(base.x + this->pos.base.x, base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num], rc, 0);
 }
@@ -414,7 +414,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 		if (imgdata != NULL) {
-			Recolouring rc;
+			static Recolouring rc; // Never modified
 			_video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
 		}
 	} else {
