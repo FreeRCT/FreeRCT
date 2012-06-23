@@ -37,21 +37,21 @@
 static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, uint8 colour)
 {
 	Point32 pt;
-	const Sprite * const *spr_base = pressed ? bsd.pressed : bsd.normal;
+	const ImageData * const *spr_base = pressed ? bsd.pressed : bsd.normal;
 	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y;
 	_video->BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, 0);
-	int xleft = pt.x + spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->img_data->width;
-	int ytop = pt.y + spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->img_data->height;
+	int xleft = pt.x + spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->width;
+	int ytop = pt.y + spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->height;
 
 	pt.x = rect.base.x + rect.width - 1;
 	_video->BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, 0);
 	int xright = pt.x + spr_base[WBS_TOP_RIGHT]->xoffset;
 
-	uint16 numx = (xright - xleft) / spr_base[WBS_TOP_MIDDLE]->img_data->width;
+	uint16 numx = (xright - xleft) / spr_base[WBS_TOP_MIDDLE]->width;
 	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_TOP_MIDDLE], rc);
 
 	pt.x = rect.base.x;
@@ -59,7 +59,7 @@ static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const R
 	_video->BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, 0);
 	int ybot = pt.y + spr_base[WBS_BOTTOM_LEFT]->yoffset;
 
-	uint16 numy = (ybot - ytop) / spr_base[WBS_MIDDLE_LEFT]->img_data->height;
+	uint16 numy = (ybot - ytop) / spr_base[WBS_MIDDLE_LEFT]->height;
 	_video->BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_LEFT], rc);
 
 	pt.x = rect.base.x + rect.width - 1;
@@ -342,15 +342,9 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 
 		case WT_IMAGE_BUTTON:
 		case WT_IMAGE_PUSHBUTTON: {
-			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-			if (imgdata != NULL) {
-				this->value_width = imgdata->width;
-				this->value_height = imgdata->height;
-			} else {
-				/* Weird/unknown image, just draw an empty box. */
-				this->value_width = 10;
-				this->value_height = 10;
-			}
+			const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(this->value);
+			this->value_width = rect.width;
+			this->value_height = rect.height;
 			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
 			return;
 		}
@@ -412,6 +406,9 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	int xoffset = left + (right + 1 - left - this->value_width) / 2;
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
+		const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(this->value);
+		xoffset -= rect.base.x;
+		yoffset -= rect.base.y;
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 		if (imgdata != NULL) {
 			static Recolouring rc; // Never modified

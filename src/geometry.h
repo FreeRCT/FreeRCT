@@ -138,6 +138,43 @@ struct Rectangle {
 		return true;
 	}
 
+	/**
+	 * Change the rectangle coordinates such that the given point is inside the rectangle.
+	 * @param pt %Point to add.
+	 */
+	template <typename CT>
+	void AddPoint(const Point<CT> &pt)
+	{
+		this->AddPoint(pt.x, pt.y);
+	}
+
+	/**
+	 * Change the rectangle coordinates such that the given point is inside the rectangle.
+	 * @param pt %Point to add.
+	 */
+	void AddPoint(typename PT::CoordType xpos, typename PT::CoordType ypos)
+	{
+		if (this->width == 0) {
+			this->base.x = xpos;
+			this->width = 1;
+		} else if (xpos < this->base.x) {
+			this->width += this->base.x - xpos;
+			this->base.x = xpos;
+		} else if (this->base.x + (typename PT::CoordType)this->width <= xpos) {
+			this->width = xpos - this->base.x + 1;
+		}
+
+		if (this->height == 0) {
+			this->base.y = ypos;
+			this->height = 1;
+		} else if (ypos < this->base.y) {
+			this->height += this->base.y - ypos;
+			this->base.y = ypos;
+		} else if (this->base.y + (typename PT::CoordType)this->height <= ypos) {
+			this->height = ypos - this->base.y + 1;
+		}
+	}
+
 	PT base;   ///< Base coordinate.
 	SZ width;  ///< Width of the rectangle.
 	SZ height; ///< Height of the rectangle.

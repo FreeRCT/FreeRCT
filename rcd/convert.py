@@ -142,12 +142,7 @@ def convert(def_fname, data_fname):
                         im_obj = spritegrid.ImageObject(im, img.x_offset, img.y_offset,
                                                     img.x_base, img.y_base, img.width, img.height)
                         pxl_blk = im_obj.make_8PXL()
-                        if pxl_blk is not None:
-                            pix_blknum = file_blocks.add_block(pxl_blk)
-                            spr_blk = blocks.Sprite(im_obj.xoffset, im_obj.yoffset, pix_blknum)
-                            imgs.append(file_blocks.add_block(spr_blk))
-                        else:
-                            imgs.append(0)
+                        imgs.append(file_blocks.add_block(pxl_blk))
                     blockdata[data.name] = imgs
 
                 else:
@@ -156,12 +151,7 @@ def convert(def_fname, data_fname):
                     im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset,
                                                     data.x_base, data.y_base, data.width, data.height)
                     pxl_blk = im_obj.make_8PXL()
-                    if pxl_blk is not None:
-                        pix_blknum = file_blocks.add_block(pxl_blk)
-                        spr_blk = blocks.Sprite(im_obj.xoffset, im_obj.yoffset, pix_blknum)
-                        blockdata[data.name] = file_blocks.add_block(spr_blk)
-                    else:
-                        blockdata[data.name] = 0
+                    blockdata[data.name] = file_blocks.add_block(pxl_blk)
 
                 fields.append((flddef.name, data_type))
 

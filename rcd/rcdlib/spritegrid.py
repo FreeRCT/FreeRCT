@@ -232,9 +232,11 @@ class ImageObject(object):
             else:
                 image_data.append(None)
 
-        values = {'width'  : self.xsize,
-                  'height' : self.ysize,
-                  'lines'  : image_data}
+        values = {'width'    : self.xsize,
+                  'height'   : self.ysize,
+                  'x_offset' : self.xoffset,
+                  'y_offset' : self.yoffset,
+                  'lines'    : image_data}
         return blocks.Pixels8Bpp(values)
 
 
@@ -318,12 +320,7 @@ def save_sprites(file_data, images, verbose):
             print "%6s: width=%d, height=%d, xoff=%d, yoff=%d" \
                 % (name, img_obj.xsize, img_obj.ysize, img_obj.xoffset, img_obj.yoffset)
         pxl_blk = img_obj.make_8PXL(skip_crop = True)
-        if pxl_blk is not None:
-            pix_blknum = file_data.add_block(pxl_blk)
-            spr_blk = blocks.Sprite(img_obj.xoffset, img_obj.yoffset, pix_blknum)
-        else:
-            spr_blk = None
-        spr[name] = file_data.add_block(spr_blk)
+        spr[name] = file_data.add_block(pxl_blk)
 
     return spr
 

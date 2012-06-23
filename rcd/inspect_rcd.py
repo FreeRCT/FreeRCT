@@ -162,7 +162,7 @@ class PictureDump(object):
                 if c != ' ': self.plot(x, y, 1)
                 x = x + 1
 
-        offset = offset + 16
+        offset = offset + 20
         for y in range(h):
             ptr = rcd.uint32(offset + y * 4)
             if ptr == 0: continue
@@ -183,11 +183,6 @@ class PictureDump(object):
 
 
         self.xpos = self.xpos + w + 10
-
-def dump_SPRT_2(rcd, offset):
-    print "    SPRT x-offset: " + str(rcd.int16(offset + 12))
-    print "    SPRT y-offset: " + str(rcd.int16(offset + 14))
-    print "    SPRT 8pxl: " + str(rcd.uint32(offset + 16))
 
 def dump_FUND_1(rcd, offset):
     print "    FUND type: "   + str(rcd.uint16(offset + 12))
@@ -243,8 +238,7 @@ def dump_ANSP_1(rcd, offset):
         blocks.append("...")
     print "    ANSP sprites: " + ", ".join(blocks)
 
-dump_funcs = {('SPRT', 2): dump_SPRT_2,
-              ('FUND', 1): dump_FUND_1,
+dump_funcs = {('FUND', 1): dump_FUND_1,
               ('TCOR', 1): dump_TCOR_1,
               ('ANIM', 2): dump_ANIM_2,
               ('ANSP', 1): dump_ANSP_1,
@@ -282,7 +276,7 @@ def list_blocks(rcd):
         else:
             stat[repr(name)] = 1
 
-        if name == "8PXL" and version == 1:
+        if name == "8PXL" and version == 2:
             pd.add_image(rcd, offset, number)
 
         else:

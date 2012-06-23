@@ -138,22 +138,12 @@ class Pixels8Bpp(GeneralDataBlock):
     8PXL block.
     """
     def __init__(self, values):
-        fields = [('width',  datatypes.UINT16_TYPE),
-                  ('height', datatypes.UINT16_TYPE),
-                  ('lines',  datatypes.IMAGE_DATA_TYPE)]
-        GeneralDataBlock.__init__(self, '8PXL', 1, fields, values)
-# }}}
-# {{{ class Sprite(GeneralDataBlock):
-class Sprite(GeneralDataBlock):
-    """
-    SPRT data block.
-    """
-    def __init__(self, xoff, yoff, img_block):
-        fields = [('x_offset', datatypes.INT16_TYPE),
+        fields = [('width',    datatypes.UINT16_TYPE),
+                  ('height',   datatypes.UINT16_TYPE),
+                  ('x_offset', datatypes.INT16_TYPE),
                   ('y_offset', datatypes.INT16_TYPE),
-                  ('image',    datatypes.BLOCK_TYPE)]
-        values = {'x_offset' : xoff, 'y_offset' : yoff, 'image' : img_block}
-        GeneralDataBlock.__init__(self, 'SPRT', 2, fields, values)
+                  ('lines',    datatypes.IMAGE_DATA_TYPE)]
+        GeneralDataBlock.__init__(self, '8PXL', 2, fields, values)
 # }}}
 # {{{ class RCD(object):
 class RCD(object):

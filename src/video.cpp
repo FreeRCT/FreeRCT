@@ -343,23 +343,9 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
  * @param shift Gradient shift.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImage(const Point32 &img_base, const Sprite *spr, const Recolouring &recolour, int16 shift)
+void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, int16 shift)
 {
-	this->BlitImage(img_base.x + spr->xoffset, img_base.y + spr->yoffset, spr->img_data, recolour, shift);
-}
-
-/**
- * Blit pixels from the \a spr relative to #blit_rect into the area.
- * @param x Horizontal base coordinate.
- * @param y Vertical base coordinate.
- * @param spr The sprite to blit.
- * @param recolour Sprite recolouring definition.
- * @param shift Gradient shift.
- * @pre Surface must be locked.
- */
-void VideoSystem::BlitImage(int x, int y, const Sprite *spr, const Recolouring &recolour, int16 shift)
-{
-	this->BlitImage(x + spr->xoffset, y + spr->yoffset, spr->img_data, recolour, shift);
+	this->BlitImage(img_base.x, img_base.y, spr, recolour, shift);
 }
 
 /**
@@ -377,6 +363,10 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 	int im_top = 0;
 	int im_right = img->width;
 	int im_bottom = img->height;
+
+	x += img->xoffset;
+	y += img->yoffset;
+
 	if (x < 0) {
 		im_left = -x;
 		if (im_left >= im_right) return;
@@ -489,45 +479,43 @@ static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
  * @param recolour Sprite recolouring definition.
  * @pre Surface must be locked.
  */
-void VideoSystem::BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy, const Recolouring &recolour)
+void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour)
 {
 	this->blit_rect.ValidateAddress();
 
 	x_base += spr->xoffset;
 	y_base += spr->yoffset;
 
-	ImageData *img_data = spr->img_data;
-
 	/* Don't draw wildly outside the screen. */
-	while (numx > 0 && x_base + img_data->width < 0) {
-		x_base += img_data->width; numx--;
+	while (numx > 0 && x_base + spr->width < 0) {
+		x_base += spr->width; numx--;
 	}
-	while (numx > 0 && x_base + (numx - 1) * img_data->width >= this->blit_rect.width) numx--;
+	while (numx > 0 && x_base + (numx - 1) * spr->width >= this->blit_rect.width) numx--;
 	if (numx == 0) return;
 
-	while (numy > 0 && y_base + img_data->height < 0) {
-		y_base += img_data->height; numy--;
+	while (numy > 0 && y_base + spr->height < 0) {
+		y_base += spr->height; numy--;
 	}
-	while (numy > 0 && y_base + (numy - 1) * img_data->height >= this->blit_rect.height) numy--;
+	while (numy > 0 && y_base + (numy - 1) * spr->height >= this->blit_rect.height) numy--;
 	if (numy == 0) return;
 
 	uint8 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
 	int32 ypos = y_base;
-	for (int yoff = 0; yoff < img_data->height; yoff++) {
-		uint32 offset = img_data->table[yoff];
+	for (int yoff = 0; yoff < spr->height; yoff++) {
+		uint32 offset = spr->table[yoff];
 		if (offset != ImageData::INVALID_JUMP) {
 			int32 xpos = x_base;
 			uint8 *src_base = line_base;
 			for (;;) {
-				uint8 rel_off = img_data->data[offset];
-				uint8 count   = img_data->data[offset + 1];
-				uint8 *pixels = &img_data->data[offset + 2];
+				uint8 rel_off = spr->data[offset];
+				uint8 count   = spr->data[offset + 1];
+				uint8 *pixels = &spr->data[offset + 2];
 				offset += 2 + count;
 
 				xpos += rel_off & 127;
 				src_base += rel_off & 127;
 				while (count > 0) {
-					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, img_data->width, img_data->height, *pixels, recolour);
+					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, *pixels, recolour);
 					pixels++;
 					xpos++;
 					src_base++;

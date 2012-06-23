@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sprite_store.h %Sprite storage data structure. */
+/** @file sprite_store.h Sprite storage data structure. */
 
 #ifndef SPRITE_STORE_H
 #define SPRITE_STORE_H
@@ -49,6 +49,8 @@ public:
 
 	uint16 width;  ///< Width of the image.
 	uint16 height; ///< Height of the image.
+	int16 xoffset; ///< Horizontal offset of the image.
+	int16 yoffset; ///< Vertical offset of the image.
 	uint32 *table; ///< The jump table. For missing entries, #INVALID_JUMP is used.
 	uint8 *data;   ///< The image data itself.
 
@@ -56,35 +58,6 @@ public:
 };
 
 typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data blocks.
-
-/**
- * %Sprite data.
- * @todo Move the offsets to the image data.
- * @ingroup sprites_group
- */
-class Sprite : public RcdBlock {
-public:
-	Sprite();
-	~Sprite();
-
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &images);
-
-	/**
-	 * Return the pixel-value of the provided position.
-	 * @param xoffset Horizontal offset in the sprite.
-	 * @param yoffset Vertical offset in the sprite.
-	 * @return Pixel value at the given postion, or \c 0 if transparent.
-	 */
-	inline uint8 GetPixel(uint16 xoffset, uint16 yoffset) const {
-		return img_data->GetPixel(xoffset, yoffset);
-	}
-
-	ImageData *img_data;  ///< Image data of the sprite.
-	int16 xoffset;        ///< Horizontal offset of the image.
-	int16 yoffset;        ///< Vertical offset of the image.
-};
-
-typedef std::map<uint32, Sprite *> SpriteMap; ///< Map of loaded sprite blocks.
 
 /**
  * A surface in all orientations.
@@ -95,12 +68,12 @@ public:
 	SurfaceData();
 	~SurfaceData();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
 	uint8 type;    ///< Type of surface.
-	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
+	ImageData *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
 };
 
 /**
@@ -112,11 +85,11 @@ public:
 	TileSelection();
 	~TileSelection();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
-	Sprite *surface[NUM_SLOPE_SPRITES]; ///< Sprites with a selection cursor.
+	ImageData *surface[NUM_SLOPE_SPRITES]; ///< Sprites with a selection cursor.
 };
 
 /**
@@ -128,11 +101,11 @@ public:
 	TileCorners();
 	~TileCorners();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
-	Sprite *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
+	ImageData *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
 };
 
 /**
@@ -144,12 +117,12 @@ public:
 	Path();
 	~Path();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 type;   ///< Type of the path. @see PathTypes
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
-	Sprite *sprites[PATH_COUNT]; ///< Path sprites, may contain \c NULL sprites.
+	ImageData *sprites[PATH_COUNT]; ///< Path sprites, may contain \c NULL sprites.
 };
 
 /**
@@ -161,12 +134,12 @@ public:
 	Foundation();
 	~Foundation();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
-	uint16 type;        ///< Type of the foundation. @see FoundationType
-	uint16 width;       ///< Width of a tile.
-	uint16 height;      ///< Height of a tile.
-	Sprite *sprites[6]; ///< Foundation sprites.
+	uint16 type;   ///< Type of the foundation. @see FoundationType
+	uint16 width;  ///< Width of a tile.
+	uint16 height; ///< Height of a tile.
+	ImageData *sprites[6]; ///< Foundation sprites.
 };
 
 /**
@@ -179,10 +152,10 @@ public:
 	DisplayedObject();
 	~DisplayedObject();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
-	uint16 width;       ///< Width of the tile.
-	Sprite *sprites[4]; ///< Object displayed towards NE, SE, SW, NW edges.
+	uint16 width; ///< Width of the tile.
+	ImageData *sprites[4]; ///< Object displayed towards NE, SE, SW, NW edges.
 };
 
 /** One frame in an animation. */
@@ -228,14 +201,14 @@ public:
 	AnimationSprites();
 	~AnimationSprites();
 
-	bool Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites);
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;            ///< Width of the tile.
 	uint8 person_type;       ///< Type of persons supported by this animation.
 	AnimationType anim_type; ///< Animation ID.
 	uint16 frame_count;      ///< Number of frames.
 
-	Sprite **sprites;        ///< Sprites of the animation.
+	ImageData **sprites;     ///< Sprites of the animation.
 };
 
 typedef std::multimap<AnimationType, AnimationSprites *> AnimationSpritesMap; ///< Multi-map of available animation sprites.
@@ -259,7 +232,7 @@ enum WidgetBorderSprites {
 };
 
 /**
- * %Sprite data of a border.
+ * Sprite data of a border.
  * @ingroup gui_sprites_group
  */
 struct BorderSpriteData {
@@ -277,8 +250,8 @@ struct BorderSpriteData {
 	uint8 hor_stepsize;  ///< Width increment size.
 	uint8 vert_stepsize; ///< Height increment size.
 
-	Sprite *normal[WBS_COUNT];  ///< Sprites to draw for a normal border.
-	Sprite *pressed[WBS_COUNT]; ///< Sprites to draw for a pressed border.
+	ImageData *normal[WBS_COUNT];  ///< Sprites to draw for a normal border.
+	ImageData *pressed[WBS_COUNT]; ///< Sprites to draw for a pressed border.
 };
 
 /**
@@ -297,7 +270,7 @@ enum WidgetCheckableSprites {
 };
 
 /**
- * %Sprite data of a checkable sprite.
+ * Sprite data of a checkable sprite.
  * @ingroup gui_sprites_group
  */
 struct CheckableWidgetSpriteData {
@@ -308,7 +281,7 @@ struct CheckableWidgetSpriteData {
 	uint16 width;  ///< Width of the sprite.
 	uint16 height; ///< Height of the sprite.
 
-	Sprite *sprites[WCS_COUNT]; ///< Sprites to draw.
+	ImageData *sprites[WCS_COUNT]; ///< Sprites to draw.
 };
 
 /**
@@ -325,7 +298,7 @@ enum WidgetSliderSprites {
 };
 
 /**
- * %Sprite data of a slider bar.
+ * Sprite data of a slider bar.
  * @ingroup gui_sprites_group
  */
 struct SliderSpriteData {
@@ -337,8 +310,8 @@ struct SliderSpriteData {
 	uint8 stepsize;        ///< Length increment size.
 	uint8 height;          ///< Height/width of the bar.
 
-	Sprite *normal[WSS_COUNT]; ///< Sprites for normal slider.
-	Sprite *shaded[WSS_COUNT]; ///< Sprites for shaded slider.
+	ImageData *normal[WSS_COUNT]; ///< Sprites for normal slider.
+	ImageData *shaded[WSS_COUNT]; ///< Sprites for shaded slider.
 };
 
 /**
@@ -364,7 +337,7 @@ enum WidgetScrollbarSprites {
 };
 
 /**
- * %Sprite data of a scrollbar.
+ * Sprite data of a scrollbar.
  * @ingroup gui_sprites_group
  */
 struct ScrollbarSpriteData {
@@ -378,8 +351,8 @@ struct ScrollbarSpriteData {
 	uint8 stepsize_slider;    ///< Length increment of the slider.
 	uint16 height;            ///< Height/width of the entire bar.
 
-	Sprite *normal[WLS_COUNT]; ///< Sprites for a normal scrollbar.
-	Sprite *shaded[WLS_COUNT]; ///< Sprites for a shaded scrollbar.
+	ImageData *normal[WLS_COUNT]; ///< Sprites for a normal scrollbar.
+	ImageData *shaded[WLS_COUNT]; ///< Sprites for a shaded scrollbar.
 };
 
 /**
@@ -398,12 +371,12 @@ struct GuiSprites {
 	GuiSprites();
 
 	void Clear();
-	bool LoadGBOR(RcdFile*, size_t, const SpriteMap&);
-	bool LoadGCHK(RcdFile*, size_t, const SpriteMap&);
-	bool LoadGSLI(RcdFile*, size_t, const SpriteMap&);
-	bool LoadGSCL(RcdFile*, size_t, const SpriteMap&);
-	bool LoadGSLP(RcdFile*, size_t, const SpriteMap&);
-	bool LoadGROT(RcdFile*, size_t, const SpriteMap&);
+	bool LoadGBOR(RcdFile*, size_t, const ImageMap&);
+	bool LoadGCHK(RcdFile*, size_t, const ImageMap&);
+	bool LoadGSLI(RcdFile*, size_t, const ImageMap&);
+	bool LoadGSCL(RcdFile*, size_t, const ImageMap&);
+	bool LoadGSLP(RcdFile*, size_t, const ImageMap&);
+	bool LoadGROT(RcdFile*, size_t, const ImageMap&);
 
 	BorderSpriteData titlebar;              ///< Title bar sprite data.
 	BorderSpriteData button;                ///< Normal button sprite data.
@@ -421,11 +394,11 @@ struct GuiSprites {
 	ScrollbarSpriteData hor_scroll;         ///< Horizontal scroll bar sprite data.
 	ScrollbarSpriteData vert_scroll;        ///< Vertical scroll bar sprite data.
 
-	Sprite *slope_select[TSL_COUNT_VERTICAL]; ///< Slope selection sprites.
-	Sprite *rot_2d_pos;                     ///< 2D rotation positive direction.
-	Sprite *rot_2d_neg;                     ///< 2D rotation negative direction.
-	Sprite *rot_3d_pos;                     ///< 3D rotation positive direction.
-	Sprite *rot_3d_neg;                     ///< 3D rotation negative direction.
+	ImageData *slope_select[TSL_COUNT_VERTICAL]; ///< Slope selection sprites.
+	ImageData *rot_2d_pos;                  ///< 2D rotation positive direction.
+	ImageData *rot_2d_neg;                  ///< 2D rotation negative direction.
+	ImageData *rot_3d_pos;                  ///< 3D rotation positive direction.
+	ImageData *rot_3d_neg;                  ///< 3D rotation negative direction.
 };
 
 
@@ -457,7 +430,7 @@ public:
 	 * @param orient Orientation.
 	 * @return Requested sprite if available.
 	 */
-	const Sprite *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
+	const ImageData *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
 	{
 		if (this->surface[type] == NULL) return NULL;
 		return this->surface[type]->surface[_slope_rotation[surf_spr][orient]];
@@ -471,7 +444,7 @@ public:
 	 * @return Requested sprite if available.
 	 * @todo [low] \a type is not used due to lack of other path types (sprites).
 	 */
-	const Sprite *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
+	const ImageData *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
 	{
 		// this->path[type] is not used, as there exists only one type of paths.
 		return this->path_sprites->sprites[_path_roation[slope][orient]];
@@ -483,7 +456,7 @@ public:
 	 * @param orient Orientation.
 	 * @return Requested sprite if available.
 	 */
-	const Sprite *GetCursorSprite(uint8 surf_spr, ViewOrientation orient) const
+	const ImageData *GetCursorSprite(uint8 surf_spr, ViewOrientation orient) const
 	{
 		if (this->tile_select == NULL) return NULL;
 		return this->tile_select->surface[_slope_rotation[surf_spr][orient]];
@@ -496,7 +469,7 @@ public:
 	 * @param cursor Ground cursor orientation.
 	 * @return Requested sprite if available.
 	 */
-	const Sprite *GetCornerSprite(uint8 surf_spr, ViewOrientation orient, ViewOrientation cursor) const
+	const ImageData *GetCornerSprite(uint8 surf_spr, ViewOrientation orient, ViewOrientation cursor) const
 	{
 		if (this->tile_corners == NULL) return NULL;
 		return this->tile_corners->sprites[cursor][_slope_rotation[surf_spr][orient]];
@@ -508,7 +481,7 @@ public:
 	 * @param orient Orientation of the view.
 	 * @return Requested arrow sprite if available.
 	 */
-	const Sprite *GetArrowSprite(uint8 spr_num, ViewOrientation orient) const
+	const ImageData *GetArrowSprite(uint8 spr_num, ViewOrientation orient) const
 	{
 		if (this->build_arrows == NULL) return NULL;
 		assert(spr_num < 4);
@@ -524,7 +497,7 @@ public:
 	 * @return The sprite, if it is available.
 	 * @todo [high] Pulling animations from a map for drawing sprites is too expensive.
 	 */
-	const Sprite *GetAnimationSprite(AnimationType anim_type, uint16 frame_index, PersonType pers_type, ViewOrientation view) const
+	const ImageData *GetAnimationSprite(AnimationType anim_type, uint16 frame_index, PersonType pers_type, ViewOrientation view) const
 	{
 		/* anim_type = 1..4, normalize with -1, subtract orientation,
 		 * add 4 + mod 4 to get the normalized animation, +1 to get the real animation. */
@@ -571,6 +544,7 @@ public:
 	const SpriteStorage *GetSprites(uint16 size) const;
 	void AddAnimation(Animation *anim);
 	const ImageData *GetTableSprite(uint16 number) const;
+	const Rectangle16 &GetTableSpriteSize(uint16 number);
 	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
 
 protected:
@@ -578,7 +552,7 @@ protected:
 
 	RcdBlock *blocks;         ///< List of loaded Rcd data blocks.
 
-	SpriteStorage store;      ///< %Sprite storage of size 64.
+	SpriteStorage store;      ///< Sprite storage of size 64.
 	AnimationsMap animations; ///< Available animations.
 };
 

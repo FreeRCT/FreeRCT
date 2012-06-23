@@ -157,11 +157,11 @@ protected:
  * @ingroup viewport_group
  */
 struct DrawData {
-	const Sprite *cursor;     ///< Mouse cursor to draw.
-	const Sprite *path;       ///< Path sprite to draw.
-	const Sprite *ground;     ///< Surface tile to draw.
-	const Sprite *foundation; ///< Foundations to draw.
-	Point32 base;             ///< Base coordinate of the image, relative to top-left of the window.
+	const ImageData *cursor;     ///< Mouse cursor to draw.
+	const ImageData *path;       ///< Path sprite to draw.
+	const ImageData *ground;     ///< Surface tile to draw.
+	const ImageData *foundation; ///< Foundations to draw.
+	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
 };
 
 /**
@@ -189,7 +189,7 @@ public:
 
 protected:
 	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
-	const Sprite *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope);
+	const ImageData *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
 	Point16 north_offsets[4];
@@ -414,7 +414,7 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
  * @param tslope Slope of the tile.
  * @return Pointer to the cursor sprite, or \c NULL if no cursor available.
  */
-const Sprite *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope)
+const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope)
 {
 	if (!this->enable_cursors) return NULL;
 
@@ -458,7 +458,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 128 : -128;
 
 	if (voxel == NULL) {
-		const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
+		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 		if (mspr != NULL) {
 			std::pair<int32, DrawData> p;
 			p.first = sx * xpos + sy * ypos + zpos * 256;
@@ -476,13 +476,13 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
-			const Sprite *path;
+			const ImageData *path;
 			if (svd->path.type == PT_INVALID) {
 				path = NULL;
 			} else {
 				path = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
 			}
-			const Sprite *surf;
+			const ImageData *surf;
 			uint8 gslope;
 			if (svd->ground.type == GTP_INVALID) {
 				surf = NULL;
@@ -491,7 +491,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				surf = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
 				gslope = svd->ground.slope;
 			}
-			const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
+			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
 
 			if (surf != NULL || mspr != NULL || path != NULL) {
 				std::pair<int32, DrawData> p;
@@ -508,7 +508,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		}
 
 		default: {
-			const Sprite *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
+			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 			if (mspr != NULL) {
 				std::pair<int32, DrawData> p;
 				p.first = sx * xpos + sy * ypos + zpos * 256;
@@ -529,7 +529,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		// XXX Check that the person is actually in this voxel.
 
 		AnimationType anim_type = pers->walk->anim_type;
-		const Sprite *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
+		const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
 		if (anim_spr != NULL) {
 			std::pair<int32, DrawData> p;
 			int x_off = ComputeX(pers->x_pos, pers->y_pos);
@@ -584,7 +584,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		case VT_SURFACE: {
 			const SurfaceVoxelData *svd = voxel->GetSurface();
 			if (svd->ground.type == GTP_INVALID) break;
-			const Sprite *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->orient);
+			const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->orient);
 			if (spr == NULL) break;
 			int32 dist = sx * xpos + sy * ypos + zpos * 256;
 			if (this->found && dist <= this->distance) break;

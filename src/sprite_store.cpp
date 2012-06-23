@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sprite_store.cpp %Sprite storage functions. */
+/** @file sprite_store.cpp Sprite storage functions. */
 
 /**
  * @defgroup sprites_group Sprites and sprite handling
@@ -31,7 +31,7 @@ GuiSprites _gui_sprites; ///< Gui sprites.
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
 /**
- * %Sprite indices of ground/surface sprites after rotation of the view.
+ * Sprite indices of ground/surface sprites after rotation of the view.
  * @ingroup sprites_group
  */
 const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
@@ -90,14 +90,16 @@ ImageData::~ImageData()
  */
 bool ImageData::Load(RcdFile *rcd_file, size_t length)
 {
-	if (length < 4) return false; // 2 bytes width, 2 bytes height
+	if (length < 8) return false; // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
+	this->xoffset = rcd_file->GetInt16();
+	this->yoffset = rcd_file->GetInt16();
 
 	/* Check against some arbitrary limits that look sufficient at this time. */
 	if (this->width == 0 || this->width > 300 || this->height == 0 || this->height > 500) return false;
 
-	length -= 4;
+	length -= 8;
 	if (length > 100*1024) return false; // Another arbitrary limit.
 
 	size_t jmp_table = 4 * this->height;
@@ -174,41 +176,6 @@ uint8 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 	return 0;
 }
 
-Sprite::Sprite() : RcdBlock()
-{
-	this->img_data = NULL;
-	this->xoffset = 0;
-	this->yoffset = 0;
-}
-
-Sprite::~Sprite()
-{
-	/* Do not release the RCD blocks. */
-}
-
-/**
- * Load a sprite from the RCD file.
- * @param rcd_file File to load from.
- * @param length Length of the sprite block.
- * @param images Already loaded image data blocks.
- * @return Load was successful.
- * @pre File pointer is at first byte of the block.
- */
-bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images)
-{
-	if (length != 8) return false;
-	this->xoffset = rcd_file->GetInt16();
-	this->yoffset = rcd_file->GetInt16();
-
-	/* Find the image data block (required). */
-	uint32 img_blk = rcd_file->GetUInt32();
-	ImageMap::const_iterator img_iter = images.find(img_blk);
-	if (img_iter == images.end()) return false;
-	this->img_data = (*img_iter).second;
-
-	return true;
-}
-
 /**
  * Get a sprite reference from the \a rcd_file, retrieve the corresponding sprite, and put it in the destionation.
  * @param rcd_file File to load from.
@@ -216,14 +183,14 @@ bool Sprite::Load(RcdFile *rcd_file, size_t length, const ImageMap &images)
  * @param spr[out] Pointer to write the loaded sprite to.
  * @return Loading was successful.
  */
-static bool LoadSpriteFromFile(RcdFile *rcd_file, const SpriteMap &sprites, Sprite **spr)
+static bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr)
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
 		*spr = NULL;
 		return true;
 	}
-	SpriteMap::const_iterator iter = sprites.find(val);
+	ImageMap::const_iterator iter = sprites.find(val);
 	if (iter == sprites.end()) return false;
 	*spr = (*iter).second;
 	return true;
@@ -248,7 +215,7 @@ SurfaceData::~SurfaceData()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
@@ -291,7 +258,7 @@ TileSelection::~TileSelection()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileSelection::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool TileSelection::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
@@ -324,7 +291,7 @@ Path::~Path()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Path::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool Path::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
 
@@ -363,7 +330,7 @@ TileCorners::~TileCorners()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileCorners::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool TileCorners::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) return false;
 
@@ -398,7 +365,7 @@ Foundation::~Foundation()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Foundation::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool Foundation::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 4 * 6) return false;
 
@@ -435,7 +402,7 @@ DisplayedObject::~DisplayedObject()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 4*4) return false;
 
@@ -538,7 +505,7 @@ AnimationSprites::~AnimationSprites()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
 
@@ -554,7 +521,7 @@ bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const SpriteMap &s
 
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 4) return false;
-	this->sprites = (Sprite **)malloc(this->frame_count * sizeof(Sprite *));
+	this->sprites = (ImageData **)malloc(this->frame_count * sizeof(ImageData *));
 	if (this->sprites == NULL || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {
@@ -598,7 +565,7 @@ bool BorderSpriteData::IsLoaded() const
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 8*1 + WBS_COUNT * 4) return false;
 
@@ -666,7 +633,7 @@ bool CheckableWidgetSpriteData::IsLoaded() const
  * @return Load was successful.
  * @todo Load width and height from the RCD file too.
  */
-bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + WCS_COUNT * 4) return false;
 
@@ -683,13 +650,13 @@ bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 	sprdata->width = 0;
 	sprdata->height = 0;
 	for (uint sprnum = 0; sprnum < WCS_COUNT; sprnum++) {
-		Sprite *spr;
+		ImageData *spr;
 		if (!LoadSpriteFromFile(rcd_file, sprites, &spr)) return false;
 		sprdata->sprites[sprnum] = spr;
 
 		if (spr != NULL) {
-			sprdata->width = max(sprdata->width, spr->img_data->width);
-			sprdata->height = max(sprdata->height, spr->img_data->height);
+			sprdata->width = max(sprdata->width, spr->width);
+			sprdata->height = max(sprdata->height, spr->height);
 		}
 	}
 	return true;
@@ -725,7 +692,7 @@ bool SliderSpriteData::IsLoaded() const
  * @return Load was successful.
  * @todo Move widget_type further to the top in the RCD file block.
  */
-bool GuiSprites::LoadGSLI(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool GuiSprites::LoadGSLI(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 3 * 1 + 2 + WSS_COUNT * 4) return false;
 
@@ -793,7 +760,7 @@ bool ScrollbarSpriteData::IsLoaded() const
  * @todo Move widget_type further to the top in the RCD file block.
  * @todo Add width of the scrollbar in the RCD file block.
  */
-bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 4*1 + 2 + WLS_COUNT * 4) return false;
 
@@ -824,7 +791,7 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 	uint16 max_width = 0;
 	uint16 max_height = 0;
 	for (uint sprnum = 0; sprnum < WLS_COUNT; sprnum++) {
-		Sprite *spr;
+		ImageData *spr;
 		if (!LoadSpriteFromFile(rcd_file, sprites, &spr)) return false;
 
 		if (shaded) {
@@ -834,8 +801,8 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const SpriteMap &spr
 		}
 
 		if (spr != NULL) {
-			max_width = max(max_width, spr->img_data->width);
-			max_height = max(max_height, spr->img_data->height);
+			max_width = max(max_width, spr->width);
+			max_height = max(max_height, spr->height);
 		}
 	}
 
@@ -850,7 +817,7 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const SpriteMap &spr
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
@@ -868,7 +835,7 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const SpriteMap &spr
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGROT(RcdFile *rcd_file, size_t length, const SpriteMap &sprites)
+bool GuiSprites::LoadGROT(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 4 * 4) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
@@ -1046,14 +1013,14 @@ bool SpriteStorage::HasSufficientGraphics() const
 }
 
 
-/** %Sprite manager constructor. */
+/** Sprite manager constructor. */
 SpriteManager::SpriteManager() : store(64)
 {
 	_gui_sprites.Clear();
 	this->blocks = NULL;
 }
 
-/** %Sprite manager destructor. */
+/** Sprite manager destructor. */
 SpriteManager::~SpriteManager()
 {
 	_gui_sprites.Clear();
@@ -1082,8 +1049,7 @@ const char *SpriteManager::Load(const char *filename)
 	RcdFile rcd_file(filename);
 	if (!rcd_file.CheckFileHeader("RCDF", 1)) return "Could not read header";
 
-	ImageMap   images;   // Images loaded from this file.
-	SpriteMap  sprites;  // Sprites loaded from this file.
+	ImageMap sprites; // Sprites loaded from this file.
 
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
@@ -1098,7 +1064,7 @@ const char *SpriteManager::Load(const char *filename)
 
 		if (length + 12 > remain) return "Not enough data"; // Not enough data in the file.
 
-		if (strcmp(name, "8PXL") == 0 && version == 1) {
+		if (strcmp(name, "8PXL") == 0 && version == 2) {
 			ImageData *img_data = new ImageData;
 			if (!img_data->Load(&rcd_file, length)) {
 				delete img_data;
@@ -1107,19 +1073,6 @@ const char *SpriteManager::Load(const char *filename)
 			this->AddBlock(img_data);
 
 			std::pair<uint, ImageData *> p(blk_num, img_data);
-			images.insert(p);
-			continue;
-		}
-
-		if (strcmp(name, "SPRT") == 0 && version == 2) {
-			Sprite *spr = new Sprite;
-			if (!spr->Load(&rcd_file, length, images)) {
-				delete spr;
-				return "Sprite load failed.";
-			}
-			this->AddBlock(spr);
-
-			std::pair<uint, Sprite *> p(blk_num, spr);
 			sprites.insert(p);
 			continue;
 		}
@@ -1323,7 +1276,7 @@ bool SpriteManager::HasSufficientGraphics() const
 /**
  * Get a sprite store of a given size.
  * @param size Requested size.
- * @return %Sprite store with sprites of the requested size, if it exists, else \c NULL.
+ * @return Sprite store with sprites of the requested size, if it exists, else \c NULL.
  * @todo Add support for other sprite sizes as well.
  */
 const SpriteStorage *SpriteManager::GetSprites(uint16 size) const
@@ -1342,6 +1295,45 @@ void SpriteManager::AddAnimation(Animation *anim)
 }
 
 /**
+ * Get the size of a GUI image according to the table in <tt>table/gui_sprites.h</tt>.
+ * @param number Number of the sprite to get.
+ * @return The size of the sprite (which may be a default if there is no sprite).
+ * @todo Add a bulldozer sprite.
+ */
+const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
+{
+	static const Rectangle16 dummy(0, 0, 10, 10);
+	static Rectangle16 slopes;
+	static Rectangle16 arrows;
+
+	if (number == SPR_GUI_BULLDOZER) return dummy;
+
+	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
+		if (slopes.width == 0) {
+			for (uint16 i = SPR_GUI_SLOPES_START; i < SPR_GUI_SLOPES_END; i++) {
+				const ImageData *imd = this->GetTableSprite(i);
+				if (imd == NULL || imd->width == 0 || imd->height == 0) continue;
+				slopes.AddPoint(imd->xoffset, imd->yoffset);
+				slopes.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
+			}
+		}
+		return slopes;
+	}
+	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
+		if (arrows.width== 0) {
+			for (uint16 i = SPR_GUI_BUILDARROW_START; i < SPR_GUI_BUILDARROW_END; i++) {
+				const ImageData *imd = this->GetTableSprite(i);
+				if (imd == NULL || imd->width == 0 || imd->height == 0) continue;
+				arrows.AddPoint(imd->xoffset, imd->yoffset);
+				arrows.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
+			}
+		}
+		return arrows;
+	}
+	return dummy; // Return a dummy size.
+}
+
+/**
  * Get the image data for the GUI according to the table in <tt>table/gui_sprites.h</tt>.
  * @param number Number of the sprite to get.
  * @return The sprite if available, else \c NULL.
@@ -1352,10 +1344,10 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 {
 	if (number == SPR_GUI_BULLDOZER) return NULL;
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
-		return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START]->img_data;
+		return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
 	}
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
-		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH)->img_data;
+		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
 	return NULL;
 }

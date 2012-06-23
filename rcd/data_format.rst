@@ -56,23 +56,26 @@ A reference to data block 0 means 'not present'.
 
 Sprite Pixels
 -------------
-A data block containing the actual image of a sprite (in 8bpp).
+A data block containing the actual image of a sprite (in 8bpp), and its
+offset. Version 2 is supported by FreeRCT.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string '8PXL'.
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                  length.
-  12       2    Width of the image.
-  14       2    Height of the image, called 'h' below.
-  16     4*h    Jump table to pixel data of each line. Offset is relative
-                  to the first entry of the jump table. Value 0 means there
-                  is no data for that line.
-   ?       ?    Pixels of each line.
-   ?            Variable length.
-======  ======  ==========================================================
+======  ======  =======  =================================================
+Offset  Length  Version  Description
+======  ======  =======  =================================================
+   0       4      1-2    Magic string '8PXL'.
+   4       4      1-2    Version number of the block '2'.
+   8       4      1-2    Length of the block excluding magic string,
+                         version, and length.
+  12       2      1-2    Width of the image.
+  14       2      1-2    Height of the image, called 'h' below.
+  16       2        2    (signed) X-offset.
+  18       2        2    (signed) Y-offset.
+  20     4*h      1-2    Jump table to pixel data of each line. Offset is
+                         relative to the first entry of the jump table.
+                         Value 0 means there is no data for that line.
+   ?       ?      1-2    Pixels of each line.
+   ?                     Variable length.
+======  ======  =======  =================================================
 
 
 Line data is a sequence of pixels with an offset. Its format is
@@ -93,25 +96,6 @@ line is longer than 127 pixels.
 
 To decide: Some simple form of compressing may be useful in the pixels as it
            decreases the amount of memory transfers.
-
-
-Sprite block
-------------
-Data of a single sprite. Version 2 is currently supported by FreeRCT.
-
-======  ======  =======  =================================================
-Offset  Length  Version  Description
-======  ======  =======  =================================================
-   0       4      1-2    Magic string 'SPRT'.
-   4       4      1-2    Version number of the block.
-   8       4      1-2    Length of the block excluding magic string,
-                  1-2    version, and length.
-  12       2      1-2    (signed) X-offset.
-  14       2      1-2    (signed) Y-offset.
-  16       4      1-2    Sprite image data, reference to a 8PXL block.
-  20     768       1     (removed in version 2) Palette data.
-  20                     Total length of version 2
-======  ======  =======  =================================================
 
 
 Game blocks

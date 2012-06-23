@@ -17,7 +17,6 @@
 #include "geometry.h"
 #include "palette.h"
 
-class Sprite;
 class ImageData;
 class PaletteData;
 
@@ -78,8 +77,7 @@ public:
 	void UnlockSurface();
 	void FillSurface(uint8 colour, const Rectangle32 &rect);
 
-	void BlitImage(const Point32 &img_base, const Sprite *spr, const Recolouring &recolour, int16 shift);
-	void BlitImage(int x, int y, const Sprite *spr, const Recolouring &recolour, int16 shift);
+	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, int16 shift);
 	void BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift);
 
 	/**
@@ -90,7 +88,7 @@ public:
 	 * @param spr Sprite to draw.
 	 * @param recolour Sprite recolouring definition.
 	 */
-	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const Sprite *spr, const Recolouring &recolour)
+	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const ImageData *spr, const Recolouring &recolour)
 	{
 		this->BlitImages(xmin, y, spr, numx, 1, recolour);
 	}
@@ -103,12 +101,12 @@ public:
 	 * @param spr Sprite to draw.
 	 * @param recolour Sprite recolouring definition.
 	 */
-	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const Sprite *spr, const Recolouring &recolour)
+	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const ImageData *spr, const Recolouring &recolour)
 	{
 		this->BlitImages(x, ymin, spr, 1, numy, recolour);
 	}
 
-	void BlitImages(int32 x_base, int32 y_base, const Sprite *spr, uint16 numx, uint16 numy, const Recolouring &recolour);
+	void BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour);
 
 	void FinishRepaint();
 

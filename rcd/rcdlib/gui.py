@@ -44,13 +44,7 @@ def add_checkbox(im, rcd, wid_type, coords):
         imo = spritegrid.ImageObject(im, 0, 0, x1, y1, x2 - x1 + 1, y2 - y1 + 1)
 
         pxl_blk = imo.make_8PXL(skip_crop = False)
-        if pxl_blk is None:
-            spr_blk = None
-        else:
-            pix_blknum = rcd.add_block(pxl_blk)
-            spr_blk = blocks.Sprite(imo.xoffset, imo.yoffset, pix_blknum)
-
-        imgs[name] = rcd.add_block(spr_blk)
+        imgs[name] = rcd.add_block(pxl_blk)
 
     imgs['widget_num'] = wid_type
     chk = blocks.block_factory.get_block('GCHK', 1)
@@ -155,13 +149,7 @@ def add_decoration(im, rcd, widget_num, imgdata):
         imo = spritegrid.ImageObject(im, dx, dy, x1, y1, x2 - x1 + 1, y2 - y1 + 1)
 
         pxl_blk = imo.make_8PXL(skip_crop = False)
-        if pxl_blk is None:
-            spr_blk = None
-        else:
-            pix_blknum = rcd.add_block(pxl_blk)
-            spr_blk = blocks.Sprite(imo.xoffset, imo.yoffset, pix_blknum)
-
-        imgs[name] = rcd.add_block(spr_blk)
+        imgs[name] = rcd.add_block(pxl_blk)
 
     imgs['border-width-top'] = imgdata['top-border']
     imgs['border-width-left'] = imgdata['left-border']
@@ -227,13 +215,7 @@ def add_scrollbar(im, rcd, widget_num, imgdata):
         imo = spritegrid.ImageObject(im, 0, 0, x1, y1, x2 - x1 + 1, y2 - y1 + 1)
         imos[name] = imo
         pxl_blk = imo.make_8PXL(skip_crop = False)
-        if pxl_blk is None:
-            spr_blk = None
-        else:
-            pix_blknum = rcd.add_block(pxl_blk)
-            spr_blk = blocks.Sprite(imo.xoffset, imo.yoffset, pix_blknum)
-
-        imgs[name] = rcd.add_block(spr_blk)
+        imgs[name] = rcd.add_block(pxl_blk)
 
     scroll_len = [imos['leftup'], imos['rightdown'], imos['leftup-under'], imos['rightdown-under'], imos['middle-under']]
     select_len = [imos['leftup-select'], imos['middle-select'], imos['rightdown-select']]
