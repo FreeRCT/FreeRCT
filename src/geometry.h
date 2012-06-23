@@ -150,7 +150,8 @@ struct Rectangle {
 
 	/**
 	 * Change the rectangle coordinates such that the given point is inside the rectangle.
-	 * @param pt %Point to add.
+	 * @param xpos X position of the point to add.
+	 * @param ypos Y position of the point to add.
 	 */
 	void AddPoint(typename PT::CoordType xpos, typename PT::CoordType ypos)
 	{

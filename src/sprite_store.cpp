@@ -180,7 +180,7 @@ uint8 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
  * Get a sprite reference from the \a rcd_file, retrieve the corresponding sprite, and put it in the destionation.
  * @param rcd_file File to load from.
  * @param sprites Sprites already loaded from this file.
- * @param spr[out] Pointer to write the loaded sprite to.
+ * @param [out] spr Pointer to write the loaded sprite to.
  * @return Loading was successful.
  */
 static bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr)
