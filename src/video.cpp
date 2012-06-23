@@ -404,7 +404,10 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 	for (; im_top < im_bottom; im_top++) {
 		uint8 *dest = base;
 		uint32 offset = img->table[im_top];
-		if (offset == ImageData::INVALID_JUMP) continue;
+		if (offset == ImageData::INVALID_JUMP) {
+			base += this->blit_rect.pitch;
+			continue;
+		}
 
 		int xpos = 0;
 		for (;;) {
