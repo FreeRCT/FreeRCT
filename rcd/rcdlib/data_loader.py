@@ -13,25 +13,6 @@ from rcdlib import datatypes
 from xml.dom import minidom
 from xml.dom.minidom import Node
 
-# {{{ class RcdFiles(object):
-class RcdFiles(object):
-    """
-    Class representing the rcd files to create.
-
-    @ivar files: Files to create.
-    @type files: C{list} of L{RcdFile}
-    """
-    def __init__(self):
-        self.files = []
-
-    def loadfromDOM(self, node):
-        nodes = datatypes.get_child_nodes(node, u"file")
-        for n in nodes:
-            f = RcdFile()
-            f.loadfromDOM(n)
-            self.files.append(f)
-
-# }}}
 # {{{ class RcdMagic(object):
 class RcdMagic(object):
     """
@@ -372,20 +353,4 @@ class RcdFrameDef(RcdField):
         self.game_dy  = int(node.getAttribute("game-dy"))
 
 # }}}
-
-
-def loadfromDOM(fname):
-    """
-    Load a game data xml file.
-
-    @param fname: Filename of the data file to load.
-    @type  fname: C{str}
-
-    @return: Loaded data-file as a tree of data.
-    @rtype:  L{RcdFiles}
-    """
-    dom = minidom.parse(fname)
-    root = RcdFiles()
-    root.loadfromDOM(datatypes.get_single_child_node(dom, u"rcdfiles"))
-    return root
 

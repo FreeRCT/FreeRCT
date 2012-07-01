@@ -7,6 +7,9 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
+from xml.dom import minidom
+from xml.dom.minidom import Node
+
 from rcdlib import spritegrid, structdef_loader, data_loader, blocks, datatypes
 import sys, getopt
 
@@ -77,12 +80,28 @@ class FrameData(object):
         self.game_dx = data.game_dx
         self.game_dy = data.game_dy
 
+def get_rcdfile_nodes(data_fname):
+    """
+    Extract the XML nodes representing the output file to generate.
+
+    @param data_fname: Filename of the file containing the game data.
+    @type  data_fname: C{str}
+
+    @return: Nodes representing the files to generate.
+    @rtype:  C{list} of L{xml.dom.minidom.Node}
+    """
+    dom = minidom.parse(data_fname)
+    root = datatypes.get_single_child_node(dom, u"rcdfiles")
+    return datatypes.get_child_nodes(root, u'file')
 
 def convert(def_fname, data_fname):
     struct_defs = blocks.block_factory.struct_def
 
-    data_files = data_loader.loadfromDOM(data_fname)
-    for dfile in data_files.files:
+    data_file_nodes = get_rcdfile_nodes(data_fname)
+    for dfile_node in data_file_nodes:
+        dfile = data_loader.RcdFile()
+        dfile.loadfromDOM(dfile_node)
+
         if dfile.magic != 'RCDF' or dfile.version != 1:
             raise ValueError("Output file %r has wrong magic or version number" % dfile.dest_fname)
 
