@@ -336,7 +336,6 @@ class DataTypeFactory(object):
         self.types[dt.name] = dt
 
 
-
     def get_type(self, name):
         """
         Get a data type by name.
@@ -351,6 +350,30 @@ class DataTypeFactory(object):
             self.init_types()
 
         return self.types[name]
+
+
+def load_enum_definition(node):
+    """
+    Add an 'enum' definition from the xml node to the data types.
+
+    @param node: XML node pointing to an enum definition.
+    @type  node: L{xml.dom.minidom.Node}
+    """
+    name = node.getAttribute("name")
+    storage_type = node.getAttribute("type")
+    values = {}
+    val_nodes = get_child_nodes(node, u"value")
+    for vn in val_nodes:
+        val_name  = vn.getAttribute("name")
+        val_value = vn.getAttribute("value")
+        assert val_name not in values
+        values[val_name] = val_value
+
+    dt_enum = EnumerationDataType(name, values, storage_type)
+    factory.add_type(dt_enum)
+
+
+
 
 factory = DataTypeFactory()
 

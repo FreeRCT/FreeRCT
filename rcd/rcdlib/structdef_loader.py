@@ -49,12 +49,7 @@ class Structures(Magic):
         # Load enum definitions into the data type factory.
         enum_nodes = datatypes.get_child_nodes(node, u"enum")
         for e in enum_nodes:
-            ed = EnumDefinition()
-            ed.loadfromDOM(e)
-
-            # Convert to a data type in the data type factory.
-            dt_enum = datatypes.EnumerationDataType(ed.name, ed.values, ed.type)
-            datatypes.factory.add_type(dt_enum)
+            datatypes.load_enum_definition(e)
 
         # Load actual data
         struct_nodes = datatypes.get_child_nodes(node, u"block")
@@ -76,35 +71,6 @@ class Structures(Magic):
         @rtype:  L{Block} or C{None}
         """
         return self.blocks.get(magic)
-
-class EnumDefinition(object):
-    """
-    Enumeration definition.
-
-    @ivar name: Name of the enumeration.
-    @type name: C{unicode}
-
-    @ivar type: Underlying numeric type.
-    @type type: C{unicode}
-
-    @ivar values: Enumeration values.
-    @type values: C{dict} of C{unicode} to C{unicode}
-    """
-    def __init__(self):
-        self.name = None
-        self.type = None
-        self.values = {}
-
-    def loadfromDOM(self, node):
-        self.name = node.getAttribute("name")
-        self.type = node.getAttribute("type")
-        self.values = {}
-        val_nodes = datatypes.get_child_nodes(node, u"value")
-        for vn in val_nodes:
-            val_name  = vn.getAttribute("name")
-            val_value = vn.getAttribute("value")
-            assert val_name not in self.values
-            self.values[val_name] = val_value
 
 class Block(object):
     """
