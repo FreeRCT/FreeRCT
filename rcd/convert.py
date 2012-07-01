@@ -81,7 +81,6 @@ class FrameData(object):
 def convert(def_fname, data_fname):
     struct_defs = blocks.block_factory.struct_def
 
-    dt_factory = datatypes.factory
     data_files = data_loader.loadfromDOM(data_fname)
     for dfile in data_files.files:
         if dfile.magic != 'RCDF' or dfile.version != 1:

@@ -172,7 +172,7 @@ class EnumerationDataType(DataType):
     @ivar data_type: Underlying data type.
     @type data_type: L{DataType}
     """
-    def __init__(self, name, values, type):
+    def __init__(self, name, values, data_type):
         """
         Construct a L{EnumerationDataType}.
 
@@ -182,11 +182,11 @@ class EnumerationDataType(DataType):
         @param values: Mapping of names to values.
         @type  values: C{dict} of C{unicode} to C{unicode}
 
-        @param type: Name of the underlying data type.
-        @type  type: C{unicode}
+        @param data_type: Name of the underlying data type.
+        @type  data_type: L{DataType}
         """
         DataType.__init__(self, name)
-        self.data_type = factory.get_type(type)
+        self.data_type = data_type
         self.values = {}
         for n,v in values.iteritems():
             self.values[n] = self.data_type.convert(v)
@@ -312,62 +312,18 @@ IMAGE_DATA_TYPE = ImageDataType()
 FRAME_IMAGES = FrameImages()
 FRAME_DEFINTIONS = FrameDefinitions()
 
-
-class DataTypeFactory(object):
-    """
-    Factory class for data types.
-
-    @ivar types: Available data types ordered by name.
-    @type types: C{dict} of C{unicode} to L{DataType}
-    """
-    def __init__(self):
-        self.types = None
-
-    def init_types(self):
-        self.types = {}
-        self.add_type( UINT8_TYPE)
-        self.add_type(  INT8_TYPE)
-        self.add_type(UINT16_TYPE)
-        self.add_type( INT16_TYPE)
-        self.add_type(UINT32_TYPE)
-        self.add_type( INT32_TYPE)
-        self.add_type(SPRITE_TYPE)
-        self.add_type(BLOCK_TYPE)
-        self.add_type(IMAGE_DATA_TYPE)
-#        self.add_type(COUNTED_FRAMES)
-        self.add_type(FRAME_IMAGES)
-        self.add_type(FRAME_DEFINTIONS)
-
-    def add_type(self, dt):
-        """
-        Add a new data type.
-
-        @param dt: Data type to add.
-        @type  dt: C{DataType}
-        """
-        if self.types is None:
-            self.init_types()
-
-        if dt.name in self.types:
-            raise ValueError("Adding data type %r while already exists is not allowed." % dt.name)
-
-        self.types[dt.name] = dt
-
-
-    def get_type(self, name):
-        """
-        Get a data type by name.
-
-        @param name: Name of the data type to retrieve.
-        @type  name: C{unicode}
-
-        @return: The requested data type.
-        @rtype:  C{DataType}
-        """
-        if self.types is None:
-            self.init_types()
-
-        return self.types[name]
+_types = { 'uint8':  NumericDataType('uint8'),
+           'int8':   NumericDataType('int8'),
+           'uint16': NumericDataType('uint16'),
+           'int16':  NumericDataType('int16'),
+           'uint32': NumericDataType('uint32'),
+           'int32':  NumericDataType('int32'),
+           'sprite': BlockReference('sprite'),
+           'block':  BlockReference('block'),
+           'image_data': ImageDataType(),
+           'frame_images': FrameImages(),
+           'frame_defs': FrameDefinitions(),
+         }
 
 
 def load_enum_definition(node):
@@ -378,7 +334,7 @@ def load_enum_definition(node):
     @type  node: L{xml.dom.minidom.Node}
     """
     name = node.getAttribute("name")
-    storage_type = node.getAttribute("type")
+    storage_type = _types[node.getAttribute("type")]
     values = {}
     val_nodes = get_child_nodes(node, u"value")
     for vn in val_nodes:
@@ -387,8 +343,7 @@ def load_enum_definition(node):
         assert val_name not in values
         values[val_name] = val_value
 
-    dt_enum = EnumerationDataType(name, values, storage_type)
-    factory.add_type(dt_enum)
+    _types[name] = EnumerationDataType(name, values, storage_type)
 
 
 def read_type(node, blk_name, fld_name):
@@ -408,8 +363,5 @@ def read_type(node, blk_name, fld_name):
     @rtype:  L{DataType}
     """
     type_node = get_single_child_node(node, u"type")
-    return factory.get_type(type_node.getAttribute("name"))
-
-factory = DataTypeFactory()
-
+    return _types[type_node.getAttribute("name")]
 
