@@ -383,10 +383,10 @@
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_ne"/>
-			<frame_images name="frames">
+			<field name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
 				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
-			</frame_images>
+			</field>
 		</gameblock>
 
 		<!-- SE walking -->
@@ -401,10 +401,10 @@
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_se"/>
-			<frame_images name="frames">
+			<field name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
 				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
-			</frame_images>
+			</field>
 		</gameblock>
 
 		<!-- SW walking -->
@@ -419,10 +419,10 @@
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_sw"/>
-			<frame_images name="frames">
+			<field name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
 				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
-			</frame_images>
+			</field>
 		</gameblock>
 
 		<!-- NW walking -->
@@ -437,10 +437,10 @@
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_nw"/>
-			<frame_images name="frames">
+			<field name="frames">
 				<image x-base="0" y-base="0"  width="10" height="27"
 				       x-offset="-5" y-offset="-23" fname="../sprites/pillar.png"/>
-			</frame_images>
+			</field>
 		</gameblock>
 	</file>
 </rcdfiles>

@@ -221,21 +221,31 @@ class FrameDefinitions(DataType):
             out.int16(fr_data.game_dx)
             out.int16(fr_data.game_dy)
 
-class FrameImages(DataType):
+class ListType(DataType):
     """
-    Data type of a sequence of images.
+    Generic 'list' type.
+
+    @ivar elm_type: Element type.
+    @type elm_type: L{DataType}
+
+    @ivar count_type: Storage type of the list count.
+    @type count_type: L{DataType}
     """
-    def __init__(self):
-        DataType.__init__(self, 'frame_images')
+    def __init__(self, elm_type, count_type):
+        DataType.__init__(self, u"_list_")
+        self.elm_type = elm_type
+        self.count_type = count_type
 
     def get_size(self, value):
-        return 2 + 4 * len(value)
+        total = self.count_type.get_size(len(value))
+        for v in value:
+            total = total + self.elm_type.get_size(v)
+        return total
 
     def write(self, out, value):
-        out.uint16(len(value))
-        for fr_data in value:
-            out.uint32(fr_data)
-
+        self.count_type.write(out, len(value))
+        for v in value:
+            self.elm_type.write(out, v)
 
 class BlockReference(DataType):
     """
@@ -307,7 +317,6 @@ _types = { 'uint8':  NumericDataType('uint8'),
            'sprite': BlockReference('sprite'),
            'block':  BlockReference('block'),
            'image_data': ImageDataType(),
-           'frame_images': FrameImages(),
            'frame_defs': FrameDefinitions(),
          }
 
@@ -353,5 +362,10 @@ def read_type(node, blk_name, fld_name):
     @rtype:  L{DataType}
     """
     type_node = get_single_child_node(node, u"type")
-    return _types[type_node.getAttribute("name")]
+    name = type_node.getAttribute(u"name")
+    if name == 'list':
+        count_type = _types[type_node.getAttribute(u"count")]
+        elm_type = read_type(type_node, blk_name + "/" + fld_name, '_list_')
+        return ListType(elm_type, count_type)
+    return _types[name]
 

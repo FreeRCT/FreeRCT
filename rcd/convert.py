@@ -151,6 +151,30 @@ def order_nodes(flddefs, named_nodes, blk_magic):
 
     return fields
 
+def sort_nodes(named_nodes):
+    """
+    Sort nodes on their name.
+
+    @param named_nodes: Fields found in the game data file.
+    @type  named_nodes: C{list} of L{NamedNode}
+
+    @return: Game data file nodes ordered by their name.
+    @rtype:  C{list} of (L{Name}, L{NamedNode}) tuples
+    """
+    sorted_nodes = []
+    unique = set()
+    doubles = set()
+    for nn in named_nodes:
+        for n in nn.names:
+            sorted_nodes.append((n, nn))
+            if n not in unique:
+                unique.add(n)
+            elif n not in doubles:
+                print "WARNING: Node named \"%s\" added more than once." % n.name
+                doubles.add(n)
+    sorted_nodes.sort()
+    return sorted_nodes
+
 def make_sprite_block_reference(name, named_node, file_blocks):
     """
     Construct a block reference to a sprite block.
@@ -254,13 +278,13 @@ def convert_node(node, name, data_type, file_blocks):
             frames.append(new_fr)
         return frames
 
-    if isinstance(data_type, datatypes.FrameImages):
-        imgs = []
-        img_type = datatypes.BlockReference('sprite')
-        for img_node in datatypes.get_child_nodes(node.node, u'image'):
-            named_node = data_loader.NamedNode(img_node, img_node.tagName, set())
-            imgs.append(convert_node(named_node, None, img_type, file_blocks))
-        return imgs
+    if isinstance(data_type, datatypes.ListType):
+        named_nodes = data_loader.load_named_nodes(node.node)
+        named_tuples = sort_nodes(named_nodes)
+        result = []
+        for n, nn in named_tuples:
+            result.append(convert_node(nn, n, data_type.elm_type, file_blocks))
+        return result
 
     print "ERROR: Unknown field definition: %r" % data_type
     sys.exit(1)

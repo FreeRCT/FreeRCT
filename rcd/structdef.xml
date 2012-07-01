@@ -25,7 +25,9 @@
 		<field name="width">      <type name="uint16"/><comment>Zoom-width of a tile</comment></field>
 		<field name="person_type"><type name="PersonType"/><comment>Type of persons in the animation</comment></field>
 		<field name="anim_type">  <type name="AnimationType"/><comment>Animation being defined</comment></field>
-		<field name="frames">     <type name="frame_images"/><comment>Sprites of the animation for a single tile width</comment></field>
+		<field name="frames">
+			<type name="list" count="uint16"><type name="sprite"/></type>
+			<comment>Sprites of the animation for a single tile width</comment></field>
 	</block>
 
 	<block magic="BDIR" minversion="1" maxversion="1">
