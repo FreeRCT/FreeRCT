@@ -298,20 +298,6 @@ class ImageDataType(DataType):
             if line is not None:
                 out.store_text(line)
 
-
-
-UINT8_TYPE  = NumericDataType('uint8')
-INT8_TYPE   = NumericDataType('int8')
-UINT16_TYPE = NumericDataType('uint16')
-INT16_TYPE  = NumericDataType('int16')
-UINT32_TYPE = NumericDataType('uint32')
-INT32_TYPE  = NumericDataType('int32')
-SPRITE_TYPE = BlockReference('sprite')
-BLOCK_TYPE  = BlockReference('block')
-IMAGE_DATA_TYPE = ImageDataType()
-FRAME_IMAGES = FrameImages()
-FRAME_DEFINTIONS = FrameDefinitions()
-
 _types = { 'uint8':  NumericDataType('uint8'),
            'int8':   NumericDataType('int8'),
            'uint16': NumericDataType('uint16'),
@@ -324,6 +310,10 @@ _types = { 'uint8':  NumericDataType('uint8'),
            'frame_images': FrameImages(),
            'frame_defs': FrameDefinitions(),
          }
+
+UINT16_TYPE = _types['uint16']
+INT16_TYPE  = _types['int16']
+IMAGE_DATA_TYPE = _types['image_data']
 
 
 def load_enum_definition(node):
