@@ -147,7 +147,7 @@ class Field(object):
     @type description: C{unicode}
 
     @ivar type: Type of the field, one of the fundamental types, or another block.
-    @type type: C{unicode}
+    @type type: L{DataType}
 
     @ivar minversion: Block version where the field exists for the first time.
                       Default C{None}, meaning '-infinite'.
@@ -186,8 +186,7 @@ class Field(object):
         else:
             self.description = ""
 
-        type_node = datatypes.get_single_child_node(node, u"type")
-        self.type = type_node.getAttribute("name")
+        self.type = datatypes.read_type(node, block_magic, self.name)
 
     def __str__(self):
         txt = "%s:%s" % (self.name, self.type)

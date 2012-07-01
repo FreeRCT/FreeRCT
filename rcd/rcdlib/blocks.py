@@ -125,7 +125,7 @@ class GameBlockFactory(object):
         if block is None or version < block.minversion or version > block.maxversion:
             raise ValueError("Cannot find gameblock %r, %r" % (name, version))
 
-        fields = [(f.name, datatypes.factory.get_type(f.type)) for f in block.get_fields(version)]
+        fields = [(f.name, f.type) for f in block.get_fields(version)]
         gb = GeneralDataBlock(name, version, fields, None)
         return gb
 

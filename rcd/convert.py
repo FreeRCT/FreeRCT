@@ -117,16 +117,15 @@ def convert(def_fname, data_fname):
                 seen.add(flddef.name)
 
 
-                data_type = dt_factory.get_type(flddef.type)
                 if isinstance(data, data_loader.RcdDataField):
-                    value = data_type.convert(data.value)
+                    value = flddef.type.convert(data.value)
                     if value is None:
                         raise ValueError("Value %r of field %r in data block %r is incorrect" %
                                          (data.value, flddef.name, block.magic))
                     blockdata[data.name] = value
 
                 elif isinstance(data, data_loader.RcdFrameDefinitions):
-                    assert data_type.name == 'frame_defs'
+                    assert flddef.type.name == 'frame_defs'
                     frames = []
                     for fr in data.frames:
                         new_fr = FrameData()
@@ -135,7 +134,7 @@ def convert(def_fname, data_fname):
                     blockdata[data.name] = frames
 
                 elif isinstance(data, data_loader.RcdFrameImages):
-                    assert data_type.name == 'frame_images'
+                    assert flddef.type.name == 'frame_images'
                     imgs = []
                     for img in data.images:
                         im = spritegrid.image_loader.get_img(img.fname)
@@ -146,14 +145,14 @@ def convert(def_fname, data_fname):
                     blockdata[data.name] = imgs
 
                 else:
-                    assert data_type.name == 'sprite'
+                    assert flddef.type.name == 'sprite'
                     im = spritegrid.image_loader.get_img(data.fname)
                     im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset,
                                                     data.x_base, data.y_base, data.width, data.height)
                     pxl_blk = im_obj.make_8PXL()
                     blockdata[data.name] = file_blocks.add_block(pxl_blk)
 
-                fields.append((flddef.name, data_type))
+                fields.append((flddef.name, flddef.type))
 
             dblk = blocks.GeneralDataBlock(block.magic, block.version, fields, None)
             dblk.set_values(blockdata)

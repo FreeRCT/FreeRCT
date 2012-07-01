@@ -391,7 +391,24 @@ def load_enum_definition(node):
     factory.add_type(dt_enum)
 
 
+def read_type(node, blk_name, fld_name):
+    """
+    Read the 'type' XML child node, and load it.
 
+    @param node: XML node pointing to node with a C{<type ..} child node.
+    @type  node: L{xml.dom.minidom.Node}
+
+    @param blk_name: Name of the block being loaded.
+    @type  blk_name: C{unicode}
+
+    @param fld_name: Name of the field being loaded.
+    @type  fld_name: C{unicode}
+
+    @return: Loaded data type.
+    @rtype:  L{DataType}
+    """
+    type_node = get_single_child_node(node, u"type")
+    return factory.get_type(type_node.getAttribute("name"))
 
 factory = DataTypeFactory()
 
