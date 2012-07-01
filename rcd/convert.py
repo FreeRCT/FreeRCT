@@ -161,7 +161,8 @@ def convert(def_fname, data_fname):
 
             if len(avail) > 0:
                 for nm in avail:
-                    print "Warning: field %r is not used in data block %r" % (nm, block.magic)
+                    if not nm.startswith('_'):
+                        print "Warning: field %r is not used in data block %r" % (nm, block.magic)
 
 
         file_blocks.to_file(dfile.target)

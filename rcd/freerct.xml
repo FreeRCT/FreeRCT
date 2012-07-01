@@ -42,10 +42,10 @@
 			<field name="z_height"   value="16"/>
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
 			       fname="../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png"
-			       names="n#,   n#,   n#,   n#
+			       names="n#,   _n#,  _n#,  _n#
 			             |n#n,  n#e,  n#s,  n#w
 			             |n#ne, n#es, n#sw, n#nw
-			             |n#ns, n#ew, n#ns, n#ew
+			             |n#ns, n#ew, _n#ns,_n#ew
 			             |n#nes,n#esw,n#nsw,n#new
 			             |n#N,  n#E,  n#S,  n#W"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
@@ -300,10 +300,10 @@
 			<field name="ground_type" value="cursor"/>
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
 			       fname="../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png"
-			       names="n#,   n#,   n#,   n#
+			       names="n#,   _n#,  _n#,  _n#
 			             |n#n,  n#e,  n#s,  n#w
 			             |n#ne, n#es, n#sw, n#nw
-			             |n#ns, n#ew, n#ns, n#ew
+			             |n#ns, n#ew, _n#ns,_n#ew
 			             |n#nes,n#esw,n#nsw,n#new
 			             |n#N,  n#E,  n#S,  n#W"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
@@ -318,10 +318,10 @@
 			<field name="ground_type" value="the_green"/>
 			<sheet x-base="0" y-base="384" x-step="64" y-step="64"
 			       fname="../sprites_src/terrain/groundtiles/template8bpp64_masked.png"
-			       names="n#,   n#,   n#,   n#
+			       names="n#,   _n#,  _n#,  _n#
 			             |n#n,  n#e,  n#s,  n#w
 			             |n#ne, n#es, n#sw, n#nw
-			             |n#ns, n#ew, n#ns, n#ew
+			             |n#ns, n#ew, _n#ns,_n#ew
 			             |n#nes,n#esw,n#nsw,n#new
 			             |n#N,  n#E,  n#S,  n#W"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
@@ -349,22 +349,22 @@
 			<field name="z_height"   value="16"/>
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
 			       fname="../sprites_src/paths/path/template8bpp64.png"
-			       names="empty,               empty,               empty,               empty
+			       names="empty,               _empty,              _empty,              _empty
 			             |ne,                  se,                  sw,                  nw
 			             |ne_se,               se_sw,               nw_sw,               ne_nw
-			             |ne_sw,               nw_se,               ne_sw,               nw_se
+			             |ne_sw,               nw_se,               _ne_sw,              _nw_se
 			             |ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
-			             |ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw
+			             |ne_nw_se_sw,         _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
 			             |ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
 			             |ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
 			             |ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
 			             |ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
 			             |ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
 			             |ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
-			             |ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w
+			             |ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     _ne_nw_se_sw_n_s,    _ne_nw_se_sw_e_w
 			             |ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
-			             |ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw,         ne_nw_se_sw
-			             |ne_nw_se_sw_n_e_s_w, ne_nw_se_sw_n_e_s_w, ne_nw_se_sw_n_e_s_w, ne_nw_se_sw_n_e_s_w
+			             |_ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+			             |ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
 			             |ramp_sw,             ramp_nw,             ramp_ne,             ramp_se"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
