@@ -6,6 +6,71 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 import re
+from xml.dom import minidom
+from xml.dom.minidom import Node
+
+# {{{ def get_opt_DOMattr(node, name, default):
+def get_opt_DOMattr(node, name, default):
+    """
+    Get an optional value from the DOM node.
+
+    @param node: DOM node being read.
+    @type  node: L{xml.dom.minidom.ElementNode}
+
+    @param name: Name of the value.
+    @type  name: C{str}
+
+    @param default: Default value as string.
+    @type  default: C{unicode}
+
+    @return: The requested value.
+    @rtype:  C{unicode}
+    """
+    if node.hasAttribute(name): return node.getAttribute(name)
+    return default
+
+# }}}
+def get_child_nodes(node, name):
+    """
+    Get all direct child nodes with a given name.
+
+    @param node: DOM node being read.
+    @type  node: L{xml.dom.minidom.ElementNode}
+
+    @param name: Name of the child node.
+    @type  name: C{unicode}
+
+    @return: All direct child nodes with the given name.
+    @rtype:  C{list} of L{xml.dom.minidom.Node}
+    """
+    if not node.hasChildNodes(): return []
+    result = []
+    for n in node.childNodes:
+        if n.nodeType != Node.ELEMENT_NODE: continue
+        if n.tagName == name:
+            result.append(n)
+    return result
+
+def get_single_child_node(node, name):
+    """
+    Get the child node with the given name (there should be exactly one).
+
+    @param node: DOM node being read.
+    @type  node: L{xml.dom.minidom.ElementNode}
+
+    @param name: Name of the child node.
+    @type  name: C{unicode}
+
+    @return: The unique child node with the given name.
+    @rtype:  L{xml.dom.minidom.Node}
+    """
+    result = get_child_nodes(node, name)
+    if len(result) == 1: return result[0]
+
+    print "ERROR: Failed to find precisely one child node named \"" + name + "\" in"
+    print node.toxml()
+    sys.exit(1)
+
 
 class DataType(object):
     """

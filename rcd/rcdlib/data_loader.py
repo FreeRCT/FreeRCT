@@ -8,30 +8,11 @@
 """
 Game data loaded from file.
 """
+from rcdlib import datatypes
+
 from xml.dom import minidom
 from xml.dom.minidom import Node
 
-# {{{ def get_opt_DOM(node, name, default):
-def get_opt_DOM(node, name, default):
-    """
-    Get an optional value from the DOM node.
-
-    @param node: DOM node being read.
-    @type  node: L{xml.dom.minidom.ElementNode}
-
-    @param name: Name of the value.
-    @type  name: C{str}
-
-    @param default: Default value as string.
-    @type  default: C{unicode}
-
-    @return: The reuqested value.
-    @rtype:  C{unicode}
-    """
-    if node.hasAttribute(name): return node.getAttribute(name)
-    return default
-
-# }}}
 # {{{ class RcdFiles(object):
 class RcdFiles(object):
     """
@@ -44,7 +25,7 @@ class RcdFiles(object):
         self.files = []
 
     def loadfromDOM(self, node):
-        nodes = node.getElementsByTagName("file")
+        nodes = datatypes.get_child_nodes(node, u"file")
         for n in nodes:
             f = RcdFile()
             f.loadfromDOM(n)
@@ -96,7 +77,7 @@ class RcdFile(RcdMagic):
         """
         RcdMagic.loadfromDOM(self, node)
         self.target = node.getAttribute("target")
-        nodes = node.getElementsByTagName("gameblock")
+        nodes = datatypes.get_child_nodes(node, u"gameblock")
         for n in nodes:
             g = RcdGameBlock()
             g.loadfromDOM(n)
@@ -248,14 +229,14 @@ class RcdImageField(RcdField):
         self.name = None
         if load_name: self.name = node.getAttribute("name")
 
-        self.x_base   = int(get_opt_DOM(node, 'x-base', u"0"))
-        self.y_base   = int(get_opt_DOM(node, 'y-base', u"0"))
+        self.x_base   = int(datatypes.get_opt_DOMattr(node, 'x-base', u"0"))
+        self.y_base   = int(datatypes.get_opt_DOMattr(node, 'y-base', u"0"))
         self.width    = int(node.getAttribute("width"))
         self.height   = int(node.getAttribute("height"))
-        self.x_offset = int(get_opt_DOM(node, "x-offset", u"0"))
-        self.y_offset = int(get_opt_DOM(node, "y-offset", u"0"))
+        self.x_offset = int(datatypes.get_opt_DOMattr(node, "x-offset", u"0"))
+        self.y_offset = int(datatypes.get_opt_DOMattr(node, "y-offset", u"0"))
         self.fname    = node.getAttribute("fname")
-        self.transp   = int(get_opt_DOM(node, 'transparent', u"0"))
+        self.transp   = int(datatypes.get_opt_DOMattr(node, 'transparent', u"0"))
 
 # }}}
 # {{{ def get_sheet_images(node):
@@ -279,7 +260,7 @@ def get_sheet_images(node):
     y_offset = int(node.getAttribute("y-offset"))
     width    = int(node.getAttribute("width"))
     height   = int(node.getAttribute("height"))
-    transp   = int(get_opt_DOM(node, 'transparent', u"0"))
+    transp   = int(datatypes.get_opt_DOMattr(node, 'transparent', u"0"))
 
     images = []
     for ridx, row in enumerate(names.split("|")):
@@ -361,7 +342,7 @@ class RcdFrameDefinitions(RcdField):
         """
         self.name = node.getAttribute("name")
         self.frames = []
-        for frame in node.getElementsByTagName("frame"):
+        for frame in datatypes.get_child_nodes(node, u"frame"):
             f = RcdFrameDef()
             f.loadfromDOM(frame)
             self.frames.append(f)
@@ -405,6 +386,6 @@ def loadfromDOM(fname):
     """
     dom = minidom.parse(fname)
     root = RcdFiles()
-    root.loadfromDOM(dom.getElementsByTagName("rcdfiles").item(0))
+    root.loadfromDOM(datatypes.get_single_child_node(dom, u"rcdfiles"))
     return root
 

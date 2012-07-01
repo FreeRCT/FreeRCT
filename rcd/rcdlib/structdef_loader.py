@@ -47,7 +47,7 @@ class Structures(Magic):
         Magic.loadfromDOM(self, node)
 
         # Load enum definitions into the data type factory.
-        enum_nodes = node.getElementsByTagName("enum")
+        enum_nodes = datatypes.get_child_nodes(node, u"enum")
         for e in enum_nodes:
             ed = EnumDefinition()
             ed.loadfromDOM(e)
@@ -57,7 +57,7 @@ class Structures(Magic):
             datatypes.factory.add_type(dt_enum)
 
         # Load actual data
-        struct_nodes = node.getElementsByTagName("block")
+        struct_nodes = datatypes.get_child_nodes(node, u"block")
         self.blocks = {}
         for b in struct_nodes:
             block = Block()
@@ -99,7 +99,7 @@ class EnumDefinition(object):
         self.name = node.getAttribute("name")
         self.type = node.getAttribute("type")
         self.values = {}
-        val_nodes = node.getElementsByTagName("value")
+        val_nodes = datatypes.get_child_nodes(node, u"value")
         for vn in val_nodes:
             val_name  = vn.getAttribute("name")
             val_value = vn.getAttribute("value")
@@ -132,7 +132,7 @@ class Block(object):
         self.magic = node.getAttribute("magic")
         self.minversion = int(node.getAttribute("minversion"))
         self.maxversion = int(node.getAttribute("maxversion"))
-        nodes = node.getElementsByTagName("field")
+        nodes = datatypes.get_child_nodes(node, u"field")
         for n in nodes:
             field = Field()
             field.loadfromDOM(n)
@@ -217,6 +217,6 @@ class Field(object):
 def loadfromDOM(filename):
     dom = minidom.parse(filename)
     rcdstructure = Structures()
-    rcdstructure.loadfromDOM(dom.getElementsByTagName("structures").item(0))
+    rcdstructure.loadfromDOM(datatypes.get_single_child_node(dom, u"structures"))
     return rcdstructure
 
