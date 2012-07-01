@@ -30,6 +30,20 @@ def get_opt_DOMattr(node, name, default):
     return default
 
 # }}}
+# {{{ def collect_text_DOM(node):
+def collect_text_DOM(node):
+    """
+    Collect all text of this node.
+
+    @param node: DOM node being read.
+    @type  node: L{xml.dom.minidom.ElementNode}
+
+    @return: The collected text.
+    @rtype:  C{unicode}
+    """
+    return u"".join(n.data for n in node.childNodes if n.nodeType == Node.TEXT_NODE)
+# }}}
+
 def get_child_nodes(node, name):
     """
     Get all direct child nodes with a given name.
@@ -51,7 +65,7 @@ def get_child_nodes(node, name):
             result.append(n)
     return result
 
-def get_single_child_node(node, name):
+def get_single_child_node(node, name, optional=False):
     """
     Get the child node with the given name (there should be exactly one).
 
@@ -61,11 +75,15 @@ def get_single_child_node(node, name):
     @param name: Name of the child node.
     @type  name: C{unicode}
 
-    @return: The unique child node with the given name.
-    @rtype:  L{xml.dom.minidom.Node}
+    @param optional: Child node may be optional.
+    @type  optional: C{bool}
+
+    @return: The unique child node with the given name (or C{None}).
+    @rtype:  L{xml.dom.minidom.Node} or C{None}
     """
     result = get_child_nodes(node, name)
     if len(result) == 1: return result[0]
+    if optional and len(result) == 0: return None
 
     print "ERROR: Failed to find precisely one child node named \"" + name + "\" in"
     print node.toxml()

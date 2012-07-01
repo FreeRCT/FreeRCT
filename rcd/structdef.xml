@@ -15,25 +15,25 @@
 	</enum>
 
 	<block magic="ANIM" minversion="1" maxversion="2">
-		<field name="width"       type="uint16"        minversion="1" maxversion="1">Zoom-width of a tile of the surface</field>
-		<field name="person_type" type="PersonType">Type of persons in the animation</field>
-		<field name="anim_type"   type="AnimationType">Animation being defined</field>
-		<field name="frames"      type="frame_defs">Definition of the frames</field>
+		<field name="width" minversion="1" maxversion="1"><type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
+		<field name="person_type">                        <type name="PersonType"/><comment>Type of persons in the animation</comment></field>
+		<field name="anim_type">                          <type name="AnimationType"/><comment>Animation being defined</comment></field>
+		<field name="frames">                             <type name="frame_defs"/><comment>Definition of the frames</comment></field>
 	</block>
 
 	<block magic="ANSP" minversion="1" maxversion="1">
-		<field name="width"       type="uint16">Zoom-width of a tile</field>
-		<field name="person_type" type="PersonType">Type of persons in the animation</field>
-		<field name="anim_type"   type="AnimationType">Animation being defined</field>
-		<field name="frames"      type="frame_images">Sprites of the animation for a single tile width</field>
+		<field name="width">      <type name="uint16"/><comment>Zoom-width of a tile</comment></field>
+		<field name="person_type"><type name="PersonType"/><comment>Type of persons in the animation</comment></field>
+		<field name="anim_type">  <type name="AnimationType"/><comment>Animation being defined</comment></field>
+		<field name="frames">     <type name="frame_images"/><comment>Sprites of the animation for a single tile width</comment></field>
 	</block>
 
 	<block magic="BDIR" minversion="1" maxversion="1">
-		<field name="width" type="uint16">Zoom-width of a tile of the surface</field>
-		<field name="ne"    type="sprite">North-east direction</field>
-		<field name="se"    type="sprite">South-east direction</field>
-		<field name="sw"    type="sprite">South-west direction</field>
-		<field name="nw"    type="sprite">North-west direction</field>
+		<field name="width"><type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
+		<field name="ne">   <type name="sprite"/><comment>North-east direction</comment></field>
+		<field name="se">   <type name="sprite"/><comment>South-east direction</comment></field>
+		<field name="sw">   <type name="sprite"/><comment>South-west direction</comment></field>
+		<field name="nw">   <type name="sprite"/><comment>North-west direction</comment></field>
 	</block>
 
 	<!-- Foundations -->
@@ -45,15 +45,15 @@
 	</enum>
 
 	<block magic="FUND" minversion="1" maxversion="1">
-		<field name="found_type"  type="FoundationType">Type of foundation</field>
-		<field name="tile_width"  type="uint16">Zoom-width of a tile</field>
-		<field name="tile_height" type="uint16">Change in Z height of the tiles</field>
-		<field name="se_e"        type="sprite">Vertical south-east foundation, east up, south down</field>
-		<field name="se_s"        type="sprite">Vertical south-east foundation, east down, south up</field>
-		<field name="se_se"       type="sprite">Vertical south-east foundation, east up, south up</field>
-		<field name="sw_s"        type="sprite">Vertical south-west foundation, south up, west down</field>
-		<field name="sw_w"        type="sprite">Vertical south-west foundation, south down, west up</field>
-		<field name="sw_sw"       type="sprite">Vertical south-west foundation, south up, west up</field>
+		<field name="found_type"> <type name="FoundationType"/><comment>Type of foundation</comment></field>
+		<field name="tile_width"> <type name="uint16"/><comment>Zoom-width of a tile</comment></field>
+		<field name="tile_height"><type name="uint16"/><comment>Change in Z height of the tiles</comment></field>
+		<field name="se_e">       <type name="sprite"/><comment>Vertical south-east foundation, east up, south down</comment></field>
+		<field name="se_s">       <type name="sprite"/><comment>Vertical south-east foundation, east down, south up</comment></field>
+		<field name="se_se">      <type name="sprite"/><comment>Vertical south-east foundation, east up, south up</comment></field>
+		<field name="sw_s">       <type name="sprite"/><comment>Vertical south-west foundation, south up, west down</comment></field>
+		<field name="sw_w">       <type name="sprite"/><comment>Vertical south-west foundation, south down, west up</comment></field>
+		<field name="sw_sw">      <type name="sprite"/><comment>Vertical south-west foundation, south up, west up</comment></field>
 	</block>
 
 	<!-- Widget border sprites -->
@@ -71,24 +71,24 @@
 	</enum>
 
 	<block magic="GBOR" minversion="1" maxversion="1">
-		<field name="widget_num" type="BorderWidgetType"/>
-		<field name="border-width-top"    type="uint8"/>
-		<field name="border-width-left"   type="uint8"/>
-		<field name="border-width-right"  type="uint8"/>
-		<field name="border-width-bottom" type="uint8"/>
-		<field name="min-width-rect"      type="uint8"/>
-		<field name="min-height-rect"     type="uint8"/>
-		<field name="hor-stepsize"        type="uint8"/>
-		<field name="vert-stepsize"       type="uint8"/>
-		<field name="top-left"            type="sprite"/>
-		<field name="top-middle"          type="sprite"/>
-		<field name="top-right"           type="sprite"/>
-		<field name="left"                type="sprite"/>
-		<field name="middle"              type="sprite"/>
-		<field name="right"               type="sprite"/>
-		<field name="bottom-left"         type="sprite"/>
-		<field name="bottom-middle"       type="sprite"/>
-		<field name="bottom-right"        type="sprite"/>
+		<field name="widget_num">         <type name="BorderWidgetType"/></field>
+		<field name="border-width-top">   <type name="uint8"/></field>
+		<field name="border-width-left">  <type name="uint8"/></field>
+		<field name="border-width-right"> <type name="uint8"/></field>
+		<field name="border-width-bottom"><type name="uint8"/></field>
+		<field name="min-width-rect">     <type name="uint8"/></field>
+		<field name="min-height-rect">    <type name="uint8"/></field>
+		<field name="hor-stepsize">       <type name="uint8"/></field>
+		<field name="vert-stepsize">      <type name="uint8"/></field>
+		<field name="top-left">           <type name="sprite"/></field>
+		<field name="top-middle">         <type name="sprite"/></field>
+		<field name="top-right">          <type name="sprite"/></field>
+		<field name="left">               <type name="sprite"/></field>
+		<field name="middle">             <type name="sprite"/></field>
+		<field name="right">              <type name="sprite"/></field>
+		<field name="bottom-left">        <type name="sprite"/></field>
+		<field name="bottom-middle">      <type name="sprite"/></field>
+		<field name="bottom-right">       <type name="sprite"/></field>
 	</block>
 
 	<!-- Check widgets -->
@@ -99,13 +99,13 @@
 	</enum>
 
 	<block magic="GCHK" minversion="1" maxversion="1">
-		<field name="widget_num"     type="CheckWidgetType"/>
-		<field name="empty"          type="sprite"/>
-		<field name="filled"         type="sprite"/>
-		<field name="pressed"        type="sprite"/>
-		<field name="pressed-filled" type="sprite"/>
-		<field name="shaded"         type="sprite"/>
-		<field name="shaded-filled"  type="sprite"/>
+		<field name="widget_num">    <type name="CheckWidgetType"/></field>
+		<field name="empty" >        <type name="sprite"/></field>
+		<field name="filled" >       <type name="sprite"/></field>
+		<field name="pressed" >      <type name="sprite"/></field>
+		<field name="pressed-filled"><type name="sprite"/></field>
+		<field name="shaded" >       <type name="sprite"/></field>
+		<field name="shaded-filled"> <type name="sprite"/></field>
 	</block>
 
 	<enum name="ScrollbarWidgetType" type="uint16">
@@ -116,24 +116,24 @@
 	</enum>
 
 	<block magic="GSCL" minversion="1" maxversion="1">
-		<field name="minimal-length-scrollbar" type="uint8"/>
-		<field name="stepsize-scrollbar"       type="uint8"/>
-		<field name="minimal-length-select"    type="uint8"/>
-		<field name="stepsize-select"          type="uint8"/>
-		<field name="widget_num"               type="ScrollbarWidgetType"/>
-		<field name="leftup"                   type="sprite"/>
-		<field name="rightdown"                type="sprite"/>
-		<field name="leftup-pressed"           type="sprite"/>
-		<field name="rightdown-pressed"        type="sprite"/>
-		<field name="leftup-under"             type="sprite"/>
-		<field name="middle-under"             type="sprite"/>
-		<field name="rightdown-under"          type="sprite"/>
-		<field name="leftup-select"            type="sprite"/>
-		<field name="middle-select"            type="sprite"/>
-		<field name="rightdown-select"         type="sprite"/>
-		<field name="leftup-pressed-select"    type="sprite"/>
-		<field name="middle-pressed-select"    type="sprite"/>
-		<field name="rightdown-pressed-select" type="sprite"/>
+		<field name="minimal-length-scrollbar"><type name="uint8"/></field>
+		<field name="stepsize-scrollbar">      <type name="uint8"/></field>
+		<field name="minimal-length-select">   <type name="uint8"/></field>
+		<field name="stepsize-select">         <type name="uint8"/></field>
+		<field name="widget_num">              <type name="ScrollbarWidgetType"/></field>
+		<field name="leftup">                  <type name="sprite"/></field>
+		<field name="rightdown">               <type name="sprite"/></field>
+		<field name="leftup-pressed">          <type name="sprite"/></field>
+		<field name="rightdown-pressed">       <type name="sprite"/></field>
+		<field name="leftup-under">            <type name="sprite"/></field>
+		<field name="middle-under">            <type name="sprite"/></field>
+		<field name="rightdown-under">         <type name="sprite"/></field>
+		<field name="leftup-select">           <type name="sprite"/></field>
+		<field name="middle-select">           <type name="sprite"/></field>
+		<field name="rightdown-select">        <type name="sprite"/></field>
+		<field name="leftup-pressed-select">   <type name="sprite"/></field>
+		<field name="middle-pressed-select">   <type name="sprite"/></field>
+		<field name="rightdown-pressed-select"><type name="sprite"/></field>
 	</block>
 
 	<enum name="SliderWidgetType" type="uint16">
@@ -144,59 +144,59 @@
 	</enum>
 
 	<block magic="GSLI" minversion="1" maxversion="2">
-		<field name="min-length" type="uint8"  minversion="1" maxversion="1">Minimal length of the bar</field>
-		<field name="min-length" type="uint16" minversion="2"               >Minimal length of the bar</field>
+		<field name="min-length" minversion="1" maxversion="1"><type name="uint8"/><comment>Minimal length of the bar</comment></field>
+		<field name="min-length" minversion="2"               ><type name="uint16"/><comment>Minimal length of the bar</comment></field>
 
-		<field name="stepsize"   type="uint8"  minversion="1" maxversion="1">Stepsize of the bar</field>
-		<field name="stepsize"   type="uint16" minversion="2"               >Stepsize of the bar</field>
+		<field name="stepsize"   minversion="1" maxversion="1"><type name="uint8"/><comment>Stepsize of the bar</comment></field>
+		<field name="stepsize"   minversion="2"               ><type name="uint16"/><comment>Stepsize of the bar</comment></field>
 
-		<field name="width"      type="uint8"  minversion="1" maxversion="1">Width of the slider button</field>
-		<field name="width"      type="uint16" minversion="2"               >Width of the slider button</field>
+		<field name="width"      minversion="1" maxversion="1"><type name="uint8"/><comment>Width of the slider button</comment></field>
+		<field name="width"      minversion="2"               ><type name="uint16"/><comment>Width of the slider button</comment></field>
 
-		<field name="widgettype" type="SliderWidgetType">Widget type</field>
-		<field name="left"       type="sprite"/>
+		<field name="widgettype"><type name="SliderWidgetType"/><comment>Widget type</comment></field>
+		<field name="left">      <type name="sprite"/></field>
 	</block>
 
 	<block magic="GSLP" minversion="1" maxversion="1">
-		<field name="vert-down"   type="sprite">Slope vertically down</field>
-		<field name="steep-down"  type="sprite">Slope steeply down</field>
-		<field name="gentle-down" type="sprite">Slope gently down</field>
-		<field name="level"       type="sprite">Level slope</field>
-		<field name="gentle-up"   type="sprite">Slope gently up</field>
-		<field name="steep-up"    type="sprite">Slope steeply up</field>
-		<field name="vert-up"     type="sprite">Slope vertically up</field>
+		<field name="vert-down">  <type name="sprite"/><comment>Slope vertically down</comment></field>
+		<field name="steep-down"> <type name="sprite"/><comment>Slope steeply down</comment></field>
+		<field name="gentle-down"><type name="sprite"/><comment>Slope gently down</comment></field>
+		<field name="level">      <type name="sprite"/><comment>Level slope</comment></field>
+		<field name="gentle-up">  <type name="sprite"/><comment>Slope gently up</comment></field>
+		<field name="steep-up">   <type name="sprite"/><comment>Slope steeply up</comment></field>
+		<field name="vert-up">    <type name="sprite"/><comment>Slope vertically up</comment></field>
 	</block>
 
 	<block magic="GROT" minversion="1" maxversion="1">
-		<field name="2d-positive" type="sprite">Flat rotation, positive direction</field>
-		<field name="2d-negative" type="sprite">Flat rotation, negative direction</field>
-		<field name="3d-positive" type="sprite">Diametric rotation, positive direction</field>
-		<field name="3d-negative" type="sprite">Diametric rotation, negative direction</field>
+		<field name="2d-positive"><type name="sprite"/><comment>Flat rotation, positive direction</comment></field>
+		<field name="2d-negative"><type name="sprite"/><comment>Flat rotation, negative direction</comment></field>
+		<field name="3d-positive"><type name="sprite"/><comment>Diametric rotation, positive direction</comment></field>
+		<field name="3d-negative"><type name="sprite"/><comment>Diametric rotation, negative direction</comment></field>
 	</block>
 
 	<block magic="PARE" minversion="1" maxversion="1">
-		<field name="tile_width"  type="uint16"/>
-		<field name="z_height"    type="uint16"/>
+		<field name="tile_width"> <type name="uint16"/></field>
+		<field name="z_height">   <type name="uint16"/></field>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="sprite"/>
-		<field name="n#n"   type="sprite"/>
-		<field name="n#e"   type="sprite"/>
-		<field name="n#ne"  type="sprite"/>
-		<field name="n#s"   type="sprite"/>
-		<field name="n#ns"  type="sprite"/>
-		<field name="n#es"  type="sprite"/>
-		<field name="n#nes" type="sprite"/>
-		<field name="n#w"   type="sprite"/>
-		<field name="n#nw"  type="sprite"/>
-		<field name="n#ew"  type="sprite"/>
-		<field name="n#new" type="sprite"/>
-		<field name="n#sw"  type="sprite"/>
-		<field name="n#nsw" type="sprite"/>
-		<field name="n#esw" type="sprite"/>
-		<field name="n#N"   type="sprite"/>
-		<field name="n#E"   type="sprite"/>
-		<field name="n#S"   type="sprite"/>
-		<field name="n#W"   type="sprite"/>
+		<field name="n#">   <type name="sprite"/></field>
+		<field name="n#n">  <type name="sprite"/></field>
+		<field name="n#e">  <type name="sprite"/></field>
+		<field name="n#ne"> <type name="sprite"/></field>
+		<field name="n#s">  <type name="sprite"/></field>
+		<field name="n#ns"> <type name="sprite"/></field>
+		<field name="n#es"> <type name="sprite"/></field>
+		<field name="n#nes"><type name="sprite"/></field>
+		<field name="n#w">  <type name="sprite"/></field>
+		<field name="n#nw"> <type name="sprite"/></field>
+		<field name="n#ew"> <type name="sprite"/></field>
+		<field name="n#new"><type name="sprite"/></field>
+		<field name="n#sw"> <type name="sprite"/></field>
+		<field name="n#nsw"><type name="sprite"/></field>
+		<field name="n#esw"><type name="sprite"/></field>
+		<field name="n#N">  <type name="sprite"/></field>
+		<field name="n#E">  <type name="sprite"/></field>
+		<field name="n#S">  <type name="sprite"/></field>
+		<field name="n#W">  <type name="sprite"/></field>
 	</block>
 
 	<!-- Path sprites -->
@@ -206,61 +206,61 @@
 	</enum>
 
 	<block magic="PATH" minversion="1" maxversion="1">
-		<field name="path_type"  type="PathType"/>
-		<field name="tile_width" type="uint16"/>
-		<field name="z_height"   type="uint16"/>
+		<field name="path_type"> <type name="PathType"/></field>
+		<field name="tile_width"><type name="uint16"/></field>
+		<field name="z_height">  <type name="uint16"/></field>
 		<!-- sprites for the path. -->
-		<field name="empty"               type="sprite"/>
-		<field name="ne"                  type="sprite"/>
-		<field name="se"                  type="sprite"/>
-		<field name="ne_se"               type="sprite"/>
-		<field name="ne_se_e"             type="sprite"/>
-		<field name="sw"                  type="sprite"/>
-		<field name="ne_sw"               type="sprite"/>
-		<field name="se_sw"               type="sprite"/>
-		<field name="se_sw_s"             type="sprite"/>
-		<field name="ne_se_sw"            type="sprite"/>
-		<field name="ne_se_sw_e"          type="sprite"/>
-		<field name="ne_se_sw_s"          type="sprite"/>
-		<field name="ne_se_sw_e_s"        type="sprite"/>
-		<field name="nw"                  type="sprite"/>
-		<field name="ne_nw"               type="sprite"/>
-		<field name="ne_nw_n"             type="sprite"/>
-		<field name="nw_se"               type="sprite"/>
-		<field name="ne_nw_se"            type="sprite"/>
-		<field name="ne_nw_se_n"          type="sprite"/>
-		<field name="ne_nw_se_e"          type="sprite"/>
-		<field name="ne_nw_se_n_e"        type="sprite"/>
-		<field name="nw_sw"               type="sprite"/>
-		<field name="nw_sw_w"             type="sprite"/>
-		<field name="ne_nw_sw"            type="sprite"/>
-		<field name="ne_nw_sw_n"          type="sprite"/>
-		<field name="ne_nw_sw_w"          type="sprite"/>
-		<field name="ne_nw_sw_n_w"        type="sprite"/>
-		<field name="nw_se_sw"            type="sprite"/>
-		<field name="nw_se_sw_s"          type="sprite"/>
-		<field name="nw_se_sw_w"          type="sprite"/>
-		<field name="nw_se_sw_s_w"        type="sprite"/>
-		<field name="ne_nw_se_sw"         type="sprite"/>
-		<field name="ne_nw_se_sw_n"       type="sprite"/>
-		<field name="ne_nw_se_sw_e"       type="sprite"/>
-		<field name="ne_nw_se_sw_n_e"     type="sprite"/>
-		<field name="ne_nw_se_sw_s"       type="sprite"/>
-		<field name="ne_nw_se_sw_n_s"     type="sprite"/>
-		<field name="ne_nw_se_sw_e_s"     type="sprite"/>
-		<field name="ne_nw_se_sw_n_e_s"   type="sprite"/>
-		<field name="ne_nw_se_sw_w"       type="sprite"/>
-		<field name="ne_nw_se_sw_n_w"     type="sprite"/>
-		<field name="ne_nw_se_sw_e_w"     type="sprite"/>
-		<field name="ne_nw_se_sw_n_e_w"   type="sprite"/>
-		<field name="ne_nw_se_sw_s_w"     type="sprite"/>
-		<field name="ne_nw_se_sw_n_s_w"   type="sprite"/>
-		<field name="ne_nw_se_sw_e_s_w"   type="sprite"/>
-		<field name="ne_nw_se_sw_n_e_s_w" type="sprite"/>
-		<field name="ramp_ne"             type="sprite"/>
-		<field name="ramp_nw"             type="sprite"/>
-		<field name="ramp_se"             type="sprite"/>
-		<field name="ramp_sw"             type="sprite"/>
+		<field name="empty">              <type name="sprite"/></field>
+		<field name="ne">                 <type name="sprite"/></field>
+		<field name="se">                 <type name="sprite"/></field>
+		<field name="ne_se">              <type name="sprite"/></field>
+		<field name="ne_se_e">            <type name="sprite"/></field>
+		<field name="sw">                 <type name="sprite"/></field>
+		<field name="ne_sw">              <type name="sprite"/></field>
+		<field name="se_sw">              <type name="sprite"/></field>
+		<field name="se_sw_s">            <type name="sprite"/></field>
+		<field name="ne_se_sw">           <type name="sprite"/></field>
+		<field name="ne_se_sw_e">         <type name="sprite"/></field>
+		<field name="ne_se_sw_s">         <type name="sprite"/></field>
+		<field name="ne_se_sw_e_s">       <type name="sprite"/></field>
+		<field name="nw">                 <type name="sprite"/></field>
+		<field name="ne_nw">              <type name="sprite"/></field>
+		<field name="ne_nw_n">            <type name="sprite"/></field>
+		<field name="nw_se">              <type name="sprite"/></field>
+		<field name="ne_nw_se">           <type name="sprite"/></field>
+		<field name="ne_nw_se_n">         <type name="sprite"/></field>
+		<field name="ne_nw_se_e">         <type name="sprite"/></field>
+		<field name="ne_nw_se_n_e">       <type name="sprite"/></field>
+		<field name="nw_sw">              <type name="sprite"/></field>
+		<field name="nw_sw_w">            <type name="sprite"/></field>
+		<field name="ne_nw_sw">           <type name="sprite"/></field>
+		<field name="ne_nw_sw_n">         <type name="sprite"/></field>
+		<field name="ne_nw_sw_w">         <type name="sprite"/></field>
+		<field name="ne_nw_sw_n_w">       <type name="sprite"/></field>
+		<field name="nw_se_sw">           <type name="sprite"/></field>
+		<field name="nw_se_sw_s">         <type name="sprite"/></field>
+		<field name="nw_se_sw_w">         <type name="sprite"/></field>
+		<field name="nw_se_sw_s_w">       <type name="sprite"/></field>
+		<field name="ne_nw_se_sw">        <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n">      <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_e">      <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n_e">    <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_s">      <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n_s">    <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_e_s">    <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n_e_s">  <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_w">      <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n_w">    <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_e_w">    <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n_e_w">  <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_s_w">    <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n_s_w">  <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_e_s_w">  <type name="sprite"/></field>
+		<field name="ne_nw_se_sw_n_e_s_w"><type name="sprite"/></field>
+		<field name="ramp_ne">            <type name="sprite"/></field>
+		<field name="ramp_nw">            <type name="sprite"/></field>
+		<field name="ramp_se">            <type name="sprite"/></field>
+		<field name="ramp_sw">            <type name="sprite"/></field>
 	</block>
 
 	<!-- Platforms (flat areas to support a path in the air) -->
@@ -270,29 +270,29 @@
 	</enum>
 
 	<block magic="PLAT" minversion="1" maxversion="1">
-		<field name="width"   type="uint16">Zoom-width of a tile of the surface</field>
-		<field name="height"  type="uint16">Change in Z height of the tiles</field>
-		<field name="type"    type="PlatformType">Platform type</field>
-		<field name="ns"      type="sprite">Flat platform for north and south view</field>
-		<field name="ew"      type="sprite">Flat platform for east and west view</field>
-		<field name="ramp-ne" type="sprite">Platform is raised at the NE edge</field>
-		<field name="ramp-se" type="sprite">Platform is raised at the SE edge</field>
-		<field name="ramp-sw" type="sprite">Platform is raised at the SW edge</field>
-		<field name="ramp-nw" type="sprite">Platform is raised at the NW edge</field>
+		<field name="width">  <type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
+		<field name="height"> <type name="uint16"/><comment>Change in Z height of the tiles</comment></field>
+		<field name="type">   <type name="PlatformType"/><comment>Platform type</comment></field>
+		<field name="ns">     <type name="sprite"/><comment>Flat platform for north and south view</comment></field>
+		<field name="ew">     <type name="sprite"/><comment>Flat platform for east and west view</comment></field>
+		<field name="ramp-ne"><type name="sprite"/><comment>Platform is raised at the NE edge</comment></field>
+		<field name="ramp-se"><type name="sprite"/><comment>Platform is raised at the SE edge</comment></field>
+		<field name="ramp-sw"><type name="sprite"/><comment>Platform is raised at the SW edge</comment></field>
+		<field name="ramp-nw"><type name="sprite"/><comment>Platform is raised at the NW edge</comment></field>
 	</block>
 
 	<block magic="SHOP" minversion="1" maxversion="1">
-		<field name="width"  type="uint16">Zoom-width of a tile of the surface</field>
-		<field name="height" type="uint16">Height of the shop in voxels.</field>
-		<field name="ne"     type="sprite">North-east direction</field>
-		<field name="se"     type="sprite">South-east direction</field>
-		<field name="sw"     type="sprite">South-west direction</field>
-		<field name="nw"     type="sprite">North-west direction</field>
+		<field name="width"> <type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
+		<field name="height"><type name="uint16"/><comment>Height of the shop in voxels</comment></field>
+		<field name="ne">    <type name="sprite"/><comment>North-east direction</comment></field>
+		<field name="se">    <type name="sprite"/><comment>South-east direction</comment></field>
+		<field name="sw">    <type name="sprite"/><comment>South-west direction</comment></field>
+		<field name="nw">    <type name="sprite"/><comment>North-west direction</comment></field>
 	</block>
 
 	<!-- Ground surface sprites -->
 	<enum name="GroundType" type="uint16">
-		<value name="reserved"     value="0">Reserved value, do not use.</value>
+		<value name="reserved"     value="0">Reserved value, do not use</value>
 		<value name="the_green"    value="16">Just mowed grass</value>
 		<value name="short_grass"  value="17">Short grass</value>
 		<value name="medium_grass" value="18">Medium grass</value>
@@ -302,163 +302,163 @@
 	</enum>
 
 	<block magic="SURF" minversion="3" maxversion="3">
-		<field name="ground_type" type="GroundType"/>
-		<field name="tile_width"  type="uint16"/>
-		<field name="z_height"    type="uint16"/>
+		<field name="ground_type"><type name="GroundType"/></field>
+		<field name="tile_width"> <type name="uint16"/></field>
+		<field name="z_height">   <type name="uint16"/></field>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="sprite"/>
-		<field name="n#n"   type="sprite"/>
-		<field name="n#e"   type="sprite"/>
-		<field name="n#ne"  type="sprite"/>
-		<field name="n#s"   type="sprite"/>
-		<field name="n#ns"  type="sprite"/>
-		<field name="n#es"  type="sprite"/>
-		<field name="n#nes" type="sprite"/>
-		<field name="n#w"   type="sprite"/>
-		<field name="n#nw"  type="sprite"/>
-		<field name="n#ew"  type="sprite"/>
-		<field name="n#new" type="sprite"/>
-		<field name="n#sw"  type="sprite"/>
-		<field name="n#nsw" type="sprite"/>
-		<field name="n#esw" type="sprite"/>
-		<field name="n#N"   type="sprite"/>
-		<field name="n#E"   type="sprite"/>
-		<field name="n#S"   type="sprite"/>
-		<field name="n#W"   type="sprite"/>
+		<field name="n#">   <type name="sprite"/></field>
+		<field name="n#n">  <type name="sprite"/></field>
+		<field name="n#e">  <type name="sprite"/></field>
+		<field name="n#ne"> <type name="sprite"/></field>
+		<field name="n#s">  <type name="sprite"/></field>
+		<field name="n#ns"> <type name="sprite"/></field>
+		<field name="n#es"> <type name="sprite"/></field>
+		<field name="n#nes"><type name="sprite"/></field>
+		<field name="n#w">  <type name="sprite"/></field>
+		<field name="n#nw"> <type name="sprite"/></field>
+		<field name="n#ew"> <type name="sprite"/></field>
+		<field name="n#new"><type name="sprite"/></field>
+		<field name="n#sw"> <type name="sprite"/></field>
+		<field name="n#nsw"><type name="sprite"/></field>
+		<field name="n#esw"><type name="sprite"/></field>
+		<field name="n#N">  <type name="sprite"/></field>
+		<field name="n#E">  <type name="sprite"/></field>
+		<field name="n#S">  <type name="sprite"/></field>
+		<field name="n#W">  <type name="sprite"/></field>
 	</block>
 
 	<block magic="TARE" minversion="1" maxversion="1">
-		<field name="tile_width"  type="uint16"/>
-		<field name="z_height"    type="uint16"/>
+		<field name="tile_width"> <type name="uint16"/></field>
+		<field name="z_height">   <type name="uint16"/></field>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="sprite"/>
-		<field name="n#n"   type="sprite"/>
-		<field name="n#e"   type="sprite"/>
-		<field name="n#ne"  type="sprite"/>
-		<field name="n#s"   type="sprite"/>
-		<field name="n#ns"  type="sprite"/>
-		<field name="n#es"  type="sprite"/>
-		<field name="n#nes" type="sprite"/>
-		<field name="n#w"   type="sprite"/>
-		<field name="n#nw"  type="sprite"/>
-		<field name="n#ew"  type="sprite"/>
-		<field name="n#new" type="sprite"/>
-		<field name="n#sw"  type="sprite"/>
-		<field name="n#nsw" type="sprite"/>
-		<field name="n#esw" type="sprite"/>
-		<field name="n#N"   type="sprite"/>
-		<field name="n#E"   type="sprite"/>
-		<field name="n#S"   type="sprite"/>
-		<field name="n#W"   type="sprite"/>
+		<field name="n#">   <type name="sprite"/></field>
+		<field name="n#n">  <type name="sprite"/></field>
+		<field name="n#e">  <type name="sprite"/></field>
+		<field name="n#ne"> <type name="sprite"/></field>
+		<field name="n#s">  <type name="sprite"/></field>
+		<field name="n#ns"> <type name="sprite"/></field>
+		<field name="n#es"> <type name="sprite"/></field>
+		<field name="n#nes"><type name="sprite"/></field>
+		<field name="n#w">  <type name="sprite"/></field>
+		<field name="n#nw"> <type name="sprite"/></field>
+		<field name="n#ew"> <type name="sprite"/></field>
+		<field name="n#new"><type name="sprite"/></field>
+		<field name="n#sw"> <type name="sprite"/></field>
+		<field name="n#nsw"><type name="sprite"/></field>
+		<field name="n#esw"><type name="sprite"/></field>
+		<field name="n#N">  <type name="sprite"/></field>
+		<field name="n#E">  <type name="sprite"/></field>
+		<field name="n#S">  <type name="sprite"/></field>
+		<field name="n#W">  <type name="sprite"/></field>
 	</block>
 
 	<block magic="TCOR" minversion="1" maxversion="1">
-		<field name="tile_width"  type="uint16">Zoom-width of a tile</field>
-		<field name="tile_height" type="uint16">Change in Z height of the tiles</field>
+		<field name="tile_width"> <type name="uint16"/><comment>Zoom-width of a tile</comment></field>
+		<field name="tile_height"><type name="uint16"/><comment>Change in Z height of the tiles</comment></field>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="sprite"/>
-		<field name="n#n"   type="sprite"/>
-		<field name="n#e"   type="sprite"/>
-		<field name="n#ne"  type="sprite"/>
-		<field name="n#s"   type="sprite"/>
-		<field name="n#ns"  type="sprite"/>
-		<field name="n#es"  type="sprite"/>
-		<field name="n#nes" type="sprite"/>
-		<field name="n#w"   type="sprite"/>
-		<field name="n#nw"  type="sprite"/>
-		<field name="n#ew"  type="sprite"/>
-		<field name="n#new" type="sprite"/>
-		<field name="n#sw"  type="sprite"/>
-		<field name="n#nsw" type="sprite"/>
-		<field name="n#esw" type="sprite"/>
-		<field name="n#N"   type="sprite"/>
-		<field name="n#E"   type="sprite"/>
-		<field name="n#S"   type="sprite"/>
-		<field name="n#W"   type="sprite"/>
+		<field name="n#">   <type name="sprite"/></field>
+		<field name="n#n">  <type name="sprite"/></field>
+		<field name="n#e">  <type name="sprite"/></field>
+		<field name="n#ne"> <type name="sprite"/></field>
+		<field name="n#s">  <type name="sprite"/></field>
+		<field name="n#ns"> <type name="sprite"/></field>
+		<field name="n#es"> <type name="sprite"/></field>
+		<field name="n#nes"><type name="sprite"/></field>
+		<field name="n#w">  <type name="sprite"/></field>
+		<field name="n#nw"> <type name="sprite"/></field>
+		<field name="n#ew"> <type name="sprite"/></field>
+		<field name="n#new"><type name="sprite"/></field>
+		<field name="n#sw"> <type name="sprite"/></field>
+		<field name="n#nsw"><type name="sprite"/></field>
+		<field name="n#esw"><type name="sprite"/></field>
+		<field name="n#N">  <type name="sprite"/></field>
+		<field name="n#E">  <type name="sprite"/></field>
+		<field name="n#S">  <type name="sprite"/></field>
+		<field name="n#W">  <type name="sprite"/></field>
 		<!-- sprites viewed to the east. -->
-		<field name="e#"    type="sprite"/>
-		<field name="e#n"   type="sprite"/>
-		<field name="e#e"   type="sprite"/>
-		<field name="e#ne"  type="sprite"/>
-		<field name="e#s"   type="sprite"/>
-		<field name="e#ns"  type="sprite"/>
-		<field name="e#es"  type="sprite"/>
-		<field name="e#nes" type="sprite"/>
-		<field name="e#w"   type="sprite"/>
-		<field name="e#nw"  type="sprite"/>
-		<field name="e#ew"  type="sprite"/>
-		<field name="e#new" type="sprite"/>
-		<field name="e#sw"  type="sprite"/>
-		<field name="e#nsw" type="sprite"/>
-		<field name="e#esw" type="sprite"/>
-		<field name="e#N"   type="sprite"/>
-		<field name="e#E"   type="sprite"/>
-		<field name="e#S"   type="sprite"/>
-		<field name="e#W"   type="sprite"/>
+		<field name="e#">   <type name="sprite"/></field>
+		<field name="e#n">  <type name="sprite"/></field>
+		<field name="e#e">  <type name="sprite"/></field>
+		<field name="e#ne"> <type name="sprite"/></field>
+		<field name="e#s">  <type name="sprite"/></field>
+		<field name="e#ns"> <type name="sprite"/></field>
+		<field name="e#es"> <type name="sprite"/></field>
+		<field name="e#nes"><type name="sprite"/></field>
+		<field name="e#w">  <type name="sprite"/></field>
+		<field name="e#nw"> <type name="sprite"/></field>
+		<field name="e#ew"> <type name="sprite"/></field>
+		<field name="e#new"><type name="sprite"/></field>
+		<field name="e#sw"> <type name="sprite"/></field>
+		<field name="e#nsw"><type name="sprite"/></field>
+		<field name="e#esw"><type name="sprite"/></field>
+		<field name="e#N">  <type name="sprite"/></field>
+		<field name="e#E">  <type name="sprite"/></field>
+		<field name="e#S">  <type name="sprite"/></field>
+		<field name="e#W">  <type name="sprite"/></field>
 		<!-- sprites viewed to the south. -->
-		<field name="s#"    type="sprite"/>
-		<field name="s#n"   type="sprite"/>
-		<field name="s#e"   type="sprite"/>
-		<field name="s#ne"  type="sprite"/>
-		<field name="s#s"   type="sprite"/>
-		<field name="s#ns"  type="sprite"/>
-		<field name="s#es"  type="sprite"/>
-		<field name="s#nes" type="sprite"/>
-		<field name="s#w"   type="sprite"/>
-		<field name="s#nw"  type="sprite"/>
-		<field name="s#ew"  type="sprite"/>
-		<field name="s#new" type="sprite"/>
-		<field name="s#sw"  type="sprite"/>
-		<field name="s#nsw" type="sprite"/>
-		<field name="s#esw" type="sprite"/>
-		<field name="s#N"   type="sprite"/>
-		<field name="s#E"   type="sprite"/>
-		<field name="s#S"   type="sprite"/>
-		<field name="s#W"   type="sprite"/>
+		<field name="s#">   <type name="sprite"/></field>
+		<field name="s#n">  <type name="sprite"/></field>
+		<field name="s#e">  <type name="sprite"/></field>
+		<field name="s#ne"> <type name="sprite"/></field>
+		<field name="s#s">  <type name="sprite"/></field>
+		<field name="s#ns"> <type name="sprite"/></field>
+		<field name="s#es"> <type name="sprite"/></field>
+		<field name="s#nes"><type name="sprite"/></field>
+		<field name="s#w">  <type name="sprite"/></field>
+		<field name="s#nw"> <type name="sprite"/></field>
+		<field name="s#ew"> <type name="sprite"/></field>
+		<field name="s#new"><type name="sprite"/></field>
+		<field name="s#sw"> <type name="sprite"/></field>
+		<field name="s#nsw"><type name="sprite"/></field>
+		<field name="s#esw"><type name="sprite"/></field>
+		<field name="s#N">  <type name="sprite"/></field>
+		<field name="s#E">  <type name="sprite"/></field>
+		<field name="s#S">  <type name="sprite"/></field>
+		<field name="s#W">  <type name="sprite"/></field>
 		<!-- sprites viewed to the west. -->
-		<field name="w#"    type="sprite"/>
-		<field name="w#n"   type="sprite"/>
-		<field name="w#e"   type="sprite"/>
-		<field name="w#ne"  type="sprite"/>
-		<field name="w#s"   type="sprite"/>
-		<field name="w#ns"  type="sprite"/>
-		<field name="w#es"  type="sprite"/>
-		<field name="w#nes" type="sprite"/>
-		<field name="w#w"   type="sprite"/>
-		<field name="w#nw"  type="sprite"/>
-		<field name="w#ew"  type="sprite"/>
-		<field name="w#new" type="sprite"/>
-		<field name="w#sw"  type="sprite"/>
-		<field name="w#nsw" type="sprite"/>
-		<field name="w#esw" type="sprite"/>
-		<field name="w#N"   type="sprite"/>
-		<field name="w#E"   type="sprite"/>
-		<field name="w#S"   type="sprite"/>
-		<field name="w#W"   type="sprite"/>
+		<field name="w#">   <type name="sprite"/></field>
+		<field name="w#n">  <type name="sprite"/></field>
+		<field name="w#e">  <type name="sprite"/></field>
+		<field name="w#ne"> <type name="sprite"/></field>
+		<field name="w#s">  <type name="sprite"/></field>
+		<field name="w#ns"> <type name="sprite"/></field>
+		<field name="w#es"> <type name="sprite"/></field>
+		<field name="w#nes"><type name="sprite"/></field>
+		<field name="w#w">  <type name="sprite"/></field>
+		<field name="w#nw"> <type name="sprite"/></field>
+		<field name="w#ew"> <type name="sprite"/></field>
+		<field name="w#new"><type name="sprite"/></field>
+		<field name="w#sw"> <type name="sprite"/></field>
+		<field name="w#nsw"><type name="sprite"/></field>
+		<field name="w#esw"><type name="sprite"/></field>
+		<field name="w#N">  <type name="sprite"/></field>
+		<field name="w#E">  <type name="sprite"/></field>
+		<field name="w#S">  <type name="sprite"/></field>
+		<field name="w#W">  <type name="sprite"/></field>
 	</block>
 
 	<block magic="TSEL" minversion="1" maxversion="1">
-		<field name="tile_width"  type="uint16"/>
-		<field name="z_height"    type="uint16"/>
+		<field name="tile_width"> <type name="uint16"/></field>
+		<field name="z_height">   <type name="uint16"/></field>
 		<!-- sprites viewed to the north. -->
-		<field name="n#"    type="sprite"/>
-		<field name="n#n"   type="sprite"/>
-		<field name="n#e"   type="sprite"/>
-		<field name="n#ne"  type="sprite"/>
-		<field name="n#s"   type="sprite"/>
-		<field name="n#ns"  type="sprite"/>
-		<field name="n#es"  type="sprite"/>
-		<field name="n#nes" type="sprite"/>
-		<field name="n#w"   type="sprite"/>
-		<field name="n#nw"  type="sprite"/>
-		<field name="n#ew"  type="sprite"/>
-		<field name="n#new" type="sprite"/>
-		<field name="n#sw"  type="sprite"/>
-		<field name="n#nsw" type="sprite"/>
-		<field name="n#esw" type="sprite"/>
-		<field name="n#N"   type="sprite"/>
-		<field name="n#E"   type="sprite"/>
-		<field name="n#S"   type="sprite"/>
-		<field name="n#W"   type="sprite"/>
+		<field name="n#">   <type name="sprite"/></field>
+		<field name="n#n">  <type name="sprite"/></field>
+		<field name="n#e">  <type name="sprite"/></field>
+		<field name="n#ne"> <type name="sprite"/></field>
+		<field name="n#s">  <type name="sprite"/></field>
+		<field name="n#ns"> <type name="sprite"/></field>
+		<field name="n#es"> <type name="sprite"/></field>
+		<field name="n#nes"><type name="sprite"/></field>
+		<field name="n#w">  <type name="sprite"/></field>
+		<field name="n#nw"> <type name="sprite"/></field>
+		<field name="n#ew"> <type name="sprite"/></field>
+		<field name="n#new"><type name="sprite"/></field>
+		<field name="n#sw"> <type name="sprite"/></field>
+		<field name="n#nsw"><type name="sprite"/></field>
+		<field name="n#esw"><type name="sprite"/></field>
+		<field name="n#N">  <type name="sprite"/></field>
+		<field name="n#E">  <type name="sprite"/></field>
+		<field name="n#S">  <type name="sprite"/></field>
+		<field name="n#W">  <type name="sprite"/></field>
 	</block>
 </structures>

@@ -101,7 +101,7 @@ class Block(object):
         nodes = datatypes.get_child_nodes(node, u"field")
         for n in nodes:
             field = Field()
-            field.loadfromDOM(n)
+            field.loadfromDOM(n, self.magic)
             self.fields.append(field)
 
     def get_fields(self, version):
@@ -164,14 +164,30 @@ class Field(object):
         self.minversion = None
         self.maxversion = None
 
-    def loadfromDOM(self, node):
+    def loadfromDOM(self, node, block_magic):
+        """
+        Load a block from the xml node.
+
+        @param node: XML node containing the block.
+        @type  node: L{xml.dom.minidom.Node}
+
+        @param block_magic: Name of the block (needed for reporting errors only).
+        @type  block_magic: C{unicode}
+        """
         self.name = node.getAttribute("name")
-        self.description = "".join(n.data for n in node.childNodes if n.nodeType == Node.TEXT_NODE)
-        self.type = node.getAttribute("type")
         self.minversion = None
         if node.hasAttribute("minversion"): self.minversion = int(node.getAttribute("minversion"))
         self.maxversion = None
         if node.hasAttribute("maxversion"): self.maxversion = int(node.getAttribute("maxversion"))
+
+        comment_node = datatypes.get_single_child_node(node, u"comment", optional=True)
+        if comment_node is not None:
+            self.description = datatypes.collect_text_DOM(comment_node)
+        else:
+            self.description = ""
+
+        type_node = datatypes.get_single_child_node(node, u"type")
+        self.type = type_node.getAttribute("name")
 
     def __str__(self):
         txt = "%s:%s" % (self.name, self.type)
