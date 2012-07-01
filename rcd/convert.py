@@ -69,16 +69,16 @@ class FrameData(object):
         self.game_dx = None
         self.game_dy = None
 
-    def setup(self, data):
+    def setup(self, node):
         """
         Initialize the frame.
 
-        @param data: The L{RcdFrame} to load the data from.
-        @type  data: L{RcdFrame}
+        @param node: The XML node of this frame.
+        @type  node: L{xml.dim.minidom.Node}
         """
-        self.duration = data.duration
-        self.game_dx = data.game_dx
-        self.game_dy = data.game_dy
+        self.duration = int(node.getAttribute(u'duration'))
+        self.game_dx  = int(node.getAttribute(u'game-dx'))
+        self.game_dy  = int(node.getAttribute(u'game-dy'))
 
 def get_rcdfile_nodes(data_fname):
     """
@@ -94,13 +94,195 @@ def get_rcdfile_nodes(data_fname):
     root = datatypes.get_single_child_node(dom, u"rcdfiles")
     return datatypes.get_child_nodes(root, u'file')
 
+def get_game_blocks(rcdfile_node):
+    """
+    Pull the file information from the node, as well as the game blocks to generate.
+
+    @param rcdfile_node: XML node representing a file to generate.
+    @type  rcdfile_node: L{xml.dom.minidom.Node} (a 'file' node)
+
+    @return: Loaded information about the file.
+    @rtype:  L{data_loader.RcdFile}
+    """
+    rf = data_loader.RcdFile()
+    rf.loadfromDOM(rcdfile_node)
+    return rf
+
+def order_nodes(flddefs, named_nodes, blk_magic):
+    """
+    Order the nodes in the data file to match the order in the definition.
+
+    @param flddefs: Fields needed according to the definition.
+    @type  flddefs: C{list} of L{Field}
+
+    @param named_nodes: Fields found in the game data file.
+    @type  named_nodes: C{list} of L{NamedNode}
+
+    @param blk_magic: Name of the block (for error output).
+    @type  blk_magic: C{unicode}
+
+    @return: Game data file nodes ordered by the field definition.
+    @rtype:  C{list} of (L{Field}, L{Name}, L{NamedNode}) triplets.
+    """
+    gd_fields = {} # Mapping of C{unicode} to (L{Name}, L{NamedNode})
+    for nn in named_nodes:
+        for name in nn.names:
+            text = name.name
+            if text in gd_fields:
+                print "ERROR: \"%s\" already defined in block \"%s\"." % (text, blk_magic)
+                sys.exit(1)
+            gd_fields[text] = (name, nn)
+
+    fields = []
+    for flddef in flddefs:
+        if flddef.name not in gd_fields:
+            print "ERROR: Field \"%s\" is missing in block \"%s\"." % (flddef.name, blk_magic)
+            sys.exit(1)
+        gd_name, gd_node = gd_fields[flddef.name]
+        fields.append((flddef, gd_name, gd_node))
+        del gd_fields[flddef.name]
+
+    if len(gd_fields) > 0:
+        for gdt in gd_fields.iterkeys():
+            if gdt.startswith('_'):
+                continue # Silently ignore double fields starting with _
+
+            print "WARNING: Field \"%s\" not used in block \"%s\"." % (gdt, blk_magic)
+
+    return fields
+
+def make_sprite_block_reference(name, named_node, file_blocks):
+    """
+    Construct a block reference to a sprite block.
+
+    @param name: Name inside the node to create.
+    @type  name: L{Name}
+
+    @param named_node: XML node describing the block.
+    @type  named_node: L{NamedNode}
+
+    @param file_blocks: Blocks already generated.
+    @type  file_blocks: L{blocks.RCD}
+
+    @return: Block number of the created block.
+    @rtype:  C{int}
+    """
+    node = named_node.node
+    if named_node.tag == 'image':
+        x_base   = int(datatypes.get_opt_DOMattr(node, 'x-base', u"0"))
+        y_base   = int(datatypes.get_opt_DOMattr(node, 'y-base', u"0"))
+        width    = int(node.getAttribute("width"))
+        height   = int(node.getAttribute("height"))
+        x_offset = int(datatypes.get_opt_DOMattr(node, "x-offset", u"0"))
+        y_offset = int(datatypes.get_opt_DOMattr(node, "y-offset", u"0"))
+        fname    = node.getAttribute("fname")
+        transp   = int(datatypes.get_opt_DOMattr(node, 'transparent', u"0"))
+
+    elif named_node.tag == 'sheet':
+        x_base   = int(node.getAttribute("x-base"))
+        y_base   = int(node.getAttribute("y-base"))
+        x_step   = int(node.getAttribute("x-step"))
+        y_step   = int(node.getAttribute("y-step"))
+        fname    = node.getAttribute("fname")
+        names    = node.getAttribute("names")
+        x_offset = int(node.getAttribute("x-offset"))
+        y_offset = int(node.getAttribute("y-offset"))
+        width    = int(node.getAttribute("width"))
+        height   = int(node.getAttribute("height"))
+        transp   = int(datatypes.get_opt_DOMattr(node, 'transparent', u"0"))
+
+        x_base = x_base + x_step * name.data[0]
+        y_base = y_base + y_step * name.data[1]
+
+    else:
+        print "ERROR: Unknown type of data for a sprite block %r" % named_node.tag
+        sys.exit(1)
+
+    im = spritegrid.image_loader.get_img(fname)
+    im_obj = spritegrid.ImageObject(im, x_offset, y_offset, x_base, y_base, width, height)
+    pxl_blk = im_obj.make_8PXL()
+    return file_blocks.add_block(pxl_blk)
+
+def convert_node(node, name, data_type, file_blocks):
+    """
+    Convert the XML data node to its value.
+
+    @param node: The XML node of the data value/field.
+    @type  node: L{xml.dim.minidom.Node}
+
+    @param name: Name object (for sheets of images), if available.
+    @type  name: L{Name} or C{None}
+
+    @param data_type: Data type.
+    @type  data_type: L{DataType}
+
+    @param file_blocks: Blocks already generated.
+    @type  file_blocks: L{blocks.RCD}
+
+    @return: Converted data value.
+    @rtype:  Varies
+    """
+    if isinstance(data_type, datatypes.NumericDataType):
+        value = node.node.getAttribute(u'value')
+        val = data_type.convert(value)
+        if val is None:
+            print "ERROR: %r is not a number" % value
+            sys.exit(1)
+        return val
+
+    if isinstance(data_type, datatypes.BlockReference):
+        if data_type.name == 'sprite':
+            blknum = make_sprite_block_reference(name, node, file_blocks)
+            return blknum
+
+        print "ERROR: Unknown type of block reference %r" % data_type.name
+        sys.exit(1)
+
+    if isinstance(data_type, datatypes.EnumerationDataType):
+        value = node.node.getAttribute(u'value')
+        val = data_type.convert(value)
+        if val is None:
+            print "ERROR: %r is not an enumeration value" % value
+            sys.exit(1)
+        return val
+
+    if isinstance(data_type, datatypes.FrameDefinitions):
+        frames = []
+        for fr in datatypes.get_child_nodes(node.node, u"frame"):
+            new_fr = FrameData()
+            new_fr.setup(fr)
+            frames.append(new_fr)
+        return frames
+
+    if isinstance(data_type, datatypes.FrameImages):
+        imgs = []
+        img_type = datatypes.BlockReference('sprite')
+        for img_node in datatypes.get_child_nodes(node.node, u'image'):
+            named_node = data_loader.NamedNode(img_node, img_node.tagName, set())
+            imgs.append(convert_node(named_node, None, img_type, file_blocks))
+        return imgs
+
+    print "ERROR: Unknown field definition: %r" % data_type
+    sys.exit(1)
+
+
 def convert(def_fname, data_fname):
+    """
+    Convert game data to RCD file format.
+
+    @param def_fname: Filename of the structure definitions.
+    @type  def_fname: C{str}
+
+    @param data_fname: Filename of the game data file.
+    @type  data_fname: C{str}
+
+    @todo: Actually use L{def_fname}.
+    """
     struct_defs = blocks.block_factory.struct_def
 
     data_file_nodes = get_rcdfile_nodes(data_fname)
     for dfile_node in data_file_nodes:
-        dfile = data_loader.RcdFile()
-        dfile.loadfromDOM(dfile_node)
+        dfile = get_game_blocks(dfile_node)
 
         if dfile.magic != 'RCDF' or dfile.version != 1:
             raise ValueError("Output file %r has wrong magic or version number" % dfile.dest_fname)
@@ -108,78 +290,31 @@ def convert(def_fname, data_fname):
         file_blocks = blocks.RCD()
         print "Target file: " + dfile.target
 
-        for block in dfile.blocks:
-            blockdef = struct_defs.get_block(block.magic)
-            if blockdef is None:
-                raise ValueError("Data block %r does not exist in the definitions" % block.magic)
+        for block_node in dfile.block_nodes:
+            blk_magic = block_node.getAttribute(u"magic")
+            blk_version = int(block_node.getAttribute(u"version"))
 
-            flddefs = blockdef.get_fields(block.version)
+            blockdef = struct_defs.get_block(blk_magic)
+            if blockdef is None:
+                raise ValueError("Data block %r does not exist in the definitions" % blk_magic)
+
+            flddefs = blockdef.get_fields(blk_version)
             if flddefs is None:
                 raise ValueError("Version %r of data block %r is not supported "
-                                 "in the definitions" % (block.version, block.magic))
+                                 "in the definitions" % (blk_version, blk_magic))
 
-            avail = set(block.fields.iterkeys())
-            seen = set()
             blockdata = {}
             fields = []
-            for flddef in flddefs:
-                if flddef.name not in avail:
-                    raise ValueError("Field %r is missing in data block %r" % (flddef.name, block.magic))
-                avail.remove(flddef.name)
-                data = block.fields[flddef.name]
-                data.field_def = flddef
 
-                # Output double entries
-                if flddef.name in seen:
-                    print "Warning: field %r defined more than once in data block %r" % (flddef.name, block.magic)
-                seen.add(flddef.name)
-
-
-                if isinstance(data, data_loader.RcdDataField):
-                    value = flddef.type.convert(data.value)
-                    if value is None:
-                        raise ValueError("Value %r of field %r in data block %r is incorrect" %
-                                         (data.value, flddef.name, block.magic))
-                    blockdata[data.name] = value
-
-                elif isinstance(data, data_loader.RcdFrameDefinitions):
-                    assert flddef.type.name == 'frame_defs'
-                    frames = []
-                    for fr in data.frames:
-                        new_fr = FrameData()
-                        new_fr.setup(fr)
-                        frames.append(new_fr)
-                    blockdata[data.name] = frames
-
-                elif isinstance(data, data_loader.RcdFrameImages):
-                    assert flddef.type.name == 'frame_images'
-                    imgs = []
-                    for img in data.images:
-                        im = spritegrid.image_loader.get_img(img.fname)
-                        im_obj = spritegrid.ImageObject(im, img.x_offset, img.y_offset,
-                                                    img.x_base, img.y_base, img.width, img.height)
-                        pxl_blk = im_obj.make_8PXL()
-                        imgs.append(file_blocks.add_block(pxl_blk))
-                    blockdata[data.name] = imgs
-
-                else:
-                    assert flddef.type.name == 'sprite'
-                    im = spritegrid.image_loader.get_img(data.fname)
-                    im_obj = spritegrid.ImageObject(im, data.x_offset, data.y_offset,
-                                                    data.x_base, data.y_base, data.width, data.height)
-                    pxl_blk = im_obj.make_8PXL()
-                    blockdata[data.name] = file_blocks.add_block(pxl_blk)
-
+            named_nodes = data_loader.load_named_nodes(block_node)
+            for flddef, name, node in order_nodes(flddefs, named_nodes, blk_magic):
                 fields.append((flddef.name, flddef.type))
 
-            dblk = blocks.GeneralDataBlock(block.magic, block.version, fields, None)
+                blockdata[flddef.name] = convert_node(node, name, flddef.type, file_blocks)
+
+            dblk = blocks.GeneralDataBlock(blk_magic, blk_version, fields, None)
             dblk.set_values(blockdata)
             file_blocks.add_block(dblk)
-
-            if len(avail) > 0:
-                for nm in avail:
-                    if not nm.startswith('_'):
-                        print "Warning: field %r is not used in data block %r" % (nm, block.magic)
 
 
         file_blocks.to_file(dfile.target)
