@@ -122,7 +122,7 @@ class DataType(object):
         raise NotImplementedError("Implement me in %r" % type(self))
 
 
-num_pat = re.compile(u'\\d+$')
+num_pat = re.compile(u'-?\\d+$')
 
 
 class NumericDataType(DataType):
@@ -204,22 +204,44 @@ class EnumerationDataType(DataType):
     def write(self, out, value):
         self.data_type.write(out, value)
 
-class FrameDefinitions(DataType):
+class StructureDataType(DataType):
     """
-    Data type of a sequence of frame definitions.
+    Data type containing a sequence of fields.
+
+    @ivar fields: List of named fields in the struct.
+    @type fields: C{list} of L{Field}
     """
-    def __init__(self):
-        DataType.__init__(self, 'frame_defs')
+    def __init__(self, name, fields):
+        DataType.__init__(self, name)
+        self.fields = fields
 
     def get_size(self, value):
-        return 2 + 6 * len(value)
+        """
+        Compute the size of the total struct.
+
+        @param value: Values of the struct.
+        @type  value: C{list} of field-value.
+        """
+        total = 0
+        assert len(value) == len(self.fields)
+        for flddef, val in zip(self.fields, value):
+            total = total + flddef.type.get_size(val)
+        return total
+
+    def convert(self, value):
+        result = []
+        assert len(value) == len(self.fields)
+        for flddef, val in zip(self.fields, value):
+            result.append(flddef.type.convert(val))
+        return result
 
     def write(self, out, value):
-        out.uint16(len(value))
-        for fr_data in value:
-            out.uint16(fr_data.duration)
-            out.int16(fr_data.game_dx)
-            out.int16(fr_data.game_dy)
+        i = 0
+        assert len(value) == len(self.fields)
+        for flddef, val in zip(self.fields, value):
+            flddef.type.write(out, val)
+            i = i + 1
+
 
 class ListType(DataType):
     """
@@ -317,7 +339,6 @@ _types = { 'uint8':  NumericDataType('uint8'),
            'sprite': BlockReference('sprite'),
            'block':  BlockReference('block'),
            'image_data': ImageDataType(),
-           'frame_defs': FrameDefinitions(),
          }
 
 UINT16_TYPE = _types['uint16']
@@ -343,6 +364,20 @@ def load_enum_definition(node):
         values[val_name] = val_value
 
     _types[name] = EnumerationDataType(name, values, storage_type)
+
+
+def load_struct_definition(name, fields):
+    """
+    Add a 'struct' definition from the xml struct defs to the data types.
+
+    @param name: Name of the struct definition.
+    @type  name: C{unicode}
+
+    @param fields: Fields of the struct.
+    @type  fields: C{list} of L{Field}
+    """
+    sd = StructureDataType(name, fields)
+    _types[name] = sd
 
 
 def read_type(node, blk_name, fld_name):

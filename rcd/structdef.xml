@@ -14,11 +14,18 @@
 		<value name="walk_nw" value="4">Walk in north-west direction</value>
 	</enum>
 
+	<struct name="FrameDataStruct">
+		<field name="duration"><type name="uint16"/></field>
+		<field name="change-x"><type name="int16"/></field>
+		<field name="change-y"><type name="int16"/></field>
+	</struct>
+
 	<block magic="ANIM" minversion="1" maxversion="2">
 		<field name="width" minversion="1" maxversion="1"><type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
 		<field name="person_type">                        <type name="PersonType"/><comment>Type of persons in the animation</comment></field>
 		<field name="anim_type">                          <type name="AnimationType"/><comment>Animation being defined</comment></field>
-		<field name="frames">                             <type name="frame_defs"/><comment>Definition of the frames</comment></field>
+		<field name="frames"><type name="list" count="uint16"><type name="FrameDataStruct"/></type>
+				<comment>Definition of the frames</comment></field>
 	</block>
 
 	<block magic="ANSP" minversion="1" maxversion="1">

@@ -51,34 +51,6 @@ def main():
     convert(def_fname, data_fname)
     sys.exit(0)
 
-class FrameData(object):
-    """
-    Data of a frame in the RCD file.
-
-    @ivar duration: Duration of the frame in milli seconds.
-    @type duration: C{int}
-
-    @ivar game_dx: Signed movement in X direction after displaying the frame.
-    @type game_dx: C{int}
-
-    @ivar game_dy: Signed movement in Y direction after displaying the frame.
-    @type game_dy: C{int}
-    """
-    def __init__(self):
-        self.duration = None
-        self.game_dx = None
-        self.game_dy = None
-
-    def setup(self, node):
-        """
-        Initialize the frame.
-
-        @param node: The XML node of this frame.
-        @type  node: L{xml.dim.minidom.Node}
-        """
-        self.duration = int(node.getAttribute(u'duration'))
-        self.game_dx  = int(node.getAttribute(u'game-dx'))
-        self.game_dy  = int(node.getAttribute(u'game-dy'))
 
 def get_rcdfile_nodes(data_fname):
     """
@@ -270,20 +242,20 @@ def convert_node(node, name, data_type, file_blocks):
             sys.exit(1)
         return val
 
-    if isinstance(data_type, datatypes.FrameDefinitions):
-        frames = []
-        for fr in datatypes.get_child_nodes(node.node, u"frame"):
-            new_fr = FrameData()
-            new_fr.setup(fr)
-            frames.append(new_fr)
-        return frames
-
     if isinstance(data_type, datatypes.ListType):
         named_nodes = data_loader.load_named_nodes(node.node)
         named_tuples = sort_nodes(named_nodes)
         result = []
         for n, nn in named_tuples:
             result.append(convert_node(nn, n, data_type.elm_type, file_blocks))
+        return result
+
+    if isinstance(data_type, datatypes.StructureDataType):
+        result = []
+        named_nodes = data_loader.load_named_nodes(node.node)
+        for flddef, name, node in order_nodes(data_type.fields, named_nodes, data_type.name):
+            res = convert_node(node, name, flddef.type, file_blocks)
+            result.append(res)
         return result
 
     print "ERROR: Unknown field definition: %r" % data_type

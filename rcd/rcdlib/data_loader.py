@@ -143,6 +143,11 @@ def load_named_nodes(parent):
             nodes.append(NamedNode(node, node.tagName, set([name])))
             continue
 
+        if node.tagName == u"struct":
+            name = Name(node.getAttribute(u"name"))
+            nodes.append(NamedNode(node, node.tagName, set([name])))
+            continue
+
         # Unrecognized tag, report it
         print "WARNING: Skipping " + node.tagName
 

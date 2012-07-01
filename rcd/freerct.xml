@@ -375,9 +375,13 @@
 		<gameblock magic="ANIM" version="2">
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_ne"/>
-			<frame_defs name="frames">
-				<frame duration="40" game-dx="-4" game-dy="0"/>
-			</frame_defs>
+			<field name="frames">
+				<struct name="1">
+					<field name="duration" value="40"/>
+					<field name="change-x" value="-4"/>
+					<field name="change-y" value="0"/>
+				</struct>
+			</field>
 		</gameblock>
 		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
@@ -393,9 +397,13 @@
 		<gameblock magic="ANIM" version="2">
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_se"/>
-			<frame_defs name="frames">
-				<frame duration="40" game-dx="0" game-dy="4"/>
-			</frame_defs>
+			<field name="frames">
+				<struct name="1">
+					<field name="duration" value="40"/>
+					<field name="change-x" value="0"/>
+					<field name="change-y" value="4"/>
+				</struct>
+			</field>
 		</gameblock>
 		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
@@ -411,9 +419,13 @@
 		<gameblock magic="ANIM" version="2">
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_sw"/>
-			<frame_defs name="frames">
-				<frame duration="40" game-dx="4" game-dy="0"/>
-			</frame_defs>
+			<field name="frames">
+				<struct name="1">
+					<field name="duration" value="40"/>
+					<field name="change-x" value="4"/>
+					<field name="change-y" value="0"/>
+				</struct>
+			</field>
 		</gameblock>
 		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->
@@ -429,9 +441,13 @@
 		<gameblock magic="ANIM" version="2">
 			<field name="person_type" value="pillar"/>
 			<field name="anim_type"   value="walk_nw"/>
-			<frame_defs name="frames">
-				<frame duration="40" game-dx="0" game-dy="-4"/>
-			</frame_defs>
+			<field name="frames">
+				<struct name="1">
+					<field name="duration" value="40"/>
+					<field name="change-x" value="0"/>
+					<field name="change-y" value="-4"/>
+				</struct>
+			</field>
 		</gameblock>
 		<gameblock magic="ANSP" version="1">
 			<field name="width"       value="64"/>  <!-- Zoom-width -->

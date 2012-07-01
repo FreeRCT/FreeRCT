@@ -46,15 +46,28 @@ class Structures(Magic):
     def loadfromDOM(self, node):
         Magic.loadfromDOM(self, node)
 
-        # Load enum definitions into the data type factory.
+        # Load enum definitions into the data types.
         enum_nodes = datatypes.get_child_nodes(node, u"enum")
         for e in enum_nodes:
             datatypes.load_enum_definition(e)
 
+        # Load structure definitions into the types.
+        struct_nodes = datatypes.get_child_nodes(node, u"struct")
+        for s in struct_nodes:
+            s_name = s.getAttribute(u"name")
+            fields = []
+            nodes = datatypes.get_child_nodes(s, u"field")
+            for n in nodes:
+                field = Field()
+                field.loadfromDOM(n, s_name)
+                fields.append(field)
+
+            datatypes.load_struct_definition(s_name, fields)
+
         # Load actual data
-        struct_nodes = datatypes.get_child_nodes(node, u"block")
+        block_nodes = datatypes.get_child_nodes(node, u"block")
         self.blocks = {}
-        for b in struct_nodes:
+        for b in block_nodes:
             block = Block()
             block.loadfromDOM(b)
             assert block.magic not in self.blocks
