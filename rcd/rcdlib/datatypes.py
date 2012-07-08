@@ -100,7 +100,7 @@ class DataType(object):
     def __init__(self, name):
         self.name = name
 
-    def get_size(self):
+    def get_size(self, value):
         """
         Retrieve the size of the data type.
 
