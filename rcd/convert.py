@@ -264,7 +264,40 @@ def convert_node(node, name, data_type, file_blocks):
             result.append(res)
         return result
 
+    if isinstance(data_type, datatypes.BitSet):
+        named_nodes = data_loader.load_named_nodes(node.node)
+        value = 0
+        for flddef, name, node in order_nodes(data_type.bitfields, named_nodes, data_type.name, True):
+            if node is None:
+                if not flddef.may_be_omitted():
+                    print "ERROR: Missing field \"%s\" in bit-set \"%s\"" % (name, data_type.name)
+                    sys.exit(1)
+            else:
+                res = convert_node(node, name, flddef, file_blocks)
+                value = value | res
+        return value
+
+    if isinstance(data_type, datatypes.BitField):
+        count = 0
+        value = 0
+        for n in datatypes.get_child_nodes(node.node, u'field'):
+            nn = data_loader.NamedNode(n, n.tagName, data_type.name)
+            res = convert_node(nn, name, data_type.src_type, file_blocks)
+            if data_type.as_bit_index:
+                res = 1 << res;
+            res = res << data_type.start_bit
+            count = count + 1
+            value = value | res
+        if count < data_type.min_count:
+            print "ERROR: Expected at least %d values in the bitfield \"%s\", found %d" % (data_type.min_count, node.name, count)
+            sys.exit(1)
+        if data_type.max_count is not None and count > data_type.max_count:
+            print "ERROR: Expected at most %d values in the bitfield \"%s\", found %d" % (data_type.min_count, node.name, count)
+            sys.exit(1)
+        return value
+
     print "ERROR: Unknown field definition: %r" % data_type
+    print node.node.toxml()
     sys.exit(1)
 
 

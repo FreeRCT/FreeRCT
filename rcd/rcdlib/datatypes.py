@@ -330,6 +330,55 @@ class ImageDataType(DataType):
             if line is not None:
                 out.store_text(line)
 
+
+class BitField(DataType):
+    """
+    @ivar src_type: Type of numbers.
+    @type src_type: L{DataType}
+
+    @ivar min_count: Minimum number of entries.
+    @type min_count: C{int}
+
+    @ivar max_count: Maximum number of entries (if finite)
+    @type max_count: C{int} or C{None}
+
+    @ivar start_bit: First bit to use.
+    @type start_bit: C{int}
+
+    @ivar as_bit_index: Values should be seen as bit index.
+    @type as_bit_index: C{bool}
+    """
+    def __init__(self, name, src_type, min_count, max_count, start_bit, as_bit_index):
+        DataType.__init__(self, name)
+        self.src_type = src_type
+        self.min_count = min_count
+        self.max_count = max_count
+        self.start_bit = start_bit
+        self.as_bit_index = as_bit_index
+
+
+class BitSet(DataType):
+    """
+    A set of bit-oriented data fields.
+
+    @ivar storage: Type of the destination storage.
+    @type storage: L{DataType}
+
+    @ivar bitfields: Bit fields contained in the bit set.
+    @type bitfields: C{list} of L{BitField}
+    """
+    def __init__(self, storage, bitfields):
+        DataType.__init__(self, u"_bitset_")
+        self.storage = storage
+        self.bitfields = bitfields
+
+    def get_size(self, value):
+        return self.storage.get_size(value)
+
+    def write(self, out, value):
+        self.storage.write(out, value)
+
+
 _types = { 'uint8':  NumericDataType('uint8'),
            'int8':   NumericDataType('int8'),
            'uint16': NumericDataType('uint16'),
@@ -379,6 +428,28 @@ def load_struct_definition(name, fields):
     sd = StructureDataType(name, fields)
     _types[name] = sd
 
+def make_bitfield(node):
+    """
+    Construct a bit-field object.
+
+    @param node: Node representing the bit field.
+    @type  node: L{xml.dom.minidom.Node}
+
+    @return: A bit field.
+    @rtype:  L{BitField}
+    """
+    name = node.getAttribute(u"name")
+    src_type = node.getAttribute(u"enum")
+    src_type = _types[src_type]
+    min_count = int(node.getAttribute(u"min-count"))
+    max_count = node.getAttribute(u"max-count")
+    if max_count == u"*":
+        max_count = None
+    else:
+        max_count = int(max_count)
+    start_bit = int(node.getAttribute(u"start-bit"))
+    as_bit_index = (get_opt_DOMattr(node, u"bit-numbers", None) is not None)
+    return BitField(name, src_type, min_count, max_count, start_bit, as_bit_index)
 
 def read_type(node, blk_name, fld_name):
     """
@@ -402,5 +473,11 @@ def read_type(node, blk_name, fld_name):
         count_type = _types[type_node.getAttribute(u"count")]
         elm_type = read_type(type_node, blk_name + "/" + fld_name, '_list_')
         return ListType(elm_type, count_type)
+    if name == 'bitset':
+        store_type = _types[type_node.getAttribute(u"storage")]
+        bfields = []
+        for bfld in get_child_nodes(type_node, u"bitfield"):
+            bfields.append(make_bitfield(bfld))
+        return BitSet(store_type, bfields)
     return _types[name]
 

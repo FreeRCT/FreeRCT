@@ -141,7 +141,7 @@ def load_named_nodes(parent):
             nodes.append(NamedNode(node, node.tagName, set([name])))
             continue
 
-        if node.tagName == u"frame_defs":
+        if node.tagName == u"bitfield":
             name = Name(node.getAttribute(u"name"))
             nodes.append(NamedNode(node, node.tagName, set([name])))
             continue
