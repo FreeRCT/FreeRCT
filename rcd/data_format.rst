@@ -262,21 +262,28 @@ Shops/stalls
 ------------
 One tile objects.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'SHOP'.
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                  length.
-  12       2    Zoom-width of a tile of the surface.
-  14       2    Height of the shop in voxels.
-  16       4    View to the north where the entrance is at the NE edge.
-  20       4    View to the north where the entrance is at the SE edge.
-  24       4    View to the north where the entrance is at the SW edge.
-  28       4    View to the north where the entrance is at the NW edge.
-  32            Total length.
-======  ======  ==========================================================
+======  ======  =======  =================================================
+Offset  Length  Version  Description
+======  ======  =======  =================================================
+   0       4      1-2    Magic string 'SHOP'.
+   4       4      1-2    Version number of the block '2'.
+   8       4      1-2    Length of the block excluding magic string,
+                           version, and length.
+  12       2      1-2    Zoom-width of a tile of the surface.
+  14       2      1-2    Height of the shop in voxels.
+  16       4      1-2    View to the north where the entrance is at the NE
+                           edge.
+  20       4      1-2    View to the north where the entrance is at the SE
+                           edge.
+  24       4      1-2    View to the north where the entrance is at the SW
+                           edge.
+  28       4      1-2    View to the north where the entrance is at the NW
+                           edge.
+  32       4       2     First recolouring specification.
+  36       4       2     Second recolouring specification.
+  40       4       2     Third recolouring specification.
+  44                     Total length.
+======  ======  =======  =================================================
 
 
 Build direction arrows
