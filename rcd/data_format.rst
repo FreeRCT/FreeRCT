@@ -672,6 +672,52 @@ Offset  Length  Description
   28            Total length.
 ======  ======  ==========================================================
 
+Persons
+~~~~~~~
+Persons are an important concept in the game. Their properties are defined in
+the game blocks below.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'PRSG' (Person Graphics).
+   4       4    Version number of the block '1'.
+   8       4    Length of the block excluding magic string, version, and
+                  length.
+  12       1    Number of person graphics in this block (called 'n').
+  13     n*13   Graphics definitions of person types in this block.
+   ?            Total length.
+======  ======  ==========================================================
+
+The person graphics of a person type is a set of colour range
+recolourings.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       1    Person type being defined.
+   1       4    First recolouring.
+   5       4    Second recolouring.
+   9       4    Third recolouring.
+  13            Total length.
+======  ======  ==========================================================
+
+A person type defines the kind of persons::
+ - Any (0) Any kind of person (eg persons are not shown).
+ - Pillar (8) Guests from the Pillar Planet (test graphics).
+ - Earth (16) Earth-bound persons,
+
+The ``any`` kind is used as fall back.
+
+Recolouring definition
+~~~~~~~~~~~~~~~~~~~~~~
+The program has 18 colour ranges (0 to 17). A recolouring is a mapping of a
+single range to a set of allowed destination ranges, encoded in 32 bit. Bits
+24-31 state the single range (where a value other than 0..17 denotes an unused
+recolouring), Each bit `i` in the range of bits 0..17 denotes whether range `i`
+is allowed as replacement.
+
+
 
 Animation
 ~~~~~~~~~
@@ -704,11 +750,6 @@ Offset  Length  Description
   17      f*6   Data of all frames.
    ?            Variable length.
 ======  ======  ==========================================================
-
-A person type defines for which kind of persons the animation can be used:
- - Any (0) Any kind of person (eg persons are not shown).
- - Pillar (8) Guests from the Pillar Planet (test graphics).
- - Earth (16) Earth-bound persons,
 
 The animation type defines what the animation really shows. Currently, the
 following animations exist:
