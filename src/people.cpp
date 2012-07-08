@@ -102,6 +102,10 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	this->type = person_type;
 	this->name = NULL;
 
+	/* Setup the person sprite recolouring table. */
+	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
+	this->recolour = person_type_data.graphics.MakeRecolouring(&this->rnd);
+
 	/* Do a little extra for guests. */
 	if (PersonIsAGuest(this->type)) {
 		this->u.guest.happiness = 50 + this->rnd.Uniform(50);

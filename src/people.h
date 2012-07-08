@@ -98,6 +98,7 @@ public:
 	uint16 frame_count;           ///< Number of frames in #frames.
 	uint16 frame_index;           ///< Currently displayed frame of #frames.
 	int16 frame_time;             ///< Remaining display time of this frame.
+	Recolouring recolour;         ///< Person recolouring.
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
