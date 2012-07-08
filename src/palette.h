@@ -36,6 +36,7 @@ enum ColourRange {
 	COL_RANGE_BEIGE,
 
 	COL_RANGE_COUNT, ///< Number of colour ranges.
+	COL_RANGE_INVALID = COL_RANGE_COUNT, ///< Number denoting an invalid colour range.
 };
 
 /** Colours. */
