@@ -80,7 +80,7 @@ def get_game_blocks(rcdfile_node):
     rf.loadfromDOM(rcdfile_node)
     return rf
 
-def order_nodes(flddefs, named_nodes, blk_magic):
+def order_nodes(flddefs, named_nodes, blk_magic, allow_missing):
     """
     Order the nodes in the data file to match the order in the definition.
 
@@ -92,6 +92,9 @@ def order_nodes(flddefs, named_nodes, blk_magic):
 
     @param blk_magic: Name of the block (for error output).
     @type  blk_magic: C{unicode}
+
+    @param allow_missing: Allow for missing data fields (replace with None).
+    @type  allow_missing: C{bool}
 
     @return: Game data file nodes ordered by the field definition.
     @rtype:  C{list} of (L{Field}, L{Name}, L{NamedNode}) triplets.
@@ -107,10 +110,13 @@ def order_nodes(flddefs, named_nodes, blk_magic):
 
     fields = []
     for flddef in flddefs:
-        if flddef.name not in gd_fields:
+        if flddef.name in gd_fields:
+            gd_name, gd_node = gd_fields[flddef.name]
+        elif allow_missing:
+            gd_name, gd_node = flddef.name, None
+        else:
             print "ERROR: Field \"%s\" is missing in block \"%s\"." % (flddef.name, blk_magic)
             sys.exit(1)
-        gd_name, gd_node = gd_fields[flddef.name]
         fields.append((flddef, gd_name, gd_node))
         del gd_fields[flddef.name]
 
@@ -253,7 +259,7 @@ def convert_node(node, name, data_type, file_blocks):
     if isinstance(data_type, datatypes.StructureDataType):
         result = []
         named_nodes = data_loader.load_named_nodes(node.node)
-        for flddef, name, node in order_nodes(data_type.fields, named_nodes, data_type.name):
+        for flddef, name, node in order_nodes(data_type.fields, named_nodes, data_type.name, False):
             res = convert_node(node, name, flddef.type, file_blocks)
             result.append(res)
         return result
@@ -303,7 +309,7 @@ def convert(def_fname, data_fname):
             fields = []
 
             named_nodes = data_loader.load_named_nodes(block_node)
-            for flddef, name, node in order_nodes(flddefs, named_nodes, blk_magic):
+            for flddef, name, node in order_nodes(flddefs, named_nodes, blk_magic, False):
                 fields.append((flddef.name, flddef.type))
 
                 blockdata[flddef.name] = convert_node(node, name, flddef.type, file_blocks)
