@@ -371,6 +371,28 @@
 	</file>
 
 	<file target="people_animation.rcd" magic="RCDF" version="1">
+		<!-- Person type recolouring. -->
+		<gameblock magic="PRSG" version="1">
+			<field name="recolourings">
+				<struct name="1">
+					<field name="person-type" value="pillar"/>
+					<field name="recolouring1">
+						<bitfield name="orig"><field value="grey"/></bitfield>
+						<bitfield name="replace"><field value="yellow"/><field value="green"/><field value="blue"/>
+								<field value="orange"/><field value="pink"/></bitfield>
+					</field>
+					<field name="recolouring2">
+						<bitfield name="orig"><field value="invalid"/></bitfield>
+						<bitfield name="replace"/>
+					</field>
+					<field name="recolouring3">
+						<bitfield name="orig"><field value="invalid"/></bitfield>
+						<bitfield name="replace"/>
+					</field>
+				</struct>
+			</field>
+		</gameblock>
+
 		<!-- NE walking -->
 		<gameblock magic="ANIM" version="2">
 			<field name="person_type" value="pillar"/>

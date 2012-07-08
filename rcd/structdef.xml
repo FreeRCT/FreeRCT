@@ -272,6 +272,49 @@
 		<field name="ramp_sw">            <type name="sprite"/></field>
 	</block>
 
+	<!-- Person type graphics. -->
+	<enum name="ColourRange" type="uint8">
+		<value name="grey"        value= "0"/>
+		<value name="green-brown" value= "1"/>
+		<value name="brown"       value= "2"/>
+		<value name="yellow"      value= "3"/>
+		<value name="dark-red"    value= "4"/>
+		<value name="dark-green"  value= "5"/>
+		<value name="light-green" value= "6"/>
+		<value name="green"       value= "7"/>
+		<value name="light-red"   value= "8"/>
+		<value name="dark-blue"   value= "9"/>
+		<value name="blue"        value="10"/>
+		<value name="light-blue"  value="11"/>
+		<value name="purple"      value="12"/>
+		<value name="red"         value="13"/>
+		<value name="orange"      value="14"/>
+		<value name="sea-green"   value="15"/>
+		<value name="pink"        value="16"/>
+		<value name="beige"       value="17"/>
+		<value name="invalid"     value="18"/>
+	</enum>
+
+	<struct name="PersonGraphicsStruct">
+		<field name="person-type"><type name="PersonType"/></field>
+		<field name="recolouring1"><type name="bitset" storage="uint32">
+			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
+		</field>
+		<field name="recolouring2"><type name="bitset" storage="uint32">
+			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
+		</field>
+		<field name="recolouring3"><type name="bitset" storage="uint32">
+			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
+		</field>
+	</struct>
+
+	<block magic="PRSG" minversion="1" maxversion="1">
+		<field name="recolourings"><type name="list" count="uint8"><type name="PersonGraphicsStruct"/></type></field>
+	</block>
+
 	<!-- Platforms (flat areas to support a path in the air) -->
 	<enum name="PlatformType" type="uint16">
 		<value name="reserved" value="0">Empty, do not use</value>
