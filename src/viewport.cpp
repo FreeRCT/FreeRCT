@@ -162,6 +162,7 @@ struct DrawData {
 	const ImageData *ground;     ///< Surface tile to draw.
 	const ImageData *foundation; ///< Foundations to draw.
 	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
+	const Recolouring *recolour; ///< Recolouring of the sprites.
 };
 
 /**
@@ -468,6 +469,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			p.second.foundation = NULL;
 			p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
 			p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
+			p.second.recolour = NULL;
 			draw_images.insert(p);
 		}
 		return;
@@ -502,6 +504,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				p.second.foundation = NULL; // TODO svd->foundation.
 				p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
 				p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
+				p.second.recolour = NULL;
 				draw_images.insert(p);
 			}
 			break;
@@ -518,6 +521,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				p.second.foundation = NULL;
 				p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
 				p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
+				p.second.recolour = NULL;
 				draw_images.insert(p);
 			}
 			break;
@@ -541,6 +545,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			p.second.foundation = NULL;
 			p.second.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
 			p.second.base.y = this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off;
+			p.second.recolour = &pers->recolour;
 			draw_images.insert(p);
 		}
 		pers = pers->next;
@@ -672,10 +677,11 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		const DrawData &dd = (*iter).second;
-		if (dd.foundation != NULL) _video->BlitImage(dd.base, dd.foundation, recolour, 0);
-		if (dd.ground != NULL)     _video->BlitImage(dd.base, dd.ground,     recolour, 0);
-		if (dd.path != NULL)       _video->BlitImage(dd.base, dd.path,       recolour, 0);
-		if (dd.cursor != NULL)     _video->BlitImage(dd.base, dd.cursor,     recolour, 0);
+		const Recolouring &rec = (dd.recolour == NULL) ? recolour : *dd.recolour;
+		if (dd.foundation != NULL) _video->BlitImage(dd.base, dd.foundation, rec, 0);
+		if (dd.ground != NULL)     _video->BlitImage(dd.base, dd.ground,     rec, 0);
+		if (dd.path != NULL)       _video->BlitImage(dd.base, dd.path,       rec, 0);
+		if (dd.cursor != NULL)     _video->BlitImage(dd.base, dd.cursor,     rec, 0);
 	}
 
 	_video->SetClippedRectangle(cr);
