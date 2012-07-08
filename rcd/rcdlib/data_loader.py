@@ -77,7 +77,10 @@ class Name(object):
         self.data = data
 
     def __cmp__(self, other):
-        raise NotImplementedError("Name objects are not comparable.")
+        if not isinstance(other, Name): return -1
+        if self.name == other.name: return 0
+        if self.name < other.name: return -1
+        return 1
 
     def __eq__(self, other):
         if not isinstance(other, Name): return False
