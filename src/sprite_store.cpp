@@ -1222,6 +1222,13 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(name, "PRSG") == 0 && version == 1) {
+			if (!LoadPRSG(&rcd_file, length)) {
+				return "Graphics Person type data failed to load.";
+			}
+			continue;
+		}
+
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %d, ignoring it\n", name, version);
 		while (length > 0) {
