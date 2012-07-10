@@ -36,5 +36,16 @@
 			             |ramp_sw,             ramp_nw,             ramp_ne,             ramp_se"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
+
+		<gameblock magic="PLAT" version="1">
+			<field name="width"  value="64"/>
+			<field name="height" value="16"/>
+			<field name="type"   value="wood"/>
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/paths/platform/template8bpp64.png"
+			       names="ns,      ew,      _ns,     _ew
+			             |ramp-ne, ramp-se, ramp-sw, ramp-nw"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
 	</file>
 </rcdfiles>
