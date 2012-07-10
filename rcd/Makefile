@@ -8,19 +8,27 @@
 
 GAMEDATA=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd \
 	cornerhighlight_8bpp64.rcd cursor_groundtile_8bpp64.rcd foundation_8bpp64.rcd \
-	groundtile_8bpp64.rcd path_8bpp64.rcd people_animation.rcd
+	groundtile_8bpp64.rcd people_animation.rcd
+
+PATHDATA=path_8bpp64.rcd
 
 GUIDATA=gui.rcd
 
-RCDFILES=$(GAMEDATA) $(GUIDATA)
+RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA)
 PYTHON=python
 
 .PHONY: build clean
 
-build: $(GAMEDATA) $(GUIDATA)
+build: $(RCDFILES)
 
 $(GAMEDATA): freerct.xml structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g freerct.xml
+
+$(PATHDATA): paths.xml structdef.xml
+	$(PYTHON) convert.py -d structdef.xml -g paths.xml
+
+$(GUIDATA): guis.py ../sprites_src/gui/GUIEles.png
+	$(PYTHON) guis.py
 
 
 clean:
@@ -29,6 +37,3 @@ clean:
 	   then rm $$i;\
 	   fi;\
 	done
-
-gui.rcd: guis.py ../sprites_src/gui/GUIEles.png
-	$(PYTHON) guis.py

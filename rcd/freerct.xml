@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- $Id$
+ !
+ ! This file is part of FreeRCT.
+ ! FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+ ! FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ ! See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <rcdfiles>
 	<!-- Build direction arrows -->
 	<file target="buildarrows_8bpp64.rcd" magic="RCDF" version="1">
@@ -19,6 +27,7 @@
 			       x-offset="0" y-offset="0" width="32" height="32" />
 		</gameblock>
 
+		<!-- gui rotation sprites -->
 		<gameblock magic="GROT" version="1">
 			<image name="3d-positive" x-base="192" y-base="224"
 					fname="../sprites_src/objects/1x1/gui/buildmark8bpp64.png"
@@ -328,6 +337,7 @@
 		</gameblock>
 	</file>
 
+	<!-- Foundations -->
 	<file target="foundation_8bpp64.rcd" magic="RCDF" version="1">
 		<gameblock magic="FUND" version="1">
 			<field name="found_type" value="ground"/>
@@ -338,34 +348,6 @@
 			       names="se_se, sw_sw
 			             |se_e,  sw_w
 			             |se_s,  sw_s"
-			       x-offset="-32" y-offset="-33" width="64" height="64" />
-		</gameblock>
-	</file>
-
-	<file target="path_8bpp64.rcd" magic="RCDF" version="1">
-		<gameblock magic="PATH" version="1">
-			<field name="path_type"  value="concrete"/>
-			<field name="tile_width" value="64"/>
-			<field name="z_height"   value="16"/>
-			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
-			       fname="../sprites_src/paths/path/template8bpp64.png"
-			       names="empty,               _empty,              _empty,              _empty
-			             |ne,                  se,                  sw,                  nw
-			             |ne_se,               se_sw,               nw_sw,               ne_nw
-			             |ne_sw,               nw_se,               _ne_sw,              _nw_se
-			             |ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
-			             |ne_nw_se_sw,         _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
-			             |ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
-			             |ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
-			             |ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
-			             |ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
-			             |ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
-			             |ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
-			             |ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     _ne_nw_se_sw_n_s,    _ne_nw_se_sw_e_w
-			             |ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
-			             |_ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
-			             |ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
-			             |ramp_sw,             ramp_nw,             ramp_ne,             ramp_se"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
 	</file>
