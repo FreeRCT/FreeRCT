@@ -61,7 +61,9 @@ macro "8bpp-ize Renders [q]" {
 				convertTo8Bit(dither);
 				setSlice(1);
 				//Save output
-				saveAs("PNG", path+name+"8bpp\\"+tilew[i]+"_"+str+".png");
+				if (overwrite==true || File.exists(path+name+"8bpp\\"+tilew[i]+"_"+str+".png")==false) {
+					saveAs("PNG", path+name+"8bpp\\"+tilew[i]+"_"+str+".png");
+				}
 				close();
 			}
 			//Prepare for next image
