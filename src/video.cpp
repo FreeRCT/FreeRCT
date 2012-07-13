@@ -664,10 +664,10 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colou
  */
 void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint8 colour)
 {
-	Point16 top_left     = {rect.base.x,                  rect.base.y};
-	Point16 top_right    = {rect.base.x + rect.width - 1, rect.base.y};
-	Point16 bottom_left  = {rect.base.x,                  rect.base.y + rect.height - 1};
-	Point16 bottom_right = {rect.base.x + rect.width - 1, rect.base.y + rect.height - 1};
+	Point16 top_left     = {static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y)};
+	Point16 top_right    = {static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y)};
+	Point16 bottom_left  = {static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y + rect.height - 1)};
+	Point16 bottom_right = {static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y + rect.height - 1)};
 	this->DrawLine(top_left, top_right, COL_HIGHLIGHT);
 	this->DrawLine(top_left, bottom_left, COL_HIGHLIGHT);
 	this->DrawLine(top_right, bottom_right, COL_HIGHLIGHT);
