@@ -13,10 +13,59 @@
 #include "language.h"
 #include "fileio.h"
 
+Language *_language; ///< Current language.
+int _current_language = 0; ///< Index of the current language
+
 /** Verify that the generic strings are different from the strings in the language table. */
 assert_compile(STR_GENERIC_COUNT <= STRING_TABLE_START);
 
-Language *_language; ///< Current language.
+/** Default constructor of a #TextString object. */
+TextString::TextString()
+{
+	this->Clear();
+}
+
+/** Drop all strings. Since the text is not owned by the class, no need to free the memory. */
+void TextString::Clear()
+{
+	this->name = NULL;
+	for (uint i = 0; i < lengthof(this->languages); i++) this->languages[i] = NULL;
+}
+
+
+/** Known languages. */
+const char * const _lang_names[] = {
+	"",      // Default language.
+	"en_GB", // English (mostly empty, as it is also the default language).
+	"nl_NL", // Dutch.
+};
+
+assert_compile(lengthof(_lang_names) == LANGUAGE_COUNT); ///< Ensure number of language matches with array sizes.
+
+
+/**
+ * Get the index number of a given language.
+ * @param lang_name Name of the language.
+ * @return Index of the language with the provided name, or \c -1 if not recognized.
+ */
+int GetLanguageIndex(const char *lang_name)
+{
+	int start = 0; // Exclusive lower bound.
+	int end = LANGUAGE_COUNT; // Exclusive upper bound.
+
+	while (start + 1 < end) {
+		int middle = (start + end) / 2;
+		int cmp = strcmp(_lang_names[middle], lang_name);
+		if (cmp == 0) return middle; // Jack pot.
+		if (cmp < 0) {
+			start = middle;
+		} else {
+			end = middle;
+		}
+	}
+	return -1;
+}
+
 
 Language::Language()
 {

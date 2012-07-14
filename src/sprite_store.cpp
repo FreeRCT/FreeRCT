@@ -30,6 +30,8 @@ GuiSprites _gui_sprites; ///< Gui sprites.
 
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
+static int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
+
 /**
  * Sprite indices of ground/surface sprites after rotation of the view.
  * @ingroup sprites_group
@@ -174,6 +176,174 @@ uint8 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 		if ((rel_pos & 128) != 0) break;
 	}
 	return 0;
+}
+
+TextData::TextData() : RcdBlock()
+{
+}
+
+TextData::~TextData()
+{
+}
+
+/**
+ * Decode an UTF-8 character.
+ * @param data Pointer to the start of the data.
+ * @param length Length of the \a data buffer.
+ * @param[out] codepoint If decoding was successful, the value of the decoded character.
+ * @return Number of bytes read to decode the character, or \c 0 if reading failed.
+ */
+static int DecodeUtf8Char(uint8 *data, size_t length, uint32 *codepoint)
+{
+	if (length < 1) return 0;
+	uint32 value = *data;
+	data++;
+	if ((value & 0x80) == 0) {
+		*codepoint = value;
+		return 1;
+	}
+	int size;
+	uint32 min_value;
+	if ((value & 0xE0) == 0xC0) {
+		size = 2;
+		min_value = 0x80;
+		value &= 0x1F;
+	} else if ((value & 0xF0) == 0xE0) {
+		size = 3;
+		min_value = 0x800;
+		value &= 0x0F;
+	} else if ((value & 0xF8) == 0xF0) {
+		size = 4;
+		min_value = 0x10000;
+		value &= 0x07;
+	} else {
+		return 0;
+	}
+
+	if (length < static_cast<size_t>(size)) return 0;
+	for (int n = 1; n < size; n++) {
+		uint8 val = *data;
+		data++;
+		if ((val & 0xC0) != 0x80) return 0;
+		value = (value << 6) | (val & 0x3F);
+	}
+	if (value < min_value || (value >= 0xD800 && value <= 0xDFFF) || value > 0x10FFFF) return 0;
+	*codepoint = value;
+	return size;
+}
+
+/**
+ * Check an UTF-8 string.
+ * @param rcd_file Input file.
+ * @param expected_length Expected length of the string in bytes, including terminating \c NUL byte.
+ * @param buffer Buffer to copy the string into.
+ * @param buf_length Length of the buffer
+ * @param[out] used_size Length of the used part of the buffer, only updated on successful reading of the string.
+ * @return Reading the string was a success.
+ */
+static bool ReadUtf8Text(RcdFile *rcd_file, size_t expected_length, uint8 *buffer, size_t buf_length, size_t *used_size)
+{
+	if (buf_length < *used_size + expected_length) return false;
+	rcd_file->GetBlob(buffer + *used_size, expected_length);
+
+	int real_size = expected_length;
+	uint8 *start = buffer + *used_size;
+
+	for (;;) {
+		uint32 code_point;
+		int sz = DecodeUtf8Char(start, real_size, &code_point);
+		if (sz == 0 || sz > real_size) return false;
+		real_size -= sz;
+		start += sz;
+		if (code_point == 0) break;
+	}
+	if (real_size != 0) return false;
+
+	*used_size += expected_length;
+	return true;
+}
+
+/**
+ * Load a TEXT data block into the object.
+ * @param rcd_file Input file.
+ * @param length Length of the block to load.
+ * @return Load was successful.
+ */
+bool TextData::Load(RcdFile *rcd_file, uint32 length)
+{
+	uint8 buffer[64*1024]; // Arbitrary sized block of temporary memory to store the text data.
+	size_t used_size = 0;
+
+	TextString strings[MAX_NUM_TEXT_STRINGS];
+	uint used_strings = 0;
+	while (length > 0) {
+		if (used_strings >= lengthof(strings)) return false; // Too many text strings.
+
+		if (length < 3) return false;
+		int str_length   = rcd_file->GetUInt16();
+		int ident_length = rcd_file->GetUInt8();
+
+		if (static_cast<uint32>(str_length) > length) return false; // String does not fit in the block.
+		length -= 3;
+
+		if (ident_length + 2 + 1 >= str_length) return false; // No space for translations.
+		int trs_length = str_length - (ident_length + 2 + 1);
+
+		/* Read string name. */
+		strings[used_strings].name = (char *)buffer + used_size;
+		if (!ReadUtf8Text(rcd_file, ident_length, buffer, lengthof(buffer), &used_size)) return false;
+		length -= ident_length;
+
+		while (trs_length > 0) {
+			if (length < 3) return false;
+			int tr_length   = rcd_file->GetUInt16();
+			int lang_length = rcd_file->GetUInt8();
+			length -= 3;
+
+			if (tr_length > trs_length) return false;
+			if (lang_length + 2 + 1 >= tr_length) return false;
+			int text_length = tr_length - (lang_length + 2 + 1);
+
+			uint8 lang_buffer[1000]; // Arbitrary sized block to store the language name or a single string.
+			size_t used = 0;
+
+			/* Read translation language string. */
+			if (!ReadUtf8Text(rcd_file, lang_length, lang_buffer, lengthof(lang_buffer), &used)) return false;
+			length -= lang_length;
+
+			int lang_idx = GetLanguageIndex((char *)lang_buffer);
+			/* Read translation text. */
+			if (lang_idx >= 0) {
+				strings[used_strings].languages[lang_idx] = buffer + used_size;
+				if (!ReadUtf8Text(rcd_file, text_length, buffer, lengthof(buffer), &used_size)) return false;
+			} else {
+				/* Illegal language, read into a dummy buffer. */
+				used = 0;
+				if (!ReadUtf8Text(rcd_file, text_length, lang_buffer, lengthof(lang_buffer), &used)) return false;
+			}
+			length -= text_length;
+
+			trs_length -= 3 + lang_length + text_length;
+		}
+		assert(trs_length == 0);
+		used_strings++;
+	}
+	assert (length == 0);
+
+	this->strings = new TextString[used_strings];
+	this->string_count = used_strings;
+	this->text_data = (uint8 *)malloc(used_size);
+	if (this->strings == NULL || this->text_data == NULL) return false;
+
+	memcpy(this->text_data, buffer, used_size);
+	for (uint i = 0; i < used_strings; i++) {
+		this->strings[i].name = (strings[i].name == NULL) ? NULL : (char *)this->text_data + ((uint8 *)(strings[i].name) - buffer);
+		for (uint lng = 0; lng < LANGUAGE_COUNT; lng++) {
+			this->strings[i].languages[lng] = (strings[i].languages[lng] == NULL)
+					? NULL : this->text_data + (strings[i].languages[lng] - buffer);
+		}
+	}
+	return true;
 }
 
 /**
@@ -1192,7 +1362,7 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(name, "ANIM") == 0 && version == 2) {
-			Animation *anim = new Animation();
+			Animation *anim = new Animation;
 			if (!anim->Load(&rcd_file, length)) {
 				delete anim;
 				return "Animation failed to load.";
@@ -1208,7 +1378,7 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(name, "ANSP") == 0 && version == 1) {
-			AnimationSprites *an_spr = new AnimationSprites();
+			AnimationSprites *an_spr = new AnimationSprites;
 			if (!an_spr->Load(&rcd_file, length, sprites)) {
 				delete an_spr;
 				return "Animation sprites failed to load.";
@@ -1226,6 +1396,16 @@ const char *SpriteManager::Load(const char *filename)
 			if (!LoadPRSG(&rcd_file, length)) {
 				return "Graphics Person type data failed to load.";
 			}
+			continue;
+		}
+
+		if (strcmp(name, "TEXT") == 0 && version == 1) {
+			TextData *txt = new TextData;
+			if (!txt->Load(&rcd_file, length)) {
+				delete txt;
+				return "Text block failed to load.";
+			}
+			this->AddBlock(txt);
 			continue;
 		}
 

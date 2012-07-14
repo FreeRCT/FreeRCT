@@ -16,6 +16,7 @@
 #include "path.h"
 #include "tile.h"
 #include "person_type.h"
+#include "language.h"
 #include <map>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
@@ -58,6 +59,23 @@ public:
 };
 
 typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data blocks.
+
+
+/** Texts of objects. */
+class TextData : public RcdBlock {
+public:
+	TextData();
+	~TextData();
+
+	bool Load(RcdFile *rcd_file, uint32 length);
+
+	uint string_count;   ///< Number of strings in #strings.
+	TextString *strings; ///< Strings of the text.
+	uint8 *text_data;    ///< Text data (UTF-8) itself.
+
+};
+
+typedef std::map<uint32, TextData *> TextMap; ///< Map of loaded text blocks.
 
 /**
  * A surface in all orientations.
