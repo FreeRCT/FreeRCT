@@ -97,6 +97,68 @@ line is longer than 127 pixels.
 To decide: Some simple form of compressing may be useful in the pixels as it
            decreases the amount of memory transfers.
 
+Texts
+-----
+Text in various forms and shapes is very common. In particular, it needs to
+support translations, and eventually run-time composition of text with respect
+to genders, plurals, and cases.
+The latter will be encoded in the text itself, and does not need to be handled
+here (except perhaps for some simple translations).
+
+What remains is a collection of names that are attached to text (the game
+queries text by name), where the latter may exist in several languages. All
+text is assumed to be UTF-8 encoded, and 0-terminated.
+
+A text block looks like
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'TEXT'.
+   4       4    Version number of the block (always '1').
+   8       4    Length of the block excluding magic string, version, and
+                  length.
+  12       ?    First string.
+   ?       ?    Second string.
+  ...     ...
+======  ======  ==========================================================
+
+A string has the following structure.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       2    Length of the entire string, including these length bytes.
+   2       1    Length of the identification name of the string (incl 0).
+   3       ?    Identification name itself (0 terminated)
+   ?       ?    First translation.
+   ?       ?    Second translation.
+  ...     ...
+   ?       ?    Default translation.
+======  ======  ==========================================================
+
+A translation has the following structure.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       2    Length of this translation (including these length bytes).
+   2       1    Length of the language name (incl 0).
+   3       ?    Language name itself (0 terminated).
+   ?       ?    Text of the string in the indicated language (incl 0).
+======  ======  ==========================================================
+
+The default language has no language name ie it is "" (the empty string).
+Other languages use one of the following tags (currently ``name of language -
+name of country area`` but that may change in the future).
+
+=====  =========================
+Tag    Description
+=====  =========================
+en_GB  Great Britain.
+nl_NL  The Netherlands.
+=====  =========================
+
 
 Game blocks
 ~~~~~~~~~~~
@@ -265,24 +327,25 @@ One tile objects.
 ======  ======  =======  =================================================
 Offset  Length  Version  Description
 ======  ======  =======  =================================================
-   0       4      1-2    Magic string 'SHOP'.
-   4       4      1-2    Version number of the block '2'.
-   8       4      1-2    Length of the block excluding magic string,
+   0       4      1-3    Magic string 'SHOP'.
+   4       4      1-3    Version number of the block '2'.
+   8       4      1-3    Length of the block excluding magic string,
                            version, and length.
-  12       2      1-2    Zoom-width of a tile of the surface.
-  14       2      1-2    Height of the shop in voxels.
-  16       4      1-2    View to the north where the entrance is at the NE
+  12       2      1-3    Zoom-width of a tile of the surface.
+  14       2      1-3    Height of the shop in voxels.
+  16       4      1-3    View to the north where the entrance is at the NE
                            edge.
-  20       4      1-2    View to the north where the entrance is at the SE
+  20       4      1-3    View to the north where the entrance is at the SE
                            edge.
-  24       4      1-2    View to the north where the entrance is at the SW
+  24       4      1-3    View to the north where the entrance is at the SW
                            edge.
-  28       4      1-2    View to the north where the entrance is at the NW
+  28       4      1-3    View to the north where the entrance is at the NW
                            edge.
-  32       4       2     First recolouring specification.
-  36       4       2     Second recolouring specification.
-  40       4       2     Third recolouring specification.
-  44                     Total length.
+  32       4      2-3    First recolouring specification.
+  36       4      2-3    Second recolouring specification.
+  40       4      2-3    Third recolouring specification.
+  44       4       3     Text of the shop (reference to a TEXT block).
+  48                     Total length.
 ======  ======  =======  =================================================
 
 
