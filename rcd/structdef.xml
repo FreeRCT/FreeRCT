@@ -8,6 +8,14 @@
  ! See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 -->
 
+<!-- $Id$
+ !
+ ! This file is part of FreeRCT.
+ ! FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+ ! FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ ! See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <structures magic="RCDF" version="1">
 	<enum name="PersonType" type="uint8">
 		<value name="any"    value="0">Any person type is fine (eg no visible persons in the animation)</value>
@@ -341,13 +349,26 @@
 		<field name="ramp-nw"><type name="sprite"/><comment>Platform is raised at the NW edge</comment></field>
 	</block>
 
-	<block magic="SHOP" minversion="1" maxversion="1">
+	<block magic="SHOP" minversion="1" maxversion="3">
 		<field name="width"> <type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
 		<field name="height"><type name="uint16"/><comment>Height of the shop in voxels</comment></field>
 		<field name="ne">    <type name="sprite"/><comment>North-east direction</comment></field>
 		<field name="se">    <type name="sprite"/><comment>South-east direction</comment></field>
 		<field name="sw">    <type name="sprite"/><comment>South-west direction</comment></field>
 		<field name="nw">    <type name="sprite"/><comment>North-west direction</comment></field>
+		<field name="recolouring1" minversion="2"><type name="bitset" storage="uint32">
+			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
+		</field>
+		<field name="recolouring2" minversion="2"><type name="bitset" storage="uint32">
+			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
+		</field>
+		<field name="recolouring3" minversion="2"><type name="bitset" storage="uint32">
+			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
+		</field>
+		<field name="texts" minversion="3"> <type name="text">name, description</type></field>
 	</block>
 
 	<!-- Ground surface sprites -->

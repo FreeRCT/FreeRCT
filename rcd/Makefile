@@ -11,10 +11,10 @@ GAMEDATA=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd \
 	groundtile_8bpp64.rcd people_animation.rcd
 
 PATHDATA=path_8bpp64.rcd
-
+SHOPDATA=shops.rcd
 GUIDATA=gui.rcd
 
-RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA)
+RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA) ${SHOPDATA}
 PYTHON=python
 
 .PHONY: build clean
@@ -26,6 +26,9 @@ $(GAMEDATA): freerct.xml structdef.xml
 
 $(PATHDATA): paths.xml structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g paths.xml
+
+$(SHOPDATA): shops.xml structdef.xml
+	$(PYTHON) convert.py -d structdef.xml -g shops.xml
 
 $(GUIDATA): guis.py ../sprites_src/gui/GUIEles.png
 	$(PYTHON) guis.py

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$
+ !
+ ! This file is part of FreeRCT.
+ ! FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+ ! FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ ! See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<rcdfiles>
+	<!-- Snack shop -->
+	<file target="shops.rcd" magic="RCDF" version="1">
+		<gameblock magic="SHOP" version="3">
+			<field name="width"  value="64"/>
+			<field name="height" value="16"/>
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/objects/1x1/template8bpp64.png"
+			       names="se, sw, nw, ne"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+			<field name="recolouring1">
+				<bitfield name="orig"><field value="invalid"/></bitfield>
+				<bitfield name="replace"/>
+			</field>
+			<field name="recolouring2">
+				<bitfield name="orig"><field value="invalid"/></bitfield>
+				<bitfield name="replace"/>
+			</field>
+			<field name="recolouring3">
+				<bitfield name="orig"><field value="invalid"/></bitfield>
+				<bitfield name="replace"/>
+			</field>
+			<texts name="texts">
+				<string name="name" lang="">Snack shop</string>
+				<string name="description" lang="">Shop where you can buy good cookies</string>
+				<string name="description" lang="nl_NL">Winkel waar je lekkere koekjes kunt kopen</string>
+			</texts>
+		</gameblock>
+	</file>
+</rcdfiles>
+
