@@ -284,6 +284,16 @@ class BlockReference(DataType):
             value = 0
         out.uint32(value)
 
+class TextType(BlockReference):
+    """
+    Text strings + translations.
+
+    @ivar str_names: Expected string names.
+    @type str_names: C{list} of C{unicode}
+    """
+    def __init__(self, str_names):
+        DataType.__init__(self, u'TextType')
+        self.str_names = str_names
 
 class ImageDataType(DataType):
     """
@@ -469,15 +479,18 @@ def read_type(node, blk_name, fld_name):
     """
     type_node = get_single_child_node(node, u"type")
     name = type_node.getAttribute(u"name")
-    if name == 'list':
+    if name == u'list':
         count_type = _types[type_node.getAttribute(u"count")]
         elm_type = read_type(type_node, blk_name + "/" + fld_name, '_list_')
         return ListType(elm_type, count_type)
-    if name == 'bitset':
+    if name == u'bitset':
         store_type = _types[type_node.getAttribute(u"storage")]
         bfields = []
         for bfld in get_child_nodes(type_node, u"bitfield"):
             bfields.append(make_bitfield(bfld))
         return BitSet(store_type, bfields)
+    if name == u"text":
+        expected = collect_text_DOM(type_node).split(u', ')
+        return TextType(expected)
     return _types[name]
 

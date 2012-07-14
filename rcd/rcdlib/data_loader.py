@@ -122,7 +122,7 @@ def load_named_nodes(parent):
     for node in parent.childNodes:
         if node.nodeType != Node.ELEMENT_NODE: continue
 
-        if node.tagName == u"field":
+        if node.tagName in (u"field", u"image", u"bitfield", u"struct", u"texts"):
             name = Name(node.getAttribute(u"name"))
             nodes.append(NamedNode(node, node.tagName, set([name])))
             continue
@@ -134,21 +134,6 @@ def load_named_nodes(parent):
                 for cidx, nm in enumerate(rnames.split(u",")):
                     names.add(Name(nm.strip(), (cidx, ridx)))
             nodes.append(NamedNode(node, node.tagName, names))
-            continue
-
-        if node.tagName == u"image":
-            name = Name(node.getAttribute(u"name"))
-            nodes.append(NamedNode(node, node.tagName, set([name])))
-            continue
-
-        if node.tagName == u"bitfield":
-            name = Name(node.getAttribute(u"name"))
-            nodes.append(NamedNode(node, node.tagName, set([name])))
-            continue
-
-        if node.tagName == u"struct":
-            name = Name(node.getAttribute(u"name"))
-            nodes.append(NamedNode(node, node.tagName, set([name])))
             continue
 
         # Unrecognized tag, report it

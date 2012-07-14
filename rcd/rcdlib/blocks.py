@@ -27,6 +27,13 @@ class Block(object):
     def write(self, out):
         out.store_text(self.name)
         out.uint32(self.version)
+
+    def __cmp__(self, other):
+        raise NotImplementedError("No general comparison available, only equality!")
+
+    def __ne__(self, other):
+        return not (self == other)
+
 # }}}
 # {{{ class FileHeader(Block):
 class FileHeader(Block):
@@ -83,12 +90,6 @@ class GeneralDataBlock(Block):
             total = total + fldtype.get_size(self.values[fldname])
         return total
 
-    def __cmp__(self, other):
-        raise NotImplementedError("No general comparison available, only equality!")
-
-    def __ne__(self, other):
-        return not (self == other)
-
     def __eq__(self, other):
         if type(self) is not type(other):
             return False
@@ -144,6 +145,26 @@ class Pixels8Bpp(GeneralDataBlock):
                   ('y_offset', datatypes.INT16_TYPE),
                   ('lines',    datatypes.IMAGE_DATA_TYPE)]
         GeneralDataBlock.__init__(self, '8PXL', 2, fields, values)
+# }}}
+# {{{ class TextBlock(GeneralDataBlock):
+class TextBlock(Block):
+    """
+    TEXT block.
+    """
+    def __init__(self, value):
+        Block.__init__(self, 'TEXT', 1)
+        self.value = value
+
+    def write(self, out):
+        Block.write(self, out)
+        out.uint32(len(self.value))
+        out.store_text(self.value)
+
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+        return self.value == other.value
+
 # }}}
 # {{{ class RCD(object):
 class RCD(object):

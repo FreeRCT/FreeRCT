@@ -205,6 +205,129 @@ def make_sprite_block_reference(name, named_node, file_blocks):
     pxl_blk = im_obj.make_8PXL()
     return file_blocks.add_block(pxl_blk)
 
+KNOWN_LANGUAGES = set(["", "nl_NL", "en_GB"])
+
+def encode_translation(lang, tr_text):
+    """
+    Encode a translation of a string for a language.
+
+    @param lang: Language being used.
+    @type  lang: C{uniocde}
+
+    @param tr_text: Translation text.
+    @type  tr_text: C{unicode}
+
+    @return: Encoded translation.
+    @rtype:  C{str}
+    """
+    enc_lang = lang.encode('utf-8') + '\0'
+    enc_text = tr_text.encode('utf-8') + '\0'
+
+    enc = chr(len(enc_lang)) + enc_lang + enc_text
+    v = len(enc) + 2
+    assert v <= 0xffff
+    return chr(v & 0xff) + chr(v >> 8) + enc
+
+def saveTEXT(text_data, file_blocks):
+    """
+    Construct a TEXT block, save it to the file blocks, and return the assigned
+    block number,
+
+    @param text_data: Text data of the block, sequence of tuples (string name,
+                      list of languages and translations)
+    @type  text_data: C{list} of (C{unicode}, C{list} of (C{unicode}, C{unicode}))
+
+    @param file_blocks: Blocks already generated.
+    @type  file_blocks: L{blocks.RCD}
+
+    @return: Assigned block number.
+    @rtype:  C{int}
+    """
+    strings = []
+    for name, trs in text_data:
+        enc_name = name.encode('utf-8') + '\0'
+        enc_name = chr(len(enc_name)) + enc_name
+        enc_trs = "".join(encode_translation(lang, tr_text) for lang, tr_text in trs)
+        enc_str = enc_name + enc_trs
+        v = len(enc_str) + 2
+        assert v <= 0xffff
+        strings.append(chr(v & 0xff) + chr(v >> 8) + enc_str)
+
+    strings = "".join(strings)
+    text_blk = blocks.TextBlock(strings)
+    return file_blocks.add_block(text_blk)
+
+def sort_translations(tr_texts):
+    """
+    Sort the translations, with the default language at the end.
+
+    @param tr_texts: Translated texts, mapping of language to text-strings.
+    @type  tr_texts: C{dict} of C{unicode} to C{unicode}
+
+    @return: Translations alphabetically sorted, with the default language at the end.
+    @rtype:  C{list} of (C{unicode}, C{unicode}) tuples
+    """
+    texts = tr_texts.items()
+    texts.sort()
+    assert len(texts) > 0
+    assert texts[0][0] == u""
+    return texts[1:] + [texts[0]]
+
+
+def make_texts(named_node, str_names, file_blocks):
+    """
+    Make a 'texts' block, and return its block number.
+
+    @param named_node: The named node of the data value/field.
+    @type  named_node: L{NamedNode}
+
+    @param str_names: Expected string names (for printing warnings).
+    @type  str_names: C{list} of C{unicode}
+
+    @param file_blocks: Blocks already generated.
+    @type  file_blocks: L{blocks.RCD}
+
+    @return: Block number of the created block.
+    @rtype:  C{int}
+    """
+    str_names = set(str_names)
+
+    texts = {} # Mapping of string names to (mapping of languages to actual text)
+    for str_node in datatypes.get_child_nodes(named_node.node, u'string'):
+        str_name = str_node.getAttribute(u'name')
+        str_lang = str_node.getAttribute(u'lang')
+        str_text = datatypes.collect_text_DOM(str_node)
+
+        if str_lang not in KNOWN_LANGUAGES:
+            print "WARNING: Language \"%s\" is unknown" % str_lang
+            KNOWN_LANGUAGES.add(str_lang) # Just one warning is sufficient.
+
+        if str_name not in str_names:
+            print "WARNING: String name \"%s\" not expected" % str_name
+            str_names.add(str_name)
+
+        trans = texts.get(str_name)
+        if trans is None:
+            trans = {}
+            texts[str_name] = trans
+
+        trans[str_lang] = str_text
+
+    for name in str_names:
+        if name not in texts:
+            print "WARNING: Expected name \"%s\" is not defined" % name
+            texts[name] = {u"" : u""}
+
+        trans = texts[name]
+        if u"" not in trans:
+            print "WARNING: Name \"%s\" is missing the default language entry" % name
+            trans[u""] = u""
+
+    str_names = sorted(str_names)
+    result = [(name, sort_translations(texts[name])) for name in str_names]
+
+    return saveTEXT(result, file_blocks)
+
 def convert_node(node, name, data_type, file_blocks):
     """
     Convert the XML data node to its value.
@@ -235,6 +358,10 @@ def convert_node(node, name, data_type, file_blocks):
     if isinstance(data_type, datatypes.BlockReference):
         if data_type.name == 'sprite':
             blknum = make_sprite_block_reference(name, node, file_blocks)
+            return blknum
+
+        if data_type.name == 'TextType':
+            blknum = make_texts(node, data_type.str_names, file_blocks)
             return blknum
 
         print "ERROR: Unknown type of block reference %r" % data_type.name
