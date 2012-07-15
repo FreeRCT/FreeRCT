@@ -32,7 +32,7 @@
  */
 WorldAdditions _additions;
 
-static const int ADDITIONS_TIMEOUT_LENGTH = 35; ///< Length of the time interval of displaying or not displaying world additions.
+static const int ADDITIONS_TIMEOUT_LENGTH = 15; ///< Length of the time interval of displaying or not displaying world additions.
 
 
 /** Enable flashing display of showing proposed game world additions to the player. */
