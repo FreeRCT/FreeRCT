@@ -33,36 +33,6 @@ enum PersonType {
 };
 DECLARE_POSTFIX_INCREMENT(PersonType)
 
-/** Definition of a random recolouring remapping. */
-struct RandomRecolouringMapping {
-	RandomRecolouringMapping();
-
-	/**
-	 * Set the recolour mapping, from an RCD file.
-	 * @param value Value as defined in the RCD format (lower 18 bits the set, upper 8 bits the source colour range).
-	 */
-	void Set(uint32 value)
-	{
-		this->Set(value >> 24, value);
-	}
-
-	/**
-	 * Set the recolour mapping.
-	 * @param number Source colour range to remap.
-	 * @param dest_set Bit-set of allowed destination colour ranges.
-	 */
-	void Set(uint8 number, uint32 dest_set)
-	{
-		if (number >= COL_RANGE_COUNT) number = COL_RANGE_INVALID;
-		this->range_number = number;
-		this->dest_set = dest_set;
-	}
-
-	uint8 range_number; ///< Colour range number being mapped.
-	uint32 dest_set;    ///< Bit-set of allowed colour ranges to replace #range_number.
-
-	ColourRange DrawRandomColour(Random *rnd) const;
-};
 
 /** Graphics definition of a person type. */
 struct PersonTypeGraphics {
