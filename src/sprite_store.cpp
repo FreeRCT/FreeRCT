@@ -347,13 +347,13 @@ bool TextData::Load(RcdFile *rcd_file, uint32 length)
 }
 
 /**
- * Get a sprite reference from the \a rcd_file, retrieve the corresponding sprite, and put it in the destionation.
+ * Get a sprite reference from the \a rcd_file, retrieve the corresponding sprite, and put it in the \a spr destination.
  * @param rcd_file File to load from.
  * @param sprites Sprites already loaded from this file.
  * @param [out] spr Pointer to write the loaded sprite to.
  * @return Loading was successful.
  */
-static bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr)
+bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr)
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
@@ -363,6 +363,26 @@ static bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, Image
 	ImageMap::const_iterator iter = sprites.find(val);
 	if (iter == sprites.end()) return false;
 	*spr = (*iter).second;
+	return true;
+}
+
+/**
+ * Get a text reference from the \a rcd_file, retrieve the corresponding text data, and put it in the \a txt destination.
+ * @param rcd_file File to load from.
+ * @param texts Texts already loaded from this file.
+ * @param [out] txt Pointer to write the loaded text data reference to.
+ * @return Loading was successful.
+ */
+bool LoadTextFromFile(RcdFile *rcd_file, const TextMap &texts, TextData **txt)
+{
+	uint32 val = rcd_file->GetUInt32();
+	if (val == 0) {
+		*txt = NULL;
+		return true;
+	}
+	TextMap::const_iterator iter = texts.find(val);
+	if (iter == texts.end()) return false;
+	*txt = (*iter).second;
 	return true;
 }
 
@@ -1220,6 +1240,7 @@ const char *SpriteManager::Load(const char *filename)
 	if (!rcd_file.CheckFileHeader("RCDF", 1)) return "Could not read header";
 
 	ImageMap sprites; // Sprites loaded from this file.
+	TextMap  texts;   // Texts loaded from this file.
 
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
@@ -1406,6 +1427,9 @@ const char *SpriteManager::Load(const char *filename)
 				return "Text block failed to load.";
 			}
 			this->AddBlock(txt);
+
+			std::pair<uint, TextData *> p(blk_num, txt);
+			texts.insert(p);
 			continue;
 		}
 

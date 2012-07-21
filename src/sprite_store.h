@@ -574,6 +574,9 @@ protected:
 	AnimationsMap animations; ///< Available animations.
 };
 
+bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr);
+bool LoadTextFromFile(RcdFile *rcd_file, const TextMap &texts, TextData **txt);
+
 extern SpriteManager _sprite_manager;
 extern GuiSprites _gui_sprites;
 
