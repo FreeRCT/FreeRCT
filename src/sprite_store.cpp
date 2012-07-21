@@ -23,6 +23,7 @@
 #include "fileio.h"
 #include "string_func.h"
 #include "math_func.h"
+#include "ride_type.h"
 #include "table/gui_sprites.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
@@ -1430,6 +1431,16 @@ const char *SpriteManager::Load(const char *filename)
 
 			std::pair<uint, TextData *> p(blk_num, txt);
 			texts.insert(p);
+			continue;
+		}
+
+		if (strcmp(name, "SHOP") == 0 && version == 3) {
+			ShopType *shop_type = new ShopType;
+			if (!shop_type->Load(&rcd_file, length, sprites, texts)) {
+				delete shop_type;
+				return "Shop type failed to load.";
+			}
+			_ride_type_manager.Add(shop_type);
 			continue;
 		}
 
