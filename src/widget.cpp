@@ -667,7 +667,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		}
 	}
 
-	/* Step 3: Compute vertical fields. */
+	/* Step 3a: Handle vertical equal size. */
 	uint16 max_minsize = 0;
 	if ((this->flags & EQS_VERTICAL) != 0) { // Equal sizes vertically requested, do a pre-size computation.
 		for (uint8 y = 0; y < this->num_rows; y++) {
@@ -681,6 +681,43 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		}
 	}
 
+	uint16 child_tmp_minsize[10]; // Temporary array for minimal size of children. Size is arbitrary.
+	assert(this->num_rows < lengthof(child_tmp_minsize));
+	assert(this->num_cols < lengthof(child_tmp_minsize));
+
+	/* Step 3b: Make sure we derive a minimal vertical size that is actually feasible for the child widgets. */
+	for (uint8 y = 0; y < this->num_rows; y++) {
+		/* Initialize the child_tmp_minsize array with current minsize of each child widget in the row. */
+		for (uint8 x = 0; x < this->num_cols; x++) {
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			child_tmp_minsize[x] = bw->min_y;
+		}
+		/* Try to find a consistent minimal vertical size for all children. Due to a fill size > 1, this may be
+		 * bigger than the current minimal vertical size.
+		 */
+		uint16 cur_minsize = this->rows[y].min_size; // the target we are aiming for currently.
+		bool consistent = false;
+		/* No overflow, and not insanely bigger (upper limit is arbitrary). */
+		while (cur_minsize >= this->rows[y].min_size && this->rows[y].min_size + 50 > cur_minsize) {
+			consistent = true;
+			for (uint8 x = 0; x < this->num_cols; x++) {
+				if (child_tmp_minsize[x] == cur_minsize) continue;
+
+				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+				if (bw->fill_y <= 1) continue; // 0 does not play, 1 will always work
+
+				/* Increment minimal size if y fill steps. */
+				while (child_tmp_minsize[x] < cur_minsize) child_tmp_minsize[x] += bw->fill_y;
+				consistent &= (child_tmp_minsize[x] == cur_minsize);
+				assert(cur_minsize <= child_tmp_minsize[x]);
+				cur_minsize = child_tmp_minsize[x]; // May cause increasing of cur_minsize.
+			}
+			if (consistent) break;
+		}
+		if (consistent) this->rows[y].min_size = cur_minsize;
+	}
+
+	/* Step 3c: Compute vertical fields in rows[y]. */
 	this->min_y = this->paddings[PAD_BOTTOM];
 	this->fill_y = 0;
 	this->resize_y = 0;
@@ -692,7 +729,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		}
 	}
 
-	/* Step 4: Compute horizontal fields. */
+	/* Step 4a: Handle horizontal equal size. */
 	max_minsize = 0;
 	if ((this->flags & EQS_HORIZONTAL) != 0) { // Equal sizes vertically requested, do a pre-size computation.
 		for (uint8 x = 0; x < this->num_cols; x++) {
@@ -706,6 +743,39 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		}
 	}
 
+	/* Step 4b: Make sure we derive a minimal horizontal size that is actually feasible for the child widgets. */
+	for (uint8 x = 0; x < this->num_cols; x++) {
+		/* Initialize the child_tmp_minsize array with current minsize of each child widget in the column. */
+		for (uint8 y = 0; y < this->num_rows; y++) {
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			child_tmp_minsize[y] = bw->min_x;
+		}
+		/*  Try to find a consistent minimal horizontal size for all children. Due to a fill size > 1, this may be
+		 * bigger than the current minimal horizontal size.
+		 */
+		uint16 cur_minsize = this->columns[x].min_size; // the target we are aiming for currently.
+		bool consistent = false;
+		/* No overflow, and not insanely bigger (upper limit is arbitrary). */
+		while (cur_minsize >= this->columns[x].min_size && this->columns[x].min_size + 50 > cur_minsize) {
+			consistent = true;
+			for (uint8 y = 0; y < this->num_rows; y++) {
+				if (child_tmp_minsize[y] == cur_minsize) continue;
+
+				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+				if (bw->fill_x <= 1) continue; // 0 does not play, 1 will always work
+
+				/* Increment minimal size if y fill steps. */
+				while (child_tmp_minsize[y] < cur_minsize) child_tmp_minsize[y] += bw->fill_x;
+				consistent &= (child_tmp_minsize[y] == cur_minsize);
+				assert(cur_minsize <= child_tmp_minsize[y]);
+				cur_minsize = child_tmp_minsize[y]; // May cause increasing of cur_minsize.
+			}
+			if (consistent) break;
+		}
+		if (consistent) this->columns[x].min_size = cur_minsize;
+	}
+
+	/* Step 4c: Compute horizontal fields in columns[x]. */
 	this->min_x = this->paddings[PAD_RIGHT];
 	this->fill_x = 0;
 	this->resize_x = 0;
