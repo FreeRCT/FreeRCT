@@ -338,8 +338,8 @@ struct SliderSpriteData {
  */
 enum WidgetScrollbarSprites {
 	WLS_LEFT_BUTTON,           ///< Left/up unpressed button.
-	WLS_LEFT_PRESSED_BUTTON,   ///< Left/up pressed button.
 	WLS_RIGHT_BUTTON,          ///< Right/down unpressed button.
+	WLS_LEFT_PRESSED_BUTTON,   ///< Left/up pressed button.
 	WLS_RIGHT_PRESSED_BUTTON,  ///< Right/down pressed button.
 	WLS_LEFT_BED,              ///< Left/up part of the slider underground.
 	WLS_MIDDLE_BED,            ///< Middle part of the slider underground.
