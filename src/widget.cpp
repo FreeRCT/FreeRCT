@@ -390,8 +390,8 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	}
 	int left = base.x + this->pos.base.x + this->paddings[PAD_LEFT];
 	int top = base.y + this->pos.base.y + this->paddings[PAD_TOP];
-	int right = base.x + this->pos.base.x + this->pos.width - this->paddings[PAD_RIGHT];
-	int bottom = base.y + this->pos.base.y + this->pos.height - this->paddings[PAD_BOTTOM];
+	int right = base.x + this->pos.base.x + this->pos.width - 1 - this->paddings[PAD_RIGHT];
+	int bottom = base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 	if (bsd != NULL) {
 		left += bsd->border_left;
 		top += bsd->border_top;
@@ -521,8 +521,8 @@ BackgroundWidget::~BackgroundWidget()
 {
 	int left = base.x + this->pos.base.x + this->paddings[PAD_LEFT];
 	int top = base.y + this->pos.base.y + this->paddings[PAD_TOP];
-	int right = base.x + this->pos.base.x + this->pos.width - this->paddings[PAD_RIGHT];
-	int bottom = base.y + this->pos.base.y + this->pos.height - this->paddings[PAD_BOTTOM];
+	int right = base.x + this->pos.base.x + this->pos.width - 1 - this->paddings[PAD_RIGHT];
+	int bottom = base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 	left += _gui_sprites.panel.border_left;
 	top += _gui_sprites.panel.border_top;
 	right -= _gui_sprites.panel.border_right;
