@@ -438,15 +438,15 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 	this->SetWidget(wid_array);
 
 	if (this->wtype == WT_HOR_SCROLLBAR) {
-		this->min_x = _gui_sprites.vert_scroll.height;
-		this->min_y = _gui_sprites.vert_scroll.min_length_all;
-		this->fill_x = _gui_sprites.vert_scroll.stepsize_bar;
+		this->min_x = _gui_sprites.hor_scroll.min_length_all;
+		this->min_y = _gui_sprites.hor_scroll.height;
+		this->fill_x = _gui_sprites.hor_scroll.stepsize_bar;
 		this->fill_y = 0;
-		this->resize_x = _gui_sprites.vert_scroll.stepsize_bar;
+		this->resize_x = _gui_sprites.hor_scroll.stepsize_bar;
 		this->resize_y = 0;
 	} else {
-		this->min_x = _gui_sprites.vert_scroll.min_length_all;
-		this->min_y = _gui_sprites.vert_scroll.height;
+		this->min_x = _gui_sprites.vert_scroll.height;
+		this->min_y = _gui_sprites.vert_scroll.min_length_all;
 		this->fill_x = 0;
 		this->fill_y = _gui_sprites.vert_scroll.stepsize_bar;
 		this->resize_x = 0;
@@ -456,7 +456,50 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 
 /* virtual */ void ScrollbarWidget::Draw(const Point32 &base)
 {
-	// XXX To do.
+	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
+	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
+
+	const ScrollbarSpriteData &scroll_sprites = (this->wtype == WT_HOR_SCROLLBAR) ? _gui_sprites.hor_scroll : _gui_sprites.vert_scroll;
+	if (!scroll_sprites.IsLoaded()) return;
+
+	const ImageData * const *imd = this->IsShaded() ? scroll_sprites.shaded : scroll_sprites.normal;
+
+	Point32 pos;
+	pos.x = base.x + this->pos.base.x;
+	pos.y = base.y + this->pos.base.y;
+
+	/* Draw left/up button. */
+	_video->BlitImage(pos, imd[WLS_LEFT_BUTTON], rc, 0);
+	if (this->wtype == WT_HOR_SCROLLBAR) pos.x += imd[WLS_LEFT_BUTTON]->width;
+	if (this->wtype != WT_HOR_SCROLLBAR) pos.y += imd[WLS_LEFT_BUTTON]->height;
+
+	/* Draw top/left underground. */
+	_video->BlitImage(pos, imd[WLS_LEFT_BED], rc, 0);
+	if (this->wtype == WT_HOR_SCROLLBAR) pos.x += imd[WLS_LEFT_BED]->width;
+	if (this->wtype != WT_HOR_SCROLLBAR) pos.y += imd[WLS_LEFT_BED]->height;
+
+	/* Draw middle underground. */
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		int others = imd[WLS_LEFT_BUTTON]->width + imd[WLS_LEFT_BED]->width + imd[WLS_RIGHT_BED]->width + imd[WLS_RIGHT_BUTTON]->width;
+		uint count = (others < this->pos.width)
+				? (this->pos.width - others) / scroll_sprites.stepsize_bar : 0;
+		_video->BlitHorizontal(pos.x, count, pos.y, imd[WLS_MIDDLE_BED], rc);
+		pos.x += count * scroll_sprites.stepsize_bar;
+	} else {
+		int others = imd[WLS_LEFT_BUTTON]->height + imd[WLS_LEFT_BED]->height + imd[WLS_RIGHT_BED]->height + imd[WLS_RIGHT_BUTTON]->height;
+		uint count = (others < this->pos.height)
+				? (this->pos.height - others) / scroll_sprites.stepsize_bar : 0;
+		_video->BlitVertical(pos.y, count, pos.x, imd[WLS_MIDDLE_BED], rc);
+		pos.y += count * scroll_sprites.stepsize_bar;
+	}
+
+	/* Draw bottom/right underground. */
+	_video->BlitImage(pos, imd[WLS_RIGHT_BED], rc, 0);
+	if (this->wtype == WT_HOR_SCROLLBAR) pos.x += imd[WLS_RIGHT_BED]->width;
+	if (this->wtype != WT_HOR_SCROLLBAR) pos.y += imd[WLS_RIGHT_BED]->height;
+
+	/* Draw right/bottom button. */
+	_video->BlitImage(pos, imd[WLS_RIGHT_BUTTON], rc, 0);
 }
 
 /**
