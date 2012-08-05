@@ -16,6 +16,7 @@
 #include "language.h"
 
 struct BorderSpriteData;
+class GuiWindow;
 
 typedef int16 WidgetNumber; ///< Type of a widget number.
 
@@ -69,7 +70,7 @@ public:
 	BaseWidget(WidgetType wtype);
 	virtual ~BaseWidget();
 
-	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const Point32 &base);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
@@ -117,7 +118,7 @@ class LeafWidget : public BaseWidget {
 public:
 	LeafWidget(WidgetType wtype);
 
-	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void Draw(const Point32 &base);
 	virtual void RaiseButtons(const Point32 & base);
 
@@ -189,7 +190,7 @@ class DataWidget : public LeafWidget {
 public:
 	DataWidget(WidgetType wtype);
 
-	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void Draw(const Point32 &base);
 
 	uint16 value;     ///< String number or sprite id.
@@ -206,7 +207,7 @@ class ScrollbarWidget : public LeafWidget {
 public:
 	ScrollbarWidget(WidgetType wtype);
 
-	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void Draw(const Point32 &base);
 
 	int16 canvas_widget; ///< Widget number of the canvas.
@@ -222,7 +223,7 @@ public:
 	BackgroundWidget(WidgetType wtype);
 	virtual ~BackgroundWidget();
 
-	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const Point32 &base);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
@@ -262,7 +263,7 @@ public:
 	IntermediateWidget(uint8 num_rows, uint8 num_cols);
 	~IntermediateWidget();
 
-	virtual void SetupMinimalSize(BaseWidget **wid_array);
+	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const Point32 &base);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);

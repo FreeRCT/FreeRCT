@@ -13,6 +13,7 @@
 #include "math_func.h"
 #include "sprite_store.h"
 #include "widget.h"
+#include "window.h"
 #include "video.h"
 
 #include "language.h"
@@ -184,7 +185,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * @param wid_array [out] Array of widget pointers.
  * @todo Add support for #WT_CLOSEBOX and #WT_RESIZEBOX (using _gui_sprites.panel ?).
  */
-/* virtual */ void BaseWidget::SetupMinimalSize(BaseWidget **wid_array)
+/* virtual */ void BaseWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
@@ -206,6 +207,8 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 		default:
 			NOT_REACHED();
 	}
+
+	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
 /**
@@ -272,7 +275,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
  * Compute smallest size of the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void LeafWidget::SetupMinimalSize(BaseWidget **wid_array)
+/* virtual */ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
@@ -318,7 +321,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
  * Compute smallest size of the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void DataWidget::SetupMinimalSize(BaseWidget **wid_array)
+/* virtual */ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
@@ -346,6 +349,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			this->value_width = rect.width;
 			this->value_height = rect.height;
 			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
+			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
 			return;
 		}
 
@@ -360,6 +364,8 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	} else {
 		this->InitMinimalSize(this->value_width + pressable, this->value_height + pressable, 0, 0);
 	}
+
+	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
 /** @todo Fix the hardcoded colour of the text. */
@@ -433,7 +439,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
  * Compute smallest size of the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void ScrollbarWidget::SetupMinimalSize(BaseWidget **wid_array)
+/* virtual */ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
@@ -520,12 +526,12 @@ BackgroundWidget::~BackgroundWidget()
  * Compute smallest size of the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void BackgroundWidget::SetupMinimalSize(BaseWidget **wid_array)
+/* virtual */ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
 	if (this->child != NULL) {
-		this->child->SetupMinimalSize(wid_array);
+		this->child->SetupMinimalSize(w, wid_array);
 		this->min_x = this->child->min_x;
 		this->min_y = this->child->min_y;
 		this->fill_x = this->child->fill_x;
@@ -688,7 +694,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
  * Compute smallest size of the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void IntermediateWidget::SetupMinimalSize(BaseWidget **wid_array)
+/* virtual */ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
@@ -704,7 +710,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	for (uint8 y = 0; y < this->num_rows; y++) {
 		for (uint8 x = 0; x < this->num_cols; x++) {
 			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
-			bw->SetupMinimalSize(wid_array);
+			bw->SetupMinimalSize(w, wid_array);
 			this->rows[y].Merge(bw->min_y, bw->fill_y, bw->resize_y);
 			this->columns[x].Merge(bw->min_x, bw->fill_x, bw->resize_x);
 		}

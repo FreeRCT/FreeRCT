@@ -328,7 +328,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = NULL;
 	}
 
-	this->tree->SetupMinimalSize(this->widgets);
+	this->tree->SetupMinimalSize(this, this->widgets);
 	this->rect = Rectangle32(0, 0, this->tree->min_x, this->tree->min_y);
 
 	Rectangle16 min_rect(0, 0, this->tree->min_x, this->tree->min_y);
@@ -338,6 +338,19 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	this->SetPosition(pt.x, pt.y);
 
 	this->MarkDirty();
+}
+
+/**
+ * Allow for last minute changes in the initial widget size. If the function does nothing, you'll get the default widgets.
+ * The values BaseWidget::min_x and BaseWidget::min_y may be altered, but it may be a bad idea to make them smaller.
+ * BaseWidget::fill_x, BaseWidget::fill_y, BaseWidget::resize_x, BaseWidget::resize_y may also be changed.
+ * Since this function is being called while the window is being constructed, there is not much else that has a sane value at this point.
+ * @param wid_num Widget number of the provided widget.
+ * @param wid The widget itself.
+ */
+/* virtual */ void GuiWindow::UpdateWidgetSize(int wid_num, BaseWidget *wid)
+{
+	// Do nothing by default.
 }
 
 /* virtual */ void GuiWindow::OnDraw()

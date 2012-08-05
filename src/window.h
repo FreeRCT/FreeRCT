@@ -123,6 +123,7 @@ public:
 	virtual ~GuiWindow();
 	virtual void OnDraw();
 
+	virtual void UpdateWidgetSize(int wid_num, BaseWidget *wid);
 	virtual void SetSize(uint width, uint height);
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
