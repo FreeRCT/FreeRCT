@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$
+ !
+ ! This file is part of FreeRCT.
+ ! FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+ ! FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ ! See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<rcdfiles>
+	<file target="gui.rcd" magic="RCDF" version="1">
+
+		<!-- check boxes -->
+		<gameblock magic="GCHK" version="1">
+			<field name="widget_num" value="check_box"/>
+
+			<image name="empty" x-base="0" y-base="0"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="filled" x-base="34" y-base="0"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/> <!-- RTL languages? -->
+			<image name="pressed" x-base="17" y-base="0"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="pressed-filled" x-base="51" y-base="0"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="shaded" x-base="68" y-base="0"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="shaded-filled" x-base="85" y-base="0"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+		</gameblock>
+
+		<!-- radio buttons -->
+		<gameblock magic="GCHK" version="1">
+			<field name="widget_num" value="radio_button"/>
+
+			<image name="empty" x-base="0" y-base="17"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="filled" x-base="34" y-base="17"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/> <!-- RTL languages? -->
+			<image name="pressed" x-base="17" y-base="17"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="pressed-filled" x-base="51" y-base="17"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="shaded" x-base="68" y-base="17"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+			<image name="shaded-filled" x-base="85" y-base="17"
+					fname="../sprites_src/gui/GUIEles.png"
+					width="16" height="16" x-offset="0" y-offset="0"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="titlebar"/>
+			<field name="border-width-top"    value="2"/>
+			<field name="border-width-left"   value="2"/>
+			<field name="border-width-right"  value="2"/>
+			<field name="border-width-bottom" value="2"/>
+			<field name="min-width-rect"      value="13"/>
+			<field name="min-height-rect"     value="13"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-2" y-offset="-2"
+					x-base="0"  y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-2"
+					x-base="9"  y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-5" y-offset="-2"
+					x-base="11" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-2" y-offset="0"
+					x-base="0"  y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="9"  y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-5" y-offset="0"
+					x-base="11" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-2" y-offset="-5"
+					x-base="0"  y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-5"
+					x-base="9"  y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-5" y-offset="-5"
+					x-base="11" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="button"/>
+			<field name="border-width-top"    value="1"/>
+			<field name="border-width-left"   value="1"/>
+			<field name="border-width-right"  value="1"/>
+			<field name="border-width-bottom" value="1"/>
+			<field name="min-width-rect"      value="15"/>
+			<field name="min-height-rect"     value="15"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-1"
+					x-base="20" y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-1"
+					x-base="29" y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-1"
+					x-base="31" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="0"
+					x-base="20" y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="29" y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="0"
+					x-base="31" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-6"
+					x-base="20" y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-6"
+					x-base="29" y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-6"
+					x-base="31" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="pressed_button"/>
+			<field name="border-width-top"    value="1"/>
+			<field name="border-width-left"   value="1"/>
+			<field name="border-width-right"  value="1"/>
+			<field name="border-width-bottom" value="1"/>
+			<field name="min-width-rect"      value="15"/>
+			<field name="min-height-rect"     value="15"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-1"
+					x-base="40" y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-1"
+					x-base="49" y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-1"
+					x-base="51" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="0"
+					x-base="40" y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="49" y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="0"
+					x-base="51" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-6"
+					x-base="40" y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-6"
+					x-base="49" y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-6"
+					x-base="51" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="frame"/>
+			<field name="border-width-top"    value="2"/>
+			<field name="border-width-left"   value="2"/>
+			<field name="border-width-right"  value="2"/>
+			<field name="border-width-bottom" value="2"/>
+			<field name="min-width-rect"      value="13"/>
+			<field name="min-height-rect"     value="13"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-2" y-offset="-2"
+					x-base="60" y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-2"
+					x-base="69" y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-5" y-offset="-2"
+					x-base="71" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-2" y-offset="0"
+					x-base="60" y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="69" y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-5" y-offset="0"
+					x-base="71" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-2" y-offset="-5"
+					x-base="60" y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-5"
+					x-base="69" y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-5" y-offset="-5"
+					x-base="71" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="panel"/>
+			<field name="border-width-top"    value="1"/>
+			<field name="border-width-left"   value="1"/>
+			<field name="border-width-right"  value="1"/>
+			<field name="border-width-bottom" value="1"/>
+			<field name="min-width-rect"      value="15"/>
+			<field name="min-height-rect"     value="15"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-1"
+					x-base="20" y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-1"
+					x-base="29" y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-1"
+					x-base="31" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="0"
+					x-base="20" y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="29" y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="0"
+					x-base="31" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-6"
+					x-base="20" y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-6"
+					x-base="29" y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-6"
+					x-base="31" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="inset"/>
+			<field name="border-width-top"    value="1"/>
+			<field name="border-width-left"   value="1"/>
+			<field name="border-width-right"  value="1"/>
+			<field name="border-width-bottom" value="1"/>
+			<field name="min-width-rect"      value="15"/>
+			<field name="min-height-rect"     value="15"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-1"
+					x-base="160" y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-1"
+					x-base="169" y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-1"
+					x-base="171" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="0"
+					x-base="160" y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="169" y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="0"
+					x-base="171" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-1" y-offset="-6"
+					x-base="160" y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-6"
+					x-base="169" y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-6" y-offset="-6"
+					x-base="171" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="rounded_button"/>
+			<field name="border-width-top"    value="3"/>
+			<field name="border-width-left"   value="3"/>
+			<field name="border-width-right"  value="3"/>
+			<field name="border-width-bottom" value="3"/>
+			<field name="min-width-rect"      value="11"/>
+			<field name="min-height-rect"     value="11"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-3" y-offset="-3"
+					x-base="60" y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-3"
+					x-base="69" y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-4" y-offset="-3"
+					x-base="71" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-3" y-offset="0"
+					x-base="60" y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="69" y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-4" y-offset="0"
+					x-base="71" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-3" y-offset="-4"
+					x-base="60" y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-4"
+					x-base="69" y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-4" y-offset="-4"
+					x-base="71" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<gameblock magic="GBOR" version="1">
+			<field name="widget_num"          value="pressed_rounded_button"/>
+			<field name="border-width-top"    value="3"/>
+			<field name="border-width-left"   value="3"/>
+			<field name="border-width-right"  value="3"/>
+			<field name="border-width-bottom" value="3"/>
+			<field name="min-width-rect"      value="11"/>
+			<field name="min-height-rect"     value="11"/>
+			<field name="hor-stepsize"        value="1"/>
+			<field name="vert-stepsize"       value="1"/>
+			<image name="top-left"            fname="../sprites_src/gui/GUIEles.png" x-offset="-3" y-offset="-3"
+					x-base="100" y-base="34" width="8" height="8"/>
+			<image name="top-middle"          fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-3"
+					x-base="109" y-base="34" width="1" height="8"/>
+			<image name="top-right"           fname="../sprites_src/gui/GUIEles.png" x-offset="-4" y-offset="-3"
+					x-base="111" y-base="34" width="8" height="8"/>
+			<image name="left"                fname="../sprites_src/gui/GUIEles.png" x-offset="-3" y-offset="0"
+					x-base="100" y-base="43" width="8" height="1"/>
+			<image name="middle"              fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="109" y-base="43" width="1" height="1"/>
+			<image name="right"               fname="../sprites_src/gui/GUIEles.png" x-offset="-4" y-offset="0"
+					x-base="111" y-base="43" width="8" height="1"/>
+			<image name="bottom-left"         fname="../sprites_src/gui/GUIEles.png" x-offset="-3" y-offset="-4"
+					x-base="100" y-base="45" width="8" height="8"/>
+			<image name="bottom-middle"       fname="../sprites_src/gui/GUIEles.png" x-offset="0"  y-offset="-4"
+					x-base="109" y-base="45" width="1" height="8"/>
+			<image name="bottom-right"        fname="../sprites_src/gui/GUIEles.png" x-offset="-4" y-offset="-4"
+					x-base="111" y-base="45" width="8" height="8"/>
+		</gameblock>
+
+		<!-- horizontal scrollbar -->
+		<gameblock magic="GSCL" version="1">
+			<field name="widget_num" value="160"/>
+			<field name="minimal-length-scrollbar" value="48"/> <!-- 16 + 8 + 8 + 16 -->
+			<field name="minimal-length-select"    value="18"/> <!-- 8 + 2 + 8 -->
+			<field name="stepsize-scrollbar" value="2"/> <!-- middle-under -->
+			<field name="stepsize-select"    value="2"/> <!-- middle-select -->
+
+			<image name="leftup"                   fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="1"  y-base="92" width="16" height="16"/>
+			<image name="rightdown"                fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="35"  y-base="92" width="16" height="16"/>
+			<image name="leftup-pressed"           fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="69"  y-base="92" width="16" height="16"/>
+			<image name="rightdown-pressed"        fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="86"  y-base="92" width="16" height="16"/>
+			<image name="leftup-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="103" y-base="92" width="8" height="16"/>
+			<image name="middle-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="112" y-base="92" width="2" height="16"/>
+			<image name="rightdown-under"          fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="115" y-base="92" width="8" height="16"/>
+			<image name="leftup-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="145" y-base="92" width="8" height="16"/>
+			<image name="middle-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="154" y-base="92" width="2" height="16"/>
+			<image name="rightdown-select"         fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="158" y-base="92" width="8" height="16"/>
+			<image name="leftup-pressed-select"    fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="145" y-base="92" width="8" height="16"/>
+			<image name="middle-pressed-select"    fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="154" y-base="92" width="2" height="16"/>
+			<image name="rightdown-pressed-select" fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="158" y-base="92" width="8" height="16"/>
+		</gameblock>
+
+		<!-- shaded horizontal scrollbar -->
+		<gameblock magic="GSCL" version="1">
+			<field name="widget_num" value="161"/>
+			<field name="minimal-length-scrollbar" value="48"/> <!-- 16 + 8 + 8 + 16 -->
+			<field name="minimal-length-select"    value="18"/> <!-- 8 + 2 + 8 -->
+			<field name="stepsize-scrollbar" value="2"/> <!-- middle-under -->
+			<field name="stepsize-select"    value="2"/> <!-- middle-select -->
+
+			<image name="leftup"                   fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="18" y-base="92" width="16" height="16"/>
+			<image name="rightdown"                fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="52"  y-base="92" width="16" height="16"/>
+			<image name="leftup-pressed"/>
+			<image name="rightdown-pressed"/>
+			<image name="leftup-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="124" y-base="92" width="8" height="16"/>
+			<image name="middle-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="133" y-base="92" width="2" height="16"/>
+			<image name="rightdown-under"          fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="136" y-base="92" width="8" height="16"/>
+			<image name="leftup-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="145" y-base="92" width="8" height="16"/> <!-- should be shaded -->
+			<image name="middle-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="154" y-base="92" width="2" height="16"/> <!-- should be shaded -->
+			<image name="rightdown-select"         fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="158" y-base="92" width="8" height="16"/> <!-- should be shaded -->
+			<image name="leftup-pressed-select"/>
+			<image name="middle-pressed-select"/>
+			<image name="rightdown-pressed-select"/>
+		</gameblock>
+
+		<!-- vertical scrollbar -->
+		<gameblock magic="GSCL" version="1">
+			<field name="widget_num" value="176"/>
+			<field name="minimal-length-scrollbar" value="48"/> <!-- 16 + 8 + 8 + 16 -->
+			<field name="minimal-length-select"    value="18"/> <!-- 8 + 2 + 8 -->
+			<field name="stepsize-scrollbar" value="2"/> <!-- middle-under -->
+			<field name="stepsize-select"    value="2"/> <!-- middle-select -->
+
+			<image name="leftup"                   fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="35" y-base="71" width="16" height="16"/>
+			<image name="rightdown"                fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="1"   y-base="71" width="16" height="16"/>
+			<image name="leftup-pressed"           fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="86"  y-base="71" width="16" height="16"/>
+			<image name="rightdown-pressed"        fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="69"  y-base="71" width="16" height="16"/>
+			<image name="leftup-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="103" y-base="71" width="16" height="8"/>
+			<image name="middle-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="103" y-base="80" width="16" height="2"/>
+			<image name="rightdown-under"          fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="103" y-base="83" width="16" height="8"/>
+			<image name="leftup-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="71" width="16" height="8"/>
+			<image name="middle-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="80" width="16" height="2"/>
+			<image name="rightdown-select"         fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="83" width="16" height="8"/>
+			<image name="leftup-pressed-select"    fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="71" width="16" height="8"/>
+			<image name="middle-pressed-select"    fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="80" width="16" height="2"/>
+			<image name="rightdown-pressed-select" fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="83" width="16" height="8"/>
+		</gameblock>
+
+		<!-- shaded vertical scrollbar -->
+		<gameblock magic="GSCL" version="1">
+			<field name="widget_num" value="177"/>
+			<field name="minimal-length-scrollbar" value="48"/> <!-- 16 + 8 + 8 + 16 -->
+			<field name="minimal-length-select"    value="18"/> <!-- 8 + 2 + 8 -->
+			<field name="stepsize-scrollbar" value="2"/> <!-- middle-under -->
+			<field name="stepsize-select"    value="2"/> <!-- middle-select -->
+
+			<image name="leftup"                   fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="52" y-base="71" width="16" height="16"/>
+			<image name="rightdown"                fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="18"  y-base="71" width="16" height="16"/>
+			<image name="leftup-pressed"/>
+			<image name="rightdown-pressed"/>
+			<image name="leftup-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="120" y-base="71" width="16" height="8"/>
+			<image name="middle-under"             fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="120" y-base="80" width="16" height="2"/>
+			<image name="rightdown-under"          fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="120" y-base="83" width="16" height="8"/>
+			<image name="leftup-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="71" width="16" height="8"/> <!-- should be shaded -->
+			<image name="middle-select"            fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="80" width="16" height="2"/> <!-- should be shaded -->
+			<image name="rightdown-select"         fname="../sprites_src/gui/GUIEles.png" x-offset="0" y-offset="0"
+					x-base="137" y-base="83" width="16" height="8"/> <!-- should be shaded -->
+			<image name="leftup-pressed-select"/>
+			<image name="middle-pressed-select"/>
+			<image name="rightdown-pressed-select"/>
+		</gameblock>
+
+	</file>
+</rcdfiles>

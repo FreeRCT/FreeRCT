@@ -30,8 +30,8 @@ $(PATHDATA): paths.xml structdef.xml
 $(SHOPDATA): shops.xml structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g shops.xml
 
-$(GUIDATA): guis.py ../sprites_src/gui/GUIEles.png
-	$(PYTHON) guis.py
+$(GUIDATA): gui.xml structdef.xml
+	$(PYTHON) convert.py -d structdef.xml -g gui.xml
 
 
 clean:

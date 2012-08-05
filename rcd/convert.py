@@ -171,13 +171,17 @@ def make_sprite_block_reference(name, named_node, file_blocks):
     """
     node = named_node.node
     if named_node.tag == 'image':
+        fname = datatypes.get_opt_DOMattr(node, "fname", None)
+        if fname is None:
+            # No file name -> 0 block reference
+            return 0
+
         x_base   = int(datatypes.get_opt_DOMattr(node, 'x-base', u"0"))
         y_base   = int(datatypes.get_opt_DOMattr(node, 'y-base', u"0"))
         width    = int(node.getAttribute("width"))
         height   = int(node.getAttribute("height"))
         x_offset = int(datatypes.get_opt_DOMattr(node, "x-offset", u"0"))
         y_offset = int(datatypes.get_opt_DOMattr(node, "y-offset", u"0"))
-        fname    = node.getAttribute("fname")
         transp   = int(datatypes.get_opt_DOMattr(node, 'transparent', u"0"))
 
     elif named_node.tag == 'sheet':
@@ -440,7 +444,7 @@ def convert(def_fname, data_fname):
 
     @todo: Actually use L{def_fname}.
     """
-    struct_defs = blocks.block_factory.struct_def
+    struct_defs = structdef_loader.loadfromDOM('structdef.xml')
 
     data_file_nodes = get_rcdfile_nodes(data_fname)
     for dfile_node in data_file_nodes:

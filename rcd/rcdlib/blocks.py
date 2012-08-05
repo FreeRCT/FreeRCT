@@ -5,7 +5,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-from rcdlib import output, structdef_loader, datatypes
+from rcdlib import output, datatypes
 
 # {{{ class Block(object):
 class Block(object):
@@ -109,29 +109,6 @@ class GeneralDataBlock(Block):
             if self.values[fldname] != other.values[fldname]:
                 return False
         return True
-# }}}
-# {{{ class GameBlockFactory(object):
-class GameBlockFactory(object):
-    """
-    Factory class for constructing game blocks on demand.
-
-    @ivar struct_def: Structure definition of the game blocks.
-    @type struct_def: L{structdef_loader.Structures}
-    """
-    def __init__(self):
-        self.struct_def = structdef_loader.loadfromDOM('structdef.xml')
-
-    def get_block(self, name, version):
-        block = self.struct_def.get_block(name)
-        if block is None or version < block.minversion or version > block.maxversion:
-            raise ValueError("Cannot find gameblock %r, %r" % (name, version))
-
-        fields = [(f.name, f.type) for f in block.get_fields(version)]
-        gb = GeneralDataBlock(name, version, fields, None)
-        return gb
-
-block_factory = GameBlockFactory()
-
 # }}}
 # {{{ class Pixels8Bpp(GeneralDataBlock):
 class Pixels8Bpp(GeneralDataBlock):
