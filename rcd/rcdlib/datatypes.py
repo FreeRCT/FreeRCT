@@ -490,7 +490,22 @@ def read_type(node, blk_name, fld_name):
             bfields.append(make_bitfield(bfld))
         return BitSet(store_type, bfields)
     if name == u"text":
-        expected = collect_text_DOM(type_node).split(u', ')
-        return TextType(expected)
+        expected = collect_text_DOM(type_node)
+        # A complicated way of splitting on ', \t\n\r'
+        words = []
+        word = None
+        for c in expected:
+            if c in u', \t\n\r':
+                if word is None: continue
+                words.append(word)
+                word = None
+                continue
+            if word is None:
+                word = c
+            else:
+                word = word + c
+        if word is not None:
+            words.append(word)
+        return TextType(words)
     return _types[name]
 
