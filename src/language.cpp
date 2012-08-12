@@ -13,7 +13,7 @@
 #include "language.h"
 #include "fileio.h"
 
-Language *_language; ///< Current language.
+Language _language; ///< Current language.
 int _current_language = 0; ///< Index of the current language
 
 /** Verify that the generic strings are different from the strings in the language table. */
@@ -76,8 +76,18 @@ Language::Language()
 
 Language::~Language()
 {
+	this->Clear();
+}
+
+/** Clear all loaded data. */
+void Language::Clear()
+{
 	free(this->text);
 	free(this->strings);
+
+	this->num_texts = 0;
+	this->text = NULL;
+	this->strings = NULL;
 }
 
 /**
@@ -172,18 +182,15 @@ const char *Language::GetText(StringID number)
  */
 void InitLanguage()
 {
-	Language *lang = new Language;
-	const char *msg = lang->Load("../rcd/english.lang");
+	const char *msg = _language.Load("../rcd/english.lang");
 	if (msg != NULL) {
 		fprintf(stderr, "Loading language failed: '%s'\n", msg);
 		exit(1);
 	}
-	_language = lang;
 }
 
 /** Clean up the language. */
 void UninitLanguage()
 {
-	if (_language != NULL) delete _language;
-	_language = NULL;
+	_language.Clear();
 }

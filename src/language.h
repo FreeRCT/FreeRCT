@@ -67,6 +67,7 @@ public:
 	~Language();
 
 	const char *Load(const char *fname);
+	void Clear();
 
 	const char *GetText(StringID number);
 
@@ -79,6 +80,6 @@ int GetLanguageIndex(const char *lang_name);
 void InitLanguage();
 void UninitLanguage();
 
-extern Language *_language;
+extern Language _language;
 
 #endif
