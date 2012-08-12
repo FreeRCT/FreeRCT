@@ -14,6 +14,8 @@
 
 #include "table/strings.h"
 
+class TextData;
+
 extern int _current_language;
 
 /** Table of strings used in the game. */
@@ -69,11 +71,18 @@ public:
 	const char *Load(const char *fname);
 	void Clear();
 
+	uint16 RegisterStrings(const TextData &td, const char * const names[]);
+
 	const char *GetText(StringID number);
 
 	uint16 num_texts; ///< Number of strings in the language.
 	char *text;       ///< The actual text (all of it).
 	char **strings;   ///< #num_texts indices into #text.
+
+private:
+	/** Registered strings. Entries may be \c NULL for unregistered or non-existing strings. */
+	const TextString *registered[2048]; // Arbitrary size.
+	uint first_free; ///< 'First' string index that is not allocated yet.
 };
 
 int GetLanguageIndex(const char *lang_name);

@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "language.h"
 #include "fileio.h"
+#include "sprite_store.h"
 
 Language _language; ///< Current language.
 int _current_language = 0; ///< Index of the current language
@@ -72,6 +73,9 @@ Language::Language()
 	this->num_texts = 0;
 	this->text = NULL;
 	this->strings = NULL;
+
+	for (uint i = 0; i < lengthof(this->registered); i++) this->registered[i] = NULL;
+	this->first_free = STRING_TABLE_START + STRING_TABLE_LENGTH;
 }
 
 Language::~Language()
@@ -154,6 +158,42 @@ const char *Language::Load(const char *fname)
 	if (remain != 0) return "Unexpected additional block";
 
 	return NULL;
+}
+
+/**
+ * Register loaded strings of rides etc with the language system.
+ * @param td Text data wrapper containing the loaded strings.
+ * @param names Array of names to register.
+ * @return Base offset for the registered strings. Add the index value of the \a names table to get the real string number.
+ */
+uint16 Language::RegisterStrings(const TextData &td, const char * const names[])
+{
+	uint num_strings = 0;
+	const char * const *str = names;
+	while (*str != NULL && this->first_free + num_strings <= lengthof(this->registered)) {
+		num_strings++;
+		str++;
+	}
+	if (this->first_free + num_strings > lengthof(this->registered)) {
+		fprintf(stderr, "Not enough space to store strings.\n");
+		exit(1);
+	}
+
+	uint16 orig_free = this->first_free;
+	str = names;
+	while (*str != NULL) {
+		this->registered[this->first_free] = NULL;
+		for (uint i = 0; i < td.string_count; i++) {
+			const TextString *ts = td.strings +i;
+			if (!strcmp(*str, ts->name)) {
+				this->registered[this->first_free] = ts;
+				break;
+			}
+		}
+		this->first_free++;
+		str++;
+	}
+	return orig_free;
 }
 
 /**
