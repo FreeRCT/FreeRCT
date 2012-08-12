@@ -32,6 +32,7 @@ public:
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.
 	TextData *text;             ///< Strings of the shop.
+	uint16 string_base;         ///< Base offset of the string in this shop.
 };
 
 

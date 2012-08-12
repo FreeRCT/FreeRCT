@@ -18,6 +18,21 @@
 
 RideTypeManager _ride_type_manager; ///< Storage and retrieval of ride types.
 
+/** Relative offset of strings. */
+enum ShopStrings {
+	STR_SHOP_NAME,        ///< Name of the shop.
+	STR_SHOP_DESCRIPTION, ///< Shop description.
+};
+
+
+/** Expected string names of a shop ride. @see ShopType */
+static const char *_shop_names[] = {
+	"name",        // STR_SHOP_NAME
+	"description", // STR_SHOP_DESCRIPTION
+	NULL,
+};
+
+
 ShopType::ShopType()
 {
 	this->height = 0;
@@ -57,7 +72,9 @@ bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, c
 		if (i < lengthof(this->colour_remappings)) this->colour_remappings[i].Set(recolour);
 	}
 
-	return LoadTextFromFile(rcd_file, texts, &this->text);
+	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
+	this->string_base = _language.RegisterStrings(*this->text, _shop_names);
+	return true;
 }
 
 RideTypeManager::RideTypeManager()
