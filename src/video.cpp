@@ -535,9 +535,9 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
  * @param width [out] Resulting width.
  * @param height [out] Resulting height.
  */
-void VideoSystem::GetTextSize(const char *text, int *width, int *height)
+void VideoSystem::GetTextSize(const uint8 *text, int *width, int *height)
 {
-	if (TTF_SizeUTF8(this->font, text, width, height) != 0) {
+	if (TTF_SizeUTF8(this->font, (const char *)text, width, height) != 0) {
 		*width = 0;
 		*height = 0;
 	}
@@ -551,10 +551,10 @@ void VideoSystem::GetTextSize(const char *text, int *width, int *height)
  * @param colour Colour of the text.
  * @pre Surfaces must be locked before calling this function.
  */
-void VideoSystem::BlitText(const char *text, int xpos, int ypos, uint8 colour)
+void VideoSystem::BlitText(const uint8 *text, int xpos, int ypos, uint8 colour)
 {
 	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
-	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, text, col);
+	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, (const char *)text, col);
 	if (surf == NULL) {
 		fprintf(stderr, "Rendering text failed (%s)\n", TTF_GetError());
 		return;

@@ -48,7 +48,7 @@ public:
 	 * Get the string in the currently selected language.
 	 * @return Text of this string in the currently selected language.
 	 */
-	const uint8 *GetString()
+	const uint8 *GetString() const
 	{
 		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT ||
 				this->languages[_current_language] == NULL) return (uint8 *)"";
@@ -73,11 +73,11 @@ public:
 
 	uint16 RegisterStrings(const TextData &td, const char * const names[]);
 
-	const char *GetText(StringID number);
+	const uint8 *GetText(StringID number);
 
 	uint16 num_texts; ///< Number of strings in the language.
-	char *text;       ///< The actual text (all of it).
-	char **strings;   ///< #num_texts indices into #text.
+	uint8 *text;       ///< The actual text (all of it).
+	uint8 **strings;   ///< #num_texts indices into #text.
 
 private:
 	/** Registered strings. Entries may be \c NULL for unregistered or non-existing strings. */

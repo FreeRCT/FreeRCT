@@ -360,7 +360,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			NOT_REACHED();
 	}
 
-	const char *text = _language.GetText(this->value);
+	const uint8 *text = _language.GetText(this->value);
 	_video->GetTextSize(text, &this->value_width, &this->value_height);
 	if (bsd != NULL) {
 		this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
@@ -424,7 +424,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			_video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
 		}
 	} else {
-		const char *text = _language.GetText(this->value);
+		const uint8 *text = _language.GetText(this->value);
 		_video->BlitText(text, xoffset + pressed, yoffset + pressed, 21);
 	}
 }

@@ -110,8 +110,8 @@ public:
 
 	void FinishRepaint();
 
-	void GetTextSize(const char *text, int *width, int *height);
-	void BlitText(const char *text, int xpos, int ypos, uint8 colour);
+	void GetTextSize(const uint8 *text, int *width, int *height);
+	void BlitText(const uint8 *text, int xpos, int ypos, uint8 colour);
 	void DrawLine(const Point16 &start, const Point16 &end, uint8 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint8 colour);
 

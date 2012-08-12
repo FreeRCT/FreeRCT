@@ -130,8 +130,8 @@ const char *Language::Load(const char *fname)
 	assert(length >= num_texts && length < 100000); // Arbitrary upper limit which should be sufficient for some time.
 
 	this->num_texts = num_texts;
-	this->text = (char *)malloc(length);
-	this->strings = (char **)malloc(sizeof(const char **) * num_texts);
+	this->text = (uint8 *)malloc(length);
+	this->strings = (uint8 **)malloc(sizeof(const uint8 **) * num_texts);
 
 	if (this->text == NULL || this->strings == NULL) return "Insufficient memory to load language";
 	if (!rcd_file.GetBlob(this->text, length)) return "Loading language texts failed";
@@ -201,19 +201,23 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[])
  * @param number string number to get.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
  */
-const char *Language::GetText(StringID number)
+const uint8 *Language::GetText(StringID number)
 {
 	if (number < STRING_TABLE_START) {
 		switch (number) {
 			case STR_NULL:  return NULL;
-			case STR_EMPTY: return "";
+			case STR_EMPTY: return (const uint8 *)"";
 			default: NOT_REACHED();
 		}
 	}
 
-	number -= STRING_TABLE_START;
-	if (number >= this->num_texts) return "Invalid string number";
-	return this->strings[number];
+	if (number < STRING_TABLE_START + this->num_texts) return this->strings[number - STRING_TABLE_START];
+
+	if (number < lengthof(this->registered) && this->registered[number] != NULL) {
+		this->registered[number]->GetString();
+	}
+
+	return (const uint8 *)"Invalid string number";
 }
 
 /**
