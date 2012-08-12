@@ -182,6 +182,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 /**
  * Set up minimal size (#min_x and #min_y), fill step (#fill_x and #fill_y) and resize step (#resize_x and #resize_y) of the widget.
  * In addition, if the widget has a non-negative widget number, add the widget to the \a wid_array after verifying the position is still empty.
+ * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  * @todo Add support for #WT_CLOSEBOX and #WT_RESIZEBOX (using _gui_sprites.panel ?).
  */
@@ -273,6 +274,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 
 /**
  * Compute smallest size of the widget.
+ * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
 /* virtual */ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
@@ -319,6 +321,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 
 /**
  * Compute smallest size of the widget.
+ * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
 /* virtual */ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
@@ -437,6 +440,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 
 /**
  * Compute smallest size of the widget.
+ * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
 /* virtual */ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
@@ -524,6 +528,7 @@ BackgroundWidget::~BackgroundWidget()
 
 /**
  * Compute smallest size of the widget.
+ * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
 /* virtual */ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
@@ -692,6 +697,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 
 /**
  * Compute smallest size of the widget.
+ * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
 /* virtual */ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
