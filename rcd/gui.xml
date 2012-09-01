@@ -11,6 +11,39 @@
 <rcdfiles>
 	<file target="gui.rcd" magic="RCDF" version="1">
 
+		<!-- Build direction arrows -->
+		<gameblock magic="BDIR" version="1">
+			<field name="width" value="64" />  <!-- Zoom-width -->
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/objects/1x1/gui/orthbuildmark8bpp64.png"
+			       names="ne,se,sw,nw"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
+
+		<!-- Gui slope sprites -->
+		<gameblock magic="GSLP" version="1">
+			<sheet x-base="0" y-base="0" x-step="32" y-step="32"
+			       fname="../sprites_src/gui/contruction/slopes_8bpp_32px.png"
+			       names="vert-down, steep-down, gentle-down, level, gentle-up, steep-up, vert-up"
+			       x-offset="0" y-offset="0" width="32" height="32" />
+		</gameblock>
+
+		<!-- gui rotation sprites -->
+		<gameblock magic="GROT" version="1">
+			<image name="3d-positive" x-base="192" y-base="224"
+					fname="../sprites_src/objects/1x1/gui/buildmark8bpp64.png"
+					width="64" height="32" x-offset="0" y-offset="0"/>
+			<image name="3d-negative" x-base="0" y-base="160"
+					fname="../sprites_src/objects/1x1/gui/buildmark8bpp64.png"
+					width="64" height="32" x-offset="0" y-offset="0"/>
+			<image name="2d-negative" x-base="0" y-base="0"
+					fname="../sprites_src/gui/contruction/rotation_8bpp_32px.png"
+					width="32" height="32" x-offset="0" y-offset="0"/>
+			<image name="2d-positive" x-base="128" y-base="0"
+					fname="../sprites_src/gui/contruction/rotation_8bpp_32px.png"
+					width="32" height="32" x-offset="0" y-offset="0"/>
+		</gameblock>
+
 		<!-- check boxes -->
 		<gameblock magic="GCHK" version="1">
 			<field name="widget_num" value="check_box"/>

@@ -6,7 +6,7 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
-GAMEDATA=borderhighlight_8bpp64.rcd buildarrows_8bpp64.rcd \
+GAMEDATA=borderhighlight_8bpp64.rcd \
 	cornerhighlight_8bpp64.rcd cursor_groundtile_8bpp64.rcd foundation_8bpp64.rcd \
 	groundtile_8bpp64.rcd people_animation.rcd
 
