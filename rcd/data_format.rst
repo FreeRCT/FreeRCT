@@ -704,43 +704,37 @@ Gui button sprites
 ~~~~~~~~~~~~~~~~~~
 Sprites for use at buttons in the gui.
 
-Gui slope selection
-...................
+Gui Sprites
+...........
 Several elements come with different slopes, and the user needs to select the
-right one. The sprites below shows the available slopes to the user.
+right one. Similarly, there are rotation sprites and texts that are displayed
+in the gui.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'GSLP' (Gui slopes).
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                  length.
-  12       4    Slope going vertically down.
-  16       4    Slope going steeply down.
-  20       4    Slope going gently down.
-  24       4    Level slope.
-  28       4    Slope going gently up.
-  32       4    Slope going steeply up.
-  36       4    Slope going vertically up.
-  40            Total length.
-======  ======  ==========================================================
+======  ======  =======  =================================================
+Offset  Length  Version  Description
+======  ======  =======  =================================================
+   0       4      1-2    Magic string 'GSLP' (Gui sprites).
+   4       4      1-2    Version number of the block (1 or 2).
+   8       4      1-2    Length of the block excluding magic string,
+                         version, and length.
+  12       4      1-2    Slope going vertically down.
+  16       4      1-2    Slope going steeply down.
+  20       4      1-2    Slope going gently down.
+  24       4      1-2    Level slope.
+  28       4      1-2    Slope going gently up.
+  32       4      1-2    Slope going steeply up.
+  36       4      1-2    Slope going vertically up.
+  40       4       2     Flat rotation positive direction
+                         (counter clock wise)
+  44       4       2     Flat rotation negative direction (clock wise)
+  48       4       2     Diametric rotation positive direction
+                         (counter clock wise)
+  52       4       2     Diametric rotation negative direction
+                         (clock wise)
+  56       4       2     Text of the guis (reference to a TEXT block).
+  60                     Total length.
+======  ======  =======  =================================================
 
-Similarly, below are sprites for expressing rotation.
-
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'GROT' (Gui rotation).
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                  length.
-  12       4    Flat rotation positive direction (counter clock wise)
-  16       4    Flat rotation negative direction (clock wise)
-  20       4    Diametric rotation positive direction (counter clock wise)
-  24       4    Diametric rotation negative direction (clock wise)
-  28            Total length.
-======  ======  ==========================================================
 
 Persons
 ~~~~~~~
@@ -864,5 +858,18 @@ Offset  Length  Description
   19      f*4   Sprite for each frame.
    ?            Variable length.
 ======  ======  ==========================================================
+
+
+Obsolete blocks
+~~~~~~~~~~~~~~~
+
+The following blocks existed once, but are not needed any more
+
+==== =====================================================================
+Name Description
+==== =====================================================================
+SPRT X and Y offset of a sprite (data has been moved to the 8PXL block)
+GROT Rotation GUI sprites (data has been moved to the GROT block)
+==== =====================================================================
 
 .. vim: set spell tw=78
