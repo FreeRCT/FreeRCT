@@ -33,6 +33,8 @@ const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination
 
 static int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
 
+#include "table/gui_strings.cpp"
+
 /**
  * Sprite indices of ground/surface sprites after rotation of the view.
  * @ingroup sprites_group
@@ -1006,33 +1008,24 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &spri
  * @param rcd_file RCD file being loaded.
  * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
+ * @param texts Texts loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts)
 {
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
-	if (length != 4 * lengthof(indices)) return false;
+	/* 'indices' entries of slope sprites, 4 entries with rotation sprites, one entry with a text block. */
+	if (length != 4 * lengthof(indices) + 4 * 4 + 4) return false;
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
 	}
-	return true;
-}
-
-/**
- * Load Gui slope selection sprites.
- * @param rcd_file RCD file being loaded.
- * @param length Length of the block to load.
- * @param sprites Sprites loaded from this file.
- * @return Load was successful.
- */
-bool GuiSprites::LoadGROT(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
-{
-	if (length != 4 * 4) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_pos)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_neg)) return false;
+	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
+	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
 	return true;
 }
 
@@ -1369,16 +1362,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "GSLP") == 0 && version == 1) {
-			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites)) {
+		if (strcmp(name, "GSLP") == 0 && version == 2) {
+			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites, texts)) {
 				return "Loading slope selection Gui sprites failed.";
-			}
-			continue;
-		}
-
-		if (strcmp(name, "GROT") == 0 && version == 1) {
-			if (!_gui_sprites.LoadGROT(&rcd_file, length, sprites)) {
-				return "Loading rotation Gui sprites failed.";
 			}
 			continue;
 		}

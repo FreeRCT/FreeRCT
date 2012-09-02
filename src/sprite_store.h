@@ -389,12 +389,11 @@ struct GuiSprites {
 	GuiSprites();
 
 	void Clear();
-	bool LoadGBOR(RcdFile*, size_t, const ImageMap&);
-	bool LoadGCHK(RcdFile*, size_t, const ImageMap&);
-	bool LoadGSLI(RcdFile*, size_t, const ImageMap&);
-	bool LoadGSCL(RcdFile*, size_t, const ImageMap&);
-	bool LoadGSLP(RcdFile*, size_t, const ImageMap&);
-	bool LoadGROT(RcdFile*, size_t, const ImageMap&);
+	bool LoadGBOR(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGSLI(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts);
 
 	BorderSpriteData titlebar;              ///< Title bar sprite data.
 	BorderSpriteData button;                ///< Normal button sprite data.
@@ -417,6 +416,8 @@ struct GuiSprites {
 	ImageData *rot_2d_neg;                  ///< 2D rotation negative direction.
 	ImageData *rot_3d_pos;                  ///< 3D rotation positive direction.
 	ImageData *rot_3d_neg;                  ///< 3D rotation negative direction.
+
+	TextData *text;                         ///< Texts of the gui.
 };
 
 

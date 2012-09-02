@@ -6,7 +6,7 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
-.PHONY: run clean rcd lang all
+.PHONY: run clean rcd all
 
 OBJDIR=objects
 RCDDIR=../rcd
@@ -32,7 +32,7 @@ OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
 DEPEND=$(OBJDIR)/depend.txt
 TARGET=freerct
 
-all: lang rcd $(TARGET)
+all: rcd $(TARGET)
 	@if test ! -f freerct.cfg;\
 	then echo;\
 	     echo "Failed to find font settings. Did you make a 'freerct.cfg' file next to the 'freerct' program?";\
@@ -47,13 +47,8 @@ all: lang rcd $(TARGET)
 $(TARGET): $(OBJFILES)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJFILES) $(LIBS)
 
-run: lang $(TARGET)
+run: $(TARGET)
 	./$(TARGET)
-
-lang: ../rcd/english.lang
-
-../rcd/english.lang: ../rcd/process_languages.py lang/english.txt
-	$(PYTHON) ../rcd/process_languages.py --directory lang --output-language ../rcd/english.lang
 
 rcd:
 	$(MAKE) -C $(RCDDIR)
@@ -61,13 +56,16 @@ rcd:
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-$(DEPEND): $(OBJDIR)/table/strings.h $(OBJDIR)/table/shops_strings.h $(CXXFILES)
+$(DEPEND): $(OBJDIR)/table/gui_strings.h $(OBJDIR)/table/shops_strings.h $(CXXFILES)
 	for f in $(CXXFILES);\
 	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f;\
 	done > $(DEPEND)
 
-$(OBJDIR)/table/strings.h: lang/english.txt ../rcd/process_languages.py
-	$(PYTHON) ../rcd/process_languages.py --directory lang --output-include $@
+$(OBJDIR)/table/gui_strings.h: $(RCDDIR)/gui_strings.txt
+	$(PYTHON) $(GEN_NAMES_PY) --header $(OBJDIR)/table/gui_strings.h \
+			--code $(OBJDIR)/table/gui_strings.cpp \
+			--prefix=GUI_ --base=STR_GUI_START \
+			$(RCDDIR)/gui_strings.txt
 
 $(OBJDIR)/table/shops_strings.h: $(RCDDIR)/shops_strings.txt
 	$(PYTHON) $(GEN_NAMES_PY) --header $(OBJDIR)/table/shops_strings.h \
@@ -76,7 +74,7 @@ $(OBJDIR)/table/shops_strings.h: $(RCDDIR)/shops_strings.txt
 			$(RCDDIR)/shops_strings.txt
 
 clean:
-	for i in $(OBJFILES) $(DEPEND) $(OBJDIR)/table/strings.h $(TARGET);\
+	for i in $(OBJFILES) $(DEPEND) $(TARGET);\
 	do if test -f $$i; then rm $$i; fi;\
 	done
 

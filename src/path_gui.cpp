@@ -15,7 +15,6 @@
 #include "viewport.h"
 #include "language.h"
 #include "path_build.h"
-#include "table/strings.h"
 #include "table/gui_sprites.h"
 
 /**
@@ -64,7 +63,7 @@ static const int SPR_NW_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_NW; ///< Spr
 static const WidgetPart _path_build_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, 0), SetData(STR_PATH_GUI_TITLE, STR_TITLEBAR_TIP),
+			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, 0), SetData(GUI_PATH_GUI_TITLE, GUI_TITLEBAR_TIP),
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, 0),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, 0),
@@ -73,37 +72,37 @@ static const WidgetPart _path_build_gui_parts[] = {
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
 					/* Slope down/level/up. */
 					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_DOWN, 0),
-							SetData(SPR_GUI_SLOPES_START + TSL_DOWN, STR_PATH_GUI_SLOPE_DOWN_TIP),
+							SetData(SPR_GUI_SLOPES_START + TSL_DOWN, GUI_PATH_GUI_SLOPE_DOWN_TIP),
 					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_FLAT, 0), SetPadding(0, 0, 0, 5),
-							SetData(SPR_GUI_SLOPES_START + TSL_FLAT, STR_PATH_GUI_SLOPE_FLAT_TIP),
+							SetData(SPR_GUI_SLOPES_START + TSL_FLAT, GUI_PATH_GUI_SLOPE_FLAT_TIP),
 					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_UP, 0), SetPadding(0, 0, 0, 5),
-							SetData(SPR_GUI_SLOPES_START + TSL_UP, STR_PATH_GUI_SLOPE_UP_TIP),
+							SetData(SPR_GUI_SLOPES_START + TSL_UP, GUI_PATH_GUI_SLOPE_UP_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
 				Intermediate(1, 3), SetPadding(5, 5, 0, 5),
 					/* Four arrows direction. */
 					Intermediate(2, 2), SetHorPIP(0, 2, 5), SetVertPIP(0, 2, 0),
 						Widget(WT_IMAGE_BUTTON, PATH_GUI_NW_DIRECTION, 0),
-								SetData(SPR_NW_DIRECTION, STR_PATH_GUI_NW_DIRECTION_TIP),
+								SetData(SPR_NW_DIRECTION, GUI_PATH_GUI_NW_DIRECTION_TIP),
 						Widget(WT_IMAGE_BUTTON, PATH_GUI_NE_DIRECTION, 0),
-								SetData(SPR_NE_DIRECTION, STR_PATH_GUI_NE_DIRECTION_TIP),
+								SetData(SPR_NE_DIRECTION, GUI_PATH_GUI_NE_DIRECTION_TIP),
 						Widget(WT_IMAGE_BUTTON, PATH_GUI_SW_DIRECTION, 0),
-								SetData(SPR_SW_DIRECTION, STR_PATH_GUI_SW_DIRECTION_TIP),
+								SetData(SPR_SW_DIRECTION, GUI_PATH_GUI_SW_DIRECTION_TIP),
 						Widget(WT_IMAGE_BUTTON, PATH_GUI_SE_DIRECTION, 0),
-								SetData(SPR_SE_DIRECTION, STR_PATH_GUI_SE_DIRECTION_TIP),
+								SetData(SPR_SE_DIRECTION, GUI_PATH_GUI_SE_DIRECTION_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
 					/* Forward/backward. */
 					Intermediate(2, 1),
 						Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_FORWARD, 0),
-								SetData(STR_PATH_GUI_FORWARD, STR_PATH_GUI_FORWARD_TIP),
+								SetData(GUI_PATH_GUI_FORWARD, GUI_PATH_GUI_FORWARD_TIP),
 						Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BACKWARD, 0),
-								SetData(STR_PATH_GUI_BACKWARD, STR_PATH_GUI_BACKWARD_TIP),
+								SetData(GUI_PATH_GUI_BACKWARD, GUI_PATH_GUI_BACKWARD_TIP),
 				Intermediate(1, 7), SetPadding(5, 5, 5, 5), SetHorPIP(0, 2, 0),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_LONG, 0), SetData(STR_PATH_GUI_LONG, STR_PATH_GUI_LONG_TIP),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_LONG, 0), SetData(GUI_PATH_GUI_LONG, GUI_PATH_GUI_LONG_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
-					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BUY, 0), SetData(STR_PATH_GUI_BUY, STR_PATH_GUI_BUY_TIP),
+					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BUY, 0), SetData(GUI_PATH_GUI_BUY, GUI_PATH_GUI_BUY_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
-					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_REMOVE, 0), SetData(STR_PATH_GUI_REMOVE, STR_PATH_GUI_BULLDOZER_TIP),
+					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_REMOVE, 0), SetData(GUI_PATH_GUI_REMOVE, GUI_PATH_GUI_BULLDOZER_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
 			EndContainer(),
 	EndContainer(),

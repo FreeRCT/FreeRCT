@@ -11,7 +11,7 @@
 
 #include "stdafx.h"
 #include "dates.h"
-#include "table/strings.h"
+#include "language.h"
 
 static const int _days_per_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; ///< Numbers of days in each month (in a non-leap year).
 
@@ -68,18 +68,18 @@ Date &Date::operator=(const Date &d)
 StringID Date::GetMonthName(int month) const
 {
 	static const uint16 month_names[] = {
-		STR_MONTH_JANUARY,
-		STR_MONTH_FEBRUARY,
-		STR_MONTH_MARCH,
-		STR_MONTH_APRIL,
-		STR_MONTH_MAY,
-		STR_MONTH_JUNE,
-		STR_MONTH_JULY,
-		STR_MONTH_AUGUST,
-		STR_MONTH_SEPTEMBER,
-		STR_MONTH_OCTOBER,
-		STR_MONTH_NOVEMBER,
-		STR_MONTH_DECEMBER,
+		GUI_MONTH_JANUARY,
+		GUI_MONTH_FEBRUARY,
+		GUI_MONTH_MARCH,
+		GUI_MONTH_APRIL,
+		GUI_MONTH_MAY,
+		GUI_MONTH_JUNE,
+		GUI_MONTH_JULY,
+		GUI_MONTH_AUGUST,
+		GUI_MONTH_SEPTEMBER,
+		GUI_MONTH_OCTOBER,
+		GUI_MONTH_NOVEMBER,
+		GUI_MONTH_DECEMBER,
 	};
 
 	if (month == 0) month = this->month;

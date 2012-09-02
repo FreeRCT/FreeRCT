@@ -12,7 +12,6 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#include "table/strings.h"
 
 class TextData;
 
@@ -33,6 +32,7 @@ enum StringTable {
 	STR_GENERIC_END = 0xFFFF,
 };
 
+#include "table/gui_strings.h"
 #include "table/shops_strings.h"
 
 typedef uint16 StringID; ///< Type of a string value.
@@ -78,17 +78,11 @@ public:
 	Language();
 	~Language();
 
-	const char *Load(const char *fname);
 	void Clear();
 
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base=STR_GENERIC_END);
 
 	const uint8 *GetText(StringID number);
-
-	uint16 num_texts; ///< Number of strings in the language.
-	uint8 *text;       ///< The actual text (all of it).
-	uint8 **strings;   ///< #num_texts indices into #text.
-
 private:
 	/** Registered strings. Entries may be \c NULL for unregistered or non-existing strings. */
 	const TextString *registered[2048]; // Arbitrary size.

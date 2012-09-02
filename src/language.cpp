@@ -14,6 +14,7 @@
 #include "fileio.h"
 #include "sprite_store.h"
 
+assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many gui strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
 
 Language _language; ///< Language strings.
@@ -70,12 +71,8 @@ int GetLanguageIndex(const char *lang_name)
 
 Language::Language()
 {
-	this->num_texts = 0;
-	this->text = NULL;
-	this->strings = NULL;
-
 	for (uint i = 0; i < lengthof(this->registered); i++) this->registered[i] = NULL;
-	this->first_free = STRING_TABLE_START + STRING_TABLE_LENGTH;
+	this->first_free = GUI_STRING_TABLE_END;
 }
 
 Language::~Language()
@@ -86,78 +83,6 @@ Language::~Language()
 /** Clear all loaded data. */
 void Language::Clear()
 {
-	free(this->text);
-	free(this->strings);
-
-	this->num_texts = 0;
-	this->text = NULL;
-	this->strings = NULL;
-}
-
-/**
- * Load a language.
- * @param fname Filename containing the language.
- * @return \c NULL if all went fine, else error message.
- */
-const char *Language::Load(const char *fname)
-{
-	char name[8];
-	name[4] = '\0';
-	uint32 version, length;
-
-	RcdFile rcd_file(fname);
-	if (!rcd_file.CheckFileHeader("RCDS", 1)) return "Could not read header";
-
-	/* Load language block (only one expected). */
-	size_t remain = rcd_file.GetRemaining();
-	if (remain < 12) return "Insufficient space for a block"; // Not enough for a rcd block header, abort.
-
-	if (!rcd_file.GetBlob(name, 4)) return "Loading block name failed";
-	version = rcd_file.GetUInt32();
-	length = rcd_file.GetUInt32();
-
-	if (length + 12 > remain) return "Not enough data"; // Not enough data in the file.
-	if (strcmp(name, "LTXT") != 0 || version != 2) return "Unknown block";
-	if (length < 2 + 8) return "LTXT block too short";
-
-	uint16 num_texts = rcd_file.GetUInt16();
-	if (num_texts != STRING_TABLE_LENGTH) return "Incorrect number of strings in the data file.";
-	assert(num_texts < 2000); // Arbitrary limit which should be sufficient for some time.
-	if (!rcd_file.GetBlob(name, 8)) return "Loading language name failed";
-	if (name[7] != '\0') return "Language name terminator missing";
-
-	length -= 10;
-	assert(length >= num_texts && length < 100000); // Arbitrary upper limit which should be sufficient for some time.
-
-	this->num_texts = num_texts;
-	this->text = (uint8 *)malloc(length);
-	this->strings = (uint8 **)malloc(sizeof(const uint8 **) * num_texts);
-
-	if (this->text == NULL || this->strings == NULL) return "Insufficient memory to load language";
-	if (!rcd_file.GetBlob(this->text, length)) return "Loading language texts failed";
-
-	uint16 idx = 0;
-	uint32 offset = 0;
-	while (idx < num_texts && offset < length) {
-		this->strings[idx] = this->text + offset;
-		idx++;
-
-		while (offset < length) {
-			if(this->text[offset] == '\0') {
-				break;
-			}
-			offset++;
-		}
-		offset++;
-	}
-	/* Note that if the \0 detection falls out of the 'while' on length,
-	 * the 'offset++' below the while makes this check hold. */
-	if (idx != num_texts || offset != length) return "Wrong language text format";
-
-	remain = rcd_file.GetRemaining();
-	if (remain != 0) return "Unexpected additional block";
-
-	return NULL;
 }
 
 /**
@@ -215,15 +140,13 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
  */
 const uint8 *Language::GetText(StringID number)
 {
-	if (number < STRING_TABLE_START) {
+	if (number < STR_GUI_START) {
 		switch (number) {
 			case STR_NULL:  return NULL;
 			case STR_EMPTY: return (const uint8 *)"";
 			default: NOT_REACHED();
 		}
 	}
-
-	if (number < STRING_TABLE_START + this->num_texts) return this->strings[number - STRING_TABLE_START];
 
 	if (number < lengthof(this->registered) && this->registered[number] != NULL) {
 		const uint8 *text = this->registered[number]->GetString();
@@ -239,11 +162,6 @@ const uint8 *Language::GetText(StringID number)
  */
 void InitLanguage()
 {
-	const char *msg = _language.Load("../rcd/english.lang");
-	if (msg != NULL) {
-		fprintf(stderr, "Loading language failed: '%s'\n", msg);
-		exit(1);
-	}
 }
 
 /** Clean up the language. */
