@@ -9,6 +9,7 @@
 .PHONY: run clean rcd lang all
 
 OBJDIR=objects
+RCDDIR=../rcd
 
 PYTHON=python
 
@@ -27,7 +28,7 @@ CXXFILES=config_reader.cpp dates.cpp \
 	viewport.cpp widget.cpp window.cpp
 
 OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
-DEPFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.d))
+DEPEND=$(OBJDIR)/depend.txt
 TARGET=freerct
 
 all: lang rcd $(TARGET)
@@ -54,23 +55,25 @@ lang: ../rcd/english.lang
 	$(PYTHON) ../rcd/process_languages.py --directory lang --output-language ../rcd/english.lang
 
 rcd:
-	$(MAKE) -C ../rcd
+	$(MAKE) -C $(RCDDIR)
 
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-$(OBJDIR)/%.d: %.cpp $(OBJDIR)/table/strings.h
-	$(CXX) -MM $(CXXFLAGS) $(INCLUDES) $< | sed 's,\($*\)\.o[ :]*,$(OBJDIR)/\1.o $@ : ,' > $@
+$(DEPEND): $(OBJDIR)/table/strings.h $(CXXFILES)
+	for f in $(CXXFILES);\
+	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f;\
+	done > $(DEPEND)
 
 $(OBJDIR)/table/strings.h: lang/english.txt ../rcd/process_languages.py
 	$(PYTHON) ../rcd/process_languages.py --directory lang --output-include $@
 
 clean:
-	for i in $(OBJFILES) $(DEPFILES) $(OBJDIR)/table/strings.h $(TARGET);\
+	for i in $(OBJFILES) $(DEPEND) $(OBJDIR)/table/strings.h $(TARGET);\
 	do if test -f $$i; then rm $$i; fi;\
 	done
 
 ifndef NODEPS
-include $(DEPFILES)
+include $(DEPEND)
 endif
 
