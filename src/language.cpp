@@ -226,7 +226,9 @@ const uint8 *Language::GetText(StringID number)
 	if (number < STRING_TABLE_START + this->num_texts) return this->strings[number - STRING_TABLE_START];
 
 	if (number < lengthof(this->registered) && this->registered[number] != NULL) {
-		this->registered[number]->GetString();
+		const uint8 *text = this->registered[number]->GetString();
+		if (*text == '\0') return (const uint8 *)"<empty text>";
+		return text;
 	}
 
 	return (const uint8 *)"<Invalid string>";
@@ -234,7 +236,6 @@ const uint8 *Language::GetText(StringID number)
 
 /**
  * Initialize language support.
- * @todo Implement me.
  */
 void InitLanguage()
 {
