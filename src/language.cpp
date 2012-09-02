@@ -14,11 +14,10 @@
 #include "fileio.h"
 #include "sprite_store.h"
 
-Language _language; ///< Current language.
-int _current_language = 0; ///< Index of the current language
+assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
 
-/** Verify that the generic strings are different from the strings in the language table. */
-assert_compile(STR_GENERIC_COUNT <= STRING_TABLE_START);
+Language _language; ///< Language strings.
+int _current_language = 0; ///< Index of the current translation.
 
 /** Default constructor of a #TextString object. */
 TextString::TextString()
@@ -164,36 +163,48 @@ const char *Language::Load(const char *fname)
  * Register loaded strings of rides etc with the language system.
  * @param td Text data wrapper containing the loaded strings.
  * @param names Array of names to register.
+ * @param base Base address of the strings.
  * @return Base offset for the registered strings. Add the index value of the \a names table to get the real string number.
  */
-uint16 Language::RegisterStrings(const TextData &td, const char * const names[])
+uint16 Language::RegisterStrings(const TextData &td, const char * const names[], uint16 base)
 {
+	/* Count the number of strings. */
 	uint num_strings = 0;
 	const char * const *str = names;
-	while (*str != NULL && this->first_free + num_strings <= lengthof(this->registered)) {
+	while (*str != NULL) {
 		num_strings++;
 		str++;
 	}
-	if (this->first_free + num_strings > lengthof(this->registered)) {
-		fprintf(stderr, "Not enough space to store strings.\n");
-		exit(1);
+
+	if (base == STR_GENERIC_END) {
+		/* Check for enough free space, and assign a block. */
+		if (this->first_free + num_strings >= STR_END_FREE_SPACE) {
+			fprintf(stderr, "Not enough space to store strings.\n");
+			exit(1);
+		}
+		base = this->first_free;
+		this->first_free += num_strings;
+	} else {
+		/* Pre-defined strings should be completely below the free space. */
+		assert(base + num_strings >= base && base + num_strings < this->first_free);
 	}
 
-	uint16 orig_free = this->first_free;
+	/* Copy strings in the expected order. */
+	uint16 number = base;
 	str = names;
 	while (*str != NULL) {
-		this->registered[this->first_free] = NULL;
+		this->registered[number] = NULL;
 		for (uint i = 0; i < td.string_count; i++) {
 			const TextString *ts = td.strings +i;
 			if (!strcmp(*str, ts->name)) {
-				this->registered[this->first_free] = ts;
+				this->registered[number] = ts;
 				break;
 			}
 		}
-		this->first_free++;
+		number++;
 		str++;
 	}
-	return orig_free;
+	return base;
 }
 
 /**
@@ -217,7 +228,7 @@ const uint8 *Language::GetText(StringID number)
 		this->registered[number]->GetString();
 	}
 
-	return (const uint8 *)"Invalid string number";
+	return (const uint8 *)"<Invalid string>";
 }
 
 /**

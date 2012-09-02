@@ -18,13 +18,22 @@ class TextData;
 
 extern int _current_language;
 
-/** Table of strings used in the game. */
+/** Table of string-parts in the game. */
 enum StringTable {
-	STR_NULL = 0,        ///< \c NULL string.
-	STR_EMPTY = 1,       ///< Empty string.
+	STR_NULL = 0,  ///< \c NULL string.
+	STR_EMPTY = 1, ///< Empty string.
 
-	STR_GENERIC_COUNT,   ///< Number of generic strings.
+	STR_GUI_START, ///< Start of the GUI strings.
+
+	/* After the gui strings come the other registered strings. */
+
+	STR_END_FREE_SPACE = 0xF800,
+	STR_GENERIC_SHOP_START = STR_END_FREE_SPACE,
+
+	STR_GENERIC_END = 0xFFFF,
 };
+
+#include "table/shops_strings.h"
 
 typedef uint16 StringID; ///< Type of a string value.
 
@@ -71,7 +80,7 @@ public:
 	const char *Load(const char *fname);
 	void Clear();
 
-	uint16 RegisterStrings(const TextData &td, const char * const names[]);
+	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base=STR_GENERIC_END);
 
 	const uint8 *GetText(StringID number);
 

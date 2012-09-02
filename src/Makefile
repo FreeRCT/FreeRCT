@@ -12,6 +12,7 @@ OBJDIR=objects
 RCDDIR=../rcd
 
 PYTHON=python
+GEN_NAMES_PY=$(RCDDIR)/gen_string_names.py
 
 CXX=g++
 CXXFLAGS=-Wall -g
@@ -60,13 +61,19 @@ rcd:
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-$(DEPEND): $(OBJDIR)/table/strings.h $(CXXFILES)
+$(DEPEND): $(OBJDIR)/table/strings.h $(OBJDIR)/table/shops_strings.h $(CXXFILES)
 	for f in $(CXXFILES);\
 	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f;\
 	done > $(DEPEND)
 
 $(OBJDIR)/table/strings.h: lang/english.txt ../rcd/process_languages.py
 	$(PYTHON) ../rcd/process_languages.py --directory lang --output-include $@
+
+$(OBJDIR)/table/shops_strings.h: $(RCDDIR)/shops_strings.txt
+	$(PYTHON) $(GEN_NAMES_PY) --header $(OBJDIR)/table/shops_strings.h \
+			--code $(OBJDIR)/table/shops_strings.cpp \
+			--prefix=SHOPS_ --base=STR_GENERIC_SHOP_START \
+			$(RCDDIR)/shops_strings.txt
 
 clean:
 	for i in $(OBJFILES) $(DEPEND) $(OBJDIR)/table/strings.h $(TARGET);\
