@@ -187,7 +187,7 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 		this->first_free += num_strings;
 	} else {
 		/* Pre-defined strings should be completely below the free space. */
-		assert(base + num_strings >= base && base + num_strings < this->first_free);
+		assert(base + num_strings >= base && base + num_strings <= this->first_free);
 	}
 
 	/* Copy strings in the expected order. */
