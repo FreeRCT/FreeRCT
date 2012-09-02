@@ -63,6 +63,7 @@ int GetLanguageIndex(const char *lang_name)
 			end = middle;
 		}
 	}
+	if (!strcmp(_lang_names[start], lang_name)) return start;
 	return -1;
 }
 
