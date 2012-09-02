@@ -27,10 +27,10 @@ $(GAMEDATA): freerct.xml structdef.xml
 $(PATHDATA): paths.xml structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g paths.xml
 
-$(SHOPDATA): shops.xml structdef.xml
+$(SHOPDATA): shops.xml shops_strings.txt structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g shops.xml
 
-$(GUIDATA): gui.xml structdef.xml
+$(GUIDATA): gui.xml gui_strings.txt gui_default_lang.xml gui_nl_NL_lang.xml structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g gui.xml
 
 

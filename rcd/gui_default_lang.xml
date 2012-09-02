@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$
+ !
+ ! This file is part of FreeRCT.
+ ! FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+ ! FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ ! See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- Default language -->
+<language lang="">
+	<!-- Generic Gui strings -->
+	<string name="TITLEBAR_TIP">Click at the title bar to raise the window, drag the title bar to move the window</string>
+
+	<string name="MONTH_JANUARY">January</string>
+	<string name="MONTH_FEBRUARY">February</string>
+	<string name="MONTH_MARCH">March</string>
+	<string name="MONTH_APRIL">April</string>
+	<string name="MONTH_MAY">May</string>
+	<string name="MONTH_JUNE">June</string>
+	<string name="MONTH_JULY">July</string>
+	<string name="MONTH_AUGUST">August</string>
+	<string name="MONTH_SEPTEMBER">September</string>
+	<string name="MONTH_OCTOBER">October</string>
+	<string name="MONTH_NOVEMBER">November</string>
+	<string name="MONTH_DECEMBER">December</string>
+
+	<!-- Toolbar gui strings -->
+	<string name="TOOLBAR_GUI_QUIT">Quit</string>
+	<string name="TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM">Quit the program</string>
+	<string name="TOOLBAR_GUI_PATHS">Paths</string>
+	<string name="TOOLBAR_GUI_TOOLTIP_BUILD_PATHS">Build paths and queues</string>
+	<string name="TOOLBAR_GUI_SAVE">Save</string>
+	<string name="TOOLBAR_GUI_TOOLTIP_SAVE_GAME">Save the game</string>
+	<string name="TOOLBAR_GUI_LOAD">Load</string>
+	<string name="TOOLBAR_GUI_TOOLTIP_LOAD_GAME">Load a game</string>
+
+	<!-- Quit program strings -->
+	<string name="QUIT_CAPTION">Quit program?</string>
+	<string name="QUIT_MESSAGE">Quit the program?</string>
+	<string name="QUIT_NO">No</string>
+	<string name="QUIT_YES">Yes</string>
+
+	<!-- Path gui strings -->
+	<string name="PATH_GUI_TITLE">Paths</string>
+	<string name="PATH_GUI_LONG">Long</string>
+	<string name="PATH_GUI_BUY">Buy</string>
+	<string name="PATH_GUI_REMOVE">Remove</string>
+	<string name="PATH_GUI_LONG_TIP">Build a long path</string>
+	<string name="PATH_GUI_BUY_TIP">Buy a path tile</string>
+	<string name="PATH_GUI_BULLDOZER_TIP">Click to remove the last built path and get your money back (works until you close the window)</string>
+	<string name="PATH_GUI_SLOPE_DOWN">Down</string>
+	<string name="PATH_GUI_SLOPE_FLAT">Level</string>
+	<string name="PATH_GUI_SLOPE_UP">Up</string>
+	<string name="PATH_GUI_SLOPE_DOWN_TIP">Build path downwards</string>
+	<string name="PATH_GUI_SLOPE_FLAT_TIP">Build path horizontally</string>
+	<string name="PATH_GUI_SLOPE_UP_TIP">Build path upwards</string>
+
+	<string name="PATH_GUI_FORWARD">Forward</string>
+	<string name="PATH_GUI_BACKWARD">Back</string>
+	<string name="PATH_GUI_FORWARD_TIP">Move a tile forward</string>
+	<string name="PATH_GUI_BACKWARD_TIP">Move a tile backward</string>
+
+	<string name="PATH_GUI_NW_DIRECTION_TIP">Build path in north-west direction</string>
+	<string name="PATH_GUI_NE_DIRECTION_TIP">Build path in north-east direction</string>
+	<string name="PATH_GUI_SW_DIRECTION_TIP">Build path in south-west direction</string>
+	<string name="PATH_GUI_SE_DIRECTION_TIP">Build path in south-east direction</string>
+</language>

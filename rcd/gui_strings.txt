@@ -1,0 +1,67 @@
+# $Id$
+#
+# This file is part of FreeRCT.
+# FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+# FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+#
+# String names defined in the gui.
+
+# Generic Gui strings
+TITLEBAR_TIP
+
+MONTH_JANUARY
+MONTH_FEBRUARY
+MONTH_MARCH
+MONTH_APRIL
+MONTH_MAY
+MONTH_JUNE
+MONTH_JULY
+MONTH_AUGUST
+MONTH_SEPTEMBER
+MONTH_OCTOBER
+MONTH_NOVEMBER
+MONTH_DECEMBER
+
+# Toolbar gui strings
+TOOLBAR_GUI_QUIT
+TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM
+TOOLBAR_GUI_PATHS
+TOOLBAR_GUI_TOOLTIP_BUILD_PATHS
+TOOLBAR_GUI_SAVE
+TOOLBAR_GUI_TOOLTIP_SAVE_GAME
+TOOLBAR_GUI_LOAD
+TOOLBAR_GUI_TOOLTIP_LOAD_GAME
+
+# Quit program strings
+QUIT_CAPTION
+QUIT_MESSAGE
+QUIT_NO
+QUIT_YES
+
+# Path gui strings
+PATH_GUI_TITLE
+PATH_GUI_LONG
+PATH_GUI_BUY
+PATH_GUI_REMOVE
+PATH_GUI_LONG_TIP
+PATH_GUI_BUY_TIP
+PATH_GUI_BULLDOZER_TIP
+
+PATH_GUI_SLOPE_DOWN
+PATH_GUI_SLOPE_FLAT
+PATH_GUI_SLOPE_UP
+PATH_GUI_SLOPE_DOWN_TIP
+PATH_GUI_SLOPE_FLAT_TIP
+PATH_GUI_SLOPE_UP_TIP
+
+PATH_GUI_FORWARD
+PATH_GUI_BACKWARD
+PATH_GUI_FORWARD_TIP
+PATH_GUI_BACKWARD_TIP
+
+PATH_GUI_NW_DIRECTION_TIP
+PATH_GUI_NE_DIRECTION_TIP
+PATH_GUI_SW_DIRECTION_TIP
+PATH_GUI_SE_DIRECTION_TIP
+

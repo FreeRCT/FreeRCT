@@ -174,7 +174,7 @@
 		<field name="left">      <type name="sprite"/></field>
 	</block>
 
-	<block magic="GSLP" minversion="1" maxversion="1">
+	<block magic="GSLP" minversion="1" maxversion="2">
 		<field name="vert-down">  <type name="sprite"/><comment>Slope vertically down</comment></field>
 		<field name="steep-down"> <type name="sprite"/><comment>Slope steeply down</comment></field>
 		<field name="gentle-down"><type name="sprite"/><comment>Slope gently down</comment></field>
@@ -182,13 +182,14 @@
 		<field name="gentle-up">  <type name="sprite"/><comment>Slope gently up</comment></field>
 		<field name="steep-up">   <type name="sprite"/><comment>Slope steeply up</comment></field>
 		<field name="vert-up">    <type name="sprite"/><comment>Slope vertically up</comment></field>
-	</block>
 
-	<block magic="GROT" minversion="1" maxversion="1">
-		<field name="2d-positive"><type name="sprite"/><comment>Flat rotation, positive direction</comment></field>
-		<field name="2d-negative"><type name="sprite"/><comment>Flat rotation, negative direction</comment></field>
-		<field name="3d-positive"><type name="sprite"/><comment>Diametric rotation, positive direction</comment></field>
-		<field name="3d-negative"><type name="sprite"/><comment>Diametric rotation, negative direction</comment></field>
+		<field name="2d-positive" minversion="2"><type name="sprite"/><comment>Flat rotation, positive direction</comment></field>
+		<field name="2d-negative" minversion="2"><type name="sprite"/><comment>Flat rotation, negative direction</comment></field>
+		<field name="3d-positive" minversion="2"><type name="sprite"/><comment>Diametric rotation, positive direction</comment></field>
+		<field name="3d-negative" minversion="2"><type name="sprite"/><comment>Diametric rotation, negative direction</comment></field>
+
+		<field name="texts" minversion="2"> <type name="text" file="gui_strings.txt"/>
+		</field>
 	</block>
 
 	<block magic="PARE" minversion="1" maxversion="1">

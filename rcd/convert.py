@@ -277,6 +277,71 @@ def sort_translations(tr_texts):
     assert texts[0][0] == u""
     return texts[1:] + [texts[0]]
 
+def collect_language_strings(str_names, node, is_texts, texts, lang):
+    """
+    Collect language strings from the node (either a 'texts' or a 'language' node).
+
+    @param str_names: Expected string names (for printing warnings).
+    @type  str_names: C{list} of C{unicode}
+
+    @param node: The XML node of the data value/field.
+    @type  node: L{xml.dim.minidom.Node}
+
+    @param is_texts: This node is a 'texts' node.
+    @type  is_texts: C{bool}
+
+    @param texts: Collected strings so far, mapping of string names to
+                  (mapping of language to actual text).
+    @type  texts: C{dict} of C{unicode} to C{dict} of C{unicode} to C{unicode}
+
+    @param lang: Language of the strings (should be a known language).
+    @type  lang: C{unicode}
+    """
+    if not is_texts:
+        str_lang = datatypes.get_opt_DOMattr(node, 'lang', None)
+        if str_lang is not None:
+            if str_lang not in KNOWN_LANGUAGES:
+                print "WARNING: Language \"%s\" is unknown" % str_lang
+                KNOWN_LANGUAGES.add(str_lang) # Just one warning is sufficient.
+            lang = str_lang
+
+    if not is_texts:
+        file_attr = datatypes.get_opt_DOMattr(node, 'file', None)
+        if file_attr is not None:
+            # Load the xml file, process it, and return.
+            dom = minidom.parse(file_attr)
+            root = datatypes.get_single_child_node(dom, u"language")
+            collect_language_strings(str_names, root, False, texts, lang)
+            return
+
+    # Process sub-'language' nodes.
+    for lang_node in datatypes.get_child_nodes(node, u'language'):
+        collect_language_strings(str_names, lang_node, False, texts, lang)
+
+    # Process strings.
+    for str_node in datatypes.get_child_nodes(node, u'string'):
+        str_name = str_node.getAttribute(u'name')
+        str_text = datatypes.collect_text_DOM(str_node)
+        str_lang = datatypes.get_opt_DOMattr(node, 'lang', None)
+        if str_lang is None:
+            str_lang = lang
+        else:
+            if str_lang not in KNOWN_LANGUAGES:
+                print "WARNING: Language \"%s\" is unknown" % str_lang
+                KNOWN_LANGUAGES.add(str_lang) # Just one warning is sufficient.
+
+        if str_name not in str_names:
+            print "WARNING: String name \"%s\" not expected" % str_name
+            str_names.add(str_name)
+
+        trans = texts.get(str_name)
+        if trans is None:
+            trans = {}
+            texts[str_name] = trans
+
+        trans[str_lang] = str_text
+
+    # Done!
 
 def make_texts(named_node, str_names, file_blocks):
     """
@@ -297,25 +362,7 @@ def make_texts(named_node, str_names, file_blocks):
     str_names = set(str_names)
 
     texts = {} # Mapping of string names to (mapping of languages to actual text)
-    for str_node in datatypes.get_child_nodes(named_node.node, u'string'):
-        str_name = str_node.getAttribute(u'name')
-        str_lang = str_node.getAttribute(u'lang')
-        str_text = datatypes.collect_text_DOM(str_node)
-
-        if str_lang not in KNOWN_LANGUAGES:
-            print "WARNING: Language \"%s\" is unknown" % str_lang
-            KNOWN_LANGUAGES.add(str_lang) # Just one warning is sufficient.
-
-        if str_name not in str_names:
-            print "WARNING: String name \"%s\" not expected" % str_name
-            str_names.add(str_name)
-
-        trans = texts.get(str_name)
-        if trans is None:
-            trans = {}
-            texts[str_name] = trans
-
-        trans[str_lang] = str_text
+    collect_language_strings(str_names, named_node.node, True, texts, u"")
 
     for name in str_names:
         if name not in texts:
