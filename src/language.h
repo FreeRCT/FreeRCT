@@ -59,9 +59,10 @@ public:
 	 */
 	const uint8 *GetString() const
 	{
-		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT ||
-				this->languages[_current_language] == NULL) return (uint8 *)"";
-		return this->languages[_current_language];
+		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return (uint8 *)"<out of bounds>";
+		if (this->languages[_current_language] != NULL) return this->languages[_current_language];
+		if (this->languages[0] != NULL) return this->languages[0];
+		return (uint8 *)"<no-text>";
 	}
 
 	const char *name;                      ///< Name of the string.
