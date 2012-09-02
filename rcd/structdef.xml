@@ -360,7 +360,7 @@
 			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
 			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
 		</field>
-		<field name="texts" minversion="3"> <type name="text">name, description</type></field>
+		<field name="texts" minversion="3"><type name="text" file="shops_strings.txt"/></field>
 	</block>
 
 	<!-- Ground surface sprites -->

@@ -5,7 +5,7 @@
 # FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
-import re
+import re, codecs
 from xml.dom import minidom
 from xml.dom.minidom import Node
 
@@ -88,6 +88,27 @@ def get_single_child_node(node, name, optional=False):
     print "ERROR: Failed to find precisely one child node named \"" + name + "\" in"
     print node.toxml()
     sys.exit(1)
+
+def read_string_names(fname):
+    """
+    Read names of string from a file.
+
+    @param fname: Name of file to read from (one name per line). May be C{None}.
+    @type  fname: C{unicode} or C{None}
+
+    @return: Read unique names from the file.
+    @rtype:  C{list} of C{unicode}
+    """
+    words = []
+    if fname is not None:
+        fp = codecs.open(fname, 'r', encoding='utf-8')
+        for line in fp:
+            line = line.strip()
+            if len(line) == 0 or line[0] == '#': continue
+            if line in words: continue
+            words.append(line)
+        fp.close()
+    return words
 
 
 class DataType(object):
@@ -490,21 +511,23 @@ def read_type(node, blk_name, fld_name):
             bfields.append(make_bitfield(bfld))
         return BitSet(store_type, bfields)
     if name == u"text":
+        file_attr = get_opt_DOMattr(type_node, 'file', None)
+        words = read_string_names(file_attr)
         expected = collect_text_DOM(type_node)
         # A complicated way of splitting on ', \t\n\r'
-        words = []
         word = None
         for c in expected:
             if c in u', \t\n\r':
                 if word is None: continue
-                words.append(word)
+                if word not in words:
+                    words.append(word)
                 word = None
                 continue
             if word is None:
                 word = c
             else:
                 word = word + c
-        if word is not None:
+        if word is not None and word not in words:
             words.append(word)
         return TextType(words)
     return _types[name]
