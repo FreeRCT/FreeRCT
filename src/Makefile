@@ -58,7 +58,7 @@ $(OBJDIR)/%.o: %.cpp
 
 $(DEPEND): $(OBJDIR)/table/gui_strings.h $(OBJDIR)/table/shops_strings.h $(CXXFILES)
 	for f in $(CXXFILES);\
-	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f;\
+	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f | sed -e "s@^[^ ]*\\.o:@$(OBJDIR)/&@";\
 	done > $(DEPEND)
 
 $(OBJDIR)/table/gui_strings.h: $(RCDDIR)/gui_strings.txt
