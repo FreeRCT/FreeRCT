@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file fileio.h File IO declarations. */
+/** @file dates.h Declarations for dates in the game. */
 
 #ifndef DATES_H
 #define DATES_H
@@ -26,14 +26,32 @@ enum DateTickChanges {
 	DTC_YEAR  = 1 << 2, ///< The year has changed.
 };
 
+typedef uint32 CompressedDate; ///< Compressed date for easy transfer/storage.
+
+/** Bits and sizes of the compressed date format. */
+enum CompressedDateBits {
+	CDB_DAY_LENGTH   =  5, ///< Length of the 'day'      field in the compressed date.
+	CDB_MONTH_LENGTH =  4, ///< Length of the 'month'    field in the compressed date.
+	CDB_YEAR_LENGTH  =  7, ///< Length of the 'year'     field in the compressed date.
+	CDB_FRAC_LENGTH  = 10, ///< Length of the 'fraction' field in the compressed date.
+
+	CDB_DAY_START = 0,                                    ///< Start bit of the 'day' field.
+	CDB_MONTH_START = CDB_DAY_START + CDB_DAY_LENGTH,     ///< Start bit of the 'month' field.
+	CDB_YEAR_START = CDB_MONTH_START + CDB_MONTH_LENGTH,  ///< Start bit of the 'year' field.
+	CDB_FRAC_START = CDB_YEAR_START + CDB_YEAR_LENGTH,    ///< Start bit of the 'fraction' field.
+};
+
+/** %Date in the game. */
 class Date {
 public:
 	Date();
 	Date(int pday, int pmonth, int pyear, int pfrac = 0);
+	Date(CompressedDate cd);
 	Date(const Date &d);
 	Date &operator=(const Date &d);
 	~Date() { }
 
+	CompressedDate Compress() const;
 	StringID GetMonthName(int month = 0) const;
 
 	int day;   ///< Day of the month, 1-based.
