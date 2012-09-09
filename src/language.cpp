@@ -15,6 +15,7 @@
 #include "sprite_store.h"
 #include "video.h"
 #include "string_func.h"
+#include "dates.h"
 
 assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many gui strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
@@ -169,6 +170,33 @@ void DrawText(StringID strid, uint8 *buffer, uint length)
 {
 	const uint8 *txt = _language.GetText(strid);
 	StrECpy(buffer, buffer + length, txt);
+}
+
+/**
+ * Get the name of a month or the current month.
+ * @param month Month number (1-based). Use \c 0 to get the name of the current month.
+ * @return String number containing the month name.
+ */
+StringID GetMonthName(int month)
+{
+	static const uint16 month_names[] = {
+		GUI_MONTH_JANUARY,
+		GUI_MONTH_FEBRUARY,
+		GUI_MONTH_MARCH,
+		GUI_MONTH_APRIL,
+		GUI_MONTH_MAY,
+		GUI_MONTH_JUNE,
+		GUI_MONTH_JULY,
+		GUI_MONTH_AUGUST,
+		GUI_MONTH_SEPTEMBER,
+		GUI_MONTH_OCTOBER,
+		GUI_MONTH_NOVEMBER,
+		GUI_MONTH_DECEMBER,
+	};
+
+	if (month == 0) month = _date.month;
+	assert(month >= 1 && month < 13);
+	return month_names[month - 1];
 }
 
 /**

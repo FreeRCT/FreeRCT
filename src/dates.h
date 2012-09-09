@@ -12,8 +12,6 @@
 #ifndef DATES_H
 #define DATES_H
 
-#include "language.h"
-
 static const int TICK_COUNT_PER_DAY = 100; ///< Number of ticks in a day (stored in #Date::frac).
 
 /**
@@ -52,7 +50,6 @@ public:
 	~Date() { }
 
 	CompressedDate Compress() const;
-	StringID GetMonthName(int month = 0) const;
 
 	int day;   ///< Day of the month, 1-based.
 	int month; ///< Month of the year, 1-based.

@@ -93,6 +93,7 @@ int GetLanguageIndex(const char *lang_name);
 void InitLanguage();
 void UninitLanguage();
 
+StringID GetMonthName(int month = 0);
 void DrawText(StringID num, uint8 *buffer, uint length);
 void GetTextSize(StringID num, int *width, int *height);
 

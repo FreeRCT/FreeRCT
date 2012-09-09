@@ -90,33 +90,6 @@ CompressedDate Date::Compress() const
 }
 
 /**
- * Get the name of a month or the current month.
- * @param month Month number (1-based). Use \c 0 to get the name of the current month.
- * @return String number containing the month name.
- */
-StringID Date::GetMonthName(int month) const
-{
-	static const uint16 month_names[] = {
-		GUI_MONTH_JANUARY,
-		GUI_MONTH_FEBRUARY,
-		GUI_MONTH_MARCH,
-		GUI_MONTH_APRIL,
-		GUI_MONTH_MAY,
-		GUI_MONTH_JUNE,
-		GUI_MONTH_JULY,
-		GUI_MONTH_AUGUST,
-		GUI_MONTH_SEPTEMBER,
-		GUI_MONTH_OCTOBER,
-		GUI_MONTH_NOVEMBER,
-		GUI_MONTH_DECEMBER,
-	};
-
-	if (month == 0) month = this->month;
-	assert(month >= 1 && month < 13);
-	return month_names[month - 1];
-}
-
-/**
  * Update the day.
  * @return Set of bits what parts of the date have changed.
  * @note It does not care about leap years.
