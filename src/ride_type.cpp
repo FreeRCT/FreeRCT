@@ -64,6 +64,17 @@ bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, c
 	return true;
 }
 
+/**
+ * Get the string instance for the generic shops string of \a number.
+ * @param number Generic shops string number to retrieve.
+ * @return The instantiated string for this shop type.
+ */
+StringID ShopType::GetString(uint16 number) const
+{
+	assert(number >= STR_GENERIC_SHOP_START && number < SHOPS_STRING_TABLE_END);
+	return this->string_base + (number - STR_GENERIC_SHOP_START);
+}
+
 RideTypeManager::RideTypeManager()
 {
 	for (uint i = 0; i < lengthof(this->shops); i++) this->shops[i] = NULL;
