@@ -244,6 +244,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 /* virtual */ void BaseWidget::Draw(const GuiWindow *w)
 {
 	/* Nothing to do for WT_EMPTY */
+	if (this->number != INVALID_WIDGET_INDEX) w->DrawWidget(this->number, this);
 }
 
 /**
@@ -599,6 +600,7 @@ BackgroundWidget::~BackgroundWidget()
 	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
 	DrawBorderSprites(_gui_sprites.panel, false, rect, this->colour);
 
+	if (this->number != INVALID_WIDGET_INDEX) w->DrawWidget(this->number, this);
 	if (this->child != NULL) this->child->Draw(w);
 }
 

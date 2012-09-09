@@ -353,6 +353,17 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	/* Do nothing by default. */
 }
 
+/**
+ * Draw custom contents of the widget.
+ * The code should not do anything else but render contents to the screen.
+ * @param wid_num Widget number of the widget being drawn.
+ * @param wid The widget itself.
+ */
+/* virtual */ void GuiWindow::DrawWidget(int wid_num, const BaseWidget *wid) const
+{
+	/* Do nothing by default. */
+}
+
 /* virtual */ void GuiWindow::OnDraw()
 {
 	this->tree->Draw(this);
