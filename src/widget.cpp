@@ -239,9 +239,9 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 
 /**
  * Draw the widget.
- * @param base Base address of the window.
+ * @param w %Window being drawn.
  */
-/* virtual */ void BaseWidget::Draw(const Point32 &base)
+/* virtual */ void BaseWidget::Draw(const GuiWindow *w)
 {
 	/* Nothing to do for WT_EMPTY */
 }
@@ -301,7 +301,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	this->resize_x = 0; this->resize_y = 0;
 }
 
-/* virtual */ void LeafWidget::Draw(const Point32 &base)
+/* virtual */ void LeafWidget::Draw(const GuiWindow *w)
 {
 	int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
 	if ((this->flags & LWF_SHADED) != 0) {
@@ -311,7 +311,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	}
 	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)this->colour);
-	_video->BlitImage(base.x + this->pos.base.x, base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num], rc, 0);
+	_video->BlitImage(w->rect.base.x + this->pos.base.x, w->rect.base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num], rc, 0);
 }
 
 /* virtual */ void LeafWidget::RaiseButtons(const Point32 &base)
@@ -385,7 +385,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 }
 
 /** @todo Fix the hardcoded colour of the text. */
-/* virtual */ void DataWidget::Draw(const Point32 &base)
+/* virtual */ void DataWidget::Draw(const GuiWindow *w)
 {
 	const BorderSpriteData *bsd = NULL;
 	uint8 pressed = 0;
@@ -410,10 +410,10 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		default:
 			NOT_REACHED();
 	}
-	int left = base.x + this->pos.base.x + this->paddings[PAD_LEFT];
-	int top = base.y + this->pos.base.y + this->paddings[PAD_TOP];
-	int right = base.x + this->pos.base.x + this->pos.width - 1 - this->paddings[PAD_RIGHT];
-	int bottom = base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
+	int left   = w->rect.base.x + this->pos.base.x + this->paddings[PAD_LEFT];
+	int top    = w->rect.base.y + this->pos.base.y + this->paddings[PAD_TOP];
+	int right  = w->rect.base.x + this->pos.base.x + this->pos.width  - 1 - this->paddings[PAD_RIGHT];
+	int bottom = w->rect.base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 	if (bsd != NULL) {
 		left += bsd->border_left;
 		top += bsd->border_top;
@@ -476,7 +476,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 	}
 }
 
-/* virtual */ void ScrollbarWidget::Draw(const Point32 &base)
+/* virtual */ void ScrollbarWidget::Draw(const GuiWindow *w)
 {
 	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
@@ -487,8 +487,8 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 	const ImageData * const *imd = this->IsShaded() ? scroll_sprites.shaded : scroll_sprites.normal;
 
 	Point32 pos;
-	pos.x = base.x + this->pos.base.x;
-	pos.y = base.y + this->pos.base.y;
+	pos.x = w->rect.base.x + this->pos.base.x;
+	pos.y = w->rect.base.y + this->pos.base.y;
 
 	/* Draw left/up button. */
 	_video->BlitImage(pos, imd[WLS_LEFT_BUTTON], rc, 0);
@@ -583,12 +583,12 @@ BackgroundWidget::~BackgroundWidget()
 	}
 }
 
-/* virtual */ void BackgroundWidget::Draw(const Point32 &base)
+/* virtual */ void BackgroundWidget::Draw(const GuiWindow *w)
 {
-	int left = base.x + this->pos.base.x + this->paddings[PAD_LEFT];
-	int top = base.y + this->pos.base.y + this->paddings[PAD_TOP];
-	int right = base.x + this->pos.base.x + this->pos.width - 1 - this->paddings[PAD_RIGHT];
-	int bottom = base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
+	int left   = w->rect.base.x + this->pos.base.x + this->paddings[PAD_LEFT];
+	int top    = w->rect.base.y + this->pos.base.y + this->paddings[PAD_TOP];
+	int right  = w->rect.base.x + this->pos.base.x + this->pos.width - 1 - this->paddings[PAD_RIGHT];
+	int bottom = w->rect.base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 	left += _gui_sprites.panel.border_left;
 	top += _gui_sprites.panel.border_top;
 	right -= _gui_sprites.panel.border_right;
@@ -599,7 +599,7 @@ BackgroundWidget::~BackgroundWidget()
 	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
 	DrawBorderSprites(_gui_sprites.panel, false, rect, this->colour);
 
-	if (this->child != NULL) this->child->Draw(base);
+	if (this->child != NULL) this->child->Draw(w);
 }
 
 /* virtual */ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
@@ -937,10 +937,10 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	}
 }
 
-/* virtual */ void IntermediateWidget::Draw(const Point32 &base)
+/* virtual */ void IntermediateWidget::Draw(const GuiWindow *w)
 {
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
-		this->childs[idx]->Draw(base);
+		this->childs[idx]->Draw(w);
 	}
 }
 

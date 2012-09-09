@@ -350,12 +350,12 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  */
 /* virtual */ void GuiWindow::UpdateWidgetSize(int wid_num, BaseWidget *wid)
 {
-	// Do nothing by default.
+	/* Do nothing by default. */
 }
 
 /* virtual */ void GuiWindow::OnDraw()
 {
-	this->tree->Draw(this->rect.base);
+	this->tree->Draw(this);
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video->DrawRectangle(this->rect, COL_HIGHLIGHT);
 }
 

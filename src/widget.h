@@ -72,7 +72,7 @@ public:
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const Point32 &base);
+	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void RaiseButtons(const Point32 & base);
 
@@ -119,7 +119,7 @@ public:
 	LeafWidget(WidgetType wtype);
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void Draw(const Point32 &base);
+	virtual void Draw(const GuiWindow *w);
 	virtual void RaiseButtons(const Point32 & base);
 
 	/**
@@ -191,7 +191,7 @@ public:
 	DataWidget(WidgetType wtype);
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void Draw(const Point32 &base);
+	virtual void Draw(const GuiWindow *w);
 
 	uint16 value;     ///< String number or sprite id.
 	int value_width;  ///< Width of the image or the string.
@@ -208,7 +208,7 @@ public:
 	ScrollbarWidget(WidgetType wtype);
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void Draw(const Point32 &base);
+	virtual void Draw(const GuiWindow *w);
 
 	int16 canvas_widget; ///< Widget number of the canvas.
 };
@@ -225,7 +225,7 @@ public:
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const Point32 &base);
+	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void RaiseButtons(const Point32 & base);
 
@@ -265,7 +265,7 @@ public:
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const Point32 &base);
+	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void RaiseButtons(const Point32 & base);
 
