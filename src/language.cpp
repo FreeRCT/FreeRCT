@@ -13,6 +13,8 @@
 #include "language.h"
 #include "fileio.h"
 #include "sprite_store.h"
+#include "video.h"
+#include "string_func.h"
 
 assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many gui strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
@@ -155,6 +157,31 @@ const uint8 *Language::GetText(StringID number)
 	}
 
 	return (const uint8 *)"<Invalid string>";
+}
+
+/**
+ * Draw the string into the supplied buffer.
+ * @param strid String number to 'draw'.
+ * @param buffer Destination buffer.
+ * @param length Length of \a buffer in bytes.
+ */
+void DrawText(StringID strid, uint8 *buffer, uint length)
+{
+	const uint8 *txt = _language.GetText(strid);
+	StrECpy(buffer, buffer + length, txt);
+}
+
+/**
+ * Get the text-size of a string.
+ * @param strid Text to calculate.
+ * @param width [out] Resulting width.
+ * @param height [out] Resulting height.
+ */
+void GetTextSize(StringID strid, int *width, int *height)
+{
+	static uint8 buffer[1024]; // Arbitrary max size.
+	DrawText(strid, buffer, lengthof(buffer));
+	_video->GetTextSize(buffer, width, height);
 }
 
 /**

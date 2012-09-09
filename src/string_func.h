@@ -14,6 +14,7 @@
 
 char *SafeStrncpy(char *dest, const char *src, int size);
 char *StrDup(const char *src);
+uint8 *StrECpy(uint8 *dest, uint8 *end, const uint8 *src);
 
 bool StrEndsWith(const char *str, const char *end, bool case_sensitive);
 

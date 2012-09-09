@@ -93,6 +93,9 @@ int GetLanguageIndex(const char *lang_name);
 void InitLanguage();
 void UninitLanguage();
 
+void DrawText(StringID num, uint8 *buffer, uint length);
+void GetTextSize(StringID num, int *width, int *height);
+
 extern Language _language;
 
 #endif

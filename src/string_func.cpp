@@ -43,6 +43,26 @@ char *StrDup(const char *src)
 }
 
 /**
+ * String copy up to an end-point of the destination.
+ * @param dest Start of destination buffer.
+ * @param end End of destination buffer (\c *end is never written).
+ * @param src Source string.
+ * @return \a dest.
+ */
+uint8 *StrECpy(uint8 *dest, uint8 *end, const uint8 *src)
+{
+	uint8 *dst = dest;
+	end--;
+	while (*src && dest < end) {
+		*dest = *src;
+		dest++;
+		src++;
+	}
+	*dest = '\0';
+	return dst;
+}
+
+/**
  * Test whether \a str ends with \a end.
  * @param str String to check.
  * @param end Expected end text.

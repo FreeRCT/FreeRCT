@@ -75,6 +75,20 @@ static void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const R
 	_video->BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
 }
 
+/**
+ * Draw a string to the screen.
+ * @param strid String to draw.
+ * @param x X position at the screen.
+ * @param y Y position at the screen.
+ * @param colour Colour of the text.
+ */
+void DrawString(StringID strid, int x, int y, uint8 colour)
+{
+	uint8 buffer[1024]; // Arbitrary limit.
+
+	DrawText(strid, buffer, lengthof(buffer));
+	_video->BlitText(buffer, x, y, colour);
+}
 
 /**
  * Base class widget constructor.
@@ -360,8 +374,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			NOT_REACHED();
 	}
 
-	const uint8 *text = _language.GetText(this->value);
-	_video->GetTextSize(text, &this->value_width, &this->value_height);
+	GetTextSize(this->value, &this->value_width, &this->value_height);
 	if (bsd != NULL) {
 		this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
 	} else {
@@ -424,8 +437,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			_video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
 		}
 	} else {
-		const uint8 *text = _language.GetText(this->value);
-		_video->BlitText(text, xoffset + pressed, yoffset + pressed, 21);
+		DrawString(this->value, xoffset + pressed, yoffset + pressed, 21);
 	}
 }
 

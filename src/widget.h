@@ -327,6 +327,8 @@ public:
 	} data; ///< Data of the widget part.
 };
 
+void DrawString(StringID strid, int x, int y, uint8 colour);
+
 WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour);
 WidgetPart Intermediate(uint8 num_rows, uint8 num_cols = 0);
 WidgetPart SetMinimalSize(int16 x, int16 y);
