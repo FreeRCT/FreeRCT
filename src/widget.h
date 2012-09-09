@@ -329,7 +329,7 @@ public:
 
 WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour);
 WidgetPart Intermediate(uint8 num_rows, uint8 num_cols = 0);
-WidgetPart SetMinimalSize(uint8 x, uint8 y);
+WidgetPart SetMinimalSize(int16 x, int16 y);
 WidgetPart SetFill(uint8 x, uint8 y);
 WidgetPart SetResize(uint8 x, uint8 y);
 WidgetPart SetPadding(uint8 top, uint8 right, uint8 bottom, uint8 left);

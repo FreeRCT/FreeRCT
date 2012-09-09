@@ -995,10 +995,11 @@ WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour)
  * @return Widget part containing the provided data for storage in an array.
  * @ingroup widget_parts_group
  */
-WidgetPart SetMinimalSize(uint8 x, uint8 y)
+WidgetPart SetMinimalSize(int16 x, int16 y)
 {
 	WidgetPart part;
 
+	assert(x > 0 && y > 0);
 	part.type = WPT_MIN_SIZE;
 	part.data.size.x = x;
 	part.data.size.y = y;
