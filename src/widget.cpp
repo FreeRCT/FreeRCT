@@ -259,10 +259,10 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 }
 
 /**
- * Raise all buttons in the tree.
+ * Raise all push buttons in the tree.
  * @param base Base position of the window.
  */
-/* virtual */ void BaseWidget::RaiseButtons(const Point32 &base)
+/* virtual */ void BaseWidget::AutoRaiseButtons(const Point32 &base)
 {
 }
 
@@ -315,9 +315,9 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	_video->BlitImage(w->rect.base.x + this->pos.base.x, w->rect.base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num], rc, 0);
 }
 
-/* virtual */ void LeafWidget::RaiseButtons(const Point32 &base)
+/* virtual */ void LeafWidget::AutoRaiseButtons(const Point32 &base)
 {
-	if (this->IsPressed()) {
+	if ((this->wtype == WT_TEXT_PUSHBUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) && this->IsPressed()) {
 		this->SetPressed(false);
 		this->MarkDirty(base);
 	}
@@ -616,9 +616,9 @@ BackgroundWidget::~BackgroundWidget()
 	return NULL;
 }
 
-/* virtual */ void BackgroundWidget::RaiseButtons(const Point32 &base)
+/* virtual */ void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
 {
-	if (this->child != NULL) this->child->RaiseButtons(base);
+	if (this->child != NULL) this->child->AutoRaiseButtons(base);
 }
 
 /** Initialize the row/column data. */
@@ -958,10 +958,10 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	return res;
 }
 
-/* virtual */ void IntermediateWidget::RaiseButtons(const Point32 &base)
+/* virtual */ void IntermediateWidget::AutoRaiseButtons(const Point32 &base)
 {
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
-		this->childs[idx]->RaiseButtons(base);
+		this->childs[idx]->AutoRaiseButtons(base);
 	}
 }
 

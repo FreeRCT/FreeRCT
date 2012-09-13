@@ -74,7 +74,7 @@ public:
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
-	virtual void RaiseButtons(const Point32 & base);
+	virtual void AutoRaiseButtons(const Point32 & base);
 
 	void MarkDirty(const Point32 &base);
 
@@ -111,7 +111,6 @@ DECLARE_ENUM_AS_BIT_SET(LeafWidgetFlags)
 /**
  * Base class for a (visible) leaf widget.
  * Implements #WT_RADIOBUTTON
- * @todo use #LeafWidget::colour.
  * @ingroup widget_group
  */
 class LeafWidget : public BaseWidget {
@@ -120,7 +119,7 @@ public:
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void Draw(const GuiWindow *w);
-	virtual void RaiseButtons(const Point32 & base);
+	virtual void AutoRaiseButtons(const Point32 & base);
 
 	/**
 	 * Is the 'checked' flag on?
@@ -227,7 +226,7 @@ public:
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
-	virtual void RaiseButtons(const Point32 & base);
+	virtual void AutoRaiseButtons(const Point32 & base);
 
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
@@ -267,7 +266,7 @@ public:
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
-	virtual void RaiseButtons(const Point32 & base);
+	virtual void AutoRaiseButtons(const Point32 & base);
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();

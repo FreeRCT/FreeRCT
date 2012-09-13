@@ -522,7 +522,7 @@ WidgetNumber GuiWindow::GetSelectedRadioButton(const WidgetNumber *wids)
 
 /* virtual */ void GuiWindow::TimeoutCallback()
 {
-	this->tree->RaiseButtons(this->rect.base);
+	this->tree->AutoRaiseButtons(this->rect.base);
 	if ((this->flags & WF_HIGHLIGHT) != 0) this->SetHighlight(false);
 }
 
