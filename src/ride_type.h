@@ -18,13 +18,29 @@ static const int NUMBER_SHOP_RECOLOUR_MAPPINGS = 3; ///< Number of (random) colo
 static const int MAX_NUMBER_OF_RIDES = 64; ///< Maximal number of (types of) rides.
 
 /**
+ * Kinds of ride types.
+ * @todo Split coasters into different kinds??
+ */
+enum RideTypeKind {
+	RTK_SHOP,            ///< Ride type allows buying useful stuff.
+	RTK_GENTLE,          ///< Gentle kind of ride.
+	RTK_WET,             ///< Ride type uses water.
+	RTK_COASTER,         ///< Ride type is a coaster.
+
+	RTK_RIDE_KIND_COUNT, ///< Number of kinds of ride types.
+};
+
+/**
  * A 'ride' where you can buy food, drinks, and other stuff you need for a visit.
- * @todo: Allow for other sized sprites + different recolours.
+ * @todo Allow for other sized sprites + different recolours.
+ * @todo Allow for other kinds of ride type.
  */
 class ShopType {
 public:
 	ShopType();
 	~ShopType();
+
+	RideTypeKind GetRideKind() const;
 
 	bool Load(RcdFile *rcf_file, uint32 length, const ImageMap &sprites, const TextMap &texts);
 	StringID GetString(uint16 number) const;

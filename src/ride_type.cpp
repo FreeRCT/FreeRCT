@@ -33,6 +33,15 @@ ShopType::~ShopType()
 }
 
 /**
+ * Get the kind of the ride type.
+ * @return Kind of the ride type.
+ */
+RideTypeKind ShopType::GetRideKind() const
+{
+	return RTK_SHOP;
+}
+
+/**
  * Load a type of shop from the RCD file.
  * @param rcd_file Rcd file being loaded.
  * @param length Length of the data in the current block.
