@@ -41,6 +41,12 @@ enum ColourRange {
 	COL_RANGE_INVALID = COL_RANGE_COUNT, ///< Number denoting an invalid colour range.
 };
 
+/** Gui text colours. */
+enum GuiTextColours {
+	TEXT_BLACK = 0, ///< Black text colour.
+	TEXT_WHITE = 1, ///< White text colour.
+};
+
 /** Colours. */
 enum PaletteColours {
 	COL_BACKGROUND = 0,     ///< Index of background behind the world display.
