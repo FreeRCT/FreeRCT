@@ -15,6 +15,10 @@
 /** Gui sprite table. */
 enum GuiSpritesTable {
 	SPR_GUI_BULLDOZER,  ///< Bulldozer sprite.
+	SPR_GUI_ROT2D_POS,  ///< 2d vertical rotation in positive direction (counter clockwise).
+	SPR_GUI_ROT2D_NEG,  ///< 2d vertical rotation in negative direction (clockwise).
+	SPR_GUI_ROT3D_POS,  ///< 3d (xy-plane) rotation in positive direction (counter clockwise).
+	SPR_GUI_ROT3D_NEG,  ///< 3d (xy-plane) rotation in negative direction (clockwise).
 
 	SPR_GUI_SLOPES_START, ///< Start of track slopes.
 	SPR_GUI_SLOPES_END = SPR_GUI_SLOPES_START + TSL_COUNT_VERTICAL, ///< End of track slopes.

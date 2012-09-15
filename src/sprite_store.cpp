@@ -1506,15 +1506,14 @@ void SpriteManager::AddAnimation(Animation *anim)
  * Get the size of a GUI image according to the table in <tt>table/gui_sprites.h</tt>.
  * @param number Number of the sprite to get.
  * @return The size of the sprite (which may be a default if there is no sprite).
+ * @note Return value is kept until the next call.
  * @todo Add a bulldozer sprite.
  */
 const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 {
-	static const Rectangle16 dummy(0, 0, 10, 10);
+	static Rectangle16 result;
 	static Rectangle16 slopes;
 	static Rectangle16 arrows;
-
-	if (number == SPR_GUI_BULLDOZER) return dummy;
 
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
 		if (slopes.width == 0) {
@@ -1538,7 +1537,19 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 		}
 		return arrows;
 	}
-	return dummy; // Return a dummy size.
+
+	/* 'Simple' single sprites. */
+	const ImageData *imd = this->GetTableSprite(number);
+	if (imd != NULL && imd->width != 0 && imd->height != 0) {
+		result.width = 0; result.height = 0;
+		result.AddPoint(imd->xoffset, imd->yoffset);
+		result.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
+		return result;
+	}
+
+	/* No useful match, return a dummy size. */
+	result.base.x = 0; result.base.y = 0; result.width = 10; result.height = 10;
+	return result;
 }
 
 /**
@@ -1557,6 +1568,10 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
 		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
+	if (number == SPR_GUI_ROT2D_POS) return _gui_sprites.rot_2d_pos;
+	if (number == SPR_GUI_ROT2D_NEG) return _gui_sprites.rot_2d_neg;
+	if (number == SPR_GUI_ROT3D_POS) return _gui_sprites.rot_3d_pos;
+	if (number == SPR_GUI_ROT3D_NEG) return _gui_sprites.rot_3d_neg;
 	return NULL;
 }
 
