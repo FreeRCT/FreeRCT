@@ -322,7 +322,7 @@ def collect_language_strings(str_names, node, is_texts, texts, lang):
     for str_node in datatypes.get_child_nodes(node, u'string'):
         str_name = str_node.getAttribute(u'name')
         str_text = datatypes.collect_text_DOM(str_node)
-        str_lang = datatypes.get_opt_DOMattr(node, 'lang', None)
+        str_lang = datatypes.get_opt_DOMattr(str_node, u'lang', None)
         if str_lang is None:
             str_lang = lang
         else:
