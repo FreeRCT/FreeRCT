@@ -16,7 +16,7 @@
 #include "fileio.h"
 #include "ride_type.h"
 
-RideTypeManager _ride_type_manager; ///< Storage and retrieval of ride types.
+RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
 #include "table/shops_strings.cpp"
 
@@ -84,27 +84,28 @@ StringID ShopType::GetString(uint16 number) const
 	return this->string_base + (number - STR_GENERIC_SHOP_START);
 }
 
-RideTypeManager::RideTypeManager()
+RidesManager::RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->shops); i++) this->shops[i] = NULL;
+	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = NULL;
 }
 
-RideTypeManager::~RideTypeManager()
+RidesManager::~RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->shops); i++) {
-		if (this->shops[i] != NULL) delete this->shops[i];
+	for (uint i = 0; i < lengthof(this->ride_types); i++) {
+		if (this->ride_types[i] != NULL) delete this->ride_types[i];
 	}
 }
 
 
 /** Add a new ride type to the manager. */
-bool RideTypeManager::Add(ShopType *shop_type)
+bool RidesManager::AddRideType(ShopType *shop_type)
 {
-	for (uint i = 0; i < lengthof(this->shops); i++) {
-		if (this->shops[i] == NULL) {
-			this->shops[i] = shop_type;
+	for (uint i = 0; i < lengthof(this->ride_types); i++) {
+		if (this->ride_types[i] == NULL) {
+			this->ride_types[i] = shop_type;
 			return true;
 		}
 	}
 	return false;
 }
+

@@ -1426,7 +1426,7 @@ const char *SpriteManager::Load(const char *filename)
 				delete shop_type;
 				return "Shop type failed to load.";
 			}
-			_ride_type_manager.Add(shop_type);
+			_rides_manager.AddRideType(shop_type);
 			continue;
 		}
 

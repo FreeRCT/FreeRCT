@@ -56,17 +56,17 @@ protected:
 
 
 /** Storage of available ride types. */
-class RideTypeManager {
+class RidesManager {
 public:
-	RideTypeManager();
-	~RideTypeManager();
+	RidesManager();
+	~RidesManager();
 
-	bool Add(ShopType *shop_type);
+	bool AddRideType(ShopType *shop_type);
 
-	ShopType *shops[MAX_NUMBER_OF_RIDES];
+	ShopType *ride_types[MAX_NUMBER_OF_RIDES]; ///< Loaded types of rides.
 };
 
-extern RideTypeManager _ride_type_manager;
+extern RidesManager _rides_manager;
 
 #endif
 
