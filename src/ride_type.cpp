@@ -10,6 +10,7 @@
 /** @file ride_type.cpp Ride type storage and retrieval. */
 
 #include "stdafx.h"
+#include "string_func.h"
 #include "sprite_store.h"
 #include "language.h"
 #include "sprite_store.h"
@@ -84,6 +85,75 @@ StringID ShopType::GetString(uint16 number) const
 	return this->string_base + (number - STR_GENERIC_SHOP_START);
 }
 
+RideInstance::RideInstance()
+{
+	this->name[0] = '\0';
+	this->type = NULL;
+	this->state = RIS_NONE;
+}
+
+RideInstance::~RideInstance()
+{
+	/* Nothing to do currently. In the future, free instance memory. */
+}
+
+/**
+ * Construct an instance of a ride type here.
+ * @param type Ride type to instantiate.
+ * @param name Suggested name, may be \c NULL.
+ * @pre Entry must not be in use currently.
+ */
+void RideInstance::SetRide(ShopType *type, uint8 *name)
+{
+	assert(this->type == NULL);
+	this->type = type;
+	if (name == NULL) {
+		this->name[0] = '\0';
+	} else {
+		StrECpy(this->name, this->name + lengthof(this->name), name);
+	}
+	this->state = RIS_CLOSED;
+
+	// XXX Initialize instance memory space here.
+}
+
+/**
+ * Open the ride for the public.
+ * @pre The ride is open.
+ */
+void RideInstance::OpenRide()
+{
+	assert(this->type != NULL && state == RIS_CLOSED);
+	this->state = RIS_OPEN;
+}
+
+/**
+ * Close the ride for the public.
+ * @todo Currently closing is instantly, we may want to have a transition phase here.
+ * @pre The ride is open.
+ */
+void RideInstance::CloseRide()
+{
+	assert(this->type != NULL && state == RIS_OPEN);
+	this->state = RIS_CLOSED;
+}
+
+/**
+ * Destroy the instance.
+ * @todo The small matter of cleaning up in the world map.
+ * @pre Instance must be closed.
+ */
+void RideInstance::FreeRide()
+{
+	assert(this->type != NULL && state == RIS_CLOSED);
+
+	// XXX Free the instance memory here.
+	this->type = NULL;
+	this->name[0] = '\0';
+	this->state = RIS_NONE;
+}
+
+/** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = NULL;
@@ -96,8 +166,10 @@ RidesManager::~RidesManager()
 	}
 }
 
-
-/** Add a new ride type to the manager. */
+/**
+ * Add a new ride type to the manager.
+ * @param shop_type New ride type to add.
+ */
 bool RidesManager::AddRideType(ShopType *shop_type)
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) {
@@ -107,5 +179,18 @@ bool RidesManager::AddRideType(ShopType *shop_type)
 		}
 	}
 	return false;
+}
+
+/**
+ * Add a new ride type to the manager.
+ * @param shop_type New ride type to add.
+ * @return Free instance if it exists (be sure to claim it immediately), or \c 0 if all instances are used.
+ */
+uint16 RidesManager::GetFreeInstance()
+{
+	for (uint16 i = 1; i < lengthof(this->instances); i++) {
+		if (this->instances[i].type == NULL) return i;
+	}
+	return 0;
 }
 

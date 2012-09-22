@@ -14,8 +14,9 @@
 
 #include "palette.h"
 
-static const int NUMBER_SHOP_RECOLOUR_MAPPINGS = 3; ///< Number of (random) colour remappings of a shop type.
-static const int MAX_NUMBER_OF_RIDES = 64; ///< Maximal number of (types of) rides.
+static const int NUMBER_SHOP_RECOLOUR_MAPPINGS =  3; ///< Number of (random) colour remappings of a shop type.
+static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of types of rides.
+static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
 
 /**
  * Kinds of ride types.
@@ -54,6 +55,32 @@ protected:
 	uint16 string_base;         ///< Base offset of the string in this shop.
 };
 
+/** State of a ride instance. */
+enum RideInstanceState {
+	RIS_NONE,   ///< Ride instance has no state currently.
+	RIS_CLOSED, ///< Ride instance is available, but closed for the public.
+	RIS_OPEN,   ///< Ride instance is open for use by the public.
+};
+
+/**
+ * A ride in the park.
+ * @todo Add ride parts and other things that need to be stored with a ride.
+ */
+class RideInstance {
+public:
+	RideInstance();
+	~RideInstance();
+
+	void SetRide(ShopType *type, uint8 *name);
+	void OpenRide();
+	void CloseRide();
+	void FreeRide();
+
+	uint8 name[64]; ///< Name of the ride, if it is instantiated.
+	ShopType *type; ///< Ride type used. \c NULL means the instance is not used.
+	uint8 state;    ///< State of the instance. @see RideInstanceState
+	EditableRecolouring recolour_map; ///< Recolour map of the instance.
+};
 
 /** Storage of available ride types. */
 class RidesManager {
@@ -62,8 +89,10 @@ public:
 	~RidesManager();
 
 	bool AddRideType(ShopType *shop_type);
+	uint16 GetFreeInstance();
 
-	ShopType *ride_types[MAX_NUMBER_OF_RIDES]; ///< Loaded types of rides.
+	ShopType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];       ///< Loaded types of rides.
+	RideInstance instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
 };
 
 extern RidesManager _rides_manager;
