@@ -23,7 +23,7 @@
 #include "sprite_store.h"
 #include "path_build.h"
 
-#include <map>
+#include <set>
 
 /**
  * Proposed additions to the game world. Not part of the game itself, but they are displayed by calling
@@ -152,25 +152,46 @@ protected:
 	virtual void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) = 0;
 };
 
-/**
- * Data temporary needed for drawing.
- * @ingroup viewport_group
- */
-struct DrawData {
-	const ImageData *cursor;     ///< Mouse cursor to draw.
-	const ImageData *path;       ///< Path sprite to draw.
-	const ImageData *ground;     ///< Surface tile to draw.
-	const ImageData *foundation; ///< Foundations to draw.
-	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
-	const Recolouring *recolour; ///< Recolouring of the sprites.
+/** Order of blitting sprites in a single voxel (earlier in the list is sooner). */
+enum SpriteOrder {
+	SO_FOUNDATION, ///< Draw foundation sprites.
+	SO_GROUND,     ///< Draw ground sprites.
+	SO_PATH,       ///< Draw path sprites.
+	SO_PERSON,     ///< Draw person sprites.
+	SO_CURSOR,     ///< Draw cursor sprites.
 };
 
 /**
- * Map of distance to image.
- * Used for temporary sorting and storage of images drawn at the viewport.
+ * Data temporary needed for ordering sprites and blitting them to the screen.
+ * Sorting criterium is z-height of the voxel, y-position of the screen, and order of the sprite in the voxel.
  * @ingroup viewport_group
  */
-typedef std::multimap<int32, DrawData> DrawImages;
+struct DrawData {
+	uint16 z_height;             ///< Height of the voxel being drawn.
+	uint16 order;                ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
+	const ImageData *sprite;     ///< Mouse cursor to draw.
+	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
+	const Recolouring *recolour; ///< Recolouring of the sprite.
+};
+
+/**
+ * Sort predicate of the draw data.
+ * @param dd1 First value to compare.
+ * @param dd2 Second value to compare.
+ * @return \c true if \a dd1 should be drawn before \a dd2.
+ */
+inline bool operator<(const DrawData &dd1, const DrawData &dd2)
+{
+	if (dd1.z_height != dd2.z_height) return dd1.z_height < dd2.z_height;
+	if (dd1.base.y != dd2.base.y) return dd1.base.y < dd2.base.y;
+	return dd1.order < dd2.order;
+}
+
+/**
+ * Collection of sprites to render to the screen.
+ * @ingroup viewport_group
+ */
+typedef std::multiset<DrawData> DrawImages;
 
 /**
  * Collect sprites to draw in a viewport.
@@ -455,57 +476,62 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
  */
 void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth)
 {
-	int sx = (this->orient == VOR_NORTH || this->orient == VOR_EAST) ? 128 : -128;
-	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 128 : -128;
-
 	if (voxel == NULL) {
 		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 		if (mspr != NULL) {
-			std::pair<int32, DrawData> p;
-			p.first = sx * xpos + sy * ypos + zpos * 256;
-			p.second.cursor = mspr;
-			p.second.path = NULL;
-			p.second.ground = NULL;
-			p.second.foundation = NULL;
-			p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
-			p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
-			p.second.recolour = NULL;
-			draw_images.insert(p);
+			DrawData dd;
+			dd.z_height = zpos;
+			dd.order = SO_CURSOR;
+			dd.sprite = mspr;
+			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+			dd.recolour = NULL;
+			draw_images.insert(dd);
 		}
 		return;
 	}
 
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
+			/* Path sprite. */
 			const SurfaceVoxelData *svd = voxel->GetSurface();
-			const ImageData *path;
-			if (svd->path.type == PT_INVALID) {
-				path = NULL;
-			} else {
-				path = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
+			if (svd->path.type != PT_INVALID) {
+				DrawData dd;
+				dd.z_height = zpos;
+				dd.order = SO_PATH;
+				dd.sprite = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = NULL;
+				draw_images.insert(dd);
 			}
-			const ImageData *surf;
-			uint8 gslope;
-			if (svd->ground.type == GTP_INVALID) {
-				surf = NULL;
-				gslope = SL_FLAT;
-			} else {
-				surf = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
+
+			/* Ground surface. */
+			uint8 gslope = SL_FLAT;
+			if (svd->ground.type != GTP_INVALID) {
+				DrawData dd;
+				dd.z_height = zpos;
+				dd.order = SO_GROUND;
+				dd.sprite = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = NULL;
+				draw_images.insert(dd);
+
 				gslope = svd->ground.slope;
 			}
-			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
 
-			if (surf != NULL || mspr != NULL || path != NULL) {
-				std::pair<int32, DrawData> p;
-				p.first = sx * xpos + sy * ypos + zpos * 256;
-				p.second.cursor = mspr;
-				p.second.path = path;
-				p.second.ground = surf;
-				p.second.foundation = NULL; // TODO svd->foundation.
-				p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
-				p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
-				p.second.recolour = NULL;
-				draw_images.insert(p);
+			/* Sprite cursor (arrow) */
+			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
+			if (mspr != NULL) {
+				DrawData dd;
+				dd.z_height = zpos;
+				dd.order = SO_CURSOR;
+				dd.sprite = mspr;
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = NULL;
+				draw_images.insert(dd);
 			}
 			break;
 		}
@@ -513,16 +539,14 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		default: {
 			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 			if (mspr != NULL) {
-				std::pair<int32, DrawData> p;
-				p.first = sx * xpos + sy * ypos + zpos * 256;
-				p.second.cursor = mspr;
-				p.second.path = NULL;
-				p.second.ground = NULL;
-				p.second.foundation = NULL;
-				p.second.base.x = this->xoffset + xnorth - this->rect.base.x;
-				p.second.base.y = this->yoffset + ynorth - this->rect.base.y;
-				p.second.recolour = NULL;
-				draw_images.insert(p);
+				DrawData dd;
+				dd.z_height = zpos;
+				dd.order = SO_CURSOR;
+				dd.sprite = mspr;
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = NULL;
+				draw_images.insert(dd);
 			}
 			break;
 		}
@@ -535,18 +559,16 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		AnimationType anim_type = pers->walk->anim_type;
 		const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
 		if (anim_spr != NULL) {
-			std::pair<int32, DrawData> p;
 			int x_off = ComputeX(pers->x_pos, pers->y_pos);
 			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
-			p.first = sx * xpos + sy * ypos + x_off + y_off + zpos * 256 + 130;
-			p.second.cursor = anim_spr;
-			p.second.path = NULL;
-			p.second.ground = NULL;
-			p.second.foundation = NULL;
-			p.second.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
-			p.second.base.y = this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off;
-			p.second.recolour = &pers->recolour;
-			draw_images.insert(p);
+			DrawData dd;
+			dd.z_height = zpos;
+			dd.order = SO_PERSON;
+			dd.sprite = anim_spr;
+			dd.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
+			dd.base.y = this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off;
+			dd.recolour = &pers->recolour;
+			draw_images.insert(dd);
 		}
 		pers = pers->next;
 	}
@@ -668,7 +690,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	SpriteCollector collector(this, (this->mouse_mode == MM_TILE_TERRAFORM || this->mouse_mode == MM_PATH_BUILDING));
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.Collect(this->additions_enabled && this->additions_displayed);
-	Recolouring recolour;
+	static const Recolouring recolour;
 
 	_video->FillSurface(COL_BACKGROUND, this->rect); // Black background.
 
@@ -676,12 +698,9 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	_video->SetClippedRectangle(this->rect);
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
-		const DrawData &dd = (*iter).second;
+		const DrawData &dd = (*iter);
 		const Recolouring &rec = (dd.recolour == NULL) ? recolour : *dd.recolour;
-		if (dd.foundation != NULL) _video->BlitImage(dd.base, dd.foundation, rec, 0);
-		if (dd.ground != NULL)     _video->BlitImage(dd.base, dd.ground,     rec, 0);
-		if (dd.path != NULL)       _video->BlitImage(dd.base, dd.path,       rec, 0);
-		if (dd.cursor != NULL)     _video->BlitImage(dd.base, dd.cursor,     rec, 0);
+		_video->BlitImage(dd.base, dd.sprite, rec, 0);
 	}
 
 	_video->SetClippedRectangle(cr);
