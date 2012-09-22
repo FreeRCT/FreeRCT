@@ -34,7 +34,7 @@ static const int MAX_VOXEL_STACK_SIZE = 64; ///< At most a stack of 64 voxels.
 enum VoxelType {
 	VT_EMPTY,     ///< Empty voxel.
 	VT_SURFACE,   ///< %Voxel contains path and/or earthy surface.
-	VT_COASTER,   ///< %Voxel contains part of a coaster.
+	VT_RIDE,      ///< %Voxel contains part of a shop or a ride.
 	VT_REFERENCE, ///< %Voxel contains part of the referenced voxel.
 };
 
@@ -88,9 +88,27 @@ struct ReferenceVoxelData {
 	uint8  zpos; ///< Base voxel Z coordinate.
 };
 
+/** Flags for the ride voxel data. */
+enum RideVoxelFlags {
+	RVF_NONE = 0, ///< No flags set.
+	RVF_ENTRANCE_NE = 0x01, ///< Voxel has a ride entrance at the north-east side.
+	RVF_ENTRANCE_SE = 0x02, ///< Voxel has a ride entrance at the south-east side.
+	RVF_ENTRANCE_SW = 0x04, ///< Voxel has a ride entrance at the south-west side.
+	RVF_ENTRANCE_NW = 0x08, ///< Voxel has a ride entrance at the north-west side.
+};
+
+/**
+ * Description of a voxel filled with a (part of a) ride.
+ * @ingroup map_group
+ * @todo Add data what part of the ride should be drawn here.
+ */
+struct RideVoxelData {
+	uint16 ride_number; ///< Ride number
+	uint8 flags;        ///< Flags of the ride for path-finding.
+};
+
 /**
  * One voxel cell in the world.
- * @todo Handle #VT_COASTER voxels.
  * @ingroup map_group
  */
 struct Voxel {
@@ -151,6 +169,36 @@ public:
 		this->reference = rvd;
 	}
 
+	/**
+	 * Get the ride data of the voxel (for read/write access).
+	 * @return Reference to the voxel ride data.
+	 */
+	inline RideVoxelData *GetRide()
+	{
+		assert(this->type == VT_RIDE);
+		return &this->ride;
+	}
+
+	/**
+	 * Get the ride data of the voxel (for read-only access).
+	 * @return Reference to the voxel ride data.
+	 */
+	inline const RideVoxelData *GetRide() const
+	{
+		assert(this->type == VT_RIDE);
+		return &this->ride;
+	}
+
+	/**
+	 * Set the ride data of the voxel.
+	 * @param rd %Ride-data to set.
+	 */
+	inline void SetRide(const RideVoxelData &rd)
+	{
+		this->type = VT_RIDE;
+		this->ride = rd;
+	}
+
 	/** Set the voxel to empty. */
 	inline void SetEmpty()
 	{
@@ -161,6 +209,7 @@ public:
 	union {
 		SurfaceVoxelData surface;
 		ReferenceVoxelData reference;
+		RideVoxelData ride;
 	};
 
 	PersonList persons; ///< Persons present in this voxel.

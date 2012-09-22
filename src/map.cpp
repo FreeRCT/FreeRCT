@@ -69,11 +69,13 @@ static const CornerNeighbours neighbours[4] = {
 static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 {
 	dest->type = src->type;
-	if (src->type == VT_SURFACE) {
-		dest->surface = src->surface;
-	} else if (src->type == VT_REFERENCE) {
-		dest->reference = src->reference;
+	switch (src->type) {
+		case VT_SURFACE:   dest->surface = src->surface;     break;
+		case VT_REFERENCE: dest->reference = src->reference; break;
+		case VT_RIDE:      dest->ride = src->ride;           break;
+		default: NOT_REACHED();
 	}
+
 	if (copyPersons) CopyPersonList(dest->persons, src->persons);
 }
 
@@ -271,7 +273,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 				if (vs_first == i) vs_first++;
 				break;
 
-			case VT_COASTER:
+			case VT_RIDE:
 			case VT_REFERENCE:
 				vs_last = i;
 				break;
@@ -331,7 +333,7 @@ VoxelStack *VoxelWorld::GetModifyStack(uint16 x, uint16 y)
 }
 
 /**
- * Get a voxel stack.
+ * Get a voxel stack (for read-only access).
  * @param x X coordinate of the stack.
  * @param y Y coordinate of the stack.
  * @return The requested voxel stack.

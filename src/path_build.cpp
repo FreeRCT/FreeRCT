@@ -78,8 +78,8 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 	const Voxel *level = vs->Get(zpos);
 	if (level != NULL) {
 		switch (level->GetType()) {
-			case VT_COASTER:
-				return 0; // A roller-coaster  is in the way.
+			case VT_RIDE:
+				return 0; // A ride is in the way.
 
 			case VT_SURFACE: {
 				const SurfaceVoxelData *svd = level->GetSurface();
@@ -290,7 +290,7 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
 	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return false;
 	if ((delta_z < 0 && this->zpos == 0) || (delta_z > 0 && this->zpos == MAX_VOXEL_STACK_SIZE - 1)) return false;
 	const Voxel *v = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + delta_z);
-	if (v != NULL && (v->GetType() == VT_COASTER || v->GetType() == VT_REFERENCE)) return false;
+	if (v != NULL && (v->GetType() == VT_RIDE || v->GetType() == VT_REFERENCE)) return false;
 	if (need_path) {
 		if (v == NULL || v->GetType() != VT_SURFACE) return false;
 		const SurfaceVoxelData *svd = v->GetSurface();

@@ -745,7 +745,7 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 					break;
 				}
 
-				case VT_COASTER: // XXX Not implemented yet.
+				case VT_RIDE: // XXX Not implemented yet.
 				default: NOT_REACHED();
 			}
 		}
