@@ -133,6 +133,26 @@ public:
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);
 
+	/**
+	 * Get the horizontal position of the top-left corner of a widget (of this window) at the screen.
+	 * @param wid %Widget to use.
+	 * @return Horizontal position of the top-left corner of the widget at the screen.
+	 */
+	int GetWidgetScreenX(const BaseWidget *wid) const
+	{
+		return this->rect.base.x + wid->pos.base.x;
+	}
+
+	/**
+	 * Get the vertical position of the top-left corner of a widget (of this window) at the screen.
+	 * @param wid %Widget to use.
+	 * @return Vertical position of the top-left corner of the widget at the screen.
+	 */
+	int GetWidgetScreenY(const BaseWidget *wid) const
+	{
+		return this->rect.base.y + wid->pos.base.y;
+	}
+
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
 

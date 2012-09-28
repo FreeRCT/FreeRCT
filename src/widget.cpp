@@ -247,7 +247,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	}
 	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)this->colour);
-	_video->BlitImage(w->rect.base.x + this->pos.base.x, w->rect.base.y + this->pos.base.y, _gui_sprites.radio_button.sprites[spr_num], rc, 0);
+	_video->BlitImage(w->GetWidgetScreenX(this), w->GetWidgetScreenY(this), _gui_sprites.radio_button.sprites[spr_num], rc, 0);
 }
 
 /* virtual */ void LeafWidget::AutoRaiseButtons(const Point32 &base)
@@ -346,10 +346,10 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		default:
 			NOT_REACHED();
 	}
-	int left   = w->rect.base.x + this->pos.base.x + this->paddings[PAD_LEFT];
-	int top    = w->rect.base.y + this->pos.base.y + this->paddings[PAD_TOP];
-	int right  = w->rect.base.x + this->pos.base.x + this->pos.width  - 1 - this->paddings[PAD_RIGHT];
-	int bottom = w->rect.base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
+	int left   = w->GetWidgetScreenX(this) + this->paddings[PAD_LEFT];
+	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
+	int right  = w->GetWidgetScreenX(this) + this->pos.width  - 1 - this->paddings[PAD_RIGHT];
+	int bottom = w->GetWidgetScreenY(this) + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 	if (bsd != NULL) {
 		left += bsd->border_left;
 		top += bsd->border_top;
@@ -423,8 +423,8 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 	const ImageData * const *imd = this->IsShaded() ? scroll_sprites.shaded : scroll_sprites.normal;
 
 	Point32 pos;
-	pos.x = w->rect.base.x + this->pos.base.x;
-	pos.y = w->rect.base.y + this->pos.base.y;
+	pos.x = w->GetWidgetScreenX(this);
+	pos.y = w->GetWidgetScreenY(this);
 
 	/* Draw left/up button. */
 	_video->BlitImage(pos, imd[WLS_LEFT_BUTTON], rc, 0);
@@ -521,10 +521,10 @@ BackgroundWidget::~BackgroundWidget()
 
 /* virtual */ void BackgroundWidget::Draw(const GuiWindow *w)
 {
-	int left   = w->rect.base.x + this->pos.base.x + this->paddings[PAD_LEFT];
-	int top    = w->rect.base.y + this->pos.base.y + this->paddings[PAD_TOP];
-	int right  = w->rect.base.x + this->pos.base.x + this->pos.width - 1 - this->paddings[PAD_RIGHT];
-	int bottom = w->rect.base.y + this->pos.base.y + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
+	int left   = w->GetWidgetScreenX(this) + this->paddings[PAD_LEFT];
+	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
+	int right  = w->GetWidgetScreenX(this) + this->pos.width  - 1 - this->paddings[PAD_RIGHT];
+	int bottom = w->GetWidgetScreenY(this) + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 	left += _gui_sprites.panel.border_left;
 	top += _gui_sprites.panel.border_top;
 	right -= _gui_sprites.panel.border_right;
