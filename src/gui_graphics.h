@@ -15,6 +15,10 @@
 struct BorderSpriteData;
 
 void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, uint8 colour);
+
 void DrawString(StringID strid, uint8 colour, int x, int y, int width = 0x7FFF);
+bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour);
+
+void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height);
 
 #endif
