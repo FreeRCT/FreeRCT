@@ -186,7 +186,7 @@ bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_he
 			break;
 		}
 		*end = '\0';
-		_video->BlitText(text, x, y, colour);
+		_video->BlitText(text, colour, x, y, max_width);
 		y += _video->GetTextHeight();
 		text = end + 1;
 	}
