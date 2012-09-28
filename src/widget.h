@@ -14,6 +14,7 @@
 
 #include "geometry.h"
 #include "language.h"
+#include "gui_graphics.h"
 
 struct BorderSpriteData;
 class GuiWindow;
@@ -325,8 +326,6 @@ public:
 		uint8 padding[PAD_COUNT]; ///< Data for #WPT_PADDING, #WPT_HOR_PIP, #WPT_VERT_PIP.
 	} data; ///< Data of the widget part.
 };
-
-void DrawString(StringID strid, int x, int y, uint8 colour);
 
 WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour);
 WidgetPart Intermediate(uint8 num_rows, uint8 num_cols = 0);
