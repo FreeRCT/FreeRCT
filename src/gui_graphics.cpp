@@ -64,15 +64,16 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 /**
  * Draw a string to the screen.
  * @param strid String to draw.
+ * @param colour Colour of the text.
  * @param x X position at the screen.
  * @param y Y position at the screen.
- * @param colour Colour of the text.
+ * @param width Maximal width of the text.
  */
-void DrawString(StringID strid, int x, int y, uint8 colour)
+void DrawString(StringID strid, uint8 colour, int x, int y, int width)
 {
 	uint8 buffer[1024]; // Arbitrary limit.
 
 	DrawText(strid, buffer, lengthof(buffer));
-	_video->BlitText(buffer, x, y, colour);
+	_video->BlitText(buffer, colour, x, y, width);
 }
 

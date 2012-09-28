@@ -373,7 +373,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			_video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
 		}
 	} else {
-		DrawString(this->value, xoffset + pressed, yoffset + pressed, TEXT_WHITE);
+		DrawString(this->value, TEXT_WHITE, xoffset + pressed, yoffset + pressed);
 	}
 }
 
