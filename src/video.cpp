@@ -175,6 +175,7 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 		return false;
 	}
 
+	this->font_height = TTF_FontLineSkip(this->font);
 	this->initialized = true;
 	this->dirty = true; // Ensure it gets painted.
 

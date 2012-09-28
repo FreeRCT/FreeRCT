@@ -110,12 +110,22 @@ public:
 
 	void FinishRepaint();
 
+	/**
+	 * Get the height of a line of text.
+	 * @return Height of the font.
+	 */
+	int GetTextHeight() const
+	{
+		return this->font_height;
+	};
+
 	void GetTextSize(const uint8 *text, int *width, int *height);
 	void BlitText(const uint8 *text, int xpos, int ypos, uint8 colour);
 	void DrawLine(const Point16 &start, const Point16 &end, uint8 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint8 colour);
 
 private:
+	int font_height;    ///< Height of a line of text in pixels.
 	bool initialized;   ///< Video system is initialized.
 	bool dirty;         ///< Video display needs being repainted.
 
