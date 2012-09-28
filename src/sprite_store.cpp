@@ -31,7 +31,7 @@ GuiSprites _gui_sprites; ///< Gui sprites.
 
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
-static int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
+static const int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
 
 #include "table/gui_strings.cpp"
 

@@ -182,15 +182,14 @@ bool RidesManager::AddRideType(ShopType *shop_type)
 }
 
 /**
- * Add a new ride type to the manager.
- * @param shop_type New ride type to add.
- * @return Free instance if it exists (be sure to claim it immediately), or \c 0 if all instances are used.
+ * Find a free entry to add a ride instance.
+ * @return Index of a free instance if it exists (be sure to claim it immediately), or #INVALID_RIDE_INSTANCE if all instances are used.
  */
 uint16 RidesManager::GetFreeInstance()
 {
-	for (uint16 i = 1; i < lengthof(this->instances); i++) {
+	for (uint16 i = 0; i < lengthof(this->instances); i++) {
 		if (this->instances[i].type == NULL) return i;
 	}
-	return 0;
+	return INVALID_RIDE_INSTANCE;
 }
 

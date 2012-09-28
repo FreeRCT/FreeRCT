@@ -77,7 +77,7 @@ bool StrEndsWith(const char *str, const char *end, bool case_sensitive)
 	if (end_length == 0) return true;
 
 	str += str_length - end_length;
-	while (*str != '\0' and *end != '\0') {
+	while (*str != '\0' && *end != '\0') {
 		char s = *str;
 		char e = *end;
 		if (!case_sensitive && s >= 'A' && s <= 'Z') s += 'a' - 'A';
