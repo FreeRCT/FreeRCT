@@ -35,6 +35,8 @@
 	<string name="TOOLBAR_GUI_TOOLTIP_SAVE_GAME">Save the game</string>
 	<string name="TOOLBAR_GUI_LOAD">Load</string>
 	<string name="TOOLBAR_GUI_TOOLTIP_LOAD_GAME">Load a game</string>
+	<string name="TOOLBAR_GUI_RIDE_SELECT">Buy ride</string>
+	<string name="TOOLBAR_GUI_TOOLTIP_RIDE_SELECT">Buy a new ride for your park</string>
 
 	<!-- Quit program strings -->
 	<string name="QUIT_CAPTION">Quit program?</string>
@@ -50,9 +52,6 @@
 	<string name="PATH_GUI_LONG_TIP">Build a long path</string>
 	<string name="PATH_GUI_BUY_TIP">Buy a path tile</string>
 	<string name="PATH_GUI_BULLDOZER_TIP">Click to remove the last built path and get your money back (works until you close the window)</string>
-	<string name="PATH_GUI_SLOPE_DOWN">Down</string>
-	<string name="PATH_GUI_SLOPE_FLAT">Level</string>
-	<string name="PATH_GUI_SLOPE_UP">Up</string>
 	<string name="PATH_GUI_SLOPE_DOWN_TIP">Build path downwards</string>
 	<string name="PATH_GUI_SLOPE_FLAT_TIP">Build path horizontally</string>
 	<string name="PATH_GUI_SLOPE_UP_TIP">Build path upwards</string>
@@ -66,4 +65,19 @@
 	<string name="PATH_GUI_NE_DIRECTION_TIP">Build path in north-east direction</string>
 	<string name="PATH_GUI_SW_DIRECTION_TIP">Build path in south-west direction</string>
 	<string name="PATH_GUI_SE_DIRECTION_TIP">Build path in south-east direction</string>
+
+	<!-- Ride select gui strings -->
+	<string name="RIDE_SELECT_TITLE">Ride selection</string>
+	<string name="RIDE_SELECT_SHOPS">Shops</string>
+	<string name="RIDE_SELECT_SHOPS_TOOLTIP">Click to display available shop types</string>
+	<string name="RIDE_SELECT_GENTLE">Gentle rides</string>
+	<string name="RIDE_SELECT_GENTLE_TOOLTIP">Click to display available gentle ride types</string>
+	<string name="RIDE_SELECT_WET">Wet rides</string>
+	<string name="RIDE_SELECT_WET_TOOLTIP">Click to display available wet ride types</string>
+	<string name="RIDE_SELECT_COASTER">Coasters</string>
+	<string name="RIDE_SELECT_COASTER_TOOLTIP">Click to display available roller coaster types</string>
+	<string name="RIDE_SELECT_RIDE">Select</string>
+	<string name="RIDE_SELECT_RIDE_TOOLTIP">Click to select the selected ride</string>
+	<string name="RIDE_SELECT_ROT_POS_TOOLTIP">Click to rotate the ride in counter-clockwise direction</string>
+	<string name="RIDE_SELECT_ROT_NEG_TOOLTIP">Click to rotate the ride in clockwise direction</string>
 </language>

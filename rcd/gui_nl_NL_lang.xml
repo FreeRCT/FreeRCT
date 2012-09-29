@@ -39,10 +39,7 @@
 	<string name="PATH_GUI_REMOVE">Verwijderen</string>
 	<string name="PATH_GUI_LONG_TIP">Bouw een lang pad</string>
 	<string name="PATH_GUI_BUY_TIP">Koop een pad tegel</string>
-	<string name="PATH_GUI_BULLDOZER_TIP">Klik om het laatst geplaatse pad te verwijderen en je geld terug te krijgen (werkt totdat je het venster sluit)</string>
-	<string name="PATH_GUI_SLOPE_DOWN">Omlaag</string>
-	<string name="PATH_GUI_SLOPE_FLAT">Vlak</string>
-	<string name="PATH_GUI_SLOPE_UP">Omhoog</string>
+	<string name="PATH_GUI_BULLDOZER_TIP">Klik om het laatst geplaatste pad te verwijderen en je geld terug te krijgen (werkt totdat je het venster sluit)</string>
 	<string name="PATH_GUI_SLOPE_DOWN_TIP">Bouw pad omlaag</string>
 	<string name="PATH_GUI_SLOPE_FLAT_TIP">Bouw pad vlak</string>
 	<string name="PATH_GUI_SLOPE_UP_TIP">Bouw pad omhoog</string>

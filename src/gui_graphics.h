@@ -12,9 +12,20 @@
 #ifndef GUI_GRAPHICS_H
 #define GUI_GRAPHICS_H
 
+#include "video.h"
+
 struct BorderSpriteData;
 
 void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, uint8 colour);
+
+/**
+ * Get the height of the text.
+ * @return Height of the text (in pixels).
+ */
+inline int GetTextHeight()
+{
+	return _video->GetTextHeight();
+}
 
 void DrawString(StringID strid, uint8 colour, int x, int y, int width = 0x7FFF);
 bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour);

@@ -226,6 +226,6 @@ void PathBuildGui::SetButtons()
 void ShowPathBuildGui()
 {
 	if (HighlightWindowByType(WC_PATH_BUILDER)) return;
-	new PathBuildGui();
+	new PathBuildGui;
 }
 

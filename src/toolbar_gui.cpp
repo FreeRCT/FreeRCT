@@ -38,6 +38,7 @@ enum ToolbarGuiWidgets {
 	TB_GUI_PATHS, ///< Build paths button.
 	TB_GUI_SAVE,  ///< Save game button.
 	TB_GUI_LOAD,  ///< Load game button.
+	TB_GUI_RIDE_SELECT, ///< Select ride button.
 };
 
 /**
@@ -50,6 +51,8 @@ static const WidgetPart _toolbar_widgets[] = {
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_PATHS, COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_PATHS, GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_SAVE,  COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_SAVE,  GUI_TOOLBAR_GUI_TOOLTIP_SAVE_GAME),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_LOAD,  COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_LOAD,  GUI_TOOLBAR_GUI_TOOLTIP_LOAD_GAME),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_RIDE_SELECT,  COL_RANGE_BROWN),
+				SetData(GUI_TOOLBAR_GUI_RIDE_SELECT,  GUI_TOOLBAR_GUI_TOOLTIP_RIDE_SELECT),
 	EndContainer(),
 };
 
@@ -82,6 +85,10 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 
 		case TB_GUI_LOAD:
 			// XXX Implement me
+			break;
+
+		case TB_GUI_RIDE_SELECT:
+			ShowRideSelectGui();
 			break;
 	}
 }

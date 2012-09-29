@@ -42,11 +42,10 @@ public:
 	ShopType();
 	~ShopType();
 
-	RideTypeKind GetRideKind() const;
-
 	bool Load(RcdFile *rcf_file, uint32 length, const ImageMap &sprites, const TextMap &texts);
 	StringID GetString(uint16 number) const;
 
+	const RideTypeKind kind;    ///< Kind of ride type.
 	int height;                 ///< Number of voxels used by this shop.
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.

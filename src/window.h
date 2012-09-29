@@ -27,6 +27,7 @@ enum WindowTypes {
 	WC_TOOLBAR,      ///< Main toolbar.
 	WC_QUIT,         ///< Quit program window.
 	WC_PATH_BUILDER, ///< Path build gui.
+	WC_RIDE_SELECT,  ///< Ride selection window.
 };
 
 /** Codes of the #NotifyChange function, which gets forwarded through the #Window::OnChange method. */
@@ -284,5 +285,6 @@ void NotifyChange(WindowTypes wtype, int code, uint32 parameter);
 Viewport *ShowMainDisplay();
 void ShowToolbar();
 void ShowPathBuildGui();
+void ShowRideSelectGui();
 
 #endif

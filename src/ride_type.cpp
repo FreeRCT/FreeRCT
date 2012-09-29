@@ -21,7 +21,7 @@ RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides 
 
 #include "table/shops_strings.cpp"
 
-ShopType::ShopType()
+ShopType::ShopType() : kind(RTK_SHOP)
 {
 	this->height = 0;
 	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = NULL;
@@ -31,15 +31,6 @@ ShopType::ShopType()
 ShopType::~ShopType()
 {
 	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
-}
-
-/**
- * Get the kind of the ride type.
- * @return Kind of the ride type.
- */
-RideTypeKind ShopType::GetRideKind() const
-{
-	return RTK_SHOP;
 }
 
 /**
