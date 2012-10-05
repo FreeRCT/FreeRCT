@@ -62,11 +62,11 @@ static uint8 GetPathSprite(TrackSlope tsl, TileEdge edge)
  */
 static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge edge)
 {
-	if (zpos < 0 || zpos >= MAX_VOXEL_STACK_SIZE - 1) return 0;
+	if (zpos < 0 || zpos >= WORLD_Z_SIZE - 1) return 0;
 
 	const VoxelStack *vs = _world.GetStack(xpos, ypos);
 
-	const Voxel *above = (zpos < MAX_VOXEL_STACK_SIZE) ? vs->Get(zpos + 1) : NULL;
+	const Voxel *above = (zpos < WORLD_Z_SIZE) ? vs->Get(zpos + 1) : NULL;
 	if (above != NULL && above->GetType() != VT_EMPTY) return 0; // Not empty just above us -> path will not work here.
 
 	const Voxel *below = (zpos > 0) ? vs->Get(zpos - 1) : NULL;
@@ -119,7 +119,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 	/* Try building a upward slope.
 	 * Works if not at the top, and the voxel at z+2 is also empty.
 	 */
-	if (zpos < MAX_VOXEL_STACK_SIZE - 2) {
+	if (zpos < WORLD_Z_SIZE - 2) {
 		const Voxel *v = vs->Get(zpos + 2);
 		if (v == NULL || v->GetType() == VT_EMPTY) result |= 1 << TSL_UP;
 	}
@@ -175,7 +175,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 {
 	if (xpos >= _world.GetXSize()) return 0;
 	if (ypos >= _world.GetYSize()) return 0;
-	if (zpos >= MAX_VOXEL_STACK_SIZE - 1) return 0; // the voxel containing the flat path, and one above it.
+	if (zpos >= WORLD_Z_SIZE - 1) return 0; // the voxel containing the flat path, and one above it.
 
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
 	if (v == NULL || v->GetType() != VT_SURFACE) return 0; // XXX Maybe also handle referenced surface voxels?
@@ -288,7 +288,7 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
 	Point16 dxy = _tile_dxy[direction];
 	if ((dxy.x < 0 && this->xpos == 0) || (dxy.x > 0 && this->xpos == _world.GetXSize() - 1)) return false;
 	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return false;
-	if ((delta_z < 0 && this->zpos == 0) || (delta_z > 0 && this->zpos == MAX_VOXEL_STACK_SIZE - 1)) return false;
+	if ((delta_z < 0 && this->zpos == 0) || (delta_z > 0 && this->zpos == WORLD_Z_SIZE - 1)) return false;
 	const Voxel *v = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + delta_z);
 	if (v != NULL && (v->GetType() == VT_RIDE || v->GetType() == VT_REFERENCE)) return false;
 	if (need_path) {
@@ -377,7 +377,7 @@ void PathBuildManager::ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, ui
 	/* Do some paranoia checking. */
 	assert(*xpos < _world.GetXSize());
 	assert(*ypos < _world.GetYSize());
-	assert(*zpos < MAX_VOXEL_STACK_SIZE);
+	assert(*zpos < WORLD_Z_SIZE);
 }
 
 /**
@@ -439,7 +439,7 @@ static uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slop
 
 		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
 		bool modified = false;
-		if (delta_z <= 0 || zpos < MAX_VOXEL_STACK_SIZE - 1) {
+		if (delta_z <= 0 || zpos < WORLD_Z_SIZE - 1) {
 			Voxel *v;
 			if (use_additions) {
 				v = _additions.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
@@ -616,7 +616,7 @@ void PathBuildManager::SelectLong()
 		this->state = PBS_LONG_BUILD;
 		this->xlong = _world.GetXSize();
 		this->ylong = _world.GetYSize();
-		this->zlong = MAX_VOXEL_STACK_SIZE;
+		this->zlong = WORLD_Z_SIZE;
 		this->UpdateState();
 	}
 }
@@ -668,12 +668,12 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 		/* X constant. */
 		vx /= 256;
 		vy = Clamp<int32>(mousexy.y + c1 * lambda_x, 0, _world.GetYSize() * 256 - 1) / 256;
-		vz = Clamp<int32>(vp->zview + c3 * lambda_x, 0, MAX_VOXEL_STACK_SIZE * 256 - 1) / 256;
+		vz = Clamp<int32>(vp->zview + c3 * lambda_x, 0, WORLD_Z_SIZE * 256 - 1) / 256;
 	} else {
 		/* Y constant. */
 		vx = Clamp<int32>(mousexy.x + c1 * lambda_y, 0, _world.GetXSize() * 256 - 1) / 256;
 		vy /= 256;
-		vz = Clamp<int32>(vp->zview + c2 * lambda_y, 0, MAX_VOXEL_STACK_SIZE * 256 - 1) / 256;
+		vz = Clamp<int32>(vp->zview + c2 * lambda_y, 0, WORLD_Z_SIZE * 256 - 1) / 256;
 	}
 
 	if (this->xlong != vx || this->ylong != vy || this->zlong != vz) {

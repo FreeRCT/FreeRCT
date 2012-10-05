@@ -130,8 +130,8 @@ void VoxelStack::Clear()
 bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 {
 	assert(new_height > 0);
-	/* Make sure the voxels live between 0 and MAX_VOXEL_STACK_SIZE. */
-	if (new_base < 0 || new_base + (int)new_height > MAX_VOXEL_STACK_SIZE) return false;
+	/* Make sure the voxels live between 0 and WORLD_Z_SIZE. */
+	if (new_base < 0 || new_base + (int)new_height > WORLD_Z_SIZE) return false;
 
 	Voxel *new_voxels = Calloc<Voxel>(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
@@ -166,7 +166,7 @@ VoxelStack *VoxelStack::Copy(bool copyPersons) const
  */
 const Voxel *VoxelStack::Get(int16 z) const
 {
-	if (z < 0 || z >= MAX_VOXEL_STACK_SIZE) return NULL;
+	if (z < 0 || z >= WORLD_Z_SIZE) return NULL;
 
 	if (this->height == 0 || z < this->base || (uint)(z - this->base) >= this->height) return NULL;
 
@@ -184,7 +184,7 @@ const Voxel *VoxelStack::Get(int16 z) const
  */
 Voxel *VoxelStack::GetCreate(int16 z, bool create)
 {
-	if (z < 0 || z >= MAX_VOXEL_STACK_SIZE) return NULL;
+	if (z < 0 || z >= WORLD_Z_SIZE) return NULL;
 
 	if (this->height == 0) {
 		if (!create || !this->MakeVoxelStack(z, 1)) return NULL;
@@ -483,7 +483,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileSlope corner, int dire
 	if (gd->GetCornerModified(corner)) return true; // Corner already changed.
 
 	uint8 old_height = gd->GetOrigHeight(corner);
-	if (direction > 0 && old_height == MAX_VOXEL_STACK_SIZE) return false; // Cannot change above top.
+	if (direction > 0 && old_height == WORLD_Z_SIZE) return false; // Cannot change above top.
 	if (direction < 0 && old_height == 0) return false; // Cannot change below bottom.
 
 	gd->SetCornerModified(corner); // Mark corner as modified.
