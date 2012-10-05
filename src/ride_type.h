@@ -32,6 +32,25 @@ enum RideTypeKind {
 	RTK_RIDE_KIND_COUNT, ///< Number of kinds of ride types.
 };
 
+/** Flags describing properties the shop type. */
+enum ShopFlags {
+	SHF_NE_ENTRANCE = 0x01, ///< Entrance in NE direction (unrotated).
+	SHF_SE_ENTRANCE = 0x02, ///< Entrance in SE direction (unrotated).
+	SHF_SW_ENTRANCE = 0x04, ///< Entrance in SW direction (unrotated).
+	SHF_NW_ENTRANCE = 0x08, ///< Entrance in NW direction (unrotated).
+};
+
+/* Type of items that can be bought. */
+enum ItemType {
+	ITP_NOTHING = 0,
+	ITP_DRINK = 8,
+	ITP_ICE_CREAM = 9,
+	ITP_NORMAL_FOOD = 16,
+	ITP_SALTY_FOOD = 24,
+	ITP_UMBRELLA = 32,
+	ITP_PARK_MAP = 40,
+};
+
 /**
  * A 'ride' where you can buy food, drinks, and other stuff you need for a visit.
  * @todo Allow for other sized sprites + different recolours.
@@ -46,7 +65,12 @@ public:
 	StringID GetString(uint16 number) const;
 
 	const RideTypeKind kind;    ///< Kind of ride type.
-	int height;                 ///< Number of voxels used by this shop.
+	int8 height;                ///< Number of voxels used by this shop.
+	uint8 flags;                ///< Shop flags. @see ShopFlags
+	int32 item_cost[2];         ///< Cost of the items on sale.
+	uint8 item_type[2];         ///< Type of items being sold.
+	int32 monthly_cost;         ///< Monthly costs for owning a shop.
+	int32 monthly_open_costs;   ///< Monthly extra costs if the shop is opened.
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.
 

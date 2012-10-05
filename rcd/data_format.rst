@@ -29,6 +29,9 @@ pack graphics and other game data, ready for use by the FreeRCT program. This
 document describes the format, acting as an independent definition of the file
 format.
 
+Money
+-----
+All money amounts in RCD files are signed integer numbers, expressing cents.
 
 File header
 ~~~~~~~~~~~
@@ -322,31 +325,50 @@ Offset  Length  Description
 
 Shops/stalls
 ------------
-One tile objects.
+One tile objects, selling useful things to guests.
 
 ======  ======  =======  =================================================
 Offset  Length  Version  Description
 ======  ======  =======  =================================================
-   0       4      1-3    Magic string 'SHOP'.
-   4       4      1-3    Version number of the block '2'.
-   8       4      1-3    Length of the block excluding magic string,
+   0       4      1-4    Magic string 'SHOP'.
+   4       4      1-4    Version number of the block.
+   8       4      1-4    Length of the block excluding magic string,
                            version, and length.
-  12       2      1-3    Zoom-width of a tile of the surface.
-  14       2      1-3    Height of the shop in voxels.
-  16       4      1-3    View to the north where the entrance is at the NE
-                           edge.
-  20       4      1-3    View to the north where the entrance is at the SE
-                           edge.
-  24       4      1-3    View to the north where the entrance is at the SW
-                           edge.
-  28       4      1-3    View to the north where the entrance is at the NW
-                           edge.
-  32       4      2-3    First recolouring specification.
-  36       4      2-3    Second recolouring specification.
-  40       4      2-3    Third recolouring specification.
-  44       4       3     Text of the shop (reference to a TEXT block).
-  48                     Total length.
+  12       2      1-4    Zoom-width of a tile of the surface.
+  14       1      1-4    Height of the shop in voxels. (versions 1-3 used
+                         a 16bit unsigned number).
+  15       1       4     Shop flags.
+  16       4      1-4    Unrotated view (ne).
+  20       4      1-4    View after 1 quarter negative rotation (se).
+  24       4      1-4    View after 2 quarter negative rotations (sw).
+  28       4      1-4    View after 3 quarter negative rotations (nw).
+  32       4      2-4    First recolouring specification.
+  36       4      2-4    Second recolouring specification.
+  40       4      2-4    Third recolouring specification.
+  44       4       4     Cost of the first item.
+  48       4       4     Cost of the second item.
+  52       4       4     Monthly cost of having the shop.
+  56       4       4     Additional monthly cost of having an opened shop.
+  60       1       4     Item type of the first item.
+  61       1       4     Item type of the second item.
+  62       4      3-4    Text of the shop (reference to a TEXT block).
+  66                     Total length.
 ======  ======  =======  =================================================
+
+Shop flags:
+- bit 0 Set if the shop has an entrance to the NE in the unrotated view.
+- bit 1 Set if the shop has an entrance to the SE in the unrotated view.
+- bit 2 Set if the shop has an entrance to the SW in the unrotated view.
+- bit 3 Set if the shop has an entrance to the NW in the unrotated view.
+
+Item types:
+- Nothing (0)
+- A drink (8)
+- An icecream (9)
+- Non-salty food (16)
+- Salty food (24)
+- Umbrella (32)
+- Map of the park (40)
 
 
 Build direction arrows

@@ -342,26 +342,48 @@
 		<field name="ramp-nw"><type name="sprite"/><comment>Platform is raised at the NW edge</comment></field>
 	</block>
 
-	<block magic="SHOP" minversion="1" maxversion="3">
+	<enum name="Entrance" type="uint8">
+		<value name="ne" value="1"/>
+		<value name="se" value="2"/>
+		<value name="sw" value="3"/>
+		<value name="nw" value="4"/>
+	</enum>
+	<enum name="ItemType" type="uint8">
+		<value name="nothing"       value="0"/>
+		<value name="drink"         value="8"/>
+		<value name="icecream"      value="9"/>
+		<value name="non-salt-food" value="16"/>
+		<value name="salt-food"     value="24"/>
+		<value name="umbrella"      value="32"/>
+		<value name="map"           value="40"/>
+	</enum>
+
+	<block magic="SHOP" minversion="1" maxversion="4">
 		<field name="width"> <type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
-		<field name="height"><type name="uint16"/><comment>Height of the shop in voxels</comment></field>
+		<field name="height" minversion="1" maxversion="3"><type name="uint16"/><comment>Height of the shop in voxels</comment></field>
+		<field name="height" minversion="4"><type name="uint8"/><comment>Height of the shop in voxels</comment></field>
+		<field name="flags" minversion="4"><type name="bitset" storage="uint8">
+			<bitfield name="entrances" enum="Entrance" min-count="1" max-count="4" start-bit="0" bit-numbers=""/></type></field>
 		<field name="ne">    <type name="sprite"/><comment>North-east direction</comment></field>
 		<field name="se">    <type name="sprite"/><comment>South-east direction</comment></field>
 		<field name="sw">    <type name="sprite"/><comment>South-west direction</comment></field>
 		<field name="nw">    <type name="sprite"/><comment>North-west direction</comment></field>
 		<field name="recolouring1" minversion="2"><type name="bitset" storage="uint32">
 			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
-			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
-		</field>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type></field>
 		<field name="recolouring2" minversion="2"><type name="bitset" storage="uint32">
 			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
-			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
-		</field>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type></field>
 		<field name="recolouring3" minversion="2"><type name="bitset" storage="uint32">
 			<bitfield name="orig"    enum="ColourRange" min-count="1" max-count="1" start-bit="24"/>
-			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type>
-		</field>
-		<field name="texts" minversion="3"><type name="text" file="shops_strings.txt"/></field>
+			<bitfield name="replace" enum="ColourRange" min-count="0" max-count="*" start-bit="0" bit-numbers=""/></type></field>
+		<field name="cost-item1"     minversion="4"><type name="int32"/><comment>Cost of the first item.</comment></field>
+		<field name="cost-item2"     minversion="4"><type name="int32"/><comment>Cost of the second item.</comment></field>
+		<field name="cost-ownership" minversion="4"><type name="int32"/><comment>Monthly cost of having the shop.</comment></field>
+		<field name="cost-opened"    minversion="4"><type name="int32"/><comment>Extra monthly cost of having the shop opened.</comment></field>
+		<field name="type-item1"     minversion="4"><type name="ItemType"/><comment>Type of item 1</comment></field>
+		<field name="type-item2"     minversion="4"><type name="ItemType"/><comment>Type of item 2</comment></field>
+		<field name="texts"          minversion="3"><type name="text" file="shops_strings.txt"/></field>
 	</block>
 
 	<!-- Ground surface sprites -->

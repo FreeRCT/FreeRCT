@@ -7,6 +7,7 @@
 #
 # String names defined in shops.
 
-NAME
-DESCRIPTION
-
+NAME_TYPE
+NAME_ITEM1
+NAME_ITEM2
+DESCRIPTION_TYPE

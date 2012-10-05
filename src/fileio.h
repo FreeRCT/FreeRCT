@@ -48,10 +48,11 @@ public:
 
 	bool GetBlob(void *address, size_t length);
 
-	uint8 GetUInt8();
+	uint8  GetUInt8();
 	uint16 GetUInt16();
 	uint32 GetUInt32();
 	int16 GetInt16();
+	int32 GetInt32();
 
 	size_t GetRemaining();
 

@@ -155,6 +155,7 @@ class NumericDataType(DataType):
                 'uint8' : lambda out, value: out.uint8(value),
                  'int16': lambda out, value: out.int16(value),
                 'uint16': lambda out, value: out.uint16(value),
+                 'int32': lambda out, value: out.int32(value),
                 'uint32': lambda out, value: out.uint32(value), }
 
     def __init__(self, name):

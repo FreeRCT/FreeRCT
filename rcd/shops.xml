@@ -11,9 +11,9 @@
 <rcdfiles>
 	<!-- Snack shop -->
 	<file target="shops.rcd" magic="RCDF" version="1">
-		<gameblock magic="SHOP" version="3">
+		<gameblock magic="SHOP" version="4">
 			<field name="width"  value="64"/>
-			<field name="height" value="16"/>
+			<field name="height" value="1"/>
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
 			       fname="../sprites_src/objects/1x1/template8bpp64.png"
 			       names="se, sw, nw, ne"
@@ -30,10 +30,20 @@
 				<bitfield name="orig"><field value="invalid"/></bitfield>
 				<bitfield name="replace"/>
 			</field>
+			<field name="flags"><bitfield name="entrances"><field value="ne"/></bitfield></field>
+			<field name="cost-item1"     value="50"/>
+			<field name="cost-item2"     value="150"/>
+			<field name="cost-ownership" value="0"/>
+			<field name="cost-opened"    value="1000"/>
+			<field name="type-item1"     value="non-salt-food"/>
+			<field name="type-item2"     value="salt-food"/>
 			<texts name="texts">
-				<string name="NAME" lang="">Snack shop</string>
-				<string name="DESCRIPTION" lang="">Shop where you can buy good cookies</string>
-				<string name="DESCRIPTION" lang="nl_NL">Winkel waar je lekkere koekjes kunt kopen</string>
+				<string name="NAME_TYPE" lang="">Snack shop</string>
+				<string name="DESCRIPTION_TYPE" lang="">Shop where you can buy good cookies</string>
+				<string name="NAME_ITEM1" lang="">Cookies</string>
+				<string name="NAME_ITEM2" lang="">Pizza</string>
+
+				<string name="DESCRIPTION_TYPE" lang="nl_NL">Winkel waar je lekkere koekjes kunt kopen</string>
 			</texts>
 		</gameblock>
 	</file>

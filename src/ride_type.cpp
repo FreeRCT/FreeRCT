@@ -43,10 +43,11 @@ ShopType::~ShopType()
  */
 bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, const TextMap &texts)
 {
-	if (length != 2 + 2 + 4*4 + 3*4 + 4) return false;
+	if (length != 2 + 1 + 1 + 4*4 + 3*4 + 4*4 + 2 + 4) return false;
 	uint16 width = rcd_file->GetUInt16(); // XXX Widths other than 64
-	uint16 height = rcd_file->GetUInt16();
-	if (height > 32) return false; // Arbitrary sane limit check.
+	this->height = rcd_file->GetUInt8();
+	if (this->height != 1) return false; // Other heights may fail.
+	this->flags = rcd_file->GetUInt8() & 0xF;
 
 	for (int i = 0; i < 4; i++) {
 		ImageData *view;
@@ -59,6 +60,24 @@ bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, c
 		uint32 recolour = rcd_file->GetUInt32();
 		if (i < lengthof(this->colour_remappings)) this->colour_remappings[i].Set(recolour);
 	}
+	this->item_cost[0] = rcd_file->GetInt32();
+	this->item_cost[1] = rcd_file->GetInt32();
+	this->monthly_cost = rcd_file->GetInt32();
+	this->monthly_open_costs = rcd_file->GetInt32();
+
+	uint8 val = rcd_file->GetUInt8();
+	if (val != ITP_NOTHING && val != ITP_DRINK && val != ITP_ICE_CREAM && val != ITP_NORMAL_FOOD &&
+			val != ITP_SALTY_FOOD && val != ITP_UMBRELLA && val != ITP_PARK_MAP) {
+		return false;
+	}
+	this->item_type[0] = val;
+
+	val = rcd_file->GetUInt8();
+	if (val != ITP_NOTHING && val != ITP_DRINK && val != ITP_ICE_CREAM && val != ITP_NORMAL_FOOD &&
+			val != ITP_SALTY_FOOD && val != ITP_UMBRELLA && val != ITP_PARK_MAP) {
+		return false;
+	}
+	this->item_type[1] = val;
 
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
 	this->string_base = _language.RegisterStrings(*this->text, _shops_strings_table);

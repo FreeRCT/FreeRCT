@@ -144,7 +144,7 @@ RideSelectGui::~RideSelectGui()
 				if (ride == NULL) continue;
 
 				int width, height;
-				GetTextSize(ride->GetString(SHOPS_NAME), &width, &height);
+				GetTextSize(ride->GetString(SHOPS_NAME_TYPE), &width, &height);
 				if (width > wid->min_x) wid->min_x = width;
 			}
 			break;
@@ -156,7 +156,7 @@ RideSelectGui::~RideSelectGui()
 				if (ride == NULL) continue;
 
 				int width, height;
-				GetMultilineTextSize(ride->GetString(SHOPS_DESCRIPTION), wid->min_x, &width, &height);
+				GetMultilineTextSize(ride->GetString(SHOPS_DESCRIPTION_TYPE), wid->min_x, &width, &height);
 				if (height > max_height) max_height = height;
 			}
 			wid->min_y = max_height;
@@ -179,7 +179,7 @@ RideSelectGui::~RideSelectGui()
 				if (lines <= 0) break;
 				lines--;
 
-				DrawString(ride->GetString(SHOPS_NAME), (this->current_ride == i) ? TEXT_WHITE : TEXT_BLACK,
+				DrawString(ride->GetString(SHOPS_NAME_TYPE), (this->current_ride == i) ? TEXT_WHITE : TEXT_BLACK,
 						rect.x, rect.y, wid->pos.width);
 				rect.y += GetTextHeight();
 			}
@@ -190,7 +190,7 @@ RideSelectGui::~RideSelectGui()
 			if (this->current_ride != -1) {
 				const ShopType *ride = _rides_manager.ride_types[this->current_ride];
 				if (ride != NULL) {
-					DrawMultilineString(ride->GetString(SHOPS_DESCRIPTION),
+					DrawMultilineString(ride->GetString(SHOPS_DESCRIPTION_TYPE),
 							this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height,
 							TEXT_WHITE);
 				}

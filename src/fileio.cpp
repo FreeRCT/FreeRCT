@@ -221,7 +221,7 @@ uint8 RcdFile::GetUInt8()
  */
 uint16 RcdFile::GetUInt16()
 {
-	uint8 val = this->GetUInt8();
+	uint16 val = this->GetUInt8();
 	return val | (this->GetUInt8() << 8);
 }
 
@@ -232,7 +232,7 @@ uint16 RcdFile::GetUInt16()
  */
 int16 RcdFile::GetInt16()
 {
-	uint8 val = this->GetUInt8();
+	uint16 val = this->GetUInt8();
 	return val | (this->GetUInt8() << 8);
 }
 
@@ -243,7 +243,18 @@ int16 RcdFile::GetInt16()
  */
 uint32 RcdFile::GetUInt32()
 {
-	uint16 val = this->GetUInt16();
+	uint32 val = this->GetUInt16();
+	return val | (this->GetUInt16() << 16);
+}
+
+/**
+ * Read an 32 bits signed number.
+ * @return Loaded number.
+ * @pre File must be open, data must be available.
+ */
+int32 RcdFile::GetInt32()
+{
+	uint32 val = this->GetUInt16();
 	return val | (this->GetUInt16() << 16);
 }
 

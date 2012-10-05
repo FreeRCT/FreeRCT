@@ -1420,7 +1420,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "SHOP") == 0 && version == 3) {
+		if (strcmp(name, "SHOP") == 0 && version == 4) {
 			ShopType *shop_type = new ShopType;
 			if (!shop_type->Load(&rcd_file, length, sprites, texts)) {
 				delete shop_type;
