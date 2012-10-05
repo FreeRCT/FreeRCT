@@ -663,7 +663,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_
 }
 
 /**
- * Get relative X position of a point in the world (used for marking window pats dirty).
+ * Get relative X position of a point in the world (used for marking window parts dirty).
  * @param xpos X world position.
  * @param ypos Y world position.
  * @return Relative X position.
@@ -674,7 +674,7 @@ int32 Viewport::ComputeX(int32 xpos, int32 ypos)
 }
 
 /**
- * Get relative Y position of a point in the world (used for marking window pats dirty).
+ * Get relative Y position of a point in the world (used for marking window parts dirty).
  * @param xpos X world position.
  * @param ypos Y world position.
  * @param zpos Z world position.

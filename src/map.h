@@ -104,7 +104,7 @@ enum RideVoxelFlags {
  */
 struct RideVoxelData {
 	uint16 ride_number; ///< Ride number
-	uint8 flags;        ///< Flags of the ride for path-finding.
+	uint8 flags;        ///< Flags of the ride for path-finding. @see RideVoxelFlags
 };
 
 /**

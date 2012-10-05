@@ -34,7 +34,7 @@ public:
 protected:
 	int16 ride_types[RTK_RIDE_KIND_COUNT]; ///< Number of ride types for each kind.
 	int16 current_kind; ///< Current selected kind of ride type. @see RideTypeKind
-	int16 current_ride; ///< Current selected ride type (index in #RideTypeManager::ride_types, or \c -1).
+	int16 current_ride; ///< Current selected ride type (index in #RidesManager::ride_types, or \c -1).
 
 	bool SetNewRide(int16 newKind, bool force = false);
 };
