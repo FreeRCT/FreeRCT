@@ -18,22 +18,6 @@
 
 PathBuildManager _path_builder; ///< Path build manager.
 
-/** Imploded path tile sprite number to use for an 'up' slope from a given edge. */
-static const PathSprites _path_up_from_edge[EDGE_COUNT] = {
-	PATH_RAMP_NE, ///< EDGE_NE
-	PATH_RAMP_SE, ///< EDGE_SE
-	PATH_RAMP_SW, ///< EDGE_SW
-	PATH_RAMP_NW, ///< EDGE_NW
-};
-
-/** Imploded path tile sprite number to use for an 'down' slope from a given edge. */
-static const PathSprites _path_down_from_edge[EDGE_COUNT] = {
-	PATH_RAMP_SW, ///< EDGE_NE
-	PATH_RAMP_NW, ///< EDGE_SE
-	PATH_RAMP_NE, ///< EDGE_SW
-	PATH_RAMP_SE, ///< EDGE_NW
-};
-
 /**
  * Get the right path sprite for putting in the world.
  * @param tsl Slope of the path.

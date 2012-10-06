@@ -466,7 +466,7 @@ public:
 	const ImageData *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
 	{
 		// this->path[type] is not used, as there exists only one type of paths.
-		return this->path_sprites->sprites[_path_roation[slope][orient]];
+		return this->path_sprites->sprites[_path_rotation[slope][orient]];
 	}
 
 	/**

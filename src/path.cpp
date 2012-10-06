@@ -12,6 +12,22 @@
 #include "stdafx.h"
 #include "path.h"
 
+/** Imploded path tile sprite number to use for an 'up' slope from a given edge. */
+const PathSprites _path_up_from_edge[EDGE_COUNT] = {
+	PATH_RAMP_NE, ///< EDGE_NE
+	PATH_RAMP_SE, ///< EDGE_SE
+	PATH_RAMP_SW, ///< EDGE_SW
+	PATH_RAMP_NW, ///< EDGE_NW
+};
+
+/** Imploded path tile sprite number to use for an 'down' slope from a given edge. */
+const PathSprites _path_down_from_edge[EDGE_COUNT] = {
+	PATH_RAMP_SW, ///< EDGE_NE
+	PATH_RAMP_NW, ///< EDGE_SE
+	PATH_RAMP_NE, ///< EDGE_SW
+	PATH_RAMP_SE, ///< EDGE_NW
+};
+
 /**
  * Expansion of path sprite number to a value using path bits (#PATHBIT_N, #PATHBIT_E, #PATHBIT_S, #PATHBIT_W,
  * #PATHBIT_NE, #PATHBIT_SE, #PATHBIT_SW, and #PATHBIT_NW).
@@ -141,7 +157,7 @@ const uint8 _path_implode[256] = {
 };
 
 /** Path sprites to use when rotating the world view. */
-const uint8 _path_roation[PATH_COUNT][4] = {
+const uint8 _path_rotation[PATH_COUNT][4] = {
 	{PATH_EMPTY,               PATH_EMPTY,               PATH_EMPTY,               PATH_EMPTY              },
 	{PATH_NE,                  PATH_NW,                  PATH_SW,                  PATH_SE                 },
 	{PATH_SE,                  PATH_NE,                  PATH_NW,                  PATH_SW                 },

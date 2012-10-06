@@ -104,9 +104,11 @@ enum PathTypes {
 	PT_COUNT,        ///< Number of available path types.
 };
 
+extern const PathSprites _path_up_from_edge[EDGE_COUNT];
+extern const PathSprites _path_down_from_edge[EDGE_COUNT];
 extern const uint8 _path_expand[];
 extern const uint8 _path_implode[256];
-extern const uint8 _path_roation[PATH_COUNT][4];
+extern const uint8 _path_rotation[PATH_COUNT][4];
 
 uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect);
 
