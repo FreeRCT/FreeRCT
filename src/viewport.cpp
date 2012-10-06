@@ -1056,16 +1056,17 @@ Viewport *GetViewport()
  */
 void SetViewportMousemode()
 {
-	Window *w;
-
 	Viewport *vp = GetViewport();
 	if (vp == NULL) return;
 
-	w = GetWindowByType(WC_PATH_BUILDER);
-	if (w != NULL) {
-		_path_builder.Reset(); // Reset path building interaction.
-		vp->SetMouseModeState(MM_PATH_BUILDING);
-		return;
+	Window *w = _manager.top;
+	while (w != NULL) {
+		if (w->wtype == WC_PATH_BUILDER) {
+			_path_builder.Reset(); // Reset path building interaction.
+			vp->SetMouseModeState(MM_PATH_BUILDING);
+			return;
+		}
+		w = w->lower;
 	}
 
 	vp->SetMouseModeState(MM_TILE_TERRAFORM);
