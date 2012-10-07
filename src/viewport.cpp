@@ -23,6 +23,7 @@
 #include "sprite_store.h"
 #include "path_build.h"
 #include "shop_placement.h"
+#include "ride_type.h"
 
 #include <set>
 
@@ -746,7 +747,13 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 					break;
 				}
 
-				case VT_RIDE: // XXX Not implemented yet.
+				case VT_RIDE: {
+					const RideVoxelData *rvd = v->GetRide();
+					const RideInstance *ri = _rides_manager.GetRideInstance(rvd->ride_number);
+					height = (ri != NULL) ? ri->type->height : 1;
+					break;
+				}
+
 				default: NOT_REACHED();
 			}
 		}
