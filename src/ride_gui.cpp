@@ -246,12 +246,12 @@ RideSelectGui::~RideSelectGui()
 		}
 		case RSEL_ROT_POS:
 			_shop_placer.orientation = (_shop_placer.orientation + 3) & 3;
-			// XXX Mark things as dirty.
+			this->MarkWidgetDirty(RSEL_DISPLAY);
 			break;
 
 		case RSEL_ROT_NEG:
 			_shop_placer.orientation = (_shop_placer.orientation + 1) & 3;
-			// XXX Mark things as dirty.
+			this->MarkWidgetDirty(RSEL_DISPLAY);
 			break;
 	}
 }

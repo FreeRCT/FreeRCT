@@ -154,6 +154,8 @@ public:
 		return this->rect.base.y + wid->pos.base.y;
 	}
 
+	inline void MarkWidgetDirty(int wid_num);
+
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
 
@@ -235,6 +237,15 @@ inline const BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum) const
 	return this->widgets[wnum];
 }
 
+/**
+ * Mark the specified widget as dirty (in need of repainting).
+ * @param wid %Widget to use.
+ */
+inline void GuiWindow::MarkWidgetDirty(int wid_num)
+{
+	BaseWidget *bw = this->GetWidget<BaseWidget>(wid_num);
+	bw->MarkDirty(this->rect.base);
+}
 
 /**
  * %Window manager class, manages the window stack.
