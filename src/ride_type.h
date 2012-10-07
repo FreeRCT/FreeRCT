@@ -112,10 +112,23 @@ public:
 	RidesManager();
 	~RidesManager();
 
+	RideInstance *GetRideInstance(uint16 num);
+	const RideInstance *GetRideInstance(uint16 num) const;
 	bool AddRideType(ShopType *shop_type);
 	uint16 GetFreeInstance();
 
-	ShopType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];       ///< Loaded types of rides.
+	/**
+	 * Get a ride type from the class.
+	 * @param number Index of the ride type to retrieve.
+	 * @return The ride type, or \c NULL if it does not exist.
+	 */
+	const ShopType *GetRideType(uint16 number) const
+	{
+		if (number >= lengthof(this->ride_types)) return NULL;
+		return this->ride_types[number];
+	}
+
+	const ShopType *ride_types[MAX_NUMBER_OF_RIDE_TYPES]; ///< Loaded types of rides.
 	RideInstance instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
 };
 

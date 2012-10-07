@@ -177,6 +177,28 @@ RidesManager::~RidesManager()
 }
 
 /**
+ * Get the requested ride instance.
+ * @param num Ride instance to retrieve.
+ * @return The requested ride, or \c NULL if not available.
+ */
+RideInstance *RidesManager::GetRideInstance(uint16 num)
+{
+	if (num >= lengthof(this->instances) || this->instances[num].type == NULL) return NULL;
+	return &this->instances[num];
+}
+
+/**
+ * Get the requested ride instance (read-only).
+ * @param num Ride instance to retrieve.
+ * @return The requested ride, or \c NULL if not available.
+ */
+const RideInstance *RidesManager::GetRideInstance(uint16 num) const
+{
+	if (num >= lengthof(this->instances) || this->instances[num].type == NULL) return NULL;
+	return &this->instances[num];
+}
+
+/**
  * Add a new ride type to the manager.
  * @param shop_type New ride type to add.
  */
