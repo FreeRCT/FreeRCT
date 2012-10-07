@@ -55,6 +55,7 @@ enum RideSelectWidgets {
 	RSEL_LIST,        ///< Ride selection list.
 	RSEL_SCROLL_LIST, ///< scrollbar of the list.
 	RSEL_DESC,        ///< Description of the selected ride type.
+	RSEL_DISPLAY,     ///< Display the ride.
 	RSEL_SELECT,      ///< 'select ride' button.
 	RSEL_ROT_POS,     ///< Rotate ride in positive direction (counter-clockwise).
 	RSEL_ROT_NEG,     ///< Rotate ride in negative direction (clockwise).
@@ -93,9 +94,12 @@ static const WidgetPart _ride_select_gui_parts[] = {
 				Widget(WT_EMPTY, RSEL_LIST, COL_RANGE_DARK_GREEN), SetFill(0, 1), SetResize(0, 1), SetMinimalSize(100, 100),
 			Widget(WT_VERT_SCROLLBAR, RSEL_SCROLL_LIST, COL_RANGE_DARK_GREEN),
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
-					Intermediate(2, 1),
+					Intermediate(3, 1),
 						Widget(WT_EMPTY, RSEL_DESC, COL_RANGE_DARK_GREEN), SetFill(1, 1), SetResize(1, 1),
 								SetMinimalSize(200, 200),
+						Intermediate(1, 2),
+							Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetFill(1, 1), SetResize(1, 0),
+							Widget(WT_EMPTY, RSEL_DISPLAY, COL_RANGE_DARK_GREEN), SetMinimalSize(70, 70),
 						Intermediate(1, 4),
 							Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetFill(1, 1), SetResize(1, 0),
 							Widget(WT_TEXT_BUTTON, RSEL_SELECT, COL_RANGE_DARK_GREEN), SetPadding(0, 3, 3, 0),
@@ -193,11 +197,22 @@ RideSelectGui::~RideSelectGui()
 
 		case RSEL_DESC:
 			if (this->current_ride != -1) {
-				const ShopType *ride = _rides_manager.ride_types[this->current_ride];
+				const ShopType *ride = _rides_manager.GetRideType(this->current_ride);
 				if (ride != NULL) {
 					DrawMultilineString(ride->GetString(SHOPS_DESCRIPTION_TYPE),
 							this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height,
 							TEXT_WHITE);
+				}
+			}
+			break;
+
+		case RSEL_DISPLAY:
+			if (this->current_ride != -1) {
+				const ShopType *ride = _rides_manager.GetRideType(this->current_ride);
+				static const Recolouring recolour; // Never modified, display 'original' image in the gui.
+				if (ride != NULL) {
+					_video->BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
+							this->GetWidgetScreenY(wid) + 40, ride->views[_shop_placer.orientation], recolour, 0);
 				}
 			}
 			break;
@@ -230,12 +245,12 @@ RideSelectGui::~RideSelectGui()
 			break;
 		}
 		case RSEL_ROT_POS:
-			_shop_placer.orientation = (_shop_placer.orientation + 1) & 3;
+			_shop_placer.orientation = (_shop_placer.orientation + 3) & 3;
 			// XXX Mark things as dirty.
 			break;
 
 		case RSEL_ROT_NEG:
-			_shop_placer.orientation = (_shop_placer.orientation + 3) & 3;
+			_shop_placer.orientation = (_shop_placer.orientation + 1) & 3;
 			// XXX Mark things as dirty.
 			break;
 	}
