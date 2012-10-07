@@ -22,6 +22,7 @@
 #include "palette.h"
 #include "sprite_store.h"
 #include "path_build.h"
+#include "shop_placement.h"
 
 #include <set>
 
@@ -687,7 +688,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 /* virtual */ void Viewport::OnDraw()
 {
-	SpriteCollector collector(this, (this->mouse_mode == MM_TILE_TERRAFORM || this->mouse_mode == MM_PATH_BUILDING));
+	SpriteCollector collector(this, this->mouse_mode != MM_INACTIVE);
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 	static const Recolouring recolour;
@@ -991,6 +992,9 @@ ViewportMouseMode Viewport::GetMouseMode()
 			}
 			break;
 
+		case MM_SHOP_PLACEMENT:
+			break;
+
 		default: NOT_REACHED();
 	}
 }
@@ -1020,6 +1024,9 @@ ViewportMouseMode Viewport::GetMouseMode()
 			}
 			break;
 
+		case MM_SHOP_PLACEMENT:
+			break;
+
 		default: NOT_REACHED();
 	}
 	return WMME_NONE;
@@ -1030,6 +1037,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 	switch (this->mouse_mode) {
 		case MM_INACTIVE:
 		case MM_PATH_BUILDING:
+		case MM_SHOP_PLACEMENT:
 			break;
 
 		case MM_TILE_TERRAFORM:
@@ -1064,6 +1072,10 @@ void SetViewportMousemode()
 		if (w->wtype == WC_PATH_BUILDER) {
 			_path_builder.Reset(); // Reset path building interaction.
 			vp->SetMouseModeState(MM_PATH_BUILDING);
+			return;
+		}
+		if (w->wtype == WC_RIDE_SELECT && _shop_placer.IsActive()) {
+			_shop_placer.Enable(vp);
 			return;
 		}
 		w = w->lower;

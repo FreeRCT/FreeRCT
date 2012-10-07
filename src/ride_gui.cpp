@@ -15,7 +15,11 @@
 #include "sprite_store.h"
 #include "ride_type.h"
 #include "palette.h"
+#include "shop_placement.h"
 #include "table/gui_sprites.h"
+#include "viewport.h"
+
+ShopPlacementManager _shop_placer; ///< Coordination object for placing a shop.
 
 /**
  * Gui for selecting a ride to build.
@@ -130,6 +134,7 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT)
 
 RideSelectGui::~RideSelectGui()
 {
+	_shop_placer.SetState(SPS_OFF);
 }
 
 /* virtual */ void RideSelectGui::UpdateWidgetSize(int wid_num, BaseWidget *wid)
@@ -216,11 +221,23 @@ RideSelectGui::~RideSelectGui()
 		case RSEL_SELECT: {
 			bool pressed = this->IsWidgetPressed(wid_num);
 			this->SetWidgetPressed(wid_num, !pressed);
+			if (!pressed) {
+				_shop_placer.SetState(SPS_HAS_SELECTION);
+				_shop_placer.orientation = VOR_NORTH;
+			} else {
+				_shop_placer.SetState(SPS_OFF);
+			}
 			break;
 		}
 		case RSEL_ROT_POS:
+			_shop_placer.orientation = (_shop_placer.orientation + 1) & 3;
+			// XXX Mark things as dirty.
+			break;
+
 		case RSEL_ROT_NEG:
-			/* skip */ ;
+			_shop_placer.orientation = (_shop_placer.orientation + 3) & 3;
+			// XXX Mark things as dirty.
+			break;
 	}
 }
 
@@ -256,5 +273,35 @@ void ShowRideSelectGui()
 {
 	if (HighlightWindowByType(WC_RIDE_SELECT)) return;
 	new RideSelectGui;
+}
+
+/** Constructor of the shop placement coordinator. */
+ShopPlacementManager::ShopPlacementManager()
+{
+	this->state = SPS_OFF;
+}
+
+/**
+ * Set the state of the shop placer.
+ * @param new_state New state of the shop placer object.
+ */
+void ShopPlacementManager::SetState(ShopPlacementState new_state)
+{
+	if (this->state == new_state) return;
+	this->state = new_state;
+
+	/* Will select this mode when the window is high enough in the stack, and enable us. */
+	SetViewportMousemode();
+}
+
+/**
+ * Viewport requests enabling the mode, make it work again.
+ * @param vp %Viewport performing the request.
+ */
+void ShopPlacementManager::Enable(Viewport *vp)
+{
+	if (this->state == SPS_OFF) return;
+
+	vp->SetMouseModeState(MM_SHOP_PLACEMENT);
 }
 
