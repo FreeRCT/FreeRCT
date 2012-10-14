@@ -239,11 +239,11 @@ inline const BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum) const
 
 /**
  * Mark the specified widget as dirty (in need of repainting).
- * @param wid %Widget to use.
+ * @param wnum %Widget to use.
  */
-inline void GuiWindow::MarkWidgetDirty(int wid_num)
+inline void GuiWindow::MarkWidgetDirty(WidgetNumber wnum)
 {
-	BaseWidget *bw = this->GetWidget<BaseWidget>(wid_num);
+	BaseWidget *bw = this->GetWidget<BaseWidget>(wnum);
 	bw->MarkDirty(this->rect.base);
 }
 
