@@ -343,10 +343,10 @@
 	</block>
 
 	<enum name="Entrance" type="uint8">
-		<value name="ne" value="1"/>
-		<value name="se" value="2"/>
-		<value name="sw" value="3"/>
-		<value name="nw" value="4"/>
+		<value name="ne" value="0"/>
+		<value name="se" value="1"/>
+		<value name="sw" value="2"/>
+		<value name="nw" value="3"/>
 	</enum>
 	<enum name="ItemType" type="uint8">
 		<value name="nothing"       value="0"/>
