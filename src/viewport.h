@@ -162,8 +162,6 @@ private:
 
 	virtual void TimeoutCallback();
 
-	void ChangeTerrain(int direction);
-
 	Point32 ComputeHorizontalTranslation(int dx, int dy);
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
@@ -190,6 +188,10 @@ public:
 	/** Notification that the mouse mode has been disabled. */
 	virtual void LeaveMode() = 0;
 
+	virtual void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos);
+	virtual void OnMouseButtonEvent(Viewport *vp, uint8 state);
+	virtual void OnMouseWheelEvent(Viewport *vp, int direction);
+
 	const WindowTypes wtype;      ///< Type of window associated with this mouse mode.
 	const ViewportMouseMode mode; ///< Mouse mode implemented by the object.
 };
@@ -198,15 +200,6 @@ public:
 class DefaultMouseMode : public MouseMode {
 public:
 	DefaultMouseMode();
-
-	virtual bool ActivateMode();
-	virtual void LeaveMode();
-};
-
-/** Tile terraforming mouse mode. */
-class TileTerraformMouseMode: public MouseMode {
-public:
-	TileTerraformMouseMode();
 
 	virtual bool ActivateMode();
 	virtual void LeaveMode();

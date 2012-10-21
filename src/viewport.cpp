@@ -895,64 +895,88 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
+/** Tile terraforming mouse mode. */
+class TileTerraformMouseMode: public MouseMode {
+public:
+	uint8 mouse_state;
 
-TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TERRAFORM) {}
-
-bool TileTerraformMouseMode::ActivateMode() { return true; }
-void TileTerraformMouseMode::LeaveMode() {}
-
-
-/**
- * Modify terrain (#MM_TILE_TERRAFORM mode).
- * @param direction Direction of movement.
- * @pre #tile_cursor contains the currently selected (corner of the) surface.
- */
-void Viewport::ChangeTerrain(int direction)
-{
-	assert(this->mouse_mode == MM_TILE_TERRAFORM);
-
-	Point32 p;
-	p.x = 0;
-	p.y = 0;
-	TerrainChanges changes(p, _world.GetXSize(), _world.GetYSize());
-
-	p.x = this->tile_cursor.xpos;
-	p.y = this->tile_cursor.ypos;
-
-	bool ok = false;
-	switch (this->tile_cursor.type) {
-		case CUR_TYPE_NORTH:
-		case CUR_TYPE_EAST:
-		case CUR_TYPE_SOUTH:
-		case CUR_TYPE_WEST:
-			ok = changes.ChangeCorner(p, (TileSlope)(this->tile_cursor.type - CUR_TYPE_NORTH), direction);
-			break;
-
-		case CUR_TYPE_TILE:
-			ok = changes.ChangeCorner(p, TC_NORTH, direction);
-			if (ok) ok = changes.ChangeCorner(p, TC_EAST, direction);
-			if (ok) ok = changes.ChangeCorner(p, TC_SOUTH, direction);
-			if (ok) ok = changes.ChangeCorner(p, TC_WEST, direction);
-			break;
-
-		default:
-			NOT_REACHED();
+	TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TERRAFORM)
+	{
 	}
 
-	if (ok) {
-		changes.ChangeWorld(direction);
-		/* Move voxel selection along with the terrain to allow another mousewheel event at the same place.
-		 * Note that the mouse cursor position is not changed at all, it still points at the original position.
-		 * The coupling is restored with the next mouse movement.
-		 */
-		this->tile_cursor.zpos = _world.GetGroundHeight(this->tile_cursor.xpos, this->tile_cursor.ypos);
-		GroundModificationMap::const_iterator iter;
-		for (iter = changes.changes.begin(); iter != changes.changes.end(); iter++) {
-			const Point32 &pt = (*iter).first;
-			this->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);
+	virtual bool ActivateMode()
+	{
+		this->mouse_state = 0;
+		return true;
+	}
+
+	virtual void LeaveMode() { }
+
+	virtual void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+	{
+		uint16 xvoxel, yvoxel;
+		uint8 zvoxel;
+		CursorType cur_type;
+
+		if ((this->mouse_state & MB_RIGHT) != 0) {
+			/* Drag the window if button is pressed down. */
+			vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
+		} else {
+			if (vp->ComputeCursorPosition(true, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
+				vp->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
+			}
 		}
 	}
-}
+	virtual void OnMouseButtonEvent(Viewport *vp, uint8 state)
+	{
+		this->mouse_state = state & MB_CURRENT;
+	}
+
+	virtual void OnMouseWheelEvent(Viewport *vp, int direction)
+	{
+		Point32 p;
+		p.x = 0;
+		p.y = 0;
+		TerrainChanges changes(p, _world.GetXSize(), _world.GetYSize());
+
+		p.x = vp->tile_cursor.xpos;
+		p.y = vp->tile_cursor.ypos;
+
+		bool ok = false;
+		switch (vp->tile_cursor.type) {
+			case CUR_TYPE_NORTH:
+			case CUR_TYPE_EAST:
+			case CUR_TYPE_SOUTH:
+			case CUR_TYPE_WEST:
+				ok = changes.ChangeCorner(p, (TileSlope)(vp->tile_cursor.type - CUR_TYPE_NORTH), direction);
+				break;
+
+			case CUR_TYPE_TILE:
+				ok = changes.ChangeCorner(p, TC_NORTH, direction);
+				if (ok) ok = changes.ChangeCorner(p, TC_EAST, direction);
+				if (ok) ok = changes.ChangeCorner(p, TC_SOUTH, direction);
+				if (ok) ok = changes.ChangeCorner(p, TC_WEST, direction);
+				break;
+
+			default:
+				NOT_REACHED();
+		}
+
+		if (ok) {
+			changes.ChangeWorld(direction);
+			/* Move voxel selection along with the terrain to allow another mousewheel event at the same place.
+			 * Note that the mouse cursor position is not changed at all, it still points at the original position.
+			 * The coupling is restored with the next mouse movement.
+			 */
+			vp->tile_cursor.zpos = _world.GetGroundHeight(vp->tile_cursor.xpos, vp->tile_cursor.ypos);
+			GroundModificationMap::const_iterator iter;
+			for (iter = changes.changes.begin(); iter != changes.changes.end(); iter++) {
+				const Point32 &pt = (*iter).first;
+				vp->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);
+			}
+		}
+	}
+};
 
 /**
  * Set mode and state of the mouse interaction of the viewport.
@@ -989,14 +1013,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 			break;
 
 		case MM_TILE_TERRAFORM:
-			if ((this->mouse_state & MB_RIGHT) != 0) {
-				/* Drag the window if button is pressed down. */
-				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
-			} else {
-				if (this->ComputeCursorPosition(true, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
-					this->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
-				}
-			}
+			_mouse_modes.modes[this->mouse_mode]->OnMouseMoveEvent(this, old_mouse_pos, pos);
 			break;
 
 		case MM_PATH_BUILDING:
@@ -1023,12 +1040,13 @@ ViewportMouseMode Viewport::GetMouseMode()
 
 /* virtual */ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 {
+
 	switch (this->mouse_mode) {
 		case MM_INACTIVE:
 			break;
 
 		case MM_TILE_TERRAFORM:
-			this->mouse_state = state & MB_CURRENT;
+			_mouse_modes.modes[this->mouse_mode]->OnMouseButtonEvent(this, state);
 			break;
 
 		case MM_PATH_BUILDING:
@@ -1063,7 +1081,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 			break;
 
 		case MM_TILE_TERRAFORM:
-			ChangeTerrain(direction);
+			_mouse_modes.modes[this->mouse_mode]->OnMouseWheelEvent(this, direction);
 			break;
 
 		default: NOT_REACHED();
@@ -1072,6 +1090,11 @@ ViewportMouseMode Viewport::GetMouseMode()
 
 MouseMode::MouseMode(WindowTypes p_wtype, ViewportMouseMode p_mode) : wtype(p_wtype), mode(p_mode) {}
 MouseMode::~MouseMode() {}
+
+/* virtual */ void MouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) {}
+/* virtual */ void MouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state) {}
+/* virtual */ void MouseMode::OnMouseWheelEvent(Viewport *vp, int direction) {}
+
 
 DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE) {}
 
