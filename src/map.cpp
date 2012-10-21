@@ -70,6 +70,7 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 {
 	dest->type = src->type;
 	switch (src->type) {
+		case VT_EMPTY: break;
 		case VT_SURFACE:   dest->surface = src->surface;     break;
 		case VT_REFERENCE: dest->reference = src->reference; break;
 		case VT_RIDE:      dest->ride = src->ride;           break;
