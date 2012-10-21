@@ -291,7 +291,7 @@ void ShowRideSelectGui()
 }
 
 /** Constructor of the shop placement coordinator. */
-ShopPlacementManager::ShopPlacementManager()
+ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP_PLACEMENT)
 {
 	this->state = SPS_OFF;
 }
@@ -309,14 +309,12 @@ void ShopPlacementManager::SetState(ShopPlacementState new_state)
 	SetViewportMousemode();
 }
 
-/**
- * Viewport requests enabling the mode, make it work again.
- * @param vp %Viewport performing the request.
- */
-void ShopPlacementManager::Enable(Viewport *vp)
+bool ShopPlacementManager::ActivateMode()
 {
-	if (this->state == SPS_OFF) return;
-
-	vp->SetMouseModeState(MM_SHOP_PLACEMENT);
+	return this->state != SPS_OFF;
 }
 
+void ShopPlacementManager::LeaveMode()
+{
+	// Not used yet.
+}

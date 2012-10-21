@@ -1119,8 +1119,8 @@ void SetViewportMousemode()
 			vp->SetMouseModeState(MM_PATH_BUILDING);
 			return;
 		}
-		if (w->wtype == WC_RIDE_SELECT && _shop_placer.IsActive()) {
-			_shop_placer.Enable(vp);
+		if (w->wtype == WC_RIDE_SELECT && _shop_placer.ActivateMode()) {
+			vp->SetMouseModeState(MM_SHOP_PLACEMENT);
 			return;
 		}
 		w = w->lower;
@@ -1153,4 +1153,5 @@ void InitMouseModes()
 
 	_mouse_modes.RegisterMode(&tt_mm);
 	_mouse_modes.RegisterMode(&_path_builder);
+	_mouse_modes.RegisterMode(&_shop_placer);
 }

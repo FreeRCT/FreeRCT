@@ -12,6 +12,8 @@
 #ifndef SHOP_PLACEMENT_H
 #define SHOP_PLACEMENT_H
 
+#include "viewport.h"
+
 /** States in the shop placement. */
 enum ShopPlacementState {
 	SPS_OFF,           ///< Shop placement is off.
@@ -19,27 +21,18 @@ enum ShopPlacementState {
 };
 
 /** Class interacting between #RideSelectGui, and the #Viewport mouse mode #MM_SHOP_PLACEMENT. */
-class ShopPlacementManager {
+class ShopPlacementManager : public MouseMode {
 public:
 	ShopPlacementManager();
 
-	void SetState(ShopPlacementState new_state);
+	virtual bool ActivateMode();
+	virtual void LeaveMode();
 
-	inline bool IsActive() const;
-	void Enable(Viewport *vp);
+	void SetState(ShopPlacementState new_state);
 
 	ShopPlacementState state;      ///< Current state of the shop placement manager.
 	uint8 orientation;             ///< Orientation of the shop that will be placed.
 };
-
-/**
- * Should the shop placement mouse mode be activated?
- * @return The shop placement mode should be activated.
- */
-inline bool ShopPlacementManager::IsActive() const
-{
-	return this->state == SPS_HAS_SELECTION;
-}
 
 extern ShopPlacementManager _shop_placer;
 
