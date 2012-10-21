@@ -40,15 +40,15 @@ enum ShopFlags {
 	SHF_NW_ENTRANCE = 0x08, ///< Entrance in NW direction (unrotated).
 };
 
-/* Type of items that can be bought. */
+/** Type of items that can be bought. */
 enum ItemType {
-	ITP_NOTHING = 0,
-	ITP_DRINK = 8,
-	ITP_ICE_CREAM = 9,
-	ITP_NORMAL_FOOD = 16,
-	ITP_SALTY_FOOD = 24,
-	ITP_UMBRELLA = 32,
-	ITP_PARK_MAP = 40,
+	ITP_NOTHING = 0,      ///< Dummy item to denote nothing can be bought.
+	ITP_DRINK = 8,        ///< A drink in a cup.
+	ITP_ICE_CREAM = 9,    ///< Ice cream (a drink that can be eaten).
+	ITP_NORMAL_FOOD = 16, ///< 'plain' food.
+	ITP_SALTY_FOOD = 24,  ///< 'salty' food, makes thirsty.
+	ITP_UMBRELLA = 32,    ///< Umbrella against the rain.
+	ITP_PARK_MAP = 40,    ///< Map of the park, may improve finding the attractions.
 };
 
 /**
@@ -95,14 +95,20 @@ public:
 	RideInstance();
 	~RideInstance();
 
-	void SetRide(ShopType *type, uint8 *name);
-	void OpenRide();
-	void CloseRide();
+	void ClaimRide(ShopType *type, uint8 *name);
+	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	void FreeRide();
 
-	uint8 name[64]; ///< Name of the ride, if it is instantiated.
-	ShopType *type; ///< Ride type used. \c NULL means the instance is not used.
-	uint8 state;    ///< State of the instance. @see RideInstanceState
+	void OpenRide();
+	void CloseRide();
+
+	uint8 name[64];    ///< Name of the ride, if it is instantiated.
+	ShopType *type;    ///< Ride type used. \c NULL means the instance is not used.
+	uint8 orientation; ///< Orientation of the shop.
+	uint8 state;       ///< State of the instance. @see RideInstanceState
+	uint16 xpos;       ///< X position of the base voxel.
+	uint16 ypos;       ///< Y position of the base voxel.
+	uint8  zpos;       ///< Z position of the base voxel.
 	EditableRecolouring recolour_map; ///< Recolour map of the instance.
 };
 

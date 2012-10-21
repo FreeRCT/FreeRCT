@@ -112,10 +112,13 @@ RideInstance::~RideInstance()
  * @param type Ride type to instantiate.
  * @param name Suggested name, may be \c NULL.
  * @pre Entry must not be in use currently.
+ * @note Also initialize the other variables of the instance with #SetRide
  */
-void RideInstance::SetRide(ShopType *type, uint8 *name)
+void RideInstance::ClaimRide(ShopType *type, uint8 *name)
 {
 	assert(this->type == NULL);
+	assert(type != NULL);
+
 	this->type = type;
 	if (name == NULL) {
 		this->name[0] = '\0';
@@ -124,7 +127,24 @@ void RideInstance::SetRide(ShopType *type, uint8 *name)
 	}
 	this->state = RIS_CLOSED;
 
-	// XXX Initialize instance memory space here.
+	// XXX Make a recolour-map.
+}
+
+/**
+ * Update a ride instance with its position in the world.
+ * @param orientation Orientation of the shop.
+ * @param xpos X position of the shop.
+ * @param ypos Y position of the shop.
+ * @param zpos Z position of the shop.
+ */
+void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	assert(this->type != NULL); // Updating a non-claimed ride is not so useful.
+
+	this->orientation = orientation;
+	this->xpos = xpos;
+	this->ypos = ypos;
+	this->zpos = zpos;
 }
 
 /**
