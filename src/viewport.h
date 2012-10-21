@@ -120,6 +120,7 @@ public:
 class Viewport : public Window {
 public:
 	Viewport(int x, int y, uint w, uint h);
+	~Viewport();
 
 	void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height = 0);
 	virtual void OnDraw();
@@ -173,6 +174,49 @@ inline void Cursor::MarkDirty()
 {
 	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
 }
+
+/** A single mouse mode. */
+class MouseMode {
+public:
+	MouseMode(WindowTypes wtype, ViewportMouseMode mode);
+	virtual ~MouseMode();
+
+	/**
+	 * Query the mode whether it can be enabled.
+	 * @return Whether the mode may be enabled.
+	 */
+	virtual bool ActivateMode() = 0;
+
+	/** Notification that the mouse mode has been disabled. */
+	virtual void LeaveMode() = 0;
+
+	const WindowTypes wtype;      ///< Type of window associated with this mouse mode.
+	const ViewportMouseMode mode; ///< Mouse mode implemented by the object.
+};
+
+/** Default mouse mode, selected when no other mouse mode is available. */
+class DefaultMouseMode : public MouseMode {
+public:
+	DefaultMouseMode();
+
+	virtual bool ActivateMode();
+	virtual void LeaveMode();
+};
+
+/** All mouse modes. */
+class MouseModes {
+public:
+	MouseModes();
+
+	Viewport *main_display;     ///< Main screen, managed by #Viewport.
+	MouseMode *current;         ///< Current mouse mode.
+	MouseMode *modes[MM_COUNT]; ///< Registered mouse modes.
+
+private:
+	DefaultMouseMode default_mode;
+};
+
+extern MouseModes _mouse_modes;
 
 Viewport *GetViewport();
 void SetViewportMousemode();

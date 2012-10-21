@@ -33,6 +33,7 @@
  * The additions will flash on and off to show they are not decided yet.
  */
 WorldAdditions _additions;
+MouseModes _mouse_modes; ///< Mouse modes in the game.
 
 static const int ADDITIONS_TIMEOUT_LENGTH = 15; ///< Length of the time interval of displaying or not displaying world additions.
 
@@ -655,6 +656,8 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_
 	this->tile_height = 16;
 	this->orientation = VOR_NORTH;
 
+	_mouse_modes.main_display = this;
+
 	this->mouse_mode = MM_INACTIVE;
 	this->mouse_pos.x = 0;
 	this->mouse_pos.y = 0;
@@ -662,6 +665,11 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_
 
 	this->SetSize(w, h);
 	this->SetPosition(x, y);
+}
+
+Viewport::~Viewport()
+{
+	_mouse_modes.main_display = NULL;
 }
 
 /**
@@ -1053,6 +1061,22 @@ ViewportMouseMode Viewport::GetMouseMode()
 
 		default: NOT_REACHED();
 	}
+}
+
+MouseMode::MouseMode(WindowTypes p_wtype, ViewportMouseMode p_mode) : wtype(p_wtype), mode(p_mode) {}
+MouseMode::~MouseMode() {}
+
+DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE) {}
+
+bool DefaultMouseMode::ActivateMode() { return true; }
+void DefaultMouseMode::LeaveMode() {}
+
+
+MouseModes::MouseModes()
+{
+	this->main_display = NULL;
+	this->current = &default_mode;
+	for (int i = 0; i < MM_COUNT; i++) this->modes[i] = NULL;
 }
 
 /**

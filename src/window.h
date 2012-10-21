@@ -28,6 +28,8 @@ enum WindowTypes {
 	WC_QUIT,         ///< Quit program window.
 	WC_PATH_BUILDER, ///< Path build gui.
 	WC_RIDE_SELECT,  ///< Ride selection window.
+
+	WC_NONE,         ///< Invalid window type.
 };
 
 /** Codes of the #NotifyChange function, which gets forwarded through the #Window::OnChange method. */
