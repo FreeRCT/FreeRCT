@@ -23,6 +23,8 @@
 
 static bool _finish; ///< Finish execution of the program.
 
+void InitMouseModes();
+
 /**
  * Error handling for fatal non-user errors.
  * @param s the string to print.
@@ -102,6 +104,8 @@ int main(void)
 	_video = &vid;
 
 	_finish = false;
+
+	InitMouseModes();
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);

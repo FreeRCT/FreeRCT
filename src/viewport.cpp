@@ -895,6 +895,13 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
+
+TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TERRAFORM) {}
+
+bool TileTerraformMouseMode::ActivateMode() { return true; }
+void TileTerraformMouseMode::LeaveMode() {}
+
+
 /**
  * Modify terrain (#MM_TILE_TERRAFORM mode).
  * @param direction Direction of movement.
@@ -1080,6 +1087,17 @@ MouseModes::MouseModes()
 }
 
 /**
+ * Register a mouse mode.
+ * @param mm Mouse mode to register.
+ */
+void MouseModes::RegisterMode(MouseMode *mm)
+{
+	assert(mm->mode < MM_COUNT);
+	assert(this->modes[mm->mode] == NULL);
+	this->modes[mm->mode] = mm;
+}
+
+/**
  * Get the address of the viewport window.
  * @return Address of the viewport.
  * @note Function may return \c NULL.
@@ -1131,4 +1149,12 @@ Viewport *ShowMainDisplay()
 
 	SetViewportMousemode();
 	return w;
+}
+
+/** Initialize the mouse modes. */
+void InitMouseModes()
+{
+	static TileTerraformMouseMode tt_mm;
+
+	_mouse_modes.RegisterMode(&tt_mm);
 }

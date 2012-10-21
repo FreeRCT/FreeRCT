@@ -203,10 +203,21 @@ public:
 	virtual void LeaveMode();
 };
 
+/** Tile terraforming mouse mode. */
+class TileTerraformMouseMode: public MouseMode {
+public:
+	TileTerraformMouseMode();
+
+	virtual bool ActivateMode();
+	virtual void LeaveMode();
+};
+
 /** All mouse modes. */
 class MouseModes {
 public:
 	MouseModes();
+
+	void RegisterMode(MouseMode *mm);
 
 	Viewport *main_display;     ///< Main screen, managed by #Viewport.
 	MouseMode *current;         ///< Current mouse mode.
