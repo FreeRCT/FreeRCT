@@ -154,7 +154,7 @@ public:
 		return this->rect.base.y + wid->pos.base.y;
 	}
 
-	inline void MarkWidgetDirty(int wid_num);
+	inline void MarkWidgetDirty(WidgetNumber wnum);
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
