@@ -13,7 +13,6 @@
 #include "path_build.h"
 #include "map.h"
 #include "window.h"
-#include "viewport.h"
 #include "math_func.h"
 
 PathBuildManager _path_builder; ///< Path build manager.
@@ -198,7 +197,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 }
 
 /** Default constructor. */
-PathBuildManager::PathBuildManager()
+PathBuildManager::PathBuildManager() : MouseMode(WC_PATH_BUILDER, MM_PATH_BUILDING)
 {
 	this->state = PBS_IDLE;
 	this->selected_arrow = INVALID_EDGE;
@@ -207,12 +206,58 @@ PathBuildManager::PathBuildManager()
 }
 
 /** Restart the path build interaction sequence. */
-void PathBuildManager::Reset()
+bool PathBuildManager::ActivateMode()
 {
 	this->selected_arrow = INVALID_EDGE;
 	this->selected_slope = TSL_INVALID;
 	if (this->state != PBS_IDLE) this->state = PBS_WAIT_VOXEL;
 	this->UpdateState();
+
+	this->mouse_state = 0;
+	return true;
+}
+
+/** Notification that the mouse mode has been disabled. */
+void PathBuildManager::LeaveMode()
+{
+	// Not used.
+}
+
+void PathBuildManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+{
+	if (this->state == PBS_LONG_BUILD) {
+		this->ComputeNewLongPath(vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y));
+	} else if ((this->mouse_state & MB_RIGHT) != 0) {
+		/* Drag the window if button is pressed down. */
+		vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
+	} else {
+		uint16 xvoxel, yvoxel;
+		uint8 zvoxel;
+		CursorType cur_type;
+
+		/* Only update tile cursor if no tile selected yet. */
+		if (this->state == PBS_WAIT_VOXEL && vp->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
+			vp->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
+		}
+	}
+}
+
+void PathBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
+{
+	this->mouse_state = state & MB_CURRENT;
+
+	if ((this->mouse_state & MB_LEFT) != 0) { // Left-click -> select current tile.
+		if (this->state == PBS_LONG_BUILD || this->state == PBS_LONG_BUY) {
+			this->ConfirmLongPath();
+		} else {
+			uint16 xvoxel, yvoxel;
+			uint8 zvoxel;
+			CursorType cur_type;
+			if (vp->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
+				this->TileClicked(xvoxel, yvoxel, zvoxel);
+			}
+		}
+	}
 }
 
 /**

@@ -138,6 +138,10 @@ public:
 	void EnableWorldAdditions();
 	void DisableWorldAdditions();
 
+	Point32 ComputeHorizontalTranslation(int dx, int dy);
+	int32 ComputeX(int32 xpos, int32 ypos);
+	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
+
 	int32 xview; ///< X position of the center point of the viewport.
 	int32 yview; ///< Y position of the center point of the viewport.
 	int32 zview; ///< Z position of the center point of the viewport.
@@ -161,10 +165,6 @@ private:
 	virtual void OnMouseWheelEvent(int direction);
 
 	virtual void TimeoutCallback();
-
-	Point32 ComputeHorizontalTranslation(int dx, int dy);
-	int32 ComputeX(int32 xpos, int32 ypos);
-	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 };
 
 /** Update the cursor at the screen. */

@@ -1001,10 +1001,6 @@ ViewportMouseMode Viewport::GetMouseMode()
 
 /* virtual */ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 {
-	uint16 xvoxel, yvoxel;
-	uint8 zvoxel;
-	CursorType cur_type;
-
 	Point16 old_mouse_pos = this->mouse_pos;
 	this->mouse_pos = pos;
 
@@ -1017,18 +1013,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 			break;
 
 		case MM_PATH_BUILDING:
-			if (_path_builder.state == PBS_LONG_BUILD) {
-				_path_builder.ComputeNewLongPath(this->ComputeHorizontalTranslation(this->rect.width / 2 - this->mouse_pos.x,
-						this->rect.height / 2 - this->mouse_pos.y));
-			} else if ((this->mouse_state & MB_RIGHT) != 0) {
-				/* Drag the window if button is pressed down. */
-				this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
-			} else {
-				/* Only update tile cursor if no tile selected yet. */
-				if (_path_builder.state == PBS_WAIT_VOXEL && this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
-					this->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
-				}
-			}
+			_mouse_modes.modes[this->mouse_mode]->OnMouseMoveEvent(this, old_mouse_pos, pos);
 			break;
 
 		case MM_SHOP_PLACEMENT:
@@ -1050,18 +1035,7 @@ ViewportMouseMode Viewport::GetMouseMode()
 			break;
 
 		case MM_PATH_BUILDING:
-			this->mouse_state = state & MB_CURRENT;
-			if ((this->mouse_state & MB_LEFT) != 0) { // Left-click -> select current tile.
-				if (_path_builder.state == PBS_LONG_BUILD || _path_builder.state == PBS_LONG_BUY) {
-					_path_builder.ConfirmLongPath();
-				} else {
-					uint16 xvoxel, yvoxel;
-					uint8 zvoxel;
-					CursorType cur_type;
-					if (!this->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) break;
-					_path_builder.TileClicked(xvoxel, yvoxel, zvoxel);
-				}
-			}
+			_mouse_modes.modes[this->mouse_mode]->OnMouseButtonEvent(this, state);
 			break;
 
 		case MM_SHOP_PLACEMENT:
@@ -1141,8 +1115,7 @@ void SetViewportMousemode()
 
 	Window *w = _manager.top;
 	while (w != NULL) {
-		if (w->wtype == WC_PATH_BUILDER) {
-			_path_builder.Reset(); // Reset path building interaction.
+		if (w->wtype == WC_PATH_BUILDER && _path_builder.ActivateMode()) {
 			vp->SetMouseModeState(MM_PATH_BUILDING);
 			return;
 		}
@@ -1156,7 +1129,6 @@ void SetViewportMousemode()
 	vp->SetMouseModeState(MM_TILE_TERRAFORM);
 	vp->tile_cursor.SetInvalid();
 	vp->arrow_cursor.SetInvalid();
-	_path_builder.Reset();
 }
 
 /**
@@ -1180,4 +1152,5 @@ void InitMouseModes()
 	static TileTerraformMouseMode tt_mm;
 
 	_mouse_modes.RegisterMode(&tt_mm);
+	_mouse_modes.RegisterMode(&_path_builder);
 }

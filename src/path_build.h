@@ -13,8 +13,10 @@
 #define PATH_BUILD_H
 
 #include "tile.h"
+#include "viewport.h"
 
 struct SurfaceVoxelData;
+class Viewport;
 
 /** Possible states of the path building process. */
 enum PathBuildState {
@@ -28,11 +30,17 @@ enum PathBuildState {
 };
 
 /** Helper for storing data and state about the path building process. */
-class PathBuildManager {
+class PathBuildManager : public MouseMode {
 public:
 	PathBuildManager();
 
-	void Reset();
+	virtual bool ActivateMode();
+	virtual void LeaveMode();
+
+	virtual void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos);
+	virtual void OnMouseButtonEvent(Viewport *vp, uint8 state);
+
+
 	void SetPathGuiState(bool opened);
 
 	void TileClicked(uint16 xpos, uint16 ypos, uint8 zpos);
@@ -58,6 +66,8 @@ public:
 	PathBuildState state;      ///< State of the path building process.
 
 private:
+	uint8 mouse_state;         ///< State of the mouse buttons.
+
 	uint16 xpos;               ///< X coordinate of the selected voxel.
 	uint16 xlong;              ///< X coordinate of the long path destination voxel.
 	uint16 ypos;               ///< Y coordinate of the selected voxel.
