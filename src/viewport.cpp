@@ -1097,7 +1097,7 @@ Viewport *ShowMainDisplay()
 	uint16 width  = _video->GetXSize();
 	uint16 height = _video->GetYSize();
 	assert(width >= 120 && height >= 120);
-	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
+	Viewport *w = new Viewport(0, 0, width, height);
 
 	_mouse_modes.SetViewportMousemode();
 	return w;
