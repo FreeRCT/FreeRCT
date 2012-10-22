@@ -27,6 +27,7 @@ public:
 
 	virtual bool ActivateMode();
 	virtual void LeaveMode();
+	virtual bool EnableCursors();
 
 	void SetState(ShopPlacementState new_state);
 

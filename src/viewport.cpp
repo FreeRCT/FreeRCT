@@ -695,7 +695,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 /* virtual */ void Viewport::OnDraw()
 {
-	SpriteCollector collector(this, _mouse_modes.GetMouseMode() != MM_INACTIVE);
+	SpriteCollector collector(this, _mouse_modes.current->EnableCursors());
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 	static const Recolouring recolour;
@@ -910,6 +910,11 @@ public:
 
 	virtual void LeaveMode() { }
 
+	virtual bool EnableCursors()
+	{
+		return true;
+	}
+
 	virtual void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
 	{
 		uint16 xvoxel, yvoxel;
@@ -1007,6 +1012,7 @@ DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE) {}
 
 bool DefaultMouseMode::ActivateMode() { return true; }
 void DefaultMouseMode::LeaveMode() {}
+bool DefaultMouseMode::EnableCursors() { return false; }
 
 
 MouseModes::MouseModes()

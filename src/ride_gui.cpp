@@ -318,3 +318,9 @@ void ShopPlacementManager::LeaveMode()
 {
 	// Not used yet.
 }
+
+bool ShopPlacementManager::EnableCursors()
+{
+	return true;
+}
+

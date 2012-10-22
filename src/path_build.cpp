@@ -223,6 +223,11 @@ void PathBuildManager::LeaveMode()
 	// Not used.
 }
 
+bool PathBuildManager::EnableCursors()
+{
+	return true;
+}
+
 void PathBuildManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
 {
 	if (this->state == PBS_LONG_BUILD) {

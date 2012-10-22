@@ -36,6 +36,7 @@ public:
 
 	virtual bool ActivateMode();
 	virtual void LeaveMode();
+	virtual bool EnableCursors();
 
 	virtual void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos);
 	virtual void OnMouseButtonEvent(Viewport *vp, uint8 state);

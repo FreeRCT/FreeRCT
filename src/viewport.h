@@ -189,6 +189,12 @@ public:
 	virtual void OnMouseButtonEvent(Viewport *vp, uint8 state);
 	virtual void OnMouseWheelEvent(Viewport *vp, int direction);
 
+	/**
+	 * Control display of cursors in the mouse mode.
+	 * @return \c true when cursors should be displayed, \c false otherwise.
+	 */
+	virtual bool EnableCursors() = 0;
+
 	const WindowTypes wtype;      ///< Type of window associated with this mouse mode.
 	const ViewportMouseMode mode; ///< Mouse mode implemented by the object.
 };
@@ -200,6 +206,7 @@ public:
 
 	virtual bool ActivateMode();
 	virtual void LeaveMode();
+	virtual bool EnableCursors();
 };
 
 /** All mouse modes. */
