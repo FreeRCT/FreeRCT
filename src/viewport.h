@@ -153,10 +153,7 @@ public:
 	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
 
 private:
-	ViewportMouseMode mouse_mode; ///< Mode of the mouse, decides how to react to mouse clicks, drags, etc.
 	Point16 mouse_pos;            ///< Last known position of the mouse.
-	uint8 mouse_state;            ///< Last known state of the mouse buttons.
-
 	bool additions_enabled;       ///< Flashing of world additions is enabled.
 	bool additions_displayed;     ///< Additions in #_additions are displayed to the user.
 
@@ -211,6 +208,8 @@ public:
 	MouseModes();
 
 	void RegisterMode(MouseMode *mm);
+	void SetViewportMousemode();
+	ViewportMouseMode GetMouseMode();
 
 	Viewport *main_display;     ///< Main screen, managed by #Viewport.
 	MouseMode *current;         ///< Current mouse mode.
@@ -223,6 +222,5 @@ private:
 extern MouseModes _mouse_modes;
 
 Viewport *GetViewport();
-void SetViewportMousemode();
 
 #endif

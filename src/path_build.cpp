@@ -269,7 +269,7 @@ void PathBuildManager::SetPathGuiState(bool opened)
 	this->state = opened ? PBS_WAIT_VOXEL : PBS_IDLE;
 	this->UpdateState();
 	Viewport *vp = GetViewport();
-	if (opened || (vp != NULL && vp->GetMouseMode() == MM_PATH_BUILDING)) SetViewportMousemode();
+	if (opened || (vp != NULL && _mouse_modes.GetMouseMode() == MM_PATH_BUILDING)) _mouse_modes.SetViewportMousemode();
 }
 
 /**

@@ -306,7 +306,7 @@ void ShopPlacementManager::SetState(ShopPlacementState new_state)
 	this->state = new_state;
 
 	/* Will select this mode when the window is high enough in the stack, and enable us. */
-	SetViewportMousemode();
+	_mouse_modes.SetViewportMousemode();
 }
 
 bool ShopPlacementManager::ActivateMode()

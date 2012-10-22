@@ -658,10 +658,8 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_
 
 	_mouse_modes.main_display = this;
 
-	this->mouse_mode = MM_INACTIVE;
 	this->mouse_pos.x = 0;
 	this->mouse_pos.y = 0;
-	this->mouse_state = 0;
 
 	this->SetSize(w, h);
 	this->SetPosition(x, y);
@@ -697,7 +695,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 /* virtual */ void Viewport::OnDraw()
 {
-	SpriteCollector collector(this, this->mouse_mode != MM_INACTIVE);
+	SpriteCollector collector(this, _mouse_modes.GetMouseMode() != MM_INACTIVE);
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 	static const Recolouring recolour;
@@ -978,88 +976,23 @@ public:
 	}
 };
 
-/**
- * Set mode and state of the mouse interaction of the viewport.
- * @param mode Possibly new mode.
- * @param state State within the mouse mode.
- */
-void Viewport::SetMouseModeState(ViewportMouseMode mode, uint8 state)
-{
-	assert(mode < MM_COUNT);
-	this->mouse_state = state;
-	this->mouse_mode = mode;
-}
-
-/**
- * Get the current mode of mouse interaction of the viewport.
- * @return Current mouse mode.
- */
-ViewportMouseMode Viewport::GetMouseMode()
-{
-	return this->mouse_mode;
-}
-
 /* virtual */ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 {
 	Point16 old_mouse_pos = this->mouse_pos;
 	this->mouse_pos = pos;
 
-	switch (this->mouse_mode) {
-		case MM_INACTIVE:
-			break;
-
-		case MM_TILE_TERRAFORM:
-			_mouse_modes.modes[this->mouse_mode]->OnMouseMoveEvent(this, old_mouse_pos, pos);
-			break;
-
-		case MM_PATH_BUILDING:
-			_mouse_modes.modes[this->mouse_mode]->OnMouseMoveEvent(this, old_mouse_pos, pos);
-			break;
-
-		case MM_SHOP_PLACEMENT:
-			break;
-
-		default: NOT_REACHED();
-	}
+	_mouse_modes.current->OnMouseMoveEvent(this, old_mouse_pos, pos);
 }
 
 /* virtual */ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 {
-
-	switch (this->mouse_mode) {
-		case MM_INACTIVE:
-			break;
-
-		case MM_TILE_TERRAFORM:
-			_mouse_modes.modes[this->mouse_mode]->OnMouseButtonEvent(this, state);
-			break;
-
-		case MM_PATH_BUILDING:
-			_mouse_modes.modes[this->mouse_mode]->OnMouseButtonEvent(this, state);
-			break;
-
-		case MM_SHOP_PLACEMENT:
-			break;
-
-		default: NOT_REACHED();
-	}
+	_mouse_modes.current->OnMouseButtonEvent(this, state);
 	return WMME_NONE;
 }
 
 /* virtual */ void Viewport::OnMouseWheelEvent(int direction)
 {
-	switch (this->mouse_mode) {
-		case MM_INACTIVE:
-		case MM_PATH_BUILDING:
-		case MM_SHOP_PLACEMENT:
-			break;
-
-		case MM_TILE_TERRAFORM:
-			_mouse_modes.modes[this->mouse_mode]->OnMouseWheelEvent(this, direction);
-			break;
-
-		default: NOT_REACHED();
-	}
+	_mouse_modes.current->OnMouseWheelEvent(this, direction);
 }
 
 MouseMode::MouseMode(WindowTypes p_wtype, ViewportMouseMode p_mode) : wtype(p_wtype), mode(p_mode) {}
@@ -1101,34 +1034,58 @@ void MouseModes::RegisterMode(MouseMode *mm)
  */
 Viewport *GetViewport()
 {
-	return dynamic_cast<Viewport *>(GetWindowByType(WC_MAINDISPLAY));
+	return _mouse_modes.main_display;
 }
 
 /**
  * Decide the most appropriate mouse mode of the viewport, depending on available windows.
  * @todo Perhaps force a redraw/recompute in some way to ensure the right state is displayed?
  */
-void SetViewportMousemode()
+void MouseModes::SetViewportMousemode()
 {
-	Viewport *vp = GetViewport();
-	if (vp == NULL) return;
+	if (this->main_display == NULL) return;
 
+	/* First try all windows from top to bottom. */
 	Window *w = _manager.top;
 	while (w != NULL) {
-		if (w->wtype == WC_PATH_BUILDER && _path_builder.ActivateMode()) {
-			vp->SetMouseModeState(MM_PATH_BUILDING);
-			return;
-		}
-		if (w->wtype == WC_RIDE_SELECT && _shop_placer.ActivateMode()) {
-			vp->SetMouseModeState(MM_SHOP_PLACEMENT);
-			return;
+		for (uint i = 0; i < lengthof(this->modes); i++) {
+			MouseMode *mm = this->modes[i];
+			if (mm != NULL && mm->wtype == w->wtype && mm->ActivateMode()) {
+				if (this->current != mm) {
+					this->current->LeaveMode();
+					this->current = mm;
+				}
+				return;
+			}
 		}
 		w = w->lower;
 	}
+	/* Try all mouse modes without a window. */
+	for (uint i = 0; i < lengthof(this->modes); i++) {
+		MouseMode *mm = this->modes[i];
+		if (mm != NULL && mm->wtype == WC_NONE && mm->ActivateMode()) {
+			if (this->current != mm) {
+				this->current->LeaveMode();
+				this->current = mm;
+			}
+			return;
+		}
+	}
+	/* Switch to the default mouse mode unconditionally. */
+	if (this->current != &this->default_mode) {
+		this->default_mode.ActivateMode(); // Should always return true.
+		this->current->LeaveMode();
+		this->current = &this->default_mode;
+	}
+}
 
-	vp->SetMouseModeState(MM_TILE_TERRAFORM);
-	vp->tile_cursor.SetInvalid();
-	vp->arrow_cursor.SetInvalid();
+/**
+ * Get the current mouse mode.
+ * @return The current mouse mode.
+ */
+ViewportMouseMode MouseModes::GetMouseMode()
+{
+	return this->current->mode;
 }
 
 /**
@@ -1142,7 +1099,7 @@ Viewport *ShowMainDisplay()
 	assert(width >= 120 && height >= 120);
 	Viewport *w = new Viewport(50, 50, width - 100, height - 100);
 
-	SetViewportMousemode();
+	_mouse_modes.SetViewportMousemode();
 	return w;
 }
 
