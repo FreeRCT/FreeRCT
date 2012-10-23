@@ -1086,6 +1086,24 @@ void MouseModes::SetViewportMousemode()
 }
 
 /**
+ * Try to switch to a given mouse mode.
+ * @param mode Mode to switch to.
+ */
+void MouseModes::SetMouseMode(ViewportMouseMode mode)
+{
+	for (uint i = 0; i < lengthof(this->modes); i++) {
+		MouseMode *mm = this->modes[i];
+		if (mm != NULL && mm->mode == mode) {
+			if (mm != this->current && mm->ActivateMode()) {
+				this->current->LeaveMode();
+				this->current = mm;
+			}
+			break;
+		}
+	}
+}
+
+/**
  * Get the current mouse mode.
  * @return The current mouse mode.
  */

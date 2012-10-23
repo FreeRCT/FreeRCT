@@ -128,9 +128,6 @@ public:
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
 
-	void SetMouseModeState(ViewportMouseMode mode, uint8 state = 0);
-	ViewportMouseMode GetMouseMode();
-
 	bool ComputeCursorPosition(bool select_corner, uint16 *xvoxel, uint16 *yvoxel, uint8 *zvoxel, CursorType *cur_type);
 	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
@@ -217,6 +214,7 @@ public:
 	void RegisterMode(MouseMode *mm);
 	void SetViewportMousemode();
 	ViewportMouseMode GetMouseMode();
+	void SetMouseMode(ViewportMouseMode mode);
 
 	Viewport *main_display;     ///< Main screen, managed by #Viewport.
 	MouseMode *current;         ///< Current mouse mode.
