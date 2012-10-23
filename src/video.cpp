@@ -106,6 +106,7 @@ ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr)
 /**
  * Assignment operator override.
  * @param cr Existing clipped rectangle.
+ * @return The assigned value.
  */
 ClippedRectangle &ClippedRectangle::operator=(const ClippedRectangle &cr)
 {

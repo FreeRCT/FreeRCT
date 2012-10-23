@@ -98,6 +98,7 @@ struct Rectangle {
 	/**
 	 * Assignment operator
 	 * @param rect %Rectangle to copy.
+	 * @return The assigned value.
 	 */
 	Rectangle &operator=(const Rectangle<PT, SZ> &rect)
 	{

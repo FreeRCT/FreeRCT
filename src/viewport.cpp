@@ -896,7 +896,7 @@ void Viewport::MoveViewport(int dx, int dy)
 /** Tile terraforming mouse mode. */
 class TileTerraformMouseMode: public MouseMode {
 public:
-	uint8 mouse_state;
+	uint8 mouse_state; ///< Last known state of the mouse.
 
 	TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TERRAFORM)
 	{
@@ -1000,11 +1000,34 @@ public:
 	_mouse_modes.current->OnMouseWheelEvent(this, direction);
 }
 
+/**
+ * Constructor of a mouse mode.
+ * @param p_wtype Window associated with the mouse mode (use #WC_NONE if no window).
+ * @param p_mode Mouse mode implemented by the object.
+ */
 MouseMode::MouseMode(WindowTypes p_wtype, ViewportMouseMode p_mode) : wtype(p_wtype), mode(p_mode) {}
 MouseMode::~MouseMode() {}
 
+/**
+ * The mouse moved while in this mouse mode.
+ * @param vp %Viewport object.
+ * @param old_pos Previous position.
+ * @param pos Current position.
+ */
 /* virtual */ void MouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) {}
+
+/**
+ * A mouse click was detected.
+ * @param vp %Viewport object.
+ * @param state State of the mouse buttons. @see MouseButtons
+ */
 /* virtual */ void MouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state) {}
+
+/**
+ * A mouse wheelie event has been detected.
+ * @param vp %Viewport object.
+ * @param direction Direction of movement.
+ */
 /* virtual */ void MouseMode::OnMouseWheelEvent(Viewport *vp, int direction) {}
 
 

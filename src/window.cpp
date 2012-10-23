@@ -238,6 +238,7 @@ void Window::MarkDirty()
 /**
  * Mouse buttons changed state.
  * @param state Updated state. @see MouseButtons
+ * @return Action to perform as a result of the event (use #WMME_NONE if no special action needed).
  */
 /* virtual */ WmMouseEvent Window::OnMouseButtonEvent(uint8 state)
 {

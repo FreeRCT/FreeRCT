@@ -18,9 +18,10 @@
 PathBuildManager _path_builder; ///< Path build manager.
 
 /**
- * Get the right path sprite for putting in the world.
+ * Get the right path sprite for putting in the world (for having a slope \a tsl from edge \a edge).
  * @param tsl Slope of the path.
  * @param edge Edge to connect from.
+ * @return The imploded path sprite to use.
  * @todo Path sprites should connect to neighbouring paths.
  */
 static uint8 GetPathSprite(TrackSlope tsl, TileEdge edge)
@@ -205,7 +206,10 @@ PathBuildManager::PathBuildManager() : MouseMode(WC_PATH_BUILDER, MM_PATH_BUILDI
 	DisableWorldAdditions();
 }
 
-/** Restart the path build interaction sequence. */
+/**
+ * Restart the path build interaction sequence.
+ * @return The mouse mode should be enabled.
+ */
 bool PathBuildManager::ActivateMode()
 {
 	this->selected_arrow = INVALID_EDGE;
@@ -671,6 +675,7 @@ static bool GoodDirection(int16 change, uint16 src, uint16 dst) {
 
 /**
  * Build a path from #_path_builder xpos/ypos to the mouse cursor position.
+ * @param mousexy Mouse position.
  * @todo Also allow laying path tiles on a #VT_SURFACE voxel with ground. It just needs careful checking that the path is at or above the ground.
  * @todo The path/ground check probably already exists somewhere, re-factor it for re-use here.
  */

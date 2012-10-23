@@ -151,7 +151,7 @@ public:
 	}
 
 protected:
-	Person persons[GUEST_BLOCK_SIZE];
+	Person persons[GUEST_BLOCK_SIZE]; ///< Persons in the block.
 };
 
 /**

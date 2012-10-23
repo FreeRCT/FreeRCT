@@ -64,7 +64,10 @@ static uint32 NextFrame(uint32 interval, void *param)
 	return interval;
 }
 
-/** Main entry point. */
+/**
+ * Main entry point.
+ * @return The exit code.
+ */
 int main(void)
 {
 	VideoSystem vid;

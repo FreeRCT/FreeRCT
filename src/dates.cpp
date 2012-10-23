@@ -17,7 +17,7 @@ assert_compile(TICK_COUNT_PER_DAY < (1 << CDB_FRAC_LENGTH)); ///< Day length sho
 
 static const int _days_per_month[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; ///< Numbers of days in each month (in a non-leap year).
 
-Date _date; /// %Date in the program.
+Date _date; ///< %Date in the program.
 
 /**
  * Constructor for a specific date.
@@ -72,6 +72,7 @@ Date::Date(CompressedDate cd)
 /**
  * Assignment operator.
  * @param d Existing date.
+ * @return Assigned value.
  */
 Date &Date::operator=(const Date &d)
 {
@@ -84,6 +85,10 @@ Date &Date::operator=(const Date &d)
 	return *this;
 }
 
+/**
+ * Compress the date to an integer number.
+ * @return The compressed date.
+ */
 CompressedDate Date::Compress() const
 {
 	return (this->year << CDB_YEAR_START) | (this->month << CDB_MONTH_START) | (this->day << CDB_DAY_START) | (this->frac << CDB_FRAC_START);

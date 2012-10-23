@@ -162,7 +162,10 @@ public:
 		return &this->reference;
 	}
 
-	/** Set the referenced voxel. */
+	/**
+	 * Set the referenced voxel.
+	 * @param rvd Reference data to store.
+	 */
 	inline void SetReference(const ReferenceVoxelData &rvd)
 	{
 		this->type = VT_REFERENCE;

@@ -320,7 +320,11 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
-/** @todo Fix the hardcoded colour of the text. */
+/**
+ * Draw a #DataWidget.
+ * @param w Window that the widget belongs to.
+ * @todo Fix the hardcoded colour of the text.
+ */
 /* virtual */ void DataWidget::Draw(const GuiWindow *w)
 {
 	const BorderSpriteData *bsd = NULL;
@@ -792,7 +796,11 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	}
 }
 
-/** @todo Handle RTL languages too. */
+/**
+ * Set the smallest size of the intermediate widget (and all widgets under it).
+ * @param rect Smallest size to set.
+ * @todo Handle RTL languages too.
+ */
 /* virtual */ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 {
 	this->pos = rect;

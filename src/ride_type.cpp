@@ -221,6 +221,7 @@ const RideInstance *RidesManager::GetRideInstance(uint16 num) const
 /**
  * Add a new ride type to the manager.
  * @param shop_type New ride type to add.
+ * @return \c true if the addition was successful, else \c false.
  */
 bool RidesManager::AddRideType(ShopType *shop_type)
 {

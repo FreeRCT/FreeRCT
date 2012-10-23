@@ -53,6 +53,10 @@ enum CursorType {
  */
 class Cursor {
 public:
+	/**
+	 * Constructor of a cursor.
+	 * @param vp %Viewport displaying the cursor.
+	 */
 	Cursor(Viewport *vp)
 	{
 		this->vp = vp;
@@ -221,7 +225,7 @@ public:
 	MouseMode *modes[MM_COUNT]; ///< Registered mouse modes.
 
 private:
-	DefaultMouseMode default_mode;
+	DefaultMouseMode default_mode; ///< Dummy mouse mode (#MM_INACTIVE mode).
 };
 
 extern MouseModes _mouse_modes;

@@ -32,6 +32,7 @@ Recolouring::Recolouring(const Recolouring &rc)
 /**
  * Assignment operator.
  * @param rc Recolouring to use as template.
+ * @return The assigned value.
  */
 Recolouring &Recolouring::operator=(const Recolouring &rc)
 {
@@ -104,6 +105,7 @@ EditableRecolouring::EditableRecolouring(const EditableRecolouring &er) : Recolo
 /**
  * Assignment operator.
  * @param er Recolouring to use as template.
+ * @return The assigned value.
  */
 EditableRecolouring &EditableRecolouring::operator=(const EditableRecolouring &er)
 {

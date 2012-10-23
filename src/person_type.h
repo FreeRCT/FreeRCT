@@ -17,7 +17,7 @@
 class Random;
 class RcdFile;
 
-static const int NUMBER_PERSON_TYPE_RECOLOURINGS = 3; /// Number of recolouring mapping of a person type.
+static const int NUMBER_PERSON_TYPE_RECOLOURINGS = 3; ///< Number of recolouring mapping of a person type.
 
 /** Types of persons. */
 enum PersonType {
