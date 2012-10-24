@@ -213,6 +213,7 @@ PathBuildManager::PathBuildManager() : MouseMode(WC_PATH_BUILDER, MM_PATH_BUILDI
 
 /**
  * Restart the path build interaction sequence.
+ * @param pos New mouse position.
  * @return The mouse mode should be enabled.
  */
 /* virtual */ void PathBuildManager::ActivateMode(const Point16 &pos)

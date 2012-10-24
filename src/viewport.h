@@ -240,6 +240,8 @@ private:
 
 extern MouseModes _mouse_modes;
 
+void EnableWorldAdditions();
+void DisableWorldAdditions();
 Viewport *GetViewport();
 
 #endif
