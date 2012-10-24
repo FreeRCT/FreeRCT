@@ -206,11 +206,16 @@ PathBuildManager::PathBuildManager() : MouseMode(WC_PATH_BUILDER, MM_PATH_BUILDI
 	DisableWorldAdditions();
 }
 
+/* virtual */ bool PathBuildManager::MayActivateMode()
+{
+	return true;
+}
+
 /**
  * Restart the path build interaction sequence.
  * @return The mouse mode should be enabled.
  */
-bool PathBuildManager::ActivateMode()
+/* virtual */ void PathBuildManager::ActivateMode(const Point16 &pos)
 {
 	this->selected_arrow = INVALID_EDGE;
 	this->selected_slope = TSL_INVALID;
@@ -218,13 +223,12 @@ bool PathBuildManager::ActivateMode()
 	this->UpdateState();
 
 	this->mouse_state = 0;
-	return true;
 }
 
 /** Notification that the mouse mode has been disabled. */
 void PathBuildManager::LeaveMode()
 {
-	// Not used.
+	DisableWorldAdditions();
 }
 
 bool PathBuildManager::EnableCursors()

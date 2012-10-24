@@ -902,13 +902,17 @@ public:
 	{
 	}
 
-	virtual bool ActivateMode()
+	virtual bool MayActivateMode()
 	{
-		this->mouse_state = 0;
 		return true;
 	}
 
-	virtual void LeaveMode() { }
+	virtual void ActivateMode(const Point16 &pos)
+	{
+		this->mouse_state = 0;
+	}
+
+	virtual void LeaveMode() {}
 
 	virtual bool EnableCursors()
 	{
@@ -1033,10 +1037,10 @@ MouseMode::~MouseMode() {}
 
 DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE) {}
 
-bool DefaultMouseMode::ActivateMode() { return true; }
+bool DefaultMouseMode::MayActivateMode() { return true; }
+void DefaultMouseMode::ActivateMode(const Point16 &pos) {}
 void DefaultMouseMode::LeaveMode() {}
 bool DefaultMouseMode::EnableCursors() { return false; }
-
 
 MouseModes::MouseModes()
 {
@@ -1069,6 +1073,7 @@ Viewport *GetViewport()
 /**
  * Decide the most appropriate mouse mode of the viewport, depending on available windows.
  * @todo Perhaps force a redraw/recompute in some way to ensure the right state is displayed?
+ * @todo Perhaps switch mode when a window associated with a mode is raised?
  */
 void MouseModes::SetViewportMousemode()
 {
@@ -1079,11 +1084,8 @@ void MouseModes::SetViewportMousemode()
 	while (w != NULL) {
 		for (uint i = 0; i < lengthof(this->modes); i++) {
 			MouseMode *mm = this->modes[i];
-			if (mm != NULL && mm->wtype == w->wtype && mm->ActivateMode()) {
-				if (this->current != mm) {
-					this->current->LeaveMode();
-					this->current = mm;
-				}
+			if (mm != NULL && mm->wtype == w->wtype && mm->MayActivateMode()) {
+				this->SwitchMode(mm);
 				return;
 			}
 		}
@@ -1092,20 +1094,13 @@ void MouseModes::SetViewportMousemode()
 	/* Try all mouse modes without a window. */
 	for (uint i = 0; i < lengthof(this->modes); i++) {
 		MouseMode *mm = this->modes[i];
-		if (mm != NULL && mm->wtype == WC_NONE && mm->ActivateMode()) {
-			if (this->current != mm) {
-				this->current->LeaveMode();
-				this->current = mm;
-			}
+		if (mm != NULL && mm->wtype == WC_NONE && mm->MayActivateMode()) {
+			this->SwitchMode(mm);
 			return;
 		}
 	}
 	/* Switch to the default mouse mode unconditionally. */
-	if (this->current != &this->default_mode) {
-		this->default_mode.ActivateMode(); // Should always return true.
-		this->current->LeaveMode();
-		this->current = &this->default_mode;
-	}
+	this->SwitchMode(&default_mode);
 }
 
 /**
@@ -1117,13 +1112,25 @@ void MouseModes::SetMouseMode(ViewportMouseMode mode)
 	for (uint i = 0; i < lengthof(this->modes); i++) {
 		MouseMode *mm = this->modes[i];
 		if (mm != NULL && mm->mode == mode) {
-			if (mm != this->current && mm->ActivateMode()) {
-				this->current->LeaveMode();
-				this->current = mm;
-			}
+			if (mm->MayActivateMode()) this->SwitchMode(mm);
 			break;
 		}
 	}
+}
+
+/**
+ * Switch to a new mouse mode.
+ * @param new_mode Mode to switch to.
+ * @pre New mode must allow activation of its mode.
+ */
+void MouseModes::SwitchMode(MouseMode *new_mode)
+{
+	assert(new_mode->MayActivateMode());
+	if (this->main_display == NULL || new_mode == this->current) return;
+
+	this->current->LeaveMode();
+	this->current = new_mode;
+	this->current->ActivateMode(this->main_display->mouse_pos);
 }
 
 /**

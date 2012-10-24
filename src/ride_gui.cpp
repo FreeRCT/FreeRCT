@@ -309,14 +309,19 @@ void ShopPlacementManager::SetState(ShopPlacementState new_state)
 	_mouse_modes.SetViewportMousemode();
 }
 
-bool ShopPlacementManager::ActivateMode()
+bool ShopPlacementManager::MayActivateMode()
 {
 	return this->state != SPS_OFF;
 }
 
+void ShopPlacementManager::ActivateMode(const Point16 &pos)
+{
+	// XXX
+}
+
 void ShopPlacementManager::LeaveMode()
 {
-	// Not used yet.
+	// XXX Not used yet.
 }
 
 bool ShopPlacementManager::EnableCursors()

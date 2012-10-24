@@ -25,7 +25,8 @@ class ShopPlacementManager : public MouseMode {
 public:
 	ShopPlacementManager();
 
-	virtual bool ActivateMode();
+	virtual bool MayActivateMode();
+	virtual void ActivateMode(const Point16 &pos);
 	virtual void LeaveMode();
 	virtual bool EnableCursors();
 

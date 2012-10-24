@@ -152,11 +152,11 @@ public:
 	ViewOrientation orientation; ///< Direction of view.
 	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
 	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
+	Point16 mouse_pos;           ///< Last known position of the mouse.
+	bool additions_enabled;      ///< Flashing of world additions is enabled.
 
 private:
-	Point16 mouse_pos;            ///< Last known position of the mouse.
-	bool additions_enabled;       ///< Flashing of world additions is enabled.
-	bool additions_displayed;     ///< Additions in #_additions are displayed to the user.
+	bool additions_displayed;    ///< Additions in #_additions are displayed to the user.
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
@@ -178,12 +178,19 @@ public:
 	virtual ~MouseMode();
 
 	/**
-	 * Query the mode whether it can be enabled.
+	 * Query the mode whether it can be enabled. Method may be called at any moment (or more often than once).
+	 * Answering \c true does not mean the mouse mode will be activated.
 	 * @return Whether the mode may be enabled.
 	 */
-	virtual bool ActivateMode() = 0;
+	virtual bool MayActivateMode() = 0;
 
-	/** Notification that the mouse mode has been disabled. */
+	/**
+	 * Activate the mouse mode.
+	 * @param pos Last known mouse position.
+	 */
+	virtual void ActivateMode(const Point16 &pos) = 0;
+
+	/** Notification that the mouse mode is about to be disabled. */
 	virtual void LeaveMode() = 0;
 
 	virtual void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos);
@@ -205,7 +212,8 @@ class DefaultMouseMode : public MouseMode {
 public:
 	DefaultMouseMode();
 
-	virtual bool ActivateMode();
+	virtual bool MayActivateMode();
+	virtual void ActivateMode(const Point16 &pos);
 	virtual void LeaveMode();
 	virtual bool EnableCursors();
 };
@@ -219,6 +227,8 @@ public:
 	void SetViewportMousemode();
 	ViewportMouseMode GetMouseMode();
 	void SetMouseMode(ViewportMouseMode mode);
+
+	void SwitchMode(MouseMode *new_mode);
 
 	Viewport *main_display;     ///< Main screen, managed by #Viewport.
 	MouseMode *current;         ///< Current mouse mode.
