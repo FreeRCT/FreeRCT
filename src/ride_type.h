@@ -81,9 +81,10 @@ protected:
 
 /** State of a ride instance. */
 enum RideInstanceState {
-	RIS_NONE,   ///< Ride instance has no state currently.
-	RIS_CLOSED, ///< Ride instance is available, but closed for the public.
-	RIS_OPEN,   ///< Ride instance is open for use by the public.
+	RIS_FREE,      ///< Ride instance is not used currently.
+	RIS_ALLOCATED, ///< Ride instance is allocated but not yet in play.
+	RIS_CLOSED,    ///< Ride instance is available, but closed for the public.
+	RIS_OPEN,      ///< Ride instance is open for use by the public.
 };
 
 /**
@@ -103,7 +104,7 @@ public:
 	void CloseRide();
 
 	uint8 name[64];    ///< Name of the ride, if it is instantiated.
-	ShopType *type;    ///< Ride type used. \c NULL means the instance is not used.
+	ShopType *type;    ///< Ride type used.
 	uint8 orientation; ///< Orientation of the shop.
 	uint8 state;       ///< State of the instance. @see RideInstanceState
 	uint16 xpos;       ///< X position of the base voxel.

@@ -99,7 +99,7 @@ RideInstance::RideInstance()
 {
 	this->name[0] = '\0';
 	this->type = NULL;
-	this->state = RIS_NONE;
+	this->state = RIS_FREE;
 }
 
 RideInstance::~RideInstance()
@@ -116,7 +116,7 @@ RideInstance::~RideInstance()
  */
 void RideInstance::ClaimRide(ShopType *type, uint8 *name)
 {
-	assert(this->type == NULL);
+	assert(this->state != RIS_FREE);
 	assert(type != NULL);
 
 	this->type = type;
@@ -125,7 +125,6 @@ void RideInstance::ClaimRide(ShopType *type, uint8 *name)
 	} else {
 		StrECpy(this->name, this->name + lengthof(this->name), name);
 	}
-	this->state = RIS_CLOSED;
 
 	// XXX Make a recolour-map.
 }
@@ -139,7 +138,7 @@ void RideInstance::ClaimRide(ShopType *type, uint8 *name)
  */
 void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos)
 {
-	assert(this->type != NULL); // Updating a non-claimed ride is not so useful.
+	assert(this->state != RIS_FREE); // Updating a non-claimed ride is not useful.
 
 	this->orientation = orientation;
 	this->xpos = xpos;
@@ -153,7 +152,7 @@ void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zp
  */
 void RideInstance::OpenRide()
 {
-	assert(this->type != NULL && state == RIS_CLOSED);
+	assert(this->state == RIS_CLOSED);
 	this->state = RIS_OPEN;
 }
 
@@ -164,7 +163,7 @@ void RideInstance::OpenRide()
  */
 void RideInstance::CloseRide()
 {
-	assert(this->type != NULL && state == RIS_OPEN);
+	assert(this->state == RIS_OPEN);
 	this->state = RIS_CLOSED;
 }
 
@@ -175,18 +174,19 @@ void RideInstance::CloseRide()
  */
 void RideInstance::FreeRide()
 {
-	assert(this->type != NULL && state == RIS_CLOSED);
+	assert(this->state != RIS_FREE);
 
 	// XXX Free the instance memory here.
 	this->type = NULL;
 	this->name[0] = '\0';
-	this->state = RIS_NONE;
+	this->state = RIS_FREE;
 }
 
 /** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = NULL;
+	/* Ride instances are initialized by their constructor. */
 }
 
 RidesManager::~RidesManager()
@@ -203,7 +203,7 @@ RidesManager::~RidesManager()
  */
 RideInstance *RidesManager::GetRideInstance(uint16 num)
 {
-	if (num >= lengthof(this->instances) || this->instances[num].type == NULL) return NULL;
+	if (num >= lengthof(this->instances)) return NULL;
 	return &this->instances[num];
 }
 
@@ -214,7 +214,7 @@ RideInstance *RidesManager::GetRideInstance(uint16 num)
  */
 const RideInstance *RidesManager::GetRideInstance(uint16 num) const
 {
-	if (num >= lengthof(this->instances) || this->instances[num].type == NULL) return NULL;
+	if (num >= lengthof(this->instances)) return NULL;
 	return &this->instances[num];
 }
 
@@ -241,7 +241,7 @@ bool RidesManager::AddRideType(ShopType *shop_type)
 uint16 RidesManager::GetFreeInstance()
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i].type == NULL) return i;
+		if (this->instances[i].state == RIS_FREE) return i;
 	}
 	return INVALID_RIDE_INSTANCE;
 }
