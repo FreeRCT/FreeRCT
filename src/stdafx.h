@@ -14,6 +14,34 @@
 
 /* Gratefully borrowed from OpenTTD. */
 
+/* It seems that we need to include stdint.h before anything else
+ * We need INT64_MAX, which for most systems comes from stdint.h. However, MSVC
+ * does not have stdint.h and apparently neither does MorphOS, so define
+ * INT64_MAX for them ourselves. */
+#if !defined(_MSC_VER) && !defined( __MORPHOS__) && !defined(_STDINT_H_)
+	#if defined(SUNOS)
+		/* SunOS/Solaris does not have stdint.h, but inttypes.h defines everything
+		 * stdint.h defines and we need. */
+		#include <inttypes.h>
+	# else
+		#define __STDC_LIMIT_MACROS
+		#include <stdint.h>
+	#endif
+#else
+	#define UINT64_MAX (18446744073709551615ULL)
+	#define INT64_MAX  (9223372036854775807LL)
+	#define INT64_MIN  (-INT64_MAX - 1)
+	#define UINT32_MAX (4294967295U)
+	#define INT32_MAX  (2147483647)
+	#define INT32_MIN  (-INT32_MAX - 1)
+	#define UINT16_MAX (65535U)
+	#define INT16_MAX  (32767)
+	#define INT16_MIN  (-INT16_MAX - 1)
+	#define UINT8_MAX  (255)
+	#define INT8_MAX   (127)
+	#define INT8_MIN   (-INT8_MAX - 1)
+#endif
+
 #include <cstdio>
 #include <cstddef>
 #include <cstring>
