@@ -469,7 +469,7 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 
 /**
  * Add all sprites of the voxel to the set of sprites to draw.
- * @param voxel %Voxel to add, \c NULL means 'cursor above stack.
+ * @param voxel %Voxel to add, \c NULL means 'cursor above stack'.
  * @param xpos X world position.
  * @param ypos Y world position.
  * @param zpos Z world position.
@@ -531,6 +531,27 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.z_height = zpos;
 				dd.order = SO_CURSOR;
 				dd.sprite = mspr;
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = NULL;
+				draw_images.insert(dd);
+			}
+			break;
+		}
+
+		case VT_RIDE: {
+			const RideVoxelData *rvd = voxel->GetRide();
+			const RideInstance *ri = _rides_manager.GetRideInstance(rvd->ride_number);
+			if (ri == NULL) break;
+
+			const ShopType *ride = ri->type;
+			// ri->recolouring (does not exist currently)
+			const ImageData *img = ride->views[(4 + ri->orientation - this->orient) & 3];
+			if (img != NULL) {
+				DrawData dd;
+				dd.z_height = zpos;
+				dd.order = SO_PATH;
+				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;

@@ -14,10 +14,22 @@
 
 #include "viewport.h"
 
+class ShopType;
+
+
 /** States in the shop placement. */
 enum ShopPlacementState {
-	SPS_OFF,           ///< Shop placement is off.
-	SPS_HAS_SELECTION, ///< A shop placement selection has been set, waiting for the user to place it.
+	SPS_OFF,      ///< Shop placement is off.
+	SPS_OPENED,   ///< A shop placement window is open.
+	SPS_BAD_POS,  ///< A shop has been selected, but the mouse is at a bad spot for building a shop.
+	SPS_GOOD_POS, ///< A shop has been selected, and the mouse if at a good spot (is displayed in the world additions).
+};
+
+/** Result codes in trying to place a shop in the world. */
+enum RidePlacementResult {
+	RPR_FAIL,    ///< Ride could not be placed in the world.
+	RPR_SAMEPOS, ///< Ride got placed at the same spot as previously.
+	RPR_CHANGED, ///< Ride got placed at a different spot in the world.
 };
 
 /** Class interacting between #RideSelectGui, and the #Viewport mouse mode #MM_SHOP_PLACEMENT. */
@@ -30,10 +42,24 @@ public:
 	virtual void LeaveMode();
 	virtual bool EnableCursors();
 
-	void SetState(ShopPlacementState new_state);
+	virtual void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos);
+	virtual void OnMouseButtonEvent(Viewport *vp, uint8 state);
 
-	ShopPlacementState state;      ///< Current state of the shop placement manager.
-	uint8 orientation;             ///< Orientation of the shop that will be placed.
+	void OpenWindow();
+	void CloseWindow();
+	bool SetSelection(int ride_type);
+	void Rotated();
+
+	ShopPlacementState state; ///< Current state of the shop placement manager.
+	uint8 orientation;        ///< Orientation of the shop that will be placed.
+	int selected_ride;        ///< Selected type of ride (negative means nothing selected).
+	uint16 instance;          ///< Allocated ride instance, is #INVALID_RIDE_INSTANCE if not active.
+	Point16 mouse_pos;        ///< Stored mouse position.
+
+private:
+	bool CanPlaceShop(const ShopType *selected_shop, int xpos, int ypos, int zpos);
+	RidePlacementResult ComputeShopVoxel(int32 xworld, int32 yworld, int32 zworld);
+	void PlaceShop(const Point16 &pos);
 };
 
 extern ShopPlacementManager _shop_placer;

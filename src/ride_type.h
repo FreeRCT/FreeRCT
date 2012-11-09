@@ -96,20 +96,20 @@ public:
 	RideInstance();
 	~RideInstance();
 
-	void ClaimRide(ShopType *type, uint8 *name);
+	void ClaimRide(const ShopType *type, uint8 *name);
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	void FreeRide();
 
 	void OpenRide();
 	void CloseRide();
 
-	uint8 name[64];    ///< Name of the ride, if it is instantiated.
-	ShopType *type;    ///< Ride type used.
-	uint8 orientation; ///< Orientation of the shop.
-	uint8 state;       ///< State of the instance. @see RideInstanceState
-	uint16 xpos;       ///< X position of the base voxel.
-	uint16 ypos;       ///< Y position of the base voxel.
-	uint8  zpos;       ///< Z position of the base voxel.
+	uint8 name[64];       ///< Name of the ride, if it is instantiated.
+	const ShopType *type; ///< Ride type used.
+	uint8 orientation;    ///< Orientation of the shop.
+	uint8 state;          ///< State of the instance. @see RideInstanceState
+	uint16 xpos;          ///< X position of the base voxel.
+	uint16 ypos;          ///< Y position of the base voxel.
+	uint8  zpos;          ///< Z position of the base voxel.
 	EditableRecolouring recolour_map; ///< Recolour map of the instance.
 };
 

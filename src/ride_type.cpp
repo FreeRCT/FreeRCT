@@ -114,7 +114,7 @@ RideInstance::~RideInstance()
  * @pre Entry must not be in use currently.
  * @note Also initialize the other variables of the instance with #SetRide
  */
-void RideInstance::ClaimRide(ShopType *type, uint8 *name)
+void RideInstance::ClaimRide(const ShopType *type, uint8 *name)
 {
 	assert(this->state != RIS_FREE);
 	assert(type != NULL);
@@ -163,7 +163,7 @@ void RideInstance::OpenRide()
  */
 void RideInstance::CloseRide()
 {
-	assert(this->state == RIS_OPEN);
+	assert(this->state != RIS_FREE);
 	this->state = RIS_CLOSED;
 }
 

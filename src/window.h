@@ -36,6 +36,7 @@ enum WindowTypes {
 enum ChangeCodes {
 	CHG_UPDATE_BUTTONS,   ///< Recompute the state of the buttons.
 	CHG_VIEWPORT_ROTATED, ///< Viewport rotated.
+	CHG_MOUSE_MODE_LOST,  ///< Lost the mouse mode.
 };
 
 /** Various state flags of the %Window. */

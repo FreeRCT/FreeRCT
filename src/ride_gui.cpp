@@ -18,6 +18,7 @@
 #include "shop_placement.h"
 #include "table/gui_sprites.h"
 #include "viewport.h"
+#include "map.h"
 
 ShopPlacementManager _shop_placer; ///< Coordination object for placing a shop.
 
@@ -25,6 +26,7 @@ ShopPlacementManager _shop_placer; ///< Coordination object for placing a shop.
  * Gui for selecting a ride to build.
  * @ingroup gui_group
  * XXX Unify widget number parameters.
+ * @todo Use the #ChangeCodes enum for the code in #GuiWindow::OnChange.
  */
 class RideSelectGui : public GuiWindow {
 public:
@@ -34,6 +36,7 @@ public:
 	virtual void UpdateWidgetSize(int wid_num, BaseWidget *wid);
 	virtual void DrawWidget(int wid_num, const BaseWidget *wid) const;
 	virtual void OnClick(WidgetNumber wid_num);
+	virtual void OnChange(int code, uint32 parameter);
 
 protected:
 	int16 ride_types[RTK_RIDE_KIND_COUNT]; ///< Number of ride types for each kind.
@@ -133,12 +136,18 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT)
 			break;
 		}
 	}
+	_shop_placer.OpenWindow();
 	this->SetNewRide(this->current_kind, true);
 }
 
 RideSelectGui::~RideSelectGui()
 {
-	_shop_placer.SetState(SPS_OFF);
+	_shop_placer.CloseWindow();
+
+	/* Verify that the ride instances are all cleaned up. */
+	for (uint i = 0; i < lengthof(_rides_manager.instances); i++) {
+		assert(_rides_manager.instances[i].state != RIS_ALLOCATED);
+	}
 }
 
 /* virtual */ void RideSelectGui::UpdateWidgetSize(int wid_num, BaseWidget *wid)
@@ -235,25 +244,34 @@ RideSelectGui::~RideSelectGui()
 
 		case RSEL_SELECT: {
 			bool pressed = this->IsWidgetPressed(wid_num);
-			this->SetWidgetPressed(wid_num, !pressed);
-			if (!pressed) {
-				_shop_placer.SetState(SPS_HAS_SELECTION);
-				_shop_placer.orientation = VOR_NORTH;
+			if (pressed) {
+				_shop_placer.SetSelection(-1);
+				pressed = false;
 			} else {
-				_shop_placer.SetState(SPS_OFF);
+				pressed = _shop_placer.SetSelection(this->current_ride);
 			}
+			this->SetWidgetPressed(wid_num, pressed);
 			break;
 		}
 		case RSEL_ROT_POS:
 			_shop_placer.orientation = (_shop_placer.orientation + 3) & 3;
 			this->MarkWidgetDirty(RSEL_DISPLAY);
+			_shop_placer.Rotated();
 			break;
 
 		case RSEL_ROT_NEG:
 			_shop_placer.orientation = (_shop_placer.orientation + 1) & 3;
 			this->MarkWidgetDirty(RSEL_DISPLAY);
+			_shop_placer.Rotated();
 			break;
 	}
+}
+
+/* virtual */ void RideSelectGui::OnChange(int code, uint32 parameter)
+{
+	if (code != CHG_MOUSE_MODE_LOST) return;
+
+	this->SetWidgetPressed(RSEL_SELECT, false);
 }
 
 /**
@@ -275,7 +293,12 @@ bool RideSelectGui::SetNewRide(int16 newKind, bool force)
 
 		if (this->ride_types[ride->kind] == newKind) break;
 	}
-	this->current_ride = (i < (int)lengthof(_rides_manager.ride_types)) ? i : 0;
+	if (i >= (int)lengthof(_rides_manager.ride_types)) {
+		if (!force) return false;
+		i = 0;
+	}
+	this->current_ride = i;
+	_shop_placer.SetSelection(this->IsWidgetPressed(RSEL_SELECT) ? this->current_ride : -1);
 	return true;
 }
 
@@ -290,42 +313,353 @@ void ShowRideSelectGui()
 	new RideSelectGui;
 }
 
+/**
+ * Does a path run at/to the bottom the given voxel in the neighbouring voxel?
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param edge Direction to move to get the neihgbouring voxel.
+ * @pre voxel coordinate must be valid in the world.
+ * @todo Merge with path computations in the path placement.
+ * @return Whether a path exists at the bottom of the neighbouring voxel.
+ */
+static bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
+{
+	xpos += _tile_dxy[edge].x;
+	ypos += _tile_dxy[edge].y;
+	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+
+	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
+	if (vx == NULL) return false;
+	uint8 type = vx->GetType();
+	if (type == VT_EMPTY || type == VT_REFERENCE) {
+		/* No path here, check the voxel below. */
+		if (zpos == 0) return false;
+		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
+		if (vx == NULL) return false;
+		type = vx->GetType();
+		if (type != VT_SURFACE) return false;
+		const SurfaceVoxelData *svd = vx->GetSurface();
+		if (svd->path.type == PT_INVALID) return false;
+		return svd->path.slope == _path_down_from_edge[edge]; // Path must end at the top of the voxel.
+	}
+	if (type != VT_SURFACE) return false;
+	const SurfaceVoxelData *svd = vx->GetSurface();
+	if (svd->path.type == PT_INVALID) return false;
+	return svd->path.slope < PATH_FLAT_COUNT || svd->path.slope == _path_up_from_edge[edge]; // Path must end at the bottom of the voxel.
+}
+
+/**
+ * Can a shop be placed at the given voxel?
+ * @param selected_shop Shop to place.
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @pre voxel coordinate must be valid in the world.
+ * @pre \a selected_shop may not be \c NULL.
+ * @return Shop can be placed at the given position.
+ */
+bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos, int ypos, int zpos)
+{
+	/* 1. Can the position itself be used to build a shop? */
+	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
+	if (vx != NULL) {
+		uint8 type = vx->GetType();
+		if (type == VT_RIDE || type == VT_REFERENCE) return false;
+		if (type == VT_SURFACE) {
+			const SurfaceVoxelData *svd = vx->GetSurface();
+			if (svd->path.type != PT_INVALID) return false; // Cannot build on a path.
+			return svd->ground.type != GTP_INVALID; // Can always build at the surface.
+		}
+	}
+
+	/* 2. Is there a path at the right place? */
+	Viewport *vp = GetViewport();
+	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
+		if ((selected_shop->flags & (1 << entrance)) == 0) continue; // No entrance here.
+		TileEdge entr = (TileEdge)((entrance + vp->orientation + this->orientation) & 3); // Perform rotation specified by the user in the GUI.
+		if (PathExistsAtBottomEdge(xpos, ypos, zpos, entr)) return true;
+	}
+	return false;
+}
+
+/**
+ * Decide at which voxel to place a shop. It should be placed at a voxel intersecting with the view line
+ * through the given point in the world.
+ * @param xworld X coordinate of the point.
+ * @param yworld Y coordinate of the point.
+ * @param zworld Z coordinate of the point.
+ * @return Result of the placement process.
+ */
+RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 yworld, int32 zworld)
+{
+	RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
+	assert(ri != NULL && ri->type != NULL); // It should be possible to set the position of a shop.
+
+	Viewport *vp = GetViewport();
+	if (vp == NULL) return RPR_FAIL;
+
+	int dx, dy; // Change of xworld and yworld for every (zworld / 2) change.
+	switch (vp->orientation) {
+		case VOR_NORTH: dx =  1; dy =  1; break;
+		case VOR_WEST:  dx = -1; dy =  1; break;
+		case VOR_SOUTH: dx = -1; dy = -1; break;
+		case VOR_EAST:  dx =  1; dy = -1; break;
+		default: NOT_REACHED();
+	}
+
+	/* Move to the top voxel of the world. */
+	int zpos = WORLD_Z_SIZE - 1;
+	int dz = zpos * 256 - zworld;
+	xworld += dx * dz / 2;
+	yworld += dy * dz / 2;
+
+	while (zpos >= 0) {
+		int xpos = xworld / 256;
+		int ypos = yworld / 256;
+		if (xpos >= 0 && xpos < _world.GetXSize() && ypos >= 0 && ypos < _world.GetYSize() &&
+				this->CanPlaceShop(ri->type, xpos, ypos, zpos)) {
+			/* Position of the shop the same as previously? */
+			if (ri->xpos != (uint16)xpos || ri->ypos != (uint16)ypos || ri->zpos != (uint8)zpos ||
+					ri->orientation != this->orientation) {
+				ri->xpos = xpos;
+				ri->ypos = ypos;
+				ri->zpos = zpos;
+				ri->orientation = (this->orientation + vp->orientation) & 3;
+				return RPR_CHANGED;
+			}
+			return RPR_SAMEPOS;
+		} else {
+			/* Since z gets smaller, we subtract dx and dy, thus the checks reverse. */
+			if (xpos < 0 && dx > 0) break;
+			if (xpos >= _world.GetXSize() && dx < 0) break;
+			if (ypos < 0 && dy > 0) break;
+			if (ypos >= _world.GetYSize() && dy < 0) break;
+		}
+		xworld -= 128 * dx;
+		yworld -= 128 * dy;
+		zpos--;
+	}
+	return RPR_FAIL;
+}
+
+/**
+ * Place the shop at the indicated mouse position (if possible), and update the state to #SPS_BAD_POS or #SPS_GOOD_POS.
+ * @param pos Mouse position.
+ * @pre World additions should be ours to use, and have been enabled.
+ */
+void ShopPlacementManager::PlaceShop(const Point16 &pos)
+{
+	Viewport *vp = GetViewport();
+	Point32 wxy = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
+
+	/* Clean current display if needed. */
+	switch (this->ComputeShopVoxel(wxy.x,wxy.y, vp->zview)) {
+		case RPR_FAIL:
+			if (this->state == SPS_BAD_POS) return; // Nothing to do.
+			_additions.MarkDirty(vp);
+			_additions.Clear();
+			this->state = SPS_BAD_POS;
+			return;
+
+		case RPR_SAMEPOS:
+			if (this->state == SPS_GOOD_POS) return; // Already placed and shown.
+			/* FALL-THROUGH */
+
+		case RPR_CHANGED: {
+			_additions.MarkDirty(vp);
+			_additions.Clear();
+
+			RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
+			Voxel *vx = _additions.GetCreateVoxel(ri->xpos, ri->ypos, ri->zpos, true);
+			RideVoxelData rvd;
+			rvd.ride_number = this->instance;
+			rvd.flags = 0; // XXX ride entrance bits (although it is silly to assume entrance is part of it?)
+			vx->SetRide(rvd);
+			_additions.MarkDirty(vp);
+			this->state = SPS_GOOD_POS;
+			return;
+		}
+
+		default: NOT_REACHED();
+	}
+}
+
 /** Constructor of the shop placement coordinator. */
 ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP_PLACEMENT)
 {
 	this->state = SPS_OFF;
+	this->selected_ride = -1;
+	this->instance = INVALID_RIDE_INSTANCE;
 }
 
-/**
- * Set the state of the shop placer.
- * @param new_state New state of the shop placer object.
- */
-void ShopPlacementManager::SetState(ShopPlacementState new_state)
-{
-	if (this->state == new_state) return;
-	this->state = new_state;
-
-	/* Will select this mode when the window is high enough in the stack, and enable us. */
-	_mouse_modes.SetViewportMousemode();
-}
-
-bool ShopPlacementManager::MayActivateMode()
-{
-	return this->state != SPS_OFF;
-}
-
-void ShopPlacementManager::ActivateMode(const Point16 &pos)
-{
-	// XXX
-}
-
-void ShopPlacementManager::LeaveMode()
-{
-	// XXX Not used yet.
-}
-
-bool ShopPlacementManager::EnableCursors()
+/* virtual */ bool ShopPlacementManager::EnableCursors()
 {
 	return true;
 }
 
+/* virtual */ bool ShopPlacementManager::MayActivateMode()
+{
+	return this->state == SPS_BAD_POS || this->state == SPS_GOOD_POS
+			|| (this->state == SPS_OPENED && this->selected_ride >= 0);
+}
+
+
+/* virtual */ void ShopPlacementManager::ActivateMode(const Point16 &pos)
+{
+	this->mouse_pos = pos;
+
+	assert(this->state != SPS_OFF);
+
+	if (this->state == SPS_OPENED) {
+		if (this->selected_ride < 0) return;
+		EnableWorldAdditions();
+	}
+
+	/* (this->state == SPS_OPENED && this->selected_ride >= 0) || this->state == SPS_BAD_POS || this->state == SPS_GOOD_POS */
+	this->PlaceShop(pos);
+}
+
+/* virtual */ void ShopPlacementManager::LeaveMode()
+{
+	DisableWorldAdditions();
+
+	if (this->state == SPS_BAD_POS || this->state == SPS_GOOD_POS) {
+		/* Deselect the ride selection, notify the window, so it can raise the select button and change the selected ride. */
+		NotifyChange(WC_RIDE_SELECT, CHG_MOUSE_MODE_LOST, 0);
+		this->selected_ride = -1;
+
+		/* Free the created ride instance. */
+		RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
+		ri->FreeRide();
+		this->instance = INVALID_RIDE_INSTANCE;
+
+		this->state = SPS_OPENED;
+	}
+}
+
+/* virtual */ void ShopPlacementManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+{
+	this->mouse_pos = pos;
+
+	if (this->state == SPS_OFF || this->state == SPS_OPENED) return;
+	this->PlaceShop(pos);
+}
+
+/* virtual */ void ShopPlacementManager::OnMouseButtonEvent(Viewport *vp, uint8 mstate)
+{
+	if (this->state != SPS_GOOD_POS || mstate != MB_LEFT) return;
+
+	/* Buy (mark ride instance as closed) */
+	RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
+	ri->CloseRide();
+	this->instance = INVALID_RIDE_INSTANCE;
+
+	/* Disable additions (has been moved to the real world) */
+	_additions.Commit();
+	DisableWorldAdditions();
+
+	/* Deselect ride selection. */
+	NotifyChange(WC_RIDE_SELECT, CHG_MOUSE_MODE_LOST, 0);
+	this->selected_ride = -1;
+
+	/* Switch to another mouse mode. */
+	this->state = SPS_OPENED;
+	_mouse_modes.SetViewportMousemode();
+}
+
+/** The user opened the window. */
+void ShopPlacementManager::OpenWindow()
+{
+	if (this->state == SPS_OFF) {
+		this->state = SPS_OPENED;
+		this->orientation = 0;
+		this->selected_ride = -1;
+		this->instance = INVALID_RIDE_INSTANCE;
+	}
+}
+
+/** The user closed the window. */
+void ShopPlacementManager::CloseWindow()
+{
+	if (this->state == SPS_OFF) return;
+
+	if (this->state == SPS_BAD_POS || this->state == SPS_GOOD_POS ||
+			(this->state == SPS_OPENED && this->selected_ride >= 0)) {
+		/* Free the created ride instance. */
+		RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
+		ri->FreeRide();
+		this->instance = INVALID_RIDE_INSTANCE;
+
+		this->selected_ride = -1;
+		this->state = SPS_OFF;
+		_mouse_modes.SetViewportMousemode();
+		return;
+	}
+	this->state = SPS_OFF; // Was in opened without selection.
+}
+
+/**
+ * User has selected a ride (or \c -1 for selecting no ride).
+ * @param ride_type Selected type of ride (\c -1 means selection is disabled).
+ * @return New ride type has been set successfully.
+ */
+bool ShopPlacementManager::SetSelection(int ride_type)
+{
+	this->selected_ride = ride_type;
+
+	if (ride_type >= 0) {
+		/* New ride type selected. */
+		if (this->state == SPS_OFF) return true;
+
+		if (this->state == SPS_OPENED) {
+			/* Create/allocate new ride instance. */
+			assert(this->instance == INVALID_RIDE_INSTANCE);
+			const ShopType *st = _rides_manager.GetRideType(this->selected_ride);
+			if (st == NULL) {
+				this->selected_ride = -1;
+				return false;
+			}
+			this->instance = _rides_manager.GetFreeInstance();
+			if (this->instance == INVALID_RIDE_INSTANCE) {
+				this->selected_ride = -1;
+				return false;
+			}
+			RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
+			ri->state = RIS_ALLOCATED;
+			ri->ClaimRide(st, (uint8 *)"");
+
+			/* Depress button (Already done) */
+
+			_mouse_modes.SetMouseMode(this->mode);
+			/* Fall through to the shop placement. */
+		}
+
+		/* States SPS_BAD_POS, SPS_GOOD_POS. */
+		this->PlaceShop(this->mouse_pos);
+		return true;
+	} else {
+		/* No ride type selected. */
+		if (this->state == SPS_OFF || this->state == SPS_OPENED) return true;
+
+		/* States SPS_BAD_POS, SPS_GOOD_POS. */
+		DisableWorldAdditions();
+		this->selected_ride = -1;
+
+		/* Free the created ride instance. */
+		RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
+		ri->FreeRide();
+		this->instance = INVALID_RIDE_INSTANCE;
+
+		this->state = SPS_OPENED;
+		_mouse_modes.SetViewportMousemode();
+		return true;
+	}
+}
+
+/** The shop was rotated; recompute position if needed. */
+void ShopPlacementManager::Rotated()
+{
+	if (this->state == SPS_OFF || this->state == SPS_OPENED) return;
+	this->PlaceShop(this->mouse_pos);
+}
