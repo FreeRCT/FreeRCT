@@ -27,7 +27,7 @@ public:
 	~PathBuildGui();
 
 	virtual void OnClick(int16 number);
-	virtual void OnChange(int code, uint32 parameter);
+	virtual void OnChange(ChangeCode code, uint32 parameter);
 
 	void SetButtons();
 };
@@ -206,7 +206,7 @@ void PathBuildGui::SetButtons()
 	this->SetWidgetPressed(PATH_GUI_LONG,     _path_builder.GetLongButtonIsPressed());
 }
 
-/* virtual */ void PathBuildGui::OnChange(int code, uint32 parameter)
+/* virtual */ void PathBuildGui::OnChange(ChangeCode code, uint32 parameter)
 {
 	switch (code) {
 		case CHG_UPDATE_BUTTONS:

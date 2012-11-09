@@ -33,7 +33,7 @@ enum WindowTypes {
 };
 
 /** Codes of the #NotifyChange function, which gets forwarded through the #Window::OnChange method. */
-enum ChangeCodes {
+enum ChangeCode {
 	CHG_UPDATE_BUTTONS,   ///< Recompute the state of the buttons.
 	CHG_VIEWPORT_ROTATED, ///< Viewport rotated.
 	CHG_MOUSE_MODE_LOST,  ///< Lost the mouse mode.
@@ -114,7 +114,7 @@ public:
 
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);
-	virtual void OnChange(int code, uint32 parameter);
+	virtual void OnChange(ChangeCode code, uint32 parameter);
 };
 
 /**
@@ -294,7 +294,7 @@ bool IsLeftClick(uint8 state);
 void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype);
 bool HighlightWindowByType(WindowTypes wtype);
-void NotifyChange(WindowTypes wtype, int code, uint32 parameter);
+void NotifyChange(WindowTypes wtype, ChangeCode code, uint32 parameter);
 
 Viewport *ShowMainDisplay();
 void ShowToolbar();

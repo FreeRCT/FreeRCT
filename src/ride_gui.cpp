@@ -26,7 +26,6 @@ ShopPlacementManager _shop_placer; ///< Coordination object for placing a shop.
  * Gui for selecting a ride to build.
  * @ingroup gui_group
  * XXX Unify widget number parameters.
- * @todo Use the #ChangeCodes enum for the code in #GuiWindow::OnChange.
  */
 class RideSelectGui : public GuiWindow {
 public:
@@ -36,7 +35,7 @@ public:
 	virtual void UpdateWidgetSize(int wid_num, BaseWidget *wid);
 	virtual void DrawWidget(int wid_num, const BaseWidget *wid) const;
 	virtual void OnClick(WidgetNumber wid_num);
-	virtual void OnChange(int code, uint32 parameter);
+	virtual void OnChange(ChangeCode code, uint32 parameter);
 
 protected:
 	int16 ride_types[RTK_RIDE_KIND_COUNT]; ///< Number of ride types for each kind.
@@ -267,7 +266,7 @@ RideSelectGui::~RideSelectGui()
 	}
 }
 
-/* virtual */ void RideSelectGui::OnChange(int code, uint32 parameter)
+/* virtual */ void RideSelectGui::OnChange(ChangeCode code, uint32 parameter)
 {
 	if (code != CHG_MOUSE_MODE_LOST) return;
 

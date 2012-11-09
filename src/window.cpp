@@ -276,7 +276,7 @@ void Window::MarkDirty()
  * @param parameter Parameter of the \a code.
  * @note Meaning of number values are documented near this method in derived classes.
  */
-/* virtual */ void Window::OnChange(int code, uint32 parameter) { }
+/* virtual */ void Window::OnChange(ChangeCode code, uint32 parameter) { }
 
 /**
  * Gui window constructor.
@@ -889,7 +889,7 @@ Window *GetWindowByType(WindowTypes wtype)
  * @param code Unique change number.
  * @param parameter Parameter of the change number
  */
-void NotifyChange(WindowTypes wtype, int code, uint32 parameter)
+void NotifyChange(WindowTypes wtype, ChangeCode code, uint32 parameter)
 {
 	Window *w = GetWindowByType(wtype);
 	if (w != NULL) w->OnChange(code, parameter);
