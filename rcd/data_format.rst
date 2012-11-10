@@ -735,26 +735,29 @@ in the gui.
 ======  ======  =======  =================================================
 Offset  Length  Version  Description
 ======  ======  =======  =================================================
-   0       4      1-2    Magic string 'GSLP' (Gui sprites).
-   4       4      1-2    Version number of the block (1 or 2).
-   8       4      1-2    Length of the block excluding magic string,
+   0       4      1-3    Magic string 'GSLP' (Gui sprites).
+   4       4      1-3    Version number of the block.
+   8       4      1-3    Length of the block excluding magic string,
                          version, and length.
-  12       4      1-2    Slope going vertically down.
-  16       4      1-2    Slope going steeply down.
-  20       4      1-2    Slope going gently down.
-  24       4      1-2    Level slope.
-  28       4      1-2    Slope going gently up.
-  32       4      1-2    Slope going steeply up.
-  36       4      1-2    Slope going vertically up.
-  40       4       2     Flat rotation positive direction
+  12       4      1-3    Slope going vertically down.
+  16       4      1-3    Slope going steeply down.
+  20       4      1-3    Slope going gently down.
+  24       4      1-3    Level slope.
+  28       4      1-3    Slope going gently up.
+  32       4      1-3    Slope going steeply up.
+  36       4      1-3    Slope going vertically up.
+  40       4      2-3    Flat rotation positive direction
                          (counter clock wise)
-  44       4       2     Flat rotation negative direction (clock wise)
-  48       4       2     Diametric rotation positive direction
+  44       4      2-3    Flat rotation negative direction (clock wise)
+  48       4      2-3    Diametric rotation positive direction
                          (counter clock wise)
-  52       4       2     Diametric rotation negative direction
+  52       4      2-3    Diametric rotation negative direction
                          (clock wise)
-  56       4       2     Text of the guis (reference to a TEXT block).
-  60                     Total length.
+  56       4       3     Close Button.
+  60       4       3     Maximise button.
+  64       4       3     Minimise button.
+  68       4      2-3    Text of the guis (reference to a TEXT block).
+  72                     Total length.
 ======  ======  =======  =================================================
 
 
