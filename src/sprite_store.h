@@ -416,6 +416,7 @@ struct GuiSprites {
 	ImageData *rot_2d_neg;                  ///< 2D rotation negative direction.
 	ImageData *rot_3d_pos;                  ///< 3D rotation positive direction.
 	ImageData *rot_3d_neg;                  ///< 3D rotation negative direction.
+	ImageData *close_sprite;                ///< Close window button.
 
 	TextData *text;                         ///< Texts of the gui.
 };

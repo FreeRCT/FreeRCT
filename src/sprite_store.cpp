@@ -1015,8 +1015,8 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 {
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
-	/* 'indices' entries of slope sprites, 4 entries with rotation sprites, one entry with a text block. */
-	if (length != 4 * lengthof(indices) + 4 * 4 + 4) return false;
+	/* 'indices' entries of slope sprites, 4 entries with rotation sprites, 3 button sprites, one entry with a text block. */
+	if (length != 4 * lengthof(indices) + 4 * 4 + 3 * 4 + 4) return false;
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
 	}
@@ -1024,6 +1024,9 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_pos)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_neg)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->close_sprite)) return false;
+	rcd_file->GetUInt32(); // Skip maximise sprite (unlikely to ever be used).
+	rcd_file->GetUInt32(); // Skip minimise sprite (unlikely to ever be used).
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
 	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
 	return true;
@@ -1059,6 +1062,7 @@ void GuiSprites::Clear()
 	this->rot_2d_neg = NULL;
 	this->rot_3d_pos = NULL;
 	this->rot_3d_neg = NULL;
+	this->close_sprite = NULL;
 }
 
 
@@ -1362,7 +1366,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "GSLP") == 0 && version == 2) {
+		if (strcmp(name, "GSLP") == 0 && version == 3) {
 			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites, texts)) {
 				return "Loading slope selection Gui sprites failed.";
 			}
@@ -1453,7 +1457,7 @@ const char *SpriteManager::LoadRcdFiles()
 		const char *name = reader->NextFile();
 		if (name == NULL) break;
 		if (!StrEndsWith(name, ".rcd", false)) continue;
-		
+
 		mesg = this->Load(name);
 	}
 	reader->ClosePath();
