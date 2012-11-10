@@ -24,6 +24,7 @@
 		 * stdint.h defines and we need. */
 		#include <inttypes.h>
 	# else
+		/** Mark the standard limit macros as being available. */
 		#define __STDC_LIMIT_MACROS
 		#include <stdint.h>
 	#endif
