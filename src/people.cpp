@@ -15,6 +15,7 @@
 #include "math_func.h"
 #include "people.h"
 #include "viewport.h"
+#include "gamelevel.h"
 
 Guests _guests; ///< Guests in the world/park.
 
@@ -624,6 +625,22 @@ bool Guests::CanUsePersonType(PersonType ptype)
 }
 
 /**
+ * Count the number of active guests.
+ * @return The number of active guests.
+ */
+uint Guests::CountActiveGuests()
+{
+	uint count = GUEST_BLOCK_SIZE;
+	const Person *pers = this->free.first;
+	while (pers != NULL) {
+		assert(count > 0);
+		count--;
+		pers = pers->next;
+	}
+	return count;
+}
+
+/**
  * Some time has passed, update the animation.
  * @param delay Number of milli seconds time that have past since the last animation update.
  */
@@ -648,7 +665,6 @@ void Guests::DoTick()
 	while (this->next_daily_index < end_index) {
 		Person *p = this->block.Get(this->next_daily_index);
 		if (p->type != PERSON_INVALID && !p->DailyUpdate()) {
-			printf("Guest %d is leaving\n", p->id);
 			p->DeActivate();
 			this->free.AddFirst(p);
 		}
@@ -662,23 +678,25 @@ void Guests::DoTick()
 
 /**
  * A new day arrived, handle daily chores of the park.
- * @todo Chance of spawning a new guest should depends on popularity (and be configurable for a level).
+ * @todo Add popularity rating concept.
  * @todo Person type should be configurable too.
  */
 void Guests::OnNewDay()
 {
 	PersonType ptype = PERSON_PILLAR;
-	if (this->CanUsePersonType(ptype) && this->rnd.Success1024(512)) {
-		if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) {
-			/* New guest, but no road. */
-			this->start_voxel = FindEdgeRoad();
-			if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
-		}
+	if (!this->CanUsePersonType(ptype)) return;
+	if (this->CountActiveGuests() >= _scenario.max_guests) return;
+	if (!this->rnd.Success1024(_scenario.GetSpawnProbability(512))) return;
 
-		if (this->free.IsEmpty()) return; // No more quests available.
-		/* New guest! */
-		Person *p = this->free.RemoveHead();
-		if (p != NULL) p->Activate(this->start_voxel, ptype);
+	if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) {
+		/* New guest, but no road. */
+		this->start_voxel = FindEdgeRoad();
+		if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
 	}
+
+	if (this->free.IsEmpty()) return; // No more quests available.
+	/* New guest! */
+	Person *p = this->free.RemoveHead();
+	if (p != NULL) p->Activate(this->start_voxel, ptype);
 }
 

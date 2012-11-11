@@ -165,6 +165,7 @@ public:
 
 	void Initialize();
 	bool CanUsePersonType(PersonType ptype);
+	uint CountActiveGuests();
 
 	void OnAnimate(int delay);
 	void DoTick();
