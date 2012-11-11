@@ -82,10 +82,10 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
 	int8 slope = svd->path.slope;
 	if (slope < PATH_FLAT_COUNT) return 0;
 	switch (slope) {
-		case PATH_RAMP_NE: return 255 - x_pos;
-		case PATH_RAMP_NW: return 255 - y_pos;
-		case PATH_RAMP_SE: return y_pos;
-		case PATH_RAMP_SW: return x_pos;
+		case PATH_RAMP_NE: return x_pos;
+		case PATH_RAMP_NW: return y_pos;
+		case PATH_RAMP_SE: return 255 - y_pos;
+		case PATH_RAMP_SW: return 255 - x_pos;
 		default: NOT_REACHED();
 	}
 }
@@ -370,6 +370,13 @@ bool Person::OnAnimate(int delay)
 		if (this->z_pos > 128) {
 			this->z_vox++;
 			this->z_pos = 0;
+		} else {
+			/* At bottom of the voxel, the path either stays on the same level or goes down. */
+			const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
+			if ((v == NULL || v->GetType() != VT_SURFACE) && this->z_vox > 0) {
+				this->z_vox--;
+				this->z_pos = 255;
+			}
 		}
 		assert(this->x_pos >= 0 && this->x_pos < 256);
 		assert(this->y_pos >= 0 && this->y_pos < 256);
