@@ -138,6 +138,7 @@ public:
 
 	void EnableWorldAdditions();
 	void DisableWorldAdditions();
+	void EnsureAdditionsAreVisible();
 
 	Point32 ComputeHorizontalTranslation(int dx, int dy);
 	int32 ComputeX(int32 xpos, int32 ypos);

@@ -476,6 +476,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			rvd.flags = 0; // XXX ride entrance bits (although it is silly to assume entrance is part of it?)
 			vx->SetRide(rvd);
 			_additions.MarkDirty(vp);
+			vp->EnsureAdditionsAreVisible();
 			this->state = SPS_GOOD_POS;
 			return;
 		}

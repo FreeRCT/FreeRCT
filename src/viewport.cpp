@@ -350,6 +350,21 @@ void Viewport::DisableWorldAdditions()
 	this->timeout = 0;
 }
 
+/**
+ * Reset the display state of the world additions, such that they become visible directly.
+ * @pre World additions have to be enabled.
+ */
+void Viewport::EnsureAdditionsAreVisible()
+{
+	assert(this->additions_enabled);
+	if (!this->additions_displayed) {
+		this->additions_displayed = true;
+		_additions.MarkDirty(this);
+		this->arrow_cursor.MarkDirty();
+	}
+	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
+}
+
 /** Toggle display of world additions (in #_additions) if enabled. */
 /* virtual */ void Viewport::TimeoutCallback()
 {

@@ -594,7 +594,7 @@ void PathBuildManager::UpdateState()
 	if (vp != NULL) {
 		if (this->state == PBS_WAIT_SLOPE) {
 			_additions.Clear();
-			EnableWorldAdditions();
+			vp->EnableWorldAdditions();
 		} else if (this->state == PBS_WAIT_BUY) {
 			_additions.Clear();
 
@@ -606,9 +606,10 @@ void PathBuildManager::UpdateState()
 				svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
 				v->SetSurface(svd);
 			}
-			EnableWorldAdditions();
+			vp->EnableWorldAdditions();
+			vp->EnsureAdditionsAreVisible();
 		} else {
-			if (this->state != PBS_LONG_BUILD && this->state != PBS_LONG_BUY) DisableWorldAdditions();
+			if (this->state != PBS_LONG_BUILD && this->state != PBS_LONG_BUY) vp->DisableWorldAdditions();
 		}
 	}
 
@@ -796,6 +797,7 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 			if (*slope_prio == TSL_INVALID) break;
 		}
 		vp->EnableWorldAdditions();
+		vp->EnsureAdditionsAreVisible();
 	}
 }
 
