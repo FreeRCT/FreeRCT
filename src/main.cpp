@@ -239,6 +239,8 @@ int main(void)
 	SDL_RemoveTimer(timer_id); // Drop the timer.
 
 	UninitLanguage();
+	_mouse_modes.SetMouseMode(MM_INACTIVE);
+	_manager.CloseAllWindows();
 
 	vid.Shutdown();
 	exit(0);

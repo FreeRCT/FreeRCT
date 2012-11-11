@@ -263,6 +263,8 @@ public:
 	void AddTostack(Window *w);
 	void DeleteWindow(Window *w);
 
+	void CloseAllWindows();
+
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);
 	void MouseWheelEvent(int direction);

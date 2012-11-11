@@ -558,6 +558,11 @@ WindowManager::WindowManager()
 /** %Window manager destructor. */
 WindowManager::~WindowManager()
 {
+}
+
+/** Close all windows at the display. */
+void WindowManager::CloseAllWindows()
+{
 	while (this->top != NULL) {
 		this->DeleteWindow(this->top);
 	}
