@@ -20,10 +20,8 @@
 #include "language.h"
 #include "dates.h"
 #include "people.h"
-#include "user.h"
 
 static bool _finish; ///< Finish execution of the program.
-User _user;          ///< Main user instance.
 
 void InitMouseModes();
 

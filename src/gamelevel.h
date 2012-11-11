@@ -31,7 +31,17 @@ struct Scenario {
 	uint8 interest;       ///< Interest rate in 0.1 percent over the negative amount.
 };
 
+/** Data of user. */
+class User {
+public:
+	User();
+
+private:
+	Money money; ///< Amount of money the user has.
+};
+
 extern Scenario _scenario;
+extern User _user;
 
 #endif
 
