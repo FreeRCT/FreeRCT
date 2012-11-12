@@ -578,6 +578,35 @@ bool Foundation::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 	return true;
 }
 
+Platform::Platform() : RcdBlock()
+{
+	this->width = 0;
+	this->height = 0;
+	this->flat[0] = NULL; this->flat[1] = NULL;
+	for (uint i = 0; i < lengthof(this->ramp); i++) this->ramp[i] = NULL;
+}
+
+Platform::~Platform()
+{
+}
+
+bool Platform::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+{
+	if (length != 2 + 2 + 2 + 2 * 4 + 4 * 4) return false;
+
+	this->width  = rcd_file->GetUInt16();
+	this->height = rcd_file->GetUInt16();
+	uint16 type = rcd_file->GetUInt16();
+	if (type != 16) return false; // Only accept type 16 'wood'.
+
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->flat[0])) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->flat[1])) return false;
+	for (uint sprnum = 0; sprnum < lengthof(this->ramp); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->ramp[sprnum])) return false;
+	}
+	return true;
+}
+
 DisplayedObject::DisplayedObject() : RcdBlock()
 {
 	this->width = 0;
@@ -1139,6 +1168,17 @@ void SpriteStorage::AddFoundations(Foundation *fnd)
 }
 
 /**
+ * Add platform block.
+ * @param plat New platform block.
+ * @pre Width of the platform block must match with #size.
+ */
+void SpriteStorage::AddPlatform(Platform *plat)
+{
+	assert(plat->width == this->size);
+	this->platform = plat;
+}
+
+/**
  * Add path sprites.
  * @param path %Path sprites to add.
  * @pre Width of the path sprites must match with #size.
@@ -1323,6 +1363,18 @@ const char *SpriteManager::Load(const char *filename)
 			this->AddBlock(block);
 
 			this->store.AddFoundations(block);
+			continue;
+		}
+
+		if (strcmp(name, "PLAT") == 0 && version == 1) {
+			Platform *block = new Platform;
+			if (!block->Load(&rcd_file, length, sprites)) {
+				delete block;
+				return "Platform block loading failed.";
+			}
+			this->AddBlock(block);
+
+			this->store.AddPlatform(block);
 			continue;
 		}
 
