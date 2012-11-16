@@ -590,6 +590,13 @@ Platform::~Platform()
 {
 }
 
+/**
+ * Load a platform sprites block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
 bool Platform::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 2 * 4 + 4 * 4) return false;
