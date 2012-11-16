@@ -191,12 +191,9 @@ void PathBuildGui::SetButtons()
 	uint8 allowed_slopes = _path_builder.GetAllowedSlopes();
 	TrackSlope sel_slope = _path_builder.GetSelectedSlope();
 	for (TrackSlope ts = TSL_BEGIN; ts < TSL_COUNT_GENTLE; ts++) {
-		if (((1 << ts) & allowed_slopes) != 0) {
-			this->SetWidgetShaded(PATH_GUI_SLOPE_DOWN + ts, false);
-			this->SetWidgetPressed(PATH_GUI_SLOPE_DOWN + ts, ts == sel_slope);
-		} else {
-			this->SetWidgetShaded(PATH_GUI_SLOPE_DOWN + ts, true);
-		}
+		bool option_allowed = ((1 << ts) & allowed_slopes) != 0;
+		this->SetWidgetShaded(PATH_GUI_SLOPE_DOWN + ts, !option_allowed);
+		this->SetWidgetPressed(PATH_GUI_SLOPE_DOWN + ts, ts == sel_slope && option_allowed);
 	}
 	this->SetWidgetShaded(PATH_GUI_BUY,      !_path_builder.GetBuyIsEnabled());
 	this->SetWidgetShaded(PATH_GUI_REMOVE,   !_path_builder.GetRemoveIsEnabled());
