@@ -55,7 +55,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 
 	/* A path just below us won't work either. */
 	const Voxel *below = (zpos > 0) ? vs->Get(zpos - 1) : NULL;
-	if (below != NULL && below->GetType() == VT_SURFACE && below->GetPathRideNumber() != PT_INVALID) return 0;
+	if (below != NULL && below->GetType() == VT_SURFACE && HasValidPath(below)) return 0;
 
 	const Voxel *level = vs->Get(zpos);
 	if (level != NULL) {
@@ -113,10 +113,11 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 			VoxelType vt = level->GetType();
 			if (vt == VT_EMPTY) {
 				result |= 1 << TSL_FLAT;
-			} else {
-				assert(vt == VT_SURFACE);
-				assert(level->GetPathRideNumber() == PT_INVALID && level->GetFoundationType() == FDT_INVALID);
-				if (level->GetGroundType() != GTP_INVALID && level->GetGroundSlope() == 0) result |= 1 << TSL_FLAT;
+			} else if (vt == VT_SURFACE &&
+					level->GetPathRideNumber() == PT_INVALID &&
+					level->GetFoundationType() == FDT_INVALID &&
+					level->GetGroundType() != GTP_INVALID && level->GetGroundSlope() == 0) {
+				result |= 1 << TSL_FLAT;
 			}
 		}
 	}
