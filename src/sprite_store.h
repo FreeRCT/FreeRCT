@@ -161,7 +161,7 @@ public:
 };
 
 /**
- * Platform sprites.
+ * %Platform sprites.
  * @ingroup sprites_group
  * @note There is only one type of platform, so no need to define its type.
  */

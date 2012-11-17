@@ -159,7 +159,8 @@ protected:
 enum SpriteOrder {
 	SO_FOUNDATION, ///< Draw foundation sprites.
 	SO_GROUND,     ///< Draw ground sprites.
-	SO_PATH,       ///< Draw path sprites.
+	SO_PLATFORM,   ///< Draw platform sprites.
+	SO_PATH,       ///< Draw path or ride sprites.
 	SO_PERSON,     ///< Draw person sprites.
 	SO_CURSOR,     ///< Draw cursor sprites.
 };
@@ -511,6 +512,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
+			uint8 platform_shape = PATH_INVALID;
 			/* Path or ride sprite. */
 			uint16 number = voxel->GetPathRideNumber();
 			if (number != PT_INVALID) {
@@ -518,6 +520,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 					DrawData dd;
 					dd.z_height = zpos;
 					dd.order = SO_PATH;
+					platform_shape = _path_rotation[voxel->GetPathRideFlags()][this->orient];
 					dd.sprite = this->sprites->GetPathSprite(number, voxel->GetPathRideFlags(), this->orient);
 					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 					dd.base.y = this->yoffset + ynorth - this->rect.base.y;
@@ -536,6 +539,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 						dd.recolour = NULL; // ri->recolouring (does not exist currently)
 						draw_images.insert(dd);
+						platform_shape = PATH_NE_NW_SE_SW; // a ride looks like having exits everywhere -> no handle bars.
 					}
 				}
 			}
@@ -546,11 +550,38 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				DrawData dd;
 				dd.z_height = zpos;
 				dd.order = SO_GROUND;
+				uint8 slope = voxel->GetGroundSlope();
 				dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), voxel->GetGroundSlope(), this->orient);
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
 				draw_images.insert(dd);
+				switch (slope) {
+					// XXX There are no sprites for partial support of a platform.
+					case SL_FLAT:
+						if (platform_shape < PATH_FLAT_COUNT) platform_shape = PATH_INVALID;
+						break;
+
+					case TCB_SOUTHWEST:
+						if (platform_shape == PATH_RAMP_NE) platform_shape = PATH_INVALID;
+						break;
+
+					case TCB_SOUTHEAST:
+						if (platform_shape == PATH_RAMP_NW) platform_shape = PATH_INVALID;
+						break;
+
+					case TCB_NORTHWEST:
+						if (platform_shape == PATH_RAMP_SE) platform_shape = PATH_INVALID;
+						break;
+
+					case TCB_NORTHEAST:
+						if (platform_shape == PATH_RAMP_SW) platform_shape = PATH_INVALID;
+						break;
+
+					default:
+						platform_shape = PATH_INVALID;
+						break;
+				}
 
 				gslope = voxel->GetGroundSlope();
 			}
@@ -566,6 +597,31 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
 				draw_images.insert(dd);
+			}
+
+			/* Add platforms. */
+			if (this->sprites->platform != NULL && platform_shape != PATH_INVALID) {
+				/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
+				ImageData *pl_spr;
+				switch (platform_shape) {
+					case PATH_RAMP_NE: pl_spr = this->sprites->platform->ramp[2]; break;
+					case PATH_RAMP_NW: pl_spr = this->sprites->platform->ramp[1]; break;
+					case PATH_RAMP_SE: pl_spr = this->sprites->platform->ramp[3]; break;
+					case PATH_RAMP_SW: pl_spr = this->sprites->platform->ramp[0]; break;
+					default: pl_spr = this->sprites->platform->flat[this->orient & 1]; break;
+				}
+				if (pl_spr != NULL) {
+					DrawData dd;
+					dd.z_height = zpos;
+					dd.order = SO_PLATFORM;
+					dd.sprite = pl_spr;
+					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+					dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+					dd.recolour = NULL;
+					draw_images.insert(dd);
+				}
+
+				/* XXX Use the shape to draw handle bars. */
 			}
 			break;
 		}
