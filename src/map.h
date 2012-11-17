@@ -68,17 +68,24 @@ public:
 	/**
 	 * Word 0 of a voxel.
 	 * - bit  0.. 1 (2): Type of the voxel. @see VoxelType
-	 * - bit  2.. 9 (8): Foundation slopes (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
-	 * - bit 10..13 (4): Type of foundation. @see FoundationType
-	 * - bit 14..18 (5): Imploded ground slope. @see #ExpandTileSlope
-	 * - bit 19..22 (4): Ground type. @see GroundType
+	 * - For surface voxels:
+	 *   - bit  2.. 9 (8): Foundation slopes (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
+	 *   - bit 10..13 (4): Type of foundation. @see FoundationType
+	 *   - bit 14..18 (5): Imploded ground slope. @see #ExpandTileSlope
+	 *   - bit 19..22 (4): Ground type. @see GroundType
+	 * - For reference voxels:
+	 *   - bit  2..9 (8): Z position.
 	 */
 	uint32 w0;
 
 	/**
 	 * Word 1 of a voxel.
-	 * - bit 0.. 5 (6): Imploded path slope or ride flags. @see PathSprites RideVoxelFlags
-	 * - bit 6..15 (10): Path type and ride numbers. @see PathRideType
+	 * - For surface voxels:
+	 *   - bit  0.. 5 ( 6): Imploded path slope or ride flags. @see PathSprites RideVoxelFlags
+	 *   - bit  6..15 (10): Path type and ride numbers. @see PathRideType
+	 * - For reference voxels:
+	 *   - bit  0..15 (16): X position.
+	 *   - bit 16..31 (16): Y position.
 	 */
 	uint32 w1;
 
@@ -215,25 +222,37 @@ public:
 		SB(this->w1, 0, 6, flags);
 	}
 
+	/* Reference voxel access. */
 
 	/**
-	 * Get the referenced voxel for read-only access.
-	 * @return Referenced voxel position.
+	 * Set the position of a reference voxel.
+	 * @param xpos X position to store in the voxel.
+	 * @param ypos Y position to store in the voxel.
+	 * @param zpos Z position to store in the voxel.
 	 */
-	inline const ReferenceVoxelData *GetReference() const
+	inline void SetReferencePosition(uint16 xpos, uint16 ypos, uint8 zpos)
 	{
-		assert(this->GetType() == VT_REFERENCE);
-		return &this->reference;
+		assert(xpos < WORLD_X_SIZE); // Checks are a little too wide, unfortunately.
+		assert(ypos < WORLD_Y_SIZE);
+		assert(zpos < WORLD_Z_SIZE);
+		SB(this->w0,  0,  2, VT_REFERENCE);
+		SB(this->w0,  2,  8, zpos);
+		SB(this->w1,  0, 16, xpos);
+		SB(this->w1, 16, 16, ypos);
 	}
 
 	/**
-	 * Set the referenced voxel.
-	 * @param rvd Reference data to store.
+	 * Get the position of a reference voxel.
+	 * @param xpos [out] Pointer to X position.
+	 * @param ypos [out] Pointer to Y position.
+	 * @param zpos [out] Pointer to Z position.
 	 */
-	inline void SetReference(const ReferenceVoxelData &rvd)
+	inline void GetReferencePosition(uint16 *xpos, uint16 *ypos, uint8 *zpos) const
 	{
-		SB(this->w0, 0, 2, VT_REFERENCE);
-		this->reference = rvd;
+		assert(this->GetType() == VT_REFERENCE);
+		*xpos = GB(this->w1,  0, 16);
+		*ypos = GB(this->w1, 16, 16);
+		*zpos = GB(this->w0,  2,  8);
 	}
 
 
@@ -243,7 +262,6 @@ public:
 		SB(this->w0, 0, 2, VT_EMPTY);
 	}
 
-	ReferenceVoxelData reference; ///< Reference voxel data
 	PersonList persons; ///< Persons present in this voxel.
 };
 

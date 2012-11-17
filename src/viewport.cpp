@@ -760,11 +760,10 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 		} else {
 			VoxelType vt = v->GetType();
 			if (vt == VT_REFERENCE) {
-				const ReferenceVoxelData *rvd = v->GetReference();
-				xpos = rvd->xpos;
-				ypos = rvd->ypos;
-				zpos = rvd->zpos;
-				v = _world.GetVoxel(xpos, ypos, zpos);
+				uint16 xp, yp;
+				uint8 zp;
+				v->GetReferencePosition(&xp, &yp, &zp);
+				v = _world.GetVoxel(xp, yp, zp);
 				vt = v->GetType();
 			}
 			switch (v->GetType()) {

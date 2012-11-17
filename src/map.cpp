@@ -70,13 +70,6 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 {
 	dest->w0 = src->w0;
 	dest->w1 = src->w1;
-	switch (src->GetType()) {
-		case VT_EMPTY:
-		case VT_SURFACE:   break;
-		case VT_REFERENCE: dest->reference = src->reference; break;
-		default: NOT_REACHED();
-	}
-
 	if (copyPersons) CopyPersonList(dest->persons, src->persons);
 }
 
@@ -561,12 +554,7 @@ void TerrainChanges::ChangeWorld(int direction)
 			}
 			assert(corner <= TC_WEST);
 			v->SetGroundSlope(ImplodeTileSlope(TCB_STEEP | (TileSlope)(1 << corner)));
-
-			ReferenceVoxelData rvd;
-			rvd.xpos = pos.x;
-			rvd.ypos = pos.y;
-			rvd.zpos = min_h;
-			vs->GetCreate(min_h + 1, true)->SetReference(rvd);
+			vs->GetCreate(min_h + 1, true)->SetReferencePosition(pos.x, pos.y, min_h);
 		}
 	}
 }
