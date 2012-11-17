@@ -238,9 +238,9 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
 			Voxel *v = GetCreateVoxel(xpos, ypos, z, true);
 			SurfaceVoxelData svd;
-			svd.ground.type = GTP_GRASS0;
-			svd.ground.slope = ImplodeTileSlope(SL_FLAT);
 			v->SetFoundationType(FDT_INVALID);
+			v->SetGroundType(GTP_GRASS0);
+			v->SetGroundSlope(ImplodeTileSlope(SL_FLAT));
 			svd.path.type = PT_INVALID;
 			v->SetSurface(svd);
 		}
@@ -262,7 +262,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 		switch (v->GetType()) {
 			case VT_SURFACE: {
 				const SurfaceVoxelData *svd = v->GetSurface();
-				if (svd->path.type != PT_INVALID || svd->ground.type != GTP_INVALID || v->GetFoundationType() != FDT_INVALID) {
+				if (svd->path.type != PT_INVALID || v->GetGroundType() != GTP_INVALID || v->GetFoundationType() != FDT_INVALID) {
 					vs_last = i;
 					break;
 				}
@@ -360,8 +360,8 @@ uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y) const
 	for (int16 i = vs->height - 1; i >= 0; i--) {
 		const Voxel &v = vs->voxels[i];
 		if (v.GetType() != VT_SURFACE) continue;
-		const SurfaceVoxelData *svd = v.GetSurface();
-		if (svd->ground.type < GTP_COUNT && svd->ground.type != GTP_INVALID) {
+
+		if (v.GetGroundType() != GTP_INVALID) {
 			assert(vs->base + i >= 0 && vs->base + i <= 255);
 			return (uint8)(vs->base + i);
 		}
@@ -457,10 +457,8 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 	if (iter == this->changes.end()) {
 		uint8 height = _world.GetGroundHeight(pos.x, pos.y);
 		const Voxel *v = _world.GetVoxel(pos.x, pos.y, height);
-		assert(v != NULL && v->GetType() == VT_SURFACE);
-		const SurfaceVoxelData *svd = v->GetSurface();
-		assert(svd->ground.type != GTP_INVALID);
-		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(svd->ground.slope)));
+		assert(v != NULL && v->GetType() == VT_SURFACE && v->GetGroundType() != GTP_INVALID);
+		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
 		iter = this->changes.insert(p).first;
 	}
 	return &(*iter).second;
@@ -529,7 +527,7 @@ void TerrainChanges::ChangeWorld(int direction)
 		VoxelStack *vs = _world.GetModifyStack(pos.x, pos.y);
 		Voxel *v = vs->GetCreate(gd.height, false);
 		SurfaceVoxelData *pvd = v->GetSurface();
-		uint8 gtype = pvd->ground.type;
+		GroundType gtype = v->GetGroundType();
 		FoundationType ftype = v->GetFoundationType();
 		uint8 ptype = pvd->path.type;
 		/* Clear existing ground and foundations. */
@@ -551,17 +549,17 @@ void TerrainChanges::ChangeWorld(int direction)
 		}
 		v = vs->GetCreate(min_h, true);
 		SurfaceVoxelData svd;
-		svd.ground.type = gtype;
+		v->SetGroundType(gtype);
 		v->SetFoundationType(ftype);
 		v->SetFoundationSlope(0); // XXX Needs further work.
 		svd.path.type = ptype;
 		svd.path.slope = 0; // XXX Needs further work.
 		if (max_h - min_h <= 1) {
 			/* Normal slope. */
-			svd.ground.slope = ImplodeTileSlope(((new_heights[TC_NORTH] > min_h) ? TCB_NORTH : SL_FLAT)
+			v->SetGroundSlope(ImplodeTileSlope(((new_heights[TC_NORTH] > min_h) ? TCB_NORTH : SL_FLAT)
 					| ((new_heights[TC_EAST]  > min_h) ? TCB_EAST  : SL_FLAT)
 					| ((new_heights[TC_SOUTH] > min_h) ? TCB_SOUTH : SL_FLAT)
-					| ((new_heights[TC_WEST]  > min_h) ? TCB_WEST  : SL_FLAT));
+					| ((new_heights[TC_WEST]  > min_h) ? TCB_WEST  : SL_FLAT)));
 			v->SetSurface(svd);
 		} else {
 			assert(max_h - min_h == 2);
@@ -570,8 +568,9 @@ void TerrainChanges::ChangeWorld(int direction)
 				if (new_heights[corner] == max_h) break;
 			}
 			assert(corner <= TC_WEST);
-			svd.ground.slope = ImplodeTileSlope(TCB_STEEP | (TileSlope)(1 << corner));
+			v->SetGroundSlope(ImplodeTileSlope(TCB_STEEP | (TileSlope)(1 << corner)));
 			v->SetSurface(svd);
+
 			ReferenceVoxelData rvd;
 			rvd.xpos = pos.x;
 			rvd.ypos = pos.y;

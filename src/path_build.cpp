@@ -73,8 +73,8 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 					if (_path_down_from_edge[edge] == svd->path.slope) return 1 << TSL_UP; // Already a sloped path up.
 					return 0; // A path but cannot connect to it.
 				}
-				if (svd->ground.type != GTP_INVALID) {
-					TileSlope ts = ExpandTileSlope(svd->ground.slope);
+				if (level->GetGroundType() != GTP_INVALID) {
+					TileSlope ts = ExpandTileSlope(level->GetGroundSlope());
 					if ((ts & TCB_STEEP) != 0) return 0; // Steep slope in the way.
 					if ((ts & _corners_at_edge[edge]) != 0) return 0; // Some hilly stuff at the entry.
 				}
@@ -120,7 +120,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 				assert(vt == VT_SURFACE);
 				const SurfaceVoxelData *svd = level->GetSurface();
 				assert(svd->path.type == PT_INVALID && level->GetFoundationType() == FDT_INVALID);
-				if (svd->ground.type != GTP_INVALID && svd->ground.slope == 0) result |= 1 << TSL_FLAT;
+				if (level->GetGroundType() != GTP_INVALID && level->GetGroundSlope() == 0) result |= 1 << TSL_FLAT;
 			}
 		}
 	}
@@ -134,10 +134,10 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 			const SurfaceVoxelData *svd = below->GetSurface();
 			if (below->GetFoundationType() == FDT_INVALID && svd->path.type == PT_INVALID) {
 				/* No foundations and paths. */
-				if (svd->ground.type == GTP_INVALID) {
+				if (below->GetGroundType() == GTP_INVALID) {
 					result |= 1 << TSL_DOWN;
 				} else {
-					TileSlope ts = ExpandTileSlope(svd->ground.slope);
+					TileSlope ts = ExpandTileSlope(below->GetGroundSlope());
 					if (((TCB_STEEP | _corners_at_edge[(edge + 2) % 4]) & ts) == 0) result |= 1 << TSL_DOWN;
 				}
 			}
@@ -182,8 +182,8 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 			}
 			continue;
 		}
-		if (svd->ground.type != GTP_INVALID) {
-			TileSlope ts = ExpandTileSlope(svd->ground.slope);
+		if (v->GetGroundType() != GTP_INVALID) {
+			TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
 			if ((ts & TCB_STEEP) != 0) continue;
 			if ((ts & _corners_at_edge[edge]) == 0) {
 				if (CanBuildPathFromEdge(x, y, zpos, (TileEdge)((edge + 2) % 4)) != 0) edges |= 1 << edge;
@@ -384,8 +384,8 @@ void PathBuildManager::SelectMovement(bool move_forward)
 	const SurfaceVoxelData *svd = v->GetSurface();
 	if (svd->path.type != PT_INVALID) {
 		move_up = (svd->path.slope == _path_down_from_edge[edge]);
-	} else if (svd->ground.type != GTP_INVALID) {
-		TileSlope ts = ExpandTileSlope(svd->ground.slope);
+	} else if (v->GetGroundType() != GTP_INVALID) {
+		TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
 		if ((ts & TCB_STEEP) != 0) return;
 		move_up = ((ts & _corners_at_edge[edge]) != 0);
 	} else {
@@ -502,9 +502,9 @@ void PathBuildManager::ComputeWorldAdditions()
 		SurfaceVoxelData svd;
 		svd.path.type = PT_CONCRETE;
 		svd.path.slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
-		svd.ground.type = GTP_INVALID;
 		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
 		vx->SetFoundationType(FDT_INVALID);
+		vx->SetGroundType(GTP_INVALID);
 		svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
 		vx->SetSurface(svd);
 		return;
@@ -516,6 +516,8 @@ void PathBuildManager::ComputeWorldAdditions()
 		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
 		vx->SetFoundationType(v->GetFoundationType()); // Copy foundations
 		vx->SetFoundationSlope(v->GetFoundationSlope());
+		vx->SetGroundType(v->GetGroundType()); // Copy ground
+		vx->SetGroundSlope(v->GetGroundSlope());
 		svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
 		vx->SetSurface(svd);
 		return;
@@ -771,7 +773,7 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 						v->SetFoundationType(FDT_INVALID);
 						svd.path.type = PT_CONCRETE;
 						svd.path.slope = AddRemovePathEdges(vx, vy, vz, path_tile, true, true);
-						svd.ground.type = GTP_INVALID;
+						v->SetGroundType(GTP_INVALID);
 						v->SetSurface(svd);
 					} else if (v->GetType() == VT_SURFACE) {
 						// XXX Handle this more careful, paths may exist and/or ground may exist here.

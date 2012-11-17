@@ -368,7 +368,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 		if (type == VT_SURFACE) {
 			const SurfaceVoxelData *svd = vx->GetSurface();
 			if (svd->path.type != PT_INVALID) return false; // Cannot build on a path.
-			return svd->ground.type != GTP_INVALID; // Can always build at the surface.
+			return vx->GetGroundType() != GTP_INVALID; // Can always build at the surface.
 		}
 	}
 

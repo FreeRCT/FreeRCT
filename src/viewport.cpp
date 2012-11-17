@@ -526,17 +526,17 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 			/* Ground surface. */
 			uint8 gslope = SL_FLAT;
-			if (svd->ground.type != GTP_INVALID) {
+			if (voxel->GetGroundType() != GTP_INVALID) {
 				DrawData dd;
 				dd.z_height = zpos;
 				dd.order = SO_GROUND;
-				dd.sprite = this->sprites->GetSurfaceSprite(svd->ground.type, svd->ground.slope, this->orient);
+				dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), voxel->GetGroundSlope(), this->orient);
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
 				draw_images.insert(dd);
 
-				gslope = svd->ground.slope;
+				gslope = voxel->GetGroundSlope();
 			}
 
 			/* Sprite cursor (arrow) */
@@ -648,9 +648,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 	if (voxel == NULL) return; // Ignore cursors, they are not clickable.
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
-			const SurfaceVoxelData *svd = voxel->GetSurface();
-			if (svd->ground.type == GTP_INVALID) break;
-			const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, svd->ground.slope, this->orient);
+			if (voxel->GetGroundType() == GTP_INVALID) break;
+			const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
 			if (spr == NULL) break;
 			int32 dist = sx * xpos + sy * ypos + zpos * 256;
 			if (this->found && dist <= this->distance) break;
@@ -779,11 +778,10 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 					break;
 
 				case VT_SURFACE: {
-					const SurfaceVoxelData *svd = v->GetSurface();
-					if (svd->ground.type == GTP_INVALID) {
+					if (v->GetGroundType() == GTP_INVALID) {
 						height = 1;
 					} else {
-						TileSlope tslope = ExpandTileSlope(svd->ground.slope);
+						TileSlope tslope = ExpandTileSlope(v->GetGroundSlope());
 						height = ((tslope & TCB_STEEP) != 0) ? 2 : 1;
 					}
 					break;

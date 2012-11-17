@@ -49,22 +49,12 @@ struct PathVoxelData {
 };
 
 /**
- * Description of ground.
- * @ingroup map_group
- */
-struct GroundVoxelData {
-	uint8 type;  ///< Type of ground.
-	uint8 slope; ///< Slope of the ground (imploded).
-};
-
-/**
  * Description of the earth surface (combined ground and foundations).
  * @note As steep slopes are two voxels high, they have a reference voxel above them.
  * @ingroup map_group
  */
 struct SurfaceVoxelData {
 	PathVoxelData       path;       ///< Path sprite at this location.
-	GroundVoxelData     ground;     ///< Ground sprite at this location.
 };
 
 /**
@@ -106,9 +96,11 @@ struct Voxel {
 public:
 	/**
 	 * Word 0 of a voxel.
-	 * - bit  0.. 1: Type of the voxel. @see VoxelType
-	 * - bit  2.. 9: Foundation slopes (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
-	 * - bit 10..13: Type of foundation. @see FoundationType
+	 * - bit  0.. 1 (2): Type of the voxel. @see VoxelType
+	 * - bit  2.. 9 (8): Foundation slopes (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
+	 * - bit 10..13 (4): Type of foundation. @see FoundationType
+	 * - bit 14..18 (5): Imploded ground slope. @see #ExpandTileSlope
+	 * - bit 19..22 (4): Ground type. @see GroundType
 	 */
 	uint32 w0;
 
@@ -119,6 +111,8 @@ public:
 	inline VoxelType GetType() const {
 		return (VoxelType)GB(this->w0, 0, 2);
 	}
+
+	/* Foundation data access. */
 
 	/**
 	 * Get the foundation slope of a surface voxel.
@@ -158,6 +152,49 @@ public:
 		SB(this->w0, 10, 4, fnd_type);
 	}
 
+	/* Ground data access. */
+
+	/**
+	 * Get the imploded ground slope of a surface voxel.
+	 * @note As steep slopes are two voxels high, they have a reference voxel above them.
+	 * @return The imploded ground slope.
+	 */
+	inline uint8 GetGroundSlope() const {
+		assert(this->GetType() == VT_SURFACE);
+		return GB(this->w0, 14, 5);
+	}
+
+	/**
+	 * Get the ground type of a surface voxel.
+	 * @return The ground type.
+	 */
+	inline GroundType GetGroundType() const {
+		assert(this->GetType() == VT_SURFACE);
+		uint val = GB(this->w0, 19, 4);
+		return (GroundType)val;
+	}
+
+	/**
+	 * Set the imploded ground slope of a surface voxel.
+	 * @note As steep slopes are two voxels high, they have a reference voxel above them.
+	 * @param gnd_slope The new imploded ground slope.
+	 */
+	inline void SetGroundSlope(uint8 gnd_slope) {
+		assert(gnd_slope < 19); // 15 non-steep + 4 steep sprites.
+		SB(this->w0, 0, 2, VT_SURFACE);
+		SB(this->w0, 14, 5, gnd_slope);
+	}
+
+	/**
+	 * Set the ground type of a surface voxel.
+	 * @param gnd_type The ground type.
+	 */
+	inline void SetGroundType(GroundType gnd_type) {
+		assert(gnd_type < GTP_COUNT || gnd_type == GTP_INVALID);
+		SB(this->w0, 0, 2, VT_SURFACE);
+		SB(this->w0, 19, 4, gnd_type);
+	}
+
 	/**
 	 * Get the surface data.
 	 * @return Surface data (ground tile and foundation).
@@ -184,7 +221,6 @@ public:
 	{
 		SB(this->w0, 0, 2, VT_SURFACE);
 		assert(vd.path.type == PT_INVALID || (vd.path.type < PT_COUNT && vd.path.slope < PATH_COUNT));
-		assert(vd.ground.type == GTP_INVALID || (vd.ground.type < GTP_COUNT && vd.ground.slope < NUM_SLOPE_SPRITES));
 		this->surface = vd;
 	}
 

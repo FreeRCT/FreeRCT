@@ -119,7 +119,7 @@ enum GroundType {
 
 	GTP_COUNT,       ///< Number of ground types.
 
-	GTP_INVALID,     ///< Invalid ground type.
+	GTP_INVALID = GTP_COUNT, ///< Invalid ground type.
 };
 
 /**
