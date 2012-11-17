@@ -17,6 +17,7 @@
 #include "geometry.h"
 #include "sprite_store.h"
 #include "people.h"
+#include "bitmath.h"
 
 #include <map>
 
@@ -114,11 +115,17 @@ struct RideVoxelData {
 struct Voxel {
 public:
 	/**
+	 * Word 0 of a voxel.
+	 * - bit 0..1: Type of the voxel. @see VoxelType
+	 */
+	uint32 w0;
+
+	/**
 	 * Get the type of the voxel.
 	 * @return Voxel type.
 	 */
 	inline VoxelType GetType() const {
-		return (VoxelType)this->type;
+		return (VoxelType)GB(this->w0, 0, 2);
 	}
 
 	/**
@@ -126,7 +133,7 @@ public:
 	 * @return Surface data (ground tile and foundation).
 	 */
 	inline SurfaceVoxelData *GetSurface() {
-		assert(this->type == VT_SURFACE);
+		assert(this->GetType() == VT_SURFACE);
 		return &this->surface;
 	}
 
@@ -135,7 +142,7 @@ public:
 	 * @return Surface slope.
 	 */
 	inline const SurfaceVoxelData *GetSurface() const {
-		assert(this->type == VT_SURFACE);
+		assert(this->GetType() == VT_SURFACE);
 		return &this->surface;
 	}
 
@@ -145,7 +152,7 @@ public:
 	 */
 	inline void SetSurface(const SurfaceVoxelData &vd)
 	{
-		this->type = VT_SURFACE;
+		SB(this->w0, 0, 2, VT_SURFACE);
 		assert(vd.path.type == PT_INVALID || (vd.path.type < PT_COUNT && vd.path.slope < PATH_COUNT));
 		assert(vd.ground.type == GTP_INVALID || (vd.ground.type < GTP_COUNT && vd.ground.slope < NUM_SLOPE_SPRITES));
 		assert(vd.foundation.type == FDT_INVALID || vd.foundation.type < FDT_COUNT);
@@ -158,7 +165,7 @@ public:
 	 */
 	inline const ReferenceVoxelData *GetReference() const
 	{
-		assert(this->type == VT_REFERENCE);
+		assert(this->GetType() == VT_REFERENCE);
 		return &this->reference;
 	}
 
@@ -168,7 +175,7 @@ public:
 	 */
 	inline void SetReference(const ReferenceVoxelData &rvd)
 	{
-		this->type = VT_REFERENCE;
+		SB(this->w0, 0, 2, VT_REFERENCE);
 		this->reference = rvd;
 	}
 
@@ -178,7 +185,7 @@ public:
 	 */
 	inline RideVoxelData *GetRide()
 	{
-		assert(this->type == VT_RIDE);
+		assert(this->GetType() == VT_RIDE);
 		return &this->ride;
 	}
 
@@ -188,7 +195,7 @@ public:
 	 */
 	inline const RideVoxelData *GetRide() const
 	{
-		assert(this->type == VT_RIDE);
+		assert(this->GetType() == VT_RIDE);
 		return &this->ride;
 	}
 
@@ -198,17 +205,16 @@ public:
 	 */
 	inline void SetRide(const RideVoxelData &rd)
 	{
-		this->type = VT_RIDE;
+		SB(this->w0, 0, 2, VT_RIDE);
 		this->ride = rd;
 	}
 
 	/** Set the voxel to empty. */
 	inline void SetEmpty()
 	{
-		this->type = VT_EMPTY;
+		SB(this->w0, 0, 2, VT_EMPTY);
 	}
 
-	uint8 type; ///< Type of the voxel. @see VoxelType
 	union {
 		SurfaceVoxelData surface;
 		ReferenceVoxelData reference;

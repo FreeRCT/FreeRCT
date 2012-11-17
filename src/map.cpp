@@ -68,8 +68,8 @@ static const CornerNeighbours neighbours[4] = {
  */
 static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 {
-	dest->type = src->type;
-	switch (src->type) {
+	dest->w0 = src->w0;
+	switch (src->GetType()) {
 		case VT_EMPTY: break;
 		case VT_SURFACE:   dest->surface = src->surface;     break;
 		case VT_REFERENCE: dest->reference = src->reference; break;
