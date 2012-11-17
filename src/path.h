@@ -82,7 +82,7 @@ enum PathSprites {
 	PATH_RAMP_SW,                   ///< Ramp from SW up to NE.
 	PATH_COUNT,                     ///< Number of path sprites.
 
-	PATH_INVALID = 255, ///< Invalid path.
+	PATH_INVALID = 63,  ///< Invalid path.
 
 	PATHBIT_N  = 0,     ///< Bit number for north corner in expanded notation.
 	PATHBIT_E  = 1,     ///< Bit number for east corner in expanded notation.
@@ -98,10 +98,11 @@ enum PathSprites {
  * Available path types.
  * @ingroup map_group
  */
-enum PathTypes {
-	PT_INVALID = 0,  ///< Invalid path type.
-	PT_CONCRETE = 1, ///< Concrete path type.
-	PT_COUNT,        ///< Number of available path types.
+enum PathRideType {
+	PT_INVALID = 0x3FF,     ///< Invalid path type and invalid ride type.
+	PT_CONCRETE = 0x3FE,    ///< Concrete path type.
+	PT_START = PT_CONCRETE, ///< First valid path type.
+	/* Values 0 .. PT_START-1 are ride instance numbers. */
 };
 
 extern const PathSprites _path_up_from_edge[EDGE_COUNT];

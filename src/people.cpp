@@ -78,8 +78,7 @@ const char *Person::GetName() const
 static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int16 y_pos)
 {
 	const Voxel *v = _world.GetVoxel(x_vox, y_vox, z_vox);
-	const SurfaceVoxelData *svd = v->GetSurface();
-	int8 slope = svd->path.slope;
+	uint8 slope = v->GetPathRideFlags();
 	if (slope < PATH_FLAT_COUNT) return 0;
 	switch (slope) {
 		case PATH_RAMP_NE: return x_pos;
@@ -214,9 +213,8 @@ void Person::DecideMoveDirection()
 	uint8 exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions by default.
 	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
 	if (v->GetType() == VT_SURFACE) {
-		const SurfaceVoxelData *svd = v->GetSurface();
-		if (svd->path.type != PT_INVALID) {
-			uint8 slope = svd->path.slope;
+		if (HasValidPath(v)) {
+			uint8 slope = v->GetPathRideFlags();
 			if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
 				exits &= _path_expand[slope]; // Masks to exits only, as that's what 'exits' contains here.
 			} else { // At a path ramp.
@@ -544,8 +542,7 @@ static bool IsGoodEdgeRoad(int16 x, int16 y)
 	if (x < 0 || y < 0) return false;
 	int16 z = _world.GetGroundHeight(x, y);
 	const Voxel *vs = _world.GetVoxel(x, y, z);
-	const SurfaceVoxelData *svd = vs->GetSurface();
-	return svd->path.type == PT_CONCRETE && svd->path.slope < PATH_FLAT_COUNT;
+	return vs->GetPathRideNumber() == PT_CONCRETE && vs->GetPathRideFlags() < PATH_FLAT_COUNT;
 }
 
 /**

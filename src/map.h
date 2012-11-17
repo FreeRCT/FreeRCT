@@ -40,24 +40,6 @@ enum VoxelType {
 };
 
 /**
- * Description of a path tile.
- * @ingroup map_group
- */
-struct PathVoxelData {
-	uint8 type;  ///< Type of path.
-	uint8 slope; ///< Slope of the path (imploded).
-};
-
-/**
- * Description of the earth surface (combined ground and foundations).
- * @note As steep slopes are two voxels high, they have a reference voxel above them.
- * @ingroup map_group
- */
-struct SurfaceVoxelData {
-	PathVoxelData       path;       ///< Path sprite at this location.
-};
-
-/**
  * Description of a referenced voxel.
  * For structures larger than a single voxel, only the base voxel contains a description.
  * The other voxels reference to the base voxel for their sprites.
@@ -103,6 +85,13 @@ public:
 	 * - bit 19..22 (4): Ground type. @see GroundType
 	 */
 	uint32 w0;
+
+	/**
+	 * Word 1 of a voxel.
+	 * - bit 0.. 5 (6): Imploded path slope or ride flags. @see PathSprites RideVoxelFlags
+	 * - bit 6..15 (10): Path type and ride numbers. @see PathRideType
+	 */
+	uint32 w1;
 
 	/**
 	 * Get the type of the voxel.
@@ -195,34 +184,48 @@ public:
 		SB(this->w0, 19, 4, gnd_type);
 	}
 
+	/* Path and ride data access. */
+
 	/**
-	 * Get the surface data.
-	 * @return Surface data (ground tile and foundation).
+	 * Get the path type or ride number.
+	 * @return The path type or ride number.
+	 * @see PathRideType
 	 */
-	inline SurfaceVoxelData *GetSurface() {
+	inline uint16 GetPathRideNumber() const {
 		assert(this->GetType() == VT_SURFACE);
-		return &this->surface;
+		return GB(this->w1, 6, 10);
 	}
 
 	/**
-	 * Get the surface data for read-only access.
-	 * @return Surface slope.
+	 * Get the path slope or ride flags of a surface voxel (#GetPathRideNumber decides the interpretation).
+	 * @return The slope or flags.
+	 * @see RideVoxelFlags PathSprites
 	 */
-	inline const SurfaceVoxelData *GetSurface() const {
+	inline uint8 GetPathRideFlags() const {
 		assert(this->GetType() == VT_SURFACE);
-		return &this->surface;
+		return GB(this->w1, 0, 6);
 	}
 
 	/**
-	 * Set the surface.
-	 * @param vd Surface data of the voxel.
+	 * Set the path type or ride number.
+	 * @param number The number to store.
 	 */
-	inline void SetSurface(const SurfaceVoxelData &vd)
-	{
+	inline void SetPathRideNumber(uint16 number) {
+		assert(number <= 0x3FFF);
 		SB(this->w0, 0, 2, VT_SURFACE);
-		assert(vd.path.type == PT_INVALID || (vd.path.type < PT_COUNT && vd.path.slope < PATH_COUNT));
-		this->surface = vd;
+		SB(this->w1, 6, 10, number);
 	}
+
+	/**
+	 * Set the path slope or ride flags of a surface voxel.
+	 * @param flags Flags to store.
+	 */
+	inline void SetPathRideFlags(uint8 flags) {
+		assert(flags < 64);
+		SB(this->w0, 0, 2, VT_SURFACE);
+		SB(this->w1, 0, 6, flags);
+	}
+
 
 	/**
 	 * Get the referenced voxel for read-only access.
@@ -281,7 +284,6 @@ public:
 	}
 
 	union {
-		SurfaceVoxelData surface;
 		ReferenceVoxelData reference;
 		RideVoxelData ride;
 	};
@@ -289,6 +291,15 @@ public:
 	PersonList persons; ///< Persons present in this voxel.
 };
 
+/**
+ * Does the given voxel contain a valid path?
+ * @param v %Voxel to examine.
+ * @return @c true if the voxel contains a valid path, else \c false.
+ */
+static inline bool HasValidPath(const Voxel *v) {
+	if (v->GetType() != VT_SURFACE) return false;
+	return v->GetPathRideNumber() >= PT_START && v->GetPathRideNumber() != PT_INVALID;
+}
 
 /**
  * One column of voxels.

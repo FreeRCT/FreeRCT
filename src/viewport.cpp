@@ -512,12 +512,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
 			/* Path sprite. */
-			const SurfaceVoxelData *svd = voxel->GetSurface();
-			if (svd->path.type != PT_INVALID) {
+			uint16 number = voxel->GetPathRideNumber();
+			if (number >= PT_START && number != PT_INVALID) {
 				DrawData dd;
 				dd.z_height = zpos;
 				dd.order = SO_PATH;
-				dd.sprite = this->sprites->GetPathSprite(svd->path.type, svd->path.slope, this->orient);
+				dd.sprite = this->sprites->GetPathSprite(number, voxel->GetPathRideFlags(), this->orient);
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;

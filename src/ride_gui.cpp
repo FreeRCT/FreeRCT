@@ -335,17 +335,15 @@ static bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 		/* No path here, check the voxel below. */
 		if (zpos == 0) return false;
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
-		if (vx == NULL) return false;
-		type = vx->GetType();
-		if (type != VT_SURFACE) return false;
-		const SurfaceVoxelData *svd = vx->GetSurface();
-		if (svd->path.type == PT_INVALID) return false;
-		return svd->path.slope == _path_down_from_edge[edge]; // Path must end at the top of the voxel.
+		if (vx == NULL || vx->GetType() != VT_SURFACE || vx->GetPathRideNumber() == PT_INVALID) return false;
+		/* Path must end at the top of the voxel. */
+		return vx->GetPathRideNumber() >= PT_START && vx->GetPathRideFlags() == _path_up_from_edge[edge];
 	}
 	if (type != VT_SURFACE) return false;
-	const SurfaceVoxelData *svd = vx->GetSurface();
-	if (svd->path.type == PT_INVALID) return false;
-	return svd->path.slope < PATH_FLAT_COUNT || svd->path.slope == _path_up_from_edge[edge]; // Path must end at the bottom of the voxel.
+	if (vx->GetPathRideNumber() == PT_INVALID) return false;
+	/* Path must end at the bottom of the voxel. */
+	return vx->GetPathRideNumber() >= PT_START &&
+			(vx->GetPathRideFlags() < PATH_FLAT_COUNT || vx->GetPathRideFlags() == _path_up_from_edge[edge]);
 }
 
 /**
@@ -366,8 +364,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 		uint8 type = vx->GetType();
 		if (type == VT_RIDE || type == VT_REFERENCE) return false;
 		if (type == VT_SURFACE) {
-			const SurfaceVoxelData *svd = vx->GetSurface();
-			if (svd->path.type != PT_INVALID) return false; // Cannot build on a path.
+			if (vx->GetPathRideNumber() != PT_INVALID) return false; // Cannot build on a path or other ride.
 			return vx->GetGroundType() != GTP_INVALID; // Can always build at the surface.
 		}
 	}

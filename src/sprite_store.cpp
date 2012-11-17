@@ -488,8 +488,8 @@ bool Path::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
 
-	this->type = rcd_file->GetUInt16() / 16;
-	if (this->type == PT_INVALID || this->type >= PT_COUNT) return false;
+	this->type = rcd_file->GetUInt16();
+	if (this->type != 16) return false; // Only 'concrete' paths exist.
 
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
