@@ -82,7 +82,7 @@ private:
 	TrackSlope selected_slope; ///< Last selected slope (#TSL_INVALID if none has been chosen).
 
 	void ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, uint8 *zpos);
-	bool ComputeWorldAdditions(SurfaceVoxelData *svd, uint16 *xpos, uint16 *ypos, uint8 *zpos);
+	void ComputeWorldAdditions();
 	bool TryMove(TileEdge direction, int delta_z, bool need_path);
 	void MoveCursor(TileEdge edge, bool move_up);
 	void UpdateState();

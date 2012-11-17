@@ -424,38 +424,6 @@ void PathBuildManager::ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, ui
 }
 
 /**
- * Compute the new contents of the voxel where the path should be added from the #_world.
- * @param svd  [out] New contents of the (surface) voxel if it can be placed.
- * @param xpos [out] Computed X position of the voxel that should contain the arrow cursor.
- * @param ypos [out] Computed Y position of the voxel that should contain the arrow cursor.
- * @param zpos [out] Computed Z position of the voxel that should contain the arrow cursor.
- * @return An addition was computed successfully.
- */
-bool PathBuildManager::ComputeWorldAdditions(SurfaceVoxelData *svd, uint16 *xpos, uint16 *ypos, uint8 *zpos)
-{
-	assert(this->state == PBS_WAIT_BUY); // It needs selected_arrow and selected_slope.
-
-	if (((1 << this->selected_slope) & this->allowed_slopes) == 0) return false;
-
-	this->ComputeArrowCursorPosition(xpos, ypos, zpos);
-	if (this->selected_slope == TSL_DOWN) (*zpos)--;
-	const Voxel *v = _world.GetVoxel(*xpos, *ypos, *zpos);
-	if (v == NULL || v->GetType() == VT_EMPTY) {
-		svd->path.type = PT_CONCRETE;
-		svd->path.slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
-		svd->ground.type = GTP_INVALID;
-		svd->foundation.type = FDT_INVALID;
-		return true;
-	} else if (v->GetType() == VT_SURFACE) {
-		*svd = *(v->GetSurface()); // Copy the data.
-		svd->path.type = PT_CONCRETE;
-		svd->path.slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
-		return true;
-	}
-	return false;
-}
-
-/**
  * Add edges of the neighbouring path tiles in #_additions.
  * @param xpos X coordinate of the central voxel with a path tile.
  * @param ypos Y coordinate of the central voxel with a path tile.
@@ -516,6 +484,40 @@ static uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slop
 		if (modified && slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, add_edges);
 	}
 	return slope;
+}
+
+/** Compute the new contents of the voxel where the path should be added from the #_world. */
+void PathBuildManager::ComputeWorldAdditions()
+{
+	assert(this->state == PBS_WAIT_BUY); // It needs selected_arrow and selected_slope.
+
+	if (((1 << this->selected_slope) & this->allowed_slopes) == 0) return;
+
+	uint16 xpos, ypos;
+	uint8 zpos;
+	this->ComputeArrowCursorPosition(&xpos, &ypos, &zpos);
+	if (this->selected_slope == TSL_DOWN) zpos--;
+	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
+	if (v == NULL || v->GetType() == VT_EMPTY) {
+		SurfaceVoxelData svd;
+		svd.path.type = PT_CONCRETE;
+		svd.path.slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
+		svd.ground.type = GTP_INVALID;
+		svd.foundation.type = FDT_INVALID;
+		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
+		svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
+		vx->SetSurface(svd);
+		return;
+	} else if (v->GetType() == VT_SURFACE) {
+		SurfaceVoxelData svd;
+		svd = *(v->GetSurface()); // Copy the data.
+		svd.path.type = PT_CONCRETE;
+		svd.path.slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
+		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
+		svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
+		vx->SetSurface(svd);
+		return;
+	}
 }
 
 /** Update the state of the path build process. */
@@ -598,14 +600,7 @@ void PathBuildManager::UpdateState()
 		} else if (this->state == PBS_WAIT_BUY) {
 			_additions.Clear();
 
-			uint16 xpos, ypos;
-			uint8 zpos;
-			SurfaceVoxelData svd;
-			if (this->ComputeWorldAdditions(&svd, &xpos, &ypos, &zpos)) {
-				Voxel *v = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
-				svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
-				v->SetSurface(svd);
-			}
+			this->ComputeWorldAdditions();
 			vp->EnableWorldAdditions();
 			vp->EnsureAdditionsAreVisible();
 		} else {
