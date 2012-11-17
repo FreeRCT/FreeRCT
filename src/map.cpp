@@ -240,7 +240,7 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 			SurfaceVoxelData svd;
 			svd.ground.type = GTP_GRASS0;
 			svd.ground.slope = ImplodeTileSlope(SL_FLAT);
-			svd.foundation.type = FDT_INVALID;
+			v->SetFoundationType(FDT_INVALID);
 			svd.path.type = PT_INVALID;
 			v->SetSurface(svd);
 		}
@@ -262,7 +262,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 		switch (v->GetType()) {
 			case VT_SURFACE: {
 				const SurfaceVoxelData *svd = v->GetSurface();
-				if (svd->path.type != PT_INVALID || svd->ground.type != GTP_INVALID || svd->foundation.type != FDT_INVALID) {
+				if (svd->path.type != PT_INVALID || svd->ground.type != GTP_INVALID || v->GetFoundationType() != FDT_INVALID) {
 					vs_last = i;
 					break;
 				}
@@ -530,7 +530,7 @@ void TerrainChanges::ChangeWorld(int direction)
 		Voxel *v = vs->GetCreate(gd.height, false);
 		SurfaceVoxelData *pvd = v->GetSurface();
 		uint8 gtype = pvd->ground.type;
-		uint8 ftype = pvd->foundation.type;
+		FoundationType ftype = v->GetFoundationType();
 		uint8 ptype = pvd->path.type;
 		/* Clear existing ground and foundations. */
 		v->SetEmpty();
@@ -552,8 +552,8 @@ void TerrainChanges::ChangeWorld(int direction)
 		v = vs->GetCreate(min_h, true);
 		SurfaceVoxelData svd;
 		svd.ground.type = gtype;
-		svd.foundation.type = ftype;
-		svd.foundation.slope = 0; // XXX Needs further work.
+		v->SetFoundationType(ftype);
+		v->SetFoundationSlope(0); // XXX Needs further work.
 		svd.path.type = ptype;
 		svd.path.slope = 0; // XXX Needs further work.
 		if (max_h - min_h <= 1) {

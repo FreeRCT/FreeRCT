@@ -133,7 +133,7 @@ enum FoundationType {
 
 	FDT_COUNT,  ///< Number of foundation types.
 
-	FDT_INVALID, ///< Invalid foundation type.
+	FDT_INVALID = FDT_COUNT, ///< Invalid foundation type.
 };
 
 /**

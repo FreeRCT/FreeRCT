@@ -67,7 +67,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 
 			case VT_SURFACE: {
 				const SurfaceVoxelData *svd = level->GetSurface();
-				if (svd->foundation.type != FDT_INVALID) return 0;
+				if (level->GetFoundationType() != FDT_INVALID) return 0;
 				if (svd->path.type != PT_INVALID) {
 					if (svd->path.slope < PATH_FLAT_COUNT) return 1 << TSL_FLAT; // Already a flat path there.
 					if (_path_down_from_edge[edge] == svd->path.slope) return 1 << TSL_UP; // Already a sloped path up.
@@ -119,7 +119,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 			} else {
 				assert(vt == VT_SURFACE);
 				const SurfaceVoxelData *svd = level->GetSurface();
-				assert(svd->path.type == PT_INVALID && svd->foundation.type == FDT_INVALID);
+				assert(svd->path.type == PT_INVALID && level->GetFoundationType() == FDT_INVALID);
 				if (svd->ground.type != GTP_INVALID && svd->ground.slope == 0) result |= 1 << TSL_FLAT;
 			}
 		}
@@ -132,7 +132,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 			result |= 1 << TSL_DOWN;
 		} else if (vt == VT_SURFACE) {
 			const SurfaceVoxelData *svd = below->GetSurface();
-			if (svd->foundation.type == FDT_INVALID && svd->path.type == PT_INVALID) {
+			if (below->GetFoundationType() == FDT_INVALID && svd->path.type == PT_INVALID) {
 				/* No foundations and paths. */
 				if (svd->ground.type == GTP_INVALID) {
 					result |= 1 << TSL_DOWN;
@@ -503,8 +503,8 @@ void PathBuildManager::ComputeWorldAdditions()
 		svd.path.type = PT_CONCRETE;
 		svd.path.slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
 		svd.ground.type = GTP_INVALID;
-		svd.foundation.type = FDT_INVALID;
 		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
+		vx->SetFoundationType(FDT_INVALID);
 		svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
 		vx->SetSurface(svd);
 		return;
@@ -514,6 +514,8 @@ void PathBuildManager::ComputeWorldAdditions()
 		svd.path.type = PT_CONCRETE;
 		svd.path.slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
 		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
+		vx->SetFoundationType(v->GetFoundationType()); // Copy foundations
+		vx->SetFoundationSlope(v->GetFoundationSlope());
 		svd.path.slope = AddRemovePathEdges(xpos, ypos, zpos, svd.path.slope, true, true); // Change the neighbouring edges too.
 		vx->SetSurface(svd);
 		return;
@@ -766,7 +768,7 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 					Voxel *v = _additions.GetCreateVoxel(vx, vy, vz, true);
 					if (v->GetType() == VT_EMPTY) {
 						SurfaceVoxelData svd;
-						svd.foundation.type = FDT_INVALID;
+						v->SetFoundationType(FDT_INVALID);
 						svd.path.type = PT_CONCRETE;
 						svd.path.slope = AddRemovePathEdges(vx, vy, vz, path_tile, true, true);
 						svd.ground.type = GTP_INVALID;

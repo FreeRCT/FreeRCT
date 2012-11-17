@@ -58,15 +58,6 @@ struct GroundVoxelData {
 };
 
 /**
- * Description of foundation.
- * @ingroup map_group
- */
-struct FoundationVoxelData {
-	uint8 type;  ///< Type of foundation.
-	uint8 slope; ///< Slopes of the foundation (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
-};
-
-/**
  * Description of the earth surface (combined ground and foundations).
  * @note As steep slopes are two voxels high, they have a reference voxel above them.
  * @ingroup map_group
@@ -74,7 +65,6 @@ struct FoundationVoxelData {
 struct SurfaceVoxelData {
 	PathVoxelData       path;       ///< Path sprite at this location.
 	GroundVoxelData     ground;     ///< Ground sprite at this location.
-	FoundationVoxelData foundation; ///< Foundation sprite at this location.
 };
 
 /**
@@ -116,7 +106,9 @@ struct Voxel {
 public:
 	/**
 	 * Word 0 of a voxel.
-	 * - bit 0..1: Type of the voxel. @see VoxelType
+	 * - bit  0.. 1: Type of the voxel. @see VoxelType
+	 * - bit  2.. 9: Foundation slopes (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
+	 * - bit 10..13: Type of foundation. @see FoundationType
 	 */
 	uint32 w0;
 
@@ -126,6 +118,44 @@ public:
 	 */
 	inline VoxelType GetType() const {
 		return (VoxelType)GB(this->w0, 0, 2);
+	}
+
+	/**
+	 * Get the foundation slope of a surface voxel.
+	 * @return The foundation slope.
+	 */
+	inline uint8 GetFoundationSlope() const {
+		assert(this->GetType() == VT_SURFACE);
+		return GB(this->w0, 2, 8);
+	}
+
+	/**
+	 * Get the foundation type of a surface voxel.
+	 * @return The foundation type.
+	 */
+	inline FoundationType GetFoundationType() const {
+		assert(this->GetType() == VT_SURFACE);
+		uint val = GB(this->w0, 10, 4);
+		return (FoundationType)val;
+	}
+
+	/**
+	 * Set the foundation slope of a surface voxel.
+	 * @param fnd_slope The new foundation slope.
+	 */
+	inline void SetFoundationSlope(uint8 fnd_slope) {
+		SB(this->w0, 0, 2, VT_SURFACE);
+		SB(this->w0, 2, 8, fnd_slope);
+	}
+
+	/**
+	 * Set the foundation type of a surface voxel.
+	 * @param fnd_type The foundation type.
+	 */
+	inline void SetFoundationType(FoundationType fnd_type) {
+		assert(fnd_type < FDT_COUNT || fnd_type == FDT_INVALID);
+		SB(this->w0, 0, 2, VT_SURFACE);
+		SB(this->w0, 10, 4, fnd_type);
 	}
 
 	/**
@@ -155,7 +185,6 @@ public:
 		SB(this->w0, 0, 2, VT_SURFACE);
 		assert(vd.path.type == PT_INVALID || (vd.path.type < PT_COUNT && vd.path.slope < PATH_COUNT));
 		assert(vd.ground.type == GTP_INVALID || (vd.ground.type < GTP_COUNT && vd.ground.slope < NUM_SLOPE_SPRITES));
-		assert(vd.foundation.type == FDT_INVALID || vd.foundation.type < FDT_COUNT);
 		this->surface = vd;
 	}
 
