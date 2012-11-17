@@ -360,7 +360,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
 	if (vx != NULL) {
 		uint8 type = vx->GetType();
-		if (type == VT_RIDE || type == VT_REFERENCE) return false;
+		if (type == VT_REFERENCE) return false;
 		if (type == VT_SURFACE) {
 			if (vx->GetPathRideNumber() != PT_INVALID) return false; // Cannot build on a path or other ride.
 			return vx->GetGroundType() != GTP_INVALID; // Can always build at the surface.
@@ -466,10 +466,12 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 
 			RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
 			Voxel *vx = _additions.GetCreateVoxel(ri->xpos, ri->ypos, ri->zpos, true);
-			RideVoxelData rvd;
-			rvd.ride_number = this->instance;
-			rvd.flags = 0; // XXX ride entrance bits (although it is silly to assume entrance is part of it?)
-			vx->SetRide(rvd);
+			if (vx->GetType() != VT_SURFACE) {
+				vx->SetFoundationType(FDT_INVALID);
+				vx->SetGroundType(GTP_INVALID);
+			}
+			vx->SetPathRideNumber(this->instance);
+			vx->SetPathRideFlags(0); // XXX ride entrance bits (although it is silly to assume entrance is part of it?)
 			_additions.MarkDirty(vp);
 			vp->EnsureAdditionsAreVisible();
 			this->state = SPS_GOOD_POS;

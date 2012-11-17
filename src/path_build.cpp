@@ -60,15 +60,14 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 	const Voxel *level = vs->Get(zpos);
 	if (level != NULL) {
 		switch (level->GetType()) {
-			case VT_RIDE:
-				return 0; // A ride is in the way.
-
 			case VT_SURFACE: {
 				if (level->GetFoundationType() != FDT_INVALID) return 0;
-				if (HasValidPath(level)) {
-					if (level->GetPathRideFlags() < PATH_FLAT_COUNT) return 1 << TSL_FLAT; // Already a flat path there.
-					if (_path_down_from_edge[edge] == level->GetPathRideFlags()) return 1 << TSL_UP; // Already a sloped path up.
-					return 0; // A path but cannot connect to it.
+				if (level->GetPathRideNumber() != PT_INVALID) {
+					if (HasValidPath(level)) {
+						if (level->GetPathRideFlags() < PATH_FLAT_COUNT) return 1 << TSL_FLAT; // Already a flat path there.
+						if (_path_down_from_edge[edge] == level->GetPathRideFlags()) return 1 << TSL_UP; // Already a sloped path up.
+					}
+					return 0; // A path but cannot connect to it, or a ride.
 				}
 				if (level->GetGroundType() != GTP_INVALID) {
 					TileSlope ts = ExpandTileSlope(level->GetGroundSlope());
@@ -328,7 +327,9 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
 	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return false;
 	if ((delta_z < 0 && this->zpos == 0) || (delta_z > 0 && this->zpos == WORLD_Z_SIZE - 1)) return false;
 	const Voxel *v = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + delta_z);
-	if (v != NULL && (v->GetType() == VT_RIDE || v->GetType() == VT_REFERENCE)) return false;
+	/* Fail if the new voxel is a reference voxel, or it contains a ride. */
+	if (v != NULL && (v->GetType() == VT_REFERENCE || (v->GetType() == VT_SURFACE && v->GetPathRideNumber() < PT_START))) return false;
+
 	if (need_path) {
 		if (v == NULL || v->GetType() != VT_SURFACE) return false;
 		if (v->GetPathRideNumber() == PT_INVALID) return false;

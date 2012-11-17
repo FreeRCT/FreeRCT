@@ -74,7 +74,6 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 		case VT_EMPTY:
 		case VT_SURFACE:   break;
 		case VT_REFERENCE: dest->reference = src->reference; break;
-		case VT_RIDE:      dest->ride = src->ride;           break;
 		default: NOT_REACHED();
 	}
 
@@ -260,7 +259,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 		assert(v->persons.IsEmpty()); // There should be no persons in the stack being moved.
 		switch (v->GetType()) {
 			case VT_SURFACE: {
-				if (HasValidPath(v) || v->GetGroundType() != GTP_INVALID || v->GetFoundationType() != FDT_INVALID) {
+				if (v->GetPathRideNumber() != PT_INVALID || v->GetGroundType() != GTP_INVALID || v->GetFoundationType() != FDT_INVALID) {
 					vs_last = i;
 					break;
 				}
@@ -272,7 +271,6 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 				if (vs_first == i) vs_first++;
 				break;
 
-			case VT_RIDE:
 			case VT_REFERENCE:
 				vs_last = i;
 				break;

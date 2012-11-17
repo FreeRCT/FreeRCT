@@ -511,17 +511,33 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 	switch (voxel->GetType()) {
 		case VT_SURFACE: {
-			/* Path sprite. */
+			/* Path or ride sprite. */
 			uint16 number = voxel->GetPathRideNumber();
-			if (number >= PT_START && number != PT_INVALID) {
-				DrawData dd;
-				dd.z_height = zpos;
-				dd.order = SO_PATH;
-				dd.sprite = this->sprites->GetPathSprite(number, voxel->GetPathRideFlags(), this->orient);
-				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-				dd.recolour = NULL;
-				draw_images.insert(dd);
+			if (number != PT_INVALID) {
+				if (number >= PT_START) { // A path.
+					DrawData dd;
+					dd.z_height = zpos;
+					dd.order = SO_PATH;
+					dd.sprite = this->sprites->GetPathSprite(number, voxel->GetPathRideFlags(), this->orient);
+					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+					dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+					dd.recolour = NULL;
+					draw_images.insert(dd);
+				} else { // A ride.
+					const RideInstance *ri = _rides_manager.GetRideInstance(number);
+					const ShopType *ride = (ri == NULL) ? NULL : ri->type;
+					const ImageData *img = (ride == NULL) ? NULL : ride->views[(4 + ri->orientation - this->orient) & 3];
+					if (img != NULL) {
+						DrawData dd;
+						dd.z_height = zpos;
+						dd.order = SO_PATH;
+						dd.sprite = img;
+						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+						dd.recolour = NULL; // ri->recolouring (does not exist currently)
+						draw_images.insert(dd);
+					}
+				}
 			}
 
 			/* Ground surface. */
@@ -546,27 +562,6 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.z_height = zpos;
 				dd.order = SO_CURSOR;
 				dd.sprite = mspr;
-				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-				dd.recolour = NULL;
-				draw_images.insert(dd);
-			}
-			break;
-		}
-
-		case VT_RIDE: {
-			const RideVoxelData *rvd = voxel->GetRide();
-			const RideInstance *ri = _rides_manager.GetRideInstance(rvd->ride_number);
-			if (ri == NULL) break;
-
-			const ShopType *ride = ri->type;
-			// ri->recolouring (does not exist currently)
-			const ImageData *img = ride->views[(4 + ri->orientation - this->orient) & 3];
-			if (img != NULL) {
-				DrawData dd;
-				dd.z_height = zpos;
-				dd.order = SO_PATH;
-				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
@@ -778,19 +773,16 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 					break;
 
 				case VT_SURFACE: {
-					if (v->GetGroundType() == GTP_INVALID) {
-						height = 1;
-					} else {
+					height = 1; // There are no steep slopes, so 1 covers paths already.
+					if (v->GetGroundType() != GTP_INVALID) {
 						TileSlope tslope = ExpandTileSlope(v->GetGroundSlope());
-						height = ((tslope & TCB_STEEP) != 0) ? 2 : 1;
+						if ((tslope & TCB_STEEP) != 0) height = 2;
 					}
-					break;
-				}
-
-				case VT_RIDE: {
-					const RideVoxelData *rvd = v->GetRide();
-					const RideInstance *ri = _rides_manager.GetRideInstance(rvd->ride_number);
-					height = (ri != NULL) ? ri->type->height : 1;
+					uint16 number = v->GetPathRideNumber();
+					if (number < PT_START && number != PT_INVALID) { // A ride.
+						const RideInstance *ri = _rides_manager.GetRideInstance(number);
+						if (ri != NULL) height = ri->type->height;
+					}
 					break;
 				}
 

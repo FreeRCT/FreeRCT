@@ -35,7 +35,6 @@ static const int WORLD_Z_SIZE =  64; ///< Maximal height of the world.
 enum VoxelType {
 	VT_EMPTY,     ///< Empty voxel.
 	VT_SURFACE,   ///< %Voxel contains path and/or earthy surface.
-	VT_RIDE,      ///< %Voxel contains part of a shop or a ride.
 	VT_REFERENCE, ///< %Voxel contains part of the referenced voxel.
 };
 
@@ -58,16 +57,6 @@ enum RideVoxelFlags {
 	RVF_ENTRANCE_SE = 0x02, ///< Voxel has a ride entrance at the south-east side.
 	RVF_ENTRANCE_SW = 0x04, ///< Voxel has a ride entrance at the south-west side.
 	RVF_ENTRANCE_NW = 0x08, ///< Voxel has a ride entrance at the north-west side.
-};
-
-/**
- * Description of a voxel filled with a (part of a) ride.
- * @ingroup map_group
- * @todo Add data what part of the ride should be drawn here.
- */
-struct RideVoxelData {
-	uint16 ride_number; ///< Ride number
-	uint8 flags;        ///< Flags of the ride for path-finding. @see RideVoxelFlags
 };
 
 /**
@@ -247,35 +236,6 @@ public:
 		this->reference = rvd;
 	}
 
-	/**
-	 * Get the ride data of the voxel (for read/write access).
-	 * @return Reference to the voxel ride data.
-	 */
-	inline RideVoxelData *GetRide()
-	{
-		assert(this->GetType() == VT_RIDE);
-		return &this->ride;
-	}
-
-	/**
-	 * Get the ride data of the voxel (for read-only access).
-	 * @return Reference to the voxel ride data.
-	 */
-	inline const RideVoxelData *GetRide() const
-	{
-		assert(this->GetType() == VT_RIDE);
-		return &this->ride;
-	}
-
-	/**
-	 * Set the ride data of the voxel.
-	 * @param rd %Ride-data to set.
-	 */
-	inline void SetRide(const RideVoxelData &rd)
-	{
-		SB(this->w0, 0, 2, VT_RIDE);
-		this->ride = rd;
-	}
 
 	/** Set the voxel to empty. */
 	inline void SetEmpty()
@@ -283,11 +243,7 @@ public:
 		SB(this->w0, 0, 2, VT_EMPTY);
 	}
 
-	union {
-		ReferenceVoxelData reference;
-		RideVoxelData ride;
-	};
-
+	ReferenceVoxelData reference; ///< Reference voxel data
 	PersonList persons; ///< Persons present in this voxel.
 };
 
