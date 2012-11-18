@@ -307,9 +307,16 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			} else {
 				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
 			}
-			if (v != NULL && v->GetType() == VT_SURFACE && HasValidPath(v)) {
-				v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
-				modified = true;
+			if (v != NULL && v->GetType() == VT_SURFACE) {
+				uint16 number = v->GetPathRideNumber();
+				if (number != PT_INVALID) {
+					if (number >= PT_START) { // Valid path.
+						v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
+						modified = true;
+					} else { // A ride instance. Does it have an entrance here?
+						if ((v->GetPathRideFlags() & (1 << edge2)) != 0) modified = true;
+					}
+				}
 			}
 		}
 		delta_z--;
@@ -320,9 +327,16 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			} else {
 				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
 			}
-			if (v != NULL && v->GetType() == VT_SURFACE && HasValidPath(v)) {
-				v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
-				modified = true;
+			if (v != NULL && v->GetType() == VT_SURFACE) {
+				uint16 number = v->GetPathRideNumber();
+				if (number != PT_INVALID) {
+					if (number >= PT_START) { // Valid path.
+						v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
+						modified = true;
+					} else { // A ride instance. Does it have an entrance here?
+						if ((v->GetPathRideFlags() & (1 << edge2)) != 0) modified = true;
+					}
+				}
 			}
 		}
 		if (modified && slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, add_edges);
