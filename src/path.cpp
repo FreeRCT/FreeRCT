@@ -272,18 +272,20 @@ uint8 GetPathSprite(TrackSlope tsl, TileEdge edge)
 }
 
 /**
- * Add edges of the neighbouring path tiles in #_additions.
+ * Add edges of the neighbouring path tiles.
  * @param xpos X coordinate of the central voxel with a path tile.
  * @param ypos Y coordinate of the central voxel with a path tile.
  * @param zpos Z coordinate of the central voxel with a path tile.
- * @param slope Path slope of the central voxel.
+ * @param slope Imploded path slope of the central voxel.
+ * @param dirs Edge directions to change (bitset of #TileEdge), usually #EDGE_ALL.
  * @param use_additions Use #_additions rather than #_world.
  * @param add_edges If set, add edges (else, remove them).
- * @return Updated slope at the central voxel.
+ * @return Updated (imploded) slope at the central voxel.
  */
-uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, bool use_additions, bool add_edges)
+uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint8 dirs, bool use_additions, bool add_edges)
 {
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if ((dirs & (1 << edge)) == 0) continue; // Skip directions that should not be updated.
 		int delta_z = 0;
 		if (slope >= PATH_FLAT_COUNT) {
 			if (_path_down_from_edge[edge] == slope) {

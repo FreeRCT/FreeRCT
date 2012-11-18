@@ -113,7 +113,7 @@ extern const uint8 _path_rotation[PATH_COUNT][4];
 
 uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect);
 uint8 GetPathSprite(TrackSlope tsl, TileEdge edge);
-uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, bool use_additions, bool add_edges);
+uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint8 dirs, bool use_additions, bool add_edges);
 
 #endif
 

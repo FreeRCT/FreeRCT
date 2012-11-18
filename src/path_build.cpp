@@ -416,7 +416,7 @@ void PathBuildManager::ComputeWorldAdditions()
 		vx->SetGroundType(GTP_INVALID);
 		vx->SetPathRideNumber(PT_CONCRETE);
 		uint8 slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
-		slope = AddRemovePathEdges(xpos, ypos, zpos, slope, true, true); // Change the neighbouring edges too.
+		slope = AddRemovePathEdges(xpos, ypos, zpos, slope, EDGE_ALL, true, true); // Change the neighbouring edges too.
 		vx->SetPathRideFlags(slope);
 		return;
 	} else if (v->GetType() == VT_SURFACE) {
@@ -427,7 +427,7 @@ void PathBuildManager::ComputeWorldAdditions()
 		vx->SetGroundSlope(v->GetGroundSlope());
 		vx->SetPathRideNumber(PT_CONCRETE);
 		uint8 slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
-		slope = AddRemovePathEdges(xpos, ypos, zpos, slope, true, true); // Change the neighbouring edges too.
+		slope = AddRemovePathEdges(xpos, ypos, zpos, slope, EDGE_ALL, true, true); // Change the neighbouring edges too.
 		vx->SetPathRideFlags(slope);
 		return;
 	}
@@ -678,11 +678,11 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 						v->SetFoundationType(FDT_INVALID);
 						v->SetGroundType(GTP_INVALID);
 						v->SetPathRideNumber(PT_CONCRETE);
-						v->SetPathRideFlags(AddRemovePathEdges(vx, vy, vz, path_tile, true, true));
+						v->SetPathRideFlags(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true));
 					} else if (v->GetType() == VT_SURFACE) {
 						// XXX Handle this more careful, paths may exist and/or ground may exist here.
 						v->SetPathRideNumber(PT_CONCRETE);
-						v->SetPathRideFlags(AddRemovePathEdges(vx, vy, vz, path_tile, true, true));
+						v->SetPathRideFlags(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true));
 					} else {
 						vx = this->xlong; // Run into some weird voxel, abort path building.
 						vy = this->ylong;
@@ -739,7 +739,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		if (v == NULL || v->GetType() != VT_SURFACE || v->GetPathRideNumber() == PT_INVALID) return;
 
 		v->SetPathRideNumber(PT_INVALID);
-		AddRemovePathEdges(this->xpos, this->ypos, this->zpos, v->GetPathRideFlags(), false, false); // Change the neighbouring paths too.
+		AddRemovePathEdges(this->xpos, this->ypos, this->zpos, v->GetPathRideFlags(), EDGE_ALL, false, false); // Change the neighbouring paths too.
 
 		Viewport *vp = GetViewport();
 		if (vp) vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);

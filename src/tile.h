@@ -74,6 +74,8 @@ enum TileEdge {
 
 	EDGE_COUNT, ///< Number of edges.
 	INVALID_EDGE = EDGE_COUNT, ///< Invalid edge (to denote lack of an edge).
+
+	EDGE_ALL = 0xF, ///< Bit set of all edges.
 };
 DECLARE_POSTFIX_INCREMENT(TileEdge)
 
