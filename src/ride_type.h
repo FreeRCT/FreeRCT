@@ -72,7 +72,7 @@ public:
 	int32 item_cost[2];         ///< Cost of the items on sale.
 	uint8 item_type[2];         ///< Type of items being sold.
 	int32 monthly_cost;         ///< Monthly costs for owning a shop.
-	int32 monthly_open_costs;   ///< Monthly extra costs if the shop is opened.
+	int32 monthly_open_cost;    ///< Monthly extra costs if the shop is opened.
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.
 
@@ -89,6 +89,12 @@ enum RideInstanceState {
 	RIS_OPEN,      ///< Ride instance is open for use by the public.
 };
 
+/** Flags of the ride instance. */
+enum RideInstanceFlags {
+	RIF_MONTHLY_PAID = 0, ///< Bit number of the flags indicating the monthly presence costs have been paid.
+	RIF_OPENED_PAID  = 1, ///< Bit number of the flags indicating the open costs have been paid this month.
+};
+
 /**
  * A ride in the park.
  * @todo Add ride parts and other things that need to be stored with a ride.
@@ -103,6 +109,7 @@ public:
 	uint8 GetEntranceDirections();
 	void FreeRide();
 
+	void OnNewMonth();
 	void OpenRide();
 	void CloseRide();
 
@@ -113,6 +120,7 @@ public:
 	uint16 xpos;          ///< X position of the base voxel.
 	uint16 ypos;          ///< Y position of the base voxel.
 	uint8  zpos;          ///< Z position of the base voxel.
+	uint8 flags;          ///< Flags of the instance. @see RideInstanceFlags
 	EditableRecolouring recolour_map; ///< Recolour map of the instance.
 };
 
@@ -126,6 +134,8 @@ public:
 	const RideInstance *GetRideInstance(uint16 num) const;
 	bool AddRideType(ShopType *shop_type);
 	uint16 GetFreeInstance();
+
+	void OnNewMonth();
 
 	/**
 	 * Get a ride type from the class.

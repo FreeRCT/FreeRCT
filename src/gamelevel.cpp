@@ -51,3 +51,13 @@ User::User()
 {
 	this->money = _scenario.inital_money;
 }
+
+/**
+ * Pay an amount of money.
+ * @param amount Amount of money to pay (should be non-negative).
+ */
+void User::Pay(const Money &amount)
+{
+	assert(amount >= 0);
+	this->money -= amount;
+}

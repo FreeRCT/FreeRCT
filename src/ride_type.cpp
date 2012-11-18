@@ -17,6 +17,7 @@
 #include "fileio.h"
 #include "ride_type.h"
 #include "bitmath.h"
+#include "gamelevel.h"
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
@@ -64,7 +65,7 @@ bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, c
 	this->item_cost[0] = rcd_file->GetInt32();
 	this->item_cost[1] = rcd_file->GetInt32();
 	this->monthly_cost = rcd_file->GetInt32();
-	this->monthly_open_costs = rcd_file->GetInt32();
+	this->monthly_open_cost = rcd_file->GetInt32();
 
 	uint8 val = rcd_file->GetUInt8();
 	if (val != ITP_NOTHING && val != ITP_DRINK && val != ITP_ICE_CREAM && val != ITP_NORMAL_FOOD &&
@@ -101,6 +102,7 @@ RideInstance::RideInstance()
 	this->name[0] = '\0';
 	this->type = NULL;
 	this->state = RIS_FREE;
+	this->flags = 0;
 }
 
 RideInstance::~RideInstance()
@@ -121,6 +123,7 @@ void RideInstance::ClaimRide(const ShopType *type, uint8 *name)
 	assert(type != NULL);
 
 	this->type = type;
+	this->flags = 0;
 	if (name == NULL) {
 		this->name[0] = '\0';
 	} else {
@@ -145,6 +148,7 @@ void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zp
 	this->xpos = xpos;
 	this->ypos = ypos;
 	this->zpos = zpos;
+	this->flags = 0;
 }
 
 /**
@@ -158,6 +162,19 @@ uint8 RideInstance::GetEntranceDirections()
 	return ROL(entrances, this->orientation);
 }
 
+/** Monthly update of the shop administration. */
+void RideInstance::OnNewMonth()
+{
+	_user.Pay(this->type->monthly_cost);
+	SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
+	if (this->state == RIS_OPEN) {
+		_user.Pay(this->type->monthly_open_cost);
+		SB(this->flags, RIF_OPENED_PAID, 1, 1);
+	} else {
+		SB(this->flags, RIF_OPENED_PAID, 1, 0);
+	}
+}
+
 /**
  * Open the ride for the public.
  * @pre The ride is open.
@@ -166,6 +183,16 @@ void RideInstance::OpenRide()
 {
 	assert(this->state == RIS_CLOSED);
 	this->state = RIS_OPEN;
+
+	/* Perform payments if they have not been done this month. */
+	if (GB(this->flags, RIF_MONTHLY_PAID, 1) == 0) {
+		_user.Pay(this->type->monthly_cost);
+		SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
+	}
+	if (GB(this->flags, RIF_OPENED_PAID, 1) == 0) {
+		_user.Pay(this->type->monthly_open_cost);
+		SB(this->flags, RIF_OPENED_PAID, 1, 1);
+	}
 }
 
 /**
@@ -205,6 +232,15 @@ RidesManager::~RidesManager()
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) {
 		if (this->ride_types[i] != NULL) delete this->ride_types[i];
+	}
+}
+
+/** A new month has started; perform monthly payments. */
+void RidesManager::OnNewMonth()
+{
+	for (uint16 i = 0; i < lengthof(this->instances); i++) {
+		if (this->instances[i].state == RIS_FREE || this->instances[i].state == RIS_ALLOCATED) continue;
+		this->instances[i].OnNewMonth();
 	}
 }
 

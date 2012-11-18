@@ -20,6 +20,7 @@
 #include "language.h"
 #include "dates.h"
 #include "people.h"
+#include "ride_type.h"
 
 static bool _finish; ///< Finish execution of the program.
 
@@ -126,6 +127,7 @@ int main(void)
 		uint8 changes = DateOnTick();
 		_guests.OnAnimate(30); // Fixed rate animation.
 		if ((changes & DTC_DAY) != 0) _guests.OnNewDay();
+		if ((changes & DTC_MONTH) != 0) _rides_manager.OnNewMonth();
 
 		bool next_frame = false;
 		while (!next_frame && !_finish) {

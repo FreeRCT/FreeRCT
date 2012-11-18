@@ -36,6 +36,8 @@ class User {
 public:
 	User();
 
+	void Pay(const Money &amount);
+
 private:
 	Money money; ///< Amount of money the user has.
 };
