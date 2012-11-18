@@ -16,6 +16,7 @@
 #include "sprite_store.h"
 #include "fileio.h"
 #include "ride_type.h"
+#include "bitmath.h"
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
@@ -144,6 +145,17 @@ void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zp
 	this->xpos = xpos;
 	this->ypos = ypos;
 	this->zpos = zpos;
+}
+
+/**
+ * Get the set edges with an entrance to the ride.
+ * @return Bit set of #TileEdge
+ * @todo This needs to be generalized for rides larger than a single voxel.
+ */
+uint8 RideInstance::GetEntranceDirections()
+{
+	uint8 entrances = this->type->flags & SHF_ENTRANCE_BITS;
+	return ROL(entrances, this->orientation);
 }
 
 /**

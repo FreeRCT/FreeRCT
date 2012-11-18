@@ -34,10 +34,12 @@ enum RideTypeKind {
 
 /** Flags describing properties the shop type. */
 enum ShopFlags {
-	SHF_NE_ENTRANCE = 0x01, ///< Entrance in NE direction (unrotated).
-	SHF_SE_ENTRANCE = 0x02, ///< Entrance in SE direction (unrotated).
-	SHF_SW_ENTRANCE = 0x04, ///< Entrance in SW direction (unrotated).
-	SHF_NW_ENTRANCE = 0x08, ///< Entrance in NW direction (unrotated).
+	SHF_NE_ENTRANCE = 1 << EDGE_NE, ///< Entrance in NE direction (unrotated).
+	SHF_SE_ENTRANCE = 1 << EDGE_SE, ///< Entrance in SE direction (unrotated).
+	SHF_SW_ENTRANCE = 1 << EDGE_SW, ///< Entrance in SW direction (unrotated).
+	SHF_NW_ENTRANCE = 1 << EDGE_NW, ///< Entrance in NW direction (unrotated).
+
+	SHF_ENTRANCE_BITS = (SHF_NE_ENTRANCE | SHF_SE_ENTRANCE | SHF_SW_ENTRANCE | SHF_NW_ENTRANCE), ///< Bit mask for the entrances.
 };
 
 /** Type of items that can be bought. */
@@ -98,6 +100,7 @@ public:
 
 	void ClaimRide(const ShopType *type, uint8 *name);
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
+	uint8 GetEntranceDirections();
 	void FreeRide();
 
 	void OpenRide();

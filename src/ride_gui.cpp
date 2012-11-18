@@ -416,10 +416,7 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 y
 			/* Position of the shop the same as previously? */
 			if (ri->xpos != (uint16)xpos || ri->ypos != (uint16)ypos || ri->zpos != (uint8)zpos ||
 					ri->orientation != this->orientation) {
-				ri->xpos = xpos;
-				ri->ypos = ypos;
-				ri->zpos = zpos;
-				ri->orientation = (this->orientation + vp->orientation) & 3;
+				ri->SetRide((this->orientation + vp->orientation) & 3, xpos, ypos, zpos);
 				return RPR_CHANGED;
 			}
 			return RPR_SAMEPOS;
@@ -471,7 +468,9 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 				vx->SetGroundType(GTP_INVALID);
 			}
 			vx->SetPathRideNumber(this->instance);
-			vx->SetPathRideFlags(0); // XXX ride entrance bits (although it is silly to assume entrance is part of it?)
+			uint8 entrances = ri->GetEntranceDirections();
+			vx->SetPathRideFlags(entrances);
+			AddRemovePathEdges(ri->xpos, ri->ypos, ri->zpos, PATH_EMPTY, entrances, true, true);
 			_additions.MarkDirty(vp);
 			vp->EnsureAdditionsAreVisible();
 			this->state = SPS_GOOD_POS;
