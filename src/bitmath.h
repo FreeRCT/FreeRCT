@@ -26,7 +26,7 @@
  * 0x04 (0000 0100).
  *
  * @param x The value to read some bits.
- * @param s The startposition to read some bits.
+ * @param s The start position to read some bits.
  * @param n The number of bits to read.
  * @return The selected bits, aligned to a LSB.
  */
@@ -46,10 +46,10 @@ static inline uint GB(const T x, const uint8 s, const uint8 n)
  * This is not a bug, its a feature.
  *
  * @note Parameter \a x must be a variable as the result is saved there.
- * @note To avoid unexpecting results the value of \a d should not use more
+ * @note To avoid unexpected results the value of \a d should not use more
  *       space as the provided space of \a n bits (log2)
  * @param x The variable to change some bits
- * @param s The startposition for the new bits
+ * @param s The start position for the new bits
  * @param n The size/window for the new bits
  * @param d The actually new bits to save in the defined position.
  * @return The new value of \a x
@@ -60,6 +60,36 @@ static inline T SB(T &x, const uint8 s, const uint8 n, const U d)
 	x &= (T)(~((((T)1U << n) - 1) << s));
 	x |= (T)(d << s);
 	return x;
+}
+
+/**
+ * ROtate \a x Left by \a n bits.
+ *
+ * @note Assumes a byte has 8 bits.
+ * @tparam T Type of \a x (deduced from the first argument).
+ * @param x The value which we want to rotate.
+ * @param n The number how many we want to rotate.
+ * @return The rotated number.
+ */
+template <typename T>
+static inline T ROL(const T x, const uint8 n)
+{
+	return (T)(x << n | x >> (sizeof(x) * 8 - n));
+}
+
+/**
+ * ROtate \a x Right by \a n bits.
+ *
+ * @note Assumes a byte has 8 bits.
+ * @tparam T Type of \a x (deduced from the first argument).
+ * @param x The value which we want to rotate.
+ * @param n The number how many we want to rotate.
+ * @return The rotated number.
+ */
+template <typename T>
+static inline T ROR(const T x, const uint8 n)
+{
+	return (T)(x >> n | x << (sizeof(x) * 8 - n));
 }
 
 #endif
