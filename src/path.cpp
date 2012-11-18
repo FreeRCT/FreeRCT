@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include "path.h"
+#include "map.h"
 
 /** Imploded path tile sprite number to use for an 'up' slope from a given edge. */
 const PathSprites _path_up_from_edge[EDGE_COUNT] = {
@@ -250,3 +251,80 @@ uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
 	if ((slope & west_edges)  == west_edges)  slope |= 1 << PATHBIT_W;
 	return _path_implode[slope];
 }
+
+/**
+ * Get the right path sprite for putting in the world (for having a slope \a tsl from edge \a edge).
+ * @param tsl Slope of the path.
+ * @param edge Edge to connect from.
+ * @return The imploded path sprite to use.
+ * @todo Path sprites should connect to neighbouring paths.
+ */
+uint8 GetPathSprite(TrackSlope tsl, TileEdge edge)
+{
+	assert(edge < EDGE_COUNT);
+
+	switch (tsl) {
+		case TSL_FLAT: return PATH_EMPTY;
+		case TSL_DOWN: return _path_down_from_edge[edge];
+		case TSL_UP:   return _path_up_from_edge[edge];
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Add edges of the neighbouring path tiles in #_additions.
+ * @param xpos X coordinate of the central voxel with a path tile.
+ * @param ypos Y coordinate of the central voxel with a path tile.
+ * @param zpos Z coordinate of the central voxel with a path tile.
+ * @param slope Path slope of the central voxel.
+ * @param use_additions Use #_additions rather than #_world.
+ * @param add_edges If set, add edges (else, remove them).
+ * @return Updated slope at the central voxel.
+ */
+uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, bool use_additions, bool add_edges)
+{
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		int delta_z = 0;
+		if (slope >= PATH_FLAT_COUNT) {
+			if (_path_down_from_edge[edge] == slope) {
+				delta_z = 1;
+			} else if (_path_up_from_edge[edge] != slope) {
+				continue;
+			}
+		}
+		Point16 dxy = _tile_dxy[edge];
+		if ((dxy.x < 0 && xpos == 0) || (dxy.x > 0 && xpos == _world.GetXSize() - 1)) continue;
+		if ((dxy.y < 0 && ypos == 0) || (dxy.y > 0 && ypos == _world.GetYSize() - 1)) continue;
+
+		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
+		bool modified = false;
+		if (delta_z <= 0 || zpos < WORLD_Z_SIZE - 1) {
+			Voxel *v;
+			if (use_additions) {
+				v = _additions.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			} else {
+				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			}
+			if (v != NULL && v->GetType() == VT_SURFACE && HasValidPath(v)) {
+				v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
+				modified = true;
+			}
+		}
+		delta_z--;
+		if (delta_z >= 0 || zpos > 0) {
+			Voxel *v;
+			if (use_additions) {
+				v = _additions.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			} else {
+				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
+			}
+			if (v != NULL && v->GetType() == VT_SURFACE && HasValidPath(v)) {
+				v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
+				modified = true;
+			}
+		}
+		if (modified && slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, add_edges);
+	}
+	return slope;
+}
+
