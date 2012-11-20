@@ -167,10 +167,10 @@ enum SpriteOrder {
 
 /**
  * Data temporary needed for ordering sprites and blitting them to the screen.
- * Sorting criterium is z-height of the voxel, y-position of the screen, and order of the sprite in the voxel.
  * @ingroup viewport_group
  */
 struct DrawData {
+	int32 level;                 ///< Slice of this sprite (vertical row).
 	uint16 z_height;             ///< Height of the voxel being drawn.
 	uint16 order;                ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
 	const ImageData *sprite;     ///< Mouse cursor to draw.
@@ -186,9 +186,10 @@ struct DrawData {
  */
 inline bool operator<(const DrawData &dd1, const DrawData &dd2)
 {
-	if (dd1.z_height != dd2.z_height) return dd1.z_height < dd2.z_height;
-	if (dd1.base.y != dd2.base.y) return dd1.base.y < dd2.base.y;
-	return dd1.order < dd2.order;
+	if (dd1.level != dd2.level) return dd1.level < dd2.level; // Order on slice first.
+	if (dd1.order != dd2.order) return dd1.order < dd2.order; // Type of sprite.
+	if (dd1.z_height != dd2.z_height) return dd1.z_height < dd2.z_height; // Lower in the same slice first.
+	return dd1.base.y < dd2.base.y;
 }
 
 /**
@@ -495,10 +496,20 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
  */
 void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth)
 {
+	int32 slice;
+	switch (this->orient) {
+		case 0: slice =  xpos + ypos; break;
+		case 1: slice =  xpos - ypos; break;
+		case 2: slice = -xpos - ypos; break;
+		case 3: slice = -xpos + ypos; break;
+		default: NOT_REACHED();
+	}
+
 	if (voxel == NULL) {
 		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 		if (mspr != NULL) {
 			DrawData dd;
+			dd.level = slice;
 			dd.z_height = zpos;
 			dd.order = SO_CURSOR;
 			dd.sprite = mspr;
@@ -518,6 +529,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			if (number != PT_INVALID) {
 				if (number >= PT_START) { // A path.
 					DrawData dd;
+					dd.level = slice;
 					dd.z_height = zpos;
 					dd.order = SO_PATH;
 					platform_shape = _path_rotation[voxel->GetPathRideFlags()][this->orient];
@@ -532,6 +544,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 					const ImageData *img = (ride == NULL) ? NULL : ride->views[(4 + ri->orientation - this->orient) & 3];
 					if (img != NULL) {
 						DrawData dd;
+						dd.level = slice;
 						dd.z_height = zpos;
 						dd.order = SO_PATH;
 						dd.sprite = img;
@@ -548,6 +561,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			uint8 gslope = SL_FLAT;
 			if (voxel->GetGroundType() != GTP_INVALID) {
 				DrawData dd;
+				dd.level = slice;
 				dd.z_height = zpos;
 				dd.order = SO_GROUND;
 				uint8 slope = voxel->GetGroundSlope();
@@ -590,6 +604,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
 			if (mspr != NULL) {
 				DrawData dd;
+				dd.level = slice;
 				dd.z_height = zpos;
 				dd.order = SO_CURSOR;
 				dd.sprite = mspr;
@@ -612,6 +627,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				}
 				if (pl_spr != NULL) {
 					DrawData dd;
+					dd.level = slice;
 					dd.z_height = zpos;
 					dd.order = SO_PLATFORM;
 					dd.sprite = pl_spr;
@@ -630,6 +646,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 			if (mspr != NULL) {
 				DrawData dd;
+				dd.level = slice;
 				dd.z_height = zpos;
 				dd.order = SO_CURSOR;
 				dd.sprite = mspr;
@@ -652,6 +669,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			int x_off = ComputeX(pers->x_pos, pers->y_pos);
 			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
 			DrawData dd;
+			dd.level = slice;
 			dd.z_height = zpos;
 			dd.order = SO_PERSON;
 			dd.sprite = anim_spr;
