@@ -39,6 +39,7 @@ enum ToolbarGuiWidgets {
 	TB_GUI_SAVE,  ///< Save game button.
 	TB_GUI_LOAD,  ///< Load game button.
 	TB_GUI_RIDE_SELECT, ///< Select ride button.
+	TB_GUI_TERRAFORM,   ///< Terraform button.
 };
 
 /**
@@ -53,6 +54,8 @@ static const WidgetPart _toolbar_widgets[] = {
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_LOAD,  COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_LOAD,  GUI_TOOLBAR_GUI_TOOLTIP_LOAD_GAME),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_RIDE_SELECT,  COL_RANGE_BROWN),
 				SetData(GUI_TOOLBAR_GUI_RIDE_SELECT,  GUI_TOOLBAR_GUI_TOOLTIP_RIDE_SELECT),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_TERRAFORM,  COL_RANGE_BROWN),
+				SetData(GUI_TOOLBAR_GUI_TERRAFORM,  GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 	EndContainer(),
 };
 
@@ -89,6 +92,10 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
 
 		case TB_GUI_RIDE_SELECT:
 			ShowRideSelectGui();
+			break;
+
+		case TB_GUI_TERRAFORM:
+			ShowTerraformGui();
 			break;
 	}
 }

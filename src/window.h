@@ -28,6 +28,7 @@ enum WindowTypes {
 	WC_QUIT,         ///< Quit program window.
 	WC_PATH_BUILDER, ///< Path build gui.
 	WC_RIDE_SELECT,  ///< Ride selection window.
+	WC_TERRAFORM,    ///< Terraform window.
 
 	WC_NONE,         ///< Invalid window type.
 };
@@ -302,5 +303,6 @@ Viewport *ShowMainDisplay();
 void ShowToolbar();
 void ShowPathBuildGui();
 void ShowRideSelectGui();
+void ShowTerraformGui();
 
 #endif

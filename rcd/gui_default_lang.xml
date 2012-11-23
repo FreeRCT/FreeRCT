@@ -37,6 +37,8 @@
 	<string name="TOOLBAR_GUI_TOOLTIP_LOAD_GAME">Load a game</string>
 	<string name="TOOLBAR_GUI_RIDE_SELECT">Buy ride</string>
 	<string name="TOOLBAR_GUI_TOOLTIP_RIDE_SELECT">Buy a new ride for your park</string>
+	<string name="TOOLBAR_GUI_TERRAFORM">Landscaping</string>
+	<string name="TOOLBAR_GUI_TOOLTIP_TERRAFORM">Modify landscape</string>
 
 	<!-- Quit program strings -->
 	<string name="QUIT_CAPTION">Quit program?</string>
@@ -80,4 +82,13 @@
 	<string name="RIDE_SELECT_RIDE_TOOLTIP">Click to select the selected ride</string>
 	<string name="RIDE_SELECT_ROT_POS_TOOLTIP">Click to rotate the ride in counter-clockwise direction</string>
 	<string name="RIDE_SELECT_ROT_NEG_TOOLTIP">Click to rotate the ride in clockwise direction</string>
+
+	<!-- Terraform gui strings -->
+	<string name="TERRAFORM_TITLE">Modify landscape</string>
+	<string name="TERRAFORM_ADD_TEXT">+</string>
+	<string name="TERRAFORM_ADD_TOOLTIP">Increase size of the terraforming area</string>
+	<string name="TERRAFORM_SUB_TEXT">-</string>
+	<string name="TERRAFORM_SUB_TOOLTIP">Decrease size of the terraforming area</string>
+	<string name="TERRAFORM_LEVEL_TEXT">Level terraforming area</string>
+	<string name="TERRAFORM_MOVE_TEXT">Move terraform area as-is</string>
 </language>
