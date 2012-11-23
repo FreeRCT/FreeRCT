@@ -641,11 +641,13 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colou
 	this->blit_rect.ValidateAddress();
 	uint8 *dest = this->blit_rect.address + pos_x + pos_y * this->blit_rect.pitch;
 
-	do {
+	for (;;) {
 		/* Blit pixel. */
 		if (pos_x >= 0 && pos_x < this->blit_rect.width && pos_y >= 0 && pos_y < this->blit_rect.height) {
 			*dest = colour;
 		}
+		if (pos_x == end.x && pos_y == end.y) break;
+
 		sum_x += step;
 		sum_y += step;
 		if (sum_x >= dy) {
@@ -658,7 +660,7 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colou
 			dest += inc_y * this->blit_rect.pitch;
 			sum_y -= dx;
 		}
-	} while (pos_x != end.x || pos_y != end.y);
+	}
 }
 
 /**
