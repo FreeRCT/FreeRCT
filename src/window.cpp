@@ -349,7 +349,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  * @param wid_num Widget number of the provided widget.
  * @param wid The widget itself.
  */
-/* virtual */ void GuiWindow::UpdateWidgetSize(int wid_num, BaseWidget *wid)
+/* virtual */ void GuiWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
 	/* Do nothing by default. */
 }
@@ -360,7 +360,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  * @param wid_num Widget number of the widget being drawn.
  * @param wid The widget itself.
  */
-/* virtual */ void GuiWindow::DrawWidget(int wid_num, const BaseWidget *wid) const
+/* virtual */ void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
 	/* Do nothing by default. */
 }

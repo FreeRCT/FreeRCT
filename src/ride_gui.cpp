@@ -32,8 +32,8 @@ public:
 	RideSelectGui();
 	~RideSelectGui();
 
-	virtual void UpdateWidgetSize(int wid_num, BaseWidget *wid);
-	virtual void DrawWidget(int wid_num, const BaseWidget *wid) const;
+	virtual void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
+	virtual void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
 	virtual void OnClick(WidgetNumber wid_num);
 	virtual void OnChange(ChangeCode code, uint32 parameter);
 
@@ -149,7 +149,7 @@ RideSelectGui::~RideSelectGui()
 	}
 }
 
-/* virtual */ void RideSelectGui::UpdateWidgetSize(int wid_num, BaseWidget *wid)
+/* virtual */ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
 	switch (wid_num) {
 		case RSEL_LIST:
@@ -182,7 +182,7 @@ RideSelectGui::~RideSelectGui()
 	}
 }
 
-/* virtual */ void RideSelectGui::DrawWidget(int wid_num, const BaseWidget *wid) const
+/* virtual */ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
 	switch (wid_num) {
 		case RSEL_LIST: {
