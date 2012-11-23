@@ -48,7 +48,7 @@ all: rcd $(TARGET)
 $(TARGET): $(OBJFILES)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJFILES) $(LIBS)
 
-run: $(TARGET)
+run: all
 	./$(TARGET)
 
 rcd:
