@@ -365,7 +365,14 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
 		DrawBorderSprites(*bsd, (pressed != 0), rect, this->colour);
 	}
-	int xoffset = left + (right + 1 - left - this->value_width) / 2;
+	int xoffset;
+	if (this->wtype == WT_LEFT_TEXT) {
+		xoffset = left;
+	} else if (this->wtype == WT_RIGHT_TEXT) {
+		xoffset = left + (right + 1 - left - this->value_width);
+	} else {
+		xoffset = left + (right + 1 - left - this->value_width) / 2;
+	}
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
 		const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(this->value);
