@@ -26,7 +26,7 @@ CXXFILES=config_reader.cpp dates.cpp \
 	people.cpp person.cpp \
 	random.cpp ride_gui.cpp ride_type.cpp \
 	sprite_store.cpp string_func.cpp \
-	terraform_gui.cpp tile_func.cpp toolbar_gui.cpp video.cpp \
+	terraform.cpp terraform_gui.cpp tile_func.cpp toolbar_gui.cpp video.cpp \
 	viewport.cpp widget.cpp window.cpp
 
 OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))

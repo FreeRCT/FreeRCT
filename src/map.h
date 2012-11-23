@@ -406,51 +406,6 @@ private:
 };
 
 /**
- * Ground data + modification storage.
- * @ingroup map_group
- */
-struct GroundData {
-	uint8 height;     ///< Height of the voxel with ground.
-	uint8 orig_slope; ///< Original slope data.
-	uint8 modified;   ///< Raised or lowered corners.
-
-	GroundData(uint8 height, uint8 orig_slope);
-
-	uint8 GetOrigHeight(TileSlope corner) const;
-	bool GetCornerModified(TileSlope corner) const;
-	void SetCornerModified(TileSlope corner);
-};
-
-/**
- * Map of voxels to ground modification data.
- * @ingroup map_group
- */
-typedef std::map<Point32, GroundData> GroundModificationMap;
-
-/**
- * Store and manage terrain changes.
- * @todo Enable pulling the screen min/max coordinates from it, so we can give a good estimate of the area to redraw.
- * @ingroup map_group
- */
-class TerrainChanges {
-public:
-	TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize);
-	~TerrainChanges();
-
-	bool ChangeCorner(const Point32 &pos, TileSlope corner, int direction);
-	void ChangeWorld(int direction);
-
-	GroundModificationMap changes; ///< Registered changes.
-
-private:
-	Point32 base; ///< Base position of the smooth changing world.
-	uint16 xsize; ///< Horizontal size of the smooth changing world.
-	uint16 ysize; ///< Vertical size of the smooth changing world.
-
-	GroundData *GetGroundData(const Point32 &pos);
-};
-
-/**
  * Map of x/y positions to voxel stacks.
  * @ingroup map_group
  */
