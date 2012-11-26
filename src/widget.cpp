@@ -516,13 +516,13 @@ BackgroundWidget::~BackgroundWidget()
 		uint16 left = rect.base.x;
 		uint16 right = left + rect.width; // One pixel further than right, actually.
 		left += this->paddings[PAD_LEFT] + _gui_sprites.panel.border_left;
-		right -= this->paddings[PAD_RIGHT] - _gui_sprites.panel.border_right;
+		right -= this->paddings[PAD_RIGHT] + _gui_sprites.panel.border_right;
 		if (right < left) right = left;
 
 		uint16 top = rect.base.y;
 		uint16 bottom = top + rect.height; // One pixel below the bottom, actually.
 		top += this->paddings[PAD_TOP] + _gui_sprites.panel.border_top;
-		bottom -= this->paddings[PAD_BOTTOM] - _gui_sprites.panel.border_bottom;
+		bottom -= this->paddings[PAD_BOTTOM] + _gui_sprites.panel.border_bottom;
 		if (bottom < top) bottom = top;
 
 		Rectangle16 rect_child(left, top, right - left, bottom - top);
