@@ -363,11 +363,18 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 		if (type == VT_REFERENCE) return false;
 		if (type == VT_SURFACE) {
 			if (vx->GetPathRideNumber() != PT_INVALID) return false; // Cannot build on a path or other ride.
-			return vx->GetGroundType() != GTP_INVALID; // Can always build at the surface.
+			return vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT; // Can build at a flat surface.
 		}
 	}
 
-	/* 2. Is there a path at the right place? */
+	/* 2. Is the shop just above non-flat ground? */
+	if (zpos > 0) {
+		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
+		if (vx != NULL && vx->GetType() == VT_SURFACE && vx->GetPathRideNumber() == PT_INVALID &&
+				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
+	}
+
+	/* 3. Is there a path at the right place? */
 	Viewport *vp = GetViewport();
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
 		if ((selected_shop->flags & (1 << entrance)) == 0) continue; // No entrance here.
