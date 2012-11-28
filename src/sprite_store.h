@@ -176,6 +176,8 @@ public:
 	uint16 height; ///< Height of a tile.
 	ImageData *flat[2]; ///< Flat platforms.
 	ImageData *ramp[4]; ///< Raised platform at one edge. See #TileEdge for the order.
+	ImageData *right_ramp[4]; ///< Raised platform at one edge with only the right leg. See #TileEdge for the order.
+	ImageData *left_ramp[4];  ///< Raised platform at one edge with only the left leg. See #TileEdge for the order.
 };
 
 /**

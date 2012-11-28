@@ -509,25 +509,33 @@ Platforms
 ---------
 Platforms put up in the air, to carry the weight of a path.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'PLAT'.
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                  length.
-  12       2    Zoom-width of a tile of the surface.
-  14       2    Change in Z height (in pixels) when going up or down a
-                  tile level.
-  16       2    Platform type.
-  18       4    Flat platform for north and south view.
-  22       4    Flat platform for east and west view.
-  26       4    Platform is raised at the NE edge.
-  30       4    Platform is raised at the SE edge.
-  34       4    Platform is raised at the SW edge.
-  38       4    Platform is raised at the NW edge.
-  42            Total length.
-======  ======  ==========================================================
+======  ======  =======  =================================================
+Offset  Length  Version  Description
+======  ======  =======  =================================================
+   0       4      1-2    Magic string 'PLAT'.
+   4       4      1-2    Version number of the block.
+   8       4      1-2    Length of the block excluding magic string,
+                         version, and length.
+  12       2      1-2    Zoom-width of a tile of the surface.
+  14       2      1-2    Change in Z height (in pixels) when going up or
+                         down a tile level.
+  16       2      1-2    Platform type.
+  18       4      1-2    Flat platform for north and south view.
+  22       4      1-2    Flat platform for east and west view.
+  26       4      1-2    Platform with two legs is raised at the NE edge.
+  30       4      1-2    Platform with two legs is raised at the SE edge.
+  34       4      1-2    Platform with two legs is raised at the SW edge.
+  38       4      1-2    Platform with two legs is raised at the NW edge.
+  42       4       2     Platform with right leg is raised at the NE edge.
+  46       4       2     Platform with right leg is raised at the SE edge.
+  50       4       2     Platform with right leg is raised at the SW edge.
+  54       4       2     Platform with right leg is raised at the NW edge.
+  58       4       2     Platform with left leg is raised at the NE edge.
+  62       4       2     Platform with left leg is raised at the SE edge.
+  66       4       2     Platform with left leg is raised at the SW edge.
+  70       4       2     Platform with left leg is raised at the NW edge.
+  74                     Total length.
+======  ======  =======  =================================================
 
 
 Platform type:

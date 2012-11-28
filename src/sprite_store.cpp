@@ -599,7 +599,7 @@ Platform::~Platform()
  */
 bool Platform::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 2 + 2 * 4 + 4 * 4) return false;
+	if (length != 2 + 2 + 2 + 2 * 4 + 12 * 4) return false;
 
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
@@ -610,6 +610,12 @@ bool Platform::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->flat[1])) return false;
 	for (uint sprnum = 0; sprnum < lengthof(this->ramp); sprnum++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->ramp[sprnum])) return false;
+	}
+	for (uint sprnum = 0; sprnum < lengthof(this->right_ramp); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->right_ramp[sprnum])) return false;
+	}
+	for (uint sprnum = 0; sprnum < lengthof(this->left_ramp); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->left_ramp[sprnum])) return false;
 	}
 	return true;
 }
@@ -1373,7 +1379,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "PLAT") == 0 && version == 1) {
+		if (strcmp(name, "PLAT") == 0 && version == 2) {
 			Platform *block = new Platform;
 			if (!block->Load(&rcd_file, length, sprites)) {
 				delete block;

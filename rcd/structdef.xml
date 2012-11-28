@@ -333,16 +333,36 @@
 		<value name="wood"     value="16">Wooden platforms</value>
 	</enum>
 
-	<block magic="PLAT" minversion="1" maxversion="1">
+	<block magic="PLAT" minversion="1" maxversion="2">
 		<field name="width">  <type name="uint16"/><comment>Zoom-width of a tile of the surface</comment></field>
 		<field name="height"> <type name="uint16"/><comment>Change in Z height of the tiles</comment></field>
 		<field name="type">   <type name="PlatformType"/><comment>Platform type</comment></field>
+
 		<field name="ns">     <type name="sprite"/><comment>Flat platform for north and south view</comment></field>
 		<field name="ew">     <type name="sprite"/><comment>Flat platform for east and west view</comment></field>
+
 		<field name="ramp-ne"><type name="sprite"/><comment>Platform is raised at the NE edge</comment></field>
 		<field name="ramp-se"><type name="sprite"/><comment>Platform is raised at the SE edge</comment></field>
 		<field name="ramp-sw"><type name="sprite"/><comment>Platform is raised at the SW edge</comment></field>
 		<field name="ramp-nw"><type name="sprite"/><comment>Platform is raised at the NW edge</comment></field>
+
+		<field name="right-ramp-ne" minversion="2"><type name="sprite"/>
+				<comment>Platform with right leg is raised at the NE edge</comment></field>
+		<field name="right-ramp-se" minversion="2"><type name="sprite"/>
+				<comment>Platform with right leg is raised at the SE edge</comment></field>
+		<field name="right-ramp-sw" minversion="2"><type name="sprite"/>
+				<comment>Platform with right leg is raised at the SW edge</comment></field>
+		<field name="right-ramp-nw" minversion="2"><type name="sprite"/>
+				<comment>Platform with right leg is raised at the NW edge</comment></field>
+
+		<field name="left-ramp-ne" minversion="2"><type name="sprite"/>
+				<comment>Platform with left leg is raised at the NE edge</comment></field>
+		<field name="left-ramp-se" minversion="2"><type name="sprite"/>
+				<comment>Platform with left leg is raised at the SE edge</comment></field>
+		<field name="left-ramp-sw" minversion="2"><type name="sprite"/>
+				<comment>Platform with left leg is raised at the SW edge</comment></field>
+		<field name="left-ramp-nw" minversion="2"><type name="sprite"/>
+				<comment>Platform with left leg is raised at the NW edge</comment></field>
 	</block>
 
 	<enum name="Entrance" type="uint8">
