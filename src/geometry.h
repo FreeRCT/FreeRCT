@@ -213,6 +213,20 @@ struct Rectangle {
 	SZ height; ///< Height of the rectangle.
 };
 
+/**
+ * Test rectangles for equality.
+ * @tparam PT Base point type.
+ * @tparam SZ Size type.
+ * @param r1 First rectangle to test.
+ * @param r2 Second rectangle to test.
+ * @return The rectangles express the same area.
+ */
+template <typename PT, typename SZ>
+inline bool operator==(const Rectangle<PT, SZ> &r1, const Rectangle<PT, SZ> &r2)
+{
+	return r1.base == r2.base && r1.width == r2.width && r1.height == r2.height;
+}
+
 typedef Rectangle<Point16, uint16> Rectangle16; ///< %Rectangle with 16 bit values.
 typedef Rectangle<Point32, uint32> Rectangle32; ///< %Rectangle with 16 bit values.
 
