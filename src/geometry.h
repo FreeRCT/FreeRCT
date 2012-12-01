@@ -177,6 +177,37 @@ struct Rectangle {
 		}
 	}
 
+	/**
+	 * Restrict the rectangle to the given area (this is, ensure it is completely inside the provided area).
+	 * @param rect %Rectangle to restrict to.
+	 */
+	void RestrictTo(const Rectangle<PT, SZ> &rect)
+	{
+		this->RestrictTo(rect.base.x, rect.base.y, rect.width, rect.height);
+	}
+
+	/**
+	 * Restrict the rectangle to the given area (this is, ensure it is completely inside the provided area).
+	 * @param startx Base X coordinate of the area to restrict to.
+	 * @param starty Base Y coordinate of the area to restrict to.
+	 * @param w Horizontal length of the area to restrict to.
+	 * @param h Vertical length of the area to restrict to.
+	 */
+	void RestrictTo(typename PT::CoordType startx, typename PT::CoordType starty, SZ w, SZ h)
+	{
+		if (this->width == 0 || this->height == 0) return;
+
+		typename PT::CoordType xend = this->base.x + this->width;
+		if (xend > static_cast<typename PT::CoordType>(startx + w)) xend = startx + w;
+		if (this->base.x < startx) this->base.x = startx;
+		this->width = (this->base.x < xend) ? xend - this->base.x : 0;
+
+		typename PT::CoordType yend = this->base.y + this->height;
+		if (yend > static_cast<typename PT::CoordType>(starty + h)) yend = starty + h;
+		if (this->base.y < starty) this->base.y = starty;
+		this->height = (this->base.y < yend) ? yend - this->base.y : 0;
+	}
+
 	PT base;   ///< Base coordinate.
 	SZ width;  ///< Width of the rectangle.
 	SZ height; ///< Height of the rectangle.
