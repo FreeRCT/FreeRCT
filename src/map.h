@@ -61,6 +61,17 @@ enum RideVoxelFlags {
 
 /**
  * One voxel cell in the world.
+ * A voxel that actually exists in the world map (most empty voxels are not stored at all), has one of the following types:
+ * - #VT_EMPTY: The voxel contains nothing.
+ * - #VT_SURFACE: The voxel contains surface.
+ * - #VT_REFERENCE: The voxel is filled by another voxel.
+ *
+ * A surface voxel has three components:
+ * - Foundation, #GetFoundationType retrieves the type (#FDT_INVALID means invalid), #GetFoundationSlope gets the slope.
+ * - Ground, #GetGroundType retrieves the type (#GTP_INVALID means invalid), #GetGroundSlope gets the slope.
+ * - Path or ride, #GetPathRideNumber retrieves what it is, 0..#PT_START-1 are ride instance numbers, #PT_START and higher are path types,
+ *   except for #PT_INVALID. #GetPathRideFlags is the path slope, or the ride flags.
+ *
  * @ingroup map_group
  */
 struct Voxel {
@@ -69,7 +80,15 @@ public:
 	 * Word 0 of a voxel.
 	 * - bit  0.. 1 (2): Type of the voxel. @see VoxelType
 	 * - For surface voxels:
-	 *   - bit  2.. 9 (8): Foundation slopes (bits 0/1 for NE, 2/3 for ES, 4/5 for SW, and 6/7 for WN edge).
+	 *   - bit  2.. 9 (8): Foundation slopes:
+	 *     - bit 2: Northern corner of NE edge is up.
+	 *     - bit 3: Eastern  corner of NE edge is up.
+	 *     - bit 4: Eastern  corner of SE edge is up.
+	 *     - bit 5: Southern corner of SE edge is up.
+	 *     - bit 6: Southern corner of SW edge is up.
+	 *     - bit 7: Western  corner of SW edge is up.
+	 *     - bit 8: Western  corner of NW edge is up.
+	 *     - bit 9: Northern corner of NW edge is up.
 	 *   - bit 10..13 (4): Type of foundation. @see FoundationType
 	 *   - bit 14..18 (5): Imploded ground slope. @see #ExpandTileSlope
 	 *   - bit 19..22 (4): Ground type. @see GroundType
