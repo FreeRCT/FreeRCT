@@ -3,7 +3,7 @@ path=getDirectory("");
 tilew=newArray(64, 128, 256);
 slfac=0.25;
 borderfac=8;
-boffs=newArray(0, 0, 0);
+boffs=newArray(0, 0, 0, 0, 0);
 dotdensity=4;
 
 nlayouts=3;
@@ -13,10 +13,10 @@ timgs=newArray(nlayouts);
 //setBatchMode(true);
 for (i=0; i<lengthOf(tilew); i++) {
 	for (j=0; j<nlayouts; j++) {
-		newImage("Temp1", "8-bit Black", tilew[i], tilew[i], 3*2);
+		newImage("Temp1", "8-bit Black", tilew[i], tilew[i], 5*2);
 		simgs[j]=getImageID();
 	}
-	for (c=0; c<3; c++) {
+	for (c=0; c<5; c++) {
 		for (o=0; o<2; o++) {
 			selectImage(simgs[0]);
 			setSlice(c*2+o+1);
@@ -52,10 +52,10 @@ for (i=0; i<lengthOf(tilew); i++) {
 	for (j=0; j<nlayouts; j++) {
 		selectImage(simgs[j]);
 		run("Flip Vertically", "stack");
-		newImage("Temp1", "8-bit Black", tilew[i]*2, tilew[i]*3, 1);
+		newImage("Temp1", "8-bit Black", tilew[i]*2, tilew[i]*5, 1);
 		timgs[j]=getImageID();
 	}
-	for (c=0; c<3; c++) {
+	for (c=0; c<5; c++) {
 		for (o=0; o<2; o++) {
 			for (j=0; j<nlayouts; j++) {
 				selectImage(simgs[j]);
@@ -104,6 +104,10 @@ function makeSele(tilew, slfac, xoffs, yoffs, col, o, c) {
 		ys[0]+=slshift;
 	} else if (c==2) {
 		ys[3]+=slshift;
+	} else if (c==3) {
+		ys[1]-=slshift;
+	} else if (c==4) {
+		ys[2]-=slshift;
 	}
 	for (i=0; i<lengthOf(xs); i++) {
 		xs[i]+=xoffs;
