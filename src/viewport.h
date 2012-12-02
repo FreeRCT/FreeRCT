@@ -71,6 +71,15 @@ public:
 	 */
 	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) = 0;
 
+	/**
+	 * Get the maximum height of the \a xpos, \a ypos stack that needs to be examined.
+	 * @param xpos X position of the voxel.
+	 * @param ypos Y position of the voxel.
+	 * @param zpos Top of the stack found so far.
+	 * @return Highest voxel to draw for this cursor.
+	 */
+	virtual uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) = 0;
+
 	void SetInvalid();
 };
 
@@ -90,6 +99,7 @@ public:
 
 	virtual void MarkDirty();
 	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos);
+	virtual uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 };
 
 /**

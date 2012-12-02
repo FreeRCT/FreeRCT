@@ -458,6 +458,13 @@ Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
 	return this->type;
 }
 
+/* virtual */ uint8 Cursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	if (this->type == CUR_TYPE_INVALID) return zpos;
+	if (this->xpos != xpos || this->ypos != ypos || zpos >= this->zpos) return zpos;
+	return this->zpos;
+}
+
 /**
  * Set a cursor.
  * @param xpos X position of the voxel containing the cursor.
@@ -504,15 +511,11 @@ CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
  */
 uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
-	if (this->arrow_cursor.type != CUR_TYPE_INVALID && this->additions_enabled && !this->additions_displayed
-			&& this->arrow_cursor.xpos == xpos && this->arrow_cursor.ypos == ypos && this->arrow_cursor.zpos > zpos) {
-		zpos = this->arrow_cursor.zpos;
+	if (this->additions_enabled && !this->additions_displayed) {
+		zpos = this->arrow_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	}
-	if (this->tile_cursor.type != CUR_TYPE_INVALID
-			&& this->tile_cursor.xpos == xpos && this->tile_cursor.ypos == ypos && this->tile_cursor.zpos > zpos) {
-		zpos = this->tile_cursor.zpos;
-	}
-	assert(zpos < 255);
+	zpos = this->tile_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
+	assert(zpos != 255);
 	return zpos;
 }
 
