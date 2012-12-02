@@ -413,6 +413,73 @@ void SpriteCollector::SetXYOffset(int16 xoffset, int16 yoffset)
 }
 
 /**
+ * Constructor of a cursor.
+ * @param vp %Viewport displaying the cursor.
+ */
+BaseCursor::BaseCursor(Viewport *vp)
+{
+	this->vp = vp;
+	this->type = CUR_TYPE_INVALID;
+}
+
+BaseCursor::~BaseCursor()
+{
+}
+
+/** Mark the cursor as being invalid, and update the viewport if necessary. */
+void BaseCursor::SetInvalid()
+{
+	this->MarkDirty();
+	this->type = CUR_TYPE_INVALID;
+}
+
+Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
+{
+	this->xpos = 0;
+	this->ypos = 0;
+	this->zpos = 0;
+}
+
+/* virtual */ void Cursor::MarkDirty()
+{
+	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+}
+
+/**
+ * Get a cursor.
+ * @param xpos Expected x coordinate of the cursor.
+ * @param ypos Expected y coordinate of the cursor.
+ * @param zpos Expected z coordinate of the cursor.
+ * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c NULL.
+ */
+/* virtual */ CursorType Cursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
+	return this->type;
+}
+
+/**
+ * Set a cursor.
+ * @param xpos X position of the voxel containing the cursor.
+ * @param ypos Y position of the voxel containing the cursor.
+ * @param zpos Z position of the voxel containing the cursor.
+ * @param type Type of cursor to set.
+ * @param always Always set the cursor (else, only set it if it changed).
+ * @return Cursor has been set/changed.
+ */
+bool Cursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always)
+{
+	if (!always && this->xpos == xpos && this->ypos == ypos && this->zpos == zpos && this->type == type) return false;
+	this->MarkDirty();
+	this->xpos = xpos;
+	this->ypos = ypos;
+	this->zpos = zpos;
+	this->type = type;
+	this->MarkDirty();
+	return true;
+}
+
+/**
  * Get the cursor type at a given position.
  * @param xpos X position of the voxel being drawn.
  * @param ypos Y position of the voxel being drawn.

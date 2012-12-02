@@ -48,53 +48,19 @@ enum CursorType {
 };
 
 /**
- * Data about a cursor.
+ * Base class of a viewport cursor.
  * @ingroup viewport_group
  */
-class Cursor {
+class BaseCursor {
 public:
-	/**
-	 * Constructor of a cursor.
-	 * @param vp %Viewport displaying the cursor.
-	 */
-	Cursor(Viewport *vp)
-	{
-		this->vp = vp;
-		this->xpos = 0;
-		this->ypos = 0;
-		this->zpos = 0;
-		this->type = CUR_TYPE_INVALID;
-	}
+	BaseCursor(Viewport *vp);
+	virtual ~BaseCursor();
 
 	Viewport *vp;    ///< Parent viewport object.
-
-	uint16 xpos;     ///< %Voxel x position of the cursor.
-	uint16 ypos;     ///< %Voxel y position of the cursor.
-	uint8  zpos;     ///< %Voxel z position of the cursor.
 	CursorType type; ///< Type of cursor.
 
-	inline void MarkDirty();
-
-	/**
-	 * Set a cursor.
-	 * @param xpos X position of the voxel containing the cursor.
-	 * @param ypos Y position of the voxel containing the cursor.
-	 * @param zpos Z position of the voxel containing the cursor.
-	 * @param type Type of cursor to set.
-	 * @param always Always set the cursor (else, only set it if it changed).
-	 * @return Cursor has been set/changed.
-	 */
-	bool SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always = false)
-	{
-		if (!always && this->xpos == xpos && this->ypos == ypos && this->zpos == zpos && this->type == type) return false;
-		this->MarkDirty();
-		this->xpos = xpos;
-		this->ypos = ypos;
-		this->zpos = zpos;
-		this->type = type;
-		this->MarkDirty();
-		return true;
-	}
+	/** Update the cursor at the screen. */
+	virtual void MarkDirty() = 0;
 
 	/**
 	 * Get a cursor.
@@ -103,18 +69,27 @@ public:
 	 * @param zpos Expected z coordinate of the cursor.
 	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c NULL.
 	 */
-	inline CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
-	{
-		if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
-		return this->type;
-	}
+	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) = 0;
 
-	/** Mark the cursor as being invalid, and update the viewport if necessary. */
-	void SetInvalid()
-	{
-		this->MarkDirty();
-		this->type = CUR_TYPE_INVALID;
-	}
+	void SetInvalid();
+};
+
+/**
+ * Single tile cursor.
+ * @ingroup viewport_group
+ */
+class Cursor : public BaseCursor {
+public:
+	Cursor(Viewport *vp);
+
+	uint16 xpos; ///< %Voxel x position of the cursor.
+	uint16 ypos; ///< %Voxel y position of the cursor.
+	uint8  zpos; ///< %Voxel z position of the cursor.
+
+	bool SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always = false);
+
+	virtual void MarkDirty();
+	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos);
 };
 
 /**
@@ -165,12 +140,6 @@ private:
 
 	virtual void TimeoutCallback();
 };
-
-/** Update the cursor at the screen. */
-inline void Cursor::MarkDirty()
-{
-	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
-}
 
 /** A single mouse mode. */
 class MouseMode {
