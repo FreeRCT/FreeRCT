@@ -13,6 +13,7 @@
 #include "window.h"
 #include "table/gui_sprites.h"
 #include "viewport.h"
+#include "terraform.h"
 
 static const int TERRAFORM_MAX_SIZE = 9;      ///< Max length of tiles for terraforming (both X and Y).
 static const int TERRAFORM_ELEMENT_SIZE = 16; ///< Horizontal size of a tile in the display (pixels).
@@ -75,10 +76,13 @@ TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM)
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
 	this->SetLeveling(true);
 	this->SetSize(4, 3);
+
+	_terraformer.OpenWindow();
 }
 
 TerraformGui::~TerraformGui()
 {
+	_terraformer.CloseWindow();
 }
 
 /* virtual */ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const

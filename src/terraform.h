@@ -12,6 +12,8 @@
 #ifndef TERRAFORM_H
 #define TERRAFORM_H
 
+#include <map>
+
 /**
  * Ground data + modification storage.
  * @ingroup map_group
@@ -57,13 +59,23 @@ private:
 	GroundData *GetGroundData(const Point32 &pos);
 };
 
+/** State of the terraform coordinator. */
+enum TerraformerState {
+	TFS_OFF,      ///< %Window closed.
+	TFS_NO_MOUSE, ///< %Window opened, but no mouse mode active.
+	TFS_ON,       ///< Active.
+};
 
 /** Tile terraforming mouse mode. */
 class TileTerraformMouseMode: public MouseMode {
 public:
+	TerraformerState state; ///< Own state.
 	uint8 mouse_state; ///< Last known state of the mouse.
 
 	TileTerraformMouseMode();
+
+	void OpenWindow();
+	void CloseWindow();
 
 	virtual bool MayActivateMode();
 	virtual void ActivateMode(const Point16 &pos);

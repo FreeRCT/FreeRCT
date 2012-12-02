@@ -253,11 +253,31 @@ void TerrainChanges::ChangeWorld(int direction)
 
 TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TERRAFORM)
 {
+	this->state = TFS_OFF;
+}
+
+/** Terraform gui window just opened. */
+void TileTerraformMouseMode::OpenWindow()
+{
+	if (this->state == TFS_OFF) {
+		this->state = TFS_NO_MOUSE;
+		_mouse_modes.SetMouseMode(this->mode);
+	}
+}
+
+/** Terraform gui window just closed. */
+void TileTerraformMouseMode::CloseWindow()
+{
+	if (this->state == TFS_ON) {
+		this->state = TFS_OFF; // Prevent enabling again.
+		_mouse_modes.SetViewportMousemode();
+	}
+	this->state = TFS_OFF; // In case it did not have a mouse mode.
 }
 
 /* virtual */ bool TileTerraformMouseMode::MayActivateMode()
 {
-	return true;
+	return this->state != TFS_OFF;
 }
 
 /* virtual */ void TileTerraformMouseMode::ActivateMode(const Point16 &pos)
@@ -267,11 +287,14 @@ TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TE
 
 /* virtual */ void TileTerraformMouseMode::LeaveMode()
 {
+	Viewport *vp = GetViewport();
+	if (vp != NULL) vp->tile_cursor.SetInvalid();
+	if (this->state == TFS_ON) this->state = TFS_NO_MOUSE;
 }
 
 /* virtual */ bool TileTerraformMouseMode::EnableCursors()
 {
-	return true;
+	return this->state != TFS_OFF;
 }
 
 /* virtual */ void TileTerraformMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
