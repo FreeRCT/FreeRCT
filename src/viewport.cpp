@@ -735,6 +735,48 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				}
 			}
 
+			/* Foundations. */
+			if (voxel->GetFoundationType() != FDT_INVALID) {
+				uint8 fslope = voxel->GetFoundationSlope();
+				uint8 sw, se; // SW foundations, SE foundations.
+				switch (this->orient) {
+					case VOR_NORTH: sw = GB(fslope, 4, 2); se = GB(fslope, 2, 2); break;
+					case VOR_EAST:  sw = GB(fslope, 6, 2); se = GB(fslope, 4, 2); break;
+					case VOR_SOUTH: sw = GB(fslope, 0, 2); se = GB(fslope, 6, 2); break;
+					case VOR_WEST:  sw = GB(fslope, 2, 2); se = GB(fslope, 0, 2); break;
+					default: NOT_REACHED();
+				}
+				const Foundation *fnd = this->sprites->foundation[FDT_GROUND];
+				if (fnd != NULL && sw != 0) {
+					const ImageData *img = fnd->sprites[3 + sw - 1];
+					if (img != NULL) {
+						DrawData dd;
+						dd.level = slice;
+						dd.z_height = zpos;
+						dd.order = SO_FOUNDATION;
+						dd.sprite = img;
+						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+						dd.recolour = NULL;
+						draw_images.insert(dd);
+					}
+				}
+				if (fnd != NULL && se != 0) {
+					const ImageData *img = fnd->sprites[se - 1];
+					if (img != NULL) {
+						DrawData dd;
+						dd.level = slice;
+						dd.z_height = zpos;
+						dd.order = SO_FOUNDATION;
+						dd.sprite = img;
+						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+						dd.recolour = NULL;
+						draw_images.insert(dd);
+					}
+				}
+			}
+
 			/* Ground surface. */
 			uint8 gslope = SL_FLAT;
 			if (voxel->GetGroundType() != GTP_INVALID) {
