@@ -433,6 +433,10 @@ void BaseCursor::SetInvalid()
 	this->type = CUR_TYPE_INVALID;
 }
 
+/**
+ * Constructor of a cursor.
+ * @param vp %Viewport displaying the cursor.
+ */
 Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
 {
 	this->xpos = 0;
@@ -486,6 +490,10 @@ bool Cursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bo
 	return true;
 }
 
+/**
+ * Constructor of a cursor.
+ * @param vp %Viewport displaying the cursor.
+ */
 MultiCursor::MultiCursor(Viewport *vp) : BaseCursor(vp)
 {
 	this->ClearZPositions();
@@ -555,6 +563,14 @@ uint8 MultiCursor::GetZpos(int xpos, int ypos)
 	return max(zpos, this->GetZpos(xpos, ypos));
 }
 
+/**
+ * Set the area covered by the area cursor.
+ * @param rect Rectangle denoting the size and position of the area cursor.
+ * @param type #CUR_TYPE_TILE for stating a new tile cursor, #CUR_TYPE_INVALID for disabling the cursor.
+ * @param always Always set the cursor (else, only set it if it changed).
+ * @return Whether the function has set the cursor.
+ * @note The \a rect should be non-empty, and lex than 10x10 tiles.
+ */
 bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool always)
 {
 	if (type == CUR_TYPE_INVALID) {
