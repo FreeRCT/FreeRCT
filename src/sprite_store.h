@@ -437,6 +437,7 @@ struct GuiSprites {
 	ImageData *rot_3d_pos;                  ///< 3D rotation positive direction.
 	ImageData *rot_3d_neg;                  ///< 3D rotation negative direction.
 	ImageData *close_sprite;                ///< Close window button.
+	ImageData *dot_sprite;                  ///< 'Dot' in the terraform window, represents an area of (0, 0) tiles.
 
 	TextData *text;                         ///< Texts of the gui.
 };

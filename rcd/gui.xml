@@ -20,7 +20,7 @@
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
 
-		<gameblock magic="GSLP" version="3">
+		<gameblock magic="GSLP" version="4">
 			<!-- Gui slope sprites -->
 			<sheet x-base="0" y-base="0" x-step="32" y-step="32"
 			       fname="../sprites_src/gui/contruction/slopes_8bpp_32px.png"
@@ -44,10 +44,13 @@
 			<!-- Window button sprites -->
 			<image name="close-sprite"    fname="../sprites_src/gui/GUIEles2.png" x-offset="0" y-offset="0"
 					x-base="153" y-base="0" width="16" height="16"/>
-			<image name="maximise-sprite" fname="../sprites_src/gui/GUIEles2.png" x-offset="0" y-offset="0"
+<!--			<image name="maximise-sprite" fname="../sprites_src/gui/GUIEles2.png" x-offset="0" y-offset="0"
 					x-base="169" y-base="0" width="16" height="16"/>
 			<image name="minimise-sprite" fname="../sprites_src/gui/GUIEles2.png" x-offset="0" y-offset="0"
 					x-base="185" y-base="0" width="16" height="16"/>
+-->
+			<image name="terraform-dot"   fname="../sprites/dot.png" x-offset="0" y-offset="0"
+					x-base="0" y-base="0" width="5" height="5"/>
 
 			<!-- GUI texts -->
 			<texts name="texts">

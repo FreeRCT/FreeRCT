@@ -14,6 +14,7 @@
 #include "table/gui_sprites.h"
 #include "viewport.h"
 #include "terraform.h"
+#include "sprite_store.h"
 
 static const int TERRAFORM_MAX_SIZE = 9;      ///< Max length of tiles for terraforming (both X and Y).
 static const int TERRAFORM_ELEMENT_SIZE = 16; ///< Horizontal size of a tile in the display (pixels).
@@ -33,7 +34,7 @@ public:
 
 private:
 	void SetLeveling(bool level);
-	void SetSize(int xs=0, int ys=0);
+	void SetSize(int xs = -1, int ys = -1);
 	void IncreaseSize();
 	void DecreaseSize();
 };
@@ -87,16 +88,30 @@ TerraformGui::~TerraformGui()
 
 /* virtual */ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
+	Point32 base;
+	static const Recolouring recolour; // Not changed.
+
 	if (wid_num != TERR_DISPLAY || _video == NULL) return;
 
-	/* Here, size == xsize, but also (size / 2)  == ysize, since xsize == ysize * 2 in a flat tile world. */
+	/* Draw the tile area, case of a null-area. */
+	if (this->xsize == 0 && this->ysize == 0) {
+		const ImageData *dot = _gui_sprites.dot_sprite;
+		if (dot == NULL) return;
+
+		base.x = this->GetWidgetScreenX(wid) + (wid->pos.width - dot->width) / 2;
+		base.y = this->GetWidgetScreenY(wid) + (wid->pos.height - dot->height) / 2;
+		_video->BlitImage(base, dot, recolour, 0);
+		return;
+	}
+
+	/* Draw area with >= 1 tile.
+	 * Here, size == xsize, but also (size / 2)  == ysize, since xsize == ysize * 2 in a flat tile world.
+	 */
 	int size = this->xsize * TERRAFORM_ELEMENT_SIZE / 2 + this->ysize * TERRAFORM_ELEMENT_SIZE / 2;
-	Point16 base;
 	base.x = this->GetWidgetScreenX(wid) + (wid->pos.width - size) / 2; // Left position of the drawn tiles.
 	base.y = this->GetWidgetScreenY(wid) + (wid->pos.height - size / 2) / 2; // Top position of the drawn tiles.
 	base.y += this->xsize * TERRAFORM_ELEMENT_SIZE / 4; // Lower to (0, 0) of the drawn tiles (left-most position).
 
-	/* Draw the tile area. */
 	for (int x = 0; x < this->xsize; x++) {
 		for (int y = 0; y < this->ysize; y++) {
 			Point16 left;
@@ -164,8 +179,8 @@ void TerraformGui::SetLeveling(bool level)
  */
 void TerraformGui::SetSize(int xs, int ys)
 {
-	if (xs > 0) this->xsize = xs;
-	if (ys > 0) this->ysize = ys;
+	if (xs >= 0) this->xsize = xs;
+	if (ys >= 0) this->ysize = ys;
 
 	this->MarkWidgetDirty(TERR_DISPLAY);
 }
@@ -175,22 +190,26 @@ void TerraformGui::IncreaseSize()
 {
 	if (this->xsize >= TERRAFORM_MAX_SIZE && this->ysize >= TERRAFORM_MAX_SIZE) return;
 
-	if (this->xsize > this->ysize) {
-		this->SetSize(0, this->ysize + 1);
+	if (this->xsize == 0 && this->ysize == 0) {
+		this->SetSize(1, 1);
+	} else if (this->xsize > this->ysize) {
+		this->SetSize(-1, this->ysize + 1);
 	} else {
-		this->SetSize(this->xsize + 1, 0);
+		this->SetSize(this->xsize + 1, -1);
 	}
 }
 
 /** Decrease the size of the terraform area. */
 void TerraformGui::DecreaseSize()
 {
-	if (this->xsize <= 1 && this->ysize <= 1) return;
+	if (this->xsize < 1 && this->ysize < 1) return;
 
-	if (this->xsize > this->ysize) {
-		this->SetSize(this->xsize - 1, 0);
+	if (this->xsize == 1 && this->ysize == 1) {
+		this->SetSize(0, 0);
+	} else if (this->xsize > this->ysize) {
+		this->SetSize(this->xsize - 1, -1);
 	} else {
-		this->SetSize(0, this->ysize - 1);
+		this->SetSize(-1, this->ysize - 1);
 	}
 }
 

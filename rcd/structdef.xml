@@ -174,7 +174,7 @@
 		<field name="left">      <type name="sprite"/></field>
 	</block>
 
-	<block magic="GSLP" minversion="1" maxversion="3">
+	<block magic="GSLP" minversion="1" maxversion="4">
 		<field name="vert-down">  <type name="sprite"/><comment>Slope vertically down</comment></field>
 		<field name="steep-down"> <type name="sprite"/><comment>Slope steeply down</comment></field>
 		<field name="gentle-down"><type name="sprite"/><comment>Slope gently down</comment></field>
@@ -189,8 +189,9 @@
 		<field name="3d-negative" minversion="2"><type name="sprite"/><comment>Diametric rotation, negative direction</comment></field>
 
 		<field name="close-sprite"    minversion="3"><type name="sprite"/></field>
-		<field name="maximise-sprite" minversion="3"><type name="sprite"/></field>
-		<field name="minimise-sprite" minversion="3"><type name="sprite"/></field>
+		<field name="maximise-sprite" minversion="3" maxversion="3"><type name="sprite"/></field>
+		<field name="minimise-sprite" minversion="3" maxversion="3"><type name="sprite"/></field>
+		<field name="terraform-dot"   minversion="4"><type name="sprite"/></field>
 
 		<field name="texts" minversion="2"><type name="text" file="gui_strings.txt"/></field>
 	</block>
