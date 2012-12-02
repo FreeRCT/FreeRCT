@@ -486,6 +486,108 @@ bool Cursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bo
 	return true;
 }
 
+MultiCursor::MultiCursor(Viewport *vp) : BaseCursor(vp)
+{
+	this->ClearZPositions();
+}
+
+/** Clear the z-positions cache. */
+void MultiCursor::ClearZPositions()
+{
+	for (int x = 0; x < 10; x++) {
+		for (int y = 0; y < 10; y++) {
+			this->zpos[x][y] = -1;
+		}
+	}
+}
+
+/**
+ * Get the Z position of a tile within the cursor.
+ * @param xpos Horizontal world position.
+ * @param ypos Vertical world position.
+ * @return Height of the ground (which is the z-position of the cursor at the position).
+ * @pre World position is inside the cursor rectangle.
+ * @pre World position is inside the world boundaries.
+ */
+uint8 MultiCursor::GetZpos(int xpos, int ypos)
+{
+	int xoff = xpos - this->rect.base.x;
+	int yoff = ypos - this->rect.base.y;
+	assert (xoff >= 0 && xoff < (int)this->rect.width);
+	assert (yoff >= 0 && yoff < (int)this->rect.height);
+
+	if (this->zpos[xoff][yoff] < 0) this->zpos[xoff][yoff] = _world.GetGroundHeight(xpos, ypos);
+	return this->zpos[xoff][yoff];
+}
+
+/* virtual */ void MultiCursor::MarkDirty()
+{
+	if (this->type == CUR_TYPE_INVALID) return;
+
+	for (uint x = 0; x < this->rect.width; x++) {
+		for (uint y = 0; y < this->rect.height; y++) {
+			this->vp->MarkVoxelDirty(this->rect.base.x + x, this->rect.base.y + y,
+					this->GetZpos(this->rect.base.x + x, this->rect.base.y + y));
+		}
+	}
+}
+
+/* virtual */ CursorType MultiCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	Point32 pt;
+
+	if (this->type == CUR_TYPE_INVALID) return CUR_TYPE_INVALID;
+	pt.x = xpos;
+	pt.y = ypos;
+	if (!this->rect.IsPointInside(pt)) return CUR_TYPE_INVALID;
+	if (zpos != this->GetZpos(xpos, ypos)) return CUR_TYPE_INVALID;
+	return CUR_TYPE_TILE;
+}
+
+/* virtual */ uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	Point16 pt;
+
+	if (this->type == CUR_TYPE_INVALID) return zpos;
+	pt.x = xpos;
+	pt.y = ypos;
+	if (!this->rect.IsPointInside(pt)) return zpos;
+	return max(zpos, this->GetZpos(xpos, ypos));
+}
+
+bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool always)
+{
+	if (type == CUR_TYPE_INVALID) {
+		if (!always && this->type == CUR_TYPE_INVALID) return false;
+		this->MarkDirty();
+		this->type = type;
+		return true;
+	}
+	assert(type == CUR_TYPE_TILE);
+
+	/* Copy and sanitize cursor. */
+	Rectangle32 r(rect);
+	r.RestrictTo(0, 0, static_cast<int>(_world.GetXSize()), static_cast<int>(_world.GetYSize()));
+	if (r.width > 10) r.width = 10;
+	if (r.height > 10) r.height = 10;
+	if (r.width == 0 || r.height == 0) {
+		// Empty tile cursor is invalid.
+		if (!always && this->type == CUR_TYPE_INVALID) return false;
+		this->MarkDirty();
+		this->type = CUR_TYPE_INVALID;
+		return true;
+	}
+
+	if (!always && this->rect == r) return false;
+
+	this->MarkDirty();
+	this->rect = r;
+	this->ClearZPositions();
+	this->type = type;
+	this->MarkDirty();
+	return true;
+}
+
 /**
  * Get the cursor type at a given position.
  * @param xpos X position of the voxel being drawn.
@@ -495,11 +597,15 @@ bool Cursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bo
  */
 CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
 {
+	CursorType ct = CUR_TYPE_INVALID;
+
 	if (this->additions_enabled && !this->additions_displayed) {
-		CursorType ct = this->arrow_cursor.GetCursor(xpos, ypos, zpos);
+		ct = this->arrow_cursor.GetCursor(xpos, ypos, zpos);
 		if (ct != CUR_TYPE_INVALID) return ct;
 	}
-	return this->tile_cursor.GetCursor(xpos, ypos, zpos);
+	ct = this->tile_cursor.GetCursor(xpos, ypos, zpos);
+	if (ct != CUR_TYPE_INVALID) return ct;
+	return this->area_cursor.GetCursor(xpos, ypos, zpos);
 }
 
 /**
@@ -515,6 +621,7 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 		zpos = this->arrow_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	}
 	zpos = this->tile_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
+	zpos = this->area_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	assert(zpos != 255);
 	return zpos;
 }
@@ -821,7 +928,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 /**
  * %Viewport constructor.
  */
-Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_cursor(this), arrow_cursor(this)
+Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_cursor(this), arrow_cursor(this), area_cursor(this)
 {
 	this->xview = _world.GetXSize() * 256 / 2;
 	this->yview = _world.GetYSize() * 256 / 2;

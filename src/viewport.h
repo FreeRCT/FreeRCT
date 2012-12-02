@@ -103,6 +103,27 @@ public:
 };
 
 /**
+ * Cursor consisting of one or more tiles.
+ * The cursor at every tile is a tile cursor.
+ */
+class MultiCursor : public BaseCursor {
+public:
+	MultiCursor(Viewport *vp);
+
+	Rectangle32 rect;   ///< Rectangle with cursors.
+	int16 zpos[10][10]; ///< Cached Z positions of the cursors (negative means not set).
+
+	bool SetCursor(const Rectangle32 &rect, CursorType type, bool always = false);
+
+	virtual void MarkDirty();
+	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos);
+	virtual uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
+
+	void ClearZPositions();
+	uint8 GetZpos(int xpos, int ypos);
+};
+
+/**
  * Class for displaying parts of the world.
  * @ingroup viewport_group
  */
@@ -138,6 +159,7 @@ public:
 	ViewOrientation orientation; ///< Direction of view.
 	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
 	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
+	MultiCursor area_cursor;     ///< Cursor for showing an area.
 	Point16 mouse_pos;           ///< Last known position of the mouse.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 
