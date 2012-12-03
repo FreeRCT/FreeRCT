@@ -13,6 +13,8 @@
 #include "map.h"
 #include "viewport.h"
 #include "terraform.h"
+#include "math_func.h"
+#include "memory.h"
 
 TileTerraformMouseMode _terraformer; ///< Terraform coordination object.
 
@@ -217,63 +219,396 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileSlope corner, int dire
 }
 
 /**
- * Perform the proposed changes.
- * @param direction Direction of change.
+ * Set an upper boundary of the height of each tile corner based on the contents of a voxel.
+ * @param v %Voxel to examine.
+ * @param height Height of the voxel.
+ * @param bounds[out] Updated constraints.
+ * @note Length of the \a bounds array should be 4.
  */
-void TerrainChanges::ChangeWorld(int direction)
+static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 {
+	if (v == NULL || v->GetType() == VT_EMPTY) return;
+	if (v->GetType() == VT_REFERENCE) {
+		MemSetT(bounds, height, 4);
+		return;
+	}
+
+	assert(v->GetType() == VT_SURFACE);
+	assert(v->GetGroundType() == GTP_INVALID);
+	if (v->GetPathRideNumber() == PT_INVALID) return;
+
+	if (v->GetPathRideNumber() < PT_START) { // A ride needs the entire voxel.
+		MemSetT(bounds, height, 4);
+		return;
+	}
+
+	/* A path. */
+	PathSprites ps = static_cast<PathSprites>(v->GetPathRideFlags());
+	switch (ps) {
+		case PATH_RAMP_NE:
+			bounds[TC_NORTH] = height;     bounds[TC_EAST] = height;
+			bounds[TC_SOUTH] = height + 1; bounds[TC_WEST] = height + 1;
+			break;
+
+		case PATH_RAMP_NW:
+			bounds[TC_NORTH] = height;     bounds[TC_WEST] = height;
+			bounds[TC_SOUTH] = height + 1; bounds[TC_EAST] = height + 1;
+			break;
+
+		case PATH_RAMP_SE:
+			bounds[TC_SOUTH] = height;     bounds[TC_EAST] = height;
+			bounds[TC_NORTH] = height + 1; bounds[TC_WEST] = height + 1;
+			break;
+
+		case PATH_RAMP_SW:
+			bounds[TC_SOUTH] = height;     bounds[TC_WEST] = height;
+			bounds[TC_NORTH] = height + 1; bounds[TC_EAST] = height + 1;
+			break;
+
+		default:
+			assert(ps < PATH_FLAT_COUNT);
+			MemSetT(bounds, height, 4);
+			break;
+	}
+}
+
+/**
+ * Update the foundations in two #_additions voxel stacks along the SW edge of the first stack and the NE edge of the second stack.
+ * @param xpos X position of the first voxel stack.
+ * @param ypos Y position of the first voxel stack.
+ * @note The first or the second voxel stack may be off-world.
+ */
+static void SetXFoundations(int xpos, int ypos)
+{
+	VoxelStack *first = (xpos < 0) ? NULL : _additions.GetModifyStack(xpos, ypos);
+	VoxelStack *second = (xpos + 1 == _world.GetXSize()) ? NULL : _additions.GetModifyStack(xpos + 1, ypos);
+	assert(first != NULL || second != NULL);
+
+	/* Get ground height at all corners. */
+	uint8 first_south = 0;
+	uint8 first_west  = 0;
+	if (first != NULL) {
+		for (uint i = 0; i < first->height; i++) {
+			const Voxel *v = &first->voxels[i];
+			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			uint8 heights[4];
+			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
+			first_south = heights[TC_SOUTH];
+			first_west  = heights[TC_WEST];
+			break;
+		}
+	}
+
+	uint8 second_north = 0;
+	uint8 second_east  = 0;
+	if (second != NULL) {
+		for (uint i = 0; i < second->height; i++) {
+			const Voxel *v = &second->voxels[i];
+			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			uint8 heights[4];
+			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);
+			second_north = heights[TC_NORTH];
+			second_east  = heights[TC_EAST];
+			break;
+		}
+	}
+
+	/* Set foundations. */
+	if (first != NULL) {
+		for (uint i = 0; i < first->height; i++) {
+			uint8 h = first->base + i;
+
+			uint8 bits = 0;
+			if (h >= second_east || h >= second_north) {
+				if (h < first_south) bits |= 0x10;
+				if (h < first_west)  bits |= 0x20;
+			}
+
+			Voxel *v = &first->voxels[i];
+			if (bits == 0) { // Delete foundations.
+				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
+				bits = v->GetFoundationSlope() & ~0x30;
+				v->SetFoundationSlope(bits);
+				if (bits == 0) v->SetFoundationType(FDT_INVALID);
+				continue;
+			} else { // Add foundations.
+				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
+				if (v->GetType() == VT_EMPTY) {
+					v->SetPathRideNumber(PT_INVALID);
+					v->SetGroundType(GTP_INVALID);
+					v->SetFoundationType(FDT_GROUND); // XXX
+				} else if (v->GetFoundationType() == FDT_INVALID) {
+					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
+				} else {
+					bits |= (v->GetFoundationSlope() & ~0x30);
+				}
+				v->SetFoundationSlope(bits);
+				continue;
+			}
+		}
+	}
+
+	if (second != NULL) {
+		for (uint i = 0; i < second->height; i++) {
+			uint8 h = second->base + i;
+
+			uint8 bits = 0;
+			if (h >= first_south || h >= first_west) {
+				if (h < second_north) bits |= 0x01;
+				if (h < second_east)  bits |= 0x02;
+			}
+
+			Voxel *v = &second->voxels[i];
+			if (bits == 0) { // Delete foundations.
+				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
+				bits = v->GetFoundationSlope() & ~0x03;
+				v->SetFoundationSlope(bits);
+				if (bits == 0) v->SetFoundationType(FDT_INVALID);
+				continue;
+			} else { // Add foundations.
+				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
+				if (v->GetType() == VT_EMPTY) {
+					v->SetPathRideNumber(PT_INVALID);
+					v->SetGroundType(GTP_INVALID);
+					v->SetFoundationType(FDT_GROUND); // XXX
+				} else if (v->GetFoundationType() == FDT_INVALID) {
+					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
+				} else {
+					bits |= (v->GetFoundationSlope() & ~0x03);
+				}
+				v->SetFoundationSlope(bits);
+				continue;
+			}
+		}
+	}
+}
+
+/**
+ * Update the foundations in two #_additions voxel stacks along the SE edge of the first stack and the NW edge of the second stack.
+ * @param xpos X position of the first voxel stack.
+ * @param ypos Y position of the first voxel stack.
+ * @note The first or the second voxel stack may be off-world.
+ */
+static void SetYFoundations(int xpos, int ypos)
+{
+	VoxelStack *first = (ypos < 0) ? NULL : _additions.GetModifyStack(xpos, ypos);
+	VoxelStack *second = (ypos + 1 == _world.GetYSize()) ? NULL : _additions.GetModifyStack(xpos, ypos + 1);
+	assert(first != NULL || second != NULL);
+
+	/* Get ground height at all corners. */
+	uint8 first_south = 0;
+	uint8 first_east  = 0;
+	if (first != NULL) {
+		for (uint i = 0; i < first->height; i++) {
+			const Voxel *v = &first->voxels[i];
+			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			uint8 heights[4];
+			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
+			first_south = heights[TC_SOUTH];
+			first_east  = heights[TC_EAST];
+			break;
+		}
+	}
+
+	uint8 second_north = 0;
+	uint8 second_west  = 0;
+	if (second != NULL) {
+		for (uint i = 0; i < second->height; i++) {
+			const Voxel *v = &second->voxels[i];
+			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			uint8 heights[4];
+			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);
+			second_north = heights[TC_NORTH];
+			second_west  = heights[TC_WEST];
+			break;
+		}
+	}
+
+	/* Set foundations. */
+	if (first != NULL) {
+		for (uint i = 0; i < first->height; i++) {
+			uint8 h = first->base + i;
+
+			uint8 bits = 0;
+			if (h >= second_west || h >= second_north) {
+				if (h < first_south) bits |= 0x08;
+				if (h < first_east)  bits |= 0x04;
+			}
+
+			Voxel *v = &first->voxels[i];
+			if (bits == 0) { // Delete foundations.
+				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
+				bits = v->GetFoundationSlope() & ~0x0C;
+				v->SetFoundationSlope(bits);
+				if (bits == 0) v->SetFoundationType(FDT_INVALID);
+				continue;
+			} else { // Add foundations.
+				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
+				if (v->GetType() == VT_EMPTY) {
+					v->SetPathRideNumber(PT_INVALID);
+					v->SetGroundType(GTP_INVALID);
+					v->SetFoundationType(FDT_GROUND); // XXX
+				} else if (v->GetFoundationType() == FDT_INVALID) {
+					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
+				} else {
+					bits |= (v->GetFoundationSlope() & ~0x0C);
+				}
+				v->SetFoundationSlope(bits);
+				continue;
+			}
+		}
+	}
+
+	if (second != NULL) {
+		for (uint i = 0; i < second->height; i++) {
+			uint8 h = second->base + i;
+
+			uint8 bits = 0;
+			if (h >= first_south || h >= first_east) {
+				if (h < second_north) bits |= 0x80;
+				if (h < second_west)  bits |= 0x40;
+			}
+
+			Voxel *v = &second->voxels[i];
+			if (bits == 0) { // Delete foundations.
+				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
+				bits = v->GetFoundationSlope() & ~0xC0;
+				v->SetFoundationSlope(bits);
+				if (bits == 0) v->SetFoundationType(FDT_INVALID);
+				continue;
+			} else { // Add foundations.
+				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
+				if (v->GetType() == VT_EMPTY) {
+					v->SetPathRideNumber(PT_INVALID);
+					v->SetGroundType(GTP_INVALID);
+					v->SetFoundationType(FDT_GROUND); // XXX
+				} else if (v->GetFoundationType() == FDT_INVALID) {
+					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
+				} else {
+					bits |= (v->GetFoundationSlope() & ~0xC0);
+				}
+				v->SetFoundationSlope(bits);
+				continue;
+			}
+		}
+	}
+}
+
+/**
+ * Perform the proposed changes in #_additions (and committing them afterwards).
+ * @param direction Direction of change.
+ * @return Whether the change could actually be performed (else nothing is changed).
+ */
+bool TerrainChanges::ModifyWorld(int direction)
+{
+	assert(_mouse_modes.GetMouseMode() == MM_TILE_TERRAFORM);
+
+	_additions.Clear();
+
+	/* First iteration: Change the ground of the tiles, checking whether the change is actually allowed with the other game elements. */
 	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); iter++) {
 		const Point32 &pos = (*iter).first;
 		const GroundData &gd = (*iter).second;
 		if (gd.modified == 0) continue;
 
-		VoxelStack *vs = _world.GetModifyStack(pos.x, pos.y);
-		Voxel *v = vs->GetCreate(gd.height, false);
-		GroundType gtype = v->GetGroundType();
-		FoundationType ftype = v->GetFoundationType();
-		uint16 ptype = v->GetPathRideNumber();
-		/* Clear existing ground and foundations. */
-		v->SetEmpty();
-		if ((gd.orig_slope & TCB_STEEP) != 0) vs->GetCreate(gd.height + 1, false)->SetEmpty();
+		uint8 current[4]; // Height of each corner after applying modification.
+		ComputeCornerHeight(static_cast<TileSlope>(gd.orig_slope), gd.height, current);
 
-		uint8 new_heights[4];
-		uint8 max_h = 0;
-		uint8 min_h = 255;
-		for (uint corner = 0; corner < 4; corner++) {
-			uint8 height = gd.GetOrigHeight((TileSlope)corner);
-			if (gd.GetCornerModified((TileSlope)corner)) {
-				assert((direction > 0 && height < 255) || (direction < 0 && height > 0));
-				height += direction;
-			}
-			new_heights[corner] = height;
-			if (max_h < height) max_h = height;
-			if (min_h > height) min_h = height;
+		/* Apply modification. */
+		for (uint8 i = TC_NORTH; i < TC_END; i++) {
+			if ((gd.modified & (1 << i)) == 0) continue; // Corner was not changed.
+			current[i] += direction;
 		}
-		v = vs->GetCreate(min_h, true);
-		v->SetGroundType(gtype);
-		v->SetFoundationType(ftype);
-		v->SetFoundationSlope(0); // XXX Needs further work.
-		v->SetPathRideNumber(ptype);
-		v->SetPathRideFlags(0); // XXX Needs further work.
-		if (max_h - min_h <= 1) {
-			/* Normal slope. */
-			v->SetGroundSlope(ImplodeTileSlope(((new_heights[TC_NORTH] > min_h) ? TCB_NORTH : SL_FLAT)
-					| ((new_heights[TC_EAST]  > min_h) ? TCB_EAST  : SL_FLAT)
-					| ((new_heights[TC_SOUTH] > min_h) ? TCB_SOUTH : SL_FLAT)
-					| ((new_heights[TC_WEST]  > min_h) ? TCB_WEST  : SL_FLAT)));
-		} else {
-			assert(max_h - min_h == 2);
-			int corner;
-			for (corner = 0; corner < 4; corner++) {
-				if (new_heights[corner] == max_h) break;
+
+		/* Clear the current ground from the stack. */
+		VoxelStack *vs = _additions.GetModifyStack(pos.x, pos.y);
+		Voxel *v = vs->GetCreate(gd.height, false);
+		assert(v != NULL && v->GetType() == VT_SURFACE);
+		GroundType gt = v->GetGroundType();
+		assert(gt != GTP_INVALID);
+		FoundationType ft = v->GetFoundationType();
+		v->SetGroundType(GTP_INVALID);
+		if ((v->GetGroundSlope() & TCB_STEEP) != 0) {
+			Voxel *w = vs->GetCreate(gd.height + 1, false);
+			assert(w != NULL && w->GetType() == VT_REFERENCE);
+			w->SetEmpty();
+		}
+		v->SetGroundSlope(0);
+		if (ft == FDT_INVALID && v->GetPathRideNumber() == PT_INVALID) { // Voxel is empty, change its type.
+			v->SetEmpty();
+		}
+
+		if (direction > 0) {
+			/* Moving upwards, compute upper bound on corner heights. */
+			uint8 max_above[4];
+			MemSetT(max_above, gd.height + 3, lengthof(max_above));
+
+			for (int i = 2; i >= 0; i--) {
+				SetUpperBoundary(vs->Get(gd.height + i), gd.height + i, max_above);
 			}
-			assert(corner <= TC_WEST);
-			v->SetGroundSlope(ImplodeTileSlope(TCB_STEEP | (TileSlope)(1 << corner)));
-			vs->GetCreate(min_h + 1, true)->SetReferencePosition(pos.x, pos.y, min_h);
+
+			/* Check boundaries. */
+			for (uint i = 0; i < 4; i++) {
+				if (current[i] > max_above[i]) return false;
+			}
+		} /* else: Moving downwards always works, since there is nothing underground yet. */
+
+		/* Add new ground to the stack. */
+		TileSlope new_slope;
+		uint8 height;
+		ComputeSlopeAndHeight(current, &new_slope, &height);
+
+		v = vs->GetCreate(height, true);
+		assert(v->GetType() != VT_REFERENCE);
+		if (v->GetType() != VT_SURFACE) v->SetPathRideNumber(PT_INVALID);
+		v->SetGroundSlope(new_slope);
+		v->SetGroundType(gt);
+		v->SetFoundationType(ft);
+		v->SetFoundationSlope(0);
+
+		if ((new_slope & TCB_STEEP)) {
+			v = vs->GetCreate(height + 1, true);
+			v->SetReferencePosition(pos.x, pos.y, height);
 		}
 	}
-}
 
+	/* Second iteration: Add foundations to every changed tile edge.
+	 * The general idea is that each modified voxel handles adding of foundation to its SE and SW edge.
+	 * If the NE or NW voxel is not modified, the voxel will have to perform adding of foundations there as well.
+	 */
+	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); iter++) {
+		const Point32 &pos = (*iter).first;
+		const GroundData &gd = (*iter).second;
+		if (gd.modified == 0) continue;
+
+		SetXFoundations(pos.x, pos.y);
+		SetYFoundations(pos.x, pos.y);
+
+		Point32 pt;
+		pt.x = pos.x - 1;
+		pt.y = pos.y;
+		GroundModificationMap::const_iterator iter2 = this->changes.find(pt);
+		if (iter2 == this->changes.end()) {
+			SetXFoundations(pt.x, pt.y);
+		} else {
+			const GroundData &gd = (*iter).second;
+			if (gd.modified == 0) SetXFoundations(pt.x, pt.y);
+		}
+
+		pt.x = pos.x;
+		pt.y = pos.y - 1;
+		iter2 = this->changes.find(pt);
+		if (iter2 == this->changes.end()) {
+			SetYFoundations(pt.x, pt.y);
+		} else {
+			const GroundData &gd = (*iter).second;
+			if (gd.modified == 0) SetYFoundations(pt.x, pt.y);
+		}
+	}
+
+	_additions.Commit();
+	return true;
+}
 
 TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TERRAFORM)
 {
@@ -391,7 +726,10 @@ static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, boo
 	}
 
 	if (ok) {
-		changes.ChangeWorld(direction);
+		ok = changes.ModifyWorld(direction);
+		_additions.Clear();
+		if (!ok) return;
+
 		/* Move voxel selection along with the terrain to allow another mousewheel event at the same place.
 		 * Note that the mouse cursor position is not changed at all, it still points at the original position.
 		 * The coupling is restored with the next mouse movement.

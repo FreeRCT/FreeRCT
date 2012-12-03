@@ -48,7 +48,7 @@ public:
 
 	bool ChangeVoxel(const Point32 &pos, uint8 height, int direction);
 	bool ChangeCorner(const Point32 &pos, TileSlope corner, int direction);
-	void ChangeWorld(int direction);
+	bool ModifyWorld(int direction);
 
 	GroundModificationMap changes; ///< Registered changes.
 
