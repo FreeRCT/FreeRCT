@@ -35,3 +35,60 @@ const Point16 _tile_dxy[EDGE_COUNT] = {
 	{ 1,  0}, ///< EDGE_SW
 	{ 0, -1}, ///< EDGE_NW
 };
+
+/**
+ * Compute the height of the corners of an expanded ground tile.
+ * @param slope Expanded slope.
+ * @param base_height Height of the voxel containing the ground.
+ * @param output[out] Height of the four corners of the slope.
+ */
+void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output)
+{
+	if ((slope & TCB_STEEP) != 0) {
+		uint i;
+		for (i = TC_NORTH; i < TC_END; i++) {
+			if ((slope & i) != 0) break;
+		}
+		assert(i < TC_END);
+
+		output[i] = base_height + 2;
+		output[(i + 2) % 4] = base_height;
+		output[(i + 1) % 4] = base_height + 1;
+		output[(i + 3) % 4] = base_height + 1;
+	}
+	for (uint i = TC_NORTH; i < TC_END; i++) {
+		output[i] = ((slope & (1 << i)) == 0) ? base_height : base_height + 1;
+	}
+}
+
+/**
+ * Compute a tile slope and a base height from the height of the four corners.
+ * @param corners [in] Array with the corner heights.
+ * @param slope [out] Computed slope.
+ * @param base [out] Base height of the slope.
+ */
+void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base)
+{
+	uint8 max_h = 0;
+	uint8 min_h = 255;
+	for (uint i = 0; i < 4; i++) {
+		if (max_h < corners[i]) max_h = corners[i];
+		if (min_h > corners[i]) min_h = corners[i];
+	}
+	*base = min_h;
+
+	if (max_h - min_h <= 1) {
+		/* Normal slope. */
+		*slope = static_cast<TileSlope>(ImplodeTileSlope(((corners[TC_NORTH] > min_h) ? TCB_NORTH : SL_FLAT)
+				| ((corners[TC_EAST]  > min_h) ? TCB_EAST  : SL_FLAT)
+				| ((corners[TC_SOUTH] > min_h) ? TCB_SOUTH : SL_FLAT)
+				| ((corners[TC_WEST]  > min_h) ? TCB_WEST  : SL_FLAT)));
+	} else {
+		assert(max_h - min_h == 2);
+		uint i;
+		for (i = 0; i < 4; i++) {
+			if (corners[i] == max_h) break;
+		}
+		*slope = static_cast<TileSlope>(ImplodeTileSlope(TCB_STEEP | static_cast<TileSlope>(1 << i)));
+	}
+}

@@ -166,5 +166,8 @@ extern const uint8 _corners_at_edge[EDGE_COUNT];
 extern const Point16 _corner_dxy[4];
 extern const Point16 _tile_dxy[EDGE_COUNT];
 
+void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output);
+void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base);
+
 #endif
 
