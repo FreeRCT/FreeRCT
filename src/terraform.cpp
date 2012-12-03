@@ -245,7 +245,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileSlope corner, int dire
  * Set an upper boundary of the height of each tile corner based on the contents of a voxel.
  * @param v %Voxel to examine.
  * @param height Height of the voxel.
- * @param bounds[out] Updated constraints.
+ * @param bounds [inout] Updated constraints.
  * @note Length of the \a bounds array should be 4.
  */
 static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)

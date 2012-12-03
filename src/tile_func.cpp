@@ -40,7 +40,7 @@ const Point16 _tile_dxy[EDGE_COUNT] = {
  * Compute the height of the corners of an expanded ground tile.
  * @param slope Expanded slope.
  * @param base_height Height of the voxel containing the ground.
- * @param output[out] Height of the four corners of the slope.
+ * @param output [out] Height of the four corners of the slope.
  */
 void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output)
 {
