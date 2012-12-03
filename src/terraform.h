@@ -81,11 +81,16 @@ class TileTerraformMouseMode: public MouseMode {
 public:
 	TerraformerState state; ///< Own state.
 	uint8 mouse_state; ///< Last known state of the mouse.
+	uint8 xsize;       ///< Horizontal size of the terraform area. May be \c 0, which means 'dot'.
+	uint8 ysize;       ///< Vertical size of the terraform area. May be \c 0, which means 'dot'.
 
 	TileTerraformMouseMode();
 
 	void OpenWindow();
 	void CloseWindow();
+	void SetSize(int xsize, int ysize);
+
+	void SetCursors();
 
 	virtual bool MayActivateMode();
 	virtual void ActivateMode(const Point16 &pos);
