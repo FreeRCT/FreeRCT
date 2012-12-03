@@ -46,6 +46,7 @@ public:
 	TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize);
 	~TerrainChanges();
 
+	bool ChangeVoxel(const Point32 &pos, uint8 height, int direction);
 	bool ChangeCorner(const Point32 &pos, TileSlope corner, int direction);
 	void ChangeWorld(int direction);
 
@@ -66,7 +67,16 @@ enum TerraformerState {
 	TFS_ON,       ///< Active.
 };
 
-/** Tile terraforming mouse mode. */
+/**
+ * Tile terraforming mouse mode.
+ *
+ * Terraforms an area of the world.
+ * It has two modes, a non-zero size, meaning terraforming is limited to that area, or a zero-size (aka 'dot mode'),
+ * which means 'unlimited' (the entire world may get changed, if money (and world contents) permits.
+ *
+ * The \c true 'leveling' setting means that the lowest parts are raised or the highest parts are lowered.
+ * A \c false 'leveling' value means that the entire area is moved up or down.
+ */
 class TileTerraformMouseMode: public MouseMode {
 public:
 	TerraformerState state; ///< Own state.

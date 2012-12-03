@@ -143,6 +143,30 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 	return &(*iter).second;
 }
 
+/**
+ * Change corners of a voxel if they are within the height constraint.
+ * @param pos %Voxel position.
+ * @param height Minimum or maximum height of the corners to modify.
+ * @param direction Leveling direction (decides what constraint to use).
+ * @return Change is OK for the map.
+ */
+bool TerrainChanges::ChangeVoxel(const Point32 &pos, uint8 height, int direction)
+{
+	GroundData *gd = this->GetGroundData(pos);
+	bool ok = true;
+	if (direction > 0) { // Raising terrain, raise everything at or below 'height'.
+		if (gd->GetOrigHeight(TC_NORTH) <= height) ok &= this->ChangeCorner(pos, TC_NORTH, direction);
+		if (gd->GetOrigHeight(TC_EAST)  <= height) ok &= this->ChangeCorner(pos, TC_EAST,  direction);
+		if (gd->GetOrigHeight(TC_SOUTH) <= height) ok &= this->ChangeCorner(pos, TC_SOUTH, direction);
+		if (gd->GetOrigHeight(TC_WEST)  <= height) ok &= this->ChangeCorner(pos, TC_WEST,  direction);
+	} else { // Lowering terrain, lower everything above or at 'height'.
+		if (gd->GetOrigHeight(TC_NORTH) >= height) ok &= this->ChangeCorner(pos, TC_NORTH, direction);
+		if (gd->GetOrigHeight(TC_EAST)  >= height) ok &= this->ChangeCorner(pos, TC_EAST,  direction);
+		if (gd->GetOrigHeight(TC_SOUTH) >= height) ok &= this->ChangeCorner(pos, TC_SOUTH, direction);
+		if (gd->GetOrigHeight(TC_WEST)  >= height) ok &= this->ChangeCorner(pos, TC_WEST,  direction);
+	}
+	return ok;
+}
 
 /**
  * Change the height of a corner. Call this function for every corner you want to change.
@@ -317,31 +341,50 @@ void TileTerraformMouseMode::CloseWindow()
 	this->mouse_state = state & MB_CURRENT;
 }
 
-/* virtual */ void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
+/**
+ * Change the terrain.
+ * @param vp %Viewport displaying the world.
+ * @param leveling If \c true, use leveling mode (only change the lowest/highest corners of a tile), else move every corner.
+ * @param direction Direction of change.
+ * @param dot_mode Using dot-mode (infinite world changes).
+ */
+static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, bool dot_mode)
 {
+	Cursor *c = &vp->tile_cursor;
+
 	Point32 p;
-	p.x = 0;
-	p.y = 0;
-	TerrainChanges changes(p, _world.GetXSize(), _world.GetYSize());
+	uint16 w, h;
 
-	p.x = vp->tile_cursor.xpos;
-	p.y = vp->tile_cursor.ypos;
+	if (dot_mode) { // Change entire world.
+		p.x = 0;
+		p.y = 0;
+		w = _world.GetXSize();
+		h = _world.GetYSize();
+	} else { // Single tile mode.
+		p.x = c->xpos;
+		p.y = c->ypos;
+		w = 1;
+		h = 1;
+	}
+	TerrainChanges changes(p, w, h);
 
-	bool ok = false;
-	switch (vp->tile_cursor.type) {
+	p.x = c->xpos;
+	p.y = c->ypos;
+
+	bool ok;
+	switch (c->type) {
 		case CUR_TYPE_NORTH:
 		case CUR_TYPE_EAST:
 		case CUR_TYPE_SOUTH:
 		case CUR_TYPE_WEST:
-			ok = changes.ChangeCorner(p, (TileSlope)(vp->tile_cursor.type - CUR_TYPE_NORTH), direction);
+			ok = changes.ChangeCorner(p, (TileSlope)(c->type - CUR_TYPE_NORTH), direction);
 			break;
 
-		case CUR_TYPE_TILE:
-			ok = changes.ChangeCorner(p, TC_NORTH, direction);
-			if (ok) ok = changes.ChangeCorner(p, TC_EAST, direction);
-			if (ok) ok = changes.ChangeCorner(p, TC_SOUTH, direction);
-			if (ok) ok = changes.ChangeCorner(p, TC_WEST, direction);
+		case CUR_TYPE_TILE: {
+			uint8 height = (direction > 0) ? WORLD_Z_SIZE : 0;
+			ok = changes.ChangeVoxel(p, height, direction);
 			break;
+		}
 
 		default:
 			NOT_REACHED();
@@ -353,12 +396,18 @@ void TileTerraformMouseMode::CloseWindow()
 		 * Note that the mouse cursor position is not changed at all, it still points at the original position.
 		 * The coupling is restored with the next mouse movement.
 		 */
-		vp->tile_cursor.zpos = _world.GetGroundHeight(vp->tile_cursor.xpos, vp->tile_cursor.ypos);
+		c->zpos = _world.GetGroundHeight(c->xpos, c->ypos);
 		GroundModificationMap::const_iterator iter;
 		for (iter = changes.changes.begin(); iter != changes.changes.end(); iter++) {
 			const Point32 &pt = (*iter).first;
 			vp->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);
 		}
 	}
+}
+
+
+/* virtual */ void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
+{
+	ChangeTileCursorMode(vp, false, direction, true);
 }
 
