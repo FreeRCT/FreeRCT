@@ -146,6 +146,29 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 }
 
 /**
+ * Test every corner of the given voxel for its original height, and find the extreme value.
+ * @param pos %Voxel position.
+ * @param direction Leveling direction (decides whether to find the lowest or highest corner).
+ * @param height [inout] Extremest height found so far.
+ */
+void TerrainChanges::UpdateLevelingHeight(const Point32 &pos, int direction, uint8 *height)
+{
+	const GroundData *gd = this->GetGroundData(pos);
+
+	if (direction > 0) { // Raising terrain, find the lowest corner.
+		*height = min(*height, gd->GetOrigHeight(TC_NORTH));
+		*height = min(*height, gd->GetOrigHeight(TC_EAST));
+		*height = min(*height, gd->GetOrigHeight(TC_SOUTH));
+		*height = min(*height, gd->GetOrigHeight(TC_WEST));
+	} else { // Lowering terrain, find the highest corner.
+		*height = max(*height, gd->GetOrigHeight(TC_NORTH));
+		*height = max(*height, gd->GetOrigHeight(TC_EAST));
+		*height = max(*height, gd->GetOrigHeight(TC_SOUTH));
+		*height = max(*height, gd->GetOrigHeight(TC_WEST));
+	}
+}
+
+/**
  * Change corners of a voxel if they are within the height constraint.
  * @param pos %Voxel position.
  * @param height Minimum or maximum height of the corners to modify.
@@ -616,6 +639,7 @@ TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TE
 	this->mouse_state = 0;
 	this->xsize = 1;
 	this->ysize = 1;
+	this->leveling = true;
 }
 
 /** Terraform gui window just opened. */
@@ -648,6 +672,15 @@ void TileTerraformMouseMode::SetSize(int xsize, int ysize)
 	this->ysize = ysize;
 	if (this->state != TFS_ON) return;
 	this->SetCursors();
+}
+
+/**
+ * Set the 'leveling' mode. This has no further visible effect until a raise/lower action is performed.
+ * @param leveling The new leveling setting.
+ */
+void TileTerraformMouseMode::SetLeveling(bool leveling)
+{
+	this->leveling = leveling;
 }
 
 /* virtual */ bool TileTerraformMouseMode::MayActivateMode()
@@ -755,6 +788,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, boo
 
 		case CUR_TYPE_TILE: {
 			uint8 height = (direction > 0) ? WORLD_Z_SIZE : 0;
+			if (leveling) changes.UpdateLevelingHeight(p, direction, &height);
 			ok = changes.ChangeVoxel(p, height, direction);
 			break;
 		}
@@ -795,6 +829,15 @@ static void ChangeAreaCursorMode(Viewport *vp, bool leveling, int direction)
 	TerrainChanges changes(c->rect.base, c->rect.width, c->rect.height);
 
 	uint8 height = (direction > 0) ? WORLD_Z_SIZE : 0;
+	if (leveling) {
+		for (uint dx = 0; dx < c->rect.width; dx++) {
+			p.x = c->rect.base.x + dx;
+			for (uint dy = 0; dy < c->rect.height; dy++) {
+				p.y = c->rect.base.y + dy;
+				changes.UpdateLevelingHeight(p, direction, &height);
+			}
+		}
+	}
 
 	/* Make the change in 'changes'. */
 	for (uint dx = 0; dx < c->rect.width; dx++) {
@@ -824,9 +867,9 @@ static void ChangeAreaCursorMode(Viewport *vp, bool leveling, int direction)
 /* virtual */ void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
 {
 	if (vp->tile_cursor.type != CUR_TYPE_INVALID) {
-		ChangeTileCursorMode(vp, false, direction, this->xsize == 0 && this->ysize == 0);
+		ChangeTileCursorMode(vp, this->leveling, direction, this->xsize == 0 && this->ysize == 0);
 	} else {
-		ChangeAreaCursorMode(vp, false, direction);
+		ChangeAreaCursorMode(vp, this->leveling, direction);
 	}
 }
 

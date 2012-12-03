@@ -46,6 +46,7 @@ public:
 	TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize);
 	~TerrainChanges();
 
+	void UpdateLevelingHeight(const Point32 &pos, int direction, uint8 *height);
 	bool ChangeVoxel(const Point32 &pos, uint8 height, int direction);
 	bool ChangeCorner(const Point32 &pos, TileSlope corner, int direction);
 	bool ModifyWorld(int direction);
@@ -83,12 +84,14 @@ public:
 	uint8 mouse_state; ///< Last known state of the mouse.
 	uint8 xsize;       ///< Horizontal size of the terraform area. May be \c 0, which means 'dot'.
 	uint8 ysize;       ///< Vertical size of the terraform area. May be \c 0, which means 'dot'.
+	bool leveling;     ///< For non-zero areas, \c true means 'level the area', and \c false means 'keep area as-is'.
 
 	TileTerraformMouseMode();
 
 	void OpenWindow();
 	void CloseWindow();
 	void SetSize(int xsize, int ysize);
+	void SetLeveling(bool level);
 
 	void SetCursors();
 
