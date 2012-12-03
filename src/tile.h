@@ -42,7 +42,8 @@ enum TileSlope {
 	TC_EAST,      ///< East corner bit number.
 	TC_SOUTH,     ///< South corner bit number.
 	TC_WEST,      ///< West corner bit number.
-	TC_STEEP,     ///< Steep slope.
+	TC_END,       ///< End of all corners.
+	TC_STEEP = TC_END, ///< Steep slope.
 
 	TCB_NORTH = 1 << TC_NORTH, ///< Bit denoting north corner is raised.
 	TCB_EAST  = 1 << TC_EAST,  ///< Bit denoting east corner is raised.
