@@ -510,6 +510,17 @@ void MultiCursor::ClearZPositions()
 }
 
 /**
+ * Reset the cached height of a voxel in the area.
+ * @param pos Position to reset (may be outside the cursor).
+ */
+void MultiCursor::ResetZPosition(const Point32 &pos)
+{
+	if (this->rect.IsPointInside(pos)) {
+		this->zpos[pos.x - this->rect.base.x][pos.y - this->rect.base.y] = -1;
+	}
+}
+
+/**
  * Get the Z position of a tile within the cursor.
  * @param xpos Horizontal world position.
  * @param ypos Vertical world position.
@@ -569,7 +580,7 @@ uint8 MultiCursor::GetZpos(int xpos, int ypos)
  * @param type #CUR_TYPE_TILE for stating a new tile cursor, #CUR_TYPE_INVALID for disabling the cursor.
  * @param always Always set the cursor (else, only set it if it changed).
  * @return Whether the function has set the cursor.
- * @note The \a rect should be non-empty, and lex than 10x10 tiles.
+ * @note The \a rect should be non-empty, and less than 10x10 tiles.
  */
 bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool always)
 {

@@ -121,6 +121,7 @@ public:
 
 	void ClearZPositions();
 	uint8 GetZpos(int xpos, int ypos);
+	void ResetZPosition(const Point32 &pos);
 };
 
 /**
