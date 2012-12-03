@@ -170,6 +170,8 @@ void TerraformGui::SetLeveling(bool level)
 	this->SetWidgetPressed(TERR_MOVE, !this->level);
 	this->MarkWidgetDirty(TERR_LEVEL);
 	this->MarkWidgetDirty(TERR_MOVE);
+
+	_terraformer.SetLeveling(level);
 }
 
 /**
@@ -183,6 +185,7 @@ void TerraformGui::SetSize(int xs, int ys)
 	if (ys >= 0) this->ysize = ys;
 
 	this->MarkWidgetDirty(TERR_DISPLAY);
+	_terraformer.SetSize(this->xsize, this->ysize);
 }
 
 /** Increase the size of the terraform area. */
