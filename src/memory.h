@@ -12,6 +12,8 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+/* Copied from OpenTTD. */
+
 /**
  * Type wrapper around calloc.
  * @tparam T Type of the data to copy.
@@ -19,7 +21,7 @@
  * @return Address of cleared memory, if memory could be claimed.
  */
 template <class T>
-T *Calloc(size_t count)
+inline T *Calloc(size_t count)
 {
 	return (T *)calloc(count, sizeof(T));
 }
@@ -32,9 +34,22 @@ T *Calloc(size_t count)
  * @param count Number of data elements.
  */
 template <class T>
-void MemCpy(T *dest, const T *src, size_t count)
+inline void MemCpy(T *dest, const T *src, size_t count)
 {
 	memcpy(dest, src, sizeof(T) * count);
+}
+
+/**
+ * Type-safe version of memset().
+ *
+ * @param ptr Pointer to the destination buffer
+ * @param value Value to be set
+ * @param num number of items to be set (!not number of bytes!)
+ */
+template <typename T>
+inline void MemSetT(T *ptr, byte value, size_t num = 1)
+{
+	memset(ptr, value, num * sizeof(T));
 }
 
 #endif
