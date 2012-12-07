@@ -305,21 +305,28 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
  * @param first_bit Bit value to use for a raised foundation at the first corner.
  * @param second_bit Bit value to use for a raised foundation at the second corner.
  */
-static void SetFoundations(VoxelStack *stack, int my_first, int my_second, int other_first, int other_second, uint8 first_bit, uint8 second_bit)
+static void SetFoundations(VoxelStack *stack, uint8 my_first, uint8 my_second, uint8 other_first, uint8 other_second, uint8 first_bit, uint8 second_bit)
 {
 	if (stack == NULL) return;
 
 	uint8 and_bits = ~(first_bit | second_bit);
-	for (uint i = 0; i < stack->height; i++) {
-		uint8 h = stack->base + i;
+	bool is_higher = my_first > other_first || my_second > other_second; // At least one of my corners must be higher to ever add foundations.
 
+	uint8 h = stack->base;
+	uint8 highest = stack->base + stack->height;
+
+	if (other_first  < h) h = other_first;
+	if (other_second < h) h = other_second;
+
+	while (h < highest) {
 		uint8 bits = 0;
-		if (h >= other_first || h >= other_second) {
+		if (is_higher && (h >= other_first || h >= other_second)) {
 			if (h < my_first)  bits |= first_bit;
 			if (h < my_second) bits |= second_bit;
 		}
 
-		Voxel *v = &stack->voxels[i];
+		Voxel *v = stack->GetCreate(h, true);
+		h++;
 		if (bits == 0) { // Delete foundations.
 			if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
 			bits = v->GetFoundationSlope() & and_bits;
@@ -530,7 +537,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		if (iter2 == this->changes.end()) {
 			SetXFoundations(pt.x, pt.y);
 		} else {
-			const GroundData &gd = (*iter).second;
+			const GroundData &gd = (*iter2).second;
 			if (gd.modified == 0) SetXFoundations(pt.x, pt.y);
 		}
 
@@ -540,7 +547,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		if (iter2 == this->changes.end()) {
 			SetYFoundations(pt.x, pt.y);
 		} else {
-			const GroundData &gd = (*iter).second;
+			const GroundData &gd = (*iter2).second;
 			if (gd.modified == 0) SetYFoundations(pt.x, pt.y);
 		}
 	}
