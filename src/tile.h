@@ -62,6 +62,37 @@ DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
 static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a surface tile.
 
+/** Sprites for supports available for use. */
+enum SupportSprites {
+	SSP_FLAT_SINGLE_NS, ///< Single height for flat terrain, north and south view.
+	SSP_FLAT_SINGLE_EW, ///< Single height for flat terrain, east and west view.
+	SSP_FLAT_DOUBLE_NS, ///< Double height for flat terrain, north and south view.
+	SSP_FLAT_DOUBLE_EW, ///< Double height for flat terrain, east and west view.
+	SSP_FLAT_PATH_NS,   ///< Double height for paths, north and south view.
+	SSP_FLAT_PATH_EW,   ///< Double height for paths, east and west view.
+	SSP_N,              ///< Single height, north leg up.
+	SSP_E,              ///< Single height, east leg up.
+	SSP_NE,             ///< Single height, north, east legs up.
+	SSP_S,              ///< Single height, south leg up.
+	SSP_NS,             ///< Single height, north, south legs up.
+	SSP_ES,             ///< Single height, east, south legs up.
+	SSP_NES,            ///< Single height, north, east, south legs up.
+	SSP_W,              ///< Single height, west leg up.
+	SSP_NW,             ///< Single height, west, north legs up.
+	SSP_EW,             ///< Single height, west, east legs up.
+	SSP_NEW,            ///< Single height, west, north, east legs up.
+	SSP_SW,             ///< Single height, west, south legs up.
+	SSP_NSW,            ///< Single height, west, north, south legs up.
+	SSP_ESW,            ///< Single height, west, east, south legs up.
+	SSP_STEEP_N,        ///< Double height for steep north slope.
+	SSP_STEEP_E,        ///< Double height for steep east slope.
+	SSP_STEEP_S,        ///< Double height for steep south slope.
+	SSP_STEEP_W,        ///< Double height for steep west slope.
+
+	SSP_COUNT,          ///< Number of support sprites.
+	SSP_NONFLAT_BASE = SSP_FLAT_PATH_EW, ///< Base sprite for non-flat ground slopes.
+};
+
 /**
  * Edges of a tile, starts at NE direction, and rotates clockwise.
  * @ingroup map_group

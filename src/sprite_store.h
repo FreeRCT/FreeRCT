@@ -181,6 +181,23 @@ public:
 };
 
 /**
+ * Support sprites.
+ * @ingroup sprites_group
+ */
+class Support : public RcdBlock {
+public:
+	Support();
+	~Support();
+
+	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+
+	uint16 type;   ///< Type of the foundation. @see FoundationType
+	uint16 width;  ///< Width of a tile.
+	uint16 height; ///< Height of a tile.
+	ImageData *sprites[SSP_COUNT]; ///< Foundation sprites.
+};
+
+/**
  * Displayed object.
  * (For now, just the arrows pointing in the build direction, hopefully also usable for other 1x1 tile objects.)
  * @ingroup sprites_group
@@ -458,6 +475,7 @@ public:
 	void AddTileCorners(TileCorners *tc);
 	void AddFoundations(Foundation *fnd);
 	void AddPlatform(Platform *plat);
+	void AddSupport(Support *supp);
 	void AddPath(Path *path);
 	void AddBuildArrows(DisplayedObject *obj);
 	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
@@ -561,6 +579,7 @@ public:
 	SurfaceData *surface[GTP_COUNT];   ///< Surface data.
 	Foundation *foundation[FDT_COUNT]; ///< Foundation.
 	Platform *platform;                ///< Platform block.
+	Support *support;                  ///< Support block.
 	TileSelection *tile_select;        ///< Tile selection sprites.
 	TileCorners *tile_corners;         ///< Tile corner sprites.
 	Path *path_sprites;                ///< Path sprites.

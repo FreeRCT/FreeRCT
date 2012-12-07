@@ -620,6 +620,39 @@ bool Platform::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 	return true;
 }
 
+Support::Support() : RcdBlock()
+{
+	this->type = 0;
+	this->width = 0;
+	this->height = 0;
+	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) this->sprites[sprnum] = NULL;
+}
+
+Support::~Support()
+{
+}
+
+/**
+ * Load a support sprites block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param length Length of the data part of the block.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool Support::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+{
+	if (length != 2 + 2 + 2 + SSP_COUNT * 4) return false;
+
+	this->type = rcd_file->GetUInt16();
+	if (this->type != 16) return false; // Only accept type 16 'wood'.
+	this->width  = rcd_file->GetUInt16();
+	this->height = rcd_file->GetUInt16();
+	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
+	}
+	return true;
+}
+
 DisplayedObject::DisplayedObject() : RcdBlock()
 {
 	this->width = 0;
@@ -1192,6 +1225,17 @@ void SpriteStorage::AddPlatform(Platform *plat)
 }
 
 /**
+ * Add support sprites block.
+ * @param supp New support block.
+ * @pre Width of the platform block must match with #size.
+ */
+void SpriteStorage::AddSupport(Support *supp)
+{
+	assert(supp->width == this->size);
+	this->support = supp;
+}
+
+/**
  * Add path sprites.
  * @param path %Path sprites to add.
  * @pre Width of the path sprites must match with #size.
@@ -1388,6 +1432,18 @@ const char *SpriteManager::Load(const char *filename)
 			this->AddBlock(block);
 
 			this->store.AddPlatform(block);
+			continue;
+		}
+
+		if (strcmp(name, "SUPP") == 0 && version == 1) {
+			Support *block = new Support;
+			if (!block->Load(&rcd_file, length, sprites)) {
+				delete block;
+				return "Support block loading failed.";
+			}
+			this->AddBlock(block);
+
+			this->store.AddSupport(block);
 			continue;
 		}
 
