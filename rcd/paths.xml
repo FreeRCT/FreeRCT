@@ -49,5 +49,22 @@
 			             |left-ramp-ne,  left-ramp-se,  left-ramp-sw,  left-ramp-nw"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
+
+		<gameblock magic="SUPP" version="1">
+			<field name="tile_width"   value="64"/>
+			<field name="z_height"     value="16"/>
+			<field name="support_type" value="wood"/>
+			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+			       fname="../sprites_src/paths/support/template8bpp64.png"
+			       names="s_ns, s_ew, _s_ns, _s_ew
+			             |#n,   #e,   #s,    #w
+			             |#ne,  #es,  #sw,   #nw
+			             |#ns,  #ew,  _#ns,  _#ew
+			             |#nes, #esw, #nsw,  #new
+			             |d_ns, d_ew, _d_ns, _d_ew
+			             |p_ns, p_ew, _p_ns, _p_ew
+			             |#E,   #S,   #W,    #N"
+			       x-offset="-32" y-offset="-33" width="64" height="64" />
+		</gameblock>
 	</file>
 </rcdfiles>

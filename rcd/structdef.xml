@@ -366,6 +366,43 @@
 				<comment>Platform with left leg is raised at the NW edge</comment></field>
 	</block>
 
+	<!-- Supports under the platforms -->
+	<enum name="SupportType" type="uint16">
+		<value name="reserved" value="0">Empty, do not use</value>
+		<value name="wood"     value="16">Wooden platforms</value>
+	</enum>
+
+	<block magic="SUPP" minversion="1" maxversion="1">
+		<field name="support_type"><type name="SupportType"/></field>
+		<field name="tile_width">  <type name="uint16"/></field>
+		<field name="z_height">    <type name="uint16"/></field>
+		<field name="s_ns"><type name="sprite"/></field>
+		<field name="s_ew"><type name="sprite"/></field>
+		<field name="d_ns"><type name="sprite"/></field>
+		<field name="d_ew"><type name="sprite"/></field>
+		<field name="p_ns"><type name="sprite"/></field>
+		<field name="p_ew"><type name="sprite"/></field>
+		<field name="#n">  <type name="sprite"/></field>
+		<field name="#e">  <type name="sprite"/></field>
+		<field name="#ne"> <type name="sprite"/></field>
+		<field name="#s">  <type name="sprite"/></field>
+		<field name="#ns"> <type name="sprite"/></field>
+		<field name="#es"> <type name="sprite"/></field>
+		<field name="#nes"><type name="sprite"/></field>
+		<field name="#w">  <type name="sprite"/></field>
+		<field name="#nw"> <type name="sprite"/></field>
+		<field name="#ew"> <type name="sprite"/></field>
+		<field name="#new"><type name="sprite"/></field>
+		<field name="#sw"> <type name="sprite"/></field>
+		<field name="#nsw"><type name="sprite"/></field>
+		<field name="#esw"><type name="sprite"/></field>
+		<field name="#N">  <type name="sprite"/></field>
+		<field name="#E">  <type name="sprite"/></field>
+		<field name="#S">  <type name="sprite"/></field>
+		<field name="#W">  <type name="sprite"/></field>
+	</block>
+
+
 	<enum name="Entrance" type="uint8">
 		<value name="ne" value="0"/>
 		<value name="se" value="1"/>

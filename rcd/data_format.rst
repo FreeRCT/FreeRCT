@@ -554,12 +554,47 @@ Platform supports
 -----------------
 Structures to support platforms, so they don't fall down.
 
-Currently largely undecided.
 
--rotation?
--steep slopes?
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'SUPP'.
+   4       4    Version number of the block.
+   8       4    Length of the block excluding magic string, version, and
+                length.
+  12       2    Type of support.
+  14       2    Width of a tile.
+  16       2    Change in Z height (in pixels) when going up or down a tile level.
+  18       4    Single height for flat terrain, north and south view.
+  22       4    Single height for flat terrain, east and west view.
+  26       4    Double height for flat terrain, north and south view.
+  30       4    Double height for flat terrain, east and west view.
+  34       4    Double height for paths, north and south view.
+  38       4    Double height for paths, east and west view.
+  42       4    Single height, north leg up.
+  46       4    Single height, east leg up.
+  50       4    Single height, north, east legs up.
+  54       4    Single height, south leg up.
+  58       4    Single height, north, south legs up.
+  62       4    Single height, east, south legs up.
+  66       4    Single height, north, east, south legs up.
+  70       4    Single height, west leg up.
+  74       4    Single height, west, north legs up.
+  78       4    Single height, west, east legs up.
+  82       4    Single height, west, north, east legs up.
+  86       4    Single height, west, south legs up.
+  90       4    Single height, west, north, south legs up.
+  94       4    Single height, west, east, south legs up.
+  98       4    Double height for steep north slope.
+ 102       4    Double height for steep east slope.
+ 106       4    Double height for steep south slope.
+ 110       4    Double height for steep west slope.
+ 114            Total length of the sub-block.
+======  ======  ==========================================================
 
-
+Suuport type:
+ - Empty 0, do not use.
+ - Wood 16.
 
 GUI
 ~~~
