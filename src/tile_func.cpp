@@ -47,7 +47,7 @@ void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output)
 	if ((slope & TCB_STEEP) != 0) {
 		uint i;
 		for (i = TC_NORTH; i < TC_END; i++) {
-			if ((slope & i) != 0) break;
+			if ((slope & (1 << i)) != 0) break;
 		}
 		assert(i < TC_END);
 
