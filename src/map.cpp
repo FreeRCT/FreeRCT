@@ -189,6 +189,26 @@ void VoxelWorld::SetWorldSize(uint16 xs, uint16 ys)
 }
 
 /**
+ * Add foundation bits from the bottom up to the given voxel.
+ * @param xpos X position of the voxel stack.
+ * @param ypos Y position of the voxel stack.
+ * @param z Height of the ground.
+ * @param bits Foundation bits to add.
+ */
+static void AddFoundations(VoxelWorld *world, uint16 xpos, uint16 ypos, int16 z, uint8 bits)
+{
+	for (int16 zpos = 0; zpos < z; zpos++) {
+		Voxel *v = world->GetCreateVoxel(xpos, ypos, zpos, true);
+		if (v->GetType() != VT_SURFACE) {
+			v->SetFoundationType(FDT_GROUND);
+			v->SetGroundType(GTP_INVALID);
+			v->SetPathRideNumber(PT_INVALID);
+		}
+		v->SetFoundationSlope(v->GetFoundationSlope() | bits);
+	}
+}
+
+/**
  * Creates a world of flat tiles.
  * @param z Height of the tiles.
  */
@@ -196,12 +216,20 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 {
 	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
 		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
-			Voxel *v = GetCreateVoxel(xpos, ypos, z, true);
+			Voxel *v = this->GetCreateVoxel(xpos, ypos, z, true);
 			v->SetFoundationType(FDT_INVALID);
 			v->SetGroundType(GTP_GRASS0);
 			v->SetGroundSlope(ImplodeTileSlope(SL_FLAT));
 			v->SetPathRideNumber(PT_INVALID);
 		}
+	}
+	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
+		AddFoundations(this, xpos, 0, z, 0xC0);
+		AddFoundations(this, xpos, this->y_size - 1, z, 0x0C);
+	}
+	for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
+		AddFoundations(this, 0, ypos, z, 0x03);
+		AddFoundations(this, this->x_size - 1, ypos, z, 0x30);
 	}
 }
 
