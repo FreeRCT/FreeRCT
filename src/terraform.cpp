@@ -296,6 +296,54 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 }
 
 /**
+ * Set foundations in a stack.
+ * @param stack %Voxel stack to change (may be \c NULL).
+ * @param my_first Height of my first corner.
+ * @param my_second Height of my second corner.
+ * @param other_first Height of corner opposite to \a my_first.
+ * @param other_second Height of corner opposite to \a my_second.
+ * @param first_bit Bit value to use for a raised foundation at the first corner.
+ * @param second_bit Bit value to use for a raised foundation at the second corner.
+ */
+static void SetFoundations(VoxelStack *stack, int my_first, int my_second, int other_first, int other_second, uint8 first_bit, uint8 second_bit)
+{
+	if (stack == NULL) return;
+
+	uint8 and_bits = ~(first_bit | second_bit);
+	for (uint i = 0; i < stack->height; i++) {
+		uint8 h = stack->base + i;
+
+		uint8 bits = 0;
+		if (h >= other_first || h >= other_second) {
+			if (h < my_first)  bits |= first_bit;
+			if (h < my_second) bits |= second_bit;
+		}
+
+		Voxel *v = &stack->voxels[i];
+		if (bits == 0) { // Delete foundations.
+			if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
+			bits = v->GetFoundationSlope() & and_bits;
+			v->SetFoundationSlope(bits);
+			if (bits == 0) v->SetFoundationType(FDT_INVALID);
+			continue;
+		} else { // Add foundations.
+			if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
+			if (v->GetType() == VT_EMPTY) {
+				v->SetPathRideNumber(PT_INVALID);
+				v->SetGroundType(GTP_INVALID);
+				v->SetFoundationType(FDT_GROUND); // XXX
+			} else if (v->GetFoundationType() == FDT_INVALID) {
+				v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
+			} else {
+				bits |= (v->GetFoundationSlope() & and_bits);
+			}
+			v->SetFoundationSlope(bits);
+			continue;
+		}
+	}
+}
+
+/**
  * Update the foundations in two #_additions voxel stacks along the SW edge of the first stack and the NE edge of the second stack.
  * @param xpos X position of the first voxel stack.
  * @param ypos Y position of the first voxel stack.
@@ -336,74 +384,8 @@ static void SetXFoundations(int xpos, int ypos)
 		}
 	}
 
-	/* Set foundations. */
-	if (first != NULL) {
-		for (uint i = 0; i < first->height; i++) {
-			uint8 h = first->base + i;
-
-			uint8 bits = 0;
-			if (h >= second_east || h >= second_north) {
-				if (h < first_south) bits |= 0x10;
-				if (h < first_west)  bits |= 0x20;
-			}
-
-			Voxel *v = &first->voxels[i];
-			if (bits == 0) { // Delete foundations.
-				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
-				bits = v->GetFoundationSlope() & ~0x30;
-				v->SetFoundationSlope(bits);
-				if (bits == 0) v->SetFoundationType(FDT_INVALID);
-				continue;
-			} else { // Add foundations.
-				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
-				if (v->GetType() == VT_EMPTY) {
-					v->SetPathRideNumber(PT_INVALID);
-					v->SetGroundType(GTP_INVALID);
-					v->SetFoundationType(FDT_GROUND); // XXX
-				} else if (v->GetFoundationType() == FDT_INVALID) {
-					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
-				} else {
-					bits |= (v->GetFoundationSlope() & ~0x30);
-				}
-				v->SetFoundationSlope(bits);
-				continue;
-			}
-		}
-	}
-
-	if (second != NULL) {
-		for (uint i = 0; i < second->height; i++) {
-			uint8 h = second->base + i;
-
-			uint8 bits = 0;
-			if (h >= first_south || h >= first_west) {
-				if (h < second_north) bits |= 0x01;
-				if (h < second_east)  bits |= 0x02;
-			}
-
-			Voxel *v = &second->voxels[i];
-			if (bits == 0) { // Delete foundations.
-				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
-				bits = v->GetFoundationSlope() & ~0x03;
-				v->SetFoundationSlope(bits);
-				if (bits == 0) v->SetFoundationType(FDT_INVALID);
-				continue;
-			} else { // Add foundations.
-				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
-				if (v->GetType() == VT_EMPTY) {
-					v->SetPathRideNumber(PT_INVALID);
-					v->SetGroundType(GTP_INVALID);
-					v->SetFoundationType(FDT_GROUND); // XXX
-				} else if (v->GetFoundationType() == FDT_INVALID) {
-					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
-				} else {
-					bits |= (v->GetFoundationSlope() & ~0x03);
-				}
-				v->SetFoundationSlope(bits);
-				continue;
-			}
-		}
-	}
+	SetFoundations(first,  first_south, first_west, second_east, second_north, 0x10, 0x20);
+	SetFoundations(second, second_north, second_east, first_west, first_south, 0x01, 0x02);
 }
 
 /**
@@ -447,74 +429,8 @@ static void SetYFoundations(int xpos, int ypos)
 		}
 	}
 
-	/* Set foundations. */
-	if (first != NULL) {
-		for (uint i = 0; i < first->height; i++) {
-			uint8 h = first->base + i;
-
-			uint8 bits = 0;
-			if (h >= second_west || h >= second_north) {
-				if (h < first_south) bits |= 0x08;
-				if (h < first_east)  bits |= 0x04;
-			}
-
-			Voxel *v = &first->voxels[i];
-			if (bits == 0) { // Delete foundations.
-				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
-				bits = v->GetFoundationSlope() & ~0x0C;
-				v->SetFoundationSlope(bits);
-				if (bits == 0) v->SetFoundationType(FDT_INVALID);
-				continue;
-			} else { // Add foundations.
-				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
-				if (v->GetType() == VT_EMPTY) {
-					v->SetPathRideNumber(PT_INVALID);
-					v->SetGroundType(GTP_INVALID);
-					v->SetFoundationType(FDT_GROUND); // XXX
-				} else if (v->GetFoundationType() == FDT_INVALID) {
-					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
-				} else {
-					bits |= (v->GetFoundationSlope() & ~0x0C);
-				}
-				v->SetFoundationSlope(bits);
-				continue;
-			}
-		}
-	}
-
-	if (second != NULL) {
-		for (uint i = 0; i < second->height; i++) {
-			uint8 h = second->base + i;
-
-			uint8 bits = 0;
-			if (h >= first_south || h >= first_east) {
-				if (h < second_north) bits |= 0x80;
-				if (h < second_west)  bits |= 0x40;
-			}
-
-			Voxel *v = &second->voxels[i];
-			if (bits == 0) { // Delete foundations.
-				if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
-				bits = v->GetFoundationSlope() & ~0xC0;
-				v->SetFoundationSlope(bits);
-				if (bits == 0) v->SetFoundationType(FDT_INVALID);
-				continue;
-			} else { // Add foundations.
-				if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
-				if (v->GetType() == VT_EMPTY) {
-					v->SetPathRideNumber(PT_INVALID);
-					v->SetGroundType(GTP_INVALID);
-					v->SetFoundationType(FDT_GROUND); // XXX
-				} else if (v->GetFoundationType() == FDT_INVALID) {
-					v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
-				} else {
-					bits |= (v->GetFoundationSlope() & ~0xC0);
-				}
-				v->SetFoundationSlope(bits);
-				continue;
-			}
-		}
-	}
+	SetFoundations(first,  first_south, first_east, second_west, second_north, 0x08, 0x04);
+	SetFoundations(second, second_north, second_west, first_east, first_south, 0x80, 0x40);
 }
 
 /**
