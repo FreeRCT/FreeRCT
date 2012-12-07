@@ -1166,8 +1166,7 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 				case VT_SURFACE: {
 					height = 1; // There are no steep slopes, so 1 covers paths already.
 					if (v->GetGroundType() != GTP_INVALID) {
-						TileSlope tslope = ExpandTileSlope(v->GetGroundSlope());
-						if ((tslope & TCB_STEEP) != 0) height = 2;
+						if (IsImplodedSteepSlope(v->GetGroundSlope())) height = 2;
 					}
 					uint16 number = v->GetPathRideNumber();
 					if (number < PT_START && number != PT_INVALID) { // A ride.

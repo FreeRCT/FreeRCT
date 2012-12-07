@@ -111,6 +111,15 @@ enum TileEdge {
 };
 DECLARE_POSTFIX_INCREMENT(TileEdge)
 
+/**
+ * Does the imploded tile slope represent a steep slope?
+ * @param ts Imploded tile slope to examine.
+ * @return \c true if the given slope is a steep slope,  \c false otherwise.
+ */
+static inline bool IsImplodedSteepSlope(uint8 ts)
+{
+	return ts >= 15;
+}
 
 /**
  * Expand a slope sprite number to its bit-encoded form for easier manipulating.
@@ -118,7 +127,7 @@ DECLARE_POSTFIX_INCREMENT(TileEdge)
  * @return Expanded slope.
  * @ingroup map_group
  */
-inline TileSlope ExpandTileSlope(uint8 v)
+static inline TileSlope ExpandTileSlope(uint8 v)
 {
 	if (v < 15) return (TileSlope)v;
 	return TCB_STEEP | (TileSlope)(1 << (v-15));
@@ -130,7 +139,7 @@ inline TileSlope ExpandTileSlope(uint8 v)
  * @return Equivalent sprite number.
  * @ingroup map_group
  */
-inline uint8 ImplodeTileSlope(TileSlope s)
+static inline uint8 ImplodeTileSlope(TileSlope s)
 {
 	if ((s & TCB_STEEP) == 0) return s;
 	if ((s & TCB_NORTH) != 0) return 15;

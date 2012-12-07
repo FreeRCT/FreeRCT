@@ -474,7 +474,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		assert(gt != GTP_INVALID);
 		FoundationType ft = v->GetFoundationType();
 		v->SetGroundType(GTP_INVALID);
-		if ((v->GetGroundSlope() & TCB_STEEP) != 0) {
+		if (IsImplodedSteepSlope(v->GetGroundSlope())) {
 			Voxel *w = vs->GetCreate(gd.height + 1, false);
 			assert(w != NULL && w->GetType() == VT_REFERENCE);
 			w->SetEmpty();
@@ -512,7 +512,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		v->SetFoundationType(ft);
 		v->SetFoundationSlope(0);
 
-		if ((new_slope & TCB_STEEP)) {
+		if (IsImplodedSteepSlope(new_slope)) {
 			v = vs->GetCreate(height + 1, true);
 			v->SetReferencePosition(pos.x, pos.y, height);
 		}
