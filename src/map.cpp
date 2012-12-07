@@ -190,6 +190,7 @@ void VoxelWorld::SetWorldSize(uint16 xs, uint16 ys)
 
 /**
  * Add foundation bits from the bottom up to the given voxel.
+ * @param world %Voxel storage.
  * @param xpos X position of the voxel stack.
  * @param ypos Y position of the voxel stack.
  * @param z Height of the ground.

@@ -76,7 +76,7 @@ TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM)
 {
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
 	this->SetLeveling(true);
-	this->SetSize(4, 3);
+	this->SetSize(1, 1);
 
 	_terraformer.OpenWindow();
 }
