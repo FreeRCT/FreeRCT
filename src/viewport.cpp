@@ -144,6 +144,14 @@ public:
 
 protected:
 	/**
+	 * Decide where supports should be raised.
+	 * @param stack %Voxel stack to examine.
+	 * @param xpos X position of the voxel stack.
+	 * @param ypos Y position of the voxel stack.
+	 */
+	virtual void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) { }
+
+	/**
 	 * Handle a voxel that should be collected.
 	 * @param vx   %Voxel to add, \c NULL means 'cursor above stack'.
 	 * @param xpos X world position.
@@ -160,6 +168,7 @@ protected:
 enum SpriteOrder {
 	SO_FOUNDATION, ///< Draw foundation sprites.
 	SO_GROUND,     ///< Draw ground sprites.
+	SO_SUPPORT,    ///< Draw support sprites.
 	SO_PLATFORM,   ///< Draw platform sprites.
 	SO_PATH,       ///< Draw path or ride sprites.
 	SO_PERSON,     ///< Draw person sprites.
@@ -216,11 +225,15 @@ public:
 	bool enable_cursors; ///< Enable cursor drawing.
 
 protected:
-	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
+	/* virtual */ void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
+	/* virtual */ void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos);
 	const ImageData *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
 	Point16 north_offsets[4];
+
+	uint16 ground_height; ///< The height of the ground in the current voxel stack. \c -1 means no valid ground found.
+	uint8 ground_slope;   ///< Imploded ground slope if #ground_height is valid.
 };
 
 
@@ -241,7 +254,7 @@ public:
 	uint8  zvoxel;   ///< Z position of the voxel with the closest sprite.
 
 protected:
-	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
+	/* virtual */ void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
 };
 
 
@@ -305,6 +318,7 @@ void VoxelCollector::Collect(bool use_additions)
 			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
 
 			const VoxelStack *stack = use_additions ? _additions.GetStack(xpos, ypos) : _world.GetStack(xpos, ypos);
+			this->SetupSupports(stack, xpos, ypos);
 			uint zpos = stack->base;
 			for (int count = 0; count < stack->height; zpos++, count++) {
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
@@ -689,6 +703,22 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 	}
 }
 
+/* virtual */ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypos)
+{
+	for (uint i = 0; i < stack->height; i++) {
+		const Voxel *v = &stack->voxels[i];
+		if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+		if (v->GetPathRideNumber() == PT_INVALID) {
+			this->ground_height = stack->base + i;
+			this->ground_slope = v->GetGroundSlope();
+			return;
+		}
+		break;
+	}
+	this->ground_height = -1;
+	return;
+}
+
 /**
  * Add all sprites of the voxel to the set of sprites to draw.
  * @param voxel %Voxel to add, \c NULL means 'cursor above stack'.
@@ -885,6 +915,47 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				}
 
 				/* XXX Use the shape to draw handle bars. */
+
+				/* Add supports. */
+				uint16 height = this->ground_height;
+				this->ground_height = -1;
+				if (height >= 0) {
+					uint8 slope = this->ground_slope;
+					while (height < zpos) {
+						int yoffset = (zpos - height) * this->vp->tile_height; // Compensate y position of support.
+						uint sprnum;
+						if (slope == SL_FLAT) {
+							if (height + 1 < zpos) {
+								sprnum = SSP_FLAT_DOUBLE_NS + (this->orient & 1);
+								height += 2;
+							} else {
+								sprnum = SSP_FLAT_SINGLE_NS + (this->orient & 1);
+								height += 1;
+							}
+						} else {
+							if (slope >= 15) { // Imploded steep slope.
+								sprnum = SSP_STEEP_N + ((slope - 15) + 2) % 4;
+								height += 2;
+							} else {
+								sprnum = SSP_NONFLAT_BASE + 15 - slope;
+								height++;
+							}
+							slope = SL_FLAT;
+						}
+						ImageData *img = this->sprites->support->sprites[sprnum];
+						if (img != NULL) {
+							DrawData dd;
+							dd.level = slice;
+							dd.z_height = height;
+							dd.order = SO_SUPPORT;
+							dd.sprite = img;
+							dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+							dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
+							dd.recolour = NULL;
+							draw_images.insert(dd);
+						}
+					}
+				}
 			}
 			break;
 		}
