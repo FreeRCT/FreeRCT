@@ -404,14 +404,21 @@ Offset  Length  Description
   12       2    Type of foundation.
   14       2    Zoom-width of a tile.
   16       2    Change in Z height of the tiles.
-  18       4    Vertical south-east foundation, east up, south down.
-  22       4    Vertical south-east foundation, east down, south up.
-  26       4    Vertical south-east foundation, east up, south up.
-  30       4    Vertical south-west foundation, south up, west down.
-  34       4    Vertical south-west foundation, south down, west up.
-  38       4    Vertical south-west foundation, south up, west up.
+  18       4    Vertical south-east foundation, east  visible, south down.
+  22       4    Vertical south-east foundation, east  down,    south visible.
+  26       4    Vertical south-east foundation, east  visible, south visible.
+  30       4    Vertical south-west foundation, south visible, west down.
+  34       4    Vertical south-west foundation, south down,    west visible.
+  38       4    Vertical south-west foundation, south visible, west visible.
   42            Total length
 ======  ======  ==========================================================
+
+The semantics of 'visible' is that the foundation is visible for the entire
+height of the foundation. The term 'up' means that just the point at the top is
+used, and 'down' means the point at the bottom is used.
+
+Note that the sprite-sheet also has 4 'up' sprites, but they are currently not
+used.
 
 
 Known types of foundation:

@@ -7,7 +7,7 @@
 #
 
 GAMEDATA=borderhighlight_8bpp64.rcd \
-	cornerhighlight_8bpp64.rcd cursor_groundtile_8bpp64.rcd foundation_8bpp64.rcd \
+	cornerhighlight_8bpp64.rcd \
 	groundtile_8bpp64.rcd people_animation.rcd
 
 PATHDATA=path_8bpp64.rcd

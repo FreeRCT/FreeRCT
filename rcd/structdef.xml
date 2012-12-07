@@ -65,12 +65,12 @@
 		<field name="found_type"> <type name="FoundationType"/><comment>Type of foundation</comment></field>
 		<field name="tile_width"> <type name="uint16"/><comment>Zoom-width of a tile</comment></field>
 		<field name="tile_height"><type name="uint16"/><comment>Change in Z height of the tiles</comment></field>
-		<field name="se_e">       <type name="sprite"/><comment>Vertical south-east foundation, east up, south down</comment></field>
-		<field name="se_s">       <type name="sprite"/><comment>Vertical south-east foundation, east down, south up</comment></field>
-		<field name="se_se">      <type name="sprite"/><comment>Vertical south-east foundation, east up, south up</comment></field>
-		<field name="sw_s">       <type name="sprite"/><comment>Vertical south-west foundation, south up, west down</comment></field>
-		<field name="sw_w">       <type name="sprite"/><comment>Vertical south-west foundation, south down, west up</comment></field>
-		<field name="sw_sw">      <type name="sprite"/><comment>Vertical south-west foundation, south up, west up</comment></field>
+		<field name="se_0e"><type name="sprite"/><comment>Vertical south-east foundation, east up, south down</comment></field>
+		<field name="se_s0"><type name="sprite"/><comment>Vertical south-east foundation, east down, south up</comment></field>
+		<field name="se_se"><type name="sprite"/><comment>Vertical south-east foundation, east up, south up</comment></field>
+		<field name="sw_s0"><type name="sprite"/><comment>Vertical south-west foundation, south up, west down</comment></field>
+		<field name="sw_0w"><type name="sprite"/><comment>Vertical south-west foundation, south down, west up</comment></field>
+		<field name="sw_sw"><type name="sprite"/><comment>Vertical south-west foundation, south up, west up</comment></field>
 	</block>
 
 	<!-- Widget border sprites -->

@@ -267,7 +267,7 @@
 	</file>
 
 	<!-- Cursor position test sprites. -->
-	<file target="cursor_groundtile_8bpp64.rcd" magic="RCDF" version="1">
+	<file target="groundtile_8bpp64.rcd" magic="RCDF" version="1">
 		<gameblock magic="SURF" version="3">
 			<field name="tile_width"  value="64"/>
 			<field name="z_height"    value="16"/>
@@ -282,10 +282,8 @@
 			             |n#N,  n#E,  n#S,  n#W"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
-	</file>
 
-	<!-- Ground surface sprites. -->
-	<file target="groundtile_8bpp64.rcd" magic="RCDF" version="1">
+		<!-- Ground surface sprites. -->
 		<gameblock magic="SURF" version="3">
 			<field name="tile_width"  value="64"/>
 			<field name="z_height"    value="16"/>
@@ -300,10 +298,8 @@
 			             |n#N,  n#E,  n#S,  n#W"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
-	</file>
 
-	<!-- Foundations -->
-	<file target="foundation_8bpp64.rcd" magic="RCDF" version="1">
+		<!-- Foundations -->
 		<gameblock magic="FUND" version="1">
 			<field name="found_type" value="ground"/>
 			<field name="tile_width"  value="64"/>
@@ -311,8 +307,10 @@
 			<sheet x-base="0" y-base="0" x-step="64" y-step="64"
 			       fname="../sprites_src/terrain/foundation/template8bpp64_masked.png"
 			       names="se_se, sw_sw
-			             |se_e,  sw_w
-			             |se_s,  sw_s"
+			             |_se_1e,  _sw_1w
+			             |_se_s1,  _sw_s1
+			             |se_0e,  sw_0w
+			             |se_s0,  sw_s0"
 			       x-offset="-32" y-offset="-33" width="64" height="64" />
 		</gameblock>
 	</file>
