@@ -710,7 +710,7 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 		if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
 		if (v->GetPathRideNumber() == PT_INVALID) {
 			this->ground_height = stack->base + i;
-			this->ground_slope = v->GetGroundSlope();
+			this->ground_slope = _slope_rotation[v->GetGroundSlope()][this->orient];
 			return;
 		}
 		break;
