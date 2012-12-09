@@ -329,7 +329,7 @@ void VoxelCollector::Collect(bool use_additions)
 			}
 			/* Possibly cursors should be drawn above this. */
 			if (this->draw_above_stack) {
-				uint8 zmax = this->vp->GetMaxCursorHeight(xpos, ypos, zpos - 1);
+				uint8 zmax = this->vp->GetMaxCursorHeight(xpos, ypos, (zpos == 0) ? zpos : zpos - 1);
 				for (; zpos <= zmax; zpos++) {
 					int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
 					if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
@@ -338,7 +338,6 @@ void VoxelCollector::Collect(bool use_additions)
 					this->CollectVoxel(NULL, xpos, ypos, zpos, north_x, north_y);
 				}
 			}
-
 		}
 	}
 }
