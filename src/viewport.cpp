@@ -25,6 +25,7 @@
 #include "shop_placement.h"
 #include "ride_type.h"
 #include "terraform.h"
+#include "select_mode.h"
 
 #include <set>
 
@@ -1486,4 +1487,5 @@ void InitMouseModes()
 	_mouse_modes.RegisterMode(&_terraformer);
 	_mouse_modes.RegisterMode(&_path_builder);
 	_mouse_modes.RegisterMode(&_shop_placer);
+	_mouse_modes.RegisterMode(&_select_mousemode);
 }
