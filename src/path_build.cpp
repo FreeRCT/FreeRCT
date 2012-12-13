@@ -220,13 +220,12 @@ void PathBuildManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, co
 		/* Drag the window if button is pressed down. */
 		vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
 	} else {
-		uint16 xvoxel, yvoxel;
-		uint8 zvoxel;
-		CursorType cur_type;
-
 		/* Only update tile cursor if no tile selected yet. */
-		if (this->state == PBS_WAIT_VOXEL && vp->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
-			vp->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
+		if (this->state == PBS_WAIT_VOXEL) {
+			FinderData fdata((SO_GROUND | SO_PATH), false);
+			if (vp->ComputeCursorPosition(&fdata) != SO_NONE) {
+				vp->tile_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel, fdata.cursor);
+			}
 		}
 	}
 }
@@ -239,11 +238,9 @@ void PathBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 		if (this->state == PBS_LONG_BUILD || this->state == PBS_LONG_BUY) {
 			this->ConfirmLongPath();
 		} else {
-			uint16 xvoxel, yvoxel;
-			uint8 zvoxel;
-			CursorType cur_type;
-			if (vp->ComputeCursorPosition(false, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
-				this->TileClicked(xvoxel, yvoxel, zvoxel);
+			FinderData fdata((SO_GROUND | SO_PATH), false);
+			if (vp->ComputeCursorPosition(&fdata) != SO_NONE) {
+				this->TileClicked(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel);
 			}
 		}
 	}

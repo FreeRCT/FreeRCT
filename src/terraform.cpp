@@ -624,17 +624,14 @@ void TileTerraformMouseMode::SetCursors()
 	Viewport *vp = GetViewport();
 	if (vp == NULL) return;
 
-	uint16 xvoxel, yvoxel;
-	uint8 zvoxel;
-	CursorType cur_type;
-
 	bool single = this->xsize <= 1 && this->ysize <= 1;
-	if (vp->ComputeCursorPosition(single, &xvoxel, &yvoxel, &zvoxel, &cur_type)) {
+	FinderData fdata(SO_GROUND, single);
+	if (vp->ComputeCursorPosition(&fdata) != SO_NONE) {
 		if (single) {
-			vp->tile_cursor.SetCursor(xvoxel, yvoxel, zvoxel, cur_type);
+			vp->tile_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel, fdata.cursor);
 			vp->area_cursor.SetInvalid();
 		} else {
-			Rectangle32 rect(xvoxel - this->xsize / 2, yvoxel - this->ysize / 2, this->xsize, this->ysize);
+			Rectangle32 rect(fdata.xvoxel - this->xsize / 2, fdata.yvoxel - this->ysize / 2, this->xsize, this->ysize);
 			vp->tile_cursor.SetInvalid();
 			vp->area_cursor.SetCursor(rect, CUR_TYPE_TILE);
 		}

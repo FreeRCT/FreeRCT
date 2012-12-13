@@ -1298,37 +1298,29 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 
 /**
  * Compute position of the mouse cursor, and return the result.
- * @param select_corner Not only select the voxel but also the corner.
- * @param xvoxel [out] Pointer to store the X coordinate of the selected voxel.
- * @param yvoxel [out] Pointer to store the Y coordinate of the selected voxel.
- * @param zvoxel [out] Pointer to store the Z coordinate of the selected voxel.
- * @param cur_type [out] Pointer to store the cursor type.
- * @return A voxel coordinate was calculated.
+ * @param fdata [inout] Parameters and results of the finding process.
+ * @return Found type of sprite.
  */
-bool Viewport::ComputeCursorPosition(bool select_corner, uint16 *xvoxel, uint16 *yvoxel, uint8 *zvoxel, CursorType *cur_type)
+SpriteOrder Viewport::ComputeCursorPosition(FinderData *fdata)
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
-	FinderData fdata(SO_GROUND, select_corner);
-	PixelFinder collector(this, &fdata);
+	PixelFinder collector(this, fdata);
 	collector.SetWindowSize(xp, yp, 1, 1);
 	collector.Collect(false);
-	if (!collector.found) return false; // Not at a tile.
+	if (!collector.found) return SO_NONE;
 
-	*cur_type = CUR_TYPE_TILE;
-	if (select_corner) {
+	fdata->cursor = CUR_TYPE_TILE;
+	if (fdata->select_corner && collector.data.order == SO_GROUND) {
 		switch (collector.pixel) {
-			case 181: *cur_type = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
-			case 182: *cur_type = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
-			case 184: *cur_type = (CursorType)AddOrientations(VOR_WEST,  this->orientation); break;
-			case 185: *cur_type = (CursorType)AddOrientations(VOR_SOUTH, this->orientation); break;
+			case 181: fdata->cursor = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
+			case 182: fdata->cursor = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
+			case 184: fdata->cursor = (CursorType)AddOrientations(VOR_WEST,  this->orientation); break;
+			case 185: fdata->cursor = (CursorType)AddOrientations(VOR_SOUTH, this->orientation); break;
 			default: break;
 		}
 	}
-	*xvoxel = fdata.xvoxel;
-	*yvoxel = fdata.yvoxel;
-	*zvoxel = fdata.zvoxel;
-	return true;
+	return collector.data.order;
 }
 
 /**
