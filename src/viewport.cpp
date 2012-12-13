@@ -233,15 +233,14 @@ protected:
  */
 class PixelFinder : public VoxelCollector {
 public:
-	PixelFinder(Viewport *vp);
+	PixelFinder(Viewport *vp, FinderData *fdata);
 	~PixelFinder();
 
-	bool   found;    ///< Found a solution.
-	int32  distance; ///< Closest distance so far.
-	uint8  pixel;    ///< Pixel colour of the closest sprite.
-	uint16 xvoxel;   ///< X position of the voxel with the closest sprite.
-	uint16 yvoxel;   ///< Y position of the voxel with the closest sprite.
-	uint8  zvoxel;   ///< Z position of the voxel with the closest sprite.
+	SpriteOrder allowed; ///< Sprite types looking for.
+	bool found;          ///< Found a match.
+	DrawData data;       ///< Drawing data of the match found so far.
+	uint8 pixel;         ///< Pixel colour of the closest sprite.
+	FinderData *fdata;   ///< Finder data to return.
 
 protected:
 	/* virtual */ void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
@@ -990,17 +989,34 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 }
 
 /**
+ * Constructor of the finder data class.
+ * @param allowed Bit-set of sprite types to look for (#SO_GROUND, #SO_PATH, #SO_RIDE, #SO_PERSON).
+ * @param select_corner Select the tile corner (otherwise, a tile cursor is returned).
+ */
+FinderData::FinderData(SpriteOrder allowed, bool select_corner)
+{
+	this->allowed = allowed;
+	this->select_corner = select_corner;
+	// Other data is initialized in PixelFinder::PixelFinder, or Viewport::ComputeCursorPosition.
+}
+
+/**
  * Constructor of the tile position finder.
  * @param vp %Viewport that needs the tile position.
+ * @param fdata Finder data.
  */
-PixelFinder::PixelFinder(Viewport *vp) : VoxelCollector(vp, false)
+PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp, false)
 {
+	this->allowed = fdata->allowed;
 	this->found = false;
-	this->distance = 0;
-	this->pixel = 0;
-	this->xvoxel = 0;
-	this->yvoxel = 0;
-	this->zvoxel = 0;
+	this->pixel = 0; // 0 is transparent, and is not used in sprites.
+	this->fdata = fdata;
+
+	fdata->xvoxel = 0;
+	fdata->yvoxel = 0;
+	fdata->zvoxel = 0;
+	fdata->person = NULL;
+	fdata->ride_instance = NULL;
 }
 
 PixelFinder::~PixelFinder()
@@ -1018,38 +1034,123 @@ PixelFinder::~PixelFinder()
  */
 void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth)
 {
-	int sx = (this->orient == VOR_NORTH || this->orient == VOR_EAST) ? 256 : -256;
-	int sy = (this->orient == VOR_NORTH || this->orient == VOR_WEST) ? 256 : -256;
+	int32 slice;
+	switch (this->orient) {
+		case 0: slice =  xpos + ypos; break;
+		case 1: slice =  xpos - ypos; break;
+		case 2: slice = -xpos - ypos; break;
+		case 3: slice = -xpos + ypos; break;
+		default: NOT_REACHED();
+	}
 
 	if (voxel == NULL) return; // Ignore cursors, they are not clickable.
-	switch (voxel->GetType()) {
-		case VT_SURFACE: {
-			if (voxel->GetGroundType() == GTP_INVALID) break;
-			const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
-			if (spr == NULL) break;
-			int32 dist = sx * xpos + sy * ypos + zpos * 256;
-			if (this->found && dist <= this->distance) break;
 
-			// north_x + spr->xoffset, north_y + spr->yoffset, spr->img_data->width, spr->img_data->height
-			int16 xoffset = this->rect.base.x - xnorth - spr->xoffset;
-			int16 yoffset = this->rect.base.y - ynorth - spr->yoffset;
-			if (xoffset < 0 || yoffset < 0) break;
-
-			uint8 pixel = spr->GetPixel(xoffset, yoffset);
-			if (pixel == 0) break; // Transparent pixel, thus not the right ground tile.
-
-			this->distance = sx * xpos + sy * ypos + zpos * 256;
-			this->found = true;
-
-			this->xvoxel = xpos;
-			this->yvoxel = ypos;
-			this->zvoxel = zpos;
-			this->pixel = pixel;
-			break;
+	if (voxel->GetType() == VT_SURFACE) {
+		/* Looking for a ride? */
+		uint16 number = voxel->GetPathRideNumber();
+		if ((this->allowed & SO_RIDE) != 0 && number < PT_START) {
+			const RideInstance *ri = _rides_manager.GetRideInstance(number);
+			const ShopType *ride = (ri == NULL) ? NULL : ri->type;
+			const ImageData *img = (ride == NULL) ? NULL : ride->views[(4 + ri->orientation - this->orient) & 3];
+			DrawData dd;
+			dd.level = slice;
+			dd.z_height = zpos;
+			dd.order = SO_RIDE;
+			dd.sprite = NULL;
+			dd.base.x = this->rect.base.x - xnorth;
+			dd.base.y = this->rect.base.y - ynorth;
+			dd.recolour = NULL;
+			if (img != NULL && (!this->found || this->data < dd)) {
+				uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+				if (pixel != 0) {
+					this->found = true;
+					this->data = dd;
+					this->fdata->xvoxel = xpos;
+					this->fdata->yvoxel = ypos;
+					this->fdata->zvoxel = zpos;
+					this->pixel = pixel;
+					this->fdata->ride_instance = ri;
+				}
+			}
 		}
+		/* Looking for a path? */
+		if ((this->allowed & SO_PATH) != 0 && number != PT_INVALID && number >= PT_START) {
+			const ImageData *img = this->sprites->GetPathSprite(number, voxel->GetPathRideFlags(), this->orient);
+			DrawData dd;
+			dd.level = slice;
+			dd.z_height = zpos;
+			dd.order = SO_PATH;
+			dd.sprite = NULL;
+			dd.base.x = this->rect.base.x - xnorth;
+			dd.base.y = this->rect.base.y - ynorth;
+			dd.recolour = NULL;
+			if (img != NULL && (!this->found || this->data < dd)) {
+				uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+				if (pixel != 0) {
+					this->found = true;
+					this->data = dd;
+					this->fdata->xvoxel = xpos;
+					this->fdata->yvoxel = ypos;
+					this->fdata->zvoxel = zpos;
+					this->pixel = pixel;
+				}
+			}
+		}
+		/* Looking for surface? */
+		if ((this->allowed & SO_GROUND) != 0 && voxel->GetGroundType() != GTP_INVALID) {
+			const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
+			DrawData dd;
+			dd.level = slice;
+			dd.z_height = zpos;
+			dd.order = SO_GROUND;
+			dd.sprite = NULL;
+			dd.base.x = this->rect.base.x - xnorth;
+			dd.base.y = this->rect.base.y - ynorth;
+			dd.recolour = NULL;
+			if (spr != NULL && (!this->found || this->data < dd)) {
+				uint8 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
+				if (pixel != 0) {
+					this->found = true;
+					this->data = dd;
+					this->fdata->xvoxel = xpos;
+					this->fdata->yvoxel = ypos;
+					this->fdata->zvoxel = zpos;
+					this->pixel = pixel;
+				}
+			}
+		}
+	}
 
-		default:
-			break;
+	/* Looking for persons? */
+	if ((this->allowed & SO_PERSON) != 0) {
+		const Person *pers = voxel->persons.first;
+		while (pers != NULL) {
+			AnimationType anim_type = pers->walk->anim_type;
+			const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
+			int x_off = ComputeX(pers->x_pos, pers->y_pos);
+			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
+			DrawData dd;
+			dd.level = slice;
+			dd.z_height = zpos;
+			dd.order = SO_PERSON;
+			dd.sprite = NULL;
+			dd.base.x = this->rect.base.x - xnorth - x_off;
+			dd.base.y = this->rect.base.y - ynorth - y_off;
+			dd.recolour = NULL;
+			if (anim_spr && (!this->found || this->data < dd)) {
+				uint8 pixel = anim_spr->GetPixel(dd.base.x - anim_spr->xoffset, dd.base.y - anim_spr->yoffset);
+				if (pixel != 0) {
+					this->found = true;
+					this->data = dd;
+					this->fdata->xvoxel = xpos;
+					this->fdata->yvoxel = ypos;
+					this->fdata->zvoxel = zpos;
+					this->pixel = pixel;
+					this->fdata->person = pers;
+				}
+			}
+			pers = pers->next;
+		}
 	}
 }
 
@@ -1208,7 +1309,8 @@ bool Viewport::ComputeCursorPosition(bool select_corner, uint16 *xvoxel, uint16 
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
-	PixelFinder collector(this);
+	FinderData fdata(SO_GROUND, select_corner);
+	PixelFinder collector(this, &fdata);
 	collector.SetWindowSize(xp, yp, 1, 1);
 	collector.Collect(false);
 	if (!collector.found) return false; // Not at a tile.
@@ -1223,9 +1325,9 @@ bool Viewport::ComputeCursorPosition(bool select_corner, uint16 *xvoxel, uint16 
 			default: break;
 		}
 	}
-	*xvoxel = collector.xvoxel;
-	*yvoxel = collector.yvoxel;
-	*zvoxel = collector.zvoxel;
+	*xvoxel = fdata.xvoxel;
+	*yvoxel = fdata.yvoxel;
+	*zvoxel = fdata.zvoxel;
 	return true;
 }
 

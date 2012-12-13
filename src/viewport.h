@@ -15,6 +15,8 @@
 #include "window.h"
 
 class Viewport;
+class Person;
+class RideInstance;
 
 /**
  * Known mouse modes.
@@ -61,6 +63,22 @@ enum SpriteOrder {
 	SO_CURSOR     = 1 << 7, ///< Draw cursor sprites.
 };
 DECLARE_ENUM_AS_BIT_SET(SpriteOrder)
+
+/** Data found by #ComputeCursorPosition. */
+class FinderData {
+public:
+	FinderData(SpriteOrder allowed_types, bool select_corner);
+
+	SpriteOrder allowed;  ///< Bit-set of sprite-types looking for (#SO_GROUND, #SO_PATH, #SO_RIDE, #SO_PERSON).
+	bool select_corner;   ///< Select a corner of a ground tile.
+
+	CursorType cursor;    ///< Type of cursor suggested.
+	uint16 xvoxel;        ///< X position of the voxel with the closest sprite.
+	uint16 yvoxel;        ///< Y position of the voxel with the closest sprite.
+	uint8  zvoxel;        ///< Z position of the voxel with the closest sprite.
+	const Person *person; ///< Found person, if any.
+	const RideInstance *ride_instance; ///< Found ride instance, if any.
+};
 
 /**
  * Base class of a viewport cursor.
