@@ -165,17 +165,6 @@ protected:
 	virtual void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) = 0;
 };
 
-/** Order of blitting sprites in a single voxel (earlier in the list is sooner). */
-enum SpriteOrder {
-	SO_FOUNDATION, ///< Draw foundation sprites.
-	SO_GROUND,     ///< Draw ground sprites.
-	SO_SUPPORT,    ///< Draw support sprites.
-	SO_PLATFORM,   ///< Draw platform sprites.
-	SO_PATH,       ///< Draw path or ride sprites.
-	SO_PERSON,     ///< Draw person sprites.
-	SO_CURSOR,     ///< Draw cursor sprites.
-};
-
 /**
  * Data temporary needed for ordering sprites and blitting them to the screen.
  * @ingroup viewport_group
@@ -183,7 +172,7 @@ enum SpriteOrder {
 struct DrawData {
 	int32 level;                 ///< Slice of this sprite (vertical row).
 	uint16 z_height;             ///< Height of the voxel being drawn.
-	uint16 order;                ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
+	SpriteOrder order;           ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
 	const ImageData *sprite;     ///< Mouse cursor to draw.
 	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
 	const Recolouring *recolour; ///< Recolouring of the sprite.
@@ -781,7 +770,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 						DrawData dd;
 						dd.level = slice;
 						dd.z_height = zpos;
-						dd.order = SO_PATH;
+						dd.order = SO_RIDE;
 						dd.sprite = img;
 						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
@@ -842,7 +831,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.z_height = zpos;
 				dd.order = SO_GROUND;
 				uint8 slope = voxel->GetGroundSlope();
-				dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), voxel->GetGroundSlope(), this->orient);
+				dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), slope, this->orient);
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;

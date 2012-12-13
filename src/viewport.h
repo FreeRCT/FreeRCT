@@ -48,6 +48,20 @@ enum CursorType {
 	CUR_TYPE_INVALID,  ///< Invalid/unused cursor.
 };
 
+/** Order of blitting sprites in a single voxel (earlier in the list is sooner). */
+enum SpriteOrder {
+	SO_NONE       = 0,      ///< No drawing.
+	SO_FOUNDATION = 1 << 0, ///< Draw foundation sprites.
+	SO_GROUND     = 1 << 1, ///< Draw ground sprites.
+	SO_SUPPORT    = 1 << 2, ///< Draw support sprites.
+	SO_PLATFORM   = 1 << 3, ///< Draw platform sprites.
+	SO_PATH       = 1 << 4, ///< Draw path sprites.
+	SO_RIDE       = 1 << 5, ///< Draw ride sprites.
+	SO_PERSON     = 1 << 6, ///< Draw person sprites.
+	SO_CURSOR     = 1 << 7, ///< Draw cursor sprites.
+};
+DECLARE_ENUM_AS_BIT_SET(SpriteOrder)
+
 /**
  * Base class of a viewport cursor.
  * @ingroup viewport_group
