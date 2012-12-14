@@ -64,7 +64,7 @@ enum SpriteOrder {
 };
 DECLARE_ENUM_AS_BIT_SET(SpriteOrder)
 
-/** Data found by #ComputeCursorPosition. */
+/** Data found by Viewport::ComputeCursorPosition. */
 class FinderData {
 public:
 	FinderData(SpriteOrder allowed_types, bool select_corner);

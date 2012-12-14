@@ -503,6 +503,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		TileSlope new_slope;
 		uint8 height;
 		ComputeSlopeAndHeight(current, &new_slope, &height);
+		if (height >= WORLD_Z_SIZE) return false;
 
 		v = vs->GetCreate(height, true);
 		assert(v->GetType() != VT_REFERENCE);
