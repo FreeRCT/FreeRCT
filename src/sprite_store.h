@@ -181,7 +181,7 @@ public:
 };
 
 /**
- * Support sprites.
+ * %Support sprites.
  * @ingroup sprites_group
  */
 class Support : public RcdBlock {

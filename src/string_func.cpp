@@ -65,7 +65,7 @@ uint8 *StrECpy(uint8 *dest, uint8 *end, const uint8 *src)
 /**
  * Are the two strings equal?
  * @param s1 First string to compare.
- * @param s1 Second string to compare.
+ * @param s2 Second string to compare.
  * @return strings are exactly equal.
  */
 bool StrEqual(const uint8 *s1, const uint8 *s2)

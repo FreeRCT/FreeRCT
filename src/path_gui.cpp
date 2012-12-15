@@ -18,7 +18,7 @@
 #include "table/gui_sprites.h"
 
 /**
- * Path build Gui.
+ * %Path build Gui.
  * @ingroup gui_group
  */
 class PathBuildGui : public GuiWindow {

@@ -109,7 +109,7 @@ void ShowToolbar()
 	new ToolbarWindow();
 }
 
-/** Window to ask confirmation for ending the program. */
+/** %Window to ask confirmation for ending the program. */
 class QuitProgramWindow : public GuiWindow {
 public:
 	QuitProgramWindow();

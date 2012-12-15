@@ -20,6 +20,7 @@ enum ShopManagerWidgets {
 	SMW_TITLEBAR, ///< Title bar widget.
 };
 
+/** Widget parts of the #ShopManagerWindow. */
 static const WidgetPart _shop_manager_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
@@ -28,6 +29,7 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 		EndContainer(),
 };
 
+/** Gui window for interacting with a shop instance. */
 class ShopManagerWindow : public GuiWindow {
 public:
 	ShopManagerWindow(RideInstance *shop);
@@ -60,7 +62,7 @@ ShopManagerWindow::ShopManagerWindow(RideInstance *ri) : GuiWindow(WC_SHOP_MANAG
 
 /**
  * Open a window to manage a given shop.
- * @param ri Shop to manage.
+ * @param number Shop to manage.
  * @todo Enable having several windows of the same window type, by adding a sub-number.
  */
 void ShowShopManagementGui(uint16 number)

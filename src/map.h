@@ -53,10 +53,10 @@ struct ReferenceVoxelData {
 /** Flags for the ride voxel data. */
 enum RideVoxelFlags {
 	RVF_NONE = 0, ///< No flags set.
-	RVF_ENTRANCE_NE = 1 << EDGE_NE, ///< Voxel has a ride entrance at the north-east side.
-	RVF_ENTRANCE_SE = 1 << EDGE_SE, ///< Voxel has a ride entrance at the south-east side.
-	RVF_ENTRANCE_SW = 1 << EDGE_SW, ///< Voxel has a ride entrance at the south-west side.
-	RVF_ENTRANCE_NW = 1 << EDGE_NW, ///< Voxel has a ride entrance at the north-west side.
+	RVF_ENTRANCE_NE = 1 << EDGE_NE, ///< %Voxel has a ride entrance at the north-east side.
+	RVF_ENTRANCE_SE = 1 << EDGE_SE, ///< %Voxel has a ride entrance at the south-east side.
+	RVF_ENTRANCE_SW = 1 << EDGE_SW, ///< %Voxel has a ride entrance at the south-west side.
+	RVF_ENTRANCE_NW = 1 << EDGE_NW, ///< %Voxel has a ride entrance at the north-west side.
 };
 
 /**

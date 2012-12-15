@@ -24,7 +24,7 @@ enum PathBuildState {
 	PBS_WAIT_VOXEL, ///< Wait for a voxel to be selected.
 	PBS_WAIT_ARROW, ///< Wait for an arrow direction to be selected.
 	PBS_WAIT_SLOPE, ///< Wait for a slope to be selected.
-	PBS_WAIT_BUY,   ///< Path-building has a tile and a slope proposed in #_additions, wait for 'buy'.
+	PBS_WAIT_BUY,   ///< %Path-building has a tile and a slope proposed in #_additions, wait for 'buy'.
 	PBS_LONG_BUILD, ///< Build a 'long' path.
 	PBS_LONG_BUY,   ///< Wait for buying the long path.
 };

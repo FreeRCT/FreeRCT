@@ -122,7 +122,7 @@ void StringParameters::SetNumber(int num, int64 number)
 /**
  * Mark string parameter \a num to contain an amount of money.
  * @param num Number of the parameter to set (1-based).
- * @param number Amount of money to output.
+ * @param amount Amount of money to output.
  */
 void StringParameters::SetMoney(int num, const Money &amount)
 {
@@ -137,7 +137,7 @@ void StringParameters::SetMoney(int num, const Money &amount)
 /**
  * Mark string parameter \a num to contain a date.
  * @param num Number of the parameter to set (1-based).
- * @param number %Date to output.
+ * @param date %Date to output.
  */
 void StringParameters::SetDate(int num, const Date &date)
 {
@@ -282,6 +282,7 @@ static uint8 *CopyString(uint8 *dest, const uint8 *last, const uint8 *src)
  * @param strid String number to 'draw'.
  * @param buffer Destination buffer.
  * @param length Length of \a buffer in bytes.
+ * @param params String parameter values for the "%n%" patterns.
  */
 void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *params)
 {

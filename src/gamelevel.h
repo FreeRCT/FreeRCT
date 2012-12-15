@@ -14,7 +14,7 @@
 
 #include "money.h"
 
-/** Scenario settings. */
+/** %Scenario settings. */
 struct Scenario {
 	Scenario();
 

@@ -136,8 +136,8 @@ public:
 };
 
 /**
- * Cursor consisting of one or more tiles.
- * The cursor at every tile is a tile cursor.
+ * %Cursor consisting of one or more tiles.
+ * The cursor at every tile is a tile cursor (#CUR_TYPE_TILE).
  */
 class MultiCursor : public BaseCursor {
 public:

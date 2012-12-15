@@ -15,7 +15,7 @@
 #include "window.h"
 #include "math_func.h"
 
-PathBuildManager _path_builder; ///< Path build manager.
+PathBuildManager _path_builder; ///< %Path build manager.
 
 /**
  * In the given voxel, can a path be build in the voxel from the bottom at the given edge?

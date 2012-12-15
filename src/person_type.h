@@ -22,7 +22,7 @@ static const int NUMBER_PERSON_TYPE_RECOLOURINGS = 3; ///< Number of recolouring
 /** Types of persons. */
 enum PersonType {
 	PERSON_ANY    = 0, ///< No people displayed in the animation.
-	PERSON_PILLAR = 1, ///< Guests from the planet of Pillars (test graphics).
+	PERSON_PILLAR = 1, ///< %Guests from the planet of Pillars (test graphics).
 	PERSON_EARTH  = 2, ///< Earth-bound guests.
 	PERSON_TYPE_COUNT, ///< Number of known types of persons.
 
@@ -68,7 +68,7 @@ inline const PersonTypeData &GetPersonTypeData(PersonType pt)
 
 /**
  * Function to decide whether a person type is a guest or not.
- * @param type Person type to test.
+ * @param type %Person type to test.
  * @return Whether the given person type is a guest.
  */
 static inline bool PersonIsAGuest(uint8 type)

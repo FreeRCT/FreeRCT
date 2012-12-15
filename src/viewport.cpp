@@ -478,7 +478,7 @@ Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
  * @param zpos Z position of the voxel containing the cursor.
  * @param type Type of cursor to set.
  * @param always Always set the cursor (else, only set it if it changed).
- * @return Cursor has been set/changed.
+ * @return %Cursor has been set/changed.
  */
 bool Cursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always)
 {
@@ -622,7 +622,7 @@ bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool alway
  * @param xpos X position of the voxel being drawn.
  * @param ypos Y position of the voxel being drawn.
  * @param zpos Z position of the voxel being drawn.
- * @return Cursor type at the position (\c CUR_TYPE_INVALID means no cursor available).
+ * @return %Cursor type at the position (\c CUR_TYPE_INVALID means no cursor available).
  */
 CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
 {
