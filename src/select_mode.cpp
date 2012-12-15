@@ -50,6 +50,12 @@ SelectMouseMode::~SelectMouseMode()
 /* virtual */ void SelectMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 {
 	this->mouse_state = state & MB_CURRENT;
+	if (this->mouse_state != 0) {
+		FinderData fdata(SO_RIDE, false);
+		if (vp->ComputeCursorPosition(&fdata) == SO_RIDE) {
+			ShowShopManagementGui(fdata.ride);
+		}
+	}
 }
 
 /* virtual */ bool SelectMouseMode::EnableCursors()
