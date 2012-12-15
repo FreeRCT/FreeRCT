@@ -27,8 +27,9 @@ enum WindowTypes {
 	WC_MAINDISPLAY,  ///< Main display of the world.
 	WC_TOOLBAR,      ///< Main toolbar.
 	WC_QUIT,         ///< Quit program window.
-	WC_PATH_BUILDER, ///< Path build gui.
+	WC_PATH_BUILDER, ///< %Path build gui.
 	WC_RIDE_SELECT,  ///< Ride selection window.
+	WC_SHOP_MANAGER, ///< Management window of a shop.
 	WC_TERRAFORM,    ///< Terraform window.
 
 	WC_NONE,         ///< Invalid window type.
@@ -309,6 +310,7 @@ Viewport *ShowMainDisplay();
 void ShowToolbar();
 void ShowPathBuildGui();
 void ShowRideSelectGui();
+void ShowShopManagementGui(uint16 ri);
 void ShowTerraformGui();
 
 #endif

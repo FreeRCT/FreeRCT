@@ -85,6 +85,9 @@
 	<string name="RIDE_SELECT_ROT_POS_TOOLTIP">Click to rotate the ride in counter-clockwise direction</string>
 	<string name="RIDE_SELECT_ROT_NEG_TOOLTIP">Click to rotate the ride in clockwise direction</string>
 
+	<!-- Shop manager window strings -->
+	<string name="SHOP_MANAGER_TITLE">Shop %1%</string>
+
 	<!-- Terraform gui strings -->
 	<string name="TERRAFORM_TITLE">Modify landscape</string>
 	<string name="TERRAFORM_ADD_TEXT">+</string>
