@@ -43,7 +43,7 @@
 
 			<!-- Window button sprites -->
 			<image name="close-sprite"    fname="../sprites_src/gui/GUIEles2.png" x-offset="0" y-offset="0"
-					x-base="153" y-base="0" width="16" height="16"/>
+					x-base="154" y-base="1" width="15" height="15"/>
 <!--			<image name="maximise-sprite" fname="../sprites_src/gui/GUIEles2.png" x-offset="0" y-offset="0"
 					x-base="169" y-base="0" width="16" height="16"/>
 			<image name="minimise-sprite" fname="../sprites_src/gui/GUIEles2.png" x-offset="0" y-offset="0"
