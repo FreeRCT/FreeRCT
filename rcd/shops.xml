@@ -38,6 +38,8 @@
 			<field name="type-item1"     value="non-salt-food"/>
 			<field name="type-item2"     value="salt-food"/>
 			<texts name="texts">
+				<string name="NAME_INSTANCE1" lang="">The happy snacker</string>
+				<string name="NAME_INSTANCE2" lang="">Pizza palace</string>
 				<string name="NAME_TYPE" lang="">Snack shop</string>
 				<string name="DESCRIPTION_TYPE" lang="">Shop where you can buy good cookies</string>
 				<string name="NAME_ITEM1" lang="">Cookies</string>

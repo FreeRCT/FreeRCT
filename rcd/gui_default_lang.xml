@@ -26,6 +26,8 @@
 	<string name="MONTH_NOVEMBER">November</string>
 	<string name="MONTH_DECEMBER">December</string>
 
+	<string name="NUMBERED_INSTANCE_NAME">%1% #%2%</string>
+
 	<!-- Toolbar gui strings -->
 	<string name="TOOLBAR_GUI_QUIT">Quit</string>
 	<string name="TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM">Quit the program</string>

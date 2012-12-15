@@ -65,6 +65,7 @@ public:
 
 	bool Load(RcdFile *rcf_file, uint32 length, const ImageMap &sprites, const TextMap &texts);
 	StringID GetString(uint16 number) const;
+	const StringID *GetInstanceNames() const;
 
 	const RideTypeKind kind;    ///< Kind of ride type.
 	int8 height;                ///< Number of voxels used by this shop.
@@ -134,6 +135,7 @@ public:
 	const RideInstance *GetRideInstance(uint16 num) const;
 	bool AddRideType(ShopType *shop_type);
 	uint16 GetFreeInstance();
+	void NewInstanceAdded(uint16 num);
 
 	void OnNewMonth();
 

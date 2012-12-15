@@ -63,6 +63,22 @@ uint8 *StrECpy(uint8 *dest, uint8 *end, const uint8 *src)
 }
 
 /**
+ * Are the two strings equal?
+ * @param s1 First string to compare.
+ * @param s1 Second string to compare.
+ * @return strings are exactly equal.
+ */
+bool StrEqual(const uint8 *s1, const uint8 *s2)
+{
+	assert(s1 != NULL && s2 != NULL);
+	while (*s1 != '\0' && *s2 != '\0' && *s1 == *s2) {
+		s1++;
+		s2++;
+	}
+	return *s1 == '\0' && *s2 == '\0';
+}
+
+/**
  * Test whether \a str ends with \a end.
  * @param str String to check.
  * @param end Expected end text.

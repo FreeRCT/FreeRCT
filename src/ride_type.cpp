@@ -97,6 +97,16 @@ StringID ShopType::GetString(uint16 number) const
 	return this->string_base + (number - STR_GENERIC_SHOP_START);
 }
 
+/**
+ * Get names of shop instances.
+ * @return Array of proposed names, terminated with #STR_INVALID.
+ */
+const StringID *ShopType::GetInstanceNames() const
+{
+	static const StringID names[] = {SHOPS_NAME_INSTANCE1, SHOPS_NAME_INSTANCE2, STR_INVALID};
+	return names;
+}
+
 RideInstance::RideInstance()
 {
 	this->name[0] = '\0';
@@ -292,5 +302,52 @@ uint16 RidesManager::GetFreeInstance()
 		if (this->instances[i].state == RIS_FREE) return i;
 	}
 	return INVALID_RIDE_INSTANCE;
+}
+
+/**
+ * A new ride instance was added. Initialize it further.
+ * @param num Index of the new ride instance.
+ */
+void RidesManager::NewInstanceAdded(uint16 num)
+{
+	RideInstance *ri = this->GetRideInstance(num);
+	assert(ri->state == RIS_ALLOCATED);
+
+	/* Find a new name for the instance. */
+	const StringID *names = ri->type->GetInstanceNames();
+	int count = 0;
+	while (count < 10 && names[count] != STR_INVALID) count++; // Arbitrary limit of 10.
+	int shop_num = 1;
+	while (shop_num >= 1) {
+		for (int idx = 0; idx < count; idx++) {
+			/* Construct a new name. */
+			if (shop_num == 1) {
+				DrawText(ri->type->GetString(names[idx]), ri->name, lengthof(ri->name));
+			} else {
+				_str_params.SetStrID(1, ri->type->GetString(names[idx]));
+				_str_params.SetNumber(2, shop_num);
+				DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, lengthof(ri->name));
+			}
+
+			/* Find the same name in the existing rides. */
+			bool found = false;
+			for (uint16 i = 0; i < lengthof(this->instances); i++) {
+				const RideInstance &rj = this->instances[i];
+				if (rj.state == RIS_FREE || rj.state == RIS_ALLOCATED) continue;
+				assert(i != num); // Due to its allocated state.
+				if (StrEqual(ri->name, rj.name)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				shop_num = -10;
+				break;
+			}
+		}
+		shop_num++;
+	}
+
+	ri->CloseRide();
 }
 

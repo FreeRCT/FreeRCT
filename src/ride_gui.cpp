@@ -554,8 +554,7 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 	if (this->state != SPS_GOOD_POS || mstate != MB_LEFT) return;
 
 	/* Buy (mark ride instance as closed) */
-	RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-	ri->CloseRide();
+	_rides_manager.NewInstanceAdded(this->instance);
 	this->instance = INVALID_RIDE_INSTANCE;
 
 	/* Disable additions (has been moved to the real world) */

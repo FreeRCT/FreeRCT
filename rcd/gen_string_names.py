@@ -16,13 +16,12 @@ from rcdlib import datatypes
 
 def is_identifier(text):
     """
-    Upper-case and _ are allowed only.
+    Is the name a valid upper-case identifier?
     """
     if len(text) < 4: return False # Arbitrary lower limit on the length
     if text[0] not in string.ascii_uppercase: return False
-    if text[-1] not in string.ascii_uppercase: return False
     for t in text:
-        if t != '_' and t not in string.ascii_uppercase: return False
+        if t != '_' and t not in string.ascii_uppercase and t not in string.digits: return False
     return True
 
 def write_header(words, fname, base, prefix):

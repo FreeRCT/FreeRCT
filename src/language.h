@@ -19,7 +19,17 @@ class Date;
 
 extern int _current_language;
 
-/** Table of string-parts in the game. */
+/**
+ * Table of string-parts in the game.
+ *
+ * The largest part of the string space is allocated for 'simple' strings that exist only once, mostly in the GUI.
+ *
+ * For rides, such as shops, this does not work since there are several shop types loaded.
+ * Instead, such strings are allocated at #STR_GENERIC_SHOP_START, while the
+ * strings of each type are elsewhere created. By using the
+ * ShopType::GetString, the real string number of the queried shop type is
+ * returned.
+ */
 enum StringTable {
 	STR_NULL = 0,  ///< \c NULL string.
 	STR_EMPTY = 1, ///< Empty string.
@@ -32,6 +42,8 @@ enum StringTable {
 	STR_GENERIC_SHOP_START = STR_END_FREE_SPACE,
 
 	STR_GENERIC_END = 0xFFFF,
+
+	STR_INVALID = STR_GENERIC_END, ///< Invalid string.
 };
 
 #include "table/gui_strings.h"
