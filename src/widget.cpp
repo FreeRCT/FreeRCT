@@ -133,7 +133,6 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * In addition, if the widget has a non-negative widget number, add the widget to the \a wid_array after verifying the position is still empty.
  * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
- * @todo Add support for #WT_CLOSEBOX and #WT_RESIZEBOX (using _gui_sprites.panel ?).
  */
 /* virtual */ void BaseWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
@@ -144,7 +143,6 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 			/* Do nothing (all variables are already set while converting from widget parts). */
 			break;
 
-		case WT_CLOSEBOX:
 		case WT_RESIZEBOX:
 			this->min_x = max((uint16)10, this->min_x);
 			this->min_y = max((uint16)10, this->min_y);
@@ -226,28 +224,80 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
  * Compute smallest size of the widget.
  * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
+ * @todo Add support for #WT_RESIZEBOX.
  */
 /* virtual */ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	this->SetWidget(wid_array);
 
-	assert(this->wtype == WT_RADIOBUTTON);
-	this->InitMinimalSize(_gui_sprites.radio_button.width, _gui_sprites.radio_button.height, 0, 0);
-	this->fill_x = 0; this->fill_y = 0;
-	this->resize_x = 0; this->resize_y = 0;
+	switch (this->wtype) {
+		case WT_CLOSEBOX: {
+			const ImageData *im = _gui_sprites.close_sprite;
+			this->InitMinimalSize(&_gui_sprites.panel, im->width + 2, im->height + 2);
+
+			this->fill_x = 0;
+			this->fill_y = 1;
+			this->resize_x = 0;
+			this->resize_y = 0;
+			break;
+		}
+
+		case WT_RADIOBUTTON: {
+			const CheckableWidgetSpriteData cwsd = _gui_sprites.radio_button;
+			this->InitMinimalSize(cwsd.width, cwsd.height, 0, 0);
+
+			this->fill_x = 0;
+			this->fill_y = 0;
+			this->resize_x = 0;
+			this->resize_y = 0;
+			break;
+		}
+
+		default:
+			NOT_REACHED();
+	}
 }
 
 /* virtual */ void LeafWidget::Draw(const GuiWindow *w)
 {
-	int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
-	if ((this->flags & LWF_SHADED) != 0) {
-		spr_num += WCS_SHADED_EMPTY;
-	} else if ((this->flags & LWF_PRESSED) != 0) {
-		spr_num += WCS_EMPTY_PRESSED;
-	}
-	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
+	assert(this->wtype != WT_RESIZEBOX);
+
+	int left   = w->GetWidgetScreenX(this) + this->paddings[PAD_LEFT];
+	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
+	int right  = w->GetWidgetScreenX(this) + this->pos.width - 1 - this->paddings[PAD_RIGHT];
+	int bottom = w->GetWidgetScreenY(this) + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
+
+	static Recolouring rc;
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)this->colour);
-	_video->BlitImage(w->GetWidgetScreenX(this), w->GetWidgetScreenY(this), _gui_sprites.radio_button.sprites[spr_num], rc, 0);
+
+	if (this->wtype == WT_RADIOBUTTON) {
+		int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
+		if ((this->flags & LWF_SHADED) != 0) {
+			spr_num += WCS_SHADED_EMPTY;
+		} else if ((this->flags & LWF_PRESSED) != 0) {
+			spr_num += WCS_EMPTY_PRESSED;
+		}
+		_video->BlitImage(left, top, _gui_sprites.radio_button.sprites[spr_num], rc, 0);
+		return;
+	}
+	assert(this->wtype == WT_CLOSEBOX);
+
+	const BorderSpriteData &bsd = _gui_sprites.panel;
+	left += bsd.border_left;
+	top += bsd.border_top;
+	right -= bsd.border_right;
+	bottom -= bsd.border_bottom;
+	assert(right - left + 1 >= 0);
+	assert(bottom - top + 1 >= 0);
+
+	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
+	DrawBorderSprites(bsd, false, rect, COL_BACKGROUND);
+
+	int xoffset = left + (right - 1 - left - _gui_sprites.close_sprite->width) / 2;
+	int yoffset = top + (bottom - 1 - top - _gui_sprites.close_sprite->height) / 2;
+
+	const ImageData *imgdata = _gui_sprites.close_sprite;
+	if (imgdata != NULL) _video->BlitImage(xoffset + 1, yoffset + 1, imgdata, rc, 0);
 }
 
 /* virtual */ void LeafWidget::AutoRaiseButtons(const Point32 &base)
@@ -1133,8 +1183,6 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 				if (*dest != NULL) return num_used;
 				switch (parts->data.new_widget.wtype) {
 					case WT_EMPTY:
-					case WT_CLOSEBOX:
-					case WT_RESIZEBOX:
 						*dest = new BaseWidget(parts->data.new_widget.wtype);
 						break;
 
@@ -1154,7 +1202,9 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 						break;
 
 					case WT_RADIOBUTTON:
-						*dest = new LeafWidget(WT_RADIOBUTTON);
+					case WT_CLOSEBOX:
+					case WT_RESIZEBOX:
+						*dest = new LeafWidget(parts->data.new_widget.wtype);
 						break;
 
 					case WT_HOR_SCROLLBAR:

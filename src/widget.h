@@ -63,7 +63,7 @@ enum PaddingDirection {
 
 /**
  * Base class for all widgets.
- * Also implements #WT_EMPTY, #WT_CLOSEBOX, #WT_RESIZEBOX.
+ * Also implements #WT_EMPTY.
  * @ingroup widget_group
  */
 class BaseWidget {
@@ -111,7 +111,7 @@ DECLARE_ENUM_AS_BIT_SET(LeafWidgetFlags)
 
 /**
  * Base class for a (visible) leaf widget.
- * Implements #WT_RADIOBUTTON
+ * Implements #WT_RADIOBUTTON, #WT_CLOSEBOX, #WT_RESIZEBOX.
  * @ingroup widget_group
  */
 class LeafWidget : public BaseWidget {
