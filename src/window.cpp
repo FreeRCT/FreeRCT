@@ -26,6 +26,8 @@
 #include "video.h"
 #include "math_func.h"
 #include "palette.h"
+#include "sprite_store.h"
+#include "ride_type.h"
 
 /**
  * %Window manager.
@@ -291,6 +293,7 @@ GuiWindow::GuiWindow(WindowTypes wtype) : Window(wtype)
 	this->widgets = NULL;
 	this->num_widgets = 0;
 	this->SetHighlight(true);
+	this->shop_type = NULL;
 }
 
 GuiWindow::~GuiWindow()
@@ -307,6 +310,28 @@ GuiWindow::~GuiWindow()
 /* virtual */ void GuiWindow::SetSize(uint width, uint height)
 {
 	// XXX Do nothing for now, in the future, this should cause a window resize.
+}
+
+/**
+ * Set the string translation base for the generic strings of this window.
+ * @param shop_type Shop type to use as base for the string translation.
+ */
+void GuiWindow::SetShopType(const ShopType *shop_type)
+{
+	this->shop_type = shop_type;
+}
+
+/**
+ * Translate the string number if necessary.
+ * @param str_id String number to translate.
+ * @return Translated string number.
+ */
+StringID GuiWindow::TranslateStringNumber(StringID str_id) const
+{
+	assert(str_id != STR_INVALID);
+
+	if (this->shop_type != NULL && str_id >= STR_GENERIC_SHOP_START) return this->shop_type->GetString(str_id);
+	return str_id;
 }
 
 /**

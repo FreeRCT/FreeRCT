@@ -17,6 +17,7 @@
 #include "widget.h"
 
 class Viewport;
+class ShopType;
 
 /**
  * Available types of windows.
@@ -132,6 +133,7 @@ public:
 	virtual void SetWidgetStringParameters(WidgetNumber wid_num) const;
 	virtual void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
 	virtual void SetSize(uint width, uint height);
+	StringID TranslateStringNumber(StringID str_id) const;
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
@@ -163,6 +165,7 @@ public:
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
+	const ShopType *shop_type; ///< Shop type being used by this window, for translating its strings. May be \c NULL.
 
 	void SetupWidgetTree(const WidgetPart *parts, int length);
 
@@ -185,6 +188,8 @@ protected:
 	WidgetNumber GetSelectedRadioButton(const WidgetNumber *wids);
 
 	virtual void OnClick(WidgetNumber widget);
+
+	void SetShopType(const ShopType *shop_type);
 
 private:
 	BaseWidget *tree;     ///< Tree of widgets.
