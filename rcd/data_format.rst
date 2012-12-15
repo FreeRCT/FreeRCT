@@ -162,6 +162,13 @@ en_GB  Great Britain.
 nl_NL  The Netherlands.
 =====  =========================
 
+String parameters
+-----------------
+A character sequence of the form "%...%" is an escape sequence. The following
+sequences are recognized:
+- "%%": The character "%".
+- "%n%" with "n" a decimal number: Insert parameter 'n'.
+
 
 Game blocks
 ~~~~~~~~~~~

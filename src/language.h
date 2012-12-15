@@ -14,6 +14,8 @@
 
 
 class TextData;
+class Money;
+class Date;
 
 extern int _current_language;
 
@@ -69,6 +71,44 @@ public:
 	const uint8 *languages[LANGUAGE_COUNT]; ///< The string in all languages.
 };
 
+/** Types of parameters for string parameters. */
+enum StringParamType {
+	SPT_NONE,   ///< Parameter contains nothing (and should not be used thus).
+	SPT_STRID,  ///< Parameter is another #StringID.
+	SPT_NUMBER, ///< Parameter is a number.
+	SPT_MONEY,  ///< Parameter is an amount of money.
+	SPT_DATE,   ///< Parameter is a date.
+	SPT_UINT8,  ///< Parameter is a C text string.
+};
+
+/** Data of one string parameter. */
+struct StringParameterData {
+	uint8 parm_type; ///< Type of the parameter. @see StringParamType
+	union {
+		StringID str; ///< String number.
+		uint8 *text;  ///< C text pointer. Memory  is not managed!
+		uint32 dmy;   ///< Day/month/year.
+		int64 number; ///< Signed number or money amount.
+	} u; ///< Data of the parameter.
+};
+
+/** All string parameters. */
+struct StringParameters {
+	StringParameters();
+
+	void SetNone(int num);
+	void SetStrID(int num, StringID strid);
+	void SetNumber(int num, int64 number);
+	void SetMoney(int num, const Money &amount);
+	void SetDate(int num, const Date &date);
+	void SetUint8(int num, uint8 *text);
+
+	void Clear();
+
+	bool set_mode; ///< When not in set-mode, all parameters are cleared on first use of a Set function.
+	StringParameterData parms[16]; ///< Parameters of the string, arbitrary limit.
+};
+
 /**
  * Class for retrieving language strings.
  * @todo Implement me.
@@ -94,9 +134,11 @@ void InitLanguage();
 void UninitLanguage();
 
 StringID GetMonthName(int month = 0);
-void DrawText(StringID num, uint8 *buffer, uint length);
 void GetTextSize(StringID num, int *width, int *height);
 
 extern Language _language;
+extern StringParameters _str_params;
+
+void DrawText(StringID num, uint8 *buffer, uint length, StringParameters *params = &_str_params);
 
 #endif
