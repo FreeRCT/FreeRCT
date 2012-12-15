@@ -1016,7 +1016,7 @@ PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp, f
 	fdata->yvoxel = 0;
 	fdata->zvoxel = 0;
 	fdata->person = NULL;
-	fdata->ride_instance = NULL;
+	fdata->ride   = INVALID_RIDE_INSTANCE;
 }
 
 PixelFinder::~PixelFinder()
@@ -1069,7 +1069,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 					this->fdata->yvoxel = ypos;
 					this->fdata->zvoxel = zpos;
 					this->pixel = pixel;
-					this->fdata->ride_instance = ri;
+					this->fdata->ride = number;
 				}
 			}
 		}

@@ -77,7 +77,7 @@ public:
 	uint16 yvoxel;        ///< Y position of the voxel with the closest sprite.
 	uint8  zvoxel;        ///< Z position of the voxel with the closest sprite.
 	const Person *person; ///< Found person, if any.
-	const RideInstance *ride_instance; ///< Found ride instance, if any.
+	uint16 ride;          ///< Found ride instance, if any.
 };
 
 /**
