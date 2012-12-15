@@ -310,6 +310,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			NOT_REACHED();
 	}
 
+	if (this->number >= 0) w->SetWidgetStringParameters(this->number);
 	GetTextSize(this->value, &this->value_width, &this->value_height);
 	if (bsd != NULL) {
 		this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
@@ -384,6 +385,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 			_video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
 		}
 	} else {
+		if (this->number >= 0) w->SetWidgetStringParameters(this->number);
 		DrawString(this->value, TEXT_WHITE, xoffset + pressed, yoffset + pressed);
 	}
 }

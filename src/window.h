@@ -129,6 +129,7 @@ public:
 	virtual void OnDraw();
 
 	virtual void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
+	virtual void SetWidgetStringParameters(WidgetNumber wid_num) const;
 	virtual void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
 	virtual void SetSize(uint width, uint height);
 

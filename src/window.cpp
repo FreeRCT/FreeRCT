@@ -355,6 +355,15 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 }
 
 /**
+ * Set string parameters of the data string of the widget.
+ * @param wid_num Widget number of the widget.
+ */
+/* virtual */ void GuiWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+{
+	/* Do nothing by default. */
+}
+
+/**
  * Draw custom contents of the widget.
  * The code should not do anything else but render contents to the screen.
  * @param wid_num Widget number of the widget being drawn.
