@@ -291,7 +291,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	assert(bottom - top + 1 >= 0);
 
 	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
-	DrawBorderSprites(bsd, false, rect, COL_BACKGROUND);
+	DrawBorderSprites(bsd, false, rect, this->colour);
 
 	int xoffset = left + (right - 1 - left - _gui_sprites.close_sprite->width) / 2;
 	int yoffset = top + (bottom - 1 - top - _gui_sprites.close_sprite->height) / 2;
