@@ -13,6 +13,7 @@
 #define RIDE_TYPE_H
 
 #include "palette.h"
+#include "money.h"
 
 static const int NUMBER_SHOP_RECOLOUR_MAPPINGS =  3; ///< Number of (random) colour remappings of a shop type.
 static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of types of rides.
@@ -70,10 +71,10 @@ public:
 	const RideTypeKind kind;    ///< Kind of ride type.
 	int8 height;                ///< Number of voxels used by this shop.
 	uint8 flags;                ///< Shop flags. @see ShopFlags
-	int32 item_cost[2];         ///< Cost of the items on sale.
 	uint8 item_type[2];         ///< Type of items being sold.
-	int32 monthly_cost;         ///< Monthly costs for owning a shop.
-	int32 monthly_open_cost;    ///< Monthly extra costs if the shop is opened.
+	Money item_cost[2];         ///< Cost of the items on sale.
+	Money monthly_cost;         ///< Monthly costs for owning a shop.
+	Money monthly_open_cost;    ///< Monthly extra costs if the shop is opened.
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.
 
