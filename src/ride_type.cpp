@@ -18,6 +18,7 @@
 #include "ride_type.h"
 #include "bitmath.h"
 #include "gamelevel.h"
+#include "window.h"
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
@@ -185,6 +186,8 @@ void RideInstance::OnNewMonth()
 	} else {
 		SB(this->flags, RIF_OPENED_PAID, 1, 0);
 	}
+
+	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
 
 /**
@@ -197,16 +200,20 @@ void RideInstance::OpenRide()
 	this->state = RIS_OPEN;
 
 	/* Perform payments if they have not been done this month. */
+	bool money_paid = false;
 	if (GB(this->flags, RIF_MONTHLY_PAID, 1) == 0) {
 		this->total_profit -= this->type->monthly_cost;
 		_user.Pay(this->type->monthly_cost);
 		SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
+		money_paid = true;
 	}
 	if (GB(this->flags, RIF_OPENED_PAID, 1) == 0) {
 		this->total_profit -= this->type->monthly_open_cost;
 		_user.Pay(this->type->monthly_open_cost);
 		SB(this->flags, RIF_OPENED_PAID, 1, 1);
+		money_paid = true;
 	}
+	if (money_paid) NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
 
 /**

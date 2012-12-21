@@ -92,6 +92,7 @@ public:
 
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
 	/* virtual */ void OnClick(WidgetNumber wid_num);
+	/* virtual */ void OnChange (ChangeCode code, uint32 parameter);
 
 private:
 	RideInstance *shop; ///< Shop instance getting managed by this window.
@@ -180,6 +181,11 @@ void ShopManagerWindow::SetShopToggleButtons()
 			}
 			break;
 	}
+}
+
+/* virtual */ void ShopManagerWindow::OnChange(ChangeCode code, uint32 parameter)
+{
+	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }
 
 /**

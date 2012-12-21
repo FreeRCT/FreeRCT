@@ -40,6 +40,7 @@ enum ChangeCode {
 	CHG_UPDATE_BUTTONS,   ///< Recompute the state of the buttons.
 	CHG_VIEWPORT_ROTATED, ///< Viewport rotated.
 	CHG_MOUSE_MODE_LOST,  ///< Lost the mouse mode.
+	CHG_DISPLAY_OLD,      ///< Displayed data is old.
 };
 
 /** Various state flags of the %Window. */
