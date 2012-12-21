@@ -130,7 +130,6 @@ struct StringParameters {
 class Language {
 public:
 	Language();
-	~Language();
 
 	void Clear();
 

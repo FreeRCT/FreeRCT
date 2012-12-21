@@ -173,18 +173,14 @@ void StringParameters::Clear()
 
 Language::Language()
 {
-	for (uint i = 0; i < lengthof(this->registered); i++) this->registered[i] = NULL;
-	this->first_free = GUI_STRING_TABLE_END;
-}
-
-Language::~Language()
-{
 	this->Clear();
 }
 
 /** Clear all loaded data. */
 void Language::Clear()
 {
+	for (uint i = 0; i < lengthof(this->registered); i++) this->registered[i] = NULL;
+	this->first_free = GUI_STRING_TABLE_END;
 }
 
 /**
@@ -223,7 +219,7 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 	while (*str != NULL) {
 		this->registered[number] = NULL;
 		for (uint i = 0; i < td.string_count; i++) {
-			const TextString *ts = td.strings +i;
+			const TextString *ts = td.strings + i;
 			if (!strcmp(*str, ts->name)) {
 				this->registered[number] = ts;
 				break;
