@@ -30,8 +30,9 @@ extern int _current_language;
  * ShopType::GetString, the real string number of the queried shop type is returned.
  */
 enum StringTable {
-	STR_NULL = 0,  ///< \c NULL string.
-	STR_EMPTY = 1, ///< Empty string.
+	STR_NULL = 0, ///< \c NULL string.
+	STR_EMPTY,    ///< Empty string.
+	STR_ARG1,     ///< Argument 1 \c "%1%".
 
 	STR_GUI_START, ///< Start of the GUI strings.
 

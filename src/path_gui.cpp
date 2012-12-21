@@ -26,7 +26,7 @@ public:
 	PathBuildGui();
 	~PathBuildGui();
 
-	virtual void OnClick(int16 number);
+	virtual void OnClick(WidgetNumber wid);
 	virtual void OnChange(ChangeCode code, uint32 parameter);
 
 	void SetButtons();

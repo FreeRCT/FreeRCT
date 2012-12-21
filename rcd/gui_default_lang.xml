@@ -86,7 +86,16 @@
 	<string name="RIDE_SELECT_ROT_NEG_TOOLTIP">Click to rotate the ride in clockwise direction</string>
 
 	<!-- Shop manager window strings -->
-	<string name="SHOP_MANAGER_TITLE">Shop %1%</string>
+	<string name="SHOP_MANAGER_TITLE">Shop "%1%"</string>
+	<string name="SHOP_MANAGER_COST_PRICE_TEXT">Cost price</string>
+	<string name="SHOP_MANAGER_SELLING_PRICE_TEXT">Selling price</string>
+	<string name="SHOP_MANAGER_ITEMS_SOLD_TEXT">Items sold</string>
+	<string name="SHOP_MANAGER_ITEM_PROFIT_TEXT">Item profit</string>
+	<string name="SHOP_MANAGER_SELL_PROFIT_TEXT">Selling profit</string>
+	<string name="SHOP_MANAGER_SHOP_COST_TEXT">Personnel costs</string>
+	<string name="SHOP_MANAGER_TOTAL_PROFIT_TEXT">Total profit</string>
+	<string name="SHOP_MANAGER_OPENED_TEXT">Shop is open</string>
+	<string name="SHOP_MANAGER_CLOSED_TEXT">Shop is closed</string>
 
 	<!-- Terraform gui strings -->
 	<string name="TERRAFORM_TITLE">Modify landscape</string>

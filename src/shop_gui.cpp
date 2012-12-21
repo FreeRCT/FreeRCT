@@ -11,21 +11,77 @@
 
 #include "stdafx.h"
 #include "window.h"
+#include "money.h"
 #include "language.h"
 #include "sprite_store.h"
 #include "ride_type.h"
 
 /** Widgets of the shop management window. */
 enum ShopManagerWidgets {
-	SMW_TITLEBAR, ///< Title bar widget.
+	SMW_TITLEBAR,     ///< Title bar widget.
+	SMW_ITEM1_HEAD,   ///< Name of the first item being sold.
+	SMW_ITEM2_HEAD,   ///< Name of the second item being sold.
+	SMW_ITEM1_COST,   ///< Cost of the first item.
+	SMW_ITEM2_COST,   ///< Cost of the second item.
+	SMW_ITEM1_SELL,   ///< Selling price of the first item.
+	SMW_ITEM2_SELL,   ///< Selling price of the second item.
+	SMW_ITEM1_PROFIT, ///< Profit of a first item.
+	SMW_ITEM2_PROFIT, ///< Profit of a second item.
+	SMW_ITEM1_COUNT,  ///< Number of first items sold in total.
+	SMW_ITEM2_COUNT,  ///< Number of second items sold in total.
+	SMW_SELL_PROFIT,  ///< Total selling profit.
+	SMW_SHOP_COST,    ///< Shop maintenance/personnel costs.
+	SMW_TOTAL_PROFIT, ///< Total shop profit.
+	SMW_SHOP_OPENED,  ///< Radio button of 'shop is open'.
+	SMW_SHOP_CLOSED,  ///< Radio button of 'shop is closed'.
 };
 
 /** Widget parts of the #ShopManagerWindow. */
 static const WidgetPart _shop_manager_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, SMW_TITLEBAR, COL_RANGE_DARK_GREEN), SetData(GUI_SHOP_MANAGER_TITLE, GUI_TITLEBAR_TIP),
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
+			Widget(WT_TITLEBAR, SMW_TITLEBAR, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_TITLE, GUI_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(8, 3), SetPadding(2, 2, 2, 2),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+				Widget(WT_CENTERED_TEXT, SMW_ITEM1_HEAD, COL_RANGE_DARK_RED), SetData(SHOPS_NAME_ITEM1, STR_NULL), SetMinimalSize(60, 10),
+				Widget(WT_CENTERED_TEXT, SMW_ITEM2_HEAD, COL_RANGE_DARK_RED), SetData(SHOPS_NAME_ITEM2, STR_NULL), SetMinimalSize(60, 10),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_COST_PRICE_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM1_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM2_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_SELLING_PRICE_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM1_SELL, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM2_SELL, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_ITEM_PROFIT_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM1_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM2_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_ITEMS_SOLD_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM1_COUNT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_ITEM2_COUNT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_SELL_PROFIT_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_SELL_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_SHOP_COST_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_SHOP_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_TOTAL_PROFIT_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SMW_TOTAL_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(2,2),
+				Widget(WT_RADIOBUTTON, SMW_SHOP_OPENED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_OPENED_TEXT, STR_NULL),
+				Widget(WT_RADIOBUTTON, SMW_SHOP_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_CLOSED_TEXT, STR_NULL),
 		EndContainer(),
 };
 
@@ -35,9 +91,12 @@ public:
 	ShopManagerWindow(RideInstance *ri, uint16 number);
 
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
+	/* virtual */ void OnClick(WidgetNumber wid_num);
 
 private:
 	RideInstance *shop; ///< Shop instance getting managed by this window.
+
+	void SetShopToggleButtons();
 };
 
 /**
@@ -50,6 +109,14 @@ ShopManagerWindow::ShopManagerWindow(RideInstance *ri, uint16 number) : GuiWindo
 	this->shop = ri;
 	this->SetShopType(this->shop->type);
 	this->SetupWidgetTree(_shop_manager_gui_parts, lengthof(_shop_manager_gui_parts));
+	this->SetShopToggleButtons();
+}
+
+/** Update the radio buttons of the window. */
+void ShopManagerWindow::SetShopToggleButtons()
+{
+	this->SetWidgetChecked(SMW_SHOP_OPENED, this->shop->state == RIS_OPEN);
+	this->SetWidgetChecked(SMW_SHOP_CLOSED, this->shop->state == RIS_CLOSED);
 }
 
 /* virtual */ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
@@ -57,6 +124,60 @@ ShopManagerWindow::ShopManagerWindow(RideInstance *ri, uint16 number) : GuiWindo
 	switch (wid_num) {
 		case SMW_TITLEBAR:
 			_str_params.SetUint8(1, this->shop->name);
+			break;
+
+		case SMW_ITEM1_COST:
+		case SMW_ITEM2_COST:
+			_str_params.SetMoney(1, this->shop->type->item_cost[wid_num - SMW_ITEM1_COST]);
+			break;
+
+		case SMW_ITEM1_SELL:
+		case SMW_ITEM2_SELL:
+			_str_params.SetMoney(1, this->shop->item_price[wid_num - SMW_ITEM1_SELL]);
+			break;
+
+		case SMW_ITEM1_PROFIT:
+		case SMW_ITEM2_PROFIT: {
+			const Money &cost = this->shop->type->item_cost[wid_num - SMW_ITEM1_PROFIT];
+			const Money &sell = this->shop->item_price[wid_num - SMW_ITEM1_PROFIT];
+			_str_params.SetMoney(1, sell - cost);
+			break;
+		}
+
+		case SMW_ITEM1_COUNT:
+		case SMW_ITEM2_COUNT:
+			_str_params.SetNumber(1, this->shop->item_count[wid_num - SMW_ITEM1_COUNT]);
+			break;
+
+		case SMW_SELL_PROFIT:
+			_str_params.SetMoney(1, this->shop->total_sell_profit);
+			break;
+
+		case SMW_SHOP_COST:
+			_str_params.SetMoney(1, this->shop->total_profit - this->shop->total_sell_profit);
+			break;
+
+		case SMW_TOTAL_PROFIT:
+			_str_params.SetMoney(1, this->shop->total_profit);
+			break;
+	}
+}
+
+/* virtual */ void ShopManagerWindow::OnClick(WidgetNumber wid_num)
+{
+	switch (wid_num) {
+		case SMW_SHOP_OPENED:
+			if (this->shop->state != RIS_OPEN) {
+				this->shop->OpenRide();
+				this->SetShopToggleButtons();
+			}
+			break;
+
+		case SMW_SHOP_CLOSED:
+			if (this->shop->state != RIS_CLOSED) {
+				this->shop->CloseRide();
+				this->SetShopToggleButtons();
+			}
 			break;
 	}
 }

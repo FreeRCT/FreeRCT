@@ -41,7 +41,7 @@ public:
 	 * Constructor.
 	 * @param num The value to create a Money class with.
 	 */
-	Money(const int64 num)
+	Money(int64 num)
 	{
 		this->m_value = num;
 	}

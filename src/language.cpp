@@ -238,13 +238,13 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
  */
 const uint8 *Language::GetText(StringID number)
 {
-	if (number < STR_GUI_START) {
-		switch (number) {
-			case STR_NULL:  return NULL;
-			case STR_EMPTY: return (const uint8 *)"";
-			default: NOT_REACHED();
-		}
-	}
+	static const uint8 *default_strings[] = {
+		NULL,                 // STR_NULL
+		(const uint8 *)"",    // STR_EMPTY
+		(const uint8 *)"%1%", // STR_ARG1
+	};
+
+	if (number < lengthof(default_strings)) return default_strings[number];
 
 	if (number < lengthof(this->registered) && this->registered[number] != NULL) {
 		const uint8 *text = this->registered[number]->GetString();
