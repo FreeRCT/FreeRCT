@@ -175,9 +175,11 @@ uint8 RideInstance::GetEntranceDirections()
 /** Monthly update of the shop administration. */
 void RideInstance::OnNewMonth()
 {
+	this->total_profit -= this->type->monthly_cost;
 	_user.Pay(this->type->monthly_cost);
 	SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
 	if (this->state == RIS_OPEN) {
+		this->total_profit -= this->type->monthly_open_cost;
 		_user.Pay(this->type->monthly_open_cost);
 		SB(this->flags, RIF_OPENED_PAID, 1, 1);
 	} else {
@@ -196,10 +198,12 @@ void RideInstance::OpenRide()
 
 	/* Perform payments if they have not been done this month. */
 	if (GB(this->flags, RIF_MONTHLY_PAID, 1) == 0) {
+		this->total_profit -= this->type->monthly_cost;
 		_user.Pay(this->type->monthly_cost);
 		SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
 	}
 	if (GB(this->flags, RIF_OPENED_PAID, 1) == 0) {
+		this->total_profit -= this->type->monthly_open_cost;
 		_user.Pay(this->type->monthly_open_cost);
 		SB(this->flags, RIF_OPENED_PAID, 1, 1);
 	}
@@ -312,9 +316,10 @@ void RidesManager::NewInstanceAdded(uint16 num)
 {
 	RideInstance *ri = this->GetRideInstance(num);
 	assert(ri->state == RIS_ALLOCATED);
+	const ShopType *st = ri->type;
 
 	/* Find a new name for the instance. */
-	const StringID *names = ri->type->GetInstanceNames();
+	const StringID *names = st->GetInstanceNames();
 	int count = 0;
 	while (count < 10 && names[count] != STR_INVALID) count++; // Arbitrary limit of 10.
 	int shop_num = 1;
@@ -322,9 +327,9 @@ void RidesManager::NewInstanceAdded(uint16 num)
 		for (int idx = 0; idx < count; idx++) {
 			/* Construct a new name. */
 			if (shop_num == 1) {
-				DrawText(ri->type->GetString(names[idx]), ri->name, lengthof(ri->name));
+				DrawText(st->GetString(names[idx]), ri->name, lengthof(ri->name));
 			} else {
-				_str_params.SetStrID(1, ri->type->GetString(names[idx]));
+				_str_params.SetStrID(1, st->GetString(names[idx]));
 				_str_params.SetNumber(2, shop_num);
 				DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, lengthof(ri->name));
 			}
@@ -347,6 +352,14 @@ void RidesManager::NewInstanceAdded(uint16 num)
 		}
 		shop_num++;
 	}
+
+	/* Initialize money and counters. */
+	ri->total_profit = 0;
+	ri->total_sell_profit = 0;
+	ri->item_price[0] = st->item_cost[0] * 12 / 10; // Make 20% profit.
+	ri->item_price[1] = st->item_cost[1] * 12 / 10;
+	ri->item_count[0] = 0;
+	ri->item_count[1] = 0;
 
 	ri->CloseRide();
 }

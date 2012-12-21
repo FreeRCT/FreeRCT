@@ -124,6 +124,11 @@ public:
 	uint8  zpos;          ///< Z position of the base voxel.
 	uint8 flags;          ///< Flags of the instance. @see RideInstanceFlags
 	EditableRecolouring recolour_map; ///< Recolour map of the instance.
+
+	Money total_profit;      ///< Total profit of the ride.
+	Money total_sell_profit; ///< Profit of selling items.
+	Money item_price[2];     ///< Selling price of each item type.
+	int64 item_count[2];     ///< Number of items sold for each type.
 };
 
 /** Storage of available ride types. */

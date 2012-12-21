@@ -43,6 +43,7 @@ private:
 /**
  * Constructor of the shop management window.
  * @param ri Shop to manage.
+ * @param number Number of the shop.
  */
 ShopManagerWindow::ShopManagerWindow(RideInstance *ri, uint16 number) : GuiWindow(WC_SHOP_MANAGER, number)
 {
