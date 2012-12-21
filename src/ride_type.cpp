@@ -270,6 +270,16 @@ RideInstance *RidesManager::GetRideInstance(uint16 num)
 }
 
 /**
+ * Get the ride instance index number.
+ * @return Ride instance index.
+ */
+uint16 RideInstance::GetIndex() const
+{
+	assert(this >= &_rides_manager.instances[0] && this < &_rides_manager.instances[lengthof(_rides_manager.instances)]);
+	return this - &_rides_manager.instances[0];
+}
+
+/**
  * Get the requested ride instance (read-only).
  * @param num Ride instance to retrieve.
  * @return The requested ride, or \c NULL if not available.

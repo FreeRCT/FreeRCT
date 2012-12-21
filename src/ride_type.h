@@ -115,6 +115,8 @@ public:
 	void OpenRide();
 	void CloseRide();
 
+	uint16 GetIndex() const;
+
 	uint8 name[64];       ///< Name of the ride, if it is instantiated.
 	const ShopType *type; ///< Ride type used.
 	uint8 orientation;    ///< Orientation of the shop.

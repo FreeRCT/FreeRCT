@@ -88,7 +88,7 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 /** Gui window for interacting with a shop instance. */
 class ShopManagerWindow : public GuiWindow {
 public:
-	ShopManagerWindow(RideInstance *ri, uint16 number);
+	ShopManagerWindow(RideInstance *ri);
 
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
 	/* virtual */ void OnClick(WidgetNumber wid_num);
@@ -104,7 +104,7 @@ private:
  * @param ri Shop to manage.
  * @param number Number of the shop.
  */
-ShopManagerWindow::ShopManagerWindow(RideInstance *ri, uint16 number) : GuiWindow(WC_SHOP_MANAGER, number)
+ShopManagerWindow::ShopManagerWindow(RideInstance *ri) : GuiWindow(WC_SHOP_MANAGER, ri->GetIndex())
 {
 	this->shop = ri;
 	this->SetShopType(this->shop->type);
@@ -193,5 +193,5 @@ void ShowShopManagementGui(uint16 number)
 	RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == NULL) return;
 
-	new ShopManagerWindow(ri, number);
+	new ShopManagerWindow(ri);
 }
