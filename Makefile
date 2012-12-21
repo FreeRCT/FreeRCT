@@ -7,13 +7,17 @@
 #
 
 
-.PHONY: doc viewdoc build run rcd
+.PHONY: doc viewdoc build run rcd clean
 
 build:
 	$(MAKE) -C src
 
 rcd:
 	$(MAKE) -C rcd
+
+clean:
+	$(MAKE) -C src clean
+	$(MAKE) -C rcd clean
 
 run:
 	$(MAKE) -C src run
