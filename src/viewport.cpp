@@ -1158,7 +1158,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 /**
  * %Viewport constructor.
  */
-Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY), tile_cursor(this), arrow_cursor(this), area_cursor(this)
+Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), area_cursor(this)
 {
 	this->xview = _world.GetXSize() * 256 / 2;
 	this->yview = _world.GetYSize() * 256 / 2;
@@ -1334,7 +1334,7 @@ void Viewport::Rotate(int direction)
 	this->OnMouseMoveEvent(pt);
 	this->MarkDirty();
 
-	NotifyChange(WC_PATH_BUILDER, CHG_VIEWPORT_ROTATED, direction);
+	NotifyChange(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE, CHG_VIEWPORT_ROTATED, direction);
 }
 
 /**

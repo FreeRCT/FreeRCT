@@ -32,7 +32,7 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 /** Gui window for interacting with a shop instance. */
 class ShopManagerWindow : public GuiWindow {
 public:
-	ShopManagerWindow(RideInstance *shop);
+	ShopManagerWindow(RideInstance *ri, uint16 number);
 
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
 
@@ -44,7 +44,7 @@ private:
  * Constructor of the shop management window.
  * @param ri Shop to manage.
  */
-ShopManagerWindow::ShopManagerWindow(RideInstance *ri) : GuiWindow(WC_SHOP_MANAGER)
+ShopManagerWindow::ShopManagerWindow(RideInstance *ri, uint16 number) : GuiWindow(WC_SHOP_MANAGER, number)
 {
 	this->shop = ri;
 	this->SetShopType(this->shop->type);
@@ -63,15 +63,13 @@ ShopManagerWindow::ShopManagerWindow(RideInstance *ri) : GuiWindow(WC_SHOP_MANAG
 /**
  * Open a window to manage a given shop.
  * @param number Shop to manage.
- * @todo Enable having several windows of the same window type, by adding a sub-number.
  */
 void ShowShopManagementGui(uint16 number)
 {
-	Window *w = GetWindowByType(WC_SHOP_MANAGER);
-	if (w != NULL) _manager.DeleteWindow(w);
+	if (HighlightWindowByType(WC_SHOP_MANAGER, number)) return;
 
 	RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == NULL) return;
 
-	new ShopManagerWindow(ri);
+	new ShopManagerWindow(ri, number);
 }

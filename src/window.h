@@ -81,17 +81,22 @@ enum WmMouseModes {
 	WMMM_MOVE_WINDOW,  ///< Move the current window.
 };
 
+typedef uint32 WindowNumber; ///< Type of a window number.
+
+static const WindowNumber ALL_WINDOWS_OF_TYPE = UINT32_MAX; ///< Window number parameter meaning 'all windows of the window type'.
+
 /**
  * %Window base class.
  * @ingroup window_group
  */
 class Window {
 public:
-	Window(WindowTypes wtype);
+	Window(WindowTypes wtype, WindowNumber wnumber);
 	virtual ~Window();
 
-	Rectangle32 rect;  ///< Screen area covered by the window.
-	WindowTypes wtype; ///< %Window type.
+	Rectangle32 rect;           ///< Screen area covered by the window.
+	const WindowTypes wtype;    ///< %Window type.
+	const WindowNumber wnumber; ///< %Window number.
 
 	/**
 	 * Timeout counter.
@@ -126,7 +131,7 @@ public:
  */
 class GuiWindow : public Window {
 public:
-	GuiWindow(WindowTypes wtype);
+	GuiWindow(WindowTypes wtype, WindowNumber wnumber);
 	virtual ~GuiWindow();
 	virtual void OnDraw();
 
@@ -302,9 +307,9 @@ extern WindowManager _manager;
 bool IsLeftClick(uint8 state);
 
 void UpdateWindows();
-Window *GetWindowByType(WindowTypes wtype);
-bool HighlightWindowByType(WindowTypes wtype);
-void NotifyChange(WindowTypes wtype, ChangeCode code, uint32 parameter);
+Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber);
+bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber);
+void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter);
 
 Viewport *ShowMainDisplay();
 void ShowToolbar();

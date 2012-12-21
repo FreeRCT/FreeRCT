@@ -50,9 +50,10 @@ bool IsLeftClick(uint8 state)
 
 /**
  * %Window constructor. It automatically adds the window to the window stack.
- * @param wtype %Window type (for finding a window in the stack).
+ * @param wtype %Window type Type of window.
+ * @param wnumber Number of the window within the \a wtype.
  */
-Window::Window(WindowTypes wtype) : rect(0, 0, 0, 0), wtype(wtype)
+Window::Window(WindowTypes wtype, WindowNumber wnumber) : rect(0, 0, 0, 0), wtype(wtype), wnumber(wnumber)
 {
 	this->timeout = 0;
 	this->higher = NULL;
@@ -283,9 +284,10 @@ void Window::MarkDirty()
 /**
  * Gui window constructor.
  * @param wtype %Window type (for finding a window in the stack).
+ * @param wnumber Number of the window within the \a wtype.
  * @note Initialize the widget tree from the derived window class.
  */
-GuiWindow::GuiWindow(WindowTypes wtype) : Window(wtype)
+GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wnumber)
 {
 	this->mouse_pos.x = -1;
 	this->mouse_pos.y = -1;
@@ -909,14 +911,15 @@ void WindowManager::Tick()
 /**
  * Find an opened window by window type.
  * @param wtype %Window type to look for.
+ * @param wnumber %Window number to look for (use #ALL_WINDOWS_OF_TYPE for any window of type \a wtype).
  * @return The window with the requested type if it is opened, else \c NULL.
  * @ingroup window_group
  */
-Window *GetWindowByType(WindowTypes wtype)
+Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber)
 {
 	Window *w = _manager.top;
 	while (w != NULL) {
-		if (w->wtype == wtype) return w;
+		if (w->wtype == wtype && (wnumber == ALL_WINDOWS_OF_TYPE || w->wnumber == wnumber)) return w;
 		w = w->lower;
 	}
 	return NULL;
@@ -925,24 +928,26 @@ Window *GetWindowByType(WindowTypes wtype)
 /**
  * Notify the window of the given type of the change with the specified number.
  * @param wtype %Window type to look for.
+ * @param wnumber %Window number to look for (use #ALL_WINDOWS_OF_TYPE for any window of type \a wtype).
  * @param code Unique change number.
  * @param parameter Parameter of the change number
  */
-void NotifyChange(WindowTypes wtype, ChangeCode code, uint32 parameter)
+void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter)
 {
-	Window *w = GetWindowByType(wtype);
+	Window *w = GetWindowByType(wtype, wnumber);
 	if (w != NULL) w->OnChange(code, parameter);
 }
 
 /**
  * Highlight a window of a given type.
  * @param wtype %Window type to look for.
+ * @param wnumber %Window number to look for (use #ALL_WINDOWS_OF_TYPE for any window of type \a wtype).
  * @return A window has been highlighted.
  * @ingroup window_group
  */
-bool HighlightWindowByType(WindowTypes wtype)
+bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber)
 {
-	Window *w = GetWindowByType(wtype);
+	Window *w = GetWindowByType(wtype, wnumber);
 	if (w != NULL) w->SetHighlight(true);
 	return w != NULL;
 }

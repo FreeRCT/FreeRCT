@@ -72,7 +72,7 @@ static const WidgetPart _terraform_gui_parts[] = {
 	EndContainer(),
 };
 
-TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM)
+TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
 	this->SetLeveling(true);
@@ -219,7 +219,7 @@ void TerraformGui::DecreaseSize()
 /** Open the terraform window (or if it is already opened, highlight and raise it). */
 void ShowTerraformGui()
 {
-	if (HighlightWindowByType(WC_TERRAFORM)) return;
+	if (HighlightWindowByType(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)) return;
 	new TerraformGui;
 
 }

@@ -113,7 +113,7 @@ static const WidgetPart _ride_select_gui_parts[] = {
 	EndContainer(),
 };
 
-RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT)
+RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_ride_select_gui_parts, lengthof(_ride_select_gui_parts));
 
@@ -308,7 +308,7 @@ bool RideSelectGui::SetNewRide(int16 newKind, bool force)
  */
 void ShowRideSelectGui()
 {
-	if (HighlightWindowByType(WC_RIDE_SELECT)) return;
+	if (HighlightWindowByType(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)) return;
 	new RideSelectGui;
 }
 
@@ -529,7 +529,7 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 
 	if (this->state == SPS_BAD_POS || this->state == SPS_GOOD_POS) {
 		/* Deselect the ride selection, notify the window, so it can raise the select button and change the selected ride. */
-		NotifyChange(WC_RIDE_SELECT, CHG_MOUSE_MODE_LOST, 0);
+		NotifyChange(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE, CHG_MOUSE_MODE_LOST, 0);
 		this->selected_ride = -1;
 
 		/* Free the created ride instance. */
@@ -562,7 +562,7 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 	DisableWorldAdditions();
 
 	/* Deselect ride selection. */
-	NotifyChange(WC_RIDE_SELECT, CHG_MOUSE_MODE_LOST, 0);
+	NotifyChange(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE, CHG_MOUSE_MODE_LOST, 0);
 	this->selected_ride = -1;
 
 	/* Switch to another mouse mode. */

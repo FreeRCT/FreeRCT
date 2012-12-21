@@ -60,7 +60,7 @@ static const WidgetPart _toolbar_widgets[] = {
 };
 
 
-ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR)
+ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_toolbar_widgets, lengthof(_toolbar_widgets));
 }
@@ -158,7 +158,7 @@ static const WidgetPart _quit_program_widgets[] = {
 }
 
 /** Default constructor. */
-QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT)
+QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
 }
@@ -173,7 +173,7 @@ QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT)
 /** Ask the user whether the program should be stopped. */
 void ShowQuitProgram()
 {
-	Window *w = GetWindowByType(WC_QUIT);
+	Window *w = GetWindowByType(WC_QUIT, ALL_WINDOWS_OF_TYPE);
 	if (w != NULL) _manager.DeleteWindow(w);
 
 	new QuitProgramWindow();

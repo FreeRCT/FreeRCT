@@ -518,7 +518,7 @@ void PathBuildManager::UpdateState()
 		}
 	}
 
-	NotifyChange(WC_PATH_BUILDER, CHG_UPDATE_BUTTONS, 0);
+	NotifyChange(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE, CHG_UPDATE_BUTTONS, 0);
 }
 
 /**

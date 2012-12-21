@@ -108,7 +108,7 @@ static const WidgetPart _path_build_gui_parts[] = {
 	EndContainer(),
 };
 
-PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER)
+PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_path_build_gui_parts, lengthof(_path_build_gui_parts));
 	_path_builder.SetPathGuiState(true);
@@ -222,7 +222,7 @@ void PathBuildGui::SetButtons()
  */
 void ShowPathBuildGui()
 {
-	if (HighlightWindowByType(WC_PATH_BUILDER)) return;
+	if (HighlightWindowByType(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)) return;
 	new PathBuildGui;
 }
 
