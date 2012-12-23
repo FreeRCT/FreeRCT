@@ -46,8 +46,6 @@ struct PersonTypeData {
 	PersonTypeGraphics graphics; ///< Graphics definitions.
 };
 
-PersonTypeData &ModifyPersonTypeData(PersonType pt);
-
 /**
  * Get the data about a person type with the intention to change it.
  * @param pt Type of person queried.
