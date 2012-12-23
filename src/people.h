@@ -30,20 +30,33 @@ static const uint GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
  * limits have a below/above notion as well.
  */
 enum WalkLimit {
-	WLM_NE_EDGE,      ///< Continue until the north-east edge (X <   0). Hitting this limit implies we have arrived at a new tile.
-	WLM_SE_EDGE,      ///< Continue until the south-east edge (Y > 255). Hitting this limit implies we have arrived at a new tile.
-	WLM_SW_EDGE,      ///< Continue until the south-west edge (X > 255). Hitting this limit implies we have arrived at a new tile.
-	WLM_NW_EDGE,      ///< Continue until the north-west edge (Y <   0). Hitting this limit implies we have arrived at a new tile.
-	WLM_BELOW_LOW_X,  ///< Continue until we are below the low  x limit at the tile.
-	WLM_BELOW_HIGH_X, ///< Continue until we are below the high x limit at the tile.
-	WLM_ABOVE_LOW_X,  ///< Continue until we are above the low  x limit at the tile.
-	WLM_ABOVE_HIGH_X, ///< Continue until we are above the high x limit at the tile.
-	WLM_BELOW_LOW_Y,  ///< Continue until we are below the low  y limit at the tile.
-	WLM_BELOW_HIGH_Y, ///< Continue until we are below the high y limit at the tile.
-	WLM_ABOVE_LOW_Y,  ///< Continue until we are above the low  y limit at the tile.
-	WLM_ABOVE_HIGH_Y, ///< Continue until we are above the high y limit at the tile.
+	WLM_MINIMAL = 0, ///< Continue until reached minimal value.
+	WLM_LOW     = 1, ///< Continue until reached low value.
+	WLM_CENTER  = 2, ///< Continue until reached center value.
+	WLM_HIGH    = 3, ///< Continue until reached high value.
+	WLM_MAXIMAL = 4, ///< Continue until reached maximal value.
+	WLM_INVALID = 7, ///< Invalid limit.
 
-	WLM_INVALID, ///< Invalid limit, should not be encountered while walking.
+	WLM_LIMIT_LENGTH = 3, ///< Length of the limits in bits.
+
+	WLM_X_START   = 0, ///< Destination position of X axis.
+	WLM_Y_START   = 3, ///< Destination position of Y axis.
+	WLM_END_LIMIT = 6, ///< Bit deciding which axis is the end-condition (\c 0 means #WLM_X_START, \c 1 means #WLM_Y_START).
+
+	WLM_X_COND = 0,                  ///< X limit decides the end of this walk.
+	WLM_Y_COND = 1 << WLM_END_LIMIT, ///< Y limit decides the end of this walk.
+
+	WLM_NE_EDGE = WLM_MINIMAL | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until the north-east edge.
+	WLM_LOW_X   = WLM_LOW     | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until we at the low x limit of the tile.
+	WLM_MID_X   = WLM_CENTER  | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until we at the center x limit of the tile.
+	WLM_HIGH_X  = WLM_HIGH    | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until we at the high x limit of the tile.
+	WLM_SW_EDGE = WLM_MAXIMAL | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge.
+
+	WLM_NW_EDGE = WLM_INVALID | (WLM_MINIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the north-west edge.
+	WLM_LOW_Y   = WLM_INVALID | (WLM_LOW     << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the low y limit of the tile.
+	WLM_MID_Y   = WLM_INVALID | (WLM_CENTER  << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the center y limit of the tile.
+	WLM_HIGH_Y  = WLM_INVALID | (WLM_HIGH    << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the high y limit of the tile.
+	WLM_SE_EDGE = WLM_INVALID | (WLM_MAXIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the south-east edge.
 };
 
 /** Walk animation to use to walk a part of the tile. */

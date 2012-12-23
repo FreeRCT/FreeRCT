@@ -132,11 +132,11 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
 
 /** Walk from NE edge back to NE edge. */
 static const WalkInformation walk_ne_ne[] = {
-	{ANIM_WALK_SW, WLM_ABOVE_HIGH_X}, {ANIM_WALK_SE, WLM_ABOVE_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NE edge to SE edge. */
 static const WalkInformation walk_ne_se[] = {
-	{ANIM_WALK_SW, WLM_ABOVE_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NE edge to SW edge. */
 static const WalkInformation walk_ne_sw[] = {
@@ -144,20 +144,20 @@ static const WalkInformation walk_ne_sw[] = {
 };
 /** Walk from NE edge to NW edge. */
 static const WalkInformation walk_ne_nw[] = {
-	{ANIM_WALK_SW, WLM_ABOVE_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_SW, WLM_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 
 /** Walk from SE edge to NE edge. */
 static const WalkInformation walk_se_ne[] = {
-	{ANIM_WALK_NW, WLM_BELOW_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_NW, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SE edge back to SE edge. */
 static const WalkInformation walk_se_se[] = {
-	{ANIM_WALK_NW, WLM_BELOW_LOW_Y},  {ANIM_WALK_SW, WLM_ABOVE_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_NW, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SE edge to SW edge. */
 static const WalkInformation walk_se_sw[] = {
-	{ANIM_WALK_NW, WLM_BELOW_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE }, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_NW, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE }, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SE edge to NW edge. */
 static const WalkInformation walk_se_nw[] = {
@@ -170,20 +170,20 @@ static const WalkInformation walk_sw_ne[] = {
 };
 /** Walk from SW edge to SE edge. */
 static const WalkInformation walk_sw_se[] = {
-	{ANIM_WALK_NE, WLM_BELOW_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_NE, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SW edge back to SW edge. */
 static const WalkInformation walk_sw_sw[] = {
-	{ANIM_WALK_NE, WLM_BELOW_LOW_X},  {ANIM_WALK_NW, WLM_BELOW_LOW_Y}, {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_NE, WLM_LOW_X},  {ANIM_WALK_NW, WLM_LOW_Y}, {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SW edge to NW edge. */
 static const WalkInformation walk_sw_nw[] = {
-{ANIM_WALK_NE, WLM_BELOW_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+{ANIM_WALK_NE, WLM_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 
 /** Walk from NW edge to NE edge. */
 static const WalkInformation walk_nw_ne[] = {
-	{ANIM_WALK_SE, WLM_ABOVE_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NW edge to SE edge. */
 static const WalkInformation walk_nw_se[] = {
@@ -191,11 +191,11 @@ static const WalkInformation walk_nw_se[] = {
 };
 /** Walk from NW edge to SW edge. */
 static const WalkInformation walk_nw_sw[] = {
-	{ANIM_WALK_SE, WLM_ABOVE_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_SE, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NW edge back to NW edge. */
 static const WalkInformation walk_nw_nw[] = {
-	{ANIM_WALK_SE, WLM_ABOVE_HIGH_Y}, {ANIM_WALK_NE, WLM_BELOW_LOW_X}, {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
+	{ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_LOW_X}, {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 
 /**
@@ -309,26 +309,37 @@ bool Person::OnAnimate(int delay)
 	this->MarkDirty(); // Marks the entire voxel dirty, which should be big enough even after moving.
 
 	if (this->frames == NULL || this->frame_count == 0) return false;
+
+	int16 x_limit = -1;
+	switch (GB(this->walk->limit_type, WLM_X_START, WLM_LIMIT_LENGTH)) {
+		case WLM_MINIMAL: x_limit =   0;                break;
+		case WLM_LOW:     x_limit = 128 - this->offset; break;
+		case WLM_CENTER:  x_limit = 128;                break;
+		case WLM_HIGH:    x_limit = 128 + this->offset; break;
+		case WLM_MAXIMAL: x_limit = 255;                break;
+	}
+
+	int16 y_limit = -1;
+	switch (GB(this->walk->limit_type, WLM_Y_START, WLM_LIMIT_LENGTH)) {
+		case WLM_MINIMAL: y_limit =   0;                break;
+		case WLM_LOW:     y_limit = 128 - this->offset; break;
+		case WLM_CENTER:  y_limit = 128;                break;
+		case WLM_HIGH:    y_limit = 128 + this->offset; break;
+		case WLM_MAXIMAL: y_limit = 255;                break;
+	}
+
 	uint16 index = this->frame_index;
 	const AnimationFrame *frame = &this->frames[index];
 	this->x_pos += frame->dx;
 	this->y_pos += frame->dy;
 
-	bool reached;
-	switch (this->walk->limit_type) {
-		case WLM_NE_EDGE:      reached = (this->x_pos < 0);   break;
-		case WLM_SE_EDGE:      reached = (this->y_pos > 255); break;
-		case WLM_SW_EDGE:      reached = (this->x_pos > 255); break;
-		case WLM_NW_EDGE:      reached = (this->y_pos < 0);   break;
-		case WLM_BELOW_LOW_X:  reached = (this->x_pos < 128 - this->offset); break;
-		case WLM_BELOW_HIGH_X: reached = (this->x_pos < 128 + this->offset); break;
-		case WLM_ABOVE_LOW_X:  reached = (this->x_pos > 128 - this->offset); break;
-		case WLM_ABOVE_HIGH_X: reached = (this->x_pos > 128 + this->offset); break;
-		case WLM_BELOW_LOW_Y:  reached = (this->y_pos < 128 - this->offset); break;
-		case WLM_BELOW_HIGH_Y: reached = (this->y_pos < 128 + this->offset); break;
-		case WLM_ABOVE_LOW_Y:  reached = (this->y_pos > 128 - this->offset); break;
-		case WLM_ABOVE_HIGH_Y: reached = (this->y_pos > 128 + this->offset); break;
-		default: NOT_REACHED();
+	bool reached = false; // Set to true when we are beyond the limit!
+	if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
+		if (frame->dx > 0) reached |= this->x_pos > x_limit;
+		if (frame->dx < 0) reached |= this->x_pos < x_limit;
+	} else {
+		if (frame->dy > 0) reached |= this->y_pos > y_limit;
+		if (frame->dy < 0) reached |= this->y_pos < y_limit;
 	}
 
 	if (!reached) {
