@@ -94,7 +94,7 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
  * @param start Start x/y voxel stack for entering the world.
  * @param person_type Type of person getting activated.
  */
-void Person::Activate(const Point16 &start, PersonType person_type)
+/* virtual */ void Person::Activate(const Point16 &start, PersonType person_type)
 {
 	assert(this->type == PERSON_INVALID);
 	assert(person_type != PERSON_INVALID);
@@ -105,11 +105,6 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	/* Setup the person sprite recolouring table. */
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
 	this->recolour = person_type_data.graphics.MakeRecolouring(&this->rnd);
-
-	/* Do a little extra for guests. */
-	if (PersonIsAGuest(this->type)) {
-		this->u.guest.happiness = 50 + this->rnd.Uniform(50);
-	}
 
 	/* Set up initial position. */
 	this->x_vox = start.x;
@@ -288,7 +283,7 @@ void Person::WalkTheWalk(const WalkInformation *walk)
 }
 
 /** Mark this person as 'not in use'. (Called by #Guests.) */
-void Person::DeActivate()
+/* virtual */ void Person::DeActivate()
 {
 	if (this->type == PERSON_INVALID) return;
 
@@ -400,18 +395,39 @@ void Person::MarkDirty()
 }
 
 /**
+ * @fn bool Person::DailyUpdate()
  * Daily ponderings of a person.
  * @return If \c false, de-activate the person.
+ */
+
+Guest::Guest() : Person()
+{
+}
+
+Guest::~Guest()
+{
+}
+
+
+/* virtual */ void Guest::Activate(const Point16 &start, PersonType person_type)
+{
+	this->Person::Activate(start, person_type);
+
+	this->happiness = 50 + this->rnd.Uniform(50);
+}
+
+/**
+ * Daily ponderings of a guest.
+ * @return If \c false, de-activate the guest.
  * @todo Make de-activation a bit more random.
  */
-bool Person::DailyUpdate()
+/* virtual */ bool Guest::DailyUpdate()
 {
 	if (!PersonIsAGuest(this->type)) return false;
 
-	this->u.guest.happiness = max(0, this->u.guest.happiness - 2);
-	return this->u.guest.happiness > 10; // De-activate if at or below 10.
+	this->happiness = max(0, this->happiness - 2);
+	return this->happiness > 10; // De-activate if at or below 10.
 }
-
 
 /** Default constructor of the person list. */
 PersonList::PersonList()
@@ -509,8 +525,8 @@ void CopyPersonList(PersonList &dest, const PersonList &src)
  */
 GuestBlock::GuestBlock(uint16 base_id)
 {
-	for (uint i = 0; i < lengthof(this->persons); i++) {
-		this->persons[i].id = base_id;
+	for (uint i = 0; i < lengthof(this->guests); i++) {
+		this->guests[i].id = base_id;
 		base_id++;
 	}
 }
@@ -522,7 +538,7 @@ GuestBlock::GuestBlock(uint16 base_id)
 void GuestBlock::AddAll(PersonList *pl)
 {
 	/* Add in reverse order so the first retrieval is the first person in this block. */
-	uint i = lengthof(this->persons) - 1;
+	uint i = lengthof(this->guests) - 1;
 	for (;;) {
 		pl->AddFirst(this->Get(i));
 		if (i == 0) break;

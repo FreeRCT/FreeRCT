@@ -17,11 +17,6 @@
 
 static const uint GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
 
-/** Data of a guest. */
-struct GuestData {
-	int16 happiness; ///< Happiness of the guest (values are 0-100).
-};
-
  /**
  * Limits that exist at the tile.
  *
@@ -71,10 +66,10 @@ public:
 	virtual ~Person();
 
 	bool OnAnimate(int delay);
-	bool DailyUpdate();
+	virtual bool DailyUpdate() = 0;
 
-	void Activate(const Point16 &start, PersonType person_type);
-	void DeActivate();
+	virtual void Activate(const Point16 &start, PersonType person_type);
+	virtual void DeActivate();
 
 	void SetName(const char *name);
 	const char *GetName() const;
@@ -104,13 +99,22 @@ protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
 	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
 
-	union {
-		GuestData guest; ///< Guest data (only valid if #PersonIsAGuest holds for #type).
-	} u; ///< Person-type specific data.
-
 	void DecideMoveDirection();
 	void WalkTheWalk(const WalkInformation *walk);
 	void MarkDirty();
+};
+
+/** Guests walking around in the world. */
+class Guest : public Person {
+public:
+	Guest();
+	~Guest();
+
+	/* virtual */ void Activate(const Point16 &start, PersonType person_type);
+
+	/* virtual */ bool DailyUpdate();
+
+	int16 happiness; ///< Happiness of the guest (values are 0-100).
 };
 
 /** Manager of a doubly linked list of persons. */
@@ -141,17 +145,17 @@ public:
 	void AddAll(PersonList *pl);
 
 	/**
-	 * Get a person from the array.
+	 * Get a guest from the array.
 	 * @param i Index of the person (should be between \c 0 and #GUEST_BLOCK_SIZE).
 	 * @return The requested person.
 	 */
-	inline Person *Get(uint i) {
-		assert(i < lengthof(this->persons));
-		return &this->persons[i];
+	inline Guest *Get(uint i) {
+		assert(i < lengthof(this->guests));
+		return &this->guests[i];
 	}
 
 protected:
-	Person persons[GUEST_BLOCK_SIZE]; ///< Persons in the block.
+	Guest guests[GUEST_BLOCK_SIZE]; ///< Persons in the block.
 };
 
 /**
