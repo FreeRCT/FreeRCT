@@ -187,8 +187,8 @@ struct DrawData {
 inline bool operator<(const DrawData &dd1, const DrawData &dd2)
 {
 	if (dd1.level != dd2.level) return dd1.level < dd2.level; // Order on slice first.
-	if (dd1.order != dd2.order) return dd1.order < dd2.order; // Type of sprite.
 	if (dd1.z_height != dd2.z_height) return dd1.z_height < dd2.z_height; // Lower in the same slice first.
+	if (dd1.order != dd2.order) return dd1.order < dd2.order; // Type of sprite.
 	return dd1.base.y < dd2.base.y;
 }
 

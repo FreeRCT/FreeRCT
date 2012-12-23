@@ -29,7 +29,7 @@ void Scenario::SetDefaultScenario()
 {
 	this->spawn_lowest  = 500;
 	this->spawn_highest = 500;
-	this->max_guests    = 10;
+	this->max_guests    = 25;
 	this->inital_money  = 1000000;
 	this->lowest_money  = 0;
 	this->interest      = 0;
