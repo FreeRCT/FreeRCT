@@ -343,7 +343,7 @@ bool Person::OnAnimate(int delay)
 	}
 
 	/* Reached the goal, start the next walk. */
-	if (this->walk->limit_type <= WLM_OFF_TILE_LIMIT_LAST) {
+	if (this->walk[1].anim_type == ANIM_INVALID) {
 		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
 		/* Not only the end of this walk, but the end of the entire walk at the tile. */
 		if (this->x_pos < 0) {

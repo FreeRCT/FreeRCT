@@ -44,8 +44,6 @@ enum WalkLimit {
 	WLM_ABOVE_HIGH_Y, ///< Continue until we are above the high y limit at the tile.
 
 	WLM_INVALID, ///< Invalid limit, should not be encountered while walking.
-
-	WLM_OFF_TILE_LIMIT_LAST = WLM_NW_EDGE, ///< Last limit that fires when reaching off-tile.
 };
 
 /** Walk animation to use to walk a part of the tile. */
