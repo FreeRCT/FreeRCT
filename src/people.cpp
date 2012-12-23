@@ -414,6 +414,7 @@ Guest::~Guest()
 	this->Person::Activate(start, person_type);
 
 	this->happiness = 50 + this->rnd.Uniform(50);
+	this->cash = 3000 + this->rnd.Uniform(4095);
 }
 
 /**

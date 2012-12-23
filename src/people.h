@@ -14,6 +14,7 @@
 
 #include "person_type.h"
 #include "random.h"
+#include "money.h"
 
 static const uint GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
 
@@ -115,6 +116,7 @@ public:
 	/* virtual */ bool DailyUpdate();
 
 	int16 happiness; ///< Happiness of the guest (values are 0-100).
+	Money cash;      ///< Amount of money carried by the guest (should be non-negative).
 };
 
 /** Manager of a doubly linked list of persons. */
