@@ -199,6 +199,25 @@ static const WalkInformation walk_nw_nw[] = {
 };
 
 /**
+ * Decide at which edge the person is.
+ * @return Nearest edge of the person.
+ */
+TileEdge Person::GetCurrentEdge() const
+{
+	assert(this->x_pos >= 0 && this->x_pos <= 255);
+	assert(this->y_pos >= 0 && this->y_pos <= 255);
+
+	int x = (this->x_pos < 128) ? this->x_pos : 255 - this->x_pos;
+	int y = (this->y_pos < 128) ? this->y_pos : 255 - this->y_pos;
+
+	if (x < y) {
+		return (this->x_pos < 128) ? EDGE_NE : EDGE_SW;
+	} else {
+		return (this->y_pos < 128) ? EDGE_NW : EDGE_SE;
+	}
+}
+
+/**
  * Decide where to go from the current position.
  */
 void Person::DecideMoveDirection()
