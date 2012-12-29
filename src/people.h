@@ -120,7 +120,7 @@ protected:
 	TileEdge GetCurrentEdge() const;
 
 	void DecideMoveDirection();
-	void WalkTheWalk(const WalkInformation *walk);
+	void StartAnimation(const WalkInformation *walk);
 	void MarkDirty();
 };
 

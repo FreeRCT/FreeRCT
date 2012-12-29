@@ -281,14 +281,14 @@ void Person::DecideMoveDirection()
 		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
 	}
 
-	this->WalkTheWalk(new_walk);
+	this->StartAnimation(new_walk);
 }
 
 /**
  * Perform the animation sequence as provided.
  * @param walk Walk information describing the animations to perform.
  */
-void Person::WalkTheWalk(const WalkInformation *walk)
+void Person::StartAnimation(const WalkInformation *walk)
 {
 	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
 	assert(anim != NULL && anim->frame_count != 0);
@@ -421,7 +421,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
-	this->WalkTheWalk(this->walk + 1);
+	this->StartAnimation(this->walk + 1);
 	return OAR_OK;
 }
 
