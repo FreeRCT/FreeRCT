@@ -313,36 +313,6 @@ void ShowRideSelectGui()
 }
 
 /**
- * Does a path run at/to the bottom the given voxel in the neighbouring voxel?
- * @param xpos X coordinate of the voxel.
- * @param ypos Y coordinate of the voxel.
- * @param zpos Z coordinate of the voxel.
- * @param edge Direction to move to get the neihgbouring voxel.
- * @pre voxel coordinate must be valid in the world.
- * @todo Merge with path computations in the path placement.
- * @return Whether a path exists at the bottom of the neighbouring voxel.
- */
-static bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
-{
-	xpos += _tile_dxy[edge].x;
-	ypos += _tile_dxy[edge].y;
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
-
-	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
-	if (vx == NULL || vx->GetType() == VT_EMPTY || vx->GetType() == VT_REFERENCE) {
-		/* No path here, check the voxel below. */
-		if (zpos == 0) return false;
-		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
-		if (vx == NULL || vx->GetType() != VT_SURFACE || !HasValidPath(vx)) return false;
-		/* Path must end at the top of the voxel. */
-		return vx->GetPathRideFlags() == _path_up_from_edge[edge];
-	}
-	if (vx->GetType() != VT_SURFACE || !HasValidPath(vx)) return false;
-	/* Path must end at the bottom of the voxel. */
-	return vx->GetPathRideFlags() < PATH_FLAT_COUNT || vx->GetPathRideFlags() == _path_down_from_edge[edge];
-}
-
-/**
  * Can a shop be placed at the given voxel?
  * @param selected_shop Shop to place.
  * @param xpos X coordinate of the voxel.
