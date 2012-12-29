@@ -384,15 +384,16 @@ bool Person::OnAnimate(int delay)
 		if (this->z_pos > 128) {
 			this->z_vox++;
 			this->z_pos = 0;
-		} else {
-			/* At bottom of the voxel, the path either stays on the same level or goes down. */
-			const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
-			if ((v == NULL || v->GetType() != VT_SURFACE) && this->z_vox > 0) {
-				this->z_vox--;
-				this->z_pos = 255;
-			}
 		}
-		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
+		/* At bottom of the voxel, the path either stays on the same level or goes down. */
+		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		if ((v == NULL || v->GetType() != VT_SURFACE) && this->z_vox > 0) {
+			this->z_vox--;
+			this->z_pos = 255;
+			v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		}
+		assert(v != NULL); // XXX This does not always hold!
+		v->persons.AddFirst(this);
 		this->DecideMoveDirection();
 		return true;
 	}
