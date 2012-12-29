@@ -200,7 +200,6 @@ static const WalkInformation walk_nw_nw[] = {
 
 /**
  * Decide where to go from the current position.
- * @todo In case of walking downwards, it will get here with an initialized z-height in an empty voxel.
  */
 void Person::DecideMoveDirection()
 {
@@ -282,12 +281,15 @@ void Person::WalkTheWalk(const WalkInformation *walk)
 	this->MarkDirty();
 }
 
-/** Mark this person as 'not in use'. (Called by #Guests.) */
-/* virtual */ void Person::DeActivate()
+/**
+ * Mark this person as 'not in use'. (Called by #Guests.)
+ * @param ar How to de-activate the person.
+ */
+/* virtual */ void Person::DeActivate(AnimateResult ar)
 {
 	if (this->type == PERSON_INVALID) return;
 
-	if (_world.VoxelExists(this->x_vox, this->y_vox, this->z_vox)) {
+	if (ar == OAR_REMOVE && _world.VoxelExists(this->x_vox, this->y_vox, this->z_vox)) {
 		/* If not wandered off-world, remove the person from the voxel person list. */
 		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
 	}
@@ -301,14 +303,14 @@ void Person::WalkTheWalk(const WalkInformation *walk)
  * @param delay Amount of milli seconds since the last update.
  * @return If \c false, de-activate the person.
  */
-bool Person::OnAnimate(int delay)
+AnimateResult Person::OnAnimate(int delay)
 {
 	this->frame_time -= delay;
-	if (this->frame_time > 0) return true;
+	if (this->frame_time > 0) return OAR_OK;
 
 	this->MarkDirty(); // Marks the entire voxel dirty, which should be big enough even after moving.
 
-	if (this->frames == NULL || this->frame_count == 0) return false;
+	if (this->frames == NULL || this->frame_count == 0) return OAR_REMOVE;
 
 	int16 x_limit = -1;
 	switch (GB(this->walk->limit_type, WLM_X_START, WLM_LIMIT_LENGTH)) {
@@ -350,7 +352,7 @@ bool Person::OnAnimate(int delay)
 		this->frame_time = this->frames[index].duration;
 
 		this->z_pos = GetZHeight(this->x_vox, this->y_vox, this->z_vox, this->x_pos, this->y_pos);
-		return true;
+		return OAR_OK;
 	}
 
 	/* Reached the goal, start the next walk. */
@@ -377,7 +379,7 @@ bool Person::OnAnimate(int delay)
 		/* If the guest ended up off-world, quit. */
 		if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
 				this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
-			return false;
+			return OAR_DEACTIVATE;
 		}
 
 		/* Handle z position. */
@@ -392,13 +394,15 @@ bool Person::OnAnimate(int delay)
 			this->z_pos = 255;
 			v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 		}
-		assert(v != NULL); // XXX This does not always hold!
+		/* We seem to have wandered off-path in some way, abort. */
+		if (v == NULL || v->GetType() != VT_SURFACE || !HasValidPath(v)) return OAR_DEACTIVATE;
+
 		v->persons.AddFirst(this);
 		this->DecideMoveDirection();
-		return true;
+		return OAR_OK;
 	}
 	this->WalkTheWalk(this->walk + 1);
-	return true;
+	return OAR_OK;
 }
 
 /** Mark the screen where this person is, as dirty so it is repainted the next time. */
@@ -685,8 +689,9 @@ void Guests::OnAnimate(int delay)
 		Person *p = this->block.Get(i);
 		if (p->type == PERSON_INVALID) continue;
 
-		if (!p->OnAnimate(delay)) {
-			p->DeActivate();
+		AnimateResult ar = p->OnAnimate(delay);
+		if (ar != OAR_OK) {
+			p->DeActivate(ar);
 			this->free.AddFirst(p);
 		}
 	}
@@ -700,7 +705,7 @@ void Guests::DoTick()
 	while (this->next_daily_index < end_index) {
 		Person *p = this->block.Get(this->next_daily_index);
 		if (p->type != PERSON_INVALID && !p->DailyUpdate()) {
-			p->DeActivate();
+			p->DeActivate(OAR_REMOVE);
 			this->free.AddFirst(p);
 		}
 		this->next_daily_index++;

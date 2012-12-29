@@ -65,6 +65,12 @@ struct WalkInformation {
 	uint8 limit_type;        ///< Limit to end use of this animation. @see WalkLimit
 };
 
+/** Exit codes of the Person::OnAnimate call. */
+enum AnimateResult {
+	OAR_OK,         ///< All ok, keep running.
+	OAR_REMOVE,     ///< Remove person from the person-list, and de-activate.
+	OAR_DEACTIVATE, ///< Person is already removed from the person-list, only de-activate.
+};
 
 /**
  * Class of a person in the world.
@@ -77,11 +83,11 @@ public:
 	Person();
 	virtual ~Person();
 
-	bool OnAnimate(int delay);
+	AnimateResult OnAnimate(int delay);
 	virtual bool DailyUpdate() = 0;
 
 	virtual void Activate(const Point16 &start, PersonType person_type);
-	virtual void DeActivate();
+	virtual void DeActivate(AnimateResult ar);
 
 	void SetName(const char *name);
 	const char *GetName() const;
