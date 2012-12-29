@@ -232,16 +232,32 @@ TileEdge Person::GetCurrentEdge() const
 void Person::DecideMoveDirection()
 {
 	/* Which way can the guest leave? */
-	uint8 exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions by default.
+	uint8 bot_exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions by default.
+	uint8 top_exits = 0;
 	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
-	if (v->GetType() == VT_SURFACE) {
-		if (HasValidPath(v)) {
-			uint8 slope = v->GetPathRideFlags();
-			if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
-				exits &= _path_expand[slope]; // Masks to exits only, as that's what 'exits' contains here.
-			} else { // At a path ramp.
-				exits = (slope == PATH_RAMP_NE || slope == PATH_RAMP_SW) ?
-						((1 << PATHBIT_NE) | (1 << PATHBIT_SW)) : ((1 << PATHBIT_SE) | (1 << PATHBIT_NW));
+	if (v->GetType() == VT_SURFACE && HasValidPath(v)) {
+		uint8 slope = v->GetPathRideFlags();
+		if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
+			bot_exits &= _path_expand[slope]; // Masks to exits only, as that's what 'bot_exits' contains here.
+		} else { // At a path ramp.
+			switch (slope) {
+				case PATH_RAMP_NE: bot_exits = 1 << PATHBIT_NE; top_exits = 1 << PATHBIT_SW; break;
+				case PATH_RAMP_NW: bot_exits = 1 << PATHBIT_NW; top_exits = 1 << PATHBIT_SE; break;
+				case PATH_RAMP_SE: bot_exits = 1 << PATHBIT_SE; top_exits = 1 << PATHBIT_NW; break;
+				case PATH_RAMP_SW: bot_exits = 1 << PATHBIT_SW; top_exits = 1 << PATHBIT_NE; break;
+				default: NOT_REACHED();
+			}
+		}
+		/* Being at a path tile, make extra sure we don't leave the path. */
+		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+			if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0) {
+				if (!PathExistsAtBottomEdge(this->x_vox, this->y_vox, this->z_vox, exit_edge)) {
+					SB(bot_exits, exit_edge + PATHBIT_NE, 1, 0); // Clear exit if it leads to nowhere.
+				}
+			} else if (GB(top_exits, exit_edge + PATHBIT_NE, 1) != 0) {
+				if (!PathExistsAtBottomEdge(this->x_vox, this->y_vox, this->z_vox + 1, exit_edge)) {
+					SB(top_exits, exit_edge + PATHBIT_NE, 1, 0); // Clear exit if it leads to nowhere.
+				}
 			}
 		}
 	}
@@ -252,7 +268,9 @@ void Person::DecideMoveDirection()
 	TileEdge start_edge = this->GetCurrentEdge();
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		if (start_edge == exit_edge) continue;
-		if (GB(exits, exit_edge + PATHBIT_NE, 1) != 0) walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
+		if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0 || GB(top_exits, exit_edge + PATHBIT_NE, 1) != 0) {
+			walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
+		}
 	}
 	if (walk_count == 0) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
 
