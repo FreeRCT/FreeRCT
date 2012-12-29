@@ -131,72 +131,81 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
 }
 
 /** Walk from NE edge back to NE edge. */
-static const WalkInformation walk_ne_ne[] = {
+static const WalkInformation _walk_ne_ne[] = {
 	{ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NE edge to SE edge. */
-static const WalkInformation walk_ne_se[] = {
+static const WalkInformation _walk_ne_se[] = {
 	{ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NE edge to SW edge. */
-static const WalkInformation walk_ne_sw[] = {
+static const WalkInformation _walk_ne_sw[] = {
 	{ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NE edge to NW edge. */
-static const WalkInformation walk_ne_nw[] = {
+static const WalkInformation _walk_ne_nw[] = {
 	{ANIM_WALK_SW, WLM_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 
 /** Walk from SE edge to NE edge. */
-static const WalkInformation walk_se_ne[] = {
+static const WalkInformation _walk_se_ne[] = {
 	{ANIM_WALK_NW, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SE edge back to SE edge. */
-static const WalkInformation walk_se_se[] = {
+static const WalkInformation _walk_se_se[] = {
 	{ANIM_WALK_NW, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SE edge to SW edge. */
-static const WalkInformation walk_se_sw[] = {
+static const WalkInformation _walk_se_sw[] = {
 	{ANIM_WALK_NW, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE }, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SE edge to NW edge. */
-static const WalkInformation walk_se_nw[] = {
+static const WalkInformation _walk_se_nw[] = {
 	{ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 
 /** Walk from SW edge to NE edge. */
-static const WalkInformation walk_sw_ne[] = {
+static const WalkInformation _walk_sw_ne[] = {
 	{ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SW edge to SE edge. */
-static const WalkInformation walk_sw_se[] = {
+static const WalkInformation _walk_sw_se[] = {
 	{ANIM_WALK_NE, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SW edge back to SW edge. */
-static const WalkInformation walk_sw_sw[] = {
+static const WalkInformation _walk_sw_sw[] = {
 	{ANIM_WALK_NE, WLM_LOW_X},  {ANIM_WALK_NW, WLM_LOW_Y}, {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from SW edge to NW edge. */
-static const WalkInformation walk_sw_nw[] = {
+static const WalkInformation _walk_sw_nw[] = {
 {ANIM_WALK_NE, WLM_LOW_X},  {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 
 /** Walk from NW edge to NE edge. */
-static const WalkInformation walk_nw_ne[] = {
+static const WalkInformation _walk_nw_ne[] = {
 	{ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_NE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NW edge to SE edge. */
-static const WalkInformation walk_nw_se[] = {
+static const WalkInformation _walk_nw_se[] = {
 	{ANIM_WALK_SE, WLM_SE_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NW edge to SW edge. */
-static const WalkInformation walk_nw_sw[] = {
+static const WalkInformation _walk_nw_sw[] = {
 	{ANIM_WALK_SE, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_SW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
 /** Walk from NW edge back to NW edge. */
-static const WalkInformation walk_nw_nw[] = {
+static const WalkInformation _walk_nw_nw[] = {
 	{ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_LOW_X}, {ANIM_WALK_NW, WLM_NW_EDGE}, {ANIM_INVALID, WLM_INVALID}
 };
+
+/** Movement of one edge to another edge of a path tile. */
+static const WalkInformation *_walk_path_tile[4][4] = {
+	{_walk_ne_ne, _walk_ne_se, _walk_ne_sw, _walk_ne_nw},
+	{_walk_se_ne, _walk_se_se, _walk_se_sw, _walk_se_nw},
+	{_walk_sw_ne, _walk_sw_se, _walk_sw_sw, _walk_sw_nw},
+	{_walk_nw_ne, _walk_nw_se, _walk_nw_sw, _walk_nw_nw},
+};
+
 
 /**
  * Decide at which edge the person is.
@@ -240,39 +249,13 @@ void Person::DecideMoveDirection()
 	const WalkInformation *walks[4]; // Walks that can be done at this tile.
 	int walk_count = 0;
 
-	/* Decide at what edge the person is. */
-	assert(this->x_pos >= 0 && this->x_pos < 256);
-	assert(this->y_pos >= 0 && this->y_pos < 256);
-	int x = (this->x_pos < 128) ? this->x_pos : 255 - this->x_pos;
-	int y = (this->y_pos < 128) ? this->y_pos : 255 - this->y_pos;
-
-	if (x < y) {
-		if (this->x_pos < 128) { // at NE edge.
-			if ((exits & (1 << PATHBIT_SE)) != 0) walks[walk_count++] = walk_ne_se;
-			if ((exits & (1 << PATHBIT_SW)) != 0) walks[walk_count++] = walk_ne_sw;
-			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_ne_nw;
-			if (walk_count == 0) walks[walk_count++] = walk_ne_ne;
-		} else { // at SW edge.
-			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_sw_ne;
-			if ((exits & (1 << PATHBIT_SE)) != 0) walks[walk_count++] = walk_sw_se;
-			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_sw_nw;
-			if (walk_count == 0) walks[walk_count++] = walk_sw_sw;
-		}
-	} else {
-		if (this->y_pos < 128) { // at NW edge.
-			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_nw_ne;
-			if ((exits & (1 << PATHBIT_SE)) != 0) walks[walk_count++] = walk_nw_se;
-			if ((exits & (1 << PATHBIT_SW)) != 0) walks[walk_count++] = walk_nw_sw;
-			if (walk_count == 0) walks[walk_count++] = walk_nw_nw;
-		} else { // at SE edge.
-			if ((exits & (1 << PATHBIT_NE)) != 0) walks[walk_count++] = walk_se_ne;
-			if ((exits & (1 << PATHBIT_SW)) != 0) walks[walk_count++] = walk_se_sw;
-			if ((exits & (1 << PATHBIT_NW)) != 0) walks[walk_count++] = walk_se_nw;
-			if (walk_count == 0) walks[walk_count++] = walk_se_se;
-		}
+	TileEdge start_edge = this->GetCurrentEdge();
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		if (start_edge == exit_edge) continue;
+		if (GB(exits, exit_edge + PATHBIT_NE, 1) != 0) walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
 	}
+	if (walk_count == 0) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
 
-	assert(walk_count > 0);
 	const WalkInformation *new_walk;
 	if (walk_count == 1) {
 		new_walk = walks[0];
