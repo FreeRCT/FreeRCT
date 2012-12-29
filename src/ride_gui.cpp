@@ -329,9 +329,7 @@ static bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
 
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
-	if (vx == NULL) return false;
-	uint8 type = vx->GetType();
-	if (type == VT_EMPTY || type == VT_REFERENCE) {
+	if (vx == NULL || vx->GetType() == VT_EMPTY || vx->GetType() == VT_REFERENCE) {
 		/* No path here, check the voxel below. */
 		if (zpos == 0) return false;
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
@@ -339,9 +337,9 @@ static bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 		/* Path must end at the top of the voxel. */
 		return vx->GetPathRideFlags() == _path_up_from_edge[edge];
 	}
-	if (type != VT_SURFACE || !HasValidPath(vx)) return false;
+	if (vx->GetType() != VT_SURFACE || !HasValidPath(vx)) return false;
 	/* Path must end at the bottom of the voxel. */
-	return vx->GetPathRideFlags() < PATH_FLAT_COUNT || vx->GetPathRideFlags() == _path_up_from_edge[edge];
+	return vx->GetPathRideFlags() < PATH_FLAT_COUNT || vx->GetPathRideFlags() == _path_down_from_edge[edge];
 }
 
 /**
