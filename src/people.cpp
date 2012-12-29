@@ -371,6 +371,16 @@ bool Person::OnAnimate(int delay)
 			this->y_vox++;
 			this->y_pos -= 256;
 		}
+		assert(this->x_pos >= 0 && this->x_pos < 256);
+		assert(this->y_pos >= 0 && this->y_pos < 256);
+
+		/* If the guest ended up off-world, quit. */
+		if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
+				this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
+			return false;
+		}
+
+		/* Handle z position. */
 		if (this->z_pos > 128) {
 			this->z_vox++;
 			this->z_pos = 0;
@@ -381,14 +391,6 @@ bool Person::OnAnimate(int delay)
 				this->z_vox--;
 				this->z_pos = 255;
 			}
-		}
-		assert(this->x_pos >= 0 && this->x_pos < 256);
-		assert(this->y_pos >= 0 && this->y_pos < 256);
-
-		/* If the guest ended up off-world, quit. */
-		if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
-				this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
-			return false;
 		}
 		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
 		this->DecideMoveDirection();
