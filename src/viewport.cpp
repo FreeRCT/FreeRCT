@@ -1217,7 +1217,9 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	_video->FillSurface(COL_BACKGROUND, this->rect); // Black background.
 
 	ClippedRectangle cr = _video->GetClippedRectangle();
-	_video->SetClippedRectangle(this->rect);
+	assert(this->rect.base.x >= 0 && this->rect.base.y >= 0);
+	ClippedRectangle draw_rect(cr, this->rect.base.x, this->rect.base.y, this->rect.width, this->rect.height);
+	_video->SetClippedRectangle(draw_rect);
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
 		const DrawData &dd = (*iter);
