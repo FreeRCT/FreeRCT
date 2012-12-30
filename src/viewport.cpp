@@ -1172,6 +1172,8 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY, ALL_WI
 
 	this->mouse_pos.x = 0;
 	this->mouse_pos.y = 0;
+	this->additions_enabled = false;
+	this->additions_displayed = false;
 
 	this->SetSize(w, h);
 	this->SetPosition(x, y);
