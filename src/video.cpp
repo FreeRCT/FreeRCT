@@ -73,24 +73,6 @@ ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 
 }
 
 /**
- * Construct an area based on a rectangle.
- * @param rect %Rectangle to use as source.
- */
-ClippedRectangle::ClippedRectangle(const Rectangle32 &rect)
-{
-	int32 left   = max(0, rect.base.x);
-	int32 right  = max(left, rect.base.x + (int32)rect.width);
-	int32 top    = max(0, rect.base.y);
-	int32 bottom = max(top, rect.base.y + (int32)rect.height);
-
-	this->absx   = left;
-	this->absy   = top;
-	this->width  = right - left;
-	this->height = bottom - top;
-	this->address = NULL; this->pitch = 0;
-}
-
-/**
  * Copy constructor.
  * @param cr Existing clipped rectangle.
  */

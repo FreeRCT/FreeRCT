@@ -26,7 +26,6 @@ public:
 	ClippedRectangle();
 	ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h);
 	ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 y, uint16 w, uint16 h);
-	ClippedRectangle(const Rectangle32 &rect);
 
 	ClippedRectangle(const ClippedRectangle &cr);
 	ClippedRectangle &operator=(const ClippedRectangle &cr);
