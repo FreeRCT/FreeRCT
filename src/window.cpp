@@ -728,8 +728,8 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 	if (pos == this->mouse_pos) return;
 	this->mouse_pos = pos;
 
-	this->UpdateCurrentWindow();
-	if (this->current_window == NULL) {
+	bool changed = this->UpdateCurrentWindow();
+	if ((this->mouse_mode != WMMM_PASS_THROUGH && changed) || this->current_window == NULL) {
 		this->mouse_mode = WMMM_PASS_THROUGH;
 		return;
 	}
@@ -753,6 +753,7 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 			Point32 new_pos;
 			new_pos.x = pos.x - this->move_offset.x;
 			new_pos.y = pos.y - this->move_offset.y;
+			assert(this->current_window->wtype != WC_MAINDISPLAY); // Cannot move the main display!
 			this->current_window->rect.base = new_pos;
 			this->current_window->MarkDirty();
 			break;
