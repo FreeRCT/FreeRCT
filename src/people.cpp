@@ -16,6 +16,7 @@
 #include "people.h"
 #include "viewport.h"
 #include "gamelevel.h"
+#include "ride_type.h"
 
 Guests _guests; ///< Guests in the world/park.
 
@@ -433,6 +434,16 @@ void Person::MarkDirty()
 }
 
 /**
+ * How much does the person desire to visit the given ride?
+ * @param ri Ride that can be visited.
+ * @return Desire of the person to visit the ride.
+ */
+/* virtual */ RideVisitDesire Person::WantToVisit(const RideInstance *ri) const
+{
+	return RVD_NO_VISIT;
+}
+
+/**
  * @fn bool Person::DailyUpdate()
  * Daily ponderings of a person.
  * @return If \c false, de-activate the person.
@@ -466,6 +477,11 @@ Guest::~Guest()
 
 	this->happiness = max(0, this->happiness - 2);
 	return this->happiness > 10; // De-activate if at or below 10.
+}
+
+/* virtual */ RideVisitDesire Guest::WantToVisit(const RideInstance *ri) const
+{
+	return RVD_MAY_VISIT;
 }
 
 /** Default constructor of the person list. */

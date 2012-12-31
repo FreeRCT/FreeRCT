@@ -16,6 +16,8 @@
 #include "random.h"
 #include "money.h"
 
+class RideInstance;
+
 static const uint GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
 
  /**
@@ -72,6 +74,14 @@ enum AnimateResult {
 	OAR_DEACTIVATE, ///< Person is already removed from the person-list, only de-activate.
 };
 
+/** Desire to visit a ride. */
+enum RideVisitDesire {
+	RVD_NO_RIDE,    ///< There is no ride here (used to distinguish between paths and rides).
+	RVD_NO_VISIT,   ///< Person does not want to visit the ride.
+	RVD_MAY_VISIT,  ///< Person may want to visit the ride.
+	RVD_MUST_VISIT, ///< Person wants to visit the ride.
+};
+
 /**
  * Class of a person in the world.
  *
@@ -122,6 +132,8 @@ protected:
 	void DecideMoveDirection();
 	void StartAnimation(const WalkInformation *walk);
 	void MarkDirty();
+
+	virtual RideVisitDesire WantToVisit(const RideInstance *ri) const;
 };
 
 /** Guests walking around in the world. */
@@ -136,6 +148,9 @@ public:
 
 	int16 happiness; ///< Happiness of the guest (values are 0-100).
 	Money cash;      ///< Amount of money carried by the guest (should be non-negative).
+
+protected:
+	virtual RideVisitDesire WantToVisit(const RideInstance *ri) const;
 };
 
 /** Manager of a doubly linked list of persons. */
