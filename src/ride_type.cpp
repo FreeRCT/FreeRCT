@@ -14,6 +14,7 @@
 #include "sprite_store.h"
 #include "language.h"
 #include "sprite_store.h"
+#include "map.h"
 #include "fileio.h"
 #include "ride_type.h"
 #include "bitmath.h"
@@ -381,3 +382,29 @@ void RidesManager::NewInstanceAdded(uint16 num)
 	ri->CloseRide();
 }
 
+/**
+ * Does a ride entrance exists at/to the bottom the given voxel in the neighbouring voxel?
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param edge Direction to move to get the neighbouring voxel.
+ * @pre voxel coordinate must be valid in the world.
+ * @return The ride at the neighbouring voxel, if available (else \c NULL is returned).
+ */
+const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge)
+{
+	xpos += _tile_dxy[edge].x;
+	ypos += _tile_dxy[edge].y;
+	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return NULL;
+
+	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
+	if (vx == NULL || vx->GetType() == VT_EMPTY || vx->GetType() == VT_REFERENCE) {
+		/* No ride here, check the voxel below. */
+		if (zpos == 0) return NULL;
+		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
+	}
+	if (vx == NULL || vx->GetType() != VT_SURFACE) return NULL;
+	uint16 pr = vx->GetPathRideNumber();
+	if (pr >= PT_START) return NULL;
+	return _rides_manager.GetRideInstance(pr);
+}

@@ -162,6 +162,8 @@ public:
 	RideInstance instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
 };
 
+const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge);
+
 extern RidesManager _rides_manager;
 
 #endif
