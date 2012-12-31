@@ -377,52 +377,53 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 
 	/* Reached the goal, start the next walk. */
-	if (this->walk[1].anim_type == ANIM_INVALID) {
-		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
-		/* Not only the end of this walk, but the end of the entire walk at the tile. */
-		if (this->x_pos < 0) {
-			this->x_vox--;
-			this->x_pos += 256;
-		} else if (this->x_pos > 255) {
-			this->x_vox++;
-			this->x_pos -= 256;
-		}
-		if (this->y_pos < 0) {
-			this->y_vox--;
-			this->y_pos += 256;
-		} else if (this->y_pos > 255) {
-			this->y_vox++;
-			this->y_pos -= 256;
-		}
-		assert(this->x_pos >= 0 && this->x_pos < 256);
-		assert(this->y_pos >= 0 && this->y_pos < 256);
-
-		/* If the guest ended up off-world, quit. */
-		if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
-				this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
-			return OAR_DEACTIVATE;
-		}
-
-		/* Handle z position. */
-		if (this->z_pos > 128) {
-			this->z_vox++;
-			this->z_pos = 0;
-		}
-		/* At bottom of the voxel, the path either stays on the same level or goes down. */
-		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
-		if ((v == NULL || v->GetType() != VT_SURFACE) && this->z_vox > 0) {
-			this->z_vox--;
-			this->z_pos = 255;
-			v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
-		}
-		/* We seem to have wandered off-path in some way, abort. */
-		if (v == NULL || v->GetType() != VT_SURFACE || !HasValidPath(v)) return OAR_DEACTIVATE;
-
-		v->persons.AddFirst(this);
-		this->DecideMoveDirection();
+	if (this->walk[1].anim_type != ANIM_INVALID) {
+		this->StartAnimation(this->walk + 1);
 		return OAR_OK;
 	}
-	this->StartAnimation(this->walk + 1);
+
+	/* Not only the end of this walk, but the end of the entire walk at the tile. */
+	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
+	if (this->x_pos < 0) {
+		this->x_vox--;
+		this->x_pos += 256;
+	} else if (this->x_pos > 255) {
+		this->x_vox++;
+		this->x_pos -= 256;
+	}
+	if (this->y_pos < 0) {
+		this->y_vox--;
+		this->y_pos += 256;
+	} else if (this->y_pos > 255) {
+		this->y_vox++;
+		this->y_pos -= 256;
+	}
+	assert(this->x_pos >= 0 && this->x_pos < 256);
+	assert(this->y_pos >= 0 && this->y_pos < 256);
+
+	/* If the guest ended up off-world, quit. */
+	if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
+			this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
+		return OAR_DEACTIVATE;
+	}
+
+	/* Handle z position. */
+	if (this->z_pos > 128) {
+		this->z_vox++;
+		this->z_pos = 0;
+	}
+	/* At bottom of the voxel, the path either stays on the same level or goes down. */
+	Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+	if ((v == NULL || v->GetType() != VT_SURFACE) && this->z_vox > 0) {
+		this->z_vox--;
+		this->z_pos = 255;
+		v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+	}
+	/* We seem to have wandered off-path in some way, abort. */
+	if (v == NULL || v->GetType() != VT_SURFACE || !HasValidPath(v)) return OAR_DEACTIVATE;
+
+	v->persons.AddFirst(this);
+	this->DecideMoveDirection();
 	return OAR_OK;
 }
 
