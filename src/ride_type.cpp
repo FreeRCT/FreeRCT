@@ -168,10 +168,21 @@ void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zp
  * @return Bit set of #TileEdge
  * @todo This needs to be generalized for rides larger than a single voxel.
  */
-uint8 RideInstance::GetEntranceDirections()
+uint8 RideInstance::GetEntranceDirections() const
 {
 	uint8 entrances = this->type->flags & SHF_ENTRANCE_BITS;
 	return ROL(entrances, this->orientation);
+}
+
+/**
+ * Can the ride be visited, assuming the shop is approached from direction \a edge?
+ * @param edge Direction of entrance (exit direction of the neighbouring voxel).
+ * @return The shop can be visited.
+ */
+bool RideInstance::CanBeVisited(TileEdge edge) const
+{
+	if (this->state != RIS_OPEN) return false;
+	return GB(this->GetEntranceDirections(), (edge + 2) % 4, 1) != 0;
 }
 
 /** Monthly update of the shop administration. */

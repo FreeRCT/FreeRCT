@@ -108,7 +108,8 @@ public:
 
 	void ClaimRide(const ShopType *type, uint8 *name);
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
-	uint8 GetEntranceDirections();
+	uint8 GetEntranceDirections() const;
+	bool CanBeVisited(TileEdge edge) const;
 	void FreeRide();
 
 	void OnNewMonth();
