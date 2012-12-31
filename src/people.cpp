@@ -232,11 +232,15 @@ TileEdge Person::GetCurrentEdge() const
  */
 void Person::DecideMoveDirection()
 {
+	TileEdge start_edge = this->GetCurrentEdge(); // Edge the person is currently.
+
 	/* Which way can the guest leave? */
-	uint8 bot_exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions by default.
-	uint8 top_exits = 0;
+	uint8 bot_exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions at the bottom by default.
+	uint8 shops = 0; // Number of exits with a shop with normal desire to go there.
 	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
 	if (v->GetType() == VT_SURFACE && HasValidPath(v)) {
+		uint8 top_exits = 0;  // Exits at the top of the voxel.
+
 		uint8 slope = v->GetPathRideFlags();
 		if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
 			bot_exits &= _path_expand[slope]; // Masks to exits only, as that's what 'bot_exits' contains here.
@@ -249,31 +253,68 @@ void Person::DecideMoveDirection()
 				default: NOT_REACHED();
 			}
 		}
+
+		uint8 must_shops = 0; // Shops with a high desire to visit.
+
 		/* Being at a path tile, make extra sure we don't leave the path. */
 		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+			int z; // Decide z position of the exit.
 			if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0) {
-				if (!PathExistsAtBottomEdge(this->x_vox, this->y_vox, this->z_vox, exit_edge)) {
-					SB(bot_exits, exit_edge + PATHBIT_NE, 1, 0); // Clear exit if it leads to nowhere.
-				}
+				z = this->z_vox;
 			} else if (GB(top_exits, exit_edge + PATHBIT_NE, 1) != 0) {
-				if (!PathExistsAtBottomEdge(this->x_vox, this->y_vox, this->z_vox + 1, exit_edge)) {
-					SB(top_exits, exit_edge + PATHBIT_NE, 1, 0); // Clear exit if it leads to nowhere.
-				}
+				z = this->z_vox + 1;
+			} else {
+				continue;
 			}
+
+			/* Decide whether to visit the exit at all. */
+			RideVisitDesire rvd = RVD_NO_VISIT;
+			if (exit_edge == start_edge) {
+				/* Nothing to do, the edge is already blocked by the default value above. */
+			} else if (PathExistsAtBottomEdge(this->x_vox, this->y_vox, z, exit_edge)) {
+				rvd = RVD_NO_RIDE; // but a path instead.
+			} else {
+				const RideInstance *ri = RideExistsAtBottom(this->x_vox, this->y_vox, z, exit_edge);
+				if (ri != NULL && ri->CanBeVisited(exit_edge)) rvd = this->WantToVisit(ri);
+			}
+			switch (rvd) {
+				case RVD_NO_RIDE:
+					break; // A path is one of the options.
+
+				case RVD_NO_VISIT: // No desire to visit this exit; clear it.
+					SB(bot_exits, exit_edge + PATHBIT_NE, 1, 0);
+					SB(top_exits, exit_edge + PATHBIT_NE, 1, 0);
+					break;
+
+				case RVD_MAY_VISIT: // It's one of the options (since the person is not coming from it).
+					SB(shops, exit_edge + PATHBIT_NE, 1, 1);
+					break;
+
+				case RVD_MUST_VISIT: // It is very desirable to visit this shop (since the person is not coming from it).
+					SB(must_shops, exit_edge + PATHBIT_NE, 1, 1);
+					break;
+
+				default: NOT_REACHED();
+			}
+		}
+		bot_exits |= top_exits; // Difference is not relevant any more.
+		if (must_shops != 0) {  // If there are shops that must be visited, ignore everything else.
+			bot_exits &= must_shops;
+			shops = 0;
 		}
 	}
 
 	const WalkInformation *walks[4]; // Walks that can be done at this tile.
 	int walk_count = 0;
 
-	TileEdge start_edge = this->GetCurrentEdge();
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		if (start_edge == exit_edge) continue;
-		if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0 || GB(top_exits, exit_edge + PATHBIT_NE, 1) != 0) {
+		if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0) {
 			walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
 		}
 	}
-	if (walk_count == 0) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
+	/* No exits, or all normal shops: Add 'return' as option. */
+	if (walk_count == 0 || bot_exits == shops) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
 
 	const WalkInformation *new_walk;
 	if (walk_count == 1) {
@@ -383,18 +424,26 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 
 	/* Not only the end of this walk, but the end of the entire walk at the tile. */
+	int dx = 0;
+	int dy = 0;
+	int dz = 0;
+
 	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
 	if (this->x_pos < 0) {
+		dx--;
 		this->x_vox--;
 		this->x_pos += 256;
 	} else if (this->x_pos > 255) {
+		dx++;
 		this->x_vox++;
 		this->x_pos -= 256;
 	}
 	if (this->y_pos < 0) {
+		dy--;
 		this->y_vox--;
 		this->y_pos += 256;
 	} else if (this->y_pos > 255) {
+		dy++;
 		this->y_vox++;
 		this->y_pos -= 256;
 	}
@@ -409,20 +458,37 @@ AnimateResult Person::OnAnimate(int delay)
 
 	/* Handle z position. */
 	if (this->z_pos > 128) {
+		dz++;
 		this->z_vox++;
 		this->z_pos = 0;
 	}
 	/* At bottom of the voxel, the path either stays on the same level or goes down. */
 	Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 	if ((v == NULL || v->GetType() != VT_SURFACE) && this->z_vox > 0) {
+		dz--;
 		this->z_vox--;
 		this->z_pos = 255;
 		v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 	}
 	/* We seem to have wandered off-path in some way, abort. */
-	if (v == NULL || v->GetType() != VT_SURFACE || !HasValidPath(v)) return OAR_DEACTIVATE;
+	if (v == NULL || v->GetType() != VT_SURFACE) return OAR_DEACTIVATE;
+	uint16 pr = v->GetPathRideNumber();
+	if (pr == PT_INVALID) return OAR_DEACTIVATE; // Not a path nor a ride.
+	if (pr >= PT_START) { // A path.
+		v->persons.AddFirst(this);
+		this->DecideMoveDirection();
+		return OAR_OK;
+	}
+	/* A shop. */
+	RideInstance *ri = _rides_manager.GetRideInstance(pr);
+	printf("Visiting shop %p\n", ri);
 
-	v->persons.AddFirst(this);
+	/* Restore the person at the previous tile (ie move in the opposite direction from above). */
+	if (dx != 0) { this->x_vox -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
+	if (dy != 0) { this->y_vox -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
+	if (dz != 0) { this->z_vox -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
+
+	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
 	this->DecideMoveDirection();
 	return OAR_OK;
 }
