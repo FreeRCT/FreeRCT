@@ -19,7 +19,6 @@
 #include "viewport.h"
 #include "math_func.h"
 #include "sprite_store.h"
-#include "people.h"
 
 /**
  * The game world.

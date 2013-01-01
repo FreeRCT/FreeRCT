@@ -19,6 +19,7 @@
 #include "config_reader.h"
 #include "language.h"
 #include "dates.h"
+#include "person.h"
 #include "people.h"
 #include "ride_type.h"
 

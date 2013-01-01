@@ -26,6 +26,7 @@
 #include "ride_type.h"
 #include "terraform.h"
 #include "select_mode.h"
+#include "person.h"
 
 #include <set>
 

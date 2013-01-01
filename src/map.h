@@ -16,7 +16,7 @@
 #include "path.h"
 #include "geometry.h"
 #include "sprite_store.h"
-#include "people.h"
+#include "person_list.h"
 #include "bitmath.h"
 
 #include <map>
