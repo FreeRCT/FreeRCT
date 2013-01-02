@@ -534,9 +534,10 @@ void VideoSystem::GetTextSize(const uint8 *text, int *width, int *height)
  * @param xpos Absolute horizontal position at the display.
  * @param ypos Absolute vertical position at the display.
  * @param width Available width of the text (in pixels).
+ * @param align Horizontal alignment of the string.
  * @pre Surfaces must be locked before calling this function.
  */
-void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, int width)
+void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, int width, Alignment align)
 {
 	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
 	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, (const char *)text, col);
@@ -550,6 +551,22 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
 		return;
 	}
 
+	int real_w = min(surf->w, width);
+	switch (align) {
+		case ALG_LEFT:
+			break;
+
+		case ALG_CENTER:
+			xpos += (width - real_w) / 2;
+			break;
+
+		case ALG_RIGHT:
+			xpos += width - real_w;
+			break;
+
+		default: NOT_REACHED();
+	}
+
 	this->blit_rect.ValidateAddress();
 
 	uint8 *src = ((uint8 *)surf->pixels);
@@ -559,12 +576,11 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
 		h += ypos;
 		ypos = 0;
 	}
-	if (surf->w < width) width = surf->w;
 	while (h > 0) {
 		if (ypos >= this->blit_rect.height) break;
 		uint8 *src2 = src;
 		uint8 *dest2 = dest;
-		int w = width;
+		int w = real_w;
 		int x = xpos;
 		if (x < 0) {
 			w += x;

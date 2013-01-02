@@ -416,18 +416,16 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
 		DrawBorderSprites(*bsd, (pressed != 0), rect, this->colour);
 	}
-	int xoffset;
+	Alignment align = ALG_CENTER;
 	if (this->wtype == WT_LEFT_TEXT) {
-		xoffset = left;
+		align = ALG_LEFT;
 	} else if (this->wtype == WT_RIGHT_TEXT) {
-		xoffset = left + (right + 1 - left - this->value_width);
-	} else {
-		xoffset = left + (right + 1 - left - this->value_width) / 2;
+		align = ALG_RIGHT;
 	}
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
 		const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(this->value);
-		xoffset -= rect.base.x;
+		int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
 		yoffset -= rect.base.y;
 		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 		if (imgdata != NULL) {
@@ -436,7 +434,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		}
 	} else {
 		if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-		DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, xoffset + pressed, yoffset + pressed);
+		DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
 	}
 }
 

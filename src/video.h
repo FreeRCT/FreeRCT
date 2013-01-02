@@ -41,6 +41,12 @@ public:
 	uint16 pitch;   ///< Pitch of a row in bytes. @note Call #ValidateAddress prior to use.
 };
 
+/** How to align text during drawing. */
+enum Alignment {
+	ALG_LEFT,   ///< Align to the left edge.
+	ALG_CENTER, ///< Center the text.
+	ALG_RIGHT,  ///< Align to the right edge.
+};
 
 /**
  * Class representing the video system.
@@ -119,7 +125,7 @@ public:
 	};
 
 	void GetTextSize(const uint8 *text, int *width, int *height);
-	void BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, int width = 0x7FFF);
+	void BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
 	void DrawLine(const Point16 &start, const Point16 &end, uint8 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint8 colour);
 
