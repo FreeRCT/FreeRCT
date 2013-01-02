@@ -163,6 +163,8 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	this->dirty = true; // Ensure it gets painted.
 
 	this->blit_rect = ClippedRectangle(0, 0, this->GetXSize(), this->GetYSize());
+	this->digit_size.x = 0;
+	this->digit_size.y = 0;
 	return true;
 }
 
@@ -525,6 +527,45 @@ void VideoSystem::GetTextSize(const uint8 *text, int *width, int *height)
 		*width = 0;
 		*height = 0;
 	}
+}
+
+/**
+ * Get the text-size of a number between \a smallest and \a biggest.
+ * @param smallest Smallest possible number to display.
+ * @param biggest Biggest possible number to display.
+ * @param width [out] Resulting width.
+ * @param height [out] Resulting height.
+ */
+void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height)
+{
+	if (this->digit_size.x == 0) { // First call, initialize the variable.
+		this->digit_size.x = 0;
+		this->digit_size.y = 0;
+		for (int i = '0'; i < '9'; i++) {
+			uint8 buffer[2];
+			buffer[0] = i;
+			buffer[1] = '\0';
+			int w, h;
+			this->GetTextSize(buffer, &w, &h);
+			if (w > this->digit_size.x) this->digit_size.x = w;
+			if (h > this->digit_size.y) this->digit_size.y = h;
+		}
+	}
+
+	int digit_count = 1;
+	if (smallest < 0) {
+		smallest = -smallest;
+		digit_count++; // Add a 'digit' for the '-' sign.
+	}
+	if (biggest < 0) biggest = -biggest;
+	if (smallest > biggest) biggest = smallest;
+	while (biggest > 9) {
+		digit_count++;
+		biggest /= 10;
+	}
+
+	*width = digit_count * this->digit_size.x;
+	*height = this->digit_size.y;
 }
 
 /**

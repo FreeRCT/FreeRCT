@@ -10,6 +10,7 @@
 /** @file shop_gui.cpp %Window for inter-acting with shops. */
 
 #include "stdafx.h"
+#include "math_func.h"
 #include "window.h"
 #include "money.h"
 #include "language.h"
@@ -90,9 +91,10 @@ class ShopManagerWindow : public GuiWindow {
 public:
 	ShopManagerWindow(RideInstance *ri);
 
+	/* virtual */ void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
 	/* virtual */ void OnClick(WidgetNumber wid_num);
-	/* virtual */ void OnChange (ChangeCode code, uint32 parameter);
+	/* virtual */ void OnChange(ChangeCode code, uint32 parameter);
 
 private:
 	RideInstance *shop; ///< Shop instance getting managed by this window.
@@ -117,6 +119,16 @@ void ShopManagerWindow::SetShopToggleButtons()
 {
 	this->SetWidgetChecked(SMW_SHOP_OPENED, this->shop->state == RIS_OPEN);
 	this->SetWidgetChecked(SMW_SHOP_CLOSED, this->shop->state == RIS_CLOSED);
+}
+
+/* virtual */ void ShopManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+{
+	if (wid_num != SMW_ITEM1_COUNT && wid_num != SMW_ITEM2_COUNT) return;
+
+	int w, h;
+	_video->GetNumberRangeSize(0, 100000, &w, &h);
+	wid->min_x = max(wid->min_x, (uint16)w);
+	wid->min_y = max(wid->min_y, (uint16)h);
 }
 
 /* virtual */ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const

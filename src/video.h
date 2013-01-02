@@ -125,6 +125,7 @@ public:
 	};
 
 	void GetTextSize(const uint8 *text, int *width, int *height);
+	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
 	void BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
 	void DrawLine(const Point16 &start, const Point16 &end, uint8 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint8 colour);
@@ -137,6 +138,7 @@ private:
 	TTF_Font *font;             ///< Opened text font.
 	SDL_Surface *video;         ///< Video surface.
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
+	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
 
 	void MarkDisplayClean();
 };
