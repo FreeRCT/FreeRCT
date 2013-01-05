@@ -185,6 +185,22 @@ bool RideInstance::CanBeVisited(TileEdge edge) const
 	return GB(this->GetEntranceDirections(), (edge + 2) % 4, 1) != 0;
 }
 
+/**
+ * Sell an item to a customer.
+ * @param item_index Index of the item being sold.
+ */
+void RideInstance::SellItem(int item_index)
+{
+	assert(item_index == 0 || item_index == 1);
+
+	this->item_count[item_index]++;
+	Money profit = this->item_price[item_index] - this->type->item_cost[item_index];
+	this->total_sell_profit += profit;
+	this->total_profit += profit;
+
+	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
+}
+
 /** Monthly update of the shop administration. */
 void RideInstance::OnNewMonth()
 {

@@ -548,9 +548,12 @@ AnimateResult Person::OnAnimate(int delay)
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
-	/* A shop. */
-	RideInstance *ri = _rides_manager.GetRideInstance(pr);
-	printf("Visiting shop %p\n", ri);
+	/* A shop, buy something. */
+	Guest *guest = dynamic_cast<Guest *>(this);
+	if (guest != NULL) {
+		RideInstance *ri = _rides_manager.GetRideInstance(pr);
+		guest->VisitShop(ri);
+	}
 
 	/* Restore the person at the previous tile (ie move in the opposite direction from above). */
 	if (dx != 0) { this->x_vox -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
@@ -693,4 +696,77 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 	const ShopType *st = ri->type;
 	if (this->NeedForItem(st->item_type[0], true) == RVD_NO_VISIT && this->NeedForItem(st->item_type[1], true) == RVD_NO_VISIT) return RVD_NO_VISIT;
 	return RVD_MAY_VISIT;
+}
+
+/**
+ * Add an item to the possessions of the guest.
+ * @param it Item to add.
+ */
+void Guest::AddItem(ItemType it)
+{
+	switch (it) {
+		case ITP_NOTHING:
+			break;
+
+		case ITP_DRINK:
+			this->drink = 5;
+			this->has_wrapper = true;
+			break;
+
+		case ITP_ICE_CREAM:
+			this->drink = 7;
+			this->has_wrapper = false;
+			break;
+
+		case ITP_NORMAL_FOOD:
+			this->food = 10;
+			this->has_wrapper = true;
+			this->salty_food = false;
+			break;
+
+		case ITP_SALTY_FOOD:
+			this->food = 15;
+			this->has_wrapper = true;
+			this->salty_food = true;
+			break;
+
+		case ITP_UMBRELLA:
+			this->has_umbrella = true;
+			break;
+
+		case ITP_PARK_MAP:
+			this->has_map = true;
+			break;
+
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Visit the shop.
+ * @param ri Ride that being visited.
+ */
+void Guest::VisitShop(RideInstance *ri)
+{
+	const ShopType *st = ri->type;
+	bool can_buy[2];
+	for (int i = 0; i < 2; i++) {
+		can_buy[i] = ri->item_price[i] <= this->cash && this->NeedForItem(st->item_type[i], false) != RVD_NO_VISIT;
+	}
+	if (can_buy[0] && can_buy[1]) { // Can buy both, make a random choice.
+		int item = this->rnd.Success(50) ? 1 : 0;
+		can_buy[item] = false;
+	}
+
+	for (int i = 0; i < 2; i++) {
+		if (can_buy[i]) {
+			ri->SellItem(i);
+			this->cash -= ri->item_price[i];
+			this->AddItem(st->item_type[i]);
+			this->happiness = min(100, this->happiness + 10);
+			return;
+		}
+	}
+
+	this->happiness = max(0, this->happiness - 10); // Cannot buy anything!
 }

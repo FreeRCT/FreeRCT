@@ -110,6 +110,7 @@ public:
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetEntranceDirections() const;
 	bool CanBeVisited(TileEdge edge) const;
+	void SellItem(int item_index);
 	void FreeRide();
 
 	void OnNewMonth();

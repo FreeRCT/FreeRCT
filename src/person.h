@@ -141,8 +141,9 @@ public:
 	~Guest();
 
 	/* virtual */ void Activate(const Point16 &start, PersonType person_type);
-
 	/* virtual */ bool DailyUpdate();
+
+	void VisitShop(RideInstance *ri);
 
 	int16 happiness; ///< Happiness of the guest (values are 0-100).
 	Money cash;      ///< Amount of money carried by the guest (should be non-negative).
@@ -163,6 +164,7 @@ protected:
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
+	void AddItem(ItemType it);
 };
 
 #endif
