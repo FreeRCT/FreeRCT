@@ -62,6 +62,18 @@ static inline T max(const T a, const T b)
 	return (a < b) ? b : a;
 }
 
+/**
+ * Compute the sign of the argument \a val.
+ * @param val Provided value.
+ * @return The sign of the argument (\c -1, \c 0, \c +1).
+ */
+static inline int sign(int val)
+{
+	if (val > 0) return 1;
+	if (val < 0) return -1;
+	return 0;
+}
+
 int GreatestCommonDivisor(int a, int b);
 int LeastCommonMultiple(int a, int b);
 

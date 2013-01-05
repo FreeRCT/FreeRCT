@@ -470,9 +470,13 @@ AnimateResult Person::OnAnimate(int delay)
 	if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
 		if (frame->dx > 0) reached |= this->x_pos > x_limit;
 		if (frame->dx < 0) reached |= this->x_pos < x_limit;
+
+		if (y_limit >= 0) this->y_pos += sign(y_limit - this->y_pos); // Also slowly move the other axis in the right direction.
 	} else {
 		if (frame->dy > 0) reached |= this->y_pos > y_limit;
 		if (frame->dy < 0) reached |= this->y_pos < y_limit;
+
+		if (x_limit >= 0) this->x_pos += sign(x_limit - this->x_pos); // Also slowly move the other axis in the right direction.
 	}
 
 	if (!reached) {
