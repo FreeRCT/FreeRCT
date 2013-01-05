@@ -74,14 +74,14 @@ bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, c
 			val != ITP_SALTY_FOOD && val != ITP_UMBRELLA && val != ITP_PARK_MAP) {
 		return false;
 	}
-	this->item_type[0] = val;
+	this->item_type[0] = (ItemType)val;
 
 	val = rcd_file->GetUInt8();
 	if (val != ITP_NOTHING && val != ITP_DRINK && val != ITP_ICE_CREAM && val != ITP_NORMAL_FOOD &&
 			val != ITP_SALTY_FOOD && val != ITP_UMBRELLA && val != ITP_PARK_MAP) {
 		return false;
 	}
-	this->item_type[1] = val;
+	this->item_type[1] = (ItemType)val;
 
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
 	this->string_base = _language.RegisterStrings(*this->text, _shops_strings_table);

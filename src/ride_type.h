@@ -71,7 +71,7 @@ public:
 	const RideTypeKind kind;    ///< Kind of ride type.
 	int8 height;                ///< Number of voxels used by this shop.
 	uint8 flags;                ///< Shop flags. @see ShopFlags
-	uint8 item_type[2];         ///< Type of items being sold.
+	ItemType item_type[2];      ///< Type of items being sold.
 	Money item_cost[2];         ///< Cost of the items on sale.
 	Money monthly_cost;         ///< Monthly costs for owning a shop.
 	Money monthly_open_cost;    ///< Monthly extra costs if the shop is opened.
