@@ -15,6 +15,7 @@
 #include "math_func.h"
 #include "person_type.h"
 #include "sprite_store.h"
+#include "ride_type.h"
 #include "person.h"
 #include "fileio.h"
 #include "map.h"
@@ -651,7 +652,45 @@ Guest::~Guest()
 	return this->happiness > 10; // De-activate if at or below 10.
 }
 
+/**
+ * How useful is the item for the guest?
+ * @param it Item offered.
+ * @param use_random May use random to reject an item (else it should be accepted).
+ * @return Desire of getting the item.
+ */
+RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
+{
+	switch (it) {
+		case ITP_NOTHING:
+			return RVD_NO_VISIT;
+
+		case ITP_DRINK:
+		case ITP_ICE_CREAM:
+			if (this->food > 0 || this->drink > 0) return RVD_NO_VISIT;
+			if (this->waste > 100 || this->stomach_level > 100) return RVD_NO_VISIT;
+			if (use_random) return this->rnd.Success1024(this->thirst_level * 4) ? RVD_MAY_VISIT : RVD_NO_VISIT;
+			return RVD_MAY_VISIT;
+
+		case ITP_NORMAL_FOOD:
+		case ITP_SALTY_FOOD:
+			if (this->food > 0 || this->drink > 0) return RVD_NO_VISIT;
+			if (this->waste > 100 || this->stomach_level > 100) return RVD_NO_VISIT;
+			if (use_random) return this->rnd.Success1024(this->hunger_level * 4) ? RVD_MAY_VISIT : RVD_NO_VISIT;
+			return RVD_MAY_VISIT;
+
+		case ITP_UMBRELLA:
+			return (this->has_umbrella) ? RVD_NO_VISIT : RVD_MAY_VISIT;
+
+		case ITP_PARK_MAP:
+			return (this->has_map) ? RVD_NO_VISIT : RVD_MAY_VISIT;
+
+		default: NOT_REACHED();
+	}
+}
+
 /* virtual */ RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
 {
+	const ShopType *st = ri->type;
+	if (this->NeedForItem(st->item_type[0], true) == RVD_NO_VISIT && this->NeedForItem(st->item_type[1], true) == RVD_NO_VISIT) return RVD_NO_VISIT;
 	return RVD_MAY_VISIT;
 }

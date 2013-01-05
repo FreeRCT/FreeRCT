@@ -161,6 +161,8 @@ public:
 
 protected:
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
+
+	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
 };
 
 #endif

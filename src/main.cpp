@@ -19,9 +19,9 @@
 #include "config_reader.h"
 #include "language.h"
 #include "dates.h"
+#include "ride_type.h"
 #include "person.h"
 #include "people.h"
-#include "ride_type.h"
 
 static bool _finish; ///< Finish execution of the program.
 

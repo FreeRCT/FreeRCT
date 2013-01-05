@@ -15,6 +15,7 @@
 #include "math_func.h"
 #include "geometry.h"
 #include "person_type.h"
+#include "ride_type.h"
 #include "person.h"
 #include "person_list.h"
 #include "people.h"
