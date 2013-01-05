@@ -131,7 +131,7 @@ protected:
 	void StartAnimation(const WalkInformation *walk);
 	void MarkDirty();
 
-	virtual RideVisitDesire WantToVisit(const RideInstance *ri) const;
+	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
 };
 
 /** Guests walking around in the world. */
@@ -160,7 +160,7 @@ public:
 	uint8 waste;         ///< Amount of food/drink waste that should be disposed.
 
 protected:
-	virtual RideVisitDesire WantToVisit(const RideInstance *ri) const;
+	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
 };
 
 #endif

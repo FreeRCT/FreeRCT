@@ -573,7 +573,7 @@ void Person::MarkDirty()
  * @param ri Ride that can be visited.
  * @return Desire of the person to visit the ride.
  */
-/* virtual */ RideVisitDesire Person::WantToVisit(const RideInstance *ri) const
+/* virtual */ RideVisitDesire Person::WantToVisit(const RideInstance *ri)
 {
 	return RVD_NO_VISIT;
 }
@@ -651,7 +651,7 @@ Guest::~Guest()
 	return this->happiness > 10; // De-activate if at or below 10.
 }
 
-/* virtual */ RideVisitDesire Guest::WantToVisit(const RideInstance *ri) const
+/* virtual */ RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
 {
 	return RVD_MAY_VISIT;
 }
