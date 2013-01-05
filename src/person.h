@@ -147,6 +147,18 @@ public:
 	int16 happiness; ///< Happiness of the guest (values are 0-100).
 	Money cash;      ///< Amount of money carried by the guest (should be non-negative).
 
+	/* Possessions of the guest. */
+	bool has_map;        ///< Whether guest has a park map.
+	bool has_umbrella;   ///< Whether guest has an umbrella.
+	bool has_wrapper;    ///< Guest has a wrapper for the food or drink.
+	bool salty_food;     ///< The food in #food is salty.
+	int8 food;           ///< Amount of food in the hand (one unit/day).
+	int8 drink;          ///< Amount of drink in the hand (one unit/day).
+	uint8 hunger_level;  ///< Amount of hunger (higher means more hunger).
+	uint8 thirst_level;  ///< Amount of thirst (higher means more thirst).
+	uint8 stomach_level; ///< Amount of food/drink in the stomach.
+	uint8 waste;         ///< Amount of food/drink waste that should be disposed.
+
 protected:
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri) const;
 };

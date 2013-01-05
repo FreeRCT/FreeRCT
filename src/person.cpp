@@ -598,18 +598,56 @@ Guest::~Guest()
 
 	this->happiness = 50 + this->rnd.Uniform(50);
 	this->cash = 3000 + this->rnd.Uniform(4095);
+
+	this->has_map = false;
+	this->has_umbrella = false;
+	this->has_wrapper = false;
+	this->salty_food = false;
+	this->food = 0;
+	this->drink = 0;
+	this->hunger_level = 50;
+	this->thirst_level = 50;
+	this->stomach_level = 0;
+	this->waste = 0;
 }
 
 /**
  * Daily ponderings of a guest.
  * @return If \c false, de-activate the guest.
  * @todo Make de-activation a bit more random.
+ * @todo Implement dropping litter (Guest::has_wrapper) to the path, and also drop the wrapper when passing a non-empty litter bin.
  */
 /* virtual */ bool Guest::DailyUpdate()
 {
-	if (!PersonIsAGuest(this->type)) return false;
+	assert(PersonIsAGuest(this->type));
 
-	this->happiness = max(0, this->happiness - 2);
+	/* Handle eating and drinking. */
+	bool eating = false;
+	if (this->food > 0) {
+		this->food--;
+		if (this->hunger_level >= 20) this->hunger_level -= 20;
+		if (this->salty_food && this->thirst_level < 200) this->thirst_level += 5;
+		eating = true;
+	} else if (this->drink > 0) {
+		this->drink--;
+		if (this->thirst_level >= 20) this->thirst_level -= 20;
+		eating = true;
+	}
+	if (this->hunger_level < 255) this->hunger_level++;
+	if (this->thirst_level < 255) this->thirst_level++;
+
+	if (eating && this->stomach_level < 250) this->stomach_level += 6;
+	if (this->stomach_level > 0) {
+		this->stomach_level--;
+		if (this->waste < 255) this->waste++;
+	}
+
+	if (!eating) {
+		if (this->has_wrapper && this->rnd.Success1024(25)) this->has_wrapper = false; // XXX Drop litter.
+		if (this->happiness > 0) this->happiness--;
+	}
+	if (this->waste > 100) this->happiness = max(0, this->happiness - 2);
+
 	return this->happiness > 10; // De-activate if at or below 10.
 }
 
