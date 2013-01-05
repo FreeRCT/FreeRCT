@@ -57,6 +57,11 @@ enum WalkLimit {
 	WLM_MID_Y   = WLM_INVALID | (WLM_CENTER  << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the center y limit of the tile.
 	WLM_HIGH_Y  = WLM_INVALID | (WLM_HIGH    << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the high y limit of the tile.
 	WLM_SE_EDGE = WLM_INVALID | (WLM_MAXIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the south-east edge.
+
+	WLM_NE_CENTER = WLM_MINIMAL | (WLM_CENTER  << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge (center).
+	WLM_SE_CENTER = WLM_CENTER  | (WLM_MAXIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the south-east edge (center).
+	WLM_SW_CENTER = WLM_MAXIMAL | (WLM_CENTER  << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge (center).
+	WLM_NW_CENTER = WLM_CENTER  | (WLM_MINIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the north-west edge (center).
 };
 
 /** Walk animation to use to walk a part of the tile. */

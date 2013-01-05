@@ -277,6 +277,82 @@ static const WalkInformation *_walk_path_tile[4][4] = {
 	{_walk_nw_ne, _walk_nw_se, _walk_nw_sw, _walk_nw_nw},
 };
 
+/** Walk from NE edge back to center NE edge. */
+static const WalkInformation _center_ne_ne[] = {
+	{ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_MID_Y}, {ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NE edge to center SE edge. */
+static const WalkInformation _center_ne_se[] = {
+	{ANIM_WALK_SW, WLM_MID_X}, {ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NE edge to center SW edge. */
+static const WalkInformation _center_ne_sw[] = {
+	{ANIM_WALK_SW, WLM_SW_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NE edge to center NW edge. */
+static const WalkInformation _center_ne_nw[] = {
+	{ANIM_WALK_SW, WLM_MID_X},  {ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/** Walk from SE edge to center NE edge. */
+static const WalkInformation _center_se_ne[] = {
+	{ANIM_WALK_NW, WLM_MID_Y}, {ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SE edge back to center SE edge. */
+static const WalkInformation _center_se_se[] = {
+	{ANIM_WALK_NW, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_MID_X}, {ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SE edge to center SW edge. */
+static const WalkInformation _center_se_sw[] = {
+	{ANIM_WALK_NW, WLM_MID_Y},  {ANIM_WALK_SW, WLM_SW_CENTER }, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SE edge to center NW edge. */
+static const WalkInformation _center_se_nw[] = {
+	{ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/** Walk from SW edge to center NE edge. */
+static const WalkInformation _center_sw_ne[] = {
+	{ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SW edge to center SE edge. */
+static const WalkInformation _center_sw_se[] = {
+	{ANIM_WALK_NE, WLM_MID_X}, {ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SW edge back to center SW edge. */
+static const WalkInformation _center_sw_sw[] = {
+	{ANIM_WALK_NE, WLM_LOW_X},  {ANIM_WALK_NW, WLM_MID_Y}, {ANIM_WALK_SW, WLM_SW_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from SW edge to center NW edge. */
+static const WalkInformation _center_sw_nw[] = {
+{ANIM_WALK_NE, WLM_MID_X},  {ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/** Walk from NW edge to center NE edge. */
+static const WalkInformation _center_nw_ne[] = {
+	{ANIM_WALK_SE, WLM_MID_Y}, {ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NW edge to center SE edge. */
+static const WalkInformation _center_nw_se[] = {
+	{ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NW edge to center SW edge. */
+static const WalkInformation _center_nw_sw[] = {
+	{ANIM_WALK_SE, WLM_MID_Y},  {ANIM_WALK_SW, WLM_SW_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+/** Walk from NW edge back to center NW edge. */
+static const WalkInformation _center_nw_nw[] = {
+	{ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_MID_X}, {ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
+};
+
+/** Movement of one edge to another center edge of a path tile. */
+static const WalkInformation *_center_path_tile[4][4] = {
+	{_center_ne_ne, _center_ne_se, _center_ne_sw, _center_ne_nw},
+	{_center_se_ne, _center_se_se, _center_se_sw, _center_se_nw},
+	{_center_sw_ne, _center_sw_se, _center_sw_sw, _center_sw_nw},
+	{_center_nw_ne, _center_nw_se, _center_nw_sw, _center_nw_nw},
+};
+
 /**
  * Decide at which edge the person is.
  * @return Nearest edge of the person.
@@ -366,24 +442,36 @@ void Person::DecideMoveDirection()
 				default: NOT_REACHED();
 			}
 		}
-		bot_exits |= top_exits; // Difference is not relevant any more.
+		bot_exits |= top_exits; // Difference between bottom-exit and top-exit is not relevant any more.
 		if (must_shops != 0) {  // If there are shops that must be visited, ignore everything else.
 			bot_exits &= must_shops;
-			shops = 0;
+			shops = must_shops;
 		}
 	}
 
+	/* At this point:
+	 *
+	 * bot_exits = bit-set of exit directions,
+	 * shops     = bit-set of directions that lead to a shop.
+	 */
+
 	const WalkInformation *walks[4]; // Walks that can be done at this tile.
-	int walk_count = 0;
+	uint8 walk_count = 0;
+	uint8 shop_count = 0;
 
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		if (start_edge == exit_edge) continue;
 		if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0) {
-			walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
+			if (GB(shops, exit_edge + PATHBIT_NE, 1) != 0) {
+				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
+				shop_count++;
+			} else {
+				walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
+			}
 		}
 	}
 	/* No exits, or all normal shops: Add 'return' as option. */
-	if (walk_count == 0 || bot_exits == shops) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
+	if (walk_count == 0 || walk_count == shop_count) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
 
 	const WalkInformation *new_walk;
 	if (walk_count == 1) {
