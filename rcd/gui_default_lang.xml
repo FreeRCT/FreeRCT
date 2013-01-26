@@ -48,6 +48,20 @@
 	<string name="QUIT_NO">No</string>
 	<string name="QUIT_YES">Yes</string>
 
+	<!-- Guest info gui strings -->
+	<string name="GUEST_INFO_MONEY">Available cash</string>
+	<string name="GUEST_INFO_HAPPINESS">Happiness level</string>
+	<string name="GUEST_INFO_HUNGER">Hunger</string>
+	<string name="GUEST_INFO_THIRST">Thirst</string>
+	<string name="GUEST_INFO_WASTE">Waste</string>
+	<string name="GUEST_INFO_ITEMS">Items held</string>
+
+	<!-- Items for guests gui strings -->
+	<string name="ITEM_NONE">None</string>
+	<string name="ITEM_MAP">Map</string>
+	<string name="ITEM_UMBRELLA">Umbrella</string>
+	<string name="ITEM_WRAPPER">Wrapper</string>
+
 	<!-- Path gui strings -->
 	<string name="PATH_GUI_TITLE">Paths</string>
 	<string name="PATH_GUI_LONG">Long</string>

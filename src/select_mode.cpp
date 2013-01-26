@@ -51,9 +51,17 @@ SelectMouseMode::~SelectMouseMode()
 {
 	this->mouse_state = state & MB_CURRENT;
 	if (this->mouse_state != 0) {
-		FinderData fdata(SO_RIDE, false);
-		if (vp->ComputeCursorPosition(&fdata) == SO_RIDE) {
-			ShowShopManagementGui(fdata.ride);
+		FinderData fdata(SO_RIDE | SO_PERSON, false);
+		switch (vp->ComputeCursorPosition(&fdata)) {
+			case SO_RIDE:
+				ShowShopManagementGui(fdata.ride);
+				break;
+
+			case SO_PERSON:
+				ShowGuestInfoGui(fdata.person);
+				break;
+
+			default: break;
 		}
 	}
 }

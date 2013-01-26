@@ -124,7 +124,6 @@ void Person::SetName(const char *name)
  * Query the name of the person.
  * The name is returned in memory owned by the person. Do not free this data. It may change on each call.
  * @return Static buffer containing the name of the person.
- * @note Currently not used.
  */
 const char *Person::GetName() const
 {
@@ -132,7 +131,7 @@ const char *Person::GetName() const
 
 	assert(PersonIsAGuest(this->type));
 	if (this->name != NULL) return this->name;
-	sprintf(buffer, "guest %u", this->id);
+	sprintf(buffer, "Guest %u", this->id);
 	return buffer;
 }
 
@@ -508,6 +507,12 @@ void Person::StartAnimation(const WalkInformation *walk)
 {
 	if (this->type == PERSON_INVALID) return;
 
+	/* Close possible Guest Info window */
+	Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
+	if (wi != NULL) {
+		_manager.DeleteWindow(wi);
+	}
+
 	if (ar == OAR_REMOVE && _world.VoxelExists(this->x_vox, this->y_vox, this->z_vox)) {
 		/* If not wandered off-world, remove the person from the voxel person list. */
 		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
@@ -744,6 +749,8 @@ Guest::~Guest()
 	}
 	if (this->waste > 100) this->happiness = max(0, this->happiness - 2);
 
+	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
+
 	return this->happiness > 10; // De-activate if at or below 10.
 }
 
@@ -861,4 +868,6 @@ void Guest::VisitShop(RideInstance *ri)
 	}
 
 	this->happiness = max(0, this->happiness - 10); // Cannot buy anything!
+
+	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
 }

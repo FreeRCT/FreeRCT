@@ -23,7 +23,7 @@ CXXFILES=config_reader.cpp dates.cpp \
 	fileio.cpp \
 	gamelevel.cpp gui_graphics.cpp language.cpp main.cpp map.cpp math_func.cpp \
 	palette.cpp path.cpp path_build.cpp path_gui.cpp \
-	people.cpp person.cpp \
+	people.cpp person.cpp person_gui.cpp \
 	random.cpp ride_gui.cpp ride_type.cpp \
 	select_mode.cpp \
 	shop_gui.cpp \

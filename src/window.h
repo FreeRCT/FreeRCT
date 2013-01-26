@@ -18,6 +18,7 @@
 
 class Viewport;
 class ShopType;
+class Person;
 
 /**
  * Available types of windows.
@@ -27,6 +28,7 @@ enum WindowTypes {
 	WC_MAINDISPLAY,  ///< Main display of the world.
 	WC_TOOLBAR,      ///< Main toolbar.
 	WC_QUIT,         ///< Quit program window.
+	WC_GUEST_INFO,   ///< Person window.
 	WC_PATH_BUILDER, ///< %Path build gui.
 	WC_RIDE_SELECT,  ///< Ride selection window.
 	WC_SHOP_MANAGER, ///< Management window of a shop.
@@ -314,6 +316,7 @@ void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint
 
 Viewport *ShowMainDisplay();
 void ShowToolbar();
+void ShowGuestInfoGui(const Person *person);
 void ShowPathBuildGui();
 void ShowRideSelectGui();
 void ShowShopManagementGui(uint16 ri);
