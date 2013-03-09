@@ -13,8 +13,11 @@
 #define STRING_FUNC_H
 
 char *SafeStrncpy(char *dest, const char *src, int size);
+uint8 *SafeStrncpy(uint8 *dest, const uint8 *src, int size);
 char *StrDup(const char *src);
 uint8 *StrECpy(uint8 *dest, uint8 *end, const uint8 *src);
+
+size_t StrBytesLength(const uint8 *txt);
 
 bool StrEqual(const uint8 *s1, const uint8 *s2);
 bool StrEndsWith(const char *str, const char *end, bool case_sensitive);

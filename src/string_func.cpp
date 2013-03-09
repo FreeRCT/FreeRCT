@@ -18,12 +18,29 @@
  * @param src  Source of the string.
  * @param size Number of bytes (including terminating 0) from \a src.
  * @return Copied string.
+ * @note The ::SafeStrncpy(uint8 *dest, const uint8 *src, int size) function is preferred.
  */
 char *SafeStrncpy(char *dest, const char *src, int size)
 {
 	assert(size >= 1);
 
 	strncpy(dest, src, size);
+	dest[size - 1] = '\0';
+	return dest;
+}
+
+/**
+ * Safe string copy (as in, the destination is always terminated).
+ * @param dest Destination of the string.
+ * @param src  Source of the string.
+ * @param size Number of bytes (including terminating 0) from \a src.
+ * @return Copied string.
+ */
+uint8 *SafeStrncpy(uint8 *dest, const uint8 *src, int size)
+{
+	assert(size >= 1);
+
+	strncpy((char *)dest, (const char *)src, size);
 	dest[size - 1] = '\0';
 	return dest;
 }
@@ -60,6 +77,16 @@ uint8 *StrECpy(uint8 *dest, uint8 *end, const uint8 *src)
 	}
 	*dest = '\0';
 	return dst;
+}
+
+/**
+ * Get the length of an utf-8 string in bytes.
+ * @param str String to inspect.
+ * @return Length of the given string in bytes.
+ */
+size_t StrBytesLength(const uint8 *str)
+{
+	return strlen((const char *)str);
 }
 
 /**
