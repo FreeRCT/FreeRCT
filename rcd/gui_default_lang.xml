@@ -41,6 +41,8 @@
 	<string name="TOOLBAR_GUI_TOOLTIP_RIDE_SELECT">Buy a new ride for your park</string>
 	<string name="TOOLBAR_GUI_TERRAFORM">Landscaping</string>
 	<string name="TOOLBAR_GUI_TOOLTIP_TERRAFORM">Modify landscape</string>
+	<string name="TOOLBAR_GUI_FINANCES">Finances</string>
+	<string name="TOOLBAR_GUI_TOOLTIP_FINANCES">Manage Company Finances</string>
 
 	<!-- Quit program strings -->
 	<string name="QUIT_CAPTION">Quit program?</string>
@@ -119,4 +121,28 @@
 	<string name="TERRAFORM_SUB_TOOLTIP">Decrease size of the terraforming area</string>
 	<string name="TERRAFORM_LEVEL_TEXT">Level terraforming area</string>
 	<string name="TERRAFORM_MOVE_TEXT">Move terraform area as-is</string>
+
+	<!-- Finances gui strings -->
+	<string name="FINANCES_TITLE">Manage Finances</string>
+	<string name="FINANCES_RIDE_CONSTRUCTION_TEXT">Ride Construction</string>
+	<string name="FINANCES_RIDE_RUNNING_TEXT">Ride Running Costs</string>
+	<string name="FINANCES_LAND_PURCHASE_TEXT">Land Purchase</string>
+	<string name="FINANCES_LANDSCAPING_TEXT">Landscaping</string>
+	<string name="FINANCES_PARK_TICKETS_TEXT">Park Entrance Tickets</string>
+	<string name="FINANCES_RIDE_TICKETS_TEXT">Ride Tickets</string>
+	<string name="FINANCES_SHOP_SALES_TEXT">Shop Sales</string>
+	<string name="FINANCES_SHOP_STOCK_TEXT">Shop Stock</string>
+	<string name="FINANCES_FOOD_SALES_TEXT">Food/Drink Sales</string>
+	<string name="FINANCES_FOOD_STOCK_TEXT">Food/Drink Stock</string>
+	<string name="FINANCES_STAFF_WAGES_TEXT">Staff Wages</string>
+	<string name="FINANCES_MARKETING_TEXT">Marketing</string>
+	<string name="FINANCES_RESEARCH_TEXT">Research</string>
+	<string name="FINANCES_LOAN_INTEREST_TEXT">Loan Interest</string>
+	<string name="FINANCES_TOTAL_TEXT">Total</string>
+
+	<!-- Money symbols -->
+	<string name="MONEY_CURRENCY_SYMBOL">$</string>
+	<string name="MONEY_THOUSANDS_SEPARATOR">,</string>
+	<string name="MONEY_DECIMAL_SEPARATOR">.</string>
+
 </language>

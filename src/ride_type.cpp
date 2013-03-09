@@ -20,6 +20,7 @@
 #include "bitmath.h"
 #include "gamelevel.h"
 #include "window.h"
+#include "finances.h"
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
@@ -198,6 +199,8 @@ void RideInstance::SellItem(int item_index)
 	this->total_sell_profit += profit;
 	this->total_profit += profit;
 
+	_finances_manager.PayShopStock(this->type->item_cost[item_index]);
+	_finances_manager.EarnShopSales(this->item_price[item_index]);
 	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
 
@@ -205,11 +208,11 @@ void RideInstance::SellItem(int item_index)
 void RideInstance::OnNewMonth()
 {
 	this->total_profit -= this->type->monthly_cost;
-	_user.Pay(this->type->monthly_cost);
+	_finances_manager.PayStaffWages(this->type->monthly_cost);
 	SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
 	if (this->state == RIS_OPEN) {
 		this->total_profit -= this->type->monthly_open_cost;
-		_user.Pay(this->type->monthly_open_cost);
+		_finances_manager.PayStaffWages(this->type->monthly_open_cost);
 		SB(this->flags, RIF_OPENED_PAID, 1, 1);
 	} else {
 		SB(this->flags, RIF_OPENED_PAID, 1, 0);
@@ -231,13 +234,13 @@ void RideInstance::OpenRide()
 	bool money_paid = false;
 	if (GB(this->flags, RIF_MONTHLY_PAID, 1) == 0) {
 		this->total_profit -= this->type->monthly_cost;
-		_user.Pay(this->type->monthly_cost);
+		_finances_manager.PayStaffWages(this->type->monthly_cost);
 		SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
 		money_paid = true;
 	}
 	if (GB(this->flags, RIF_OPENED_PAID, 1) == 0) {
 		this->total_profit -= this->type->monthly_open_cost;
-		_user.Pay(this->type->monthly_open_cost);
+		_finances_manager.PayStaffWages(this->type->monthly_open_cost);
 		SB(this->flags, RIF_OPENED_PAID, 1, 1);
 		money_paid = true;
 	}

@@ -33,6 +33,7 @@ enum WindowTypes {
 	WC_RIDE_SELECT,  ///< Ride selection window.
 	WC_SHOP_MANAGER, ///< Management window of a shop.
 	WC_TERRAFORM,    ///< Terraform window.
+	WC_FINANCES,       ///< Finance management window.
 
 	WC_NONE,         ///< Invalid window type.
 };
@@ -321,5 +322,6 @@ void ShowPathBuildGui();
 void ShowRideSelectGui();
 void ShowShopManagementGui(uint16 ri);
 void ShowTerraformGui();
+void ShowFinancesGui();
 
 #endif

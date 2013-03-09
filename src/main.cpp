@@ -22,6 +22,8 @@
 #include "ride_type.h"
 #include "person.h"
 #include "people.h"
+#include "finances.h"
+#include "gamelevel.h"
 
 static bool _finish; ///< Finish execution of the program.
 
@@ -114,6 +116,7 @@ int main(void)
 
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);
+	_finances_manager.SetScenario(_scenario);
 	_guests.Initialize();
 
 	ShowToolbar();
