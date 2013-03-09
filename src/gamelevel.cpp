@@ -13,7 +13,6 @@
 #include "gamelevel.h"
 
 Scenario _scenario; ///< The scenario being played.
-User _user;         ///< Main user instance.
 
 /** Scenario default constructor. */
 Scenario::Scenario()
@@ -44,20 +43,4 @@ uint Scenario::GetSpawnProbability(int popularity)
 {
 	int increment = this->spawn_highest - this->spawn_lowest;
 	return (int)this->spawn_lowest + increment * popularity / 1024;
-}
-
-/** Default constructor of the user. */
-User::User()
-{
-	this->money = _scenario.inital_money;
-}
-
-/**
- * Pay an amount of money.
- * @param amount Amount of money to pay (should be non-negative).
- */
-void User::Pay(const Money &amount)
-{
-	assert(amount >= 0);
-	this->money -= amount;
 }
