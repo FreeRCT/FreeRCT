@@ -52,7 +52,6 @@ void Finances::Reset()
 /**
  * Total the categories.
  * @return Total amount of transfered money.
- * @todo Is this a useful notion? I'd expect income - expenses.
  */
 Money Finances::GetTotal() const
 {
@@ -60,7 +59,7 @@ Money Finances::GetTotal() const
 	Money expenses = this->ride_construct + this->ride_running + this->land_purchase + this->landscaping +
 			this->shop_stock + this->food_stock + this->staff_wages + this->marketing + this->research + this->loan_interest;
 
-	return income + expenses;
+	return income + expenses; // Expenses are already negative.
 }
 
 /** Default constructor. */

@@ -27,20 +27,20 @@ public:
 	Finances();
 	~Finances();
 
-	Money ride_construct; ///< Monthly expenditures for ride construction.
-	Money ride_running;   ///< Monthly expenditures for ride running costs.
-	Money land_purchase;  ///< Monthly expenditures for land purchase.
-	Money landscaping;    ///< Monthly expenditures for landscaping.
+	Money ride_construct; ///< Monthly expenditures for ride construction (value is negative).
+	Money ride_running;   ///< Monthly expenditures for ride running costs (value is negative).
+	Money land_purchase;  ///< Monthly expenditures for land purchase (value is negative).
+	Money landscaping;    ///< Monthly expenditures for landscaping (value is negative).
 	Money park_tickets;   ///< Monthly earnings for park tickets.
 	Money ride_tickets;   ///< Monthly earnings for ride tickets.
 	Money shop_sales;     ///< Monthly earnings for shop sales.
-	Money shop_stock;     ///< Monthly expenditures for shop stock.
+	Money shop_stock;     ///< Monthly expenditures for shop stock (value is negative).
 	Money food_sales;     ///< Monthly earnings for food sales.
-	Money food_stock;     ///< Monthly expenditures for food stock.
-	Money staff_wages;    ///< Monthly expenditures for staff wages.
-	Money marketing;      ///< Monthly expenditures for marketing.
-	Money research;       ///< Monthly expenditures for research.
-	Money loan_interest;  ///< Monthly expenditures for loan interest.
+	Money food_stock;     ///< Monthly expenditures for food stock (value is negative).
+	Money staff_wages;    ///< Monthly expenditures for staff wages (value is negative).
+	Money marketing;      ///< Monthly expenditures for marketing (value is negative).
+	Money research;       ///< Monthly expenditures for research (value is negative).
+	Money loan_interest;  ///< Monthly expenditures for loan interest (value is negative).
 
 	void Reset();
 	Money GetTotal() const;
