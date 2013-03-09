@@ -25,17 +25,18 @@ class Person;
  * @ingroup window_group
  */
 enum WindowTypes {
-	WC_MAINDISPLAY,  ///< Main display of the world.
-	WC_TOOLBAR,      ///< Main toolbar.
-	WC_QUIT,         ///< Quit program window.
-	WC_GUEST_INFO,   ///< Person window.
-	WC_PATH_BUILDER, ///< %Path build gui.
-	WC_RIDE_SELECT,  ///< Ride selection window.
-	WC_SHOP_MANAGER, ///< Management window of a shop.
-	WC_TERRAFORM,    ///< Terraform window.
+	WC_MAINDISPLAY,    ///< Main display of the world.
+	WC_TOOLBAR,        ///< Main toolbar.
+	WC_BOTTOM_TOOLBAR, ///< Bottom toolbar.
+	WC_QUIT,           ///< Quit program window.
+	WC_GUEST_INFO,     ///< Person window.
+	WC_PATH_BUILDER,   ///< %Path build gui.
+	WC_RIDE_SELECT,    ///< Ride selection window.
+	WC_SHOP_MANAGER,   ///< Management window of a shop.
+	WC_TERRAFORM,      ///< Terraform window.
 	WC_FINANCES,       ///< Finance management window.
 
-	WC_NONE,         ///< Invalid window type.
+	WC_NONE,           ///< Invalid window type.
 };
 
 /** Codes of the #NotifyChange function, which gets forwarded through the #Window::OnChange method. */
@@ -317,6 +318,7 @@ void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint
 
 Viewport *ShowMainDisplay();
 void ShowToolbar();
+void ShowBottomToolbar();
 void ShowGuestInfoGui(const Person *person);
 void ShowPathBuildGui();
 void ShowRideSelectGui();

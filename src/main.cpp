@@ -120,6 +120,7 @@ int main(void)
 	_guests.Initialize();
 
 	ShowToolbar();
+	ShowBottomToolbar();
 	Viewport *w = ShowMainDisplay();
 
 	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);
