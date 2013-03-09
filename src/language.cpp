@@ -15,6 +15,7 @@
 #include "sprite_store.h"
 #include "video.h"
 #include "string_func.h"
+#include "math_func.h"
 #include "dates.h"
 #include "money.h"
 
@@ -274,6 +275,62 @@ static uint8 *CopyString(uint8 *dest, const uint8 *last, const uint8 *src)
 }
 
 /**
+ * Converts a double value into a utf8 string with the appropriate separators.
+ * @param dest a provided buffer to write the output into.
+ * @param size the size of the provided buffer.
+ * @param amt the double value to be converted.
+ */
+static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
+{
+	const uint8 *curr_sym = _language.GetText(GUI_MONEY_CURRENCY_SYMBOL);
+	size_t curr_sym_len = StrBytesLength(curr_sym);
+
+	const uint8 *tho_sep  = _language.GetText(GUI_MONEY_THOUSANDS_SEPARATOR);
+	size_t tho_sep_len = StrBytesLength(tho_sep);
+
+	const uint8 *dec_sep  = _language.GetText(GUI_MONEY_DECIMAL_SEPARATOR);
+	size_t dec_sep_len = StrBytesLength(dec_sep);
+
+	/* Allocate stack-based storage. */
+	char *buf = (char *)alloca(size);
+
+	/* Convert double into a numeric string (with '.' as the decimal separator). */
+	uint len = snprintf(buf, size, "%.2f", amt);
+
+	/* Compute the offset of where we should begin counting for thousand separators. */
+	uint comma_start = (len - 3) % 3;
+
+	/* What is the max number of characters we might append in a single loop?
+	 * This is used to prevent a potential buffer overflow. */
+	/* max_append_size = 'a "special" symbol plus a single digit [0-9]'. */
+	int max_append_size = max(max(curr_sym_len, tho_sep_len), dec_sep_len) + 1;
+
+	uint j = 0;
+	for (uint i = 0; i < len && j + max_append_size < size; i++) {
+		if (j == 0) {
+			SafeStrncpy(dest + j, curr_sym, curr_sym_len + 1);
+			j += curr_sym_len;
+			dest[j++] = buf[i];
+
+		} else if (len - i > 3 && (i - comma_start) % 3 == 0) {
+			SafeStrncpy(dest + j, tho_sep, tho_sep_len + 1);
+			j += tho_sep_len;
+			dest[j++] = buf[i];
+
+		} else if (buf[i] == '.') {  // Decimal separator produced by 'snprintf'.
+			SafeStrncpy(dest + j, dec_sep, dec_sep_len + 1);
+			j += dec_sep_len;
+
+		} else {
+			dest[j++] = buf[i];
+		}
+	}
+
+	assert((size_t)j < size);
+	dest[j] = '\0';
+}
+
+/**
  * Draw the string into the supplied buffer.
  * @param strid String number to 'draw'.
  * @param buffer Destination buffer.
@@ -327,7 +384,7 @@ void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *para
 					break;
 
 				case SPT_MONEY:
-					snprintf((char *)textbuf, lengthof(textbuf), "%.2f", params->parms[n - 1].u.number / 100.0);
+					MoneyStrFmt(textbuf, lengthof(textbuf), params->parms[n - 1].u.number / 100.0);
 					buffer = CopyString(buffer, last, textbuf);
 					break;
 
