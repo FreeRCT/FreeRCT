@@ -746,7 +746,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 		}
 	}
 
-	uint16 child_tmp_minsize[10]; // Temporary array for minimal size of children. Size is arbitrary.
+	uint16 child_tmp_minsize[50]; // Temporary array for minimal size of children. Size is arbitrary.
 	assert(this->num_rows < lengthof(child_tmp_minsize));
 	assert(this->num_cols < lengthof(child_tmp_minsize));
 
