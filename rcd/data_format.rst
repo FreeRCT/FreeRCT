@@ -1,6 +1,7 @@
+:Author: Alberth
+:Version: $Id$
 
-Author: Alberth
-Version: $Id$
+.. contents::
 
 RCD data file format
 ====================
@@ -19,7 +20,7 @@ copy of the GNU General Public License along with FreeRCT. If not, see
 <http://www.gnu.org/licenses/>.
 
 Introduction
-~~~~~~~~~~~~
+============
 FreeRCT is a game where you build roller-coasters in your theme park, hoping to
 get lots of visitors paying for your investments. If you do it well, you might
 get rich.
@@ -30,11 +31,11 @@ document describes the format, acting as an independent definition of the file
 format.
 
 Money
------
+~~~~~
 All money amounts in RCD files are signed integer numbers, expressing cents.
 
 File header
-~~~~~~~~~~~
+===========
 Each data file starts with a file header indicating it is an RCD file.
 The format is as follows
 
@@ -48,7 +49,7 @@ Offset  Length  Description
 
 
 Data blocks
-~~~~~~~~~~~
+===========
 After the file header come the various data blocks.
 The goal of data blocks is to provide blobs of information that are somewhat independent.
 The data blocks are referenced by game blocks by their ID. The first data block
@@ -58,7 +59,7 @@ A reference to data block 0 means 'not present'.
 
 
 Sprite Pixels
--------------
+~~~~~~~~~~~~~
 A data block containing the actual image of a sprite (in 8bpp), and its
 offset. Version 2 is supported by FreeRCT.
 
@@ -101,7 +102,7 @@ To decide: Some simple form of compressing may be useful in the pixels as it
            decreases the amount of memory transfers.
 
 Texts
------
+~~~~~
 Text in various forms and shapes is very common. In particular, it needs to
 support translations, and eventually run-time composition of text with respect
 to genders, plurals, and cases.
@@ -163,21 +164,22 @@ nl_NL  The Netherlands.
 =====  =========================
 
 String parameters
------------------
+~~~~~~~~~~~~~~~~~
 A character sequence of the form "%...%" is an escape sequence. The following
 sequences are recognized:
+
 - "%%": The character "%".
 - "%n%" with "n" a decimal number: Insert parameter 'n'.
 
 
 Game blocks
-~~~~~~~~~~~
+===========
 A game block is a piece of data that relates closely to a concept in the
 game, like 'path' or 'roller coaster'. Normally it refers to one or more
 data blocks.
 
 Tile surface sprite sub-block
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In several game blocks you can find a set of sprite for the ground. Below is
 the layout of such a sub-block.
 Note that the sprites should look to the north (thus, the sprite at 4 has its
@@ -210,7 +212,7 @@ Offset  Length  Description
 
 
 Ground tiles block
-------------------
+~~~~~~~~~~~~~~~~~~
 A set of ground tiles that form a smooth surface. Current version in
 FreeRCT is 3.
 
@@ -237,19 +239,20 @@ Offset  Length  Version  Description
 ======  ======  =======  =================================================
 
 Known types of ground:
- - Empty  (0), do not use in the RCD file.
- - Grass  (16-19,) Green grass ground, with increasing length grass on it.
- - Sand   (32), desert 'ground'.
- - Cursor (48), cursor test tiles. Internal use. Defines what part of a
-   tile is selected. Colour 181 means 'north corner', 182 means 'east corner',
-   184 means 'west corner', 185 means 'south corner', and 183 means 'entire
-   tile'.
+
+- Empty  (0), do not use in the RCD file.
+- Grass  (16-19,) Green grass ground, with increasing length grass on it.
+- Sand   (32), desert 'ground'.
+- Cursor (48), cursor test tiles. Internal use. Defines what part of a
+  tile is selected. Colour 181 means 'north corner', 182 means 'east corner',
+  184 means 'west corner', 185 means 'south corner', and 183 means 'entire
+  tile'.
 
 To do: Move the cursor tile to another position.
 
 
 Tile selection
---------------
+~~~~~~~~~~~~~~
 A tile selection cursor. It is very similar to ground tiles, except there is
 no type.
 
@@ -269,7 +272,7 @@ Offset  Length  Description
 
 
 Tile area selection
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -287,7 +290,7 @@ Offset  Length  Description
 
 
 Patrol area selection
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -305,7 +308,7 @@ Offset  Length  Description
 
 
 Tile corner selection block
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Sprites for pointing to a single corner of a surface tile.
 
 ======  ======  ==========================================================
@@ -331,7 +334,7 @@ Offset  Length  Description
 
 
 Shops/stalls
-------------
+~~~~~~~~~~~~
 One tile objects, selling useful things to guests.
 
 ======  ======  =======  =================================================
@@ -363,12 +366,14 @@ Offset  Length  Version  Description
 ======  ======  =======  =================================================
 
 Shop flags:
+
 - bit 0 Set if the shop has an entrance to the NE in the unrotated view.
 - bit 1 Set if the shop has an entrance to the SE in the unrotated view.
 - bit 2 Set if the shop has an entrance to the SW in the unrotated view.
 - bit 3 Set if the shop has an entrance to the NW in the unrotated view.
 
 Item types:
+
 - Nothing (0)
 - A drink (8)
 - An icecream (9)
@@ -379,7 +384,7 @@ Item types:
 
 
 Build direction arrows
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -398,7 +403,7 @@ Offset  Length  Description
 
 
 Foundations block
------------------
+~~~~~~~~~~~~~~~~~
 Vertical foundations to close gaps in the smooth surface.
 
 ======  ======  ==========================================================
@@ -429,17 +434,18 @@ used.
 
 
 Known types of foundation:
- - Empty (0) Reserved, do not use in the RCD file.
- - Ground (16)
- - Wood (32)
- - Brick (48)
+
+- Empty (0) Reserved, do not use in the RCD file.
+- Ground (16)
+- Wood (32)
+- Brick (48)
 
 The tile width and z-height are used to ensure the foundations match with the
 surface tiles.
 
 
 Path block
-----------
+~~~~~~~~~~
 Path coverage is a set of at most 47 flat images. Paths can connect to
 neighbouring tiles through four edges, optionally also covering the corner
 between two connecting edges.
@@ -451,8 +457,8 @@ denote an edge connects, one letter words denote the corner is covered.
 Besides the maximal 47 flat sprites there are also 4 sprites with one edge
 raised.
 
- - Empty (0) Reserved, do not use in the RCD file.
- - Concrete (16)
+- Empty (0) Reserved, do not use in the RCD file.
+- Concrete (16)
 
 
 ======  ======  ==========================================================
@@ -520,7 +526,7 @@ Offset  Length  Description
 
 
 Platforms
----------
+~~~~~~~~~
 Platforms put up in the air, to carry the weight of a path.
 
 ======  ======  =======  =================================================
@@ -553,12 +559,13 @@ Offset  Length  Version  Description
 
 
 Platform type:
- - Empty 0, do not use.
- - Wood 16.
+
+- Empty 0, do not use.
+- Wood 16.
 
 
 Platform supports
------------------
+~~~~~~~~~~~~~~~~~
 Structures to support platforms, so they don't fall down.
 
 
@@ -599,19 +606,20 @@ Offset  Length  Description
  114            Total length of the sub-block.
 ======  ======  ==========================================================
 
-Suuport type:
- - Empty 0, do not use.
- - Wood 16.
+Support type:
+
+- Empty 0, do not use.
+- Wood 16.
 
 GUI
-~~~
+===
 GUI sprites, in various forms.
 
 All GUI sprites should use the BEIGE ranges, that is colours 214 to 225
 (inclusive).
 
 Generic GUI border sprites
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 The most common form of a widget is a rectangular shape.
 To draw such a shape, nine sprites are needed around the border of the
 rectangle.
@@ -678,17 +686,18 @@ Offset  Length  Description
 ======  ======  ==========================================================
 
 Known widget types:
- - 0 Invalid, do not use.
- - 16 Window border.
- - 32 Title bar.
- - 48 button, 49 pressed button, 52 rounded button, 53 pressed rounded button.
- - 64 frame.
- - 68 panel.
- - 80 inset frame.
+
+- 0 Invalid, do not use.
+- 16 Window border.
+- 32 Title bar.
+- 48 button, 49 pressed button, 52 rounded button, 53 pressed rounded button.
+- 64 frame.
+- 68 panel.
+- 80 inset frame.
 
 
 Check box and radio buttons
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -708,12 +717,13 @@ Offset  Length  Description
 ======  ======  ==========================================================
 
 Known widget types:
- - 96 Check box.
- - 112 Radio-button.
+
+- 96 Check box.
+- 112 Radio-button.
 
 
 Slider-bar elements
--------------------
+~~~~~~~~~~~~~~~~~~~
 For slider-bar GUI elements, the following block should be used.
 
 ======  ======  ==========================================================
@@ -735,14 +745,15 @@ Offset  Length  Description
 ======  ======  ==========================================================
 
 Known slider-bar widget types:
- - 128 Horizontal slider bar + button.
- - 129 Shaded horizontal slider bar + button.
- - 144 Vertical slider bar + button.
- - 145 Shaded vertical slider bar + button.
+
+- 128 Horizontal slider bar + button.
+- 129 Shaded horizontal slider bar + button.
+- 144 Vertical slider bar + button.
+- 145 Shaded vertical slider bar + button.
 
 
 Scroll-bar elements
--------------------
+~~~~~~~~~~~~~~~~~~~
 For scroll-bar GUI elements, the following block should be used.
 
 ======  ======  ==========================================================
@@ -774,17 +785,18 @@ Offset  Length  Description
 ======  ======  ==========================================================
 
 Known scroll-bar widget types:
- - 160 Horizontal scroll bar + button.
- - 161 Shaded horizontal scroll bar + button.
- - 176 Vertical scroll bar + button.
- - 177 Shaded vertical scroll bar + button.
+
+- 160 Horizontal scroll bar + button.
+- 161 Shaded horizontal scroll bar + button.
+- 176 Vertical scroll bar + button.
+- 177 Shaded vertical scroll bar + button.
 
 Gui button sprites
-~~~~~~~~~~~~~~~~~~
+==================
 Sprites for use at buttons in the gui.
 
 Gui Sprites
-...........
+~~~~~~~~~~~
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
@@ -820,7 +832,7 @@ Offset  Length  Version  Description
 
 
 Persons
-~~~~~~~
+=======
 Persons are an important concept in the game. Their properties are defined in
 the game blocks below.
 
@@ -849,15 +861,16 @@ Offset  Length  Description
   13            Total length.
 ======  ======  ==========================================================
 
-A person type defines the kind of persons::
- - Any (0) Any kind of person (eg persons are not shown).
- - Pillar (8) Guests from the Pillar Planet (test graphics).
- - Earth (16) Earth-bound persons,
+A person type defines the kind of persons:
+
+- *Any* (0) Any kind of person (eg persons are not shown).
+- *Pillar* (8) Guests from the Pillar Planet (test graphics).
+- *Earth* (16) Earth-bound persons,
 
 The ``any`` kind is used as fall back.
 
 Recolouring definition
-~~~~~~~~~~~~~~~~~~~~~~
+======================
 The program has 18 colour ranges (0 to 17). A recolouring is a mapping of a
 single range to a set of allowed destination ranges, encoded in 32 bit. Bits
 24-31 state the single range (where a value other than 0..17 denotes an unused
@@ -867,7 +880,7 @@ is allowed as replacement.
 
 
 Animation
-~~~~~~~~~
+=========
 Animations have two layers. The conceptual definition is in an 'ANIM'
 block. This definition contains the number of frames the timing, and the
 change in x and/or y position. These changes are in the internal voxel
@@ -900,10 +913,11 @@ Offset  Length  Description
 
 The animation type defines what the animation really shows. Currently, the
 following animations exist:
- - Walk in north-east direction (1). May be looped.
- - Walk in south-east direction (2). May be looped.
- - Walk in south-west direction (3). May be looped.
- - Walk in north-west direction (4). May be looped.
+
+- Walk in north-east direction (1). May be looped.
+- Walk in south-east direction (2). May be looped.
+- Walk in south-west direction (3). May be looped.
+- Walk in north-west direction (4). May be looped.
 
 Finally the actual frames of the animation are listed, prefixed by how
 many frames to expect. The animation type decides whether or not an animation
@@ -944,7 +958,7 @@ Offset  Length  Description
 
 
 Obsolete blocks
-~~~~~~~~~~~~~~~
+===============
 
 The following blocks existed once, but are not needed any more
 

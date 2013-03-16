@@ -33,6 +33,8 @@ $(SHOPDATA): shops.xml shops_strings.txt structdef.xml
 $(GUIDATA): gui.xml gui_strings.txt gui_default_lang.xml gui_nl_NL_lang.xml structdef.xml
 	$(PYTHON) convert.py -d structdef.xml -g gui.xml
 
+data_format.html: data_format.rst
+	rst2html data_format.rst data_format.html
 
 clean:
 	for i in $(RCDFILES);\
