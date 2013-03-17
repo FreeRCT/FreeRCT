@@ -611,6 +611,78 @@ Support type:
 - Empty 0, do not use.
 - Wood 16.
 
+Roller coaster tracks
+~~~~~~~~~~~~~~~~~~~~~
+A ``RCST`` block contains all information of a single type of roller coaster.
+It currently contains track piece definitions only.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'RCST'.
+   4       4    Version number of the block (always '1').
+   8       4    Length of the block excluding magic string, version, and
+                length.
+  12       2    Type of roller coaster.
+  14       2    Number of track piece definitions (called 'n').
+  16     4*n    The track piece definitions (references to ``TRCK``).
+16+4*n          Total length of the ``RCST`` block.
+======  ======  ==========================================================
+
+Currently defined types:
+
+- 1 Simple coaster tracks.
+
+A track piece definition describes a single piece of track. Each piece needs
+one or more voxels. The first voxel it needs is called the *entry* voxel. The
+other voxels have coordinates relative to the entry voxel. The last voxel is
+called the *exit* voxel. The *entry* voxel of a track piece is at the *exit*
+voxel of its predecessor.
+
+To control which track pieces can connect to each other, both the entry and
+the exit have a *connection code*. Two track pieces can be connected only when
+the connection code of the exit of the first piece is the same as the
+connection code of the entry of the second piece.
+
+While the connection code is just a single number in the RCD file, it is
+recommended to split the code in a 'type' and a 'direction' while defining the
+track pieces.
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Magic string 'TRCK'.
+   4       4    Version number of the block (always '1').
+   8       4    Length of the block excluding magic string, version, and
+                length.
+  12       1    Entry connection code
+  13       1    Exit connection code
+  14       2    Number of voxels in this track piece (called 'n').
+  16     8*n    Voxel definitions
+16+8*n          Total length of the ``TRCK`` block.
+======  ======  ==========================================================
+
+A voxel definition is
+
+======  ======  ==========================================================
+Offset  Length  Description
+======  ======  ==========================================================
+   0       4    Reference to the graphics (an ``8PXL`` block).
+   4       1    Relative X position of the voxel.
+   5       1    Relative Y position of the voxel.
+   6       1    Relative Z position of the voxel.
+   7       1    Space requirements of the voxel.
+======  ======  ==========================================================
+
+The space requirements are defined as follows:
+
+- bit 0: Northern quarter of the voxel is used by the piece.
+- bit 1: Eastern quarter of the voxel is used by the piece.
+- bit 2: Southern quarter of the voxel is used by the piece.
+- bit 3: Western quarter of the voxel is used by the piece.
+
+The remaining bits are reserved and should be ``0``.
+
 GUI
 ===
 GUI sprites, in various forms.
