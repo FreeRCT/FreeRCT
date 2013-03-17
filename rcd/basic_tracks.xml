@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$
+ !
+ ! This file is part of FreeRCT.
+ ! FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+ ! FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ ! See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<rcdfiles>
+	<file target="tracks.rcd" magic="RCDF" version="1">
+		<gameblock magic="RCST" version="1">
+			<field name="type" value="1"/>
+			<field name="pieces">
+				<!-- Flat, straight pieces -->
+				<trackpiece name="flat-straight">
+					<entry prefix="flat" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="0" prefix="flat" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="nw, ne"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+					<sheet x-base="0" y-base="0" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="se, sw"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+
+				<!-- Flat, 1 voxel 90 degrees corners -->
+				<trackpiece name="flat-90-left">
+					<entry prefix="flat" direction="ne"/>
+					<exit  dx="0" dy="-1" dz="0" prefix="flat" direction="nw"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="64" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="se, sw, nw, ne"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="flat-90-right">
+					<entry prefix="flat" direction="ne"/>
+					<exit  dx="0" dy="1" dz="0" prefix="flat" direction="se"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="64" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="sw, nw, ne, se"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+
+				<!-- Flat -> shallow, straight pieces -->
+				<trackpiece name="flat-shallow_up-straight">
+					<entry prefix="flat" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="-1" prefix="shallow_up" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="128" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="se, sw, nw, ne"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="flat-shallow_down-straight">
+					<entry prefix="flat" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="1" prefix="shallow_down" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="256" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="se, sw, nw, ne"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="shallow_up-straight">
+					<entry prefix="shallow_up" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="-1" prefix="shallow_up" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="192" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="se, sw, nw, ne"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="shallow_down-straight">
+					<entry prefix="shallow_down" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="1" prefix="shallow_down" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="192" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="nw, ne, se, sw"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="shallow_up-flat-straight">
+					<entry prefix="shallow_up" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="0" prefix="flat" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="256" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="nw, ne, se, sw"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="shallow_down-flat-straight">
+					<entry prefix="shallow_down" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="0" prefix="flat"         direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="256" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="nw, ne, se, sw"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+
+				<!-- Powered tracks -->
+				<trackpiece name="flat-shallow_up-straight">
+					<powered speed="5"/>
+					<entry prefix="flat" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="-1" prefix="shallow_up" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="320" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="se, sw, nw, ne"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="shallow_up-straight">
+					<powered speed="5"/>
+					<entry prefix="shallow_up" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="-1" prefix="shallow_up" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="384" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="se, sw, nw, ne"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+				<trackpiece name="shallow_up-flat-straight">
+					<powered speed="5"/>
+					<entry prefix="shallow_up" direction="ne"/>
+					<exit  dx="-1" dy="0" dz="0" prefix="flat" direction="ne"/>
+					<voxel dx="0" dy="0" dz="0"/>
+
+					<sheet x-base="0" y-base="448" x-step="64" y-step="64"
+					       fname="../sprites_src/tracks/track/track1x1basic_template8bpp64.png"
+					       names="nw, ne, se, sw"
+					       x-offset="-32" y-offset="-97" width="64" height="64" />
+				</trackpiece>
+			</field>
+		</gameblock>
+	</file>
+</rcdfiles>

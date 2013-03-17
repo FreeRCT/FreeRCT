@@ -209,6 +209,85 @@ def make_sprite_block_reference(name, named_node, file_blocks):
     pxl_blk = im_obj.make_8PXL()
     return file_blocks.add_block(pxl_blk)
 
+RES_ROTATED = {'e':'s', 's':'w', 'w':'n', 'n':'e'}
+
+def rotate_voxel(v, rot_count):
+    """
+    Construct a rotated voxel (a new one in case rotations were performed, otherwise L{v} may be returned).
+
+    @param v: Original voxel.
+    @type  v: L{TrackVoxel}
+
+    @param rot_count: Number of 90 degrees rotations.
+    @type  rot_count: C{int}
+
+    @return: Rotated voxel.
+    @rtype:  L{TrackVoxel}
+    """
+    assert rot_count >= 0
+    rot_count = rot_count % 4
+    if rot_count == 0: return v
+
+    x, y = v.pos[0], v.pos[1]
+    res = v.reserved
+
+    cnt = 0
+    while cnt < rot_count:
+        res = ''.join(RES_ROTATED[part] for part in res)
+        x, y = y, -x
+
+        cnt = cnt + 1
+
+    return TrackVoxel(v.graphics, (x, y, v.pos[2]), res)
+
+def rotate_connection(conn, rot_count):
+    """
+    Rotate the connection to differentiate between directions of connection.
+
+    @param conn: Connection to rotate.
+    @type  conn: C{tuple} (C{int}, C{int})
+
+    @param rot_count: Number of 90 degrees rotations.
+    @type  rot_count: C{int}
+
+    @return: Rotated connection.
+    @rtype:  C{tuple} (C{int}, C{int})
+    """
+    return (conn[0], (conn[1] + rot_count) % 4)
+
+
+DIRECTIONS = {'ne':0, 'se':1, 'sw':2, 'nw':3}
+
+def make_trackpiece_block_references(tpiece, file_blocks):
+    """
+    Generate 8PXL and TRCK blocks for this track piece in every orientation.
+
+    @param tpiece: Track piece to output.
+    @type  tpiece: L{TrackPiece}
+
+    @param file_blocks: Blocks already generated.
+    @type  file_blocks: L{blocks.RCD}
+
+    @return: Block numbers of TRCK blocks generated for this piece.
+    @rtype:  C{list} of C{int}
+    """
+    results = []
+    # A single track-piece defines 4 directions, so rotate the piece.
+    for dir_name in DIRECTIONS.iterkeys():
+        # Generate the voxels
+        voxdata = []
+        for v in tpiece.voxels:
+            v = rotate_voxel(v, DIRECTIONS[dir_name])
+            nn, n = v.graphics[DIRECTIONS[dir_name]]
+            gblk = make_sprite_block_reference(n, nn, file_blocks)
+            voxdata.append((gblk, v.pos, v.reserved))
+        entry = rotate_connection(tpiece.entry, DIRECTIONS[dir_name])
+        exit  = rotate_connection(tpiece.exit,  DIRECTIONS[dir_name])
+        blk = blocks.TrackPieceBlock(entry, exit, voxdata)
+        results.append(file_blocks.add_block(blk))
+
+    return results
+
 KNOWN_LANGUAGES = set(["", "nl_NL", "en_GB"])
 
 def encode_translation(lang, tr_text):
@@ -379,6 +458,108 @@ def make_texts(named_node, str_names, file_blocks):
 
     return saveTEXT(result, file_blocks)
 
+class TrackVoxel(object):
+    """
+    Definition of a voxel in a track piece.
+
+    @ivar graphics: Graphics to load.
+    @type graphics: C{list} of L{NamedNodes} for the images.
+
+    @ivar pos: Relative position of the voxel.
+    @type pos: C{tuple} (C{int}, C{int}, C{int})
+
+    @ivar reserved: Parts reserved for the tracks ('nesw' letters).
+    @type reserved: C{str}
+    """
+    def __init__(self, graphics, pos, reserved):
+        self.graphics = graphics
+        self.pos = pos
+        self.reserved = reserved
+
+
+class TrackPiece(object):
+    """
+    Definition of a track piece.
+
+    @ivar entry: Entry connection.
+    @type entry: C{tuple} (C{int}, C{int})
+
+    @ivar exit: Exit connection.
+    @type exit: C{tuple} (C{int}, C{int})
+
+    @ivar exit_pos: Relative position of the exit voxel.
+    @type exit_pos: C{tuple} (C{int}, C{int}, C{int})
+
+    @ivar voxels: Voxels of the track piece.
+    @type voxels: C{list} of L{TrackVoxel}
+
+    @ivar speed: Speed of powered track.
+    @type speed: C{None} or C{int}
+    """
+    def __init__(self):
+        self.entry = (63,3)
+        self.exit = (63,3)
+        self.exit_pos = (0, 0, 0)
+        self.voxels = []
+        self.speed = None
+
+
+def convert_connection(node, prefixes):
+    prefix = node.getAttribute(u'prefix')
+    direction = node.getAttribute(u'direction')
+    number = prefixes.get(prefix)
+    if number is None:
+        number = len(prefixes)
+        prefixes[prefix] = number
+    return (number, DIRECTIONS[direction])
+
+def convert_position(node):
+    xpos = int(node.getAttribute(u'dx'), 10)
+    ypos = int(node.getAttribute(u'dy'), 10)
+    zpos = int(node.getAttribute(u'dz'), 10)
+    return (xpos, ypos, zpos)
+
+def convert_trackpiece(node, prefixes):
+    """
+    Convert a trackpiece node.
+
+    @param node: The XML node of the data value/field.
+    @type  node: L{xml.dim.minidom.Node}
+
+    @param prefixes: Used connection prefixes (and their number).
+    @type  prefixes: C{map} of C{str} to C{int}
+
+    @return: A track piece description.
+    @rtype:  L{TrackPiece}
+    """
+    pdata = TrackPiece()
+    pdata.entry = convert_connection(datatypes.get_single_child_node(node, u'entry'), prefixes)
+    exit_node = datatypes.get_single_child_node(node, u'exit')
+    pdata.exit = convert_connection(exit_node, prefixes)
+    pdata.exit_pos = convert_position(exit_node)
+    for vnode in datatypes.get_child_nodes(node, u'voxel'):
+        vpos = convert_position(vnode)
+        reserved = datatypes.get_opt_DOMattr(vnode, u'reserved', 'nesw')
+
+        snames = [None, None, None, None]
+        for snode in datatypes.get_child_nodes(node, 'sheet'):
+            sname = data_loader.load_sheet_node(snode)
+            for sn in sname.names:
+                snames[DIRECTIONS[sn.name]] = (sname, sn)
+        for snode in datatypes.get_child_nodes(node, 'image'):
+            sname = data_loader.load_image_node(snode)
+            for sn in sname.names:
+                snames[DIRECTIONS[sn.name]] = (sname, sn)
+
+        vdata = TrackVoxel(snames, vpos, reserved)
+        pdata.voxels.append(vdata)
+
+    powered = datatypes.get_single_child_node(node, u'powered', True)
+    if powered is not None:
+        pdata.speed = int(powered.getAttribute(u'speed'), 10)
+
+    return pdata
+
 def convert_node(node, name, data_type, file_blocks):
     """
     Convert the XML data node to its value.
@@ -425,6 +606,17 @@ def convert_node(node, name, data_type, file_blocks):
             print "ERROR: %r is not an enumeration value" % value
             sys.exit(1)
         return val
+
+    if isinstance(data_type, datatypes.TrackPiecesDataType):
+        named_nodes = data_loader.load_named_nodes(node.node)
+        prefixes = {}
+        track_pieces = []
+        for nn in named_nodes:
+            tp = convert_trackpiece(nn.node, prefixes)
+            blknums = make_trackpiece_block_references(tp, file_blocks)
+            track_pieces.extend(blknums)
+        return track_pieces
+
 
     if isinstance(data_type, datatypes.ListType):
         named_nodes = data_loader.load_named_nodes(node.node)

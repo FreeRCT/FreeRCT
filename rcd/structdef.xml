@@ -618,4 +618,10 @@
 		<field name="n#S">  <type name="sprite"/></field>
 		<field name="n#W">  <type name="sprite"/></field>
 	</block>
+
+	<!-- Roller coaster track pieces -->
+	<block magic="RCST" minversion="1" maxversion="1">
+		<field name="type"><type name="uint16"/></field>
+		<field name="pieces"><type name="trackpieces"/></field>
+	</block>
 </structures>

@@ -157,6 +157,10 @@ def load_named_nodes(parent):
             nodes.append(load_sheet_node(node))
             continue
 
+        if node.tagName == u"trackpiece":
+            nodes.append(NamedNode(node, node.tagName, set([Name(u'trackpiece')])))
+            continue
+
         # Unrecognized tag, report it
         print "WARNING: Skipping " + node.tagName
 

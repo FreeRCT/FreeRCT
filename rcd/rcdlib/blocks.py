@@ -143,6 +143,48 @@ class TextBlock(Block):
         return self.value == other.value
 
 # }}}
+class TrackPieceBlock(Block):
+    """
+    TRCK block.
+    """
+    def __init__(self, entry, exit, voxels):
+        Block.__init__(self, "TRCK", 1)
+        self.entry = entry
+        self.exit = exit
+        self.voxels = voxels
+
+    def get_size(self):
+        return 1 + 1 + 2 + 8 * len(self.voxels)
+
+    def write(self, out):
+        Block.write(self, out)
+        out.uint32(self.get_size())
+        out.uint8(self.entry[0]*4 + self.entry[1])
+        out.uint8(self.exit[0]*4 + self.exit[1])
+        out.uint16(len(self.voxels))
+        for vgraph, vpos, vparts in self.voxels:
+            out.uint32(vgraph)
+            out.int8(vpos[0])
+            out.int8(vpos[1])
+            out.int8(vpos[2])
+            bits = 0
+            if 'n' in vparts: bits = bits | 1
+            if 'e' in vparts: bits = bits | 2
+            if 's' in vparts: bits = bits | 1
+            if 'w' in vparts: bits = bits | 1
+            out.uint8(bits)
+
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+        return self.is_equal(other)
+
+    def is_equal(self, other):
+        if self.entry != other.entry: return False
+        if self.exit != other.exit: return False
+        return self.voxels == other.voxels
+
+
 # {{{ class RCD(object):
 class RCD(object):
     """

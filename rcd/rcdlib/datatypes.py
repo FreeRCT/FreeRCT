@@ -291,6 +291,21 @@ class ListType(DataType):
         for v in value:
             self.elm_type.write(out, v)
 
+class TrackPiecesDataType(DataType):
+    """
+    Track pieces.
+    """
+    def __init__(self):
+        DataType.__init__(self, 'trackpieces')
+
+    def get_size(self, value):
+        return 2 + 4 * len(value)
+
+    def write(self, out, value):
+        out.uint16(len(value))
+        for v in value:
+            out.uint32(v)
+
 class BlockReference(DataType):
     """
     Data type of a block reference.
@@ -419,6 +434,7 @@ _types = { 'uint8':  NumericDataType('uint8'),
            'int32':  NumericDataType('int32'),
            'sprite': BlockReference('sprite'),
            'block':  BlockReference('block'),
+           'trackpieces' : TrackPiecesDataType(),
            'image_data': ImageDataType(),
          }
 
