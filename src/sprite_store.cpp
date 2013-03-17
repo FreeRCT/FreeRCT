@@ -1566,9 +1566,9 @@ const char *SpriteManager::Load(const char *filename)
 
 /**
  * Load all useful RCD files into the program.
- * @return Error message if loading failed, \c NULL if all went well.
+ * @return Whether everything went fine.
  */
-const char *SpriteManager::LoadRcdFiles()
+bool SpriteManager::LoadRcdFiles()
 {
 	DirectoryReader *reader = MakeDirectoryReader();
 	const char *mesg = NULL;
@@ -1580,11 +1580,12 @@ const char *SpriteManager::LoadRcdFiles()
 		if (!StrEndsWith(name, ".rcd", false)) continue;
 
 		mesg = this->Load(name);
+		if (mesg != NULL) fprintf(stderr, "Error while reading \"%s\": %s\n", name, mesg);
 	}
 	reader->ClosePath();
 	delete reader;
 
-	return mesg;
+	return mesg == NULL;
 }
 
 /**

@@ -77,12 +77,8 @@ int main(void)
 	VideoSystem vid;
 	ConfigFile cfg_file;
 
-	/* Load RCD file. */
-	const char *err_msg = _sprite_manager.LoadRcdFiles();
-	if (err_msg != NULL) {
-		fprintf(stderr, "Failed to load RCD files\n(%s)\n", err_msg);
-		exit(1);
-	}
+	/* Load RCD files. */
+	if (!_sprite_manager.LoadRcdFiles()) exit(1);
 
 	InitLanguage();
 

@@ -599,7 +599,7 @@ public:
 	SpriteManager();
 	~SpriteManager();
 
-	const char *LoadRcdFiles();
+	bool LoadRcdFiles();
 	void AddBlock(RcdBlock *block);
 
 	bool HasSufficientGraphics() const;
