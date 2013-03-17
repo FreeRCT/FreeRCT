@@ -108,6 +108,28 @@ class NamedNode(object):
         self.tag = tag
         self.names = names
 
+def load_sheet_node(node):
+    """
+    Load an XML node called 'sheet', containing a sprite sheet.
+
+    @param node: Node to load.
+    @type  node: L{xml.dom.minidom.Node}
+
+    @return: Found named node.
+    @rtype:  L{NamedNode}
+    """
+    assert node.tagName == u"sheet"
+    names = set()
+    names_text = node.getAttribute(u"names")
+    for ridx, rnames in enumerate(names_text.split(u"|")):
+        for cidx, nm in enumerate(rnames.split(u",")):
+            names.add(Name(nm.strip(), (cidx, ridx)))
+    return NamedNode(node, node.tagName, names)
+
+def load_image_node(node):
+    name = Name(node.getAttribute(u"name"))
+    return NamedNode(node, node.tagName, set([name]))
+
 def load_named_nodes(parent):
     """
     Load named nodes from the parent node.
@@ -122,18 +144,17 @@ def load_named_nodes(parent):
     for node in parent.childNodes:
         if node.nodeType != Node.ELEMENT_NODE: continue
 
-        if node.tagName in (u"field", u"image", u"bitfield", u"struct", u"texts"):
+        if node.tagName in (u"field", u"bitfield", u"struct", u"texts"):
             name = Name(node.getAttribute(u"name"))
             nodes.append(NamedNode(node, node.tagName, set([name])))
             continue
 
+        if node.tagName == u'image':
+            nodes.append(load_image_node(node))
+            continue
+
         if node.tagName == u"sheet":
-            names = set()
-            names_text = node.getAttribute(u"names")
-            for ridx, rnames in enumerate(names_text.split(u"|")):
-                for cidx, nm in enumerate(rnames.split(u",")):
-                    names.add(Name(nm.strip(), (cidx, ridx)))
-            nodes.append(NamedNode(node, node.tagName, names))
+            nodes.append(load_sheet_node(node))
             continue
 
         # Unrecognized tag, report it
