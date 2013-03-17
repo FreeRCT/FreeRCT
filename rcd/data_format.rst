@@ -88,7 +88,7 @@ Line data is a sequence of pixels with an offset. Its format is
 Offset  Length  Description
 ======  ======  ==========================================================
    0       1    Relative offset (0-127), bit 7 means 'last entry of the
-                  line'.
+                line'.
    1       1    Number of pixels that follow this count, called n (0-255).
    2       n    Pixels, 1 byte per pixel (as it is 8bpp).
    ?            Variable length.
@@ -121,7 +121,7 @@ Offset  Length  Description
    0       4    Magic string 'TEXT'.
    4       4    Version number of the block (always '1').
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       ?    First string.
    ?       ?    Second string.
   ...     ...
@@ -222,19 +222,19 @@ Offset  Length  Version  Description
    0       4      1-3    Magic string 'SURF'.
    4       4      1-3    Version number of the block.
    8       4      1-3    Length of the block excluding magic string,
-                           version, and length.
+                         version, and length.
   12       2      2-3    Type of ground.
   14       2      1-3    Zoom-width of a tile of the surface.
   16       2      1-3    Change in Z height (in pixels) when going up or
-                           down a tile level.
+                         down a tile level.
   18      76      1-3    Tile surface sprite sub-block for north viewing
-                           direction.
+                         direction.
   94      76      1-2    Tile surface sprite sub-block for east viewing
-                           direction.
+                         direction.
   94      76      1-2    Tile surface sprite sub-block for south viewing
-                           direction.
+                         direction.
   94      76      1-2    Tile surface sprite sub-block for west viewing
-                           direction.
+                         direction.
   94                     Total length of version 3.
 ======  ======  =======  =================================================
 
@@ -262,10 +262,10 @@ Offset  Length  Description
    0       4    Magic string 'TSEL'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Zoom-width of a tile of the surface.
   14       2    Change in Z height (in pixels) when going up or down a
-                  tile level.
+                tile level.
   16      76    Tile surface sprite sub-block.
   92            Total length.
 ======  ======  ==========================================================
@@ -280,10 +280,10 @@ Offset  Length  Description
    0       4    Magic string 'TARE'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    zoom-width of a tile of the surface.
   14       2    Change in Z height (in pixels) when going up or down a
-                  tile level.
+                tile level.
   16      76    Tile surface sprite sub-block.
   92            Total length.
 ======  ======  ==========================================================
@@ -298,10 +298,10 @@ Offset  Length  Description
    0       4    Magic string 'PARE'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Zoom-width of a tile of the surface.
   14       2    Change in Z height (in pixels) when going up or down a
-                  tile level.
+                tile level.
   16      76    Tile surface sprite sub-block.
   92            Total length.
 ======  ======  ==========================================================
@@ -317,18 +317,18 @@ Offset  Length  Description
    0       4    Magic string 'TCOR'
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Zoom-width of a tile of the surface.
   14       2    Change in Z height (in pixels) when going up or down a
-                  tile level.
+                tile level.
   16      76    Tile surface sprite sub-block for selected corner pointing
-                  north.
+                north.
   92      76    Tile surface sprite sub-block for selected corner pointing
-                  east.
+                east.
  168      76    Tile surface sprite sub-block for selected corner pointing
-                  south.
+                south.
  244      76    Tile surface sprite sub-block for selected corner pointing
-                  west.
+                west.
  320            Total length.
 ======  ======  ==========================================================
 
@@ -343,7 +343,7 @@ Offset  Length  Version  Description
    0       4      1-4    Magic string 'SHOP'.
    4       4      1-4    Version number of the block.
    8       4      1-4    Length of the block excluding magic string,
-                           version, and length.
+                         version, and length.
   12       2      1-4    Zoom-width of a tile of the surface.
   14       1      1-4    Height of the shop in voxels. (versions 1-3 used
                          a 16bit unsigned number).
@@ -392,7 +392,7 @@ Offset  Length  Description
    0       4    Magic string 'BDIR'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Zoom-width of a tile of the surface.
   14       4    Arrow pointing to NE edge.
   18       4    Arrow pointing to SE edge.
@@ -412,7 +412,7 @@ Offset  Length  Description
    0       4    Magic string 'FUND'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Type of foundation.
   14       2    Zoom-width of a tile.
   16       2    Change in Z height of the tiles.
@@ -663,7 +663,7 @@ Offset  Length  Description
    0       4    Magic string 'GBOR'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Widget type.
   14       1    Border width of the top edge.
   15       1    Border width of the left edge.
@@ -705,7 +705,7 @@ Offset  Length  Description
    0       4    Magic string 'GCHK'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Widget type.
   14       4    Empty.
   18       4    Filled.
@@ -732,7 +732,7 @@ Offset  Length  Description
    0       4    Magic string 'GSLI'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       1    Minimal length of the bar.
   13       1    Stepsize of the bar.
   14       1    Width of the slider button.
@@ -762,7 +762,7 @@ Offset  Length  Description
    0       4    Magic string 'GSCL'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       1    Minimal length scrollbar.
   13       1    Stepsize of background.
   14       1    Minimal length bar.
@@ -842,7 +842,7 @@ Offset  Length  Description
    0       4    Magic string 'PRSG' (Person Graphics).
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       1    Number of person graphics in this block (called 'n').
   13     n*13   Graphics definitions of person types in this block.
    ?            Total length.
@@ -865,9 +865,9 @@ A person type defines the kind of persons:
 
 - *Any* (0) Any kind of person (eg persons are not shown).
 - *Pillar* (8) Guests from the Pillar Planet (test graphics).
-- *Earth* (16) Earth-bound persons,
+- *Earth* (16) Earth-bound persons.
 
-The ``any`` kind is used as fall back.
+The *any* kind is used as fall back.
 
 Recolouring definition
 ======================
@@ -903,7 +903,7 @@ Offset  Length  Description
    0       4    Magic string 'ANIM'.
    4       4    Version number of the block '2'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       1    Person type.
   13       2    Animation type.
   15       2    Frame count (called 'f').
@@ -947,7 +947,7 @@ Offset  Length  Description
    0       4    Magic string 'ANSP'.
    4       4    Version number of the block '1'.
    8       4    Length of the block excluding magic string, version, and
-                  length.
+                length.
   12       2    Zoom-width of a tile.
   14       1    Person type.
   15       2    Animation type.
