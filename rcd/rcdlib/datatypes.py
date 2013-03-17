@@ -314,7 +314,7 @@ class TextType(BlockReference):
     @type str_names: C{list} of C{unicode}
     """
     def __init__(self, str_names):
-        DataType.__init__(self, u'TextType')
+        BlockReference.__init__(self, u'TextType')
         self.str_names = str_names
 
 class ImageDataType(DataType):
