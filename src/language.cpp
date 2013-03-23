@@ -312,7 +312,8 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 			j += curr_sym_len;
 			dest[j++] = buf[i];
 
-		} else if (len - i > 3 && (i - comma_start) % 3 == 0) {
+		} else if (len - i > 3 && (int)(i - comma_start) % 3 == 
+0) {
 			SafeStrncpy(dest + j, tho_sep, tho_sep_len + 1);
 			j += tho_sep_len;
 			dest[j++] = buf[i];
