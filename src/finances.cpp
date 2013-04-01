@@ -16,6 +16,7 @@
 #include "stdafx.h"
 #include "finances.h"
 #include "math_func.h"
+#include "window.h"
 
 FinancesManager _finances_manager; ///< Storage and retrieval of park financial records.
 
@@ -110,3 +111,14 @@ void FinancesManager::SetScenario(const Scenario &s)
 	this->cash = s.inital_money;
 }
 
+/**
+ * Access method for actually changing amount of money and notifying GUI.
+ * @param income How much money to change total by.
+ * @note Pass a negative number for a loss of money.
+ */
+void FinancesManager::DoTransaction(const Money &income)
+{
+	this->cash += income;
+	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
+	NotifyChange(WC_FINANCES, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
+}

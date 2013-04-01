@@ -67,13 +67,15 @@ public:
 	void CashToStrParams();
 	void SetScenario(const Scenario &s);
 
+	void DoTransaction(const Money &income);
+
 	/**
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
 	inline void PayRideConstruct(const Money &m) {
 		this->finances[this->current].ride_construct -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -82,7 +84,7 @@ public:
 	 */
 	inline void PayRideRunning(const Money &m) {
 		this->finances[this->current].ride_running -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -91,7 +93,7 @@ public:
 	 */
 	inline void PayLandPurchase(const Money &m) {
 		this->finances[this->current].land_purchase -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -100,7 +102,7 @@ public:
 	 */
 	inline void PayLandscaping(const Money &m) {
 		this->finances[this->current].landscaping -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -109,7 +111,7 @@ public:
 	 */
 	inline void PayShopStock(const Money &m) {
 		this->finances[this->current].shop_stock -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -118,7 +120,7 @@ public:
 	 */
 	inline void PayFoodStock(const Money &m) {
 		this->finances[this->current].food_stock -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -127,7 +129,7 @@ public:
 	 */
 	inline void PayStaffWages(const Money &m) {
 		this->finances[this->current].staff_wages -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -136,7 +138,7 @@ public:
 	 */
 	inline void PayMarketing(const Money &m) {
 		this->finances[this->current].marketing -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -145,7 +147,7 @@ public:
 	 */
 	inline void PayResearch(const Money &m) {
 		this->finances[this->current].research -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -154,7 +156,7 @@ public:
 	 */
 	inline void PayLoanInterest(const Money &m) {
 		this->finances[this->current].loan_interest -= m;
-		this->cash -= m;
+		DoTransaction(-m);
 	}
 
 	/**
@@ -163,7 +165,7 @@ public:
 	 */
 	inline void EarnParkTickets(const Money &m) {
 		this->finances[this->current].park_tickets += m;
-		this->cash += m;
+		DoTransaction(m);
 	}
 
 	/**
@@ -172,7 +174,7 @@ public:
 	 */
 	inline void EarnRideTickets(const Money &m) {
 		this->finances[this->current].ride_tickets += m;
-		this->cash += m;
+		DoTransaction(m);
 	}
 
 	/**
@@ -181,7 +183,7 @@ public:
 	 */
 	inline void EarnShopSales(const Money &m) {
 		this->finances[this->current].shop_sales += m;
-		this->cash += m;
+		DoTransaction(m);
 	}
 
 	/**
@@ -190,7 +192,7 @@ public:
 	 */
 	inline void EarnFoodSales(const Money &m) {
 		this->finances[this->current].food_sales += m;
-		this->cash += m;
+		DoTransaction(m);
 	}
 };
 
