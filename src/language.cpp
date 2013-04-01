@@ -390,9 +390,7 @@ void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *para
 
 				case SPT_DATE: {
 					Date d(params->parms[n - 1].u.dmy);
-					const uint8 *month = _language.GetText(GetMonthName(d.month));
-					snprintf((char *)textbuf, lengthof(textbuf), "%d-%s-%d", d.day, month, d.year);
-					buffer = CopyString(buffer, last, textbuf);
+					buffer = CopyString(buffer, last, GetDateString(d));
 					break;
 				}
 
@@ -445,6 +443,20 @@ void GetTextSize(StringID strid, int *width, int *height)
 	static uint8 buffer[1024]; // Arbitrary max size.
 	DrawText(strid, buffer, lengthof(buffer));
 	_video->GetTextSize(buffer, width, height);
+}
+
+/**
+ * Convert the date to a Unicode string.
+ * @param format C-Style format code.
+ * @return The formatted string.
+ * @todo Allow variable number of format parameters, e.g. "mm-yy".
+ */
+const uint8 *GetDateString(const Date &d, const char *format)
+{
+	static uint8 textbuf[64];
+	const uint8 *month = _language.GetText(GetMonthName(d.month));
+	snprintf((char *)textbuf, lengthof(textbuf), format, d.day, month, d.year);
+	return textbuf;
 }
 
 /**
