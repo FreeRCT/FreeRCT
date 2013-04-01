@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "dates.h"
 #include "language.h"
+#include "window.h"
 
 assert_compile(TICK_COUNT_PER_DAY < (1 << CDB_FRAC_LENGTH)); ///< Day length should stay within the fraction limit.
 
@@ -119,6 +120,7 @@ uint8 DateOnTick()
 				result |= DTC_YEAR;
 			}
 		}
+		NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 	}
 	return result;
 }

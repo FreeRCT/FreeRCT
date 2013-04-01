@@ -12,6 +12,7 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
+#include "geometry.h"
 
 class TextData;
 class Money;
@@ -156,5 +157,7 @@ extern StringParameters _str_params;
 void DrawText(StringID num, uint8 *buffer, uint length, StringParameters *params = &_str_params);
 
 const uint8 *GetDateString(const Date &d, const char *format = "%02d-%s-%02d");
+Point32 GetMaxDateSize();
+Point32 GetMoneyStringSize(const Money &amount);
 
 #endif

@@ -460,6 +460,43 @@ const uint8 *GetDateString(const Date &d, const char *format)
 }
 
 /**
+ * Get the maximum size a formatted string can take.
+ * @return A 2D size representing the maximum size of the date string.
+ * @todo Allow different format of date.
+ */
+Point32 GetMaxDateSize()
+{
+	Point32 point;
+	point.x = 0;
+	point.y = 0;
+
+	Date d;
+	for (int i = 1; i < 13; i++) {
+		d.month = i;
+		int w;
+		int h;
+		_video->GetTextSize(GetDateString(d), &w, &h);
+		point.x = max(point.x, w);
+		point.y = max(point.y, h);
+	}
+	return point;
+}
+
+/**
+ * Get size of a formatted money string.
+ * @param amount Amount of money.
+ * @return A 2D size representing size of the money string.
+ */
+Point32 GetMoneyStringSize(const Money &amount)
+{
+	Point32 p;
+	uint8 textbuf[64];
+	MoneyStrFmt(textbuf, lengthof(textbuf), (int64)amount / 100.0);
+	_video->GetTextSize(textbuf, &p.x, &p.y);
+	return p;
+}
+
+/**
  * Initialize language support.
  */
 void InitLanguage()
