@@ -306,13 +306,22 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 	int max_append_size = max(max(curr_sym_len, tho_sep_len), dec_sep_len) + 1;
 
 	uint j = 0;
-	for (uint i = 0; i < len && j + max_append_size < size; i++) {
-		if (j == 0) {
-			SafeStrncpy(dest + j, curr_sym, curr_sym_len + 1);
-			j += curr_sym_len;
-			dest[j++] = buf[i];
+	uint curpos = 0;
 
-		} else if (len - i > 3 && (int)(i - comma_start) % 3 == 0) {
+	/* Also has the added bonus of 'removing' the
+	 * automagically included '-' symbol by snprintf */
+	if (amt < 0) {
+		dest[j++] = '-';
+		curpos++;
+	}
+
+	/* Copy currency symbol next */
+	SafeStrncpy(dest + j, curr_sym, curr_sym_len + 1);
+	j += curr_sym_len;
+	dest[j++] = buf[curpos++];
+
+	for (uint i = curpos; i < len && j + max_append_size < size; i++) {
+		if (len - i > 3 && (int)(i - comma_start) % 3 == 0) {
 			SafeStrncpy(dest + j, tho_sep, tho_sep_len + 1);
 			j += tho_sep_len;
 			dest[j++] = buf[i];
