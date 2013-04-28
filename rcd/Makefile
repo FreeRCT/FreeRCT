@@ -15,29 +15,32 @@ SHOPDATA=shops.rcd
 GUIDATA=gui.rcd
 
 RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA) ${SHOPDATA}
-PYTHON=python
+RCDGEN=../rcdgen/src/rcdgen
 
-.PHONY: build clean
+.PHONY: build clean rcdgen
 
 build: $(RCDFILES)
 
-$(GAMEDATA): freerct.xml structdef.xml
-	$(PYTHON) convert.py -d structdef.xml -g freerct.xml
+$(GAMEDATA): rcdgen freerct.txt
+	$(RCDGEN) freerct.txt
 
-$(PATHDATA): paths.xml structdef.xml
-	$(PYTHON) convert.py -d structdef.xml -g paths.xml
+$(PATHDATA): rcdgen paths.txt
+	$(RCDGEN) paths.txt
 
-$(SHOPDATA): shops.xml shops_strings.txt structdef.xml
-	$(PYTHON) convert.py -d structdef.xml -g shops.xml
+$(SHOPDATA): rcdgen shops.txt
+	$(RCDGEN) shops.txt
 
-$(GUIDATA): gui.xml gui_strings.txt gui_default_lang.xml gui_nl_NL_lang.xml structdef.xml
-	$(PYTHON) convert.py -d structdef.xml -g gui.xml
+$(GUIDATA): rcdgen gui.txt gui_default_lang.txt gui_nl_NL_lang.txt
+	$(RCDGEN) gui.txt
 
-$(TRACKDATA): basic_tracks.xml structdef.xml
-	$(PYTHON) convert.py -d structdef.xml -g basic_tracks.xml
+#$(TRACKDATA): basic_tracks.xml structdef.xml
+#	$(PYTHON) convert.py -d structdef.xml -g basic_tracks.xml
 
 data_format.html: data_format.rst
 	rst2html data_format.rst data_format.html
+
+rcdgen:
+	$(MAKE) -C ../rcdgen/src rcdgen
 
 clean:
 	for i in $(RCDFILES);\

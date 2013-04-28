@@ -1,0 +1,43 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+file("shops.rcd") {
+	// Snack shop.
+	SHOP {
+		tile_width: 64;
+		height: 1;
+
+		(se, sw, nw, ne) : sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites_src/objects/1x1/template8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+
+		// XXX Add recolour definitions.
+
+		flags: bitset(ne_entrance);
+		cost_item1: 50;
+		cost_item2: 150;
+		cost_ownership: 0;
+		cost_opened: 1000;
+		type_item1: non_salt_food;
+		type_item2: salt_food;
+
+		texts: strings {
+			string { name: "NAME_INSTANCE1";   lang: "";      text: "The happy snacker"; }
+			string { name: "NAME_INSTANCE2";   lang: "";      text: "Pizza palace"; }
+			string { name: "NAME_TYPE";        lang: "";      text: "Snack shop"; }
+			string { name: "DESCRIPTION_TYPE"; lang: "";      text: "Shop where you can buy good cookies"; }
+			string { name: "NAME_ITEM1";       lang: "";      text: "Cookies"; }
+			string { name: "NAME_ITEM2";       lang: "";      text: "Pizza"; }
+
+			string { name: "DESCRIPTION_TYPE"; lang: "nl_NL"; text: "Winkel waar je lekkere koekjes kunt kopen"; }
+		}
+	}
+}
+

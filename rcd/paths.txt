@@ -1,0 +1,72 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+file("path_8bpp64.rcd") {
+	// Concrete paths.
+	PATH {
+		path_type: concrete;
+		tile_width: 64;
+		z_height: 16;
+
+		(empty,               _empty,              _empty,              _empty
+		|ne,                  se,                  sw,                  nw
+		|ne_se,               se_sw,               nw_sw,               ne_nw
+		|ne_sw,               nw_se,               _ne_sw,              _nw_se
+		|ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
+		|ne_nw_se_sw,         _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
+		|ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
+		|ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
+		|ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
+		|ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
+		|ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
+		|ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     _ne_nw_se_sw_n_s,    _ne_nw_se_sw_e_w
+		|ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
+		|_ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
+		|ramp_sw,             ramp_nw,             ramp_ne,             ramp_se) : sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites_src/paths/path/template8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+
+	PLAT {
+		tile_width: 64;
+		z_height: 16;
+		platform_type: wood;
+
+		(ns,            ew,            _ns,           _ew
+		|ramp_ne,       ramp_se,       ramp_sw,       ramp_nw
+		|right_ramp_ne, right_ramp_se, right_ramp_sw, right_ramp_nw
+		|left_ramp_ne,  left_ramp_se,  left_ramp_sw,  left_ramp_nw) : sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites_src/paths/platform/template8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+
+	SUPP {
+		tile_width: 64;
+		z_height: 16;
+		support_type: wood;
+
+		(s_ns, s_ew, _s_ns, _s_ew
+		|n#n,  n#e,  n#s,   n#w
+		|n#ne, n#es, n#sw,  n#nw
+		|n#ns, n#ew, _n#ns, _n#ew
+		|n#nes,n#esw,n#nsw, n#new
+		|d_ns, d_ew, _d_ns, _d_ew
+		|p_ns, p_ew, _p_ns, _p_ew
+		|n#E,  n#S,  n#W,   n#N) : sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites_src/paths/support/template8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+}

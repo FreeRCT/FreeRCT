@@ -1,0 +1,147 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+// Gui texts in the default language.
+
+// Generic Gui strings.
+string { lang: ""; name: "TITLEBAR_TIP";
+		text: "Click at the title bar to raise the window, drag the title bar to move the window"; }
+
+string { lang: ""; name: "MONTH_JANUARY";   text: "January"; }
+string { lang: ""; name: "MONTH_FEBRUARY";  text: "February"; }
+string { lang: ""; name: "MONTH_MARCH";     text: "March"; }
+string { lang: ""; name: "MONTH_APRIL";     text: "April"; }
+string { lang: ""; name: "MONTH_MAY";       text: "May"; }
+string { lang: ""; name: "MONTH_JUNE";      text: "June"; }
+string { lang: ""; name: "MONTH_JULY";      text: "July"; }
+string { lang: ""; name: "MONTH_AUGUST";    text: "August"; }
+string { lang: ""; name: "MONTH_SEPTEMBER"; text: "September"; }
+string { lang: ""; name: "MONTH_OCTOBER";   text: "October"; }
+string { lang: ""; name: "MONTH_NOVEMBER";  text: "November"; }
+string { lang: ""; name: "MONTH_DECEMBER";  text: "December"; }
+
+string { lang: ""; name: "NUMBERED_INSTANCE_NAME"; text: "%1% #%2%"; }
+
+// Toolbar gui strings.
+string { lang: ""; name: "TOOLBAR_GUI_QUIT";                 text: "Quit"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM"; text: "Quit the program"; }
+string { lang: ""; name: "TOOLBAR_GUI_PATHS";                text: "Paths"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_BUILD_PATHS";  text: "Build paths and queues"; }
+string { lang: ""; name: "TOOLBAR_GUI_SAVE";                 text: "Save"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_SAVE_GAME";    text: "Save the game"; }
+string { lang: ""; name: "TOOLBAR_GUI_LOAD";                 text: "Load"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_LOAD_GAME";    text: "Load a game"; }
+string { lang: ""; name: "TOOLBAR_GUI_RIDE_SELECT";          text: "Buy ride"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_RIDE_SELECT";  text: "Buy a new ride for your park"; }
+string { lang: ""; name: "TOOLBAR_GUI_TERRAFORM";            text: "Landscaping"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_TERRAFORM";    text: "Modify landscape"; }
+string { lang: ""; name: "TOOLBAR_GUI_FINANCES";             text: "Finances"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_FINANCES";     text: "Manage Company Finances"; }
+
+// Quit program strings.
+string { lang: ""; name: "QUIT_CAPTION"; text: "Quit program?"; }
+string { lang: ""; name: "QUIT_MESSAGE"; text: "Quit the program?"; }
+string { lang: ""; name: "QUIT_NO";      text: "No"; }
+string { lang: ""; name: "QUIT_YES";     text: "Yes"; }
+
+// Guest info gui strings.
+string { lang: ""; name: "GUEST_INFO_MONEY";     text: "Available cash"; }
+string { lang: ""; name: "GUEST_INFO_HAPPINESS"; text: "Happiness level"; }
+string { lang: ""; name: "GUEST_INFO_HUNGER";    text: "Hunger"; }
+string { lang: ""; name: "GUEST_INFO_THIRST";    text: "Thirst"; }
+string { lang: ""; name: "GUEST_INFO_WASTE";     text: "Waste"; }
+string { lang: ""; name: "GUEST_INFO_ITEMS";     text: "Items held"; }
+
+// Items for guests gui strings.
+string { lang: ""; name: "ITEM_NONE";     text: "None"; }
+string { lang: ""; name: "ITEM_MAP";      text: "Map"; }
+string { lang: ""; name: "ITEM_UMBRELLA"; text: "Umbrella"; }
+string { lang: ""; name: "ITEM_WRAPPER";  text: "Wrapper"; }
+
+// Path gui strings.
+string { lang: ""; name: "PATH_GUI_TITLE";          text: "Paths"; }
+string { lang: ""; name: "PATH_GUI_LONG";           text: "Long"; }
+string { lang: ""; name: "PATH_GUI_BUY";            text: "Buy"; }
+string { lang: ""; name: "PATH_GUI_REMOVE";         text: "Remove"; }
+string { lang: ""; name: "PATH_GUI_LONG_TIP";       text: "Build a long path"; }
+string { lang: ""; name: "PATH_GUI_BUY_TIP";        text: "Buy a path tile"; }
+string { lang: ""; name: "PATH_GUI_BULLDOZER_TIP";
+		text: "Click to remove the last built path and get your money back (works until you close the window)"; }
+string { lang: ""; name: "PATH_GUI_SLOPE_DOWN_TIP"; text: "Build path downwards"; }
+string { lang: ""; name: "PATH_GUI_SLOPE_FLAT_TIP"; text: "Build path horizontally"; }
+string { lang: ""; name: "PATH_GUI_SLOPE_UP_TIP";   text: "Build path upwards"; }
+
+string { lang: ""; name: "PATH_GUI_FORWARD";        text: "Forward"; }
+string { lang: ""; name: "PATH_GUI_BACKWARD";       text: "Back"; }
+string { lang: ""; name: "PATH_GUI_FORWARD_TIP";    text: "Move a tile forward"; }
+string { lang: ""; name: "PATH_GUI_BACKWARD_TIP";   text: "Move a tile backward"; }
+
+string { lang: ""; name: "PATH_GUI_NW_DIRECTION_TIP"; text: "Build path in north-west direction"; }
+string { lang: ""; name: "PATH_GUI_NE_DIRECTION_TIP"; text: "Build path in north-east direction"; }
+string { lang: ""; name: "PATH_GUI_SW_DIRECTION_TIP"; text: "Build path in south-west direction"; }
+string { lang: ""; name: "PATH_GUI_SE_DIRECTION_TIP"; text: "Build path in south-east direction"; }
+
+// Ride select gui strings.
+string { lang: ""; name: "RIDE_SELECT_TITLE";           text: "Ride selection"; }
+string { lang: ""; name: "RIDE_SELECT_SHOPS";           text: "Shops"; }
+string { lang: ""; name: "RIDE_SELECT_SHOPS_TOOLTIP";   text: "Click to display available shop types"; }
+string { lang: ""; name: "RIDE_SELECT_GENTLE";          text: "Gentle rides"; }
+string { lang: ""; name: "RIDE_SELECT_GENTLE_TOOLTIP";  text: "Click to display available gentle ride types"; }
+string { lang: ""; name: "RIDE_SELECT_WET";             text: "Wet rides"; }
+string { lang: ""; name: "RIDE_SELECT_WET_TOOLTIP";     text: "Click to display available wet ride types"; }
+string { lang: ""; name: "RIDE_SELECT_COASTER";         text: "Coasters"; }
+string { lang: ""; name: "RIDE_SELECT_COASTER_TOOLTIP"; text: "Click to display available roller coaster types"; }
+string { lang: ""; name: "RIDE_SELECT_RIDE";            text: "Select"; }
+string { lang: ""; name: "RIDE_SELECT_RIDE_TOOLTIP";    text: "Click to select the selected ride"; }
+string { lang: ""; name: "RIDE_SELECT_ROT_POS_TOOLTIP"; text: "Click to rotate the ride in counter-clockwise direction"; }
+string { lang: ""; name: "RIDE_SELECT_ROT_NEG_TOOLTIP"; text: "Click to rotate the ride in clockwise direction"; }
+
+// Shop manager window strings.
+string { lang: ""; name: "SHOP_MANAGER_TITLE";              text: "Shop \"%1%\""; }
+string { lang: ""; name: "SHOP_MANAGER_COST_PRICE_TEXT";    text: "Cost price"; }
+string { lang: ""; name: "SHOP_MANAGER_SELLING_PRICE_TEXT"; text: "Selling price"; }
+string { lang: ""; name: "SHOP_MANAGER_ITEMS_SOLD_TEXT";    text: "Items sold"; }
+string { lang: ""; name: "SHOP_MANAGER_ITEM_PROFIT_TEXT";   text: "Item profit"; }
+string { lang: ""; name: "SHOP_MANAGER_SELL_PROFIT_TEXT";   text: "Selling profit"; }
+string { lang: ""; name: "SHOP_MANAGER_SHOP_COST_TEXT";     text: "Personnel costs"; }
+string { lang: ""; name: "SHOP_MANAGER_TOTAL_PROFIT_TEXT";  text: "Total profit"; }
+string { lang: ""; name: "SHOP_MANAGER_OPENED_TEXT";        text: "Shop is open"; }
+string { lang: ""; name: "SHOP_MANAGER_CLOSED_TEXT";        text: "Shop is closed"; }
+
+// Terraform gui strings.
+string { lang: ""; name: "TERRAFORM_TITLE";       text: "Modify landscape"; }
+string { lang: ""; name: "TERRAFORM_ADD_TEXT";    text: "+"; }
+string { lang: ""; name: "TERRAFORM_ADD_TOOLTIP"; text: "Increase size of the terraforming area"; }
+string { lang: ""; name: "TERRAFORM_SUB_TEXT";    text: "-"; }
+string { lang: ""; name: "TERRAFORM_SUB_TOOLTIP"; text: "Decrease size of the terraforming area"; }
+string { lang: ""; name: "TERRAFORM_LEVEL_TEXT";  text: "Level terraforming area"; }
+string { lang: ""; name: "TERRAFORM_MOVE_TEXT";   text: "Move terraform area as-is"; }
+
+// Finances gui strings.
+string { lang: ""; name: "FINANCES_TITLE";                  text: "Manage Finances"; }
+string { lang: ""; name: "FINANCES_RIDE_CONSTRUCTION_TEXT"; text: "Ride Construction"; }
+string { lang: ""; name: "FINANCES_RIDE_RUNNING_TEXT";      text: "Ride Running Costs"; }
+string { lang: ""; name: "FINANCES_LAND_PURCHASE_TEXT";     text: "Land Purchase"; }
+string { lang: ""; name: "FINANCES_LANDSCAPING_TEXT";       text: "Landscaping"; }
+string { lang: ""; name: "FINANCES_PARK_TICKETS_TEXT";      text: "Park Entrance Tickets"; }
+string { lang: ""; name: "FINANCES_RIDE_TICKETS_TEXT";      text: "Ride Tickets"; }
+string { lang: ""; name: "FINANCES_SHOP_SALES_TEXT";        text: "Shop Sales"; }
+string { lang: ""; name: "FINANCES_SHOP_STOCK_TEXT";        text: "Shop Stock"; }
+string { lang: ""; name: "FINANCES_FOOD_SALES_TEXT";        text: "Food/Drink Sales"; }
+string { lang: ""; name: "FINANCES_FOOD_STOCK_TEXT";        text: "Food/Drink Stock"; }
+string { lang: ""; name: "FINANCES_STAFF_WAGES_TEXT";       text: "Staff Wages"; }
+string { lang: ""; name: "FINANCES_MARKETING_TEXT";         text: "Marketing"; }
+string { lang: ""; name: "FINANCES_RESEARCH_TEXT";          text: "Research"; }
+string { lang: ""; name: "FINANCES_LOAN_INTEREST_TEXT";     text: "Loan Interest"; }
+string { lang: ""; name: "FINANCES_TOTAL_TEXT";             text: "Total"; }
+
+// Money symbols.
+string { lang: ""; name: "MONEY_CURRENCY_SYMBOL";     text: "$"; }
+string { lang: ""; name: "MONEY_THOUSANDS_SEPARATOR"; text: ","; }
+string { lang: ""; name: "MONEY_DECIMAL_SEPARATOR";   text: "."; }
+

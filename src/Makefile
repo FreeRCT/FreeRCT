@@ -10,9 +10,7 @@
 
 OBJDIR=objects
 RCDDIR=../rcd
-
-PYTHON=python
-GEN_NAMES_PY=$(RCDDIR)/gen_string_names.py
+RCDGEN=../rcdgen/src/rcdgen
 
 CXX=g++
 CXXFLAGS=-Wall -g
@@ -64,17 +62,18 @@ $(DEPEND): $(OBJDIR)/table/gui_strings.h $(OBJDIR)/table/shops_strings.h $(CXXFI
 	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f | sed -e "s@^[^ ]*\\.o:@$(OBJDIR)/&@";\
 	done > $(DEPEND)
 
-$(OBJDIR)/table/gui_strings.h: $(RCDDIR)/gui_strings.txt
-	$(PYTHON) $(GEN_NAMES_PY) --header $(OBJDIR)/table/gui_strings.h \
+$(OBJDIR)/table/gui_strings.h: $(RCDGEN)
+	$(RCDGEN) --header $(OBJDIR)/table/gui_strings.h \
 			--code $(OBJDIR)/table/gui_strings.cpp \
-			--prefix=GUI_ --base=STR_GUI_START \
-			$(RCDDIR)/gui_strings.txt
+			--prefix GUI --base STR_GUI_START
 
-$(OBJDIR)/table/shops_strings.h: $(RCDDIR)/shops_strings.txt
-	$(PYTHON) $(GEN_NAMES_PY) --header $(OBJDIR)/table/shops_strings.h \
+$(OBJDIR)/table/shops_strings.h: $(RCDGEN)
+	$(RCDGEN) --header $(OBJDIR)/table/shops_strings.h \
 			--code $(OBJDIR)/table/shops_strings.cpp \
-			--prefix=SHOPS_ --base=STR_GENERIC_SHOP_START \
-			$(RCDDIR)/shops_strings.txt
+			--prefix SHOPS --base STR_GENERIC_SHOP_START
+
+$(RCDGEN):
+	$(MAKE) -C ../rcdgen/src rcdgen
 
 clean:
 	for i in $(OBJFILES) $(DEPEND) $(TARGET);\

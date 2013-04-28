@@ -1,0 +1,55 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+// Dutch translation.
+
+// Generic Gui strings.
+string { lang: "nl_NL"; name: "TITLEBAR_TIP";
+	text: "Klik op de titelbalk om het venster te verhogen, sleep de titelbalk om het venster te verplaatsen"; }
+
+string { lang: "nl_NL"; name: "MONTH_JANUARY";   text: "Januari"; }
+string { lang: "nl_NL"; name: "MONTH_FEBRUARY";  text: "Februari"; }
+string { lang: "nl_NL"; name: "MONTH_MARCH";     text: "Maart"; }
+string { lang: "nl_NL"; name: "MONTH_APRIL";     text: "April"; }
+string { lang: "nl_NL"; name: "MONTH_MAY";       text: "Mei"; }
+string { lang: "nl_NL"; name: "MONTH_JUNE";      text: "Juni"; }
+string { lang: "nl_NL"; name: "MONTH_JULY";      text: "Juli"; }
+string { lang: "nl_NL"; name: "MONTH_AUGUST";    text: "Augustus"; }
+string { lang: "nl_NL"; name: "MONTH_SEPTEMBER"; text: "September"; }
+string { lang: "nl_NL"; name: "MONTH_OCTOBER";   text: "Oktober"; }
+string { lang: "nl_NL"; name: "MONTH_NOVEMBER";  text: "November"; }
+string { lang: "nl_NL"; name: "MONTH_DECEMBER";  text: "December"; }
+
+// Toolbar gui strings.
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_QUIT";                 text: "Afsluiten"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM"; text: "Sluit het programma"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_PATHS";                text: "Paden"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_BUILD_PATHS";  text: "Bouw paden en wachtrijen"; }
+
+// Path gui strings.
+string { lang: "nl_NL"; name: "PATH_GUI_TITLE";    text: "Paden"; }
+string { lang: "nl_NL"; name: "PATH_GUI_LONG";     text: "Lang"; }
+string { lang: "nl_NL"; name: "PATH_GUI_BUY";      text: "Kopen"; }
+string { lang: "nl_NL"; name: "PATH_GUI_REMOVE";   text: "Verwijderen"; }
+string { lang: "nl_NL"; name: "PATH_GUI_LONG_TIP"; text: "Bouw een lang pad"; }
+string { lang: "nl_NL"; name: "PATH_GUI_BUY_TIP";  text: "Koop een pad tegel"; }
+string { lang: "nl_NL"; name: "PATH_GUI_BULLDOZER_TIP";
+		text: "Klik om het laatst geplaatste pad te verwijderen en je geld terug te krijgen (werkt totdat je het venster sluit)"; }
+string { lang: "nl_NL"; name: "PATH_GUI_SLOPE_DOWN_TIP"; text: "Bouw pad omlaag"; }
+string { lang: "nl_NL"; name: "PATH_GUI_SLOPE_FLAT_TIP"; text: "Bouw pad vlak"; }
+string { lang: "nl_NL"; name: "PATH_GUI_SLOPE_UP_TIP";   text: "Bouw pad omhoog"; }
+
+string { lang: "nl_NL"; name: "PATH_GUI_FORWARD";      text: "Vooruit"; }
+string { lang: "nl_NL"; name: "PATH_GUI_BACKWARD";     text: "Terug"; }
+string { lang: "nl_NL"; name: "PATH_GUI_FORWARD_TIP";  text: "Beweeg een tegel voorwaarts"; }
+string { lang: "nl_NL"; name: "PATH_GUI_BACKWARD_TIP"; text: "Beweeg een tegel terug"; }
+
+string { lang: "nl_NL"; name: "PATH_GUI_NW_DIRECTION_TIP"; text: "Bouw pad in noord-westelijke richting"; }
+string { lang: "nl_NL"; name: "PATH_GUI_NE_DIRECTION_TIP"; text: "Bouw pad in noord-oostelijke richting"; }
+string { lang: "nl_NL"; name: "PATH_GUI_SW_DIRECTION_TIP"; text: "Bouw pad in zuid-westelijke richting"; }
+string { lang: "nl_NL"; name: "PATH_GUI_SE_DIRECTION_TIP"; text: "Bouw pad in zuid-oostelijke richting"; }
