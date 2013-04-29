@@ -9,8 +9,31 @@ Here you can do the following things:
 
 - Drag the world by holding the right mouse button and moving the mouse.
 - Rotate left/right with the cursor left/right buttons at the keyboard.
-- Mouse wheel up/down performs smooth terraforming.
-- Quit the program by entering 'q' at the keyboard.
+- Quit the program by entering 'q' at the keyboard, or select ``Quit`` from
+  the top toolbar, and confirm.
+
+
+Terraforming
+------------
+
+You can modify the landscape by using the ``Terraform`` window available from
+the ``Landscaping`` button at the top of the window.
+
+With the ``+`` and ``-`` buttons at the right side of the window you can
+enlarge and decrease the size of the affected area. The area is displayed in
+the center of the window, and also projected at the main display when you
+move the mouse into it.
+
+Actual landscaping is performed by using the mouse wheel. It moves the
+displayed area. For areas bigger than a single tile, you can move entire
+tiles only. That can be done in two different ways, selectable at the bottom
+of the window. The ``Level terraforming area`` selection will move the
+highest corners in the area down, or the lowest corners up. The other
+selection, ``Move terraform area as-is`` moves the *entire* area up or down.
+When the area is a single tile or a dot, you can select the entire tile or
+just one corner. A single tile area limits landscaping changes to that tile.
+A 'dot' area has no limits. It changes the entire world, until the change
+hits the edge of the world, or a vertical area.
 
 
 Path building
@@ -36,5 +59,41 @@ window appears with the following buttons:
 
 Dragging the world with the right mouse button, and rotating the world
 continues to work to allow moving around.
+
+
+Guests
+------
+
+Guests follow paths, starting from a path tile at the edge of the world. They
+will buy food from your shops if they need it. When they become unhappy, they
+will disappear.
+
+
+Building a shop
+---------------
+
+The ``Buy ride`` button at the top opens the window to buy new rides.
+Currently, the only ride you can buy is a shop. It is automatically selected.
+With the rotation buttons at the bottom right, you can rotate the shop. The
+``select`` button selects the shop so you can place it in the world. It will
+try to connect to a road if possible. Move and rotate the world and position
+the shop with the mouse until it is at the point where you want it. Then
+left-click the mouse to add the shop.
+
+
+Managing a shop
+---------------
+
+By clicking at a shop, you can open its window. It shows some statistics so
+you can see how well it is doing. At the bottom is a selection to open or
+close the shop.
+
+
+Finances
+--------
+
+The ``Finances`` button at the top opens the finances window, showing your
+overall financial records.
+
 
 vim: tw=77
