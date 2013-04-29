@@ -59,8 +59,13 @@ union YyStruct {
 /** Macro defining the interface type between the scanner and parser. See also flex(1). */
 #define YYSTYPE YyStruct
 
-extern NamedValueList *_parsed_data;
+extern NamedValueList *_parsed_data; ///< Result of parsing the input file.
 
+/**
+ * Setup the scanner for the new file.
+ * @param fname Name of the file being parsed.
+ * @param new_file New input stream to switch to.
+ */
 void SetupScanner(const char *fname, FILE *new_file);
 
 #endif

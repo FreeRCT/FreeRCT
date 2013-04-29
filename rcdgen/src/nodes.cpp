@@ -9,10 +9,10 @@
 
 /** @file nodes.cpp Code of the RCD file nodes. */
 
-#include "stdafx.h"
+#include "../../src/stdafx.h"
 #include "ast.h"
 #include "nodes.h"
-#include "fileio.h"
+#include "file_writing.h"
 
 BlockNode::BlockNode()
 {

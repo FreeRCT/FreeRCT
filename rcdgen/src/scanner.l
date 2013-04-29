@@ -164,11 +164,7 @@ int string_line; ///< Starting line of the string.
 
 %%
 
-/**
- * Setup the scanner for the new file.
- * @param fname Name of the file being parsed.
- * @param new_file New input stream to switch to.
- */
+/* Documentation is in scanner_funcs.h, since this file is not being scanned by Doxygen. */
 void SetupScanner(const char *fname, FILE *new_file)
 {
 	yyrestart(new_file);

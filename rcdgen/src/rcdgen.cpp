@@ -7,14 +7,14 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file main.cpp Main program. */
+/** @file rcdgen.cpp Main program of rcdgen. */
 
-#include "stdafx.h"
-#include "getoptdata.h"
+#include "../../src/stdafx.h"
+#include "../../src/getoptdata.h"
 #include "scanner_funcs.h"
 #include "ast.h"
 #include "nodes.h"
-#include "fileio.h"
+#include "file_writing.h"
 #include <cstdarg>
 
 /**

@@ -456,6 +456,7 @@ void GetTextSize(StringID strid, int *width, int *height)
 
 /**
  * Convert the date to a Unicode string.
+ * @param d %Date to format.
  * @param format C-Style format code.
  * @return The formatted string.
  * @todo Allow variable number of format parameters, e.g. "mm-yy".

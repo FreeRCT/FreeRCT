@@ -7,10 +7,10 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file fileio.cpp File IO code. */
+/** @file file_writing.cpp File write code. */
 
-#include "stdafx.h"
-#include "fileio.h"
+#include "../../src/stdafx.h"
+#include "file_writing.h"
 
 
 FileBlock::FileBlock()

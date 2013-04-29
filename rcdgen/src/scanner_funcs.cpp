@@ -9,7 +9,7 @@
 
 /** @file scanner_funcs.cpp Scanner / parser interface functions. */
 
-#include "stdafx.h"
+#include "../../src/stdafx.h"
 #include <cassert>
 #include <cstdio>
 #include "scanner_funcs.h"

@@ -9,7 +9,7 @@
 
 /** @file image.cpp %Image loading, cutting, and saving the sprites. */
 
-#include "stdafx.h"
+#include "../../src/stdafx.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>

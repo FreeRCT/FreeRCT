@@ -9,7 +9,7 @@
 
 /** @file ast.cpp AST data structure implementation. */
 
-#include "stdafx.h"
+#include "../../src/stdafx.h"
 #include "ast.h"
 #include "scanner_funcs.h"
 

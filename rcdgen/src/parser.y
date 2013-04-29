@@ -12,7 +12,7 @@
 #include "scanner_funcs.h"
 #include "ast.h"
 
-NamedValueList *_parsed_data = NULL; ///< Result of parsing the input file.
+NamedValueList *_parsed_data = NULL; // Documentation is in scanner_funcs.h, since this file is not being scanned.
 %}
 
 %token PAR_OPEN PAR_CLOSE CURLY_OPEN CURLY_CLOSE
