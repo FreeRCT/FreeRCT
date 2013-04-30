@@ -614,24 +614,30 @@ Support type:
 Roller coaster tracks
 ~~~~~~~~~~~~~~~~~~~~~
 A ``RCST`` block contains all information of a single type of roller coaster.
-It currently contains track piece definitions only.
+It currently contains track piece definitions only. FreeRCT supports version 2
+of the ``RCST`` block.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'RCST'.
-   4       4    Version number of the block (always '1').
-   8       4    Length of the block excluding magic string, version, and
-                length.
-  12       2    Type of roller coaster.
-  14       2    Number of track piece definitions (called 'n').
-  16     4*n    The track piece definitions (references to ``TRCK``).
-16+4*n          Total length of the ``RCST`` block.
-======  ======  ==========================================================
+======  ======  =======  ==================  =================================================================
+Offset  Length  Version  Field name          Description
+======  ======  =======  ==================  =================================================================
+   0       4      1-2                        Magic string 'RCST'.
+   4       4      1-2                        Version number of the block.
+   8       4      1-2                        Length of the block excluding magic string, version, and length.
+  12       2      1-2    coaster_type        Type of roller coaster.
+  14       1       2     platform_type       Platform type.
+  15       2      1-2    <derived>           Number of track piece definitions (called 'n').
+  17      4*n     1-2                        The track piece definitions (references to ``TRCK``).
+17+4*n                                       Total length of the ``RCST`` block.
+======  ======  =======  ==================  =================================================================
 
-Currently defined types:
+Currently defined coaster types:
 
 - 1 Simple coaster tracks.
+
+Currently define platform types:
+
+- 1 Wood.
+
 
 A track piece definition describes a single piece of track. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
@@ -644,35 +650,55 @@ the exit have a *connection code*. Two track pieces can be connected only when
 the connection code of the exit of the first piece is the same as the
 connection code of the entry of the second piece.
 
-While the connection code is just a single number in the RCD file, it is
-recommended to split the code in a 'type' and a 'direction' while defining the
-track pieces.
+While the connection code is just a single number in the RCD file, in the input
+it is split in a 'name' and a 'direction' while defining the track pieces.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'TRCK'.
-   4       4    Version number of the block (always '1').
-   8       4    Length of the block excluding magic string, version, and
-                length.
-  12       1    Entry connection code
-  13       1    Exit connection code
-  14       2    Number of voxels in this track piece (called 'n').
-  16     8*n    Voxel definitions
-16+8*n          Total length of the ``TRCK`` block.
-======  ======  ==========================================================
+=======  ======  =======  ==================  ================================================================
+Offset   Length  Version  Field name          Description
+=======  ======  =======  ==================  ================================================================
+   0        4      1-2                        Magic string 'TRCK'.
+   4        4      1-2                        Version number of the block (always '2').
+   8        4      1-2                        Length of the block excluding magic string, version, and length.
+  12        1      1-2    entry_connection    Entry connection code
+  13        1      1-2    exit_connection     Exit connection code
+  14        1       2     exit_dx             Relative X position of the exit voxel.
+  15        1       2     exit_dy             Relative Y position of the exit voxel.
+  16        1       2     exit_dz             Relative Z position of the exit voxel.
+  17        1       2     speed               If non-zero, the minimal speed of cars at the track.
+  18        1       2     track_flags         Flags of the track piece.
+  19        4       2     cost                Cost of this track piece.
+  23        2      1-2                        Number of voxels in this track piece (called 'n').
+  25      36*n     1-2                        Voxel definitions
+25+36*n                                       Total length of the ``TRCK`` block.
+=======  ======  =======  ==================  ================================================================
+
+The track flags are defined as follows:
+
+- bit  0   This track piece has platforms next to the track.
+- bits 1-2 Direction of the platform (if bit 0 is set).
+- bit  3   This track piece may be used for initial placement.
+- bit  4-5 Direction of initial placement (if bit 3 is set).
+
 
 A voxel definition is
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Reference to the graphics (an ``8PXL`` block).
-   4       1    Relative X position of the voxel.
-   5       1    Relative Y position of the voxel.
-   6       1    Relative Z position of the voxel.
-   7       1    Space requirements of the voxel.
-======  ======  ==========================================================
+=======  ======  =======  ==================  ================================================================
+Offset   Length  Version  Field name          Description
+=======  ======  =======  ==================  ================================================================
+   0       4       1-2    ne_back             Reference to the background tracks for north view.
+   4       4        2     se_back             Reference to the background tracks for east view.
+   8       4        2     sw_back             Reference to the background tracks for south view.
+  12       4        2     nw_back             Reference to the background tracks for west view.
+  16       4        2     ne_front            Reference to the front tracks for north view.
+  20       4        2     se_front            Reference to the front tracks for east view.
+  24       4        2     sw_front            Reference to the front tracks for south view.
+  28       4        2     nw_front            Reference to the front tracks for west view.
+  32       1       1-2    dx                  Relative X position of the voxel.
+  33       1       1-2    dy                  Relative Y position of the voxel.
+  34       1       1-2    dz                  Relative Z position of the voxel.
+  35       1       1-2    space               Space requirements of the voxel.
+  36                                          Total length of a voxel definition.
+=======  ======  =======  ==================  ================================================================
 
 The space requirements are defined as follows:
 
@@ -828,33 +854,32 @@ Scroll-bar elements
 ~~~~~~~~~~~~~~~~~~~
 For scroll-bar GUI elements, the following block should be used.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'GSCL'.
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                length.
-  12       1    Minimal length scrollbar.
-  13       1    Stepsize of background.
-  14       1    Minimal length bar.
-  15       1    Stepsize of bar.
-  16       2    Widget type.
-  18       4    Left/up button.
-  22       4    Right/down button.
-  26       4    Left/up pressed button.
-  30       4    Right/down pressed button.
-  34       4    Left/top bar bottom (the background).
-  38       4    Middle bar bottom (the background).
-  42       4    Right/down bar bottom (the background).
-  46       4    Left/top bar top.
-  50       4    Middle bar top.
-  54       4    Right/down bar top.
-  58       4    Left/top pressed bar top.
-  62       4    Middle pressed bar top.
-  66       4    Right/down pressed bar top.
-  70            Total length.
-======  ======  ==========================================================
+======  ======  ==================  ================================================================
+Offset  Length  Field name          Description
+======  ======  ==================  ================================================================
+   0       4                        Magic string 'GSCL'.
+   4       4                        Version number of the block '1'.
+   8       4                        Length of the block excluding magic string, version, and length.
+  12       1    min_length          Minimal length scrollbar.
+  13       1    step_back           Stepsize of background.
+  14       1    min_bar_length      Minimal length bar.
+  15       1    bar_step            Stepsize of bar.
+  16       2    widget_type         Widget type.
+  18       4    left_button         Left/up button.
+  22       4    right_button        Right/down button.
+  26       4    left_pressed        Left/up pressed button.
+  30       4    right_pressed       Right/down pressed button.
+  34       4    left_bottom         Left/top bar bottom (the background).
+  38       4    middle_bottom       Middle bar bottom (the background).
+  42       4    right_bottom        Right/down bar bottom (the background).
+  46       4    left_top            Left/top bar top.
+  50       4    middle_top          Middle bar top.
+  54       4    right_top           Right/down bar top.
+  58       4    left_top_pressed    Left/top pressed bar top.
+  62       4    middle_top_pressed  Middle pressed bar top.
+  66       4    right_top_pressed   Right/down pressed bar top.
+  70                                Total length.
+======  ======  ==================  ================================================================
 
 Known scroll-bar widget types:
 
@@ -873,34 +898,30 @@ Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
 
-======  ======  =======  =================================================
-Offset  Length  Version  Description
-======  ======  =======  =================================================
-   0       4      1-4    Magic string 'GSLP' (Gui sprites).
-   4       4      1-4    Version number of the block.
-   8       4      1-4    Length of the block excluding magic string,
-                         version, and length.
-  12       4      1-4    Slope going vertically down.
-  16       4      1-4    Slope going steeply down.
-  20       4      1-4    Slope going gently down.
-  24       4      1-4    Level slope.
-  28       4      1-4    Slope going gently up.
-  32       4      1-4    Slope going steeply up.
-  36       4      1-4    Slope going vertically up.
-  40       4      2-4    Flat rotation positive direction
-                         (counter clock wise)
-  44       4      2-4    Flat rotation negative direction (clock wise)
-  48       4      2-4    Diametric rotation positive direction
-                         (counter clock wise)
-  52       4      2-4    Diametric rotation negative direction
-                         (clock wise)
-  56       4      3-4    Close Button.
-  60       4       3     Maximise button.
-  64       4       3     Minimise button.
-  60       4       4     Terraform dot.
-  64       4      2-4    Text of the guis (reference to a TEXT block).
-  68                     Total length.
-======  ======  =======  =================================================
+======  ======  =======  ==================  ================================================================
+Offset  Length  Version  Field name          Description
+======  ======  =======  ==================  ================================================================
+   0       4      1-4                        Magic string 'GSLP' (Gui sprites).
+   4       4      1-4                        Version number of the block.
+   8       4      1-4                        Length of the block excluding magic string, version, and length.
+  12       4      1-4    vert_down           Slope going vertically down.
+  16       4      1-4    steep_down          Slope going steeply down.
+  20       4      1-4    gentle_down         Slope going gently down.
+  24       4      1-4    level               Level slope.
+  28       4      1-4    gentle_up           Slope going gently up.
+  32       4      1-4    steep_up            Slope going steeply up.
+  36       4      1-4    vert_up             Slope going vertically up.
+  40       4      2-4    pos_2d              Flat rotation positive direction (counter clock wise).
+  44       4      2-4    neg_2d              Flat rotation negative direction (clock wise).
+  48       4      2-4    pos_3d              Diametric rotation positive direction (counter clock wise).
+  52       4      2-4    neg_3d              Diametric rotation negative direction (clock wise).
+  56       4      3-4    close_button        Close Button.
+  60       4       3                         Maximise button.
+  64       4       3                         Minimise button.
+  60       4       4     terraform_dot       Terraform dot.
+  64       4      2-4    texts               Text of the guis (reference to a TEXT block).
+  68                                         Total length.
+======  ======  =======  ==================  ================================================================
 
 
 Persons
@@ -1041,4 +1062,4 @@ SPRT X and Y offset of a sprite (data has been moved to the 8PXL block)
 GROT Rotation GUI sprites (data has been moved to the GROT block)
 ==== =====================================================================
 
-.. vim: set spell tw=78
+.. vim: set spell
