@@ -13,8 +13,9 @@ GAMEDATA=borderhighlight_8bpp64.rcd \
 PATHDATA=path_8bpp64.rcd
 SHOPDATA=shops.rcd
 GUIDATA=gui.rcd
+TRACKDATA=tracks.rcd
 
-RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA) ${SHOPDATA}
+RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA) $(SHOPDATA) $(TRACKDATA)
 RCDGEN=../rcdgen/src/rcdgen
 
 .PHONY: build clean rcdgen
@@ -33,8 +34,8 @@ $(SHOPDATA): rcdgen shops.txt
 $(GUIDATA): rcdgen gui.txt gui_default_lang.txt gui_nl_NL_lang.txt
 	$(RCDGEN) gui.txt
 
-#$(TRACKDATA): basic_tracks.xml structdef.xml
-#	$(PYTHON) convert.py -d structdef.xml -g basic_tracks.xml
+$(TRACKDATA): rcdgen tracks.txt
+	$(RCDGEN) tracks.txt
 
 data_format.html: data_format.rst
 	rst2html data_format.rst data_format.html
