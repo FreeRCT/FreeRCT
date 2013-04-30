@@ -153,6 +153,7 @@ public:
 	long long GetNumber(const Position &pos, const char *node, const Symbol *symbols = NULL);
 	std::string GetString(const Position &pos, const char *node);
 	SpriteBlock *GetSprite(const Position &pos, const char *node);
+	Connection *GetConnection(const Position &pos, const char *node);
 	Strings *GetStrings(const Position &pos, const char *node);
 
 	Position pos;           ///< %Position of the name.
@@ -296,6 +297,23 @@ SpriteBlock *ValueInformation::GetSprite(const Position &pos, const char *node)
 }
 
 /**
+ * Get a connection from the given node value.
+ * @param pos %Position of the node (for reporting errors).
+ * @param node %Name of the node.
+ * @return The connection.
+ */
+Connection *ValueInformation::GetConnection(const Position &pos, const char *node)
+{
+	Connection *cn = dynamic_cast<Connection *>(this->node_value);
+	if (cn != NULL) {
+		this->node_value = NULL;
+		return cn;
+	}
+	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a connection node\n", pos.ToString(), this->name.c_str(), node);
+	exit(1);
+}
+
+/**
  * Get a set of strings from the given node value.
  * @param pos %Position of the node (for reporting errors).
  * @param node %Name of the node.
@@ -352,9 +370,11 @@ public:
 
 	void PrepareNamedValues(NamedValueList *values, bool allow_named, bool allow_unnamed, const Symbol *symbols = NULL);
 	ValueInformation &FindValue(const char *fld_name);
+	bool HasValue(const char *fld_name);
 	long long GetNumber(const char *fld_name, const Symbol *symbols = NULL);
 	std::string GetString(const char *fld_name);
 	SpriteBlock *GetSprite(const char *fld_name);
+	Connection *GetConnection(const char *fld_name);
 	Strings *GetStrings(const char *fld_name);
 	void VerifyUsage();
 
@@ -524,6 +544,20 @@ ValueInformation &Values::FindValue(const char *fld_name)
 }
 
 /**
+ * check whether a field with name \a fld_name exists.
+ * @param fld_name %Name of the field looking for.
+ * @return Whether the field exists (\c true means it exists, \c false means it does not exist).
+ */
+bool Values::HasValue(const char *fld_name)
+{
+	for (int i = 0; i < this->named_count; i++) {
+		ValueInformation &vi = this->named_values[i];
+		if (!vi.used && vi.name == fld_name) return true;
+	}
+	return false;
+}
+
+/**
  * Get a numeric value from the named expression with the provided name.
  * @param fld_name Name of the field to retrieve.
  * @param symbols Optional set of identifiers recognized as numeric value.
@@ -552,6 +586,16 @@ std::string Values::GetString(const char *fld_name)
 SpriteBlock *Values::GetSprite(const char *fld_name)
 {
 	return FindValue(fld_name).GetSprite(this->pos, this->node_name);
+}
+
+/**
+ * Get a connection from the named value with the provided name.
+ * @param fld_name Name of the field to retrieve.
+ * @return The connection.
+ */
+Connection *Values::GetConnection(const char *fld_name)
+{
+	return FindValue(fld_name).GetConnection(this->pos, this->node_name);
 }
 
 /**
@@ -1526,7 +1570,7 @@ static GSLPBlock *ConvertGSLPNode(NodeGroup *ng)
  * @param ng Generic tree of nodes to convert.
  * @return The created 'strings' node.
  */
-Strings *ConvertStringsNode(NodeGroup *ng)
+static Strings *ConvertStringsNode(NodeGroup *ng)
 {
 	ExpandNoExpression(ng->exprs, ng->pos, "strings");
 	Strings *strs = new Strings;
@@ -1570,7 +1614,7 @@ Strings *ConvertStringsNode(NodeGroup *ng)
  * @param ng Generic tree of nodes to convert.
  * @return The created 'string' node.
  */
-TextNode *ConvertTextNode(NodeGroup *ng)
+static TextNode *ConvertTextNode(NodeGroup *ng)
 {
 	ExpandNoExpression(ng->exprs, ng->pos, "string");
 	TextNode *tn = new TextNode;
@@ -1589,7 +1633,152 @@ TextNode *ConvertTextNode(NodeGroup *ng)
 	return tn;
 }
 
+/** Symbols of a 'track_voxel' node. */
+static const Symbol _track_voxel_symbols[] = {
+	{"north", 0},
+	{"east",  1},
+	{"south", 2},
+	{"west",  3},
+	{NULL, 0}
+};
 
+/**
+ * Convert a 'track_voxel' node.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created 'track_voxel' node.
+ */
+static TrackVoxel *ConvertTrackVoxel(NodeGroup *ng)
+{
+	static const char *direction[4] = {"ne", "se", "sw", "nw"};
+
+	ExpandNoExpression(ng->exprs, ng->pos, "track_voxel");
+	TrackVoxel *tv = new TrackVoxel;
+
+	Values vals("track_voxel", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false, _track_voxel_symbols);
+
+	tv->dx = vals.GetNumber("dx");
+	tv->dy = vals.GetNumber("dy");
+	tv->dz = vals.GetNumber("dz");
+	tv->space = vals.GetNumber("space");
+
+	char buffer[16];
+	for (int i = 0; i < 4; i++) {
+		strcpy(buffer, direction[i]);
+		strcpy(buffer + 2, "_back");
+		if (vals.HasValue(buffer)) tv->back[i] = vals.GetSprite(buffer);
+	}
+	for (int i = 0; i < 4; i++) {
+		strcpy(buffer, direction[i]);
+		strcpy(buffer + 2, "_front");
+		if (vals.HasValue(buffer)) tv->front[i] = vals.GetSprite(buffer);
+	}
+
+	vals.VerifyUsage();
+	return tv;
+}
+
+/** Direction symbols of the connection node. */
+static const Symbol _connection_symbols[] = {
+	{"ne", 0},
+	{"se", 1},
+	{"sw", 2},
+	{"nw", 3},
+	{NULL, 0}
+};
+
+/**
+ * Convert a 'connection' node.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created 'connection' node.
+ */
+static Connection *ConvertConnection(NodeGroup *ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "connection");
+	Connection *cn = new Connection();
+
+	Values vals("connection", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false, _connection_symbols);
+
+	cn->name = vals.GetString("name");
+	cn->direction = vals.GetNumber("direction");
+
+	vals.VerifyUsage();
+	return cn;
+}
+
+/**
+ * Convert a 'track_piece' game node.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created 'track_piece' node.
+ */
+static TrackPieceNode *ConvertTrackPieceNode(NodeGroup *ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "track_piece");
+	TrackPieceNode *tb = new TrackPieceNode;
+
+	Values vals("track_piece", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	tb->track_flags = vals.HasValue("track_flags") ? vals.GetNumber("track_flags") : 0;
+	tb->cost = vals.GetNumber("cost");
+
+	tb->entry = vals.GetConnection("entry");
+	tb->exit  = vals.GetConnection("exit");
+	tb->exit_dx = vals.GetNumber("exit_dx");
+	tb->exit_dy = vals.GetNumber("exit_dy");
+	tb->exit_dz = vals.GetNumber("exit_dz");
+	tb->speed = vals.HasValue("speed") ? vals.GetNumber("speed") : 0;
+
+	for (int i = 0; i < vals.unnamed_count; i++) {
+		ValueInformation &vi = vals.unnamed_values[i];
+		if (vi.used) continue;
+		TrackVoxel *tv = dynamic_cast<TrackVoxel *>(vi.node_value);
+		if (tv == NULL) {
+			fprintf(stderr, "Error at %s: Node is not a \"track_voxel\" node\n", vi.pos.ToString());
+			exit(1);
+		}
+		tb->track_voxels.push_back(tv);
+		vi.node_value = NULL;
+		vi.used = true;
+	}
+
+	vals.VerifyUsage();
+	return tb;
+}
+
+/**
+ * Convert a 'RCST' node to a game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted RCST game block.
+ */
+static RCSTBlock *ConvertRCSTNode(NodeGroup *ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "RCST");
+	RCSTBlock *rb = new RCSTBlock;
+
+	Values vals("RCST", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	rb->coaster_type = vals.GetNumber("coaster_type");
+	rb->platform_type = vals.GetNumber("platform_type");
+
+	for (int i = 0; i < vals.unnamed_count; i++) {
+		ValueInformation &vi = vals.unnamed_values[i];
+		if (vi.used) continue;
+		TrackPieceNode *tb = dynamic_cast<TrackPieceNode *>(vi.node_value);
+		if (tb == NULL) {
+			fprintf(stderr, "Error at %s: Node is not a \"track_piece\" node\n", vi.pos.ToString());
+			exit(1);
+		}
+		rb->track_blocks.push_back(tb);
+		vi.node_value = NULL;
+		vi.used = true;
+	}
+
+	vals.VerifyUsage();
+	return rb;
+}
 
 /**
  * Convert a node group.
@@ -1606,6 +1795,9 @@ static BlockNode *ConvertNodeGroup(NodeGroup *ng)
 	if (strcmp(ng->name, "frame_data") == 0) return ConvertFrameDataNode(ng);
 	if (strcmp(ng->name, "strings") == 0) return ConvertStringsNode(ng);
 	if (strcmp(ng->name, "string") == 0) return ConvertTextNode(ng);
+	if (strcmp(ng->name, "track_voxel") == 0) return ConvertTrackVoxel(ng);
+	if (strcmp(ng->name, "connection") == 0) return ConvertConnection(ng);
+	if (strcmp(ng->name, "track_piece") == 0) return ConvertTrackPieceNode(ng);
 
 	/* Game blocks. */
 	if (strcmp(ng->name, "TSEL") == 0) return ConvertTSELNode(ng);
@@ -1625,6 +1817,7 @@ static BlockNode *ConvertNodeGroup(NodeGroup *ng)
 	if (strcmp(ng->name, "GSCL") == 0) return ConvertGSCLNode(ng);
 	if (strcmp(ng->name, "BDIR") == 0) return ConvertBDIRNode(ng);
 	if (strcmp(ng->name, "GSLP") == 0) return ConvertGSLPNode(ng);
+	if (strcmp(ng->name, "RCST") == 0) return ConvertRCSTNode(ng);
 
 	/* Unknown type of node. */
 	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\"\n", ng->pos.ToString(), ng->name);

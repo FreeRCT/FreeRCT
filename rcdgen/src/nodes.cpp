@@ -940,3 +940,215 @@ int GSLPBlock::Write(FileWriter *fw)
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
+
+TrackVoxel::TrackVoxel() : BlockNode()
+{
+	this->dx = 0;
+	this->dy = 0;
+	this->dz = 0;
+	this->space = 0;
+	for (int i = 0; i < 4; i++) this->back[i] = NULL;
+	for (int i = 0; i < 4; i++) this->front[i] = NULL;
+}
+
+TrackVoxel::~TrackVoxel()
+{
+	for (int i = 0; i < 4; i++) delete this->back[i];
+	for (int i = 0; i < 4; i++) delete this->front[i];
+}
+
+/**
+ * Rotate relative coordinate (\a dx, \a dy) \a count times -90 degrees.
+ * @param dx [inout] X coordinate to rotate.
+ * @param dy [inout] Y coordinate to rotate.
+ * @param count Number of quarter rotations.
+ */
+static void RotateXY(int *dx, int *dy, int count)
+{
+	for (; count > 0; count--) {
+		int ny = -(*dx);
+		*dx = *dy;
+		*dy = ny;
+	}
+}
+
+/**
+ * Write a track voxel (after rotating it \a rot times first).
+ * @param fb File block to write to.
+ * @param rot Number of -90 degrees rotation to apply first.
+ */
+void TrackVoxel::Write(FileWriter *fw, FileBlock *fb, int rot)
+{
+	for (int i = 0; i < 4; i++) {
+		int j = (i + 4 - rot) & 3;
+		if (this->back[j] == NULL) {
+			fb->SaveUInt32(0);
+		} else {
+			fb->SaveUInt32(this->back[j]->Write(fw));
+		}
+	}
+	for (int i = 0; i < 4; i++) {
+		int j = (i + 4 - rot) & 3;
+		if (this->front[j] == NULL) {
+			fb->SaveUInt32(0);
+		} else {
+			fb->SaveUInt32(this->front[j]->Write(fw));
+		}
+	}
+	int nx = this->dx;
+	int ny = this->dy;
+	RotateXY(&nx, &ny, rot);
+	fb->SaveInt8(nx);
+	fb->SaveInt8(ny);
+	fb->SaveInt8(this->dz);
+	int rot_flags = 0;
+	for (int i = 0; i < 4; i++) {
+		if ((this->space & (1 << i)) == 0) continue;
+		int j = (i + rot) & 3;
+		rot_flags |= 1 << j;
+	}
+	fb->SaveUInt8(rot_flags);
+}
+
+Connection::Connection() : BlockNode()
+{
+	this->name = "?";
+	this->direction = 0;
+}
+
+Connection::Connection(const Connection &c)
+{
+	this->name = c.name;
+	this->direction = c.direction;
+}
+
+Connection &Connection::operator=(const Connection &c)
+{
+	if (&c != this) {
+		this->name = c.name;
+		this->direction = c.direction;
+	}
+	return *this;
+}
+
+Connection::Connection(const std::string &name, int direction)
+{
+	this->name = name;
+	this->direction = direction;
+}
+
+Connection::~Connection()
+{
+}
+
+/**
+ * Encode a connection after rotating it.
+ * @param connections Map of connection names to their id.
+ * @param rot Number of -90 degrees rotation to apply first.
+ * @return The encoded rotated connection code.
+ */
+uint8 Connection::Encode(const std::map<std::string, int> &connections, int rot)
+{
+	std::map<std::string, int>::const_iterator iter = connections.find(this->name);
+	assert(iter != connections.end());
+	return ((*iter).second << 2) | ((this->direction + rot) & 3);
+}
+
+TrackPieceNode::TrackPieceNode() : BlockNode()
+{
+	this->entry = NULL;
+	this->exit  = NULL;
+}
+
+TrackPieceNode::~TrackPieceNode()
+{
+	delete this->entry;
+	delete this->exit;
+	for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); iter++) {
+		delete *iter;
+	}
+}
+
+/**
+ * Verify that the connection names of the track voxel are present in the \a connections. If not, add them.
+ * @param connections [inout] Map of connection names to their id.
+ */
+void TrackPieceNode::UpdateConnectionMap(std::map<std::string, int> *connections)
+{
+	std::map<std::string, int>::iterator iter;
+
+	iter = connections->find(this->entry->name);
+	if (iter == connections->end()) {
+		std::pair<std::string, int> pp(this->entry->name, connections->size());
+		connections->insert(pp);
+	}
+
+	iter = connections->find(this->exit->name);
+	if (iter == connections->end()) {
+		std::pair<std::string, int> pp(this->exit->name, connections->size());
+		connections->insert(pp);
+	}
+}
+
+/**
+ * Write a TRCK game node for all 4 orientations.
+ * @param connections Map of connection names to their id.
+ * @param fw Output stream to write the blocks to.
+ * @param parent_fb Parent file block to write the game block numbers to.
+ */
+void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *parent_fb)
+{
+	for (int rot = 0; rot < 4; rot++) {
+		FileBlock *fb = new FileBlock;
+		fb->StartSave("TRCK", 2, 25 - 12 + 36 * this->track_voxels.size());
+		fb->SaveUInt8(this->entry->Encode(connections, rot));
+		fb->SaveUInt8(this->exit->Encode(connections, rot));
+		int nx = this->exit_dx;
+		int ny = this->exit_dy;
+		RotateXY(&nx, &ny, rot);
+		fb->SaveInt8(nx);
+		fb->SaveInt8(ny);
+		fb->SaveInt8(this->exit_dz);
+		fb->SaveInt8(this->speed);
+		fb->SaveUInt8(this->track_flags);
+		fb->SaveUInt32(this->cost);
+		fb->SaveUInt16(this->track_voxels.size());
+		for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); iter++) {
+			(*iter)->Write(fw, fb, rot);
+		}
+		fb->CheckEndSave();
+		parent_fb->SaveUInt32(fw->AddBlock(fb));
+	}
+}
+
+RCSTBlock::RCSTBlock() : GameBlock("RCST", 2)
+{
+}
+
+RCSTBlock::~RCSTBlock()
+{
+	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
+		delete *iter;
+	}
+}
+
+int RCSTBlock::Write(FileWriter *fw)
+{
+	/* Collect connection names, and give each a number. */
+	std::map<std::string, int> connections;
+	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
+		(*iter)->UpdateConnectionMap(&connections);
+	}
+
+	/* Write the data. */
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 17 - 12 + 4 * 4 * this->track_blocks.size());
+	fb->SaveUInt16(this->coaster_type);
+	fb->SaveUInt8(this->platform_type);
+	fb->SaveUInt16(4 * this->track_blocks.size());
+	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
+		(*iter)->Write(connections, fw, fb);
+	}
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}

@@ -15,6 +15,7 @@
 #include <string>
 #include <list>
 #include <set>
+#include <map>
 #include "image.h"
 
 class FileWriter;
@@ -644,6 +645,70 @@ public:
 	SpriteBlock *mini_button;   ///< Minimise button.
 	SpriteBlock *terraform_dot; ///< Terraform dot.
 	Strings *gui_text;          ///< Text of the guis (reference to a TEXT block).
+};
+
+class TrackVoxel : public BlockNode {
+public:
+	TrackVoxel();
+	/* virtual */ ~TrackVoxel();
+
+	void Write(FileWriter *fw, FileBlock *fb, int rot);
+
+	int dx; ///< Relative X position of the voxel.
+	int dy; ///< Relative Y position of the voxel.
+	int dz; ///< Relative Z position of the voxel.
+	int space; ///< Corners claimed by the voxel.
+	SpriteBlock *back[4];  ///< Back coaster sprites.
+	SpriteBlock *front[4]; ///< Front coaster sprites.
+};
+
+class Connection : public BlockNode {
+public:
+	Connection();
+	Connection(const Connection &c);
+	Connection &operator=(const Connection &c);
+	Connection(const std::string &name, int direction);
+	/* virtual */ ~Connection();
+
+	uint8 Encode(const std::map<std::string, int> &connections, int rot);
+
+	std::string name; ///< Name of the connection.
+	int direction;    ///< Direction of the connection.
+};
+
+/** A 'track_piece' block. */
+class TrackPieceNode : public BlockNode {
+public:
+	TrackPieceNode();
+	/* virtual */ ~TrackPieceNode();
+
+	void UpdateConnectionMap(std::map<std::string, int> *connections);
+	void Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *fb);
+
+	int track_flags;   ///< Flags of the track piece.
+	int cost;          ///< Cost of the track piece.
+	Connection *entry; ///< Entry connection code.
+	Connection *exit;  ///< Exit connection code.
+	int exit_dx;       ///< Relative X position of the exit voxel.
+	int exit_dy;       ///< Relative Y position of the exit voxel.
+	int exit_dz;       ///< Relative Z position of the exit voxel.
+	int speed;         ///< If non-0, minimal speed of cars (with direction).
+
+	std::list<TrackVoxel *> track_voxels; ///< Voxels in the track piece.
+};
+
+/** 'RCST' game block. */
+class RCSTBlock : public GameBlock {
+public:
+	RCSTBlock();
+	/* virtual */ ~RCSTBlock();
+
+	/* virtual */ int Write(FileWriter *fw);
+
+	int coaster_type;  ///< Type of roller coaster.
+	int platform_type; ///< Type of platform.
+
+	std::list<TrackPieceNode *> track_blocks; ///< Track pieces of the coaster.
 };
 
 
