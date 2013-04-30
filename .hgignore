@@ -1,9 +1,9 @@
-^rcd/rcdlib/.*\.pyc$
 ^rcd/.*\.rcd$
-^rcd/data_format.aux$
-^rcd/data_format.log$
-^rcd/data_format.toc$
 ^src/.*\.o$
+^rcdgen/src/.*\.o$
+^rcdgen/src/parser.cpp$
+^rcdgen/src/scanner.cpp$
+^rcdgen/src/tokens.h$
 ^src/.*\.d$
 ^doc/html/
 .*\.swp$
