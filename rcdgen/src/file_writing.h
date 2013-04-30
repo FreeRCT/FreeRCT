@@ -22,6 +22,7 @@ public:
 
 	void StartSave(const char *blk_name, int version, int data_length);
 	void SaveUInt8(uint8 d);
+	void SaveInt8(int8 d);
 	void SaveUInt16(uint16 d);
 	void SaveInt16(uint16 d);
 	void SaveUInt32(uint32 d);
