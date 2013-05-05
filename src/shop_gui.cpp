@@ -145,13 +145,13 @@ void ShopManagerWindow::SetShopToggleButtons()
 
 		case SMW_ITEM1_SELL:
 		case SMW_ITEM2_SELL:
-			_str_params.SetMoney(1, this->shop->item_price[wid_num - SMW_ITEM1_SELL]);
+			_str_params.SetMoney(1, this->shop->GetSaleItemPrice(wid_num - SMW_ITEM1_SELL));
 			break;
 
 		case SMW_ITEM1_PROFIT:
 		case SMW_ITEM2_PROFIT: {
 			const Money &cost = this->shop->type->item_cost[wid_num - SMW_ITEM1_PROFIT];
-			const Money &sell = this->shop->item_price[wid_num - SMW_ITEM1_PROFIT];
+			const Money &sell = this->shop->GetSaleItemPrice(wid_num - SMW_ITEM1_PROFIT);
 			_str_params.SetMoney(1, sell - cost);
 			break;
 		}

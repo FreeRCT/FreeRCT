@@ -792,9 +792,10 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 
 /* virtual */ RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
 {
-	const ShopType *st = ri->type;
-	if (this->NeedForItem(st->item_type[0], true) == RVD_NO_VISIT && this->NeedForItem(st->item_type[1], true) == RVD_NO_VISIT) return RVD_NO_VISIT;
-	return RVD_MAY_VISIT;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		if (this->NeedForItem(ri->GetSaleItemType(i), true) != RVD_NO_VISIT) return RVD_MAY_VISIT;
+	}
+	return RVD_NO_VISIT;
 }
 
 /**
@@ -843,25 +844,30 @@ void Guest::AddItem(ItemType it)
 
 /**
  * Visit the shop.
- * @param ri Ride that being visited.
+ * @param ri Ride being visited.
  */
 void Guest::VisitShop(RideInstance *ri)
 {
-	const ShopType *st = ri->type;
-	bool can_buy[2];
-	for (int i = 0; i < 2; i++) {
-		can_buy[i] = ri->item_price[i] <= this->cash && this->NeedForItem(st->item_type[i], false) != RVD_NO_VISIT;
+	bool can_buy[NUMBER_ITEM_TYPES_SOLD];
+	int count = 0;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		can_buy[i] = ri->GetSaleItemPrice(i) <= this->cash && this->NeedForItem(ri->GetSaleItemType(i), false) != RVD_NO_VISIT;
+		if (can_buy[i]) count++;
 	}
-	if (can_buy[0] && can_buy[1]) { // Can buy both, make a random choice.
-		int item = this->rnd.Success(50) ? 1 : 0;
-		can_buy[item] = false;
+	if (count > 1) {
+		count = 1 + this->rnd.Uniform(count - 1);
+		for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+			if (!can_buy[i]) continue;
+			if (count != 1) can_buy[i] = false;
+			count = max(0, count - 1);
+		}
 	}
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 		if (can_buy[i]) {
 			ri->SellItem(i);
-			this->cash -= ri->item_price[i];
-			this->AddItem(st->item_type[i]);
+			this->cash -= ri->GetSaleItemPrice(i);
+			this->AddItem(ri->GetSaleItemType(i));
 			this->happiness = min(100, this->happiness + 10);
 			return;
 		}

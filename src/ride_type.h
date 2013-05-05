@@ -20,6 +20,8 @@ static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of type
 static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
 
+static const int NUMBER_ITEM_TYPES_SOLD = 2; ///< Number of different items that a ride can sell.
+
 /**
  * Kinds of ride types.
  * @todo Split coasters into different kinds??
@@ -71,8 +73,8 @@ public:
 	const RideTypeKind kind;    ///< Kind of ride type.
 	int8 height;                ///< Number of voxels used by this shop.
 	uint8 flags;                ///< Shop flags. @see ShopFlags
-	ItemType item_type[2];      ///< Type of items being sold.
-	Money item_cost[2];         ///< Cost of the items on sale.
+	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
+	Money item_cost[NUMBER_ITEM_TYPES_SOLD];    ///< Cost of the items on sale.
 	Money monthly_cost;         ///< Monthly costs for owning a shop.
 	Money monthly_open_cost;    ///< Monthly extra costs if the shop is opened.
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
@@ -111,6 +113,8 @@ public:
 	uint8 GetEntranceDirections() const;
 	bool CanBeVisited(TileEdge edge) const;
 	void SellItem(int item_index);
+	ItemType GetSaleItemType(int item_index) const;
+	Money GetSaleItemPrice(int item_index) const;
 	void FreeRide();
 
 	void OnNewMonth();
@@ -131,8 +135,8 @@ public:
 
 	Money total_profit;      ///< Total profit of the ride.
 	Money total_sell_profit; ///< Profit of selling items.
-	Money item_price[2];     ///< Selling price of each item type.
-	int64 item_count[2];     ///< Number of items sold for each type.
+	Money item_price[NUMBER_ITEM_TYPES_SOLD]; ///< Selling price of each item type.
+	int64 item_count[NUMBER_ITEM_TYPES_SOLD]; ///< Number of items sold for each type.
 };
 
 /** Storage of available ride types. */

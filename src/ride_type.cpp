@@ -31,11 +31,24 @@ ShopType::ShopType() : kind(RTK_SHOP)
 	this->height = 0;
 	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = NULL;
 	this->text = NULL;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_type[i] = ITP_NOTHING;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_cost[i] = 12345; // Arbitrary non-zero cost.
 }
 
 ShopType::~ShopType()
 {
 	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
+}
+
+/**
+ * Can the given value be safely interpreted as item type to sell?
+ * @param val Value to inspect.
+ * @return The provided value is a valid item type value.
+ */
+static bool IsValidItemType(uint8 val)
+{
+	return val == ITP_NOTHING || val == ITP_DRINK || val == ITP_ICE_CREAM || val == ITP_NORMAL_FOOD ||
+			val == ITP_SALTY_FOOD || val == ITP_UMBRELLA || val == ITP_PARK_MAP;
 }
 
 /**
@@ -71,17 +84,11 @@ bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, c
 	this->monthly_open_cost = rcd_file->GetInt32();
 
 	uint8 val = rcd_file->GetUInt8();
-	if (val != ITP_NOTHING && val != ITP_DRINK && val != ITP_ICE_CREAM && val != ITP_NORMAL_FOOD &&
-			val != ITP_SALTY_FOOD && val != ITP_UMBRELLA && val != ITP_PARK_MAP) {
-		return false;
-	}
+	if (!IsValidItemType(val)) return false;
 	this->item_type[0] = (ItemType)val;
 
 	val = rcd_file->GetUInt8();
-	if (val != ITP_NOTHING && val != ITP_DRINK && val != ITP_ICE_CREAM && val != ITP_NORMAL_FOOD &&
-			val != ITP_SALTY_FOOD && val != ITP_UMBRELLA && val != ITP_PARK_MAP) {
-		return false;
-	}
+	if (!IsValidItemType(val)) return false;
 	this->item_type[1] = (ItemType)val;
 
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
@@ -116,6 +123,8 @@ RideInstance::RideInstance()
 	this->type = NULL;
 	this->state = RIS_FREE;
 	this->flags = 0;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = 12345; // Arbitrary non-zero amount.
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_count[i] = 0;
 }
 
 RideInstance::~RideInstance()
@@ -192,7 +201,7 @@ bool RideInstance::CanBeVisited(TileEdge edge) const
  */
 void RideInstance::SellItem(int item_index)
 {
-	assert(item_index == 0 || item_index == 1);
+	assert(item_index >= 0 && item_index < NUMBER_ITEM_TYPES_SOLD);
 
 	this->item_count[item_index]++;
 	Money profit = this->item_price[item_index] - this->type->item_cost[item_index];
@@ -203,6 +212,29 @@ void RideInstance::SellItem(int item_index)
 	_finances_manager.EarnShopSales(this->item_price[item_index]);
 	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
+
+/**
+ * Get the type of items sold by a ride.
+ * @param item_index Index in the items being sold (\c 0 to #NUMBER_ITEM_TYPES_SOLD).
+ * @return Type of item sold.
+ */
+ItemType RideInstance::GetSaleItemType(int item_index) const
+{
+	assert(item_index >= 0 && item_index < NUMBER_ITEM_TYPES_SOLD);
+	return this->type->item_type[item_index];
+}
+
+/**
+ * Get the price of an item sold by a ride.
+ * @param item_index Index in the items being sold (\c 0 to #NUMBER_ITEM_TYPES_SOLD).
+ * @return Price to pay for the item.
+ */
+Money RideInstance::GetSaleItemPrice(int item_index) const
+{
+	assert(item_index >= 0 && item_index < NUMBER_ITEM_TYPES_SOLD);
+	return this->item_price[item_index];
+}
+
 
 /** Monthly update of the shop administration. */
 void RideInstance::OnNewMonth()
