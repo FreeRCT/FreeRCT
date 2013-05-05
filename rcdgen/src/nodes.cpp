@@ -974,6 +974,7 @@ static void RotateXY(int *dx, int *dy, int count)
 
 /**
  * Write a track voxel (after rotating it \a rot times first).
+ * @param fw Output stream to write the graphics to.
  * @param fb File block to write to.
  * @param rot Number of -90 degrees rotation to apply first.
  */
@@ -1016,12 +1017,21 @@ Connection::Connection() : BlockNode()
 	this->direction = 0;
 }
 
+/**
+ * Copy constructor.
+ * @param c %Connection to copy.
+ */
 Connection::Connection(const Connection &c)
 {
 	this->name = c.name;
 	this->direction = c.direction;
 }
 
+/**
+ * Assignment operator
+ * @param c %Connection to copy.
+ * @return The copy.
+ */
 Connection &Connection::operator=(const Connection &c)
 {
 	if (&c != this) {
@@ -1031,6 +1041,11 @@ Connection &Connection::operator=(const Connection &c)
 	return *this;
 }
 
+/**
+ * Constructor of a %Connection.
+ * @param name Name of the connection.
+ * @param direction Direction of the connection.
+ */
 Connection::Connection(const std::string &name, int direction)
 {
 	this->name = name;

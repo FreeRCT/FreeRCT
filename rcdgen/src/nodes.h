@@ -647,6 +647,7 @@ public:
 	Strings *gui_text;          ///< Text of the guis (reference to a TEXT block).
 };
 
+/** Class for storing the data of a single voxel in a track piece. */
 class TrackVoxel : public BlockNode {
 public:
 	TrackVoxel();
@@ -662,6 +663,7 @@ public:
 	SpriteBlock *front[4]; ///< Front coaster sprites.
 };
 
+/** Class for storing a 'connection' between track pieces. */
 class Connection : public BlockNode {
 public:
 	Connection();
