@@ -649,6 +649,7 @@ AnimateResult Person::OnAnimate(int delay)
 	Guest *guest = dynamic_cast<Guest *>(this);
 	if (guest != NULL) {
 		RideInstance *ri = _rides_manager.GetRideInstance(pr);
+		assert(ri != NULL);
 		guest->VisitShop(ri);
 	}
 
@@ -845,6 +846,7 @@ void Guest::AddItem(ItemType it)
 /**
  * Visit the shop.
  * @param ri Ride being visited.
+ * @note It is called 'shop', but it is quite generic, so it may be usable for more rides (without queue in front of it).
  */
 void Guest::VisitShop(RideInstance *ri)
 {

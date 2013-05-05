@@ -36,6 +36,12 @@ RideType::~RideType()
 {
 }
 
+/**
+ * \fn RideInstance *RideType::CreateInstance()
+ * Construct a ride instance of the ride type.
+ * @return An ride of its own type.
+ */
+
 #include "table/shops_strings.cpp"
 
 ShopType::ShopType() : RideType(RTK_SHOP)
@@ -48,6 +54,11 @@ ShopType::ShopType() : RideType(RTK_SHOP)
 ShopType::~ShopType()
 {
 	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
+}
+
+/* virtual */ RideInstance *ShopType::CreateInstance() const
+{
+	return new RideInstance(this);
 }
 
 /**
@@ -127,11 +138,11 @@ const StringID *ShopType::GetInstanceNames() const
 	return names;
 }
 
-RideInstance::RideInstance()
+RideInstance::RideInstance(const RideType *rt)
 {
 	this->name[0] = '\0';
-	this->type = NULL;
-	this->state = RIS_FREE;
+	this->type = rt;
+	this->state = RIS_ALLOCATED;
 	this->flags = 0;
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = 12345; // Arbitrary non-zero amount.
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_count[i] = 0;
@@ -141,21 +152,6 @@ RideInstance::~RideInstance()
 {
 	/* Nothing to do currently. In the future, free instance memory. */
 }
-
-/**
- * Destroy the instance.
- * @todo The small matter of cleaning up in the world map.
- * @pre Instance must be closed.
- */
-void RideInstance::DeleteInstance()
-{
-	assert(this->state != RIS_FREE);
-
-	this->type = NULL;
-	this->name[0] = '\0';
-	this->state = RIS_FREE;
-}
-
 
 /**
  * Get the kind of the ride.
@@ -185,30 +181,6 @@ const ShopType *RideInstance::GetShopType() const
 	return static_cast<const ShopType *>(this->type);
 }
 
-
-/**
- * Construct an instance of a ride type here.
- * @param type Ride type to instantiate.
- * @param name Suggested name, may be \c NULL.
- * @pre Entry must not be in use currently.
- * @note Also initialize the other variables of the instance with #SetRide
- */
-void RideInstance::ClaimRide(const ShopType *type, uint8 *name)
-{
-	assert(this->state != RIS_FREE);
-	assert(type != NULL);
-
-	this->type = type;
-	this->flags = 0;
-	if (name == NULL) {
-		this->name[0] = '\0';
-	} else {
-		StrECpy(this->name, this->name + lengthof(this->name), name);
-	}
-
-	// XXX Make a recolour-map.
-}
-
 /**
  * Update a ride instance with its position in the world.
  * @param orientation Orientation of the shop.
@@ -218,7 +190,7 @@ void RideInstance::ClaimRide(const ShopType *type, uint8 *name)
  */
 void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos)
 {
-	assert(this->state != RIS_FREE); // Updating a non-claimed ride is not useful.
+	assert(this->state == RIS_ALLOCATED);
 
 	this->orientation = orientation;
 	this->xpos = xpos;
@@ -340,7 +312,6 @@ void RideInstance::OpenRide()
  */
 void RideInstance::CloseRide()
 {
-	assert(this->state != RIS_FREE);
 	this->state = RIS_CLOSED;
 }
 
@@ -348,22 +319,21 @@ void RideInstance::CloseRide()
 RidesManager::RidesManager()
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = NULL;
-	/* Ride instances are initialized by their constructor. */
+	for (uint i = 0; i < lengthof(this->instances); i++) this->instances[i] = NULL;
 }
 
 RidesManager::~RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->ride_types); i++) {
-		if (this->ride_types[i] != NULL) delete this->ride_types[i];
-	}
+	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
+	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
 }
 
 /** A new month has started; perform monthly payments. */
 void RidesManager::OnNewMonth()
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i].state == RIS_FREE || this->instances[i].state == RIS_ALLOCATED) continue;
-		this->instances[i].OnNewMonth();
+		if (this->instances[i] == NULL || this->instances[i]->state == RIS_ALLOCATED) continue;
+		this->instances[i]->OnNewMonth();
 	}
 }
 
@@ -375,17 +345,7 @@ void RidesManager::OnNewMonth()
 RideInstance *RidesManager::GetRideInstance(uint16 num)
 {
 	if (num >= lengthof(this->instances)) return NULL;
-	return &this->instances[num];
-}
-
-/**
- * Get the ride instance index number.
- * @return Ride instance index.
- */
-uint16 RideInstance::GetIndex() const
-{
-	assert(this >= &_rides_manager.instances[0] && this < &_rides_manager.instances[lengthof(_rides_manager.instances)]);
-	return this - &_rides_manager.instances[0];
+	return this->instances[num];
 }
 
 /**
@@ -396,7 +356,19 @@ uint16 RideInstance::GetIndex() const
 const RideInstance *RidesManager::GetRideInstance(uint16 num) const
 {
 	if (num >= lengthof(this->instances)) return NULL;
-	return &this->instances[num];
+	return this->instances[num];
+}
+
+/**
+ * Get the ride instance index number.
+ * @return Ride instance index.
+ */
+uint16 RideInstance::GetIndex() const
+{
+	for (uint i = 0; i < lengthof(_rides_manager.instances); i++) {
+		if (_rides_manager.instances[i] == this) return i;
+	}
+	NOT_REACHED();
 }
 
 /**
@@ -422,9 +394,23 @@ bool RidesManager::AddRideType(ShopType *shop_type)
 uint16 RidesManager::GetFreeInstance()
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i].state == RIS_FREE) return i;
+		if (this->instances[i] == NULL) return i;
 	}
 	return INVALID_RIDE_INSTANCE;
+}
+
+/**
+ * Create a new ride instance.
+ * @param type Type of ride to construct.
+ * @param num Instance number of the new ride.
+ * @return The created ride.
+ */
+RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
+{
+	assert(num < lengthof(this->instances));
+	assert(this->instances[num] == NULL);
+	this->instances[num] = type->CreateInstance();
+	return this->instances[num];
 }
 
 /**
@@ -456,10 +442,9 @@ void RidesManager::NewInstanceAdded(uint16 num)
 			/* Find the same name in the existing rides. */
 			bool found = false;
 			for (uint16 i = 0; i < lengthof(this->instances); i++) {
-				const RideInstance &rj = this->instances[i];
-				if (rj.state == RIS_FREE || rj.state == RIS_ALLOCATED) continue;
+				if (this->instances[i] == NULL || this->instances[i]->state == RIS_ALLOCATED) continue;
 				assert(i != num); // Due to its allocated state.
-				if (StrEqual(ri->name, rj.name)) {
+				if (StrEqual(ri->name, this->instances[i]->name)) {
 					found = true;
 					break;
 				}
@@ -491,9 +476,9 @@ void RidesManager::NewInstanceAdded(uint16 num)
  */
 void RidesManager::DeleteInstance(uint16 num)
 {
-	assert(num >= 0 && (uint)num < lengthof(this->instances));
-	RideInstance *ri = &this->instances[num];
-	ri->DeleteInstance(); // XXX Free the instance memory here.
+	assert(num < lengthof(this->instances));
+	delete this->instances[num];
+	this->instances[num] = NULL;
 }
 
 /**
@@ -503,7 +488,7 @@ void RidesManager::DeleteInstance(uint16 num)
 void RidesManager::CheckNoAllocatedRides() const
 {
 	for (uint i = 0; i < lengthof(this->instances); i++) {
-		assert(this->instances[i].state != RIS_ALLOCATED);
+		assert(this->instances[i] == NULL || this->instances[i]->state != RIS_ALLOCATED);
 	}
 }
 

@@ -581,8 +581,8 @@ bool ShopPlacementManager::SetSelection(int ride_type)
 		if (this->state == SPS_OPENED) {
 			/* Create/allocate new ride instance. */
 			assert(this->instance == INVALID_RIDE_INSTANCE);
-			const ShopType *st = _rides_manager.GetRideType(this->selected_ride);
-			if (st == NULL) {
+			const RideType *rt = _rides_manager.GetRideType(this->selected_ride);
+			if (rt == NULL) {
 				this->selected_ride = -1;
 				return false;
 			}
@@ -591,9 +591,7 @@ bool ShopPlacementManager::SetSelection(int ride_type)
 				this->selected_ride = -1;
 				return false;
 			}
-			RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-			ri->state = RIS_ALLOCATED;
-			ri->ClaimRide(st, (uint8 *)"");
+			_rides_manager.CreateInstance(rt, this->instance);
 
 			/* Depress button (Already done) */
 

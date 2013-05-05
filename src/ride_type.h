@@ -22,6 +22,8 @@ static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing
 
 static const int NUMBER_ITEM_TYPES_SOLD = 2; ///< Number of different items that a ride can sell.
 
+class RideInstance;
+
 /**
  * Kinds of ride types.
  * @todo Split coasters into different kinds??
@@ -61,6 +63,8 @@ public:
 	RideType(RideTypeKind rtk);
 	virtual ~RideType();
 
+	virtual RideInstance *CreateInstance() const = 0;
+
 	const RideTypeKind kind;    ///< Kind of ride type.
 	Money monthly_cost;         ///< Monthly costs for owning a ride.
 	Money monthly_open_cost;    ///< Monthly extra costs if the ride is opened.
@@ -78,6 +82,8 @@ public:
 	ShopType();
 	~ShopType();
 
+	/* virtual */ RideInstance *CreateInstance() const;
+
 	bool Load(RcdFile *rcf_file, uint32 length, const ImageMap &sprites, const TextMap &texts);
 	StringID GetString(uint16 number) const;
 	const StringID *GetInstanceNames() const;
@@ -94,7 +100,6 @@ protected:
 
 /** State of a ride instance. */
 enum RideInstanceState {
-	RIS_FREE,      ///< Ride instance is not used currently.
 	RIS_ALLOCATED, ///< Ride instance is allocated but not yet in play.
 	RIS_CLOSED,    ///< Ride instance is available, but closed for the public.
 	RIS_OPEN,      ///< Ride instance is open for use by the public.
@@ -112,11 +117,9 @@ enum RideInstanceFlags {
  */
 class RideInstance {
 public:
-	RideInstance();
+	RideInstance(const RideType *rt);
 	~RideInstance();
-	void DeleteInstance();
 
-	void ClaimRide(const ShopType *type, uint8 *name);
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetEntranceDirections() const;
 	bool CanBeVisited(TileEdge edge) const;
@@ -164,6 +167,7 @@ public:
 	bool AddRideType(ShopType *shop_type);
 
 	uint16 GetFreeInstance();
+	RideInstance *CreateInstance(const RideType *type, uint16 num);
 	void NewInstanceAdded(uint16 num);
 	void DeleteInstance(uint16 num);
 	void CheckNoAllocatedRides() const;
@@ -181,8 +185,8 @@ public:
 		return this->ride_types[number];
 	}
 
-	const ShopType *ride_types[MAX_NUMBER_OF_RIDE_TYPES]; ///< Loaded types of rides.
-	RideInstance instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
+	const ShopType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];  ///< Loaded types of rides.
+	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
 };
 
 const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge);
