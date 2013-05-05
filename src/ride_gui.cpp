@@ -501,8 +501,7 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 		this->selected_ride = -1;
 
 		/* Free the created ride instance. */
-		RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-		ri->FreeRide();
+		_rides_manager.DeleteInstance(this->instance);
 		this->instance = INVALID_RIDE_INSTANCE;
 
 		this->state = SPS_OPENED;
@@ -557,8 +556,7 @@ void ShopPlacementManager::CloseWindow()
 	if (this->state == SPS_BAD_POS || this->state == SPS_GOOD_POS ||
 			(this->state == SPS_OPENED && this->selected_ride >= 0)) {
 		/* Free the created ride instance. */
-		RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-		ri->FreeRide();
+		_rides_manager.DeleteInstance(this->instance);
 		this->instance = INVALID_RIDE_INSTANCE;
 
 		this->selected_ride = -1;
@@ -617,8 +615,7 @@ bool ShopPlacementManager::SetSelection(int ride_type)
 		this->selected_ride = -1;
 
 		/* Free the created ride instance. */
-		RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-		ri->FreeRide();
+		_rides_manager.DeleteInstance(this->instance);
 		this->instance = INVALID_RIDE_INSTANCE;
 
 		this->state = SPS_OPENED;

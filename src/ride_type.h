@@ -107,6 +107,7 @@ class RideInstance {
 public:
 	RideInstance();
 	~RideInstance();
+	void DeleteInstance();
 
 	void ClaimRide(const ShopType *type, uint8 *name);
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
@@ -115,7 +116,6 @@ public:
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
 	Money GetSaleItemPrice(int item_index) const;
-	void FreeRide();
 
 	void OnNewMonth();
 	void OpenRide();
@@ -150,6 +150,7 @@ public:
 	bool AddRideType(ShopType *shop_type);
 	uint16 GetFreeInstance();
 	void NewInstanceAdded(uint16 num);
+	void DeleteInstance(uint16 num);
 
 	void OnNewMonth();
 

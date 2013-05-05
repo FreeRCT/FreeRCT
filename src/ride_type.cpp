@@ -133,6 +133,21 @@ RideInstance::~RideInstance()
 }
 
 /**
+ * Destroy the instance.
+ * @todo The small matter of cleaning up in the world map.
+ * @pre Instance must be closed.
+ */
+void RideInstance::DeleteInstance()
+{
+	assert(this->state != RIS_FREE);
+
+	this->type = NULL;
+	this->name[0] = '\0';
+	this->state = RIS_FREE;
+}
+
+
+/**
  * Construct an instance of a ride type here.
  * @param type Ride type to instantiate.
  * @param name Suggested name, may be \c NULL.
@@ -290,21 +305,6 @@ void RideInstance::CloseRide()
 	this->state = RIS_CLOSED;
 }
 
-/**
- * Destroy the instance.
- * @todo The small matter of cleaning up in the world map.
- * @pre Instance must be closed.
- */
-void RideInstance::FreeRide()
-{
-	assert(this->state != RIS_FREE);
-
-	// XXX Free the instance memory here.
-	this->type = NULL;
-	this->name[0] = '\0';
-	this->state = RIS_FREE;
-}
-
 /** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
@@ -442,6 +442,19 @@ void RidesManager::NewInstanceAdded(uint16 num)
 	ri->item_count[1] = 0;
 
 	ri->CloseRide();
+}
+
+/**
+ * Destroy the indicated instance.
+ * @param num The instance to destroy.
+ * @todo The small matter of cleaning up in the world map.
+ * @pre Instance must be closed.
+ */
+void RidesManager::DeleteInstance(uint16 num)
+{
+	assert(num >= 0 && (uint)num < lengthof(this->instances));
+	RideInstance *ri = &this->instances[num];
+	ri->DeleteInstance(); // XXX Free the instance memory here.
 }
 
 /**
