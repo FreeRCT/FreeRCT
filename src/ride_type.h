@@ -56,12 +56,24 @@ enum ItemType {
 	ITP_PARK_MAP = 40,    ///< Map of the park, may improve finding the attractions.
 };
 
+class RideType {
+public:
+	RideType(RideTypeKind rtk);
+	virtual ~RideType();
+
+	const RideTypeKind kind;    ///< Kind of ride type.
+	Money monthly_cost;         ///< Monthly costs for owning a ride.
+	Money monthly_open_cost;    ///< Monthly extra costs if the ride is opened.
+	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
+	Money item_cost[NUMBER_ITEM_TYPES_SOLD];    ///< Cost of the items on sale.
+};
+
 /**
  * A 'ride' where you can buy food, drinks, and other stuff you need for a visit.
  * @todo Allow for other sized sprites + different recolours.
  * @todo Allow for other kinds of ride type.
  */
-class ShopType {
+class ShopType : public RideType {
 public:
 	ShopType();
 	~ShopType();
@@ -70,13 +82,8 @@ public:
 	StringID GetString(uint16 number) const;
 	const StringID *GetInstanceNames() const;
 
-	const RideTypeKind kind;    ///< Kind of ride type.
 	int8 height;                ///< Number of voxels used by this shop.
 	uint8 flags;                ///< Shop flags. @see ShopFlags
-	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
-	Money item_cost[NUMBER_ITEM_TYPES_SOLD];    ///< Cost of the items on sale.
-	Money monthly_cost;         ///< Monthly costs for owning a shop.
-	Money monthly_open_cost;    ///< Monthly extra costs if the shop is opened.
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.
 

@@ -24,15 +24,25 @@
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
+RideType::RideType(RideTypeKind rtk) : kind(rtk)
+{
+	this->monthly_cost = 12345; // Arbitrary non-zero cost.
+	this->monthly_open_cost = 12345; // Arbitrary non-zero cost.
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_type[i] = ITP_NOTHING;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_cost[i] = 12345; // Arbitrary non-zero cost.
+}
+
+RideType::~RideType()
+{
+}
+
 #include "table/shops_strings.cpp"
 
-ShopType::ShopType() : kind(RTK_SHOP)
+ShopType::ShopType() : RideType(RTK_SHOP)
 {
 	this->height = 0;
 	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = NULL;
 	this->text = NULL;
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_type[i] = ITP_NOTHING;
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_cost[i] = 12345; // Arbitrary non-zero cost.
 }
 
 ShopType::~ShopType()
