@@ -149,7 +149,7 @@ public:
 	int64 item_count[NUMBER_ITEM_TYPES_SOLD]; ///< Number of items sold for each type.
 
 protected:
-	const ShopType *type; ///< Ride type used.
+	const RideType *type; ///< Ride type used.
 };
 
 /** Storage of available ride types. */

@@ -182,7 +182,7 @@ const RideType *RideInstance::GetRideType() const
 const ShopType *RideInstance::GetShopType() const
 {
 	assert(this->type->kind == RTK_SHOP);
-	return this->type;
+	return static_cast<const ShopType *>(this->type);
 }
 
 
@@ -234,7 +234,7 @@ void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zp
  */
 uint8 RideInstance::GetEntranceDirections() const
 {
-	uint8 entrances = this->type->flags & SHF_ENTRANCE_BITS;
+	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
 	return ROL(entrances, this->orientation);
 }
 
