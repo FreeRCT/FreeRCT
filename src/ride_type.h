@@ -160,10 +160,13 @@ public:
 
 	RideInstance *GetRideInstance(uint16 num);
 	const RideInstance *GetRideInstance(uint16 num) const;
+
 	bool AddRideType(ShopType *shop_type);
+
 	uint16 GetFreeInstance();
 	void NewInstanceAdded(uint16 num);
 	void DeleteInstance(uint16 num);
+	void CheckNoAllocatedRides() const;
 
 	void OnNewMonth();
 

@@ -142,11 +142,7 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 RideSelectGui::~RideSelectGui()
 {
 	_shop_placer.CloseWindow();
-
-	/* Verify that the ride instances are all cleaned up. */
-	for (uint i = 0; i < lengthof(_rides_manager.instances); i++) {
-		assert(_rides_manager.instances[i].state != RIS_ALLOCATED);
-	}
+	_rides_manager.CheckNoAllocatedRides(); // Check that no rides are being constructed.
 }
 
 /* virtual */ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
