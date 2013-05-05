@@ -124,6 +124,10 @@ public:
 	ItemType GetSaleItemType(int item_index) const;
 	Money GetSaleItemPrice(int item_index) const;
 
+	RideTypeKind GetKind() const;
+	const RideType *GetRideType() const;
+	const ShopType *GetShopType() const;
+
 	void OnNewMonth();
 	void OpenRide();
 	void CloseRide();
@@ -131,7 +135,6 @@ public:
 	uint16 GetIndex() const;
 
 	uint8 name[64];       ///< Name of the ride, if it is instantiated.
-	const ShopType *type; ///< Ride type used.
 	uint8 orientation;    ///< Orientation of the shop.
 	uint8 state;          ///< State of the instance. @see RideInstanceState
 	uint16 xpos;          ///< X position of the base voxel.
@@ -144,6 +147,9 @@ public:
 	Money total_sell_profit; ///< Profit of selling items.
 	Money item_price[NUMBER_ITEM_TYPES_SOLD]; ///< Selling price of each item type.
 	int64 item_count[NUMBER_ITEM_TYPES_SOLD]; ///< Number of items sold for each type.
+
+protected:
+	const ShopType *type; ///< Ride type used.
 };
 
 /** Storage of available ride types. */

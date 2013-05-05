@@ -109,7 +109,7 @@ private:
 ShopManagerWindow::ShopManagerWindow(RideInstance *ri) : GuiWindow(WC_SHOP_MANAGER, ri->GetIndex())
 {
 	this->shop = ri;
-	this->SetShopType(this->shop->type);
+	this->SetShopType(this->shop->GetShopType());
 	this->SetupWidgetTree(_shop_manager_gui_parts, lengthof(_shop_manager_gui_parts));
 	this->SetShopToggleButtons();
 }
@@ -139,9 +139,11 @@ void ShopManagerWindow::SetShopToggleButtons()
 			break;
 
 		case SMW_ITEM1_COST:
-		case SMW_ITEM2_COST:
-			_str_params.SetMoney(1, this->shop->type->item_cost[wid_num - SMW_ITEM1_COST]);
+		case SMW_ITEM2_COST: {
+			const ShopType *st = this->shop->GetShopType();
+			_str_params.SetMoney(1, st->item_cost[wid_num - SMW_ITEM1_COST]);
 			break;
+		}
 
 		case SMW_ITEM1_SELL:
 		case SMW_ITEM2_SELL:
@@ -150,7 +152,8 @@ void ShopManagerWindow::SetShopToggleButtons()
 
 		case SMW_ITEM1_PROFIT:
 		case SMW_ITEM2_PROFIT: {
-			const Money &cost = this->shop->type->item_cost[wid_num - SMW_ITEM1_PROFIT];
+			const ShopType *st = this->shop->GetShopType();
+			const Money &cost = st->item_cost[wid_num - SMW_ITEM1_PROFIT];
 			const Money &sell = this->shop->GetSaleItemPrice(wid_num - SMW_ITEM1_PROFIT);
 			_str_params.SetMoney(1, sell - cost);
 			break;

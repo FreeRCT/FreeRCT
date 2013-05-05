@@ -158,6 +158,35 @@ void RideInstance::DeleteInstance()
 
 
 /**
+ * Get the kind of the ride.
+ * @return the kind of the ride.
+ */
+RideTypeKind RideInstance::GetKind() const
+{
+	return this->type->kind;
+}
+
+/**
+ * Get the ride type of the instance.
+ * @return The ride type.
+ */
+const RideType *RideInstance::GetRideType() const
+{
+	return this->type;
+}
+
+/**
+ * Get the shop type of the ride.
+ * @return The shop type of the ride.
+ */
+const ShopType *RideInstance::GetShopType() const
+{
+	assert(this->type->kind == RTK_SHOP);
+	return this->type;
+}
+
+
+/**
  * Construct an instance of a ride type here.
  * @param type Ride type to instantiate.
  * @param name Suggested name, may be \c NULL.
@@ -406,7 +435,7 @@ void RidesManager::NewInstanceAdded(uint16 num)
 {
 	RideInstance *ri = this->GetRideInstance(num);
 	assert(ri->state == RIS_ALLOCATED);
-	const ShopType *st = ri->type;
+	const ShopType *st = ri->GetShopType();
 
 	/* Find a new name for the instance. */
 	const StringID *names = st->GetInstanceNames();

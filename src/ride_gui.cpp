@@ -363,7 +363,9 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 yworld, int32 zworld)
 {
 	RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-	assert(ri != NULL && ri->type != NULL); // It should be possible to set the position of a shop.
+	assert(ri != NULL && ri->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
+	const ShopType *st = ri->GetShopType();
+	assert(st != NULL);
 
 	Viewport *vp = GetViewport();
 	if (vp == NULL) return RPR_FAIL;
@@ -387,7 +389,7 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 y
 		int xpos = xworld / 256;
 		int ypos = yworld / 256;
 		if (xpos >= 0 && xpos < _world.GetXSize() && ypos >= 0 && ypos < _world.GetYSize() &&
-				this->CanPlaceShop(ri->type, xpos, ypos, zpos)) {
+				this->CanPlaceShop(st, xpos, ypos, zpos)) {
 			/* Position of the shop the same as previously? */
 			if (ri->xpos != (uint16)xpos || ri->ypos != (uint16)ypos || ri->zpos != (uint8)zpos ||
 					ri->orientation != this->orientation) {

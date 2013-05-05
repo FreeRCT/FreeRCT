@@ -709,6 +709,42 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 }
 
 /**
+ * Prepare to add the sprite for a ride.
+ * @param slice Depth of this sprite.
+ * @param zpos Z position of the voxel being drawn.
+ * @param basex X position of the sprite in the screen.
+ * @param basey Y position of the sprite in the screen.
+ * @param number Ride instance number.
+ * @param dd [out] Data to draw.
+ */
+static bool DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, DrawData *dd)
+{
+	const RideInstance *ri = _rides_manager.GetRideInstance(number);
+	if (ri == NULL) return false;
+	switch (ri->GetKind()) {
+		case RTK_SHOP: {
+			const ShopType *ride = ri->GetShopType();
+			const ImageData *img = ride->views[(4 + ri->orientation - orient) & 3];
+			if (img != NULL) {
+				dd->level = slice;
+				dd->z_height = zpos;
+				dd->order = SO_RIDE;
+				dd->sprite = img;
+				dd->base.x = basex;
+				dd->base.y = basey;
+				dd->recolour = NULL; // ri->recolouring (does not exist currently)
+				return true;
+			}
+			break;
+		}
+
+		default:
+			break;
+	}
+	return false;
+}
+
+/**
  * Add all sprites of the voxel to the set of sprites to draw.
  * @param voxel %Voxel to add, \c NULL means 'cursor above stack'.
  * @param xpos X world position.
@@ -740,7 +776,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = NULL;
-			draw_images.insert(dd);
+			this->draw_images.insert(dd);
 		}
 		return;
 	}
@@ -761,22 +797,14 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 					dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 					dd.recolour = NULL;
-					draw_images.insert(dd);
+					this->draw_images.insert(dd);
 				} else { // A ride.
-					const RideInstance *ri = _rides_manager.GetRideInstance(number);
-					const ShopType *ride = (ri == NULL) ? NULL : ri->type;
-					const ImageData *img = (ride == NULL) ? NULL : ride->views[(4 + ri->orientation - this->orient) & 3];
-					if (img != NULL) {
-						DrawData dd;
-						dd.level = slice;
-						dd.z_height = zpos;
-						dd.order = SO_RIDE;
-						dd.sprite = img;
-						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-						dd.recolour = NULL; // ri->recolouring (does not exist currently)
-						draw_images.insert(dd);
-						platform_shape = PATH_NE_NW_SE_SW; // a ride looks like having exits everywhere -> no handle bars.
+					DrawData dd;
+					if (DrawRide(slice, zpos,
+							this->xoffset + xnorth - this->rect.base.x,
+							this->yoffset + ynorth - this->rect.base.y, this->orient, number, &dd)) {
+						this->draw_images.insert(dd);
+						platform_shape = PATH_NE_NW_SE_SW; // A ride looks like having exits everywhere -> no handle bars.
 					}
 				}
 			}
@@ -804,7 +832,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 						dd.recolour = NULL;
-						draw_images.insert(dd);
+						this->draw_images.insert(dd);
 					}
 				}
 				if (fnd != NULL && se != 0) {
@@ -818,7 +846,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 						dd.recolour = NULL;
-						draw_images.insert(dd);
+						this->draw_images.insert(dd);
 					}
 				}
 			}
@@ -835,7 +863,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
-				draw_images.insert(dd);
+				this->draw_images.insert(dd);
 				switch (slope) {
 					// XXX There are no sprites for partial support of a platform.
 					case SL_FLAT:
@@ -877,7 +905,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
-				draw_images.insert(dd);
+				this->draw_images.insert(dd);
 			}
 
 			/* Add platforms. */
@@ -900,7 +928,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 					dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 					dd.recolour = NULL;
-					draw_images.insert(dd);
+					this->draw_images.insert(dd);
 				}
 
 				/* XXX Use the shape to draw handle bars. */
@@ -941,7 +969,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 							dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 							dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
 							dd.recolour = NULL;
-							draw_images.insert(dd);
+							this->draw_images.insert(dd);
 						}
 					}
 				}
@@ -960,7 +988,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
-				draw_images.insert(dd);
+				this->draw_images.insert(dd);
 			}
 			break;
 		}
@@ -983,7 +1011,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			dd.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
 			dd.base.y = this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off;
 			dd.recolour = &pers->recolour;
-			draw_images.insert(dd);
+			this->draw_images.insert(dd);
 		}
 		pers = pers->next;
 	}
@@ -1050,27 +1078,20 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		/* Looking for a ride? */
 		uint16 number = voxel->GetPathRideNumber();
 		if ((this->allowed & SO_RIDE) != 0 && number < PT_START) {
-			const RideInstance *ri = _rides_manager.GetRideInstance(number);
-			const ShopType *ride = (ri == NULL) ? NULL : ri->type;
-			const ImageData *img = (ride == NULL) ? NULL : ride->views[(4 + ri->orientation - this->orient) & 3];
 			DrawData dd;
-			dd.level = slice;
-			dd.z_height = zpos;
-			dd.order = SO_RIDE;
-			dd.sprite = NULL;
-			dd.base.x = this->rect.base.x - xnorth;
-			dd.base.y = this->rect.base.y - ynorth;
-			dd.recolour = NULL;
-			if (img != NULL && (!this->found || this->data < dd)) {
-				uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
-				if (pixel != 0) {
-					this->found = true;
-					this->data = dd;
-					this->fdata->xvoxel = xpos;
-					this->fdata->yvoxel = ypos;
-					this->fdata->zvoxel = zpos;
-					this->pixel = pixel;
-					this->fdata->ride = number;
+			if (DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth, this->orient, number, &dd)) {
+				const ImageData *img = dd.sprite;
+				if (img != NULL && (!this->found || this->data < dd)) {
+					uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+					if (pixel != 0) {
+						this->found = true;
+						this->data = dd;
+						this->fdata->xvoxel = xpos;
+						this->fdata->yvoxel = ypos;
+						this->fdata->zvoxel = zpos;
+						this->pixel = pixel;
+						this->fdata->ride = number;
+					}
 				}
 			}
 		}
@@ -1266,7 +1287,16 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 					uint16 number = v->GetPathRideNumber();
 					if (number < PT_START && number != PT_INVALID) { // A ride.
 						const RideInstance *ri = _rides_manager.GetRideInstance(number);
-						if (ri != NULL) height = ri->type->height;
+						if (ri != NULL) {
+							switch (ri->GetKind()) {
+								case RTK_SHOP:
+									height = ri->GetShopType()->height;
+									break;
+
+								default:
+									break;
+							}
+						}
 					}
 					break;
 				}
