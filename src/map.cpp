@@ -77,6 +77,7 @@ void VoxelStack::Clear()
 	this->voxels = NULL;
 	this->base = 0;
 	this->height = 0;
+	this->owner = OWN_NONE;
 }
 
 /**
@@ -350,6 +351,45 @@ uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y) const
 		}
 	}
 	NOT_REACHED();
+}
+
+/**
+ * Get the ownership of a tile
+ * @param x X coordinate of the tile.
+ * @param y Y coordinate of the tile.
+ * @return Ownership of the tile.
+ */
+TileOwner VoxelWorld::GetTileOwner(uint16 x,  uint16 y)
+{
+	return this->GetStack(x, y)->owner;
+}
+
+/**
+ * Set the ownership of a tile
+ * @param x X coordinate of the tile.
+ * @param y Y coordinate of the tile.
+ * @param owner Ownership of the tile.
+ */
+void VoxelWorld::SetTileOwner(uint16 x,  uint16 y, TileOwner owner)
+{
+	this->GetModifyStack(x, y)->owner = owner;
+}
+
+/**
+ * Set tile ownership for a rectangular area.
+ * @param x Base X coordinate of the rectangle.
+ * @param y Base Y coordinate of the rectangle.
+ * @param width Length in X direction of the rectangle.
+ * @param height Length in Y direction of the rectangle.
+ * @param owner New value for ownership of all tiles.
+ */
+void VoxelWorld::SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner)
+{
+	for (uint16 ix = x; ix < x + width; ix++) {
+		for (uint16 iy = y; iy < y + height; iy++) {
+			this->SetTileOwner(ix, iy, owner);
+		}
+	}
 }
 
 WorldAdditions::WorldAdditions()

@@ -294,6 +294,13 @@ static inline bool HasValidPath(const Voxel *v) {
 	return v->GetPathRideNumber() >= PT_START && v->GetPathRideNumber() != PT_INVALID;
 }
 
+/** Possible ownerships of a tile. */
+enum TileOwner {
+	OWN_NONE,      ///< Tile not owned by the park and not for sale.
+	OWN_FOR_SALE,  ///< Tile not owned by the park, but can be bought.
+	OWN_PARK,      ///< Tile owned by the park.
+};
+
 /**
  * One column of voxels.
  * @ingroup map_group
@@ -310,9 +317,10 @@ public:
 	VoxelStack *Copy(bool copyPersons) const;
 	void MoveStack(VoxelStack *old_stack);
 
-	Voxel *voxels; ///< %Voxel array at this stack.
-	int16 base;    ///< Height of the bottom voxel.
-	uint16 height; ///< Number of voxels in the stack.
+	Voxel *voxels;   ///< %Voxel array at this stack.
+	int16 base;      ///< Height of the bottom voxel.
+	uint16 height;   ///< Number of voxels in the stack.
+	TileOwner owner; ///< Ownership of the base tile of this voxel stack.
 protected:
 	bool MakeVoxelStack(int16 new_base, uint16 new_height);
 };
@@ -416,6 +424,10 @@ public:
 		if (z < vs->base || z >= vs->base + (int)vs->height) return false;
 		return true;
 	}
+
+	TileOwner GetTileOwner(uint16 x,  uint16 y);
+	void SetTileOwner(uint16 x,  uint16 y, TileOwner owner);
+	void SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner);
 
 private:
 	uint16 x_size; ///< Current max x size.
