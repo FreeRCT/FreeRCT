@@ -160,6 +160,7 @@ static const char *_shops_string_names[] = {
 	"DESCRIPTION_TYPE",
 };
 
+/** String names of the coaster ride types. */
 static const char *_coaster_string_names[] = {
 	"NAME_INSTANCE",
 	"NAME_TYPE",

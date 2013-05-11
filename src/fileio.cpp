@@ -214,6 +214,11 @@ uint8 RcdFile::GetUInt8()
 	return fgetc(this->fp);
 }
 
+/**
+ * Read an 8 bits signed number.
+ * @return Loaded number.
+ * @pre File must be open, data must be available.
+ */
 int8 RcdFile::GetInt8()
 {
 	return this->GetUInt8();

@@ -14,8 +14,9 @@
 
 #include <map>
 #include "reference_count.h"
-#include "money.h"
+#include "ride_type.h"
 
+/** Data of a voxel in a track piece. */
 struct TrackVoxel {
 	TrackVoxel();
 	~TrackVoxel();
@@ -30,6 +31,7 @@ struct TrackVoxel {
 	uint8 space; ///< Space requirements of the voxel.
 };
 
+/** One track piece (type) of a roller coaster track. */
 class TrackPiece : public RefCounter {
 public:
 	TrackPiece();
@@ -57,16 +59,33 @@ typedef std::map<uint32, TrackPieceRef> TrackPiecesMap; ///< Map of loaded track
 
 /** Kinds of coasters. */
 enum CoasterKind {
-	CST_SIMPLE, ///< 'Simple' coaster type.
+	CST_SIMPLE = 1, ///< 'Simple' coaster type.
 
 	CST_COUNT,  ///< Number of coaster types.
 };
 
 /** Platform types of coasters. */
 enum CoasterPlatformType {
-	CPT_WOOD,  ///< Wooden platform type.
+	CPT_WOOD = 1,  ///< Wooden platform type.
 
 	CPT_COUNT, ///< Number of platform types with coasters.
+};
+
+/** Coaster ride type. */
+class CoasterType : public RideType {
+public:
+	CoasterType();
+	/* virtual */ ~CoasterType();
+	/* virtual */ RideInstance *CreateInstance() const;
+	/* virtual */ const ImageData *GetView(uint8 orientation) const;
+	/* virtual */ const StringID *GetInstanceNames() const;
+
+	bool Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map);
+
+	uint16 coaster_kind;   ///< Kind of coaster. @see CoasterKind
+	uint8 platform_type;   ///< Type of platform. @see CoasterPlatformType
+	int piece_count;       ///< Number of track pieces in #pieces.
+	TrackPieceRef *pieces; ///< Track pieces of the coaster.
 };
 
 #endif

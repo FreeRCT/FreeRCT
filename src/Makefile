@@ -57,7 +57,10 @@ rcd:
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-$(DEPEND): $(OBJDIR)/table/gui_strings.h $(OBJDIR)/table/shops_strings.h $(CXXFILES)
+STRINGDIR=$(OBJDIR)/table
+STRINGFILES=$(STRINGDIR)/gui_strings.h $(STRINGDIR)/shops_strings.h $(STRINGDIR)/coasters_strings.h
+
+$(DEPEND): $(STRINGFILES) $(CXXFILES)
 	for f in $(CXXFILES);\
 	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f | sed -e "s@^[^ ]*\\.o:@$(OBJDIR)/&@";\
 	done > $(DEPEND)
@@ -72,11 +75,16 @@ $(OBJDIR)/table/shops_strings.h: $(RCDGEN)
 			--code $(OBJDIR)/table/shops_strings.cpp \
 			--prefix SHOPS --base STR_GENERIC_SHOP_START
 
+$(OBJDIR)/table/coasters_strings.h: $(RCDGEN)
+	$(RCDGEN) --header $(OBJDIR)/table/coasters_strings.h \
+			--code $(OBJDIR)/table/coasters_strings.cpp \
+			--prefix COASTERS --base STR_GENERIC_COASTER_START
+
 $(RCDGEN):
 	$(MAKE) -C ../rcdgen/src rcdgen
 
 clean:
-	for i in $(OBJFILES) $(DEPEND) $(TARGET);\
+	for i in $(OBJFILES) $(STRINGFILES) $(DEPEND) $(TARGET);\
 	do if test -f $$i; then rm $$i; fi;\
 	done
 

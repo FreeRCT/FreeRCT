@@ -25,6 +25,13 @@ TrackVoxel::~TrackVoxel()
 	/* Images are deleted by the Rcd manager. */
 }
 
+/**
+ * Load a track voxel.
+ * @param rcd_file Data file being loaded.
+ * @param length Length of the voxel (according to the file).
+ * @param sprites Already loaded sprite blocks.
+ * @return Loading was successful.
+ */
 bool TrackVoxel::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 4*4 + 4*4 + 3 + 1) return false;
@@ -52,6 +59,13 @@ TrackPiece::~TrackPiece()
 	delete[] this->track_voxels;
 }
 
+/**
+ * Load a track piece.
+ * @param rcd_file Data file being loaded.
+ * @param length Length of the voxel (according to the file).
+ * @param sprites Already loaded sprite blocks.
+ * @return Loading was successful.
+ */
 bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
 {
 	if (length < 2+3+1+1+4+2) return false;
@@ -71,4 +85,71 @@ bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
 		if (!this->track_voxels[i].Load(rcd_file, 36, sprites)) return false;
 	}
 	return true;
+}
+
+#include "table/coasters_strings.cpp"
+
+CoasterType::CoasterType() : RideType(RTK_COASTER)
+{
+	this->piece_count = 0;
+	this->pieces = NULL;
+}
+
+/* virtual */ CoasterType::~CoasterType()
+{
+	delete[] this->pieces;
+}
+
+/**
+ * Load a coaster type.
+ * @param rcd_file Data file being loaded.
+ * @param length Length of the voxel (according to the file).
+ * @param texts Already loaded text blocks.
+ * @param piece_map Already loaded track pieces.
+ * @return Loading was successful.
+ */
+bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map)
+{
+	if (length < 2+1+4+2) return false;
+	length -= 2+1+4+2;
+	this->coaster_kind = rcd_file->GetUInt16();
+	this->platform_type = rcd_file->GetUInt8();
+	if (this->coaster_kind == 0 || this->coaster_kind >= CST_COUNT) return false;
+	if (this->platform_type == 0 || this->platform_type >= CPT_COUNT) return false;
+
+	TextData *text_data;
+	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	StringID base = _language.RegisterStrings(*text_data, _coasters_strings_table);
+	this->SetupStrings(text_data, base, STR_GENERIC_COASTER_START, COASTERS_STRING_TABLE_END, COASTERS_NAME_TYPE, COASTERS_DESCRIPTION_TYPE);
+
+	this->piece_count = rcd_file->GetUInt16();
+	if (length != 4u * this->piece_count) return false;
+
+	this->pieces = new TrackPieceRef[this->piece_count];
+	for (int i = 0; i < this->piece_count; i++) {
+		uint32 val = rcd_file->GetUInt32();
+		if (val == 0) return false; // We don't expect missing track pieces (they should not be included at all).
+		TrackPiecesMap::const_iterator iter = piece_map.find(val);
+		if (iter == piece_map.end()) return false;
+		this->pieces[i] = (*iter).second;
+	}
+	return true;
+}
+
+/* virtual */ RideInstance *CoasterType::CreateInstance() const
+{
+	assert(false); // XXX
+	return NULL;
+}
+
+/* virtual */ const ImageData *CoasterType::GetView(uint8 orientation) const
+{
+	assert(false); // XXX
+	return NULL;
+}
+
+/* virtual */ const StringID *CoasterType::GetInstanceNames() const
+{
+	assert(false); // XXX
+	return NULL;
 }

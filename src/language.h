@@ -28,7 +28,7 @@ extern int _current_language;
  * For rides, such as shops, this does not work since there are several shop types loaded.
  * Instead, such strings are allocated at StringTable::STR_GENERIC_SHOP_START, while the
  * strings of each type are elsewhere created. By using the
- * ShopType::GetString, the real string number of the queried shop type is returned.
+ * RideType::GetString, the real string number of the queried shop type is returned.
  */
 enum StringTable {
 	STR_NULL = 0, ///< \c NULL string.
@@ -41,9 +41,14 @@ enum StringTable {
 
 	STR_END_FREE_SPACE = 0xF800,
 	/**
-	 * Generic shop strings, translated to 'real' string numbers by each shop type object by means of the ShopType::GetString function.
+	 * Generic shop strings, translated to 'real' string numbers by each shop type object by means of the RideType::GetString function.
 	 */
 	STR_GENERIC_SHOP_START = STR_END_FREE_SPACE,
+
+	/**
+	 * Generic coaster strings, translated to 'real' string numbers by each coaster type object by means of the RideType::GetString function.
+	 */
+	STR_GENERIC_COASTER_START = STR_GENERIC_SHOP_START + 256,
 
 	STR_GENERIC_END = 0xFFFF,
 
@@ -52,6 +57,7 @@ enum StringTable {
 
 #include "table/gui_strings.h"
 #include "table/shops_strings.h"
+#include "table/coasters_strings.h"
 
 typedef uint16 StringID; ///< Type of a string value.
 

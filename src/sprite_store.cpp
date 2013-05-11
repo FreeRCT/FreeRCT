@@ -1568,6 +1568,16 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(name, "RCST") == 0 && version == 3) {
+			CoasterType *ct = new CoasterType;
+			if (!ct->Load(&rcd_file, length, texts, track_pieces)) {
+				delete ct;
+				return "Coaster type failed to load.";
+			}
+			_rides_manager.AddRideType(ct);
+			continue;
+		}
+
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %d, ignoring it\n", name, version);
 		while (length > 0) {

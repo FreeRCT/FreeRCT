@@ -86,6 +86,7 @@ public:
 	/**
 	 * Assignment operator, copying the data.
 	 * @param dr Value to copy from.
+	 * @return The reference object.
 	 */
 	DataReference<D> &operator=(const DataReference<D> &dr)
 	{
@@ -142,7 +143,7 @@ public:
 	}
 
 private:
-	D *data;
+	D *data; ///< Pointer to the shared object.
 };
 
 #endif
