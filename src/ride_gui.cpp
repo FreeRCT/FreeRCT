@@ -57,8 +57,8 @@ enum RideSelectWidgets {
 	RSEL_LIST,        ///< Ride selection list.
 	RSEL_SCROLL_LIST, ///< scrollbar of the list.
 	RSEL_DESC,        ///< Description of the selected ride type.
-	RSEL_DISPLAY,     ///< Display the ride.
-	RSEL_SELECT,      ///< 'select ride' button.
+	RSEL_DISPLAY,     ///< Display the ride type.
+	RSEL_SELECT,      ///< 'select ride type' button.
 	RSEL_ROT_POS,     ///< Rotate ride in positive direction (counter-clockwise).
 	RSEL_ROT_NEG,     ///< Rotate ride in negative direction (clockwise).
 };
@@ -120,11 +120,11 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 	/* Initialize counts of ride kinds */
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = 0;
 	for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
-		const ShopType *ride = _rides_manager.ride_types[i];
-		if (ride == NULL) continue;
+		const RideType *ride_type = _rides_manager.ride_types[i];
+		if (ride_type == NULL) continue;
 
-		assert(ride->kind >= 0 && ride->kind < lengthof(this->ride_types));
-		this->ride_types[ride->kind]++;
+		assert(ride_type->kind >= 0 && ride_type->kind < lengthof(this->ride_types));
+		this->ride_types[ride_type->kind]++;
 	}
 
 	this->current_kind = 0;
@@ -153,11 +153,11 @@ RideSelectGui::~RideSelectGui()
 			wid->min_y = 5 * wid->resize_y;
 
 			for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
-				const ShopType *ride = _rides_manager.ride_types[i];
-				if (ride == NULL) continue;
+				const RideType *ride_type = _rides_manager.ride_types[i];
+				if (ride_type == NULL) continue;
 
 				int width, height;
-				GetTextSize(ride->GetString(SHOPS_NAME_TYPE), &width, &height);
+				GetTextSize(ride_type->GetString(ride_type->GetTypeName()), &width, &height);
 				if (width > wid->min_x) wid->min_x = width;
 			}
 			break;
@@ -165,11 +165,11 @@ RideSelectGui::~RideSelectGui()
 		case RSEL_DESC: {
 			int max_height = 0;
 			for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
-				const ShopType *ride = _rides_manager.ride_types[i];
-				if (ride == NULL) continue;
+				const RideType *ride_type = _rides_manager.ride_types[i];
+				if (ride_type == NULL) continue;
 
 				int width, height;
-				GetMultilineTextSize(ride->GetString(SHOPS_DESCRIPTION_TYPE), wid->min_x, &width, &height);
+				GetMultilineTextSize(ride_type->GetString(ride_type->GetTypeDescription()), wid->min_x, &width, &height);
 				if (height > max_height) max_height = height;
 			}
 			wid->min_y = max_height;
@@ -187,12 +187,12 @@ RideSelectGui::~RideSelectGui()
 			rect.x = this->GetWidgetScreenX(wid);
 			rect.y = this->GetWidgetScreenY(wid);
 			for (int i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
-				const ShopType *ride = _rides_manager.ride_types[i];
-				if (ride == NULL || ride->kind != this->current_kind) continue;
+				const RideType *ride_type = _rides_manager.ride_types[i];
+				if (ride_type == NULL || ride_type->kind != this->current_kind) continue;
 				if (lines <= 0) break;
 				lines--;
 
-				DrawString(ride->GetString(SHOPS_NAME_TYPE), (this->current_ride == i) ? TEXT_WHITE : TEXT_BLACK,
+				DrawString(ride_type->GetString(ride_type->GetTypeName()), (this->current_ride == i) ? TEXT_WHITE : TEXT_BLACK,
 						rect.x, rect.y, wid->pos.width);
 				rect.y += GetTextHeight();
 			}
@@ -201,9 +201,9 @@ RideSelectGui::~RideSelectGui()
 
 		case RSEL_DESC:
 			if (this->current_ride != -1) {
-				const ShopType *ride = _rides_manager.GetRideType(this->current_ride);
-				if (ride != NULL) {
-					DrawMultilineString(ride->GetString(SHOPS_DESCRIPTION_TYPE),
+				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
+				if (ride_type != NULL) {
+					DrawMultilineString(ride_type->GetString(ride_type->GetTypeDescription()),
 							this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height,
 							TEXT_WHITE);
 				}
@@ -212,11 +212,12 @@ RideSelectGui::~RideSelectGui()
 
 		case RSEL_DISPLAY:
 			if (this->current_ride != -1) {
-				const ShopType *ride = _rides_manager.GetRideType(this->current_ride);
+				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
 				static const Recolouring recolour; // Never modified, display 'original' image in the gui.
-				if (ride != NULL) {
+				if (ride_type != NULL) {
 					_video->BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
-							this->GetWidgetScreenY(wid) + 40, ride->views[_shop_placer.orientation], recolour, 0);
+							this->GetWidgetScreenY(wid) + 40, ride_type->GetView(_shop_placer.orientation),
+							recolour, 0);
 				}
 			}
 			break;
@@ -283,10 +284,10 @@ bool RideSelectGui::SetNewRide(int16 newKind, bool force)
 	this->SetRadioButtonsSelected(_ride_type_select_bar, _ride_type_select_bar[this->current_kind]);
 	int i;
 	for (i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
-		const ShopType *ride = _rides_manager.ride_types[i];
-		if (ride == NULL) continue;
+		const RideType *ride_type = _rides_manager.ride_types[i];
+		if (ride_type == NULL) continue;
 
-		if (this->ride_types[ride->kind] == newKind) break;
+		if (this->ride_types[ride_type->kind] == newKind) break;
 	}
 	if (i >= (int)lengthof(_rides_manager.ride_types)) {
 		if (!force) return false;

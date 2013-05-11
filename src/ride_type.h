@@ -65,12 +65,27 @@ public:
 	virtual ~RideType();
 
 	virtual RideInstance *CreateInstance() const = 0;
+	void SetupStrings(TextData *text, StringID base, StringID start, StringID end, StringID name, StringID desc);
 
 	const RideTypeKind kind;    ///< Kind of ride type.
 	Money monthly_cost;         ///< Monthly costs for owning a ride.
 	Money monthly_open_cost;    ///< Monthly extra costs if the ride is opened.
 	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
 	Money item_cost[NUMBER_ITEM_TYPES_SOLD];    ///< Cost of the items on sale.
+
+	StringID GetString(uint16 number) const;
+	StringID GetTypeName() const;
+	StringID GetTypeDescription() const;
+	virtual const ImageData *GetView(uint8 orientation) const = 0;
+	virtual const StringID *GetInstanceNames() const = 0;
+
+protected:
+	TextData *text;           ///< Strings of the ride type.
+	StringID str_base;        ///< Base offset of the string in the ride type.
+	StringID str_start;       ///< First string in the ride type.
+	StringID str_end;         ///< One beyond the last string in the ride type.
+	StringID str_name;        ///< String with the name of the ride type.
+	StringID str_description; ///< String with the description of the ride type.
 };
 
 /**
@@ -81,22 +96,18 @@ public:
 class ShopType : public RideType {
 public:
 	ShopType();
-	~ShopType();
-
-	/* virtual */ RideInstance *CreateInstance() const;
+	/* virtual */ ~ShopType();
 
 	bool Load(RcdFile *rcf_file, uint32 length, const ImageMap &sprites, const TextMap &texts);
-	StringID GetString(uint16 number) const;
-	const StringID *GetInstanceNames() const;
+
+	/* virtual */ const ImageData *GetView(uint8 orientation) const;
+	/* virtual */ const StringID *GetInstanceNames() const;
+	/* virtual */ RideInstance *CreateInstance() const;
 
 	int8 height;                ///< Number of voxels used by this shop.
 	uint8 flags;                ///< Shop flags. @see ShopFlags
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.
-
-protected:
-	TextData *text;             ///< Strings of the shop.
-	uint16 string_base;         ///< Base offset of the string in this shop.
 };
 
 /** State of a ride instance. */
@@ -164,8 +175,9 @@ public:
 
 	RideInstance *GetRideInstance(uint16 num);
 	const RideInstance *GetRideInstance(uint16 num) const;
+	RideInstance *FindRideByName(const uint8 *name);
 
-	bool AddRideType(ShopType *shop_type);
+	bool AddRideType(RideType *type);
 
 	uint16 GetFreeInstance();
 	RideInstance *CreateInstance(const RideType *type, uint16 num);
@@ -180,13 +192,13 @@ public:
 	 * @param number Index of the ride type to retrieve.
 	 * @return The ride type, or \c NULL if it does not exist.
 	 */
-	const ShopType *GetRideType(uint16 number) const
+	const RideType *GetRideType(uint16 number) const
 	{
 		if (number >= lengthof(this->ride_types)) return NULL;
 		return this->ride_types[number];
 	}
 
-	const ShopType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];  ///< Loaded types of rides.
+	const RideType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];  ///< Loaded types of rides.
 	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
 };
 

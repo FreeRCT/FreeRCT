@@ -34,6 +34,7 @@ RideType::RideType(RideTypeKind rtk) : kind(rtk)
 	this->monthly_open_cost = 12345; // Arbitrary non-zero cost.
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_type[i] = ITP_NOTHING;
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_cost[i] = 12345; // Arbitrary non-zero cost.
+	this->SetupStrings(NULL, 0, 0, 0, 0, 0);
 }
 
 RideType::~RideType()
@@ -46,18 +47,84 @@ RideType::~RideType()
  * @return An ride of its own type.
  */
 
+/**
+ * \fn const ImageData *RideType::GetView(uint8 orientation) const
+ * Get a display of the ride type for the purchase screen.
+ * @param orientation Orientation of the ride type. Many ride types have \c 4 view orientations,
+ *                    but some types may have only a view for orientation \c 0.
+ * @return An image to display in the purchase window, or \c NULL if the queried orientation has no view.
+ */
+
+/**
+ * \fn const StringID *RideType::GetInstanceNames() const
+ * Get the instance base names of rides.
+ * @return Array of proposed names, terminated with #STR_INVALID.
+ */
+
+/**
+ * Setup the the strings of the ride type.
+ * @param text Strings from the RCD file.
+ * @param base Assigned base number for strings of this type.
+ * @param start First generic string number of this type.
+ * @param end One beyond the last generic string number of this type.
+ * @param name String containing the name of this ride type.
+ * @param desc String containing the description of this ride type.
+ */
+void RideType::SetupStrings(TextData *text, StringID base, StringID start, StringID end, StringID name, StringID desc)
+{
+	this->text = text;
+	this->str_base = base;
+	this->str_start = start;
+	this->str_end = end;
+	this->str_name = name;
+	this->str_description = desc;
+}
+
+/**
+ * Retrieve the string with the name of this type of ride.
+ * @return The name of this ride type.
+ */
+StringID RideType::GetTypeName() const
+{
+	return this->str_name;
+}
+
+/**
+ * Retrieve the string with the description of this type of ride.
+ * @return The description of this ride type.
+ */
+StringID RideType::GetTypeDescription() const
+{
+	return this->str_description;
+}
+
+/**
+ * Get the string instance for the generic ride string of \a number.
+ * @param number Generic ride string number to retrieve.
+ * @return The instantiated string for this ride type.
+ */
+StringID RideType::GetString(uint16 number) const
+{
+	assert(number >= this->str_start && number < this->str_end);
+	return this->str_base + (number - this->str_start);
+}
+
 #include "table/shops_strings.cpp"
 
 ShopType::ShopType() : RideType(RTK_SHOP)
 {
 	this->height = 0;
 	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = NULL;
-	this->text = NULL;
 }
 
-ShopType::~ShopType()
+/* virtual */ ShopType::~ShopType()
 {
 	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
+}
+
+/* virtual */ const ImageData *ShopType::GetView(uint8 orientation) const
+{
+	return (orientation < 4) ? this->views[orientation] : NULL;
 }
 
 /* virtual */ RideInstance *ShopType::CreateInstance() const
@@ -116,26 +183,13 @@ bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, c
 	if (!IsValidItemType(val)) return false;
 	this->item_type[1] = (ItemType)val;
 
-	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
-	this->string_base = _language.RegisterStrings(*this->text, _shops_strings_table);
+	TextData *text_data;
+	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	StringID base = _language.RegisterStrings(*text_data, _shops_strings_table);
+	this->SetupStrings(text_data, base, STR_GENERIC_SHOP_START, SHOPS_STRING_TABLE_END, SHOPS_NAME_TYPE, SHOPS_DESCRIPTION_TYPE);
 	return true;
 }
 
-/**
- * Get the string instance for the generic shops string of \a number.
- * @param number Generic shops string number to retrieve.
- * @return The instantiated string for this shop type.
- */
-StringID ShopType::GetString(uint16 number) const
-{
-	assert(number >= STR_GENERIC_SHOP_START && number < SHOPS_STRING_TABLE_END);
-	return this->string_base + (number - STR_GENERIC_SHOP_START);
-}
-
-/**
- * Get names of shop instances.
- * @return Array of proposed names, terminated with #STR_INVALID.
- */
 const StringID *ShopType::GetInstanceNames() const
 {
 	static const StringID names[] = {SHOPS_NAME_INSTANCE1, SHOPS_NAME_INSTANCE2, STR_INVALID};
@@ -381,14 +435,14 @@ uint16 RideInstance::GetIndex() const
 
 /**
  * Add a new ride type to the manager.
- * @param shop_type New ride type to add.
+ * @param type New ride type to add.
  * @return \c true if the addition was successful, else \c false.
  */
-bool RidesManager::AddRideType(ShopType *shop_type)
+bool RidesManager::AddRideType(RideType *type)
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) {
 		if (this->ride_types[i] == NULL) {
-			this->ride_types[i] = shop_type;
+			this->ride_types[i] = type;
 			return true;
 		}
 	}
@@ -422,50 +476,56 @@ RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
 }
 
 /**
+ * Check whether a ride exists with the given name.
+ * @param name Name of the ride to find.
+ * @return The ride with the given name, or \c NULL if no such ride exists.
+ */
+RideInstance *RidesManager::FindRideByName(const uint8 *name)
+{
+	for (uint16 i = 0; i < lengthof(this->instances); i++) {
+		if (this->instances[i] == NULL || this->instances[i]->state == RIS_ALLOCATED) continue;
+		if (StrEqual(name, this->instances[i]->name)) return this->instances[i];
+	}
+	return NULL;
+}
+
+/**
  * A new ride instance was added. Initialize it further.
  * @param num Index of the new ride instance.
  */
 void RidesManager::NewInstanceAdded(uint16 num)
 {
 	RideInstance *ri = this->GetRideInstance(num);
+	const RideType *rt = ri->GetRideType();
 	assert(ri->state == RIS_ALLOCATED);
-	const ShopType *st = ri->GetShopType();
 
 	/* Find a new name for the instance. */
-	const StringID *names = st->GetInstanceNames();
-	int count = 0;
-	while (count < 10 && names[count] != STR_INVALID) count++; // Arbitrary limit of 10.
+	const StringID *names = rt->GetInstanceNames();
+	assert(names != NULL && names[0] != STR_INVALID); // Empty array of names loops forever below.
+	int idx = 0;
 	int shop_num = 1;
-	while (shop_num >= 1) {
-		for (int idx = 0; idx < count; idx++) {
-			/* Construct a new name. */
-			if (shop_num == 1) {
-				DrawText(st->GetString(names[idx]), ri->name, lengthof(ri->name));
-			} else {
-				_str_params.SetStrID(1, st->GetString(names[idx]));
-				_str_params.SetNumber(2, shop_num);
-				DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, lengthof(ri->name));
-			}
-
-			/* Find the same name in the existing rides. */
-			bool found = false;
-			for (uint16 i = 0; i < lengthof(this->instances); i++) {
-				if (this->instances[i] == NULL || this->instances[i]->state == RIS_ALLOCATED) continue;
-				assert(i != num); // Due to its allocated state.
-				if (StrEqual(ri->name, this->instances[i]->name)) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				shop_num = -10;
-				break;
-			}
+	for (;;) {
+		if (names[idx] == STR_INVALID) {
+			shop_num++;
+			idx = 0;
 		}
-		shop_num++;
+
+		/* Construct a new name. */
+		if (shop_num == 1) {
+			DrawText(rt->GetString(names[idx]), ri->name, lengthof(ri->name));
+		} else {
+			_str_params.SetStrID(1, rt->GetString(names[idx]));
+			_str_params.SetNumber(2, shop_num);
+			DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, lengthof(ri->name));
+		}
+
+		if (this->FindRideByName(ri->name) == NULL) break;
+
+		idx++;
 	}
 
 	/* Initialize money and counters. */
+	const ShopType *st = ri->GetShopType();
 	ri->total_profit = 0;
 	ri->total_sell_profit = 0;
 	ri->item_price[0] = st->item_cost[0] * 12 / 10; // Make 20% profit.
