@@ -24,6 +24,7 @@
 #include "string_func.h"
 #include "math_func.h"
 #include "ride_type.h"
+#include "coaster.h"
 #include "table/gui_sprites.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
@@ -1336,6 +1337,7 @@ const char *SpriteManager::Load(const char *filename)
 
 	ImageMap sprites; // Sprites loaded from this file.
 	TextMap  texts;   // Texts loaded from this file.
+	TrackPiecesMap track_pieces; // Track pieces loaded from this file.
 
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
@@ -1552,6 +1554,17 @@ const char *SpriteManager::Load(const char *filename)
 				return "Shop type failed to load.";
 			}
 			_rides_manager.AddRideType(shop_type);
+			continue;
+		}
+
+		if (strcmp(name, "TRCK") == 0 && version == 2) {
+			TrackPiece *tp = new TrackPiece;
+			if (!tp->Load(&rcd_file, length, sprites)) {
+				tp->Delete();
+				return "Track piece failed to load.";
+			}
+			std::pair<uint, TrackPieceRef> p(blk_num, TrackPieceRef(tp));
+			track_pieces.insert(p);
 			continue;
 		}
 

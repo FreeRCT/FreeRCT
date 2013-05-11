@@ -51,6 +51,7 @@ public:
 	uint8  GetUInt8();
 	uint16 GetUInt16();
 	uint32 GetUInt32();
+	int8  GetInt8();
 	int16 GetInt16();
 	int32 GetInt32();
 

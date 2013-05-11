@@ -214,6 +214,11 @@ uint8 RcdFile::GetUInt8()
 	return fgetc(this->fp);
 }
 
+int8 RcdFile::GetInt8()
+{
+	return this->GetUInt8();
+}
+
 /**
  * Read an 16 bits unsigned number.
  * @return Loaded number.
