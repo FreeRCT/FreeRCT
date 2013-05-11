@@ -24,6 +24,10 @@
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
+/**
+ * Ride type base class constructor.
+ * @param rtk Kind of ride.
+ */
 RideType::RideType(RideTypeKind rtk) : kind(rtk)
 {
 	this->monthly_cost = 12345; // Arbitrary non-zero cost.
@@ -138,6 +142,10 @@ const StringID *ShopType::GetInstanceNames() const
 	return names;
 }
 
+/**
+ * Constructor of the base ride instance class.
+ * @param rt Type of the ride instance.
+ */
 RideInstance::RideInstance(const RideType *rt)
 {
 	this->name[0] = '\0';

@@ -58,6 +58,7 @@ enum ItemType {
 	ITP_PARK_MAP = 40,    ///< Map of the park, may improve finding the attractions.
 };
 
+/** Base class of ride types. */
 class RideType {
 public:
 	RideType(RideTypeKind rtk);

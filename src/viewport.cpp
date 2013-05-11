@@ -714,8 +714,10 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
  * @param zpos Z position of the voxel being drawn.
  * @param basex X position of the sprite in the screen.
  * @param basey Y position of the sprite in the screen.
+ * @param orient Orientation.
  * @param number Ride instance number.
  * @param dd [out] Data to draw.
+ * @return The \a dd data was filled.
  */
 static bool DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, DrawData *dd)
 {
