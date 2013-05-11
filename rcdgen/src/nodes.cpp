@@ -1136,12 +1136,14 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 	}
 }
 
-RCSTBlock::RCSTBlock() : GameBlock("RCST", 2)
+RCSTBlock::RCSTBlock() : GameBlock("RCST", 3)
 {
+	this->text = NULL;
 }
 
 RCSTBlock::~RCSTBlock()
 {
+	delete this->text;
 	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
 		delete *iter;
 	}
@@ -1157,9 +1159,10 @@ int RCSTBlock::Write(FileWriter *fw)
 
 	/* Write the data. */
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 17 - 12 + 4 * 4 * this->track_blocks.size());
+	fb->StartSave(this->blk_name, this->version, 21 - 12 + 4 * 4 * this->track_blocks.size());
 	fb->SaveUInt16(this->coaster_type);
 	fb->SaveUInt8(this->platform_type);
+	fb->SaveUInt32(this->text->Write(fw));
 	fb->SaveUInt16(4 * this->track_blocks.size());
 	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
 		(*iter)->Write(connections, fw, fb);

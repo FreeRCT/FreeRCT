@@ -1762,6 +1762,8 @@ static RCSTBlock *ConvertRCSTNode(NodeGroup *ng)
 
 	rb->coaster_type = vals.GetNumber("coaster_type");
 	rb->platform_type = vals.GetNumber("platform_type");
+	rb->text = vals.GetStrings("texts");
+	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
 
 	for (int i = 0; i < vals.unnamed_count; i++) {
 		ValueInformation &vi = vals.unnamed_values[i];
@@ -1874,6 +1876,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _shops_string_names;
 		length = lengthof(_shops_string_names);
 		nice_name = "Shops";
+	} else if (strcmp(prefix, "COASTERS") == 0) {
+		names = _coaster_string_names;
+		length = lengthof(_coaster_string_names);
+		nice_name = "Coasters";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);
@@ -1930,6 +1936,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *base, const char *c
 		length = lengthof(_shops_string_names);
 		nice_name = "Shops";
 		lower_name = "shops";
+	} else if (strcmp(prefix, "COASTERS") == 0) {
+		names = _coaster_string_names;
+		length = lengthof(_coaster_string_names);
+		nice_name = "Coasters";
+		lower_name = "coasters";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);

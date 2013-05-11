@@ -709,6 +709,7 @@ public:
 
 	int coaster_type;  ///< Type of roller coaster.
 	int platform_type; ///< Type of platform.
+	Strings *text;     ///< Text of the coaster (reference to a TEXT block).
 
 	std::list<TrackPieceNode *> track_blocks; ///< Track pieces of the coaster.
 };

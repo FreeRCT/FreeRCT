@@ -620,14 +620,15 @@ of the ``RCST`` block.
 ======  ======  =======  ==================  =================================================================
 Offset  Length  Version  Field name          Description
 ======  ======  =======  ==================  =================================================================
-   0       4      1-2                        Magic string 'RCST'.
-   4       4      1-2                        Version number of the block.
-   8       4      1-2                        Length of the block excluding magic string, version, and length.
-  12       2      1-2    coaster_type        Type of roller coaster.
-  14       1       2     platform_type       Platform type.
-  15       2      1-2    <derived>           Number of track piece definitions (called 'n').
-  17      4*n     1-2                        The track piece definitions (references to ``TRCK``).
-17+4*n                                       Total length of the ``RCST`` block.
+   0       4      1-3                        Magic string 'RCST'.
+   4       4      1-3                        Version number of the block.
+   8       4      1-3                        Length of the block excluding magic string, version, and length.
+  12       2      1-3    coaster_type        Type of roller coaster.
+  14       1      2-3    platform_type       Platform type.
+  15       4       3     texts               Texts of the coaster.
+  19       2      1-3    <derived>           Number of track piece definitions (called 'n').
+  21      4*n     1-3                        The track piece definitions (references to ``TRCK``).
+21+4*n                                       Total length of the ``RCST`` block.
 ======  ======  =======  ==================  =================================================================
 
 Currently defined coaster types:

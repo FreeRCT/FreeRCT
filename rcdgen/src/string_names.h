@@ -160,4 +160,10 @@ static const char *_shops_string_names[] = {
 	"DESCRIPTION_TYPE",
 };
 
+static const char *_coaster_string_names[] = {
+	"NAME_INSTANCE",
+	"NAME_TYPE",
+	"DESCRIPTION_TYPE",
+};
+
 #endif

@@ -61,7 +61,7 @@ static void PrintUsage()
 	printf("\t rcdgen --prefix PREFIX [--base BASE] [--header HEADER] [--code CODE]\n");
 	printf("\n");
 	printf("   PREFIX is the kind of strings you want to generate.\n");
-	printf("          Accepted values are \"GUI\" and \"SHOPS\".\n");
+	printf("          Accepted values are \"GUI\", \"SHOPS\", and \"COASTERS\".\n");
 	printf("   BASE   is the first value. If omitted, it is \"0\".\n");
 	printf("   HEADER is the name of the generated .h file (if specified).\n");
 	printf("   CODE   is the name of the generated .cpp file (if specified).\n");
