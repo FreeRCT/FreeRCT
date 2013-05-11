@@ -130,18 +130,14 @@ enum RideInstanceFlags {
 class RideInstance {
 public:
 	RideInstance(const RideType *rt);
-	~RideInstance();
+	virtual ~RideInstance();
 
-	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
-	uint8 GetEntranceDirections() const;
-	bool CanBeVisited(TileEdge edge) const;
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
 	Money GetSaleItemPrice(int item_index) const;
 
 	RideTypeKind GetKind() const;
 	const RideType *GetRideType() const;
-	const ShopType *GetShopType() const;
 
 	void OnNewMonth();
 	void OpenRide();
@@ -150,11 +146,7 @@ public:
 	uint16 GetIndex() const;
 
 	uint8 name[64];       ///< Name of the ride, if it is instantiated.
-	uint8 orientation;    ///< Orientation of the shop.
 	uint8 state;          ///< State of the instance. @see RideInstanceState
-	uint16 xpos;          ///< X position of the base voxel.
-	uint16 ypos;          ///< Y position of the base voxel.
-	uint8  zpos;          ///< Z position of the base voxel.
 	uint8 flags;          ///< Flags of the instance. @see RideInstanceFlags
 	EditableRecolouring recolour_map; ///< Recolour map of the instance.
 
@@ -165,6 +157,24 @@ public:
 
 protected:
 	const RideType *type; ///< Ride type used.
+};
+
+/** Shop 'ride'. */
+class ShopInstance : public RideInstance {
+public:
+	ShopInstance(const ShopType *type);
+	/* virtual */ ~ShopInstance();
+
+	const ShopType *GetShopType() const;
+
+	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
+	uint8 GetEntranceDirections() const;
+	bool CanBeVisited(TileEdge edge) const;
+
+	uint8 orientation;    ///< Orientation of the shop.
+	uint16 xpos;          ///< X position of the shop base voxel.
+	uint16 ypos;          ///< Y position of the shop base voxel.
+	uint8  zpos;          ///< Z position of the shop base voxel.
 };
 
 /** Storage of available ride types. */

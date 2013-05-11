@@ -419,7 +419,18 @@ void Person::DecideMoveDirection()
 				rvd = RVD_NO_RIDE; // but a path instead.
 			} else {
 				const RideInstance *ri = RideExistsAtBottom(this->x_vox, this->y_vox, z, exit_edge);
-				if (ri != NULL && ri->CanBeVisited(exit_edge)) rvd = this->WantToVisit(ri);
+				if (ri != NULL) {
+					switch (ri->GetKind()) {
+						case RTK_SHOP: {
+							const ShopInstance *si = static_cast<const ShopInstance *>(ri);
+							if (si->CanBeVisited(exit_edge)) rvd = this->WantToVisit(si);
+							break;
+						}
+
+						default:
+							break; // Unknown type of ride; don't visit.
+					}
+				}
 			}
 			switch (rvd) {
 				case RVD_NO_RIDE:

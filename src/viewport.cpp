@@ -725,8 +725,9 @@ static bool DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrient
 	if (ri == NULL) return false;
 	switch (ri->GetKind()) {
 		case RTK_SHOP: {
-			const ShopType *ride = ri->GetShopType();
-			const ImageData *img = ride->views[(4 + ri->orientation - orient) & 3];
+			const ShopInstance *si = static_cast<const ShopInstance *>(ri);
+			const ShopType *ride = si->GetShopType();
+			const ImageData *img = ride->views[(4 + si->orientation - orient) & 3];
 			if (img != NULL) {
 				dd->level = slice;
 				dd->z_height = zpos;
@@ -1291,9 +1292,11 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 						const RideInstance *ri = _rides_manager.GetRideInstance(number);
 						if (ri != NULL) {
 							switch (ri->GetKind()) {
-								case RTK_SHOP:
-									height = ri->GetShopType()->height;
+								case RTK_SHOP: {
+									const ShopInstance *si = static_cast<const ShopInstance *>(ri);
+									height = si->GetShopType()->height;
 									break;
+								}
 
 								default:
 									break;

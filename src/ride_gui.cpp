@@ -359,9 +359,9 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
  */
 RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 yworld, int32 zworld)
 {
-	RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-	assert(ri != NULL && ri->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
-	const ShopType *st = ri->GetShopType();
+	ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
+	assert(si != NULL && si->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
+	const ShopType *st = si->GetShopType();
 	assert(st != NULL);
 
 	Viewport *vp = GetViewport();
@@ -388,9 +388,9 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 y
 		if (xpos >= 0 && xpos < _world.GetXSize() && ypos >= 0 && ypos < _world.GetYSize() &&
 				this->CanPlaceShop(st, xpos, ypos, zpos)) {
 			/* Position of the shop the same as previously? */
-			if (ri->xpos != (uint16)xpos || ri->ypos != (uint16)ypos || ri->zpos != (uint8)zpos ||
-					ri->orientation != this->orientation) {
-				ri->SetRide((this->orientation + vp->orientation) & 3, xpos, ypos, zpos);
+			if (si->xpos != (uint16)xpos || si->ypos != (uint16)ypos || si->zpos != (uint8)zpos ||
+					si->orientation != this->orientation) {
+				si->SetRide((this->orientation + vp->orientation) & 3, xpos, ypos, zpos);
 				return RPR_CHANGED;
 			}
 			return RPR_SAMEPOS;
@@ -435,16 +435,17 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			_additions.MarkDirty(vp);
 			_additions.Clear();
 
-			RideInstance *ri = _rides_manager.GetRideInstance(this->instance);
-			Voxel *vx = _additions.GetCreateVoxel(ri->xpos, ri->ypos, ri->zpos, true);
+			ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
+			assert(si != NULL && si->GetKind() == RTK_SHOP);
+			Voxel *vx = _additions.GetCreateVoxel(si->xpos, si->ypos, si->zpos, true);
 			if (vx->GetType() != VT_SURFACE) {
 				vx->SetFoundationType(FDT_INVALID);
 				vx->SetGroundType(GTP_INVALID);
 			}
 			vx->SetPathRideNumber(this->instance);
-			uint8 entrances = ri->GetEntranceDirections();
+			uint8 entrances = si->GetEntranceDirections();
 			vx->SetPathRideFlags(entrances);
-			AddRemovePathEdges(ri->xpos, ri->ypos, ri->zpos, PATH_EMPTY, entrances, true, true);
+			AddRemovePathEdges(si->xpos, si->ypos, si->zpos, PATH_EMPTY, entrances, true, true);
 			_additions.MarkDirty(vp);
 			vp->EnsureAdditionsAreVisible();
 			this->state = SPS_GOOD_POS;

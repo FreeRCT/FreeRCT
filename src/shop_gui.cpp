@@ -89,7 +89,7 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 /** Gui window for interacting with a shop instance. */
 class ShopManagerWindow : public GuiWindow {
 public:
-	ShopManagerWindow(RideInstance *ri);
+	ShopManagerWindow(ShopInstance *ri);
 
 	/* virtual */ void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
@@ -97,7 +97,7 @@ public:
 	/* virtual */ void OnChange(ChangeCode code, uint32 parameter);
 
 private:
-	RideInstance *shop; ///< Shop instance getting managed by this window.
+	ShopInstance *shop; ///< Shop instance getting managed by this window.
 
 	void SetShopToggleButtons();
 };
@@ -106,7 +106,7 @@ private:
  * Constructor of the shop management window.
  * @param ri Shop to manage.
  */
-ShopManagerWindow::ShopManagerWindow(RideInstance *ri) : GuiWindow(WC_SHOP_MANAGER, ri->GetIndex())
+ShopManagerWindow::ShopManagerWindow(ShopInstance *ri) : GuiWindow(WC_SHOP_MANAGER, ri->GetIndex())
 {
 	this->shop = ri;
 	this->SetShopType(this->shop->GetShopType());
@@ -211,7 +211,7 @@ void ShowShopManagementGui(uint16 number)
 	if (HighlightWindowByType(WC_SHOP_MANAGER, number)) return;
 
 	RideInstance *ri = _rides_manager.GetRideInstance(number);
-	if (ri == NULL) return;
+	if (ri == NULL || ri->GetKind() != RTK_SHOP) return;
 
-	new ShopManagerWindow(ri);
+	new ShopManagerWindow(static_cast<ShopInstance *>(ri));
 }

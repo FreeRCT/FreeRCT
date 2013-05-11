@@ -234,56 +234,6 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
- * Get the shop type of the ride.
- * @return The shop type of the ride.
- */
-const ShopType *RideInstance::GetShopType() const
-{
-	assert(this->type->kind == RTK_SHOP);
-	return static_cast<const ShopType *>(this->type);
-}
-
-/**
- * Update a ride instance with its position in the world.
- * @param orientation Orientation of the shop.
- * @param xpos X position of the shop.
- * @param ypos Y position of the shop.
- * @param zpos Z position of the shop.
- */
-void RideInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos)
-{
-	assert(this->state == RIS_ALLOCATED);
-
-	this->orientation = orientation;
-	this->xpos = xpos;
-	this->ypos = ypos;
-	this->zpos = zpos;
-	this->flags = 0;
-}
-
-/**
- * Get the set edges with an entrance to the ride.
- * @return Bit set of #TileEdge
- * @todo This needs to be generalized for rides larger than a single voxel.
- */
-uint8 RideInstance::GetEntranceDirections() const
-{
-	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
-	return ROL(entrances, this->orientation);
-}
-
-/**
- * Can the ride be visited, assuming the shop is approached from direction \a edge?
- * @param edge Direction of entrance (exit direction of the neighbouring voxel).
- * @return The shop can be visited.
- */
-bool RideInstance::CanBeVisited(TileEdge edge) const
-{
-	if (this->state != RIS_OPEN) return false;
-	return GB(this->GetEntranceDirections(), (edge + 2) % 4, 1) != 0;
-}
-
-/**
  * Sell an item to a customer.
  * @param item_index Index of the item being sold.
  */
@@ -375,6 +325,68 @@ void RideInstance::OpenRide()
 void RideInstance::CloseRide()
 {
 	this->state = RIS_CLOSED;
+}
+
+/**
+ * Constructor of a shop 'ride'.
+ * @param type Kind of shop.
+ */
+ShopInstance::ShopInstance(const ShopType *type) : RideInstance(type)
+{
+}
+
+ShopInstance::~ShopInstance()
+{
+}
+
+/**
+ * Get the shop type of the ride.
+ * @return The shop type of the ride.
+ */
+const ShopType *ShopInstance::GetShopType() const
+{
+	assert(this->type->kind == RTK_SHOP);
+	return static_cast<const ShopType *>(this->type);
+}
+
+/**
+ * Update a ride instance with its position in the world.
+ * @param orientation Orientation of the shop.
+ * @param xpos X position of the shop.
+ * @param ypos Y position of the shop.
+ * @param zpos Z position of the shop.
+ */
+void ShopInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	assert(this->state == RIS_ALLOCATED);
+
+	this->orientation = orientation;
+	this->xpos = xpos;
+	this->ypos = ypos;
+	this->zpos = zpos;
+	this->flags = 0;
+}
+
+/**
+ * Get the set edges with an entrance to the ride.
+ * @return Bit set of #TileEdge
+ * @todo This needs to be generalized for rides larger than a single voxel.
+ */
+uint8 ShopInstance::GetEntranceDirections() const
+{
+	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
+	return ROL(entrances, this->orientation);
+}
+
+/**
+ * Can the ride be visited, assuming the shop is approached from direction \a edge?
+ * @param edge Direction of entrance (exit direction of the neighbouring voxel).
+ * @return The shop can be visited.
+ */
+bool ShopInstance::CanBeVisited(TileEdge edge) const
+{
+	if (this->state != RIS_OPEN) return false;
+	return GB(this->GetEntranceDirections(), (edge + 2) % 4, 1) != 0;
 }
 
 /** Default constructor of the rides manager. */
@@ -524,15 +536,24 @@ void RidesManager::NewInstanceAdded(uint16 num)
 		idx++;
 	}
 
-	/* Initialize money and counters. */
-	const ShopType *st = ri->GetShopType();
-	ri->total_profit = 0;
-	ri->total_sell_profit = 0;
-	ri->item_price[0] = st->item_cost[0] * 12 / 10; // Make 20% profit.
-	ri->item_price[1] = st->item_cost[1] * 12 / 10;
-	ri->item_count[0] = 0;
-	ri->item_count[1] = 0;
+	switch (ri->GetKind()) {
+		case RTK_SHOP: {
+			ShopInstance *si = static_cast<ShopInstance *>(ri);
+			const ShopType *st = si->GetShopType();
 
+			/* Initialize money and counters. */
+			ri->total_profit = 0;
+			ri->total_sell_profit = 0;
+			ri->item_price[0] = st->item_cost[0] * 12 / 10; // Make 20% profit.
+			ri->item_price[1] = st->item_cost[1] * 12 / 10;
+			ri->item_count[0] = 0;
+			ri->item_count[1] = 0;
+			break;
+		}
+
+		default:
+			assert(0); // XXX Add other ride types.
+	}
 	ri->CloseRide();
 }
 
