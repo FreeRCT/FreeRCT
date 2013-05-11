@@ -322,6 +322,7 @@ void ShowRideSelectGui()
 bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos, int ypos, int zpos)
 {
 	/* 1. Can the position itself be used to build a shop? */
+	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
 	if (vx != NULL) {
 		uint8 type = vx->GetType();

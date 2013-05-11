@@ -209,6 +209,8 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileSlope corner, int dire
 	if (gd == NULL) return true; // Out of the bounds in the world, silently ignore.
 	if (gd->GetCornerModified(corner)) return true; // Corner already changed.
 
+	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
+
 	uint8 old_height = gd->GetOrigHeight(corner);
 	if (direction > 0 && old_height == WORLD_Z_SIZE) return false; // Cannot change above top.
 	if (direction < 0 && old_height == 0) return false; // Cannot change below bottom.
@@ -235,6 +237,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileSlope corner, int dire
 		pos2.y = pos.y + vc.rel_xy.y;
 		gd = this->GetGroundData(pos2);
 		if (gd == NULL) continue;
+		if (_world.GetTileOwner(pos2.x, pos2.y) != OWN_PARK) continue;
 		uint height = gd->GetOrigHeight(vc.corner);
 		if (old_height == height && !this->ChangeCorner(pos2, vc.corner, direction)) return false;
 	}
@@ -678,6 +681,7 @@ void TileTerraformMouseMode::SetCursors()
 static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, bool dot_mode)
 {
 	Cursor *c = &vp->tile_cursor;
+	if (_world.GetTileOwner(c->xpos, c->ypos) != OWN_PARK) return;
 
 	Point32 p;
 	uint16 w, h;
@@ -755,7 +759,9 @@ static void ChangeAreaCursorMode(Viewport *vp, bool leveling, int direction)
 			p.x = c->rect.base.x + dx;
 			for (uint dy = 0; dy < c->rect.height; dy++) {
 				p.y = c->rect.base.y + dy;
-				changes.UpdateLevelingHeight(p, direction, &height);
+				if (_world.GetTileOwner(p.x, p.y) == OWN_PARK) {
+					changes.UpdateLevelingHeight(p, direction, &height);
+				}
 			}
 		}
 	}
@@ -765,8 +771,9 @@ static void ChangeAreaCursorMode(Viewport *vp, bool leveling, int direction)
 		p.x = c->rect.base.x + dx;
 		for (uint dy = 0; dy < c->rect.height; dy++) {
 			p.y = c->rect.base.y + dy;
-			bool ok = changes.ChangeVoxel(p, height, direction);
-			if (!ok) return;
+			if (_world.GetTileOwner(p.x, p.y) == OWN_PARK) {
+				if (!changes.ChangeVoxel(p, height, direction)) return;
+			}
 		}
 	}
 

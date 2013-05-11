@@ -359,6 +359,7 @@ const ShopType *ShopInstance::GetShopType() const
 void ShopInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	assert(this->state == RIS_ALLOCATED);
+	assert(_world.GetTileOwner(xpos, ypos) == OWN_PARK); // May only place it in your own park.
 
 	this->orientation = orientation;
 	this->xpos = xpos;

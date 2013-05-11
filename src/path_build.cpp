@@ -59,6 +59,7 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge edge)
 {
 	if (zpos < 0 || zpos >= WORLD_Z_SIZE - 1) return 0;
+	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return 0;
 
 	const VoxelStack *vs = _world.GetStack(xpos, ypos);
 
@@ -335,6 +336,7 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
 	if ((dxy.x < 0 && this->xpos == 0) || (dxy.x > 0 && this->xpos == _world.GetXSize() - 1)) return false;
 	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return false;
 	if ((delta_z < 0 && this->zpos == 0) || (delta_z > 0 && this->zpos == WORLD_Z_SIZE - 1)) return false;
+	if (_world.GetTileOwner(this->xpos + dxy.x, this->ypos + dxy.y) != OWN_PARK) return false;
 	const Voxel *v = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + delta_z);
 	/* Fail if the new voxel is a reference voxel, or it contains a ride. */
 	if (v != NULL && (v->GetType() == VT_REFERENCE || (v->GetType() == VT_SURFACE && v->GetPathRideNumber() < PT_START))) return false;
