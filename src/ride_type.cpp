@@ -129,7 +129,7 @@ ShopType::ShopType() : RideType(RTK_SHOP)
 
 /* virtual */ RideInstance *ShopType::CreateInstance() const
 {
-	return new RideInstance(this);
+	return new ShopInstance(this);
 }
 
 /**
