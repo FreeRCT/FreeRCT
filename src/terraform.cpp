@@ -23,8 +23,8 @@ TileTerraformMouseMode _terraformer; ///< Terraform coordination object.
  * @ingroup map_group
  */
 struct VoxelCorner {
-	Point16 rel_xy;   ///< Relative voxel stack position.
-	TileSlope corner; ///< Corner of the voxel (#TC_NORTH, #TC_EAST, #TC_SOUTH or #TC_WEST).
+	Point16 rel_xy;    ///< Relative voxel stack position.
+	TileCorner corner; ///< Corner of the voxel.
 };
 
 /**
@@ -35,8 +35,8 @@ struct VoxelCorner {
  * @ingroup map_group
  */
 struct CornerNeighbours {
-	TileSlope left_neighbour;       ///< Left neighbouring corner.
-	TileSlope right_neighbour;      ///< Right neighbouring corner.
+	TileCorner left_neighbour;      ///< Left neighbouring corner.
+	TileCorner right_neighbour;     ///< Right neighbouring corner.
 	VoxelCorner neighbour_tiles[3]; ///< Neighbouring corners at other tiles.
 };
 
@@ -68,16 +68,16 @@ GroundData::GroundData(uint8 height, uint8 orig_slope)
  * @param corner Corner to get height.
  * @return Original height of the indicated corner.
  */
-uint8 GroundData::GetOrigHeight(TileSlope corner) const
+uint8 GroundData::GetOrigHeight(TileCorner corner) const
 {
-	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
-	if ((this->orig_slope & TCB_STEEP) == 0) { // Normal slope.
+	assert(corner >= TC_NORTH && corner < TC_END);
+	if ((this->orig_slope & TSB_STEEP) == 0) { // Normal slope.
 		if ((this->orig_slope & (1 << corner)) == 0) return this->height;
 		return this->height + 1;
 	}
 	// Steep slope.
 	if ((this->orig_slope & (1 << corner)) != 0) return this->height + 2;
-	corner = (TileSlope)((corner + 2) % 4);
+	corner = (TileCorner)((corner + 2) % 4);
 	if ((this->orig_slope & (1 << corner)) != 0) return this->height;
 	return this->height + 1;
 }
@@ -87,9 +87,9 @@ uint8 GroundData::GetOrigHeight(TileSlope corner) const
  * @param corner Corner to set.
  * @return corner is modified.
  */
-void GroundData::SetCornerModified(TileSlope corner)
+void GroundData::SetCornerModified(TileCorner corner)
 {
-	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
+	assert(corner >= TC_NORTH && corner < TC_END);
 	this->modified |= 1 << corner;
 }
 
@@ -98,9 +98,9 @@ void GroundData::SetCornerModified(TileSlope corner)
  * @param corner Corner to test.
  * @return corner is modified.
  */
-bool GroundData::GetCornerModified(TileSlope corner) const
+bool GroundData::GetCornerModified(TileCorner corner) const
 {
-	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
+	assert(corner >= TC_NORTH && corner < TC_END);
 	return (this->modified & (1 << corner)) != 0;
 }
 
@@ -200,9 +200,9 @@ bool TerrainChanges::ChangeVoxel(const Point32 &pos, uint8 height, int direction
  * @param direction Direction of change.
  * @return Change is OK for the map.
  */
-bool TerrainChanges::ChangeCorner(const Point32 &pos, TileSlope corner, int direction)
+bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int direction)
 {
-	assert(corner == TC_NORTH || corner == TC_EAST || corner == TC_SOUTH || corner == TC_WEST);
+	assert(corner >= TC_NORTH && corner < TC_END);
 	assert(direction == 1 || direction == -1);
 
 	GroundData *gd = this->GetGroundData(pos);
@@ -708,7 +708,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, boo
 		case CUR_TYPE_EAST:
 		case CUR_TYPE_SOUTH:
 		case CUR_TYPE_WEST:
-			ok = changes.ChangeCorner(p, (TileSlope)(c->type - CUR_TYPE_NORTH), direction);
+			ok = changes.ChangeCorner(p, (TileCorner)(c->type - CUR_TYPE_NORTH), direction);
 			break;
 
 		case CUR_TYPE_TILE: {

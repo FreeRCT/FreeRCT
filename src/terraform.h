@@ -25,9 +25,9 @@ struct GroundData {
 
 	GroundData(uint8 height, uint8 orig_slope);
 
-	uint8 GetOrigHeight(TileSlope corner) const;
-	bool GetCornerModified(TileSlope corner) const;
-	void SetCornerModified(TileSlope corner);
+	uint8 GetOrigHeight(TileCorner corner) const;
+	bool GetCornerModified(TileCorner corner) const;
+	void SetCornerModified(TileCorner corner);
 };
 
 /**
@@ -48,7 +48,7 @@ public:
 
 	void UpdateLevelingHeight(const Point32 &pos, int direction, uint8 *height);
 	bool ChangeVoxel(const Point32 &pos, uint8 height, int direction);
-	bool ChangeCorner(const Point32 &pos, TileSlope corner, int direction);
+	bool ChangeCorner(const Point32 &pos, TileCorner corner, int direction);
 	bool ModifyWorld(int direction);
 
 	GroundModificationMap changes; ///< Registered changes.

@@ -14,10 +14,10 @@
 
 /** Tile corners adjacent to an edge. */
 const uint8 _corners_at_edge[EDGE_COUNT] = {
-	TCB_NORTHEAST, ///< EDGE_NE
-	TCB_SOUTHEAST, ///< EDGE_SE
-	TCB_SOUTHWEST, ///< EDGE_SW
-	TCB_NORTHWEST, ///< EDGE_NW
+	TSB_NORTHEAST, ///< EDGE_NE
+	TSB_SOUTHEAST, ///< EDGE_SE
+	TSB_SOUTHWEST, ///< EDGE_SW
+	TSB_NORTHWEST, ///< EDGE_NW
 };
 
 /** Corner dx/dy (relative to northern corner) of a corner of a tile. */
@@ -44,7 +44,7 @@ const Point16 _tile_dxy[EDGE_COUNT] = {
  */
 void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output)
 {
-	if ((slope & TCB_STEEP) != 0) {
+	if ((slope & TSB_STEEP) != 0) {
 		uint i;
 		for (i = TC_NORTH; i < TC_END; i++) {
 			if ((slope & (1 << i)) != 0) break;
@@ -79,16 +79,16 @@ void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base)
 
 	if (max_h - min_h <= 1) {
 		/* Normal slope. */
-		*slope = static_cast<TileSlope>(ImplodeTileSlope(((corners[TC_NORTH] > min_h) ? TCB_NORTH : SL_FLAT)
-				| ((corners[TC_EAST]  > min_h) ? TCB_EAST  : SL_FLAT)
-				| ((corners[TC_SOUTH] > min_h) ? TCB_SOUTH : SL_FLAT)
-				| ((corners[TC_WEST]  > min_h) ? TCB_WEST  : SL_FLAT)));
+		*slope = static_cast<TileSlope>(ImplodeTileSlope(((corners[TC_NORTH] > min_h) ? TSB_NORTH : SL_FLAT)
+				| ((corners[TC_EAST]  > min_h) ? TSB_EAST  : SL_FLAT)
+				| ((corners[TC_SOUTH] > min_h) ? TSB_SOUTH : SL_FLAT)
+				| ((corners[TC_WEST]  > min_h) ? TSB_WEST  : SL_FLAT)));
 	} else {
 		assert(max_h - min_h == 2);
 		uint i;
 		for (i = 0; i < 4; i++) {
 			if (corners[i] == max_h) break;
 		}
-		*slope = static_cast<TileSlope>(ImplodeTileSlope(TCB_STEEP | static_cast<TileSlope>(1 << i)));
+		*slope = static_cast<TileSlope>(ImplodeTileSlope(TSB_STEEP | static_cast<TileSlope>(1 << i)));
 	}
 }

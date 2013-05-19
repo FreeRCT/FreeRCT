@@ -873,19 +873,19 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 						if (platform_shape < PATH_FLAT_COUNT) platform_shape = PATH_INVALID;
 						break;
 
-					case TCB_SOUTHWEST:
+					case TSB_SOUTHWEST:
 						if (platform_shape == PATH_RAMP_NE) platform_shape = PATH_INVALID;
 						break;
 
-					case TCB_SOUTHEAST:
+					case TSB_SOUTHEAST:
 						if (platform_shape == PATH_RAMP_NW) platform_shape = PATH_INVALID;
 						break;
 
-					case TCB_NORTHWEST:
+					case TSB_NORTHWEST:
 						if (platform_shape == PATH_RAMP_SE) platform_shape = PATH_INVALID;
 						break;
 
-					case TCB_NORTHEAST:
+					case TSB_NORTHEAST:
 						if (platform_shape == PATH_RAMP_SW) platform_shape = PATH_INVALID;
 						break;
 

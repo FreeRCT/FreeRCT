@@ -84,7 +84,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 				}
 				if (level->GetGroundType() != GTP_INVALID) {
 					TileSlope ts = ExpandTileSlope(level->GetGroundSlope());
-					if ((ts & TCB_STEEP) != 0) return 0; // Steep slope in the way.
+					if ((ts & TSB_STEEP) != 0) return 0; // Steep slope in the way.
 					if ((ts & _corners_at_edge[edge]) != 0) return 0; // Some hilly stuff at the entry.
 				}
 				break;
@@ -146,7 +146,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 					result |= 1 << TSL_DOWN;
 				} else {
 					TileSlope ts = ExpandTileSlope(below->GetGroundSlope());
-					if (((TCB_STEEP | _corners_at_edge[(edge + 2) % 4]) & ts) == 0) result |= 1 << TSL_DOWN;
+					if (((TSB_STEEP | _corners_at_edge[(edge + 2) % 4]) & ts) == 0) result |= 1 << TSL_DOWN;
 				}
 			}
 		}
@@ -191,7 +191,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 		}
 		if (v->GetGroundType() != GTP_INVALID) {
 			TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
-			if ((ts & TCB_STEEP) != 0) continue;
+			if ((ts & TSB_STEEP) != 0) continue;
 			if ((ts & _corners_at_edge[edge]) == 0) {
 				if (CanBuildPathFromEdge(x, y, zpos, (TileEdge)((edge + 2) % 4)) != 0) edges |= 1 << edge;
 			} else {
@@ -391,7 +391,7 @@ void PathBuildManager::SelectMovement(bool move_forward)
 		move_up = (v->GetPathRideFlags() == _path_down_from_edge[edge]);
 	} else if (v->GetGroundType() != GTP_INVALID) {
 		TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
-		if ((ts & TCB_STEEP) != 0) return;
+		if ((ts & TSB_STEEP) != 0) return;
 		move_up = ((ts & _corners_at_edge[edge]) != 0);
 	} else {
 		return; // Surface type but no valid ground/path surface.

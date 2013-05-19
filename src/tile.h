@@ -28,34 +28,43 @@
 #include "enum_type.h"
 #include "geometry.h"
 
+/** Corners of a tile. */
+enum TileCorner {
+	TC_NORTH = 0, ///< North corner.
+	TC_EAST,      ///< East corner.
+	TC_SOUTH,     ///< South corner.
+	TC_WEST,      ///< West corner.
+
+	TC_END,       ///< End of all corners.
+};
+
 /**
  * Slope description of a surface tile.
- * If not #TCB_STEEP, at most three of the four #TCB_NORTH, #TCB_EAST,
- * #TCB_SOUTH, and #TCB_WEST may be set. If #TCB_STEEP, the top corner is
+ * If not #TSB_STEEP, at most three of the four #TSB_NORTH, #TSB_EAST,
+ * #TSB_SOUTH, and #TSB_WEST may be set. If #TSB_STEEP, the top corner is
  * indicated by a corner bit.
  * @ingroup map_group
  */
 enum TileSlope {
 	SL_FLAT = 0,  ///< Flat slope.
 
-	TC_NORTH = 0, ///< North corner bit number.
-	TC_EAST,      ///< East corner bit number.
-	TC_SOUTH,     ///< South corner bit number.
-	TC_WEST,      ///< West corner bit number.
-	TC_END,       ///< End of all corners.
-	TC_STEEP = TC_END, ///< Steep slope.
+	TS_NORTH = TC_NORTH, ///< North corner bit number.
+	TS_EAST  = TC_EAST,  ///< East corner bit number.
+	TS_SOUTH = TC_SOUTH, ///< South corner bit number.
+	TS_WEST  = TC_WEST,  ///< West corner bit number.
+	TS_STEEP = TC_END,   ///< Steep slope bit number.
 
-	TCB_NORTH = 1 << TC_NORTH, ///< Bit denoting north corner is raised.
-	TCB_EAST  = 1 << TC_EAST,  ///< Bit denoting east corner is raised.
-	TCB_SOUTH = 1 << TC_SOUTH, ///< Bit denoting south corner is raised.
-	TCB_WEST  = 1 << TC_WEST,  ///< Bit denoting west corner is raised.
+	TSB_NORTH = 1 << TS_NORTH, ///< Bit denoting north corner is raised.
+	TSB_EAST  = 1 << TS_EAST,  ///< Bit denoting east corner is raised.
+	TSB_SOUTH = 1 << TS_SOUTH, ///< Bit denoting south corner is raised.
+	TSB_WEST  = 1 << TS_WEST,  ///< Bit denoting west corner is raised.
 
-	TCB_STEEP = 1 << TC_STEEP, ///< Bit denoting it is a steep slope.
+	TSB_STEEP = 1 << TS_STEEP, ///< Bit denoting it is a steep slope.
 
-	TCB_NORTHEAST = TCB_NORTH | TCB_EAST, ///< Both north and east corners are raised.
-	TCB_NORTHWEST = TCB_NORTH | TCB_WEST, ///< Both north and west corners are raised.
-	TCB_SOUTHEAST = TCB_SOUTH | TCB_EAST, ///< Both south and east corners are raised.
-	TCB_SOUTHWEST = TCB_SOUTH | TCB_WEST, ///< Both south and west corners are raised.
+	TSB_NORTHEAST = TSB_NORTH | TSB_EAST, ///< Both north and east corners are raised.
+	TSB_NORTHWEST = TSB_NORTH | TSB_WEST, ///< Both north and west corners are raised.
+	TSB_SOUTHEAST = TSB_SOUTH | TSB_EAST, ///< Both south and east corners are raised.
+	TSB_SOUTHWEST = TSB_SOUTH | TSB_WEST, ///< Both south and west corners are raised.
 
 };
 DECLARE_ENUM_AS_BIT_SET(TileSlope)
@@ -130,7 +139,7 @@ static inline bool IsImplodedSteepSlope(uint8 ts)
 static inline TileSlope ExpandTileSlope(uint8 v)
 {
 	if (v < 15) return (TileSlope)v;
-	return TCB_STEEP | (TileSlope)(1 << (v-15));
+	return TSB_STEEP | (TileSlope)(1 << (v-15));
 }
 
 /**
@@ -141,10 +150,10 @@ static inline TileSlope ExpandTileSlope(uint8 v)
  */
 static inline uint8 ImplodeTileSlope(TileSlope s)
 {
-	if ((s & TCB_STEEP) == 0) return s;
-	if ((s & TCB_NORTH) != 0) return 15;
-	if ((s & TCB_EAST)  != 0) return 16;
-	if ((s & TCB_SOUTH) != 0) return 17;
+	if ((s & TSB_STEEP) == 0) return s;
+	if ((s & TSB_NORTH) != 0) return 15;
+	if ((s & TSB_EAST)  != 0) return 16;
+	if ((s & TSB_SOUTH) != 0) return 17;
 	return 18;
 }
 
