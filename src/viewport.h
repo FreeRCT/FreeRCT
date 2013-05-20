@@ -50,17 +50,24 @@ enum CursorType {
 	CUR_TYPE_INVALID,  ///< Invalid/unused cursor.
 };
 
-/** Order of blitting sprites in a single voxel (earlier in the list is sooner). */
+/**
+ * Order of blitting sprites in a single voxel (earlier in the list is sooner).
+ * @todo Bitset is becoming messy, untangle this mess.
+ */
 enum SpriteOrder {
-	SO_NONE       = 0,      ///< No drawing.
-	SO_FOUNDATION = 1 << 0, ///< Draw foundation sprites.
-	SO_GROUND     = 1 << 1, ///< Draw ground sprites.
-	SO_SUPPORT    = 1 << 2, ///< Draw support sprites.
-	SO_PLATFORM   = 1 << 3, ///< Draw platform sprites.
-	SO_PATH       = 1 << 4, ///< Draw path sprites.
-	SO_RIDE       = 1 << 5, ///< Draw ride sprites.
-	SO_PERSON     = 1 << 6, ///< Draw person sprites.
-	SO_CURSOR     = 1 << 7, ///< Draw cursor sprites.
+	SO_NONE           = 0,            ///< No drawing.
+	SO_FOUNDATION     = 1 << 0,       ///< Draw foundation sprites.
+	SO_GROUND         = 1 << 1,       ///< Draw ground sprites.
+	SO_SUPPORT        = 1 << 2,       ///< Draw support sprites.
+	SO_PLATFORM       = 1 << 3,       ///< Draw platform sprites.
+	SO_PATH           = 1 << 4,       ///< Draw path sprites.
+	SO_PLATFORM_BACK  = (1 << 5) - 1, ///< Background behind the ride (platform background).
+	SO_RIDE           = 1 << 5,       ///< Draw ride sprites.
+	SO_RIDE_CARS      = (1 << 5) + 1, ///< Cars at a ride.
+	SO_RIDE_FRONT     = (1 << 5) + 2, ///< Ride sprite to draw after drawing the cars.
+	SO_PLATFORM_FRONT = (1 << 5) + 3, ///< Front of platform.
+	SO_PERSON         = 1 << 6,       ///< Draw person sprites.
+	SO_CURSOR         = 1 << 7,       ///< Draw cursor sprites.
 };
 DECLARE_ENUM_AS_BIT_SET(SpriteOrder)
 

@@ -234,6 +234,14 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
+ * \fn void RideInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+ * Get the sprites to display for the provided voxel number.
+ * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
+ * @param orient View orientation.
+ * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
+ */
+
+/**
  * Sell an item to a customer.
  * @param item_index Index of the item being sold.
  */
@@ -347,6 +355,14 @@ const ShopType *ShopInstance::GetShopType() const
 {
 	assert(this->type->kind == RTK_SHOP);
 	return static_cast<const ShopType *>(this->type);
+}
+
+/* virtual */ void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+{
+	sprites[0] = NULL;
+	sprites[1] = this->type->GetView((4 + this->orientation - orient) & 3);
+	sprites[2] = NULL;
+	sprites[3] = NULL;
 }
 
 /**

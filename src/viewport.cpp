@@ -714,37 +714,35 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
  * @param zpos Z position of the voxel being drawn.
  * @param basex X position of the sprite in the screen.
  * @param basey Y position of the sprite in the screen.
- * @param orient Orientation.
+ * @param orient View orientation.
  * @param number Ride instance number.
- * @param dd [out] Data to draw.
- * @return The \a dd data was filled.
+ * @param voxel_number Number of the voxel.
+ * @param dd [out] Data to draw (4 entries).
+ * @return The number of \a dd entries filled.
  */
-static bool DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, DrawData *dd)
+static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd)
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
-	if (ri == NULL) return false;
-	switch (ri->GetKind()) {
-		case RTK_SHOP: {
-			const ShopInstance *si = static_cast<const ShopInstance *>(ri);
-			const ShopType *ride = si->GetShopType();
-			const ImageData *img = ride->views[(4 + si->orientation - orient) & 3];
-			if (img != NULL) {
-				dd->level = slice;
-				dd->z_height = zpos;
-				dd->order = SO_RIDE;
-				dd->sprite = img;
-				dd->base.x = basex;
-				dd->base.y = basey;
-				dd->recolour = NULL; // ri->recolouring (does not exist currently)
-				return true;
-			}
-			break;
-		}
+	if (ri == NULL) return 0;
 
-		default:
-			break;
+	const ImageData *sprites[4];
+	ri->GetSprites(voxel_number, orient, sprites);
+
+	int idx = 0;
+	static const SpriteOrder sprite_numbers[4] = {SO_PLATFORM_BACK, SO_RIDE, SO_RIDE_FRONT, SO_PLATFORM_FRONT};
+	for (int i = 0; i < 4; i++) {
+		if (sprites[i] == NULL) continue;
+
+		dd[idx].level = slice;
+		dd[idx].z_height = zpos;
+		dd[idx].order = sprite_numbers[i];
+		dd[idx].sprite = sprites[i];
+		dd[idx].base.x = basex;
+		dd[idx].base.y = basey;
+		dd[idx].recolour = &ri->recolour_map;
+		idx++;
 	}
-	return false;
+	return idx;
 }
 
 /**
@@ -802,13 +800,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 					dd.recolour = NULL;
 					this->draw_images.insert(dd);
 				} else { // A ride.
-					DrawData dd;
-					if (DrawRide(slice, zpos,
-							this->xoffset + xnorth - this->rect.base.x,
-							this->yoffset + ynorth - this->rect.base.y, this->orient, number, &dd)) {
-						this->draw_images.insert(dd);
-						platform_shape = PATH_NE_NW_SE_SW; // A ride looks like having exits everywhere -> no handle bars.
-					}
+					DrawData dd[4];
+					int count = DrawRide(slice, zpos,
+							this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
+							this->orient, number, voxel->GetPathRideFlags(), dd);
+					for (int i = 0; i < count; i++) this->draw_images.insert(dd[i]);
+					platform_shape = PATH_NE_NW_SE_SW; // A ride looks like having exits everywhere -> no handle bars.
 				}
 			}
 
@@ -1081,14 +1078,16 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		/* Looking for a ride? */
 		uint16 number = voxel->GetPathRideNumber();
 		if ((this->allowed & SO_RIDE) != 0 && number < PT_START) {
-			DrawData dd;
-			if (DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth, this->orient, number, &dd)) {
-				const ImageData *img = dd.sprite;
-				if (img != NULL && (!this->found || this->data < dd)) {
-					uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+			DrawData dd[4];
+			int count = DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
+					this->orient, number, voxel->GetPathRideFlags(), dd);
+			for (int i = 0; i < count; i++) {
+				if (!this->found || this->data < dd[i]) {
+					const ImageData *img = dd[i].sprite;
+					uint8 pixel = img->GetPixel(dd[i].base.x - img->xoffset, dd[i].base.y - img->yoffset);
 					if (pixel != 0) {
 						this->found = true;
-						this->data = dd;
+						this->data = dd[i];
 						this->fdata->xvoxel = xpos;
 						this->fdata->yvoxel = ypos;
 						this->fdata->zvoxel = zpos;

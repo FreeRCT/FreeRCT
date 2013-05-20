@@ -107,6 +107,8 @@ public:
 	int8 height;                ///< Number of voxels used by this shop.
 	uint8 flags;                ///< Shop flags. @see ShopFlags
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
+
+protected:
 	ImageData *views[4];        ///< 64 pixel wide shop graphics.
 };
 
@@ -131,6 +133,8 @@ class RideInstance {
 public:
 	RideInstance(const RideType *rt);
 	virtual ~RideInstance();
+
+	virtual void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
 
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
@@ -166,6 +170,7 @@ public:
 	/* virtual */ ~ShopInstance();
 
 	const ShopType *GetShopType() const;
+	/* virtual */ void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const;
 
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetEntranceDirections() const;
