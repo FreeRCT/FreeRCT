@@ -248,7 +248,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 		assert(v->persons.IsEmpty()); // There should be no persons in the stack being moved.
 		switch (v->GetType()) {
 			case VT_SURFACE: {
-				if (v->GetPathRideNumber() != PT_INVALID || v->GetGroundType() != GTP_INVALID || v->GetFoundationType() != FDT_INVALID) {
+				if (!v->IsEmpty()) {
 					vs_last = i;
 					break;
 				}

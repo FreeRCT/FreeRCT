@@ -281,6 +281,17 @@ public:
 		SB(this->w0, 0, 2, VT_EMPTY);
 	}
 
+	/**
+	 * Is the voxel empty?
+	 * @return \c true if it is empty, \c false otherwise.
+	 */
+	inline bool IsEmpty() const
+	{
+		if (this->GetType() == VT_EMPTY) return true;
+		return this->GetType() == VT_SURFACE && this->GetPathRideNumber() == PT_INVALID &&
+				this->GetGroundType() == GTP_INVALID && this->GetFoundationType() == FDT_INVALID;
+	}
+
 	PersonList persons; ///< Persons present in this voxel.
 };
 
