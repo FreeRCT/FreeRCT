@@ -51,6 +51,11 @@ Offset  Length  Description
    8            Total length.
 ======  ======  ==========================================================
 
+Version history
+...............
+
+- 1 (20110915) Initial version.
+
 
 Data blocks
 ===========
@@ -71,7 +76,7 @@ offset. Version 2 is supported by FreeRCT.
 Offset  Length  Version  Description
 ======  ======  =======  =================================================
    0       4      1-2    Magic string '8PXL'.
-   4       4      1-2    Version number of the block '2'.
+   4       4      1-2    Version number of the block.
    8       4      1-2    Length of the block excluding magic string,
                          version, and length.
   12       2      1-2    Width of the image.
@@ -105,6 +110,12 @@ line is longer than 127 pixels.
 To decide: Some simple form of compressing may be useful in the pixels as it
            decreases the amount of memory transfers.
 
+Version history
+...............
+
+- 1 (20110915) Initial version.
+- 2 (20120623) Moved the offset from the SPRT block into the 8PXL block.
+
 Texts
 ~~~~~
 Text in various forms and shapes is very common. In particular, it needs to
@@ -117,13 +128,13 @@ What remains is a collection of names that are attached to text (the game
 queries text by name), where the latter may exist in several languages. All
 text is assumed to be UTF-8 encoded, and 0-terminated.
 
-A text block looks like
+FreeRCT can read version 1 text blocks, which look like
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'TEXT'.
-   4       4    Version number of the block (always '1').
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       ?    First string.
@@ -175,6 +186,12 @@ sequences are recognized:
 - "%%": The character "%".
 - "%n%" with "n" a decimal number: Insert parameter 'n'.
 
+Version history
+...............
+
+- 1 (20120714) Initial version.
+-   (20121215) Added string parameters.
+
 
 Game blocks
 ===========
@@ -213,6 +230,11 @@ Offset  Length  Description
   72       4    Steep west slope.
   76            Total length of the sub-block.
 ======  ======  ==========================================================
+
+Version history
+...............
+
+- 1 (20110915) Initial version.
 
 
 Ground tiles block
@@ -254,6 +276,13 @@ Known types of ground:
 
 To do: Move the cursor tile to another position.
 
+Version history
+...............
+
+- 1 (20110915) Initial version.
+- 2 (20110918) Added ground type.
+- 3 (20110925) Removed sprite blocks for viewing in east, south, and west direction.
+-   (20111014) Added 'Cursor' tiles type.
 
 Tile selection
 ~~~~~~~~~~~~~~
@@ -274,9 +303,15 @@ Offset  Length  Description
   92            Total length.
 ======  ======  ==========================================================
 
+Version history
+...............
+
+- 1 (20110925) Initial version.
+
 
 Tile area selection
 ~~~~~~~~~~~~~~~~~~~
+Sprites to point out a (selection of) tile(s) to the user.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -291,6 +326,11 @@ Offset  Length  Description
   16      76    Tile surface sprite sub-block.
   92            Total length.
 ======  ======  ==========================================================
+
+Version history
+...............
+
+- 1 (20110925) Initial version.
 
 
 Patrol area selection
@@ -309,6 +349,11 @@ Offset  Length  Description
   16      76    Tile surface sprite sub-block.
   92            Total length.
 ======  ======  ==========================================================
+
+Version history
+...............
+
+- 1 (20110925) Initial version.
 
 
 Tile corner selection block
@@ -336,21 +381,24 @@ Offset  Length  Description
  320            Total length.
 ======  ======  ==========================================================
 
+Version history
+...............
+
+- 1 (20110925) Initial version.
+
 
 Shops/stalls
 ~~~~~~~~~~~~
-One tile objects, selling useful things to guests.
+One tile objects, selling useful things to guests. FreeRCT can read block version 4.
 
-======  ======  =======  =================================================
+======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
-======  ======  =======  =================================================
+======  ======  =======  ===================================================================================
    0       4      1-4    Magic string 'SHOP'.
    4       4      1-4    Version number of the block.
-   8       4      1-4    Length of the block excluding magic string,
-                         version, and length.
+   8       4      1-4    Length of the block excluding magic string, version, and length.
   12       2      1-4    Zoom-width of a tile of the surface.
-  14       1      1-4    Height of the shop in voxels. (versions 1-3 used
-                         a 16bit unsigned number).
+  14       1      1-4    Height of the shop in voxels. (versions 1-3 used a 16bit unsigned number).
   15       1       4     Shop flags.
   16       4      1-4    Unrotated view (ne).
   20       4      1-4    View after 1 quarter negative rotation (se).
@@ -367,7 +415,7 @@ Offset  Length  Version  Description
   61       1       4     Item type of the second item.
   62       4      3-4    Text of the shop (reference to a TEXT block).
   66                     Total length.
-======  ======  =======  =================================================
+======  ======  =======  ===================================================================================
 
 Shop flags:
 
@@ -386,15 +434,25 @@ Item types:
 - Umbrella (32)
 - Map of the park (40)
 
+Version history
+...............
+
+- 1 (20110925) Initial version.
+- 2 (20120708) Added recolouring information.
+- 3 (20120714) Added a TEXT block reference for the shop texts.
+- 4 (20121005) Added Items to sell, and costs to pay.
+
 
 Build direction arrows
 ~~~~~~~~~~~~~~~~~~~~~~
+Arrows to point out direction of constructing new game elements. FreeRCT can
+read blocks with version 1.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'BDIR'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       2    Zoom-width of a tile of the surface.
@@ -405,16 +463,22 @@ Offset  Length  Description
   30            Total length.
 ======  ======  ==========================================================
 
+Version history
+...............
+
+- 1 (20110925) Initial version.
+
 
 Foundations block
 ~~~~~~~~~~~~~~~~~
-Vertical foundations to close gaps in the smooth surface.
+Vertical foundations to close gaps in the smooth surface. FreeRCT can read
+blocks with version 1.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'FUND'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       2    Type of foundation.
@@ -447,6 +511,12 @@ Known types of foundation:
 The tile width and z-height are used to ensure the foundations match with the
 surface tiles.
 
+Version history
+...............
+
+- 1 (20110918) Initial version.
+-   (20121207) Replaced sprites.
+
 
 Path block
 ~~~~~~~~~~
@@ -459,7 +529,7 @@ use 0 to denote absence of a sprite. Two letter words in the description
 denote an edge connects, one letter words denote the corner is covered.
 
 Besides the maximal 47 flat sprites there are also 4 sprites with one edge
-raised.
+raised. FreeRCT can read path blocks with version 1.
 
 - Empty (0) Reserved, do not use in the RCD file.
 - Concrete (16)
@@ -469,7 +539,7 @@ raised.
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'PATH'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and length.
   12       2    Type of path surface.
   14       2    Zoom-width of a tile.
@@ -528,10 +598,17 @@ Offset  Length  Description
  222            Length of one view direction.
 ======  ======  ==========================================================
 
+Version history
+...............
+
+- 1 (20110925) Initial version.
+- 2 (20110930) Added tile width and z-height fields.
+
 
 Platforms
 ~~~~~~~~~
 Platforms put up in the air, to carry the weight of a path.
+FreeRCT can read blocks with version 2.
 
 ======  ======  =======  =================================================
 Offset  Length  Version  Description
@@ -568,9 +645,16 @@ Platform type:
 - Wood 16.
 
 
+Version history
+...............
+
+- 1 (20110925) Initial version.
+- 2 (20121128) Added platforms sprites with one leg, for the steep slopes.
+
 Platform supports
 ~~~~~~~~~~~~~~~~~
 Structures to support platforms, so they don't fall down.
+FreeRCT can read blocks with version 1.
 
 
 ======  ======  ==========================================================
@@ -615,10 +699,15 @@ Support type:
 - Empty 0, do not use.
 - Wood 16.
 
+Version history
+...............
+
+- 1 (20121207) Initial version.
+
 Roller coaster tracks
 ~~~~~~~~~~~~~~~~~~~~~
 A ``RCST`` block contains all information of a single type of roller coaster.
-It currently contains track piece definitions only. FreeRCT supports version 2
+It currently contains track piece definitions only. FreeRCT supports version 3
 of the ``RCST`` block.
 
 ======  ======  =======  ==================  =================================================================
@@ -644,10 +733,17 @@ Currently define platform types:
 - 1 Wood.
 
 
+Version history
+...............
+
+- 1 (20130317) Initial version.
+- 2 (20130430) Added type of platform.
+- 3 (20130511) Added a TEXT reference.
+
 Track pieces
 ~~~~~~~~~~~~
 
-A track piece definition describes a single piece of track. Each piece needs
+A track piece definition describes a single piece of track in a TRCK block. FreeRCT can read blocks with version 2. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is
 called the *exit* voxel. The *entry* voxel of a track piece is at the *exit*
@@ -665,7 +761,7 @@ it is split in a 'name' and a 'direction' while defining the track pieces.
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
    0        4      1-2                        Magic string 'TRCK'.
-   4        4      1-2                        Version number of the block (always '2').
+   4        4      1-2                        Version number of the block.
    8        4      1-2                        Length of the block excluding magic string, version, and length.
   12        1      1-2    entry_connection    Entry connection code
   13        1      1-2    exit_connection     Exit connection code
@@ -717,6 +813,12 @@ The space requirements are defined as follows:
 
 The remaining bits are reserved and should be ``0``.
 
+Version history
+...............
+
+- 1 (20130317) Initial version.
+- 2 (20130430) Entry and exit definitions, speed, flags, and sprites for other viewing directions added.
+
 GUI
 ===
 GUI sprites, in various forms.
@@ -761,13 +863,13 @@ In addition, a horizontal and a vertical
 offset needs to be specified relative to the bounding box of the widget
 contents.
 
-That leads to the following block:
+That leads to the following block. FreeRCT can read these blocks with version 1.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'GBOR'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       2    Widget type.
@@ -801,15 +903,22 @@ Known widget types:
 - 68 panel.
 - 80 inset frame.
 
+Version history
+...............
+
+- 1 (20111023) Initial version.
+-   (20111029) Added 'panel' type.
+
 
 Check box and radio buttons
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FreeRCT can read blocks with version 1.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'GCHK'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       2    Widget type.
@@ -827,16 +936,22 @@ Known widget types:
 - 96 Check box.
 - 112 Radio-button.
 
+Version history
+...............
+
+- 1 (20111023) Initial version.
+
 
 Slider-bar elements
 ~~~~~~~~~~~~~~~~~~~
 For slider-bar GUI elements, the following block should be used.
+FreeRCT can read blocks with version 1.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'GSLI'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       1    Minimal length of the bar.
@@ -857,16 +972,22 @@ Known slider-bar widget types:
 - 144 Vertical slider bar + button.
 - 145 Shaded vertical slider bar + button.
 
+Version history
+...............
+
+- 1 (20111023) Initial version.
+
 
 Scroll-bar elements
 ~~~~~~~~~~~~~~~~~~~
 For scroll-bar GUI elements, the following block should be used.
+FreeRCT can read blocks with version 1.
 
 ======  ======  ==================  ================================================================
 Offset  Length  Field name          Description
 ======  ======  ==================  ================================================================
    0       4                        Magic string 'GSCL'.
-   4       4                        Version number of the block '1'.
+   4       4                        Version number of the block.
    8       4                        Length of the block excluding magic string, version, and length.
   12       1    min_length          Minimal length scrollbar.
   13       1    step_back           Stepsize of background.
@@ -896,6 +1017,11 @@ Known scroll-bar widget types:
 - 176 Vertical scroll bar + button.
 - 177 Shaded vertical scroll bar + button.
 
+Version history
+...............
+
+- 1 (20111023) Initial version.
+
 Gui button sprites
 ==================
 Sprites for use at buttons in the gui.
@@ -905,6 +1031,7 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
+FreeRCT can read blocks with version 4.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
@@ -924,24 +1051,33 @@ Offset  Length  Version  Field name          Description
   48       4      2-4    pos_3d              Diametric rotation positive direction (counter clock wise).
   52       4      2-4    neg_3d              Diametric rotation negative direction (clock wise).
   56       4      3-4    close_button        Close Button.
-  60       4       3                         Maximise button.
-  64       4       3                         Minimise button.
+  --       4       3                         Maximise button.
+  --       4       3                         Minimise button.
   60       4       4     terraform_dot       Terraform dot.
   64       4      2-4    texts               Text of the guis (reference to a TEXT block).
   68                                         Total length.
 ======  ======  =======  ==================  ================================================================
+
+Version history
+...............
+
+- 1 (20120612) Initial version.
+- 2 (20120901) Moved GROT data into the block.
+- 3 (20121110) Added close, maximise, and minimise buttons.
+- 4 (20121202) Added terraform dot, removed maximise and minimise buttons.
 
 
 Persons
 =======
 Persons are an important concept in the game. Their properties are defined in
 the game blocks below.
+FreeRCT can read blocks with version 1.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'PRSG' (Person Graphics).
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       1    Number of person graphics in this block (called 'n').
@@ -979,6 +1115,11 @@ recolouring), Each bit `i` in the range of bits 0..17 denotes whether range `i`
 is allowed as replacement.
 
 
+Version history
+...............
+
+- 1 (20120708) Initial version.
+
 
 Animation
 =========
@@ -1000,12 +1141,13 @@ Animation sequences
 ~~~~~~~~~~~~~~~~~~~
 
 Animation sequences (without the sprites) are defined using the 'ANIM' block.
+FreeRCT can read blocks with version 2.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'ANIM'.
-   4       4    Version number of the block '2'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       1    Person type.
@@ -1045,14 +1187,22 @@ Sprites of an animation sequence for a given tile width are then in an 'ANSP'
 block, defined below. The frame count should match with the count in the
 'ANIM' block.
 
+Version history
+...............
+
+- 1 (20120418) Initial version.
+- 2 (20120527) Removed tile width from 'ANIM' and sprite and frame number from the frame data.
+  The sprite moved to the 'ANSP' block.
+
 Animation sprites
 ~~~~~~~~~~~~~~~~~
+FreeRCT can read blocks with version 1.
 
 ======  ======  ==========================================================
 Offset  Length  Description
 ======  ======  ==========================================================
    0       4    Magic string 'ANSP'.
-   4       4    Version number of the block '1'.
+   4       4    Version number of the block.
    8       4    Length of the block excluding magic string, version, and
                 length.
   12       2    Zoom-width of a tile.
@@ -1063,17 +1213,23 @@ Offset  Length  Description
    ?            Variable length.
 ======  ======  ==========================================================
 
+Version history
+...............
+
+- 1 (20120527) Initial version.
+
 
 Obsolete blocks
 ===============
 
 The following blocks existed once, but are not needed any more
 
-==== =====================================================================
-Name Description
-==== =====================================================================
-SPRT X and Y offset of a sprite (data has been moved to the 8PXL block)
-GROT Rotation GUI sprites (data has been moved to the GROT block)
-==== =====================================================================
+==== =====================  =====================================================================
+Name Version                Description
+==== =====================  =====================================================================
+8PAL (20110915)-(20110925)  8bpp palette data (data is hard-coded in the program).
+SPRT (20110915)-(20120623)  X and Y offset of a sprite (data has been moved to the 8PXL block).
+GROT (20120612)-(20120901)  Rotation GUI sprites (data has been moved to the GSLP block)
+==== =====================  =====================================================================
 
 .. vim: set spell
