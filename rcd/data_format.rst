@@ -2,12 +2,16 @@
 :Version: $Id$
 
 .. contents::
+   :depth: 3
 
+####################
 RCD data file format
-====================
+####################
+
+.. Section levels  # = ~ .
 
 License
-~~~~~~~
+=======
 This file is part of FreeRCT.
 FreeRCT is free software; you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -35,7 +39,7 @@ Money
 All money amounts in RCD files are signed integer numbers, expressing cents.
 
 File header
-===========
+~~~~~~~~~~~
 Each data file starts with a file header indicating it is an RCD file.
 The format is as follows
 
@@ -640,6 +644,9 @@ Currently define platform types:
 - 1 Wood.
 
 
+Track pieces
+~~~~~~~~~~~~
+
 A track piece definition describes a single piece of track. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is
@@ -964,7 +971,7 @@ A person type defines the kind of persons:
 The *any* kind is used as fall back.
 
 Recolouring definition
-======================
+~~~~~~~~~~~~~~~~~~~~~~
 The program has 18 colour ranges (0 to 17). A recolouring is a mapping of a
 single range to a set of allowed destination ranges, encoded in 32 bit. Bits
 24-31 state the single range (where a value other than 0..17 denotes an unused
@@ -988,6 +995,9 @@ Also, some changes in x or y may not be visible as they are in the sub-pixel
 range at the smaller tile size. The expected (and allowed) solution can be to
 display the same sprite in more frames.
 
+
+Animation sequences
+~~~~~~~~~~~~~~~~~~~
 
 Animation sequences (without the sprites) are defined using the 'ANIM' block.
 
@@ -1034,6 +1044,9 @@ position is derived from the world data.
 Sprites of an animation sequence for a given tile width are then in an 'ANSP'
 block, defined below. The frame count should match with the count in the
 'ANIM' block.
+
+Animation sprites
+~~~~~~~~~~~~~~~~~
 
 ======  ======  ==========================================================
 Offset  Length  Description
