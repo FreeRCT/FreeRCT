@@ -55,6 +55,7 @@ void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output)
 		output[(i + 2) % 4] = base_height;
 		output[(i + 1) % 4] = base_height + 1;
 		output[(i + 3) % 4] = base_height + 1;
+		return;
 	}
 	for (uint i = TC_NORTH; i < TC_END; i++) {
 		output[i] = ((slope & (1 << i)) == 0) ? base_height : base_height + 1;
