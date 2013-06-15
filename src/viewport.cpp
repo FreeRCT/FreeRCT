@@ -1517,6 +1517,19 @@ Viewport *GetViewport()
 }
 
 /**
+ * Mark a voxel as in need of getting painted.
+ * @param xpos X position of the voxel.
+ * @param ypos Y position of the voxel.
+ * @param zpos Z position of the voxel.
+ * @param height Number of voxels to mark above the specified coordinate (\c 0 means inspect the voxel itself).
+ */
+void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
+{
+	Viewport *vp = GetViewport();
+	if (vp != NULL) vp->MarkVoxelDirty(xpos, ypos, zpos, height);
+}
+
+/**
  * Decide the most appropriate mouse mode of the viewport, depending on available windows.
  * @todo Perhaps force a redraw/recompute in some way to ensure the right state is displayed?
  * @todo Perhaps switch mode when a window associated with a mode is raised?

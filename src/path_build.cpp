@@ -771,8 +771,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		v->SetPathRideNumber(PT_INVALID);
 		AddRemovePathEdges(this->xpos, this->ypos, this->zpos, v->GetPathRideFlags(), EDGE_ALL, false, false); // Change the neighbouring paths too.
 
-		Viewport *vp = GetViewport();
-		if (vp) vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+		MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
 
 		/* Short-cut version of this->SelectMovement(false), as that function fails after removing the path. */
 		TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);

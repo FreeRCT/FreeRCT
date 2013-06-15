@@ -287,4 +287,6 @@ void EnableWorldAdditions();
 void DisableWorldAdditions();
 Viewport *GetViewport();
 
+void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height = 0);
+
 #endif

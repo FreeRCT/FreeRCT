@@ -674,11 +674,10 @@ AnimateResult Person::OnAnimate(int delay)
 	return OAR_OK;
 }
 
-/** Mark the screen where this person is, as dirty so it is repainted the next time. */
+/** Mark the screen where this person is as dirty, so it is repainted the next time. */
 void Person::MarkDirty()
 {
-	Viewport *vp = GetViewport();
-	if (vp != NULL) vp->MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
 }
 
 /**
