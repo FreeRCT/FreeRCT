@@ -642,10 +642,14 @@ static const char *_surface_sprite[] = {
 	"#sw",  // SF_WS
 	"#nsw", // SF_WNS
 	"#esw", // SF_WES
-	"#N",   // SF_STEEP_N
-	"#E",   // SF_STEEP_E
-	"#S",   // SF_STEEP_S
-	"#W",   // SF_STEEP_W
+	"#Nb",  // SF_STEEP_N
+	"#Eb",  // SF_STEEP_E
+	"#Sb",  // SF_STEEP_S
+	"#Wb",  // SF_STEEP_W
+	"#Nt",  // SF_STEEP_N
+	"#Et",  // SF_STEEP_E
+	"#St",  // SF_STEEP_S
+	"#Wt",  // SF_STEEP_W
 };
 
 /**
@@ -1281,6 +1285,18 @@ static BlockNode *ConvertSheetNode(NodeGroup *ng)
 	sb->width    = vals.GetNumber("width");
 	sb->height   = vals.GetNumber("height");
 
+	BitMask *bm = NULL;
+	if (vals.HasValue("mask")) {
+		ValueInformation &vi = vals.FindValue("mask");
+		bm = dynamic_cast<BitMask *>(vi.node_value);
+		if (bm == NULL) {
+			fprintf(stderr, "Error at %s: Field \"mask\" of node \"sheet\" is not a bitmask node\n", vi.pos.ToString());
+			exit(1);
+		}
+		vi.node_value = NULL;
+	}
+	sb->mask = bm;
+
 	vals.VerifyUsage();
 	return sb;
 }
@@ -1307,8 +1323,19 @@ static SpriteBlock *ConvertSpriteNode(NodeGroup *ng)
 		int xoffset      = vals.GetNumber("x_offset");
 		int yoffset      = vals.GetNumber("y_offset");
 
+		BitMask *bm = NULL;
+		if (vals.HasValue("mask")) {
+			ValueInformation &vi = vals.FindValue("mask");
+			bm = dynamic_cast<BitMask *>(vi.node_value);
+			if (bm == NULL) {
+				fprintf(stderr, "Error at %s: Field \"mask\" of node \"sprite\" is not a bitmask node\n", vi.pos.ToString());
+				exit(1);
+			}
+		}
+
+		BitMaskData *bmd = (bm == NULL) ? NULL : &bm->data;
 		Image img;
-		img.LoadFile(file.c_str());
+		img.LoadFile(file.c_str(), bmd);
 		const char *err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height);
 		if (err != NULL) {
 			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name, err);
@@ -1318,6 +1345,27 @@ static SpriteBlock *ConvertSpriteNode(NodeGroup *ng)
 
 	vals.VerifyUsage();
 	return sb;
+}
+
+/**
+ * Convert a 'bitmask' node.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted bit mask node.
+ */
+static BitMask *ConvertBitMaskNode(NodeGroup *ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "bitmask");
+	BitMask *bm = new BitMask();
+
+	Values vals("bitmask", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	bm->data.x_pos = vals.GetNumber("x_pos");
+	bm->data.y_pos = vals.GetNumber("y_pos");
+	bm->data.type  = vals.GetString("type");
+
+	vals.VerifyUsage();
+	return bm;
 }
 
 /** Names of person types and colour ranges. */
@@ -1800,6 +1848,7 @@ static BlockNode *ConvertNodeGroup(NodeGroup *ng)
 	if (strcmp(ng->name, "track_voxel") == 0) return ConvertTrackVoxel(ng);
 	if (strcmp(ng->name, "connection") == 0) return ConvertConnection(ng);
 	if (strcmp(ng->name, "track_piece") == 0) return ConvertTrackPieceNode(ng);
+	if (strcmp(ng->name, "bitmask") == 0) return ConvertBitMaskNode(ng);
 
 	/* Game blocks. */
 	if (strcmp(ng->name, "TSEL") == 0) return ConvertTSELNode(ng);

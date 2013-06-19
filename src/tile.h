@@ -36,23 +36,30 @@ enum TileCorner {
 	TC_WEST,      ///< West corner.
 
 	TC_END,       ///< End of all corners.
+
+	TCB_NORTH = 1 << TC_NORTH, ///< Bit denoting north corner.
+	TCB_EAST  = 1 << TC_EAST,  ///< Bit denoting east corner.
+	TCB_SOUTH = 1 << TC_SOUTH, ///< Bit denoting south corner.
+	TCB_WEST  = 1 << TC_WEST,  ///< Bit denoting west corner.
 };
 
 /**
  * Slope description of a surface tile.
- * If not #TSB_STEEP, at most three of the four #TSB_NORTH, #TSB_EAST,
- * #TSB_SOUTH, and #TSB_WEST may be set. If #TSB_STEEP, the top corner is
- * indicated by a corner bit.
+ * - If not #TSB_STEEP, at most three of the four #TSB_NORTH, #TSB_EAST, * #TSB_SOUTH, and #TSB_WEST may be set.
+ * - If #TSB_STEEP, the top corner is indicated by a corner bit.
+ *   Note that steep slopes have 2 sprites. The #TSB_TOP bit differentiates between both.
+ *
  * @ingroup map_group
  */
 enum TileSlope {
 	SL_FLAT = 0,  ///< Flat slope.
 
-	TS_NORTH = TC_NORTH, ///< North corner bit number.
-	TS_EAST  = TC_EAST,  ///< East corner bit number.
-	TS_SOUTH = TC_SOUTH, ///< South corner bit number.
-	TS_WEST  = TC_WEST,  ///< West corner bit number.
-	TS_STEEP = TC_END,   ///< Steep slope bit number.
+	TS_NORTH = TC_NORTH,   ///< North corner bit number.
+	TS_EAST  = TC_EAST,    ///< East corner bit number.
+	TS_SOUTH = TC_SOUTH,   ///< South corner bit number.
+	TS_WEST  = TC_WEST,    ///< West corner bit number.
+	TS_STEEP = TC_END,     ///< Steep slope bit number.
+	TS_TOP   = TC_END + 1, ///< Top-part of a steep slope bit number.
 
 	TSB_NORTH = 1 << TS_NORTH, ///< Bit denoting north corner is raised.
 	TSB_EAST  = 1 << TS_EAST,  ///< Bit denoting east corner is raised.
@@ -60,6 +67,7 @@ enum TileSlope {
 	TSB_WEST  = 1 << TS_WEST,  ///< Bit denoting west corner is raised.
 
 	TSB_STEEP = 1 << TS_STEEP, ///< Bit denoting it is a steep slope.
+	TSB_TOP   = 1 << TS_TOP,   ///< Bit denoting it is the top of a steep slope.
 
 	TSB_NORTHEAST = TSB_NORTH | TSB_EAST, ///< Both north and east corners are raised.
 	TSB_NORTHWEST = TSB_NORTH | TSB_WEST, ///< Both north and west corners are raised.
@@ -69,7 +77,7 @@ enum TileSlope {
 };
 DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
-static const uint8 NUM_SLOPE_SPRITES = 19; ///< Number of sprites for defining a surface tile.
+static const uint8 NUM_SLOPE_SPRITES = 15 + 4 + 4; ///< Number of sprites for defining a surface tile.
 
 /** Sprites for supports available for use. */
 enum SupportSprites {
@@ -123,11 +131,21 @@ DECLARE_POSTFIX_INCREMENT(TileEdge)
 /**
  * Does the imploded tile slope represent a steep slope?
  * @param ts Imploded tile slope to examine.
- * @return \c true if the given slope is a steep slope,  \c false otherwise.
+ * @return \c true if the given slope is a steep slope, \c false otherwise.
  */
 static inline bool IsImplodedSteepSlope(uint8 ts)
 {
 	return ts >= 15;
+}
+
+/**
+ * Does the imploded tile slope represent the top of a steep slope?
+ * @param ts Imploded tile slope to examine.
+ * @return \c true if the given slope is the top of a steep slope, \c false otherwise.
+ */
+static inline bool IsImplodedSteepSlopeTop(uint8 ts)
+{
+	return ts >= 19;
 }
 
 /**
@@ -139,7 +157,8 @@ static inline bool IsImplodedSteepSlope(uint8 ts)
 static inline TileSlope ExpandTileSlope(uint8 v)
 {
 	if (v < 15) return (TileSlope)v;
-	return TSB_STEEP | (TileSlope)(1 << (v-15));
+	if (v < 19) return TSB_STEEP | (TileSlope)(1 << (v-15));
+	return TSB_STEEP | TSB_TOP | (TileSlope)(1 << (v-19));
 }
 
 /**
@@ -151,10 +170,12 @@ static inline TileSlope ExpandTileSlope(uint8 v)
 static inline uint8 ImplodeTileSlope(TileSlope s)
 {
 	if ((s & TSB_STEEP) == 0) return s;
-	if ((s & TSB_NORTH) != 0) return 15;
-	if ((s & TSB_EAST)  != 0) return 16;
-	if ((s & TSB_SOUTH) != 0) return 17;
-	return 18;
+
+	uint8 base = ((s & TSB_TOP) == 0) ? 15 : 19;
+	if ((s & TSB_NORTH) != 0) return base;
+	if ((s & TSB_EAST)  != 0) return base + 1;
+	if ((s & TSB_SOUTH) != 0) return base + 2;
+	return base + 3;
 }
 
 /**

@@ -15,9 +15,42 @@
 #include <cassert>
 #include "image.h"
 
+#include "mask64.xbm"
+
 static const size_t HEADER_SIZE = 4; ///< Number of bytes to read to decide whether a provided file is indeed a PNG file.
 static const int TRANSPARENT = 0; ///< Colour index of 'transparent' in the 8bpp image.
 
+
+/** Information about available bit masks. */
+struct MaskInformation {
+	int width;  ///< Width of the mask.
+	int height; ///< Height of the mask.
+	const unsigned char *data; ///< Data of the mask.
+	const char *name; ///< Name of the mask.
+};
+
+/** List of bit masks. */
+static const MaskInformation _masks[] = {
+	{mask64_width, mask64_height, mask64_bits, "voxel64"},
+	{0, 0, NULL, NULL}
+};
+
+/**
+ * Retrieve a bitmask by its name.
+ * @param name Name of the bitmask to retrieve.
+ * @return The bitmask and its meta-information (static reference, do not free).
+ */
+static const MaskInformation *GetMask(const std::string &name)
+{
+	const MaskInformation *msk = _masks;
+	while (msk->name != NULL) {
+		if (msk->name == name) return msk;
+		msk++;
+	}
+	fprintf(stderr, "Error: Cannot find a bitmask named \"%s\"\n", name.c_str());
+	exit(1);
+	return NULL;
+}
 
 Image::Image()
 {
@@ -34,9 +67,10 @@ Image::~Image()
 /**
  * Load a .png file from the disk.
  * @param fname Name of the .png file to load.
+ * @param mask Bitmask to apply.
  * @return An error message if loading failed, or \c NULL if loading succeeded.
  */
-const char *Image::LoadFile(const char *fname)
+const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 {
 	FILE *fp = fopen(fname, "rb");
 	if (fp == NULL) return "Input file does not exist";
@@ -92,6 +126,16 @@ const char *Image::LoadFile(const char *fname)
 		return "PNG file is not an 8bpp file";
 	}
 
+	if (mask != NULL) {
+		this->mask = GetMask(mask->type);
+		this->mask_xpos = mask->x_pos;
+		this->mask_ypos = mask->y_pos;
+	} else {
+		this->mask = NULL;
+		this->mask_xpos = 0;
+		this->mask_ypos = 0;
+	}
+
 	this->png_initialized = true;
 	this->row_pointers = png_get_rows(this->png_ptr, this->info_ptr);
 	fclose(fp);
@@ -132,6 +176,18 @@ uint8 Image::GetPixel(int x, int y)
 	assert(this->png_initialized);
 	assert(x >= 0 && x < this->width);
 	assert(y >= 0 && y < this->height);
+
+	if (this->mask != NULL) {
+		if (x >= this->mask_xpos && x < this->mask_xpos + this->mask->width &&
+				y >= this->mask_ypos && y < this->mask_ypos + this->mask->height) {
+			const unsigned char *p = this->mask->data;
+			int off = (this->mask_ypos - y) * ((this->mask->width + 7) / 8);
+			p += off;
+			off = this->mask_xpos - x;
+			p += off / 8;
+			if ((*p & (1 << (off & 7))) == 0) return TRANSPARENT;
+		}
+	}
 
 	return this->row_pointers[y][x];
 }

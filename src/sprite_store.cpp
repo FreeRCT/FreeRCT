@@ -60,6 +60,10 @@ const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
 	{16, 15, 18, 17},
 	{17, 16, 15, 18},
 	{18, 17, 16, 15},
+	{15+4, 18+4, 17+4, 16+4},
+	{16+4, 15+4, 18+4, 17+4},
+	{17+4, 16+4, 15+4, 18+4},
+	{18+4, 17+4, 16+4, 15+4},
 };
 
 /** Default constructor of a in-memory RCD block. */
@@ -1365,7 +1369,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "SURF") == 0 && version == 3) {
+		if (strcmp(name, "SURF") == 0 && version == 4) {
 			SurfaceData *surf = new SurfaceData;
 			if (!surf->Load(&rcd_file, length, sprites)) {
 				delete surf;
@@ -1377,7 +1381,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TSEL") == 0 && version == 1) {
+		if (strcmp(name, "TSEL") == 0 && version == 2) {
 			TileSelection *tsel = new TileSelection;
 			if (!tsel->Load(&rcd_file, length, sprites)) {
 				delete tsel;
@@ -1401,7 +1405,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TCOR") == 0 && version == 1) {
+		if (strcmp(name, "TCOR") == 0 && version == 2) {
 			TileCorners *block = new TileCorners;
 			if (!block->Load(&rcd_file, length, sprites)) {
 				delete block;

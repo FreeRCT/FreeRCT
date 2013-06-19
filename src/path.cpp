@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "path.h"
 #include "map.h"
+#include "viewport.h"
 
 /** Imploded path tile sprite number to use for an 'up' slope from a given edge. */
 const PathSprites _path_up_from_edge[EDGE_COUNT] = {
@@ -307,15 +308,14 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			} else {
 				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
 			}
-			if (v != NULL && v->GetType() == VT_SURFACE) {
-				uint16 number = v->GetPathRideNumber();
-				if (number != PT_INVALID) {
-					if (number >= PT_START) { // Valid path.
-						v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
-						modified = true;
-					} else { // A ride instance. Does it have an entrance here?
-						if ((v->GetPathRideFlags() & (1 << edge2)) != 0) modified = true;
-					}
+			if (v != NULL) {
+				uint16 number = v->GetInstance();
+				if (number == SRI_PATH) { // Valid path.
+					v->SetInstanceData(SetPathEdge(v->GetInstanceData(), edge2, add_edges));
+					MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
+					modified = true;
+				} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
+					if ((v->GetInstanceData() & (1 << edge2)) != 0) modified = true;
 				}
 			}
 		}
@@ -327,15 +327,14 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			} else {
 				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
 			}
-			if (v != NULL && v->GetType() == VT_SURFACE) {
-				uint16 number = v->GetPathRideNumber();
-				if (number != PT_INVALID) {
-					if (number >= PT_START) { // Valid path.
-						v->SetPathRideFlags(SetPathEdge(v->GetPathRideFlags(), edge2, add_edges));
-						modified = true;
-					} else { // A ride instance. Does it have an entrance here?
-						if ((v->GetPathRideFlags() & (1 << edge2)) != 0) modified = true;
-					}
+			if (v != NULL) {
+				uint16 number = v->GetInstance();
+				if (number == SRI_PATH) { // Valid path.
+					v->SetInstanceData(SetPathEdge(v->GetInstanceData(), edge2, add_edges));
+					MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
+					modified = true;
+				} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
+					if ((v->GetInstanceData() & (1 << edge2)) != 0) modified = true;
 				}
 			}
 		}

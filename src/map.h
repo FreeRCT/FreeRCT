@@ -27,94 +27,112 @@ static const int WORLD_X_SIZE = 128; ///< Maximal length of the X side (North-We
 static const int WORLD_Y_SIZE = 128; ///< Maximal length of the Y side (North-East side) of the world.
 static const int WORLD_Z_SIZE =  64; ///< Maximal height of the world.
 
-
 /**
- * Types of voxels.
- * @ingroup map_group
+ * In general, ride instances are stored in the #RidesManager, where there is room to store all the detailed information
+ * carried by the ride instance. Scenery and paths however so small that the instance does not actually carry state
+ * information, which means the instance can be shared, greatly reducing memory requirements.
+ * These rides are given a fixed ride instance number below to make them easy to handle. The graphics engine still
+ * considers them to be rides, and queries the rides manager for their definition and (graphic) representation.
  */
-enum VoxelType {
-	VT_EMPTY,     ///< Empty voxel.
-	VT_SURFACE,   ///< %Voxel contains path and/or earthy surface.
-	VT_REFERENCE, ///< %Voxel contains part of the referenced voxel.
+enum SmallRideInstance {
+	SRI_FREE,          ///< Ride instance is not used.
+	SRI_SAME_AS_NORTH, ///< Ride instance is the same as at the northern part.
+	SRI_SAME_AS_EAST,  ///< Ride instance is the same as at the eastern part.
+	SRI_SAME_AS_SOUTH, ///< Ride instance is the same as at the southern part.
+
+	SRI_RIDES_START,            ///< First ride instance.
+	SRI_PATH = SRI_RIDES_START, ///< Path.
+	// XXX Add other scenery objects, like trees and flower beds.
+	SRI_FULL_RIDES, ///< First ride instance number for normal rides (created and stored in #RidesManager).
+
+	SRI_LAST = 255, ///< Biggest possible ride number.
 };
 
-/**
- * Description of a referenced voxel.
- * For structures larger than a single voxel, only the base voxel contains a description.
- * The other voxels reference to the base voxel for their sprites.
- * @ingroup map_group
- */
-struct ReferenceVoxelData {
-	uint16 xpos; ///< Base voxel X coordinate.
-	uint16 ypos; ///< Base voxel Y coordinate.
-	uint8  zpos; ///< Base voxel Z coordinate.
-};
-
-/** Flags for the ride voxel data. */
-enum RideVoxelFlags {
-	RVF_NONE = 0, ///< No flags set.
-	RVF_ENTRANCE_NE = 1 << EDGE_NE, ///< %Voxel has a ride entrance at the north-east side.
-	RVF_ENTRANCE_SE = 1 << EDGE_SE, ///< %Voxel has a ride entrance at the south-east side.
-	RVF_ENTRANCE_SW = 1 << EDGE_SW, ///< %Voxel has a ride entrance at the south-west side.
-	RVF_ENTRANCE_NW = 1 << EDGE_NW, ///< %Voxel has a ride entrance at the north-west side.
-};
 
 /**
  * One voxel cell in the world.
- * A voxel that actually exists in the world map (most empty voxels are not stored at all), has one of the following types:
- * - #VT_EMPTY: The voxel contains nothing.
- * - #VT_SURFACE: The voxel contains surface.
- * - #VT_REFERENCE: The voxel is filled by another voxel.
- *
- * A surface voxel has three components:
- * - Foundation, #GetFoundationType retrieves the type (#FDT_INVALID means invalid), #GetFoundationSlope gets the slope.
- * - Ground, #GetGroundType retrieves the type (#GTP_INVALID means invalid), #GetGroundSlope gets the slope.
- * - Path or ride, #GetPathRideNumber retrieves what it is, 0..#PT_START-1 are ride instance numbers, #PT_START and higher are path types,
- *   except for #PT_INVALID. #GetPathRideFlags is the path slope, or the ride flags.
+ * A voxel consists of four parts and the ground data.
+ * Each part covers one corner. They are numbered using the #TileCorner values. A part consists of
+ * - The instance number of the ride that uses the part.
+ * - The voxel definition of the ride. This defines what sprite to draw. A ride may attach other meaning to the number,
+ *   for example use some bits to display variations.
+ * The ground data contains the foundations, and the ground (grass).
  *
  * @ingroup map_group
  */
 struct Voxel {
 public:
-	/**
-	 * Word 0 of a voxel.
-	 * - bit  0.. 1 (2): Type of the voxel. @see VoxelType
-	 * - For surface voxels:
-	 *   - bit  2.. 9 (8): Foundation slopes:
-	 *     - bit 2: Northern corner of NE edge is up.
-	 *     - bit 3: Eastern  corner of NE edge is up.
-	 *     - bit 4: Eastern  corner of SE edge is up.
-	 *     - bit 5: Southern corner of SE edge is up.
-	 *     - bit 6: Southern corner of SW edge is up.
-	 *     - bit 7: Western  corner of SW edge is up.
-	 *     - bit 8: Western  corner of NW edge is up.
-	 *     - bit 9: Northern corner of NW edge is up.
-	 *   - bit 10..13 (4): Type of foundation. @see FoundationType
-	 *   - bit 14..18 (5): Imploded ground slope. @see #ExpandTileSlope
-	 *   - bit 19..22 (4): Ground type. @see GroundType
-	 * - For reference voxels:
-	 *   - bit  2..9 (8): Z position.
-	 */
-	uint32 w0;
+	uint8 instance;       ///< Ride instances that uses this voxel.
+	uint16 instance_data; ///< %Voxel data of the #instance stored here.
 
 	/**
-	 * Word 1 of a voxel.
-	 * - For surface voxels:
-	 *   - bit  0.. 5 ( 6): Imploded path slope or ride flags. @see PathSprites RideVoxelFlags
-	 *   - bit  6..15 (10): Path type and ride numbers. @see PathRideType
-	 * - For reference voxels:
-	 *   - bit  0..15 (16): X position.
-	 *   - bit 16..31 (16): Y position.
+	 * Get the ride instance at this voxel.
+	 * @return Ride instance at this voxel.
 	 */
-	uint32 w1;
-
-	/**
-	 * Get the type of the voxel.
-	 * @return Voxel type.
-	 */
-	inline VoxelType GetType() const {
-		return (VoxelType)GB(this->w0, 0, 2);
+	inline SmallRideInstance GetInstance() const
+	{
+		return (SmallRideInstance)this->instance;
 	}
+
+	/**
+	 * Set the ride instance at this voxel.
+	 * @param instance Ride instance at this voxel.
+	 */
+	inline void SetInstance(SmallRideInstance instance)
+	{
+		this->instance = instance;
+	}
+
+	/**
+	 * Can a ride instance be placed here?
+	 * @return \c true if the instance can be placed, \c false if not.
+	 */
+	inline bool CanPlaceInstance() const
+	{
+		return this->GetInstance() == SRI_FREE;
+	}
+
+	/** Remove all instances from this voxel. */
+	inline void ClearInstances()
+	{
+		this->SetInstance(SRI_FREE);
+	}
+
+	/**
+	 * Get the data associated with the ride instance in this voxel.
+	 * @return %Voxel data stored in this voxel.
+	 */
+	inline uint16 GetInstanceData() const
+	{
+		return this->instance_data;
+	}
+
+	/**
+	 * Set the data associated with the ride instance in this voxel.
+	 * @param instance_data The voxel data stored in this voxel.
+	 */
+	inline void SetInstanceData(uint16 instance_data)
+	{
+		this->instance_data = instance_data;
+	}
+
+	/**
+	 * Ground and foundations.
+	 * - bit  0.. 3 (4): Type of foundation. @see FoundationType
+	 * - bit  4.. 7 (4): Ground type. @see GroundType
+	 * - bit  8..15 (8): Foundation slopes:
+	 *   - bit  8: Northern corner of NE edge is up.
+	 *   - bit  9: Eastern  corner of NE edge is up.
+	 *   - bit 10: Eastern  corner of SE edge is up.
+	 *   - bit 11: Southern corner of SE edge is up.
+	 *   - bit 12: Southern corner of SW edge is up.
+	 *   - bit 13: Western  corner of SW edge is up.
+	 *   - bit 14: Western  corner of NW edge is up.
+	 *   - bit 15: Northern corner of NW edge is up.
+	 * - bit 16..20 (5): Imploded ground slope. @see #ExpandTileSlope
+	 * - bit 21..23 (3): Growth of the tile grass.
+	 */
+	uint32 ground;
 
 	/* Foundation data access. */
 
@@ -123,8 +141,7 @@ public:
 	 * @return The foundation slope.
 	 */
 	inline uint8 GetFoundationSlope() const {
-		assert(this->GetType() == VT_SURFACE);
-		return GB(this->w0, 2, 8);
+		return GB(this->ground, 8, 8);
 	}
 
 	/**
@@ -132,8 +149,7 @@ public:
 	 * @return The foundation type.
 	 */
 	inline FoundationType GetFoundationType() const {
-		assert(this->GetType() == VT_SURFACE);
-		uint val = GB(this->w0, 10, 4);
+		uint val = GB(this->ground, 0, 4);
 		return (FoundationType)val;
 	}
 
@@ -142,8 +158,7 @@ public:
 	 * @param fnd_slope The new foundation slope.
 	 */
 	inline void SetFoundationSlope(uint8 fnd_slope) {
-		SB(this->w0, 0, 2, VT_SURFACE);
-		SB(this->w0, 2, 8, fnd_slope);
+		SB(this->ground, 8, 8, fnd_slope);
 	}
 
 	/**
@@ -152,20 +167,18 @@ public:
 	 */
 	inline void SetFoundationType(FoundationType fnd_type) {
 		assert(fnd_type < FDT_COUNT || fnd_type == FDT_INVALID);
-		SB(this->w0, 0, 2, VT_SURFACE);
-		SB(this->w0, 10, 4, fnd_type);
+		SB(this->ground, 0, 4, fnd_type);
 	}
 
 	/* Ground data access. */
 
 	/**
 	 * Get the imploded ground slope of a surface voxel.
-	 * @note As steep slopes are two voxels high, they have a reference voxel above them.
+	 * Steep slopes are two voxels high (a bottom and a top part).
 	 * @return The imploded ground slope.
 	 */
 	inline uint8 GetGroundSlope() const {
-		assert(this->GetType() == VT_SURFACE);
-		return GB(this->w0, 14, 5);
+		return GB(this->ground, 16, 5);
 	}
 
 	/**
@@ -173,20 +186,27 @@ public:
 	 * @return The ground type.
 	 */
 	inline GroundType GetGroundType() const {
-		assert(this->GetType() == VT_SURFACE);
-		uint val = GB(this->w0, 19, 4);
+		uint val = GB(this->ground, 4, 4);
 		return (GroundType)val;
 	}
 
 	/**
+	 * Get the growth.
+	 * @return The growth of the grass.
+	 * @todo Increment this value and (change ground type to other grass kinds) regularly to simulate grass growth.
+	 */
+	inline uint8 GetGrowth() const {
+		return GB(this->ground, 21, 3);
+	}
+
+	/**
 	 * Set the imploded ground slope of a surface voxel.
-	 * @note As steep slopes are two voxels high, they have a reference voxel above them.
+	 * Steep slopes are two voxels high (a bottom and a top part).
 	 * @param gnd_slope The new imploded ground slope.
 	 */
 	inline void SetGroundSlope(uint8 gnd_slope) {
-		assert(gnd_slope < 19); // 15 non-steep + 4 steep sprites.
-		SB(this->w0, 0, 2, VT_SURFACE);
-		SB(this->w0, 14, 5, gnd_slope);
+		assert(gnd_slope < 15 + 4 + 4); // 15 non-steep, 4 bottom, 4 top sprites.
+		SB(this->ground, 16, 5, gnd_slope);
 	}
 
 	/**
@@ -195,90 +215,17 @@ public:
 	 */
 	inline void SetGroundType(GroundType gnd_type) {
 		assert(gnd_type < GTP_COUNT || gnd_type == GTP_INVALID);
-		SB(this->w0, 0, 2, VT_SURFACE);
-		SB(this->w0, 19, 4, gnd_type);
-	}
-
-	/* Path and ride data access. */
-
-	/**
-	 * Get the path type or ride number.
-	 * @return The path type or ride number.
-	 * @see PathRideType
-	 */
-	inline uint16 GetPathRideNumber() const {
-		assert(this->GetType() == VT_SURFACE);
-		return GB(this->w1, 6, 10);
+		SB(this->ground, 4, 4, gnd_type);
 	}
 
 	/**
-	 * Get the path slope or ride flags of a surface voxel (#GetPathRideNumber decides the interpretation).
-	 * @return The slope or flags.
-	 * @see RideVoxelFlags PathSprites
+	 * Set the growth.
+	 * @param growth New growth value.
+	 * @todo Increment this value and (change ground type to other grass kinds) regularly to simulate grass growth.
 	 */
-	inline uint8 GetPathRideFlags() const {
-		assert(this->GetType() == VT_SURFACE);
-		return GB(this->w1, 0, 6);
-	}
-
-	/**
-	 * Set the path type or ride number.
-	 * @param number The number to store.
-	 */
-	inline void SetPathRideNumber(uint16 number) {
-		assert(number <= 0x3FFF);
-		SB(this->w0, 0, 2, VT_SURFACE);
-		SB(this->w1, 6, 10, number);
-	}
-
-	/**
-	 * Set the path slope or ride flags of a surface voxel.
-	 * @param flags Flags to store.
-	 */
-	inline void SetPathRideFlags(uint8 flags) {
-		assert(flags < 64);
-		SB(this->w0, 0, 2, VT_SURFACE);
-		SB(this->w1, 0, 6, flags);
-	}
-
-	/* Reference voxel access. */
-
-	/**
-	 * Set the position of a reference voxel.
-	 * @param xpos X position to store in the voxel.
-	 * @param ypos Y position to store in the voxel.
-	 * @param zpos Z position to store in the voxel.
-	 */
-	inline void SetReferencePosition(uint16 xpos, uint16 ypos, uint8 zpos)
-	{
-		assert(xpos < WORLD_X_SIZE); // Checks are a little too wide, unfortunately.
-		assert(ypos < WORLD_Y_SIZE);
-		assert(zpos < WORLD_Z_SIZE);
-		SB(this->w0,  0,  2, VT_REFERENCE);
-		SB(this->w0,  2,  8, zpos);
-		SB(this->w1,  0, 16, xpos);
-		SB(this->w1, 16, 16, ypos);
-	}
-
-	/**
-	 * Get the position of a reference voxel.
-	 * @param xpos [out] Pointer to X position.
-	 * @param ypos [out] Pointer to Y position.
-	 * @param zpos [out] Pointer to Z position.
-	 */
-	inline void GetReferencePosition(uint16 *xpos, uint16 *ypos, uint8 *zpos) const
-	{
-		assert(this->GetType() == VT_REFERENCE);
-		*xpos = GB(this->w1,  0, 16);
-		*ypos = GB(this->w1, 16, 16);
-		*zpos = GB(this->w0,  2,  8);
-	}
-
-
-	/** Set the voxel to empty. */
-	inline void SetEmpty()
-	{
-		SB(this->w0, 0, 2, VT_EMPTY);
+	inline void SetGrowth(uint8 growth) {
+		assert(growth < 8);
+		SB(this->ground, 21, 3, growth);
 	}
 
 	/**
@@ -287,9 +234,16 @@ public:
 	 */
 	inline bool IsEmpty() const
 	{
-		if (this->GetType() == VT_EMPTY) return true;
-		return this->GetType() == VT_SURFACE && this->GetPathRideNumber() == PT_INVALID &&
-				this->GetGroundType() == GTP_INVALID && this->GetFoundationType() == FDT_INVALID;
+		return this->GetInstance() == SRI_FREE && this->GetGroundType() == GTP_INVALID && this->GetFoundationType() == FDT_INVALID;
+	}
+
+	/** Make the voxel empty. */
+	void ClearVoxel()
+	{
+		this->SetGroundType(GTP_INVALID);
+		this->SetFoundationType(FDT_INVALID);
+		this->SetGrowth(0);
+		this->ClearInstances();
 	}
 
 	PersonList persons; ///< Persons present in this voxel.
@@ -299,10 +253,22 @@ public:
  * Does the given voxel contain a valid path?
  * @param v %Voxel to examine.
  * @return @c true if the voxel contains a valid path, else \c false.
+ * @todo Extend with acceptable types of path (plain path, queueing path, etc)
  */
 static inline bool HasValidPath(const Voxel *v) {
-	if (v->GetType() != VT_SURFACE) return false;
-	return v->GetPathRideNumber() >= PT_START && v->GetPathRideNumber() != PT_INVALID;
+	return v->instance == SRI_PATH && v->instance_data != PATH_INVALID;
+}
+
+/**
+ * Get the slope of the path (imploded value).
+ * @param v %Voxel to examine.
+ * @return Imploded slope of the path.
+ * @pre %Voxel should have a valid path.
+ */
+static inline PathSprites GetImplodedPathSlope(const Voxel *v) {
+	assert(HasValidPath(v));
+	assert(v->instance_data < PATH_COUNT);
+	return (PathSprites)v->instance_data;
 }
 
 /** Possible ownerships of a tile. */

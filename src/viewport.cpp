@@ -696,8 +696,8 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 {
 	for (uint i = 0; i < stack->height; i++) {
 		const Voxel *v = &stack->voxels[i];
-		if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
-		if (v->GetPathRideNumber() == PT_INVALID) {
+		if (v->GetGroundType() == GTP_INVALID) continue;
+		if (v->GetInstance() == SRI_FREE) {
 			this->ground_height = stack->base + i;
 			this->ground_slope = _slope_rotation[v->GetGroundSlope()][this->orient];
 			return;
@@ -766,7 +766,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		default: NOT_REACHED();
 	}
 
-	if (voxel == NULL) {
+	if (voxel == NULL) { // Draw cursor above stack.
 		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
 		if (mspr != NULL) {
 			DrawData dd;
@@ -782,215 +782,192 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		return;
 	}
 
-	switch (voxel->GetType()) {
-		case VT_SURFACE: {
-			uint8 platform_shape = PATH_INVALID;
-			/* Path or ride sprite. */
-			uint16 number = voxel->GetPathRideNumber();
-			if (number != PT_INVALID) {
-				if (number >= PT_START) { // A path.
-					DrawData dd;
-					dd.level = slice;
-					dd.z_height = zpos;
-					dd.order = SO_PATH;
-					platform_shape = _path_rotation[voxel->GetPathRideFlags()][this->orient];
-					dd.sprite = this->sprites->GetPathSprite(number, voxel->GetPathRideFlags(), this->orient);
-					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-					dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-					dd.recolour = NULL;
-					this->draw_images.insert(dd);
-				} else { // A ride.
-					DrawData dd[4];
-					int count = DrawRide(slice, zpos,
-							this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
-							this->orient, number, voxel->GetPathRideFlags(), dd);
-					for (int i = 0; i < count; i++) this->draw_images.insert(dd[i]);
-					platform_shape = PATH_NE_NW_SE_SW; // A ride looks like having exits everywhere -> no handle bars.
-				}
-			}
+	uint8 platform_shape = PATH_INVALID;
+	SmallRideInstance sri = voxel->GetInstance();
+	uint16 number = voxel->GetInstanceData();
+	if (sri == SRI_PATH && number != PATH_INVALID) { // A path (and not something reserved above it).
+		DrawData dd;
+		dd.level = slice;
+		dd.z_height = zpos;
+		dd.order = SO_PATH;
+		platform_shape = _path_rotation[GetImplodedPathSlope(voxel)][this->orient];
+		dd.sprite = this->sprites->GetPathSprite(number, GetImplodedPathSlope(voxel), this->orient);
+		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+		dd.recolour = NULL;
+		this->draw_images.insert(dd);
+	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
+		DrawData dd[4];
+		int count = DrawRide(slice, zpos,
+				this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
+				this->orient, sri, number, dd);
+		for (int i = 0; i < count; i++) this->draw_images.insert(dd[i]);
+		platform_shape = PATH_NE_NW_SE_SW; // A ride looks like having exits everywhere -> no handle bars.
+	}
 
-			/* Foundations. */
-			if (voxel->GetFoundationType() != FDT_INVALID) {
-				uint8 fslope = voxel->GetFoundationSlope();
-				uint8 sw, se; // SW foundations, SE foundations.
-				switch (this->orient) {
-					case VOR_NORTH: sw = GB(fslope, 4, 2); se = GB(fslope, 2, 2); break;
-					case VOR_EAST:  sw = GB(fslope, 6, 2); se = GB(fslope, 4, 2); break;
-					case VOR_SOUTH: sw = GB(fslope, 0, 2); se = GB(fslope, 6, 2); break;
-					case VOR_WEST:  sw = GB(fslope, 2, 2); se = GB(fslope, 0, 2); break;
-					default: NOT_REACHED();
-				}
-				const Foundation *fnd = this->sprites->foundation[FDT_GROUND];
-				if (fnd != NULL && sw != 0) {
-					const ImageData *img = fnd->sprites[3 + sw - 1];
-					if (img != NULL) {
-						DrawData dd;
-						dd.level = slice;
-						dd.z_height = zpos;
-						dd.order = SO_FOUNDATION;
-						dd.sprite = img;
-						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-						dd.recolour = NULL;
-						this->draw_images.insert(dd);
-					}
-				}
-				if (fnd != NULL && se != 0) {
-					const ImageData *img = fnd->sprites[se - 1];
-					if (img != NULL) {
-						DrawData dd;
-						dd.level = slice;
-						dd.z_height = zpos;
-						dd.order = SO_FOUNDATION;
-						dd.sprite = img;
-						dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-						dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-						dd.recolour = NULL;
-						this->draw_images.insert(dd);
-					}
-				}
-			}
-
-			/* Ground surface. */
-			uint8 gslope = SL_FLAT;
-			if (voxel->GetGroundType() != GTP_INVALID) {
+	/* Foundations. */
+	if (voxel->GetFoundationType() != FDT_INVALID) {
+		uint8 fslope = voxel->GetFoundationSlope();
+		uint8 sw, se; // SW foundations, SE foundations.
+		switch (this->orient) {
+			case VOR_NORTH: sw = GB(fslope, 4, 2); se = GB(fslope, 2, 2); break;
+			case VOR_EAST:  sw = GB(fslope, 6, 2); se = GB(fslope, 4, 2); break;
+			case VOR_SOUTH: sw = GB(fslope, 0, 2); se = GB(fslope, 6, 2); break;
+			case VOR_WEST:  sw = GB(fslope, 2, 2); se = GB(fslope, 0, 2); break;
+			default: NOT_REACHED();
+		}
+		const Foundation *fnd = this->sprites->foundation[FDT_GROUND];
+		if (fnd != NULL && sw != 0) {
+			const ImageData *img = fnd->sprites[3 + sw - 1];
+			if (img != NULL) {
 				DrawData dd;
 				dd.level = slice;
 				dd.z_height = zpos;
-				dd.order = SO_GROUND;
-				uint8 slope = voxel->GetGroundSlope();
-				dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), slope, this->orient);
-				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-				dd.recolour = NULL;
-				this->draw_images.insert(dd);
-				switch (slope) {
-					// XXX There are no sprites for partial support of a platform.
-					case SL_FLAT:
-						if (platform_shape < PATH_FLAT_COUNT) platform_shape = PATH_INVALID;
-						break;
-
-					case TSB_SOUTHWEST:
-						if (platform_shape == PATH_RAMP_NE) platform_shape = PATH_INVALID;
-						break;
-
-					case TSB_SOUTHEAST:
-						if (platform_shape == PATH_RAMP_NW) platform_shape = PATH_INVALID;
-						break;
-
-					case TSB_NORTHWEST:
-						if (platform_shape == PATH_RAMP_SE) platform_shape = PATH_INVALID;
-						break;
-
-					case TSB_NORTHEAST:
-						if (platform_shape == PATH_RAMP_SW) platform_shape = PATH_INVALID;
-						break;
-
-					default:
-						platform_shape = PATH_INVALID;
-						break;
-				}
-
-				gslope = voxel->GetGroundSlope();
-			}
-
-			/* Sprite cursor (arrow) */
-			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
-			if (mspr != NULL) {
-				DrawData dd;
-				dd.level = slice;
-				dd.z_height = zpos;
-				dd.order = SO_CURSOR;
-				dd.sprite = mspr;
+				dd.order = SO_FOUNDATION;
+				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = NULL;
 				this->draw_images.insert(dd);
 			}
-
-			/* Add platforms. */
-			if (this->sprites->platform != NULL && platform_shape != PATH_INVALID) {
-				/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
-				ImageData *pl_spr;
-				switch (platform_shape) {
-					case PATH_RAMP_NE: pl_spr = this->sprites->platform->ramp[2]; break;
-					case PATH_RAMP_NW: pl_spr = this->sprites->platform->ramp[1]; break;
-					case PATH_RAMP_SE: pl_spr = this->sprites->platform->ramp[3]; break;
-					case PATH_RAMP_SW: pl_spr = this->sprites->platform->ramp[0]; break;
-					default: pl_spr = this->sprites->platform->flat[this->orient & 1]; break;
-				}
-				if (pl_spr != NULL) {
-					DrawData dd;
-					dd.level = slice;
-					dd.z_height = zpos;
-					dd.order = SO_PLATFORM;
-					dd.sprite = pl_spr;
-					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-					dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-					dd.recolour = NULL;
-					this->draw_images.insert(dd);
-				}
-
-				/* XXX Use the shape to draw handle bars. */
-
-				/* Add supports. */
-				uint16 height = this->ground_height;
-				this->ground_height = -1;
-				if (height >= 0) {
-					uint8 slope = this->ground_slope;
-					while (height < zpos) {
-						int yoffset = (zpos - height) * this->vp->tile_height; // Compensate y position of support.
-						uint sprnum;
-						if (slope == SL_FLAT) {
-							if (height + 1 < zpos) {
-								sprnum = SSP_FLAT_DOUBLE_NS + (this->orient & 1);
-								height += 2;
-							} else {
-								sprnum = SSP_FLAT_SINGLE_NS + (this->orient & 1);
-								height += 1;
-							}
-						} else {
-							if (slope >= 15) { // Imploded steep slope.
-								sprnum = SSP_STEEP_N + ((slope - 15) + 2) % 4;
-								height += 2;
-							} else {
-								sprnum = SSP_NONFLAT_BASE + 15 - slope;
-								height++;
-							}
-							slope = SL_FLAT;
-						}
-						ImageData *img = this->sprites->support->sprites[sprnum];
-						if (img != NULL) {
-							DrawData dd;
-							dd.level = slice;
-							dd.z_height = height;
-							dd.order = SO_SUPPORT;
-							dd.sprite = img;
-							dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-							dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
-							dd.recolour = NULL;
-							this->draw_images.insert(dd);
-						}
-					}
-				}
+		}
+		if (fnd != NULL && se != 0) {
+			const ImageData *img = fnd->sprites[se - 1];
+			if (img != NULL) {
+				DrawData dd;
+				dd.level = slice;
+				dd.z_height = zpos;
+				dd.order = SO_FOUNDATION;
+				dd.sprite = img;
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = NULL;
+				this->draw_images.insert(dd);
 			}
-			break;
+		}
+	}
+
+	/* Ground surface. */
+	uint8 gslope = SL_FLAT;
+	if (voxel->GetGroundType() != GTP_INVALID) {
+		DrawData dd;
+		dd.level = slice;
+		dd.z_height = zpos;
+		dd.order = SO_GROUND;
+		uint8 slope = voxel->GetGroundSlope();
+		dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), slope, this->orient);
+		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+		dd.recolour = NULL;
+		this->draw_images.insert(dd);
+		switch (slope) {
+			// XXX There are no sprites for partial support of a platform.
+			case SL_FLAT:
+				if (platform_shape < PATH_FLAT_COUNT) platform_shape = PATH_INVALID;
+				break;
+
+			case TSB_SOUTHWEST:
+				if (platform_shape == PATH_RAMP_NE) platform_shape = PATH_INVALID;
+				break;
+
+			case TSB_SOUTHEAST:
+				if (platform_shape == PATH_RAMP_NW) platform_shape = PATH_INVALID;
+				break;
+
+			case TSB_NORTHWEST:
+				if (platform_shape == PATH_RAMP_SE) platform_shape = PATH_INVALID;
+				break;
+
+			case TSB_NORTHEAST:
+				if (platform_shape == PATH_RAMP_SW) platform_shape = PATH_INVALID;
+				break;
+
+			default:
+				platform_shape = PATH_INVALID;
+				break;
 		}
 
-		default: {
-			const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
-			if (mspr != NULL) {
-				DrawData dd;
-				dd.level = slice;
-				dd.z_height = zpos;
-				dd.order = SO_CURSOR;
-				dd.sprite = mspr;
-				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-				dd.recolour = NULL;
-				this->draw_images.insert(dd);
+		gslope = voxel->GetGroundSlope();
+	}
+
+	/* Sprite cursor (arrow) */
+	const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
+	if (mspr != NULL) {
+		DrawData dd;
+		dd.level = slice;
+		dd.z_height = zpos;
+		dd.order = SO_CURSOR;
+		dd.sprite = mspr;
+		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+		dd.recolour = NULL;
+		this->draw_images.insert(dd);
+	}
+
+	/* Add platforms. */
+	if (this->sprites->platform != NULL && platform_shape != PATH_INVALID) {
+		/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
+		ImageData *pl_spr;
+		switch (platform_shape) {
+			case PATH_RAMP_NE: pl_spr = this->sprites->platform->ramp[2]; break;
+			case PATH_RAMP_NW: pl_spr = this->sprites->platform->ramp[1]; break;
+			case PATH_RAMP_SE: pl_spr = this->sprites->platform->ramp[3]; break;
+			case PATH_RAMP_SW: pl_spr = this->sprites->platform->ramp[0]; break;
+			default: pl_spr = this->sprites->platform->flat[this->orient & 1]; break;
+		}
+		if (pl_spr != NULL) {
+			DrawData dd;
+			dd.level = slice;
+			dd.z_height = zpos;
+			dd.order = SO_PLATFORM;
+			dd.sprite = pl_spr;
+			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+			dd.recolour = NULL;
+			this->draw_images.insert(dd);
+		}
+
+		/* XXX Use the shape to draw handle bars. */
+
+		/* Add supports. */
+		uint16 height = this->ground_height;
+		this->ground_height = -1;
+		if (height >= 0) {
+			uint8 slope = this->ground_slope;
+			while (height < zpos) {
+				int yoffset = (zpos - height) * this->vp->tile_height; // Compensate y position of support.
+				uint sprnum;
+				if (slope == SL_FLAT) {
+					if (height + 1 < zpos) {
+						sprnum = SSP_FLAT_DOUBLE_NS + (this->orient & 1);
+						height += 2;
+					} else {
+						sprnum = SSP_FLAT_SINGLE_NS + (this->orient & 1);
+						height += 1;
+					}
+				} else {
+					if (slope >= 15) { // Imploded steep slope.
+						sprnum = SSP_STEEP_N + ((slope - 15) + 2) % 4;
+						height += 2;
+					} else {
+						sprnum = SSP_NONFLAT_BASE + 15 - slope;
+						height++;
+					}
+					slope = SL_FLAT;
+				}
+				ImageData *img = this->sprites->support->sprites[sprnum];
+				if (img != NULL) {
+					DrawData dd;
+					dd.level = slice;
+					dd.z_height = height;
+					dd.order = SO_SUPPORT;
+					dd.sprite = img;
+					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+					dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
+					dd.recolour = NULL;
+					this->draw_images.insert(dd);
+				}
 			}
-			break;
 		}
 	}
 
@@ -1074,73 +1051,71 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 
 	if (voxel == NULL) return; // Ignore cursors, they are not clickable.
 
-	if (voxel->GetType() == VT_SURFACE) {
-		/* Looking for a ride? */
-		uint16 number = voxel->GetPathRideNumber();
-		if ((this->allowed & SO_RIDE) != 0 && number < PT_START) {
-			DrawData dd[4];
-			int count = DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
-					this->orient, number, voxel->GetPathRideFlags(), dd);
-			for (int i = 0; i < count; i++) {
-				if (!this->found || this->data < dd[i]) {
-					const ImageData *img = dd[i].sprite;
-					uint8 pixel = img->GetPixel(dd[i].base.x - img->xoffset, dd[i].base.y - img->yoffset);
-					if (pixel != 0) {
-						this->found = true;
-						this->data = dd[i];
-						this->fdata->xvoxel = xpos;
-						this->fdata->yvoxel = ypos;
-						this->fdata->zvoxel = zpos;
-						this->pixel = pixel;
-						this->fdata->ride = number;
-					}
-				}
-			}
-		}
-		/* Looking for a path? */
-		if ((this->allowed & SO_PATH) != 0 && number != PT_INVALID && number >= PT_START) {
-			const ImageData *img = this->sprites->GetPathSprite(number, voxel->GetPathRideFlags(), this->orient);
-			DrawData dd;
-			dd.level = slice;
-			dd.z_height = zpos;
-			dd.order = SO_PATH;
-			dd.sprite = NULL;
-			dd.base.x = this->rect.base.x - xnorth;
-			dd.base.y = this->rect.base.y - ynorth;
-			dd.recolour = NULL;
-			if (img != NULL && (!this->found || this->data < dd)) {
-				uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+	/* Looking for a ride? */
+	SmallRideInstance number = voxel->GetInstance();
+	if ((this->allowed & SO_RIDE) != 0 && number >= SRI_FULL_RIDES) {
+		DrawData dd[4];
+		int count = DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
+				this->orient, number, voxel->GetInstanceData(), dd);
+		for (int i = 0; i < count; i++) {
+			if (!this->found || this->data < dd[i]) {
+				const ImageData *img = dd[i].sprite;
+				uint8 pixel = img->GetPixel(dd[i].base.x - img->xoffset, dd[i].base.y - img->yoffset);
 				if (pixel != 0) {
 					this->found = true;
-					this->data = dd;
+					this->data = dd[i];
 					this->fdata->xvoxel = xpos;
 					this->fdata->yvoxel = ypos;
 					this->fdata->zvoxel = zpos;
 					this->pixel = pixel;
+					this->fdata->ride = number;
 				}
 			}
 		}
-		/* Looking for surface? */
-		if ((this->allowed & SO_GROUND) != 0 && voxel->GetGroundType() != GTP_INVALID) {
-			const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
-			DrawData dd;
-			dd.level = slice;
-			dd.z_height = zpos;
-			dd.order = SO_GROUND;
-			dd.sprite = NULL;
-			dd.base.x = this->rect.base.x - xnorth;
-			dd.base.y = this->rect.base.y - ynorth;
-			dd.recolour = NULL;
-			if (spr != NULL && (!this->found || this->data < dd)) {
-				uint8 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
-				if (pixel != 0) {
-					this->found = true;
-					this->data = dd;
-					this->fdata->xvoxel = xpos;
-					this->fdata->yvoxel = ypos;
-					this->fdata->zvoxel = zpos;
-					this->pixel = pixel;
-				}
+	}
+	/* Looking for a path? */
+	if ((this->allowed & SO_PATH) != 0 && HasValidPath(voxel)) {
+		const ImageData *img = this->sprites->GetPathSprite(number, GetImplodedPathSlope(voxel), this->orient);
+		DrawData dd;
+		dd.level = slice;
+		dd.z_height = zpos;
+		dd.order = SO_PATH;
+		dd.sprite = NULL;
+		dd.base.x = this->rect.base.x - xnorth;
+		dd.base.y = this->rect.base.y - ynorth;
+		dd.recolour = NULL;
+		if (img != NULL && (!this->found || this->data < dd)) {
+			uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+			if (pixel != 0) {
+				this->found = true;
+				this->data = dd;
+				this->fdata->xvoxel = xpos;
+				this->fdata->yvoxel = ypos;
+				this->fdata->zvoxel = zpos;
+				this->pixel = pixel;
+			}
+		}
+	}
+	/* Looking for surface? */
+	if ((this->allowed & SO_GROUND) != 0 && voxel->GetGroundType() != GTP_INVALID) {
+		const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
+		DrawData dd;
+		dd.level = slice;
+		dd.z_height = zpos;
+		dd.order = SO_GROUND;
+		dd.sprite = NULL;
+		dd.base.x = this->rect.base.x - xnorth;
+		dd.base.y = this->rect.base.y - ynorth;
+		dd.recolour = NULL;
+		if (spr != NULL && (!this->found || this->data < dd)) {
+			uint8 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
+			if (pixel != 0) {
+				this->found = true;
+				this->data = dd;
+				this->fdata->xvoxel = xpos;
+				this->fdata->yvoxel = ypos;
+				this->fdata->zvoxel = zpos;
+				this->pixel = pixel;
 			}
 		}
 	}
@@ -1268,44 +1243,25 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 		if (v == NULL) {
 			height = 1;
 		} else {
-			VoxelType vt = v->GetType();
-			if (vt == VT_REFERENCE) {
-				uint16 xp, yp;
-				uint8 zp;
-				v->GetReferencePosition(&xp, &yp, &zp);
-				v = _world.GetVoxel(xp, yp, zp);
-				vt = v->GetType();
+			height = 1; // There are no steep slopes, so 1 covers paths already.
+			if (v->GetGroundType() != GTP_INVALID) {
+				if (IsImplodedSteepSlope(v->GetGroundSlope())) height = 2;
 			}
-			switch (v->GetType()) {
-				case VT_EMPTY:
-					height = 1;
-					break;
-
-				case VT_SURFACE: {
-					height = 1; // There are no steep slopes, so 1 covers paths already.
-					if (v->GetGroundType() != GTP_INVALID) {
-						if (IsImplodedSteepSlope(v->GetGroundSlope())) height = 2;
-					}
-					uint16 number = v->GetPathRideNumber();
-					if (number < PT_START && number != PT_INVALID) { // A ride.
-						const RideInstance *ri = _rides_manager.GetRideInstance(number);
-						if (ri != NULL) {
-							switch (ri->GetKind()) {
-								case RTK_SHOP: {
-									const ShopInstance *si = static_cast<const ShopInstance *>(ri);
-									height = si->GetShopType()->height;
-									break;
-								}
-
-								default:
-									break;
-							}
+			SmallRideInstance number = v->GetInstance();
+			if (number >= SRI_FULL_RIDES) { // A ride.
+				const RideInstance *ri = _rides_manager.GetRideInstance(number);
+				if (ri != NULL) {
+					switch (ri->GetKind()) {
+						case RTK_SHOP: {
+							const ShopInstance *si = static_cast<const ShopInstance *>(ri);
+							height = si->GetShopType()->height;
+							break;
 						}
-					}
-					break;
-				}
 
-				default: NOT_REACHED();
+						default:
+							break;
+					}
+				}
 			}
 		}
 	}

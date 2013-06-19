@@ -148,11 +148,13 @@ int SpriteBlock::Write(FileWriter *fw)
 SheetBlock::SheetBlock(const Position &pos) : pos(pos)
 {
 	this->img_sheet = NULL;
+	this->mask = NULL;
 }
 
 SheetBlock::~SheetBlock()
 {
 	delete this->img_sheet;
+	delete this->mask;
 }
 
 /**
@@ -164,7 +166,8 @@ Image *SheetBlock::GetSheet()
 	if (this->img_sheet != NULL) return this->img_sheet;
 
 	this->img_sheet = new Image;
-	const char *err = this->img_sheet->LoadFile(file.c_str());
+	BitMaskData *bmd = (this->mask == NULL) ? NULL : &this->mask->data;
+	const char *err = this->img_sheet->LoadFile(file.c_str(), bmd);
 	if (err != NULL) {
 		fprintf(stderr, "Error at %s, loading of the sheet-image failed: %s\n", this->pos.ToString(), err);
 		exit(1);
@@ -185,7 +188,7 @@ Image *SheetBlock::GetSheet()
 	return spr_blk;
 }
 
-TSELBlock::TSELBlock() : GameBlock("TSEL", 1)
+TSELBlock::TSELBlock() : GameBlock("TSEL", 2)
 {
 	for (int i = 0; i < SURFACE_COUNT; i++) {
 		this->sprites[i] = NULL;
@@ -202,7 +205,7 @@ TSELBlock::TSELBlock() : GameBlock("TSEL", 1)
 /* virtual */ int TSELBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 92 - 12);
+	fb->StartSave(this->blk_name, this->version, 108 - 12);
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt16(this->z_height);
 	for (int i = 0; i < SURFACE_COUNT; i++) {
@@ -212,7 +215,7 @@ TSELBlock::TSELBlock() : GameBlock("TSEL", 1)
 	return fw->AddBlock(fb);
 }
 
-TCORBlock::TCORBlock() : GameBlock("TCOR", 1)
+TCORBlock::TCORBlock() : GameBlock("TCOR", 2)
 {
 	for (int i = 0; i < SURFACE_COUNT; i++) {
 		this->north[i] = NULL;
@@ -235,7 +238,7 @@ TCORBlock::TCORBlock() : GameBlock("TCOR", 1)
 /* virtual */ int TCORBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 320 - 12);
+	fb->StartSave(this->blk_name, this->version, 384 - 12);
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt16(this->z_height);
 	for (int i = 0; i < SURFACE_COUNT; i++) fb->SaveUInt32(this->north[i]->Write(fw));
@@ -246,7 +249,7 @@ TCORBlock::TCORBlock() : GameBlock("TCOR", 1)
 	return fw->AddBlock(fb);
 }
 
-SURFBlock::SURFBlock() : GameBlock("SURF", 3)
+SURFBlock::SURFBlock() : GameBlock("SURF", 4)
 {
 	for (int i = 0; i < SURFACE_COUNT; i++) this->sprites[i] = NULL;
 }
@@ -259,7 +262,7 @@ SURFBlock::~SURFBlock()
 /* virtual */ int SURFBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 94 - 12);
+	fb->StartSave(this->blk_name, this->version, 110 - 12);
 	fb->SaveUInt16(this->surf_type);
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt16(this->z_height);
@@ -1170,3 +1173,12 @@ int RCSTBlock::Write(FileWriter *fw)
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
+
+BitMask::BitMask() : BlockNode()
+{
+}
+
+BitMask::~BitMask()
+{
+}
+

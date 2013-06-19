@@ -206,63 +206,65 @@ the layout of such a sub-block.
 Note that the sprites should look to the north (thus, the sprite at 4 has its
 back corner up).
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Flat surface tile.
-   4       4    North corner up.
-   8       4    East corner up.
-  12       4    North, east corners up.
-  16       4    South corner up.
-  20       4    North, south corners up.
-  24       4    East, south corners up.
-  28       4    North, east, south corners up.
-  32       4    West corner up.
-  36       4    West, north corners up.
-  40       4    West, east corners up.
-  44       4    West, north, east corners up.
-  48       4    West, south corners up.
-  52       4    West, north, south corners up.
-  56       4    West, east, south corners up.
-  60       4    Steep north slope.
-  64       4    Steep east slope.
-  68       4    Steep south slope.
-  72       4    Steep west slope.
-  76            Total length of the sub-block.
-======  ======  ==========================================================
+The suffix is added to denote a specific sprite in a sequence inside another block.
+
+======  ======  =======  ======  ===========================================================================
+Offset  Length  Version  Suffix  Description
+======  ======  =======  ======  ===========================================================================
+   0       4      1-2    #       Flat surface tile.
+   4       4      1-2    #n      North corner up.
+   8       4      1-2    #e      East corner up.
+  12       4      1-2    #ne     North, east corners up.
+  16       4      1-2    #s      South corner up.
+  20       4      1-2    #ns     North, south corners up.
+  24       4      1-2    #es     East, south corners up.
+  28       4      1-2    #nes    North, east, south corners up.
+  32       4      1-2    #w      West corner up.
+  36       4      1-2    #nw     West, north corners up.
+  40       4      1-2    #ew     West, east corners up.
+  44       4      1-2    #new    West, north, east corners up.
+  48       4      1-2    #sw     West, south corners up.
+  52       4      1-2    #nsw    West, north, south corners up.
+  56       4      1-2    #esw    West, east, south corners up.
+  60       4      1-2    #Nb     Steep north slope (bottom part).
+  64       4      1-2    #Eb     Steep east slope  (bottom part).
+  68       4      1-2    #Sb     Steep south slope (bottom part).
+  72       4      1-2    #Wb     Steep west slope  (bottom part).
+  76       4       2     #Nt     Steep north slope (top part).
+  80       4       2     #Et     Steep east slope  (top part).
+  84       4       2     #St     Steep south slope (top part).
+  88       4       2     #Wt     Steep west slope  (top part).
+  92                             Total length of the sub-block.
+======  ======  =======  ======  ===========================================================================
 
 Version history
 ...............
 
 - 1 (20110915) Initial version.
+- 2 (20130602) Steep slope sprites were split in a bottom and top part.
 
 
 Ground tiles block
 ~~~~~~~~~~~~~~~~~~
 A set of ground tiles that form a smooth surface. Current version in
-FreeRCT is 3.
+FreeRCT is 4.
 
-======  ======  =======  =================================================
+======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
-======  ======  =======  =================================================
-   0       4      1-3    Magic string 'SURF'.
-   4       4      1-3    Version number of the block.
-   8       4      1-3    Length of the block excluding magic string,
-                         version, and length.
-  12       2      2-3    Type of ground.
-  14       2      1-3    Zoom-width of a tile of the surface.
-  16       2      1-3    Change in Z height (in pixels) when going up or
-                         down a tile level.
-  18      76      1-3    Tile surface sprite sub-block for north viewing
-                         direction.
-  94      76      1-2    Tile surface sprite sub-block for east viewing
-                         direction.
-  94      76      1-2    Tile surface sprite sub-block for south viewing
-                         direction.
-  94      76      1-2    Tile surface sprite sub-block for west viewing
-                         direction.
-  94                     Total length of version 3.
-======  ======  =======  =================================================
+======  ======  =======  ===================================================================================
+   0       4      1-4    Magic string 'SURF'.
+   4       4      1-4    Version number of the block.
+   8       4      1-4    Length of the block excluding magic string, version, and length.
+  12       2      2-4    Type of ground.
+  14       2      1-4    Zoom-width of a tile of the surface.
+  16       2      1-4    Change in Z height (in pixels) when going up or down a tile level.
+  --      76      1-3    Tile surface sprite sub-block for north viewing direction.
+  18      92       4     Tile surface sprite sub-block for north viewing direction.
+  --      76      1-2    Tile surface sprite sub-block for east viewing direction.
+  --      76      1-2    Tile surface sprite sub-block for south viewing direction.
+  --      76      1-2    Tile surface sprite sub-block for west viewing direction.
+ 110                     Total length.
+======  ======  =======  ===================================================================================
 
 Known types of ground:
 
@@ -283,108 +285,113 @@ Version history
 - 2 (20110918) Added ground type.
 - 3 (20110925) Removed sprite blocks for viewing in east, south, and west direction.
 -   (20111014) Added 'Cursor' tiles type.
+- 4 (20130602) Steep slope sprites split in a bottom and top part.
+
 
 Tile selection
 ~~~~~~~~~~~~~~
 A tile selection cursor. It is very similar to ground tiles, except there is
-no type.
+no type. FreeRCT can read blocks with version number 2.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'TSEL'.
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                length.
-  12       2    Zoom-width of a tile of the surface.
-  14       2    Change in Z height (in pixels) when going up or down a
-                tile level.
-  16      76    Tile surface sprite sub-block.
-  92            Total length.
-======  ======  ==========================================================
+======  ======  =======  ===================================================================================
+Offset  Length  Version  Description
+======  ======  =======  ===================================================================================
+   0       4      1-2    Magic string 'TSEL'.
+   4       4      1-2    Version number of the block.
+   8       4      1-2    Length of the block excluding magic string, version, and length.
+  12       2      1-2    Zoom-width of a tile of the surface.
+  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
+  --      76       1     Tile surface sprite sub-block.
+  16      92       2     Tile surface sprite sub-block.
+ 108                     Total length.
+======  ======  =======  ===================================================================================
 
 Version history
 ...............
 
 - 1 (20110925) Initial version.
+- 2 (20130602) Longer surface sprite block due to splitting the steep slope sprites.
 
 
 Tile area selection
 ~~~~~~~~~~~~~~~~~~~
 Sprites to point out a (selection of) tile(s) to the user.
+FreeRCT can read blocks with version 2.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'TARE'.
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                length.
-  12       2    zoom-width of a tile of the surface.
-  14       2    Change in Z height (in pixels) when going up or down a
-                tile level.
-  16      76    Tile surface sprite sub-block.
-  92            Total length.
-======  ======  ==========================================================
+======  ======  =======  ===================================================================================
+Offset  Length  Version  Description
+======  ======  =======  ===================================================================================
+   0       4      1-2    Magic string 'TARE'.
+   4       4      1-2    Version number of the block.
+   8       4      1-2    Length of the block excluding magic string, version, and length.
+  12       2      1-2    zoom-width of a tile of the surface.
+  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
+  --      76       1     Tile surface sprite sub-block.
+  16      92       2     Tile surface sprite sub-block.
+ 108                     Total length.
+======  ======  =======  ===================================================================================
 
 Version history
 ...............
 
 - 1 (20110925) Initial version.
+- 2 (20130602) Longer surface sprite block due to splitting the steep slope sprites.
 
 
 Patrol area selection
 ~~~~~~~~~~~~~~~~~~~~~
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'PARE'.
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                length.
-  12       2    Zoom-width of a tile of the surface.
-  14       2    Change in Z height (in pixels) when going up or down a
-                tile level.
-  16      76    Tile surface sprite sub-block.
-  92            Total length.
-======  ======  ==========================================================
+Tiles to display the patrol area of staff.
+FreeRCT can read blocks with version 2.
+
+======  ======  =======  ===================================================================================
+Offset  Length  Version  Description
+======  ======  =======  ===================================================================================
+   0       4      1-2    Magic string 'PARE'.
+   4       4      1-2    Version number of the block.
+   8       4      1-2    Length of the block excluding magic string, version, and length.
+  12       2      1-2    Zoom-width of a tile of the surface.
+  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
+  --      76       1     Tile surface sprite sub-block.
+  16      92       2     Tile surface sprite sub-block.
+ 108                     Total length.
+======  ======  =======  ===================================================================================
 
 Version history
 ...............
 
 - 1 (20110925) Initial version.
+- 2 (20130602) Longer surface sprite block due to splitting the steep slope sprites.
 
 
 Tile corner selection block
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Sprites for pointing to a single corner of a surface tile.
+Sprites for pointing to a single corner of a surface tile. Current version is 2.
 
-======  ======  ==========================================================
-Offset  Length  Description
-======  ======  ==========================================================
-   0       4    Magic string 'TCOR'
-   4       4    Version number of the block '1'.
-   8       4    Length of the block excluding magic string, version, and
-                length.
-  12       2    Zoom-width of a tile of the surface.
-  14       2    Change in Z height (in pixels) when going up or down a
-                tile level.
-  16      76    Tile surface sprite sub-block for selected corner pointing
-                north.
-  92      76    Tile surface sprite sub-block for selected corner pointing
-                east.
- 168      76    Tile surface sprite sub-block for selected corner pointing
-                south.
- 244      76    Tile surface sprite sub-block for selected corner pointing
-                west.
- 320            Total length.
-======  ======  ==========================================================
+======  ======  =======  ===================================================================================
+Offset  Length  Version  Description
+======  ======  =======  ===================================================================================
+   0       4      1-2    Magic string 'TCOR'
+   4       4      1-2    Version number of the block.
+   8       4      1-2    Length of the block excluding magic string, version, and length.
+  12       2      1-2    Zoom-width of a tile of the surface.
+  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
+  --      76       1     Tile surface sprite sub-block for selected corner pointing north.
+  16      92       2     Tile surface sprite sub-block for selected corner pointing north.
+  --      76       1     Tile surface sprite sub-block for selected corner pointing east.
+ 108      92       2     Tile surface sprite sub-block for selected corner pointing east.
+  --      76       1     Tile surface sprite sub-block for selected corner pointing south.
+ 200      92       2     Tile surface sprite sub-block for selected corner pointing south.
+  --      76       1     Tile surface sprite sub-block for selected corner pointing west.
+ 292      92       2     Tile surface sprite sub-block for selected corner pointing west.
+ 384                     Total length.
+======  ======  =======  ===================================================================================
 
 Version history
 ...............
 
 - 1 (20110925) Initial version.
+- 2 (20130602) Longer surface sprite block due to splitting the steep slope sprites.
 
 
 Shops/stalls
@@ -743,7 +750,8 @@ Version history
 Track pieces
 ~~~~~~~~~~~~
 
-A track piece definition describes a single piece of track in a TRCK block. FreeRCT can read blocks with version 2. Each piece needs
+A track piece definition describes a single piece of track in a TRCK block.
+FreeRCT can read blocks with version 2. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is
 called the *exit* voxel. The *entry* voxel of a track piece is at the *exit*

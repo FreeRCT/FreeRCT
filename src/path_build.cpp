@@ -35,17 +35,245 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
 
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
-	if (vx == NULL || vx->GetType() == VT_EMPTY || vx->GetType() == VT_REFERENCE) {
+	if (vx == NULL || vx->GetInstance() != SRI_PATH) {
 		/* No path here, check the voxel below. */
 		if (zpos == 0) return false;
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
-		if (vx == NULL || vx->GetType() != VT_SURFACE || !HasValidPath(vx)) return false;
+		if (vx == NULL || !HasValidPath(vx)) return false;
 		/* Path must end at the top of the voxel. */
-		return vx->GetPathRideFlags() == _path_up_from_edge[edge];
+		return GetImplodedPathSlope(vx) == _path_up_from_edge[edge];
 	}
-	if (vx->GetType() != VT_SURFACE || !HasValidPath(vx)) return false;
+	if (!HasValidPath(vx)) return false;
 	/* Path must end at the bottom of the voxel. */
-	return vx->GetPathRideFlags() < PATH_FLAT_COUNT || vx->GetPathRideFlags() == _path_down_from_edge[edge];
+	return GetImplodedPathSlope(vx) < PATH_FLAT_COUNT || GetImplodedPathSlope(vx) == _path_down_from_edge[edge];
+}
+
+/**
+ * In the given voxel, can an upward path be build in the voxel from the bottom at the given edge?
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param edge Entry edge.
+ * @param test_only Only test whether it could be created.
+ * @return Whether the path is or could be built.
+ */
+static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bool test_only)
+{
+	/* xy position should be valid, and allow path building. */
+	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+
+	if (zpos < 0 || zpos > WORLD_Z_SIZE - 3) return false; // Z range should be valid.
+
+	const VoxelStack *vs = _world.GetStack(xpos, ypos);
+	const Voxel *v = vs->Get(zpos + 1); // Voxel above the path should be empty.
+	if (v != NULL && !v->IsEmpty()) return false;
+
+	v = vs->Get(zpos + 2); // 2 voxels higher should also be empty.
+	if (v != NULL && !v->IsEmpty()) return false;
+
+	v = vs->Get(zpos);
+	if (v != NULL) {
+		if (v->GetInstance() != SRI_FREE) return false; // Voxel should have no other rides.
+		if (v->GetGroundType() != GTP_INVALID) {
+			TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
+			if ((slope & (TSB_STEEP | TSB_TOP)) == TSB_STEEP) return false;
+			if ((slope & _corners_at_edge[edge]) != 0) return false; // A raised corner at 'edge'.
+		} else {
+			/* No surface, but a foundation suggests a nearby hill.
+			 * Currently simply deny building here, in the future, consider making a tunnel.
+			 */
+			if (v->GetFoundationType() != FDT_INVALID) return false;
+		}
+	}
+
+	if (!test_only) {
+		/* Build an upward path. */
+		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
+
+		Voxel *av = avs->GetCreate(zpos, true);
+		av->SetInstance(SRI_PATH);
+		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, _path_up_from_edge[edge], EDGE_ALL, true, true);
+		av->SetInstanceData(slope);
+
+		av = avs->GetCreate(zpos + 1, true);
+		av->ClearVoxel();
+		av->SetInstance(SRI_PATH);
+		av->SetInstanceData(PATH_INVALID);
+
+		av = avs->GetCreate(zpos + 2, true);
+		av->ClearVoxel();
+		av->SetInstance(SRI_PATH);
+		av->SetInstanceData(PATH_INVALID);
+
+		MarkVoxelDirty(xpos, ypos, zpos);
+	}
+	return true;
+}
+
+/**
+ * In the given voxel, can a flat path be build in the voxel?
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param test_only Only test whether it could be created.
+ * @return Whether the path is or could be built.
+ */
+static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
+{
+	/* xy position should be valid, and allow path building. */
+	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+
+	if (zpos < 0 || zpos > WORLD_Z_SIZE - 2) return false; // Z range should be valid.
+
+	const VoxelStack *vs = _world.GetStack(xpos, ypos);
+	const Voxel *v = vs->Get(zpos + 1); // Voxel above the path should be empty.
+	if (v != NULL && !v->IsEmpty()) return false;
+	v = vs->Get(zpos);
+	if (v != NULL) {
+		if (v->GetInstance() != SRI_FREE) return false; // Voxel should have no other rides.
+		if (v->GetGroundType() != GTP_INVALID) {
+			if (v->GetGroundSlope() >= PATH_FLAT_COUNT) return false; // Non-flat surface.
+		} else {
+			/* No surface, but a foundation suggests a nearby hill.
+			 * Currently simply deny building here, in the future, consider making a tunnel.
+			 */
+			if (v->GetFoundationType() != FDT_INVALID) return false;
+		}
+	}
+
+	if (!test_only) {
+		/* Build a flat path. */
+		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
+
+		Voxel *av = avs->GetCreate(zpos, true);
+		av->SetInstance(SRI_PATH);
+		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, PATH_EMPTY, EDGE_ALL, true, true);
+		av->SetInstanceData(slope);
+
+		av = avs->GetCreate(zpos + 1, true);
+		av->ClearVoxel();
+		av->SetInstance(SRI_PATH);
+		av->SetInstanceData(PATH_INVALID);
+
+		MarkVoxelDirty(xpos, ypos, zpos);
+	}
+	return true;
+}
+
+/**
+ * In the given voxel, can an downward path be build in the voxel from the bottom at the given edge?
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param edge Entry edge.
+ * @param test_only Only test whether it could be created.
+ * @return Whether the path is or could be built.
+ */
+static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bool test_only)
+{
+	/* xy position should be valid, and allow path building. */
+	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+
+	if (zpos <= 0 || zpos > WORLD_Z_SIZE - 3) return false; // Z range should be valid.
+
+	const VoxelStack *vs = _world.GetStack(xpos, ypos);
+	const Voxel *v = vs->Get(zpos); // Voxel above the path should be empty.
+	if (v != NULL && !v->IsEmpty()) return false;
+
+	v = vs->Get(zpos + 1); // 1 voxel higher should also be empty.
+	if (v != NULL && !v->IsEmpty()) return false;
+
+	v = vs->Get(zpos - 1);
+	if (v != NULL) {
+		if (v->GetInstance() != SRI_FREE) return false; // Voxel should have no other rides.
+		if (v->GetGroundType() != GTP_INVALID) {
+			TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
+			if ((slope & (TSB_STEEP | TSB_TOP)) == TSB_STEEP) return false;
+			if ((slope & _corners_at_edge[(edge + 2) & 3]) != 0) return false; // A raised corner at the opposite 'edge'.
+		} else {
+			/* No surface, but a foundation suggests a nearby hill.
+			 * Currently simply deny building here, in the future, consider making a tunnel.
+			 */
+			if (v->GetFoundationType() != FDT_INVALID) return false;
+		}
+	}
+
+	if (!test_only) {
+		/* Build an downward path. */
+		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
+
+		Voxel *av = avs->GetCreate(zpos - 1, true);
+		av->SetInstance(SRI_PATH);
+		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, _path_down_from_edge[edge], EDGE_ALL, true, true);
+		av->SetInstanceData(slope);
+
+		av = avs->GetCreate(zpos, true);
+		av->ClearVoxel();
+		av->SetInstance(SRI_PATH);
+		av->SetInstanceData(PATH_INVALID);
+
+		av = avs->GetCreate(zpos + 1, true);
+		av->ClearVoxel();
+		av->SetInstance(SRI_PATH);
+		av->SetInstanceData(PATH_INVALID);
+
+		MarkVoxelDirty(xpos, ypos, zpos);
+	}
+	return true;
+}
+
+/**
+ * (Try to) remove a path from the given voxel.
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param test_only Only test whether it could be removed.
+ * @return Whether the path is or could be removed.
+ */
+static bool RemovePath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
+{
+	/* xy position should be valid, and allow path building. */
+	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+
+	if (zpos <= 0 || zpos > WORLD_Z_SIZE - 2) return false; // Z range should be valid.
+
+	const VoxelStack *vs = _world.GetStack(xpos, ypos);
+	const Voxel *v = vs->Get(zpos);
+	if (v == NULL || !HasValidPath(v)) return false;
+	PathSprites ps = GetImplodedPathSlope(v);
+	assert(ps < PATH_COUNT);
+
+	v = vs->Get(zpos + 1);
+	assert(v->GetInstance() == SRI_PATH && v->GetInstanceData() == PATH_INVALID);
+	if (ps >= PATH_FLAT_COUNT) {
+		v = vs->Get(zpos + 2);
+		assert(v->GetInstance() == SRI_PATH && v->GetInstanceData() == PATH_INVALID);
+	}
+
+	if (!test_only) {
+		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
+
+		Voxel *av = avs->GetCreate(zpos, false);
+		av->SetInstance(SRI_FREE);
+		av->SetInstanceData(0);
+		AddRemovePathEdges(xpos, ypos, zpos, ps, EDGE_ALL, true, false);
+		MarkVoxelDirty(xpos, ypos, zpos);
+
+		av = avs->GetCreate(zpos + 1, false);
+		av->SetInstance(SRI_FREE);
+		av->SetInstanceData(0);
+
+		if (ps >= PATH_FLAT_COUNT) {
+			av = avs->GetCreate(zpos + 2, false);
+			av->SetInstance(SRI_FREE);
+			av->SetInstanceData(0);
+		}
+	}
+	return true;
 }
 
 /**
@@ -58,101 +286,25 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
  */
 static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge edge)
 {
+	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return 0;
 	if (zpos < 0 || zpos >= WORLD_Z_SIZE - 1) return 0;
-	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return 0;
-
-	const VoxelStack *vs = _world.GetStack(xpos, ypos);
-
-	const Voxel *above = (zpos < WORLD_Z_SIZE) ? vs->Get(zpos + 1) : NULL;
-	if (above != NULL && above->GetType() != VT_EMPTY) return 0; // Not empty just above us -> path will not work here.
-
-	/* A path just below us won't work either. */
-	const Voxel *below = (zpos > 0) ? vs->Get(zpos - 1) : NULL;
-	if (below != NULL && below->GetType() == VT_SURFACE && HasValidPath(below)) return 0;
-
-	const Voxel *level = vs->Get(zpos);
-	if (level != NULL) {
-		switch (level->GetType()) {
-			case VT_SURFACE: {
-				if (level->GetFoundationType() != FDT_INVALID) return 0;
-				if (level->GetPathRideNumber() != PT_INVALID) {
-					if (HasValidPath(level)) {
-						if (level->GetPathRideFlags() < PATH_FLAT_COUNT) return 1 << TSL_FLAT; // Already a flat path there.
-						if (_path_down_from_edge[edge] == level->GetPathRideFlags()) return 1 << TSL_UP; // Already a sloped path up.
-					}
-					return 0; // A path but cannot connect to it, or a ride.
-				}
-				if (level->GetGroundType() != GTP_INVALID) {
-					TileSlope ts = ExpandTileSlope(level->GetGroundSlope());
-					if ((ts & TSB_STEEP) != 0) return 0; // Steep slope in the way.
-					if ((ts & _corners_at_edge[edge]) != 0) return 0; // Some hilly stuff at the entry.
-				}
-				break;
-			}
-
-			case VT_EMPTY:
-				break;
-
-			case VT_REFERENCE:
-				// XXX return 0 is a too brute-force.
-				return 0;
-
-			default:
-				NOT_REACHED();
-		}
+	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
+	if (v != NULL && HasValidPath(v)) {
+		PathSprites ps = GetImplodedPathSlope(v);
+		if (ps < PATH_FLAT_COUNT) return 1 << TSL_FLAT;
+		if (ps == _path_up_from_edge[edge]) return 1 << TSL_UP;
+	}
+	if (zpos > 0) {
+		v = _world.GetVoxel(xpos, ypos, zpos - 1);
+		if (v != NULL &&  HasValidPath(v) && GetImplodedPathSlope(v) == _path_down_from_edge[edge]) return 1 << TSL_DOWN;
 	}
 
-	/* No trivial cases or show stoppers, do a more precise check for each slope.
-	 * Above: empty
-	 * Below: Does not contain a surface + path.
-	 * Level: Is not a coaster or a reference, does not contain a path or foundations, has no steep ground nor raised corners at the entrance edge.
-	 */
-	uint8 result = 0;
-
-	/* Try building a upward slope.
-	 * Works if not at the top, and the voxel at z+2 is also empty.
-	 */
-	if (zpos < WORLD_Z_SIZE - 2) {
-		const Voxel *v = vs->Get(zpos + 2);
-		if (v == NULL || v->GetType() == VT_EMPTY) result |= 1 << TSL_UP;
-	}
-
-	/* Try building a level slope. */
-	{
-		if (level == NULL) {
-			result |= 1 << TSL_FLAT;
-		} else {
-			VoxelType vt = level->GetType();
-			if (vt == VT_EMPTY) {
-				result |= 1 << TSL_FLAT;
-			} else if (vt == VT_SURFACE &&
-					level->GetPathRideNumber() == PT_INVALID &&
-					level->GetFoundationType() == FDT_INVALID &&
-					level->GetGroundType() != GTP_INVALID && level->GetGroundSlope() == 0) {
-				result |= 1 << TSL_FLAT;
-			}
-		}
-	}
-
-	/* Try building a downward slope. */
-	if ((level == NULL || level->GetType() == VT_EMPTY) && zpos > 0) {
-		VoxelType vt = (below != NULL) ? below->GetType() : VT_EMPTY;
-		if (vt == VT_EMPTY) {
-			result |= 1 << TSL_DOWN;
-		} else if (vt == VT_SURFACE) {
-			if (below->GetFoundationType() == FDT_INVALID && below->GetPathRideNumber() == PT_INVALID) {
-				/* No foundations and paths. */
-				if (below->GetGroundType() == GTP_INVALID) {
-					result |= 1 << TSL_DOWN;
-				} else {
-					TileSlope ts = ExpandTileSlope(below->GetGroundSlope());
-					if (((TSB_STEEP | _corners_at_edge[(edge + 2) % 4]) & ts) == 0) result |= 1 << TSL_DOWN;
-				}
-			}
-		}
-	}
-
-	return result;
+	uint8 slopes = 0;
+	// XXX Check for already existing paths.
+	if (BuildDownwardPath(xpos, ypos, zpos, edge, true)) slopes |= 1 << TSL_DOWN;
+	if (BuildFlatPath(xpos, ypos, zpos, true)) slopes |= 1 << TSL_FLAT;
+	if (BuildUpwardPath(xpos, ypos, zpos, edge, true)) slopes |= 1 << TSL_UP;
+	return slopes;
 }
 
 /**
@@ -170,7 +322,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 	if (zpos >= WORLD_Z_SIZE - 1) return 0; // the voxel containing the flat path, and one above it.
 
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
-	if (v == NULL || v->GetType() != VT_SURFACE) return 0; // XXX Maybe also handle referenced surface voxels?
+	if (v == NULL) return 0;
 
 	uint8 edges = 0;
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
@@ -179,12 +331,13 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 		if (x >= _world.GetXSize() || y >= _world.GetYSize()) continue;
 
 		if (HasValidPath(v)) {
-			if (v->GetPathRideFlags() < PATH_FLAT_COUNT) {
+			PathSprites ps = GetImplodedPathSlope(v);
+			if (ps < PATH_FLAT_COUNT) {
 				if (CanBuildPathFromEdge(x, y, zpos, (TileEdge)((edge + 2) % 4)) != 0) edges |= 1 << edge;
 			} else {
-				if (_path_up_from_edge[edge] == v->GetPathRideFlags()
+				if (_path_up_from_edge[edge] == ps
 						&& CanBuildPathFromEdge(x, y, zpos, (TileEdge)((edge + 2) % 4)) != 0) edges |= 1 << edge;
-				if (_path_down_from_edge[edge] == v->GetPathRideFlags()
+				if (_path_down_from_edge[edge] == ps
 						&& CanBuildPathFromEdge(x, y, zpos + 1, (TileEdge)((edge + 2) % 4)) != 0) edges |= (1 << edge) << 4;
 			}
 			continue;
@@ -339,11 +492,11 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
 	if (_world.GetTileOwner(this->xpos + dxy.x, this->ypos + dxy.y) != OWN_PARK) return false;
 	const Voxel *v = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + delta_z);
 	/* Fail if the new voxel is a reference voxel, or it contains a ride. */
-	if (v != NULL && (v->GetType() == VT_REFERENCE || (v->GetType() == VT_SURFACE && v->GetPathRideNumber() < PT_START))) return false;
+	if (v != NULL && v->GetInstance() >= SRI_FULL_RIDES) return false;
 
 	if (need_path) {
-		if (v == NULL || v->GetType() != VT_SURFACE) return false;
-		if (v->GetPathRideNumber() == PT_INVALID) return false;
+		if (v == NULL) return false;
+		if (v->GetInstance() != SRI_PATH) return false;
 	}
 
 	this->xpos += dxy.x;
@@ -386,9 +539,9 @@ void PathBuildManager::SelectMovement(bool move_forward)
 
 	bool move_up;
 	const Voxel *v = _world.GetVoxel(this->xpos, this->ypos, this->zpos);
-	if (v == NULL || v->GetType() != VT_SURFACE) return;
+	if (v == NULL) return;
 	if (HasValidPath(v)) {
-		move_up = (v->GetPathRideFlags() == _path_down_from_edge[edge]);
+		move_up = (GetImplodedPathSlope(v) == _path_down_from_edge[edge]);
 	} else if (v->GetGroundType() != GTP_INVALID) {
 		TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
 		if ((ts & TSB_STEEP) != 0) return;
@@ -438,28 +591,22 @@ void PathBuildManager::ComputeWorldAdditions()
 	uint16 xpos, ypos;
 	uint8 zpos;
 	this->ComputeArrowCursorPosition(&xpos, &ypos, &zpos);
-	if (this->selected_slope == TSL_DOWN) zpos--;
-	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
-	if (v == NULL || v->GetType() == VT_EMPTY) {
-		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
-		vx->SetFoundationType(FDT_INVALID);
-		vx->SetGroundType(GTP_INVALID);
-		vx->SetPathRideNumber(PT_CONCRETE);
-		uint8 slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
-		slope = AddRemovePathEdges(xpos, ypos, zpos, slope, EDGE_ALL, true, true); // Change the neighbouring edges too.
-		vx->SetPathRideFlags(slope);
-		return;
-	} else if (v->GetType() == VT_SURFACE) {
-		Voxel *vx = _additions.GetCreateVoxel(xpos, ypos, zpos, true);
-		vx->SetFoundationType(v->GetFoundationType()); // Copy foundations
-		vx->SetFoundationSlope(v->GetFoundationSlope());
-		vx->SetGroundType(v->GetGroundType()); // Copy ground
-		vx->SetGroundSlope(v->GetGroundSlope());
-		vx->SetPathRideNumber(PT_CONCRETE);
-		uint8 slope = GetPathSprite(this->selected_slope, (TileEdge)((this->selected_arrow + 2) % 4));
-		slope = AddRemovePathEdges(xpos, ypos, zpos, slope, EDGE_ALL, true, true); // Change the neighbouring edges too.
-		vx->SetPathRideFlags(slope);
-		return;
+	TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
+	switch (this->selected_slope) {
+		case TSL_DOWN:
+			BuildDownwardPath(xpos, ypos, zpos, edge, false);
+			break;
+
+		case TSL_FLAT:
+			BuildFlatPath(xpos, ypos, zpos, false);
+			break;
+
+		case TSL_UP:
+			BuildUpwardPath(xpos, ypos, zpos, edge, false);
+			break;
+
+		default:
+			NOT_REACHED();
 	}
 }
 
@@ -563,7 +710,7 @@ bool PathBuildManager::GetRemoveIsEnabled() const
 	if (this->state == PBS_IDLE || this->state == PBS_WAIT_VOXEL) return false;
 	/* If current tile has a path, it can be removed. */
 	const Voxel *v = _world.GetVoxel(this->xpos, this->ypos, this->zpos);
-	if (v != NULL && v->GetType() == VT_SURFACE && HasValidPath(v)) return true;
+	if (v != NULL && HasValidPath(v)) return true;
 	return this->state == PBS_WAIT_BUY;
 }
 
@@ -617,8 +764,6 @@ static bool GoodDirection(int16 change, uint16 src, uint16 dst) {
 /**
  * Build a path from #_path_builder xpos/ypos to the mouse cursor position.
  * @param mousexy Mouse position.
- * @todo Also allow laying path tiles on a #VT_SURFACE voxel with ground. It just needs careful checking that the path is at or above the ground.
- * @todo The path/ground check probably already exists somewhere, re-factor it for re-use here.
  */
 void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 {
@@ -704,20 +849,8 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 					}
 					/* Add path tile to the voxel. */
 					Voxel *v = _additions.GetCreateVoxel(vx, vy, vz, true);
-					if (v->GetType() == VT_EMPTY) {
-						v->SetFoundationType(FDT_INVALID);
-						v->SetGroundType(GTP_INVALID);
-						v->SetPathRideNumber(PT_CONCRETE);
-						v->SetPathRideFlags(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true));
-					} else if (v->GetType() == VT_SURFACE) {
-						// XXX Handle this more careful, paths may exist and/or ground may exist here.
-						v->SetPathRideNumber(PT_CONCRETE);
-						v->SetPathRideFlags(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true));
-					} else {
-						vx = this->xlong; // Run into some weird voxel, abort path building.
-						vy = this->ylong;
-						break;
-					}
+					v->SetInstance(SRI_PATH);
+					v->SetInstanceData(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true));
 
 					if (*slope_prio == TSL_UP) {
 						vz++;
@@ -765,17 +898,22 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 	} else {
 		// Removing a path tile.
 		if (this->state <= PBS_WAIT_VOXEL || this->state > PBS_WAIT_BUY) return;
-		Voxel *v = _world.GetCreateVoxel(this->xpos, this->ypos, this->zpos, false);
-		if (v == NULL || v->GetType() != VT_SURFACE || v->GetPathRideNumber() == PT_INVALID) return;
+		TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
+		const Voxel *v = _world.GetVoxel(this->xpos, this->ypos, this->zpos);
+		if (v == NULL || !HasValidPath(v)) {
+			this->MoveCursor(edge, false);
+			this->UpdateState();
+			return;
+		}
+		PathSprites ps = GetImplodedPathSlope(v);
 
-		v->SetPathRideNumber(PT_INVALID);
-		AddRemovePathEdges(this->xpos, this->ypos, this->zpos, v->GetPathRideFlags(), EDGE_ALL, false, false); // Change the neighbouring paths too.
-
-		MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+		_additions.Clear();
+		if (RemovePath(this->xpos, this->ypos, this->zpos, false)) {
+			_additions.Commit();
+		}
 
 		/* Short-cut version of this->SelectMovement(false), as that function fails after removing the path. */
-		TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
-		bool move_up = (v->GetPathRideFlags() == _path_down_from_edge[edge]);
+		bool move_up = (ps == _path_down_from_edge[edge]);
 		this->MoveCursor(edge, move_up);
 		this->UpdateState();
 	}

@@ -325,18 +325,14 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
 	if (vx != NULL) {
-		uint8 type = vx->GetType();
-		if (type == VT_REFERENCE) return false;
-		if (type == VT_SURFACE) {
-			if (vx->GetPathRideNumber() != PT_INVALID) return false; // Cannot build on a path or other ride.
-			return vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT; // Can build at a flat surface.
-		}
+		if (!vx->CanPlaceInstance()) return false; // Cannot build on a path or other ride.
+		return vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT; // Can build at a flat surface.
 	}
 
 	/* 2. Is the shop just above non-flat ground? */
 	if (zpos > 0) {
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
-		if (vx != NULL && vx->GetType() == VT_SURFACE && vx->GetPathRideNumber() == PT_INVALID &&
+		if (vx != NULL && vx->GetInstance() == SRI_FREE &&
 				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
 	}
 
@@ -436,16 +432,14 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			_additions.MarkDirty(vp);
 			_additions.Clear();
 
+			// XXX Let the shop do this.
 			ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
 			assert(si != NULL && si->GetKind() == RTK_SHOP);
 			Voxel *vx = _additions.GetCreateVoxel(si->xpos, si->ypos, si->zpos, true);
-			if (vx->GetType() != VT_SURFACE) {
-				vx->SetFoundationType(FDT_INVALID);
-				vx->SetGroundType(GTP_INVALID);
-			}
-			vx->SetPathRideNumber(this->instance);
+			assert(this->instance >= SRI_FULL_RIDES && this->instance <= SRI_LAST);
+			vx->SetInstance((SmallRideInstance)this->instance);
 			uint8 entrances = si->GetEntranceDirections();
-			vx->SetPathRideFlags(entrances);
+			vx->SetInstanceData(entrances);
 			AddRemovePathEdges(si->xpos, si->ypos, si->zpos, PATH_EMPTY, entrances, true, true);
 			_additions.MarkDirty(vp);
 			vp->EnsureAdditionsAreVisible();

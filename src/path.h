@@ -82,7 +82,7 @@ enum PathSprites {
 	PATH_RAMP_SW,                   ///< Ramp from SW up to NE.
 	PATH_COUNT,                     ///< Number of path sprites.
 
-	PATH_INVALID = 63,  ///< Invalid path.
+	PATH_INVALID = 63,  ///< Invalid path. Also used to indicate reserved voxels above paths.
 
 	PATHBIT_N  = 0,     ///< Bit number for north corner in expanded notation.
 	PATHBIT_E  = 1,     ///< Bit number for east corner in expanded notation.

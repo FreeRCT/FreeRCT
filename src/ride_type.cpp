@@ -430,11 +430,13 @@ void RidesManager::OnNewMonth()
 
 /**
  * Get the requested ride instance.
- * @param num Ride instance to retrieve.
+ * @param num Ride number to retrieve.
  * @return The requested ride, or \c NULL if not available.
  */
 RideInstance *RidesManager::GetRideInstance(uint16 num)
 {
+	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
+	num -= SRI_FULL_RIDES;
 	if (num >= lengthof(this->instances)) return NULL;
 	return this->instances[num];
 }
@@ -446,6 +448,8 @@ RideInstance *RidesManager::GetRideInstance(uint16 num)
  */
 const RideInstance *RidesManager::GetRideInstance(uint16 num) const
 {
+	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
+	num -= SRI_FULL_RIDES;
 	if (num >= lengthof(this->instances)) return NULL;
 	return this->instances[num];
 }
@@ -457,7 +461,7 @@ const RideInstance *RidesManager::GetRideInstance(uint16 num) const
 uint16 RideInstance::GetIndex() const
 {
 	for (uint i = 0; i < lengthof(_rides_manager.instances); i++) {
-		if (_rides_manager.instances[i] == this) return i;
+		if (_rides_manager.instances[i] == this) return i + SRI_FULL_RIDES;
 	}
 	NOT_REACHED();
 }
@@ -485,7 +489,7 @@ bool RidesManager::AddRideType(RideType *type)
 uint16 RidesManager::GetFreeInstance()
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == NULL) return i;
+		if (this->instances[i] == NULL) return i + SRI_FULL_RIDES;
 	}
 	return INVALID_RIDE_INSTANCE;
 }
@@ -493,11 +497,13 @@ uint16 RidesManager::GetFreeInstance()
 /**
  * Create a new ride instance.
  * @param type Type of ride to construct.
- * @param num Instance number of the new ride.
+ * @param num Ride number.
  * @return The created ride.
  */
 RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
 {
+	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
+	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
 	assert(this->instances[num] == NULL);
 	this->instances[num] = type->CreateInstance();
@@ -520,7 +526,7 @@ RideInstance *RidesManager::FindRideByName(const uint8 *name)
 
 /**
  * A new ride instance was added. Initialize it further.
- * @param num Index of the new ride instance.
+ * @param num Ride number of the new ride.
  */
 void RidesManager::NewInstanceAdded(uint16 num)
 {
@@ -576,12 +582,14 @@ void RidesManager::NewInstanceAdded(uint16 num)
 
 /**
  * Destroy the indicated instance.
- * @param num The instance to destroy.
+ * @param num The ride number to destroy.
  * @todo The small matter of cleaning up in the world map.
  * @pre Instance must be closed.
  */
 void RidesManager::DeleteInstance(uint16 num)
 {
+	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
+	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
 	delete this->instances[num];
 	this->instances[num] = NULL;
@@ -614,13 +622,11 @@ const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge ed
 	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return NULL;
 
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
-	if (vx == NULL || vx->GetType() == VT_EMPTY || vx->GetType() == VT_REFERENCE) {
+	if (vx == NULL || vx->GetInstance() < SRI_FULL_RIDES) {
 		/* No ride here, check the voxel below. */
 		if (zpos == 0) return NULL;
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
 	}
-	if (vx == NULL || vx->GetType() != VT_SURFACE) return NULL;
-	uint16 pr = vx->GetPathRideNumber();
-	if (pr >= PT_START) return NULL;
-	return _rides_manager.GetRideInstance(pr);
+	if (vx == NULL || vx->GetInstance() < SRI_FULL_RIDES) return NULL;
+	return _rides_manager.GetRideInstance(vx->GetInstanceData());
 }

@@ -148,15 +148,18 @@ const char *Person::GetName() const
 static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int16 y_pos)
 {
 	const Voxel *v = _world.GetVoxel(x_vox, y_vox, z_vox);
-	uint8 slope = v->GetPathRideFlags();
-	if (slope < PATH_FLAT_COUNT) return 0;
-	switch (slope) {
-		case PATH_RAMP_NE: return x_pos;
-		case PATH_RAMP_NW: return y_pos;
-		case PATH_RAMP_SE: return 255 - y_pos;
-		case PATH_RAMP_SW: return 255 - x_pos;
-		default: NOT_REACHED();
+	if (HasValidPath(v)) {
+		uint8 slope = GetImplodedPathSlope(v);
+		if (slope < PATH_FLAT_COUNT) return 0;
+		switch (slope) {
+			case PATH_RAMP_NE: return x_pos;
+			case PATH_RAMP_NW: return y_pos;
+			case PATH_RAMP_SE: return 255 - y_pos;
+			case PATH_RAMP_SW: return 255 - x_pos;
+			default: NOT_REACHED();
+		}
 	}
+	NOT_REACHED(); // XXX No path here!
 }
 
 /**
@@ -382,10 +385,10 @@ void Person::DecideMoveDirection()
 	uint8 bot_exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions at the bottom by default.
 	uint8 shops = 0; // Number of exits with a shop with normal desire to go there.
 	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
-	if (v->GetType() == VT_SURFACE && HasValidPath(v)) {
+	if (HasValidPath(v)) {
 		uint8 top_exits = 0;  // Exits at the top of the voxel.
 
-		uint8 slope = v->GetPathRideFlags();
+		uint8 slope = GetImplodedPathSlope(v);
 		if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
 			bot_exits &= _path_expand[slope]; // Masks to exits only, as that's what 'bot_exits' contains here.
 		} else { // At a path ramp.
@@ -641,17 +644,15 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 	/* At bottom of the voxel, the path either stays on the same level or goes down. */
 	Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
-	if ((v == NULL || v->GetType() != VT_SURFACE) && this->z_vox > 0) {
+	if ((v == NULL || !HasValidPath(v)) && this->z_vox > 0) {
 		dz--;
 		this->z_vox--;
 		this->z_pos = 255;
 		v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 	}
 	/* We seem to have wandered off-path in some way, abort. */
-	if (v == NULL || v->GetType() != VT_SURFACE) return OAR_DEACTIVATE;
-	uint16 pr = v->GetPathRideNumber();
-	if (pr == PT_INVALID) return OAR_DEACTIVATE; // Not a path nor a ride.
-	if (pr >= PT_START) { // A path.
+	if (v == NULL) return OAR_DEACTIVATE;
+	if (HasValidPath(v)) {
 		v->persons.AddFirst(this);
 		this->DecideMoveDirection();
 		return OAR_OK;
@@ -659,7 +660,7 @@ AnimateResult Person::OnAnimate(int delay)
 	/* A shop, buy something. */
 	Guest *guest = dynamic_cast<Guest *>(this);
 	if (guest != NULL) {
-		RideInstance *ri = _rides_manager.GetRideInstance(pr);
+		RideInstance *ri = _rides_manager.GetRideInstance(v->GetInstanceData());
 		assert(ri != NULL);
 		guest->VisitShop(ri);
 	}

@@ -82,10 +82,14 @@ enum SurfaceSprites {
 	SF_WS,         ///< West, south corners up.
 	SF_WNS,        ///< West, north, south corners up.
 	SF_WES,        ///< West, east, south corners up.
-	SF_STEEP_N,    ///< Steep north slope.
-	SF_STEEP_E,    ///< Steep east slope.
-	SF_STEEP_S,    ///< Steep south slope.
-	SF_STEEP_W,    ///< Steep west slope.
+	SF_STEEP_NB,   ///< Steep north slope bottom.
+	SF_STEEP_EB,   ///< Steep east  slope bottom.
+	SF_STEEP_SB,   ///< Steep south slope bottom.
+	SF_STEEP_WB,   ///< Steep west  slope bottom.
+	SF_STEEP_NT,   ///< Steep north slope top
+	SF_STEEP_ET,   ///< Steep east  slope top
+	SF_STEEP_ST,   ///< Steep south slope top
+	SF_STEEP_WT,   ///< Steep west  slope top
 	SURFACE_COUNT, ///< Number of tiles in a surface.
 };
 
@@ -99,6 +103,8 @@ public:
 
 	SpriteImage sprite_image; ///< The stored sprite.
 };
+
+class BitMask;
 
 /** Block containing a sprite sheet. */
 class SheetBlock : public BlockNode {
@@ -122,6 +128,7 @@ public:
 	int height;       ///< Height of a sprite.
 
 	Image *img_sheet; ///< Sheet of images.
+	BitMask *mask;    ///< Bit mask to apply first (if available).
 };
 
 /** A 'TSEL' block. */
@@ -712,6 +719,15 @@ public:
 	Strings *text;     ///< Text of the coaster (reference to a TEXT block).
 
 	std::list<TrackPieceNode *> track_blocks; ///< Track pieces of the coaster.
+};
+
+/** Node block containing a bitmask. */
+class BitMask : public BlockNode {
+public:
+	BitMask();
+	/* virtual */ ~BitMask();
+
+	BitMaskData data; ///< Data of the bit mask.
 };
 
 

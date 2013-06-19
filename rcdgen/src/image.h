@@ -13,6 +13,17 @@
 #define IMAGE_H
 
 #include <png.h>
+#include <string>
+
+/** Bitmask description. */
+class BitMaskData {
+public:
+	int x_pos;        ///< Base X position.
+	int y_pos;        ///< Base Y position.
+	std::string type; ///< Name of the mask to apply.
+};
+
+class MaskInformation;
 
 /** A PNG image file. */
 class Image {
@@ -20,7 +31,7 @@ public:
 	Image();
 	~Image();
 
-	const char *LoadFile(const char *fname);
+	const char *LoadFile(const char *fname, BitMaskData *mask);
 	int GetWidth();
 	int GetHeight();
 	bool IsEmpty(int xpos, int ypos, int dx, int dy, int length);
@@ -30,6 +41,10 @@ public:
 	uint8 **row_pointers; ///< Pointers into the rows of the image.
 
 private:
+	int mask_xpos;               ///< X position of the left of the mask.
+	int mask_ypos;               ///< Y position of the top of the mask.
+	const MaskInformation *mask; ///< Information about the used bitmask (or \c NULL).
+
 	int width;            ///< Width of the loaded image.
 	int height;           ///< Height of the loaded image.
 	png_structp png_ptr;  ///< Png image data.

@@ -51,6 +51,8 @@ void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output)
 		}
 		assert(i < TC_END);
 
+		if ((slope & TSB_TOP) != 0) base_height--; // Move to the base height.
+
 		output[i] = base_height + 2;
 		output[(i + 2) % 4] = base_height;
 		output[(i + 1) % 4] = base_height + 1;
@@ -65,7 +67,7 @@ void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output)
 /**
  * Compute a tile slope and a base height from the height of the four corners.
  * @param corners [in] Array with the corner heights.
- * @param slope [out] Computed slope.
+ * @param slope [out] Computed slope. For steep slopes, the base value is given.
  * @param base [out] Base height of the slope.
  */
 void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base)

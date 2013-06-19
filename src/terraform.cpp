@@ -53,7 +53,7 @@ static const CornerNeighbours neighbours[4] = {
 
 /**
  * Construct a #GroundData structure.
- * @param height Height of the voxel containing the surface.
+ * @param height Height of the voxel containing the surface (for steep slopes, the base height).
  * @param orig_slope Original slope (that is, before the raise or lower).
  */
 GroundData::GroundData(uint8 height, uint8 orig_slope)
@@ -75,7 +75,7 @@ uint8 GroundData::GetOrigHeight(TileCorner corner) const
 		if ((this->orig_slope & (1 << corner)) == 0) return this->height;
 		return this->height + 1;
 	}
-	// Steep slope.
+	// Steep slope (note that the constructor made sure this->height is at the base of the steep slope).
 	if ((this->orig_slope & (1 << corner)) != 0) return this->height + 2;
 	corner = (TileCorner)((corner + 2) % 4);
 	if ((this->orig_slope & (1 << corner)) != 0) return this->height;
@@ -138,7 +138,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 	if (iter == this->changes.end()) {
 		uint8 height = _world.GetGroundHeight(pos.x, pos.y);
 		const Voxel *v = _world.GetVoxel(pos.x, pos.y, height);
-		assert(v != NULL && v->GetType() == VT_SURFACE && v->GetGroundType() != GTP_INVALID);
+		assert(v != NULL && v->GetGroundType() != GTP_INVALID);
 		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
 		iter = this->changes.insert(p).first;
 	}
@@ -253,23 +253,20 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
  */
 static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 {
-	if (v == NULL || v->GetType() == VT_EMPTY) return;
-	if (v->GetType() == VT_REFERENCE) {
-		MemSetT(bounds, height, 4);
-		return;
-	}
+	if (v == NULL || v->IsEmpty()) return;
 
-	assert(v->GetType() == VT_SURFACE);
 	assert(v->GetGroundType() == GTP_INVALID);
-	if (v->GetPathRideNumber() == PT_INVALID) return;
-
-	if (v->GetPathRideNumber() < PT_START) { // A ride needs the entire voxel.
+	uint16 instance = v->GetInstance();
+	if (instance >= SRI_FULL_RIDES) { // A ride needs the entire voxel.
 		MemSetT(bounds, height, 4);
 		return;
 	}
 
-	/* A path. */
-	PathSprites ps = static_cast<PathSprites>(v->GetPathRideFlags());
+	if (instance < SRI_RIDES_START) return;
+
+	/* Small rides, that is, a path. */
+	if (!HasValidPath(v)) return;
+	PathSprites ps = GetImplodedPathSlope(v);
 	switch (ps) {
 		case PATH_RAMP_NE:
 			bounds[TC_NORTH] = height;     bounds[TC_EAST] = height;
@@ -331,19 +328,14 @@ static void SetFoundations(VoxelStack *stack, uint8 my_first, uint8 my_second, u
 		Voxel *v = stack->GetCreate(h, true);
 		h++;
 		if (bits == 0) { // Delete foundations.
-			if (v->GetType() != VT_SURFACE || v->GetFoundationType() == FDT_INVALID) continue;
+			if (v->GetFoundationType() == FDT_INVALID) continue;
 			bits = v->GetFoundationSlope() & and_bits;
 			v->SetFoundationSlope(bits);
 			if (bits == 0) v->SetFoundationType(FDT_INVALID);
 			continue;
 		} else { // Add foundations.
-			if (v->GetType() == VT_REFERENCE) continue; // XXX BUG, cannot add foundations to reference voxels.
-			if (v->GetType() == VT_EMPTY) {
-				v->SetPathRideNumber(PT_INVALID);
-				v->SetGroundType(GTP_INVALID);
-				v->SetFoundationType(FDT_GROUND); // XXX
-			} else if (v->GetFoundationType() == FDT_INVALID) {
-				v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no space to get them from.
+			if (v->GetFoundationType() == FDT_INVALID) {
+				v->SetFoundationType(FDT_GROUND); // XXX We have nice foundation types, but no way to select them here.
 			} else {
 				bits |= (v->GetFoundationSlope() & and_bits);
 			}
@@ -371,7 +363,7 @@ static void SetXFoundations(int xpos, int ypos)
 	if (first != NULL) {
 		for (uint i = 0; i < first->height; i++) {
 			const Voxel *v = &first->voxels[i];
-			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
 			first_south = heights[TC_SOUTH];
@@ -385,7 +377,7 @@ static void SetXFoundations(int xpos, int ypos)
 	if (second != NULL) {
 		for (uint i = 0; i < second->height; i++) {
 			const Voxel *v = &second->voxels[i];
-			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);
 			second_north = heights[TC_NORTH];
@@ -416,7 +408,7 @@ static void SetYFoundations(int xpos, int ypos)
 	if (first != NULL) {
 		for (uint i = 0; i < first->height; i++) {
 			const Voxel *v = &first->voxels[i];
-			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
 			first_south = heights[TC_SOUTH];
@@ -430,7 +422,7 @@ static void SetYFoundations(int xpos, int ypos)
 	if (second != NULL) {
 		for (uint i = 0; i < second->height; i++) {
 			const Voxel *v = &second->voxels[i];
-			if (v->GetType() != VT_SURFACE || v->GetGroundType() == GTP_INVALID) continue;
+			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);
 			second_north = heights[TC_NORTH];
@@ -471,20 +463,22 @@ bool TerrainChanges::ModifyWorld(int direction)
 
 		/* Clear the current ground from the stack. */
 		VoxelStack *vs = _additions.GetModifyStack(pos.x, pos.y);
-		Voxel *v = vs->GetCreate(gd.height, false);
-		assert(v != NULL && v->GetType() == VT_SURFACE);
+		Voxel *v = vs->GetCreate(gd.height, false); // Should always exist.
 		GroundType gt = v->GetGroundType();
 		assert(gt != GTP_INVALID);
 		FoundationType ft = v->GetFoundationType();
+		bool steep = IsImplodedSteepSlope(v->GetGroundSlope());
 		v->SetGroundType(GTP_INVALID);
-		if (IsImplodedSteepSlope(v->GetGroundSlope())) {
-			Voxel *w = vs->GetCreate(gd.height + 1, false);
-			assert(w != NULL && w->GetType() == VT_REFERENCE);
-			w->SetEmpty();
-		}
+		v->SetFoundationType(FDT_INVALID);
 		v->SetGroundSlope(0);
-		if (ft == FDT_INVALID && v->GetPathRideNumber() == PT_INVALID) { // Voxel is empty, change its type.
-			v->SetEmpty();
+		v->SetFoundationSlope(0);
+		if (steep) {
+			Voxel *w = vs->GetCreate(gd.height + 1, false);
+			assert(w->GetGroundType() == gt); // Should be the same type of ground as the base voxel.
+			w->SetFoundationType(FDT_INVALID);
+			w->SetGroundType(GTP_INVALID);
+			w->SetGroundSlope(0);
+			w->SetFoundationSlope(0);
 		}
 
 		if (direction > 0) {
@@ -509,8 +503,6 @@ bool TerrainChanges::ModifyWorld(int direction)
 		if (height >= WORLD_Z_SIZE) return false;
 
 		v = vs->GetCreate(height, true);
-		assert(v->GetType() != VT_REFERENCE);
-		if (v->GetType() != VT_SURFACE) v->SetPathRideNumber(PT_INVALID);
 		v->SetGroundSlope(new_slope);
 		v->SetGroundType(gt);
 		v->SetFoundationType(ft);
@@ -518,7 +510,10 @@ bool TerrainChanges::ModifyWorld(int direction)
 
 		if (IsImplodedSteepSlope(new_slope)) {
 			v = vs->GetCreate(height + 1, true);
-			v->SetReferencePosition(pos.x, pos.y, height);
+			v->SetGroundType(gt);
+			v->SetGroundSlope(new_slope + 4); // Set top-part as well for steep slopes.
+			v->SetFoundationType(ft);
+			v->SetFoundationSlope(0);
 		}
 	}
 

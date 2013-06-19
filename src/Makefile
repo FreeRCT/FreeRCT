@@ -19,15 +19,14 @@ LIBS=-lSDL -lSDL_ttf
 
 CXXFILES=bottom_toolbar_gui.cpp coaster.cpp config_reader.cpp dates.cpp \
 	fileio.cpp finances.cpp finances_gui.cpp \
-	gamelevel.cpp gui_graphics.cpp language.cpp main.cpp map.cpp math_func.cpp \
-	palette.cpp path.cpp path_build.cpp path_gui.cpp \
+	gamelevel.cpp getoptdata.cpp gui_graphics.cpp language.cpp main.cpp map.cpp math_func.cpp \
+	palette.cpp path_build.cpp path.cpp path_gui.cpp \
 	people.cpp person.cpp person_gui.cpp \
 	random.cpp ride_gui.cpp ride_type.cpp \
-	select_mode.cpp \
-	shop_gui.cpp \
-	sprite_store.cpp string_func.cpp \
-	terraform.cpp terraform_gui.cpp tile_func.cpp toolbar_gui.cpp video.cpp \
-	viewport.cpp widget.cpp window.cpp
+	select_mode.cpp shop_gui.cpp sprite_store.cpp string_func.cpp \
+	terraform.cpp terraform_gui.cpp tile_func.cpp toolbar_gui.cpp \
+	video.cpp viewport.cpp \
+	widget.cpp window.cpp
 
 OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
 DEPEND=$(OBJDIR)/depend.txt

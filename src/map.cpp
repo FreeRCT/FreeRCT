@@ -34,8 +34,9 @@ VoxelWorld _world;
  */
 static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
 {
-	dest->w0 = src->w0;
-	dest->w1 = src->w1;
+	dest->instance = src->instance;
+	dest->instance_data = src->instance_data;
+	dest->ground = src->ground;
 	if (copyPersons) CopyPersonList(dest->persons, src->persons);
 }
 
@@ -54,6 +55,19 @@ static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copyPersons)
 		src++;
 		count--;
 	}
+}
+
+/**
+ * Make a new array of voxels, and initialize it.
+ * @param height Desired height of the new voxel array.
+ * @return New and initialized to 'empty' voxels. Caller should free the memory after use.
+ */
+static Voxel *MakeNewVoxels(int height)
+{
+	assert(height > 0);
+	Voxel *voxels = Calloc<Voxel>(height);
+	for (int i = 0; i < height; i++) voxels[i].ClearVoxel();
+	return voxels;
 }
 
 /** Default constructor. */
@@ -90,11 +104,10 @@ void VoxelStack::Clear()
  */
 bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 {
-	assert(new_height > 0);
 	/* Make sure the voxels live between 0 and WORLD_Z_SIZE. */
 	if (new_base < 0 || new_base + (int)new_height > WORLD_Z_SIZE) return false;
 
-	Voxel *new_voxels = Calloc<Voxel>(new_height);
+	Voxel *new_voxels = MakeNewVoxels(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
 	CopyStackData(new_voxels + (this->base - new_base), this->voxels, this->height, true);
 
@@ -200,10 +213,10 @@ static void AddFoundations(VoxelWorld *world, uint16 xpos, uint16 ypos, int16 z,
 {
 	for (int16 zpos = 0; zpos < z; zpos++) {
 		Voxel *v = world->GetCreateVoxel(xpos, ypos, zpos, true);
-		if (v->GetType() != VT_SURFACE) {
+		if (v->GetFoundationType() == FDT_INVALID) {
 			v->SetFoundationType(FDT_GROUND);
-			v->SetGroundType(GTP_INVALID);
-			v->SetPathRideNumber(PT_INVALID);
+			v->SetFoundationSlope(bits);
+			continue;
 		}
 		v->SetFoundationSlope(v->GetFoundationSlope() | bits);
 	}
@@ -221,7 +234,7 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 			v->SetFoundationType(FDT_INVALID);
 			v->SetGroundType(GTP_GRASS0);
 			v->SetGroundSlope(ImplodeTileSlope(SL_FLAT));
-			v->SetPathRideNumber(PT_INVALID);
+			v->ClearInstances();
 		}
 	}
 	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
@@ -246,25 +259,11 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 	for (int i = 0; i < (int)vs->height; i++) {
 		Voxel *v = &vs->voxels[i];
 		assert(v->persons.IsEmpty()); // There should be no persons in the stack being moved.
-		switch (v->GetType()) {
-			case VT_SURFACE: {
-				if (!v->IsEmpty()) {
-					vs_last = i;
-					break;
-				}
-				v->SetEmpty();
-				/* FALL-THROUGH */
-			}
 
-			case VT_EMPTY:
-				if (vs_first == i) vs_first++;
-				break;
-
-			case VT_REFERENCE:
-				vs_last = i;
-				break;
-
-			default: NOT_REACHED();
+		if (!v->IsEmpty()) {
+			vs_last = i;
+		} else {
+			if (vs_first == i) vs_first++;
 		}
 	}
 
@@ -285,10 +284,10 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 
 	int new_base = min(vs->base + vs_first, this->base + old_first);
 	int new_height = max(vs->base + vs_last, this->base + old_last) - new_base + 1;
-	assert(new_base >= 0 && new_height > 0);
+	assert(new_base >= 0);
 
 	/* Make a new stack. Copy new surface, then copy the persons. */
-	Voxel *new_voxels = Calloc<Voxel>(new_height);
+	Voxel *new_voxels = MakeNewVoxels(new_height);
 	CopyStackData(new_voxels + (vs->base + vs_first) - new_base, vs->voxels + vs_first, vs_last - vs_first + 1, false);
 	int i = (this->base + old_first) - new_base;
 	while (old_first <= old_last) {
@@ -334,18 +333,17 @@ const VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y) const
 }
 
 /**
- * Return height of the ground at the given voxel stack.
+ * Return the base height of the ground at the given voxel stack.
  * @param x Horizontal position.
  * @param y Vertical position.
- * @return Height of the ground.
+ * @return Height of the ground (for steep slopes, the base voxel height).
  */
 uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y) const
 {
 	const VoxelStack *vs = this->GetStack(x, y);
 	for (int16 i = vs->height - 1; i >= 0; i--) {
 		const Voxel &v = vs->voxels[i];
-		if (v.GetType() != VT_SURFACE) continue;
-		if (v.GetGroundType() != GTP_INVALID) {
+		if (v.GetGroundType() != GTP_INVALID && !IsImplodedSteepSlopeTop(v.GetGroundSlope())) {
 			assert(vs->base + i >= 0 && vs->base + i <= 255);
 			return (uint8)(vs->base + i);
 		}
