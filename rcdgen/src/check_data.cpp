@@ -82,31 +82,32 @@ static char *GetString(Expression *expr, int index, const char *node)
 	return result;
 }
 
-/**
- * Extract a number from the given expression.
- * @param expr %Expression to evaluate.
- * @param index Parameter number (0-based, for error reporting).
- * @param node %Name of the node.
- * @param symbols Symbols available for use in the expression.
- * @return Value of the number.
- */
-static long long GetNumber(Expression *expr, int index, const char *node, const Symbol *symbols = NULL)
-{
-	/* Simple case, expression is a number literal. */
-	NumberLiteral *nl = dynamic_cast<NumberLiteral *>(expr);
-	if (nl != NULL) return nl->value;
-
-	/* General case, compute its value. */
-	Expression *expr2 = expr->Evaluate(symbols);
-	nl = dynamic_cast<NumberLiteral *>(expr2);
-	if (nl == NULL) {
-		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a number", expr->pos.ToString(), index + 1, node);
-		exit(1);
-	}
-	long long value = nl->value;
-	delete expr2;
-	return value;
-}
+// No  foo(1234) { ... } nodes exist yet, so number parsing is not needed currently.
+// /**
+//  * Extract a number from the given expression.
+//  * @param expr %Expression to evaluate.
+//  * @param index Parameter number (0-based, for error reporting).
+//  * @param node %Name of the node.
+//  * @param symbols Symbols available for use in the expression.
+//  * @return Value of the number.
+//  */
+// static long long GetNumber(Expression *expr, int index, const char *node, const Symbol *symbols = NULL)
+// {
+// 	/* Simple case, expression is a number literal. */
+// 	NumberLiteral *nl = dynamic_cast<NumberLiteral *>(expr);
+// 	if (nl != NULL) return nl->value;
+// 
+// 	/* General case, compute its value. */
+// 	Expression *expr2 = expr->Evaluate(symbols);
+// 	nl = dynamic_cast<NumberLiteral *>(expr2);
+// 	if (nl == NULL) {
+// 		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a number", expr->pos.ToString(), index + 1, node);
+// 		exit(1);
+// 	}
+// 	long long value = nl->value;
+// 	delete expr2;
+// 	return value;
+// }
 
 /**
  * Convert a 'file' node (taking a string parameter for the filename, and a sequence of game blocks).
