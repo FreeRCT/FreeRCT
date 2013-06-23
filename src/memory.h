@@ -16,14 +16,16 @@
 
 /**
  * Type wrapper around calloc.
- * @tparam T Type of the data to copy.
+ * @tparam T Type of the data to allocate.
  * @param count Number of data elements.
  * @return Address of cleared memory, if memory could be claimed.
  */
 template <class T>
 inline T *Calloc(size_t count)
 {
-	return (T *)calloc(count, sizeof(T));
+	T *mem = (T *)calloc(count, sizeof(T));
+	if (mem == NULL) error("Could not allocate memory\n");
+	return mem;
 }
 
 /**
