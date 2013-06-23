@@ -22,6 +22,23 @@
 #include "window.h"
 #include "finances.h"
 
+/**
+ * \page Rides
+ *
+ * Rides are the central concept in what guests 'do' to have fun.
+ * The main classes are #RideType and #RideInstance.
+ *
+ * - The #RideType represents the type of a ride, eg "the kiosk" or a "basic steel roller coaster".
+ *   - Shop types are implement in #ShopType.
+ *   - Coaster types are implemented in #CoasterType.
+ *
+ * - The #RideInstance represents actual rides in the park.
+ *   - Shops instances are implemented in #ShopInstance.
+ *   - Coasters instances are implemented in #CoasterInstance.
+ *
+ * The #RidesManager (#_rides_manager) manages both ride types and ride instances.
+ */
+
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
 
 /**

@@ -31,6 +31,59 @@
 #include <set>
 
 /**
+ * \page the_world_page World
+ *
+ * The world is stored in #_world, implemented in the #VoxelWorld. It is a 2D grid of #VoxelStack, one for each x/y position.
+ * A #VoxelStack is quite literally a stack of #Voxel structures, the elementary grid element.
+ * Each voxel has
+ * - Optional ground (surface). #GroundType defines the ground type (query with #Voxel::GetGroundType). If it is valid (ie different
+ *   than #GTP_INVALID), #Voxel::GetGroundSlope contains the imploded slope.
+ * - Optional foundations (vertical wall). #FoundationType (query with #Voxel::GetFoundationType) defines which type of
+ *   foundation is built. If it is not #FDT_INVALID, the actual foundations can be obtained with #Voxel::GetFoundationSlope.
+ * - Ride instance data (#SmallRideInstance). It points to the ride that uses the voxel.
+ * - Voxel information for the ride (eg sprite numbers, but it can mean anything).
+ *
+ * The ride instance is mostly one of
+ * - #SRI_FREE, denoting this voxel is free for use.
+ * - #SRI_RIDES_START is the first value used to denote a ride in the voxel.
+ * - #SRI_FULL_RIDES is the first value used to denote a 'normal' ride.
+ *
+ * Almost everything is a ride. Even a path or a decorative object is a ride. These rides are however so simple that no
+ * other storage other than in the voxel is needed. These rides start at #SRI_RIDES_START, up to #SRI_FULL_RIDES.
+ * The normal rides can be obtained from the #_rides_manager (of type #RidesManager).
+ *
+ * In the future, a voxel will allow up to 4 rides (one in each corner). Rides that use more than one corner store their
+ * ride instance number in the north, east, or south corner, and use #SRI_SAME_AS_NORTH, #SRI_SAME_AS_EAST, or
+ * #SRI_SAME_AS_SOUTH ride instance numbers for the other corners.
+ */
+
+/**
+ * \page world_additions_page World additions
+ *
+ * The #_world (described in \ref the_world_page) contains the 'current' world. The game allows changing of the world
+ * (building rides, terraforming, removing shops, etc) while the game runs. To keep both separate, and make it easy to
+ * revert changes when the user changes his mind, changes are not stored in the world itself, but in #_additions
+ * (implemented in #WorldAdditions). It is a layer on top of #_world that can be toggled on and off
+ * (#EnableWorldAdditions and #DisableWorldAdditions do that).
+ * There are also functions to clear the additions, and to copy changes to the world itself (thus making the change a part of
+ * the game world).
+ *
+ * See also \ref mouse_modes_page.
+ */
+
+/**
+ * \page mouse_modes_page Mouse modes
+ *
+ * Mouse modes are the means to introduce new ways of handling the mouse.
+ * #MouseModes is the overall mouse mode manager (through #_mouse_modes) that contains all mouse modes, and manages switching
+ * between them.
+ *
+ * A single mouse mode is a class derived from #MouseMode. It should have an entry in #ViewportMouseMode, and implement the
+ * interface defined in #MouseMode. An object should statically be available, and get registered in #InitMouseModes.
+ */
+
+
+/**
  * Proposed additions to the game world. Not part of the game itself, but they are displayed by calling
  * #EnableWorldAdditions (and stopped being displayed with #DisableWorldAdditions).
  * The additions will flash on and off to show they are not decided yet.
