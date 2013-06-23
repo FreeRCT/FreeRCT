@@ -158,18 +158,41 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 
 /* virtual */ RideInstance *CoasterType::CreateInstance() const
 {
-	assert(false); // XXX
-	return NULL;
+	return new CoasterInstance(this);
 }
 
 /* virtual */ const ImageData *CoasterType::GetView(uint8 orientation) const
 {
-	assert(false); // XXX
-	return NULL;
+	return NULL; // No preview available.
 }
 
 /* virtual */ const StringID *CoasterType::GetInstanceNames() const
 {
-	assert(false); // XXX
-	return NULL;
+	static const StringID names[] = {COASTERS_NAME_INSTANCE, STR_INVALID};
+	return names;
+}
+
+/**
+ * Constructor of a roller coaster instance.
+ * @param rt Coaster type being built.
+ */
+CoasterInstance::CoasterInstance(const CoasterType *ct) : RideInstance(ct)
+{
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = ct->item_cost[i] * 2;
+}
+
+CoasterInstance::~CoasterInstance()
+{
+}
+
+/* virtual */ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+{
+	const CoasterType *ct = this->GetCoasterType();
+	assert(voxel_number < ct->voxel_count);
+	const TrackVoxel *tv = ct->voxels[voxel_number];
+
+	sprites[0] = NULL; // SO_PLATFORM_BACK // XXX If platform flag, add coaster platforms.
+	sprites[1] = tv->back[orient]; // SO_RIDE
+	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
+	sprites[3] = NULL; // SO_PLATFORM_FRONT // XXX If platform flag, add coaster platforms.
 }

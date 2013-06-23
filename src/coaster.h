@@ -90,4 +90,26 @@ public:
 	const TrackVoxel **voxels; ///< All voxels of all track pieces (do not free the track voxels, #pieces owns this data).
 };
 
+/**
+ * A roller coaster in the world.
+ * Since roller coaster rides need to be constructed by the user first, an instance can exist
+ * without being able to open for public.
+ */
+class CoasterInstance : public RideInstance {
+public:
+	CoasterInstance(const CoasterType *rt);
+	~CoasterInstance();
+
+	/**
+	 * Get the coaster type of this ride.
+	 * @return The coaster type of this ride.
+	 */
+	const CoasterType *GetCoasterType() const
+	{
+		return static_cast<const CoasterType *>(this->type);
+	}
+
+	/* virtual */ void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const;
+};
+
 #endif
