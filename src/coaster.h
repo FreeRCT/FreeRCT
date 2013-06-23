@@ -82,10 +82,12 @@ public:
 
 	bool Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map);
 
-	uint16 coaster_kind;   ///< Kind of coaster. @see CoasterKind
-	uint8 platform_type;   ///< Type of platform. @see CoasterPlatformType
-	int piece_count;       ///< Number of track pieces in #pieces.
-	TrackPieceRef *pieces; ///< Track pieces of the coaster.
+	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind
+	uint8 platform_type;       ///< Type of platform. @see CoasterPlatformType
+	int piece_count;           ///< Number of track pieces in #pieces.
+	TrackPieceRef *pieces;     ///< Track pieces of the coaster.
+	int voxel_count;           ///< Number of track voxels in #voxels.
+	const TrackVoxel **voxels; ///< All voxels of all track pieces (do not free the track voxels, #pieces owns this data).
 };
 
 #endif

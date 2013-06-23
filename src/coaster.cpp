@@ -13,6 +13,7 @@
 #include "sprite_store.h"
 #include "coaster.h"
 #include "fileio.h"
+#include "memory.h"
 
 TrackVoxel::TrackVoxel()
 {
@@ -93,11 +94,14 @@ CoasterType::CoasterType() : RideType(RTK_COASTER)
 {
 	this->piece_count = 0;
 	this->pieces = NULL;
+	this->voxel_count = 0;
+	this->voxels = NULL;
 }
 
 /* virtual */ CoasterType::~CoasterType()
 {
 	delete[] this->pieces;
+	free(this->voxels);
 }
 
 /**
@@ -132,6 +136,22 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 		TrackPiecesMap::const_iterator iter = piece_map.find(val);
 		if (iter == piece_map.end()) return false;
 		this->pieces[i] = (*iter).second;
+	}
+	// Setup a track voxel list for fast access in the type.
+	free(this->voxels);
+	this->voxel_count = 0;
+	for (int i = 0; i < this->piece_count; i++) {
+		const TrackPiece *piece = this->pieces[i].Access();
+		this->voxel_count += piece->voxel_count;
+	}
+	this->voxels = Calloc<const TrackVoxel *>(this->voxel_count);
+	int vi = 0;
+	for (int i = 0; i < this->piece_count; i++) {
+		const TrackPiece *piece = this->pieces[i].Access();
+		for (int j = 0; j < piece->voxel_count; j++) {
+			this->voxels[vi] = &piece->track_voxels[j];
+			vi++;
+		}
 	}
 	return true;
 }
