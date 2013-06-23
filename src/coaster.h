@@ -15,6 +15,7 @@
 #include <map>
 #include "reference_count.h"
 #include "ride_type.h"
+#include "bitmath.h"
 
 /** Data of a voxel in a track piece. */
 struct TrackVoxel {
@@ -48,6 +49,44 @@ public:
 	Money cost;               ///< Cost of this track piece.
 	int voxel_count;          ///< Number of voxels in #track_voxels.
 	TrackVoxel *track_voxels; ///< Track voxels of this piece.
+
+	/**
+	 * Does the track piece have a platform?
+	 * @return Whether the track piece has a platform.
+	 */
+	inline bool HasPlatform() const
+	{
+		return GB(this->track_flags, 0, 1) != 0;
+	}
+
+	/**
+	 * Get the 'direction' of the platform.
+	 * @return Direction of the tracks (and thus the platform).
+	 * @pre #HasPlatform() holds.
+	 */
+	inline TileEdge GetPlatformDirection() const
+	{
+		return (TileEdge)GB(this->track_flags, 1, 2);
+	}
+
+	/**
+	 * Does the track piece have a platform?
+	 * @return Whether the track piece has a platform.
+	 */
+	inline bool IsStartingPiece() const
+	{
+		return GB(this->track_flags, 3, 1) != 0;
+	}
+
+	/**
+	 * Get the direction of the initial track piece. Should be used to match with the build arrow direction.
+	 * @return Direction of the initial track piece.
+	 * @pre #IsStartingPiece() holds.
+	 */
+	inline TileEdge GetStartDirection() const
+	{
+		return (TileEdge)GB(this->track_flags, 4, 2);
+	}
 
 protected:
 	~TrackPiece();
