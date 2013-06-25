@@ -32,6 +32,15 @@ struct TrackVoxel {
 	uint8 space; ///< Space requirements of the voxel.
 };
 
+/** Banking of the track piece. */
+enum TrackPieceBanking {
+	TPB_NONE = 0,  ///< Track piece does not bank.
+	TPB_LEFT = 1,  ///< Track piece banks to the left.
+	TPB_RIGHT = 2, ///< Track piece banks to the right.
+
+	TPB_END, ///< End of the banking values.
+};
+
 /** One track piece (type) of a roller coaster track. */
 class TrackPiece : public RefCounter {
 public:
@@ -45,7 +54,7 @@ public:
 	int8 exit_dy;             ///< Relative Y position of the exit voxel.
 	int8 exit_dz;             ///< Relative Z position of the exit voxel.
 	int8 speed;               ///< If non-zero, the minimal speed of cars at the track.
-	uint8 track_flags;        ///< Flags of the track piece.
+	uint16 track_flags;       ///< Flags of the track piece.
 	Money cost;               ///< Cost of this track piece.
 	int voxel_count;          ///< Number of voxels in #track_voxels.
 	TrackVoxel *track_voxels; ///< Track voxels of this piece.
@@ -86,6 +95,48 @@ public:
 	inline TileEdge GetStartDirection() const
 	{
 		return (TileEdge)GB(this->track_flags, 4, 2);
+	}
+
+	/**
+	 * Get banking of the track piece.
+	 * @return Banking of the track piece.
+	 */
+	inline uint8 GetBanking() const
+	{
+		uint8 banking = GB(this->track_flags, 6, 2);
+		assert(banking < TPB_END);
+		return (TrackPieceBanking)banking;
+	}
+
+	/**
+	 * Get the slope of the track piece.
+	 * @return the bend of the track piece.
+	 */
+	inline TrackSlope GetSlope() const
+	{
+		int slope = GB(this->track_flags, 8, 3);
+		if ((slope & 4) != 0) slope |= ~7;
+		switch (slope + 3) {
+			case -3 + 3: return TSL_STRAIGHT_DOWN;
+			case -2 + 3: return TSL_STEEP_DOWN;
+			case -1 + 3: return TSL_DOWN;
+			case 0 + 3:  return TSL_FLAT;
+			case 1 + 3:  return TSL_UP;
+			case 2 + 3:  return TSL_STEEP_UP;
+			case 3 + 3:  return TSL_STRAIGHT_UP;
+			default: return TSL_FLAT;
+		}
+	}
+
+	/**
+	 * Get the bend of the track piece (-3=wide left, -1=tight left, 0=straight, 1=tight right, 3=wide right).
+	 * @return the bend of the track piece.
+	 */
+	inline int GetBend() const
+	{
+		int bend = GB(this->track_flags, 11, 3);
+		if ((bend & 4) != 0) bend |= ~7;
+		return bend;
 	}
 
 protected:

@@ -1561,7 +1561,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TRCK") == 0 && version == 2) {
+		if (strcmp(name, "TRCK") == 0 && version == 3) {
 			TrackPiece *tp = new TrackPiece;
 			if (!tp->Load(&rcd_file, length, sprites)) {
 				tp->Delete();

@@ -21,6 +21,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "flat-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 0;
+			bend: 0;
 			cost: 100000;
 			entry: connection { name: "flat"; direction: ne; }
 			exit:  connection { name: "flat"; direction: ne; }
@@ -47,6 +50,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "flat-straight";
 			track_flags: bitset(0, 3);
+			banking: none;
+			slope: 0;
+			bend: 0;
 			cost: 150000;
 			entry: connection { name: "flat"; direction: ne; }
 			exit:  connection { name: "flat"; direction: ne; }
@@ -72,6 +78,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "flat-90-left";
 			track_flags: 0;
+			banking: none;
+			slope: 0;
+			bend: -1;
 			cost: 200000;
 			entry: connection { name: "flat"; direction: ne; }
 			exit:  connection { name: "flat"; direction: nw; }
@@ -90,6 +99,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "flat-90-right";
 			track_flags: 0;
+			banking: none;
+			slope: 0;
+			bend: 1;
 			cost: 200000;
 			entry: connection { name: "flat"; direction: ne; }
 			exit:  connection { name: "flat"; direction: se; }
@@ -110,6 +122,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "flat-shallow_up-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 1;
+			bend: 0;
 			cost: 200000;
 			entry: connection { name: "flat";       direction: ne; }
 			exit:  connection { name: "shallow_up"; direction: ne; }
@@ -128,6 +143,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "flat-shallow_down-straight";
 			track_flags: 0;
+			banking: none;
+			slope: -1;
+			bend: 0;
 			cost: 200000;
 			entry: connection { name: "flat";         direction: ne; }
 			exit:  connection { name: "shallow_down"; direction: ne; }
@@ -146,6 +164,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "shallow_up-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 1;
+			bend: 0;
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "shallow_up"; direction: ne; }
@@ -164,6 +185,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "shallow_down-straight";
 			track_flags: 0;
+			banking: none;
+			slope: -1;
+			bend: 0;
 			cost: 200000;
 			entry: connection { name: "shallow_down"; direction: ne; }
 			exit:  connection { name: "shallow_down"; direction: ne; }
@@ -181,6 +205,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "shallow_up-flat-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 0;
+			bend: 0;
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "flat";       direction: ne; }
@@ -199,6 +226,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "shallow_down-flat-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 0;
+			bend: 0;
 			cost: 200000;
 			entry: connection { name: "shallow_down"; direction: ne; }
 			exit:  connection { name: "flat";         direction: ne; }
@@ -219,6 +249,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "flat-shallow_up-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 1;
+			bend: 0;
 			speed: 5;
 			cost: 200000;
 			entry: connection { name: "flat";       direction: ne; }
@@ -238,6 +271,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "shallow_up-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 1;
+			bend: 0;
 			speed: 5;
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }
@@ -257,6 +293,9 @@ file("tracks.rcd") {
 		track_piece {
 			// name: "shallow_up-flat-straight";
 			track_flags: 0;
+			banking: none;
+			slope: 0;
+			bend: 0;
 			speed: 5;
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }

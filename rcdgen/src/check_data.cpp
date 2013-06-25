@@ -1748,6 +1748,13 @@ static Connection *ConvertConnection(NodeGroup *ng)
 	return cn;
 }
 
+static const Symbol _track_piece_symbols[] = {
+	{"none",  0},
+	{"left",  1},
+	{"right", 2},
+	{NULL,    0}
+};
+
 /**
  * Convert a 'track_piece' game node.
  * @param ng Generic tree of nodes to convert.
@@ -1759,9 +1766,12 @@ static TrackPieceNode *ConvertTrackPieceNode(NodeGroup *ng)
 	TrackPieceNode *tb = new TrackPieceNode;
 
 	Values vals("track_piece", ng->pos);
-	vals.PrepareNamedValues(ng->values, true, true);
+	vals.PrepareNamedValues(ng->values, true, true, _track_piece_symbols);
 
-	tb->track_flags = vals.HasValue("track_flags") ? vals.GetNumber("track_flags") : 0;
+	tb->track_flags = vals.GetNumber("track_flags");
+	tb->banking = vals.GetNumber("banking");
+	tb->slope = vals.GetNumber("slope");
+	tb->bend = vals.GetNumber("bend");
 	tb->cost = vals.GetNumber("cost");
 
 	tb->entry = vals.GetConnection("entry");

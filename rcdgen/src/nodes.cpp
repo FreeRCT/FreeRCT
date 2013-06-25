@@ -1118,7 +1118,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 {
 	for (int rot = 0; rot < 4; rot++) {
 		FileBlock *fb = new FileBlock;
-		fb->StartSave("TRCK", 2, 25 - 12 + 36 * this->track_voxels.size());
+		fb->StartSave("TRCK", 3, 26 - 12 + 36 * this->track_voxels.size());
 		fb->SaveUInt8(this->entry->Encode(connections, rot));
 		fb->SaveUInt8(this->exit->Encode(connections, rot));
 		int nx = this->exit_dx;
@@ -1128,7 +1128,11 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		fb->SaveInt8(ny);
 		fb->SaveInt8(this->exit_dz);
 		fb->SaveInt8(this->speed);
-		fb->SaveUInt8(this->track_flags);
+		int flags = this->track_flags & 0x3f;
+		flags |= (this->banking & 3) << 6;
+		flags |= (this->slope & 7) << 8;
+		flags |= (this->bend & 7) << 11;
+		fb->SaveUInt16(flags);
 		fb->SaveUInt32(this->cost);
 		fb->SaveUInt16(this->track_voxels.size());
 		for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); iter++) {

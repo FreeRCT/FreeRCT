@@ -695,6 +695,9 @@ public:
 	void Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *fb);
 
 	int track_flags;   ///< Flags of the track piece.
+	int banking;       ///< Banking (0=no, 1=left, 2=right).
+	int slope;         ///< Slope of the track piece (-3 vertically down to 3 vertically up).
+	int bend;          ///< Bend of the track piece (-3 wide-left to 3 wide right).
 	int cost;          ///< Cost of the track piece.
 	Connection *entry; ///< Entry connection code.
 	Connection *exit;  ///< Exit connection code.

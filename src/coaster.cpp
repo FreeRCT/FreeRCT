@@ -69,15 +69,15 @@ TrackPiece::~TrackPiece()
  */
 bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
 {
-	if (length < 2+3+1+1+4+2) return false;
-	length -= 2+3+1+1+4+2;
+	if (length < 2+3+1+2+4+2) return false;
+	length -= 2+3+1+2+4+2;
 	this->entry_connect = rcd_file->GetUInt8();
 	this->exit_connect = rcd_file->GetUInt8();
 	this->exit_dx = rcd_file->GetInt8();
 	this->exit_dy = rcd_file->GetInt8();
 	this->exit_dz = rcd_file->GetInt8();
 	this->speed = rcd_file->GetInt8();
-	this->track_flags = rcd_file->GetUInt8();
+	this->track_flags = rcd_file->GetUInt16();
 	this->cost = rcd_file->GetUInt32();
 	this->voxel_count = rcd_file->GetUInt16();
 	if (length != 36u * this->voxel_count) return false;
