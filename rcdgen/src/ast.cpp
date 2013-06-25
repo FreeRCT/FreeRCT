@@ -86,9 +86,6 @@ ExpressionList::ExpressionList()
 
 ExpressionList::~ExpressionList()
 {
-	for (std::list<Expression *>::iterator iter = this->exprs.begin(); iter != this->exprs.end(); iter++) {
-		delete (*iter);
-	}
 }
 
 /**
@@ -104,7 +101,7 @@ Expression::~Expression()
 }
 
 /**
- * \fn  Expression *Expression::Evaluate(const Symbol *symbols) const
+ * \fn  ExpressionRef Expression::Evaluate(const Symbol *symbols) const
  * Evaluation of the expression. Reduces it to its value or throws a fatal error.
  * @param symbols Sequence of known identifier names.
  * @return The computed reduced expression.
@@ -116,7 +113,7 @@ Expression::~Expression()
  * @param oper Unary operator. Only \c '-' is supported currently.
  * @param child Sub-exoression.
  */
-UnaryOperator::UnaryOperator(const Position &pos, int oper, Expression *child) : Expression(pos)
+UnaryOperator::UnaryOperator(const Position &pos, int oper, ExpressionRef &child) : Expression(pos)
 {
 	this->oper = oper;
 	this->child = child;
@@ -124,16 +121,16 @@ UnaryOperator::UnaryOperator(const Position &pos, int oper, Expression *child) :
 
 UnaryOperator::~UnaryOperator()
 {
-	delete child;
 }
 
-Expression *UnaryOperator::Evaluate(const Symbol *symbols) const
+ExpressionRef UnaryOperator::Evaluate(const Symbol *symbols) const
 {
-	Expression *result = child->Evaluate(symbols);
-	NumberLiteral *number = dynamic_cast<NumberLiteral *>(result);
+	ExpressionRef result = this->child.Access()->Evaluate(symbols);
+	NumberLiteral *number = dynamic_cast<NumberLiteral *>(result.Access());
 	if (number != NULL) {
-		number->value = -number->value;
-		return number;
+		Expression *expr = new NumberLiteral(number->pos, -number->value);
+		result.Give(expr);
+		return result;
 	}
 	fprintf(stderr, "Evaluate error at %s: Cannot negate the value of the child expression", this->pos.ToString());
 	exit(1);
@@ -154,10 +151,10 @@ StringLiteral::~StringLiteral()
 	free(this->text);
 }
 
-Expression *StringLiteral::Evaluate(const Symbol *symbols) const
+ExpressionRef StringLiteral::Evaluate(const Symbol *symbols) const
 {
-	char *copy = this->CopyText();
-	return new StringLiteral(this->pos, copy);
+	this->Copy();
+	return const_cast<StringLiteral *>(this);
 }
 
 /**
@@ -187,12 +184,16 @@ IdentifierLiteral::~IdentifierLiteral()
 	free(this->name);
 }
 
-Expression *IdentifierLiteral::Evaluate(const Symbol *symbols) const
+ExpressionRef IdentifierLiteral::Evaluate(const Symbol *symbols) const
 {
 	if (symbols != NULL) {
 		for (;;) {
 			if (symbols->name == NULL) break;
-			if (strcmp(symbols->name, this->name) == 0) return new NumberLiteral(this->pos, symbols->value);
+			if (strcmp(symbols->name, this->name) == 0) {
+				Expression *expr = new NumberLiteral(this->pos, symbols->value);
+				ExpressionRef result(expr);
+				return result;
+			}
 			symbols++;
 		}
 	}
@@ -214,9 +215,10 @@ NumberLiteral::~NumberLiteral()
 {
 }
 
-Expression *NumberLiteral::Evaluate(const Symbol *symbols) const
+ExpressionRef NumberLiteral::Evaluate(const Symbol *symbols) const
 {
-	return new NumberLiteral(this->pos, this->value);
+	this->Copy();
+	return const_cast<NumberLiteral *>(this);
 }
 
 /**
@@ -234,22 +236,23 @@ BitSet::~BitSet()
 	delete this->args;
 }
 
-Expression *BitSet::Evaluate(const Symbol *symbols) const
+ExpressionRef BitSet::Evaluate(const Symbol *symbols) const
 {
 	long long value = 0;
 	if (this->args != NULL) {
-		for (std::list<Expression *>::const_iterator iter = this->args->exprs.begin(); iter != this->args->exprs.end(); iter++) {
-			Expression *e = (*iter)->Evaluate(symbols);
-			NumberLiteral *nl = dynamic_cast<NumberLiteral *>(e);
+		for (std::list<ExpressionRef>::const_iterator iter = this->args->exprs.begin(); iter != this->args->exprs.end(); iter++) {
+			ExpressionRef e = (*iter).Access()->Evaluate(symbols);
+			NumberLiteral *nl = dynamic_cast<NumberLiteral *>(e.Access());
 			if (nl == NULL) {
-				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", (*iter)->pos.ToString());
+				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", (*iter).Access()->pos.ToString());
 				exit(1);
 			}
 			value |= 1ll << nl->value;
-			delete e;
 		}
 	}
-	return new NumberLiteral(this->pos, value);
+	Expression *expr = new NumberLiteral(this->pos, value);
+	ExpressionRef result(expr);
+	return result;
 }
 
 
@@ -498,19 +501,18 @@ void NodeGroup::HandleImports()
  * Wrap an expression in a group.
  * @param expr %Expression to wrap.
  */
-ExpressionGroup::ExpressionGroup(Expression *expr) : Group()
+ExpressionGroup::ExpressionGroup(ExpressionRef &expr) : Group()
 {
 	this->expr = expr;
 }
 
 ExpressionGroup::~ExpressionGroup()
 {
-	delete this->expr;
 }
 
 /* virtual */ const Position &ExpressionGroup::GetPosition() const
 {
-	return this->expr->pos;
+	return this->expr.Access()->pos;
 }
 
 /* virtual */ ExpressionGroup *ExpressionGroup::CastToExpressionGroup()

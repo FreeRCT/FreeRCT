@@ -26,7 +26,7 @@ static BlockNode *ConvertNodeGroup(NodeGroup *ng);
  * @param pos %Position of the node (for reporting errors).
  * @param node %Name of the node being checked and expanded.
  */
-static void ExpandExpressions(ExpressionList *exprs, Expression *out[], size_t expected, const Position &pos, const char *node)
+static void ExpandExpressions(ExpressionList *exprs, ExpressionRef out[], size_t expected, const Position &pos, const char *node)
 {
 	if (exprs == NULL) {
 		if (expected == 0) return;
@@ -38,7 +38,7 @@ static void ExpandExpressions(ExpressionList *exprs, Expression *out[], size_t e
 		exit(1);
 	}
 	int idx = 0;
-	for (std::list<Expression *>::iterator iter = exprs->exprs.begin(); iter != exprs->exprs.end(); iter++) {
+	for (std::list<ExpressionRef>::iterator iter = exprs->exprs.begin(); iter != exprs->exprs.end(); iter++) {
 		out[idx++] = *iter;
 	}
 }
@@ -64,21 +64,20 @@ static void ExpandNoExpression(ExpressionList *exprs, const Position &pos, const
  * @param node %Name of the node.
  * @return Value of the string (caller should release the memory after use).
  */
-static char *GetString(Expression *expr, int index, const char *node)
+static char *GetString(ExpressionRef &expr, int index, const char *node)
 {
 	/* Simple case, expression is a string literal. */
-	StringLiteral *sl = dynamic_cast<StringLiteral *>(expr);
+	StringLiteral *sl = dynamic_cast<StringLiteral *>(expr.Access());
 	if (sl != NULL) return sl->CopyText();
 
 	/* General case, compute its value. */
-	Expression *expr2 = expr->Evaluate(NULL);
-	sl = dynamic_cast<StringLiteral *>(expr2);
+	ExpressionRef expr2 = expr.Access()->Evaluate(NULL);
+	sl = dynamic_cast<StringLiteral *>(expr2.Access());
 	if (sl == NULL) {
-		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a string", expr->pos.ToString(), index + 1, node);
+		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a string", expr.Access()->pos.ToString(), index + 1, node);
 		exit(1);
 	}
 	char *result = sl->CopyText();
-	delete expr2;
 	return result;
 }
 
@@ -116,7 +115,7 @@ static char *GetString(Expression *expr, int index, const char *node)
  */
 static FileNode *ConvertFileNode(NodeGroup *ng)
 {
-	Expression *argument;
+	ExpressionRef argument;
 	ExpandExpressions(ng->exprs, &argument, 1, ng->pos, "file");
 
 	char *filename = GetString(argument, 0, "file");
@@ -157,17 +156,17 @@ public:
 	Connection *GetConnection(const Position &pos, const char *node);
 	Strings *GetStrings(const Position &pos, const char *node);
 
-	Position pos;           ///< %Position of the name.
-	Expression *expr_value; ///< %Expression attached to it (if any).
-	BlockNode *node_value;  ///< Node attached to it (if any).
-	std::string name;       ///< %Name of the value.
-	bool used;              ///< Is the value used?
+	Position pos;             ///< %Position of the name.
+	ExpressionRef expr_value; ///< %Expression attached to it (if any).
+	BlockNode *node_value;    ///< Node attached to it (if any).
+	std::string name;         ///< %Name of the value.
+	bool used;                ///< Is the value used?
 };
 
 /** Default constructor. */
 ValueInformation::ValueInformation() : pos("", 0)
 {
-	this->expr_value = NULL;
+	this->expr_value.Give(NULL);
 	this->node_value = NULL;
 	this->name = "_unknown_";
 	this->used = false;
@@ -180,14 +179,14 @@ ValueInformation::ValueInformation() : pos("", 0)
  */
 ValueInformation::ValueInformation(const std::string &name, const Position &pos) : pos(pos)
 {
-	this->expr_value = NULL;
+	this->expr_value.Give(NULL);
 	this->node_value = NULL;
 	this->name = name;
 	this->used = false;
 }
 
 /**
- * Copy-constructor, moves ownership of #expr_value and #node_value to the assigned object.
+ * Copy-constructor, moves ownership of #node_value to the assigned object.
  * @param vi Original object.
  */
 ValueInformation::ValueInformation(const ValueInformation &vi) : pos(vi.pos)
@@ -195,7 +194,6 @@ ValueInformation::ValueInformation(const ValueInformation &vi) : pos(vi.pos)
 	ValueInformation &w_vi = const_cast<ValueInformation &>(vi);
 	this->expr_value = w_vi.expr_value;
 	this->node_value = w_vi.node_value;
-	w_vi.expr_value = NULL;
 	w_vi.node_value = NULL;
 
 	this->name = vi.name;
@@ -203,7 +201,7 @@ ValueInformation::ValueInformation(const ValueInformation &vi) : pos(vi.pos)
 }
 
 /**
- * Assignment operator, moves ownership of #expr_value and #node_value to the assigned object.
+ * Assignment operator, moves ownership of #node_value to the assigned object.
  * @param vi Original object.
  * @return Assigned object.
  */
@@ -213,7 +211,6 @@ ValueInformation &ValueInformation::operator=(const ValueInformation &vi)
 		ValueInformation &w_vi = const_cast<ValueInformation &>(vi);
 		this->expr_value = w_vi.expr_value;
 		this->node_value = w_vi.node_value;
-		w_vi.expr_value = NULL;
 		w_vi.node_value = NULL;
 
 		this->name = vi.name;
@@ -225,7 +222,6 @@ ValueInformation &ValueInformation::operator=(const ValueInformation &vi)
 
 ValueInformation::~ValueInformation()
 {
-	delete this->expr_value;
 	delete this->node_value;
 }
 
@@ -238,21 +234,19 @@ ValueInformation::~ValueInformation()
  */
 long long ValueInformation::GetNumber(const Position &pos, const char *node, const Symbol *symbols)
 {
-	if (this->expr_value == NULL) {
+	if (this->expr_value.Access() == NULL) {
 fail:
 		fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a numeric value\n", pos.ToString(), this->name.c_str(), node);
 		exit(1);
 	}
-	NumberLiteral *nl = dynamic_cast<NumberLiteral *>(this->expr_value); // Simple common case.
+	NumberLiteral *nl = dynamic_cast<NumberLiteral *>(this->expr_value.Access()); // Simple common case.
 	if (nl != NULL) return nl->value;
 
-	Expression *expr2 = this->expr_value->Evaluate(symbols); // Generic case, evaluate the expression.
-	nl = dynamic_cast<NumberLiteral *>(expr2);
+	ExpressionRef expr2 = this->expr_value.Access()->Evaluate(symbols); // Generic case, evaluate the expression.
+	nl = dynamic_cast<NumberLiteral *>(expr2.Access());
 	if (nl == NULL) goto fail;
 
-	long long value = nl->value;
-	delete expr2;
-	return value;
+	return nl->value;
 }
 
 /**
@@ -263,21 +257,19 @@ fail:
  */
 std::string ValueInformation::GetString(const Position &pos, const char *node)
 {
-	if (this->expr_value == NULL) {
+	if (this->expr_value.Access() == NULL) {
 fail:
 		fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a string value\n", pos.ToString(), this->name.c_str(), node);
 		exit(1);
 	}
-	StringLiteral *sl = dynamic_cast<StringLiteral *>(this->expr_value); // Simple common case.
+	StringLiteral *sl = dynamic_cast<StringLiteral *>(this->expr_value.Access()); // Simple common case.
 	if (sl != NULL) return std::string(sl->text);
 
-	Expression *expr2 = this->expr_value->Evaluate(NULL); // Generic case
-	sl = dynamic_cast<StringLiteral *>(expr2);
+	ExpressionRef expr2 = this->expr_value.Access()->Evaluate(NULL); // Generic case
+	sl = dynamic_cast<StringLiteral *>(expr2.Access());
 	if (sl == NULL) goto fail;
 
-	std::string result = std::string(sl->text);
-	delete expr2;
-	return result;
+	return std::string(sl->text);
 }
 
 /**
@@ -468,7 +460,7 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 		if (nv->name == NULL) { // Unnamed value.
 			NodeGroup *ng = nv->group->CastToNodeGroup();
 			if (ng != NULL) {
-				this->unnamed_values[unnamed_count].expr_value = NULL;
+				this->unnamed_values[unnamed_count].expr_value.Give(NULL);
 				this->unnamed_values[unnamed_count].node_value = ConvertNodeGroup(ng);
 				this->unnamed_values[unnamed_count].name = "???";
 				this->unnamed_values[unnamed_count].pos = ng->GetPosition();
@@ -478,7 +470,7 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 			}
 			ExpressionGroup *eg = nv->group->CastToExpressionGroup();
 			assert(eg != NULL);
-			this->unnamed_values[unnamed_count].expr_value = eg->expr->Evaluate(symbols);
+			this->unnamed_values[unnamed_count].expr_value = eg->expr.Access()->Evaluate(symbols);
 			this->unnamed_values[unnamed_count].node_value = NULL;
 			this->unnamed_values[unnamed_count].name = "???";
 			this->unnamed_values[unnamed_count].pos = ng->GetPosition();
@@ -491,7 +483,7 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 				BlockNode *bn = ConvertNodeGroup(ng);
 				SingleName *sn = dynamic_cast<SingleName *>(nv->name);
 				if (sn != NULL) {
-					this->named_values[named_count].expr_value = NULL;
+					this->named_values[named_count].expr_value.Give(NULL);
 					this->named_values[named_count].node_value = bn;
 					this->named_values[named_count].name = std::string(sn->name);
 					this->named_values[named_count].pos = sn->pos;
@@ -513,7 +505,7 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 				fprintf(stderr, "Error at %s: Expression must have a single name\n", nv->name->GetPosition().ToString());
 				exit(1);
 			}
-			this->named_values[named_count].expr_value = eg->expr->Evaluate(symbols);
+			this->named_values[named_count].expr_value = eg->expr.Access()->Evaluate(symbols);
 			this->named_values[named_count].node_value = NULL;
 			this->named_values[named_count].name = std::string(sn->name);
 			this->named_values[named_count].pos = sn->pos;

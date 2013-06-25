@@ -38,13 +38,13 @@ public:
 	}
 
 	/** Perform a virtual copy by adding an owner of this object. */
-	void Copy()
+	void Copy() const
 	{
 		assert(this->count > 0);
 		this->count++;
 	}
 
-	int count; ///< Number of references.
+	mutable int count; ///< Number of references.
 
 protected:
 	/** Protected destructor, use #Delete instead. */
@@ -80,7 +80,8 @@ public:
 	 */
 	DataReference(const DataReference<D> &dr)
 	{
-		this->data = dr.Copy();
+		D *dr_data = (dr.Access() == NULL) ? NULL : dr.Copy();
+		this->data = dr_data;
 	}
 
 	/**
@@ -90,7 +91,10 @@ public:
 	 */
 	DataReference<D> &operator=(const DataReference<D> &dr)
 	{
-		if (&dr != this) this->Give(dr.Copy());
+		if (&dr != this) {
+			D *dr_data = (dr.Access() == NULL) ? NULL : dr.Copy();
+			this->Give(dr_data);
+		}
 		return *this;
 	}
 
@@ -138,6 +142,15 @@ public:
 	 * @return A reference to the owned data.
 	 */
 	D *Access()
+	{
+		return this->data;
+	}
+
+	/**
+	 * Give access to the data, without transfer of ownership.
+	 * @return A reference to the owned data.
+	 */
+	const D *Access() const
 	{
 		return this->data;
 	}

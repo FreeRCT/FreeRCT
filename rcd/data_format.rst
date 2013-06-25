@@ -751,7 +751,7 @@ Track pieces
 ~~~~~~~~~~~~
 
 A track piece definition describes a single piece of track in a TRCK block.
-FreeRCT can read blocks with version 2. Each piece needs
+FreeRCT can read blocks with version 3. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is
 called the *exit* voxel. The *entry* voxel of a track piece is at the *exit*
@@ -768,29 +768,32 @@ it is split in a 'name' and a 'direction' while defining the track pieces.
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0        4      1-2                        Magic string 'TRCK'.
-   4        4      1-2                        Version number of the block.
-   8        4      1-2                        Length of the block excluding magic string, version, and length.
-  12        1      1-2    entry_connection    Entry connection code
-  13        1      1-2    exit_connection     Exit connection code
-  14        1       2     exit_dx             Relative X position of the exit voxel.
-  15        1       2     exit_dy             Relative Y position of the exit voxel.
-  16        1       2     exit_dz             Relative Z position of the exit voxel.
-  17        1       2     speed               If non-zero, the minimal speed of cars at the track.
-  18        1       2     track_flags         Flags of the track piece.
-  19        4       2     cost                Cost of this track piece.
-  23        2      1-2                        Number of voxels in this track piece (called 'n').
-  25      36*n     1-2                        Voxel definitions
-25+36*n                                       Total length of the ``TRCK`` block.
+   0        4      1-3                        Magic string 'TRCK'.
+   4        4      1-3                        Version number of the block.
+   8        4      1-3                        Length of the block excluding magic string, version, and length.
+  12        1      1-3    entry_connection    Entry connection code
+  13        1      1-3    exit_connection     Exit connection code
+  14        1      2-3    exit_dx             Relative X position of the exit voxel.
+  15        1      2-3    exit_dy             Relative Y position of the exit voxel.
+  16        1      2-3    exit_dz             Relative Z position of the exit voxel.
+  17        1      2-3    speed               If non-zero, the minimal speed of cars at the track.
+  18        2      2-3    track_flags         Flags of the track piece (version 2 is 1 byte).
+  20        4      2-3    cost                Cost of this track piece.
+  24        2      1-3                        Number of voxels in this track piece (called 'n').
+  26      36*n     1-3                        Voxel definitions
+26+36*n                                       Total length of the ``TRCK`` block.
 =======  ======  =======  ==================  ================================================================
 
 The track flags are defined as follows:
 
-- bit  0   This track piece has platforms next to the track.
-- bits 1-2 Direction of the platform (if bit 0 is set).
-- bit  3   This track piece may be used for initial placement.
-- bit  4-5 Direction of initial placement (if bit 3 is set).
-
+- bit   0    *This track piece has platforms next to the track*.
+- bits  1-2  *Direction of the platform* (if bit 0 is set).
+- bit   3    *This track piece may be used for initial placement*.
+- bits  4-5  *Direction of initial placement* (if bit 3 is set).
+- bits  6-7  *Banking of the piece* (0=no banking, 1=banking to the left, 2=banking to the right).
+- bits  8-10 *Level of the slope* (-3=vertical down, -2=steep down, -1=gentle down, 0=level, 1=gentle up,
+  2=steep up, 3=vertical up).
+- bits 11-13 *Size of the bend* (-3 to +3, negative is to the left, positive is to the right, bigger is a wider bend).
 
 A voxel definition is
 
@@ -826,6 +829,8 @@ Version history
 
 - 1 (20130317) Initial version.
 - 2 (20130430) Entry and exit definitions, speed, flags, and sprites for other viewing directions added.
+- 3 (20130622) Extended the ``track_flags`` from 1 byte to 2 bytes to add the track piece properties (banking, slope,
+  and bend size).
 
 GUI
 ===

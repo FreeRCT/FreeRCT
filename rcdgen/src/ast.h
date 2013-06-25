@@ -14,6 +14,7 @@
 
 #include <list>
 #include <string>
+#include "../../src/reference_count.h"
 
 /** Position in a source file. */
 class Position {
@@ -37,15 +38,22 @@ struct Symbol {
 	int value;        ///< Value of the symbol.
 };
 
+class Expression;
+
+/** Counted reference to an expression. */
+typedef DataReference<Expression> ExpressionRef;
+
 /** Base class of expressions. */
-class Expression {
+class Expression : public RefCounter {
 public:
 	Expression(const Position &pos);
-	virtual ~Expression();
 
-	virtual Expression *Evaluate(const Symbol *symbols) const = 0;
+	virtual ExpressionRef Evaluate(const Symbol *symbols) const = 0;
 
 	const Position pos; ///< %Position of the expression.
+
+protected:
+	virtual ~Expression();
 };
 
 /** A sequence of expressions. */
@@ -54,65 +62,75 @@ public:
 	ExpressionList();
 	~ExpressionList();
 
-	std::list<Expression *> exprs; ///< The sequence of expressions.
+	std::list<ExpressionRef> exprs; ///< The sequence of expressions.
 };
 
 /** Unary operator expression. */
 class UnaryOperator : public Expression {
 public:
-	UnaryOperator(const Position &pos, int oper, Expression *child);
-	/* virtual */ ~UnaryOperator();
+	UnaryOperator(const Position &pos, int oper, ExpressionRef &child);
 
-	/* virtual */ Expression *Evaluate(const Symbol *symbols) const;
+	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
 
 	int oper; ///< Operation performed, currently only \c '-' (unary negation is supported).
-	Expression *child; ///< Child expression (should be numeric).
+	ExpressionRef child; ///< Child expression (should be numeric).
+
+protected:
+	/* virtual */ ~UnaryOperator();
 };
 
 /** String literal elementary expression node. */
 class StringLiteral : public Expression {
 public:
 	StringLiteral(const Position &pos, char *text);
-	/* virtual */ ~StringLiteral();
 
-	/* virtual */ Expression *Evaluate(const Symbol *symbols) const;
+	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
 
 	char *CopyText() const;
 
 	char *text; ///< Text of the string literal (decoded).
+
+protected:
+	/* virtual */ ~StringLiteral();
 };
 
 /** Identifier elementary expression node. */
 class IdentifierLiteral : public Expression {
 public:
 	IdentifierLiteral(const Position &pos, char *name);
-	/* virtual */ ~IdentifierLiteral();
 
-	/* virtual */ Expression *Evaluate(const Symbol *symbols) const;
+	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
 
 	char *name; ///< The identifier of the expression.
+
+protected:
+	/* virtual */ ~IdentifierLiteral();
 };
 
 /** Number literal elementary expression node. */
 class NumberLiteral : public Expression {
 public:
 	NumberLiteral(const Position &pos, long long value);
-	/* virtual */ ~NumberLiteral();
 
-	/* virtual */ Expression *Evaluate(const Symbol *symbols) const;
+	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
 
 	long long value; ///< Value of the number literal.
+
+protected:
+	/* virtual */ ~NumberLiteral();
 };
 
 /** Bit set expression ('or' of '1 << arg'). */
 class BitSet : public Expression {
 public:
 	BitSet(const Position &pos, ExpressionList *args);
-	/* virtual */ ~BitSet();
 
-	/* virtual */ Expression *Evaluate(const Symbol *symbols) const;
+	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
 
 	ExpressionList *args; ///< Arguments of the bitset, if any.
+
+protected:
+	/* virtual */ ~BitSet();
 };
 
 /** Base class for labels of named values. */
@@ -212,13 +230,13 @@ public:
 /** Value part of a group consisting of an expression. */
 class ExpressionGroup : public Group {
 public:
-	ExpressionGroup(Expression *expr);
+	ExpressionGroup(ExpressionRef &expr);
 	/* virtual */ ~ExpressionGroup();
 
 	/* virtual */ const Position &GetPosition() const;
 	/* virtual */ ExpressionGroup *CastToExpressionGroup();
 
-	Expression *expr; ///< Expression to store.
+	ExpressionRef expr; ///< %Expression to store.
 };
 
 /** Base class for named values. */

@@ -13,6 +13,7 @@
 #define SCANNER_FUNCS_H
 
 #include <string>
+#include "ast.h"
 
 extern int line; ///< Line number of the input file being scanned.
 extern std::string filename; ///< Name of the file being parsed.
@@ -28,16 +29,8 @@ int yyparse(); ///< Generated parser function.
 extern FILE *yyin; ///< Input stream of the scanner. See also flex(1).
 void yyerror(const char *message);
 
-class Expression;
-class ExpressionList;
-class NameTable;
-class NameRow;
-class Group;
-class BaseNamedValue;
-class NamedValueList;
-
 /** Structure to communicate values from the scanner to the parser. */
-union YyStruct {
+struct YyStruct {
 	int line; ///< Line number of the token.
 	struct {
 		int line;        ///< Line number of the token.
@@ -47,7 +40,7 @@ union YyStruct {
 		int line;    ///< Line number of the token.
 		char *value; ///< Characters stored.
 	} chars; ///< Data while communicating an IDENTIFIER or STRING token.
-	Expression *expr;         ///< %Expression to pass on.
+	ExpressionRef expr;       ///< %Expression to pass on.
 	ExpressionList *exprlist; ///< Expression list to pass on.
 	NameTable *iden_table;    ///< 2D table with identifiers to pass on.
 	NameRow *iden_row;        ///< Row of identifiers to pass on.
