@@ -213,8 +213,9 @@ RideSelectGui::~RideSelectGui()
 		case RSEL_DISPLAY:
 			if (this->current_ride != -1) {
 				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
-				static const Recolouring recolour; // Never modified, display 'original' image in the gui.
-				if (ride_type != NULL) {
+				/* Display the selected shop in the ride select window. */
+				if (ride_type != NULL && ride_type->kind == RTK_SHOP) {
+					static const Recolouring recolour; // Never modified, display 'original' image in the gui.
 					_video->BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
 							this->GetWidgetScreenY(wid) + 40, ride_type->GetView(_shop_placer.orientation),
 							recolour, 0);
@@ -231,7 +232,7 @@ RideSelectGui::~RideSelectGui()
 		case RSEL_GENTLE:
 		case RSEL_WET:
 		case RSEL_COASTER:
-			if (SetNewRide(wid_num - RSEL_SHOPS)) this->MarkDirty();
+			if (this->SetNewRide(wid_num - RSEL_SHOPS)) this->MarkDirty();
 			break;
 
 		case RSEL_LIST:
@@ -239,14 +240,18 @@ RideSelectGui::~RideSelectGui()
 			break;
 
 		case RSEL_SELECT: {
-			bool pressed = this->IsWidgetPressed(wid_num);
-			if (pressed) {
-				_shop_placer.SetSelection(-1);
-				pressed = false;
-			} else {
-				pressed = _shop_placer.SetSelection(this->current_ride);
+			if (this->ride_types[this->current_kind] == 0) return;
+
+			if (this->current_kind == RTK_SHOP) {
+				bool pressed = this->IsWidgetPressed(wid_num);
+				if (pressed) {
+					_shop_placer.SetSelection(-1);
+					pressed = false;
+				} else {
+					pressed = _shop_placer.SetSelection(this->current_ride);
+				}
+				this->SetWidgetPressed(wid_num, pressed);
 			}
-			this->SetWidgetPressed(wid_num, pressed);
 			break;
 		}
 		case RSEL_ROT_POS:
@@ -279,22 +284,38 @@ RideSelectGui::~RideSelectGui()
 bool RideSelectGui::SetNewRide(int16 newKind, bool force)
 {
 	assert(newKind >= 0 && newKind < RTK_RIDE_KIND_COUNT);
-	if (!force && (newKind == this->current_kind || this->ride_types[newKind] == 0)) return false;
+	if (!force && newKind == this->current_kind) return false;
 	this->current_kind = newKind;
 	this->SetRadioButtonsSelected(_ride_type_select_bar, _ride_type_select_bar[this->current_kind]);
-	int i;
-	for (i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
-		const RideType *ride_type = _rides_manager.ride_types[i];
-		if (ride_type == NULL) continue;
 
-		if (this->ride_types[ride_type->kind] == newKind) break;
+	this->current_ride = -1;
+	if (this->ride_types[newKind] > 0) {
+		for (int i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
+			const RideType *ride_type = _rides_manager.ride_types[i];
+			if (ride_type == NULL || ride_type->kind != this->current_kind) continue;
+
+			this->current_ride = i;
+			break;
+		}
 	}
-	if (i >= (int)lengthof(_rides_manager.ride_types)) {
-		if (!force) return false;
-		i = 0;
+
+	/* Update selection with the new ride. */
+	switch (this->current_kind) {
+		case RTK_SHOP:
+			_shop_placer.SetSelection(this->IsWidgetPressed(RSEL_SELECT) ? this->current_ride : -1);
+			break;
+
+		case RTK_GENTLE:
+		case RTK_WET:
+		case RTK_COASTER:
+			_shop_placer.SetSelection(-1); // De-select a shop.
+			/* Widget should behave as a mon-stable button if not selecting a shop. */
+			this->SetWidgetPressed(RSEL_SELECT, false);
+			break;
+
+		default:
+			NOT_REACHED();
 	}
-	this->current_ride = i;
-	_shop_placer.SetSelection(this->IsWidgetPressed(RSEL_SELECT) ? this->current_ride : -1);
 	return true;
 }
 
