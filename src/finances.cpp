@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file map.cpp Voxels of the world. */
+/** @file finances.cpp Finances of the user. */
 
 /**
  * @defgroup finances_group Finances data and code.
