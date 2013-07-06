@@ -295,7 +295,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 	this->widgets = NULL;
 	this->num_widgets = 0;
 	this->SetHighlight(true);
-	this->shop_type = NULL;
+	this->ride_type = NULL;
 }
 
 GuiWindow::~GuiWindow()
@@ -316,11 +316,11 @@ GuiWindow::~GuiWindow()
 
 /**
  * Set the string translation base for the generic strings of this window.
- * @param shop_type Shop type to use as base for the string translation.
+ * @param ride_type Ride type to use as base for the string translation.
  */
-void GuiWindow::SetShopType(const ShopType *shop_type)
+void GuiWindow::SetShopType(const ShopType *ride_type)
 {
-	this->shop_type = shop_type;
+	this->ride_type = ride_type;
 }
 
 /**
@@ -332,7 +332,7 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 {
 	assert(str_id != STR_INVALID);
 
-	if (this->shop_type != NULL && str_id >= STR_GENERIC_SHOP_START) return this->shop_type->GetString(str_id);
+	if (this->ride_type != NULL && str_id >= STR_GENERIC_SHOP_START) return this->ride_type->GetString(str_id);
 	return str_id;
 }
 

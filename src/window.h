@@ -176,7 +176,7 @@ public:
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
-	const ShopType *shop_type; ///< Shop type being used by this window, for translating its strings. May be \c NULL.
+	const ShopType *ride_type; ///< Ride type being used by this window, for translating its strings. May be \c NULL.
 
 	void SetupWidgetTree(const WidgetPart *parts, int length);
 
@@ -200,7 +200,7 @@ protected:
 
 	virtual void OnClick(WidgetNumber widget);
 
-	void SetShopType(const ShopType *shop_type);
+	void SetShopType(const ShopType *ride_type);
 
 private:
 	BaseWidget *tree;     ///< Tree of widgets.
