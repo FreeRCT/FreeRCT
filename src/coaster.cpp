@@ -185,6 +185,15 @@ CoasterInstance::~CoasterInstance()
 {
 }
 
+/**
+ * Can the user click in the world to re-open the coaster instance window for this coaster?
+ * @return \c true if an object in the world exists, \c false otherwise.
+ */
+bool CoasterInstance::IsAccessible()
+{
+	return false; // XXX Extend after being able to build coaster pieces.
+}
+
 /* virtual */ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	const CoasterType *ct = this->GetCoasterType();
@@ -195,4 +204,15 @@ CoasterInstance::~CoasterInstance()
 	sprites[1] = tv->back[orient]; // SO_RIDE
 	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
 	sprites[3] = NULL; // SO_PLATFORM_FRONT // XXX If platform flag, add coaster platforms.
+}
+
+/**
+ * Check the state of the coaster ride, and set the #state flag.
+ * @return The new coaster instance state.
+ */
+RideInstanceState CoasterInstance::DecideRideState()
+{
+	// XXX Extend after being able to build coaster pieces in the world.
+	this->state = RIS_BUILDING;
+	return (RideInstanceState)this->state;
 }

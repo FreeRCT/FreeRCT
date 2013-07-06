@@ -190,6 +190,8 @@ public:
 	CoasterInstance(const CoasterType *rt);
 	~CoasterInstance();
 
+	bool IsAccessible();
+
 	/**
 	 * Get the coaster type of this ride.
 	 * @return The coaster type of this ride.
@@ -200,6 +202,8 @@ public:
 	}
 
 	/* virtual */ void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const;
+
+	RideInstanceState DecideRideState();
 };
 
 #endif
