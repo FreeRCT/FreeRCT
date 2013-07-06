@@ -115,6 +115,8 @@ protected:
 /** State of a ride instance. */
 enum RideInstanceState {
 	RIS_ALLOCATED, ///< Ride instance is allocated but not yet in play.
+	RIS_BUILDING,  ///< Ride instance is being constructed.
+	RIS_TESTING,   ///< Ride instance is being tested.
 	RIS_CLOSED,    ///< Ride instance is available, but closed for the public.
 	RIS_OPEN,      ///< Ride instance is open for use by the public.
 };
@@ -144,6 +146,7 @@ public:
 	const RideType *GetRideType() const;
 
 	void OnNewMonth();
+	void BuildRide();
 	void OpenRide();
 	void CloseRide();
 

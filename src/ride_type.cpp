@@ -353,6 +353,16 @@ void RideInstance::CloseRide()
 }
 
 /**
+ * Switch the ride to being constructed.
+ * @pre The ride should not be open.
+ */
+void RideInstance::BuildRide()
+{
+	assert(this->state != RIS_OPEN);
+	this->state = RIS_BUILDING;
+}
+
+/**
  * Constructor of a shop 'ride'.
  * @param type Kind of shop.
  */
@@ -585,10 +595,13 @@ void RidesManager::NewInstanceAdded(uint16 num)
 	}
 
 	switch (ri->GetKind()) {
-		case RTK_SHOP: {
+		case RTK_SHOP:
 			ri->CloseRide();
 			break;
-		}
+
+		case RTK_COASTER:
+			ri->BuildRide();
+			break;
 
 		default:
 			NOT_REACHED(); // XXX Add other ride types.
