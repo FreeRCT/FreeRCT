@@ -576,25 +576,23 @@ void RidesManager::NewInstanceAdded(uint16 num)
 		idx++;
 	}
 
+	/* Initialize money and counters. */
+	ri->total_profit = 0;
+	ri->total_sell_profit = 0;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		ri->item_price[i] = rt->item_cost[i] * 12 / 10; // Make 20% profit.
+		ri->item_count[i] = 0;
+	}
+
 	switch (ri->GetKind()) {
 		case RTK_SHOP: {
-			ShopInstance *si = static_cast<ShopInstance *>(ri);
-			const ShopType *st = si->GetShopType();
-
-			/* Initialize money and counters. */
-			ri->total_profit = 0;
-			ri->total_sell_profit = 0;
-			ri->item_price[0] = st->item_cost[0] * 12 / 10; // Make 20% profit.
-			ri->item_price[1] = st->item_cost[1] * 12 / 10;
-			ri->item_count[0] = 0;
-			ri->item_count[1] = 0;
+			ri->CloseRide();
 			break;
 		}
 
 		default:
-			assert(0); // XXX Add other ride types.
+			NOT_REACHED(); // XXX Add other ride types.
 	}
-	ri->CloseRide();
 }
 
 /**
