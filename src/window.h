@@ -30,6 +30,7 @@ enum WindowTypes {
 	WC_BOTTOM_TOOLBAR, ///< Bottom toolbar.
 	WC_QUIT,           ///< Quit program window.
 	WC_GUEST_INFO,     ///< Person window.
+	WC_COASTER_MANAGER, ///< Roller coaster manager window.
 	WC_PATH_BUILDER,   ///< %Path build gui.
 	WC_RIDE_SELECT,    ///< Ride selection window.
 	WC_SHOP_MANAGER,   ///< Management window of a shop.
@@ -316,6 +317,8 @@ Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber);
 bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber);
 void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter);
 
+class RideInstance;
+
 Viewport *ShowMainDisplay();
 void ShowToolbar();
 void ShowBottomToolbar();
@@ -325,5 +328,6 @@ void ShowRideSelectGui();
 void ShowShopManagementGui(uint16 ri);
 void ShowTerraformGui();
 void ShowFinancesGui();
+void ShowCoasterManagementGui(RideInstance *coaster);
 
 #endif

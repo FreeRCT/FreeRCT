@@ -251,6 +251,17 @@ RideSelectGui::~RideSelectGui()
 					pressed = _shop_placer.SetSelection(this->current_ride);
 				}
 				this->SetWidgetPressed(wid_num, pressed);
+			} else {
+				if (this->current_ride != -1) {
+					uint16 instance = _rides_manager.GetFreeInstance();
+					if (instance != INVALID_RIDE_INSTANCE) {
+						const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
+						assert(ride_type != NULL && ride_type->kind == RTK_COASTER);
+						RideInstance *ri = _rides_manager.CreateInstance(ride_type, instance);
+						_rides_manager.NewInstanceAdded(instance);
+						ShowCoasterManagementGui(ri);
+					}
+				}
 			}
 			break;
 		}

@@ -17,7 +17,7 @@ CXXFLAGS=-Wall -g
 INCLUDES=-I$(OBJDIR) -I/usr/include/SDL
 LIBS=-lSDL -lSDL_ttf
 
-CXXFILES=bottom_toolbar_gui.cpp coaster.cpp config_reader.cpp dates.cpp \
+CXXFILES=bottom_toolbar_gui.cpp coaster.cpp coaster_gui.cpp config_reader.cpp dates.cpp \
 	fileio.cpp finances.cpp finances_gui.cpp \
 	gamelevel.cpp getoptdata.cpp gui_graphics.cpp language.cpp main.cpp map.cpp math_func.cpp \
 	palette.cpp path_build.cpp path.cpp path_gui.cpp \
