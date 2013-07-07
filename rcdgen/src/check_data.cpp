@@ -82,7 +82,7 @@ static char *GetString(ExpressionRef &expr, int index, const char *node)
 }
 
 // No  foo(1234) { ... } nodes exist yet, so number parsing is not needed currently.
-// /**
+// /* DISABLED RECOGNITION BY DOXYGEN *
 //  * Extract a number from the given expression.
 //  * @param expr %Expression to evaluate.
 //  * @param index Parameter number (0-based, for error reporting).
@@ -1766,6 +1766,7 @@ static Connection *ConvertConnection(NodeGroup *ng)
 	return cn;
 }
 
+/** Available symbols for the track_piece node. */
 static const Symbol _track_piece_symbols[] = {
 	{"none",  0},
 	{"left",  1},

@@ -174,7 +174,7 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 
 /**
  * Constructor of a roller coaster instance.
- * @param rt Coaster type being built.
+ * @param ct Coaster type being built.
  */
 CoasterInstance::CoasterInstance(const CoasterType *ct) : RideInstance(ct)
 {
