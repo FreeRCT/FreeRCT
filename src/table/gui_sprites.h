@@ -20,11 +20,22 @@ enum GuiSpritesTable {
 	SPR_GUI_ROT3D_POS,  ///< 3d (xy-plane) rotation in positive direction (counter clockwise).
 	SPR_GUI_ROT3D_NEG,  ///< 3d (xy-plane) rotation in negative direction (clockwise).
 
-	SPR_GUI_SLOPES_START, ///< Start of track slopes.
+	SPR_GUI_TRIANGLE_LEFT,  ///< Triangular arrow to the left.
+	SPR_GUI_TRIANGLE_RIGHT, ///< Triangular arrow to the right.
+	SPR_GUI_TRIANGLE_UP,    ///< Upward triangular arrow.
+	SPR_GUI_TRIANGLE_DOWN,  ///< Downward triangular arrow.
+
+	SPR_GUI_SLOPES_START, ///< Start of track slopes. @see TrackSlope
 	SPR_GUI_SLOPES_END = SPR_GUI_SLOPES_START + TSL_COUNT_VERTICAL, ///< End of track slopes.
 
-	SPR_GUI_BUILDARROW_START = SPR_GUI_SLOPES_END, ///< Start of build arrows.
+	SPR_GUI_BUILDARROW_START = SPR_GUI_SLOPES_END, ///< Start of build arrows. @see TileEdge
 	SPR_GUI_BUILDARROW_END   = SPR_GUI_BUILDARROW_START + EDGE_COUNT, ///< End of build arrows.
+
+	SPR_GUI_BEND_START = SPR_GUI_BUILDARROW_END, ///< Start of track bends. @see TrackBend
+	SPR_GUI_BEND_END = SPR_GUI_BEND_START + TBN_COUNT, ///< End of the track bends.
+
+	SPR_GUI_BANK_START = SPR_GUI_BEND_END, ///< Start of track banking. @see TrackBend
+	SPR_GUI_BANK_END = SPR_GUI_BANK_START + TBG_COUNT, ///< End of the banking sprites.
 };
 
 #endif

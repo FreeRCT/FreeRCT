@@ -636,22 +636,36 @@ public:
 
 	/* virtual */ int Write(FileWriter *fw);
 
-	SpriteBlock *vert_down;     ///< Slope going vertically down.
-	SpriteBlock *steep_down;    ///< Slope going steeply down.
-	SpriteBlock *gentle_down;   ///< Slope going gently down.
-	SpriteBlock *level;         ///< Level slope.
-	SpriteBlock *gentle_up;     ///< Slope going gently up.
-	SpriteBlock *steep_up;      ///< Slope going steeply up.
-	SpriteBlock *vert_up;       ///< Slope going vertically up.
-	SpriteBlock *pos_2d;        ///< Flat rotation positive direction (counter clock wise)
-	SpriteBlock *neg_2d;        ///< Flat rotation negative direction (clock wise)
-	SpriteBlock *pos_3d;        ///< Diametric rotation positive direction (counter clock wise)
-	SpriteBlock *neg_3d;        ///< Diametric rotation negative direction (clock wise)
-	SpriteBlock *close_button;  ///< Close Button.
-	SpriteBlock *maxi_button;   ///< Maximise button.
-	SpriteBlock *mini_button;   ///< Minimise button.
-	SpriteBlock *terraform_dot; ///< Terraform dot.
-	Strings *gui_text;          ///< Text of the guis (reference to a TEXT block).
+	SpriteBlock *vert_down;       ///< Slope going vertically down.
+	SpriteBlock *steep_down;      ///< Slope going steeply down.
+	SpriteBlock *gentle_down;     ///< Slope going gently down.
+	SpriteBlock *level;           ///< Level slope.
+	SpriteBlock *gentle_up;       ///< Slope going gently up.
+	SpriteBlock *steep_up;        ///< Slope going steeply up.
+	SpriteBlock *vert_up;         ///< Slope going vertically up.
+	SpriteBlock *wide_left;       ///< Wide bend to the left.
+	SpriteBlock *normal_left;     ///< Normal bend to the left.
+	SpriteBlock *tight_left;      ///< Tight bend to the left.
+	SpriteBlock *no_bend;         ///< No bends.
+	SpriteBlock *tight_right;     ///< Tight bend to the right.
+	SpriteBlock *normal_right;    ///< Normal bend to the right.
+	SpriteBlock *wide_right;      ///< Wide bend to the right.
+	SpriteBlock *no_banking;      ///< No banking.
+	SpriteBlock *bank_left;       ///< Bank to the left.
+	SpriteBlock *bank_right;      ///< Bank to the right.
+	SpriteBlock *triangle_right;  ///< Arrow triangle to the right.
+	SpriteBlock *triangle_left;   ///< Arrow triangle to the left.
+	SpriteBlock *triangle_up;     ///< Arrow triangle upwards.
+	SpriteBlock *triangle_bottom; ///< Arrow triangle downwards.
+	SpriteBlock *pos_2d;          ///< Flat rotation positive direction (counter clock wise)
+	SpriteBlock *neg_2d;          ///< Flat rotation negative direction (clock wise)
+	SpriteBlock *pos_3d;          ///< Diametric rotation positive direction (counter clock wise)
+	SpriteBlock *neg_3d;          ///< Diametric rotation negative direction (clock wise)
+	SpriteBlock *close_button;    ///< Close Button.
+	SpriteBlock *maxi_button;     ///< Maximise button.
+	SpriteBlock *mini_button;     ///< Minimise button.
+	SpriteBlock *terraform_dot;   ///< Terraform dot.
+	Strings *gui_text;            ///< Text of the guis (reference to a TEXT block).
 };
 
 /** Class for storing the data of a single voxel in a track piece. */

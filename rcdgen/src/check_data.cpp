@@ -1593,6 +1593,24 @@ static GSLPBlock *ConvertGSLPNode(NodeGroup *ng)
 	gb->gentle_up = vals.GetSprite("gentle_up");
 	gb->steep_up = vals.GetSprite("steep_up");
 	gb->vert_up = vals.GetSprite("vert_up");
+
+	gb->wide_left = vals.GetSprite("wide_left");
+	gb->normal_left = vals.GetSprite("normal_left");
+	gb->tight_left = vals.GetSprite("tight_left");
+	gb->no_bend = vals.GetSprite("no_bend");
+	gb->tight_right = vals.GetSprite("tight_right");
+	gb->normal_right = vals.GetSprite("normal_right");
+	gb->wide_right = vals.GetSprite("wide_right");
+
+	gb->bank_left = vals.GetSprite("bank_left");
+	gb->bank_right = vals.GetSprite("bank_right");
+	gb->no_banking = vals.GetSprite("no_banking");
+
+	gb->triangle_right = vals.GetSprite("triangle_right");
+	gb->triangle_left = vals.GetSprite("triangle_left");
+	gb->triangle_up = vals.GetSprite("triangle_up");
+	gb->triangle_bottom = vals.GetSprite("triangle_bottom");
+
 	gb->pos_2d = vals.GetSprite("pos_2d");
 	gb->neg_2d = vals.GetSprite("neg_2d");
 	gb->pos_3d = vals.GetSprite("pos_3d");

@@ -232,6 +232,28 @@ enum TrackSlope {
 };
 DECLARE_POSTFIX_INCREMENT(TrackSlope)
 
+/** Available bends in the tracks. */
+enum TrackBend {
+	TBN_LEFT_WIDE,    ///< Wide bend to the left.
+	TBN_LEFT_NORMAL,  ///< Normal bend to the left.
+	TBN_LEFT_TIGHT,   ///< Tight bend to the left.
+	TBN_STRAIGHT,     ///< No bend either way.
+	TBN_RIGHT_TIGHT,  ///< Tight bend to the right.
+	TBN_RIGHT_NORMAL, ///< Normal bend to the right.
+	TBN_RIGHT_WIDE,   ///< Wide bend to the right.
+
+	TBN_COUNT, ///< Number of bend types.
+};
+
+/** Available banking for tracks. */
+enum TrackBanking {
+	TBG_BANK_NONE,  ///< No banking.
+	TBG_BANK_LEFT,  ///< Bank to the left.
+	TBG_BANK_RIGHT, ///< Bank to the right.
+
+	TBG_COUNT, ///< Number of available banking types.
+};
+
 extern const uint8 _corners_at_edge[EDGE_COUNT];
 extern const Point16 _corner_dxy[4];
 extern const Point16 _tile_dxy[EDGE_COUNT];

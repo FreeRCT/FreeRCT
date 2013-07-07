@@ -449,6 +449,12 @@ struct GuiSprites {
 	ScrollbarSpriteData vert_scroll;        ///< Vertical scroll bar sprite data.
 
 	ImageData *slope_select[TSL_COUNT_VERTICAL]; ///< Slope selection sprites.
+	ImageData *bend_select[TBN_COUNT];      ///< Bend selection sprites.
+	ImageData *bank_select[TBG_COUNT];      ///< Banking selection sprites.
+	ImageData *triangle_left;               ///< Triangular arrow to the left.
+	ImageData *triangle_right;              ///< Triangular arrow to the right.
+	ImageData *triangle_up;                 ///< Triangular upward arrow.
+	ImageData *triangle_down;               ///< Triangular downward arrow.
 	ImageData *rot_2d_pos;                  ///< 2D rotation positive direction.
 	ImageData *rot_2d_neg;                  ///< 2D rotation negative direction.
 	ImageData *rot_3d_pos;                  ///< 3D rotation positive direction.

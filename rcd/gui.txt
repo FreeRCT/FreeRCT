@@ -47,6 +47,35 @@ file("gui.rcd") {
 			width: 32; height: 32; x_offset: 0; y_offset: 0;
 		}
 
+		(wide_left, normal_left, tight_left, no_bend, tight_right, normal_right, wide_right): sheet {
+			x_base: 0; y_base: 0; x_step: 32; y_step: 32;
+			file: "../sprites/bends_8bpp.png";
+			x_offset: 0; y_offset: 0; width: 32; height: 32;
+		}
+
+		(bank_left, bank_right, no_banking): sheet {
+			x_base: 0; y_base: 0; x_step: 32; y_step: 32;
+			file: "../sprites/banking_8bpp.png";
+			x_offset: 0; y_offset: 0; width: 32; height: 32;
+		}
+
+		triangle_right: sprite {
+			x_base: 6; y_base: 3; x_offset: 0; y_offset: 0;
+			width: 5; height: 10; file: "../sprites/GUItriangles.png";
+		}
+		triangle_left: sprite {
+			x_base: 56; y_base: 3; x_offset: 0; y_offset: 0;
+			width: 5; height: 10; file: "../sprites/GUItriangles.png";
+		}
+		triangle_up: sprite {
+			x_base: 37; y_base: 5; x_offset: 0; y_offset: 0;
+			width: 10; height: 5; file: "../sprites/GUItriangles.png";
+		}
+		triangle_bottom: sprite {
+			x_base: 20; y_base: 6; x_offset: 0; y_offset: 0;
+			width: 10; height: 5; file: "../sprites/GUItriangles.png";
+		}
+
 		// Window button sprites.
 		close_button: sprite {
 			x_offset: 0; y_offset: 0;

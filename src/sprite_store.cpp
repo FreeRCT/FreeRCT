@@ -1095,17 +1095,33 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 {
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
-	/* 'indices' entries of slope sprites, 4 entries with rotation sprites, 3 button sprites, one entry with a text block. */
-	if (length != 4 * lengthof(indices) + 4 * 4 + 2 * 4 + 4) return false;
+	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
+	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
+	 */
+	if (length != (lengthof(indices) + TBN_COUNT + TBG_COUNT + 4 + 4 + 2) * 4 + 4) return false;
+
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
 	}
+	for (uint i = 0; i < TBN_COUNT; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->bend_select[i])) return false;
+	}
+	for (uint i = 0; i < TBG_COUNT; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->bank_select[i])) return false;
+	}
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_left)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_right)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_up)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_down)) return false;
+
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_pos)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_neg)) return false;
+
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->close_sprite)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->dot_sprite)) return false;
+
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
 	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
 	return true;
@@ -1137,6 +1153,12 @@ void GuiSprites::Clear()
 	this->vert_scroll.Clear();
 
 	for (uint i = 0; i < lengthof(this->slope_select); i++) this->slope_select[i] = NULL;
+	for (uint i = 0; i < TBN_COUNT; i++) this->bend_select[i] = NULL;
+	for (uint i = 0; i < TBG_COUNT; i++) this->bank_select[i] = NULL;
+	this->triangle_left = NULL;
+	this->triangle_right = NULL;
+	this->triangle_up = NULL;
+	this->triangle_down = NULL;
 	this->rot_2d_pos = NULL;
 	this->rot_2d_neg = NULL;
 	this->rot_3d_pos = NULL;
@@ -1295,6 +1317,7 @@ void SpriteStorage::AddAnimationSprites(AnimationSprites *an_spr)
 
 /**
  * Is the collection complete enough to be used in a display?
+ * @todo This seems a little underestimated as minimally needed sprites.
  * @return Sufficient data has been loaded.
  */
 bool SpriteStorage::HasSufficientGraphics() const
@@ -1493,7 +1516,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "GSLP") == 0 && version == 4) {
+		if (strcmp(name, "GSLP") == 0 && version == 5) {
 			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites, texts)) {
 				return "Loading slope selection Gui sprites failed.";
 			}
@@ -1714,17 +1737,23 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
  */
 const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 {
-	if (number == SPR_GUI_BULLDOZER) return NULL;
-	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
-		return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
-	}
+	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
+	if (number >= SPR_GUI_BEND_START   && number < SPR_GUI_BEND_END)   return _gui_sprites.bend_select[number - SPR_GUI_BEND_START];
+	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END)   return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
+
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
 		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
+
+	if (number == SPR_GUI_TRIANGLE_LEFT)  return _gui_sprites.triangle_left;
+	if (number == SPR_GUI_TRIANGLE_RIGHT) return _gui_sprites.triangle_right;
+	if (number == SPR_GUI_TRIANGLE_UP)    return _gui_sprites.triangle_up;
+	if (number == SPR_GUI_TRIANGLE_DOWN)  return _gui_sprites.triangle_down;
 	if (number == SPR_GUI_ROT2D_POS) return _gui_sprites.rot_2d_pos;
 	if (number == SPR_GUI_ROT2D_NEG) return _gui_sprites.rot_2d_neg;
 	if (number == SPR_GUI_ROT3D_POS) return _gui_sprites.rot_3d_pos;
 	if (number == SPR_GUI_ROT3D_NEG) return _gui_sprites.rot_3d_neg;
+	if (number == SPR_GUI_BULLDOZER) return NULL;
 	return NULL;
 }
 

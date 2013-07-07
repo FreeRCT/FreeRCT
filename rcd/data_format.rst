@@ -1044,31 +1044,45 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 4.
+FreeRCT can read blocks with version 5.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
 ======  ======  =======  ==================  ================================================================
-   0       4      1-4                        Magic string 'GSLP' (Gui sprites).
-   4       4      1-4                        Version number of the block.
-   8       4      1-4                        Length of the block excluding magic string, version, and length.
-  12       4      1-4    vert_down           Slope going vertically down.
-  16       4      1-4    steep_down          Slope going steeply down.
-  20       4      1-4    gentle_down         Slope going gently down.
-  24       4      1-4    level               Level slope.
-  28       4      1-4    gentle_up           Slope going gently up.
-  32       4      1-4    steep_up            Slope going steeply up.
-  36       4      1-4    vert_up             Slope going vertically up.
-  40       4      2-4    pos_2d              Flat rotation positive direction (counter clock wise).
-  44       4      2-4    neg_2d              Flat rotation negative direction (clock wise).
-  48       4      2-4    pos_3d              Diametric rotation positive direction (counter clock wise).
-  52       4      2-4    neg_3d              Diametric rotation negative direction (clock wise).
-  56       4      3-4    close_button        Close Button.
+   0       4      1-5                        Magic string 'GSLP' (Gui sprites).
+   4       4      1-5                        Version number of the block.
+   8       4      1-5                        Length of the block excluding magic string, version, and length.
+  12       4      1-5    vert_down           Slope going vertically down.
+  16       4      1-5    steep_down          Slope going steeply down.
+  20       4      1-5    gentle_down         Slope going gently down.
+  24       4      1-5    level               Level slope.
+  28       4      1-5    gentle_up           Slope going gently up.
+  32       4      1-5    steep_up            Slope going steeply up.
+  36       4      1-5    vert_up             Slope going vertically up.
+  40       4       5     wide_left           Wide bend to the left.
+  44       4       5     normal_left         Normal bend to the left.
+  48       4       5     tight_left          Tight bend to the left.
+  52       4       5     no_bend             No bends.
+  56       4       5     tight_right         Tight bend to the right.
+  60       4       5     normal_right        Normal bend to the right.
+  64       4       5     wide_right          Wide bend to the right.
+  68       4       5     no_banking          No banking.
+  72       4       5     bank_left           Bank to the left.
+  76       4       5     bank_right          Bank to the right.
+  80       4       5     triangle_right      Arrow triangle to the right.
+  84       4       5     triangle_left       Arrow triangle to the left.
+  88       4       5     triangle_up         Arrow triangle upwards.
+  92       4       5     triangle_bottom     Arrow triangle downwards.
+  96       4      2-5    pos_2d              Flat rotation positive direction (counter clock wise).
+ 100       4      2-5    neg_2d              Flat rotation negative direction (clock wise).
+ 104       4      2-5    pos_3d              Diametric rotation positive direction (counter clock wise).
+ 108       4      2-5    neg_3d              Diametric rotation negative direction (clock wise).
+ 112       4      3-5    close_button        Close Button.
   --       4       3                         Maximise button.
   --       4       3                         Minimise button.
-  60       4       4     terraform_dot       Terraform dot.
-  64       4      2-4    texts               Text of the guis (reference to a TEXT block).
-  68                                         Total length.
+ 116       4      4-5    terraform_dot       Terraform dot.
+ 120       4      2-5    texts               Text of the guis (reference to a TEXT block).
+ 124                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1078,6 +1092,7 @@ Version history
 - 2 (20120901) Moved GROT data into the block.
 - 3 (20121110) Added close, maximise, and minimise buttons.
 - 4 (20121202) Added terraform dot, removed maximise and minimise buttons.
+- 5 (20130706) Added bends, banking, and triangle arrow Gui sprites.
 
 
 Persons

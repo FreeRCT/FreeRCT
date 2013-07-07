@@ -886,7 +886,7 @@ BDIRBlock::~BDIRBlock()
 	return fw->AddBlock(fb);
 }
 
-GSLPBlock::GSLPBlock() : GameBlock("GSLP", 4)
+GSLPBlock::GSLPBlock() : GameBlock("GSLP", 5)
 {
 	this->vert_down = NULL;
 	this->steep_down = NULL;
@@ -895,6 +895,24 @@ GSLPBlock::GSLPBlock() : GameBlock("GSLP", 4)
 	this->gentle_up = NULL;
 	this->steep_up = NULL;
 	this->vert_up = NULL;
+
+	this->wide_left = NULL;
+	this->normal_left = NULL;
+	this->tight_left = NULL;
+	this->no_bend = NULL;
+	this->tight_right = NULL;
+	this->normal_right = NULL;
+	this->wide_right = NULL;
+
+	this->bank_left = NULL;
+	this->bank_right = NULL;
+	this->no_banking = NULL;
+
+	this->triangle_right = NULL;
+	this->triangle_left = NULL;
+	this->triangle_up = NULL;
+	this->triangle_bottom = NULL;
+
 	this->pos_2d = NULL;
 	this->neg_2d = NULL;
 	this->pos_3d = NULL;
@@ -913,6 +931,24 @@ GSLPBlock::~GSLPBlock()
 	delete this->gentle_up;
 	delete this->steep_up;
 	delete this->vert_up;
+
+	delete this->wide_left;
+	delete this->normal_left;
+	delete this->tight_left;
+	delete this->no_bend;
+	delete this->tight_right;
+	delete this->normal_right;
+	delete this->wide_right;
+
+	delete this->bank_left;
+	delete this->bank_right;
+	delete this->no_banking;
+
+	delete this->triangle_right;
+	delete this->triangle_left;
+	delete this->triangle_up;
+	delete this->triangle_bottom;
+
 	delete this->pos_2d;
 	delete this->neg_2d;
 	delete this->pos_3d;
@@ -925,7 +961,7 @@ GSLPBlock::~GSLPBlock()
 int GSLPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 68 - 12);
+	fb->StartSave(this->blk_name, this->version, 124 - 12);
 	fb->SaveUInt32(this->vert_down->Write(fw));
 	fb->SaveUInt32(this->steep_down->Write(fw));
 	fb->SaveUInt32(this->gentle_down->Write(fw));
@@ -933,6 +969,20 @@ int GSLPBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->gentle_up->Write(fw));
 	fb->SaveUInt32(this->steep_up->Write(fw));
 	fb->SaveUInt32(this->vert_up->Write(fw));
+	fb->SaveUInt32(this->wide_left->Write(fw));
+	fb->SaveUInt32(this->normal_left->Write(fw));
+	fb->SaveUInt32(this->tight_left->Write(fw));
+	fb->SaveUInt32(this->no_bend->Write(fw));
+	fb->SaveUInt32(this->tight_right->Write(fw));
+	fb->SaveUInt32(this->normal_right->Write(fw));
+	fb->SaveUInt32(this->wide_right->Write(fw));
+	fb->SaveUInt32(this->no_banking->Write(fw));
+	fb->SaveUInt32(this->bank_left->Write(fw));
+	fb->SaveUInt32(this->bank_right->Write(fw));
+	fb->SaveUInt32(this->triangle_right->Write(fw));
+	fb->SaveUInt32(this->triangle_left->Write(fw));
+	fb->SaveUInt32(this->triangle_up->Write(fw));
+	fb->SaveUInt32(this->triangle_bottom->Write(fw));
 	fb->SaveUInt32(this->pos_2d->Write(fw));
 	fb->SaveUInt32(this->neg_2d->Write(fw));
 	fb->SaveUInt32(this->pos_3d->Write(fw));
