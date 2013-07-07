@@ -24,6 +24,7 @@
 #include "people.h"
 #include "finances.h"
 #include "gamelevel.h"
+#include "getoptdata.h"
 
 static bool _finish; ///< Finish execution of the program.
 
@@ -68,12 +69,49 @@ static uint32 NextFrame(uint32 interval, void *param)
 	return interval;
 }
 
+/** Command-line options of the program. */
+static const OptionData _options[] = {
+	GETOPT_NOVAL('h', "--help"),
+	GETOPT_END()
+};
+
+/** Output command-line help. */
+static void PrintUsage()
+{
+	printf("Usage: freerct [options]\n");
+	printf("Options:\n");
+	printf("  -h, --help     Display this help text and exit\n");
+}
+
 /**
  * Main entry point.
- * @return The exit code.
+ * @param argc Argument count.
+ * @param argv Argument vector.
+ * @return The exit code of the program.
  */
-int main(void)
+int main(int argc, char **argv)
 {
+
+	GetOptData opt_data(argc - 1, argv + 1, _options);
+
+	int opt_id;
+	do {
+		opt_id = opt_data.GetOpt();
+		switch (opt_id) {
+			case 'h':
+				PrintUsage();
+				exit(0);
+
+			case -1:
+				break;
+
+			default:
+				/* -2 or some other weird thing happened. */
+				fprintf(stderr, "ERROR while processing the command-line\n");
+				exit(1);
+		}
+	} while (opt_id != -1);
+
 	VideoSystem vid;
 	ConfigFile cfg_file;
 
