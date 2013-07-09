@@ -1,0 +1,8 @@
+All artwork by Richard Wheeler (Zephyris) except:
+
+Albert Hofkamp:
+gui/banking_8bpp.png
+gui/bends_8bpp.png
+gui/dot.png
+gui/GUItriangles.png - derived from parts of GUIEles2.png
+gui/pillar.png

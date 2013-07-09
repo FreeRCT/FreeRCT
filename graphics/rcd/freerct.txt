@@ -17,18 +17,18 @@ file("borderhighlight_8bpp64.rcd") {
 		|n#ne, n#es, n#sw, n#nw
 		|n#ns, n#ew, _n#ns,_n#ew
 		|n#nes,n#esw,n#nsw,n#new) : sheet {
-			file: "../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/borderhighlight8bpp64_masked.png";
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 		(n#Nt,  n#Et,  n#St,  n#Wt) : sheet {
-			file: "../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/borderhighlight8bpp64_masked.png";
 			x_base: 0; y_base: 320; x_step: 64; y_step: 64;
 			x_offset: -32; y_offset: -17; width: 64; height: 64;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		(n#Nb,  n#Eb,  n#Sb,  n#Wb) : sheet {
-			file: "../sprites_src/terrain/groundtiles/borderhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/borderhighlight8bpp64_masked.png";
 			x_base: 0; y_base: 320; x_step: 64; y_step: 64;
 			x_offset: -32; y_offset: -33;
 			width: 64; height: 64;
@@ -45,497 +45,497 @@ file("cornerhighlight_8bpp64.rcd") {
 
 		e#: sprite {
 			x_base: 64; y_base: 0;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#Nt: sprite {
 			x_base: 0; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		e#Et: sprite {
 			x_base: 64; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		e#St: sprite {
 			x_base: 128; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		e#Wt: sprite {
 			x_base: 192; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		e#Nb: sprite {
 			x_base: 0; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		e#Eb: sprite {
 			x_base: 64; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		e#Sb: sprite {
 			x_base: 128; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		e#Wb: sprite {
 			x_base: 192; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		e#esw: sprite {
 			x_base: 64; y_base: 256;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#es: sprite {
 			x_base: 64; y_base: 128;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#new: sprite {
 			x_base: 192; y_base: 1024;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#ew: sprite {
 			x_base: 192; y_base: 960;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#e: sprite {
 			x_base: 64; y_base: 64;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#ne: sprite {
 			x_base: 0; y_base: 512;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#nes: sprite {
 			x_base: 0; y_base: 640;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#ns: sprite {
 			x_base: 0; y_base: 576;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#nsw: sprite {
 			x_base: 128; y_base: 1408;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#nw: sprite {
 			x_base: 192; y_base: 896;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#n: sprite {
 			x_base: 0; y_base: 448;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#sw: sprite {
 			x_base: 128; y_base: 1216;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#s: sprite {
 			x_base: 128; y_base: 1280;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		e#w: sprite {
 			x_base: 192; y_base: 832;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 
 		n#esw: sprite {
 			x_base: 64; y_base: 1408;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#es: sprite {
 			x_base: 64; y_base: 1216;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#new: sprite {
 			x_base: 192; y_base: 640;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#ew: sprite {
 			x_base: 192; y_base: 576;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#e: sprite {
 			x_base: 64; y_base: 1280;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#Et: sprite {
 			x_base: 64; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		n#Eb: sprite {
 			x_base: 64; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		n#nes: sprite {
 			x_base: 0; y_base: 256;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#ne: sprite {
 			x_base: 0; y_base: 128;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#ns: sprite {
 			x_base: 0; y_base: 192;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#nw: sprite {
 			x_base: 192; y_base: 512;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#Nt: sprite {
 			x_base: 0; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		n#Nb: sprite {
 			x_base: 0; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		n#n: sprite {
 			x_base: 0; y_base: 64;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#nsw: sprite {
 			x_base: 128; y_base: 1024;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#sw: sprite {
 			x_base: 128; y_base: 896;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#St: sprite {
 			x_base: 128; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		n#Sb: sprite {
 			x_base: 128; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		n#s: sprite {
 			x_base: 128; y_base: 832;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#w: sprite {
 			x_base: 192; y_base: 448;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		n#Wt: sprite {
 			x_base: 192; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		n#Wb: sprite {
 			x_base: 192; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		n#: sprite {
 			x_base: 0; y_base: 0;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 
 		s#esw: sprite {
 			x_base: 64; y_base: 640;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#es: sprite {
 			x_base: 64; y_base: 512;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#ew: sprite {
 			x_base: 64; y_base: 576;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#e: sprite {
 			x_base: 64; y_base: 448;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#Et: sprite {
 			x_base: 64; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		s#Eb: sprite {
 			x_base: 64; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		s#nes: sprite {
 			x_base: 0; y_base: 1024;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#new: sprite {
 			x_base: 192; y_base: 1408;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#ne: sprite {
 			x_base: 0; y_base: 896;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#ns: sprite {
 			x_base: 0; y_base: 960;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#Nt: sprite {
 			x_base: 0; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		s#Nb: sprite {
 			x_base: 0; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		s#n: sprite {
 			x_base: 0; y_base: 832;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#nsw: sprite {
 			x_base: 128; y_base: 256;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#sw: sprite {
 			x_base: 128; y_base: 128;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#St: sprite {
 			x_base: 128; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		s#Sb: sprite {
 			x_base: 128; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		s#s: sprite {
 			x_base: 128; y_base: 64;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#nw: sprite {
 			x_base: 192; y_base: 1216;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#w: sprite {
 			x_base: 192; y_base: 1280;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		s#Wt: sprite {
 			x_base: 192; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		s#Wb: sprite {
 			x_base: 192; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		s#: sprite {
 			x_base: 128; y_base: 0;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 
 		w#: sprite {
 			x_base: 192; y_base: 0;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#Nt: sprite {
 			x_base: 0; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		w#Et: sprite {
 			x_base: 64; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		w#St: sprite {
 			x_base: 128; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		w#Wt: sprite {
 			x_base: 192; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -17;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		w#Nb: sprite {
 			x_base: 0; y_base: 1472;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		w#Eb: sprite {
 			x_base: 64; y_base: 1088;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		w#Sb: sprite {
 			x_base: 128; y_base: 704;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		w#Wb: sprite {
 			x_base: 192; y_base: 320;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 		w#esw: sprite {
 			x_base: 64; y_base: 1024;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#es: sprite {
 			x_base: 64; y_base: 896;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#new: sprite {
 			x_base: 192; y_base: 256;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#ew: sprite {
 			x_base: 192; y_base: 192;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#e: sprite {
 			x_base: 64; y_base: 832;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#ne: sprite {
 			x_base: 0; y_base: 1216;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#nes: sprite {
 			x_base: 0; y_base: 1408;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#n: sprite {
 			x_base: 0; y_base: 1280;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#ns: sprite {
 			x_base: 128; y_base: 576;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#nsw: sprite {
 			x_base: 128; y_base: 640;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#sw: sprite {
 			x_base: 128; y_base: 512;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#s: sprite {
 			x_base: 128; y_base: 448;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#nw: sprite {
 			x_base: 192; y_base: 128;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 		w#w: sprite {
 			x_base: 192; y_base: 64;
-			file: "../sprites_src/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/cornerhighlight8bpp64_masked.png";
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 	}
@@ -554,18 +554,18 @@ file("groundtile_8bpp64.rcd") {
 		|n#ns, n#ew, _n#ns,_n#ew
 		|n#nes,n#esw,n#nsw,n#new): sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/tileselection8bpp64_masked.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 		(n#Nt,  n#Et,  n#St,  n#Wt): sheet {
 			x_base: 0; y_base: 320; x_step: 64; y_step: 64;
-			file: "../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/tileselection8bpp64_masked.png";
 			x_offset: -32; y_offset: -17; width: 64; height: 64;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		(n#Nb,  n#Eb,  n#Sb,  n#Wb): sheet {
 			x_base: 0; y_base: 320; x_step: 64; y_step: 64;
-			file: "../sprites_src/terrain/groundtiles/tileselection8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/tileselection8bpp64_masked.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
@@ -583,18 +583,18 @@ file("groundtile_8bpp64.rcd") {
 		|n#ns, n#ew, _n#ns,_n#ew
 		|n#nes,n#esw,n#nsw,n#new): sheet {
 			x_base: 0; y_base: 384; x_step: 64; y_step: 64;
-			file: "../sprites_src/terrain/groundtiles/template8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/template8bpp64_masked.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 		(n#Nt,  n#Et,  n#St,  n#Wt): sheet {
 			x_base: 0; y_base: 704; x_step: 64; y_step: 64;
-			file: "../sprites_src/terrain/groundtiles/template8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/template8bpp64_masked.png";
 			x_offset: -32; y_offset: -17; width: 64; height: 64;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
 		}
 		(n#Nb,  n#Eb,  n#Sb,  n#Wb): sheet {
 			x_base: 0; y_base: 704; x_step: 64; y_step: 64;
-			file: "../sprites_src/terrain/groundtiles/template8bpp64_masked.png";
+			file: "../sprites/terrain/groundtiles/template8bpp64_masked.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
@@ -612,7 +612,7 @@ file("groundtile_8bpp64.rcd") {
 		|se_e0,  sw_0w
 		|se_0s,  sw_s0): sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites_src/terrain/foundation/template8bpp64_masked.png";
+			file: "../sprites/terrain/foundation/template8bpp64_masked.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 	}
@@ -644,7 +644,7 @@ file("people_animation.rcd") {
 
 		sprite {
 			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/pillar.png";
+			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
 		}
 	}
 
@@ -662,7 +662,7 @@ file("people_animation.rcd") {
 
 		sprite {
 			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/pillar.png";
+			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
 		}
 	}
 
@@ -680,7 +680,7 @@ file("people_animation.rcd") {
 
 		sprite {
 			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/pillar.png";
+			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
 		}
 	}
 
@@ -698,7 +698,7 @@ file("people_animation.rcd") {
 
 		sprite {
 			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/pillar.png";
+			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
 		}
 	}
 }

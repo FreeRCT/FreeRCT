@@ -14,7 +14,7 @@ file("shops.rcd") {
 
 		(se, sw, nw, ne) : sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites_src/objects/1x1/template8bpp64.png";
+			file: "../sprites/objects/1x1/template8bpp64.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 

@@ -95,7 +95,7 @@ static char *GetString(ExpressionRef &expr, int index, const char *node)
 // 	/* Simple case, expression is a number literal. */
 // 	NumberLiteral *nl = dynamic_cast<NumberLiteral *>(expr);
 // 	if (nl != NULL) return nl->value;
-// 
+//
 // 	/* General case, compute its value. */
 // 	Expression *expr2 = expr->Evaluate(symbols);
 // 	nl = dynamic_cast<NumberLiteral *>(expr2);
@@ -1328,8 +1328,9 @@ static SpriteBlock *ConvertSpriteNode(NodeGroup *ng)
 
 		BitMaskData *bmd = (bm == NULL) ? NULL : &bm->data;
 		Image img;
-		img.LoadFile(file.c_str(), bmd);
-		const char *err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height);
+		const char *err = img.LoadFile(file.c_str(), bmd);
+		if (err == NULL) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height);
+
 		if (err != NULL) {
 			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name, err);
 			exit(1);

@@ -16,32 +16,29 @@ GUIDATA=gui.rcd
 TRACKDATA=tracks.rcd
 
 RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA) $(SHOPDATA) $(TRACKDATA)
-RCDGEN=../rcdgen/src/rcdgen
+RCDGEN=../../src/rcdgen/rcdgen
 
-.PHONY: build clean rcdgen
+.PHONY: build clean
 
 build: $(RCDFILES)
 
-$(GAMEDATA): rcdgen freerct.txt
+$(GAMEDATA): freerct.txt
 	$(RCDGEN) freerct.txt
 
-$(PATHDATA): rcdgen paths.txt
+$(PATHDATA): paths.txt
 	$(RCDGEN) paths.txt
 
-$(SHOPDATA): rcdgen shops.txt
+$(SHOPDATA): shops.txt
 	$(RCDGEN) shops.txt
 
-$(GUIDATA): rcdgen gui.txt gui_default_lang.txt gui_nl_NL_lang.txt
+$(GUIDATA): gui.txt gui_default_lang.txt gui_nl_NL_lang.txt
 	$(RCDGEN) gui.txt
 
-$(TRACKDATA): rcdgen tracks.txt
+$(TRACKDATA): tracks.txt
 	$(RCDGEN) tracks.txt
 
 data_format.html: data_format.rst
 	rst2html data_format.rst data_format.html
-
-rcdgen:
-	$(MAKE) -C ../rcdgen/src rcdgen
 
 clean:
 	for i in $(RCDFILES);\

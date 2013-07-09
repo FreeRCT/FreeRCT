@@ -9,8 +9,8 @@
 .PHONY: run clean rcd all
 
 OBJDIR=objects
-RCDDIR=../rcd
-RCDGEN=../rcdgen/src/rcdgen
+RCDDIR=../graphics/rcd
+RCDGEN=rcdgen/rcdgen
 
 CXX=g++
 CXXFLAGS=-Wall -g
@@ -29,7 +29,7 @@ CXXFILES=bottom_toolbar_gui.cpp coaster.cpp coaster_gui.cpp config_reader.cpp da
 	widget.cpp window.cpp
 
 OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
-DEPEND=$(OBJDIR)/depend.txt
+DEPEND=$(OBJDIR)/depend-freerct.txt
 TARGET=freerct
 
 all: rcd $(TARGET)
@@ -49,9 +49,6 @@ $(TARGET): $(OBJFILES)
 
 run: all
 	./$(TARGET)
-
-rcd:
-	$(MAKE) -C $(RCDDIR)
 
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
@@ -79,15 +76,14 @@ $(OBJDIR)/table/coasters_strings.h: $(RCDGEN)
 			--code $(OBJDIR)/table/coasters_strings.cpp \
 			--prefix COASTERS --base STR_GENERIC_COASTER_START
 
-$(RCDGEN):
-	$(MAKE) -C ../rcdgen/src rcdgen
-
+GENSTRINGFILES=$(OBJDIR)/table/coasters_strings.cpp $(OBJDIR)/table/shops_strings.cpp \
+	$(OBJDIR)/table/gui_strings.cpp
 clean:
 	for i in $(OBJFILES) $(STRINGFILES) $(DEPEND) $(TARGET);\
 	do if test -f $$i; then rm $$i; fi;\
 	done
 
 ifndef NODEPS
-include $(DEPEND)
+-include $(DEPEND)
 endif
 

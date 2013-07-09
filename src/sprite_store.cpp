@@ -34,6 +34,8 @@ const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination
 
 static const int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
 
+static const char *RCD_FILE_POSITION = "../graphics/rcd"; ///< Position of RCD files relative to binary.
+
 #include "table/gui_strings.cpp"
 
 /**
@@ -1623,7 +1625,7 @@ bool SpriteManager::LoadRcdFiles()
 	DirectoryReader *reader = MakeDirectoryReader();
 	const char *mesg = NULL;
 
-	reader->OpenPath("../rcd");
+	reader->OpenPath(RCD_FILE_POSITION);
 	while (mesg == NULL) {
 		const char *name = reader->NextFile();
 		if (name == NULL) break;

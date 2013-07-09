@@ -6,18 +6,21 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 #
 
+.PHONY: doc viewdoc build run rcd clean all
 
-.PHONY: doc viewdoc build run rcd clean
+all: rcd build
 
 build:
 	$(MAKE) -C src
 
 rcd:
-	$(MAKE) -C rcd
+	$(MAKE) -C src/rcdgen
+	$(MAKE) -C graphics/rcd
 
 clean:
 	$(MAKE) -C src clean
-	$(MAKE) -C rcd clean
+	$(MAKE) -C graphics/rcd clean
+	$(MAKE) -C src/rcdgen clean
 
 run:
 	$(MAKE) -C src run

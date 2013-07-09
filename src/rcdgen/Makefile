@@ -8,22 +8,27 @@
 
 .PHONY: clean
 
+CXX=g++
+CXXFLAGS=-Wall -g
 INCLUDES=
 LIBS=-lpng
-CXXFLAGS=-Wall -g
-CXX=g++
+
 BISON=bison
 FLEX=flex
-DEPEND=deps
-TARGET=rcdgen
-CXXFILES=ast.cpp check_data.cpp ../../src/getoptdata.cpp image.cpp file_writing.cpp \
+
+CXXFILES=ast.cpp check_data.cpp ../getoptdata.cpp image.cpp file_writing.cpp \
 	nodes.cpp parser.cpp rcdgen.cpp scanner.cpp scanner_funcs.cpp
-OBJFILES=$(CXXFILES:.cpp=.o)
+
+OBJDIR=../objects/rcdgen
+OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
+DEPEND=$(OBJDIR)/depend-rcdgen.txt
+TARGET=rcdgen
+
 
 $(TARGET): $(DEPEND) $(OBJFILES)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJFILES) $(LIBS)
 
-%.o: %.cpp
+$(OBJDIR)/%.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $(INCLUDES) $<
 
 $(DEPEND): $(CXXFILES)
@@ -43,5 +48,5 @@ scanner.cpp scanner.h: scanner.l
 	$(FLEX) --outfile=scanner.cpp scanner.l
 
 ifndef NODEPS
-include $(DEPEND)
+-include $(DEPEND)
 endif

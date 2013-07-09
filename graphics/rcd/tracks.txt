@@ -35,12 +35,12 @@ file("tracks.rcd") {
 
 				(nw_back, ne_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 				(se_back, sw_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -63,12 +63,12 @@ file("tracks.rcd") {
 
 				(nw_back, ne_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 				(se_back, sw_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -91,7 +91,7 @@ file("tracks.rcd") {
 
 				(se_back, sw_back, nw_back, ne_back): sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -112,7 +112,7 @@ file("tracks.rcd") {
 
 				(sw_back, nw_back, ne_back, se_back): sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -135,7 +135,7 @@ file("tracks.rcd") {
 
 				(se_back, sw_back, nw_back, ne_back): sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -156,7 +156,7 @@ file("tracks.rcd") {
 
 				(se_back, sw_back, nw_back, ne_back): sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -177,7 +177,7 @@ file("tracks.rcd") {
 
 				(se_back, sw_back, nw_back, ne_back): sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -197,7 +197,7 @@ file("tracks.rcd") {
 
 				(nw_back, ne_back, se_back, sw_back): sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -218,7 +218,7 @@ file("tracks.rcd") {
 
 				(nw_back, ne_back, se_back, sw_back): sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -239,7 +239,7 @@ file("tracks.rcd") {
 
 				(nw_back, ne_back, se_back, sw_back): sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -263,7 +263,7 @@ file("tracks.rcd") {
 
 				(se_back, sw_back, nw_back, ne_back) : sheet {
 					x_base: 0; y_base: 320; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -285,7 +285,7 @@ file("tracks.rcd") {
 
 				(se_back, sw_back, nw_back, ne_back): sheet {
 					x_base: 0; y_base: 384; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}
@@ -307,7 +307,7 @@ file("tracks.rcd") {
 
 				(nw_back, ne_back, se_back, sw_back): sheet {
 					x_base: 0; y_base: 448; x_step: 64; y_step: 64;
-					file: "../sprites_src/tracks/track/track1x1basic_template8bpp64.png";
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -97; width: 64; height: 64;
 				}
 			}

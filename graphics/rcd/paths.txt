@@ -31,7 +31,7 @@ file("path_8bpp64.rcd") {
 		|ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
 		|ramp_sw,             ramp_nw,             ramp_ne,             ramp_se) : sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites_src/paths/path/template8bpp64.png";
+			file: "../sprites/paths/path/template8bpp64.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 	}
@@ -46,7 +46,7 @@ file("path_8bpp64.rcd") {
 		|right_ramp_ne, right_ramp_se, right_ramp_sw, right_ramp_nw
 		|left_ramp_ne,  left_ramp_se,  left_ramp_sw,  left_ramp_nw) : sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites_src/paths/platform/template8bpp64.png";
+			file: "../sprites/paths/platform/template8bpp64.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 	}
@@ -65,7 +65,7 @@ file("path_8bpp64.rcd") {
 		|p_ns, p_ew, _p_ns, _p_ew
 		|n#E,  n#S,  n#W,   n#N) : sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites_src/paths/support/template8bpp64.png";
+			file: "../sprites/paths/support/template8bpp64.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 	}
