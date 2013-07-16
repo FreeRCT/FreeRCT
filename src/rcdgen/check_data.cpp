@@ -9,7 +9,7 @@
 
 /** @file check_data.cpp Check and simplify functions. */
 
-#include "../../src/stdafx.h"
+#include "../stdafx.h"
 #include <map>
 #include <string>
 #include "ast.h"

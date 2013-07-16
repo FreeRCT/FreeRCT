@@ -9,8 +9,8 @@
 
 /** @file rcdgen.cpp Main program of rcdgen. */
 
-#include "../../src/stdafx.h"
-#include "../../src/getoptdata.h"
+#include "../stdafx.h"
+#include "../getoptdata.h"
 #include "scanner_funcs.h"
 #include "ast.h"
 #include "nodes.h"

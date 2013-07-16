@@ -9,7 +9,7 @@
 
 /** @file file_writing.cpp File write code. */
 
-#include "../../src/stdafx.h"
+#include "../stdafx.h"
 #include "file_writing.h"
 
 

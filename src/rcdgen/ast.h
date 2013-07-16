@@ -14,7 +14,7 @@
 
 #include <list>
 #include <string>
-#include "../../src/reference_count.h"
+#include "../reference_count.h"
 
 /** Position in a source file. */
 class Position {

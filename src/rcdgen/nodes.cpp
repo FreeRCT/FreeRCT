@@ -9,7 +9,7 @@
 
 /** @file nodes.cpp Code of the RCD file nodes. */
 
-#include "../../src/stdafx.h"
+#include "../stdafx.h"
 #include "ast.h"
 #include "nodes.h"
 #include "file_writing.h"
