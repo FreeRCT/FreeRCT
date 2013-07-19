@@ -432,6 +432,8 @@ struct GuiSprites {
 	bool LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 	bool LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts);
 
+	bool HasSufficientGraphics() const;
+
 	BorderSpriteData titlebar;              ///< Title bar sprite data.
 	BorderSpriteData button;                ///< Normal button sprite data.
 	BorderSpriteData rounded_button;        ///< Rounded button sprite data.
@@ -486,8 +488,6 @@ public:
 	void AddBuildArrows(DisplayedObject *obj);
 	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
 	void AddAnimationSprites(AnimationSprites *an_spr);
-
-	bool HasSufficientGraphics() const;
 
 	/**
 	 * Get a ground sprite.
@@ -608,7 +608,6 @@ public:
 	bool LoadRcdFiles();
 	void AddBlock(RcdBlock *block);
 
-	bool HasSufficientGraphics() const;
 	const SpriteStorage *GetSprites(uint16 size) const;
 	void AddAnimation(Animation *anim);
 	const ImageData *GetTableSprite(uint16 number) const;

@@ -1169,6 +1169,20 @@ void GuiSprites::Clear()
 	this->dot_sprite = NULL;
 }
 
+/**
+ * Have essential GUI sprites been loaded to be used in a display.
+ * This is the minimum number of sprites needed to display an error message.
+ * @return Sufficient data has been loaded.
+ */
+bool GuiSprites::HasSufficientGraphics() const
+{
+	return this->titlebar.IsLoaded() && this->button.IsLoaded()
+			&& this->rounded_button.IsLoaded() && this->frame.IsLoaded()
+			&& this->panel.IsLoaded()          && this->inset_frame.IsLoaded()
+			&& this->checkbox.IsLoaded()       && this->radio_button.IsLoaded()
+			&& this->hor_scroll.IsLoaded()     && this->vert_scroll.IsLoaded()
+			&& this->close_sprite != NULL;
+}
 
 /**
  * Storage constructor for a single size.
@@ -1316,17 +1330,6 @@ void SpriteStorage::AddAnimationSprites(AnimationSprites *an_spr)
 	assert(an_spr->width == this->size);
 	this->animations.insert(std::make_pair(an_spr->anim_type, an_spr));
 }
-
-/**
- * Is the collection complete enough to be used in a display?
- * @todo This seems a little underestimated as minimally needed sprites.
- * @return Sufficient data has been loaded.
- */
-bool SpriteStorage::HasSufficientGraphics() const
-{
-	return this->surface != NULL; // Check that ground tiles got loaded.
-}
-
 
 /** Sprite manager constructor. */
 SpriteManager::SpriteManager() : store(64)
@@ -1648,15 +1651,6 @@ void SpriteManager::AddBlock(RcdBlock *block)
 {
 	block->next = this->blocks;
 	this->blocks = block;
-}
-
-/**
- * Are there sufficient graphics loaded to display something?
- * @return Sufficient data has been loaded.
- */
-bool SpriteManager::HasSufficientGraphics() const
-{
-	return this->store.HasSufficientGraphics();
 }
 
 /**

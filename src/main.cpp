@@ -120,8 +120,9 @@ int main(int argc, char **argv)
 
 	InitLanguage();
 
-	if (!_sprite_manager.HasSufficientGraphics()) {
-		fprintf(stderr, "Insufficient graphics loaded, some parts may not be displayed correctly.\n");
+	if (!_gui_sprites.HasSufficientGraphics()) {
+		fprintf(stderr, "Insufficient graphics loaded.\n");
+		exit(1);
 	}
 
 	cfg_file.Load("freerct.cfg");
