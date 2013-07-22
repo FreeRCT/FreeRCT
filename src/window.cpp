@@ -766,20 +766,18 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 /**
  * Update the #current_window variable.
  * This may happen when the mouse has moved, but also because of a change in the window stack.
- * @return Window has changed.
  * @todo Hook a call to this function into the window stack changing code.
  */
-bool WindowManager::UpdateCurrentWindow()
+void WindowManager::UpdateCurrentWindow()
 {
 	Window *w = this->FindWindowByPosition(this->mouse_pos);
-	if (w == this->current_window) return false;
+	if (w == this->current_window) return;
 
 	/* Windows are different, send mouse leave/enter events. */
 	if (this->current_window != NULL && this->HasWindow(this->current_window)) this->current_window->OnMouseLeaveEvent();
 
 	this->current_window = w;
 	if (this->current_window != NULL) this->current_window->OnMouseEnterEvent();
-	return true;
 }
 
 /**

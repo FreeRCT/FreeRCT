@@ -296,7 +296,7 @@ public:
 
 private:
 	Window *FindWindowByPosition(const Point16 &pos) const;
-	bool UpdateCurrentWindow();
+	void UpdateCurrentWindow();
 
 	void StartWindowMove();
 
