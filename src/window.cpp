@@ -613,9 +613,11 @@ void WindowManager::CloseAllWindows()
 static uint GetWindowZPriority(WindowTypes wt)
 {
 	switch (wt) {
-		case WC_ERROR_MESSAGE: return 10; // Error messages.
-		default:               return 5; // 'Normal' window.
-		case WC_MAINDISPLAY:   return 0; // Main display at the bottom of the stack.
+		case WC_ERROR_MESSAGE:  return 10; // Error messages.
+		default:                return 5;  // 'Normal' window.
+		case WC_TOOLBAR:        return 1;  // Top toolbar.
+		case WC_BOTTOM_TOOLBAR: return 1;  // Bottom toolbar.
+		case WC_MAINDISPLAY:    return 0;  // Main display at the bottom of the stack.
 	}
 	NOT_REACHED();
 }
