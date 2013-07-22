@@ -728,14 +728,13 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 	if (pos == this->mouse_pos) return;
 	this->mouse_pos = pos;
 
-	bool changed = this->UpdateCurrentWindow();
-	if ((this->mouse_mode != WMMM_PASS_THROUGH && changed) || this->current_window == NULL) {
-		this->mouse_mode = WMMM_PASS_THROUGH;
-		return;
-	}
-
 	switch (this->mouse_mode) {
 		case WMMM_PASS_THROUGH: {
+			this->UpdateCurrentWindow();
+			if (this->current_window == NULL) {
+				return;
+			}
+
 			/* Compute position relative to window origin. */
 			Point16 pos2;
 			pos2.x = pos.x - this->current_window->rect.base.x;
