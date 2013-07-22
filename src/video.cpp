@@ -345,6 +345,11 @@ void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const
  */
 void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift)
 {
+	if (img == NULL) {
+		 this->missing_sprites = true;
+		 return;
+	}
+
 	int im_left = 0;
 	int im_top = 0;
 	int im_right = img->width;

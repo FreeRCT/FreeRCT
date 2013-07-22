@@ -91,7 +91,6 @@ static void PrintUsage()
  */
 int main(int argc, char **argv)
 {
-
 	GetOptData opt_data(argc - 1, argv + 1, _options);
 
 	int opt_id;
@@ -160,6 +159,8 @@ int main(int argc, char **argv)
 	ShowToolbar();
 	ShowBottomToolbar();
 	Viewport *w = ShowMainDisplay();
+
+	bool missing_sprites_check = false;
 
 	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);
 
@@ -276,6 +277,13 @@ int main(int argc, char **argv)
 				default:
 					break; // Ignore other events.
 			}
+		}
+
+		if (!missing_sprites_check && _video->missing_sprites) {
+			/* Enough sprites are available for displaying an error message,
+			 * as this was checked in GuiSprites::HasSufficientGraphics */
+			 ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
+			 missing_sprites_check = true;
 		}
 	}
 

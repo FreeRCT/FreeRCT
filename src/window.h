@@ -29,6 +29,7 @@ enum WindowTypes {
 	WC_TOOLBAR,        ///< Main toolbar.
 	WC_BOTTOM_TOOLBAR, ///< Bottom toolbar.
 	WC_QUIT,           ///< Quit program window.
+	WC_ERROR_MESSAGE,  ///< Error message window.
 	WC_GUEST_INFO,     ///< Person window.
 	WC_COASTER_MANAGER, ///< Roller coaster manager window.
 	WC_PATH_BUILDER,   ///< %Path build gui.
@@ -329,5 +330,6 @@ void ShowShopManagementGui(uint16 ri);
 void ShowTerraformGui();
 void ShowFinancesGui();
 void ShowCoasterManagementGui(RideInstance *coaster);
+void ShowErrorMessage(StringID strid);
 
 #endif

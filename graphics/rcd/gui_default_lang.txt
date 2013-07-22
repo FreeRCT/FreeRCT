@@ -49,6 +49,10 @@ string { lang: ""; name: "QUIT_MESSAGE"; text: "Quit the program?"; }
 string { lang: ""; name: "QUIT_NO";      text: "No"; }
 string { lang: ""; name: "QUIT_YES";     text: "Yes"; }
 
+// Error message strings.
+string { lang: ""; name: "ERROR_MESSAGE_CAPTION"; text: "Message"; }
+string { lang: ""; name: "ERROR_MESSAGE_SPRITE";  text: "Failed to draw sprite"; }
+
 // Guest info gui strings.
 string { lang: ""; name: "GUEST_INFO_MONEY";     text: "Available cash"; }
 string { lang: ""; name: "GUEST_INFO_HAPPINESS"; text: "Happiness level"; }

@@ -54,6 +54,10 @@ static const char *_gui_string_names[] = {
 	"QUIT_NO",
 	"QUIT_YES",
 
+	/* Error message window */
+	"ERROR_MESSAGE_CAPTION",
+	"ERROR_MESSAGE_SPRITE",
+
 	/* Guest info window. */
 	"GUEST_INFO_MONEY",
 	"GUEST_INFO_HAPPINESS",

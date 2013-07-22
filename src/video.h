@@ -122,7 +122,7 @@ public:
 	int GetTextHeight() const
 	{
 		return this->font_height;
-	};
+	}
 
 	void GetTextSize(const uint8 *text, int *width, int *height);
 	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
@@ -130,10 +130,12 @@ public:
 	void DrawLine(const Point16 &start, const Point16 &end, uint8 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint8 colour);
 
+	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
+
 private:
-	int font_height;    ///< Height of a line of text in pixels.
-	bool initialized;   ///< Video system is initialized.
-	bool dirty;         ///< Video display needs being repainted.
+	int font_height;      ///< Height of a line of text in pixels.
+	bool initialized;     ///< Video system is initialized.
+	bool dirty;           ///< Video display needs being repainted.
 
 	TTF_Font *font;             ///< Opened text font.
 	SDL_Surface *video;         ///< Video surface.
