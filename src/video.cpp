@@ -161,6 +161,7 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	this->font_height = TTF_FontLineSkip(this->font);
 	this->initialized = true;
 	this->dirty = true; // Ensure it gets painted.
+	this->missing_sprites = false;
 
 	this->blit_rect = ClippedRectangle(0, 0, this->GetXSize(), this->GetYSize());
 	this->digit_size.x = 0;
