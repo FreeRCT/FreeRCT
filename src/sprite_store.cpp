@@ -1702,6 +1702,8 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	static Rectangle16 result;
 	static Rectangle16 slopes;
 	static Rectangle16 arrows;
+	static Rectangle16 bends;
+	static Rectangle16 banks;
 
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
 		if (slopes.width == 0) SetSpriteSize(SPR_GUI_SLOPES_START, SPR_GUI_SLOPES_END, slopes);
@@ -1710,6 +1712,14 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
 		if (arrows.width== 0) SetSpriteSize(SPR_GUI_BUILDARROW_START, SPR_GUI_BUILDARROW_END, arrows);
 		return arrows;
+	}
+	if (number >= SPR_GUI_BEND_START && number < SPR_GUI_BEND_END) {
+		if (bends.width== 0) SetSpriteSize(SPR_GUI_BEND_START, SPR_GUI_BEND_END, bends);
+		return bends;
+	}
+	if (number >= SPR_GUI_BANK_START && number < SPR_GUI_BANK_END) {
+		if (banks.width== 0) SetSpriteSize(SPR_GUI_BANK_START, SPR_GUI_BANK_END, banks);
+		return banks;
 	}
 
 	/* 'Simple' single sprites. */
