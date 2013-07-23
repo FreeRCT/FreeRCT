@@ -33,7 +33,7 @@ $(OBJDIR)/%.o: %.cpp
 
 $(DEPEND): $(CXXFILES)
 	for f in $(CXXFILES);\
-	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f;\
+	do $(CXX) -MM $(CXXFLAGS) $(INCLUDES) $$f | sed -e "s@^[^ ]*\\.o:@$(OBJDIR)/&@";\
 	done > $(DEPEND)
 
 clean:
