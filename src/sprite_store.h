@@ -621,6 +621,9 @@ protected:
 
 	SpriteStorage store;      ///< Sprite storage of size 64.
 	AnimationsMap animations; ///< Available animations.
+
+private:
+	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };
 
 bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr);

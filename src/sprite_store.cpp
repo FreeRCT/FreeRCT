@@ -1675,6 +1675,22 @@ void SpriteManager::AddAnimation(Animation *anim)
 }
 
 /**
+ * Set the size of the rectangle for fitting a range of sprites.
+ * @param first First sprite number to fit.
+ * @param end One beyond the last sprite number to fit.
+ * @param rect [out] Size of the rectangle required for fitting all sprites.
+ */
+void SpriteManager::SetSpriteSize(uint16 first, uint16 end, Rectangle16 &rect)
+{
+	for (uint16 i = first; i < end; i++) {
+		const ImageData *imd = this->GetTableSprite(i);
+		if (imd == NULL || imd->width == 0 || imd->height == 0) continue;
+		rect.AddPoint(imd->xoffset, imd->yoffset);
+		rect.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
+	}
+}
+
+/**
  * Get the size of a GUI image according to the table in <tt>table/gui_sprites.h</tt>.
  * @param number Number of the sprite to get.
  * @return The size of the sprite (which may be a default if there is no sprite).
@@ -1688,25 +1704,11 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	static Rectangle16 arrows;
 
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
-		if (slopes.width == 0) {
-			for (uint16 i = SPR_GUI_SLOPES_START; i < SPR_GUI_SLOPES_END; i++) {
-				const ImageData *imd = this->GetTableSprite(i);
-				if (imd == NULL || imd->width == 0 || imd->height == 0) continue;
-				slopes.AddPoint(imd->xoffset, imd->yoffset);
-				slopes.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
-			}
-		}
+		if (slopes.width == 0) SetSpriteSize(SPR_GUI_SLOPES_START, SPR_GUI_SLOPES_END, slopes);
 		return slopes;
 	}
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
-		if (arrows.width== 0) {
-			for (uint16 i = SPR_GUI_BUILDARROW_START; i < SPR_GUI_BUILDARROW_END; i++) {
-				const ImageData *imd = this->GetTableSprite(i);
-				if (imd == NULL || imd->width == 0 || imd->height == 0) continue;
-				arrows.AddPoint(imd->xoffset, imd->yoffset);
-				arrows.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
-			}
-		}
+		if (arrows.width== 0) SetSpriteSize(SPR_GUI_BUILDARROW_START, SPR_GUI_BUILDARROW_END, arrows);
 		return arrows;
 	}
 
