@@ -632,7 +632,7 @@ void WindowManager::AddTostack(Window *w)
 	assert(!this->HasWindow(w));
 
 	uint w_prio = GetWindowZPriority(w->wtype);
-	if (this->top == NULL || w_prio > GetWindowZPriority(this->top->wtype)) {
+	if (this->top == NULL || w_prio >= GetWindowZPriority(this->top->wtype)) {
 		/* Add to the top. */
 		w->lower = this->top;
 		w->higher = NULL;
@@ -831,6 +831,13 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 		this->mouse_mode = WMMM_PASS_THROUGH;
 		this->mouse_state = newstate;
 		return;
+	}
+
+	/* Raise window. */
+	if (this->current_window != this->top && GetWindowZPriority(this->current_window->wtype) <= GetWindowZPriority(this->current_window->higher->wtype)) {
+		this->RemoveFromStack(this->current_window);
+		this->AddTostack(this->current_window);
+		this->current_window->MarkDirty();
 	}
 
 	switch (this->mouse_mode) {
