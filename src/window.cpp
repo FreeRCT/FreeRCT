@@ -656,11 +656,10 @@ void WindowManager::AddTostack(Window *w)
 }
 
 /**
- * Delete a window.
+ * Remove a window from the list.
  * @param w Window to remove.
- * @return Removed window.
  */
-void WindowManager::DeleteWindow(Window *w)
+void WindowManager::RemoveFromStack(Window *w)
 {
 	assert(this->HasWindow(w));
 
@@ -678,6 +677,15 @@ void WindowManager::DeleteWindow(Window *w)
 
 	w->higher = NULL;
 	w->lower  = NULL;
+}
+
+/**
+ * Delete a window.
+ * @param w Window to remove.
+ */
+void WindowManager::DeleteWindow(Window *w)
+{
+	this->RemoveFromStack(w);
 	w->MarkDirty();
 	delete w;
 }

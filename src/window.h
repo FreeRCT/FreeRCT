@@ -281,6 +281,7 @@ public:
 
 	bool HasWindow(Window *w);
 	void AddTostack(Window *w);
+	void RemoveFromStack(Window* w);
 	void DeleteWindow(Window *w);
 
 	void CloseAllWindows();
