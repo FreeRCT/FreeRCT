@@ -60,7 +60,7 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber) : rect(0, 0, 0, 0), wtyp
 	this->lower  = NULL;
 	this->flags  = 0;
 
-	_manager.AddTostack(this); // Add to window stack.
+	_manager.AddToStack(this); // Add to window stack.
 }
 
 /**
@@ -626,7 +626,7 @@ static uint GetWindowZPriority(WindowTypes wt)
  * Add a window to the window stack.
  * @param w Window to add.
  */
-void WindowManager::AddTostack(Window *w)
+void WindowManager::AddToStack(Window *w)
 {
 	assert(w->lower == NULL && w->higher == NULL);
 	assert(!this->HasWindow(w));
@@ -836,7 +836,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 	/* Raise window. */
 	if (this->current_window != this->top && GetWindowZPriority(this->current_window->wtype) <= GetWindowZPriority(this->current_window->higher->wtype)) {
 		this->RemoveFromStack(this->current_window);
-		this->AddTostack(this->current_window);
+		this->AddToStack(this->current_window);
 		this->current_window->MarkDirty();
 	}
 

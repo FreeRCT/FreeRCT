@@ -280,7 +280,7 @@ public:
 	~WindowManager();
 
 	bool HasWindow(Window *w);
-	void AddTostack(Window *w);
+	void AddToStack(Window *w);
 	void RemoveFromStack(Window* w);
 	void DeleteWindow(Window *w);
 
