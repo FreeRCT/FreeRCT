@@ -621,6 +621,8 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
 	int h = surf->h;
 	if (ypos < 0) {
 		h += ypos;
+		src  -= ypos * surf->pitch;
+		dest -= ypos * this->blit_rect.pitch;
 		ypos = 0;
 	}
 	while (h > 0) {
@@ -724,3 +726,4 @@ void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint8 colour)
 	this->DrawLine(top_right, bottom_right, COL_HIGHLIGHT);
 	this->DrawLine(bottom_left, bottom_right, COL_HIGHLIGHT);
 }
+
