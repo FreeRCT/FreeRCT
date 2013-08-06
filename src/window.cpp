@@ -691,6 +691,20 @@ void WindowManager::DeleteWindow(Window *w)
 }
 
 /**
+ * Raise a window.
+ * @param w Window to raise.
+ */
+void WindowManager::RaiseWindow(Window *w)
+{
+	if (w != this->top && GetWindowZPriority(w->wtype) >= GetWindowZPriority(w->higher->wtype)) {
+		this->RemoveFromStack(w);
+		this->AddToStack(w);
+		w->MarkDirty();
+	}
+}
+
+
+/**
  * Test whether a particular window exists in the window stack.
  * @param w Window to look for.
  * @return Window exists in the window stack.
@@ -833,12 +847,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 		return;
 	}
 
-	/* Raise window. */
-	if (this->current_window != this->top && GetWindowZPriority(this->current_window->wtype) <= GetWindowZPriority(this->current_window->higher->wtype)) {
-		this->RemoveFromStack(this->current_window);
-		this->AddToStack(this->current_window);
-		this->current_window->MarkDirty();
-	}
+	this->RaiseWindow(this->current_window);
 
 	switch (this->mouse_mode) {
 		case WMMM_PASS_THROUGH:

@@ -283,6 +283,7 @@ public:
 	void AddToStack(Window *w);
 	void RemoveFromStack(Window* w);
 	void DeleteWindow(Window *w);
+	void RaiseWindow(Window *w);
 
 	void CloseAllWindows();
 
