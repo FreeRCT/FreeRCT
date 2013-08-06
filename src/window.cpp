@@ -847,7 +847,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 		return;
 	}
 
-	this->RaiseWindow(this->current_window);
+	if (button == MB_LEFT && pressed) this->RaiseWindow(this->current_window);
 
 	switch (this->mouse_mode) {
 		case WMMM_PASS_THROUGH:
