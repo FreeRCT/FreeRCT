@@ -1178,7 +1178,11 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		fb->SaveInt8(ny);
 		fb->SaveInt8(this->exit_dz);
 		fb->SaveInt8(this->speed);
-		int flags = this->track_flags & 0x3f;
+		int platform = this->track_flags & 7;
+		if ((platform & 1) != 0) platform = (platform + rot * (1 << 1)) & 7;
+		int initial = (this->track_flags >> 3) & 7;
+		if ((initial & 1) != 0) initial = (initial + rot * (1 << 1)) & 7;
+		int flags = platform | (initial << 3);
 		flags |= (this->banking & 3) << 6;
 		flags |= (this->slope & 7) << 8;
 		flags |= (this->bend & 7) << 11;
