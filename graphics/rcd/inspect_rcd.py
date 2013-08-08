@@ -238,10 +238,59 @@ def dump_ANSP_1(rcd, offset):
         blocks.append("...")
     print "    ANSP sprites: " + ", ".join(blocks)
 
+def dump_RCST_3(rcd, offset):
+    print "    RCST coaster_type: " + str(rcd.uint16(offset + 12))
+    print "    RCST platform_type: " + str(rcd.uint8(offset + 14))
+    num_tracks = rcd.uint16(offset + 19)
+    for i in range(num_tracks):
+        print "    RCST piece %d: block #%d" % (i, rcd.uint32(offset + 21 + 4*i))
+
+banks  = {0:"0:no banking", 1:"1:bank left", 2:"2:bank right"}
+slopes = {-3:"-3:vertical down", -2:"-2:steep down", -1:"-1:gentle down", 0:"0:level", 1:"1:gentle up", 2:"2:steep up", 3:"3:vertical up"}
+bends  = {-3:"-3:wide left bend", -2:"-2:average left bend", -1:"-1:small left bend", 0:"0:straight", 1:"1:small right bend", 2:"2:average right bend", 3:"3:large right bend"}
+
+def decode_signed(val, max_val):
+    if val >= max_val // 2:
+        return val - max_val
+    return val
+
+def decode_track_flags(val):
+    text = ['0x%02x' % val]
+    if (val & 1) != 0:
+        edge = (val >> 1) & 3
+        text.append("platform direction: " + str(edge))
+    if (val & 8) != 0:
+        edge = (val >> 4) & 3
+        text.append("initial piece direction: " + str(edge))
+    text.append(banks[(val >>6) & 3])
+    text.append(slopes[decode_signed((val >> 8) & 7, 8)])
+    text.append(bends[decode_signed((val >> 11) & 7, 8)])
+    return ", ".join(text)
+
+
+def dump_TRCK_3(rcd, offset):
+    print "    TRCK entry/exit connections: 0x%02x/0x%02x" % (rcd.uint8(offset + 12), rcd.uint8(offset + 13))
+    print "    TRCK exit dx/dy/dz: %d/%d/%d" % (decode_signed(rcd.uint8(offset + 14), 256), decode_signed(rcd.uint8(offset + 15), 256), decode_signed(rcd.uint8(offset + 16), 256))
+    print "    TRCK speed: " + str(rcd.uint8(offset + 17))
+    print "    TRCK flags: " + decode_track_flags(rcd.uint16(offset + 18))
+    print "    TRCK cost: " + str(rcd.uint32(offset + 20))
+    num_voxels = rcd.uint16(offset + 24)
+    for i in range(num_voxels):
+        offs = offset + 26 + i*36
+        print "    TRCK voxel %d back n/e/s/w sprites %d/%d/%d/%d" % (i,rcd.uint32(offs), rcd.uint32(offs+4), rcd.uint32(offs+8), rcd.uint32(offs+12))
+        offs = offs + 16
+        print "    TRCK voxel %d front n/e/s/w sprites %d/%d/%d/%d" % (i,rcd.uint32(offs), rcd.uint32(offs+4), rcd.uint32(offs+8), rcd.uint32(offs+12))
+        offs = offs + 16
+        print "    TRCK voxel %d dx/dy/dz = %d/%d/%d" % (i,decode_signed(rcd.uint8(offs), 256), decode_signed(rcd.uint8(offs + 1), 256), decode_signed(rcd.uint8(offs + 2), 256))
+        print "    TRCK voxel %d space: 0x%02x" % (i, rcd.uint8(offs + 3))
+
+
 dump_funcs = {('FUND', 1): dump_FUND_1,
               ('TCOR', 1): dump_TCOR_1,
               ('ANIM', 2): dump_ANIM_2,
               ('ANSP', 1): dump_ANSP_1,
+              ('RCST', 3): dump_RCST_3,
+              ('TRCK', 3): dump_TRCK_3,
              }
 
 
