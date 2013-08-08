@@ -7,6 +7,7 @@
 #
 
 .PHONY: doc viewdoc build run rcd clean all
+.NOTPARALLEL: doc viewdoc build run rcd clean all
 
 all: rcd build
 
