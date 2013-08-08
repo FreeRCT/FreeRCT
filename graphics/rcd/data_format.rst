@@ -800,14 +800,14 @@ A voxel definition is
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0       4       1-2    ne_back             Reference to the background tracks for north view.
-   4       4        2     se_back             Reference to the background tracks for east view.
-   8       4        2     sw_back             Reference to the background tracks for south view.
-  12       4        2     nw_back             Reference to the background tracks for west view.
-  16       4        2     ne_front            Reference to the front tracks for north view.
-  20       4        2     se_front            Reference to the front tracks for east view.
-  24       4        2     sw_front            Reference to the front tracks for south view.
-  28       4        2     nw_front            Reference to the front tracks for west view.
+   0       4       1-2    n_back              Reference to the background tracks for north view.
+   4       4        2     e_back              Reference to the background tracks for east view.
+   8       4        2     s_back              Reference to the background tracks for south view.
+  12       4        2     w_back              Reference to the background tracks for west view.
+  16       4        2     n_front             Reference to the front tracks for north view.
+  20       4        2     e_front             Reference to the front tracks for east view.
+  24       4        2     s_front             Reference to the front tracks for south view.
+  28       4        2     w_front             Reference to the front tracks for west view.
   32       1       1-2    dx                  Relative X position of the voxel.
   33       1       1-2    dy                  Relative Y position of the voxel.
   34       1       1-2    dz                  Relative Z position of the voxel.

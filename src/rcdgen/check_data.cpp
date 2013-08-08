@@ -1709,7 +1709,7 @@ static const Symbol _track_voxel_symbols[] = {
  */
 static TrackVoxel *ConvertTrackVoxel(NodeGroup *ng)
 {
-	static const char *direction[4] = {"ne", "se", "sw", "nw"};
+	static const char *direction[4] = {"n", "e", "s", "w"};
 
 	ExpandNoExpression(ng->exprs, ng->pos, "track_voxel");
 	TrackVoxel *tv = new TrackVoxel;
@@ -1725,12 +1725,12 @@ static TrackVoxel *ConvertTrackVoxel(NodeGroup *ng)
 	char buffer[16];
 	for (int i = 0; i < 4; i++) {
 		strcpy(buffer, direction[i]);
-		strcpy(buffer + 2, "_back");
+		strcpy(buffer + 1, "_back");
 		if (vals.HasValue(buffer)) tv->back[i] = vals.GetSprite(buffer);
 	}
 	for (int i = 0; i < 4; i++) {
 		strcpy(buffer, direction[i]);
-		strcpy(buffer + 2, "_front");
+		strcpy(buffer + 1, "_front");
 		if (vals.HasValue(buffer)) tv->front[i] = vals.GetSprite(buffer);
 	}
 
