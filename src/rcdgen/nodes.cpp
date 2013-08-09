@@ -886,7 +886,7 @@ BDIRBlock::~BDIRBlock()
 	return fw->AddBlock(fb);
 }
 
-GSLPBlock::GSLPBlock() : GameBlock("GSLP", 5)
+GSLPBlock::GSLPBlock() : GameBlock("GSLP", 6)
 {
 	this->vert_down = NULL;
 	this->steep_down = NULL;
@@ -912,6 +912,8 @@ GSLPBlock::GSLPBlock() : GameBlock("GSLP", 5)
 	this->triangle_left = NULL;
 	this->triangle_up = NULL;
 	this->triangle_bottom = NULL;
+
+	this->disabled = NULL;
 
 	this->pos_2d = NULL;
 	this->neg_2d = NULL;
@@ -948,6 +950,7 @@ GSLPBlock::~GSLPBlock()
 	delete this->triangle_left;
 	delete this->triangle_up;
 	delete this->triangle_bottom;
+	delete this->disabled;
 
 	delete this->pos_2d;
 	delete this->neg_2d;
@@ -961,7 +964,7 @@ GSLPBlock::~GSLPBlock()
 int GSLPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 124 - 12);
+	fb->StartSave(this->blk_name, this->version, 128 - 12);
 	fb->SaveUInt32(this->vert_down->Write(fw));
 	fb->SaveUInt32(this->steep_down->Write(fw));
 	fb->SaveUInt32(this->gentle_down->Write(fw));
@@ -983,6 +986,7 @@ int GSLPBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->triangle_left->Write(fw));
 	fb->SaveUInt32(this->triangle_up->Write(fw));
 	fb->SaveUInt32(this->triangle_bottom->Write(fw));
+	fb->SaveUInt32(this->disabled->Write(fw));
 	fb->SaveUInt32(this->pos_2d->Write(fw));
 	fb->SaveUInt32(this->neg_2d->Write(fw));
 	fb->SaveUInt32(this->pos_3d->Write(fw));

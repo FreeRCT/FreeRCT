@@ -658,6 +658,7 @@ public:
 	SpriteBlock *triangle_left;   ///< Arrow triangle to the left.
 	SpriteBlock *triangle_up;     ///< Arrow triangle upwards.
 	SpriteBlock *triangle_bottom; ///< Arrow triangle downwards.
+	SpriteBlock *disabled;        ///< Pattern to overlay over disabled buttons.
 	SpriteBlock *pos_2d;          ///< Flat rotation positive direction (counter clock wise)
 	SpriteBlock *neg_2d;          ///< Flat rotation negative direction (clock wise)
 	SpriteBlock *pos_3d;          ///< Diametric rotation positive direction (counter clock wise)

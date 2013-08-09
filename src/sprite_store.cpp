@@ -1100,7 +1100,7 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (length != (lengthof(indices) + TBN_COUNT + TBG_COUNT + 4 + 4 + 2) * 4 + 4) return false;
+	if (length != (lengthof(indices) + TBN_COUNT + TBG_COUNT + 4 + 1 + 4 + 2) * 4 + 4) return false;
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1115,6 +1115,7 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_right)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_up)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_down)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->disabled)) return false;
 
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg)) return false;
@@ -1161,6 +1162,7 @@ void GuiSprites::Clear()
 	this->triangle_right = NULL;
 	this->triangle_up = NULL;
 	this->triangle_down = NULL;
+	this->disabled = NULL;
 	this->rot_2d_pos = NULL;
 	this->rot_2d_neg = NULL;
 	this->rot_3d_pos = NULL;
@@ -1521,7 +1523,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "GSLP") == 0 && version == 5) {
+		if (strcmp(name, "GSLP") == 0 && version == 6) {
 			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites, texts)) {
 				return "Loading slope selection Gui sprites failed.";
 			}

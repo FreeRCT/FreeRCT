@@ -1618,6 +1618,8 @@ static GSLPBlock *ConvertGSLPNode(NodeGroup *ng)
 	gb->triangle_up = vals.GetSprite("triangle_up");
 	gb->triangle_bottom = vals.GetSprite("triangle_bottom");
 
+	gb->disabled = vals.GetSprite("disabled");
+
 	gb->pos_2d = vals.GetSprite("pos_2d");
 	gb->neg_2d = vals.GetSprite("neg_2d");
 	gb->pos_3d = vals.GetSprite("pos_3d");

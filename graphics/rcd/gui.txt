@@ -76,6 +76,13 @@ file("gui.rcd") {
 			width: 10; height: 5; file: "../sprites/gui/GUItriangles.png";
 		}
 
+		disabled: sprite {
+			// Very small disabled sprite.
+			x_base: 0; y_base: 16; x_offset: 0; y_offset: 0;
+			width: 2; height: 2; file: "../sprites/gui/GUItriangles.png";
+			crop: 0;
+		}
+
 		// Window button sprites.
 		close_button: sprite {
 			x_offset: 0; y_offset: 0;

@@ -457,6 +457,7 @@ struct GuiSprites {
 	ImageData *triangle_right;              ///< Triangular arrow to the right.
 	ImageData *triangle_up;                 ///< Triangular upward arrow.
 	ImageData *triangle_down;               ///< Triangular downward arrow.
+	ImageData *disabled;                    ///< Overlay sprite over disabled buttons.
 	ImageData *rot_2d_pos;                  ///< 2D rotation positive direction.
 	ImageData *rot_2d_neg;                  ///< 2D rotation negative direction.
 	ImageData *rot_3d_pos;                  ///< 3D rotation positive direction.
