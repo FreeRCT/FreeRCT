@@ -17,6 +17,7 @@
 struct BorderSpriteData;
 
 void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, uint8 colour);
+void OverlayShaded(const Rectangle32 &rect);
 
 /**
  * Get the height of the text.

@@ -298,6 +298,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 
 	const ImageData *imgdata = _gui_sprites.close_sprite;
 	if (imgdata != NULL) _video->BlitImage(xoffset + 1, yoffset + 1, imgdata, rc, 0);
+	/* Closebox is never shaded. */
 }
 
 /* virtual */ void LeafWidget::AutoRaiseButtons(const Point32 &base)
@@ -405,6 +406,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
 	int right  = w->GetWidgetScreenX(this) + this->pos.width  - 1 - this->paddings[PAD_RIGHT];
 	int bottom = w->GetWidgetScreenY(this) + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
+	Rectangle32 border_rect;
 	if (bsd != NULL) {
 		left += bsd->border_left;
 		top += bsd->border_top;
@@ -413,8 +415,12 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		assert(right - left + 1 >= 0);
 		assert(bottom - top + 1 >= 0);
 
-		Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
-		DrawBorderSprites(*bsd, (pressed != 0), rect, this->colour);
+		border_rect.base.x = left;
+		border_rect.base.y = top;
+		border_rect.width = right - left + 1;
+		border_rect.height = bottom - top + 1;
+
+		DrawBorderSprites(*bsd, (pressed != 0), border_rect, this->colour);
 	}
 	Alignment align = ALG_CENTER;
 	if (this->wtype == WT_LEFT_TEXT) {
@@ -436,6 +442,8 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		if (this->number >= 0) w->SetWidgetStringParameters(this->number);
 		DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
 	}
+
+	if (bsd != NULL && this->IsShaded()) OverlayShaded(border_rect);
 }
 
 /**

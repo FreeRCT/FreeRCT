@@ -63,6 +63,38 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 }
 
 /**
+ * Draw overlay sprite to mark a button as being shaded.
+ * @param rect Area at the screen containing the button.
+ * @todo Alignment can be done much faster if we may assume a sprite size. Perhaps add some special cases for common sizes?
+ */
+void OverlayShaded(const Rectangle32 &rect)
+{
+	const ImageData *img = _gui_sprites.disabled;
+	if (img == NULL) return;
+
+	Rectangle32 r(rect);
+	r.RestrictTo(0, 0, _video->GetXSize(), _video->GetYSize());
+	if (r.width == 0 || r.height == 0) return;
+
+	/* Set clipped area to the rectangle. */
+	ClippedRectangle cr(_video->GetClippedRectangle());
+	ClippedRectangle new_cr(cr, r.base.x, r.base.y, r.width, r.height);
+	_video->SetClippedRectangle(new_cr);
+
+	/* Align the disabled sprite so it becomes a continuous pattern. */
+	int32 base_x = -(r.base.x % img->width);
+	int32 base_y = -(r.base.y % img->height);
+	uint16 numx = (r.width + img->width - 1) / img->width;
+	uint16 numy = (r.height + img->height - 1) / img->height;
+
+	static const Recolouring recolour; // Fixed recolouring mapping.
+	_video->BlitImages(base_x, base_y, img, numx, numy, recolour);
+
+	_video->SetClippedRectangle(cr); // Restore clipped area.
+}
+
+
+/**
  * Draw a string to the screen.
  * @param strid String to draw.
  * @param colour Colour of the text.
