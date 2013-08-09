@@ -180,7 +180,7 @@ Image *SheetBlock::GetSheet()
 	Image *img = this->GetSheet();
 	SpriteBlock *spr_blk = new SpriteBlock;
 	const char *err = spr_blk->sprite_image.CopySprite(img, this->x_offset, this->y_offset,
-			this->x_base + this->x_step * col, this->y_base + this->y_step * row, this->width, this->height);
+			this->x_base + this->x_step * col, this->y_base + this->y_step * row, this->width, this->height, this->crop);
 	if (err != NULL) {
 		fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", pos.ToString(), name, err);
 		exit(1);

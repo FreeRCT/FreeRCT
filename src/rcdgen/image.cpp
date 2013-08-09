@@ -237,9 +237,10 @@ SpriteImage::~SpriteImage()
  * @param ypos Top position of the sprite in the image.
  * @param xsize Width of the sprite in the image.
  * @param ysize Height of the sprite in the image.
+ * @param crop Perform cropping of the sprite.
  * @return Error message if the conversion failed, else \c NULL.
  */
-const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize)
+const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop)
 {
 	assert(img->png_initialized);
 
@@ -259,30 +260,32 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	if (xpos + xsize > img_width) return "Sprite too wide";
 	if (ypos + ysize > img_height) return "Sprite too high";
 
-	/* Perform cropping. */
+	if (crop) {
+		/* Perform cropping. */
 
-	/* Crop left columns. */
-	while (xsize > 0 && img->IsEmpty(xpos, ypos, 0, 1, ysize)) {
-		xpos++;
-		xsize--;
-		xoffset++;
-	}
+		/* Crop left columns. */
+		while (xsize > 0 && img->IsEmpty(xpos, ypos, 0, 1, ysize)) {
+			xpos++;
+			xsize--;
+			xoffset++;
+		}
 
-	/* Crop top rows. */
-	while (ysize > 0 && img->IsEmpty(xpos, ypos, 1, 0, xsize)) {
-		ypos++;
-		ysize--;
-		yoffset++;
-	}
+		/* Crop top rows. */
+		while (ysize > 0 && img->IsEmpty(xpos, ypos, 1, 0, xsize)) {
+			ypos++;
+			ysize--;
+			yoffset++;
+		}
 
-	/* Crop right columns. */
-	while (xsize > 0 && img->IsEmpty(xpos + xsize - 1, ypos, 0, 1, ysize)) {
-		xsize--;
-	}
+		/* Crop right columns. */
+		while (xsize > 0 && img->IsEmpty(xpos + xsize - 1, ypos, 0, 1, ysize)) {
+			xsize--;
+		}
 
-	/* Crop bottom rows. */
-	while (ysize > 0 && img->IsEmpty(xpos, ypos + ysize - 1, 1, 0, xsize)) {
-		ysize--;
+		/* Crop bottom rows. */
+		while (ysize > 0 && img->IsEmpty(xpos, ypos + ysize - 1, 1, 0, xsize)) {
+			ysize--;
+		}
 	}
 
 	if (xsize == 0 || ysize == 0) {

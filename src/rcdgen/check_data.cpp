@@ -1278,6 +1278,9 @@ static BlockNode *ConvertSheetNode(NodeGroup *ng)
 	sb->width    = vals.GetNumber("width");
 	sb->height   = vals.GetNumber("height");
 
+	sb->crop = true;
+	if (vals.HasValue("crop")) sb->crop = vals.GetNumber("crop") != 0;
+
 	BitMask *bm = NULL;
 	if (vals.HasValue("mask")) {
 		ValueInformation &vi = vals.FindValue("mask");
@@ -1316,6 +1319,9 @@ static SpriteBlock *ConvertSpriteNode(NodeGroup *ng)
 		int xoffset      = vals.GetNumber("x_offset");
 		int yoffset      = vals.GetNumber("y_offset");
 
+		bool crop = true;
+		if (vals.HasValue("crop")) crop = vals.GetNumber("crop") != 0;
+
 		BitMask *bm = NULL;
 		if (vals.HasValue("mask")) {
 			ValueInformation &vi = vals.FindValue("mask");
@@ -1329,7 +1335,7 @@ static SpriteBlock *ConvertSpriteNode(NodeGroup *ng)
 		BitMaskData *bmd = (bm == NULL) ? NULL : &bm->data;
 		Image img;
 		const char *err = img.LoadFile(file.c_str(), bmd);
-		if (err == NULL) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height);
+		if (err == NULL) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 
 		if (err != NULL) {
 			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name, err);

@@ -58,7 +58,7 @@ public:
 	SpriteImage();
 	~SpriteImage();
 
-	const char *CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize);
+	const char *CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop);
 
 	int xoffset;       ///< Horizontal offset from the origin to the top-left pixel of the sprite image.
 	int yoffset;       ///< Vertical offset from the origin to the top-left pixel of the sprite image.

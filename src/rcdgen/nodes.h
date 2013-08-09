@@ -126,6 +126,7 @@ public:
 	int y_offset;     ///< Sprite offset (from the origin to the top edge of the sprite).
 	int width;        ///< Width of a sprite.
 	int height;       ///< Height of a sprite.
+	bool crop;        ///< Crop sprite.
 
 	Image *img_sheet; ///< Sheet of images.
 	BitMask *mask;    ///< Bit mask to apply first (if available).
