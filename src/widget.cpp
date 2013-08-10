@@ -362,7 +362,12 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 	}
 
 	if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-	GetTextSize(w->TranslateStringNumber(this->value), &this->value_width, &this->value_height);
+	if (this->value == STR_NULL) {
+		this->value_width = 0;
+		this->value_height = 0;
+	} else {
+		GetTextSize(w->TranslateStringNumber(this->value), &this->value_width, &this->value_height);
+	}
 	if (bsd != NULL) {
 		this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
 	} else {
@@ -440,7 +445,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 		}
 	} else {
 		if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-		DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
+		if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
 	}
 
 	if (bsd != NULL && this->IsShaded()) OverlayShaded(border_rect);
