@@ -40,7 +40,7 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 class CoasterInstanceWindow : public GuiWindow {
 public:
 	CoasterInstanceWindow(CoasterInstance *ci);
-	~CoasterInstanceWindow();
+	/* virtual */ ~CoasterInstanceWindow();
 
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
 private:
@@ -59,7 +59,9 @@ CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *ci) : GuiWindow(WC
 
 CoasterInstanceWindow::~CoasterInstanceWindow()
 {
-	if (!this->ci->IsAccessible()) _rides_manager.DeleteInstance(this->ci->GetIndex());
+	if (!GetWindowByType(WC_COASTER_BUILD, this->wnumber) && !this->ci->IsAccessible()) {
+		_rides_manager.DeleteInstance(this->ci->GetIndex());
+	}
 }
 
 /* virtual */ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
@@ -78,11 +80,17 @@ CoasterInstanceWindow::~CoasterInstanceWindow()
 void ShowCoasterManagementGui(RideInstance *coaster)
 {
 	if (coaster->GetKind() != RTK_COASTER) return;
-	if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex())) return;
-
 	CoasterInstance *ci = static_cast<CoasterInstance *>(coaster);
 	assert(ci != NULL);
-	new CoasterInstanceWindow(ci);
+
+	RideInstanceState ris = ci->DecideRideState();
+	if (ris == RIS_TESTING || ris == RIS_CLOSED || ris == RIS_OPEN) {
+		if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex())) return;
+
+		new CoasterInstanceWindow(ci);
+		return;
+	}
+	ShowCoasterBuildGui(ci);
 }
 
 /** Widgets of the coaster construction window. */
@@ -187,8 +195,9 @@ static const WidgetPart _coaster_construction_gui_parts[] = {
 class CoasterBuildWindow : public GuiWindow {
 public:
 	CoasterBuildWindow(CoasterInstance *ci);
-	~CoasterBuildWindow();
+	/* virtual */ ~CoasterBuildWindow();
 
+	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
 };
@@ -205,6 +214,18 @@ CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *ci) : GuiWindow(WC_COAST
 
 CoasterBuildWindow::~CoasterBuildWindow()
 {
+	if (!GetWindowByType(WC_COASTER_MANAGER, this->wnumber) && !this->ci->IsAccessible()) {
+		_rides_manager.DeleteInstance(this->ci->GetIndex());
+	}
+}
+
+/* virtual */ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+{
+	switch (wid_num) {
+		case CCW_TITLEBAR:
+			_str_params.SetUint8(1, (uint8 *)this->ci->name);
+			break;
+	}
 }
 
 /**
