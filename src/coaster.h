@@ -101,7 +101,7 @@ public:
 	 * Get banking of the track piece.
 	 * @return Banking of the track piece.
 	 */
-	inline uint8 GetBanking() const
+	inline TrackPieceBanking GetBanking() const
 	{
 		uint8 banking = GB(this->track_flags, 6, 2);
 		assert(banking < TPB_END);
