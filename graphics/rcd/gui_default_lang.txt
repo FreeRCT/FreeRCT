@@ -144,6 +144,15 @@ string { lang: ""; name: "FINANCES_RESEARCH_TEXT";          text: "Research"; }
 string { lang: ""; name: "FINANCES_LOAN_INTEREST_TEXT";     text: "Loan Interest"; }
 string { lang: ""; name: "FINANCES_TOTAL_TEXT";             text: "Total"; }
 
+// Coaster construction strings.
+string { lang: ""; name: "COASTER_BUILD_LEFT_BEND_TOOLTIP";  text: "Selects track pieces with a bend to the left"; }
+string { lang: ""; name: "COASTER_BUILD_NO_BEND_TOOLTIP";    text: "Selects a straight track piece"; }
+string { lang: ""; name: "COASTER_BUILD_RIGHT_BEND_TOOLTIP"; text: "Selects track pieces with a bend to the right"; }
+string { lang: ""; name: "COASTER_BUILD_BANK_LEFT_TOOLTIP";  text: "Selects track pieces that end with a banking to the left"; }
+string { lang: ""; name: "COASTER_BUILD_BANK_NONE_TOOLTIP";  text: "Selects track pieces that end with a level banking"; }
+string { lang: ""; name: "COASTER_BUILD_BANK_RIGHT_TOOLTIP"; text: "Selects track pieces that end with a banking to the right"; }
+string { lang: ""; name: "COASTER_BUILD_BUY_TOOLTIP";        text: "Click to buy the selected track piece"; }
+
 // Money symbols.
 string { lang: ""; name: "MONEY_CURRENCY_SYMBOL";     text: "$"; }
 string { lang: ""; name: "MONEY_THOUSANDS_SEPARATOR"; text: ","; }
