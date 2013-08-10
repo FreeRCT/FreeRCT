@@ -16,6 +16,8 @@
 #include "ride_type.h"
 #include "track_piece.h"
 
+static const int MAX_PLACED_TRACK_PIECES = 1024; ///< Maximum number of track pieces in a single roller coaster.
+
 typedef std::map<uint32, TrackPieceRef> TrackPiecesMap; ///< Map of loaded track pieces.
 
 /** Kinds of coasters. */
@@ -75,6 +77,14 @@ public:
 	/* virtual */ void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const;
 
 	RideInstanceState DecideRideState();
+
+	bool MakePositionedPiecesLooping(bool *modified);
+	int GetFirstPlacedTrackPiece() const;
+	int AddPositionedPiece(const PositionedTrackPiece &placed);
+	int FindPlacedTrackPiece(uint16 x, uint16 y, uint8 z, uint8 entry_connect, int start = 0, int end = MAX_PLACED_TRACK_PIECES);
+
+	PositionedTrackPiece *pieces; ///< Positioned track pieces.
+	int capacity;                 ///< Number of entries in the #pieces.
 };
 
 #endif
