@@ -15,6 +15,8 @@
 #include "ride_type.h"
 #include "coaster.h"
 
+#include "table/gui_sprites.h"
+
 /** Widget numbers of the roller coaster instance window. */
 enum CoasterInstanceWidgets {
 	CIW_TITLEBAR, ///< Titlebar widget.
@@ -81,4 +83,138 @@ void ShowCoasterManagementGui(RideInstance *coaster)
 	CoasterInstance *ci = static_cast<CoasterInstance *>(coaster);
 	assert(ci != NULL);
 	new CoasterInstanceWindow(ci);
+}
+
+/** Widgets of the coaster construction window. */
+enum CoasterConstructionWidgets {
+	CCW_TITLEBAR,            ///< Titlebar widget.
+	CCW_BEND_WIDE_LEFT,      ///< Button for selecting wide left turn.
+	CCW_BEND_NORMAL_LEFT,    ///< Button for selecting normal left turn.
+	CCW_BEND_TIGHT_LEFT,     ///< Button for selecting tight left turn.
+	CCW_BEND_NONE,           ///< Button for selecting straight ahead (no turn).
+	CCW_BEND_TIGHT_RIGHT,    ///< Button for selecting tight right turn.
+	CCW_BEND_NORMAL_RIGHT,   ///< Button for selecting normal right turn.
+	CCW_BEND_WIDE_RIGHT,     ///< Button for selecting wide right turn.
+	CCW_BANK_LEFT,           ///< Button for selecting banking to the left.
+	CCW_BANK_NONE,           ///< Button for selecting no banking.
+	CCW_BANK_RIGHT,          ///< Button for selecting banking to the right.
+	CCW_SLOPE_VERTICAL_DOWN, ///< Button for selecting vertically down slope.
+	CCW_SLOPE_STEEP_DOWN,    ///< Button for selecting steep down slope.
+	CCW_SLOPE_DOWN,          ///< Button for selecting gentle down slope.
+	CCW_SLOPE_FLAT,          ///< Button for selecting level slope.
+	CCW_SLOPE_UP,            ///< Button for selecting gentle up slope.
+	CCW_SLOPE_STEEP_UP,      ///< Button for selecting steep up slope.
+	CCW_SLOPE_VERTICAL_UP,   ///< Button for selecting vertically up slope.
+	CCW_DISPLAY_PIECE,       ///< Display space for a track piece.
+	CCW_REMOVE,              ///< Remove track piece button.
+	CCW_BACKWARD,            ///< Move backward.
+	CCW_FORWARD,             ///< Move forward.
+	CCW_ROT_NEG,             ///< Rotate in negative direction.
+	CCW_ROT_POS,             ///< Rotate in positive direction.
+};
+
+/** Widget parts of the #CoasterBuildWindow. */
+static const WidgetPart _coaster_construction_gui_parts[] = {
+	Intermediate(0, 1),
+		Intermediate(1, 0),
+			Widget(WT_TITLEBAR, CCW_TITLEBAR, COL_RANGE_DARK_RED), SetData(STR_ARG1, GUI_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+		EndContainer(),
+
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(5, 1),
+				Intermediate(1, 9), // Bend type.
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+					Widget(WT_IMAGE_BUTTON, CCW_BEND_WIDE_LEFT,    COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BEND_START + TBN_LEFT_WIDE, GUI_COASTER_BUILD_LEFT_BEND_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BEND_NORMAL_LEFT,  COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BEND_START + TBN_LEFT_NORMAL, GUI_COASTER_BUILD_LEFT_BEND_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BEND_TIGHT_LEFT,   COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BEND_START + TBN_LEFT_TIGHT, GUI_COASTER_BUILD_LEFT_BEND_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BEND_NONE,         COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BEND_START + TBN_STRAIGHT, GUI_COASTER_BUILD_NO_BEND_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BEND_TIGHT_RIGHT,  COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BEND_START + TBN_RIGHT_TIGHT, GUI_COASTER_BUILD_RIGHT_BEND_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BEND_NORMAL_RIGHT, COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BEND_START + TBN_RIGHT_NORMAL, GUI_COASTER_BUILD_RIGHT_BEND_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BEND_WIDE_RIGHT,   COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BEND_START + TBN_RIGHT_WIDE, GUI_COASTER_BUILD_RIGHT_BEND_TOOLTIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+				Intermediate(1, 5), // Banking.
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+					Widget(WT_IMAGE_BUTTON, CCW_BANK_LEFT,  COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BANK_START + TBG_BANK_LEFT, GUI_COASTER_BUILD_BANK_LEFT_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BANK_NONE,  COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BANK_START + TBG_BANK_NONE, GUI_COASTER_BUILD_BANK_NONE_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_BANK_RIGHT, COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_BANK_START + TBG_BANK_RIGHT, GUI_COASTER_BUILD_BANK_RIGHT_TOOLTIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+				Intermediate(1, 9), // Slopes.
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+					Widget(WT_IMAGE_BUTTON, CCW_SLOPE_VERTICAL_DOWN, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_STRAIGHT_DOWN, GUI_PATH_GUI_SLOPE_DOWN_TIP),
+					Widget(WT_IMAGE_BUTTON, CCW_SLOPE_STEEP_DOWN, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_STEEP_DOWN, GUI_PATH_GUI_SLOPE_DOWN_TIP),
+					Widget(WT_IMAGE_BUTTON, CCW_SLOPE_DOWN, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_DOWN, GUI_PATH_GUI_SLOPE_DOWN_TIP),
+					Widget(WT_IMAGE_BUTTON, CCW_SLOPE_FLAT, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_FLAT, GUI_PATH_GUI_SLOPE_FLAT_TIP),
+					Widget(WT_IMAGE_BUTTON, CCW_SLOPE_UP, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_UP, GUI_PATH_GUI_SLOPE_UP_TIP),
+					Widget(WT_IMAGE_BUTTON, CCW_SLOPE_STEEP_UP, 0), SetPadding(0, 0, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_STEEP_UP, GUI_PATH_GUI_SLOPE_UP_TIP),
+					Widget(WT_IMAGE_BUTTON, CCW_SLOPE_VERTICAL_UP, 0), SetPadding(0, 5, 0, 5),
+							SetData(SPR_GUI_SLOPES_START + TSL_STRAIGHT_UP, GUI_PATH_GUI_SLOPE_UP_TIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetPadding(5, 2, 5, 2),
+					Widget(WT_TEXT_PUSHBUTTON, CCW_DISPLAY_PIECE, COL_RANGE_DARK_RED),
+							SetData(STR_NULL, GUI_COASTER_BUILD_BUY_TOOLTIP), SetFill(1, 1), SetMinimalSize(200, 200),
+				Intermediate(1, 5), // delete, prev/next, rotate
+					Widget(WT_TEXT_PUSHBUTTON, CCW_REMOVE, COL_RANGE_DARK_RED),  SetPadding(0, 3, 3, 0),
+							SetData(GUI_PATH_GUI_REMOVE, GUI_PATH_GUI_BULLDOZER_TIP),
+					Widget(WT_TEXT_PUSHBUTTON, CCW_BACKWARD, COL_RANGE_DARK_RED),  SetPadding(0, 3, 3, 0),
+							SetData(GUI_PATH_GUI_BACKWARD, GUI_PATH_GUI_BACKWARD_TIP),
+					Widget(WT_TEXT_PUSHBUTTON, CCW_FORWARD, COL_RANGE_DARK_RED),  SetPadding(0, 3, 3, 0),
+							SetData(GUI_PATH_GUI_FORWARD, GUI_PATH_GUI_FORWARD_TIP),
+					Widget(WT_IMAGE_PUSHBUTTON, CCW_ROT_NEG, COL_RANGE_DARK_GREEN), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_ROT3D_NEG, GUI_RIDE_SELECT_ROT_NEG_TOOLTIP),
+					Widget(WT_IMAGE_PUSHBUTTON, CCW_ROT_POS, COL_RANGE_DARK_GREEN), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_ROT3D_POS, GUI_RIDE_SELECT_ROT_POS_TOOLTIP),
+	EndContainer(),
+};
+
+/** Window to build or edit a roller coaster. */
+class CoasterBuildWindow : public GuiWindow {
+public:
+	CoasterBuildWindow(CoasterInstance *ci);
+	~CoasterBuildWindow();
+
+private:
+	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
+};
+
+/**
+ * Constructor of the roller coaster build window. The provided instance may be completely empty.
+ * @param ci Coaster instance to build or modify.
+ */
+CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *ci) : GuiWindow(WC_COASTER_BUILD, ci->GetIndex())
+{
+	this->ci = ci;
+	this->SetupWidgetTree(_coaster_construction_gui_parts, lengthof(_coaster_construction_gui_parts));
+}
+
+CoasterBuildWindow::~CoasterBuildWindow()
+{
+}
+
+/**
+ * Open a roller coaster build/edit window for the given roller coaster.
+ * @param coaster Coaster instance to modify.
+ */
+void ShowCoasterBuildGui(CoasterInstance *coaster)
+{
+	if (coaster->GetKind() != RTK_COASTER) return;
+	if (HighlightWindowByType(WC_COASTER_BUILD, coaster->GetIndex())) return;
+
+	new CoasterBuildWindow(coaster);
 }
