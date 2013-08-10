@@ -32,7 +32,7 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 {
 	xpos += _tile_dxy[edge].x;
 	ypos += _tile_dxy[edge].y;
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
 
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
 	if (vx == NULL || vx->GetInstance() != SRI_PATH) {
@@ -60,7 +60,7 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
 	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos < 0 || zpos > WORLD_Z_SIZE - 3) return false; // Z range should be valid.
@@ -122,7 +122,7 @@ static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bo
 static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
 	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos < 0 || zpos > WORLD_Z_SIZE - 2) return false; // Z range should be valid.
@@ -174,7 +174,7 @@ static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
 	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos <= 0 || zpos > WORLD_Z_SIZE - 3) return false; // Z range should be valid.
@@ -236,7 +236,7 @@ static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, 
 static bool RemovePath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return false;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
 	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos <= 0 || zpos > WORLD_Z_SIZE - 2) return false; // Z range should be valid.
@@ -286,7 +286,7 @@ static bool RemovePath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
  */
 static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge edge)
 {
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return 0;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return 0;
 	if (zpos < 0 || zpos >= WORLD_Z_SIZE - 1) return 0;
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
 	if (v != NULL && HasValidPath(v)) {
@@ -317,8 +317,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
  */
 static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 {
-	if (xpos >= _world.GetXSize()) return 0;
-	if (ypos >= _world.GetYSize()) return 0;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return 0;
 	if (zpos >= WORLD_Z_SIZE - 1) return 0; // the voxel containing the flat path, and one above it.
 
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
@@ -328,7 +327,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		uint16 x = xpos + _tile_dxy[edge].x;
 		uint16 y = ypos + _tile_dxy[edge].y;
-		if (x >= _world.GetXSize() || y >= _world.GetYSize()) continue;
+		if (!IsVoxelstackInsideWorld(x, y)) continue;
 
 		if (HasValidPath(v)) {
 			PathSprites ps = GetImplodedPathSlope(v);

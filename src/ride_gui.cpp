@@ -414,8 +414,7 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 y
 	while (zpos >= 0) {
 		int xpos = xworld / 256;
 		int ypos = yworld / 256;
-		if (xpos >= 0 && xpos < _world.GetXSize() && ypos >= 0 && ypos < _world.GetYSize() &&
-				this->CanPlaceShop(st, xpos, ypos, zpos)) {
+		if (IsVoxelstackInsideWorld(xpos, ypos) && this->CanPlaceShop(st, xpos, ypos, zpos)) {
 			/* Position of the shop the same as previously? */
 			if (si->xpos != (uint16)xpos || si->ypos != (uint16)ypos || si->zpos != (uint8)zpos ||
 					si->orientation != this->orientation) {

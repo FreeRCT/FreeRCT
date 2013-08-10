@@ -473,4 +473,27 @@ extern WorldAdditions _additions;
 void EnableWorldAdditions();
 void DisableWorldAdditions();
 
+/**
+ * Is the given world voxelstack coordinate within the world boundaries?
+ * @param x X position of the voxelstack.
+ * @param y Y position of the voxelstack.
+ * @return Voxelstack coordinate is within world boundaries.
+ */
+static inline bool IsVoxelstackInsideWorld(int x, int y)
+{
+	return x >= 0 && x < _world.GetXSize() && y >= 0 && y < _world.GetYSize();
+}
+
+/**
+ * Is the given world voxel coordinate within the world boundaries?
+ * @param x X position of the voxel.
+ * @param y Y position of the voxel.
+ * @param z Z position of the voxel.
+ * @return %Voxel coordinate is within world boundaries.
+ */
+static inline bool IsVoxelInsideWorld(int x, int y, int z)
+{
+	return z >= 0 && z < WORLD_Z_SIZE && IsVoxelstackInsideWorld(x, y);
+}
+
 #endif

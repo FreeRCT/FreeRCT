@@ -647,7 +647,7 @@ const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge ed
 {
 	xpos += _tile_dxy[edge].x;
 	ypos += _tile_dxy[edge].y;
-	if (xpos < 0 || xpos >= _world.GetXSize() || ypos < 0 || ypos >= _world.GetYSize()) return NULL;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return NULL;
 
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
 	if (vx == NULL || vx->GetInstance() < SRI_FULL_RIDES) {
