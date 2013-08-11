@@ -193,7 +193,7 @@ enum GroundType {
 
 	GTP_COUNT,       ///< Number of ground types.
 
-	GTP_INVALID = 0xFF, ///< Invalid ground type.
+	GTP_INVALID = 0xF, ///< Invalid ground type.
 };
 
 /**
@@ -207,7 +207,7 @@ enum FoundationType {
 
 	FDT_COUNT,  ///< Number of foundation types.
 
-	FDT_INVALID = 0xFF, ///< Invalid foundation type.
+	FDT_INVALID = 0xF, ///< Invalid foundation type.
 };
 
 /**
