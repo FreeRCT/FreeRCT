@@ -46,6 +46,21 @@ enum TrackPieceBanking {
 	TPB_INVALID = 0xff, ///< Invalid banking value.
 };
 
+/** Available bends in the tracks. */
+enum TrackBend {
+	TBN_LEFT_WIDE,    ///< Wide bend to the left.
+	TBN_LEFT_NORMAL,  ///< Normal bend to the left.
+	TBN_LEFT_TIGHT,   ///< Tight bend to the left.
+	TBN_STRAIGHT,     ///< No bend either way.
+	TBN_RIGHT_TIGHT,  ///< Tight bend to the right.
+	TBN_RIGHT_NORMAL, ///< Normal bend to the right.
+	TBN_RIGHT_WIDE,   ///< Wide bend to the right.
+
+	TBN_COUNT,        ///< Number of bend types.
+
+	TBN_INVALID = 0xff, ///< Invalid bend value.
+};
+
 /** One track piece (type) of a roller coaster track. */
 class TrackPiece : public RefCounter {
 public:
@@ -134,14 +149,14 @@ public:
 	}
 
 	/**
-	 * Get the bend of the track piece (-3=wide left, -1=tight left, 0=straight, 1=tight right, 3=wide right).
+	 * Get the bend of the track piece.
 	 * @return the bend of the track piece.
 	 */
-	inline int GetBend() const
+	inline TrackBend GetBend() const
 	{
 		int bend = GB(this->track_flags, 11, 3);
 		if ((bend & 4) != 0) bend |= ~7;
-		return bend;
+		return (TrackBend)(bend + 3);
 	}
 
 protected:
