@@ -17,6 +17,7 @@
 #include "tile.h"
 #include "person_type.h"
 #include "language.h"
+#include "track_piece.h"
 #include <map>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
@@ -452,7 +453,7 @@ struct GuiSprites {
 
 	ImageData *slope_select[TSL_COUNT_VERTICAL]; ///< Slope selection sprites.
 	ImageData *bend_select[TBN_COUNT];      ///< Bend selection sprites.
-	ImageData *bank_select[TBG_COUNT];      ///< Banking selection sprites.
+	ImageData *bank_select[TPB_COUNT];      ///< Banking selection sprites.
 	ImageData *triangle_left;               ///< Triangular arrow to the left.
 	ImageData *triangle_right;              ///< Triangular arrow to the right.
 	ImageData *triangle_up;                 ///< Triangular upward arrow.

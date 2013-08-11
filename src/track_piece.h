@@ -12,9 +12,13 @@
 #ifndef TRACK_PIECE_H
 #define TRACK_PIECE_H
 
+#include <map>
 #include "reference_count.h"
 #include "bitmath.h"
 #include "money.h"
+
+class ImageData;
+typedef class std::map<unsigned int, ImageData*> ImageMap;
 
 /** Data of a voxel in a track piece. */
 struct TrackVoxel {
@@ -33,11 +37,13 @@ struct TrackVoxel {
 
 /** Banking of the track piece. */
 enum TrackPieceBanking {
-	TPB_NONE = 0,  ///< Track piece does not bank.
-	TPB_LEFT = 1,  ///< Track piece banks to the left.
-	TPB_RIGHT = 2, ///< Track piece banks to the right.
+	TPB_NONE,  ///< Track piece does not bank.
+	TPB_LEFT,  ///< Track piece banks to the left.
+	TPB_RIGHT, ///< Track piece banks to the right.
 
-	TPB_END, ///< End of the banking values.
+	TPB_COUNT, ///< End of the banking values.
+
+	TPB_INVALID = 0xff, ///< Invalid banking value.
 };
 
 /** One track piece (type) of a roller coaster track. */
@@ -103,7 +109,7 @@ public:
 	inline TrackPieceBanking GetBanking() const
 	{
 		uint8 banking = GB(this->track_flags, 6, 2);
-		assert(banking < TPB_END);
+		assert(banking < TPB_COUNT);
 		return (TrackPieceBanking)banking;
 	}
 

@@ -11,11 +11,12 @@
 
 #include "stdafx.h"
 #include "window.h"
-#include "table/gui_sprites.h"
 #include "viewport.h"
 #include "terraform.h"
 #include "sprite_store.h"
 #include "finances.h"
+
+#include "table/gui_sprites.h"
 
 /**
   * Gui for viewing and managing financial information.

@@ -35,7 +35,7 @@ enum GuiSpritesTable {
 	SPR_GUI_BEND_END = SPR_GUI_BEND_START + TBN_COUNT, ///< End of the track bends.
 
 	SPR_GUI_BANK_START = SPR_GUI_BEND_END, ///< Start of track banking. @see TrackBend
-	SPR_GUI_BANK_END = SPR_GUI_BANK_START + TBG_COUNT, ///< End of the banking sprites.
+	SPR_GUI_BANK_END = SPR_GUI_BANK_START + TPB_COUNT, ///< End of the banking sprites.
 };
 
 #endif

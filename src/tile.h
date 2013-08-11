@@ -245,15 +245,6 @@ enum TrackBend {
 	TBN_COUNT, ///< Number of bend types.
 };
 
-/** Available banking for tracks. */
-enum TrackBanking {
-	TBG_BANK_NONE,  ///< No banking.
-	TBG_BANK_LEFT,  ///< Bank to the left.
-	TBG_BANK_RIGHT, ///< Bank to the right.
-
-	TBG_COUNT, ///< Number of available banking types.
-};
-
 extern const uint8 _corners_at_edge[EDGE_COUNT];
 extern const Point16 _corner_dxy[4];
 extern const Point16 _tile_dxy[EDGE_COUNT];

@@ -1100,7 +1100,7 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (length != (lengthof(indices) + TBN_COUNT + TBG_COUNT + 4 + 1 + 4 + 2) * 4 + 4) return false;
+	if (length != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 1 + 4 + 2) * 4 + 4) return false;
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1108,7 +1108,7 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	for (uint i = 0; i < TBN_COUNT; i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->bend_select[i])) return false;
 	}
-	for (uint i = 0; i < TBG_COUNT; i++) {
+	for (uint i = 0; i < TPB_COUNT; i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->bank_select[i])) return false;
 	}
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_left)) return false;
@@ -1157,7 +1157,7 @@ void GuiSprites::Clear()
 
 	for (uint i = 0; i < lengthof(this->slope_select); i++) this->slope_select[i] = NULL;
 	for (uint i = 0; i < TBN_COUNT; i++) this->bend_select[i] = NULL;
-	for (uint i = 0; i < TBG_COUNT; i++) this->bank_select[i] = NULL;
+	for (uint i = 0; i < TPB_COUNT; i++) this->bank_select[i] = NULL;
 	this->triangle_left = NULL;
 	this->triangle_right = NULL;
 	this->triangle_up = NULL;
