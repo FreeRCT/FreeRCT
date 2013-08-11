@@ -43,7 +43,7 @@ enum TrackPieceBanking {
 
 	TPB_COUNT, ///< End of the banking values.
 
-	TPB_INVALID = 0xff, ///< Invalid banking value.
+	TPB_INVALID = 0xFF, ///< Invalid banking value.
 };
 
 /** Available bends in the tracks. */
@@ -58,7 +58,7 @@ enum TrackBend {
 
 	TBN_COUNT,        ///< Number of bend types.
 
-	TBN_INVALID = 0xff, ///< Invalid bend value.
+	TBN_INVALID = 0xFF, ///< Invalid bend value.
 };
 
 /** One track piece (type) of a roller coaster track. */

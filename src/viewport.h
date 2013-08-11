@@ -47,7 +47,7 @@ enum CursorType {
 	CUR_TYPE_ARROW_SW, ///< Show a build arrow in the SW direction.
 	CUR_TYPE_ARROW_NW, ///< Show a build arrow in the NW direction.
 
-	CUR_TYPE_INVALID,  ///< Invalid/unused cursor.
+	CUR_TYPE_INVALID = 0xFF, ///< Invalid/unused cursor.
 };
 
 /**

@@ -122,9 +122,10 @@ enum TileEdge {
 	EDGE_NW,    ///< North-west edge.
 
 	EDGE_COUNT, ///< Number of edges.
-	INVALID_EDGE = EDGE_COUNT, ///< Invalid edge (to denote lack of an edge).
 
 	EDGE_ALL = 0xF, ///< Bit set of all edges.
+
+	INVALID_EDGE = 0xFF, ///< Invalid edge (to denote lack of an edge).
 };
 DECLARE_POSTFIX_INCREMENT(TileEdge)
 
@@ -192,7 +193,7 @@ enum GroundType {
 
 	GTP_COUNT,       ///< Number of ground types.
 
-	GTP_INVALID = GTP_COUNT, ///< Invalid ground type.
+	GTP_INVALID = 0xFF, ///< Invalid ground type.
 };
 
 /**
@@ -206,7 +207,7 @@ enum FoundationType {
 
 	FDT_COUNT,  ///< Number of foundation types.
 
-	FDT_INVALID = FDT_COUNT, ///< Invalid foundation type.
+	FDT_INVALID = 0xFF, ///< Invalid foundation type.
 };
 
 /**
@@ -228,7 +229,7 @@ enum TrackSlope {
 	TSL_STRAIGHT_UP,                     ///< Vertically up.
 	TSL_COUNT_VERTICAL,                  ///< Number of slopes if also going straight up and down.
 
-	TSL_INVALID = TSL_COUNT_VERTICAL,    ///< Invalid track slope.
+	TSL_INVALID = 0xFF,                  ///< Invalid track slope.
 };
 DECLARE_POSTFIX_INCREMENT(TrackSlope)
 

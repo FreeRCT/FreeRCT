@@ -25,7 +25,7 @@ enum ViewOrientation {
 	VOR_WEST  = TC_WEST,  ///< View with top of the world to the west.
 
 	VOR_NUM_ORIENT = 4,   ///< Number of orientations.
-	VOR_INVALID = 4,      ///< Invalid orientation.
+	VOR_INVALID = 0xFF,   ///< Invalid orientation.
 };
 
 /**
