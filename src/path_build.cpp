@@ -288,6 +288,11 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 {
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return 0;
 	if (zpos < 0 || zpos >= WORLD_Z_SIZE - 1) return 0;
+
+	/* If other side of the edge is not on-world or not owned, don't compute path options. */
+	Point16 dxy = _tile_dxy[edge];
+	if (!IsVoxelstackInsideWorld(xpos + dxy.x, ypos + dxy.y) || _world.GetTileOwner(xpos + dxy.x, ypos + dxy.y) != OWN_PARK) return 0;
+
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
 	if (v != NULL && HasValidPath(v)) {
 		PathSprites ps = GetImplodedPathSlope(v);
