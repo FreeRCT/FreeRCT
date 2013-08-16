@@ -50,6 +50,9 @@ $(TARGET): $(OBJFILES)
 run: all
 	./$(TARGET)
 
+gdbrun: all
+	gdb $(TARGET)
+
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
@@ -86,4 +89,3 @@ clean:
 ifndef NODEPS
 -include $(DEPEND)
 endif
-

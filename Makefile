@@ -26,6 +26,9 @@ clean:
 run:
 	$(MAKE) -C src run
 
+gdbrun:
+	$(MAKE) -C src gdbrun
+
 doc:
 	doxygen Doxyfile
 	@if test -s doxygen_warnings.txt;\
