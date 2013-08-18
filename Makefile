@@ -23,10 +23,10 @@ clean:
 	$(MAKE) -C graphics/rcd clean
 	$(MAKE) -C src/rcdgen clean
 
-run:
+run: all
 	$(MAKE) -C src run
 
-gdbrun:
+gdbrun: all
 	$(MAKE) -C src gdbrun
 
 doc:
