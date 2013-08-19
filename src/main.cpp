@@ -63,7 +63,7 @@ static uint32 NextFrame(uint32 interval, void *param)
 	SDL_Event event;
 
 	/* Push a 'UserEvent' onto the queue to denote time passage. */
-	event.type = SDL_USEREVENT; // Other fields are "don't care"
+	event.type = SDL_USEREVENT; // Other fields are "don't care".
 	SDL_PushEvent(&event);
 
 	return interval;
@@ -281,7 +281,7 @@ int main(int argc, char **argv)
 
 		if (!missing_sprites_check && _video->missing_sprites) {
 			/* Enough sprites are available for displaying an error message,
-			 * as this was checked in GuiSprites::HasSufficientGraphics */
+			 * as this was checked in GuiSprites::HasSufficientGraphics. */
 			 ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
 			 missing_sprites_check = true;
 		}

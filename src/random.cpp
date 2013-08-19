@@ -13,9 +13,7 @@
 #include "random.h"
 #include <time.h>
 
-
 uint32 Random::seed = 0;
-
 
 /**
  * See whether we are lucky.

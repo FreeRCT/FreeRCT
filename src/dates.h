@@ -62,4 +62,3 @@ uint8 DateOnTick();
 extern Date _date;
 
 #endif
-

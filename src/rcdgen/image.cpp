@@ -18,7 +18,7 @@
 #include "mask64.xbm"
 
 static const size_t HEADER_SIZE = 4; ///< Number of bytes to read to decide whether a provided file is indeed a PNG file.
-static const int TRANSPARENT = 0; ///< Colour index of 'transparent' in the 8bpp image.
+static const int TRANSPARENT = 0;    ///< Colour index of 'transparent' in the 8bpp image.
 
 
 /** Information about available bit masks. */
@@ -311,7 +311,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	this->data_size = 0;
 	for (int y = 0; y < this->height; y++) {
 		int length = 0;
-		int last_stored = 0; // Upto this position (exclusive), the row was counted.
+		int last_stored = 0; // Up to this position (exclusive), the row was counted.
 		for (int x = 0; x < xsize; x++) {
 			uint8 col = img->GetPixel(xpos + x, ypos + y);
 			if (col == TRANSPARENT) continue;
@@ -354,7 +354,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		if (this->row_sizes[y] == 0) continue;
 
 		uint8 *last_header = NULL;
-		int last_stored = 0; // Upto this position (exclusive), the row was counted.
+		int last_stored = 0; // Up to this position (exclusive), the row was counted.
 		for (int x = 0; x < xsize; x++) {
 			uint8 col = img->GetPixel(xpos + x, ypos + y);
 			if (col == TRANSPARENT) continue;
@@ -366,7 +366,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 				if (col == TRANSPARENT) break;
 				x++;
 			}
-			/* from 'start' upto and excluding 'x' are pixels to draw. */
+			/* from 'start' up to and excluding 'x' are pixels to draw. */
 			while (last_stored + 127 < start) {
 				*ptr++ = 127; // 127 pixels gap, 0 pixels to draw.
 				*ptr++ = 0;

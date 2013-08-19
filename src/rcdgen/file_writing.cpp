@@ -25,9 +25,9 @@ FileBlock::~FileBlock()
 }
 
 /**
- * Setup storing of data to the file block.
+ * Set up storing of data to the file block.
  * Supply name of the block, version number, and expected data length (without the 12 byte header).
- * After setup, use #SaveUInt8, #SaveUInt16, #SaveUInt32, and #SaveBytes to store the data in the block.
+ * After setting up, use #SaveUInt8, #SaveUInt16, #SaveUInt32, and #SaveBytes to store the data in the block.
  * Afterwards, use #CheckEndSave to verify the amount of actually written data matches with the expected length.
  * @param blk_name Name of the block (a 4 character text string).
  * @param version Version of the block.

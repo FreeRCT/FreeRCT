@@ -18,7 +18,7 @@
 #include "table/gui_sprites.h"
 
 /**
- * %Path build Gui.
+ * %Path build GUI.
  * @ingroup gui_group
  */
 class PathBuildGui : public GuiWindow {
@@ -33,7 +33,7 @@ public:
 };
 
 /**
- * Widget numbers of the path build Gui.
+ * Widget numbers of the path build GUI.
  * @ingroup gui_group
  */
 enum PathBuildWidgets {
@@ -57,7 +57,7 @@ static const int SPR_SW_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_SW; ///< Spr
 static const int SPR_NW_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_NW; ///< Sprite for building in NW direction.
 
 /**
- * Widget parts of the path build Gui.
+ * Widget parts of the path build GUI.
  * @ingroup gui_group
  */
 static const WidgetPart _path_build_gui_parts[] = {
@@ -169,7 +169,7 @@ static const WidgetNumber _direction_widgets[] = {
 	}
 }
 
-/** Set the buttons at the path builder gui. */
+/** Set the buttons at the path builder GUI. */
 void PathBuildGui::SetButtons()
 {
 	Viewport *vp = GetViewport();
@@ -217,7 +217,7 @@ void PathBuildGui::SetButtons()
 }
 
 /**
- * Open the path build gui.
+ * Open the path build GUI.
  * @ingroup gui_group
  */
 void ShowPathBuildGui()
@@ -225,4 +225,3 @@ void ShowPathBuildGui()
 	if (HighlightWindowByType(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)) return;
 	new PathBuildGui;
 }
-

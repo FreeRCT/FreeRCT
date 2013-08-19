@@ -148,10 +148,10 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 /**
  * Test every corner of the given voxel for its original height, and find the extreme value.
  * @param pos %Voxel position.
- * @param direction Leveling direction (decides whether to find the lowest or highest corner).
+ * @param direction Levelling direction (decides whether to find the lowest or highest corner).
  * @param height [inout] Extremest height found so far.
  */
-void TerrainChanges::UpdateLevelingHeight(const Point32 &pos, int direction, uint8 *height)
+void TerrainChanges::UpdatelevellingHeight(const Point32 &pos, int direction, uint8 *height)
 {
 	const GroundData *gd = this->GetGroundData(pos);
 
@@ -172,7 +172,7 @@ void TerrainChanges::UpdateLevelingHeight(const Point32 &pos, int direction, uin
  * Change corners of a voxel if they are within the height constraint.
  * @param pos %Voxel position.
  * @param height Minimum or maximum height of the corners to modify.
- * @param direction Leveling direction (decides what constraint to use).
+ * @param direction Levelling direction (decides what constraint to use).
  * @return Change is OK for the map.
  */
 bool TerrainChanges::ChangeVoxel(const Point32 &pos, uint8 height, int direction)
@@ -561,10 +561,10 @@ TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TE
 	this->mouse_state = 0;
 	this->xsize = 1;
 	this->ysize = 1;
-	this->leveling = true;
+	this->levelling = true;
 }
 
-/** Terraform gui window just opened. */
+/** Terraform GUI window just opened. */
 void TileTerraformMouseMode::OpenWindow()
 {
 	if (this->state == TFS_OFF) {
@@ -573,7 +573,7 @@ void TileTerraformMouseMode::OpenWindow()
 	}
 }
 
-/** Terraform gui window just closed. */
+/** Terraform GUI window just closed. */
 void TileTerraformMouseMode::CloseWindow()
 {
 	if (this->state == TFS_ON) {
@@ -597,12 +597,12 @@ void TileTerraformMouseMode::SetSize(int xsize, int ysize)
 }
 
 /**
- * Set the 'leveling' mode. This has no further visible effect until a raise/lower action is performed.
- * @param leveling The new leveling setting.
+ * Set the 'levelling' mode. This has no further visible effect until a raise/lower action is performed.
+ * @param levelling The new levelling setting.
  */
-void TileTerraformMouseMode::SetLeveling(bool leveling)
+void TileTerraformMouseMode::Setlevelling(bool levelling)
 {
-	this->leveling = leveling;
+	this->levelling = levelling;
 }
 
 /* virtual */ bool TileTerraformMouseMode::MayActivateMode()
@@ -667,13 +667,13 @@ void TileTerraformMouseMode::SetCursors()
 }
 
 /**
- * Change the terrain while in 'dot' mode (ie a single corner or a single tile changing the entire world).
+ * Change the terrain while in 'dot' mode (i.e. a single corner or a single tile changing the entire world).
  * @param vp %Viewport displaying the world.
- * @param leveling If \c true, use leveling mode (only change the lowest/highest corners of a tile), else move every corner.
+ * @param levelling If \c true, use levelling mode (only change the lowest/highest corners of a tile), else move every corner.
  * @param direction Direction of change.
  * @param dot_mode Using dot-mode (infinite world changes).
  */
-static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, bool dot_mode)
+static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bool dot_mode)
 {
 	Cursor *c = &vp->tile_cursor;
 	if (_world.GetTileOwner(c->xpos, c->ypos) != OWN_PARK) return;
@@ -708,7 +708,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, boo
 
 		case CUR_TYPE_TILE: {
 			uint8 height = (direction > 0) ? WORLD_Z_SIZE : 0;
-			if (leveling) changes.UpdateLevelingHeight(p, direction, &height);
+			if (levelling) changes.UpdatelevellingHeight(p, direction, &height);
 			ok = changes.ChangeVoxel(p, height, direction);
 			break;
 		}
@@ -736,12 +736,12 @@ static void ChangeTileCursorMode(Viewport *vp, bool leveling, int direction, boo
 }
 
 /**
- * Change the terrain while in 'area' mode (ie a rectangle of tiles that changes).
+ * Change the terrain while in 'area' mode (i.e. a rectangle of tiles that changes).
  * @param vp %Viewport displaying the world.
- * @param leveling If \c true, use leveling mode (only change the lowest/highest corners of a tile), else move every corner.
+ * @param levelling If \c true, use levelling mode (only change the lowest/highest corners of a tile), else move every corner.
  * @param direction Direction of change.
  */
-static void ChangeAreaCursorMode(Viewport *vp, bool leveling, int direction)
+static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 {
 	Point32 p;
 
@@ -749,13 +749,13 @@ static void ChangeAreaCursorMode(Viewport *vp, bool leveling, int direction)
 	TerrainChanges changes(c->rect.base, c->rect.width, c->rect.height);
 
 	uint8 height = (direction > 0) ? WORLD_Z_SIZE : 0;
-	if (leveling) {
+	if (levelling) {
 		for (uint dx = 0; dx < c->rect.width; dx++) {
 			p.x = c->rect.base.x + dx;
 			for (uint dy = 0; dy < c->rect.height; dy++) {
 				p.y = c->rect.base.y + dy;
 				if (_world.GetTileOwner(p.x, p.y) == OWN_PARK) {
-					changes.UpdateLevelingHeight(p, direction, &height);
+					changes.UpdatelevellingHeight(p, direction, &height);
 				}
 			}
 		}
@@ -790,9 +790,8 @@ static void ChangeAreaCursorMode(Viewport *vp, bool leveling, int direction)
 /* virtual */ void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
 {
 	if (vp->tile_cursor.type != CUR_TYPE_INVALID) {
-		ChangeTileCursorMode(vp, this->leveling, direction, this->xsize == 0 && this->ysize == 0);
+		ChangeTileCursorMode(vp, this->levelling, direction, this->xsize == 0 && this->ysize == 0);
 	} else {
-		ChangeAreaCursorMode(vp, this->leveling, direction);
+		ChangeAreaCursorMode(vp, this->levelling, direction);
 	}
 }
-

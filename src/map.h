@@ -42,7 +42,7 @@ enum SmallRideInstance {
 
 	SRI_RIDES_START,            ///< First ride instance.
 	SRI_PATH = SRI_RIDES_START, ///< Path.
-	// XXX Add other scenery objects, like trees and flower beds.
+	/// \todo Add other scenery objects, like trees and flower beds.
 	SRI_FULL_RIDES, ///< First ride instance number for normal rides (created and stored in #RidesManager).
 
 	SRI_LAST = 255, ///< Biggest possible ride number.
@@ -253,7 +253,7 @@ public:
  * Does the given voxel contain a valid path?
  * @param v %Voxel to examine.
  * @return @c true if the voxel contains a valid path, else \c false.
- * @todo Extend with acceptable types of path (plain path, queueing path, etc)
+ * @todo Extend with acceptable types of path (plain path, queueing path, etc.)
  */
 static inline bool HasValidPath(const Voxel *v) {
 	return v->instance == SRI_PATH && v->instance_data != PATH_INVALID;

@@ -23,7 +23,7 @@ TrackVoxel::TrackVoxel()
 
 TrackVoxel::~TrackVoxel()
 {
-	/* Images are deleted by the Rcd manager. */
+	/* Images are deleted by the RCD manager. */
 }
 
 /**

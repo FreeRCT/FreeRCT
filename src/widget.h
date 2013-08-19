@@ -28,12 +28,12 @@ static const WidgetNumber INVALID_WIDGET_INDEX = -1; ///< Widget number of inval
  * @ingroup widget_group
  */
 enum WidgetType {
-	WT_EMPTY,            ///< Empty widget (used for creating empty space and/or centering).
+	WT_EMPTY,            ///< Empty widget (used for creating empty space and/or centring).
 	WT_TITLEBAR,         ///< Title of the window.
 	WT_CLOSEBOX,         ///< Close box.
 	WT_RESIZEBOX,        ///< Resize box.
 	WT_LEFT_TEXT,        ///< Text label with left-aligned text.
-	WT_CENTERED_TEXT,    ///< Text label with centered text.
+	WT_CENTERED_TEXT,    ///< Text label with centred text.
 	WT_RIGHT_TEXT,       ///< Text label with right-aligned text.
 	WT_PANEL,            ///< Panel.
 	WT_TEXT_BUTTON,      ///< Button with text (bi-stable).

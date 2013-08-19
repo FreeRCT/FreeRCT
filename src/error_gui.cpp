@@ -34,7 +34,7 @@ static const WidgetPart _error_message_gui_parts[] = {
 	EndContainer(),
 };
 
-/** Gui window for showing an error message. */
+/** GUI window for showing an error message. */
 class ErrorMessageWindow : public GuiWindow {
 public:
 	ErrorMessageWindow(StringID strid);

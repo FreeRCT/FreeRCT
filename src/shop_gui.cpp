@@ -86,7 +86,7 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 		EndContainer(),
 };
 
-/** Gui window for interacting with a shop instance. */
+/** GUI window for interacting with a shop instance. */
 class ShopManagerWindow : public GuiWindow {
 public:
 	ShopManagerWindow(ShopInstance *ri);

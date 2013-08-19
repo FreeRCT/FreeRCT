@@ -28,7 +28,7 @@
  * Rides are the central concept in what guests 'do' to have fun.
  * The main classes are #RideType and #RideInstance.
  *
- * - The #RideType represents the type of a ride, eg "the kiosk" or a "basic steel roller coaster".
+ * - The #RideType represents the type of a ride, e.g. "the kiosk" or a "basic steel roller coaster".
  *   - Shop types are implement in #ShopType.
  *   - Coaster types are implemented in #CoasterType.
  *
@@ -171,7 +171,7 @@ static bool IsValidItemType(uint8 val)
 bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, const TextMap &texts)
 {
 	if (length != 2 + 1 + 1 + 4*4 + 3*4 + 4*4 + 2 + 4) return false;
-	uint16 width = rcd_file->GetUInt16(); // XXX Widths other than 64
+	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
 	this->height = rcd_file->GetUInt8();
 	if (this->height != 1) return false; // Other heights may fail.
 	this->flags = rcd_file->GetUInt8() & 0xF;
@@ -604,7 +604,7 @@ void RidesManager::NewInstanceAdded(uint16 num)
 			break;
 
 		default:
-			NOT_REACHED(); // XXX Add other ride types.
+			NOT_REACHED(); /// \todo Add other ride types.
 	}
 }
 

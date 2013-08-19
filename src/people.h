@@ -67,4 +67,3 @@ assert_compile(PERSON_MAX_GUEST - PERSON_MIN_GUEST + 1 <= 16); ///< Verify that 
 extern Guests _guests;
 
 #endif
-

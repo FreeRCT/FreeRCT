@@ -159,7 +159,7 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
 			default: NOT_REACHED();
 		}
 	}
-	NOT_REACHED(); // XXX No path here!
+	NOT_REACHED(); /// \todo No path here!
 }
 
 /**
@@ -175,7 +175,7 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
 	this->type = person_type;
 	this->name = NULL;
 
-	/* Setup the person sprite recolouring table. */
+	/* Set up the person sprite recolouring table. */
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
 	this->recolour = person_type_data.graphics.MakeRecolouring(&this->rnd);
 
@@ -279,75 +279,75 @@ static const WalkInformation *_walk_path_tile[4][4] = {
 	{_walk_nw_ne, _walk_nw_se, _walk_nw_sw, _walk_nw_nw},
 };
 
-/** Walk from NE edge back to center NE edge. */
+/** Walk from NE edge back to centre NE edge. */
 static const WalkInformation _center_ne_ne[] = {
 	{ANIM_WALK_SW, WLM_HIGH_X}, {ANIM_WALK_SE, WLM_MID_Y}, {ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from NE edge to center SE edge. */
+/** Walk from NE edge to centre SE edge. */
 static const WalkInformation _center_ne_se[] = {
 	{ANIM_WALK_SW, WLM_MID_X}, {ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from NE edge to center SW edge. */
+/** Walk from NE edge to centre SW edge. */
 static const WalkInformation _center_ne_sw[] = {
 	{ANIM_WALK_SW, WLM_SW_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from NE edge to center NW edge. */
+/** Walk from NE edge to centre NW edge. */
 static const WalkInformation _center_ne_nw[] = {
 	{ANIM_WALK_SW, WLM_MID_X},  {ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
 
-/** Walk from SE edge to center NE edge. */
+/** Walk from SE edge to centre NE edge. */
 static const WalkInformation _center_se_ne[] = {
 	{ANIM_WALK_NW, WLM_MID_Y}, {ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from SE edge back to center SE edge. */
+/** Walk from SE edge back to centre SE edge. */
 static const WalkInformation _center_se_se[] = {
 	{ANIM_WALK_NW, WLM_LOW_Y},  {ANIM_WALK_SW, WLM_MID_X}, {ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from SE edge to center SW edge. */
+/** Walk from SE edge to centre SW edge. */
 static const WalkInformation _center_se_sw[] = {
 	{ANIM_WALK_NW, WLM_MID_Y},  {ANIM_WALK_SW, WLM_SW_CENTER }, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from SE edge to center NW edge. */
+/** Walk from SE edge to centre NW edge. */
 static const WalkInformation _center_se_nw[] = {
 	{ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
 
-/** Walk from SW edge to center NE edge. */
+/** Walk from SW edge to centre NE edge. */
 static const WalkInformation _center_sw_ne[] = {
 	{ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from SW edge to center SE edge. */
+/** Walk from SW edge to centre SE edge. */
 static const WalkInformation _center_sw_se[] = {
 	{ANIM_WALK_NE, WLM_MID_X}, {ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from SW edge back to center SW edge. */
+/** Walk from SW edge back to centre SW edge. */
 static const WalkInformation _center_sw_sw[] = {
 	{ANIM_WALK_NE, WLM_LOW_X},  {ANIM_WALK_NW, WLM_MID_Y}, {ANIM_WALK_SW, WLM_SW_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from SW edge to center NW edge. */
+/** Walk from SW edge to centre NW edge. */
 static const WalkInformation _center_sw_nw[] = {
 {ANIM_WALK_NE, WLM_MID_X},  {ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
 
-/** Walk from NW edge to center NE edge. */
+/** Walk from NW edge to centre NE edge. */
 static const WalkInformation _center_nw_ne[] = {
 	{ANIM_WALK_SE, WLM_MID_Y}, {ANIM_WALK_NE, WLM_NE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from NW edge to center SE edge. */
+/** Walk from NW edge to centre SE edge. */
 static const WalkInformation _center_nw_se[] = {
 	{ANIM_WALK_SE, WLM_SE_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from NW edge to center SW edge. */
+/** Walk from NW edge to centre SW edge. */
 static const WalkInformation _center_nw_sw[] = {
 	{ANIM_WALK_SE, WLM_MID_Y},  {ANIM_WALK_SW, WLM_SW_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
-/** Walk from NW edge back to center NW edge. */
+/** Walk from NW edge back to centre NW edge. */
 static const WalkInformation _center_nw_nw[] = {
 	{ANIM_WALK_SE, WLM_HIGH_Y}, {ANIM_WALK_NE, WLM_MID_X}, {ANIM_WALK_NW, WLM_NW_CENTER}, {ANIM_INVALID, WLM_INVALID}
 };
 
-/** Movement of one edge to another center edge of a path tile. */
+/** Movement of one edge to another centre edge of a path tile. */
 static const WalkInformation *_center_path_tile[4][4] = {
 	{_center_ne_ne, _center_ne_se, _center_ne_sw, _center_ne_nw},
 	{_center_se_ne, _center_se_se, _center_se_sw, _center_se_nw},
@@ -538,7 +538,7 @@ void Person::StartAnimation(const WalkInformation *walk)
 
 /**
  * Update the animation of the person.
- * @param delay Amount of milli seconds since the last update.
+ * @param delay Amount of milliseconds since the last update.
  * @return If \c false, de-activate the person.
  */
 AnimateResult Person::OnAnimate(int delay)

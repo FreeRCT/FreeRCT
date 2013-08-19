@@ -34,4 +34,3 @@ struct Scenario {
 extern Scenario _scenario;
 
 #endif
-

@@ -18,7 +18,7 @@
 
 /**
  * Overflow safe integer
- * you multiply the maximum value with 2, or add 2, or substract something from
+ * you multiply the maximum value with 2, or add 2, or subtract something from
  * the minimum value, etc.
  */
 class Money {
@@ -84,7 +84,7 @@ public:
 		return *this;
 	}
 
-	/* ### Operators for addition and substraction ### */
+	/* ### Operators for addition and subtraction ### */
 
 	/**
 	 * Addition operator.

@@ -34,7 +34,7 @@ enum RidePlacementResult {
 
 /**
  * Class interacting between #RideSelectGui, and the #Viewport mouse mode #MM_SHOP_PLACEMENT.
- * @todo (in the future) Other rides will handle construction from their own instance window, perhaps the shop should do that too?
+ * @todo [low] Other rides will handle construction from their own instance window, perhaps the shop should do that too?
  */
 class ShopPlacementManager : public MouseMode {
 public:
@@ -68,4 +68,3 @@ private:
 extern ShopPlacementManager _shop_placer;
 
 #endif
-

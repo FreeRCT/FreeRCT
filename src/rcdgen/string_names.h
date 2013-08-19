@@ -12,9 +12,9 @@
 #ifndef STRING_NAMES_H
 #define STRING_NAMES_H
 
-/** String names defined in the gui. */
+/** String names defined in the GUI. */
 static const char *_gui_string_names[] = {
-	/* Generic Gui strings. */
+	/* Generic GUI strings. */
 	"TITLEBAR_TIP",
 
 	"MONTH_JANUARY",
@@ -32,7 +32,7 @@ static const char *_gui_string_names[] = {
 
 	"NUMBERED_INSTANCE_NAME",
 
-	/* Toolbar gui strings. */
+	/* Toolbar GUI strings. */
 	"TOOLBAR_GUI_QUIT",
 	"TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM",
 	"TOOLBAR_GUI_PATHS",
@@ -71,7 +71,7 @@ static const char *_gui_string_names[] = {
 	"ITEM_UMBRELLA",
 	"ITEM_WRAPPER",
 
-	/* Path gui strings. */
+	/* Path GUI strings. */
 	"PATH_GUI_TITLE",
 	"PATH_GUI_LONG",
 	"PATH_GUI_BUY",

@@ -84,7 +84,7 @@ const char *DirectoryReader::NextFile()
 
 
 /**
- * Directory reader for a unix system.
+ * Directory reader for a Unix system.
  * @ingroup fileio_group
  */
 class UnixDirectoryReader : public DirectoryReader {
@@ -102,8 +102,8 @@ public:
 private:
 	DIR *dirfp;           ///< Directory stream if not \c NULL.
 	dirent *entry;        ///< Pointer to current directory entry (or \c NULL).
-	char dpath[MAX_PATH]; ///< Directorypath.
-	char fpath[MAX_PATH]; ///< Filepath returned by #NextEntry.
+	char dpath[MAX_PATH]; ///< Directory path.
+	char fpath[MAX_PATH]; ///< File path returned by #NextEntry.
 };
 
 UnixDirectoryReader::UnixDirectoryReader() : DirectoryReader()
@@ -171,9 +171,8 @@ DirectoryReader *MakeDirectoryReader()
 	return new UnixDirectoryReader();
 }
 
-
 /**
- * Rcd file constructor, loading data from a file.
+ * RCD file constructor, loading data from a file.
  * @param fname Name of the file to load.
  */
 RcdFile::RcdFile(const char *fname)

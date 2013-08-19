@@ -33,7 +33,7 @@ public:
 };
 
 /**
- * Widget numbers of the bottom toolbar Gui.
+ * Widget numbers of the bottom toolbar GUI.
  * @ingroup gui_group
  */
 enum ToolbarGuiWidgets {
@@ -46,7 +46,7 @@ static const uint32 BOTTOM_BAR_HEIGHT = 35;     ///< Minimum Y-coord size of the
 static const uint32 BOTTOM_BAR_POSITION_X = 75; ///< Separation of the toolbar from the edge of the window.
 
 /**
- * Widget parts of the bottom toolbar Gui.
+ * Widget parts of the bottom toolbar GUI.
  * @ingroup gui_group
  * @todo Left/Right Padding get ignored when drawing text widgets
  */

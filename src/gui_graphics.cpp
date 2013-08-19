@@ -93,7 +93,6 @@ void OverlayShaded(const Rectangle32 &rect)
 	_video->SetClippedRectangle(cr); // Restore clipped area.
 }
 
-
 /**
  * Draw a string to the screen.
  * @param strid String to draw.
@@ -225,4 +224,3 @@ bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_he
 	}
 	return true;
 }
-

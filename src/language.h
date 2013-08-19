@@ -37,7 +37,7 @@ enum StringTable {
 
 	STR_GUI_START, ///< Start of the GUI strings.
 
-	/* After the gui strings come the other registered strings. */
+	/* After the GUI strings come the other registered strings. */
 
 	STR_END_FREE_SPACE = 0xF800,
 	/**
@@ -89,7 +89,7 @@ public:
 		return (uint8 *)"<no-text>";
 	}
 
-	const char *name;                      ///< Name of the string.
+	const char *name;                       ///< Name of the string.
 	const uint8 *languages[LANGUAGE_COUNT]; ///< The string in all languages.
 };
 

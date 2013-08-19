@@ -58,7 +58,7 @@ static const WidgetPart _guest_info_gui_parts[] = {
 	EndContainer(),
 };
 
-/** Gui window for interacting with a guest. */
+/** GUI window for interacting with a guest. */
 class GuestInfoWindow : public GuiWindow {
 public:
 	GuestInfoWindow(const Guest *guest);

@@ -113,7 +113,6 @@ void CopyPersonList(PersonList &dest, const PersonList &src)
 	dest.last  = src.last;
 }
 
-
 /**
  * Guest block constructor. Fills the id of the persons with an incrementing number.
  * @param base_id Id number of the first person in this block.
@@ -140,7 +139,6 @@ void GuestBlock::AddAll(PersonList *pl)
 		i--;
 	}
 }
-
 
 /**
  * Check that the voxel stack at the given coordinate is a good spot to use as entry point for new guests.
@@ -195,7 +193,6 @@ static Point16 FindEdgeRoad()
 	pt.y = -1;
 	return pt;
 }
-
 
 Guests::Guests() : block(0), rnd()
 {
@@ -257,7 +254,7 @@ uint Guests::CountActiveGuests()
 
 /**
  * Some time has passed, update the animation.
- * @param delay Number of milli seconds time that have past since the last animation update.
+ * @param delay Number of milliseconds time that have past since the last animation update.
  */
 void Guests::OnAnimate(int delay)
 {
@@ -315,4 +312,3 @@ void Guests::OnNewDay()
 	Person *p = this->free.RemoveHead();
 	if (p != NULL) p->Activate(this->start_voxel, ptype);
 }
-

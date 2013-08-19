@@ -29,8 +29,8 @@ ClippedRectangle::ClippedRectangle()
 
 /**
  * Construct a clipped rectangle from coordinates.
- * @param x Topleft x position.
- * @param y Topleft y position.
+ * @param x Top-left x position.
+ * @param y Top-left y position.
  * @param w Width.
  * @param h Height.
  */
@@ -46,8 +46,8 @@ ClippedRectangle::ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h)
 /**
  * Construct a clipped rectangle inside an existing one.
  * @param cr Existing rectangle.
- * @param x Topleft x position.
- * @param y Topleft y position.
+ * @param x Top-left x position.
+ * @param y Top-left y position.
  * @param w Width.
  * @param h Height.
  * @note %Rectangle is clipped to the old one.
@@ -439,7 +439,7 @@ static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
 		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val,
 		const Recolouring &recolour)
 {
-	val = recolour.Recolour(val, 0); // No shift here
+	val = recolour.Recolour(val, 0); // No shift here.
 	const int32 xend = xmin + numx * width;
 	const int32 yend = ymin + numy * height;
 	while (ymin < yend) {

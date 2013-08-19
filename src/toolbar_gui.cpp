@@ -30,7 +30,7 @@ public:
 };
 
 /**
- * Widget numbers of the toolbar Gui.
+ * Widget numbers of the toolbar GUI.
  * @ingroup gui_group
  */
 enum ToolbarGuiWidgets {
@@ -44,7 +44,7 @@ enum ToolbarGuiWidgets {
 };
 
 /**
- * Widget parts of the toolbar Gui.
+ * Widget parts of the toolbar GUI.
  * @ingroup gui_group
  */
 static const WidgetPart _toolbar_widgets[] = {
@@ -86,11 +86,11 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 			break;
 
 		case TB_GUI_SAVE:
-			// XXX Implement me
+			/// \todo Implement saving.
 			break;
 
 		case TB_GUI_LOAD:
-			// XXX Implement me
+			/// \todo Implement loading.
 			break;
 
 		case TB_GUI_RIDE_SELECT:
@@ -135,7 +135,7 @@ enum QuitProgramWidgets {
 	QP_NO,      ///< 'no' button.
 };
 
-/** Window definition of the quit program gui. */
+/** Window definition of the quit program GUI. */
 static const WidgetPart _quit_program_widgets[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),

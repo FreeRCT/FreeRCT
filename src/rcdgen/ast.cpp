@@ -111,7 +111,7 @@ Expression::~Expression()
  * Unary expression.
  * @param pos %Position of the operator.
  * @param oper Unary operator. Only \c '-' is supported currently.
- * @param child Sub-exoression.
+ * @param child Sub-expression.
  */
 UnaryOperator::UnaryOperator(const Position &pos, int oper, ExpressionRef &child) : Expression(pos)
 {
@@ -224,7 +224,7 @@ ExpressionRef NumberLiteral::Evaluate(const Symbol *symbols) const
 /**
  * Constructor of a bitset expression node.
  * @param pos %Position that uses the 'bitset' node.
- * @param args Arguments of the bitsset node, may be \c NULL.
+ * @param args Arguments of the bitset node, may be \c NULL.
  */
 BitSet::BitSet(const Position &pos, ExpressionList *args) : Expression(pos)
 {
@@ -529,7 +529,7 @@ BaseNamedValue::~BaseNamedValue()
 }
 
 /**
- * \fn  void BaseNamedValue::HandleImports()
+ * \fn void BaseNamedValue::HandleImports()
  * Perform the import operation.
  */
 

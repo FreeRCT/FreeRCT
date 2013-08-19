@@ -191,9 +191,9 @@ public:
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 
-	int32 xview; ///< X position of the center point of the viewport.
-	int32 yview; ///< Y position of the center point of the viewport.
-	int32 zview; ///< Z position of the center point of the viewport.
+	int32 xview; ///< X position of the centre point of the viewport.
+	int32 yview; ///< Y position of the centre point of the viewport.
+	int32 zview; ///< Z position of the centre point of the viewport.
 
 	uint16 tile_width;           ///< Width of a tile.
 	uint16 tile_height;          ///< Height of a tile.

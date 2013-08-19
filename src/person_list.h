@@ -34,4 +34,3 @@ public:
 void CopyPersonList(PersonList &dest, const PersonList &src);
 
 #endif
-

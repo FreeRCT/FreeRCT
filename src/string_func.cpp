@@ -130,4 +130,3 @@ bool StrEndsWith(const char *str, const char *end, bool case_sensitive)
 	}
 	return true;
 }
-

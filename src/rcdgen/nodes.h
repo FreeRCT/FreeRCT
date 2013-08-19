@@ -472,7 +472,7 @@ public:
 	int GetSize() const;
 	void Write(FileBlock *fb) const;
 
-	std::string name;                     ///< Name of the textnode (used as key).
+	std::string name;                     ///< Name of the text node (used as key).
 	mutable std::string texts[LNG_COUNT]; ///< Text of the text node, in each language.
 	mutable Position pos[LNG_COUNT];      ///< Positions defining the text (negative lines means undefined).
 };
@@ -667,7 +667,7 @@ public:
 	SpriteBlock *maxi_button;     ///< Maximise button.
 	SpriteBlock *mini_button;     ///< Minimise button.
 	SpriteBlock *terraform_dot;   ///< Terraform dot.
-	Strings *gui_text;            ///< Text of the guis (reference to a TEXT block).
+	Strings *gui_text;            ///< Text of the GUIs (reference to a TEXT block).
 };
 
 /** Class for storing the data of a single voxel in a track piece. */
@@ -756,4 +756,3 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 void GenerateStringsCodeFile(const char *prefix, const char *base, const char *code);
 
 #endif
-

@@ -323,7 +323,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 {
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return 0;
-	if (zpos >= WORLD_Z_SIZE - 1) return 0; // the voxel containing the flat path, and one above it.
+	if (zpos >= WORLD_Z_SIZE - 1) return 0; // The voxel containing the flat path, and one above it.
 
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
 	if (v == NULL) return 0;
@@ -437,7 +437,7 @@ void PathBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 
 /**
  * Set the state of the path build GUI.
- * @param opened If \c true the path gui just opened, else it closed.
+ * @param opened If \c true the path GUI just opened, else it closed.
  */
 void PathBuildManager::SetPathGuiState(bool opened)
 {
@@ -706,7 +706,7 @@ void PathBuildManager::UpdateState()
 }
 
 /**
- * Can the user press the 'remove' button at the path gui?
+ * Can the user press the 'remove' button at the path GUI?
  * @return Button is enabled.
  */
 bool PathBuildManager::GetRemoveIsEnabled() const
@@ -922,4 +922,3 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		this->UpdateState();
 	}
 }
-

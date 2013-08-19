@@ -122,7 +122,7 @@ CoasterInstance::~CoasterInstance()
  */
 bool CoasterInstance::IsAccessible()
 {
-	return false; // XXX Extend after being able to build coaster pieces.
+	return false; /// \todo Extend after being able to build coaster pieces.
 }
 
 /* virtual */ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
@@ -131,10 +131,10 @@ bool CoasterInstance::IsAccessible()
 	assert(voxel_number < ct->voxel_count);
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
-	sprites[0] = NULL; // SO_PLATFORM_BACK // XXX If platform flag, add coaster platforms.
+	sprites[0] = NULL; // SO_PLATFORM_BACK /// \todo If platform flag, add coaster platforms.
 	sprites[1] = tv->back[orient]; // SO_RIDE
 	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
-	sprites[3] = NULL; // SO_PLATFORM_FRONT // XXX If platform flag, add coaster platforms.
+	sprites[3] = NULL; // SO_PLATFORM_FRONT /// \todo If platform flag, add coaster platforms.
 }
 
 /**

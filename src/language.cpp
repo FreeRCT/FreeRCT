@@ -19,7 +19,7 @@
 #include "dates.h"
 #include "money.h"
 
-assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many gui strings.
+assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many GUI strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
 
 Language _language; ///< Language strings.
@@ -185,7 +185,7 @@ void Language::Clear()
 }
 
 /**
- * Register loaded strings of rides etc with the language system.
+ * Register loaded strings of rides etc. with the language system.
  * @param td Text data wrapper containing the loaded strings.
  * @param names Array of names to register.
  * @param base Base address of the strings.
@@ -275,7 +275,7 @@ static uint8 *CopyString(uint8 *dest, const uint8 *last, const uint8 *src)
 }
 
 /**
- * Converts a double value into a utf8 string with the appropriate separators.
+ * Converts a double value into a utf-8 string with the appropriate separators.
  * @param dest a provided buffer to write the output into.
  * @param size the size of the provided buffer.
  * @param amt the double value to be converted.

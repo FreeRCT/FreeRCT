@@ -342,4 +342,3 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 	}
 	return slope;
 }
-

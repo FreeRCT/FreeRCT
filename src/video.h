@@ -44,7 +44,7 @@ public:
 /** How to align text during drawing. */
 enum Alignment {
 	ALG_LEFT,   ///< Align to the left edge.
-	ALG_CENTER, ///< Center the text.
+	ALG_CENTER, ///< Centre the text.
 	ALG_RIGHT,  ///< Align to the right edge.
 };
 

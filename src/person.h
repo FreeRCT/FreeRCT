@@ -23,7 +23,7 @@ class RideInstance;
  *
  * There are four limits in X direction (NE of tile, low x limit, high x limit, and SW of tile),
  * and four limits in Y direction (NW of tile, low y limit, high y limit, and SE of tile). Low and
- * high is created by means of a random offset from the center, to prevent all guests from walking
+ * high is created by means of a random offset from the centre, to prevent all guests from walking
  * at a single line.
  *
  * Since you can walk the tile in two directions (incrementing x/y or decrementing x/y), the middle
@@ -32,7 +32,7 @@ class RideInstance;
 enum WalkLimit {
 	WLM_MINIMAL = 0, ///< Continue until reached minimal value.
 	WLM_LOW     = 1, ///< Continue until reached low value.
-	WLM_CENTER  = 2, ///< Continue until reached center value.
+	WLM_CENTER  = 2, ///< Continue until reached centre value.
 	WLM_HIGH    = 3, ///< Continue until reached high value.
 	WLM_MAXIMAL = 4, ///< Continue until reached maximal value.
 	WLM_INVALID = 7, ///< Invalid limit.
@@ -48,20 +48,20 @@ enum WalkLimit {
 
 	WLM_NE_EDGE = WLM_MINIMAL | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until the north-east edge.
 	WLM_LOW_X   = WLM_LOW     | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until we at the low x limit of the tile.
-	WLM_MID_X   = WLM_CENTER  | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until we at the center x limit of the tile.
+	WLM_MID_X   = WLM_CENTER  | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until we at the centre x limit of the tile.
 	WLM_HIGH_X  = WLM_HIGH    | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until we at the high x limit of the tile.
 	WLM_SW_EDGE = WLM_MAXIMAL | (WLM_INVALID << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge.
 
 	WLM_NW_EDGE = WLM_INVALID | (WLM_MINIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the north-west edge.
 	WLM_LOW_Y   = WLM_INVALID | (WLM_LOW     << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the low y limit of the tile.
-	WLM_MID_Y   = WLM_INVALID | (WLM_CENTER  << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the center y limit of the tile.
+	WLM_MID_Y   = WLM_INVALID | (WLM_CENTER  << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the centre y limit of the tile.
 	WLM_HIGH_Y  = WLM_INVALID | (WLM_HIGH    << WLM_Y_START) | WLM_Y_COND, ///< Continue until we at the high y limit of the tile.
 	WLM_SE_EDGE = WLM_INVALID | (WLM_MAXIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the south-east edge.
 
-	WLM_NE_CENTER = WLM_MINIMAL | (WLM_CENTER  << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge (center).
-	WLM_SE_CENTER = WLM_CENTER  | (WLM_MAXIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the south-east edge (center).
-	WLM_SW_CENTER = WLM_MAXIMAL | (WLM_CENTER  << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge (center).
-	WLM_NW_CENTER = WLM_CENTER  | (WLM_MINIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the north-west edge (center).
+	WLM_NE_CENTER = WLM_MINIMAL | (WLM_CENTER  << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge (centre).
+	WLM_SE_CENTER = WLM_CENTER  | (WLM_MAXIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the south-east edge (centre).
+	WLM_SW_CENTER = WLM_MAXIMAL | (WLM_CENTER  << WLM_Y_START) | WLM_X_COND, ///< Continue until the south-west edge (centre).
+	WLM_NW_CENTER = WLM_CENTER  | (WLM_MINIMAL << WLM_Y_START) | WLM_Y_COND, ///< Continue until the north-west edge (centre).
 };
 
 /** Walk animation to use to walk a part of the tile. */
@@ -72,7 +72,7 @@ struct WalkInformation {
 
 /** Exit codes of the Person::OnAnimate call. */
 enum AnimateResult {
-	OAR_OK,         ///< All ok, keep running.
+	OAR_OK,         ///< All OK, keep running.
 	OAR_REMOVE,     ///< Remove person from the person-list, and de-activate.
 	OAR_DEACTIVATE, ///< Person is already removed from the person-list, only de-activate.
 };
@@ -117,7 +117,7 @@ public:
 	int16 x_pos;  ///< X position of the person inside the voxel (0..255).
 	int16 y_pos;  ///< Y position of the person inside the voxel (0..255).
 	int16 z_pos;  ///< Z position of the person inside the voxel (0..255).
-	int16 offset; ///< Offset with respect to center of paths walked on (0..100).
+	int16 offset; ///< Offset with respect to centre of paths walked on (0..100).
 
 	const WalkInformation *walk;  ///< Walk animation sequence being performed.
 	const AnimationFrame *frames; ///< Animation frames of the current animation.

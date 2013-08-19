@@ -216,7 +216,7 @@ public:
 
 /** One frame in an animation. */
 struct AnimationFrame {
-	uint16 duration;      ///< Length of this frame in milli seconds.
+	uint16 duration;      ///< Length of this frame in milliseconds.
 	int16 dx;             ///< Person movement in X direction after displaying this frame.
 	int16 dy;             ///< Person movement in Y direction after displaying this frame.
 };
@@ -275,13 +275,13 @@ typedef std::multimap<AnimationType, AnimationSprites *> AnimationSpritesMap; //
  */
 enum WidgetBorderSprites {
 	WBS_TOP_LEFT,      ///< Top left corner.
-	WBS_TOP_MIDDLE,    ///< Top center edge.
+	WBS_TOP_MIDDLE,    ///< Top centre edge.
 	WBS_TOP_RIGHT,     ///< Top right corner.
 	WBS_MIDDLE_LEFT,   ///< Left edge.
-	WBS_MIDDLE_MIDDLE, ///< Center sprite.
+	WBS_MIDDLE_MIDDLE, ///< Centre sprite.
 	WBS_MIDDLE_RIGHT,  ///< Right edge.
 	WBS_BOTTOM_LEFT,   ///< Bottom left corner.
-	WBS_BOTTOM_MIDDLE, ///< Bottom center edge.
+	WBS_BOTTOM_MIDDLE, ///< Bottom centre edge.
 	WBS_BOTTOM_RIGHT,  ///< Bottom right corner.
 
 	WBS_COUNT,         ///< Number of sprites of a border.
@@ -466,7 +466,7 @@ struct GuiSprites {
 	ImageData *close_sprite;                ///< Close window button.
 	ImageData *dot_sprite;                  ///< 'Dot' in the terraform window, represents an area of (0, 0) tiles.
 
-	TextData *text;                         ///< Texts of the gui.
+	TextData *text;                         ///< Texts of the GUI.
 };
 
 
@@ -619,7 +619,7 @@ public:
 protected:
 	const char *Load(const char *fname);
 
-	RcdBlock *blocks;         ///< List of loaded Rcd data blocks.
+	RcdBlock *blocks;         ///< List of loaded RCD data blocks.
 
 	SpriteStorage store;      ///< Sprite storage of size 64.
 	AnimationsMap animations; ///< Available animations.

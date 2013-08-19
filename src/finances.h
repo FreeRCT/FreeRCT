@@ -17,7 +17,6 @@
 
 static const int NUM_FINANCE_HISTORY = 4; ///< Number of finance objects to keep for history.
 
-
 /**
  * Tracking monthly finances.
  * @ingroup finances_group
@@ -199,4 +198,3 @@ public:
 extern FinancesManager _finances_manager;
 
 #endif
-

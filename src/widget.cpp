@@ -380,7 +380,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 /**
  * Draw a #DataWidget.
  * @param w Window that the widget belongs to.
- * @todo Fix the hardcoded colour of the text.
+ * @todo Fix the hard-coded colour of the text.
  */
 /* virtual */ void DataWidget::Draw(const GuiWindow *w)
 {
@@ -535,7 +535,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 }
 
 /**
- * Baseclass background widget constructor.
+ * Base class background widget constructor.
  * @param wtype %Widget type.
  */
 BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype)
@@ -672,7 +672,7 @@ IntermediateWidget::IntermediateWidget(uint8 num_rows, uint8 num_cols) : BaseWid
 }
 
 /**
- * Claim memory for childs 'manually'.
+ * Claim memory for child widgets 'manually'.
  * @pre Memory must not have been claimed, and #num_cols and #num_rows must be bigger than \c 0.
  */
 void IntermediateWidget::ClaimMemory()
@@ -828,7 +828,8 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
 			child_tmp_minsize[y] = bw->min_x;
 		}
-		/*  Try to find a consistent minimal horizontal size for all children. Due to a fill size > 1, this may be
+		/*
+		 * Try to find a consistent minimal horizontal size for all children. Due to a fill size > 1, this may be
 		 * bigger than the current minimal horizontal size.
 		 */
 		uint16 cur_minsize = this->columns[x].min_size; // the target we are aiming for currently.
@@ -1148,8 +1149,8 @@ WidgetPart SetData(uint16 value, uint16 tip)
 
 /**
  * Define equal size of child widgets for intermediate widgets (in both directions).
- * @param hor_equal Try to keep all childs equally wide.
- * @param vert_equal Try to keep all child equally high.
+ * @param hor_equal Try to keep all child widgets equally wide.
+ * @param vert_equal Try to keep all child widgets equally high.
  * @return Widget part containing the provided data for storage in an array.
  * @ingroup widget_parts_group
  */

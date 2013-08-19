@@ -23,9 +23,9 @@
 ShopPlacementManager _shop_placer; ///< Coordination object for placing a shop.
 
 /**
- * Gui for selecting a ride to build.
+ * GUI for selecting a ride to build.
  * @ingroup gui_group
- * XXX Unify widget number parameters.
+ * @todo Unify widget number parameters.
  */
 class RideSelectGui : public GuiWindow {
 public:
@@ -183,7 +183,7 @@ RideSelectGui::~RideSelectGui()
 	switch (wid_num) {
 		case RSEL_LIST: {
 			Point32 rect;
-			int lines = wid->pos.height / GetTextHeight(); // TODO Implement scrollbar position & size.
+			int lines = wid->pos.height / GetTextHeight(); /// \todo Implement scrollbar position & size.
 			rect.x = this->GetWidgetScreenX(wid);
 			rect.y = this->GetWidgetScreenY(wid);
 			for (int i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
@@ -215,7 +215,7 @@ RideSelectGui::~RideSelectGui()
 				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
 				/* Display the selected shop in the ride select window. */
 				if (ride_type != NULL && ride_type->kind == RTK_SHOP) {
-					static const Recolouring recolour; // Never modified, display 'original' image in the gui.
+					static const Recolouring recolour; // Never modified, display 'original' image in the GUI.
 					_video->BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
 							this->GetWidgetScreenY(wid) + 40, ride_type->GetView(_shop_placer.orientation),
 							recolour, 0);
@@ -320,7 +320,7 @@ bool RideSelectGui::SetNewRide(int16 newKind, bool force)
 		case RTK_WET:
 		case RTK_COASTER:
 			_shop_placer.SetSelection(-1); // De-select a shop.
-			/* Widget should behave as a mon-stable button if not selecting a shop. */
+			/* Widget should behave as a mono-stable button if not selecting a shop. */
 			this->SetWidgetPressed(RSEL_SELECT, false);
 			break;
 
@@ -332,7 +332,7 @@ bool RideSelectGui::SetNewRide(int16 newKind, bool force)
 
 
 /**
- * Open the ride selection gui.
+ * Open the ride selection GUI.
  * @ingroup gui_group
  */
 void ShowRideSelectGui()
@@ -463,7 +463,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			_additions.MarkDirty(vp);
 			_additions.Clear();
 
-			// XXX Let the shop do this.
+			/// \todo Let the shop do this.
 			ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
 			assert(si != NULL && si->GetKind() == RTK_SHOP);
 			Voxel *vx = _additions.GetCreateVoxel(si->xpos, si->ypos, si->zpos, true);
@@ -621,7 +621,7 @@ bool ShopPlacementManager::SetSelection(int ride_type)
 			}
 			_rides_manager.CreateInstance(rt, this->instance);
 
-			/* Depress button (Already done) */
+			/* Depress button (Already done). */
 
 			_mouse_modes.SetMouseMode(this->mode);
 			/* Fall through to the shop placement. */

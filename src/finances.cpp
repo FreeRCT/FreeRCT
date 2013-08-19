@@ -52,7 +52,7 @@ void Finances::Reset()
 
 /**
  * Total the categories.
- * @return Total amount of transfered money.
+ * @return Total amount of transferred money.
  */
 Money Finances::GetTotal() const
 {

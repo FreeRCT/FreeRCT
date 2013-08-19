@@ -14,7 +14,7 @@
  */
 
 /**
- * @defgroup gui_sprites_group Gui sprites and sprite handling
+ * @defgroup gui_sprites_group GUI sprites and sprite handling
  * @ingroup sprites_group
  */
 
@@ -28,7 +28,7 @@
 #include "table/gui_sprites.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
-GuiSprites _gui_sprites; ///< Gui sprites.
+GuiSprites _gui_sprites; ///< GUI sprites.
 
 const uint32 ImageData::INVALID_JUMP = 0xFFFFFFFF; ///< Invalid jump destination in image data.
 
@@ -164,7 +164,7 @@ bool ImageData::Load(RcdFile *rcd_file, size_t length)
  * Return the pixel-value of the provided position.
  * @param xoffset Horizontal offset in the sprite.
  * @param yoffset Vertical offset in the sprite.
- * @return Pixel value at the given postion, or \c 0 if transparent.
+ * @return Pixel value at the given position, or \c 0 if transparent.
  */
 uint8 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 {
@@ -845,7 +845,7 @@ bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	if (length != 2 + 8*1 + WBS_COUNT * 4) return false;
 
 	/* Select sprites to save to. */
-	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	uint16 tp = rcd_file->GetUInt16(); // Widget type.
 	BorderSpriteData *sprdata = NULL;
 	bool pressed = false;
 	switch (tp) {
@@ -901,7 +901,7 @@ bool CheckableWidgetSpriteData::IsLoaded() const
 }
 
 /**
- * Load checkbox and radio button gui sprites.
+ * Load checkbox and radio button GUI sprites.
  * @param rcd_file RCD file being loaded.
  * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
@@ -913,7 +913,7 @@ bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	if (length != 2 + WCS_COUNT * 4) return false;
 
 	/* Select sprites to save to. */
-	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	uint16 tp = rcd_file->GetUInt16(); // Widget type.
 	CheckableWidgetSpriteData *sprdata = NULL;
 	switch (tp) {
 		case 96:  sprdata = &this->checkbox; break;
@@ -976,7 +976,7 @@ bool GuiSprites::LoadGSLI(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	uint8 height = rcd_file->GetUInt8();
 
 	/* Select sprites to save to. */
-	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	uint16 tp = rcd_file->GetUInt16(); // Widget type.
 	SliderSpriteData *sprdata = NULL;
 	bool shaded = false;
 	switch (tp) {
@@ -1045,7 +1045,7 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	uint8 stepsize_slider = rcd_file->GetUInt8();
 
 	/* Select sprites to save to. */
-	uint16 tp = rcd_file->GetUInt16(); // Widget type
+	uint16 tp = rcd_file->GetUInt16(); // Widget type.
 	ScrollbarSpriteData *sprdata = NULL;
 	bool shaded = false;
 	bool vertical = false;
@@ -1086,7 +1086,7 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &spri
 }
 
 /**
- * Load Gui slope selection sprites.
+ * Load GUI slope selection sprites.
  * @param rcd_file RCD file being loaded.
  * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
@@ -1136,7 +1136,7 @@ GuiSprites::GuiSprites()
 	this->Clear();
 }
 
-/** Clear all Gui sprite data. */
+/** Clear all GUI sprite data. */
 void GuiSprites::Clear()
 {
 	this->titlebar.Clear();
@@ -1497,35 +1497,35 @@ const char *SpriteManager::Load(const char *filename)
 
 		if (strcmp(name, "GCHK") == 0 && version == 1) {
 			if (!_gui_sprites.LoadGCHK(&rcd_file, length, sprites)) {
-				return "Loading Checkable Gui sprites failed.";
+				return "Loading Checkable GUI sprites failed.";
 			}
 			continue;
 		}
 
 		if (strcmp(name, "GBOR") == 0 && version == 1) {
 			if (!_gui_sprites.LoadGBOR(&rcd_file, length, sprites)) {
-				return "Loading Border Gui sprites failed.";
+				return "Loading Border GUI sprites failed.";
 			}
 			continue;
 		}
 
 		if (strcmp(name, "GSLI") == 0 && version == 1) {
 			if (!_gui_sprites.LoadGSLI(&rcd_file, length, sprites)) {
-				return "Loading Slider bar Gui sprites failed.";
+				return "Loading Slider bar GUI sprites failed.";
 			}
 			continue;
 		}
 
 		if (strcmp(name, "GSCL") == 0 && version == 1) {
 			if (!_gui_sprites.LoadGSCL(&rcd_file, length, sprites)) {
-				return "Loading Scrollbar Gui sprites failed.";
+				return "Loading Scrollbar GUI sprites failed.";
 			}
 			continue;
 		}
 
 		if (strcmp(name, "GSLP") == 0 && version == 6) {
 			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites, texts)) {
-				return "Loading slope selection Gui sprites failed.";
+				return "Loading slope selection GUI sprites failed.";
 			}
 			continue;
 		}
@@ -1785,4 +1785,3 @@ const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType
 	}
 	return NULL;
 }
-

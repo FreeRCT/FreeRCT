@@ -17,7 +17,7 @@
  * Intended use:
  * - After creation (with the #MakeDirectoryReader function), call #OpenPath to open the directory.
  * - A new entry of the directory is returned with every call to #NextEntry.
- * - At the end, call #ClosePath to allow the object to cleanup, and get ready for a next use.
+ * - At the end, call #ClosePath to allow the object to clean up, and get ready for a next use.
  * @ingroup fileio_group
  */
 class DirectoryReader {
@@ -62,7 +62,6 @@ private:
 	size_t file_pos;  ///< Position in the opened file.
 	size_t file_size; ///< Size of the opened file.
 };
-
 
 DirectoryReader *MakeDirectoryReader();
 

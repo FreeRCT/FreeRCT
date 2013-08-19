@@ -77,4 +77,3 @@ static inline bool PersonIsAGuest(uint8 type)
 bool LoadPRSG(RcdFile *rcd_file, uint32 length);
 
 #endif
-

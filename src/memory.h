@@ -42,7 +42,7 @@ inline void MemCpy(T *dest, const T *src, size_t count)
 }
 
 /**
- * Type-safe version of memset().
+ * Type-safe version of memset.
  *
  * @param ptr Pointer to the destination buffer
  * @param value Value to be set

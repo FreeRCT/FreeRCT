@@ -1243,4 +1243,3 @@ BitMask::BitMask() : BlockNode()
 BitMask::~BitMask()
 {
 }
-

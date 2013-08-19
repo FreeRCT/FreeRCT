@@ -36,12 +36,12 @@
  * The world is stored in #_world, implemented in the #VoxelWorld. It is a 2D grid of #VoxelStack, one for each x/y position.
  * A #VoxelStack is quite literally a stack of #Voxel structures, the elementary grid element.
  * Each voxel has
- * - Optional ground (surface). #GroundType defines the ground type (query with #Voxel::GetGroundType). If it is valid (ie different
+ * - Optional ground (surface). #GroundType defines the ground type (query with #Voxel::GetGroundType). If it is valid (i.e. different
  *   than #GTP_INVALID), #Voxel::GetGroundSlope contains the imploded slope.
  * - Optional foundations (vertical wall). #FoundationType (query with #Voxel::GetFoundationType) defines which type of
  *   foundation is built. If it is not #FDT_INVALID, the actual foundations can be obtained with #Voxel::GetFoundationSlope.
  * - Ride instance data (#SmallRideInstance). It points to the ride that uses the voxel.
- * - Voxel information for the ride (eg sprite numbers, but it can mean anything).
+ * - Voxel information for the ride (e.g. sprite numbers, but it can mean anything).
  *
  * The ride instance is mostly one of
  * - #SRI_FREE, denoting this voxel is free for use.
@@ -61,7 +61,7 @@
  * \page world_additions_page World additions
  *
  * The #_world (described in \ref the_world_page) contains the 'current' world. The game allows changing of the world
- * (building rides, terraforming, removing shops, etc) while the game runs. To keep both separate, and make it easy to
+ * (building rides, terraforming, removing shops, etc.) while the game runs. To keep both separate, and make it easy to
  * revert changes when the user changes his mind, changes are not stored in the world itself, but in #_additions
  * (implemented in #WorldAdditions). It is a layer on top of #_world that can be toggled on and off
  * (#EnableWorldAdditions and #DisableWorldAdditions do that).
@@ -184,9 +184,9 @@ public:
 		return ComputeYFunction(x, y, z, this->orient, this->tile_width, this->tile_height);
 	}
 
-	int32 xview; ///< X position of the center point of the display.
-	int32 yview; ///< Y position of the center point of the display.
-	int32 zview; ///< Z position of the center point of the display.
+	int32 xview; ///< X position of the centre point of the display.
+	int32 yview; ///< Y position of the centre point of the display.
+	int32 zview; ///< Z position of the centre point of the display.
 
 	uint16 tile_width;            ///< Width of a tile.
 	uint16 tile_height;           ///< Height of a tile.
@@ -304,7 +304,7 @@ protected:
 /**
  * Base class constructor.
  * @param vp %Viewport querying the voxel information.
- * @param draw_above_stack Also vist the cursors above a voxel stack.
+ * @param draw_above_stack Also visit the cursors above a voxel stack.
  * @todo Can we remove some variables, as \a vp is stored now as well?
  */
 VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
@@ -1026,7 +1026,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 	const Person *pers = voxel->persons.first;
 	while (pers != NULL) {
-		// XXX Check that the person is actually in this voxel.
+		/// \todo Check that the person is actually in this voxel.
 
 		AnimationType anim_type = pers->walk->anim_type;
 		const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
@@ -1386,10 +1386,10 @@ void Viewport::Rotate(int direction)
 }
 
 /**
- * Compute the horizontal translation in world coordinates of the viewing center to move it \a dx / \a dy pixels.
+ * Compute the horizontal translation in world coordinates of the viewing centre to move it \a dx / \a dy pixels.
  * @param dx Horizontal shift in screen pixels.
  * @param dy Vertical shift in screen pixels.
- * @return New X and Y coordinates of the center point.
+ * @return New X and Y coordinates of the centre point.
  */
 Point32 Viewport::ComputeHorizontalTranslation(int dx, int dy)
 {

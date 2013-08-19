@@ -20,7 +20,7 @@ class Viewport;
 
 /** Possible states of the path building process. */
 enum PathBuildState {
-	PBS_IDLE,       ///< Waiting for the path-gui to be opened.
+	PBS_IDLE,       ///< Waiting for the path GUI to be opened.
 	PBS_WAIT_VOXEL, ///< Wait for a voxel to be selected.
 	PBS_WAIT_ARROW, ///< Wait for an arrow direction to be selected.
 	PBS_WAIT_SLOPE, ///< Wait for a slope to be selected.
@@ -129,7 +129,7 @@ inline TrackSlope PathBuildManager::GetSelectedSlope() const
 }
 
 /**
- * Can the user press the 'buy' button at the path gui?
+ * Can the user press the 'buy' button at the path GUI?
  * @return Button is enabled.
  */
 inline bool PathBuildManager::GetBuyIsEnabled() const
@@ -138,7 +138,7 @@ inline bool PathBuildManager::GetBuyIsEnabled() const
 }
 
 /**
- * Can the user press the 'forward' button at the path gui?
+ * Can the user press the 'forward' button at the path GUI?
  * @return Button is enabled.
  */
 inline bool PathBuildManager::GetForwardIsEnabled() const
@@ -147,7 +147,7 @@ inline bool PathBuildManager::GetForwardIsEnabled() const
 }
 
 /**
- * Can the user press the 'back' button at the path gui?
+ * Can the user press the 'back' button at the path GUI?
  * @return Button is enabled.
  */
 inline bool PathBuildManager::GetBackwardIsEnabled() const

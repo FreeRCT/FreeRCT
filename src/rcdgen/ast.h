@@ -32,7 +32,7 @@ public:
 	int line;             ///< Number of the line referred to.
 };
 
-/** A Symbol in a 'symboltable'. */
+/** A Symbol in a 'symbol table'. */
 struct Symbol {
 	const char *name; ///< Name of the symbol.
 	int value;        ///< Value of the symbol.
@@ -183,7 +183,7 @@ public:
 	std::list<IdentifierLine *> identifiers; ///< Identifiers in this row.
 };
 
-/** a 2D table of identifiers. */
+/** A 2D table of identifiers. */
 class NameTable : public Name {
 public:
 	NameTable();
@@ -286,4 +286,3 @@ public:
 NamedValueList *LoadFile(const char *filename, int line = 0);
 
 #endif
-

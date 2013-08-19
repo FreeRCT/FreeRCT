@@ -43,7 +43,7 @@ Recolouring &Recolouring::operator=(const Recolouring &rc)
 }
 
 /**
- * Setup recolouring of a range.
+ * Set up recolouring of a range.
  * @param orig Colour range to recolour.
  * @param dest Colour range to recolour to.
  */
@@ -394,4 +394,3 @@ const uint8 _palette[256][3] = {
 	{   0,   0,   0}, //  254
 	{   0,   0,   0}, //  255
 };
-

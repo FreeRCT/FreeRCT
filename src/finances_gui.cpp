@@ -19,7 +19,7 @@
 #include "table/gui_sprites.h"
 
 /**
-  * Gui for viewing and managing financial information.
+  * GUI for viewing and managing financial information.
   * @ingroup gui_group
   */
 class FinancesGui : public GuiWindow {
@@ -29,7 +29,7 @@ public:
 };
 
 /**
-  * Widget numbers of the finances gui.
+  * Widget numbers of the finances GUI.
   * @ingroup gui_group
   */
 enum FinancesWidgets {
@@ -127,4 +127,3 @@ void ShowFinancesGui()
 	if (HighlightWindowByType(WC_FINANCES, ALL_WINDOWS_OF_TYPE)) return;
 	new FinancesGui;
 }
-

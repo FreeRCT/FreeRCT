@@ -13,7 +13,7 @@
 #include "viewport.h"
 #include "select_mode.h"
 
-SelectMouseMode _select_mousemode; ///< Mose select mode coordinator.
+SelectMouseMode _select_mousemode; ///< Mouse select mode coordinator.
 
 
 SelectMouseMode::SelectMouseMode() : MouseMode(WC_NONE, MM_OBJECT_SELECT)

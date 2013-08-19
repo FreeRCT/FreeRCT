@@ -16,10 +16,10 @@
 #include "sprite_store.h"
 #include "table/gui_sprites.h"
 
-static const int TERRAFORM_MAX_SIZE = 9;      ///< Max length of tiles for terraforming (both X and Y).
+static const int TERRAFORM_MAX_SIZE = 9;      ///< Maximum length of tiles for terraforming (both X and Y).
 static const int TERRAFORM_ELEMENT_SIZE = 16; ///< Horizontal size of a tile in the display (pixels).
 
-/** Gui for setting properties for terraforming. */
+/** GUI for setting properties for terraforming. */
 class TerraformGui : public GuiWindow {
 public:
 	TerraformGui();
@@ -33,13 +33,13 @@ public:
 	int ysize;  ///< Size of the terraform area in vertical direction.
 
 private:
-	void SetLeveling(bool level);
+	void Setlevelling(bool level);
 	void SetSize(int xs = -1, int ys = -1);
 	void IncreaseSize();
 	void DecreaseSize();
 };
 
-/** Widget numbers of the terraform gui. */
+/** Widget numbers of the terraform GUI. */
 enum TerraformWidgets {
 	TERR_DISPLAY, ///< Widget displaying the current terraform size.
 	TERR_ADD,     ///< 'Increase' button.
@@ -75,7 +75,7 @@ static const WidgetPart _terraform_gui_parts[] = {
 TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
-	this->SetLeveling(true);
+	this->Setlevelling(true);
 	this->SetSize(1, 1);
 
 	_terraformer.OpenWindow();
@@ -143,11 +143,11 @@ TerraformGui::~TerraformGui()
 			break;
 
 		case TERR_LEVEL:
-			if (!this->level) this->SetLeveling(true);
+			if (!this->level) this->Setlevelling(true);
 			break;
 
 		case TERR_MOVE:
-			if (this->level) this->SetLeveling(false);
+			if (this->level) this->Setlevelling(false);
 			break;
 
 		default:
@@ -157,11 +157,11 @@ TerraformGui::~TerraformGui()
 
 /**
  * Set mode of terraforming:
- * - 'leveling': Lowest part up, or highest part up.
- * - 'moving':   Move entire area up or down.
- * @param level If \c true, set leveling mode, else set moving mode.
+ * - 'levelling': Lowest part up, or highest part up.
+ * - 'moving':    Move entire area up or down.
+ * @param level If \c true, set levelling mode, else set moving mode.
  */
-void TerraformGui::SetLeveling(bool level)
+void TerraformGui::Setlevelling(bool level)
 {
 	this->level = level;
 	this->SetWidgetChecked(TERR_LEVEL, this->level);
@@ -171,7 +171,7 @@ void TerraformGui::SetLeveling(bool level)
 	this->MarkWidgetDirty(TERR_LEVEL);
 	this->MarkWidgetDirty(TERR_MOVE);
 
-	_terraformer.SetLeveling(level);
+	_terraformer.Setlevelling(level);
 }
 
 /**

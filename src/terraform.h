@@ -46,7 +46,7 @@ public:
 	TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize);
 	~TerrainChanges();
 
-	void UpdateLevelingHeight(const Point32 &pos, int direction, uint8 *height);
+	void UpdatelevellingHeight(const Point32 &pos, int direction, uint8 *height);
 	bool ChangeVoxel(const Point32 &pos, uint8 height, int direction);
 	bool ChangeCorner(const Point32 &pos, TileCorner corner, int direction);
 	bool ModifyWorld(int direction);
@@ -75,8 +75,8 @@ enum TerraformerState {
  * It has two modes, a non-zero size, meaning terraforming is limited to that area, or a zero-size (aka 'dot mode'),
  * which means 'unlimited' (the entire world may get changed, if money (and world contents) permits.
  *
- * The \c true 'leveling' setting means that the lowest parts are raised or the highest parts are lowered.
- * A \c false 'leveling' value means that the entire area is moved up or down.
+ * The \c true 'levelling' setting means that the lowest parts are raised or the highest parts are lowered.
+ * A \c false 'levelling' value means that the entire area is moved up or down.
  */
 class TileTerraformMouseMode: public MouseMode {
 public:
@@ -84,14 +84,14 @@ public:
 	uint8 mouse_state; ///< Last known state of the mouse.
 	uint8 xsize;       ///< Horizontal size of the terraform area. May be \c 0, which means 'dot'.
 	uint8 ysize;       ///< Vertical size of the terraform area. May be \c 0, which means 'dot'.
-	bool leveling;     ///< For non-zero areas, \c true means 'level the area', and \c false means 'keep area as-is'.
+	bool levelling;    ///< For non-zero areas, \c true means 'level the area', and \c false means 'keep area as-is'.
 
 	TileTerraformMouseMode();
 
 	void OpenWindow();
 	void CloseWindow();
 	void SetSize(int xsize, int ysize);
-	void SetLeveling(bool level);
+	void Setlevelling(bool level);
 
 	void SetCursors();
 
