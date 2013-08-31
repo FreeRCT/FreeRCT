@@ -290,11 +290,11 @@ public:
 	PixelFinder(Viewport *vp, FinderData *fdata);
 	~PixelFinder();
 
-	SpriteOrder allowed; ///< Sprite types looking for.
-	bool found;          ///< Found a match.
-	DrawData data;       ///< Drawing data of the match found so far.
-	uint8 pixel;         ///< Pixel colour of the closest sprite.
-	FinderData *fdata;   ///< Finder data to return.
+	ClickableSprite allowed; ///< Sprite types looking for.
+	bool found;              ///< Found a match.
+	DrawData data;           ///< Drawing data of the match found so far.
+	uint8 pixel;             ///< Pixel colour of the closest sprite.
+	FinderData *fdata;       ///< Finder data to return.
 
 protected:
 	/* virtual */ void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
@@ -1049,10 +1049,10 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 /**
  * Constructor of the finder data class.
- * @param allowed Bit-set of sprite types to look for (#SO_GROUND, #SO_PATH, #SO_RIDE, #SO_PERSON).
+ * @param allowed Bit-set of sprite types to look for. @see #ClickableSprite
  * @param select_corner Select the tile corner (otherwise, a tile cursor is returned).
  */
-FinderData::FinderData(SpriteOrder allowed, bool select_corner)
+FinderData::FinderData(ClickableSprite allowed, bool select_corner)
 {
 	this->allowed = allowed;
 	this->select_corner = select_corner;
@@ -1349,17 +1349,17 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
  * @param fdata [inout] Parameters and results of the finding process.
  * @return Found type of sprite.
  */
-SpriteOrder Viewport::ComputeCursorPosition(FinderData *fdata)
+ClickableSprite Viewport::ComputeCursorPosition(FinderData *fdata)
 {
 	int16 xp = this->mouse_pos.x - this->rect.width / 2;
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
 	PixelFinder collector(this, fdata);
 	collector.SetWindowSize(xp, yp, 1, 1);
 	collector.Collect(false);
-	if (!collector.found) return SO_NONE;
+	if (!collector.found) return CS_NONE;
 
 	fdata->cursor = CUR_TYPE_TILE;
-	if (fdata->select_corner && collector.data.order == SO_GROUND) {
+	if (fdata->select_corner && (collector.data.order & CS_MASK) == CS_GROUND) {
 		switch (collector.pixel) {
 			case 181: fdata->cursor = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
 			case 182: fdata->cursor = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
@@ -1368,7 +1368,7 @@ SpriteOrder Viewport::ComputeCursorPosition(FinderData *fdata)
 			default: break;
 		}
 	}
-	return collector.data.order;
+	return (ClickableSprite)(collector.data.order & CS_MASK);
 }
 
 /**

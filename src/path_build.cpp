@@ -411,8 +411,8 @@ void PathBuildManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, co
 	} else {
 		/* Only update tile cursor if no tile selected yet. */
 		if (this->state == PBS_WAIT_VOXEL) {
-			FinderData fdata((SO_GROUND | SO_PATH), false);
-			if (vp->ComputeCursorPosition(&fdata) != SO_NONE) {
+			FinderData fdata((CS_GROUND | CS_PATH), false);
+			if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
 				vp->tile_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel, fdata.cursor);
 			}
 		}
@@ -427,8 +427,8 @@ void PathBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 		if (this->state == PBS_LONG_BUILD || this->state == PBS_LONG_BUY) {
 			this->ConfirmLongPath();
 		} else {
-			FinderData fdata((SO_GROUND | SO_PATH), false);
-			if (vp->ComputeCursorPosition(&fdata) != SO_NONE) {
+			FinderData fdata((CS_GROUND | CS_PATH), false);
+			if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
 				this->TileClicked(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel);
 			}
 		}

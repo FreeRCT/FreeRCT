@@ -624,8 +624,8 @@ void TileTerraformMouseMode::SetCursors()
 	if (vp == NULL) return;
 
 	bool single = this->xsize <= 1 && this->ysize <= 1;
-	FinderData fdata(SO_GROUND, single);
-	if (vp->ComputeCursorPosition(&fdata) != SO_NONE) {
+	FinderData fdata(CS_GROUND, single);
+	if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
 		if (single) {
 			vp->tile_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel, fdata.cursor);
 			vp->area_cursor.SetInvalid();

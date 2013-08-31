@@ -51,40 +51,53 @@ enum CursorType {
 };
 
 /**
+ * Sprites that trigger an action when clicked on.
+ */
+enum ClickableSprite {
+	CS_NONE   = 0,      ///< No valid sprite.
+	CS_GROUND = 1 << 0, ///< Ground sprite.
+	CS_PATH   = 1 << 1, ///< Path sprite.
+	CS_RIDE   = 1 << 2, ///< Ride sprite.
+	CS_PERSON = 1 << 3, ///< Person sprite.
+
+	CS_LENGTH = 8,      ///< Bitlength of the enum.
+	CS_MASK = 0x0f,     ///< Used for converting between this and #SpriteOrder.
+};
+DECLARE_ENUM_AS_BIT_SET(ClickableSprite)
+
+/**
  * Order of blitting sprites in a single voxel (earlier in the list is sooner).
- * @todo Bitset is becoming messy, untangle this mess.
  */
 enum SpriteOrder {
-	SO_NONE           = 0,            ///< No drawing.
-	SO_FOUNDATION     = 1 << 0,       ///< Draw foundation sprites.
-	SO_GROUND         = 1 << 1,       ///< Draw ground sprites.
-	SO_SUPPORT        = 1 << 2,       ///< Draw support sprites.
-	SO_PLATFORM       = 1 << 3,       ///< Draw platform sprites.
-	SO_PATH           = 1 << 4,       ///< Draw path sprites.
-	SO_PLATFORM_BACK  = (1 << 5) - 1, ///< Background behind the ride (platform background).
-	SO_RIDE           = 1 << 5,       ///< Draw ride sprites.
-	SO_RIDE_CARS      = (1 << 5) + 1, ///< Cars at a ride.
-	SO_RIDE_FRONT     = (1 << 5) + 2, ///< Ride sprite to draw after drawing the cars.
-	SO_PLATFORM_FRONT = (1 << 5) + 3, ///< Front of platform.
-	SO_PERSON         = 1 << 6,       ///< Draw person sprites.
-	SO_CURSOR         = 1 << 7,       ///< Draw cursor sprites.
+	SO_NONE            = 0,                             ///< No drawing.
+	SO_FOUNDATION      = (1  << CS_LENGTH),             ///< Draw foundation sprites.
+	SO_GROUND          = (2  << CS_LENGTH) | CS_GROUND, ///< Draw ground sprites.
+	SO_SUPPORT         = (3  << CS_LENGTH),             ///< Draw support sprites.
+	SO_PLATFORM        = (4  << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
+	SO_PATH            = (5  << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
+	SO_PLATFORM_BACK   = (6  << CS_LENGTH) | CS_RIDE,   ///< Background behind the ride (platform background).
+	SO_RIDE            = (7  << CS_LENGTH) | CS_RIDE,   ///< Draw ride sprites.
+	SO_RIDE_CARS       = (8  << CS_LENGTH) | CS_RIDE,   ///< Cars at a ride.
+	SO_RIDE_FRONT      = (9  << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
+	SO_PLATFORM_FRONT  = (10 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
+	SO_PERSON          = (11 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
+	SO_CURSOR          = (12 << CS_LENGTH),             ///< Draw cursor sprites.
 };
-DECLARE_ENUM_AS_BIT_SET(SpriteOrder)
 
 /** Data found by Viewport::ComputeCursorPosition. */
 class FinderData {
 public:
-	FinderData(SpriteOrder allowed_types, bool select_corner);
+	FinderData(ClickableSprite allowed_types, bool select_corner);
 
-	SpriteOrder allowed;  ///< Bit-set of sprite-types looking for (#SO_GROUND, #SO_PATH, #SO_RIDE, #SO_PERSON).
-	bool select_corner;   ///< Select a corner of a ground tile.
+	ClickableSprite allowed; ///< Bit-set of sprite-types looking for. @see ClickableSprites
+	bool select_corner;      ///< Select a corner of a ground tile.
 
-	CursorType cursor;    ///< Type of cursor suggested.
-	uint16 xvoxel;        ///< X position of the voxel with the closest sprite.
-	uint16 yvoxel;        ///< Y position of the voxel with the closest sprite.
-	uint8  zvoxel;        ///< Z position of the voxel with the closest sprite.
-	const Person *person; ///< Found person, if any.
-	uint16 ride;          ///< Found ride instance, if any.
+	CursorType cursor;       ///< Type of cursor suggested.
+	uint16 xvoxel;           ///< X position of the voxel with the closest sprite.
+	uint16 yvoxel;           ///< Y position of the voxel with the closest sprite.
+	uint8  zvoxel;           ///< Z position of the voxel with the closest sprite.
+	const Person *person;    ///< Found person, if any.
+	uint16 ride;             ///< Found ride instance, if any.
 };
 
 /**
@@ -179,7 +192,7 @@ public:
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
 
-	SpriteOrder ComputeCursorPosition(FinderData *fdata);
+	ClickableSprite ComputeCursorPosition(FinderData *fdata);
 	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 
