@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=FreeRCT
+Name[es]=FreeRCT
+Comment=FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.
+Comment[es]=FreeRCT es el juego libre y open source que aptura la estética y la jugabilidad de los famosos juegos RollerCoaster Tycoon 1 y 2.
+Exec=/opt/freerct/bin/freerct
+Icon=freerct
+Categories=StrategyGame;
+Terminal=false

@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_configure:
+	
+	#mkdir -p ${CURDIR}/debian/azpazeta
+	#cp -rv build/* ${CURDIR}/debian/azpazeta/
+	#dh_auto_configure
+override_dh_auto_build:
+	make
+override_dh_auto_install:
+	mkdir -p ${CURDIR}/debian/freerct/opt/freerct/bin
+	mkdir -p ${CURDIR}/debian/freerct/opt/freerct/graphics/rcd
+	mkdir -p ${CURDIR}/debian/freerct/usr/share/applications
+	mkdir -p ${CURDIR}/debian/freerct/usr/share/pixmaps
+	cp debian/freerct.desktop ${CURDIR}/debian/freerct/usr/share/applications/
+	cp graphics/sprites/logo/logo.png ${CURDIR}/debian/freerct/usr/share/pixmaps/
+	cp src/freerct ${CURDIR}/debian/freerct/opt/freerct/bin/
+	cp debian/freerct.cfg ${CURDIR}/debian/freerct/opt/freerct/bin/
+	cp -r graphics/rcd/*.rcd ${CURDIR}/debian/freerct/opt/freerct/graphics/rcd/
