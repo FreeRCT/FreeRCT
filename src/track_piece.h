@@ -18,7 +18,7 @@
 #include "money.h"
 
 class ImageData;
-typedef class std::map<unsigned int, ImageData*> ImageMap;
+typedef class std::map<unsigned int, ImageData*> ImageMap; ///< Loaded images.
 
 /** Data of a voxel in a track piece. */
 struct TrackVoxel {
