@@ -772,12 +772,15 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
  * @param number Ride instance number.
  * @param voxel_number Number of the voxel.
  * @param dd [out] Data to draw (4 entries).
+ * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  * @return The number of \a dd entries filled.
  */
-static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd)
+static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == NULL) return 0;
+	/* Shops are connected in every direction. */
+	if (platform != NULL) *platform = (ri->GetKind() == RTK_SHOP) ? PATH_NE_NW_SE_SW : PATH_INVALID;
 
 	const ImageData *sprites[4];
 	ri->GetSprites(voxel_number, orient, sprites);
@@ -854,9 +857,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		DrawData dd[4];
 		int count = DrawRide(slice, zpos,
 				this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
-				this->orient, sri, number, dd);
+				this->orient, sri, number, dd, &platform_shape);
 		for (int i = 0; i < count; i++) this->draw_images.insert(dd[i]);
-		platform_shape = PATH_NE_NW_SE_SW; // A ride looks like having exits everywhere -> no handle bars.
 	}
 
 	/* Foundations. */
@@ -1110,7 +1112,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 	if ((this->allowed & SO_RIDE) != 0 && number >= SRI_FULL_RIDES) {
 		DrawData dd[4];
 		int count = DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
-				this->orient, number, voxel->GetInstanceData(), dd);
+				this->orient, number, voxel->GetInstanceData(), dd, NULL);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
 				const ImageData *img = dd[i].sprite;
