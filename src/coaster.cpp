@@ -137,7 +137,7 @@ CoasterInstance::~CoasterInstance()
  */
 bool CoasterInstance::IsAccessible()
 {
-	return false; /// \todo Extend after being able to build coaster pieces.
+	return this->GetFirstPlacedTrackPiece() >= 0;
 }
 
 /* virtual */ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const

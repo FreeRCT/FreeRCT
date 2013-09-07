@@ -138,6 +138,8 @@ bool PositionedTrackPiece::CanBePlaced() const
 	if (!this->IsOnWorld()) return false;
 	const TrackVoxel *tvx = this->piece->track_voxels;
 	for (int i = 0; i < this->piece->voxel_count; i++) {
+		/* Is the voxel above ground level? */
+		if (_world.GetGroundHeight(this->x_base + tvx->dx, this->y_base + tvx->dy) > this->z_base + tvx->dz) return false;
 		const Voxel *vx = _world.GetVoxel(this->x_base + tvx->dx, this->y_base + tvx->dy, this->z_base + tvx->dz);
 		if (vx != NULL && !vx->CanPlaceInstance()) return false;
 	}
