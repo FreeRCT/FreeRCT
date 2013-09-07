@@ -174,7 +174,7 @@ int CoasterInstance::GetFirstPlacedTrackPiece() const
  * @param end End of the search (one beyond the last positioned track piece to search).
  * @return Index of the requested positioned track piece if it exists, else \c -1.
  */
-int CoasterInstance::FindPlacedTrackPiece(uint16 x, uint16 y, uint8 z, uint8 entry_connect, int start, int end)
+int CoasterInstance::FindSuccessorPiece(uint16 x, uint16 y, uint8 z, uint8 entry_connect, int start, int end)
 {
 	if (start < 0) start = 0;
 	if (end > MAX_PLACED_TRACK_PIECES) end = MAX_PLACED_TRACK_PIECES;
@@ -182,6 +182,16 @@ int CoasterInstance::FindPlacedTrackPiece(uint16 x, uint16 y, uint8 z, uint8 ent
 		if (this->pieces[start].CanBeSuccessor(x, y, z, entry_connect)) return start;
 	}
 	return -1;
+}
+
+/**
+ * Find the first placed track piece that follows a provided placed track piece.
+ * @param placed Already placed track piece.
+ * @return Index of the requested positioned track piece if it exists, else \c -1.
+ */
+int CoasterInstance::FindSuccessorPiece(const PositionedTrackPiece &placed)
+{
+	return this->FindSuccessorPiece(placed.GetEndX(), placed.GetEndY(), placed.GetEndZ(), placed.piece->exit_connect);
 }
 
 /**
@@ -215,7 +225,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 
 	PositionedTrackPiece *ptp = this->pieces;
 	for (int i = 1; i < count; i++) {
-		int j = this->FindPlacedTrackPiece(ptp->GetEndX(), ptp->GetEndY(), ptp->GetEndZ(), ptp->piece->exit_connect, i, count);
+		int j = this->FindSuccessorPiece(ptp->GetEndX(), ptp->GetEndY(), ptp->GetEndZ(), ptp->piece->exit_connect, i, count);
 		if (j < 0) return false;
 		ptp++; // Now points to pieces[i].
 		if (i != j) {

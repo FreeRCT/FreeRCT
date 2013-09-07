@@ -81,7 +81,8 @@ public:
 	bool MakePositionedPiecesLooping(bool *modified);
 	int GetFirstPlacedTrackPiece() const;
 	int AddPositionedPiece(const PositionedTrackPiece &placed);
-	int FindPlacedTrackPiece(uint16 x, uint16 y, uint8 z, uint8 entry_connect, int start = 0, int end = MAX_PLACED_TRACK_PIECES);
+	int FindSuccessorPiece(uint16 x, uint16 y, uint8 z, uint8 entry_connect, int start = 0, int end = MAX_PLACED_TRACK_PIECES);
+	int FindSuccessorPiece(const PositionedTrackPiece &placed);
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
