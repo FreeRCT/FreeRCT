@@ -48,6 +48,7 @@ enum ChangeCode {
 	CHG_VIEWPORT_ROTATED, ///< Viewport rotated.
 	CHG_MOUSE_MODE_LOST,  ///< Lost the mouse mode.
 	CHG_DISPLAY_OLD,      ///< Displayed data is old.
+	CHG_PIECE_POSITIONED, ///< The track piece is at the correct position.
 };
 
 /** Various state flags of the %Window. */

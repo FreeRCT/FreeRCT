@@ -23,6 +23,7 @@
 #include "sprite_store.h"
 #include "path_build.h"
 #include "shop_placement.h"
+#include "coaster_build.h"
 #include "ride_type.h"
 #include "terraform.h"
 #include "select_mode.h"
@@ -1632,4 +1633,5 @@ void InitMouseModes()
 	_mouse_modes.RegisterMode(&_path_builder);
 	_mouse_modes.RegisterMode(&_shop_placer);
 	_mouse_modes.RegisterMode(&_select_mousemode);
+	_mouse_modes.RegisterMode(&_coaster_builder);
 }
