@@ -10,6 +10,7 @@
 /** @file coaster_gui.cpp Roller coaster windows. */
 
 #include "stdafx.h"
+#include "math_func.h"
 #include "window.h"
 #include "sprite_store.h"
 #include "ride_type.h"
@@ -96,22 +97,22 @@ void ShowCoasterManagementGui(RideInstance *coaster)
 /** Widgets of the coaster construction window. */
 enum CoasterConstructionWidgets {
 	CCW_TITLEBAR,            ///< Titlebar widget.
-	CCW_BEND_WIDE_LEFT,      ///< Button for selecting wide left turn.
+	CCW_BEND_WIDE_LEFT,      ///< Button for selecting wide left turn. Same order as #TrackBend.
 	CCW_BEND_NORMAL_LEFT,    ///< Button for selecting normal left turn.
 	CCW_BEND_TIGHT_LEFT,     ///< Button for selecting tight left turn.
 	CCW_BEND_NONE,           ///< Button for selecting straight ahead (no turn).
 	CCW_BEND_TIGHT_RIGHT,    ///< Button for selecting tight right turn.
 	CCW_BEND_NORMAL_RIGHT,   ///< Button for selecting normal right turn.
 	CCW_BEND_WIDE_RIGHT,     ///< Button for selecting wide right turn.
+	CCW_BANK_NONE,           ///< Button for selecting no banking. Same order as #TrackPieceBanking.
 	CCW_BANK_LEFT,           ///< Button for selecting banking to the left.
-	CCW_BANK_NONE,           ///< Button for selecting no banking.
 	CCW_BANK_RIGHT,          ///< Button for selecting banking to the right.
-	CCW_SLOPE_VERTICAL_DOWN, ///< Button for selecting vertically down slope.
-	CCW_SLOPE_STEEP_DOWN,    ///< Button for selecting steep down slope.
-	CCW_SLOPE_DOWN,          ///< Button for selecting gentle down slope.
+	CCW_SLOPE_DOWN,          ///< Button for selecting gentle down slope. Same order as #TrackSlope.
 	CCW_SLOPE_FLAT,          ///< Button for selecting level slope.
 	CCW_SLOPE_UP,            ///< Button for selecting gentle up slope.
+	CCW_SLOPE_STEEP_DOWN,    ///< Button for selecting steep down slope.
 	CCW_SLOPE_STEEP_UP,      ///< Button for selecting steep up slope.
+	CCW_SLOPE_VERTICAL_DOWN, ///< Button for selecting vertically down slope.
 	CCW_SLOPE_VERTICAL_UP,   ///< Button for selecting vertically up slope.
 	CCW_DISPLAY_PIECE,       ///< Display space for a track piece.
 	CCW_REMOVE,              ///< Remove track piece button.
@@ -191,7 +192,15 @@ static const WidgetPart _coaster_construction_gui_parts[] = {
 	EndContainer(),
 };
 
-/** Window to build or edit a roller coaster. */
+/**
+ * Window to build or edit a roller coaster.
+ *
+ * The build window can be in the following state
+ * - #cur_piece is \c NULL: An initial piece is being placed, The mouse mode defines where, #build_direction defines in which direction.
+ * - #cur_piece is not \c NULL, and #cur_after: A piece is added after #cur_piece.
+ * - #cur_piece is not \c NULL, and not #cur_after: A piece is added before #cur_piece.
+ * In the latter two cases, #cur_sel points at the piece being replaced, if it exists.
+ */
 class CoasterBuildWindow : public GuiWindow {
 public:
 	CoasterBuildWindow(CoasterInstance *ci);
@@ -200,6 +209,20 @@ public:
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
+
+	const PositionedTrackPiece *cur_piece; ///< Current track piece, if available (else \c NULL).
+	bool cur_after;                        ///< Position relative to #cur_piece, \c false means before, \c true means after.
+	const PositionedTrackPiece *cur_sel;   ///< Selected track piece of #cur_piece and #cur_after, or \c NULL if no piece selected.
+
+	const TrackPiece *sel_piece;  ///< Currently selected piece (and not yet build), if any.
+	TileEdge build_direction;     ///< If #prev_piece is \c NULL, the direction of building.
+	TrackSlope sel_slope;         ///< Selected track slope at the UI, or #TSL_INVALID.
+	TrackBend sel_bend;           ///< Selected bend at the UI, or #TPB_INVALID.
+	TrackPieceBanking sel_bank;   ///< Selected bank at the UI, or #TBN_INVALID.
+	// XXX 'speed' and 'platform' still needs to be done.
+
+	void SetupSelection();
+	int SetButtons(int start_widget, int count, uint avail, int cur_sel, int invalid_val);
 };
 
 /**
@@ -210,6 +233,23 @@ CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *ci) : GuiWindow(WC_COAST
 {
 	this->ci = ci;
 	this->SetupWidgetTree(_coaster_construction_gui_parts, lengthof(_coaster_construction_gui_parts));
+
+	int first = this->ci->GetFirstPlacedTrackPiece();
+	if (first >= 0) {
+		this->cur_piece = &this->ci->pieces[first];
+		first = this->ci->FindSuccessorPiece(*this->cur_piece);
+		this->cur_sel = (first >= 0) ? &this->ci->pieces[first] : NULL;
+	} else {
+		this->cur_piece = NULL;
+		this->cur_sel = NULL;
+	}
+	this->cur_after = true;
+	this->build_direction = EDGE_NE;
+	this->sel_slope = TSL_INVALID;
+	this->sel_bend = TBN_INVALID;
+	this->sel_bank = TPB_INVALID;
+
+	this->SetupSelection();
 }
 
 CoasterBuildWindow::~CoasterBuildWindow()
@@ -227,6 +267,86 @@ CoasterBuildWindow::~CoasterBuildWindow()
 			break;
 	}
 }
+
+/**
+ * Set buttons according to availability of track pieces.
+ * @param start_widget First widget of the buttons.
+ * @param count Number of buttons.
+ * @param avail Bitset of available track pieces for the buttons.
+ * @param cur_sel Currently selected button.
+ * @param invalid_val Invalid value for the selection.
+ * @return New vlaue for the current selection.
+ */
+int CoasterBuildWindow::SetButtons(int start_widget, int count, uint avail, int cur_sel, int invalid_val)
+{
+	int num_bits = CountBits(avail);
+	for (int i = 0; i < count; i++) {
+		if ((avail & (1 << i)) == 0) {
+			this->SetWidgetShaded(start_widget + i, true);
+			if (cur_sel == i) cur_sel = invalid_val;
+		} else {
+			this->SetWidgetShaded(start_widget + i, false);
+			if (num_bits == 1) cur_sel = i;
+			this->SetWidgetPressed(start_widget + i, cur_sel == i);
+		}
+	}
+	return cur_sel;
+}
+
+/** Set up the window so the user can make a selection. */
+void CoasterBuildWindow::SetupSelection()
+{
+	uint directions = 0; // Build directions of initial pieces.
+	uint avail_bank = 0;
+	uint avail_slope = 0;
+	uint avail_bend = 0;
+	this->sel_piece = NULL;
+
+	if (this->cur_piece == NULL || this->cur_sel == NULL) {
+		/* Only consider track pieces when there is no current positioned track piece. */
+		const CoasterType *ct = this->ci->GetCoasterType();
+		for (int i = 0; i < ct->piece_count; i++) {
+			const TrackPiece *piece = ct->pieces[i].Access();
+			if (this->cur_piece != NULL) {
+				/* Connect after or before 'cur_piece'. */
+				if (this->cur_after) {
+					if (piece->entry_connect != this->cur_piece->piece->exit_connect) continue;
+				} else {
+					if (piece->exit_connect != this->cur_piece->piece->entry_connect) continue;
+				}
+			} else {
+				/* Initial placement. */
+				if (!piece->IsStartingPiece()) continue;
+				directions |= 1 << piece->GetStartDirection();
+				if (piece->GetStartDirection() != this->build_direction) continue;
+			}
+			avail_bank |= 1 << piece->GetBanking();
+			if (this->sel_bank != TPB_INVALID && piece->GetBanking() != this->sel_bank) continue;
+			avail_slope |= 1 << piece->GetSlope();
+			if (this->sel_slope != TSL_INVALID && piece->GetSlope() != this->sel_slope) continue;
+			avail_bend |= 1 << piece->GetBend();
+			if (this->sel_bend != TBN_INVALID && piece->GetBend() != this->sel_bend) continue;
+
+			if (this->sel_piece == NULL) this->sel_piece = piece;
+		}
+	}
+
+	/* Set shading of rotate buttons. */
+	bool enabled = (this->cur_piece == NULL && CountBits(directions) > 1);
+	this->SetWidgetShaded(CCW_ROT_NEG,  !enabled);
+	this->SetWidgetShaded(CCW_ROT_POS,  !enabled);
+	enabled = (this->cur_piece != NULL && this->cur_sel != NULL);
+	this->SetWidgetShaded(CCW_REMOVE,   !enabled);
+	this->SetWidgetShaded(CCW_BACKWARD, !enabled);
+	this->SetWidgetShaded(CCW_FORWARD,  !enabled);
+	enabled = (this->cur_piece != NULL && this->cur_sel == NULL);
+	this->SetWidgetShaded(CCW_DISPLAY_PIECE, !enabled);
+
+	this->sel_bank = static_cast<TrackPieceBanking>(this->SetButtons(CCW_BANK_NONE, TPB_COUNT, avail_bank, this->sel_bank, TPB_INVALID));
+	this->sel_slope = static_cast<TrackSlope>(this->SetButtons(CCW_SLOPE_DOWN, TSL_COUNT_VERTICAL, avail_slope, this->sel_slope, TSL_INVALID));
+	this->sel_bend = static_cast<TrackBend>(this->SetButtons(CCW_BEND_WIDE_LEFT, TBN_COUNT, avail_bend, this->sel_bend, TBN_INVALID));
+}
+
 
 /**
  * Open a roller coaster build/edit window for the given roller coaster.
