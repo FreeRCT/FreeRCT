@@ -9,6 +9,8 @@
 
 /** @file math_func.cpp Math functions. */
 
+#include "stdafx.h"
+
 /**
  * Compute greatest common divisor (gcd) of \a a and \a b.
  * @param a First number.
@@ -41,4 +43,25 @@ int LeastCommonMultiple(int a, int b)
 	if (b == 1) return a;
 
 	return a * b / GreatestCommonDivisor(a, b);
+}
+
+/**
+ * Get the number of bits set in the given value.
+ * @param value Value to inspect.
+ * @return Number of set bits in the \a value.
+ */
+int CountBits(uint value)
+{
+	int num;
+
+	/* This loop is only called once for every bit set by clearing the lowest
+	 * bit in each loop. The number of bits is therefore equal to the number of
+	 * times the loop was called. It was found at the following website:
+	 * http://graphics.stanford.edu/~seander/bithacks.html */
+
+	for (num = 0; value != 0; num++) {
+		value &= value - 1;
+	}
+
+	return num;
 }

@@ -89,5 +89,6 @@ static inline void Swap(T &a, T &b)
 
 int GreatestCommonDivisor(int a, int b);
 int LeastCommonMultiple(int a, int b);
+int CountBits(uint num);
 
 #endif
