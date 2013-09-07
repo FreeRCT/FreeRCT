@@ -493,7 +493,6 @@ int CoasterBuildWindow::BuildTrackPiece()
 
 	/* Add the piece to the coaster instance. */
 	int ptp_index = this->ci->AddPositionedPiece(ptp);
-	printf("placed at %d\n", ptp_index);
 	if (ptp_index >= 0) {
 		/* Add the piece to the world. */
 		_additions.Clear();
@@ -505,7 +504,6 @@ int CoasterBuildWindow::BuildTrackPiece()
 
 /* virtual */ void CoasterBuildWindow::OnChange(ChangeCode code, uint32 parameter)
 {
-	printf("You've got a CHG_PIECE_POSITIONED event\n");
 	if (code != CHG_PIECE_POSITIONED || parameter != 0) return;
 
 	int index = this->BuildTrackPiece();
