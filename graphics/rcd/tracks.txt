@@ -36,13 +36,16 @@ file("tracks.rcd") {
 				(w_back, n_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
 				(e_back, s_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
 			}
 		}
 
@@ -64,13 +67,16 @@ file("tracks.rcd") {
 				(w_back, n_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
 				(e_back, s_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
 			}
 		}
 
@@ -89,11 +95,14 @@ file("tracks.rcd") {
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(e_back, s_back, w_back, n_back): sheet {
+				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -110,11 +119,14 @@ file("tracks.rcd") {
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(s_back, w_back, n_back, e_back): sheet {
+				(s_back, e_back, n_back, w_back): sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
 			}
 		}
 
@@ -128,16 +140,19 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "flat";       direction: ne; }
 			exit:  connection { name: "shallow_up"; direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: -1;
+			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(e_back, s_back, w_back, n_back): sheet {
+				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -149,16 +164,22 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "flat";         direction: ne; }
 			exit:  connection { name: "shallow_down"; direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: 1;
+			exit_dx: -1; exit_dy: 0; exit_dz: -1;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(e_back, s_back, w_back, n_back): sheet {
+				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: -1; space: bitset(north, east, west, south);
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -170,16 +191,22 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "shallow_up"; direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: -1;
+			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(e_back, s_back, w_back, n_back): sheet {
+				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 2; space: bitset(north, east, west, south);
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -191,15 +218,21 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "shallow_down"; direction: ne; }
 			exit:  connection { name: "shallow_down"; direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: 1;
+			exit_dx: -1; exit_dy: 0; exit_dz: -1;
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(w_back, n_back, e_back, s_back): sheet {
+				(e_back, n_back, w_back, s_back): sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 2; space: bitset(north, east, west, south);
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -216,11 +249,17 @@ file("tracks.rcd") {
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(w_back, n_back, e_back, s_back): sheet {
+				(e_back, n_back, w_back, s_back): sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: -1; space: bitset(north, east, west, south);
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -237,11 +276,14 @@ file("tracks.rcd") {
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(w_back, n_back, e_back, s_back): sheet {
-					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
+				(e_back, n_back, w_back, s_back): sheet {
+					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
 			}
 		}
 
@@ -256,16 +298,19 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "flat";       direction: ne; }
 			exit:  connection { name: "shallow_up"; direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: -1;
+			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(e_back, s_back, w_back, n_back) : sheet {
+				(w_back, s_back, e_back, n_back) : sheet {
 					x_base: 0; y_base: 320; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -278,16 +323,22 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "shallow_up"; direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: -1;
+			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(e_back, s_back, w_back, n_back): sheet {
+				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 384; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -28; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 2; space: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -300,16 +351,22 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "flat";       direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: 0;
+			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
 
-				(w_back, n_back, e_back, s_back): sheet {
+				(e_back, n_back, w_back, s_back): sheet {
 					x_base: 0; y_base: 448; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -97; width: 64; height: 64;
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
 				}
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+			}
+			track_voxel {
+				dx: 0; dy: 0; dz: -1; space: bitset(north, east, west, south);
 			}
 		}
 	}
