@@ -99,8 +99,8 @@ public:
 	}
 
 	/**
-	 * Does the track piece have a platform?
-	 * @return Whether the track piece has a platform.
+	 * Can the track piece be used as the first piece of a roller coaster?
+	 * @return Whether the track piece can be used as the first piece of a roller coaster.
 	 */
 	inline bool IsStartingPiece() const
 	{
