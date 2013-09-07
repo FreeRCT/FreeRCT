@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include "math_func.h"
+#include "memory.h"
 #include "window.h"
 #include "sprite_store.h"
 #include "ride_type.h"
@@ -211,6 +212,9 @@ public:
 	/* virtual */ ~CoasterBuildWindow();
 
 	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
+	/* virtual */ void OnChange(ChangeCode code, uint32 parameter);
+	/* virtual */ void OnClick(WidgetNumber widget);
+
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
 
@@ -227,6 +231,7 @@ private:
 
 	void SetupSelection();
 	int SetButtons(int start_widget, int count, uint avail, int cur_sel, int invalid_val);
+	int BuildTrackPiece();
 };
 
 /**
@@ -276,6 +281,67 @@ CoasterBuildWindow::~CoasterBuildWindow()
 	}
 }
 
+/* virtual */ void CoasterBuildWindow::OnClick(WidgetNumber widget)
+{
+	switch (widget) {
+		case CCW_BANK_NONE:
+		case CCW_BANK_LEFT:
+		case CCW_BANK_RIGHT:
+			this->sel_bank = (TrackPieceBanking)(widget - CCW_BANK_NONE);
+			this->SetupSelection();
+			break;
+
+		case CCW_SLOPE_DOWN:
+		case CCW_SLOPE_FLAT:
+		case CCW_SLOPE_UP:
+		case CCW_SLOPE_STEEP_DOWN:
+		case CCW_SLOPE_STEEP_UP:
+		case CCW_SLOPE_VERTICAL_DOWN:
+		case CCW_SLOPE_VERTICAL_UP:
+			this->sel_slope = (TrackSlope)(widget - CCW_SLOPE_DOWN);
+			this->SetupSelection();
+			break;
+
+		case CCW_DISPLAY_PIECE: {
+			int index = this->BuildTrackPiece();
+			if (index >= 0) {
+				/* Piece was added, change the setup for the next piece. */
+				this->cur_piece = &this->ci->pieces[index];
+				int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
+				this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : NULL;
+				this->cur_after = true;
+			}
+			this->SetupSelection();
+			break;
+		}
+
+		case CCW_BEND_WIDE_LEFT:
+		case CCW_BEND_NORMAL_LEFT:
+		case CCW_BEND_TIGHT_LEFT:
+		case CCW_BEND_NONE:
+		case CCW_BEND_TIGHT_RIGHT:
+		case CCW_BEND_NORMAL_RIGHT:
+		case CCW_BEND_WIDE_RIGHT:
+			this->sel_bend = (TrackBend)(widget - CCW_BEND_WIDE_LEFT);
+			this->SetupSelection();
+			break;
+
+		case CCW_ROT_NEG:
+			if (this->cur_piece == NULL) {
+				this->build_direction = (TileEdge)((this->build_direction + 1) % 4);
+				this->SetupSelection();
+			}
+			break;
+
+		case CCW_ROT_POS:
+			if (this->cur_piece == NULL) {
+				this->build_direction = (TileEdge)((this->build_direction + 3) % 4);
+				this->SetupSelection();
+			}
+			break;
+	}
+}
+
 /**
  * Set buttons according to availability of track pieces.
  * @param start_widget First widget of the buttons.
@@ -312,30 +378,74 @@ void CoasterBuildWindow::SetupSelection()
 
 	if (this->cur_piece == NULL || this->cur_sel == NULL) {
 		/* Only consider track pieces when there is no current positioned track piece. */
+
 		const CoasterType *ct = this->ci->GetCoasterType();
-		for (int i = 0; i < ct->piece_count; i++) {
+
+		bool selectable[1024]; // Arbitrary limit on the number of non-placed track pieces.
+		uint count = ct->piece_count;
+		if (count > lengthof(selectable)) count = lengthof(selectable);
+		/* Round 1: Select on connection or initial placement. */
+		for (uint i = 0; i < count; i++) {
 			const TrackPiece *piece = ct->pieces[i].Access();
+			bool avail = true;
 			if (this->cur_piece != NULL) {
 				/* Connect after or before 'cur_piece'. */
 				if (this->cur_after) {
-					if (piece->entry_connect != this->cur_piece->piece->exit_connect) continue;
+					if (piece->entry_connect != this->cur_piece->piece->exit_connect) avail = false;
 				} else {
-					if (piece->exit_connect != this->cur_piece->piece->entry_connect) continue;
+					if (piece->exit_connect != this->cur_piece->piece->entry_connect) avail = false;
 				}
 			} else {
 				/* Initial placement. */
-				if (!piece->IsStartingPiece()) continue;
-				directions |= 1 << piece->GetStartDirection();
-				if (piece->GetStartDirection() != this->build_direction) continue;
+				if (!piece->IsStartingPiece()) {
+					avail = false;
+				} else {
+					directions |= 1 << piece->GetStartDirection();
+					if (piece->GetStartDirection() != this->build_direction) avail = false;
+				}
 			}
-			avail_bank |= 1 << piece->GetBanking();
-			if (this->sel_bank != TPB_INVALID && piece->GetBanking() != this->sel_bank) continue;
-			avail_slope |= 1 << piece->GetSlope();
-			if (this->sel_slope != TSL_INVALID && piece->GetSlope() != this->sel_slope) continue;
-			avail_bend |= 1 << piece->GetBend();
-			if (this->sel_bend != TBN_INVALID && piece->GetBend() != this->sel_bend) continue;
+			selectable[i] = avail;
+		}
 
-			if (this->sel_piece == NULL) this->sel_piece = piece;
+		/* Round 2: Setup banking. */
+		for (uint i = 0; i < count; i++) {
+			if (!selectable[i]) continue;
+			const TrackPiece *piece = ct->pieces[i].Access();
+			avail_bank |= 1 << piece->GetBanking();
+		}
+		if (this->sel_bank != TPB_INVALID && (avail_bank & (1 << this->sel_bank)) == 0) this->sel_bank = TPB_INVALID;
+
+		/* Round 3: Setup slopes. */
+		for (uint i = 0; i < count; i++) {
+			if (!selectable[i]) continue;
+			const TrackPiece *piece = ct->pieces[i].Access();
+			if (this->sel_bank != TPB_INVALID && piece->GetBanking() != this->sel_bank) {
+				selectable[i] = false;
+			} else {
+				avail_slope |= 1 << piece->GetSlope();
+			}
+		}
+		if (this->sel_slope != TSL_INVALID && (avail_slope & (1 << this->sel_slope)) == 0) this->sel_slope = TSL_INVALID;
+
+		/* Round 4: Setup bends. */
+		for (uint i = 0; i < count; i++) {
+			if (!selectable[i]) continue;
+			const TrackPiece *piece = ct->pieces[i].Access();
+			if (this->sel_slope != TSL_INVALID && piece->GetSlope() != this->sel_slope) {
+				selectable[i] = false;
+			} else {
+				avail_bend |= 1 << piece->GetBend();
+			}
+		}
+		if (this->sel_bend != TBN_INVALID && (avail_bend & (1 << this->sel_bend)) == 0) this->sel_bend = TBN_INVALID;
+
+		/* Round 5: Select a piece. */
+		for (uint i = 0; i < count; i++) {
+			if (!selectable[i]) continue;
+			const TrackPiece *piece = ct->pieces[i].Access();
+			if (this->sel_bend != TBN_INVALID && piece->GetBend() != this->sel_bend) continue;
+			this->sel_piece = piece;
+			break;
 		}
 	}
 
@@ -354,12 +464,60 @@ void CoasterBuildWindow::SetupSelection()
 	this->sel_slope = static_cast<TrackSlope>(this->SetButtons(CCW_SLOPE_DOWN, TSL_COUNT_VERTICAL, avail_slope, this->sel_slope, TSL_INVALID));
 	this->sel_bend = static_cast<TrackBend>(this->SetButtons(CCW_BEND_WIDE_LEFT, TBN_COUNT, avail_bend, this->sel_bend, TBN_INVALID));
 
-	if (this->cur_piece == NULL) {
-		if (this->sel_piece != NULL) _coaster_builder.SelectPosition(this->ci->GetIndex(), this->sel_piece, this->build_direction);
+	if (this->sel_piece != NULL) {
+		if (this->cur_piece == NULL) {
+			_coaster_builder.SelectPosition(this->wnumber, this->sel_piece, this->build_direction);
+		} else {
+			if (this->cur_after) {
+				TileEdge dir = (TileEdge)(this->cur_piece->piece->exit_connect & 3); // XXX Define this in the data format!!
+				_coaster_builder.DisplayPiece(this->wnumber, this->sel_piece, this->cur_piece->GetEndX(),
+						this->cur_piece->GetEndY(), this->cur_piece->GetEndZ(), dir);
+			}
+			// XXX else: display before start.
+		}
+	} else {
+		_coaster_builder.ShowNoPiece(this->wnumber);
 	}
-	// XXX else ...
 }
 
+/**
+ * Create the currently selected track piece in the world.
+ * @return Position of the new piece in the coaster instance, or \c -1.
+ */
+int CoasterBuildWindow::BuildTrackPiece()
+{
+	if (this->sel_piece == NULL) return -1;
+	PositionedTrackPiece ptp(_coaster_builder.track_xpos, _coaster_builder.track_ypos,
+			_coaster_builder.track_zpos, this->sel_piece);
+	if (!ptp.CanBePlaced()) return -1;
+
+	/* Add the piece to the coaster instance. */
+	int ptp_index = this->ci->AddPositionedPiece(ptp);
+	printf("placed at %d\n", ptp_index);
+	if (ptp_index >= 0) {
+		/* Add the piece to the world. */
+		_additions.Clear();
+		this->ci->PlaceTrackPieceInAdditions(ptp);
+		_additions.Commit();
+	}
+	return ptp_index;
+}
+
+/* virtual */ void CoasterBuildWindow::OnChange(ChangeCode code, uint32 parameter)
+{
+	printf("You've got a CHG_PIECE_POSITIONED event\n");
+	if (code != CHG_PIECE_POSITIONED || parameter != 0) return;
+
+	int index = this->BuildTrackPiece();
+	if (index >= 0) {
+		/* Piece was added, change the setup for the next piece. */
+		this->cur_piece = &this->ci->pieces[index];
+		int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
+		this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : NULL;
+		this->cur_after = true;
+	}
+	this->SetupSelection();
+}
 
 /**
  * Open a roller coaster build/edit window for the given roller coaster.
