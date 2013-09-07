@@ -15,6 +15,7 @@
 #include "fileio.h"
 #include "memory.h"
 #include "math_func.h"
+#include "map.h"
 
 #include "table/coasters_strings.cpp"
 
@@ -98,6 +99,20 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 {
 	static const StringID names[] = {COASTERS_NAME_INSTANCE, STR_INVALID};
 	return names;
+}
+
+/**
+ * Get the index of the provided track voxel for use as instance data.
+ * @param tvx Track voxel to look for.
+ * @return Index of the provided track volxel in this coaster type.
+ * @see Voxel::SetInstanceData
+ */
+int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
+{
+	for (int i = 0; i < this->voxel_count; i++) {
+		if (this->voxels[i] == tvx) return i;
+	}
+	NOT_REACHED();
 }
 
 /**
@@ -252,4 +267,26 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 		}
 	}
 	return -1;
+}
+
+/**
+ * Add the positioned track piece to #_additions.
+ * @param placed Track piec to place.
+ * @pre placed->CanBePlaced() should hold.
+ */
+void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &placed)
+{
+	assert(placed.CanBePlaced());
+	assert(this->GetIndex() >= SRI_FULL_RIDES && this->GetIndex() <= SRI_LAST);
+	SmallRideInstance ride_number = (SmallRideInstance)this->GetIndex();
+
+	const CoasterType *ct = this->GetCoasterType();
+	const TrackVoxel *tvx = placed.piece->track_voxels;
+	for (int i = 0; i < placed.piece->voxel_count; i++) {
+		Voxel *vx = _additions.GetCreateVoxel(placed.x_base + tvx->dx, placed.y_base + tvx->dy, placed.z_base + tvx->dz, true);
+		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
+		vx->SetInstance(ride_number);
+		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
+		tvx++;
+	}
 }

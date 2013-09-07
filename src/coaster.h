@@ -45,6 +45,8 @@ public:
 
 	bool Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map);
 
+	int GetTrackVoxelIndex(const TrackVoxel *tvx) const;
+
 	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind
 	uint8 platform_type;       ///< Type of platform. @see CoasterPlatformType
 	int piece_count;           ///< Number of track pieces in #pieces.
@@ -83,6 +85,8 @@ public:
 	int AddPositionedPiece(const PositionedTrackPiece &placed);
 	int FindSuccessorPiece(uint16 x, uint16 y, uint8 z, uint8 entry_connect, int start = 0, int end = MAX_PLACED_TRACK_PIECES);
 	int FindSuccessorPiece(const PositionedTrackPiece &placed);
+
+	void PlaceTrackPieceInAdditions(const PositionedTrackPiece &piece);
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
