@@ -786,6 +786,7 @@ public:
 		mode->DisableDisplay();
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_STARTING);
+		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
 	/* virtual */ bool MayActivateMode() const
@@ -864,6 +865,7 @@ public:
 		mode->DisableDisplay();
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_DOWN);
+		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
 	/* virtual */ bool MayActivateMode() const
@@ -951,6 +953,7 @@ public:
 		mode->DisableDisplay();
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_DOWN);
+		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
 	/* virtual */ bool MayActivateMode() const
