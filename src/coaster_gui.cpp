@@ -1095,6 +1095,7 @@ CoasterBuildMode::CoasterBuildMode() : MouseMode(WC_COASTER_BUILD, MM_COASTER_BU
 {
 	this->instance = INVALID_RIDE_INSTANCE;
 	this->state = BS_OFF;
+	this->mouse_state = 0;
 	this->SetNoPiece();
 }
 
@@ -1188,6 +1189,11 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  */
 /* virtual */ void CoasterBuildMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
 {
+	if ((this->mouse_state & MB_RIGHT) != 0) {
+		/* Drag the window if button is pressed down. */
+		Viewport *vp = GetViewport();
+		if (vp != NULL) vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
+	}
 	_coaster_build_states[this->state]->OnMouseMoveEvent(vp, old_pos, pos);
 }
 
@@ -1199,6 +1205,7 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  */
 /* virtual */ void CoasterBuildMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 {
+	this->mouse_state = state & MB_CURRENT;
 	_coaster_build_states[this->state]->OnMouseButtonEvent(vp, state);
 }
 

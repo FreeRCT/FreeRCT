@@ -62,6 +62,7 @@ public:
 	BuilderState state;          ///< State of the #CoasterBuildMode mouse mode.
 	const TrackPiece *cur_piece; ///< Current selected track piece. \c NULL if no piece is selected currently.
 	TileEdge direction;          ///< Orientation of the build cursor.
+	uint8 mouse_state;           ///< Stored state of the mouse buttons.
 	Point16 mouse_pos;           ///< Stored mouse position.
 	uint16 track_xpos;           ///< Entry X position of the selected track piece.
 	uint16 track_ypos;           ///< Entry Y position of the selected track piece.
