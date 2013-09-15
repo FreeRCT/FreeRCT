@@ -282,6 +282,12 @@ void Window::MarkDirty()
 /* virtual */ void Window::OnChange(ChangeCode code, uint32 parameter) { }
 
 /**
+ * Resize a window.
+ * @note Only if the window is a #GuiWindow.
+ */
+/* virtual */ void Window::ResetSize() { }
+
+/**
  * Gui window constructor.
  * @param wtype %Window type (for finding a window in the stack).
  * @param wnumber Number of the window within the \a wtype.
@@ -296,6 +302,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 	this->num_widgets = 0;
 	this->SetHighlight(true);
 	this->ride_type = NULL;
+	this->initialized = false;
 }
 
 GuiWindow::~GuiWindow()
@@ -336,6 +343,15 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 	return str_id;
 }
 
+void GuiWindow::ResetSize()
+{
+	this->tree->SetupMinimalSize(this, this->widgets);
+	this->rect = Rectangle32(this->rect.base.x, this->rect.base.y, this->tree->min_x, this->tree->min_y);
+
+	Rectangle16 min_rect(0, 0, this->tree->min_x, this->tree->min_y);
+	this->tree->SetSmallestSizePosition(min_rect);
+}
+
 /**
  * Construct the widget tree of the window, and initialize the window with it.
  * @param parts %Widget parts describing the window.
@@ -355,15 +371,11 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 		this->widgets = (BaseWidget **)malloc(sizeof(BaseWidget *) * (biggest + 1));
 		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = NULL;
 	}
-
-	this->tree->SetupMinimalSize(this, this->widgets);
-	this->rect = Rectangle32(0, 0, this->tree->min_x, this->tree->min_y);
-
-	Rectangle16 min_rect(0, 0, this->tree->min_x, this->tree->min_y);
-	this->tree->SetSmallestSizePosition(min_rect);
+	this->ResetSize();
 
 	Point32 pt = this->OnInitialPosition();
 	this->SetPosition(pt.x, pt.y);
+	this->initialized = true;
 
 	this->MarkDirty();
 }

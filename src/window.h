@@ -132,6 +132,7 @@ public:
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);
 	virtual void OnChange(ChangeCode code, uint32 parameter);
+	virtual void ResetSize();
 };
 
 /**
@@ -149,6 +150,7 @@ public:
 	virtual void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
 	virtual void SetSize(uint width, uint height);
 	StringID TranslateStringNumber(StringID str_id) const;
+	virtual void ResetSize();
 
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
@@ -177,6 +179,7 @@ public:
 	}
 
 	inline void MarkWidgetDirty(WidgetNumber wnum);
+	bool initialized; ///< Flag telling widgets whether the window has already been shown.
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').

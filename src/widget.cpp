@@ -36,6 +36,8 @@ BaseWidget::BaseWidget(WidgetType wtype)
 
 	this->min_x = 0;
 	this->min_y = 0;
+	this->smallest_x = 0;
+	this->smallest_y = 0;
 	this->pos.base.x = 0;
 	this->pos.base.y = 0;
 	this->pos.width  = 0;
@@ -136,7 +138,9 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  */
 /* virtual */ void BaseWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
-	this->SetWidget(wid_array);
+	if (!w->initialized) this->SetWidget(wid_array);
+	this->min_x = this->smallest_x;
+	this->min_y = this->smallest_y;
 
 	switch (this->wtype) {
 		case WT_EMPTY:
@@ -228,7 +232,9 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
  */
 /* virtual */ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
-	this->SetWidget(wid_array);
+	if (!w->initialized) this->SetWidget(wid_array);
+	this->min_x = this->smallest_x;
+	this->min_y = this->smallest_y;
 
 	switch (this->wtype) {
 		case WT_CLOSEBOX: {
@@ -327,7 +333,9 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
  */
 /* virtual */ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
-	this->SetWidget(wid_array);
+	if (!w->initialized) this->SetWidget(wid_array);
+	this->min_x = this->smallest_x;
+	this->min_y = this->smallest_y;
 
 	const BorderSpriteData *bsd = NULL;
 	uint8 pressable = 0; // Add extra space for a pressable widget.
@@ -467,7 +475,9 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
  */
 /* virtual */ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
-	this->SetWidget(wid_array);
+	if (!w->initialized) this->SetWidget(wid_array);
+	this->min_x = this->smallest_x;
+	this->min_y = this->smallest_y;
 
 	if (this->wtype == WT_HOR_SCROLLBAR) {
 		this->min_x = _gui_sprites.hor_scroll.min_length_all;
@@ -555,7 +565,9 @@ BackgroundWidget::~BackgroundWidget()
  */
 /* virtual */ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
-	this->SetWidget(wid_array);
+	if (!w->initialized) this->SetWidget(wid_array);
+	this->min_x = this->smallest_x;
+	this->min_y = this->smallest_y;
 
 	if (this->child != NULL) {
 		this->child->SetupMinimalSize(w, wid_array);
@@ -725,7 +737,9 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
  */
 /* virtual */ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
-	this->SetWidget(wid_array);
+	if (!w->initialized) this->SetWidget(wid_array);
+	this->min_x = this->smallest_x;
+	this->min_y = this->smallest_y;
 
 	/* Step 1: Initialize rows and columns. */
 	for (uint8 y = 0; y < this->num_rows; y++) {
@@ -1241,8 +1255,8 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 				if (*dest == NULL) break;
 				BaseWidget *bw = dynamic_cast<BaseWidget *>(*dest);
 				if (bw != NULL) {
-					bw->min_x = parts->data.size.x;
-					bw->min_y = parts->data.size.y;
+					bw->smallest_x = parts->data.size.x;
+					bw->smallest_y = parts->data.size.y;
 				}
 				break;
 			}
