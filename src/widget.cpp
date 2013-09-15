@@ -476,8 +476,6 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 /* virtual */ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
-	this->min_x = this->smallest_x;
-	this->min_y = this->smallest_y;
 
 	if (this->wtype == WT_HOR_SCROLLBAR) {
 		this->min_x = _gui_sprites.hor_scroll.min_length_all;

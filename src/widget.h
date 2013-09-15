@@ -79,18 +79,18 @@ public:
 
 	void MarkDirty(const Point32 &base);
 
-	WidgetType wtype;    ///< Widget type.
-	WidgetNumber number; ///< Widget number.
+	WidgetType wtype;          ///< Widget type.
+	WidgetNumber number;       ///< Widget number.
 
-	uint16 smallest_x; ///< Original horizontal size.
-	uint16 smallest_y; ///< Original vertical size.
-	uint16 min_x;      ///< Minimal horizontal size.
-	uint16 min_y;      ///< Minimal vertical size.
-	Rectangle16 pos;   ///< Current position and size (relative to window top-left edge).
-	uint16 fill_x;     ///< Horizontal fill step.
-	uint16 fill_y;     ///< Vertical fill step.
-	uint16 resize_x;   ///< Horizontal resize step.
-	uint16 resize_y;   ///< Vertical resize step.
+	uint16 smallest_x;         ///< Original horizontal size.
+	uint16 smallest_y;         ///< Original vertical size.
+	uint16 min_x;              ///< Minimal horizontal size.
+	uint16 min_y;              ///< Minimal vertical size.
+	Rectangle16 pos;           ///< Current position and size (relative to window top-left edge).
+	uint16 fill_x;             ///< Horizontal fill step.
+	uint16 fill_y;             ///< Vertical fill step.
+	uint16 resize_x;           ///< Horizontal resize step.
+	uint16 resize_y;           ///< Vertical resize step.
 	uint8 paddings[PAD_COUNT]; ///< Padding.
 
 protected:

@@ -180,7 +180,7 @@ public:
 	}
 
 	inline void MarkWidgetDirty(WidgetNumber wnum);
-	bool initialized; ///< Flag telling widgets whether the window has already been shown.
+	bool initialized; ///< Flag telling widgets whether the window has already been initialized.
 
 protected:
 	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').

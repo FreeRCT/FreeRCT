@@ -282,7 +282,7 @@ void Window::MarkDirty()
 /* virtual */ void Window::OnChange(ChangeCode code, uint32 parameter) { }
 
 /**
- * Resize a window.
+ * Reset the size of a window.
  * @note Only if the window is a #GuiWindow.
  */
 /* virtual */ void Window::ResetSize() { }
@@ -343,7 +343,7 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 	return str_id;
 }
 
-void GuiWindow::ResetSize()
+/* virtual */ void GuiWindow::ResetSize()
 {
 	this->tree->SetupMinimalSize(this, this->widgets);
 	this->rect = Rectangle32(this->rect.base.x, this->rect.base.y, this->tree->min_x, this->tree->min_y);
