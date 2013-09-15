@@ -38,6 +38,7 @@ enum WindowTypes {
 	WC_SHOP_MANAGER,   ///< Management window of a shop.
 	WC_TERRAFORM,      ///< Terraform window.
 	WC_FINANCES,       ///< Finance management window.
+	WC_SETTING,        ///< Setting window.
 
 	WC_NONE,           ///< Invalid window type.
 };
@@ -340,5 +341,6 @@ void ShowFinancesGui();
 void ShowCoasterManagementGui(RideInstance *coaster);
 void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowErrorMessage(StringID strid);
+void ShowSettingGui();
 
 #endif

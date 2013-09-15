@@ -11,6 +11,7 @@
 // Generic Gui strings.
 string { lang: "nl_NL"; name: "TITLEBAR_TIP";
 	text: "Klik op de titelbalk om het venster te verhogen, sleep de titelbalk om het venster te verplaatsen"; }
+string { lang: "nl_NL"; name: "LANGUAGE_NAME"; text: "Nederlands"; }
 
 string { lang: "nl_NL"; name: "MONTH_JANUARY";   text: "Januari"; }
 string { lang: "nl_NL"; name: "MONTH_FEBRUARY";  text: "Februari"; }

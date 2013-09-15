@@ -23,7 +23,7 @@ CXXFILES=bottom_toolbar_gui.cpp coaster.cpp coaster_gui.cpp config_reader.cpp da
 	palette.cpp path_build.cpp path.cpp path_gui.cpp \
 	people.cpp person.cpp person_gui.cpp \
 	random.cpp ride_gui.cpp ride_type.cpp \
-	select_mode.cpp shop_gui.cpp sprite_store.cpp string_func.cpp \
+	select_mode.cpp setting_gui.cpp shop_gui.cpp sprite_store.cpp string_func.cpp \
 	terraform.cpp terraform_gui.cpp tile_func.cpp toolbar_gui.cpp track_piece.cpp \
 	video.cpp viewport.cpp \
 	widget.cpp window.cpp

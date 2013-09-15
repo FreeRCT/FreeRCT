@@ -16,6 +16,7 @@
 static const char *_gui_string_names[] = {
 	/* Generic GUI strings. */
 	"TITLEBAR_TIP",
+	"LANGUAGE_NAME",
 
 	"MONTH_JANUARY",
 	"MONTH_FEBRUARY",
@@ -35,6 +36,8 @@ static const char *_gui_string_names[] = {
 	/* Toolbar GUI strings. */
 	"TOOLBAR_GUI_QUIT",
 	"TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM",
+	"TOOLBAR_GUI_SETTINGS",
+	"TOOLBAR_GUI_TOOLTIP_SETTINGS",
 	"TOOLBAR_GUI_PATHS",
 	"TOOLBAR_GUI_TOOLTIP_BUILD_PATHS",
 	"TOOLBAR_GUI_SAVE",
@@ -161,6 +164,11 @@ static const char *_gui_string_names[] = {
 	"MONEY_CURRENCY_SYMBOL",
 	"MONEY_THOUSANDS_SEPARATOR",
 	"MONEY_DECIMAL_SEPARATOR",
+
+	/* Settings window. */
+	"SETTING_TITLE",
+	"SETTING_LANGUAGE",
+	"SETTING_LANGUAGE_TOOLTIP",
 };
 
 /** String names of the shops. */

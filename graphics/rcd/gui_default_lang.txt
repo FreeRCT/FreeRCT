@@ -11,6 +11,7 @@
 // Generic Gui strings.
 string { lang: ""; name: "TITLEBAR_TIP";
 		text: "Click at the title bar to raise the window, drag the title bar to move the window"; }
+string { lang: ""; name: "LANGUAGE_NAME"; text: "English (UK)"; }
 
 string { lang: ""; name: "MONTH_JANUARY";   text: "January"; }
 string { lang: ""; name: "MONTH_FEBRUARY";  text: "February"; }
@@ -30,6 +31,8 @@ string { lang: ""; name: "NUMBERED_INSTANCE_NAME"; text: "%1% #%2%"; }
 // Toolbar gui strings.
 string { lang: ""; name: "TOOLBAR_GUI_QUIT";                 text: "Quit"; }
 string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM"; text: "Quit the program"; }
+string { lang: ""; name: "TOOLBAR_GUI_SETTINGS";             text: "Settings"; }
+string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_SETTINGS";     text: "Change the game's settings"; }
 string { lang: ""; name: "TOOLBAR_GUI_PATHS";                text: "Paths"; }
 string { lang: ""; name: "TOOLBAR_GUI_TOOLTIP_BUILD_PATHS";  text: "Build paths and queues"; }
 string { lang: ""; name: "TOOLBAR_GUI_SAVE";                 text: "Save"; }
@@ -158,3 +161,7 @@ string { lang: ""; name: "MONEY_CURRENCY_SYMBOL";     text: "$"; }
 string { lang: ""; name: "MONEY_THOUSANDS_SEPARATOR"; text: ","; }
 string { lang: ""; name: "MONEY_DECIMAL_SEPARATOR";   text: "."; }
 
+// Setting gui strings.
+string { lang: ""; name: "SETTING_TITLE";            text: "Settings"; }
+string { lang: ""; name: "SETTING_LANGUAGE";         text: "Change language"; }
+string { lang: ""; name: "SETTING_LANGUAGE_TOOLTIP"; text: "Change the language of the game"; }
