@@ -1,0 +1,109 @@
+#!/bin/sh
+
+# $Id$
+#
+# This file is part of FreeRCT.
+# FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+# FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Files
+CONFIG_LOG="config.log"
+REPLACEFILES="Makefile.in src/Makefile.in src/rcdgen/Makefile.in graphics/rcd/Makefile.in"
+
+# Commands/Programs
+PKGCONFIG="pkg-config --modversion"
+GREP="grep"
+
+log() {
+	if [ "$1" = "1" ]; then
+		shift
+		echo "$@"
+	else
+		shift
+	fi
+	echo "$@" >> $CONFIG_LOG
+}
+
+detect_os() {
+	os=$host
+	if [ -z "$os" ]; then
+		os=$(LC_ALL=C uname)
+	fi
+
+	if [ -z "$os" ]; then
+		log 1 "detecting OS... none detected"
+		exit 1
+	fi
+	# Change to upper case, and strip non-alphanumeric characters
+	os=$(echo "$os" | tr '[:lower:]' '[:upper:]' | tr -cd '[:alnum:]')
+
+	log 1 "detecting OS... detected $os"
+}
+
+detect_lib() {
+	# Generic function for detecting libraries
+	# Params:
+	# $1 - library name
+	# $2 - command
+
+	version=$($2)
+	ret=$?
+	log 2 "executing $2"
+	log 2 "  returned $(echo "$version" | head -1)" # Truncate to reduce useless output
+	log 2 "  exit code $ret"
+	if [ -z "$version" ] || [ "$ret" != "0" ]; then
+		log 1 "checking $1.. not found"
+		exit 1
+	fi
+	log 1 "checking $1... found v$(echo "$version" | $GREP --only-matching '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?')"
+}
+
+check_params() {
+	detect_os
+	detect_lib "sdl" "sdl-config --version"
+	detect_lib "SDL_ttf" "$PKGCONFIG SDL_ttf"
+	detect_lib "libpng" "libpng-config --version"
+	detect_lib "flex" "flex --version"
+	detect_lib "bison" "bison --version"
+}
+
+make_sed() {
+	for i in $REPLACEFILES
+	do
+		log 1 "Generating ${i%.in}..."
+		sed -e s@!!FREERCT!!@$FREERCT@g \
+		    -e s@!!RCDGEN!!@$RCDGEN@g \
+		< "$i" > "${i%.in}"
+	done
+}
+
+# Start
+echo "" > $CONFIG_LOG
+
+# Find out where configure is (in what dir)
+ROOT_DIR=${0%/*}
+# For MSYS/MinGW we want to know the FULL path. This as that path is generated
+# once you call an outside binary. Having the same path for the rest is needed
+# for dependency checking.
+# pwd -W returns said FULL path, but doesn't exist on others so fall back.
+ROOT_DIR=$(cd "$ROOT_DIR" && (pwd -W 2>/dev/null || pwd 2>/dev/null))
+if [ -n "$(grep '[^-_A-Za-z0-9\/\\\.:]' $ROOT_DIR)" ]; then
+	echo "WARNING: The path contains a non-alphanumeric character that might cause"
+	echo "         failures in subsequent build stages. Any failures with the build"
+	echo "         will most likely be caused by this."
+fi
+log 1 "detecting root dir... $ROOT_DIR"
+
+check_params
+
+EXE=""
+if [ "$os" = "MINGW" ] || [ "$os" = "CYGWIN" ] || [ "$os" = "OS2" ] || [ "$os" = "DOS" ] || [ "$os" = "WINCE" ]; then
+	EXE=".exe"
+fi
+
+FREERCT="freerct$EXE"
+RCDGEN="rcdgen$EXE"
+
+make_sed

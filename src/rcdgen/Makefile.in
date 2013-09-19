@@ -22,7 +22,7 @@ CXXFILES=ast.cpp check_data.cpp ../getoptdata.cpp image.cpp file_writing.cpp \
 OBJDIR=../objects/rcdgen
 OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
 DEPEND=$(OBJDIR)/depend-rcdgen.txt
-TARGET=rcdgen
+TARGET=!!RCDGEN!!
 
 
 $(TARGET): $(DEPEND) $(OBJFILES)

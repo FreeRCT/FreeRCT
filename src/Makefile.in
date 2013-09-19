@@ -9,8 +9,7 @@
 .PHONY: run clean rcd all
 
 OBJDIR=objects
-RCDDIR=../graphics/rcd
-RCDGEN=rcdgen/rcdgen
+RCDGEN=rcdgen/!!RCDGEN!!
 
 CXX=g++
 CXXFLAGS=-Wall -g
@@ -30,7 +29,7 @@ CXXFILES=bottom_toolbar_gui.cpp coaster.cpp coaster_gui.cpp config_reader.cpp da
 
 OBJFILES=$(addprefix $(OBJDIR)/,$(CXXFILES:.cpp=.o))
 DEPEND=$(OBJDIR)/depend-freerct.txt
-TARGET=freerct
+TARGET=!!FREERCT!!
 
 all: rcd $(TARGET)
 	@if test ! -f freerct.cfg;\

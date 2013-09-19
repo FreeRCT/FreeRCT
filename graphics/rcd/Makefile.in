@@ -16,7 +16,7 @@ GUIDATA=gui.rcd
 TRACKDATA=tracks.rcd
 
 RCDFILES=$(GAMEDATA) $(PATHDATA) $(GUIDATA) $(SHOPDATA) $(TRACKDATA)
-RCDGEN=../../src/rcdgen/rcdgen
+RCDGEN=../../src/rcdgen/!!RCDGEN!!
 
 .PHONY: build clean
 
