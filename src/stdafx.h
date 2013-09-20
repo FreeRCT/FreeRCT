@@ -155,5 +155,10 @@ void NORETURN CDECL error(const char *str, ...) WARN_FORMAT(1, 2);
 /** Macro for reporting reaching an 'impossible' position in the code. */
 #define NOT_REACHED() error("NOT_REACHED triggered at line %i of %s\n", __LINE__, __FILE__)
 
+/* Windows and others already define MAX_PATH. */
+#ifndef MAX_PATH
+	/** Max length of a file system path. */
+	#define MAX_PATH 512
+#endif
 
 #endif

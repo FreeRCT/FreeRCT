@@ -21,8 +21,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-static const int MAX_PATH = 512; ///< Max length of a file system path.
-
 /**
  * Base class implementation of a directory reader, never returning any content.
  * Derive a new class for your operating system with more functionality.
