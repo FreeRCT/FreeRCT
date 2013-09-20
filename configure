@@ -89,7 +89,7 @@ ROOT_DIR=${0%/*}
 # for dependency checking.
 # pwd -W returns said FULL path, but doesn't exist on others so fall back.
 ROOT_DIR=$(cd "$ROOT_DIR" && (pwd -W 2>/dev/null || pwd 2>/dev/null))
-if [ -n "$(grep '[^-_A-Za-z0-9\/\\\.:]' $ROOT_DIR)" ]; then
+if [ -n "$(echo "$ROOT_DIR" | grep '[^-_A-Za-z0-9\/\\\.:]')" ]; then
 	echo "WARNING: The path contains a non-alphanumeric character that might cause"
 	echo "         failures in subsequent build stages. Any failures with the build"
 	echo "         will most likely be caused by this."
