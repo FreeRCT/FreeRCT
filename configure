@@ -60,6 +60,57 @@ detect_lib() {
 	log 1 "checking $1... found v$(echo "$version" | $GREP --only-matching '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?')"
 }
 
+find_version() {
+	# Stable releases: "x.x.x" (NYI)
+	# Trunk  releases: "YYYYMMDD-HHmm.rev"
+	COMMIT_DATE=$(date -u +"%Y%m%d-%H%M")
+	LAST_REV="000"
+	VCS="none"
+	if [ -d "$ROOT_DIR/.svn" ] || [ -d "$ROOT_DIR/../.svn" ]; then
+		COMMIT_DATE=$(date +"%Y%m%d-%H%M" -ud "$(LC_ALL=C svn info | grep 'Changed Date' | cut -c20-45)")
+		LAST_REV=$(LC_ALL=C svn info | grep 'Changed Rev' | cut -d' ' -f4)
+		VCS="svn"
+		SHORT_VCS="r"
+	elif [ -d "$ROOT_DIR/.git" ]; then
+		if [ -d .git/svn  ] && [ x != x"$(ls -A .git/svn/)" ]; then
+			COMMIT_DATE=$(date +"%Y%m%d-%H%M" -ud "$(LC_ALL=C git svn info | grep 'Changed Date' | cut -c20-45)")
+			LAST_REV=$(LC_ALL=C git svn info | grep 'Changed Rev' | cut -d' ' -f4)
+			VCS="gitsvn"
+			SHORT_VCS="r"
+		else
+			COMMIT_DATE=$(date +"%Y%m%d-%H%M" -ud "$(LC_ALL=C git show -s --format="%ci" HEAD)")
+			LAST_REV=$(LC_ALL=C git rev-list HEAD --count)
+			VCS="git"
+			SHORT_VCS="g"
+		fi
+	elif [ -d "$ROOT_DIR/.hg" ]; then
+		COMMIT_DATE=$(LC_ALL=C hg parent --template="{date(date, '%Y%m%d-%H%M')}")
+		LAST_REV=$(LC_ALL=C hg parent --template="{svnrev}")
+		if [ -z "$LAST_REV" ]; then
+			LAST_REV=$(LC_ALL=C hg parent --template="{rev}")
+			VCS="hg"
+			SHORT_VCS="h"
+		else
+			VCS="hgsvn"
+			SHORT_VCS="r"
+		fi
+	fi
+	log 1 "checking revision... $VCS detection"
+	if [ "$VCS" = "none" ]; then
+		log 1 "WARNING: there is no means to determine the version."
+		log 1 "WARNING: please use a subversion, mercurial, or git checkout of FreeRCT."
+		log 1 "WARNING: USE WITH CAUTION!"
+
+		sleep 5
+	fi
+
+	log 2 "  commit date: $COMMIT_DATE"
+	log 2 "  last revision: $LAST_REV"
+
+	VERSION_STRING=$COMMIT_DATE"."$SHORT_VCS$LAST_REV
+	log 1 "identifying version... $VERSION_STRING"
+}
+
 check_params() {
 	detect_os
 	detect_lib "sdl" "sdl-config --version"
@@ -73,8 +124,9 @@ make_sed() {
 	for i in $REPLACEFILES
 	do
 		log 1 "Generating ${i%.in}..."
-		sed -e s@!!FREERCT!!@$FREERCT@g \
-		    -e s@!!RCDGEN!!@$RCDGEN@g \
+		sed -e s@!!FREERCT!!@"$FREERCT"@g \
+		    -e s@!!RCDGEN!!@"$RCDGEN"@g \
+		    -e s@!!VERSION!!@"$VERSION_STRING"@g \
 		< "$i" > "${i%.in}"
 	done
 }
@@ -97,6 +149,7 @@ fi
 log 1 "detecting root dir... $ROOT_DIR"
 
 check_params
+find_version
 
 EXE=""
 if [ "$os" = "MINGW" ] || [ "$os" = "CYGWIN" ] || [ "$os" = "OS2" ] || [ "$os" = "DOS" ] || [ "$os" = "WINCE" ]; then
