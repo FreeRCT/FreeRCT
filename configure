@@ -63,9 +63,10 @@ detect_lib() {
 find_version() {
 	# Stable releases: "x.x.x" (NYI)
 	# Trunk  releases: "YYYYMMDD-HHmm.rev"
-	COMMIT_DATE=$(date -u +"%Y%m%d-%H%M")
+	COMMIT_DATE="norev"
 	LAST_REV="000"
 	VCS="none"
+	SHORT_VCS="n"
 	if [ -d "$ROOT_DIR/.svn" ] || [ -d "$ROOT_DIR/../.svn" ]; then
 		COMMIT_DATE=$(date +"%Y%m%d-%H%M" -ud "$(LC_ALL=C svn info | grep 'Changed Date' | cut -c20-45)")
 		LAST_REV=$(LC_ALL=C svn info | grep 'Changed Rev' | cut -d' ' -f4)
