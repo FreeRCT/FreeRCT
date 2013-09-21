@@ -85,7 +85,7 @@ find_version() {
 			SHORT_VCS="g"
 		fi
 	elif [ -d "$ROOT_DIR/.hg" ]; then
-		COMMIT_DATE=$(LC_ALL=C hg parent --template="{date(date, '%Y%m%d-%H%M')}")
+		COMMIT_DATE=$(date +"%Y%m%d-%H%M" -ud "$(LC_ALL=C hg parent --template="{date|isodate}")")
 		LAST_REV=$(LC_ALL=C hg parent --template="{svnrev}")
 		if [ -z "$LAST_REV" ]; then
 			LAST_REV=$(LC_ALL=C hg parent --template="{rev}")
