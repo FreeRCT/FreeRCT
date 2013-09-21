@@ -139,6 +139,13 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	if (this->initialized) return true;
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return false;
 
+	SDL_Surface *icon = SDL_LoadBMP("../graphics/sprites/logo/logo.32.bmp"); /// \todo Non hardcoded filepath.
+	if (icon != NULL) {
+		SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0, 0, 255)); // Replace blue
+		SDL_WM_SetIcon(icon, NULL);
+		SDL_FreeSurface(icon);
+	}
+
 	this->video = SDL_SetVideoMode(800, 600, 8, SDL_HWSURFACE);
 	if (this->video == NULL) {
 		SDL_Quit();
