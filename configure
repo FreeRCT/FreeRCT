@@ -10,7 +10,7 @@
 
 # Files
 CONFIG_LOG="config.log"
-REPLACEFILES="Makefile.in src/Makefile.in src/rcdgen/Makefile.in graphics/rcd/Makefile.in"
+REPLACEFILES="Makefile.in src/Makefile.in src/rcdgen/Makefile.in graphics/rcd/Makefile.in src/rev.cpp.in"
 
 # Commands/Programs
 PKGCONFIG="pkg-config --modversion"

@@ -14,6 +14,7 @@
 #include "sprite_store.h"
 #include "palette.h"
 #include "math_func.h"
+#include "rev.h"
 
 VideoSystem *_video = NULL; ///< Global address of the video sub-system.
 
@@ -144,7 +145,9 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 		return false;
 	}
 
-	SDL_WM_SetCaption("FreeRCT", "FreeRCT");
+	char caption[50];
+	snprintf(caption, sizeof(caption), "FreeRCT %s", _freerct_revision);
+	SDL_WM_SetCaption(caption, caption);
 
 	if (TTF_Init() != 0) {
 		SDL_Quit();
@@ -726,4 +729,3 @@ void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint8 colour)
 	this->DrawLine(top_right, bottom_right, COL_HIGHLIGHT);
 	this->DrawLine(bottom_left, bottom_right, COL_HIGHLIGHT);
 }
-
