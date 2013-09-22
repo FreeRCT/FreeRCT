@@ -988,41 +988,39 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		/* Add supports. */
 		uint16 height = this->ground_height;
 		this->ground_height = -1;
-		if (height >= 0) {
-			uint8 slope = this->ground_slope;
-			while (height < zpos) {
-				int yoffset = (zpos - height) * this->vp->tile_height; // Compensate y position of support.
-				uint sprnum;
-				if (slope == SL_FLAT) {
-					if (height + 1 < zpos) {
-						sprnum = SSP_FLAT_DOUBLE_NS + (this->orient & 1);
-						height += 2;
-					} else {
-						sprnum = SSP_FLAT_SINGLE_NS + (this->orient & 1);
-						height += 1;
-					}
+		uint8 slope = this->ground_slope;
+		while (height < zpos) {
+			int yoffset = (zpos - height) * this->vp->tile_height; // Compensate y position of support.
+			uint sprnum;
+			if (slope == SL_FLAT) {
+				if (height + 1 < zpos) {
+					sprnum = SSP_FLAT_DOUBLE_NS + (this->orient & 1);
+					height += 2;
 				} else {
-					if (slope >= 15) { // Imploded steep slope.
-						sprnum = SSP_STEEP_N + ((slope - 15) + 2) % 4;
-						height += 2;
-					} else {
-						sprnum = SSP_NONFLAT_BASE + 15 - slope;
-						height++;
-					}
-					slope = SL_FLAT;
+					sprnum = SSP_FLAT_SINGLE_NS + (this->orient & 1);
+					height += 1;
 				}
-				ImageData *img = this->sprites->support->sprites[sprnum];
-				if (img != NULL) {
-					DrawData dd;
-					dd.level = slice;
-					dd.z_height = height;
-					dd.order = SO_SUPPORT;
-					dd.sprite = img;
-					dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-					dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
-					dd.recolour = NULL;
-					this->draw_images.insert(dd);
+			} else {
+				if (slope >= 15) { // Imploded steep slope.
+					sprnum = SSP_STEEP_N + ((slope - 15) + 2) % 4;
+					height += 2;
+				} else {
+					sprnum = SSP_NONFLAT_BASE + 15 - slope;
+					height++;
 				}
+				slope = SL_FLAT;
+			}
+			ImageData *img = this->sprites->support->sprites[sprnum];
+			if (img != NULL) {
+				DrawData dd;
+				dd.level = slice;
+				dd.z_height = height;
+				dd.order = SO_SUPPORT;
+				dd.sprite = img;
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
+				dd.recolour = NULL;
+				this->draw_images.insert(dd);
 			}
 		}
 	}
