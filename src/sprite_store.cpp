@@ -194,6 +194,8 @@ TextData::TextData() : RcdBlock()
 
 TextData::~TextData()
 {
+	delete[] this->strings;
+	delete[] this->text_data;
 }
 
 /**
@@ -342,7 +344,7 @@ bool TextData::Load(RcdFile *rcd_file, uint32 length)
 
 	this->strings = new TextString[used_strings];
 	this->string_count = used_strings;
-	this->text_data = (uint8 *)malloc(used_size);
+	this->text_data = new uint8[used_size];
 	if (this->strings == NULL || this->text_data == NULL) return false;
 
 	memcpy(this->text_data, buffer, used_size);
