@@ -30,7 +30,7 @@ CoasterType::CoasterType() : RideType(RTK_COASTER)
 /* virtual */ CoasterType::~CoasterType()
 {
 	delete[] this->pieces;
-	free(this->voxels);
+	delete[] this->voxels;
 }
 
 /**
@@ -67,13 +67,12 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 		this->pieces[i] = (*iter).second;
 	}
 	// Setup a track voxel list for fast access in the type.
-	free(this->voxels);
 	this->voxel_count = 0;
 	for (int i = 0; i < this->piece_count; i++) {
 		const TrackPiece *piece = this->pieces[i].Access();
 		this->voxel_count += piece->voxel_count;
 	}
-	this->voxels = Calloc<const TrackVoxel *>(this->voxel_count);
+	this->voxels = new const TrackVoxel*[this->voxel_count]();
 	int vi = 0;
 	for (int i = 0; i < this->piece_count; i++) {
 		const TrackPiece *piece = this->pieces[i].Access();
@@ -122,13 +121,13 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 CoasterInstance::CoasterInstance(const CoasterType *ct) : RideInstance(ct)
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = ct->item_cost[i] * 2;
-	this->pieces = Calloc<PositionedTrackPiece>(MAX_PLACED_TRACK_PIECES);
+	this->pieces = new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]();
 	this->capacity = MAX_PLACED_TRACK_PIECES;
 }
 
 CoasterInstance::~CoasterInstance()
 {
-	free(this->pieces);
+	delete[] this->pieces;
 }
 
 /**

@@ -15,20 +15,6 @@
 /* Copied from OpenTTD. */
 
 /**
- * Type wrapper around calloc.
- * @tparam T Type of the data to allocate.
- * @param count Number of data elements.
- * @return Address of cleared memory, if memory could be claimed.
- */
-template <class T>
-inline T *Calloc(size_t count)
-{
-	T *mem = (T *)calloc(count, sizeof(T));
-	if (mem == NULL) error("Could not allocate memory\n");
-	return mem;
-}
-
-/**
  * Type wrapper around memcpy.
  * @tparam T Type of the data to copy.
  * @param dest Base address of the destination.

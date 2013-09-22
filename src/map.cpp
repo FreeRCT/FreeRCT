@@ -60,12 +60,12 @@ static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copyPersons)
 /**
  * Make a new array of voxels, and initialize it.
  * @param height Desired height of the new voxel array.
- * @return New and initialized to 'empty' voxels. Caller should free the memory after use.
+ * @return New and initialized to 'empty' voxels. Caller should delete[] the memory after use.
  */
 static Voxel *MakeNewVoxels(int height)
 {
 	assert(height > 0);
-	Voxel *voxels = Calloc<Voxel>(height);
+	Voxel *voxels = new Voxel[height]();
 	for (int i = 0; i < height; i++) voxels[i].ClearVoxel();
 	return voxels;
 }
@@ -81,13 +81,13 @@ VoxelStack::VoxelStack()
 /** Destructor. */
 VoxelStack::~VoxelStack()
 {
-	free(this->voxels);
+	delete[] this->voxels;
 }
 
 /** Remove the stack. */
 void VoxelStack::Clear()
 {
-	free(this->voxels);
+	delete[] this->voxels;
 	this->voxels = NULL;
 	this->base = 0;
 	this->height = 0;
@@ -111,7 +111,7 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
 	CopyStackData(new_voxels + (this->base - new_base), this->voxels, this->height, true);
 
-	free(this->voxels);
+	delete[] this->voxels;
 	this->voxels = new_voxels;
 	this->height = new_height;
 	this->base = new_base;
@@ -298,7 +298,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 
 	this->base = new_base;
 	this->height = new_height;
-	free(this->voxels);
+	delete[] this->voxels;
 	this->voxels = new_voxels;
 }
 
