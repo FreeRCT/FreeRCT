@@ -402,7 +402,7 @@ void Viewport::EnableWorldAdditions()
 void Viewport::DisableWorldAdditions()
 {
 	this->additions_enabled = false;
-	if (this-additions_displayed) {
+	if (this->additions_displayed) {
 		this->additions_displayed = false;
 		_additions.MarkDirty(this);
 		this->arrow_cursor.MarkDirty();
