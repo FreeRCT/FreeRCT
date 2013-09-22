@@ -1276,7 +1276,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	ClippedRectangle draw_rect(cr, this->rect.base.x, this->rect.base.y, this->rect.width, this->rect.height);
 	_video->SetClippedRectangle(draw_rect);
 
-	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); iter++) {
+	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); ++iter) {
 		const DrawData &dd = (*iter);
 		const Recolouring &rec = (dd.recolour == NULL) ? recolour : *dd.recolour;
 		_video->BlitImage(dd.base, dd.sprite, rec, 0);

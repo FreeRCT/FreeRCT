@@ -447,7 +447,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 	_additions.Clear();
 
 	/* First iteration: Change the ground of the tiles, checking whether the change is actually allowed with the other game elements. */
-	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); iter++) {
+	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); ++iter) {
 		const Point32 &pos = (*iter).first;
 		const GroundData &gd = (*iter).second;
 		if (gd.modified == 0) continue;
@@ -521,7 +521,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 	 * The general idea is that each modified voxel handles adding of foundation to its SE and SW edge.
 	 * If the NE or NW voxel is not modified, the voxel will have to perform adding of foundations there as well.
 	 */
-	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); iter++) {
+	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); ++iter) {
 		const Point32 &pos = (*iter).first;
 		const GroundData &gd = (*iter).second;
 		if (gd.modified == 0) continue;
@@ -728,7 +728,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		 */
 		c->zpos = _world.GetGroundHeight(c->xpos, c->ypos);
 		GroundModificationMap::const_iterator iter;
-		for (iter = changes.changes.begin(); iter != changes.changes.end(); iter++) {
+		for (iter = changes.changes.begin(); iter != changes.changes.end(); ++iter) {
 			const Point32 &pt = (*iter).first;
 			vp->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);
 		}
@@ -777,10 +777,8 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 	if (!ok) return;
 
 	/* Like the dotmode, the cursor position is changed, but the mouse position is not touched to allow more
-	 * mousewheel events to happen at the same place.
-	 */
-	GroundModificationMap::const_iterator iter;
-	for (iter = changes.changes.begin(); iter != changes.changes.end(); iter++) {
+	 * mousewheel events to happen at the same place. */
+	for (GroundModificationMap::const_iterator iter = changes.changes.begin(); iter != changes.changes.end(); ++iter) {
 		const Point32 &pt = (*iter).first;
 		c->ResetZPosition(pt);
 		vp->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);

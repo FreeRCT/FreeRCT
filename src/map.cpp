@@ -403,7 +403,7 @@ WorldAdditions::~WorldAdditions()
 void WorldAdditions::Clear()
 {
 	VoxelStackMap::iterator iter;
-	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); iter++) {
+	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); ++iter) {
 		delete (*iter).second;
 	}
 	this->modified_stacks.clear();
@@ -413,7 +413,7 @@ void WorldAdditions::Clear()
 void WorldAdditions::Commit()
 {
 	VoxelStackMap::iterator iter;
-	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); iter++) {
+	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); ++iter) {
 		Point32 pt = (*iter).first;
 		_world.MoveStack(pt.x, pt.y, (*iter).second);
 	}
@@ -463,7 +463,7 @@ const VoxelStack *WorldAdditions::GetStack(uint16 x, uint16 y) const
 void WorldAdditions::MarkDirty(Viewport *vp)
 {
 	VoxelStackMap::const_iterator iter;
-	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); iter++) {
+	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); ++iter) {
 		const Point32 pt = (*iter).first;
 		const VoxelStack *vstack = (*iter).second;
 		if (vstack != NULL) vp->MarkVoxelDirty(pt.x, pt.x, vstack->base, vstack->height);

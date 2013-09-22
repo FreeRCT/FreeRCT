@@ -73,7 +73,7 @@ FileNode::FileNode(char *file_name) : BlockNode()
 FileNode::~FileNode()
 {
 	free(this->file_name);
-	for (std::list<GameBlock *>::iterator iter = this->blocks.begin(); iter != this->blocks.end(); iter++) {
+	for (std::list<GameBlock *>::iterator iter = this->blocks.begin(); iter != this->blocks.end(); ++iter) {
 		delete *iter;
 	}
 }
@@ -84,7 +84,7 @@ FileNode::~FileNode()
  */
 void FileNode::Write(FileWriter *fw)
 {
-	for (std::list<GameBlock *>::iterator iter = this->blocks.begin(); iter != this->blocks.end(); iter++) {
+	for (std::list<GameBlock *>::iterator iter = this->blocks.begin(); iter != this->blocks.end(); ++iter) {
 		(*iter)->Write(fw);
 	}
 }
@@ -95,7 +95,7 @@ FileNodeList::FileNodeList()
 
 FileNodeList::~FileNodeList()
 {
-	for (std::list<FileNode *>::iterator iter = this->files.begin(); iter != this->files.end(); iter++) {
+	for (std::list<FileNode *>::iterator iter = this->files.begin(); iter != this->files.end(); ++iter) {
 		delete *iter;
 	}
 }
@@ -357,7 +357,7 @@ PRSGBlock::~PRSGBlock()
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 1 + this->person_graphics.size() * 13);
 	fb->SaveUInt8(this->person_graphics.size());
-	for (std::list<PersonGraphics>::iterator iter = this->person_graphics.begin(); iter != this->person_graphics.end(); iter++) {
+	for (std::list<PersonGraphics>::iterator iter = this->person_graphics.begin(); iter != this->person_graphics.end(); ++iter) {
 		const PersonGraphics &pg = *iter;
 		fb->SaveUInt8(pg.person_type);
 		fb->SaveUInt32(pg.recol[0].Encode());
@@ -391,7 +391,7 @@ ANIMBlock::~ANIMBlock()
 	fb->SaveUInt8(this->person_type);
 	fb->SaveUInt16(this->anim_type);
 	fb->SaveUInt16(this->frames.size());
-	for (std::list<FrameData>::iterator iter = this->frames.begin(); iter != this->frames.end(); iter++) {
+	for (std::list<FrameData>::iterator iter = this->frames.begin(); iter != this->frames.end(); ++iter) {
 		const FrameData &fd = *iter;
 		fb->SaveUInt16(fd.duration);
 		fb->SaveInt16(fd.change_x);
@@ -407,7 +407,7 @@ ANSPBlock::ANSPBlock() : GameBlock("ANSP", 1)
 
 ANSPBlock::~ANSPBlock()
 {
-	for (std::list<SpriteBlock *>::iterator iter = this->frames.begin(); iter != this->frames.end(); iter++) {
+	for (std::list<SpriteBlock *>::iterator iter = this->frames.begin(); iter != this->frames.end(); ++iter) {
 		delete *iter;
 	}
 }
@@ -420,7 +420,7 @@ ANSPBlock::~ANSPBlock()
 	fb->SaveUInt8(this->person_type);
 	fb->SaveUInt16(this->anim_type);
 	fb->SaveUInt16(this->frames.size());
-	for (std::list<SpriteBlock *>::iterator iter = this->frames.begin(); iter != this->frames.end(); iter++) {
+	for (std::list<SpriteBlock *>::iterator iter = this->frames.begin(); iter != this->frames.end(); ++iter) {
 		fb->SaveUInt32((*iter)->Write(fw));
 	}
 	fb->CheckEndSave();
@@ -606,7 +606,7 @@ void Strings::CheckTranslations(const char *names[], int name_count, const Posit
 		}
 	}
 	/* Check that all strings have a default text. */
-	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); iter++) {
+	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); ++iter) {
 		if ((*iter).pos[0].line < 0) {
 			fprintf(stderr, "Error at %s: String \"%s\" has no default language text\n", pos.ToString(), (*iter).name.c_str());
 			exit(1);
@@ -623,12 +623,12 @@ int Strings::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	int length = 0;
-	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); iter++) {
+	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); ++iter) {
 		length += (*iter).GetSize();
 	}
 	fb->StartSave("TEXT", 1, length);
 
-	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); iter++) {
+	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); ++iter) {
 		(*iter).Write(fb);
 	}
 	fb->CheckEndSave();
@@ -1136,7 +1136,7 @@ TrackPieceNode::~TrackPieceNode()
 {
 	delete this->entry;
 	delete this->exit;
-	for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); iter++) {
+	for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); ++iter) {
 		delete *iter;
 	}
 }
@@ -1193,7 +1193,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		fb->SaveUInt16(flags);
 		fb->SaveUInt32(this->cost);
 		fb->SaveUInt16(this->track_voxels.size());
-		for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); iter++) {
+		for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); ++iter) {
 			(*iter)->Write(fw, fb, rot);
 		}
 		fb->CheckEndSave();
@@ -1209,7 +1209,7 @@ RCSTBlock::RCSTBlock() : GameBlock("RCST", 3)
 RCSTBlock::~RCSTBlock()
 {
 	delete this->text;
-	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
+	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); ++iter) {
 		delete *iter;
 	}
 }
@@ -1218,7 +1218,7 @@ int RCSTBlock::Write(FileWriter *fw)
 {
 	/* Collect connection names, and give each a number. */
 	std::map<std::string, int> connections;
-	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
+	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); ++iter) {
 		(*iter)->UpdateConnectionMap(&connections);
 	}
 
@@ -1229,7 +1229,7 @@ int RCSTBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->platform_type);
 	fb->SaveUInt32(this->text->Write(fw));
 	fb->SaveUInt16(4 * this->track_blocks.size());
-	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); iter++) {
+	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); ++iter) {
 		(*iter)->Write(connections, fw, fb);
 	}
 	fb->CheckEndSave();

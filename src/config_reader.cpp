@@ -45,7 +45,7 @@ ConfigSection::ConfigSection(const char *sect_name)
 ConfigSection::~ConfigSection()
 {
 	free(const_cast<char *>(this->sect_name));
-	for (ConfigItemList::iterator iter = this->items.begin(); iter != this->items.end(); iter++) {
+	for (ConfigItemList::iterator iter = this->items.begin(); iter != this->items.end(); ++iter) {
 		free(*iter);
 	}
 }
@@ -57,7 +57,7 @@ ConfigSection::~ConfigSection()
  */
 const ConfigItem *ConfigSection::GetItem(const char *key) const
 {
-	for (ConfigItemList::const_iterator iter = this->items.begin(); iter != this->items.end(); iter++) {
+	for (ConfigItemList::const_iterator iter = this->items.begin(); iter != this->items.end(); ++iter) {
 		if (!strcmp((*iter)->key, key)) return *iter;
 	}
 	return NULL;
@@ -76,7 +76,7 @@ ConfigFile::~ConfigFile()
 /** Clean the config file. */
 void ConfigFile::Clear()
 {
-	for (ConfigSectionList::iterator iter = this->sections.begin(); iter != this->sections.end(); iter++) {
+	for (ConfigSectionList::iterator iter = this->sections.begin(); iter != this->sections.end(); ++iter) {
 		free(*iter);
 	}
 }
@@ -178,7 +178,7 @@ bool ConfigFile::Load(const char *fname)
  */
 const ConfigSection *ConfigFile::GetSection(const char *sect_name) const
 {
-	for (ConfigSectionList::const_iterator iter = this->sections.begin(); iter != this->sections.end(); iter++) {
+	for (ConfigSectionList::const_iterator iter = this->sections.begin(); iter != this->sections.end(); ++iter) {
 		if (!strcmp((*iter)->sect_name, sect_name)) return *iter;
 	}
 	return NULL;

@@ -240,7 +240,7 @@ ExpressionRef BitSet::Evaluate(const Symbol *symbols) const
 {
 	long long value = 0;
 	if (this->args != NULL) {
-		for (std::list<ExpressionRef>::const_iterator iter = this->args->exprs.begin(); iter != this->args->exprs.end(); iter++) {
+		for (std::list<ExpressionRef>::const_iterator iter = this->args->exprs.begin(); iter != this->args->exprs.end(); ++iter) {
 			ExpressionRef e = (*iter).Access()->Evaluate(symbols);
 			NumberLiteral *nl = dynamic_cast<NumberLiteral *>(e.Access());
 			if (nl == NULL) {
@@ -369,7 +369,7 @@ NameRow::NameRow()
 
 NameRow::~NameRow()
 {
-	for (std::list<IdentifierLine *>::iterator iter = this->identifiers.begin(); iter != this->identifiers.end(); iter++) {
+	for (std::list<IdentifierLine *>::iterator iter = this->identifiers.begin(); iter != this->identifiers.end(); ++iter) {
 		delete *iter;
 	}
 }
@@ -393,7 +393,7 @@ const Position &NameRow::GetPosition() const
 int NameRow::GetNameCount() const
 {
 	int count = 0;
-	for (std::list<IdentifierLine *>::const_iterator iter = this->identifiers.begin(); iter != this->identifiers.end(); iter++) {
+	for (std::list<IdentifierLine *>::const_iterator iter = this->identifiers.begin(); iter != this->identifiers.end(); ++iter) {
 		if ((*iter)->IsValid()) count++;
 	}
 	return count;
@@ -405,14 +405,14 @@ NameTable::NameTable() : Name()
 
 NameTable::~NameTable()
 {
-	for (std::list<NameRow *>::iterator iter = this->rows.begin(); iter != this->rows.end(); iter++) {
+	for (std::list<NameRow *>::iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
 		delete *iter;
 	}
 }
 
 const Position &NameTable::GetPosition() const
 {
-	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); iter++) {
+	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
 		const Position &pos = (*iter)->GetPosition();
 		if (pos.line > 0) return pos;
 	}
@@ -422,7 +422,7 @@ const Position &NameTable::GetPosition() const
 int NameTable::GetNameCount() const
 {
 	int count = 0;
-	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); iter++) {
+	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
 		count += (*iter)->GetNameCount();
 	}
 	return count;
@@ -582,7 +582,7 @@ NamedValueList::NamedValueList()
 
 NamedValueList::~NamedValueList()
 {
-	for (std::list<BaseNamedValue *>::iterator iter = this->values.begin(); iter != this->values.end(); iter++) {
+	for (std::list<BaseNamedValue *>::iterator iter = this->values.begin(); iter != this->values.end(); ++iter) {
 		delete (*iter);
 	}
 }
@@ -593,12 +593,12 @@ void NamedValueList::HandleImports()
 	bool has_import = false;
 	std::list<BaseNamedValue *> values;
 
-	for (std::list<BaseNamedValue *>::iterator iter = this->values.begin(); iter != this->values.end(); iter++) {
+	for (std::list<BaseNamedValue *>::iterator iter = this->values.begin(); iter != this->values.end(); ++iter) {
 		ImportValue *iv = dynamic_cast<ImportValue *>(*iter);
 		if (iv != NULL) {
 			has_import = true;
 			NamedValueList *nv = LoadFile(iv->filename, iv->pos.line);
-			for (std::list<BaseNamedValue *>::iterator iter2 = nv->values.begin(); iter2 != nv->values.end(); iter2++) {
+			for (std::list<BaseNamedValue *>::iterator iter2 = nv->values.begin(); iter2 != nv->values.end(); ++iter2) {
 				values.push_back(*iter2);
 			}
 			nv->values.clear();

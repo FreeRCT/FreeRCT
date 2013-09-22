@@ -38,7 +38,7 @@ static void ExpandExpressions(ExpressionList *exprs, ExpressionRef out[], size_t
 		exit(1);
 	}
 	int idx = 0;
-	for (std::list<ExpressionRef>::iterator iter = exprs->exprs.begin(); iter != exprs->exprs.end(); iter++) {
+	for (std::list<ExpressionRef>::iterator iter = exprs->exprs.begin(); iter != exprs->exprs.end(); ++iter) {
 		out[idx++] = *iter;
 	}
 }
@@ -121,7 +121,7 @@ static FileNode *ConvertFileNode(NodeGroup *ng)
 	char *filename = GetString(argument, 0, "file");
 	FileNode *fn = new FileNode(filename);
 
-	for (std::list<BaseNamedValue *>::iterator iter = ng->values->values.begin(); iter != ng->values->values.end(); iter++) {
+	for (std::list<BaseNamedValue *>::iterator iter = ng->values->values.begin(); iter != ng->values->values.end(); ++iter) {
 		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
 		assert(nv != NULL); // Should always hold, as ImportValue has been eliminated.
 		if (nv->name != NULL) fprintf(stderr, "Warning at %s: Unexpected name encountered, ignoring\n", nv->name->GetPosition().ToString());
@@ -333,10 +333,10 @@ Strings *ValueInformation::GetStrings(const Position &pos, const char *node)
 void AssignNames(BlockNode *bn, NameTable *nt, ValueInformation *vis, int *length)
 {
 	int row = 0;
-	for (std::list<NameRow *>::iterator row_iter = nt->rows.begin(); row_iter != nt->rows.end(); row_iter++) {
+	for (std::list<NameRow *>::iterator row_iter = nt->rows.begin(); row_iter != nt->rows.end(); ++row_iter) {
 		NameRow *nr = *row_iter;
 		int col = 0;
-		for (std::list<IdentifierLine *>::iterator col_iter = nr->identifiers.begin(); col_iter != nr->identifiers.end(); col_iter++) {
+		for (std::list<IdentifierLine *>::iterator col_iter = nr->identifiers.begin(); col_iter != nr->identifiers.end(); ++col_iter) {
 			IdentifierLine *il = *col_iter;
 			if (il->IsValid()) {
 				vis[*length].expr_value = NULL;
@@ -431,7 +431,7 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 	/* Count number of named and unnamed values. */
 	int named_count = 0;
 	int unnamed_count = 0;
-	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); iter++) {
+	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); ++iter) {
 		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
 		assert(nv != NULL); // Should always hold, as ImportValue has been eliminated.
 		if (nv->name == NULL) { // Unnamed value.
@@ -454,7 +454,7 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 
 	named_count = 0;
 	unnamed_count = 0;
-	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); iter++) {
+	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); ++iter) {
 		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
 		assert(nv != NULL); // Should always hold, as ImportValue has been eliminated.
 		if (nv->name == NULL) { // Unnamed value.

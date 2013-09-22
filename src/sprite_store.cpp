@@ -1311,14 +1311,12 @@ void SpriteStorage::AddBuildArrows(DisplayedObject *obj)
  */
 void SpriteStorage::RemoveAnimations(AnimationType anim_type, PersonType pers_type)
 {
-	AnimationSpritesMap::iterator iter = this->animations.find(anim_type);
-	for (;;) {
-		if (iter == this->animations.end()) return;
+	for (AnimationSpritesMap::iterator iter = this->animations.find(anim_type); iter != this->animations.end(); ) {
 		AnimationSprites *an_spr = (*iter).second;
 		if (an_spr->anim_type != anim_type) return;
 		if (an_spr->person_type == pers_type) {
 			AnimationSpritesMap::iterator iter2 = iter;
-			iter2++;
+			++iter2;
 			this->animations.erase(iter);
 			iter = iter2;
 		}
@@ -1778,12 +1776,10 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
  */
 const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType per_type) const
 {
-	AnimationsMap::const_iterator iter = this->animations.find(anim_type);
-	while (iter != this->animations.end()) {
+	for (AnimationsMap::const_iterator iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
 		const Animation *anim = (*iter).second;
 		if (anim->anim_type != anim_type) break;
 		if (anim->person_type == per_type) return anim;
-		iter++;
 	}
 	return NULL;
 }
