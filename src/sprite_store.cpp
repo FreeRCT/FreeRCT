@@ -1364,7 +1364,6 @@ const char *SpriteManager::Load(const char *filename)
 {
 	char name[5];
 	name[4] = '\0';
-	uint32 version, length;
 
 	RcdFile rcd_file(filename);
 	if (!rcd_file.CheckFileHeader("RCDF", 1)) return "Could not read header";
@@ -1381,8 +1380,8 @@ const char *SpriteManager::Load(const char *filename)
 		if (remain < 12) return "Insufficient space for a block"; // Not enough for a rcd block header, abort.
 
 		if (!rcd_file.GetBlob(name, 4)) return "Loading block name failed";
-		version = rcd_file.GetUInt32();
-		length = rcd_file.GetUInt32();
+		uint32 version = rcd_file.GetUInt32();
+		uint32 length = rcd_file.GetUInt32();
 
 		if (length + 12 > remain) return "Not enough data"; // Not enough data in the file.
 
