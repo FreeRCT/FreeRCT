@@ -368,6 +368,10 @@ void RideInstance::BuildRide()
  */
 ShopInstance::ShopInstance(const ShopType *type) : RideInstance(type)
 {
+	this->orientation = 0;
+	this->xpos = 0;
+	this->ypos = 0;
+	this->zpos = 0;
 }
 
 ShopInstance::~ShopInstance()
