@@ -12,7 +12,7 @@ OBJDIR=objects
 RCDGEN=rcdgen/!!RCDGEN!!
 
 CXX=g++
-CXXFLAGS=-Wall -g
+CXXFLAGS=-Wall -g -std=c++0x
 INCLUDES=-I$(OBJDIR) -I/usr/include/SDL
 LIBS=-lSDL -lSDL_ttf
 
