@@ -291,8 +291,7 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 	const uint8 *dec_sep  = _language.GetText(GUI_MONEY_DECIMAL_SEPARATOR);
 	size_t dec_sep_len = StrBytesLength(dec_sep);
 
-	/* Allocate stack-based storage. */
-	char *buf = (char *)alloca(size);
+	char *buf = new char[size];
 
 	/* Convert double into a numeric string (with '.' as the decimal separator). */
 	uint len = snprintf(buf, size, "%.2f", amt);
@@ -337,6 +336,7 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 
 	assert((size_t)j < size);
 	dest[j] = '\0';
+	delete[] buf;
 }
 
 /**

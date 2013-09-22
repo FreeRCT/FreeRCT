@@ -148,7 +148,7 @@ StringLiteral::StringLiteral(const Position &pos, char *text) : Expression(pos)
 
 StringLiteral::~StringLiteral()
 {
-	free(this->text);
+	delete[] this->text;
 }
 
 ExpressionRef StringLiteral::Evaluate(const Symbol *symbols) const
@@ -164,7 +164,7 @@ ExpressionRef StringLiteral::Evaluate(const Symbol *symbols) const
 char *StringLiteral::CopyText() const
 {
 	int length = strlen(this->text);
-	char *copy = (char *)malloc(length + 1);
+	char *copy = new char[length + 1];
 	memcpy(copy, this->text, length + 1);
 	return copy;
 }
@@ -181,7 +181,7 @@ IdentifierLiteral::IdentifierLiteral(const Position &pos, char *name) : Expressi
 
 IdentifierLiteral::~IdentifierLiteral()
 {
-	free(this->name);
+	delete[] this->name;
 }
 
 ExpressionRef IdentifierLiteral::Evaluate(const Symbol *symbols) const
@@ -287,7 +287,7 @@ SingleName::SingleName(const Position &pos, char *name) : Name(), pos(pos)
 
 SingleName::~SingleName()
 {
-	free(this->name);
+	delete[] this->name;
 }
 
 const Position &SingleName::GetPosition() const
@@ -317,7 +317,7 @@ IdentifierLine::IdentifierLine(const Position &pos, char *name) : pos(pos)
 IdentifierLine::IdentifierLine(const IdentifierLine &il) : pos(il.pos)
 {
 	int length = strlen(il.name);
-	this->name = (char *)malloc(length + 1);
+	this->name = new char[length + 1];
 	memcpy(this->name, il.name, length + 1);
 }
 
@@ -329,18 +329,18 @@ IdentifierLine::IdentifierLine(const IdentifierLine &il) : pos(il.pos)
 IdentifierLine &IdentifierLine::operator=(const IdentifierLine &il)
 {
 	if (&il == this) return *this;
-	free(this->name);
+	delete[] this->name;
 
 	this->pos = il.pos;
 	int length = strlen(il.name);
-	this->name = (char *)malloc(length + 1);
+	this->name = new char[length + 1];
 	memcpy(this->name, il.name, length + 1);
 	return *this;
 }
 
 IdentifierLine::~IdentifierLine()
 {
-	free(this->name);
+	delete[] this->name;
 }
 
 /**
@@ -476,7 +476,7 @@ NodeGroup::NodeGroup(const Position &pos, char *name, ExpressionList *exprs, Nam
 
 NodeGroup::~NodeGroup()
 {
-	free(this->name);
+	delete[] this->name;
 	delete this->exprs;
 	delete this->values;
 }
@@ -568,7 +568,7 @@ ImportValue::ImportValue(const Position &pos, char *filename) : BaseNamedValue()
 
 ImportValue::~ImportValue()
 {
-	free(this->filename);
+	delete[] this->filename;
 }
 
 void ImportValue::HandleImports()

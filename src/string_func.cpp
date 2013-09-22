@@ -49,11 +49,12 @@ uint8 *SafeStrncpy(uint8 *dest, const uint8 *src, int size)
  * Duplicate a string.
  * @param src Source string.
  * @return Copy of the string in its own memory.
+ * @note String must be deleted later!
  */
 char *StrDup(const char *src)
 {
 	size_t n = strlen(src);
-	char *mem = (char *)malloc(n + 1);
+	char *mem = new char[n + 1];
 	assert(mem != NULL);
 
 	return SafeStrncpy(mem, src, n + 1);

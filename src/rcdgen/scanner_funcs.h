@@ -18,9 +18,8 @@
 extern int line; ///< Line number of the input file being scanned.
 extern std::string filename; ///< Name of the file being parsed.
 
-extern char *text;     ///< Temporary storage for a string.
-extern int text_size;  ///< Length of #text.
-extern int text_index; ///< Pointer into #text, pointing to the first free character.
+extern std::string text; ///< Temporary storage for a string.
+extern uint text_index; ///< Pointer into #text, pointing to the first free character.
 void AddChar(int kar);
 
 int yylex();   ///< Generated scanner function.

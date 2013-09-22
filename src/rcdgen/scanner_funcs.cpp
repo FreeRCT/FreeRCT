@@ -20,20 +20,16 @@
  */
 void AddChar(int kar)
 {
-	if (text_index < text_size) {
+	if (text_index < text.length()) {
 		text[text_index] = kar;
 		text_index++;
 		return;
 	}
 
-	if (text_size == 0) {
-		text = (char *)malloc(512);
-		assert(text != NULL);
-		text_size = 512;
+	if (text.length() == 0) {
+		text.resize(512);
 	} else {
-		text = (char *)realloc(text, text_size + 512);
-		assert(text != NULL);
-		text_size += 512;
+		text.resize(text.length() + 512);
 	}
 	text[text_index] = kar;
 	text_index++;

@@ -690,16 +690,16 @@ void IntermediateWidget::ClaimMemory()
 	assert(this->num_cols > 0 && this->num_rows > 0);
 	assert(this->childs == NULL);
 
-	this->childs = (BaseWidget **)malloc(num_rows * num_cols * sizeof(BaseWidget **));
+	this->childs = new BaseWidget *[this->num_rows * this->num_cols];
 	assert(this->childs != NULL);
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 		this->childs[idx] = NULL;
 	}
 
-	this->rows = (RowColData *)malloc(this->num_rows * sizeof(RowColData));
+	this->rows = new RowColData[this->num_rows];
 	assert(this->rows != NULL);
 
-	this->columns = (RowColData *)malloc(this->num_cols * sizeof(RowColData));
+	this->columns = new RowColData[this->num_cols];
 	assert(this->columns != NULL);
 }
 
@@ -709,10 +709,10 @@ IntermediateWidget::~IntermediateWidget()
 		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 			delete this->childs[idx];
 		}
-		free(this->childs);
+		delete[] this->childs;
 	}
-	free(this->rows);
-	free(this->columns);
+	delete[] this->rows;
+	delete[] this->columns;
 }
 
 /**

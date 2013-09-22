@@ -308,7 +308,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 GuiWindow::~GuiWindow()
 {
 	if (this->tree != NULL) delete this->tree;
-	free(this->widgets);
+	delete[] this->widgets;
 }
 
 /**
@@ -368,7 +368,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 
 	if (biggest >= 0) {
 		this->num_widgets = biggest + 1;
-		this->widgets = (BaseWidget **)malloc(sizeof(BaseWidget *) * (biggest + 1));
+		this->widgets = new BaseWidget *[biggest + 1];
 		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = NULL;
 	}
 	this->ResetSize();

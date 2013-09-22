@@ -224,8 +224,8 @@ SpriteImage::SpriteImage()
 
 SpriteImage::~SpriteImage()
 {
-	free(this->data);
-	free(this->row_sizes);
+	delete[] this->data;
+	delete[] this->row_sizes;
 }
 
 /**
@@ -245,8 +245,8 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	assert(img->png_initialized);
 
 	/* Remove any old data. */
-	free(this->data);
-	free(this->row_sizes);
+	delete[] this->data;
+	delete[] this->row_sizes;
 	this->data = NULL;
 	this->row_sizes = NULL;
 	this->data_size = 0;
@@ -289,7 +289,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	}
 
 	if (xsize == 0 || ysize == 0) {
-		free(this->data);
+		delete[] this->data;
 		this->data = NULL;
 		this->data_size = 0;
 		this->xoffset = 0;
@@ -304,7 +304,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	this->width = xsize;
 	this->height = ysize;
 
-	this->row_sizes = (uint16 *)malloc(this->height * sizeof(uint16));
+	this->row_sizes = new uint16[this->height];
 	if (this->row_sizes == NULL) return "Cannot allocate row sizes";
 
 	/* Examine the sprite, and record length of data for each row. */
@@ -346,7 +346,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	}
 
 	/* Copy sprite pixels. */
-	this->data = (uint8 *)malloc(this->data_size);
+	this->data = new uint8[this->data_size];
 	if (this->data == NULL) return "Cannot allocate sprite pixel memory";
 
 	uint8 *ptr = this->data;

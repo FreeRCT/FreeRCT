@@ -4,9 +4,8 @@
 
 int line = 1;
 std::string filename;
-char *text = NULL;
-int text_size = 0;
-int text_index;
+std::string text;
+uint text_index;
 int string_line; ///< Starting line of the string.
 %}
 
@@ -65,9 +64,8 @@ int string_line; ///< Starting line of the string.
 	BEGIN(INITIAL);
 	AddChar('\0');
 	yylval.chars.line = string_line;
-	int length = strlen(text);
-	yylval.chars.value = (char *)malloc(length + 1);
-	memcpy(yylval.chars.value, text, length + 1);
+	yylval.chars.value = new char[text.length() + 1];
+	std::copy(text.begin(), text.end(), yylval.chars.value);
 	return STRING;
 }
 
@@ -108,7 +106,7 @@ int string_line; ///< Starting line of the string.
 [A-Za-z_][A-Za-z0-9#_]* {
 	yylval.chars.line = line;
 	int length = strlen(yytext);
-	yylval.chars.value = (char *)malloc(length + 1);
+	yylval.chars.value = new char[length + 1];
 	memcpy(yylval.chars.value, yytext, length + 1);
 	return IDENTIFIER;
 }

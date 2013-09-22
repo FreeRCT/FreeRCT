@@ -102,7 +102,7 @@ Person::Person() : rnd()
 
 Person::~Person()
 {
-	free(this->name);
+	delete[] this->name;
 }
 
 /**
@@ -115,7 +115,7 @@ void Person::SetName(const char *name)
 	assert(PersonIsAGuest(this->type));
 
 	int length = strlen(name);
-	this->name = (char *)malloc(length + 1);
+	this->name = new char[length];
 	memcpy(this->name, name, length);
 	this->name[length] = '\0';
 }

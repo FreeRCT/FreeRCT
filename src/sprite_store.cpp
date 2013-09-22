@@ -89,8 +89,8 @@ ImageData::ImageData() : RcdBlock()
 
 ImageData::~ImageData()
 {
-	free(this->table);
-	free(this->data);
+	delete[] this->table;
+	delete[] this->data;
 }
 
 /**
@@ -118,8 +118,8 @@ bool ImageData::Load(RcdFile *rcd_file, size_t length)
 	if (length <= jmp_table) return false; // You need at least place for the jump table.
 	length -= jmp_table;
 
-	this->table = (uint32 *)malloc(jmp_table);
-	this->data  = (uint8 *)malloc(length);
+	this->table = new uint32[jmp_table / 4];
+	this->data  = new uint8[length];
 	if (this->table == NULL || this->data == NULL) return false;
 
 	/* Load jump table, adjusting the entries while loading. */
@@ -703,7 +703,7 @@ Animation::Animation() : RcdBlock()
 /** %Animation destructor. */
 Animation::~Animation()
 {
-	free(this->frames);
+	delete[] this->frames;
 }
 
 /**
@@ -741,7 +741,7 @@ bool Animation::Load(RcdFile *rcd_file, size_t length)
 
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 6) return false;
-	this->frames = (AnimationFrame *)malloc(this->frame_count * sizeof(AnimationFrame));
+	this->frames = new AnimationFrame[this->frame_count];
 	if (this->frames == NULL || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {
@@ -772,7 +772,7 @@ AnimationSprites::AnimationSprites() : RcdBlock()
 /** Animation sprites destructor. */
 AnimationSprites::~AnimationSprites()
 {
-	free(this->sprites);
+	delete[] this->sprites;
 }
 
 /**
@@ -798,7 +798,7 @@ bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const ImageMap &sp
 
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 4) return false;
-	this->sprites = (ImageData **)malloc(this->frame_count * sizeof(ImageData *));
+	this->sprites = new ImageData *[this->frame_count];
 	if (this->sprites == NULL || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {

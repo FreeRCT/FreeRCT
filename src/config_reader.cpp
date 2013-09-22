@@ -27,8 +27,8 @@ ConfigItem::ConfigItem(const char *key, const char *value)
 
 ConfigItem::~ConfigItem()
 {
-	free(const_cast<char *>(this->key));
-	free(const_cast<char *>(this->value));
+	delete[] this->key;
+	delete[] this->value;
 }
 
 /**
@@ -44,9 +44,9 @@ ConfigSection::ConfigSection(const char *sect_name)
 
 ConfigSection::~ConfigSection()
 {
-	free(const_cast<char *>(this->sect_name));
+	delete[] this->sect_name;
 	for (ConfigItemList::iterator iter = this->items.begin(); iter != this->items.end(); ++iter) {
-		free(*iter);
+//		free(*iter);
 	}
 }
 

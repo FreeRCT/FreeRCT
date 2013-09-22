@@ -21,7 +21,7 @@ FileBlock::FileBlock()
 
 FileBlock::~FileBlock()
 {
-	free(this->data);
+	delete[] this->data;
 }
 
 /**
@@ -36,8 +36,8 @@ FileBlock::~FileBlock()
 void FileBlock::StartSave(const char *blk_name, int version, int data_length)
 {
 	this->length = data_length + 12; // Add length of the header.
-	free(this->data);
-	this->data = (uint8 *)malloc(this->length);
+	delete[] this->data;
+	this->data = new uint8[this->length];
 	this->save_index = 0;
 
 	assert(strlen(blk_name) == 4);
