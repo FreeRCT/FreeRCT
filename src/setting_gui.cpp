@@ -71,12 +71,11 @@ SettingWindow::SettingWindow() : GuiWindow(WC_SETTING, ALL_WINDOWS_OF_TYPE)
 	}
 }
 
-/** @todo Needs to use a dropdown list to change language. */
 /* virtual */ void SettingWindow::OnClick(WidgetNumber number)
 {
 	switch (number) {
 		case SW_LANGUAGE:
-			_current_language = (_current_language == 2) ? 0 : 2; // XXX
+			_current_language = (_current_language == 2) ? 0 : 2; /// \todo Needs to use a dropdown list to change language.
 			for (Window *w = _manager.top; w != NULL; w = w->lower) w->ResetSize();
 			break;
 	}

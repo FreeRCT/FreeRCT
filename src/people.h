@@ -12,7 +12,7 @@
 #ifndef PEOPLE_H
 #define PEOPLE_H
 
-static const uint GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
+static const int GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
 
 /** A block of guests. */
 class GuestBlock {

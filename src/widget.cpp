@@ -462,10 +462,11 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
 /**
  * Scrollbar widget constructor.
  * @param wtype %Widget type.
+ * @todo \c canvas_widget needs to be extended and used when scrollbars are actually used.
  */
 ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 {
-	this->canvas_widget = canvas_widget;
+	this->canvas_widget = 0;
 }
 
 /**

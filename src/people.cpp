@@ -258,7 +258,7 @@ uint Guests::CountActiveGuests()
  */
 void Guests::OnAnimate(int delay)
 {
-	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
+	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
 		Person *p = this->block.Get(i);
 		if (p->type == PERSON_INVALID) continue;
 
@@ -283,7 +283,7 @@ void Guests::DoTick()
 		}
 		this->next_daily_index++;
 	}
-	if (this->next_daily_index >= (int)GUEST_BLOCK_SIZE) {
+	if (this->next_daily_index >= GUEST_BLOCK_SIZE) {
 		this->daily_frac = 0;
 		this->next_daily_index = 0;
 	}

@@ -77,6 +77,7 @@ FinancesManager::~FinancesManager()
 
 /**
  * Get the finance object for the current month.
+ * @return Current finances object.
  */
 const Finances &FinancesManager::GetFinances()
 {
@@ -84,9 +85,7 @@ const Finances &FinancesManager::GetFinances()
 	return this->finances[this->current];
 }
 
-/**
- * Complete the current month and transition to new finances object.
- */
+/** Complete the current month and transition to new finances object. */
 void FinancesManager::AdvanceMonth()
 {
 	this->num_used = min(this->num_used + 1, NUM_FINANCE_HISTORY);
@@ -94,9 +93,7 @@ void FinancesManager::AdvanceMonth()
 	this->finances[this->current].Reset();
 }
 
-/**
- * Transfers cash into #_str_params.
- */
+/** Transfers cash into #_str_params. */
 void FinancesManager::CashToStrParams()
 {
 	_str_params.SetMoney(1, this->cash);
