@@ -45,9 +45,6 @@ ConfigSection::ConfigSection(const char *sect_name)
 ConfigSection::~ConfigSection()
 {
 	delete[] this->sect_name;
-	for (ConfigItemList::iterator iter = this->items.begin(); iter != this->items.end(); ++iter) {
-//		free(*iter);
-	}
 }
 
 /**
