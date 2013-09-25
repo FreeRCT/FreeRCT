@@ -168,10 +168,8 @@ int main(int argc, char **argv)
 		/* For every frame do... */
 		_manager.Tick();
 		_guests.DoTick();
-		uint8 changes = DateOnTick();
+		DateOnTick();
 		_guests.OnAnimate(30); // Fixed rate animation.
-		if ((changes & DTC_DAY) != 0) _guests.OnNewDay();
-		if ((changes & DTC_MONTH) != 0) _rides_manager.OnNewMonth();
 
 		bool next_frame = false;
 		while (!next_frame && !_finish) {

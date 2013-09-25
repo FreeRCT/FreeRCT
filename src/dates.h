@@ -14,16 +14,6 @@
 
 static const int TICK_COUNT_PER_DAY = 100; ///< Number of ticks in a day (stored in #Date::frac).
 
-/**
- * Bits denoting which part of a date has changed in a tick.
- * @see DateOnTick
- */
-enum DateTickChanges {
-	DTC_DAY   = 1 << 0, ///< The day of the month has changed.
-	DTC_MONTH = 1 << 1, ///< The month has changed.
-	DTC_YEAR  = 1 << 2, ///< The year has changed.
-};
-
 typedef uint32 CompressedDate; ///< Compressed date for easy transfer/storage.
 
 /** Bits and sizes of the compressed date format. */
@@ -57,7 +47,7 @@ public:
 	int frac;  ///< Day fraction, 0-based.
 };
 
-uint8 DateOnTick();
+void DateOnTick();
 
 extern Date _date;
 

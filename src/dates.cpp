@@ -12,6 +12,12 @@
 #include "stdafx.h"
 #include "dates.h"
 #include "language.h"
+#include "finances.h"
+#include "person_list.h"
+#include "sprite_store.h"
+#include "ride_type.h"
+#include "person.h"
+#include "people.h"
 #include "window.h"
 
 assert_compile(TICK_COUNT_PER_DAY < (1 << CDB_FRAC_LENGTH)); ///< Day length should stay within the fraction limit.
@@ -95,32 +101,59 @@ CompressedDate Date::Compress() const
 	return (this->year << CDB_YEAR_START) | (this->month << CDB_MONTH_START) | (this->day << CDB_DAY_START) | (this->frac << CDB_FRAC_START);
 }
 
+/** Runs various procedures that have to be done yearly. */
+static void OnNewYear()
+{
+	// Nothing (yet) needed.
+}
+
+/** Runs various procedures that have to be done monthly. */
+static void OnNewMonth()
+{
+	_finances_manager.AdvanceMonth();
+	_rides_manager.OnNewMonth();
+}
+
+/** Runs various procedures that have to be done daily. */
+static void OnNewDay()
+{
+	_guests.OnNewDay();
+	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
+}
+
 /**
  * Update the day.
- * @return Set of bits what parts of the date have changed.
- * @note It does not care about leap years.
- * @see DateTickChanges
+ * @todo Care about leap years.
  */
-uint8 DateOnTick()
+void DateOnTick()
 {
-	uint8 result = 0;
+	bool newmonth = false;
+	bool newyear  = false;
 
+	/* New tick. */
 	_date.frac++;
-	if (_date.frac >= TICK_COUNT_PER_DAY) {
-		_date.frac = 0;
-		_date.day++;
-		result |= DTC_DAY;
-		if (_date.day > _days_per_month[_date.month]) {
-			_date.day = 1;
-			_date.month++;
-			result |= DTC_MONTH;
-			if (_date.month > 12) {
-				_date.month = 1;
-				_date.year++;
-				result |= DTC_YEAR;
-			}
+	if (_date.frac < TICK_COUNT_PER_DAY) return;
+
+	/* New day. */
+	_date.frac = 0;
+	_date.day++;
+
+	/* New month. */
+	if (_date.day > _days_per_month[_date.month]) {
+		_date.day = 1;
+		_date.month++;
+		newmonth = true;
+
+		/* New year. */
+		if (_date.month > 12) {
+			_date.month = 1;
+			_date.year++;
+			newyear = true;
 		}
-		NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 	}
-	return result;
+
+
+	OnNewDay();
+	if (newmonth) OnNewMonth();
+	if (newyear)  OnNewYear();
 }
