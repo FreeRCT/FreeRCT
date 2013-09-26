@@ -23,7 +23,7 @@ public:
 	std::string type; ///< Name of the mask to apply.
 };
 
-class MaskInformation;
+struct MaskInformation;
 
 /** A PNG image file. */
 class Image {
