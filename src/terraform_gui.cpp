@@ -25,8 +25,8 @@ public:
 	TerraformGui();
 	~TerraformGui();
 
-	virtual void DrawWidget (WidgetNumber wid_num, const BaseWidget *wid) const;
-	virtual void OnClick(WidgetNumber widget);
+	void DrawWidget (WidgetNumber wid_num, const BaseWidget *wid) const override;
+	void OnClick(WidgetNumber widget) override;
 
 	bool level; ///< If true, level the area, else move it up/down as-is.
 	int xsize;  ///< Size of the terraform area in horizontal direction.
@@ -86,7 +86,7 @@ TerraformGui::~TerraformGui()
 	_terraformer.CloseWindow();
 }
 
-/* virtual */ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
 	Point32 base;
 	static const Recolouring recolour; // Not changed.
@@ -131,7 +131,7 @@ TerraformGui::~TerraformGui()
 	}
 }
 
-/* virtual */ void TerraformGui::OnClick(WidgetNumber wid)
+void TerraformGui::OnClick(WidgetNumber wid)
 {
 	switch (wid) {
 		case TERR_ADD:

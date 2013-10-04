@@ -30,7 +30,7 @@ DirectoryReader::DirectoryReader()
 }
 
 /** Destructor. */
-/* virtual */ DirectoryReader::~DirectoryReader()
+DirectoryReader::~DirectoryReader()
 {
 }
 
@@ -90,12 +90,12 @@ public:
 	UnixDirectoryReader();
 	virtual ~UnixDirectoryReader();
 
-	virtual void OpenPath(const char *path);
-	virtual const char *NextEntry();
-	virtual void ClosePath();
+	virtual void OpenPath(const char *path) override;
+	virtual const char *NextEntry() override;
+	virtual void ClosePath() override;
 
-	virtual bool EntryIsFile();
-	virtual bool EntryIsDirectory();
+	virtual bool EntryIsFile() override;
+	virtual bool EntryIsDirectory() override;
 
 private:
 	DIR *dirfp;           ///< Directory stream if not \c NULL.
@@ -114,7 +114,7 @@ UnixDirectoryReader::~UnixDirectoryReader()
 	this->ClosePath();
 }
 
-/* virtual */ void UnixDirectoryReader::OpenPath(const char *path)
+void UnixDirectoryReader::OpenPath(const char *path)
 {
 	if (this->dirfp != NULL) this->ClosePath();
 
@@ -122,7 +122,7 @@ UnixDirectoryReader::~UnixDirectoryReader()
 	this->dirfp = opendir(this->dpath);
 }
 
-/* virtual */ const char *UnixDirectoryReader::NextEntry()
+const char *UnixDirectoryReader::NextEntry()
 {
 	if (this->dirfp == NULL) return NULL;
 
@@ -137,13 +137,13 @@ UnixDirectoryReader::~UnixDirectoryReader()
 	return this->fpath;
 }
 
-/* virtual */ void UnixDirectoryReader::ClosePath()
+void UnixDirectoryReader::ClosePath()
 {
 	if (this->dirfp != NULL) closedir(this->dirfp);
 	this->dirfp = NULL;
 }
 
-/* virtual */ bool UnixDirectoryReader::EntryIsFile()
+bool UnixDirectoryReader::EntryIsFile()
 {
 	struct stat st;
 
@@ -151,7 +151,7 @@ UnixDirectoryReader::~UnixDirectoryReader()
 	return S_ISREG(st.st_mode);
 }
 
-/* virtual */ bool UnixDirectoryReader::EntryIsDirectory()
+bool UnixDirectoryReader::EntryIsDirectory()
 {
 	struct stat st;
 

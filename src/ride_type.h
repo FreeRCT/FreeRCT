@@ -96,13 +96,13 @@ protected:
 class ShopType : public RideType {
 public:
 	ShopType();
-	/* virtual */ ~ShopType();
+	~ShopType();
 
 	bool Load(RcdFile *rcf_file, uint32 length, const ImageMap &sprites, const TextMap &texts);
 
-	/* virtual */ const ImageData *GetView(uint8 orientation) const;
-	/* virtual */ const StringID *GetInstanceNames() const;
-	/* virtual */ RideInstance *CreateInstance() const;
+	const ImageData *GetView(uint8 orientation) const override;
+	const StringID *GetInstanceNames() const override;
+	RideInstance *CreateInstance() const override;
 
 	int8 height;                ///< Number of voxels used by this shop.
 	uint8 flags;                ///< Shop flags. @see ShopFlags
@@ -170,10 +170,10 @@ protected:
 class ShopInstance : public RideInstance {
 public:
 	ShopInstance(const ShopType *type);
-	/* virtual */ ~ShopInstance();
+	~ShopInstance();
 
 	const ShopType *GetShopType() const;
-	/* virtual */ void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const;
+	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
 
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetEntranceDirections() const;
@@ -225,4 +225,3 @@ const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge ed
 extern RidesManager _rides_manager;
 
 #endif
-

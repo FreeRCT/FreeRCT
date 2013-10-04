@@ -25,21 +25,21 @@ SelectMouseMode::~SelectMouseMode()
 {
 }
 
-/* virtual */ bool SelectMouseMode::MayActivateMode()
+bool SelectMouseMode::MayActivateMode()
 {
 	return true;
 }
 
-/* virtual */ void SelectMouseMode::ActivateMode(const Point16 &pos)
+void SelectMouseMode::ActivateMode(const Point16 &pos)
 {
 	this->mouse_state = 0;
 }
 
-/* virtual */ void SelectMouseMode::LeaveMode()
+void SelectMouseMode::LeaveMode()
 {
 }
 
-/* virtual */ void SelectMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+void SelectMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
 {
 	if ((this->mouse_state & MB_RIGHT) != 0) {
 		/* Drag the window if button is pressed down. */
@@ -47,7 +47,7 @@ SelectMouseMode::~SelectMouseMode()
 	}
 }
 
-/* virtual */ void SelectMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
+void SelectMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 {
 	this->mouse_state = state & MB_CURRENT;
 	if (this->mouse_state != 0) {
@@ -66,7 +66,7 @@ SelectMouseMode::~SelectMouseMode()
 	}
 }
 
-/* virtual */ bool SelectMouseMode::EnableCursors()
+bool SelectMouseMode::EnableCursors()
 {
 	return false;
 }

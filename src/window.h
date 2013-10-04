@@ -144,7 +144,7 @@ class GuiWindow : public Window {
 public:
 	GuiWindow(WindowTypes wtype, WindowNumber wnumber);
 	virtual ~GuiWindow();
-	virtual void OnDraw();
+	virtual void OnDraw() override;
 
 	virtual void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 	virtual void SetWidgetStringParameters(WidgetNumber wid_num) const;
@@ -153,10 +153,10 @@ public:
 	StringID TranslateStringNumber(StringID str_id) const;
 	virtual void ResetSize();
 
-	virtual void OnMouseMoveEvent(const Point16 &pos);
-	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
-	virtual void OnMouseLeaveEvent();
-	virtual void TimeoutCallback();
+	virtual void OnMouseMoveEvent(const Point16 &pos) override;
+	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
+	virtual void OnMouseLeaveEvent() override;
+	virtual void TimeoutCallback() override;
 	virtual void SetHighlight(bool value);
 
 	/**

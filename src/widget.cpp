@@ -136,7 +136,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void BaseWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
+void BaseWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
 	this->min_x = this->smallest_x;
@@ -167,7 +167,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * Set the minimal size of the widget, and assign \a rect to the current position and size.
  * @param rect Smallest size, and suggested position of the (entire) widget.
  */
-/* virtual */ void BaseWidget::SetSmallestSizePosition(const Rectangle16 &rect)
+void BaseWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 {
 	this->pos = rect;
 	this->min_x = rect.width;
@@ -178,7 +178,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * Draw the widget.
  * @param w %Window being drawn.
  */
-/* virtual */ void BaseWidget::Draw(const GuiWindow *w)
+void BaseWidget::Draw(const GuiWindow *w)
 {
 	/* Nothing to do for WT_EMPTY */
 	if (this->number != INVALID_WIDGET_INDEX) w->DrawWidget(this->number, this);
@@ -189,7 +189,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * @param pt Relative point.
  * @return The widget underneath the point, or \c NULL.
  */
-/* virtual */ BaseWidget *BaseWidget::GetWidgetByPosition(const Point16 &pt)
+BaseWidget *BaseWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	if (this->pos.IsPointInside(pt)) return this;
 	return NULL;
@@ -199,7 +199,7 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
  * Raise all push buttons in the tree.
  * @param base Base position of the window.
  */
-/* virtual */ void BaseWidget::AutoRaiseButtons(const Point32 &base)
+void BaseWidget::AutoRaiseButtons(const Point32 &base)
 {
 }
 
@@ -230,7 +230,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
  * @param wid_array [out] Array of widget pointers.
  * @todo Add support for #WT_RESIZEBOX.
  */
-/* virtual */ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
+void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
 	this->min_x = this->smallest_x;
@@ -264,7 +264,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	}
 }
 
-/* virtual */ void LeafWidget::Draw(const GuiWindow *w)
+void LeafWidget::Draw(const GuiWindow *w)
 {
 	assert(this->wtype != WT_RESIZEBOX);
 
@@ -307,7 +307,7 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 	/* Closebox is never shaded. */
 }
 
-/* virtual */ void LeafWidget::AutoRaiseButtons(const Point32 &base)
+void LeafWidget::AutoRaiseButtons(const Point32 &base)
 {
 	if ((this->wtype == WT_TEXT_PUSHBUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) && this->IsPressed()) {
 		this->SetPressed(false);
@@ -331,7 +331,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
  * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
+void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
 	this->min_x = this->smallest_x;
@@ -390,7 +390,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
  * @param w Window that the widget belongs to.
  * @todo Fix the hard-coded colour of the text.
  */
-/* virtual */ void DataWidget::Draw(const GuiWindow *w)
+void DataWidget::Draw(const GuiWindow *w)
 {
 	const BorderSpriteData *bsd = NULL;
 	uint8 pressed = 0;
@@ -474,7 +474,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
  * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
+void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
 
@@ -495,7 +495,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 	}
 }
 
-/* virtual */ void ScrollbarWidget::Draw(const GuiWindow *w)
+void ScrollbarWidget::Draw(const GuiWindow *w)
 {
 	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
 	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
@@ -562,7 +562,7 @@ BackgroundWidget::~BackgroundWidget()
  * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
+void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
 	this->min_x = this->smallest_x;
@@ -580,7 +580,7 @@ BackgroundWidget::~BackgroundWidget()
 	this->InitMinimalSize(&_gui_sprites.panel, this->min_x, this->min_y);
 }
 
-/* virtual */ void BackgroundWidget::SetSmallestSizePosition(const Rectangle16 &rect)
+void BackgroundWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 {
 	this->pos = rect;
 	this->min_x = rect.width;
@@ -604,7 +604,7 @@ BackgroundWidget::~BackgroundWidget()
 	}
 }
 
-/* virtual */ void BackgroundWidget::Draw(const GuiWindow *w)
+void BackgroundWidget::Draw(const GuiWindow *w)
 {
 	int left   = w->GetWidgetScreenX(this) + this->paddings[PAD_LEFT];
 	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
@@ -624,7 +624,7 @@ BackgroundWidget::~BackgroundWidget()
 	if (this->child != NULL) this->child->Draw(w);
 }
 
-/* virtual */ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
+BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	if (this->pos.IsPointInside(pt)) {
 		if (this->child != NULL) {
@@ -636,7 +636,7 @@ BackgroundWidget::~BackgroundWidget()
 	return NULL;
 }
 
-/* virtual */ void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
+void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
 {
 	if (this->child != NULL) this->child->AutoRaiseButtons(base);
 }
@@ -734,7 +734,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
  * @param w %Window owning the widget.
  * @param wid_array [out] Array of widget pointers.
  */
-/* virtual */ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
+void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
 	this->min_x = this->smallest_x;
@@ -885,7 +885,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
  * @param rect Smallest size to set.
  * @todo Handle RTL languages too.
  */
-/* virtual */ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
+void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 {
 	this->pos = rect;
 
@@ -966,14 +966,14 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	}
 }
 
-/* virtual */ void IntermediateWidget::Draw(const GuiWindow *w)
+void IntermediateWidget::Draw(const GuiWindow *w)
 {
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 		this->childs[idx]->Draw(w);
 	}
 }
 
-/* virtual */ BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
+BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	BaseWidget *res = NULL;
 	if (this->pos.IsPointInside(pt)) {
@@ -985,7 +985,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 	return res;
 }
 
-/* virtual */ void IntermediateWidget::AutoRaiseButtons(const Point32 &base)
+void IntermediateWidget::AutoRaiseButtons(const Point32 &base)
 {
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 		this->childs[idx]->AutoRaiseButtons(base);

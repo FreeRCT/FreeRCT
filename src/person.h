@@ -145,8 +145,8 @@ public:
 	Guest();
 	~Guest();
 
-	/* virtual */ void Activate(const Point16 &start, PersonType person_type);
-	/* virtual */ bool DailyUpdate();
+	void Activate(const Point16 &start, PersonType person_type) override;
+	bool DailyUpdate() override;
 
 	void VisitShop(RideInstance *ri);
 
@@ -166,7 +166,7 @@ public:
 	uint8 waste;         ///< Amount of food/drink waste that should be disposed.
 
 protected:
-	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
+	RideVisitDesire WantToVisit(const RideInstance *ri) override;
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
 	void AddItem(ItemType it);

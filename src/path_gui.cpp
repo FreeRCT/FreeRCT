@@ -26,8 +26,8 @@ public:
 	PathBuildGui();
 	~PathBuildGui();
 
-	virtual void OnClick(WidgetNumber wid);
-	virtual void OnChange(ChangeCode code, uint32 parameter);
+	void OnClick(WidgetNumber wid) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
 
 	void SetButtons();
 };
@@ -129,7 +129,7 @@ static const WidgetNumber _direction_widgets[] = {
 	PATH_GUI_NE_DIRECTION, PATH_GUI_SE_DIRECTION, PATH_GUI_SW_DIRECTION, PATH_GUI_NW_DIRECTION, INVALID_WIDGET_INDEX
 };
 
-/* virtual */ void PathBuildGui::OnClick(WidgetNumber number)
+void PathBuildGui::OnClick(WidgetNumber number)
 {
 	switch (number) {
 		case PATH_GUI_SLOPE_DOWN:
@@ -203,7 +203,7 @@ void PathBuildGui::SetButtons()
 	this->SetWidgetPressed(PATH_GUI_LONG,     _path_builder.GetLongButtonIsPressed());
 }
 
-/* virtual */ void PathBuildGui::OnChange(ChangeCode code, uint32 parameter)
+void PathBuildGui::OnChange(ChangeCode code, uint32 parameter)
 {
 	switch (code) {
 		case CHG_UPDATE_BUTTONS:

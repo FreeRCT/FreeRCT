@@ -120,9 +120,9 @@ class LeafWidget : public BaseWidget {
 public:
 	LeafWidget(WidgetType wtype);
 
-	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void Draw(const GuiWindow *w);
-	virtual void AutoRaiseButtons(const Point32 & base);
+	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
+	virtual void Draw(const GuiWindow *w) override;
+	virtual void AutoRaiseButtons(const Point32 & base) override;
 
 	/**
 	 * Is the 'checked' flag on?
@@ -192,8 +192,8 @@ class DataWidget : public LeafWidget {
 public:
 	DataWidget(WidgetType wtype);
 
-	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void Draw(const GuiWindow *w);
+	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
+	void Draw(const GuiWindow *w) override;
 
 	uint16 value;     ///< String number or sprite id.
 	int value_width;  ///< Width of the image or the string.
@@ -209,8 +209,8 @@ class ScrollbarWidget : public LeafWidget {
 public:
 	ScrollbarWidget(WidgetType wtype);
 
-	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void Draw(const GuiWindow *w);
+	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
+	void Draw(const GuiWindow *w) override;
 
 	int16 canvas_widget; ///< Widget number of the canvas.
 };
@@ -223,13 +223,13 @@ public:
 class BackgroundWidget : public LeafWidget {
 public:
 	BackgroundWidget(WidgetType wtype);
-	virtual ~BackgroundWidget();
+	~BackgroundWidget();
 
-	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const GuiWindow *w);
-	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
-	virtual void AutoRaiseButtons(const Point32 & base);
+	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
+	void SetSmallestSizePosition(const Rectangle16 &rect) override;
+	void Draw(const GuiWindow *w) override;
+	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
+	void AutoRaiseButtons(const Point32 & base) override;
 
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
@@ -265,11 +265,11 @@ public:
 	IntermediateWidget(uint8 num_rows, uint8 num_cols);
 	~IntermediateWidget();
 
-	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
-	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const GuiWindow *w);
-	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
-	virtual void AutoRaiseButtons(const Point32 & base);
+	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
+	void SetSmallestSizePosition(const Rectangle16 &rect) override;
+	void Draw(const GuiWindow *w) override;
+	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
+	void AutoRaiseButtons(const Point32 & base) override;
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();

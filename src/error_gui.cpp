@@ -39,7 +39,7 @@ class ErrorMessageWindow : public GuiWindow {
 public:
 	ErrorMessageWindow(StringID strid);
 
-	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 
 private:
 	StringID strid; ///< The error message to be displayed.
@@ -55,7 +55,7 @@ ErrorMessageWindow::ErrorMessageWindow(StringID strid) : GuiWindow(WC_ERROR_MESS
 	this->SetupWidgetTree(_error_message_gui_parts, lengthof(_error_message_gui_parts));
 }
 
-/* virtual */ void ErrorMessageWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void ErrorMessageWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case EMW_ERROR_MESSAGE:

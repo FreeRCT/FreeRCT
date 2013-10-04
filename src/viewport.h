@@ -151,9 +151,9 @@ public:
 
 	bool SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always = false);
 
-	virtual void MarkDirty();
-	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos);
-	virtual uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
+	void MarkDirty() override;
+	CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) override;
+	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
 };
 
 /**
@@ -169,9 +169,9 @@ public:
 
 	bool SetCursor(const Rectangle32 &rect, CursorType type, bool always = false);
 
-	virtual void MarkDirty();
-	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos);
-	virtual uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
+	void MarkDirty() override;
+	CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) override;
+	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
 
 	void ClearZPositions();
 	uint8 GetZpos(int xpos, int ypos);
@@ -188,7 +188,7 @@ public:
 	~Viewport();
 
 	void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height = 0);
-	virtual void OnDraw();
+	void OnDraw() override;
 
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
@@ -221,11 +221,11 @@ public:
 private:
 	bool additions_displayed;    ///< Additions in #_additions are displayed to the user.
 
-	virtual void OnMouseMoveEvent(const Point16 &pos);
-	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
-	virtual void OnMouseWheelEvent(int direction);
+	void OnMouseMoveEvent(const Point16 &pos) override;
+	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
+	void OnMouseWheelEvent(int direction) override;
 
-	virtual void TimeoutCallback();
+	void TimeoutCallback();
 };
 
 /** A single mouse mode. */
@@ -269,10 +269,10 @@ class DefaultMouseMode : public MouseMode {
 public:
 	DefaultMouseMode();
 
-	virtual bool MayActivateMode();
-	virtual void ActivateMode(const Point16 &pos);
-	virtual void LeaveMode();
-	virtual bool EnableCursors();
+	bool MayActivateMode() override;
+	void ActivateMode(const Point16 &pos) override;
+	void LeaveMode() override;
+	bool EnableCursors() override;
 };
 
 /** All mouse modes. */

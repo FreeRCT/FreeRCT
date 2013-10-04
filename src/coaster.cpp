@@ -27,7 +27,7 @@ CoasterType::CoasterType() : RideType(RTK_COASTER)
 	this->voxels = NULL;
 }
 
-/* virtual */ CoasterType::~CoasterType()
+CoasterType::~CoasterType()
 {
 	delete[] this->pieces;
 	delete[] this->voxels;
@@ -66,7 +66,7 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 		if (iter == piece_map.end()) return false;
 		this->pieces[i] = (*iter).second;
 	}
-	// Setup a track voxel list for fast access in the type.
+	/* Setup a track voxel list for fast access in the type. */
 	this->voxel_count = 0;
 	for (int i = 0; i < this->piece_count; i++) {
 		const TrackPiece *piece = this->pieces[i].Access();
@@ -84,17 +84,17 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 	return true;
 }
 
-/* virtual */ RideInstance *CoasterType::CreateInstance() const
+RideInstance *CoasterType::CreateInstance() const
 {
 	return new CoasterInstance(this);
 }
 
-/* virtual */ const ImageData *CoasterType::GetView(uint8 orientation) const
+const ImageData *CoasterType::GetView(uint8 orientation) const
 {
 	return NULL; // No preview available.
 }
 
-/* virtual */ const StringID *CoasterType::GetInstanceNames() const
+const StringID *CoasterType::GetInstanceNames() const
 {
 	static const StringID names[] = {COASTERS_NAME_INSTANCE, STR_INVALID};
 	return names;
@@ -139,7 +139,7 @@ bool CoasterInstance::IsAccessible()
 	return this->GetFirstPlacedTrackPiece() >= 0;
 }
 
-/* virtual */ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	const CoasterType *ct = this->GetCoasterType();
 	assert(voxel_number < ct->voxel_count);

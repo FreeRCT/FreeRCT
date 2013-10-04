@@ -91,10 +91,10 @@ class ShopManagerWindow : public GuiWindow {
 public:
 	ShopManagerWindow(ShopInstance *ri);
 
-	/* virtual */ void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
-	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
-	/* virtual */ void OnClick(WidgetNumber wid_num);
-	/* virtual */ void OnChange(ChangeCode code, uint32 parameter);
+	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnClick(WidgetNumber wid_num) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
 
 private:
 	ShopInstance *shop; ///< Shop instance getting managed by this window.
@@ -121,7 +121,7 @@ void ShopManagerWindow::SetShopToggleButtons()
 	this->SetWidgetChecked(SMW_SHOP_CLOSED, this->shop->state == RIS_CLOSED);
 }
 
-/* virtual */ void ShopManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+void ShopManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
 	if (wid_num != SMW_ITEM1_COUNT && wid_num != SMW_ITEM2_COUNT) return;
 
@@ -131,7 +131,7 @@ void ShopManagerWindow::SetShopToggleButtons()
 	wid->min_y = max(wid->min_y, (uint16)h);
 }
 
-/* virtual */ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case SMW_TITLEBAR:
@@ -178,7 +178,7 @@ void ShopManagerWindow::SetShopToggleButtons()
 	}
 }
 
-/* virtual */ void ShopManagerWindow::OnClick(WidgetNumber wid_num)
+void ShopManagerWindow::OnClick(WidgetNumber wid_num)
 {
 	switch (wid_num) {
 		case SMW_SHOP_OPENED:
@@ -197,7 +197,7 @@ void ShopManagerWindow::SetShopToggleButtons()
 	}
 }
 
-/* virtual */ void ShopManagerWindow::OnChange(ChangeCode code, uint32 parameter)
+void ShopManagerWindow::OnChange(ChangeCode code, uint32 parameter)
 {
 	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }

@@ -370,7 +370,7 @@ PathBuildManager::PathBuildManager() : MouseMode(WC_PATH_BUILDER, MM_PATH_BUILDI
 	DisableWorldAdditions();
 }
 
-/* virtual */ bool PathBuildManager::MayActivateMode()
+bool PathBuildManager::MayActivateMode()
 {
 	return true;
 }
@@ -380,7 +380,7 @@ PathBuildManager::PathBuildManager() : MouseMode(WC_PATH_BUILDER, MM_PATH_BUILDI
  * @param pos New mouse position.
  * @return The mouse mode should be enabled.
  */
-/* virtual */ void PathBuildManager::ActivateMode(const Point16 &pos)
+void PathBuildManager::ActivateMode(const Point16 &pos)
 {
 	this->selected_arrow = INVALID_EDGE;
 	this->selected_slope = TSL_INVALID;

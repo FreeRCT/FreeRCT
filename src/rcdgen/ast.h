@@ -70,13 +70,13 @@ class UnaryOperator : public Expression {
 public:
 	UnaryOperator(const Position &pos, int oper, ExpressionRef &child);
 
-	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
+	ExpressionRef Evaluate(const Symbol *symbols) const override;
 
 	int oper; ///< Operation performed, currently only \c '-' (unary negation is supported).
 	ExpressionRef child; ///< Child expression (should be numeric).
 
 protected:
-	/* virtual */ ~UnaryOperator();
+	~UnaryOperator();
 };
 
 /** String literal elementary expression node. */
@@ -84,14 +84,14 @@ class StringLiteral : public Expression {
 public:
 	StringLiteral(const Position &pos, char *text);
 
-	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
+	ExpressionRef Evaluate(const Symbol *symbols) const override;
 
 	char *CopyText() const;
 
 	char *text; ///< Text of the string literal (decoded).
 
 protected:
-	/* virtual */ ~StringLiteral();
+	~StringLiteral();
 };
 
 /** Identifier elementary expression node. */
@@ -99,12 +99,12 @@ class IdentifierLiteral : public Expression {
 public:
 	IdentifierLiteral(const Position &pos, char *name);
 
-	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
+	ExpressionRef Evaluate(const Symbol *symbols) const override;
 
 	char *name; ///< The identifier of the expression.
 
 protected:
-	/* virtual */ ~IdentifierLiteral();
+	~IdentifierLiteral();
 };
 
 /** Number literal elementary expression node. */
@@ -112,12 +112,12 @@ class NumberLiteral : public Expression {
 public:
 	NumberLiteral(const Position &pos, long long value);
 
-	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
+	ExpressionRef Evaluate(const Symbol *symbols) const override;
 
 	long long value; ///< Value of the number literal.
 
 protected:
-	/* virtual */ ~NumberLiteral();
+	~NumberLiteral();
 };
 
 /** Bit set expression ('or' of '1 << arg'). */
@@ -125,12 +125,12 @@ class BitSet : public Expression {
 public:
 	BitSet(const Position &pos, ExpressionList *args);
 
-	/* virtual */ ExpressionRef Evaluate(const Symbol *symbols) const;
+	ExpressionRef Evaluate(const Symbol *symbols) const override;
 
 	ExpressionList *args; ///< Arguments of the bitset, if any.
 
 protected:
-	/* virtual */ ~BitSet();
+	~BitSet();
 };
 
 /** Base class for labels of named values. */
@@ -147,10 +147,10 @@ public:
 class SingleName : public Name {
 public:
 	SingleName(const Position &pos, char *name);
-	/* virtual */ ~SingleName();
+	~SingleName();
 
-	/* virtual */ const Position &GetPosition() const;
-	/* virtual */ int GetNameCount() const;
+	const Position &GetPosition() const override;
+	int GetNameCount() const override;
 
 	const Position pos; ///< %Position of the label.
 	char *name;         ///< The label itself.
@@ -187,10 +187,10 @@ public:
 class NameTable : public Name {
 public:
 	NameTable();
-	/* virtual */ ~NameTable();
+	~NameTable();
 
-	/* virtual */ const Position &GetPosition() const;
-	/* virtual */ int GetNameCount() const;
+	const Position &GetPosition() const override;
+	int GetNameCount() const override;
 
 	std::list<NameRow *> rows; ///< Rows of the table.
 };
@@ -214,10 +214,10 @@ public:
 class NodeGroup : public Group {
 public:
 	NodeGroup(const Position &pos, char *name, ExpressionList *exprs, NamedValueList *values);
-	/* virtual */ ~NodeGroup();
+	~NodeGroup();
 
-	/* virtual */ const Position &GetPosition() const;
-	/* virtual */ NodeGroup *CastToNodeGroup();
+	const Position &GetPosition() const override;
+	NodeGroup *CastToNodeGroup() override;
 
 	void HandleImports();
 
@@ -231,10 +231,10 @@ public:
 class ExpressionGroup : public Group {
 public:
 	ExpressionGroup(ExpressionRef &expr);
-	/* virtual */ ~ExpressionGroup();
+	~ExpressionGroup();
 
-	/* virtual */ const Position &GetPosition() const;
-	/* virtual */ ExpressionGroup *CastToExpressionGroup();
+	const Position &GetPosition() const override;
+	ExpressionGroup *CastToExpressionGroup() override;
 
 	ExpressionRef expr; ///< %Expression to store.
 };
@@ -252,9 +252,9 @@ public:
 class NamedValue : public BaseNamedValue {
 public:
 	NamedValue(Name *name, Group *group);
-	/* virtual */ ~NamedValue();
+	~NamedValue();
 
-	/* virtual */ void HandleImports();
+	void HandleImports() override;
 
 	Name *name;   ///< %Name part, may be \c NULL.
 	Group *group; ///< Value part.
@@ -264,9 +264,9 @@ public:
 class ImportValue : public BaseNamedValue {
 public:
 	ImportValue(const Position &pos, char *filename);
-	/* virtual */ ~ImportValue();
+	~ImportValue();
 
-	/* virtual */ void HandleImports();
+	void HandleImports() override;
 
 	const Position pos; ///< %Position of the import.
 	char *filename;     ///< Name of the file to import.

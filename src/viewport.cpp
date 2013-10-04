@@ -270,8 +270,8 @@ public:
 	bool enable_cursors; ///< Enable cursor drawing.
 
 protected:
-	/* virtual */ void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
-	/* virtual */ void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos);
+	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) override;
+	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
 	const ImageData *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
@@ -298,7 +298,7 @@ public:
 	FinderData *fdata;       ///< Finder data to return.
 
 protected:
-	/* virtual */ void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth);
+	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) override;
 };
 
 
@@ -426,7 +426,7 @@ void Viewport::EnsureAdditionsAreVisible()
 }
 
 /** Toggle display of world additions (in #_additions) if enabled. */
-/* virtual */ void Viewport::TimeoutCallback()
+void Viewport::TimeoutCallback()
 {
 	if (!this->additions_enabled) return;
 
@@ -501,7 +501,7 @@ Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
 	this->zpos = 0;
 }
 
-/* virtual */ void Cursor::MarkDirty()
+void Cursor::MarkDirty()
 {
 	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
 }
@@ -513,13 +513,13 @@ Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
  * @param zpos Expected z coordinate of the cursor.
  * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c NULL.
  */
-/* virtual */ CursorType Cursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+CursorType Cursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
 	return this->type;
 }
 
-/* virtual */ uint8 Cursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
+uint8 Cursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	if (this->type == CUR_TYPE_INVALID) return zpos;
 	if (this->xpos != xpos || this->ypos != ypos || zpos >= this->zpos) return zpos;
@@ -596,7 +596,7 @@ uint8 MultiCursor::GetZpos(int xpos, int ypos)
 	return this->zpos[xoff][yoff];
 }
 
-/* virtual */ void MultiCursor::MarkDirty()
+void MultiCursor::MarkDirty()
 {
 	if (this->type == CUR_TYPE_INVALID) return;
 
@@ -608,7 +608,7 @@ uint8 MultiCursor::GetZpos(int xpos, int ypos)
 	}
 }
 
-/* virtual */ CursorType MultiCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+CursorType MultiCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	Point32 pt;
 
@@ -620,7 +620,7 @@ uint8 MultiCursor::GetZpos(int xpos, int ypos)
 	return CUR_TYPE_TILE;
 }
 
-/* virtual */ uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
+uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	Point16 pt;
 
@@ -746,7 +746,7 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 	}
 }
 
-/* virtual */ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypos)
+void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypos)
 {
 	for (uint i = 0; i < stack->height; i++) {
 		const Voxel *v = &stack->voxels[i];
@@ -1260,7 +1260,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	return ComputeYFunction(xpos, ypos, zpos, this->orientation, this->tile_width, this->tile_height);
 }
 
-/* virtual */ void Viewport::OnDraw()
+void Viewport::OnDraw()
 {
 	SpriteCollector collector(this, _mouse_modes.current->EnableCursors());
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
@@ -1441,7 +1441,7 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
-/* virtual */ void Viewport::OnMouseMoveEvent(const Point16 &pos)
+void Viewport::OnMouseMoveEvent(const Point16 &pos)
 {
 	Point16 old_mouse_pos = this->mouse_pos;
 	this->mouse_pos = pos;
@@ -1449,13 +1449,13 @@ void Viewport::MoveViewport(int dx, int dy)
 	_mouse_modes.current->OnMouseMoveEvent(this, old_mouse_pos, pos);
 }
 
-/* virtual */ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
+WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 {
 	_mouse_modes.current->OnMouseButtonEvent(this, state);
 	return WMME_NONE;
 }
 
-/* virtual */ void Viewport::OnMouseWheelEvent(int direction)
+void Viewport::OnMouseWheelEvent(int direction)
 {
 	_mouse_modes.current->OnMouseWheelEvent(this, direction);
 }
@@ -1474,21 +1474,21 @@ MouseMode::~MouseMode() {}
  * @param old_pos Previous position.
  * @param pos Current position.
  */
-/* virtual */ void MouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) {}
+void MouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) {}
 
 /**
  * A mouse click was detected.
  * @param vp %Viewport object.
  * @param state State of the mouse buttons. @see MouseButtons
  */
-/* virtual */ void MouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state) {}
+void MouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state) {}
 
 /**
  * A mouse wheelie event has been detected.
  * @param vp %Viewport object.
  * @param direction Direction of movement.
  */
-/* virtual */ void MouseMode::OnMouseWheelEvent(Viewport *vp, int direction) {}
+void MouseMode::OnMouseWheelEvent(Viewport *vp, int direction) {}
 
 
 DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE) {}

@@ -46,9 +46,9 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 class CoasterInstanceWindow : public GuiWindow {
 public:
 	CoasterInstanceWindow(CoasterInstance *ci);
-	/* virtual */ ~CoasterInstanceWindow();
+	~CoasterInstanceWindow();
 
-	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to display and control.
 };
@@ -70,7 +70,7 @@ CoasterInstanceWindow::~CoasterInstanceWindow()
 	}
 }
 
-/* virtual */ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case CIW_TITLEBAR:
@@ -209,11 +209,11 @@ static const WidgetPart _coaster_construction_gui_parts[] = {
 class CoasterBuildWindow : public GuiWindow {
 public:
 	CoasterBuildWindow(CoasterInstance *ci);
-	/* virtual */ ~CoasterBuildWindow();
+	~CoasterBuildWindow();
 
-	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
-	/* virtual */ void OnChange(ChangeCode code, uint32 parameter);
-	/* virtual */ void OnClick(WidgetNumber widget);
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
+	void OnClick(WidgetNumber widget) override;
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
@@ -272,7 +272,7 @@ CoasterBuildWindow::~CoasterBuildWindow()
 	}
 }
 
-/* virtual */ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case CCW_TITLEBAR:
@@ -281,7 +281,7 @@ CoasterBuildWindow::~CoasterBuildWindow()
 	}
 }
 
-/* virtual */ void CoasterBuildWindow::OnClick(WidgetNumber widget)
+void CoasterBuildWindow::OnClick(WidgetNumber widget)
 {
 	switch (widget) {
 		case CCW_BANK_NONE:
@@ -502,7 +502,7 @@ int CoasterBuildWindow::BuildTrackPiece()
 	return ptp_index;
 }
 
-/* virtual */ void CoasterBuildWindow::OnChange(ChangeCode code, uint32 parameter)
+void CoasterBuildWindow::OnChange(ChangeCode code, uint32 parameter)
 {
 	if (code != CHG_PIECE_POSITIONED || parameter != 0) return;
 
@@ -633,7 +633,7 @@ public:
 	{
 	}
 
-	/* virtual */ void OpenWindow(uint16 instance) const
+	void OpenWindow(uint16 instance) const override
 	{
 		mode->instance = instance;
 		mode->SetNoPiece();
@@ -641,46 +641,46 @@ public:
 		mode->SetState(BS_STARTING);
 	}
 
-	/* virtual */ void CloseWindow(uint16 instance) const
+	void CloseWindow(uint16 instance) const override
 	{
 	}
 
-	/* virtual */ bool MayActivateMode() const
+	bool MayActivateMode() const override
 	{
 		return false;
 	}
 
-	/* virtual */ void ActivateMode(const Point16 &pos) const
+	void ActivateMode(const Point16 &pos) const override
 	{
 		NOT_REACHED(); // Should never happen.
 	}
 
-	/* virtual */ void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const
+	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
 	}
 
-	/* virtual */ void OnMouseButtonEvent(Viewport *vp, uint8 state) const
+	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
 	}
 
-	/* virtual */ void LeaveMode() const
+	void LeaveMode() const override
 	{
 	}
 
-	/* virtual */ bool EnableCursors() const
+	bool EnableCursors() const override
 	{
 		return false;
 	}
 
-	/* virtual */ void ShowNoPiece(uint16 instance) const
+	void ShowNoPiece(uint16 instance) const override
 	{
 	}
 
-	/* virtual */ void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const
+	void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const override
 	{
 	}
 
-	/* virtual */ void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const
+	void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const override
 	{
 	}
 };
@@ -696,12 +696,12 @@ public:
 	{
 	}
 
-	/* virtual */ void OpenWindow(uint16 instance) const
+	void OpenWindow(uint16 instance) const override
 	{
 		mode->instance = instance; // Nothing has happened yet, so switching can still be done.
 	}
 
-	/* virtual */ void CloseWindow(uint16 instance) const
+	void CloseWindow(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 
@@ -709,12 +709,12 @@ public:
 		mode->SetState(BS_OFF);
 	}
 
-	/* virtual */ bool MayActivateMode() const
+	bool MayActivateMode() const override
 	{
 		return true;
 	}
 
-	/* virtual */ void ActivateMode(const Point16 &pos) const
+	void ActivateMode(const Point16 &pos) const override
 	{
 		mode->EnableDisplay();
 		mode->UpdateDisplay(false);
@@ -729,36 +729,36 @@ public:
 		mode->SetState(new_state);
 	}
 
-	/* virtual */ void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const
+	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
 	}
 
-	/* virtual */ void OnMouseButtonEvent(Viewport *vp, uint8 state) const
+	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
 	}
 
-	/* virtual */ void LeaveMode() const
+	void LeaveMode() const override
 	{
 	}
 
-	/* virtual */ bool EnableCursors() const
+	bool EnableCursors() const override
 	{
 		return false;
 	}
 
-	/* virtual */ void ShowNoPiece(uint16 instance) const
+	void ShowNoPiece(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetNoPiece();
 	}
 
-	/* virtual */ void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const
+	void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetSelectPosition(piece, direction);
 	}
 
-	/* virtual */ void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const
+	void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetFixedPiece(piece, x, y, z, direction);
@@ -776,11 +776,11 @@ public:
 	{
 	}
 
-	/* virtual */ void OpenWindow(uint16 instance) const
+	void OpenWindow(uint16 instance) const override
 	{
 	}
 
-	/* virtual */ void CloseWindow(uint16 instance) const
+	void CloseWindow(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 		mode->DisableDisplay();
@@ -789,45 +789,45 @@ public:
 		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
-	/* virtual */ bool MayActivateMode() const
+	bool MayActivateMode() const override
 	{
 		return true; // But is already enabled, doesn't matter.
 	}
 
-	/* virtual */ void ActivateMode(const Point16 &pos) const
+	void ActivateMode(const Point16 &pos) const override
 	{
 		mode->SetMousePosition(pos);
 	}
 
-	/* virtual */ void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const
+	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
 		mode->SetMousePosition(pos); // Nothing is displayed.
 	}
 
-	/* virtual */ void OnMouseButtonEvent(Viewport *vp, uint8 state) const
+	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
 		/* Nothing is displayed. */
 	}
 
-	/* virtual */ void LeaveMode() const
+	void LeaveMode() const override
 	{
 		mode->DisableDisplay();
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_STARTING);
 	}
 
-	/* virtual */ bool EnableCursors() const
+	bool EnableCursors() const override
 	{
 		return false;
 	}
 
-	/* virtual */ void ShowNoPiece(uint16 instance) const
+	void ShowNoPiece(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetNoPiece();
 	}
 
-	/* virtual */ void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const
+	void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetSelectPosition(piece, direction);
@@ -835,7 +835,7 @@ public:
 		mode->SetState(BS_MOUSE);
 	}
 
-	/* virtual */ void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const
+	void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetFixedPiece(piece, x, y, z, direction);
@@ -855,11 +855,11 @@ public:
 	{
 	}
 
-	/* virtual */ void OpenWindow(uint16 instance) const
+	void OpenWindow(uint16 instance) const override
 	{
 	}
 
-	/* virtual */ void CloseWindow(uint16 instance) const
+	void CloseWindow(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 		mode->DisableDisplay();
@@ -868,24 +868,24 @@ public:
 		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
-	/* virtual */ bool MayActivateMode() const
+	bool MayActivateMode() const override
 	{
 		return true;
 	}
 
-	/* virtual */ void ActivateMode(const Point16 &pos) const
+	void ActivateMode(const Point16 &pos) const override
 	{
 		mode->SetMousePosition(pos);
 		mode->UpdateDisplay(true);
 	}
 
-	/* virtual */ void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const
+	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
 		mode->SetMousePosition(pos);
 		mode->UpdateDisplay(true);
 	}
 
-	/* virtual */ void OnMouseButtonEvent(Viewport *vp, uint8 state) const
+	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
 		PositionedTrackPiece ptp(mode->track_xpos, mode->track_ypos, mode->track_zpos, mode->cur_piece);
 		if (ptp.CanBePlaced()) {
@@ -896,19 +896,19 @@ public:
 		}
 	}
 
-	/* virtual */ void LeaveMode() const
+	void LeaveMode() const override
 	{
 		mode->DisableDisplay();
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_STARTING);
 	}
 
-	/* virtual */ bool EnableCursors() const
+	bool EnableCursors() const override
 	{
 		return true;
 	}
 
-	/* virtual */ void ShowNoPiece(uint16 instance) const
+	void ShowNoPiece(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetNoPiece();
@@ -916,14 +916,14 @@ public:
 		mode->SetState(BS_ON);
 	}
 
-	/* virtual */ void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const
+	void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetSelectPosition(piece, direction);
 		mode->UpdateDisplay(false);
 	}
 
-	/* virtual */ void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const
+	void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetFixedPiece(piece, x, y, z, direction);
@@ -943,11 +943,11 @@ public:
 	{
 	}
 
-	/* virtual */ void OpenWindow(uint16 instance) const
+	void OpenWindow(uint16 instance) const override
 	{
 	}
 
-	/* virtual */ void CloseWindow(uint16 instance) const
+	void CloseWindow(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 		mode->DisableDisplay();
@@ -956,36 +956,36 @@ public:
 		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
-	/* virtual */ bool MayActivateMode() const
+	bool MayActivateMode() const override
 	{
 		return true; // But is already enabled, doesn't matter.
 	}
 
-	/* virtual */ void ActivateMode(const Point16 &pos) const
+	void ActivateMode(const Point16 &pos) const override
 	{
 	}
 
-	/* virtual */ void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const
+	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
 	}
 
-	/* virtual */ void OnMouseButtonEvent(Viewport *vp, uint8 state) const
+	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
 	}
 
-	/* virtual */ void LeaveMode() const
+	void LeaveMode() const override
 	{
 		mode->DisableDisplay();
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_STARTING);
 	}
 
-	/* virtual */ bool EnableCursors() const
+	bool EnableCursors() const override
 	{
 		return true;
 	}
 
-	/* virtual */ void ShowNoPiece(uint16 instance) const
+	void ShowNoPiece(uint16 instance) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetNoPiece();
@@ -993,7 +993,7 @@ public:
 		mode->SetState(BS_ON);
 	}
 
-	/* virtual */ void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const
+	void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetSelectPosition(piece, direction);
@@ -1001,7 +1001,7 @@ public:
 		mode->SetState(BS_MOUSE);
 	}
 
-	/* virtual */ void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const
+	void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
 		mode->SetFixedPiece(piece, x, y, z, direction);
@@ -1020,7 +1020,7 @@ public:
 	{
 	}
 
-	/* virtual */ void OpenWindow(uint16 instance) const
+	void OpenWindow(uint16 instance) const override
 	{
 		mode->instance = instance;
 		mode->SetNoPiece();
@@ -1029,47 +1029,47 @@ public:
 		mode->SetState(BS_ON);
 	}
 
-	/* virtual */ void CloseWindow(uint16 instance) const
+	void CloseWindow(uint16 instance) const override
 	{
 	}
 
-	/* virtual */ bool MayActivateMode() const
+	bool MayActivateMode() const override
 	{
 		return false;
 	}
 
-	/* virtual */ void ActivateMode(const Point16 &pos) const
+	void ActivateMode(const Point16 &pos) const override
 	{
 		mode->SetMousePosition(pos);
 	}
 
-	/* virtual */ void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const
+	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
 	}
 
-	/* virtual */ void OnMouseButtonEvent(Viewport *vp, uint8 state) const
+	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
 	}
 
-	/* virtual */ void LeaveMode() const
+	void LeaveMode() const override
 	{
 		mode->SetState(BS_OFF);
 	}
 
-	/* virtual */ bool EnableCursors() const
+	bool EnableCursors() const override
 	{
 		return false;
 	}
 
-	/* virtual */ void ShowNoPiece(uint16 instance) const
+	void ShowNoPiece(uint16 instance) const override
 	{
 	}
 
-	/* virtual */ void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const
+	void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction) const override
 	{
 	}
 
-	/* virtual */ void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const
+	void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction) const override
 	{
 	}
 };
@@ -1156,7 +1156,7 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  * @return The mouse mode may be activated.
  * @see MouseMode::MayActivateMode
  */
-/* virtual */ bool CoasterBuildMode::MayActivateMode()
+bool CoasterBuildMode::MayActivateMode()
 {
 	return _coaster_build_states[this->state]->MayActivateMode();
 }
@@ -1166,7 +1166,7 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  * @param pos Current mouse position.
  * @see MouseMode::ActivateMode
  */
-/* virtual */ void CoasterBuildMode::ActivateMode(const Point16 &pos)
+void CoasterBuildMode::ActivateMode(const Point16 &pos)
 {
 	_coaster_build_states[this->state]->ActivateMode(pos);
 }
@@ -1175,7 +1175,7 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  * Notification from the viewport that the mouse mode has been de-activated.
  * @see MouseMode::LeaveMode
  */
-/* virtual */ void CoasterBuildMode::LeaveMode()
+void CoasterBuildMode::LeaveMode()
 {
 	_coaster_build_states[this->state]->LeaveMode();
 }
@@ -1187,7 +1187,7 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  * @param pos Current mouse position.
  * @see MouseMode::OnMouseMoveEvent
  */
-/* virtual */ void CoasterBuildMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+void CoasterBuildMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
 {
 	if ((this->mouse_state & MB_RIGHT) != 0) {
 		/* Drag the window if button is pressed down. */
@@ -1203,7 +1203,7 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  * @param state Old and new state of the mouse buttons.
  * @see MouseMode::OnMouseButtonEvent
  */
-/* virtual */ void CoasterBuildMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
+void CoasterBuildMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 {
 	this->mouse_state = state & MB_CURRENT;
 	_coaster_build_states[this->state]->OnMouseButtonEvent(vp, state);
@@ -1214,7 +1214,7 @@ void CoasterBuildMode::DisplayPiece(uint16 instance, const TrackPiece *piece, in
  * @return Cursors should be enabled.
  * @see MouseMode::EnableCursors
  */
-/* virtual */ bool CoasterBuildMode::EnableCursors()
+bool CoasterBuildMode::EnableCursors()
 {
 	return _coaster_build_states[this->state]->EnableCursors();
 }

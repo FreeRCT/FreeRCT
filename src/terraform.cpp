@@ -605,12 +605,12 @@ void TileTerraformMouseMode::Setlevelling(bool levelling)
 	this->levelling = levelling;
 }
 
-/* virtual */ bool TileTerraformMouseMode::MayActivateMode()
+bool TileTerraformMouseMode::MayActivateMode()
 {
 	return this->state != TFS_OFF;
 }
 
-/* virtual */ void TileTerraformMouseMode::ActivateMode(const Point16 &pos)
+void TileTerraformMouseMode::ActivateMode(const Point16 &pos)
 {
 	this->mouse_state = 0;
 	this->state = TFS_ON;
@@ -637,7 +637,7 @@ void TileTerraformMouseMode::SetCursors()
 	}
 }
 
-/* virtual */ void TileTerraformMouseMode::LeaveMode()
+void TileTerraformMouseMode::LeaveMode()
 {
 	Viewport *vp = GetViewport();
 	if (vp != NULL) {
@@ -647,12 +647,12 @@ void TileTerraformMouseMode::SetCursors()
 	if (this->state == TFS_ON) this->state = TFS_NO_MOUSE;
 }
 
-/* virtual */ bool TileTerraformMouseMode::EnableCursors()
+bool TileTerraformMouseMode::EnableCursors()
 {
 	return this->state != TFS_OFF;
 }
 
-/* virtual */ void TileTerraformMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+void TileTerraformMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
 {
 	if ((this->mouse_state & MB_RIGHT) != 0) {
 		/* Drag the window if button is pressed down. */
@@ -661,7 +661,7 @@ void TileTerraformMouseMode::SetCursors()
 		this->SetCursors();
 	}
 }
-/* virtual */ void TileTerraformMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
+void TileTerraformMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 {
 	this->mouse_state = state & MB_CURRENT;
 }
@@ -785,7 +785,7 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 	}
 }
 
-/* virtual */ void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
+void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
 {
 	if (vp->tile_cursor.type != CUR_TYPE_INVALID) {
 		ChangeTileCursorMode(vp, this->levelling, direction, this->xsize == 0 && this->ysize == 0);

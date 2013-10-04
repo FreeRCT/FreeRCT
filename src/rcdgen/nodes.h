@@ -36,7 +36,7 @@ public:
 class GameBlock : public BlockNode {
 public:
 	GameBlock(const char *blk_name, int version);
-	/* virtual */ ~GameBlock();
+	~GameBlock();
 
 	virtual int Write(FileWriter *fw) = 0;
 
@@ -48,7 +48,7 @@ public:
 class FileNode : public BlockNode {
 public:
 	FileNode(char *file_name);
-	/* virtual */ ~FileNode();
+	~FileNode();
 
 	void Write(FileWriter *fw);
 
@@ -97,7 +97,7 @@ enum SurfaceSprites {
 class SpriteBlock : public BlockNode {
 public:
 	SpriteBlock();
-	/* virtual */ ~SpriteBlock();
+	~SpriteBlock();
 
 	int Write(FileWriter *fw);
 
@@ -110,10 +110,10 @@ class BitMask;
 class SheetBlock : public BlockNode {
 public:
 	SheetBlock(const Position &pos);
-	/* virtual */ ~SheetBlock();
+	~SheetBlock();
 
 
-	/* virtual */ BlockNode *GetSubNode(int row, int col, char *name, const Position &pos);
+	BlockNode *GetSubNode(int row, int col, char *name, const Position &pos) override;
 	Image *GetSheet();
 
 	Position pos;     ///< Line number defining the sheet.
@@ -136,9 +136,9 @@ public:
 class TSELBlock : public GameBlock {
 public:
 	TSELBlock();
-	/* virtual */ ~TSELBlock();
+	~TSELBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
@@ -149,9 +149,9 @@ public:
 class TCORBlock : public GameBlock {
 public:
 	TCORBlock();
-	/* virtual */ ~TCORBlock();
+	~TCORBlock() override;
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
@@ -165,9 +165,9 @@ public:
 class SURFBlock : public GameBlock {
 public:
 	SURFBlock();
-	/* virtual */ ~SURFBlock();
+	~SURFBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int surf_type;  ///< Type of surface.
 	int tile_width; ///< Zoom-width of a tile of the surface.
@@ -191,9 +191,9 @@ enum FoundationSprites {
 class FUNDBlock : public GameBlock {
 public:
 	FUNDBlock();
-	/* virtual */ ~FUNDBlock();
+	~FUNDBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int found_type; ///< Type of foundation.
 	int tile_width; ///< Zoom-width of a tile of the surface.
@@ -229,7 +229,7 @@ enum ColourRange {
 class Recolouring : public BlockNode {
 public:
 	Recolouring();
-	/* virtual */ ~Recolouring();
+	~Recolouring();
 
 	uint8 orig;     ///< Colour range to replace.
 	uint32 replace; ///< Bitset of colour ranges that may be used as replacement.
@@ -241,7 +241,7 @@ public:
 class PersonGraphics : public BlockNode {
 public:
 	PersonGraphics();
-	/* virtual */ ~PersonGraphics();
+	~PersonGraphics();
 
 	int person_type;      ///< Type of person being defined.
 	Recolouring recol[3]; ///< Recolour definitions.
@@ -253,9 +253,9 @@ public:
 class PRSGBlock : public GameBlock {
 public:
 	PRSGBlock();
-	/* virtual */ ~PRSGBlock();
+	~PRSGBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	std::list<PersonGraphics> person_graphics; ///< Stored person graphics.
 };
@@ -264,7 +264,7 @@ public:
 class FrameData : public BlockNode {
 public:
 	FrameData();
-	/* virtual */ ~FrameData();
+	~FrameData();
 
 	int duration; ///< Duration of this frame.
 	int change_x; ///< Change in x after the frame is displayed.
@@ -275,9 +275,9 @@ public:
 class ANIMBlock : public GameBlock {
 public:
 	ANIMBlock();
-	/* virtual */ ~ANIMBlock();
+	~ANIMBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int person_type; ///< Type of person being defined.
 	int anim_type;   ///< Type of animation being defined.
@@ -289,9 +289,9 @@ public:
 class ANSPBlock : public GameBlock {
 public:
 	ANSPBlock();
-	/* virtual */ ~ANSPBlock();
+	~ANSPBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int tile_width;  ///< Size of the tile.
 	int person_type; ///< Type of person being defined.
@@ -361,9 +361,9 @@ enum PathSprites {
 class PATHBlock : public GameBlock {
 public:
 	PATHBlock();
-	/* virtual */ ~PATHBlock();
+	~PATHBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int path_type;   ///< Type of path.
 	int tile_width;  ///< Size of the tile.
@@ -396,9 +396,9 @@ enum PlatformSprites {
 class PLATBlock : public GameBlock {
 public:
 	PLATBlock();
-	/* virtual */ ~PLATBlock();
+	~PLATBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int tile_width;    ///< Zoom-width of a tile of the surface.
 	int z_height;      ///< Change in Z height (in pixels) when going up or down a tile level.
@@ -441,9 +441,9 @@ enum SupportSprites {
 class SUPPBlock : public GameBlock {
 public:
 	SUPPBlock();
-	/* virtual */ ~SUPPBlock();
+	~SUPPBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int support_type; ///< Type of support.
 	int tile_width;   ///< Zoom-width of a tile of the surface.
@@ -467,7 +467,7 @@ int GetLanguageIndex(const char *lname, const Position &pos);
 class TextNode : public BlockNode {
 public:
 	TextNode();
-	/* virtual */ ~TextNode();
+	~TextNode();
 
 	int GetSize() const;
 	void Write(FileBlock *fb) const;
@@ -492,7 +492,7 @@ inline bool operator<(const TextNode &tn1, const TextNode &tn2)
 class Strings : public BlockNode {
 public:
 	Strings();
-	/* virtual */ ~Strings();
+	~Strings();
 
 	void CheckTranslations(const char *names[], int name_count, const Position &pos);
 	int Write(FileWriter *fw);
@@ -504,9 +504,9 @@ public:
 class SHOPBlock : public GameBlock {
 public:
 	SHOPBlock();
-	/* virtual */ ~SHOPBlock();
+	~SHOPBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int tile_width;       ///< Zoom-width of a tile of the surface.
 	int height;           ///< Height of the shop in voxels.
@@ -527,9 +527,9 @@ public:
 class GBORBlock : public GameBlock {
 public:
 	GBORBlock();
-	/* virtual */ ~GBORBlock();
+	~GBORBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int widget_type;   ///< Widget type.
 	int border_top;    ///< Border width of the top edge.
@@ -555,9 +555,9 @@ public:
 class GCHKBlock : public GameBlock {
 public:
 	GCHKBlock();
-	/* virtual */ ~GCHKBlock();
+	~GCHKBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int widget_type;             ///< Widget type.
 	SpriteBlock *empty;          ///< Empty sprite.
@@ -572,9 +572,9 @@ public:
 class GSLIBlock : public GameBlock {
 public:
 	GSLIBlock();
-	/* virtual */ ~GSLIBlock();
+	~GSLIBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int min_length;      ///< Minimal length of the bar.
 	int step_size;       ///< Stepsize of the bar.
@@ -590,9 +590,9 @@ public:
 class GSCLBlock : public GameBlock {
 public:
 	GSCLBlock();
-	/* virtual */ ~GSCLBlock();
+	~GSCLBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int min_length;     ///< Minimal length scrollbar.
 	int step_back;      ///< Stepsize of background.
@@ -618,9 +618,9 @@ public:
 class BDIRBlock : public GameBlock {
 public:
 	BDIRBlock();
-	/* virtual */ ~BDIRBlock();
+	~BDIRBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int tile_width;   ///< Zoom-width of a tile of the surface.
 	SpriteBlock *sprite_ne; ///< ne arrow.
@@ -633,9 +633,9 @@ public:
 class GSLPBlock : public GameBlock {
 public:
 	GSLPBlock();
-	/* virtual */ ~GSLPBlock();
+	~GSLPBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	SpriteBlock *vert_down;       ///< Slope going vertically down.
 	SpriteBlock *steep_down;      ///< Slope going steeply down.
@@ -674,7 +674,7 @@ public:
 class TrackVoxel : public BlockNode {
 public:
 	TrackVoxel();
-	/* virtual */ ~TrackVoxel();
+	~TrackVoxel();
 
 	void Write(FileWriter *fw, FileBlock *fb, int rot);
 
@@ -693,7 +693,7 @@ public:
 	Connection(const Connection &c);
 	Connection &operator=(const Connection &c);
 	Connection(const std::string &name, int direction);
-	/* virtual */ ~Connection();
+	~Connection();
 
 	uint8 Encode(const std::map<std::string, int> &connections, int rot);
 
@@ -705,7 +705,7 @@ public:
 class TrackPieceNode : public BlockNode {
 public:
 	TrackPieceNode();
-	/* virtual */ ~TrackPieceNode();
+	~TrackPieceNode();
 
 	void UpdateConnectionMap(std::map<std::string, int> *connections);
 	void Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *fb);
@@ -729,9 +729,9 @@ public:
 class RCSTBlock : public GameBlock {
 public:
 	RCSTBlock();
-	/* virtual */ ~RCSTBlock();
+	~RCSTBlock();
 
-	/* virtual */ int Write(FileWriter *fw);
+	int Write(FileWriter *fw) override;
 
 	int coaster_type;  ///< Type of roller coaster.
 	int platform_type; ///< Type of platform.
@@ -744,7 +744,7 @@ public:
 class BitMask : public BlockNode {
 public:
 	BitMask();
-	/* virtual */ ~BitMask();
+	~BitMask();
 
 	BitMaskData data; ///< Data of the bit mask.
 };

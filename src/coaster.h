@@ -38,10 +38,10 @@ enum CoasterPlatformType {
 class CoasterType : public RideType {
 public:
 	CoasterType();
-	/* virtual */ ~CoasterType();
-	/* virtual */ RideInstance *CreateInstance() const;
-	/* virtual */ const ImageData *GetView(uint8 orientation) const;
-	/* virtual */ const StringID *GetInstanceNames() const;
+	~CoasterType();
+	RideInstance *CreateInstance() const override;
+	const ImageData *GetView(uint8 orientation) const override;
+	const StringID *GetInstanceNames() const override;
 
 	bool Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map);
 
@@ -76,7 +76,7 @@ public:
 		return static_cast<const CoasterType *>(this->type);
 	}
 
-	/* virtual */ void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const;
+	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
 
 	RideInstanceState DecideRideState();
 

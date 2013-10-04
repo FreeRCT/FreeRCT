@@ -77,7 +77,7 @@ Window::~Window()
  * @param width Initial width of the new window.
  * @param height Initial height of the new window.
  */
-/* virtual */ void Window::SetSize(uint width, uint height)
+void Window::SetSize(uint width, uint height)
 {
 	this->rect.width = width;
 	this->rect.height = height;
@@ -210,7 +210,7 @@ bool ComputeInitialPosition::IsScreenEmpty(const Rectangle32 &rect)
  * Find a nice initial position for the new window.
  * @return Initial position of the window.
  */
-/* virtual */ Point32 Window::OnInitialPosition()
+Point32 Window::OnInitialPosition()
 {
 	static ComputeInitialPosition compute_pos;
 
@@ -230,20 +230,20 @@ void Window::MarkDirty()
  * Paint the window to the screen.
  * @note The window manager already locked the surface.
  */
-/* virtual */ void Window::OnDraw() { }
+void Window::OnDraw() { }
 
 /**
  * Mouse moved to new position.
  * @param pos New position.
  */
-/* virtual */ void Window::OnMouseMoveEvent(const Point16 &pos) { }
+void Window::OnMouseMoveEvent(const Point16 &pos) { }
 
 /**
  * Mouse buttons changed state.
  * @param state Updated state. @see MouseButtons
  * @return Action to perform as a result of the event (use #WMME_NONE if no special action needed).
  */
-/* virtual */ WmMouseEvent Window::OnMouseButtonEvent(uint8 state)
+WmMouseEvent Window::OnMouseButtonEvent(uint8 state)
 {
 	return WMME_NONE;
 }
@@ -252,26 +252,26 @@ void Window::MarkDirty()
  * Mousewheel rotated.
  * @param direction Direction of change (\c +1 or \c -1).
  */
-/* virtual */ void Window::OnMouseWheelEvent(int direction) { }
+void Window::OnMouseWheelEvent(int direction) { }
 
 /** Mouse entered window. */
-/* virtual */ void Window::OnMouseEnterEvent() { }
+void Window::OnMouseEnterEvent() { }
 
 /** Mouse left window. */
-/* virtual */ void Window::OnMouseLeaveEvent() { }
+void Window::OnMouseLeaveEvent() { }
 
 /**
  * Timeout callback.
  * Called when #timeout decremented to 0.
  */
-/* virtual */ void Window::TimeoutCallback() { }
+void Window::TimeoutCallback() { }
 
 /**
  * Enable or disable highlighting. Base class does nothing.
  * If enabled, the #timeout is used to automatically disable it again.
  * @param value New highlight value.
  */
-/* virtual */ void Window::SetHighlight(bool value) { }
+void Window::SetHighlight(bool value) { }
 
 /**
  * An important (window-specific) change has happened.
@@ -279,13 +279,13 @@ void Window::MarkDirty()
  * @param parameter Parameter of the \a code.
  * @note Meaning of number values are documented near this method in derived classes.
  */
-/* virtual */ void Window::OnChange(ChangeCode code, uint32 parameter) { }
+void Window::OnChange(ChangeCode code, uint32 parameter) { }
 
 /**
  * Reset the size of a window.
  * @note Only if the window is a #GuiWindow.
  */
-/* virtual */ void Window::ResetSize() { }
+void Window::ResetSize() { }
 
 /**
  * Gui window constructor.
@@ -316,7 +316,7 @@ GuiWindow::~GuiWindow()
  * @param width Initial width of the new window.
  * @param height Initial height of the new window.
  */
-/* virtual */ void GuiWindow::SetSize(uint width, uint height)
+void GuiWindow::SetSize(uint width, uint height)
 {
 	// XXX Do nothing for now, in the future, this should cause a window resize.
 }
@@ -343,7 +343,7 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 	return str_id;
 }
 
-/* virtual */ void GuiWindow::ResetSize()
+void GuiWindow::ResetSize()
 {
 	this->tree->SetupMinimalSize(this, this->widgets);
 	this->rect = Rectangle32(this->rect.base.x, this->rect.base.y, this->tree->min_x, this->tree->min_y);
@@ -388,7 +388,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  * @param wid_num Widget number of the provided widget.
  * @param wid The widget itself.
  */
-/* virtual */ void GuiWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+void GuiWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
 	/* Do nothing by default. */
 }
@@ -397,7 +397,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  * Set string parameters of the data string of the widget.
  * @param wid_num Widget number of the widget.
  */
-/* virtual */ void GuiWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void GuiWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	/* Do nothing by default. */
 }
@@ -408,23 +408,23 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  * @param wid_num Widget number of the widget being drawn.
  * @param wid The widget itself.
  */
-/* virtual */ void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
 	/* Do nothing by default. */
 }
 
-/* virtual */ void GuiWindow::OnDraw()
+void GuiWindow::OnDraw()
 {
 	this->tree->Draw(this);
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video->DrawRectangle(this->rect, COL_HIGHLIGHT);
 }
 
-/* virtual */ void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
+void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
 {
 	this->mouse_pos = pos;
 }
 
-/* virtual */ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
+WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 {
 	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return WMME_NONE;
 
@@ -447,7 +447,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	return WMME_NONE;
 }
 
-/* virtual */ void GuiWindow::OnMouseLeaveEvent()
+void GuiWindow::OnMouseLeaveEvent()
 {
 	this->mouse_pos.x = -1;
 	this->mouse_pos.y = -1;
@@ -457,7 +457,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  * A click with the left button at a widget has been detected.
  * @param widget %Widget number.
  */
-/* virtual */ void GuiWindow::OnClick(WidgetNumber widget)
+void GuiWindow::OnClick(WidgetNumber widget)
 {
 }
 
@@ -569,13 +569,13 @@ WidgetNumber GuiWindow::GetSelectedRadioButton(const WidgetNumber *wids)
 	return INVALID_WIDGET_INDEX;
 }
 
-/* virtual */ void GuiWindow::TimeoutCallback()
+void GuiWindow::TimeoutCallback()
 {
 	this->tree->AutoRaiseButtons(this->rect.base);
 	if ((this->flags & WF_HIGHLIGHT) != 0) this->SetHighlight(false);
 }
 
-/* virtual */ void GuiWindow::SetHighlight(bool value)
+void GuiWindow::SetHighlight(bool value)
 {
 	if (value) {
 		this->flags |= WF_HIGHLIGHT;

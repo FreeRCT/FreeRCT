@@ -31,7 +31,7 @@ BlockNode::~BlockNode()
  * @return The requested sub node.
  * @note The default implementation always fails, override to get the feature.
  */
-/* virtual */ BlockNode *BlockNode::GetSubNode(int row, int col, char *name, const Position &pos)
+BlockNode *BlockNode::GetSubNode(int row, int col, char *name, const Position &pos)
 {
 	/* By default, fail. */
 	fprintf(stderr, "Error at %s: Cannot assign sub node (row=%d, column=%d) to variable \"%s\"\n", pos.ToString(), row, col, name);
@@ -175,7 +175,7 @@ Image *SheetBlock::GetSheet()
 	return this->img_sheet;
 }
 
-/* virtual */ BlockNode *SheetBlock::GetSubNode(int row, int col, char *name, const Position &pos)
+BlockNode *SheetBlock::GetSubNode(int row, int col, char *name, const Position &pos)
 {
 	Image *img = this->GetSheet();
 	SpriteBlock *spr_blk = new SpriteBlock;
@@ -195,14 +195,14 @@ TSELBlock::TSELBlock() : GameBlock("TSEL", 2)
 	}
 }
 
-/* virtual */ TSELBlock::~TSELBlock()
+TSELBlock::~TSELBlock()
 {
 	for (int i = 0; i < SURFACE_COUNT; i++) {
 		delete this->sprites[i];
 	}
 }
 
-/* virtual */ int TSELBlock::Write(FileWriter *fw)
+int TSELBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 108 - 12);
@@ -225,7 +225,7 @@ TCORBlock::TCORBlock() : GameBlock("TCOR", 2)
 	}
 }
 
-/* virtual */ TCORBlock::~TCORBlock()
+TCORBlock::~TCORBlock()
 {
 	for (int i = 0; i < SURFACE_COUNT; i++) {
 		delete this->north[i];
@@ -235,7 +235,7 @@ TCORBlock::TCORBlock() : GameBlock("TCOR", 2)
 	}
 }
 
-/* virtual */ int TCORBlock::Write(FileWriter *fw)
+int TCORBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 384 - 12);
@@ -259,7 +259,7 @@ SURFBlock::~SURFBlock()
 	for (int i = 0; i < SURFACE_COUNT; i++) delete this->sprites[i];
 }
 
-/* virtual */ int SURFBlock::Write(FileWriter *fw)
+int SURFBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 110 - 12);
@@ -283,7 +283,7 @@ FUNDBlock::~FUNDBlock()
 	for (int i = 0; i < FOUNDATION_COUNT; i++) delete this->sprites[i];
 }
 
-/* virtual */ int FUNDBlock::Write(FileWriter *fw)
+int FUNDBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 42 - 12);
@@ -352,7 +352,7 @@ PRSGBlock::~PRSGBlock()
 {
 }
 
-/* virtual */ int PRSGBlock::Write(FileWriter *fw)
+int PRSGBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 1 + this->person_graphics.size() * 13);
@@ -384,7 +384,7 @@ ANIMBlock::~ANIMBlock()
 {
 }
 
-/* virtual */ int ANIMBlock::Write(FileWriter *fw)
+int ANIMBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 1 + 2 + 2 + this->frames.size() * 6);
@@ -412,7 +412,7 @@ ANSPBlock::~ANSPBlock()
 	}
 }
 
-/* virtual */ int ANSPBlock::Write(FileWriter *fw)
+int ANSPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 2 + 1 + 2 + 2 + this->frames.size() * 4);
@@ -437,7 +437,7 @@ PATHBlock::~PATHBlock()
 	for (int i = 0; i < PTS_COUNT; i++) delete this->sprites[i];
 }
 
-/* virtual */ int PATHBlock::Write(FileWriter *fw)
+int PATHBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 2 + 2 + 2 + PTS_COUNT * 4);
@@ -459,7 +459,7 @@ PLATBlock::~PLATBlock()
 	for (int i = 0; i < PLA_COUNT; i++) delete this->sprites[i];
 }
 
-/* virtual */ int PLATBlock::Write(FileWriter *fw)
+int PLATBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 2 + 2 + 2 + PLA_COUNT * 4);
@@ -481,7 +481,7 @@ SUPPBlock::~SUPPBlock()
 	for (int i = 0; i < SPP_COUNT; i++) delete this->sprites[i];
 }
 
-/* virtual */ int SUPPBlock::Write(FileWriter *fw)
+int SUPPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 2 + 2 + 2 + SPP_COUNT * 4);
@@ -521,7 +521,7 @@ TextNode::TextNode() : BlockNode()
 	for (int i = 0; i < LNG_COUNT; i++) this->pos[i] = Position("", -1);
 }
 
-/* virtual */ TextNode::~TextNode()
+TextNode::~TextNode()
 {
 }
 
@@ -644,7 +644,7 @@ SHOPBlock::SHOPBlock() : GameBlock("SHOP", 4)
 	this->shop_text = NULL;
 }
 
-/* virtual */ SHOPBlock::~SHOPBlock()
+SHOPBlock::~SHOPBlock()
 {
 	delete this->ne_view;
 	delete this->se_view;
@@ -653,7 +653,7 @@ SHOPBlock::SHOPBlock() : GameBlock("SHOP", 4)
 	delete this->shop_text;
 }
 
-/* virtual */ int SHOPBlock::Write(FileWriter *fw)
+int SHOPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 66 - 12);
@@ -691,7 +691,7 @@ GBORBlock::GBORBlock() : GameBlock("GBOR", 1)
 	this->br = NULL;
 }
 
-/* virtual */ GBORBlock::~GBORBlock()
+GBORBlock::~GBORBlock()
 {
 	delete this->tl;
 	delete this->tm;
@@ -704,7 +704,7 @@ GBORBlock::GBORBlock() : GameBlock("GBOR", 1)
 	delete this->br;
 }
 
-/* virtual */ int GBORBlock::Write(FileWriter *fw)
+int GBORBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 58 - 12);
@@ -750,7 +750,7 @@ GCHKBlock::~GCHKBlock()
 	delete this->shaded_filled;
 }
 
-/* virtual */ int GCHKBlock::Write(FileWriter *fw)
+int GCHKBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 38 - 12);
@@ -781,7 +781,7 @@ GSLIBlock::~GSLIBlock()
 	delete this->slider;
 }
 
-/* virtual */ int GSLIBlock::Write(FileWriter *fw)
+int GSLIBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 33 - 12);
@@ -831,7 +831,7 @@ GSCLBlock::~GSCLBlock()
 	delete this->right_top_pressed;
 }
 
-/* virtual */ int GSCLBlock::Write(FileWriter *fw)
+int GSCLBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 70 - 12);
@@ -873,7 +873,7 @@ BDIRBlock::~BDIRBlock()
 	delete this->sprite_nw;
 }
 
-/* virtual */ int BDIRBlock::Write(FileWriter *fw)
+int BDIRBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 30 - 12);

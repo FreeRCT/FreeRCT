@@ -26,10 +26,10 @@ class BottomToolbarWindow : public GuiWindow {
 public:
 	BottomToolbarWindow();
 
-	/* virtual */ Point32 OnInitialPosition();
-	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
-	/* virtual */ void OnChange(ChangeCode code, uint32 parameter);
-	/* virtual */ void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
+	Point32 OnInitialPosition() override;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
+	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 };
 
 /**
@@ -74,7 +74,7 @@ BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WI
 	this->SetupWidgetTree(_bottom_toolbar_widgets, lengthof(_bottom_toolbar_widgets));
 }
 
-/* virtual */ Point32 BottomToolbarWindow::OnInitialPosition()
+Point32 BottomToolbarWindow::OnInitialPosition()
 {
 	static Point32 pt;
 	pt.x = BOTTOM_BAR_POSITION_X;
@@ -82,7 +82,7 @@ BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WI
 	return pt;
 }
 
-/* virtual */ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case BTB_STATUS:
@@ -95,12 +95,12 @@ BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WI
 	}
 }
 
-/* virtual */ void BottomToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
+void BottomToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 {
 	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }
 
-/* virtual */ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
 	static const int64 LARGE_MONEY_AMOUNT = -9999999999; ///< -99,999,999.99 = Maximum amount of money that is worth handling for now.
 	Point32 p;

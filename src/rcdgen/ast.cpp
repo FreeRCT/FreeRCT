@@ -446,7 +446,7 @@ Group::~Group()
  * Cast the group to a #NodeGroup.
  * @return a node group if the cast succeeded, else \c NULL.
  */
-/* virtual */ NodeGroup *Group::CastToNodeGroup()
+NodeGroup *Group::CastToNodeGroup()
 {
 	return NULL;
 }
@@ -455,7 +455,7 @@ Group::~Group()
  * Cast the group to a #ExpressionGroup.
  * @return an expression group if the cast succeeded, else \c NULL.
  */
-/* virtual */ ExpressionGroup *Group::CastToExpressionGroup()
+ExpressionGroup *Group::CastToExpressionGroup()
 {
 	return NULL;
 }
@@ -481,12 +481,12 @@ NodeGroup::~NodeGroup()
 	delete this->values;
 }
 
-/* virtual */ const Position &NodeGroup::GetPosition() const
+const Position &NodeGroup::GetPosition() const
 {
 	return this->pos;
 }
 
-/* virtual */ NodeGroup *NodeGroup::CastToNodeGroup()
+NodeGroup *NodeGroup::CastToNodeGroup()
 {
 	return this;
 }
@@ -510,12 +510,12 @@ ExpressionGroup::~ExpressionGroup()
 {
 }
 
-/* virtual */ const Position &ExpressionGroup::GetPosition() const
+const Position &ExpressionGroup::GetPosition() const
 {
 	return this->expr.Access()->pos;
 }
 
-/* virtual */ ExpressionGroup *ExpressionGroup::CastToExpressionGroup()
+ExpressionGroup *ExpressionGroup::CastToExpressionGroup()
 {
 	return this;
 }

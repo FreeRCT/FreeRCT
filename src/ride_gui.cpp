@@ -32,10 +32,10 @@ public:
 	RideSelectGui();
 	~RideSelectGui();
 
-	virtual void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
-	virtual void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
-	virtual void OnClick(WidgetNumber wid_num);
-	virtual void OnChange(ChangeCode code, uint32 parameter);
+	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
+	void OnClick(WidgetNumber wid_num) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
 
 protected:
 	int16 ride_types[RTK_RIDE_KIND_COUNT]; ///< Number of ride types for each kind.
@@ -145,7 +145,7 @@ RideSelectGui::~RideSelectGui()
 	_rides_manager.CheckNoAllocatedRides(); // Check that no rides are being constructed.
 }
 
-/* virtual */ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
 	switch (wid_num) {
 		case RSEL_LIST:
@@ -178,7 +178,7 @@ RideSelectGui::~RideSelectGui()
 	}
 }
 
-/* virtual */ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
 	switch (wid_num) {
 		case RSEL_LIST: {
@@ -225,7 +225,7 @@ RideSelectGui::~RideSelectGui()
 	}
 }
 
-/* virtual */ void RideSelectGui::OnClick(WidgetNumber wid_num)
+void RideSelectGui::OnClick(WidgetNumber wid_num)
 {
 	switch (wid_num) {
 		case RSEL_SHOPS:
@@ -279,7 +279,7 @@ RideSelectGui::~RideSelectGui()
 	}
 }
 
-/* virtual */ void RideSelectGui::OnChange(ChangeCode code, uint32 parameter)
+void RideSelectGui::OnChange(ChangeCode code, uint32 parameter)
 {
 	if (code != CHG_MOUSE_MODE_LOST) return;
 
@@ -490,19 +490,19 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 	this->instance = INVALID_RIDE_INSTANCE;
 }
 
-/* virtual */ bool ShopPlacementManager::EnableCursors()
+bool ShopPlacementManager::EnableCursors()
 {
 	return true;
 }
 
-/* virtual */ bool ShopPlacementManager::MayActivateMode()
+bool ShopPlacementManager::MayActivateMode()
 {
 	return this->state == SPS_BAD_POS || this->state == SPS_GOOD_POS
 			|| (this->state == SPS_OPENED && this->selected_ride >= 0);
 }
 
 
-/* virtual */ void ShopPlacementManager::ActivateMode(const Point16 &pos)
+void ShopPlacementManager::ActivateMode(const Point16 &pos)
 {
 	this->mouse_pos = pos;
 
@@ -517,7 +517,7 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 	this->PlaceShop(pos);
 }
 
-/* virtual */ void ShopPlacementManager::LeaveMode()
+void ShopPlacementManager::LeaveMode()
 {
 	DisableWorldAdditions();
 
@@ -534,7 +534,7 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 	}
 }
 
-/* virtual */ void ShopPlacementManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+void ShopPlacementManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
 {
 	this->mouse_pos = pos;
 
@@ -542,7 +542,7 @@ ShopPlacementManager::ShopPlacementManager() : MouseMode(WC_RIDE_SELECT, MM_SHOP
 	this->PlaceShop(pos);
 }
 
-/* virtual */ void ShopPlacementManager::OnMouseButtonEvent(Viewport *vp, uint8 mstate)
+void ShopPlacementManager::OnMouseButtonEvent(Viewport *vp, uint8 mstate)
 {
 	if (this->state != SPS_GOOD_POS || mstate != MB_LEFT) return;
 

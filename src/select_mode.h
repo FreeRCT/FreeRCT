@@ -18,12 +18,12 @@ public:
 	SelectMouseMode();
 	~SelectMouseMode();
 
-	/* virtual */ bool MayActivateMode();
-	/* virtual */ void ActivateMode(const Point16 &pos);
-	/* virtual */ void LeaveMode();
-	/* virtual */ void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos);
-	/* virtual */ void OnMouseButtonEvent(Viewport *vp, uint8 state);
-	/* virtual */ bool EnableCursors();
+	bool MayActivateMode() override;
+	void ActivateMode(const Point16 &pos) override;
+	void LeaveMode() override;
+	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) override;
+	void OnMouseButtonEvent(Viewport *vp, uint8 state) override;
+	bool EnableCursors() override;
 
 	uint8 mouse_state; ///< Last known mouse button state.
 };

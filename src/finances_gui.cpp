@@ -25,7 +25,7 @@
 class FinancesGui : public GuiWindow {
 public:
 	FinancesGui();
-	virtual void SetWidgetStringParameters(WidgetNumber wid_num) const;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 };
 
 /**
@@ -98,7 +98,7 @@ FinancesGui::FinancesGui() : GuiWindow(WC_FINANCES, ALL_WINDOWS_OF_TYPE)
 	this->SetupWidgetTree(_finances_gui_parts, lengthof(_finances_gui_parts));
 }
 
-/* virtual */ void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
+void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	const Finances &f = _finances_manager.GetFinances();
 	switch (wid_num) {

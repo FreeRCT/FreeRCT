@@ -63,8 +63,8 @@ class GuestInfoWindow : public GuiWindow {
 public:
 	GuestInfoWindow(const Guest *guest);
 
-	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
-	/* virtual */ void OnChange(ChangeCode code, uint32 parameter);
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
 
 private:
 	const Guest *guest; ///< The guest getting looked at by this window.
@@ -80,7 +80,7 @@ GuestInfoWindow::GuestInfoWindow(const Guest *guest) : GuiWindow(WC_GUEST_INFO, 
 	this->SetupWidgetTree(_guest_info_gui_parts, lengthof(_guest_info_gui_parts));
 }
 
-/* virtual */ void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case GIW_TITLEBAR:
@@ -114,7 +114,7 @@ GuestInfoWindow::GuestInfoWindow(const Guest *guest) : GuiWindow(WC_GUEST_INFO, 
 	}
 }
 
-/* virtual */ void GuestInfoWindow::OnChange(ChangeCode code, uint32 parameter)
+void GuestInfoWindow::OnChange(ChangeCode code, uint32 parameter)
 {
 	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }

@@ -134,17 +134,17 @@ ShopType::ShopType() : RideType(RTK_SHOP)
 	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = NULL;
 }
 
-/* virtual */ ShopType::~ShopType()
+ShopType::~ShopType()
 {
 	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
 }
 
-/* virtual */ const ImageData *ShopType::GetView(uint8 orientation) const
+const ImageData *ShopType::GetView(uint8 orientation) const
 {
 	return (orientation < 4) ? this->views[orientation] : NULL;
 }
 
-/* virtual */ RideInstance *ShopType::CreateInstance() const
+RideInstance *ShopType::CreateInstance() const
 {
 	return new ShopInstance(this);
 }
@@ -388,7 +388,7 @@ const ShopType *ShopInstance::GetShopType() const
 	return static_cast<const ShopType *>(this->type);
 }
 
-/* virtual */ void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	sprites[0] = NULL;
 	sprites[1] = this->type->GetView((4 + this->orientation - orient) & 3);

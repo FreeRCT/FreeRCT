@@ -167,7 +167,7 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
  * @param start Start x/y voxel stack for entering the world.
  * @param person_type Type of person getting activated.
  */
-/* virtual */ void Person::Activate(const Point16 &start, PersonType person_type)
+void Person::Activate(const Point16 &start, PersonType person_type)
 {
 	assert(this->type == PERSON_INVALID);
 	assert(person_type != PERSON_INVALID);
@@ -517,7 +517,7 @@ void Person::StartAnimation(const WalkInformation *walk)
  * Mark this person as 'not in use'. (Called by #Guests.)
  * @param ar How to de-activate the person.
  */
-/* virtual */ void Person::DeActivate(AnimateResult ar)
+void Person::DeActivate(AnimateResult ar)
 {
 	if (this->type == PERSON_INVALID) return;
 
@@ -686,7 +686,7 @@ void Person::MarkDirty()
  * @param ri Ride that can be visited.
  * @return Desire of the person to visit the ride.
  */
-/* virtual */ RideVisitDesire Person::WantToVisit(const RideInstance *ri)
+RideVisitDesire Person::WantToVisit(const RideInstance *ri)
 {
 	return RVD_NO_VISIT;
 }
@@ -705,7 +705,7 @@ Guest::~Guest()
 {
 }
 
-/* virtual */ void Guest::Activate(const Point16 &start, PersonType person_type)
+void Guest::Activate(const Point16 &start, PersonType person_type)
 {
 	this->Person::Activate(start, person_type);
 
@@ -730,7 +730,7 @@ Guest::~Guest()
  * @todo Make de-activation a bit more random.
  * @todo Implement dropping litter (Guest::has_wrapper) to the path, and also drop the wrapper when passing a non-empty litter bin.
  */
-/* virtual */ bool Guest::DailyUpdate()
+bool Guest::DailyUpdate()
 {
 	assert(PersonIsAGuest(this->type));
 
@@ -802,7 +802,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 	}
 }
 
-/* virtual */ RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
+RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 		if (this->NeedForItem(ri->GetSaleItemType(i), true) != RVD_NO_VISIT) return RVD_MAY_VISIT;

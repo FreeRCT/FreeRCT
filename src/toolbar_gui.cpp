@@ -25,8 +25,8 @@ class ToolbarWindow : public GuiWindow {
 public:
 	ToolbarWindow();
 
-	virtual Point32 OnInitialPosition();
-	virtual void OnClick(WidgetNumber number);
+	Point32 OnInitialPosition() override;
+	void OnClick(WidgetNumber number) override;
 };
 
 /**
@@ -67,13 +67,13 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 	this->SetupWidgetTree(_toolbar_widgets, lengthof(_toolbar_widgets));
 }
 
-/* virtual */ Point32 ToolbarWindow::OnInitialPosition()
+Point32 ToolbarWindow::OnInitialPosition()
 {
 	static const Point32 pt = {10, 0};
 	return pt;
 }
 
-/* virtual */ void ToolbarWindow::OnClick(WidgetNumber number)
+void ToolbarWindow::OnClick(WidgetNumber number)
 {
 	switch (number) {
 		case TB_GUI_QUIT:
@@ -124,8 +124,8 @@ class QuitProgramWindow : public GuiWindow {
 public:
 	QuitProgramWindow();
 
-	virtual Point32 OnInitialPosition();
-	virtual void OnClick(WidgetNumber number);
+	Point32 OnInitialPosition() override;
+	void OnClick(WidgetNumber number) override;
 };
 
 /**
@@ -159,7 +159,7 @@ static const WidgetPart _quit_program_widgets[] = {
 			EndContainer(),
 };
 
-/* virtual */ Point32 QuitProgramWindow::OnInitialPosition()
+Point32 QuitProgramWindow::OnInitialPosition()
 {
 	Point32 pt;
 	pt.x = (_video->GetXSize() - this->rect.width) / 2;
@@ -174,7 +174,7 @@ QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 }
 
 
-/* virtual */ void QuitProgramWindow::OnClick(WidgetNumber number)
+void QuitProgramWindow::OnClick(WidgetNumber number)
 {
 	if (number == QP_YES) QuitProgram();
 	_manager.DeleteWindow(this);

@@ -23,8 +23,8 @@ class SettingWindow : public GuiWindow {
 public:
 	SettingWindow();
 
-	/* virtual */ void SetWidgetStringParameters(WidgetNumber wid_num) const;
-	/* virtual */ void OnClick(WidgetNumber number);
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnClick(WidgetNumber number) override;
 };
 
 /**
@@ -62,7 +62,7 @@ SettingWindow::SettingWindow() : GuiWindow(WC_SETTING, ALL_WINDOWS_OF_TYPE)
 	this->SetupWidgetTree(_setting_widgets, lengthof(_setting_widgets));
 }
 
-/* virtual */ void SettingWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void SettingWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case SW_LANGUAGE:
@@ -71,7 +71,7 @@ SettingWindow::SettingWindow() : GuiWindow(WC_SETTING, ALL_WINDOWS_OF_TYPE)
 	}
 }
 
-/* virtual */ void SettingWindow::OnClick(WidgetNumber number)
+void SettingWindow::OnClick(WidgetNumber number)
 {
 	switch (number) {
 		case SW_LANGUAGE:
