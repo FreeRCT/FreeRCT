@@ -140,10 +140,10 @@ int main(int argc, char *argv[])
 	delete nvs;
 
 	/* Phase 3: Construct output files. */
-	for (std::list<FileNode *>::iterator iter = file_nodes->files.begin(); iter != file_nodes->files.end(); ++iter) {
+	for (auto iter : file_nodes->files) {
 		FileWriter fw;
-		(*iter)->Write(&fw);
-		fw.WriteFile((*iter)->file_name);
+		iter->Write(&fw);
+		fw.WriteFile(iter->file_name);
 	}
 
 	delete file_nodes;

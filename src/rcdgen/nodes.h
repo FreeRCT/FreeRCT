@@ -16,6 +16,8 @@
 #include <list>
 #include <set>
 #include <map>
+#include <memory>
+#include <array>
 #include "image.h"
 
 class FileWriter;
@@ -26,17 +28,13 @@ class Position;
 /** Base class for all nodes. */
 class BlockNode {
 public:
-	BlockNode();
-	virtual ~BlockNode();
-
-	virtual BlockNode *GetSubNode(int row, int col, char *name, const Position &pos);
+	virtual std::shared_ptr<BlockNode> GetSubNode(int row, int col, char *name, const Position &pos);
 };
 
 /** Base class for game blocks. */
 class GameBlock : public BlockNode {
 public:
 	GameBlock(const char *blk_name, int version);
-	~GameBlock();
 
 	virtual int Write(FileWriter *fw) = 0;
 
@@ -52,17 +50,14 @@ public:
 
 	void Write(FileWriter *fw);
 
-	char *file_name;              ///< %Name of the RCD file.
-	std::list<GameBlock *>blocks; ///< Blocks of the file.
+	char *file_name; ///< %Name of the RCD file.
+	std::list<std::shared_ptr<GameBlock>> blocks; ///< Blocks of the file.
 };
 
 /** A sequence of file nodes. */
 class FileNodeList {
 public:
-	FileNodeList();
-	~FileNodeList();
-
-	std::list<FileNode *>files; ///< Output files.
+	std::list<std::shared_ptr<FileNode>> files; ///< Output files.
 };
 
 /** Sprites of a surface. */
@@ -96,9 +91,6 @@ enum SurfaceSprites {
 /** Block containing a sprite. */
 class SpriteBlock : public BlockNode {
 public:
-	SpriteBlock();
-	~SpriteBlock();
-
 	int Write(FileWriter *fw);
 
 	SpriteImage sprite_image; ///< The stored sprite.
@@ -113,7 +105,7 @@ public:
 	~SheetBlock();
 
 
-	BlockNode *GetSubNode(int row, int col, char *name, const Position &pos) override;
+	std::shared_ptr<BlockNode> GetSubNode(int row, int col, char *name, const Position &pos) override;
 	Image *GetSheet();
 
 	Position pos;     ///< Line number defining the sheet.
@@ -129,50 +121,47 @@ public:
 	bool crop;        ///< Crop sprite.
 
 	Image *img_sheet; ///< Sheet of images.
-	BitMask *mask;    ///< Bit mask to apply first (if available).
+	std::shared_ptr<BitMask> mask; ///< Bit mask to apply first (if available).
 };
 
 /** A 'TSEL' block. */
 class TSELBlock : public GameBlock {
 public:
 	TSELBlock();
-	~TSELBlock();
 
 	int Write(FileWriter *fw) override;
 
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
-	SpriteBlock *sprites[SURFACE_COUNT]; ///< Surface tiles.
+	std::array<std::shared_ptr<SpriteBlock>, SURFACE_COUNT> sprites; ///< Surface tiles.
 };
 
 /** A 'TCOR' block. */
 class TCORBlock : public GameBlock {
 public:
 	TCORBlock();
-	~TCORBlock() override;
 
 	int Write(FileWriter *fw) override;
 
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
-	SpriteBlock *north[SURFACE_COUNT]; ///< Corner select tiles while viewing to north.
-	SpriteBlock *east[SURFACE_COUNT];  ///< Corner select tiles while viewing to east.
-	SpriteBlock *south[SURFACE_COUNT]; ///< Corner select tiles while viewing to south.
-	SpriteBlock *west[SURFACE_COUNT];  ///< Corner select tiles while viewing to west.
+	std::array<std::shared_ptr<SpriteBlock>, SURFACE_COUNT> north; ///< Corner select tiles while viewing to north.
+	std::array<std::shared_ptr<SpriteBlock>, SURFACE_COUNT> east;  ///< Corner select tiles while viewing to east.
+	std::array<std::shared_ptr<SpriteBlock>, SURFACE_COUNT> south; ///< Corner select tiles while viewing to south.
+	std::array<std::shared_ptr<SpriteBlock>, SURFACE_COUNT> west;  ///< Corner select tiles while viewing to west.
 };
 
 /** Ground surface block SURF. */
 class SURFBlock : public GameBlock {
 public:
 	SURFBlock();
-	~SURFBlock();
 
 	int Write(FileWriter *fw) override;
 
 	int surf_type;  ///< Type of surface.
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
-	SpriteBlock *sprites[SURFACE_COUNT]; ///< Surface tiles.
+	std::array<std::shared_ptr<SpriteBlock>, SURFACE_COUNT> sprites; ///< Surface tiles.
 };
 
 /** Sprites of a foundation. */
@@ -191,14 +180,13 @@ enum FoundationSprites {
 class FUNDBlock : public GameBlock {
 public:
 	FUNDBlock();
-	~FUNDBlock();
 
 	int Write(FileWriter *fw) override;
 
 	int found_type; ///< Type of foundation.
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
-	SpriteBlock *sprites[FOUNDATION_COUNT]; ///< Foundation tiles.
+	std::array<std::shared_ptr<SpriteBlock>, FOUNDATION_COUNT> sprites; ///< Foundation tiles.
 };
 
 /** Colour ranges. */
@@ -229,7 +217,6 @@ enum ColourRange {
 class Recolouring : public BlockNode {
 public:
 	Recolouring();
-	~Recolouring();
 
 	uint8 orig;     ///< Colour range to replace.
 	uint32 replace; ///< Bitset of colour ranges that may be used as replacement.
@@ -240,9 +227,6 @@ public:
 /** Definition of graphics of one type of person. */
 class PersonGraphics : public BlockNode {
 public:
-	PersonGraphics();
-	~PersonGraphics();
-
 	int person_type;      ///< Type of person being defined.
 	Recolouring recol[3]; ///< Recolour definitions.
 
@@ -253,19 +237,15 @@ public:
 class PRSGBlock : public GameBlock {
 public:
 	PRSGBlock();
-	~PRSGBlock();
 
 	int Write(FileWriter *fw) override;
 
-	std::list<PersonGraphics> person_graphics; ///< Stored person graphics.
+	std::list<std::shared_ptr<PersonGraphics>> person_graphics; ///< Stored person graphics.
 };
 
 /** ANIM frame data for a single frame. */
 class FrameData : public BlockNode {
 public:
-	FrameData();
-	~FrameData();
-
 	int duration; ///< Duration of this frame.
 	int change_x; ///< Change in x after the frame is displayed.
 	int change_y; ///< Change in y after the frame is displayed.
@@ -275,21 +255,19 @@ public:
 class ANIMBlock : public GameBlock {
 public:
 	ANIMBlock();
-	~ANIMBlock();
 
 	int Write(FileWriter *fw) override;
 
 	int person_type; ///< Type of person being defined.
 	int anim_type;   ///< Type of animation being defined.
 
-	std::list<FrameData> frames; ///< Frame data of every frame.
+	std::list<std::shared_ptr<FrameData>> frames; ///< Frame data of every frame.
 };
 
 /** ANSP game block. */
 class ANSPBlock : public GameBlock {
 public:
 	ANSPBlock();
-	~ANSPBlock();
 
 	int Write(FileWriter *fw) override;
 
@@ -297,7 +275,7 @@ public:
 	int person_type; ///< Type of person being defined.
 	int anim_type;   ///< Type of animation being defined.
 
-	std::list<SpriteBlock *> frames; ///< Sprite for every frame.
+	std::list<std::shared_ptr<SpriteBlock>> frames; ///< Sprite for every frame.
 };
 
 /** Path sprites. */
@@ -361,7 +339,6 @@ enum PathSprites {
 class PATHBlock : public GameBlock {
 public:
 	PATHBlock();
-	~PATHBlock();
 
 	int Write(FileWriter *fw) override;
 
@@ -369,7 +346,7 @@ public:
 	int tile_width;  ///< Size of the tile.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
 
-	SpriteBlock *sprites[PTS_COUNT]; ///< Path sprites.
+	std::array<std::shared_ptr<SpriteBlock>, PTS_COUNT> sprites; ///< Path sprites.
 };
 
 /** Platform sprites. */
@@ -396,7 +373,6 @@ enum PlatformSprites {
 class PLATBlock : public GameBlock {
 public:
 	PLATBlock();
-	~PLATBlock();
 
 	int Write(FileWriter *fw) override;
 
@@ -404,7 +380,7 @@ public:
 	int z_height;      ///< Change in Z height (in pixels) when going up or down a tile level.
 	int platform_type; ///< Type of platform.
 
-	SpriteBlock *sprites[PLA_COUNT]; ///< Platform sprites.
+	std::array<std::shared_ptr<SpriteBlock>, PLA_COUNT> sprites; ///< Platform sprites.
 };
 
 /** Sprites of the supports. */
@@ -441,7 +417,6 @@ enum SupportSprites {
 class SUPPBlock : public GameBlock {
 public:
 	SUPPBlock();
-	~SUPPBlock();
 
 	int Write(FileWriter *fw) override;
 
@@ -449,7 +424,7 @@ public:
 	int tile_width;   ///< Zoom-width of a tile of the surface.
 	int z_height;     ///< Change in Z height (in pixels) when going up or down a tile level.
 
-	SpriteBlock *sprites[SPP_COUNT]; ///< Support sprites.
+	std::array<std::shared_ptr<SpriteBlock>, SPP_COUNT> sprites; ///< Support sprites.
 };
 
 /** Known languages. */
@@ -467,7 +442,6 @@ int GetLanguageIndex(const char *lname, const Position &pos);
 class TextNode : public BlockNode {
 public:
 	TextNode();
-	~TextNode();
 
 	int GetSize() const;
 	void Write(FileBlock *fb) const;
@@ -491,9 +465,6 @@ inline bool operator<(const TextNode &tn1, const TextNode &tn2)
 /** Collection of translated strings. */
 class Strings : public BlockNode {
 public:
-	Strings();
-	~Strings();
-
 	void CheckTranslations(const char *names[], int name_count, const Position &pos);
 	int Write(FileWriter *fw);
 
@@ -504,30 +475,29 @@ public:
 class SHOPBlock : public GameBlock {
 public:
 	SHOPBlock();
-	~SHOPBlock();
 
 	int Write(FileWriter *fw) override;
 
 	int tile_width;       ///< Zoom-width of a tile of the surface.
 	int height;           ///< Height of the shop in voxels.
 	int flags;            ///< Byte with flags of the shop.
-	SpriteBlock *ne_view; ///< Unrotated view.
-	SpriteBlock *se_view; ///< Rotated 90 degrees.
-	SpriteBlock *sw_view; ///< Rotated 180 degrees.
-	SpriteBlock *nw_view; ///< Rotated 270 degrees.
 	Recolouring recol[3]; ///< Recolour definitions of the shop.
 	int item_cost[2];     ///< Cost of both items at sale.
 	int ownership_cost;   ///< Monthly cost of having the shop.
 	int opened_cost;      ///< Additional monthly cost of having an opened shop.
 	int item_type[2];     ///< Item type of both items at sale.
-	Strings *shop_text;   ///< Texts of the shop.
+
+	std::shared_ptr<SpriteBlock> ne_view; ///< Unrotated view.
+	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
+	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
+	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
+	std::shared_ptr<Strings> shop_text;   ///< Texts of the shop.
 };
 
 /** GBOR game block. */
 class GBORBlock : public GameBlock {
 public:
 	GBORBlock();
-	~GBORBlock();
 
 	int Write(FileWriter *fw) override;
 
@@ -540,39 +510,39 @@ public:
 	int min_height;    ///< Minimal height of the border.
 	int h_stepsize;    ///< Horizontal stepsize of the border.
 	int v_stepsize;    ///< Vertical stepsize of the border.
-	SpriteBlock *tl;   ///< Top-left sprite.
-	SpriteBlock *tm;   ///< Top-middle sprite.
-	SpriteBlock *tr;   ///< Top-right sprite.
-	SpriteBlock *ml;   ///< Left sprite.
-	SpriteBlock *mm;   ///< Middle sprite.
-	SpriteBlock *mr;   ///< Right sprite.
-	SpriteBlock *bl;   ///< Bottom-left sprite.
-	SpriteBlock *bm;   ///< Bottom-middle sprite.
-	SpriteBlock *br;   ///< Bottom-right sprite.
+
+	std::shared_ptr<SpriteBlock> tl; ///< Top-left sprite.
+	std::shared_ptr<SpriteBlock> tm; ///< Top-middle sprite.
+	std::shared_ptr<SpriteBlock> tr; ///< Top-right sprite.
+	std::shared_ptr<SpriteBlock> ml; ///< Left sprite.
+	std::shared_ptr<SpriteBlock> mm; ///< Middle sprite.
+	std::shared_ptr<SpriteBlock> mr; ///< Right sprite.
+	std::shared_ptr<SpriteBlock> bl; ///< Bottom-left sprite.
+	std::shared_ptr<SpriteBlock> bm; ///< Bottom-middle sprite.
+	std::shared_ptr<SpriteBlock> br; ///< Bottom-right sprite.
 };
 
 /** GCHK game block. */
 class GCHKBlock : public GameBlock {
 public:
 	GCHKBlock();
-	~GCHKBlock();
 
 	int Write(FileWriter *fw) override;
 
-	int widget_type;             ///< Widget type.
-	SpriteBlock *empty;          ///< Empty sprite.
-	SpriteBlock *filled;         ///< Filled.
-	SpriteBlock *empty_pressed;  ///< Empty pressed.
-	SpriteBlock *filled_pressed; ///< Filled pressed.
-	SpriteBlock *shaded_empty;   ///< Shaded empty button.
-	SpriteBlock *shaded_filled;  ///< Shaded filled button.
+	int widget_type; ///< Widget type.
+
+	std::shared_ptr<SpriteBlock> empty;          ///< Empty sprite.
+	std::shared_ptr<SpriteBlock> filled;         ///< Filled.
+	std::shared_ptr<SpriteBlock> empty_pressed;  ///< Empty pressed.
+	std::shared_ptr<SpriteBlock> filled_pressed; ///< Filled pressed.
+	std::shared_ptr<SpriteBlock> shaded_empty;   ///< Shaded empty button.
+	std::shared_ptr<SpriteBlock> shaded_filled;  ///< Shaded filled button.
 };
 
 /** GSLI game block. */
 class GSLIBlock : public GameBlock {
 public:
 	GSLIBlock();
-	~GSLIBlock();
 
 	int Write(FileWriter *fw) override;
 
@@ -580,17 +550,17 @@ public:
 	int step_size;       ///< Stepsize of the bar.
 	int width;           ///< Width of the slider button.
 	int widget_type;     ///< Widget type.
-	SpriteBlock *left;   ///< Left sprite.
-	SpriteBlock *middle; ///< Middle sprite.
-	SpriteBlock *right;  ///< Right sprite.
-	SpriteBlock *slider; ///< Slider button.
+
+	std::shared_ptr<SpriteBlock> left;   ///< Left sprite.
+	std::shared_ptr<SpriteBlock> middle; ///< Middle sprite.
+	std::shared_ptr<SpriteBlock> right;  ///< Right sprite.
+	std::shared_ptr<SpriteBlock> slider; ///< Slider button.
 };
 
 /** GSCL game block. */
 class GSCLBlock : public GameBlock {
 public:
 	GSCLBlock();
-	~GSCLBlock();
 
 	int Write(FileWriter *fw) override;
 
@@ -599,82 +569,81 @@ public:
 	int min_bar_length; ///< Minimal length bar.
 	int bar_step;       ///< Stepsize of bar.
 	int widget_type;    ///< Widget type.
-	SpriteBlock *left_button;        ///< Left/up button.
-	SpriteBlock *right_button;       ///< Right/down button.
-	SpriteBlock *left_pressed;       ///< Left/up pressed button.
-	SpriteBlock *right_pressed;      ///< Right/down pressed button.
-	SpriteBlock *left_bottom;        ///< Left/top bar bottom (the background).
-	SpriteBlock *middle_bottom;      ///< Middle bar bottom (the background).
-	SpriteBlock *right_bottom;       ///< Right/down bar bottom (the background).
-	SpriteBlock *left_top;           ///< Left/top bar top.
-	SpriteBlock *middle_top;         ///< Middle bar top.
-	SpriteBlock *right_top;          ///< Right/down bar top.
-	SpriteBlock *left_top_pressed;   ///< Left/top pressed bar top.
-	SpriteBlock *middle_top_pressed; ///< Middle pressed bar top.
-	SpriteBlock *right_top_pressed;  ///< Right/down pressed bar top.
+
+	std::shared_ptr<SpriteBlock> left_button;        ///< Left/up button.
+	std::shared_ptr<SpriteBlock> right_button;       ///< Right/down button.
+	std::shared_ptr<SpriteBlock> left_pressed;       ///< Left/up pressed button.
+	std::shared_ptr<SpriteBlock> right_pressed;      ///< Right/down pressed button.
+	std::shared_ptr<SpriteBlock> left_bottom;        ///< Left/top bar bottom (the background).
+	std::shared_ptr<SpriteBlock> middle_bottom;      ///< Middle bar bottom (the background).
+	std::shared_ptr<SpriteBlock> right_bottom;       ///< Right/down bar bottom (the background).
+	std::shared_ptr<SpriteBlock> left_top;           ///< Left/top bar top.
+	std::shared_ptr<SpriteBlock> middle_top;         ///< Middle bar top.
+	std::shared_ptr<SpriteBlock> right_top;          ///< Right/down bar top.
+	std::shared_ptr<SpriteBlock> left_top_pressed;   ///< Left/top pressed bar top.
+	std::shared_ptr<SpriteBlock> middle_top_pressed; ///< Middle pressed bar top.
+	std::shared_ptr<SpriteBlock> right_top_pressed;  ///< Right/down pressed bar top.
 };
 
 /** BDIR game block. */
 class BDIRBlock : public GameBlock {
 public:
 	BDIRBlock();
-	~BDIRBlock();
 
 	int Write(FileWriter *fw) override;
 
-	int tile_width;   ///< Zoom-width of a tile of the surface.
-	SpriteBlock *sprite_ne; ///< ne arrow.
-	SpriteBlock *sprite_se; ///< se arrow.
-	SpriteBlock *sprite_sw; ///< sw arrow.
-	SpriteBlock *sprite_nw; ///< nw arrow.
+	int tile_width; ///< Zoom-width of a tile of the surface.
+
+	std::shared_ptr<SpriteBlock> sprite_ne; ///< ne arrow.
+	std::shared_ptr<SpriteBlock> sprite_se; ///< se arrow.
+	std::shared_ptr<SpriteBlock> sprite_sw; ///< sw arrow.
+	std::shared_ptr<SpriteBlock> sprite_nw; ///< nw arrow.
 };
 
 /** GSLP Game block. */
 class GSLPBlock : public GameBlock {
 public:
 	GSLPBlock();
-	~GSLPBlock();
 
 	int Write(FileWriter *fw) override;
 
-	SpriteBlock *vert_down;       ///< Slope going vertically down.
-	SpriteBlock *steep_down;      ///< Slope going steeply down.
-	SpriteBlock *gentle_down;     ///< Slope going gently down.
-	SpriteBlock *level;           ///< Level slope.
-	SpriteBlock *gentle_up;       ///< Slope going gently up.
-	SpriteBlock *steep_up;        ///< Slope going steeply up.
-	SpriteBlock *vert_up;         ///< Slope going vertically up.
-	SpriteBlock *wide_left;       ///< Wide bend to the left.
-	SpriteBlock *normal_left;     ///< Normal bend to the left.
-	SpriteBlock *tight_left;      ///< Tight bend to the left.
-	SpriteBlock *no_bend;         ///< No bends.
-	SpriteBlock *tight_right;     ///< Tight bend to the right.
-	SpriteBlock *normal_right;    ///< Normal bend to the right.
-	SpriteBlock *wide_right;      ///< Wide bend to the right.
-	SpriteBlock *no_banking;      ///< No banking.
-	SpriteBlock *bank_left;       ///< Bank to the left.
-	SpriteBlock *bank_right;      ///< Bank to the right.
-	SpriteBlock *triangle_right;  ///< Arrow triangle to the right.
-	SpriteBlock *triangle_left;   ///< Arrow triangle to the left.
-	SpriteBlock *triangle_up;     ///< Arrow triangle upwards.
-	SpriteBlock *triangle_bottom; ///< Arrow triangle downwards.
-	SpriteBlock *disabled;        ///< Pattern to overlay over disabled buttons.
-	SpriteBlock *pos_2d;          ///< Flat rotation positive direction (counter clock wise)
-	SpriteBlock *neg_2d;          ///< Flat rotation negative direction (clock wise)
-	SpriteBlock *pos_3d;          ///< Diametric rotation positive direction (counter clock wise)
-	SpriteBlock *neg_3d;          ///< Diametric rotation negative direction (clock wise)
-	SpriteBlock *close_button;    ///< Close Button.
-	SpriteBlock *maxi_button;     ///< Maximise button.
-	SpriteBlock *mini_button;     ///< Minimise button.
-	SpriteBlock *terraform_dot;   ///< Terraform dot.
-	Strings *gui_text;            ///< Text of the GUIs (reference to a TEXT block).
+	std::shared_ptr<SpriteBlock> vert_down;       ///< Slope going vertically down.
+	std::shared_ptr<SpriteBlock> steep_down;      ///< Slope going steeply down.
+	std::shared_ptr<SpriteBlock> gentle_down;     ///< Slope going gently down.
+	std::shared_ptr<SpriteBlock> level;           ///< Level slope.
+	std::shared_ptr<SpriteBlock> gentle_up;       ///< Slope going gently up.
+	std::shared_ptr<SpriteBlock> steep_up;        ///< Slope going steeply up.
+	std::shared_ptr<SpriteBlock> vert_up;         ///< Slope going vertically up.
+	std::shared_ptr<SpriteBlock> wide_left;       ///< Wide bend to the left.
+	std::shared_ptr<SpriteBlock> normal_left;     ///< Normal bend to the left.
+	std::shared_ptr<SpriteBlock> tight_left;      ///< Tight bend to the left.
+	std::shared_ptr<SpriteBlock> no_bend;         ///< No bends.
+	std::shared_ptr<SpriteBlock> tight_right;     ///< Tight bend to the right.
+	std::shared_ptr<SpriteBlock> normal_right;    ///< Normal bend to the right.
+	std::shared_ptr<SpriteBlock> wide_right;      ///< Wide bend to the right.
+	std::shared_ptr<SpriteBlock> no_banking;      ///< No banking.
+	std::shared_ptr<SpriteBlock> bank_left;       ///< Bank to the left.
+	std::shared_ptr<SpriteBlock> bank_right;      ///< Bank to the right.
+	std::shared_ptr<SpriteBlock> triangle_right;  ///< Arrow triangle to the right.
+	std::shared_ptr<SpriteBlock> triangle_left;   ///< Arrow triangle to the left.
+	std::shared_ptr<SpriteBlock> triangle_up;     ///< Arrow triangle upwards.
+	std::shared_ptr<SpriteBlock> triangle_bottom; ///< Arrow triangle downwards.
+	std::shared_ptr<SpriteBlock> disabled;        ///< Pattern to overlay over disabled buttons.
+	std::shared_ptr<SpriteBlock> pos_2d;          ///< Flat rotation positive direction (counter clock wise)
+	std::shared_ptr<SpriteBlock> neg_2d;          ///< Flat rotation negative direction (clock wise)
+	std::shared_ptr<SpriteBlock> pos_3d;          ///< Diametric rotation positive direction (counter clock wise)
+	std::shared_ptr<SpriteBlock> neg_3d;          ///< Diametric rotation negative direction (clock wise)
+	std::shared_ptr<SpriteBlock> close_button;    ///< Close Button.
+	std::shared_ptr<SpriteBlock> maxi_button;     ///< Maximise button.
+	std::shared_ptr<SpriteBlock> mini_button;     ///< Minimise button.
+	std::shared_ptr<SpriteBlock> terraform_dot;   ///< Terraform dot.
+	std::shared_ptr<Strings> gui_text;            ///< Text of the GUIs (reference to a TEXT block).
 };
 
 /** Class for storing the data of a single voxel in a track piece. */
 class TrackVoxel : public BlockNode {
 public:
 	TrackVoxel();
-	~TrackVoxel();
 
 	void Write(FileWriter *fw, FileBlock *fb, int rot);
 
@@ -682,8 +651,8 @@ public:
 	int dy; ///< Relative Y position of the voxel.
 	int dz; ///< Relative Z position of the voxel.
 	int space; ///< Corners claimed by the voxel.
-	SpriteBlock *back[4];  ///< Back coaster sprites.
-	SpriteBlock *front[4]; ///< Front coaster sprites.
+	std::array<std::shared_ptr<SpriteBlock>, 4> back;  ///< Back coaster sprites.
+	std::array<std::shared_ptr<SpriteBlock>, 4> front; ///< Front coaster sprites.
 };
 
 /** Class for storing a 'connection' between track pieces. */
@@ -693,7 +662,6 @@ public:
 	Connection(const Connection &c);
 	Connection &operator=(const Connection &c);
 	Connection(const std::string &name, int direction);
-	~Connection();
 
 	uint8 Encode(const std::map<std::string, int> &connections, int rot);
 
@@ -704,48 +672,43 @@ public:
 /** A 'track_piece' block. */
 class TrackPieceNode : public BlockNode {
 public:
-	TrackPieceNode();
-	~TrackPieceNode();
-
 	void UpdateConnectionMap(std::map<std::string, int> *connections);
 	void Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *fb);
 
-	int track_flags;   ///< Flags of the track piece.
-	int banking;       ///< Banking (0=no, 1=left, 2=right).
-	int slope;         ///< Slope of the track piece (-3 vertically down to 3 vertically up).
-	int bend;          ///< Bend of the track piece (-3 wide-left to 3 wide right).
-	int cost;          ///< Cost of the track piece.
-	Connection *entry; ///< Entry connection code.
-	Connection *exit;  ///< Exit connection code.
-	int exit_dx;       ///< Relative X position of the exit voxel.
-	int exit_dy;       ///< Relative Y position of the exit voxel.
-	int exit_dz;       ///< Relative Z position of the exit voxel.
-	int speed;         ///< If non-0, minimal speed of cars (with direction).
+	int track_flags; ///< Flags of the track piece.
+	int banking;     ///< Banking (0=no, 1=left, 2=right).
+	int slope;       ///< Slope of the track piece (-3 vertically down to 3 vertically up).
+	int bend;        ///< Bend of the track piece (-3 wide-left to 3 wide right).
+	int cost;        ///< Cost of the track piece.
+	int exit_dx;     ///< Relative X position of the exit voxel.
+	int exit_dy;     ///< Relative Y position of the exit voxel.
+	int exit_dz;     ///< Relative Z position of the exit voxel.
+	int speed;       ///< If non-0, minimal speed of cars (with direction).
 
-	std::list<TrackVoxel *> track_voxels; ///< Voxels in the track piece.
+	std::shared_ptr<Connection> entry; ///< Entry connection code.
+	std::shared_ptr<Connection> exit;  ///< Exit connection code.
+
+	std::list<std::shared_ptr<TrackVoxel>> track_voxels; ///< Voxels in the track piece.
 };
 
 /** 'RCST' game block. */
 class RCSTBlock : public GameBlock {
 public:
 	RCSTBlock();
-	~RCSTBlock();
 
 	int Write(FileWriter *fw) override;
 
 	int coaster_type;  ///< Type of roller coaster.
 	int platform_type; ///< Type of platform.
-	Strings *text;     ///< Text of the coaster (reference to a TEXT block).
 
-	std::list<TrackPieceNode *> track_blocks; ///< Track pieces of the coaster.
+	std::shared_ptr<Strings> text; ///< Text of the coaster (reference to a TEXT block).
+
+	std::list<std::shared_ptr<TrackPieceNode>> track_blocks; ///< Track pieces of the coaster.
 };
 
 /** Node block containing a bitmask. */
 class BitMask : public BlockNode {
 public:
-	BitMask();
-	~BitMask();
-
 	BitMaskData data; ///< Data of the bit mask.
 };
 

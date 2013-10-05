@@ -14,14 +14,6 @@
 #include "nodes.h"
 #include "file_writing.h"
 
-BlockNode::BlockNode()
-{
-}
-
-BlockNode::~BlockNode()
-{
-}
-
 /**
  * Get a subnode for the given \a row and \a col.
  * @param row Row of the sub node.
@@ -31,7 +23,7 @@ BlockNode::~BlockNode()
  * @return The requested sub node.
  * @note The default implementation always fails, override to get the feature.
  */
-BlockNode *BlockNode::GetSubNode(int row, int col, char *name, const Position &pos)
+std::shared_ptr<BlockNode> BlockNode::GetSubNode(int row, int col, char *name, const Position &pos)
 {
 	/* By default, fail. */
 	fprintf(stderr, "Error at %s: Cannot assign sub node (row=%d, column=%d) to variable \"%s\"\n", pos.ToString(), row, col, name);
@@ -47,10 +39,6 @@ GameBlock::GameBlock(const char *blk_name, int version) : BlockNode()
 {
 	this->blk_name = blk_name;
 	this->version = version;
-}
-
-GameBlock::~GameBlock()
-{
 }
 
 /**
@@ -72,10 +60,7 @@ FileNode::FileNode(char *file_name) : BlockNode()
 
 FileNode::~FileNode()
 {
-	free(this->file_name);
-	for (std::list<GameBlock *>::iterator iter = this->blocks.begin(); iter != this->blocks.end(); ++iter) {
-		delete *iter;
-	}
+	delete[] file_name;
 }
 
 /**
@@ -84,29 +69,9 @@ FileNode::~FileNode()
  */
 void FileNode::Write(FileWriter *fw)
 {
-	for (std::list<GameBlock *>::iterator iter = this->blocks.begin(); iter != this->blocks.end(); ++iter) {
-		(*iter)->Write(fw);
+	for (auto iter : this->blocks) {
+		iter->Write(fw);
 	}
-}
-
-FileNodeList::FileNodeList()
-{
-}
-
-FileNodeList::~FileNodeList()
-{
-	for (std::list<FileNode *>::iterator iter = this->files.begin(); iter != this->files.end(); ++iter) {
-		delete *iter;
-	}
-}
-
-
-SpriteBlock::SpriteBlock() : BlockNode()
-{
-}
-
-SpriteBlock::~SpriteBlock()
-{
 }
 
 /**
@@ -148,13 +113,11 @@ int SpriteBlock::Write(FileWriter *fw)
 SheetBlock::SheetBlock(const Position &pos) : pos(pos)
 {
 	this->img_sheet = NULL;
-	this->mask = NULL;
 }
 
 SheetBlock::~SheetBlock()
 {
 	delete this->img_sheet;
-	delete this->mask;
 }
 
 /**
@@ -175,10 +138,10 @@ Image *SheetBlock::GetSheet()
 	return this->img_sheet;
 }
 
-BlockNode *SheetBlock::GetSubNode(int row, int col, char *name, const Position &pos)
+std::shared_ptr<BlockNode> SheetBlock::GetSubNode(int row, int col, char *name, const Position &pos)
 {
 	Image *img = this->GetSheet();
-	SpriteBlock *spr_blk = new SpriteBlock;
+	std::shared_ptr<SpriteBlock> spr_blk(new SpriteBlock);
 	const char *err = spr_blk->sprite_image.CopySprite(img, this->x_offset, this->y_offset,
 			this->x_base + this->x_step * col, this->y_base + this->y_step * row, this->width, this->height, this->crop);
 	if (err != NULL) {
@@ -190,16 +153,6 @@ BlockNode *SheetBlock::GetSubNode(int row, int col, char *name, const Position &
 
 TSELBlock::TSELBlock() : GameBlock("TSEL", 2)
 {
-	for (int i = 0; i < SURFACE_COUNT; i++) {
-		this->sprites[i] = NULL;
-	}
-}
-
-TSELBlock::~TSELBlock()
-{
-	for (int i = 0; i < SURFACE_COUNT; i++) {
-		delete this->sprites[i];
-	}
 }
 
 int TSELBlock::Write(FileWriter *fw)
@@ -217,22 +170,6 @@ int TSELBlock::Write(FileWriter *fw)
 
 TCORBlock::TCORBlock() : GameBlock("TCOR", 2)
 {
-	for (int i = 0; i < SURFACE_COUNT; i++) {
-		this->north[i] = NULL;
-		this->east[i] = NULL;
-		this->south[i] = NULL;
-		this->west[i] = NULL;
-	}
-}
-
-TCORBlock::~TCORBlock()
-{
-	for (int i = 0; i < SURFACE_COUNT; i++) {
-		delete this->north[i];
-		delete this->east[i];
-		delete this->south[i];
-		delete this->west[i];
-	}
 }
 
 int TCORBlock::Write(FileWriter *fw)
@@ -251,12 +188,6 @@ int TCORBlock::Write(FileWriter *fw)
 
 SURFBlock::SURFBlock() : GameBlock("SURF", 4)
 {
-	for (int i = 0; i < SURFACE_COUNT; i++) this->sprites[i] = NULL;
-}
-
-SURFBlock::~SURFBlock()
-{
-	for (int i = 0; i < SURFACE_COUNT; i++) delete this->sprites[i];
 }
 
 int SURFBlock::Write(FileWriter *fw)
@@ -275,12 +206,6 @@ int SURFBlock::Write(FileWriter *fw)
 
 FUNDBlock::FUNDBlock() : GameBlock("FUND", 1)
 {
-	for (int i = 0; i < FOUNDATION_COUNT; i++) this->sprites[i] = NULL;
-}
-
-FUNDBlock::~FUNDBlock()
-{
-	for (int i = 0; i < FOUNDATION_COUNT; i++) delete this->sprites[i];
 }
 
 int FUNDBlock::Write(FileWriter *fw)
@@ -303,10 +228,6 @@ Recolouring::Recolouring()
 	this->replace = 0;
 }
 
-Recolouring::~Recolouring()
-{
-}
-
 /**
  * Encode a colour range remapping.
  * @return The encoded colour range remapping.
@@ -314,14 +235,6 @@ Recolouring::~Recolouring()
 uint32 Recolouring::Encode() const
 {
 	return (((uint32)this->orig) << 24) | (this->replace & 0xFFFFFF);
-}
-
-PersonGraphics::PersonGraphics() : BlockNode()
-{
-}
-
-PersonGraphics::~PersonGraphics()
-{
 }
 
 /**
@@ -348,39 +261,23 @@ PRSGBlock::PRSGBlock() : GameBlock("PRSG", 1)
 {
 }
 
-PRSGBlock::~PRSGBlock()
-{
-}
-
 int PRSGBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 1 + this->person_graphics.size() * 13);
 	fb->SaveUInt8(this->person_graphics.size());
-	for (std::list<PersonGraphics>::iterator iter = this->person_graphics.begin(); iter != this->person_graphics.end(); ++iter) {
-		const PersonGraphics &pg = *iter;
-		fb->SaveUInt8(pg.person_type);
-		fb->SaveUInt32(pg.recol[0].Encode());
-		fb->SaveUInt32(pg.recol[1].Encode());
-		fb->SaveUInt32(pg.recol[2].Encode());
+
+	for (const auto pg : this->person_graphics) {
+		fb->SaveUInt8(pg->person_type);
+		fb->SaveUInt32(pg->recol[0].Encode());
+		fb->SaveUInt32(pg->recol[1].Encode());
+		fb->SaveUInt32(pg->recol[2].Encode());
 	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
 
-FrameData::FrameData() : BlockNode()
-{
-}
-
-FrameData::~FrameData()
-{
-}
-
 ANIMBlock::ANIMBlock() : GameBlock("ANIM", 2)
-{
-}
-
-ANIMBlock::~ANIMBlock()
 {
 }
 
@@ -391,11 +288,11 @@ int ANIMBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->person_type);
 	fb->SaveUInt16(this->anim_type);
 	fb->SaveUInt16(this->frames.size());
-	for (std::list<FrameData>::iterator iter = this->frames.begin(); iter != this->frames.end(); ++iter) {
-		const FrameData &fd = *iter;
-		fb->SaveUInt16(fd.duration);
-		fb->SaveInt16(fd.change_x);
-		fb->SaveInt16(fd.change_y);
+
+	for (const auto fd : this->frames) {
+		fb->SaveUInt16(fd->duration);
+		fb->SaveInt16(fd->change_x);
+		fb->SaveInt16(fd->change_y);
 	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
@@ -403,13 +300,6 @@ int ANIMBlock::Write(FileWriter *fw)
 
 ANSPBlock::ANSPBlock() : GameBlock("ANSP", 1)
 {
-}
-
-ANSPBlock::~ANSPBlock()
-{
-	for (std::list<SpriteBlock *>::iterator iter = this->frames.begin(); iter != this->frames.end(); ++iter) {
-		delete *iter;
-	}
 }
 
 int ANSPBlock::Write(FileWriter *fw)
@@ -420,8 +310,8 @@ int ANSPBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->person_type);
 	fb->SaveUInt16(this->anim_type);
 	fb->SaveUInt16(this->frames.size());
-	for (std::list<SpriteBlock *>::iterator iter = this->frames.begin(); iter != this->frames.end(); ++iter) {
-		fb->SaveUInt32((*iter)->Write(fw));
+	for (auto iter : this->frames) {
+		fb->SaveUInt32(iter->Write(fw));
 	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
@@ -429,12 +319,6 @@ int ANSPBlock::Write(FileWriter *fw)
 
 PATHBlock::PATHBlock() : GameBlock("PATH", 1)
 {
-	for (int i = 0; i < PTS_COUNT; i++) this->sprites[i] = NULL;
-}
-
-PATHBlock::~PATHBlock()
-{
-	for (int i = 0; i < PTS_COUNT; i++) delete this->sprites[i];
 }
 
 int PATHBlock::Write(FileWriter *fw)
@@ -451,12 +335,6 @@ int PATHBlock::Write(FileWriter *fw)
 
 PLATBlock::PLATBlock() : GameBlock("PLAT", 2)
 {
-	for (int i = 0; i < PLA_COUNT; i++) this->sprites[i] = NULL;
-}
-
-PLATBlock::~PLATBlock()
-{
-	for (int i = 0; i < PLA_COUNT; i++) delete this->sprites[i];
 }
 
 int PLATBlock::Write(FileWriter *fw)
@@ -473,12 +351,6 @@ int PLATBlock::Write(FileWriter *fw)
 
 SUPPBlock::SUPPBlock() : GameBlock("SUPP", 1)
 {
-	for (int i = 0; i < SPP_COUNT; i++) this->sprites[i] = NULL;
-}
-
-SUPPBlock::~SUPPBlock()
-{
-	for (int i = 0; i < SPP_COUNT; i++) delete this->sprites[i];
 }
 
 int SUPPBlock::Write(FileWriter *fw)
@@ -519,10 +391,6 @@ int GetLanguageIndex(const char *lname, const Position &pos)
 TextNode::TextNode() : BlockNode()
 {
 	for (int i = 0; i < LNG_COUNT; i++) this->pos[i] = Position("", -1);
-}
-
-TextNode::~TextNode()
-{
 }
 
 /**
@@ -579,14 +447,6 @@ void TextNode::Write(FileBlock *fb) const
 	assert(length == 0);
 }
 
-Strings::Strings() : BlockNode()
-{
-}
-
-Strings::~Strings()
-{
-}
-
 /**
  * Verify whether the strings are all valid.
  * @param names Expected string names.
@@ -637,20 +497,6 @@ int Strings::Write(FileWriter *fw)
 
 SHOPBlock::SHOPBlock() : GameBlock("SHOP", 4)
 {
-	this->ne_view = NULL;
-	this->se_view = NULL;
-	this->sw_view = NULL;
-	this->nw_view = NULL;
-	this->shop_text = NULL;
-}
-
-SHOPBlock::~SHOPBlock()
-{
-	delete this->ne_view;
-	delete this->se_view;
-	delete this->sw_view;
-	delete this->nw_view;
-	delete this->shop_text;
 }
 
 int SHOPBlock::Write(FileWriter *fw)
@@ -680,28 +526,6 @@ int SHOPBlock::Write(FileWriter *fw)
 
 GBORBlock::GBORBlock() : GameBlock("GBOR", 1)
 {
-	this->tl = NULL;
-	this->tm = NULL;
-	this->tr = NULL;
-	this->ml = NULL;
-	this->mm = NULL;
-	this->mr = NULL;
-	this->bl = NULL;
-	this->bm = NULL;
-	this->br = NULL;
-}
-
-GBORBlock::~GBORBlock()
-{
-	delete this->tl;
-	delete this->tm;
-	delete this->tr;
-	delete this->ml;
-	delete this->mm;
-	delete this->mr;
-	delete this->bl;
-	delete this->bm;
-	delete this->br;
 }
 
 int GBORBlock::Write(FileWriter *fw)
@@ -732,22 +556,6 @@ int GBORBlock::Write(FileWriter *fw)
 
 GCHKBlock::GCHKBlock() : GameBlock("GCHK", 1)
 {
-	this->empty = NULL;
-	this->filled = NULL;
-	this->empty_pressed = NULL;
-	this->filled_pressed = NULL;
-	this->shaded_empty = NULL;
-	this->shaded_filled = NULL;
-}
-
-GCHKBlock::~GCHKBlock()
-{
-	delete this->empty;
-	delete this->filled;
-	delete this->empty_pressed;
-	delete this->filled_pressed;
-	delete this->shaded_empty;
-	delete this->shaded_filled;
 }
 
 int GCHKBlock::Write(FileWriter *fw)
@@ -767,18 +575,6 @@ int GCHKBlock::Write(FileWriter *fw)
 
 GSLIBlock::GSLIBlock() : GameBlock("GSLI", 1)
 {
-	this->left = NULL;
-	this->middle = NULL;
-	this->right = NULL;
-	this->slider = NULL;
-}
-
-GSLIBlock::~GSLIBlock()
-{
-	delete this->left;
-	delete this->middle;
-	delete this->right;
-	delete this->slider;
 }
 
 int GSLIBlock::Write(FileWriter *fw)
@@ -799,36 +595,6 @@ int GSLIBlock::Write(FileWriter *fw)
 
 GSCLBlock::GSCLBlock() : GameBlock("GSCL", 1)
 {
-	this->left_button = NULL;
-	this->right_button = NULL;
-	this->left_pressed = NULL;
-	this->right_pressed = NULL;
-	this->left_bottom = NULL;
-	this->middle_bottom = NULL;
-	this->right_bottom = NULL;
-	this->left_top = NULL;
-	this->middle_top = NULL;
-	this->right_top = NULL;
-	this->left_top_pressed = NULL;
-	this->middle_top_pressed = NULL;
-	this->right_top_pressed = NULL;
-}
-
-GSCLBlock::~GSCLBlock()
-{
-	delete this->left_button;
-	delete this->right_button;
-	delete this->left_pressed;
-	delete this->right_pressed;
-	delete this->left_bottom;
-	delete this->middle_bottom;
-	delete this->right_bottom;
-	delete this->left_top;
-	delete this->middle_top;
-	delete this->right_top;
-	delete this->left_top_pressed;
-	delete this->middle_top_pressed;
-	delete this->right_top_pressed;
 }
 
 int GSCLBlock::Write(FileWriter *fw)
@@ -859,18 +625,6 @@ int GSCLBlock::Write(FileWriter *fw)
 
 BDIRBlock::BDIRBlock() : GameBlock("BDIR", 1)
 {
-	this->sprite_ne = NULL;
-	this->sprite_se = NULL;
-	this->sprite_sw = NULL;
-	this->sprite_nw = NULL;
-}
-
-BDIRBlock::~BDIRBlock()
-{
-	delete this->sprite_ne;
-	delete this->sprite_se;
-	delete this->sprite_sw;
-	delete this->sprite_nw;
 }
 
 int BDIRBlock::Write(FileWriter *fw)
@@ -888,77 +642,6 @@ int BDIRBlock::Write(FileWriter *fw)
 
 GSLPBlock::GSLPBlock() : GameBlock("GSLP", 6)
 {
-	this->vert_down = NULL;
-	this->steep_down = NULL;
-	this->gentle_down = NULL;
-	this->level = NULL;
-	this->gentle_up = NULL;
-	this->steep_up = NULL;
-	this->vert_up = NULL;
-
-	this->wide_left = NULL;
-	this->normal_left = NULL;
-	this->tight_left = NULL;
-	this->no_bend = NULL;
-	this->tight_right = NULL;
-	this->normal_right = NULL;
-	this->wide_right = NULL;
-
-	this->bank_left = NULL;
-	this->bank_right = NULL;
-	this->no_banking = NULL;
-
-	this->triangle_right = NULL;
-	this->triangle_left = NULL;
-	this->triangle_up = NULL;
-	this->triangle_bottom = NULL;
-
-	this->disabled = NULL;
-
-	this->pos_2d = NULL;
-	this->neg_2d = NULL;
-	this->pos_3d = NULL;
-	this->neg_3d = NULL;
-	this->close_button = NULL;
-	this->terraform_dot = NULL;
-	this->gui_text = NULL;
-}
-
-GSLPBlock::~GSLPBlock()
-{
-	delete this->vert_down;
-	delete this->steep_down;
-	delete this->gentle_down;
-	delete this->level;
-	delete this->gentle_up;
-	delete this->steep_up;
-	delete this->vert_up;
-
-	delete this->wide_left;
-	delete this->normal_left;
-	delete this->tight_left;
-	delete this->no_bend;
-	delete this->tight_right;
-	delete this->normal_right;
-	delete this->wide_right;
-
-	delete this->bank_left;
-	delete this->bank_right;
-	delete this->no_banking;
-
-	delete this->triangle_right;
-	delete this->triangle_left;
-	delete this->triangle_up;
-	delete this->triangle_bottom;
-	delete this->disabled;
-
-	delete this->pos_2d;
-	delete this->neg_2d;
-	delete this->pos_3d;
-	delete this->neg_3d;
-	delete this->close_button;
-	delete this->terraform_dot;
-	delete this->gui_text;
 }
 
 int GSLPBlock::Write(FileWriter *fw)
@@ -1004,14 +687,6 @@ TrackVoxel::TrackVoxel() : BlockNode()
 	this->dy = 0;
 	this->dz = 0;
 	this->space = 0;
-	for (int i = 0; i < 4; i++) this->back[i] = NULL;
-	for (int i = 0; i < 4; i++) this->front[i] = NULL;
-}
-
-TrackVoxel::~TrackVoxel()
-{
-	for (int i = 0; i < 4; i++) delete this->back[i];
-	for (int i = 0; i < 4; i++) delete this->front[i];
 }
 
 /**
@@ -1109,10 +784,6 @@ Connection::Connection(const std::string &name, int direction)
 	this->direction = direction;
 }
 
-Connection::~Connection()
-{
-}
-
 /**
  * Encode a connection after rotating it.
  * @param connections Map of connection names to their id.
@@ -1124,21 +795,6 @@ uint8 Connection::Encode(const std::map<std::string, int> &connections, int rot)
 	std::map<std::string, int>::const_iterator iter = connections.find(this->name);
 	assert(iter != connections.end());
 	return ((*iter).second << 2) | ((this->direction + rot) & 3);
-}
-
-TrackPieceNode::TrackPieceNode() : BlockNode()
-{
-	this->entry = NULL;
-	this->exit  = NULL;
-}
-
-TrackPieceNode::~TrackPieceNode()
-{
-	delete this->entry;
-	delete this->exit;
-	for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); ++iter) {
-		delete *iter;
-	}
 }
 
 /**
@@ -1193,8 +849,8 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		fb->SaveUInt16(flags);
 		fb->SaveUInt32(this->cost);
 		fb->SaveUInt16(this->track_voxels.size());
-		for (std::list<TrackVoxel *>::iterator iter = this->track_voxels.begin(); iter != this->track_voxels.end(); ++iter) {
-			(*iter)->Write(fw, fb, rot);
+		for (auto iter : this->track_voxels) {
+			iter->Write(fw, fb, rot);
 		}
 		fb->CheckEndSave();
 		parent_fb->SaveUInt32(fw->AddBlock(fb));
@@ -1203,23 +859,14 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 
 RCSTBlock::RCSTBlock() : GameBlock("RCST", 3)
 {
-	this->text = NULL;
-}
-
-RCSTBlock::~RCSTBlock()
-{
-	delete this->text;
-	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); ++iter) {
-		delete *iter;
-	}
 }
 
 int RCSTBlock::Write(FileWriter *fw)
 {
 	/* Collect connection names, and give each a number. */
 	std::map<std::string, int> connections;
-	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); ++iter) {
-		(*iter)->UpdateConnectionMap(&connections);
+	for (auto iter : this->track_blocks) {
+		iter->UpdateConnectionMap(&connections);
 	}
 
 	/* Write the data. */
@@ -1229,17 +876,9 @@ int RCSTBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->platform_type);
 	fb->SaveUInt32(this->text->Write(fw));
 	fb->SaveUInt16(4 * this->track_blocks.size());
-	for (std::list<TrackPieceNode *>::iterator iter = this->track_blocks.begin(); iter != this->track_blocks.end(); ++iter) {
-		(*iter)->Write(connections, fw, fb);
+	for (auto iter : this->track_blocks) {
+		iter->Write(connections, fw, fb);
 	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
-}
-
-BitMask::BitMask() : BlockNode()
-{
-}
-
-BitMask::~BitMask()
-{
 }
