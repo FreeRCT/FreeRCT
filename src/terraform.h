@@ -84,6 +84,7 @@ public:
 	uint8 mouse_state; ///< Last known state of the mouse.
 	uint8 xsize;       ///< Horizontal size of the terraform area. May be \c 0, which means 'dot'.
 	uint8 ysize;       ///< Vertical size of the terraform area. May be \c 0, which means 'dot'.
+	signed char pixel_counter; ///< Vertical mouse movement counter for LMB up/down terraforming.
 	bool levelling;    ///< For non-zero areas, \c true means 'level the area', and \c false means 'keep area as-is'.
 
 	TileTerraformMouseMode();

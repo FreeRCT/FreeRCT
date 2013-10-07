@@ -561,6 +561,7 @@ TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TE
 	this->mouse_state = 0;
 	this->xsize = 1;
 	this->ysize = 1;
+	this->pixel_counter = 0;
 	this->levelling = true;
 }
 
@@ -652,15 +653,6 @@ bool TileTerraformMouseMode::EnableCursors()
 	return this->state != TFS_OFF;
 }
 
-void TileTerraformMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
-{
-	if ((this->mouse_state & MB_RIGHT) != 0) {
-		/* Drag the window if button is pressed down. */
-		vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
-	} else {
-		this->SetCursors();
-	}
-}
 void TileTerraformMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 {
 	this->mouse_state = state & MB_CURRENT;
@@ -791,5 +783,38 @@ void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
 		ChangeTileCursorMode(vp, this->levelling, direction, this->xsize == 0 && this->ysize == 0);
 	} else {
 		ChangeAreaCursorMode(vp, this->levelling, direction);
+	}
+}
+
+void TileTerraformMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+{
+	if ((this->mouse_state & MB_RIGHT) != 0) {
+		/* Drag the window if button is pressed down. */
+		vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
+
+	} else if ((this->mouse_state & MB_LEFT) != 0) {
+		/* Terraforming with holding left mouse button and move mouse up and down. */
+
+		if (pos.y - old_pos.y > 0) {
+			this->pixel_counter--;
+		} else if (pos.y - old_pos.y < 0) {
+			this->pixel_counter++;
+		} else {
+			return;
+		}
+
+		if (this->pixel_counter == 10 || this->pixel_counter == -10) {
+			if (vp->tile_cursor.type != CUR_TYPE_INVALID) {
+				bool dot_mode = this->xsize == 0 && this->ysize == 0;
+				ChangeTileCursorMode(vp, this->levelling, pixel_counter / 10, dot_mode);
+			} else {
+				ChangeAreaCursorMode(vp, this->levelling, pixel_counter / 10);
+			}
+			this->pixel_counter = 0;
+		}
+
+	} else {
+		this->pixel_counter = 0; // Reset counter when LMB is not pressed.
+		this->SetCursors();
 	}
 }
