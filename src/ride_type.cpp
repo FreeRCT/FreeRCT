@@ -426,7 +426,7 @@ uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) 
 	if (xvox != this->xpos || yvox != this->ypos || zvox != this->zpos) return 0;
 
 	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
-	return ROL(entrances, this->orientation);
+	return ROL(entrances, 4, this->orientation);
 }
 
 /**

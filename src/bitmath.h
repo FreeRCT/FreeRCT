@@ -78,6 +78,27 @@ static inline T ROL(const T x, const uint8 n)
 }
 
 /**
+ * ROtate the \a sz lower bits of \a x Left by \a n bits.
+ *
+ * @tparam T Type of \a x (deduced from the first argument).
+ * @param x The value which we want to rotate.
+ * @param sz Number of (low-end) bits containing the value to rotate.
+ * @param n Number of bits to rotate (should be less than \a sz).
+ * @return The rotated number.
+ */
+template <typename T>
+static inline T ROL(const T x, const uint8 sz, const uint8 n)
+{
+	if (n == 0) return x;
+
+	assert(n < sz);
+	uint8 sz_n = sz - n;
+	T lv = (x & (((T)1U << sz_n) - 1)) << n;
+	T hv = (x >> sz_n) & (((T)1U << n) - 1);
+	return lv | hv;
+}
+
+/**
  * ROtate \a x Right by \a n bits.
  *
  * @note Assumes a byte has 8 bits.
