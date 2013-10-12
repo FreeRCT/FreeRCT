@@ -469,7 +469,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			Voxel *vx = _additions.GetCreateVoxel(si->xpos, si->ypos, si->zpos, true);
 			assert(this->instance >= SRI_FULL_RIDES && this->instance <= SRI_LAST);
 			vx->SetInstance((SmallRideInstance)this->instance);
-			uint8 entrances = si->GetEntranceDirections();
+			uint8 entrances = si->GetEntranceDirections(si->xpos, si->ypos, si->zpos);
 			vx->SetInstanceData(entrances);
 			AddRemovePathEdges(si->xpos, si->ypos, si->zpos, PATH_EMPTY, entrances, true, true);
 			_additions.MarkDirty(vp);

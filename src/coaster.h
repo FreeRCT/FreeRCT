@@ -77,6 +77,7 @@ public:
 	}
 
 	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
+	uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const override;
 
 	RideInstanceState DecideRideState();
 

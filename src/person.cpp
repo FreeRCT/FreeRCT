@@ -426,7 +426,7 @@ void Person::DecideMoveDirection()
 					switch (ri->GetKind()) {
 						case RTK_SHOP: {
 							const ShopInstance *si = static_cast<const ShopInstance *>(ri);
-							if (si->CanBeVisited(exit_edge)) rvd = this->WantToVisit(si);
+							if (si->CanBeVisited(this->x_vox, this->y_vox, z, exit_edge)) rvd = this->WantToVisit(si);
 							break;
 						}
 

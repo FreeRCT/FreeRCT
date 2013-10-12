@@ -259,6 +259,12 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \fn uint8 RideInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
+ * Get the set edges with an entrance to the ride.
+ * @return Bit set of #TileEdge
+ */
+
+/**
  * Sell an item to a customer.
  * @param item_index Index of the item being sold.
  */
@@ -415,13 +421,10 @@ void ShopInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zp
 	this->flags = 0;
 }
 
-/**
- * Get the set edges with an entrance to the ride.
- * @return Bit set of #TileEdge
- * @todo This needs to be generalized for rides larger than a single voxel.
- */
-uint8 ShopInstance::GetEntranceDirections() const
+uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
 {
+	if (xvox != this->xpos || yvox != this->ypos || zvox != this->zpos) return 0;
+
 	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
 	return ROL(entrances, this->orientation);
 }
@@ -431,10 +434,10 @@ uint8 ShopInstance::GetEntranceDirections() const
  * @param edge Direction of entrance (exit direction of the neighbouring voxel).
  * @return The shop can be visited.
  */
-bool ShopInstance::CanBeVisited(TileEdge edge) const
+bool ShopInstance::CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const
 {
 	if (this->state != RIS_OPEN) return false;
-	return GB(this->GetEntranceDirections(), (edge + 2) % 4, 1) != 0;
+	return GB(this->GetEntranceDirections(xvox, yvox, zvox), (edge + 2) % 4, 1) != 0;
 }
 
 /** Default constructor of the rides manager. */

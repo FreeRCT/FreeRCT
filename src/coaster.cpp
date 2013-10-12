@@ -151,6 +151,11 @@ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageD
 	sprites[3] = NULL; // SO_PLATFORM_FRONT /// \todo If platform flag, add coaster platforms.
 }
 
+uint8 CoasterInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
+{
+	return 0; /// \todo add entrance bits for the coaster.
+}
+
 /**
  * Check the state of the coaster ride, and set the #state flag.
  * @return The new coaster instance state.
