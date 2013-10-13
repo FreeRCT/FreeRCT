@@ -599,25 +599,30 @@ AnimateResult Person::OnAnimate(int delay)
 	int dx = 0;
 	int dy = 0;
 	int dz = 0;
+	TileEdge exit_edge = INVALID_EDGE;
 
 	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
 	if (this->x_pos < 0) {
 		dx--;
 		this->x_vox--;
 		this->x_pos += 256;
+		exit_edge = EDGE_NE;
 	} else if (this->x_pos > 255) {
 		dx++;
 		this->x_vox++;
 		this->x_pos -= 256;
+		exit_edge = EDGE_SW;
 	}
 	if (this->y_pos < 0) {
 		dy--;
 		this->y_vox--;
 		this->y_pos += 256;
+		exit_edge = EDGE_NW;
 	} else if (this->y_pos > 255) {
 		dy++;
 		this->y_vox++;
 		this->y_pos -= 256;
+		exit_edge = EDGE_SE;
 	}
 	assert(this->x_pos >= 0 && this->x_pos < 256);
 	assert(this->y_pos >= 0 && this->y_pos < 256);
@@ -628,43 +633,53 @@ AnimateResult Person::OnAnimate(int delay)
 		return OAR_DEACTIVATE;
 	}
 
-	/* Handle z position. */
+	/* Handle raising of z position. */
 	if (this->z_pos > 128) {
 		dz++;
 		this->z_vox++;
 		this->z_pos = 0;
 	}
-	/* At bottom of the voxel, the path either stays on the same level or goes down. */
+	/* At bottom of the voxel. */
 	Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
-	if ((v == NULL || !HasValidPath(v)) && this->z_vox > 0) {
+	if (v != NULL) {
+		SmallRideInstance instance = v->GetInstance();
+		if (instance >= SRI_FULL_RIDES) {
+			assert(exit_edge != INVALID_EDGE);
+			RideInstance *ri = _rides_manager.GetRideInstance(instance);
+			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge)) {
+				Guest *guest = dynamic_cast<Guest *>(this);
+				if (guest != NULL) guest->VisitShop(ri);
+			}
+			/* Ride is closed, or not a guest, fall-through to reversing movement. */
+
+		} else if (HasValidPath(v)) {
+			v->persons.AddFirst(this);
+			this->DecideMoveDirection();
+			return OAR_OK;
+		}
+
+		/* Restore the person at the previous tile (ie reverse movement). */
+		if (dx != 0) { this->x_vox -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
+		if (dy != 0) { this->y_vox -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
+		if (dz != 0) { this->z_vox -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
+
+		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
+		this->DecideMoveDirection();
+		return OAR_OK;
+	}
+	/* No voxel here, try one level below. */
+	if (this->z_vox > 0) {
 		dz--;
 		this->z_vox--;
 		this->z_pos = 255;
 		v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 	}
-	/* We seem to have wandered off-path in some way, abort. */
-	if (v == NULL) return OAR_DEACTIVATE;
-	if (HasValidPath(v)) {
+	if (v != NULL && HasValidPath(v)) {
 		v->persons.AddFirst(this);
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
-	/* A shop, buy something. */
-	Guest *guest = dynamic_cast<Guest *>(this);
-	if (guest != NULL) {
-		RideInstance *ri = _rides_manager.GetRideInstance(v->GetInstanceData());
-		assert(ri != NULL);
-		guest->VisitShop(ri);
-	}
-
-	/* Restore the person at the previous tile (ie move in the opposite direction from above). */
-	if (dx != 0) { this->x_vox -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
-	if (dy != 0) { this->y_vox -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
-	if (dz != 0) { this->z_vox -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
-
-	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
-	this->DecideMoveDirection();
-	return OAR_OK;
+	return OAR_DEACTIVATE; // We are truly lost now.
 }
 
 /** Mark the screen where this person is as dirty, so it is repainted the next time. */
