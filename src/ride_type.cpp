@@ -669,5 +669,5 @@ const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge ed
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
 	}
 	if (vx == NULL || vx->GetInstance() < SRI_FULL_RIDES) return NULL;
-	return _rides_manager.GetRideInstance(vx->GetInstanceData());
+	return _rides_manager.GetRideInstance(vx->GetInstance());
 }
