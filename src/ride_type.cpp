@@ -261,8 +261,25 @@ const RideType *RideInstance::GetRideType() const
 /**
  * \fn uint8 RideInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
  * Get the set edges with an entrance to the ride.
- * @return Bit set of #TileEdge
+ * @param xvox X position of the voxel with the ride.
+ * @param yvox Y position of the voxel with the ride.
+ * @param zvox Z position of the voxel with the ride.
+ * @return Bit set of #TileEdge that allows entering the ride (seen from the ride).
  */
+
+/**
+ * Can the ride be visited, assuming the shop is approached from direction \a edge?
+ * @param xvox X position of the voxel with the ride.
+ * @param yvox Y position of the voxel with the ride.
+ * @param zvox Z position of the voxel with the ride.
+ * @param edge Direction of movement (exit direction of the neighbouring voxel).
+ * @return Whether the ride can be visited.
+ */
+bool RideInstance::CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const
+{
+	if (this->state != RIS_OPEN) return false;
+	return GB(this->GetEntranceDirections(xvox, yvox, zvox), (edge + 2) % 4, 1) != 0;
+}
 
 /**
  * Sell an item to a customer.
@@ -427,17 +444,6 @@ uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) 
 
 	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
 	return ROL(entrances, 4, this->orientation);
-}
-
-/**
- * Can the ride be visited, assuming the shop is approached from direction \a edge?
- * @param edge Direction of entrance (exit direction of the neighbouring voxel).
- * @return The shop can be visited.
- */
-bool ShopInstance::CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const
-{
-	if (this->state != RIS_OPEN) return false;
-	return GB(this->GetEntranceDirections(xvox, yvox, zvox), (edge + 2) % 4, 1) != 0;
 }
 
 /** Default constructor of the rides manager. */

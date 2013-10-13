@@ -138,6 +138,7 @@ public:
 
 	virtual void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
 	virtual uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const = 0;
+	bool CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const;
 
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
@@ -178,7 +179,6 @@ public:
 
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const override;
-	bool CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const;
 
 	uint8 orientation;    ///< Orientation of the shop.
 	uint16 xpos;          ///< X position of the shop base voxel.
