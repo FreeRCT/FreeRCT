@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # $Id$
 #
@@ -136,7 +136,7 @@ make_sed() {
 echo "" > $CONFIG_LOG
 
 # Find out where configure is (in what dir)
-ROOT_DIR=$(dirname $0)
+ROOT_DIR=$(dirname "$0")
 # For MSYS/MinGW we want to know the FULL path. This as that path is generated
 # once you call an outside binary. Having the same path for the rest is needed
 # for dependency checking.
