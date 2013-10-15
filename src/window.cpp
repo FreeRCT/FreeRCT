@@ -601,7 +601,7 @@ WindowManager::WindowManager()
 	this->current_window = NULL;
 	this->mouse_state = 0;
 	this->mouse_mode = WMMM_PASS_THROUGH;
-};
+}
 
 /** %Window manager destructor. */
 WindowManager::~WindowManager()
