@@ -84,6 +84,11 @@ ENDIF()
 SET(SAVED_LC_ALL "$ENV{LC_ALL}")
 SET(ENV{LC_ALL} C)
 
+# Hg check only exists in 2.8.10
+IF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.hg" AND ${CMAKE_VERSION} STRLESS "2.8.10")
+	message(FATAL_ERROR "Hg detection requires CMake 2.8.10 or higher. Please upgrade CMake and try again.")
+ENDIF()
+
 # Determine version string
 FIND_PACKAGE(Subversion)
 FIND_PACKAGE(Git)
