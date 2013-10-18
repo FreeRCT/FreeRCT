@@ -30,7 +30,7 @@
  * norev.n000 is for non-releases that are made on systems where no VCS
  * detection was possible.
  */
-const char _freerct_revision[] = "!!VERSION!!";
+const char _freerct_revision[] = "${VERSION_STRING}";
 
 /**
  * The text version of FreeRCT's build date.
