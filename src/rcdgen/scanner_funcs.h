@@ -14,6 +14,7 @@
 
 #include <string>
 #include "ast.h"
+#include "../stdafx.h"
 
 extern int line; ///< Line number of the input file being scanned.
 extern std::string filename; ///< Name of the file being parsed.

@@ -32,6 +32,7 @@ SET(rcdgen_SRCS ${rcdgen_SRCS}
 
   # Files in parent directory
   ${CMAKE_SOURCE_DIR}/src/getoptdata.cpp
+  ${CMAKE_SOURCE_DIR}/src/stdafx.h
 )
 
 # Add generated files
