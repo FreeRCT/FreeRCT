@@ -10,7 +10,6 @@
 /** @file error_gui.cpp GUI related to errors. */
 
 #include "stdafx.h"
-#include "error.h"
 #include "language.h"
 #include "window.h"
 
