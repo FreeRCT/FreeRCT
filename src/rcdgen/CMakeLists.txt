@@ -65,7 +65,7 @@ IF(FLEX_FOUND)
     add_custom_command(
       OUTPUT ${FlexOutput}
       COMMAND ${FLEX_EXECUTABLE}
-              --outfile=${FlexOutput}
+              -o${FlexOutput}
               ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.l
       COMMENT "Generating scanner.cpp"
     )
