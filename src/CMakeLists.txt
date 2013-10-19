@@ -77,7 +77,7 @@ ENDIF()
 FIND_PACKAGE(SDL_ttf REQUIRED)
 IF(SDL_TTF_FOUND)
 	INCLUDE_DIRECTORIES(${SDL_TTF_INCLUDE_DIR})
-	TARGET_LINK_LIBRARIES(freerct ${SDL_TTF_LIBRARY})
+	TARGET_LINK_LIBRARIES(freerct ${SDL_TTF_LIBRARIES})
 ENDIF()
 
 # Translated messages are bad
@@ -87,12 +87,13 @@ SET(ENV{LC_ALL} C)
 # Hg check only exists in 2.8.10
 IF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.hg" AND ${CMAKE_VERSION} STRLESS "2.8.10")
 	message(FATAL_ERROR "Hg detection requires CMake 2.8.10 or higher. Please upgrade CMake and try again.")
+ELSE()
+	FIND_PACKAGE(Hg)
 ENDIF()
 
 # Determine version string
 FIND_PACKAGE(Subversion)
 FIND_PACKAGE(Git)
-FIND_PACKAGE(Hg)
 IF(SUBVERSION_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn")
 	# svn checkout
 	SET(SHORT_VCS "r")
