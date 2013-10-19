@@ -35,11 +35,6 @@ SET(rcdgen_SRCS ${rcdgen_SRCS}
   ${CMAKE_SOURCE_DIR}/src/stdafx.h
 )
 
-# Add generated files
-SET_SOURCE_FILES_PROPERTIES(${BisonOutput} GENERATED)
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h GENERATED)
-SET_SOURCE_FILES_PROPERTIES(${FlexOutput} GENERATED)
-
 ADD_EXECUTABLE(rcdgen ${rcdgen_SRCS})
 
 # Library detection
@@ -49,27 +44,33 @@ IF(PNG_FOUND)
 	TARGET_LINK_LIBRARIES(rcdgen ${PNG_LIBRARY})
 ENDIF()
 
-FIND_PACKAGE(BISON REQUIRED)
-IF(BISON_FOUND)
-    add_custom_command(
-      OUTPUT ${BisonOutput}
-      COMMAND ${BISON_EXECUTABLE}
-              --defines=${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h
-              --output=${BisonOutput}
-              ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.y
-      COMMENT "Generating parser.cpp"
-    )
+FIND_PACKAGE(BISON)
+# Bison/m4 is broken on windows
+IF(NOT WIN32 AND BISON_FOUND)
+	add_custom_command(OUTPUT ${BisonOutput} ${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h
+	                   COMMAND ${BISON_EXECUTABLE}
+	                   --defines=${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h
+	                   --output=${BisonOutput}
+	                   ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.y
+	                   COMMENT "Generating parser.cpp")
+	SET_SOURCE_FILES_PROPERTIES(${BisonOutput} GENERATED)
+	SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h GENERATED)
+ELSE()
+	message(STATUS "No bison executable found, using pregenerated parser")
+	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rcdgen/parser.cpp.pregen ${BisonOutput})
+	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h.pregen ${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h)
 ENDIF()
 
-FIND_PACKAGE(FLEX REQUIRED)
+FIND_PACKAGE(FLEX)
 IF(FLEX_FOUND)
-    add_custom_command(
-      OUTPUT ${FlexOutput}
-      COMMAND ${FLEX_EXECUTABLE}
-              -o${FlexOutput}
-              ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.l
-      COMMENT "Generating scanner.cpp"
-    )
+	add_custom_command(OUTPUT ${FlexOutput}
+	                   COMMAND ${FLEX_EXECUTABLE} -o${FlexOutput}
+	                   ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.l
+	                   COMMENT "Generating scanner.cpp")
+	SET_SOURCE_FILES_PROPERTIES(${FlexOutput} GENERATED)
+ELSE()
+	message(STATUS "No flex executable found, using pregenerated scanner")
+	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.cpp.pregen ${FlexOutput})
 ENDIF()
 
 # Compiler flags
