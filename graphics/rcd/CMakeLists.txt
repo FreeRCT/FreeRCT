@@ -52,3 +52,6 @@ ENDFOREACH(RCDFILE)
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})
 
 add_dependencies(rcd rcdgen)
+
+# Warning: doesn't check for rst2html's existence
+add_custom_target(data_format.html COMMAND rst2html data_format.rst data_format.html)
