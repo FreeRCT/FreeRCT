@@ -832,6 +832,43 @@ Version history
 - 3 (20130622) Extended the ``track_flags`` from 1 byte to 2 bytes to add the track piece properties (banking, slope,
   and bend size).
 
+Coaster cars
+~~~~~~~~~~~~
+Sprites for cars on the coaster tracks. Currently at version 1.
+
+=======  ======  =======  ================================  ================================================================
+Offset   Length  Version  Field name                        Description
+=======  ======  =======  ================================  ================================================================
+   0        4       1                                       Magic string 'CARS'.
+   4        4       1                                       Version number of the block.
+   8        4       1                                       Length of the block excluding magic string, version, and length.
+  12        2       1     tile_width                        Zoom-width of a tile.
+  14        2       1     z_height                          Change in Z height of the tiles.
+  16        4       1     length                            Length of a car (in 1/65,536 unit).
+  20        2       1     num_passengers                    Number of passengers that can be carried.
+  22        2       1     num_entrances                     Number of rows for entering/exiting the car.
+  24      16384     1     car_p\ **P**\ r\ **R**\ y\ **Y**  4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
+ 16408                                                      Total length of the block.
+=======  ======  =======  ================================  ================================================================
+
+with
+
+- **P**: Pitch of the car (rotation to go up or down). Values are 0..15 with inclusive upper bound.
+- **R**: Roll of the car (rotation around the main (front to back) axis). Values are 0..15 with inclusive upper bound.
+- **Y**: Yaw of the car (rotation to go left or right (the vertical axis). Values are 0..15 with inclusive upper bound.
+
+The 16 values should cover the entire 360 rotation angle, that is, a 22.5 degrees rotation each time. ``car_p0r0y0``
+should move upright in the direction of the negative X axis (ie NE direction). Increasing pitch goes up (increasing Z),
+increasing roll rotates over to the right, and increasing yaw goes left (positive rotation angle, towards the north).
+Sprite index is **P** + **R** * 16 + **Y** * 256 .
+
+
+Version history
+...............
+
+- 1 (20131020) Initial version.
+
+
 GUI
 ===
 GUI sprites, in various forms.
@@ -920,7 +957,7 @@ Version history
 ...............
 
 - 1 (20111023) Initial version.
--   (20111029) Added 'panel' type.
+- 1 (20111029) Added 'panel' type (version was not incremented).
 
 
 Check box and radio buttons

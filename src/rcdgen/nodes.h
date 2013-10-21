@@ -708,6 +708,21 @@ public:
 	std::list<std::shared_ptr<TrackPieceNode>> track_blocks; ///< Track pieces of the coaster.
 };
 
+/** 'CARS' game block. */
+class CARSBlock : public GameBlock {
+public:
+	CARSBlock();
+
+	int Write(FileWriter *fw) override;
+
+	int tile_width;     ///< Zoom-width of a tile of the surface.
+	int z_height;       ///< Change in Z height (in pixels) when going up or down a tile level.
+	int length;         ///< Length of the car.
+	int num_passengers; ///< Number of passengers in a car.
+	int num_entrances;  ///< Number of entrances to/from a car.
+	std::array<std::shared_ptr<SpriteBlock>, 16*16*16> sprites; ///< Car sprites.
+};
+
 /** Node block containing a bitmask. */
 class BitMask : public BlockNode {
 public:

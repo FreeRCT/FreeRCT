@@ -1892,6 +1892,39 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(NodeGroup *ng)
 }
 
 /**
+ * Convert a 'CARS' node to a game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted CARS game block.
+ */
+static std::shared_ptr<CARSBlock> ConvertCARSNode(NodeGroup *ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "CARS");
+	auto rb = std::make_shared<CARSBlock>();
+	Values vals("CARS", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	rb->tile_width     = vals.GetNumber("tile_width");
+	rb->z_height       = vals.GetNumber("z_height");
+	rb->length         = vals.GetNumber("length");
+	rb->num_passengers = vals.GetNumber("num_passengers");
+	rb->num_entrances  = vals.GetNumber("num_entrances");
+
+	char buffer[32];
+	for (int yaw = 0; yaw < 16; yaw++) {
+		for (int roll = 0; roll < 16; roll++) {
+			for (int pitch = 0; pitch < 16; pitch++) {
+				int index = pitch + roll * 16 + yaw *16*16;
+				sprintf(buffer, "car_p%dr%dy%d", pitch, roll, yaw);
+				rb->sprites[index] = vals.GetSprite(buffer);
+			}
+		}
+	}
+
+	vals.VerifyUsage();
+	return rb;
+}
+
+/**
  * Convert a node group.
  * @param ng Node group to convert.
  * @return The converted node.
@@ -1930,6 +1963,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(NodeGroup *ng)
 	if (strcmp(ng->name, "BDIR") == 0) return ConvertBDIRNode(ng);
 	if (strcmp(ng->name, "GSLP") == 0) return ConvertGSLPNode(ng);
 	if (strcmp(ng->name, "RCST") == 0) return ConvertRCSTNode(ng);
+	if (strcmp(ng->name, "CARS") == 0) return ConvertCARSNode(ng);
 
 	/* Unknown type of node. */
 	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\"\n", ng->pos.ToString(), ng->name);

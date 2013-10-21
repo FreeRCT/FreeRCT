@@ -370,4 +370,93 @@ file("tracks.rcd") {
 			}
 		}
 	}
+
+	CARS {
+		tile_width: 64;
+		z_height:  16;
+		length: 65536;
+		num_passengers: 4;
+		num_entrances: 2;
+
+		(car_p{vert(0..15)}r0y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r1y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 1024; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r2y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 2048; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r3y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 3072; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r4y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 4096; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r5y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 5120; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r6y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 6144; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r7y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 7168; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r8y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 8192; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r9y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 9216; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r10y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 10240; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r11y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 11264; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r12y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 12288; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r13y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 13312; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r14y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 14336; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(car_p{vert(0..15)}r15y{hor(0..15)}) : sheet {
+			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
+			x_base: 0; y_base: 15360; x_step: 64; y_step: 64; y_count: 16;
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
 }
