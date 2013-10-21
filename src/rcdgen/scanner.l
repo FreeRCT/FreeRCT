@@ -103,7 +103,8 @@ int string_line; ///< Starting line of the string.
 	return IMPORT_KW;
 }
 
-[A-Za-z_][A-Za-z0-9#_]* {
+[A-Za-z_]([A-Za-z0-9#_]|[{](hor|vert)[(][0-9][0-9]*\.\.[0-9][0-9]*[)][}])* {
+	/* a letter, followed by 0 or more times a letter or digit, or {hor/vert(num..num)}. */
 	yylval.chars.line = line;
 	int length = strlen(yytext);
 	yylval.chars.value = new char[length + 1];

@@ -16,6 +16,7 @@
 #include "ast.h"
 #include "nodes.h"
 #include "string_names.h"
+#include "utils.h"
 
 static std::shared_ptr<BlockNode> ConvertNodeGroup(NodeGroup *ng);
 
@@ -325,8 +326,38 @@ std::shared_ptr<Strings> ValueInformation::GetStrings(const Position &pos, const
  * @param vis Array being filled.
  * @param length [inout] Updated number of used entries in \a vis.
  */
-void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInformation *vis, int *length)
+static void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInformation *vis, int *length)
 {
+	/* Is a table consisting of a single parameterized name? */
+	if (nt->HasSingleElement()) {
+		IdentifierLine *il = nt->rows.front()->identifiers.front();
+		if (!il->IsValid()) return; // Only available name cannot be used.
+
+		ParameterizedName parms_name;
+		HorVert hv = parms_name.DecodeName(il->name, il->pos);
+		if (hv != HV_NONE) {
+			/* Expand the parameterized name. */
+			int row = 0;
+			do {
+				int col = 0;
+				do {
+					const char *nm = parms_name.GetParmName(row, col);
+					vis[*length].expr_value = NULL;
+					vis[*length].node_value = bn->GetSubNode(row, col, nm, il->pos);
+					vis[*length].name = std::string(nm);
+					vis[*length].pos = il->pos;
+					vis[*length].used = false;
+					(*length)++;
+
+					col++;
+				} while (parms_name.vert_range.used && col < parms_name.vert_range.size());
+				row++;
+			} while (parms_name.hor_range.used && row < parms_name.hor_range.size());
+			return;
+		}
+	}
+
+	/* General case, a 2D table with non-parameterized names. */
 	int row = 0;
 	for (std::list<NameRow *>::iterator row_iter = nt->rows.begin(); row_iter != nt->rows.end(); ++row_iter) {
 		NameRow *nr = *row_iter;
@@ -334,6 +365,7 @@ void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInformation 
 		for (std::list<IdentifierLine *>::iterator col_iter = nr->identifiers.begin(); col_iter != nr->identifiers.end(); ++col_iter) {
 			IdentifierLine *il = *col_iter;
 			if (il->IsValid()) {
+				CheckIsSingleName(il->name, il->pos);
 				vis[*length].expr_value = NULL;
 				vis[*length].node_value = bn->GetSubNode(row, col, il->name, il->pos);
 				vis[*length].name = std::string(il->name);

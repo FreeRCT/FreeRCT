@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.  */
+/* A Bison parser, made by GNU Bison 2.6.4.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_HOME_LORDARO_CODING_FREERCT_SRC_RCDGEN_TOKENS_H_INCLUDED
-# define YY_YY_HOME_LORDARO_CODING_FREERCT_SRC_RCDGEN_TOKENS_H_INCLUDED
-/* Debug traces.  */
+#ifndef YY_YY_SRC_RCDGEN_TOKENS_H_INCLUDED
+# define YY_YY_SRC_RCDGEN_TOKENS_H_INCLUDED
+/* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
@@ -40,33 +40,50 @@
 extern int yydebug;
 #endif
 
-/* Token type.  */
+/* Tokens.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-  enum yytokentype
-  {
-    PAR_OPEN = 258,
-    PAR_CLOSE = 259,
-    CURLY_OPEN = 260,
-    CURLY_CLOSE = 261,
-    COLON = 262,
-    PIPE = 263,
-    SEMICOLON = 264,
-    COMMA = 265,
-    MINUS = 266,
-    BITSET_KW = 267,
-    IMPORT_KW = 268,
-    STRING = 269,
-    NUMBER = 270,
-    IDENTIFIER = 271
-  };
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     PAR_OPEN = 258,
+     PAR_CLOSE = 259,
+     CURLY_OPEN = 260,
+     CURLY_CLOSE = 261,
+     COLON = 262,
+     PIPE = 263,
+     SEMICOLON = 264,
+     COMMA = 265,
+     MINUS = 266,
+     BITSET_KW = 267,
+     IMPORT_KW = 268,
+     STRING = 269,
+     NUMBER = 270,
+     IDENTIFIER = 271
+   };
 #endif
 
-/* Value type.  */
 
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
+# define YYSTYPE_IS_DECLARED 1
+#endif
 
 extern YYSTYPE yylval;
 
+#ifdef YYPARSE_PARAM
+#if defined __STDC__ || defined __cplusplus
+int yyparse (void *YYPARSE_PARAM);
+#else
+int yyparse ();
+#endif
+#else /* ! YYPARSE_PARAM */
+#if defined __STDC__ || defined __cplusplus
 int yyparse (void);
+#else
+int yyparse ();
+#endif
+#endif /* ! YYPARSE_PARAM */
 
-#endif /* !YY_YY_HOME_LORDARO_CODING_FREERCT_SRC_RCDGEN_TOKENS_H_INCLUDED  */
+#endif /* !YY_YY_SRC_RCDGEN_TOKENS_H_INCLUDED  */

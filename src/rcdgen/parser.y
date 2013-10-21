@@ -11,6 +11,7 @@
 #include <cstdio>
 #include "scanner_funcs.h"
 #include "ast.h"
+#include "utils.h"
 
 NamedValueList *_parsed_data = NULL; // Documentation is in scanner_funcs.h, since this file is not being scanned.
 %}
@@ -73,6 +74,7 @@ Factor : NUMBER {
 
 Factor : IDENTIFIER {
 	Position pos(filename, $1.line);
+	CheckIsSingleName($1.value, pos);
 	$$ = new IdentifierLiteral(pos, $1.value);
 }
        ;
@@ -112,6 +114,7 @@ NamedValue : Group {
 
 NamedValue : IDENTIFIER COLON Group {
 	Position pos(filename, $1.line);
+	CheckIsSingleName($1.value, pos);
 	Name *name = new SingleName(pos, $1.value);
 	$$ = new NamedValue(name, $3);
 }
@@ -119,6 +122,7 @@ NamedValue : IDENTIFIER COLON Group {
 
 NamedValue : IDENTIFIER COLON Expression SEMICOLON {
 	Position pos(filename, $1.line);
+	CheckIsSingleName($1.value, pos);
 	Name *name = new SingleName(pos, $1.value);
 	Group *group = new ExpressionGroup($3);
 	$$ = new NamedValue(name, group);
@@ -171,12 +175,14 @@ IdentifierRow : IdentifierRow COMMA IDENTIFIER {
 
 Group : IDENTIFIER CURLY_OPEN NamedValueList CURLY_CLOSE {
 	Position pos(filename, $1.line);
+	CheckIsSingleName($1.value, pos);
 	$$ = new NodeGroup(pos, $1.value, NULL, $3);
 }
       ;
 
 Group : IDENTIFIER PAR_OPEN ExpressionList PAR_CLOSE CURLY_OPEN NamedValueList CURLY_CLOSE {
 	Position pos(filename, $1.line);
+	CheckIsSingleName($1.value, pos);
 	$$ = new NodeGroup(pos, $1.value, $3, $6);
 }
       ;

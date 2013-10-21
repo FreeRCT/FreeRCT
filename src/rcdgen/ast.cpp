@@ -12,6 +12,7 @@
 #include "../stdafx.h"
 #include "ast.h"
 #include "scanner_funcs.h"
+#include "utils.h"
 
 Position::Position()
 {
@@ -358,9 +359,17 @@ const Position &IdentifierLine::GetPosition() const
  */
 bool IdentifierLine::IsValid() const
 {
+	bool valid = true;
 	if (this->name == NULL) return false;
-	if (this->name[0] == '\0' || this->name[0] == '_') return false;
-	return true;
+	if (valid && this->name[0] == '\0') valid = false;
+	if (valid && this->name[0] == '_') {
+		valid = false;
+		if (!ParameterizedName::HasNoParameters(this->name)) {
+			fprintf(stderr, "Cannot disable parameterized name \"%s\"", this->name);
+			exit(1);
+		}
+	}
+	return valid;
 }
 
 NameRow::NameRow()
@@ -410,6 +419,18 @@ NameTable::~NameTable()
 	}
 }
 
+/**
+ * Test whether the name table is actually just a single (possibly parameterized) name.
+ * @return Whether the table consists of a single (possibly parameterized) name.
+ */
+bool NameTable::HasSingleElement() const
+{
+	if (this->rows.size() != 1) return false;
+	const NameRow *nr = this->rows.front();
+	return nr->identifiers.size() == 1;
+}
+
+
 const Position &NameTable::GetPosition() const
 {
 	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
@@ -421,6 +442,21 @@ const Position &NameTable::GetPosition() const
 
 int NameTable::GetNameCount() const
 {
+	if (this->HasSingleElement()) {
+		/* Single element table, possibly with parameterized name. */
+		const IdentifierLine *il = this->rows.front()->identifiers.front();
+		assert(il->IsValid());
+		ParameterizedName parms_name;
+		HorVert hv = parms_name.DecodeName(il->name, il->pos);
+		switch (hv) {
+			case HV_NONE: return 1;
+			case HV_HOR:  return parms_name.hor_range.size();
+			case HV_VERT: return parms_name.vert_range.size();
+			case HV_BOTH: return parms_name.hor_range.size() * parms_name.vert_range.size();
+			default: NOT_REACHED();
+		}
+	}
+	/* General case, assume non-parameterized names, and return their count. */
 	int count = 0;
 	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
 		count += (*iter)->GetNameCount();

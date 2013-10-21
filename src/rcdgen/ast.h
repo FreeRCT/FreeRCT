@@ -171,7 +171,10 @@ public:
 	char *name;   ///< The label itself.
 };
 
-/** A row of identifiers. */
+/**
+ * A row of identifiers.
+ * Names here may be parameterized, and represent many identifiers.
+ */
 class NameRow {
 public:
 	NameRow();
@@ -183,12 +186,16 @@ public:
 	std::list<IdentifierLine *> identifiers; ///< Identifiers in this row.
 };
 
-/** A 2D table of identifiers. */
+/**
+ * A 2D table of identifiers.
+ * Names here may be parameterized, and represent many identifiers.
+ */
 class NameTable : public Name {
 public:
 	NameTable();
 	~NameTable();
 
+	bool HasSingleElement() const;
 	const Position &GetPosition() const override;
 	int GetNameCount() const override;
 
