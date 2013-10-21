@@ -52,6 +52,7 @@ IF(NOT WIN32 AND BISON_FOUND)
 	                   --defines=${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h
 	                   --output=${BisonOutput}
 	                   ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.y
+	                   DEPENDS ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.y
 	                   COMMENT "Generating parser.cpp")
 	SET_SOURCE_FILES_PROPERTIES(${BisonOutput} GENERATED)
 	SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h GENERATED)
@@ -66,6 +67,7 @@ IF(FLEX_FOUND)
 	add_custom_command(OUTPUT ${FlexOutput}
 	                   COMMAND ${FLEX_EXECUTABLE} -o${FlexOutput}
 	                   ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.l
+	                   DEPENDS ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.l
 	                   COMMENT "Generating scanner.cpp")
 	SET_SOURCE_FILES_PROPERTIES(${FlexOutput} GENERATED)
 ELSE()
