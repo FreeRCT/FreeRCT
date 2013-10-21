@@ -28,7 +28,7 @@ class Position;
 /** Base class for all nodes. */
 class BlockNode {
 public:
-	virtual std::shared_ptr<BlockNode> GetSubNode(int row, int col, char *name, const Position &pos);
+	virtual std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos);
 };
 
 /** Base class for game blocks. */
@@ -105,7 +105,7 @@ public:
 	~SheetBlock();
 
 
-	std::shared_ptr<BlockNode> GetSubNode(int row, int col, char *name, const Position &pos) override;
+	std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos) override;
 	Image *GetSheet();
 
 	Position pos;     ///< Line number defining the sheet.
@@ -114,6 +114,8 @@ public:
 	int y_base;       ///< Vertical base offset in the sheet.
 	int x_step;       ///< Column step size.
 	int y_step;       ///< Row step size.
+	int x_count;      ///< Number of sprites horizontally (\c -1 means 'infinite').
+	int y_count;      ///< Number of sprites vertically (\c -1 means 'infinite').
 	int x_offset;     ///< Sprite offset (from the origin to the left edge of the sprite).
 	int y_offset;     ///< Sprite offset (from the origin to the top edge of the sprite).
 	int width;        ///< Width of a sprite.

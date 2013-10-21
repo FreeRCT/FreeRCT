@@ -1274,6 +1274,10 @@ static std::shared_ptr<SheetBlock> ConvertSheetNode(NodeGroup *ng)
 
 	sb->crop = true;
 	if (vals.HasValue("crop")) sb->crop = vals.GetNumber("crop") != 0;
+	sb->x_count = -1;
+	if (vals.HasValue("x_count")) sb->x_count = vals.GetNumber("x_count");
+	sb->y_count = -1;
+	if (vals.HasValue("y_count")) sb->y_count = vals.GetNumber("y_count");
 
 	std::shared_ptr<BitMask> bm(nullptr);
 	if (vals.HasValue("mask")) {

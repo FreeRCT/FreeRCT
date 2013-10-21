@@ -23,7 +23,7 @@
  * @return The requested sub node.
  * @note The default implementation always fails, override to get the feature.
  */
-std::shared_ptr<BlockNode> BlockNode::GetSubNode(int row, int col, char *name, const Position &pos)
+std::shared_ptr<BlockNode> BlockNode::GetSubNode(int row, int col, const char *name, const Position &pos)
 {
 	/* By default, fail. */
 	fprintf(stderr, "Error at %s: Cannot assign sub node (row=%d, column=%d) to variable \"%s\"\n", pos.ToString(), row, col, name);
@@ -130,7 +130,7 @@ Image *SheetBlock::GetSheet()
 
 	this->img_sheet = new Image;
 	BitMaskData *bmd = (this->mask == NULL) ? NULL : &this->mask->data;
-	const char *err = this->img_sheet->LoadFile(file.c_str(), bmd);
+	const char *err = this->img_sheet->LoadFile(this->file.c_str(), bmd);
 	if (err != NULL) {
 		fprintf(stderr, "Error at %s, loading of the sheet-image failed: %s\n", this->pos.ToString(), err);
 		exit(1);
@@ -138,12 +138,17 @@ Image *SheetBlock::GetSheet()
 	return this->img_sheet;
 }
 
-std::shared_ptr<BlockNode> SheetBlock::GetSubNode(int row, int col, char *name, const Position &pos)
+std::shared_ptr<BlockNode> SheetBlock::GetSubNode(int row, int col, const char *name, const Position &pos)
 {
 	Image *img = this->GetSheet();
 	std::shared_ptr<SpriteBlock> spr_blk(new SpriteBlock);
-	const char *err = spr_blk->sprite_image.CopySprite(img, this->x_offset, this->y_offset,
-			this->x_base + this->x_step * col, this->y_base + this->y_step * row, this->width, this->height, this->crop);
+	const char *err = NULL;
+	if (this->y_count >= 0 && row >= this->y_count) err = "No sprite available at the queried row.";
+	if (err == NULL && this->x_count >= 0 && col >= this->x_count) err = "No sprite available at the queried column.";
+	if (err == NULL) {
+		err = spr_blk->sprite_image.CopySprite(img, this->x_offset, this->y_offset,
+				this->x_base + this->x_step * col, this->y_base + this->y_step * row, this->width, this->height, this->crop);
+		}
 	if (err != NULL) {
 		fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", pos.ToString(), name, err);
 		exit(1);
