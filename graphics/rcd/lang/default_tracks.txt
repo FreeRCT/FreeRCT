@@ -6,31 +6,8 @@
 // See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 //
 
-file("shops.rcd") {
-	// Snack shop.
-	SHOP {
-		tile_width: 64;
-		height: 1;
+// Texts relating to tracks/coasters in the default language.
 
-		(se, sw, nw, ne) : sheet {
-			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites/objects/1x1/template8bpp64.png";
-			x_offset: -32; y_offset: -33; width: 64; height: 64;
-		}
-
-		// XXX Add recolour definitions.
-
-		flags: bitset(ne_entrance);
-		cost_item1: 50;
-		cost_item2: 150;
-		cost_ownership: 0;
-		cost_opened: 1000;
-		type_item1: non_salt_food;
-		type_item2: salt_food;
-
-		texts: strings {
-			import "lang/default_shops.txt";
-			import "lang/nl_NL_shops.txt";
-		}
-	}
-}
+string { lang: ""; name: "NAME_INSTANCE";    text: "Crazy roller"; }
+string { lang: ""; name: "NAME_TYPE";        text: "Basic rollercoaster"; }
+string { lang: ""; name: "DESCRIPTION_TYPE"; text: "Basic steel rollercoaster ride"; }

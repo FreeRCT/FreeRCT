@@ -12,9 +12,7 @@ file("tracks.rcd") {
 		platform_type: 1; // Wooden platforms.
 
 		texts: strings {
-			string { name: "NAME_INSTANCE";    lang: "";      text: "Crazy roller"; }
-			string { name: "NAME_TYPE";        lang: "";      text: "Basic rollercoaster"; }
-			string { name: "DESCRIPTION_TYPE"; lang: "";      text: "Basic steel rollercoaster ride"; }
+			import "lang/default_tracks.txt";
 		}
 
 		// Flat, straight pieces.
