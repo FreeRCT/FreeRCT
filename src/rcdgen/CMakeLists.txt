@@ -78,3 +78,9 @@ ENDIF()
 # Compiler flags
 # TODO: Extend for release versions
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -std=c++11")
+
+IF(NOT WIN32 AND BISON_FOUND AND FLEX_FOUND)
+	add_custom_target(exportscanner
+	                  COMMAND ${CMAKE_COMMAND} -P ExportScanner.cmake
+	                  COMMENT "Generating scanner files")
+ENDIF()
