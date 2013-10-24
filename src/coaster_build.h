@@ -48,8 +48,8 @@ public:
 	void OpenWindow(uint16 instance);
 	void CloseWindow(uint16 instance);
 	void ShowNoPiece(uint16 instance);
-	void SelectPosition(uint16 instance, const TrackPiece *piece, TileEdge direction);
-	void DisplayPiece(uint16 instance, const TrackPiece *piece, int x, int y, int z, TileEdge direction);
+	void SelectPosition(uint16 instance, ConstTrackPiecePtr piece, TileEdge direction);
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction);
 
 	bool MayActivateMode() override;
 	void ActivateMode(const Point16 &pos) override;
@@ -60,7 +60,7 @@ public:
 
 	uint16 instance;             ///< Instance number of the current coaster.
 	BuilderState state;          ///< State of the #CoasterBuildMode mouse mode.
-	const TrackPiece *cur_piece; ///< Current selected track piece. \c NULL if no piece is selected currently.
+	ConstTrackPiecePtr cur_piece; ///< Current selected track piece. \c nullptr if no piece is selected currently.
 	TileEdge direction;          ///< Orientation of the build cursor.
 	uint8 mouse_state;           ///< Stored state of the mouse buttons.
 	Point16 mouse_pos;           ///< Stored mouse position.
@@ -83,7 +83,7 @@ public:
 	/** Do not display a track piece. */
 	void SetNoPiece()
 	{
-		this->cur_piece = NULL;
+		this->cur_piece = nullptr;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public:
 	 * @param piece Selected track piece to attach.
 	 * @param direction Direction of building (to use with a cursor).
 	 */
-	void SetSelectPosition(const TrackPiece *piece, TileEdge direction)
+	void SetSelectPosition(ConstTrackPiecePtr piece, TileEdge direction)
 	{
 		this->cur_piece = piece;
 		this->direction = direction;
@@ -116,7 +116,7 @@ public:
 	 * @param z Z position of the piece.
 	 * @param direction Direction of building (to use with a cursor).
 	 */
-	void SetFixedPiece(const TrackPiece *piece, int x, int y, int z, TileEdge direction)
+	void SetFixedPiece(ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction)
 	{
 		this->cur_piece = piece;
 		this->track_xpos = x;

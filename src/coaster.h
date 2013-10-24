@@ -13,12 +13,13 @@
 #define COASTER_H
 
 #include <map>
+#include <vector>
 #include "ride_type.h"
 #include "track_piece.h"
 
 static const int MAX_PLACED_TRACK_PIECES = 1024; ///< Maximum number of track pieces in a single roller coaster.
 
-typedef std::map<uint32, TrackPieceRef> TrackPiecesMap; ///< Map of loaded track pieces.
+typedef std::map<uint32, ConstTrackPiecePtr> TrackPiecesMap; ///< Map of loaded track pieces.
 
 /** Kinds of coasters. */
 enum CoasterKind {
@@ -49,10 +50,10 @@ public:
 
 	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind
 	uint8 platform_type;       ///< Type of platform. @see CoasterPlatformType
-	int piece_count;           ///< Number of track pieces in #pieces.
-	TrackPieceRef *pieces;     ///< Track pieces of the coaster.
 	int voxel_count;           ///< Number of track voxels in #voxels.
 	const TrackVoxel **voxels; ///< All voxels of all track pieces (do not free the track voxels, #pieces owns this data).
+
+	std::vector<ConstTrackPiecePtr> pieces; ///< Track pieces of the coaster.
 };
 
 /**

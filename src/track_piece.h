@@ -13,7 +13,7 @@
 #define TRACK_PIECE_H
 
 #include <map>
-#include "reference_count.h"
+#include <memory>
 #include "bitmath.h"
 #include "money.h"
 
@@ -62,9 +62,10 @@ enum TrackBend {
 };
 
 /** One track piece (type) of a roller coaster track. */
-class TrackPiece : public RefCounter {
+class TrackPiece {
 public:
 	TrackPiece();
+	~TrackPiece();
 
 	bool Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites);
 
@@ -158,13 +159,10 @@ public:
 		if ((bend & 4) != 0) bend |= ~7;
 		return (TrackBend)(bend + 3);
 	}
-
-protected:
-	~TrackPiece();
 };
 
-typedef DataReference<TrackPiece> TrackPieceRef; ///< Track piece reference class.
-
+/** Shared pointer to a const #TrackPiece. */
+typedef std::shared_ptr<const TrackPiece> ConstTrackPiecePtr;
 
 /**
  * Track piece with a position. Used in roller coasters to define their path in the world.
@@ -173,7 +171,7 @@ typedef DataReference<TrackPiece> TrackPieceRef; ///< Track piece reference clas
 class PositionedTrackPiece {
 public:
 	PositionedTrackPiece();
-	PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos, const TrackPiece *piece);
+	PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos, ConstTrackPiecePtr piece);
 
 	bool IsOnWorld() const;
 	bool CanBePlaced() const;
@@ -211,7 +209,7 @@ public:
 	uint16 y_base; ///< Y position of the entry point of the track piece.
 	uint8 z_base;  ///< Z position of the entry point of the track piece.
 
-	const TrackPiece *piece; ///< Track piece placed at the given position, may be \c NULL.
+	ConstTrackPiecePtr piece; ///< Track piece placed at the given position, may be \c nullptr.
 };
 
 #endif

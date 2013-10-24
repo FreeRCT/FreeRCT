@@ -1591,13 +1591,11 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(name, "TRCK") == 0 && version == 3) {
-			TrackPiece *tp = new TrackPiece;
+			auto tp = std::make_shared<TrackPiece>();
 			if (!tp->Load(&rcd_file, length, sprites)) {
-				tp->Delete();
 				return "Track piece failed to load.";
 			}
-			std::pair<uint, TrackPieceRef> p(blk_num, TrackPieceRef(tp));
-			track_pieces.insert(p);
+			track_pieces.insert({blk_num, tp});
 			continue;
 		}
 

@@ -21,15 +21,12 @@
 
 CoasterType::CoasterType() : RideType(RTK_COASTER)
 {
-	this->piece_count = 0;
-	this->pieces = NULL;
 	this->voxel_count = 0;
 	this->voxels = NULL;
 }
 
 CoasterType::~CoasterType()
 {
-	delete[] this->pieces;
 	delete[] this->voxels;
 }
 
@@ -55,27 +52,25 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 	StringID base = _language.RegisterStrings(*text_data, _coasters_strings_table);
 	this->SetupStrings(text_data, base, STR_GENERIC_COASTER_START, COASTERS_STRING_TABLE_END, COASTERS_NAME_TYPE, COASTERS_DESCRIPTION_TYPE);
 
-	this->piece_count = rcd_file->GetUInt16();
-	if (length != 4u * this->piece_count) return false;
+	int piece_count = rcd_file->GetUInt16();
+	if (length != 4u * piece_count) return false;
 
-	this->pieces = new TrackPieceRef[this->piece_count];
-	for (int i = 0; i < this->piece_count; i++) {
+	this->pieces.resize(piece_count);
+	for (auto &piece : this->pieces) {
 		uint32 val = rcd_file->GetUInt32();
 		if (val == 0) return false; // We don't expect missing track pieces (they should not be included at all).
-		TrackPiecesMap::const_iterator iter = piece_map.find(val);
+		auto iter = piece_map.find(val);
 		if (iter == piece_map.end()) return false;
-		this->pieces[i] = (*iter).second;
+		piece = (*iter).second;
 	}
 	/* Setup a track voxel list for fast access in the type. */
 	this->voxel_count = 0;
-	for (int i = 0; i < this->piece_count; i++) {
-		const TrackPiece *piece = this->pieces[i].Access();
+	for (const auto &piece : this->pieces) {
 		this->voxel_count += piece->voxel_count;
 	}
 	this->voxels = new const TrackVoxel*[this->voxel_count]();
 	int vi = 0;
-	for (int i = 0; i < this->piece_count; i++) {
-		const TrackPiece *piece = this->pieces[i].Access();
+	for (const auto &piece : this->pieces) {
 		for (int j = 0; j < piece->voxel_count; j++) {
 			this->voxels[vi] = &piece->track_voxels[j];
 			vi++;
@@ -103,7 +98,7 @@ const StringID *CoasterType::GetInstanceNames() const
 /**
  * Get the index of the provided track voxel for use as instance data.
  * @param tvx Track voxel to look for.
- * @return Index of the provided track volxel in this coaster type.
+ * @return Index of the provided track voxel in this coaster type.
  * @see Voxel::SetInstanceData
  */
 int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
@@ -235,7 +230,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 		}
 		Swap(this->pieces[count], *ptp);
 		if (modified != NULL) *modified = true;
-		ptp->piece = NULL;
+		ptp->piece = nullptr;
 		count++;
 	}
 
@@ -275,7 +270,7 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 
 /**
  * Add the positioned track piece to #_additions.
- * @param placed Track piec to place.
+ * @param placed Track piece to place.
  * @pre placed->CanBePlaced() should hold.
  */
 void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &placed)

@@ -49,7 +49,7 @@ bool TrackVoxel::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 	return true;
 }
 
-TrackPiece::TrackPiece() : RefCounter()
+TrackPiece::TrackPiece()
 {
 	this->voxel_count = 0;
 	this->track_voxels = NULL;
@@ -101,7 +101,7 @@ PositionedTrackPiece::PositionedTrackPiece()
  * @param zpos Z position of the positioned track piece.
  * @param piece Track piece to use.
  */
-PositionedTrackPiece::PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos, const TrackPiece *piece)
+PositionedTrackPiece::PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos, ConstTrackPiecePtr piece)
 {
 	this->x_base = xpos;
 	this->y_base = ypos;
