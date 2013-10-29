@@ -11,9 +11,8 @@
 
 #include "stdafx.h"
 #include "window.h"
-
 #include "map.h"
-#include "table/gui_sprites.h"
+#include "gui_sprites.h"
 
 /**
  * Setting window.

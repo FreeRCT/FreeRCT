@@ -25,7 +25,7 @@
 #include "math_func.h"
 #include "ride_type.h"
 #include "coaster.h"
-#include "table/gui_sprites.h"
+#include "gui_sprites.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
 GuiSprites _gui_sprites; ///< GUI sprites.
@@ -36,7 +36,7 @@ static const int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a
 
 static const char *RCD_FILE_POSITION = "../graphics/rcd"; ///< Position of RCD files relative to binary.
 
-#include "table/gui_strings.cpp"
+#include "generated/gui_strings.cpp"
 
 /**
  * Sprite indices of ground/surface sprites after rotation of the view.

@@ -22,6 +22,8 @@
 #include "window.h"
 #include "finances.h"
 
+#include "generated/shops_strings.cpp"
+
 /**
  * \page Rides
  *
@@ -125,8 +127,6 @@ StringID RideType::GetString(uint16 number) const
 	assert(number >= this->str_start && number < this->str_end);
 	return this->str_base + (number - this->str_start);
 }
-
-#include "table/shops_strings.cpp"
 
 ShopType::ShopType() : RideType(RTK_SHOP)
 {

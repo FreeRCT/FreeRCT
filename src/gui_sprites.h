@@ -9,16 +9,16 @@
 
 /** @file gui_sprites.h Gui sprites table. */
 
-#ifndef TABLE_GUI_SPRITES_H
-#define TABLE_GUI_SPRITES_H
+#ifndef GUI_SPRITES_H
+#define GUI_SPRITES_H
 
 /** Gui sprite table. */
 enum GuiSpritesTable {
-	SPR_GUI_BULLDOZER,  ///< Bulldozer sprite.
-	SPR_GUI_ROT2D_POS,  ///< 2d vertical rotation in positive direction (counter clockwise).
-	SPR_GUI_ROT2D_NEG,  ///< 2d vertical rotation in negative direction (clockwise).
-	SPR_GUI_ROT3D_POS,  ///< 3d (xy-plane) rotation in positive direction (counter clockwise).
-	SPR_GUI_ROT3D_NEG,  ///< 3d (xy-plane) rotation in negative direction (clockwise).
+	SPR_GUI_BULLDOZER, ///< Bulldozer sprite.
+	SPR_GUI_ROT2D_POS, ///< 2d vertical rotation in positive direction (counter clockwise).
+	SPR_GUI_ROT2D_NEG, ///< 2d vertical rotation in negative direction (clockwise).
+	SPR_GUI_ROT3D_POS, ///< 3d (xy-plane) rotation in positive direction (counter clockwise).
+	SPR_GUI_ROT3D_NEG, ///< 3d (xy-plane) rotation in negative direction (clockwise).
 
 	SPR_GUI_TRIANGLE_LEFT,  ///< Triangular arrow to the left.
 	SPR_GUI_TRIANGLE_RIGHT, ///< Triangular arrow to the right.

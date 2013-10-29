@@ -15,7 +15,7 @@
 #include "viewport.h"
 #include "language.h"
 #include "path_build.h"
-#include "table/gui_sprites.h"
+#include "gui_sprites.h"
 
 /**
  * %Path build GUI.

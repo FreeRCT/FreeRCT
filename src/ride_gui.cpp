@@ -16,9 +16,10 @@
 #include "ride_type.h"
 #include "palette.h"
 #include "shop_placement.h"
-#include "table/gui_sprites.h"
 #include "viewport.h"
 #include "map.h"
+
+#include "gui_sprites.h"
 
 ShopPlacementManager _shop_placer; ///< Coordination object for placing a shop.
 

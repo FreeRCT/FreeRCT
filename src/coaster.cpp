@@ -17,7 +17,7 @@
 #include "math_func.h"
 #include "map.h"
 
-#include "table/coasters_strings.cpp"
+#include "generated/coasters_strings.cpp"
 
 CoasterType::CoasterType() : RideType(RTK_COASTER)
 {

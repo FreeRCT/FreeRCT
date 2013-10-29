@@ -15,8 +15,7 @@
 #include "terraform.h"
 #include "sprite_store.h"
 #include "finances.h"
-
-#include "table/gui_sprites.h"
+#include "gui_sprites.h"
 
 /**
   * GUI for viewing and managing financial information.

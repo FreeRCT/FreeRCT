@@ -55,9 +55,9 @@ enum StringTable {
 	STR_INVALID = STR_GENERIC_END, ///< Invalid string.
 };
 
-#include "table/gui_strings.h"
-#include "table/shops_strings.h"
-#include "table/coasters_strings.h"
+#include "generated/gui_strings.h"
+#include "generated/shops_strings.h"
+#include "generated/coasters_strings.h"
 
 typedef uint16 StringID; ///< Type of a string value.
 

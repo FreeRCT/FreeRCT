@@ -19,32 +19,23 @@ PROJECT(freerct)
 FILE(GLOB freerct_SRCS
   ${CMAKE_SOURCE_DIR}/src/*.cpp
   ${CMAKE_SOURCE_DIR}/src/*.h
-  ${CMAKE_SOURCE_DIR}/src/objects/table/*.h # ?
-  ${CMAKE_SOURCE_DIR}/src/table/*.h
-)
-
-# List of rcdgen generated files (without extension)
-LIST(APPEND GENSTRINGFILES
-  ${CMAKE_SOURCE_DIR}/src/objects/table/coasters_strings
-  ${CMAKE_SOURCE_DIR}/src/objects/table/gui_strings
-  ${CMAKE_SOURCE_DIR}/src/objects/table/shops_strings
 )
 
 GET_TARGET_PROPERTY(RCDGEN_EXE rcdgen LOCATION)
 
-SET(STRINGFILE ${CMAKE_SOURCE_DIR}/src/objects/table/coasters_strings)
+SET(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/coasters_strings)
 ADD_CUSTOM_COMMAND(
       OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
       COMMAND ${RCDGEN_EXE} --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix COASTERS --base STR_GENERIC_COASTER_START
       COMMENT "Generating COASTERS string files"
 )
-SET(STRINGFILE ${CMAKE_SOURCE_DIR}/src/objects/table/shops_strings)
+SET(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/shops_strings)
 ADD_CUSTOM_COMMAND(
       OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
       COMMAND ${RCDGEN_EXE} --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix SHOPS --base STR_GENERIC_SHOP_START
       COMMENT "Generating SHOPS string files"
 )
-SET(STRINGFILE ${CMAKE_SOURCE_DIR}/src/objects/table/gui_strings)
+SET(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/gui_strings)
 ADD_CUSTOM_COMMAND(
       OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
       COMMAND ${RCDGEN_EXE} --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GUI --base STR_GUI_START
@@ -55,14 +46,17 @@ ADD_CUSTOM_COMMAND(
 # Add generated files
 SET(freerct_SRCS ${freerct_SRCS}
   ${CMAKE_SOURCE_DIR}/src/rev.cpp
-  ${CMAKE_SOURCE_DIR}/src/objects/table/coasters_strings.h
-  ${CMAKE_SOURCE_DIR}/src/objects/table/gui_strings.h
-  ${CMAKE_SOURCE_DIR}/src/objects/table/shops_strings.h
+  ${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h
+  ${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h
+  ${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h
 )
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/rev.cpp GENERATED)
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/objects/table/coasters_strings.h GENERATED)
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/objects/table/gui_strings.h GENERATED)
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/objects/table/shops_strings.h GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.cpp GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/generated/gui_strings.cpp GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h GENERATED)
 
 ADD_EXECUTABLE(freerct ${freerct_SRCS})
 add_dependencies(freerct rcd)
@@ -169,10 +163,6 @@ CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rev.cpp.in ${CMAKE_SOURCE_DIR}/src/rev.cp
 
 # Restore
 SET(ENV{LC_ALL} ${SAVED_LC_ALL})
-
-# Extra include directories
-# TODO: Remove?
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/objects)
 
 # Compiler flags
 # TODO: Extend for release versions

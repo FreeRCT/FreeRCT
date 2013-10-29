@@ -18,8 +18,7 @@
 #include "coaster.h"
 #include "coaster_build.h"
 #include "map.h"
-
-#include "table/gui_sprites.h"
+#include "gui_sprites.h"
 
 CoasterBuildMode _coaster_builder; ///< Coaster build mouse mode handler.
 

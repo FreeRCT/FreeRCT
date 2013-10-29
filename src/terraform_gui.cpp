@@ -14,7 +14,7 @@
 #include "viewport.h"
 #include "terraform.h"
 #include "sprite_store.h"
-#include "table/gui_sprites.h"
+#include "gui_sprites.h"
 
 static const int TERRAFORM_MAX_SIZE = 9;      ///< Maximum length of tiles for terraforming (both X and Y).
 static const int TERRAFORM_ELEMENT_SIZE = 16; ///< Horizontal size of a tile in the display (pixels).
