@@ -578,6 +578,7 @@ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 		this->resize_y = this->child->resize_y;
 	}
 	this->InitMinimalSize(&_gui_sprites.panel, this->min_x, this->min_y);
+	if (this->child == NULL && this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
 void BackgroundWidget::SetSmallestSizePosition(const Rectangle16 &rect)
