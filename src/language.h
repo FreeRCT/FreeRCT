@@ -144,6 +144,7 @@ public:
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base=STR_GENERIC_END);
 
 	const uint8 *GetText(StringID number);
+	const uint8 *GetLanguageName(int lang_index);
 private:
 	/** Registered strings. Entries may be \c NULL for unregistered or non-existing strings. */
 	const TextString *registered[2048]; // Arbitrary size.

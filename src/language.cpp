@@ -257,6 +257,17 @@ const uint8 *Language::GetText(StringID number)
 }
 
 /**
+ * Get the (native) name of a language.
+ * @param lang_index The language to look in.
+ * @return The language name.
+ */
+const uint8 *Language::GetLanguageName(int lang_index)
+{
+	assert(lang_index < LANGUAGE_COUNT);
+	return this->registered[GUI_LANGUAGE_NAME]->languages[lang_index];
+}
+
+/**
  * Copy a source string to the destination, if it fits.
  * @param dest Destination address.
  * @param last Last byte of the destination (not written).
