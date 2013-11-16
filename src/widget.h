@@ -43,6 +43,7 @@ enum WidgetType {
 	WT_RADIOBUTTON,      ///< Radio button widget.
 	WT_HOR_SCROLLBAR,    ///< Scrollbar widget.
 	WT_VERT_SCROLLBAR,   ///< Scrollbar widget.
+	WT_DROPDOWN_BUTTON,  ///< Dropdown widget.
 	WT_GRID,             ///< Intermediate widget.
 };
 
@@ -185,7 +186,8 @@ public:
 
 /**
  * Data widget.
- * Implements #WT_TITLEBAR, #WT_LEFT_TEXT, #WT_CENTERED_TEXT, #WT_RIGHT_TEXT, #WT_TEXT_BUTTON, #WT_IMAGE_BUTTON, #WT_TEXT_PUSHBUTTON, and #WT_IMAGE_PUSHBUTTON.
+ * Implements #WT_TITLEBAR, #WT_LEFT_TEXT, #WT_CENTERED_TEXT, #WT_RIGHT_TEXT, #WT_TEXT_BUTTON,
+ * #WT_IMAGE_BUTTON, #WT_TEXT_PUSHBUTTON, #WT_IMAGE_PUSHBUTTON and #WT_DROPDOWN.
  * @ingroup widget_group
  */
 class DataWidget : public LeafWidget {

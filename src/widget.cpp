@@ -15,6 +15,7 @@
 #include "widget.h"
 #include "window.h"
 #include "video.h"
+#include "gui_sprites.h"
 
 /**
  * @defgroup widget_group Widgets and supporting functions of the program
@@ -365,6 +366,17 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			return;
 		}
 
+		case WT_DROPDOWN_BUTTON: {
+			const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
+			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
+			GetTextSize(w->TranslateStringNumber(this->value), &this->value_width, &this->value_height);
+			this->value_width += rect.width;
+			this->value_height = std::max(this->value_height, (int)rect.height);
+			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
+			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
+			return;
+		}
+
 		default:
 			NOT_REACHED();
 	}
@@ -408,6 +420,7 @@ void DataWidget::Draw(const GuiWindow *w)
 		case WT_IMAGE_BUTTON:
 		case WT_TEXT_PUSHBUTTON:
 		case WT_IMAGE_PUSHBUTTON:
+		case WT_DROPDOWN_BUTTON:
 			bsd = &_gui_sprites.button;
 			pressed = this->IsPressed() ? 1 : 0;
 			break;
@@ -441,21 +454,40 @@ void DataWidget::Draw(const GuiWindow *w)
 	} else if (this->wtype == WT_RIGHT_TEXT) {
 		align = ALG_RIGHT;
 	}
+	static Recolouring rc; // Never modified
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
-	if (this->wtype == WT_IMAGE_BUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) {
-		const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(this->value);
-		int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
-		yoffset -= rect.base.y;
-		const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-		if (imgdata != NULL) {
-			static Recolouring rc; // Never modified
-			_video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
-		}
-	} else {
-		if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-		if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
-	}
+	switch (this->wtype) {
+		case WT_IMAGE_BUTTON:
+		case WT_IMAGE_PUSHBUTTON: {
+			const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(this->value);
+			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
+			yoffset -= rect.base.y;
+			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
+			if (imgdata != NULL) _video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
+			break;
+ 		}
 
+		case WT_DROPDOWN_BUTTON: {
+			const Rectangle16 imgrect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
+			const ImageData *imgdata = _sprite_manager.GetTableSprite(SPR_GUI_TRIANGLE_DOWN);
+			int unused, text_w;
+			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
+			GetTextSize(w->TranslateStringNumber(this->value), &text_w, &unused);
+
+			if (imgdata != NULL) {
+				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
+				_video->BlitImage(right - imgrect.width + pressed, triangle_yoff, imgdata, rc, 0);
+			}
+			/* Note: Reusing the same string parameters from above */
+			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left - imgrect.width, align);
+			break;
+		}
+
+		default:
+			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
+			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
+			break;
+	}
 	if (bsd != NULL && this->IsShaded()) OverlayShaded(border_rect);
 }
 
@@ -1220,6 +1252,7 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 					case WT_IMAGE_BUTTON:
 					case WT_TEXT_PUSHBUTTON:
 					case WT_IMAGE_PUSHBUTTON:
+					case WT_DROPDOWN_BUTTON:
 					case WT_TITLEBAR:
 					case WT_LEFT_TEXT:
 					case WT_CENTERED_TEXT:
