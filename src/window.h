@@ -310,6 +310,7 @@ public:
 	void RaiseWindow(Window *w);
 
 	void CloseAllWindows();
+	void ResetAllWindows();
 
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);

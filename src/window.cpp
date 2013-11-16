@@ -616,6 +616,15 @@ void WindowManager::CloseAllWindows()
 	}
 }
 
+/** Reinitialize all windows in the display. */
+void WindowManager::ResetAllWindows()
+{
+	for (Window *w = this->top; w != NULL; w = w->lower) {
+		w->ResetSize(); /// \todo This call should preserve the window size as much as possible.
+	}
+	_video->MarkDisplayDirty();
+}
+
 /**
  * Get the z-priority of a window type (higher number means further up in the window stack).
  * @param wt Window type.

@@ -75,7 +75,7 @@ void SettingWindow::OnClick(WidgetNumber number)
 	switch (number) {
 		case SW_LANGUAGE:
 			_current_language = (_current_language == 2) ? 0 : 2; /// \todo Needs to use a dropdown list to change language.
-			for (Window *w = _manager.top; w != NULL; w = w->lower) w->ResetSize();
+			_manager.ResetAllWindows();
 			break;
 	}
 }
