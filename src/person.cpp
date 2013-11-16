@@ -35,7 +35,7 @@ Recolouring PersonTypeGraphics::MakeRecolouring(Random *rnd) const
 	for (int i = 0; i < (int)lengthof(this->random_recolours); i++) {
 		const RandomRecolouringMapping &rrcm = this->random_recolours[i];
 		if (rrcm.range_number == COL_RANGE_INVALID) continue;
-		recolour.SetRecolouring(static_cast<ColourRange>(rrcm.range_number), rrcm.DrawRandomColour(rnd));
+		recolour.SetRecolouring(rrcm.range_number, rrcm.DrawRandomColour(rnd));
 	}
 	return recolour;
 }

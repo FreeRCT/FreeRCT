@@ -178,9 +178,9 @@ public:
 		this->flags = (value) ? (this->flags | LWF_SHADED) : (this->flags & ~LWF_SHADED);
 	}
 
-	uint8 flags;      ///< Flags of the leaf widget. @see LeafWidgetFlags
-	uint8 colour;     ///< Colour of the widget.
-	StringID tooltip; ///< Tool-tip of the widget.
+	uint8 flags;        ///< Flags of the leaf widget. @see LeafWidgetFlags
+	ColourRange colour; ///< Colour of the widget.
+	StringID tooltip;   ///< Tool-tip of the widget.
 };
 
 /**
@@ -311,17 +311,17 @@ public:
 	WidgetPartType type; ///< Type of this widget part.
 	union {
 		struct {
-			WidgetType wtype; ///< Widget type of the new widget.
-			int16 number;     ///< Widget number of the new widget.
-			uint8 colour;     ///< Colour of the new widget.
+			WidgetType wtype;   ///< Widget type of the new widget.
+			int16 number;       ///< Widget number of the new widget.
+			ColourRange colour; ///< Colour of the new widget.
 		} new_widget;             ///< Data for #WPT_NEW_WIDGET.
 		struct {
-			uint8 num_rows;   ///< Number of rows.
-			uint8 num_cols;   ///< Number of columns.
+			uint8 num_rows;     ///< Number of rows.
+			uint8 num_cols;     ///< Number of columns.
 		} new_intermediate;       ///< Data for #WPT_NEW_INTERMEDIATE.
 		struct {
-			uint16 value;     ///< Value of the widget (string or sprite id).
-			uint16 tip;       ///< Tool tip string. Use #STR_NULL for no tip.
+			uint16 value;       ///< Value of the widget (string or sprite id).
+			uint16 tip;         ///< Tool tip string. Use #STR_NULL for no tip.
 		} dat;                    ///< Additional data of the widget.
 		Point16 size;             ///< Data for #WPT_MIN_SIZE, #WPT_FILL, #WPT_RESIZE.
 		uint8 flags;              ///< Equal size flags for intermediate widgets.
@@ -329,7 +329,7 @@ public:
 	} data; ///< Data of the widget part.
 };
 
-WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour);
+WidgetPart Widget(WidgetType wtype, WidgetNumber number, ColourRange colour);
 WidgetPart Intermediate(uint8 num_rows, uint8 num_cols = 0);
 WidgetPart SetMinimalSize(int16 x, int16 y);
 WidgetPart SetFill(uint8 x, uint8 y);

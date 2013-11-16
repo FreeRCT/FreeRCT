@@ -22,12 +22,12 @@
  * @param colour Colour range to use.
  * @ingroup widget_group
  */
-void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, uint8 colour)
+void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, ColourRange colour)
 {
 	Point32 pt;
 	const ImageData * const *spr_base = pressed ? bsd.pressed : bsd.normal;
 	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
-	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
+	rc.SetRecolouring(COL_RANGE_BEIGE, colour);
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y;

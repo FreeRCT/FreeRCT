@@ -124,7 +124,7 @@ struct RandomRecolouringMapping {
 	 */
 	void Set(uint32 value)
 	{
-		this->Set(value >> 24, value);
+		this->Set(static_cast<ColourRange>(value >> 24), value);
 	}
 
 	/**
@@ -132,15 +132,15 @@ struct RandomRecolouringMapping {
 	 * @param number Source colour range to remap.
 	 * @param dest_set Bit-set of allowed destination colour ranges.
 	 */
-	void Set(uint8 number, uint32 dest_set)
+	void Set(ColourRange number, uint32 dest_set)
 	{
 		if (number >= COL_RANGE_COUNT) number = COL_RANGE_INVALID;
 		this->range_number = number;
 		this->dest_set = dest_set;
 	}
 
-	uint8 range_number; ///< Colour range number being mapped.
-	uint32 dest_set;    ///< Bit-set of allowed colour ranges to replace #range_number.
+	ColourRange range_number; ///< Colour range number being mapped.
+	uint32 dest_set;          ///< Bit-set of allowed colour ranges to replace #range_number.
 
 	ColourRange DrawRandomColour(Random *rnd) const;
 };

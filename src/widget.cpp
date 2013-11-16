@@ -220,7 +220,7 @@ void BaseWidget::MarkDirty(const Point32 &base)
 LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 {
 	this->flags = 0;
-	this->colour = 0;
+	this->colour = COL_RANGE_INVALID;
 	this->tooltip = STR_NULL;
 }
 
@@ -274,7 +274,7 @@ void LeafWidget::Draw(const GuiWindow *w)
 	int bottom = w->GetWidgetScreenY(this) + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 
 	static Recolouring rc;
-	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)this->colour);
+	rc.SetRecolouring(COL_RANGE_BEIGE, this->colour);
 
 	if (this->wtype == WT_RADIOBUTTON) {
 		int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
@@ -498,7 +498,7 @@ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 void ScrollbarWidget::Draw(const GuiWindow *w)
 {
 	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
-	rc.SetRecolouring(COL_RANGE_BEIGE, (ColourRange)colour);
+	rc.SetRecolouring(COL_RANGE_BEIGE, colour);
 
 	const ScrollbarSpriteData &scroll_sprites = (this->wtype == WT_HOR_SCROLLBAR) ? _gui_sprites.hor_scroll : _gui_sprites.vert_scroll;
 	if (!scroll_sprites.IsLoaded()) return;
@@ -1019,7 +1019,7 @@ WidgetPart Intermediate(uint8 num_rows, uint8 num_cols)
  * @return Widget part containing the provided data for storage in an array.
  * @ingroup widget_parts_group
  */
-WidgetPart Widget(WidgetType wtype, WidgetNumber number, uint8 colour)
+WidgetPart Widget(WidgetType wtype, WidgetNumber number, ColourRange colour)
 {
 	WidgetPart part;
 

@@ -70,16 +70,16 @@ ColourRange RandomRecolouringMapping::DrawRandomColour(Random *rnd) const
 {
 	assert(this->range_number != COL_RANGE_INVALID);
 
-	int ranges[COL_RANGE_COUNT];
+	ColourRange ranges[COL_RANGE_COUNT];
 	int count = 0;
 	uint32 bit = 1;
 	for (int i = 0; i < (int)lengthof(ranges); i++) {
-		if ((bit & this->dest_set) != 0) ranges[count++] = i;
+		if ((bit & this->dest_set) != 0) ranges[count++] = static_cast<ColourRange>(i);
 		bit <<= 1;
 	}
-	if (count == 0) return static_cast<ColourRange>(this->range_number); // No range to replace the original colour with.
-	if (count == 1) return static_cast<ColourRange>(ranges[0]); // Just one colour, easy choice.
-	return static_cast<ColourRange>(ranges[rnd->Uniform(count - 1)]);
+	if (count == 0) return this->range_number; // No range to replace the original colour with.
+	if (count == 1) return ranges[0]; // Just one colour, easy choice.
+	return ranges[rnd->Uniform(count - 1)];
 }
 
 

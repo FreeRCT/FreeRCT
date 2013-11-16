@@ -16,7 +16,7 @@
 
 struct BorderSpriteData;
 
-void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, uint8 colour);
+void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, ColourRange colour);
 void OverlayShaded(const Rectangle32 &rect);
 
 /**
