@@ -24,7 +24,7 @@
 #include "path_build.h"
 #include "shop_placement.h"
 #include "coaster_build.h"
-#include "ride_type.h"
+#include "shop_type.h"
 #include "terraform.h"
 #include "select_mode.h"
 #include "person.h"

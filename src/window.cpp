@@ -325,7 +325,7 @@ void GuiWindow::SetSize(uint width, uint height)
  * Set the string translation base for the generic strings of this window.
  * @param ride_type Ride type to use as base for the string translation.
  */
-void GuiWindow::SetShopType(const ShopType *ride_type)
+void GuiWindow::SetShopType(const RideType *ride_type)
 {
 	this->ride_type = ride_type;
 }

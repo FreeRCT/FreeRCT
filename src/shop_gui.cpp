@@ -15,7 +15,7 @@
 #include "money.h"
 #include "language.h"
 #include "sprite_store.h"
-#include "ride_type.h"
+#include "shop_type.h"
 
 /** Widgets of the shop management window. */
 enum ShopManagerWidgets {

@@ -13,7 +13,7 @@
 #include "window.h"
 #include "language.h"
 #include "sprite_store.h"
-#include "ride_type.h"
+#include "shop_type.h"
 #include "palette.h"
 #include "shop_placement.h"
 #include "viewport.h"

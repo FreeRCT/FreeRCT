@@ -23,7 +23,7 @@
 #include "fileio.h"
 #include "string_func.h"
 #include "math_func.h"
-#include "ride_type.h"
+#include "shop_type.h"
 #include "coaster.h"
 #include "gui_sprites.h"
 
