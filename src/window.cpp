@@ -625,6 +625,7 @@ void WindowManager::CloseAllWindows()
 static uint GetWindowZPriority(WindowTypes wt)
 {
 	switch (wt) {
+		case WC_DROPDOWN:       return 12; // Dropdown menus.
 		case WC_ERROR_MESSAGE:  return 10; // Error messages.
 		default:                return 5;  // 'Normal' window.
 		case WC_TOOLBAR:        return 1;  // Top toolbar.
@@ -857,6 +858,13 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 		this->mouse_mode = WMMM_PASS_THROUGH;
 		this->mouse_state = newstate;
 		return;
+	}
+
+	/* Close dropdown window if click is not inside it */
+	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
+	if (pressed && w != NULL && !w->rect.IsPointInside(this->mouse_pos)) {
+		this->DeleteWindow(w);
+		return; // Don't handle click any further.
 	}
 
 	if (button == MB_LEFT && pressed) this->RaiseWindow(this->current_window);

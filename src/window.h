@@ -16,9 +16,22 @@
 #include "orientation.h"
 #include "widget.h"
 
+#include <vector>
+
 class Viewport;
 class ShopType;
 class Person;
+
+/** An item in a dropdown list. */
+class DropdownItem {
+public:
+	DropdownItem(StringID strid);
+
+	uint8 str[128]; ///< Item, as a string (arbitary length).
+};
+
+/** A dropdown list is a collection of #DropdownItems. */
+typedef std::vector<DropdownItem> DropdownList;
 
 /**
  * Available types of windows.
@@ -39,6 +52,7 @@ enum WindowTypes {
 	WC_TERRAFORM,      ///< Terraform window.
 	WC_FINANCES,       ///< Finance management window.
 	WC_SETTING,        ///< Setting window.
+	WC_DROPDOWN,       ///< Dropdown window.
 
 	WC_NONE,           ///< Invalid window type.
 };
@@ -50,6 +64,7 @@ enum ChangeCode {
 	CHG_MOUSE_MODE_LOST,  ///< Lost the mouse mode.
 	CHG_DISPLAY_OLD,      ///< Displayed data is old.
 	CHG_PIECE_POSITIONED, ///< The track piece is at the correct position.
+	CHG_DROPDOWN_RESULT,  ///< The selection of a dropdown window.
 };
 
 /** Various state flags of the %Window. */
@@ -209,6 +224,9 @@ protected:
 	virtual void OnClick(WidgetNumber widget);
 
 	void SetShopType(const ShopType *ride_type);
+
+	/* In dropdown.cpp */
+	void ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour = COL_RANGE_INVALID);
 
 private:
 	BaseWidget *tree;     ///< Tree of widgets.
