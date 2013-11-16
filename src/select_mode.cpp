@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include "viewport.h"
+#include "ride_type.h"
 #include "select_mode.h"
 
 SelectMouseMode _select_mousemode; ///< Mouse select mode coordinator.
@@ -53,9 +54,22 @@ void SelectMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 	if (this->mouse_state != 0) {
 		FinderData fdata(CS_RIDE | CS_PERSON, false);
 		switch (vp->ComputeCursorPosition(&fdata)) {
-			case CS_RIDE:
-				ShowShopManagementGui(fdata.ride);
+			case CS_RIDE: {
+				RideInstance *ri = _rides_manager.GetRideInstance(fdata.ride);
+				if (ri == nullptr) break;
+				switch (ri->GetKind()) {
+					case RTK_SHOP:
+						ShowShopManagementGui(fdata.ride);
+						break;
+
+					case RTK_COASTER:
+						ShowCoasterManagementGui(ri);
+						break;
+
+					default: break; // Other types are not implemented yet.
+				}
 				break;
+			}
 
 			case CS_PERSON:
 				ShowGuestInfoGui(fdata.person);
