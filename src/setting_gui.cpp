@@ -24,6 +24,7 @@ public:
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber number) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
 };
 
 /**
@@ -32,7 +33,7 @@ public:
  */
 enum SettingGuiWidgets {
 	SW_TITLEBAR, ///< Titlebar widget.
-	SW_LANGUAGE, ///< Change language widget.
+	SW_LANGUAGE, ///< Change language dropdown widget.
 };
 
 /**
@@ -49,7 +50,7 @@ static const WidgetPart _setting_widgets[] = {
 			Intermediate(0, 2),
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 						SetData(GUI_SETTING_LANGUAGE, GUI_SETTING_LANGUAGE_TOOLTIP), SetPadding(3, 3, 3, 3),
-				Widget(WT_TEXT_PUSHBUTTON, SW_LANGUAGE, COL_RANGE_BLUE),
+				Widget(WT_DROPDOWN_BUTTON, SW_LANGUAGE, COL_RANGE_BLUE),
 						SetData(STR_ARG1, STR_NULL), SetMinimalSize(100, 10), SetPadding(3, 3, 3, 3),
 			EndContainer(),
 	EndContainer(),
@@ -73,11 +74,23 @@ void SettingWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 void SettingWindow::OnClick(WidgetNumber number)
 {
 	switch (number) {
-		case SW_LANGUAGE:
-			_current_language = (_current_language == 2) ? 0 : 2; /// \todo Needs to use a dropdown list to change language.
-			_manager.ResetAllWindows();
+		case SW_LANGUAGE: {
+			DropdownList itemlist;
+			for (int i = 0; i < LANGUAGE_COUNT; i++) {
+				_str_params.SetUint8(1, _language.GetLanguageName(i));
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(number, itemlist, _current_language);
 			break;
+		}
 	}
+}
+
+void SettingWindow::OnChange(ChangeCode code, uint32 parameter)
+{
+	if (code != CHG_DROPDOWN_RESULT) return;
+	_current_language = parameter;
+	_manager.ResetAllWindows();
 }
 
 /**
