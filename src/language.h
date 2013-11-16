@@ -107,10 +107,10 @@ enum StringParamType {
 struct StringParameterData {
 	uint8 parm_type; ///< Type of the parameter. @see StringParamType
 	union {
-		StringID str; ///< String number.
-		uint8 *text;  ///< C text pointer. Memory  is not managed!
-		uint32 dmy;   ///< Day/month/year.
-		int64 number; ///< Signed number or money amount.
+		StringID str;      ///< String number.
+		const uint8 *text; ///< C text pointer. Memory  is not managed!
+		uint32 dmy;        ///< Day/month/year.
+		int64 number;      ///< Signed number or money amount.
 	} u; ///< Data of the parameter.
 };
 
@@ -123,7 +123,7 @@ struct StringParameters {
 	void SetNumber(int num, int64 number);
 	void SetMoney(int num, const Money &amount);
 	void SetDate(int num, const Date &date);
-	void SetUint8(int num, uint8 *text);
+	void SetUint8(int num, const uint8 *text);
 
 	void Clear();
 

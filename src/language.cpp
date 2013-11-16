@@ -155,7 +155,7 @@ void StringParameters::SetDate(int num, const Date &date)
  * @param num Number of the parameter to set (1-based).
  * @param text UTF-8 string. Is not released after use.
  */
-void StringParameters::SetUint8(int num, uint8 *text)
+void StringParameters::SetUint8(int num, const uint8 *text)
 {
 	if (!this->set_mode) this->Clear();
 
