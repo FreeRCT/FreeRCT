@@ -157,7 +157,7 @@ public:
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	virtual void OnMouseLeaveEvent() override;
 	virtual void TimeoutCallback() override;
-	virtual void SetHighlight(bool value);
+	virtual void SetHighlight(bool value) override;
 
 	/**
 	 * Get the horizontal position of the top-left corner of a widget (of this window) at the screen.
