@@ -23,6 +23,7 @@ src/Makefile
 src/CMakeFiles
 src/CMakeCache.txt
 src/cmake_install.cmake
+src/generated/*
 graphics/rcd/*.rcd
 graphics/rcd/*.log
 graphics/rcd/*.aux
@@ -32,8 +33,3 @@ graphics/rcd/Makefile
 graphics/rcd/CMakeFiles
 graphics/rcd/cmake_install.cmake
 graphics/rcd/dataformat.html
-src/objects/table/*.cpp
-src/objects/table/*.h
-src/table/strings.h
-src/objects/depend-freerct.txt
-src/objects/rcdgen/depend-rcdgen.txt
