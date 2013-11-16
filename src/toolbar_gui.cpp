@@ -273,11 +273,11 @@ static const WidgetPart _quit_program_widgets[] = {
 						SetData(GUI_QUIT_MESSAGE, STR_NULL), SetPadding(5, 5, 5, 5),
 			EndContainer(),
 			Intermediate(1, 5), SetPadding(0, 0, 3, 0),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
 				Widget(WT_TEXT_PUSHBUTTON, QP_NO, COL_RANGE_YELLOW), SetData(GUI_QUIT_NO, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
 				Widget(WT_TEXT_PUSHBUTTON, QP_YES, COL_RANGE_YELLOW), SetData(GUI_QUIT_YES, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, 0), SetFill(1, 0),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
 			EndContainer(),
 };
 

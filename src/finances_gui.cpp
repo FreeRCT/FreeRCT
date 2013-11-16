@@ -55,10 +55,10 @@ enum FinancesWidgets {
  * @param id the name of the category row.
  */
 #define FINANCES_ROW(id) \
-	Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, 0), \
+	Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_GREY), \
 		SetPadding(2, 10, 2, 2), \
 		SetData(GUI_FINANCES_ ## id ## _TEXT, STR_NULL), \
-	Widget(WT_RIGHT_TEXT, FIN_ ## id ## _VALUE, 0), \
+	Widget(WT_RIGHT_TEXT, FIN_ ## id ## _VALUE, COL_RANGE_GREY), \
 		SetMinimalSize(100, 10), \
 		SetPadding(2, 10, 2, 10), \
 		SetData(STR_ARG1, STR_NULL)
@@ -67,10 +67,10 @@ enum FinancesWidgets {
 static const WidgetPart _finances_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, 0), SetData(GUI_FINANCES_TITLE, GUI_TITLEBAR_TIP),
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, 0),
+			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_TITLE, GUI_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 		EndContainer(),
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, 0),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 			Intermediate(15, 2), SetPadding(2, 2, 2, 2),
 				FINANCES_ROW(RIDE_CONSTRUCTION),
 				FINANCES_ROW(RIDE_RUNNING),
