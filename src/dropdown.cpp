@@ -125,9 +125,10 @@ void DropdownMenuWindow::OnClick(WidgetNumber number)
 {
 	if (number != DD_ITEMS) return;
 
-	this->selected_index = this->mouse_pos.y / GetTextHeight();
+	int index = this->mouse_pos.y / GetTextHeight();
+	if (index >= (int)this->items.size()) return;
 
-	assert(this->selected_index < (int)this->items.size());
+	this->selected_index = index;
 
 	NotifyChange(this->parent_type, this->parent_num, CHG_DROPDOWN_RESULT, this->selected_index);
 
