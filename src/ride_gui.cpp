@@ -122,7 +122,7 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = 0;
 	for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
 		const RideType *ride_type = _rides_manager.ride_types[i];
-		if (ride_type == NULL) continue;
+		if (ride_type == nullptr) continue;
 
 		assert(ride_type->kind >= 0 && ride_type->kind < lengthof(this->ride_types));
 		this->ride_types[ride_type->kind]++;
@@ -155,7 +155,7 @@ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 
 			for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
 				const RideType *ride_type = _rides_manager.ride_types[i];
-				if (ride_type == NULL) continue;
+				if (ride_type == nullptr) continue;
 
 				int width, height;
 				GetTextSize(ride_type->GetString(ride_type->GetTypeName()), &width, &height);
@@ -167,7 +167,7 @@ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 			int max_height = 0;
 			for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
 				const RideType *ride_type = _rides_manager.ride_types[i];
-				if (ride_type == NULL) continue;
+				if (ride_type == nullptr) continue;
 
 				int width, height;
 				GetMultilineTextSize(ride_type->GetString(ride_type->GetTypeDescription()), wid->min_x, &width, &height);
@@ -189,7 +189,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			rect.y = this->GetWidgetScreenY(wid);
 			for (int i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
 				const RideType *ride_type = _rides_manager.ride_types[i];
-				if (ride_type == NULL || ride_type->kind != this->current_kind) continue;
+				if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 				if (lines <= 0) break;
 				lines--;
 
@@ -203,7 +203,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 		case RSEL_DESC:
 			if (this->current_ride != -1) {
 				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
-				if (ride_type != NULL) {
+				if (ride_type != nullptr) {
 					DrawMultilineString(ride_type->GetString(ride_type->GetTypeDescription()),
 							this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height,
 							TEXT_WHITE);
@@ -215,7 +215,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			if (this->current_ride != -1) {
 				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
 				/* Display the selected shop in the ride select window. */
-				if (ride_type != NULL && ride_type->kind == RTK_SHOP) {
+				if (ride_type != nullptr && ride_type->kind == RTK_SHOP) {
 					static const Recolouring recolour; // Never modified, display 'original' image in the GUI.
 					_video->BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
 							this->GetWidgetScreenY(wid) + 40, ride_type->GetView(_shop_placer.orientation),
@@ -257,7 +257,7 @@ void RideSelectGui::OnClick(WidgetNumber wid_num)
 					uint16 instance = _rides_manager.GetFreeInstance();
 					if (instance != INVALID_RIDE_INSTANCE) {
 						const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
-						assert(ride_type != NULL && ride_type->kind == RTK_COASTER);
+						assert(ride_type != nullptr && ride_type->kind == RTK_COASTER);
 						RideInstance *ri = _rides_manager.CreateInstance(ride_type, instance);
 						_rides_manager.NewInstanceAdded(instance);
 						ShowCoasterManagementGui(ri);
@@ -304,7 +304,7 @@ bool RideSelectGui::SetNewRide(int16 newKind, bool force)
 	if (this->ride_types[newKind] > 0) {
 		for (int i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
 			const RideType *ride_type = _rides_manager.ride_types[i];
-			if (ride_type == NULL || ride_type->kind != this->current_kind) continue;
+			if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 
 			this->current_ride = i;
 			break;
@@ -349,7 +349,7 @@ void ShowRideSelectGui()
  * @param ypos Y coordinate of the voxel.
  * @param zpos Z coordinate of the voxel.
  * @pre voxel coordinate must be valid in the world.
- * @pre \a selected_shop may not be \c NULL.
+ * @pre \a selected_shop may not be \c nullptr.
  * @return Shop can be placed at the given position.
  */
 bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos, int ypos, int zpos)
@@ -357,7 +357,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 	/* 1. Can the position itself be used to build a shop? */
 	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
-	if (vx != NULL) {
+	if (vx != nullptr) {
 		if (!vx->CanPlaceInstance()) return false; // Cannot build on a path or other ride.
 		return vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT; // Can build at a flat surface.
 	}
@@ -365,7 +365,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 	/* 2. Is the shop just above non-flat ground? */
 	if (zpos > 0) {
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
-		if (vx != NULL && vx->GetInstance() == SRI_FREE &&
+		if (vx != nullptr && vx->GetInstance() == SRI_FREE &&
 				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
 	}
 
@@ -390,12 +390,12 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 yworld, int32 zworld)
 {
 	ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
-	assert(si != NULL && si->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
+	assert(si != nullptr && si->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
 	const ShopType *st = si->GetShopType();
-	assert(st != NULL);
+	assert(st != nullptr);
 
 	Viewport *vp = GetViewport();
-	if (vp == NULL) return RPR_FAIL;
+	if (vp == nullptr) return RPR_FAIL;
 
 	int dx, dy; // Change of xworld and yworld for every (zworld / 2) change.
 	switch (vp->orientation) {
@@ -466,7 +466,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 
 			/// \todo Let the shop do this.
 			ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
-			assert(si != NULL && si->GetKind() == RTK_SHOP);
+			assert(si != nullptr && si->GetKind() == RTK_SHOP);
 			Voxel *vx = _additions.GetCreateVoxel(si->xpos, si->ypos, si->zpos, true);
 			assert(this->instance >= SRI_FULL_RIDES && this->instance <= SRI_LAST);
 			vx->SetInstance((SmallRideInstance)this->instance);
@@ -611,7 +611,7 @@ bool ShopPlacementManager::SetSelection(int ride_type)
 			/* Create/allocate new ride instance. */
 			assert(this->instance == INVALID_RIDE_INSTANCE);
 			const RideType *rt = _rides_manager.GetRideType(this->selected_ride);
-			if (rt == NULL) {
+			if (rt == nullptr) {
 				this->selected_ride = -1;
 				return false;
 			}

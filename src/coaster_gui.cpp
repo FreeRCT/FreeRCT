@@ -86,7 +86,7 @@ void ShowCoasterManagementGui(RideInstance *coaster)
 {
 	if (coaster->GetKind() != RTK_COASTER) return;
 	CoasterInstance *ci = static_cast<CoasterInstance *>(coaster);
-	assert(ci != NULL);
+	assert(ci != nullptr);
 
 	RideInstanceState ris = ci->DecideRideState();
 	if (ris == RIS_TESTING || ris == RIS_CLOSED || ris == RIS_OPEN) {
@@ -200,9 +200,9 @@ static const WidgetPart _coaster_construction_gui_parts[] = {
  * Window to build or edit a roller coaster.
  *
  * The build window can be in the following state
- * - #cur_piece is \c NULL: An initial piece is being placed, The mouse mode defines where, #build_direction defines in which direction.
- * - #cur_piece is not \c NULL, and #cur_after: A piece is added after #cur_piece.
- * - #cur_piece is not \c NULL, and not #cur_after: A piece is added before #cur_piece.
+ * - #cur_piece is \c nullptr: An initial piece is being placed, The mouse mode defines where, #build_direction defines in which direction.
+ * - #cur_piece is not \c nullptr, and #cur_after: A piece is added after #cur_piece.
+ * - #cur_piece is not \c nullptr, and not #cur_after: A piece is added before #cur_piece.
  * In the latter two cases, #cur_sel points at the piece being replaced, if it exists.
  */
 class CoasterBuildWindow : public GuiWindow {
@@ -217,12 +217,12 @@ public:
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
 
-	const PositionedTrackPiece *cur_piece; ///< Current track piece, if available (else \c NULL).
+	const PositionedTrackPiece *cur_piece; ///< Current track piece, if available (else \c nullptr).
 	bool cur_after;                        ///< Position relative to #cur_piece, \c false means before, \c true means after.
-	const PositionedTrackPiece *cur_sel;   ///< Selected track piece of #cur_piece and #cur_after, or \c NULL if no piece selected.
+	const PositionedTrackPiece *cur_sel;   ///< Selected track piece of #cur_piece and #cur_after, or \c nullptr if no piece selected.
 
 	ConstTrackPiecePtr sel_piece; ///< Currently selected piece (and not yet build), if any.
-	TileEdge build_direction;     ///< If #cur_piece is \c NULL, the direction of building.
+	TileEdge build_direction;     ///< If #cur_piece is \c nullptr, the direction of building.
 	TrackSlope sel_slope;         ///< Selected track slope at the UI, or #TSL_INVALID.
 	TrackBend sel_bend;           ///< Selected bend at the UI, or #TPB_INVALID.
 	TrackPieceBanking sel_bank;   ///< Selected bank at the UI, or #TBN_INVALID.
@@ -248,10 +248,10 @@ CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *ci) : GuiWindow(WC_COAST
 	if (first >= 0) {
 		this->cur_piece = &this->ci->pieces[first];
 		first = this->ci->FindSuccessorPiece(*this->cur_piece);
-		this->cur_sel = (first >= 0) ? &this->ci->pieces[first] : NULL;
+		this->cur_sel = (first >= 0) ? &this->ci->pieces[first] : nullptr;
 	} else {
-		this->cur_piece = NULL;
-		this->cur_sel = NULL;
+		this->cur_piece = nullptr;
+		this->cur_sel = nullptr;
 	}
 	this->cur_after = true;
 	this->build_direction = EDGE_NE;
@@ -307,7 +307,7 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget)
 				/* Piece was added, change the setup for the next piece. */
 				this->cur_piece = &this->ci->pieces[index];
 				int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
-				this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : NULL;
+				this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : nullptr;
 				this->cur_after = true;
 			}
 			this->SetupSelection();
@@ -326,14 +326,14 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget)
 			break;
 
 		case CCW_ROT_NEG:
-			if (this->cur_piece == NULL) {
+			if (this->cur_piece == nullptr) {
 				this->build_direction = (TileEdge)((this->build_direction + 1) % 4);
 				this->SetupSelection();
 			}
 			break;
 
 		case CCW_ROT_POS:
-			if (this->cur_piece == NULL) {
+			if (this->cur_piece == nullptr) {
 				this->build_direction = (TileEdge)((this->build_direction + 3) % 4);
 				this->SetupSelection();
 			}
@@ -373,9 +373,9 @@ void CoasterBuildWindow::SetupSelection()
 	uint avail_bank = 0;
 	uint avail_slope = 0;
 	uint avail_bend = 0;
-	this->sel_piece = NULL;
+	this->sel_piece = nullptr;
 
-	if (this->cur_piece == NULL || this->cur_sel == NULL) {
+	if (this->cur_piece == nullptr || this->cur_sel == nullptr) {
 		/* Only consider track pieces when there is no current positioned track piece. */
 
 		const CoasterType *ct = this->ci->GetCoasterType();
@@ -387,7 +387,7 @@ void CoasterBuildWindow::SetupSelection()
 		for (uint i = 0; i < count; i++) {
 			ConstTrackPiecePtr piece = ct->pieces[i];
 			bool avail = true;
-			if (this->cur_piece != NULL) {
+			if (this->cur_piece != nullptr) {
 				/* Connect after or before 'cur_piece'. */
 				if (this->cur_after) {
 					if (piece->entry_connect != this->cur_piece->piece->exit_connect) avail = false;
@@ -449,14 +449,14 @@ void CoasterBuildWindow::SetupSelection()
 	}
 
 	/* Set shading of rotate buttons. */
-	bool enabled = (this->cur_piece == NULL && CountBits(directions) > 1);
+	bool enabled = (this->cur_piece == nullptr && CountBits(directions) > 1);
 	this->SetWidgetShaded(CCW_ROT_NEG,  !enabled);
 	this->SetWidgetShaded(CCW_ROT_POS,  !enabled);
-	enabled = (this->cur_piece != NULL && this->cur_sel != NULL);
+	enabled = (this->cur_piece != nullptr && this->cur_sel != nullptr);
 	this->SetWidgetShaded(CCW_REMOVE,   !enabled);
 	this->SetWidgetShaded(CCW_BACKWARD, !enabled);
 	this->SetWidgetShaded(CCW_FORWARD,  !enabled);
-	enabled = (this->cur_piece != NULL && this->cur_sel == NULL);
+	enabled = (this->cur_piece != nullptr && this->cur_sel == nullptr);
 	this->SetWidgetShaded(CCW_DISPLAY_PIECE, !enabled);
 
 	this->sel_bank = static_cast<TrackPieceBanking>(this->SetButtons(CCW_BANK_NONE, TPB_COUNT, avail_bank, this->sel_bank, TPB_INVALID));
@@ -464,7 +464,7 @@ void CoasterBuildWindow::SetupSelection()
 	this->sel_bend = static_cast<TrackBend>(this->SetButtons(CCW_BEND_WIDE_LEFT, TBN_COUNT, avail_bend, this->sel_bend, TBN_INVALID));
 
 	if (this->sel_piece != nullptr) {
-		if (this->cur_piece == NULL) {
+		if (this->cur_piece == nullptr) {
 			_coaster_builder.SelectPosition(this->wnumber, this->sel_piece, this->build_direction);
 		} else {
 			if (this->cur_after) {
@@ -485,7 +485,7 @@ void CoasterBuildWindow::SetupSelection()
  */
 int CoasterBuildWindow::BuildTrackPiece()
 {
-	if (this->sel_piece == NULL) return -1;
+	if (this->sel_piece == nullptr) return -1;
 	PositionedTrackPiece ptp(_coaster_builder.track_xpos, _coaster_builder.track_ypos,
 			_coaster_builder.track_zpos, this->sel_piece);
 	if (!ptp.CanBePlaced()) return -1;
@@ -510,7 +510,7 @@ void CoasterBuildWindow::OnChange(ChangeCode code, uint32 parameter)
 		/* Piece was added, change the setup for the next piece. */
 		this->cur_piece = &this->ci->pieces[index];
 		int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
-		this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : NULL;
+		this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : nullptr;
 		this->cur_after = true;
 	}
 	this->SetupSelection();
@@ -718,7 +718,7 @@ public:
 		mode->EnableDisplay();
 		mode->UpdateDisplay(false);
 		BuilderState new_state;
-		if (mode->cur_piece == NULL) {
+		if (mode->cur_piece == nullptr) {
 			new_state = BS_ON;
 		} else if (mode->use_mousepos) {
 			new_state = BS_MOUSE;
@@ -1191,7 +1191,7 @@ void CoasterBuildMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, co
 	if ((this->mouse_state & MB_RIGHT) != 0) {
 		/* Drag the window if button is pressed down. */
 		Viewport *vp = GetViewport();
-		if (vp != NULL) vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
+		if (vp != nullptr) vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
 	}
 	_coaster_build_states[this->state]->OnMouseMoveEvent(vp, old_pos, pos);
 }
@@ -1224,7 +1224,7 @@ bool CoasterBuildMode::EnableCursors()
  */
 void CoasterBuildMode::UpdateDisplay(bool mousepos_changed)
 {
-	if (this->suppress_display || this->cur_piece == NULL) {
+	if (this->suppress_display || this->cur_piece == nullptr) {
 		DisableWorldAdditions();
 		return;
 	}

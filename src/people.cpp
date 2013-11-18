@@ -27,8 +27,8 @@ Guests _guests; ///< Guests in the world/park.
 /** Default constructor of the person list. */
 PersonList::PersonList()
 {
-	this->first = NULL;
-	this->last = NULL;
+	this->first = nullptr;
+	this->last = nullptr;
 }
 
 /** Destructor of the person list. */
@@ -43,7 +43,7 @@ PersonList::~PersonList()
  */
 bool PersonList::IsEmpty() const
 {
-	return this->first == NULL;
+	return this->first == nullptr;
 }
 
 /**
@@ -52,9 +52,9 @@ bool PersonList::IsEmpty() const
  */
 void PersonList::AddFirst(Person *p)
 {
-	p->prev = NULL;
+	p->prev = nullptr;
 	p->next = this->first;
-	if (this->first == NULL) {
+	if (this->first == nullptr) {
 		this->last = p;
 		this->first = p;
 	} else {
@@ -70,19 +70,19 @@ void PersonList::AddFirst(Person *p)
 void PersonList::Remove(Person *p)
 {
 	/* Paranoia check, the person should be in this list. */
-	assert(p != NULL);
+	assert(p != nullptr);
 	Person *here = this->first;
-	while (here != NULL && here != p) here = here->next;
+	while (here != nullptr && here != p) here = here->next;
 	assert(here == p);
 
-	if (p->prev == NULL) {
+	if (p->prev == nullptr) {
 		assert(this->first == p);
 		this->first = p->next;
 	} else {
 		p->prev->next = p->next;
 	}
 
-	if (p->next == NULL) {
+	if (p->next == nullptr) {
 		assert(this->last == p);
 		this->last = p->prev;
 	} else {
@@ -97,7 +97,7 @@ void PersonList::Remove(Person *p)
 Person *PersonList::RemoveHead()
 {
 	Person *p = this->first;
-	assert(p != NULL);
+	assert(p != nullptr);
 	this->Remove(p);
 	return p;
 }
@@ -216,7 +216,7 @@ void Guests::Initialize()
 	for (PersonType pertype = PERSON_MIN_GUEST; pertype <= PERSON_MAX_GUEST; pertype++) {
 		bool usable = true;
 		for (AnimationType antype = ANIM_BEGIN; antype <= ANIM_LAST; antype++) {
-			if (_sprite_manager.GetAnimation(antype, pertype) == NULL) {
+			if (_sprite_manager.GetAnimation(antype, pertype) == nullptr) {
 				usable = false;
 				break;
 			}
@@ -244,7 +244,7 @@ uint Guests::CountActiveGuests()
 {
 	uint count = GUEST_BLOCK_SIZE;
 	const Person *pers = this->free.first;
-	while (pers != NULL) {
+	while (pers != nullptr) {
 		assert(count > 0);
 		count--;
 		pers = pers->next;
@@ -310,5 +310,5 @@ void Guests::OnNewDay()
 	if (this->free.IsEmpty()) return; // No more quests available.
 	/* New guest! */
 	Person *p = this->free.RemoveHead();
-	if (p != NULL) p->Activate(this->start_voxel, ptype);
+	if (p != nullptr) p->Activate(this->start_voxel, ptype);
 }

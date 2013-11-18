@@ -56,8 +56,8 @@ bool IsLeftClick(uint8 state)
 Window::Window(WindowTypes wtype, WindowNumber wnumber) : rect(0, 0, 0, 0), wtype(wtype), wnumber(wnumber)
 {
 	this->timeout = 0;
-	this->higher = NULL;
-	this->lower  = NULL;
+	this->higher = nullptr;
+	this->lower  = nullptr;
 	this->flags  = 0;
 
 	_manager.AddToStack(this); // Add to window stack.
@@ -116,7 +116,7 @@ const int ComputeInitialPosition::GAP = 5;
 ComputeInitialPosition::ComputeInitialPosition()
 {
 	this->base_pos = 10;
-	this->skip = NULL;
+	this->skip = nullptr;
 }
 
 /**
@@ -153,7 +153,7 @@ Point32 ComputeInitialPosition::FindPosition(Window *new_w)
 	best.y = this->base_pos;
 
 	bool found_empty = false;
-	for (Window *w = _manager.top; w != NULL; w = w->lower) {
+	for (Window *w = _manager.top; w != nullptr; w = w->lower) {
 		if (w == new_w) continue;
 		x[0] = w->rect.base.x - new_w->rect.width - GAP;
 		x[1] = w->rect.base.x;
@@ -199,7 +199,7 @@ bool ComputeInitialPosition::IsScreenEmpty(const Rectangle32 &rect)
 			|| rect.base.x + rect.width  > _video->GetXSize()
 			|| rect.base.y + rect.height > _video->GetYSize()) return false;
 
-	for (Window *w = _manager.top; w != NULL; w = w->lower) {
+	for (Window *w = _manager.top; w != nullptr; w = w->lower) {
 		if (w == this->skip || new_prio > GetWindowZPriority(w->wtype)) continue;
 		if (w->rect.Intersects(rect)) return false;
 	}
@@ -297,17 +297,17 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 {
 	this->mouse_pos.x = -1;
 	this->mouse_pos.y = -1;
-	this->tree = NULL;
-	this->widgets = NULL;
+	this->tree = nullptr;
+	this->widgets = nullptr;
 	this->num_widgets = 0;
 	this->SetHighlight(true);
-	this->ride_type = NULL;
+	this->ride_type = nullptr;
 	this->initialized = false;
 }
 
 GuiWindow::~GuiWindow()
 {
-	if (this->tree != NULL) delete this->tree;
+	if (this->tree != nullptr) delete this->tree;
 	delete[] this->widgets;
 }
 
@@ -339,7 +339,7 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 {
 	assert(str_id != STR_INVALID);
 
-	if (this->ride_type != NULL && str_id >= STR_GENERIC_SHOP_START) return this->ride_type->GetString(str_id);
+	if (this->ride_type != nullptr && str_id >= STR_GENERIC_SHOP_START) return this->ride_type->GetString(str_id);
 	return str_id;
 }
 
@@ -360,8 +360,8 @@ void GuiWindow::ResetSize()
  */
 void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 {
-	assert(_video != NULL); // Needed for font-size calculations.
-	assert(this->tree == NULL && this->widgets == NULL);
+	assert(_video != nullptr); // Needed for font-size calculations.
+	assert(this->tree == nullptr && this->widgets == nullptr);
 
 	int16 biggest;
 	this->tree = MakeWidgetTree(parts, length, &biggest);
@@ -369,7 +369,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	if (biggest >= 0) {
 		this->num_widgets = biggest + 1;
 		this->widgets = new BaseWidget *[biggest + 1];
-		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = NULL;
+		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = nullptr;
 	}
 	this->ResetSize();
 
@@ -429,12 +429,12 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return WMME_NONE;
 
 	BaseWidget *bw = this->tree->GetWidgetByPosition(this->mouse_pos);
-	if (bw != NULL) {
+	if (bw != nullptr) {
 		if (bw->wtype == WT_TITLEBAR) return WMME_MOVE_WINDOW;
 		if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
 
 		LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
-		if (lw != NULL && lw->IsShaded()) return WMME_NONE;
+		if (lw != nullptr && lw->IsShaded()) return WMME_NONE;
 
 		if (bw->wtype == WT_TEXT_PUSHBUTTON || bw->wtype == WT_IMAGE_PUSHBUTTON) {
 			/* For mono-stable buttons, 'press' the button, and set a timeout for 'releasing' it again. */
@@ -592,13 +592,13 @@ void GuiWindow::SetHighlight(bool value)
  */
 WindowManager::WindowManager()
 {
-	this->top = NULL;
-	this->bottom = NULL;
+	this->top = nullptr;
+	this->bottom = nullptr;
 
 	/* Mouse event handling. */
 	this->mouse_pos.x = -10000; // A very unlikely position for a window.
 	this->mouse_pos.y = -10000;
-	this->current_window = NULL;
+	this->current_window = nullptr;
 	this->mouse_state = 0;
 	this->mouse_mode = WMMM_PASS_THROUGH;
 }
@@ -611,7 +611,7 @@ WindowManager::~WindowManager()
 /** Close all windows at the display. */
 void WindowManager::CloseAllWindows()
 {
-	while (this->top != NULL) {
+	while (this->top != nullptr) {
 		this->DeleteWindow(this->top);
 	}
 }
@@ -619,7 +619,7 @@ void WindowManager::CloseAllWindows()
 /** Reinitialize all windows in the display. */
 void WindowManager::ResetAllWindows()
 {
-	for (Window *w = this->top; w != NULL; w = w->lower) {
+	for (Window *w = this->top; w != nullptr; w = w->lower) {
 		w->ResetSize(); /// \todo This call should preserve the window size as much as possible.
 	}
 	_video->MarkDisplayDirty();
@@ -650,24 +650,24 @@ static uint GetWindowZPriority(WindowTypes wt)
  */
 void WindowManager::AddToStack(Window *w)
 {
-	assert(w->lower == NULL && w->higher == NULL);
+	assert(w->lower == nullptr && w->higher == nullptr);
 	assert(!this->HasWindow(w));
 
 	uint w_prio = GetWindowZPriority(w->wtype);
-	if (this->top == NULL || w_prio >= GetWindowZPriority(this->top->wtype)) {
+	if (this->top == nullptr || w_prio >= GetWindowZPriority(this->top->wtype)) {
 		/* Add to the top. */
 		w->lower = this->top;
-		w->higher = NULL;
-		if (this->top != NULL) this->top->higher = w;
+		w->higher = nullptr;
+		if (this->top != nullptr) this->top->higher = w;
 		this->top = w;
-		if (this->bottom == NULL) this->bottom = w;
+		if (this->bottom == nullptr) this->bottom = w;
 		return;
 	}
 	Window *stack = this->top;
-	while (stack->lower != NULL && w_prio < GetWindowZPriority(stack->lower->wtype)) stack = stack->lower;
+	while (stack->lower != nullptr && w_prio < GetWindowZPriority(stack->lower->wtype)) stack = stack->lower;
 
 	w->lower = stack->lower;
-	if (stack->lower != NULL) {
+	if (stack->lower != nullptr) {
 		stack->lower->higher = w;
 	} else {
 		assert(this->bottom == stack);
@@ -685,20 +685,20 @@ void WindowManager::RemoveFromStack(Window *w)
 {
 	assert(this->HasWindow(w));
 
-	if (w->higher == NULL) {
+	if (w->higher == nullptr) {
 		this->top = w->lower;
 	} else {
 		w->higher->lower = w->lower;
 	}
 
-	if (w->lower == NULL) {
+	if (w->lower == nullptr) {
 		this->bottom = w->higher;
 	} else {
 		w->lower->higher = w->higher;
 	}
 
-	w->higher = NULL;
-	w->lower  = NULL;
+	w->higher = nullptr;
+	w->lower  = nullptr;
 }
 
 /**
@@ -735,7 +735,7 @@ void WindowManager::RaiseWindow(Window *w)
 bool WindowManager::HasWindow(Window *w)
 {
 	Window *v = this->top;
-	while (v != NULL) {
+	while (v != nullptr) {
 		if (v == w) return true;
 		v = v->lower;
 	}
@@ -745,12 +745,12 @@ bool WindowManager::HasWindow(Window *w)
 /**
  * Find the window that covers a given position of the display.
  * @param pos Position of the display.
- * @return The window displayed at the given position, or \c NULL if no window.
+ * @return The window displayed at the given position, or \c nullptr if no window.
  */
 Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 {
 	Window *w = this->top;
-	while (w != NULL) {
+	while (w != nullptr) {
 		if (w->rect.IsPointInside(pos)) break;
 		w = w->lower;
 	}
@@ -778,7 +778,7 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 	switch (this->mouse_mode) {
 		case WMMM_PASS_THROUGH: {
 			this->UpdateCurrentWindow();
-			if (this->current_window == NULL) {
+			if (this->current_window == nullptr) {
 				return;
 			}
 
@@ -821,10 +821,10 @@ void WindowManager::UpdateCurrentWindow()
 	if (w == this->current_window) return;
 
 	/* Windows are different, send mouse leave/enter events. */
-	if (this->current_window != NULL && this->HasWindow(this->current_window)) this->current_window->OnMouseLeaveEvent();
+	if (this->current_window != nullptr && this->HasWindow(this->current_window)) this->current_window->OnMouseLeaveEvent();
 
 	this->current_window = w;
-	if (this->current_window != NULL) this->current_window->OnMouseEnterEvent();
+	if (this->current_window != nullptr) this->current_window->OnMouseEnterEvent();
 }
 
 /**
@@ -832,7 +832,7 @@ void WindowManager::UpdateCurrentWindow()
  */
 void WindowManager::StartWindowMove()
 {
-	if (this->current_window == NULL) {
+	if (this->current_window == nullptr) {
 		this->mouse_mode = WMMM_PASS_THROUGH;
 		return;
 	}
@@ -863,7 +863,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 	}
 
 	this->UpdateCurrentWindow();
-	if (this->current_window == NULL) {
+	if (this->current_window == nullptr) {
 		this->mouse_mode = WMMM_PASS_THROUGH;
 		this->mouse_state = newstate;
 		return;
@@ -871,7 +871,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 
 	/* Close dropdown window if click is not inside it */
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (pressed && w != NULL && !w->rect.IsPointInside(this->mouse_pos)) {
+	if (pressed && w != nullptr && !w->rect.IsPointInside(this->mouse_pos)) {
 		this->DeleteWindow(w);
 		return; // Don't handle click any further.
 	}
@@ -917,7 +917,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 void WindowManager::MouseWheelEvent(int direction)
 {
 	this->UpdateCurrentWindow();
-	if (this->current_window != NULL) this->current_window->OnMouseWheelEvent(direction);
+	if (this->current_window != nullptr) this->current_window->OnMouseWheelEvent(direction);
 }
 
 /**
@@ -927,7 +927,7 @@ void WindowManager::MouseWheelEvent(int direction)
  */
 void UpdateWindows()
 {
-	if (_video == NULL || !_video->DisplayNeedsRepaint()) return;
+	if (_video == nullptr || !_video->DisplayNeedsRepaint()) return;
 
 	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
 	 * windows truly disappear (even if there is no other window behind it).
@@ -936,7 +936,7 @@ void UpdateWindows()
 	_video->FillSurface(COL_BACKGROUND, rect);
 
 	Window *w = _manager.bottom;
-	while (w != NULL) {
+	while (w != nullptr) {
 		_video->LockSurface();
 		w->OnDraw();
 		_video->UnlockSurface();
@@ -951,7 +951,7 @@ void UpdateWindows()
 void WindowManager::Tick()
 {
 	Window *w = _manager.top;
-	while (w != NULL) {
+	while (w != nullptr) {
 		if (w->timeout > 0) {
 			w->timeout--;
 			if (w->timeout == 0) w->TimeoutCallback();
@@ -966,17 +966,17 @@ void WindowManager::Tick()
  * Find an opened window by window type.
  * @param wtype %Window type to look for.
  * @param wnumber %Window number to look for (use #ALL_WINDOWS_OF_TYPE for any window of type \a wtype).
- * @return The window with the requested type if it is opened, else \c NULL.
+ * @return The window with the requested type if it is opened, else \c nullptr.
  * @ingroup window_group
  */
 Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber)
 {
 	Window *w = _manager.top;
-	while (w != NULL) {
+	while (w != nullptr) {
 		if (w->wtype == wtype && (wnumber == ALL_WINDOWS_OF_TYPE || w->wnumber == wnumber)) return w;
 		w = w->lower;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /**
@@ -989,7 +989,7 @@ Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber)
 void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter)
 {
 	Window *w = GetWindowByType(wtype, wnumber);
-	if (w != NULL) w->OnChange(code, parameter);
+	if (w != nullptr) w->OnChange(code, parameter);
 }
 
 /**
@@ -1002,10 +1002,10 @@ void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint
 bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber)
 {
 	Window *w = GetWindowByType(wtype, wnumber);
-	if (w != NULL) {
+	if (w != nullptr) {
 		_manager.RaiseWindow(w);
 		w->SetHighlight(true);
 	}
 
-	return w != NULL;
+	return w != nullptr;
 }

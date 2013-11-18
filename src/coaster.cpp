@@ -22,7 +22,7 @@
 CoasterType::CoasterType() : RideType(RTK_COASTER)
 {
 	this->voxel_count = 0;
-	this->voxels = NULL;
+	this->voxels = nullptr;
 }
 
 CoasterType::~CoasterType()
@@ -86,7 +86,7 @@ RideInstance *CoasterType::CreateInstance() const
 
 const ImageData *CoasterType::GetView(uint8 orientation) const
 {
-	return NULL; // No preview available.
+	return nullptr; // No preview available.
 }
 
 const StringID *CoasterType::GetInstanceNames() const
@@ -140,10 +140,10 @@ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageD
 	assert(voxel_number < ct->voxel_count);
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
-	sprites[0] = NULL; // SO_PLATFORM_BACK /// \todo If platform flag, add coaster platforms.
+	sprites[0] = nullptr; // SO_PLATFORM_BACK /// \todo If platform flag, add coaster platforms.
 	sprites[1] = tv->back[orient]; // SO_RIDE
 	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
-	sprites[3] = NULL; // SO_PLATFORM_FRONT /// \todo If platform flag, add coaster platforms.
+	sprites[3] = nullptr; // SO_PLATFORM_FRONT /// \todo If platform flag, add coaster platforms.
 }
 
 uint8 CoasterInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
@@ -173,7 +173,7 @@ RideInstanceState CoasterInstance::DecideRideState()
 int CoasterInstance::GetFirstPlacedTrackPiece() const
 {
 	for (int i = 0; i < this->capacity; i++) {
-		if (this->pieces[i].piece != NULL) return i;
+		if (this->pieces[i].piece != nullptr) return i;
 	}
 	return -1;
 }
@@ -210,26 +210,26 @@ int CoasterInstance::FindSuccessorPiece(const PositionedTrackPiece &placed)
 
 /**
  * Try to make a loop with the current set of positioned track pieces.
- * @param modified [out] If not \c NULL, \c false after the call denotes the pieces array was not modified
+ * @param modified [out] If not \c nullptr, \c false after the call denotes the pieces array was not modified
  *                       (while \c true denotes it was changed).
  * @return Whether the current set of positioned track pieces can be used as a ride.
  * @note May re-order positioned track pieces.
  */
 bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 {
-	if (modified != NULL) *modified = false;
+	if (modified != nullptr) *modified = false;
 
 	/* First step, move all non-null track pieces to the start of the array. */
 	int count = 0;
 	for (int i = 0; i < this->capacity; i++) {
 		PositionedTrackPiece *ptp = this->pieces + i;
-		if (ptp->piece == NULL) continue;
+		if (ptp->piece == nullptr) continue;
 		if (i == count) {
 			count++;
 			continue;
 		}
 		Swap(this->pieces[count], *ptp);
-		if (modified != NULL) *modified = true;
+		if (modified != nullptr) *modified = true;
 		ptp->piece = nullptr;
 		count++;
 	}
@@ -244,7 +244,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 		ptp++; // Now points to pieces[i].
 		if (i != j) {
 			Swap(*ptp, this->pieces[j]); // Make piece 'j' the next positioned piece.
-			if (modified != NULL) *modified = true;
+			if (modified != nullptr) *modified = true;
 		}
 	}
 	return this->pieces[0].CanBeSuccessor(*ptp);
@@ -257,10 +257,10 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
  */
 int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 {
-	if (placed.piece == NULL || !placed.IsOnWorld()) return -1;
+	if (placed.piece == nullptr || !placed.IsOnWorld()) return -1;
 
 	for (int i = 0; i < this->capacity; i++) {
-		if (this->pieces[i].piece == NULL) {
+		if (this->pieces[i].piece == nullptr) {
 			this->pieces[i] = placed;
 			return i;
 		}

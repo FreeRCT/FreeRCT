@@ -35,8 +35,8 @@ TextString::TextString()
 /** Drop all strings. Since the text is not owned by the class, no need to free the memory. */
 void TextString::Clear()
 {
-	this->name = NULL;
-	for (uint i = 0; i < lengthof(this->languages); i++) this->languages[i] = NULL;
+	this->name = nullptr;
+	for (uint i = 0; i < lengthof(this->languages); i++) this->languages[i] = nullptr;
 }
 
 
@@ -180,7 +180,7 @@ Language::Language()
 /** Clear all loaded data. */
 void Language::Clear()
 {
-	for (uint i = 0; i < lengthof(this->registered); i++) this->registered[i] = NULL;
+	for (uint i = 0; i < lengthof(this->registered); i++) this->registered[i] = nullptr;
 	this->first_free = GUI_STRING_TABLE_END;
 }
 
@@ -196,7 +196,7 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 	/* Count the number of strings. */
 	uint num_strings = 0;
 	const char * const *str = names;
-	while (*str != NULL) {
+	while (*str != nullptr) {
 		num_strings++;
 		str++;
 	}
@@ -217,8 +217,8 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 	/* Copy strings in the expected order. */
 	uint16 number = base;
 	str = names;
-	while (*str != NULL) {
-		this->registered[number] = NULL;
+	while (*str != nullptr) {
+		this->registered[number] = nullptr;
 		for (uint i = 0; i < td.string_count; i++) {
 			const TextString *ts = td.strings + i;
 			if (!strcmp(*str, ts->name)) {
@@ -240,14 +240,14 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 const uint8 *Language::GetText(StringID number)
 {
 	static const uint8 *default_strings[] = {
-		NULL,                 // STR_NULL
+		nullptr,                 // STR_NULL
 		(const uint8 *)"",    // STR_EMPTY
 		(const uint8 *)"%1%", // STR_ARG1
 	};
 
 	if (number < lengthof(default_strings)) return default_strings[number];
 
-	if (number < lengthof(this->registered) && this->registered[number] != NULL) {
+	if (number < lengthof(this->registered) && this->registered[number] != nullptr) {
 		const uint8 *text = this->registered[number]->GetString();
 		if (*text == '\0') return (const uint8 *)"<empty text>";
 		return text;
@@ -276,7 +276,7 @@ const uint8 *Language::GetLanguageName(int lang_index)
  */
 static uint8 *CopyString(uint8 *dest, const uint8 *last, const uint8 *src)
 {
-	if (src == NULL) return dest;
+	if (src == nullptr) return dest;
 	while (*src != '\0' && dest < last) {
 		*dest = *src;
 		dest++;
@@ -383,7 +383,7 @@ void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *para
 			n = n * 10 + *ptr - '0';
 			ptr++;
 		}
-		if (params != NULL && n >= 1 && n <= (int)lengthof(params->parms)) {
+		if (params != nullptr && n >= 1 && n <= (int)lengthof(params->parms)) {
 			/* Expand parameter 'n-1'. */
 			switch (params->parms[n - 1].parm_type) {
 				case SPT_NONE:
@@ -422,7 +422,7 @@ void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *para
 		ptr++;
 	}
 	*buffer = '\0';
-	if (params != NULL) params->set_mode = false; // Clean parameters on next Set.
+	if (params != nullptr) params->set_mode = false; // Clean parameters on next Set.
 }
 
 /**

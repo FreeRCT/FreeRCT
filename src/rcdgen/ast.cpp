@@ -128,7 +128,7 @@ ExpressionRef UnaryOperator::Evaluate(const Symbol *symbols) const
 {
 	ExpressionRef result = this->child.Access()->Evaluate(symbols);
 	NumberLiteral *number = dynamic_cast<NumberLiteral *>(result.Access());
-	if (number != NULL) {
+	if (number != nullptr) {
 		Expression *expr = new NumberLiteral(number->pos, -number->value);
 		result.Give(expr);
 		return result;
@@ -187,9 +187,9 @@ IdentifierLiteral::~IdentifierLiteral()
 
 ExpressionRef IdentifierLiteral::Evaluate(const Symbol *symbols) const
 {
-	if (symbols != NULL) {
+	if (symbols != nullptr) {
 		for (;;) {
-			if (symbols->name == NULL) break;
+			if (symbols->name == nullptr) break;
 			if (strcmp(symbols->name, this->name) == 0) {
 				Expression *expr = new NumberLiteral(this->pos, symbols->value);
 				ExpressionRef result(expr);
@@ -225,7 +225,7 @@ ExpressionRef NumberLiteral::Evaluate(const Symbol *symbols) const
 /**
  * Constructor of a bitset expression node.
  * @param pos %Position that uses the 'bitset' node.
- * @param args Arguments of the bitset node, may be \c NULL.
+ * @param args Arguments of the bitset node, may be \c nullptr.
  */
 BitSet::BitSet(const Position &pos, ExpressionList *args) : Expression(pos)
 {
@@ -240,11 +240,11 @@ BitSet::~BitSet()
 ExpressionRef BitSet::Evaluate(const Symbol *symbols) const
 {
 	long long value = 0;
-	if (this->args != NULL) {
+	if (this->args != nullptr) {
 		for (std::list<ExpressionRef>::const_iterator iter = this->args->exprs.begin(); iter != this->args->exprs.end(); ++iter) {
 			ExpressionRef e = (*iter).Access()->Evaluate(symbols);
 			NumberLiteral *nl = dynamic_cast<NumberLiteral *>(e.Access());
-			if (nl == NULL) {
+			if (nl == nullptr) {
 				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", (*iter).Access()->pos.ToString());
 				exit(1);
 			}
@@ -360,7 +360,7 @@ const Position &IdentifierLine::GetPosition() const
 bool IdentifierLine::IsValid() const
 {
 	bool valid = true;
-	if (this->name == NULL) return false;
+	if (this->name == nullptr) return false;
 	if (valid && this->name[0] == '\0') valid = false;
 	if (valid && this->name[0] == '_') {
 		valid = false;
@@ -480,20 +480,20 @@ Group::~Group()
 
 /**
  * Cast the group to a #NodeGroup.
- * @return a node group if the cast succeeded, else \c NULL.
+ * @return a node group if the cast succeeded, else \c nullptr.
  */
 NodeGroup *Group::CastToNodeGroup()
 {
-	return NULL;
+	return nullptr;
 }
 
 /**
  * Cast the group to a #ExpressionGroup.
- * @return an expression group if the cast succeeded, else \c NULL.
+ * @return an expression group if the cast succeeded, else \c nullptr.
  */
 ExpressionGroup *Group::CastToExpressionGroup()
 {
-	return NULL;
+	return nullptr;
 }
 
 /**
@@ -571,7 +571,7 @@ BaseNamedValue::~BaseNamedValue()
 
 /**
  * Construct a value with a name.
- * @param name (may be \c NULL).
+ * @param name (may be \c nullptr).
  * @param group %Group value.
  */
 NamedValue::NamedValue(Name *name, Group *group) : BaseNamedValue()
@@ -589,7 +589,7 @@ NamedValue::~NamedValue()
 void NamedValue::HandleImports()
 {
 	NodeGroup *ng = this->group->CastToNodeGroup();
-	if (ng != NULL) ng->HandleImports();
+	if (ng != nullptr) ng->HandleImports();
 }
 
 /**
@@ -631,7 +631,7 @@ void NamedValueList::HandleImports()
 
 	for (std::list<BaseNamedValue *>::iterator iter = this->values.begin(); iter != this->values.end(); ++iter) {
 		ImportValue *iv = dynamic_cast<ImportValue *>(*iter);
-		if (iv != NULL) {
+		if (iv != nullptr) {
 			has_import = true;
 			NamedValueList *nv = LoadFile(iv->filename, iv->pos.line);
 			for (std::list<BaseNamedValue *>::iterator iter2 = nv->values.begin(); iter2 != nv->values.end(); ++iter2) {
@@ -651,7 +651,7 @@ void NamedValueList::HandleImports()
 
 /**
  * Load a file, and parse the contents.
- * @param filename Name of the file to load. \c NULL means to read \c stdin.
+ * @param filename Name of the file to load. \c nullptr means to read \c stdin.
  * @param line Line number of the current file.
  * @return The parsed node tree.
  */
@@ -677,21 +677,21 @@ NamedValueList *LoadFile(const char *filename, int line)
 	nest_level++;
 
 	/* Parse the input. */
-	FILE *infile = NULL;
-	if (filename != NULL) {
+	FILE *infile = nullptr;
+	if (filename != nullptr) {
 		infile = fopen(filename, "rb");
-		if (infile == NULL) {
+		if (infile == nullptr) {
 			fprintf(stderr, "Error: Could not open file \"%s\"\n", filename);
 			exit(1);
 		}
 	}
-	_parsed_data = NULL;
+	_parsed_data = nullptr;
 	SetupScanner(filename, infile);
 	yyparse();
 
-	if (infile != NULL) fclose(infile);
+	if (infile != nullptr) fclose(infile);
 
-	if (_parsed_data == NULL) {
+	if (_parsed_data == nullptr) {
 		fprintf(stderr, "Parsing of the input file did not give a result\n");
 		exit(1);
 	}
@@ -701,7 +701,7 @@ NamedValueList *LoadFile(const char *filename, int line)
 	nvs->HandleImports(); // Recursively calls this function, so _parsed_data is not safe.
 
 	/* Restore to pre-call state. */
-	include_cache[nest_level] = NULL;
+	include_cache[nest_level] = nullptr;
 	nest_level--;
 	return nvs;
 }

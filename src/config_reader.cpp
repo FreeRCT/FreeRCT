@@ -50,14 +50,14 @@ ConfigSection::~ConfigSection()
 /**
  * Get an item from a section if it exists.
  * @param key Value of the key to look for (case sensitive).
- * @return The associated item if it exists, else \c NULL.
+ * @return The associated item if it exists, else \c nullptr.
  */
 const ConfigItem *ConfigSection::GetItem(const char *key) const
 {
 	for (ConfigItemList::const_iterator iter = this->items.begin(); iter != this->items.end(); ++iter) {
 		if (!strcmp((*iter)->key, key)) return *iter;
 	}
-	return NULL;
+	return nullptr;
 }
 
 ConfigFile::ConfigFile()
@@ -92,14 +92,14 @@ static bool IsSpace(char k)
 /**
  * Strip white space from the start and end of the line.
  * @param first Start of the line.
- * @param last If supplied, the terminator of the string, \c NULL means only the start is supplied.
+ * @param last If supplied, the terminator of the string, \c nullptr means only the start is supplied.
  * @return Line with stripped front and end.
  * @note Supplied line may be modified.
  * @ingroup fileio_group
  */
-static char *StripWhitespace(char *first, char *last = NULL)
+static char *StripWhitespace(char *first, char *last = nullptr)
 {
-	if (last == NULL) {
+	if (last == nullptr) {
 		last = first;
 		while (*last != '\0') last++;
 	}
@@ -121,17 +121,17 @@ static char *StripWhitespace(char *first, char *last = NULL)
  */
 bool ConfigFile::Load(const char *fname)
 {
-	ConfigSection *current_sect = NULL;
+	ConfigSection *current_sect = nullptr;
 
 	this->Clear();
 
 	FILE *fp = fopen(fname, "rb");
-	if (fp == NULL) return false;
+	if (fp == nullptr) return false;
 
 	for (;;) {
 		char buffer[256];
 		char *line = fgets(buffer, lengthof(buffer), fp);
-		if (line == NULL) break;
+		if (line == nullptr) break;
 
 		while (*line != '\0' && IsSpace(*line)) line++;
 		if (*line == '\0' || *line == ';') continue; // Silently skip empty lines or comment lines.
@@ -149,7 +149,7 @@ bool ConfigFile::Load(const char *fname)
 			continue;
 		}
 
-		if (current_sect == NULL) continue; // No section opened, ignore such lines.
+		if (current_sect == nullptr) continue; // No section opened, ignore such lines.
 
 		/* Key/value line. */
 		char *line2 = line;
@@ -171,28 +171,28 @@ bool ConfigFile::Load(const char *fname)
 /**
  * Get a section from the configuration file.
  * @param sect_name Name of the section (case sensitive).
- * @return The section with the give name if it exists, else \c NULL.
+ * @return The section with the give name if it exists, else \c nullptr.
  */
 const ConfigSection *ConfigFile::GetSection(const char *sect_name) const
 {
 	for (ConfigSectionList::const_iterator iter = this->sections.begin(); iter != this->sections.end(); ++iter) {
 		if (!strcmp((*iter)->sect_name, sect_name)) return *iter;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /**
  * Get an item value from the configuration file.
  * @param sect_name Name of the section (case sensitive).
  * @param key Name of the key (case sensitive).
- * @return The associated value if it exists, else \c NULL.
+ * @return The associated value if it exists, else \c nullptr.
  */
 const char *ConfigFile::GetValue(const char *sect_name, const char *key) const
 {
 	const ConfigSection *sect = this->GetSection(sect_name);
-	if (sect == NULL) return NULL;
+	if (sect == nullptr) return nullptr;
 
 	const ConfigItem *item = sect->GetItem(key);
-	if (item == NULL) return NULL;
+	if (item == nullptr) return nullptr;
 	return item->value;
 }

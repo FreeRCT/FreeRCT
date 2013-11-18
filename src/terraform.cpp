@@ -127,18 +127,18 @@ TerrainChanges::~TerrainChanges()
 /**
  * Get ground data of a voxel stack.
  * @param pos Voxel stack position.
- * @return Pointer to the ground data, or \c NULL if outside the world.
+ * @return Pointer to the ground data, or \c nullptr if outside the world.
  */
 GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 {
-	if (pos.x < this->base.x || pos.x >= this->base.x + this->xsize) return NULL;
-	if (pos.y < this->base.y || pos.y >= this->base.y + this->ysize) return NULL;
+	if (pos.x < this->base.x || pos.x >= this->base.x + this->xsize) return nullptr;
+	if (pos.y < this->base.y || pos.y >= this->base.y + this->ysize) return nullptr;
 
 	GroundModificationMap::iterator iter = this->changes.find(pos);
 	if (iter == this->changes.end()) {
 		uint8 height = _world.GetGroundHeight(pos.x, pos.y);
 		const Voxel *v = _world.GetVoxel(pos.x, pos.y, height);
-		assert(v != NULL && v->GetGroundType() != GTP_INVALID);
+		assert(v != nullptr && v->GetGroundType() != GTP_INVALID);
 		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
 		iter = this->changes.insert(p).first;
 	}
@@ -206,7 +206,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
 	assert(direction == 1 || direction == -1);
 
 	GroundData *gd = this->GetGroundData(pos);
-	if (gd == NULL) return true; // Out of the bounds in the world, silently ignore.
+	if (gd == nullptr) return true; // Out of the bounds in the world, silently ignore.
 	if (gd->GetCornerModified(corner)) return true; // Corner already changed.
 
 	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
@@ -236,7 +236,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
 		pos2.x = pos.x + vc.rel_xy.x;
 		pos2.y = pos.y + vc.rel_xy.y;
 		gd = this->GetGroundData(pos2);
-		if (gd == NULL) continue;
+		if (gd == nullptr) continue;
 		if (_world.GetTileOwner(pos2.x, pos2.y) != OWN_PARK) continue;
 		uint height = gd->GetOrigHeight(vc.corner);
 		if (old_height == height && !this->ChangeCorner(pos2, vc.corner, direction)) return false;
@@ -253,7 +253,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
  */
 static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 {
-	if (v == NULL || v->IsEmpty()) return;
+	if (v == nullptr || v->IsEmpty()) return;
 
 	assert(v->GetGroundType() == GTP_INVALID);
 	uint16 instance = v->GetInstance();
@@ -297,7 +297,7 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 
 /**
  * Set foundations in a stack.
- * @param stack %Voxel stack to change (may be \c NULL).
+ * @param stack %Voxel stack to change (may be \c nullptr).
  * @param my_first Height of my first corner.
  * @param my_second Height of my second corner.
  * @param other_first Height of corner opposite to \a my_first.
@@ -307,7 +307,7 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
  */
 static void SetFoundations(VoxelStack *stack, uint8 my_first, uint8 my_second, uint8 other_first, uint8 other_second, uint8 first_bit, uint8 second_bit)
 {
-	if (stack == NULL) return;
+	if (stack == nullptr) return;
 
 	uint8 and_bits = ~(first_bit | second_bit);
 	bool is_higher = my_first > other_first || my_second > other_second; // At least one of my corners must be higher to ever add foundations.
@@ -353,14 +353,14 @@ static void SetFoundations(VoxelStack *stack, uint8 my_first, uint8 my_second, u
  */
 static void SetXFoundations(int xpos, int ypos)
 {
-	VoxelStack *first = (xpos < 0) ? NULL : _additions.GetModifyStack(xpos, ypos);
-	VoxelStack *second = (xpos + 1 == _world.GetXSize()) ? NULL : _additions.GetModifyStack(xpos + 1, ypos);
-	assert(first != NULL || second != NULL);
+	VoxelStack *first = (xpos < 0) ? nullptr : _additions.GetModifyStack(xpos, ypos);
+	VoxelStack *second = (xpos + 1 == _world.GetXSize()) ? nullptr : _additions.GetModifyStack(xpos + 1, ypos);
+	assert(first != nullptr || second != nullptr);
 
 	/* Get ground height at all corners. */
 	uint8 first_south = 0;
 	uint8 first_west  = 0;
-	if (first != NULL) {
+	if (first != nullptr) {
 		for (uint i = 0; i < first->height; i++) {
 			const Voxel *v = &first->voxels[i];
 			if (v->GetGroundType() == GTP_INVALID) continue;
@@ -374,7 +374,7 @@ static void SetXFoundations(int xpos, int ypos)
 
 	uint8 second_north = 0;
 	uint8 second_east  = 0;
-	if (second != NULL) {
+	if (second != nullptr) {
 		for (uint i = 0; i < second->height; i++) {
 			const Voxel *v = &second->voxels[i];
 			if (v->GetGroundType() == GTP_INVALID) continue;
@@ -398,14 +398,14 @@ static void SetXFoundations(int xpos, int ypos)
  */
 static void SetYFoundations(int xpos, int ypos)
 {
-	VoxelStack *first = (ypos < 0) ? NULL : _additions.GetModifyStack(xpos, ypos);
-	VoxelStack *second = (ypos + 1 == _world.GetYSize()) ? NULL : _additions.GetModifyStack(xpos, ypos + 1);
-	assert(first != NULL || second != NULL);
+	VoxelStack *first = (ypos < 0) ? nullptr : _additions.GetModifyStack(xpos, ypos);
+	VoxelStack *second = (ypos + 1 == _world.GetYSize()) ? nullptr : _additions.GetModifyStack(xpos, ypos + 1);
+	assert(first != nullptr || second != nullptr);
 
 	/* Get ground height at all corners. */
 	uint8 first_south = 0;
 	uint8 first_east  = 0;
-	if (first != NULL) {
+	if (first != nullptr) {
 		for (uint i = 0; i < first->height; i++) {
 			const Voxel *v = &first->voxels[i];
 			if (v->GetGroundType() == GTP_INVALID) continue;
@@ -419,7 +419,7 @@ static void SetYFoundations(int xpos, int ypos)
 
 	uint8 second_north = 0;
 	uint8 second_west  = 0;
-	if (second != NULL) {
+	if (second != nullptr) {
 		for (uint i = 0; i < second->height; i++) {
 			const Voxel *v = &second->voxels[i];
 			if (v->GetGroundType() == GTP_INVALID) continue;
@@ -622,7 +622,7 @@ void TileTerraformMouseMode::ActivateMode(const Point16 &pos)
 void TileTerraformMouseMode::SetCursors()
 {
 	Viewport *vp = GetViewport();
-	if (vp == NULL) return;
+	if (vp == nullptr) return;
 
 	bool single = this->xsize <= 1 && this->ysize <= 1;
 	FinderData fdata(CS_GROUND, single);
@@ -641,7 +641,7 @@ void TileTerraformMouseMode::SetCursors()
 void TileTerraformMouseMode::LeaveMode()
 {
 	Viewport *vp = GetViewport();
-	if (vp != NULL) {
+	if (vp != nullptr) {
 		vp->tile_cursor.SetInvalid();
 		vp->area_cursor.SetInvalid();
 	}

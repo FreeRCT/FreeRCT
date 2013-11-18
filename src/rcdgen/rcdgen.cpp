@@ -77,9 +77,9 @@ static void PrintUsage()
 int main(int argc, char *argv[])
 {
 	GetOptData opt_data(argc - 1, argv + 1, _options);
-	const char *header = NULL;
-	const char *code = NULL;
-	const char *prefix = NULL;
+	const char *header = nullptr;
+	const char *code = nullptr;
+	const char *prefix = nullptr;
 	const char *base = "0";
 
 	int opt_id;
@@ -116,16 +116,16 @@ int main(int argc, char *argv[])
 		}
 	} while (opt_id != -1);
 
-	if (prefix != NULL) {
+	if (prefix != nullptr) {
 		/* Prefix specified, generate strings. */
-		if (header != NULL) GenerateStringsHeaderFile(prefix, base, header);
-		if (code != NULL) GenerateStringsCodeFile(prefix, base, code);
+		if (header != nullptr) GenerateStringsHeaderFile(prefix, base, header);
+		if (code != nullptr) GenerateStringsCodeFile(prefix, base, code);
 		exit(0);
 	}
 
 	/* No --prefix, generate an RCD file. */
-	if (header != NULL) printf("Warning: --header option is not used.\n");
-	if (code != NULL) printf("Warning: --code option is not used.\n");
+	if (header != nullptr) printf("Warning: --header option is not used.\n");
+	if (code != nullptr) printf("Warning: --code option is not used.\n");
 
 	if (opt_data.numleft > 1) {
 		fprintf(stderr, "Error: Too many arguments (use -h or --help for online help)\n");
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Phase 1: Parse the input file. */
-	NamedValueList *nvs = LoadFile((opt_data.numleft == 1) ? opt_data.argv[0] : NULL);
+	NamedValueList *nvs = LoadFile((opt_data.numleft == 1) ? opt_data.argv[0] : nullptr);
 
 	/* Phase 2: Check and simplify the loaded input. */
 	FileNodeList *file_nodes = CheckTree(nvs);

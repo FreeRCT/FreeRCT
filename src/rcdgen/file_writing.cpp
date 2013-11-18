@@ -15,7 +15,7 @@
 
 FileBlock::FileBlock()
 {
-	this->data = NULL;
+	this->data = nullptr;
 	this->length = 0;
 }
 
@@ -179,7 +179,7 @@ int FileWriter::AddBlock(FileBlock *blk)
 void FileWriter::WriteFile(const char *fname)
 {
 	FILE *fp = fopen(fname, "wb");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		fprintf(stderr, "Failed to open \"%s\" for writing.", fname);
 		exit(1);
 	}

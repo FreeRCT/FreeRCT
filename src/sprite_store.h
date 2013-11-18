@@ -141,7 +141,7 @@ public:
 	uint16 type;   ///< Type of the path. @see PathTypes
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
-	ImageData *sprites[PATH_COUNT]; ///< Path sprites, may contain \c NULL sprites.
+	ImageData *sprites[PATH_COUNT]; ///< Path sprites, may contain \c nullptr sprites.
 };
 
 /**
@@ -500,7 +500,7 @@ public:
 	 */
 	const ImageData *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
 	{
-		if (this->surface[type] == NULL) return NULL;
+		if (this->surface[type] == nullptr) return nullptr;
 		return this->surface[type]->surface[_slope_rotation[surf_spr][orient]];
 	}
 
@@ -526,7 +526,7 @@ public:
 	 */
 	const ImageData *GetCursorSprite(uint8 surf_spr, ViewOrientation orient) const
 	{
-		if (this->tile_select == NULL) return NULL;
+		if (this->tile_select == nullptr) return nullptr;
 		return this->tile_select->surface[_slope_rotation[surf_spr][orient]];
 	}
 
@@ -539,7 +539,7 @@ public:
 	 */
 	const ImageData *GetCornerSprite(uint8 surf_spr, ViewOrientation orient, ViewOrientation cursor) const
 	{
-		if (this->tile_corners == NULL) return NULL;
+		if (this->tile_corners == nullptr) return nullptr;
 		return this->tile_corners->sprites[cursor][_slope_rotation[surf_spr][orient]];
 	}
 
@@ -551,7 +551,7 @@ public:
 	 */
 	const ImageData *GetArrowSprite(uint8 spr_num, ViewOrientation orient) const
 	{
-		if (this->build_arrows == NULL) return NULL;
+		if (this->build_arrows == nullptr) return nullptr;
 		assert(spr_num < 4);
 		return this->build_arrows->sprites[(spr_num + 4 - orient) % 4];
 	}
@@ -574,10 +574,10 @@ public:
 		for(AnimationSpritesMap::const_iterator iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
 			const AnimationSprites *asp = (*iter).second;
 
-			if (asp->anim_type != anim_type) return NULL;
+			if (asp->anim_type != anim_type) return nullptr;
 			if (asp->person_type == pers_type) return asp->sprites[frame_index];
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	const uint16 size; ///< Width of the tile.

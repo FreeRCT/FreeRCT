@@ -129,7 +129,7 @@ void ShowGuestInfoGui(const Person *person)
 
 	const Guest *guest = dynamic_cast<const Guest *>(person);
 
-	if (guest != NULL) {
+	if (guest != nullptr) {
 		new GuestInfoWindow(guest);
 	}
 }

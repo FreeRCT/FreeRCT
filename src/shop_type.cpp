@@ -19,7 +19,7 @@
 ShopType::ShopType() : RideType(RTK_SHOP)
 {
 	this->height = 0;
-	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = NULL;
+	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = nullptr;
 }
 
 ShopType::~ShopType()
@@ -29,7 +29,7 @@ ShopType::~ShopType()
 
 const ImageData *ShopType::GetView(uint8 orientation) const
 {
-	return (orientation < 4) ? this->views[orientation] : NULL;
+	return (orientation < 4) ? this->views[orientation] : nullptr;
 }
 
 RideInstance *ShopType::CreateInstance() const
@@ -129,10 +129,10 @@ const ShopType *ShopInstance::GetShopType() const
 
 void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
-	sprites[0] = NULL;
+	sprites[0] = nullptr;
 	sprites[1] = this->type->GetView((4 + this->orientation - orient) & 3);
-	sprites[2] = NULL;
-	sprites[3] = NULL;
+	sprites[2] = nullptr;
+	sprites[3] = nullptr;
 }
 
 /**

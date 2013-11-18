@@ -32,7 +32,7 @@ struct MaskInformation {
 /** List of bit masks. */
 static const MaskInformation _masks[] = {
 	{mask64_width, mask64_height, mask64_bits, "voxel64"},
-	{0, 0, NULL, NULL}
+	{0, 0, nullptr, nullptr}
 };
 
 /**
@@ -43,13 +43,13 @@ static const MaskInformation _masks[] = {
 static const MaskInformation *GetMask(const std::string &name)
 {
 	const MaskInformation *msk = _masks;
-	while (msk->name != NULL) {
+	while (msk->name != nullptr) {
 		if (msk->name == name) return msk;
 		msk++;
 	}
 	fprintf(stderr, "Error: Cannot find a bitmask named \"%s\"\n", name.c_str());
 	exit(1);
-	return NULL;
+	return nullptr;
 }
 
 Image::Image()
@@ -68,12 +68,12 @@ Image::~Image()
  * Load a .png file from the disk.
  * @param fname Name of the .png file to load.
  * @param mask Bitmask to apply.
- * @return An error message if loading failed, or \c NULL if loading succeeded.
+ * @return An error message if loading failed, or \c nullptr if loading succeeded.
  */
 const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 {
 	FILE *fp = fopen(fname, "rb");
-	if (fp == NULL) return "Input file does not exist";
+	if (fp == nullptr) return "Input file does not exist";
 
 	uint8 header[HEADER_SIZE];
 	if (fread(header, 1, HEADER_SIZE, fp) != HEADER_SIZE) {
@@ -86,7 +86,7 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 		return "Header indicates it is not a PNG file";
 	}
 
-	this->png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	this->png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!this->png_ptr) {
 		fclose(fp);
 		return "Failed to initialize the png data";
@@ -94,14 +94,14 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 
 	this-> info_ptr = png_create_info_struct(this->png_ptr);
 	if (!this->info_ptr) {
-		png_destroy_read_struct(&this->png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		png_destroy_read_struct(&this->png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
 		fclose(fp);
 		return "Failed to setup a png info structure";
 	}
 
 	this->end_info = png_create_info_struct(this->png_ptr);
 	if (!this->end_info) {
-		png_destroy_read_struct(&this->png_ptr, &this->info_ptr, (png_infopp)NULL);
+		png_destroy_read_struct(&this->png_ptr, &this->info_ptr, (png_infopp)nullptr);
 		fclose(fp);
 		return "Failed to setup a png end info structure";
 	}
@@ -117,7 +117,7 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 	png_init_io(this->png_ptr, fp);
 	png_set_sig_bytes(this->png_ptr, HEADER_SIZE);
 
-	png_read_png(this->png_ptr, this->info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_read_png(this->png_ptr, this->info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 
 	int bit_depth = png_get_bit_depth(this->png_ptr, this->info_ptr);
 	if (bit_depth != 8) {
@@ -126,12 +126,12 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 		return "PNG file is not an 8bpp file";
 	}
 
-	if (mask != NULL) {
+	if (mask != nullptr) {
 		this->mask = GetMask(mask->type);
 		this->mask_xpos = mask->x_pos;
 		this->mask_ypos = mask->y_pos;
 	} else {
-		this->mask = NULL;
+		this->mask = nullptr;
 		this->mask_xpos = 0;
 		this->mask_ypos = 0;
 	}
@@ -142,7 +142,7 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 
 	this->width = png_get_image_width(this->png_ptr, this->info_ptr);
 	this->height = png_get_image_height(this->png_ptr, this->info_ptr);
-	return NULL;
+	return nullptr;
 }
 
 /**
@@ -177,7 +177,7 @@ uint8 Image::GetPixel(int x, int y)
 	assert(x >= 0 && x < this->width);
 	assert(y >= 0 && y < this->height);
 
-	if (this->mask != NULL) {
+	if (this->mask != nullptr) {
 		if (x >= this->mask_xpos && x < this->mask_xpos + this->mask->width &&
 				y >= this->mask_ypos && y < this->mask_ypos + this->mask->height) {
 			const unsigned char *p = this->mask->data;
@@ -215,8 +215,8 @@ bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length)
 
 SpriteImage::SpriteImage()
 {
-	this->data = NULL;
-	this->row_sizes = NULL;
+	this->data = nullptr;
+	this->row_sizes = nullptr;
 	this->data_size = 0;
 	this->width = 0;
 	this->height = 0;
@@ -238,7 +238,7 @@ SpriteImage::~SpriteImage()
  * @param xsize Width of the sprite in the image.
  * @param ysize Height of the sprite in the image.
  * @param crop Perform cropping of the sprite.
- * @return Error message if the conversion failed, else \c NULL.
+ * @return Error message if the conversion failed, else \c nullptr.
  */
 const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop)
 {
@@ -247,8 +247,8 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	/* Remove any old data. */
 	delete[] this->data;
 	delete[] this->row_sizes;
-	this->data = NULL;
-	this->row_sizes = NULL;
+	this->data = nullptr;
+	this->row_sizes = nullptr;
 	this->data_size = 0;
 	this->height = 0;
 
@@ -290,13 +290,13 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 
 	if (xsize == 0 || ysize == 0) {
 		delete[] this->data;
-		this->data = NULL;
+		this->data = nullptr;
 		this->data_size = 0;
 		this->xoffset = 0;
 		this->yoffset = 0;
 		this->width = 0;
 		this->height = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	this->xoffset = xoffset;
@@ -305,7 +305,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	this->height = ysize;
 
 	this->row_sizes = new uint16[this->height];
-	if (this->row_sizes == NULL) return "Cannot allocate row sizes";
+	if (this->row_sizes == nullptr) return "Cannot allocate row sizes";
 
 	/* Examine the sprite, and record length of data for each row. */
 	this->data_size = 0;
@@ -341,19 +341,19 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		this->data_size += length;
 	}
 	if (this->data_size == 0) { // No pixels -> no need to store any data.
-		this->data = NULL;
-		return NULL;
+		this->data = nullptr;
+		return nullptr;
 	}
 
 	/* Copy sprite pixels. */
 	this->data = new uint8[this->data_size];
-	if (this->data == NULL) return "Cannot allocate sprite pixel memory";
+	if (this->data == nullptr) return "Cannot allocate sprite pixel memory";
 
 	uint8 *ptr = this->data;
 	for (int y = 0; y < this->height; y++) {
 		if (this->row_sizes[y] == 0) continue;
 
-		uint8 *last_header = NULL;
+		uint8 *last_header = nullptr;
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.
 		for (int x = 0; x < xsize; x++) {
 			uint8 col = img->GetPixel(xpos + x, ypos + y);
@@ -390,9 +390,9 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 			}
 			last_stored = x;
 		}
-		assert(last_header != NULL);
+		assert(last_header != nullptr);
 		*last_header |= 128; // This was the last sequence of pixels.
 	}
 	assert(ptr - this->data == this->data_size);
-	return NULL;
+	return nullptr;
 }

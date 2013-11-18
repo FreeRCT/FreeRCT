@@ -166,9 +166,9 @@ int string_line; ///< Starting line of the string.
 /* Documentation is in scanner_funcs.h, since this file is not being scanned by Doxygen. */
 void SetupScanner(const char *fname, FILE *new_file)
 {
-	yyrestart(new_file == NULL ? stdin : new_file);
+	yyrestart(new_file == nullptr ? stdin : new_file);
 	BEGIN(INITIAL);
 
-	filename = (fname == NULL) ? "<stdin>" : fname;
+	filename = (fname == nullptr) ? "<stdin>" : fname;
 	line = 1;
 }

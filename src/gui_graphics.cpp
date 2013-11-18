@@ -70,7 +70,7 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 void OverlayShaded(const Rectangle32 &rect)
 {
 	const ImageData *img = _gui_sprites.disabled;
-	if (img == NULL) return;
+	if (img == nullptr) return;
 
 	Rectangle32 r(rect);
 	r.RestrictTo(0, 0, _video->GetXSize(), _video->GetYSize());
@@ -122,7 +122,7 @@ void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment
 static uint8 *GetSingleLine(uint8 *text, int max_width, int *width)
 {
 	uint8 *start = text;
-	uint8 *best_pos = NULL;
+	uint8 *best_pos = nullptr;
 	for (;;) {
 		uint8 *current = text;
 		/* Proceed to the first white-space. */
@@ -147,7 +147,7 @@ static uint8 *GetSingleLine(uint8 *text, int max_width, int *width)
 		}
 
 		/* line_width >= max_width */
-		if (best_pos != NULL) {
+		if (best_pos != nullptr) {
 			/* There is a best position to fall back to. */
 			*current = orig;  // We will revisit this position later.
 			*best_pos = '\n'; // Insert line break.

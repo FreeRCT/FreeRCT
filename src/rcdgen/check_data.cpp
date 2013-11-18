@@ -30,7 +30,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(NodeGroup *ng);
  */
 static void ExpandExpressions(ExpressionList *exprs, ExpressionRef out[], size_t expected, const Position &pos, const char *node)
 {
-	if (exprs == NULL) {
+	if (exprs == nullptr) {
 		if (expected == 0) return;
 		fprintf(stderr, "Error at %s: No arguments found for node \"%s\" (expected %lu)\n", pos.ToString(), node, expected);
 		exit(1);
@@ -53,7 +53,7 @@ static void ExpandExpressions(ExpressionList *exprs, ExpressionRef out[], size_t
  */
 static void ExpandNoExpression(ExpressionList *exprs, const Position &pos, const char *node)
 {
-	if (exprs == NULL || exprs->exprs.size() == 0) return;
+	if (exprs == nullptr || exprs->exprs.size() == 0) return;
 
 	fprintf(stderr, "Error at %s: No arguments expected for node \"%s\" (found %lu)\n", pos.ToString(), node, exprs->exprs.size());
 	exit(1);
@@ -70,12 +70,12 @@ static char *GetString(ExpressionRef &expr, int index, const char *node)
 {
 	/* Simple case, expression is a string literal. */
 	StringLiteral *sl = dynamic_cast<StringLiteral *>(expr.Access());
-	if (sl != NULL) return sl->CopyText();
+	if (sl != nullptr) return sl->CopyText();
 
 	/* General case, compute its value. */
-	ExpressionRef expr2 = expr.Access()->Evaluate(NULL);
+	ExpressionRef expr2 = expr.Access()->Evaluate(nullptr);
 	sl = dynamic_cast<StringLiteral *>(expr2.Access());
-	if (sl == NULL) {
+	if (sl == nullptr) {
 		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a string", expr.Access()->pos.ToString(), index + 1, node);
 		exit(1);
 	}
@@ -92,16 +92,16 @@ static char *GetString(ExpressionRef &expr, int index, const char *node)
 //  * @param symbols Symbols available for use in the expression.
 //  * @return Value of the number.
 //  */
-// static long long GetNumber(Expression *expr, int index, const char *node, const Symbol *symbols = NULL)
+// static long long GetNumber(Expression *expr, int index, const char *node, const Symbol *symbols = nullptr)
 // {
 // 	/* Simple case, expression is a number literal. */
 // 	NumberLiteral *nl = dynamic_cast<NumberLiteral *>(expr);
-// 	if (nl != NULL) return nl->value;
+// 	if (nl != nullptr) return nl->value;
 //
 // 	/* General case, compute its value. */
 // 	Expression *expr2 = expr->Evaluate(symbols);
 // 	nl = dynamic_cast<NumberLiteral *>(expr2);
-// 	if (nl == NULL) {
+// 	if (nl == nullptr) {
 // 		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a number", expr->pos.ToString(), index + 1, node);
 // 		exit(1);
 // 	}
@@ -125,16 +125,16 @@ static std::shared_ptr<FileNode> ConvertFileNode(NodeGroup *ng)
 
 	for (std::list<BaseNamedValue *>::iterator iter = ng->values->values.begin(); iter != ng->values->values.end(); ++iter) {
 		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
-		assert(nv != NULL); // Should always hold, as ImportValue has been eliminated.
-		if (nv->name != NULL) fprintf(stderr, "Warning at %s: Unexpected name encountered, ignoring\n", nv->name->GetPosition().ToString());
+		assert(nv != nullptr); // Should always hold, as ImportValue has been eliminated.
+		if (nv->name != nullptr) fprintf(stderr, "Warning at %s: Unexpected name encountered, ignoring\n", nv->name->GetPosition().ToString());
 		NodeGroup *ng = nv->group->CastToNodeGroup();
-		if (ng == NULL) {
+		if (ng == nullptr) {
 			fprintf(stderr, "Error at %s: Only node groups may be added\n", nv->group->GetPosition().ToString());
 			exit(1);
 		}
 		auto bn = ConvertNodeGroup(ng);
 		auto gb = std::dynamic_pointer_cast<GameBlock>(bn);
-		if (gb == NULL) {
+		if (gb == nullptr) {
 			fprintf(stderr, "Error at %s: Only game blocks can be added to a \"file\" node\n", nv->group->GetPosition().ToString());
 			exit(1);
 		}
@@ -151,7 +151,7 @@ public:
 	ValueInformation(const ValueInformation &vi);
 	ValueInformation &operator=(const ValueInformation &vi);
 
-	long long GetNumber(const Position &pos, const char *node, const Symbol *symbols = NULL);
+	long long GetNumber(const Position &pos, const char *node, const Symbol *symbols = nullptr);
 	std::string GetString(const Position &pos, const char *node);
 	std::shared_ptr<SpriteBlock> GetSprite(const Position &pos, const char *node);
 	std::shared_ptr<Connection> GetConnection(const Position &pos, const char *node);
@@ -167,8 +167,8 @@ public:
 /** Default constructor. */
 ValueInformation::ValueInformation() : pos("", 0)
 {
-	this->expr_value.Give(NULL);
-	this->node_value = NULL;
+	this->expr_value.Give(nullptr);
+	this->node_value = nullptr;
 	this->name = "_unknown_";
 	this->used = false;
 }
@@ -180,8 +180,8 @@ ValueInformation::ValueInformation() : pos("", 0)
  */
 ValueInformation::ValueInformation(const std::string &name, const Position &pos) : pos(pos)
 {
-	this->expr_value.Give(NULL);
-	this->node_value = NULL;
+	this->expr_value.Give(nullptr);
+	this->node_value = nullptr;
 	this->name = name;
 	this->used = false;
 }
@@ -195,7 +195,7 @@ ValueInformation::ValueInformation(const ValueInformation &vi) : pos(vi.pos)
 	ValueInformation &w_vi = const_cast<ValueInformation &>(vi);
 	this->expr_value = w_vi.expr_value;
 	this->node_value = w_vi.node_value;
-	w_vi.node_value = NULL;
+	w_vi.node_value = nullptr;
 
 	this->name = vi.name;
 	this->used = vi.used;
@@ -212,7 +212,7 @@ ValueInformation &ValueInformation::operator=(const ValueInformation &vi)
 		ValueInformation &w_vi = const_cast<ValueInformation &>(vi);
 		this->expr_value = w_vi.expr_value;
 		this->node_value = w_vi.node_value;
-		w_vi.node_value = NULL;
+		w_vi.node_value = nullptr;
 
 		this->name = vi.name;
 		this->pos  = vi.pos;
@@ -230,17 +230,17 @@ ValueInformation &ValueInformation::operator=(const ValueInformation &vi)
  */
 long long ValueInformation::GetNumber(const Position &pos, const char *node, const Symbol *symbols)
 {
-	if (this->expr_value.Access() == NULL) {
+	if (this->expr_value.Access() == nullptr) {
 fail:
 		fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a numeric value\n", pos.ToString(), this->name.c_str(), node);
 		exit(1);
 	}
 	NumberLiteral *nl = dynamic_cast<NumberLiteral *>(this->expr_value.Access()); // Simple common case.
-	if (nl != NULL) return nl->value;
+	if (nl != nullptr) return nl->value;
 
 	ExpressionRef expr2 = this->expr_value.Access()->Evaluate(symbols); // Generic case, evaluate the expression.
 	nl = dynamic_cast<NumberLiteral *>(expr2.Access());
-	if (nl == NULL) goto fail;
+	if (nl == nullptr) goto fail;
 
 	return nl->value;
 }
@@ -253,17 +253,17 @@ fail:
  */
 std::string ValueInformation::GetString(const Position &pos, const char *node)
 {
-	if (this->expr_value.Access() == NULL) {
+	if (this->expr_value.Access() == nullptr) {
 fail:
 		fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a string value\n", pos.ToString(), this->name.c_str(), node);
 		exit(1);
 	}
 	StringLiteral *sl = dynamic_cast<StringLiteral *>(this->expr_value.Access()); // Simple common case.
-	if (sl != NULL) return std::string(sl->text);
+	if (sl != nullptr) return std::string(sl->text);
 
-	ExpressionRef expr2 = this->expr_value.Access()->Evaluate(NULL); // Generic case
+	ExpressionRef expr2 = this->expr_value.Access()->Evaluate(nullptr); // Generic case
 	sl = dynamic_cast<StringLiteral *>(expr2.Access());
-	if (sl == NULL) goto fail;
+	if (sl == nullptr) goto fail;
 
 	return std::string(sl->text);
 }
@@ -277,8 +277,8 @@ fail:
 std::shared_ptr<SpriteBlock> ValueInformation::GetSprite(const Position &pos, const char *node)
 {
 	auto sb = std::dynamic_pointer_cast<SpriteBlock>(this->node_value);
-	if (sb != NULL) {
-		this->node_value = NULL;
+	if (sb != nullptr) {
+		this->node_value = nullptr;
 		return sb;
 	}
 	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a sprite node\n", pos.ToString(), this->name.c_str(), node);
@@ -294,8 +294,8 @@ std::shared_ptr<SpriteBlock> ValueInformation::GetSprite(const Position &pos, co
 std::shared_ptr<Connection> ValueInformation::GetConnection(const Position &pos, const char *node)
 {
 	auto cn = std::dynamic_pointer_cast<Connection>(this->node_value);
-	if (cn != NULL) {
-		this->node_value = NULL;
+	if (cn != nullptr) {
+		this->node_value = nullptr;
 		return cn;
 	}
 	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a connection node\n", pos.ToString(), this->name.c_str(), node);
@@ -311,8 +311,8 @@ std::shared_ptr<Connection> ValueInformation::GetConnection(const Position &pos,
 std::shared_ptr<Strings> ValueInformation::GetStrings(const Position &pos, const char *node)
 {
 	auto st = std::dynamic_pointer_cast<Strings>(this->node_value);
-	if (st != NULL) {
-		this->node_value = NULL;
+	if (st != nullptr) {
+		this->node_value = nullptr;
 		return st;
 	}
 	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a strings node\n", pos.ToString(), this->name.c_str(), node);
@@ -342,7 +342,7 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInfor
 				int col = 0;
 				do {
 					const char *nm = parms_name.GetParmName(row, col);
-					vis[*length].expr_value = NULL;
+					vis[*length].expr_value = nullptr;
 					vis[*length].node_value = bn->GetSubNode(row, col, nm, il->pos);
 					vis[*length].name = std::string(nm);
 					vis[*length].pos = il->pos;
@@ -366,7 +366,7 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInfor
 			IdentifierLine *il = *col_iter;
 			if (il->IsValid()) {
 				CheckIsSingleName(il->name, il->pos);
-				vis[*length].expr_value = NULL;
+				vis[*length].expr_value = nullptr;
 				vis[*length].node_value = bn->GetSubNode(row, col, il->name, il->pos);
 				vis[*length].name = std::string(il->name);
 				vis[*length].pos = il->pos;
@@ -388,10 +388,10 @@ public:
 	const Position pos;    ///< %Position of the node.
 	const char *node_name; ///< Name of the node using the values (memory is not released).
 
-	void PrepareNamedValues(NamedValueList *values, bool allow_named, bool allow_unnamed, const Symbol *symbols = NULL);
+	void PrepareNamedValues(NamedValueList *values, bool allow_named, bool allow_unnamed, const Symbol *symbols = nullptr);
 	ValueInformation &FindValue(const char *fld_name);
 	bool HasValue(const char *fld_name);
-	long long GetNumber(const char *fld_name, const Symbol *symbols = NULL);
+	long long GetNumber(const char *fld_name, const Symbol *symbols = nullptr);
 	std::string GetString(const char *fld_name);
 	std::shared_ptr<SpriteBlock> GetSprite(const char *fld_name);
 	std::shared_ptr<Connection> GetConnection(const char *fld_name);
@@ -419,8 +419,8 @@ Values::Values(const char *node_name, const Position &pos) : pos(pos)
 
 	this->named_count = 0;
 	this->unnamed_count = 0;
-	this->named_values = NULL;
-	this->unnamed_values = NULL;
+	this->named_values = nullptr;
+	this->unnamed_values = nullptr;
 }
 
 /**
@@ -436,8 +436,8 @@ void Values::CreateValues(int named_count, int unnamed_count)
 	this->named_count = named_count;
 	this->unnamed_count = unnamed_count;
 
-	this->named_values = (named_count > 0) ? new ValueInformation[named_count] : NULL;
-	this->unnamed_values = (unnamed_count > 0) ? new ValueInformation[unnamed_count] : NULL;
+	this->named_values = (named_count > 0) ? new ValueInformation[named_count] : nullptr;
+	this->unnamed_values = (unnamed_count > 0) ? new ValueInformation[unnamed_count] : nullptr;
 }
 
 Values::~Values()
@@ -460,8 +460,8 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 	int unnamed_count = 0;
 	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); ++iter) {
 		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
-		assert(nv != NULL); // Should always hold, as ImportValue has been eliminated.
-		if (nv->name == NULL) { // Unnamed value.
+		assert(nv != nullptr); // Should always hold, as ImportValue has been eliminated.
+		if (nv->name == nullptr) { // Unnamed value.
 			if (!allow_unnamed) {
 				fprintf(stderr, "Error at %s: Value should have a name\n", nv->group->GetPosition().ToString());
 				exit(1);
@@ -483,11 +483,11 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 	unnamed_count = 0;
 	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); ++iter) {
 		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
-		assert(nv != NULL); // Should always hold, as ImportValue has been eliminated.
-		if (nv->name == NULL) { // Unnamed value.
+		assert(nv != nullptr); // Should always hold, as ImportValue has been eliminated.
+		if (nv->name == nullptr) { // Unnamed value.
 			NodeGroup *ng = nv->group->CastToNodeGroup();
-			if (ng != NULL) {
-				this->unnamed_values[unnamed_count].expr_value.Give(NULL);
+			if (ng != nullptr) {
+				this->unnamed_values[unnamed_count].expr_value.Give(nullptr);
 				this->unnamed_values[unnamed_count].node_value = ConvertNodeGroup(ng);
 				this->unnamed_values[unnamed_count].name = "???";
 				this->unnamed_values[unnamed_count].pos = ng->GetPosition();
@@ -496,9 +496,9 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 				continue;
 			}
 			ExpressionGroup *eg = nv->group->CastToExpressionGroup();
-			assert(eg != NULL);
+			assert(eg != nullptr);
 			this->unnamed_values[unnamed_count].expr_value = eg->expr.Access()->Evaluate(symbols);
-			this->unnamed_values[unnamed_count].node_value = NULL;
+			this->unnamed_values[unnamed_count].node_value = nullptr;
 			this->unnamed_values[unnamed_count].name = "???";
 			this->unnamed_values[unnamed_count].pos = ng->GetPosition();
 			this->unnamed_values[unnamed_count].used = false;
@@ -506,11 +506,11 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 			continue;
 		} else { // Named value.
 			NodeGroup *ng = nv->group->CastToNodeGroup();
-			if (ng != NULL) {
+			if (ng != nullptr) {
 				auto bn = ConvertNodeGroup(ng);
 				SingleName *sn = dynamic_cast<SingleName *>(nv->name);
-				if (sn != NULL) {
-					this->named_values[named_count].expr_value.Give(NULL);
+				if (sn != nullptr) {
+					this->named_values[named_count].expr_value.Give(nullptr);
 					this->named_values[named_count].node_value = bn;
 					this->named_values[named_count].name = std::string(sn->name);
 					this->named_values[named_count].pos = sn->pos;
@@ -519,21 +519,21 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 					continue;
 				}
 				NameTable *nt = dynamic_cast<NameTable *>(nv->name);
-				assert(nt != NULL);
+				assert(nt != nullptr);
 				AssignNames(bn, nt, this->named_values, &named_count);
 				continue;
 			}
 
 			/* Expression group. */
 			ExpressionGroup *eg = nv->group->CastToExpressionGroup();
-			assert(eg != NULL);
+			assert(eg != nullptr);
 			SingleName *sn = dynamic_cast<SingleName *>(nv->name);
-			if (sn == NULL) {
+			if (sn == nullptr) {
 				fprintf(stderr, "Error at %s: Expression must have a single name\n", nv->name->GetPosition().ToString());
 				exit(1);
 			}
 			this->named_values[named_count].expr_value = eg->expr.Access()->Evaluate(symbols);
-			this->named_values[named_count].node_value = NULL;
+			this->named_values[named_count].node_value = nullptr;
 			this->named_values[named_count].name = std::string(sn->name);
 			this->named_values[named_count].pos = sn->pos;
 			this->named_values[named_count].used = false;
@@ -709,7 +709,7 @@ static const Symbol _surface_types[] = {
 	{"long_grass",   19},
 	{"sand",         32},
 	{"cursor",       48},
-	{NULL, 0},
+	{nullptr, 0},
 };
 
 /**
@@ -756,7 +756,7 @@ static const Symbol _fund_symbols[] = {
 	{"ground",   16},
 	{"wood",     32},
 	{"brick",    48},
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /**
@@ -787,7 +787,7 @@ static std::shared_ptr<FUNDBlock> ConvertFUNDNode(NodeGroup *ng)
 /** Symbols for the PATH game block. */
 static const Symbol _path_symbols[] = {
 	{"concrete", 16},
-	{NULL, 0},
+	{nullptr, 0},
 };
 
 /** Names of the PATH sprites. */
@@ -873,7 +873,7 @@ static std::shared_ptr<PATHBlock> ConvertPATHNode(NodeGroup *ng)
 /** Symbols for the platform game block. */
 static const Symbol _platform_symbols[] = {
 	{"wood", 16},
-	{NULL, 0},
+	{nullptr, 0},
 };
 
 /** Sprite names of the platform game block. */
@@ -922,7 +922,7 @@ static std::shared_ptr<PLATBlock> ConvertPLATNode(NodeGroup *ng)
 /** Symbols for the support game block. */
 static const Symbol _support_symbols[] = {
 	{"wood", 16},
-	{NULL, 0},
+	{nullptr, 0},
 };
 
 /** Sprite names of the support game block. */
@@ -1034,12 +1034,12 @@ static std::shared_ptr<PRSGBlock> ConvertPRSGNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto pg = std::dynamic_pointer_cast<PersonGraphics>(vi.node_value);
-		if (pg == NULL) {
+		if (pg == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a person_graphics node\n", vi.pos.ToString());
 			exit(1);
 		}
 		blk->person_graphics.push_back(pg);
-		vi.node_value = NULL;
+		vi.node_value = nullptr;
 		if (blk->person_graphics.size() > 255) {
 			fprintf(stderr, "Error at %s: Too many person graphics in a PRSG block\n", vi.pos.ToString());
 			exit(1);
@@ -1059,7 +1059,7 @@ static const Symbol _anim_symbols[] = {
 	{"walk_se", 2}, // Walk in south-east direction.
 	{"walk_sw", 3}, // Walk in south-west direction.
 	{"walk_nw", 4}, // Walk in north-west direction.
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /**
@@ -1082,12 +1082,12 @@ static std::shared_ptr<ANIMBlock> ConvertANIMNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto fd = std::dynamic_pointer_cast<FrameData>(vi.node_value);
-		if (fd == NULL) {
+		if (fd == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a \"frame_data\" node\n", vi.pos.ToString());
 			exit(1);
 		}
 		blk->frames.push_back(fd);
-		vi.node_value = NULL;
+		vi.node_value = nullptr;
 		if (blk->frames.size() > 0xFFFF) {
 			fprintf(stderr, "Error at %s: Too many frames in an ANIM block\n", vi.pos.ToString());
 			exit(1);
@@ -1120,12 +1120,12 @@ static std::shared_ptr<ANSPBlock> ConvertANSPNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto sp = std::dynamic_pointer_cast<SpriteBlock>(vi.node_value);
-		if (sp == NULL) {
+		if (sp == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a \"sprite\" node\n", vi.pos.ToString());
 			exit(1);
 		}
 		blk->frames.push_back(sp);
-		vi.node_value = NULL;
+		vi.node_value = nullptr;
 		if (blk->frames.size() > 0xFFFF) {
 			fprintf(stderr, "Error at %s: Too many frames in an ANSP block\n", vi.pos.ToString());
 			exit(1);
@@ -1147,7 +1147,7 @@ static const Symbol _gbor_symbols[] = {
 	{"frame", 64},
 	{"panel", 68},
 	{"inset", 80},
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /**
@@ -1190,7 +1190,7 @@ static std::shared_ptr<GBORBlock> ConvertGBORNode(NodeGroup *ng)
 static const Symbol _gchk_symbols[] = {
 	{"check_box", 96},
 	{"radio_button", 112},
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /**
@@ -1315,11 +1315,11 @@ static std::shared_ptr<SheetBlock> ConvertSheetNode(NodeGroup *ng)
 	if (vals.HasValue("mask")) {
 		ValueInformation &vi = vals.FindValue("mask");
 		bm = std::dynamic_pointer_cast<BitMask>(vi.node_value);
-		if (bm == NULL) {
+		if (bm == nullptr) {
 			fprintf(stderr, "Error at %s: Field \"mask\" of node \"sheet\" is not a bitmask node\n", vi.pos.ToString());
 			exit(1);
 		}
-		vi.node_value = NULL;
+		vi.node_value = nullptr;
 	}
 	sb->mask = bm;
 
@@ -1356,18 +1356,18 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(NodeGroup *ng)
 		if (vals.HasValue("mask")) {
 			ValueInformation &vi = vals.FindValue("mask");
 			bm = std::dynamic_pointer_cast<BitMask>(vi.node_value);
-			if (bm == NULL) {
+			if (bm == nullptr) {
 				fprintf(stderr, "Error at %s: Field \"mask\" of node \"sprite\" is not a bitmask node\n", vi.pos.ToString());
 				exit(1);
 			}
 		}
 
-		BitMaskData *bmd = (bm == NULL) ? NULL : &bm->data;
+		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
 		Image img;
 		const char *err = img.LoadFile(file.c_str(), bmd);
-		if (err == NULL) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+		if (err == nullptr) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 
-		if (err != NULL) {
+		if (err != nullptr) {
 			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name, err);
 			exit(1);
 		}
@@ -1420,7 +1420,7 @@ static const Symbol _person_graphics_symbols[] = {
 	{"sea_green",   COL_SEA_GREEN},
 	{"pink",        COL_PINK},
 	{"beige",       COL_BEIGE},
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /** Colour ranges for the recolour node. */
@@ -1443,7 +1443,7 @@ static const Symbol _recolour_symbols[] = {
 	{"sea_green",   COL_SEA_GREEN},
 	{"pink",        COL_PINK},
 	{"beige",       COL_BEIGE},
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /**
@@ -1465,7 +1465,7 @@ static std::shared_ptr<PersonGraphics> ConvertPersonGraphicsNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto rc = std::dynamic_pointer_cast<Recolouring>(vi.node_value);
-		if (rc == NULL) {
+		if (rc == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a recolour node\n", vi.pos.ToString());
 			exit(1);
 		}
@@ -1556,7 +1556,7 @@ static const Symbol _shop_symbols[] = {
 	{"salt_food", 24},
 	{"umbrella", 32},
 	{"map", 40},
-	{NULL, 0},
+	{nullptr, 0},
 };
 
 /**
@@ -1593,7 +1593,7 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto rc = std::dynamic_pointer_cast<Recolouring>(vi.node_value);
-		if (rc == NULL) {
+		if (rc == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a \"recolour\" node\n", vi.pos.ToString());
 			exit(1);
 		}
@@ -1680,7 +1680,7 @@ static std::shared_ptr<Strings> ConvertStringsNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto tn = std::dynamic_pointer_cast<TextNode>(vi.node_value);
-		if (tn == NULL) {
+		if (tn == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a \"string\" node\n", vi.pos.ToString());
 			exit(1);
 		}
@@ -1737,7 +1737,7 @@ static const Symbol _track_voxel_symbols[] = {
 	{"east",  1},
 	{"south", 2},
 	{"west",  3},
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /**
@@ -1782,7 +1782,7 @@ static const Symbol _connection_symbols[] = {
 	{"se", 1},
 	{"sw", 2},
 	{"nw", 3},
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 /**
@@ -1810,7 +1810,7 @@ static const Symbol _track_piece_symbols[] = {
 	{"none",  0},
 	{"left",  1},
 	{"right", 2},
-	{NULL,    0}
+	{nullptr,    0}
 };
 
 /**
@@ -1843,12 +1843,12 @@ static std::shared_ptr<TrackPieceNode> ConvertTrackPieceNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto tv = std::dynamic_pointer_cast<TrackVoxel>(vi.node_value);
-		if (tv == NULL) {
+		if (tv == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a \"track_voxel\" node\n", vi.pos.ToString());
 			exit(1);
 		}
 		tb->track_voxels.push_back(tv);
-		vi.node_value = NULL;
+		vi.node_value = nullptr;
 		vi.used = true;
 	}
 
@@ -1878,12 +1878,12 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(NodeGroup *ng)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto tb = std::dynamic_pointer_cast<TrackPieceNode>(vi.node_value);
-		if (tb == NULL) {
+		if (tb == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a \"track_piece\" node\n", vi.pos.ToString());
 			exit(1);
 		}
 		rb->track_blocks.push_back(tb);
-		vi.node_value = NULL;
+		vi.node_value = nullptr;
 		vi.used = true;
 	}
 
@@ -1988,12 +1988,12 @@ FileNodeList *CheckTree(NamedValueList *values)
 		ValueInformation &vi = vals.unnamed_values[i];
 		if (vi.used) continue;
 		auto fn = std::dynamic_pointer_cast<FileNode>(vi.node_value);
-		if (fn == NULL) {
+		if (fn == nullptr) {
 			fprintf(stderr, "Error at %s: Node is not a file node\n", vi.pos.ToString());
 			exit(1);
 		}
 		file_nodes->files.push_back(fn);
-		vi.node_value = NULL;
+		vi.node_value = nullptr;
 		vi.used = true;
 	}
 	vals.VerifyUsage();
@@ -2008,8 +2008,8 @@ FileNodeList *CheckTree(NamedValueList *values)
  */
 void GenerateStringsHeaderFile(const char *prefix, const char *base, const char *header)
 {
-	const char **names = NULL;
-	const char *nice_name = NULL;
+	const char **names = nullptr;
+	const char *nice_name = nullptr;
 	uint length = 0;
 
 	if (strcmp(prefix, "GUI") == 0) {
@@ -2030,7 +2030,7 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 	}
 
 	FILE *fp = fopen(header, "w");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		fprintf(stderr, "ERROR: Cannot open header output file \"%s\" for writing.\n", header);
 		exit(1);
 	}
@@ -2065,9 +2065,9 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
  */
 void GenerateStringsCodeFile(const char *prefix, const char *base, const char *code)
 {
-	const char **names = NULL;
-	const char *nice_name = NULL;
-	const char *lower_name = NULL;
+	const char **names = nullptr;
+	const char *nice_name = nullptr;
+	const char *lower_name = nullptr;
 	uint length = 0;
 
 	if (strcmp(prefix, "GUI") == 0) {
@@ -2091,7 +2091,7 @@ void GenerateStringsCodeFile(const char *prefix, const char *base, const char *c
 	}
 
 	FILE *fp = fopen(code, "w");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		fprintf(stderr, "ERROR: Cannot open code output file \"%s\" for writing.\n", code);
 		exit(1);
 	}
@@ -2103,7 +2103,7 @@ void GenerateStringsCodeFile(const char *prefix, const char *base, const char *c
 	for (uint i = 0; i < length; i++) {
 		fprintf(fp, "\t\"%s\",\n", names[i]);
 	}
-	fprintf(fp, "\tNULL,\n");
+	fprintf(fp, "\tnullptr,\n");
 	fprintf(fp, "};\n");
 	fclose(fp);
 }

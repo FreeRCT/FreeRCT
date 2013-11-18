@@ -17,8 +17,8 @@
 
 TrackVoxel::TrackVoxel()
 {
-	for (uint i = 0; i < lengthof(this->back); i++) this->back[i] = NULL;
-	for (uint i = 0; i < lengthof(this->front); i++) this->front[i] = NULL;
+	for (uint i = 0; i < lengthof(this->back); i++) this->back[i] = nullptr;
+	for (uint i = 0; i < lengthof(this->front); i++) this->front[i] = nullptr;
 }
 
 TrackVoxel::~TrackVoxel()
@@ -52,7 +52,7 @@ bool TrackVoxel::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 TrackPiece::TrackPiece()
 {
 	this->voxel_count = 0;
-	this->track_voxels = NULL;
+	this->track_voxels = nullptr;
 }
 
 TrackPiece::~TrackPiece()
@@ -91,7 +91,7 @@ bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
 /** Default constructor. */
 PositionedTrackPiece::PositionedTrackPiece()
 {
-	this->piece = NULL;
+	this->piece = nullptr;
 }
 
 /**
@@ -116,7 +116,7 @@ PositionedTrackPiece::PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos,
  */
 bool PositionedTrackPiece::IsOnWorld() const
 {
-	assert(this->piece != NULL);
+	assert(this->piece != nullptr);
 	if (!IsVoxelInsideWorld(this->x_base, this->y_base, this->z_base)) return false;
 	if (!IsVoxelInsideWorld(this->x_base + this->piece->exit_dx, this->y_base + this->piece->exit_dy,
 			this->z_base + this->piece->exit_dz)) return false;
@@ -141,7 +141,7 @@ bool PositionedTrackPiece::CanBePlaced() const
 		/* Is the voxel above ground level? */
 		if (_world.GetGroundHeight(this->x_base + tvx->dx, this->y_base + tvx->dy) > this->z_base + tvx->dz) return false;
 		const Voxel *vx = _world.GetVoxel(this->x_base + tvx->dx, this->y_base + tvx->dy, this->z_base + tvx->dz);
-		if (vx != NULL && !vx->CanPlaceInstance()) return false;
+		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
 	}
 	return true;
 }
@@ -156,7 +156,7 @@ bool PositionedTrackPiece::CanBePlaced() const
  */
 bool PositionedTrackPiece::CanBeSuccessor(uint16 x, uint16 y, uint8 z, uint8 connect) const
 {
-	return this->piece != NULL && this->x_base == x && this->y_base == y && this->z_base == z && this->piece->entry_connect == connect;
+	return this->piece != nullptr && this->x_base == x && this->y_base == y && this->z_base == z && this->piece->entry_connect == connect;
 }
 
 /**
@@ -166,6 +166,6 @@ bool PositionedTrackPiece::CanBeSuccessor(uint16 x, uint16 y, uint8 z, uint8 con
  */
 bool PositionedTrackPiece::CanBeSuccessor(const PositionedTrackPiece &pred) const
 {
-	if (pred.piece == NULL) return false;
+	if (pred.piece == nullptr) return false;
 	return this->CanBeSuccessor(pred.GetEndX(), pred.GetEndY(), pred.GetEndZ(), pred.piece->exit_connect);
 }

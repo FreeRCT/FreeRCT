@@ -211,7 +211,7 @@ void ShowShopManagementGui(uint16 number)
 	if (HighlightWindowByType(WC_SHOP_MANAGER, number)) return;
 
 	RideInstance *ri = _rides_manager.GetRideInstance(number);
-	if (ri == NULL || ri->GetKind() != RTK_SHOP) return;
+	if (ri == nullptr || ri->GetKind() != RTK_SHOP) return;
 
 	new ShopManagerWindow(static_cast<ShopInstance *>(ri));
 }

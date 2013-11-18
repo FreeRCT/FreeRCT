@@ -306,7 +306,7 @@ void QuitProgramWindow::OnClick(WidgetNumber number)
 void ShowQuitProgram()
 {
 	Window *w = GetWindowByType(WC_QUIT, ALL_WINDOWS_OF_TYPE);
-	if (w != NULL) _manager.DeleteWindow(w);
+	if (w != nullptr) _manager.DeleteWindow(w);
 
 	new QuitProgramWindow();
 }

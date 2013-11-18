@@ -35,8 +35,8 @@ int ParameterizedNameRange::size() const
 ParameterizedName::ParameterizedName()
 {
 	this->result = HV_NONE;
-	this->name = NULL;
-	this->variant = NULL;
+	this->name = nullptr;
+	this->variant = nullptr;
 }
 
 ParameterizedName::~ParameterizedName()
@@ -114,9 +114,9 @@ HorVert ParameterizedName::DecodeName(const char *name, const Position &pos)
 	const char *p = name;
 
 	delete[] this->name;
-	this->name = NULL;
+	this->name = nullptr;
 	delete[] this->variant;
-	this->variant = NULL;
+	this->variant = nullptr;
 
 	this->result = HV_NONE;
 	while (*p) {
@@ -179,7 +179,7 @@ HorVert ParameterizedName::DecodeName(const char *name, const Position &pos)
  */
 const char *ParameterizedName::GetParmName(int row, int col)
 {
-	assert(this->variant != NULL);
+	assert(this->variant != nullptr);
 	char *dest = this->variant;
 	int i = 0;
 	while (this->name[i] != '\0') {

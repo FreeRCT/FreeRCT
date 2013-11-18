@@ -51,7 +51,7 @@ RideType::RideType(RideTypeKind rtk) : kind(rtk)
 	this->monthly_open_cost = 12345; // Arbitrary non-zero cost.
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_type[i] = ITP_NOTHING;
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_cost[i] = 12345; // Arbitrary non-zero cost.
-	this->SetupStrings(NULL, 0, 0, 0, 0, 0);
+	this->SetupStrings(nullptr, 0, 0, 0, 0, 0);
 }
 
 RideType::~RideType()
@@ -69,7 +69,7 @@ RideType::~RideType()
  * Get a display of the ride type for the purchase screen.
  * @param orientation Orientation of the ride type. Many ride types have \c 4 view orientations,
  *                    but some types may have only a view for orientation \c 0.
- * @return An image to display in the purchase window, or \c NULL if the queried orientation has no view.
+ * @return An image to display in the purchase window, or \c nullptr if the queried orientation has no view.
  */
 
 /**
@@ -301,8 +301,8 @@ void RideInstance::BuildRide()
 /** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = NULL;
-	for (uint i = 0; i < lengthof(this->instances); i++) this->instances[i] = NULL;
+	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = nullptr;
+	for (uint i = 0; i < lengthof(this->instances); i++) this->instances[i] = nullptr;
 }
 
 RidesManager::~RidesManager()
@@ -315,7 +315,7 @@ RidesManager::~RidesManager()
 void RidesManager::OnNewMonth()
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == NULL || this->instances[i]->state == RIS_ALLOCATED) continue;
+		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
 		this->instances[i]->OnNewMonth();
 	}
 }
@@ -323,26 +323,26 @@ void RidesManager::OnNewMonth()
 /**
  * Get the requested ride instance.
  * @param num Ride number to retrieve.
- * @return The requested ride, or \c NULL if not available.
+ * @return The requested ride, or \c nullptr if not available.
  */
 RideInstance *RidesManager::GetRideInstance(uint16 num)
 {
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
-	if (num >= lengthof(this->instances)) return NULL;
+	if (num >= lengthof(this->instances)) return nullptr;
 	return this->instances[num];
 }
 
 /**
  * Get the requested ride instance (read-only).
  * @param num Ride instance to retrieve.
- * @return The requested ride, or \c NULL if not available.
+ * @return The requested ride, or \c nullptr if not available.
  */
 const RideInstance *RidesManager::GetRideInstance(uint16 num) const
 {
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
-	if (num >= lengthof(this->instances)) return NULL;
+	if (num >= lengthof(this->instances)) return nullptr;
 	return this->instances[num];
 }
 
@@ -366,7 +366,7 @@ uint16 RideInstance::GetIndex() const
 bool RidesManager::AddRideType(RideType *type)
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) {
-		if (this->ride_types[i] == NULL) {
+		if (this->ride_types[i] == nullptr) {
 			this->ride_types[i] = type;
 			return true;
 		}
@@ -381,7 +381,7 @@ bool RidesManager::AddRideType(RideType *type)
 uint16 RidesManager::GetFreeInstance()
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == NULL) return i + SRI_FULL_RIDES;
+		if (this->instances[i] == nullptr) return i + SRI_FULL_RIDES;
 	}
 	return INVALID_RIDE_INSTANCE;
 }
@@ -397,7 +397,7 @@ RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
-	assert(this->instances[num] == NULL);
+	assert(this->instances[num] == nullptr);
 	this->instances[num] = type->CreateInstance();
 	return this->instances[num];
 }
@@ -405,15 +405,15 @@ RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
 /**
  * Check whether a ride exists with the given name.
  * @param name Name of the ride to find.
- * @return The ride with the given name, or \c NULL if no such ride exists.
+ * @return The ride with the given name, or \c nullptr if no such ride exists.
  */
 RideInstance *RidesManager::FindRideByName(const uint8 *name)
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == NULL || this->instances[i]->state == RIS_ALLOCATED) continue;
+		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
 		if (StrEqual(name, this->instances[i]->name)) return this->instances[i];
 	}
-	return NULL;
+	return nullptr;
 }
 
 /**
@@ -428,7 +428,7 @@ void RidesManager::NewInstanceAdded(uint16 num)
 
 	/* Find a new name for the instance. */
 	const StringID *names = rt->GetInstanceNames();
-	assert(names != NULL && names[0] != STR_INVALID); // Empty array of names loops forever below.
+	assert(names != nullptr && names[0] != STR_INVALID); // Empty array of names loops forever below.
 	int idx = 0;
 	int shop_num = 1;
 	for (;;) {
@@ -446,7 +446,7 @@ void RidesManager::NewInstanceAdded(uint16 num)
 			DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, lengthof(ri->name));
 		}
 
-		if (this->FindRideByName(ri->name) == NULL) break;
+		if (this->FindRideByName(ri->name) == nullptr) break;
 
 		idx++;
 	}
@@ -485,7 +485,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
 	delete this->instances[num];
-	this->instances[num] = NULL;
+	this->instances[num] = nullptr;
 }
 
 /**
@@ -495,7 +495,7 @@ void RidesManager::DeleteInstance(uint16 num)
 void RidesManager::CheckNoAllocatedRides() const
 {
 	for (uint i = 0; i < lengthof(this->instances); i++) {
-		assert(this->instances[i] == NULL || this->instances[i]->state != RIS_ALLOCATED);
+		assert(this->instances[i] == nullptr || this->instances[i]->state != RIS_ALLOCATED);
 	}
 }
 
@@ -506,20 +506,20 @@ void RidesManager::CheckNoAllocatedRides() const
  * @param zpos Z coordinate of the voxel.
  * @param edge Direction to move to get the neighbouring voxel.
  * @pre voxel coordinate must be valid in the world.
- * @return The ride at the neighbouring voxel, if available (else \c NULL is returned).
+ * @return The ride at the neighbouring voxel, if available (else \c nullptr is returned).
  */
 const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge)
 {
 	xpos += _tile_dxy[edge].x;
 	ypos += _tile_dxy[edge].y;
-	if (!IsVoxelstackInsideWorld(xpos, ypos)) return NULL;
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return nullptr;
 
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
-	if (vx == NULL || vx->GetInstance() < SRI_FULL_RIDES) {
+	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) {
 		/* No ride here, check the voxel below. */
-		if (zpos == 0) return NULL;
+		if (zpos == 0) return nullptr;
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
 	}
-	if (vx == NULL || vx->GetInstance() < SRI_FULL_RIDES) return NULL;
+	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) return nullptr;
 	return _rides_manager.GetRideInstance(vx->GetInstance());
 }

@@ -167,11 +167,11 @@ public:
 	/**
 	 * Get a ride type from the class.
 	 * @param number Index of the ride type to retrieve.
-	 * @return The ride type, or \c NULL if it does not exist.
+	 * @return The ride type, or \c nullptr if it does not exist.
 	 */
 	const RideType *GetRideType(uint16 number) const
 	{
-		if (number >= lengthof(this->ride_types)) return NULL;
+		if (number >= lengthof(this->ride_types)) return nullptr;
 		return this->ride_types[number];
 	}
 

@@ -128,7 +128,7 @@ public:
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
-	char *name; ///< Name of the person. \c NULL means it has a default name (like "Guest XYZ").
+	char *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
 
 	TileEdge GetCurrentEdge() const;
 

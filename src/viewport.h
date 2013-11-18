@@ -121,7 +121,7 @@ public:
 	 * @param xpos Expected x coordinate of the cursor.
 	 * @param ypos Expected y coordinate of the cursor.
 	 * @param zpos Expected z coordinate of the cursor.
-	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c NULL.
+	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
 	 */
 	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) = 0;
 

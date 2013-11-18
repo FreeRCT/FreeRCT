@@ -71,7 +71,7 @@ const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
 /** Default constructor of a in-memory RCD block. */
 RcdBlock::RcdBlock()
 {
-	this->next = NULL;
+	this->next = nullptr;
 }
 
 RcdBlock::~RcdBlock()
@@ -83,8 +83,8 @@ ImageData::ImageData() : RcdBlock()
 {
 	this->width = 0;
 	this->height = 0;
-	this->table = NULL;
-	this->data = NULL;
+	this->table = nullptr;
+	this->data = nullptr;
 }
 
 ImageData::~ImageData()
@@ -120,7 +120,7 @@ bool ImageData::Load(RcdFile *rcd_file, size_t length)
 
 	this->table = new uint32[jmp_table / 4];
 	this->data  = new uint8[length];
-	if (this->table == NULL || this->data == NULL) return false;
+	if (this->table == nullptr || this->data == nullptr) return false;
 
 	/* Load jump table, adjusting the entries while loading. */
 	for (uint i = 0; i < this->height; i++) {
@@ -345,14 +345,14 @@ bool TextData::Load(RcdFile *rcd_file, uint32 length)
 	this->strings = new TextString[used_strings];
 	this->string_count = used_strings;
 	this->text_data = new uint8[used_size];
-	if (this->strings == NULL || this->text_data == NULL) return false;
+	if (this->strings == nullptr || this->text_data == nullptr) return false;
 
 	memcpy(this->text_data, buffer, used_size);
 	for (uint i = 0; i < used_strings; i++) {
-		this->strings[i].name = (strings[i].name == NULL) ? NULL : (char *)this->text_data + ((uint8 *)(strings[i].name) - buffer);
+		this->strings[i].name = (strings[i].name == nullptr) ? nullptr : (char *)this->text_data + ((uint8 *)(strings[i].name) - buffer);
 		for (uint lng = 0; lng < LANGUAGE_COUNT; lng++) {
-			this->strings[i].languages[lng] = (strings[i].languages[lng] == NULL)
-					? NULL : this->text_data + (strings[i].languages[lng] - buffer);
+			this->strings[i].languages[lng] = (strings[i].languages[lng] == nullptr)
+					? nullptr : this->text_data + (strings[i].languages[lng] - buffer);
 		}
 	}
 	return true;
@@ -369,7 +369,7 @@ bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
-		*spr = NULL;
+		*spr = nullptr;
 		return true;
 	}
 	ImageMap::const_iterator iter = sprites.find(val);
@@ -389,7 +389,7 @@ bool LoadTextFromFile(RcdFile *rcd_file, const TextMap &texts, TextData **txt)
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
-		*txt = NULL;
+		*txt = nullptr;
 		return true;
 	}
 	TextMap::const_iterator iter = texts.find(val);
@@ -403,7 +403,7 @@ SurfaceData::SurfaceData() : RcdBlock()
 	this->width = 0;
 	this->height = 0;
 	this->type = 0;
-	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = NULL;
+	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = nullptr;
 }
 
 SurfaceData::~SurfaceData()
@@ -446,7 +446,7 @@ TileSelection::TileSelection() : RcdBlock()
 {
 	this->width = 0;
 	this->height = 0;
-	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = NULL;
+	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = nullptr;
 }
 
 TileSelection::~TileSelection()
@@ -479,7 +479,7 @@ Path::Path() : RcdBlock()
 	this->type = PT_INVALID;
 	this->width = 0;
 	this->height = 0;
-	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
 }
 
 Path::~Path()
@@ -516,7 +516,7 @@ TileCorners::TileCorners() : RcdBlock()
 	this->height = 0;
 	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
 		for (uint i = 0; i < NUM_SLOPE_SPRITES; i++) {
-			this->sprites[v][i] = NULL;
+			this->sprites[v][i] = nullptr;
 		}
 	}
 }
@@ -553,7 +553,7 @@ Foundation::Foundation() : RcdBlock()
 	this->type = FDT_INVALID;
 	this->width = 0;
 	this->height = 0;
-	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
 }
 
 Foundation::~Foundation()
@@ -591,8 +591,8 @@ Platform::Platform() : RcdBlock()
 {
 	this->width = 0;
 	this->height = 0;
-	this->flat[0] = NULL; this->flat[1] = NULL;
-	for (uint i = 0; i < lengthof(this->ramp); i++) this->ramp[i] = NULL;
+	this->flat[0] = nullptr; this->flat[1] = nullptr;
+	for (uint i = 0; i < lengthof(this->ramp); i++) this->ramp[i] = nullptr;
 }
 
 Platform::~Platform()
@@ -634,7 +634,7 @@ Support::Support() : RcdBlock()
 	this->type = 0;
 	this->width = 0;
 	this->height = 0;
-	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) this->sprites[sprnum] = NULL;
+	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) this->sprites[sprnum] = nullptr;
 }
 
 Support::~Support()
@@ -665,7 +665,7 @@ bool Support::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 DisplayedObject::DisplayedObject() : RcdBlock()
 {
 	this->width = 0;
-	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = NULL;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
 }
 
 DisplayedObject::~DisplayedObject()
@@ -697,7 +697,7 @@ Animation::Animation() : RcdBlock()
 	this->frame_count = 0;
 	this->person_type = PERSON_INVALID;
 	this->anim_type = ANIM_INVALID;
-	this->frames = NULL;
+	this->frames = nullptr;
 }
 
 /** %Animation destructor. */
@@ -742,7 +742,7 @@ bool Animation::Load(RcdFile *rcd_file, size_t length)
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 6) return false;
 	this->frames = new AnimationFrame[this->frame_count];
-	if (this->frames == NULL || this->frame_count == 0) return false;
+	if (this->frames == nullptr || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {
 		AnimationFrame *frame = this->frames + i;
@@ -766,7 +766,7 @@ AnimationSprites::AnimationSprites() : RcdBlock()
 	this->frame_count = 0;
 	this->person_type = PERSON_INVALID;
 	this->anim_type = ANIM_INVALID;
-	this->sprites = NULL;
+	this->sprites = nullptr;
 }
 
 /** Animation sprites destructor. */
@@ -799,7 +799,7 @@ bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const ImageMap &sp
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 4) return false;
 	this->sprites = new ImageData *[this->frame_count];
-	if (this->sprites == NULL || this->frame_count == 0) return false;
+	if (this->sprites == nullptr || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[i])) return false;
@@ -821,8 +821,8 @@ void BorderSpriteData::Clear()
 	this->vert_stepsize = 0;
 
 	for (int i = 0; i < WBS_COUNT; i++) {
-		this->normal[i] = NULL;
-		this->pressed[i] = NULL;
+		this->normal[i] = nullptr;
+		this->pressed[i] = nullptr;
 	}
 }
 
@@ -848,7 +848,7 @@ bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const ImageMap &spri
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
-	BorderSpriteData *sprdata = NULL;
+	BorderSpriteData *sprdata = nullptr;
 	bool pressed = false;
 	switch (tp) {
 		case 32: sprdata = &this->titlebar;       pressed = false; break;
@@ -889,7 +889,7 @@ void CheckableWidgetSpriteData::Clear()
 	this->height = 0;
 
 	for (uint sprnum = 0; sprnum < WCS_COUNT; sprnum++) {
-		this->sprites[sprnum] = NULL;
+		this->sprites[sprnum] = nullptr;
 	}
 }
 
@@ -916,7 +916,7 @@ bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &spri
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
-	CheckableWidgetSpriteData *sprdata = NULL;
+	CheckableWidgetSpriteData *sprdata = nullptr;
 	switch (tp) {
 		case 96:  sprdata = &this->checkbox; break;
 		case 112: sprdata = &this->radio_button; break;
@@ -931,7 +931,7 @@ bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &spri
 		if (!LoadSpriteFromFile(rcd_file, sprites, &spr)) return false;
 		sprdata->sprites[sprnum] = spr;
 
-		if (spr != NULL) {
+		if (spr != nullptr) {
 			sprdata->width = max(sprdata->width, spr->width);
 			sprdata->height = max(sprdata->height, spr->height);
 		}
@@ -947,8 +947,8 @@ void SliderSpriteData::Clear()
 	this->height = 0;
 
 	for (uint sprnum = 0; sprnum < WSS_COUNT; sprnum++) {
-		this->normal[sprnum] = NULL;
-		this->shaded[sprnum] = NULL;
+		this->normal[sprnum] = nullptr;
+		this->shaded[sprnum] = nullptr;
 	}
 }
 
@@ -979,7 +979,7 @@ bool GuiSprites::LoadGSLI(RcdFile *rcd_file, size_t length, const ImageMap &spri
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
-	SliderSpriteData *sprdata = NULL;
+	SliderSpriteData *sprdata = nullptr;
 	bool shaded = false;
 	switch (tp) {
 		case 128: sprdata = &this->hor_slider;  shaded = false; break;
@@ -1014,8 +1014,8 @@ void ScrollbarSpriteData::Clear()
 	this->height = 0;
 
 	for (uint sprnum = 0; sprnum < WLS_COUNT; sprnum++) {
-		this->normal[sprnum] = NULL;
-		this->shaded[sprnum] = NULL;
+		this->normal[sprnum] = nullptr;
+		this->shaded[sprnum] = nullptr;
 	}
 }
 
@@ -1048,7 +1048,7 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &spri
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
-	ScrollbarSpriteData *sprdata = NULL;
+	ScrollbarSpriteData *sprdata = nullptr;
 	bool shaded = false;
 	bool vertical = false;
 	switch (tp) {
@@ -1077,7 +1077,7 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &spri
 			sprdata->normal[sprnum] = spr;
 		}
 
-		if (spr != NULL) {
+		if (spr != nullptr) {
 			max_width = max(max_width, spr->width);
 			max_height = max(max_height, spr->height);
 		}
@@ -1157,20 +1157,20 @@ void GuiSprites::Clear()
 	this->hor_scroll.Clear();
 	this->vert_scroll.Clear();
 
-	for (uint i = 0; i < lengthof(this->slope_select); i++) this->slope_select[i] = NULL;
-	for (uint i = 0; i < TBN_COUNT; i++) this->bend_select[i] = NULL;
-	for (uint i = 0; i < TPB_COUNT; i++) this->bank_select[i] = NULL;
-	this->triangle_left = NULL;
-	this->triangle_right = NULL;
-	this->triangle_up = NULL;
-	this->triangle_down = NULL;
-	this->disabled = NULL;
-	this->rot_2d_pos = NULL;
-	this->rot_2d_neg = NULL;
-	this->rot_3d_pos = NULL;
-	this->rot_3d_neg = NULL;
-	this->close_sprite = NULL;
-	this->dot_sprite = NULL;
+	for (uint i = 0; i < lengthof(this->slope_select); i++) this->slope_select[i] = nullptr;
+	for (uint i = 0; i < TBN_COUNT; i++) this->bend_select[i] = nullptr;
+	for (uint i = 0; i < TPB_COUNT; i++) this->bank_select[i] = nullptr;
+	this->triangle_left = nullptr;
+	this->triangle_right = nullptr;
+	this->triangle_up = nullptr;
+	this->triangle_down = nullptr;
+	this->disabled = nullptr;
+	this->rot_2d_pos = nullptr;
+	this->rot_2d_neg = nullptr;
+	this->rot_3d_pos = nullptr;
+	this->rot_3d_neg = nullptr;
+	this->close_sprite = nullptr;
+	this->dot_sprite = nullptr;
 }
 
 /**
@@ -1185,7 +1185,7 @@ bool GuiSprites::HasSufficientGraphics() const
 			&& this->panel.IsLoaded()          && this->inset_frame.IsLoaded()
 			&& this->checkbox.IsLoaded()       && this->radio_button.IsLoaded()
 			&& this->hor_scroll.IsLoaded()     && this->vert_scroll.IsLoaded()
-			&& this->close_sprite != NULL;
+			&& this->close_sprite != nullptr;
 }
 
 /**
@@ -1205,12 +1205,12 @@ SpriteStorage::~SpriteStorage()
 /** Clear all data from the storage. */
 void SpriteStorage::Clear()
 {
-	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = NULL;
-	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = NULL;
-	this->tile_select = NULL;
-	this->tile_corners = NULL;
-	this->path_sprites = NULL;
-	this->build_arrows = NULL;
+	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = nullptr;
+	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = nullptr;
+	this->tile_select = nullptr;
+	this->tile_corners = nullptr;
+	this->path_sprites = nullptr;
+	this->build_arrows = nullptr;
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
 }
 
@@ -1337,7 +1337,7 @@ void SpriteStorage::AddAnimationSprites(AnimationSprites *an_spr)
 SpriteManager::SpriteManager() : store(64)
 {
 	_gui_sprites.Clear();
-	this->blocks = NULL;
+	this->blocks = nullptr;
 }
 
 /** Sprite manager destructor. */
@@ -1345,7 +1345,7 @@ SpriteManager::~SpriteManager()
 {
 	_gui_sprites.Clear();
 	this->animations.clear(); // Blocks get deleted through the 'this->blocks' below.
-	while (this->blocks != NULL) {
+	while (this->blocks != nullptr) {
 		RcdBlock *next_block = this->blocks->next;
 		delete this->blocks;
 		this->blocks = next_block;
@@ -1356,7 +1356,7 @@ SpriteManager::~SpriteManager()
 /**
  * Load sprites from the disk.
  * @param filename Name of the RCD file to load.
- * @return Error message if load failed, else \c NULL.
+ * @return Error message if load failed, else \c nullptr.
  * @todo Try to re-use already loaded blocks.
  * @todo Code will use last loaded surface as grass.
  */
@@ -1375,7 +1375,7 @@ const char *SpriteManager::Load(const char *filename)
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
 		size_t remain = rcd_file.GetRemaining();
-		if (remain == 0) return NULL; // End reached.
+		if (remain == 0) return nullptr; // End reached.
 
 		if (remain < 12) return "Insufficient space for a block"; // Not enough for a rcd block header, abort.
 
@@ -1625,21 +1625,21 @@ const char *SpriteManager::Load(const char *filename)
 bool SpriteManager::LoadRcdFiles()
 {
 	DirectoryReader *reader = MakeDirectoryReader();
-	const char *mesg = NULL;
+	const char *mesg = nullptr;
 
 	reader->OpenPath(RCD_FILE_POSITION);
-	while (mesg == NULL) {
+	while (mesg == nullptr) {
 		const char *name = reader->NextFile();
-		if (name == NULL) break;
+		if (name == nullptr) break;
 		if (!StrEndsWith(name, ".rcd", false)) continue;
 
 		mesg = this->Load(name);
-		if (mesg != NULL) fprintf(stderr, "Error while reading \"%s\": %s\n", name, mesg);
+		if (mesg != nullptr) fprintf(stderr, "Error while reading \"%s\": %s\n", name, mesg);
 	}
 	reader->ClosePath();
 	delete reader;
 
-	return mesg == NULL;
+	return mesg == nullptr;
 }
 
 /**
@@ -1655,12 +1655,12 @@ void SpriteManager::AddBlock(RcdBlock *block)
 /**
  * Get a sprite store of a given size.
  * @param size Requested size.
- * @return Sprite store with sprites of the requested size, if it exists, else \c NULL.
+ * @return Sprite store with sprites of the requested size, if it exists, else \c nullptr.
  * @todo Add support for other sprite sizes as well.
  */
 const SpriteStorage *SpriteManager::GetSprites(uint16 size) const
 {
-	if (size != 64) return NULL;
+	if (size != 64) return nullptr;
 	return &this->store;
 }
 
@@ -1683,7 +1683,7 @@ void SpriteManager::SetSpriteSize(uint16 first, uint16 end, Rectangle16 &rect)
 {
 	for (uint16 i = first; i < end; i++) {
 		const ImageData *imd = this->GetTableSprite(i);
-		if (imd == NULL || imd->width == 0 || imd->height == 0) continue;
+		if (imd == nullptr || imd->width == 0 || imd->height == 0) continue;
 		rect.AddPoint(imd->xoffset, imd->yoffset);
 		rect.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
 	}
@@ -1723,7 +1723,7 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 
 	/* 'Simple' single sprites. */
 	const ImageData *imd = this->GetTableSprite(number);
-	if (imd != NULL && imd->width != 0 && imd->height != 0) {
+	if (imd != nullptr && imd->width != 0 && imd->height != 0) {
 		result.width = 0; result.height = 0;
 		result.AddPoint(imd->xoffset, imd->yoffset);
 		result.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
@@ -1738,7 +1738,7 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 /**
  * Get the image data for the GUI according to the table in <tt>table/gui_sprites.h</tt>.
  * @param number Number of the sprite to get.
- * @return The sprite if available, else \c NULL.
+ * @return The sprite if available, else \c nullptr.
  * @todo Add lots of missing sprites.
  * @todo Make this more efficient; linearly trying every entry scales badly.
  */
@@ -1760,15 +1760,15 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number == SPR_GUI_ROT2D_NEG) return _gui_sprites.rot_2d_neg;
 	if (number == SPR_GUI_ROT3D_POS) return _gui_sprites.rot_3d_pos;
 	if (number == SPR_GUI_ROT3D_NEG) return _gui_sprites.rot_3d_neg;
-	if (number == SPR_GUI_BULLDOZER) return NULL;
-	return NULL;
+	if (number == SPR_GUI_BULLDOZER) return nullptr;
+	return nullptr;
 }
 
 /**
  * Get the animation frames of the requested animation for the provided type of person.
  * @param anim_type %Animation to retrieve.
  * @param per_type %Animation should feature this type of person.
- * @return The requested animation if it is available, else \c NULL is returned.
+ * @return The requested animation if it is available, else \c nullptr is returned.
  * @todo Put this in a static array to make rendering people much cheaper.
  */
 const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType per_type) const
@@ -1778,5 +1778,5 @@ const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType
 		if (anim->anim_type != anim_type) break;
 		if (anim->person_type == per_type) return anim;
 	}
-	return NULL;
+	return nullptr;
 }

@@ -91,12 +91,12 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	Point32 base;
 	static const Recolouring recolour; // Not changed.
 
-	if (wid_num != TERR_DISPLAY || _video == NULL) return;
+	if (wid_num != TERR_DISPLAY || _video == nullptr) return;
 
 	/* Draw the tile area, case of a null-area. */
 	if (this->xsize == 0 && this->ysize == 0) {
 		const ImageData *dot = _gui_sprites.dot_sprite;
-		if (dot == NULL) return;
+		if (dot == nullptr) return;
 
 		base.x = this->GetWidgetScreenX(wid) + (wid->pos.width - dot->width) / 2;
 		base.y = this->GetWidgetScreenY(wid) + (wid->pos.height - dot->height) / 2;

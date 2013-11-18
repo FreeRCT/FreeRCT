@@ -73,7 +73,7 @@ static Voxel *MakeNewVoxels(int height)
 /** Default constructor. */
 VoxelStack::VoxelStack()
 {
-	this->voxels = NULL;
+	this->voxels = nullptr;
 	this->base = 0;
 	this->height = 0;
 }
@@ -88,7 +88,7 @@ VoxelStack::~VoxelStack()
 void VoxelStack::Clear()
 {
 	delete[] this->voxels;
-	this->voxels = NULL;
+	this->voxels = nullptr;
 	this->base = 0;
 	this->height = 0;
 	this->owner = OWN_NONE;
@@ -140,9 +140,9 @@ VoxelStack *VoxelStack::Copy(bool copyPersons) const
  */
 const Voxel *VoxelStack::Get(int16 z) const
 {
-	if (z < 0 || z >= WORLD_Z_SIZE) return NULL;
+	if (z < 0 || z >= WORLD_Z_SIZE) return nullptr;
 
-	if (this->height == 0 || z < this->base || (uint)(z - this->base) >= this->height) return NULL;
+	if (this->height == 0 || z < this->base || (uint)(z - this->base) >= this->height) return nullptr;
 
 	assert(z >= this->base);
 	z -= this->base;
@@ -158,14 +158,14 @@ const Voxel *VoxelStack::Get(int16 z) const
  */
 Voxel *VoxelStack::GetCreate(int16 z, bool create)
 {
-	if (z < 0 || z >= WORLD_Z_SIZE) return NULL;
+	if (z < 0 || z >= WORLD_Z_SIZE) return nullptr;
 
 	if (this->height == 0) {
-		if (!create || !this->MakeVoxelStack(z, 1)) return NULL;
+		if (!create || !this->MakeVoxelStack(z, 1)) return nullptr;
 	} else if (z < this->base) {
-		if (!create || !this->MakeVoxelStack(z, this->height + this->base - z)) return NULL;
+		if (!create || !this->MakeVoxelStack(z, this->height + this->base - z)) return nullptr;
 	} else if ((uint)(z - this->base) >= this->height) {
-		if (!create || !this->MakeVoxelStack(this->base, z - this->base + 1)) return NULL;
+		if (!create || !this->MakeVoxelStack(this->base, z - this->base + 1)) return nullptr;
 	}
 
 	assert(z >= this->base);
@@ -466,6 +466,6 @@ void WorldAdditions::MarkDirty(Viewport *vp)
 	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); ++iter) {
 		const Point32 pt = (*iter).first;
 		const VoxelStack *vstack = (*iter).second;
-		if (vstack != NULL) vp->MarkVoxelDirty(pt.x, pt.x, vstack->base, vstack->height);
+		if (vstack != nullptr) vp->MarkVoxelDirty(pt.x, pt.x, vstack->base, vstack->height);
 	}
 }

@@ -127,7 +127,7 @@ void BaseWidget::InitMinimalSize(const BorderSpriteData *bsd, uint16 content_wid
 void BaseWidget::SetWidget(BaseWidget **wid_array)
 {
 	if (this->number < 0) return;
-	assert(wid_array[this->number] == NULL);
+	assert(wid_array[this->number] == nullptr);
 	wid_array[this->number] = this;
 }
 
@@ -188,12 +188,12 @@ void BaseWidget::Draw(const GuiWindow *w)
 /**
  * Get the widget at the given relative window position.
  * @param pt Relative point.
- * @return The widget underneath the point, or \c NULL.
+ * @return The widget underneath the point, or \c nullptr.
  */
 BaseWidget *BaseWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	if (this->pos.IsPointInside(pt)) return this;
-	return NULL;
+	return nullptr;
 }
 
 /**
@@ -304,7 +304,7 @@ void LeafWidget::Draw(const GuiWindow *w)
 	int yoffset = top + (bottom - 1 - top - _gui_sprites.close_sprite->height) / 2;
 
 	const ImageData *imgdata = _gui_sprites.close_sprite;
-	if (imgdata != NULL) _video->BlitImage(xoffset + 1, yoffset + 1, imgdata, rc, 0);
+	if (imgdata != nullptr) _video->BlitImage(xoffset + 1, yoffset + 1, imgdata, rc, 0);
 	/* Closebox is never shaded. */
 }
 
@@ -338,7 +338,7 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	this->min_x = this->smallest_x;
 	this->min_y = this->smallest_y;
 
-	const BorderSpriteData *bsd = NULL;
+	const BorderSpriteData *bsd = nullptr;
 	uint8 pressable = 0; // Add extra space for a pressable widget.
 	switch (this->wtype) {
 		case WT_TITLEBAR:
@@ -388,7 +388,7 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	} else {
 		GetTextSize(w->TranslateStringNumber(this->value), &this->value_width, &this->value_height);
 	}
-	if (bsd != NULL) {
+	if (bsd != nullptr) {
 		this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
 	} else {
 		this->InitMinimalSize(this->value_width + pressable, this->value_height + pressable, 0, 0);
@@ -404,7 +404,7 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
  */
 void DataWidget::Draw(const GuiWindow *w)
 {
-	const BorderSpriteData *bsd = NULL;
+	const BorderSpriteData *bsd = nullptr;
 	uint8 pressed = 0;
 	switch (this->wtype) {
 		case WT_TITLEBAR:
@@ -433,7 +433,7 @@ void DataWidget::Draw(const GuiWindow *w)
 	int right  = w->GetWidgetScreenX(this) + this->pos.width  - 1 - this->paddings[PAD_RIGHT];
 	int bottom = w->GetWidgetScreenY(this) + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 	Rectangle32 border_rect;
-	if (bsd != NULL) {
+	if (bsd != nullptr) {
 		left += bsd->border_left;
 		top += bsd->border_top;
 		right -= bsd->border_right;
@@ -463,7 +463,7 @@ void DataWidget::Draw(const GuiWindow *w)
 			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
 			yoffset -= rect.base.y;
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-			if (imgdata != NULL) _video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
+			if (imgdata != nullptr) _video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
 			break;
  		}
 
@@ -474,7 +474,7 @@ void DataWidget::Draw(const GuiWindow *w)
 			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
 			GetTextSize(w->TranslateStringNumber(this->value), &text_w, &unused);
 
-			if (imgdata != NULL) {
+			if (imgdata != nullptr) {
 				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
 				_video->BlitImage(right - imgrect.width + pressed, triangle_yoff, imgdata, rc, 0);
 			}
@@ -488,7 +488,7 @@ void DataWidget::Draw(const GuiWindow *w)
 			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
 			break;
 	}
-	if (bsd != NULL && this->IsShaded()) OverlayShaded(border_rect);
+	if (bsd != nullptr && this->IsShaded()) OverlayShaded(border_rect);
 }
 
 /**
@@ -581,12 +581,12 @@ void ScrollbarWidget::Draw(const GuiWindow *w)
  */
 BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype)
 {
-	this->child = NULL;
+	this->child = nullptr;
 }
 
 BackgroundWidget::~BackgroundWidget()
 {
-	if (this->child != NULL) delete this->child;
+	if (this->child != nullptr) delete this->child;
 }
 
 /**
@@ -600,7 +600,7 @@ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	this->min_x = this->smallest_x;
 	this->min_y = this->smallest_y;
 
-	if (this->child != NULL) {
+	if (this->child != nullptr) {
 		this->child->SetupMinimalSize(w, wid_array);
 		this->min_x = this->child->min_x;
 		this->min_y = this->child->min_y;
@@ -610,7 +610,7 @@ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 		this->resize_y = this->child->resize_y;
 	}
 	this->InitMinimalSize(&_gui_sprites.panel, this->min_x, this->min_y);
-	if (this->child == NULL && this->number >= 0) w->UpdateWidgetSize(this->number, this);
+	if (this->child == nullptr && this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
 void BackgroundWidget::SetSmallestSizePosition(const Rectangle16 &rect)
@@ -619,7 +619,7 @@ void BackgroundWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 	this->min_x = rect.width;
 	this->min_y = rect.height;
 
-	if (this->child != NULL) {
+	if (this->child != nullptr) {
 		uint16 left = rect.base.x;
 		uint16 right = left + rect.width; // One pixel further than right, actually.
 		left += this->paddings[PAD_LEFT] + _gui_sprites.panel.border_left;
@@ -654,24 +654,24 @@ void BackgroundWidget::Draw(const GuiWindow *w)
 	DrawBorderSprites(_gui_sprites.panel, false, rect, this->colour);
 
 	if (this->number != INVALID_WIDGET_INDEX) w->DrawWidget(this->number, this);
-	if (this->child != NULL) this->child->Draw(w);
+	if (this->child != nullptr) this->child->Draw(w);
 }
 
 BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	if (this->pos.IsPointInside(pt)) {
-		if (this->child != NULL) {
+		if (this->child != nullptr) {
 			BaseWidget *res = this->child->GetWidgetByPosition(pt);
-			if (res != NULL) return res;
+			if (res != nullptr) return res;
 		}
 		return this;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
 {
-	if (this->child != NULL) this->child->AutoRaiseButtons(base);
+	if (this->child != nullptr) this->child->AutoRaiseButtons(base);
 }
 
 /** Initialize the row/column data. */
@@ -705,9 +705,9 @@ void RowColData::Merge(uint16 min_size, uint16 fill, uint16 resize)
  */
 IntermediateWidget::IntermediateWidget(uint8 num_rows, uint8 num_cols) : BaseWidget(WT_GRID)
 {
-	this->childs = NULL;
-	this->rows = NULL;
-	this->columns = NULL;
+	this->childs = nullptr;
+	this->rows = nullptr;
+	this->columns = nullptr;
 	this->num_rows = num_rows;
 	this->num_cols = num_cols;
 	this->flags = 0;
@@ -722,24 +722,24 @@ IntermediateWidget::IntermediateWidget(uint8 num_rows, uint8 num_cols) : BaseWid
 void IntermediateWidget::ClaimMemory()
 {
 	assert(this->num_cols > 0 && this->num_rows > 0);
-	assert(this->childs == NULL);
+	assert(this->childs == nullptr);
 
 	this->childs = new BaseWidget *[this->num_rows * this->num_cols];
-	assert(this->childs != NULL);
+	assert(this->childs != nullptr);
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
-		this->childs[idx] = NULL;
+		this->childs[idx] = nullptr;
 	}
 
 	this->rows = new RowColData[this->num_rows];
-	assert(this->rows != NULL);
+	assert(this->rows != nullptr);
 
 	this->columns = new RowColData[this->num_cols];
-	assert(this->columns != NULL);
+	assert(this->columns != nullptr);
 }
 
 IntermediateWidget::~IntermediateWidget()
 {
-	if (this->childs != NULL) {
+	if (this->childs != nullptr) {
 		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 			delete this->childs[idx];
 		}
@@ -758,7 +758,7 @@ IntermediateWidget::~IntermediateWidget()
 void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 {
 	assert(x < this->num_cols && y < this->num_rows);
-	assert(this->childs[y * (uint16)this->num_cols + x] == NULL);
+	assert(this->childs[y * (uint16)this->num_cols + x] == nullptr);
 	this->childs[y * (uint16)this->num_cols + x] = w;
 }
 
@@ -1008,11 +1008,11 @@ void IntermediateWidget::Draw(const GuiWindow *w)
 
 BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
 {
-	BaseWidget *res = NULL;
+	BaseWidget *res = nullptr;
 	if (this->pos.IsPointInside(pt)) {
 		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 			res = this->childs[idx]->GetWidgetByPosition(pt);
-			if (res != NULL) break;
+			if (res != nullptr) break;
 		}
 	}
 	return res;
@@ -1234,11 +1234,11 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 {
 	int num_used = 0;
 
-	*dest = NULL;
+	*dest = nullptr;
 	while (num_used < remaining) {
 		switch (parts->type) {
 			case WPT_NEW_WIDGET: {
-				if (*dest != NULL) return num_used;
+				if (*dest != nullptr) return num_used;
 				switch (parts->data.new_widget.wtype) {
 					case WT_EMPTY:
 						*dest = new BaseWidget(parts->data.new_widget.wtype);
@@ -1275,19 +1275,19 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 				}
 				if (parts->data.new_widget.number >= 0) (*dest)->number = parts->data.new_widget.number;
 				LeafWidget *lw = dynamic_cast<LeafWidget *>(*dest);
-				if (lw != NULL) lw->colour = parts->data.new_widget.colour;
+				if (lw != nullptr) lw->colour = parts->data.new_widget.colour;
 				break;
 			}
 
 			case WPT_NEW_INTERMEDIATE:
-				if (*dest != NULL) return num_used;
+				if (*dest != nullptr) return num_used;
 				(*dest) = new IntermediateWidget(parts->data.new_intermediate.num_rows, parts->data.new_intermediate.num_cols);
 				break;
 
 			case WPT_MIN_SIZE: {
-				if (*dest == NULL) break;
+				if (*dest == nullptr) break;
 				BaseWidget *bw = dynamic_cast<BaseWidget *>(*dest);
-				if (bw != NULL) {
+				if (bw != nullptr) {
 					bw->smallest_x = parts->data.size.x;
 					bw->smallest_y = parts->data.size.y;
 				}
@@ -1295,9 +1295,9 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 			}
 
 			case WPT_FILL: {
-				if (*dest == NULL) break;
+				if (*dest == nullptr) break;
 				BaseWidget *bw = dynamic_cast<BaseWidget *>(*dest);
-				if (bw != NULL) {
+				if (bw != nullptr) {
 					bw->fill_x = parts->data.size.x;
 					bw->fill_y = parts->data.size.y;
 				}
@@ -1305,9 +1305,9 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 			}
 
 			case WPT_RESIZE: {
-				if (*dest == NULL) break;
+				if (*dest == nullptr) break;
 				BaseWidget *bw = dynamic_cast<BaseWidget *>(*dest);
-				if (bw != NULL) {
+				if (bw != nullptr) {
 					bw->resize_x = parts->data.size.x;
 					bw->resize_y = parts->data.size.y;
 				}
@@ -1317,27 +1317,27 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 			case WPT_PADDING:
 			case WPT_HOR_PIP:
 			case WPT_VERT_PIP: {
-				if (*dest == NULL) break;
+				if (*dest == nullptr) break;
 				BaseWidget *bw = dynamic_cast<BaseWidget *>(*dest);
-				if (bw != NULL) {
+				if (bw != nullptr) {
 					for (int i = 0; i < PAD_COUNT; i++) bw->paddings[i] += parts->data.padding[i];
 				}
 				break;
 			}
 
 			case WPT_DATA: {
-				if (*dest == NULL) break;
+				if (*dest == nullptr) break;
 				LeafWidget *lw = dynamic_cast<LeafWidget *>(*dest);
-				if (lw != NULL) lw->tooltip = parts->data.dat.tip;
+				if (lw != nullptr) lw->tooltip = parts->data.dat.tip;
 				DataWidget *bw = dynamic_cast<DataWidget *>(*dest);
-				if (bw != NULL) bw->value = parts->data.dat.value;
+				if (bw != nullptr) bw->value = parts->data.dat.value;
 				break;
 			}
 
 			case WPT_EQUAL_SIZE: {
-				if (*dest == NULL) break;
+				if (*dest == nullptr) break;
 				IntermediateWidget *iw = dynamic_cast<IntermediateWidget *>(*dest);
-				if (iw != NULL) iw->flags = parts->data.flags;
+				if (iw != nullptr) iw->flags = parts->data.flags;
 				break;
 			}
 
@@ -1378,7 +1378,7 @@ static int FillWidgetRow(const WidgetPart *parts, int remaining_parts, BaseWidge
 		parts += used;
 		remaining_parts -= used;
 		total_used += used;
-		if (*widgets == NULL) break;
+		if (*widgets == nullptr) break;
 
 		widgets++;
 		remaining_widgets--;
@@ -1411,7 +1411,7 @@ static int FillWidget(const WidgetPart *parts, int remaining_parts, Intermediate
 
 	static const int MAX_CHILDS = 500;
 	BaseWidget *grid[500];
-	for (int i = 0; i < 500; i++) grid[i] = NULL;
+	for (int i = 0; i < 500; i++) grid[i] = nullptr;
 
 	bool need_claim_memory = wid->num_rows == 0 || wid->num_cols == 0;
 
@@ -1468,13 +1468,13 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
 {
 	int total_used = 0;
 
-	*dest = NULL;
+	*dest = nullptr;
 	int used = MakeWidget(parts, remaining, dest);
 	parts += used;
 	remaining -= used;
 	total_used += used;
 
-	if (*dest == NULL) return total_used;
+	if (*dest == nullptr) return total_used;
 
 	*biggest = max(*biggest, (*dest)->number); // Update biggest widget number.
 
@@ -1510,7 +1510,7 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
  */
 BaseWidget *MakeWidgetTree(const WidgetPart *parts, int length, int16 *biggest)
 {
-	BaseWidget *root = NULL;
+	BaseWidget *root = nullptr;
 	*biggest = INVALID_WIDGET_INDEX;
 	MakeWidgetSubTree(parts, length, &root, biggest);
 	return root;

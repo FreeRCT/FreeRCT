@@ -351,7 +351,7 @@ public:
 	inline PersonList &GetPersonList(uint16 x, uint16 y, int16 z)
 	{
 		Voxel *v = this->GetCreateVoxel(x, y, z, false);
-		assert(v != NULL);
+		assert(v != nullptr);
 		return v->persons;
 	}
 

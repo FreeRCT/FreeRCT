@@ -64,7 +64,7 @@ uint16 Random::Uniform(uint16 incl_upper)
 uint32 Random::DrawNumber()
 {
 	if (seed == 0) {
-		seed = time(NULL);
+		seed = time(nullptr);
 	}
 
 	seed = 1664525UL * seed + 1013904223UL;

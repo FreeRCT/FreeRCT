@@ -13,7 +13,7 @@
 #include "ast.h"
 #include "utils.h"
 
-NamedValueList *_parsed_data = NULL; // Documentation is in scanner_funcs.h, since this file is not being scanned.
+NamedValueList *_parsed_data = nullptr; // Documentation is in scanner_funcs.h, since this file is not being scanned.
 %}
 
 %token PAR_OPEN PAR_CLOSE CURLY_OPEN CURLY_CLOSE
@@ -81,7 +81,7 @@ Factor : IDENTIFIER {
 
 Factor : BITSET_KW PAR_OPEN PAR_CLOSE {
 	Position pos(filename, $1);
-	$$ = new BitSet(pos, NULL);
+	$$ = new BitSet(pos, nullptr);
 }
        ;
 
@@ -108,7 +108,7 @@ NamedValueList : NamedValueList NamedValue {
                ;
 
 NamedValue : Group {
-	$$ = new NamedValue(NULL, $1);
+	$$ = new NamedValue(nullptr, $1);
 }
            ;
 
@@ -176,7 +176,7 @@ IdentifierRow : IdentifierRow COMMA IDENTIFIER {
 Group : IDENTIFIER CURLY_OPEN NamedValueList CURLY_CLOSE {
 	Position pos(filename, $1.line);
 	CheckIsSingleName($1.value, pos);
-	$$ = new NodeGroup(pos, $1.value, NULL, $3);
+	$$ = new NodeGroup(pos, $1.value, nullptr, $3);
 }
       ;
 

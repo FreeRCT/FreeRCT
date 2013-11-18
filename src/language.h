@@ -31,7 +31,7 @@ extern int _current_language;
  * RideType::GetString, the real string number of the queried shop type is returned.
  */
 enum StringTable {
-	STR_NULL = 0, ///< \c NULL string.
+	STR_NULL = 0, ///< \c nullptr string.
 	STR_EMPTY,    ///< Empty string.
 	STR_ARG1,     ///< Argument 1 \c "%1%".
 
@@ -84,8 +84,8 @@ public:
 	const uint8 *GetString() const
 	{
 		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return (uint8 *)"<out of bounds>";
-		if (this->languages[_current_language] != NULL) return this->languages[_current_language];
-		if (this->languages[0] != NULL) return this->languages[0];
+		if (this->languages[_current_language] != nullptr) return this->languages[_current_language];
+		if (this->languages[0] != nullptr) return this->languages[0];
 		return (uint8 *)"<no-text>";
 	}
 
@@ -146,7 +146,7 @@ public:
 	const uint8 *GetText(StringID number);
 	const uint8 *GetLanguageName(int lang_index);
 private:
-	/** Registered strings. Entries may be \c NULL for unregistered or non-existing strings. */
+	/** Registered strings. Entries may be \c nullptr for unregistered or non-existing strings. */
 	const TextString *registered[2048]; // Arbitrary size.
 	uint first_free; ///< 'First' string index that is not allocated yet.
 };

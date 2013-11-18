@@ -308,7 +308,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			} else {
 				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
 			}
-			if (v != NULL) {
+			if (v != nullptr) {
 				uint16 number = v->GetInstance();
 				if (number == SRI_PATH) { // Valid path.
 					v->SetInstanceData(SetPathEdge(v->GetInstanceData(), edge2, add_edges));
@@ -327,7 +327,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			} else {
 				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
 			}
-			if (v != NULL) {
+			if (v != nullptr) {
 				uint16 number = v->GetInstance();
 				if (number == SRI_PATH) { // Valid path.
 					v->SetInstanceData(SetPathEdge(v->GetInstanceData(), edge2, add_edges));

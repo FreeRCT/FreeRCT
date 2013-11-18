@@ -99,14 +99,14 @@ static const int ADDITIONS_TIMEOUT_LENGTH = 15; ///< Length of the time interval
 void EnableWorldAdditions()
 {
 	Viewport *vp = GetViewport();
-	if (vp != NULL) vp->EnableWorldAdditions();
+	if (vp != nullptr) vp->EnableWorldAdditions();
 }
 
 /** Disable flashing display of showing proposed game world additions to the player. */
 void DisableWorldAdditions()
 {
 	Viewport *vp = GetViewport();
-	if (vp != NULL) vp->DisableWorldAdditions();
+	if (vp != nullptr) vp->DisableWorldAdditions();
 }
 
 /**
@@ -193,7 +193,7 @@ public:
 	uint16 tile_height;           ///< Height of a tile.
 	ViewOrientation orient;       ///< Direction of view.
 	const SpriteStorage *sprites; ///< Sprite collection of the right size.
-	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c NULL.
+	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c nullptr.
 	bool draw_above_stack;        ///< Also draw voxels above the voxel stack (for cursors).
 
 	Rectangle32 rect; ///< Screen area of interest.
@@ -209,7 +209,7 @@ protected:
 
 	/**
 	 * Handle a voxel that should be collected.
-	 * @param vx   %Voxel to add, \c NULL means 'cursor above stack'.
+	 * @param vx   %Voxel to add, \c nullptr means 'cursor above stack'.
 	 * @param xpos X world position.
 	 * @param ypos Y world position.
 	 * @param zpos Z world position.
@@ -320,7 +320,7 @@ VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
 	this->draw_above_stack = draw_above_stack;
 
 	this->sprites = _sprite_manager.GetSprites(this->tile_width);
-	assert(this->sprites != NULL);
+	assert(this->sprites != nullptr);
 }
 
 /* Destructor. */
@@ -379,7 +379,7 @@ void VoxelCollector::Collect(bool use_additions)
 					if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
 					if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
 
-					this->CollectVoxel(NULL, xpos, ypos, zpos, north_x, north_y);
+					this->CollectVoxel(nullptr, xpos, ypos, zpos, north_x, north_y);
 				}
 			}
 		}
@@ -511,7 +511,7 @@ void Cursor::MarkDirty()
  * @param xpos Expected x coordinate of the cursor.
  * @param ypos Expected y coordinate of the cursor.
  * @param zpos Expected z coordinate of the cursor.
- * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c NULL.
+ * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
  */
 CursorType Cursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
 {
@@ -716,11 +716,11 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
  * @param ypos Y position of the voxel being drawn.
  * @param zpos Z position of the voxel being drawn.
  * @param tslope Slope of the tile.
- * @return Pointer to the cursor sprite, or \c NULL if no cursor available.
+ * @return Pointer to the cursor sprite, or \c nullptr if no cursor available.
  */
 const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope)
 {
-	if (!this->enable_cursors) return NULL;
+	if (!this->enable_cursors) return nullptr;
 
 	CursorType ctype = this->vp->GetCursorAtPos(xpos, ypos, zpos);
 	switch (ctype) {
@@ -742,7 +742,7 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 			return this->sprites->GetArrowSprite(ctype - CUR_TYPE_ARROW_NE, this->orient);
 
 		default:
-			return NULL;
+			return nullptr;
 	}
 }
 
@@ -778,9 +778,9 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypo
 static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
-	if (ri == NULL) return 0;
+	if (ri == nullptr) return 0;
 	/* Shops are connected in every direction. */
-	if (platform != NULL) *platform = (ri->GetKind() == RTK_SHOP) ? PATH_NE_NW_SE_SW : PATH_INVALID;
+	if (platform != nullptr) *platform = (ri->GetKind() == RTK_SHOP) ? PATH_NE_NW_SE_SW : PATH_INVALID;
 
 	const ImageData *sprites[4];
 	ri->GetSprites(voxel_number, orient, sprites);
@@ -788,7 +788,7 @@ static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrienta
 	int idx = 0;
 	static const SpriteOrder sprite_numbers[4] = {SO_PLATFORM_BACK, SO_RIDE, SO_RIDE_FRONT, SO_PLATFORM_FRONT};
 	for (int i = 0; i < 4; i++) {
-		if (sprites[i] == NULL) continue;
+		if (sprites[i] == nullptr) continue;
 
 		dd[idx].level = slice;
 		dd[idx].z_height = zpos;
@@ -804,7 +804,7 @@ static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrienta
 
 /**
  * Add all sprites of the voxel to the set of sprites to draw.
- * @param voxel %Voxel to add, \c NULL means 'cursor above stack'.
+ * @param voxel %Voxel to add, \c nullptr means 'cursor above stack'.
  * @param xpos X world position.
  * @param ypos Y world position.
  * @param zpos Z world position.
@@ -823,9 +823,9 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		default: NOT_REACHED();
 	}
 
-	if (voxel == NULL) { // Draw cursor above stack.
+	if (voxel == nullptr) { // Draw cursor above stack.
 		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
-		if (mspr != NULL) {
+		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
 			dd.z_height = zpos;
@@ -833,7 +833,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			dd.sprite = mspr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-			dd.recolour = NULL;
+			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
 		return;
@@ -851,7 +851,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		dd.sprite = this->sprites->GetPathSprite(number, GetImplodedPathSlope(voxel), this->orient);
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-		dd.recolour = NULL;
+		dd.recolour = nullptr;
 		this->draw_images.insert(dd);
 	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
 		DrawData dd[4];
@@ -873,9 +873,9 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			default: NOT_REACHED();
 		}
 		const Foundation *fnd = this->sprites->foundation[FDT_GROUND];
-		if (fnd != NULL && sw != 0) {
+		if (fnd != nullptr && sw != 0) {
 			const ImageData *img = fnd->sprites[3 + sw - 1];
-			if (img != NULL) {
+			if (img != nullptr) {
 				DrawData dd;
 				dd.level = slice;
 				dd.z_height = zpos;
@@ -883,13 +883,13 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-				dd.recolour = NULL;
+				dd.recolour = nullptr;
 				this->draw_images.insert(dd);
 			}
 		}
-		if (fnd != NULL && se != 0) {
+		if (fnd != nullptr && se != 0) {
 			const ImageData *img = fnd->sprites[se - 1];
-			if (img != NULL) {
+			if (img != nullptr) {
 				DrawData dd;
 				dd.level = slice;
 				dd.z_height = zpos;
@@ -897,7 +897,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-				dd.recolour = NULL;
+				dd.recolour = nullptr;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -914,7 +914,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), slope, this->orient);
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-		dd.recolour = NULL;
+		dd.recolour = nullptr;
 		this->draw_images.insert(dd);
 		switch (slope) {
 			// XXX There are no sprites for partial support of a platform.
@@ -948,7 +948,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 	/* Sprite cursor (arrow) */
 	const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
-	if (mspr != NULL) {
+	if (mspr != nullptr) {
 		DrawData dd;
 		dd.level = slice;
 		dd.z_height = zpos;
@@ -956,12 +956,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		dd.sprite = mspr;
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-		dd.recolour = NULL;
+		dd.recolour = nullptr;
 		this->draw_images.insert(dd);
 	}
 
 	/* Add platforms. */
-	if (this->sprites->platform != NULL && platform_shape != PATH_INVALID) {
+	if (this->sprites->platform != nullptr && platform_shape != PATH_INVALID) {
 		/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
 		ImageData *pl_spr;
 		switch (platform_shape) {
@@ -971,7 +971,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			case PATH_RAMP_SW: pl_spr = this->sprites->platform->ramp[0]; break;
 			default: pl_spr = this->sprites->platform->flat[this->orient & 1]; break;
 		}
-		if (pl_spr != NULL) {
+		if (pl_spr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
 			dd.z_height = zpos;
@@ -979,7 +979,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			dd.sprite = pl_spr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-			dd.recolour = NULL;
+			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
 
@@ -1011,7 +1011,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				slope = SL_FLAT;
 			}
 			ImageData *img = this->sprites->support->sprites[sprnum];
-			if (img != NULL) {
+			if (img != nullptr) {
 				DrawData dd;
 				dd.level = slice;
 				dd.z_height = height;
@@ -1019,19 +1019,19 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
-				dd.recolour = NULL;
+				dd.recolour = nullptr;
 				this->draw_images.insert(dd);
 			}
 		}
 	}
 
 	const Person *pers = voxel->persons.first;
-	while (pers != NULL) {
+	while (pers != nullptr) {
 		/// \todo Check that the person is actually in this voxel.
 
 		AnimationType anim_type = pers->walk->anim_type;
 		const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
-		if (anim_spr != NULL) {
+		if (anim_spr != nullptr) {
 			int x_off = ComputeX(pers->x_pos, pers->y_pos);
 			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
 			DrawData dd;
@@ -1075,7 +1075,7 @@ PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp, f
 	fdata->xvoxel = 0;
 	fdata->yvoxel = 0;
 	fdata->zvoxel = 0;
-	fdata->person = NULL;
+	fdata->person = nullptr;
 	fdata->ride   = INVALID_RIDE_INSTANCE;
 }
 
@@ -1085,7 +1085,7 @@ PixelFinder::~PixelFinder()
 
 /**
  * Find the closest sprite.
- * @param voxel %Voxel to examine, \c NULL means 'cursor above stack'.
+ * @param voxel %Voxel to examine, \c nullptr means 'cursor above stack'.
  * @param xpos X world position.
  * @param ypos Y world position.
  * @param zpos Z world position.
@@ -1103,14 +1103,14 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		default: NOT_REACHED();
 	}
 
-	if (voxel == NULL) return; // Ignore cursors, they are not clickable.
+	if (voxel == nullptr) return; // Ignore cursors, they are not clickable.
 
 	/* Looking for a ride? */
 	SmallRideInstance number = voxel->GetInstance();
 	if ((this->allowed & SO_RIDE) != 0 && number >= SRI_FULL_RIDES) {
 		DrawData dd[4];
 		int count = DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
-				this->orient, number, voxel->GetInstanceData(), dd, NULL);
+				this->orient, number, voxel->GetInstanceData(), dd, nullptr);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
 				const ImageData *img = dd[i].sprite;
@@ -1134,11 +1134,11 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		dd.level = slice;
 		dd.z_height = zpos;
 		dd.order = SO_PATH;
-		dd.sprite = NULL;
+		dd.sprite = nullptr;
 		dd.base.x = this->rect.base.x - xnorth;
 		dd.base.y = this->rect.base.y - ynorth;
-		dd.recolour = NULL;
-		if (img != NULL && (!this->found || this->data < dd)) {
+		dd.recolour = nullptr;
+		if (img != nullptr && (!this->found || this->data < dd)) {
 			uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
 			if (pixel != 0) {
 				this->found = true;
@@ -1157,11 +1157,11 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		dd.level = slice;
 		dd.z_height = zpos;
 		dd.order = SO_GROUND;
-		dd.sprite = NULL;
+		dd.sprite = nullptr;
 		dd.base.x = this->rect.base.x - xnorth;
 		dd.base.y = this->rect.base.y - ynorth;
-		dd.recolour = NULL;
-		if (spr != NULL && (!this->found || this->data < dd)) {
+		dd.recolour = nullptr;
+		if (spr != nullptr && (!this->found || this->data < dd)) {
 			uint8 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
 			if (pixel != 0) {
 				this->found = true;
@@ -1177,7 +1177,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 	/* Looking for persons? */
 	if ((this->allowed & SO_PERSON) != 0) {
 		const Person *pers = voxel->persons.first;
-		while (pers != NULL) {
+		while (pers != nullptr) {
 			AnimationType anim_type = pers->walk->anim_type;
 			const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
 			int x_off = ComputeX(pers->x_pos, pers->y_pos);
@@ -1186,10 +1186,10 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			dd.level = slice;
 			dd.z_height = zpos;
 			dd.order = SO_PERSON;
-			dd.sprite = NULL;
+			dd.sprite = nullptr;
 			dd.base.x = this->rect.base.x - xnorth - x_off;
 			dd.base.y = this->rect.base.y - ynorth - y_off;
-			dd.recolour = NULL;
+			dd.recolour = nullptr;
 			if (anim_spr && (!this->found || this->data < dd)) {
 				uint8 pixel = anim_spr->GetPixel(dd.base.x - anim_spr->xoffset, dd.base.y - anim_spr->yoffset);
 				if (pixel != 0) {
@@ -1234,7 +1234,7 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY, ALL_WI
 
 Viewport::~Viewport()
 {
-	_mouse_modes.main_display = NULL;
+	_mouse_modes.main_display = nullptr;
 }
 
 /**
@@ -1276,7 +1276,7 @@ void Viewport::OnDraw()
 
 	for (DrawImages::const_iterator iter = collector.draw_images.begin(); iter != collector.draw_images.end(); ++iter) {
 		const DrawData &dd = (*iter);
-		const Recolouring &rec = (dd.recolour == NULL) ? recolour : *dd.recolour;
+		const Recolouring &rec = (dd.recolour == nullptr) ? recolour : *dd.recolour;
 		_video->BlitImage(dd.base, dd.sprite, rec, 0);
 	}
 
@@ -1294,7 +1294,7 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 {
 	if (height <= 0) {
 		const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
-		if (v == NULL) {
+		if (v == nullptr) {
 			height = 1;
 		} else {
 			height = 1; // There are no steep slopes, so 1 covers paths already.
@@ -1304,7 +1304,7 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 			SmallRideInstance number = v->GetInstance();
 			if (number >= SRI_FULL_RIDES) { // A ride.
 				const RideInstance *ri = _rides_manager.GetRideInstance(number);
-				if (ri != NULL) {
+				if (ri != nullptr) {
 					switch (ri->GetKind()) {
 						case RTK_SHOP: {
 							const ShopInstance *si = static_cast<const ShopInstance *>(ri);
@@ -1500,9 +1500,9 @@ bool DefaultMouseMode::EnableCursors() { return false; }
 
 MouseModes::MouseModes()
 {
-	this->main_display = NULL;
+	this->main_display = nullptr;
 	this->current = &default_mode;
-	for (int i = 0; i < MM_COUNT; i++) this->modes[i] = NULL;
+	for (int i = 0; i < MM_COUNT; i++) this->modes[i] = nullptr;
 }
 
 /**
@@ -1512,14 +1512,14 @@ MouseModes::MouseModes()
 void MouseModes::RegisterMode(MouseMode *mm)
 {
 	assert(mm->mode < MM_COUNT);
-	assert(this->modes[mm->mode] == NULL);
+	assert(this->modes[mm->mode] == nullptr);
 	this->modes[mm->mode] = mm;
 }
 
 /**
  * Get the address of the viewport window.
  * @return Address of the viewport.
- * @note Function may return \c NULL.
+ * @note Function may return \c nullptr.
  */
 Viewport *GetViewport()
 {
@@ -1536,7 +1536,7 @@ Viewport *GetViewport()
 void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 {
 	Viewport *vp = GetViewport();
-	if (vp != NULL) vp->MarkVoxelDirty(xpos, ypos, zpos, height);
+	if (vp != nullptr) vp->MarkVoxelDirty(xpos, ypos, zpos, height);
 }
 
 /**
@@ -1546,14 +1546,14 @@ void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
  */
 void MouseModes::SetViewportMousemode()
 {
-	if (this->main_display == NULL) return;
+	if (this->main_display == nullptr) return;
 
 	/* First try all windows from top to bottom. */
 	Window *w = _manager.top;
-	while (w != NULL) {
+	while (w != nullptr) {
 		for (uint i = 0; i < lengthof(this->modes); i++) {
 			MouseMode *mm = this->modes[i];
-			if (mm != NULL && mm->wtype == w->wtype && mm->MayActivateMode()) {
+			if (mm != nullptr && mm->wtype == w->wtype && mm->MayActivateMode()) {
 				this->SwitchMode(mm);
 				return;
 			}
@@ -1563,7 +1563,7 @@ void MouseModes::SetViewportMousemode()
 	/* Try all mouse modes without a window. */
 	for (uint i = 0; i < lengthof(this->modes); i++) {
 		MouseMode *mm = this->modes[i];
-		if (mm != NULL && mm->wtype == WC_NONE && mm->MayActivateMode()) {
+		if (mm != nullptr && mm->wtype == WC_NONE && mm->MayActivateMode()) {
 			this->SwitchMode(mm);
 			return;
 		}
@@ -1580,7 +1580,7 @@ void MouseModes::SetMouseMode(ViewportMouseMode mode)
 {
 	for (uint i = 0; i < lengthof(this->modes); i++) {
 		MouseMode *mm = this->modes[i];
-		if (mm != NULL && mm->mode == mode) {
+		if (mm != nullptr && mm->mode == mode) {
 			if (mm->MayActivateMode()) this->SwitchMode(mm);
 			break;
 		}
@@ -1595,7 +1595,7 @@ void MouseModes::SetMouseMode(ViewportMouseMode mode)
 void MouseModes::SwitchMode(MouseMode *new_mode)
 {
 	assert(new_mode->MayActivateMode());
-	if (this->main_display == NULL || new_mode == this->current) return;
+	if (this->main_display == nullptr || new_mode == this->current) return;
 
 	this->current->LeaveMode();
 	this->current = new_mode;

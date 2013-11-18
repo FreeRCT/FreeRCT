@@ -43,7 +43,7 @@ public:
 private:
 	int mask_xpos;               ///< X position of the left of the mask.
 	int mask_ypos;               ///< Y position of the top of the mask.
-	const MaskInformation *mask; ///< Information about the used bitmask (or \c NULL).
+	const MaskInformation *mask; ///< Information about the used bitmask (or \c nullptr).
 
 	int width;            ///< Width of the loaded image.
 	int height;           ///< Height of the loaded image.

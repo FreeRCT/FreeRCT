@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 	cfg_file.Load("freerct.cfg");
 	const char *font_path = cfg_file.GetValue("font", "medium-path");
 	const char *font_size_text = cfg_file.GetValue("font", "medium-size");
-	if (font_path == NULL || *font_path == '\0' || font_size_text == NULL || *font_size_text == '\0') {
+	if (font_path == nullptr || *font_path == '\0' || font_size_text == nullptr || *font_size_text == '\0') {
 		fprintf(stderr, "Failed to find font settings. Did you make a 'freerct.cfg' file next to the 'freerct' program?\n");
 		fprintf(stderr, "Example content (you may need to change the path and.or the size):\n"
 		                "[font]\n"
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 
 	bool missing_sprites_check = false;
 
-	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, NULL);
+	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, nullptr);
 
 	while (!_finish) {
 		/* For every frame do... */

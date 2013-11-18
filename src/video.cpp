@@ -16,7 +16,7 @@
 #include "math_func.h"
 #include "rev.h"
 
-VideoSystem *_video = NULL; ///< Global address of the video sub-system.
+VideoSystem *_video = nullptr; ///< Global address of the video sub-system.
 
 /** Default constructor of a clipped rectangle. */
 ClippedRectangle::ClippedRectangle()
@@ -25,7 +25,7 @@ ClippedRectangle::ClippedRectangle()
 	this->absy = 0;
 	this->width = 0;
 	this->height = 0;
-	this->address = NULL; this->pitch = 0;
+	this->address = nullptr; this->pitch = 0;
 }
 
 /**
@@ -41,7 +41,7 @@ ClippedRectangle::ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h)
 	this->absy = y;
 	this->width = w;
 	this->height = h;
-	this->address = NULL; this->pitch = 0;
+	this->address = nullptr; this->pitch = 0;
 }
 
 /**
@@ -60,7 +60,7 @@ ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 
 		this->absy = 0;
 		this->width = 0;
 		this->height = 0;
-		this->address = NULL; this->pitch = 0;
+		this->address = nullptr; this->pitch = 0;
 		return;
 	}
 	if (x + w > cr.width)  w = cr.width - x;
@@ -70,7 +70,7 @@ ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 
 	this->absy = cr.absy + y;
 	this->width = w;
 	this->height = h;
-	this->address = NULL; this->pitch = 0;
+	this->address = nullptr; this->pitch = 0;
 }
 
 /**
@@ -106,7 +106,7 @@ ClippedRectangle &ClippedRectangle::operator=(const ClippedRectangle &cr)
 /** Initialize the #address if not done already. */
 void ClippedRectangle::ValidateAddress()
 {
-	if (this->address == NULL) {
+	if (this->address == nullptr) {
 		SDL_Surface *s = SDL_GetVideoSurface();
 		this->pitch = s->pitch;
 		this->address = ((uint8 *)(s->pixels)) + this->absx + this->absy * s->pitch;
@@ -140,14 +140,14 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return false;
 
 	SDL_Surface *icon = SDL_LoadBMP("../graphics/sprites/logo/logo.32.bmp"); /// \todo Non hardcoded filepath.
-	if (icon != NULL) {
+	if (icon != nullptr) {
 		SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0, 0, 255)); // Replace blue
-		SDL_WM_SetIcon(icon, NULL);
+		SDL_WM_SetIcon(icon, nullptr);
 		SDL_FreeSurface(icon);
 	}
 
 	this->video = SDL_SetVideoMode(800, 600, 8, SDL_HWSURFACE);
-	if (this->video == NULL) {
+	if (this->video == nullptr) {
 		SDL_Quit();
 		return false;
 	}
@@ -162,7 +162,7 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	}
 
 	this->font = TTF_OpenFont(font_name, font_size);
-	if (this->font == NULL) {
+	if (this->font == nullptr) {
 		TTF_Quit();
 		SDL_Quit();
 		return false;
@@ -356,7 +356,7 @@ void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const
  */
 void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift)
 {
-	if (img == NULL) {
+	if (img == nullptr) {
 		 this->missing_sprites = true;
 		 return;
 	}
@@ -598,7 +598,7 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
 {
 	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
 	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, (const char *)text, col);
-	if (surf == NULL) {
+	if (surf == nullptr) {
 		fprintf(stderr, "Rendering text failed (%s)\n", TTF_GetError());
 		return;
 	}

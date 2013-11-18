@@ -62,7 +62,7 @@ public:
 	/** Default constructor, reference is empty. */
 	DataReference()
 	{
-		this->data = NULL;
+		this->data = nullptr;
 	}
 
 	/**
@@ -80,7 +80,7 @@ public:
 	 */
 	DataReference(const DataReference<D> &dr)
 	{
-		D *dr_data = (dr.Access() == NULL) ? NULL : dr.Copy();
+		D *dr_data = (dr.Access() == nullptr) ? nullptr : dr.Copy();
 		this->data = dr_data;
 	}
 
@@ -92,7 +92,7 @@ public:
 	DataReference<D> &operator=(const DataReference<D> &dr)
 	{
 		if (&dr != this) {
-			D *dr_data = (dr.Access() == NULL) ? NULL : dr.Copy();
+			D *dr_data = (dr.Access() == nullptr) ? nullptr : dr.Copy();
 			this->Give(dr_data);
 		}
 		return *this;
@@ -101,7 +101,7 @@ public:
 	/** Destructor. */
 	~DataReference()
 	{
-		if (this->data != NULL) this->data->Delete();
+		if (this->data != nullptr) this->data->Delete();
 	}
 
 	/**
@@ -110,7 +110,7 @@ public:
 	 */
 	void Give(D *data)
 	{
-		if (this->data != NULL) this->data->Delete();
+		if (this->data != nullptr) this->data->Delete();
 		this->data = data;
 	}
 
@@ -120,9 +120,9 @@ public:
 	 */
 	D *Steal()
 	{
-		assert(this->data != NULL); // You cannot steal things that don't exist.
+		assert(this->data != nullptr); // You cannot steal things that don't exist.
 		D *ref = this->data;
-		this->data = NULL;
+		this->data = nullptr;
 		return ref;
 	}
 
@@ -132,7 +132,7 @@ public:
 	 */
 	D *Copy() const
 	{
-		assert(this->data != NULL); // You cannot copy things that don't exist.
+		assert(this->data != nullptr); // You cannot copy things that don't exist.
 		this->data->Copy();
 		return this->data;
 	}

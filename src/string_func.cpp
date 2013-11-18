@@ -55,7 +55,7 @@ char *StrDup(const char *src)
 {
 	size_t n = strlen(src);
 	char *mem = new char[n + 1];
-	assert(mem != NULL);
+	assert(mem != nullptr);
 
 	return SafeStrncpy(mem, src, n + 1);
 }
@@ -98,7 +98,7 @@ size_t StrBytesLength(const uint8 *str)
  */
 bool StrEqual(const uint8 *s1, const uint8 *s2)
 {
-	assert(s1 != NULL && s2 != NULL);
+	assert(s1 != nullptr && s2 != nullptr);
 	while (*s1 != '\0' && *s2 != '\0' && *s1 == *s2) {
 		s1++;
 		s2++;

@@ -143,7 +143,7 @@ void PathBuildGui::OnClick(WidgetNumber number)
 		case PATH_GUI_SW_DIRECTION:
 		case PATH_GUI_NW_DIRECTION: {
 			Viewport *vp = GetViewport();
-			if (vp != NULL) {
+			if (vp != nullptr) {
 				TileEdge edge = (TileEdge)AddOrientations((ViewOrientation)(number - PATH_GUI_NE_DIRECTION), vp->orientation);
 				_path_builder.SelectArrow(edge);
 			}
@@ -173,7 +173,7 @@ void PathBuildGui::OnClick(WidgetNumber number)
 void PathBuildGui::SetButtons()
 {
 	Viewport *vp = GetViewport();
-	if (vp == NULL) return;
+	if (vp == nullptr) return;
 
 	/* Update arrow buttons. */
 	uint8 directions = _path_builder.GetAllowedArrows();

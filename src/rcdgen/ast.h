@@ -263,7 +263,7 @@ public:
 
 	void HandleImports() override;
 
-	Name *name;   ///< %Name part, may be \c NULL.
+	Name *name;   ///< %Name part, may be \c nullptr.
 	Group *group; ///< Value part.
 };
 

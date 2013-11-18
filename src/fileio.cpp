@@ -44,7 +44,7 @@ DirectoryReader::~DirectoryReader()
 /**
  * @fn const char *DirectoryReader::NextEntry()
  * Get next entry of the directory contents.
- * @return Pointer to name of next entry (as a file path suitable for opening a file). Returns \c NULL if not next entry exists.
+ * @return Pointer to name of next entry (as a file path suitable for opening a file). Returns \c nullptr if not next entry exists.
  * @note The memory returned is owned by the #DirectoryReader object, and should not be released.
  */
 
@@ -76,7 +76,7 @@ const char *DirectoryReader::NextFile()
 
 	do {
 		entry = this->NextEntry();
-	} while(entry != NULL && !this->EntryIsFile());
+	} while(entry != nullptr && !this->EntryIsFile());
 	return entry;
 }
 
@@ -98,15 +98,15 @@ public:
 	virtual bool EntryIsDirectory() override;
 
 private:
-	DIR *dirfp;           ///< Directory stream if not \c NULL.
-	dirent *entry;        ///< Pointer to current directory entry (or \c NULL).
+	DIR *dirfp;           ///< Directory stream if not \c nullptr.
+	dirent *entry;        ///< Pointer to current directory entry (or \c nullptr).
 	char dpath[MAX_PATH]; ///< Directory path.
 	char fpath[MAX_PATH]; ///< File path returned by #NextEntry.
 };
 
 UnixDirectoryReader::UnixDirectoryReader() : DirectoryReader()
 {
-	this->dirfp = NULL;
+	this->dirfp = nullptr;
 }
 
 UnixDirectoryReader::~UnixDirectoryReader()
@@ -116,7 +116,7 @@ UnixDirectoryReader::~UnixDirectoryReader()
 
 void UnixDirectoryReader::OpenPath(const char *path)
 {
-	if (this->dirfp != NULL) this->ClosePath();
+	if (this->dirfp != nullptr) this->ClosePath();
 
 	SafeStrncpy(this->dpath, path, MAX_PATH);
 	this->dirfp = opendir(this->dpath);
@@ -124,12 +124,12 @@ void UnixDirectoryReader::OpenPath(const char *path)
 
 const char *UnixDirectoryReader::NextEntry()
 {
-	if (this->dirfp == NULL) return NULL;
+	if (this->dirfp == nullptr) return nullptr;
 
 	this->entry = readdir(this->dirfp);
-	if (this->entry == NULL) {
+	if (this->entry == nullptr) {
 		this->ClosePath();
-		return NULL;
+		return nullptr;
 	}
 
 	snprintf(this->fpath, MAX_PATH, "%s/%s", this->dpath,  this->entry->d_name);
@@ -139,8 +139,8 @@ const char *UnixDirectoryReader::NextEntry()
 
 void UnixDirectoryReader::ClosePath()
 {
-	if (this->dirfp != NULL) closedir(this->dirfp);
-	this->dirfp = NULL;
+	if (this->dirfp != nullptr) closedir(this->dirfp);
+	this->dirfp = nullptr;
 }
 
 bool UnixDirectoryReader::EntryIsFile()
@@ -178,7 +178,7 @@ RcdFile::RcdFile(const char *fname)
 	this->file_pos = 0;
 	this->file_size = 0;
 	this->fp = fopen(fname, "rb");
-	if (this->fp == NULL) return;
+	if (this->fp == nullptr) return;
 
 	fseek(this->fp, 0L, SEEK_END);
 	this->file_size = ftell(this->fp);
@@ -188,7 +188,7 @@ RcdFile::RcdFile(const char *fname)
 /** Destructor. */
 RcdFile::~RcdFile()
 {
-	if (this->fp != NULL) fclose(fp);
+	if (this->fp != nullptr) fclose(fp);
 }
 
 /**
@@ -273,7 +273,7 @@ int32 RcdFile::GetInt32()
  */
 bool RcdFile::CheckFileHeader(const char *hdr_name, uint32 version)
 {
-	if (this->fp == NULL) return false;
+	if (this->fp == nullptr) return false;
 	if (this->GetRemaining() < 8) return false;
 
 	char name[5];

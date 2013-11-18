@@ -93,9 +93,9 @@ bool LoadPRSG(RcdFile *rcd_file, uint32 length)
 Person::Person() : rnd()
 {
 	this->type = PERSON_INVALID;
-	this->name = NULL;
-	this->next = NULL;
-	this->prev = NULL;
+	this->name = nullptr;
+	this->next = nullptr;
+	this->prev = nullptr;
 
 	this->offset = this->rnd.Uniform(100);
 }
@@ -130,7 +130,7 @@ const char *Person::GetName() const
 	static char buffer[16];
 
 	assert(PersonIsAGuest(this->type));
-	if (this->name != NULL) return this->name;
+	if (this->name != nullptr) return this->name;
 	sprintf(buffer, "Guest %u", this->id);
 	return buffer;
 }
@@ -173,7 +173,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
-	this->name = NULL;
+	this->name = nullptr;
 
 	/* Set up the person sprite recolouring table. */
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
@@ -422,7 +422,7 @@ void Person::DecideMoveDirection()
 				rvd = RVD_NO_RIDE; // but a path instead.
 			} else {
 				const RideInstance *ri = RideExistsAtBottom(this->x_vox, this->y_vox, z, exit_edge);
-				if (ri != NULL) {
+				if (ri != nullptr) {
 					Point16 dxy = _tile_dxy[exit_edge];
 					if (ri->CanBeVisited(this->x_vox + dxy.x, this->y_vox + dxy.y, z, exit_edge)) rvd = this->WantToVisit(ri);
 				}
@@ -495,7 +495,7 @@ void Person::DecideMoveDirection()
 void Person::StartAnimation(const WalkInformation *walk)
 {
 	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
-	assert(anim != NULL && anim->frame_count != 0);
+	assert(anim != nullptr && anim->frame_count != 0);
 
 	this->walk = walk;
 	this->frames = anim->frames;
@@ -515,7 +515,7 @@ void Person::DeActivate(AnimateResult ar)
 
 	/* Close possible Guest Info window */
 	Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
-	if (wi != NULL) {
+	if (wi != nullptr) {
 		_manager.DeleteWindow(wi);
 	}
 
@@ -525,7 +525,7 @@ void Person::DeActivate(AnimateResult ar)
 	}
 	this->type = PERSON_INVALID;
 	free(this->name);
-	this->name = NULL;
+	this->name = nullptr;
 }
 
 /**
@@ -540,7 +540,7 @@ AnimateResult Person::OnAnimate(int delay)
 
 	this->MarkDirty(); // Marks the entire voxel dirty, which should be big enough even after moving.
 
-	if (this->frames == NULL || this->frame_count == 0) return OAR_REMOVE;
+	if (this->frames == nullptr || this->frame_count == 0) return OAR_REMOVE;
 
 	int16 x_limit = -1;
 	switch (GB(this->walk->limit_type, WLM_X_START, WLM_LIMIT_LENGTH)) {
@@ -641,14 +641,14 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 	/* At bottom of the voxel. */
 	Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
-	if (v != NULL) {
+	if (v != nullptr) {
 		SmallRideInstance instance = v->GetInstance();
 		if (instance >= SRI_FULL_RIDES) {
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
 			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge)) {
 				Guest *guest = dynamic_cast<Guest *>(this);
-				if (guest != NULL) guest->VisitShop(ri);
+				if (guest != nullptr) guest->VisitShop(ri);
 			}
 			/* Ride is closed, or not a guest, fall-through to reversing movement. */
 
@@ -674,7 +674,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->z_pos = 255;
 		v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 	}
-	if (v != NULL && HasValidPath(v)) {
+	if (v != nullptr && HasValidPath(v)) {
 		v->persons.AddFirst(this);
 		this->DecideMoveDirection();
 		return OAR_OK;
