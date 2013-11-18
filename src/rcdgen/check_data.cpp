@@ -66,11 +66,11 @@ static void ExpandNoExpression(ExpressionList *exprs, const Position &pos, const
  * @param node %Name of the node.
  * @return Value of the string (caller should release the memory after use).
  */
-static char *GetString(ExpressionRef &expr, int index, const char *node)
+static std::string GetString(ExpressionRef &expr, int index, const char *node)
 {
 	/* Simple case, expression is a string literal. */
 	StringLiteral *sl = dynamic_cast<StringLiteral *>(expr.Access());
-	if (sl != nullptr) return sl->CopyText();
+	if (sl != nullptr) return sl->text;
 
 	/* General case, compute its value. */
 	ExpressionRef expr2 = expr.Access()->Evaluate(nullptr);
@@ -79,8 +79,7 @@ static char *GetString(ExpressionRef &expr, int index, const char *node)
 		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a string", expr.Access()->pos.ToString(), index + 1, node);
 		exit(1);
 	}
-	char *result = sl->CopyText();
-	return result;
+	return sl->text;
 }
 
 // No  foo(1234) { ... } nodes exist yet, so number parsing is not needed currently.
@@ -120,7 +119,7 @@ static std::shared_ptr<FileNode> ConvertFileNode(NodeGroup *ng)
 	ExpressionRef argument;
 	ExpandExpressions(ng->exprs, &argument, 1, ng->pos, "file");
 
-	char *filename = GetString(argument, 0, "file");
+	std::string filename = GetString(argument, 0, "file");
 	auto fn = std::make_shared<FileNode>(filename);
 
 	for (std::list<BaseNamedValue *>::iterator iter = ng->values->values.begin(); iter != ng->values->values.end(); ++iter) {
@@ -259,13 +258,13 @@ fail:
 		exit(1);
 	}
 	StringLiteral *sl = dynamic_cast<StringLiteral *>(this->expr_value.Access()); // Simple common case.
-	if (sl != nullptr) return std::string(sl->text);
+	if (sl != nullptr) return sl->text;
 
 	ExpressionRef expr2 = this->expr_value.Access()->Evaluate(nullptr); // Generic case
 	sl = dynamic_cast<StringLiteral *>(expr2.Access());
 	if (sl == nullptr) goto fail;
 
-	return std::string(sl->text);
+	return sl->text;
 }
 
 /**
@@ -334,7 +333,7 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInfor
 		if (!il->IsValid()) return; // Only available name cannot be used.
 
 		ParameterizedName parms_name;
-		HorVert hv = parms_name.DecodeName(il->name, il->pos);
+		HorVert hv = parms_name.DecodeName(il->name.c_str(), il->pos);
 		if (hv != HV_NONE) {
 			/* Expand the parameterized name. */
 			int row = 0;
@@ -365,9 +364,9 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInfor
 		for (std::list<IdentifierLine *>::iterator col_iter = nr->identifiers.begin(); col_iter != nr->identifiers.end(); ++col_iter) {
 			IdentifierLine *il = *col_iter;
 			if (il->IsValid()) {
-				CheckIsSingleName(il->name, il->pos);
+				CheckIsSingleName(il->name.c_str(), il->pos);
 				vis[*length].expr_value = nullptr;
-				vis[*length].node_value = bn->GetSubNode(row, col, il->name, il->pos);
+				vis[*length].node_value = bn->GetSubNode(row, col, il->name.c_str(), il->pos);
 				vis[*length].name = std::string(il->name);
 				vis[*length].pos = il->pos;
 				vis[*length].used = false;
@@ -1368,7 +1367,7 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(NodeGroup *ng)
 		if (err == nullptr) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 
 		if (err != nullptr) {
-			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name, err);
+			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name.c_str(), err);
 			exit(1);
 		}
 	}
@@ -1931,42 +1930,42 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(NodeGroup *ng)
  */
 static std::shared_ptr<BlockNode> ConvertNodeGroup(NodeGroup *ng)
 {
-	if (strcmp(ng->name, "file")  == 0) return ConvertFileNode(ng);
-	if (strcmp(ng->name, "sheet") == 0) return ConvertSheetNode(ng);
-	if (strcmp(ng->name, "sprite") == 0) return ConvertSpriteNode(ng);
-	if (strcmp(ng->name, "person_graphics") == 0) return ConvertPersonGraphicsNode(ng);
-	if (strcmp(ng->name, "recolour") == 0) return ConvertRecolourNode(ng);
-	if (strcmp(ng->name, "frame_data") == 0) return ConvertFrameDataNode(ng);
-	if (strcmp(ng->name, "strings") == 0) return ConvertStringsNode(ng);
-	if (strcmp(ng->name, "string") == 0) return ConvertTextNode(ng);
-	if (strcmp(ng->name, "track_voxel") == 0) return ConvertTrackVoxel(ng);
-	if (strcmp(ng->name, "connection") == 0) return ConvertConnection(ng);
-	if (strcmp(ng->name, "track_piece") == 0) return ConvertTrackPieceNode(ng);
-	if (strcmp(ng->name, "bitmask") == 0) return ConvertBitMaskNode(ng);
+	if (ng->name == "file") return ConvertFileNode(ng);
+	if (ng->name == "sheet") return ConvertSheetNode(ng);
+	if (ng->name == "sprite") return ConvertSpriteNode(ng);
+	if (ng->name == "person_graphics") return ConvertPersonGraphicsNode(ng);
+	if (ng->name == "recolour") return ConvertRecolourNode(ng);
+	if (ng->name == "frame_data") return ConvertFrameDataNode(ng);
+	if (ng->name == "strings") return ConvertStringsNode(ng);
+	if (ng->name == "string") return ConvertTextNode(ng);
+	if (ng->name == "track_voxel") return ConvertTrackVoxel(ng);
+	if (ng->name == "connection") return ConvertConnection(ng);
+	if (ng->name == "track_piece") return ConvertTrackPieceNode(ng);
+	if (ng->name == "bitmask") return ConvertBitMaskNode(ng);
 
 	/* Game blocks. */
-	if (strcmp(ng->name, "TSEL") == 0) return ConvertTSELNode(ng);
-	if (strcmp(ng->name, "TCOR") == 0) return ConvertTCORNode(ng);
-	if (strcmp(ng->name, "SURF") == 0) return ConvertSURFNode(ng);
-	if (strcmp(ng->name, "FUND") == 0) return ConvertFUNDNode(ng);
-	if (strcmp(ng->name, "PRSG") == 0) return ConvertPRSGNode(ng);
-	if (strcmp(ng->name, "ANIM") == 0) return ConvertANIMNode(ng);
-	if (strcmp(ng->name, "ANSP") == 0) return ConvertANSPNode(ng);
-	if (strcmp(ng->name, "PATH") == 0) return ConvertPATHNode(ng);
-	if (strcmp(ng->name, "PLAT") == 0) return ConvertPLATNode(ng);
-	if (strcmp(ng->name, "SUPP") == 0) return ConvertSUPPNode(ng);
-	if (strcmp(ng->name, "SHOP") == 0) return ConvertSHOPNode(ng);
-	if (strcmp(ng->name, "GBOR") == 0) return ConvertGBORNode(ng);
-	if (strcmp(ng->name, "GCHK") == 0) return ConvertGCHKNode(ng);
-	if (strcmp(ng->name, "GSLI") == 0) return ConvertGSLINode(ng);
-	if (strcmp(ng->name, "GSCL") == 0) return ConvertGSCLNode(ng);
-	if (strcmp(ng->name, "BDIR") == 0) return ConvertBDIRNode(ng);
-	if (strcmp(ng->name, "GSLP") == 0) return ConvertGSLPNode(ng);
-	if (strcmp(ng->name, "RCST") == 0) return ConvertRCSTNode(ng);
-	if (strcmp(ng->name, "CARS") == 0) return ConvertCARSNode(ng);
+	if (ng->name == "TSEL") return ConvertTSELNode(ng);
+	if (ng->name == "TCOR") return ConvertTCORNode(ng);
+	if (ng->name == "SURF") return ConvertSURFNode(ng);
+	if (ng->name == "FUND") return ConvertFUNDNode(ng);
+	if (ng->name == "PRSG") return ConvertPRSGNode(ng);
+	if (ng->name == "ANIM") return ConvertANIMNode(ng);
+	if (ng->name == "ANSP") return ConvertANSPNode(ng);
+	if (ng->name == "PATH") return ConvertPATHNode(ng);
+	if (ng->name == "PLAT") return ConvertPLATNode(ng);
+	if (ng->name == "SUPP") return ConvertSUPPNode(ng);
+	if (ng->name == "SHOP") return ConvertSHOPNode(ng);
+	if (ng->name == "GBOR") return ConvertGBORNode(ng);
+	if (ng->name == "GCHK") return ConvertGCHKNode(ng);
+	if (ng->name == "GSLI") return ConvertGSLINode(ng);
+	if (ng->name == "GSCL") return ConvertGSCLNode(ng);
+	if (ng->name == "BDIR") return ConvertBDIRNode(ng);
+	if (ng->name == "GSLP") return ConvertGSLPNode(ng);
+	if (ng->name == "RCST") return ConvertRCSTNode(ng);
+	if (ng->name == "CARS") return ConvertCARSNode(ng);
 
 	/* Unknown type of node. */
-	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\"\n", ng->pos.ToString(), ng->name);
+	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\"\n", ng->pos.ToString(), ng->name.c_str());
 	exit(1);
 }
 

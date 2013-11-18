@@ -13,6 +13,7 @@
 #define FILE_WRITING_H
 
 #include <list>
+#include <string>
 
 /** A block in an RCD file. See #StartSave for details on usage. */
 class FileBlock {
@@ -49,7 +50,7 @@ public:
 
 	int AddBlock(FileBlock *fb);
 
-	void WriteFile(const char *fname);
+	void WriteFile(const std::string fname);
 
 private:
 	FileBlockPtrList blocks; ///< Blocks stored in the file so far.

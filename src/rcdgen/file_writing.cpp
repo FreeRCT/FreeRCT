@@ -176,17 +176,17 @@ int FileWriter::AddBlock(FileBlock *blk)
  * Write all blocks of the RCD file to the file.
  * @param fname Filename to create.
  */
-void FileWriter::WriteFile(const char *fname)
+void FileWriter::WriteFile(std::string fname)
 {
-	FILE *fp = fopen(fname, "wb");
+	FILE *fp = fopen(fname.c_str(), "wb");
 	if (fp == nullptr) {
-		fprintf(stderr, "Failed to open \"%s\" for writing.", fname);
+		fprintf(stderr, "Failed to open \"%s\" for writing.", fname.c_str());
 		exit(1);
 	}
 
 	static const uint8 file_header[8] = {'R', 'C', 'D', 'F', 1, 0, 0, 0};
 	if (fwrite(file_header, 1, 8, fp) != 8) {
-		fprintf(stderr, "Failed to write the RCD file header of \"%s\".", fname);
+		fprintf(stderr, "Failed to write the RCD file header of \"%s\".", fname.c_str());
 		exit(1);
 	}
 

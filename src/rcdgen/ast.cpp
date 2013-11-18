@@ -25,9 +25,8 @@ Position::Position()
  * @param filename Name of the file containing the position.
  * @param line Line number in the file.
  */
-Position::Position(const char *filename, int line)
+Position::Position(const char *filename, int line) : filename(filename)
 {
-	this->filename = filename;
 	this->line = line;
 }
 
@@ -36,9 +35,8 @@ Position::Position(const char *filename, int line)
  * @param filename Name of the file containing the position.
  * @param line Line number in the file.
  */
-Position::Position(std::string &filename, int line)
+Position::Position(const std::string &filename, int line) : filename(filename)
 {
-	this->filename = filename;
 	this->line = line;
 }
 
@@ -46,9 +44,8 @@ Position::Position(std::string &filename, int line)
  * Constructor of a position.
  * @param pos %Position to copy.
  */
-Position::Position(const Position &pos)
+Position::Position(const Position &pos) : filename(pos.filename)
 {
-	this->filename = pos.filename;
 	this->line = pos.line;
 }
 
@@ -142,14 +139,12 @@ ExpressionRef UnaryOperator::Evaluate(const Symbol *symbols) const
  * @param pos %Position of the string literal.
  * @param text String literal content itself.
  */
-StringLiteral::StringLiteral(const Position &pos, char *text) : Expression(pos)
+StringLiteral::StringLiteral(const Position &pos, const std::string &text) : Expression(pos), text(text)
 {
-	this->text = text;
 }
 
 StringLiteral::~StringLiteral()
 {
-	delete[] this->text;
 }
 
 ExpressionRef StringLiteral::Evaluate(const Symbol *symbols) const
@@ -159,38 +154,24 @@ ExpressionRef StringLiteral::Evaluate(const Symbol *symbols) const
 }
 
 /**
- * Return a copy of the text of the string literal.
- * @return A copy of the string value.
- */
-char *StringLiteral::CopyText() const
-{
-	int length = strlen(this->text);
-	char *copy = new char[length + 1];
-	memcpy(copy, this->text, length + 1);
-	return copy;
-}
-
-/**
  * An identifier as elementary expression.
  * @param pos %Position of the identifier.
  * @param name The identifier to store.
  */
-IdentifierLiteral::IdentifierLiteral(const Position &pos, char *name) : Expression(pos)
+IdentifierLiteral::IdentifierLiteral(const Position &pos, const std::string &name) : Expression(pos), name(name)
 {
-	this->name = name;
 }
 
 IdentifierLiteral::~IdentifierLiteral()
 {
-	delete[] this->name;
 }
 
 ExpressionRef IdentifierLiteral::Evaluate(const Symbol *symbols) const
 {
 	if (symbols != nullptr) {
 		for (;;) {
-			if (symbols->name == nullptr) break;
-			if (strcmp(symbols->name, this->name) == 0) {
+			if (symbols->name == nullptr) break; // Reached the end.
+			if (symbols->name == this->name) {
 				Expression *expr = new NumberLiteral(this->pos, symbols->value);
 				ExpressionRef result(expr);
 				return result;
@@ -198,7 +179,7 @@ ExpressionRef IdentifierLiteral::Evaluate(const Symbol *symbols) const
 			symbols++;
 		}
 	}
-	fprintf(stderr, "Evaluate error %s: Identifier \"%s\" is not known\n", this->pos.ToString(), this->name);
+	fprintf(stderr, "Evaluate error %s: Identifier \"%s\" is not known\n", this->pos.ToString(), this->name.c_str());
 	exit(1);
 }
 
@@ -281,14 +262,12 @@ Name::~Name() {
  * @param pos %Position of the label name.
  * @param name The label name itself.
  */
-SingleName::SingleName(const Position &pos, char *name) : Name(), pos(pos)
+SingleName::SingleName(const Position &pos, char *name) : Name(), pos(pos), name(name)
 {
-	this->name = name;
 }
 
 SingleName::~SingleName()
 {
-	delete[] this->name;
 }
 
 const Position &SingleName::GetPosition() const
@@ -306,9 +285,8 @@ int SingleName::GetNameCount() const
  * @param pos %Position of the name.
  * @param name The identifier to store.
  */
-IdentifierLine::IdentifierLine(const Position &pos, char *name) : pos(pos)
+IdentifierLine::IdentifierLine(const Position &pos, char *name) : pos(pos), name(name)
 {
-	this->name = name;
 }
 
 /**
@@ -317,9 +295,7 @@ IdentifierLine::IdentifierLine(const Position &pos, char *name) : pos(pos)
  */
 IdentifierLine::IdentifierLine(const IdentifierLine &il) : pos(il.pos)
 {
-	int length = strlen(il.name);
-	this->name = new char[length + 1];
-	memcpy(this->name, il.name, length + 1);
+	this->name = il.name;
 }
 
 /**
@@ -330,18 +306,13 @@ IdentifierLine::IdentifierLine(const IdentifierLine &il) : pos(il.pos)
 IdentifierLine &IdentifierLine::operator=(const IdentifierLine &il)
 {
 	if (&il == this) return *this;
-	delete[] this->name;
-
 	this->pos = il.pos;
-	int length = strlen(il.name);
-	this->name = new char[length + 1];
-	memcpy(this->name, il.name, length + 1);
+	this->name = il.name;
 	return *this;
 }
 
 IdentifierLine::~IdentifierLine()
 {
-	delete[] this->name;
 }
 
 /**
@@ -360,12 +331,11 @@ const Position &IdentifierLine::GetPosition() const
 bool IdentifierLine::IsValid() const
 {
 	bool valid = true;
-	if (this->name == nullptr) return false;
 	if (valid && this->name[0] == '\0') valid = false;
 	if (valid && this->name[0] == '_') {
 		valid = false;
-		if (!ParameterizedName::HasNoParameters(this->name)) {
-			fprintf(stderr, "Cannot disable parameterized name \"%s\"", this->name);
+		if (!ParameterizedName::HasNoParameters(this->name.c_str())) {
+			fprintf(stderr, "Cannot disable parameterized name \"%s\"", this->name.c_str());
 			exit(1);
 		}
 	}
@@ -447,7 +417,7 @@ int NameTable::GetNameCount() const
 		const IdentifierLine *il = this->rows.front()->identifiers.front();
 		assert(il->IsValid());
 		ParameterizedName parms_name;
-		HorVert hv = parms_name.DecodeName(il->name, il->pos);
+		HorVert hv = parms_name.DecodeName(il->name.c_str(), il->pos);
 		switch (hv) {
 			case HV_NONE: return 1;
 			case HV_HOR:  return parms_name.hor_range.size();
@@ -503,16 +473,14 @@ ExpressionGroup *Group::CastToExpressionGroup()
  * @param exprs Actual parameters of the node.
  * @param values Named values of the node.
  */
-NodeGroup::NodeGroup(const Position &pos, char *name, ExpressionList *exprs, NamedValueList *values) : Group(), pos(pos)
+NodeGroup::NodeGroup(const Position &pos, char *name, ExpressionList *exprs, NamedValueList *values) : Group(), pos(pos), name(name)
 {
-	this->name = name;
 	this->exprs = exprs;
 	this->values = values;
 }
 
 NodeGroup::~NodeGroup()
 {
-	delete[] this->name;
 	delete this->exprs;
 	delete this->values;
 }
@@ -597,14 +565,12 @@ void NamedValue::HandleImports()
  * @param pos %Position of the import.
  * @param filename File name being imported.
  */
-ImportValue::ImportValue(const Position &pos, char *filename) : BaseNamedValue(), pos(pos)
+ImportValue::ImportValue(const Position &pos, char *filename) : BaseNamedValue(), pos(pos), filename(filename)
 {
-	this->filename = filename;
 }
 
 ImportValue::~ImportValue()
 {
-	delete[] this->filename;
 }
 
 void ImportValue::HandleImports()
@@ -633,7 +599,7 @@ void NamedValueList::HandleImports()
 		ImportValue *iv = dynamic_cast<ImportValue *>(*iter);
 		if (iv != nullptr) {
 			has_import = true;
-			NamedValueList *nv = LoadFile(iv->filename, iv->pos.line);
+			NamedValueList *nv = LoadFile(iv->filename.c_str(), iv->pos.line);
 			for (std::list<BaseNamedValue *>::iterator iter2 = nv->values.begin(); iter2 != nv->values.end(); ++iter2) {
 				values.push_back(*iter2);
 			}

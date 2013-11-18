@@ -21,7 +21,7 @@ class Position {
 public:
 	Position();
 	Position(const char *filename, int line);
-	Position(std::string &filename, int line);
+	Position(const std::string &filename, int line);
 	Position(const Position &pos);
 	Position &operator=(const Position &pos);
 	~Position();
@@ -82,13 +82,11 @@ protected:
 /** String literal elementary expression node. */
 class StringLiteral : public Expression {
 public:
-	StringLiteral(const Position &pos, char *text);
+	StringLiteral(const Position &pos, const std::string &text);
 
 	ExpressionRef Evaluate(const Symbol *symbols) const override;
 
-	char *CopyText() const;
-
-	char *text; ///< Text of the string literal (decoded).
+	const std::string text; ///< Text of the string literal (decoded).
 
 protected:
 	~StringLiteral();
@@ -97,11 +95,11 @@ protected:
 /** Identifier elementary expression node. */
 class IdentifierLiteral : public Expression {
 public:
-	IdentifierLiteral(const Position &pos, char *name);
+	IdentifierLiteral(const Position &pos, const std::string &name);
 
 	ExpressionRef Evaluate(const Symbol *symbols) const override;
 
-	char *name; ///< The identifier of the expression.
+	const std::string name; ///< The identifier of the expression.
 
 protected:
 	~IdentifierLiteral();
@@ -153,7 +151,7 @@ public:
 	int GetNameCount() const override;
 
 	const Position pos; ///< %Position of the label.
-	char *name;         ///< The label itself.
+	const std::string name;   ///< The label itself.
 };
 
 /** Somewhat generic class for storing an identifier and its position. */
@@ -167,8 +165,8 @@ public:
 	const Position &GetPosition() const;
 	bool IsValid() const;
 
-	Position pos; ///< %Position of the label.
-	char *name;   ///< The label itself.
+	Position pos;     ///< %Position of the label.
+	std::string name; ///< The label itself.
 };
 
 /**
@@ -229,7 +227,7 @@ public:
 	void HandleImports();
 
 	const Position pos;     ///< %Position of the node name.
-	char *name;             ///< Node name itself.
+	const std::string name; ///< Node name itself.
 	ExpressionList *exprs;  ///< Parameters of the node.
 	NamedValueList *values; ///< Named values of the node.
 };
@@ -275,8 +273,8 @@ public:
 
 	void HandleImports() override;
 
-	const Position pos; ///< %Position of the import.
-	char *filename;     ///< Name of the file to import.
+	const Position pos;         ///< %Position of the import.
+	const std::string filename; ///< Name of the file to import.
 };
 
 /** Sequence of named values. */

@@ -53,14 +53,9 @@ GameBlock::GameBlock(const char *blk_name, int version) : BlockNode()
  * Constructor of the file node.
  * @param file_name Name of the file to write to.
  */
-FileNode::FileNode(char *file_name) : BlockNode()
+FileNode::FileNode(const std::string &file_name) : BlockNode()
 {
 	this->file_name = file_name;
-}
-
-FileNode::~FileNode()
-{
-	delete[] file_name;
 }
 
 /**

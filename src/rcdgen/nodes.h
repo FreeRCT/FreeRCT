@@ -45,12 +45,11 @@ public:
 /** Node representing an RCD file. */
 class FileNode : public BlockNode {
 public:
-	FileNode(char *file_name);
-	~FileNode();
+	FileNode(const std::string &file_name);
 
 	void Write(FileWriter *fw);
 
-	char *file_name; ///< %Name of the RCD file.
+	std::string file_name; ///< %Name of the RCD file.
 	std::list<std::shared_ptr<GameBlock>> blocks; ///< Blocks of the file.
 };
 
