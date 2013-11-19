@@ -34,7 +34,7 @@ public:
 
 private:
 	void Setlevelling(bool level);
-	void SetSize(int xs = -1, int ys = -1);
+	void SetTerraformSize(int xs = -1, int ys = -1);
 	void IncreaseSize();
 	void DecreaseSize();
 };
@@ -76,7 +76,7 @@ TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
 	this->Setlevelling(true);
-	this->SetSize(1, 1);
+	this->SetTerraformSize(1, 1);
 
 	_terraformer.OpenWindow();
 }
@@ -179,7 +179,7 @@ void TerraformGui::Setlevelling(bool level)
  * @param xs If positive, the horizontal size of the terraform area.
  * @param ys If positive, the vertical size of the terraform area.
  */
-void TerraformGui::SetSize(int xs, int ys)
+void TerraformGui::SetTerraformSize(int xs, int ys)
 {
 	if (xs >= 0) this->xsize = xs;
 	if (ys >= 0) this->ysize = ys;
@@ -194,11 +194,11 @@ void TerraformGui::IncreaseSize()
 	if (this->xsize >= TERRAFORM_MAX_SIZE && this->ysize >= TERRAFORM_MAX_SIZE) return;
 
 	if (this->xsize == 0 && this->ysize == 0) {
-		this->SetSize(1, 1);
+		this->SetTerraformSize(1, 1);
 	} else if (this->xsize > this->ysize) {
-		this->SetSize(-1, this->ysize + 1);
+		this->SetTerraformSize(-1, this->ysize + 1);
 	} else {
-		this->SetSize(this->xsize + 1, -1);
+		this->SetTerraformSize(this->xsize + 1, -1);
 	}
 }
 
@@ -208,11 +208,11 @@ void TerraformGui::DecreaseSize()
 	if (this->xsize < 1 && this->ysize < 1) return;
 
 	if (this->xsize == 1 && this->ysize == 1) {
-		this->SetSize(0, 0);
+		this->SetTerraformSize(0, 0);
 	} else if (this->xsize > this->ysize) {
-		this->SetSize(this->xsize - 1, -1);
+		this->SetTerraformSize(this->xsize - 1, -1);
 	} else {
-		this->SetSize(-1, this->ysize - 1);
+		this->SetTerraformSize(-1, this->ysize - 1);
 	}
 }
 
