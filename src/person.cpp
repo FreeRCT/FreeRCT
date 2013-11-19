@@ -524,7 +524,7 @@ void Person::DeActivate(AnimateResult ar)
 		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
 	}
 	this->type = PERSON_INVALID;
-	free(this->name);
+	delete[] this->name;
 	this->name = nullptr;
 }
 
