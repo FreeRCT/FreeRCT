@@ -12,7 +12,7 @@
 #ifndef CONFIG_READER_H
 #define CONFIG_READER_H
 
-#include <list>
+#include <forward_list>
 
 /**
  * Item in a configuration file (a key/value pair).
@@ -29,10 +29,9 @@ public:
 
 /**
  * A list of items.
- * @todo [medium] A std::list of items is overkill, a single linked list is more than enough.
  * @ingroup fileio_group
  */
-typedef std::list<ConfigItem *> ConfigItemList;
+typedef std::forward_list<ConfigItem *> ConfigItemList;
 
 /**
  * Section in a configuration file (a set of related items).
@@ -51,10 +50,9 @@ public:
 
 /**
  * A list of sections.
- * @todo [medium] A std::list of sections is overkill, a single linked list is more than enough.
  * @ingroup fileio_group
  */
-typedef std::list<ConfigSection *> ConfigSectionList;
+typedef std::forward_list<ConfigSection *> ConfigSectionList;
 
 /**
  * A configuration file.

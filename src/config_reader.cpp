@@ -142,7 +142,7 @@ bool ConfigFile::Load(const char *fname)
 				*line2 = '\0';
 				/* XXX Look for an existing config section? */
 				current_sect = new ConfigSection(StripWhitespace(line + 1, line2));
-				this->sections.push_back(current_sect);
+				this->sections.push_front(current_sect);
 			}
 			continue;
 		}
@@ -160,7 +160,7 @@ bool ConfigFile::Load(const char *fname)
 			/* No value. */
 			item = new ConfigItem(StripWhitespace(line, line2), "");
 		}
-		current_sect->items.push_back(item);
+		current_sect->items.push_front(item);
 	}
 	fclose(fp);
 	return true;
