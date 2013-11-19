@@ -119,16 +119,6 @@ PathBuildGui::~PathBuildGui()
 	_path_builder.SetPathGuiState(false);
 }
 
-/** Array with slope selection widget numbers. */
-static const WidgetNumber _slope_widgets[] = {
-	PATH_GUI_SLOPE_DOWN, PATH_GUI_SLOPE_FLAT, PATH_GUI_SLOPE_UP, INVALID_WIDGET_INDEX
-};
-
-/** Array with direction selection widget numbers. */
-static const WidgetNumber _direction_widgets[] = {
-	PATH_GUI_NE_DIRECTION, PATH_GUI_SE_DIRECTION, PATH_GUI_SW_DIRECTION, PATH_GUI_NW_DIRECTION, INVALID_WIDGET_INDEX
-};
-
 void PathBuildGui::OnClick(WidgetNumber number)
 {
 	switch (number) {
