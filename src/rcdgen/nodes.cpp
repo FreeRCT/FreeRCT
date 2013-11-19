@@ -459,16 +459,15 @@ void Strings::CheckTranslations(const char *names[], int name_count, const Posit
 	TextNode tn;
 	for (int i = 0; i < name_count; i++) {
 		tn.name = names[i];
-		std::set<TextNode>::iterator iter = this->texts.find(tn);
-		if (iter == this->texts.end()) {
+		if (this->texts.find(tn) == this->texts.end()) {
 			fprintf(stderr, "Error at %s: String \"%s\" is not defined\n", pos.ToString(), names[i]);
 			exit(1);
 		}
 	}
 	/* Check that all strings have a default text. */
-	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); ++iter) {
-		if ((*iter).pos[0].line < 0) {
-			fprintf(stderr, "Error at %s: String \"%s\" has no default language text\n", pos.ToString(), (*iter).name.c_str());
+	for (const auto &iter : this->texts) {
+		if (iter.pos[0].line < 0) {
+			fprintf(stderr, "Error at %s: String \"%s\" has no default language text\n", pos.ToString(), iter.name.c_str());
 			exit(1);
 		}
 	}
@@ -483,13 +482,13 @@ int Strings::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	int length = 0;
-	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); ++iter) {
-		length += (*iter).GetSize();
+	for (const auto &iter : this->texts) {
+		length += iter.GetSize();
 	}
 	fb->StartSave("TEXT", 1, length);
 
-	for (std::set<TextNode>::const_iterator iter = this->texts.begin(); iter != this->texts.end(); ++iter) {
-		(*iter).Write(fb);
+	for (const auto &iter : this->texts) {
+		iter.Write(fb);
 	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
@@ -792,9 +791,9 @@ Connection::Connection(const std::string &name, int direction)
  */
 uint8 Connection::Encode(const std::map<std::string, int> &connections, int rot)
 {
-	std::map<std::string, int>::const_iterator iter = connections.find(this->name);
+	const auto iter = connections.find(this->name);
 	assert(iter != connections.end());
-	return ((*iter).second << 2) | ((this->direction + rot) & 3);
+	return (iter->second << 2) | ((this->direction + rot) & 3);
 }
 
 /**
@@ -803,16 +802,12 @@ uint8 Connection::Encode(const std::map<std::string, int> &connections, int rot)
  */
 void TrackPieceNode::UpdateConnectionMap(std::map<std::string, int> *connections)
 {
-	std::map<std::string, int>::iterator iter;
-
-	iter = connections->find(this->entry->name);
-	if (iter == connections->end()) {
+	if (connections->find(this->entry->name) == connections->end()) {
 		std::pair<std::string, int> pp(this->entry->name, connections->size());
 		connections->insert(pp);
 	}
 
-	iter = connections->find(this->exit->name);
-	if (iter == connections->end()) {
+	if (connections->find(this->exit->name) == connections->end()) {
 		std::pair<std::string, int> pp(this->exit->name, connections->size());
 		connections->insert(pp);
 	}

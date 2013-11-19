@@ -54,8 +54,8 @@ ConfigSection::~ConfigSection()
  */
 const ConfigItem *ConfigSection::GetItem(const char *key) const
 {
-	for (ConfigItemList::const_iterator iter = this->items.begin(); iter != this->items.end(); ++iter) {
-		if (!strcmp((*iter)->key, key)) return *iter;
+	for (const auto &iter : this->items) {
+		if (!strcmp(iter->key, key)) return iter;
 	}
 	return nullptr;
 }
@@ -73,9 +73,7 @@ ConfigFile::~ConfigFile()
 /** Clean the config file. */
 void ConfigFile::Clear()
 {
-	for (ConfigSectionList::iterator iter = this->sections.begin(); iter != this->sections.end(); ++iter) {
-		free(*iter);
-	}
+	for (auto &iter : this->sections) delete iter;
 }
 
 /**
@@ -175,8 +173,8 @@ bool ConfigFile::Load(const char *fname)
  */
 const ConfigSection *ConfigFile::GetSection(const char *sect_name) const
 {
-	for (ConfigSectionList::const_iterator iter = this->sections.begin(); iter != this->sections.end(); ++iter) {
-		if (!strcmp((*iter)->sect_name, sect_name)) return *iter;
+	for (const auto &iter : this->sections) {
+		if (!strcmp(iter->sect_name, sect_name)) return iter;
 	}
 	return nullptr;
 }

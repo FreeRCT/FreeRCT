@@ -134,7 +134,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 	if (pos.x < this->base.x || pos.x >= this->base.x + this->xsize) return nullptr;
 	if (pos.y < this->base.y || pos.y >= this->base.y + this->ysize) return nullptr;
 
-	GroundModificationMap::iterator iter = this->changes.find(pos);
+	auto iter = this->changes.find(pos);
 	if (iter == this->changes.end()) {
 		uint8 height = _world.GetGroundHeight(pos.x, pos.y);
 		const Voxel *v = _world.GetVoxel(pos.x, pos.y, height);
@@ -446,10 +446,11 @@ bool TerrainChanges::ModifyWorld(int direction)
 
 	_additions.Clear();
 
-	/* First iteration: Change the ground of the tiles, checking whether the change is actually allowed with the other game elements. */
-	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); ++iter) {
-		const Point32 &pos = (*iter).first;
-		const GroundData &gd = (*iter).second;
+	/* First iteration: Change the ground of the tiles, checking
+	 * whether the change is actually allowed with the other game elements. */
+	for (auto &iter : this->changes) {
+		const Point32 &pos = iter.first;
+		const GroundData &gd = iter.second;
 		if (gd.modified == 0) continue;
 
 		uint8 current[4]; // Height of each corner after applying modification.
@@ -518,12 +519,13 @@ bool TerrainChanges::ModifyWorld(int direction)
 	}
 
 	/* Second iteration: Add foundations to every changed tile edge.
-	 * The general idea is that each modified voxel handles adding of foundation to its SE and SW edge.
-	 * If the NE or NW voxel is not modified, the voxel will have to perform adding of foundations there as well.
-	 */
-	for (GroundModificationMap::iterator iter = this->changes.begin(); iter != this->changes.end(); ++iter) {
-		const Point32 &pos = (*iter).first;
-		const GroundData &gd = (*iter).second;
+	 * The general idea is that each modified voxel handles adding
+	 * of foundation to its SE and SW edge. If the NE or NW voxel is not
+	 * modified, the voxel will have to perform adding of foundations
+	 * there as well. */
+	for (auto &iter : this->changes) {
+		const Point32 &pos = iter.first;
+		const GroundData &gd = iter.second;
 		if (gd.modified == 0) continue;
 
 		SetXFoundations(pos.x, pos.y);
@@ -532,11 +534,11 @@ bool TerrainChanges::ModifyWorld(int direction)
 		Point32 pt;
 		pt.x = pos.x - 1;
 		pt.y = pos.y;
-		GroundModificationMap::const_iterator iter2 = this->changes.find(pt);
+		auto iter2 = this->changes.find(pt);
 		if (iter2 == this->changes.end()) {
 			SetXFoundations(pt.x, pt.y);
 		} else {
-			const GroundData &gd = (*iter2).second;
+			const GroundData &gd = iter2->second;
 			if (gd.modified == 0) SetXFoundations(pt.x, pt.y);
 		}
 
@@ -719,10 +721,9 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		 * The coupling is restored with the next mouse movement.
 		 */
 		c->zpos = _world.GetGroundHeight(c->xpos, c->ypos);
-		GroundModificationMap::const_iterator iter;
-		for (iter = changes.changes.begin(); iter != changes.changes.end(); ++iter) {
-			const Point32 &pt = (*iter).first;
-			vp->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);
+		for (const auto &iter : changes.changes) {
+			const Point32 &pt = iter.first;
+			vp->MarkVoxelDirty(pt.x, pt.y, iter.second.height);
 		}
 	}
 }
@@ -770,10 +771,10 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 
 	/* Like the dotmode, the cursor position is changed, but the mouse position is not touched to allow more
 	 * mousewheel events to happen at the same place. */
-	for (GroundModificationMap::const_iterator iter = changes.changes.begin(); iter != changes.changes.end(); ++iter) {
-		const Point32 &pt = (*iter).first;
+	for (const auto &iter : changes.changes) {
+		const Point32 &pt = iter.first;
 		c->ResetZPosition(pt);
-		vp->MarkVoxelDirty(pt.x, pt.y, (*iter).second.height);
+		vp->MarkVoxelDirty(pt.x, pt.y, iter.second.height);
 	}
 }
 

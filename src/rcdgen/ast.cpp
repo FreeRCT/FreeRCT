@@ -222,11 +222,11 @@ ExpressionRef BitSet::Evaluate(const Symbol *symbols) const
 {
 	long long value = 0;
 	if (this->args != nullptr) {
-		for (std::list<ExpressionRef>::const_iterator iter = this->args->exprs.begin(); iter != this->args->exprs.end(); ++iter) {
-			ExpressionRef e = (*iter).Access()->Evaluate(symbols);
+		for (const auto &iter : this->args->exprs) {
+			ExpressionRef e = iter.Access()->Evaluate(symbols);
 			NumberLiteral *nl = dynamic_cast<NumberLiteral *>(e.Access());
 			if (nl == nullptr) {
-				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", (*iter).Access()->pos.ToString());
+				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", iter.Access()->pos.ToString());
 				exit(1);
 			}
 			value |= 1ll << nl->value;
@@ -348,9 +348,7 @@ NameRow::NameRow()
 
 NameRow::~NameRow()
 {
-	for (std::list<IdentifierLine *>::iterator iter = this->identifiers.begin(); iter != this->identifiers.end(); ++iter) {
-		delete *iter;
-	}
+	for (auto &iter : this->identifiers) delete iter;
 }
 
 static const Position _dummy_position("", -1); ///< Dummy position.
@@ -372,8 +370,8 @@ const Position &NameRow::GetPosition() const
 int NameRow::GetNameCount() const
 {
 	int count = 0;
-	for (std::list<IdentifierLine *>::const_iterator iter = this->identifiers.begin(); iter != this->identifiers.end(); ++iter) {
-		if ((*iter)->IsValid()) count++;
+	for (const auto &iter : this->identifiers) {
+		if (iter->IsValid()) count++;
 	}
 	return count;
 }
@@ -384,9 +382,7 @@ NameTable::NameTable() : Name()
 
 NameTable::~NameTable()
 {
-	for (std::list<NameRow *>::iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
-		delete *iter;
-	}
+	for (auto &iter : this->rows) delete iter;
 }
 
 /**
@@ -403,8 +399,8 @@ bool NameTable::HasSingleElement() const
 
 const Position &NameTable::GetPosition() const
 {
-	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
-		const Position &pos = (*iter)->GetPosition();
+	for (const auto &iter : this->rows) {
+		const Position &pos = iter->GetPosition();
 		if (pos.line > 0) return pos;
 	}
 	return _dummy_position;
@@ -428,8 +424,8 @@ int NameTable::GetNameCount() const
 	}
 	/* General case, assume non-parameterized names, and return their count. */
 	int count = 0;
-	for (std::list<NameRow *>::const_iterator iter = this->rows.begin(); iter != this->rows.end(); ++iter) {
-		count += (*iter)->GetNameCount();
+	for (const auto &iter : this->rows) {
+		count += iter->GetNameCount();
 	}
 	return count;
 }
@@ -584,9 +580,7 @@ NamedValueList::NamedValueList()
 
 NamedValueList::~NamedValueList()
 {
-	for (std::list<BaseNamedValue *>::iterator iter = this->values.begin(); iter != this->values.end(); ++iter) {
-		delete (*iter);
-	}
+	for (auto &iter : this->values) delete iter;
 }
 
 /** Handle imports in the body. */
@@ -595,20 +589,20 @@ void NamedValueList::HandleImports()
 	bool has_import = false;
 	std::list<BaseNamedValue *> values;
 
-	for (std::list<BaseNamedValue *>::iterator iter = this->values.begin(); iter != this->values.end(); ++iter) {
-		ImportValue *iv = dynamic_cast<ImportValue *>(*iter);
+	for (auto &iter : this->values) {
+		ImportValue *iv = dynamic_cast<ImportValue *>(iter);
 		if (iv != nullptr) {
 			has_import = true;
 			NamedValueList *nv = LoadFile(iv->filename.c_str(), iv->pos.line);
-			for (std::list<BaseNamedValue *>::iterator iter2 = nv->values.begin(); iter2 != nv->values.end(); ++iter2) {
-				values.push_back(*iter2);
+			for (auto &iter2 : nv->values) {
+				values.push_back(iter2);
 			}
 			nv->values.clear();
 			delete nv;
-			delete *iter; // Is not copied into 'values' and will get lost below.
+			delete iter; // Is not copied into 'values' and will get lost below.
 		} else {
-			(*iter)->HandleImports();
-			values.push_back(*iter);
+			iter->HandleImports();
+			values.push_back(iter);
 		}
 	}
 	if (has_import) this->values = values;

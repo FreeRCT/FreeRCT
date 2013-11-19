@@ -40,9 +40,7 @@ static void ExpandExpressions(ExpressionList *exprs, ExpressionRef out[], size_t
 		exit(1);
 	}
 	int idx = 0;
-	for (std::list<ExpressionRef>::iterator iter = exprs->exprs.begin(); iter != exprs->exprs.end(); ++iter) {
-		out[idx++] = *iter;
-	}
+	for (auto &iter : exprs->exprs) out[idx++] = iter;
 }
 
 /**
@@ -122,8 +120,8 @@ static std::shared_ptr<FileNode> ConvertFileNode(NodeGroup *ng)
 	std::string filename = GetString(argument, 0, "file");
 	auto fn = std::make_shared<FileNode>(filename);
 
-	for (std::list<BaseNamedValue *>::iterator iter = ng->values->values.begin(); iter != ng->values->values.end(); ++iter) {
-		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
+	for (auto &iter : ng->values->values) {
+		NamedValue *nv = dynamic_cast<NamedValue *>(iter);
 		assert(nv != nullptr); // Should always hold, as ImportValue has been eliminated.
 		if (nv->name != nullptr) fprintf(stderr, "Warning at %s: Unexpected name encountered, ignoring\n", nv->name->GetPosition().ToString());
 		NodeGroup *ng = nv->group->CastToNodeGroup();
@@ -358,11 +356,11 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, NameTable *nt, ValueInfor
 
 	/* General case, a 2D table with non-parameterized names. */
 	int row = 0;
-	for (std::list<NameRow *>::iterator row_iter = nt->rows.begin(); row_iter != nt->rows.end(); ++row_iter) {
-		NameRow *nr = *row_iter;
+	for (auto &row_iter : nt->rows) {
+		NameRow *nr = row_iter;
 		int col = 0;
-		for (std::list<IdentifierLine *>::iterator col_iter = nr->identifiers.begin(); col_iter != nr->identifiers.end(); ++col_iter) {
-			IdentifierLine *il = *col_iter;
+		for (auto &col_iter : nr->identifiers) {
+			IdentifierLine *il = col_iter;
 			if (il->IsValid()) {
 				CheckIsSingleName(il->name.c_str(), il->pos);
 				vis[*length].expr_value = nullptr;
@@ -457,8 +455,8 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 	/* Count number of named and unnamed values. */
 	int named_count = 0;
 	int unnamed_count = 0;
-	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); ++iter) {
-		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
+	for (auto &iter : values->values) {
+		NamedValue *nv = dynamic_cast<NamedValue *>(iter);
 		assert(nv != nullptr); // Should always hold, as ImportValue has been eliminated.
 		if (nv->name == nullptr) { // Unnamed value.
 			if (!allow_unnamed) {
@@ -480,8 +478,8 @@ void Values::PrepareNamedValues(NamedValueList *values, bool allow_named, bool a
 
 	named_count = 0;
 	unnamed_count = 0;
-	for (std::list<BaseNamedValue *>::iterator iter = values->values.begin(); iter != values->values.end(); ++iter) {
-		NamedValue *nv = dynamic_cast<NamedValue *>(*iter);
+	for (auto &iter : values->values) {
+		NamedValue *nv = dynamic_cast<NamedValue *>(iter);
 		assert(nv != nullptr); // Should always hold, as ImportValue has been eliminated.
 		if (nv->name == nullptr) { // Unnamed value.
 			NodeGroup *ng = nv->group->CastToNodeGroup();
@@ -1683,7 +1681,7 @@ static std::shared_ptr<Strings> ConvertStringsNode(NodeGroup *ng)
 			fprintf(stderr, "Error at %s: Node is not a \"string\" node\n", vi.pos.ToString());
 			exit(1);
 		}
-		std::set<TextNode>::iterator iter = strs->texts.find(*tn);
+		auto iter = strs->texts.find(*tn);
 		if (iter != strs->texts.end()) {
 			for (int j = 0; j < LNG_COUNT; j++) {
 				if (tn->pos[j].line >= 0) {

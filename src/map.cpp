@@ -402,9 +402,8 @@ WorldAdditions::~WorldAdditions()
 /** Remove all modifications. */
 void WorldAdditions::Clear()
 {
-	VoxelStackMap::iterator iter;
-	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); ++iter) {
-		delete (*iter).second;
+	for (auto &iter : this->modified_stacks) {
+		delete iter.second;
 	}
 	this->modified_stacks.clear();
 }
@@ -412,10 +411,9 @@ void WorldAdditions::Clear()
 /** Move modifications to the 'real' #_world. */
 void WorldAdditions::Commit()
 {
-	VoxelStackMap::iterator iter;
-	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); ++iter) {
-		Point32 pt = (*iter).first;
-		_world.MoveStack(pt.x, pt.y, (*iter).second);
+	for (auto &iter : this->modified_stacks) {
+		Point32 pt = iter.first;
+		_world.MoveStack(pt.x, pt.y, iter.second);
 	}
 	this->Clear();
 }
@@ -432,11 +430,11 @@ VoxelStack *WorldAdditions::GetModifyStack(uint16 x, uint16 y)
 	pt.x = x;
 	pt.y = y;
 
-	VoxelStackMap::iterator iter = this->modified_stacks.find(pt);
-	if (iter != this->modified_stacks.end()) return (*iter).second;
+	auto iter = this->modified_stacks.find(pt);
+	if (iter != this->modified_stacks.end()) return iter->second;
 	std::pair<Point32, VoxelStack *> p(pt, _world.GetStack(x, y)->Copy(false));
 	iter = this->modified_stacks.insert(p).first;
-	return (*iter).second;
+	return iter->second;
 }
 
 /**
@@ -451,8 +449,8 @@ const VoxelStack *WorldAdditions::GetStack(uint16 x, uint16 y) const
 	pt.x = x;
 	pt.y = y;
 
-	VoxelStackMap::const_iterator iter = this->modified_stacks.find(pt);
-	if (iter != this->modified_stacks.end()) return (*iter).second;
+	const auto iter = this->modified_stacks.find(pt);
+	if (iter != this->modified_stacks.end()) return iter->second;
 	return _world.GetStack(x, y);
 }
 
@@ -462,10 +460,9 @@ const VoxelStack *WorldAdditions::GetStack(uint16 x, uint16 y) const
  */
 void WorldAdditions::MarkDirty(Viewport *vp)
 {
-	VoxelStackMap::const_iterator iter;
-	for (iter = this->modified_stacks.begin(); iter != this->modified_stacks.end(); ++iter) {
-		const Point32 pt = (*iter).first;
-		const VoxelStack *vstack = (*iter).second;
+	for (const auto &iter : this->modified_stacks) {
+		const Point32 pt = iter.first;
+		const VoxelStack *vstack = iter.second;
 		if (vstack != nullptr) vp->MarkVoxelDirty(pt.x, pt.x, vstack->base, vstack->height);
 	}
 }

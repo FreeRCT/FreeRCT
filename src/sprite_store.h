@@ -571,8 +571,8 @@ public:
 		 * add 4 + mod 4 to get the normalized animation, +1 to get the real animation. */
 		anim_type = (AnimationType)(1 + (4 + (anim_type - 1) - view) % 4);
 
-		for(AnimationSpritesMap::const_iterator iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
-			const AnimationSprites *asp = (*iter).second;
+		for(auto iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
+			const AnimationSprites *asp = iter->second;
 
 			if (asp->anim_type != anim_type) return nullptr;
 			if (asp->person_type == pers_type) return asp->sprites[frame_index];

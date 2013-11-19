@@ -148,9 +148,7 @@ FileWriter::FileWriter()
 
 FileWriter::~FileWriter()
 {
-	for (FileBlockPtrList::iterator iter = this->blocks.begin(); iter != this->blocks.end(); ++iter) {
-		delete *iter;
-	}
+	for (auto &iter : this->blocks) delete iter;
 }
 
 /**
@@ -161,8 +159,9 @@ FileWriter::~FileWriter()
 int FileWriter::AddBlock(FileBlock *blk)
 {
 	int idx = 1;
-	for (FileBlockPtrList::iterator iter = this->blocks.begin(); iter != this->blocks.end(); ++iter) {
-		if (*(*iter) == *blk) { // Block already added, just return the old block number.
+	for (auto &iter : this->blocks) {
+		/* Block already added, just return the old block number. */
+		if (*iter == *blk) {
 			delete blk;
 			return idx;
 		}
@@ -190,8 +189,7 @@ void FileWriter::WriteFile(std::string fname)
 		exit(1);
 	}
 
-	for (FileBlockPtrList::iterator iter = this->blocks.begin(); iter != this->blocks.end(); ++iter) {
-		(*iter)->Write(fp);
-	}
+	for (auto &iter : this->blocks) iter->Write(fp);
+
 	fclose(fp);
 }

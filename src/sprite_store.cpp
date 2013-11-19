@@ -372,9 +372,9 @@ bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **
 		*spr = nullptr;
 		return true;
 	}
-	ImageMap::const_iterator iter = sprites.find(val);
+	const auto iter = sprites.find(val);
 	if (iter == sprites.end()) return false;
-	*spr = (*iter).second;
+	*spr = iter->second;
 	return true;
 }
 
@@ -392,9 +392,9 @@ bool LoadTextFromFile(RcdFile *rcd_file, const TextMap &texts, TextData **txt)
 		*txt = nullptr;
 		return true;
 	}
-	TextMap::const_iterator iter = texts.find(val);
+	const auto iter = texts.find(val);
 	if (iter == texts.end()) return false;
-	*txt = (*iter).second;
+	*txt = iter->second;
 	return true;
 }
 
@@ -1311,11 +1311,11 @@ void SpriteStorage::AddBuildArrows(DisplayedObject *obj)
  */
 void SpriteStorage::RemoveAnimations(AnimationType anim_type, PersonType pers_type)
 {
-	for (AnimationSpritesMap::iterator iter = this->animations.find(anim_type); iter != this->animations.end(); ) {
-		AnimationSprites *an_spr = (*iter).second;
+	for (auto iter = this->animations.find(anim_type); iter != this->animations.end(); ) {
+		AnimationSprites *an_spr = iter->second;
 		if (an_spr->anim_type != anim_type) return;
 		if (an_spr->person_type == pers_type) {
-			AnimationSpritesMap::iterator iter2 = iter;
+			auto iter2 = iter;
 			++iter2;
 			this->animations.erase(iter);
 			iter = iter2;
@@ -1773,8 +1773,8 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
  */
 const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType per_type) const
 {
-	for (AnimationsMap::const_iterator iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
-		const Animation *anim = (*iter).second;
+	for (auto iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
+		const Animation *anim = iter->second;
 		if (anim->anim_type != anim_type) break;
 		if (anim->person_type == per_type) return anim;
 	}
