@@ -13,7 +13,7 @@
 #include "ast.h"
 #include "utils.h"
 
-NamedValueList *_parsed_data = nullptr; // Documentation is in scanner_funcs.h, since this file is not being scanned.
+std::shared_ptr<NamedValueList> _parsed_data = nullptr; // Documentation is in scanner_funcs.h, since this file is not being scanned.
 %}
 
 %token PAR_OPEN PAR_CLOSE CURLY_OPEN CURLY_CLOSE
@@ -40,7 +40,7 @@ Program : NamedValueList {
         ;
 
 ExpressionList : Expression {
-	$$ = new ExpressionList;
+	$$ = std::make_shared<ExpressionList>();
 	$$->exprs.push_back($1);
 }
                ;
@@ -56,38 +56,38 @@ Expression : Factor {
            ;
 Expression : MINUS Factor {
 	Position pos(filename, $1);
-	$$ = new UnaryOperator(pos, '-', $2);
+	$$ = std::make_shared<UnaryOperator>(pos, '-', $2);
 }
            ;
 
 Factor : STRING {
 	Position pos(filename, $1.line);
-	$$ = new StringLiteral(pos, $1.value);
+	$$ = std::make_shared<StringLiteral>(pos, $1.value);
 }
        ;
 
 Factor : NUMBER {
 	Position pos(filename, $1.line);
-	$$ = new NumberLiteral(pos, $1.value);
+	$$ = std::make_shared<NumberLiteral>(pos, $1.value);
 }
        ;
 
 Factor : IDENTIFIER {
 	Position pos(filename, $1.line);
 	CheckIsSingleName($1.value, pos);
-	$$ = new IdentifierLiteral(pos, $1.value);
+	$$ = std::make_shared<IdentifierLiteral>(pos, $1.value);
 }
        ;
 
 Factor : BITSET_KW PAR_OPEN PAR_CLOSE {
 	Position pos(filename, $1);
-	$$ = new BitSet(pos, nullptr);
+	$$ = std::make_shared<BitSet>(pos, nullptr);
 }
        ;
 
 Factor : BITSET_KW PAR_OPEN ExpressionList PAR_CLOSE {
 	Position pos(filename, $1);
-	$$ = new BitSet(pos, $3);
+	$$ = std::make_shared<BitSet>(pos, $3);
 }
        ;
 
@@ -97,7 +97,7 @@ Factor : PAR_OPEN Expression PAR_CLOSE {
        ;
 
 NamedValueList : /* Empty */ {
-	$$ = new NamedValueList;
+	$$ = std::make_shared<NamedValueList>();
 }
                ;
 
@@ -108,35 +108,35 @@ NamedValueList : NamedValueList NamedValue {
                ;
 
 NamedValue : Group {
-	$$ = new NamedValue(nullptr, $1);
+	$$ = std::make_shared<NamedValue>(nullptr, $1);
 }
            ;
 
 NamedValue : IDENTIFIER COLON Group {
 	Position pos(filename, $1.line);
 	CheckIsSingleName($1.value, pos);
-	Name *name = new SingleName(pos, $1.value);
-	$$ = new NamedValue(name, $3);
+	std::shared_ptr<Name> name = std::make_shared<SingleName>(pos, $1.value);
+	$$ = std::make_shared<NamedValue>(name, $3);
 }
            ;
 
 NamedValue : IDENTIFIER COLON Expression SEMICOLON {
 	Position pos(filename, $1.line);
 	CheckIsSingleName($1.value, pos);
-	Name *name = new SingleName(pos, $1.value);
-	Group *group = new ExpressionGroup($3);
-	$$ = new NamedValue(name, group);
+	std::shared_ptr<Name> name = std::make_shared<SingleName>(pos, $1.value);
+	std::shared_ptr<Group> group = std::make_shared<ExpressionGroup>($3);
+	$$ = std::make_shared<NamedValue>(name, group);
 }
            ;
 
 NamedValue : IdentifierTable COLON Group {
-	$$ = new NamedValue($1, $3);
+	$$ = std::make_shared<NamedValue>($1, $3);
 }
            ;
 
 NamedValue : IMPORT_KW STRING SEMICOLON {
 	Position pos(filename, $1);
-	$$ = new ImportValue(pos, $2.value);
+	$$ = std::make_shared<ImportValue>(pos, $2.value);
 }
            ;
 
@@ -146,7 +146,7 @@ IdentifierTable : PAR_OPEN IdentifierRows PAR_CLOSE {
                 ;
 
 IdentifierRows : IdentifierRow {
-	$$ = new NameTable();
+	$$ = std::make_shared<NameTable>();
 	$$->rows.push_back($1);
 }
                ;
@@ -158,9 +158,9 @@ IdentifierRows : IdentifierRows PIPE IdentifierRow {
                ;
 
 IdentifierRow : IDENTIFIER {
-	$$ = new NameRow();
+	$$ = std::make_shared<NameRow>();
 	Position pos(filename, $1.line);
-	IdentifierLine *il = new IdentifierLine(pos, $1.value);
+	std::shared_ptr<IdentifierLine> il = std::make_shared<IdentifierLine>(pos, $1.value);
 	$$->identifiers.push_back(il);
 }
               ;
@@ -168,7 +168,7 @@ IdentifierRow : IDENTIFIER {
 IdentifierRow : IdentifierRow COMMA IDENTIFIER {
 	$$ = $1;
 	Position pos(filename, $3.line);
-	IdentifierLine *il = new IdentifierLine(pos, $3.value);
+	std::shared_ptr<IdentifierLine> il = std::make_shared<IdentifierLine>(pos, $3.value);
 	$$->identifiers.push_back(il);
 }
               ;
@@ -176,14 +176,14 @@ IdentifierRow : IdentifierRow COMMA IDENTIFIER {
 Group : IDENTIFIER CURLY_OPEN NamedValueList CURLY_CLOSE {
 	Position pos(filename, $1.line);
 	CheckIsSingleName($1.value, pos);
-	$$ = new NodeGroup(pos, $1.value, nullptr, $3);
+	$$ = std::make_shared<NodeGroup>(pos, $1.value, nullptr, $3);
 }
       ;
 
 Group : IDENTIFIER PAR_OPEN ExpressionList PAR_CLOSE CURLY_OPEN NamedValueList CURLY_CLOSE {
 	Position pos(filename, $1.line);
 	CheckIsSingleName($1.value, pos);
-	$$ = new NodeGroup(pos, $1.value, $3, $6);
+	$$ = std::make_shared<NodeGroup>(pos, $1.value, $3, $6);
 }
       ;
 

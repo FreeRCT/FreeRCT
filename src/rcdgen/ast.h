@@ -14,7 +14,7 @@
 
 #include <list>
 #include <string>
-#include "../reference_count.h"
+#include <memory>
 
 /** Position in a source file. */
 class Position {
@@ -24,7 +24,6 @@ public:
 	Position(const std::string &filename, int line);
 	Position(const Position &pos);
 	Position &operator=(const Position &pos);
-	~Position();
 
 	const char *ToString() const;
 
@@ -38,45 +37,34 @@ struct Symbol {
 	int value;        ///< Value of the symbol.
 };
 
-class Expression;
-
-/** Counted reference to an expression. */
-typedef DataReference<Expression> ExpressionRef;
-
 /** Base class of expressions. */
-class Expression : public RefCounter {
+class Expression : public std::enable_shared_from_this<Expression> {
 public:
 	Expression(const Position &pos);
+	virtual ~Expression();
 
-	virtual ExpressionRef Evaluate(const Symbol *symbols) const = 0;
+	virtual std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const = 0;
 
 	const Position pos; ///< %Position of the expression.
-
-protected:
-	virtual ~Expression();
 };
 
 /** A sequence of expressions. */
-class ExpressionList {
+class ExpressionList : public std::enable_shared_from_this<ExpressionList> {
 public:
 	ExpressionList();
-	~ExpressionList();
 
-	std::list<ExpressionRef> exprs; ///< The sequence of expressions.
+	std::list<std::shared_ptr<Expression>> exprs; ///< The sequence of expressions.
 };
 
 /** Unary operator expression. */
 class UnaryOperator : public Expression {
 public:
-	UnaryOperator(const Position &pos, int oper, ExpressionRef &child);
+	UnaryOperator(const Position &pos, int oper, std::shared_ptr<Expression> child);
 
-	ExpressionRef Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
 
 	int oper; ///< Operation performed, currently only \c '-' (unary negation is supported).
-	ExpressionRef child; ///< Child expression (should be numeric).
-
-protected:
-	~UnaryOperator();
+	std::shared_ptr<Expression> child; ///< Child expression (should be numeric).
 };
 
 /** String literal elementary expression node. */
@@ -84,12 +72,9 @@ class StringLiteral : public Expression {
 public:
 	StringLiteral(const Position &pos, const std::string &text);
 
-	ExpressionRef Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
 
 	const std::string text; ///< Text of the string literal (decoded).
-
-protected:
-	~StringLiteral();
 };
 
 /** Identifier elementary expression node. */
@@ -97,12 +82,9 @@ class IdentifierLiteral : public Expression {
 public:
 	IdentifierLiteral(const Position &pos, const std::string &name);
 
-	ExpressionRef Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
 
 	const std::string name; ///< The identifier of the expression.
-
-protected:
-	~IdentifierLiteral();
 };
 
 /** Number literal elementary expression node. */
@@ -110,29 +92,23 @@ class NumberLiteral : public Expression {
 public:
 	NumberLiteral(const Position &pos, long long value);
 
-	ExpressionRef Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
 
 	long long value; ///< Value of the number literal.
-
-protected:
-	~NumberLiteral();
 };
 
 /** Bit set expression ('or' of '1 << arg'). */
 class BitSet : public Expression {
 public:
-	BitSet(const Position &pos, ExpressionList *args);
+	BitSet(const Position &pos, std::shared_ptr<ExpressionList> args);
 
-	ExpressionRef Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
 
-	ExpressionList *args; ///< Arguments of the bitset, if any.
-
-protected:
-	~BitSet();
+	std::shared_ptr<ExpressionList> args; ///< Arguments of the bitset, if any.
 };
 
 /** Base class for labels of named values. */
-class Name {
+class Name : public std::enable_shared_from_this<Name> {
 public:
 	Name();
 	virtual ~Name();
@@ -145,7 +121,6 @@ public:
 class SingleName : public Name {
 public:
 	SingleName(const Position &pos, char *name);
-	~SingleName();
 
 	const Position &GetPosition() const override;
 	int GetNameCount() const override;
@@ -155,12 +130,9 @@ public:
 };
 
 /** Somewhat generic class for storing an identifier and its position. */
-class IdentifierLine {
+class IdentifierLine : public std::enable_shared_from_this<IdentifierLine> {
 public:
 	IdentifierLine(const Position &pos, char *name);
-	IdentifierLine(const IdentifierLine &il);
-	IdentifierLine &operator=(const IdentifierLine &il);
-	~IdentifierLine();
 
 	const Position &GetPosition() const;
 	bool IsValid() const;
@@ -173,15 +145,14 @@ public:
  * A row of identifiers.
  * Names here may be parameterized, and represent many identifiers.
  */
-class NameRow {
+class NameRow : public std::enable_shared_from_this<NameRow> {
 public:
 	NameRow();
-	~NameRow();
 
 	const Position &GetPosition() const;
 	int GetNameCount() const;
 
-	std::list<IdentifierLine *> identifiers; ///< Identifiers in this row.
+	std::list<std::shared_ptr<IdentifierLine>> identifiers; ///< Identifiers in this row.
 };
 
 /**
@@ -191,61 +162,52 @@ public:
 class NameTable : public Name {
 public:
 	NameTable();
-	~NameTable();
 
 	bool HasSingleElement() const;
 	const Position &GetPosition() const override;
 	int GetNameCount() const override;
 
-	std::list<NameRow *> rows; ///< Rows of the table.
+	std::list<std::shared_ptr<NameRow>> rows; ///< Rows of the table.
 };
 
-class NamedValueList;
-class NodeGroup;
-class ExpressionGroup;
-
 /** Base class of the value part of a named value. */
-class Group {
+class Group : public std::enable_shared_from_this<Group> {
 public:
 	Group();
 	virtual ~Group();
 
 	virtual const Position &GetPosition() const = 0;
-	virtual NodeGroup *CastToNodeGroup();
-	virtual ExpressionGroup *CastToExpressionGroup();
 };
+
+class NamedValueList;
 
 /** Value part consisting of a node. */
 class NodeGroup : public Group {
 public:
-	NodeGroup(const Position &pos, char *name, ExpressionList *exprs, NamedValueList *values);
-	~NodeGroup();
+	NodeGroup(const Position &pos, char *name, std::shared_ptr<ExpressionList> exprs, std::shared_ptr<NamedValueList> values);
 
 	const Position &GetPosition() const override;
-	NodeGroup *CastToNodeGroup() override;
 
 	void HandleImports();
 
 	const Position pos;     ///< %Position of the node name.
 	const std::string name; ///< Node name itself.
-	ExpressionList *exprs;  ///< Parameters of the node.
-	NamedValueList *values; ///< Named values of the node.
+	std::shared_ptr<ExpressionList> exprs;  ///< Parameters of the node.
+	std::shared_ptr<NamedValueList> values; ///< Named values of the node.
 };
 
 /** Value part of a group consisting of an expression. */
 class ExpressionGroup : public Group {
 public:
-	ExpressionGroup(ExpressionRef &expr);
-	~ExpressionGroup();
+	ExpressionGroup(std::shared_ptr<Expression> expr);
 
 	const Position &GetPosition() const override;
-	ExpressionGroup *CastToExpressionGroup() override;
 
-	ExpressionRef expr; ///< %Expression to store.
+	std::shared_ptr<Expression> expr; ///< %Expression to store.
 };
 
 /** Base class for named values. */
-class BaseNamedValue {
+class BaseNamedValue : public std::enable_shared_from_this<BaseNamedValue> {
 public:
 	BaseNamedValue();
 	virtual ~BaseNamedValue();
@@ -256,20 +218,18 @@ public:
 /** A value with a name. */
 class NamedValue : public BaseNamedValue {
 public:
-	NamedValue(Name *name, Group *group);
-	~NamedValue();
+	NamedValue(std::shared_ptr<Name> name, std::shared_ptr<Group> group);
 
 	void HandleImports() override;
 
-	Name *name;   ///< %Name part, may be \c nullptr.
-	Group *group; ///< Value part.
+	std::shared_ptr<Name> name;   ///< %Name part, may be \c NULL.
+	std::shared_ptr<Group> group; ///< Value part.
 };
 
 /** Node to import another file. */
 class ImportValue : public BaseNamedValue {
 public:
 	ImportValue(const Position &pos, char *filename);
-	~ImportValue();
 
 	void HandleImports() override;
 
@@ -278,16 +238,15 @@ public:
 };
 
 /** Sequence of named values. */
-class NamedValueList {
+class NamedValueList : public std::enable_shared_from_this<NamedValueList> {
 public:
 	NamedValueList();
-	~NamedValueList();
 
 	void HandleImports();
 
-	std::list<BaseNamedValue *> values; ///< Named values in the sequence.
+	std::list<std::shared_ptr<BaseNamedValue>> values; ///< Named values in the sequence.
 };
 
-NamedValueList *LoadFile(const char *filename, int line = 0);
+std::shared_ptr<NamedValueList> LoadFile(const char *filename, int line = 0);
 
 #endif

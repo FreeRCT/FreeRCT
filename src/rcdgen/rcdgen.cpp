@@ -133,11 +133,11 @@ int main(int argc, char *argv[])
 	}
 
 	/* Phase 1: Parse the input file. */
-	NamedValueList *nvs = LoadFile((opt_data.numleft == 1) ? opt_data.argv[0] : nullptr);
+	std::shared_ptr<NamedValueList> nvs = LoadFile((opt_data.numleft == 1) ? opt_data.argv[0] : nullptr);
 
 	/* Phase 2: Check and simplify the loaded input. */
 	FileNodeList *file_nodes = CheckTree(nvs);
-	delete nvs;
+	nvs = nullptr;
 
 	/* Phase 3: Construct output files. */
 	for (auto iter : file_nodes->files) {

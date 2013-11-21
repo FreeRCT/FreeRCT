@@ -63,13 +63,10 @@ Position &Position::operator=(const Position &pos)
 	return *this;
 }
 
-Position::~Position()
-{
-}
-
 /**
  * Construct a human-readable position string.
  * @return Human-readable indication of a position (filename and line number).
+ * @note Text is only temporary usable.
  */
 const char *Position::ToString() const
 {
@@ -79,10 +76,6 @@ const char *Position::ToString() const
 }
 
 ExpressionList::ExpressionList()
-{
-}
-
-ExpressionList::~ExpressionList()
 {
 }
 
@@ -99,7 +92,7 @@ Expression::~Expression()
 }
 
 /**
- * \fn  ExpressionRef Expression::Evaluate(const Symbol *symbols) const
+ * \fn std::shared_ptr<Expression> Expression::Evaluate(const Symbol *symbols) const
  * Evaluation of the expression. Reduces it to its value or throws a fatal error.
  * @param symbols Sequence of known identifier names.
  * @return The computed reduced expression.
@@ -111,27 +104,22 @@ Expression::~Expression()
  * @param oper Unary operator. Only \c '-' is supported currently.
  * @param child Sub-expression.
  */
-UnaryOperator::UnaryOperator(const Position &pos, int oper, ExpressionRef &child) : Expression(pos)
+UnaryOperator::UnaryOperator(const Position &pos, int oper, std::shared_ptr<Expression> child) : Expression(pos)
 {
 	this->oper = oper;
 	this->child = child;
 }
 
-UnaryOperator::~UnaryOperator()
+std::shared_ptr<Expression> UnaryOperator::Evaluate(const Symbol *symbols) const
 {
-}
-
-ExpressionRef UnaryOperator::Evaluate(const Symbol *symbols) const
-{
-	ExpressionRef result = this->child.Access()->Evaluate(symbols);
-	NumberLiteral *number = dynamic_cast<NumberLiteral *>(result.Access());
-	if (number != nullptr) {
-		Expression *expr = new NumberLiteral(number->pos, -number->value);
-		result.Give(expr);
-		return result;
+	std::shared_ptr<Expression> result = this->child->Evaluate(symbols);
+	std::shared_ptr<NumberLiteral> number = std::dynamic_pointer_cast<NumberLiteral>(result);
+	if (number == nullptr) {
+		fprintf(stderr, "Evaluate error at %s: Cannot negate the value of the child expression", this->pos.ToString());
+		exit(1);
 	}
-	fprintf(stderr, "Evaluate error at %s: Cannot negate the value of the child expression", this->pos.ToString());
-	exit(1);
+	result = std::make_shared<NumberLiteral>(number->pos, -number->value);
+	return result;
 }
 
 /**
@@ -143,14 +131,9 @@ StringLiteral::StringLiteral(const Position &pos, const std::string &text) : Exp
 {
 }
 
-StringLiteral::~StringLiteral()
+std::shared_ptr<Expression> StringLiteral::Evaluate(const Symbol *symbols) const
 {
-}
-
-ExpressionRef StringLiteral::Evaluate(const Symbol *symbols) const
-{
-	this->Copy();
-	return const_cast<StringLiteral *>(this);
+	return std::make_shared<StringLiteral>(this->pos, this->text);
 }
 
 /**
@@ -162,19 +145,13 @@ IdentifierLiteral::IdentifierLiteral(const Position &pos, const std::string &nam
 {
 }
 
-IdentifierLiteral::~IdentifierLiteral()
-{
-}
-
-ExpressionRef IdentifierLiteral::Evaluate(const Symbol *symbols) const
+std::shared_ptr<Expression> IdentifierLiteral::Evaluate(const Symbol *symbols) const
 {
 	if (symbols != nullptr) {
 		for (;;) {
 			if (symbols->name == nullptr) break; // Reached the end.
 			if (symbols->name == this->name) {
-				Expression *expr = new NumberLiteral(this->pos, symbols->value);
-				ExpressionRef result(expr);
-				return result;
+				return std::make_shared<NumberLiteral>(this->pos, symbols->value);
 			}
 			symbols++;
 		}
@@ -193,14 +170,9 @@ NumberLiteral::NumberLiteral(const Position &pos, long long value) : Expression(
 	this->value = value;
 }
 
-NumberLiteral::~NumberLiteral()
+std::shared_ptr<Expression> NumberLiteral::Evaluate(const Symbol *symbols) const
 {
-}
-
-ExpressionRef NumberLiteral::Evaluate(const Symbol *symbols) const
-{
-	this->Copy();
-	return const_cast<NumberLiteral *>(this);
+	return std::make_shared<NumberLiteral>(this->pos, this->value);
 }
 
 /**
@@ -208,33 +180,26 @@ ExpressionRef NumberLiteral::Evaluate(const Symbol *symbols) const
  * @param pos %Position that uses the 'bitset' node.
  * @param args Arguments of the bitset node, may be \c nullptr.
  */
-BitSet::BitSet(const Position &pos, ExpressionList *args) : Expression(pos)
+BitSet::BitSet(const Position &pos, std::shared_ptr<ExpressionList> args) : Expression(pos)
 {
 	this->args = args;
 }
 
-BitSet::~BitSet()
-{
-	delete this->args;
-}
-
-ExpressionRef BitSet::Evaluate(const Symbol *symbols) const
+std::shared_ptr<Expression> BitSet::Evaluate(const Symbol *symbols) const
 {
 	long long value = 0;
 	if (this->args != nullptr) {
 		for (const auto &iter : this->args->exprs) {
-			ExpressionRef e = iter.Access()->Evaluate(symbols);
-			NumberLiteral *nl = dynamic_cast<NumberLiteral *>(e.Access());
+			std::shared_ptr<Expression> e = iter->Evaluate(symbols);
+			std::shared_ptr<NumberLiteral> nl = std::dynamic_pointer_cast<NumberLiteral>(e);
 			if (nl == nullptr) {
-				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", iter.Access()->pos.ToString());
+				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", iter->pos.ToString());
 				exit(1);
 			}
 			value |= 1ll << nl->value;
 		}
 	}
-	Expression *expr = new NumberLiteral(this->pos, value);
-	ExpressionRef result(expr);
-	return result;
+	return std::make_shared<NumberLiteral>(this->pos, value);
 }
 
 
@@ -266,10 +231,6 @@ SingleName::SingleName(const Position &pos, char *name) : Name(), pos(pos), name
 {
 }
 
-SingleName::~SingleName()
-{
-}
-
 const Position &SingleName::GetPosition() const
 {
 	return this->pos;
@@ -286,32 +247,6 @@ int SingleName::GetNameCount() const
  * @param name The identifier to store.
  */
 IdentifierLine::IdentifierLine(const Position &pos, char *name) : pos(pos), name(name)
-{
-}
-
-/**
- * Copy constructor.
- * @param il Existing identifier line to copy.
- */
-IdentifierLine::IdentifierLine(const IdentifierLine &il) : pos(il.pos)
-{
-	this->name = il.name;
-}
-
-/**
- * Assignment operator of an identifier line.
- * @param il Identifier line being copied.
- * @return The identifier line copied to.
- */
-IdentifierLine &IdentifierLine::operator=(const IdentifierLine &il)
-{
-	if (&il == this) return *this;
-	this->pos = il.pos;
-	this->name = il.name;
-	return *this;
-}
-
-IdentifierLine::~IdentifierLine()
 {
 }
 
@@ -346,11 +281,6 @@ NameRow::NameRow()
 {
 }
 
-NameRow::~NameRow()
-{
-	for (auto &iter : this->identifiers) delete iter;
-}
-
 static const Position _dummy_position("", -1); ///< Dummy position.
 
 /**
@@ -380,11 +310,6 @@ NameTable::NameTable() : Name()
 {
 }
 
-NameTable::~NameTable()
-{
-	for (auto &iter : this->rows) delete iter;
-}
-
 /**
  * Test whether the name table is actually just a single (possibly parameterized) name.
  * @return Whether the table consists of a single (possibly parameterized) name.
@@ -392,7 +317,7 @@ NameTable::~NameTable()
 bool NameTable::HasSingleElement() const
 {
 	if (this->rows.size() != 1) return false;
-	const NameRow *nr = this->rows.front();
+	const std::shared_ptr<NameRow> nr = this->rows.front();
 	return nr->identifiers.size() == 1;
 }
 
@@ -410,7 +335,7 @@ int NameTable::GetNameCount() const
 {
 	if (this->HasSingleElement()) {
 		/* Single element table, possibly with parameterized name. */
-		const IdentifierLine *il = this->rows.front()->identifiers.front();
+		const std::shared_ptr<IdentifierLine> il = this->rows.front()->identifiers.front();
 		assert(il->IsValid());
 		ParameterizedName parms_name;
 		HorVert hv = parms_name.DecodeName(il->name.c_str(), il->pos);
@@ -445,50 +370,21 @@ Group::~Group()
  */
 
 /**
- * Cast the group to a #NodeGroup.
- * @return a node group if the cast succeeded, else \c nullptr.
- */
-NodeGroup *Group::CastToNodeGroup()
-{
-	return nullptr;
-}
-
-/**
- * Cast the group to a #ExpressionGroup.
- * @return an expression group if the cast succeeded, else \c nullptr.
- */
-ExpressionGroup *Group::CastToExpressionGroup()
-{
-	return nullptr;
-}
-
-/**
  * Construct a node.
  * @param pos %Position of the label name.
  * @param name The label name itself.
  * @param exprs Actual parameters of the node.
  * @param values Named values of the node.
  */
-NodeGroup::NodeGroup(const Position &pos, char *name, ExpressionList *exprs, NamedValueList *values) : Group(), pos(pos), name(name)
+NodeGroup::NodeGroup(const Position &pos, char *name, std::shared_ptr<ExpressionList> exprs, std::shared_ptr<NamedValueList> values) : Group(), pos(pos), name(name)
 {
 	this->exprs = exprs;
 	this->values = values;
 }
 
-NodeGroup::~NodeGroup()
-{
-	delete this->exprs;
-	delete this->values;
-}
-
 const Position &NodeGroup::GetPosition() const
 {
 	return this->pos;
-}
-
-NodeGroup *NodeGroup::CastToNodeGroup()
-{
-	return this;
 }
 
 /** Handle imports in the body. */
@@ -501,23 +397,14 @@ void NodeGroup::HandleImports()
  * Wrap an expression in a group.
  * @param expr %Expression to wrap.
  */
-ExpressionGroup::ExpressionGroup(ExpressionRef &expr) : Group()
+ExpressionGroup::ExpressionGroup(std::shared_ptr<Expression> expr) : Group()
 {
 	this->expr = expr;
 }
 
-ExpressionGroup::~ExpressionGroup()
-{
-}
-
 const Position &ExpressionGroup::GetPosition() const
 {
-	return this->expr.Access()->pos;
-}
-
-ExpressionGroup *ExpressionGroup::CastToExpressionGroup()
-{
-	return this;
+	return this->expr->pos;
 }
 
 BaseNamedValue::BaseNamedValue()
@@ -538,21 +425,15 @@ BaseNamedValue::~BaseNamedValue()
  * @param name (may be \c nullptr).
  * @param group %Group value.
  */
-NamedValue::NamedValue(Name *name, Group *group) : BaseNamedValue()
+NamedValue::NamedValue(std::shared_ptr<Name> name, std::shared_ptr<Group> group) : BaseNamedValue()
 {
 	this->name = name;
 	this->group = group;
 }
 
-NamedValue::~NamedValue()
-{
-	delete this->name;
-	delete this->group;
-}
-
 void NamedValue::HandleImports()
 {
-	NodeGroup *ng = this->group->CastToNodeGroup();
+	std::shared_ptr<NodeGroup> ng = std::dynamic_pointer_cast<NodeGroup>(this->group);
 	if (ng != nullptr) ng->HandleImports();
 }
 
@@ -565,10 +446,6 @@ ImportValue::ImportValue(const Position &pos, char *filename) : BaseNamedValue()
 {
 }
 
-ImportValue::~ImportValue()
-{
-}
-
 void ImportValue::HandleImports()
 {
 	/* Do nothing, the surrounding NamedValueList handles this import. */
@@ -578,28 +455,18 @@ NamedValueList::NamedValueList()
 {
 }
 
-NamedValueList::~NamedValueList()
-{
-	for (auto &iter : this->values) delete iter;
-}
-
 /** Handle imports in the body. */
 void NamedValueList::HandleImports()
 {
 	bool has_import = false;
-	std::list<BaseNamedValue *> values;
+	std::list<std::shared_ptr<BaseNamedValue>> values;
 
 	for (auto &iter : this->values) {
-		ImportValue *iv = dynamic_cast<ImportValue *>(iter);
+		std::shared_ptr<ImportValue> iv = std::dynamic_pointer_cast<ImportValue>(iter);
 		if (iv != nullptr) {
 			has_import = true;
-			NamedValueList *nv = LoadFile(iv->filename.c_str(), iv->pos.line);
-			for (auto &iter2 : nv->values) {
-				values.push_back(iter2);
-			}
-			nv->values.clear();
-			delete nv;
-			delete iter; // Is not copied into 'values' and will get lost below.
+			std::shared_ptr<NamedValueList> nv = LoadFile(iv->filename.c_str(), iv->pos.line);
+			for (auto &iter2 : nv->values) values.push_back(iter2);
 		} else {
 			iter->HandleImports();
 			values.push_back(iter);
@@ -615,7 +482,7 @@ void NamedValueList::HandleImports()
  * @param line Line number of the current file.
  * @return The parsed node tree.
  */
-NamedValueList *LoadFile(const char *filename, int line)
+std::shared_ptr<NamedValueList> LoadFile(const char *filename, int line)
 {
 	static int nest_level = 0;
 	static const char *include_cache[10];
@@ -657,7 +524,7 @@ NamedValueList *LoadFile(const char *filename, int line)
 	}
 
 	/* Process imports. */
-	NamedValueList *nvs = _parsed_data;
+	std::shared_ptr<NamedValueList> nvs = _parsed_data;
 	nvs->HandleImports(); // Recursively calls this function, so _parsed_data is not safe.
 
 	/* Restore to pre-call state. */

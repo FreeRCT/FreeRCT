@@ -40,19 +40,19 @@ struct YyStruct {
 		int line;    ///< Line number of the token.
 		char *value; ///< Characters stored.
 	} chars; ///< Data while communicating an IDENTIFIER or STRING token.
-	ExpressionRef expr;       ///< %Expression to pass on.
-	ExpressionList *exprlist; ///< Expression list to pass on.
-	NameTable *iden_table;    ///< 2D table with identifiers to pass on.
-	NameRow *iden_row;        ///< Row of identifiers to pass on.
-	Group *group;             ///< %Group to pass on.
-	BaseNamedValue *value;    ///< A named value to pass on.
-	NamedValueList *values;   ///< Sequence of named values to pass on.
+	std::shared_ptr<Expression> expr;         ///< %Expression to pass on.
+	std::shared_ptr<ExpressionList> exprlist; ///< Expression list to pass on.
+	std::shared_ptr<NameTable> iden_table;    ///< 2D table with identifiers to pass on.
+	std::shared_ptr<NameRow> iden_row;        ///< Row of identifiers to pass on.
+	std::shared_ptr<Group> group;             ///< %Group to pass on.
+	std::shared_ptr<BaseNamedValue> value;    ///< A named value to pass on.
+	std::shared_ptr<NamedValueList> values;   ///< Sequence of named values to pass on.
 };
 
 /** Macro defining the interface type between the scanner and parser. See also flex(1). */
 #define YYSTYPE YyStruct
 
-extern NamedValueList *_parsed_data; ///< Result of parsing the input file.
+extern std::shared_ptr<NamedValueList> _parsed_data; ///< Result of parsing the input file.
 
 /**
  * Setup the scanner for the new file.
