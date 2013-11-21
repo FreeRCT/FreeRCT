@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.0.  */
+/* A Bison parser, made by GNU Bison 3.0.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
@@ -50,15 +50,24 @@ extern int yydebug;
     CURLY_OPEN = 260,
     CURLY_CLOSE = 261,
     COLON = 262,
-    PIPE = 263,
-    SEMICOLON = 264,
-    COMMA = 265,
-    MINUS = 266,
-    BITSET_KW = 267,
-    IMPORT_KW = 268,
-    STRING = 269,
-    NUMBER = 270,
-    IDENTIFIER = 271
+    SEMICOLON = 263,
+    COMMA = 264,
+    MINUS = 265,
+    BITSET_KW = 266,
+    IMPORT_KW = 267,
+    AND = 268,
+    PIPE = 269,
+    XOR = 270,
+    SHL = 271,
+    SHR = 272,
+    ADD = 273,
+    MUL = 274,
+    DIV = 275,
+    MOD = 276,
+    NEG = 277,
+    STRING = 278,
+    NUMBER = 279,
+    IDENTIFIER = 280
   };
 #endif
 

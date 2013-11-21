@@ -68,12 +68,12 @@ static void ExpandNoExpression(std::shared_ptr<ExpressionList> exprs, const Posi
 static std::string GetString(std::shared_ptr<Expression> expr, int index, const char *node)
 {
 	/* Simple case, expression is a string literal. */
-	std::shared_ptr<StringLiteral> sl = std::dynamic_pointer_cast<StringLiteral>(expr);
+	std::shared_ptr<const StringLiteral> sl = std::dynamic_pointer_cast<const StringLiteral>(expr);
 	if (sl != nullptr) return sl->text;
 
 	/* General case, compute its value. */
-	std::shared_ptr<Expression> expr2 = expr->Evaluate(nullptr);
-	sl = std::dynamic_pointer_cast<StringLiteral>(expr2);
+	std::shared_ptr<const Expression> expr2 = expr->Evaluate(nullptr);
+	sl = std::dynamic_pointer_cast<const StringLiteral>(expr2);
 	if (sl == nullptr) {
 		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a string", expr->pos.ToString(), index + 1, node);
 		exit(1);
@@ -93,12 +93,12 @@ static std::string GetString(std::shared_ptr<Expression> expr, int index, const 
 // static long long GetNumber(std::shared_ptr<Expression> expr, int index, const char *node, const Symbol *symbols = nullptr)
 // {
 // 	/* Simple case, expression is a number literal. */
-// 	std::shared_ptr<NumberLiteral> nl = std::dynamic_pointer_cast<NumberLiteral>(expr);
+// 	std::shared_ptr<const NumberLiteral> nl = std::dynamic_pointer_cast<const NumberLiteral>(expr);
 // 	if (nl != nullptr) return nl->value;
 //
 // 	/* General case, compute its value. */
-// 	std::shared_ptr<Expression> expr2 = expr->Evaluate(symbols);
-// 	nl = std::dynamic_pointer_cast<NumberLiteral>(expr2);
+// 	std::shared_ptr<const Expression> expr2 = expr->Evaluate(symbols);
+// 	nl = std::dynamic_pointer_cast<const NumberLiteral>(expr2);
 // 	if (nl == nullptr) {
 // 		fprintf(stderr, "Error at %s: Expression parameter %d of node %s is not a number", expr->pos.ToString(), index + 1, node);
 // 		exit(1);
@@ -152,7 +152,7 @@ public:
 	std::shared_ptr<Strings> GetStrings(const Position &pos, const char *node);
 
 	Position pos;             ///< %Position of the name.
-	std::shared_ptr<Expression> expr_value; ///< %Expression attached to it (if any).
+	std::shared_ptr<const Expression> expr_value; ///< %Expression attached to it (if any).
 	std::shared_ptr<BlockNode> node_value; ///< Node attached to it (if any).
 	std::string name;         ///< %Name of the value.
 	bool used;                ///< Is the value used?
@@ -194,11 +194,11 @@ fail:
 		fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a numeric value\n", pos.ToString(), this->name.c_str(), node);
 		exit(1);
 	}
-	std::shared_ptr<NumberLiteral> nl = std::dynamic_pointer_cast<NumberLiteral>(this->expr_value); // Simple common case.
+	std::shared_ptr<const NumberLiteral> nl = std::dynamic_pointer_cast<const NumberLiteral>(this->expr_value); // Simple common case.
 	if (nl != nullptr) return nl->value;
 
-	std::shared_ptr<Expression> expr2 = this->expr_value->Evaluate(symbols); // Generic case, evaluate the expression.
-	nl = std::dynamic_pointer_cast<NumberLiteral>(expr2);
+	std::shared_ptr<const Expression> expr2 = this->expr_value->Evaluate(symbols); // Generic case, evaluate the expression.
+	nl = std::dynamic_pointer_cast<const NumberLiteral>(expr2);
 	if (nl == nullptr) goto fail;
 
 	return nl->value;
@@ -217,11 +217,11 @@ fail:
 		fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a string value\n", pos.ToString(), this->name.c_str(), node);
 		exit(1);
 	}
-	std::shared_ptr<StringLiteral> sl = std::dynamic_pointer_cast<StringLiteral>(this->expr_value); // Simple common case.
+	std::shared_ptr<const StringLiteral> sl = std::dynamic_pointer_cast<const StringLiteral>(this->expr_value); // Simple common case.
 	if (sl != nullptr) return sl->text;
 
-	std::shared_ptr<Expression> expr2 = this->expr_value->Evaluate(nullptr); // Generic case
-	sl = std::dynamic_pointer_cast<StringLiteral>(expr2);
+	std::shared_ptr<const Expression> expr2 = this->expr_value->Evaluate(nullptr); // Generic case
+	sl = std::dynamic_pointer_cast<const StringLiteral>(expr2);
 	if (sl == nullptr) goto fail;
 
 	return sl->text;

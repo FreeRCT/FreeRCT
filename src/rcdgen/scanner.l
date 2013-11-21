@@ -17,42 +17,25 @@ int string_line; ///< Starting line of the string.
 
 %%
 
-"," {
-	return COMMA;
-}
+"-"  { yylval.line = line; return MINUS; }
+"+"  { yylval.line = line; return ADD; }
+"&"  { yylval.line = line; return AND; }
+"|"  { yylval.line = line; return PIPE; }
+"^"  { yylval.line = line; return XOR; }
+"<<" { yylval.line = line; return SHL; }
+">>" { yylval.line = line; return SHR; }
+"*"  { yylval.line = line; return MUL; }
+"~"  { yylval.line = line; return NEG; }
+"/"  { yylval.line = line; return DIV; }
+"%"  { yylval.line = line; return MOD; }
 
-"-" {
-	yylval.line = line;
-	return MINUS;
-}
-
-"(" {
-	return PAR_OPEN;
-}
-
-")" {
-	return PAR_CLOSE;
-}
-
-":" {
-	return COLON;
-}
-
-"|" {
-	return PIPE;
-}
-
-";" {
-	return SEMICOLON;
-}
-
-"{" {
-	return CURLY_OPEN;
-}
-
-"}" {
-	return CURLY_CLOSE;
-}
+"," { return COMMA; }
+"(" { return PAR_OPEN; }
+")" { return PAR_CLOSE; }
+":" { return COLON; }
+";" { return SEMICOLON; }
+"{" { return CURLY_OPEN; }
+"}" { return CURLY_CLOSE; }
 
 \" {
 	text_index = 0;

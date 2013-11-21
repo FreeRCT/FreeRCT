@@ -17,12 +17,12 @@ std::shared_ptr<NamedValueList> _parsed_data = nullptr; // Documentation is in s
 %}
 
 %token PAR_OPEN PAR_CLOSE CURLY_OPEN CURLY_CLOSE
-%token COLON PIPE SEMICOLON COMMA
-%token<line> MINUS BITSET_KW IMPORT_KW
+%token COLON SEMICOLON COMMA
+%token<line> MINUS BITSET_KW IMPORT_KW AND PIPE XOR SHL SHR ADD MUL DIV MOD NEG
 %token<chars> STRING
 %token<number> NUMBER
 %token<chars> IDENTIFIER
-%type<expr> Factor Expression
+%type<expr> Factor Expression Term MulTerm AddTerm ShiftTerm
 %type<exprlist> ExpressionList
 %type<iden_table> IdentifierRows IdentifierTable
 %type<iden_row> IdentifierRow
@@ -49,17 +49,109 @@ ExpressionList : ExpressionList COMMA Expression {
 	$$->exprs.push_back($3);
 }
                ;
-
-Expression : Factor {
+/* Logical operators. */
+Expression : ShiftTerm {
 	$$ = $1;
 }
            ;
-Expression : MINUS Factor {
-	Position pos(filename, $1);
-	$$ = std::make_shared<UnaryOperator>(pos, '-', $2);
+
+Expression : Expression AND ShiftTerm {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '&', $3);
 }
            ;
 
+Expression : Expression PIPE ShiftTerm {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '|', $3);
+}
+           ;
+
+Expression : Expression XOR ShiftTerm {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '^', $3);
+}
+           ;
+
+/* Shift operators. */
+ShiftTerm : AddTerm {
+	$$ = $1;
+}
+          ;
+
+ShiftTerm : ShiftTerm SHL AddTerm {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '<', $3);
+}
+          ;
+
+ShiftTerm : ShiftTerm SHR AddTerm {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '>', $3);
+}
+          ;
+
+/* Add/subtract operators. */
+AddTerm : MulTerm {
+	$$ = $1;
+}
+        ;
+
+AddTerm : AddTerm ADD MulTerm {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '+', $3);
+}
+           ;
+
+AddTerm : AddTerm MINUS MulTerm {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '-', $3);
+}
+           ;
+
+/* Multiply operators. */
+MulTerm : Term {
+	$$ = $1;
+}
+        ;
+
+MulTerm : MulTerm MUL Term {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '*', $3);
+}
+        ;
+
+MulTerm : MulTerm DIV Term {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '/', $3);
+}
+        ;
+
+MulTerm : MulTerm MOD Term {
+	Position pos(filename, $2);
+	$$ = std::make_shared<BinaryOperator>(pos, $1, '%', $3);
+}
+        ;
+
+/* Unary operator. */
+Term : Factor {
+	$$ = $1;
+}
+     ;
+
+Term : MINUS Factor {
+	Position pos(filename, $1);
+	$$ = std::make_shared<UnaryOperator>(pos, '-', $2);
+}
+     ;
+
+Term : NEG Factor {
+	Position pos(filename, $1);
+	$$ = std::make_shared<UnaryOperator>(pos, '~', $2);
+}
+     ;
+
+/* Elementary expressions. */
 Factor : STRING {
 	Position pos(filename, $1.line);
 	$$ = std::make_shared<StringLiteral>(pos, $1.value);

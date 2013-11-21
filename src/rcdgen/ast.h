@@ -43,7 +43,7 @@ public:
 	Expression(const Position &pos);
 	virtual ~Expression();
 
-	virtual std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const = 0;
+	virtual std::shared_ptr<const Expression> Evaluate(const Symbol *symbols) const = 0;
 
 	const Position pos; ///< %Position of the expression.
 };
@@ -61,10 +61,22 @@ class UnaryOperator : public Expression {
 public:
 	UnaryOperator(const Position &pos, int oper, std::shared_ptr<Expression> child);
 
-	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<const Expression> Evaluate(const Symbol *symbols) const override;
 
-	int oper; ///< Operation performed, currently only \c '-' (unary negation is supported).
+	int oper; ///< Operation performed.
 	std::shared_ptr<Expression> child; ///< Child expression (should be numeric).
+};
+
+/** Binary operator expression. */
+class BinaryOperator : public Expression {
+public:
+	BinaryOperator(const Position &pos, std::shared_ptr<Expression> left, int oper, std::shared_ptr<Expression> right);
+
+	std::shared_ptr<const Expression> Evaluate(const Symbol *symbols) const override;
+
+	int oper; ///< Operation performed.
+	std::shared_ptr<Expression> left;  ///< Left child expression (should be numeric).
+	std::shared_ptr<Expression> right; ///< Right child expression (should be numeric).
 };
 
 /** String literal elementary expression node. */
@@ -72,7 +84,7 @@ class StringLiteral : public Expression {
 public:
 	StringLiteral(const Position &pos, const std::string &text);
 
-	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<const Expression> Evaluate(const Symbol *symbols) const override;
 
 	const std::string text; ///< Text of the string literal (decoded).
 };
@@ -82,7 +94,7 @@ class IdentifierLiteral : public Expression {
 public:
 	IdentifierLiteral(const Position &pos, const std::string &name);
 
-	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<const Expression> Evaluate(const Symbol *symbols) const override;
 
 	const std::string name; ///< The identifier of the expression.
 };
@@ -92,7 +104,7 @@ class NumberLiteral : public Expression {
 public:
 	NumberLiteral(const Position &pos, long long value);
 
-	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<const Expression> Evaluate(const Symbol *symbols) const override;
 
 	long long value; ///< Value of the number literal.
 };
@@ -102,7 +114,7 @@ class BitSet : public Expression {
 public:
 	BitSet(const Position &pos, std::shared_ptr<ExpressionList> args);
 
-	std::shared_ptr<Expression> Evaluate(const Symbol *symbols) const override;
+	std::shared_ptr<const Expression> Evaluate(const Symbol *symbols) const override;
 
 	std::shared_ptr<ExpressionList> args; ///< Arguments of the bitset, if any.
 };

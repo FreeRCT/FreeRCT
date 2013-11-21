@@ -92,7 +92,7 @@ Expression::~Expression()
 }
 
 /**
- * \fn std::shared_ptr<Expression> Expression::Evaluate(const Symbol *symbols) const
+ * \fn std::shared_ptr<const Expression> Expression::Evaluate(const Symbol *symbols) const
  * Evaluation of the expression. Reduces it to its value or throws a fatal error.
  * @param symbols Sequence of known identifier names.
  * @return The computed reduced expression.
@@ -110,16 +110,62 @@ UnaryOperator::UnaryOperator(const Position &pos, int oper, std::shared_ptr<Expr
 	this->child = child;
 }
 
-std::shared_ptr<Expression> UnaryOperator::Evaluate(const Symbol *symbols) const
+std::shared_ptr<const Expression> UnaryOperator::Evaluate(const Symbol *symbols) const
 {
-	std::shared_ptr<Expression> result = this->child->Evaluate(symbols);
-	std::shared_ptr<NumberLiteral> number = std::dynamic_pointer_cast<NumberLiteral>(result);
+	std::shared_ptr<const Expression> result = this->child->Evaluate(symbols);
+	std::shared_ptr<const NumberLiteral> number = std::dynamic_pointer_cast<const NumberLiteral>(result);
 	if (number == nullptr) {
-		fprintf(stderr, "Evaluate error at %s: Cannot negate the value of the child expression", this->pos.ToString());
+		fprintf(stderr, "Evaluate error at %s: Cannot apply unary operator '%c' to the child expression", this->pos.ToString(), this->oper);
 		exit(1);
 	}
-	result = std::make_shared<NumberLiteral>(number->pos, -number->value);
-	return result;
+	switch (this->oper) {
+		case '-': return std::make_shared<const NumberLiteral>(this->pos, -number->value);
+		case '~': return std::make_shared<const NumberLiteral>(this->pos, ~number->value);
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Binary operator constructor.
+ * @param pos %Position of the operator.
+ * @param left Left operand.
+ * @param right Right operand.
+ */
+BinaryOperator::BinaryOperator(const Position &pos, std::shared_ptr<Expression> left, int oper, std::shared_ptr<Expression> right) : Expression(pos)
+{
+	this->oper = oper;
+	this->left = left;
+	this->right = right;
+}
+
+std::shared_ptr<const Expression> BinaryOperator::Evaluate(const Symbol *symbols) const
+{
+	std::shared_ptr<const Expression> result = this->left->Evaluate(symbols);
+	auto left_operand = std::dynamic_pointer_cast<const NumberLiteral>(result);
+	if (left_operand == nullptr) {
+		fprintf(stderr, "Evaluate error at %s: Cannot apply binary operator '%c' to the left operand", this->pos.ToString(), this->oper);
+		exit(1);
+	}
+	result = this->right->Evaluate(symbols);
+	auto right_operand = std::dynamic_pointer_cast<const NumberLiteral>(result);
+	if (right_operand == nullptr) {
+		fprintf(stderr, "Evaluate error at %s: Cannot apply binary operator '%c' to the right operand", this->pos.ToString(), this->oper);
+		exit(1);
+	}
+
+	switch (this->oper) {
+		case '&': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value & right_operand->value);
+		case '|': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value | right_operand->value);
+		case '^': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value ^ right_operand->value);
+		case '<': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value < right_operand->value);
+		case '>': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value > right_operand->value);
+		case '+': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value + right_operand->value);
+		case '-': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value - right_operand->value);
+		case '*': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value * right_operand->value);
+		case '/': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value / right_operand->value);
+		case '%': return std::make_shared<const NumberLiteral>(this->pos, left_operand->value % right_operand->value);
+		default: NOT_REACHED();
+	}
 }
 
 /**
@@ -131,9 +177,9 @@ StringLiteral::StringLiteral(const Position &pos, const std::string &text) : Exp
 {
 }
 
-std::shared_ptr<Expression> StringLiteral::Evaluate(const Symbol *symbols) const
+std::shared_ptr<const Expression> StringLiteral::Evaluate(const Symbol *symbols) const
 {
-	return std::make_shared<StringLiteral>(this->pos, this->text);
+	return std::make_shared<const StringLiteral>(this->pos, this->text);
 }
 
 /**
@@ -145,13 +191,13 @@ IdentifierLiteral::IdentifierLiteral(const Position &pos, const std::string &nam
 {
 }
 
-std::shared_ptr<Expression> IdentifierLiteral::Evaluate(const Symbol *symbols) const
+std::shared_ptr<const Expression> IdentifierLiteral::Evaluate(const Symbol *symbols) const
 {
 	if (symbols != nullptr) {
 		for (;;) {
 			if (symbols->name == nullptr) break; // Reached the end.
 			if (symbols->name == this->name) {
-				return std::make_shared<NumberLiteral>(this->pos, symbols->value);
+				return std::make_shared<const NumberLiteral>(this->pos, symbols->value);
 			}
 			symbols++;
 		}
@@ -165,14 +211,13 @@ std::shared_ptr<Expression> IdentifierLiteral::Evaluate(const Symbol *symbols) c
  * @param pos %Position of the value.
  * @param value The number itself.
  */
-NumberLiteral::NumberLiteral(const Position &pos, long long value) : Expression(pos)
+NumberLiteral::NumberLiteral(const Position &pos, long long value) : Expression(pos), value(value)
 {
-	this->value = value;
 }
 
-std::shared_ptr<Expression> NumberLiteral::Evaluate(const Symbol *symbols) const
+std::shared_ptr<const Expression> NumberLiteral::Evaluate(const Symbol *symbols) const
 {
-	return std::make_shared<NumberLiteral>(this->pos, this->value);
+	return std::make_shared<const NumberLiteral>(this->pos, this->value);
 }
 
 /**
@@ -185,13 +230,13 @@ BitSet::BitSet(const Position &pos, std::shared_ptr<ExpressionList> args) : Expr
 	this->args = args;
 }
 
-std::shared_ptr<Expression> BitSet::Evaluate(const Symbol *symbols) const
+std::shared_ptr<const Expression> BitSet::Evaluate(const Symbol *symbols) const
 {
 	long long value = 0;
 	if (this->args != nullptr) {
 		for (const auto &iter : this->args->exprs) {
-			std::shared_ptr<Expression> e = iter->Evaluate(symbols);
-			std::shared_ptr<NumberLiteral> nl = std::dynamic_pointer_cast<NumberLiteral>(e);
+			std::shared_ptr<const Expression> e = iter->Evaluate(symbols);
+			std::shared_ptr<const NumberLiteral> nl = std::dynamic_pointer_cast<const NumberLiteral>(e);
 			if (nl == nullptr) {
 				fprintf(stderr, "Error at %s: Bit set argument is not an number\n", iter->pos.ToString());
 				exit(1);
@@ -199,7 +244,7 @@ std::shared_ptr<Expression> BitSet::Evaluate(const Symbol *symbols) const
 			value |= 1ll << nl->value;
 		}
 	}
-	return std::make_shared<NumberLiteral>(this->pos, value);
+	return std::make_shared<const NumberLiteral>(this->pos, value);
 }
 
 
