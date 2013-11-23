@@ -1599,7 +1599,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "RCST") == 0 && version == 3) {
+		if (strcmp(name, "RCST") == 0 && version == 4) {
 			CoasterType *ct = new CoasterType;
 			if (!ct->Load(&rcd_file, length, texts, track_pieces)) {
 				delete ct;

@@ -27,6 +27,25 @@ struct TrackVoxel {
 
 	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
 
+	/**
+	 * Does the track piece have a platform?
+	 * @return Whether the track piece has a platform.
+	 */
+	inline bool HasPlatform() const
+	{
+		return GB(this->flags, 4, 3) != 0;
+	}
+
+	/**
+	 * Get the 'direction' of the platform (the edge used for entering the voxel).
+	 * @return Direction of the tracks (and thus the platform).
+	 * @pre #HasPlatform() holds.
+	 */
+	inline TileEdge GetPlatformDirection() const
+	{
+		return static_cast<TileEdge>(GB(this->flags, 4, 3) - 1);
+	}
+
 	ImageData *back[4];  ///< Reference to the background tracks (N/E/S/W view).
 	ImageData *front[4]; ///< Reference to the front tracks (N/E/S/W view).
 	int8 dx;     ///< Relative X position of the voxel.
@@ -79,25 +98,6 @@ public:
 	Money cost;               ///< Cost of this track piece.
 	int voxel_count;          ///< Number of voxels in #track_voxels.
 	TrackVoxel *track_voxels; ///< Track voxels of this piece.
-
-	/**
-	 * Does the track piece have a platform?
-	 * @return Whether the track piece has a platform.
-	 */
-	inline bool HasPlatform() const
-	{
-		return GB(this->track_flags, 0, 1) != 0;
-	}
-
-	/**
-	 * Get the 'direction' of the platform.
-	 * @return Direction of the tracks (and thus the platform).
-	 * @pre #HasPlatform() holds.
-	 */
-	inline TileEdge GetPlatformDirection() const
-	{
-		return (TileEdge)GB(this->track_flags, 1, 2);
-	}
 
 	/**
 	 * Can the track piece be used as the first piece of a roller coaster?
