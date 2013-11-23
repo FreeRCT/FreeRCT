@@ -29,7 +29,7 @@ file("tracks.rcd") {
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0;
-				space: bitset(north, east, south, west);
+				flags: bitset(north, east, south, west);
 
 				(w_back, n_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
@@ -43,14 +43,14 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, south, west);
 			}
 		}
 
 		// Flat, straight pieces with platform.
 		track_piece {
 			// name: "flat-straight";
-			track_flags: bitset(0, 3);
+			track_flags: bitset(3);
 			banking: none;
 			slope: 0;
 			bend: 0;
@@ -60,7 +60,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: swne + bitset(north, east, south, west);
 
 				(w_back, n_back): sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
@@ -74,7 +74,7 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, south, west);
 			}
 		}
 
@@ -91,7 +91,7 @@ file("tracks.rcd") {
 			exit_dx: 0; exit_dy: -1; exit_dz: 0;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
@@ -100,7 +100,7 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -115,7 +115,7 @@ file("tracks.rcd") {
 			exit_dx: 0; exit_dy: 1; exit_dz: 0;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(s_back, e_back, n_back, w_back): sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
@@ -124,7 +124,7 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, south, west);
 			}
 		}
 
@@ -141,7 +141,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
@@ -150,7 +150,7 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -165,7 +165,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: -1;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
@@ -174,10 +174,10 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: -1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: -1; flags: bitset(north, east, west, south);
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -192,7 +192,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
@@ -201,10 +201,10 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 2; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 2; flags: bitset(north, east, west, south);
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -218,7 +218,7 @@ file("tracks.rcd") {
 			exit:  connection { name: "shallow_down"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: -1;
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(e_back, n_back, w_back, s_back): sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
@@ -227,10 +227,10 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 2; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 2; flags: bitset(north, east, west, south);
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, south, west);
 			}
 		}
 		track_piece {
@@ -245,7 +245,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(e_back, n_back, w_back, s_back): sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
@@ -254,10 +254,10 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: -1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: -1; flags: bitset(north, east, west, south);
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -272,7 +272,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(e_back, n_back, w_back, s_back): sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
@@ -281,7 +281,7 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, west, south);
 			}
 		}
 
@@ -299,7 +299,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(w_back, s_back, e_back, n_back) : sheet {
 					x_base: 0; y_base: 320; x_step: 64; y_step: 64;
@@ -308,7 +308,7 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -324,7 +324,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 384; x_step: 64; y_step: 64;
@@ -333,10 +333,10 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, west, south);
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 2; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 2; flags: bitset(north, east, west, south);
 			}
 		}
 		track_piece {
@@ -352,7 +352,7 @@ file("tracks.rcd") {
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
 			track_voxel {
-				dx: 0; dy: 0; dz: 0; space: bitset(north, east, south, west);
+				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 				(e_back, n_back, w_back, s_back): sheet {
 					x_base: 0; y_base: 448; x_step: 64; y_step: 64;
@@ -361,10 +361,10 @@ file("tracks.rcd") {
 				}
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: 1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: 1; flags: bitset(north, east, west, south);
 			}
 			track_voxel {
-				dx: 0; dy: 0; dz: -1; space: bitset(north, east, west, south);
+				dx: 0; dy: 0; dz: -1; flags: bitset(north, east, west, south);
 			}
 		}
 	}

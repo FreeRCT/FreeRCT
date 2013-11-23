@@ -1696,6 +1696,10 @@ static const Symbol _track_voxel_symbols[] = {
 	{"east",  1},
 	{"south", 2},
 	{"west",  3},
+	{"nesw",  1 << 4},
+	{"senw",  2 << 4},
+	{"swne",  3 << 4},
+	{"nwse",  4 << 4},
 	{nullptr, 0}
 };
 
@@ -1717,7 +1721,7 @@ static std::shared_ptr<TrackVoxel> ConvertTrackVoxel(std::shared_ptr<NodeGroup> 
 	tv->dx = vals.GetNumber("dx");
 	tv->dy = vals.GetNumber("dy");
 	tv->dz = vals.GetNumber("dz");
-	tv->space = vals.GetNumber("space");
+	tv->flags = vals.GetNumber("flags");
 
 	char buffer[16];
 	for (int i = 0; i < 4; i++) {

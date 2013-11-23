@@ -32,7 +32,7 @@ struct TrackVoxel {
 	int8 dx;     ///< Relative X position of the voxel.
 	int8 dy;     ///< Relative Y position of the voxel.
 	int8 dz;     ///< Relative Z position of the voxel.
-	uint8 space; ///< Space requirements of the voxel.
+	uint8 flags; ///< Flags of the voxel (space requirements, platform direction).
 };
 
 /** Banking of the track piece. */

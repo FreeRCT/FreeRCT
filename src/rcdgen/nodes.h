@@ -651,7 +651,7 @@ public:
 	int dx; ///< Relative X position of the voxel.
 	int dy; ///< Relative Y position of the voxel.
 	int dz; ///< Relative Z position of the voxel.
-	int space; ///< Corners claimed by the voxel.
+	int flags; ///< Flags of the voxel (space corners, platform direction).
 	std::array<std::shared_ptr<SpriteBlock>, 4> back;  ///< Back coaster sprites.
 	std::array<std::shared_ptr<SpriteBlock>, 4> front; ///< Front coaster sprites.
 };

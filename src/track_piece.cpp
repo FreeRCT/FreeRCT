@@ -45,7 +45,7 @@ bool TrackVoxel::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 	this->dx = rcd_file->GetInt8();
 	this->dy = rcd_file->GetInt8();
 	this->dz = rcd_file->GetInt8();
-	this->space = rcd_file->GetUInt8();
+	this->flags = rcd_file->GetUInt8();
 	return true;
 }
 

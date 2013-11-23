@@ -685,7 +685,7 @@ TrackVoxel::TrackVoxel() : BlockNode()
 	this->dx = 0;
 	this->dy = 0;
 	this->dz = 0;
-	this->space = 0;
+	this->flags = 0;
 }
 
 /**
@@ -701,6 +701,28 @@ static void RotateXY(int *dx, int *dy, int count)
 		*dx = *dy;
 		*dy = ny;
 	}
+}
+
+/**
+ * Rotate the track voxel flags.
+ * @param flags Original flags.
+ * @param count Number of quarter rotations.
+ * @return The rotated flags.
+ */
+static int RotateFlags(int flags, int count)
+{
+	int rot_flags = 0;
+	/* Rotate the space requirements. */
+	for (int i = 0; i < 4; i++) {
+		if ((flags & (1 << i)) == 0) continue;
+		int j = (i + count) & 3;
+		rot_flags |= 1 << j;
+	}
+
+	/* Rotate the platform. */
+	flags = (flags >> 4) & 7;
+	if (flags != 0) flags = 1 + ((flags - 1 + count) & 3);
+	return rot_flags | (flags << 4);
 }
 
 /**
@@ -733,13 +755,7 @@ void TrackVoxel::Write(FileWriter *fw, FileBlock *fb, int rot)
 	fb->SaveInt8(nx);
 	fb->SaveInt8(ny);
 	fb->SaveInt8(this->dz);
-	int rot_flags = 0;
-	for (int i = 0; i < 4; i++) {
-		if ((this->space & (1 << i)) == 0) continue;
-		int j = (i + rot) & 3;
-		rot_flags |= 1 << j;
-	}
-	fb->SaveUInt8(rot_flags);
+	fb->SaveUInt8(RotateFlags(this->flags, rot));
 }
 
 Connection::Connection() : BlockNode()
@@ -852,7 +868,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 	}
 }
 
-RCSTBlock::RCSTBlock() : GameBlock("RCST", 3)
+RCSTBlock::RCSTBlock() : GameBlock("RCST", 4)
 {
 }
 

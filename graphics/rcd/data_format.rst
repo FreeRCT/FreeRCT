@@ -751,7 +751,7 @@ Track pieces
 ~~~~~~~~~~~~
 
 A track piece definition describes a single piece of track in a TRCK block.
-FreeRCT can read blocks with version 3. Each piece needs
+FreeRCT can read blocks with version 4. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is
 called the *exit* voxel. The *entry* voxel of a track piece is at the *exit*
@@ -768,26 +768,24 @@ it is split in a 'name' and a 'direction' while defining the track pieces.
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0        4      1-3                        Magic string 'TRCK'.
-   4        4      1-3                        Version number of the block.
-   8        4      1-3                        Length of the block excluding magic string, version, and length.
-  12        1      1-3    entry_connection    Entry connection code
-  13        1      1-3    exit_connection     Exit connection code
-  14        1      2-3    exit_dx             Relative X position of the exit voxel.
-  15        1      2-3    exit_dy             Relative Y position of the exit voxel.
-  16        1      2-3    exit_dz             Relative Z position of the exit voxel.
-  17        1      2-3    speed               If non-zero, the minimal speed of cars at the track.
-  18        2      2-3    track_flags         Flags of the track piece (version 2 is 1 byte).
-  20        4      2-3    cost                Cost of this track piece.
-  24        2      1-3                        Number of voxels in this track piece (called 'n').
-  26      36*n     1-3                        Voxel definitions
+   0        4      1-4                        Magic string 'TRCK'.
+   4        4      1-4                        Version number of the block.
+   8        4      1-4                        Length of the block excluding magic string, version, and length.
+  12        1      1-4    entry_connection    Entry connection code
+  13        1      1-4    exit_connection     Exit connection code
+  14        1      2-4    exit_dx             Relative X position of the exit voxel.
+  15        1      2-4    exit_dy             Relative Y position of the exit voxel.
+  16        1      2-4    exit_dz             Relative Z position of the exit voxel.
+  17        1      2-4    speed               If non-zero, the minimal speed of cars at the track.
+  18        2      2-4    track_flags         Flags of the track piece (version 2 is 1 byte).
+  20        4      2-4    cost                Cost of this track piece.
+  24        2      1-4                        Number of voxels in this track piece (called 'n').
+  26      36*n     1-4                        Voxel definitions
 26+36*n                                       Total length of the ``TRCK`` block.
 =======  ======  =======  ==================  ================================================================
 
 The track flags are defined as follows:
 
-- bit   0    *This track piece has platforms next to the track*.
-- bits  1-2  *Direction of the platform* (if bit 0 is set).
 - bit   3    *This track piece may be used for initial placement*.
 - bits  4-5  *Direction of initial placement* (if bit 3 is set).
 - bits  6-7  *Banking of the piece* (0=no banking, 1=banking to the left, 2=banking to the right).
@@ -795,32 +793,36 @@ The track flags are defined as follows:
   2=steep up, 3=vertical up).
 - bits 11-13 *Size of the bend* (-3 to +3, negative is to the left, positive is to the right, bigger is a wider bend).
 
+The remaining bits are reserved and should be ``0``.
+
 A voxel definition is
 
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0       4       1-2    n_back              Reference to the background tracks for north view.
-   4       4        2     e_back              Reference to the background tracks for east view.
-   8       4        2     s_back              Reference to the background tracks for south view.
-  12       4        2     w_back              Reference to the background tracks for west view.
-  16       4        2     n_front             Reference to the front tracks for north view.
-  20       4        2     e_front             Reference to the front tracks for east view.
-  24       4        2     s_front             Reference to the front tracks for south view.
-  28       4        2     w_front             Reference to the front tracks for west view.
-  32       1       1-2    dx                  Relative X position of the voxel.
-  33       1       1-2    dy                  Relative Y position of the voxel.
-  34       1       1-2    dz                  Relative Z position of the voxel.
-  35       1       1-2    space               Space requirements of the voxel.
+   0       4       1-4    n_back              Reference to the background tracks for north view.
+   4       4        4     e_back              Reference to the background tracks for east view.
+   8       4        4     s_back              Reference to the background tracks for south view.
+  12       4        4     w_back              Reference to the background tracks for west view.
+  16       4        4     n_front             Reference to the front tracks for north view.
+  20       4        4     e_front             Reference to the front tracks for east view.
+  24       4        4     s_front             Reference to the front tracks for south view.
+  28       4        4     w_front             Reference to the front tracks for west view.
+  32       1       1-4    dx                  Relative X position of the voxel.
+  33       1       1-4    dy                  Relative Y position of the voxel.
+  34       1       1-4    dz                  Relative Z position of the voxel.
+  35       1       1-4    flags               Flags of the voxel (space requirements, platforms).
   36                                          Total length of a voxel definition.
 =======  ======  =======  ==================  ================================================================
 
-The space requirements are defined as follows:
+The flags are defined as follows:
 
-- bit 0: Northern quarter of the voxel is used by the piece.
-- bit 1: Eastern quarter of the voxel is used by the piece.
-- bit 2: Southern quarter of the voxel is used by the piece.
-- bit 3: Western quarter of the voxel is used by the piece.
+- bit  0: Northern quarter of the voxel is used by the piece.
+- bit  1: Eastern quarter of the voxel is used by the piece.
+- bit  2: Southern quarter of the voxel is used by the piece.
+- bit  3: Western quarter of the voxel is used by the piece.
+- bit  4-6: Platform to attach, with direction
+  (``0``=none, ``1``=ne-to-sw, ``2``=se-to-nw, ``3``=sw-to-ne, ``4``=nw-to-se).
 
 The remaining bits are reserved and should be ``0``.
 
@@ -831,6 +833,8 @@ Version history
 - 2 (20130430) Entry and exit definitions, speed, flags, and sprites for other viewing directions added.
 - 3 (20130622) Extended the ``track_flags`` from 1 byte to 2 bytes to add the track piece properties (banking, slope,
   and bend size).
+- 4 (20131117) Move platform bits from track piece to track voxel.
+
 
 Coaster cars
 ~~~~~~~~~~~~
