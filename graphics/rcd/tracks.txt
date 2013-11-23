@@ -372,7 +372,7 @@ file("tracks.rcd") {
 	CARS {
 		tile_width: 64;
 		z_height:  16;
-		length: 65536;
+		length: 50000; // Arbitrary length of a car, needs further tweaking.
 		num_passengers: 4;
 		num_entrances: 2;
 
@@ -455,6 +455,55 @@ file("tracks.rcd") {
 			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 			x_base: 0; y_base: 15360; x_step: 64; y_step: 64; y_count: 16;
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+
+	CSPL { // Coaster platforms.
+		tile_width: 64;
+		type: wood;
+
+		// Platform itself has no direction.
+		ne_sw_back: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		ne_sw_front: sprite {
+			x_base: 0; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		sw_ne_back: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		sw_ne_front: sprite {
+			x_base: 0; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+
+		// Platform itself has no direction.
+		nw_se_back: sprite {
+			x_base: 65; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		nw_se_front: sprite {
+			x_base: 65; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		se_nw_back: sprite {
+			x_base: 65; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		se_nw_front: sprite {
+			x_base: 65; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
 		}
 	}
 }

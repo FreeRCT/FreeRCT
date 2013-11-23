@@ -1887,6 +1887,39 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 	return rb;
 }
 
+/** Platform coaster type symbols. */
+static const Symbol _coaster_platform_symbols[] = {
+	{"wood", 1},
+	{nullptr, 0}
+};
+
+/**
+ * Convert a 'CSPL' node to a game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted CSPL game block.
+ */
+static std::shared_ptr<CSPLBlock> ConvertCSPLNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "CSPL");
+	auto blk = std::make_shared<CSPLBlock>();
+	Values vals("CSPL", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false, _coaster_platform_symbols);
+
+	blk->tile_width  = vals.GetNumber("tile_width");
+	blk->type        = vals.GetNumber("type");
+	blk->ne_sw_back  = vals.GetSprite("ne_sw_back");
+	blk->ne_sw_front = vals.GetSprite("ne_sw_front");
+	blk->se_nw_back  = vals.GetSprite("se_nw_back");
+	blk->se_nw_front = vals.GetSprite("se_nw_front");
+	blk->sw_ne_back  = vals.GetSprite("sw_ne_back");
+	blk->sw_ne_front = vals.GetSprite("sw_ne_front");
+	blk->nw_se_back  = vals.GetSprite("nw_se_back");
+	blk->nw_se_front = vals.GetSprite("nw_se_front");
+
+	vals.VerifyUsage();
+	return blk;
+}
+
 /**
  * Convert a node group.
  * @param ng Node group to convert.
@@ -1927,6 +1960,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "GSLP") return ConvertGSLPNode(ng);
 	if (ng->name == "RCST") return ConvertRCSTNode(ng);
 	if (ng->name == "CARS") return ConvertCARSNode(ng);
+	if (ng->name == "CSPL") return ConvertCSPLNode(ng);
 
 	/* Unknown type of node. */
 	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\"\n", ng->pos.ToString(), ng->name.c_str());

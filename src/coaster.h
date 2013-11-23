@@ -57,6 +57,26 @@ public:
 };
 
 /**
+ * Platforms of the coaster.
+ * @todo Add support for different sizes sprites.
+ */
+class CoasterPlatform {
+public:
+	CoasterPlatform();
+
+	int tile_width;           ///< Width of the tile of these sprites.
+	CoasterPlatformType type; ///< Type of platform.
+	ImageData *ne_sw_back;    ///< Background sprite for the NE-SW direction.
+	ImageData *ne_sw_front;   ///< Foreground sprite for the NE-SW direction.
+	ImageData *se_nw_back;    ///< Background sprite for the SE-NW direction.
+	ImageData *se_nw_front;   ///< Foreground sprite for the SE-NW direction.
+	ImageData *sw_ne_back;    ///< Background sprite for the SW_NE direction.
+	ImageData *sw_ne_front;   ///< Foreground sprite for the SW_NE direction.
+	ImageData *nw_se_back;    ///< Background sprite for the NW_SE direction.
+	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
+};
+
+/**
  * A roller coaster in the world.
  * Since roller coaster rides need to be constructed by the user first, an instance can exist
  * without being able to open for public.
@@ -93,5 +113,7 @@ public:
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
 };
+
+bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprites);
 
 #endif

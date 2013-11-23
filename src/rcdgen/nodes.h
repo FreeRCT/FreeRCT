@@ -728,6 +728,24 @@ public:
 	BitMaskData data; ///< Data of the bit mask.
 };
 
+/** 'CSPL' game block. */
+class CSPLBlock : public GameBlock {
+public:
+	CSPLBlock();
+
+	int Write(FileWriter *fw) override;
+
+	int tile_width; ///< Zoom-width of a tile of the surface.
+	uint8 type;     ///< Type of platform.
+	std::shared_ptr<SpriteBlock> ne_sw_back;  ///< Background platform sprite of the NE to SW direction.
+	std::shared_ptr<SpriteBlock> ne_sw_front; ///< Foreground platform sprite of the NE to SW direction.
+	std::shared_ptr<SpriteBlock> se_nw_back;  ///< Background platform sprite of the SE to NW direction.
+	std::shared_ptr<SpriteBlock> se_nw_front; ///< Foreground platform sprite of the SE to NW direction.
+	std::shared_ptr<SpriteBlock> sw_ne_back;  ///< Background platform sprite of the SW to NE direction.
+	std::shared_ptr<SpriteBlock> sw_ne_front; ///< Foreground platform sprite of the SW to NE direction.
+	std::shared_ptr<SpriteBlock> nw_se_back;  ///< Background platform sprite of the NW to SE direction.
+	std::shared_ptr<SpriteBlock> nw_se_front; ///< Foreground platform sprite of the NW to SE direction.
+};
 
 FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values);
 

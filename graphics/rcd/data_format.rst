@@ -866,11 +866,42 @@ should move upright in the direction of the negative X axis (ie NE direction). I
 increasing roll rotates over to the right, and increasing yaw goes left (positive rotation angle, towards the north).
 Sprite index is **P** + **R** * 16 + **Y** * 256 .
 
-
 Version history
 ...............
 
 - 1 (20131020) Initial version.
+
+
+Coaster platforms
+~~~~~~~~~~~~~~~~~
+Sprites for the platforms of a coasters are stored in a ``CSPL`` block. FreeRCT can load version 2 of these blocks.
+
+=======  ======  =======  ===========  ================================================================
+Offset   Length  Version  Field name   Description
+=======  ======  =======  ===========  ================================================================
+   0        4      1-2                 Magic string 'CSPL'.
+   4        4      1-2                 Version number of the block.
+   8        4      1-2                 Length of the block excluding magic string, version, and length.
+  12        2      1-2    tile_width   Zoom-width of a tile.
+  14        1      1-2    type         Type of the platform, see `Roller coaster tracks`_.
+  15        4      1-2    ne_sw_back   Background platform sprite of the NE to SW direction.
+  19        4      1-2    ne_sw_front  Foreground platform sprite of the NE to SW direction.
+  23        4       2     se_nw_back   Background platform sprite of the SE to NW direction.
+  27        4       2     se_nw_front  Foreground platform sprite of the SE to NW direction.
+  31        4       2     sw_ne_back   Background platform sprite of the SW to NE direction.
+  35        4       2     sw_ne_front  Foreground platform sprite of the SW to NE direction.
+  39        4      1-2    nw_se_back   Background platform sprite of the NW to SE direction.
+  43        4      1-2    nw_se_front  Foreground platform sprite of the NW to SE direction.
+  47                                   Total length of the block.
+=======  ======  =======  ===========  ================================================================
+
+The direction of a platform is the same as the movement direction of a coaster train.
+
+Version history
+...............
+
+- 1 (20131120) Initial version.
+- 2 (20131123) Added the missing directions SE to NW, and SW to NE.
 
 
 GUI

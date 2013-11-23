@@ -1609,6 +1609,13 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(name, "CSPL") == 0 && version == 2) {
+			if (!LoadCoasterPlatform(&rcd_file, length, sprites)) {
+				return "Coaster platform failed to load.";
+			}
+			continue;
+		}
+
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", name, version);
 		while (length > 0) {

@@ -19,6 +19,8 @@
 
 #include "generated/coasters_strings.cpp"
 
+CoasterPlatform _coaster_platforms[CPT_COUNT]; ///< Sprites for the coaster platforms.
+
 CoasterType::CoasterType() : RideType(RTK_COASTER)
 {
 	this->voxel_count = 0;
@@ -109,6 +111,49 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 	NOT_REACHED();
 }
 
+/** Default constructor, no sprites available yet. */
+CoasterPlatform::CoasterPlatform()
+{
+	this->ne_sw_back  = nullptr;
+	this->ne_sw_front = nullptr;
+	this->se_nw_back  = nullptr;
+	this->se_nw_front = nullptr;
+	this->sw_ne_back  = nullptr;
+	this->sw_ne_front = nullptr;
+	this->nw_se_back  = nullptr;
+	this->nw_se_front = nullptr;
+}
+
+/**
+ * Load a coaster platform (CSPL) block.
+ * @param rcdfile Data file being loaded.
+ * @param length Length of the block data.
+ * @param sprites Sprites already loaded from the RCD file.
+ * @return Loading the CSPL block succeeded.
+ */
+bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
+{
+	if (length != 2 + 1 + 8*4) return false;
+
+	uint16 width = rcdfile->GetUInt16();
+	uint8 type = rcdfile->GetUInt8();
+	if (width != 64 || type >= CPT_COUNT) return false;
+
+	CoasterPlatform &platform = _coaster_platforms[type];
+	platform.tile_width = width;
+	platform.type = static_cast<CoasterPlatformType>(type);
+
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.ne_sw_back))  return false;
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.ne_sw_front)) return false;
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.se_nw_back))  return false;
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.se_nw_front)) return false;
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.sw_ne_back))  return false;
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.sw_ne_front)) return false;
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.nw_se_back))  return false;
+	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.nw_se_front)) return false;
+	return true;
+}
+
 /**
  * Constructor of a roller coaster instance.
  * @param ct Coaster type being built.
@@ -140,10 +185,38 @@ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageD
 	assert(voxel_number < ct->voxel_count);
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
-	sprites[0] = nullptr; // SO_PLATFORM_BACK /// \todo If platform flag, add coaster platforms.
 	sprites[1] = tv->back[orient]; // SO_RIDE
 	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
-	sprites[3] = nullptr; // SO_PLATFORM_FRONT /// \todo If platform flag, add coaster platforms.
+	if ((tv->back[orient] == nullptr && tv->front[orient] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
+		sprites[0] = nullptr; // SO_PLATFORM_BACK
+		sprites[3] = nullptr; // SO_PLATFORM_FRONT
+	} else {
+		const CoasterPlatform &platform = _coaster_platforms[ct->platform_type];
+		TileEdge edge = static_cast<TileEdge>((tv->GetPlatformDirection() + 4 - orient) & 3);
+		switch (edge) {
+			case EDGE_NE:
+				sprites[0] = platform.ne_sw_back;
+				sprites[3] = platform.ne_sw_front;
+				break;
+
+			case EDGE_SE:
+				sprites[0] = platform.se_nw_back;
+				sprites[3] = platform.se_nw_front;
+				break;
+
+			case EDGE_SW:
+				sprites[0] = platform.sw_ne_back;
+				sprites[3] = platform.sw_ne_front;
+				break;
+
+			case EDGE_NW:
+				sprites[0] = platform.nw_se_back;
+				sprites[3] = platform.nw_se_front;
+				break;
+
+			default: NOT_REACHED();
+		}
+	}
 }
 
 uint8 CoasterInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const

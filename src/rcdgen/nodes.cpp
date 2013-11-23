@@ -913,3 +913,26 @@ int CARSBlock::Write(FileWriter *fw)
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
+
+CSPLBlock::CSPLBlock() : GameBlock("CSPL", 2)
+{
+}
+
+int CSPLBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 2 + 1 + 8*4);
+	fb->SaveUInt16(this->tile_width);
+	fb->SaveUInt8(this->type);
+	fb->SaveUInt32(this->ne_sw_back->Write(fw));
+	fb->SaveUInt32(this->ne_sw_front->Write(fw));
+	fb->SaveUInt32(this->se_nw_back->Write(fw));
+	fb->SaveUInt32(this->se_nw_front->Write(fw));
+	fb->SaveUInt32(this->sw_ne_back->Write(fw));
+	fb->SaveUInt32(this->sw_ne_front->Write(fw));
+	fb->SaveUInt32(this->nw_se_back->Write(fw));
+	fb->SaveUInt32(this->nw_se_front->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
