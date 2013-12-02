@@ -1,0 +1,137 @@
+
+# /
+/doxygen_warnings.txt
+/Makefile
+/CMakeFiles
+/CMakeCache.txt
+/cmake_install.cmake
+
+# /doc/
+/doc/html
+
+# /graphics/rcd/
+/graphics/rcd/*.rcd
+/graphics/rcd/*.log
+/graphics/rcd/*.aux
+/graphics/rcd/*.toc
+/graphics/rcd/*.lang
+/graphics/rcd/Makefile
+/graphics/rcd/CMakeFiles
+/graphics/rcd/cmake_install.cmake
+/graphics/rcd/dataformat.html
+
+# /graphics/sprites/
+
+# /graphics/sprites/guests/
+
+# /graphics/sprites/gui/
+
+# /graphics/sprites/gui/contruction/
+
+# /graphics/sprites/gui/paths/
+
+# /graphics/sprites/info_and_scripts/
+
+# /graphics/sprites/info_and_scripts/palettes/
+
+# /graphics/sprites/objects/
+
+# /graphics/sprites/objects/1x1/
+
+# /graphics/sprites/objects/1x1/gui/
+
+# /graphics/sprites/objects/1x1/gui/orthbuildmark/
+
+# /graphics/sprites/objects/1x1/gui/orthbuildmark8bpp/
+
+# /graphics/sprites/objects/1x1/template/
+
+# /graphics/sprites/objects/1x1/template8bpp/
+
+# /graphics/sprites/objects/2x2/
+
+# /graphics/sprites/objects/2x2/template/
+
+# /graphics/sprites/paths/
+
+# /graphics/sprites/paths/path/
+
+# /graphics/sprites/paths/path/template/
+
+# /graphics/sprites/paths/path/template8bpp/
+
+# /graphics/sprites/paths/platform/
+
+# /graphics/sprites/paths/platform/template/
+
+# /graphics/sprites/paths/platform/template8bpp/
+
+# /graphics/sprites/paths/support/
+
+# /graphics/sprites/paths/support/template/
+
+# /graphics/sprites/paths/support/template8bpp/
+
+# /graphics/sprites/terrain/
+
+# /graphics/sprites/terrain/foundation/
+
+# /graphics/sprites/terrain/foundation/mask/
+
+# /graphics/sprites/terrain/foundation/template/
+
+# /graphics/sprites/terrain/foundation/template8bpp/
+
+# /graphics/sprites/terrain/groundtiles/
+
+# /graphics/sprites/terrain/groundtiles/borderhighlight/
+
+# /graphics/sprites/terrain/groundtiles/borderhighlight8bpp/
+
+# /graphics/sprites/terrain/groundtiles/cornerhighlight/
+
+# /graphics/sprites/terrain/groundtiles/cornerhighlight8bpp/
+
+# /graphics/sprites/terrain/groundtiles/dashedhighlight/
+
+# /graphics/sprites/terrain/groundtiles/dashedhighlight8bpp/
+
+# /graphics/sprites/terrain/groundtiles/mask/
+
+# /graphics/sprites/terrain/groundtiles/patrolhighlight/
+
+# /graphics/sprites/terrain/groundtiles/patrolhighlight8bpp/
+
+# /graphics/sprites/terrain/groundtiles/template/
+
+# /graphics/sprites/terrain/groundtiles/template8bpp/
+
+# /graphics/sprites/terrain/groundtiles/textures/
+
+# /graphics/sprites/terrain/groundtiles/tileselection/
+
+# /graphics/sprites/terrain/groundtiles/tileselection8bpp/
+
+# /src/
+/src/freerct
+/src/freerct.exe
+/src/*.d
+/src/freerct.cfg
+/src/objects
+/src/rev.cpp
+/src/Makefile
+/src/CMakeFiles
+/src/CMakeCache.txt
+/src/cmake_install.cmake
+
+# /src/generated/
+/src/generated/*
+
+# /src/rcdgen/
+/src/rcdgen/parser.cpp
+/src/rcdgen/scanner.cpp
+/src/rcdgen/tokens.h
+/src/rcdgen/rcdgen
+/src/rcdgen/Makefile
+/src/rcdgen/CMakeFiles
+/src/rcdgen/cmake_install.cmake
