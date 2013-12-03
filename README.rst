@@ -21,6 +21,14 @@ The command to do this is
 
 (see also the 'source' tab of the project)
 
+There is also a git mirror of the project on github.
+
+The command to get this is
+
+::
+
+        $ git clone https://github.com/FreeRCT/FreeRCT.git
+
 Building the program
 --------------------
 
