@@ -122,7 +122,7 @@ int string_line; ///< Starting line of the string.
 	line++;
 }
 
-[ \t] {
+[ \t\r] {
 }
 
 \n {
