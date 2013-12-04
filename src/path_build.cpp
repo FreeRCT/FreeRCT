@@ -498,9 +498,8 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
 	/* Fail if the new voxel is a reference voxel, or it contains a ride. */
 	if (v != nullptr && v->GetInstance() >= SRI_FULL_RIDES) return false;
 
-	if (need_path) {
-		if (v == nullptr) return false;
-		if (v->GetInstance() != SRI_PATH) return false;
+	if (need_path && !PathExistsAtBottomEdge(this->xpos, this->ypos, this->zpos + delta_z, direction)) {
+		return false;
 	}
 
 	this->xpos += dxy.x;
@@ -521,14 +520,14 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 	if (this->state <= PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || edge == INVALID_EDGE) return;
 
 	/* First try to find a voxel with a path at it. */
+	if (!move_up && this->TryMove(edge, -1, true)) return;
 	if (this->TryMove(edge, 0, true)) return;
 	if ( move_up && this->TryMove(edge,  1, true)) return;
-	if (!move_up && this->TryMove(edge, -1, true)) return;
 
 	/* Otherwise just settle for a surface. */
+	if (!move_up && this->TryMove(edge, -1, false)) return;
 	if (this->TryMove(edge, 0, false)) return;
 	if ( move_up && this->TryMove(edge,  1, false)) return;
-	if (!move_up && this->TryMove(edge, -1, false)) return;
 }
 
 /**
