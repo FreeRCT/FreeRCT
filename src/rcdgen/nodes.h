@@ -430,11 +430,10 @@ public:
 
 /** Known languages. */
 enum Languages {
-	LNG_DEFAULT, ///< Default language.
-	LNG_EN_GB,   ///< en_GB language.
-	LNG_NL_NL,   ///< nl_NL language.
+	LNG_EN_GB, ///< en_GB language (default).
+	LNG_NL_NL, ///< nl_NL language.
 
-	LNG_COUNT,   ///< Number of known languages.
+	LNG_COUNT, ///< Number of known languages.
 };
 
 int GetLanguageIndex(const char *lname, const Position &pos);

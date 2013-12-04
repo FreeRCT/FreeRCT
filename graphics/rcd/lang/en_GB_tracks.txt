@@ -8,6 +8,6 @@
 
 // Texts relating to tracks/coasters in the default language.
 
-string { lang: ""; name: "NAME_INSTANCE";    text: "Crazy roller"; }
-string { lang: ""; name: "NAME_TYPE";        text: "Basic rollercoaster"; }
-string { lang: ""; name: "DESCRIPTION_TYPE"; text: "Basic steel rollercoaster ride"; }
+string { lang: "en_GB"; name: "NAME_INSTANCE";    text: "Crazy roller"; }
+string { lang: "en_GB"; name: "NAME_TYPE";        text: "Basic rollercoaster"; }
+string { lang: "en_GB"; name: "DESCRIPTION_TYPE"; text: "Basic steel rollercoaster ride"; }

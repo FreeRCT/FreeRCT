@@ -1567,7 +1567,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TEXT") == 0 && version == 1) {
+		if (strcmp(name, "TEXT") == 0 && version == 2) {
 			TextData *txt = new TextData;
 			if (!txt->Load(&rcd_file, length)) {
 				delete txt;

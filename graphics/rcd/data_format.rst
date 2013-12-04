@@ -128,7 +128,7 @@ What remains is a collection of names that are attached to text (the game
 queries text by name), where the latter may exist in several languages. All
 text is assumed to be UTF-8 encoded, and 0-terminated.
 
-FreeRCT can read version 1 text blocks, which look like
+FreeRCT can read version 2 text blocks, which look like
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -153,7 +153,6 @@ Offset  Length  Description
    ?       ?    First translation.
    ?       ?    Second translation.
   ...     ...
-   ?       ?    Default translation.
 ======  ======  ==========================================================
 
 A translation has the following structure.
@@ -167,16 +166,18 @@ Offset  Length  Description
    ?       ?    Text of the string in the indicated language (incl 0).
 ======  ======  ==========================================================
 
-The default language has no language name ie it is "" (the empty string).
-Other languages use one of the following tags (currently ``name of language -
+The languages use one of the following tags (currently ``name of language -
 name of country area`` but that may change in the future).
 
 =====  =========================
 Tag    Description
 =====  =========================
-en_GB  Great Britain.
+en_GB  Great Britain (default).
 nl_NL  The Netherlands.
 =====  =========================
+
+If a string does not exist in the queried language, the program will fall back
+to the ``en_GB`` language.
 
 String parameters
 ~~~~~~~~~~~~~~~~~
@@ -190,7 +191,8 @@ Version history
 ...............
 
 - 1 (20120714) Initial version.
--   (20121215) Added string parameters.
+- _ (20121215) Added string parameters.
+- 2 (20131204) Dropped the default language, ``en_GB`` now has that role.
 
 
 Game blocks

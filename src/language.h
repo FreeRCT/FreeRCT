@@ -63,9 +63,10 @@ typedef uint16 StringID; ///< Type of a string value.
 
 /** Languages known by the program. */
 enum Languages {
-	DEFAULT_LANGUAGE = 0, ///< Id of the default language.
+	LANG_EN_GB, ///< British English.
+	LANG_NL_NL, ///< Dutch.
 
-	LANGUAGE_COUNT = 3,   ///< Number of available languages.
+	LANGUAGE_COUNT, ///< Number of available languages.
 };
 
 /**
@@ -85,7 +86,7 @@ public:
 	{
 		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return (uint8 *)"<out of bounds>";
 		if (this->languages[_current_language] != nullptr) return this->languages[_current_language];
-		if (this->languages[0] != nullptr) return this->languages[0];
+		if (this->languages[LANG_EN_GB] != nullptr) return this->languages[LANG_EN_GB];
 		return (uint8 *)"<no-text>";
 	}
 

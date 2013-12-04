@@ -367,8 +367,7 @@ int SUPPBlock::Write(FileWriter *fw)
 
 /** Names of the known languages. */
 static const char *_languages[] = {
-	"",      // LNG_DEFAULT
-	"en_GB", // LNG_EN_GB
+	"en_GB", // LNG_EN_GB (default)
 	"nl_NL", // LNG_NL_NL
 };
 
@@ -422,7 +421,7 @@ void TextNode::Write(FileBlock *fb) const
 	fb->SaveBytes((uint8 *)this->name.c_str(), this->name.size());
 	fb->SaveUInt8(0);
 	length -= 1 + this->name.size() + 1;
-	for (int i = 1; i < LNG_COUNT; i++) {
+	for (int i = 0; i < LNG_COUNT; i++) {
 		if (this->pos[i].line < 0) continue;
 		int lname_length = strlen(_languages[i]);
 		int lng_size = 2 + (1 + lname_length + 1) + this->texts[i].size() + 1;
@@ -435,16 +434,7 @@ void TextNode::Write(FileBlock *fb) const
 		fb->SaveUInt8(0);
 		length -= this->texts[i].size() + 1;
 	}
-	assert(this->pos[0].line >= 0);
-	int lng_size = 2 + (1 + 0 + 1) + this->texts[0].size() + 1;
-	fb->SaveUInt16(lng_size);
-	fb->SaveUInt8(1);
-	fb->SaveUInt8(0);
-	length -= 2 + 1 + 1;
-	fb->SaveBytes((uint8 *)this->texts[0].c_str(), this->texts[0].size());
-	fb->SaveUInt8(0);
-	length -= this->texts[0].size() + 1;
-	assert(length == 0);
+	assert(this->pos[0].line >= 0 && length == 0);
 }
 
 /**
@@ -467,7 +457,7 @@ void Strings::CheckTranslations(const char *names[], int name_count, const Posit
 	/* Check that all strings have a default text. */
 	for (const auto &iter : this->texts) {
 		if (iter.pos[0].line < 0) {
-			fprintf(stderr, "Error at %s: String \"%s\" has no default language text\n", pos.ToString(), iter.name.c_str());
+			fprintf(stderr, "Error at %s: String \"%s\" has no British English language text\n", pos.ToString(), iter.name.c_str());
 			exit(1);
 		}
 	}
@@ -485,7 +475,7 @@ int Strings::Write(FileWriter *fw)
 	for (const auto &iter : this->texts) {
 		length += iter.GetSize();
 	}
-	fb->StartSave("TEXT", 1, length);
+	fb->StartSave("TEXT", 2, length);
 
 	for (const auto &iter : this->texts) {
 		iter.Write(fb);
