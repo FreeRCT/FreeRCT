@@ -63,8 +63,9 @@ typedef uint16 StringID; ///< Type of a string value.
 
 /** Languages known by the program. */
 enum Languages {
-	LANG_DE_DE,
+	LANG_DE_DE, ///< German.
 	LANG_EN_GB, ///< British English.
+	LANG_ES_ES, ///< Spanish.
 	LANG_NL_NL, ///< Dutch.
 
 	LANGUAGE_COUNT, ///< Number of available languages.

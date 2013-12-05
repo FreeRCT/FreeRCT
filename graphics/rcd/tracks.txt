@@ -14,6 +14,7 @@ file("tracks.rcd") {
 		texts: strings {
 			import "lang/de_DE_tracks.txt";
 			import "lang/en_GB_tracks.txt";
+			import "lang/es_ES_tracks.txt";
 		}
 
 		// Flat, straight pieces.
