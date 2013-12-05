@@ -434,7 +434,7 @@ void TextNode::Write(FileBlock *fb) const
 		fb->SaveUInt8(0);
 		length -= this->texts[i].size() + 1;
 	}
-	assert(this->pos[0].line >= 0 && length == 0);
+	assert(this->pos[LNG_EN_GB].line >= 0 && length == 0);
 }
 
 /**
@@ -454,9 +454,9 @@ void Strings::CheckTranslations(const char *names[], int name_count, const Posit
 			exit(1);
 		}
 	}
-	/* Check that all strings have a default text. */
+	/* Check that all strings have a British English text. */
 	for (const auto &iter : this->texts) {
-		if (iter.pos[0].line < 0) {
+		if (iter.pos[LNG_EN_GB].line < 0) {
 			fprintf(stderr, "Error at %s: String \"%s\" has no British English language text\n", pos.ToString(), iter.name.c_str());
 			exit(1);
 		}

@@ -24,7 +24,7 @@ assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure ther
 
 Language _language; ///< Language strings.
 StringParameters _str_params; ///< Default string parameters.
-int _current_language = 0; ///< Index of the current translation.
+int _current_language = LANG_EN_GB; ///< Index of the current translation.
 
 /** Default constructor of a #TextString object. */
 TextString::TextString()
