@@ -12,6 +12,7 @@ file("tracks.rcd") {
 		platform_type: 1; // Wooden platforms.
 
 		texts: strings {
+			import "lang/de_DE_tracks.txt";
 			import "lang/en_GB_tracks.txt";
 		}
 

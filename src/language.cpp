@@ -42,6 +42,7 @@ void TextString::Clear()
 
 /** Known languages. */
 const char * const _lang_names[] = {
+	"de_DE",
 	"en_GB", // English (Also the default language).
 	"nl_NL", // Dutch.
 };

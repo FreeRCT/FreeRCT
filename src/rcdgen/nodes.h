@@ -430,6 +430,7 @@ public:
 
 /** Known languages. */
 enum Languages {
+	LNG_DE_DE,
 	LNG_EN_GB, ///< en_GB language (default).
 	LNG_NL_NL, ///< nl_NL language.
 

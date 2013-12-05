@@ -98,6 +98,7 @@ file("gui.rcd") {
 
 		// GUI texts.
 		texts: strings {
+			import "lang/de_DE_gui.txt";
 			import "lang/en_GB_gui.txt";
 			import "lang/nl_NL_gui.txt";
 		}

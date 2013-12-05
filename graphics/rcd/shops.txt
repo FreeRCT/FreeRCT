@@ -29,6 +29,7 @@ file("shops.rcd") {
 		type_item2: salt_food;
 
 		texts: strings {
+			import "lang/de_DE_shops.txt";
 			import "lang/en_GB_shops.txt";
 			import "lang/nl_NL_shops.txt";
 		}
