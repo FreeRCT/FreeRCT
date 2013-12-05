@@ -367,6 +367,7 @@ int SUPPBlock::Write(FileWriter *fw)
 
 /** Names of the known languages. */
 static const char *_languages[] = {
+	"da_DK", // LNG_DA_DK
 	"de_DE", // LNG_DE_DE
 	"en_GB", // LNG_EN_GB (default)
 	"es_ES", // LNG_ES_ES
