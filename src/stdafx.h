@@ -57,7 +57,6 @@
 
 /* Stuff for GCC */
 #if defined(__GNUC__)
-	#define NORETURN __attribute__ ((noreturn))
 	#define CDECL
 	#define GCC_PACK __attribute__((packed))
 	/* Warn about functions using 'printf' format syntax. First argument determines which parameter
@@ -126,11 +125,8 @@ assert_compile(sizeof(uint8)  == 1); ///< Check size of #uint8 type.
  */
 #define lastof(x) (&x[lengthof(x) - 1])
 
-/**
- * Report a fatal error.
- * @param str Format of the error.
- */
-void NORETURN CDECL error(const char *str, ...) WARN_FORMAT(1, 2);
+
+[[noreturn]] void CDECL error(const char *str, ...) WARN_FORMAT(1, 2);
 
 /** Macro for reporting reaching an 'impossible' position in the code. */
 #define NOT_REACHED() error("NOT_REACHED triggered at line %i of %s\n", __LINE__, __FILE__)

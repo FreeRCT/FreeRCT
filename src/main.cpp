@@ -32,15 +32,15 @@ void InitMouseModes();
 
 /**
  * Error handling for fatal non-user errors.
- * @param s the string to print.
+ * @param str the string to print.
  * @note \b Never returns.
  */
-void CDECL error(const char *s, ...)
+void CDECL error(const char *str, ...)
 {
 	va_list va;
 
-	va_start(va, s);
-	vfprintf(stderr, s, va);
+	va_start(va, str);
+	vfprintf(stderr, str, va);
 	va_end(va);
 
 	abort();
