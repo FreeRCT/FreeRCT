@@ -59,7 +59,6 @@
 #if defined(__GNUC__)
 	#define NORETURN __attribute__ ((noreturn))
 	#define CDECL
-	#define __int64 long long
 	#define GCC_PACK __attribute__((packed))
 	/* Warn about functions using 'printf' format syntax. First argument determines which parameter
 	 * is the format string, second argument is start of values passed to printf. */
@@ -82,14 +81,14 @@ typedef unsigned char byte; ///< Unsigned 8 bit wide data type.
 	typedef unsigned int uint32_ugly_hack;
 	typedef signed int int32_ugly_hack;
 #else
-	typedef unsigned char    uint8;  ///< Unsigned 8 bit wide data type.
-	typedef   signed char     int8;  ///< Signed 8 bit wide data type.
-	typedef unsigned short   uint16; ///< Unsigned 16 bit wide data type.
-	typedef   signed short    int16; ///< Signed 16 bit wide data type.
-	typedef unsigned int     uint32; ///< Unsigned 32 bit wide data type.
-	typedef   signed int      int32; ///< Signed 32 bit wide data type.
-	typedef unsigned __int64 uint64; ///< Unsigned 64 bit wide data type.
-	typedef   signed __int64  int64; ///< Signed 64 bit wide data type.
+	typedef unsigned char      uint8;  ///< Unsigned 8 bit wide data type.
+	typedef   signed char       int8;  ///< Signed 8 bit wide data type.
+	typedef unsigned short     uint16; ///< Unsigned 16 bit wide data type.
+	typedef   signed short      int16; ///< Signed 16 bit wide data type.
+	typedef unsigned int       uint32; ///< Unsigned 32 bit wide data type.
+	typedef   signed int        int32; ///< Signed 32 bit wide data type.
+	typedef unsigned long long uint64; ///< Unsigned 64 bit wide data type.
+	typedef   signed long long  int64; ///< Signed 64 bit wide data type.
 #endif /* !TROUBLED_INTS */
 
 /** Compile-time assertion check macro. */
