@@ -87,10 +87,10 @@ void DropdownMenuWindow::SetDropdownSize(const Point16 &pos, uint16 min_width)
 	this->size = {pos.x, pos.y, min_width, 0};
 	int max_width = this->size.width;
 	for (auto const &item : items) {
-		int w, h;
-		_video->GetTextSize(item.str, &w, &h);
+		int w, unused;
+		_video->GetTextSize(item.str, &w, &unused);
 		max_width = std::max(max_width, w + 2);
-		this->size.height += h;
+		this->size.height += GetTextHeight();
 	}
 	this->size.width = max_width;
 }
