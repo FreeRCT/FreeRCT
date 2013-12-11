@@ -116,6 +116,66 @@ Version history
 - 1 (20110915) Initial version.
 - 2 (20120623) Moved the offset from the SPRT block into the 8PXL block.
 
+32bpp sprites
+~~~~~~~~~~~~~
+Data block for an 32bpp sprite and its offset.
+
+======  ======  =======  =================================================================
+Offset  Length  Version  Description
+======  ======  =======  =================================================================
+   0       4       1     Magic string '32PX'.
+   4       4       1     Version number of the block.
+   8       4       1     Length of the block excluding magic string, version, and length.
+  12       2       1     Width of the image.
+  14       2       1     Height of the image.
+  16       2       1     (signed) X-offset.
+  18       2       1     (signed) Y-offset.
+  20       ?       1     Line data.
+   ?                     Variable length.
+======  ======  =======  =================================================================
+
+Each horizontal line in the image starts with 2 bytes length to allow skipping the line quickly.
+The length contains all pixel data of the line, as well as the 2 bytes length. The length of the
+last line is 0.
+
+The pixel data of a line is stored in a sequence of blocks of up to 63 pixels in a block.
+There are four types of blocks:
+
+1. Fully opaque 32bpp pixels (all the coloured pixels that are always the same).
+2. Partially opaque 32bpp pixels (partially transparent).
+3. Fully transparent pixels (empty space around the displayed shape to make it a rectangular image).
+4. Recolour layer (pixels that are retrieved from a table like a palette).
+   The table index acts as a kind of grey value to retrieve a different
+   coloured pixel. Opacity is taken from the pixel block.
+
+Encoding of each type of block:
+
+1. Fully opaque 32bpp pixels (RGB).
+   - 1 byte length (values 0-63)
+   - N x 3 byte pixel colours (RGB).
+
+2. Partially opaque 32bpp pixels (RGB).
+   - 1 byte length (values 0-63) + 64
+   - 1 byte amount of opacity (0-255, all pixels have the same opacity).
+   - N x 3 byte pixel colours (RGB).
+
+3. Fully transparent pixels.
+   - 1 byte length (values 0-63) + 128
+
+4. Recolour layer.
+   - 1 byte length (values 0-63) + 64 + 128
+   - 1 byte layer to apply (0-255).
+   - 1 byte amount of opacity (0-255, all pixels have the same opacity).
+   - N bytes table index for each pixel.
+
+Each line ends with a zero-length fully opaque pixel block (that is, a single byte ``0``).
+
+Version history
+...............
+
+- 1 (20131211) Initial version.
+
+
 Texts
 ~~~~~
 Text in various forms and shapes is very common. In particular, it needs to
