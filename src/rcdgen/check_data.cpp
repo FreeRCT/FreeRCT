@@ -1607,7 +1607,33 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->triangle_up = vals.GetSprite("triangle_up");
 	gb->triangle_bottom = vals.GetSprite("triangle_bottom");
 
+	gb->has_platform = vals.GetSprite("has_platform");
+	gb->no_platform = vals.GetSprite("no_platform");
+
+	gb->has_power = vals.GetSprite("has_power");
+	gb->no_power = vals.GetSprite("no_power");
+
 	gb->disabled = vals.GetSprite("disabled");
+
+	static const char *compass_names[] = {
+		"compass_n", "compass_e", "compass_s", "compass_w", nullptr
+	};
+	for (uint i = 0; i < lengthof(gb->compass); i++) {
+		const char *name = compass_names[i];
+		assert(name != nullptr);
+		gb->compass[i] = vals.GetSprite(name);
+	}
+
+	gb->bulldozer = vals.GetSprite("bulldozer");
+
+	static const char *weather_names[] = {
+		"weather_0", "weather_1", "weather_2", "weather_3", nullptr
+	};
+	for (uint i = 0; i < lengthof(gb->weather); i++) {
+		const char *name = weather_names[i];
+		assert(name != nullptr);
+		gb->weather[i] = vals.GetSprite(name);
+	}
 
 	gb->pos_2d = vals.GetSprite("pos_2d");
 	gb->neg_2d = vals.GetSprite("neg_2d");

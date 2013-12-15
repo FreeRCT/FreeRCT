@@ -1102,7 +1102,7 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (length != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 1 + 4 + 2) * 4 + 4) return false;
+	if (length != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WES_COUNT + 4 + 2) * 4 + 4) return false;
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1117,7 +1117,22 @@ bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &spri
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_right)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_up)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_down)) return false;
+	for (uint i = 0; i < 2; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->platform_select[i])) return false;
+	}
+	for (uint i = 0; i < 2; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->power_select[i])) return false;
+	}
+
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->disabled)) return false;
+
+	for (uint i = 0; i < TC_END; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->compass[i])) return false;
+	}
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->bulldozer)) return false;
+	for (uint i = 0; i < WES_COUNT; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->weather[i])) return false;
+	}
 
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg)) return false;
@@ -1160,6 +1175,8 @@ void GuiSprites::Clear()
 	for (uint i = 0; i < lengthof(this->slope_select); i++) this->slope_select[i] = nullptr;
 	for (uint i = 0; i < TBN_COUNT; i++) this->bend_select[i] = nullptr;
 	for (uint i = 0; i < TPB_COUNT; i++) this->bank_select[i] = nullptr;
+	for (uint i = 0; i < 2; i++) this->platform_select[i] = nullptr;
+	for (uint i = 0; i < 2; i++) this->power_select[i] = nullptr;
 	this->triangle_left = nullptr;
 	this->triangle_right = nullptr;
 	this->triangle_up = nullptr;
@@ -1171,6 +1188,9 @@ void GuiSprites::Clear()
 	this->rot_3d_neg = nullptr;
 	this->close_sprite = nullptr;
 	this->dot_sprite = nullptr;
+	this->bulldozer = nullptr;
+	for (uint i = 0; i < TC_END; i++) this->compass[i] = nullptr;
+	for (uint i = 0; i < WES_COUNT; i++) this->weather[i] = nullptr;
 }
 
 /**
@@ -1522,7 +1542,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "GSLP") == 0 && version == 6) {
+		if (strcmp(name, "GSLP") == 0 && version == 7) {
 			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites, texts)) {
 				return "Loading slope selection GUI sprites failed.";
 			}
@@ -1710,7 +1730,19 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	static Rectangle16 arrows;
 	static Rectangle16 bends;
 	static Rectangle16 banks;
+	static Rectangle16 platforms;
+	static Rectangle16 powers;
+	static Rectangle16 compasses;
+	static Rectangle16 weathers;
 
+	if (number >= SPR_GUI_COMPASS_START && number < SPR_GUI_COMPASS_END) {
+		if (compasses.width == 0) SetSpriteSize(SPR_GUI_COMPASS_START, SPR_GUI_COMPASS_END, compasses);
+		return compasses;
+	}
+	if (number >= SPR_GUI_WEATHER_START && number < SPR_GUI_WEATHER_END) {
+		if (weathers.width == 0) SetSpriteSize(SPR_GUI_WEATHER_START, SPR_GUI_WEATHER_END, weathers);
+		return weathers;
+	}
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
 		if (slopes.width == 0) SetSpriteSize(SPR_GUI_SLOPES_START, SPR_GUI_SLOPES_END, slopes);
 		return slopes;
@@ -1726,6 +1758,14 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	if (number >= SPR_GUI_BANK_START && number < SPR_GUI_BANK_END) {
 		if (banks.width== 0) SetSpriteSize(SPR_GUI_BANK_START, SPR_GUI_BANK_END, banks);
 		return banks;
+	}
+	if (number >= SPR_GUI_HAS_PLATFORM && number <= SPR_GUI_NO_PLATFORM) {
+		if (platforms.width == 0) SetSpriteSize(SPR_GUI_HAS_PLATFORM, SPR_GUI_NO_PLATFORM + 1, platforms);
+		return platforms;
+	}
+	if (number >= SPR_GUI_HAS_POWER && number <= SPR_GUI_NO_POWER) {
+		if (powers.width == 0) SetSpriteSize(SPR_GUI_HAS_POWER, SPR_GUI_NO_POWER + 1, powers);
+		return powers;
 	}
 
 	/* 'Simple' single sprites. */
@@ -1751,6 +1791,8 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
  */
 const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 {
+	if (number >= SPR_GUI_COMPASS_START && number < SPR_GUI_COMPASS_END) return _gui_sprites.compass[number - SPR_GUI_COMPASS_START];
+	if (number >= SPR_GUI_WEATHER_START && number < SPR_GUI_WEATHER_END) return _gui_sprites.weather[number - SPR_GUI_WEATHER_START];
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
 	if (number >= SPR_GUI_BEND_START   && number < SPR_GUI_BEND_END)   return _gui_sprites.bend_select[number - SPR_GUI_BEND_START];
 	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END)   return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
@@ -1759,6 +1801,10 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
 
+	if (number == SPR_GUI_HAS_PLATFORM) return _gui_sprites.platform_select[0];
+	if (number == SPR_GUI_NO_PLATFORM)  return _gui_sprites.platform_select[1];
+	if (number == SPR_GUI_HAS_POWER) return _gui_sprites.power_select[0];
+	if (number == SPR_GUI_NO_POWER)  return _gui_sprites.power_select[1];
 	if (number == SPR_GUI_TRIANGLE_LEFT)  return _gui_sprites.triangle_left;
 	if (number == SPR_GUI_TRIANGLE_RIGHT) return _gui_sprites.triangle_right;
 	if (number == SPR_GUI_TRIANGLE_UP)    return _gui_sprites.triangle_up;
@@ -1767,7 +1813,7 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number == SPR_GUI_ROT2D_NEG) return _gui_sprites.rot_2d_neg;
 	if (number == SPR_GUI_ROT3D_POS) return _gui_sprites.rot_3d_pos;
 	if (number == SPR_GUI_ROT3D_NEG) return _gui_sprites.rot_3d_neg;
-	if (number == SPR_GUI_BULLDOZER) return nullptr;
+	if (number == SPR_GUI_BULLDOZER) return _gui_sprites.bulldozer;
 	return nullptr;
 }
 

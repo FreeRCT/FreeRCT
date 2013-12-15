@@ -632,14 +632,14 @@ int BDIRBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-GSLPBlock::GSLPBlock() : GameBlock("GSLP", 6)
+GSLPBlock::GSLPBlock() : GameBlock("GSLP", 7)
 {
 }
 
 int GSLPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 128 - 12);
+	fb->StartSave(this->blk_name, this->version, 180 - 12);
 	fb->SaveUInt32(this->vert_down->Write(fw));
 	fb->SaveUInt32(this->steep_down->Write(fw));
 	fb->SaveUInt32(this->gentle_down->Write(fw));
@@ -661,7 +661,18 @@ int GSLPBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->triangle_left->Write(fw));
 	fb->SaveUInt32(this->triangle_up->Write(fw));
 	fb->SaveUInt32(this->triangle_bottom->Write(fw));
+	fb->SaveUInt32(this->has_platform->Write(fw));
+	fb->SaveUInt32(this->no_platform->Write(fw));
+	fb->SaveUInt32(this->has_power->Write(fw));
+	fb->SaveUInt32(this->no_power->Write(fw));
 	fb->SaveUInt32(this->disabled->Write(fw));
+	for (uint i = 0; i < lengthof(this->compass); i++) {
+		fb->SaveUInt32(this->compass[i]->Write(fw));
+	}
+	fb->SaveUInt32(this->bulldozer->Write(fw));
+	for (uint i = 0; i < lengthof(this->weather); i++) {
+		fb->SaveUInt32(this->weather[i]->Write(fw));
+	}
 	fb->SaveUInt32(this->pos_2d->Write(fw));
 	fb->SaveUInt32(this->neg_2d->Write(fw));
 	fb->SaveUInt32(this->pos_3d->Write(fw));

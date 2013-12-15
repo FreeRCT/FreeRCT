@@ -412,6 +412,19 @@ struct ScrollbarSpriteData {
 };
 
 /**
+ * Offsets of weather sprites to #SPR_GUI_WEATHER_START, for different types of weather.
+ * @todo Add weather.
+ */
+enum WeatherSprites {
+	WES_SUNNY,        ///< Sprite offset for sunny weather.
+	WES_LIGHT_CLOUDS, ///< Sprite offset for light clouds.
+	WES_THICK_CLOUDS, ///< Sprite offset for thick clouds.
+	WES_RAINING,      ///< Sprite offset of rain.
+
+	WES_COUNT,        ///< Number of weather sprites.
+};
+
+/**
  * Sprites of the gui.
  * @todo Add widget for rounded_button
  * @todo Add widget for inset_frame
@@ -421,6 +434,7 @@ struct ScrollbarSpriteData {
  * @todo Add widget for vert_slider
  * @todo Add sprites for resize box (currently a button)
  * @todo Add sprites for close box (currently a button)
+ * @todo Add viewing direction.
  * @ingroup gui_sprites_group
  */
 struct GuiSprites {
@@ -454,6 +468,8 @@ struct GuiSprites {
 	ImageData *slope_select[TSL_COUNT_VERTICAL]; ///< Slope selection sprites.
 	ImageData *bend_select[TBN_COUNT];      ///< Bend selection sprites.
 	ImageData *bank_select[TPB_COUNT];      ///< Banking selection sprites.
+	ImageData *platform_select[2];          ///< Platform selection sprites.
+	ImageData *power_select[2];             ///< Power selection sprites.
 	ImageData *triangle_left;               ///< Triangular arrow to the left.
 	ImageData *triangle_right;              ///< Triangular arrow to the right.
 	ImageData *triangle_up;                 ///< Triangular upward arrow.
@@ -465,6 +481,9 @@ struct GuiSprites {
 	ImageData *rot_3d_neg;                  ///< 3D rotation negative direction.
 	ImageData *close_sprite;                ///< Close window button.
 	ImageData *dot_sprite;                  ///< 'Dot' in the terraform window, represents an area of (0, 0) tiles.
+	ImageData *bulldozer;                   ///< Bulldozer sprite.
+	ImageData *compass[TC_END];             ///< Viewing direction sprites.
+	ImageData *weather[WES_COUNT];          ///< Weather sprites.
 
 	TextData *text;                         ///< Texts of the GUI.
 };

@@ -1178,46 +1178,59 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 6.
+FreeRCT can read blocks with version 7.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
 ======  ======  =======  ==================  ================================================================
-   0       4      1-6                        Magic string 'GSLP' (Gui sprites).
-   4       4      1-6                        Version number of the block.
-   8       4      1-6                        Length of the block excluding magic string, version, and length.
-  12       4      1-6    vert_down           Slope going vertically down.
-  16       4      1-6    steep_down          Slope going steeply down.
-  20       4      1-6    gentle_down         Slope going gently down.
-  24       4      1-6    level               Level slope.
-  28       4      1-6    gentle_up           Slope going gently up.
-  32       4      1-6    steep_up            Slope going steeply up.
-  36       4      1-6    vert_up             Slope going vertically up.
-  40       4      5-6    wide_left           Wide bend to the left.
-  44       4      5-6    normal_left         Normal bend to the left.
-  48       4      5-6    tight_left          Tight bend to the left.
-  52       4      5-6    no_bend             No bends.
-  56       4      5-6    tight_right         Tight bend to the right.
-  60       4      5-6    normal_right        Normal bend to the right.
-  64       4      5-6    wide_right          Wide bend to the right.
-  68       4      5-6    no_banking          No banking.
-  72       4      5-6    bank_left           Bank to the left.
-  76       4      5-6    bank_right          Bank to the right.
-  80       4      5-6    triangle_right      Arrow triangle to the right.
-  84       4      5-6    triangle_left       Arrow triangle to the left.
-  88       4      5-6    triangle_up         Arrow triangle upwards.
-  92       4      5-6    triangle_bottom     Arrow triangle downwards.
-  96       4       6     disabled            Sprite to overlay over a disabled button.
- 100       4      2-6    pos_2d              Flat rotation positive direction (counter clock wise).
- 104       4      2-6    neg_2d              Flat rotation negative direction (clock wise).
- 108       4      2-6    pos_3d              Diametric rotation positive direction (counter clock wise).
- 112       4      2-6    neg_3d              Diametric rotation negative direction (clock wise).
- 116       4      3-6    close_button        Close Button.
+   0       4      1-7                        Magic string 'GSLP' (Gui sprites).
+   4       4      1-7                        Version number of the block.
+   8       4      1-7                        Length of the block excluding magic string, version, and length.
+  12       4      1-7    vert_down           Slope going vertically down.
+  16       4      1-7    steep_down          Slope going steeply down.
+  20       4      1-7    gentle_down         Slope going gently down.
+  24       4      1-7    level               Level slope.
+  28       4      1-7    gentle_up           Slope going gently up.
+  32       4      1-7    steep_up            Slope going steeply up.
+  36       4      1-7    vert_up             Slope going vertically up.
+  40       4      5-7    wide_left           Wide bend to the left.
+  44       4      5-7    normal_left         Normal bend to the left.
+  48       4      5-7    tight_left          Tight bend to the left.
+  52       4      5-7    no_bend             No bends.
+  56       4      5-7    tight_right         Tight bend to the right.
+  60       4      5-7    normal_right        Normal bend to the right.
+  64       4      5-7    wide_right          Wide bend to the right.
+  68       4      5-7    no_banking          No banking.
+  72       4      5-7    bank_left           Bank to the left.
+  76       4      5-7    bank_right          Bank to the right.
+  80       4      5-7    triangle_right      Arrow triangle to the right.
+  84       4      5-7    triangle_left       Arrow triangle to the left.
+  88       4      5-7    triangle_up         Arrow triangle upwards.
+  92       4      5-7    triangle_bottom     Arrow triangle downwards.
+  96       4       7     has_platform        Button for selecting trackpieces with platforms.
+ 100       4       7     no_platform         Button for selecting trackpieces without platforms.
+ 104       4       7     has_power           Button for selecting trackpieces with power.
+ 108       4       7     no_power            Button for selecting trackpieces without power.
+ 112       4      6-7    disabled            Sprite to overlay over a disabled button.
+ 116       4       7     compass_n           Compass displaying viewing in north direction.
+ 120       4       7     compass_e           Compass displaying viewing in east direction.
+ 124       4       7     compass_s           Compass displaying viewing in south direction.
+ 128       4       7     compass_w           Compass displaying viewing in west direction.
+ 132       4       7     bulldozer           Bulldozer (destroy) button.
+ 136       4       7     weather_0           First weather sprite (fully sunny)
+ 140       4       7     weather_1           Second weather sprite (sunny, thin clouds)
+ 144       4       7     weather_2           Third weather sprite (thick clouds)
+ 148       4       7     weather_3           Fourth weather sprite (raining)
+ 152       4      2-7    pos_2d              Flat rotation positive direction (counter clock wise).
+ 156       4      2-7    neg_2d              Flat rotation negative direction (clock wise).
+ 160       4      2-7    pos_3d              Diametric rotation positive direction (counter clock wise).
+ 164       4      2-7    neg_3d              Diametric rotation negative direction (clock wise).
+ 168       4      3-7    close_button        Close Button.
   --       4       3                         Maximise button.
   --       4       3                         Minimise button.
- 120       4      4-6    terraform_dot       Terraform dot.
- 124       4      2-6    texts               Text of the guis (reference to a TEXT block).
- 128                                         Total length.
+ 172       4      4-7    terraform_dot       Terraform dot.
+ 176       4      2-7    texts               Text of the guis (reference to a TEXT block).
+ 180                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history

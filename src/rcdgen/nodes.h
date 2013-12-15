@@ -631,7 +631,14 @@ public:
 	std::shared_ptr<SpriteBlock> triangle_left;   ///< Arrow triangle to the left.
 	std::shared_ptr<SpriteBlock> triangle_up;     ///< Arrow triangle upwards.
 	std::shared_ptr<SpriteBlock> triangle_bottom; ///< Arrow triangle downwards.
+	std::shared_ptr<SpriteBlock> has_platform;    ///< Select button for tracks with platforms.
+	std::shared_ptr<SpriteBlock> no_platform;     ///< Select button for tracks without platforms.
+	std::shared_ptr<SpriteBlock> has_power;       ///< Select button for powered tracks.
+	std::shared_ptr<SpriteBlock> no_power;        ///< Select button for unpowered tracks.
 	std::shared_ptr<SpriteBlock> disabled;        ///< Pattern to overlay over disabled buttons.
+	std::shared_ptr<SpriteBlock> compass[4];      ///< Compass sprites denoting viewing directions.
+	std::shared_ptr<SpriteBlock> bulldozer;       ///< Bulldoze/delete.
+	std::shared_ptr<SpriteBlock> weather[4];      ///< Weather sprites (sunny -> rainy).
 	std::shared_ptr<SpriteBlock> pos_2d;          ///< Flat rotation positive direction (counter clock wise)
 	std::shared_ptr<SpriteBlock> neg_2d;          ///< Flat rotation negative direction (clock wise)
 	std::shared_ptr<SpriteBlock> pos_3d;          ///< Diametric rotation positive direction (counter clock wise)

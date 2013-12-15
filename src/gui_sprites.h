@@ -25,7 +25,18 @@ enum GuiSpritesTable {
 	SPR_GUI_TRIANGLE_UP,    ///< Upward triangular arrow.
 	SPR_GUI_TRIANGLE_DOWN,  ///< Downward triangular arrow.
 
-	SPR_GUI_SLOPES_START, ///< Start of track slopes. @see TrackSlope
+	SPR_GUI_HAS_PLATFORM, ///< Selection of track pieces with a platform.
+	SPR_GUI_NO_PLATFORM,  ///< Selection of track pieces without a platform.
+	SPR_GUI_HAS_POWER,    ///< Selection of powered track pieces.
+	SPR_GUI_NO_POWER,     ///< Selection of unpowered track pieces.
+
+	SPR_GUI_COMPASS_START, ///< Start of viewing direction sprites. @see TileCorner
+	SPR_GUI_COMPASS_END = SPR_GUI_COMPASS_START + TC_END, ///< End of viewing direction sprites.
+
+	SPR_GUI_WEATHER_START = SPR_GUI_COMPASS_END, ///< Start of weather sprites. @see WeatherSprites
+	SPR_GUI_WEATHER_END = SPR_GUI_WEATHER_START + WES_COUNT, ///< End of weather sprites.
+
+	SPR_GUI_SLOPES_START = SPR_GUI_WEATHER_END, ///< Start of track slopes. @see TrackSlope
 	SPR_GUI_SLOPES_END = SPR_GUI_SLOPES_START + TSL_COUNT_VERTICAL, ///< End of track slopes.
 
 	SPR_GUI_BUILDARROW_START = SPR_GUI_SLOPES_END, ///< Start of build arrows. @see TileEdge
