@@ -434,7 +434,6 @@ enum WeatherSprites {
  * @todo Add widget for vert_slider
  * @todo Add sprites for resize box (currently a button)
  * @todo Add sprites for close box (currently a button)
- * @todo Add viewing direction.
  * @ingroup gui_sprites_group
  */
 struct GuiSprites {

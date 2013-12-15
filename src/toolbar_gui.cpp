@@ -17,6 +17,9 @@
 #include "finances.h"
 #include "dates.h"
 #include "math_func.h"
+#include "sprite_store.h"
+#include "gui_sprites.h"
+#include "viewport.h"
 
 void ShowQuitProgram();
 
@@ -133,6 +136,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 };
 
 /**
@@ -140,9 +144,10 @@ public:
  * @ingroup gui_group
  */
 enum BottomToolbarGuiWidgets {
-	BTB_STATUS,  ///< Status panel containing cash and rating readout.
-	BTB_SPACING, ///< Status panel containing nothing (yet).
-	BTB_DATE,    ///< Status panel containing date.
+	BTB_STATUS,         ///< Status panel containing cash and rating readout.
+	BTB_SPACING,        ///< Status panel containing nothing (yet).
+	BTB_VIEW_DIRECTION, ///< Status panel containing viewing direction.
+	BTB_DATE,           ///< Status panel containing date.
 };
 
 static const uint32 BOTTOM_BAR_HEIGHT = 35;     ///< Minimum Y-coord size of the bottom toolbar (BTB) panel.
@@ -162,6 +167,8 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 					SetPadding(3, 0, 30, 0),
 					SetData(STR_ARG1, STR_NULL),
 				Widget(WT_EMPTY, BTB_SPACING, COL_RANGE_BROWN),
+					SetMinimalSize(1, BOTTOM_BAR_HEIGHT), // Temp X value
+				Widget(WT_EMPTY, BTB_VIEW_DIRECTION, COL_RANGE_BROWN),
 					SetMinimalSize(1, BOTTOM_BAR_HEIGHT), // Temp X value
 				Widget(WT_RIGHT_TEXT, BTB_DATE, COL_RANGE_BROWN),
 					SetMinimalSize(1, BOTTOM_BAR_HEIGHT), // Temp X value
@@ -215,10 +222,19 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 			p = GetMoneyStringSize(LARGE_MONEY_AMOUNT);
 			break;
 
+		case BTB_VIEW_DIRECTION: {
+			Rectangle16 rect = _sprite_manager.GetTableSpriteSize(SPR_GUI_COMPASS_START); // It's the same size for all compass sprites.
+			p.x = rect.width;
+			p.y = rect.height;
+			break;
+		}
+
 		case BTB_SPACING: {
-			Point32 money = GetMoneyStringSize(LARGE_MONEY_AMOUNT);
-			Point32 date = GetMaxDateSize();
-			p.x = _video->GetXSize() - (2 * BOTTOM_BAR_POSITION_X) - money.x - date.x;
+			int32 remaining = _video->GetXSize() - (2 * BOTTOM_BAR_POSITION_X);
+			remaining -= GetMoneyStringSize(LARGE_MONEY_AMOUNT).x;
+			remaining -= GetMaxDateSize().x;
+			remaining -= _sprite_manager.GetTableSpriteSize(SPR_GUI_COMPASS_START).base.x; // It's the same size for all compass sprites.
+			p.x = remaining;
 			p.y = BOTTOM_BAR_HEIGHT;
 			break;
 		}
@@ -230,6 +246,19 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 
 	wid->min_x = max(wid->min_x, (uint16)p.x);
 	wid->min_y = max(wid->min_y, (uint16)p.y);
+}
+
+void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+{
+	static Recolouring recolour; // Never changed.
+
+	if (wid_num != BTB_VIEW_DIRECTION) return;
+
+	Viewport *vp = GetViewport();
+	int dir = (vp == nullptr) ? 0 : vp->orientation;
+	const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
+	if (img == nullptr) return;
+	_video->BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, 0);
 }
 
 /**
