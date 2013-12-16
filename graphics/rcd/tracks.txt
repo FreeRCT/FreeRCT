@@ -332,7 +332,7 @@ file("tracks.rcd") {
 				(w_back, s_back, e_back, n_back): sheet {
 					x_base: 0; y_base: 384; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-					x_offset: -32; y_offset: -28; width: 64; height: 64;
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
 				}
 			}
 			track_voxel {
@@ -352,7 +352,7 @@ file("tracks.rcd") {
 			cost: 200000;
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "flat";       direction: ne; }
-			exit_dx: -1; exit_dy: 0; exit_dz: 1;
+			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
