@@ -100,6 +100,27 @@ public:
 	TrackVoxel *track_voxels; ///< Track voxels of this piece.
 
 	/**
+	 * Check whether the track piece is powered.
+	 * @return Whether the track piece enforces a non-zero speed.
+	 */
+	inline bool HasPower() const
+	{
+		return this->speed != 0;
+	}
+
+	/**
+	 * Check whether the track piece has a platform associated with it.
+	 * @return Whether a platform is available.
+	 */
+	inline bool HasPlatform() const
+	{
+		for (int i = 0; i < this->voxel_count; i++) {
+			if (this->track_voxels[i].HasPlatform()) return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Can the track piece be used as the first piece of a roller coaster?
 	 * @return Whether the track piece can be used as the first piece of a roller coaster.
 	 */

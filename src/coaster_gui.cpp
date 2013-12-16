@@ -111,6 +111,10 @@ enum CoasterConstructionWidgets {
 	CCW_BANK_NONE,           ///< Button for selecting no banking. Same order as #TrackPieceBanking.
 	CCW_BANK_LEFT,           ///< Button for selecting banking to the left.
 	CCW_BANK_RIGHT,          ///< Button for selecting banking to the right.
+	CCW_NO_PLATFORM,         ///< Button for selecting tracks without platform.
+	CCW_PLATFORM,            ///< Button for selecting tracks with platform.
+	CCW_NOT_POWERED,         ///< Button for selecting unpowered tracks.
+	CCW_POWERED,             ///< Button for selecting powered tracks.
 	CCW_SLOPE_DOWN,          ///< Button for selecting gentle down slope. Same order as #TrackSlope.
 	CCW_SLOPE_FLAT,          ///< Button for selecting level slope.
 	CCW_SLOPE_UP,            ///< Button for selecting gentle up slope.
@@ -153,14 +157,24 @@ static const WidgetPart _coaster_construction_gui_parts[] = {
 					Widget(WT_IMAGE_BUTTON, CCW_BEND_WIDE_RIGHT,   COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
 							SetData(SPR_GUI_BEND_START + TBN_RIGHT_WIDE, GUI_COASTER_BUILD_RIGHT_BEND_TOOLTIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
-				Intermediate(1, 5), // Banking.
+				Intermediate(1, 11), // Banking, platforms, powered.
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
 					Widget(WT_IMAGE_BUTTON, CCW_BANK_LEFT,  COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
 							SetData(SPR_GUI_BANK_START + TPB_LEFT, GUI_COASTER_BUILD_BANK_LEFT_TOOLTIP),
 					Widget(WT_IMAGE_BUTTON, CCW_BANK_NONE,  COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
 							SetData(SPR_GUI_BANK_START + TPB_NONE, GUI_COASTER_BUILD_BANK_NONE_TOOLTIP),
-					Widget(WT_IMAGE_BUTTON, CCW_BANK_RIGHT, COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+					Widget(WT_IMAGE_BUTTON, CCW_BANK_RIGHT, COL_RANGE_DARK_RED), SetPadding(0, 0, 3, 0),
 							SetData(SPR_GUI_BANK_START + TPB_RIGHT, GUI_COASTER_BUILD_BANK_RIGHT_TOOLTIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+					Widget(WT_IMAGE_BUTTON, CCW_PLATFORM, COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_HAS_PLATFORM, GUI_COASTER_BUILD_BANK_RIGHT_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_NO_PLATFORM, COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_NO_PLATFORM, GUI_COASTER_BUILD_BANK_RIGHT_TOOLTIP),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
+					Widget(WT_IMAGE_BUTTON, CCW_POWERED, COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_HAS_POWER, GUI_COASTER_BUILD_BANK_RIGHT_TOOLTIP),
+					Widget(WT_IMAGE_BUTTON, CCW_NOT_POWERED, COL_RANGE_DARK_RED), SetPadding(0, 3, 3, 0),
+							SetData(SPR_GUI_NO_POWER, GUI_COASTER_BUILD_BANK_RIGHT_TOOLTIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
 				Intermediate(1, 9), // Slopes.
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetFill(1, 0),
@@ -196,6 +210,13 @@ static const WidgetPart _coaster_construction_gui_parts[] = {
 	EndContainer(),
 };
 
+/** Three-valued boolean. */
+enum BoolSelect {
+	BSL_FALSE, ///< Selected boolean is \c false.
+	BSL_TRUE,  ///< Selected boolean is \c true.
+	BSL_NONE,  ///< Boolean is not selectable.
+};
+
 /**
  * Window to build or edit a roller coaster.
  *
@@ -226,7 +247,8 @@ private:
 	TrackSlope sel_slope;         ///< Selected track slope at the UI, or #TSL_INVALID.
 	TrackBend sel_bend;           ///< Selected bend at the UI, or #TPB_INVALID.
 	TrackPieceBanking sel_bank;   ///< Selected bank at the UI, or #TBN_INVALID.
-	// XXX 'power' and 'platform' still needs to be done.
+	BoolSelect sel_platform;      ///< Whether the track piece should have a platform, or #BSL_NONE.
+	BoolSelect sel_power;         ///< Whether the selected piece should have power, or #BSL_NONE.
 
 	void SetupSelection();
 	int SetButtons(int start_widget, int count, uint avail, int cur_sel, int invalid_val);
@@ -258,6 +280,8 @@ CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *ci) : GuiWindow(WC_COAST
 	this->sel_slope = TSL_INVALID;
 	this->sel_bend = TBN_INVALID;
 	this->sel_bank = TPB_INVALID;
+	this->sel_platform = BSL_NONE;
+	this->sel_power = BSL_NONE;
 
 	this->SetupSelection();
 }
@@ -287,6 +311,25 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget)
 		case CCW_BANK_LEFT:
 		case CCW_BANK_RIGHT:
 			this->sel_bank = (TrackPieceBanking)(widget - CCW_BANK_NONE);
+			this->SetupSelection();
+			break;
+
+		case CCW_PLATFORM:
+			this->sel_platform = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_TRUE;
+			this->SetupSelection();
+			break;
+
+		case CCW_NO_PLATFORM:
+			this->sel_platform = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_FALSE;
+			this->SetupSelection();
+
+		case CCW_POWERED:
+			this->sel_power = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_TRUE;
+			this->SetupSelection();
+			break;
+
+		case CCW_NOT_POWERED:
+			this->sel_power = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_FALSE;
 			this->SetupSelection();
 			break;
 
@@ -348,7 +391,7 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget)
  * @param avail Bitset of available track pieces for the buttons.
  * @param cur_sel Currently selected button.
  * @param invalid_val Invalid value for the selection.
- * @return New vlaue for the current selection.
+ * @return New value for the current selection.
  */
 int CoasterBuildWindow::SetButtons(int start_widget, int count, uint avail, int cur_sel, int invalid_val)
 {
@@ -366,6 +409,26 @@ int CoasterBuildWindow::SetButtons(int start_widget, int count, uint avail, int 
 	return cur_sel;
 }
 
+/**
+ * Find out whether the provided track piece has a platform.
+ * @param piece Track piece to examine.
+ * @return #BSL_TRUE if the track piece has a platform, else #BSL_FALSE.
+ */
+static BoolSelect GetPlatform(ConstTrackPiecePtr piece)
+{
+	return piece->HasPlatform() ? BSL_TRUE : BSL_FALSE;
+}
+
+/**
+ * Find out whether the provided track piece has is powered.
+ * @param piece Track piece to examine.
+ * @return #BSL_TRUE if the track piece is powered, else #BSL_FALSE.
+ */
+static BoolSelect GetPower(ConstTrackPiecePtr piece)
+{
+	return piece->HasPower() ? BSL_TRUE : BSL_FALSE;
+}
+
 /** Set up the window so the user can make a selection. */
 void CoasterBuildWindow::SetupSelection()
 {
@@ -373,6 +436,8 @@ void CoasterBuildWindow::SetupSelection()
 	uint avail_bank = 0;
 	uint avail_slope = 0;
 	uint avail_bend = 0;
+	uint avail_platform = 0;
+	uint avail_power = 0;
 	this->sel_piece = nullptr;
 
 	if (this->cur_piece == nullptr || this->cur_sel == nullptr) {
@@ -414,7 +479,7 @@ void CoasterBuildWindow::SetupSelection()
 		}
 		if (this->sel_bank != TPB_INVALID && (avail_bank & (1 << this->sel_bank)) == 0) this->sel_bank = TPB_INVALID;
 
-		/* Round 3: Setup slopes. */
+		/* Round 3: Setup slopes from pieces with the correct bank. */
 		for (uint i = 0; i < count; i++) {
 			if (!selectable[i]) continue;
 			ConstTrackPiecePtr piece = ct->pieces[i];
@@ -426,7 +491,7 @@ void CoasterBuildWindow::SetupSelection()
 		}
 		if (this->sel_slope != TSL_INVALID && (avail_slope & (1 << this->sel_slope)) == 0) this->sel_slope = TSL_INVALID;
 
-		/* Round 4: Setup bends. */
+		/* Round 4: Setup bends from pieces with the correct slope. */
 		for (uint i = 0; i < count; i++) {
 			if (!selectable[i]) continue;
 			ConstTrackPiecePtr piece = ct->pieces[i];
@@ -438,11 +503,35 @@ void CoasterBuildWindow::SetupSelection()
 		}
 		if (this->sel_bend != TBN_INVALID && (avail_bend & (1 << this->sel_bend)) == 0) this->sel_bend = TBN_INVALID;
 
-		/* Round 5: Select a piece. */
+		/* Round 5: Setup platform from pieces with the correct bend. */
 		for (uint i = 0; i < count; i++) {
 			if (!selectable[i]) continue;
 			ConstTrackPiecePtr piece = ct->pieces[i];
-			if (this->sel_bend != TBN_INVALID && piece->GetBend() != this->sel_bend) continue;
+			if (this->sel_bend != TBN_INVALID && piece->GetBend() != this->sel_bend) {
+				selectable[i] = false;
+			} else {
+				avail_platform |= 1 << GetPlatform(piece);
+			}
+		}
+		if (this->sel_platform != BSL_NONE && (avail_platform & (1 << this->sel_platform)) == 0) this->sel_platform = BSL_NONE;
+
+		/* Round 6: Setup power from pieces with the correct platform. */
+		for (uint i = 0; i < count; i++) {
+			if (!selectable[i]) continue;
+			ConstTrackPiecePtr piece = ct->pieces[i];
+			if (this->sel_platform != BSL_NONE && GetPlatform(piece) != this->sel_platform) {
+				selectable[i] = false;
+			} else {
+				avail_power |= 1 << GetPower(piece);
+			}
+		}
+		if (this->sel_power != BSL_NONE && (avail_power & (1 << this->sel_power)) == 0) this->sel_power = BSL_NONE;
+
+		/* Round 7: Select a piece from the pieces with the correct power. */
+		for (uint i = 0; i < count; i++) {
+			if (!selectable[i]) continue;
+			ConstTrackPiecePtr piece = ct->pieces[i];
+			if (this->sel_power != BSL_NONE && GetPower(piece) != this->sel_power) continue;
 			this->sel_piece = piece;
 			break;
 		}
@@ -462,6 +551,8 @@ void CoasterBuildWindow::SetupSelection()
 	this->sel_bank = static_cast<TrackPieceBanking>(this->SetButtons(CCW_BANK_NONE, TPB_COUNT, avail_bank, this->sel_bank, TPB_INVALID));
 	this->sel_slope = static_cast<TrackSlope>(this->SetButtons(CCW_SLOPE_DOWN, TSL_COUNT_VERTICAL, avail_slope, this->sel_slope, TSL_INVALID));
 	this->sel_bend = static_cast<TrackBend>(this->SetButtons(CCW_BEND_WIDE_LEFT, TBN_COUNT, avail_bend, this->sel_bend, TBN_INVALID));
+	this->sel_platform = static_cast<BoolSelect>(this->SetButtons(CCW_NO_PLATFORM, 2, avail_platform, this->sel_platform, BSL_NONE));
+	this->sel_power = static_cast<BoolSelect>(this->SetButtons(CCW_NOT_POWERED, 2, avail_power, this->sel_power, BSL_NONE));
 
 	if (this->sel_piece != nullptr) {
 		if (this->cur_piece == nullptr) {
