@@ -75,18 +75,18 @@ offset. Version 2 is supported by FreeRCT.
 ======  ======  =======  =================================================
 Offset  Length  Version  Description
 ======  ======  =======  =================================================
-   0       4      1-2    Magic string '8PXL'.
-   4       4      1-2    Version number of the block.
-   8       4      1-2    Length of the block excluding magic string,
+   0       4      1-     Magic string '8PXL'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string,
                          version, and length.
-  12       2      1-2    Width of the image.
-  14       2      1-2    Height of the image, called 'h' below.
-  16       2        2    (signed) X-offset.
-  18       2        2    (signed) Y-offset.
-  20     4*h      1-2    Jump table to pixel data of each line. Offset is
+  12       2      1-     Width of the image.
+  14       2      1-     Height of the image, called 'h' below.
+  16       2      2-     (signed) X-offset.
+  18       2      2-     (signed) Y-offset.
+  20     4*h      1-     Jump table to pixel data of each line. Offset is
                          relative to the first entry of the jump table.
                          Value 0 means there is no data for that line.
-   ?       ?      1-2    Pixels of each line.
+   ?       ?      1-     Pixels of each line.
    ?                     Variable length.
 ======  ======  =======  =================================================
 
@@ -123,14 +123,14 @@ Data block for an 32bpp sprite and its offset.
 ======  ======  =======  =================================================================
 Offset  Length  Version  Description
 ======  ======  =======  =================================================================
-   0       4       1     Magic string '32PX'.
-   4       4       1     Version number of the block.
-   8       4       1     Length of the block excluding magic string, version, and length.
-  12       2       1     Width of the image.
-  14       2       1     Height of the image.
-  16       2       1     (signed) X-offset.
-  18       2       1     (signed) Y-offset.
-  20       ?       1     Line data.
+   0       4      1-     Magic string '32PX'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       2      1-     Width of the image.
+  14       2      1-     Height of the image.
+  16       2      1-     (signed) X-offset.
+  18       2      1-     (signed) Y-offset.
+  20       ?      1-     Line data.
    ?                     Variable length.
 ======  ======  =======  =================================================================
 
@@ -273,29 +273,29 @@ The suffix is added to denote a specific sprite in a sequence inside another blo
 ======  ======  =======  ======  ===========================================================================
 Offset  Length  Version  Suffix  Description
 ======  ======  =======  ======  ===========================================================================
-   0       4      1-2    #       Flat surface tile.
-   4       4      1-2    #n      North corner up.
-   8       4      1-2    #e      East corner up.
-  12       4      1-2    #ne     North, east corners up.
-  16       4      1-2    #s      South corner up.
-  20       4      1-2    #ns     North, south corners up.
-  24       4      1-2    #es     East, south corners up.
-  28       4      1-2    #nes    North, east, south corners up.
-  32       4      1-2    #w      West corner up.
-  36       4      1-2    #nw     West, north corners up.
-  40       4      1-2    #ew     West, east corners up.
-  44       4      1-2    #new    West, north, east corners up.
-  48       4      1-2    #sw     West, south corners up.
-  52       4      1-2    #nsw    West, north, south corners up.
-  56       4      1-2    #esw    West, east, south corners up.
-  60       4      1-2    #Nb     Steep north slope (bottom part).
-  64       4      1-2    #Eb     Steep east slope  (bottom part).
-  68       4      1-2    #Sb     Steep south slope (bottom part).
-  72       4      1-2    #Wb     Steep west slope  (bottom part).
-  76       4       2     #Nt     Steep north slope (top part).
-  80       4       2     #Et     Steep east slope  (top part).
-  84       4       2     #St     Steep south slope (top part).
-  88       4       2     #Wt     Steep west slope  (top part).
+   0       4      1-     #       Flat surface tile.
+   4       4      1-     #n      North corner up.
+   8       4      1-     #e      East corner up.
+  12       4      1-     #ne     North, east corners up.
+  16       4      1-     #s      South corner up.
+  20       4      1-     #ns     North, south corners up.
+  24       4      1-     #es     East, south corners up.
+  28       4      1-     #nes    North, east, south corners up.
+  32       4      1-     #w      West corner up.
+  36       4      1-     #nw     West, north corners up.
+  40       4      1-     #ew     West, east corners up.
+  44       4      1-     #new    West, north, east corners up.
+  48       4      1-     #sw     West, south corners up.
+  52       4      1-     #nsw    West, north, south corners up.
+  56       4      1-     #esw    West, east, south corners up.
+  60       4      1-     #Nb     Steep north slope (bottom part).
+  64       4      1-     #Eb     Steep east slope  (bottom part).
+  68       4      1-     #Sb     Steep south slope (bottom part).
+  72       4      1-     #Wb     Steep west slope  (bottom part).
+  76       4      2-     #Nt     Steep north slope (top part).
+  80       4      2-     #Et     Steep east slope  (top part).
+  84       4      2-     #St     Steep south slope (top part).
+  88       4      2-     #Wt     Steep west slope  (top part).
   92                             Total length of the sub-block.
 ======  ======  =======  ======  ===========================================================================
 
@@ -314,14 +314,14 @@ FreeRCT is 4.
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
 ======  ======  =======  ===================================================================================
-   0       4      1-4    Magic string 'SURF'.
-   4       4      1-4    Version number of the block.
-   8       4      1-4    Length of the block excluding magic string, version, and length.
-  12       2      2-4    Type of ground.
-  14       2      1-4    Zoom-width of a tile of the surface.
-  16       2      1-4    Change in Z height (in pixels) when going up or down a tile level.
+   0       4      1-     Magic string 'SURF'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       2      2-     Type of ground.
+  14       2      1-     Zoom-width of a tile of the surface.
+  16       2      1-     Change in Z height (in pixels) when going up or down a tile level.
   --      76      1-3    Tile surface sprite sub-block for north viewing direction.
-  18      92       4     Tile surface sprite sub-block for north viewing direction.
+  18      92      4-     Tile surface sprite sub-block for north viewing direction.
   --      76      1-2    Tile surface sprite sub-block for east viewing direction.
   --      76      1-2    Tile surface sprite sub-block for south viewing direction.
   --      76      1-2    Tile surface sprite sub-block for west viewing direction.
@@ -358,13 +358,13 @@ no type. FreeRCT can read blocks with version number 2.
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
 ======  ======  =======  ===================================================================================
-   0       4      1-2    Magic string 'TSEL'.
-   4       4      1-2    Version number of the block.
-   8       4      1-2    Length of the block excluding magic string, version, and length.
-  12       2      1-2    Zoom-width of a tile of the surface.
-  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
-  --      76       1     Tile surface sprite sub-block.
-  16      92       2     Tile surface sprite sub-block.
+   0       4      1-     Magic string 'TSEL'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       2      1-     Zoom-width of a tile of the surface.
+  14       2      1-     Change in Z height (in pixels) when going up or down a tile level.
+  --      76      1-1    Tile surface sprite sub-block.
+  16      92      2-     Tile surface sprite sub-block.
  108                     Total length.
 ======  ======  =======  ===================================================================================
 
@@ -383,13 +383,13 @@ FreeRCT can read blocks with version 2.
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
 ======  ======  =======  ===================================================================================
-   0       4      1-2    Magic string 'TARE'.
-   4       4      1-2    Version number of the block.
-   8       4      1-2    Length of the block excluding magic string, version, and length.
-  12       2      1-2    zoom-width of a tile of the surface.
-  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
-  --      76       1     Tile surface sprite sub-block.
-  16      92       2     Tile surface sprite sub-block.
+   0       4      1-     Magic string 'TARE'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       2      1-     zoom-width of a tile of the surface.
+  14       2      1-     Change in Z height (in pixels) when going up or down a tile level.
+  --      76      1-1     Tile surface sprite sub-block.
+  16      92      2-     Tile surface sprite sub-block.
  108                     Total length.
 ======  ======  =======  ===================================================================================
 
@@ -409,13 +409,13 @@ FreeRCT can read blocks with version 2.
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
 ======  ======  =======  ===================================================================================
-   0       4      1-2    Magic string 'PARE'.
-   4       4      1-2    Version number of the block.
-   8       4      1-2    Length of the block excluding magic string, version, and length.
-  12       2      1-2    Zoom-width of a tile of the surface.
-  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
-  --      76       1     Tile surface sprite sub-block.
-  16      92       2     Tile surface sprite sub-block.
+   0       4      1-     Magic string 'PARE'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       2      1-     Zoom-width of a tile of the surface.
+  14       2      1-     Change in Z height (in pixels) when going up or down a tile level.
+  --      76      1-1    Tile surface sprite sub-block.
+  16      92      2-     Tile surface sprite sub-block.
  108                     Total length.
 ======  ======  =======  ===================================================================================
 
@@ -433,19 +433,19 @@ Sprites for pointing to a single corner of a surface tile. Current version is 2.
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
 ======  ======  =======  ===================================================================================
-   0       4      1-2    Magic string 'TCOR'
-   4       4      1-2    Version number of the block.
-   8       4      1-2    Length of the block excluding magic string, version, and length.
-  12       2      1-2    Zoom-width of a tile of the surface.
-  14       2      1-2    Change in Z height (in pixels) when going up or down a tile level.
-  --      76       1     Tile surface sprite sub-block for selected corner pointing north.
-  16      92       2     Tile surface sprite sub-block for selected corner pointing north.
-  --      76       1     Tile surface sprite sub-block for selected corner pointing east.
- 108      92       2     Tile surface sprite sub-block for selected corner pointing east.
-  --      76       1     Tile surface sprite sub-block for selected corner pointing south.
- 200      92       2     Tile surface sprite sub-block for selected corner pointing south.
-  --      76       1     Tile surface sprite sub-block for selected corner pointing west.
- 292      92       2     Tile surface sprite sub-block for selected corner pointing west.
+   0       4      1-     Magic string 'TCOR'
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       2      1-     Zoom-width of a tile of the surface.
+  14       2      1-     Change in Z height (in pixels) when going up or down a tile level.
+  --      76      1-1    Tile surface sprite sub-block for selected corner pointing north.
+  16      92      2-     Tile surface sprite sub-block for selected corner pointing north.
+  --      76      1-1    Tile surface sprite sub-block for selected corner pointing east.
+ 108      92      2-     Tile surface sprite sub-block for selected corner pointing east.
+  --      76      1-1    Tile surface sprite sub-block for selected corner pointing south.
+ 200      92      2-     Tile surface sprite sub-block for selected corner pointing south.
+  --      76      1-1    Tile surface sprite sub-block for selected corner pointing west.
+ 292      92      2-     Tile surface sprite sub-block for selected corner pointing west.
  384                     Total length.
 ======  ======  =======  ===================================================================================
 
@@ -463,26 +463,27 @@ One tile objects, selling useful things to guests. FreeRCT can read block versio
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
 ======  ======  =======  ===================================================================================
-   0       4      1-4    Magic string 'SHOP'.
-   4       4      1-4    Version number of the block.
-   8       4      1-4    Length of the block excluding magic string, version, and length.
-  12       2      1-4    Zoom-width of a tile of the surface.
-  14       1      1-4    Height of the shop in voxels. (versions 1-3 used a 16bit unsigned number).
-  15       1       4     Shop flags.
-  16       4      1-4    Unrotated view (ne).
-  20       4      1-4    View after 1 quarter negative rotation (se).
-  24       4      1-4    View after 2 quarter negative rotations (sw).
-  28       4      1-4    View after 3 quarter negative rotations (nw).
-  32       4      2-4    First recolouring specification.
-  36       4      2-4    Second recolouring specification.
-  40       4      2-4    Third recolouring specification.
-  44       4       4     Cost of the first item.
-  48       4       4     Cost of the second item.
-  52       4       4     Monthly cost of having the shop.
-  56       4       4     Additional monthly cost of having an opened shop.
-  60       1       4     Item type of the first item.
-  61       1       4     Item type of the second item.
-  62       4      3-4    Text of the shop (reference to a TEXT block).
+   0       4      1-     Magic string 'SHOP'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       2      1-     Zoom-width of a tile of the surface.
+  --       2      1-3    Height of the shop in voxels.
+  14       1      4-     Height of the shop in voxels.
+  15       1      4-     Shop flags.
+  16       4      1-     Unrotated view (ne).
+  20       4      1-     View after 1 quarter negative rotation (se).
+  24       4      1-     View after 2 quarter negative rotations (sw).
+  28       4      1-     View after 3 quarter negative rotations (nw).
+  32       4      2-     First recolouring specification.
+  36       4      2-     Second recolouring specification.
+  40       4      2-     Third recolouring specification.
+  44       4      4-     Cost of the first item.
+  48       4      4-     Cost of the second item.
+  52       4      4-     Monthly cost of having the shop.
+  56       4      4-     Additional monthly cost of having an opened shop.
+  60       1      4-     Item type of the first item.
+  61       1      4-     Item type of the second item.
+  62       4      3-     Text of the shop (reference to a TEXT block).
   66                     Total length.
 ======  ======  =======  ===================================================================================
 
@@ -682,28 +683,28 @@ FreeRCT can read blocks with version 2.
 ======  ======  =======  =================================================
 Offset  Length  Version  Description
 ======  ======  =======  =================================================
-   0       4      1-2    Magic string 'PLAT'.
-   4       4      1-2    Version number of the block.
-   8       4      1-2    Length of the block excluding magic string,
+   0       4      1-     Magic string 'PLAT'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string,
                          version, and length.
-  12       2      1-2    Zoom-width of a tile of the surface.
-  14       2      1-2    Change in Z height (in pixels) when going up or
+  12       2      1-     Zoom-width of a tile of the surface.
+  14       2      1-     Change in Z height (in pixels) when going up or
                          down a tile level.
-  16       2      1-2    Platform type.
-  18       4      1-2    Flat platform for north and south view.
-  22       4      1-2    Flat platform for east and west view.
-  26       4      1-2    Platform with two legs is raised at the NE edge.
-  30       4      1-2    Platform with two legs is raised at the SE edge.
-  34       4      1-2    Platform with two legs is raised at the SW edge.
-  38       4      1-2    Platform with two legs is raised at the NW edge.
-  42       4       2     Platform with right leg is raised at the NE edge.
-  46       4       2     Platform with right leg is raised at the SE edge.
-  50       4       2     Platform with right leg is raised at the SW edge.
-  54       4       2     Platform with right leg is raised at the NW edge.
-  58       4       2     Platform with left leg is raised at the NE edge.
-  62       4       2     Platform with left leg is raised at the SE edge.
-  66       4       2     Platform with left leg is raised at the SW edge.
-  70       4       2     Platform with left leg is raised at the NW edge.
+  16       2      1-     Platform type.
+  18       4      1-     Flat platform for north and south view.
+  22       4      1-     Flat platform for east and west view.
+  26       4      1-     Platform with two legs is raised at the NE edge.
+  30       4      1-     Platform with two legs is raised at the SE edge.
+  34       4      1-     Platform with two legs is raised at the SW edge.
+  38       4      1-     Platform with two legs is raised at the NW edge.
+  42       4      2-     Platform with right leg is raised at the NE edge.
+  46       4      2-     Platform with right leg is raised at the SE edge.
+  50       4      2-     Platform with right leg is raised at the SW edge.
+  54       4      2-     Platform with right leg is raised at the NW edge.
+  58       4      2-     Platform with left leg is raised at the NE edge.
+  62       4      2-     Platform with left leg is raised at the SE edge.
+  66       4      2-     Platform with left leg is raised at the SW edge.
+  70       4      2-     Platform with left leg is raised at the NW edge.
   74                     Total length.
 ======  ======  =======  =================================================
 
@@ -782,14 +783,14 @@ of the ``RCST`` block.
 ======  ======  =======  ==================  =================================================================
 Offset  Length  Version  Field name          Description
 ======  ======  =======  ==================  =================================================================
-   0       4      1-3                        Magic string 'RCST'.
-   4       4      1-3                        Version number of the block.
-   8       4      1-3                        Length of the block excluding magic string, version, and length.
-  12       2      1-3    coaster_type        Type of roller coaster.
-  14       1      2-3    platform_type       Platform type.
-  15       4       3     texts               Texts of the coaster.
-  19       2      1-3    <derived>           Number of track piece definitions (called 'n').
-  21      4*n     1-3                        The track piece definitions (references to ``TRCK``).
+   0       4      1-                         Magic string 'RCST'.
+   4       4      1-                         Version number of the block.
+   8       4      1-                         Length of the block excluding magic string, version, and length.
+  12       2      1-     coaster_type        Type of roller coaster.
+  14       1      2-     platform_type       Platform type.
+  15       4      3-     texts               Texts of the coaster.
+  19       2      1-     <derived>           Number of track piece definitions (called 'n').
+  21      4*n     1-                         The track piece definitions (references to ``TRCK``).
 21+4*n                                       Total length of the ``RCST`` block.
 ======  ======  =======  ==================  =================================================================
 
@@ -830,19 +831,19 @@ it is split in a 'name' and a 'direction' while defining the track pieces.
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0        4      1-4                        Magic string 'TRCK'.
-   4        4      1-4                        Version number of the block.
-   8        4      1-4                        Length of the block excluding magic string, version, and length.
-  12        1      1-4    entry_connection    Entry connection code
-  13        1      1-4    exit_connection     Exit connection code
-  14        1      2-4    exit_dx             Relative X position of the exit voxel.
-  15        1      2-4    exit_dy             Relative Y position of the exit voxel.
-  16        1      2-4    exit_dz             Relative Z position of the exit voxel.
-  17        1      2-4    speed               If non-zero, the minimal speed of cars at the track.
-  18        2      2-4    track_flags         Flags of the track piece (version 2 is 1 byte).
-  20        4      2-4    cost                Cost of this track piece.
-  24        2      1-4                        Number of voxels in this track piece (called 'n').
-  26      36*n     1-4                        Voxel definitions
+   0        4      1-                         Magic string 'TRCK'.
+   4        4      1-                         Version number of the block.
+   8        4      1-                         Length of the block excluding magic string, version, and length.
+  12        1      1-     entry_connection    Entry connection code
+  13        1      1-     exit_connection     Exit connection code
+  14        1      2-     exit_dx             Relative X position of the exit voxel.
+  15        1      2-     exit_dy             Relative Y position of the exit voxel.
+  16        1      2-     exit_dz             Relative Z position of the exit voxel.
+  17        1      2-     speed               If non-zero, the minimal speed of cars at the track.
+  18        2      2-     track_flags         Flags of the track piece (version 2 is 1 byte).
+  20        4      2-     cost                Cost of this track piece.
+  24        2      1-                         Number of voxels in this track piece (called 'n').
+  26      36*n     1-                         Voxel definitions
 26+36*n                                       Total length of the ``TRCK`` block.
 =======  ======  =======  ==================  ================================================================
 
@@ -862,18 +863,18 @@ A voxel definition is
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0       4       1-4    n_back              Reference to the background tracks for north view.
-   4       4        4     e_back              Reference to the background tracks for east view.
-   8       4        4     s_back              Reference to the background tracks for south view.
-  12       4        4     w_back              Reference to the background tracks for west view.
-  16       4        4     n_front             Reference to the front tracks for north view.
-  20       4        4     e_front             Reference to the front tracks for east view.
-  24       4        4     s_front             Reference to the front tracks for south view.
-  28       4        4     w_front             Reference to the front tracks for west view.
-  32       1       1-4    dx                  Relative X position of the voxel.
-  33       1       1-4    dy                  Relative Y position of the voxel.
-  34       1       1-4    dz                  Relative Z position of the voxel.
-  35       1       1-4    flags               Flags of the voxel (space requirements, platforms).
+   0       4       1-     n_back              Reference to the background tracks for north view.
+   4       4       4-     e_back              Reference to the background tracks for east view.
+   8       4       4-     s_back              Reference to the background tracks for south view.
+  12       4       4-     w_back              Reference to the background tracks for west view.
+  16       4       4-     n_front             Reference to the front tracks for north view.
+  20       4       4-     e_front             Reference to the front tracks for east view.
+  24       4       4-     s_front             Reference to the front tracks for south view.
+  28       4       4-     w_front             Reference to the front tracks for west view.
+  32       1       1-     dx                  Relative X position of the voxel.
+  33       1       1-     dy                  Relative Y position of the voxel.
+  34       1       1-     dz                  Relative Z position of the voxel.
+  35       1       1-     flags               Flags of the voxel (space requirements, platforms).
   36                                          Total length of a voxel definition.
 =======  ======  =======  ==================  ================================================================
 
@@ -941,19 +942,19 @@ Sprites for the platforms of a coasters are stored in a ``CSPL`` block. FreeRCT 
 =======  ======  =======  ===========  ================================================================
 Offset   Length  Version  Field name   Description
 =======  ======  =======  ===========  ================================================================
-   0        4      1-2                 Magic string 'CSPL'.
-   4        4      1-2                 Version number of the block.
-   8        4      1-2                 Length of the block excluding magic string, version, and length.
-  12        2      1-2    tile_width   Zoom-width of a tile.
-  14        1      1-2    type         Type of the platform, see `Roller coaster tracks`_.
-  15        4      1-2    ne_sw_back   Background platform sprite of the NE to SW direction.
-  19        4      1-2    ne_sw_front  Foreground platform sprite of the NE to SW direction.
-  23        4       2     se_nw_back   Background platform sprite of the SE to NW direction.
-  27        4       2     se_nw_front  Foreground platform sprite of the SE to NW direction.
-  31        4       2     sw_ne_back   Background platform sprite of the SW to NE direction.
-  35        4       2     sw_ne_front  Foreground platform sprite of the SW to NE direction.
-  39        4      1-2    nw_se_back   Background platform sprite of the NW to SE direction.
-  43        4      1-2    nw_se_front  Foreground platform sprite of the NW to SE direction.
+   0        4      1-                  Magic string 'CSPL'.
+   4        4      1-                  Version number of the block.
+   8        4      1-                  Length of the block excluding magic string, version, and length.
+  12        2      1-     tile_width   Zoom-width of a tile.
+  14        1      1-     type         Type of the platform, see `Roller coaster tracks`_.
+  15        4      1-     ne_sw_back   Background platform sprite of the NE to SW direction.
+  19        4      1-     ne_sw_front  Foreground platform sprite of the NE to SW direction.
+  23        4      2-     se_nw_back   Background platform sprite of the SE to NW direction.
+  27        4      2-     se_nw_front  Foreground platform sprite of the SE to NW direction.
+  31        4      2-     sw_ne_back   Background platform sprite of the SW to NE direction.
+  35        4      2-     sw_ne_front  Foreground platform sprite of the SW to NE direction.
+  39        4      1-     nw_se_back   Background platform sprite of the NW to SE direction.
+  43        4      1-     nw_se_front  Foreground platform sprite of the NW to SE direction.
   47                                   Total length of the block.
 =======  ======  =======  ===========  ================================================================
 
@@ -1183,53 +1184,53 @@ FreeRCT can read blocks with version 7.
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
 ======  ======  =======  ==================  ================================================================
-   0       4      1-7                        Magic string 'GSLP' (Gui sprites).
-   4       4      1-7                        Version number of the block.
-   8       4      1-7                        Length of the block excluding magic string, version, and length.
-  12       4      1-7    vert_down           Slope going vertically down.
-  16       4      1-7    steep_down          Slope going steeply down.
-  20       4      1-7    gentle_down         Slope going gently down.
-  24       4      1-7    level               Level slope.
-  28       4      1-7    gentle_up           Slope going gently up.
-  32       4      1-7    steep_up            Slope going steeply up.
-  36       4      1-7    vert_up             Slope going vertically up.
-  40       4      5-7    wide_left           Wide bend to the left.
-  44       4      5-7    normal_left         Normal bend to the left.
-  48       4      5-7    tight_left          Tight bend to the left.
-  52       4      5-7    no_bend             No bends.
-  56       4      5-7    tight_right         Tight bend to the right.
-  60       4      5-7    normal_right        Normal bend to the right.
-  64       4      5-7    wide_right          Wide bend to the right.
-  68       4      5-7    no_banking          No banking.
-  72       4      5-7    bank_left           Bank to the left.
-  76       4      5-7    bank_right          Bank to the right.
-  80       4      5-7    triangle_right      Arrow triangle to the right.
-  84       4      5-7    triangle_left       Arrow triangle to the left.
-  88       4      5-7    triangle_up         Arrow triangle upwards.
-  92       4      5-7    triangle_bottom     Arrow triangle downwards.
-  96       4       7     has_platform        Button for selecting trackpieces with platforms.
- 100       4       7     no_platform         Button for selecting trackpieces without platforms.
- 104       4       7     has_power           Button for selecting trackpieces with power.
- 108       4       7     no_power            Button for selecting trackpieces without power.
- 112       4      6-7    disabled            Sprite to overlay over a disabled button.
- 116       4       7     compass_n           Compass displaying viewing in north direction.
- 120       4       7     compass_e           Compass displaying viewing in east direction.
- 124       4       7     compass_s           Compass displaying viewing in south direction.
- 128       4       7     compass_w           Compass displaying viewing in west direction.
- 132       4       7     bulldozer           Bulldozer (destroy) button.
- 136       4       7     weather_0           First weather sprite (fully sunny)
- 140       4       7     weather_1           Second weather sprite (sunny, thin clouds)
- 144       4       7     weather_2           Third weather sprite (thick clouds)
- 148       4       7     weather_3           Fourth weather sprite (raining)
- 152       4      2-7    pos_2d              Flat rotation positive direction (counter clock wise).
- 156       4      2-7    neg_2d              Flat rotation negative direction (clock wise).
- 160       4      2-7    pos_3d              Diametric rotation positive direction (counter clock wise).
- 164       4      2-7    neg_3d              Diametric rotation negative direction (clock wise).
- 168       4      3-7    close_button        Close Button.
-  --       4       3                         Maximise button.
-  --       4       3                         Minimise button.
- 172       4      4-7    terraform_dot       Terraform dot.
- 176       4      2-7    texts               Text of the guis (reference to a TEXT block).
+   0       4      1-                         Magic string 'GSLP' (Gui sprites).
+   4       4      1-                         Version number of the block.
+   8       4      1-                         Length of the block excluding magic string, version, and length.
+  12       4      1-     vert_down           Slope going vertically down.
+  16       4      1-     steep_down          Slope going steeply down.
+  20       4      1-     gentle_down         Slope going gently down.
+  24       4      1-     level               Level slope.
+  28       4      1-     gentle_up           Slope going gently up.
+  32       4      1-     steep_up            Slope going steeply up.
+  36       4      1-     vert_up             Slope going vertically up.
+  40       4      5-     wide_left           Wide bend to the left.
+  44       4      5-     normal_left         Normal bend to the left.
+  48       4      5-     tight_left          Tight bend to the left.
+  52       4      5-     no_bend             No bends.
+  56       4      5-     tight_right         Tight bend to the right.
+  60       4      5-     normal_right        Normal bend to the right.
+  64       4      5-     wide_right          Wide bend to the right.
+  68       4      5-     no_banking          No banking.
+  72       4      5-     bank_left           Bank to the left.
+  76       4      5-     bank_right          Bank to the right.
+  80       4      5-     triangle_right      Arrow triangle to the right.
+  84       4      5-     triangle_left       Arrow triangle to the left.
+  88       4      5-     triangle_up         Arrow triangle upwards.
+  92       4      5-     triangle_bottom     Arrow triangle downwards.
+  96       4      7-     has_platform        Button for selecting trackpieces with platforms.
+ 100       4      7-     no_platform         Button for selecting trackpieces without platforms.
+ 104       4      7-     has_power           Button for selecting trackpieces with power.
+ 108       4      7-     no_power            Button for selecting trackpieces without power.
+ 112       4      6-     disabled            Sprite to overlay over a disabled button.
+ 116       4      7-     compass_n           Compass displaying viewing in north direction.
+ 120       4      7-     compass_e           Compass displaying viewing in east direction.
+ 124       4      7-     compass_s           Compass displaying viewing in south direction.
+ 128       4      7-     compass_w           Compass displaying viewing in west direction.
+ 132       4      7-     bulldozer           Bulldozer (destroy) button.
+ 136       4      7-     weather_0           First weather sprite (fully sunny)
+ 140       4      7-     weather_1           Second weather sprite (sunny, thin clouds)
+ 144       4      7-     weather_2           Third weather sprite (thick clouds)
+ 148       4      7-     weather_3           Fourth weather sprite (raining)
+ 152       4      2-     pos_2d              Flat rotation positive direction (counter clock wise).
+ 156       4      2-     neg_2d              Flat rotation negative direction (clock wise).
+ 160       4      2-     pos_3d              Diametric rotation positive direction (counter clock wise).
+ 164       4      2-     neg_3d              Diametric rotation negative direction (clock wise).
+ 168       4      3-     close_button        Close Button.
+  --       4      3-3                        Maximise button.
+  --       4      3-3                        Minimise button.
+ 172       4      4-     terraform_dot       Terraform dot.
+ 176       4      2-     texts               Text of the guis (reference to a TEXT block).
  180                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
