@@ -21,6 +21,58 @@
 
 CoasterPlatform _coaster_platforms[CPT_COUNT]; ///< Sprites for the coaster platforms.
 
+static CarType _car_types[16]; ///< Car types available to the program (arbitrary limit).
+static uint _used_types = 0; ///< First free car type in #_car_types.
+
+/**
+ * Get a new car type.
+ * @return A free car type, or \c nullptr if no free car type available.
+ */
+CarType *GetNewCarType()
+{
+	if (_used_types == lengthof(_car_types)) return nullptr;
+	uint index = _used_types;
+	_used_types++;
+	return &_car_types[index];
+}
+
+CarType::CarType()
+{
+	for (uint i = 0; i < lengthof(this->cars); i++) this->cars[i] = nullptr;
+}
+
+/**
+ * Load the data of a CARS block from file.
+ * @param rcdfile Data file being loaded.
+ * @param length Length of the data in the block.
+ * @param sprites Already loaded sprites.
+ * @return Loading was a success.
+ */
+bool CarType::Load(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
+{
+	if (length != 2+2+4+2+2+16384) return false;
+
+	this->tile_width = rcdfile->GetUInt16();
+	if (this->tile_width != 64) return false; // Do not allow anything else than 64 pixels tile width.
+
+	this->z_height = rcdfile->GetUInt16();
+	if (this->z_height != this->tile_width / 4) return false;
+
+	this->car_length = rcdfile->GetUInt32();
+	if (this->car_length > 65535) return false; // Assumption is that a car fits in a single tile, at least some of the time.
+
+	this->num_passengers = rcdfile->GetUInt16();
+	this->num_entrances = rcdfile->GetUInt16();
+	if (this->num_entrances == 0 || this->num_entrances > 4) return false; // Seems like a nice arbitrary upper limit on the number of rows of a car.
+	uint16 pass_per_row = this->num_passengers / this->num_entrances;
+	if (this->num_passengers != pass_per_row * this->num_entrances) return false;
+
+	for (uint i = 0; i < 4096; i++) {
+		if (!LoadSpriteFromFile(rcdfile, sprites, &this->cars[i])) return false;
+	}
+	return true;
+}
+
 CoasterType::CoasterType() : RideType(RTK_COASTER)
 {
 	this->voxel_count = 0;

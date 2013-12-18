@@ -1636,6 +1636,13 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(name, "CARS") == 0 && version == 1) {
+			CarType *ct = GetNewCarType();
+			if (ct == nullptr) return "No room to store a car type.";
+			if (!ct->Load(&rcd_file, length, sprites)) return "Car type failed to load.";
+			continue;
+		}
+
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", name, version);
 		while (length > 0) {

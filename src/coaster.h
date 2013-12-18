@@ -35,6 +35,35 @@ enum CoasterPlatformType {
 	CPT_COUNT, ///< Number of platform types with coasters.
 };
 
+/** A type of car riding at a track. */
+class CarType {
+public:
+	CarType();
+
+	bool Load(RcdFile *rcdfile, uint32 length, const ImageMap &sprites);
+
+	/**
+	 * Retrieve an image of the car at a given \a pitch, \a roll, and \a yaw orientation.
+	 * @param pitch Required pitch of the car.
+	 * @param roll Required roll of the car.
+	 * @param yaw Required yaw of the car.
+	 * @return Image of the car in the requested orientation, if available.
+	 */
+	const ImageData *GetCar(int pitch, int roll, int yaw)
+	{
+		return this->cars[(uint)(pitch & 0xf) | ((uint)(roll & 0xf) << 4) | ((uint)(yaw & 0xf) << 8)];
+	}
+
+	ImageData *cars[4096]; ///< Images of the car, in all possible orientation (if available).
+	uint16 tile_width;     ///< Tile width of the images.
+	uint16 z_height;       ///< Change in z-height of the images.
+	uint32 car_length;     ///< Length of a car in 1/256 pixel.
+	uint16 num_passengers; ///< Number of passenger of a car.
+	uint16 num_entrances;  ///< Number of entrance rows of a car.
+};
+
+CarType *GetNewCarType();
+
 /** Coaster ride type. */
 class CoasterType : public RideType {
 public:
