@@ -108,8 +108,8 @@ def tcor_img(prefix, rcd, offset):
         print "    TCOR " + prefix + sp + ": " + str(rcd.uint32(offset + idx*4))
 
 class PictureDump(object):
-    IM_HEIGHT=600
-    IM_WIDTH=800
+    IM_HEIGHT=6000
+    IM_WIDTH=1200
 
     def __init__(self):
         self.im = None
