@@ -150,6 +150,7 @@ public:
 	std::shared_ptr<SpriteBlock> GetSprite(const Position &pos, const char *node);
 	std::shared_ptr<Connection> GetConnection(const Position &pos, const char *node);
 	std::shared_ptr<Strings> GetStrings(const Position &pos, const char *node);
+	std::shared_ptr<Curve> GetCurve(const Position &pos, const char *node);
 
 	Position pos;             ///< %Position of the name.
 	std::shared_ptr<const Expression> expr_value; ///< %Expression attached to it (if any).
@@ -279,6 +280,30 @@ std::shared_ptr<Strings> ValueInformation::GetStrings(const Position &pos, const
 }
 
 /**
+ * Get a curve description from the node value.
+ * @param pos %Position of the node (for reporting errors).
+ * @param node %Name of the node.
+ * @return The requested curve.
+ */
+std::shared_ptr<Curve> ValueInformation::GetCurve(const Position &pos, const char *node)
+{
+	/* First option, it's an expression (ie a fixed value). */
+	if (this->expr_value != nullptr) {
+		auto cv = std::make_shared<FixedTable>();
+		cv->value = this->GetNumber(pos, node, nullptr);
+		return cv;
+	}
+	/* Second option, it's a 'splines' block. */
+	auto cv = std::dynamic_pointer_cast<CubicSplines>(this->node_value);
+	if (cv != nullptr) {
+		this->node_value = nullptr;
+		return cv;
+	}
+	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a valid car table node\n", pos.ToString(), this->name.c_str(), node);
+	exit(1);
+}
+
+/**
  * Assign sub-nodes to the names of a 2D table.
  * @param bn Node to split in sub-nodes.
  * @param nt 2D name table.
@@ -357,6 +382,7 @@ public:
 	std::shared_ptr<SpriteBlock> GetSprite(const char *fld_name);
 	std::shared_ptr<Connection> GetConnection(const char *fld_name);
 	std::shared_ptr<Strings> GetStrings(const char *fld_name);
+	std::shared_ptr<Curve> GetCurve(const char *fld_name);
 	void VerifyUsage();
 
 	int named_count;   ///< Number of found values with a name.
@@ -585,6 +611,16 @@ std::shared_ptr<Connection> Values::GetConnection(const char *fld_name)
 std::shared_ptr<Strings> Values::GetStrings(const char *fld_name)
 {
 	return FindValue(fld_name)->GetStrings(this->pos, this->node_name);
+}
+
+/**
+ * Get a curve description from the named value with the provided name.
+ * @param fld_name Name of the field to retrieve.
+ * @return The queried curve.
+ */
+std::shared_ptr<Curve> Values::GetCurve(const char *fld_name)
+{
+	return FindValue(fld_name)->GetCurve(this->pos, this->node_name);
 }
 
 /** Verify whether all named values were used in a node. */
@@ -1828,6 +1864,16 @@ static std::shared_ptr<TrackPieceNode> ConvertTrackPieceNode(std::shared_ptr<Nod
 	tb->exit_dz = vals.GetNumber("exit_dz");
 	tb->speed = vals.HasValue("speed") ? vals.GetNumber("speed") : 0;
 
+	tb->car_xpos = vals.GetCurve("car_xpos");
+	tb->car_ypos = vals.GetCurve("car_ypos");
+	tb->car_zpos = vals.GetCurve("car_zpos");
+	tb->car_roll = vals.GetCurve("car_roll");
+	tb->car_pitch = (vals.HasValue("car_pitch")) ? vals.GetCurve("car_pitch") : NULL;
+	tb->car_yaw = (vals.HasValue("car_yaw")) ? vals.GetCurve("car_yaw") : NULL;
+
+	tb->ComputeTrackLength(ng->pos);
+
+	/* Unnamed values are track voxels that need to be claimed (partly) for the track piece. */
 	for (int i = 0; i < vals.unnamed_count; i++) {
 		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
 		if (vi->used) continue;
@@ -1913,6 +1959,61 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 	return rb;
 }
 
+/**
+ * Convert a 'splines' block to a node block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted splines node block.
+ */
+static std::shared_ptr<BlockNode> ConvertSplinesNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, ng->name.c_str());
+	auto blk = std::make_shared<CubicSplines>();
+	Values vals(ng->name.c_str(), ng->pos);
+	vals.PrepareNamedValues(ng->values, false, true);
+
+	for (int i = 0; i < vals.unnamed_count; i++) {
+		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
+		if (vi->used) continue;
+		auto cs = std::dynamic_pointer_cast<CubicSpline>(vi->node_value);
+		if (cs == nullptr) {
+			fprintf(stderr, "Error at %s: Node is not a \"cubic\" node\n", vi->pos.ToString());
+			exit(1);
+		}
+		blk->curve.push_back(cs);
+		vi->node_value = nullptr;
+		vi->used = true;
+	}
+
+	vals.VerifyUsage();
+	return blk;
+}
+
+/**
+ * Convert a 'cubic' node to a block node.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted cubic spline block.
+ */
+static std::shared_ptr<BlockNode> ConvertCubicNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, ng->name.c_str());
+	auto blk = std::make_shared<CubicSpline>();
+	Values vals(ng->name.c_str(), ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	blk->a = vals.GetNumber("a");
+	blk->b = vals.GetNumber("b");
+	blk->c = vals.GetNumber("c");
+	blk->d = vals.GetNumber("d");
+	blk->steps = vals.GetNumber("steps");
+	if (blk->steps < 100) {
+		fprintf(stderr, "Error at %s: 'steps' should be at least 100.\n", ng->pos.ToString());
+		exit(1);
+	}
+
+	vals.VerifyUsage();
+	return blk;
+}
+
 /** Platform coaster type symbols. */
 static const Symbol _coaster_platform_symbols[] = {
 	{"wood", 1},
@@ -1965,6 +2066,8 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "connection") return ConvertConnection(ng);
 	if (ng->name == "track_piece") return ConvertTrackPieceNode(ng);
 	if (ng->name == "bitmask") return ConvertBitMaskNode(ng);
+	if (ng->name == "splines") return ConvertSplinesNode(ng);
+	if (ng->name == "cubic") return ConvertCubicNode(ng);
 
 	/* Game blocks. */
 	if (ng->name == "TSEL") return ConvertTSELNode(ng);
@@ -1989,7 +2092,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "CSPL") return ConvertCSPLNode(ng);
 
 	/* Unknown type of node. */
-	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\"\n", ng->pos.ToString(), ng->name.c_str());
+	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\".\n", ng->pos.ToString(), ng->name.c_str());
 	exit(1);
 }
 

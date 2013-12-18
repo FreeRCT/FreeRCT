@@ -49,15 +49,127 @@ bool TrackVoxel::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 	return true;
 }
 
+TrackCurve::TrackCurve()
+{
+}
+
+TrackCurve::~TrackCurve()
+{
+}
+
+/**
+ * \fn double TrackCurve::GetValue(int distance)
+ * Get the value of the curve at the provided \a distance.
+ * @param distance Distance of the car at the curve, in 1/256 pixel.
+ * @return Value of this track curve variable at the given distance.
+ */
+
+/**
+ * Track curve that always has the same value.
+ * @param value Constant value of the curve.
+ */
+ConstantTrackCurve::ConstantTrackCurve(int value) : TrackCurve(), value(value)
+{
+}
+
+/**
+ * Partial track curve described by a cubic Bezier spline.
+ * @param start Start distance of this curve in the track piece, in 1/256 pixel.
+ * @param last Last distance of this curve in the track piece, in 1/256 pixel.
+ * @param a Starting value of the Bezier spline.
+ * @param b First control point of the Bezier spline.
+ * @param c Second intermediate control point of the Bezier spline.
+ * @param d Ending value of the Bezier spline.
+ */
+CubicBezier::CubicBezier(uint32 start, uint32 last, int a, int b, int c, int d) : start(start), last(last), a(a), b(b), c(c), d(d)
+{
+}
+
+BezierTrackCurve::BezierTrackCurve()
+{
+}
+
+/**
+ * Load the data of a Bezier spline into a #BezierTrackCurve.
+ * @param rcdfile Data file to load from. Caller must ensure there is enough data available at the stream.
+ * @return The Loaded Bezier spline.
+ */
+static CubicBezier LoadBezier(RcdFile *rcdfile)
+{
+	uint32 start = rcdfile->GetUInt32();
+	uint32 last = rcdfile->GetUInt32();
+	int16 a = rcdfile->GetInt16();
+	int16 b = rcdfile->GetInt16();
+	int16 c = rcdfile->GetInt16();
+	int16 d = rcdfile->GetInt16();
+	return CubicBezier(start, last, a, b, c, d);
+}
+
+/**
+ * Load a track curve.
+ * @param rcdfile Data file being loaded.
+ * @param length [inout] Length of the block that is not loaded yet. If \c *length is negative afterwards, reading failed (not enough data).
+ * @return The loaded track curve, may be \c nullptr (which indicates a not supplied track curve).
+ */
+static TrackCurve *LoadTrackCurve(RcdFile *rcdfile, uint32 *length)
+{
+#define ENSURE_LENGTH(x) do { if (*length < (x)) { *length = -1; return nullptr; } *length -= (x); } while(false)
+
+	ENSURE_LENGTH(1);
+	uint8 type = rcdfile->GetUInt8();
+	switch (type) {
+		case 0: // No track curve available.
+			return nullptr;
+
+		case 1: { // Curve consisting of a fixed value.
+			ENSURE_LENGTH(2);
+			int value = rcdfile->GetInt16();
+			return new ConstantTrackCurve(value);
+		}
+
+		case 2: {
+			ENSURE_LENGTH(1);
+			int count = rcdfile->GetUInt8();
+			ENSURE_LENGTH(count * 16u);
+			BezierTrackCurve *bezier = new BezierTrackCurve();
+			bezier->curve.reserve(count);
+			for (; count > 0; count--) {
+				bezier->curve.push_back(LoadBezier(rcdfile));
+			}
+			bezier->curve.shrink_to_fit();
+			return bezier;
+		}
+
+		default: // Error.
+			fprintf(stderr, "Unexpected curve type %u.\n", type);
+			*length = -1;
+			return nullptr;
+	}
+#undef ENSURE_LENGTH
+}
+
 TrackPiece::TrackPiece()
 {
 	this->voxel_count = 0;
 	this->track_voxels = nullptr;
+	this->piece_length = 0;
+	this->car_xpos = nullptr;
+	this->car_ypos = nullptr;
+	this->car_zpos = nullptr;
+	this->car_pitch = nullptr;
+	this->car_roll = nullptr;
+	this->car_yaw = nullptr;
 }
 
 TrackPiece::~TrackPiece()
 {
 	delete[] this->track_voxels;
+	delete this->car_xpos;
+	delete this->car_ypos;
+	delete this->car_zpos;
+	delete this->car_pitch;
+	delete this->car_roll;
+	delete this->car_yaw;
 }
 
 /**
@@ -80,12 +192,24 @@ bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
 	this->track_flags = rcd_file->GetUInt16();
 	this->cost = rcd_file->GetUInt32();
 	this->voxel_count = rcd_file->GetUInt16();
-	if (length != 36u * this->voxel_count) return false;
+	if (length < 36u * this->voxel_count) return false;
+	length -= 36u * this->voxel_count;
 	this->track_voxels = new TrackVoxel[this->voxel_count];
 	for (int i = 0; i < this->voxel_count; i++) {
 		if (!this->track_voxels[i].Load(rcd_file, 36, sprites)) return false;
 	}
-	return true;
+	if (length < 4u) return false;
+	length -= 4;
+	this->piece_length = rcd_file->GetUInt32();
+
+	this->car_xpos  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
+	this->car_ypos  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
+	this->car_zpos  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
+	this->car_pitch = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
+	this->car_roll  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
+	this->car_yaw   = LoadTrackCurve(rcd_file, &length);
+	if (this->car_xpos == nullptr || this->car_ypos == nullptr || this->car_zpos == nullptr || this->car_roll == nullptr) return false;
+	return length == 0;
 }
 
 /** Default constructor. */

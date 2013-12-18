@@ -14,6 +14,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 #include "bitmath.h"
 #include "money.h"
 
@@ -80,6 +81,82 @@ enum TrackBend {
 	TBN_INVALID = 0xFF, ///< Invalid bend value.
 };
 
+class TrackCurve {
+public:
+	TrackCurve();
+	virtual ~TrackCurve();
+
+	virtual double GetValue(uint32 distance) const = 0;
+};
+
+class ConstantTrackCurve : public TrackCurve {
+public:
+	ConstantTrackCurve(int value);
+
+	double GetValue(uint32 distance) const override
+	{
+		return this->value;
+	}
+
+	const int value;
+};
+
+/** Description of a cubic Bezier spline. */
+class CubicBezier {
+public:
+	CubicBezier(uint32 start, uint32 last, int a, int b, int c, int d);
+
+	/**
+	 * Get the value of the curve at the provided \a distance.
+	 * @param distance Distance of the car at the curve, in 1/256 pixel.
+	 * @return Value of this track curve variable at the given distance.
+	 * @pre \a distance must be at or between #start and #last.
+	 */
+	double GetValue(uint32 distance) const
+	{
+		assert(distance >= this->start && distance <= this->last);
+		double t = (double)(distance - this->start) / (this->last - this->start); // XXX Perhaps store the length?
+		double tt = t * t;
+		double t1 = 1 - t;
+		double tt11 = t1 * t1;
+
+		return (tt11 * t1) * this->a + (3 * tt11 * t) * this->b + (3 * t1 * tt) * this->c + (tt * t) * this->d;
+	}
+
+	const uint32 start; ///< Start distance of this curve in the track piece, in 1/256 pixel.
+	const uint32 last;  ///< Last distance of this curve in the track piece, in 1/256 pixel.
+	const int a;        ///< Starting value of the Bezier spline.
+	const int b;        ///< First control point of the Bezier spline.
+	const int c;        ///< Second intermediate control point of the Bezier spline.
+	const int d;        ///< Ending value of the Bezier spline.
+};
+
+class BezierTrackCurve : public TrackCurve {
+public:
+	BezierTrackCurve();
+
+	double GetValue(uint32 distance) const override
+	{
+		int end = this->curve.size();
+		if (end == 1) return this->curve.front().GetValue(distance); // Handle a common case quickly.
+
+		/* Bisection to the right Bezier spline. */
+		int first = 0;
+		while (end > first + 1) {
+			int middle = (first + end) / 2;
+			const CubicBezier &bezier = this->curve[middle];
+			if (bezier.start > distance) {
+				end = middle;
+			} else {
+				first = middle;
+			}
+		}
+		return this->curve[first].GetValue(distance);
+	}
+
+	std::vector<CubicBezier> curve; ///< Curve describing the track piece.
+};
+
 /** One track piece (type) of a roller coaster track. */
 class TrackPiece {
 public:
@@ -98,6 +175,14 @@ public:
 	Money cost;               ///< Cost of this track piece.
 	int voxel_count;          ///< Number of voxels in #track_voxels.
 	TrackVoxel *track_voxels; ///< Track voxels of this piece.
+
+	uint32 piece_length;      ///< Length of the track piece for the cars, in 1/256 pixel.
+	TrackCurve *car_xpos;     ///< X position of cars over this track piece.
+	TrackCurve *car_ypos;     ///< Y position of cars over this track piece.
+	TrackCurve *car_zpos;     ///< Z position of cars over this track piece.
+	TrackCurve *car_pitch;    ///< Pitch of cars over this track piece, may be \c nullptr.
+	TrackCurve *car_roll;     ///< Roll of cars over this track piece.
+	TrackCurve *car_yaw;      ///< Yaw of cars over this track piece, may be \c null.
 
 	/**
 	 * Check whether the track piece is powered.

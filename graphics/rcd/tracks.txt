@@ -30,6 +30,11 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
+			car_xpos: 128;
+			car_ypos: splines { cubic { a: 0; b: 100; c: 150; d: 255; steps: 1000; } }
+			car_zpos: 90;
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0;
 				flags: bitset(north, east, south, west);
@@ -62,6 +67,11 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
+			car_xpos: 128;
+			car_ypos: splines { cubic { a: 0; b: 100; c: 150; d: 255; steps: 1000; } }
+			car_zpos: 90;
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: swne + bitset(north, east, south, west);
 
@@ -93,6 +103,11 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat"; direction: nw; }
 			exit_dx: 0; exit_dy: -1; exit_dz: 0;
 
+			car_xpos: splines { cubic { a: 128; b: 128; c:  71; d:   0; steps: 1000; } }
+			car_ypos: splines { cubic { a:   0; b:  71; c: 128; d: 128; steps: 1000; } }
+			car_zpos: 64;
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
@@ -116,6 +131,11 @@ file("tracks.rcd") {
 			entry: connection { name: "flat"; direction: ne; }
 			exit:  connection { name: "flat"; direction: se; }
 			exit_dx: 0; exit_dy: 1; exit_dz: 0;
+
+			car_xpos: splines { cubic { a:   0; b:  71; c: 128; d: 128; steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c:  71; d:   0; steps: 1000; } }
+			car_zpos: 90;
+			car_roll: 0;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
@@ -143,6 +163,11 @@ file("tracks.rcd") {
 			exit:  connection { name: "shallow_up"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
+			car_xpos: splines { cubic { a: 255; b: 150; c: 100; d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 90;  b: 95;  c: 105; d: 140; steps: 1000; } }
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
@@ -166,6 +191,11 @@ file("tracks.rcd") {
 			entry: connection { name: "flat";         direction: ne; }
 			exit:  connection { name: "shallow_down"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: -1;
+
+			car_xpos: splines { cubic { a: 255; b: 150; c: 100; d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 80;  b: 78;  c:  50; d: 15;  steps: 1000; } }
+			car_roll: 0;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
@@ -194,6 +224,11 @@ file("tracks.rcd") {
 			exit:  connection { name: "shallow_up"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
+			car_xpos: splines { cubic { a: 255; b: 255; c: 0;   d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 20;  b: 20;  c: 145; d: 145; steps: 1000; } }
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
@@ -220,6 +255,12 @@ file("tracks.rcd") {
 			entry: connection { name: "shallow_down"; direction: ne; }
 			exit:  connection { name: "shallow_down"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: -1;
+
+			car_xpos: splines { cubic { a: 255; b: 255; c: 0;   d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 145; b: 145; c: 20;  d: 20;  steps: 1000; } }
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
@@ -246,6 +287,11 @@ file("tracks.rcd") {
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "flat";       direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
+
+			car_xpos: splines { cubic { a: 255; b: 150; c: 100; d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 15;  b: 50;  c:  78; d: 80;  steps: 1000; } }
+			car_roll: 0;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
@@ -274,6 +320,11 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat";         direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
+			car_xpos: splines { cubic { a: 255; b: 150; c: 100; d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 140; b: 105; c: 95;  d: 90;  steps: 1000; } }
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
@@ -301,6 +352,11 @@ file("tracks.rcd") {
 			exit:  connection { name: "shallow_up"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
 
+			car_xpos: splines { cubic { a: 255; b: 150; c: 100; d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 90;  b: 95;  c: 105; d: 140; steps: 1000; } }
+			car_roll: 0;
+
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
@@ -325,6 +381,11 @@ file("tracks.rcd") {
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "shallow_up"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 1;
+
+			car_xpos: splines { cubic { a: 255; b: 255; c: 0;   d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 20;  b: 20;  c: 145; d: 145; steps: 1000; } }
+			car_roll: 0;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
@@ -353,6 +414,11 @@ file("tracks.rcd") {
 			entry: connection { name: "shallow_up"; direction: ne; }
 			exit:  connection { name: "flat";       direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
+
+			car_xpos: splines { cubic { a: 255; b: 150; c: 100; d: 0;   steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 128; d: 128; steps: 1000; } }
+			car_zpos: splines { cubic { a: 15;  b: 50;  c:  78; d: 80;  steps: 1000; } }
+			car_roll: 0;
 
 			track_voxel {
 				dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);

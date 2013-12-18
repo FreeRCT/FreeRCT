@@ -10,6 +10,7 @@
 /** @file nodes.cpp Code of the RCD file nodes. */
 
 #include "../stdafx.h"
+#include <cmath>
 #include "ast.h"
 #include "nodes.h"
 #include "file_writing.h"
@@ -684,6 +685,59 @@ int GSLPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+CubicSpline::CubicSpline() : BlockNode()
+{
+	this->a = 0;
+	this->b = 0;
+	this->c = 0;
+	this->d = 0;
+	this->steps = 0;
+	this->first = 0;
+	this->last = 0;
+}
+
+Curve::Curve() : BlockNode()
+{
+}
+
+/**
+ * \fn double Curve::GetValue(int idx)
+ * Get the value of the curve at the provided distance index.
+ * @param idx Distance index to retrieve.
+ * @return Value of the curve at the queried point.
+ */
+
+CubicSplines::CubicSplines() : Curve()
+{
+}
+
+double CubicSplines::GetValue(int index, int step)
+{
+	const auto spline = this->curve.at(index);
+	assert(step < spline->steps);
+	double t = ((double)step) / (spline->steps - 1);
+	double tt = t * t;
+	double t1 = 1 - t;
+	double tt11 = t1 * t1;
+
+	double ta = tt11 * t1;
+	double tb = 3 * tt11 * t;
+	double tc = 3 * t1 * tt;
+	double td = tt * t;
+
+	return ta * spline->a + tb * spline->b + tc * spline->c + td * spline->d;
+}
+
+FixedTable::FixedTable() : Curve()
+{
+	this->value = 0;
+}
+
+double FixedTable::GetValue(int index, int step)
+{
+	return this->value;
+}
+
 TrackVoxel::TrackVoxel() : BlockNode()
 {
 	this->dx = 0;
@@ -834,6 +888,222 @@ void TrackPieceNode::UpdateConnectionMap(std::map<std::string, int> *connections
 }
 
 /**
+ * Set the start or the end of a bezier spline.
+ * @param index Index in the curve denoting the bezier spline to change.
+ * @param splines Curve that may be contain bezier splines, \c nullptr is that is not the case.
+ * @param set_start If set, set the start, else set the end.
+ * @param value Value to set.
+ */
+static void SetStartEnd(int index, std::shared_ptr<CubicSplines> splines, bool set_start, int value)
+{
+	if (splines == nullptr) return;
+	std::shared_ptr<CubicSpline> spline = splines->curve[index];
+	if (set_start) {
+		spline->first = value;
+	} else {
+		spline->last = value;
+	}
+}
+
+/**
+ * Set the start or the end of a bezier spline in all track piece curves.
+ * @param index Index in the curve denoting the bezier spline to change.
+ * @param set_start If set, set the start, else set the end.
+ * @param value Value to set.
+ */
+void TrackPieceNode::SetStartEnd(int index, bool set_start, int value)
+{
+	::SetStartEnd(index, std::dynamic_pointer_cast<CubicSplines>(this->car_xpos),  set_start, value);
+	::SetStartEnd(index, std::dynamic_pointer_cast<CubicSplines>(this->car_ypos),  set_start, value);
+	::SetStartEnd(index, std::dynamic_pointer_cast<CubicSplines>(this->car_zpos),  set_start, value);
+	::SetStartEnd(index, std::dynamic_pointer_cast<CubicSplines>(this->car_pitch), set_start, value);
+	::SetStartEnd(index, std::dynamic_pointer_cast<CubicSplines>(this->car_roll),  set_start, value);
+	::SetStartEnd(index, std::dynamic_pointer_cast<CubicSplines>(this->car_yaw),   set_start, value);
+}
+
+/**
+ * Check the number of bezier splines against expectations, and report an error if the count is incorrect.
+ * @param count Expected number of bezier splines.
+ * @param splines Curve that may be contain bezier splines, \c nullptr is that is not the case.
+ * @param name Name of the curve to check.
+ * @param pos %Position of the track piece in the source file.
+ */
+static void CheckBezierCount(int count, const std::shared_ptr<CubicSplines> splines, const char *name, const Position &pos)
+{
+	if (splines == nullptr || (int)splines->curve.size() == count) return;
+	fprintf(stderr, "Error at %s: Track piece curve '%s' has %d curves instead of the expected %d.\n", pos.ToString(), name, (int)splines->curve.size(), count);
+	::exit(1);
+}
+
+/**
+ * Check the number of bezier splines against expectations for all possible curves in the track piece, and report an error if the count is incorrect.
+ * @param count Expected number of bezier splines.
+ * @param pos %Position of the track piece in the source file.
+ */
+void TrackPieceNode::CheckBezierCount(int count, const Position &pos)
+{
+	::CheckBezierCount(count, std::dynamic_pointer_cast<CubicSplines>(this->car_xpos),  "car_xpos",  pos);
+	::CheckBezierCount(count, std::dynamic_pointer_cast<CubicSplines>(this->car_ypos),  "car_ypos",  pos);
+	::CheckBezierCount(count, std::dynamic_pointer_cast<CubicSplines>(this->car_zpos),  "car_zpos",  pos);
+	::CheckBezierCount(count, std::dynamic_pointer_cast<CubicSplines>(this->car_pitch), "car_pitch", pos);
+	::CheckBezierCount(count, std::dynamic_pointer_cast<CubicSplines>(this->car_roll),  "car_roll",  pos);
+	::CheckBezierCount(count, std::dynamic_pointer_cast<CubicSplines>(this->car_yaw),   "car_yaw",   pos);
+}
+
+/**
+ * Check whether the number of steps in a bezier spline matches with the expected count.
+ * @param index Index in the curve denoting the bezier spline to check.
+ * @param steps Expected number of steps in the bezier spline.
+ * @param splines Curve that may be contain bezier splines, \c nullptr is that is not the case.
+ * @param name Name of the curve to check.
+ * @param pos %Position of the track piece in the source file.
+ */
+static void CheckSplineStepCount(int index, int steps, const std::shared_ptr<CubicSplines> splines, const char *name, const Position &pos)
+{
+	if (splines == nullptr) return;
+	std::shared_ptr<CubicSpline> spline = splines->curve[index];
+	if (spline->steps == steps) return;
+	fprintf(stderr, "Error at %s: Track piece curve number %d of '%s' has %d steps instead of the expected %d.\n",
+			pos.ToString(), index + 1, name, spline->steps, steps);
+	::exit(1);
+}
+
+/**
+ * Check whether the length of the curved splines is the same for the given index number.
+ * @param index Index in the curve denoting the bezier spline to check.
+ * @param steps Expected number of steps in the bezier spline.
+ * @param pos %Position of the track piece in the source file.
+ */
+void TrackPieceNode::CheckSplineStepCount(int index, int steps, const Position &pos)
+{
+	::CheckSplineStepCount(index, steps, std::dynamic_pointer_cast<CubicSplines>(this->car_xpos),  "car_xpos",  pos);
+	::CheckSplineStepCount(index, steps, std::dynamic_pointer_cast<CubicSplines>(this->car_ypos),  "car_ypos",  pos);
+	::CheckSplineStepCount(index, steps, std::dynamic_pointer_cast<CubicSplines>(this->car_zpos),  "car_zpos",  pos);
+	::CheckSplineStepCount(index, steps, std::dynamic_pointer_cast<CubicSplines>(this->car_pitch), "car_pitch", pos);
+	::CheckSplineStepCount(index, steps, std::dynamic_pointer_cast<CubicSplines>(this->car_roll),  "car_roll",  pos);
+	::CheckSplineStepCount(index, steps, std::dynamic_pointer_cast<CubicSplines>(this->car_yaw),   "car_yaw",   pos);
+}
+
+/**
+ * Compute the length of the track from the #car_xpos, #car_ypos, and #car_zpos curves and setup CubicSpline::first and CubicSpline::last values.
+ * @param pos %Position of the track piece in the source file.
+ */
+void TrackPieceNode::ComputeTrackLength(const Position &pos)
+{
+	/* Find a spline curve. At least one position should have one. */
+	std::shared_ptr<CubicSplines> splines = nullptr;
+	if (splines == nullptr) splines = std::dynamic_pointer_cast<CubicSplines>(this->car_xpos);
+	if (splines == nullptr) splines = std::dynamic_pointer_cast<CubicSplines>(this->car_ypos);
+	if (splines == nullptr) splines = std::dynamic_pointer_cast<CubicSplines>(this->car_zpos);
+	if (splines == nullptr) {
+		fprintf(stderr, "Error at %s: Track piece must have at least one 'splines' node in its positions.\n", pos.ToString());
+		::exit(1);
+	}
+
+	/* Check splines count. All splines should have the same number of bezier curves. */
+	this->CheckBezierCount(splines->curve.size(), pos);
+
+	double distance = 0.0; // Cumulative distance of this track piece.
+	for (int index = 0; index < (int)splines->curve.size(); index++) {
+		this->SetStartEnd(index, true, distance * 256); // Set start position of all splines at this index.
+
+		int steps = splines->curve[index]->steps;
+		this->CheckSplineStepCount(index, steps, pos); // Check step count for all splines at this index.
+
+		/* Compute distance of this bezier spline. */
+		double xp = this->car_xpos->GetValue(index, 0);
+		double yp = this->car_ypos->GetValue(index, 0);
+		double zp = this->car_zpos->GetValue(index, 0);
+
+		for (int step = 0; step < steps; step++) {
+			double xp2 = this->car_xpos->GetValue(index, step);
+			double yp2 = this->car_ypos->GetValue(index, step);
+			double zp2 = this->car_zpos->GetValue(index, step);
+			if (xp2 == xp && yp2 == yp && zp2 == zp) continue;
+			distance += sqrt((xp2 - xp) * (xp2 - xp) + (yp2 - yp) * (yp2 - yp) + (zp2 - zp) * (zp2 - zp));
+			xp = xp2;
+			yp = yp2;
+			zp = zp2;
+		}
+
+		this->SetStartEnd(index, false, distance * 256); // Set last position of all splines at this index.
+	}
+	if (distance < 127.5) { // A vertical track of one voxel is 128 pixels high, with 0.5 for rounding errors to prevent false positives.
+		fprintf(stderr, "Error at %s: Track piece is too short (should be at least 128 pixels long).\n", pos.ToString());
+		::exit(1);
+	}
+
+	this->total_distance = distance * 256; // Set total distance of the track piece.
+}
+
+/**
+ * Get the number of bytes needed for saving a curve entry.
+ * @param entry Entry to save.
+ * @return Number of bytes needed.
+ */
+static int GetCarEntrySize(std::shared_ptr<Curve> entry)
+{
+	if (entry == nullptr) return 1;
+	std::shared_ptr<FixedTable> fixed = std::dynamic_pointer_cast<FixedTable>(entry);
+	if (fixed != nullptr) return 1 + 2;
+	std::shared_ptr<CubicSplines> splines = std::dynamic_pointer_cast<CubicSplines>(entry);
+	assert(splines != nullptr && splines->curve.size() < 256);
+	return 1 + 1 + splines->curve.size() * 16; // first, last, a, b, c, d
+}
+
+/**
+ * Rotate the \a abcd array \a rot times, given its type.
+ * @param abcd[inout] Array to rotate.
+ * @param rot Number of rotations to perform.
+ * @param type Type of data (either \c 'x' or \c 'y').
+ */
+static void RotateArray(int *abcd, int rot, int type)
+{
+	for (;rot > 0; rot--) {
+		if (type == 'x') {
+			type = 'y';
+		} else {
+			type = 'x';
+			for (int i = 0; i < 4; i++) abcd[i] = (128 - abcd[i]) + 128;
+		}
+	}
+}
+
+/**
+ * Save a curve entry.
+ * @param fb Block to save in.
+ * @param entry Entry to save.
+ * @param rot Number of rotations.
+ * @param type of this entry (\c 'x' or \c 'y', or \c '-'.
+ */
+static void SaveCarEntry(FileBlock *fb, std::shared_ptr<Curve> entry, int rot, int type)
+{
+	if (entry == nullptr) {
+		fb->SaveUInt8(0);
+		return;
+	}
+	std::shared_ptr<FixedTable> fixed = std::dynamic_pointer_cast<FixedTable>(entry);
+	if (fixed != nullptr) {
+		fb->SaveUInt8(1);
+		fb->SaveUInt16(fixed->value);
+		return;
+	}
+	std::shared_ptr<CubicSplines> splines = std::dynamic_pointer_cast<CubicSplines>(entry);
+	fb->SaveUInt8(2);
+	fb->SaveUInt8(splines->curve.size());
+	for (const auto spline : splines->curve) {
+		fb->SaveUInt32(spline->first);
+		fb->SaveUInt32(spline->last);
+		int abcd[4] = {spline->a, spline->b, spline->c, spline->d};
+		if (rot != 0 && type != '-') RotateArray(abcd, rot, type);
+		fb->SaveInt16(abcd[0]);
+		fb->SaveInt16(abcd[1]);
+		fb->SaveInt16(abcd[2]);
+		fb->SaveInt16(abcd[3]);
+	}
+}
+
+/**
  * Write a TRCK game node for all 4 orientations.
  * @param connections Map of connection names to their id.
  * @param fw Output stream to write the blocks to.
@@ -843,7 +1113,10 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 {
 	for (int rot = 0; rot < 4; rot++) {
 		FileBlock *fb = new FileBlock;
-		fb->StartSave("TRCK", 3, 26 - 12 + 36 * this->track_voxels.size());
+		int size = 26 - 12 + 36 * this->track_voxels.size() + 4;
+		size += GetCarEntrySize(this->car_xpos) + GetCarEntrySize(this->car_ypos) + GetCarEntrySize(this->car_zpos);
+		size += GetCarEntrySize(this->car_pitch) + GetCarEntrySize(this->car_roll) + GetCarEntrySize(this->car_yaw);
+		fb->StartSave("TRCK", 5, size);
 		fb->SaveUInt8(this->entry->Encode(connections, rot));
 		fb->SaveUInt8(this->exit->Encode(connections, rot));
 		int nx = this->exit_dx;
@@ -867,6 +1140,13 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		for (auto iter : this->track_voxels) {
 			iter->Write(fw, fb, rot);
 		}
+		fb->SaveUInt32(this->total_distance);
+		SaveCarEntry(fb, this->car_xpos,  rot, 'x');
+		SaveCarEntry(fb, this->car_ypos,  rot, 'y');
+		SaveCarEntry(fb, this->car_zpos,  0, '-');
+		SaveCarEntry(fb, this->car_pitch, 0, '-');
+		SaveCarEntry(fb, this->car_roll,  0, '-');
+		SaveCarEntry(fb, this->car_yaw,   0, '-');
 		fb->CheckEndSave();
 		parent_fb->SaveUInt32(fw->AddBlock(fb));
 	}

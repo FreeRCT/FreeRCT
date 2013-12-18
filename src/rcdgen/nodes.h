@@ -14,6 +14,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 #include <set>
 #include <map>
 #include <memory>
@@ -650,6 +651,48 @@ public:
 	std::shared_ptr<Strings> gui_text;            ///< Text of the GUIs (reference to a TEXT block).
 };
 
+/**
+ * Class for storing a cubic bezier spline, as (part of) a path in a track piece.
+ * @note While the parameters of a cubic spline can be floating point numbers, rcdgen does not allow entering such values.
+ */
+class CubicSpline : public BlockNode {
+public:
+	CubicSpline();
+
+	int a;  ///< Fourth cubic spline parameter.
+	int b;  ///< Fourth cubic spline parameter.
+	int c;  ///< Fourth cubic spline parameter.
+	int d;  ///< Fourth cubic spline parameter.
+	int steps; ///< Length of the path segment (exclusive upper bound).
+	int first; ///< Physical distance in the track piece of the first position, in \c 1/256 pixels.
+	int last;  ///< Physical distance in the track piece of the last position, in \c 1/256 pixels.
+};
+
+/** Base class of a curved path for a coaster car. */
+class Curve : public BlockNode {
+public:
+	Curve();
+	virtual double GetValue(int index, int step) = 0;
+};
+
+/** Curve described by a segmented cubic bezier spline. */
+class CubicSplines : public Curve {
+public:
+	CubicSplines();
+	double GetValue(int index, int step) override;
+
+	std::vector<std::shared_ptr<CubicSpline>> curve; ///< Bezier curve describing the table values.
+};
+
+/** Curve that is always the same value. */
+class FixedTable : public Curve {
+public:
+	FixedTable();
+	double GetValue(int index, int step) override;
+
+	int value; ///< Fixed value of the curve data.
+};
+
 /** Class for storing the data of a single voxel in a track piece. */
 class TrackVoxel : public BlockNode {
 public:
@@ -685,6 +728,8 @@ public:
 	void UpdateConnectionMap(std::map<std::string, int> *connections);
 	void Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *fb);
 
+	void ComputeTrackLength(const Position &pos);
+
 	int track_flags; ///< Flags of the track piece.
 	int banking;     ///< Banking (0=no, 1=left, 2=right).
 	int slope;       ///< Slope of the track piece (-3 vertically down to 3 vertically up).
@@ -699,6 +744,19 @@ public:
 	std::shared_ptr<Connection> exit;  ///< Exit connection code.
 
 	std::list<std::shared_ptr<TrackVoxel>> track_voxels; ///< Voxels in the track piece.
+
+	std::shared_ptr<Curve> car_xpos;  ///< Path for cars over the track piece in X direction.
+	std::shared_ptr<Curve> car_ypos;  ///< Path for cars over the track piece in Y direction.
+	std::shared_ptr<Curve> car_zpos;  ///< Path for cars over the track piece in Z direction.
+	std::shared_ptr<Curve> car_pitch; ///< Pitch of cars over the tracks, may be \c NULL.
+	std::shared_ptr<Curve> car_roll;  ///< Roll of cars over the tracks.
+	std::shared_ptr<Curve> car_yaw;   ///< Yaw of cars over the tracks, may be \c NULL.
+	int total_distance;               ///< Total distance of the piece.
+
+private:
+	void CheckBezierCount(int count, const Position &pos);
+	void CheckSplineStepCount(int index, int steps, const Position &pos);
+	void SetStartEnd(int index, bool set_start, int value);
 };
 
 /** 'RCST' game block. */

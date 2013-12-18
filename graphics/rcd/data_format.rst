@@ -814,7 +814,7 @@ Track pieces
 ~~~~~~~~~~~~
 
 A track piece definition describes a single piece of track in a TRCK block.
-FreeRCT can read blocks with version 4. Each piece needs
+FreeRCT can read blocks with version 5. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is
 called the *exit* voxel. The *entry* voxel of a track piece is at the *exit*
@@ -844,7 +844,14 @@ Offset   Length  Version  Field name          Description
   20        4      2-     cost                Cost of this track piece.
   24        2      1-                         Number of voxels in this track piece (called 'n').
   26      36*n     1-                         Voxel definitions
-26+36*n                                       Total length of the ``TRCK`` block.
+26+36*n     4      4-     <calculated>        Length of the piece, in 1/256 pixels.
+30+36*n     ?      4-     car_xpos            Car x position.
+   ?        ?      4-     car_ypos            Car y position.
+   ?        ?      4-     car_xpos            Car z position.
+   ?        ?      4-     car_pitch           Car pitch (may be empty).
+   ?        ?      4-     car_roll            Car roll.
+   ?        ?      4-     car_yaw             Car yaw (may be empty).
+   ?                                          Total length of the ``TRCK`` block.
 =======  ======  =======  ==================  ================================================================
 
 The track flags are defined as follows:
@@ -864,13 +871,13 @@ A voxel definition is
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
    0       4       1-     n_back              Reference to the background tracks for north view.
-   4       4       4-     e_back              Reference to the background tracks for east view.
-   8       4       4-     s_back              Reference to the background tracks for south view.
-  12       4       4-     w_back              Reference to the background tracks for west view.
-  16       4       4-     n_front             Reference to the front tracks for north view.
-  20       4       4-     e_front             Reference to the front tracks for east view.
-  24       4       4-     s_front             Reference to the front tracks for south view.
-  28       4       4-     w_front             Reference to the front tracks for west view.
+   4       4       2-     e_back              Reference to the background tracks for east view.
+   8       4       2-     s_back              Reference to the background tracks for south view.
+  12       4       2-     w_back              Reference to the background tracks for west view.
+  16       4       2-     n_front             Reference to the front tracks for north view.
+  20       4       2-     e_front             Reference to the front tracks for east view.
+  24       4       2-     s_front             Reference to the front tracks for south view.
+  28       4       2-     w_front             Reference to the front tracks for west view.
   32       1       1-     dx                  Relative X position of the voxel.
   33       1       1-     dy                  Relative Y position of the voxel.
   34       1       1-     dz                  Relative Z position of the voxel.
@@ -889,6 +896,41 @@ The flags are defined as follows:
 
 The remaining bits are reserved and should be ``0``.
 
+Car data
+........
+The ``car_xpos``, ``car_ypos``, and ``car_zpos`` formulas are analyzed to get
+the length of the piece.
+
+All car entries (``car_xpos``, ``car_ypos``, ``car_zpos``, ``car_pitch``,
+``car_roll``, and ``car_yaw``) can be
+
+- Type 0: Non-existent (only allowed for ``car_pitch`` and ``car_yaw``),
+- Type 1: A fixed value (signed, 16 bits)
+- Type 2: A sequence of cubic bezier spline curves, mapping distance (in 1/256 pixel) to a value (signed, 16 bit).
+
+An entry starts with the type, followed by its data. Type 0 has no further data,
+type 1 has one signed 16 bit value, and type 2 starts with the number of bezier
+splines in a single byte, followed by the bezier spline data.
+
+Values of ``car_pitch``, ``car_roll``, and ``car_yaw`` entries are masked with
+``0xF`` afterwards to get the needed sprite index.
+
+
+Bezier spline data
+
+======  ======  ====================================================
+Offset  Length  Description
+======  ======  ====================================================
+   0       4    First distance of this spline in the track piece.
+   4       4    Last distance of this spline in the track piece.
+   8       2    Signed ``a`` value of the cubic bezier spline.
+  10       2    Signed ``b`` value of the cubic bezier spline.
+  12       2    Signed ``c`` value of the cubic bezier spline.
+  14       2    Signed ``d`` value of the cubic bezier spline.
+  16            Total length of the data of a bezier spline.
+======  ======  ====================================================
+
+
 Version history
 ...............
 
@@ -896,8 +938,9 @@ Version history
 - 2 (20130430) Entry and exit definitions, speed, flags, and sprites for other viewing directions added.
 - 3 (20130622) Extended the ``track_flags`` from 1 byte to 2 bytes to add the track piece properties (banking, slope,
   and bend size).
-- 4 (20131117) Move platform bits from track piece to track voxel.
-
+- 4 (20131117) Moved platform bits from track piece to track voxel.
+- 5 (20131218) Added length of the track piece, and ``car_xpos``, ``car_ypos``,
+  ``car_zpos``, ``car_pitch``, ``car_roll``, and ``car_yaw`` entries.
 
 Coaster cars
 ~~~~~~~~~~~~

@@ -1610,7 +1610,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TRCK") == 0 && version == 3) {
+		if (strcmp(name, "TRCK") == 0 && version == 5) {
 			auto tp = std::make_shared<TrackPiece>();
 			if (!tp->Load(&rcd_file, length, sprites)) {
 				return "Track piece failed to load.";
