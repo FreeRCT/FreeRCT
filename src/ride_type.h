@@ -64,6 +64,7 @@ public:
 	RideType(RideTypeKind rtk);
 	virtual ~RideType();
 
+	virtual bool CanMakeInstance() const;
 	virtual RideInstance *CreateInstance() const = 0;
 	void SetupStrings(TextData *text, StringID base, StringID start, StringID end, StringID name, StringID desc);
 
@@ -156,7 +157,7 @@ public:
 
 	bool AddRideType(RideType *type);
 
-	uint16 GetFreeInstance();
+	uint16 GetFreeInstance(const RideType *type);
 	RideInstance *CreateInstance(const RideType *type, uint16 num);
 	void NewInstanceAdded(uint16 num);
 	void DeleteInstance(uint16 num);

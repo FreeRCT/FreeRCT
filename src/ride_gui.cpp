@@ -254,10 +254,10 @@ void RideSelectGui::OnClick(WidgetNumber wid_num)
 				this->SetWidgetPressed(wid_num, pressed);
 			} else {
 				if (this->current_ride != -1) {
-					uint16 instance = _rides_manager.GetFreeInstance();
+					const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
+					assert(ride_type != nullptr && ride_type->kind == RTK_COASTER);
+					uint16 instance = _rides_manager.GetFreeInstance(ride_type);
 					if (instance != INVALID_RIDE_INSTANCE) {
-						const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
-						assert(ride_type != nullptr && ride_type->kind == RTK_COASTER);
 						RideInstance *ri = _rides_manager.CreateInstance(ride_type, instance);
 						_rides_manager.NewInstanceAdded(instance);
 						ShowCoasterManagementGui(ri);
@@ -615,7 +615,7 @@ bool ShopPlacementManager::SetSelection(int ride_type)
 				this->selected_ride = -1;
 				return false;
 			}
-			this->instance = _rides_manager.GetFreeInstance();
+			this->instance = _rides_manager.GetFreeInstance(rt);
 			if (this->instance == INVALID_RIDE_INSTANCE) {
 				this->selected_ride = -1;
 				return false;

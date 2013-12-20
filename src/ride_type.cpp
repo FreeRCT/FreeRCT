@@ -59,6 +59,16 @@ RideType::~RideType()
 }
 
 /**
+ * Are all resources available for building an instance of this type?
+ * For example, are all sprites available? Default implementation always allows building an instance.
+ * @return Whether an instance of the ride type can be created.
+ */
+bool RideType::CanMakeInstance() const
+{
+	return true;
+}
+
+/**
  * \fn RideInstance *RideType::CreateInstance()
  * Construct a ride instance of the ride type.
  * @return An ride of its own type.
@@ -375,15 +385,17 @@ bool RidesManager::AddRideType(RideType *type)
 }
 
 /**
- * Find a free entry to add a ride instance.
- * @return Index of a free instance if it exists (be sure to claim it immediately), or #INVALID_RIDE_INSTANCE if all instances are used.
+ * Check whether the ride type can actually be created.
+ * @param type Ride type that should be created.
+ * @return Index of a free instance if it exists (claim it immediately using #CreateInstance), or #INVALID_RIDE_INSTANCE if all instances are used.
  */
-uint16 RidesManager::GetFreeInstance()
+uint16 RidesManager::GetFreeInstance(const RideType *type)
 {
-	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == nullptr) return i + SRI_FULL_RIDES;
+	uint16 idx;
+	for (idx = 0; idx < lengthof(this->instances); idx++) {
+		if (this->instances[idx] == nullptr) break;
 	}
-	return INVALID_RIDE_INSTANCE;
+	return (idx < lengthof(this->instances) && type->CanMakeInstance()) ? idx + SRI_FULL_RIDES : INVALID_RIDE_INSTANCE;
 }
 
 /**
