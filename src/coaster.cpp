@@ -133,9 +133,27 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 	return true;
 }
 
+/**
+ * Select the default car type for this type of coaster.
+ * @return The default car type, or \c nullptr is no car type is available.
+ */
+const CarType *CoasterType::GetDefaultCarType() const
+{
+	const CarType *car_type = &_car_types[0]; /// \todo Make a proper #CarType selection.
+	return car_type;
+}
+
+bool CoasterType::CanMakeInstance() const
+{
+	return this->GetDefaultCarType() != nullptr;
+}
+
 RideInstance *CoasterType::CreateInstance() const
 {
-	return new CoasterInstance(this);
+	const CarType *car_type = this->GetDefaultCarType();
+	assert(car_type != nullptr); // Ensured by CanMakeInstance pre-check.
+
+	return new CoasterInstance(this, car_type);
 }
 
 const ImageData *CoasterType::GetView(uint8 orientation) const
@@ -209,12 +227,14 @@ bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprite
 /**
  * Constructor of a roller coaster instance.
  * @param ct Coaster type being built.
+ * @param car_type Kind of cars used for the coaster.
  */
-CoasterInstance::CoasterInstance(const CoasterType *ct) : RideInstance(ct)
+CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *car_type) : RideInstance(ct)
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = ct->item_cost[i] * 2;
 	this->pieces = new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]();
 	this->capacity = MAX_PLACED_TRACK_PIECES;
+	this->car_type = car_type;
 }
 
 CoasterInstance::~CoasterInstance()

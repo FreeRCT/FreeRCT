@@ -69,6 +69,7 @@ class CoasterType : public RideType {
 public:
 	CoasterType();
 	~CoasterType();
+	bool CanMakeInstance() const override;
 	RideInstance *CreateInstance() const override;
 	const ImageData *GetView(uint8 orientation) const override;
 	const StringID *GetInstanceNames() const override;
@@ -83,6 +84,9 @@ public:
 	const TrackVoxel **voxels; ///< All voxels of all track pieces (do not free the track voxels, #pieces owns this data).
 
 	std::vector<ConstTrackPiecePtr> pieces; ///< Track pieces of the coaster.
+
+private:
+	const CarType *GetDefaultCarType() const;
 };
 
 /**
@@ -112,7 +116,7 @@ public:
  */
 class CoasterInstance : public RideInstance {
 public:
-	CoasterInstance(const CoasterType *rt);
+	CoasterInstance(const CoasterType *rt, const CarType *car_type);
 	~CoasterInstance();
 
 	bool IsAccessible();
@@ -141,6 +145,7 @@ public:
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
+	const CarType *car_type;      ///< Type of cars running at the coaster.
 };
 
 bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprites);
