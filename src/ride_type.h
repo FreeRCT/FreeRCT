@@ -124,6 +124,7 @@ public:
 	RideTypeKind GetKind() const;
 	const RideType *GetRideType() const;
 
+	virtual void OnAnimate(int delay);
 	void OnNewMonth();
 	void BuildRide();
 	void OpenRide();
@@ -163,6 +164,7 @@ public:
 	void DeleteInstance(uint16 num);
 	void CheckNoAllocatedRides() const;
 
+	void OnAnimate(int delay);
 	void OnNewMonth();
 
 	/**

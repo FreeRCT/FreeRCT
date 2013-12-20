@@ -244,6 +244,13 @@ Money RideInstance::GetSaleItemPrice(int item_index) const
 	return this->item_price[item_index];
 }
 
+/**
+ * Some time has passed, update the state of the ride. Default implementation does nothing.
+ * @param delay Number of milliseconds that passed.
+ */
+void RideInstance::OnAnimate(int delay)
+{
+}
 
 /** Monthly update of the shop administration. */
 void RideInstance::OnNewMonth()
@@ -319,6 +326,18 @@ RidesManager::~RidesManager()
 {
 	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
 	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
+}
+
+/**
+ * Some time has passed, update the state of the rides.
+ * @param delay Number of milliseconds that passed.
+ */
+void RidesManager::OnAnimate(int delay)
+{
+	for (uint16 i = 0; i < lengthof(this->instances); i++) {
+		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
+		this->instances[i]->OnAnimate(delay);
+	}
 }
 
 /** A new month has started; perform monthly payments. */

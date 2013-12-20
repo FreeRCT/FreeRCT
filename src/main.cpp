@@ -170,6 +170,7 @@ int main(int argc, char **argv)
 		_guests.DoTick();
 		DateOnTick();
 		_guests.OnAnimate(30); // Fixed rate animation.
+		_rides_manager.OnAnimate(30);
 
 		bool next_frame = false;
 		while (!next_frame && !_finish) {
