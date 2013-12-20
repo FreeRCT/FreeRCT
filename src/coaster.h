@@ -77,6 +77,8 @@ public:
 	bool Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map);
 
 	int GetTrackVoxelIndex(const TrackVoxel *tvx) const;
+	int GetMaxNumberOfTrains() const;
+	int GetMaxNumberOfCars() const;
 
 	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind
 	uint8 platform_type;       ///< Type of platform. @see CoasterPlatformType
@@ -107,6 +109,20 @@ public:
 	ImageData *sw_ne_front;   ///< Foreground sprite for the SW_NE direction.
 	ImageData *nw_se_back;    ///< Background sprite for the NW_SE direction.
 	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
+};
+
+/**
+ * A 'train' of coaster cars at a roller coaster.
+ * It consists of one or more cars, each of length \c car_type->length. Trains drive in increasing distance,
+ * until they hit the upper bound of the coaster length (CoasterInstance::coaster_length).
+ */
+class CoasterTrain {
+public:
+	CoasterTrain();
+
+	int number_cars;      ///< Number of cars in the train, \c 0 means the train is not used.
+	uint32 back_position; ///< Position of the back-end of the train (in 1/256 pixels).
+	uint32 speed;         ///< Amount of forward motion / second, in 1/256 pixels.
 };
 
 /**
@@ -143,9 +159,18 @@ public:
 
 	void PlaceTrackPieceInAdditions(const PositionedTrackPiece &piece);
 
+	int GetMaxNumberOfTrains() const;
+	void SetNumberOfTrains(int number_trains);
+	int GetNumberOfTrains() const;
+
+	int GetMaxNumberOfCars() const;
+	void SetNumberOfCars(int number_cars);
+	int GetNumberOfCars() const;
+
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
 	uint32 coaster_length;        ///< Total length of the roller coaster track (in 1/256 pixels).
+	CoasterTrain trains[4];       ///< Trains at the roller coaster (with an arbitrary max size). A train without cars means the train is not used.
 	const CarType *car_type;      ///< Type of cars running at the coaster.
 };
 

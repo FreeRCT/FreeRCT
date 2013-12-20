@@ -181,6 +181,26 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 	NOT_REACHED();
 }
 
+/**
+ * Get the maximum number of trains allowed on this coaster type.
+ * @return The maximum number of trains.
+ * @todo Retrieve this number from a field in the RCD description.
+ */
+int CoasterType::GetMaxNumberOfTrains() const
+{
+	return 2;
+}
+
+/**
+ * Get the maximum number of cars in a single train for this coaster type.
+ * @return The maximum number of cars in a single train.
+ * @todo Retrieve this number from a field in the RCD description.
+ */
+int CoasterType::GetMaxNumberOfCars() const
+{
+	return 1;
+}
+
 /** Default constructor, no sprites available yet. */
 CoasterPlatform::CoasterPlatform()
 {
@@ -222,6 +242,13 @@ bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprite
 	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.nw_se_back))  return false;
 	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.nw_se_front)) return false;
 	return true;
+}
+
+CoasterTrain::CoasterTrain()
+{
+	this->number_cars = 0;
+	this->back_position = 0;
+	this->speed = 0;
 }
 
 /**
@@ -447,3 +474,86 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 		tvx++;
 	}
 }
+
+/**
+ * Retrieve how many trains can be used at this roller coaster.
+ * @todo Take the positioned track pieces of the coaster into account.
+ * @return The maximum number of trains at this coaster.
+ */
+int CoasterInstance::GetMaxNumberOfTrains() const
+{
+	int max_num = this->GetCoasterType()->GetMaxNumberOfTrains();
+	return std::min(max_num, (int)lengthof(this->trains));
+}
+
+/**
+ * Set the number of trains to use at this coaster.
+ * @param number_trains Number of trains to use (\c 0 means 'default').
+ * @pre If not default, \a number_trains should be at least 1, and at most #GetMaxNumberOfTrains.
+ */
+void CoasterInstance::SetNumberOfTrains(int number_trains)
+{
+	if (number_trains == 0) number_trains = 1; // Default number of trains.
+	assert(number_trains >= 1 && number_trains <= this->GetMaxNumberOfTrains());
+
+	int number_cars = this->GetNumberOfCars();
+	for (uint i = 0; i < lengthof(this->trains); i++) {
+		if (i == (uint)number_trains) number_cars = 0; // From now on, trains are not used.
+		CoasterTrain &train = this->trains[i];
+		train.number_cars = number_cars;
+		train.back_position = 0; /// \todo Needs a better value, coaster trains do not stack.
+		train.speed = 0;
+	}
+}
+
+/**
+ * Get the current number of trains that ride on the coaster.
+ * @return current number of trains on the coaster.
+ */
+int CoasterInstance::GetNumberOfTrains() const
+{
+	int count = 0;
+	for (uint i = 0; i < lengthof(this->trains); i++) {
+		if (this->trains[i].number_cars == 0) break;
+		count++;
+	}
+	return count;
+}
+
+/**
+ * Get the maximum number of cars of a train.
+ * @todo Take coaster length and number of trains into account.
+ * @todo Take car type into account.
+ * @return The maximum number of cars in a train.
+ */
+int CoasterInstance::GetMaxNumberOfCars() const
+{
+	int max_num = this->GetCoasterType()->GetMaxNumberOfCars();
+	return max_num;
+}
+
+/**
+ * Set the number of cars in a single train.
+ * @param number_cars Number of cars of a single train.
+ * @pre \a number_cars should be at least 1 and at most #GetMaxNumberOfCars.
+ */
+void CoasterInstance::SetNumberOfCars(int number_cars)
+{
+	assert(number_cars >= 1 && number_cars <= this->GetMaxNumberOfCars());
+	for (uint i = 0; i < lengthof(this->trains); i++) {
+		CoasterTrain &train = this->trains[i];
+		if (train.number_cars != 0) train.number_cars = number_cars;
+	}
+}
+
+/**
+ * Retrieve the number of cars available in a single train of the coaster.
+ * @return Number of cars in a train.
+ */
+int CoasterInstance::GetNumberOfCars() const
+{
+	int number_cars = this->trains[0].number_cars;
+	if (number_cars == 0) number_cars = 1;
+	return number_cars;
+}
+
