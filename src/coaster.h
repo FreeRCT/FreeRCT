@@ -145,6 +145,7 @@ public:
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
+	uint32 coaster_length;        ///< Total length of the roller coaster track (in 1/256 pixels).
 	const CarType *car_type;      ///< Type of cars running at the coaster.
 };
 

@@ -314,6 +314,7 @@ public:
 	uint16 x_base; ///< X position of the entry point of the track piece.
 	uint16 y_base; ///< Y position of the entry point of the track piece.
 	uint8 z_base;  ///< Z position of the entry point of the track piece.
+	uint32 distance_base; ///< Base distance of this track piece in its roller coaster.
 
 	ConstTrackPiecePtr piece; ///< Track piece placed at the given position, may be \c nullptr.
 };

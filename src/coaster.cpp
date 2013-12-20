@@ -383,6 +383,13 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 	if (count < 2) return false; // 0 or 1 positioned pieces won't ever make a loop.
 
 	PositionedTrackPiece *ptp = this->pieces;
+	uint32 distance = 0;
+	if (ptp->distance_base != distance) {
+		if (modified != nullptr) *modified = true;
+		ptp->distance_base = distance;
+	}
+	distance += ptp->piece->piece_length;
+
 	for (int i = 1; i < count; i++) {
 		int j = this->FindSuccessorPiece(ptp->GetEndX(), ptp->GetEndY(), ptp->GetEndZ(), ptp->piece->exit_connect, i, count);
 		if (j < 0) return false;
@@ -391,7 +398,13 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 			Swap(*ptp, this->pieces[j]); // Make piece 'j' the next positioned piece.
 			if (modified != nullptr) *modified = true;
 		}
+		if (ptp->distance_base != distance) {
+			if (modified != nullptr) *modified = true;
+			ptp->distance_base = distance;
+		}
+		distance += ptp->piece->piece_length;
 	}
+	this->coaster_length = distance;
 	return this->pieces[0].CanBeSuccessor(*ptp);
 }
 
