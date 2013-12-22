@@ -16,30 +16,54 @@
 
 /* It seems that we need to include stdint.h before anything else
  * We need INT64_MAX, which for most systems comes from stdint.h. However, MSVC
- * does not have stdint.h and apparently neither does MorphOS, so define
- * INT64_MAX for them ourselves. */
-#if !defined(_MSC_VER) && !defined( __MORPHOS__) && !defined(_STDINT_H_)
+ * does not have stdint.h and apparently neither does MorphOS.
+ * For OSX the inclusion is already done in osx_stdafx.h. */
+#if !defined(__APPLE__) && (!defined(_MSC_VER) || _MSC_VER >= 1600) && !defined(__MORPHOS__)
 	#if defined(SUNOS)
 		/* SunOS/Solaris does not have stdint.h, but inttypes.h defines everything
 		 * stdint.h defines and we need. */
 		#include <inttypes.h>
-	# else
-		/** Mark the standard limit macros as being available. */
+	#else
 		#define __STDC_LIMIT_MACROS
 		#include <stdint.h>
 	#endif
-#else
+#endif
+
+/* The conditions for these constants to be available are way too messy; so check them one by one */
+#if !defined(UINT64_MAX)
 	#define UINT64_MAX (18446744073709551615ULL)
+#endif
+#if !defined(INT64_MAX)
 	#define INT64_MAX  (9223372036854775807LL)
+#endif
+#if !defined(INT64_MIN)
 	#define INT64_MIN  (-INT64_MAX - 1)
+#endif
+#if !defined(UINT32_MAX)
 	#define UINT32_MAX (4294967295U)
+#endif
+#if !defined(INT32_MAX)
 	#define INT32_MAX  (2147483647)
+#endif
+#if !defined(INT32_MIN)
 	#define INT32_MIN  (-INT32_MAX - 1)
+#endif
+#if !defined(UINT16_MAX)
 	#define UINT16_MAX (65535U)
+#endif
+#if !defined(INT16_MAX)
 	#define INT16_MAX  (32767)
+#endif
+#if !defined(INT16_MIN)
 	#define INT16_MIN  (-INT16_MAX - 1)
+#endif
+#if !defined(UINT8_MAX)
 	#define UINT8_MAX  (255)
+#endif
+#if !defined(INT8_MAX)
 	#define INT8_MAX   (127)
+#endif
+#if !defined(INT8_MIN)
 	#define INT8_MIN   (-INT8_MAX - 1)
 #endif
 
@@ -57,17 +81,27 @@
 
 /* Stuff for GCC */
 #if defined(__GNUC__)
-	#define CDECL
+	#define MAX_PATH 512
 	#define GCC_PACK __attribute__((packed))
 	/* Warn about functions using 'printf' format syntax. First argument determines which parameter
 	 * is the format string, second argument is start of values passed to printf. */
 	#define WARN_FORMAT(string, args) __attribute__ ((format (printf, string, args)))
+	#define NORETURN __attribute__((noreturn))
 #endif /* __GNUC__ */
 
+#if defined(_MSC_VER)
+	#define NOMINMAX
+	#define WARN_FORMAT(string, args)
+	#define NORETURN __declspec(noreturn)
+
+	#define snprintf _snprintf
+
+	#pragma warning(disable: 4512) // 'class' : assignment operator could not be generated
+#endif /* _MSC_VER */
 
 typedef unsigned char byte; ///< Unsigned 8 bit wide data type.
 
-/* This is already defined in unix, but not in QNX Neutrino (6.x)*/
+/* This is already defined in Unix, but not in QNX Neutrino (6.x)*/
 #if (!defined(UNIX) && !defined(__CYGWIN__) && !defined(__BEOS__) && !defined(__HAIKU__) && !defined(__MORPHOS__)) || defined(__QNXNTO__)
 	typedef unsigned int uint; ///< Unsigned integer data type.
 #endif
@@ -126,15 +160,9 @@ assert_compile(sizeof(uint8)  == 1); ///< Check size of #uint8 type.
 #define lastof(x) (&x[lengthof(x) - 1])
 
 
-[[noreturn]] void CDECL error(const char *str, ...) WARN_FORMAT(1, 2);
+void NORETURN error(const char *str, ...) WARN_FORMAT(1, 2);
 
 /** Macro for reporting reaching an 'impossible' position in the code. */
 #define NOT_REACHED() error("NOT_REACHED triggered at line %i of %s\n", __LINE__, __FILE__)
-
-/* Windows and others already define MAX_PATH. */
-#ifndef MAX_PATH
-	/** Max length of a file system path. */
-	#define MAX_PATH 512
-#endif
 
 #endif

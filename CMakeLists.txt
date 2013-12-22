@@ -8,7 +8,7 @@
 
 # CMake File for FreeRCT
 
-PROJECT(FreeRCT_Top)
+PROJECT(FreeRCT)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
@@ -28,19 +28,21 @@ add_subdirectory(graphics/rcd)
 message(STATUS "Building FreeRCT")
 add_subdirectory(src)
 
-GET_TARGET_PROPERTY(FREERCT_EXE freerct LOCATION)
-add_custom_target(run
-                  COMMAND ${FREERCT_EXE}
-                  WORKING_DIRECTORY src)
-add_dependencies(run freerct)
+IF(NOT MSVC)
+	GET_TARGET_PROPERTY(FREERCT_EXE freerct LOCATION)
+	add_custom_target(run
+					  COMMAND ${FREERCT_EXE}
+					  WORKING_DIRECTORY src)
+	add_dependencies(run freerct)
 
-# WARNING: Assumes gdb is in path, doesn't(/can't) find it
-add_custom_target(gdbrun
-                  COMMAND gdb ${FREERCT_EXE}
-                  WORKING_DIRECTORY src)
-add_dependencies(gdbrun freerct)
+	# WARNING: Assumes gdb is in path, doesn't(/can't) find it
+	add_custom_target(gdbrun
+					  COMMAND gdb ${FREERCT_EXE}
+					  WORKING_DIRECTORY src)
+	add_dependencies(gdbrun freerct)
 
-FIND_PACKAGE(Doxygen)
-IF(DOXYGEN_FOUND)
-	add_custom_target(doc COMMAND ${DOXYGEN_EXECUTABLE})
+	FIND_PACKAGE(Doxygen)
+	IF(DOXYGEN_FOUND)
+		add_custom_target(doc COMMAND ${DOXYGEN_EXECUTABLE})
+	ENDIF()
 ENDIF()

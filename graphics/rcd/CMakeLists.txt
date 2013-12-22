@@ -7,8 +7,7 @@
 #
 
 # Sanity check
-IF(FREERCT_DONE_TOP_LEVEL_CMAKE)
-ELSE()
+IF(NOT FREERCT_DONE_TOP_LEVEL_CMAKE)
 	message(FATAL_ERROR "Please run cmake on the top-level directory, not this one.")
 ENDIF()
 
@@ -45,6 +44,7 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_2})
 	      COMMAND ${RCDGEN_EXE} ${SRCFILE}
 	      COMMENT "Generating rcd files from ${SRCFILE}"
 	      DEPENDS ${SRCFILE}
+	      WORKING_DIRECTORY ${FP}
 	)
 
 	LIST(APPEND OUTFILES ${OUTFILE})
@@ -54,5 +54,7 @@ add_custom_target(rcd ALL DEPENDS ${OUTFILES})
 
 add_dependencies(rcd rcdgen)
 
-# Warning: doesn't check for rst2html's existence
-add_custom_target(data_format.html COMMAND rst2html data_format.rst data_format.html)
+IF(NOT MSVC)
+	# Warning: doesn't check for rst2html's existence
+	add_custom_target(data_format.html COMMAND rst2html data_format.rst data_format.html)
+ENDIF()

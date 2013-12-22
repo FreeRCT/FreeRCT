@@ -7,8 +7,7 @@
 #
 
 # Sanity check
-IF(FREERCT_DONE_TOP_LEVEL_CMAKE)
-ELSE()
+IF(NOT FREERCT_DONE_TOP_LEVEL_CMAKE)
 	message(FATAL_ERROR "Please run cmake in the top-level directory, not this one.")
 ENDIF()
 
@@ -105,7 +104,7 @@ IF(SUBVERSION_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn")
 	SET(REV ${co_WC_LAST_CHANGED_REV})
 ELSEIF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 	# Assume UTC timezone (how svn stores it)
-	execute_process(COMMAND ${GIT_EXECUTABLE} log -1 "--pretty=%ci" OUTPUT_VARIABLE GITLOG)
+	execute_process(COMMAND ${GIT_EXECUTABLE} log -1 "--pretty=%ci" OUTPUT_VARIABLE GITLOG WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 	SET(REGEX_STRING "([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):[0-9][0-9] .*")
 	string(REGEX REPLACE ${REGEX_STRING} "\\1\\2\\3-\\4\\5" DATE_STRING ${GITLOG})
 
@@ -114,15 +113,18 @@ ELSEIF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 		# git checkout
 		message(STATUS "Detected git checkout")
 		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list HEAD --count
-		                OUTPUT_VARIABLE REV)
+		                OUTPUT_VARIABLE REV
+		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 		SET(SHORT_VCS "g")
 	ELSE()
 		# git svn checkout
 		message(STATUS "Detected git svn checkout")
 		execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-		                OUTPUT_VARIABLE CHASH)
+		                OUTPUT_VARIABLE CHASH
+		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 		execute_process(COMMAND ${GIT_EXECUTABLE} svn HEAD find-rev ${CHASH}
-		                OUTPUT_VARIABLE REV)
+		                OUTPUT_VARIABLE REV
+		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 		string(REGEX REPLACE "([0-9]+)\n" "\\1" REV ${REV}) # Get rid of a newline
 		SET(SHORT_VCS "r")
 	ENDIF()
@@ -165,5 +167,10 @@ CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rev.cpp.in ${CMAKE_SOURCE_DIR}/src/rev.cp
 SET(ENV{LC_ALL} ${SAVED_LC_ALL})
 
 # Compiler flags
-# TODO: Extend for release versions
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall")
+# TODO: Extend for debug/release versions
+IF(MSVC)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
+	# Note: SDL must be dynamic
+ELSE()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall")
+ENDIF()

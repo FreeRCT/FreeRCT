@@ -35,7 +35,7 @@ void InitMouseModes();
  * @param str the string to print.
  * @note \b Never returns.
  */
-void CDECL error(const char *str, ...)
+void error(const char *str, ...)
 {
 	va_list va;
 

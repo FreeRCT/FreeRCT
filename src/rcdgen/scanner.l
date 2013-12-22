@@ -15,6 +15,9 @@ int string_line; ///< Starting line of the string.
 
 %option noyywrap
 
+%option never-interactive
+%option nounistd
+
 %%
 
 "-"  { yylval.line = line; return MINUS; }
@@ -47,8 +50,9 @@ int string_line; ///< Starting line of the string.
 	BEGIN(INITIAL);
 	AddChar('\0');
 	yylval.chars.line = string_line;
-	yylval.chars.value = new char[text.length() + 1];
+	yylval.chars.value = new char[text.size() + 1];
 	std::copy(text.begin(), text.end(), yylval.chars.value);
+	yylval.chars.value[text.size()] = '\0';
 	return STRING;
 }
 
@@ -130,7 +134,7 @@ int string_line; ///< Starting line of the string.
 }
 
 . {
-	fprintf(stderr, "Unrecognized character encountered at line %d\n", line);
+	fprintf(stderr, "Unrecognized character 0x%02x encountered at line %d\n", yytext[0], line);
 	exit(1);
 }
 

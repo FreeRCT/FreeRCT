@@ -7,8 +7,7 @@
 #
 
 # Sanity check
-IF(FREERCT_DONE_TOP_LEVEL_CMAKE)
-ELSE()
+IF(NOT FREERCT_DONE_TOP_LEVEL_CMAKE)
 	message(FATAL_ERROR "Please run cmake on the top-level directory, not this one.")
 ENDIF()
 
@@ -44,6 +43,12 @@ IF(PNG_FOUND)
 	TARGET_LINK_LIBRARIES(rcdgen ${PNG_LIBRARY})
 ENDIF()
 
+FIND_PACKAGE(ZLIB REQUIRED)
+IF(ZLIB_FOUND)
+	INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+	TARGET_LINK_LIBRARIES(rcdgen ${ZLIB_LIBRARY})
+ENDIF()
+
 FIND_PACKAGE(BISON)
 # Bison/m4 is broken on windows
 IF(NOT WIN32 AND BISON_FOUND)
@@ -76,8 +81,18 @@ ELSE()
 ENDIF()
 
 # Compiler flags
-# TODO: Extend for release versions
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -std=c++11")
+# TODO: Extend for debug/release versions
+IF(MSVC)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
+	# Compile statically
+	FOREACH(flag CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_C_FLAGS_DEBUG
+	             CMAKE_C_FLAGS_DEBUG_INIT CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO
+	             CMAKE_CXX_FLAGS_DEBUG  CMAKE_CXX_FLAGS_DEBUG_INIT)
+		string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
+	ENDFOREACH()
+ELSE()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall")
+ENDIF()
 
 IF(NOT WIN32 AND BISON_FOUND AND FLEX_FOUND)
 	add_custom_target(exportscanner

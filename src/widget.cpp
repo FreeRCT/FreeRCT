@@ -17,6 +17,8 @@
 #include "video.h"
 #include "gui_sprites.h"
 
+#include <algorithm>
+
 /**
  * @defgroup widget_group Widgets and supporting functions of the program
  */
