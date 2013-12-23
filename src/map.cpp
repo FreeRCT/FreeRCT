@@ -282,8 +282,8 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 		}
 	}
 
-	int new_base = min(vs->base + vs_first, this->base + old_first);
-	int new_height = max(vs->base + vs_last, this->base + old_last) - new_base + 1;
+	int new_base = std::min(vs->base + vs_first, this->base + old_first);
+	int new_height = std::max(vs->base + vs_last, this->base + old_last) - new_base + 1;
 	assert(new_base >= 0);
 
 	/* Make a new stack. Copy new surface, then copy the persons. */

@@ -315,7 +315,7 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 	/* What is the max number of characters we might append in a single loop?
 	 * This is used to prevent a potential buffer overflow. */
 	/* max_append_size = 'a "special" symbol plus a single digit [0-9]'. */
-	int max_append_size = max(max(curr_sym_len, tho_sep_len), dec_sep_len) + 1;
+	int max_append_size = std::max(std::max(curr_sym_len, tho_sep_len), dec_sep_len) + 1;
 
 	uint j = 0;
 	uint curpos = 0;
@@ -499,8 +499,8 @@ Point32 GetMaxDateSize()
 		int w;
 		int h;
 		_video->GetTextSize(GetDateString(d), &w, &h);
-		point.x = max(point.x, w);
-		point.y = max(point.y, h);
+		point.x = std::max(point.x, w);
+		point.y = std::max(point.y, h);
 	}
 	return point;
 }

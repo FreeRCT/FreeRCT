@@ -12,8 +12,6 @@
 #include "stdafx.h"
 #include "window.h"
 
-#include <algorithm>
-
 /**
  * Defines a Dropdown menu item.
  * @param strid StringID to store.

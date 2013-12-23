@@ -17,8 +17,6 @@
 #include "math_func.h"
 #include "map.h"
 
-#include <algorithm>
-
 #include "generated/coasters_strings.cpp"
 
 CoasterPlatform _coaster_platforms[CPT_COUNT]; ///< Sprites for the coaster platforms.

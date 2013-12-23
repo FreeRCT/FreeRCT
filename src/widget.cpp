@@ -17,8 +17,6 @@
 #include "video.h"
 #include "gui_sprites.h"
 
-#include <algorithm>
-
 /**
  * @defgroup widget_group Widgets and supporting functions of the program
  */
@@ -97,8 +95,8 @@ BaseWidget::~BaseWidget()
  */
 void BaseWidget::InitMinimalSize(uint16 content_width, uint16 content_height, uint16 border_hor, uint16 border_vert)
 {
-	this->min_x = max(this->min_x, (uint16)(content_width  + border_hor  + this->paddings[PAD_LEFT] + this->paddings[PAD_RIGHT]));
-	this->min_y = max(this->min_y, (uint16)(content_height + border_vert + this->paddings[PAD_TOP] + this->paddings[PAD_BOTTOM]));
+	this->min_x = std::max(this->min_x, (uint16)(content_width + border_hor + this->paddings[PAD_LEFT] + this->paddings[PAD_RIGHT]));
+	this->min_y = std::max(this->min_y, (uint16)(content_height + border_vert + this->paddings[PAD_TOP] + this->paddings[PAD_BOTTOM]));
 }
 
 /**
@@ -109,10 +107,10 @@ void BaseWidget::InitMinimalSize(uint16 content_width, uint16 content_height, ui
  */
 void BaseWidget::InitMinimalSize(const BorderSpriteData *bsd, uint16 content_width, uint16 content_height)
 {
-	content_width = max(content_width, bsd->min_width);
+	content_width = std::max(content_width, bsd->min_width);
 	if (bsd->hor_stepsize > 0) content_width = bsd->min_width + (content_width - bsd->min_width + bsd->hor_stepsize - 1) / bsd->hor_stepsize;
 
-	content_height = max(content_height, bsd->min_height);
+	content_height = std::max(content_height, bsd->min_height);
 	if (bsd->vert_stepsize > 0) content_height = bsd->min_height + (content_height - bsd->min_height + bsd->vert_stepsize - 1) / bsd->vert_stepsize;
 
 	this->InitMinimalSize(content_width, content_height,  bsd->border_left + bsd->border_right, bsd->border_top + bsd->border_bottom);
@@ -151,8 +149,8 @@ void BaseWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			break;
 
 		case WT_RESIZEBOX:
-			this->min_x = max((uint16)10, this->min_x);
-			this->min_y = max((uint16)10, this->min_y);
+			this->min_x = std::max((uint16)10, this->min_x);
+			this->min_y = std::max((uint16)10, this->min_y);
 			this->fill_x = 0;
 			this->fill_y = 1;
 			this->resize_x = 0;
@@ -693,7 +691,7 @@ void RowColData::InitRowColData()
  */
 void RowColData::Merge(uint16 min_size, uint16 fill, uint16 resize)
 {
-	this->min_size = max(this->min_size, min_size);
+	this->min_size = std::max(this->min_size, min_size);
 	this->fill = LeastCommonMultiple(this->fill, fill);
 	this->resize = LeastCommonMultiple(this->resize, resize);
 }
@@ -797,7 +795,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	uint16 max_minsize = 0;
 	if ((this->flags & EQS_VERTICAL) != 0) { // Equal sizes vertically requested, do a pre-size computation.
 		for (uint8 y = 0; y < this->num_rows; y++) {
-			max_minsize = max(max_minsize, this->rows[y].min_size);
+			max_minsize = std::max(max_minsize, this->rows[y].min_size);
 		}
 		for (uint8 y = 0; y < this->num_rows; y++) {
 			if (this->rows[y].fill > 0) {
@@ -859,7 +857,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	max_minsize = 0;
 	if ((this->flags & EQS_HORIZONTAL) != 0) { // Equal sizes vertically requested, do a pre-size computation.
 		for (uint8 x = 0; x < this->num_cols; x++) {
-			max_minsize = max(max_minsize, this->columns[x].min_size);
+			max_minsize = std::max(max_minsize, this->columns[x].min_size);
 		}
 		for (uint8 x = 0; x < this->num_cols; x++) {
 			if (this->columns[x].fill > 0) {
@@ -949,7 +947,7 @@ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 				count--;
 				continue;
 			}
-			new_max = max(new_max, this->rows[y].fill);
+			new_max = std::max(new_max, this->rows[y].fill);
 		}
 		max_step = new_max;
 	}
@@ -979,7 +977,7 @@ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 				count--;
 				continue;
 			}
-			new_max = max(new_max, this->columns[x].fill);
+			new_max = std::max(new_max, this->columns[x].fill);
 		}
 		max_step = new_max;
 	}
@@ -1478,7 +1476,7 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
 
 	if (*dest == nullptr) return total_used;
 
-	*biggest = max(*biggest, (*dest)->number); // Update biggest widget number.
+	*biggest = std::max(*biggest, (*dest)->number); // Update biggest widget number.
 
 	if ((*dest)->wtype == WT_PANEL) {
 		/* Panel widget. */

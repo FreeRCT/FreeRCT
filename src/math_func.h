@@ -39,30 +39,6 @@ static inline T Clamp(const T a, const T lower, const T upper)
 }
 
 /**
- * Compute smallest value of both arguments.
- * @param a First value.
- * @param b Second value.
- * @return Smallest of \a a and \a b.
- */
-template <typename T>
-static inline T min(const T a, const T b)
-{
-	return (a < b) ? a : b;
-}
-
-/**
- * Compute biggest value of both arguments.
- * @param a First value.
- * @param b Second value.
- * @return Biggest of \a a and \a b.
- */
-template <typename T>
-static inline T max(const T a, const T b)
-{
-	return (a < b) ? b : a;
-}
-
-/**
  * Compute the sign of the argument \a val.
  * @param val Provided value.
  * @return The sign of the argument (\c -1, \c 0, \c +1).

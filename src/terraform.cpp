@@ -156,15 +156,15 @@ void TerrainChanges::UpdatelevellingHeight(const Point32 &pos, int direction, ui
 	const GroundData *gd = this->GetGroundData(pos);
 
 	if (direction > 0) { // Raising terrain, find the lowest corner.
-		*height = min(*height, gd->GetOrigHeight(TC_NORTH));
-		*height = min(*height, gd->GetOrigHeight(TC_EAST));
-		*height = min(*height, gd->GetOrigHeight(TC_SOUTH));
-		*height = min(*height, gd->GetOrigHeight(TC_WEST));
+		*height = std::min(*height, gd->GetOrigHeight(TC_NORTH));
+		*height = std::min(*height, gd->GetOrigHeight(TC_EAST));
+		*height = std::min(*height, gd->GetOrigHeight(TC_SOUTH));
+		*height = std::min(*height, gd->GetOrigHeight(TC_WEST));
 	} else { // Lowering terrain, find the highest corner.
-		*height = max(*height, gd->GetOrigHeight(TC_NORTH));
-		*height = max(*height, gd->GetOrigHeight(TC_EAST));
-		*height = max(*height, gd->GetOrigHeight(TC_SOUTH));
-		*height = max(*height, gd->GetOrigHeight(TC_WEST));
+		*height = std::max(*height, gd->GetOrigHeight(TC_NORTH));
+		*height = std::max(*height, gd->GetOrigHeight(TC_EAST));
+		*height = std::max(*height, gd->GetOrigHeight(TC_SOUTH));
+		*height = std::max(*height, gd->GetOrigHeight(TC_WEST));
 	}
 }
 

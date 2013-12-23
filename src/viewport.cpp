@@ -628,7 +628,7 @@ uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 	pt.x = xpos;
 	pt.y = ypos;
 	if (!this->rect.IsPointInside(pt)) return zpos;
-	return max(zpos, this->GetZpos(xpos, ypos));
+	return std::max(zpos, this->GetZpos(xpos, ypos));
 }
 
 /**

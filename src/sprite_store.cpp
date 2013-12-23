@@ -932,8 +932,8 @@ bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &spri
 		sprdata->sprites[sprnum] = spr;
 
 		if (spr != nullptr) {
-			sprdata->width = max(sprdata->width, spr->width);
-			sprdata->height = max(sprdata->height, spr->height);
+			sprdata->width  = std::max(sprdata->width, spr->width);
+			sprdata->height = std::max(sprdata->height, spr->height);
 		}
 	}
 	return true;
@@ -1078,8 +1078,8 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &spri
 		}
 
 		if (spr != nullptr) {
-			max_width = max(max_width, spr->width);
-			max_height = max(max_height, spr->height);
+			max_width  = std::max(max_width, spr->width);
+			max_height = std::max(max_height, spr->height);
 		}
 	}
 

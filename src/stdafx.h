@@ -73,6 +73,7 @@
 #include <cstdlib>
 #include <climits>
 #include <cassert>
+#include <algorithm>
 
 #if defined(UNIX) || defined(__MINGW32__)
 	#include <sys/types.h>

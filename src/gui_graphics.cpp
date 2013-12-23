@@ -182,7 +182,7 @@ void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height
 	for (;;) {
 		int line_width;
 		text = GetSingleLine(text, max_width, &line_width);
-		*width = max(*width, line_width);
+		*width = std::max(*width, line_width);
 		*height += _video->GetTextHeight();
 
 		if (*text == '\0') break;

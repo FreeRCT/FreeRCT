@@ -127,8 +127,8 @@ void ShopManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 
 	int w, h;
 	_video->GetNumberRangeSize(0, 100000, &w, &h);
-	wid->min_x = max(wid->min_x, (uint16)w);
-	wid->min_y = max(wid->min_y, (uint16)h);
+	wid->min_x = std::max(wid->min_x, (uint16)w);
+	wid->min_y = std::max(wid->min_y, (uint16)h);
 }
 
 void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const

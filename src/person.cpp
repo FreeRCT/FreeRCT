@@ -766,7 +766,7 @@ bool Guest::DailyUpdate()
 		if (this->has_wrapper && this->rnd.Success1024(25)) this->has_wrapper = false; // XXX Drop litter.
 		if (this->happiness > 0) this->happiness--;
 	}
-	if (this->waste > 100) this->happiness = max(0, this->happiness - 2);
+	if (this->waste > 100) this->happiness = std::max(0, this->happiness - 2);
 
 	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
 
@@ -879,7 +879,7 @@ void Guest::VisitShop(RideInstance *ri)
 		for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 			if (!can_buy[i]) continue;
 			if (count != 1) can_buy[i] = false;
-			count = max(0, count - 1);
+			count = std::max(0, count - 1);
 		}
 	}
 
@@ -888,12 +888,12 @@ void Guest::VisitShop(RideInstance *ri)
 			ri->SellItem(i);
 			this->cash -= ri->GetSaleItemPrice(i);
 			this->AddItem(ri->GetSaleItemType(i));
-			this->happiness = min(100, this->happiness + 10);
+			this->happiness = std::min(100, this->happiness + 10);
 			return;
 		}
 	}
 
-	this->happiness = max(0, this->happiness - 10); // Cannot buy anything!
+	this->happiness = std::max(0, this->happiness - 10); // Cannot buy anything!
 
 	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
 }

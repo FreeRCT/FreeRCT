@@ -608,7 +608,7 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
 		return;
 	}
 
-	int real_w = min(surf->w, width);
+	int real_w = std::min(surf->w, width);
 	switch (align) {
 		case ALG_LEFT:
 			break;
@@ -689,7 +689,7 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colou
 		inc_y = 1;
 	}
 
-	int16 step = min(dx, dy);
+	int16 step = std::min(dx, dy);
 	int16 pos_x = start.x;
 	int16 pos_y = start.y;
 	int16 sum_x = 0;

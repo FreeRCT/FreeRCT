@@ -244,8 +244,8 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 			break;
 	}
 
-	wid->min_x = max(wid->min_x, (uint16)p.x);
-	wid->min_y = max(wid->min_y, (uint16)p.y);
+	wid->min_x = std::max(wid->min_x, (uint16)p.x);
+	wid->min_y = std::max(wid->min_y, (uint16)p.y);
 }
 
 void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const

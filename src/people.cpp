@@ -274,7 +274,7 @@ void Guests::OnAnimate(int delay)
 void Guests::DoTick()
 {
 	this->daily_frac++;
-	int end_index = min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
+	int end_index = std::min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
 	while (this->next_daily_index < end_index) {
 		Person *p = this->block.Get(this->next_daily_index);
 		if (p->type != PERSON_INVALID && !p->DailyUpdate()) {
