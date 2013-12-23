@@ -14,7 +14,6 @@
 #include "coaster.h"
 #include "fileio.h"
 #include "memory.h"
-#include "math_func.h"
 #include "map.h"
 
 #include "generated/coasters_strings.cpp"
@@ -400,7 +399,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 			count++;
 			continue;
 		}
-		Swap(this->pieces[count], *ptp);
+		std::swap(this->pieces[count], *ptp);
 		if (modified != nullptr) *modified = true;
 		ptp->piece = nullptr;
 		count++;
@@ -422,7 +421,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 		if (j < 0) return false;
 		ptp++; // Now points to pieces[i].
 		if (i != j) {
-			Swap(*ptp, this->pieces[j]); // Make piece 'j' the next positioned piece.
+			std::swap(*ptp, this->pieces[j]); // Make piece 'j' the next positioned piece.
 			if (modified != nullptr) *modified = true;
 		}
 		if (ptp->distance_base != distance) {

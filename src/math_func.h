@@ -50,19 +50,6 @@ static inline int sign(int val)
 	return 0;
 }
 
-/**
- * Type safe swap operation
- * @param a variable to swap with \a b.
- * @param b variable to swap with \a a.
- */
-template <typename T>
-static inline void Swap(T &a, T &b)
-{
-	T t = a;
-	a = b;
-	b = t;
-}
-
 int GreatestCommonDivisor(int a, int b);
 int LeastCommonMultiple(int a, int b);
 int CountBits(uint num);
