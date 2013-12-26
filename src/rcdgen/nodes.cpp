@@ -458,11 +458,24 @@ void Strings::CheckTranslations(const char *names[], int name_count, const Posit
 			exit(1);
 		}
 	}
-	/* Check that all strings have a British English text. */
+
+	/* Check that all strings have a British English text, and count the missing translations. */
+	std::array<int, LNG_COUNT> missing_count{};
+
 	for (const auto &iter : this->texts) {
 		if (iter.pos[LNG_EN_GB].line < 0) {
 			fprintf(stderr, "Error at %s: String \"%s\" has no British English language text\n", pos.ToString(), iter.name.c_str());
 			exit(1);
+		}
+		for (int i = 0; i < LNG_COUNT; i++) {
+			if (iter.pos[i].line < 0) missing_count[i]++;
+		}
+	}
+
+	for (int i = 0; i < missing_count.size(); i++) {
+		if (i == LNG_EN_GB) continue; // There are no "missing" British English strings.
+		if (missing_count[i] > 0) {
+			fprintf(stdout, "Language %s has %i missing translations in %s\n", _languages[i], missing_count[i], pos.filename.c_str());
 		}
 	}
 }
