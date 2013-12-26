@@ -37,7 +37,7 @@ CarType *GetNewCarType()
 
 CarType::CarType()
 {
-	for (uint i = 0; i < lengthof(this->cars); i++) this->cars[i] = nullptr;
+	std::fill_n(this->cars, lengthof(this->cars), nullptr);
 }
 
 /**

@@ -36,7 +36,7 @@ TextString::TextString()
 void TextString::Clear()
 {
 	this->name = nullptr;
-	for (uint i = 0; i < lengthof(this->languages); i++) this->languages[i] = nullptr;
+	std::fill_n(this->languages, lengthof(this->languages), nullptr);
 }
 
 
@@ -182,7 +182,7 @@ Language::Language()
 /** Clear all loaded data. */
 void Language::Clear()
 {
-	for (uint i = 0; i < lengthof(this->registered); i++) this->registered[i] = nullptr;
+	std::fill_n(this->registered, lengthof(this->registered), nullptr);
 	this->first_free = GUI_STRING_TABLE_END;
 }
 

@@ -49,8 +49,8 @@ RideType::RideType(RideTypeKind rtk) : kind(rtk)
 {
 	this->monthly_cost = 12345; // Arbitrary non-zero cost.
 	this->monthly_open_cost = 12345; // Arbitrary non-zero cost.
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_type[i] = ITP_NOTHING;
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_cost[i] = 12345; // Arbitrary non-zero cost.
+	std::fill_n(this->item_type, NUMBER_ITEM_TYPES_SOLD, ITP_NOTHING);
+	std::fill_n(this->item_cost, NUMBER_ITEM_TYPES_SOLD, 12345); // Artbitary non-zero cost.
 	this->SetupStrings(nullptr, 0, 0, 0, 0, 0);
 }
 
@@ -146,8 +146,8 @@ RideInstance::RideInstance(const RideType *rt)
 	this->type = rt;
 	this->state = RIS_ALLOCATED;
 	this->flags = 0;
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = 12345; // Arbitrary non-zero amount.
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_count[i] = 0;
+	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
+	std::fill_n(this->item_count, NUMBER_ITEM_TYPES_SOLD, 0);
 }
 
 RideInstance::~RideInstance()
@@ -318,14 +318,14 @@ void RideInstance::BuildRide()
 /** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = nullptr;
-	for (uint i = 0; i < lengthof(this->instances); i++) this->instances[i] = nullptr;
+	std::fill_n(this->ride_types, lengthof(this->ride_types), nullptr);
+	std::fill_n(this->instances, lengthof(this->instances), nullptr);
 }
 
 RidesManager::~RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
-	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
+	delete[] this->ride_types;
+	delete[] this->instances;
 }
 
 /**

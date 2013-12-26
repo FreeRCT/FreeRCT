@@ -19,7 +19,7 @@
 ShopType::ShopType() : RideType(RTK_SHOP)
 {
 	this->height = 0;
-	for (uint i = 0; i < lengthof(this->views); i++) this->views[i] = nullptr;
+	std::fill_n(this->views, lengthof(this->views), nullptr);
 }
 
 ShopType::~ShopType()

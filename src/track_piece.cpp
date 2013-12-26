@@ -17,8 +17,8 @@
 
 TrackVoxel::TrackVoxel()
 {
-	for (uint i = 0; i < lengthof(this->back); i++) this->back[i] = nullptr;
-	for (uint i = 0; i < lengthof(this->front); i++) this->front[i] = nullptr;
+	std::fill_n(this->back, lengthof(this->back), nullptr);
+	std::fill_n(this->front, lengthof(this->front), nullptr);
 }
 
 TrackVoxel::~TrackVoxel()
