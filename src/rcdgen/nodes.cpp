@@ -472,10 +472,10 @@ void Strings::CheckTranslations(const char *names[], int name_count, const Posit
 		}
 	}
 
-	for (int i = 0; i < missing_count.size(); i++) {
+	for (uint i = 0; i < missing_count.size(); i++) {
 		if (i == LNG_EN_GB) continue; // There are no "missing" British English strings.
 		if (missing_count[i] > 0) {
-			fprintf(stdout, "Language %s has %i missing translations in %s\n", _languages[i], missing_count[i], pos.filename.c_str());
+			printf("Language %s has %i missing translations in %s\n", _languages[i], missing_count[i], pos.filename.c_str());
 		}
 	}
 }
