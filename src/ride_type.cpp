@@ -324,8 +324,8 @@ RidesManager::RidesManager()
 
 RidesManager::~RidesManager()
 {
-	delete[] this->ride_types;
-	delete[] this->instances;
+	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
+	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
 }
 
 /**
