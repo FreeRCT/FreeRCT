@@ -1906,6 +1906,8 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 
 	rb->coaster_type = vals.GetNumber("coaster_type");
 	rb->platform_type = vals.GetNumber("platform_type");
+	rb->number_trains = vals.GetNumber("max_number_trains");
+	rb->number_cars = vals.GetNumber("max_number_cars");
 	rb->text = vals.GetStrings("texts");
 	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
 

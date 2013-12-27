@@ -77,11 +77,11 @@ public:
 	bool Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map);
 
 	int GetTrackVoxelIndex(const TrackVoxel *tvx) const;
-	int GetMaxNumberOfTrains() const;
-	int GetMaxNumberOfCars() const;
 
 	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind
 	uint8 platform_type;       ///< Type of platform. @see CoasterPlatformType
+	uint8 max_number_trains;   ///< Maximum number of trains at a roller coaster.
+	uint8 max_number_cars;     ///< Maximum number of cars in a train.
 	int voxel_count;           ///< Number of track voxels in #voxels.
 	const TrackVoxel **voxels; ///< All voxels of all track pieces (do not free the track voxels, #pieces owns this data).
 

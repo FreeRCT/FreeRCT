@@ -10,6 +10,8 @@ file("tracks.rcd") {
 	RCST {
 		coaster_type: 1; // Simple coaster tracks.
 		platform_type: 1; // Wooden platforms.
+		max_number_trains: 2;
+		max_number_cars: 1;
 
 		texts: strings {
 			import "lang/da_DK_tracks.txt";

@@ -777,7 +777,7 @@ Version history
 Roller coaster tracks
 ~~~~~~~~~~~~~~~~~~~~~
 A ``RCST`` block contains all information of a single type of roller coaster.
-It currently contains track piece definitions only. FreeRCT supports version 3
+It currently contains track piece definitions only. FreeRCT supports version 5
 of the ``RCST`` block.
 
 ======  ======  =======  ==================  =================================================================
@@ -788,10 +788,12 @@ Offset  Length  Version  Field name          Description
    8       4      1-                         Length of the block excluding magic string, version, and length.
   12       2      1-     coaster_type        Type of roller coaster.
   14       1      2-     platform_type       Platform type.
-  15       4      3-     texts               Texts of the coaster.
-  19       2      1-     <derived>           Number of track piece definitions (called 'n').
-  21      4*n     1-                         The track piece definitions (references to ``TRCK``).
-21+4*n                                       Total length of the ``RCST`` block.
+  15       1      4-     max_number_trains   Maximum number of trains at the roller coaster.
+  16       1      4-     max_number_cars     Maximum number of cars in a train.
+  17       4      3-     texts               Texts of the coaster.
+  21       2      1-     <derived>           Number of track piece definitions (called 'n').
+  23      4*n     1-                         The track piece definitions (references to ``TRCK``).
+23+4*n                                       Total length of the ``RCST`` block.
 ======  ======  =======  ==================  =================================================================
 
 Currently defined coaster types:
@@ -809,11 +811,13 @@ Version history
 - 1 (20130317) Initial version.
 - 2 (20130430) Added type of platform.
 - 3 (20130511) Added a TEXT reference.
+- 4 (20131117) Moved platform bits from track piece to track voxel.
+- 5 (20131227) Added ``number_of_trains`` and ``number_of_cars`` fields.
 
 Track pieces
 ~~~~~~~~~~~~
 
-A track piece definition describes a single piece of track in a TRCK block.
+A track piece definition describes a single piece of track in a ``TRCK`` block.
 FreeRCT can read blocks with version 5. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is

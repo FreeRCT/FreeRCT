@@ -93,10 +93,12 @@ CoasterType::~CoasterType()
  */
 bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
-	if (length < 2+1+4+2) return false;
-	length -= 2+1+4+2;
+	if (length < 2+1+1+1+4+2) return false;
+	length -= 2+1+1+1+4+2;
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
+	this->max_number_trains = rcd_file->GetUInt8();
+	this->max_number_cars = rcd_file->GetUInt8();
 	if (this->coaster_kind == 0 || this->coaster_kind >= CST_COUNT) return false;
 	if (this->platform_type == 0 || this->platform_type >= CPT_COUNT) return false;
 
@@ -178,26 +180,6 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 		if (this->voxels[i] == tvx) return i;
 	}
 	NOT_REACHED();
-}
-
-/**
- * Get the maximum number of trains allowed on this coaster type.
- * @return The maximum number of trains.
- * @todo Retrieve this number from a field in the RCD description.
- */
-int CoasterType::GetMaxNumberOfTrains() const
-{
-	return 2;
-}
-
-/**
- * Get the maximum number of cars in a single train for this coaster type.
- * @return The maximum number of cars in a single train.
- * @todo Retrieve this number from a field in the RCD description.
- */
-int CoasterType::GetMaxNumberOfCars() const
-{
-	return 1;
 }
 
 /** Default constructor, no sprites available yet. */
@@ -481,7 +463,7 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
  */
 int CoasterInstance::GetMaxNumberOfTrains() const
 {
-	int max_num = this->GetCoasterType()->GetMaxNumberOfTrains();
+	int max_num = this->GetCoasterType()->max_number_trains;
 	return std::min(max_num, (int)lengthof(this->trains));
 }
 
@@ -527,7 +509,7 @@ int CoasterInstance::GetNumberOfTrains() const
  */
 int CoasterInstance::GetMaxNumberOfCars() const
 {
-	int max_num = this->GetCoasterType()->GetMaxNumberOfCars();
+	int max_num = this->GetCoasterType()->max_number_cars;
 	return max_num;
 }
 

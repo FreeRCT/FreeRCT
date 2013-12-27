@@ -768,10 +768,12 @@ public:
 
 	int coaster_type;  ///< Type of roller coaster.
 	int platform_type; ///< Type of platform.
+	int number_trains; ///< Maximum number of trains at the roller coaster.
+	int number_cars;   ///< Maximum number of cars in a train.
 
 	std::shared_ptr<Strings> text; ///< Text of the coaster (reference to a TEXT block).
 
-	std::list<std::shared_ptr<TrackPieceNode>> track_blocks; ///< Track pieces of the coaster.
+	std::list<std::shared_ptr<TrackPieceNode>> track_blocks; ///< Track pieces of the roller coaster.
 };
 
 /** 'CARS' game block. */
