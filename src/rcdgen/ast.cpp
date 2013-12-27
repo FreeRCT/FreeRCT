@@ -129,6 +129,7 @@ std::shared_ptr<const Expression> UnaryOperator::Evaluate(const Symbol *symbols)
  * Binary operator constructor.
  * @param pos %Position of the operator.
  * @param left Left operand.
+ * @param oper Operator to apply.
  * @param right Right operand.
  */
 BinaryOperator::BinaryOperator(const Position &pos, std::shared_ptr<Expression> left, int oper, std::shared_ptr<Expression> right) : Expression(pos)

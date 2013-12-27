@@ -30,7 +30,7 @@ public:
 	uint8 str[128]; ///< Item, as a string (arbitary length).
 };
 
-/** A dropdown list is a collection of #DropdownItems. */
+/** A dropdown list is a collection of #DropdownItem items. */
 typedef std::vector<DropdownItem> DropdownList;
 
 /**

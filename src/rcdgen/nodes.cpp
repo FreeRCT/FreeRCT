@@ -714,9 +714,10 @@ Curve::Curve() : BlockNode()
 }
 
 /**
- * \fn double Curve::GetValue(int idx)
+ * \fn double Curve::GetValue(int index, int step)
  * Get the value of the curve at the provided distance index.
- * @param idx Distance index to retrieve.
+ * @param index Distance index to retrieve.
+ * @param step Step value in the curve (of CubicSpline::steps steps).
  * @return Value of the curve at the queried point.
  */
 
@@ -1066,7 +1067,7 @@ static int GetCarEntrySize(std::shared_ptr<Curve> entry)
 
 /**
  * Rotate the \a abcd array \a rot times, given its type.
- * @param abcd[inout] Array to rotate.
+ * @param abcd [inout] Array to rotate.
  * @param rot Number of rotations to perform.
  * @param type Type of data (either \c 'x' or \c 'y').
  */

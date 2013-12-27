@@ -187,7 +187,7 @@ public:
 /**
  * Data widget.
  * Implements #WT_TITLEBAR, #WT_LEFT_TEXT, #WT_CENTERED_TEXT, #WT_RIGHT_TEXT, #WT_TEXT_BUTTON,
- * #WT_IMAGE_BUTTON, #WT_TEXT_PUSHBUTTON, #WT_IMAGE_PUSHBUTTON and #WT_DROPDOWN.
+ * #WT_IMAGE_BUTTON, #WT_TEXT_PUSHBUTTON, #WT_IMAGE_PUSHBUTTON and #WT_DROPDOWN_BUTTON.
  * @ingroup widget_group
  */
 class DataWidget : public LeafWidget {

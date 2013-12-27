@@ -81,6 +81,7 @@ enum TrackBend {
 	TBN_INVALID = 0xFF, ///< Invalid bend value.
 };
 
+/** Base class describing a car curve at a track piece. */
 class TrackCurve {
 public:
 	TrackCurve();
@@ -89,6 +90,7 @@ public:
 	virtual double GetValue(uint32 distance) const = 0;
 };
 
+/** Car curve that is the same at every position. */
 class ConstantTrackCurve : public TrackCurve {
 public:
 	ConstantTrackCurve(int value);
@@ -98,7 +100,7 @@ public:
 		return this->value;
 	}
 
-	const int value;
+	const int value; ///< Value of the curve at every position.
 };
 
 /** Description of a cubic Bezier spline. */
@@ -131,6 +133,7 @@ public:
 	const int d;        ///< Ending value of the Bezier spline.
 };
 
+/** Track curve of a car described with a Cubic bezier spline. */
 class BezierTrackCurve : public TrackCurve {
 public:
 	BezierTrackCurve();

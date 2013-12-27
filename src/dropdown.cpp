@@ -61,7 +61,7 @@ static const WidgetPart _dropdown_widgets[] = {
  * Dropdown menu constructor.
  * @param parent_type Type of the parent window.
  * @param parent_num Number of the parent window.
- * @param items List of #DropdownItems to display.
+ * @param items List of #DropdownItem items to display.
  * @param pos Initial (top left) position of the window.
  * @param min_width Minimum width of the window.
  * @param initial_select Item in list that is selected initially.

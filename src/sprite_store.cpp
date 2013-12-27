@@ -1728,7 +1728,6 @@ void SpriteManager::SetSpriteSize(uint16 first, uint16 end, Rectangle16 &rect)
  * @param number Number of the sprite to get.
  * @return The size of the sprite (which may be a default if there is no sprite).
  * @note Return value is kept until the next call.
- * @todo Add a bulldozer sprite.
  */
 const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 {

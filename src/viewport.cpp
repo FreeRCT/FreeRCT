@@ -348,7 +348,6 @@ void VoxelCollector::SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 
  * This part walks over the voxels, and call #CollectVoxel for each useful voxel.
  * A derived class may then inspect the voxel in more detail.
  * @param use_additions Use the #_additions voxels for drawing.
- * @todo Add referenced voxels map here.
  * @todo Do this less stupid. Walking the whole world is not going to work in general.
  */
 void VoxelCollector::Collect(bool use_additions)

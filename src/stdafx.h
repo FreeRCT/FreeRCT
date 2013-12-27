@@ -24,6 +24,7 @@
 		 * stdint.h defines and we need. */
 		#include <inttypes.h>
 	#else
+		/** Standard C limit macros exist. */
 		#define __STDC_LIMIT_MACROS
 		#include <stdint.h>
 	#endif
@@ -31,39 +32,51 @@
 
 /* The conditions for these constants to be available are way too messy; so check them one by one */
 #if !defined(UINT64_MAX)
+	/** Biggest value that can be stored in an unsigned 64 bit number. */
 	#define UINT64_MAX (18446744073709551615ULL)
 #endif
 #if !defined(INT64_MAX)
+	/** Biggest value that can be stored in a signed 64 bit number. */
 	#define INT64_MAX  (9223372036854775807LL)
 #endif
 #if !defined(INT64_MIN)
+	/** Smallest value that can be stored in a signed 64 bit number. */
 	#define INT64_MIN  (-INT64_MAX - 1)
 #endif
 #if !defined(UINT32_MAX)
+	/** Biggest value that can be stored in an unsigned 32 bit number. */
 	#define UINT32_MAX (4294967295U)
 #endif
 #if !defined(INT32_MAX)
+	/** Biggest value that can be stored in a signed 32 bit number. */
 	#define INT32_MAX  (2147483647)
 #endif
 #if !defined(INT32_MIN)
+	/** Smallest value that can be stored in an unsigned 32 bit number. */
 	#define INT32_MIN  (-INT32_MAX - 1)
 #endif
 #if !defined(UINT16_MAX)
+	/** Biggest value that can be stored in an unsigned 16 bit number. */
 	#define UINT16_MAX (65535U)
 #endif
 #if !defined(INT16_MAX)
+	/** Biggest value that can be stored in a signed 16 bit number. */
 	#define INT16_MAX  (32767)
 #endif
 #if !defined(INT16_MIN)
+	/** Smallest value that can be stored in a signed 16 bit number. */
 	#define INT16_MIN  (-INT16_MAX - 1)
 #endif
 #if !defined(UINT8_MAX)
+	/** Biggest value that can be stored in an unsigned 8 bit number. */
 	#define UINT8_MAX  (255)
 #endif
 #if !defined(INT8_MAX)
+	/** Biggest value that can be stored in a signed 8 bit number. */
 	#define INT8_MAX   (127)
 #endif
 #if !defined(INT8_MIN)
+	/** Smallest value that can be stored in a signed 8 bit number. */
 	#define INT8_MIN   (-INT8_MAX - 1)
 #endif
 
@@ -160,7 +173,10 @@ assert_compile(sizeof(uint8)  == 1); ///< Check size of #uint8 type.
  */
 #define lastof(x) (&x[lengthof(x) - 1])
 
-
+/**
+ * printf-style function for exiting the program with a fatal error.
+ * @param str String pattern of the message.
+ */
 void NORETURN error(const char *str, ...) WARN_FORMAT(1, 2);
 
 /** Macro for reporting reaching an 'impossible' position in the code. */
