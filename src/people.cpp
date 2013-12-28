@@ -126,21 +126,6 @@ GuestBlock::GuestBlock(uint16 base_id)
 }
 
 /**
- * Add all persons to the provided list.
- * @param pl %Person list to add the persons to.
- */
-void GuestBlock::AddAll(PersonList *pl)
-{
-	/* Add in reverse order so the first retrieval is the first person in this block. */
-	uint i = lengthof(this->guests) - 1;
-	for (;;) {
-		pl->AddFirst(this->Get(i));
-		if (i == 0) break;
-		i--;
-	}
-}
-
-/**
  * Check that the voxel stack at the given coordinate is a good spot to use as entry point for new guests.
  * @param x X position at the edge.
  * @param y Y position at the edge.
@@ -196,7 +181,8 @@ static Point16 FindEdgeRoad()
 
 Guests::Guests() : block(0), rnd()
 {
-	this->block.AddAll(&this->free);
+	this->free = nullptr;
+	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) this->AddFree(this->block.Get(i));
 
 	this->start_voxel.x = -1;
 	this->start_voxel.y = -1;
@@ -243,7 +229,7 @@ bool Guests::CanUsePersonType(PersonType ptype)
 uint Guests::CountActiveGuests()
 {
 	uint count = GUEST_BLOCK_SIZE;
-	const Person *pers = this->free.first;
+	const Person *pers = this->free;
 	while (pers != nullptr) {
 		assert(count > 0);
 		count--;
@@ -259,13 +245,13 @@ uint Guests::CountActiveGuests()
 void Guests::OnAnimate(int delay)
 {
 	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
-		Person *p = this->block.Get(i);
+		Guest *p = this->block.Get(i);
 		if (p->type == PERSON_INVALID) continue;
 
 		AnimateResult ar = p->OnAnimate(delay);
 		if (ar != OAR_OK) {
 			p->DeActivate(ar);
-			this->free.AddFirst(p);
+			this->AddFree(p);
 		}
 	}
 }
@@ -276,10 +262,10 @@ void Guests::DoTick()
 	this->daily_frac++;
 	int end_index = std::min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
 	while (this->next_daily_index < end_index) {
-		Person *p = this->block.Get(this->next_daily_index);
+		Guest *p = this->block.Get(this->next_daily_index);
 		if (p->type != PERSON_INVALID && !p->DailyUpdate()) {
 			p->DeActivate(OAR_REMOVE);
-			this->free.AddFirst(p);
+			this->AddFree(p);
 		}
 		this->next_daily_index++;
 	}
@@ -307,8 +293,39 @@ void Guests::OnNewDay()
 		if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
 	}
 
-	if (this->free.IsEmpty()) return; // No more quests available.
+	if (!this->HasFreeGuests()) return; // No more quests available.
 	/* New guest! */
-	Person *p = this->free.RemoveHead();
-	if (p != nullptr) p->Activate(this->start_voxel, ptype);
+	Guest *g = this->GetFree();
+	g->Activate(this->start_voxel, ptype);
+}
+
+/**
+ * Return whether there are still non-active guests.
+ * @return \c true if there are non-active guests, else \c false.
+ */
+bool Guests::HasFreeGuests() const
+{
+       return this->free != nullptr;
+}
+
+/**
+ * Add a guest to the non-active list.
+ * @param g %Guest to add.
+ */
+void Guests::AddFree(Guest *g)
+{
+       g->next = this->free;
+       this->free = g;
+}
+
+/**
+ * Get a non-active guest.
+ * @return A non-active guest.
+ * @pre #HasFreeGuests() should hold.
+ */
+Guest *Guests::GetFree()
+{
+       Guest *g = this->free;
+       this->free = static_cast<Guest *>(g->next);
+       return g;
 }
