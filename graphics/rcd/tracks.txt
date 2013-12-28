@@ -32,8 +32,8 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
-			car_xpos: 128;
-			car_ypos: splines { cubic { a: 0; b: 100; c: 150; d: 255; steps: 1000; } }
+			car_xpos: splines { cubic { a: 255; b: 150; c: 100; d: 0; steps: 1000; } }
+			car_ypos: 128;
 			car_zpos: 90;
 			car_roll: 0;
 
@@ -69,8 +69,8 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat"; direction: ne; }
 			exit_dx: -1; exit_dy: 0; exit_dz: 0;
 
-			car_xpos: 128;
-			car_ypos: splines { cubic { a: 0; b: 100; c: 150; d: 255; steps: 1000; } }
+			car_xpos: splines { cubic { a: 256; b: 150; c: 100; d: 0; steps: 1000; } }
+			car_ypos: 128;
 			car_zpos: 90;
 			car_roll: 0;
 
@@ -105,8 +105,8 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat"; direction: nw; }
 			exit_dx: 0; exit_dy: -1; exit_dz: 0;
 
-			car_xpos: splines { cubic { a: 128; b: 128; c:  71; d:   0; steps: 1000; } }
-			car_ypos: splines { cubic { a:   0; b:  71; c: 128; d: 128; steps: 1000; } }
+			car_xpos: splines { cubic { a: 255; b: 184; c: 128; d: 128; steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c:  71; d:   0; steps: 1000; } }
 			car_zpos: 64;
 			car_roll: 0;
 
@@ -134,8 +134,8 @@ file("tracks.rcd") {
 			exit:  connection { name: "flat"; direction: se; }
 			exit_dx: 0; exit_dy: 1; exit_dz: 0;
 
-			car_xpos: splines { cubic { a:   0; b:  71; c: 128; d: 128; steps: 1000; } }
-			car_ypos: splines { cubic { a: 128; b: 128; c:  71; d:   0; steps: 1000; } }
+			car_xpos: splines { cubic { a: 255; b: 184; c: 128; d: 128; steps: 1000; } }
+			car_ypos: splines { cubic { a: 128; b: 128; c: 184; d: 255; steps: 1000; } }
 			car_zpos: 90;
 			car_roll: 0;
 
