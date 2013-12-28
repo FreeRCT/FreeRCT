@@ -15,6 +15,7 @@
 #include "fileio.h"
 #include "memory.h"
 #include "map.h"
+#include "viewport.h"
 
 #include "generated/coasters_strings.cpp"
 
@@ -225,12 +226,91 @@ bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprite
 	return true;
 }
 
+CoasterCar::CoasterCar() : VoxelObject(), yaw(0xff)  // Mark everything as invalid.
+{
+}
+
+const ImageData *CoasterCar::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+{
+	*recolour = nullptr;
+	return this->car_type->GetCar(this->pitch, this->roll, this->yaw);
+}
+
+/**
+ * Set the position and orientation of the car. It requests repainting of voxels.
+ * @param xvoxel %Voxel in x direction.
+ * @param yvoxel %Voxel in y direction.
+ * @param zvoxel %Voxel in z direction.
+ * @param xpos X position within the voxel (may be outside the \c 0..255 boundary).
+ * @param ypos Y position within the voxel (may be outside the \c 0..255 boundary).
+ * @param zpos Z position within the voxel (may be outside the \c 0..255 boundary).
+ * @param pitch Pitch of the car.
+ * @param roll Roll of the car.
+ * @param yaw Yaw of the car.
+ */
+void CoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw)
+{
+	bool change_voxel = this->x_vox != xvoxel || this->y_vox != yvoxel || this->z_vox != zvoxel;
+
+	if (!change_voxel && this->x_pos == xpos && this->y_pos == ypos && this->z_pos == zpos &&
+			this->pitch == pitch && this->roll == roll && this->yaw == yaw) return; // Nothing changed.
+
+	if (this->yaw != 0xff && change_voxel) {
+		MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		this->RemoveSelf(v);
+	}
+	this->x_vox = xvoxel;
+	this->y_vox = yvoxel;
+	this->z_vox = zvoxel;
+	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+
+	if (this->yaw == 0xff || change_voxel) {
+		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		this->AddSelf(v);
+	}
+
+	this->x_pos = xpos;
+	this->y_pos = ypos;
+	this->z_pos = zpos;
+
+	this->pitch = pitch;
+	this->roll = roll;
+	this->yaw = yaw;
+}
+
+/** Car is about to be removed from the train, clean up if necessary. */
+void CoasterCar::PreRemove()
+{
+	if (this->yaw == 0xff) return;
+	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+}
+
 CoasterTrain::CoasterTrain()
 {
 	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
-	this->number_cars = 0;
 	this->back_position = 0;
 	this->speed = 0;
+}
+
+/**
+ * Change the length of the train.
+ * @param length New length of the train.
+ */
+void CoasterTrain::SetLength(int length)
+{
+	if (length > static_cast<int>(this->cars.size())) {
+		this->cars.resize(length);
+		for (auto &car : this->cars) car.car_type = this->coaster->car_type;
+		return;
+	} else if (length < static_cast<int>(this->cars.size())) {
+		CoasterCar *car = &this->cars[length];
+		for (uint idx = length; idx < this->cars.size(); idx++) {
+			car->PreRemove();
+			car++;
+		}
+		this->cars.resize(length);
+	}
 }
 
 /**
@@ -483,7 +563,7 @@ void CoasterInstance::SetNumberOfTrains(int number_trains)
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		if (i == (uint)number_trains) number_cars = 0; // From now on, trains are not used.
 		CoasterTrain &train = this->trains[i];
-		train.number_cars = number_cars;
+		train.SetLength(number_cars);
 		train.back_position = 0; /// \todo Needs a better value, coaster trains do not stack.
 		train.speed = 0;
 	}
@@ -497,7 +577,7 @@ int CoasterInstance::GetNumberOfTrains() const
 {
 	int count = 0;
 	for (uint i = 0; i < lengthof(this->trains); i++) {
-		if (this->trains[i].number_cars == 0) break;
+		if (this->trains[i].cars.size() == 0) break;
 		count++;
 	}
 	return count;
@@ -525,7 +605,7 @@ void CoasterInstance::SetNumberOfCars(int number_cars)
 	assert(number_cars >= 1 && number_cars <= this->GetMaxNumberOfCars());
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
-		if (train.number_cars != 0) train.number_cars = number_cars;
+		if (train.cars.size() != 0) train.SetLength(number_cars);
 	}
 }
 
@@ -535,7 +615,7 @@ void CoasterInstance::SetNumberOfCars(int number_cars)
  */
 int CoasterInstance::GetNumberOfCars() const
 {
-	int number_cars = this->trains[0].number_cars;
+	int number_cars = this->trains[0].cars.size();
 	if (number_cars == 0) number_cars = 1;
 	return number_cars;
 }

@@ -14,6 +14,7 @@
 
 #include <map>
 #include <vector>
+#include "map.h"
 #include "ride_type.h"
 #include "track_piece.h"
 
@@ -49,7 +50,7 @@ public:
 	 * @param yaw Required yaw of the car.
 	 * @return Image of the car in the requested orientation, if available.
 	 */
-	const ImageData *GetCar(int pitch, int roll, int yaw)
+	const ImageData *GetCar(int pitch, int roll, int yaw) const
 	{
 		return this->cars[(uint)(pitch & 0xf) | ((uint)(roll & 0xf) << 4) | ((uint)(yaw & 0xf) << 8)];
 	}
@@ -111,6 +112,26 @@ public:
 	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
 };
 
+/**
+ * Position and orientation of a car in a train.
+ * Note that #yaw decides validness of the data.
+ * @todo Add this to the persons.
+ */
+class CoasterCar : public VoxelObject {
+public:
+	CoasterCar();
+
+	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
+
+	void Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw);
+	void PreRemove();
+
+	const CarType *car_type; ///< Car type data.
+	uint8 pitch; ///< Pitch of the car.
+	uint8 roll;  ///< Roll of the car.
+	uint8 yaw;   ///< Yaw of the car (\c 0xff means all data is invalid).
+};
+
 class CoasterInstance;
 
 /**
@@ -122,8 +143,10 @@ class CoasterTrain {
 public:
 	CoasterTrain();
 
+	void SetLength(int length);
+
 	const CoasterInstance *coaster; ///< Roller coaster owning the train.
-	int number_cars;      ///< Number of cars in the train, \c 0 means the train is not used.
+	std::vector<CoasterCar> cars; ///< Cars in the train. \c 0 means the train is not used.
 	uint32 back_position; ///< Position of the back-end of the train (in 1/256 pixels).
 	uint32 speed;         ///< Amount of forward motion / second, in 1/256 pixels.
 };
