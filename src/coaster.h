@@ -147,10 +147,11 @@ public:
 
 	void OnAnimate(int delay);
 
-	const CoasterInstance *coaster; ///< Roller coaster owning the train.
-	std::vector<CoasterCar> cars; ///< Cars in the train. \c 0 means the train is not used.
-	uint32 back_position; ///< Position of the back-end of the train (in 1/256 pixels).
-	int32 speed;          ///< Amount of forward motion / millisecond, in 1/256 pixels.
+	const CoasterInstance *coaster;        ///< Roller coaster owning the train.
+	std::vector<CoasterCar> cars;          ///< Cars in the train. \c 0 means the train is not used.
+	uint32 back_position;                  ///< Position of the back-end of the train (in 1/256 pixels).
+	int32 speed;                           ///< Amount of forward motion / millisecond, in 1/256 pixels.
+	const PositionedTrackPiece *cur_piece; ///< Track piece that has the back-end position of the train.
 };
 
 /**

@@ -291,6 +291,7 @@ CoasterTrain::CoasterTrain()
 	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
 	this->back_position = 0;
 	this->speed = 0;
+	this->cur_piece = nullptr; // Set later.
 }
 
 /**
@@ -322,13 +323,21 @@ void CoasterTrain::OnAnimate(int delay)
 	this->speed = 65536 / 1000; // 1 tile per second.
 	if (this->speed >= 0) {
 		this->back_position += this->speed * delay;
-		if (this->back_position >= this->coaster->coaster_length) this->back_position -= this->coaster->coaster_length;
+		if (this->back_position >= this->coaster->coaster_length) {
+			this->back_position -= this->coaster->coaster_length;
+			this->cur_piece = this->coaster->pieces;
+		}
+		while (this->cur_piece->distance_base + this->cur_piece->piece->piece_length < this->back_position) this->cur_piece++;
 	} else {
 		uint32 change = -this->speed * delay;
 		if (change > this->back_position) {
 			this->back_position = this->back_position + this->coaster->coaster_length - change;
+			/* Update the track piece as well. There is no simple way to get the last piece, so moving from the front will have to do. */
+			this->cur_piece = this->coaster->pieces;
+			while (this->cur_piece->distance_base + this->cur_piece->piece->piece_length < this->back_position) this->cur_piece++;
 		} else {
 			this->back_position -= change;
+			while (this->cur_piece->distance_base > this->back_position) this->cur_piece--;
 		}
 	}
 }
@@ -343,7 +352,11 @@ CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *car_type)
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = ct->item_cost[i] * 2;
 	this->pieces = new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]();
 	this->capacity = MAX_PLACED_TRACK_PIECES;
-	for (uint i = 0; i < lengthof(this->trains); i++) this->trains[i].coaster = this;
+	for (uint i = 0; i < lengthof(this->trains); i++) {
+		CoasterTrain &train = this->trains[i];
+		train.coaster = this;
+		train.cur_piece = this->pieces;
+	}
 	this->car_type = car_type;
 }
 
@@ -601,6 +614,7 @@ void CoasterInstance::SetNumberOfTrains(int number_trains)
 		train.SetLength(number_cars);
 		train.back_position = 0; /// \todo Needs a better value, coaster trains do not stack.
 		train.speed = 0;
+		train.cur_piece = this->pieces;
 	}
 }
 
