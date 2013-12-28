@@ -397,7 +397,13 @@ RideInstanceState CoasterInstance::DecideRideState()
 		this->state = RIS_BUILDING;
 		return (RideInstanceState)this->state;
 	}
-	if (modified || (this->state != RIS_CLOSED && this->state != RIS_OPEN)) this->state = RIS_TESTING;
+	if (modified || (this->state != RIS_CLOSED && this->state != RIS_OPEN)) {
+		if (this->GetNumberOfTrains() < 1) { // It's safe to switch to testing, ensure there is at least one train.
+			this->SetNumberOfTrains(1);
+			this->SetNumberOfCars(1);
+		}
+		this->state = RIS_TESTING;
+	}
 	return (RideInstanceState)this->state;
 }
 
