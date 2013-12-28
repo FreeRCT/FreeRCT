@@ -227,6 +227,7 @@ bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprite
 
 CoasterTrain::CoasterTrain()
 {
+	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
 	this->number_cars = 0;
 	this->back_position = 0;
 	this->speed = 0;
@@ -242,6 +243,7 @@ CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *car_type)
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) this->item_price[i] = ct->item_cost[i] * 2;
 	this->pieces = new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]();
 	this->capacity = MAX_PLACED_TRACK_PIECES;
+	for (uint i = 0; i < lengthof(this->trains); i++) this->trains[i].coaster = this;
 	this->car_type = car_type;
 }
 

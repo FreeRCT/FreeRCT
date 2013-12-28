@@ -111,6 +111,8 @@ public:
 	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
 };
 
+class CoasterInstance;
+
 /**
  * A 'train' of coaster cars at a roller coaster.
  * It consists of one or more cars, each of length \c car_type->length. Trains drive in increasing distance,
@@ -120,6 +122,7 @@ class CoasterTrain {
 public:
 	CoasterTrain();
 
+	const CoasterInstance *coaster; ///< Roller coaster owning the train.
 	int number_cars;      ///< Number of cars in the train, \c 0 means the train is not used.
 	uint32 back_position; ///< Position of the back-end of the train (in 1/256 pixels).
 	uint32 speed;         ///< Amount of forward motion / second, in 1/256 pixels.
