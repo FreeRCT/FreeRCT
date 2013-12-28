@@ -249,6 +249,18 @@ public:
 	PersonList persons; ///< Persons present in this voxel.
 };
 
+/** Base class for (moving) objects that are stored at a voxel position for easy retrieval during drawing. */
+class VoxelObject {
+public:
+	VoxelObject()
+	{
+	}
+
+	virtual ~VoxelObject()
+	{
+	}
+};
+
 /**
  * Does the given voxel contain a valid path?
  * @param v %Voxel to examine.

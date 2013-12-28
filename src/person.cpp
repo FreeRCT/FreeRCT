@@ -90,7 +90,7 @@ bool LoadPRSG(RcdFile *rcd_file, uint32 length)
 	return true;
 }
 
-Person::Person() : rnd()
+Person::Person() : VoxelObject(), rnd()
 {
 	this->type = PERSON_INVALID;
 	this->name = nullptr;

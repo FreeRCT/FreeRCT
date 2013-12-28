@@ -12,6 +12,7 @@
 #ifndef PERSON_H
 #define PERSON_H
 
+#include "map.h"
 #include "random.h"
 #include "money.h"
 
@@ -91,10 +92,10 @@ enum RideVisitDesire {
  * Persons are stored in contiguous blocks of memory, which makes the constructor and destructor useless.
  * Instead, \c Activate and \c DeActivate methods are used for this purpose. The #type variable controls the state of the entry.
  */
-class Person {
+class Person : public VoxelObject {
 public:
 	Person();
-	virtual ~Person();
+	virtual ~Person() override;
 
 	AnimateResult OnAnimate(int delay);
 	virtual bool DailyUpdate() = 0;
