@@ -788,8 +788,8 @@ Offset  Length  Version  Field name          Description
    8       4      1-                         Length of the block excluding magic string, version, and length.
   12       2      1-     coaster_type        Type of roller coaster.
   14       1      2-     platform_type       Platform type.
-  15       1      4-     max_number_trains   Maximum number of trains at the roller coaster.
-  16       1      4-     max_number_cars     Maximum number of cars in a train.
+  15       1      5-     max_number_trains   Maximum number of trains at the roller coaster.
+  16       1      5-     max_number_cars     Maximum number of cars in a train.
   17       4      3-     texts               Texts of the coaster.
   21       2      1-     <derived>           Number of track piece definitions (called 'n').
   23      4*n     1-                         The track piece definitions (references to ``TRCK``).
