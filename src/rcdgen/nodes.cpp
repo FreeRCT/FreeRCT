@@ -1155,8 +1155,18 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 			iter->Write(fw, fb, rot);
 		}
 		fb->SaveUInt32(this->total_distance);
-		SaveCarEntry(fb, this->car_xpos,  rot, 'x');
-		SaveCarEntry(fb, this->car_ypos,  rot, 'y');
+		/* Write x curve. */
+		if (rot == 0 || rot == 2) {
+			SaveCarEntry(fb, this->car_xpos,  rot, 'x');
+		} else {
+			SaveCarEntry(fb, this->car_ypos,  rot, 'y');
+		}
+		/* Write y curve. */
+		if (rot == 0 || rot == 2) {
+			SaveCarEntry(fb, this->car_ypos,  rot, 'y');
+		} else {
+			SaveCarEntry(fb, this->car_xpos,  rot, 'x');
+		}
 		SaveCarEntry(fb, this->car_zpos,  0, '-');
 		SaveCarEntry(fb, this->car_pitch, 0, '-');
 		SaveCarEntry(fb, this->car_roll,  0, '-');
