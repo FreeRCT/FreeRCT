@@ -145,10 +145,12 @@ public:
 
 	void SetLength(int length);
 
+	void OnAnimate(int delay);
+
 	const CoasterInstance *coaster; ///< Roller coaster owning the train.
 	std::vector<CoasterCar> cars; ///< Cars in the train. \c 0 means the train is not used.
 	uint32 back_position; ///< Position of the back-end of the train (in 1/256 pixels).
-	uint32 speed;         ///< Amount of forward motion / second, in 1/256 pixels.
+	int32 speed;          ///< Amount of forward motion / millisecond, in 1/256 pixels.
 };
 
 /**
@@ -162,6 +164,8 @@ public:
 	~CoasterInstance();
 
 	bool IsAccessible();
+
+	void OnAnimate(int delay) override;
 
 	/**
 	 * Get the coaster type of this ride.

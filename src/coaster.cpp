@@ -314,6 +314,26 @@ void CoasterTrain::SetLength(int length)
 }
 
 /**
+ * Time has passed, update the position of the train.
+ * @param delay Amount of time passed, in milliseconds.
+ */
+void CoasterTrain::OnAnimate(int delay)
+{
+	this->speed = 65536 / 1000; // 1 tile per second.
+	if (this->speed >= 0) {
+		this->back_position += this->speed * delay;
+		if (this->back_position >= this->coaster->coaster_length) this->back_position -= this->coaster->coaster_length;
+	} else {
+		uint32 change = -this->speed * delay;
+		if (change > this->back_position) {
+			this->back_position = this->back_position + this->coaster->coaster_length - change;
+		} else {
+			this->back_position -= change;
+		}
+	}
+}
+
+/**
  * Constructor of a roller coaster instance.
  * @param ct Coaster type being built.
  * @param car_type Kind of cars used for the coaster.
@@ -339,6 +359,15 @@ CoasterInstance::~CoasterInstance()
 bool CoasterInstance::IsAccessible()
 {
 	return this->GetFirstPlacedTrackPiece() >= 0;
+}
+
+void CoasterInstance::OnAnimate(int delay)
+{
+	for (uint i = 0; i < lengthof(this->trains); i++) {
+		CoasterTrain &train = this->trains[i];
+		if (train.cars.size() == 0) break;
+		train.OnAnimate(delay);
+	}
 }
 
 void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
