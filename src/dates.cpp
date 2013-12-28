@@ -13,7 +13,6 @@
 #include "dates.h"
 #include "language.h"
 #include "finances.h"
-#include "person_list.h"
 #include "sprite_store.h"
 #include "ride_type.h"
 #include "person.h"

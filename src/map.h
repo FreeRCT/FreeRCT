@@ -16,7 +16,6 @@
 #include "path.h"
 #include "geometry.h"
 #include "sprite_store.h"
-#include "person_list.h"
 #include "bitmath.h"
 
 #include <map>
@@ -48,6 +47,7 @@ enum SmallRideInstance {
 	SRI_LAST = 255, ///< Biggest possible ride number.
 };
 
+class VoxelObject;
 
 /**
  * One voxel cell in the world.
@@ -246,19 +246,58 @@ public:
 		this->ClearInstances();
 	}
 
-	PersonList persons; ///< Persons present in this voxel.
+	VoxelObject *voxel_objects; ///< First voxel object in this voxel.
+
+	/**
+	 * Does the voxel have any voxel objects currently?
+	 * @return Whether it has any voxel objects (\c false means it has no voxel objects).
+	 */
+	inline bool HasVoxelObjects() const
+	{
+		return this->voxel_objects != nullptr;
+	}
 };
 
 /** Base class for (moving) objects that are stored at a voxel position for easy retrieval during drawing. */
 class VoxelObject {
 public:
-	VoxelObject()
+	VoxelObject() : next_object(nullptr), prev_object(nullptr)
 	{
 	}
 
 	virtual ~VoxelObject()
 	{
 	}
+
+	/**
+	 * Add itself to the voxel objects chain.
+	 * @param v %Voxel containing the object.
+	 */
+	void AddSelf(Voxel *v)
+	{
+		this->next_object = v->voxel_objects;
+		if (this->next_object != nullptr) this->next_object->prev_object = this;
+		v->voxel_objects = this;
+		this->prev_object = nullptr;
+	}
+
+	/**
+	 * Remove itself from the voxel objects chain.
+	 * @param v %Voxel containing the object.
+	 */
+	void RemoveSelf(Voxel *v)
+	{
+		if (this->next_object != nullptr) this->next_object->prev_object = this->prev_object;
+		if (this->prev_object != nullptr) {
+			this->prev_object->next_object = this->next_object;
+		} else {
+			assert(v->voxel_objects == this);
+			v->voxel_objects = this->next_object;
+		}
+	}
+
+	VoxelObject *next_object; ///< Next voxel object in the linked list.
+	VoxelObject *prev_object; ///< Previous voxel object in the linked list.
 };
 
 /**
@@ -350,21 +389,6 @@ public:
 	inline const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
 	{
 		return this->GetStack(x, y)->Get(z);
-	}
-
-	/**
-	 * Get the person list associated with a voxel.
-	 * @param x X coordinate of the voxel.
-	 * @param y Y coordinate of the voxel.
-	 * @param z Z coordinate of the voxel.
-	 * @return The person list of the voxel.
-	 * @note The voxel has to exist.
-	 */
-	inline PersonList &GetPersonList(uint16 x, uint16 y, int16 z)
-	{
-		Voxel *v = this->GetCreateVoxel(x, y, z, false);
-		assert(v != nullptr);
-		return v->persons;
 	}
 
 	/**

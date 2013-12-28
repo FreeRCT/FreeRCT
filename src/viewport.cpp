@@ -1024,8 +1024,9 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		}
 	}
 
-	const Person *pers = voxel->persons.first;
-	while (pers != nullptr) {
+	const VoxelObject *vo = voxel->voxel_objects;
+	while (vo != nullptr) {
+		const Person *pers = static_cast<const Person *>(vo);
 		/// \todo Check that the person is actually in this voxel.
 
 		AnimationType anim_type = pers->walk->anim_type;
@@ -1043,7 +1044,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			dd.recolour = &pers->recolour;
 			this->draw_images.insert(dd);
 		}
-		pers = pers->next;
+		vo = vo->next_object;
 	}
 }
 
@@ -1175,8 +1176,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 
 	/* Looking for persons? */
 	if ((this->allowed & SO_PERSON) != 0) {
-		const Person *pers = voxel->persons.first;
-		while (pers != nullptr) {
+		const VoxelObject *vo = voxel->voxel_objects;
+		while (vo != nullptr) {
+			const Person *pers = static_cast<const Person *>(vo);
 			AnimationType anim_type = pers->walk->anim_type;
 			const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
 			int x_off = ComputeX(pers->x_pos, pers->y_pos);
@@ -1201,7 +1203,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 					this->fdata->person = pers;
 				}
 			}
-			pers = pers->next;
+			vo = vo->next_object;
 		}
 	}
 }

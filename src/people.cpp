@@ -17,101 +17,10 @@
 #include "person_type.h"
 #include "ride_type.h"
 #include "person.h"
-#include "person_list.h"
 #include "people.h"
 #include "gamelevel.h"
 
 Guests _guests; ///< Guests in the world/park.
-
-
-/** Default constructor of the person list. */
-PersonList::PersonList()
-{
-	this->first = nullptr;
-	this->last = nullptr;
-}
-
-/** Destructor of the person list. */
-PersonList::~PersonList()
-{
-	// Silently let go of the persons in the list.
-}
-
-/**
- * Are there any persons in the list?
- * @return \c true iff at least one person is in the list.
- */
-bool PersonList::IsEmpty() const
-{
-	return this->first == nullptr;
-}
-
-/**
- * Add person to the head of the list.
- * @param p %Person to add.
- */
-void PersonList::AddFirst(Person *p)
-{
-	p->prev = nullptr;
-	p->next = this->first;
-	if (this->first == nullptr) {
-		this->last = p;
-		this->first = p;
-	} else {
-		this->first->prev = p;
-		this->first = p;
-	}
-}
-
-/**
- * Remove a person from the list.
- * @param p %Person to remove.
- */
-void PersonList::Remove(Person *p)
-{
-	/* Paranoia check, the person should be in this list. */
-	assert(p != nullptr);
-	Person *here = this->first;
-	while (here != nullptr && here != p) here = here->next;
-	assert(here == p);
-
-	if (p->prev == nullptr) {
-		assert(this->first == p);
-		this->first = p->next;
-	} else {
-		p->prev->next = p->next;
-	}
-
-	if (p->next == nullptr) {
-		assert(this->last == p);
-		this->last = p->prev;
-	} else {
-		p->next->prev = p->prev;
-	}
-}
-
-/**
- * Get the person from the head of the list.
- * @return %Person at the head of the list.
- */
-Person *PersonList::RemoveHead()
-{
-	Person *p = this->first;
-	assert(p != nullptr);
-	this->Remove(p);
-	return p;
-}
-
-/**
- * Copy a person list. The source is not modified.
- * @param dest Destination of the copying process.
- * @param src Source of the copying process.
- */
-void CopyPersonList(PersonList &dest, const PersonList &src)
-{
-	dest.first = src.first;
-	dest.last  = src.last;
-}
 
 /**
  * Guest block constructor. Fills the id of the persons with an incrementing number.
@@ -229,11 +138,11 @@ bool Guests::CanUsePersonType(PersonType ptype)
 uint Guests::CountActiveGuests()
 {
 	uint count = GUEST_BLOCK_SIZE;
-	const Person *pers = this->free;
+	const VoxelObject *pers = this->free;
 	while (pers != nullptr) {
 		assert(count > 0);
 		count--;
-		pers = pers->next;
+		pers = pers->next_object;
 	}
 	return count;
 }
@@ -314,7 +223,7 @@ bool Guests::HasFreeGuests() const
  */
 void Guests::AddFree(Guest *g)
 {
-       g->next = this->free;
+       g->next_object = this->free;
        this->free = g;
 }
 
@@ -326,6 +235,6 @@ void Guests::AddFree(Guest *g)
 Guest *Guests::GetFree()
 {
        Guest *g = this->free;
-       this->free = static_cast<Guest *>(g->next);
+       this->free = static_cast<Guest *>(g->next_object);
        return g;
 }

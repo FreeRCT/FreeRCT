@@ -109,9 +109,6 @@ public:
 	uint16 id;       ///< Unique id of the person.
 	PersonType type; ///< Type of person.
 
-	Person *next; ///< Next person in the linked list.
-	Person *prev; ///< Previous person in the linked list.
-
 	int16 x_vox;  ///< %Voxel index in X direction of the person (if #type is not invalid).
 	int16 y_vox;  ///< %Voxel index in Y direction of the person (if #type is not invalid).
 	int16 z_vox;  ///< %Voxel index in Z direction of the person (if #type is not invalid).

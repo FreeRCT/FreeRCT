@@ -27,17 +27,28 @@
 VoxelWorld _world;
 
 /**
+ * Move the list animated voxel objects to the destination.
+ * @param dest Destination of the voxel object list.
+ * @param src Source voxel objects.
+ */
+static inline void CopyVoxelObjectList(Voxel *dest, Voxel *src)
+{
+	dest->voxel_objects = src->voxel_objects;
+	src->voxel_objects = nullptr;
+}
+
+/**
  * Copy a voxel.
  * @param dest Destination address.
  * @param src Source address.
- * @param copyPersons Copy the person list too.
+ * @param copy_voxel_objects Copy/move the voxel objects too.
  */
-static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
+static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copy_voxel_objects)
 {
 	dest->instance = src->instance;
 	dest->instance_data = src->instance_data;
 	dest->ground = src->ground;
-	if (copyPersons) CopyPersonList(dest->persons, src->persons);
+	if (copy_voxel_objects) CopyVoxelObjectList(dest, src);
 }
 
 /**
@@ -47,10 +58,10 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copyPersons)
  * @param count Number of voxels to copy.
  * @param copyPersons Copy the person list too.
  */
-static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copyPersons)
+static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_objects)
 {
 	while (count > 0) {
-		CopyVoxel(dest, src, copyPersons);
+		CopyVoxel(dest, src, copy_voxel_objects);
 		dest++;
 		src++;
 		count--;
@@ -258,7 +269,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 	int vs_last = 0;
 	for (int i = 0; i < (int)vs->height; i++) {
 		Voxel *v = &vs->voxels[i];
-		assert(v->persons.IsEmpty()); // There should be no persons in the stack being moved.
+		assert(!v->HasVoxelObjects()); // There should be no voxel objects in the stack being moved.
 
 		if (!v->IsEmpty()) {
 			vs_last = i;
@@ -275,10 +286,10 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 	int old_last = 0;
 	for (int i = 0; i < (int)this->height; i++) {
 		const Voxel *v = &this->voxels[i];
-		if (v->persons.IsEmpty()) {
-			if (old_first == i) old_first++;
-		} else {
+		if (v->HasVoxelObjects()) {
 			old_last = i;
+		} else {
+			if (old_first == i) old_first++;
 		}
 	}
 
@@ -291,7 +302,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 	CopyStackData(new_voxels + (vs->base + vs_first) - new_base, vs->voxels + vs_first, vs_last - vs_first + 1, false);
 	int i = (this->base + old_first) - new_base;
 	while (old_first <= old_last) {
-		CopyPersonList(new_voxels[i].persons, this->voxels[old_first].persons);
+		CopyVoxelObjectList(&new_voxels[i], &this->voxels[old_first]);
 		i++;
 		old_first++;
 	}

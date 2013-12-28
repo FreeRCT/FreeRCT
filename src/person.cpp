@@ -94,8 +94,6 @@ Person::Person() : VoxelObject(), rnd()
 {
 	this->type = PERSON_INVALID;
 	this->name = nullptr;
-	this->next = nullptr;
-	this->prev = nullptr;
 
 	this->offset = this->rnd.Uniform(100);
 }
@@ -183,7 +181,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	this->x_vox = start.x;
 	this->y_vox = start.y;
 	this->z_vox = _world.GetGroundHeight(start.x, start.y);
-	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
+	this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
 
 	if (start.x == 0) {
 		this->x_pos = 0;
@@ -521,7 +519,7 @@ void Person::DeActivate(AnimateResult ar)
 
 	if (ar == OAR_REMOVE && _world.VoxelExists(this->x_vox, this->y_vox, this->z_vox)) {
 		/* If not wandered off-world, remove the person from the voxel person list. */
-		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
+		this->RemoveSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
 	}
 	this->type = PERSON_INVALID;
 	delete[] this->name;
@@ -601,7 +599,7 @@ AnimateResult Person::OnAnimate(int delay)
 	int dz = 0;
 	TileEdge exit_edge = INVALID_EDGE;
 
-	_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).Remove(this);
+	this->RemoveSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
 	if (this->x_pos < 0) {
 		dx--;
 		this->x_vox--;
@@ -653,7 +651,7 @@ AnimateResult Person::OnAnimate(int delay)
 			/* Ride is closed, or not a guest, fall-through to reversing movement. */
 
 		} else if (HasValidPath(v)) {
-			v->persons.AddFirst(this);
+			this->AddSelf(v);
 			this->DecideMoveDirection();
 			return OAR_OK;
 		}
@@ -663,7 +661,7 @@ AnimateResult Person::OnAnimate(int delay)
 		if (dy != 0) { this->y_vox -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
 		if (dz != 0) { this->z_vox -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
 
-		_world.GetPersonList(this->x_vox, this->y_vox, this->z_vox).AddFirst(this);
+		this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
@@ -675,7 +673,7 @@ AnimateResult Person::OnAnimate(int delay)
 		v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 	}
 	if (v != nullptr && HasValidPath(v)) {
-		v->persons.AddFirst(this);
+		this->AddSelf(v);
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
