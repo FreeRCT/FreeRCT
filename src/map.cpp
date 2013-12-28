@@ -81,6 +81,15 @@ static Voxel *MakeNewVoxels(int height)
 	return voxels;
 }
 
+/**
+ * \fn VoxelObject::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+ * Get the sprite to draw for the voxel object.
+ * @param sprites Sprites at the right size for drawing.
+ * @param orient Direction of view.
+ * @param recolour [out] Recolour mapping if present, else \c nullptr.
+ */
+
+
 /** Default constructor. */
 VoxelStack::VoxelStack()
 {

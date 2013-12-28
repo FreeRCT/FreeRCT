@@ -1026,22 +1026,17 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 	const VoxelObject *vo = voxel->voxel_objects;
 	while (vo != nullptr) {
-		const Person *pers = static_cast<const Person *>(vo);
-		/// \todo Check that the person is actually in this voxel.
-
-		AnimationType anim_type = pers->walk->anim_type;
-		const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
+		DrawData dd;
+		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &dd.recolour);
 		if (anim_spr != nullptr) {
-			int x_off = ComputeX(pers->x_pos, pers->y_pos);
-			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
-			DrawData dd;
+			int x_off = ComputeX(vo->x_pos, vo->y_pos);
+			int y_off = ComputeY(vo->x_pos, vo->y_pos, vo->z_pos);
 			dd.level = slice;
 			dd.z_height = zpos;
 			dd.order = SO_PERSON;
 			dd.sprite = anim_spr;
 			dd.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
 			dd.base.y = this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off;
-			dd.recolour = &pers->recolour;
 			this->draw_images.insert(dd);
 		}
 		vo = vo->next_object;

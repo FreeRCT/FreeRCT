@@ -269,6 +269,8 @@ public:
 	{
 	}
 
+	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const = 0;
+
 	/**
 	 * Add itself to the voxel objects chain.
 	 * @param v %Voxel containing the object.
@@ -298,6 +300,13 @@ public:
 
 	VoxelObject *next_object; ///< Next voxel object in the linked list.
 	VoxelObject *prev_object; ///< Previous voxel object in the linked list.
+
+	int16 x_vox;  ///< %Voxel index in X direction of the voxel object.
+	int16 y_vox;  ///< %Voxel index in Y direction of the voxel object.
+	int16 z_vox;  ///< %Voxel index in Z direction of the voxel object.
+	int16 x_pos;  ///< X position of the person inside the voxel (0..255).
+	int16 y_pos;  ///< Y position of the person inside the voxel (0..255).
+	int16 z_pos;  ///< Z position of the person inside the voxel (0..255).
 };
 
 /**

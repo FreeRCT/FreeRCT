@@ -103,6 +103,13 @@ Person::~Person()
 	delete[] this->name;
 }
 
+const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+{
+	*recolour = &this->recolour;
+	AnimationType anim_type = this->walk->anim_type;
+	return sprites->GetAnimationSprite(anim_type, this->frame_index, this->type, orient);
+}
+
 /**
  * Set the name of a guest.
  * @param name New name of the guest.
