@@ -1076,9 +1076,9 @@ static void RotateArray(int *abcd, int rot, int type)
 	for (;rot > 0; rot--) {
 		if (type == 'x') {
 			type = 'y';
+			for (int i = 0; i < 4; i++) abcd[i] = (128 - abcd[i]) + 128;
 		} else {
 			type = 'x';
-			for (int i = 0; i < 4; i++) abcd[i] = (128 - abcd[i]) + 128;
 		}
 	}
 }
