@@ -340,6 +340,23 @@ void CoasterTrain::OnAnimate(int delay)
 			while (this->cur_piece->distance_base > this->back_position) this->cur_piece--;
 		}
 	}
+	uint32 car_length = this->coaster->car_type->car_length;
+	uint32 position = this->back_position + car_length / 2; // Middle position of the last car.
+	const PositionedTrackPiece *ptp = this->cur_piece;
+	for (uint i = 0; i < this->cars.size(); i++) {
+		CoasterCar &car = this->cars[i];
+		if (position >= this->coaster->coaster_length) {
+			position -= this->coaster->coaster_length;
+			ptp = this->coaster->pieces;
+		}
+		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
+		int32 xpos = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->x_base << 8);
+		int32 ypos = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
+		int32 zpos = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
+		// XXX Implement pitch, roll, and yaw.
+		car.Set(xpos >> 8, ypos >> 8, zpos >> 8, xpos & 0xFF, ypos & 0xFF, zpos & 0xFF, 0, 0, 0);
+		position += car_length;
+	}
 }
 
 /**
