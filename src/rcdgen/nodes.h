@@ -816,6 +816,29 @@ public:
 	std::shared_ptr<SpriteBlock> nw_se_front; ///< Foreground platform sprite of the NW to SE direction.
 };
 
+/** 'FENC' game block. */
+class FENCBlock : public GameBlock {
+public:
+	FENCBlock();
+
+	int Write(FileWriter *fw) override;
+
+	int tile_width; ///< Zoom-width of a tile of the surface.
+	uint16 type;    ///< Type of fence.
+	std::shared_ptr<SpriteBlock> ne_hor; ///< Horizontal fence graphics of the north-east edge.
+	std::shared_ptr<SpriteBlock> ne_n;   ///< Fence graphics of the north-east edge, north side raised.
+	std::shared_ptr<SpriteBlock> ne_e;   ///< Fence graphics of the north-east edge, east side raised.
+	std::shared_ptr<SpriteBlock> se_hor; ///< Horizontal fence graphics of the south-east edge.
+	std::shared_ptr<SpriteBlock> se_e;   ///< Fence graphics of the south-east edge, east side raised.
+	std::shared_ptr<SpriteBlock> se_s;   ///< Fence graphics of the south-east edge, south side raised.
+	std::shared_ptr<SpriteBlock> sw_hor; ///< Horizontal fence graphics of the south-west edge.
+	std::shared_ptr<SpriteBlock> sw_w;   ///< Fence graphics of the south-west edge, west side raised.
+	std::shared_ptr<SpriteBlock> sw_s;   ///< Fence graphics of the south-west edge, south side raised.
+	std::shared_ptr<SpriteBlock> nw_hor; ///< Horizontal fence graphics of the north-west edge.
+	std::shared_ptr<SpriteBlock> nw_n;   ///< Fence graphics of the north-west edge, north side raised.
+	std::shared_ptr<SpriteBlock> nw_w;   ///< Fence graphics of the north-west edge, west side raised.
+};
+
 FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values);
 
 void GenerateStringsHeaderFile(const char *prefix, const char *base, const char *header);

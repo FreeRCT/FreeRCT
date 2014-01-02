@@ -560,7 +560,7 @@ Offset  Length  Description
   30       4    Vertical south-west foundation, south visible, west down.
   34       4    Vertical south-west foundation, south down,    west visible.
   38       4    Vertical south-west foundation, south visible, west visible.
-  42            Total length
+  42            Total length.
 ======  ======  ==========================================================
 
 The semantics of 'visible' is that the foundation is visible for the entire
@@ -586,6 +586,48 @@ Version history
 
 - 1 (20110918) Initial version.
 -   (20121207) Replaced sprites.
+
+
+Fences
+~~~~~~
+Fences are used to separate tiles from each other. They also have a decorative function.
+FreeRCT can load ``FENC`` blocks with version 1.
+
+======  ======  =======  ======  =====================================================================
+Offset  Length  Version  Name    Description
+======  ======  =======  ======  =====================================================================
+   0       4      1-             Magic string 'FENC'.
+   4       4      1-             Version number of the block.
+   8       4      1-             Length of the block excluding magic string, version, and length.
+  12       2      1-     width   Zoom-width of a tile.
+  14       2      1-     type    Fence type.
+  16       4      1-     ne_hor  Horizontal fence graphics of the north-east edge.
+  20       4      1-     ne_n    Fence graphics of the north-east edge, north side raised.
+  24       4      1-     ne_e    Fence graphics of the north-east edge, east side raised.
+  28       4      1-     se_hor  Horizontal fence graphics of the south-east edge.
+  32       4      1-     se_e    Fence graphics of the south-east edge, east side raised.
+  36       4      1-     se_s    Fence graphics of the south-east edge, south side raised.
+  40       4      1-     sw_hor  Horizontal fence graphics of the south-west edge.
+  44       4      1-     sw_w    Fence graphics of the south-west edge, west side raised.
+  48       4      1-     sw_s    Fence graphics of the south-west edge, south side raised.
+  52       4      1-     nw_hor  Horizontal fence graphics of the north-west edge.
+  56       4      1-     nw_n    Fence graphics of the north-west edge, north side raised.
+  60       4      1-     nw_w    Fence graphics of the north-west edge, west side raised.
+  64                             Total length.
+======  ======  =======  ======  =====================================================================
+
+The following fence types exist:
+
+- Empty fence (0), do not use.
+- Park fence (1).
+- Wooden fence (2).
+
+(The high byte of the fence type is always ``0``.)
+
+Version history
+...............
+
+- 1 (20140101) Initial version.
 
 
 Path block

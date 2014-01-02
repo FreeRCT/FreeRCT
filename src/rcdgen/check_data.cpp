@@ -2049,6 +2049,43 @@ static std::shared_ptr<CSPLBlock> ConvertCSPLNode(std::shared_ptr<NodeGroup> ng)
 	return blk;
 }
 
+/** Fence symbols. */
+static const Symbol _fence_symbols[] = {
+	{"wood", 1},
+	{nullptr, 0}
+};
+
+/**
+ * Convert a 'FENC' block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted FENC game block.
+ */
+static std::shared_ptr<FENCBlock> ConvertFENCNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "FENC");
+	auto blk = std::make_shared<FENCBlock>();
+	Values vals("FENC", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false, _fence_symbols);
+
+	blk->tile_width = vals.GetNumber("width");
+	blk->type       = vals.GetNumber("type");
+	blk->ne_hor     = vals.GetSprite("ne_hor");
+	blk->ne_n       = vals.GetSprite("ne_n");
+	blk->ne_e       = vals.GetSprite("ne_e");
+	blk->se_hor     = vals.GetSprite("se_hor");
+	blk->se_e       = vals.GetSprite("se_e");
+	blk->se_s       = vals.GetSprite("se_s");
+	blk->sw_hor     = vals.GetSprite("sw_hor");
+	blk->sw_w       = vals.GetSprite("sw_w");
+	blk->sw_s       = vals.GetSprite("sw_s");
+	blk->nw_hor     = vals.GetSprite("nw_hor");
+	blk->nw_n       = vals.GetSprite("nw_n");
+	blk->nw_w       = vals.GetSprite("nw_w");
+
+	vals.VerifyUsage();
+	return blk;
+}
+
 /**
  * Convert a node group.
  * @param ng Node group to convert.
@@ -2092,6 +2129,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "RCST") return ConvertRCSTNode(ng);
 	if (ng->name == "CARS") return ConvertCARSNode(ng);
 	if (ng->name == "CSPL") return ConvertCSPLNode(ng);
+	if (ng->name == "FENC") return ConvertFENCNode(ng);
 
 	/* Unknown type of node. */
 	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\".\n", ng->pos.ToString(), ng->name.c_str());

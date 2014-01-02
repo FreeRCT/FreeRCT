@@ -1246,3 +1246,28 @@ int CSPLBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+FENCBlock::FENCBlock() : GameBlock("FENC", 1)
+{
+}
+
+int FENCBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 64 - 12);
+	fb->SaveUInt16(this->tile_width);
+	fb->SaveUInt16(this->type);
+	fb->SaveUInt32(this->ne_hor->Write(fw));
+	fb->SaveUInt32(this->ne_n->Write(fw));
+	fb->SaveUInt32(this->ne_e->Write(fw));
+	fb->SaveUInt32(this->se_hor->Write(fw));
+	fb->SaveUInt32(this->se_e->Write(fw));
+	fb->SaveUInt32(this->se_s->Write(fw));
+	fb->SaveUInt32(this->sw_hor->Write(fw));
+	fb->SaveUInt32(this->sw_w->Write(fw));
+	fb->SaveUInt32(this->sw_s->Write(fw));
+	fb->SaveUInt32(this->nw_hor->Write(fw));
+	fb->SaveUInt32(this->nw_n->Write(fw));
+	fb->SaveUInt32(this->nw_w->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
