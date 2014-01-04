@@ -2051,7 +2051,10 @@ static std::shared_ptr<CSPLBlock> ConvertCSPLNode(std::shared_ptr<NodeGroup> ng)
 
 /** Fence symbols. */
 static const Symbol _fence_symbols[] = {
-	{"wood", 1},
+	{"border", 1},
+	{"wood", 2},
+	{"conifer", 3},
+	{"bricks", 4},
 	{nullptr, 0}
 };
 
@@ -2076,11 +2079,11 @@ static std::shared_ptr<FENCBlock> ConvertFENCNode(std::shared_ptr<NodeGroup> ng)
 	blk->se_e       = vals.GetSprite("se_e");
 	blk->se_s       = vals.GetSprite("se_s");
 	blk->sw_hor     = vals.GetSprite("sw_hor");
-	blk->sw_w       = vals.GetSprite("sw_w");
 	blk->sw_s       = vals.GetSprite("sw_s");
+	blk->sw_w       = vals.GetSprite("sw_w");
 	blk->nw_hor     = vals.GetSprite("nw_hor");
-	blk->nw_n       = vals.GetSprite("nw_n");
 	blk->nw_w       = vals.GetSprite("nw_w");
+	blk->nw_n       = vals.GetSprite("nw_n");
 
 	vals.VerifyUsage();
 	return blk;

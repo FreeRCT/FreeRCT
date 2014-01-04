@@ -832,11 +832,11 @@ public:
 	std::shared_ptr<SpriteBlock> se_e;   ///< Fence graphics of the south-east edge, east side raised.
 	std::shared_ptr<SpriteBlock> se_s;   ///< Fence graphics of the south-east edge, south side raised.
 	std::shared_ptr<SpriteBlock> sw_hor; ///< Horizontal fence graphics of the south-west edge.
-	std::shared_ptr<SpriteBlock> sw_w;   ///< Fence graphics of the south-west edge, west side raised.
 	std::shared_ptr<SpriteBlock> sw_s;   ///< Fence graphics of the south-west edge, south side raised.
+	std::shared_ptr<SpriteBlock> sw_w;   ///< Fence graphics of the south-west edge, west side raised.
 	std::shared_ptr<SpriteBlock> nw_hor; ///< Horizontal fence graphics of the north-west edge.
-	std::shared_ptr<SpriteBlock> nw_n;   ///< Fence graphics of the north-west edge, north side raised.
 	std::shared_ptr<SpriteBlock> nw_w;   ///< Fence graphics of the north-west edge, west side raised.
+	std::shared_ptr<SpriteBlock> nw_n;   ///< Fence graphics of the north-west edge, north side raised.
 };
 
 FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values);
