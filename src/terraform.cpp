@@ -13,6 +13,7 @@
 #include "map.h"
 #include "viewport.h"
 #include "terraform.h"
+#include "gamemode.h"
 #include "math_func.h"
 #include "memory.h"
 
@@ -209,7 +210,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
 	if (gd == nullptr) return true; // Out of the bounds in the world, silently ignore.
 	if (gd->GetCornerModified(corner)) return true; // Corner already changed.
 
-	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
 
 	uint8 old_height = gd->GetOrigHeight(corner);
 	if (direction > 0 && old_height == WORLD_Z_SIZE) return false; // Cannot change above top.
@@ -670,7 +671,7 @@ void TileTerraformMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bool dot_mode)
 {
 	Cursor *c = &vp->tile_cursor;
-	if (_world.GetTileOwner(c->xpos, c->ypos) != OWN_PARK) return;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->xpos, c->ypos) != OWN_PARK) return;
 
 	Point32 p;
 	uint16 w, h;
@@ -747,7 +748,7 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 			p.x = c->rect.base.x + dx;
 			for (uint dy = 0; dy < c->rect.height; dy++) {
 				p.y = c->rect.base.y + dy;
-				if (_world.GetTileOwner(p.x, p.y) == OWN_PARK) {
+				if (_game_mode_mgr.InEditorMode() || _world.GetTileOwner(p.x, p.y) == OWN_PARK) {
 					changes.UpdatelevellingHeight(p, direction, &height);
 				}
 			}
@@ -759,7 +760,7 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 		p.x = c->rect.base.x + dx;
 		for (uint dy = 0; dy < c->rect.height; dy++) {
 			p.y = c->rect.base.y + dy;
-			if (_world.GetTileOwner(p.x, p.y) == OWN_PARK) {
+			if (_game_mode_mgr.InEditorMode() || _world.GetTileOwner(p.x, p.y) == OWN_PARK) {
 				if (!changes.ChangeVoxel(p, height, direction)) return;
 			}
 		}

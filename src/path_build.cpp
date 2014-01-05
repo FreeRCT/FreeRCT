@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "path_build.h"
 #include "map.h"
+#include "gamemode.h"
 #include "window.h"
 #include "math_func.h"
 
@@ -61,7 +62,7 @@ static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bo
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
-	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos < 0 || zpos > WORLD_Z_SIZE - 3) return false; // Z range should be valid.
 
@@ -123,7 +124,7 @@ static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
-	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos < 0 || zpos > WORLD_Z_SIZE - 2) return false; // Z range should be valid.
 
@@ -175,7 +176,7 @@ static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, 
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
-	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos <= 0 || zpos > WORLD_Z_SIZE - 3) return false; // Z range should be valid.
 
@@ -237,7 +238,7 @@ static bool RemovePath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
-	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
 
 	if (zpos <= 0 || zpos > WORLD_Z_SIZE - 2) return false; // Z range should be valid.
 
@@ -291,7 +292,8 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 
 	/* If other side of the edge is not on-world or not owned, don't compute path options. */
 	Point16 dxy = _tile_dxy[edge];
-	if (!IsVoxelstackInsideWorld(xpos + dxy.x, ypos + dxy.y) || _world.GetTileOwner(xpos + dxy.x, ypos + dxy.y) != OWN_PARK) return 0;
+	if (!IsVoxelstackInsideWorld(xpos + dxy.x, ypos + dxy.y) || 
+			(_game_mode_mgr.InPlayMode() && _world.GetTileOwner(xpos + dxy.x, ypos + dxy.y) != OWN_PARK)) return 0;
 
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
 	if (v != nullptr && HasValidPath(v)) {
@@ -493,7 +495,7 @@ bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
 	if ((dxy.x < 0 && this->xpos == 0) || (dxy.x > 0 && this->xpos == _world.GetXSize() - 1)) return false;
 	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return false;
 	if ((delta_z < 0 && this->zpos == 0) || (delta_z > 0 && this->zpos == WORLD_Z_SIZE - 1)) return false;
-	if (_world.GetTileOwner(this->xpos + dxy.x, this->ypos + dxy.y) != OWN_PARK) return false;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->xpos + dxy.x, this->ypos + dxy.y) != OWN_PARK) return false;
 	const Voxel *v = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + delta_z);
 	/* Fail if the new voxel is a reference voxel, or it contains a ride. */
 	if (v != nullptr && v->GetInstance() >= SRI_FULL_RIDES) return false;

@@ -20,6 +20,7 @@
 #include "sprite_store.h"
 #include "gui_sprites.h"
 #include "viewport.h"
+#include "gamemode.h"
 
 void ShowQuitProgram();
 
@@ -33,6 +34,9 @@ public:
 
 	Point32 OnInitialPosition() override;
 	void OnClick(WidgetNumber number) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const;
+	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 };
 
 /**
@@ -42,6 +46,7 @@ public:
 enum ToolbarGuiWidgets {
 	TB_GUI_QUIT,        ///< Quit program button.
 	TB_GUI_SETTINGS,    ///< Settings button.
+	TB_GUI_GAME_MODE,   ///< Switch game mode button.
 	TB_GUI_PATHS,       ///< Build paths button.
 	TB_GUI_SAVE,        ///< Save game button.
 	TB_GUI_LOAD,        ///< Load game button.
@@ -58,6 +63,7 @@ static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_QUIT,        COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_QUIT,        GUI_TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_SETTINGS,    COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_SETTINGS,    GUI_TOOLBAR_GUI_TOOLTIP_SETTINGS),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_GAME_MODE,   COL_RANGE_BROWN), SetData(STR_ARG1,                    GUI_TOOLBAR_GUI_TOOLTIP_GAME_MODE),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_PATHS,       COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_PATHS,       GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_SAVE,        COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_SAVE,        GUI_TOOLBAR_GUI_TOOLTIP_SAVE_GAME),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_LOAD,        COL_RANGE_BROWN), SetData(GUI_TOOLBAR_GUI_LOAD,        GUI_TOOLBAR_GUI_TOOLTIP_LOAD_GAME),
@@ -78,6 +84,29 @@ Point32 ToolbarWindow::OnInitialPosition()
 	return pt;
 }
 
+/*
+ * Determines the string ID of the string to display
+ * for the switch game mode button.
+ * @return String id of the string to display.
+ */
+StringID GetSwitchGameModeString()
+{
+	switch (_game_mode_mgr.GetGameMode()) {
+		case GM_PLAY:
+			return GUI_TOOLBAR_GUI_GAME_MODE_EDITOR;
+
+		case GM_EDITOR:
+			return GUI_TOOLBAR_GUI_GAME_MODE_PLAY;
+
+		case GM_NONE:
+			/* The toolbar is not visible in none-mode. */
+			return STR_NULL;
+
+		default:
+			NOT_REACHED();
+	}
+}
+
 void ToolbarWindow::OnClick(WidgetNumber number)
 {
 	switch (number) {
@@ -87,6 +116,10 @@ void ToolbarWindow::OnClick(WidgetNumber number)
 
 		case TB_GUI_SETTINGS:
 			ShowSettingGui();
+			break;
+
+		case TB_GUI_GAME_MODE:
+			_game_mode_mgr.SetGameMode(_game_mode_mgr.InEditorMode() ? GM_PLAY : GM_EDITOR);
 			break;
 
 		case TB_GUI_PATHS:
@@ -111,6 +144,55 @@ void ToolbarWindow::OnClick(WidgetNumber number)
 
 		case TB_GUI_FINANCES:
 			ShowFinancesGui();
+			break;
+	}
+}
+
+void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
+{
+	switch (code) {
+		case CHG_UPDATE_BUTTONS:
+			/* Esure the right string parameters are used. */
+			this->MarkWidgetDirty(TB_GUI_GAME_MODE);
+			break;
+
+		default:
+			break;
+	}
+}
+
+void ToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+{
+	switch (wid_num) {
+		case TB_GUI_GAME_MODE: {
+			/* Use max width of the two strings to display on this button. */
+			int width, height;
+
+			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_GAME_MODE_PLAY);
+			GetTextSize(STR_ARG1, &width, &height);
+			wid->min_x = std::max(wid->min_x, (uint16)width);
+			wid->min_y = std::max(wid->min_y, (uint16)height);
+
+			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_GAME_MODE_EDITOR);
+			GetTextSize(STR_ARG1, &width, &height);
+			wid->min_x = std::max(wid->min_x, (uint16)width);
+			wid->min_y = std::max(wid->min_y, (uint16)height);
+			break;
+		}
+
+		default:
+			break;
+	}
+}
+
+void ToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+{
+	switch (wid_num) {
+		case TB_GUI_GAME_MODE:
+			_str_params.SetStrID(1, GetSwitchGameModeString());
+			break;
+
+		default:
 			break;
 	}
 }

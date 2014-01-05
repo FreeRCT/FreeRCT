@@ -25,6 +25,7 @@
 #include "finances.h"
 #include "gamelevel.h"
 #include "getoptdata.h"
+#include "gamemode.h"
 
 static bool _finish; ///< Finish execution of the program.
 
@@ -160,6 +161,8 @@ int main(int argc, char **argv)
 	ShowBottomToolbar();
 	Viewport *w = ShowMainDisplay();
 
+	_game_mode_mgr.SetGameMode(GM_PLAY);
+
 	bool missing_sprites_check = false;
 
 	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, nullptr);
@@ -288,6 +291,7 @@ int main(int argc, char **argv)
 
 	SDL_RemoveTimer(timer_id); // Drop the timer.
 
+	_game_mode_mgr.SetGameMode(GM_NONE);
 	_mouse_modes.SetMouseMode(MM_INACTIVE);
 	_manager.CloseAllWindows();
 	UninitLanguage();

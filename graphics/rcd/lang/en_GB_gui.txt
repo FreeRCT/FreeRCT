@@ -33,6 +33,9 @@ string { lang: "en_GB"; name: "TOOLBAR_GUI_QUIT";                 text: "Quit"; 
 string { lang: "en_GB"; name: "TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM"; text: "Quit the program"; }
 string { lang: "en_GB"; name: "TOOLBAR_GUI_SETTINGS";             text: "Settings"; }
 string { lang: "en_GB"; name: "TOOLBAR_GUI_TOOLTIP_SETTINGS";     text: "Change the game's settings"; }
+string { lang: "en_GB"; name: "TOOLBAR_GUI_GAME_MODE_PLAY";       text: "Play"; }
+string { lang: "en_GB"; name: "TOOLBAR_GUI_GAME_MODE_EDITOR";     text: "Editor"; }
+string { lang: "en_GB"; name: "TOOLBAR_GUI_TOOLTIP_GAME_MODE";    text: "Switch between playing and editing scenario"; }
 string { lang: "en_GB"; name: "TOOLBAR_GUI_PATHS";                text: "Paths"; }
 string { lang: "en_GB"; name: "TOOLBAR_GUI_TOOLTIP_BUILD_PATHS";  text: "Build paths and queues"; }
 string { lang: "en_GB"; name: "TOOLBAR_GUI_SAVE";                 text: "Save"; }
