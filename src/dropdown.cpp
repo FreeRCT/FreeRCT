@@ -28,7 +28,7 @@ DropdownItem::DropdownItem(StringID strid)
  */
 class DropdownMenuWindow : GuiWindow {
 public:
-	DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, const DropdownList &items, const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour);
+	DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const DropdownList &items, const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour);
 
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber number) override;
@@ -36,6 +36,7 @@ public:
 
 	WindowTypes parent_type; ///< Parent window type.
 	WindowNumber parent_num; ///< Parent window number.
+	int parent_btn;          ///< Object the dropdown originated from. Usually a #WidgetNumber.
 	DropdownList items;      ///< List of strings to display.
 	Rectangle16 size;        ///< Size of the window.
 	int selected_index;      ///< Currently selected item in list.
@@ -67,8 +68,8 @@ static const WidgetPart _dropdown_widgets[] = {
  * @param initial_select Item in list that is selected initially.
  * @param colour Colour of the window.
  */
-DropdownMenuWindow::DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, const DropdownList &items, const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour)
-		: GuiWindow(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE), parent_type(parent_type), parent_num(parent_num), items(items), selected_index(initial_select)
+DropdownMenuWindow::DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const DropdownList &items, const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour)
+		: GuiWindow(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE), parent_type(parent_type), parent_num(parent_num), parent_btn(parent_btn), items(items), selected_index(initial_select)
 {
 	this->SetDropdownSize(pos, min_width);
 	this->SetupWidgetTree(_dropdown_widgets, lengthof(_dropdown_widgets));
@@ -128,9 +129,8 @@ void DropdownMenuWindow::OnClick(WidgetNumber number)
 	int index = this->mouse_pos.y / GetTextHeight();
 	if (index >= (int)this->items.size()) return;
 
-	this->selected_index = index;
-
-	NotifyChange(this->parent_type, this->parent_num, CHG_DROPDOWN_RESULT, this->selected_index);
+	int send = this->parent_btn << 16 | index;
+	NotifyChange(this->parent_type, this->parent_num, CHG_DROPDOWN_RESULT, send);
 
 	_manager.DeleteWindow(this);
 }
@@ -154,5 +154,5 @@ void GuiWindow::ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items,
 	/* Calculate top-left position of window */
 	Point16 pos = {static_cast<int16>(GetWidgetScreenX(wid)), static_cast<int16>(GetWidgetScreenY(wid) + wid->pos.height)};
 
-	new DropdownMenuWindow(this->wtype, this->wnumber, items, pos, wid->min_x, selected_index, colour);
+	new DropdownMenuWindow(this->wtype, this->wnumber, widnum, items, pos, wid->min_x, selected_index, colour);
 }

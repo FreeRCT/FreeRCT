@@ -89,8 +89,15 @@ void SettingWindow::OnClick(WidgetNumber number)
 void SettingWindow::OnChange(ChangeCode code, uint32 parameter)
 {
 	if (code != CHG_DROPDOWN_RESULT) return;
-	_current_language = parameter;
-	_manager.ResetAllWindows();
+
+	switch ((parameter >> 16) & 0xFF) {
+		case SW_LANGUAGE:
+			_current_language = parameter & 0xFF;
+			_manager.ResetAllWindows();
+			break;
+
+		default: NOT_REACHED();
+	}
 }
 
 /**
