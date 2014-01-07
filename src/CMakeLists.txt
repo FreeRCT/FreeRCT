@@ -108,8 +108,16 @@ ELSEIF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 	SET(REGEX_STRING "([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):[0-9][0-9] .*")
 	string(REGEX REPLACE ${REGEX_STRING} "\\1\\2\\3-\\4\\5" DATE_STRING ${GITLOG})
 
+	# Assume git svn
+	execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+	                OUTPUT_VARIABLE CHASH
+	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+	execute_process(COMMAND ${GIT_EXECUTABLE} svn HEAD find-rev ${CHASH}
+	                OUTPUT_VARIABLE REV
+	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
 	FILE(GLOB GITFILES ${CMAKE_SOURCE_DIR}/.git/svn/*)
-	IF(GITFILES STREQUAL "")
+	IF(GITFILES STREQUAL "" OR REV STREQUAL "")
 		# git checkout
 		message(STATUS "Detected git checkout")
 		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list HEAD --count
@@ -119,15 +127,9 @@ ELSEIF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 	ELSE()
 		# git svn checkout
 		message(STATUS "Detected git svn checkout")
-		execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-		                OUTPUT_VARIABLE CHASH
-		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-		execute_process(COMMAND ${GIT_EXECUTABLE} svn HEAD find-rev ${CHASH}
-		                OUTPUT_VARIABLE REV
-		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-		string(REGEX REPLACE "([0-9]+)\n" "\\1" REV ${REV}) # Get rid of a newline
 		SET(SHORT_VCS "r")
 	ENDIF()
+	string(REGEX REPLACE "([0-9]+)\n" "\\1" REV ${REV}) # Get rid of a newline
 ELSEIF(HG_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.hg")
 	# WARNING: hg < 2.4 don't like date method
 	execute_process(COMMAND ${HG_EXECUTABLE} parent "--template={date(date, '%Y%m%d-%H%M')}" OUTPUT_VARIABLE DATE_STRING)
