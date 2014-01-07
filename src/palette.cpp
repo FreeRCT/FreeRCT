@@ -26,7 +26,7 @@ Recolouring::Recolouring()
  */
 Recolouring::Recolouring(const Recolouring &rc)
 {
-	MemCpy(this->range_map, rc.range_map, COL_RANGE_COUNT);
+	std::copy_n(rc.range_map, COL_RANGE_COUNT, this->range_map);
 }
 
 /**
@@ -37,7 +37,7 @@ Recolouring::Recolouring(const Recolouring &rc)
 Recolouring &Recolouring::operator=(const Recolouring &rc)
 {
 	if (this != &rc) {
-		MemCpy(this->range_map, rc.range_map, COL_RANGE_COUNT);
+		std::copy_n(rc.range_map, COL_RANGE_COUNT, this->range_map);
 	}
 	return *this;
 }
@@ -98,8 +98,8 @@ EditableRecolouring::EditableRecolouring() : Recolouring()
  */
 EditableRecolouring::EditableRecolouring(const EditableRecolouring &er) : Recolouring(er)
 {
-	MemCpy(this->name_map, er.name_map, COL_RANGE_COUNT);
-	MemCpy(this->tip_map,  er.tip_map,  COL_RANGE_COUNT);
+	std::copy_n(er.name_map, COL_RANGE_COUNT, this->name_map);
+	std::copy_n(er.tip_map,  COL_RANGE_COUNT, this->tip_map);
 }
 
 /**
@@ -110,9 +110,9 @@ EditableRecolouring::EditableRecolouring(const EditableRecolouring &er) : Recolo
 EditableRecolouring &EditableRecolouring::operator=(const EditableRecolouring &er)
 {
 	if (this != &er) {
-		MemCpy(this->range_map, er.range_map, COL_RANGE_COUNT);
-		MemCpy(this->name_map,  er.name_map,  COL_RANGE_COUNT);
-		MemCpy(this->tip_map,   er.tip_map,   COL_RANGE_COUNT);
+		std::copy_n(er.range_map, COL_RANGE_COUNT, this->range_map);
+		std::copy_n(er.name_map,  COL_RANGE_COUNT, this->name_map);
+		std::copy_n(er.tip_map,   COL_RANGE_COUNT, this->tip_map);
 	}
 	return *this;
 }
