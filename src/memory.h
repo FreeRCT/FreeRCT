@@ -27,17 +27,4 @@ inline void MemCpy(T *dest, const T *src, size_t count)
 	memcpy(dest, src, sizeof(T) * count);
 }
 
-/**
- * Type-safe version of memset.
- *
- * @param ptr Pointer to the destination buffer
- * @param value Value to be set
- * @param num number of items to be set (!not number of bytes!)
- */
-template <typename T>
-inline void MemSetT(T *ptr, byte value, size_t num = 1)
-{
-	memset(ptr, value, num * sizeof(T));
-}
-
 #endif

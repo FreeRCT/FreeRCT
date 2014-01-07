@@ -259,7 +259,7 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 	assert(v->GetGroundType() == GTP_INVALID);
 	uint16 instance = v->GetInstance();
 	if (instance >= SRI_FULL_RIDES) { // A ride needs the entire voxel.
-		MemSetT(bounds, height, 4);
+		std::fill_n(bounds, 4, height);
 		return;
 	}
 
@@ -291,7 +291,7 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 
 		default:
 			assert(ps < PATH_FLAT_COUNT);
-			MemSetT(bounds, height, 4);
+			std::fill_n(bounds, 4, height);
 			break;
 	}
 }
@@ -486,7 +486,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		if (direction > 0) {
 			/* Moving upwards, compute upper bound on corner heights. */
 			uint8 max_above[4];
-			MemSetT(max_above, gd.height + 3, lengthof(max_above));
+			std::fill_n(max_above, lengthof(max_above), gd.height + 3);
 
 			for (int i = 2; i >= 0; i--) {
 				SetUpperBoundary(vs->Get(gd.height + i), gd.height + i, max_above);
