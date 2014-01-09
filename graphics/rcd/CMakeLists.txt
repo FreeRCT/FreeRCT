@@ -13,8 +13,6 @@ ENDIF()
 
 PROJECT(rcd_files)
 
-GET_TARGET_PROPERTY(RCDGEN_EXE rcdgen LOCATION)
-
 # Make declaring the list shorter/nicer
 SET(FP "${CMAKE_SOURCE_DIR}/graphics/rcd/")
 
@@ -29,6 +27,8 @@ LIST(APPEND RCDFILES
   ${FP}gui.rcd                    ${FP}gui.txt     "gui"
   ${FP}tracks.rcd                 ${FP}tracks.txt  "tracks"
 )
+
+GET_TARGET_PROPERTY(RCDGEN_EXE rcdgen LOCATION)
 
 LIST(LENGTH RCDFILES RCDFILES_LENGTH)
 math(EXPR RCDFILES_LENGTH_DIV_3 "${RCDFILES_LENGTH} / 3 - 1")
@@ -47,9 +47,9 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
 
 	ADD_CUSTOM_COMMAND(
 	      OUTPUT ${OUTFILE}
-	      COMMAND ${RCDGEN_EXE} ${SRCFILE}
+	      COMMAND rcdgen ${SRCFILE}
 	      COMMENT "Generating rcd files from ${SRCFILE}"
-	      DEPENDS ${SRCFILE} ${LANGLIST}
+	      DEPENDS ${SRCFILE} ${RCDGEN_EXE} ${LANGLIST}
 	      WORKING_DIRECTORY ${FP}
 	)
 
@@ -57,8 +57,6 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
 ENDFOREACH(RCDFILE)
 
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})
-
-add_dependencies(rcd rcdgen)
 
 IF(NOT MSVC)
 	# Warning: doesn't check for rst2html's existence
