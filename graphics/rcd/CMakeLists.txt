@@ -20,30 +20,36 @@ SET(FP "${CMAKE_SOURCE_DIR}/graphics/rcd/")
 
 # Output file                     Source file
 LIST(APPEND RCDFILES
-  ${FP}borderhighlight_8bpp64.rcd ${FP}freerct.txt
-  ${FP}cornerhighlight_8bpp64.rcd ${FP}freerct.txt
-  ${FP}groundtile_8bpp64.rcd      ${FP}freerct.txt
-  ${FP}people_animation.rcd       ${FP}freerct.txt
-  ${FP}path_8bpp64.rcd            ${FP}paths.txt
-  ${FP}shops.rcd                  ${FP}shops.txt
-  ${FP}gui.rcd                    ${FP}gui.txt
-  ${FP}tracks.rcd                 ${FP}tracks.txt
+  ${FP}borderhighlight_8bpp64.rcd ${FP}freerct.txt ""
+  ${FP}cornerhighlight_8bpp64.rcd ${FP}freerct.txt ""
+  ${FP}groundtile_8bpp64.rcd      ${FP}freerct.txt ""
+  ${FP}people_animation.rcd       ${FP}freerct.txt ""
+  ${FP}path_8bpp64.rcd            ${FP}paths.txt   ""
+  ${FP}shops.rcd                  ${FP}shops.txt   "shops"
+  ${FP}gui.rcd                    ${FP}gui.txt     "gui"
+  ${FP}tracks.rcd                 ${FP}tracks.txt  "tracks"
 )
 
 LIST(LENGTH RCDFILES RCDFILES_LENGTH)
-math(EXPR RCDFILES_LENGTH_DIV_2 "${RCDFILES_LENGTH} / 2 - 1")
+math(EXPR RCDFILES_LENGTH_DIV_3 "${RCDFILES_LENGTH} / 3 - 1")
 
-FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_2})
-	math(EXPR INDEX_1 "${RCDFILE} * 2")
+FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
+	math(EXPR INDEX_1 "${RCDFILE} * 3")
 	math(EXPR INDEX_2 "${INDEX_1} + 1")
+	math(EXPR INDEX_3 "${INDEX_1} + 2")
 	LIST(GET RCDFILES ${INDEX_1} OUTFILE)
 	LIST(GET RCDFILES ${INDEX_2} SRCFILE)
+	LIST(GET RCDFILES ${INDEX_3} DEPTYPE)
+
+	IF(DEPTYPE)
+		file(GLOB LANGLIST ${FP}lang/*_${DEPTYPE}.txt)
+	ENDIF()
 
 	ADD_CUSTOM_COMMAND(
 	      OUTPUT ${OUTFILE}
 	      COMMAND ${RCDGEN_EXE} ${SRCFILE}
 	      COMMENT "Generating rcd files from ${SRCFILE}"
-	      DEPENDS ${SRCFILE}
+	      DEPENDS ${SRCFILE} ${LANGLIST}
 	      WORKING_DIRECTORY ${FP}
 	)
 
