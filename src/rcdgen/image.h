@@ -60,6 +60,8 @@ public:
 	int GetWidth() const;
 	int GetHeight() const;
 	bool IsEmpty(int xpos, int ypos, int dx, int dy, int length) const;
+	bool IsTransparent(int xpos, int ypos) const;
+	bool IsMaskedOut(int xpos, int ypos) const;
 	uint8 GetPixel(int x, int y) const;
 
 	bool HasLoadedFile() const;

@@ -233,6 +233,28 @@ static void WriteUInt32(uint32 value, uint8 *ptr)
 }
 
 /**
+ * If the pixel at the given coordinate masked away?
+ * @param x Horizontal position.
+ * @param y Vertical position.
+ * @return Whether the pixel at the given coordinate is masked away.
+ */
+bool Image::IsMaskedOut(int x, int y) const
+{
+	if (this->mask != nullptr) {
+		if (x >= this->mask_xpos && x < this->mask_xpos + this->mask->width &&
+				y >= this->mask_ypos && y < this->mask_ypos + this->mask->height) {
+			const uint8 *p = this->mask->data;
+			int off = (this->mask_ypos - y) * ((this->mask->width + 7) / 8);
+			p += off;
+			off = this->mask_xpos - x;
+			p += off / 8;
+			return (*p & (1 << (off & 7))) == 0;
+		}
+	}
+	return false;
+}
+
+/**
  * Get a pixel from the image.
  * @param x Horizontal position.
  * @param y Vertical position.
@@ -244,18 +266,7 @@ uint8 Image::GetPixel(int x, int y) const
 	assert(x >= 0 && x < this->imf.width);
 	assert(y >= 0 && y < this->imf.height);
 
-	if (this->mask != nullptr) {
-		if (x >= this->mask_xpos && x < this->mask_xpos + this->mask->width &&
-				y >= this->mask_ypos && y < this->mask_ypos + this->mask->height) {
-			const unsigned char *p = this->mask->data;
-			int off = (this->mask_ypos - y) * ((this->mask->width + 7) / 8);
-			p += off;
-			off = this->mask_xpos - x;
-			p += off / 8;
-			if ((*p & (1 << (off & 7))) == 0) return TRANSPARENT_INDEX;
-		}
-	}
-
+	if (this->IsMaskedOut(x, y)) return TRANSPARENT_INDEX;
 	return this->imf.row_pointers[y][x];
 }
 
@@ -271,12 +282,23 @@ uint8 Image::GetPixel(int x, int y) const
 bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length) const
 {
 	while (length > 0) {
-		if (this->GetPixel(xpos, ypos) != TRANSPARENT_INDEX) return false;
+		if (!this->IsTransparent(xpos, ypos)) return false;
 		xpos += dx;
 		ypos += dy;
 		length--;
 	}
 	return true;
+}
+
+/**
+ * Return whether the pixel at the given coordinate is fully transparent.
+ * @param xpos Horizontal position of the pixel.
+ * @param ypos Vertical position of the pixel.
+ * @return Whether the pixel at the given coordinate is fully transparent.
+ */
+bool Image::IsTransparent(int xpos, int ypos) const
+{
+	return this->GetPixel(xpos, ypos) == TRANSPARENT_INDEX;
 }
 
 /**
@@ -384,14 +406,12 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		int length = 0;
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.
 		for (int x = 0; x < xsize; x++) {
-			uint8 col = img->GetPixel(xpos + x, ypos + y);
-			if (col == TRANSPARENT_INDEX) continue;
+			if (img->IsTransparent(xpos + x, ypos + y)) continue;
 
 			int start = x;
 			x++;
 			while (x < xsize) {
-				uint8 col = img->GetPixel(xpos + x, ypos + y);
-				if (col == TRANSPARENT_INDEX) break;
+				if (img->IsTransparent(xpos + x, ypos + y)) break;
 				x++;
 			}
 			/* from 'start' upto and excluding 'x' are pixels to draw. */
@@ -437,14 +457,12 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		uint8 *last_header = nullptr;
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.
 		for (int x = 0; x < xsize; x++) {
-			uint8 col = img->GetPixel(xpos + x, ypos + y);
-			if (col == TRANSPARENT_INDEX) continue;
+			if (img->IsTransparent(xpos + x, ypos + y)) continue;
 
 			int start = x;
 			x++;
 			while (x < xsize) {
-				uint8 col = img->GetPixel(xpos + x, ypos + y);
-				if (col == TRANSPARENT_INDEX) break;
+				if (img->IsTransparent(xpos + x, ypos + y)) break;
 				x++;
 			}
 			/* from 'start' up to and excluding 'x' are pixels to draw. */
