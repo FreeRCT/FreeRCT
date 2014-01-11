@@ -33,8 +33,8 @@ public:
 
 	void Clear();
 	const char *LoadFile(const std::string &fname);
-	int GetWidth();
-	int GetHeight();
+	int GetWidth() const;
+	int GetHeight() const;
 
 	bool png_initialized; ///< Whether the data structures below are initialized.
 	uint8 **row_pointers; ///< Pointers into the rows of the image.
@@ -57,10 +57,10 @@ public:
 	~Image();
 
 	const char *LoadFile(const std::string &fname, BitMaskData *mask);
-	int GetWidth();
-	int GetHeight();
-	bool IsEmpty(int xpos, int ypos, int dx, int dy, int length);
-	uint8 GetPixel(int x, int y);
+	int GetWidth() const;
+	int GetHeight() const;
+	bool IsEmpty(int xpos, int ypos, int dx, int dy, int length) const;
+	uint8 GetPixel(int x, int y) const;
 
 	bool HasLoadedFile() const;
 

@@ -184,7 +184,7 @@ const char *Image::LoadFile(const std::string &fname, BitMaskData *mask)
  * Get the width of the image.
  * @return Width of the loaded image, or \c -1.
  */
-int ImageFile::GetWidth()
+int ImageFile::GetWidth() const
 {
 	if (!this->png_initialized) return -1;
 	return this->width;
@@ -194,7 +194,7 @@ int ImageFile::GetWidth()
  * Get the width of the image.
  * @return Width of the loaded image, or \c -1.
  */
-int Image::GetWidth()
+int Image::GetWidth() const
 {
 	return this->imf.GetWidth();
 }
@@ -203,7 +203,7 @@ int Image::GetWidth()
  * Get the height of the image.
  * @return Height of the loaded image, or \c -1.
  */
-int ImageFile::GetHeight()
+int ImageFile::GetHeight() const
 {
 	if (!this->png_initialized) return -1;
 	return this->height;
@@ -213,7 +213,7 @@ int ImageFile::GetHeight()
  * Get the height of the image.
  * @return Height of the loaded image, or \c -1.
  */
-int Image::GetHeight()
+int Image::GetHeight() const
 {
 	return this->imf.GetHeight();
 }
@@ -238,7 +238,7 @@ static void WriteUInt32(uint32 value, uint8 *ptr)
  * @param y Vertical position.
  * @return Value of the pixel (palette index, as it is an 8bpp indexed image).
  */
-uint8 Image::GetPixel(int x, int y)
+uint8 Image::GetPixel(int x, int y) const
 {
 	assert(this->imf.png_initialized);
 	assert(x >= 0 && x < this->imf.width);
@@ -268,7 +268,7 @@ uint8 Image::GetPixel(int x, int y)
  * @param length Number of pixels to examine.
  * @return All examined pixels are empty (have colour \c 0).
  */
-bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length)
+bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length) const
 {
 	while (length > 0) {
 		if (this->GetPixel(xpos, ypos) != TRANSPARENT_INDEX) return false;
