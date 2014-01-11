@@ -86,7 +86,6 @@ public:
 	int height;        ///< Number of rows of the image.
 
 	uint8 *data;       ///< Compressed image data.
-	uint16 *row_sizes; ///< Number of bytes needed for each row.
 	int data_size;     ///< Size of the #data field.
 };
 

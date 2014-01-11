@@ -219,6 +219,20 @@ int Image::GetHeight()
 }
 
 /**
+ * Write an unsigned 32 bit value into a byte array (little endian format).
+ * @param value Value to write.
+ * @param ptr Starting point for writing in the array.
+ */
+static void WriteUInt32(uint32 value, uint8 *ptr)
+{
+	for (int i = 0; i < 4; i++) {
+		*ptr = value & 0xff;
+		ptr++;
+		value >>= 8;
+	}
+}
+
+/**
  * Get a pixel from the image.
  * @param x Horizontal position.
  * @param y Vertical position.
@@ -277,7 +291,6 @@ bool Image::HasLoadedFile() const
 SpriteImage::SpriteImage()
 {
 	this->data = nullptr;
-	this->row_sizes = nullptr;
 	this->data_size = 0;
 	this->width = 0;
 	this->height = 0;
@@ -286,7 +299,6 @@ SpriteImage::SpriteImage()
 SpriteImage::~SpriteImage()
 {
 	delete[] this->data;
-	delete[] this->row_sizes;
 }
 
 /**
@@ -307,9 +319,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 
 	/* Remove any old data. */
 	delete[] this->data;
-	delete[] this->row_sizes;
 	this->data = nullptr;
-	this->row_sizes = nullptr;
 	this->data_size = 0;
 	this->height = 0;
 
@@ -365,8 +375,8 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	this->width = xsize;
 	this->height = ysize;
 
-	this->row_sizes = new uint16[this->height];
-	if (this->row_sizes == nullptr) return "Cannot allocate row sizes";
+	auto row_sizes = std::vector<int>();
+	row_sizes.reserve(this->height);
 
 	/* Examine the sprite, and record length of data for each row. */
 	this->data_size = 0;
@@ -398,7 +408,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 			last_stored = x;
 		}
 		assert(length <= 0xffff);
-		this->row_sizes[y] = length;
+		row_sizes.push_back(length);
 		this->data_size += length;
 	}
 	if (this->data_size == 0) { // No pixels -> no need to store any data.
@@ -406,13 +416,23 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		return nullptr;
 	}
 
-	/* Copy sprite pixels. */
+	this->data_size += 4 * this->height; // Add jump table space.
 	this->data = new uint8[this->data_size];
 	if (this->data == nullptr) return "Cannot allocate sprite pixel memory";
-
 	uint8 *ptr = this->data;
+
+	/* Construct jump table. */
+	uint32 offset = 4 * this->height;
 	for (int y = 0; y < this->height; y++) {
-		if (this->row_sizes[y] == 0) continue;
+		uint32 value = (row_sizes[y] == 0) ? 0 : offset;
+		WriteUInt32(value, ptr);
+		ptr += 4;
+		offset += row_sizes[y];
+	}
+
+	/* Copy sprite pixels. */
+	for (int y = 0; y < this->height; y++) {
+		if (row_sizes[y] == 0) continue;
 
 		uint8 *last_header = nullptr;
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.

@@ -80,23 +80,13 @@ int SpriteBlock::Write(FileWriter *fw)
 	if (this->sprite_image.data_size == 0) return 0; // Don't make empty sprites.
 
 	FileBlock *fb = new FileBlock;
-	int length = 4 * 2 + 4 * this->sprite_image.height + this->sprite_image.data_size;
+	int length = 4 * 2 + this->sprite_image.data_size;
 	fb->StartSave("8PXL", 2, length);
 
 	fb->SaveUInt16(this->sprite_image.width);
 	fb->SaveUInt16(this->sprite_image.height);
 	fb->SaveUInt16(this->sprite_image.xoffset);
 	fb->SaveUInt16(this->sprite_image.yoffset);
-	length = 4 * this->sprite_image.height;
-	for (int i = 0; i < this->sprite_image.height; i++) {
-		if (this->sprite_image.row_sizes[i] == 0) {
-			fb->SaveUInt32(0);
-		} else {
-			fb->SaveUInt32(length);
-			length += this->sprite_image.row_sizes[i];
-		}
-	}
-	assert(length == 4 * this->sprite_image.height + this->sprite_image.data_size);
 	fb->SaveBytes(this->sprite_image.data, this->sprite_image.data_size);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
