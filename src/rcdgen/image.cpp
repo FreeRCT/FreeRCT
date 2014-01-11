@@ -396,22 +396,38 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	this->yoffset = yoffset;
 	this->width = xsize;
 	this->height = ysize;
+	this->data = img->Encode(xpos, ypos, xsize, ysize, &this->data_size);
+	if (this->data == nullptr && this->data_size != 0) return "Cannot store sprite (not enough memory)";
+	return nullptr;
+}
 
+/**
+ * Encode an 8bpp sprite from (a part of) the image.
+ * @param xpos Left position of the sprite in the image.
+ * @param ypos Top position of the sprite in the image.
+ * @param width Width of the sprite.
+ * @param height Height of the sprite.
+ * @param size [out] Number of bytes needed to store the sprite.
+ * @return Memory of length \a size holding the sprite data. An empty sprite is return as \c nullptr with \a size /c 0.
+ *         A \c nullptr with a non-zero size indicates a memory error.
+ */
+uint8 *Image::Encode(int xpos, int ypos, int width, int height, int *size) const
+{
 	auto row_sizes = std::vector<int>();
-	row_sizes.reserve(this->height);
+	row_sizes.reserve(height);
 
 	/* Examine the sprite, and record length of data for each row. */
-	this->data_size = 0;
-	for (int y = 0; y < this->height; y++) {
+	int data_size = 0;
+	for (int y = 0; y < height; y++) {
 		int length = 0;
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.
-		for (int x = 0; x < xsize; x++) {
-			if (img->IsTransparent(xpos + x, ypos + y)) continue;
+		for (int x = 0; x < width; x++) {
+			if (this->IsTransparent(xpos + x, ypos + y)) continue;
 
 			int start = x;
 			x++;
-			while (x < xsize) {
-				if (img->IsTransparent(xpos + x, ypos + y)) break;
+			while (x < width) {
+				if (this->IsTransparent(xpos + x, ypos + y)) break;
 				x++;
 			}
 			/* from 'start' upto and excluding 'x' are pixels to draw. */
@@ -429,21 +445,24 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		}
 		assert(length <= 0xffff);
 		row_sizes.push_back(length);
-		this->data_size += length;
+		data_size += length;
 	}
-	if (this->data_size == 0) { // No pixels -> no need to store any data.
-		this->data = nullptr;
+	if (data_size == 0) { // No pixels -> no need to store any data.
+		*size = 0;
 		return nullptr;
 	}
 
-	this->data_size += 4 * this->height; // Add jump table space.
-	this->data = new uint8[this->data_size];
-	if (this->data == nullptr) return "Cannot allocate sprite pixel memory";
-	uint8 *ptr = this->data;
+	data_size += 4 * height; // Add jump table space.
+	uint8 *data = new uint8[data_size];
+	if (data == nullptr) {
+		*size = 1;
+		return nullptr;
+	}
+	uint8 *ptr = data;
 
 	/* Construct jump table. */
-	uint32 offset = 4 * this->height;
-	for (int y = 0; y < this->height; y++) {
+	uint32 offset = 4 * height;
+	for (int y = 0; y < height; y++) {
 		uint32 value = (row_sizes[y] == 0) ? 0 : offset;
 		WriteUInt32(value, ptr);
 		ptr += 4;
@@ -451,18 +470,18 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 	}
 
 	/* Copy sprite pixels. */
-	for (int y = 0; y < this->height; y++) {
+	for (int y = 0; y < height; y++) {
 		if (row_sizes[y] == 0) continue;
 
 		uint8 *last_header = nullptr;
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.
-		for (int x = 0; x < xsize; x++) {
-			if (img->IsTransparent(xpos + x, ypos + y)) continue;
+		for (int x = 0; x < width; x++) {
+			if (this->IsTransparent(xpos + x, ypos + y)) continue;
 
 			int start = x;
 			x++;
-			while (x < xsize) {
-				if (img->IsTransparent(xpos + x, ypos + y)) break;
+			while (x < width) {
+				if (this->IsTransparent(xpos + x, ypos + y)) break;
 				x++;
 			}
 			/* from 'start' up to and excluding 'x' are pixels to draw. */
@@ -475,7 +494,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 				*ptr++ = start - last_stored;
 				*ptr++ = 255;
 				for (int i = 0; i < 255; i++) {
-					*ptr++ = img->GetPixel(xpos + start, ypos + y);
+					*ptr++ = this->GetPixel(xpos + start, ypos + y);
 					start++;
 				}
 				last_stored = start;
@@ -484,7 +503,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 			*ptr++ = start - last_stored;
 			*ptr++ = x - start;
 			while (x > start) {
-				*ptr++ = img->GetPixel(xpos + start, ypos + y);
+				*ptr++ = this->GetPixel(xpos + start, ypos + y);
 				start++;
 			}
 			last_stored = x;
@@ -492,6 +511,7 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		assert(last_header != nullptr);
 		*last_header |= 128; // This was the last sequence of pixels.
 	}
-	assert(ptr - this->data == this->data_size);
-	return nullptr;
+	assert(ptr - data == data_size);
+	*size = data_size;
+	return data;
 }

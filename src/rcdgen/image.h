@@ -63,6 +63,7 @@ public:
 	bool IsTransparent(int xpos, int ypos) const;
 	bool IsMaskedOut(int xpos, int ypos) const;
 	uint8 GetPixel(int x, int y) const;
+	uint8 *Encode(int xpos, int ypos, int width, int height, int *size) const;
 
 	bool HasLoadedFile() const;
 
