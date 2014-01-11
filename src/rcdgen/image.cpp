@@ -76,27 +76,6 @@ void ImageFile::Clear()
 }
 
 /**
- * Constructor of an 8bpp sprite image.
- * @param imf File data containing the sprite image.
- * @param mask Bitmask to apply, or \c nullptr.
- */
-Image::Image(const ImageFile *imf, BitMaskData *mask)
-{
-	this->imf = imf;
-	assert(this->imf->png_initialized);
-
-	if (mask != nullptr) {
-		this->mask = GetMask(mask->type);
-		this->mask_xpos = mask->x_pos;
-		this->mask_ypos = mask->y_pos;
-	} else {
-		this->mask = nullptr;
-		this->mask_xpos = 0;
-		this->mask_ypos = 0;
-	}
-}
-
-/**
  * Load a .png file from the disk.
  * @param fname Name of the .png file to load.
  * @return An error message if loading failed, or \c nullptr if loading succeeded.
@@ -178,15 +157,6 @@ int ImageFile::GetWidth() const
 }
 
 /**
- * Get the width of the image.
- * @return Width of the loaded image, or \c -1.
- */
-int Image::GetWidth() const
-{
-	return this->imf->GetWidth();
-}
-
-/**
  * Get the height of the image.
  * @return Height of the loaded image, or \c -1.
  */
@@ -194,15 +164,6 @@ int ImageFile::GetHeight() const
 {
 	if (!this->png_initialized) return -1;
 	return this->height;
-}
-
-/**
- * Get the height of the image.
- * @return Height of the loaded image, or \c -1.
- */
-int Image::GetHeight() const
-{
-	return this->imf->GetHeight();
 }
 
 /**
@@ -217,6 +178,69 @@ static void WriteUInt32(uint32 value, uint8 *ptr)
 		ptr++;
 		value >>= 8;
 	}
+}
+
+/**
+ * Constructor of an 8bpp sprite image.
+ * @param imf File data containing the sprite image.
+ * @param mask Bitmask to apply, or \c nullptr.
+ */
+Image::Image(const ImageFile *imf, const char *block_name, int block_version, BitMaskData *mask) : block_name(block_name), block_version(block_version), imf(imf)
+{
+	assert(this->imf->png_initialized);
+
+	if (mask != nullptr) {
+		this->mask = GetMask(mask->type);
+		this->mask_xpos = mask->x_pos;
+		this->mask_ypos = mask->y_pos;
+	} else {
+		this->mask = nullptr;
+		this->mask_xpos = 0;
+		this->mask_ypos = 0;
+	}
+}
+
+/** Compiler doesn't like base classes without virtual destructor. */
+Image::~Image()
+{
+}
+
+/**
+ * Get the height of the image.
+ * @return Height of the loaded image, or \c -1.
+ */
+int Image::GetHeight() const
+{
+	return this->imf->GetHeight();
+}
+
+/**
+ * Get the width of the image.
+ * @return Width of the loaded image, or \c -1.
+ */
+int Image::GetWidth() const
+{
+	return this->imf->GetWidth();
+}
+
+/**
+ * Is the queried set of pixels empty?
+ * @param xpos Horizontal start position.
+ * @param ypos Vertical start position.
+ * @param dx Horizontal stepping size.
+ * @param dy Vertical stepping size.
+ * @param length Number of pixels to examine.
+ * @return All examined pixels are empty (have colour \c 0).
+ */
+bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length) const
+{
+	while (length > 0) {
+		if (!this->IsTransparent(xpos, ypos)) return false;
+		xpos += dx;
+		ypos += dy;
+		length--;
+	}
+	return true;
 }
 
 /**
@@ -242,141 +266,15 @@ bool Image::IsMaskedOut(int x, int y) const
 }
 
 /**
- * Get a pixel from the image.
- * @param x Horizontal position.
- * @param y Vertical position.
- * @return Value of the pixel (palette index, as it is an 8bpp indexed image).
- */
-uint8 Image::GetPixel(int x, int y) const
-{
-	assert(x >= 0 && x < this->imf->width);
-	assert(y >= 0 && y < this->imf->height);
-
-	if (this->IsMaskedOut(x, y)) return TRANSPARENT_INDEX;
-	return this->imf->row_pointers[y][x];
-}
-
-/**
- * Is the queried set of pixels empty?
- * @param xpos Horizontal start position.
- * @param ypos Vertical start position.
- * @param dx Horizontal stepping size.
- * @param dy Vertical stepping size.
- * @param length Number of pixels to examine.
- * @return All examined pixels are empty (have colour \c 0).
- */
-bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length) const
-{
-	while (length > 0) {
-		if (!this->IsTransparent(xpos, ypos)) return false;
-		xpos += dx;
-		ypos += dy;
-		length--;
-	}
-	return true;
-}
-
-/**
+ * \fn bool Image::IsTransparent(int xpos, int ypos) const
  * Return whether the pixel at the given coordinate is fully transparent.
  * @param xpos Horizontal position of the pixel.
  * @param ypos Vertical position of the pixel.
  * @return Whether the pixel at the given coordinate is fully transparent.
  */
-bool Image::IsTransparent(int xpos, int ypos) const
-{
-	return this->GetPixel(xpos, ypos) == TRANSPARENT_INDEX;
-}
-
-SpriteImage::SpriteImage()
-{
-	this->data = nullptr;
-	this->data_size = 0;
-	this->width = 0;
-	this->height = 0;
-}
-
-SpriteImage::~SpriteImage()
-{
-	delete[] this->data;
-}
 
 /**
- * Copy a part of the image as a sprite.
- * @param img %Image source.
- * @param xoffset Horizontal offset of the origin to the top-left pixel of the sprite.
- * @param yoffset Vertical offset of the origin to the top-left pixel of the sprite.
- * @param xpos Left position of the sprite in the image.
- * @param ypos Top position of the sprite in the image.
- * @param xsize Width of the sprite in the image.
- * @param ysize Height of the sprite in the image.
- * @param crop Perform cropping of the sprite.
- * @return Error message if the conversion failed, else \c nullptr.
- */
-const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop)
-{
-	/* Remove any old data. */
-	delete[] this->data;
-	this->data = nullptr;
-	this->data_size = 0;
-	this->height = 0;
-
-	int img_width = img->GetWidth();
-	int img_height = img->GetHeight();
-	if (xpos < 0 || ypos < 0) return "Negative starting position";
-	if (xpos >= img_width || ypos >= img_height) return "Starting position beyond image";
-	if (xsize < 0 || ysize < 0) return "Negative image size";
-	if (xpos + xsize > img_width) return "Sprite too wide";
-	if (ypos + ysize > img_height) return "Sprite too high";
-
-	if (crop) {
-		/* Perform cropping. */
-
-		/* Crop left columns. */
-		while (xsize > 0 && img->IsEmpty(xpos, ypos, 0, 1, ysize)) {
-			xpos++;
-			xsize--;
-			xoffset++;
-		}
-
-		/* Crop top rows. */
-		while (ysize > 0 && img->IsEmpty(xpos, ypos, 1, 0, xsize)) {
-			ypos++;
-			ysize--;
-			yoffset++;
-		}
-
-		/* Crop right columns. */
-		while (xsize > 0 && img->IsEmpty(xpos + xsize - 1, ypos, 0, 1, ysize)) {
-			xsize--;
-		}
-
-		/* Crop bottom rows. */
-		while (ysize > 0 && img->IsEmpty(xpos, ypos + ysize - 1, 1, 0, xsize)) {
-			ysize--;
-		}
-	}
-
-	if (xsize == 0 || ysize == 0) {
-		delete[] this->data;
-		this->data = nullptr;
-		this->data_size = 0;
-		this->xoffset = 0;
-		this->yoffset = 0;
-		this->width = 0;
-		this->height = 0;
-		return nullptr;
-	}
-
-	this->xoffset = xoffset;
-	this->yoffset = yoffset;
-	this->width = xsize;
-	this->height = ysize;
-	this->data = img->Encode(xpos, ypos, xsize, ysize, &this->data_size);
-	if (this->data == nullptr && this->data_size != 0) return "Cannot store sprite (not enough memory)";
-	return nullptr;
-}
-
-/**
+ * \fn uint8 *Image::Encode(int xpos, int ypos, int width, int height, int *size) const
  * Encode an 8bpp sprite from (a part of) the image.
  * @param xpos Left position of the sprite in the image.
  * @param ypos Top position of the sprite in the image.
@@ -386,7 +284,32 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
  * @return Memory of length \a size holding the sprite data. An empty sprite is return as \c nullptr with \a size /c 0.
  *         A \c nullptr with a non-zero size indicates a memory error.
  */
-uint8 *Image::Encode(int xpos, int ypos, int width, int height, int *size) const
+
+Image8bpp::Image8bpp(const ImageFile *imf, BitMaskData *mask) : Image(imf, "8PXL", 2, mask)
+{
+}
+
+/**
+ * Get a pixel from the image.
+ * @param x Horizontal position.
+ * @param y Vertical position.
+ * @return Value of the pixel (palette index, as it is an 8bpp indexed image).
+ */
+uint8 Image8bpp::GetPixel(int x, int y) const
+{
+	assert(x >= 0 && x < this->imf->width);
+	assert(y >= 0 && y < this->imf->height);
+
+	if (this->IsMaskedOut(x, y)) return TRANSPARENT_INDEX;
+	return this->imf->row_pointers[y][x];
+}
+
+bool Image8bpp::IsTransparent(int xpos, int ypos) const
+{
+	return this->GetPixel(xpos, ypos) == TRANSPARENT_INDEX;
+}
+
+uint8 *Image8bpp::Encode(int xpos, int ypos, int width, int height, int *size) const
 {
 	auto row_sizes = std::vector<int>();
 	row_sizes.reserve(height);
@@ -489,4 +412,95 @@ uint8 *Image::Encode(int xpos, int ypos, int width, int height, int *size) const
 	assert(ptr - data == data_size);
 	*size = data_size;
 	return data;
+}
+
+SpriteImage::SpriteImage()
+{
+	this->data = nullptr;
+	this->data_size = 0;
+	this->width = 0;
+	this->height = 0;
+}
+
+SpriteImage::~SpriteImage()
+{
+	delete[] this->data;
+}
+
+/**
+ * Copy a part of the image as a sprite.
+ * @param img %Image source.
+ * @param xoffset Horizontal offset of the origin to the top-left pixel of the sprite.
+ * @param yoffset Vertical offset of the origin to the top-left pixel of the sprite.
+ * @param xpos Left position of the sprite in the image.
+ * @param ypos Top position of the sprite in the image.
+ * @param xsize Width of the sprite in the image.
+ * @param ysize Height of the sprite in the image.
+ * @param crop Perform cropping of the sprite.
+ * @return Error message if the conversion failed, else \c nullptr.
+ */
+const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop)
+{
+	/* Remove any old data. */
+	delete[] this->data;
+	this->data = nullptr;
+	this->data_size = 0;
+	this->height = 0;
+	this->block_name = img->block_name;
+	this->block_version = img->block_version;
+
+	int img_width = img->GetWidth();
+	int img_height = img->GetHeight();
+	if (xpos < 0 || ypos < 0) return "Negative starting position";
+	if (xpos >= img_width || ypos >= img_height) return "Starting position beyond image";
+	if (xsize < 0 || ysize < 0) return "Negative image size";
+	if (xpos + xsize > img_width) return "Sprite too wide";
+	if (ypos + ysize > img_height) return "Sprite too high";
+
+	if (crop) {
+		/* Perform cropping. */
+
+		/* Crop left columns. */
+		while (xsize > 0 && img->IsEmpty(xpos, ypos, 0, 1, ysize)) {
+			xpos++;
+			xsize--;
+			xoffset++;
+		}
+
+		/* Crop top rows. */
+		while (ysize > 0 && img->IsEmpty(xpos, ypos, 1, 0, xsize)) {
+			ypos++;
+			ysize--;
+			yoffset++;
+		}
+
+		/* Crop right columns. */
+		while (xsize > 0 && img->IsEmpty(xpos + xsize - 1, ypos, 0, 1, ysize)) {
+			xsize--;
+		}
+
+		/* Crop bottom rows. */
+		while (ysize > 0 && img->IsEmpty(xpos, ypos + ysize - 1, 1, 0, xsize)) {
+			ysize--;
+		}
+	}
+
+	if (xsize == 0 || ysize == 0) {
+		delete[] this->data;
+		this->data = nullptr;
+		this->data_size = 0;
+		this->xoffset = 0;
+		this->yoffset = 0;
+		this->width = 0;
+		this->height = 0;
+		return nullptr;
+	}
+
+	this->xoffset = xoffset;
+	this->yoffset = yoffset;
+	this->width = xsize;
+	this->height = ysize;
+	this->data = img->Encode(xpos, ypos, xsize, ysize, &this->data_size);
+	if (this->data == nullptr && this->data_size != 0) return "Cannot store sprite (not enough memory)";
+	return nullptr;
 }

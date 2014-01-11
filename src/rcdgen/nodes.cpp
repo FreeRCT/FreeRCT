@@ -81,7 +81,7 @@ int SpriteBlock::Write(FileWriter *fw)
 
 	FileBlock *fb = new FileBlock;
 	int length = 4 * 2 + this->sprite_image.data_size;
-	fb->StartSave("8PXL", 2, length);
+	fb->StartSave(this->sprite_image.block_name, this->sprite_image.block_version, length);
 
 	fb->SaveUInt16(this->sprite_image.width);
 	fb->SaveUInt16(this->sprite_image.height);
@@ -123,7 +123,7 @@ Image *SheetBlock::GetSheet()
 		exit(1);
 	}
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
-	this->img_sheet = new Image(this->imf, bmd);
+	this->img_sheet = new Image8bpp(this->imf, bmd);
 	return this->img_sheet;
 }
 

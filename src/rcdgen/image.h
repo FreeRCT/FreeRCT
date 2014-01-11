@@ -50,25 +50,43 @@ private:
 	png_infop end_info;   ///< Png end information.
 };
 
-/** Pixel access to the image. */
+/**
+ * Pixel access to the image.
+ *
+ * Code assumes that the block structure of 32bpp and 8bpp is exactly the same, just the block name,
+ * block version, and the sprite encoding are different.
+ */
 class Image {
 public:
-	Image(const ImageFile *imf, BitMaskData *mask);
+	Image(const ImageFile *imf, const char *block_name, int block_version, BitMaskData *mask);
+	virtual ~Image();
 
 	int GetWidth() const;
 	int GetHeight() const;
 	bool IsEmpty(int xpos, int ypos, int dx, int dy, int length) const;
-	bool IsTransparent(int xpos, int ypos) const;
 	bool IsMaskedOut(int xpos, int ypos) const;
-	uint8 GetPixel(int x, int y) const;
-	uint8 *Encode(int xpos, int ypos, int width, int height, int *size) const;
 
-private:
+	virtual bool IsTransparent(int xpos, int ypos) const = 0;
+	virtual uint8 *Encode(int xpos, int ypos, int width, int height, int *size) const = 0;
+
+	const char *block_name;  ///< Name of the block to write.
+	const int block_version; ///< Version number of the block to write.
+
+protected:
+	const ImageFile *imf;        ///< Image file (not owned by the object).
 	int mask_xpos;               ///< X position of the left of the mask.
 	int mask_ypos;               ///< Y position of the top of the mask.
 	const MaskInformation *mask; ///< Information about the used bitmask (or \c nullptr).
+};
 
-	const ImageFile *imf;        ///< Image file (not owned by the object).
+/** An 8bpp image. */
+class Image8bpp : public Image {
+public:
+	Image8bpp(const ImageFile *imf, BitMaskData *mask);
+
+	uint8 GetPixel(int x, int y) const;
+	virtual bool IsTransparent(int xpos, int ypos) const override;
+	virtual uint8 *Encode(int xpos, int ypos, int width, int height, int *size) const override;
 };
 
 /** A Sprite. */
@@ -79,13 +97,15 @@ public:
 
 	const char *CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop);
 
-	int xoffset;       ///< Horizontal offset from the origin to the top-left pixel of the sprite image.
-	int yoffset;       ///< Vertical offset from the origin to the top-left pixel of the sprite image.
-	int width;         ///< Width of the image.
-	int height;        ///< Number of rows of the image.
+	int xoffset;            ///< Horizontal offset from the origin to the top-left pixel of the sprite image.
+	int yoffset;            ///< Vertical offset from the origin to the top-left pixel of the sprite image.
+	int width;              ///< Width of the image.
+	int height;             ///< Number of rows of the image.
+	const char *block_name; ///< Name of the block to write.
+	int block_version;      ///< Version number of the block to write.
 
-	uint8 *data;       ///< Compressed image data.
-	int data_size;     ///< Size of the #data field.
+	uint8 *data;            ///< Compressed image data.
+	int data_size;          ///< Size of the #data field.
 };
 
 #endif
