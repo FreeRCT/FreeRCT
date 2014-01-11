@@ -100,12 +100,16 @@ SheetBlock::SheetBlock(const Position &pos) : pos(pos)
 {
 	this->imf = nullptr;
 	this->img_sheet = nullptr;
+	this->rmf = nullptr;
+	this->rim = nullptr;
 }
 
 SheetBlock::~SheetBlock()
 {
 	delete this->imf;
 	delete this->img_sheet;
+	delete this->rmf;
+	delete this->rim;
 }
 
 /**
@@ -125,8 +129,24 @@ Image *SheetBlock::GetSheet()
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
 	if (this->imf->Is8bpp()) {
 		this->img_sheet = new Image8bpp(this->imf, bmd);
+		if (this->recolour != "") fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
 	} else {
-		this->img_sheet = new Image32bpp(this->imf, bmd);
+		Image32bpp *im = new Image32bpp(this->imf, bmd);
+		this->img_sheet = im;
+		if (this->recolour != "") {
+			this->rmf = new ImageFile;
+			const char *err = this->rmf->LoadFile(this->recolour);
+			if (err != nullptr) {
+				fprintf(stderr, "Error at %s, loading of the recolour file failed: %s\n", this->pos.ToString(), err);
+				exit(1);
+			}
+			if (!this->rmf->Is8bpp()) {
+				fprintf(stderr, "Error at %s, recolour file must be an 8bpp image.\n", this->pos.ToString());
+				exit(1);
+			}
+			this->rim = new Image8bpp(this->rmf, nullptr);
+			im->SetRecolourImage(this->rim);
+		}
 	}
 	return this->img_sheet;
 }

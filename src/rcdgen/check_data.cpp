@@ -1299,6 +1299,9 @@ static std::shared_ptr<SheetBlock> ConvertSheetNode(std::shared_ptr<NodeGroup> n
 	sb->width    = vals.GetNumber("width");
 	sb->height   = vals.GetNumber("height");
 
+	sb->recolour = "";
+	if (vals.HasValue("recolour")) sb->recolour = vals.GetString("recolour");
+
 	sb->crop = true;
 	if (vals.HasValue("crop")) sb->crop = vals.GetNumber("crop") != 0;
 	sb->x_count = -1;
@@ -1344,6 +1347,9 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 		int xoffset      = vals.GetNumber("x_offset");
 		int yoffset      = vals.GetNumber("y_offset");
 
+		std::string recolour = "";
+		if (vals.HasValue("recolour")) recolour = vals.GetString("recolour");
+
 		bool crop = true;
 		if (vals.HasValue("crop")) crop = vals.GetNumber("crop") != 0;
 
@@ -1367,10 +1373,27 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
 		if (imf.Is8bpp()) {
 			Image8bpp img(&imf, bmd);
+			if (recolour != "") fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", ng->pos.ToString());
 			err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 		} else {
 			Image32bpp img(&imf, bmd);
-			err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+			if (recolour == "") {
+				err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+			} else {
+				ImageFile rmf;
+				const char *err = rmf.LoadFile(recolour);
+				if (err != nullptr) {
+					fprintf(stderr, "Error at %s, loading of the recolour file failed: %s\n", ng->pos.ToString(), err);
+					exit(1);
+				}
+				if (!rmf.Is8bpp()) {
+					fprintf(stderr, "Error at %s, recolour file must be an 8bpp image.\n", ng->pos.ToString());
+					exit(1);
+				}
+				Image8bpp rim(&rmf, nullptr);
+				img.SetRecolourImage(&rim);
+				err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+			}
 		}
 		if (err != nullptr) {
 			fprintf(stderr, "Error at %s, copying the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name.c_str(), err);

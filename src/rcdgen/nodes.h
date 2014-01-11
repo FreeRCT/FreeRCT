@@ -110,6 +110,7 @@ public:
 
 	Position pos;     ///< Line number defining the sheet.
 	std::string file; ///< %Name of the file containing the sprite sheet.
+	std::string recolour; ///< %Name of the file containing 32bpp recolour information (\c "" means no file).
 	int x_base;       ///< Horizontal base offset in the sheet.
 	int y_base;       ///< Vertical base offset in the sheet.
 	int x_step;       ///< Column step size.
@@ -125,6 +126,8 @@ public:
 	ImageFile *imf;   ///< Loaded image file.
 	Image *img_sheet; ///< Sheet of images.
 	std::shared_ptr<BitMask> mask; ///< Bit mask to apply first (if available).
+	ImageFile *rmf;   ///< Loaded recolour file.
+	Image8bpp *rim;   ///< Recolour image.
 };
 
 /** A 'TSEL' block. */
