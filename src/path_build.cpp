@@ -25,9 +25,9 @@ PathBuildManager _path_builder; ///< %Path build manager.
  * @param ypos Y coordinate of the voxel.
  * @param zpos Z coordinate of the voxel.
  * @param edge Direction to move to get the neighbouring voxel.
+ * @return Whether a path exists at the bottom of the neighbouring voxel.
  * @pre voxel coordinate must be valid in the world.
  * @todo Merge with path computations in the path placement.
- * @return Whether a path exists at the bottom of the neighbouring voxel.
  */
 bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 {

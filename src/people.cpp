@@ -20,7 +20,7 @@
 #include "people.h"
 #include "gamelevel.h"
 
-Guests _guests; ///< Guests in the world/park.
+Guests _guests; ///< %Guests in the world/park.
 
 /**
  * Guest block constructor. Fills the id of the persons with an incrementing number.

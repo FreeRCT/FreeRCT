@@ -605,8 +605,8 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 
 /**
  * Retrieve how many trains can be used at this roller coaster.
- * @todo Take the positioned track pieces of the coaster into account.
  * @return The maximum number of trains at this coaster.
+ * @todo Take the positioned track pieces of the coaster into account.
  */
 int CoasterInstance::GetMaxNumberOfTrains() const
 {
@@ -651,9 +651,9 @@ int CoasterInstance::GetNumberOfTrains() const
 
 /**
  * Get the maximum number of cars of a train.
+ * @return The maximum number of cars in a train.
  * @todo Take coaster length and number of trains into account.
  * @todo Take car type into account.
- * @return The maximum number of cars in a train.
  */
 int CoasterInstance::GetMaxNumberOfCars() const
 {

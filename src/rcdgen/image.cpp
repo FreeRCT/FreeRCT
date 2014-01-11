@@ -193,6 +193,8 @@ static void WriteUInt32(uint32 value, uint8 *ptr)
 /**
  * Constructor of an 8bpp sprite image.
  * @param imf File data containing the sprite image.
+ * @param block_name Name of the sprite block (the 4 letter code)
+ * @param block_version Version number of the sprite block.
  * @param mask Bitmask to apply, or \c nullptr.
  */
 Image::Image(const ImageFile *imf, const char *block_name, int block_version, BitMaskData *mask) : block_name(block_name), block_version(block_version), imf(imf)
@@ -566,8 +568,8 @@ uint8 Image32bpp::GetCurrentRecolour(int x, int y, int max_length, int *count) c
  * @param x X position of the first pixel in the image to examine.
  * @param y Y position of the first pixel in the image to examine.
  * @param max_length Maximum number of pixels to test (should be at least \c 1).
- * @return count [out] Number of pixels with the same opaqueness value.
- * @return Value of the opaqueness (at \a x, \a y)..
+ * @param count [out] Number of pixels with the same opaqueness value.
+ * @return Value of the opaqueness (at \a x, \a y).
  */
 uint8 Image32bpp::GetSameOpaqueness(int x, int y, int max_length, int *count) const
 {

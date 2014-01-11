@@ -468,7 +468,7 @@ typedef std::map<Point32, VoxelStack *> VoxelStackMap;
  * Proposed additions to #_world.
  * Temporary buffer to make changes in the world, and show them to the user
  * without having them really in the game until the user confirms.
- * @note This world does not use the #Voxel::persons person list.
+ * @note This world does not use the #Voxel::voxel_objects list.
  */
 class WorldAdditions {
 public:

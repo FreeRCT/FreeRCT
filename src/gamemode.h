@@ -23,6 +23,7 @@ enum GameMode {
 	GM_EDITOR, ///< The current scenario is being edited.
 };
 
+/** Class managing the game mode of the program. */
 class GameModeManager {
 public:
 	GameModeManager();
@@ -34,7 +35,7 @@ public:
 	inline bool InEditorMode() const;
 
 private:
-	GameMode game_mode;
+	GameMode game_mode; ///< Current game mode of the program.
 };
 
 /**

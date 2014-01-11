@@ -56,7 +56,7 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copy_voxel_objects)
  * @param dest Destination address.
  * @param src Source address.
  * @param count Number of voxels to copy.
- * @param copyPersons Copy the person list too.
+ * @param copy_voxel_objects Copy the voxel object list too.
  */
 static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_objects)
 {
@@ -82,11 +82,12 @@ static Voxel *MakeNewVoxels(int height)
 }
 
 /**
- * \fn VoxelObject::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+ * \fn const ImageData *VoxelObject::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
  * Get the sprite to draw for the voxel object.
  * @param sprites Sprites at the right size for drawing.
  * @param orient Direction of view.
  * @param recolour [out] Recolour mapping if present, else \c nullptr.
+ * @return Sprite to display for the voxel object.
  */
 
 

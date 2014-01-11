@@ -13,7 +13,7 @@
 #include "gamemode.h"
 #include "window.h"
 
-GameModeManager _game_mode_mgr;
+GameModeManager _game_mode_mgr; ///< Game mode manager object.
 
 GameModeManager::GameModeManager()
 {
@@ -24,6 +24,10 @@ GameModeManager::~GameModeManager()
 {
 }
 
+/**
+ * Change game mode of the program.
+ * @param new_mode New mode to use.
+ */
 void GameModeManager::SetGameMode(GameMode new_mode)
 {
 	this->game_mode = new_mode;

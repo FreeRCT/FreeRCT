@@ -84,7 +84,7 @@ Point32 ToolbarWindow::OnInitialPosition()
 	return pt;
 }
 
-/*
+/**
  * Determines the string ID of the string to display
  * for the switch game mode button.
  * @return String id of the string to display.
