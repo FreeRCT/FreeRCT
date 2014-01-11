@@ -123,7 +123,11 @@ Image *SheetBlock::GetSheet()
 		exit(1);
 	}
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
-	this->img_sheet = new Image8bpp(this->imf, bmd);
+	if (this->imf->Is8bpp()) {
+		this->img_sheet = new Image8bpp(this->imf, bmd);
+	} else {
+		this->img_sheet = new Image32bpp(this->imf, bmd);
+	}
 	return this->img_sheet;
 }
 

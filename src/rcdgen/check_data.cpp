@@ -1365,8 +1365,13 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 		}
 
 		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
-		Image8bpp img(&imf, bmd);
-		err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+		if (imf.Is8bpp()) {
+			Image8bpp img(&imf, bmd);
+			err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+		} else {
+			Image32bpp img(&imf, bmd);
+			err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+		}
 		if (err != nullptr) {
 			fprintf(stderr, "Error at %s, copying the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name.c_str(), err);
 			exit(1);

@@ -169,6 +169,14 @@ int ImageFile::GetHeight() const
 }
 
 /**
+ * Return whether the loaded image file can be interpreted as an 8bpp image.
+ * @return \c true if the file is an 8bpp image, else \c false (which means it is a 32bpp image).
+ */
+bool ImageFile::Is8bpp() const {
+	return this->color_type == PNG_COLOR_TYPE_PALETTE;
+}
+
+/**
  * Write an unsigned 32 bit value into a byte array (little endian format).
  * @param value Value to write.
  * @param ptr Starting point for writing in the array.

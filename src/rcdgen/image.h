@@ -35,6 +35,7 @@ public:
 	const char *LoadFile(const std::string &fname);
 	int GetWidth() const;
 	int GetHeight() const;
+	bool Is8bpp() const;
 
 	bool png_initialized; ///< Whether the data structures below are initialized.
 	uint8 **row_pointers; ///< Pointers into the rows of the image.
