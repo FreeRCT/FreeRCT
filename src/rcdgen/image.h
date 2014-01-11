@@ -26,30 +26,50 @@ public:
 struct MaskInformation;
 
 /** A PNG image file. */
+class ImageFile {
+public:
+	ImageFile();
+	~ImageFile();
+
+	void Clear();
+	const char *LoadFile(const std::string &fname);
+	int GetWidth();
+	int GetHeight();
+
+	bool png_initialized; ///< Whether the data structures below are initialized.
+	uint8 **row_pointers; ///< Pointers into the rows of the image.
+
+	int width;            ///< Width of the loaded image.
+	int height;           ///< Height of the loaded image.
+	int color_type;       ///< Type of image.
+	std::string fname;    ///< Name of the loaded file.
+
+private:
+	png_structp png_ptr;  ///< Png image data.
+	png_infop info_ptr;   ///< Png information.
+	png_infop end_info;   ///< Png end information.
+};
+
+/** Pixel access to the image. */
 class Image {
 public:
 	Image();
 	~Image();
 
-	const char *LoadFile(const char *fname, BitMaskData *mask);
+	const char *LoadFile(const std::string &fname, BitMaskData *mask);
 	int GetWidth();
 	int GetHeight();
 	bool IsEmpty(int xpos, int ypos, int dx, int dy, int length);
 	uint8 GetPixel(int x, int y);
 
-	bool png_initialized; ///< Whether the data structures below are initialized.
-	uint8 **row_pointers; ///< Pointers into the rows of the image.
+	bool HasLoadedFile() const;
 
 private:
 	int mask_xpos;               ///< X position of the left of the mask.
 	int mask_ypos;               ///< Y position of the top of the mask.
 	const MaskInformation *mask; ///< Information about the used bitmask (or \c nullptr).
 
-	int width;            ///< Width of the loaded image.
-	int height;           ///< Height of the loaded image.
-	png_structp png_ptr;  ///< Png image data.
-	png_infop info_ptr;   ///< Png information.
-	png_infop end_info;   ///< Png end information.
+	ImageFile imf;               ///< Image file.
 };
 
 /** A Sprite. */

@@ -1359,7 +1359,7 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 
 		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
 		Image img;
-		const char *err = img.LoadFile(file.c_str(), bmd);
+		const char *err = img.LoadFile(file, bmd);
 		if (err == nullptr) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 
 		if (err != nullptr) {

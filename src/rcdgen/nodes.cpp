@@ -126,7 +126,7 @@ Image *SheetBlock::GetSheet()
 
 	this->img_sheet = new Image;
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
-	const char *err = this->img_sheet->LoadFile(this->file.c_str(), bmd);
+	const char *err = this->img_sheet->LoadFile(this->file, bmd);
 	if (err != nullptr) {
 		fprintf(stderr, "Error at %s, loading of the sheet-image failed: %s\n", this->pos.ToString(), err);
 		exit(1);

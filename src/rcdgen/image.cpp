@@ -17,8 +17,8 @@
 
 #include "mask64.xbm"
 
-static const size_t HEADER_SIZE = 4; ///< Number of bytes to read to decide whether a provided file is indeed a PNG file.
-static const int TRANSPARENT = 0;    ///< Colour index of 'transparent' in the 8bpp image.
+static const size_t HEADER_SIZE = 4;    ///< Number of bytes to read to decide whether a provided file is indeed a PNG file.
+static const int TRANSPARENT_INDEX = 0; ///< Colour index of 'transparent' in the 8bpp image.
 
 
 /** Information about available bit masks. */
@@ -52,27 +52,45 @@ static const MaskInformation *GetMask(const std::string &name)
 	return nullptr;
 }
 
-Image::Image()
+ImageFile::ImageFile()
 {
 	this->png_initialized = false;
+	this->row_pointers = nullptr;
+	this->fname = "";
+}
+
+ImageFile::~ImageFile()
+{
+	this->Clear();
+}
+
+/** Reset the object, to prepare it for loading another image file. */
+void ImageFile::Clear()
+{
+	if (!this->png_initialized) return;
+
+	png_destroy_read_struct(&this->png_ptr, &this->info_ptr, &this->end_info);
+	this->row_pointers = nullptr;
+	this->png_initialized = false;
+	this->fname = "";
+}
+
+Image::Image()
+{
 }
 
 Image::~Image()
 {
-	if (this->png_initialized) {
-		png_destroy_read_struct(&this->png_ptr, &this->info_ptr, &this->end_info);
-	}
 }
 
 /**
  * Load a .png file from the disk.
  * @param fname Name of the .png file to load.
- * @param mask Bitmask to apply.
  * @return An error message if loading failed, or \c nullptr if loading succeeded.
  */
-const char *Image::LoadFile(const char *fname, BitMaskData *mask)
+const char *ImageFile::LoadFile(const std::string &fname)
 {
-	FILE *fp = fopen(fname, "rb");
+	FILE *fp = fopen(fname.c_str(), "rb");
 	if (fp == nullptr) return "Input file does not exist";
 
 	uint8 header[HEADER_SIZE];
@@ -118,13 +136,36 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 	png_set_sig_bytes(this->png_ptr, HEADER_SIZE);
 
 	png_read_png(this->png_ptr, this->info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
+	this->row_pointers = png_get_rows(this->png_ptr, this->info_ptr);
+	fclose(fp);
+	this->png_initialized = true; // Clear will now clean up.
 
 	int bit_depth = png_get_bit_depth(this->png_ptr, this->info_ptr);
-	if (bit_depth != 8) {
-		png_destroy_read_struct(&this->png_ptr, &this->info_ptr, &this->end_info);
-		fclose(fp);
-		return "PNG file is not an 8bpp file";
+	if (bit_depth != 8) return "Depth of the image channels is not 8 bit";
+
+	this->width = png_get_image_width(this->png_ptr, this->info_ptr);
+	this->height = png_get_image_height(this->png_ptr, this->info_ptr);
+	this->color_type = png_get_color_type(this->png_ptr, this->info_ptr);
+	if (this->color_type != PNG_COLOR_TYPE_PALETTE && this->color_type != PNG_COLOR_TYPE_RGB_ALPHA) {
+		return "Incorrect type of image (expected either 8bpp paletted image or RGBA)";
 	}
+
+	this->fname = fname;
+	return nullptr; // Loading was a success.
+}
+
+/**
+ * Load a .png file from the disk.
+ * @param fname Name of the .png file to load.
+ * @param mask Bitmask to apply.
+ * @return An error message if loading failed, or \c nullptr if loading succeeded.
+ */
+const char *Image::LoadFile(const std::string &fname, BitMaskData *mask)
+{
+	this->imf.Clear();
+
+	const char *err = imf.LoadFile(fname);
+	if (err != nullptr) return nullptr;
 
 	if (mask != nullptr) {
 		this->mask = GetMask(mask->type);
@@ -136,13 +177,17 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
 		this->mask_ypos = 0;
 	}
 
-	this->png_initialized = true;
-	this->row_pointers = png_get_rows(this->png_ptr, this->info_ptr);
-	fclose(fp);
-
-	this->width = png_get_image_width(this->png_ptr, this->info_ptr);
-	this->height = png_get_image_height(this->png_ptr, this->info_ptr);
 	return nullptr;
+}
+
+/**
+ * Get the width of the image.
+ * @return Width of the loaded image, or \c -1.
+ */
+int ImageFile::GetWidth()
+{
+	if (!this->png_initialized) return -1;
+	return this->width;
 }
 
 /**
@@ -151,8 +196,17 @@ const char *Image::LoadFile(const char *fname, BitMaskData *mask)
  */
 int Image::GetWidth()
 {
+	return this->imf.GetWidth();
+}
+
+/**
+ * Get the height of the image.
+ * @return Height of the loaded image, or \c -1.
+ */
+int ImageFile::GetHeight()
+{
 	if (!this->png_initialized) return -1;
-	return this->width;
+	return this->height;
 }
 
 /**
@@ -161,8 +215,7 @@ int Image::GetWidth()
  */
 int Image::GetHeight()
 {
-	if (!this->png_initialized) return -1;
-	return this->height;
+	return this->imf.GetHeight();
 }
 
 /**
@@ -173,9 +226,9 @@ int Image::GetHeight()
  */
 uint8 Image::GetPixel(int x, int y)
 {
-	assert(this->png_initialized);
-	assert(x >= 0 && x < this->width);
-	assert(y >= 0 && y < this->height);
+	assert(this->imf.png_initialized);
+	assert(x >= 0 && x < this->imf.width);
+	assert(y >= 0 && y < this->imf.height);
 
 	if (this->mask != nullptr) {
 		if (x >= this->mask_xpos && x < this->mask_xpos + this->mask->width &&
@@ -185,11 +238,11 @@ uint8 Image::GetPixel(int x, int y)
 			p += off;
 			off = this->mask_xpos - x;
 			p += off / 8;
-			if ((*p & (1 << (off & 7))) == 0) return TRANSPARENT;
+			if ((*p & (1 << (off & 7))) == 0) return TRANSPARENT_INDEX;
 		}
 	}
 
-	return this->row_pointers[y][x];
+	return this->imf.row_pointers[y][x];
 }
 
 /**
@@ -204,7 +257,7 @@ uint8 Image::GetPixel(int x, int y)
 bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length)
 {
 	while (length > 0) {
-		if (this->GetPixel(xpos, ypos) != TRANSPARENT) return false;
+		if (this->GetPixel(xpos, ypos) != TRANSPARENT_INDEX) return false;
 		xpos += dx;
 		ypos += dy;
 		length--;
@@ -212,6 +265,14 @@ bool Image::IsEmpty(int xpos, int ypos, int dx, int dy, int length)
 	return true;
 }
 
+/**
+ * Return whether there exists a properly loaded image file in the image.
+ * @return \c true if a file was loaded, \c false otherwise.
+ */
+bool Image::HasLoadedFile() const
+{
+	return this->imf.png_initialized;
+}
 
 SpriteImage::SpriteImage()
 {
@@ -242,7 +303,7 @@ SpriteImage::~SpriteImage()
  */
 const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop)
 {
-	assert(img->png_initialized);
+	assert(img->HasLoadedFile());
 
 	/* Remove any old data. */
 	delete[] this->data;
@@ -314,13 +375,13 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.
 		for (int x = 0; x < xsize; x++) {
 			uint8 col = img->GetPixel(xpos + x, ypos + y);
-			if (col == TRANSPARENT) continue;
+			if (col == TRANSPARENT_INDEX) continue;
 
 			int start = x;
 			x++;
 			while (x < xsize) {
 				uint8 col = img->GetPixel(xpos + x, ypos + y);
-				if (col == TRANSPARENT) break;
+				if (col == TRANSPARENT_INDEX) break;
 				x++;
 			}
 			/* from 'start' upto and excluding 'x' are pixels to draw. */
@@ -357,13 +418,13 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 		int last_stored = 0; // Up to this position (exclusive), the row was counted.
 		for (int x = 0; x < xsize; x++) {
 			uint8 col = img->GetPixel(xpos + x, ypos + y);
-			if (col == TRANSPARENT) continue;
+			if (col == TRANSPARENT_INDEX) continue;
 
 			int start = x;
 			x++;
 			while (x < xsize) {
 				uint8 col = img->GetPixel(xpos + x, ypos + y);
-				if (col == TRANSPARENT) break;
+				if (col == TRANSPARENT_INDEX) break;
 				x++;
 			}
 			/* from 'start' up to and excluding 'x' are pixels to draw. */
