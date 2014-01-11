@@ -98,11 +98,13 @@ int SpriteBlock::Write(FileWriter *fw)
  */
 SheetBlock::SheetBlock(const Position &pos) : pos(pos)
 {
+	this->imf = nullptr;
 	this->img_sheet = nullptr;
 }
 
 SheetBlock::~SheetBlock()
 {
+	delete this->imf;
 	delete this->img_sheet;
 }
 
@@ -114,13 +116,14 @@ Image *SheetBlock::GetSheet()
 {
 	if (this->img_sheet != nullptr) return this->img_sheet;
 
-	this->img_sheet = new Image;
-	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
-	const char *err = this->img_sheet->LoadFile(this->file, bmd);
+	this->imf = new ImageFile;
+	const char *err = this->imf->LoadFile(this->file);
 	if (err != nullptr) {
 		fprintf(stderr, "Error at %s, loading of the sheet-image failed: %s\n", this->pos.ToString(), err);
 		exit(1);
 	}
+	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
+	this->img_sheet = new Image(this->imf, bmd);
 	return this->img_sheet;
 }
 

@@ -75,12 +75,25 @@ void ImageFile::Clear()
 	this->fname = "";
 }
 
-Image::Image()
+/**
+ * Constructor of an 8bpp sprite image.
+ * @param imf File data containing the sprite image.
+ * @param mask Bitmask to apply, or \c nullptr.
+ */
+Image::Image(const ImageFile *imf, BitMaskData *mask)
 {
-}
+	this->imf = imf;
+	assert(this->imf->png_initialized);
 
-Image::~Image()
-{
+	if (mask != nullptr) {
+		this->mask = GetMask(mask->type);
+		this->mask_xpos = mask->x_pos;
+		this->mask_ypos = mask->y_pos;
+	} else {
+		this->mask = nullptr;
+		this->mask_xpos = 0;
+		this->mask_ypos = 0;
+	}
 }
 
 /**
@@ -155,32 +168,6 @@ const char *ImageFile::LoadFile(const std::string &fname)
 }
 
 /**
- * Load a .png file from the disk.
- * @param fname Name of the .png file to load.
- * @param mask Bitmask to apply.
- * @return An error message if loading failed, or \c nullptr if loading succeeded.
- */
-const char *Image::LoadFile(const std::string &fname, BitMaskData *mask)
-{
-	this->imf.Clear();
-
-	const char *err = imf.LoadFile(fname);
-	if (err != nullptr) return nullptr;
-
-	if (mask != nullptr) {
-		this->mask = GetMask(mask->type);
-		this->mask_xpos = mask->x_pos;
-		this->mask_ypos = mask->y_pos;
-	} else {
-		this->mask = nullptr;
-		this->mask_xpos = 0;
-		this->mask_ypos = 0;
-	}
-
-	return nullptr;
-}
-
-/**
  * Get the width of the image.
  * @return Width of the loaded image, or \c -1.
  */
@@ -196,7 +183,7 @@ int ImageFile::GetWidth() const
  */
 int Image::GetWidth() const
 {
-	return this->imf.GetWidth();
+	return this->imf->GetWidth();
 }
 
 /**
@@ -215,7 +202,7 @@ int ImageFile::GetHeight() const
  */
 int Image::GetHeight() const
 {
-	return this->imf.GetHeight();
+	return this->imf->GetHeight();
 }
 
 /**
@@ -262,12 +249,11 @@ bool Image::IsMaskedOut(int x, int y) const
  */
 uint8 Image::GetPixel(int x, int y) const
 {
-	assert(this->imf.png_initialized);
-	assert(x >= 0 && x < this->imf.width);
-	assert(y >= 0 && y < this->imf.height);
+	assert(x >= 0 && x < this->imf->width);
+	assert(y >= 0 && y < this->imf->height);
 
 	if (this->IsMaskedOut(x, y)) return TRANSPARENT_INDEX;
-	return this->imf.row_pointers[y][x];
+	return this->imf->row_pointers[y][x];
 }
 
 /**
@@ -301,15 +287,6 @@ bool Image::IsTransparent(int xpos, int ypos) const
 	return this->GetPixel(xpos, ypos) == TRANSPARENT_INDEX;
 }
 
-/**
- * Return whether there exists a properly loaded image file in the image.
- * @return \c true if a file was loaded, \c false otherwise.
- */
-bool Image::HasLoadedFile() const
-{
-	return this->imf.png_initialized;
-}
-
 SpriteImage::SpriteImage()
 {
 	this->data = nullptr;
@@ -337,8 +314,6 @@ SpriteImage::~SpriteImage()
  */
 const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xpos, int ypos, int xsize, int ysize, bool crop)
 {
-	assert(img->HasLoadedFile());
-
 	/* Remove any old data. */
 	delete[] this->data;
 	this->data = nullptr;

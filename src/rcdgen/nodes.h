@@ -122,6 +122,7 @@ public:
 	int height;       ///< Height of a sprite.
 	bool crop;        ///< Crop sprite.
 
+	ImageFile *imf;   ///< Loaded image file.
 	Image *img_sheet; ///< Sheet of images.
 	std::shared_ptr<BitMask> mask; ///< Bit mask to apply first (if available).
 };

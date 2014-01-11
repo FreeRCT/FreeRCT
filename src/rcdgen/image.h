@@ -53,10 +53,8 @@ private:
 /** Pixel access to the image. */
 class Image {
 public:
-	Image();
-	~Image();
+	Image(const ImageFile *imf, BitMaskData *mask);
 
-	const char *LoadFile(const std::string &fname, BitMaskData *mask);
 	int GetWidth() const;
 	int GetHeight() const;
 	bool IsEmpty(int xpos, int ypos, int dx, int dy, int length) const;
@@ -65,14 +63,12 @@ public:
 	uint8 GetPixel(int x, int y) const;
 	uint8 *Encode(int xpos, int ypos, int width, int height, int *size) const;
 
-	bool HasLoadedFile() const;
-
 private:
 	int mask_xpos;               ///< X position of the left of the mask.
 	int mask_ypos;               ///< Y position of the top of the mask.
 	const MaskInformation *mask; ///< Information about the used bitmask (or \c nullptr).
 
-	ImageFile imf;               ///< Image file.
+	const ImageFile *imf;        ///< Image file (not owned by the object).
 };
 
 /** A Sprite. */

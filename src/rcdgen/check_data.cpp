@@ -1357,13 +1357,18 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 			}
 		}
 
-		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
-		Image img;
-		const char *err = img.LoadFile(file, bmd);
-		if (err == nullptr) err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
-
+		ImageFile imf;
+		const char *err = imf.LoadFile(file);
 		if (err != nullptr) {
 			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name.c_str(), err);
+			exit(1);
+		}
+
+		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
+		Image img(&imf, bmd);
+		err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
+		if (err != nullptr) {
+			fprintf(stderr, "Error at %s, copying the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name.c_str(), err);
 			exit(1);
 		}
 	}
