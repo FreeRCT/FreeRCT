@@ -17,8 +17,10 @@
 
 #include "mask64.xbm"
 
-static const size_t HEADER_SIZE = 4;    ///< Number of bytes to read to decide whether a provided file is indeed a PNG file.
-static const int TRANSPARENT_INDEX = 0; ///< Colour index of 'transparent' in the 8bpp image.
+static const size_t HEADER_SIZE = 4;      ///< Number of bytes to read to decide whether a provided file is indeed a PNG file.
+static const int TRANSPARENT_INDEX = 0;   ///< Colour index of 'transparent' in the 8bpp image.
+static const uint8 FULLY_TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
+static const uint8 FULLY_OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
 
 
 /** Information about available bit masks. */
@@ -285,6 +287,11 @@ bool Image::IsMaskedOut(int x, int y) const
  *         A \c nullptr with a non-zero size indicates a memory error.
  */
 
+/**
+ * Enable making an 8bpp sprite.
+ * @param imf Image file to use.
+ * @param mask Bitmask to apply, or \c nullptr.
+ */
 Image8bpp::Image8bpp(const ImageFile *imf, BitMaskData *mask) : Image(imf, "8PXL", 2, mask)
 {
 }
@@ -411,6 +418,288 @@ uint8 *Image8bpp::Encode(int xpos, int ypos, int width, int height, int *size) c
 	}
 	assert(ptr - data == data_size);
 	*size = data_size;
+	return data;
+}
+
+/**
+ * Construct a 32bpp pixel value from its components.
+ * @param r Intensity of the red colour component.
+ * @param g Intensity of the green colour component.
+ * @param b Intensity of the blue colour component.
+ * @param a Opacity of the pixel.
+ * @return Pixel value of the given combination of components.
+ */
+static inline uint32 MakeRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
+{
+    uint32 ret, x;
+    x = r; ret = x;
+    x = g; ret |= (x << 8);
+    x = b; ret |= (x << 16);
+    x = a; ret |= (x << 24);
+    return ret;
+}
+
+/**
+ * Get the red colour component of a 32bpp pixel value.
+ * @param rgba Pixel value to use.
+ * @return Value of the red colour component.
+ */
+static inline uint8 GetR(uint32 rgba)
+{
+	return rgba & 0xFF;
+}
+
+/**
+ * Get the green colour component of a 32bpp pixel value.
+ * @param rgba Pixel value to use.
+ * @return Value of the green colour component.
+ */
+static inline uint8 GetG(uint32 rgba)
+{
+	return (rgba >> 8) & 0xFF;
+}
+
+/**
+ * Get the blue colour component of a 32bpp pixel value.
+ * @param rgba Pixel value to use.
+ * @return Value of the blue colour component.
+ */
+static inline uint8 GetB(uint32 rgba)
+{
+	return (rgba >> 16) & 0xFF;
+}
+
+/**
+ * Get the opacity component of a 32bpp pixel value.
+ * @param rgba Pixel value to use.
+ * @return Value of the opacity component.
+ */
+static inline uint8 GetA(uint32 rgba)
+{
+	return (rgba >> 24) & 0xFF;
+}
+
+/**
+ * Enable making a 32bpp sprite.
+ * @param imf Image file to use.
+ * @param mask Bitmask to apply, or \c nullptr.
+ */
+Image32bpp::Image32bpp(const ImageFile *imf, BitMaskData *mask) : Image(imf, "32PX", 1, mask)
+{
+	this->recolour = nullptr;
+}
+
+/**
+ * Setup a recolour image.
+ * @param recolour Recolour image to use.
+ * @note Recolour image is not owned by the 32bpp sprite creation class.
+ */
+void Image32bpp::SetRecolourImage(Image8bpp *recolour)
+{
+	this->recolour = recolour;
+	assert(this->GetWidth()  <= recolour->GetWidth());
+	assert(this->GetHeight() <= recolour->GetHeight());
+}
+
+/**
+ * Get a pixel from the image.
+ * @param x Horizontal position.
+ * @param y Vertical position.
+ * @return Value of the pixel (32 bit full colour with alpha channel).
+ */
+uint32 Image32bpp::GetPixel(int x, int y) const
+{
+	static const uint32 transparent_pixel = MakeRGBA(0, 0, 0, FULLY_TRANSPARENT);
+
+	assert(x >= 0 && x < this->imf->width);
+	assert(y >= 0 && y < this->imf->height);
+
+	if (this->IsMaskedOut(x, y)) return transparent_pixel;
+	uint8 *pixel = imf->row_pointers[y] + x * 4;
+	return MakeRGBA(pixel[0], pixel[1], pixel[2], pixel[3]);
+}
+
+bool Image32bpp::IsTransparent(int xpos, int ypos) const
+{
+	return GetA(this->GetPixel(xpos, ypos)) == FULLY_TRANSPARENT;
+}
+
+/**
+ * Find out how many pixels at the line have the same recolour information.
+ * @param x X position of the first pixel in the image to examine.
+ * @param y Y position of the first pixel in the image to examine.
+ * @param max_length Maximum number of pixels to test (should be at least \c 1).
+ * @param count [out] Number of pixels with the same recolour information.
+ * @return Value of the recolour information (at \a x, \a y).
+ */
+uint8 Image32bpp::GetCurrentRecolour(int x, int y, int max_length, int *count) const
+{
+	if (this->recolour == nullptr) { // No recolour image available.
+		*count = max_length;
+		return 0;
+	}
+
+	uint8 rec = recolour->GetPixel(x, y);
+	*count = 1;
+	x++;
+	max_length--;
+	while (max_length > 0) {
+		uint8 rr = recolour->GetPixel(x, y);
+		if (rr != rec) break;
+		(*count)++;
+		x++;
+		max_length--;
+	}
+	return rec;
+}
+
+/**
+ * Find how many pixels at a line from the given position, have the same opaqueness value.
+ * @param x X position of the first pixel in the image to examine.
+ * @param y Y position of the first pixel in the image to examine.
+ * @param max_length Maximum number of pixels to test (should be at least \c 1).
+ * @return count [out] Number of pixels with the same opaqueness value.
+ * @return Value of the opaqueness (at \a x, \a y)..
+ */
+uint8 Image32bpp::GetSameOpaqueness(int x, int y, int max_length, int *count) const
+{
+	uint8 a = GetA(this->GetPixel(x, y));
+	*count = 1;
+	x++;
+	max_length--;
+	while (max_length > 0) {
+		uint8 aa = GetA(this->GetPixel(x, y));
+		if (aa != a) break;
+		(*count)++;
+		x++;
+		max_length--;
+	}
+	return a;
+}
+
+uint8 *Image32bpp::Encode(int xpos, int ypos, int width, int height, int *size) const
+{
+	/// \todo Add recolouring image handling.
+	//
+	auto row_sizes = std::vector<int>();
+	row_sizes.reserve(height);
+
+	/* Decide size of each scanline. */
+	for (int y = 0; y < height; y++) {
+		int count = 0;
+		int x = 0;
+		while (x < width) {
+			int recolour_length, opaq_length;
+			uint8 recolour = GetCurrentRecolour(xpos + x, ypos + y, width - x, &recolour_length);
+			uint8 opaq = this->GetSameOpaqueness(xpos + x, ypos + y, recolour_length, &opaq_length);
+
+			if (recolour != 0) {
+				/* Recoloured pixels. */
+				if (opaq_length > 63) opaq_length = 63;
+				count += 1 + 1 + 1 + opaq_length;
+				x += opaq_length;
+				continue;
+			}
+			if (opaq == FULLY_OPAQUE) {
+				/* Plain fully opaque 24 bit pixels. */
+				if (opaq_length > 63) opaq_length = 63;
+				count += 1 + opaq_length * 3;
+				x += opaq_length;
+				continue;
+			}
+			if (opaq == FULLY_TRANSPARENT) {
+				/* Plain fully transparent pixels. */
+				if (opaq_length + x == width) {
+					x = width;
+					break; // End of the line reached.
+				}
+				if (opaq_length > 63) opaq_length = 63;
+				count += 1;
+				x += opaq_length;
+				continue;
+			}
+			/* Partially transparent pixels. */
+			if (opaq_length > 63) opaq_length = 63;
+			count += 1 + 1 + opaq_length * 3;
+			x += opaq_length;
+		}
+		count++; // Terminating 0 byte
+		row_sizes.push_back(count);
+	}
+
+	*size = 0;
+	for (int y = 0; y < height; y++) {
+		assert(row_sizes[y] <= 0xFFFF - 2);
+		*size += 2 + row_sizes[y];
+	}
+	uint8 *data = new uint8[*size];
+	uint8 *ptr = data;
+
+	/* Store pixel data. */
+	for (int y = 0; y < height; y++) {
+		uint size = (y < height - 1) ? row_sizes[y] + 2 : 0;
+		*ptr++ = size & 0xff;
+		*ptr++ = (size >> 8) & 0xff;
+
+		int x = 0;
+		while (x < width) {
+			int recolour_length, opaq_length;
+			uint8 recolour = GetCurrentRecolour(xpos + x, ypos + y, width - x, &recolour_length);
+			uint8 opaq = this->GetSameOpaqueness(xpos + x, ypos + y, recolour_length, &opaq_length);
+
+
+			if (recolour != 0) {
+				/* Recoloured pixels. */
+				if (opaq_length > 63) opaq_length = 63;
+				*ptr++ = 128 + 64 + opaq_length;
+				*ptr++ = recolour;
+				*ptr++ = opaq;
+				for (int dx = 0; dx < opaq_length; dx++) {
+					uint32 pixel = this->GetPixel(xpos + x, ypos + y);
+					*ptr++ = std::max(std::max(GetR(pixel), GetG(pixel)), GetB(pixel));
+					x++;
+				}
+				continue;
+			}
+			if (opaq == FULLY_OPAQUE) {
+				/* Plain fully opaque 24 bit pixels. */
+				if (opaq_length > 63) opaq_length = 63;
+				*ptr++ = 0 + opaq_length;
+				for (int dx = 0; dx < opaq_length; dx++) {
+					uint32 pixel = this->GetPixel(xpos + x, ypos + y);
+					*ptr++ = GetR(pixel);
+					*ptr++ = GetG(pixel);
+					*ptr++ = GetB(pixel);
+					x++;
+				}
+				continue;
+			}
+			if (opaq == FULLY_TRANSPARENT) {
+				/* Plain fully transparent pixels. */
+				if (opaq_length + x == width) {
+					x = width;
+					break; // End of the line reached.
+				}
+				if (opaq_length > 63) opaq_length = 63;
+				*ptr++ = 128 + opaq_length;
+				x += opaq_length;
+				continue;
+			}
+			/* Partially transparent pixels. */
+			if (opaq_length > 63) opaq_length = 63;
+			*ptr++ = 64 + opaq_length;
+			*ptr++ = opaq;
+			for (int dx = 0; dx < opaq_length; dx++) {
+				uint32 pixel = this->GetPixel(xpos + x, ypos + y);
+				*ptr++ = GetR(pixel);
+				*ptr++ = GetG(pixel);
+				*ptr++ = GetB(pixel);
+				x++;
+			}
+		}
+		*ptr++ = 0; // Terminating 0 byte.
+	}
+	assert(ptr - data == *size);
 	return data;
 }
 

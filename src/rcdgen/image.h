@@ -89,6 +89,24 @@ public:
 	virtual uint8 *Encode(int xpos, int ypos, int width, int height, int *size) const override;
 };
 
+/** A 32bpp image. */
+class Image32bpp : public Image {
+public:
+	Image32bpp(const ImageFile *imf, BitMaskData *mask);
+
+	void SetRecolourImage(Image8bpp *recolour);
+
+	uint32 GetPixel(int x, int y) const;
+	virtual bool IsTransparent(int xpos, int ypos) const override;
+	virtual uint8 *Encode(int xpos, int ypos, int width, int height, int *size) const override;
+
+protected:
+	uint8 GetCurrentRecolour(int x, int y, int max_length, int *count) const;
+	uint8 GetSameOpaqueness(int x, int y, int max_length, int *count) const;
+
+	Image8bpp *recolour; ///< Recolour information (not owned by this class).
+};
+
 /** A Sprite. */
 class SpriteImage {
 public:
