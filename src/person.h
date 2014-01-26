@@ -127,7 +127,6 @@ protected:
 
 	void DecideMoveDirection();
 	void StartAnimation(const WalkInformation *walk);
-	void MarkDirty();
 
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
 };

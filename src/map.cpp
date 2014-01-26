@@ -90,6 +90,11 @@ static Voxel *MakeNewVoxels(int height)
  * @return Sprite to display for the voxel object.
  */
 
+/** Mark the voxel containing the voxel object as dirty, so it is repainted. */
+void VoxelObject::MarkDirty()
+{
+	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+}
 
 /** Default constructor. */
 VoxelStack::VoxelStack()

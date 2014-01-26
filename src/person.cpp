@@ -687,12 +687,6 @@ AnimateResult Person::OnAnimate(int delay)
 	return OAR_DEACTIVATE; // We are truly lost now.
 }
 
-/** Mark the screen where this person is as dirty, so it is repainted the next time. */
-void Person::MarkDirty()
-{
-	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
-}
-
 /**
  * How much does the person desire to visit the given ride?
  * @param ri Ride that can be visited.

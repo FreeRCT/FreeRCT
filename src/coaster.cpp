@@ -256,14 +256,14 @@ void CoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16
 			this->pitch == pitch && this->roll == roll && this->yaw == yaw) return; // Nothing changed.
 
 	if (this->yaw != 0xff && change_voxel) {
-		MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+		this->MarkDirty();
 		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 		this->RemoveSelf(v);
 	}
 	this->x_vox = xvoxel;
 	this->y_vox = yvoxel;
 	this->z_vox = zvoxel;
-	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+	this->MarkDirty();
 
 	if (this->yaw == 0xff || change_voxel) {
 		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
@@ -283,7 +283,7 @@ void CoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16
 void CoasterCar::PreRemove()
 {
 	if (this->yaw == 0xff) return;
-	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+	this->MarkDirty();
 }
 
 CoasterTrain::CoasterTrain()

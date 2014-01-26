@@ -298,6 +298,8 @@ public:
 		}
 	}
 
+	void MarkDirty();
+
 	VoxelObject *next_object; ///< Next voxel object in the linked list.
 	VoxelObject *prev_object; ///< Previous voxel object in the linked list.
 
