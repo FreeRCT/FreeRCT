@@ -91,7 +91,7 @@ IF(MSVC)
 		string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
 	ENDFOREACH()
 ELSE()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -pedantic -Wall")
 ENDIF()
 
 IF(NOT WIN32 AND BISON_FOUND AND FLEX_FOUND)
