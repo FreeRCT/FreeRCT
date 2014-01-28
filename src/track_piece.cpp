@@ -108,23 +108,26 @@ static CubicBezier LoadBezier(RcdFile *rcdfile)
 /**
  * Load a track curve.
  * @param rcdfile Data file being loaded.
- * @param length [inout] Length of the block that is not loaded yet. If \c *length is negative afterwards, reading failed (not enough data).
- * @return The loaded track curve, may be \c nullptr (which indicates a not supplied track curve).
+ * @param curve [out] The loaded track curve, may be \c nullptr (which indicates a not supplied track curve).
+ * @param length [inout] Length of the block that is not loaded yet.
+ * @return Reading was a success (might have failed due to not enough data).
  */
-static TrackCurve *LoadTrackCurve(RcdFile *rcdfile, uint32 *length)
+static bool LoadTrackCurve(RcdFile *rcdfile, TrackCurve **curve, uint32 *length)
 {
-#define ENSURE_LENGTH(x) do { if (*length < (x)) { *length = -1; return nullptr; } *length -= (x); } while(false)
+#define ENSURE_LENGTH(x) do { if (*length < (x)) { *curve = nullptr; return false; } *length -= (x); } while(false)
 
 	ENSURE_LENGTH(1);
 	uint8 type = rcdfile->GetUInt8();
 	switch (type) {
 		case 0: // No track curve available.
-			return nullptr;
+			*curve = nullptr;
+			return true;
 
 		case 1: { // Curve consisting of a fixed value.
 			ENSURE_LENGTH(2);
 			int value = rcdfile->GetInt16();
-			return new ConstantTrackCurve(value);
+			*curve = new ConstantTrackCurve(value);
+			return true;
 		}
 
 		case 2: {
@@ -137,13 +140,14 @@ static TrackCurve *LoadTrackCurve(RcdFile *rcdfile, uint32 *length)
 				bezier->curve.push_back(LoadBezier(rcdfile));
 			}
 			bezier->curve.shrink_to_fit();
-			return bezier;
+			*curve = bezier;
+			return true;
 		}
 
 		default: // Error.
 			fprintf(stderr, "Unexpected curve type %u.\n", type);
-			*length = -1;
-			return nullptr;
+			*curve = nullptr;
+			return false;
 	}
 #undef ENSURE_LENGTH
 }
@@ -202,13 +206,14 @@ bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
 	length -= 4;
 	this->piece_length = rcd_file->GetUInt32();
 
-	this->car_xpos  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
-	this->car_ypos  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
-	this->car_zpos  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
-	this->car_pitch = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
-	this->car_roll  = LoadTrackCurve(rcd_file, &length); if (length < 0) return false;
-	this->car_yaw   = LoadTrackCurve(rcd_file, &length);
-	if (this->car_xpos == nullptr || this->car_ypos == nullptr || this->car_zpos == nullptr || this->car_roll == nullptr) return false;
+	bool ok = true;
+	ok = ok && LoadTrackCurve(rcd_file, &this->car_xpos,  &length);
+	ok = ok && LoadTrackCurve(rcd_file, &this->car_ypos,  &length);
+	ok = ok && LoadTrackCurve(rcd_file, &this->car_zpos,  &length);
+	ok = ok && LoadTrackCurve(rcd_file, &this->car_pitch, &length);
+	ok = ok && LoadTrackCurve(rcd_file, &this->car_roll,  &length);
+	ok = ok && LoadTrackCurve(rcd_file, &this->car_yaw,   &length);
+	if (!ok || this->car_xpos == nullptr || this->car_ypos == nullptr || this->car_zpos == nullptr || this->car_roll == nullptr) return false;
 	return length == 0;
 }
 
