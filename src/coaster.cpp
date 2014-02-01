@@ -256,19 +256,16 @@ void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos
 			this->pitch == pitch && this->roll == roll && this->yaw == yaw) return; // Nothing changed.
 
 	if (this->yaw != 0xff && change_voxel) {
+		/* Valid data, and changing voxel -> remove self from the old voxel. */
 		this->MarkDirty();
 		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
 		this->RemoveSelf(v);
 	}
+
+	/* Update voxel and orientation. */
 	this->x_vox = xvoxel;
 	this->y_vox = yvoxel;
 	this->z_vox = zvoxel;
-	this->MarkDirty();
-
-	if (this->yaw == 0xff || change_voxel) {
-		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
-		this->AddSelf(v);
-	}
 
 	this->x_pos = xpos;
 	this->y_pos = ypos;
@@ -277,6 +274,15 @@ void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos
 	this->pitch = pitch;
 	this->roll = roll;
 	this->yaw = yaw;
+
+	if (this->yaw != 0xff) {
+		this->MarkDirty(); // Voxel or orientation has changed, repaint the possibly new voxel.
+
+		if (change_voxel) { // With a really new voxel, also add self to the new voxel.
+			Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+			this->AddSelf(v);
+		}
+	}
 }
 
 /** Displayed car is about to be removed from the train, clean up if necessary. */
