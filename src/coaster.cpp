@@ -324,6 +324,28 @@ void CoasterTrain::SetLength(int length)
 	}
 }
 
+/** Combined sin/cos table for 16 roll positions. sin table starts at 0, cos table start at 4. */
+static const float _sin_cos_table[20] = {
+	0.00, 0.38, 0.71, 0.92,
+	1.00, 0.92, 0.71, 0.38, 0.00, -0.38, -0.71, -0.92, -1.00, -0.92, -0.71, -0.38,
+	0.00, 0.38, 0.71, 0.92
+};
+
+/**
+ * Revert the roll of the coaster car in the direction vector.
+ * @param roll Amount of roll of the car.
+ * @param dy [inout] Derivative of Y position.
+ * @param dz [inout] Derivative of Z position.
+ */
+static void inline Unroll(uint roll, int32 *dy, int32 *dz)
+{
+	/* Rotates around X axis, thus dx does not change. */
+	int32 new_dy = *dy * _sin_cos_table[roll + 4] - *dz * _sin_cos_table[roll];
+	int32 new_dz = *dy * _sin_cos_table[roll]     + *dz * _sin_cos_table[roll + 4];
+	*dy = new_dy;
+	*dz = new_dz;
+}
+
 /**
  * Time has passed, update the position of the train.
  * @param delay Amount of time passed, in milliseconds.
@@ -366,8 +388,17 @@ void CoasterTrain::OnAnimate(int delay)
 		int32 ypos_back = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
 		int32 zpos_back = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
 
+		/* Get roll from the center of the car. */
+		position += car_length / 2;
+		if (position >= this->coaster->coaster_length) {
+			position -= this->coaster->coaster_length;
+			ptp = this->coaster->pieces;
+		}
+		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
+		uint roll = static_cast<uint>(ptp->piece->car_roll->GetValue(position - ptp->distance_base) + 0.5) & 0xf;
+
 		/* Get position of the front of the car. */
-		position += car_length;
+		position += car_length / 2;
 		if (position >= this->coaster->coaster_length) {
 			position -= this->coaster->coaster_length;
 			ptp = this->coaster->pieces;
@@ -384,7 +415,12 @@ void CoasterTrain::OnAnimate(int delay)
 		int32 ypos_middle = ypos_back + yder / 2;
 		int32 zpos_middle = zpos_back + zder / 2;
 
-		// XXX Implement pitch, roll, and yaw.
+		/* XXX Implement gravity using xder, yder, zder. */
+
+		/* Unroll the orientation vector. */
+		Unroll(roll, &yder, &zder);
+
+		/* XXX Implement pitch and yaw. */
 
 		xpos_back  &= 0xFFFFFF00; // Back and front positions to the north bottom corner of the voxel.
 		ypos_back  &= 0xFFFFFF00;
@@ -393,8 +429,8 @@ void CoasterTrain::OnAnimate(int delay)
 		ypos_front &= 0xFFFFFF00;
 		zpos_front &= 0xFFFFFF00;
 
-		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  0, 0, 0);
-		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, 0, 0, 0);
+		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  0, roll, 0);
+		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, 0, roll, 0);
 		position += this->coaster->car_type->inter_car_length;
 	}
 }
