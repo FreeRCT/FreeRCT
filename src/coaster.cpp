@@ -226,11 +226,11 @@ bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprite
 	return true;
 }
 
-CoasterCar::CoasterCar() : VoxelObject(), yaw(0xff)  // Mark everything as invalid.
+DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff)  // Mark everything as invalid.
 {
 }
 
-const ImageData *CoasterCar::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
 {
 	*recolour = nullptr;
 	return this->car_type->GetCar(this->pitch, this->roll, this->yaw);
@@ -248,7 +248,7 @@ const ImageData *CoasterCar::GetSprite(const SpriteStorage *sprites, ViewOrienta
  * @param roll Roll of the car.
  * @param yaw Yaw of the car.
  */
-void CoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw)
+void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw)
 {
 	bool change_voxel = this->x_vox != xvoxel || this->y_vox != yvoxel || this->z_vox != zvoxel;
 
@@ -279,8 +279,8 @@ void CoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16
 	this->yaw = yaw;
 }
 
-/** Car is about to be removed from the train, clean up if necessary. */
-void CoasterCar::PreRemove()
+/** Displayed car is about to be removed from the train, clean up if necessary. */
+void DisplayCoasterCar::PreRemove()
 {
 	if (this->yaw == 0xff) return;
 	this->MarkDirty();
@@ -302,7 +302,10 @@ void CoasterTrain::SetLength(int length)
 {
 	if (length > static_cast<int>(this->cars.size())) {
 		this->cars.resize(length);
-		for (auto &car : this->cars) car.car_type = this->coaster->car_type;
+		for (auto &car : this->cars) {
+			car.front.car_type = this->coaster->car_type;
+			car.back.car_type = this->coaster->car_type;
+		}
 		return;
 	} else if (length < static_cast<int>(this->cars.size())) {
 		CoasterCar *car = &this->cars[length];
@@ -354,7 +357,8 @@ void CoasterTrain::OnAnimate(int delay)
 		int32 ypos = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
 		int32 zpos = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
 		// XXX Implement pitch, roll, and yaw.
-		car.Set(xpos >> 8, ypos >> 8, zpos >> 8, xpos & 0xFF, ypos & 0xFF, zpos & 0xFF, 0, 0, 0);
+		car.front.Set(xpos >> 8, ypos >> 8, zpos >> 8, xpos & 0xFF, ypos & 0xFF, zpos & 0xFF, 0, 0, 0);
+		car.back.Set(xpos >> 8, ypos >> 8, zpos >> 8, xpos & 0xFF, ypos & 0xFF, zpos & 0xFF, 0, 0, 0);
 		position += car_length;
 	}
 }

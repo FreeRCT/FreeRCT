@@ -113,13 +113,12 @@ public:
 };
 
 /**
- * Position and orientation of a car in a train.
+ * Displayed car in a train.
  * Note that #yaw decides validness of the data.
- * @todo Add this to the persons.
  */
-class CoasterCar : public VoxelObject {
+class DisplayCoasterCar : public VoxelObject {
 public:
-	CoasterCar();
+	DisplayCoasterCar();
 
 	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
 
@@ -130,6 +129,21 @@ public:
 	uint8 pitch; ///< Pitch of the car.
 	uint8 roll;  ///< Roll of the car.
 	uint8 yaw;   ///< Yaw of the car (\c 0xff means all data is invalid).
+};
+
+/** Coaster car drawn at the front and the back position. */
+class CoasterCar {
+public:
+	DisplayCoasterCar front; ///< %Voxel image displayed at the front of the car.
+	DisplayCoasterCar back;  ///< %Voxel image displayed at the end of the car.
+
+	/** Car is about to be removed from the train, clean up if necessary. */
+	void PreRemove()
+	{
+		this->front.PreRemove();
+		this->back.PreRemove();
+	}
+
 };
 
 class CoasterInstance;
