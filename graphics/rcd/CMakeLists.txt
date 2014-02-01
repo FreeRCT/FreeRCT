@@ -11,49 +11,48 @@ IF(NOT FREERCT_DONE_TOP_LEVEL_CMAKE)
 	message(FATAL_ERROR "Please run cmake on the top-level directory, not this one.")
 ENDIF()
 
-PROJECT(rcd_files)
+project(rcd_files)
 
 # Make declaring the list shorter/nicer
-SET(FP "${CMAKE_SOURCE_DIR}/graphics/rcd/")
+set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd/")
 
 # Output file                     Source file
-LIST(APPEND RCDFILES
-  ${FP}borderhighlight_8bpp64.rcd ${FP}freerct.txt ""
-  ${FP}cornerhighlight_8bpp64.rcd ${FP}freerct.txt ""
-  ${FP}groundtile_8bpp64.rcd      ${FP}freerct.txt ""
-  ${FP}people_animation.rcd       ${FP}freerct.txt ""
-  ${FP}path_8bpp64.rcd            ${FP}paths.txt   ""
-  ${FP}shops.rcd                  ${FP}shops.txt   "shops"
-  ${FP}gui.rcd                    ${FP}gui.txt     "gui"
-  ${FP}tracks.rcd                 ${FP}tracks.txt  "tracks"
+list(APPEND RCDFILES
+     ${FP}borderhighlight_8bpp64.rcd ${FP}freerct.txt ""
+     ${FP}cornerhighlight_8bpp64.rcd ${FP}freerct.txt ""
+     ${FP}groundtile_8bpp64.rcd      ${FP}freerct.txt ""
+     ${FP}people_animation.rcd       ${FP}freerct.txt ""
+     ${FP}path_8bpp64.rcd            ${FP}paths.txt   ""
+     ${FP}shops.rcd                  ${FP}shops.txt   "shops"
+     ${FP}gui.rcd                    ${FP}gui.txt     "gui"
+     ${FP}tracks.rcd                 ${FP}tracks.txt  "tracks"
 )
 
-GET_TARGET_PROPERTY(RCDGEN_EXE rcdgen LOCATION)
+get_target_property(RCDGEN_EXE rcdgen LOCATION)
 
-LIST(LENGTH RCDFILES RCDFILES_LENGTH)
+list(LENGTH RCDFILES RCDFILES_LENGTH)
 math(EXPR RCDFILES_LENGTH_DIV_3 "${RCDFILES_LENGTH} / 3 - 1")
 
 FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
 	math(EXPR INDEX_1 "${RCDFILE} * 3")
 	math(EXPR INDEX_2 "${INDEX_1} + 1")
 	math(EXPR INDEX_3 "${INDEX_1} + 2")
-	LIST(GET RCDFILES ${INDEX_1} OUTFILE)
-	LIST(GET RCDFILES ${INDEX_2} SRCFILE)
-	LIST(GET RCDFILES ${INDEX_3} DEPTYPE)
+	list(GET RCDFILES ${INDEX_1} OUTFILE)
+	list(GET RCDFILES ${INDEX_2} SRCFILE)
+	list(GET RCDFILES ${INDEX_3} DEPTYPE)
 
 	IF(DEPTYPE)
 		file(GLOB LANGLIST ${FP}lang/*_${DEPTYPE}.txt)
 	ENDIF()
 
-	ADD_CUSTOM_COMMAND(
-	      OUTPUT ${OUTFILE}
-	      COMMAND rcdgen ${SRCFILE}
-	      COMMENT "Generating rcd files from ${SRCFILE}"
-	      DEPENDS ${SRCFILE} ${RCDGEN_EXE} ${LANGLIST}
-	      WORKING_DIRECTORY ${FP}
+	add_custom_command(OUTPUT ${OUTFILE}
+	                   COMMAND rcdgen ${SRCFILE}
+	                   COMMENT "Generating rcd files from ${SRCFILE}"
+	                   DEPENDS ${SRCFILE} ${RCDGEN_EXE} ${LANGLIST}
+	                   WORKING_DIRECTORY ${FP}
 	)
 
-	LIST(APPEND OUTFILES ${OUTFILE})
+	list(APPEND OUTFILES ${OUTFILE})
 ENDFOREACH(RCDFILE)
 
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})

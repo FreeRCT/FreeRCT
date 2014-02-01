@@ -8,13 +8,13 @@
 
 # CMake File for FreeRCT
 
-PROJECT(FreeRCT)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+project(FreeRCT)
+cmake_minimum_required(VERSION 2.8)
 
-SET(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
+set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 
 # TODO: Environment handling?
-OPTION(OVERRIDE_VCS "Override the lack of a VCS checkout")
+option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 
 # Include individual projects
 message(STATUS "")
@@ -29,19 +29,21 @@ message(STATUS "Building FreeRCT")
 add_subdirectory(src)
 
 IF(NOT MSVC)
-	GET_TARGET_PROPERTY(FREERCT_EXE freerct LOCATION)
+	get_target_property(FREERCT_EXE freerct LOCATION)
 	add_custom_target(run
-					  COMMAND ${FREERCT_EXE}
-					  WORKING_DIRECTORY src)
+	                  COMMAND ${FREERCT_EXE}
+	                  WORKING_DIRECTORY src
+	)
 	add_dependencies(run freerct)
 
 	# WARNING: Assumes gdb is in path, doesn't(/can't) find it
 	add_custom_target(gdbrun
-					  COMMAND gdb ${FREERCT_EXE}
-					  WORKING_DIRECTORY src)
+	                  COMMAND gdb ${FREERCT_EXE}
+	                  WORKING_DIRECTORY src
+	)
 	add_dependencies(gdbrun freerct)
 
-	FIND_PACKAGE(Doxygen)
+	find_package(Doxygen)
 	IF(DOXYGEN_FOUND)
 		add_custom_target(doc COMMAND ${DOXYGEN_EXECUTABLE})
 	ENDIF()

@@ -14,42 +14,42 @@ ENDIF()
 PROJECT(rcdgen)
 
 # Source files
-SET(BisonOutput ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.cpp)
-SET(FlexOutput ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.cpp)
+set(BisonOutput ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.cpp)
+set(FlexOutput ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.cpp)
 
 # TODO: Use explicit list instead?
 FILE(GLOB rcdgen_SRCS
-  ${CMAKE_SOURCE_DIR}/src/rcdgen/*.cpp
-  ${CMAKE_SOURCE_DIR}/src/rcdgen/*.h
+     ${CMAKE_SOURCE_DIR}/src/rcdgen/*.cpp
+     ${CMAKE_SOURCE_DIR}/src/rcdgen/*.h
 )
 
-SET(rcdgen_SRCS ${rcdgen_SRCS}
-  # Generated files
-  ${BisonOutput}
-  ${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h
-  ${FlexOutput}
+set(rcdgen_SRCS ${rcdgen_SRCS}
+    # Generated files
+    ${BisonOutput}
+    ${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h
+    ${FlexOutput}
 
-  # Files in parent directory
-  ${CMAKE_SOURCE_DIR}/src/getoptdata.cpp
-  ${CMAKE_SOURCE_DIR}/src/stdafx.h
+    # Files in parent directory
+    ${CMAKE_SOURCE_DIR}/src/getoptdata.cpp
+    ${CMAKE_SOURCE_DIR}/src/stdafx.h
 )
 
-ADD_EXECUTABLE(rcdgen ${rcdgen_SRCS})
+add_executable(rcdgen ${rcdgen_SRCS})
 
 # Library detection
-FIND_PACKAGE(PNG REQUIRED)
+find_package(PNG REQUIRED)
 IF(PNG_FOUND)
-	INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
-	TARGET_LINK_LIBRARIES(rcdgen ${PNG_LIBRARY})
+	include_directories(${PNG_INCLUDE_DIR})
+	target_link_libraries(rcdgen ${PNG_LIBRARY})
 ENDIF()
 
-FIND_PACKAGE(ZLIB REQUIRED)
+find_package(ZLIB REQUIRED)
 IF(ZLIB_FOUND)
-	INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
-	TARGET_LINK_LIBRARIES(rcdgen ${ZLIB_LIBRARY})
+	include_directories(${ZLIB_INCLUDE_DIR})
+	target_link_libraries(rcdgen ${ZLIB_LIBRARY})
 ENDIF()
 
-FIND_PACKAGE(BISON)
+find_package(BISON)
 # Bison/m4 is broken on windows
 IF(NOT WIN32 AND BISON_FOUND)
 	add_custom_command(OUTPUT ${BisonOutput} ${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h
@@ -58,44 +58,48 @@ IF(NOT WIN32 AND BISON_FOUND)
 	                   --output=${BisonOutput}
 	                   ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.y
 	                   DEPENDS ${CMAKE_SOURCE_DIR}/src/rcdgen/parser.y
-	                   COMMENT "Generating parser.cpp")
-	SET_SOURCE_FILES_PROPERTIES(${BisonOutput} GENERATED)
-	SET_SOURCE_FILES_PROPERTIES(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h GENERATED)
+	                   COMMENT "Generating parser.cpp"
+	)
+	set_source_files_properties(${BisonOutput} GENERATED)
+	set_source_files_properties(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h GENERATED)
 ELSE()
 	message(STATUS "No bison executable found, using pregenerated parser")
-	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rcdgen/parser.cpp.pregen ${BisonOutput})
-	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h.pregen ${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h)
+	configure_file(${CMAKE_SOURCE_DIR}/src/rcdgen/parser.cpp.pregen ${BisonOutput})
+	configure_file(${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h.pregen ${CMAKE_SOURCE_DIR}/src/rcdgen/tokens.h)
 ENDIF()
 
-FIND_PACKAGE(FLEX)
+find_package(FLEX)
 IF(FLEX_FOUND)
 	add_custom_command(OUTPUT ${FlexOutput}
 	                   COMMAND ${FLEX_EXECUTABLE} -o${FlexOutput}
 	                   ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.l
 	                   DEPENDS ${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.l
-	                   COMMENT "Generating scanner.cpp")
-	SET_SOURCE_FILES_PROPERTIES(${FlexOutput} GENERATED)
+	                   COMMENT "Generating scanner.cpp"
+	)
+	set_source_files_properties(${FlexOutput} GENERATED)
 ELSE()
 	message(STATUS "No flex executable found, using pregenerated scanner")
-	CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.cpp.pregen ${FlexOutput})
+	configure_file(${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.cpp.pregen ${FlexOutput})
 ENDIF()
 
 # Compiler flags
 # TODO: Extend for debug/release versions
 IF(MSVC)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
 	# Compile statically
-	FOREACH(flag CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_C_FLAGS_DEBUG
-	             CMAKE_C_FLAGS_DEBUG_INIT CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO
-	             CMAKE_CXX_FLAGS_DEBUG  CMAKE_CXX_FLAGS_DEBUG_INIT)
+	FOREACH(flag
+	        CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_C_FLAGS_DEBUG
+	        CMAKE_C_FLAGS_DEBUG_INIT CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO
+	        CMAKE_CXX_FLAGS_DEBUG  CMAKE_CXX_FLAGS_DEBUG_INIT)
 		string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
 	ENDFOREACH()
 ELSE()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -pedantic -Wall")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -pedantic -Wall")
 ENDIF()
 
 IF(NOT WIN32 AND BISON_FOUND AND FLEX_FOUND)
 	add_custom_target(exportscanner
 	                  COMMAND ${CMAKE_COMMAND} -P ExportScanner.cmake
-	                  COMMENT "Generating scanner files")
+	                  COMMENT "Generating scanner files"
+	)
 ENDIF()
