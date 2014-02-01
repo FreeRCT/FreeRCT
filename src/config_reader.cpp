@@ -32,6 +32,26 @@ ConfigItem::~ConfigItem()
 }
 
 /**
+ * Get the value of the item, as an integer.
+ * @return The item value if value is valid integer, else \c -1.
+ */
+int ConfigItem::GetNum() const
+{
+	int val = 0;
+	int length = 0;
+	const char *p = this->value;
+
+	while (*p >= '0' && *p <= '9') {
+		val = val * 10 + (*p - '0');
+		length++;
+		p++;
+	}
+	if (*p != '\0' || length > 8) return -1; // Bad integer number
+	return val;
+
+}
+
+/**
  * Construct a named section.
  * @param sect_name Name of the new section.
  * @note Section name gets copied during construction.
@@ -193,4 +213,21 @@ const char *ConfigFile::GetValue(const char *sect_name, const char *key) const
 	const ConfigItem *item = sect->GetItem(key);
 	if (item == nullptr) return nullptr;
 	return item->value;
+}
+
+/**
+ * Get a number from the configuration file.
+ * @param sect_name Name of the section (case sensitive).
+ * @param key Name of the key (case sensitive).
+ * @return The associated number if it exists, else \c -1.
+ */
+int ConfigFile::GetNum(const char *sect_name, const char *key) const
+{
+	const ConfigSection *sect = this->GetSection(sect_name);
+	if (sect == nullptr) return -1;
+
+	const ConfigItem *item = sect->GetItem(key);
+	if (item == nullptr) return -1;
+
+	return item->GetNum();
 }

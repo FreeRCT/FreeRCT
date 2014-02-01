@@ -23,6 +23,8 @@ public:
 	ConfigItem(const char *key, const char *value);
 	~ConfigItem();
 
+	int GetNum() const;
+
 	const char *key;   ///< Key text.
 	const char *value; ///< Value text.
 };
@@ -68,6 +70,7 @@ public:
 
 	const ConfigSection *GetSection(const char *name) const;
 	const char *GetValue(const char *sect_name, const char *key) const;
+	int GetNum(const char *sect_name, const char *key) const;
 
 	ConfigSectionList sections; ///< Sections of the configuration file.
 };
