@@ -50,7 +50,7 @@ CarType::CarType()
  */
 bool CarType::Load(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
 {
-	if (length != 2+2+4+2+2+16384) return false;
+	if (length != 2+2+4+4+2+2+16384) return false;
 
 	this->tile_width = rcdfile->GetUInt16();
 	if (this->tile_width != 64) return false; // Do not allow anything else than 64 pixels tile width.
@@ -61,6 +61,7 @@ bool CarType::Load(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
 	this->car_length = rcdfile->GetUInt32();
 	if (this->car_length > 65535) return false; // Assumption is that a car fits in a single tile, at least some of the time.
 
+	this->inter_car_length = rcdfile->GetUInt32();
 	this->num_passengers = rcdfile->GetUInt16();
 	this->num_entrances = rcdfile->GetUInt16();
 	if (this->num_entrances == 0 || this->num_entrances > 4) return false; // Seems like a nice arbitrary upper limit on the number of rows of a car.

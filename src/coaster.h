@@ -55,12 +55,13 @@ public:
 		return this->cars[(uint)(pitch & 0xf) | ((uint)(roll & 0xf) << 4) | ((uint)(yaw & 0xf) << 8)];
 	}
 
-	ImageData *cars[4096]; ///< Images of the car, in all possible orientation (if available).
-	uint16 tile_width;     ///< Tile width of the images.
-	uint16 z_height;       ///< Change in z-height of the images.
-	uint32 car_length;     ///< Length of a car in 1/256 pixel.
-	uint16 num_passengers; ///< Number of passenger of a car.
-	uint16 num_entrances;  ///< Number of entrance rows of a car.
+	ImageData *cars[4096];   ///< Images of the car, in all possible orientation (if available).
+	uint16 tile_width;       ///< Tile width of the images.
+	uint16 z_height;         ///< Change in z-height of the images.
+	uint32 car_length;       ///< Length of a car in 1/256 pixel.
+	uint32 inter_car_length; ///< Length between two car in 1/256 pixel.
+	uint16 num_passengers;   ///< Number of passenger of a car.
+	uint16 num_entrances;    ///< Number of entrance rows of a car.
 };
 
 CarType *GetNewCarType();

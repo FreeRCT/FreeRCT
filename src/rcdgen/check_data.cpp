@@ -1976,6 +1976,7 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 	rb->tile_width     = vals.GetNumber("tile_width");
 	rb->z_height       = vals.GetNumber("z_height");
 	rb->length         = vals.GetNumber("length");
+	rb->inter_length   = vals.GetNumber("inter_length");
 	rb->num_passengers = vals.GetNumber("num_passengers");
 	rb->num_entrances  = vals.GetNumber("num_entrances");
 

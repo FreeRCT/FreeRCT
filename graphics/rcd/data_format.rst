@@ -993,21 +993,22 @@ Version history
 
 Coaster cars
 ~~~~~~~~~~~~
-Sprites for cars on the coaster tracks. Currently at version 1.
+Sprites for cars on the coaster tracks. Currently at version 2.
 
 =======  ======  =======  ================================  ================================================================
 Offset   Length  Version  Field name                        Description
 =======  ======  =======  ================================  ================================================================
-   0        4       1                                       Magic string 'CARS'.
-   4        4       1                                       Version number of the block.
-   8        4       1                                       Length of the block excluding magic string, version, and length.
-  12        2       1     tile_width                        Zoom-width of a tile.
-  14        2       1     z_height                          Change in Z height of the tiles.
-  16        4       1     length                            Length of a car (in 1/65,536 unit).
-  20        2       1     num_passengers                    Number of passengers that can be carried.
-  22        2       1     num_entrances                     Number of rows for entering/exiting the car.
-  24      16384     1     car_p\ **P**\ r\ **R**\ y\ **Y**  4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
- 16408                                                      Total length of the block.
+   0        4      1-                                       Magic string 'CARS'.
+   4        4      1-                                       Version number of the block.
+   8        4      1-                                       Length of the block excluding magic string, version, and length.
+  12        2      1-     tile_width                        Zoom-width of a tile.
+  14        2      1-     z_height                          Change in Z height of the tiles.
+  16        4      1-     length                            Length of a car (in 1/65,536 unit).
+  20        4      2-     inter_length                      Length between two cars (in 1/65,536 unit).
+  24        2      1-     num_passengers                    Number of passengers that can be carried.
+  26        2      1-     num_entrances                     Number of rows for entering/exiting the car.
+  30      16384    1-     car_p\ **P**\ r\ **R**\ y\ **Y**  4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
+ 16412                                                      Total length of the block.
 =======  ======  =======  ================================  ================================================================
 
 with
@@ -1025,6 +1026,7 @@ Version history
 ...............
 
 - 1 (20131020) Initial version.
+- 2 (20140201) Added inter-car length field.
 
 
 Coaster platforms

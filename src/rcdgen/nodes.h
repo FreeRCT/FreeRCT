@@ -790,6 +790,7 @@ public:
 	int tile_width;     ///< Zoom-width of a tile of the surface.
 	int z_height;       ///< Change in Z height (in pixels) when going up or down a tile level.
 	int length;         ///< Length of the car.
+	int inter_length;   ///< Length between two cars.
 	int num_passengers; ///< Number of passengers in a car.
 	int num_entrances;  ///< Number of entrances to/from a car.
 	std::array<std::shared_ptr<SpriteBlock>, 16*16*16> sprites; ///< Car sprites.

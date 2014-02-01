@@ -1636,7 +1636,7 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "CARS") == 0 && version == 1) {
+		if (strcmp(name, "CARS") == 0 && version == 2) {
 			CarType *ct = GetNewCarType();
 			if (ct == nullptr) return "No room to store a car type.";
 			if (!ct->Load(&rcd_file, length, sprites)) return "Car type failed to load.";

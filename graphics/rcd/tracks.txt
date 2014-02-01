@@ -443,7 +443,8 @@ file("tracks.rcd") {
 	CARS {
 		tile_width: 64;
 		z_height:  16;
-		length: 50000; // Arbitrary length of a car, needs further tweaking.
+		length: 45000; // Arbitrary length of a car, needs further tweaking.
+		inter_length: 5000;
 		num_passengers: 4;
 		num_entrances: 2;
 
