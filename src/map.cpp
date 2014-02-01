@@ -81,6 +81,15 @@ static Voxel *MakeNewVoxels(int height)
 	return voxels;
 }
 
+VoxelObject::~VoxelObject()
+{
+	if (this->added) {
+		this->MarkDirty();
+		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		this->RemoveSelf(v);
+	}
+}
+
 /**
  * \fn const ImageData *VoxelObject::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
  * Get the sprite to draw for the voxel object.

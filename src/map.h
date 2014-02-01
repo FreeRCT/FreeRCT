@@ -261,13 +261,11 @@ public:
 /** Base class for (moving) objects that are stored at a voxel position for easy retrieval during drawing. */
 class VoxelObject {
 public:
-	VoxelObject() : next_object(nullptr), prev_object(nullptr)
+	VoxelObject() : next_object(nullptr), prev_object(nullptr), added(false)
 	{
 	}
 
-	virtual ~VoxelObject()
-	{
-	}
+	virtual ~VoxelObject();
 
 	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const = 0;
 
@@ -277,6 +275,9 @@ public:
 	 */
 	void AddSelf(Voxel *v)
 	{
+		assert(!this->added);
+		this->added = true;
+
 		this->next_object = v->voxel_objects;
 		if (this->next_object != nullptr) this->next_object->prev_object = this;
 		v->voxel_objects = this;
@@ -289,6 +290,9 @@ public:
 	 */
 	void RemoveSelf(Voxel *v)
 	{
+		assert(this->added);
+		this->added = false;
+
 		if (this->next_object != nullptr) this->next_object->prev_object = this->prev_object;
 		if (this->prev_object != nullptr) {
 			this->prev_object->next_object = this->next_object;
@@ -302,6 +306,7 @@ public:
 
 	VoxelObject *next_object; ///< Next voxel object in the linked list.
 	VoxelObject *prev_object; ///< Previous voxel object in the linked list.
+	bool added;               ///< Whether the voxel object has been added to a voxel.
 
 	int16 x_vox;  ///< %Voxel index in X direction of the voxel object.
 	int16 y_vox;  ///< %Voxel index in Y direction of the voxel object.
