@@ -420,7 +420,36 @@ void CoasterTrain::OnAnimate(int delay)
 		/* Unroll the orientation vector. */
 		Unroll(roll, &yder, &zder);
 
-		/* XXX Implement pitch and yaw. */
+		/* XXX Implement pitch. */
+
+		static const double TAN11_25 = 0.198912367379658;  // tan(11.25 degrees).
+		static const double TAN33_75 = 0.6681786379192989; // tan(3*11.25 degrees).
+
+		/* Compute yaw. */
+		bool swap_dx = false;
+		if (xder > 0) { swap_dx = true; xder = -xder; }
+		bool swap_dy = false;
+		if (yder > 0) { swap_dy = true; yder = -yder; }
+		uint yaw;
+		/* There are 16 yaw directions, the 360 degrees needs to be split in 16 pieces. However the x and y axes are in the middle of
+		 * a piece, so 360 degrees is split in 32 parts, and 2 parts form one piece. */
+		if (xder < yder) {
+			/* In the first 45 degrees. It is split in 4 parts (4*11.25 degrees) where the 1st part is for direction 0.
+			 * The 2nd and 3rd part are for direction 1, and the 4th part is for direction 2. */
+			if (xder * TAN11_25 < yder) yaw = 0;
+			else if (xder * TAN33_75 < yder) yaw = 1;
+			else yaw = 2;
+		} else {
+			/* In the second 45 degrees. It is also split in 4 parts (4*11.25 degrees) where the 1st part is for direction 2.
+			 * The 2nd and 3rd part are for direction 3, and the 4th part is for direction 4.
+			 *
+			 * Rather than re-inventing a solution, re-use the same checks as above with swapped xder and yder. */
+			if (yder * TAN11_25 < xder) yaw = 4;
+			else if (yder * TAN33_75 < xder) yaw = 3;
+			else yaw = 2;
+		}
+		if (swap_dx) yaw = 8 - yaw;
+		if (swap_dy) yaw = (16 - yaw) & 0xf;
 
 		xpos_back  &= 0xFFFFFF00; // Back and front positions to the north bottom corner of the voxel.
 		ypos_back  &= 0xFFFFFF00;
@@ -429,8 +458,8 @@ void CoasterTrain::OnAnimate(int delay)
 		ypos_front &= 0xFFFFFF00;
 		zpos_front &= 0xFFFFFF00;
 
-		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  0, roll, 0);
-		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, 0, roll, 0);
+		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  0, roll, yaw);
+		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, 0, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
 	}
 }
