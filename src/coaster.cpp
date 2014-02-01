@@ -234,7 +234,7 @@ DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff)  // Mark every
 const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
 {
 	*recolour = nullptr;
-	return this->car_type->GetCar(this->pitch, this->roll, this->yaw);
+	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);
 }
 
 /**
