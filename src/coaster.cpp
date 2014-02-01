@@ -351,7 +351,7 @@ void CoasterTrain::OnAnimate(int delay)
 		}
 	}
 	uint32 car_length = this->coaster->car_type->car_length;
-	uint32 position = this->back_position + car_length / 2; // Middle position of the last car.
+	uint32 position = this->back_position; // Back position of the train / last car.
 	const PositionedTrackPiece *ptp = this->cur_piece;
 	for (uint i = 0; i < this->cars.size(); i++) {
 		CoasterCar &car = this->cars[i];
@@ -360,13 +360,42 @@ void CoasterTrain::OnAnimate(int delay)
 			ptp = this->coaster->pieces;
 		}
 		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
-		int32 xpos = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->x_base << 8);
-		int32 ypos = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
-		int32 zpos = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
-		// XXX Implement pitch, roll, and yaw.
-		car.front.Set(xpos >> 8, ypos >> 8, zpos >> 8, xpos & 0xFF, ypos & 0xFF, zpos & 0xFF, 0, 0, 0);
-		car.back.Set(xpos >> 8, ypos >> 8, zpos >> 8, xpos & 0xFF, ypos & 0xFF, zpos & 0xFF, 0, 0, 0);
+
+		/* Get position of the back of the car. */
+		int32 xpos_back = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->x_base << 8);
+		int32 ypos_back = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
+		int32 zpos_back = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
+
+		/* Get position of the front of the car. */
 		position += car_length;
+		if (position >= this->coaster->coaster_length) {
+			position -= this->coaster->coaster_length;
+			ptp = this->coaster->pieces;
+		}
+		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
+		int32 xpos_front = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->x_base << 8);
+		int32 ypos_front = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
+		int32 zpos_front = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
+
+		int32 xder = xpos_front - xpos_back;
+		int32 yder = ypos_front - ypos_back;
+		int32 zder = zpos_front - zpos_back;
+		int32 xpos_middle = xpos_back + xder / 2; // Compute center point of the car as position to render the car.
+		int32 ypos_middle = ypos_back + yder / 2;
+		int32 zpos_middle = zpos_back + zder / 2;
+
+		// XXX Implement pitch, roll, and yaw.
+
+		xpos_back  &= 0xFFFFFF00; // Back and front positions to the north bottom corner of the voxel.
+		ypos_back  &= 0xFFFFFF00;
+		zpos_back  &= 0xFFFFFF00;
+		xpos_front &= 0xFFFFFF00;
+		ypos_front &= 0xFFFFFF00;
+		zpos_front &= 0xFFFFFF00;
+
+		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  0, 0, 0);
+		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, 0, 0, 0);
+		position += this->coaster->car_type->inter_car_length;
 	}
 }
 
