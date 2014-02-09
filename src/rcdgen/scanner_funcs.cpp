@@ -15,27 +15,6 @@
 #include "scanner_funcs.h"
 
 /**
- * Append a character to #text.
- * @param kar Character to append.
- */
-void AddChar(int kar)
-{
-	if (text_index < text.length()) {
-		text[text_index] = kar;
-		text_index++;
-		return;
-	}
-
-	if (text.length() == 0) {
-		text.resize(512);
-	} else {
-		text.resize(text.length() + 512);
-	}
-	text[text_index] = kar;
-	text_index++;
-}
-
-/**
  * Report an error message to the user and abort.
  * @param message Message to report.
  */

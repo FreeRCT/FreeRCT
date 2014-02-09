@@ -5,7 +5,6 @@
 int line = 1;
 std::string filename;
 std::string text;
-uint text_index;
 int string_line; ///< Starting line of the string.
 %}
 
@@ -41,31 +40,28 @@ int string_line; ///< Starting line of the string.
 "}" { return CURLY_CLOSE; }
 
 \" {
-	text_index = 0;
+	text.clear();
 	string_line = line;
 	BEGIN(in_string);
 }
 
 <in_string>\" {
 	BEGIN(INITIAL);
-	AddChar('\0');
-	yylval.chars.line = string_line;
-	yylval.chars.value = new char[text.size() + 1];
-	std::copy(text.begin(), text.end(), yylval.chars.value);
-	yylval.chars.value[text.size()] = '\0';
+	yylval.chars.line = yylval.line = string_line;
+	yylval.chars.value = text;
 	return STRING;
 }
 
 <in_string>. {
-	AddChar(yytext[0]);
+	text += yytext[0];
 }
 
 <in_string>\\\\ {
-	AddChar('\\');
+	text += '\\';
 }
 
 <in_string>\\\" {
-	AddChar('\"');
+	text += '\"';
 }
 
 0 {
@@ -92,10 +88,8 @@ int string_line; ///< Starting line of the string.
 
 [A-Za-z_]([A-Za-z0-9#_]|[{](hor|vert)[(][0-9][0-9]*\.\.[0-9][0-9]*[)][}])* {
 	/* a letter, followed by 0 or more times a letter or digit, or {hor/vert(num..num)}. */
-	yylval.chars.line = line;
-	int length = strlen(yytext);
-	yylval.chars.value = new char[length + 1];
-	memcpy(yylval.chars.value, yytext, length + 1);
+	yylval.chars.line = yylval.line = line;
+	yylval.chars.value = yytext;
 	return IDENTIFIER;
 }
 

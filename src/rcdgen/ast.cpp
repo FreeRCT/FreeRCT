@@ -273,7 +273,7 @@ Name::~Name() {
  * @param pos %Position of the label name.
  * @param name The label name itself.
  */
-SingleName::SingleName(const Position &pos, char *name) : Name(), pos(pos), name(name)
+SingleName::SingleName(const Position &pos, const std::string &name) : Name(), pos(pos), name(name)
 {
 }
 
@@ -292,7 +292,7 @@ int SingleName::GetNameCount() const
  * @param pos %Position of the name.
  * @param name The identifier to store.
  */
-IdentifierLine::IdentifierLine(const Position &pos, char *name) : pos(pos), name(name)
+IdentifierLine::IdentifierLine(const Position &pos, const std::string &name) : pos(pos), name(name)
 {
 }
 
@@ -422,7 +422,7 @@ Group::~Group()
  * @param exprs Actual parameters of the node.
  * @param values Named values of the node.
  */
-NodeGroup::NodeGroup(const Position &pos, char *name, std::shared_ptr<ExpressionList> exprs, std::shared_ptr<NamedValueList> values) : Group(), pos(pos), name(name)
+NodeGroup::NodeGroup(const Position &pos, const std::string &name, std::shared_ptr<ExpressionList> exprs, std::shared_ptr<NamedValueList> values) : Group(), pos(pos), name(name)
 {
 	this->exprs = exprs;
 	this->values = values;
@@ -488,7 +488,7 @@ void NamedValue::HandleImports()
  * @param pos %Position of the import.
  * @param filename File name being imported.
  */
-ImportValue::ImportValue(const Position &pos, char *filename) : BaseNamedValue(), pos(pos), filename(filename)
+ImportValue::ImportValue(const Position &pos, const std::string &filename) : BaseNamedValue(), pos(pos), filename(filename)
 {
 }
 

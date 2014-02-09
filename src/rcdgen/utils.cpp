@@ -50,12 +50,9 @@ ParameterizedName::~ParameterizedName()
  * @param name Name to inspect.
  * @return Returns \c true if no parameters are found, else \c false.
  */
-bool ParameterizedName::HasNoParameters(const char *name)
+bool ParameterizedName::HasNoParameters(const std::string &name)
 {
-	while (*name) {
-		if (*name == '{') return false;
-		name++;
-	}
+	for (const char &k : name) if (k == '{') return false;
 	return true;
 }
 
@@ -205,10 +202,10 @@ const char *ParameterizedName::GetParmName(int row, int col)
  * @param name Name to check.
  * @param pos Position to report an error.
  */
-void CheckIsSingleName(const char *name, const Position &pos)
+void CheckIsSingleName(const std::string &name, const Position &pos)
 {
 	if (!ParameterizedName::HasNoParameters(name)) {
-		fprintf(stderr, "Line %d: Name \"%s\" may not contain horizontal or vertical parameters.\n", pos.line, name);
+		fprintf(stderr, "Line %d: Name \"%s\" may not contain horizontal or vertical parameters.\n", pos.line, name.c_str());
 		exit(1);
 	}
 }

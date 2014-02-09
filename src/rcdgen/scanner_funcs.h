@@ -18,10 +18,7 @@
 
 extern int line; ///< Line number of the input file being scanned.
 extern std::string filename; ///< Name of the file being parsed.
-
 extern std::string text; ///< Temporary storage for a string.
-extern uint text_index; ///< Pointer into #text, pointing to the first free character.
-void AddChar(int kar);
 
 int yylex();   ///< Generated scanner function.
 int yyparse(); ///< Generated parser function.
@@ -38,7 +35,7 @@ struct YyStruct {
 	} number; ///< Data while communicating a NUMBER token.
 	struct {
 		int line;    ///< Line number of the token.
-		char *value; ///< Characters stored.
+		std::string value; ///< Characters stored.
 	} chars; ///< Data while communicating an IDENTIFIER or STRING token.
 	std::shared_ptr<Expression> expr;         ///< %Expression to pass on.
 	std::shared_ptr<ExpressionList> exprlist; ///< Expression list to pass on.

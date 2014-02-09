@@ -54,10 +54,10 @@ public:
 	ParameterizedNameRange hor_range;  ///< Information about the horizontal range.
 	ParameterizedNameRange vert_range; ///< Information about the vertical range.
 
-	static bool HasNoParameters(const char *name);
+	static bool HasNoParameters(const std::string &name);
 };
 
-void CheckIsSingleName(const char *name, const Position &pos);
+void CheckIsSingleName(const std::string &name, const Position &pos);
 
 #endif
 

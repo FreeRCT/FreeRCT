@@ -132,7 +132,7 @@ public:
 /** Label of a named value containing a single name. */
 class SingleName : public Name {
 public:
-	SingleName(const Position &pos, char *name);
+	SingleName(const Position &pos, const std::string &name);
 
 	const Position &GetPosition() const override;
 	int GetNameCount() const override;
@@ -144,7 +144,7 @@ public:
 /** Somewhat generic class for storing an identifier and its position. */
 class IdentifierLine : public std::enable_shared_from_this<IdentifierLine> {
 public:
-	IdentifierLine(const Position &pos, char *name);
+	IdentifierLine(const Position &pos, const std::string &name);
 
 	const Position &GetPosition() const;
 	bool IsValid() const;
@@ -196,7 +196,7 @@ class NamedValueList;
 /** Value part consisting of a node. */
 class NodeGroup : public Group {
 public:
-	NodeGroup(const Position &pos, char *name, std::shared_ptr<ExpressionList> exprs, std::shared_ptr<NamedValueList> values);
+	NodeGroup(const Position &pos, const std::string &name, std::shared_ptr<ExpressionList> exprs, std::shared_ptr<NamedValueList> values);
 
 	const Position &GetPosition() const override;
 
@@ -241,7 +241,7 @@ public:
 /** Node to import another file. */
 class ImportValue : public BaseNamedValue {
 public:
-	ImportValue(const Position &pos, char *filename);
+	ImportValue(const Position &pos, const std::string &filename);
 
 	void HandleImports() override;
 
