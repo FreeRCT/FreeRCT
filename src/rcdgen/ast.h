@@ -38,7 +38,7 @@ struct Symbol {
 };
 
 /** Base class of expressions. */
-class Expression : public std::enable_shared_from_this<Expression> {
+class Expression {
 public:
 	Expression(const Position &pos);
 	virtual ~Expression();
@@ -49,7 +49,7 @@ public:
 };
 
 /** A sequence of expressions. */
-class ExpressionList : public std::enable_shared_from_this<ExpressionList> {
+class ExpressionList {
 public:
 	ExpressionList();
 
@@ -120,7 +120,7 @@ public:
 };
 
 /** Base class for labels of named values. */
-class Name : public std::enable_shared_from_this<Name> {
+class Name {
 public:
 	Name();
 	virtual ~Name();
@@ -142,7 +142,7 @@ public:
 };
 
 /** Somewhat generic class for storing an identifier and its position. */
-class IdentifierLine : public std::enable_shared_from_this<IdentifierLine> {
+class IdentifierLine {
 public:
 	IdentifierLine(const Position &pos, const std::string &name);
 
@@ -157,7 +157,7 @@ public:
  * A row of identifiers.
  * Names here may be parameterized, and represent many identifiers.
  */
-class NameRow : public std::enable_shared_from_this<NameRow> {
+class NameRow {
 public:
 	NameRow();
 
@@ -183,7 +183,7 @@ public:
 };
 
 /** Base class of the value part of a named value. */
-class Group : public std::enable_shared_from_this<Group> {
+class Group {
 public:
 	Group();
 	virtual ~Group();
@@ -219,7 +219,7 @@ public:
 };
 
 /** Base class for named values. */
-class BaseNamedValue : public std::enable_shared_from_this<BaseNamedValue> {
+class BaseNamedValue {
 public:
 	BaseNamedValue();
 	virtual ~BaseNamedValue();
@@ -250,7 +250,7 @@ public:
 };
 
 /** Sequence of named values. */
-class NamedValueList : public std::enable_shared_from_this<NamedValueList> {
+class NamedValueList {
 public:
 	NamedValueList();
 

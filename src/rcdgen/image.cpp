@@ -10,9 +10,7 @@
 /** @file image.cpp %Image loading, cutting, and saving the sprites. */
 
 #include "../stdafx.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cassert>
+#include <vector>
 #include "image.h"
 
 #include "mask64.xbm"
