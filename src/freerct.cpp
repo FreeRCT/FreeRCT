@@ -27,6 +27,8 @@
 #include "getoptdata.h"
 #include "gamemode.h"
 
+static const uint32 FRAME_DELAY = 30; ///< Number of milliseconds between two frames.
+
 static bool _finish; ///< Finish execution of the program.
 
 void InitMouseModes();
@@ -51,23 +53,6 @@ void error(const char *str, ...)
 void QuitProgram()
 {
 	_finish = true;
-}
-
-/**
- * Callback from the SDL timer.
- * @param interval Timer interval.
- * @param param Dummy parameter.
- * @return New interval.
- */
-static uint32 NextFrame(uint32 interval, void *param)
-{
-	SDL_Event event;
-
-	/* Push a 'UserEvent' onto the queue to denote time passage. */
-	event.type = SDL_USEREVENT; // Other fields are "don't care".
-	SDL_PushEvent(&event);
-
-	return interval;
 }
 
 /** Command-line options of the program. */
@@ -105,10 +90,7 @@ static void UpdateMousePosition(int16 x, int16 y)
 static bool HandleEvent()
 {
 	SDL_Event event;
-	if (!SDL_WaitEvent(&event)) {
-		QuitProgram(); // Error in the event stream, quit.
-		return true;
-	}
+	if (SDL_PollEvent(&event) != 1) return true;
 	switch(event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
@@ -259,30 +241,34 @@ int main(int argc, char **argv)
 
 	bool missing_sprites_check = false;
 
-	SDL_TimerID timer_id = SDL_AddTimer(30, &NextFrame, nullptr);
-
 	while (!_finish) {
 		/* For every frame do... */
 		_manager.Tick();
 		_guests.DoTick();
 		DateOnTick();
-		_guests.OnAnimate(30); // Fixed rate animation.
-		_rides_manager.OnAnimate(30);
+		_guests.OnAnimate(FRAME_DELAY); // Fixed rate animation.
+		_rides_manager.OnAnimate(FRAME_DELAY);
 
 		/* Handle input events until time for the next frame has arrived. */
-		while (!_finish) {
+		uint32 start = SDL_GetTicks();
+		for (;;) {
 			if (HandleEvent()) break;
+		}
+		if (_finish) break;
+
+		uint32 now = SDL_GetTicks();
+		if (now >= start) { // No wrap around.
+			now -= start;
+			if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
 		}
 
 		if (!missing_sprites_check && _video->missing_sprites) {
 			/* Enough sprites are available for displaying an error message,
 			 * as this was checked in GuiSprites::HasSufficientGraphics. */
-			 ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
-			 missing_sprites_check = true;
+			ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
+			missing_sprites_check = true;
 		}
 	}
-
-	SDL_RemoveTimer(timer_id); // Drop the timer.
 
 	_game_mode_mgr.SetGameMode(GM_NONE);
 	_mouse_modes.SetMouseMode(MM_INACTIVE);

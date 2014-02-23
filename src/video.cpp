@@ -136,7 +136,7 @@ VideoSystem::~VideoSystem()
 bool VideoSystem::Initialize(const char *font_name, int font_size)
 {
 	if (this->initialized) return true;
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return false;
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) return false;
 
 	this->vid_width = 800;
 	this->vid_height = 600;
