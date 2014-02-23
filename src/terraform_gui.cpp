@@ -120,13 +120,13 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 			Point16 top, bottom;
 			top.x = left.x + TERRAFORM_ELEMENT_SIZE / 2;
 			top.y = left.y - TERRAFORM_ELEMENT_SIZE / 4;
-			_video->DrawLine(left, top, COL_HIGHLIGHT);
+			_video->DrawLine(left, top, MakeRGBA(255, 255, 255, OPAQUE));
 			bottom.x = top.x;
 			bottom.y = left.y + TERRAFORM_ELEMENT_SIZE / 4;
-			_video->DrawLine(left, bottom, COL_HIGHLIGHT);
+			_video->DrawLine(left, bottom, MakeRGBA(255, 255, 255, OPAQUE));
 			left.x += TERRAFORM_ELEMENT_SIZE; // Move 'left' to the right.
-			_video->DrawLine(top, left, COL_HIGHLIGHT);
-			_video->DrawLine(bottom, left, COL_HIGHLIGHT);
+			_video->DrawLine(top, left, MakeRGBA(255, 255, 255, OPAQUE));
+			_video->DrawLine(bottom, left, MakeRGBA(255, 255, 255, OPAQUE));
 		}
 	}
 }

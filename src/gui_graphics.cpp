@@ -107,7 +107,7 @@ void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment
 	uint8 buffer[1024]; // Arbitrary limit.
 
 	DrawText(strid, buffer, lengthof(buffer));
-	_video->BlitText(buffer, colour, x, y, width, align);
+	_video->BlitText(buffer, MakeRGB(colour), x, y, width, align);
 }
 
 /**
@@ -214,11 +214,11 @@ bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_he
 		int line_width;
 		uint8 *end = GetSingleLine(text, max_width, &line_width);
 		if (*end == '\0') {
-			_video->BlitText(text, colour, x, y, max_width);
+			_video->BlitText(text, MakeRGB(colour), x, y, max_width);
 			break;
 		}
 		*end = '\0';
-		_video->BlitText(text, colour, x, y, max_width);
+		_video->BlitText(text, MakeRGB(colour), x, y, max_width);
 		y += _video->GetTextHeight();
 		text = end + 1;
 	}

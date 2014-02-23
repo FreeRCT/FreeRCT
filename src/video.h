@@ -20,6 +20,9 @@
 class ImageData;
 class PaletteData;
 
+static const uint8 TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
+static const uint8 OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
+
 /** Clipped rectangle. */
 class ClippedRectangle {
 public:
@@ -32,13 +35,13 @@ public:
 
 	void ValidateAddress();
 
-	uint16 absx;    ///< Absolute X position in the screen of the top-left.
-	uint16 absy;    ///< Absolute Y position in the screen of the top-left.
-	uint16 width;   ///< Number of columns.
-	uint16 height;  ///< Number of rows.
+	uint16 absx;     ///< Absolute X position in the screen of the top-left.
+	uint16 absy;     ///< Absolute Y position in the screen of the top-left.
+	uint16 width;    ///< Number of columns.
+	uint16 height;   ///< Number of rows.
 
-	uint8 *address; ///< Base address. @note Call #ValidateAddress prior to use.
-	uint16 pitch;   ///< Pitch of a row in bytes. @note Call #ValidateAddress prior to use.
+	uint32 *address; ///< Base address. @note Call #ValidateAddress prior to use.
+	int32 pitch;     ///< Pitch of a row in bytes. @note Call #ValidateAddress prior to use.
 };
 
 /** How to align text during drawing. */
@@ -49,19 +52,59 @@ enum Alignment {
 };
 
 /**
+ * Construct a 32bpp pixel value from its components.
+ * @param r Intensity of the red colour component.
+ * @param g Intensity of the green colour component.
+ * @param b Intensity of the blue colour component.
+ * @param a Opacity of the pixel.
+ * @return Pixel value of the given combination of colour components.
+ */
+static inline uint32 MakeRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
+{
+	return (((uint32)r) << 24) | (((uint32)g) << 16) | (((uint32)b) << 8) | a;
+}
+
+/**
+ * Create a 32bpp colour from a palette index.
+ * @param pal_index Palette colour to use.
+ * @return Pixel value of the given combination of colour components.
+ */
+static inline uint32 MakeRGB(uint8 pal_index)
+{
+	return MakeRGBA(_palette[pal_index][0], _palette[pal_index][1], _palette[pal_index][2], OPAQUE);
+}
+
+/**
  * Class representing the video system.
  */
 class VideoSystem {
+	friend class ClippedRectangle;
 public:
 	VideoSystem();
 	~VideoSystem();
 
 	bool Initialize(const char *font_name, int font_size);
-	void SetPalette();
 	void Shutdown();
 
-	uint16 GetXSize() const;
-	uint16 GetYSize() const;
+	/**
+	 * Get horizontal size of the screen.
+	 * @return Number of pixels of the screen horizontally.
+	 */
+	uint16 GetXSize() const
+	{
+		assert(this->initialized);
+		return this->vid_width;
+	}
+
+	/**
+	 * Get vertical size of the screen.
+	 * @return Number of pixels of the screen vertically.
+	 */
+	uint16 GetYSize() const
+	{
+		assert(this->initialized);
+		return this->vid_height;
+	}
 
 	/**
 	 * Query whether the display needs to be repainted.
@@ -78,10 +121,7 @@ public:
 	void SetClippedRectangle(const ClippedRectangle &cr);
 	ClippedRectangle GetClippedRectangle();
 
-	void LockSurface();
-	void UnlockSurface();
-	void FillSurface(uint8 colour, const Rectangle32 &rect);
-
+	void FillSurface(uint32 colour, const Rectangle32 &rect);
 	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, int16 shift);
 	void BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift);
 
@@ -126,19 +166,24 @@ public:
 
 	void GetTextSize(const uint8 *text, int *width, int *height);
 	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
-	void BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
-	void DrawLine(const Point16 &start, const Point16 &end, uint8 colour);
-	void DrawRectangle(const Rectangle32 &rect, uint8 colour);
+	void BlitText(const uint8 *text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
+	void DrawLine(const Point16 &start, const Point16 &end, uint32 colour);
+	void DrawRectangle(const Rectangle32 &rect, uint32 colour);
 
 	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
 
 private:
+	int vid_width;        ///< Width of the application window.
+	int vid_height;       ///< Height of the application window.
 	int font_height;      ///< Height of a line of text in pixels.
 	bool initialized;     ///< Video system is initialized.
 	bool dirty;           ///< Video display needs being repainted.
 
 	TTF_Font *font;             ///< Opened text font.
-	SDL_Surface *video;         ///< Video surface.
+	SDL_Window *window;         ///< %Window of the application.
+	SDL_Renderer *renderer;     ///< GPU renderer to the application window.
+	SDL_Texture *texture;       ///< GPU Texture storage of the application window.
+	uint32 *mem;                ///< Memory used for blitting the application display.
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
 	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
 

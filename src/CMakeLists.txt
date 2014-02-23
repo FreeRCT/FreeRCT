@@ -56,18 +56,20 @@ set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h GE
 add_executable(freerct ${freerct_SRCS})
 add_dependencies(freerct rcd)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+
 # Library detection
-find_package(SDL REQUIRED)
-IF(SDL_FOUND)
-	include_directories(${SDL_INCLUDE_DIR})
-	target_link_libraries(freerct ${SDL_LIBRARY})
+find_package(SDL2 REQUIRED)
+IF(SDL2_FOUND)
+	include_directories(${SDL2_INCLUDE_DIR})
+	target_link_libraries(freerct ${SDL2_LIBRARY})
 ENDIF()
 
-find_package(SDL_ttf REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 # Legacy variable names
-IF(SDLTTF_FOUND)
-	include_directories(${SDLTTF_INCLUDE_DIR})
-	target_link_libraries(freerct ${SDLTTF_LIBRARY})
+IF(SDL2TTF_FOUND)
+	include_directories(${SDL2TTF_INCLUDE_DIR})
+	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
 ENDIF()
 
 # Translated messages are bad

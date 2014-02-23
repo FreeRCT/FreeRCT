@@ -142,7 +142,6 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Failed to initialize window or the font, aborting\n");
 		exit(1);
 	}
-	vid.SetPalette();
 	_video = &vid;
 
 	_finish = false;
@@ -210,27 +209,13 @@ int main(int argc, char **argv)
 					break;
 				}
 
+				case SDL_MOUSEWHEEL:
+					_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
+					break;
+
 				case SDL_MOUSEBUTTONUP:
 				case SDL_MOUSEBUTTONDOWN:
 					switch (event.button.button) {
-						case SDL_BUTTON_WHEELDOWN: {
-							Point16 p;
-							p.x = event.button.x;
-							p.y = event.button.y;
-							_manager.MouseMoveEvent(p);
-							if (event.type == SDL_MOUSEBUTTONDOWN) _manager.MouseWheelEvent(-1);
-							break;
-						}
-
-						case SDL_BUTTON_WHEELUP: {
-							Point16 p;
-							p.x = event.button.x;
-							p.y = event.button.y;
-							_manager.MouseMoveEvent(p);
-							if (event.type == SDL_MOUSEBUTTONDOWN) _manager.MouseWheelEvent(1);
-							break;
-						}
-
 						case SDL_BUTTON_LEFT: {
 							Point16 p;
 							p.x = event.button.x;
@@ -267,9 +252,11 @@ int main(int argc, char **argv)
 					next_frame = true;
 					break;
 
-				case SDL_VIDEOEXPOSE:
-					vid.MarkDisplayDirty();
-					UpdateWindows();
+				case SDL_WINDOWEVENT:
+					if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
+						vid.MarkDisplayDirty();
+						UpdateWindows();
+					}
 					break;
 
 				case SDL_QUIT:

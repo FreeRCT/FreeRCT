@@ -416,7 +416,7 @@ void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 void GuiWindow::OnDraw()
 {
 	this->tree->Draw(this);
-	if ((this->flags & WF_HIGHLIGHT) != 0) _video->DrawRectangle(this->rect, COL_HIGHLIGHT);
+	if ((this->flags & WF_HIGHLIGHT) != 0) _video->DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
 }
 
 void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
@@ -933,14 +933,11 @@ void UpdateWindows()
 	 * windows truly disappear (even if there is no other window behind it).
 	 */
 	Rectangle32 rect(0, 0, _video->GetXSize(), _video->GetYSize());
-	_video->FillSurface(COL_BACKGROUND, rect);
+	_video->FillSurface(MakeRGBA(0, 0, 0, OPAQUE), rect);
 
 	Window *w = _manager.bottom;
 	while (w != nullptr) {
-		_video->LockSurface();
 		w->OnDraw();
-		_video->UnlockSurface();
-
 		w = w->higher;
 	}
 

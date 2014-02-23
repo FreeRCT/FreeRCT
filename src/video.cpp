@@ -107,9 +107,8 @@ ClippedRectangle &ClippedRectangle::operator=(const ClippedRectangle &cr)
 void ClippedRectangle::ValidateAddress()
 {
 	if (this->address == nullptr) {
-		SDL_Surface *s = SDL_GetVideoSurface();
-		this->pitch = s->pitch;
-		this->address = ((uint8 *)(s->pixels)) + this->absx + this->absy * s->pitch;
+		this->pitch = _video->GetXSize();
+		this->address = _video->mem + this->absx + this->absy * this->pitch;
 	}
 }
 
@@ -139,25 +138,49 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	if (this->initialized) return true;
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return false;
 
-	SDL_Surface *icon = SDL_LoadBMP("../graphics/sprites/logo/logo.32.bmp"); /// \todo Non hardcoded filepath.
-	if (icon != nullptr) {
-		SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0, 0, 255)); // Replace blue
-		SDL_WM_SetIcon(icon, nullptr);
-		SDL_FreeSurface(icon);
-	}
-
-	this->video = SDL_SetVideoMode(800, 600, 8, SDL_HWSURFACE);
-	if (this->video == nullptr) {
-		SDL_Quit();
-		return false;
-	}
+	this->vid_width = 800;
+	this->vid_height = 600;
 
 	char caption[50];
 	snprintf(caption, sizeof(caption), "FreeRCT %s", _freerct_revision);
-	SDL_WM_SetCaption(caption, caption);
+	this->window = SDL_CreateWindow(caption, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, this->vid_width, this->vid_height, 0);
+	if (this->window == nullptr) {
+		SDL_Quit();
+		fprintf(stderr, "Could not create window at %dx%d (%s)\n", this->vid_width, this->vid_height, SDL_GetError());
+		return false;
+	}
+
+	this->renderer = SDL_CreateRenderer(this->window, -1, 0);
+	if (this->renderer == nullptr) {
+		SDL_Quit();
+		fprintf(stderr, "Could not create renderer (%s)\n", SDL_GetError());
+		return false;
+	}
+
+	this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, this->vid_width, this->vid_height);
+	if (this->texture == nullptr) {
+		SDL_Quit();
+		fprintf(stderr, "Could not create texture (%s)\n", SDL_GetError());
+		return false;
+	}
+
+	this->mem = new uint32[this->vid_width * this->vid_height];
+	if (this->mem == nullptr) {
+		SDL_Quit();
+		fprintf(stderr, "Failed to obtain window display storage.\n");
+		return false;
+	}
+
+	SDL_Surface *icon = SDL_LoadBMP("../graphics/sprites/logo/logo.32.bmp"); /// \todo Non hardcoded filepath.
+	if (icon != nullptr) {
+// XXX		SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0, 0, 255)); // Replace blue
+		SDL_SetWindowIcon(this->window, icon);
+		SDL_FreeSurface(icon);
+	}
 
 	if (TTF_Init() != 0) {
 		SDL_Quit();
+		delete[] this->mem;
 		return false;
 	}
 
@@ -165,6 +188,7 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	if (this->font == nullptr) {
 		TTF_Quit();
 		SDL_Quit();
+		delete[] this->mem;
 		return false;
 	}
 
@@ -220,20 +244,6 @@ ClippedRectangle VideoSystem::GetClippedRectangle()
 	return this->blit_rect;
 }
 
-/** Set up the palette for the video surface. */
-void VideoSystem::SetPalette()
-{
-	assert(this->initialized);
-
-	SDL_Color colours[256];
-	for (uint i = 0; i < 256; i++) {
-		colours[i].r = _palette[i][0];
-		colours[i].g = _palette[i][1];
-		colours[i].b = _palette[i][2];
-	}
-	SDL_SetColors(SDL_GetVideoSurface(), colours, 0, 256);
-}
-
 /** Close down the video system. */
 void VideoSystem::Shutdown()
 {
@@ -241,77 +251,32 @@ void VideoSystem::Shutdown()
 		TTF_CloseFont(this->font);
 		TTF_Quit();
 		SDL_Quit();
+		delete[] this->mem;
 		this->initialized = false;
 		this->dirty = false;
 	}
 }
 
 /**
- * Get horizontal size of the screen.
- * @return Number of pixels of the screen horizontally.
+ * Finish repainting, perform the final steps.
+ * @todo Implement partial window repainting.
  */
-uint16 VideoSystem::GetXSize() const
-{
-	assert(this->initialized);
-
-	int w = SDL_GetVideoSurface()->w;
-	assert(w >= 0 && w <= 0xFFFF);
-	return (uint16)w;
-}
-
-/**
- * Get vertical size of the screen.
- * @return Number of pixels of the screen vertically.
- */
-uint16 VideoSystem::GetYSize() const
-{
-	assert(this->initialized);
-
-	int h = SDL_GetVideoSurface()->h;
-	assert(h >= 0 && h <= 0xFFFF);
-	return (uint16)h;
-}
-
-/**
- * Make the whole surface getting copied to the display.
- * @todo A somewhat less crude system would be nice, but it will have to wait
- *       until the window system is fleshed out more.
- *
- * @warning The VideoSystem::dirty flag is not updated here!!
- */
-static void UpdateScreen()
-{
-	SDL_Surface *s = SDL_GetVideoSurface();
-	SDL_UpdateRect(s, 0, 0, s->w, s->h);
-}
-
-/** Lock the video surface to allow safe access to the pixel data. */
-void VideoSystem::LockSurface()
-{
-	SDL_LockSurface(SDL_GetVideoSurface());
-}
-
-/** Release the video surface lock. */
-void VideoSystem::UnlockSurface()
-{
-	SDL_UnlockSurface(SDL_GetVideoSurface());
-}
-
-/** Finish repainting, perform the final steps. */
 void VideoSystem::FinishRepaint()
 {
-	UpdateScreen();
+	SDL_UpdateTexture(this->texture, nullptr, this->mem, this->GetXSize() * sizeof(uint32)); // Upload memory to the GPU.
+	SDL_RenderClear(this->renderer);
+	SDL_RenderCopy(this->renderer, this->texture, nullptr, nullptr);
+	SDL_RenderPresent(this->renderer);
+
 	MarkDisplayClean();
 }
-
 
 /**
  * Fill the rectangle with a single colour.
  * @param colour Colour to fill with.
  * @param rect %Rectangle to fill.
- * @pre Surface must be locked.
  */
-void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
+void VideoSystem::FillSurface(uint32 colour, const Rectangle32 &rect)
 {
 	ClippedRectangle cr = this->GetClippedRectangle();
 
@@ -324,10 +289,11 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
 	h -= y;
 	if (w == 0 || h == 0) return;
 
-	uint8 *pixels = cr.address + x + y * cr.pitch;
+	uint32 *pixels_base = cr.address + x + y * cr.pitch;
 	while (h > 0) {
-		memset(pixels, colour, w);
-		pixels += cr.pitch;
+		uint32 *pixels = pixels_base;
+		for (int i = 0; i < w; i++) *pixels++ = colour;
+		pixels_base += cr.pitch;
 		h--;
 	}
 }
@@ -338,7 +304,6 @@ void VideoSystem::FillSurface(uint8 colour, const Rectangle32 &rect)
  * @param spr The sprite to blit.
  * @param recolour Sprite recolouring definition.
  * @param shift Gradient shift.
- * @pre Surface must be locked.
  */
 void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, int16 shift)
 {
@@ -352,7 +317,6 @@ void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const
  * @param img The sprite image data to blit.
  * @param recolour Sprite recolouring definition.
  * @param shift Gradient shift.
- * @pre Surface must be locked.
  */
 void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift)
 {
@@ -392,9 +356,9 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 		if (im_top >= im_bottom) return;
 	}
 
-	uint8 *base = this->blit_rect.address + x + y * this->blit_rect.pitch;
+	uint32 *base = this->blit_rect.address + x + y * this->blit_rect.pitch;
 	for (; im_top < im_bottom; im_top++) {
-		uint8 *dest = base;
+		uint32 *dest = base;
 		uint32 offset = img->table[im_top];
 		if (offset == ImageData::INVALID_JUMP) {
 			base += this->blit_rect.pitch;
@@ -420,7 +384,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 			for (; count > 0; count--) {
 				if (xpos >= im_right) break;
 				if (xpos >= im_left) {
-					*dest = recolour.Recolour(*pixels, shift);
+					*dest = MakeRGB(recolour.Recolour(*pixels, shift));
 					dest++;
 				}
 				xpos++;
@@ -445,22 +409,22 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
  * @param val Pixel value to blit.
  * @param recolour Sprite recolouring definition.
  */
-static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
+static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
 		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val,
 		const Recolouring &recolour)
 {
-	val = recolour.Recolour(val, 0); // No shift here.
+	uint32 colour = MakeRGB(recolour.Recolour(val, 0)); // No shift here.
 	const int32 xend = xmin + numx * width;
 	const int32 yend = ymin + numy * height;
 	while (ymin < yend) {
 		if (ymin >= cr.height) return;
 
 		if (ymin >= 0) {
-			uint8 *scr = scr_base;
+			uint32 *scr = scr_base;
 			int32 x = xmin;
 			while (x < xend) {
 				if (x >= cr.width) break;
-				if (x >= 0) *scr = val;
+				if (x >= 0) *scr = colour;
 
 				x += width;
 				scr += width;
@@ -479,7 +443,6 @@ static void BlitPixel(const ClippedRectangle &cr, uint8 *scr_base,
  * @param numx Number of sprites to draw in horizontal direction.
  * @param numy Number of sprites to draw in vertical direction.
  * @param recolour Sprite recolouring definition.
- * @pre Surface must be locked.
  */
 void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour)
 {
@@ -501,13 +464,13 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 	while (numy > 0 && y_base + (numy - 1) * spr->height >= this->blit_rect.height) numy--;
 	if (numy == 0) return;
 
-	uint8 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
+	uint32 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
 	int32 ypos = y_base;
 	for (int yoff = 0; yoff < spr->height; yoff++) {
 		uint32 offset = spr->table[yoff];
 		if (offset != ImageData::INVALID_JUMP) {
 			int32 xpos = x_base;
-			uint8 *src_base = line_base;
+			uint32 *src_base = line_base;
 			for (;;) {
 				uint8 rel_off = spr->data[offset];
 				uint8 count   = spr->data[offset + 1];
@@ -592,9 +555,8 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
  * @param ypos Absolute vertical position at the display.
  * @param width Available width of the text (in pixels).
  * @param align Horizontal alignment of the string.
- * @pre Surfaces must be locked before calling this function.
  */
-void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, int width, Alignment align)
+void VideoSystem::BlitText(const uint8 *text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
 	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
 	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, (const char *)text, col);
@@ -627,7 +589,7 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
 	this->blit_rect.ValidateAddress();
 
 	uint8 *src = ((uint8 *)surf->pixels);
-	uint8 *dest = this->blit_rect.address + xpos + ypos * this->blit_rect.pitch;
+	uint32 *dest = this->blit_rect.address + xpos + ypos * this->blit_rect.pitch;
 	int h = surf->h;
 	if (ypos < 0) {
 		h += ypos;
@@ -638,7 +600,7 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
 	while (h > 0) {
 		if (ypos >= this->blit_rect.height) break;
 		uint8 *src2 = src;
-		uint8 *dest2 = dest;
+		uint32 *dest2 = dest;
 		int w = real_w;
 		int x = xpos;
 		if (x < 0) {
@@ -671,7 +633,7 @@ void VideoSystem::BlitText(const uint8 *text, uint8 colour, int xpos, int ypos, 
  * @param end End point at the screen.
  * @param colour Colour to use.
  */
-void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colour)
+void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint32 colour)
 {
 	int16 dx, inc_x, dy, inc_y;
 	if (start.x > end.x) {
@@ -696,7 +658,7 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colou
 	int16 sum_y = 0;
 
 	this->blit_rect.ValidateAddress();
-	uint8 *dest = this->blit_rect.address + pos_x + pos_y * this->blit_rect.pitch;
+	uint32 *dest = this->blit_rect.address + pos_x + pos_y * this->blit_rect.pitch;
 
 	for (;;) {
 		/* Blit pixel. */
@@ -725,7 +687,7 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint8 colou
  * @param rect %Rectangle to draw.
  * @param colour Colour to use.
  */
-void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint8 colour)
+void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint32 colour)
 {
 	Point16 top_left     = {static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y)};
 	Point16 top_right    = {static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y)};

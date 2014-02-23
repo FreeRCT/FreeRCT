@@ -1263,7 +1263,7 @@ void Viewport::OnDraw()
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 	static const Recolouring recolour;
 
-	_video->FillSurface(COL_BACKGROUND, this->rect); // Black background.
+	_video->FillSurface(MakeRGBA(0, 0, 0, OPAQUE), this->rect); // Black background.
 
 	ClippedRectangle cr = _video->GetClippedRectangle();
 	assert(this->rect.base.x >= 0 && this->rect.base.y >= 0);
