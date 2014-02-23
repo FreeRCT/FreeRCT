@@ -67,7 +67,7 @@ ENDIF()
 
 find_package(SDL2_ttf REQUIRED)
 # Legacy variable names
-IF(SDL2TTF_FOUND)
+IF(SDL2_TTF_FOUND)
 	include_directories(${SDL2TTF_INCLUDE_DIR})
 	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
 ENDIF()
