@@ -12,6 +12,7 @@ project(FreeRCT)
 cmake_minimum_required(VERSION 2.8)
 
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
+set(CMAKE_USE_RELATIVE_PATHS ON)
 
 # TODO: Environment handling?
 option(OVERRIDE_VCS "Override the lack of a VCS checkout")
