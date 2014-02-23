@@ -171,9 +171,9 @@ int main(int argc, char **argv)
 	_finances_manager.SetScenario(_scenario);
 	_guests.Initialize();
 
+	ShowMainDisplay();
 	ShowToolbar();
 	ShowBottomToolbar();
-	Viewport *w = ShowMainDisplay();
 
 	_game_mode_mgr.SetGameMode(GM_PLAY);
 
@@ -204,11 +204,11 @@ int main(int argc, char **argv)
 							break;
 
 						case SDLK_LEFT:
-							w->Rotate(-1);
+							GetViewport()->Rotate(-1);
 							break;
 
 						case SDLK_RIGHT:
-							w->Rotate(1);
+							GetViewport()->Rotate(1);
 							break;
 
 						default:
