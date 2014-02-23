@@ -85,6 +85,21 @@ static void PrintUsage()
 }
 
 /**
+ * Update the mouse position in the program.
+ * @param x New x position of the mouse.
+ * @param y New y position of the mouse.
+ */
+static void UpdateMousePosition(int16 x, int16 y)
+{
+	Point16 p;
+
+	p.x = x;
+	p.y = y;
+	_manager.MouseMoveEvent(p);
+}
+
+
+/**
  * Main entry point.
  * @param argc Argument count.
  * @param argv Argument vector.
@@ -201,13 +216,9 @@ int main(int argc, char **argv)
 					}
 					break;
 
-				case SDL_MOUSEMOTION: {
-					Point16 p;
-					p.x = event.button.x;
-					p.y = event.button.y;
-					_manager.MouseMoveEvent(p);
+				case SDL_MOUSEMOTION:
+					UpdateMousePosition(event.button.x, event.button.y);
 					break;
-				}
 
 				case SDL_MOUSEWHEEL:
 					_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
@@ -216,32 +227,20 @@ int main(int argc, char **argv)
 				case SDL_MOUSEBUTTONUP:
 				case SDL_MOUSEBUTTONDOWN:
 					switch (event.button.button) {
-						case SDL_BUTTON_LEFT: {
-							Point16 p;
-							p.x = event.button.x;
-							p.y = event.button.y;
-							_manager.MouseMoveEvent(p);
+						case SDL_BUTTON_LEFT:
+							UpdateMousePosition(event.button.x, event.button.y);
 							_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
 							break;
-						}
 
-						case SDL_BUTTON_MIDDLE: {
-							Point16 p;
-							p.x = event.button.x;
-							p.y = event.button.y;
-							_manager.MouseMoveEvent(p);
+						case SDL_BUTTON_MIDDLE:
+							UpdateMousePosition(event.button.x, event.button.y);
 							_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
 							break;
-						}
 
-						case SDL_BUTTON_RIGHT: {
-							Point16 p;
-							p.x = event.button.x;
-							p.y = event.button.y;
-							_manager.MouseMoveEvent(p);
+						case SDL_BUTTON_RIGHT:
+							UpdateMousePosition(event.button.x, event.button.y);
 							_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
 							break;
-						}
 
 						default:
 							break;
