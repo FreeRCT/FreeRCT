@@ -184,6 +184,7 @@ private:
 	SDL_Renderer *renderer;     ///< GPU renderer to the application window.
 	SDL_Texture *texture;       ///< GPU Texture storage of the application window.
 	uint32 *mem;                ///< Memory used for blitting the application display.
+	uint32 rgba_palette[256];   ///< Palette in 32bpp RGBA.
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
 	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
 

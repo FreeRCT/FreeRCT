@@ -200,6 +200,10 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	this->blit_rect = ClippedRectangle(0, 0, this->GetXSize(), this->GetYSize());
 	this->digit_size.x = 0;
 	this->digit_size.y = 0;
+
+	/* Make the RGBA palette. */
+	for (int i = 0; i < 256; i++) this->rgba_palette[i] = MakeRGBA(_palette[i][0], _palette[i][1], _palette[i][2], OPAQUE);
+
 	return true;
 }
 
@@ -384,7 +388,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 			for (; count > 0; count--) {
 				if (xpos >= im_right) break;
 				if (xpos >= im_left) {
-					*dest = MakeRGB(recolour.Recolour(*pixels, shift));
+					*dest = this->rgba_palette[recolour.Recolour(*pixels, shift)];
 					dest++;
 				}
 				xpos++;
