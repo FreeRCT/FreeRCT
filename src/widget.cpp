@@ -1441,8 +1441,7 @@ static int FillWidget(const WidgetPart *parts, int remaining_parts, Intermediate
 	}
 
 	if (need_claim_memory) wid->ClaimMemory();
-	int count = (int)wid->num_rows * wid->num_cols;
-	assert(remaining_widgets == MAX_CHILDS - count);
+	assert(remaining_widgets == MAX_CHILDS - (int)wid->num_rows * wid->num_cols);
 
 	widgets = &grid[0];
 	for (uint8 r = 0; r < wid->num_rows; r++) {
