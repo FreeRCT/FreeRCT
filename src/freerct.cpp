@@ -98,6 +98,86 @@ static void UpdateMousePosition(int16 x, int16 y)
 	_manager.MouseMoveEvent(p);
 }
 
+/**
+ * Handle an input event.
+ * @return Time for the next frame has arrived (possibly terminating the program).
+ */
+static bool HandleEvent()
+{
+	SDL_Event event;
+	if (!SDL_WaitEvent(&event)) {
+		QuitProgram(); // Error in the event stream, quit.
+		return true;
+	}
+	switch(event.type) {
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+				case SDLK_q:
+					QuitProgram();
+					return true;
+
+				case SDLK_LEFT:
+					GetViewport()->Rotate(-1);
+					break;
+
+				case SDLK_RIGHT:
+					GetViewport()->Rotate(1);
+					break;
+
+				default:
+					break;
+			}
+			return false;
+
+		case SDL_MOUSEMOTION:
+			UpdateMousePosition(event.button.x, event.button.y);
+			return false;
+
+		case SDL_MOUSEWHEEL:
+			_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
+			return false;
+
+		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONDOWN:
+			switch (event.button.button) {
+				case SDL_BUTTON_LEFT:
+					UpdateMousePosition(event.button.x, event.button.y);
+					_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
+					break;
+
+				case SDL_BUTTON_MIDDLE:
+					UpdateMousePosition(event.button.x, event.button.y);
+					_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
+					break;
+
+				case SDL_BUTTON_RIGHT:
+					UpdateMousePosition(event.button.x, event.button.y);
+					_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
+					break;
+
+				default:
+					break;
+			}
+			return false;
+
+		case SDL_USEREVENT:
+			return true;
+
+		case SDL_WINDOWEVENT:
+			if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
+				_video->MarkDisplayDirty();
+				UpdateWindows();
+			}
+			return false;
+
+		case SDL_QUIT:
+			QuitProgram();
+			return true;
+
+		default:
+			return false; // Ignore other events.
+	}
+}
 
 /**
  * Main entry point.
@@ -189,82 +269,9 @@ int main(int argc, char **argv)
 		_guests.OnAnimate(30); // Fixed rate animation.
 		_rides_manager.OnAnimate(30);
 
-		bool next_frame = false;
-		while (!next_frame && !_finish) {
-			SDL_Event event;
-			if (!SDL_WaitEvent(&event)) {
-				QuitProgram(); // Error in the event stream, quit.
-				break;
-			}
-			switch(event.type) {
-				case SDL_KEYDOWN:
-					switch (event.key.keysym.sym) {
-						case SDLK_q:
-							QuitProgram();
-							break;
-
-						case SDLK_LEFT:
-							GetViewport()->Rotate(-1);
-							break;
-
-						case SDLK_RIGHT:
-							GetViewport()->Rotate(1);
-							break;
-
-						default:
-							break;
-					}
-					break;
-
-				case SDL_MOUSEMOTION:
-					UpdateMousePosition(event.button.x, event.button.y);
-					break;
-
-				case SDL_MOUSEWHEEL:
-					_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
-					break;
-
-				case SDL_MOUSEBUTTONUP:
-				case SDL_MOUSEBUTTONDOWN:
-					switch (event.button.button) {
-						case SDL_BUTTON_LEFT:
-							UpdateMousePosition(event.button.x, event.button.y);
-							_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
-							break;
-
-						case SDL_BUTTON_MIDDLE:
-							UpdateMousePosition(event.button.x, event.button.y);
-							_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
-							break;
-
-						case SDL_BUTTON_RIGHT:
-							UpdateMousePosition(event.button.x, event.button.y);
-							_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
-							break;
-
-						default:
-							break;
-					}
-					break;
-
-				case SDL_USEREVENT:
-					next_frame = true;
-					break;
-
-				case SDL_WINDOWEVENT:
-					if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
-						vid.MarkDisplayDirty();
-						UpdateWindows();
-					}
-					break;
-
-				case SDL_QUIT:
-					QuitProgram();
-					break;
-
-				default:
-					break; // Ignore other events.
-			}
+		/* Handle input events until time for the next frame has arrived. */
+		while (!_finish) {
+			if (HandleEvent()) break;
 		}
 
 		if (!missing_sprites_check && _video->missing_sprites) {
