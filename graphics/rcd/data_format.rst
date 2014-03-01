@@ -67,8 +67,8 @@ gets number 1, the second block number 2, etc.
 A reference to data block 0 means 'not present'.
 
 
-Sprite Pixels
-~~~~~~~~~~~~~
+8bpp sprites
+~~~~~~~~~~~~
 A data block containing the actual image of a sprite (in 8bpp), and its
 offset. Version 2 is supported by FreeRCT.
 
@@ -118,7 +118,7 @@ Version history
 
 32bpp sprites
 ~~~~~~~~~~~~~
-Data block for an 32bpp sprite and its offset.
+Data block for an 32bpp sprite and its offset. Currently supported version is 1.
 
 ======  ======  =======  =================================================================
 Offset  Length  Version  Description
@@ -941,7 +941,7 @@ The flags are defined as follows:
 - bit  2: Southern quarter of the voxel is used by the piece.
 - bit  3: Western quarter of the voxel is used by the piece.
 - bit  4-6: Platform to attach, with direction
-  (``0``=none, ``1``=ne-to-sw, ``2``=se-to-nw, ``3``=sw-to-ne, ``4``=nw-to-se).
+  (\ ``0`` = none, ``1`` = ne-to-sw, ``2`` = se-to-nw, ``3`` = sw-to-ne, ``4`` = nw-to-se).
 
 The remaining bits are reserved and should be ``0``.
 
