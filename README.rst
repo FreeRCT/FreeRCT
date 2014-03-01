@@ -35,10 +35,10 @@ Building the program
 Almost everything is written in C++, which means you need *g++* or *clang++* to compile it. FreeRCT uses C++11 features, so g++ 4.8+ or clang 3.3+ is recommended.
 In addition, you need:
 
-* *lex/flex* - Scanner generator for generating RCD input files.
-* *yacc/bison* - Parser generator for generating RCD input files.
+* *lex/flex* - Scanner generator for generating RCD input files. (optional)
+* *yacc/bison* - Parser generator for generating RCD input files. (optional)
 * *libpng* - Making the RCD data files that contain the graphics and other data read by the program.
-* *SDL* & *SDL-ttf* - Displaying graphics of the program (SDL2 is not yet supported).
+* *SDL2* & *SDL2-ttf* - Displaying graphics of the program. Note that SDL2 versions of both libraries are needed.
 * *CMake* & *make* - Building the program.
 
 The existence of these programs/libraries is checked by ``cmake``.
