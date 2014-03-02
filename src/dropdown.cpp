@@ -106,7 +106,7 @@ void DropdownMenuWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	for (auto const &item : this->items) {
 		if (it == this->selected_index) {
 			Rectangle32 r = {this->rect.base.x, y, static_cast<uint>(wid->pos.width - 1), static_cast<uint>(GetTextHeight())};
-			_video->FillSurface(MakeRGB(GetColourRangeBase(COL_RANGE_GREY) + 7), r);
+			_video->FillSurface(_palette[GetColourRangeBase(COL_RANGE_GREY) + 7], r);
 		}
 		_video->BlitText(item.str, MakeRGBA(255, 255, 255, OPAQUE), this->rect.base.x, y, wid->pos.width);
 

@@ -16,6 +16,22 @@
 
 class Random;
 
+static const uint8 TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
+static const uint8 OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
+
+/**
+ * Construct a 32bpp pixel value from its components.
+ * @param r Intensity of the red colour component.
+ * @param g Intensity of the green colour component.
+ * @param b Intensity of the blue colour component.
+ * @param a Opacity of the pixel.
+ * @return Pixel value of the given combination of colour components.
+ */
+static inline uint32 MakeRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
+{
+	return (((uint32)r) << 24) | (((uint32)g) << 16) | (((uint32)b) << 8) | a;
+}
+
 /** Names of colour ranges. */
 enum ColourRange {
 	COL_RANGE_GREY,
@@ -145,6 +161,6 @@ struct RandomRecolouringMapping {
 	ColourRange DrawRandomColour(Random *rnd) const;
 };
 
-extern const uint8 _palette[256][3]; ///< The 8bpp FreeRCT palette.
+extern const uint32 _palette[256]; ///< The old FreeRCT palette.
 
 #endif

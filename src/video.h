@@ -18,10 +18,6 @@
 #include "palette.h"
 
 class ImageData;
-class PaletteData;
-
-static const uint8 TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
-static const uint8 OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
 
 /** Clipped rectangle. */
 class ClippedRectangle {
@@ -50,29 +46,6 @@ enum Alignment {
 	ALG_CENTER, ///< Centre the text.
 	ALG_RIGHT,  ///< Align to the right edge.
 };
-
-/**
- * Construct a 32bpp pixel value from its components.
- * @param r Intensity of the red colour component.
- * @param g Intensity of the green colour component.
- * @param b Intensity of the blue colour component.
- * @param a Opacity of the pixel.
- * @return Pixel value of the given combination of colour components.
- */
-static inline uint32 MakeRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
-{
-	return (((uint32)r) << 24) | (((uint32)g) << 16) | (((uint32)b) << 8) | a;
-}
-
-/**
- * Create a 32bpp colour from a palette index.
- * @param pal_index Palette colour to use.
- * @return Pixel value of the given combination of colour components.
- */
-static inline uint32 MakeRGB(uint8 pal_index)
-{
-	return MakeRGBA(_palette[pal_index][0], _palette[pal_index][1], _palette[pal_index][2], OPAQUE);
-}
 
 /**
  * Class representing the video system.
@@ -184,7 +157,6 @@ private:
 	SDL_Renderer *renderer;     ///< GPU renderer to the application window.
 	SDL_Texture *texture;       ///< GPU Texture storage of the application window.
 	uint32 *mem;                ///< Memory used for blitting the application display.
-	uint32 rgba_palette[256];   ///< Palette in 32bpp RGBA.
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
 	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
 

@@ -201,9 +201,6 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	this->digit_size.x = 0;
 	this->digit_size.y = 0;
 
-	/* Make the RGBA palette. */
-	for (int i = 0; i < 256; i++) this->rgba_palette[i] = MakeRGBA(_palette[i][0], _palette[i][1], _palette[i][2], OPAQUE);
-
 	return true;
 }
 
@@ -388,7 +385,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 			for (; count > 0; count--) {
 				if (xpos >= im_right) break;
 				if (xpos >= im_left) {
-					*dest = this->rgba_palette[recolour.Recolour(*pixels, shift)];
+					*dest = _palette[recolour.Recolour(*pixels, shift)];
 					dest++;
 				}
 				xpos++;
@@ -417,7 +414,7 @@ static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
 		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val,
 		const Recolouring &recolour)
 {
-	uint32 colour = MakeRGB(recolour.Recolour(val, 0)); // No shift here.
+	uint32 colour = _palette[recolour.Recolour(val, 0)]; // No shift here.
 	const int32 xend = xmin + numx * width;
 	const int32 yend = ymin + numy * height;
 	while (ymin < yend) {
