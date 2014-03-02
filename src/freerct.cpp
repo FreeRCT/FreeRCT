@@ -242,6 +242,8 @@ int main(int argc, char **argv)
 	bool missing_sprites_check = false;
 
 	while (!_finish) {
+		uint32 start = SDL_GetTicks();
+
 		/* For every frame do... */
 		_manager.Tick();
 		_guests.DoTick();
@@ -250,7 +252,6 @@ int main(int argc, char **argv)
 		_rides_manager.OnAnimate(FRAME_DELAY);
 
 		/* Handle input events until time for the next frame has arrived. */
-		uint32 start = SDL_GetTicks();
 		for (;;) {
 			if (HandleEvent()) break;
 		}
