@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include "sprite_store.h"
+#include "sprite_data.h"
 #include "math_func.h"
 #include "video.h"
 

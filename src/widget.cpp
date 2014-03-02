@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "math_func.h"
 #include "sprite_store.h"
+#include "sprite_data.h"
 #include "widget.h"
 #include "window.h"
 #include "video.h"

@@ -15,6 +15,7 @@
 #include "map.h"
 #include "viewport.h"
 #include "sprite_store.h"
+#include "sprite_data.h"
 #include "window.h"
 #include "config_reader.h"
 #include "language.h"
@@ -193,6 +194,7 @@ int main(int argc, char **argv)
 	ConfigFile cfg_file;
 
 	/* Load RCD files. */
+	InitImageStorage();
 	if (!_sprite_manager.LoadRcdFiles()) exit(1);
 
 	InitLanguage();
@@ -275,6 +277,7 @@ int main(int argc, char **argv)
 	_mouse_modes.SetMouseMode(MM_INACTIVE);
 	_manager.CloseAllWindows();
 	UninitLanguage();
+	DestroyImageStorage();
 	vid.Shutdown();
 	exit(0);
 }

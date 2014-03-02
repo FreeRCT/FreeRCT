@@ -12,6 +12,7 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
+#include "enum_type.h"
 #include "geometry.h"
 #include "language.h"
 #include "gui_graphics.h"

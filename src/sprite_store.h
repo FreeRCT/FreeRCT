@@ -23,6 +23,7 @@
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
 
 class RcdFile;
+class ImageData;
 
 /**
  * Block of data from a RCD file.
@@ -34,29 +35,6 @@ public:
 	virtual ~RcdBlock();
 
 	RcdBlock *next; ///< Pointer to next block.
-};
-
-/**
- * Image data of 8bpp images.
- * @ingroup sprites_group
- */
-class ImageData : public RcdBlock {
-public:
-	ImageData();
-	~ImageData();
-
-	bool Load(RcdFile *rcd_file, size_t length);
-
-	uint8 GetPixel(uint16 xoffset, uint16 yoffset) const;
-
-	uint16 width;  ///< Width of the image.
-	uint16 height; ///< Height of the image.
-	int16 xoffset; ///< Horizontal offset of the image.
-	int16 yoffset; ///< Vertical offset of the image.
-	uint32 *table; ///< The jump table. For missing entries, #INVALID_JUMP is used.
-	uint8 *data;   ///< The image data itself.
-
-	static const uint32 INVALID_JUMP;
 };
 
 typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data blocks.

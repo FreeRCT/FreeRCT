@@ -11,7 +11,7 @@
 
 #include "stdafx.h"
 #include "video.h"
-#include "sprite_store.h"
+#include "sprite_data.h"
 #include "palette.h"
 #include "math_func.h"
 #include "rev.h"
@@ -361,7 +361,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 	for (; im_top < im_bottom; im_top++) {
 		uint32 *dest = base;
 		uint32 offset = img->table[im_top];
-		if (offset == ImageData::INVALID_JUMP) {
+		if (offset == INVALID_JUMP) {
 			base += this->blit_rect.pitch;
 			continue;
 		}
@@ -469,7 +469,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 	int32 ypos = y_base;
 	for (int yoff = 0; yoff < spr->height; yoff++) {
 		uint32 offset = spr->table[yoff];
-		if (offset != ImageData::INVALID_JUMP) {
+		if (offset != INVALID_JUMP) {
 			int32 xpos = x_base;
 			uint32 *src_base = line_base;
 			for (;;) {

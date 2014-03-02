@@ -21,6 +21,7 @@
 #include "video.h"
 #include "palette.h"
 #include "sprite_store.h"
+#include "sprite_data.h"
 #include "path_build.h"
 #include "shop_placement.h"
 #include "coaster_build.h"
