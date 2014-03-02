@@ -27,7 +27,7 @@ public:
 
 	bool Load(RcdFile *rcd_file, size_t length);
 
-	uint8 GetPixel(uint16 xoffset, uint16 yoffset) const;
+	uint32 GetPixel(uint16 xoffset, uint16 yoffset) const;
 
 	uint16 width;  ///< Width of the image.
 	uint16 height; ///< Height of the image.

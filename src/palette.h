@@ -32,6 +32,16 @@ static inline uint32 MakeRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
 	return (((uint32)r) << 24) | (((uint32)g) << 16) | (((uint32)b) << 8) | a;
 }
 
+/**
+ * Retrieve the opaqueness of the provided pixel value.
+ * @param Pixel value to examine.
+ * @return Opaqueness of the examined pixel.
+ */
+static inline uint8 GetA(uint32 rgba)
+{
+	return rgba;
+}
+
 /** Names of colour ranges. */
 enum ColourRange {
 	COL_RANGE_GREY,

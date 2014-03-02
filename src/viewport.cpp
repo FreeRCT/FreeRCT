@@ -1065,7 +1065,7 @@ PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp, f
 {
 	this->allowed = fdata->allowed;
 	this->found = false;
-	this->pixel = 0; // 0 is transparent, and is not used in sprites.
+	this->pixel = _palette[0]; // 0 is transparent, and is not used in sprites.
 	this->fdata = fdata;
 
 	fdata->xvoxel = 0;
@@ -1110,8 +1110,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
 				const ImageData *img = dd[i].sprite;
-				uint8 pixel = img->GetPixel(dd[i].base.x - img->xoffset, dd[i].base.y - img->yoffset);
-				if (pixel != 0) {
+				uint32 pixel = img->GetPixel(dd[i].base.x - img->xoffset, dd[i].base.y - img->yoffset);
+				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd[i];
 					this->fdata->xvoxel = xpos;
@@ -1135,8 +1135,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		dd.base.y = this->rect.base.y - ynorth;
 		dd.recolour = nullptr;
 		if (img != nullptr && (!this->found || this->data < dd)) {
-			uint8 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
-			if (pixel != 0) {
+			uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
 				this->fdata->xvoxel = xpos;
@@ -1158,8 +1158,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		dd.base.y = this->rect.base.y - ynorth;
 		dd.recolour = nullptr;
 		if (spr != nullptr && (!this->found || this->data < dd)) {
-			uint8 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
-			if (pixel != 0) {
+			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
+			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
 				this->fdata->xvoxel = xpos;
@@ -1188,8 +1188,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			dd.base.y = this->rect.base.y - ynorth - y_off;
 			dd.recolour = nullptr;
 			if (anim_spr && (!this->found || this->data < dd)) {
-				uint8 pixel = anim_spr->GetPixel(dd.base.x - anim_spr->xoffset, dd.base.y - anim_spr->yoffset);
-				if (pixel != 0) {
+				uint32 pixel = anim_spr->GetPixel(dd.base.x - anim_spr->xoffset, dd.base.y - anim_spr->yoffset);
+				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd;
 					this->fdata->xvoxel = xpos;
@@ -1358,12 +1358,14 @@ ClickableSprite Viewport::ComputeCursorPosition(FinderData *fdata)
 
 	fdata->cursor = CUR_TYPE_TILE;
 	if (fdata->select_corner && (collector.data.order & CS_MASK) == CS_GROUND) {
-		switch (collector.pixel) {
-			case 181: fdata->cursor = (CursorType)AddOrientations(VOR_NORTH, this->orientation); break;
-			case 182: fdata->cursor = (CursorType)AddOrientations(VOR_EAST,  this->orientation); break;
-			case 184: fdata->cursor = (CursorType)AddOrientations(VOR_WEST,  this->orientation); break;
-			case 185: fdata->cursor = (CursorType)AddOrientations(VOR_SOUTH, this->orientation); break;
-			default: break;
+		if (collector.pixel == _palette[181]) {
+			fdata->cursor = (CursorType)AddOrientations(VOR_NORTH, this->orientation);
+		} else if (collector.pixel == _palette[182]) {
+			fdata->cursor = (CursorType)AddOrientations(VOR_EAST,  this->orientation);
+		} else if (collector.pixel == _palette[184]) {
+			fdata->cursor = (CursorType)AddOrientations(VOR_WEST,  this->orientation);
+		} else if (collector.pixel == _palette[185]) {
+			fdata->cursor = (CursorType)AddOrientations(VOR_SOUTH, this->orientation);
 		}
 	}
 	return (ClickableSprite)(collector.data.order & CS_MASK);

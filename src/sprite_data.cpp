@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "sprite_data.h"
 #include "fileio.h"
+#include "palette.h"
 
 #include <vector>
 
@@ -106,26 +107,26 @@ bool ImageData::Load(RcdFile *rcd_file, size_t length)
  * @param yoffset Vertical offset in the sprite.
  * @return Pixel value at the given position, or \c 0 if transparent.
  */
-uint8 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
+uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 {
-	if (xoffset >= this->width) return 0;
-	if (yoffset >= this->height) return 0;
+	if (xoffset >= this->width) return _palette[0];
+	if (yoffset >= this->height) return _palette[0];
 
 	uint32 offset = this->table[yoffset];
-	if (offset == INVALID_JUMP) return 0;
+	if (offset == INVALID_JUMP) return _palette[0];
 
 	uint16 xpos = 0;
 	while (xpos < xoffset) {
 		uint8 rel_pos = this->data[offset];
 		uint8 count = this->data[offset + 1];
 		xpos += (rel_pos & 127);
-		if (xpos > xoffset) return 0;
-		if (xoffset - xpos < count) return this->data[offset + 2 + xoffset - xpos];
+		if (xpos > xoffset) return _palette[0];
+		if (xoffset - xpos < count) return _palette[this->data[offset + 2 + xoffset - xpos]];
 		xpos += count;
 		offset += 2 + count;
 		if ((rel_pos & 128) != 0) break;
 	}
-	return 0;
+	return _palette[0];
 }
 
 
