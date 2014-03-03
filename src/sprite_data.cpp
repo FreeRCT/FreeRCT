@@ -129,7 +129,12 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 	return _palette[0];
 }
 
-
+/**
+ * Load 8bpp sprite block (8PXL, version 2) from the \a rcd_file.
+ * @param rcd_file File being loaded.
+ * @param length Length of the 8PXL block.
+ * @return Loaded sprite, if loading was successful, else \c nullptr.
+ */
 ImageData *LoadImage(RcdFile *rcd_file, size_t length)
 {
 	_sprites.emplace_back();

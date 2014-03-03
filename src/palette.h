@@ -34,7 +34,7 @@ static inline uint32 MakeRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
 
 /**
  * Retrieve the opaqueness of the provided pixel value.
- * @param Pixel value to examine.
+ * @param rgba Pixel value to examine.
  * @return Opaqueness of the examined pixel.
  */
 static inline uint8 GetA(uint32 rgba)
