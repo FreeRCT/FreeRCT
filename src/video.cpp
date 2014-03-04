@@ -407,14 +407,11 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
  * @param numy Number of vertical count.
  * @param width Width of an image.
  * @param height Height of an image.
- * @param val Pixel value to blit.
- * @param recolour Sprite recolouring definition.
+ * @param colour Pixel value to blit.
  */
 static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
-		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint8 val,
-		const Recolouring &recolour)
+		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint32 colour)
 {
-	uint32 colour = _palette[recolour.Recolour(val, 0)]; // No shift here.
 	const int32 xend = xmin + numx * width;
 	const int32 yend = ymin + numy * height;
 	while (ymin < yend) {
@@ -481,7 +478,8 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 				xpos += rel_off & 127;
 				src_base += rel_off & 127;
 				while (count > 0) {
-					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, *pixels, recolour);
+					uint32 colour = _palette[recolour.Recolour(*pixels, 0)]; // No shift here.
+					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 					pixels++;
 					xpos++;
 					src_base++;
