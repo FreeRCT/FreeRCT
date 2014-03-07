@@ -1295,9 +1295,9 @@ const char *SpriteManager::Load(const char *filename)
 		if (length + 12 > remain) return "Not enough data"; // Not enough data in the file.
 
 		if (strcmp(name, "8PXL") == 0 && version == 2) {
-			ImageData *imd = LoadImage(&rcd_file, length);
+			ImageData *imd = LoadImage(&rcd_file, length, true);
 			if (imd == nullptr) {
-				return "Image data loading failed";
+				return "8bpp image data loading failed";
 			}
 			std::pair<uint, ImageData *> p(blk_num, imd);
 			sprites.insert(p);

@@ -385,7 +385,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 			for (; count > 0; count--) {
 				if (xpos >= im_right) break;
 				if (xpos >= im_left) {
-					*dest = _palette[recolour.Recolour(*pixels, shift)];
+					*dest = _palette[recolour.Recolour8bpp(*pixels, shift)];
 					dest++;
 				}
 				xpos++;
@@ -478,7 +478,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 				xpos += rel_off & 127;
 				src_base += rel_off & 127;
 				while (count > 0) {
-					uint32 colour = _palette[recolour.Recolour(*pixels, 0)]; // No shift here.
+					uint32 colour = _palette[recolour.Recolour8bpp(*pixels, 0)]; // No shift here.
 					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 					pixels++;
 					xpos++;

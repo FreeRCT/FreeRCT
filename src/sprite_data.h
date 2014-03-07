@@ -16,6 +16,11 @@ static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in 
 
 class RcdFile;
 
+/** Flags of an image in #ImageData. */
+enum ImageFlags {
+	IFG_IS_8BPP = 0, ///< Bit number used for the image type.
+};
+
 /**
  * Image data of 8bpp images.
  * @ingroup sprites_group
@@ -25,10 +30,11 @@ public:
 	ImageData();
 	~ImageData();
 
-	bool Load(RcdFile *rcd_file, size_t length);
+	bool Load8bpp(RcdFile *rcd_file, size_t length);
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset) const;
 
+	uint32 flags;  ///< Flags of the image. @see ImageFlags
 	uint16 width;  ///< Width of the image.
 	uint16 height; ///< Height of the image.
 	int16 xoffset; ///< Horizontal offset of the image.
@@ -37,7 +43,7 @@ public:
 	uint8 *data;   ///< The image data itself.
 };
 
-ImageData *LoadImage(RcdFile *rcd_file, size_t length);
+ImageData *LoadImage(RcdFile *rcd_file, size_t length, bool is_8bpp);
 
 void InitImageStorage();
 void DestroyImageStorage();

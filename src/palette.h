@@ -110,7 +110,7 @@ public:
 	 * @param shift Gradient shift in the target range.
 	 * @return Colour value after recolouring.
 	 */
-	inline int Recolour(int orig, int shift) const
+	inline int Recolour8bpp(int orig, int shift) const
 	{
 		return this->recolour_map[shift][orig];
 	}
