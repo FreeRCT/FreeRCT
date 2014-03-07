@@ -13,6 +13,7 @@
 #include "sprite_data.h"
 #include "fileio.h"
 #include "palette.h"
+#include "bitmath.h"
 
 #include <vector>
 
@@ -111,21 +112,26 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 	if (xoffset >= this->width) return _palette[0];
 	if (yoffset >= this->height) return _palette[0];
 
-	uint32 offset = this->table[yoffset];
-	if (offset == INVALID_JUMP) return _palette[0];
+	if (GB(this->flags, IFG_IS_8BPP, 1) != 0) {
+		/* 8bpp image. */
+		uint32 offset = this->table[yoffset];
+		if (offset == INVALID_JUMP) return _palette[0];
 
-	uint16 xpos = 0;
-	while (xpos < xoffset) {
-		uint8 rel_pos = this->data[offset];
-		uint8 count = this->data[offset + 1];
-		xpos += (rel_pos & 127);
-		if (xpos > xoffset) return _palette[0];
-		if (xoffset - xpos < count) return _palette[this->data[offset + 2 + xoffset - xpos]];
-		xpos += count;
-		offset += 2 + count;
-		if ((rel_pos & 128) != 0) break;
+		uint16 xpos = 0;
+		while (xpos < xoffset) {
+			uint8 rel_pos = this->data[offset];
+			uint8 count = this->data[offset + 1];
+			xpos += (rel_pos & 127);
+			if (xpos > xoffset) return _palette[0];
+			if (xoffset - xpos < count) return _palette[this->data[offset + 2 + xoffset - xpos]];
+			xpos += count;
+			offset += 2 + count;
+			if ((rel_pos & 128) != 0) break;
+		}
+		return _palette[0];
+	} else {
+		return _palette[0]; // Temporary place holder.
 	}
-	return _palette[0];
 }
 
 /**

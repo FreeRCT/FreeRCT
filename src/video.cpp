@@ -14,6 +14,7 @@
 #include "sprite_data.h"
 #include "palette.h"
 #include "math_func.h"
+#include "bitmath.h"
 #include "rev.h"
 
 VideoSystem *_video = nullptr; ///< Global address of the video sub-system.
@@ -358,42 +359,45 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 	}
 
 	uint32 *base = this->blit_rect.address + x + y * this->blit_rect.pitch;
-	for (; im_top < im_bottom; im_top++) {
-		uint32 *dest = base;
-		uint32 offset = img->table[im_top];
-		if (offset == INVALID_JUMP) {
+	if (GB(img->flags, IFG_IS_8BPP, 1) != 0) {
+		/* Draw an 8bpp image. */
+		for (; im_top < im_bottom; im_top++) {
+			uint32 *dest = base;
+			uint32 offset = img->table[im_top];
+			if (offset == INVALID_JUMP) {
+				base += this->blit_rect.pitch;
+				continue;
+			}
+
+			int xpos = 0;
+			for (;;) {
+				uint8 rel_off = img->data[offset];
+				uint8 count   = img->data[offset + 1];
+				uint8 *pixels = &img->data[offset + 2];
+				offset += 2 + count;
+
+				if (xpos + (rel_off & 127) >= im_left) {
+					if (xpos >= im_left) {
+						dest += (rel_off & 127);
+					} else {
+						dest += (rel_off & 127) + xpos - im_left;
+					}
+				}
+				xpos += rel_off & 127;
+
+				for (; count > 0; count--) {
+					if (xpos >= im_right) break;
+					if (xpos >= im_left) {
+						*dest = _palette[recolour.Recolour8bpp(*pixels, shift)];
+						dest++;
+					}
+					xpos++;
+					pixels++;
+				}
+				if (xpos >= im_right || (rel_off & 128) != 0) break;
+			}
 			base += this->blit_rect.pitch;
-			continue;
 		}
-
-		int xpos = 0;
-		for (;;) {
-			uint8 rel_off = img->data[offset];
-			uint8 count   = img->data[offset + 1];
-			uint8 *pixels = &img->data[offset + 2];
-			offset += 2 + count;
-
-			if (xpos + (rel_off & 127) >= im_left) {
-				if (xpos >= im_left) {
-					dest += (rel_off & 127);
-				} else {
-					dest += (rel_off & 127) + xpos - im_left;
-				}
-			}
-			xpos += rel_off & 127;
-
-			for (; count > 0; count--) {
-				if (xpos >= im_right) break;
-				if (xpos >= im_left) {
-					*dest = _palette[recolour.Recolour8bpp(*pixels, shift)];
-					dest++;
-				}
-				xpos++;
-				pixels++;
-			}
-			if (xpos >= im_right || (rel_off & 128) != 0) break;
-		}
-		base += this->blit_rect.pitch;
 	}
 }
 
@@ -463,33 +467,36 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 	if (numy == 0) return;
 
 	uint32 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
-	int32 ypos = y_base;
-	for (int yoff = 0; yoff < spr->height; yoff++) {
-		uint32 offset = spr->table[yoff];
-		if (offset != INVALID_JUMP) {
-			int32 xpos = x_base;
-			uint32 *src_base = line_base;
-			for (;;) {
-				uint8 rel_off = spr->data[offset];
-				uint8 count   = spr->data[offset + 1];
-				uint8 *pixels = &spr->data[offset + 2];
-				offset += 2 + count;
+	if (GB(spr->flags, IFG_IS_8BPP, 1) != 0) {
+		/* Drawing 8bpp image. */
+		int32 ypos = y_base;
+		for (int yoff = 0; yoff < spr->height; yoff++) {
+			uint32 offset = spr->table[yoff];
+			if (offset != INVALID_JUMP) {
+				int32 xpos = x_base;
+				uint32 *src_base = line_base;
+				for (;;) {
+					uint8 rel_off = spr->data[offset];
+					uint8 count   = spr->data[offset + 1];
+					uint8 *pixels = &spr->data[offset + 2];
+					offset += 2 + count;
 
-				xpos += rel_off & 127;
-				src_base += rel_off & 127;
-				while (count > 0) {
-					uint32 colour = _palette[recolour.Recolour8bpp(*pixels, 0)]; // No shift here.
-					BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-					pixels++;
-					xpos++;
-					src_base++;
-					count--;
+					xpos += rel_off & 127;
+					src_base += rel_off & 127;
+					while (count > 0) {
+						uint32 colour = _palette[recolour.Recolour8bpp(*pixels, 0)]; // No shift here.
+						BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+						pixels++;
+						xpos++;
+						src_base++;
+						count--;
+					}
+					if ((rel_off & 128) != 0) break;
 				}
-				if ((rel_off & 128) != 0) break;
 			}
+			line_base += this->blit_rect.pitch;
+			ypos++;
 		}
-		line_base += this->blit_rect.pitch;
-		ypos++;
 	}
 }
 
