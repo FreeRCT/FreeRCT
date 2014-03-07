@@ -115,6 +115,20 @@ public:
 		return this->recolour_map[shift][orig];
 	}
 
+	/**
+	 * Compute 32bpp recoloured pixels.
+	 * @param intensity Intensity of the original pixel.
+	 * @param shift Amount of shifting that should be performed.
+	 * @param layer Recolour layer (denotes which part is being recoloured).
+	 * @param opacity Opacity of the pixel.
+	 * @return Recoloured pixel value.
+	 * @todo Do actual recolouring.
+	 */
+	inline uint32 Recolour32bpp(uint8 intensity, int shift, uint8 layer, uint8 opacity) const
+	{
+		return MakeRGBA(intensity, intensity, intensity, opacity);
+	}
+
 	uint8 recolour_map[5][256]; ///< Mapping of each colour to its shifted, recoloured palette value.
 
 private:
