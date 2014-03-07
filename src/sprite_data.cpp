@@ -102,6 +102,77 @@ bool ImageData::Load8bpp(RcdFile *rcd_file, size_t length)
 }
 
 /**
+ * Load a 32bpp image.
+ * @param rcd_file Input stream to read from.
+ * @param length Length of the 32bpp block.
+ * @return Exeit code, \0 means ok, every other number indicates an error.
+ */
+bool ImageData::Load32bpp(RcdFile *rcd_file, size_t length)
+{
+	if (length < 8) return false; // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
+	this->width  = rcd_file->GetUInt16();
+	this->height = rcd_file->GetUInt16();
+	this->xoffset = rcd_file->GetInt16();
+	this->yoffset = rcd_file->GetInt16();
+
+	/* Check against some arbitrary limits that look sufficient at this time. */
+	if (this->width == 0 || this->width > 300 || this->height == 0 || this->height > 500) return false;
+
+	length -= 8;
+	if (length > 100*1024) return false; // Another arbitrary limit.
+
+	/* Allocate and load the image data. */
+	this->data = new uint8[length];
+	if (this->data == nullptr) return false;
+	rcd_file->GetBlob(this->data, length);
+
+	/* Verify the data. */
+	uint8 *abs_end = this->data + length;
+	int line_count = 0;
+	const uint8 *ptr = this->data;
+	bool finished = false;
+	while (ptr < abs_end && !finished) {
+		line_count++;
+
+		/* Find end of this line. */
+		uint16 line_length = ptr[0] | (ptr[1] << 8);
+		const uint8 *end;
+		if (line_length == 0) {
+			finished = true;
+			end = abs_end;
+		} else {
+			end = ptr + line_length;
+			if (end > abs_end) return false;
+		}
+		ptr += 2;
+
+		/* Read line. */
+		bool finished_line = false;
+		uint xpos = 0;
+		while (ptr < end && !finished_line) {
+			uint8 mode = *ptr++;
+			if (mode == 0) {
+				finished_line = true;
+				break;
+			}
+			xpos += mode & 0x3F;
+			switch (mode >> 6) {
+				case 0: ptr += 3 * (mode & 0x3F); break;
+				case 1: ptr += 1 + 3 * (mode & 0x3F); break;
+				case 2: break;
+				case 3: ptr += 1 + 1 + (mode & 0x3F); break;
+			}
+		}
+		if (xpos > this->width) return false;
+		if (!finished_line) return false;
+		if (ptr != end) return false;
+	}
+	if (line_count != this->height) return false;
+	if (ptr != abs_end) return false;
+	return true;
+}
+
+/**
  * Return the pixel-value of the provided position.
  * @param xoffset Horizontal offset in the sprite.
  * @param yoffset Vertical offset in the sprite.
@@ -145,7 +216,7 @@ ImageData *LoadImage(RcdFile *rcd_file, size_t length, bool is_8bpp)
 {
 	_sprites.emplace_back();
 	ImageData *imd = &_sprites.back();
-	bool loaded = imd->Load8bpp(rcd_file, length);
+	bool loaded = is_8bpp ? imd->Load8bpp(rcd_file, length) : imd->Load32bpp(rcd_file, length);
 	if (!loaded) {
 		_sprites.pop_back();
 		return nullptr;

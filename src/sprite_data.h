@@ -31,6 +31,7 @@ public:
 	~ImageData();
 
 	bool Load8bpp(RcdFile *rcd_file, size_t length);
+	bool Load32bpp(RcdFile *rcd_file, size_t length);
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset) const;
 
