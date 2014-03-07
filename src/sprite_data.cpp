@@ -201,7 +201,45 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 		}
 		return _palette[0];
 	} else {
-		return _palette[0]; // Temporary place holder.
+		/* 32bpp image. */
+		const uint8 *ptr = this->data;
+		while (yoffset > 0) {
+			uint16 length = ptr[0] | (ptr[1] << 8);
+			ptr += length;
+			yoffset--;
+		}
+		ptr += 2;
+		while (xoffset > 0) {
+			uint8 mode = *ptr++;
+			if (mode == 0) break;
+			if ((mode & 0x3F) < xoffset) {
+				xoffset -= mode & 0x3F;
+				switch (mode >> 6) {
+					case 0: ptr += 3 * (mode & 0x3F); break;
+					case 1: ptr += 1 + 3 * (mode & 0x3F); break;
+					case 2: ptr++; break;
+					case 3: ptr += 1 + 1 + (mode & 0x3F); break;
+				}
+			} else {
+				switch (mode >> 6) {
+					case 0:
+						ptr += 3 * xoffset;
+						return MakeRGBA(ptr[0], ptr[1], ptr[2], OPAQUE);
+					case 1: {
+						uint8 opacity = *ptr;
+						ptr += 1 + 3 * xoffset;
+						return MakeRGBA(ptr[0], ptr[1], ptr[2], opacity);
+					}
+					case 2:
+						return _palette[0]; // Arbitrary fully transparent.
+					case 3: {
+						uint8 opacity = ptr[1];
+						return MakeRGBA(0, 0, 0, opacity); // Arbitrary colour with the correct opacity.
+					}
+				}
+			}
+		}
+		return _palette[0]; // Arbitrary fully transparent.
 	}
 }
 
