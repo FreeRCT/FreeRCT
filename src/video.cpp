@@ -398,6 +398,78 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 			}
 			base += this->blit_rect.pitch;
 		}
+	} else {
+		/* Draw a 32bpp image. */
+		const uint8 *start = img->data;
+		for (int ypos = 0; ypos < im_top; ypos++) start += start[0] | (start[1] << 8);
+		for (; im_top < im_bottom; im_top++) {
+			const uint8 *src = start + 2; // Skip length.
+			start += start[0] + (start[1] << 8); // Jump to next line.
+			uint32 *dest = base;
+			int xpos = 0;
+			for (;;) {
+				uint8 mode = *src++;
+				if (mode == 0) break;
+				switch (mode >> 6) {
+					case 0: // Fully opaque pixels.
+						mode &= 0x3F;
+						while (mode > 0) {
+							if (xpos >= im_left) {
+								*dest++ = MakeRGBA(src[0], src[1], src[2], OPAQUE);
+							}
+							xpos++;
+							src += 3;
+							mode--;
+							if (xpos >= im_right) goto next_line;
+						}
+						break;
+
+					case 1: { // Partial opaque pixels.
+						uint8 opacity = *src++;
+						mode &= 0x3F;
+						while (mode > 0) {
+							if (xpos >= im_left) {
+								*dest++ = MakeRGBA(src[0], src[1], src[2], opacity);
+							}
+							xpos++;
+							src += 3;
+							mode--;
+							if (xpos >= im_right) goto next_line;
+						}
+						break;
+					}
+					case 2: // Fully transparent pixels.
+						mode &= 0x3F;
+						if (xpos + mode >= im_left) {
+							if (xpos >= im_left) {
+								dest += mode;
+							} else {
+								dest += mode + xpos - im_left;
+							}
+						}
+						xpos += mode;
+						if (xpos >= im_right) goto next_line;
+						break;
+
+					case 3: { // Recoloured pixels.
+						uint8 layer = *src++;
+						uint8 opacity = *src++;
+						mode &= 0x3F;
+						while (mode > 0) {
+							if (xpos >= im_left) {
+								*dest++ = recolour.Recolour32bpp(*src++, shift, layer, opacity);
+							}
+							xpos++;
+							mode--;
+							if (xpos >= im_right) goto next_line;
+						}
+						break;
+					}
+				}
+			}
+next_line:
+			base += this->blit_rect.pitch;
+		}
 	}
 }
 
@@ -496,6 +568,61 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 			}
 			line_base += this->blit_rect.pitch;
 			ypos++;
+		}
+	} else {
+		/* Drawing 32bpp image. */
+		int32 ypos = y_base;
+		const uint8 *src = spr->data + 2; // Skip the length word.
+		for (int yoff = 0; yoff < spr->height; yoff++) {
+			int32 xpos = x_base;
+			uint32 *src_base = line_base;
+			for (;;) {
+				uint8 mode = *src++;
+				if (mode == 0) break;
+				switch (mode >> 6) {
+					case 0: // Fully opaque pixels.
+						mode &= 0x3F;
+						for (; mode > 0; mode--) {
+							uint32 colour = MakeRGBA(src[0], src[1], src[2], OPAQUE);
+							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							xpos++;
+							src_base++;
+						}
+						break;
+
+					case 1: { // Partial opaque pixels.
+						uint opacity = *src++;
+						mode &= 0x3F;
+						for (; mode > 0; mode--) {
+							uint32 colour = MakeRGBA(src[0], src[1], src[2], opacity);
+							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							xpos++;
+							src_base++;
+						}
+						break;
+					}
+					case 2: // Fully transparent pixels.
+						xpos += mode & 0x3F;
+						src_base += mode & 0x3F;
+						break;
+
+					case 3: { // Recoloured pixels.
+						uint8 layer = *src++;
+						uint8 opacity = *src++;
+						mode &= 0x3F;
+						for (; mode > 0; mode--) {
+							uint32 colour = recolour.Recolour32bpp(*src++, 0, layer, opacity);
+							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							xpos++;
+							src_base++;
+						}
+						break;
+					}
+				}
+			}
+			line_base += this->blit_rect.pitch;
+			ypos++;
+			src += 2; // Skip the length word.
 		}
 	}
 }
