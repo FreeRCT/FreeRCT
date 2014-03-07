@@ -12,9 +12,24 @@ file("shops.rcd") {
 		tile_width: 64;
 		height: 1;
 
-		(se, sw, nw, ne) : sheet {
-			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-			file: "../sprites/objects/1x1/template8bpp64.png";
+		se: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/template/64_00001.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/template/64_00002.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		nw: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/template/64_00003.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/template/64_00004.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 
@@ -24,7 +39,7 @@ file("shops.rcd") {
 		cost_item1: 50;
 		cost_item2: 150;
 		cost_ownership: 0;
-		cost_opened: 1000;
+		cost_opened: 500;
 		type_item1: non_salt_food;
 		type_item2: salt_food;
 
