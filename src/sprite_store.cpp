@@ -1304,6 +1304,16 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(name, "32PX") == 0 && version == 1) {
+			ImageData *imd = LoadImage(&rcd_file, length, false);
+			if (imd == nullptr) {
+				return "32bpp image data loading failed";
+			}
+			std::pair<uint, ImageData *> p(blk_num, imd);
+			sprites.insert(p);
+			continue;
+		}
+
 		if (strcmp(name, "SURF") == 0 && version == 4) {
 			SurfaceData *surf = new SurfaceData;
 			if (!surf->Load(&rcd_file, length, sprites)) {
