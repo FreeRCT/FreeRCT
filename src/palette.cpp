@@ -82,60 +82,6 @@ ColourRange RandomRecolouringMapping::DrawRandomColour(Random *rnd) const
 	return ranges[rnd->Uniform(count - 1)];
 }
 
-
-/** Default constructor. */
-EditableRecolouring::EditableRecolouring() : Recolouring()
-{
-	for (int i = 0; i < COL_RANGE_COUNT; i++) {
-		this->name_map[i] = STR_NULL;
-		this->tip_map[i] = STR_NULL;
-	}
-}
-
-/**
- * Copy constructor.
- * @param er Recolouring to use as template.
- */
-EditableRecolouring::EditableRecolouring(const EditableRecolouring &er) : Recolouring(er)
-{
-	std::copy_n(er.name_map, COL_RANGE_COUNT, this->name_map);
-	std::copy_n(er.tip_map,  COL_RANGE_COUNT, this->tip_map);
-}
-
-/**
- * Assignment operator.
- * @param er Recolouring to use as template.
- * @return The assigned value.
- */
-EditableRecolouring &EditableRecolouring::operator=(const EditableRecolouring &er)
-{
-	if (this != &er) {
-		std::copy_n(er.range_map, COL_RANGE_COUNT, this->range_map);
-		std::copy_n(er.name_map,  COL_RANGE_COUNT, this->name_map);
-		std::copy_n(er.tip_map,   COL_RANGE_COUNT, this->tip_map);
-	}
-	return *this;
-}
-
-/**
- * Setup recolouring of a range.
- * @param orig Colour range to recolour.
- * @param dest Colour range to recolour to.
- * @param name The name of the colour (so the user knows what gets changed in the gui). May be #STR_NULL.
- * @param tooltip If \a name was not #STR_NULL, the tooltip describing the meaning.
- */
-void EditableRecolouring::SetRecolouring(ColourRange orig, ColourRange dest, StringID name, StringID tooltip)
-{
-	assert(orig < COL_RANGE_COUNT);
-	assert(dest < COL_RANGE_COUNT);
-
-	this->range_map[orig] = dest;
-	if (name != STR_NULL) {
-		this->name_map[orig] = name;
-		this->tip_map[orig]  = tooltip;
-	}
-}
-
 const uint32 _palette[256] = {
 	MakeRGBA(  0,   0,   0, TRANSPARENT), //  0 COL_BACKGROUND (background behind world display)
 	MakeRGBA(255, 255, 255, OPAQUE), //  1 COL_HIGHLIGHT (full white to highlight window edge)

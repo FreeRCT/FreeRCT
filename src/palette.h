@@ -125,21 +125,6 @@ public:
 	uint8 range_map[COL_RANGE_COUNT];   ///< Mapping of each colour range to another one.
 };
 
-/**
- * Editable recolouring.
- * Names and tooltips allow explanation of the colours that can be changed.
- */
-class EditableRecolouring : public Recolouring {
-public:
-	EditableRecolouring();
-	EditableRecolouring(const EditableRecolouring &sr);
-	EditableRecolouring &operator=(const EditableRecolouring &sr);
-	void SetRecolouring(ColourRange orig, ColourRange dest, StringID name = STR_NULL, StringID tooltip = STR_NULL);
-
-	StringID name_map[COL_RANGE_COUNT]; ///< Names of the colours of the sprite.
-	StringID tip_map[COL_RANGE_COUNT];  ///< Tooltips of the colours.
-};
-
 /** Definition of a random recolouring remapping. */
 struct RandomRecolouringMapping {
 	RandomRecolouringMapping();

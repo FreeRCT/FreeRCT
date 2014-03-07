@@ -135,7 +135,7 @@ public:
 	uint8 name[64];       ///< Name of the ride, if it is instantiated.
 	uint8 state;          ///< State of the instance. @see RideInstanceState
 	uint8 flags;          ///< Flags of the instance. @see RideInstanceFlags
-	EditableRecolouring recolour_map; ///< Recolour map of the instance.
+	Recolouring recolour_map; ///< Recolour map of the instance.
 
 	Money total_profit;      ///< Total profit of the ride.
 	Money total_sell_profit; ///< Profit of selling items.
