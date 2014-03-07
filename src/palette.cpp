@@ -14,10 +14,46 @@
 #include "memory.h"
 #include "random.h"
 
+/** Setup the recolour map for the non-remapped colours. */
+void Recolouring::SetRecolourFixedParts()
+{
+	for (int shift = 0; shift < 5; shift++) {
+		for (int col = 0; col < COL_SERIES_START; col++) {
+			this->recolour_map[shift][col] = col;
+		}
+		for (int col = COL_SERIES_END; col < 256; col++) {
+			this->recolour_map[shift][col] = col;
+		}
+	}
+}
+
+/**
+ * Recolour the \a base_series range of colours to \a dest_series.
+ * Reset recolouring by setting the base and dest to the same value.
+ * @param base_series Range to change.
+ * @param dest_series Destination range to change to.
+ */
+void Recolouring::SetRecolouring(uint8 base_series, uint8 dest_series)
+{
+	assert(base_series < COL_RANGE_COUNT);
+	assert(dest_series < COL_RANGE_COUNT);
+	int base_start = COL_SERIES_START + base_series * COL_SERIES_LENGTH;
+	int dest_start = COL_SERIES_START + dest_series * COL_SERIES_LENGTH;
+	int dest_last  = COL_SERIES_START + dest_series * COL_SERIES_LENGTH + COL_SERIES_LENGTH - 1;
+	for (int shift = 0; shift < 5; shift++) {
+		for (int idx = 0; idx < COL_SERIES_LENGTH; idx++) {
+			int col = dest_start + idx + shift;
+			col = std::max(std::min(col, dest_last), dest_start);
+			this->recolour_map[shift][base_start + idx] = col;
+		}
+	}
+}
+
 /** Default constructor. */
 Recolouring::Recolouring()
 {
-	for (int i = 0; i < COL_RANGE_COUNT; i++) this->range_map[i] = i;
+	this->SetRecolourFixedParts();
+	for (int i = 0; i < COL_RANGE_COUNT; i++) this->SetRecolouring(i, i);
 }
 
 /**
@@ -26,7 +62,7 @@ Recolouring::Recolouring()
  */
 Recolouring::Recolouring(const Recolouring &rc)
 {
-	std::copy_n(rc.range_map, COL_RANGE_COUNT, this->range_map);
+	std::copy(&rc.recolour_map[0][0], &rc.recolour_map[5][256], &this->recolour_map[0][0]);
 }
 
 /**
@@ -37,24 +73,10 @@ Recolouring::Recolouring(const Recolouring &rc)
 Recolouring &Recolouring::operator=(const Recolouring &rc)
 {
 	if (this != &rc) {
-		std::copy_n(rc.range_map, COL_RANGE_COUNT, this->range_map);
+		std::copy(&rc.recolour_map[0][0], &rc.recolour_map[5][256], &this->recolour_map[0][0]);
 	}
 	return *this;
 }
-
-/**
- * Set up recolouring of a range.
- * @param orig Colour range to recolour.
- * @param dest Colour range to recolour to.
- */
-void Recolouring::SetRecolouring(ColourRange orig, ColourRange dest)
-{
-	assert(orig < COL_RANGE_COUNT);
-	assert(dest < COL_RANGE_COUNT);
-
-	this->range_map[orig] = dest;
-}
-
 
 /** Default constructor of the random recolour mapping. */
 RandomRecolouringMapping::RandomRecolouringMapping() : range_number(COL_RANGE_INVALID), dest_set(0)

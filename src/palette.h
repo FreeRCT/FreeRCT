@@ -102,7 +102,7 @@ public:
 	Recolouring();
 	Recolouring(const Recolouring &sr);
 	Recolouring &operator=(const Recolouring &sr);
-	void SetRecolouring(ColourRange orig, ColourRange dest);
+	void SetRecolouring(uint8 base_series, uint8 dest_series);
 
 	/**
 	 * Compute the colour of a pixel with recolouring.
@@ -112,17 +112,13 @@ public:
 	 */
 	inline int Recolour(int orig, int shift) const
 	{
-		if (orig < COL_SERIES_START || orig >= COL_SERIES_END) return orig;
-		int i = (orig - COL_SERIES_START) / COL_SERIES_LENGTH;
-		int j = this->range_map[i];
-		orig += (j - i) * COL_SERIES_LENGTH + shift;
-		int base = GetColourRangeBase((ColourRange)j);
-		if (orig < base) return base;
-		if (orig > base + COL_SERIES_LENGTH - 1) return base + COL_SERIES_LENGTH - 1;
-		return orig;
+		return this->recolour_map[shift][orig];
 	}
 
-	uint8 range_map[COL_RANGE_COUNT];   ///< Mapping of each colour range to another one.
+	uint8 recolour_map[5][256]; ///< Mapping of each colour to its shifted, recoloured palette value.
+
+private:
+	void SetRecolourFixedParts();
 };
 
 /** Definition of a random recolouring remapping. */
