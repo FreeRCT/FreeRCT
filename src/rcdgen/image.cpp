@@ -48,7 +48,6 @@ static const MaskInformation *GetMask(const std::string &name)
 	}
 	fprintf(stderr, "Error: Cannot find a bitmask named \"%s\"\n", name.c_str());
 	exit(1);
-	return nullptr;
 }
 
 ImageFile::ImageFile()
