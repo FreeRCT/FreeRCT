@@ -2,6 +2,11 @@
 #include "scanner_funcs.h"
 #include "tokens.h"
 
+#if defined(__clang__)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wdeprecated"
+#endif
+
 int line = 1;
 std::string filename;
 std::string text;
@@ -14,7 +19,10 @@ int string_line; ///< Starting line of the string.
 
 %option noyywrap
 
-%option never-interactive
+%option nounput
+%option noinput
+
+%option never-interactive 
 %option nounistd
 
 %%
@@ -153,3 +161,7 @@ void SetupScanner(const char *fname, FILE *new_file)
 	filename = (fname == nullptr) ? "<stdin>" : fname;
 	line = 1;
 }
+
+#if defined(__clang__)
+	#pragma GCC diagnostic pop /* "-Wdeprecated" */
+#endif
