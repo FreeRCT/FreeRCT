@@ -1701,20 +1701,20 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	}
 
 	switch (number) {
-		case: SPR_GUI_HAS_PLATFORM:   return _gui_sprites.platform_select[0];
-		case: SPR_GUI_NO_PLATFORM:    return _gui_sprites.platform_select[1];
-		case: SPR_GUI_HAS_POWER:      return _gui_sprites.power_select[0];
-		case: SPR_GUI_NO_POWER:       return _gui_sprites.power_select[1];
-		case: SPR_GUI_TRIANGLE_LEFT:  return _gui_sprites.triangle_left;
-		case: SPR_GUI_TRIANGLE_RIGHT: return _gui_sprites.triangle_right;
-		case: SPR_GUI_TRIANGLE_UP:    return _gui_sprites.triangle_up;
-		case: SPR_GUI_TRIANGLE_DOWN:  return _gui_sprites.triangle_down;
-		case: SPR_GUI_ROT2D_POS:      return _gui_sprites.rot_2d_pos;
-		case: SPR_GUI_ROT2D_NEG:      return _gui_sprites.rot_2d_neg;
-		case: SPR_GUI_ROT3D_POS:      return _gui_sprites.rot_3d_pos;
-		case: SPR_GUI_ROT3D_NEG:      return _gui_sprites.rot_3d_neg;
-		case: SPR_GUI_BULLDOZER:      return _gui_sprites.bulldozer;
-		default:                      return nullptr;
+		case SPR_GUI_HAS_PLATFORM:   return _gui_sprites.platform_select[0];
+		case SPR_GUI_NO_PLATFORM:    return _gui_sprites.platform_select[1];
+		case SPR_GUI_HAS_POWER:      return _gui_sprites.power_select[0];
+		case SPR_GUI_NO_POWER:       return _gui_sprites.power_select[1];
+		case SPR_GUI_TRIANGLE_LEFT:  return _gui_sprites.triangle_left;
+		case SPR_GUI_TRIANGLE_RIGHT: return _gui_sprites.triangle_right;
+		case SPR_GUI_TRIANGLE_UP:    return _gui_sprites.triangle_up;
+		case SPR_GUI_TRIANGLE_DOWN:  return _gui_sprites.triangle_down;
+		case SPR_GUI_ROT2D_POS:      return _gui_sprites.rot_2d_pos;
+		case SPR_GUI_ROT2D_NEG:      return _gui_sprites.rot_2d_neg;
+		case SPR_GUI_ROT3D_POS:      return _gui_sprites.rot_3d_pos;
+		case SPR_GUI_ROT3D_NEG:      return _gui_sprites.rot_3d_neg;
+		case SPR_GUI_BULLDOZER:      return _gui_sprites.bulldozer;
+		default:                     return nullptr;
 	}
 }
 
