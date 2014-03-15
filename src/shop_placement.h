@@ -16,7 +16,6 @@
 
 class ShopType;
 
-
 /** States in the shop placement. */
 enum ShopPlacementState {
 	SPS_OFF,      ///< Shop placement is off.

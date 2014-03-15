@@ -14,7 +14,6 @@
 #include "ast.h"
 #include "utils.h"
 
-
 ParameterizedNameRange::ParameterizedNameRange()
 {
 	this->used = false;
@@ -209,4 +208,3 @@ void CheckIsSingleName(const std::string &name, const Position &pos)
 		exit(1);
 	}
 }
-

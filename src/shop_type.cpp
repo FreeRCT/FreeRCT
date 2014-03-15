@@ -58,7 +58,7 @@ static bool IsValidItemType(uint8 val)
  */
 bool ShopType::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites, const TextMap &texts)
 {
-	if (length != 2 + 1 + 1 + 4*4 + 3*4 + 4*4 + 2 + 4) return false;
+	if (length != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
 	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
 	this->height = rcd_file->GetUInt8();
 	if (this->height != 1) return false; // Other heights may fail.
@@ -161,4 +161,3 @@ uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) 
 	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
 	return ROL(entrances, 4, this->orientation);
 }
-

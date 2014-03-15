@@ -60,4 +60,3 @@ public:
 void CheckIsSingleName(const std::string &name, const Position &pos);
 
 #endif
-

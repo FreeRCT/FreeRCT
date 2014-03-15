@@ -45,7 +45,6 @@ public:
 	Money GetTotal() const;
 };
 
-
 /**
  * A manager of finance objects.
  * @ingroup finances_group
@@ -72,7 +71,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayRideConstruct(const Money &m) {
+	inline void PayRideConstruct(const Money &m)
+	{
 		this->finances[this->current].ride_construct -= m;
 		DoTransaction(-m);
 	}
@@ -81,7 +81,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayRideRunning(const Money &m) {
+	inline void PayRideRunning(const Money &m)
+	{
 		this->finances[this->current].ride_running -= m;
 		DoTransaction(-m);
 	}
@@ -90,7 +91,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayLandPurchase(const Money &m) {
+	inline void PayLandPurchase(const Money &m)
+	{
 		this->finances[this->current].land_purchase -= m;
 		DoTransaction(-m);
 	}
@@ -99,7 +101,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayLandscaping(const Money &m) {
+	inline void PayLandscaping(const Money &m)
+	{
 		this->finances[this->current].landscaping -= m;
 		DoTransaction(-m);
 	}
@@ -108,7 +111,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayShopStock(const Money &m) {
+	inline void PayShopStock(const Money &m)
+	{
 		this->finances[this->current].shop_stock -= m;
 		DoTransaction(-m);
 	}
@@ -117,7 +121,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayFoodStock(const Money &m) {
+	inline void PayFoodStock(const Money &m)
+	{
 		this->finances[this->current].food_stock -= m;
 		DoTransaction(-m);
 	}
@@ -126,7 +131,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayStaffWages(const Money &m) {
+	inline void PayStaffWages(const Money &m)
+	{
 		this->finances[this->current].staff_wages -= m;
 		DoTransaction(-m);
 	}
@@ -135,7 +141,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayMarketing(const Money &m) {
+	inline void PayMarketing(const Money &m)
+	{
 		this->finances[this->current].marketing -= m;
 		DoTransaction(-m);
 	}
@@ -144,7 +151,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayResearch(const Money &m) {
+	inline void PayResearch(const Money &m)
+	{
 		this->finances[this->current].research -= m;
 		DoTransaction(-m);
 	}
@@ -153,7 +161,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */
-	inline void PayLoanInterest(const Money &m) {
+	inline void PayLoanInterest(const Money &m)
+	{
 		this->finances[this->current].loan_interest -= m;
 		DoTransaction(-m);
 	}
@@ -162,7 +171,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to earn.
 	 */
-	inline void EarnParkTickets(const Money &m) {
+	inline void EarnParkTickets(const Money &m)
+	{
 		this->finances[this->current].park_tickets += m;
 		DoTransaction(m);
 	}
@@ -171,7 +181,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to earn.
 	 */
-	inline void EarnRideTickets(const Money &m) {
+	inline void EarnRideTickets(const Money &m)
+	{
 		this->finances[this->current].ride_tickets += m;
 		DoTransaction(m);
 	}
@@ -180,7 +191,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to earn.
 	 */
-	inline void EarnShopSales(const Money &m) {
+	inline void EarnShopSales(const Money &m)
+	{
 		this->finances[this->current].shop_sales += m;
 		DoTransaction(m);
 	}
@@ -189,7 +201,8 @@ public:
 	 * Access method for monthly transactions.
 	 * @param m how much money to earn.
 	 */
-	inline void EarnFoodSales(const Money &m) {
+	inline void EarnFoodSales(const Money &m)
+	{
 		this->finances[this->current].food_sales += m;
 		DoTransaction(m);
 	}

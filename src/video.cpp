@@ -323,8 +323,8 @@ void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const
 void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift)
 {
 	if (img == nullptr) {
-		 this->missing_sprites = true;
-		 return;
+		this->missing_sprites = true;
+		return;
 	}
 
 	int im_left = 0;
@@ -772,14 +772,14 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint32 colo
 	if (start.x > end.x) {
 		dx = start.x - end.x;
 		inc_x = -1;
-	} else{
+	} else {
 		dx = end.x - start.x;
 		inc_x = 1;
 	}
 	if (start.y > end.y) {
 		dy = start.y - end.y;
 		inc_y = -1;
-	} else{
+	} else {
 		dy = end.y - start.y;
 		inc_y = 1;
 	}

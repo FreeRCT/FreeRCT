@@ -39,7 +39,6 @@ public:
 
 typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data blocks.
 
-
 /** Texts of objects. */
 class TextData : public RcdBlock {
 public:
@@ -51,7 +50,6 @@ public:
 	uint string_count;   ///< Number of strings in #strings.
 	TextString *strings; ///< Strings of the text.
 	uint8 *text_data;    ///< Text data (UTF-8) itself.
-
 };
 
 typedef std::map<uint32, TextData *> TextMap; ///< Map of loaded text blocks.
@@ -194,17 +192,17 @@ public:
 
 /** One frame in an animation. */
 struct AnimationFrame {
-	uint16 duration;      ///< Length of this frame in milliseconds.
-	int16 dx;             ///< Person movement in X direction after displaying this frame.
-	int16 dy;             ///< Person movement in Y direction after displaying this frame.
+	uint16 duration; ///< Length of this frame in milliseconds.
+	int16 dx;        ///< Person movement in X direction after displaying this frame.
+	int16 dy;        ///< Person movement in Y direction after displaying this frame.
 };
 
 /** Available animations. */
 enum AnimationType {
-	ANIM_WALK_NE = 1,          ///< Walk in north-east direction.
-	ANIM_WALK_SE = 2,          ///< Walk in south-east direction.
-	ANIM_WALK_SW = 3,          ///< Walk in south-west direction.
-	ANIM_WALK_NW = 4,          ///< Walk in north-west direction.
+	ANIM_WALK_NE = 1, ///< Walk in north-east direction.
+	ANIM_WALK_SE = 2, ///< Walk in south-east direction.
+	ANIM_WALK_SW = 3, ///< Walk in south-west direction.
+	ANIM_WALK_NW = 4, ///< Walk in north-west direction.
 
 	ANIM_BEGIN = ANIM_WALK_NE, ///< First animation.
 	ANIM_LAST  = ANIM_WALK_NW, ///< Last animation.
@@ -567,7 +565,7 @@ public:
 		 * add 4 + mod 4 to get the normalized animation, +1 to get the real animation. */
 		anim_type = (AnimationType)(1 + (4 + (anim_type - 1) - view) % 4);
 
-		for(auto iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
+		for (auto iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
 			const AnimationSprites *asp = iter->second;
 
 			if (asp->anim_type != anim_type) return nullptr;

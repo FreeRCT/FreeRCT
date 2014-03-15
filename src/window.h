@@ -38,23 +38,23 @@ typedef std::vector<DropdownItem> DropdownList;
  * @ingroup window_group
  */
 enum WindowTypes {
-	WC_MAINDISPLAY,    ///< Main display of the world.
-	WC_TOOLBAR,        ///< Main toolbar.
-	WC_BOTTOM_TOOLBAR, ///< Bottom toolbar.
-	WC_QUIT,           ///< Quit program window.
-	WC_ERROR_MESSAGE,  ///< Error message window.
-	WC_GUEST_INFO,     ///< Person window.
+	WC_MAINDISPLAY,     ///< Main display of the world.
+	WC_TOOLBAR,         ///< Main toolbar.
+	WC_BOTTOM_TOOLBAR,  ///< Bottom toolbar.
+	WC_QUIT,            ///< Quit program window.
+	WC_ERROR_MESSAGE,   ///< Error message window.
+	WC_GUEST_INFO,      ///< Person window.
 	WC_COASTER_MANAGER, ///< Roller coaster manager window.
-	WC_COASTER_BUILD,  ///< Roller coaster build/edit window.
-	WC_PATH_BUILDER,   ///< %Path build GUI.
-	WC_RIDE_SELECT,    ///< Ride selection window.
-	WC_SHOP_MANAGER,   ///< Management window of a shop.
-	WC_TERRAFORM,      ///< Terraform window.
-	WC_FINANCES,       ///< Finance management window.
-	WC_SETTING,        ///< Setting window.
-	WC_DROPDOWN,       ///< Dropdown window.
+	WC_COASTER_BUILD,   ///< Roller coaster build/edit window.
+	WC_PATH_BUILDER,    ///< %Path build GUI.
+	WC_RIDE_SELECT,     ///< Ride selection window.
+	WC_SHOP_MANAGER,    ///< Management window of a shop.
+	WC_TERRAFORM,       ///< Terraform window.
+	WC_FINANCES,        ///< Finance management window.
+	WC_SETTING,         ///< Setting window.
+	WC_DROPDOWN,        ///< Dropdown window.
 
-	WC_NONE,           ///< Invalid window type.
+	WC_NONE,            ///< Invalid window type.
 };
 
 /** Codes of the #NotifyChange function, which gets forwarded through the #Window::OnChange method. */
@@ -198,7 +198,7 @@ public:
 	bool initialized; ///< Flag telling widgets whether the window has already been initialized.
 
 protected:
-	Point16 mouse_pos;    ///< Mouse position relative to the window (negative coordinates means 'out of window').
+	Point16 mouse_pos;         ///< Mouse position relative to the window (negative coordinates means 'out of window').
 	const RideType *ride_type; ///< Ride type being used by this window, for translating its strings. May be \c nullptr.
 
 	void SetupWidgetTree(const WidgetPart *parts, int length);
@@ -305,7 +305,7 @@ public:
 
 	bool HasWindow(Window *w);
 	void AddToStack(Window *w);
-	void RemoveFromStack(Window* w);
+	void RemoveFromStack(Window *w);
 	void DeleteWindow(Window *w);
 	void RaiseWindow(Window *w);
 
@@ -319,8 +319,8 @@ public:
 
 	Point16 GetMousePosition() const;
 
-	Window *top;        ///< Top-most window in the window stack.
-	Window *bottom;     ///< Lowest window in the window stack.
+	Window *top;    ///< Top-most window in the window stack.
+	Window *bottom; ///< Lowest window in the window stack.
 
 private:
 	Window *FindWindowByPosition(const Point16 &pos) const;

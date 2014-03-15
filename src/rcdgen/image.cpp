@@ -20,13 +20,12 @@ static const int TRANSPARENT_INDEX = 0;   ///< Colour index of 'transparent' in 
 static const uint8 FULLY_TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
 static const uint8 FULLY_OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
 
-
 /** Information about available bit masks. */
 struct MaskInformation {
-	int width;  ///< Width of the mask.
-	int height; ///< Height of the mask.
+	int width;                 ///< Width of the mask.
+	int height;                ///< Height of the mask.
 	const unsigned char *data; ///< Data of the mask.
-	const char *name; ///< Name of the mask.
+	const char *name;          ///< Name of the mask.
 };
 
 /** List of bit masks. */
@@ -102,7 +101,7 @@ const char *ImageFile::LoadFile(const std::string &fname)
 		return "Failed to initialize the png data";
 	}
 
-	this-> info_ptr = png_create_info_struct(this->png_ptr);
+	this->info_ptr = png_create_info_struct(this->png_ptr);
 	if (!this->info_ptr) {
 		png_destroy_read_struct(&this->png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
 		fclose(fp);
@@ -170,7 +169,8 @@ int ImageFile::GetHeight() const
  * Return whether the loaded image file can be interpreted as an 8bpp image.
  * @return \c true if the file is an 8bpp image, else \c false (which means it is a 32bpp image).
  */
-bool ImageFile::Is8bpp() const {
+bool ImageFile::Is8bpp() const
+{
 	return this->color_type == PNG_COLOR_TYPE_PALETTE;
 }
 
@@ -654,7 +654,6 @@ uint8 *Image32bpp::Encode(int xpos, int ypos, int width, int height, int *size) 
 			int recolour_length, opaq_length;
 			uint8 recolour = GetCurrentRecolour(xpos + x, ypos + y, width - x, &recolour_length);
 			uint8 opaq = this->GetSameOpaqueness(xpos + x, ypos + y, recolour_length, &opaq_length);
-
 
 			if (recolour != 0) {
 				/* Recoloured pixels. */

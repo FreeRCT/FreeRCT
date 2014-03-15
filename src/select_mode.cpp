@@ -16,7 +16,6 @@
 
 SelectMouseMode _select_mousemode; ///< Mouse select mode coordinator.
 
-
 SelectMouseMode::SelectMouseMode() : MouseMode(WC_NONE, MM_OBJECT_SELECT)
 {
 	this->mouse_state = 0;

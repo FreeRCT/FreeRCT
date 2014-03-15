@@ -137,8 +137,8 @@ public:
 	const Position &GetPosition() const override;
 	int GetNameCount() const override;
 
-	const Position pos; ///< %Position of the label.
-	const std::string name;   ///< The label itself.
+	const Position pos;     ///< %Position of the label.
+	const std::string name; ///< The label itself.
 };
 
 /** Somewhat generic class for storing an identifier and its position. */

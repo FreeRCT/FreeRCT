@@ -16,9 +16,9 @@
 #include "ast.h"
 #include "../stdafx.h"
 
-extern int line; ///< Line number of the input file being scanned.
+extern int line;             ///< Line number of the input file being scanned.
 extern std::string filename; ///< Name of the file being parsed.
-extern std::string text; ///< Temporary storage for a string.
+extern std::string text;     ///< Temporary storage for a string.
 
 int yylex();   ///< Generated scanner function.
 int yyparse(); ///< Generated parser function.

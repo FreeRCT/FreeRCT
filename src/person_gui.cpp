@@ -19,13 +19,13 @@
 
 /** Widgets of the guest info window. */
 enum GuestInfoWidgets {
-	GIW_TITLEBAR,      ///< Title bar widget.
-	GIW_MONEY,         ///< Current amount of money.
-	GIW_HAPPINESS,     ///< Happiness level.
-	GIW_ITEMS,         ///< List of carried items.
-	GIW_HUNGER_LEVEL,  ///< Amount of hunger.
-	GIW_THIRST_LEVEL,  ///< Amount of thirst.
-	GIW_WASTE_LEVEL,   ///< Amount of food/drink waste.
+	GIW_TITLEBAR,     ///< Title bar widget.
+	GIW_MONEY,        ///< Current amount of money.
+	GIW_HAPPINESS,    ///< Happiness level.
+	GIW_ITEMS,        ///< List of carried items.
+	GIW_HUNGER_LEVEL, ///< Amount of hunger.
+	GIW_THIRST_LEVEL, ///< Amount of thirst.
+	GIW_WASTE_LEVEL,  ///< Amount of food/drink waste.
 };
 
 /** Widget parts of the #GuestInfoWindow. */

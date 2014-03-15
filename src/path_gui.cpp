@@ -37,18 +37,18 @@ public:
  * @ingroup gui_group
  */
 enum PathBuildWidgets {
-	PATH_GUI_SLOPE_DOWN,         ///< Button 'go down'.
-	PATH_GUI_SLOPE_FLAT,         ///< Button 'flat'.
-	PATH_GUI_SLOPE_UP,           ///< Button 'go up'.
-	PATH_GUI_NE_DIRECTION,       ///< Build arrow in NE direction.
-	PATH_GUI_SE_DIRECTION,       ///< Build arrow in SE direction.
-	PATH_GUI_SW_DIRECTION,       ///< Build arrow in SW direction.
-	PATH_GUI_NW_DIRECTION,       ///< Build arrow in NW direction.
-	PATH_GUI_FORWARD,            ///< Move the arrow a path tile forward.
-	PATH_GUI_BACKWARD,           ///< Move the arrow a path tile backward.
-	PATH_GUI_LONG,               ///< Build a long path.
-	PATH_GUI_BUY,                ///< Buy a path tile.
-	PATH_GUI_REMOVE,             ///< Remove a path tile.
+	PATH_GUI_SLOPE_DOWN,   ///< Button 'go down'.
+	PATH_GUI_SLOPE_FLAT,   ///< Button 'flat'.
+	PATH_GUI_SLOPE_UP,     ///< Button 'go up'.
+	PATH_GUI_NE_DIRECTION, ///< Build arrow in NE direction.
+	PATH_GUI_SE_DIRECTION, ///< Build arrow in SE direction.
+	PATH_GUI_SW_DIRECTION, ///< Build arrow in SW direction.
+	PATH_GUI_NW_DIRECTION, ///< Build arrow in NW direction.
+	PATH_GUI_FORWARD,      ///< Move the arrow a path tile forward.
+	PATH_GUI_BACKWARD,     ///< Move the arrow a path tile backward.
+	PATH_GUI_LONG,         ///< Build a long path.
+	PATH_GUI_BUY,          ///< Buy a path tile.
+	PATH_GUI_REMOVE,       ///< Remove a path tile.
 };
 
 static const int SPR_NE_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_NE; ///< Sprite for building in NE direction.

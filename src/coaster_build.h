@@ -58,17 +58,17 @@ public:
 	void OnMouseButtonEvent(Viewport *vp, uint8 state) override;
 	bool EnableCursors() override;
 
-	uint16 instance;             ///< Instance number of the current coaster.
-	BuilderState state;          ///< State of the #CoasterBuildMode mouse mode.
+	uint16 instance;              ///< Instance number of the current coaster.
+	BuilderState state;           ///< State of the #CoasterBuildMode mouse mode.
 	ConstTrackPiecePtr cur_piece; ///< Current selected track piece. \c nullptr if no piece is selected currently.
-	TileEdge direction;          ///< Orientation of the build cursor.
-	uint8 mouse_state;           ///< Stored state of the mouse buttons.
-	Point16 mouse_pos;           ///< Stored mouse position.
-	uint16 track_xpos;           ///< Entry X position of the selected track piece.
-	uint16 track_ypos;           ///< Entry Y position of the selected track piece.
-	uint8  track_zpos;           ///< Entry Z position of the selected track piece.
-	bool suppress_display;       ///< Suppress display of a track piece.
-	bool use_mousepos;           ///< Use mouse position to derive the position of the track piece.
+	TileEdge direction;           ///< Orientation of the build cursor.
+	uint8 mouse_state;            ///< Stored state of the mouse buttons.
+	Point16 mouse_pos;            ///< Stored mouse position.
+	uint16 track_xpos;            ///< Entry X position of the selected track piece.
+	uint16 track_ypos;            ///< Entry Y position of the selected track piece.
+	uint8  track_zpos;            ///< Entry Z position of the selected track piece.
+	bool suppress_display;        ///< Suppress display of a track piece.
+	bool use_mousepos;            ///< Use mouse position to derive the position of the track piece.
 
 	/**
 	 * Select a new state in the builder mouse mode.

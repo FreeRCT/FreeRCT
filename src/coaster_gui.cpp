@@ -48,6 +48,7 @@ public:
 	~CoasterInstanceWindow();
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to display and control.
 };
@@ -559,7 +560,7 @@ void CoasterBuildWindow::SetupSelection()
 			_coaster_builder.SelectPosition(this->wnumber, this->sel_piece, this->build_direction);
 		} else {
 			if (this->cur_after) {
-				TileEdge dir = (TileEdge)(this->cur_piece->piece->exit_connect & 3); // XXX Define this in the data format!!
+				TileEdge dir = (TileEdge)(this->cur_piece->piece->exit_connect & 3); /// \todo Define this in the data format
 				_coaster_builder.DisplayPiece(this->wnumber, this->sel_piece, this->cur_piece->GetEndX(),
 						this->cur_piece->GetEndY(), this->cur_piece->GetEndZ(), dir);
 			}
@@ -626,7 +627,9 @@ public:
 	 * Constructor of a build mouse mode state.
 	 * @param mode Mouse mode reference.
 	 */
-	CoasterBuildState(CoasterBuildMode &mode) : mode(&mode) { }
+	CoasterBuildState(CoasterBuildMode &mode) : mode(&mode)
+	{
+	}
 
 	/**
 	 * Notification to the mouse mode that a coaster construction window has been opened.

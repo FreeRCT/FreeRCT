@@ -209,7 +209,6 @@ Voxel *VoxelStack::GetCreate(int16 z, bool create)
 	return &this->voxels[(uint16)z];
 }
 
-
 /** Default constructor of the voxel world. */
 VoxelWorld::VoxelWorld()
 {
@@ -349,7 +348,7 @@ VoxelStack *VoxelWorld::GetModifyStack(uint16 x, uint16 y)
 	assert(x < WORLD_X_SIZE && x < this->x_size);
 	assert(y < WORLD_Y_SIZE && y < this->y_size);
 
-	return &this->stacks[x + y*WORLD_X_SIZE];
+	return &this->stacks[x + y * WORLD_X_SIZE];
 }
 
 /**
@@ -364,7 +363,7 @@ const VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y) const
 	assert(x < WORLD_X_SIZE && x < this->x_size);
 	assert(y < WORLD_Y_SIZE && y < this->y_size);
 
-	return &this->stacks[x + y*WORLD_X_SIZE];
+	return &this->stacks[x + y * WORLD_X_SIZE];
 }
 
 /**
@@ -392,7 +391,7 @@ uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y) const
  * @param y Y coordinate of the tile.
  * @return Ownership of the tile.
  */
-TileOwner VoxelWorld::GetTileOwner(uint16 x,  uint16 y)
+TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
 {
 	return this->GetStack(x, y)->owner;
 }
@@ -403,7 +402,7 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x,  uint16 y)
  * @param y Y coordinate of the tile.
  * @param owner Ownership of the tile.
  */
-void VoxelWorld::SetTileOwner(uint16 x,  uint16 y, TileOwner owner)
+void VoxelWorld::SetTileOwner(uint16 x, uint16 y, TileOwner owner)
 {
 	this->GetModifyStack(x, y)->owner = owner;
 }

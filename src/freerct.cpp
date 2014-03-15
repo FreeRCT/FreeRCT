@@ -92,7 +92,7 @@ static bool HandleEvent()
 {
 	SDL_Event event;
 	if (SDL_PollEvent(&event) != 1) return true;
-	switch(event.type) {
+	switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 				case SDLK_q:

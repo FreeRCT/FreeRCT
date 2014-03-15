@@ -42,7 +42,6 @@ public:
 	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) override;
 	void OnMouseButtonEvent(Viewport *vp, uint8 state) override;
 
-
 	void SetPathGuiState(bool opened);
 
 	void TileClicked(uint16 xpos, uint16 ypos, uint8 zpos);
@@ -65,10 +64,10 @@ public:
 	inline bool GetLongButtonIsEnabled() const;
 	inline bool GetLongButtonIsPressed() const;
 
-	PathBuildState state;      ///< State of the path building process.
+	PathBuildState state; ///< State of the path building process.
 
 private:
-	uint8 mouse_state;         ///< State of the mouse buttons.
+	uint8 mouse_state; ///< State of the mouse buttons.
 
 	uint16 xpos;               ///< X coordinate of the selected voxel.
 	uint16 xlong;              ///< X coordinate of the long path destination voxel.

@@ -12,7 +12,6 @@
 #include "../stdafx.h"
 #include "file_writing.h"
 
-
 FileBlock::FileBlock()
 {
 	this->data = nullptr;

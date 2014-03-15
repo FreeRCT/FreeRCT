@@ -112,7 +112,6 @@ protected:
 
 const int ComputeInitialPosition::GAP = 5;
 
-
 ComputeInitialPosition::ComputeInitialPosition()
 {
 	this->base_pos = 10;
@@ -230,13 +229,17 @@ void Window::MarkDirty()
  * Paint the window to the screen.
  * @note The window manager already locked the surface.
  */
-void Window::OnDraw() { }
+void Window::OnDraw()
+{
+}
 
 /**
  * Mouse moved to new position.
  * @param pos New position.
  */
-void Window::OnMouseMoveEvent(const Point16 &pos) { }
+void Window::OnMouseMoveEvent(const Point16 &pos)
+{
+}
 
 /**
  * Mouse buttons changed state.
@@ -252,26 +255,36 @@ WmMouseEvent Window::OnMouseButtonEvent(uint8 state)
  * Mousewheel rotated.
  * @param direction Direction of change (\c +1 or \c -1).
  */
-void Window::OnMouseWheelEvent(int direction) { }
+void Window::OnMouseWheelEvent(int direction)
+{
+}
 
 /** Mouse entered window. */
-void Window::OnMouseEnterEvent() { }
+void Window::OnMouseEnterEvent()
+{
+}
 
 /** Mouse left window. */
-void Window::OnMouseLeaveEvent() { }
+void Window::OnMouseLeaveEvent()
+{
+}
 
 /**
  * Timeout callback.
  * Called when #timeout decremented to 0.
  */
-void Window::TimeoutCallback() { }
+void Window::TimeoutCallback()
+{
+}
 
 /**
  * Enable or disable highlighting. Base class does nothing.
  * If enabled, the #timeout is used to automatically disable it again.
  * @param value New highlight value.
  */
-void Window::SetHighlight(bool value) { }
+void Window::SetHighlight(bool value)
+{
+}
 
 /**
  * An important (window-specific) change has happened.
@@ -279,13 +292,17 @@ void Window::SetHighlight(bool value) { }
  * @param parameter Parameter of the \a code.
  * @note Meaning of number values are documented near this method in derived classes.
  */
-void Window::OnChange(ChangeCode code, uint32 parameter) { }
+void Window::OnChange(ChangeCode code, uint32 parameter)
+{
+}
 
 /**
  * Reset the size of a window.
  * @note Only if the window is a #GuiWindow.
  */
-void Window::ResetSize() { }
+void Window::ResetSize()
+{
+}
 
 /**
  * Gui window constructor.
@@ -724,7 +741,6 @@ void WindowManager::RaiseWindow(Window *w)
 		w->MarkDirty();
 	}
 }
-
 
 /**
  * Test whether a particular window exists in the window stack.

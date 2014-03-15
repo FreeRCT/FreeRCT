@@ -248,12 +248,12 @@ std::shared_ptr<const Expression> BitSet::Evaluate(const Symbol *symbols) const
 	return std::make_shared<const NumberLiteral>(this->pos, value);
 }
 
-
 Name::Name()
 {
 }
 
-Name::~Name() {
+Name::~Name()
+{
 }
 
 /**
@@ -366,7 +366,6 @@ bool NameTable::HasSingleElement() const
 	const std::shared_ptr<NameRow> nr = this->rows.front();
 	return nr->identifiers.size() == 1;
 }
-
 
 const Position &NameTable::GetPosition() const
 {
@@ -520,7 +519,6 @@ void NamedValueList::HandleImports()
 	}
 	if (has_import) this->values = values;
 }
-
 
 /**
  * Load a file, and parse the contents.

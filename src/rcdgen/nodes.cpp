@@ -49,7 +49,6 @@ GameBlock::GameBlock(const char *blk_name, int version) : BlockNode()
  * @return Block number of this game block in the file.
  */
 
-
 /**
  * Constructor of the file node.
  * @param file_name Name of the file to write to.
@@ -1090,7 +1089,7 @@ static int GetCarEntrySize(std::shared_ptr<Curve> entry)
  */
 static void RotateArray(int *abcd, int rot, int type)
 {
-	for (;rot > 0; rot--) {
+	for (; rot > 0; rot--) {
 		if (type == 'x') {
 			type = 'y';
 			for (int i = 0; i < 4; i++) abcd[i] = (128 - abcd[i]) + 128;
@@ -1174,15 +1173,15 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		fb->SaveUInt32(this->total_distance);
 		/* Write x curve. */
 		if (rot == 0 || rot == 2) {
-			SaveCarEntry(fb, this->car_xpos,  rot, 'x');
+			SaveCarEntry(fb, this->car_xpos, rot, 'x');
 		} else {
-			SaveCarEntry(fb, this->car_ypos,  rot, 'y');
+			SaveCarEntry(fb, this->car_ypos, rot, 'y');
 		}
 		/* Write y curve. */
 		if (rot == 0 || rot == 2) {
-			SaveCarEntry(fb, this->car_ypos,  rot, 'y');
+			SaveCarEntry(fb, this->car_ypos, rot, 'y');
 		} else {
-			SaveCarEntry(fb, this->car_xpos,  rot, 'x');
+			SaveCarEntry(fb, this->car_xpos, rot, 'x');
 		}
 		SaveCarEntry(fb, this->car_zpos,  0, '-');
 		SaveCarEntry(fb, this->car_pitch, 0, '-');
@@ -1228,7 +1227,7 @@ CARSBlock::CARSBlock() : GameBlock("CARS", 2)
 int CARSBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 2 + 2 + 4 + 4 + 2 + 2 + 16*16*16*4);
+	fb->StartSave(this->blk_name, this->version, 2 + 2 + 4 + 4 + 2 + 2 + 16 * 16 * 16 * 4);
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt16(this->z_height);
 	fb->SaveUInt32(this->length);
@@ -1249,7 +1248,7 @@ CSPLBlock::CSPLBlock() : GameBlock("CSPL", 2)
 int CSPLBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 2 + 1 + 8*4);
+	fb->StartSave(this->blk_name, this->version, 2 + 1 + 8 * 4);
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt8(this->type);
 	fb->SaveUInt32(this->ne_sw_back->Write(fw));

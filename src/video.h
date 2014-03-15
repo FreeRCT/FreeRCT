@@ -52,6 +52,7 @@ enum Alignment {
  */
 class VideoSystem {
 	friend class ClippedRectangle;
+
 public:
 	VideoSystem();
 	~VideoSystem();
@@ -146,11 +147,11 @@ public:
 	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
 
 private:
-	int vid_width;        ///< Width of the application window.
-	int vid_height;       ///< Height of the application window.
-	int font_height;      ///< Height of a line of text in pixels.
-	bool initialized;     ///< Video system is initialized.
-	bool dirty;           ///< Video display needs being repainted.
+	int vid_width;    ///< Width of the application window.
+	int vid_height;   ///< Height of the application window.
+	int font_height;  ///< Height of a line of text in pixels.
+	bool initialized; ///< Video system is initialized.
+	bool dirty;       ///< Video display needs being repainted.
 
 	TTF_Font *font;             ///< Opened text font.
 	SDL_Window *window;         ///< %Window of the application.

@@ -134,7 +134,7 @@ static uint8 *GetSingleLine(uint8 *text, int max_width, int *width)
 		_video->GetTextSize(start, &line_width, &line_height);
 
 		if (line_width < max_width) {
-			*width  = line_width;
+			*width = line_width;
 			if (orig == '\0') return current;
 			if (orig == '\n') {
 				*current = '\n';
@@ -156,7 +156,7 @@ static uint8 *GetSingleLine(uint8 *text, int max_width, int *width)
 		}
 
 		/* line_width >= max_width, no fallback to a previous position. */
-		*width  = line_width;
+		*width = line_width;
 		if (orig == '\n' || orig == ' ') *current = '\n';
 		return current;
 	}

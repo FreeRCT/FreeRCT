@@ -47,7 +47,7 @@ RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides 
  */
 RideType::RideType(RideTypeKind rtk) : kind(rtk)
 {
-	this->monthly_cost = 12345; // Arbitrary non-zero cost.
+	this->monthly_cost      = 12345; // Arbitrary non-zero cost.
 	this->monthly_open_cost = 12345; // Arbitrary non-zero cost.
 	std::fill_n(this->item_type, NUMBER_ITEM_TYPES_SOLD, ITP_NOTHING);
 	std::fill_n(this->item_cost, NUMBER_ITEM_TYPES_SOLD, 12345); // Artbitary non-zero cost.

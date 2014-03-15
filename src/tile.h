@@ -158,8 +158,8 @@ static inline bool IsImplodedSteepSlopeTop(uint8 ts)
 static inline TileSlope ExpandTileSlope(uint8 v)
 {
 	if (v < 15) return (TileSlope)v;
-	if (v < 19) return TSB_STEEP | (TileSlope)(1 << (v-15));
-	return TSB_STEEP | TSB_TOP | (TileSlope)(1 << (v-19));
+	if (v < 19) return TSB_STEEP | (TileSlope)(1 << (v - 15));
+	return TSB_STEEP | TSB_TOP | (TileSlope)(1 << (v - 19));
 }
 
 /**

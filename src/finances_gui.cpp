@@ -119,7 +119,6 @@ void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-
 /** Open the finances window (or if it is already opened, highlight and raise it). */
 void ShowFinancesGui()
 {

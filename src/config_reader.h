@@ -47,7 +47,7 @@ public:
 	const ConfigItem *GetItem(const char *key) const;
 
 	const char *sect_name; ///< Name of the section.
-	ConfigItemList items; ///< Items of the section.
+	ConfigItemList items;  ///< Items of the section.
 };
 
 /**

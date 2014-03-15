@@ -18,7 +18,6 @@
 
 PathBuildManager _path_builder; ///< %Path build manager.
 
-
 /**
  * Does a path run at/to the bottom the given voxel in the neighbouring voxel?
  * @param xpos X coordinate of the voxel.
@@ -292,7 +291,7 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 
 	/* If other side of the edge is not on-world or not owned, don't compute path options. */
 	Point16 dxy = _tile_dxy[edge];
-	if (!IsVoxelstackInsideWorld(xpos + dxy.x, ypos + dxy.y) || 
+	if (!IsVoxelstackInsideWorld(xpos + dxy.x, ypos + dxy.y) ||
 			(_game_mode_mgr.InPlayMode() && _world.GetTileOwner(xpos + dxy.x, ypos + dxy.y) != OWN_PARK)) return 0;
 
 	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);

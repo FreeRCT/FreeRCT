@@ -77,12 +77,12 @@ public:
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
 	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
-	virtual void AutoRaiseButtons(const Point32 & base);
+	virtual void AutoRaiseButtons(const Point32 &base);
 
 	void MarkDirty(const Point32 &base);
 
-	WidgetType wtype;          ///< Widget type.
-	WidgetNumber number;       ///< Widget number.
+	WidgetType wtype;    ///< Widget type.
+	WidgetNumber number; ///< Widget number.
 
 	uint16 smallest_x;         ///< Original horizontal size.
 	uint16 smallest_y;         ///< Original vertical size.
@@ -124,7 +124,7 @@ public:
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	virtual void Draw(const GuiWindow *w) override;
-	virtual void AutoRaiseButtons(const Point32 & base) override;
+	virtual void AutoRaiseButtons(const Point32 &base) override;
 
 	/**
 	 * Is the 'checked' flag on?
@@ -232,7 +232,7 @@ public:
 	void SetSmallestSizePosition(const Rectangle16 &rect) override;
 	void Draw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
-	void AutoRaiseButtons(const Point32 & base) override;
+	void AutoRaiseButtons(const Point32 &base) override;
 
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
@@ -272,7 +272,7 @@ public:
 	void SetSmallestSizePosition(const Rectangle16 &rect) override;
 	void Draw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
-	void AutoRaiseButtons(const Point32 & base) override;
+	void AutoRaiseButtons(const Point32 &base) override;
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
@@ -283,9 +283,7 @@ public:
 	uint8 num_rows;      ///< Number of rows.
 	uint8 num_cols;      ///< Number of columns.
 	uint8 flags;         ///< Equal size flags.
-
 };
-
 
 /**
  * Available widget parts.
@@ -314,17 +312,17 @@ public:
 	WidgetPartType type; ///< Type of this widget part.
 	union {
 		struct {
-			WidgetType wtype;   ///< Widget type of the new widget.
-			int16 number;       ///< Widget number of the new widget.
+			WidgetType wtype; ///< Widget type of the new widget.
+			int16 number;     ///< Widget number of the new widget.
 			ColourRange colour; ///< Colour of the new widget.
 		} new_widget;             ///< Data for #WPT_NEW_WIDGET.
 		struct {
-			uint8 num_rows;     ///< Number of rows.
-			uint8 num_cols;     ///< Number of columns.
+			uint8 num_rows;   ///< Number of rows.
+			uint8 num_cols;   ///< Number of columns.
 		} new_intermediate;       ///< Data for #WPT_NEW_INTERMEDIATE.
 		struct {
-			uint16 value;       ///< Value of the widget (string or sprite id).
-			uint16 tip;         ///< Tool tip string. Use #STR_NULL for no tip.
+			uint16 value;     ///< Value of the widget (string or sprite id).
+			uint16 tip;       ///< Tool tip string. Use #STR_NULL for no tip.
 		} dat;                    ///< Additional data of the widget.
 		Point16 size;             ///< Data for #WPT_MIN_SIZE, #WPT_FILL, #WPT_RESIZE.
 		uint8 flags;              ///< Equal size flags for intermediate widgets.

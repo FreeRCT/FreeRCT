@@ -24,7 +24,8 @@ public:
 	 * @param i Index of the person (should be between \c 0 and #GUEST_BLOCK_SIZE).
 	 * @return The requested person.
 	 */
-	inline Guest *Get(uint i) {
+	inline Guest *Get(uint i)
+	{
 		assert(i < lengthof(this->guests));
 		return &this->guests[i];
 	}

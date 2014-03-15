@@ -76,10 +76,9 @@ const char *DirectoryReader::NextFile()
 
 	do {
 		entry = this->NextEntry();
-	} while(entry != nullptr && !this->EntryIsFile());
+	} while (entry != nullptr && !this->EntryIsFile());
 	return entry;
 }
-
 
 /**
  * Directory reader for a Unix system.
@@ -132,7 +131,7 @@ const char *UnixDirectoryReader::NextEntry()
 		return nullptr;
 	}
 
-	snprintf(this->fpath, MAX_PATH, "%s/%s", this->dpath,  this->entry->d_name);
+	snprintf(this->fpath, MAX_PATH, "%s/%s", this->dpath, this->entry->d_name);
 	this->fpath[MAX_PATH - 1] = '\0'; // Better safe than sorry.
 	return this->fpath;
 }

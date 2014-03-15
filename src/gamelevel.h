@@ -26,9 +26,9 @@ struct Scenario {
 	uint16 spawn_highest; ///< Guest spawn probability at highest popularity (0..1024).
 	uint16 max_guests;    ///< Maximal number of guests.
 
-	Money inital_money;   ///< Initial amount of money of the player.
-	Money lowest_money;   ///< Lowest amount of money of the player.
-	uint8 interest;       ///< Interest rate in 0.1 percent over the negative amount.
+	Money inital_money; ///< Initial amount of money of the player.
+	Money lowest_money; ///< Lowest amount of money of the player.
+	uint8 interest;     ///< Interest rate in 0.1 percent over the negative amount.
 };
 
 extern Scenario _scenario;

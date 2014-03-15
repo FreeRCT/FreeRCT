@@ -48,7 +48,6 @@ int ConfigItem::GetNum() const
 	}
 	if (*p != '\0' || length > 8) return -1; // Bad integer number
 	return val;
-
 }
 
 /**

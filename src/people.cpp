@@ -214,7 +214,7 @@ void Guests::OnNewDay()
  */
 bool Guests::HasFreeGuests() const
 {
-       return this->free != nullptr;
+	return this->free != nullptr;
 }
 
 /**
@@ -223,8 +223,8 @@ bool Guests::HasFreeGuests() const
  */
 void Guests::AddFree(Guest *g)
 {
-       g->next_object = this->free;
-       this->free = g;
+	g->next_object = this->free;
+	this->free = g;
 }
 
 /**
@@ -234,7 +234,7 @@ void Guests::AddFree(Guest *g)
  */
 Guest *Guests::GetFree()
 {
-       Guest *g = this->free;
-       this->free = static_cast<Guest *>(g->next_object);
-       return g;
+	Guest *g = this->free;
+	this->free = static_cast<Guest *>(g->next_object);
+	return g;
 }

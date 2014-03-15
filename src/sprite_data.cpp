@@ -17,9 +17,9 @@
 
 #include <vector>
 
-static const int MAX_IMAGE_COUNT  = 5000; ///< Maximum number of images that can be loaded (arbitrary number).
+static const int MAX_IMAGE_COUNT = 5000; ///< Maximum number of images that can be loaded (arbitrary number).
 
-static std::vector<ImageData> _sprites;   ///< Available sprites to the program.
+static std::vector<ImageData> _sprites;  ///< Available sprites to the program.
 
 ImageData::ImageData()
 {
@@ -54,7 +54,7 @@ bool ImageData::Load8bpp(RcdFile *rcd_file, size_t length)
 	if (this->width == 0 || this->width > 300 || this->height == 0 || this->height > 500) return false;
 
 	length -= 8;
-	if (length > 100*1024) return false; // Another arbitrary limit.
+	if (length > 100 * 1024) return false; // Another arbitrary limit.
 
 	size_t jmp_table = 4 * this->height;
 	if (length <= jmp_table) return false; // You need at least place for the jump table.
@@ -119,7 +119,7 @@ bool ImageData::Load32bpp(RcdFile *rcd_file, size_t length)
 	if (this->width == 0 || this->width > 300 || this->height == 0 || this->height > 500) return false;
 
 	length -= 8;
-	if (length > 100*1024) return false; // Another arbitrary limit.
+	if (length > 100 * 1024) return false; // Another arbitrary limit.
 
 	/* Allocate and load the image data. */
 	this->data = new uint8[length];

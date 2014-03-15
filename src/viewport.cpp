@@ -84,7 +84,6 @@
  * interface defined in #MouseMode. An object should statically be available, and get registered in #InitMouseModes.
  */
 
-
 /**
  * Proposed additions to the game world. Not part of the game itself, but they are displayed by calling
  * #EnableWorldAdditions (and stopped being displayed with #DisableWorldAdditions).
@@ -94,7 +93,6 @@ WorldAdditions _additions;
 MouseModes _mouse_modes; ///< Mouse modes in the game.
 
 static const int ADDITIONS_TIMEOUT_LENGTH = 15; ///< Length of the time interval of displaying or not displaying world additions.
-
 
 /** Enable flashing display of showing proposed game world additions to the player. */
 void EnableWorldAdditions()
@@ -206,7 +204,9 @@ protected:
 	 * @param xpos X position of the voxel stack.
 	 * @param ypos Y position of the voxel stack.
 	 */
-	virtual void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) { }
+	virtual void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos)
+	{
+	}
 
 	/**
 	 * Handle a voxel that should be collected.
@@ -282,7 +282,6 @@ protected:
 	uint8 ground_slope;   ///< Imploded ground slope if #ground_height is valid.
 };
 
-
 /**
  * Find the sprite and pixel under the mouse cursor.
  * @ingroup viewport_group
@@ -301,7 +300,6 @@ public:
 protected:
 	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) override;
 };
-
 
 /**
  * Base class constructor.
@@ -589,8 +587,8 @@ uint8 MultiCursor::GetZpos(int xpos, int ypos)
 {
 	int xoff = xpos - this->rect.base.x;
 	int yoff = ypos - this->rect.base.y;
-	assert (xoff >= 0 && xoff < (int)this->rect.width);
-	assert (yoff >= 0 && yoff < (int)this->rect.height);
+	assert(xoff >= 0 && xoff < (int)this->rect.width);
+	assert(yoff >= 0 && yoff < (int)this->rect.height);
 
 	if (this->zpos[xoff][yoff] < 0) this->zpos[xoff][yoff] = _world.GetGroundHeight(xpos, ypos);
 	return this->zpos[xoff][yoff];
@@ -1204,7 +1202,6 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 	}
 }
 
-
 /**
  * %Viewport constructor.
  */
@@ -1464,8 +1461,13 @@ void Viewport::OnMouseWheelEvent(int direction)
  * @param p_wtype Window associated with the mouse mode (use #WC_NONE if no window).
  * @param p_mode Mouse mode implemented by the object.
  */
-MouseMode::MouseMode(WindowTypes p_wtype, ViewportMouseMode p_mode) : wtype(p_wtype), mode(p_mode) {}
-MouseMode::~MouseMode() {}
+MouseMode::MouseMode(WindowTypes p_wtype, ViewportMouseMode p_mode) : wtype(p_wtype), mode(p_mode)
+{
+}
+
+MouseMode::~MouseMode()
+{
+}
 
 /**
  * The mouse moved while in this mouse mode.
@@ -1473,29 +1475,49 @@ MouseMode::~MouseMode() {}
  * @param old_pos Previous position.
  * @param pos Current position.
  */
-void MouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) {}
+void MouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
+{
+}
 
 /**
  * A mouse click was detected.
  * @param vp %Viewport object.
  * @param state State of the mouse buttons. @see MouseButtons
  */
-void MouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state) {}
+void MouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
+{
+}
 
 /**
  * A mouse wheelie event has been detected.
  * @param vp %Viewport object.
  * @param direction Direction of movement.
  */
-void MouseMode::OnMouseWheelEvent(Viewport *vp, int direction) {}
+void MouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
+{
+}
 
+DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE)
+{
+}
 
-DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE) {}
+bool DefaultMouseMode::MayActivateMode()
+{
+	return true;
+}
 
-bool DefaultMouseMode::MayActivateMode() { return true; }
-void DefaultMouseMode::ActivateMode(const Point16 &pos) {}
-void DefaultMouseMode::LeaveMode() {}
-bool DefaultMouseMode::EnableCursors() { return false; }
+void DefaultMouseMode::ActivateMode(const Point16 &pos)
+{
+}
+
+void DefaultMouseMode::LeaveMode()
+{
+}
+
+bool DefaultMouseMode::EnableCursors()
+{
+	return false;
+}
 
 MouseModes::MouseModes()
 {

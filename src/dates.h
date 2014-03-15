@@ -23,10 +23,10 @@ enum CompressedDateBits {
 	CDB_YEAR_LENGTH  =  7, ///< Length of the 'year'     field in the compressed date.
 	CDB_FRAC_LENGTH  = 10, ///< Length of the 'fraction' field in the compressed date.
 
-	CDB_DAY_START = 0,                                    ///< Start bit of the 'day' field.
-	CDB_MONTH_START = CDB_DAY_START + CDB_DAY_LENGTH,     ///< Start bit of the 'month' field.
-	CDB_YEAR_START = CDB_MONTH_START + CDB_MONTH_LENGTH,  ///< Start bit of the 'year' field.
-	CDB_FRAC_START = CDB_YEAR_START + CDB_YEAR_LENGTH,    ///< Start bit of the 'fraction' field.
+	CDB_DAY_START = 0,                                   ///< Start bit of the 'day' field.
+	CDB_MONTH_START = CDB_DAY_START + CDB_DAY_LENGTH,    ///< Start bit of the 'month' field.
+	CDB_YEAR_START = CDB_MONTH_START + CDB_MONTH_LENGTH, ///< Start bit of the 'year' field.
+	CDB_FRAC_START = CDB_YEAR_START + CDB_YEAR_LENGTH,   ///< Start bit of the 'fraction' field.
 };
 
 /** %Date in the game. */
@@ -37,7 +37,9 @@ public:
 	Date(CompressedDate cd);
 	Date(const Date &d);
 	Date &operator=(const Date &d);
-	~Date() { }
+	~Date()
+	{
+	}
 
 	CompressedDate Compress() const;
 

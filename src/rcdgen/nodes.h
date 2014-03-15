@@ -104,24 +104,24 @@ public:
 	SheetBlock(const Position &pos);
 	~SheetBlock();
 
-
 	std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos) override;
 	Image *GetSheet();
 
-	Position pos;     ///< Line number defining the sheet.
-	std::string file; ///< %Name of the file containing the sprite sheet.
+	Position pos;         ///< Line number defining the sheet.
+	std::string file;     ///< %Name of the file containing the sprite sheet.
 	std::string recolour; ///< %Name of the file containing 32bpp recolour information (\c "" means no file).
-	int x_base;       ///< Horizontal base offset in the sheet.
-	int y_base;       ///< Vertical base offset in the sheet.
-	int x_step;       ///< Column step size.
-	int y_step;       ///< Row step size.
-	int x_count;      ///< Number of sprites horizontally (\c -1 means 'infinite').
-	int y_count;      ///< Number of sprites vertically (\c -1 means 'infinite').
-	int x_offset;     ///< Sprite offset (from the origin to the left edge of the sprite).
-	int y_offset;     ///< Sprite offset (from the origin to the top edge of the sprite).
-	int width;        ///< Width of a sprite.
-	int height;       ///< Height of a sprite.
-	bool crop;        ///< Crop sprite.
+
+	int x_base;   ///< Horizontal base offset in the sheet.
+	int y_base;   ///< Vertical base offset in the sheet.
+	int x_step;   ///< Column step size.
+	int y_step;   ///< Row step size.
+	int x_count;  ///< Number of sprites horizontally (\c -1 means 'infinite').
+	int y_count;  ///< Number of sprites vertically (\c -1 means 'infinite').
+	int x_offset; ///< Sprite offset (from the origin to the left edge of the sprite).
+	int y_offset; ///< Sprite offset (from the origin to the top edge of the sprite).
+	int width;    ///< Width of a sprite.
+	int height;   ///< Height of a sprite.
+	bool crop;    ///< Crop sprite.
 
 	ImageFile *imf;   ///< Loaded image file.
 	Image *img_sheet; ///< Sheet of images.
@@ -348,8 +348,8 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	int path_type;   ///< Type of path.
-	int tile_width;  ///< Size of the tile.
+	int path_type;  ///< Type of path.
+	int tile_width; ///< Size of the tile.
 	int z_height;   ///< Change in Z height (in pixels) when going up or down a tile level.
 
 	std::array<std::shared_ptr<SpriteBlock>, PTS_COUNT> sprites; ///< Path sprites.
@@ -554,10 +554,10 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	int min_length;      ///< Minimal length of the bar.
-	int step_size;       ///< Stepsize of the bar.
-	int width;           ///< Width of the slider button.
-	int widget_type;     ///< Widget type.
+	int min_length;  ///< Minimal length of the bar.
+	int step_size;   ///< Stepsize of the bar.
+	int width;       ///< Width of the slider button.
+	int widget_type; ///< Widget type.
 
 	std::shared_ptr<SpriteBlock> left;   ///< Left sprite.
 	std::shared_ptr<SpriteBlock> middle; ///< Middle sprite.
@@ -663,10 +663,10 @@ class CubicSpline : public BlockNode {
 public:
 	CubicSpline();
 
-	int a;  ///< Fourth cubic spline parameter.
-	int b;  ///< Fourth cubic spline parameter.
-	int c;  ///< Fourth cubic spline parameter.
-	int d;  ///< Fourth cubic spline parameter.
+	int a;     ///< Fourth cubic spline parameter.
+	int b;     ///< Fourth cubic spline parameter.
+	int c;     ///< Fourth cubic spline parameter.
+	int d;     ///< Fourth cubic spline parameter.
 	int steps; ///< Length of the path segment (exclusive upper bound).
 	int first; ///< Physical distance in the track piece of the first position, in \c 1/256 pixels.
 	int last;  ///< Physical distance in the track piece of the last position, in \c 1/256 pixels.
@@ -704,10 +704,11 @@ public:
 
 	void Write(FileWriter *fw, FileBlock *fb, int rot);
 
-	int dx; ///< Relative X position of the voxel.
-	int dy; ///< Relative Y position of the voxel.
-	int dz; ///< Relative Z position of the voxel.
+	int dx;    ///< Relative X position of the voxel.
+	int dy;    ///< Relative Y position of the voxel.
+	int dz;    ///< Relative Z position of the voxel.
 	int flags; ///< Flags of the voxel (space corners, platform direction).
+
 	std::array<std::shared_ptr<SpriteBlock>, 4> back;  ///< Back coaster sprites.
 	std::array<std::shared_ptr<SpriteBlock>, 4> front; ///< Front coaster sprites.
 };

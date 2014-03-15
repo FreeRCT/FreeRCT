@@ -29,7 +29,7 @@
 #include "gui_sprites.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
-GuiSprites _gui_sprites; ///< GUI sprites.
+GuiSprites _gui_sprites;       ///< GUI sprites.
 
 static const int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
 
@@ -61,10 +61,10 @@ const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
 	{16, 15, 18, 17},
 	{17, 16, 15, 18},
 	{18, 17, 16, 15},
-	{15+4, 18+4, 17+4, 16+4},
-	{16+4, 15+4, 18+4, 17+4},
-	{17+4, 16+4, 15+4, 18+4},
-	{18+4, 17+4, 16+4, 15+4},
+	{15 + 4, 18 + 4, 17 + 4, 16 + 4},
+	{16 + 4, 15 + 4, 18 + 4, 17 + 4},
+	{17 + 4, 16 + 4, 15 + 4, 18 + 4},
+	{18 + 4, 17 + 4, 16 + 4, 15 + 4},
 };
 
 /** Default constructor of a in-memory RCD block. */
@@ -330,7 +330,6 @@ bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites
 	return true;
 }
 
-
 TileSelection::TileSelection() : RcdBlock()
 {
 	this->width = 0;
@@ -361,7 +360,6 @@ bool TileSelection::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprit
 	}
 	return true;
 }
-
 
 Path::Path() : RcdBlock()
 {
@@ -397,7 +395,6 @@ bool Path::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 	}
 	return true;
 }
-
 
 TileCorners::TileCorners() : RcdBlock()
 {
@@ -435,7 +432,6 @@ bool TileCorners::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites
 	}
 	return true;
 }
-
 
 Foundation::Foundation() : RcdBlock()
 {
@@ -570,7 +566,7 @@ DisplayedObject::~DisplayedObject()
  */
 bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
-	if (length != 2 + 4*4) return false;
+	if (length != 2 + 4 * 4) return false;
 
 	this->width = rcd_file->GetUInt16();
 
@@ -733,7 +729,7 @@ bool BorderSpriteData::IsLoaded() const
  */
 bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
-	if (length != 2 + 8*1 + WBS_COUNT * 4) return false;
+	if (length != 2 + 8 * 1 + WBS_COUNT * 4) return false;
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
@@ -928,7 +924,7 @@ bool ScrollbarSpriteData::IsLoaded() const
  */
 bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
-	if (length != 4*1 + 2 + WLS_COUNT * 4) return false;
+	if (length != 4 * 1 + 2 + WLS_COUNT * 4) return false;
 
 	uint8 min_length_bar = rcd_file->GetUInt8();
 	uint8 stepsize_back = rcd_file->GetUInt8();
@@ -1680,7 +1676,8 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	}
 
 	/* No useful match, return a dummy size. */
-	result.base.x = 0; result.base.y = 0; result.width = 10; result.height = 10;
+	result.base.x = 0; result.base.y = 0;
+	result.width = 10; result.height = 10;
 	return result;
 }
 
@@ -1695,27 +1692,27 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 {
 	if (number >= SPR_GUI_COMPASS_START && number < SPR_GUI_COMPASS_END) return _gui_sprites.compass[number - SPR_GUI_COMPASS_START];
 	if (number >= SPR_GUI_WEATHER_START && number < SPR_GUI_WEATHER_END) return _gui_sprites.weather[number - SPR_GUI_WEATHER_START];
-	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
-	if (number >= SPR_GUI_BEND_START   && number < SPR_GUI_BEND_END)   return _gui_sprites.bend_select[number - SPR_GUI_BEND_START];
-	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END)   return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
+	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END)   return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
+	if (number >= SPR_GUI_BEND_START   && number < SPR_GUI_BEND_END) return _gui_sprites.bend_select[number - SPR_GUI_BEND_START];
+	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END) return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
 
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
 		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
 
-	if (number == SPR_GUI_HAS_PLATFORM) return _gui_sprites.platform_select[0];
-	if (number == SPR_GUI_NO_PLATFORM)  return _gui_sprites.platform_select[1];
-	if (number == SPR_GUI_HAS_POWER) return _gui_sprites.power_select[0];
-	if (number == SPR_GUI_NO_POWER)  return _gui_sprites.power_select[1];
+	if (number == SPR_GUI_HAS_PLATFORM)   return _gui_sprites.platform_select[0];
+	if (number == SPR_GUI_NO_PLATFORM)    return _gui_sprites.platform_select[1];
+	if (number == SPR_GUI_HAS_POWER)      return _gui_sprites.power_select[0];
+	if (number == SPR_GUI_NO_POWER)       return _gui_sprites.power_select[1];
 	if (number == SPR_GUI_TRIANGLE_LEFT)  return _gui_sprites.triangle_left;
 	if (number == SPR_GUI_TRIANGLE_RIGHT) return _gui_sprites.triangle_right;
 	if (number == SPR_GUI_TRIANGLE_UP)    return _gui_sprites.triangle_up;
 	if (number == SPR_GUI_TRIANGLE_DOWN)  return _gui_sprites.triangle_down;
-	if (number == SPR_GUI_ROT2D_POS) return _gui_sprites.rot_2d_pos;
-	if (number == SPR_GUI_ROT2D_NEG) return _gui_sprites.rot_2d_neg;
-	if (number == SPR_GUI_ROT3D_POS) return _gui_sprites.rot_3d_pos;
-	if (number == SPR_GUI_ROT3D_NEG) return _gui_sprites.rot_3d_neg;
-	if (number == SPR_GUI_BULLDOZER) return _gui_sprites.bulldozer;
+	if (number == SPR_GUI_ROT2D_POS)      return _gui_sprites.rot_2d_pos;
+	if (number == SPR_GUI_ROT2D_NEG)      return _gui_sprites.rot_2d_neg;
+	if (number == SPR_GUI_ROT3D_POS)      return _gui_sprites.rot_3d_pos;
+	if (number == SPR_GUI_ROT3D_NEG)      return _gui_sprites.rot_3d_neg;
+	if (number == SPR_GUI_BULLDOZER)      return _gui_sprites.bulldozer;
 	return nullptr;
 }
 

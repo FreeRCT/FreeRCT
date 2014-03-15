@@ -92,7 +92,6 @@
 	#include <sys/types.h>
 #endif
 
-
 /* Stuff for GCC */
 #if defined(__GNUC__)
 	#define MAX_PATH 512
@@ -139,7 +138,7 @@ typedef unsigned char byte; ///< Unsigned 8 bit wide data type.
 #endif /* !TROUBLED_INTS */
 
 /** Compile-time assertion check macro. */
-#define assert_compile(expr) static_assert(expr, #expr )
+#define assert_compile(expr) static_assert(expr, #expr)
 
 /* Check that the types have the byte sizes like we are using them. */
 assert_compile(sizeof(uint64) == 8); ///< Check size of #uint64 type.

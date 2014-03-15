@@ -26,14 +26,14 @@ typedef std::map<uint32, ConstTrackPiecePtr> TrackPiecesMap; ///< Map of loaded 
 enum CoasterKind {
 	CST_SIMPLE = 1, ///< 'Simple' coaster type.
 
-	CST_COUNT,  ///< Number of coaster types.
+	CST_COUNT,      ///< Number of coaster types.
 };
 
 /** Platform types of coasters. */
 enum CoasterPlatformType {
 	CPT_WOOD = 1,  ///< Wooden platform type.
 
-	CPT_COUNT, ///< Number of platform types with coasters.
+	CPT_COUNT,     ///< Number of platform types with coasters.
 };
 
 /** A type of car riding at a track. */
@@ -127,9 +127,9 @@ public:
 	void PreRemove();
 
 	const CarType *car_type; ///< Car type data.
-	uint8 pitch; ///< Pitch of the car.
-	uint8 roll;  ///< Roll of the car.
-	uint8 yaw;   ///< Yaw of the car (\c 0xff means all data is invalid).
+	uint8 pitch;             ///< Pitch of the car.
+	uint8 roll;              ///< Roll of the car.
+	uint8 yaw;               ///< Yaw of the car (\c 0xff means all data is invalid).
 };
 
 /** Coaster car drawn at the front and the back position. */
@@ -144,7 +144,6 @@ public:
 		this->front.PreRemove();
 		this->back.PreRemove();
 	}
-
 };
 
 class CoasterInstance;

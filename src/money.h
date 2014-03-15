@@ -7,11 +7,11 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
- /**
-  * @file money.h
-  * Implementation of money.
-  * @note Basic format is taken from OpenTTD.
-  */
+/**
+ * @file money.h
+ * Implementation of money.
+ * @note Basic format is taken from OpenTTD.
+ */
 
 #ifndef MONEY_H
 #define MONEY_H
@@ -26,7 +26,9 @@ private:
 	int64 m_value; ///< Non-overflow safe backend to store the value in.
 
 public:
-	Money() : m_value(0) { }
+	Money() : m_value(0)
+	{
+	}
 
 	/**
 	 * Constructor.
@@ -73,7 +75,7 @@ public:
 	 *       it will be INT64_MAX (respectively INT64_MIN).
 	 * @return The result.
 	 */
-	inline Money& operator+= (const Money& other)
+	inline Money& operator+=(const Money& other)
 	{
 		if ((INT64_MAX - abs(other.m_value)) < abs(this->m_value) &&
 		    (this->m_value < 0) == (other.m_value < 0)) {
@@ -215,12 +217,12 @@ public:
 	 *       it will be INT64_MAX (respectively INT64_MIN).
 	 * @return The result.
 	 */
-	inline Money& operator*= (const int factor)
+	inline Money& operator*=(const int factor)
 	{
 		if (factor != 0 && (INT64_MAX / abs(factor)) < abs(this->m_value)) {
-			 this->m_value = ((this->m_value < 0) == (factor < 0)) ? INT64_MAX : INT64_MIN ;
+			this->m_value = ((this->m_value < 0) == (factor < 0)) ? INT64_MAX : INT64_MIN;
 		} else {
-			this->m_value *= factor ;
+			this->m_value *= factor;
 		}
 		return *this;
 	}
@@ -368,7 +370,7 @@ public:
 	 * @param shift The amount to shift this to the left.
 	 * @return The result.
 	 */
-	inline Money& operator<<= (const int shift)
+	inline Money& operator<<=(const int shift)
 	{
 		this->m_value <<= shift;
 		return *this;
@@ -379,7 +381,7 @@ public:
 	 * @param shift The amount to shift this to the left.
 	 * @return The result.
 	 */
-	inline Money operator<< (const int shift) const
+	inline Money operator<<(const int shift) const
 	{
 		Money result = *this;
 		result <<= shift;

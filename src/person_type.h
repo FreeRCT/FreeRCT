@@ -33,7 +33,6 @@ enum PersonType {
 };
 DECLARE_POSTFIX_INCREMENT(PersonType)
 
-
 /** Graphics definition of a person type. */
 struct PersonTypeGraphics {
 	RandomRecolouringMapping random_recolours[NUMBER_PERSON_TYPE_RECOLOURINGS]; ///< Random colour remappings.
@@ -62,7 +61,6 @@ inline const PersonTypeData &GetPersonTypeData(PersonType pt)
 {
 	return ModifyPersonTypeData(pt);
 }
-
 
 /**
  * Function to decide whether a person type is a guest or not.

@@ -35,7 +35,7 @@ TrackVoxel::~TrackVoxel()
  */
 bool TrackVoxel::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
 {
-	if (length != 4*4 + 4*4 + 3 + 1) return false;
+	if (length != 4 * 4 + 4 * 4 + 3 + 1) return false;
 	for (uint i = 0; i < 4; i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->back[i])) return false;
 	}
@@ -185,19 +185,22 @@ TrackPiece::~TrackPiece()
  */
 bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
 {
-	if (length < 2+3+1+2+4+2) return false;
-	length -= 2+3+1+2+4+2;
+	if (length < 2 + 3 + 1 + 2 + 4 + 2) return false;
+	length -= 2 + 3 + 1 + 2 + 4 + 2;
+
 	this->entry_connect = rcd_file->GetUInt8();
-	this->exit_connect = rcd_file->GetUInt8();
+	this->exit_connect  = rcd_file->GetUInt8();
 	this->exit_dx = rcd_file->GetInt8();
 	this->exit_dy = rcd_file->GetInt8();
 	this->exit_dz = rcd_file->GetInt8();
-	this->speed = rcd_file->GetInt8();
+	this->speed   = rcd_file->GetInt8();
 	this->track_flags = rcd_file->GetUInt16();
 	this->cost = rcd_file->GetUInt32();
 	this->voxel_count = rcd_file->GetUInt16();
+
 	if (length < 36u * this->voxel_count) return false;
 	length -= 36u * this->voxel_count;
+
 	this->track_voxels = new TrackVoxel[this->voxel_count];
 	for (int i = 0; i < this->voxel_count; i++) {
 		if (!this->track_voxels[i].Load(rcd_file, 36, sprites)) return false;

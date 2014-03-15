@@ -466,7 +466,7 @@ void DataWidget::Draw(const GuiWindow *w)
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 			if (imgdata != nullptr) _video->BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, 0);
 			break;
- 		}
+		}
 
 		case WT_DROPDOWN_BUTTON: {
 			const Rectangle16 imgrect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
@@ -681,7 +681,6 @@ void RowColData::InitRowColData()
 	this->min_size = 0;
 	this->fill = 1;
 	this->resize = 1;
-
 }
 
 /**
@@ -696,7 +695,6 @@ void RowColData::Merge(uint16 min_size, uint16 fill, uint16 resize)
 	this->fill = LeastCommonMultiple(this->fill, fill);
 	this->resize = LeastCommonMultiple(this->resize, resize);
 }
-
 
 /**
  * Constructor for intermediate widgets.
@@ -1025,7 +1023,6 @@ void IntermediateWidget::AutoRaiseButtons(const Point32 &base)
 		this->childs[idx]->AutoRaiseButtons(base);
 	}
 }
-
 
 /**
  * Create a new #WT_GRID widget.

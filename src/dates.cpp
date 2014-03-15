@@ -151,7 +151,6 @@ void DateOnTick()
 		}
 	}
 
-
 	OnNewDay();
 	if (newmonth) OnNewMonth();
 	if (newyear)  OnNewYear();

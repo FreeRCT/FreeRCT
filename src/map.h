@@ -140,7 +140,8 @@ public:
 	 * Get the foundation slope of a surface voxel.
 	 * @return The foundation slope.
 	 */
-	inline uint8 GetFoundationSlope() const {
+	inline uint8 GetFoundationSlope() const
+	{
 		return GB(this->ground, 8, 8);
 	}
 
@@ -148,7 +149,8 @@ public:
 	 * Get the foundation type of a surface voxel.
 	 * @return The foundation type.
 	 */
-	inline FoundationType GetFoundationType() const {
+	inline FoundationType GetFoundationType() const
+	{
 		uint val = GB(this->ground, 0, 4);
 		return (FoundationType)val;
 	}
@@ -157,7 +159,8 @@ public:
 	 * Set the foundation slope of a surface voxel.
 	 * @param fnd_slope The new foundation slope.
 	 */
-	inline void SetFoundationSlope(uint8 fnd_slope) {
+	inline void SetFoundationSlope(uint8 fnd_slope)
+	{
 		SB(this->ground, 8, 8, fnd_slope);
 	}
 
@@ -165,7 +168,8 @@ public:
 	 * Set the foundation type of a surface voxel.
 	 * @param fnd_type The foundation type.
 	 */
-	inline void SetFoundationType(FoundationType fnd_type) {
+	inline void SetFoundationType(FoundationType fnd_type)
+	{
 		assert(fnd_type < FDT_COUNT || fnd_type == FDT_INVALID);
 		SB(this->ground, 0, 4, fnd_type);
 	}
@@ -177,7 +181,8 @@ public:
 	 * Steep slopes are two voxels high (a bottom and a top part).
 	 * @return The imploded ground slope.
 	 */
-	inline uint8 GetGroundSlope() const {
+	inline uint8 GetGroundSlope() const
+	{
 		return GB(this->ground, 16, 5);
 	}
 
@@ -185,7 +190,8 @@ public:
 	 * Get the ground type of a surface voxel.
 	 * @return The ground type.
 	 */
-	inline GroundType GetGroundType() const {
+	inline GroundType GetGroundType() const
+	{
 		uint val = GB(this->ground, 4, 4);
 		return (GroundType)val;
 	}
@@ -195,7 +201,8 @@ public:
 	 * @return The growth of the grass.
 	 * @todo Increment this value and (change ground type to other grass kinds) regularly to simulate grass growth.
 	 */
-	inline uint8 GetGrowth() const {
+	inline uint8 GetGrowth() const
+	{
 		return GB(this->ground, 21, 3);
 	}
 
@@ -204,7 +211,8 @@ public:
 	 * Steep slopes are two voxels high (a bottom and a top part).
 	 * @param gnd_slope The new imploded ground slope.
 	 */
-	inline void SetGroundSlope(uint8 gnd_slope) {
+	inline void SetGroundSlope(uint8 gnd_slope)
+	{
 		assert(gnd_slope < 15 + 4 + 4); // 15 non-steep, 4 bottom, 4 top sprites.
 		SB(this->ground, 16, 5, gnd_slope);
 	}
@@ -213,7 +221,8 @@ public:
 	 * Set the ground type of a surface voxel.
 	 * @param gnd_type The ground type.
 	 */
-	inline void SetGroundType(GroundType gnd_type) {
+	inline void SetGroundType(GroundType gnd_type)
+	{
 		assert(gnd_type < GTP_COUNT || gnd_type == GTP_INVALID);
 		SB(this->ground, 4, 4, gnd_type);
 	}
@@ -223,7 +232,8 @@ public:
 	 * @param growth New growth value.
 	 * @todo Increment this value and (change ground type to other grass kinds) regularly to simulate grass growth.
 	 */
-	inline void SetGrowth(uint8 growth) {
+	inline void SetGrowth(uint8 growth)
+	{
 		assert(growth < 8);
 		SB(this->ground, 21, 3, growth);
 	}
@@ -308,12 +318,12 @@ public:
 	VoxelObject *prev_object; ///< Previous voxel object in the linked list.
 	bool added;               ///< Whether the voxel object has been added to a voxel.
 
-	int16 x_vox;  ///< %Voxel index in X direction of the voxel object.
-	int16 y_vox;  ///< %Voxel index in Y direction of the voxel object.
-	int16 z_vox;  ///< %Voxel index in Z direction of the voxel object.
-	int16 x_pos;  ///< X position of the person inside the voxel (0..255).
-	int16 y_pos;  ///< Y position of the person inside the voxel (0..255).
-	int16 z_pos;  ///< Z position of the person inside the voxel (0..255).
+	int16 x_vox; ///< %Voxel index in X direction of the voxel object.
+	int16 y_vox; ///< %Voxel index in Y direction of the voxel object.
+	int16 z_vox; ///< %Voxel index in Z direction of the voxel object.
+	int16 x_pos; ///< X position of the person inside the voxel (0..255).
+	int16 y_pos; ///< Y position of the person inside the voxel (0..255).
+	int16 z_pos; ///< Z position of the person inside the voxel (0..255).
 };
 
 /**
@@ -322,7 +332,8 @@ public:
  * @return @c true if the voxel contains a valid path, else \c false.
  * @todo Extend with acceptable types of path (plain path, queueing path, etc.)
  */
-static inline bool HasValidPath(const Voxel *v) {
+static inline bool HasValidPath(const Voxel *v)
+{
 	return v->instance == SRI_PATH && v->instance_data != PATH_INVALID;
 }
 
@@ -332,7 +343,8 @@ static inline bool HasValidPath(const Voxel *v) {
  * @return Imploded slope of the path.
  * @pre %Voxel should have a valid path.
  */
-static inline PathSprites GetImplodedPathSlope(const Voxel *v) {
+static inline PathSprites GetImplodedPathSlope(const Voxel *v)
+{
 	assert(HasValidPath(v));
 	assert(v->instance_data < PATH_COUNT);
 	return (PathSprites)v->instance_data;
@@ -340,9 +352,9 @@ static inline PathSprites GetImplodedPathSlope(const Voxel *v) {
 
 /** Possible ownerships of a tile. */
 enum TileOwner {
-	OWN_NONE,      ///< Tile not owned by the park and not for sale.
-	OWN_FOR_SALE,  ///< Tile not owned by the park, but can be bought.
-	OWN_PARK,      ///< Tile owned by the park.
+	OWN_NONE,     ///< Tile not owned by the park and not for sale.
+	OWN_FOR_SALE, ///< Tile not owned by the park, but can be bought.
+	OWN_PARK,     ///< Tile owned by the park.
 };
 
 /**
@@ -454,8 +466,8 @@ public:
 		return true;
 	}
 
-	TileOwner GetTileOwner(uint16 x,  uint16 y);
-	void SetTileOwner(uint16 x,  uint16 y, TileOwner owner);
+	TileOwner GetTileOwner(uint16 x, uint16 y);
+	void SetTileOwner(uint16 x, uint16 y, TileOwner owner);
 	void SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner);
 
 private:

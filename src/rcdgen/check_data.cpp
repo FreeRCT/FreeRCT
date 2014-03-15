@@ -152,11 +152,12 @@ public:
 	std::shared_ptr<Strings> GetStrings(const Position &pos, const char *node);
 	std::shared_ptr<Curve> GetCurve(const Position &pos, const char *node);
 
-	Position pos;             ///< %Position of the name.
+	std::string name; ///< %Name of the value.
+	Position pos;     ///< %Position of the name.
+	bool used;        ///< Is the value used?
+
 	std::shared_ptr<const Expression> expr_value; ///< %Expression attached to it (if any).
-	std::shared_ptr<BlockNode> node_value; ///< Node attached to it (if any).
-	std::string name;         ///< %Name of the value.
-	bool used;                ///< Is the value used?
+	std::shared_ptr<BlockNode> node_value;        ///< Node attached to it (if any).
 };
 
 /** Default constructor. */
@@ -1274,7 +1275,6 @@ static std::shared_ptr<GSCLBlock> ConvertGSCLNode(std::shared_ptr<NodeGroup> ng)
 	vals.VerifyUsage();
 	return blk;
 }
-
 
 /**
  * Convert a node group to a sprite-sheet block.

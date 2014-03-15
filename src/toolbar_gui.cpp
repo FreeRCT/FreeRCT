@@ -395,8 +395,8 @@ static const WidgetPart _quit_program_widgets[] = {
 Point32 QuitProgramWindow::OnInitialPosition()
 {
 	Point32 pt;
-	pt.x = (_video->GetXSize() - this->rect.width) / 2;
-	pt.y = (_video->GetYSize() - this->rect.height)/ 2;
+	pt.x = (_video->GetXSize() - this->rect.width ) / 2;
+	pt.y = (_video->GetYSize() - this->rect.height) / 2;
 	return pt;
 }
 
@@ -405,7 +405,6 @@ QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
 }
-
 
 void QuitProgramWindow::OnClick(WidgetNumber number)
 {

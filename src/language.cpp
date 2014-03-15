@@ -22,8 +22,8 @@
 assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many GUI strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
 
-Language _language; ///< Language strings.
-StringParameters _str_params; ///< Default string parameters.
+Language _language;                 ///< Language strings.
+StringParameters _str_params;       ///< Default string parameters.
 int _current_language = LANG_EN_GB; ///< Index of the current translation.
 
 /** Default constructor of a #TextString object. */
@@ -39,7 +39,6 @@ void TextString::Clear()
 	std::fill_n(this->languages, lengthof(this->languages), nullptr);
 }
 
-
 /** Known languages. */
 const char * const _lang_names[] = {
 	"da_DK", // Danish.
@@ -50,7 +49,6 @@ const char * const _lang_names[] = {
 };
 
 assert_compile(lengthof(_lang_names) == LANGUAGE_COUNT); ///< Ensure number of language matches with array sizes.
-
 
 /**
  * Get the index number of a given language.
@@ -299,10 +297,10 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 	size_t curr_sym_len = StrBytesLength(curr_sym);
 
 	const uint8 *tho_sep  = _language.GetText(GUI_MONEY_THOUSANDS_SEPARATOR);
-	size_t tho_sep_len = StrBytesLength(tho_sep);
+	size_t tho_sep_len  = StrBytesLength(tho_sep);
 
 	const uint8 *dec_sep  = _language.GetText(GUI_MONEY_DECIMAL_SEPARATOR);
-	size_t dec_sep_len = StrBytesLength(dec_sep);
+	size_t dec_sep_len  = StrBytesLength(dec_sep);
 
 	char *buf = new char[size];
 
@@ -338,7 +336,7 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 			j += tho_sep_len;
 			dest[j++] = buf[i];
 
-		} else if (buf[i] == '.') {  // Decimal separator produced by 'snprintf'.
+		} else if (buf[i] == '.') { // Decimal separator produced by 'snprintf'.
 			SafeStrncpy(dest + j, dec_sep, dec_sep_len + 1);
 			j += dec_sep_len;
 

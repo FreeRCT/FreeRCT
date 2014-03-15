@@ -29,10 +29,10 @@ class RideInstance;
  * @todo Split coasters into different kinds??
  */
 enum RideTypeKind {
-	RTK_SHOP,            ///< Ride type allows buying useful stuff.
-	RTK_GENTLE,          ///< Gentle kind of ride.
-	RTK_WET,             ///< Ride type uses water.
-	RTK_COASTER,         ///< Ride type is a coaster.
+	RTK_SHOP,    ///< Ride type allows buying useful stuff.
+	RTK_GENTLE,  ///< Gentle kind of ride.
+	RTK_WET,     ///< Ride type uses water.
+	RTK_COASTER, ///< Ride type is a coaster.
 
 	RTK_RIDE_KIND_COUNT, ///< Number of kinds of ride types.
 };
@@ -68,9 +68,9 @@ public:
 	virtual RideInstance *CreateInstance() const = 0;
 	void SetupStrings(TextData *text, StringID base, StringID start, StringID end, StringID name, StringID desc);
 
-	const RideTypeKind kind;    ///< Kind of ride type.
-	Money monthly_cost;         ///< Monthly costs for owning a ride.
-	Money monthly_open_cost;    ///< Monthly extra costs if the ride is opened.
+	const RideTypeKind kind; ///< Kind of ride type.
+	Money monthly_cost;      ///< Monthly costs for owning a ride.
+	Money monthly_open_cost; ///< Monthly extra costs if the ride is opened.
 	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
 	Money item_cost[NUMBER_ITEM_TYPES_SOLD];    ///< Cost of the items on sale.
 
@@ -132,9 +132,9 @@ public:
 
 	uint16 GetIndex() const;
 
-	uint8 name[64];       ///< Name of the ride, if it is instantiated.
-	uint8 state;          ///< State of the instance. @see RideInstanceState
-	uint8 flags;          ///< Flags of the instance. @see RideInstanceFlags
+	uint8 name[64];           ///< Name of the ride, if it is instantiated.
+	uint8 state;              ///< State of the instance. @see RideInstanceState
+	uint8 flags;              ///< Flags of the instance. @see RideInstanceFlags
 	Recolouring recolour_map; ///< Recolour map of the instance.
 
 	Money total_profit;      ///< Total profit of the ride.

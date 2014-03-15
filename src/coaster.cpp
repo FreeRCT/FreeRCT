@@ -22,7 +22,7 @@
 CoasterPlatform _coaster_platforms[CPT_COUNT]; ///< Sprites for the coaster platforms.
 
 static CarType _car_types[16]; ///< Car types available to the program (arbitrary limit).
-static uint _used_types = 0; ///< First free car type in #_car_types.
+static uint _used_types = 0;   ///< First free car type in #_car_types.
 
 /**
  * Get a new car type.
@@ -50,7 +50,7 @@ CarType::CarType()
  */
 bool CarType::Load(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
 {
-	if (length != 2+2+4+4+2+2+16384) return false;
+	if (length != 2 + 2 + 4 + 4 + 2 + 2 + 16384) return false;
 
 	this->tile_width = rcdfile->GetUInt16();
 	if (this->tile_width != 64) return false; // Do not allow anything else than 64 pixels tile width.
@@ -95,8 +95,8 @@ CoasterType::~CoasterType()
  */
 bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
-	if (length < 2+1+1+1+4+2) return false;
-	length -= 2+1+1+1+4+2;
+	if (length < 2 + 1 + 1 + 1 + 4 + 2) return false;
+	length -= 2 + 1 + 1 + 1 + 4 + 2;
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
 	this->max_number_trains = rcd_file->GetUInt8();
@@ -125,7 +125,7 @@ bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, c
 	for (const auto &piece : this->pieces) {
 		this->voxel_count += piece->voxel_count;
 	}
-	this->voxels = new const TrackVoxel*[this->voxel_count]();
+	this->voxels = new const TrackVoxel *[this->voxel_count]();
 	int vi = 0;
 	for (const auto &piece : this->pieces) {
 		for (int j = 0; j < piece->voxel_count; j++) {
@@ -206,7 +206,7 @@ CoasterPlatform::CoasterPlatform()
  */
 bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
 {
-	if (length != 2 + 1 + 8*4) return false;
+	if (length != 2 + 1 + 8 * 4) return false;
 
 	uint16 width = rcdfile->GetUInt16();
 	uint8 type = rcdfile->GetUInt8();
@@ -227,7 +227,7 @@ bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprite
 	return true;
 }
 
-DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff)  // Mark everything as invalid.
+DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff) // Mark everything as invalid.
 {
 }
 
@@ -249,7 +249,7 @@ const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, View
  * @param roll Roll of the car.
  * @param yaw Yaw of the car.
  */
-void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw)
+void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw)
 {
 	bool change_voxel = this->x_vox != xvoxel || this->y_vox != yvoxel || this->z_vox != zvoxel;
 
@@ -364,7 +364,8 @@ void CoasterTrain::OnAnimate(int delay)
 		uint32 change = -this->speed * delay;
 		if (change > this->back_position) {
 			this->back_position = this->back_position + this->coaster->coaster_length - change;
-			/* Update the track piece as well. There is no simple way to get the last piece, so moving from the front will have to do. */
+			/* Update the track piece as well. There is no simple way to get
+			 * the last piece, so moving from the front will have to do. */
 			this->cur_piece = this->coaster->pieces;
 			while (this->cur_piece->distance_base + this->cur_piece->piece->piece_length < this->back_position) this->cur_piece++;
 		} else {
@@ -427,26 +428,44 @@ void CoasterTrain::OnAnimate(int delay)
 
 		/* Compute yaw. */
 		bool swap_dx = false;
-		if (xder > 0) { swap_dx = true; xder = -xder; }
+		if (xder > 0) {
+			swap_dx = true;
+			xder = -xder;
+		}
 		bool swap_dy = false;
-		if (yder > 0) { swap_dy = true; yder = -yder; }
+		if (yder > 0) {
+			swap_dy = true;
+			yder = -yder;
+		}
 		uint yaw;
-		/* There are 16 yaw directions, the 360 degrees needs to be split in 16 pieces. However the x and y axes are in the middle of
-		 * a piece, so 360 degrees is split in 32 parts, and 2 parts form one piece. */
+		/* There are 16 yaw directions, the 360 degrees needs to be split in 16 pieces.
+		 * However the x and y axes are in the middle of a piece, so 360 degrees is split
+		 * in 32 parts, and 2 parts form one piece. */
 		if (xder < yder) {
-			/* In the first 45 degrees. It is split in 4 parts (4*11.25 degrees) where the 1st part is for direction 0.
-			 * The 2nd and 3rd part are for direction 1, and the 4th part is for direction 2. */
-			if (xder * TAN11_25 < yder) yaw = 0;
-			else if (xder * TAN33_75 < yder) yaw = 1;
-			else yaw = 2;
+			/* In the first 45 degrees. It is split in 4 parts (4*11.25 degrees)
+			 * where the 1st part is for direction 0. The 2nd and 3rd part are for direction 1,
+			 * and the 4th part is for direction 2. */
+			if (xder * TAN11_25 < yder) {
+				yaw = 0;
+			} else if (xder * TAN33_75 < yder) {
+				yaw = 1;
+			} else {
+				yaw = 2;
+			}
 		} else {
-			/* In the second 45 degrees. It is also split in 4 parts (4*11.25 degrees) where the 1st part is for direction 2.
-			 * The 2nd and 3rd part are for direction 3, and the 4th part is for direction 4.
+			/* In the second 45 degrees. It is also split in 4 parts (4*11.25 degrees)
+			 * where the 1st part is for direction 2. The 2nd and 3rd part are for direction 3,
+			 * and the 4th part is for direction 4.
 			 *
-			 * Rather than re-inventing a solution, re-use the same checks as above with swapped xder and yder. */
-			if (yder * TAN11_25 < xder) yaw = 4;
-			else if (yder * TAN33_75 < xder) yaw = 3;
-			else yaw = 2;
+			 * Rather than re-inventing a solution, re-use the same checks as
+			 * above with swapped xder and yder. */
+			if (yder * TAN11_25 < xder) {
+				yaw = 4;
+			} else if (yder * TAN33_75 < xder) {
+				yaw = 3;
+			} else {
+				yaw = 2;
+			}
 		}
 		if (swap_dx) yaw = 8 - yaw;
 		if (swap_dy) yaw = (16 - yaw) & 0xf;
@@ -511,7 +530,7 @@ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageD
 	assert(voxel_number < ct->voxel_count);
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
-	sprites[1] = tv->back[orient]; // SO_RIDE
+	sprites[1] = tv->back[orient];  // SO_RIDE
 	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
 	if ((tv->back[orient] == nullptr && tv->front[orient] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
 		sprites[0] = nullptr; // SO_PLATFORM_BACK
@@ -790,4 +809,3 @@ int CoasterInstance::GetNumberOfCars() const
 	if (number_cars == 0) number_cars = 1;
 	return number_cars;
 }
-

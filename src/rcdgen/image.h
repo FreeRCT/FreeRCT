@@ -40,15 +40,15 @@ public:
 	bool png_initialized; ///< Whether the data structures below are initialized.
 	uint8 **row_pointers; ///< Pointers into the rows of the image.
 
-	int width;            ///< Width of the loaded image.
-	int height;           ///< Height of the loaded image.
-	int color_type;       ///< Type of image.
-	std::string fname;    ///< Name of the loaded file.
+	int width;         ///< Width of the loaded image.
+	int height;        ///< Height of the loaded image.
+	int color_type;    ///< Type of image.
+	std::string fname; ///< Name of the loaded file.
 
 private:
-	png_structp png_ptr;  ///< Png image data.
-	png_infop info_ptr;   ///< Png information.
-	png_infop end_info;   ///< Png end information.
+	png_structp png_ptr; ///< Png image data.
+	png_infop info_ptr;  ///< Png information.
+	png_infop end_info;  ///< Png end information.
 };
 
 /**
@@ -123,8 +123,8 @@ public:
 	const char *block_name; ///< Name of the block to write.
 	int block_version;      ///< Version number of the block to write.
 
-	uint8 *data;            ///< Compressed image data.
-	int data_size;          ///< Size of the #data field.
+	uint8 *data;   ///< Compressed image data.
+	int data_size; ///< Size of the #data field.
 };
 
 #endif

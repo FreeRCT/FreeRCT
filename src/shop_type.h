@@ -29,12 +29,12 @@ public:
 	const StringID *GetInstanceNames() const override;
 	RideInstance *CreateInstance() const override;
 
-	int8 height;                ///< Number of voxels used by this shop.
-	uint8 flags;                ///< Shop flags. @see ShopFlags
+	int8 height; ///< Number of voxels used by this shop.
+	uint8 flags; ///< Shop flags. @see ShopFlags
 	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 
 protected:
-	ImageData *views[4];        ///< 64 pixel wide shop graphics.
+	ImageData *views[4]; ///< 64 pixel wide shop graphics.
 };
 
 /** Shop 'ride'. */
@@ -49,11 +49,10 @@ public:
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const override;
 
-	uint8 orientation;    ///< Orientation of the shop.
-	uint16 xpos;          ///< X position of the shop base voxel.
-	uint16 ypos;          ///< Y position of the shop base voxel.
-	uint8  zpos;          ///< Z position of the shop base voxel.
+	uint8 orientation; ///< Orientation of the shop.
+	uint16 xpos;       ///< X position of the shop base voxel.
+	uint16 ypos;       ///< Y position of the shop base voxel.
+	uint8  zpos;       ///< Z position of the shop base voxel.
 };
 
 #endif
-

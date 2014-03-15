@@ -50,4 +50,3 @@ void InitImageStorage();
 void DestroyImageStorage();
 
 #endif
-

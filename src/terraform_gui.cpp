@@ -26,7 +26,7 @@ public:
 	TerraformGui();
 	~TerraformGui();
 
-	void DrawWidget (WidgetNumber wid_num, const BaseWidget *wid) const override;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber widget) override;
 
 	bool level; ///< If true, level the area, else move it up/down as-is.
@@ -222,5 +222,4 @@ void ShowTerraformGui()
 {
 	if (HighlightWindowByType(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)) return;
 	new TerraformGui;
-
 }

@@ -43,11 +43,7 @@ struct GetOptData {
 	 * @param options Command line option descriptions.
 	 */
 	GetOptData(int argc, char **argv, const OptionData *options) :
-			opt(nullptr),
-			numleft(argc),
-			argv(argv),
-			options(options),
-			cont(nullptr)
+			opt(nullptr), numleft(argc), argv(argv), options(options), cont(nullptr)
 	{
 	}
 
@@ -85,7 +81,6 @@ struct GetOptData {
  */
 #define GETOPT_OPTVAL(shortname, longname) GETOPT_GENERAL(shortname, shortname, longname, ODF_OPTIONAL_VALUE)
 
-
 /**
  * Short option without value.
  * @param shortname Short option name. Use \c '\0' if not used.
@@ -107,6 +102,5 @@ struct GetOptData {
 
 /** Option terminator. */
 #define GETOPT_END() { '\0', '\0', ODF_END, nullptr}
-
 
 #endif /* GETOPTDATA_H */

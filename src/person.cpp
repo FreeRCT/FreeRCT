@@ -391,7 +391,7 @@ void Person::DecideMoveDirection()
 	uint8 shops = 0; // Number of exits with a shop with normal desire to go there.
 	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
 	if (HasValidPath(v)) {
-		uint8 top_exits = 0;  // Exits at the top of the voxel.
+		uint8 top_exits = 0; // Exits at the top of the voxel.
 
 		uint8 slope = GetImplodedPathSlope(v);
 		if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
