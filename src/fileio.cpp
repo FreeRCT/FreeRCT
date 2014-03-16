@@ -24,9 +24,11 @@
 /**
  * Base class implementation of a directory reader, never returning any content.
  * Derive a new class for your operating system with more functionality.
+ * @param dir_sep Directory separator string of the operating system.
  */
-DirectoryReader::DirectoryReader()
+DirectoryReader::DirectoryReader(const char * const dir_sep) : dir_sep(dir_sep)
 {
+	assert(std::string(dir_sep).size() == 1);
 }
 
 /** Destructor. */
@@ -103,7 +105,7 @@ private:
 	char fpath[MAX_PATH]; ///< File path returned by #NextEntry.
 };
 
-UnixDirectoryReader::UnixDirectoryReader() : DirectoryReader()
+UnixDirectoryReader::UnixDirectoryReader() : DirectoryReader("/")
 {
 	this->dirfp = nullptr;
 }
@@ -131,7 +133,7 @@ const char *UnixDirectoryReader::NextEntry()
 		return nullptr;
 	}
 
-	snprintf(this->fpath, MAX_PATH, "%s/%s", this->dpath, this->entry->d_name);
+	snprintf(this->fpath, MAX_PATH, "%s%s%s", this->dpath, this->dir_sep, this->entry->d_name);
 	this->fpath[MAX_PATH - 1] = '\0'; // Better safe than sorry.
 	return this->fpath;
 }

@@ -22,7 +22,7 @@
  */
 class DirectoryReader {
 public:
-	DirectoryReader();
+	DirectoryReader(const char * const dir_sep);
 	virtual ~DirectoryReader();
 
 	virtual void OpenPath(const char *path) = 0;
@@ -33,6 +33,8 @@ public:
 
 	virtual bool EntryIsFile() = 0;
 	virtual bool EntryIsDirectory() = 0;
+
+	const char * const dir_sep;
 };
 
 /**
