@@ -3,6 +3,7 @@ complier:
   - gcc
   - clang
 before_install:
+  - echo "yes" | sudo apt-add-repository ppa:zoogie/sdl2-snapshots
   - sudo apt-get -qq update
   - sudo apt-get -qq install cmake build-essential libsdl2-dev libsdl2-ttf-dev bison flex libpng-dev
 install:
