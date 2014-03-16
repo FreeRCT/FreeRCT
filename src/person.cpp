@@ -663,6 +663,19 @@ AnimateResult Person::OnAnimate(int delay)
 			return OAR_OK;
 		}
 
+		/* Maybe a path below this voxel? */
+		if (this->z_vox > 0) {
+			dz--;
+			this->z_vox--;
+			this->z_pos = 255;
+			Voxel *w = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+			if (w != nullptr && HasValidPath(w)) {
+				this->AddSelf(w);
+				this->DecideMoveDirection();
+				return OAR_OK;
+			}
+		}
+
 		/* Restore the person at the previous tile (ie reverse movement). */
 		if (dx != 0) { this->x_vox -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
 		if (dy != 0) { this->y_vox -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
