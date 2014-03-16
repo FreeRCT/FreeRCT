@@ -35,7 +35,7 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
 
 	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
-	if (vx == nullptr || vx->GetInstance() != SRI_PATH) {
+	if (vx == nullptr || !HasValidPath(vx)) {
 		/* No path here, check the voxel below. */
 		if (zpos == 0) return false;
 		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
@@ -43,7 +43,6 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
 		/* Path must end at the top of the voxel. */
 		return GetImplodedPathSlope(vx) == _path_up_from_edge[edge];
 	}
-	if (!HasValidPath(vx)) return false;
 	/* Path must end at the bottom of the voxel. */
 	return GetImplodedPathSlope(vx) < PATH_FLAT_COUNT || GetImplodedPathSlope(vx) == _path_down_from_edge[edge];
 }
