@@ -56,6 +56,12 @@ DirectoryReader::~DirectoryReader()
  */
 
 /**
+ * @fn const char *MakePath(const char *directory, const char *fname)
+ * Construct a path from a directory and a file name.
+ * @return The combined path to the file.
+ */
+
+/**
  * @fn bool DirectoryReader::EntryIsFile()
  * Test whether the last returned entry from #NextEntry is a file.
  * @return Whether the entry is a file.
@@ -94,6 +100,7 @@ public:
 	virtual void OpenPath(const char *path) override;
 	virtual const char *NextEntry() override;
 	virtual void ClosePath() override;
+	virtual const char *MakePath(const char *directory, const char *fname) override;
 
 	virtual bool EntryIsFile() override;
 	virtual bool EntryIsDirectory() override;
@@ -133,7 +140,12 @@ const char *UnixDirectoryReader::NextEntry()
 		return nullptr;
 	}
 
-	snprintf(this->fpath, MAX_PATH, "%s%s%s", this->dpath, this->dir_sep, this->entry->d_name);
+	return this->MakePath(this->dpath, this->entry->d_name);
+}
+
+const char *UnixDirectoryReader::MakePath(const char *directory, const char *fname)
+{
+	snprintf(this->fpath, MAX_PATH, "%s%s%s", directory, this->dir_sep, fname);
 	this->fpath[MAX_PATH - 1] = '\0'; // Better safe than sorry.
 	return this->fpath;
 }

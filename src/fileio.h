@@ -30,6 +30,7 @@ public:
 	virtual void ClosePath() = 0;
 
 	const char *NextFile();
+	virtual const char *MakePath(const char *directory, const char *fname) = 0;
 
 	virtual bool EntryIsFile() = 0;
 	virtual bool EntryIsDirectory() = 0;
