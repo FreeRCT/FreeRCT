@@ -62,7 +62,7 @@ Recolouring::Recolouring()
  */
 Recolouring::Recolouring(const Recolouring &rc)
 {
-	std::copy(&rc.recolour_map[0][0], &rc.recolour_map[5][256], &this->recolour_map[0][0]);
+	std::copy(&rc.recolour_map[0], endof(rc.recolour_map), &this->recolour_map[0]);
 }
 
 /**
@@ -73,7 +73,7 @@ Recolouring::Recolouring(const Recolouring &rc)
 Recolouring &Recolouring::operator=(const Recolouring &rc)
 {
 	if (this != &rc) {
-		std::copy(&rc.recolour_map[0][0], &rc.recolour_map[5][256], &this->recolour_map[0][0]);
+		std::copy(&rc.recolour_map[0], endof(rc.recolour_map), &this->recolour_map[0]);
 	}
 	return *this;
 }
