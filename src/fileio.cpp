@@ -97,13 +97,13 @@ public:
 	UnixDirectoryReader();
 	virtual ~UnixDirectoryReader();
 
-	virtual void OpenPath(const char *path) override;
-	virtual const char *NextEntry() override;
-	virtual void ClosePath() override;
-	virtual const char *MakePath(const char *directory, const char *fname) override;
+	void OpenPath(const char *path) override;
+	const char *NextEntry() override;
+	void ClosePath() override;
+	const char *MakePath(const char *directory, const char *fname) override;
 
-	virtual bool EntryIsFile() override;
-	virtual bool EntryIsDirectory() override;
+	bool EntryIsFile() override;
+	bool EntryIsDirectory() override;
 
 private:
 	DIR *dirfp;           ///< Directory stream if not \c nullptr.
