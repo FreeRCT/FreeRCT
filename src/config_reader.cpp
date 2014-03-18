@@ -11,6 +11,7 @@
 
 #include "stdafx.h"
 #include "config_reader.h"
+#include "fileio.h"
 #include "string_func.h"
 
 /**
@@ -127,6 +128,27 @@ static char *StripWhitespace(char *first, char *last = nullptr)
 	while (last > first + 1 && IsSpace(last[-1])) last--;
 	*last = '\0';
 	return first;
+}
+
+/**
+ * Try to find the configuration file from the list of directories, and load it if found.
+ * @param dir_list \c nullptr terminated list of directories to try.
+ * @param fname Filename to look for.
+ * @return Loading succeeded.
+ */
+bool ConfigFile::LoadFromDirectoryList(const char **dir_list, const char *fname)
+{
+	DirectoryReader *dr = MakeDirectoryReader();
+	while (*dir_list != nullptr) {
+		const char *fpath = dr->MakePath(*dir_list, fname);
+		if (dr->EntryIsFile() && this->Load(fpath)) {
+			delete dr;
+			return true;
+		}
+		dir_list++;
+	}
+	delete dr;
+	return false;
 }
 
 /**

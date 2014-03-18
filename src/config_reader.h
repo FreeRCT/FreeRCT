@@ -67,6 +67,7 @@ public:
 
 	void Clear();
 	bool Load(const char *fname);
+	bool LoadFromDirectoryList(const char **dir_list, const char *fname);
 
 	const ConfigSection *GetSection(const char *name) const;
 	const char *GetValue(const char *sect_name, const char *key) const;
