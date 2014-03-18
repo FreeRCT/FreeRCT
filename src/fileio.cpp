@@ -56,8 +56,10 @@ DirectoryReader::~DirectoryReader()
  */
 
 /**
- * @fn const char *MakePath(const char *directory, const char *fname)
+ * @fn const char *DirectoryReader::MakePath(const char *directory, const char *fname)
  * Construct a path from a directory and a file name.
+ * @param directory Directory part of the path.
+ * @param fname File name part of the path.
  * @return The combined path to the file.
  */
 

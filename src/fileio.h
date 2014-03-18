@@ -18,6 +18,8 @@
  * - After creation (with the #MakeDirectoryReader function), call #OpenPath to open the directory.
  * - A new entry of the directory is returned with every call to #NextEntry.
  * - At the end, call #ClosePath to allow the object to clean up, and get ready for a next use.
+ *
+ * Alternatively, use #MakePath to construct a path you want to examine.
  * @ingroup fileio_group
  */
 class DirectoryReader {
@@ -35,7 +37,7 @@ public:
 	virtual bool EntryIsFile() = 0;
 	virtual bool EntryIsDirectory() = 0;
 
-	const char * const dir_sep;
+	const char * const dir_sep; ///< Directory separator character.
 };
 
 /**
