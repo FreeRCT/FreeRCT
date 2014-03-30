@@ -3,7 +3,9 @@ complier:
   - gcc
   - clang
 before_install:
+  # No SDL2 in the default repos yet
   - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
+  # GCC 4.8 not in the repos either
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get -qq update
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
@@ -19,7 +21,7 @@ notifications:
   irc:
     channels:
       - "irc.oftc.net#freerct"
-    on_success: change
+    on_success: always
     on_failure: always
     template:
       - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
