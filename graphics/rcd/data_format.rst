@@ -232,7 +232,10 @@ name of country area`` but that may change in the future).
 =====  =========================
 Tag    Description
 =====  =========================
+da_DK  Denmark.
+de_DE  Germany.
 en_GB  Great Britain (default).
+es_ES  Spain.
 nl_NL  The Netherlands.
 =====  =========================
 
