@@ -185,13 +185,15 @@ DirectoryReader *MakeDirectoryReader()
 }
 
 /**
- * RCD file constructor, loading data from a file.
+ * RCD file reader constructor, loading data from a file.
  * @param fname Name of the file to load.
  */
 RcdFileReader::RcdFileReader(const char *fname)
 {
 	this->file_pos = 0;
 	this->file_size = 0;
+	this->name[4] = '\0';
+
 	this->fp = fopen(fname, "rb");
 	if (this->fp == nullptr) return;
 
@@ -297,6 +299,19 @@ bool RcdFileReader::CheckFileHeader(const char *hdr_name, uint32 version)
 	if (strcmp(name, hdr_name) != 0) return false;
 	uint32 val = this->GetUInt32();
 	return val == version;
+}
+
+/**
+ * Starting at the first byte of a block, read the block information, and put it in #name, #version, and #size.
+ * @return Whether a block was found. If so, data is in #name, #version, and #size.
+ */
+bool RcdFileReader::ReadBlockHeader()
+{
+	if (this->GetRemaining() < 12) return false;
+	this->GetBlob(this->name, 4);
+	this->version = this->GetUInt32();
+	this->size = this->GetUInt32();
+	return this->file_pos + (size_t)this->size <= this->file_size;
 }
 
 /**

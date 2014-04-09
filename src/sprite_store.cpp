@@ -1267,9 +1267,6 @@ SpriteManager::~SpriteManager()
  */
 const char *SpriteManager::Load(const char *filename)
 {
-	char name[5];
-	name[4] = '\0';
-
 	RcdFileReader rcd_file(filename);
 	if (!rcd_file.CheckFileHeader("RCDF", 1)) return "Could not read header";
 
@@ -1279,19 +1276,10 @@ const char *SpriteManager::Load(const char *filename)
 
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
-		size_t remain = rcd_file.GetRemaining();
-		if (remain == 0) return nullptr; // End reached.
+		if (!rcd_file.ReadBlockHeader()) return nullptr; // End reached.
 
-		if (remain < 12) return "Insufficient space for a block"; // Not enough for a rcd block header, abort.
-
-		if (!rcd_file.GetBlob(name, 4)) return "Loading block name failed";
-		uint32 version = rcd_file.GetUInt32();
-		uint32 length = rcd_file.GetUInt32();
-
-		if (length + 12 > remain) return "Not enough data"; // Not enough data in the file.
-
-		if (strcmp(name, "8PXL") == 0 && version == 2) {
-			ImageData *imd = LoadImage(&rcd_file, length, true);
+		if (strcmp(rcd_file.name, "8PXL") == 0 && rcd_file.version == 2) {
+			ImageData *imd = LoadImage(&rcd_file, rcd_file.size, true);
 			if (imd == nullptr) {
 				return "8bpp image data loading failed";
 			}
@@ -1300,8 +1288,8 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "32PX") == 0 && version == 1) {
-			ImageData *imd = LoadImage(&rcd_file, length, false);
+		if (strcmp(rcd_file.name, "32PX") == 0 && rcd_file.version == 1) {
+			ImageData *imd = LoadImage(&rcd_file, rcd_file.size, false);
 			if (imd == nullptr) {
 				return "32bpp image data loading failed";
 			}
@@ -1310,9 +1298,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "SURF") == 0 && version == 4) {
+		if (strcmp(rcd_file.name, "SURF") == 0 && rcd_file.version == 4) {
 			SurfaceData *surf = new SurfaceData;
-			if (!surf->Load(&rcd_file, length, sprites)) {
+			if (!surf->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete surf;
 				return "Surface block loading failed.";
 			}
@@ -1322,9 +1310,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TSEL") == 0 && version == 2) {
+		if (strcmp(rcd_file.name, "TSEL") == 0 && rcd_file.version == 2) {
 			TileSelection *tsel = new TileSelection;
-			if (!tsel->Load(&rcd_file, length, sprites)) {
+			if (!tsel->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete tsel;
 				return "Tile-selection block loading failed.";
 			}
@@ -1334,9 +1322,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "PATH") == 0 && version == 1) {
+		if (strcmp(rcd_file.name, "PATH") == 0 && rcd_file.version == 1) {
 			Path *block = new Path;
-			if (!block->Load(&rcd_file, length, sprites)) {
+			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete block;
 				return "Path-sprites block loading failed.";
 			}
@@ -1346,9 +1334,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TCOR") == 0 && version == 2) {
+		if (strcmp(rcd_file.name, "TCOR") == 0 && rcd_file.version == 2) {
 			TileCorners *block = new TileCorners;
-			if (!block->Load(&rcd_file, length, sprites)) {
+			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete block;
 				return "Tile-corners block loading failed.";
 			}
@@ -1358,9 +1346,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "FUND") == 0 && version == 1) {
+		if (strcmp(rcd_file.name, "FUND") == 0 && rcd_file.version == 1) {
 			Foundation *block = new Foundation;
-			if (!block->Load(&rcd_file, length, sprites)) {
+			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete block;
 				return "Foundation block loading failed.";
 			}
@@ -1370,9 +1358,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "PLAT") == 0 && version == 2) {
+		if (strcmp(rcd_file.name, "PLAT") == 0 && rcd_file.version == 2) {
 			Platform *block = new Platform;
-			if (!block->Load(&rcd_file, length, sprites)) {
+			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete block;
 				return "Platform block loading failed.";
 			}
@@ -1382,9 +1370,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "SUPP") == 0 && version == 1) {
+		if (strcmp(rcd_file.name, "SUPP") == 0 && rcd_file.version == 1) {
 			Support *block = new Support;
-			if (!block->Load(&rcd_file, length, sprites)) {
+			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete block;
 				return "Support block loading failed.";
 			}
@@ -1394,9 +1382,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "BDIR") == 0 && version == 1) {
+		if (strcmp(rcd_file.name, "BDIR") == 0 && rcd_file.version == 1) {
 			DisplayedObject *block = new DisplayedObject;
-			if (!block->Load(&rcd_file, length, sprites)) {
+			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete block;
 				return "Build arrows block loading failed.";
 			}
@@ -1406,44 +1394,44 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "GCHK") == 0 && version == 1) {
-			if (!_gui_sprites.LoadGCHK(&rcd_file, length, sprites)) {
+		if (strcmp(rcd_file.name, "GCHK") == 0 && rcd_file.version == 1) {
+			if (!_gui_sprites.LoadGCHK(&rcd_file, rcd_file.size, sprites)) {
 				return "Loading Checkable GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(name, "GBOR") == 0 && version == 1) {
-			if (!_gui_sprites.LoadGBOR(&rcd_file, length, sprites)) {
+		if (strcmp(rcd_file.name, "GBOR") == 0 && rcd_file.version == 1) {
+			if (!_gui_sprites.LoadGBOR(&rcd_file, rcd_file.size, sprites)) {
 				return "Loading Border GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(name, "GSLI") == 0 && version == 1) {
-			if (!_gui_sprites.LoadGSLI(&rcd_file, length, sprites)) {
+		if (strcmp(rcd_file.name, "GSLI") == 0 && rcd_file.version == 1) {
+			if (!_gui_sprites.LoadGSLI(&rcd_file, rcd_file.size, sprites)) {
 				return "Loading Slider bar GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(name, "GSCL") == 0 && version == 1) {
-			if (!_gui_sprites.LoadGSCL(&rcd_file, length, sprites)) {
+		if (strcmp(rcd_file.name, "GSCL") == 0 && rcd_file.version == 1) {
+			if (!_gui_sprites.LoadGSCL(&rcd_file, rcd_file.size, sprites)) {
 				return "Loading Scrollbar GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(name, "GSLP") == 0 && version == 7) {
-			if (!_gui_sprites.LoadGSLP(&rcd_file, length, sprites, texts)) {
+		if (strcmp(rcd_file.name, "GSLP") == 0 && rcd_file.version == 7) {
+			if (!_gui_sprites.LoadGSLP(&rcd_file, rcd_file.size, sprites, texts)) {
 				return "Loading slope selection GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(name, "ANIM") == 0 && version == 2) {
+		if (strcmp(rcd_file.name, "ANIM") == 0 && rcd_file.version == 2) {
 			Animation *anim = new Animation;
-			if (!anim->Load(&rcd_file, length)) {
+			if (!anim->Load(&rcd_file, rcd_file.size)) {
 				delete anim;
 				return "Animation failed to load.";
 			}
@@ -1457,9 +1445,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "ANSP") == 0 && version == 1) {
+		if (strcmp(rcd_file.name, "ANSP") == 0 && rcd_file.version == 1) {
 			AnimationSprites *an_spr = new AnimationSprites;
-			if (!an_spr->Load(&rcd_file, length, sprites)) {
+			if (!an_spr->Load(&rcd_file, rcd_file.size, sprites)) {
 				delete an_spr;
 				return "Animation sprites failed to load.";
 			}
@@ -1472,16 +1460,16 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "PRSG") == 0 && version == 1) {
-			if (!LoadPRSG(&rcd_file, length)) {
+		if (strcmp(rcd_file.name, "PRSG") == 0 && rcd_file.version == 1) {
+			if (!LoadPRSG(&rcd_file, rcd_file.size)) {
 				return "Graphics Person type data failed to load.";
 			}
 			continue;
 		}
 
-		if (strcmp(name, "TEXT") == 0 && version == 2) {
+		if (strcmp(rcd_file.name, "TEXT") == 0 && rcd_file.version == 2) {
 			TextData *txt = new TextData;
-			if (!txt->Load(&rcd_file, length)) {
+			if (!txt->Load(&rcd_file, rcd_file.size)) {
 				delete txt;
 				return "Text block failed to load.";
 			}
@@ -1492,9 +1480,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "SHOP") == 0 && version == 4) {
+		if (strcmp(rcd_file.name, "SHOP") == 0 && rcd_file.version == 4) {
 			ShopType *shop_type = new ShopType;
-			if (!shop_type->Load(&rcd_file, length, sprites, texts)) {
+			if (!shop_type->Load(&rcd_file, rcd_file.size, sprites, texts)) {
 				delete shop_type;
 				return "Shop type failed to load.";
 			}
@@ -1502,18 +1490,18 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "TRCK") == 0 && version == 5) {
+		if (strcmp(rcd_file.name, "TRCK") == 0 && rcd_file.version == 5) {
 			auto tp = std::make_shared<TrackPiece>();
-			if (!tp->Load(&rcd_file, length, sprites)) {
+			if (!tp->Load(&rcd_file, rcd_file.size, sprites)) {
 				return "Track piece failed to load.";
 			}
 			track_pieces.insert({blk_num, tp});
 			continue;
 		}
 
-		if (strcmp(name, "RCST") == 0 && version == 5) {
+		if (strcmp(rcd_file.name, "RCST") == 0 && rcd_file.version == 5) {
 			CoasterType *ct = new CoasterType;
-			if (!ct->Load(&rcd_file, length, texts, track_pieces)) {
+			if (!ct->Load(&rcd_file, rcd_file.size, texts, track_pieces)) {
 				delete ct;
 				return "Coaster type failed to load.";
 			}
@@ -1521,25 +1509,25 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(name, "CSPL") == 0 && version == 2) {
-			if (!LoadCoasterPlatform(&rcd_file, length, sprites)) {
+		if (strcmp(rcd_file.name, "CSPL") == 0 && rcd_file.version == 2) {
+			if (!LoadCoasterPlatform(&rcd_file, rcd_file.size, sprites)) {
 				return "Coaster platform failed to load.";
 			}
 			continue;
 		}
 
-		if (strcmp(name, "CARS") == 0 && version == 2) {
+		if (strcmp(rcd_file.name, "CARS") == 0 && rcd_file.version == 2) {
 			CarType *ct = GetNewCarType();
 			if (ct == nullptr) return "No room to store a car type.";
-			if (!ct->Load(&rcd_file, length, sprites)) return "Car type failed to load.";
+			if (!ct->Load(&rcd_file, rcd_file.size, sprites)) return "Car type failed to load.";
 			continue;
 		}
 
 		/* Unknown block in the RCD file. Skip the block. */
-		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", name, version);
-		while (length > 0) {
+		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", rcd_file.name, rcd_file.version);
+		while (rcd_file.size > 0) {
 			rcd_file.GetUInt8();
-			length--;
+			rcd_file.size--;
 		}
 	}
 }

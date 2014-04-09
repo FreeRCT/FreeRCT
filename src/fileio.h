@@ -41,7 +41,7 @@ public:
 };
 
 /**
- * Class representing a RCD file.
+ * Class for reading an RCD file.
  * @ingroup fileio_group
  */
 class RcdFileReader {
@@ -50,6 +50,7 @@ public:
 	~RcdFileReader();
 
 	bool CheckFileHeader(const char *hdr_name, uint32 version);
+	bool ReadBlockHeader();
 
 	bool GetBlob(void *address, size_t length);
 
@@ -61,6 +62,10 @@ public:
 	int32 GetInt32();
 
 	size_t GetRemaining();
+
+	char name[5];   ///< Name of the last found block (with #ReadBlockHeader).
+	uint32 version; ///< Version number of the last found block (with #ReadBlockHeader).
+	uint32 size;    ///< Data size of the last found block (with #ReadBlockHeader).
 
 private:
 	FILE *fp;         ///< File handle of the opened file.
