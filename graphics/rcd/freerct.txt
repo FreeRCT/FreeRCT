@@ -6,7 +6,7 @@
 // See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 //
 
-file("borderhighlight_8bpp64.rcd") {
+file("freerct.rcd") {
 	// Border highlight sprites.
 	TSEL {
 		tile_width: 64;
@@ -35,9 +35,7 @@ file("borderhighlight_8bpp64.rcd") {
 			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
 		}
 	}
-}
 
-file("cornerhighlight_8bpp64.rcd") {
 	// Tile corner sprites.
 	TCOR {
 		tile_width: 64;
@@ -539,9 +537,7 @@ file("cornerhighlight_8bpp64.rcd") {
 			width: 64; height: 64; x_offset: -32; y_offset: -33;
 		}
 	}
-}
 
-file("groundtile_8bpp64.rcd") {
 	// Cursor position test sprites.
 	SURF {
 		tile_width: 64;
@@ -616,9 +612,7 @@ file("groundtile_8bpp64.rcd") {
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 	}
-}
 
-file("people_animation.rcd") {
 	// Person type graphics.
 	PRSG {
 		person_graphics {

@@ -16,16 +16,13 @@ project(rcd_files)
 # Make declaring the list shorter/nicer
 set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd/")
 
-# Output file                     Source file
+# Output file             Source file
 list(APPEND RCDFILES
-     ${FP}borderhighlight_8bpp64.rcd ${FP}freerct.txt ""
-     ${FP}cornerhighlight_8bpp64.rcd ${FP}freerct.txt ""
-     ${FP}groundtile_8bpp64.rcd      ${FP}freerct.txt ""
-     ${FP}people_animation.rcd       ${FP}freerct.txt ""
-     ${FP}path_8bpp64.rcd            ${FP}paths.txt   ""
-     ${FP}shops.rcd                  ${FP}shops.txt   "shops"
-     ${FP}gui.rcd                    ${FP}gui.txt     "gui"
-     ${FP}tracks.rcd                 ${FP}tracks.txt  "tracks"
+     ${FP}freerct.rcd     ${FP}freerct.txt ""
+     ${FP}path_8bpp64.rcd ${FP}paths.txt   ""
+     ${FP}shops.rcd       ${FP}shops.txt   "shops"
+     ${FP}gui.rcd         ${FP}gui.txt     "gui"
+     ${FP}tracks.rcd      ${FP}tracks.txt  "tracks"
 )
 
 get_target_property(RCDGEN_EXE rcdgen LOCATION)
