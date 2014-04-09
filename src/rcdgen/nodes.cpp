@@ -32,22 +32,40 @@ std::shared_ptr<BlockNode> BlockNode::GetSubNode(int row, int col, const char *n
 }
 
 /**
- * Constructor of a game block.
+ * Constructor of a named block.
  * @param blk_name Name of the block (4 letters string).
  * @param version Version number of the block.
  */
-GameBlock::GameBlock(const char *blk_name, int version) : BlockNode()
+NamedBlock::NamedBlock(const char *blk_name, int version) : BlockNode()
 {
 	this->blk_name = blk_name;
 	this->version = version;
 }
 
 /**
- * \fn GameBlock::Write(FileWriter *fw)
+ * \fn NamedBlock::Write(FileWriter *fw)
  * Write the block to the file.
  * @param fw File to write to.
- * @return Block number of this game block in the file.
+ * @return Block number of this named block in the file.
  */
+
+/**
+ * Constructor of a named game block.
+ * @param blk_name Name of the block (4 letters string).
+ * @param version Version number of the block.
+ */
+GameBlock::GameBlock(const char *blk_name, int version) : NamedBlock(blk_name, version)
+{
+}
+
+/**
+ * Constructor of a named meta block.
+ * @param blk_name Name of the block (4 letters string).
+ * @param version Version number of the block.
+ */
+MetaBlock::MetaBlock(const char *blk_name, int version) : NamedBlock(blk_name, version)
+{
+}
 
 /**
  * Constructor of the file node.
@@ -1261,6 +1279,30 @@ int CSPLBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->nw_se_front->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
+}
+
+INFOBlock::INFOBlock() : MetaBlock("INFO", 1)
+{
+}
+
+int INFOBlock::Write(FileWriter *fw)
+{
+	int length = this->build.size() + 1;
+	length += this->name.size() + 1;
+	length += this->uri.size() + 1;
+	length += this->website.size() + 1;
+	length += this->description.size() + 1;
+
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, length);
+	fb->SaveBytes((uint8*)this->build.c_str(),       this->build.size());       fb->SaveUInt8(0);
+	fb->SaveBytes((uint8*)this->name.c_str(),        this->name.size());        fb->SaveUInt8(0);
+	fb->SaveBytes((uint8*)this->uri.c_str(),         this->uri.size());         fb->SaveUInt8(0);
+	fb->SaveBytes((uint8*)this->website.c_str(),     this->website.size());     fb->SaveUInt8(0);
+	fb->SaveBytes((uint8*)this->description.c_str(), this->description.size()); fb->SaveUInt8(0);
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+
 }
 
 FENCBlock::FENCBlock() : GameBlock("FENC", 2)

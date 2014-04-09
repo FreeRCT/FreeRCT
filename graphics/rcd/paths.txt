@@ -7,6 +7,12 @@
 //
 
 file("path_8bpp64.rcd") {
+	INFO {
+		name: "Baseset path sprites";
+		uri: "org.freerct/baseset/paths/1";
+		description: "8bpp baseset path sprites.";
+	}
+
 	// Concrete paths.
 	PATH {
 		path_type: concrete;

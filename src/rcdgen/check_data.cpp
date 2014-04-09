@@ -14,6 +14,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <ctime>
 #include "ast.h"
 #include "nodes.h"
 #include "string_names.h"
@@ -119,6 +120,9 @@ static std::shared_ptr<FileNode> ConvertFileNode(std::shared_ptr<NodeGroup> ng)
 	std::string filename = GetString(argument, 0, "file");
 	auto fn = std::make_shared<FileNode>(filename);
 
+	/* Add the meta blocks to the start of the file, while collecting game blocks for appending them later. */
+	bool seen_info = false; // Did we encounter an info meta block?
+	std::list<std::shared_ptr<GameBlock>> game_blocks;
 	for (auto &iter : ng->values->values) {
 		std::shared_ptr<NamedValue> nv = std::dynamic_pointer_cast<NamedValue>(iter);
 		assert(nv != nullptr); // Should always hold, as ImportValue has been eliminated.
@@ -129,13 +133,25 @@ static std::shared_ptr<FileNode> ConvertFileNode(std::shared_ptr<NodeGroup> ng)
 			exit(1);
 		}
 		auto bn = ConvertNodeGroup(ng);
+		auto mb = std::dynamic_pointer_cast<MetaBlock>(bn);
+		if (mb != nullptr) {
+			seen_info |= strcmp(mb->blk_name, "INFO") == 0;
+			fn->blocks.push_back(mb);
+			continue;
+		}
 		auto gb = std::dynamic_pointer_cast<GameBlock>(bn);
 		if (gb == nullptr) {
 			fprintf(stderr, "Error at %s: Only game blocks can be added to a \"file\" node\n", nv->group->GetPosition().ToString());
 			exit(1);
 		}
-		fn->blocks.push_back(gb);
+		game_blocks.push_back(gb);
 	}
+	if (!seen_info) {
+		fprintf(stderr, "Error at %s: Missing an INFO block in the file\n", ng->pos.ToString());
+		exit(1);
+	}
+
+	for (auto &gb : game_blocks) fn->blocks.push_back(gb); // Append the game blocks.
 	return fn;
 }
 
@@ -2124,6 +2140,37 @@ static std::shared_ptr<FENCBlock> ConvertFENCNode(std::shared_ptr<NodeGroup> ng)
 }
 
 /**
+ * Convert a 'INFO' block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The converted INFO eta block.
+ */
+static std::shared_ptr<INFOBlock> ConvertINFONode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "INFO");
+	auto blk = std::make_shared<INFOBlock>();
+	Values vals("INFO", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	char buffer[32];
+	time_t cur_time = time(nullptr);
+	struct tm *now = gmtime(&cur_time);
+	strftime(buffer, lengthof(buffer), "%Y%m%dT%H%M%S", now);
+	blk->build = buffer;
+
+	blk->name = std::string(vals.GetString("name"), 0, 63);
+	blk->uri = std::string(vals.GetString("uri"), 0, 127);
+	if (vals.HasValue("website")) {
+		blk->website = std::string(vals.GetString("website"), 0, 127);
+	}
+	if (vals.HasValue("description")) {
+		blk->description = std::string(vals.GetString("description"), 0, 511);
+	}
+
+	vals.VerifyUsage();
+	return blk;
+}
+
+/**
  * Convert a node group.
  * @param ng Node group to convert.
  * @return The converted node.
@@ -2167,6 +2214,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "CARS") return ConvertCARSNode(ng);
 	if (ng->name == "CSPL") return ConvertCSPLNode(ng);
 	if (ng->name == "FENC") return ConvertFENCNode(ng);
+	if (ng->name == "INFO") return ConvertINFONode(ng);
 
 	/* Unknown type of node. */
 	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\".\n", ng->pos.ToString(), ng->name.c_str());

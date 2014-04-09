@@ -7,6 +7,12 @@
 //
 
 file("tracks.rcd") {
+	INFO {
+		name: "Baseset roller coaster";
+		uri: "org.freerct/baseset/coaster/1";
+		description: "FreeRCT baseset simple roller coaster.";
+	}
+
 	RCST {
 		coaster_type: 1; // Simple coaster tracks.
 		platform_type: 1; // Wooden platforms.

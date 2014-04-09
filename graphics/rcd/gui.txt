@@ -7,6 +7,12 @@
 //
 
 file("gui.rcd") {
+	INFO {
+		name: "Baseset GUI sprites";
+		uri: "org.freerct/baseset/gui/1";
+		description: "FreeRCT baseset shops.";
+	}
+
 	// Build direction arrows.
 	BDIR {
 		tile_width: 64;

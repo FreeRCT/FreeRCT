@@ -7,6 +7,12 @@
 //
 
 file("freerct.rcd") {
+	INFO {
+		name: "Tile sprites";
+		uri: "org.freerct/baseset/tiles/1";
+		description: "8bpp FreeRCT baseset tile sprites.";
+	}
+
 	// Border highlight sprites.
 	TSEL {
 		tile_width: 64;

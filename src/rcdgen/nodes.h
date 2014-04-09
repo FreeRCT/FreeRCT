@@ -32,15 +32,27 @@ public:
 	virtual std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos);
 };
 
-/** Base class for game blocks. */
-class GameBlock : public BlockNode {
+/** Base class for named blocks. */
+class NamedBlock : public BlockNode {
 public:
-	GameBlock(const char *blk_name, int version);
+	NamedBlock(const char *blk_name, int version);
 
 	virtual int Write(FileWriter *fw) = 0;
 
 	const char *blk_name; ///< %Name of the block.
 	int version;          ///< Version of the block.
+};
+
+/** Base class for game blocks. */
+class GameBlock : public NamedBlock {
+public:
+	GameBlock(const char *blk_name, int version);
+};
+
+/** Base class for meta blocks. */
+class MetaBlock : public NamedBlock {
+public:
+	MetaBlock(const char *blk_name, int version);
 };
 
 /** Node representing an RCD file. */
@@ -51,7 +63,7 @@ public:
 	void Write(FileWriter *fw);
 
 	std::string file_name; ///< %Name of the RCD file.
-	std::list<std::shared_ptr<GameBlock>> blocks; ///< Blocks of the file.
+	std::list<std::shared_ptr<NamedBlock>> blocks; ///< Blocks of the file.
 };
 
 /** A sequence of file nodes. */
@@ -844,6 +856,21 @@ public:
 	std::shared_ptr<SpriteBlock> nw_w;   ///< Fence graphics of the north-west edge, west side raised.
 	std::shared_ptr<SpriteBlock> nw_n;   ///< Fence graphics of the north-west edge, north side raised.
 };
+
+/** 'INFO' eta block. */
+class INFOBlock : public MetaBlock {
+public:
+	INFOBlock();
+
+	int Write(FileWriter *fw) override;
+
+	std::string name;        ///< Name of the work.
+	std::string uri;         ///< Technical unique identification of compatible versions of the worl.
+	std::string build;       ///< Build number or date.
+	std::string website;     ///< Optional website url.
+	std::string description; ///< Optional description of the work.
+};
+
 
 FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values);
 

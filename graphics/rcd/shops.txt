@@ -7,6 +7,12 @@
 //
 
 file("shops.rcd") {
+	INFO {
+		name: "Baseset shop rides";
+		uri: "org.freerct/baseset/shops/2";
+		description: "FreeRCT baseset shops.";
+	}
+
 	// Snack shop.
 	SHOP {
 		tile_width: 64;

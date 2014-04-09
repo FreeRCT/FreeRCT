@@ -1256,7 +1256,7 @@ SpriteManager::~SpriteManager()
 const char *SpriteManager::Load(const char *filename)
 {
 	RcdFileReader rcd_file(filename);
-	if (!rcd_file.CheckFileHeader("RCDF", 1)) return "Could not read header";
+	if (!rcd_file.CheckFileHeader("RCDF", 2)) return "Bad header";
 
 	ImageMap sprites; // Sprites loaded from this file.
 	TextMap  texts;   // Texts loaded from this file.
@@ -1265,6 +1265,12 @@ const char *SpriteManager::Load(const char *filename)
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
 		if (!rcd_file.ReadBlockHeader()) return nullptr; // End reached.
+
+		/* Skip meta blocks. */
+		if (strcmp(rcd_file.name, "INFO") == 0) {
+			rcd_file.SkipBytes(rcd_file.size);
+			continue;
+		}
 
 		if (strcmp(rcd_file.name, "8PXL") == 0 || strcmp(rcd_file.name, "32PX") == 0) {
 			ImageData *imd = LoadImage(&rcd_file);
