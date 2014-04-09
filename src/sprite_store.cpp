@@ -286,16 +286,9 @@ bool LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **
 	return true;
 }
 
-SurfaceData::SurfaceData() : RcdBlock()
+SurfaceData::SurfaceData()
 {
-	this->width = 0;
-	this->height = 0;
-	this->type = 0;
 	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = nullptr;
-}
-
-SurfaceData::~SurfaceData()
-{
 }
 
 /**
@@ -304,7 +297,7 @@ SurfaceData::~SurfaceData()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool SurfaceData::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 4 || rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
@@ -318,12 +311,14 @@ bool SurfaceData::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	if (gt == 48) type = GTP_CURSOR_TEST;
 	if (type == GTP_INVALID) return false; // Unknown type of ground.
 
-	this->type = type;
-	this->width  = rcd_file->GetUInt16();
-	this->height = rcd_file->GetUInt16();
+	uint16 width  = rcd_file->GetUInt16();
+	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr || type >= GTP_COUNT) return false;
+	SurfaceData *sd = &ss->surface[type];
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->surface[sprnum])) return false;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &sd->surface[sprnum])) return false;
 	}
 	return true;
 }
@@ -1096,25 +1091,12 @@ SpriteStorage::~SpriteStorage()
 /** Clear all data from the storage. */
 void SpriteStorage::Clear()
 {
-	for (uint i = 0; i < lengthof(this->surface); i++)    this->surface[i] = nullptr;
 	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = nullptr;
 	this->tile_select = nullptr;
 	this->tile_corners = nullptr;
 	this->path_sprites = nullptr;
 	this->build_arrows = nullptr;
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
-}
-
-/**
- * Add ground tile sprites.
- * @param sd New ground tile sprites.
- * @pre Width of the ground tile sprites must match with #size.
- */
-void SpriteStorage::AddSurfaceSprite(SurfaceData *sd)
-{
-	assert(sd->width == this->size);
-	assert(sd->type < GTP_COUNT);
-	this->surface[sd->type] = sd;
 }
 
 /**
@@ -1281,14 +1263,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "SURF") == 0) {
-			SurfaceData *surf = new SurfaceData;
-			if (!surf->Load(&rcd_file, sprites)) {
-				delete surf;
+			if (!this->LoadSURF(&rcd_file, sprites)) {
 				return "Surface block loading failed.";
 			}
-			this->AddBlock(surf);
-
-			this->store.AddSurfaceSprite(surf);
 			continue;
 		}
 
@@ -1509,6 +1486,17 @@ const char *SpriteManager::Load(const char *filename)
 		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", rcd_file.name, rcd_file.version);
 		rcd_file.SkipBytes(rcd_file.size);
 	}
+}
+
+/**
+ * Get the sprite storage belonging to a given size of sprites.
+ * @param width Tile width of the sprites.
+ * @return Sprite storage object for the given width if it exists, else \c nullptr.
+ */
+SpriteStorage *SpriteManager::GetSpriteStore(uint16 width)
+{
+	if (width == 64) return &this->store;
+	return nullptr;
 }
 
 /** Load all useful RCD files found by #_rcd_collection, into the program. */

@@ -58,16 +58,10 @@ typedef std::map<uint32, TextData *> TextMap; ///< Map of loaded text blocks.
  * A surface in all orientations.
  * @ingroup sprites_group
  */
-class SurfaceData : public RcdBlock {
+class SurfaceData {
 public:
 	SurfaceData();
-	~SurfaceData();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
-
-	uint16 width;  ///< Width of a tile.
-	uint16 height; ///< Height of a tile. @todo Remove height from RCD file.
-	uint8 type;    ///< Type of surface.
 	ImageData *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
 };
 
@@ -474,7 +468,6 @@ public:
 	SpriteStorage(uint16 size);
 	~SpriteStorage();
 
-	void AddSurfaceSprite(SurfaceData *sd);
 	void AddTileSelection(TileSelection *tsel);
 	void AddTileCorners(TileCorners *tc);
 	void AddFoundations(Foundation *fnd);
@@ -494,8 +487,7 @@ public:
 	 */
 	const ImageData *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
 	{
-		if (this->surface[type] == nullptr) return nullptr;
-		return this->surface[type]->surface[_slope_rotation[surf_spr][orient]];
+		return this->surface[type].surface[_slope_rotation[surf_spr][orient]];
 	}
 
 	/**
@@ -576,7 +568,7 @@ public:
 
 	const uint16 size; ///< Width of the tile.
 
-	SurfaceData *surface[GTP_COUNT];   ///< Surface data.
+	SurfaceData surface[GTP_COUNT];   ///< Surface data.
 	Foundation *foundation[FDT_COUNT]; ///< Foundation.
 	Platform *platform;                ///< Platform block.
 	Support *support;                  ///< Support block.
@@ -610,6 +602,7 @@ public:
 
 protected:
 	const char *Load(const char *fname);
+	SpriteStorage *GetSpriteStore(uint16 width);
 
 	RcdBlock *blocks;         ///< List of loaded RCD data blocks.
 
@@ -617,6 +610,8 @@ protected:
 	AnimationsMap animations; ///< Available animations.
 
 private:
+	bool LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites);
+
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };
 
