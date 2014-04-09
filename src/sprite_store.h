@@ -151,14 +151,10 @@ public:
  * (For now, just the arrows pointing in the build direction, hopefully also usable for other 1x1 tile objects.)
  * @ingroup sprites_group
  */
-class DisplayedObject : public RcdBlock {
+class DisplayedObject {
 public:
 	DisplayedObject();
-	~DisplayedObject();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
-
-	uint16 width; ///< Width of the tile.
 	ImageData *sprites[4]; ///< Object displayed towards NE, SE, SW, NW edges.
 };
 
@@ -448,7 +444,6 @@ public:
 
 	void AddPlatform(Platform *plat);
 	void AddSupport(Support *supp);
-	void AddBuildArrows(DisplayedObject *obj);
 	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
 	void AddAnimationSprites(AnimationSprites *an_spr);
 
@@ -509,9 +504,7 @@ public:
 	 */
 	const ImageData *GetArrowSprite(uint8 spr_num, ViewOrientation orient) const
 	{
-		if (this->build_arrows == nullptr) return nullptr;
-		assert(spr_num < 4);
-		return this->build_arrows->sprites[(spr_num + 4 - orient) % 4];
+		return this->build_arrows.sprites[(spr_num + 4 - orient) % 4];
 	}
 
 	/**
@@ -547,7 +540,7 @@ public:
 	TileSelection tile_select;        ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
 	Path path_sprites;                ///< %Path sprites.
-	DisplayedObject *build_arrows;     ///< Arrows displaying build direction of paths and tracks.
+	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;    ///< %Animation sprites ordered by animation type.
 
 protected:
@@ -587,6 +580,7 @@ private:
 	bool LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites);
+	bool LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };

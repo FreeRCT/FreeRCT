@@ -520,14 +520,9 @@ bool Support::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-DisplayedObject::DisplayedObject() : RcdBlock()
+DisplayedObject::DisplayedObject()
 {
-	this->width = 0;
 	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
-}
-
-DisplayedObject::~DisplayedObject()
-{
 }
 
 /**
@@ -536,14 +531,17 @@ DisplayedObject::~DisplayedObject()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool DisplayedObject::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 1 || rcd_file->size != 2 + 4 * 4) return false;
 
-	this->width = rcd_file->GetUInt16();
+	uint16 width = rcd_file->GetUInt16();
 
-	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr) return false;
+	DisplayedObject *dob = &ss->build_arrows;
+	for (uint sprnum = 0; sprnum < lengthof(dob->sprites); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &dob->sprites[sprnum])) return false;
 	}
 	return true;
 }
@@ -1077,7 +1075,6 @@ SpriteStorage::~SpriteStorage()
 /** Clear all data from the storage. */
 void SpriteStorage::Clear()
 {
-	this->build_arrows = nullptr;
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
 }
 
@@ -1101,17 +1098,6 @@ void SpriteStorage::AddSupport(Support *supp)
 {
 	assert(supp->width == this->size);
 	this->support = supp;
-}
-
-/**
- * Add build arrow sprites.
- * @param obj Arrow sprites to add.
- * @pre Width of the arrow sprites must match with #size.
- */
-void SpriteStorage::AddBuildArrows(DisplayedObject *obj)
-{
-	assert(obj->width == this->size);
-	this->build_arrows = obj;
 }
 
 /**
@@ -1259,14 +1245,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "BDIR") == 0) {
-			DisplayedObject *block = new DisplayedObject;
-			if (!block->Load(&rcd_file, sprites)) {
-				delete block;
+			if (!this->LoadBDIR(&rcd_file, sprites)) {
 				return "Build arrows block loading failed.";
 			}
-			this->AddBlock(block);
-
-			this->store.AddBuildArrows(block);
 			continue;
 		}
 
