@@ -417,16 +417,9 @@ bool SpriteManager::LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-Foundation::Foundation() : RcdBlock()
+Foundation::Foundation()
 {
-	this->type = FDT_INVALID;
-	this->width = 0;
-	this->height = 0;
 	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
-}
-
-Foundation::~Foundation()
-{
 }
 
 /**
@@ -435,22 +428,25 @@ Foundation::~Foundation()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Foundation::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + 4 * 6) return false;
 
-	uint16 type = rcd_file->GetUInt16();
-	this->type = FDT_INVALID;
-	if (type == 16) this->type = FDT_GROUND;
-	if (type == 32) this->type = FDT_WOOD;
-	if (type == 48) this->type = FDT_BRICK;
-	if (this->type == FDT_INVALID) return false;
+	uint16 tp = rcd_file->GetUInt16();
+	uint16 type = FDT_INVALID;
+	if (tp == 16) type = FDT_GROUND;
+	if (tp == 32) type = FDT_WOOD;
+	if (tp == 48) type = FDT_BRICK;
+	if (type == FDT_INVALID) return false;
 
-	this->width  = rcd_file->GetUInt16();
-	this->height = rcd_file->GetUInt16();
+	uint16 width  = rcd_file->GetUInt16();
+	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
-	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr || type >= FDT_COUNT) return false;
+	Foundation *fn = &ss->foundation[type];
+	for (uint sprnum = 0; sprnum < lengthof(fn->sprites); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &fn->sprites[sprnum])) return false;
 	}
 	return true;
 }
@@ -1085,22 +1081,9 @@ SpriteStorage::~SpriteStorage()
 /** Clear all data from the storage. */
 void SpriteStorage::Clear()
 {
-	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = nullptr;
 	this->path_sprites = nullptr;
 	this->build_arrows = nullptr;
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
-}
-
-/**
- * Add foundation sprite.
- * @param fnd New foundation sprite.
- * @pre Width of the foundation sprite must match with #size.
- */
-void SpriteStorage::AddFoundations(Foundation *fnd)
-{
-	assert(fnd->width == this->size);
-	assert(fnd->type < FDT_COUNT);
-	this->foundation[fnd->type] = fnd;
 }
 
 /**
@@ -1266,14 +1249,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "FUND") == 0) {
-			Foundation *block = new Foundation;
-			if (!block->Load(&rcd_file, sprites)) {
-				delete block;
+			if (!this->LoadFUND(&rcd_file, sprites)) {
 				return "Foundation block loading failed.";
 			}
-			this->AddBlock(block);
-
-			this->store.AddFoundations(block);
 			continue;
 		}
 

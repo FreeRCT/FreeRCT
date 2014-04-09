@@ -870,8 +870,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			case VOR_WEST:  sw = GB(fslope, 2, 2); se = GB(fslope, 0, 2); break;
 			default: NOT_REACHED();
 		}
-		const Foundation *fnd = this->sprites->foundation[FDT_GROUND];
-		if (fnd != nullptr && sw != 0) {
+		const Foundation *fnd = &this->sprites->foundation[FDT_GROUND];
+		if (sw != 0) {
 			const ImageData *img = fnd->sprites[3 + sw - 1];
 			if (img != nullptr) {
 				DrawData dd;
@@ -885,7 +885,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				this->draw_images.insert(dd);
 			}
 		}
-		if (fnd != nullptr && se != 0) {
+		if (se != 0) {
 			const ImageData *img = fnd->sprites[se - 1];
 			if (img != nullptr) {
 				DrawData dd;

@@ -108,17 +108,11 @@ public:
  * %Foundation sprites.
  * @ingroup sprites_group
  */
-class Foundation : public RcdBlock {
+class Foundation {
 public:
 	Foundation();
-	~Foundation();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
-
-	uint16 type;   ///< Type of the foundation. @see FoundationType
-	uint16 width;  ///< Width of a tile.
-	uint16 height; ///< Height of a tile. @todo Remove height from RCD file.
-	ImageData *sprites[6]; ///< Foundation sprites.
+	ImageData *sprites[6]; ///< %Foundation sprites.
 };
 
 /**
@@ -458,7 +452,6 @@ public:
 	SpriteStorage(uint16 size);
 	~SpriteStorage();
 
-	void AddFoundations(Foundation *fnd);
 	void AddPlatform(Platform *plat);
 	void AddSupport(Support *supp);
 	void AddPath(Path *path);
@@ -555,7 +548,7 @@ public:
 	const uint16 size; ///< Width of the tile.
 
 	SurfaceData surface[GTP_COUNT];   ///< Surface data.
-	Foundation *foundation[FDT_COUNT]; ///< Foundation.
+	Foundation foundation[FDT_COUNT]; ///< Foundation.
 	Platform *platform;                ///< Platform block.
 	Support *support;                  ///< Support block.
 	TileSelection tile_select;        ///< Tile selection sprites.
@@ -599,6 +592,7 @@ private:
 	bool LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites);
+	bool LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };
