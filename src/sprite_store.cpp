@@ -1158,93 +1158,67 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "SURF") == 0) {
-			if (!this->LoadSURF(&rcd_file, sprites)) {
-				return "Surface block loading failed.";
-			}
+			if (!this->LoadSURF(&rcd_file, sprites)) return "Surface block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TSEL") == 0) {
-			if (!this->LoadTSEL(&rcd_file, sprites)) {
-				return "Tile-selection block loading failed.";
-			}
+			if (!this->LoadTSEL(&rcd_file, sprites)) return "Tile-selection block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "PATH") == 0) {
-			if (!this->LoadPATH(&rcd_file, sprites)) {
-				return "Path-sprites block loading failed.";
-			}
+			if (!this->LoadPATH(&rcd_file, sprites)) return "Path-sprites block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TCOR") == 0) {
-			if (!this->LoadTCOR(&rcd_file, sprites)) {
-				return "Tile-corners block loading failed.";
-			}
+			if (!this->LoadTCOR(&rcd_file, sprites)) return "Tile-corners block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "FUND") == 0) {
-			if (!this->LoadFUND(&rcd_file, sprites)) {
-				return "Foundation block loading failed.";
-			}
+			if (!this->LoadFUND(&rcd_file, sprites)) return "Foundation block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "PLAT") == 0) {
-			if (!this->LoadPLAT(&rcd_file, sprites)) {
-				return "Platform block loading failed.";
-			}
+			if (!this->LoadPLAT(&rcd_file, sprites)) return "Platform block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "SUPP") == 0) {
-			if (!this->LoadSUPP(&rcd_file, sprites)) {
-				return "Support block loading failed.";
-			}
+			if (!this->LoadSUPP(&rcd_file, sprites)) return "Support block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "BDIR") == 0) {
-			if (!this->LoadBDIR(&rcd_file, sprites)) {
-				return "Build arrows block loading failed.";
-			}
+			if (!this->LoadBDIR(&rcd_file, sprites)) return "Build arrows block loading failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GCHK") == 0) {
-			if (!_gui_sprites.LoadGCHK(&rcd_file, sprites)) {
-				return "Loading Checkable GUI sprites failed.";
-			}
+			if (!_gui_sprites.LoadGCHK(&rcd_file, sprites)) return "Loading Checkable GUI sprites failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GBOR") == 0) {
-			if (!_gui_sprites.LoadGBOR(&rcd_file, sprites)) {
-				return "Loading Border GUI sprites failed.";
-			}
+			if (!_gui_sprites.LoadGBOR(&rcd_file, sprites)) return "Loading Border GUI sprites failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GSLI") == 0) {
-			if (!_gui_sprites.LoadGSLI(&rcd_file, sprites)) {
-				return "Loading Slider bar GUI sprites failed.";
-			}
+			if (!_gui_sprites.LoadGSLI(&rcd_file, sprites)) return "Loading Slider bar GUI sprites failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GSCL") == 0) {
-			if (!_gui_sprites.LoadGSCL(&rcd_file, sprites)) {
-				return "Loading Scrollbar GUI sprites failed.";
-			}
+			if (!_gui_sprites.LoadGSCL(&rcd_file, sprites)) return "Loading Scrollbar GUI sprites failed.";
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GSLP") == 0) {
-			if (!_gui_sprites.LoadGSLP(&rcd_file, sprites, texts)) {
-				return "Loading slope selection GUI sprites failed.";
-			}
+			if (!_gui_sprites.LoadGSLP(&rcd_file, sprites, texts)) return "Loading slope selection GUI sprites failed.";
 			continue;
 		}
 
@@ -1280,9 +1254,7 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "PRSG") == 0) {
-			if (!LoadPRSG(&rcd_file)) {
-				return "Graphics Person type data failed to load.";
-			}
+			if (!LoadPRSG(&rcd_file)) return "Graphics Person type data failed to load.";
 			continue;
 		}
 
@@ -1329,9 +1301,7 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "CSPL") == 0) {
-			if (!LoadCoasterPlatform(&rcd_file, sprites)) {
-				return "Coaster platform failed to load.";
-			}
+			if (!LoadCoasterPlatform(&rcd_file, sprites)) return "Coaster platform failed to load.";
 			continue;
 		}
 
