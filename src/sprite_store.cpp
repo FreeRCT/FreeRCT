@@ -323,15 +323,9 @@ bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-TileSelection::TileSelection() : RcdBlock()
+TileSelection::TileSelection()
 {
-	this->width = 0;
-	this->height = 0;
 	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = nullptr;
-}
-
-TileSelection::~TileSelection()
-{
 }
 
 /**
@@ -340,15 +334,18 @@ TileSelection::~TileSelection()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileSelection::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
-	this->width  = rcd_file->GetUInt16();
-	this->height = rcd_file->GetUInt16();
+	uint16 width  = rcd_file->GetUInt16();
+	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr) return false;
+	TileSelection *ts = &ss->tile_select;
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->surface[sprnum])) return false;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &ts->surface[sprnum])) return false;
 	}
 	return true;
 }
@@ -1092,22 +1089,10 @@ SpriteStorage::~SpriteStorage()
 void SpriteStorage::Clear()
 {
 	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = nullptr;
-	this->tile_select = nullptr;
 	this->tile_corners = nullptr;
 	this->path_sprites = nullptr;
 	this->build_arrows = nullptr;
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
-}
-
-/**
- * Add tile selection sprites.
- * @param tsel New tile selection sprites.
- * @pre Width of the tile selection sprites must match with #size.
- */
-void SpriteStorage::AddTileSelection(TileSelection *tsel)
-{
-	assert(tsel->width == this->size);
-	this->tile_select = tsel;
 }
 
 /**
@@ -1270,14 +1255,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "TSEL") == 0) {
-			TileSelection *tsel = new TileSelection;
-			if (!tsel->Load(&rcd_file, sprites)) {
-				delete tsel;
+			if (!this->LoadTSEL(&rcd_file, sprites)) {
 				return "Tile-selection block loading failed.";
 			}
-			this->AddBlock(tsel);
-
-			this->store.AddTileSelection(tsel);
 			continue;
 		}
 
