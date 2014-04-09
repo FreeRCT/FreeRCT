@@ -447,16 +447,10 @@ bool SpriteManager::LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-Platform::Platform() : RcdBlock()
+Platform::Platform()
 {
-	this->width = 0;
-	this->height = 0;
 	this->flat[0] = nullptr; this->flat[1] = nullptr;
 	for (uint i = 0; i < lengthof(this->ramp); i++) this->ramp[i] = nullptr;
-}
-
-Platform::~Platform()
-{
 }
 
 /**
@@ -465,25 +459,28 @@ Platform::~Platform()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Platform::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 2 + 2 * 4 + 12 * 4) return false;
 
-	this->width  = rcd_file->GetUInt16();
-	this->height = rcd_file->GetUInt16();
+	uint16 width  = rcd_file->GetUInt16();
+	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 	uint16 type = rcd_file->GetUInt16();
 	if (type != 16) return false; // Only accept type 16 'wood'.
 
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->flat[0])) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->flat[1])) return false;
-	for (uint sprnum = 0; sprnum < lengthof(this->ramp); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->ramp[sprnum])) return false;
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr) return false;
+	Platform *plat = &ss->platform;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &plat->flat[0])) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &plat->flat[1])) return false;
+	for (uint sprnum = 0; sprnum < lengthof(plat->ramp); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &plat->ramp[sprnum])) return false;
 	}
-	for (uint sprnum = 0; sprnum < lengthof(this->right_ramp); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->right_ramp[sprnum])) return false;
+	for (uint sprnum = 0; sprnum < lengthof(plat->right_ramp); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &plat->right_ramp[sprnum])) return false;
 	}
-	for (uint sprnum = 0; sprnum < lengthof(this->left_ramp); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->left_ramp[sprnum])) return false;
+	for (uint sprnum = 0; sprnum < lengthof(plat->left_ramp); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &plat->left_ramp[sprnum])) return false;
 	}
 	return true;
 }
@@ -1079,17 +1076,6 @@ void SpriteStorage::Clear()
 }
 
 /**
- * Add platform block.
- * @param plat New platform block.
- * @pre Width of the platform block must match with #size.
- */
-void SpriteStorage::AddPlatform(Platform *plat)
-{
-	assert(plat->width == this->size);
-	this->platform = plat;
-}
-
-/**
  * Add support sprites block.
  * @param supp New support block.
  * @pre Width of the platform block must match with #size.
@@ -1221,14 +1207,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "PLAT") == 0) {
-			Platform *block = new Platform;
-			if (!block->Load(&rcd_file, sprites)) {
-				delete block;
+			if (!this->LoadPLAT(&rcd_file, sprites)) {
 				return "Platform block loading failed.";
 			}
-			this->AddBlock(block);
-
-			this->store.AddPlatform(block);
 			continue;
 		}
 

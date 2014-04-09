@@ -114,15 +114,10 @@ public:
  * @ingroup sprites_group
  * @note There is only one type of platform, so no need to define its type.
  */
-class Platform : public RcdBlock {
+class Platform {
 public:
 	Platform();
-	~Platform();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
-
-	uint16 width;  ///< Width of a tile.
-	uint16 height; ///< Height of a tile. @todo Remove height from RCD file.
 	ImageData *flat[2]; ///< Flat platforms.
 	ImageData *ramp[4]; ///< Raised platform at one edge. See #TileEdge for the order.
 	ImageData *right_ramp[4]; ///< Raised platform at one edge with only the right leg. See #TileEdge for the order.
@@ -411,7 +406,7 @@ struct GuiSprites {
 	ImageData *slope_select[TSL_COUNT_VERTICAL]; ///< Slope selection sprites.
 	ImageData *bend_select[TBN_COUNT];      ///< Bend selection sprites.
 	ImageData *bank_select[TPB_COUNT];      ///< Banking selection sprites.
-	ImageData *platform_select[2];          ///< Platform selection sprites.
+	ImageData *platform_select[2];          ///< %Platform selection sprites.
 	ImageData *power_select[2];             ///< Power selection sprites.
 	ImageData *triangle_left;               ///< Triangular arrow to the left.
 	ImageData *triangle_right;              ///< Triangular arrow to the right.
@@ -442,7 +437,6 @@ public:
 	SpriteStorage(uint16 size);
 	~SpriteStorage();
 
-	void AddPlatform(Platform *plat);
 	void AddSupport(Support *supp);
 	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
 	void AddAnimationSprites(AnimationSprites *an_spr);
@@ -535,7 +529,7 @@ public:
 
 	SurfaceData surface[GTP_COUNT];   ///< Surface data.
 	Foundation foundation[FDT_COUNT]; ///< Foundation.
-	Platform *platform;                ///< Platform block.
+	Platform platform;                ///< %Platform block.
 	Support *support;                  ///< Support block.
 	TileSelection tile_select;        ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
@@ -581,6 +575,7 @@ private:
 	bool LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites);
+	bool LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };

@@ -959,15 +959,15 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	}
 
 	/* Add platforms. */
-	if (this->sprites->platform != nullptr && platform_shape != PATH_INVALID) {
+	if (platform_shape != PATH_INVALID) {
 		/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
 		ImageData *pl_spr;
 		switch (platform_shape) {
-			case PATH_RAMP_NE: pl_spr = this->sprites->platform->ramp[2]; break;
-			case PATH_RAMP_NW: pl_spr = this->sprites->platform->ramp[1]; break;
-			case PATH_RAMP_SE: pl_spr = this->sprites->platform->ramp[3]; break;
-			case PATH_RAMP_SW: pl_spr = this->sprites->platform->ramp[0]; break;
-			default: pl_spr = this->sprites->platform->flat[this->orient & 1]; break;
+			case PATH_RAMP_NE: pl_spr = this->sprites->platform.ramp[2]; break;
+			case PATH_RAMP_NW: pl_spr = this->sprites->platform.ramp[1]; break;
+			case PATH_RAMP_SE: pl_spr = this->sprites->platform.ramp[3]; break;
+			case PATH_RAMP_SW: pl_spr = this->sprites->platform.ramp[0]; break;
+			default: pl_spr = this->sprites->platform.flat[this->orient & 1]; break;
 		}
 		if (pl_spr != nullptr) {
 			DrawData dd;
