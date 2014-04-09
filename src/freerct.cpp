@@ -15,6 +15,7 @@
 #include "map.h"
 #include "viewport.h"
 #include "sprite_store.h"
+#include "rcdfile.h"
 #include "sprite_data.h"
 #include "window.h"
 #include "config_reader.h"
@@ -195,7 +196,8 @@ int main(int argc, char **argv)
 
 	/* Load RCD files. */
 	InitImageStorage();
-	if (!_sprite_manager.LoadRcdFiles()) exit(1);
+	_rcd_collection.ScanDirectories();
+	_sprite_manager.LoadRcdFiles();
 
 	InitLanguage();
 

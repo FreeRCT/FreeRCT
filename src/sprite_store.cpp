@@ -21,8 +21,8 @@
 #include "stdafx.h"
 #include "sprite_store.h"
 #include "sprite_data.h"
+#include "rcdfile.h"
 #include "fileio.h"
-#include "string_func.h"
 #include "math_func.h"
 #include "shop_type.h"
 #include "coaster.h"
@@ -32,8 +32,6 @@ SpriteManager _sprite_manager; ///< Sprite manager.
 GuiSprites _gui_sprites;       ///< GUI sprites.
 
 static const int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
-
-static const char *RCD_FILE_POSITION = "../graphics/rcd"; ///< Position of RCD files relative to binary.
 
 #include "generated/gui_strings.cpp"
 
@@ -1513,28 +1511,14 @@ const char *SpriteManager::Load(const char *filename)
 	}
 }
 
-/**
- * Load all useful RCD files into the program.
- * @return Whether everything went fine.
- */
-bool SpriteManager::LoadRcdFiles()
+/** Load all useful RCD files found by #_rcd_collection, into the program. */
+void SpriteManager::LoadRcdFiles()
 {
-	DirectoryReader *reader = MakeDirectoryReader();
-	const char *mesg = nullptr;
-
-	reader->OpenPath(RCD_FILE_POSITION);
-	while (mesg == nullptr) {
-		const char *name = reader->NextFile();
-		if (name == nullptr) break;
-		if (!StrEndsWith(name, ".rcd", false)) continue;
-
-		mesg = this->Load(name);
-		if (mesg != nullptr) fprintf(stderr, "Error while reading \"%s\": %s\n", name, mesg);
+	for (auto &entry : _rcd_collection.rcdfiles) {
+		const char *fname = entry.second.path.c_str();
+		const char *mesg = this->Load(fname);
+		if (mesg != nullptr) fprintf(stderr, "Error while reading \"%s\": %s\n", fname, mesg);
 	}
-	reader->ClosePath();
-	delete reader;
-
-	return mesg == nullptr;
 }
 
 /**

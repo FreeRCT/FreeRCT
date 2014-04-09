@@ -599,7 +599,7 @@ public:
 	SpriteManager();
 	~SpriteManager();
 
-	bool LoadRcdFiles();
+	void LoadRcdFiles();
 	void AddBlock(RcdBlock *block);
 
 	const SpriteStorage *GetSprites(uint16 size) const;
