@@ -166,7 +166,7 @@ public:
 	TrackPiece();
 	~TrackPiece();
 
-	bool Load(RcdFileReader *rcd_file, uint32 length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	uint8 entry_connect;      ///< Entry connection code
 	uint8 exit_connect;       ///< Exit connection code

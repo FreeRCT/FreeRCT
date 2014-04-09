@@ -72,6 +72,6 @@ static inline bool PersonIsAGuest(uint8 type)
 	return type >= PERSON_MIN_GUEST && type <= PERSON_MAX_GUEST;
 }
 
-bool LoadPRSG(RcdFileReader *rcd_file, uint32 length);
+bool LoadPRSG(RcdFileReader *rcd_file);
 
 #endif

@@ -167,13 +167,14 @@ static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, uint8 
 /**
  * Load a TEXT data block into the object.
  * @param rcd_file Input file.
- * @param length Length of the block to load.
  * @return Load was successful.
  */
-bool TextData::Load(RcdFileReader *rcd_file, uint32 length)
+bool TextData::Load(RcdFileReader *rcd_file)
 {
 	uint8 buffer[64*1024]; // Arbitrary sized block of temporary memory to store the text data.
 	size_t used_size = 0;
+	uint32 length = rcd_file->size;
+	if (rcd_file->version != 2) return false;
 
 	TextString strings[MAX_NUM_TEXT_STRINGS];
 	uint used_strings = 0;
@@ -302,13 +303,12 @@ SurfaceData::~SurfaceData()
 /**
  * Load a surface game block from a RCD file.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool SurfaceData::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool SurfaceData::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
+	if (rcd_file->version != 4 || rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
 	uint16 gt = rcd_file->GetUInt16(); // Ground type bytes.
 	uint8 type = GTP_INVALID;
@@ -344,13 +344,12 @@ TileSelection::~TileSelection()
 /**
  * Load a tile selection block from a RCD file.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileSelection::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool TileSelection::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
+	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
@@ -376,13 +375,12 @@ Path::~Path()
 /**
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Path::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool Path::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
 
 	this->type = rcd_file->GetUInt16();
 	if (this->type != 16) return false; // Only 'concrete' paths exist.
@@ -414,13 +412,12 @@ TileCorners::~TileCorners()
 /**
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileCorners::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool TileCorners::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) return false;
+	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) return false;
 
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
@@ -448,13 +445,12 @@ Foundation::~Foundation()
 /**
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Foundation::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool Foundation::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 2 + 4 * 6) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + 4 * 6) return false;
 
 	uint16 type = rcd_file->GetUInt16();
 	this->type = FDT_INVALID;
@@ -487,13 +483,12 @@ Platform::~Platform()
 /**
  * Load a platform sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Platform::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool Platform::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 2 + 2 * 4 + 12 * 4) return false;
+	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 2 + 2 * 4 + 12 * 4) return false;
 
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
@@ -529,13 +524,12 @@ Support::~Support()
 /**
  * Load a support sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Support::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool Support::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 2 + SSP_COUNT * 4) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + SSP_COUNT * 4) return false;
 
 	this->type = rcd_file->GetUInt16();
 	if (this->type != 16) return false; // Only accept type 16 'wood'.
@@ -560,13 +554,12 @@ DisplayedObject::~DisplayedObject()
 /**
  * Load a displayed object block.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool DisplayedObject::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool DisplayedObject::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 4 * 4) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 2 + 4 * 4) return false;
 
 	this->width = rcd_file->GetUInt16();
 
@@ -609,14 +602,14 @@ static PersonType DecodePersonType(uint8 pt)
 /**
  * Load an animation.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @return Loading was successful.
  */
-bool Animation::Load(RcdFileReader *rcd_file, size_t length)
+bool Animation::Load(RcdFileReader *rcd_file)
 {
 	const uint BASE_LENGTH = 1 + 2 + 2;
 
-	if (length < BASE_LENGTH) return false;
+	size_t length = rcd_file->size;
+	if (rcd_file->version != 2 || length < BASE_LENGTH) return false;
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
 	if (this->person_type == PERSON_INVALID) return false;
 
@@ -663,15 +656,15 @@ AnimationSprites::~AnimationSprites()
 /**
  * Load the sprites of an animation.
  * @param rcd_file RCD file used for loading.
- * @param length Length of the data part of the block.
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool AnimationSprites::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
 
-	if (length < BASE_LENGTH) return false;
+	size_t length = rcd_file->size;
+	if (rcd_file->version != 1 || length < BASE_LENGTH) return false;
 	this->width = rcd_file->GetUInt16();
 
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
@@ -723,13 +716,12 @@ bool BorderSpriteData::IsLoaded() const
 /**
  * Load sprites of a GUI widget border.
  * @param rcd_file RCD file being loaded.
- * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGBOR(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + 8 * 1 + WBS_COUNT * 4) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 2 + 8 * 1 + WBS_COUNT * 4) return false;
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
@@ -790,14 +782,13 @@ bool CheckableWidgetSpriteData::IsLoaded() const
 /**
  * Load checkbox and radio button GUI sprites.
  * @param rcd_file RCD file being loaded.
- * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  * @todo Load width and height from the RCD file too.
  */
-bool GuiSprites::LoadGCHK(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 2 + WCS_COUNT * 4) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 2 + WCS_COUNT * 4) return false;
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
@@ -849,14 +840,13 @@ bool SliderSpriteData::IsLoaded() const
 /**
  * Load slider bar sprite data.
  * @param rcd_file RCD file being loaded.
- * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  * @todo Move widget_type further to the top in the RCD file block.
  */
-bool GuiSprites::LoadGSLI(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 3 * 1 + 2 + WSS_COUNT * 4) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 3 * 1 + 2 + WSS_COUNT * 4) return false;
 
 	uint8 min_length = rcd_file->GetUInt8();
 	uint8 stepsize = rcd_file->GetUInt8();
@@ -916,15 +906,14 @@ bool ScrollbarSpriteData::IsLoaded() const
 /**
  * Load scroll bar sprite data.
  * @param rcd_file RCD file being loaded.
- * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  * @todo Move widget_type further to the top in the RCD file block.
  * @todo Add width of the scrollbar in the RCD file block.
  */
-bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length != 4 * 1 + 2 + WLS_COUNT * 4) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 4 * 1 + 2 + WLS_COUNT * 4) return false;
 
 	uint8 min_length_bar = rcd_file->GetUInt8();
 	uint8 stepsize_back = rcd_file->GetUInt8();
@@ -975,19 +964,18 @@ bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, size_t length, const ImageMap
 /**
  * Load GUI slope selection sprites.
  * @param rcd_file RCD file being loaded.
- * @param length Length of the block to load.
  * @param sprites Sprites loaded from this file.
  * @param texts Texts loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts)
+bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (length != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WES_COUNT + 4 + 2) * 4 + 4) return false;
+	if (rcd_file->version != 7 || rcd_file->size != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WES_COUNT + 4 + 2) * 4 + 4) return false;
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1278,29 +1266,19 @@ const char *SpriteManager::Load(const char *filename)
 	for (uint blk_num = 1;; blk_num++) {
 		if (!rcd_file.ReadBlockHeader()) return nullptr; // End reached.
 
-		if (strcmp(rcd_file.name, "8PXL") == 0 && rcd_file.version == 2) {
-			ImageData *imd = LoadImage(&rcd_file, rcd_file.size, true);
+		if (strcmp(rcd_file.name, "8PXL") == 0 || strcmp(rcd_file.name, "32PX") == 0) {
+			ImageData *imd = LoadImage(&rcd_file);
 			if (imd == nullptr) {
-				return "8bpp image data loading failed";
+				return "Image data loading failed";
 			}
 			std::pair<uint, ImageData *> p(blk_num, imd);
 			sprites.insert(p);
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "32PX") == 0 && rcd_file.version == 1) {
-			ImageData *imd = LoadImage(&rcd_file, rcd_file.size, false);
-			if (imd == nullptr) {
-				return "32bpp image data loading failed";
-			}
-			std::pair<uint, ImageData *> p(blk_num, imd);
-			sprites.insert(p);
-			continue;
-		}
-
-		if (strcmp(rcd_file.name, "SURF") == 0 && rcd_file.version == 4) {
+		if (strcmp(rcd_file.name, "SURF") == 0) {
 			SurfaceData *surf = new SurfaceData;
-			if (!surf->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!surf->Load(&rcd_file, sprites)) {
 				delete surf;
 				return "Surface block loading failed.";
 			}
@@ -1310,9 +1288,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "TSEL") == 0 && rcd_file.version == 2) {
+		if (strcmp(rcd_file.name, "TSEL") == 0) {
 			TileSelection *tsel = new TileSelection;
-			if (!tsel->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!tsel->Load(&rcd_file, sprites)) {
 				delete tsel;
 				return "Tile-selection block loading failed.";
 			}
@@ -1322,9 +1300,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "PATH") == 0 && rcd_file.version == 1) {
+		if (strcmp(rcd_file.name, "PATH") == 0) {
 			Path *block = new Path;
-			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!block->Load(&rcd_file, sprites)) {
 				delete block;
 				return "Path-sprites block loading failed.";
 			}
@@ -1334,9 +1312,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "TCOR") == 0 && rcd_file.version == 2) {
+		if (strcmp(rcd_file.name, "TCOR") == 0) {
 			TileCorners *block = new TileCorners;
-			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!block->Load(&rcd_file, sprites)) {
 				delete block;
 				return "Tile-corners block loading failed.";
 			}
@@ -1346,9 +1324,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "FUND") == 0 && rcd_file.version == 1) {
+		if (strcmp(rcd_file.name, "FUND") == 0) {
 			Foundation *block = new Foundation;
-			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!block->Load(&rcd_file, sprites)) {
 				delete block;
 				return "Foundation block loading failed.";
 			}
@@ -1358,9 +1336,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "PLAT") == 0 && rcd_file.version == 2) {
+		if (strcmp(rcd_file.name, "PLAT") == 0) {
 			Platform *block = new Platform;
-			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!block->Load(&rcd_file, sprites)) {
 				delete block;
 				return "Platform block loading failed.";
 			}
@@ -1370,9 +1348,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "SUPP") == 0 && rcd_file.version == 1) {
+		if (strcmp(rcd_file.name, "SUPP") == 0) {
 			Support *block = new Support;
-			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!block->Load(&rcd_file, sprites)) {
 				delete block;
 				return "Support block loading failed.";
 			}
@@ -1382,9 +1360,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "BDIR") == 0 && rcd_file.version == 1) {
+		if (strcmp(rcd_file.name, "BDIR") == 0) {
 			DisplayedObject *block = new DisplayedObject;
-			if (!block->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!block->Load(&rcd_file, sprites)) {
 				delete block;
 				return "Build arrows block loading failed.";
 			}
@@ -1394,44 +1372,44 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "GCHK") == 0 && rcd_file.version == 1) {
-			if (!_gui_sprites.LoadGCHK(&rcd_file, rcd_file.size, sprites)) {
+		if (strcmp(rcd_file.name, "GCHK") == 0) {
+			if (!_gui_sprites.LoadGCHK(&rcd_file, sprites)) {
 				return "Loading Checkable GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "GBOR") == 0 && rcd_file.version == 1) {
-			if (!_gui_sprites.LoadGBOR(&rcd_file, rcd_file.size, sprites)) {
+		if (strcmp(rcd_file.name, "GBOR") == 0) {
+			if (!_gui_sprites.LoadGBOR(&rcd_file, sprites)) {
 				return "Loading Border GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "GSLI") == 0 && rcd_file.version == 1) {
-			if (!_gui_sprites.LoadGSLI(&rcd_file, rcd_file.size, sprites)) {
+		if (strcmp(rcd_file.name, "GSLI") == 0) {
+			if (!_gui_sprites.LoadGSLI(&rcd_file, sprites)) {
 				return "Loading Slider bar GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "GSCL") == 0 && rcd_file.version == 1) {
-			if (!_gui_sprites.LoadGSCL(&rcd_file, rcd_file.size, sprites)) {
+		if (strcmp(rcd_file.name, "GSCL") == 0) {
+			if (!_gui_sprites.LoadGSCL(&rcd_file, sprites)) {
 				return "Loading Scrollbar GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "GSLP") == 0 && rcd_file.version == 7) {
-			if (!_gui_sprites.LoadGSLP(&rcd_file, rcd_file.size, sprites, texts)) {
+		if (strcmp(rcd_file.name, "GSLP") == 0) {
+			if (!_gui_sprites.LoadGSLP(&rcd_file, sprites, texts)) {
 				return "Loading slope selection GUI sprites failed.";
 			}
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "ANIM") == 0 && rcd_file.version == 2) {
+		if (strcmp(rcd_file.name, "ANIM") == 0) {
 			Animation *anim = new Animation;
-			if (!anim->Load(&rcd_file, rcd_file.size)) {
+			if (!anim->Load(&rcd_file)) {
 				delete anim;
 				return "Animation failed to load.";
 			}
@@ -1445,9 +1423,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "ANSP") == 0 && rcd_file.version == 1) {
+		if (strcmp(rcd_file.name, "ANSP") == 0) {
 			AnimationSprites *an_spr = new AnimationSprites;
-			if (!an_spr->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!an_spr->Load(&rcd_file, sprites)) {
 				delete an_spr;
 				return "Animation sprites failed to load.";
 			}
@@ -1460,16 +1438,16 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "PRSG") == 0 && rcd_file.version == 1) {
-			if (!LoadPRSG(&rcd_file, rcd_file.size)) {
+		if (strcmp(rcd_file.name, "PRSG") == 0) {
+			if (!LoadPRSG(&rcd_file)) {
 				return "Graphics Person type data failed to load.";
 			}
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "TEXT") == 0 && rcd_file.version == 2) {
+		if (strcmp(rcd_file.name, "TEXT") == 0) {
 			TextData *txt = new TextData;
-			if (!txt->Load(&rcd_file, rcd_file.size)) {
+			if (!txt->Load(&rcd_file)) {
 				delete txt;
 				return "Text block failed to load.";
 			}
@@ -1480,9 +1458,9 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "SHOP") == 0 && rcd_file.version == 4) {
+		if (strcmp(rcd_file.name, "SHOP") == 0) {
 			ShopType *shop_type = new ShopType;
-			if (!shop_type->Load(&rcd_file, rcd_file.size, sprites, texts)) {
+			if (!shop_type->Load(&rcd_file, sprites, texts)) {
 				delete shop_type;
 				return "Shop type failed to load.";
 			}
@@ -1490,18 +1468,18 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "TRCK") == 0 && rcd_file.version == 5) {
+		if (strcmp(rcd_file.name, "TRCK") == 0) {
 			auto tp = std::make_shared<TrackPiece>();
-			if (!tp->Load(&rcd_file, rcd_file.size, sprites)) {
+			if (!tp->Load(&rcd_file, sprites)) {
 				return "Track piece failed to load.";
 			}
 			track_pieces.insert({blk_num, tp});
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "RCST") == 0 && rcd_file.version == 5) {
+		if (strcmp(rcd_file.name, "RCST") == 0) {
 			CoasterType *ct = new CoasterType;
-			if (!ct->Load(&rcd_file, rcd_file.size, texts, track_pieces)) {
+			if (!ct->Load(&rcd_file, texts, track_pieces)) {
 				delete ct;
 				return "Coaster type failed to load.";
 			}
@@ -1509,17 +1487,17 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "CSPL") == 0 && rcd_file.version == 2) {
-			if (!LoadCoasterPlatform(&rcd_file, rcd_file.size, sprites)) {
+		if (strcmp(rcd_file.name, "CSPL") == 0) {
+			if (!LoadCoasterPlatform(&rcd_file, sprites)) {
 				return "Coaster platform failed to load.";
 			}
 			continue;
 		}
 
-		if (strcmp(rcd_file.name, "CARS") == 0 && rcd_file.version == 2) {
+		if (strcmp(rcd_file.name, "CARS") == 0) {
 			CarType *ct = GetNewCarType();
 			if (ct == nullptr) return "No room to store a car type.";
-			if (!ct->Load(&rcd_file, rcd_file.size, sprites)) return "Car type failed to load.";
+			if (!ct->Load(&rcd_file, sprites)) return "Car type failed to load.";
 			continue;
 		}
 

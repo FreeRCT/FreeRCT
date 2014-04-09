@@ -51,14 +51,13 @@ static bool IsValidItemType(uint8 val)
 /**
  * Load a type of shop from the RCD file.
  * @param rcd_file Rcd file being loaded.
- * @param length Length of the data in the current block.
  * @param sprites Already loaded sprites.
  * @param texts Already loaded texts.
  * @return Loading was successful.
  */
-bool ShopType::Load(RcdFileReader *rcd_file, uint32 length, const ImageMap &sprites, const TextMap &texts)
+bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (length != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
+	if (rcd_file->version != 4 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
 	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
 	this->height = rcd_file->GetUInt8();
 	if (this->height != 1) return false; // Other heights may fail.

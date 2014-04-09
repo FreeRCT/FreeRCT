@@ -23,7 +23,7 @@ public:
 	ShopType();
 	~ShopType();
 
-	bool Load(RcdFileReader *rcf_file, uint32 length, const ImageMap &sprites, const TextMap &texts);
+	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
 	const ImageData *GetView(uint8 orientation) const override;
 	const StringID *GetInstanceNames() const override;

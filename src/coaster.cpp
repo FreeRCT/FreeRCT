@@ -44,13 +44,12 @@ CarType::CarType()
 /**
  * Load the data of a CARS block from file.
  * @param rcdfile Data file being loaded.
- * @param length Length of the data in the block.
  * @param sprites Already loaded sprites.
  * @return Loading was a success.
  */
-bool CarType::Load(RcdFileReader *rcdfile, uint32 length, const ImageMap &sprites)
+bool CarType::Load(RcdFileReader *rcdfile, const ImageMap &sprites)
 {
-	if (length != 2 + 2 + 4 + 4 + 2 + 2 + 16384) return false;
+	if (rcdfile->version != 2 || rcdfile->size != 2 + 2 + 4 + 4 + 2 + 2 + 16384) return false;
 
 	this->tile_width = rcdfile->GetUInt16();
 	if (this->tile_width != 64) return false; // Do not allow anything else than 64 pixels tile width.
@@ -88,14 +87,14 @@ CoasterType::~CoasterType()
 /**
  * Load a coaster type.
  * @param rcd_file Data file being loaded.
- * @param length Length of the voxel (according to the file).
  * @param texts Already loaded text blocks.
  * @param piece_map Already loaded track pieces.
  * @return Loading was successful.
  */
-bool CoasterType::Load(RcdFileReader *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map)
+bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
-	if (length < 2 + 1 + 1 + 1 + 4 + 2) return false;
+	uint32 length = rcd_file->size;
+	if (rcd_file->version != 5 || length < 2 + 1 + 1 + 1 + 4 + 2) return false;
 	length -= 2 + 1 + 1 + 1 + 4 + 2;
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
@@ -200,13 +199,12 @@ CoasterPlatform::CoasterPlatform()
 /**
  * Load a coaster platform (CSPL) block.
  * @param rcdfile Data file being loaded.
- * @param length Length of the block data.
  * @param sprites Sprites already loaded from the RCD file.
  * @return Loading the CSPL block succeeded.
  */
-bool LoadCoasterPlatform(RcdFileReader *rcdfile, uint32 length, const ImageMap &sprites)
+bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites)
 {
-	if (length != 2 + 1 + 8 * 4) return false;
+	if (rcdfile->version != 2 || rcdfile->size != 2 + 1 + 8 * 4) return false;
 
 	uint16 width = rcdfile->GetUInt16();
 	uint8 type = rcdfile->GetUInt8();

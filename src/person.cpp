@@ -55,12 +55,12 @@ PersonTypeData &ModifyPersonTypeData(PersonType pt)
 /**
  * Load graphics settings of person types from an RCD file.
  * @param rcd_file RCD file to read, pointing at the start of the PRSG block data (behind the header information).
- * @param length Length of the remaining block data.
  * @return Loading was a success.
  */
-bool LoadPRSG(RcdFileReader *rcd_file, uint32 length)
+bool LoadPRSG(RcdFileReader *rcd_file)
 {
-	if (length < 1) return false;
+	uint32 length = rcd_file->size;
+	if (rcd_file->version != 1 || length < 1) return false;
 	uint8 count = rcd_file->GetUInt8();
 	length--;
 

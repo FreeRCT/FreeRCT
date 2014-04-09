@@ -244,17 +244,18 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 }
 
 /**
- * Load 8bpp sprite block (8PXL, version 2) from the \a rcd_file.
+ * Load 8bpp or 32bpp sprite block from the \a rcd_file.
  * @param rcd_file File being loaded.
- * @param length Length of the 8PXL block.
- * @param is_8bpp Whether the block being loaded is a 8PXL block (else it is assumed to be a 32PX block).
  * @return Loaded sprite, if loading was successful, else \c nullptr.
  */
-ImageData *LoadImage(RcdFileReader *rcd_file, size_t length, bool is_8bpp)
+ImageData *LoadImage(RcdFileReader *rcd_file)
 {
+	bool is_8bpp = strcmp(rcd_file->name, "8PXL") == 0;
+	if (rcd_file->version != (is_8bpp ? 2 : 1)) return nullptr;
+
 	_sprites.emplace_back();
 	ImageData *imd = &_sprites.back();
-	bool loaded = is_8bpp ? imd->Load8bpp(rcd_file, length) : imd->Load32bpp(rcd_file, length);
+	bool loaded = is_8bpp ? imd->Load8bpp(rcd_file, rcd_file->size) : imd->Load32bpp(rcd_file, rcd_file->size);
 	if (!loaded) {
 		_sprites.pop_back();
 		return nullptr;

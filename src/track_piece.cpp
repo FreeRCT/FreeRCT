@@ -179,13 +179,13 @@ TrackPiece::~TrackPiece()
 /**
  * Load a track piece.
  * @param rcd_file Data file being loaded.
- * @param length Length of the voxel (according to the file).
  * @param sprites Already loaded sprite blocks.
  * @return Loading was successful.
  */
-bool TrackPiece::Load(RcdFileReader *rcd_file, uint32 length, const ImageMap &sprites)
+bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (length < 2 + 3 + 1 + 2 + 4 + 2) return false;
+	uint32 length = rcd_file->size;
+	if (rcd_file->version != 5 || length < 2 + 3 + 1 + 2 + 4 + 2) return false;
 	length -= 2 + 3 + 1 + 2 + 4 + 2;
 
 	this->entry_connect = rcd_file->GetUInt8();

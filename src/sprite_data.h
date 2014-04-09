@@ -44,7 +44,7 @@ public:
 	uint8 *data;   ///< The image data itself.
 };
 
-ImageData *LoadImage(RcdFileReader *rcd_file, size_t length, bool is_8bpp);
+ImageData *LoadImage(RcdFileReader *rcd_file);
 
 void InitImageStorage();
 void DestroyImageStorage();
