@@ -485,16 +485,9 @@ bool SpriteManager::LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-Support::Support() : RcdBlock()
+Support::Support()
 {
-	this->type = 0;
-	this->width = 0;
-	this->height = 0;
 	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) this->sprites[sprnum] = nullptr;
-}
-
-Support::~Support()
-{
 }
 
 /**
@@ -503,16 +496,20 @@ Support::~Support()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Support::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + SSP_COUNT * 4) return false;
 
-	this->type = rcd_file->GetUInt16();
-	if (this->type != 16) return false; // Only accept type 16 'wood'.
-	this->width  = rcd_file->GetUInt16();
-	this->height = rcd_file->GetUInt16();
-	for (uint sprnum = 0; sprnum < lengthof(this->sprites); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
+	uint16 type = rcd_file->GetUInt16();
+	if (type != 16) return false; // Only accept type 16 'wood'.
+	uint16 width  = rcd_file->GetUInt16();
+	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
+
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr) return false;
+	Support *supp = &ss->support;
+	for (uint sprnum = 0; sprnum < lengthof(supp->sprites); sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &supp->sprites[sprnum])) return false;
 	}
 	return true;
 }
@@ -1076,17 +1073,6 @@ void SpriteStorage::Clear()
 }
 
 /**
- * Add support sprites block.
- * @param supp New support block.
- * @pre Width of the platform block must match with #size.
- */
-void SpriteStorage::AddSupport(Support *supp)
-{
-	assert(supp->width == this->size);
-	this->support = supp;
-}
-
-/**
  * Remove any sprites that were loaded for the provided animation.
  * @param anim_type %Animation type to remove.
  * @param pers_type Person type to remove.
@@ -1214,14 +1200,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "SUPP") == 0) {
-			Support *block = new Support;
-			if (!block->Load(&rcd_file, sprites)) {
-				delete block;
+			if (!this->LoadSUPP(&rcd_file, sprites)) {
 				return "Support block loading failed.";
 			}
-			this->AddBlock(block);
-
-			this->store.AddSupport(block);
 			continue;
 		}
 

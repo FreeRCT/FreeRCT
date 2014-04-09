@@ -128,17 +128,11 @@ public:
  * %Support sprites.
  * @ingroup sprites_group
  */
-class Support : public RcdBlock {
+class Support {
 public:
 	Support();
-	~Support();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
-
-	uint16 type;   ///< Type of the foundation. @see FoundationType
-	uint16 width;  ///< Width of a tile.
-	uint16 height; ///< Height of a tile. @todo Remove height from RCD file.
-	ImageData *sprites[SSP_COUNT]; ///< Foundation sprites.
+	ImageData *sprites[SSP_COUNT]; ///< %Support sprites.
 };
 
 /**
@@ -437,7 +431,6 @@ public:
 	SpriteStorage(uint16 size);
 	~SpriteStorage();
 
-	void AddSupport(Support *supp);
 	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
 	void AddAnimationSprites(AnimationSprites *an_spr);
 
@@ -530,12 +523,12 @@ public:
 	SurfaceData surface[GTP_COUNT];   ///< Surface data.
 	Foundation foundation[FDT_COUNT]; ///< Foundation.
 	Platform platform;                ///< %Platform block.
-	Support *support;                  ///< Support block.
+	Support support;                  ///< Support block.
 	TileSelection tile_select;        ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
 	Path path_sprites;                ///< %Path sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
-	AnimationSpritesMap animations;    ///< %Animation sprites ordered by animation type.
+	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.
 
 protected:
 	void Clear();
@@ -576,6 +569,7 @@ private:
 	bool LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites);
+	bool LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };

@@ -1008,7 +1008,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 				}
 				slope = SL_FLAT;
 			}
-			ImageData *img = this->sprites->support->sprites[sprnum];
+			ImageData *img = this->sprites->support.sprites[sprnum];
 			if (img != nullptr) {
 				DrawData dd;
 				dd.level = slice;
