@@ -48,7 +48,7 @@ CarType::CarType()
  * @param sprites Already loaded sprites.
  * @return Loading was a success.
  */
-bool CarType::Load(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
+bool CarType::Load(RcdFileReader *rcdfile, uint32 length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 4 + 4 + 2 + 2 + 16384) return false;
 
@@ -93,7 +93,7 @@ CoasterType::~CoasterType()
  * @param piece_map Already loaded track pieces.
  * @return Loading was successful.
  */
-bool CoasterType::Load(RcdFile *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map)
+bool CoasterType::Load(RcdFileReader *rcd_file, uint32 length, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
 	if (length < 2 + 1 + 1 + 1 + 4 + 2) return false;
 	length -= 2 + 1 + 1 + 1 + 4 + 2;
@@ -204,7 +204,7 @@ CoasterPlatform::CoasterPlatform()
  * @param sprites Sprites already loaded from the RCD file.
  * @return Loading the CSPL block succeeded.
  */
-bool LoadCoasterPlatform(RcdFile *rcdfile, uint32 length, const ImageMap &sprites)
+bool LoadCoasterPlatform(RcdFileReader *rcdfile, uint32 length, const ImageMap &sprites)
 {
 	if (length != 2 + 1 + 8 * 4) return false;
 

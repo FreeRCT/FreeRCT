@@ -58,7 +58,7 @@ PersonTypeData &ModifyPersonTypeData(PersonType pt)
  * @param length Length of the remaining block data.
  * @return Loading was a success.
  */
-bool LoadPRSG(RcdFile *rcd_file, uint32 length)
+bool LoadPRSG(RcdFileReader *rcd_file, uint32 length)
 {
 	if (length < 1) return false;
 	uint8 count = rcd_file->GetUInt8();

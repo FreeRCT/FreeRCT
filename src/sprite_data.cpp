@@ -42,7 +42,7 @@ ImageData::~ImageData()
  * @return Load was successful.
  * @pre File pointer is at first byte of the block.
  */
-bool ImageData::Load8bpp(RcdFile *rcd_file, size_t length)
+bool ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 {
 	if (length < 8) return false; // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
 	this->width  = rcd_file->GetUInt16();
@@ -107,7 +107,7 @@ bool ImageData::Load8bpp(RcdFile *rcd_file, size_t length)
  * @param length Length of the 32bpp block.
  * @return Exeit code, \0 means ok, every other number indicates an error.
  */
-bool ImageData::Load32bpp(RcdFile *rcd_file, size_t length)
+bool ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 {
 	if (length < 8) return false; // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
 	this->width  = rcd_file->GetUInt16();
@@ -250,7 +250,7 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
  * @param is_8bpp Whether the block being loaded is a 8PXL block (else it is assumed to be a 32PX block).
  * @return Loaded sprite, if loading was successful, else \c nullptr.
  */
-ImageData *LoadImage(RcdFile *rcd_file, size_t length, bool is_8bpp)
+ImageData *LoadImage(RcdFileReader *rcd_file, size_t length, bool is_8bpp)
 {
 	_sprites.emplace_back();
 	ImageData *imd = &_sprites.back();

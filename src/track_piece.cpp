@@ -33,7 +33,7 @@ TrackVoxel::~TrackVoxel()
  * @param sprites Already loaded sprite blocks.
  * @return Loading was successful.
  */
-bool TrackVoxel::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 4 * 4 + 4 * 4 + 3 + 1) return false;
 	for (uint i = 0; i < 4; i++) {
@@ -94,7 +94,7 @@ BezierTrackCurve::BezierTrackCurve()
  * @param rcdfile Data file to load from. Caller must ensure there is enough data available at the stream.
  * @return The Loaded Bezier spline.
  */
-static CubicBezier LoadBezier(RcdFile *rcdfile)
+static CubicBezier LoadBezier(RcdFileReader *rcdfile)
 {
 	uint32 start = rcdfile->GetUInt32();
 	uint32 last = rcdfile->GetUInt32();
@@ -112,7 +112,7 @@ static CubicBezier LoadBezier(RcdFile *rcdfile)
  * @param length [inout] Length of the block that is not loaded yet.
  * @return Reading was a success (might have failed due to not enough data).
  */
-static bool LoadTrackCurve(RcdFile *rcdfile, TrackCurve **curve, uint32 *length)
+static bool LoadTrackCurve(RcdFileReader *rcdfile, TrackCurve **curve, uint32 *length)
 {
 #define ENSURE_LENGTH(x) do { if (*length < (x)) { *curve = nullptr; return false; } *length -= (x); } while(false)
 
@@ -183,7 +183,7 @@ TrackPiece::~TrackPiece()
  * @param sprites Already loaded sprite blocks.
  * @return Loading was successful.
  */
-bool TrackPiece::Load(RcdFile *rcd_file, uint32 length, const ImageMap &sprites)
+bool TrackPiece::Load(RcdFileReader *rcd_file, uint32 length, const ImageMap &sprites)
 {
 	if (length < 2 + 3 + 1 + 2 + 4 + 2) return false;
 	length -= 2 + 3 + 1 + 2 + 4 + 2;

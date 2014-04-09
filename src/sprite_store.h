@@ -22,7 +22,7 @@
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
 
-class RcdFile;
+class RcdFileReader;
 class ImageData;
 
 /**
@@ -45,7 +45,7 @@ public:
 	TextData();
 	~TextData();
 
-	bool Load(RcdFile *rcd_file, uint32 length);
+	bool Load(RcdFileReader *rcd_file, uint32 length);
 
 	uint string_count;   ///< Number of strings in #strings.
 	TextString *strings; ///< Strings of the text.
@@ -63,7 +63,7 @@ public:
 	SurfaceData();
 	~SurfaceData();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
@@ -80,7 +80,7 @@ public:
 	TileSelection();
 	~TileSelection();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
@@ -96,7 +96,7 @@ public:
 	TileCorners();
 	~TileCorners();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
@@ -112,7 +112,7 @@ public:
 	Path();
 	~Path();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 type;   ///< Type of the path. @see PathTypes
 	uint16 width;  ///< Width of a tile.
@@ -129,7 +129,7 @@ public:
 	Foundation();
 	~Foundation();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 type;   ///< Type of the foundation. @see FoundationType
 	uint16 width;  ///< Width of a tile.
@@ -147,7 +147,7 @@ public:
 	Platform();
 	~Platform();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;  ///< Width of a tile.
 	uint16 height; ///< Height of a tile.
@@ -166,7 +166,7 @@ public:
 	Support();
 	~Support();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 type;   ///< Type of the foundation. @see FoundationType
 	uint16 width;  ///< Width of a tile.
@@ -184,7 +184,7 @@ public:
 	DisplayedObject();
 	~DisplayedObject();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width; ///< Width of the tile.
 	ImageData *sprites[4]; ///< Object displayed towards NE, SE, SW, NW edges.
@@ -216,7 +216,7 @@ public:
 	Animation();
 	~Animation();
 
-	bool Load(RcdFile *rcd_file, size_t length);
+	bool Load(RcdFileReader *rcd_file, size_t length);
 
 	uint16 frame_count;      ///< Number of frames.
 	uint8 person_type;       ///< Type of persons supported by this animation.
@@ -233,7 +233,7 @@ public:
 	AnimationSprites();
 	~AnimationSprites();
 
-	bool Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
+	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	uint16 width;            ///< Width of the tile.
 	uint8 person_type;       ///< Type of persons supported by this animation.
@@ -416,11 +416,11 @@ struct GuiSprites {
 	GuiSprites();
 
 	void Clear();
-	bool LoadGBOR(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
-	bool LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
-	bool LoadGSLI(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
-	bool LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &sprites);
-	bool LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts);
+	bool LoadGBOR(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGCHK(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGSLI(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGSCL(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
+	bool LoadGSLP(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts);
 
 	bool HasSufficientGraphics() const;
 
@@ -620,8 +620,8 @@ private:
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };
 
-bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr);
-bool LoadTextFromFile(RcdFile *rcd_file, const TextMap &texts, TextData **txt);
+bool LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageData **spr);
+bool LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **txt);
 
 extern SpriteManager _sprite_manager;
 extern GuiSprites _gui_sprites;

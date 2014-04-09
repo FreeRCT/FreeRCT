@@ -142,7 +142,7 @@ static int DecodeUtf8Char(uint8 *data, size_t length, uint32 *codepoint)
  * @param[out] used_size Length of the used part of the buffer, only updated on successful reading of the string.
  * @return Reading the string was a success.
  */
-static bool ReadUtf8Text(RcdFile *rcd_file, size_t expected_length, uint8 *buffer, size_t buf_length, size_t *used_size)
+static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, uint8 *buffer, size_t buf_length, size_t *used_size)
 {
 	if (buf_length < *used_size + expected_length) return false;
 	rcd_file->GetBlob(buffer + *used_size, expected_length);
@@ -170,7 +170,7 @@ static bool ReadUtf8Text(RcdFile *rcd_file, size_t expected_length, uint8 *buffe
  * @param length Length of the block to load.
  * @return Load was successful.
  */
-bool TextData::Load(RcdFile *rcd_file, uint32 length)
+bool TextData::Load(RcdFileReader *rcd_file, uint32 length)
 {
 	uint8 buffer[64*1024]; // Arbitrary sized block of temporary memory to store the text data.
 	size_t used_size = 0;
@@ -254,7 +254,7 @@ bool TextData::Load(RcdFile *rcd_file, uint32 length)
  * @param [out] spr Pointer to write the loaded sprite to.
  * @return Loading was successful.
  */
-bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **spr)
+bool LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageData **spr)
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
@@ -274,7 +274,7 @@ bool LoadSpriteFromFile(RcdFile *rcd_file, const ImageMap &sprites, ImageData **
  * @param [out] txt Pointer to write the loaded text data reference to.
  * @return Loading was successful.
  */
-bool LoadTextFromFile(RcdFile *rcd_file, const TextMap &texts, TextData **txt)
+bool LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **txt)
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
@@ -306,7 +306,7 @@ SurfaceData::~SurfaceData()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool SurfaceData::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool SurfaceData::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
@@ -348,7 +348,7 @@ TileSelection::~TileSelection()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileSelection::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool TileSelection::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
@@ -380,7 +380,7 @@ Path::~Path()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Path::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool Path::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
 
@@ -418,7 +418,7 @@ TileCorners::~TileCorners()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileCorners::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool TileCorners::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) return false;
 
@@ -452,7 +452,7 @@ Foundation::~Foundation()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Foundation::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool Foundation::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 4 * 6) return false;
 
@@ -491,7 +491,7 @@ Platform::~Platform()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Platform::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool Platform::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + 2 * 4 + 12 * 4) return false;
 
@@ -533,7 +533,7 @@ Support::~Support()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Support::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool Support::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 2 + 2 + SSP_COUNT * 4) return false;
 
@@ -564,7 +564,7 @@ DisplayedObject::~DisplayedObject()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool DisplayedObject::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool DisplayedObject::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 4 * 4) return false;
 
@@ -612,7 +612,7 @@ static PersonType DecodePersonType(uint8 pt)
  * @param length Length of the data part of the block.
  * @return Loading was successful.
  */
-bool Animation::Load(RcdFile *rcd_file, size_t length)
+bool Animation::Load(RcdFileReader *rcd_file, size_t length)
 {
 	const uint BASE_LENGTH = 1 + 2 + 2;
 
@@ -667,7 +667,7 @@ AnimationSprites::~AnimationSprites()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool AnimationSprites::Load(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool AnimationSprites::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
 
@@ -727,7 +727,7 @@ bool BorderSpriteData::IsLoaded() const
  * @param sprites Sprites loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGBOR(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGBOR(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + 8 * 1 + WBS_COUNT * 4) return false;
 
@@ -795,7 +795,7 @@ bool CheckableWidgetSpriteData::IsLoaded() const
  * @return Load was successful.
  * @todo Load width and height from the RCD file too.
  */
-bool GuiSprites::LoadGCHK(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGCHK(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 2 + WCS_COUNT * 4) return false;
 
@@ -854,7 +854,7 @@ bool SliderSpriteData::IsLoaded() const
  * @return Load was successful.
  * @todo Move widget_type further to the top in the RCD file block.
  */
-bool GuiSprites::LoadGSLI(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGSLI(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 3 * 1 + 2 + WSS_COUNT * 4) return false;
 
@@ -922,7 +922,7 @@ bool ScrollbarSpriteData::IsLoaded() const
  * @todo Move widget_type further to the top in the RCD file block.
  * @todo Add width of the scrollbar in the RCD file block.
  */
-bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &sprites)
+bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
 	if (length != 4 * 1 + 2 + WLS_COUNT * 4) return false;
 
@@ -980,7 +980,7 @@ bool GuiSprites::LoadGSCL(RcdFile *rcd_file, size_t length, const ImageMap &spri
  * @param texts Texts loaded from this file.
  * @return Load was successful.
  */
-bool GuiSprites::LoadGSLP(RcdFile *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts)
+bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites, const TextMap &texts)
 {
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
@@ -1270,7 +1270,7 @@ const char *SpriteManager::Load(const char *filename)
 	char name[5];
 	name[4] = '\0';
 
-	RcdFile rcd_file(filename);
+	RcdFileReader rcd_file(filename);
 	if (!rcd_file.CheckFileHeader("RCDF", 1)) return "Could not read header";
 
 	ImageMap sprites; // Sprites loaded from this file.

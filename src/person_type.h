@@ -15,7 +15,7 @@
 #include "palette.h"
 
 class Random;
-class RcdFile;
+class RcdFileReader;
 
 static const int NUMBER_PERSON_TYPE_RECOLOURINGS = 3; ///< Number of recolouring mapping of a person type.
 
@@ -72,6 +72,6 @@ static inline bool PersonIsAGuest(uint8 type)
 	return type >= PERSON_MIN_GUEST && type <= PERSON_MAX_GUEST;
 }
 
-bool LoadPRSG(RcdFile *rcd_file, uint32 length);
+bool LoadPRSG(RcdFileReader *rcd_file, uint32 length);
 
 #endif

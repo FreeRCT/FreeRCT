@@ -188,7 +188,7 @@ DirectoryReader *MakeDirectoryReader()
  * RCD file constructor, loading data from a file.
  * @param fname Name of the file to load.
  */
-RcdFile::RcdFile(const char *fname)
+RcdFileReader::RcdFileReader(const char *fname)
 {
 	this->file_pos = 0;
 	this->file_size = 0;
@@ -201,7 +201,7 @@ RcdFile::RcdFile(const char *fname)
 }
 
 /** Destructor. */
-RcdFile::~RcdFile()
+RcdFileReader::~RcdFileReader()
 {
 	if (this->fp != nullptr) fclose(fp);
 }
@@ -210,7 +210,7 @@ RcdFile::~RcdFile()
  * Get length of data not yet read.
  * @return Count of remaining data.
  */
-size_t RcdFile::GetRemaining()
+size_t RcdFileReader::GetRemaining()
 {
 	return (this->file_size >= this->file_pos) ? this->file_size - this->file_pos : 0;
 }
@@ -220,7 +220,7 @@ size_t RcdFile::GetRemaining()
  * @return Loaded number.
  * @pre File must be open, data must be available.
  */
-uint8 RcdFile::GetUInt8()
+uint8 RcdFileReader::GetUInt8()
 {
 	this->file_pos++;
 	return fgetc(this->fp);
@@ -231,7 +231,7 @@ uint8 RcdFile::GetUInt8()
  * @return Loaded number.
  * @pre File must be open, data must be available.
  */
-int8 RcdFile::GetInt8()
+int8 RcdFileReader::GetInt8()
 {
 	return this->GetUInt8();
 }
@@ -241,7 +241,7 @@ int8 RcdFile::GetInt8()
  * @return Loaded number.
  * @pre File must be open, data must be available.
  */
-uint16 RcdFile::GetUInt16()
+uint16 RcdFileReader::GetUInt16()
 {
 	uint16 val = this->GetUInt8();
 	return val | (this->GetUInt8() << 8);
@@ -252,7 +252,7 @@ uint16 RcdFile::GetUInt16()
  * @return Loaded number.
  * @pre File must be open, data must be available.
  */
-int16 RcdFile::GetInt16()
+int16 RcdFileReader::GetInt16()
 {
 	uint16 val = this->GetUInt8();
 	return val | (this->GetUInt8() << 8);
@@ -263,7 +263,7 @@ int16 RcdFile::GetInt16()
  * @return Loaded number.
  * @pre File must be open, data must be available.
  */
-uint32 RcdFile::GetUInt32()
+uint32 RcdFileReader::GetUInt32()
 {
 	uint32 val = this->GetUInt16();
 	return val | (this->GetUInt16() << 16);
@@ -274,7 +274,7 @@ uint32 RcdFile::GetUInt32()
  * @return Loaded number.
  * @pre File must be open, data must be available.
  */
-int32 RcdFile::GetInt32()
+int32 RcdFileReader::GetInt32()
 {
 	uint32 val = this->GetUInt16();
 	return val | (this->GetUInt16() << 16);
@@ -286,7 +286,7 @@ int32 RcdFile::GetInt32()
  * @param version Header version.
  * @return The header seems correct.
  */
-bool RcdFile::CheckFileHeader(const char *hdr_name, uint32 version)
+bool RcdFileReader::CheckFileHeader(const char *hdr_name, uint32 version)
 {
 	if (this->fp == nullptr) return false;
 	if (this->GetRemaining() < 8) return false;
@@ -305,7 +305,7 @@ bool RcdFile::CheckFileHeader(const char *hdr_name, uint32 version)
  * @param length Length of the data.
  * @return Loading was successful.
  */
-bool RcdFile::GetBlob(void *address, size_t length)
+bool RcdFileReader::GetBlob(void *address, size_t length)
 {
 	this->file_pos += length;
 	return fread(address, length, 1, this->fp) == 1;

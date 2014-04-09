@@ -14,7 +14,7 @@
 
 static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in image data.
 
-class RcdFile;
+class RcdFileReader;
 
 /** Flags of an image in #ImageData. */
 enum ImageFlags {
@@ -30,8 +30,8 @@ public:
 	ImageData();
 	~ImageData();
 
-	bool Load8bpp(RcdFile *rcd_file, size_t length);
-	bool Load32bpp(RcdFile *rcd_file, size_t length);
+	bool Load8bpp(RcdFileReader *rcd_file, size_t length);
+	bool Load32bpp(RcdFileReader *rcd_file, size_t length);
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset) const;
 
@@ -44,7 +44,7 @@ public:
 	uint8 *data;   ///< The image data itself.
 };
 
-ImageData *LoadImage(RcdFile *rcd_file, size_t length, bool is_8bpp);
+ImageData *LoadImage(RcdFileReader *rcd_file, size_t length, bool is_8bpp);
 
 void InitImageStorage();
 void DestroyImageStorage();

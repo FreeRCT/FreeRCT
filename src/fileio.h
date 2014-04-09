@@ -44,10 +44,10 @@ public:
  * Class representing a RCD file.
  * @ingroup fileio_group
  */
-class RcdFile {
+class RcdFileReader {
 public:
-	RcdFile(const char *fname);
-	~RcdFile();
+	RcdFileReader(const char *fname);
+	~RcdFileReader();
 
 	bool CheckFileHeader(const char *hdr_name, uint32 version);
 
