@@ -80,15 +80,10 @@ public:
  * Highlight the currently selected corner of a ground tile with a corner selection sprite.
  * @ingroup sprites_group
  */
-class TileCorners : public RcdBlock {
+class TileCorners {
 public:
 	TileCorners();
-	~TileCorners();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
-
-	uint16 width;  ///< Width of a tile.
-	uint16 height; ///< Height of a tile. @todo Remove height from RCD file.
 	ImageData *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
 };
 
@@ -463,7 +458,6 @@ public:
 	SpriteStorage(uint16 size);
 	~SpriteStorage();
 
-	void AddTileCorners(TileCorners *tc);
 	void AddFoundations(Foundation *fnd);
 	void AddPlatform(Platform *plat);
 	void AddSupport(Support *supp);
@@ -518,8 +512,7 @@ public:
 	 */
 	const ImageData *GetCornerSprite(uint8 surf_spr, ViewOrientation orient, ViewOrientation cursor) const
 	{
-		if (this->tile_corners == nullptr) return nullptr;
-		return this->tile_corners->sprites[cursor][_slope_rotation[surf_spr][orient]];
+		return this->tile_corners.sprites[cursor][_slope_rotation[surf_spr][orient]];
 	}
 
 	/**
@@ -566,7 +559,7 @@ public:
 	Platform *platform;                ///< Platform block.
 	Support *support;                  ///< Support block.
 	TileSelection tile_select;        ///< Tile selection sprites.
-	TileCorners *tile_corners;         ///< Tile corner sprites.
+	TileCorners tile_corners;         ///< Tile corner sprites.
 	Path *path_sprites;                ///< Path sprites.
 	DisplayedObject *build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;    ///< %Animation sprites ordered by animation type.
@@ -605,6 +598,7 @@ protected:
 private:
 	bool LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites);
+	bool LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };

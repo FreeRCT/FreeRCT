@@ -384,19 +384,13 @@ bool Path::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-TileCorners::TileCorners() : RcdBlock()
+TileCorners::TileCorners()
 {
-	this->width = 0;
-	this->height = 0;
 	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
 		for (uint i = 0; i < NUM_SLOPE_SPRITES; i++) {
 			this->sprites[v][i] = nullptr;
 		}
 	}
-}
-
-TileCorners::~TileCorners()
-{
 }
 
 /**
@@ -405,16 +399,19 @@ TileCorners::~TileCorners()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TileCorners::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) return false;
 
-	this->width  = rcd_file->GetUInt16();
-	this->height = rcd_file->GetUInt16();
+	uint16 width  = rcd_file->GetUInt16();
+	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr) return false;
+	TileCorners *tc = &ss->tile_corners;
 	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
 		for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[v][sprnum])) return false;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &tc->sprites[v][sprnum])) return false;
 		}
 	}
 	return true;
@@ -1089,21 +1086,9 @@ SpriteStorage::~SpriteStorage()
 void SpriteStorage::Clear()
 {
 	for (uint i = 0; i < lengthof(this->foundation); i++) this->foundation[i] = nullptr;
-	this->tile_corners = nullptr;
 	this->path_sprites = nullptr;
 	this->build_arrows = nullptr;
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
-}
-
-/**
- * Add tile corner sprites.
- * @param tc New tile corner sprites.
- * @pre Width of the tile corner sprites must match with #size.
- */
-void SpriteStorage::AddTileCorners(TileCorners *tc)
-{
-	assert(tc->width == this->size);
-	this->tile_corners = tc;
 }
 
 /**
@@ -1274,14 +1259,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "TCOR") == 0) {
-			TileCorners *block = new TileCorners;
-			if (!block->Load(&rcd_file, sprites)) {
-				delete block;
+			if (!this->LoadTCOR(&rcd_file, sprites)) {
 				return "Tile-corners block loading failed.";
 			}
-			this->AddBlock(block);
-
-			this->store.AddTileCorners(block);
 			continue;
 		}
 
