@@ -350,16 +350,9 @@ bool SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-Path::Path() : RcdBlock()
+Path::Path()
 {
-	this->type = PT_INVALID;
-	this->width = 0;
-	this->height = 0;
 	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
-}
-
-Path::~Path()
-{
 }
 
 /**
@@ -368,18 +361,21 @@ Path::~Path()
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool Path::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+bool SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
 
-	this->type = rcd_file->GetUInt16();
-	if (this->type != 16) return false; // Only 'concrete' paths exist.
+	uint16 type = rcd_file->GetUInt16();
+	if (type != 16) return false; // Only 'concrete' paths exist.
 
-	this->width  = rcd_file->GetUInt16();
-	this->height = rcd_file->GetUInt16();
+	uint16 width  = rcd_file->GetUInt16();
+	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr) return false;
+	Path *path = &ss->path_sprites;
 	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum])) return false;
 	}
 	return true;
 }
@@ -1081,7 +1077,6 @@ SpriteStorage::~SpriteStorage()
 /** Clear all data from the storage. */
 void SpriteStorage::Clear()
 {
-	this->path_sprites = nullptr;
 	this->build_arrows = nullptr;
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
 }
@@ -1106,17 +1101,6 @@ void SpriteStorage::AddSupport(Support *supp)
 {
 	assert(supp->width == this->size);
 	this->support = supp;
-}
-
-/**
- * Add path sprites.
- * @param path %Path sprites to add.
- * @pre Width of the path sprites must match with #size.
- */
-void SpriteStorage::AddPath(Path *path)
-{
-	assert(path->width == this->size);
-	this->path_sprites = path;
 }
 
 /**
@@ -1230,14 +1214,9 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "PATH") == 0) {
-			Path *block = new Path;
-			if (!block->Load(&rcd_file, sprites)) {
-				delete block;
+			if (!this->LoadPATH(&rcd_file, sprites)) {
 				return "Path-sprites block loading failed.";
 			}
-			this->AddBlock(block);
-
-			this->store.AddPath(block);
 			continue;
 		}
 
