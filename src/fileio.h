@@ -51,6 +51,7 @@ public:
 
 	bool CheckFileHeader(const char *hdr_name, uint32 version);
 	bool ReadBlockHeader();
+	void SkipBytes(uint32 count);
 
 	bool GetBlob(void *address, size_t length);
 

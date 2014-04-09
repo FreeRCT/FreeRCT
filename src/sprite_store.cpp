@@ -1503,10 +1503,7 @@ const char *SpriteManager::Load(const char *filename)
 
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", rcd_file.name, rcd_file.version);
-		while (rcd_file.size > 0) {
-			rcd_file.GetUInt8();
-			rcd_file.size--;
-		}
+		rcd_file.SkipBytes(rcd_file.size);
 	}
 }
 

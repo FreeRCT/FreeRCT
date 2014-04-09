@@ -315,6 +315,17 @@ bool RcdFileReader::ReadBlockHeader()
 }
 
 /**
+ * Skip a number of bytes in the file.
+ * @param count Number of bytes to move forward.
+ */
+void RcdFileReader::SkipBytes(uint32 count)
+{
+	this->file_pos += count;
+	if (this->file_pos > this->file_size) this->file_pos = this->file_size;
+	fseek(this->fp, this->file_pos, SEEK_SET);
+}
+
+/**
  * Get a blob of data from the file.
  * @param address Address to load into.
  * @param length Length of the data.
