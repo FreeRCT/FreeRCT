@@ -120,8 +120,8 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 
 	/* Initialize counts of ride kinds */
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = 0;
-	for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
-		const RideType *ride_type = _rides_manager.ride_types[i];
+	for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
+		const RideType *ride_type = _rides_manager.GetRideType(i);
 		if (ride_type == nullptr) continue;
 
 		assert(ride_type->kind >= 0 && ride_type->kind < lengthof(this->ride_types));
@@ -153,8 +153,8 @@ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 			wid->resize_y = GetTextHeight();
 			wid->min_y = 5 * wid->resize_y;
 
-			for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
-				const RideType *ride_type = _rides_manager.ride_types[i];
+			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
+				const RideType *ride_type = _rides_manager.GetRideType(i);
 				if (ride_type == nullptr) continue;
 
 				int width, height;
@@ -165,8 +165,8 @@ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 
 		case RSEL_DESC: {
 			int max_height = 0;
-			for (uint i = 0; i < lengthof(_rides_manager.ride_types); i++) {
-				const RideType *ride_type = _rides_manager.ride_types[i];
+			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
+				const RideType *ride_type = _rides_manager.GetRideType(i);
 				if (ride_type == nullptr) continue;
 
 				int width, height;
@@ -187,8 +187,8 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			int lines = wid->pos.height / GetTextHeight(); /// \todo Implement scrollbar position & size.
 			rect.x = this->GetWidgetScreenX(wid);
 			rect.y = this->GetWidgetScreenY(wid);
-			for (int i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
-				const RideType *ride_type = _rides_manager.ride_types[i];
+			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
+				const RideType *ride_type = _rides_manager.GetRideType(i);
 				if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 				if (lines <= 0) break;
 				lines--;
@@ -302,8 +302,8 @@ bool RideSelectGui::SetNewRide(int16 newKind, bool force)
 
 	this->current_ride = -1;
 	if (this->ride_types[newKind] > 0) {
-		for (int i = 0; i < (int)lengthof(_rides_manager.ride_types); i++) {
-			const RideType *ride_type = _rides_manager.ride_types[i];
+		for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
+			const RideType *ride_type = _rides_manager.GetRideType(i);
 			if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 
 			this->current_ride = i;
