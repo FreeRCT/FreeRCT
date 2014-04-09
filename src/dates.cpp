@@ -155,3 +155,30 @@ void DateOnTick()
 	if (newmonth) OnNewMonth();
 	if (newyear)  OnNewYear();
 }
+
+/**
+ * Load the current date from the save game.
+ * @param ldr Input stream to load from.
+ */
+void LoadDate(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("DATE");
+	if (version == 1) {
+		_date = Date(ldr.GetLong());
+	} else {
+		_date = Date();
+		if (version != 0) ldr.SetFail("Unknown date block number");
+	}
+	ldr.CloseBlock();
+}
+
+/**
+ * Save the current date to the save game.
+ * @param svr Output stream to save to.
+ */
+void SaveDate(Saver &svr)
+{
+	svr.StartBlock("DATE", 1);
+	svr.PutLong(_date.Compress());
+	svr.EndBlock();
+}

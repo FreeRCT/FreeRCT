@@ -19,12 +19,11 @@ public:
 	bool Success(int perc);
 	uint16 Uniform(uint16 incl_upper);
 
+	static void Load(Loader &ldr);
+	static void Save(Saver &svr);
+
 private:
-	/**
-	 * Seed of the generators.
-	 * @todo Add this in the save game.
-	 */
-	static uint32 seed;
+	static uint32 seed; ///< Seed of the generators.
 
 	uint32 DrawNumber();
 };

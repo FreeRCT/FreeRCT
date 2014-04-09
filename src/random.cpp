@@ -70,3 +70,27 @@ uint32 Random::DrawNumber()
 	seed = 1664525UL * seed + 1013904223UL;
 	return seed;
 }
+
+/**
+ * Load random number for the game.
+ * @param ldr Source of the data.
+ */
+void Random::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("RAND");
+	/* Do nothing if version == 0, as any number in seed is fine. */
+	if (version == 1) Random::seed = ldr.GetLong();
+	ldr.CloseBlock();
+}
+
+/**
+ * Save random number of the game.
+ * @param svr Destination of the data.
+ */
+void Random::Save(Saver &svr)
+{
+	svr.StartBlock("RAND", 1);
+	svr.PutLong(Random::seed);
+	svr.EndBlock();
+}
+

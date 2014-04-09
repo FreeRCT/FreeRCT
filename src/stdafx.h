@@ -181,4 +181,6 @@ void NORETURN error(const char *str, ...) WARN_FORMAT(1, 2);
 /** Macro for reporting reaching an 'impossible' position in the code. */
 #define NOT_REACHED() error("NOT_REACHED triggered at line %i of %s\n", __LINE__, __FILE__)
 
+#include "loadsave.h"
+
 #endif

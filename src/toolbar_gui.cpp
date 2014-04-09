@@ -126,13 +126,18 @@ void ToolbarWindow::OnClick(WidgetNumber number)
 			ShowPathBuildGui();
 			break;
 
-		case TB_GUI_SAVE:
-			/// \todo Implement saving.
+		case TB_GUI_SAVE: {
+			SaveGame("saved.fct");
+			/// \todo Provide option to enter the filename for saving.
+			/// \todo Provide feedback on the save.
 			break;
+		}
 
-		case TB_GUI_LOAD:
-			/// \todo Implement loading.
+		case TB_GUI_LOAD: {
+			LoadGame("saved.fct");
+			/// \todo Provide option to select the file to load.
 			break;
+		}
 
 		case TB_GUI_RIDE_SELECT:
 			ShowRideSelectGui();

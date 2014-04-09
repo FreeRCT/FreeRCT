@@ -50,6 +50,8 @@ public:
 };
 
 void DateOnTick();
+void LoadDate(Loader &ldr);
+void SaveDate(Saver &svr);
 
 extern Date _date;
 
