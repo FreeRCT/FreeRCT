@@ -1397,7 +1397,7 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 				err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 			} else {
 				ImageFile rmf;
-				const char *err = rmf.LoadFile(recolour);
+				err = rmf.LoadFile(recolour);
 				if (err != nullptr) {
 					fprintf(stderr, "Error at %s, loading of the recolour file failed: %s\n", ng->pos.ToString(), err);
 					exit(1);

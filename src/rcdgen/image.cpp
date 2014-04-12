@@ -350,7 +350,6 @@ uint8 *Image8bpp::Encode(int xpos, int ypos, int width, int height, int *size) c
 			while (x - start > 255) {
 				length += 2 + 255; // ((start-last_stored) gap, 255 pixels, and 255 colour indices.
 				start += 255;
-				last_stored = start;
 			}
 			length += 2 + x - start;
 			last_stored = x;
@@ -616,10 +615,8 @@ uint8 *Image32bpp::Encode(int xpos, int ypos, int width, int height, int *size) 
 			}
 			if (opaq == FULLY_TRANSPARENT) {
 				/* Plain fully transparent pixels. */
-				if (opaq_length + x == width) {
-					x = width;
-					break; // End of the line reached.
-				}
+				if (opaq_length + x == width) break; // End of the line reached.
+
 				if (opaq_length > 63) opaq_length = 63;
 				count += 1;
 				x += opaq_length;
@@ -682,10 +679,8 @@ uint8 *Image32bpp::Encode(int xpos, int ypos, int width, int height, int *size) 
 			}
 			if (opaq == FULLY_TRANSPARENT) {
 				/* Plain fully transparent pixels. */
-				if (opaq_length + x == width) {
-					x = width;
-					break; // End of the line reached.
-				}
+				if (opaq_length + x == width) break; // End of the line reached.
+
 				if (opaq_length > 63) opaq_length = 63;
 				*ptr++ = 128 + opaq_length;
 				x += opaq_length;

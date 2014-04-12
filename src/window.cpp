@@ -446,21 +446,20 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return WMME_NONE;
 
 	BaseWidget *bw = this->tree->GetWidgetByPosition(this->mouse_pos);
-	if (bw != nullptr) {
-		if (bw->wtype == WT_TITLEBAR) return WMME_MOVE_WINDOW;
-		if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
+	if (bw == nullptr) return WMME_NONE;
+	if (bw->wtype == WT_TITLEBAR) return WMME_MOVE_WINDOW;
+	if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
 
-		LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
-		if (lw != nullptr && lw->IsShaded()) return WMME_NONE;
+	LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
+	if (lw == nullptr || lw->IsShaded()) return WMME_NONE;
 
-		if (bw->wtype == WT_TEXT_PUSHBUTTON || bw->wtype == WT_IMAGE_PUSHBUTTON) {
-			/* For mono-stable buttons, 'press' the button, and set a timeout for 'releasing' it again. */
-			lw->SetPressed(true);
-			this->timeout = 4;
-			lw->MarkDirty(this->rect.base);
-		}
-		if (bw->number >= 0) this->OnClick(bw->number);
+	if (bw->wtype == WT_TEXT_PUSHBUTTON || bw->wtype == WT_IMAGE_PUSHBUTTON) {
+		/* For mono-stable buttons, 'press' the button, and set a timeout for 'releasing' it again. */
+		lw->SetPressed(true);
+		this->timeout = 4;
+		lw->MarkDirty(this->rect.base);
 	}
+	if (bw->number >= 0) this->OnClick(bw->number);
 	return WMME_NONE;
 }
 

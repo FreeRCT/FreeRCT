@@ -1483,15 +1483,11 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
 		} else {
 			used = MakeWidgetSubTree(parts, remaining, &bg->child, biggest);
 		}
-		parts += used;
-		remaining -= used;
 		total_used += used;
 	} else if ((*dest)->wtype == WT_GRID) {
 		/* Container widget; also load child widgets. */
 		IntermediateWidget *iw = static_cast<IntermediateWidget *>(*dest);
 		used = FillWidget(parts, remaining, iw, biggest);
-		parts += used;
-		remaining -= used;
 		total_used += used;
 	}
 	return total_used;

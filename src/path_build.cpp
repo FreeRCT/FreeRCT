@@ -588,6 +588,7 @@ void PathBuildManager::ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, ui
 void PathBuildManager::ComputeWorldAdditions()
 {
 	assert(this->state == PBS_WAIT_BUY); // It needs selected_arrow and selected_slope.
+	assert(this->selected_slope != TSL_INVALID);
 
 	if (((1 << this->selected_slope) & this->allowed_slopes) == 0) return;
 
