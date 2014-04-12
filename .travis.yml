@@ -15,13 +15,13 @@ install:
   - cd $TRAVIS_BUILD_DIR
   - cmake .
 script:
-  - make
+  - make -j2
 notifications:
   email: false
   irc:
     channels:
       - "irc.oftc.net#freerct"
-    on_success: always
+    on_success: change
     on_failure: always
     template:
       - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
