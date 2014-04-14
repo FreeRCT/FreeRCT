@@ -138,16 +138,13 @@ static char *StripWhitespace(char *first, char *last = nullptr)
  */
 bool ConfigFile::LoadFromDirectoryList(const char **dir_list, const char *fname)
 {
-	DirectoryReader *dr = MakeDirectoryReader();
 	while (*dir_list != nullptr) {
-		const char *fpath = dr->MakePath(*dir_list, fname);
-		if (dr->EntryIsFile() && this->Load(fpath)) {
-			delete dr;
+		std::string fpath = std::string(*dir_list) + '/' + fname;
+		if (PathIsFile(fpath.c_str()) && this->Load(fpath.c_str())) {
 			return true;
 		}
 		dir_list++;
 	}
-	delete dr;
 	return false;
 }
 

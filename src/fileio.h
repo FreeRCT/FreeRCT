@@ -74,6 +74,9 @@ private:
 	size_t file_size; ///< Size of the opened file.
 };
 
+bool PathIsFile(const char *path);
+bool PathIsDirectory(const char *path);
+
 DirectoryReader *MakeDirectoryReader();
 
 #endif

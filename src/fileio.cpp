@@ -159,17 +159,27 @@ void UnixDirectoryReader::ClosePath()
 
 bool UnixDirectoryReader::EntryIsFile()
 {
-	struct stat st;
-
-	if (stat(this->fpath, &st) != 0) return false;
-	return S_ISREG(st.st_mode);
+	return PathIsFile(this->fpath);
 }
 
 bool UnixDirectoryReader::EntryIsDirectory()
 {
+	return PathIsDirectory(this->fpath);
+}
+
+bool PathIsFile(const char *path)
+{
 	struct stat st;
 
-	if (stat(this->fpath, &st) != 0) return false;
+	if (stat(path, &st) != 0) return false;
+	return S_ISREG(st.st_mode);
+}
+
+bool PathIsDirectory(const char *path)
+{
+	struct stat st;
+
+	if (stat(path, &st) != 0) return false;
 	return S_ISDIR(st.st_mode);
 }
 
