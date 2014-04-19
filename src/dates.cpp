@@ -167,7 +167,7 @@ void LoadDate(Loader &ldr)
 		_date = Date(ldr.GetLong());
 	} else {
 		_date = Date();
-		if (version != 0) ldr.SetFail("Unknown date block number");
+		if (version != 0) ldr.SetFailMessage("Unknown date block number");
 	}
 	ldr.CloseBlock();
 }

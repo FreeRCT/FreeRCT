@@ -24,7 +24,8 @@ public:
 	uint16 GetWord();
 	uint32 GetLong();
 
-	void SetFail(const char *fail_msg);
+	void SetFailMessage(const char *fail_msg);
+	const char *GetFailMessage() const;
 	bool IsFail() const;
 
 private:

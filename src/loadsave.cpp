@@ -50,7 +50,7 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 				this->PutByte(this->blk_name[i]);
 			}
 			if (may_fail) return UINT32_MAX;
-			this->SetFail("Missing block name");
+			this->SetFailMessage("Missing block name");
 			return 0;
 		}
 		i++;
@@ -58,7 +58,7 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 
 	uint32 version = this->GetLong();
 	if (version == 0 || version == UINT32_MAX) {
-		this->SetFail("Incorrect version number");
+		this->SetFailMessage("Incorrect version number");
 		return 0;
 	}
 	return version;
@@ -72,7 +72,7 @@ void Loader::CloseBlock()
 	assert(this->blk_name != nullptr);
 	if (this->GetByte() != this->blk_name[3] || this->GetByte() != this->blk_name[2] ||
 			this->GetByte() != this->blk_name[1] || this->GetByte() != this->blk_name[0]) {
-		this->SetFail("CloseBlock got unexpected data");
+		this->SetFailMessage("CloseBlock got unexpected data");
 	}
 	this->blk_name = nullptr;
 }
@@ -91,7 +91,7 @@ uint8 Loader::GetByte()
 	}
 	int k = getc(this->fp);
 	if (k == EOF) {
-		this->SetFail("EOF encountered");
+		this->SetFailMessage("EOF encountered");
 		return 0;
 	}
 	return k;
@@ -134,10 +134,20 @@ uint32 Loader::GetLong()
  * @param fail_msg Message to explain what failed. Caller must preserve the message text.
  * @note Message is mostly for internal and debugging use.
  */
-void Loader::SetFail(const char *fail_msg)
+void Loader::SetFailMessage(const char *fail_msg)
 {
 	if (this->IsFail()) return; // Do not overwrite the first message.
 	this->fail_msg = fail_msg;
+}
+
+/**
+ * Get the failure message of the loader.
+ * @return Message why loading failed.
+ * @note Message is mostly for internal and debugging use.
+ */
+const char *Loader::GetFailMessage() const
+{
+	return this->fail_msg;
 }
 
 /**
@@ -219,7 +229,7 @@ void Saver::PutLong(uint32 val)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version != 1) ldr.SetFail("Bad file header");
+	if (version != 1) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
 
 	LoadDate(ldr);
