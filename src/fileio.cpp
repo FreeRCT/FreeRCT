@@ -167,6 +167,11 @@ bool UnixDirectoryReader::EntryIsDirectory()
 	return PathIsDirectory(this->fpath);
 }
 
+/**
+ * Test whether the given path points to a normal file.
+ * @param path Path to investigate.
+ * @return Whether the given path points to a normal file.
+ */
 bool PathIsFile(const char *path)
 {
 	struct stat st;
@@ -175,6 +180,11 @@ bool PathIsFile(const char *path)
 	return S_ISREG(st.st_mode);
 }
 
+/**
+ * Test whether the given path points to a directory.
+ * @param path Path to investigate.
+ * @return Whether the given path points to a directory.
+ */
 bool PathIsDirectory(const char *path)
 {
 	struct stat st;
