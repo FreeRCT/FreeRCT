@@ -35,15 +35,16 @@ Offset  Length  Version  Description
 ======  ======  =======  ======================================================
    0      12      1-     File header
   12      16      1-     Current date block
-  28      16      1-     Current random number block
-  44       ?      2-     Current financial data.
+  28       ?      3-     Current basic world block.
+   ?      16      1-     Current random number block
+   ?       ?      2-     Current financial data.
    ?                     Total length of the save file.
 ======  ======  =======  ======================================================
 
 
 File header
 -----------
-The file header consists of 3 parts. Current version number is 2.
+The file header consists of 3 parts. Current version number is 3.
 
 ======  ======  ======================================================
 Offset  Length  Description
@@ -59,6 +60,7 @@ Version history
 
 - 1 (20140410) Initial version.
 - 2 (20140419) Added financial data.
+- 3 (20140419) Added basic world data.
 
 
 Current date block
@@ -146,8 +148,71 @@ Offset  Length  Version  Description
   88       8      1-     Marketing costs.
   96       8      1-     Research costs.
  104       8      1-     Loan interest.
- 112
+ 112                     Total length.
 ======  ======  =======  ======================================================
+
+Version history
+~~~~~~~~~~~~~~~
+
+- 1 (20140419) Initial version.
+
+
+Basic world block
+-----------------
+The basic world block contains voxel information about ground, foundations, and
+small rides (paths etc). Voxel data of full rides and voxel objects are not
+stored here, they are part of the full rides or persons. Current version of the
+basic world block is 1.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "WRLD".
+   4       4      1-     Version number of the basic world block.
+   8       2      1-     Length of the world in X direction.
+  10       2      1-     Length of the world in Y direction.
+  12       4      1-     "DLRW"
+  16       ?      1-     Voxel stack blocks.
+======  ======  =======  ======================================================
+
+The voxel stack blocks store each voxel stack of the world, starting at
+coordinate ``(0, 0)`` and ending at ``(max_x, max_y)``. The ``y`` coordinate
+runs fastest.
+
+Version history
+~~~~~~~~~~~~~~~
+
+- 1 (20140419) Initial version.
+
+
+Voxel stack block
+-----------------
+A voxel stack block saves all voxels at a single ``(x, y)`` coordinate. Current
+block number is 1, which has the following layout.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "VSTK".
+   4       4      1-     Version number of the voxel stack block.
+   8       2      1-     Height of bottom voxel of the stack.
+  10       2      1-     Number of voxels available in this stack.
+  12       1      1-     Owner of this park tile.
+  13    ?*5/6     1-     Contents of "number" voxels.
+   ?       4      1-     "KTSV"
+======  ======  =======  ======================================================
+
+A single voxel is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     Ground (+ slope + foundation + grass-length)
+   4       1      1-     Instance for small rides, or 'free'.
+   5      0/1     1-     If small ride instance, its instance data, else
+                         this field is skipped.
+======  ======  =======  ======================================================
+
 
 Version history
 ~~~~~~~~~~~~~~~

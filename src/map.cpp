@@ -69,6 +69,45 @@ static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_ob
 }
 
 /**
+ * Load a voxel from the save game.
+ * @param ldr Input stream to read.
+ * @param version Version to load.
+ */
+void Voxel::Load(Loader &ldr, uint32 version)
+{
+	this->ClearVoxel();
+	if (version == 1) {
+		this->ground = ldr.GetLong(); /// \todo Check sanity of the data.
+		this->instance = ldr.GetByte();
+		if (this->instance == SRI_FREE) {
+			this->instance_data = 0; // Full rides load after the world, overwriting map data.
+		} else if (this->instance >= SRI_RIDES_START && this->instance < SRI_FULL_RIDES) {
+			this->instance_data = ldr.GetWord();
+		} else {
+			this->instance_data = 0; // Full rides load after the world, overwriting map data.
+			ldr.SetFailMessage("Unknown voxel instance data");
+		}
+	} else {
+		ldr.SetFailMessage("Unknown voxel version");
+	}
+}
+
+/**
+ * Write a voxel to the save game.
+ * @param svr Output stream to write.
+ */
+void Voxel::Save(Saver &svr) const
+{
+	svr.PutLong(this->ground);
+	if (this->instance >= SRI_RIDES_START && this->instance < SRI_FULL_RIDES) {
+		svr.PutByte(this->instance);
+		svr.PutWord(this->instance_data);
+	} else {
+		svr.PutByte(SRI_FREE); // Full rides save their own data from the world.
+	}
+}
+
+/**
  * Make a new array of voxels, and initialize it.
  * @param height Desired height of the new voxel array.
  * @return New and initialized to 'empty' voxels. Caller should delete[] the memory after use.
@@ -337,6 +376,46 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 }
 
 /**
+ * Load a voxel stack from the save game file.
+ * @param ldr Input stream to read.
+ */
+void VoxelStack::Load(Loader &ldr)
+{
+	this->Clear();
+	uint32 version = ldr.OpenBlock("VSTK");
+	if (version == 1) {
+		int16 base = ldr.GetWord();
+		uint16 height = ldr.GetWord();
+		uint8 owner = ldr.GetByte();
+		if (base < 0 || base + height > WORLD_Z_SIZE || owner >= OWN_COUNT) {
+			ldr.SetFailMessage("Incorrect voxel stack size");
+		} else {
+			this->base = base;
+			this->height = height;
+			this->owner = (TileOwner)owner;
+			delete[] this->voxels;
+			this->voxels = (height > 0) ? MakeNewVoxels(height) : nullptr;
+			for (uint i = 0; i < height; i++) this->voxels[i].Load(ldr, version);
+		}
+	}
+	ldr.CloseBlock();
+}
+
+/**
+ * Save a voxel stack to the save game file.
+ * @param svr Output stream to write.
+ */
+void VoxelStack::Save(Saver &svr) const
+{
+	svr.StartBlock("VSTK", 1);
+	svr.PutWord(this->base);
+	svr.PutWord(this->height);
+	svr.PutByte(this->owner);
+	for (uint i = 0; i < this->height; i++) this->voxels[i].Save(svr);
+	svr.EndBlock();
+}
+
+/**
  * Get a voxel stack.
  * @param x X coordinate of the stack.
  * @param y Y coordinate of the stack.
@@ -420,6 +499,59 @@ void VoxelWorld::SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 heigh
 	for (uint16 ix = x; ix < x + width; ix++) {
 		for (uint16 iy = y; iy < y + height; iy++) {
 			this->SetTileOwner(ix, iy, owner);
+		}
+	}
+}
+
+/**
+ * Load the world from a file.
+ * @param ldr Input stream to read from.
+ */
+void VoxelWorld::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("WRLD");
+	uint16 xsize = 64;
+	uint16 ysize = 64;
+	if (version == 1) {
+		xsize = ldr.GetWord();
+		ysize = ldr.GetWord();
+	} else if (version != 0) {
+		ldr.SetFailMessage("Unknown world version.");
+	}
+	if (xsize >= WORLD_X_SIZE || ysize >= WORLD_Y_SIZE) {
+		xsize = std::min<uint16>(xsize, WORLD_X_SIZE);
+		ysize = std::min<uint16>(ysize, WORLD_Y_SIZE);
+		ldr.SetFailMessage("Incorrect world size");
+	}
+	ldr.CloseBlock();
+
+	this->SetWorldSize(xsize, ysize);
+	if (!ldr.IsFail() && version != 0) {
+		for (uint16 x = 0; x < xsize; x++) {
+			for (uint16 y = 0; y < ysize; y++) {
+				VoxelStack *vs = this->GetModifyStack(x, y);
+				vs->Load(ldr);
+			}
+		}
+	}
+	if (version == 0 || ldr.IsFail()) this->MakeFlatWorld(8);
+}
+
+/**
+ * Save the world to a file.
+ * @param svr Output stream to save to.
+ */
+void VoxelWorld::Save(Saver &svr) const
+{
+	/* Save basic map information (rides are saved as part of the ride). */
+	svr.StartBlock("WRLD", 1);
+	svr.PutWord(this->GetXSize());
+	svr.PutWord(this->GetYSize());
+	svr.EndBlock();
+	for (uint16 x = 0; x < this->GetXSize(); x++) {
+		for (uint16 y = 0; y < this->GetYSize(); y++) {
+			const VoxelStack *vs = this->GetStack(x, y);
+			vs->Save(svr);
 		}
 	}
 }

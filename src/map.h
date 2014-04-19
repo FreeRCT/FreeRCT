@@ -266,6 +266,9 @@ public:
 	{
 		return this->voxel_objects != nullptr;
 	}
+
+	void Save(Saver &svr) const;
+	void Load(Loader &ldr, uint32 version);
 };
 
 /** Base class for (moving) objects that are stored at a voxel position for easy retrieval during drawing. */
@@ -355,6 +358,8 @@ enum TileOwner {
 	OWN_NONE,     ///< Tile not owned by the park and not for sale.
 	OWN_FOR_SALE, ///< Tile not owned by the park, but can be bought.
 	OWN_PARK,     ///< Tile owned by the park.
+
+	OWN_COUNT,    ///< Number of valid tile ownership values.
 };
 
 /**
@@ -372,6 +377,9 @@ public:
 
 	VoxelStack *Copy(bool copyPersons) const;
 	void MoveStack(VoxelStack *old_stack);
+
+	void Save(Saver &svr) const;
+	void Load(Loader &ldr);
 
 	Voxel *voxels;   ///< %Voxel array at this stack.
 	int16 base;      ///< Height of the bottom voxel.
@@ -469,6 +477,9 @@ public:
 	TileOwner GetTileOwner(uint16 x, uint16 y);
 	void SetTileOwner(uint16 x, uint16 y, TileOwner owner);
 	void SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner);
+
+	void Save(Saver &svr) const;
+	void Load(Loader &ldr);
 
 private:
 	uint16 x_size; ///< Current max x size.

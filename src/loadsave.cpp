@@ -13,6 +13,7 @@
 #include "dates.h"
 #include "random.h"
 #include "finances.h"
+#include "map.h"
 
 /**
  * Constructor of the loader class.
@@ -253,12 +254,13 @@ void Saver::PutLongLong(uint64 val)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 2) ldr.SetFailMessage("Bad file header");
+	if (version > 3) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
 
 	Loader reset_loader(nullptr);
 
 	LoadDate(ldr);
+	_world.Load((version >= 3) ? ldr : reset_loader);
 	Random::Load(ldr);
 	_finances_manager.Load((version >= 2) ? ldr : reset_loader);
 
@@ -272,10 +274,11 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 2);
+	svr.StartBlock("FCTS", 3);
 	svr.EndBlock();
 
 	SaveDate(svr);
+	_world.Save(svr);
 	Random::Save(svr);
 	_finances_manager.Save(svr);
 }
