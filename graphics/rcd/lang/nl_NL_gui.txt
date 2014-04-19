@@ -26,16 +26,57 @@ string { lang: "nl_NL"; name: "MONTH_OCTOBER";   text: "Oktober"; }
 string { lang: "nl_NL"; name: "MONTH_NOVEMBER";  text: "November"; }
 string { lang: "nl_NL"; name: "MONTH_DECEMBER";  text: "December"; }
 
+string { lang: "nl_NL"; name: "NUMBERED_INSTANCE_NAME"; text: "%1% #%2%"; }
+
 // Toolbar gui strings.
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_QUIT";                 text: "Afsluiten"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM"; text: "Sluit het programma"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_SETTINGS";             text: "Instellingen"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_SETTINGS";     text: "Verander de instellingen van het spel"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_GAME_MODE_PLAY";       text: "Speel"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_GAME_MODE_EDITOR";     text: "Bewerker"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_GAME_MODE";    text: "Wissel tussen spelen en scenario bewerken"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_PATHS";                text: "Paden"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_BUILD_PATHS";  text: "Bouw paden en wachtrijen"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_SAVE";                 text: "Opslaan"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_SAVE_GAME";    text: "Sla het huidige spel op"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_LOAD";                 text: "Laden"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_LOAD_GAME";    text: "Laad een spel"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_RIDE_SELECT";          text: "Koop een attractie"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_RIDE_SELECT";  text: "Koop een nieuwe attractie voor in je park"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TERRAFORM";            text: "Terravorming"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_TERRAFORM";    text: "Verander het landschap"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_FINANCES";             text: "Financiën"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_FINANCES";     text: "Beheer de bedrijfsfinanciën"; }
+
+// Quit program strings.
+string { lang: "nl_NL"; name: "QUIT_CAPTION"; text: "Programma sluiten?"; }
+string { lang: "nl_NL"; name: "QUIT_MESSAGE"; text: "Het programma sluiten?"; }
+string { lang: "nl_NL"; name: "QUIT_NO";      text: "Nee"; }
+string { lang: "nl_NL"; name: "QUIT_YES";     text: "Ja"; }
+
+// Error message strings.
+string { lang: "nl_NL"; name: "ERROR_MESSAGE_CAPTION"; text: "Boodschap"; }
+string { lang: "nl_NL"; name: "ERROR_MESSAGE_SPRITE";  text: "Het tekenen van de sprite is mislukt"; }
+
+// Guest info gui strings.
+string { lang: "nl_NL"; name: "GUEST_INFO_MONEY";     text: "Geld op zak"; }
+string { lang: "nl_NL"; name: "GUEST_INFO_HAPPINESS"; text: "Gelukkigheid"; }
+string { lang: "nl_NL"; name: "GUEST_INFO_HUNGER";    text: "Honger"; }
+string { lang: "nl_NL"; name: "GUEST_INFO_THIRST";    text: "Dorst"; }
+string { lang: "nl_NL"; name: "GUEST_INFO_WASTE";     text: "Afval"; }
+string { lang: "nl_NL"; name: "GUEST_INFO_ITEMS";     text: "Voorwerpen bij zich"; }
+
+// Items for guests gui strings.
+string { lang: "nl_NL"; name: "ITEM_NONE";     text: "Geen"; }
+string { lang: "nl_NL"; name: "ITEM_MAP";      text: "Kaart"; }
+string { lang: "nl_NL"; name: "ITEM_UMBRELLA"; text: "Paraplu"; }
+string { lang: "nl_NL"; name: "ITEM_WRAPPER";  text: "Verpakking"; }
 
 // Path gui strings.
 string { lang: "nl_NL"; name: "PATH_GUI_TITLE";    text: "Paden"; }
 string { lang: "nl_NL"; name: "PATH_GUI_LONG";     text: "Lang"; }
-string { lang: "nl_NL"; name: "PATH_GUI_BUY";      text: "Kopen"; }
+string { lang: "nl_NL"; name: "PATH_GUI_BUY";      text: "Koop"; }
 string { lang: "nl_NL"; name: "PATH_GUI_REMOVE";   text: "Verwijderen"; }
 string { lang: "nl_NL"; name: "PATH_GUI_LONG_TIP"; text: "Bouw een lang pad"; }
 string { lang: "nl_NL"; name: "PATH_GUI_BUY_TIP";  text: "Koop een pad tegel"; }
@@ -47,10 +88,83 @@ string { lang: "nl_NL"; name: "PATH_GUI_SLOPE_UP_TIP";   text: "Bouw pad omhoog"
 
 string { lang: "nl_NL"; name: "PATH_GUI_FORWARD";      text: "Vooruit"; }
 string { lang: "nl_NL"; name: "PATH_GUI_BACKWARD";     text: "Terug"; }
-string { lang: "nl_NL"; name: "PATH_GUI_FORWARD_TIP";  text: "Beweeg een tegel voorwaarts"; }
+string { lang: "nl_NL"; name: "PATH_GUI_FORWARD_TIP";  text: "Beweeg een tegel vooruit"; }
 string { lang: "nl_NL"; name: "PATH_GUI_BACKWARD_TIP"; text: "Beweeg een tegel terug"; }
 
 string { lang: "nl_NL"; name: "PATH_GUI_NW_DIRECTION_TIP"; text: "Bouw pad in noord-westelijke richting"; }
 string { lang: "nl_NL"; name: "PATH_GUI_NE_DIRECTION_TIP"; text: "Bouw pad in noord-oostelijke richting"; }
 string { lang: "nl_NL"; name: "PATH_GUI_SW_DIRECTION_TIP"; text: "Bouw pad in zuid-westelijke richting"; }
 string { lang: "nl_NL"; name: "PATH_GUI_SE_DIRECTION_TIP"; text: "Bouw pad in zuid-oostelijke richting"; }
+
+// Ride select gui strings.
+string { lang: "nl_NL"; name: "RIDE_SELECT_TITLE";           text: "Attractie selectie"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_SHOPS";           text: "Winkel"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_SHOPS_TOOLTIP";   text: "Klik voor een weergave van beschikbare winkels"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_GENTLE";          text: "Rustige attracties"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_GENTLE_TOOLTIP";  text: "Klik voor een weergave van beschikbare rustige attracties"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_WET";             text: "Water attracties"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_WET_TOOLTIP";     text: "Klik voor een weergave van beschikbare water attracties"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_COASTER";         text: "Achtbanen"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_COASTER_TOOLTIP"; text: "Klik voor een weergave van beschikbare achtbanen"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_RIDE";            text: "Selecteer"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_RIDE_TOOLTIP";    text: "Klik om de geselecteerde attractie te selecteren"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_ROT_POS_TOOLTIP"; text: "Klik om je attractie tegen de klok in te draaien"; }
+string { lang: "nl_NL"; name: "RIDE_SELECT_ROT_NEG_TOOLTIP"; text: "Klik om je attractie met de klok mee te draaien"; }
+
+// Shop manager window strings.
+string { lang: "nl_NL"; name: "SHOP_MANAGER_TITLE";              text: "Winkel \"%1%\""; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_COST_PRICE_TEXT";    text: "Kostprijs"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_SELLING_PRICE_TEXT"; text: "Verkoop prijs"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_ITEMS_SOLD_TEXT";    text: "Verkochte voorwerpen"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_ITEM_PROFIT_TEXT";   text: "Voorwerp winst"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_SELL_PROFIT_TEXT";   text: "Verkoop winst"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_SHOP_COST_TEXT";     text: "Personeels kosten"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_TOTAL_PROFIT_TEXT";  text: "Totale winst"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_OPENED_TEXT";        text: "Winkel is open"; }
+string { lang: "nl_NL"; name: "SHOP_MANAGER_CLOSED_TEXT";        text: "Winkel is gesloten"; }
+
+// Terraform gui strings.
+string { lang: "nl_NL"; name: "TERRAFORM_TITLE";       text: "Pas landschap aan"; }
+string { lang: "nl_NL"; name: "TERRAFORM_ADD_TEXT";    text: "+"; }
+string { lang: "nl_NL"; name: "TERRAFORM_ADD_TOOLTIP"; text: "Vergoot het terravorm gebied"; }
+string { lang: "nl_NL"; name: "TERRAFORM_SUB_TEXT";    text: "-"; }
+string { lang: "nl_NL"; name: "TERRAFORM_SUB_TOOLTIP"; text: "Verklein het terravorm gebied"; }
+string { lang: "nl_NL"; name: "TERRAFORM_LEVEL_TEXT";  text: "Niveau terravorm gebied"; }
+string { lang: "nl_NL"; name: "TERRAFORM_MOVE_TEXT";   text: "Verplaats het terravorm gebied"; }
+
+// Finances gui strings.
+string { lang: "nl_NL"; name: "FINANCES_TITLE";                  text: "Beheer Financiën"; }
+string { lang: "nl_NL"; name: "FINANCES_RIDE_CONSTRUCTION_TEXT"; text: "Attractie Bouw"; }
+string { lang: "nl_NL"; name: "FINANCES_RIDE_RUNNING_TEXT";      text: "Attractie Exploitatiekosten"; }
+string { lang: "nl_NL"; name: "FINANCES_LAND_PURCHASE_TEXT";     text: "Gebied Aanschaf"; }
+string { lang: "nl_NL"; name: "FINANCES_LANDSCAPING_TEXT";       text: "Terravorming"; }
+string { lang: "nl_NL"; name: "FINANCES_PARK_TICKETS_TEXT";      text: "Park Tickets"; }
+string { lang: "nl_NL"; name: "FINANCES_RIDE_TICKETS_TEXT";      text: "Attractie Tickets"; }
+string { lang: "nl_NL"; name: "FINANCES_SHOP_SALES_TEXT";        text: "Verkopen Winkel"; }
+string { lang: "nl_NL"; name: "FINANCES_SHOP_STOCK_TEXT";        text: "Winkel Voorraad"; }
+string { lang: "nl_NL"; name: "FINANCES_FOOD_SALES_TEXT";        text: "Verkopen Eten/Drinken"; }
+string { lang: "nl_NL"; name: "FINANCES_FOOD_STOCK_TEXT";        text: "Eten/Drinken Voorraad"; }
+string { lang: "nl_NL"; name: "FINANCES_STAFF_WAGES_TEXT";       text: "Personeels Salaris"; }
+string { lang: "nl_NL"; name: "FINANCES_MARKETING_TEXT";         text: "Marketing"; }
+string { lang: "nl_NL"; name: "FINANCES_RESEARCH_TEXT";          text: "Onderzoek"; }
+string { lang: "nl_NL"; name: "FINANCES_LOAN_INTEREST_TEXT";     text: "Lening Rente"; }
+string { lang: "nl_NL"; name: "FINANCES_TOTAL_TEXT";             text: "Totaal"; }
+
+// Coaster construction strings.
+string { lang: "nl_NL"; name: "COASTER_BUILD_LEFT_BEND_TOOLTIP";  text: "Selecteer een baanstuk met een bocht naar links"; }
+string { lang: "nl_NL"; name: "COASTER_BUILD_NO_BEND_TOOLTIP";    text: "Selecteer een recht baanstuk"; }
+string { lang: "nl_NL"; name: "COASTER_BUILD_RIGHT_BEND_TOOLTIP"; text: "Selecteer een baanstuk met een bocht naar rechts"; }
+string { lang: "nl_NL"; name: "COASTER_BUILD_BANK_LEFT_TOOLTIP";  text: "Selecteer een baanstuk dat eindigt met een wenteling naar links"; }
+string { lang: "nl_NL"; name: "COASTER_BUILD_BANK_NONE_TOOLTIP";  text: "Selecteer een baanstuk dat vlak eindigt"; }
+string { lang: "nl_NL"; name: "COASTER_BUILD_BANK_RIGHT_TOOLTIP"; text: "Selecteer een baanstuk dat eindigt met een wenteling naar rechts"; }
+string { lang: "nl_NL"; name: "COASTER_BUILD_BUY_TOOLTIP";        text: "Klik om het geselecteerde baanstuk te kopen"; }
+
+// Money symbols.
+string { lang: "nl_NL"; name: "MONEY_CURRENCY_SYMBOL";     text: "€"; }
+string { lang: "nl_NL"; name: "MONEY_THOUSANDS_SEPARATOR"; text: "."; }
+string { lang: "nl_NL"; name: "MONEY_DECIMAL_SEPARATOR";   text: ","; }
+
+// Setting gui strings.
+string { lang: "nl_NL"; name: "SETTING_TITLE";            text: "Instellingen"; }
+string { lang: "nl_NL"; name: "SETTING_LANGUAGE";         text: "Wijzig taal"; }
+string { lang: "nl_NL"; name: "SETTING_LANGUAGE_TOOLTIP"; text: "Verander de taal van het spel"; }

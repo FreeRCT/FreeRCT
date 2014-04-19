@@ -6,11 +6,8 @@
 // See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 //
 
-// Texts relating to shops in Dutch.
+// Texts relating to tracks/coasters in Dutch.
 
-string { lang: "nl_NL"; name: "NAME_INSTANCE1";   text: "De blije oppeuzelaar"; }
-string { lang: "nl_NL"; name: "NAME_INSTANCE2";   text: "Pizza paleis"; }
-string { lang: "nl_NL"; name: "NAME_TYPE";        text: "Snack kraampje"; }
-string { lang: "nl_NL"; name: "DESCRIPTION_TYPE"; text: "Winkel waar je lekkere koekjes kunt kopen"; }
-string { lang: "nl_NL"; name: "NAME_ITEM1";       text: "Koekjes"; }
-string { lang: "nl_NL"; name: "NAME_ITEM2";       text: "Pizza"; }
+string { lang: "nl_NL"; name: "NAME_INSTANCE";    text: "Gekke achtbaan"; }
+string { lang: "nl_NL"; name: "NAME_TYPE";        text: "Standaard achtbaan"; }
+string { lang: "nl_NL"; name: "DESCRIPTION_TYPE"; text: "Standaard stalen achtbaan"; }
