@@ -43,6 +43,9 @@ public:
 
 	void Reset();
 	Money GetTotal() const;
+
+	void Load(Loader &ldr, uint32 version);
+	void Save(Saver &svr);
 };
 
 /**
@@ -66,6 +69,9 @@ public:
 	void SetScenario(const Scenario &s);
 
 	void DoTransaction(const Money &income);
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	/**
 	 * Access method for monthly transactions.
@@ -206,6 +212,10 @@ public:
 		this->finances[this->current].food_sales += m;
 		DoTransaction(m);
 	}
+
+private:
+	void Reset();
+	void NotifyGui();
 };
 
 extern FinancesManager _finances_manager;

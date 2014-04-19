@@ -23,6 +23,7 @@ public:
 	uint8 GetByte();
 	uint16 GetWord();
 	uint32 GetLong();
+	uint64 GetLongLong();
 
 	void SetFailMessage(const char *fail_msg);
 	const char *GetFailMessage() const;
@@ -50,6 +51,7 @@ public:
 	void PutByte(uint8 val);
 	void PutWord(uint16 val);
 	void PutLong(uint32 val);
+	void PutLongLong(uint64 val);
 
 private:
 	FILE *fp; ///< Output file stream.

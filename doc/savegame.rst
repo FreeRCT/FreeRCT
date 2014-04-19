@@ -34,28 +34,31 @@ After the file header come data blocks of game elements that are stored.
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
    0      12      1-     File header
-  12              1-     Current date block
-                  1-     Current random number block
+  12      16      1-     Current date block
+  28      16      1-     Current random number block
+  44       ?      2-     Current financial data.
+   ?                     Total length of the save file.
 ======  ======  =======  ======================================================
 
 
 File header
 -----------
-The file header consists of 3 parts. Current version number is 1.
+The file header consists of 3 parts. Current version number is 2.
 
-======  ======  =======  ======================================================
-Offset  Length  Version  Description
-======  ======  =======  ======================================================
-   0       4      1-     "FCTS".
-   4       4      1-     Version number of the file header.
-   8       4      1-     "STCF"
-  12                     Total size.
-======  ======  =======  ======================================================
+======  ======  ======================================================
+Offset  Length  Description
+======  ======  ======================================================
+   0       4    "FCTS".
+   4       4    Version number of the file.
+   8       4    "STCF"
+  12            Total size.
+======  ======  ======================================================
 
 Version history
 ~~~~~~~~~~~~~~~
 
 - 1 (20140410) Initial version.
+- 2 (20140419) Added financial data.
 
 
 Current date block
@@ -103,5 +106,53 @@ Version history
 ~~~~~~~~~~~~~~~
 
 - 1 (20140410) Initial version.
+
+
+Financial block
+---------------
+The financial block stores the historic information about income and payments,
+as well as the current loan and amount of available cash.
+Current version of the block is 1.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "FINA".
+   4       4      1-     Version number of the financial block.
+   8       1      1-     Number of available history data blocks.
+   9       1      1-     Index into the current financial data bock.
+  10       8      1-     Current cash.
+  18     ?*112           'number available' history blocks, see below.
+  12       4      1-     "ANIF".
+  16                     Total size.
+======  ======  =======  ======================================================
+
+A history block looks like
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       8      1-     Construction costs of rides.
+   8       8      1-     Running cost of rides.
+  16       8      1-     Land purchase costs.
+  24       8      1-     Landscaping costs.
+  32       8      1-     Income from entrance tickets.
+  40       8      1-     Income from ride tickets.
+  48       8      1-     Income from non-food shop sales.
+  56       8      1-     Stock costs from non-food shops.
+  64       8      1-     Income from food shop sales.
+  72       8      1-     Stock costs from food shops.
+  80       8      1-     Wages of staff payments.
+  88       8      1-     Marketing costs.
+  96       8      1-     Research costs.
+ 104       8      1-     Loan interest.
+ 112
+======  ======  =======  ======================================================
+
+Version history
+~~~~~~~~~~~~~~~
+
+- 1 (20140419) Initial version.
+
 
 .. vim: spell

@@ -63,16 +63,82 @@ Money Finances::GetTotal() const
 	return income + expenses; // Expenses are already negative.
 }
 
+/**
+ * Load all monies of one month.
+ * @param ldr Input stream to load from.
+ * @param version Version of the data to load.
+ */
+void Finances::Load(Loader &ldr, uint32 version)
+{
+	switch (version) {
+		case 0: // Reset to default.
+			this->Reset();
+			break;
+
+		case 1:
+			ride_construct = ldr.GetLongLong();
+			ride_running   = ldr.GetLongLong();
+			land_purchase  = ldr.GetLongLong();
+			landscaping    = ldr.GetLongLong();
+			park_tickets   = ldr.GetLongLong();
+			ride_tickets   = ldr.GetLongLong();
+			shop_sales     = ldr.GetLongLong();
+			shop_stock     = ldr.GetLongLong();
+			food_sales     = ldr.GetLongLong();
+			food_stock     = ldr.GetLongLong();
+			staff_wages    = ldr.GetLongLong();
+			marketing      = ldr.GetLongLong();
+			research       = ldr.GetLongLong();
+			loan_interest  = ldr.GetLongLong();
+			break;
+
+		default: // Unknown version.
+			ldr.SetFailMessage("Unknown version in finances");
+			this->Reset();
+			break;
+	}
+}
+
+/**
+ * Save all monies of one month.
+ * @param svr Output stream to save to.
+ */
+void Finances::Save(Saver &svr)
+{
+	svr.PutLongLong((uint64)ride_construct);
+	svr.PutLongLong((uint64)ride_running);
+	svr.PutLongLong((uint64)land_purchase);
+	svr.PutLongLong((uint64)landscaping);
+	svr.PutLongLong((uint64)park_tickets);
+	svr.PutLongLong((uint64)ride_tickets);
+	svr.PutLongLong((uint64)shop_sales);
+	svr.PutLongLong((uint64)shop_stock);
+	svr.PutLongLong((uint64)food_sales);
+	svr.PutLongLong((uint64)food_stock);
+	svr.PutLongLong((uint64)staff_wages);
+	svr.PutLongLong((uint64)marketing);
+	svr.PutLongLong((uint64)research);
+	svr.PutLongLong((uint64)loan_interest);
+}
+
 /** Default constructor. */
 FinancesManager::FinancesManager()
 {
-	this->num_used = 1;
-	this->current = 0;
+	this->Reset();
 }
 
 /** Destructor. */
 FinancesManager::~FinancesManager()
 {
+}
+
+/** Reset all finances to initial state. */
+void FinancesManager::Reset()
+{
+	this->num_used = 1;
+	this->current = 0;
+	this->finances[this->current].Reset();
+	this->cash = 0;
 }
 
 /**
@@ -116,6 +182,47 @@ void FinancesManager::SetScenario(const Scenario &s)
 void FinancesManager::DoTransaction(const Money &income)
 {
 	this->cash += income;
+	this->NotifyGui();
+}
+
+/** Let the Gui know the financial data has changed. */
+void FinancesManager::NotifyGui()
+{
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 	NotifyChange(WC_FINANCES, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
+}
+
+/**
+ * Load financial data from the save game.
+ * @param ldr Input stream to load from.
+ */
+void FinancesManager::Load(Loader &ldr)
+{
+	this->Reset(); // version == 0 already handled.
+
+	uint32 version = ldr.OpenBlock("FINA");
+	if (version == 1) {
+		this->num_used = ldr.GetByte();
+		this->current = ldr.GetByte();
+		this->cash = ldr.GetLongLong();
+		for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr, version);
+	} else {
+		ldr.SetFailMessage("Unknown block in finances manager.");
+	}
+	ldr.CloseBlock();
+	this->NotifyGui();
+}
+
+/**
+ * Save financial data to the save game.
+ * @param svr Output stream to save to.
+ */
+void FinancesManager::Save(Saver &svr)
+{
+	svr.StartBlock("FINA", 1);
+	svr.PutByte(this->num_used);
+	svr.PutByte(this->current);
+	svr.PutLongLong(this->cash);
+	for (int i = 0; i < this->num_used; i++) this->finances[i].Save(svr);
+	svr.EndBlock();
 }

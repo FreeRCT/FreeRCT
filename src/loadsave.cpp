@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "dates.h"
 #include "random.h"
+#include "finances.h"
 
 /**
  * Constructor of the loader class.
@@ -116,7 +117,8 @@ void Loader::PutByte(uint8 val)
 uint16 Loader::GetWord()
 {
 	uint16 v = this->GetByte();
-	return v | (this->GetByte() << 8);
+	uint16 w = this->GetByte();
+	return v | (w << 8);
 }
 
 /**
@@ -126,7 +128,19 @@ uint16 Loader::GetWord()
 uint32 Loader::GetLong()
 {
 	uint32 v = this->GetWord();
-	return v | (this->GetWord() << 16);
+	uint32 w = this->GetWord();
+	return v | (w << 16);
+}
+
+/**
+ * Get the next long long word from the stream (or the cache).
+ * @return The read next long long word.
+ */
+uint64 Loader::GetLongLong()
+{
+	uint64 v = this->GetLong();
+	uint64 w = this->GetLong();
+	return v | (w << 32);
 }
 
 /**
@@ -222,6 +236,16 @@ void Saver::PutLong(uint32 val)
 }
 
 /**
+ * Write a long long word to the output stream.
+ * @param val Value to write.
+ */
+void Saver::PutLongLong(uint64 val)
+{
+	this->PutLong(val);
+	this->PutLong(val >> 32);
+}
+
+/**
  * Load the game elements from the input stream.
  * @param ldr Input stream to load from.
  * @note Order of loading should be the same as in #SaveElements.
@@ -229,11 +253,16 @@ void Saver::PutLong(uint32 val)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version != 1) ldr.SetFailMessage("Bad file header");
+	if (version > 2) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
+
+	Loader reset_loader(nullptr);
 
 	LoadDate(ldr);
 	Random::Load(ldr);
+	_finances_manager.Load((version >= 2) ? ldr : reset_loader);
+
+	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
 
 /**
@@ -243,11 +272,12 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 1);
+	svr.StartBlock("FCTS", 2);
 	svr.EndBlock();
 
 	SaveDate(svr);
 	Random::Save(svr);
+	_finances_manager.Save(svr);
 }
 
 /**
