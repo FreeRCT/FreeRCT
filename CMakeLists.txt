@@ -44,8 +44,24 @@ IF(NOT MSVC)
 	)
 	add_dependencies(gdbrun freerct)
 
+	# Documentation rules
 	find_package(Doxygen)
 	IF(DOXYGEN_FOUND)
 		add_custom_target(doc COMMAND ${DOXYGEN_EXECUTABLE})
 	ENDIF()
+
+	list(APPEND DOCFILES
+	     "data_format"
+		 "manual"
+		 "savegame"
+	)
+
+	# Warning: doesn't check for rst2html's existence
+	FOREACH(DOCFILE ${DOCFILES})
+		add_custom_target(${DOCFILE}.html
+		                  COMMAND rst2html ${DOCFILE}.rst ${DOCFILE}.html
+						  WORKING_DIRECTORY doc
+		)
+
+	ENDFOREACH()
 ENDIF()

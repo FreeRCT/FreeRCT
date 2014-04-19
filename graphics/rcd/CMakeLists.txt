@@ -53,8 +53,3 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
 ENDFOREACH(RCDFILE)
 
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})
-
-IF(NOT MSVC)
-	# Warning: doesn't check for rst2html's existence
-	add_custom_target(data_format.html COMMAND rst2html data_format.rst data_format.html)
-ENDIF()
