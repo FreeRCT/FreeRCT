@@ -33,7 +33,7 @@ string { lang: "nl_NL"; name: "TOOLBAR_GUI_QUIT";                 text: "Afsluit
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM"; text: "Sluit het programma"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_SETTINGS";             text: "Instellingen"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_SETTINGS";     text: "Verander de instellingen van het spel"; }
-string { lang: "nl_NL"; name: "TOOLBAR_GUI_GAME_MODE_PLAY";       text: "Speel"; }
+string { lang: "nl_NL"; name: "TOOLBAR_GUI_GAME_MODE_PLAY";       text: "Spelen"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_GAME_MODE_EDITOR";     text: "Bewerker"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_TOOLTIP_GAME_MODE";    text: "Wissel tussen spelen en scenario bewerken"; }
 string { lang: "nl_NL"; name: "TOOLBAR_GUI_PATHS";                text: "Paden"; }
@@ -133,21 +133,21 @@ string { lang: "nl_NL"; name: "TERRAFORM_LEVEL_TEXT";  text: "Niveau terravorm g
 string { lang: "nl_NL"; name: "TERRAFORM_MOVE_TEXT";   text: "Verplaats het terravorm gebied"; }
 
 // Finances gui strings.
-string { lang: "nl_NL"; name: "FINANCES_TITLE";                  text: "Beheer Financiën"; }
-string { lang: "nl_NL"; name: "FINANCES_RIDE_CONSTRUCTION_TEXT"; text: "Attractie Bouw"; }
-string { lang: "nl_NL"; name: "FINANCES_RIDE_RUNNING_TEXT";      text: "Attractie Exploitatiekosten"; }
-string { lang: "nl_NL"; name: "FINANCES_LAND_PURCHASE_TEXT";     text: "Gebied Aanschaf"; }
+string { lang: "nl_NL"; name: "FINANCES_TITLE";                  text: "Beheer financiën"; }
+string { lang: "nl_NL"; name: "FINANCES_RIDE_CONSTRUCTION_TEXT"; text: "Attractie bouw"; }
+string { lang: "nl_NL"; name: "FINANCES_RIDE_RUNNING_TEXT";      text: "Attractie exploitatiekosten"; }
+string { lang: "nl_NL"; name: "FINANCES_LAND_PURCHASE_TEXT";     text: "Gebied aanschaf"; }
 string { lang: "nl_NL"; name: "FINANCES_LANDSCAPING_TEXT";       text: "Terravorming"; }
-string { lang: "nl_NL"; name: "FINANCES_PARK_TICKETS_TEXT";      text: "Park Tickets"; }
-string { lang: "nl_NL"; name: "FINANCES_RIDE_TICKETS_TEXT";      text: "Attractie Tickets"; }
-string { lang: "nl_NL"; name: "FINANCES_SHOP_SALES_TEXT";        text: "Verkopen Winkel"; }
-string { lang: "nl_NL"; name: "FINANCES_SHOP_STOCK_TEXT";        text: "Winkel Voorraad"; }
-string { lang: "nl_NL"; name: "FINANCES_FOOD_SALES_TEXT";        text: "Verkopen Eten/Drinken"; }
-string { lang: "nl_NL"; name: "FINANCES_FOOD_STOCK_TEXT";        text: "Eten/Drinken Voorraad"; }
-string { lang: "nl_NL"; name: "FINANCES_STAFF_WAGES_TEXT";       text: "Personeels Salaris"; }
+string { lang: "nl_NL"; name: "FINANCES_PARK_TICKETS_TEXT";      text: "Park tickets"; }
+string { lang: "nl_NL"; name: "FINANCES_RIDE_TICKETS_TEXT";      text: "Attractie tickets"; }
+string { lang: "nl_NL"; name: "FINANCES_SHOP_SALES_TEXT";        text: "Verkopen winkel"; }
+string { lang: "nl_NL"; name: "FINANCES_SHOP_STOCK_TEXT";        text: "Winkel voorraden"; }
+string { lang: "nl_NL"; name: "FINANCES_FOOD_SALES_TEXT";        text: "Verkopen eten/drinken"; }
+string { lang: "nl_NL"; name: "FINANCES_FOOD_STOCK_TEXT";        text: "Eten/drinken voorraden"; }
+string { lang: "nl_NL"; name: "FINANCES_STAFF_WAGES_TEXT";       text: "Personeels salaris"; }
 string { lang: "nl_NL"; name: "FINANCES_MARKETING_TEXT";         text: "Marketing"; }
 string { lang: "nl_NL"; name: "FINANCES_RESEARCH_TEXT";          text: "Onderzoek"; }
-string { lang: "nl_NL"; name: "FINANCES_LOAN_INTEREST_TEXT";     text: "Lening Rente"; }
+string { lang: "nl_NL"; name: "FINANCES_LOAN_INTEREST_TEXT";     text: "Lening rente"; }
 string { lang: "nl_NL"; name: "FINANCES_TOTAL_TEXT";             text: "Totaal"; }
 
 // Coaster construction strings.
