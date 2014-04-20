@@ -460,6 +460,11 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 		lw->MarkDirty(this->rect.base);
 	}
 	Point16 widget_pos = {static_cast<int16>(this->mouse_pos.x - bw->pos.base.x), static_cast<int16>(this->mouse_pos.y - bw->pos.base.y)};
+	ScrollbarWidget *sw = dynamic_cast<ScrollbarWidget *>(bw);
+	if (sw != nullptr) {
+		sw->OnClick(this->rect.base, widget_pos);
+		return WMME_NONE;
+	}
 	if (bw->number >= 0) this->OnClick(bw->number, widget_pos);
 	return WMME_NONE;
 }

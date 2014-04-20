@@ -215,6 +215,8 @@ public:
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void Draw(const GuiWindow *w) override;
 
+	void OnClick(const Point32 &base, const Point16 &pos);
+
 	int16 canvas_widget; ///< Widget number of the canvas.
 };
 

@@ -577,6 +577,16 @@ void ScrollbarWidget::Draw(const GuiWindow *w)
 }
 
 /**
+ * Scrollbar got clicked, update its counters, and mark the associated scrolled widget as dirty.
+ * @param base Base-coordinate of the window.
+ * @param pos %Position of the click in the scrollbar.
+ * @todo Add an implementation.
+ */
+void ScrollbarWidget::OnClick(const Point32 &base, const Point16 &pos)
+{
+}
+
+/**
  * Base class background widget constructor.
  * @param wtype %Widget type.
  */
