@@ -90,9 +90,7 @@ static Point16 FindEdgeRoad()
 
 Guests::Guests() : block(0), rnd()
 {
-	this->free = nullptr;
-	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) this->AddFree(this->block.Get(i));
-
+	this->free_idx = 0;
 	this->start_voxel.x = -1;
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
@@ -132,17 +130,44 @@ bool Guests::CanUsePersonType(PersonType ptype)
 }
 
 /**
+ * Update #free_idx to the next free guest (if available).
+ * @return Whether a free guest was found.
+ */
+bool Guests::FindNextFreeGuest()
+{
+	while (this->free_idx < GUEST_BLOCK_SIZE) {
+		Guest *g = this->block.Get(this->free_idx);
+		if (!g->IsActive()) return true;
+		this->free_idx++;
+	}
+	return false;
+}
+
+/**
+ * Update #free_idx to the next free guest (if available).
+ * @return Whether a free guest was found.
+ */
+bool Guests::FindNextFreeGuest() const
+{
+	uint idx = this->free_idx;
+	while (idx < GUEST_BLOCK_SIZE) {
+		const Guest *g = this->block.Get(idx);
+		if (!g->IsActive()) return true;
+		idx++;
+	}
+	return false;
+}
+
+/**
  * Count the number of active guests.
  * @return The number of active guests.
  */
 uint Guests::CountActiveGuests()
 {
-	uint count = GUEST_BLOCK_SIZE;
-	const VoxelObject *pers = this->free;
-	while (pers != nullptr) {
-		assert(count > 0);
-		count--;
-		pers = pers->next_object;
+	uint count = (this->free_idx > 0) ? (this->free_idx - 1) : 0;
+	for (uint i = this->free_idx; i < GUEST_BLOCK_SIZE; i++) {
+		Guest *g = this->block.Get(i);
+		if (g->IsActive()) count++;
 	}
 	return count;
 }
@@ -214,7 +239,7 @@ void Guests::OnNewDay()
  */
 bool Guests::HasFreeGuests() const
 {
-	return this->free != nullptr;
+	return this->FindNextFreeGuest();
 }
 
 /**
@@ -223,8 +248,7 @@ bool Guests::HasFreeGuests() const
  */
 void Guests::AddFree(Guest *g)
 {
-	g->next_object = this->free;
-	this->free = g;
+	this->free_idx = std::min(this->block.Index(g), this->free_idx);
 }
 
 /**
@@ -234,7 +258,10 @@ void Guests::AddFree(Guest *g)
  */
 Guest *Guests::GetFree()
 {
-	Guest *g = this->free;
-	this->free = static_cast<Guest *>(g->next_object);
+	bool b = this->FindNextFreeGuest();
+	assert(b);
+
+	Guest *g = this->block.Get(this->free_idx);
+	this->free_idx++;
 	return g;
 }

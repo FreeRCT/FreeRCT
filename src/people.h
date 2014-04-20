@@ -30,6 +30,29 @@ public:
 		return &this->guests[i];
 	}
 
+	/**
+	 * Get a guest from the array.
+	 * @param i Index of the person (should be between \c 0 and #GUEST_BLOCK_SIZE).
+	 * @return The requested person.
+	 */
+	inline const Guest *Get(uint i) const
+	{
+		assert(i < lengthof(this->guests));
+		return &this->guests[i];
+	}
+
+	/**
+	 * Get the index associated with a guest.
+	 * @param guest object to query.
+	 * @return Index of the guest in the block.
+	 */
+	inline uint Index(Guest *g)
+	{
+		uint idx = g - this->guests;
+		assert(idx < lengthof(this->guests));
+		return idx;
+	}
+
 protected:
 	Guest guests[GUEST_BLOCK_SIZE]; ///< Persons in the block.
 };
@@ -53,7 +76,7 @@ public:
 
 private:
 	GuestBlock block;     ///< The data of all actual guests.
-	Guest *free;          ///< Non-active persons.
+	uint free_idx;        ///< All guests less than this index are active.
 	Random rnd;           ///< Random number generator for creating new guests.
 	Point16 start_voxel;  ///< Entry x/y coordinate of the voxel stack at the edge.
 	int daily_frac;       ///< Frame counter.
@@ -61,6 +84,8 @@ private:
 
 	uint16 valid_ptypes;  ///< Person types that can be used.
 
+	bool FindNextFreeGuest();
+	bool FindNextFreeGuest() const;
 	bool HasFreeGuests() const;
 	void AddFree(Guest *g);
 	Guest *GetFree();
