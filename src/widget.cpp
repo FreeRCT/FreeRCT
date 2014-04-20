@@ -505,7 +505,7 @@ ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
  * Set the widget being controlled by the scrollbar.
  * @param canvas %Widget being controlled by the scrollbar.
  */
-void ScrollbarWidget::SetScrolled(const LeafWidget *canvas)
+void ScrollbarWidget::SetScrolled(const BaseWidget *canvas)
 {
 	this->canvas = canvas;
 }

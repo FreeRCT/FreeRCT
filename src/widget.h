@@ -211,14 +211,14 @@ public:
 class ScrollbarWidget : public LeafWidget {
 public:
 	ScrollbarWidget(WidgetType wtype);
-	void SetScrolled(const LeafWidget *canvas);
+	void SetScrolled(const BaseWidget *canvas);
 
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void Draw(const GuiWindow *w) override;
 
 	void OnClick(const Point32 &base, const Point16 &pos);
 
-	const LeafWidget *canvas; ///< %Widget being scrolled.
+	const BaseWidget *canvas; ///< %Widget being scrolled.
 };
 
 /**
