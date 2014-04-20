@@ -155,7 +155,7 @@ void Guests::OnAnimate(int delay)
 {
 	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *p = this->block.Get(i);
-		if (p->type == PERSON_INVALID) continue;
+		if (!p->IsActive()) continue;
 
 		AnimateResult ar = p->OnAnimate(delay);
 		if (ar != OAR_OK) {
@@ -172,7 +172,7 @@ void Guests::DoTick()
 	int end_index = std::min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
 	while (this->next_daily_index < end_index) {
 		Guest *p = this->block.Get(this->next_daily_index);
-		if (p->type != PERSON_INVALID && !p->DailyUpdate()) {
+		if (p->IsActive() && !p->DailyUpdate()) {
 			p->DeActivate(OAR_REMOVE);
 			this->AddFree(p);
 		}

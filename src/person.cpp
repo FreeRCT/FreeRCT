@@ -174,7 +174,7 @@ static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int1
  */
 void Person::Activate(const Point16 &start, PersonType person_type)
 {
-	assert(this->type == PERSON_INVALID);
+	assert(!this->IsActive());
 	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
@@ -516,7 +516,7 @@ void Person::StartAnimation(const WalkInformation *walk)
  */
 void Person::DeActivate(AnimateResult ar)
 {
-	if (this->type == PERSON_INVALID) return;
+	if (!this->IsActive()) return;
 
 	/* Close possible Guest Info window */
 	Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
