@@ -117,6 +117,7 @@ static const WidgetPart _ride_select_gui_parts[] = {
 RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_ride_select_gui_parts, lengthof(_ride_select_gui_parts));
+	this->SetScrolledWidget(RSEL_LIST, RSEL_SCROLL_LIST);
 
 	/* Initialize counts of ride kinds */
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = 0;
@@ -237,7 +238,6 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 			break;
 
 		case RSEL_LIST:
-		case RSEL_SCROLL_LIST:
 			break;
 
 		case RSEL_SELECT: {

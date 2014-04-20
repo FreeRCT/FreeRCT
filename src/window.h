@@ -202,6 +202,7 @@ protected:
 	const RideType *ride_type; ///< Ride type being used by this window, for translating its strings. May be \c nullptr.
 
 	void SetupWidgetTree(const WidgetPart *parts, int length);
+	void SetScrolledWidget(WidgetNumber scrolled, WidgetNumber scrollbar);
 
 	template <typename WID>
 	inline WID *GetWidget(WidgetNumber wnum);

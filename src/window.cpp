@@ -398,6 +398,19 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 }
 
 /**
+ * Connect a scrollbar and a scrolled window with each other.
+ * @param scrolled %Widget number of the widget being scrolled by the scrollbar.
+ * @param scrollbar Scrollbar controlling the scrolled widget.
+ * @pre The widgets must have been initialized.
+ */
+void GuiWindow::SetScrolledWidget(WidgetNumber scrolled, WidgetNumber scrollbar)
+{
+	const LeafWidget *sw = this->GetWidget<LeafWidget>(scrolled);
+	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(scrollbar);
+	sb->SetScrolled(sw);
+}
+
+/**
  * Allow for last minute changes in the initial widget size. If the function does nothing, you'll get the default widgets.
  * The values BaseWidget::min_x and BaseWidget::min_y may be altered, but it may be a bad idea to make them smaller.
  * BaseWidget::fill_x, BaseWidget::fill_y, BaseWidget::resize_x, BaseWidget::resize_y may also be changed.

@@ -495,11 +495,19 @@ void DataWidget::Draw(const GuiWindow *w)
 /**
  * Scrollbar widget constructor.
  * @param wtype %Widget type.
- * @todo \c canvas_widget needs to be extended and used when scrollbars are actually used.
  */
 ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 {
-	this->canvas_widget = 0;
+	this->canvas = nullptr;
+}
+
+/**
+ * Set the widget being controlled by the scrollbar.
+ * @param canvas %Widget being controlled by the scrollbar.
+ */
+void ScrollbarWidget::SetScrolled(const LeafWidget *canvas)
+{
+	this->canvas = canvas;
 }
 
 /**
