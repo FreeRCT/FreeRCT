@@ -27,7 +27,7 @@ public:
 	~TerraformGui();
 
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
-	void OnClick(WidgetNumber widget) override;
+	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 
 	bool level; ///< If true, level the area, else move it up/down as-is.
 	int xsize;  ///< Size of the terraform area in horizontal direction.
@@ -132,7 +132,7 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	}
 }
 
-void TerraformGui::OnClick(WidgetNumber wid)
+void TerraformGui::OnClick(WidgetNumber wid, const Point16 &pos)
 {
 	switch (wid) {
 		case TERR_ADD:

@@ -459,7 +459,8 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 		this->timeout = 4;
 		lw->MarkDirty(this->rect.base);
 	}
-	if (bw->number >= 0) this->OnClick(bw->number);
+	Point16 widget_pos = {static_cast<int16>(this->mouse_pos.x - bw->pos.base.x), static_cast<int16>(this->mouse_pos.y - bw->pos.base.y)};
+	if (bw->number >= 0) this->OnClick(bw->number, widget_pos);
 	return WMME_NONE;
 }
 
@@ -472,8 +473,9 @@ void GuiWindow::OnMouseLeaveEvent()
 /**
  * A click with the left button at a widget has been detected.
  * @param widget %Widget number.
+ * @param pos %Position in the \a widget.
  */
-void GuiWindow::OnClick(WidgetNumber widget)
+void GuiWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 {
 }
 

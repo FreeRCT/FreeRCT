@@ -33,7 +33,7 @@ public:
 	ToolbarWindow();
 
 	Point32 OnInitialPosition() override;
-	void OnClick(WidgetNumber number) override;
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
@@ -107,7 +107,7 @@ StringID GetSwitchGameModeString()
 	}
 }
 
-void ToolbarWindow::OnClick(WidgetNumber number)
+void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	switch (number) {
 		case TB_GUI_QUIT:
@@ -363,7 +363,7 @@ public:
 	QuitProgramWindow();
 
 	Point32 OnInitialPosition() override;
-	void OnClick(WidgetNumber number) override;
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
 };
 
 /**
@@ -411,7 +411,7 @@ QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
 }
 
-void QuitProgramWindow::OnClick(WidgetNumber number)
+void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	if (number == QP_YES) QuitProgram();
 	_manager.DeleteWindow(this);

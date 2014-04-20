@@ -31,7 +31,7 @@ public:
 	DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const DropdownList &items, const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour);
 
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
-	void OnClick(WidgetNumber number) override;
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 
 	WindowTypes parent_type; ///< Parent window type.
@@ -123,7 +123,7 @@ void DropdownMenuWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 	wid->min_y = this->size.height;
 }
 
-void DropdownMenuWindow::OnClick(WidgetNumber number)
+void DropdownMenuWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	if (number != DD_ITEMS) return;
 

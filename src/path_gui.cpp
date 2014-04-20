@@ -26,7 +26,7 @@ public:
 	PathBuildGui();
 	~PathBuildGui();
 
-	void OnClick(WidgetNumber wid) override;
+	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
 	void SetButtons();
@@ -119,7 +119,7 @@ PathBuildGui::~PathBuildGui()
 	_path_builder.SetPathGuiState(false);
 }
 
-void PathBuildGui::OnClick(WidgetNumber number)
+void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	switch (number) {
 		case PATH_GUI_SLOPE_DOWN:

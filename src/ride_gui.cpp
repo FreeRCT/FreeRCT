@@ -35,7 +35,7 @@ public:
 
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
-	void OnClick(WidgetNumber wid_num) override;
+	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
 protected:
@@ -226,7 +226,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 	}
 }
 
-void RideSelectGui::OnClick(WidgetNumber wid_num)
+void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 {
 	switch (wid_num) {
 		case RSEL_SHOPS:

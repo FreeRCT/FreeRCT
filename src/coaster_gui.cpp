@@ -234,7 +234,7 @@ public:
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
-	void OnClick(WidgetNumber widget) override;
+	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
@@ -305,7 +305,7 @@ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void CoasterBuildWindow::OnClick(WidgetNumber widget)
+void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 {
 	switch (widget) {
 		case CCW_BANK_NONE:

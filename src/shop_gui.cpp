@@ -93,7 +93,7 @@ public:
 
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
-	void OnClick(WidgetNumber wid_num) override;
+	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
 private:
@@ -178,7 +178,7 @@ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void ShopManagerWindow::OnClick(WidgetNumber wid_num)
+void ShopManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 {
 	switch (wid_num) {
 		case SMW_SHOP_OPENED:

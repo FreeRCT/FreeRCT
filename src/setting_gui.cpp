@@ -23,7 +23,7 @@ public:
 	SettingWindow();
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
-	void OnClick(WidgetNumber number) override;
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 };
 
@@ -71,7 +71,7 @@ void SettingWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void SettingWindow::OnClick(WidgetNumber number)
+void SettingWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	switch (number) {
 		case SW_LANGUAGE: {

@@ -221,7 +221,7 @@ protected:
 	void SetRadioButtonsSelected(const WidgetNumber *wids, WidgetNumber selected);
 	WidgetNumber GetSelectedRadioButton(const WidgetNumber *wids);
 
-	virtual void OnClick(WidgetNumber widget);
+	virtual void OnClick(WidgetNumber widget, const Point16 &pos);
 
 	void SetShopType(const RideType *ride_type);
 
