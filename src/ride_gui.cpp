@@ -340,7 +340,6 @@ void RideSelectGui::SetNewRide(int number)
 		default:
 			NOT_REACHED();
 	}
-	return true;
 }
 
 
