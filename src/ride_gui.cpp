@@ -43,7 +43,7 @@ protected:
 	int16 current_kind; ///< Current selected kind of ride type. @see RideTypeKind
 	int16 current_ride; ///< Current selected ride type (index in #RidesManager::ride_types, or \c -1).
 
-	bool SetNewRide(int16 newKind, bool force = false);
+	bool SetNewRideKind(int16 new_kind, bool force = false);
 };
 
 /**
@@ -138,7 +138,7 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 		}
 	}
 	_shop_placer.OpenWindow();
-	this->SetNewRide(this->current_kind, true);
+	this->SetNewRideKind(this->current_kind, true);
 }
 
 RideSelectGui::~RideSelectGui()
@@ -234,7 +234,7 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 		case RSEL_GENTLE:
 		case RSEL_WET:
 		case RSEL_COASTER:
-			if (this->SetNewRide(wid_num - RSEL_SHOPS)) this->MarkDirty();
+			if (this->SetNewRideKind(wid_num - RSEL_SHOPS)) this->MarkDirty();
 			break;
 
 		case RSEL_LIST:
@@ -289,19 +289,19 @@ void RideSelectGui::OnChange(ChangeCode code, uint32 parameter)
 
 /**
  * Select a kind of ride, update the #current_kind and #current_ride variables.
- * @param newKind Newly selected kind of ride.
+ * @param new_kind Newly selected kind of ride.
  * @param force Update the variables even if nothing appears to have changed.
  * @return Whether selection was changed.
  */
-bool RideSelectGui::SetNewRide(int16 newKind, bool force)
+bool RideSelectGui::SetNewRideKind(int16 new_kind, bool force)
 {
-	assert(newKind >= 0 && newKind < RTK_RIDE_KIND_COUNT);
-	if (!force && newKind == this->current_kind) return false;
-	this->current_kind = newKind;
+	assert(new_kind >= 0 && new_kind < RTK_RIDE_KIND_COUNT);
+	if (!force && new_kind == this->current_kind) return false;
+	this->current_kind = new_kind;
 	this->SetRadioButtonsSelected(_ride_type_select_bar, _ride_type_select_bar[this->current_kind]);
 
 	this->current_ride = -1;
-	if (this->ride_types[newKind] > 0) {
+	if (this->ride_types[this->current_kind] > 0) {
 		for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
 			const RideType *ride_type = _rides_manager.GetRideType(i);
 			if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
