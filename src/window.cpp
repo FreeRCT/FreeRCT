@@ -405,7 +405,7 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
  */
 void GuiWindow::SetScrolledWidget(WidgetNumber scrolled, WidgetNumber scrollbar)
 {
-	const BaseWidget *sw = this->GetWidget<LeafWidget>(scrolled);
+	const BaseWidget *sw = this->GetWidget<BaseWidget>(scrolled);
 	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(scrollbar);
 	sb->SetScrolled(sw);
 }
