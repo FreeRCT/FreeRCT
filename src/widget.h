@@ -79,7 +79,7 @@ public:
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void AutoRaiseButtons(const Point32 &base);
 
-	void MarkDirty(const Point32 &base);
+	void MarkDirty(const Point32 &base) const;
 
 	WidgetType wtype;    ///< Widget type.
 	WidgetNumber number; ///< Widget number.

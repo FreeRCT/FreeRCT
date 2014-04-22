@@ -209,7 +209,7 @@ void BaseWidget::AutoRaiseButtons(const Point32 &base)
  * Denote the widget as being needed to redraw.
  * @param base %Window base coordinate.
  */
-void BaseWidget::MarkDirty(const Point32 &base)
+void BaseWidget::MarkDirty(const Point32 &base) const
 {
 	Rectangle32 rect = Rectangle32(base.x + this->pos.base.x, base.y + this->pos.base.y, this->pos.width, this->pos.height);
 	_video->MarkDisplayDirty(rect);
