@@ -43,7 +43,7 @@ public:
 
 	/**
 	 * Get the index associated with a guest.
-	 * @param guest object to query.
+	 * @param g %Guest object to query.
 	 * @return Index of the guest in the block.
 	 */
 	inline uint Index(Guest *g)
