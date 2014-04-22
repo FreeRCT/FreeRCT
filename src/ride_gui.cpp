@@ -44,6 +44,7 @@ protected:
 	int16 current_ride; ///< Current selected ride type (index in #RidesManager::ride_types, or \c -1).
 
 	bool SetNewRideKind(int16 new_kind, bool force = false);
+	void SetNewRide(int new_number);
 };
 
 /**
@@ -299,12 +300,23 @@ bool RideSelectGui::SetNewRideKind(int16 new_kind, bool force)
 	if (!force && new_kind == this->current_kind) return false;
 	this->current_kind = new_kind;
 	this->SetRadioButtonsSelected(_ride_type_select_bar, _ride_type_select_bar[this->current_kind]);
+	this->SetNewRide(0);
+	return true;
+}
 
+/**
+ * Set a new ride in the currently selected kind of rides.
+ * @param number Index in the current kind of rides to select.
+ */
+void RideSelectGui::SetNewRide(int number)
+{
 	this->current_ride = -1;
+	number = std::min(number, this->ride_types[this->current_kind] - 1);
 	if (this->ride_types[this->current_kind] > 0) {
 		for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
 			const RideType *ride_type = _rides_manager.GetRideType(i);
 			if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
+			if (number-- > 0) continue;
 
 			this->current_ride = i;
 			break;
