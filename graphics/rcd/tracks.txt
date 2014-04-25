@@ -24,6 +24,7 @@ file("tracks.rcd") {
 			import "lang/de_DE_tracks.txt";
 			import "lang/en_GB_tracks.txt";
 			import "lang/es_ES_tracks.txt";
+			import "lang/fr_FR_tracks.txt";
 			import "lang/nl_NL_tracks.txt";
 		}
 

@@ -54,6 +54,7 @@ file("shops.rcd") {
 			import "lang/de_DE_shops.txt";
 			import "lang/en_GB_shops.txt";
 			import "lang/es_ES_shops.txt";
+			import "lang/fr_FR_shops.txt";
 			import "lang/nl_NL_shops.txt";
 		}
 	}

@@ -451,6 +451,7 @@ enum Languages {
 	LNG_DE_DE, ///< de_DE language.
 	LNG_EN_GB, ///< en_GB language (default).
 	LNG_ES_ES, ///< es_ES language.
+	LNG_FR_FR, ///< fr_FR language.
 	LNG_NL_NL, ///< nl_NL language.
 
 	LNG_COUNT, ///< Number of known languages.

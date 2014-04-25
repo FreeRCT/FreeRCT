@@ -419,10 +419,28 @@ void CoasterTrain::OnAnimate(int delay)
 		/* Unroll the orientation vector. */
 		Unroll(roll, &yder, &zder);
 
-		/* XXX Implement pitch. */
-
 		static const double TAN11_25 = 0.198912367379658;  // tan(11.25 degrees).
 		static const double TAN33_75 = 0.6681786379192989; // tan(3*11.25 degrees).
+
+		/* Compute pitch. */
+		bool swap_dz = false;
+		if (zder > 0) {
+			swap_dz = true;
+			zder = -zder;
+		}
+		uint pitch;
+		switch ((int)(zder * TAN11_25 / 16)) {
+			case -0: pitch = 0; break;
+			case -1: pitch = 1; break;
+			case -2: pitch = 1; break;
+			case -3: pitch = 2; break;
+			case -4: pitch = 4; break;
+			case -5: pitch = 3; break;
+			case -6: pitch = 3; break;
+			case -7: pitch = 2; break;
+			default: NOT_REACHED();
+		}
+		if (swap_dz) pitch = 8 - pitch;
 
 		/* Compute yaw. */
 		bool swap_dx = false;
@@ -475,8 +493,8 @@ void CoasterTrain::OnAnimate(int delay)
 		ypos_front &= 0xFFFFFF00;
 		zpos_front &= 0xFFFFFF00;
 
-		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  0, roll, yaw);
-		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, 0, roll, yaw);
+		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  pitch, roll, yaw);
+		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, pitch, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
 	}
 }

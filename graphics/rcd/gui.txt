@@ -126,6 +126,7 @@ file("gui.rcd") {
 			import "lang/de_DE_gui.txt";
 			import "lang/en_GB_gui.txt";
 			import "lang/es_ES_gui.txt";
+			import "lang/fr_FR_gui.txt";
 			import "lang/nl_NL_gui.txt";
 		}
 	}

@@ -6,12 +6,8 @@
 // See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
 //
 
-// Texts relating to shops in the default language.
+// Texts relating to tracks/coasters in the French language.
 
-string { lang: "de_DE"; name: "NAME_INSTANCE1"; text: "The happy snacker"; }
-string { lang: "de_DE"; name: "NAME_INSTANCE2"; text: "Pizzapalast"; }
-string { lang: "de_DE"; name: "NAME_TYPE"; text: "Snackshop"; }
-string { lang: "de_DE"; name: "DESCRIPTION_TYPE"; text: "Geschäft, das leckere Kekse verkauft"; }
-string { lang: "de_DE"; name: "NAME_ITEM1"; text: "Kekse"; }
-string { lang: "de_DE"; name: "NAME_ITEM2"; text: "Pizza"; }
-
+string { lang: "fr_FR"; name: "NAME_INSTANCE";    text: "Le Rouleur Fou"; }
+string { lang: "fr_FR"; name: "NAME_TYPE";        text: "Montagnes Russes de base"; }
+string { lang: "fr_FR"; name: "DESCRIPTION_TYPE"; text: "Montagnes Russes de base en acier"; }

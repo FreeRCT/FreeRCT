@@ -1,0 +1,170 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+// Gui texts in the French language.
+
+// Generic Gui strings.
+string { lang: "fr_FR"; name: "TITLEBAR_TIP";
+		text: "Click at the title bar to raise the window, drag the title bar to move the window"; }
+string { lang: "fr_FR"; name: "LANGUAGE_NAME"; text: "Français"; }
+
+string { lang: "fr_FR"; name: "MONTH_JANUARY";   text: "Janvier"; }
+string { lang: "fr_FR"; name: "MONTH_FEBRUARY";  text: "Février"; }
+string { lang: "fr_FR"; name: "MONTH_MARCH";     text: "Mars"; }
+string { lang: "fr_FR"; name: "MONTH_APRIL";     text: "Avril"; }
+string { lang: "fr_FR"; name: "MONTH_MAY";       text: "Mai"; }
+string { lang: "fr_FR"; name: "MONTH_JUNE";      text: "Juin"; }
+string { lang: "fr_FR"; name: "MONTH_JULY";      text: "Juillet"; }
+string { lang: "fr_FR"; name: "MONTH_AUGUST";    text: "Août"; }
+string { lang: "fr_FR"; name: "MONTH_SEPTEMBER"; text: "Septembre"; }
+string { lang: "fr_FR"; name: "MONTH_OCTOBER";   text: "Octobre"; }
+string { lang: "fr_FR"; name: "MONTH_NOVEMBER";  text: "Novembre"; }
+string { lang: "fr_FR"; name: "MONTH_DECEMBER";  text: "Décembre"; }
+
+string { lang: "fr_FR"; name: "NUMBERED_INSTANCE_NAME"; text: "%1% #%2%"; }
+
+// Toolbar gui strings.
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_QUIT";                 text: "Quitter"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM"; text: "Quitte the program"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_SETTINGS";             text: "Paramètres"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_SETTINGS";     text: "Change les paramètres du jeu"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_GAME_MODE_PLAY";       text: "Jouer"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_GAME_MODE_EDITOR";     text: "Editeur"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_GAME_MODE";    text: "Bascule entre les mode Jeu et Editeur de scénario"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_PATHS";                text: "Chemins"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_BUILD_PATHS";  text: "Consrtuit les allées et files d'attente"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_SAVE";                 text: "Sauvegarder"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_SAVE_GAME";    text: "Sauvegarder le jeu"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_LOAD";                 text: "Charger"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_LOAD_GAME";    text: "Charge un jeu"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_RIDE_SELECT";          text: "Acheter"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_RIDE_SELECT";  text: "Achèete une nouvelle attraction pour votre parc"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TERRAFORM";            text: "Terraformer"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_TERRAFORM";    text: "Modifie le terrain"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_FINANCES";             text: "Budget"; }
+string { lang: "fr_FR"; name: "TOOLBAR_GUI_TOOLTIP_FINANCES";     text: "Gèere le budget de la Companie"; }
+
+// Quit program strings.
+string { lang: "fr_FR"; name: "QUIT_CAPTION"; text: "Quitter le programme?"; }
+string { lang: "fr_FR"; name: "QUIT_MESSAGE"; text: "Quitter le programme?"; }
+string { lang: "fr_FR"; name: "QUIT_NO";      text: "Non"; }
+string { lang: "fr_FR"; name: "QUIT_YES";     text: "Oui"; }
+
+// Error message strings.
+string { lang: "fr_FR"; name: "ERROR_MESSAGE_CAPTION"; text: "Message"; }
+string { lang: "fr_FR"; name: "ERROR_MESSAGE_SPRITE";  text: "Echec lors de l'affichage du sprite"; }
+
+// Guest info gui strings.
+string { lang: "fr_FR"; name: "GUEST_INFO_MONEY";     text: "Argent disponible"; }
+string { lang: "fr_FR"; name: "GUEST_INFO_HAPPINESS"; text: "Satisfaction"; }
+string { lang: "fr_FR"; name: "GUEST_INFO_HUNGER";    text: "Fain"; }
+string { lang: "fr_FR"; name: "GUEST_INFO_THIRST";    text: "Soif"; }
+string { lang: "fr_FR"; name: "GUEST_INFO_WASTE";     text: "Déchets"; }
+string { lang: "fr_FR"; name: "GUEST_INFO_ITEMS";     text: "Objet détenu"; }
+
+// Items for guests gui strings.
+string { lang: "fr_FR"; name: "ITEM_NONE";     text: "Aucun"; }
+string { lang: "fr_FR"; name: "ITEM_MAP";      text: "Carte"; }
+string { lang: "fr_FR"; name: "ITEM_UMBRELLA"; text: "Parapluie"; }
+string { lang: "fr_FR"; name: "ITEM_WRAPPER";  text: "Wrapper"; }
+
+// Path gui strings.
+string { lang: "fr_FR"; name: "PATH_GUI_TITLE";          text: "Chemin"; }
+string { lang: "fr_FR"; name: "PATH_GUI_LONG";           text: "Long"; }
+string { lang: "fr_FR"; name: "PATH_GUI_BUY";            text: "Acheter"; }
+string { lang: "fr_FR"; name: "PATH_GUI_REMOVE";         text: "Supprimer"; }
+string { lang: "fr_FR"; name: "PATH_GUI_LONG_TIP";       text: "Construit un chemin long"; }
+string { lang: "fr_FR"; name: "PATH_GUI_BUY_TIP";        text: "Achète une section de chemin"; }
+string { lang: "fr_FR"; name: "PATH_GUI_BULLDOZER_TIP";
+		text: "Cliquer pour supprimer le dernier chemin construit et récupérer votre argent (fonctionne jusqu'à fermeture de la fenêtre)"; }
+string { lang: "fr_FR"; name: "PATH_GUI_SLOPE_DOWN_TIP"; text: "Construit le chemin vers le bas"; }
+string { lang: "fr_FR"; name: "PATH_GUI_SLOPE_FLAT_TIP"; text: "Construit le chemin horizontallement"; }
+string { lang: "fr_FR"; name: "PATH_GUI_SLOPE_UP_TIP";   text: "Construit le chemin vers le haut"; }
+
+string { lang: "fr_FR"; name: "PATH_GUI_FORWARD";        text: "Avancer"; }
+string { lang: "fr_FR"; name: "PATH_GUI_BACKWARD";       text: "Reculer"; }
+string { lang: "fr_FR"; name: "PATH_GUI_FORWARD_TIP";    text: "Se déplace une section vers l'avant"; }
+string { lang: "fr_FR"; name: "PATH_GUI_BACKWARD_TIP";   text: "Se déplace une section vers l'arrière"; }
+
+string { lang: "fr_FR"; name: "PATH_GUI_NW_DIRECTION_TIP"; text: "Construit le chemin dans la direction nord-ouest"; }
+string { lang: "fr_FR"; name: "PATH_GUI_NE_DIRECTION_TIP"; text: "Construit le chemin dans la direction nord-est"; }
+string { lang: "fr_FR"; name: "PATH_GUI_SW_DIRECTION_TIP"; text: "Construit le chemin dans la direction sud-ouest"; }
+string { lang: "fr_FR"; name: "PATH_GUI_SE_DIRECTION_TIP"; text: "Construit le chemin dans la direction sud-est"; }
+
+// Ride select gui strings.
+string { lang: "fr_FR"; name: "RIDE_SELECT_TITLE";           text: "Selection de l'attraction"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_SHOPS";           text: "Boutiques"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_SHOPS_TOOLTIP";   text: "Cliquer pour afficher les types de boutiques disponibles"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_GENTLE";          text: "Attractions Gentilles"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_GENTLE_TOOLTIP";  text: "Cliquer pour afficher les Attractions Gentilles disponibles"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_WET";             text: "Attractions Aquatiques"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_WET_TOOLTIP";     text: "Cliquer pour afficher les Attractions Aquatiques disponibles"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_COASTER";         text: "Montagnes Russes"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_COASTER_TOOLTIP"; text: "Cliquer pour afficher les types de Montagnes Russes disponibles"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_RIDE";            text: "Selection"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_RIDE_TOOLTIP";    text: "Cliquer pour sélectionner l'attraction"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_ROT_POS_TOOLTIP"; text: "Cliquer pour tourner l'attraction dans le sens anti-horaire"; }
+string { lang: "fr_FR"; name: "RIDE_SELECT_ROT_NEG_TOOLTIP"; text: "Cliquer pour tourner l'attraction dans le sens horaire"; }
+
+// Shop manager window strings.
+string { lang: "fr_FR"; name: "SHOP_MANAGER_TITLE";              text: "Boutique \"%1%\""; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_COST_PRICE_TEXT";    text: "Prix d'achat"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_SELLING_PRICE_TEXT"; text: "Prix de vente"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_ITEMS_SOLD_TEXT";    text: "Articles vendus"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_ITEM_PROFIT_TEXT";   text: "Bénéfices article"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_SELL_PROFIT_TEXT";   text: "Bénéfice des ventes"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_SHOP_COST_TEXT";     text: "Coûts du personnel"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_TOTAL_PROFIT_TEXT";  text: "Bénéfice total"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_OPENED_TEXT";        text: "La boutique est ouverte"; }
+string { lang: "fr_FR"; name: "SHOP_MANAGER_CLOSED_TEXT";        text: "La boutique est fermée"; }
+
+// Terraform gui strings.
+string { lang: "fr_FR"; name: "TERRAFORM_TITLE";       text: "Modifier le terrain"; }
+string { lang: "fr_FR"; name: "TERRAFORM_ADD_TEXT";    text: "+"; }
+string { lang: "fr_FR"; name: "TERRAFORM_ADD_TOOLTIP"; text: "Augmente la zone de terraformation"; }
+string { lang: "fr_FR"; name: "TERRAFORM_SUB_TEXT";    text: "-"; }
+string { lang: "fr_FR"; name: "TERRAFORM_SUB_TOOLTIP"; text: "Réduit la zone de terraformation"; }
+string { lang: "fr_FR"; name: "TERRAFORM_LEVEL_TEXT";  text: "Zone de terraformation par niveau"; }
+string { lang: "fr_FR"; name: "TERRAFORM_MOVE_TEXT";   text: "Déplace la zone terraformée telle-quelle"; }
+
+// Finances gui strings.
+string { lang: "fr_FR"; name: "FINANCES_TITLE";                  text: "Gérer le budget"; }
+string { lang: "fr_FR"; name: "FINANCES_RIDE_CONSTRUCTION_TEXT"; text: "Construction d'Attraction"; }
+string { lang: "fr_FR"; name: "FINANCES_RIDE_RUNNING_TEXT";      text: "Coût de fonctionnement de l'attraction"; }
+string { lang: "fr_FR"; name: "FINANCES_LAND_PURCHASE_TEXT";     text: "Achet du terrain"; }
+string { lang: "fr_FR"; name: "FINANCES_LANDSCAPING_TEXT";       text: "Terraformation"; }
+string { lang: "fr_FR"; name: "FINANCES_PARK_TICKETS_TEXT";      text: "Tickets d'entrée du parc"; }
+string { lang: "fr_FR"; name: "FINANCES_RIDE_TICKETS_TEXT";      text: "Tickets des attractions"; }
+string { lang: "fr_FR"; name: "FINANCES_SHOP_SALES_TEXT";        text: "Ventes des boutiques"; }
+string { lang: "fr_FR"; name: "FINANCES_SHOP_STOCK_TEXT";        text: "Stock des boutiques"; }
+string { lang: "fr_FR"; name: "FINANCES_FOOD_SALES_TEXT";        text: "Ventes de nourriture/boissons"; }
+string { lang: "fr_FR"; name: "FINANCES_FOOD_STOCK_TEXT";        text: "Stock de nourriture/boissons"; }
+string { lang: "fr_FR"; name: "FINANCES_STAFF_WAGES_TEXT";       text: "Salaire des employés"; }
+string { lang: "fr_FR"; name: "FINANCES_MARKETING_TEXT";         text: "Publicité"; }
+string { lang: "fr_FR"; name: "FINANCES_RESEARCH_TEXT";          text: "Recherche"; }
+string { lang: "fr_FR"; name: "FINANCES_LOAN_INTEREST_TEXT";     text: "Intérêts du prêt"; }
+string { lang: "fr_FR"; name: "FINANCES_TOTAL_TEXT";             text: "Total"; }
+
+// Coaster construction strings.
+string { lang: "fr_FR"; name: "COASTER_BUILD_LEFT_BEND_TOOLTIP";  text: "Selectionne une portion de rampe courbé vers la gauche"; }
+string { lang: "fr_FR"; name: "COASTER_BUILD_NO_BEND_TOOLTIP";    text: "Selectionne une portion de rampe droite"; }
+string { lang: "fr_FR"; name: "COASTER_BUILD_RIGHT_BEND_TOOLTIP"; text: "Selectionne une portion de rampe courbé vers la droite"; }
+string { lang: "fr_FR"; name: "COASTER_BUILD_BANK_LEFT_TOOLTIP";  text: "Selectionne une portion de rampe qui fini par un virage vers la gauche"; }
+string { lang: "fr_FR"; name: "COASTER_BUILD_BANK_NONE_TOOLTIP";  text: "Selectionne une portion de rampe qui fini par un changement de niveau"; }
+string { lang: "fr_FR"; name: "COASTER_BUILD_BANK_RIGHT_TOOLTIP"; text: "Selectionne une portion de rampe qui fini par un virage vers la droite"; }
+string { lang: "fr_FR"; name: "COASTER_BUILD_BUY_TOOLTIP";        text: "Cliquer pour acheter la portion de rampe sélectionnée"; }
+
+// Money symbols.
+string { lang: "fr_FR"; name: "MONEY_CURRENCY_SYMBOL";     text: "€"; }
+string { lang: "fr_FR"; name: "MONEY_THOUSANDS_SEPARATOR"; text: "."; }
+string { lang: "fr_FR"; name: "MONEY_DECIMAL_SEPARATOR";   text: ","; }
+
+// Setting gui strings.
+string { lang: "fr_FR"; name: "SETTING_TITLE";            text: "Paramètres"; }
+string { lang: "fr_FR"; name: "SETTING_LANGUAGE";         text: "Changer la langue"; }
+string { lang: "fr_FR"; name: "SETTING_LANGUAGE_TOOLTIP"; text: "Change la langue du jeu"; }

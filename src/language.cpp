@@ -45,6 +45,7 @@ const char * const _lang_names[] = {
 	"de_DE", // German.
 	"en_GB", // English (Also the default language).
 	"es_ES", // Spanish.
+	"fr_FR", // French.
 	"nl_NL", // Dutch.
 };
 
