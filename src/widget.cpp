@@ -276,7 +276,7 @@ void LeafWidget::Draw(const GuiWindow *w)
 	int bottom = w->GetWidgetScreenY(this) + this->pos.height - 1 - this->paddings[PAD_BOTTOM];
 
 	static Recolouring rc;
-	rc.SetRecolouring(COL_RANGE_BEIGE, this->colour);
+	rc.SetRecolouring(COL_RANGE_BROWN, this->colour);
 
 	if (this->wtype == WT_RADIOBUTTON) {
 		int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
@@ -541,8 +541,8 @@ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 
 void ScrollbarWidget::Draw(const GuiWindow *w)
 {
-	static Recolouring rc; // Only COL_RANGE_BEIGE is modified each time.
-	rc.SetRecolouring(COL_RANGE_BEIGE, colour);
+	static Recolouring rc; // Only COL_RANGE_BROWN is modified each time.
+	rc.SetRecolouring(COL_RANGE_BROWN, colour);
 
 	const ScrollbarSpriteData &scroll_sprites = (this->wtype == WT_HOR_SCROLLBAR) ? _gui_sprites.hor_scroll : _gui_sprites.vert_scroll;
 	if (!scroll_sprites.IsLoaded()) return;

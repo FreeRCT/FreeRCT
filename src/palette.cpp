@@ -139,7 +139,7 @@ const uint32 _palette[256] = {
 	MakeRGBA(187, 191, 115, OPAQUE), //  31
 	MakeRGBA(203, 207, 139, OPAQUE), //  32
 	MakeRGBA(223, 227, 163, OPAQUE), //  33
-	MakeRGBA( 67,  43,   7, OPAQUE), //  34 Start of COL_RANGE_BROWN
+	MakeRGBA( 67,  43,   7, OPAQUE), //  34 Start of COL_RANGE_ORANGE_BROWN
 	MakeRGBA( 87,  59,  11, OPAQUE), //  35
 	MakeRGBA(111,  75,  23, OPAQUE), //  36
 	MakeRGBA(127,  87,  31, OPAQUE), //  37
@@ -211,7 +211,7 @@ const uint32 _palette[256] = {
 	MakeRGBA(139, 223, 115, OPAQUE), //  103
 	MakeRGBA(163, 239, 143, OPAQUE), //  104
 	MakeRGBA(195, 255, 179, OPAQUE), //  105
-	MakeRGBA( 79,  43,  19, OPAQUE), //  106 Start of COL_RANGE_LIGHT_RED
+	MakeRGBA( 79,  43,  19, OPAQUE), //  106 Start of COL_RANGE_PINK_BROWN
 	MakeRGBA( 99,  55,  27, OPAQUE), //  107
 	MakeRGBA(119,  71,  43, OPAQUE), //  108
 	MakeRGBA(139,  87,  59, OPAQUE), //  109
@@ -223,7 +223,7 @@ const uint32 _palette[256] = {
 	MakeRGBA(239, 191, 151, OPAQUE), //  115
 	MakeRGBA(247, 207, 171, OPAQUE), //  116
 	MakeRGBA(255, 227, 195, OPAQUE), //  117
-	MakeRGBA( 15,  19,  55, OPAQUE), //  118 Start of COL_RANGE_DARK_BLUE
+	MakeRGBA( 15,  19,  55, OPAQUE), //  118 Start of COL_RANGE_DARK_PURPLE
 	MakeRGBA( 39,  43,  87, OPAQUE), //  119
 	MakeRGBA( 51,  55, 103, OPAQUE), //  120
 	MakeRGBA( 63,  67, 119, OPAQUE), //  121
@@ -247,7 +247,7 @@ const uint32 _palette[256] = {
 	MakeRGBA(143, 211, 243, OPAQUE), //  139
 	MakeRGBA(175, 231, 251, OPAQUE), //  140
 	MakeRGBA(215, 247, 255, OPAQUE), //  141
-	MakeRGBA( 11,  43,  15, OPAQUE), //  142 Start of COL_RANGE_LIGHT_BLUE
+	MakeRGBA( 11,  43,  15, OPAQUE), //  142 Start of COL_RANGE_DARK_JADE_GREEN
 	MakeRGBA( 15,  55,  23, OPAQUE), //  143
 	MakeRGBA( 23,  71,  31, OPAQUE), //  144
 	MakeRGBA( 35,  83,  43, OPAQUE), //  145
@@ -319,7 +319,7 @@ const uint32 _palette[256] = {
 	MakeRGBA(247, 151, 203, OPAQUE), //  211
 	MakeRGBA(251, 183, 223, OPAQUE), //  212
 	MakeRGBA(255, 215, 239, OPAQUE), //  213
-	MakeRGBA( 39,  19,   0, OPAQUE), //  214 Start COL_RANGE_BEIGE
+	MakeRGBA( 39,  19,   0, OPAQUE), //  214 Start COL_RANGE_BROWN
 	MakeRGBA( 55,  31,   7, OPAQUE), //  215
 	MakeRGBA( 71,  47,  15, OPAQUE), //  216
 	MakeRGBA( 91,  63,  31, OPAQUE), //  217
