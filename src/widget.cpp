@@ -708,6 +708,20 @@ void ScrollbarWidget::SetItemCount(uint count)
 }
 
 /**
+ * Which row was clicked in the scrolled widget?
+ * @return The index of the clicked item in the scrolled widget.
+ */
+uint ScrollbarWidget::GetClickedRow(const Point16 &pos) const
+{
+	uint itemsize = this->GetItemSize();
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		return this->GetStart() + pos.x / itemsize;
+	} else {
+		return this->GetStart() + pos.y / itemsize;
+	}
+}
+
+/**
  * Get the height or width of an item.
  * @return Size of an item in the list.
  */
@@ -754,6 +768,31 @@ void ScrollbarWidget::SetStart(uint offset)
 	uint visible_count = this->GetVisibleCount();
 	uint max_start = (this->item_count > visible_count) ? this->item_count - visible_count : 0;
 	this->start = std::min(offset, max_start);
+}
+
+/**
+ * Get the index of the first visible item in the scrolled widget.
+ * @return Index of the first visible item in the list.
+ */
+uint ScrollbarWidget::GetStart() const
+{
+	return this->start;
+}
+
+/**
+ * Scroll the scrolled widget such that it shows item number \a offset.
+ * @param offset Item number that should be visible in the scrolled widget.
+ */
+void ScrollbarWidget::ScrollTo(uint offset)
+{
+	if (offset >= this->item_count) offset = (this->item_count > 0) ? this->item_count - 1 : 0;
+
+	if (offset < this->start) {
+		this->SetStart(offset);
+	} else {
+		uint visible_count = this->GetVisibleCount();
+		if (offset >= this->start + visible_count) this->SetStart(offset - visible_count);
+	}
 }
 
 /**

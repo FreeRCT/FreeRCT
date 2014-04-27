@@ -186,18 +186,22 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 	switch (wid_num) {
 		case RSEL_LIST: {
 			Point32 rect;
-			int lines = wid->pos.height / GetTextHeight(); /// \todo Implement scrollbar position & size.
 			rect.x = this->GetWidgetScreenX(wid);
 			rect.y = this->GetWidgetScreenY(wid);
-			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
+			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_LIST);
+			int lines = sb->GetVisibleCount();
+			int start = sb->GetStart();
+			int counter = 0;
+			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES && lines > 0; i++) {
 				const RideType *ride_type = _rides_manager.GetRideType(i);
 				if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
-				if (lines <= 0) break;
-				lines--;
-
-				DrawString(ride_type->GetString(ride_type->GetTypeName()), (this->current_ride == i) ? TEXT_WHITE : TEXT_BLACK,
-						rect.x, rect.y, wid->pos.width);
-				rect.y += GetTextHeight();
+				if (counter >= start) {
+					lines--;
+					DrawString(ride_type->GetString(ride_type->GetTypeName()), (this->current_ride == i) ? TEXT_WHITE : TEXT_BLACK,
+							rect.x, rect.y, wid->pos.width);
+					rect.y += GetTextHeight();
+				}
+				counter++;
 			}
 			break;
 		}
@@ -238,8 +242,12 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 			if (this->SetNewRideKind(wid_num - RSEL_SHOPS)) this->MarkDirty();
 			break;
 
-		case RSEL_LIST:
+		case RSEL_LIST: {
+			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_LIST);
+ 			this->SetNewRide(sb->GetClickedRow(pos));
+			this->MarkDirty();
 			break;
+		}
 
 		case RSEL_SELECT: {
 			if (this->ride_types[this->current_kind] == 0) return;
@@ -340,6 +348,10 @@ void RideSelectGui::SetNewRide(int number)
 		default:
 			NOT_REACHED();
 	}
+	/* Update the scroll bar with number of items of the ride kind. */
+	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_LIST);
+	sb->SetItemCount(this->ride_types[this->current_kind]);
+	sb->SetStart(0);
 }
 
 

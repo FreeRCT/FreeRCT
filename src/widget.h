@@ -235,6 +235,10 @@ public:
 	void SetStart(uint offset);
 	uint GetItemSize() const;
 	uint GetVisibleCount() const;
+	uint GetStart() const;
+	void ScrollTo(uint offset);
+	uint GetClickedRow(const Point16 &pos) const;
+
 private:
 	uint item_count;          ///< Number of items represented by the scroll bar.
 	uint start;               ///< Index of first visible item.
