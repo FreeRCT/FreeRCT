@@ -204,6 +204,18 @@ public:
 };
 
 /**
+ * Components of the scroll bar.
+ * @ingroup widget_group
+ */
+enum ScrollbarComponent {
+	SBC_DECREMENT_BUTTON, ///< Top (or left) button.
+	SBC_INCREMENT_BUTTON, ///< Bottom (or right) button.
+	SBC_SLIDER,           ///< Repositionable slider.
+	SBC_BEFORE_SLIDER,    ///< Region between decrement-button and slider.
+	SBC_AFTER_SLIDER,     ///< Region between increment-button and slider.
+};
+
+/**
  * Scrollbar widget.
  * Implements #WT_HOR_SCROLLBAR and #WT_VERT_SCROLLBAR.
  * @ingroup widget_group
@@ -232,6 +244,7 @@ private:
 	int GetDecrementButtonSize() const;
 	int GetIncrementButtonSize() const;
 	void CalculateSliderPosition(int *start_edge, int *slider_length);
+	ScrollbarComponent GetClickedComponent(const Point16 &pos);
 };
 
 /**

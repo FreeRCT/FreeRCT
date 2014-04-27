@@ -622,13 +622,70 @@ void ScrollbarWidget::Draw(const GuiWindow *w)
 }
 
 /**
+ * Decide which part of the scrollbar was clicked.
+ * @param pos Clicked position in the scrollbar widget.
+ * @return Component being clicked.
+ */
+ScrollbarComponent ScrollbarWidget::GetClickedComponent(const Point16 &pos)
+{
+	int start_edge, slider_length;
+	this->CalculateSliderPosition(&start_edge, &slider_length);
+
+	int location, size;
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		location = pos.x;
+		size = this->pos.width;
+	} else {
+		location = pos.y;
+		size = this->pos.height;
+	}
+
+	int dec_button_size = this->GetDecrementButtonSize();
+	if (location < dec_button_size) return SBC_DECREMENT_BUTTON;
+	if (location < dec_button_size + start_edge) return SBC_BEFORE_SLIDER;
+	if (location < dec_button_size + start_edge + slider_length) return SBC_SLIDER;
+	if (location < size - this->GetIncrementButtonSize()) return SBC_AFTER_SLIDER;
+	return SBC_INCREMENT_BUTTON;
+}
+
+/**
  * Scrollbar got clicked, update its counters, and mark the associated scrolled widget as dirty.
  * @param base Base-coordinate of the window.
  * @param pos %Position of the click in the scrollbar.
- * @todo Add an implementation.
  */
 void ScrollbarWidget::OnClick(const Point32 &base, const Point16 &pos)
 {
+	switch (this->GetClickedComponent(pos)) {
+		case SBC_INCREMENT_BUTTON:
+			this->SetStart(this->start + 1);
+			this->MarkDirty(base);
+			if (this->canvas != nullptr) this->canvas->MarkDirty(base);
+			break;
+
+		case SBC_DECREMENT_BUTTON:
+			if (this->start > 0) {
+				this->SetStart(this->start - 1);
+				this->MarkDirty(base);
+				if (this->canvas != nullptr) this->canvas->MarkDirty(base);
+			}
+			break;
+
+		case SBC_BEFORE_SLIDER:
+			this->SetStart(this->start - std::min(this->start, this->GetVisibleCount()));
+			this->MarkDirty(base);
+			this->canvas->MarkDirty(base);
+			break;
+
+		case SBC_AFTER_SLIDER:
+			this->SetStart(this->start + this->GetVisibleCount());
+			this->MarkDirty(base);
+			this->canvas->MarkDirty(base);
+			break;
+
+		default:
+			/// \todo Implement clicking above at the slider.
+			break;
+	}
 }
 
 /**
