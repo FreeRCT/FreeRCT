@@ -218,6 +218,15 @@ public:
 
 	void OnClick(const Point32 &base, const Point16 &pos);
 
+	void SetItemSize(uint size);
+	void SetItemCount(uint count);
+	void SetStart(uint offset);
+	uint GetItemSize() const;
+	uint GetVisibleCount() const;
+private:
+	uint item_count;          ///< Number of items represented by the scroll bar.
+	uint start;               ///< Index of first visible item.
+	uint item_size;           ///< Size of an item if not \c 0, else use #canvas.
 	const BaseWidget *canvas; ///< %Widget being scrolled.
 };
 

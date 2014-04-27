@@ -499,6 +499,9 @@ void DataWidget::Draw(const GuiWindow *w)
 ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
 {
 	this->canvas = nullptr;
+	this->item_count = 0;
+	this->start = 0;
+	this->item_size = 0;
 }
 
 /**
@@ -592,6 +595,74 @@ void ScrollbarWidget::Draw(const GuiWindow *w)
  */
 void ScrollbarWidget::OnClick(const Point32 &base, const Point16 &pos)
 {
+}
+
+/**
+ * Set the height/width of an item in the scrolled widget.
+ * @param size Height or width of an item.
+ */
+void ScrollbarWidget::SetItemSize(uint size)
+{
+	this->item_size = size;
+}
+
+/**
+ * Set the number of items displayed in the scrolled widget.
+ * @param count Number of items.
+ */
+void ScrollbarWidget::SetItemCount(uint count)
+{
+	this->item_count = count;
+	this->SetStart(this->start);
+}
+
+/**
+ * Get the height or width of an item.
+ * @return Size of an item in the list.
+ */
+uint ScrollbarWidget::GetItemSize() const
+{
+	assert(this->canvas != nullptr);
+
+	uint itemsize;
+	if (this->item_size != 0) {
+		return this->item_size;
+	} else if (this->wtype == WT_HOR_SCROLLBAR) {
+		itemsize = this->canvas->resize_x;
+	} else {
+		itemsize = this->canvas->resize_y;
+	}
+	assert(itemsize != 0);
+	return itemsize;
+}
+
+/**
+ * Get the number of items visible in the scrolled widget.
+ * @return Number of visible items.
+ */
+uint ScrollbarWidget::GetVisibleCount() const
+{
+	assert(this->canvas != nullptr);
+	uint itemsize = this->GetItemSize();
+
+	uint count;
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		count = this->canvas->pos.width / itemsize;
+	} else {
+		count = this->canvas->pos.height / itemsize;
+	}
+	return (count != 0) ? count : 1;
+}
+
+/**
+ * Set the number of the first visible item in the scrolled widget.
+ * @param offset Suggested index.
+ */
+void ScrollbarWidget::SetStart(uint offset)
+{
+	uint visible_count = this->GetVisibleCount();
+	uint max_start = (this->item_count > visible_count) ? this->item_count - visible_count : 0;
+	this->start = std::min(offset, max_start);
 }
 
 /**
