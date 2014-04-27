@@ -580,11 +580,45 @@ void ScrollbarWidget::Draw(const GuiWindow *w)
 
 	/* Draw bottom/right underground. */
 	_video->BlitImage(pos, imd[WLS_RIGHT_BED], rc, 0);
-	if (this->wtype == WT_HOR_SCROLLBAR) pos.x += imd[WLS_RIGHT_BED]->width;
-	if (this->wtype != WT_HOR_SCROLLBAR) pos.y += imd[WLS_RIGHT_BED]->height;
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		pos.x += imd[WLS_RIGHT_BED]->width;
+	} else {
+		pos.y += imd[WLS_RIGHT_BED]->height;
+	}
 
 	/* Draw right/bottom button. */
 	_video->BlitImage(pos, imd[WLS_RIGHT_BUTTON], rc, 0);
+
+	int start_edge, slider_length;
+	this->CalculateSliderPosition(&start_edge, &slider_length);
+
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		pos.x = w->GetWidgetScreenX(this) + imd[WLS_LEFT_BUTTON]->width + start_edge;
+	} else {
+		pos.y = w->GetWidgetScreenY(this) + imd[WLS_LEFT_BUTTON]->height + start_edge;
+	}
+
+	/* Draw top/left slider. */
+	_video->BlitImage(pos, imd[WLS_LEFT_SLIDER], rc, 0);
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		pos.x += imd[WLS_LEFT_SLIDER]->width;
+	} else {
+		pos.y += imd[WLS_LEFT_SLIDER]->height;
+	}
+
+	/* Draw middle slider. */
+	if (this->wtype == WT_HOR_SCROLLBAR) {
+		uint count = (slider_length - imd[WLS_LEFT_SLIDER]->width - imd[WLS_RIGHT_SLIDER]->width) / scroll_sprites.stepsize_slider;
+		_video->BlitHorizontal(pos.x, count, pos.y, imd[WLS_MIDDLE_SLIDER], rc);
+		pos.x += count * scroll_sprites.stepsize_slider;
+	} else {
+		uint count = (slider_length - imd[WLS_LEFT_SLIDER]->height - imd[WLS_RIGHT_SLIDER]->height) / scroll_sprites.stepsize_slider;
+		_video->BlitVertical(pos.y, count, pos.x, imd[WLS_MIDDLE_SLIDER], rc);
+		pos.y += count * scroll_sprites.stepsize_slider;
+	}
+
+	/* Draw bottom/right slider. */
+	_video->BlitImage(pos, imd[WLS_RIGHT_SLIDER], rc, 0);
 }
 
 /**
@@ -663,6 +697,55 @@ void ScrollbarWidget::SetStart(uint offset)
 	uint visible_count = this->GetVisibleCount();
 	uint max_start = (this->item_count > visible_count) ? this->item_count - visible_count : 0;
 	this->start = std::min(offset, max_start);
+}
+
+/**
+ * Get the size of the left / top / decrement button in the direction of the scrollbar.
+ * @return Size of the decrement button in the direction of the scrollbar.
+ */
+int ScrollbarWidget::GetDecrementButtonSize() const
+{
+	const ScrollbarSpriteData &scroll_sprites = (this->wtype == WT_HOR_SCROLLBAR) ? _gui_sprites.hor_scroll : _gui_sprites.vert_scroll;
+	const ImageData * const *imd = this->IsShaded() ? scroll_sprites.shaded : scroll_sprites.normal;
+
+	return (this->wtype == WT_HOR_SCROLLBAR) ? imd[WLS_LEFT_BUTTON]->width : imd[WLS_LEFT_BUTTON]->height;
+}
+
+/**
+ * Get the size of the right / bottom / increment button in the direction of the scrollbar.
+ * @return Size of the increment button in the direction of the scrollbar.
+ */
+int ScrollbarWidget::GetIncrementButtonSize() const
+{
+	const ScrollbarSpriteData &scroll_sprites = (this->wtype == WT_HOR_SCROLLBAR) ? _gui_sprites.hor_scroll : _gui_sprites.vert_scroll;
+	const ImageData * const *imd = this->IsShaded() ? scroll_sprites.shaded : scroll_sprites.normal;
+
+	return (this->wtype == WT_HOR_SCROLLBAR) ? imd[WLS_RIGHT_BUTTON]->width : imd[WLS_RIGHT_BUTTON]->height;
+}
+
+/**
+ * Calculate the position and sizes of the displayed scrollbar components.
+ * @param start_edge [out] Starting point of the slider in pixels, relative to the scrollbar top or left.
+ * @param slider_length [out] Length of the slider in pixels, relative to the scrollbar top or left.
+ */
+void ScrollbarWidget::CalculateSliderPosition(int *start_edge, int *slider_length)
+{
+	int min_slider_length = this->GetDecrementButtonSize() + this->GetIncrementButtonSize();
+	int range = ((this->wtype == WT_HOR_SCROLLBAR) ? this->pos.width : this->pos.height) - min_slider_length;
+	uint visible_count = this->GetVisibleCount();
+
+	if (this->item_count == 0 || visible_count == 0 || this->item_count <= visible_count) {
+		*slider_length = range;
+	} else {
+		*slider_length = range * visible_count / this->item_count;
+		if (*slider_length < min_slider_length) *slider_length = min_slider_length;
+	}
+
+	if (this->item_count <= visible_count) {
+		*start_edge = 0;
+	} else {
+		*start_edge = (range - *slider_length) * this->start / (this->item_count - visible_count);
+	}
 }
 
 /**

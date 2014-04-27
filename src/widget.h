@@ -228,6 +228,10 @@ private:
 	uint start;               ///< Index of first visible item.
 	uint item_size;           ///< Size of an item if not \c 0, else use #canvas.
 	const BaseWidget *canvas; ///< %Widget being scrolled.
+
+	int GetDecrementButtonSize() const;
+	int GetIncrementButtonSize() const;
+	void CalculateSliderPosition(int *start_edge, int *slider_length);
 };
 
 /**
