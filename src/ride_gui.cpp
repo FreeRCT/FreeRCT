@@ -308,6 +308,9 @@ bool RideSelectGui::SetNewRideKind(int16 new_kind, bool force)
 	if (!force && new_kind == this->current_kind) return false;
 	this->current_kind = new_kind;
 	this->SetRadioButtonsSelected(_ride_type_select_bar, _ride_type_select_bar[this->current_kind]);
+	/* Update the scroll bar with number of items of the ride kind. */
+	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_LIST);
+	sb->SetItemCount(this->ride_types[this->current_kind]);
 	this->SetNewRide(0);
 	return true;
 }
@@ -348,10 +351,6 @@ void RideSelectGui::SetNewRide(int number)
 		default:
 			NOT_REACHED();
 	}
-	/* Update the scroll bar with number of items of the ride kind. */
-	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_LIST);
-	sb->SetItemCount(this->ride_types[this->current_kind]);
-	sb->SetStart(0);
 }
 
 
