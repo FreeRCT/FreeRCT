@@ -35,6 +35,9 @@ enum ShopManagerWidgets {
 	SMW_TOTAL_PROFIT, ///< Total shop profit.
 	SMW_SHOP_OPENED,  ///< Radio button of 'shop is open'.
 	SMW_SHOP_CLOSED,  ///< Radio button of 'shop is closed'.
+	SMW_RECOLOUR1,    ///< First recolour dropdown.
+	SMW_RECOLOUR2,    ///< Second recolour dropdown.
+	SMW_RECOLOUR3,    ///< Third recolour dropdown.
 };
 
 /** Widget parts of the #ShopManagerWindow. */
@@ -78,11 +81,17 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 				Widget(WT_RIGHT_TEXT, SMW_TOTAL_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2,2),
-				Widget(WT_RADIOBUTTON, SMW_SHOP_OPENED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_OPENED_TEXT, STR_NULL),
-				Widget(WT_RADIOBUTTON, SMW_SHOP_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_CLOSED_TEXT, STR_NULL),
+			Intermediate(2, 1),
+				Intermediate(2, 2),
+					Widget(WT_RADIOBUTTON, SMW_SHOP_OPENED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
+					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_OPENED_TEXT, STR_NULL),
+					Widget(WT_RADIOBUTTON, SMW_SHOP_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
+					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_CLOSED_TEXT, STR_NULL),
+				Intermediate(1, 4),
+					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR1, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR3, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetResize(1, 0),
 		EndContainer(),
 };
 
@@ -112,7 +121,14 @@ ShopManagerWindow::ShopManagerWindow(ShopInstance *ri) : GuiWindow(WC_SHOP_MANAG
 	this->SetShopType(this->shop->GetShopType());
 	this->SetupWidgetTree(_shop_manager_gui_parts, lengthof(_shop_manager_gui_parts));
 	this->SetShopToggleButtons();
+
+	for (int i = 0; i < 3; i++) {
+		const RecolourEntry &re = this->shop->recolours.entries[i];
+		if (!re.IsValid()) this->GetWidget<LeafWidget>(SMW_RECOLOUR1 + i)->SetShaded(true);
+	}
 }
+
+assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a shop fit in the Recolouring::entries array.
 
 /** Update the radio buttons of the window. */
 void ShopManagerWindow::SetShopToggleButtons()
@@ -194,6 +210,16 @@ void ShopManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 				this->SetShopToggleButtons();
 			}
 			break;
+
+		case SMW_RECOLOUR1:
+		case SMW_RECOLOUR2:
+		case SMW_RECOLOUR3: {
+			RecolourEntry *re = &this->shop->recolours.entries[wid_num - SMW_RECOLOUR1];
+			if (re->IsValid()) {
+				this->ShowRecolourDropdown(wid_num, re, COL_RANGE_DARK_RED);
+			}
+			break;
+		}
 	}
 }
 

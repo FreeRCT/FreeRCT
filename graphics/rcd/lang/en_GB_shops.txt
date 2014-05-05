@@ -8,9 +8,12 @@
 
 // Texts relating to shops in the default language.
 
-string { lang: "en_GB"; name: "NAME_INSTANCE1";   text: "The happy snacker"; }
-string { lang: "en_GB"; name: "NAME_INSTANCE2";   text: "Pizza palace"; }
-string { lang: "en_GB"; name: "NAME_TYPE";        text: "Snack shop"; }
-string { lang: "en_GB"; name: "DESCRIPTION_TYPE"; text: "Shop where you can buy good cookies"; }
-string { lang: "en_GB"; name: "NAME_ITEM1";       text: "Cookies"; }
-string { lang: "en_GB"; name: "NAME_ITEM2";       text: "Pizza"; }
+string { lang: "en_GB"; name: "NAME_INSTANCE1";        text: "The happy snacker"; }
+string { lang: "en_GB"; name: "NAME_INSTANCE2";        text: "Pizza palace"; }
+string { lang: "en_GB"; name: "NAME_TYPE";             text: "Snack shop"; }
+string { lang: "en_GB"; name: "DESCRIPTION_TYPE";      text: "Shop where you can buy good cookies"; }
+string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR1"; text: "-"; }
+string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR2"; text: "-"; }
+string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR3"; text: "-"; }
+string { lang: "en_GB"; name: "NAME_ITEM1";            text: "Cookies"; }
+string { lang: "en_GB"; name: "NAME_ITEM2";            text: "Pizza"; }

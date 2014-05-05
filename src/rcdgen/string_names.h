@@ -182,6 +182,9 @@ static const char *_shops_string_names[] = {
 	"NAME_ITEM1",
 	"NAME_ITEM2",
 	"DESCRIPTION_TYPE",
+	"DESCRIPTION_RECOLOUR1",
+	"DESCRIPTION_RECOLOUR2",
+	"DESCRIPTION_RECOLOUR3",
 };
 
 /** String names of the coaster ride types. */
