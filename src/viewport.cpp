@@ -1271,7 +1271,7 @@ void Viewport::OnDraw()
 	for (const auto &iter : collector.draw_images) {
 		const DrawData &dd = iter;
 		const Recolouring &rec = (dd.recolour == nullptr) ? recolour : *dd.recolour;
-		_video->BlitImage(dd.base, dd.sprite, rec, 0);
+		_video->BlitImage(dd.base, dd.sprite, rec, GS_NORMAL);
 	}
 
 	_video->SetClippedRectangle(cr);

@@ -32,12 +32,12 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y;
-	_video->BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, 0);
+	_video->BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, GS_NORMAL);
 	int xleft = pt.x + spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->width;
 	int ytop = pt.y + spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->height;
 
 	pt.x = rect.base.x + rect.width - 1;
-	_video->BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, 0);
+	_video->BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, GS_NORMAL);
 	int xright = pt.x + spr_base[WBS_TOP_RIGHT]->xoffset;
 
 	uint16 numx = (xright - xleft) / spr_base[WBS_TOP_MIDDLE]->width;
@@ -45,7 +45,7 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y + rect.height - 1;
-	_video->BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, 0);
+	_video->BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, GS_NORMAL);
 	int ybot = pt.y + spr_base[WBS_BOTTOM_LEFT]->yoffset;
 
 	uint16 numy = (ybot - ytop) / spr_base[WBS_MIDDLE_LEFT]->height;
@@ -53,7 +53,7 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 
 	pt.x = rect.base.x + rect.width - 1;
 	pt.y = rect.base.y + rect.height - 1;
-	_video->BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT], rc, 0);
+	_video->BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT], rc, GS_NORMAL);
 
 	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_BOTTOM_MIDDLE], rc);
 

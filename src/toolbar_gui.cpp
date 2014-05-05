@@ -345,7 +345,7 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 	int dir = (vp == nullptr) ? 0 : vp->orientation;
 	const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
 	if (img == nullptr) return;
-	_video->BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, 0);
+	_video->BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
 }
 
 /**

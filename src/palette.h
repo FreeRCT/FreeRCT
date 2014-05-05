@@ -83,6 +83,22 @@ enum PaletteColours {
 	COL_SERIES_END = COL_SERIES_START + COL_RANGE_COUNT * COL_SERIES_LENGTH, ///< First colour after the series.
 };
 
+/** Shifting of the gradient to make the sprite lighter or darker. */
+enum GradientShift {
+	GS_NIGHT,          ///< Shift gradient four steps darker.
+	GS_VERY_DARK,      ///< Shift gradient three steps darker.
+	GS_DARK,           ///< Shift gradient two steps darker.
+	GS_SLIGHTLY_DARK,  ///< Shift gradient one step darker.
+	GS_NORMAL,         ///< No change in gradient.
+	GS_SLIGHTLY_LIGHT, ///< Shift gradient one step lighter.
+	GS_LIGHT,          ///< Shift gradient two steps lighter.
+	GS_VERY_LIGHT,     ///< Shift gradient three steps lighter.
+	GS_DAY,            ///< Shift gradient four steps lighter.
+
+	GS_COUNT,          ///< Number of gradient shifts.
+	GS_INVALID = 0xff, ///< Invalid gradient shift.
+};
+
 /**
  * Get the index of the base colour of a colour range.
  * @param cr Colour range to use.

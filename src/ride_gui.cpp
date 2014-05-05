@@ -225,7 +225,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 					static const Recolouring recolour; // Never modified, display 'original' image in the GUI.
 					_video->BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
 							this->GetWidgetScreenY(wid) + 40, ride_type->GetView(_shop_placer.orientation),
-							recolour, 0);
+							recolour, GS_NORMAL);
 				}
 			}
 			break;

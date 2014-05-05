@@ -101,7 +101,7 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 
 		base.x = this->GetWidgetScreenX(wid) + (wid->pos.width - dot->width) / 2;
 		base.y = this->GetWidgetScreenY(wid) + (wid->pos.height - dot->height) / 2;
-		_video->BlitImage(base, dot, recolour, 0);
+		_video->BlitImage(base, dot, recolour, GS_NORMAL);
 		return;
 	}
 

@@ -96,8 +96,8 @@ public:
 	ClippedRectangle GetClippedRectangle();
 
 	void FillSurface(uint32 colour, const Rectangle32 &rect);
-	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, int16 shift);
-	void BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift);
+	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift);
+	void BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, GradientShift shift);
 
 	/**
 	 * Blit a row of sprites.

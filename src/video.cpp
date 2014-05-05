@@ -307,7 +307,7 @@ void VideoSystem::FillSurface(uint32 colour, const Rectangle32 &rect)
  * @param recolour Sprite recolouring definition.
  * @param shift Gradient shift.
  */
-void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, int16 shift)
+void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift)
 {
 	this->BlitImage(img_base.x, img_base.y, spr, recolour, shift);
 }
@@ -320,7 +320,7 @@ void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const
  * @param recolour Sprite recolouring definition.
  * @param shift Gradient shift.
  */
-void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, int16 shift)
+void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, GradientShift shift)
 {
 	if (img == nullptr) {
 		this->missing_sprites = true;
