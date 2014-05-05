@@ -426,11 +426,19 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 						break;
 
 					case 1: { // Partial opaque pixels.
-						uint8 opacity = *src++;
+						uint opacity = *src++;
 						mode &= 0x3F;
 						while (mode > 0) {
 							if (xpos >= im_left) {
-								*dest++ = MakeRGBA(src[0], src[1], src[2], opacity);
+								uint32 val = *dest >> 8;
+								uint col = src[2] * opacity + (val & 0xFF) * (256 - opacity);
+								uint32 ndest = (col & 0xFF00) | OPAQUE;
+								val >>= 8;
+								col = src[1] * opacity + (val & 0xFF) * (256 - opacity);
+								ndest |= (col << 8) & 0xFF0000;
+								val >>= 8;
+								col = src[0] * opacity + (val & 0xFF) * (256 - opacity);
+								*dest++ = ndest | ((col << 16) & 0xFF000000);
 							}
 							xpos++;
 							src += 3;
@@ -459,7 +467,24 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 						mode &= 0x3F;
 						while (mode > 0) {
 							if (xpos >= im_left) {
-								*dest++ = SetA(table[*src++], opacity);
+								if (opacity == TRANSPARENT) {
+									dest++; src++;
+								} else if (opacity == OPAQUE) {
+									*dest++ = SetA(table[*src++], opacity);
+								} else {
+									uint32 val = *dest >> 8;
+									uint32 other = table[*src++] >> 8;
+									uint col = (other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
+									uint32 ndest = (col & 0xFF00) | OPAQUE;
+									val >>= 8;
+									other >>= 8;
+									col = (other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
+									ndest |= (col << 8) & 0xFF0000;
+									val >>= 8;
+									other >>= 8;
+									col = (other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
+									*dest++ = ndest | ((col << 16) & 0xFF000000);
+								}
 							}
 							xpos++;
 							mode--;
@@ -486,6 +511,7 @@ next_line:
  * @param width Width of an image.
  * @param height Height of an image.
  * @param colour Pixel value to blit.
+ * @note Function does not handle alpha blending of the new pixel with the background.
  */
 static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
 		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint32 colour)
