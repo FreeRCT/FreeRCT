@@ -15,6 +15,7 @@
 class Random;
 
 extern const uint32 _palette[256];  ///< The 8bpp FreeRCT palette.
+extern const uint32 * const _recolour_palettes[18]; ///< 32bpp recolour tables.
 
 static const uint8 TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
 static const uint8 OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
@@ -163,21 +164,19 @@ public:
 
 	const uint8 *GetPalette(GradientShift shift) const;
 
-       /**
-        * Compute 32bpp recoloured pixels.
-        * @param intensity Intensity of the original pixel.
-        * @param shift Amount of shifting that should be performed.
-        * @param layer Recolour layer (denotes which part is being recoloured).
-        * @param opacity Opacity of the pixel.
-        * @return Recoloured pixel value.
-        * @todo Do actual recolouring.
-        * Recolour entries, (one for each layer in 32bpp).
-        * Don't assign directly, use #Set instead.
-        */
-       inline uint32 Recolour32bpp(uint8 intensity, int shift, uint8 layer, uint8 opacity) const
-       {
-               return MakeRGBA(intensity, intensity, intensity, opacity);
-       }
+	/**
+	 * Get the table with recolouring of a layer.
+	 * @param layer Layer to recolour.
+	 * @return Table to use for recolouring.
+	 * @todo Implement recolour layer check in the 32bpp sprite loading, so it can be asserted here.
+	 */
+	const uint32 *GetRecolourTable(uint8 layer) const
+	{
+		if (layer >= MAX_RECOLOUR) return _recolour_palettes[0];
+		const RecolourEntry &re = this->entries[layer];
+		if (re.dest >= COL_RANGE_COUNT) return _recolour_palettes[0];
+		return _recolour_palettes[re.dest];
+	}
 
 	/**
 	 * Recolour entries, (one for each layer in 32bpp).

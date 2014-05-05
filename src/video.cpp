@@ -454,11 +454,12 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 
 					case 3: { // Recoloured pixels.
 						uint8 layer = *src++;
+						const uint32 *table = recolour.GetRecolourTable(layer - 1);
 						uint8 opacity = *src++;
 						mode &= 0x3F;
 						while (mode > 0) {
 							if (xpos >= im_left) {
-								*dest++ = recolour.Recolour32bpp(*src++, shift, layer, opacity);
+								*dest++ = SetA(table[*src++], opacity);
 							}
 							xpos++;
 							mode--;
@@ -610,10 +611,11 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 
 					case 3: { // Recoloured pixels.
 						uint8 layer = *src++;
+						const uint32 *table = recolour.GetRecolourTable(layer - 1);
 						uint8 opacity = *src++;
 						mode &= 0x3F;
 						for (; mode > 0; mode--) {
-							uint32 colour = recolour.Recolour32bpp(*src++, 0, layer, opacity);
+							uint32 colour = SetA(table[*src++], opacity);
 							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 							xpos++;
 							src_base++;
