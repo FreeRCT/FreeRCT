@@ -39,8 +39,6 @@ file("shops.rcd") {
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 
-		// XXX Add recolour definitions.
-
 		flags: bitset(ne_entrance);
 		cost_item1: 50;
 		cost_item2: 150;
@@ -56,6 +54,67 @@ file("shops.rcd") {
 			import "lang/es_ES_shops.txt";
 			import "lang/fr_FR_shops.txt";
 			import "lang/nl_NL_shops.txt";
+		}
+	}
+
+	// Ice cream stall.
+	SHOP {
+		tile_width: 64;
+		height: 1;
+
+		se: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/ice_cream_stall/64_0001.png";
+			recolour: "../sprites/objects/1x1/ice_cream_stall/64p_0001.png";
+			x_offset: -32; y_offset: -97; width: 64; height: 128;
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/ice_cream_stall/64_0002.png";
+			recolour: "../sprites/objects/1x1/ice_cream_stall/64p_0002.png";
+			x_offset: -32; y_offset: -97; width: 64; height: 128;
+		}
+		nw: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/ice_cream_stall/64_0003.png";
+			recolour: "../sprites/objects/1x1/ice_cream_stall/64p_0003.png";
+			x_offset: -32; y_offset: -97; width: 64; height: 128;
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/ice_cream_stall/64_0004.png";
+			recolour: "../sprites/objects/1x1/ice_cream_stall/64p_0004.png";
+			x_offset: -32; y_offset: -97; width: 64; height: 128;
+		}
+
+		recolour {
+			original: grey;
+			replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+			                pink_brown, blue, jade_green, purple, red, sea_green);
+		}
+		recolour {
+			original: grey;
+			replace: bitset(yellow, jade_green, purple, green);
+		}
+
+		flags: bitset(se_entrance);
+		cost_item1: 500;
+		cost_item2: 350;
+		cost_ownership: 0;
+		cost_opened: 500;
+		type_item1: ice_cream;
+		type_item2: drink;
+
+		texts: strings {
+			string { lang: "en_GB"; name: "NAME_INSTANCE1";        text: "The ice palace"; }
+			string { lang: "en_GB"; name: "NAME_INSTANCE2";        text: "Coool drinks"; }
+			string { lang: "en_GB"; name: "NAME_TYPE";             text: "Icecream stall"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_TYPE";      text: "Shop for sunny drinks and icecreams"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR1"; text: "Cup colour"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR2"; text: "Ice colour"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR3"; text: "-"; }
+			string { lang: "en_GB"; name: "NAME_ITEM1";            text: "Vanilla Icecream"; }
+			string { lang: "en_GB"; name: "NAME_ITEM2";            text: "Fresh drink"; }
 		}
 	}
 }
