@@ -89,7 +89,7 @@ Offset  Length  Version  Name         Description
   24    1- 64     1-     name         Name of the file data (a few words, nul-terminated, max 64 bytes).
    ?    1-128     1-     uri          URI for locating the resource (nul-terminated, max 128 bytes).
    ?    1-128     1-     website      URL for more information (nul-terminated, max 128 bytes).
-   ?    1-512     1-     description  Description.
+   ?    1-512     1-     description  Description (nul-terminated, max 512 bytes).
 ======  ======  =======  ===========  ==================================================================
 
 Creating the content of an RCD file is typically a lot of work, taking a long time to make.
