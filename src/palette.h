@@ -12,12 +12,14 @@
 #ifndef PALETTE_H
 #define PALETTE_H
 
-#include "language.h"
-
 class Random;
+
+extern const uint32 _palette[256];  ///< The 8bpp FreeRCT palette.
 
 static const uint8 TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
 static const uint8 OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
+
+static const int MAX_RECOLOUR = 4;  ///< Maximum number of recolourings that can be defined in a #Recolouring class.
 
 /**
  * Construct a 32bpp pixel value from its components.
@@ -42,6 +44,17 @@ static inline uint8 GetA(uint32 rgba)
 	return rgba;
 }
 
+/**
+ * Set the opaqueness of the provided colour.
+ * @param rgba Colour value to change.
+ * @param opacity Opaqueness to set.
+ * @return The combined pixel value.
+ */
+static inline uint32 SetA(uint32 rgba, uint8 opacity)
+{
+	return rgba | opacity;
+}
+
 /** Names of colour ranges. */
 enum ColourRange {
 	COL_RANGE_GREY,
@@ -64,7 +77,7 @@ enum ColourRange {
 	COL_RANGE_BROWN,
 
 	COL_RANGE_COUNT, ///< Number of colour ranges.
-	COL_RANGE_INVALID = COL_RANGE_COUNT, ///< Number denoting an invalid colour range.
+	COL_RANGE_INVALID = 0xff, ///< Number denoting an invalid colour range.
 };
 
 /** Gui text colours. */
@@ -109,6 +122,31 @@ inline uint8 GetColourRangeBase(ColourRange cr)
 	return COL_SERIES_START + cr * COL_SERIES_LENGTH;
 }
 
+/** A recolour entry, defining a #source colour range to replace with the #dest colour range, where #dest must be in #dest_set. */
+struct RecolourEntry {
+	RecolourEntry();
+	RecolourEntry(uint32 recol);
+	RecolourEntry(ColourRange source, ColourRange dest);
+	RecolourEntry(ColourRange source, uint32 dest_set, ColourRange dest);
+	RecolourEntry(const RecolourEntry &orig);
+	RecolourEntry &operator=(const RecolourEntry &orig);
+
+	void AssignDest(ColourRange dest);
+
+	/**
+	 * Test whether the entry is filled and ready for use.
+	 * @return Whether the entry is ready for use.
+	 */
+	bool IsValid() const
+	{
+		return this->source < COL_RANGE_COUNT && this->dest_set != 0;
+	}
+
+	ColourRange source; ///< Source colour range to replace. Only used for 8bpp images, the value #COL_RANGE_INVALID means the entry is not used.
+	ColourRange dest;   ///< Destination colour range to use instead. The value #COL_RANGE_INVALID means no choice has been made yet.
+	uint32 dest_set;    ///< Bit set of destination colour ranges to chose from.
+};
+
 /**
  * Sprite recolouring information.
  * All information of a sprite recolouring. The gradient colour shift is handled separately, as it changes often.
@@ -118,70 +156,46 @@ public:
 	Recolouring();
 	Recolouring(const Recolouring &sr);
 	Recolouring &operator=(const Recolouring &sr);
-	void SetRecolouring(uint8 base_series, uint8 dest_series);
+
+	void Reset();
+	void Set(int index, const RecolourEntry &entry);
+	void AssignRandomColours();
+
+	const uint8 *GetPalette(GradientShift shift) const;
+
+       /**
+        * Compute 32bpp recoloured pixels.
+        * @param intensity Intensity of the original pixel.
+        * @param shift Amount of shifting that should be performed.
+        * @param layer Recolour layer (denotes which part is being recoloured).
+        * @param opacity Opacity of the pixel.
+        * @return Recoloured pixel value.
+        * @todo Do actual recolouring.
+        * Recolour entries, (one for each layer in 32bpp).
+        * Don't assign directly, use #Set instead.
+        */
+       inline uint32 Recolour32bpp(uint8 intensity, int shift, uint8 layer, uint8 opacity) const
+       {
+               return MakeRGBA(intensity, intensity, intensity, opacity);
+       }
 
 	/**
-	 * Compute the colour of a pixel with recolouring.
-	 * @param orig Original colour.
-	 * @param shift Gradient shift in the target range.
-	 * @return Colour value after recolouring.
+	 * Recolour entries, (one for each layer in 32bpp).
+	 * Don't assign directly, use #Set instead.
 	 */
-	inline int Recolour8bpp(int orig, int shift) const
-	{
-		return this->recolour_map[shift][orig];
-	}
-
-	/**
-	 * Compute 32bpp recoloured pixels.
-	 * @param intensity Intensity of the original pixel.
-	 * @param shift Amount of shifting that should be performed.
-	 * @param layer Recolour layer (denotes which part is being recoloured).
-	 * @param opacity Opacity of the pixel.
-	 * @return Recoloured pixel value.
-	 * @todo Do actual recolouring.
-	 */
-	inline uint32 Recolour32bpp(uint8 intensity, int shift, uint8 layer, uint8 opacity) const
-	{
-		return MakeRGBA(intensity, intensity, intensity, opacity);
-	}
-
-	uint8 recolour_map[5][256]; ///< Mapping of each colour to its shifted, recoloured palette value.
+	RecolourEntry entries[MAX_RECOLOUR];
 
 private:
-	void SetRecolourFixedParts();
-};
-
-/** Definition of a random recolouring remapping. */
-struct RandomRecolouringMapping {
-	RandomRecolouringMapping();
-
-	/**
-	 * Set the recolour mapping, from an RCD file.
-	 * @param value Value as defined in the RCD format (lower 18 bits the set, upper 8 bits the source colour range).
-	 */
-	void Set(uint32 value)
+	/** Invalidate the colour map used last time. */
+	void InvalidateColourMap()
 	{
-		this->Set(static_cast<ColourRange>(value >> 24), value);
+		this->shift = GS_INVALID;
 	}
 
-	/**
-	 * Set the recolour mapping.
-	 * @param number Source colour range to remap.
-	 * @param dest_set Bit-set of allowed destination colour ranges.
-	 */
-	void Set(ColourRange number, uint32 dest_set)
-	{
-		if (number >= COL_RANGE_COUNT) number = COL_RANGE_INVALID;
-		this->range_number = number;
-		this->dest_set = dest_set;
-	}
+	ColourRange GetReplacementRange(ColourRange src) const;
 
-	ColourRange range_number; ///< Colour range number being mapped.
-	uint32 dest_set;          ///< Bit-set of allowed colour ranges to replace #range_number.
-
-	ColourRange DrawRandomColour(Random *rnd) const;
+	mutable uint8 colour_map[256]; ///< Colour map used last time.
+	mutable GradientShift shift;   ///< Gradient shift used last time, #GS_INVALID if the #colour_map is not valid.
 };
-
-extern const uint32 _palette[256]; ///< The old FreeRCT palette.
 
 #endif

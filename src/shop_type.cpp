@@ -72,7 +72,7 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 
 	for (uint i = 0; i < 3; i++) {
 		uint32 recolour = rcd_file->GetUInt32();
-		if (i < lengthof(this->colour_remappings)) this->colour_remappings[i].Set(recolour);
+		this->recolours.Set(i, RecolourEntry(recolour));
 	}
 	this->item_cost[0] = rcd_file->GetInt32();
 	this->item_cost[1] = rcd_file->GetInt32();

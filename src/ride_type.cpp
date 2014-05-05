@@ -146,6 +146,8 @@ RideInstance::RideInstance(const RideType *rt)
 	this->type = rt;
 	this->state = RIS_ALLOCATED;
 	this->flags = 0;
+	this->recolours = rt->recolours;
+	this->recolours.AssignRandomColours();
 	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
 	std::fill_n(this->item_count, NUMBER_ITEM_TYPES_SOLD, 0);
 }

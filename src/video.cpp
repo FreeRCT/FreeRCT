@@ -360,6 +360,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 
 	uint32 *base = this->blit_rect.address + x + y * this->blit_rect.pitch;
 	if (GB(img->flags, IFG_IS_8BPP, 1) != 0) {
+		const uint8 *recoloured = recolour.GetPalette(shift); // Get the palette after recolouring and gradient shifting.
 		/* Draw an 8bpp image. */
 		for (; im_top < im_bottom; im_top++) {
 			uint32 *dest = base;
@@ -388,7 +389,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 				for (; count > 0; count--) {
 					if (xpos >= im_right) break;
 					if (xpos >= im_left) {
-						*dest = _palette[recolour.Recolour8bpp(*pixels, shift)];
+						*dest = _palette[recoloured[*pixels]];
 						dest++;
 					}
 					xpos++;
@@ -540,6 +541,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 
 	uint32 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
 	if (GB(spr->flags, IFG_IS_8BPP, 1) != 0) {
+		const uint8 *recoloured = recolour.GetPalette(GS_NORMAL); // Get the palette after recolouring and gradient shifting.
 		/* Drawing 8bpp image. */
 		int32 ypos = y_base;
 		for (int yoff = 0; yoff < spr->height; yoff++) {
@@ -556,7 +558,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 					xpos += rel_off & 127;
 					src_base += rel_off & 127;
 					while (count > 0) {
-						uint32 colour = _palette[recolour.Recolour8bpp(*pixels, 0)]; // No shift here.
+						uint32 colour = _palette[recoloured[*pixels]];
 						BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 						pixels++;
 						xpos++;

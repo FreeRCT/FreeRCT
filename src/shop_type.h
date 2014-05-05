@@ -31,7 +31,6 @@ public:
 
 	int8 height; ///< Number of voxels used by this shop.
 	uint8 flags; ///< Shop flags. @see ShopFlags
-	RandomRecolouringMapping colour_remappings[NUMBER_SHOP_RECOLOUR_MAPPINGS]; ///< %Random sprite recolour mappings.
 
 protected:
 	ImageData *views[4]; ///< 64 pixel wide shop graphics.

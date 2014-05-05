@@ -794,7 +794,7 @@ static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrienta
 		dd[idx].sprite = sprites[i];
 		dd[idx].base.x = basex;
 		dd[idx].base.y = basey;
-		dd[idx].recolour = &ri->recolour_map;
+		dd[idx].recolour = &ri->recolours;
 		idx++;
 	}
 	return idx;

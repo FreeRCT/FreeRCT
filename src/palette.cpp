@@ -10,50 +10,89 @@
 /** @file palette.cpp 8bpp palette definitions. */
 
 #include "stdafx.h"
+#include "bitmath.h"
+#include "math_func.h"
 #include "palette.h"
-#include "memory.h"
 #include "random.h"
 
-/** Setup the recolour map for the non-remapped colours. */
-void Recolouring::SetRecolourFixedParts()
+/** Default constructor. */
+RecolourEntry::RecolourEntry() : source(COL_RANGE_INVALID), dest(COL_RANGE_INVALID), dest_set(0)
 {
-	for (int shift = 0; shift < 5; shift++) {
-		for (int col = 0; col < COL_SERIES_START; col++) {
-			this->recolour_map[shift][col] = col;
-		}
-		for (int col = COL_SERIES_END; col < 256; col++) {
-			this->recolour_map[shift][col] = col;
-		}
-	}
 }
 
 /**
- * Recolour the \a base_series range of colours to \a dest_series.
- * Reset recolouring by setting the base and dest to the same value.
- * @param base_series Range to change.
- * @param dest_series Destination range to change to.
+ * Constructor for an encoded recolour entry.
+ * @param value Encoded recolouring.
  */
-void Recolouring::SetRecolouring(uint8 base_series, uint8 dest_series)
+RecolourEntry::RecolourEntry(uint32 value)
 {
-	assert(base_series < COL_RANGE_COUNT);
-	assert(dest_series < COL_RANGE_COUNT);
-	int base_start = COL_SERIES_START + base_series * COL_SERIES_LENGTH;
-	int dest_start = COL_SERIES_START + dest_series * COL_SERIES_LENGTH;
-	int dest_last  = COL_SERIES_START + dest_series * COL_SERIES_LENGTH + COL_SERIES_LENGTH - 1;
-	for (int shift = 0; shift < 5; shift++) {
-		for (int idx = 0; idx < COL_SERIES_LENGTH; idx++) {
-			int col = dest_start + idx + shift;
-			col = std::max(std::min(col, dest_last), dest_start);
-			this->recolour_map[shift][base_start + idx] = col;
-		}
+	uint8 src = value >> 24;
+	this->source = (src >= COL_RANGE_COUNT) ? COL_RANGE_INVALID : (ColourRange)src;
+	this->dest = COL_RANGE_INVALID;
+	this->dest_set = value & 0x3FFFF;
+}
+
+/**
+ * Recolour entry mapping a \a source range directly to a \a dest range.
+ * @param source Source colour range to convert.
+ * @param dest Replacement colour range.
+ */
+RecolourEntry::RecolourEntry(ColourRange source, ColourRange dest)
+{
+	assert(source < COL_RANGE_COUNT);
+	assert(dest < COL_RANGE_COUNT);
+
+	this->source = source;
+	this->dest = dest;
+	this->dest_set = 1 << dest;
+}
+
+RecolourEntry::RecolourEntry(ColourRange source, uint32 dest_set, ColourRange dest) : source(source), dest(dest), dest_set(dest_set)
+{
+}
+
+/**
+ * Copy constructor.
+ * @param orig Existing value to copy.
+ */
+RecolourEntry::RecolourEntry(const RecolourEntry &orig)
+{
+	this->source = orig.source;
+	this->dest = orig.dest;
+	this->dest_set = orig.dest_set;
+}
+
+/**
+ * Assignment operator.
+ * @param orig Existing value to copy.
+ * @return The assigned value.
+ */
+RecolourEntry &RecolourEntry::operator=(const RecolourEntry &orig)
+{
+	if (this != &orig) {
+		this->source = orig.source;
+		this->dest = orig.dest;
+		this->dest_set = orig.dest_set;
+	}
+	return *this;
+}
+
+/**
+ * Assign a destination colour range to the entry.
+ * @param dest Destination colour range to use.
+ */
+void RecolourEntry::AssignDest(ColourRange dest)
+{
+	if (dest == COL_RANGE_INVALID || (this->source != COL_RANGE_INVALID && dest < COL_RANGE_COUNT && GB(this->dest_set, dest, 1) != 0)) {
+		this->dest = dest;
 	}
 }
 
 /** Default constructor. */
 Recolouring::Recolouring()
 {
-	this->SetRecolourFixedParts();
-	for (int i = 0; i < COL_RANGE_COUNT; i++) this->SetRecolouring(i, i);
+	this->Reset();
+	this->InvalidateColourMap();
 }
 
 /**
@@ -62,7 +101,7 @@ Recolouring::Recolouring()
  */
 Recolouring::Recolouring(const Recolouring &rc)
 {
-	std::copy(&rc.recolour_map[0], endof(rc.recolour_map), &this->recolour_map[0]);
+	std::copy(&rc.entries[0], endof(rc.entries), this->entries);
 }
 
 /**
@@ -73,35 +112,88 @@ Recolouring::Recolouring(const Recolouring &rc)
 Recolouring &Recolouring::operator=(const Recolouring &rc)
 {
 	if (this != &rc) {
-		std::copy(&rc.recolour_map[0], endof(rc.recolour_map), &this->recolour_map[0]);
+		std::copy(&rc.entries[0], endof(rc.entries), this->entries);
 	}
 	return *this;
 }
 
-/** Default constructor of the random recolour mapping. */
-RandomRecolouringMapping::RandomRecolouringMapping() : range_number(COL_RANGE_INVALID), dest_set(0)
+/** Reset the recolouring, removing all recolour entries. */
+void Recolouring::Reset()
 {
+	for (int i = 0; i < MAX_RECOLOUR; i++) entries[i].source = COL_RANGE_INVALID;
 }
 
 /**
- * Decide a colour for the random colour range.
- * @param rnd %Random number generator.
- * @return Colour range to use for #range_number.
+ * Copy a recolour entry into the recolouring.
+ * @param index Entry number to set.
+ * @param entry Entry to copy.
  */
-ColourRange RandomRecolouringMapping::DrawRandomColour(Random *rnd) const
+void Recolouring::Set(int index, const RecolourEntry &entry)
 {
-	assert(this->range_number != COL_RANGE_INVALID);
+	if (index >= MAX_RECOLOUR) return;
+	this->entries[index] = entry;
+	this->InvalidateColourMap();
+}
 
-	ColourRange ranges[COL_RANGE_COUNT];
-	int count = 0;
-	uint32 bit = 1;
-	for (int i = 0; i < (int)lengthof(ranges); i++) {
-		if ((bit & this->dest_set) != 0) ranges[count++] = static_cast<ColourRange>(i);
-		bit <<= 1;
+void Recolouring::AssignRandomColours()
+{
+	Random rnd;
+
+	for (uint i = 0; i < lengthof(this->entries); i++) {
+		RecolourEntry &re = this->entries[i];
+		if (re.source != COL_RANGE_INVALID && re.dest == COL_RANGE_INVALID) {
+			if (re.dest_set == 0) {
+				re.source = COL_RANGE_INVALID;
+				continue;
+			}
+			int num_bits = CountBits(re.dest_set);
+			num_bits = (num_bits == 1) ? 0 : rnd.Uniform(num_bits - 1);
+			for (int j = 0; j < 32; j++) {
+				if (GB(re.dest_set, j, 1) != 0) {
+					num_bits--;
+					if (num_bits < 0) {
+						re.AssignDest((ColourRange)j);
+						break;
+					}
+				}
+			}
+		}
 	}
-	if (count == 0) return this->range_number; // No range to replace the original colour with.
-	if (count == 1) return ranges[0]; // Just one colour, easy choice.
-	return ranges[rnd->Uniform(count - 1)];
+}
+
+/**
+ * Compute the palette of the #Recolouring object from the #entries and the gradient shift.
+ * @param shift Applied gradient shift.
+ */
+const uint8 *Recolouring::GetPalette(GradientShift shift) const
+{
+	if (this->shift == shift) return this->colour_map;
+
+	for (int i = 0; i < COL_SERIES_START; i++) this->colour_map[i] = i;
+	for (int i = COL_SERIES_END; i < 256; i++) this->colour_map[i] = i;
+	for (int rng = 0; rng < COL_RANGE_COUNT; rng++) {
+		int base = GetColourRangeBase((ColourRange)rng);
+		int baseval = GetColourRangeBase(this->GetReplacementRange((ColourRange)rng));
+		for (int col = 0; col < COL_SERIES_LENGTH; col++) {
+			this->colour_map[base + col] = baseval + Clamp(col + shift - GS_NORMAL, 0, COL_SERIES_LENGTH - 1);
+		}
+	}
+	this->shift = shift;
+	return this->colour_map;
+}
+
+/**
+ * Find the coloure range to use as replacement for the \a src colour range.
+ * @param src Colour range to replace.
+ * @return Colour range to use instead of \a src (may be \a src again).
+ */
+ColourRange Recolouring::GetReplacementRange(ColourRange src) const
+{
+	ColourRange dest = src;
+	for (int i = 0; i < MAX_RECOLOUR; i++) {
+		if (this->entries[i].source == src && this->entries[i].dest != COL_RANGE_INVALID) dest = this->entries[i].dest;
+	}
+	return dest;
 }
 
 const uint32 _palette[256] = {

@@ -26,17 +26,12 @@ static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about eac
 
 /**
  * Construct a recolour mapping of this person type.
- * @param rnd %Random number generator.
  * @return The constructed recolouring.
  */
-Recolouring PersonTypeGraphics::MakeRecolouring(Random *rnd) const
+Recolouring PersonTypeGraphics::MakeRecolouring() const
 {
-	Recolouring recolour;
-	for (int i = 0; i < (int)lengthof(this->random_recolours); i++) {
-		const RandomRecolouringMapping &rrcm = this->random_recolours[i];
-		if (rrcm.range_number == COL_RANGE_INVALID) continue;
-		recolour.SetRecolouring(rrcm.range_number, rrcm.DrawRandomColour(rnd));
-	}
+	Recolouring recolour(this->recolours);
+	recolour.AssignRandomColours();
 	return recolour;
 }
 
@@ -80,10 +75,10 @@ bool LoadPRSG(RcdFileReader *rcd_file)
 
 		if (pt != PERSON_INVALID) {
 			PersonTypeData &ptd = ModifyPersonTypeData(pt);
-			assert(NUMBER_PERSON_TYPE_RECOLOURINGS >= 3);
-			ptd.graphics.random_recolours[0].Set(rc1);
-			ptd.graphics.random_recolours[2].Set(rc2);
-			ptd.graphics.random_recolours[3].Set(rc3);
+			ptd.graphics.recolours.Reset();
+			ptd.graphics.recolours.Set(0, RecolourEntry(rc1));
+			ptd.graphics.recolours.Set(1, RecolourEntry(rc2));
+			ptd.graphics.recolours.Set(2, RecolourEntry(rc3));
 		}
 		count--;
 	}
@@ -182,7 +177,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 
 	/* Set up the person sprite recolouring table. */
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
-	this->recolour = person_type_data.graphics.MakeRecolouring(&this->rnd);
+	this->recolour = person_type_data.graphics.MakeRecolouring();
 
 	/* Set up initial position. */
 	this->x_vox = start.x;

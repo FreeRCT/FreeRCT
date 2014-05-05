@@ -15,7 +15,6 @@
 #include "palette.h"
 #include "money.h"
 
-static const int NUMBER_SHOP_RECOLOUR_MAPPINGS =  3; ///< Number of (random) colour remappings of a shop type.
 static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of types of rides.
 static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
@@ -73,6 +72,7 @@ public:
 	Money monthly_open_cost; ///< Monthly extra costs if the ride is opened.
 	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
 	Money item_cost[NUMBER_ITEM_TYPES_SOLD];    ///< Cost of the items on sale.
+	Recolouring recolours;   ///< Sprite recolour map.
 
 	StringID GetString(uint16 number) const;
 	StringID GetTypeName() const;
@@ -132,10 +132,10 @@ public:
 
 	uint16 GetIndex() const;
 
-	uint8 name[64];           ///< Name of the ride, if it is instantiated.
-	uint8 state;              ///< State of the instance. @see RideInstanceState
-	uint8 flags;              ///< Flags of the instance. @see RideInstanceFlags
-	Recolouring recolour_map; ///< Recolour map of the instance.
+	uint8 name[64];          ///< Name of the ride, if it is instantiated.
+	uint8 state;             ///< State of the instance. @see RideInstanceState
+	uint8 flags;             ///< Flags of the instance. @see RideInstanceFlags
+	Recolouring recolours;   ///< Recolour map of the instance.
 
 	Money total_profit;      ///< Total profit of the ride.
 	Money total_sell_profit; ///< Profit of selling items.

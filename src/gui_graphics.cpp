@@ -28,7 +28,7 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 	Point32 pt;
 	const ImageData * const *spr_base = pressed ? bsd.pressed : bsd.normal;
 	static Recolouring rc; // Only COL_RANGE_BROWN is modified each time.
-	rc.SetRecolouring(COL_RANGE_BROWN, colour);
+	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, colour));
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y;

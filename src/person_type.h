@@ -17,8 +17,6 @@
 class Random;
 class RcdFileReader;
 
-static const int NUMBER_PERSON_TYPE_RECOLOURINGS = 3; ///< Number of recolouring mapping of a person type.
-
 /** Types of persons. */
 enum PersonType {
 	PERSON_ANY    = 0, ///< No people displayed in the animation.
@@ -35,9 +33,9 @@ DECLARE_POSTFIX_INCREMENT(PersonType)
 
 /** Graphics definition of a person type. */
 struct PersonTypeGraphics {
-	RandomRecolouringMapping random_recolours[NUMBER_PERSON_TYPE_RECOLOURINGS]; ///< Random colour remappings.
+	Recolouring recolours; ///< Random colour remapping.
 
-	Recolouring MakeRecolouring(Random *rnd) const;
+	Recolouring MakeRecolouring() const;
 };
 
 /** Collection of data for each person type. */
