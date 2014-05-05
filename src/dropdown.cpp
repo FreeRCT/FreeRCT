@@ -221,6 +221,15 @@ static const WidgetPart _recolour_dropdown_widgets[] = {
 			Widget(WT_PANEL, RD_BUTTON_17, COL_RANGE_BROWN),           SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
 };
 
+/**
+ * Dropdown window for a recolour selection.
+ * @param parent_type Type of the parent window.
+ * @param parent_num Number of the parent window.
+ * @param parent_btn Unique number within the parent (to differentiate between different dropdowns from the same parent).
+ * @param pos Initial position of the window (top left).
+ * @param colour Requested colour of dropdown.
+ * @param entry Recolour entry being changed (will be changed when clicked on a selectable different colour).
+ */
 RecolourDropdownWindow::RecolourDropdownWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const Point16 &pos, ColourRange colour, RecolourEntry *entry)
 		: GuiWindow(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE), parent_type(parent_type), parent_num(parent_num), parent_btn(parent_btn), entry(entry)
 {
@@ -255,6 +264,12 @@ void RecolourDropdownWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *
 	OverlayShaded(rect);
 }
 
+/**
+ * Open a recolour dropdown from widget \a widnum.
+ * @param widnum Associated dropdown button.
+ * @param entry Recolour entry being changed (will be changed when clicked on a selectable different colour).
+ * @param colour Requested colour of dropdown.
+ */
 void GuiWindow::ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour)
 {
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);

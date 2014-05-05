@@ -47,6 +47,12 @@ RecolourEntry::RecolourEntry(ColourRange source, ColourRange dest)
 	this->dest_set = 1 << dest;
 }
 
+/**
+ * Constructor with all data members.
+ * @param source Source range of the entry.
+ * @param dest_set Bit set of allowed destination ranges (bits 0 to 17 inclusive).
+ * @param dest Destination range (if provided, else #COL_RANGE_INVALID).
+ */
 RecolourEntry::RecolourEntry(ColourRange source, uint32 dest_set, ColourRange dest) : source(source), dest(dest), dest_set(dest_set)
 {
 }
@@ -135,6 +141,7 @@ void Recolouring::Set(int index, const RecolourEntry &entry)
 	this->InvalidateColourMap();
 }
 
+/** Select random destination colour ranges for the recolour entries. */
 void Recolouring::AssignRandomColours()
 {
 	Random rnd;
@@ -164,6 +171,7 @@ void Recolouring::AssignRandomColours()
 /**
  * Compute the palette of the #Recolouring object from the #entries and the gradient shift.
  * @param shift Applied gradient shift.
+ * @return 8bpp palette, including recolouring.
  */
 const uint8 *Recolouring::GetPalette(GradientShift shift) const
 {

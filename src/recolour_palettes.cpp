@@ -12,7 +12,7 @@
 #include "stdafx.h"
 #include "palette.h"
 
-/** Recolour table for #COL_RANGE_GREY. */
+/** Recolour table for ColoureRange::COL_RANGE_GREY. */
 static const uint32 _recolour00[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  1,  2,  2, 0), MakeRGBA(  2,  4,  4, 0), MakeRGBA(  4,  5,  5, 0),
 	MakeRGBA(  5,  7,  7, 0), MakeRGBA(  6,  9,  9, 0), MakeRGBA(  7, 11, 11, 0), MakeRGBA(  8, 12, 12, 0),
@@ -80,7 +80,7 @@ static const uint32 _recolour00[256] = {
 	MakeRGBA(252,253,253, 0), MakeRGBA(253,253,253, 0), MakeRGBA(253,254,254, 0), MakeRGBA(254,254,254, 0),
 };
 
-/** Recolour table for #COL_RANGE_GREEN_BROWN. */
+/** Recolour table for ColourRange::COL_RANGE_GREEN_BROWN. */
 static const uint32 _recolour01[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  3,  2,  0, 0), MakeRGBA(  5,  5,  0, 0), MakeRGBA(  8,  7,  0, 0),
 	MakeRGBA( 10, 10,  0, 0), MakeRGBA( 13, 12,  0, 0), MakeRGBA( 16, 14,  0, 0), MakeRGBA( 18, 17,  0, 0),
@@ -148,7 +148,7 @@ static const uint32 _recolour01[256] = {
 	MakeRGBA(248,249,236, 0), MakeRGBA(250,251,241, 0), MakeRGBA(252,252,246, 0), MakeRGBA(253,254,250, 0),
 };
 
-/** Recolour table for #COL_RANGE_ORANGE_BROWN. */
+/** Recolour table for ColourRange::COL_RANGE_ORANGE_BROWN. */
 static const uint32 _recolour02[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  3,  2,  0, 0), MakeRGBA(  7,  4,  1, 0), MakeRGBA( 10,  7,  1, 0),
 	MakeRGBA( 14,  9,  1, 0), MakeRGBA( 17, 11,  2, 0), MakeRGBA( 20, 13,  2, 0), MakeRGBA( 24, 15,  2, 0),
@@ -216,7 +216,7 @@ static const uint32 _recolour02[256] = {
 	MakeRGBA(253,252,243, 0), MakeRGBA(254,253,246, 0), MakeRGBA(254,253,249, 0), MakeRGBA(255,254,252, 0),
 };
 
-/** Recolour table for #COL_RANGE_YELLOW. */
+/** Recolour table for ColoureRange::COL_RANGE_YELLOW. */
 static const uint32 _recolour03[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  4,  1,  0, 0), MakeRGBA(  7,  3,  0, 0), MakeRGBA( 11,  4,  0, 0),
 	MakeRGBA( 14,  5,  0, 0), MakeRGBA( 18,  7,  0, 0), MakeRGBA( 22,  8,  0, 0), MakeRGBA( 25, 10,  0, 0),
@@ -284,7 +284,7 @@ static const uint32 _recolour03[256] = {
 	MakeRGBA(255,255,243, 0), MakeRGBA(255,255,246, 0), MakeRGBA(255,255,249, 0), MakeRGBA(255,255,252, 0),
 };
 
-/** Recolour table for #COL_RANGE_DARK_RED. */
+/** Recolour table for ColourRange::COL_RANGE_DARK_RED. */
 static const uint32 _recolour04[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  2,  0,  0, 0), MakeRGBA(  4,  0,  0, 0), MakeRGBA(  5,  0,  0, 0),
 	MakeRGBA(  7,  0,  0, 0), MakeRGBA(  9,  0,  0, 0), MakeRGBA( 11,  0,  0, 0), MakeRGBA( 12,  0,  0, 0),
@@ -352,7 +352,7 @@ static const uint32 _recolour04[256] = {
 	MakeRGBA(255,242,242, 0), MakeRGBA(255,245,245, 0), MakeRGBA(255,248,248, 0), MakeRGBA(255,252,252, 0),
 };
 
-/** Recolour table for #COL_RANGE_DARK_GREEN. */
+/** Recolour table for ColourRange::COL_RANGE_DARK_GREEN. */
 static const uint32 _recolour05[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  1,  3,  1, 0), MakeRGBA(  3,  5,  2, 0), MakeRGBA(  4,  8,  3, 0),
 	MakeRGBA(  5, 10,  4, 0), MakeRGBA(  7, 13,  5, 0), MakeRGBA(  8, 16,  6, 0), MakeRGBA( 10, 18,  7, 0),
@@ -420,7 +420,7 @@ static const uint32 _recolour05[256] = {
 	MakeRGBA(240,248,224, 0), MakeRGBA(244,250,232, 0), MakeRGBA(248,251,240, 0), MakeRGBA(251,253,247, 0),
 };
 
-/** Recolour table for #COL_RANGE_LIGHT_GREEN. */
+/** Recolour table for ColourRange::COL_RANGE_LIGHT_GREEN. */
 static const uint32 _recolour06[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  2,  3,  1, 0), MakeRGBA(  3,  6,  3, 0), MakeRGBA(  5,  8,  4, 0),
 	MakeRGBA(  6, 11,  5, 0), MakeRGBA(  8, 14,  7, 0), MakeRGBA(  9, 17,  8, 0), MakeRGBA( 11, 20, 10, 0),
@@ -488,7 +488,7 @@ static const uint32 _recolour06[256] = {
 	MakeRGBA(248,253,242, 0), MakeRGBA(250,254,245, 0), MakeRGBA(252,254,248, 0), MakeRGBA(253,255,252, 0),
 };
 
-/** Recolour table for #COL_RANGE_GREEN. */
+/** Recolour table for ColourRange::COL_RANGE_GREEN. */
 static const uint32 _recolour07[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  1,  3,  0, 0), MakeRGBA(  2,  6,  0, 0), MakeRGBA(  2, 10,  0, 0),
 	MakeRGBA(  3, 13,  0, 0), MakeRGBA(  4, 16,  0, 0), MakeRGBA(  5, 19,  0, 0), MakeRGBA(  5, 22,  0, 0),
@@ -556,7 +556,7 @@ static const uint32 _recolour07[256] = {
 	MakeRGBA(243,255,240, 0), MakeRGBA(246,255,243, 0), MakeRGBA(249,255,247, 0), MakeRGBA(252,255,251, 0),
 };
 
-/** Recolour table for #COL_RANGE_PINK_BROWN. */
+/** Recolour table for ColourRange::COL_RANGE_PINK_BROWN. */
 static const uint32 _recolour08[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  4,  2,  1, 0), MakeRGBA(  8,  4,  2, 0), MakeRGBA( 12,  7,  3, 0),
 	MakeRGBA( 16,  9,  4, 0), MakeRGBA( 20, 11,  5, 0), MakeRGBA( 24, 13,  6, 0), MakeRGBA( 28, 15,  7, 0),
@@ -624,7 +624,7 @@ static const uint32 _recolour08[256] = {
 	MakeRGBA(255,249,243, 0), MakeRGBA(255,251,246, 0), MakeRGBA(255,252,249, 0), MakeRGBA(255,254,252, 0),
 };
 
-/** Recolour table for #COL_RANGE_DARK_PURPLE. */
+/** Recolour table for ColourRange::COL_RANGE_DARK_PURPLE. */
 static const uint32 _recolour09[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  1,  1,  3, 0), MakeRGBA(  2,  2,  6, 0), MakeRGBA(  2,  3,  8, 0),
 	MakeRGBA(  3,  4, 11, 0), MakeRGBA(  4,  5, 14, 0), MakeRGBA(  5,  6, 17, 0), MakeRGBA(  5,  7, 20, 0),
@@ -692,7 +692,7 @@ static const uint32 _recolour09[256] = {
 	MakeRGBA(252,252,255, 0), MakeRGBA(253,253,255, 0), MakeRGBA(253,253,255, 0), MakeRGBA(254,254,255, 0),
 };
 
-/** Recolour table for #COL_RANGE_BLUE. */
+/** Recolour table for ColourRange::COL_RANGE_BLUE. */
 static const uint32 _recolour10[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  0,  1,  6, 0), MakeRGBA(  0,  3, 11, 0), MakeRGBA(  0,  4, 17, 0),
 	MakeRGBA(  0,  5, 23, 0), MakeRGBA(  0,  7, 28, 0), MakeRGBA(  0,  8, 34, 0), MakeRGBA(  0, 10, 39, 0),
@@ -760,7 +760,7 @@ static const uint32 _recolour10[256] = {
 	MakeRGBA(247,253,255, 0), MakeRGBA(249,254,255, 0), MakeRGBA(251,254,255, 0), MakeRGBA(253,255,255, 0),
 };
 
-/** Recolour table for #COL_RANGE_DARK_JADE_GREEN. */
+/** Recolour table for ColourRange::COL_RANGE_DARK_JADE_GREEN. */
 static const uint32 _recolour11[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  1,  2,  1, 0), MakeRGBA(  1,  4,  2, 0), MakeRGBA(  2,  7,  2, 0),
 	MakeRGBA(  2,  9,  3, 0), MakeRGBA(  3, 11,  4, 0), MakeRGBA(  3, 13,  5, 0), MakeRGBA(  4, 15,  5, 0),
@@ -828,7 +828,7 @@ static const uint32 _recolour11[256] = {
 	MakeRGBA(245,253,248, 0), MakeRGBA(248,253,250, 0), MakeRGBA(250,254,252, 0), MakeRGBA(253,254,253, 0),
 };
 
-/** Recolour table for #COL_RANGE_PURPLE. */
+/** Recolour table for ColourRange::COL_RANGE_PURPLE. */
 static const uint32 _recolour12[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  3,  0,  5, 0), MakeRGBA(  6,  0, 10, 0), MakeRGBA( 10,  0, 14, 0),
 	MakeRGBA( 13,  0, 19, 0), MakeRGBA( 16,  0, 24, 0), MakeRGBA( 19,  0, 29, 0), MakeRGBA( 22,  0, 34, 0),
@@ -896,7 +896,7 @@ static const uint32 _recolour12[256] = {
 	MakeRGBA(253,251,255, 0), MakeRGBA(253,252,255, 0), MakeRGBA(254,253,255, 0), MakeRGBA(254,254,255, 0),
 };
 
-/** Recolour table for #COL_RANGE_RED. */
+/** Recolour table for ColourRange::COL_RANGE_RED. */
 static const uint32 _recolour13[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  3,  0,  0, 0), MakeRGBA(  6,  0,  0, 0), MakeRGBA( 10,  0,  0, 0),
 	MakeRGBA( 13,  0,  0, 0), MakeRGBA( 16,  0,  0, 0), MakeRGBA( 19,  0,  0, 0), MakeRGBA( 22,  0,  0, 0),
@@ -964,7 +964,7 @@ static const uint32 _recolour13[256] = {
 	MakeRGBA(255,248,247, 0), MakeRGBA(255,250,249, 0), MakeRGBA(255,251,251, 0), MakeRGBA(255,253,253, 0),
 };
 
-/** Recolour table for #COL_RANGE_ORANGE. */
+/** Recolour table for ColourRange::COL_RANGE_ORANGE. */
 static const uint32 _recolour14[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  4,  2,  0, 0), MakeRGBA(  8,  4,  0, 0), MakeRGBA( 12,  6,  0, 0),
 	MakeRGBA( 16,  8,  0, 0), MakeRGBA( 20, 10,  0, 0), MakeRGBA( 24, 12,  0, 0), MakeRGBA( 28, 14,  0, 0),
@@ -1032,7 +1032,7 @@ static const uint32 _recolour14[256] = {
 	MakeRGBA(255,248,236, 0), MakeRGBA(255,250,241, 0), MakeRGBA(255,251,246, 0), MakeRGBA(255,253,250, 0),
 };
 
-/** Recolour table for #COL_RANGE_SEA_GREEN. */
+/** Recolour table for ColourRange::COL_RANGE_SEA_GREEN. */
 static const uint32 _recolour15[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  0,  3,  2, 0), MakeRGBA(  0,  5,  5, 0), MakeRGBA(  0,  8,  7, 0),
 	MakeRGBA(  0, 10, 10, 0), MakeRGBA(  0, 13, 12, 0), MakeRGBA(  0, 16, 14, 0), MakeRGBA(  0, 18, 17, 0),
@@ -1100,7 +1100,7 @@ static const uint32 _recolour15[256] = {
 	MakeRGBA(245,255,255, 0), MakeRGBA(248,255,255, 0), MakeRGBA(250,255,255, 0), MakeRGBA(253,255,255, 0),
 };
 
-/** Recolour table for #COL_RANGE_PINK. */
+/** Recolour table for ColourRange::COL_RANGE_PINK. */
 static const uint32 _recolour16[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  3,  0,  1, 0), MakeRGBA(  6,  0,  3, 0), MakeRGBA( 10,  0,  4, 0),
 	MakeRGBA( 13,  0,  5, 0), MakeRGBA( 16,  0,  7, 0), MakeRGBA( 19,  0,  8, 0), MakeRGBA( 22,  0, 10, 0),
@@ -1168,7 +1168,7 @@ static const uint32 _recolour16[256] = {
 	MakeRGBA(255,247,252, 0), MakeRGBA(255,249,253, 0), MakeRGBA(255,251,253, 0), MakeRGBA(255,253,254, 0),
 };
 
-/** Recolour table for #COL_RANGE_BROWN. */
+/** Recolour table for ColourRange::COL_RANGE_BROWN. */
 static const uint32 _recolour17[256] = {
 	MakeRGBA(  0,  0,  0, 0), MakeRGBA(  2,  1,  0, 0), MakeRGBA(  4,  2,  0, 0), MakeRGBA(  6,  3,  0, 0),
 	MakeRGBA(  8,  4,  0, 0), MakeRGBA( 10,  5,  0, 0), MakeRGBA( 12,  6,  0, 0), MakeRGBA( 14,  7,  0, 0),

@@ -709,6 +709,7 @@ void ScrollbarWidget::SetItemCount(uint count)
 
 /**
  * Which row was clicked in the scrolled widget?
+ * @param pos Clicked position in the scrolled widget (relative to top-left of the widget).
  * @return The index of the clicked item in the scrolled widget.
  */
 uint ScrollbarWidget::GetClickedRow(const Point16 &pos) const
