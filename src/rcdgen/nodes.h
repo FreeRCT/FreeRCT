@@ -209,26 +209,26 @@ public:
 
 /** Colour ranges. */
 enum ColourRange {
-	COL_GREY,        ///< Colour range for grey.
-	COL_GREEN_BROWN, ///< Colour range for green_brown.
-	COL_BROWN,       ///< Colour range for brown.
-	COL_YELLOW,      ///< Colour range for yellow.
-	COL_DARK_RED,    ///< Colour range for dark_red.
-	COL_DARK_GREEN,  ///< Colour range for dark_green.
-	COL_LIGHT_GREEN, ///< Colour range for light_green.
-	COL_GREEN,       ///< Colour range for green.
-	COL_LIGHT_RED,   ///< Colour range for light_red.
-	COL_DARK_BLUE,   ///< Colour range for dark_blue.
-	COL_BLUE,        ///< Colour range for blue.
-	COL_LIGHT_BLUE,  ///< Colour range for light_blue.
-	COL_PURPLE,      ///< Colour range for purple.
-	COL_RED,         ///< Colour range for red.
-	COL_ORANGE,      ///< Colour range for orange.
-	COL_SEA_GREEN,   ///< Colour range for sea_green.
-	COL_PINK,        ///< Colour range for pink.
-	COL_BEIGE,       ///< Colour range for beige.
+	COL_GREY,            ///< Colour range for grey.
+	COL_GREEN_BROWN,     ///< Colour range for green_brown.
+	COL_ORANGE_BROWN,    ///< Colour range for orange_brown.
+	COL_YELLOW,          ///< Colour range for yellow.
+	COL_DARK_RED,        ///< Colour range for dark_red.
+	COL_DARK_GREEN,      ///< Colour range for dark_green.
+	COL_LIGHT_GREEN,     ///< Colour range for light_green.
+	COL_GREEN,           ///< Colour range for green.
+	COL_PINK_BROWN,      ///< Colour range for pink_brown.
+	COL_DARK_PURPLE,     ///< Colour range for dark_purple.
+	COL_BLUE,            ///< Colour range for blue.
+	COL_DARK_JADE_GREEN, ///< Colour range for jade_green.
+	COL_PURPLE,          ///< Colour range for purple.
+	COL_RED,             ///< Colour range for red.
+	COL_ORANGE,          ///< Colour range for orange.
+	COL_SEA_GREEN,       ///< Colour range for sea_green.
+	COL_PINK,            ///< Colour range for pink.
+	COL_BROWN,           ///< Colour range for brown.
 
-	COLOUR_COUNT,    ///< Number of colour ranges.
+	COLOUR_COUNT,        ///< Number of colour ranges.
 };
 
 /** Colour range remapping definition. */
