@@ -11,6 +11,8 @@
 
 #include "stdafx.h"
 #include "window.h"
+#include "palette.h"
+#include "bitmath.h"
 
 /**
  * Defines a Dropdown menu item.
@@ -26,7 +28,7 @@ DropdownItem::DropdownItem(StringID strid)
  * Dropdown menu window.
  * @todo Scrollbar.
  */
-class DropdownMenuWindow : GuiWindow {
+class DropdownMenuWindow : public GuiWindow {
 public:
 	DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const DropdownList &items, const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour);
 
@@ -157,3 +159,114 @@ void GuiWindow::ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items,
 
 	new DropdownMenuWindow(this->wtype, this->wnumber, widnum, items, pos, wid->min_x, selected_index, colour);
 }
+
+/** Dropdown for picking a colour to use for recolouring. */
+class RecolourDropdownWindow : public GuiWindow {
+public:
+	RecolourDropdownWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const Point16 &pos, ColourRange colour, RecolourEntry *entry);
+
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
+	void OnClick(WidgetNumber widget, const Point16 &pos) override;
+
+	WindowTypes parent_type; ///< Parent window type.
+	WindowNumber parent_num; ///< Parent window number.
+	int parent_btn;          ///< Object the dropdown originated from. Usually a #WidgetNumber.
+	RecolourEntry *entry;    ///< Entry being changed.
+};
+
+/** Widgets of the #RecolourDropdownWindow. */
+enum RecolourDropdownWidgets {
+	RD_PANEL,
+	RD_BUTTON_00, ///< Button for selecting colour range 0.
+	RD_BUTTON_01, ///< Button for selecting colour range 1.
+	RD_BUTTON_02, ///< Button for selecting colour range 2.
+	RD_BUTTON_03, ///< Button for selecting colour range 3.
+	RD_BUTTON_04, ///< Button for selecting colour range 4.
+	RD_BUTTON_05, ///< Button for selecting colour range 5.
+	RD_BUTTON_06, ///< Button for selecting colour range 6.
+	RD_BUTTON_07, ///< Button for selecting colour range 7.
+	RD_BUTTON_08, ///< Button for selecting colour range 8.
+	RD_BUTTON_09, ///< Button for selecting colour range 9.
+	RD_BUTTON_10, ///< Button for selecting colour range 10.
+	RD_BUTTON_11, ///< Button for selecting colour range 11.
+	RD_BUTTON_12, ///< Button for selecting colour range 12.
+	RD_BUTTON_13, ///< Button for selecting colour range 13.
+	RD_BUTTON_14, ///< Button for selecting colour range 14.
+	RD_BUTTON_15, ///< Button for selecting colour range 15.
+	RD_BUTTON_16, ///< Button for selecting colour range 16.
+	RD_BUTTON_17, ///< Button for selecting colour range 17.
+};
+
+/** Widget description of the recolour dropdown. */
+static const WidgetPart _recolour_dropdown_widgets[] = {
+	Widget(WT_PANEL, RD_PANEL, COL_RANGE_GREY),
+		Intermediate(6, 3),
+			Widget(WT_PANEL, RD_BUTTON_00, COL_RANGE_GREY),            SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_01, COL_RANGE_GREEN_BROWN),     SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_02, COL_RANGE_ORANGE_BROWN),    SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_03, COL_RANGE_YELLOW),          SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_04, COL_RANGE_DARK_RED),        SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_05, COL_RANGE_DARK_GREEN),      SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_06, COL_RANGE_LIGHT_GREEN),     SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_07, COL_RANGE_GREEN),           SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_08, COL_RANGE_PINK_BROWN),      SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_09, COL_RANGE_DARK_PURPLE),     SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_10, COL_RANGE_BLUE),            SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_11, COL_RANGE_DARK_JADE_GREEN), SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_12, COL_RANGE_PURPLE),          SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_13, COL_RANGE_RED),             SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_14, COL_RANGE_ORANGE),          SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_15, COL_RANGE_SEA_GREEN),       SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_16, COL_RANGE_PINK),            SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+			Widget(WT_PANEL, RD_BUTTON_17, COL_RANGE_BROWN),           SetResize(0, 0), SetMinimalSize(10, 6), SetPadding(1, 1, 1, 1), EndContainer(),
+};
+
+RecolourDropdownWindow::RecolourDropdownWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const Point16 &pos, ColourRange colour, RecolourEntry *entry)
+		: GuiWindow(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE), parent_type(parent_type), parent_num(parent_num), parent_btn(parent_btn), entry(entry)
+{
+	this->SetupWidgetTree(_recolour_dropdown_widgets, lengthof(_recolour_dropdown_widgets));
+	this->GetWidget<BackgroundWidget>(RD_PANEL)->colour = colour;
+	this->SetPosition(pos.x, pos.y);
+
+	/** Disable the entries that cannot be chosen. */
+	for (int i = 0; i < COL_RANGE_COUNT; i++) {
+		if (GB(this->entry->dest_set, i, 1) == 0) this->GetWidget<LeafWidget>(RD_BUTTON_00 + i)->SetShaded(true);
+	}
+}
+
+void RecolourDropdownWindow::OnClick(WidgetNumber widget, const Point16 &pos)
+{
+	if (widget >= RD_BUTTON_00 && widget <= RD_BUTTON_17) {
+		if (GB(this->entry->dest_set, widget - RD_BUTTON_00, 1) == 0) return;
+
+		if (this->entry->dest != widget - RD_BUTTON_00) {
+			this->entry->dest = static_cast<ColourRange>(widget - RD_BUTTON_00);
+			_video->MarkDisplayDirty();
+		}
+
+		_manager.DeleteWindow(this);
+	}
+}
+
+void RecolourDropdownWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+{
+	if (GB(this->entry->dest_set, wid_num - RD_BUTTON_00, 1) == 1) return;
+	Rectangle32 rect = {this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height};
+	OverlayShaded(rect);
+}
+
+void GuiWindow::ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour)
+{
+	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
+	if (w != nullptr) _manager.DeleteWindow(w);
+
+	DataWidget *wid = this->GetWidget<DataWidget>(widnum);
+	assert(wid->wtype == WT_DROPDOWN_BUTTON);
+	if (colour == COL_RANGE_INVALID) colour = wid->colour;
+
+	/* Calculate top-left position of window */
+	Point16 pos = {static_cast<int16>(GetWidgetScreenX(wid)), static_cast<int16>(GetWidgetScreenY(wid) + wid->pos.height)};
+
+	new RecolourDropdownWindow(this->wtype, this->wnumber, widnum, pos, colour, entry);
+}
+	

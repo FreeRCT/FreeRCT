@@ -228,6 +228,7 @@ protected:
 
 	/* In dropdown.cpp */
 	void ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour = COL_RANGE_INVALID);
+	void ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour = COL_RANGE_INVALID);
 
 private:
 	BaseWidget *tree;     ///< Tree of widgets.
