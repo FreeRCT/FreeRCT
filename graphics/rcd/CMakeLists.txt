@@ -42,7 +42,7 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
 		file(GLOB LANGLIST ${FP}/lang/*_${DEPTYPE}.txt)
 	ENDIF()
 
-	set(OUT_DIR "${CMAKE_BINARY_DIR}/bin/rcd")
+	set(OUT_DIR "${FRCT_BINARY_DIR}/rcd")
 	add_custom_command(OUTPUT ${OUT_DIR}/${OUTFILE}
 	                   COMMAND rcdgen ${SRCFILE}
 	                   COMMAND ${CMAKE_COMMAND} -E copy ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}

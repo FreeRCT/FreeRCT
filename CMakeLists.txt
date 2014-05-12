@@ -17,9 +17,10 @@ set(CMAKE_USE_RELATIVE_PATHS ON)
 option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 
 # Create the directories that the binaries and data files go into
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/rcd)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(FRCT_BINARY_DIR ${CMAKE_BINARY_DIR}/bin)
+file(MAKE_DIRECTORY ${FRCT_BINARY_DIR})
+file(MAKE_DIRECTORY ${FRCT_BINARY_DIR}/rcd)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${FRCT_BINARY_DIR})
 
 # Include individual projects
 message(STATUS "")
@@ -37,14 +38,14 @@ IF(NOT MSVC)
 	get_target_property(FREERCT_EXE freerct LOCATION)
 	add_custom_target(run
 	                  COMMAND ${FREERCT_EXE}
-	                  WORKING_DIRECTORY src
+	                  WORKING_DIRECTORY ${FRCT_BINARY_DIR}
 	)
 	add_dependencies(run freerct)
 
 	# WARNING: Assumes gdb is in path, doesn't(/can't) find it
 	add_custom_target(gdbrun
 	                  COMMAND gdb ${FREERCT_EXE}
-	                  WORKING_DIRECTORY src
+	                  WORKING_DIRECTORY ${FRCT_BINARY_DIR}
 	)
 	add_dependencies(gdbrun freerct)
 
