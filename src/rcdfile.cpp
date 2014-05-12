@@ -73,7 +73,7 @@ void RcdFileCollection::AddFile(const RcdFileInfo &rcd)
  * @todo Mke this configurable from cmake.
  */
 static const char *_rcd_paths[] = {
-	"../graphics/rcd",
+	"rcd",
 	nullptr,
 };
 

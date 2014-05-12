@@ -14,15 +14,15 @@ ENDIF()
 project(rcd_files)
 
 # Make declaring the list shorter/nicer
-set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd/")
+set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd")
 
 # Output file             Source file
 list(APPEND RCDFILES
-     ${FP}freerct.rcd     ${FP}freerct.txt ""
-     ${FP}path_8bpp64.rcd ${FP}paths.txt   ""
-     ${FP}shops.rcd       ${FP}shops.txt   "shops"
-     ${FP}gui.rcd         ${FP}gui.txt     "gui"
-     ${FP}tracks.rcd      ${FP}tracks.txt  "tracks"
+     "freerct.rcd"     "${FP}/freerct.txt" ""
+     "path_8bpp64.rcd" "${FP}/paths.txt"   ""
+     "shops.rcd"       "${FP}/shops.txt"   "shops"
+     "gui.rcd"         "${FP}/gui.txt"     "gui"
+     "tracks.rcd"      "${FP}/tracks.txt"  "tracks"
 )
 
 get_target_property(RCDGEN_EXE rcdgen LOCATION)
@@ -39,14 +39,16 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
 	list(GET RCDFILES ${INDEX_3} DEPTYPE)
 
 	IF(DEPTYPE)
-		file(GLOB LANGLIST ${FP}lang/*_${DEPTYPE}.txt)
+		file(GLOB LANGLIST ${FP}/lang/*_${DEPTYPE}.txt)
 	ENDIF()
 
-	add_custom_command(OUTPUT ${OUTFILE}
+	set(OUT_DIR "${CMAKE_BINARY_DIR}/bin/rcd")
+	add_custom_command(OUTPUT ${OUT_DIR}/${OUTFILE}
 	                   COMMAND rcdgen ${SRCFILE}
+	                   COMMAND ${CMAKE_COMMAND} -E copy ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}
 	                   COMMENT "Generating rcd files from ${SRCFILE}"
 	                   DEPENDS ${SRCFILE} ${RCDGEN_EXE} ${LANGLIST}
-	                   WORKING_DIRECTORY ${FP}
+	                   WORKING_DIRECTORY ${FP}/
 	)
 
 	list(APPEND OUTFILES ${OUTFILE})

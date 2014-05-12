@@ -14,8 +14,12 @@ cmake_minimum_required(VERSION 2.8)
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
-# TODO: Environment handling?
 option(OVERRIDE_VCS "Override the lack of a VCS checkout")
+
+# Create the directories that the binaries and data files go into
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/rcd)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Include individual projects
 message(STATUS "")
@@ -62,6 +66,6 @@ IF(NOT MSVC)
 		                  COMMAND rst2html ${DOCFILE}.rst ${DOCFILE}.html
 						  WORKING_DIRECTORY doc
 		)
-
 	ENDFOREACH()
+
 ENDIF()
