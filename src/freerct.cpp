@@ -28,6 +28,7 @@
 #include "gamelevel.h"
 #include "getoptdata.h"
 #include "gamemode.h"
+#include "fileio.h"
 
 static const uint32 FRAME_DELAY = 30; ///< Number of milliseconds between two frames.
 
@@ -193,6 +194,8 @@ int main(int argc, char **argv)
 
 	VideoSystem vid;
 	ConfigFile cfg_file;
+
+	ChangeWorkingDirectoryToExecutable(argv[0]);
 
 	/* Load RCD files. */
 	InitImageStorage();

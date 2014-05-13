@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <unistd.h>
 
 /**
  * Base class implementation of a directory reader, never returning any content.
@@ -354,4 +355,29 @@ bool RcdFileReader::GetBlob(void *address, size_t length)
 {
 	this->file_pos += length;
 	return fread(address, length, 1, this->fp) == 1;
+}
+
+/**
+ * Attempts to change the working directory to one in which the executable resides in.
+ * @param exe "Path" to the executable (from argv[0]).
+ * @return If the working directory was changed successfully.
+ */
+bool ChangeWorkingDirectoryToExecutable(const char *exe)
+{
+	DirectoryReader *dirread = MakeDirectoryReader();
+	const char dir_sep = dirread->dir_sep;
+	delete dirread;
+
+	bool success = false;
+	char *s = const_cast<char *>(strrchr(exe, dir_sep));
+	if (s != NULL) {
+		*s = '\0';
+		if (chdir(exe) != 0) {
+			fprintf(stderr, "Directory with the binary does not exist?");
+		} else {
+			success = true;
+		}
+		*s = dir_sep;
+	}
+	return success;
 }
