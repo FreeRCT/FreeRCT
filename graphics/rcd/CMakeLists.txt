@@ -16,7 +16,7 @@ project(rcd_files)
 # Make declaring the list shorter/nicer
 set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd")
 
-# Output file             Source file
+#    Output file       Source file         Lang file
 list(APPEND RCDFILES
      "freerct.rcd"     "${FP}/freerct.txt" ""
      "path_8bpp64.rcd" "${FP}/paths.txt"   ""
@@ -43,15 +43,16 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
 	ENDIF()
 
 	set(OUT_DIR "${FRCT_BINARY_DIR}/rcd")
-	add_custom_command(OUTPUT ${OUT_DIR}/${OUTFILE}
+	add_custom_command(OUTPUT ${OUT_DIR}/${OUTFILE} ${FP}/${OUTFILE}
 	                   COMMAND rcdgen ${SRCFILE}
 	                   COMMAND ${CMAKE_COMMAND} -E copy ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}
 	                   COMMENT "Generating rcd files from ${SRCFILE}"
-	                   DEPENDS ${SRCFILE} ${RCDGEN_EXE} ${LANGLIST}
-	                   WORKING_DIRECTORY ${FP}/
+	                   DEPENDS ${SRCFILE} ${LANGLIST} ${RCDGEN_EXE}
+	                   WORKING_DIRECTORY ${FP}
 	)
 
-	list(APPEND OUTFILES ${OUTFILE})
+	list(APPEND OUTFILES ${OUT_DIR}/${OUTFILE})
 ENDFOREACH(RCDFILE)
 
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${OUTFILES})
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})
