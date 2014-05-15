@@ -357,6 +357,15 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 			this->SetupSelection();
 			break;
 		}
+		case CCW_REMOVE: {
+			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
+			_additions.Clear();
+			this->ci->RemovePositionedPiece(this->cur_piece);
+			_additions.Commit();
+			this->cur_piece = pred_index == -1 ? nullptr : &this->ci->pieces[pred_index];
+			this->SetupSelection();
+			break;
+		}
 
 		case CCW_BEND_WIDE_LEFT:
 		case CCW_BEND_NORMAL_LEFT:
@@ -543,11 +552,11 @@ void CoasterBuildWindow::SetupSelection()
 	this->SetWidgetShaded(CCW_ROT_NEG,  !enabled);
 	this->SetWidgetShaded(CCW_ROT_POS,  !enabled);
 	enabled = (this->cur_piece != nullptr && this->cur_sel != nullptr);
-	this->SetWidgetShaded(CCW_REMOVE,   !enabled);
 	this->SetWidgetShaded(CCW_BACKWARD, !enabled);
 	this->SetWidgetShaded(CCW_FORWARD,  !enabled);
 	enabled = (this->cur_piece != nullptr && this->cur_sel == nullptr);
 	this->SetWidgetShaded(CCW_DISPLAY_PIECE, !enabled);
+	this->SetWidgetShaded(CCW_REMOVE, !enabled);
 
 	this->sel_bank = static_cast<TrackPieceBanking>(this->SetButtons(CCW_BANK_NONE, TPB_COUNT, avail_bank, this->sel_bank, TPB_INVALID));
 	this->sel_slope = static_cast<TrackSlope>(this->SetButtons(CCW_SLOPE_DOWN, TSL_COUNT_VERTICAL, avail_slope, this->sel_slope, TSL_INVALID));
