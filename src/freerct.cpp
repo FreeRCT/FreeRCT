@@ -238,6 +238,7 @@ int main(int argc, char **argv)
 	_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
 	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
 	_finances_manager.SetScenario(_scenario);
+	_date.Initialize();
 	_guests.Initialize();
 
 	ShowMainDisplay();

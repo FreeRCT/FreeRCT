@@ -22,6 +22,8 @@
 assert_compile(TICK_COUNT_PER_DAY < (1 << CDB_FRAC_LENGTH)); ///< Day length should stay within the fraction limit.
 
 static const int _days_per_month[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; ///< Numbers of days in each month (in a non-leap year).
+static const int FIRST_MONTH = 3; ///< First month in the year that the park is open, 1-based.
+static const int LAST_MONTH = 9;  ///< Last month in the year that the park is open, 1-based.
 
 Date _date; ///< %Date in the program.
 
@@ -91,6 +93,15 @@ Date &Date::operator=(const Date &d)
 	return *this;
 }
 
+/** Initialize the date for the start of a game. */
+void Date::Initialize()
+{
+	this->day = 1;
+	this->month = FIRST_MONTH;
+	this->year = 1;
+	this->frac = 0;
+}
+
 /**
  * Compress the date to an integer number.
  * @return The compressed date.
@@ -139,13 +150,14 @@ void DateOnTick()
 
 	/* New month. */
 	if (_date.day > _days_per_month[_date.month]) {
+		bool is_last_month = (_date.month == LAST_MONTH);
 		_date.day = 1;
 		_date.month++;
 		newmonth = true;
 
 		/* New year. */
-		if (_date.month > 12) {
-			_date.month = 1;
+		if (is_last_month || _date.month > 12) {
+			_date.month = FIRST_MONTH;
 			_date.year++;
 			newyear = true;
 		}

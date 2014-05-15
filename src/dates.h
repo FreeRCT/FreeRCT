@@ -41,6 +41,8 @@ public:
 	{
 	}
 
+	void Initialize();
+
 	CompressedDate Compress() const;
 
 	int day;   ///< Day of the month, 1-based.
