@@ -239,9 +239,9 @@ public:
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
 
-	const PositionedTrackPiece *cur_piece; ///< Current track piece, if available (else \c nullptr).
-	bool cur_after;                        ///< Position relative to #cur_piece, \c false means before, \c true means after.
-	const PositionedTrackPiece *cur_sel;   ///< Selected track piece of #cur_piece and #cur_after, or \c nullptr if no piece selected.
+	PositionedTrackPiece *cur_piece;     ///< Current track piece, if available (else \c nullptr).
+	bool cur_after;                      ///< Position relative to #cur_piece, \c false means before, \c true means after.
+	const PositionedTrackPiece *cur_sel; ///< Selected track piece of #cur_piece and #cur_after, or \c nullptr if no piece selected.
 
 	ConstTrackPiecePtr sel_piece; ///< Currently selected piece (and not yet build), if any.
 	TileEdge build_direction;     ///< If #cur_piece is \c nullptr, the direction of building.
@@ -360,7 +360,7 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CCW_REMOVE: {
 			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
 			_additions.Clear();
-			this->ci->RemovePositionedPiece(this->cur_piece);
+			this->ci->RemovePositionedPiece(*this->cur_piece);
 			_additions.Commit();
 			this->cur_piece = pred_index == -1 ? nullptr : &this->ci->pieces[pred_index];
 			this->SetupSelection();
