@@ -649,6 +649,21 @@ int CoasterInstance::FindSuccessorPiece(const PositionedTrackPiece &placed)
 }
 
 /**
+ * Find the first placed track piece that precedes a provided placed track piece.
+ * @param placed Already placed track piece.
+ * @return Index of the requested positioned track piece if it exists, else \c -1.
+ */
+int CoasterInstance::FindPredecessorPiece(const PositionedTrackPiece &placed)
+{
+	for (int i = 0; i < this->capacity; i++) {
+		if (placed.CanBeSuccessor(this->pieces[i])) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+/**
  * Try to make a loop with the current set of positioned track pieces.
  * @param modified [out] If not \c nullptr, \c false after the call denotes the pieces array was not modified
  *                       (while \c true denotes it was changed).
@@ -722,6 +737,17 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 }
 
 /**
+ * Try to remove a positioned track piece from the coaster instance.
+ * @param piece Positioned track piece to remove.
+ */
+void CoasterInstance::RemovePositionedPiece(PositionedTrackPiece &piece)
+{
+	assert(piece.piece != nullptr);
+	this->RemoveTrackPieceInAdditions(piece);
+	piece.piece = nullptr;
+}
+
+/**
  * Add the positioned track piece to #_additions.
  * @param placed Track piece to place.
  * @pre placed->CanBePlaced() should hold.
@@ -739,6 +765,22 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
 		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
+		tvx++;
+	}
+}
+
+/**
+ * Add 'removal' of the positioned track piece to #_additions.
+ * @param placed Track piece to be removed.
+ */
+void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &placed)
+{
+	const TrackVoxel *tvx = placed.piece->track_voxels;
+	for (int i = 0; i < placed.piece->voxel_count; i++) {
+		Voxel *vx = _additions.GetCreateVoxel(placed.x_base + tvx->dx, placed.y_base + tvx->dy, placed.z_base + tvx->dz, false);
+		assert(vx->GetInstance() == (SmallRideInstance)this->GetIndex());
+		vx->SetInstance(SRI_FREE);
+		vx->SetInstanceData(0); // Not really needed.
 		tvx++;
 	}
 }
