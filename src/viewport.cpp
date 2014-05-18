@@ -1261,20 +1261,20 @@ void Viewport::OnDraw()
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 	static const Recolouring recolour;
 
-	_video->FillSurface(MakeRGBA(0, 0, 0, OPAQUE), this->rect); // Black background.
+	_video.FillSurface(MakeRGBA(0, 0, 0, OPAQUE), this->rect); // Black background.
 
-	ClippedRectangle cr = _video->GetClippedRectangle();
+	ClippedRectangle cr = _video.GetClippedRectangle();
 	assert(this->rect.base.x >= 0 && this->rect.base.y >= 0);
 	ClippedRectangle draw_rect(cr, this->rect.base.x, this->rect.base.y, this->rect.width, this->rect.height);
-	_video->SetClippedRectangle(draw_rect);
+	_video.SetClippedRectangle(draw_rect);
 
 	for (const auto &iter : collector.draw_images) {
 		const DrawData &dd = iter;
 		const Recolouring &rec = (dd.recolour == nullptr) ? recolour : *dd.recolour;
-		_video->BlitImage(dd.base, dd.sprite, rec, GS_NORMAL);
+		_video.BlitImage(dd.base, dd.sprite, rec, GS_NORMAL);
 	}
 
-	_video->SetClippedRectangle(cr);
+	_video.SetClippedRectangle(cr);
 }
 
 /**
@@ -1336,7 +1336,7 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 	assert(d >= rect.base.y);
 	rect.height = d - rect.base.y + 1;
 
-	_video->MarkDisplayDirty(rect);
+	_video.MarkDisplayDirty(rect);
 }
 
 /**
@@ -1638,8 +1638,8 @@ ViewportMouseMode MouseModes::GetMouseMode()
  */
 Viewport *ShowMainDisplay()
 {
-	uint16 width  = _video->GetXSize();
-	uint16 height = _video->GetYSize();
+	uint16 width  = _video.GetXSize();
+	uint16 height = _video.GetYSize();
 	assert(width >= 120 && height >= 120);
 	Viewport *w = new Viewport(0, 0, width, height);
 

@@ -32,35 +32,35 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y;
-	_video->BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, GS_NORMAL);
+	_video.BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, GS_NORMAL);
 	int xleft = pt.x + spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->width;
 	int ytop = pt.y + spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->height;
 
 	pt.x = rect.base.x + rect.width - 1;
-	_video->BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, GS_NORMAL);
+	_video.BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, GS_NORMAL);
 	int xright = pt.x + spr_base[WBS_TOP_RIGHT]->xoffset;
 
 	uint16 numx = (xright - xleft) / spr_base[WBS_TOP_MIDDLE]->width;
-	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_TOP_MIDDLE], rc);
+	_video.BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_TOP_MIDDLE], rc);
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y + rect.height - 1;
-	_video->BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, GS_NORMAL);
+	_video.BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, GS_NORMAL);
 	int ybot = pt.y + spr_base[WBS_BOTTOM_LEFT]->yoffset;
 
 	uint16 numy = (ybot - ytop) / spr_base[WBS_MIDDLE_LEFT]->height;
-	_video->BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_LEFT], rc);
+	_video.BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_LEFT], rc);
 
 	pt.x = rect.base.x + rect.width - 1;
 	pt.y = rect.base.y + rect.height - 1;
-	_video->BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT], rc, GS_NORMAL);
+	_video.BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT], rc, GS_NORMAL);
 
-	_video->BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_BOTTOM_MIDDLE], rc);
+	_video.BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_BOTTOM_MIDDLE], rc);
 
 	pt.x = rect.base.x + rect.width - 1;
-	_video->BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_RIGHT], rc);
+	_video.BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_RIGHT], rc);
 
-	_video->BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
+	_video.BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
 }
 
 /**
@@ -74,13 +74,13 @@ void OverlayShaded(const Rectangle32 &rect)
 	if (img == nullptr) return;
 
 	Rectangle32 r(rect);
-	r.RestrictTo(0, 0, _video->GetXSize(), _video->GetYSize());
+	r.RestrictTo(0, 0, _video.GetXSize(), _video.GetYSize());
 	if (r.width == 0 || r.height == 0) return;
 
 	/* Set clipped area to the rectangle. */
-	ClippedRectangle cr(_video->GetClippedRectangle());
+	ClippedRectangle cr(_video.GetClippedRectangle());
 	ClippedRectangle new_cr(cr, r.base.x, r.base.y, r.width, r.height);
-	_video->SetClippedRectangle(new_cr);
+	_video.SetClippedRectangle(new_cr);
 
 	/* Align the disabled sprite so it becomes a continuous pattern. */
 	int32 base_x = -(r.base.x % img->width);
@@ -89,9 +89,9 @@ void OverlayShaded(const Rectangle32 &rect)
 	uint16 numy = (r.height + img->height - 1) / img->height;
 
 	static const Recolouring recolour; // Fixed recolouring mapping.
-	_video->BlitImages(base_x, base_y, img, numx, numy, recolour);
+	_video.BlitImages(base_x, base_y, img, numx, numy, recolour);
 
-	_video->SetClippedRectangle(cr); // Restore clipped area.
+	_video.SetClippedRectangle(cr); // Restore clipped area.
 }
 
 /**
@@ -108,7 +108,7 @@ void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment
 	uint8 buffer[1024]; // Arbitrary limit.
 
 	DrawText(strid, buffer, lengthof(buffer));
-	_video->BlitText(buffer, _palette[colour], x, y, width, align);
+	_video.BlitText(buffer, _palette[colour], x, y, width, align);
 }
 
 /**
@@ -131,7 +131,7 @@ static uint8 *GetSingleLine(uint8 *text, int max_width, int *width)
 		uint8 orig = *current;
 		*current = '\0';
 		int line_width, line_height;
-		_video->GetTextSize(start, &line_width, &line_height);
+		_video.GetTextSize(start, &line_width, &line_height);
 
 		if (line_width < max_width) {
 			*width = line_width;
@@ -184,7 +184,7 @@ void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height
 		int line_width;
 		text = GetSingleLine(text, max_width, &line_width);
 		*width = std::max(*width, line_width);
-		*height += _video->GetTextHeight();
+		*height += _video.GetTextHeight();
 
 		if (*text == '\0') break;
 		assert(*text == '\n');
@@ -209,18 +209,18 @@ bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_he
 
 	uint8 *text = buffer;
 	while (*text != '\0') {
-		if (max_height < _video->GetTextHeight()) return false;
-		max_height -= _video->GetTextHeight();
+		if (max_height < _video.GetTextHeight()) return false;
+		max_height -= _video.GetTextHeight();
 
 		int line_width;
 		uint8 *end = GetSingleLine(text, max_width, &line_width);
 		if (*end == '\0') {
-			_video->BlitText(text, _palette[colour], x, y, max_width);
+			_video.BlitText(text, _palette[colour], x, y, max_width);
 			break;
 		}
 		*end = '\0';
-		_video->BlitText(text, _palette[colour], x, y, max_width);
-		y += _video->GetTextHeight();
+		_video.BlitText(text, _palette[colour], x, y, max_width);
+		y += _video.GetTextHeight();
 		text = end + 1;
 	}
 	return true;

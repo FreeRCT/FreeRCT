@@ -274,7 +274,7 @@ Point32 BottomToolbarWindow::OnInitialPosition()
 {
 	static Point32 pt;
 	pt.x = BOTTOM_BAR_POSITION_X;
-	pt.y = _video->GetYSize() - BOTTOM_BAR_HEIGHT;
+	pt.y = _video.GetYSize() - BOTTOM_BAR_HEIGHT;
 	return pt;
 }
 
@@ -317,7 +317,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 		}
 
 		case BTB_SPACING: {
-			int32 remaining = _video->GetXSize() - (2 * BOTTOM_BAR_POSITION_X);
+			int32 remaining = _video.GetXSize() - (2 * BOTTOM_BAR_POSITION_X);
 			remaining -= GetMoneyStringSize(LARGE_MONEY_AMOUNT).x;
 			remaining -= GetMaxDateSize().x;
 			remaining -= _sprite_manager.GetTableSpriteSize(SPR_GUI_COMPASS_START).base.x; // It's the same size for all compass sprites.
@@ -345,7 +345,7 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 	int dir = (vp == nullptr) ? 0 : vp->orientation;
 	const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
 	if (img == nullptr) return;
-	_video->BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
+	_video.BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
 }
 
 /**
@@ -400,8 +400,8 @@ static const WidgetPart _quit_program_widgets[] = {
 Point32 QuitProgramWindow::OnInitialPosition()
 {
 	Point32 pt;
-	pt.x = (_video->GetXSize() - this->rect.width ) / 2;
-	pt.y = (_video->GetYSize() - this->rect.height) / 2;
+	pt.x = (_video.GetXSize() - this->rect.width ) / 2;
+	pt.y = (_video.GetYSize() - this->rect.height) / 2;
 	return pt;
 }
 

@@ -17,7 +17,7 @@
 #include "bitmath.h"
 #include "rev.h"
 
-VideoSystem *_video = nullptr; ///< Global address of the video sub-system.
+VideoSystem _video; ///< Video sub-system.
 
 /** Default constructor of a clipped rectangle. */
 ClippedRectangle::ClippedRectangle()
@@ -108,8 +108,8 @@ ClippedRectangle &ClippedRectangle::operator=(const ClippedRectangle &cr)
 void ClippedRectangle::ValidateAddress()
 {
 	if (this->address == nullptr) {
-		this->pitch = _video->GetXSize();
-		this->address = _video->mem + this->absx + this->absy * this->pitch;
+		this->pitch = _video.GetXSize();
+		this->address = _video.mem + this->absx + this->absy * this->pitch;
 	}
 }
 

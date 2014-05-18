@@ -179,7 +179,7 @@ Point32 ComputeInitialPosition::FindPosition(Window *new_w)
 
 	if (best.x == this->base_pos) {
 		this->base_pos += 10;
-		if (this->base_pos + 100 > _video->GetYSize()) this->base_pos = 10;
+		if (this->base_pos + 100 > _video.GetYSize()) this->base_pos = 10;
 	}
 
 	return best;
@@ -195,8 +195,8 @@ bool ComputeInitialPosition::IsScreenEmpty(const Rectangle32 &rect)
 	uint new_prio = GetWindowZPriority(this->skip->wtype);
 
 	if (rect.base.x < 0 || rect.base.y < 0
-			|| rect.base.x + rect.width  > _video->GetXSize()
-			|| rect.base.y + rect.height > _video->GetYSize()) return false;
+			|| rect.base.x + rect.width  > _video.GetXSize()
+			|| rect.base.y + rect.height > _video.GetYSize()) return false;
 
 	for (Window *w = _manager.top; w != nullptr; w = w->lower) {
 		if (w == this->skip || new_prio > GetWindowZPriority(w->wtype)) continue;
@@ -222,7 +222,7 @@ Point32 Window::OnInitialPosition()
  */
 void Window::MarkDirty()
 {
-	_video->MarkDisplayDirty(this->rect);
+	_video.MarkDisplayDirty(this->rect);
 }
 
 /**
@@ -377,7 +377,6 @@ void GuiWindow::ResetSize()
  */
 void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 {
-	assert(_video != nullptr); // Needed for font-size calculations.
 	assert(this->tree == nullptr && this->widgets == nullptr);
 
 	int16 biggest;
@@ -446,7 +445,7 @@ void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 void GuiWindow::OnDraw()
 {
 	this->tree->Draw(this);
-	if ((this->flags & WF_HIGHLIGHT) != 0) _video->DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
+	if ((this->flags & WF_HIGHLIGHT) != 0) _video.DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
 }
 
 void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
@@ -660,7 +659,7 @@ void WindowManager::ResetAllWindows()
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
 		w->ResetSize(); /// \todo This call should preserve the window size as much as possible.
 	}
-	_video->MarkDisplayDirty();
+	_video.MarkDisplayDirty();
 }
 
 /**
@@ -964,13 +963,13 @@ void WindowManager::MouseWheelEvent(int direction)
  */
 void UpdateWindows()
 {
-	if (_video == nullptr || !_video->DisplayNeedsRepaint()) return;
+	if (!_video.DisplayNeedsRepaint()) return;
 
 	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
 	 * windows truly disappear (even if there is no other window behind it).
 	 */
-	Rectangle32 rect(0, 0, _video->GetXSize(), _video->GetYSize());
-	_video->FillSurface(MakeRGBA(0, 0, 0, OPAQUE), rect);
+	Rectangle32 rect(0, 0, _video.GetXSize(), _video.GetYSize());
+	_video.FillSurface(MakeRGBA(0, 0, 0, OPAQUE), rect);
 
 	Window *w = _manager.bottom;
 	while (w != nullptr) {
@@ -978,7 +977,7 @@ void UpdateWindows()
 		w = w->higher;
 	}
 
-	_video->FinishRepaint();
+	_video.FinishRepaint();
 }
 
 /** A tick has passed, update whatever must be updated. */

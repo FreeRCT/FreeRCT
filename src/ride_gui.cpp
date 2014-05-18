@@ -223,7 +223,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 				/* Display the selected shop in the ride select window. */
 				if (ride_type != nullptr && ride_type->kind == RTK_SHOP) {
 					static const Recolouring recolour; // Never modified, display 'original' image in the GUI.
-					_video->BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
+					_video.BlitImage(this->GetWidgetScreenX(wid) + wid->pos.width / 2,
 							this->GetWidgetScreenY(wid) + 40, ride_type->GetView(_shop_placer.orientation),
 							recolour, GS_NORMAL);
 				}

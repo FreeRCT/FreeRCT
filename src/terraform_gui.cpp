@@ -92,7 +92,7 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	Point32 base;
 	static const Recolouring recolour; // Not changed.
 
-	if (wid_num != TERR_DISPLAY || _video == nullptr) return;
+	if (wid_num != TERR_DISPLAY) return;
 
 	/* Draw the tile area, case of a null-area. */
 	if (this->xsize == 0 && this->ysize == 0) {
@@ -101,7 +101,7 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 
 		base.x = this->GetWidgetScreenX(wid) + (wid->pos.width - dot->width) / 2;
 		base.y = this->GetWidgetScreenY(wid) + (wid->pos.height - dot->height) / 2;
-		_video->BlitImage(base, dot, recolour, GS_NORMAL);
+		_video.BlitImage(base, dot, recolour, GS_NORMAL);
 		return;
 	}
 
@@ -121,13 +121,13 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 			Point16 top, bottom;
 			top.x = left.x + TERRAFORM_ELEMENT_SIZE / 2;
 			top.y = left.y - TERRAFORM_ELEMENT_SIZE / 4;
-			_video->DrawLine(left, top, MakeRGBA(255, 255, 255, OPAQUE));
+			_video.DrawLine(left, top, MakeRGBA(255, 255, 255, OPAQUE));
 			bottom.x = top.x;
 			bottom.y = left.y + TERRAFORM_ELEMENT_SIZE / 4;
-			_video->DrawLine(left, bottom, MakeRGBA(255, 255, 255, OPAQUE));
+			_video.DrawLine(left, bottom, MakeRGBA(255, 255, 255, OPAQUE));
 			left.x += TERRAFORM_ELEMENT_SIZE; // Move 'left' to the right.
-			_video->DrawLine(top, left, MakeRGBA(255, 255, 255, OPAQUE));
-			_video->DrawLine(bottom, left, MakeRGBA(255, 255, 255, OPAQUE));
+			_video.DrawLine(top, left, MakeRGBA(255, 255, 255, OPAQUE));
+			_video.DrawLine(bottom, left, MakeRGBA(255, 255, 255, OPAQUE));
 		}
 	}
 }

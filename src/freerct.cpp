@@ -146,7 +146,7 @@ static bool HandleEvent()
 
 		case SDL_WINDOWEVENT:
 			if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
-				_video->MarkDisplayDirty();
+				_video.MarkDisplayDirty();
 				UpdateWindows();
 			}
 			return false;
@@ -188,7 +188,6 @@ int main(int argc, char **argv)
 		}
 	} while (opt_id != -1);
 
-	VideoSystem vid;
 	ConfigFile cfg_file;
 
 	ChangeWorkingDirectoryToExecutable(argv[0]);
@@ -218,11 +217,10 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize video. */
-	if (!vid.Initialize(font_path, atoi(font_size_text))) {
+	if (!_video.Initialize(font_path, atoi(font_size_text))) {
 		fprintf(stderr, "Failed to initialize window or the font, aborting\n");
 		exit(1);
 	}
-	_video = &vid;
 
 	_finish = false;
 
@@ -254,7 +252,7 @@ int main(int argc, char **argv)
 			if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
 		}
 
-		if (!missing_sprites_check && _video->missing_sprites) {
+		if (!missing_sprites_check && _video.missing_sprites) {
 			/* Enough sprites are available for displaying an error message,
 			 * as this was checked in GuiSprites::HasSufficientGraphics. */
 			ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
@@ -265,6 +263,6 @@ int main(int argc, char **argv)
 	ShutdownGame();
 	UninitLanguage();
 	DestroyImageStorage();
-	vid.Shutdown();
+	_video.Shutdown();
 	exit(0);
 }

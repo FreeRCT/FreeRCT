@@ -25,7 +25,7 @@ void OverlayShaded(const Rectangle32 &rect);
  */
 inline int GetTextHeight()
 {
-	return _video->GetTextHeight();
+	return _video.GetTextHeight();
 }
 
 void DrawString(StringID strid, uint8 colour, int x, int y, int width = 0x7FFF, Alignment align = ALG_LEFT);

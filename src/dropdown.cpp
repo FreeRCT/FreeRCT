@@ -92,7 +92,7 @@ void DropdownMenuWindow::SetDropdownSize(const Point16 &pos, uint16 min_width)
 	int max_width = this->size.width;
 	for (auto const &item : items) {
 		int w, unused;
-		_video->GetTextSize(item.str, &w, &unused);
+		_video.GetTextSize(item.str, &w, &unused);
 		max_width = std::max(max_width, w + 2);
 		this->size.height += GetTextHeight();
 	}
@@ -108,9 +108,9 @@ void DropdownMenuWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	for (auto const &item : this->items) {
 		if (it == this->selected_index) {
 			Rectangle32 r = {this->rect.base.x, y, static_cast<uint>(wid->pos.width - 1), static_cast<uint>(GetTextHeight())};
-			_video->FillSurface(_palette[GetColourRangeBase(COL_RANGE_GREY) + 7], r);
+			_video.FillSurface(_palette[GetColourRangeBase(COL_RANGE_GREY) + 7], r);
 		}
-		_video->BlitText(item.str, MakeRGBA(255, 255, 255, OPAQUE), this->rect.base.x, y, wid->pos.width);
+		_video.BlitText(item.str, MakeRGBA(255, 255, 255, OPAQUE), this->rect.base.x, y, wid->pos.width);
 
 		y += GetTextHeight();
 		it++;
@@ -250,7 +250,7 @@ void RecolourDropdownWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 
 		if (this->entry->dest != widget - RD_BUTTON_00) {
 			this->entry->dest = static_cast<ColourRange>(widget - RD_BUTTON_00);
-			_video->MarkDisplayDirty();
+			_video.MarkDisplayDirty();
 		}
 
 		_manager.DeleteWindow(this);

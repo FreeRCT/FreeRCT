@@ -142,7 +142,7 @@ void ShopManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 	if (wid_num != SMW_ITEM1_COUNT && wid_num != SMW_ITEM2_COUNT) return;
 
 	int w, h;
-	_video->GetNumberRangeSize(0, 100000, &w, &h);
+	_video.GetNumberRangeSize(0, 100000, &w, &h);
 	wid->min_x = std::max(wid->min_x, (uint16)w);
 	wid->min_y = std::max(wid->min_y, (uint16)h);
 }

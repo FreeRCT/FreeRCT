@@ -463,7 +463,7 @@ void GetTextSize(StringID strid, int *width, int *height)
 {
 	static uint8 buffer[1024]; // Arbitrary max size.
 	DrawText(strid, buffer, lengthof(buffer));
-	_video->GetTextSize(buffer, width, height);
+	_video.GetTextSize(buffer, width, height);
 }
 
 /**
@@ -497,7 +497,7 @@ Point32 GetMaxDateSize()
 		d.month = i;
 		int w;
 		int h;
-		_video->GetTextSize(GetDateString(d), &w, &h);
+		_video.GetTextSize(GetDateString(d), &w, &h);
 		point.x = std::max(point.x, w);
 		point.y = std::max(point.y, h);
 	}
@@ -514,7 +514,7 @@ Point32 GetMoneyStringSize(const Money &amount)
 	Point32 p;
 	uint8 textbuf[64];
 	MoneyStrFmt(textbuf, lengthof(textbuf), (int64)amount / 100.0);
-	_video->GetTextSize(textbuf, &p.x, &p.y);
+	_video.GetTextSize(textbuf, &p.x, &p.y);
 	return p;
 }
 
