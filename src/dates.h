@@ -56,5 +56,6 @@ void LoadDate(Loader &ldr);
 void SaveDate(Saver &svr);
 
 extern Date _date;
+extern const int _days_per_month[13];
 
 #endif

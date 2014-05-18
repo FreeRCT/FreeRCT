@@ -15,7 +15,7 @@
 
 assert_compile(TICK_COUNT_PER_DAY < (1 << CDB_FRAC_LENGTH)); ///< Day length should stay within the fraction limit.
 
-static const int _days_per_month[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; ///< Numbers of days in each month (in a non-leap year).
+const int _days_per_month[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; ///< Numbers of days in each 1-based month (in a non-leap year).
 static const int FIRST_MONTH = 3; ///< First month in the year that the park is open, 1-based.
 static const int LAST_MONTH = 9;  ///< Last month in the year that the park is open, 1-based.
 
