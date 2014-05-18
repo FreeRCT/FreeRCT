@@ -106,6 +106,26 @@ CompressedDate Date::Compress() const
 }
 
 /**
+ * Get the number of the previous month that the park was open.
+ * @return Month number (1-based) for the previous month.
+ */
+int Date::GetPreviousMonth() const
+{
+	if (this->month == FIRST_MONTH) return LAST_MONTH;
+	return this->month - 1;
+}
+
+/**
+ * Get the number of the next month that the park will be open.
+ * @return Month number (1-based) for the next month.
+ */
+int Date::GetNextMonth() const
+{
+	if (this->month < LAST_MONTH) return this->month + 1;
+	return FIRST_MONTH;
+}
+
+/**
  * Update the day.
  * @todo Care about leap years.
  */

@@ -45,6 +45,9 @@ public:
 
 	CompressedDate Compress() const;
 
+	int GetNextMonth() const;
+	int GetPreviousMonth() const;
+
 	int day;   ///< Day of the month, 1-based.
 	int month; ///< Month of the year, 1-based.
 	int year;  ///< The current year, 1-based.
