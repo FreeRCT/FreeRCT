@@ -818,6 +818,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 
 RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
 {
+	/// \todo Make shops selling cold food more attractive with higher temperatures (and shops selling warm food on colder days?).
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 		if (this->NeedForItem(ri->GetSaleItemType(i), true) != RVD_NO_VISIT) return RVD_MAY_VISIT;
 	}

@@ -20,6 +20,7 @@
 #include "dates.h"
 #include "gamemode.h"
 #include "viewport.h"
+#include "weather.h"
 
 /** Initialize all game data structures for playing a new game. */
 void StartNewGame()
@@ -37,6 +38,7 @@ void StartNewGame()
 	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
 	_finances_manager.SetScenario(_scenario);
 	_date.Initialize();
+	_weather.Initialize();
 	_guests.Initialize();
 
 	_game_mode_mgr.SetGameMode(GM_PLAY);
@@ -69,6 +71,7 @@ void OnNewMonth()
 void OnNewDay()
 {
 	_guests.OnNewDay();
+	_weather.OnNewDay();
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
