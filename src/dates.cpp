@@ -11,13 +11,7 @@
 
 #include "stdafx.h"
 #include "dates.h"
-#include "language.h"
-#include "finances.h"
-#include "sprite_store.h"
-#include "ride_type.h"
-#include "person.h"
-#include "people.h"
-#include "window.h"
+#include "gamecontrol.h"
 
 assert_compile(TICK_COUNT_PER_DAY < (1 << CDB_FRAC_LENGTH)); ///< Day length should stay within the fraction limit.
 
@@ -109,26 +103,6 @@ void Date::Initialize()
 CompressedDate Date::Compress() const
 {
 	return (this->year << CDB_YEAR_START) | (this->month << CDB_MONTH_START) | (this->day << CDB_DAY_START) | (this->frac << CDB_FRAC_START);
-}
-
-/** Runs various procedures that have to be done yearly. */
-static void OnNewYear()
-{
-	// Nothing (yet) needed.
-}
-
-/** Runs various procedures that have to be done monthly. */
-static void OnNewMonth()
-{
-	_finances_manager.AdvanceMonth();
-	_rides_manager.OnNewMonth();
-}
-
-/** Runs various procedures that have to be done daily. */
-static void OnNewDay()
-{
-	_guests.OnNewDay();
-	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
 /**
