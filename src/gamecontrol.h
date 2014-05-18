@@ -12,6 +12,9 @@
 #ifndef GAMECONTROL_H
 #define GAMECONTROL_H
 
+void StartNewGame();
+void ShutdownGame();
+
 void OnNewDay();
 void OnNewMonth();
 void OnNewYear();

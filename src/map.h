@@ -477,6 +477,7 @@ public:
 	TileOwner GetTileOwner(uint16 x, uint16 y);
 	void SetTileOwner(uint16 x, uint16 y, TileOwner owner);
 	void SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner);
+	void SetTileOwnerGlobally(TileOwner owner);
 
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr);

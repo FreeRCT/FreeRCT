@@ -12,9 +12,7 @@
 #include "stdafx.h"
 #include "freerct.h"
 #include "video.h"
-#include "map.h"
 #include "viewport.h"
-#include "sprite_store.h"
 #include "rcdfile.h"
 #include "sprite_data.h"
 #include "window.h"
@@ -24,11 +22,9 @@
 #include "ride_type.h"
 #include "person.h"
 #include "people.h"
-#include "finances.h"
-#include "gamelevel.h"
 #include "getoptdata.h"
-#include "gamemode.h"
 #include "fileio.h"
+#include "gamecontrol.h"
 
 static const uint32 FRAME_DELAY = 30; ///< Number of milliseconds between two frames.
 
@@ -232,20 +228,7 @@ int main(int argc, char **argv)
 
 	InitMouseModes();
 
-	_world.SetWorldSize(20, 21);
-	_world.MakeFlatWorld(8);
-	_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);
-	_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
-	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
-	_finances_manager.SetScenario(_scenario);
-	_date.Initialize();
-	_guests.Initialize();
-
-	ShowMainDisplay();
-	ShowToolbar();
-	ShowBottomToolbar();
-
-	_game_mode_mgr.SetGameMode(GM_PLAY);
+	StartNewGame();
 
 	bool missing_sprites_check = false;
 
@@ -279,9 +262,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	_game_mode_mgr.SetGameMode(GM_NONE);
-	_mouse_modes.SetMouseMode(MM_INACTIVE);
-	_manager.CloseAllWindows();
+	ShutdownGame();
 	UninitLanguage();
 	DestroyImageStorage();
 	vid.Shutdown();

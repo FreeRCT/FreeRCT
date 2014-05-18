@@ -492,7 +492,7 @@ void VoxelWorld::SetTileOwner(uint16 x, uint16 y, TileOwner owner)
  * @param y Base Y coordinate of the rectangle.
  * @param width Length in X direction of the rectangle.
  * @param height Length in Y direction of the rectangle.
- * @param owner New value for ownership of all tiles.
+ * @param owner New owner of all tiles in the rectangle.
  */
 void VoxelWorld::SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner)
 {
@@ -501,6 +501,15 @@ void VoxelWorld::SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 heigh
 			this->SetTileOwner(ix, iy, owner);
 		}
 	}
+}
+
+/**
+ * Set an owner for all tiles in the world.
+ * @param owner New owner of all tiles.
+ */
+void VoxelWorld::SetTileOwnerGlobally(TileOwner owner)
+{
+	SetTileOwnerRect(0, 0, this->GetXSize(), this->GetYSize(), owner);
 }
 
 /**

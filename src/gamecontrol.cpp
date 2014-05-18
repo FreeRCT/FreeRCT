@@ -17,6 +17,40 @@
 #include "person.h"
 #include "people.h"
 #include "window.h"
+#include "dates.h"
+#include "gamemode.h"
+#include "viewport.h"
+
+/** Initialize all game data structures for playing a new game. */
+void StartNewGame()
+{
+	ShowMainDisplay();
+	ShowToolbar();
+	ShowBottomToolbar();
+
+	/// \todo We blindly assume game data structures are all clean.
+	_world.SetWorldSize(20, 21);
+	_world.MakeFlatWorld(8);
+	_world.SetTileOwnerGlobally(OWN_NONE);
+	_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);
+	_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
+	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
+	_finances_manager.SetScenario(_scenario);
+	_date.Initialize();
+	_guests.Initialize();
+
+	_game_mode_mgr.SetGameMode(GM_PLAY);
+}
+
+/** Shutdown the game interaction. */
+void ShutdownGame()
+{
+	/// \todo Clean out the game data structures.
+
+	_game_mode_mgr.SetGameMode(GM_NONE);
+	_mouse_modes.SetMouseMode(MM_INACTIVE);
+	_manager.CloseAllWindows();
+}
 
 /** Runs various procedures that have to be done yearly. */
 void OnNewYear()
