@@ -172,11 +172,23 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 		return false;
 	}
 
-	SDL_Surface *icon = SDL_LoadBMP("../graphics/sprites/logo/logo.32.bmp"); /// \todo Non hardcoded filepath.
+
+	/* SDL_CreateRGBSurfaceFrom() pretends to use a void* for the data,
+	 * but it's really treated as endian-specific uint32*.
+	 * But since the c++ compiler handles the endianness of _icon_data, it's ok. */
+	uint32 rmask = 0xff000000;
+	uint32 gmask = 0x00ff0000;
+	uint32 bmask = 0x0000ff00;
+	uint32 amask = 0x000000ff;
+
+	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void *)_icon_data, 32, 32, 4 * 8, 4 * 32,
+	                                             rmask, gmask, bmask, amask);
+
 	if (icon != nullptr) {
-// XXX		SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 0, 0, 255)); // Replace blue
 		SDL_SetWindowIcon(this->window, icon);
 		SDL_FreeSurface(icon);
+	} else {
+		printf("Could not set window icon (%s)\n", SDL_GetError());
 	}
 
 	if (TTF_Init() != 0) {

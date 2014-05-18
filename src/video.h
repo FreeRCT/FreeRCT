@@ -165,5 +165,6 @@ private:
 };
 
 extern VideoSystem *_video;
+extern const uint32 _icon_data[32][32];
 
 #endif
