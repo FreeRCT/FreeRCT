@@ -5,9 +5,11 @@
 /CMakeFiles
 /CMakeCache.txt
 /cmake_install.cmake
+/bin
 
 # /doc/
 /doc/html
+/doc/*.html
 
 # /graphics/rcd/
 /graphics/rcd/*.rcd
@@ -18,7 +20,6 @@
 /graphics/rcd/Makefile
 /graphics/rcd/CMakeFiles
 /graphics/rcd/cmake_install.cmake
-/graphics/rcd/dataformat.html
 
 # /graphics/sprites/
 
@@ -113,11 +114,6 @@
 # /graphics/sprites/terrain/groundtiles/tileselection8bpp/
 
 # /src/
-/src/freerct
-/src/freerct.exe
-/src/*.d
-/src/freerct.cfg
-/src/objects
 /src/rev.cpp
 /src/Makefile
 /src/CMakeFiles
@@ -131,7 +127,7 @@
 /src/rcdgen/parser.cpp
 /src/rcdgen/scanner.cpp
 /src/rcdgen/tokens.h
-/src/rcdgen/rcdgen
 /src/rcdgen/Makefile
 /src/rcdgen/CMakeFiles
 /src/rcdgen/cmake_install.cmake
+/src/rcdgen/CMakeCache.txt

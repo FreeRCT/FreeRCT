@@ -5,19 +5,16 @@ Makefile
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
+bin
 src/rcdgen/parser.cpp
 src/rcdgen/scanner.cpp
 src/rcdgen/tokens.h
-src/rcdgen/rcdgen
 src/rcdgen/Makefile
 src/rcdgen/CMakeFiles
 src/rcdgen/cmake_install.cmake
+src/rcdgen/CMakeCache.txt
 doc/html
-src/freerct
-src/freerct.exe
-src/*.d
-src/freerct.cfg
-src/objects
+doc/*.html
 src/rev.cpp
 src/Makefile
 src/CMakeFiles
@@ -32,4 +29,3 @@ graphics/rcd/*.lang
 graphics/rcd/Makefile
 graphics/rcd/CMakeFiles
 graphics/rcd/cmake_install.cmake
-graphics/rcd/dataformat.html
