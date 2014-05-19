@@ -16,8 +16,17 @@
 #include "math_func.h"
 #include "bitmath.h"
 #include "rev.h"
+#include "freerct.h"
+#include "gamecontrol.h"
 
-VideoSystem _video; ///< Video sub-system.
+VideoSystem _video;  ///< Video sub-system.
+static bool _finish; ///< Finish execution of the main loop (and program).
+
+/** End the program. */
+void QuitProgram()
+{
+	_finish = true;
+}
 
 /** Default constructor of a clipped rectangle. */
 ClippedRectangle::ClippedRectangle()
@@ -256,6 +265,37 @@ ClippedRectangle VideoSystem::GetClippedRectangle()
 {
 	this->blit_rect.ValidateAddress();
 	return this->blit_rect;
+}
+
+/** Main loop. Loops until told not to. */
+void VideoSystem::MainLoop()
+{
+	static const uint32 FRAME_DELAY = 30; // Number of milliseconds between two frames.
+	bool missing_sprites_check = false;
+	_finish = false;
+
+	while (!_finish) {
+		uint32 start = SDL_GetTicks();
+
+		OnNewFrame(FRAME_DELAY);
+
+		/* Handle input events until time for the next frame has arrived. */
+		for (;;) {
+			if (HandleEvent()) break;
+		}
+		if (_finish) break;
+
+		uint32 now = SDL_GetTicks();
+		if (now >= start) { // No wrap around.
+			now -= start;
+			if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
+		}
+
+		if (!missing_sprites_check && this->missing_sprites) {
+			ShowGraphicsErrorMessage();
+			missing_sprites_check = true;
+		}
+	}
 }
 
 /** Close down the video system. */

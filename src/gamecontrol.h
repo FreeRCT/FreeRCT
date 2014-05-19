@@ -18,6 +18,7 @@ void ShutdownGame();
 void OnNewDay();
 void OnNewMonth();
 void OnNewYear();
+void OnNewFrame(uint32 frame_delay);
 
 #endif
 

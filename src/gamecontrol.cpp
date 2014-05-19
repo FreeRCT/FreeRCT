@@ -21,6 +21,7 @@
 #include "gamemode.h"
 #include "viewport.h"
 #include "weather.h"
+#include "freerct.h"
 
 /** Initialize all game data structures for playing a new game. */
 void StartNewGame()
@@ -74,5 +75,18 @@ void OnNewDay()
 	_guests.OnNewDay();
 	_weather.OnNewDay();
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
+}
+
+/**
+ * For every frame do...
+ * @param frame_delay Number of milliseconds between two frames.
+*/
+void OnNewFrame(uint32 frame_delay)
+{
+	_manager.Tick();
+	_guests.DoTick();
+	DateOnTick();
+	_guests.OnAnimate(frame_delay);
+	_rides_manager.OnAnimate(frame_delay);
 }
 

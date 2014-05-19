@@ -15,20 +15,13 @@
 #include "viewport.h"
 #include "rcdfile.h"
 #include "sprite_data.h"
+#include "sprite_store.h"
 #include "window.h"
 #include "config_reader.h"
 #include "language.h"
-#include "dates.h"
-#include "ride_type.h"
-#include "person.h"
-#include "people.h"
 #include "getoptdata.h"
 #include "fileio.h"
 #include "gamecontrol.h"
-
-static const uint32 FRAME_DELAY = 30; ///< Number of milliseconds between two frames.
-
-static bool _finish; ///< Finish execution of the program.
 
 void InitMouseModes();
 
@@ -46,12 +39,6 @@ void error(const char *str, ...)
 	va_end(va);
 
 	abort();
-}
-
-/** End the program. */
-void QuitProgram()
-{
-	_finish = true;
 }
 
 /** Command-line options of the program. */
@@ -86,7 +73,7 @@ static void UpdateMousePosition(int16 x, int16 y)
  * Handle an input event.
  * @return Time for the next frame has arrived (possibly terminating the program).
  */
-static bool HandleEvent()
+bool HandleEvent()
 {
 	SDL_Event event;
 	if (SDL_PollEvent(&event) != 1) return true;
@@ -160,6 +147,14 @@ static bool HandleEvent()
 	}
 }
 
+/** Show that there are missing sprites. */
+void ShowGraphicsErrorMessage()
+{
+	/* Enough sprites are available for displaying an error message,
+	 * as this was checked in GuiSprites::HasSufficientGraphics. */
+	ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
+}
+
 /**
  * Main entry point.
  * @param argc Argument count.
@@ -222,44 +217,14 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	_finish = false;
-
 	InitMouseModes();
 
 	StartNewGame();
 
-	bool missing_sprites_check = false;
+	/* Loops until told not to. */
+	_video.MainLoop();
 
-	while (!_finish) {
-		uint32 start = SDL_GetTicks();
-
-		/* For every frame do... */
-		_manager.Tick();
-		_guests.DoTick();
-		DateOnTick();
-		_guests.OnAnimate(FRAME_DELAY); // Fixed rate animation.
-		_rides_manager.OnAnimate(FRAME_DELAY);
-
-		/* Handle input events until time for the next frame has arrived. */
-		for (;;) {
-			if (HandleEvent()) break;
-		}
-		if (_finish) break;
-
-		uint32 now = SDL_GetTicks();
-		if (now >= start) { // No wrap around.
-			now -= start;
-			if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
-		}
-
-		if (!missing_sprites_check && _video.missing_sprites) {
-			/* Enough sprites are available for displaying an error message,
-			 * as this was checked in GuiSprites::HasSufficientGraphics. */
-			ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
-			missing_sprites_check = true;
-		}
-	}
-
+	/* Closing down. */
 	ShutdownGame();
 	UninitLanguage();
 	DestroyImageStorage();

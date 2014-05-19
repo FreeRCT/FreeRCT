@@ -12,10 +12,12 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include "SDL.h"
-#include "SDL_ttf.h"
+#include <SDL.h>
+#include <SDL_ttf.h>
 #include "geometry.h"
 #include "palette.h"
+
+void QuitProgram();
 
 class ImageData;
 
@@ -58,6 +60,7 @@ public:
 	~VideoSystem();
 
 	bool Initialize(const char *font_name, int font_size);
+	void MainLoop();
 	void Shutdown();
 
 	/**

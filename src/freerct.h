@@ -12,6 +12,7 @@
 #ifndef FREERCT_H
 #define FREERCT_H
 
-void QuitProgram();
+bool HandleEvent();
 
+void ShowGraphicsErrorMessage();
 #endif
