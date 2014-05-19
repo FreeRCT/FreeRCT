@@ -18,6 +18,8 @@
 #include "rev.h"
 #include "freerct.h"
 #include "gamecontrol.h"
+#include "window.h"
+#include "viewport.h"
 
 VideoSystem _video;  ///< Video sub-system.
 static bool _finish; ///< Finish execution of the main loop (and program).
@@ -265,6 +267,98 @@ ClippedRectangle VideoSystem::GetClippedRectangle()
 {
 	this->blit_rect.ValidateAddress();
 	return this->blit_rect;
+}
+
+/**
+ * Update the mouse position in the program.
+ * @param x New x position of the mouse.
+ * @param y New y position of the mouse.
+ */
+static void UpdateMousePosition(int16 x, int16 y)
+{
+	Point16 p;
+
+	p.x = x;
+	p.y = y;
+	_manager.MouseMoveEvent(p);
+}
+
+/**
+ * Handle an input event.
+ * @return Game-ending event has happened.
+ */
+bool VideoSystem::HandleEvent()
+{
+	SDL_Event event;
+	if (SDL_PollEvent(&event) != 1) return true;
+	switch (event.type) {
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+				case SDLK_q:
+					QuitProgram();
+					return true;
+
+				case SDLK_LEFT:
+					GetViewport()->Rotate(-1);
+					break;
+
+				case SDLK_RIGHT:
+					GetViewport()->Rotate(1);
+					break;
+
+				default:
+					break;
+			}
+			return false;
+
+		case SDL_MOUSEMOTION:
+			UpdateMousePosition(event.button.x, event.button.y);
+			return false;
+
+		case SDL_MOUSEWHEEL:
+			_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
+			return false;
+
+		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONDOWN:
+			switch (event.button.button) {
+				case SDL_BUTTON_LEFT:
+					UpdateMousePosition(event.button.x, event.button.y);
+					_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
+					break;
+
+				case SDL_BUTTON_MIDDLE:
+					UpdateMousePosition(event.button.x, event.button.y);
+					_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
+					break;
+
+				case SDL_BUTTON_RIGHT:
+					UpdateMousePosition(event.button.x, event.button.y);
+					_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
+					break;
+
+				default:
+					break;
+			}
+			return false;
+
+		case SDL_USEREVENT:
+			return true;
+
+		case SDL_WINDOWEVENT:
+			if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
+				_video.MarkDisplayDirty();
+				UpdateWindows();
+			}
+			return false;
+
+		case SDL_QUIT:
+			QuitProgram();
+			return true;
+
+		default:
+			return false; // Ignore other events.
+	}
 }
 
 /** Main loop. Loops until told not to. */

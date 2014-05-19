@@ -164,6 +164,7 @@ private:
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
 	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
 
+	bool HandleEvent();
 	void MarkDisplayClean();
 };
 
