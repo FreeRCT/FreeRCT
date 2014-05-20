@@ -424,23 +424,32 @@ void CoasterTrain::OnAnimate(int delay)
 
 		/* Compute pitch. */
 		bool swap_dz = false;
-		if (zder > 0) {
+		if (zder < 0) {
 			swap_dz = true;
 			zder = -zder;
 		}
+
+		zder /= 2; // Tile height is half the size of width
+		float horizontal_speed = sqrt(xder * xder + yder * yder);
 		uint pitch;
-		switch ((int)(zder * TAN11_25 / 16)) {
-			case -0: pitch = 0; break;
-			case -1: pitch = 1; break;
-			case -2: pitch = 1; break;
-			case -3: pitch = 2; break;
-			case -4: pitch = 4; break;
-			case -5: pitch = 3; break;
-			case -6: pitch = 3; break;
-			case -7: pitch = 2; break;
-			default: NOT_REACHED();
+		if (horizontal_speed < zder) {
+			if (horizontal_speed < zder * TAN11_25) {
+				pitch = 4;
+			} else if (horizontal_speed < zder * TAN33_75) {
+				pitch = 3;
+			} else {
+				pitch = 2;
+			}
+		} else {
+			if (zder < horizontal_speed * TAN11_25) {
+				pitch = 0;
+			} else if (zder < horizontal_speed * TAN33_75) {
+				pitch = 1;
+			} else {
+				pitch = 2;
+			}
 		}
-		if (swap_dz) pitch = 8 - pitch;
+		if (swap_dz) pitch = (16 - pitch) & 0xf;
 
 		/* Compute yaw. */
 		bool swap_dx = false;
