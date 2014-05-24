@@ -350,7 +350,6 @@ static void inline Unroll(uint roll, int32 *dy, int32 *dz)
  */
 void CoasterTrain::OnAnimate(int delay)
 {
-	this->speed = 65536 / 1000; // 1 tile per second.
 	if (this->speed >= 0) {
 		this->back_position += this->speed * delay;
 		if (this->back_position >= this->coaster->coaster_length) {
@@ -409,15 +408,25 @@ void CoasterTrain::OnAnimate(int delay)
 
 		int32 xder = xpos_front - xpos_back;
 		int32 yder = ypos_front - ypos_back;
-		int32 zder = zpos_front - zpos_back;
+		int32 zder = (zpos_front - zpos_back) / 2; // Tile height is half the width.
+
 		int32 xpos_middle = xpos_back + xder / 2; // Compute center point of the car as position to render the car.
 		int32 ypos_middle = ypos_back + yder / 2;
-		int32 zpos_middle = zpos_back + zder / 2;
+		int32 zpos_middle = zpos_back + zder;
 
-		/* XXX Implement gravity using xder, yder, zder. */
+		float total_speed  = sqrt(xder * xder + yder * yder + zder * zder);
+		/* Gravity */
+		this->speed -= zder / total_speed * 9.8;
+
+		/** \todo Air and rail friction */
+
+		if (this->speed < 65536 / 1000 && (this->cur_piece->piece->HasPower() || this->cur_piece->piece->HasPlatform())) {
+			this->speed = 65536 / 1000;
+		}
 
 		/* Unroll the orientation vector. */
 		Unroll(roll, &yder, &zder);
+		float horizontal_speed = std::hypot(xder, yder);
 
 		static const double TAN11_25 = 0.198912367379658;  // tan(11.25 degrees).
 		static const double TAN33_75 = 0.6681786379192989; // tan(3*11.25 degrees).
@@ -429,8 +438,6 @@ void CoasterTrain::OnAnimate(int delay)
 			zder = -zder;
 		}
 
-		zder /= 2; // Tile height is half the size of width
-		float horizontal_speed = sqrt(xder * xder + yder * yder);
 		uint pitch;
 		if (horizontal_speed < zder) {
 			if (horizontal_speed < zder * TAN11_25) {

@@ -115,7 +115,7 @@ file("tracks.rcd") {
 
 			car_xpos: splines { cubic { a: 255; b: 184; c: 128; d: 128; steps: 1000; } }
 			car_ypos: splines { cubic { a: 128; b: 128; c:  71; d:   0; steps: 1000; } }
-			car_zpos: 64;
+			car_zpos: 90;
 			car_roll: 0;
 
 			track_voxel {
