@@ -36,6 +36,16 @@ public:
 	int Draw() const;
 };
 
+/**
+ * Construct an average weather object.
+ * @param temp Average temperature this month in 1/10 degrees Celcius.
+ * @param sun Average amount of sunny weather this month.
+ * @param light_cloud Average amount of sun + clouds weather this month.
+ * @param thick_cloud Average amount of of only clouds weather this month.
+ * @param rain Average amount of rain this month.
+ * @param thunder Average amount of thunder storm this month.
+ * @note \a sun + \a light_cloud + \a thick_cloud + \a rain + \a thunder should the same for every object.
+ */
 AverageWeather::AverageWeather(int temp, int sun, int light_cloud, int thick_cloud, int rain, int thunder)
 		: temp(temp), sun(sun), light_cloud(light_cloud), thick_cloud(thick_cloud), rain(rain), thunder(thunder)
 {
