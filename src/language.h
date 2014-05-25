@@ -129,7 +129,7 @@ struct StringParameters {
 	void SetNumber(int num, int64 number);
 	void SetMoney(int num, const Money &amount);
 	void SetDate(int num, const Date &date);
-	void SetTemperature(int num, int32 number);
+	void SetTemperature(int num, int value);
 	void SetUint8(int num, const uint8 *text);
 
 	void Clear();

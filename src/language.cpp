@@ -137,7 +137,7 @@ void StringParameters::SetMoney(int num, const Money &amount)
 }
 
 /**
- * Mark string parameter \a num to contain an amount of money.
+ * Mark string parameter \a num to contain a temperature.
  * @param num Number of the parameter to set (1-based).
  * @param value Temperature value in 1/10 degrees Celcius.
  */

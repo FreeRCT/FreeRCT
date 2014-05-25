@@ -552,7 +552,7 @@ static uint8 ShiftGradientDay(uint8 col)
 
 /**
  * Select gradient shift function based on the \a shift.
- * @param Desired amount of gradient shift.
+ * @param shift Desired amount of gradient shift.
  * @return Recolour function implementing the shift.
  */
 static ShiftFunc GetGradientShiftFunc(GradientShift shift)
