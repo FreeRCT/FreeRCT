@@ -137,6 +137,21 @@ void StringParameters::SetMoney(int num, const Money &amount)
 }
 
 /**
+ * Mark string parameter \a num to contain an amount of money.
+ * @param num Number of the parameter to set (1-based).
+ * @param value Temperature value in 1/10 degrees Celcius.
+ */
+void StringParameters::SetTemperature(int num, int value)
+{
+	if (!this->set_mode) this->Clear();
+
+	num--;
+	assert(num >= 0 && (uint)num < lengthof(this->parms));
+	this->parms[num].parm_type = SPT_TEMPERATURE;
+	this->parms[num].u.number = value;
+}
+
+/**
  * Mark string parameter \a num to contain a date.
  * @param num Number of the parameter to set (1-based).
  * @param date %Date to output.
@@ -352,6 +367,23 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 }
 
 /**
+ * Convert a temperature in 1/10 degrees Celcius to text.
+ * @param dest [out] A provided buffer to write the output into.
+ * @param size The size of the provided buffer.
+ * @param temp Temperature in 1/10 degrees Celcius to convert.
+ */
+static void TemperatureStrFormat(uint8 *dest, size_t size, int temp)
+{
+	static const uint8 SUFFIX[] = {' ', 0xE2, 0x84, 0x83, 0}; // " " + degrees Celcius, U+2103
+
+	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10; // Round to degrees Celcius.
+	int len = snprintf((char *)dest, size, "%d", temp);
+	dest += len;
+	size -= len;
+	if (size >= lengthof(SUFFIX)) StrECpy(dest, dest + size, SUFFIX);
+}
+
+/**
  * Draw the string into the supplied buffer.
  * @param strid String number to 'draw'.
  * @param buffer [out] Destination buffer.
@@ -406,6 +438,11 @@ void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *para
 
 				case SPT_MONEY:
 					MoneyStrFmt(textbuf, lengthof(textbuf), params->parms[n - 1].u.number / 100.0);
+					buffer = CopyString(buffer, last, textbuf);
+					break;
+
+				case SPT_TEMPERATURE:
+					TemperatureStrFormat(textbuf, lengthof(textbuf), params->parms[n - 1].u.number);
 					buffer = CopyString(buffer, last, textbuf);
 					break;
 

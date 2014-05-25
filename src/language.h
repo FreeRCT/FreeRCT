@@ -105,6 +105,7 @@ enum StringParamType {
 	SPT_NUMBER, ///< Parameter is a number.
 	SPT_MONEY,  ///< Parameter is an amount of money.
 	SPT_DATE,   ///< Parameter is a date.
+	SPT_TEMPERATURE, ///< Parameter is a temperature.
 	SPT_UINT8,  ///< Parameter is a C text string.
 };
 
@@ -115,7 +116,7 @@ struct StringParameterData {
 		StringID str;      ///< String number.
 		const uint8 *text; ///< C text pointer. Memory  is not managed!
 		uint32 dmy;        ///< Day/month/year.
-		int64 number;      ///< Signed number or money amount.
+		int64 number;      ///< Signed number, temperature, or money amount.
 	} u; ///< Data of the parameter.
 };
 
@@ -128,6 +129,7 @@ struct StringParameters {
 	void SetNumber(int num, int64 number);
 	void SetMoney(int num, const Money &amount);
 	void SetDate(int num, const Date &date);
+	void SetTemperature(int num, int32 number);
 	void SetUint8(int num, const uint8 *text);
 
 	void Clear();
