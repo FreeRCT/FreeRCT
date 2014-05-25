@@ -339,13 +339,15 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 {
 	static Recolouring recolour; // Never changed.
 
-	if (wid_num != BTB_VIEW_DIRECTION) return;
-
-	Viewport *vp = GetViewport();
-	int dir = (vp == nullptr) ? 0 : vp->orientation;
-	const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
-	if (img == nullptr) return;
-	_video.BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
+	switch (wid_num) {
+		case BTB_VIEW_DIRECTION: {
+			Viewport *vp = GetViewport();
+			int dir = (vp == nullptr) ? 0 : vp->orientation;
+			const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
+			if (img != nullptr) _video.BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
+			break;
+		}
+	}
 }
 
 /**

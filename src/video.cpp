@@ -187,11 +187,10 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	/* SDL_CreateRGBSurfaceFrom() pretends to use a void* for the data,
 	 * but it's really treated as endian-specific uint32*.
 	 * But since the c++ compiler handles the endianness of _icon_data, it's ok. */
-	uint32 rmask = 0xff000000;
-	uint32 gmask = 0x00ff0000;
-	uint32 bmask = 0x0000ff00;
-	uint32 amask = 0x000000ff;
-
+	const uint32 rmask = 0xff000000;
+	const uint32 gmask = 0x00ff0000;
+	const uint32 bmask = 0x0000ff00;
+	const uint32 amask = 0x000000ff;
 	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void *)_icon_data, 32, 32, 4 * 8, 4 * 32,
 	                                             rmask, gmask, bmask, amask);
 
