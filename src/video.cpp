@@ -457,6 +457,120 @@ void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const
 	this->BlitImage(img_base.x, img_base.y, spr, recolour, shift);
 }
 
+static const int STEP_SIZE = 18; ///< Amount of colour shift for each gradient step.
+typedef uint8 (*ShiftFunc)(uint8); ///< Type of the gradient shift function.
+
+/**
+ * Gradient shift function for #GS_NIGHT.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientNight(uint8 col)
+{
+	return (col <= 4 * STEP_SIZE) ? 0 : col - 4 * STEP_SIZE;
+}
+
+/**
+ * Gradient shift function for #GS_VERY_DARK.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientVeryDark(uint8 col)
+{
+	return (col <= 3 * STEP_SIZE) ? 0 : col - 3 * STEP_SIZE;
+}
+
+/**
+ * Gradient shift function for #GS_DARK
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientDark(uint8 col)
+{
+	return (col <= 2 * STEP_SIZE) ? 0 : col - 2 * STEP_SIZE;
+}
+
+/**
+ * Gradient shift function for #GS_SLIGHTLY_DARK.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientSlightlyDark(uint8 col)
+{
+	return (col <= STEP_SIZE) ? 0 : col - STEP_SIZE;
+}
+
+/**
+ * Gradient shift function for #GS_NORMAL.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientNormal(uint8 col)
+{
+	return col;
+}
+
+/**
+ * Gradient shift function for #GS_SLIGHTLY_LIGHT.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientSlightlyLight(uint8 col)
+{
+	return (col >= 255 - STEP_SIZE) ? 255: col + STEP_SIZE;
+}
+
+/**
+ * Gradient shift function for #GS_LIGHT.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientLight(uint8 col)
+{
+	return (col >= 255 - 2 * STEP_SIZE) ? 255: col + 2 * STEP_SIZE;
+}
+
+/**
+ * Gradient shift function for #GS_VERY_LIGHT.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientVeryLight(uint8 col)
+{
+	return (col >= 255 - 3 * STEP_SIZE) ? 255: col + 3 * STEP_SIZE;
+}
+
+/**
+ * Gradient shift function for #GS_DAY.
+ * @param col Input colour.
+ * @return Shifted result colour.
+ */
+static uint8 ShiftGradientDay(uint8 col)
+{
+	return (col >= 255 - 4 * STEP_SIZE) ? 255: col + 4 * STEP_SIZE;
+}
+
+/**
+ * Select gradient shift function based on the \a shift.
+ * @param Desired amount of gradient shift.
+ * @return Recolour function implementing the shift.
+ */
+static ShiftFunc GetGradientShiftFunc(GradientShift shift)
+{
+	switch (shift) {
+		case GS_NIGHT:          return ShiftGradientNight;
+		case GS_VERY_DARK:      return ShiftGradientVeryDark;
+		case GS_DARK:           return ShiftGradientDark;
+		case GS_SLIGHTLY_DARK:  return ShiftGradientSlightlyDark;
+		case GS_NORMAL:         return ShiftGradientNormal;
+		case GS_SLIGHTLY_LIGHT: return ShiftGradientSlightlyLight;
+		case GS_LIGHT:          return ShiftGradientLight;
+		case GS_VERY_LIGHT:     return ShiftGradientVeryLight;
+		case GS_DAY:            return ShiftGradientDay;
+		default: NOT_REACHED();
+	}
+}
+
 /**
  * Blit an image at the specified position (top-left position) relative to #blit_rect.
  * @param x Horizontal position.
@@ -546,6 +660,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 		}
 	} else {
 		/* Draw a 32bpp image. */
+		ShiftFunc sf = GetGradientShiftFunc(shift);
 		const uint8 *start = img->data;
 		for (int ypos = 0; ypos < im_top; ypos++) start += start[0] | (start[1] << 8);
 		for (; im_top < im_bottom; im_top++) {
@@ -561,7 +676,7 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 						mode &= 0x3F;
 						while (mode > 0) {
 							if (xpos >= im_left) {
-								*dest++ = MakeRGBA(src[0], src[1], src[2], OPAQUE);
+								*dest++ = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
 							}
 							xpos++;
 							src += 3;
@@ -576,13 +691,13 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 						while (mode > 0) {
 							if (xpos >= im_left) {
 								uint32 val = *dest >> 8;
-								uint col = src[2] * opacity + (val & 0xFF) * (256 - opacity);
+								uint col = sf(src[2]) * opacity + (val & 0xFF) * (256 - opacity);
 								uint32 ndest = (col & 0xFF00) | OPAQUE;
 								val >>= 8;
-								col = src[1] * opacity + (val & 0xFF) * (256 - opacity);
+								col = sf(src[1]) * opacity + (val & 0xFF) * (256 - opacity);
 								ndest |= (col << 8) & 0xFF0000;
 								val >>= 8;
-								col = src[0] * opacity + (val & 0xFF) * (256 - opacity);
+								col = sf(src[0]) * opacity + (val & 0xFF) * (256 - opacity);
 								*dest++ = ndest | ((col << 16) & 0xFF000000);
 							}
 							xpos++;
@@ -619,15 +734,15 @@ void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolourin
 								} else {
 									uint32 val = *dest >> 8;
 									uint32 other = table[*src++] >> 8;
-									uint col = (other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
+									uint col = sf(other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
 									uint32 ndest = (col & 0xFF00) | OPAQUE;
 									val >>= 8;
 									other >>= 8;
-									col = (other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
+									col = sf(other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
 									ndest |= (col << 8) & 0xFF0000;
 									val >>= 8;
 									other >>= 8;
-									col = (other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
+									col = sf(other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
 									*dest++ = ndest | ((col << 16) & 0xFF000000);
 								}
 							}

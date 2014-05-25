@@ -29,6 +29,7 @@
 #include "terraform.h"
 #include "select_mode.h"
 #include "person.h"
+#include "weather.h"
 
 #include <set>
 
@@ -1268,10 +1269,11 @@ void Viewport::OnDraw()
 	ClippedRectangle draw_rect(cr, this->rect.base.x, this->rect.base.y, this->rect.width, this->rect.height);
 	_video.SetClippedRectangle(draw_rect);
 
+	GradientShift gs = static_cast<GradientShift>(GS_LIGHT - _weather.GetWeatherType());
 	for (const auto &iter : collector.draw_images) {
 		const DrawData &dd = iter;
 		const Recolouring &rec = (dd.recolour == nullptr) ? recolour : *dd.recolour;
-		_video.BlitImage(dd.base, dd.sprite, rec, GS_NORMAL);
+		_video.BlitImage(dd.base, dd.sprite, rec, gs);
 	}
 
 	_video.SetClippedRectangle(cr);
