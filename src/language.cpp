@@ -241,7 +241,7 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 const uint8 *Language::GetText(StringID number)
 {
 	static const uint8 *default_strings[] = {
-		nullptr,                 // STR_NULL
+		nullptr,              // STR_NULL
 		(const uint8 *)"",    // STR_EMPTY
 		(const uint8 *)"%1%", // STR_ARG1
 	};
@@ -270,7 +270,7 @@ const uint8 *Language::GetLanguageName(int lang_index)
 
 /**
  * Copy a source string to the destination, if it fits.
- * @param dest Destination address.
+ * @param dest [out] Destination address.
  * @param last Last byte of the destination (not written).
  * @param src Source string.
  * @return Updated destination.
@@ -288,9 +288,9 @@ static uint8 *CopyString(uint8 *dest, const uint8 *last, const uint8 *src)
 
 /**
  * Converts a double value into a utf-8 string with the appropriate separators.
- * @param dest a provided buffer to write the output into.
- * @param size the size of the provided buffer.
- * @param amt the double value to be converted.
+ * @param dest [out] A provided buffer to write the output into.
+ * @param size The size of the provided buffer.
+ * @param amt The double value to be converted.
  */
 static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 {
@@ -354,7 +354,7 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 /**
  * Draw the string into the supplied buffer.
  * @param strid String number to 'draw'.
- * @param buffer Destination buffer.
+ * @param buffer [out] Destination buffer.
  * @param length Length of \a buffer in bytes.
  * @param params String parameter values for the "%n%" patterns.
  */

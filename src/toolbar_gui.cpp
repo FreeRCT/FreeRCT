@@ -244,6 +244,7 @@ static const uint32 BOTTOM_BAR_POSITION_X = 75; ///< Separation of the toolbar f
  * Widget parts of the bottom toolbar GUI.
  * @ingroup gui_group
  * @todo Left/Right Padding get ignored when drawing text widgets
+ * @todo Implement non-minimal default window size to prevent the need to compute remaining space manually.
  */
 static const WidgetPart _bottom_toolbar_widgets[] = {
 	Intermediate(0, 1),
