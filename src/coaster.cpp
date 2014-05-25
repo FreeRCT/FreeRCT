@@ -9,6 +9,7 @@
 
 /** @file coaster.cpp Coaster type data. */
 
+#include <cmath>
 #include "stdafx.h"
 #include "sprite_store.h"
 #include "coaster.h"
