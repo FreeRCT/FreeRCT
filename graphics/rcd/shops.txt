@@ -97,7 +97,7 @@ file("shops.rcd") {
 			replace: bitset(yellow, jade_green, purple, green);
 		}
 
-		flags: bitset(se_entrance);
+		flags: bitset(ne_entrance);
 		cost_item1: 500;
 		cost_item2: 350;
 		cost_ownership: 0;
