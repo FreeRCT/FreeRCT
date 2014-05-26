@@ -126,6 +126,8 @@ void Weather::Initialize()
 	this->current = _yearly_weather[_date.month - 1].Draw();
 	this->next = this->current;
 	this->change = 0;
+
+	this->OnNewDay(); // Set weather + temperature for the 0th day.
 }
 
 /** Daily update of the weather. */
