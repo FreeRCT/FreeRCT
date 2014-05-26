@@ -53,7 +53,7 @@ public:
 	void Rotated();
 
 	ShopPlacementState state; ///< Current state of the shop placement manager.
-	uint8 orientation;        ///< Orientation of the shop that will be placed.
+	TileEdge orientation;     ///< Orientation of the shop that will be placed.
 	int selected_ride;        ///< Selected type of ride (negative means nothing selected).
 	uint16 instance;          ///< Allocated ride instance, is #INVALID_RIDE_INSTANCE if not active.
 	Point16 mouse_pos;        ///< Stored mouse position.

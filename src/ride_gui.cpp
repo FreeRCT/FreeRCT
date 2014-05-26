@@ -276,13 +276,13 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 			break;
 		}
 		case RSEL_ROT_POS:
-			_shop_placer.orientation = (_shop_placer.orientation + 3) & 3;
+			_shop_placer.orientation = (TileEdge)((_shop_placer.orientation + 3) & 3);
 			this->MarkWidgetDirty(RSEL_DISPLAY);
 			_shop_placer.Rotated();
 			break;
 
 		case RSEL_ROT_NEG:
-			_shop_placer.orientation = (_shop_placer.orientation + 1) & 3;
+			_shop_placer.orientation = (TileEdge)((_shop_placer.orientation + 1) & 3);
 			this->MarkWidgetDirty(RSEL_DISPLAY);
 			_shop_placer.Rotated();
 			break;
@@ -591,7 +591,7 @@ void ShopPlacementManager::OpenWindow()
 {
 	if (this->state == SPS_OFF) {
 		this->state = SPS_OPENED;
-		this->orientation = 0;
+		this->orientation = EDGE_SE;
 		this->selected_ride = -1;
 		this->instance = INVALID_RIDE_INSTANCE;
 	}
