@@ -350,7 +350,7 @@ void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint
 class RideInstance;
 class CoasterInstance;
 
-Viewport *ShowMainDisplay();
+void ShowMainDisplay(uint32 xview, uint32 yview, uint32 zview);
 void ShowToolbar();
 void ShowBottomToolbar();
 void ShowGuestInfoGui(const Person *person);

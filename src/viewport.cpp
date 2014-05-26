@@ -1205,12 +1205,15 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 
 /**
  * %Viewport constructor.
+ * @param xview X pixel position of the center viewpoint of the main display.
+ * @param yview Y pixel position of the center viewpoint of the main display.
+ * @param zview Z pixel position of the center viewpoint of the main display.
  */
-Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), area_cursor(this)
+Viewport::Viewport(uint32 xview, uint32 yview, uint32 zview) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), area_cursor(this)
 {
-	this->xview = _world.GetXSize() * 256 / 2;
-	this->yview = _world.GetYSize() * 256 / 2;
-	this->zview = 8 * 256;
+	this->xview = xview;
+	this->yview = yview;
+	this->zview = zview;
 
 	this->tile_width  = 64;
 	this->tile_height = 16;
@@ -1223,8 +1226,12 @@ Viewport::Viewport(int x, int y, uint w, uint h) : Window(WC_MAINDISPLAY, ALL_WI
 	this->additions_enabled = false;
 	this->additions_displayed = false;
 
-	this->SetSize(w, h);
-	this->SetPosition(x, y);
+	uint16 width  = _video.GetXSize();
+	uint16 height = _video.GetYSize();
+	assert(width >= 120 && height >= 120); // Arbitrary lower limit as sanity check.
+
+	this->SetSize(width, height);
+	this->SetPosition(0, 0);
 }
 
 Viewport::~Viewport()
@@ -1636,17 +1643,15 @@ ViewportMouseMode MouseModes::GetMouseMode()
 
 /**
  * Open the main isometric display window.
+ * @param xview X pixel position of the center viewpoint of the main display.
+ * @param yview Y pixel position of the center viewpoint of the main display.
+ * @param zview Z pixel position of the center viewpoint of the main display.
  * @ingroup viewport_group
  */
-Viewport *ShowMainDisplay()
+void ShowMainDisplay(uint32 xview, uint32 yview, uint32 zview)
 {
-	uint16 width  = _video.GetXSize();
-	uint16 height = _video.GetYSize();
-	assert(width >= 120 && height >= 120);
-	Viewport *w = new Viewport(0, 0, width, height);
-
+	new Viewport(xview, yview, zview);
 	_mouse_modes.SetViewportMousemode();
-	return w;
 }
 
 /** Initialize the mouse modes. */
