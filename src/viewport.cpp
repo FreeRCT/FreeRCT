@@ -1100,9 +1100,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 
 	if (voxel == nullptr) return; // Ignore cursors, they are not clickable.
 
-	/* Looking for a ride? */
 	SmallRideInstance number = voxel->GetInstance();
-	if ((this->allowed & SO_RIDE) != 0 && number >= SRI_FULL_RIDES) {
+	if ((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) {
+		/* Looking for a ride? */
 		DrawData dd[4];
 		int count = DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
 				this->orient, number, voxel->GetInstanceData(), dd, nullptr);
@@ -1121,9 +1121,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 				}
 			}
 		}
-	}
-	/* Looking for a path? */
-	if ((this->allowed & SO_PATH) != 0 && HasValidPath(voxel)) {
+	} else if ((this->allowed & CS_PATH) != 0 && HasValidPath(voxel)) {
+		/* Looking for a path? */
 		const ImageData *img = this->sprites->GetPathSprite(number, GetImplodedPathSlope(voxel), this->orient);
 		DrawData dd;
 		dd.level = slice;
@@ -1144,9 +1143,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 				this->pixel = pixel;
 			}
 		}
-	}
-	/* Looking for surface? */
-	if ((this->allowed & SO_GROUND) != 0 && voxel->GetGroundType() != GTP_INVALID) {
+	} else if ((this->allowed & CS_GROUND) != 0 && voxel->GetGroundType() != GTP_INVALID) {
+		/* Looking for surface? */
 		const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
 		DrawData dd;
 		dd.level = slice;
@@ -1167,13 +1165,12 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 				this->pixel = pixel;
 			}
 		}
-	}
-
-	/* Looking for persons? */
-	if ((this->allowed & SO_PERSON) != 0) {
+	} else if ((this->allowed & CS_PERSON) != 0) {
+		/* Looking for persons? */
 		const VoxelObject *vo = voxel->voxel_objects;
 		while (vo != nullptr) {
 			const Person *pers = static_cast<const Person *>(vo);
+			assert(pers != nullptr && pers->walk != nullptr);
 			AnimationType anim_type = pers->walk->anim_type;
 			const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
 			int x_off = ComputeX(pers->x_pos, pers->y_pos);
