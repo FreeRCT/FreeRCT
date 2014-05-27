@@ -68,6 +68,9 @@ DECLARE_ENUM_AS_BIT_SET(ClickableSprite)
 
 /**
  * Order of blitting sprites in a single voxel (earlier in the list is sooner).
+ * The number shifted by #CS_LENGTH denotes the order, the lower bits are used to denote the kind of sprite
+ * being plotted, for mouse-click detection.
+ * @see PixelFinder, Viewport::ComputeCursorPosition
  */
 enum SpriteOrder {
 	SO_NONE            = 0,                             ///< No drawing.
