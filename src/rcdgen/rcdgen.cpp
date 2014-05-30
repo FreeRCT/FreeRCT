@@ -46,15 +46,15 @@ static const OptionData _options[] = {
 /** Output online help. */
 static void PrintUsage()
 {
-	printf("Usage: rcdgen options | FILE\n");
+	printf("Usage: rcdgen options | FILE ...\n");
 	printf("This program has three modes of operation, depending on the command line.\n");
 	printf("1. Print online help:\n");
 	printf("\n");
 	printf("\trcdgen -h | --help\n");
 	printf("\n");
-	printf("2. Generate an RCD data file from an input file or stdin:\n");
+	printf("2. Generate RCD data files from input files or stdin:\n");
 	printf("\n");
-	printf("\trcdgen [FILE]\n");
+	printf("\trcdgen [FILE ...]\n");
 	printf("\n");
 	printf("3. Generate .h and/or .cpp files for strings of the program:\n");
 	printf("\n");
@@ -127,25 +127,23 @@ int main(int argc, char *argv[])
 	if (header != nullptr) printf("Warning: --header option is not used.\n");
 	if (code != nullptr) printf("Warning: --code option is not used.\n");
 
-	if (opt_data.numleft > 1) {
-		fprintf(stderr, "Error: Too many arguments (use -h or --help for online help)\n");
-		exit(1);
+	int num_files = std::max(1, opt_data.numleft);
+	for (int i = 0; i < num_files; i++) {
+		/* Phase 1: Parse the input file. */
+		std::shared_ptr<NamedValueList> nvs = LoadFile((i < opt_data.numleft) ? opt_data.argv[i] : nullptr);
+
+		/* Phase 2: Check and simplify the loaded input. */
+		FileNodeList *file_nodes = CheckTree(nvs);
+		nvs = nullptr;
+
+		/* Phase 3: Construct output files. */
+		for (auto iter : file_nodes->files) {
+			FileWriter fw;
+			iter->Write(&fw);
+			fw.WriteFile(iter->file_name);
+		}
+
+		delete file_nodes;
 	}
-
-	/* Phase 1: Parse the input file. */
-	std::shared_ptr<NamedValueList> nvs = LoadFile((opt_data.numleft == 1) ? opt_data.argv[0] : nullptr);
-
-	/* Phase 2: Check and simplify the loaded input. */
-	FileNodeList *file_nodes = CheckTree(nvs);
-	nvs = nullptr;
-
-	/* Phase 3: Construct output files. */
-	for (auto iter : file_nodes->files) {
-		FileWriter fw;
-		iter->Write(&fw);
-		fw.WriteFile(iter->file_name);
-	}
-
-	delete file_nodes;
 	exit(0);
 }
