@@ -439,16 +439,70 @@ StringsNode::StringsNode() : BlockNode()
  * Add a string to the collection of strings.
  * @param node String to add.
  */
-void StringsNode::Add(const StringNode &node)
+void StringsNode::Add(const StringNode &node, const Position &pos)
 {
 	for (const auto &iter : this->strings) {
+		/* Check for duplicates: No same names with same language and same key. */
 		if (iter.name != node.name) continue;
 		if (iter.lang_index >= 0 && node.lang_index >= 0 && iter.lang_index != node.lang_index) continue;
+		if (iter.key == "" || node.key == "" || iter.key != node.key) continue;
 		fprintf(stderr, "Error at %s: ", node.text_pos.ToString());
 		fprintf(stderr, "\"string node\" conflicts with node at %s\n", iter.text_pos.ToString());
 		exit(1);
 	}
 	this->strings.push_back(node);
+	if (this->key != "") {
+		if (node.key == "") {
+			this->strings.back().key = this->key;
+		} else if (this->key != node.key) {
+			fprintf(stderr, "Error at %s: String \"%s\" already has key \"%s\".\n", pos.ToString(), node.name.c_str(), node.key.c_str());
+			exit(1);
+
+		}
+	}
+}
+
+/**
+ * Set the key of the strings collection. Can only be done if it is not set already.
+ * @param key New key of the bundle that the collection belongs to.
+ * @param pos Position of setting.
+ */
+void StringsNode::SetKey(const std::string &key, const Position &pos)
+{
+	if (this->key != "") {
+		fprintf(stderr, "Error at %s: Strings already have key \"%s\".\n", pos.ToString(), this->key.c_str());
+		exit(1);
+	}
+	this->key = key;
+	for (auto &str : this->strings) {
+		if (str.key != "" && str.key != key) {
+			fprintf(stderr, "Error at %s: String \"%s\" already has key \"%s\".\n", pos.ToString(), str.name.c_str(), str.key.c_str());
+			exit(1);
+		}
+	}
+}
+
+/**
+ * Retrieve the key from the stored strings.
+ * @return Key of all strings that have one,if available, else \c "".
+ * @todo This looks like it could be moved to \c this->key.
+ */
+std::string StringsNode::GetKey() const
+{
+	std::string key;
+	bool set_key = false;
+	for (auto &str : this->strings) {
+		if (!set_key) {
+			if (str.key != "") {
+				key = str.key;
+				set_key = true;
+			}
+			continue;
+		}
+		if (str.key != "" && key != str.key) return ""; // Two or more different keys, no sane way to decide what it is.
+	}
+	if (set_key) return key;
+	return this->key; // Can only give a result when there are no strings in this node.
 }
 
 /**
@@ -517,7 +571,8 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs)
 			exit(1);
 		}
 
-		std::map<std::string, TextNode>::iterator iter = this->texts.find(str.name);
+		/* Get the text node associated with the string name. */
+		auto iter = this->texts.find(str.name);
 		if (iter == this->texts.end()) {
 			std::pair<std::string, TextNode> p(str.name, TextNode(str.name));
 			iter = this->texts.insert(p).first;

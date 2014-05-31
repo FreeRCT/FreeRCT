@@ -467,6 +467,7 @@ public:
 	std::string name;  ///< Name of the string.
 	std::string text;  ///< Text of the string named #name.
 	Position text_pos; ///< Position of the text.
+	std::string key;   ///< Key of the bundle containing this string (if provided).
 	int lang_index;    ///< Language of the #text, negative if not defined. @see Languages
 };
 
@@ -475,9 +476,14 @@ class StringsNode : public BlockNode {
 public:
 	StringsNode();
 
-	void Add(const StringNode &node);
+	void Add(const StringNode &node, const Position &pos);
+	void SetKey(const std::string &key, const Position &pos);
+	std::string GetKey() const;
 
 	std::list<StringNode> strings; ///< Collected strings.
+
+private:
+	std::string key; ///< Key associated with the strings, if any.
 };
 
 /** Texts (translations) of a single string. */

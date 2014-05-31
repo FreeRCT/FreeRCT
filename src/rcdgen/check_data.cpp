@@ -1746,25 +1746,74 @@ static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup
 	auto strs = std::make_shared<StringsNode>();
 
 	Values vals("strings", ng->pos);
-	vals.PrepareNamedValues(ng->values, false, true);
+	vals.PrepareNamedValues(ng->values, true, true);
 
+	std::string child_key = "";
 	for (int i = 0; i < vals.unnamed_count; i++) {
 		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
 		if (vi->used) continue;
 		auto tn = std::dynamic_pointer_cast<StringNode>(vi->node_value);
 		if (tn != nullptr) {
-			strs->Add(*tn);
+			strs->Add(*tn, ng->pos);
 			vi->used = true;
 			continue;
 		}
 		auto sn = std::dynamic_pointer_cast<StringsNode>(vi->node_value);
 		if (sn != nullptr) {
-			for (const auto &iter : sn->strings) strs->Add(iter);
+			for (const auto &iter : sn->strings) strs->Add(iter, ng->pos);
+			std::string sn_key = sn->GetKey();
+			if (sn->strings.size() == 0 && sn_key != "") {
+				if (child_key == "") {
+					child_key = sn_key;
+				} else if (child_key != sn_key) {
+					fprintf(stderr, "Error at %s: Two or more different keys set (\"%s\" and \"%s\").", vi->pos.ToString(), child_key.c_str(), sn_key.c_str());
+					exit(1);
+				}
+			}
 			vi->used = true;
 			continue;
 		}
 		fprintf(stderr, "Error at %s: Node is not a \"string\" nor a \"strings\" node\n", vi->pos.ToString());
 		exit(1);
+	}
+	if (strs->strings.size() == 0 && child_key != "") strs->SetKey(child_key, ng->pos);
+
+	for (int i = 0; i < vals.named_count; i++) {
+		std::shared_ptr<ValueInformation> vi = vals.named_values[i];
+		if (vi->used) continue;
+
+		if (vi->name == "lang") {
+			int lang_index = GetLanguageIndex(vi->GetString(ng->pos, "lang").c_str(), vi->pos);
+			if (lang_index < 0) {
+				fprintf(stderr, "Error at %s: Unknown language \"%s\".", vi->pos.ToString(), vi->name.c_str());
+				exit(1);
+			}
+			/* Copy language into the strings. */
+			for (auto &str : strs->strings) {
+				if (str.lang_index >= 0) {
+					fprintf(stderr, "Error at %s: ", vi->pos.ToString());
+					fprintf(stderr, "String \"%s\" at %s already has a language.\n", str.name.c_str(), str.text_pos.ToString());
+					exit(1);
+				}
+				str.lang_index = lang_index;
+			}
+			vi->used = true;
+			continue;
+		}
+		if (vi->name == "key") {
+			std::string key = vi->GetString(ng->pos, "key");
+			strs->SetKey(key, vi->pos);
+			/* Copy key into the strings. */
+			for (auto &str : strs->strings) {
+				if (str.key != "") {
+					fprintf(stderr, "Error at %s: ", vi->pos.ToString());
+					fprintf(stderr, "String \"%s\" at %s already has a key.\n", str.name.c_str(), str.text_pos.ToString());
+					exit(1);
+				}
+				str.key = key;
+			}
+			vi->used = true;
+		}
 	}
 
 	vals.VerifyUsage();
@@ -2237,13 +2286,19 @@ FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values)
 		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
 		if (vi->used) continue;
 		auto fn = std::dynamic_pointer_cast<FileNode>(vi->node_value);
-		if (fn == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a file node\n", vi->pos.ToString());
-			exit(1);
+		if (fn != nullptr) {
+			file_nodes->files.push_back(fn);
+			vi->node_value = nullptr;
+			vi->used = true;
+			continue;
 		}
-		file_nodes->files.push_back(fn);
-		vi->node_value = nullptr;
-		vi->used = true;
+		auto strs = std::dynamic_pointer_cast<StringsNode>(vi->node_value);
+		if (strs != nullptr) {
+			printf("Strings detected.\n");
+			continue;
+		}
+		fprintf(stderr, "Error at %s: Node is neither a file node nor a strings node\n", vi->pos.ToString());
+		exit(1);
 	}
 	vals.VerifyUsage();
 	return file_nodes;
