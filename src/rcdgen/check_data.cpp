@@ -17,6 +17,7 @@
 #include <ctime>
 #include "ast.h"
 #include "nodes.h"
+#include "string_storage.h"
 #include "string_names.h"
 #include "utils.h"
 
@@ -2294,7 +2295,8 @@ FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values)
 		}
 		auto strs = std::dynamic_pointer_cast<StringsNode>(vi->node_value);
 		if (strs != nullptr) {
-			printf("Strings detected.\n");
+			_strings_storage.AddStrings(strs, vi->pos);
+			vi->used = true;
 			continue;
 		}
 		fprintf(stderr, "Error at %s: Node is neither a file node nor a strings node\n", vi->pos.ToString());
