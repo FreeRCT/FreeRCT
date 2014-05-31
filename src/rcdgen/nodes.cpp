@@ -482,7 +482,7 @@ void TextNode::Write(FileBlock *fb) const
  * @param name_count Number of names in \a names.
  * @param pos %Position of the surrounding node (for error reporting).
  */
-void Strings::CheckTranslations(const char *names[], int name_count, const Position &pos)
+void StringBundle::CheckTranslations(const char *names[], int name_count, const Position &pos)
 {
 	/* Check that all necessary strings exist. */
 	TextNode tn;
@@ -520,7 +520,7 @@ void Strings::CheckTranslations(const char *names[], int name_count, const Posit
  * @param fw File to write to.
  * @return Block number where the data was saved.
  */
-int Strings::Write(FileWriter *fw)
+int StringBundle::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	int length = 0;

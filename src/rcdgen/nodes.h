@@ -473,7 +473,7 @@ public:
 };
 
 /**
- * Comparator of #TextNode objects for sorting them in the Strings::texts set.
+ * Comparator of #TextNode objects for sorting them in the StringBundle::texts set.
  * @param tn1 First node to compare.
  * @param tn2 Second node to compare.
  * @return \a tn1 should be in front of \a tn2.
@@ -483,8 +483,8 @@ inline bool operator<(const TextNode &tn1, const TextNode &tn2)
 	return tn1.name < tn2.name;
 }
 
-/** Collection of translated strings. */
-class Strings : public BlockNode {
+/** Collection of translated strings for a game object. */
+class StringBundle : public BlockNode {
 public:
 	void CheckTranslations(const char *names[], int name_count, const Position &pos);
 	int Write(FileWriter *fw);
@@ -512,7 +512,7 @@ public:
 	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
 	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
 	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
-	std::shared_ptr<Strings> shop_text;   ///< Texts of the shop.
+	std::shared_ptr<StringBundle> shop_text;   ///< Texts of the shop.
 };
 
 /** GBOR game block. */
@@ -665,7 +665,7 @@ public:
 	std::shared_ptr<SpriteBlock> maxi_button;     ///< Maximise button.
 	std::shared_ptr<SpriteBlock> mini_button;     ///< Minimise button.
 	std::shared_ptr<SpriteBlock> terraform_dot;   ///< Terraform dot.
-	std::shared_ptr<Strings> gui_text;            ///< Text of the GUIs (reference to a TEXT block).
+	std::shared_ptr<StringBundle> gui_text;       ///< Text of the GUIs (reference to a TEXT block).
 };
 
 /**
@@ -789,7 +789,7 @@ public:
 	int number_trains; ///< Maximum number of trains at the roller coaster.
 	int number_cars;   ///< Maximum number of cars in a train.
 
-	std::shared_ptr<Strings> text; ///< Text of the coaster (reference to a TEXT block).
+	std::shared_ptr<StringBundle> text; ///< Text of the coaster (reference to a TEXT block).
 
 	std::list<std::shared_ptr<TrackPieceNode>> track_blocks; ///< Track pieces of the roller coaster.
 };

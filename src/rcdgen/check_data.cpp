@@ -165,7 +165,7 @@ public:
 	std::string GetString(const Position &pos, const char *node);
 	std::shared_ptr<SpriteBlock> GetSprite(const Position &pos, const char *node);
 	std::shared_ptr<Connection> GetConnection(const Position &pos, const char *node);
-	std::shared_ptr<Strings> GetStrings(const Position &pos, const char *node);
+	std::shared_ptr<StringBundle> GetStrings(const Position &pos, const char *node);
 	std::shared_ptr<Curve> GetCurve(const Position &pos, const char *node);
 
 	std::string name; ///< %Name of the value.
@@ -285,9 +285,9 @@ std::shared_ptr<Connection> ValueInformation::GetConnection(const Position &pos,
  * @param node %Name of the node.
  * @return The set of strings.
  */
-std::shared_ptr<Strings> ValueInformation::GetStrings(const Position &pos, const char *node)
+std::shared_ptr<StringBundle> ValueInformation::GetStrings(const Position &pos, const char *node)
 {
-	auto st = std::dynamic_pointer_cast<Strings>(this->node_value);
+	auto st = std::dynamic_pointer_cast<StringBundle>(this->node_value);
 	if (st != nullptr) {
 		this->node_value = nullptr;
 		return st;
@@ -398,7 +398,7 @@ public:
 	std::string GetString(const char *fld_name);
 	std::shared_ptr<SpriteBlock> GetSprite(const char *fld_name);
 	std::shared_ptr<Connection> GetConnection(const char *fld_name);
-	std::shared_ptr<Strings> GetStrings(const char *fld_name);
+	std::shared_ptr<StringBundle> GetStrings(const char *fld_name);
 	std::shared_ptr<Curve> GetCurve(const char *fld_name);
 	void VerifyUsage();
 
@@ -625,7 +625,7 @@ std::shared_ptr<Connection> Values::GetConnection(const char *fld_name)
  * @param fld_name Name of the field to retrieve.
  * @return The set of strings.
  */
-std::shared_ptr<Strings> Values::GetStrings(const char *fld_name)
+std::shared_ptr<StringBundle> Values::GetStrings(const char *fld_name)
 {
 	return FindValue(fld_name)->GetStrings(this->pos, this->node_name);
 }
@@ -1738,10 +1738,10 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
  * @param ng Generic tree of nodes to convert.
  * @return The created 'strings' node.
  */
-static std::shared_ptr<Strings> ConvertStringsNode(std::shared_ptr<NodeGroup> ng)
+static std::shared_ptr<StringBundle> ConvertStringsNode(std::shared_ptr<NodeGroup> ng)
 {
 	ExpandNoExpression(ng->exprs, ng->pos, "strings");
-	auto strs = std::make_shared<Strings>();
+	auto strs = std::make_shared<StringBundle>();
 
 	Values vals("strings", ng->pos);
 	vals.PrepareNamedValues(ng->values, false, true);
