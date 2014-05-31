@@ -165,7 +165,7 @@ public:
 	std::string GetString(const Position &pos, const char *node);
 	std::shared_ptr<SpriteBlock> GetSprite(const Position &pos, const char *node);
 	std::shared_ptr<Connection> GetConnection(const Position &pos, const char *node);
-	std::shared_ptr<StringBundle> GetStrings(const Position &pos, const char *node);
+	std::shared_ptr<StringsNode> GetStrings(const Position &pos, const char *node);
 	std::shared_ptr<Curve> GetCurve(const Position &pos, const char *node);
 
 	std::string name; ///< %Name of the value.
@@ -285,9 +285,9 @@ std::shared_ptr<Connection> ValueInformation::GetConnection(const Position &pos,
  * @param node %Name of the node.
  * @return The set of strings.
  */
-std::shared_ptr<StringBundle> ValueInformation::GetStrings(const Position &pos, const char *node)
+std::shared_ptr<StringsNode> ValueInformation::GetStrings(const Position &pos, const char *node)
 {
-	auto st = std::dynamic_pointer_cast<StringBundle>(this->node_value);
+	auto st = std::dynamic_pointer_cast<StringsNode>(this->node_value);
 	if (st != nullptr) {
 		this->node_value = nullptr;
 		return st;
@@ -398,7 +398,7 @@ public:
 	std::string GetString(const char *fld_name);
 	std::shared_ptr<SpriteBlock> GetSprite(const char *fld_name);
 	std::shared_ptr<Connection> GetConnection(const char *fld_name);
-	std::shared_ptr<StringBundle> GetStrings(const char *fld_name);
+	std::shared_ptr<StringsNode> GetStrings(const char *fld_name);
 	std::shared_ptr<Curve> GetCurve(const char *fld_name);
 	void VerifyUsage();
 
@@ -625,7 +625,7 @@ std::shared_ptr<Connection> Values::GetConnection(const char *fld_name)
  * @param fld_name Name of the field to retrieve.
  * @return The set of strings.
  */
-std::shared_ptr<StringBundle> Values::GetStrings(const char *fld_name)
+std::shared_ptr<StringsNode> Values::GetStrings(const char *fld_name)
 {
 	return FindValue(fld_name)->GetStrings(this->pos, this->node_name);
 }
@@ -1629,7 +1629,8 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	sb->opened_cost = vals.GetNumber("cost_opened");
 	sb->item_type[0] = vals.GetNumber("type_item1");
 	sb->item_type[1] = vals.GetNumber("type_item2");
-	sb->shop_text = vals.GetStrings("texts");
+	sb->shop_text = std::make_shared<StringBundle>();
+	sb->shop_text->Fill(vals.GetStrings("texts"));
 	sb->shop_text->CheckTranslations(_shops_string_names, lengthof(_shops_string_names), ng->pos);
 
 	int free_recolour = 0;
@@ -1726,7 +1727,8 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->neg_3d = vals.GetSprite("neg_3d");
 	gb->close_button = vals.GetSprite("close_button");
 	gb->terraform_dot = vals.GetSprite("terraform_dot");
-	gb->gui_text = vals.GetStrings("texts");
+	gb->gui_text = std::make_shared<StringBundle>();
+	gb->gui_text->Fill(vals.GetStrings("texts"));
 	gb->gui_text->CheckTranslations(_gui_string_names, lengthof(_gui_string_names), ng->pos);
 
 	vals.VerifyUsage();
@@ -1738,10 +1740,10 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
  * @param ng Generic tree of nodes to convert.
  * @return The created 'strings' node.
  */
-static std::shared_ptr<StringBundle> ConvertStringsNode(std::shared_ptr<NodeGroup> ng)
+static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup> ng)
 {
 	ExpandNoExpression(ng->exprs, ng->pos, "strings");
-	auto strs = std::make_shared<StringBundle>();
+	auto strs = std::make_shared<StringsNode>();
 
 	Values vals("strings", ng->pos);
 	vals.PrepareNamedValues(ng->values, false, true);
@@ -1749,28 +1751,20 @@ static std::shared_ptr<StringBundle> ConvertStringsNode(std::shared_ptr<NodeGrou
 	for (int i = 0; i < vals.unnamed_count; i++) {
 		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
 		if (vi->used) continue;
-		auto tn = std::dynamic_pointer_cast<TextNode>(vi->node_value);
-		if (tn == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a \"string\" node\n", vi->pos.ToString());
-			exit(1);
+		auto tn = std::dynamic_pointer_cast<StringNode>(vi->node_value);
+		if (tn != nullptr) {
+			strs->Add(*tn);
+			vi->used = true;
+			continue;
 		}
-		auto iter = strs->texts.find(*tn);
-		if (iter != strs->texts.end()) {
-			for (int j = 0; j < LNG_COUNT; j++) {
-				if (tn->pos[j].line >= 0) {
-					if ((*iter).pos[j].line >= 0) {
-						fprintf(stderr, "Error at %s: ", tn->pos[j].ToString());
-						fprintf(stderr, "\"string\" node conflicts with %s\n", (*iter).pos[j].ToString());
-						exit(1);
-					}
-					(*iter).pos[j] = tn->pos[j];
-					(*iter).texts[j] = tn->texts[j];
-				}
-			}
-		} else {
-			strs->texts.insert(*tn);
+		auto sn = std::dynamic_pointer_cast<StringsNode>(vi->node_value);
+		if (sn != nullptr) {
+			for (const auto &iter : sn->strings) strs->Add(iter);
+			vi->used = true;
+			continue;
 		}
-		vi->used = true;
+		fprintf(stderr, "Error at %s: Node is not a \"string\" nor a \"strings\" node\n", vi->pos.ToString());
+		exit(1);
 	}
 
 	vals.VerifyUsage();
@@ -1782,20 +1776,23 @@ static std::shared_ptr<StringBundle> ConvertStringsNode(std::shared_ptr<NodeGrou
  * @param ng Generic tree of nodes to convert.
  * @return The created 'string' node.
  */
-static std::shared_ptr<TextNode> ConvertTextNode(std::shared_ptr<NodeGroup> ng)
+static std::shared_ptr<StringNode> ConvertStringNode(std::shared_ptr<NodeGroup> ng)
 {
 	ExpandNoExpression(ng->exprs, ng->pos, "string");
-	auto tn = std::make_shared<TextNode>();
-
+	auto tn = std::make_shared<StringNode>();
 	Values vals("string", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, false);
 
 	tn->name = vals.GetString("name");
-	std::shared_ptr<ValueInformation> vi = vals.FindValue("lang");
-	int lng = GetLanguageIndex(vi->GetString(ng->pos, "string").c_str(), vi->pos);
-	vi = vals.FindValue("text");
-	tn->pos[lng] = vi->pos;
-	tn->texts[lng] = vi->GetString(ng->pos, "string");
+	std::shared_ptr<ValueInformation> vi = vals.FindValue("text");
+	tn->text = vi->GetString(ng->pos, "string");
+	tn->text_pos = vi->pos;
+	if (vals.HasValue("lang")) {
+		vi = vals.FindValue("lang");
+		tn->lang_index = GetLanguageIndex(vi->GetString(ng->pos, "string").c_str(), vi->pos);
+	} else {
+		tn->lang_index = -1;
+	}
 
 	vals.VerifyUsage();
 	return tn;
@@ -1957,7 +1954,8 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 	rb->platform_type = vals.GetNumber("platform_type");
 	rb->number_trains = vals.GetNumber("max_number_trains");
 	rb->number_cars = vals.GetNumber("max_number_cars");
-	rb->text = vals.GetStrings("texts");
+	rb->text = std::make_shared<StringBundle>();
+	rb->text->Fill(vals.GetStrings("texts"));
 	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
 
 	for (int i = 0; i < vals.unnamed_count; i++) {
@@ -2184,7 +2182,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "recolour") return ConvertRecolourNode(ng);
 	if (ng->name == "frame_data") return ConvertFrameDataNode(ng);
 	if (ng->name == "strings") return ConvertStringsNode(ng);
-	if (ng->name == "string") return ConvertTextNode(ng);
+	if (ng->name == "string") return ConvertStringNode(ng);
 	if (ng->name == "track_voxel") return ConvertTrackVoxel(ng);
 	if (ng->name == "connection") return ConvertConnection(ng);
 	if (ng->name == "track_piece") return ConvertTrackPieceNode(ng);

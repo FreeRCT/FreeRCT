@@ -459,37 +459,48 @@ enum Languages {
 
 int GetLanguageIndex(const char *lname, const Position &pos);
 
-/** Texts of a single string. */
-class TextNode : public BlockNode {
+/** Storage of a single string (name + text + language if present). */
+class StringNode : public BlockNode {
 public:
-	TextNode();
+	StringNode();
+
+	std::string name;  ///< Name of the string.
+	std::string text;  ///< Text of the string named #name.
+	Position text_pos; ///< Position of the text.
+	int lang_index;    ///< Language of the #text, negative if not defined. @see Languages
+};
+
+/** Collection of strings. */
+class StringsNode : public BlockNode {
+public:
+	StringsNode();
+
+	void Add(const StringNode &node);
+
+	std::list<StringNode> strings; ///< Collected strings.
+};
+
+/** Texts (translations) of a single string. */
+class TextNode {
+public:
+	TextNode(const std::string &name);
 
 	int GetSize() const;
 	void Write(FileBlock *fb) const;
 
-	std::string name;                     ///< Name of the text node (used as key).
-	mutable std::string texts[LNG_COUNT]; ///< Text of the text node, in each language.
-	mutable Position pos[LNG_COUNT];      ///< Positions defining the text (negative lines means undefined).
+	const std::string name;       ///< Name of the text node (used as key).
+	std::string texts[LNG_COUNT]; ///< Text of the text node, in each language.
+	Position pos[LNG_COUNT];      ///< Positions defining the text (negative lines means undefined).
 };
-
-/**
- * Comparator of #TextNode objects for sorting them in the StringBundle::texts set.
- * @param tn1 First node to compare.
- * @param tn2 Second node to compare.
- * @return \a tn1 should be in front of \a tn2.
- */
-inline bool operator<(const TextNode &tn1, const TextNode &tn2)
-{
-	return tn1.name < tn2.name;
-}
 
 /** Collection of translated strings for a game object. */
 class StringBundle : public BlockNode {
 public:
+	void Fill(std::shared_ptr<StringsNode> strs);
 	void CheckTranslations(const char *names[], int name_count, const Position &pos);
 	int Write(FileWriter *fw);
 
-	std::set<TextNode> texts; ///< Translated text nodes.
+	std::map<std::string, TextNode> texts; ///< Translated text nodes, one for each name.
 };
 
 /** Class for describing a SHOP game block. */

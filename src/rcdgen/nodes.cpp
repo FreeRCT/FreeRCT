@@ -426,7 +426,36 @@ int GetLanguageIndex(const char *lname, const Position &pos)
 	exit(1);
 }
 
-TextNode::TextNode() : BlockNode()
+StringNode::StringNode() : BlockNode()
+{
+	this->lang_index = -1;
+}
+
+StringsNode::StringsNode() : BlockNode()
+{
+}
+
+/**
+ * Add a string to the collection of strings.
+ * @param node String to add.
+ */
+void StringsNode::Add(const StringNode &node)
+{
+	for (const auto &iter : this->strings) {
+		if (iter.name != node.name) continue;
+		if (iter.lang_index >= 0 && node.lang_index >= 0 && iter.lang_index != node.lang_index) continue;
+		fprintf(stderr, "Error at %s: ", node.text_pos.ToString());
+		fprintf(stderr, "\"string node\" conflicts with node at %s\n", iter.text_pos.ToString());
+		exit(1);
+	}
+	this->strings.push_back(node);
+}
+
+/**
+ * Constructor of a #TextNode.
+ * @param name Name of the string stored in the text node.
+ */
+TextNode::TextNode(const std::string &name) : name(name)
 {
 	for (int i = 0; i < LNG_COUNT; i++) this->pos[i] = Position("", -1);
 }
@@ -477,6 +506,34 @@ void TextNode::Write(FileBlock *fb) const
 }
 
 /**
+ * Copy the strings into the bundle, ordered by the string name.
+ * @param strs Strings to copy.
+ */
+void StringBundle::Fill(std::shared_ptr<StringsNode> strs)
+{
+	for (auto &str : strs->strings) {
+		if (str.lang_index < 0) {
+			fprintf(stderr, "Error at %s: String does not have a language.\n", str.text_pos.ToString());
+			exit(1);
+		}
+
+		std::map<std::string, TextNode>::iterator iter = this->texts.find(str.name);
+		if (iter == this->texts.end()) {
+			std::pair<std::string, TextNode> p(str.name, TextNode(str.name));
+			iter = this->texts.insert(p).first;
+		}
+		TextNode &tn = iter->second;
+		if (tn.pos[str.lang_index].line >= 0) { // String with same name and same language already exists.
+			fprintf(stderr, "Error at %s: ", str.text_pos.ToString());
+			fprintf(stderr, "Text for language %s already defined at %s.\n", _languages[str.lang_index], tn.pos[str.lang_index].ToString());
+			exit(1);
+		}
+		tn.texts[str.lang_index] = str.text;
+		tn.pos[str.lang_index] = str.text_pos;
+	}
+}
+
+/**
  * Verify whether the strings are all valid.
  * @param names Expected string names.
  * @param name_count Number of names in \a names.
@@ -484,11 +541,21 @@ void TextNode::Write(FileBlock *fb) const
  */
 void StringBundle::CheckTranslations(const char *names[], int name_count, const Position &pos)
 {
+	/* Check that the bundle has no extra strings. */
+	for (const auto &text : this->texts) {
+		bool found = false;
+		for (int i = 0; i < name_count; i++) {
+			if (names[i] == text.first) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) printf("Warning at %s: String \"%s\" is not needed.\n", pos.ToString(), text.first.c_str());
+	}
+
 	/* Check that all necessary strings exist. */
-	TextNode tn;
 	for (int i = 0; i < name_count; i++) {
-		tn.name = names[i];
-		if (this->texts.find(tn) == this->texts.end()) {
+		if (this->texts.find(names[i]) == this->texts.end()) {
 			fprintf(stderr, "Error at %s: String \"%s\" is not defined\n", pos.ToString(), names[i]);
 			exit(1);
 		}
@@ -498,12 +565,12 @@ void StringBundle::CheckTranslations(const char *names[], int name_count, const 
 	std::array<int, LNG_COUNT> missing_count{};
 
 	for (const auto &iter : this->texts) {
-		if (iter.pos[LNG_EN_GB].line < 0) {
-			fprintf(stderr, "Error at %s: String \"%s\" has no British English language text\n", pos.ToString(), iter.name.c_str());
+		if (iter.second.pos[LNG_EN_GB].line < 0) {
+			fprintf(stderr, "Error at %s: String \"%s\" has no British English language text\n", pos.ToString(), iter.first.c_str());
 			exit(1);
 		}
 		for (int i = 0; i < LNG_COUNT; i++) {
-			if (iter.pos[i].line < 0) missing_count[i]++;
+			if (iter.second.pos[i].line < 0) missing_count[i]++;
 		}
 	}
 
@@ -524,15 +591,12 @@ int StringBundle::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
 	int length = 0;
-	for (const auto &iter : this->texts) {
-		length += iter.GetSize();
-	}
-	fb->StartSave("TEXT", 2, length);
+	for (const auto &iter : this->texts) length += iter.second.GetSize();
 
-	for (const auto &iter : this->texts) {
-		iter.Write(fb);
-	}
+	fb->StartSave("TEXT", 2, length);
+	for (const auto &iter : this->texts) iter.second.Write(fb);
 	fb->CheckEndSave();
+
 	return fw->AddBlock(fb);
 }
 
