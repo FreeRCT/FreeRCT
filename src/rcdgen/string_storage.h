@@ -18,6 +18,7 @@ public:
 
 	void AddStrings(std::shared_ptr<StringsNode> strs, const Position &pos);
 	void AddToBundle(std::shared_ptr<StringsNode> strs, const Position &pos);
+	const StringBundle *GetBundle(const std::string &key);
 	
 	std::map<std::string, StringBundle> bundles; ///< Available bundles, ordered by key.
 };

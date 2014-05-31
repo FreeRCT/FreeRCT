@@ -491,6 +491,7 @@ class TextNode {
 public:
 	TextNode(const std::string &name);
 
+	void MergeStorage(const TextNode &storage);
 	int GetSize() const;
 	void Write(FileBlock *fb) const;
 
@@ -503,6 +504,7 @@ public:
 class StringBundle : public BlockNode {
 public:
 	void Fill(std::shared_ptr<StringsNode> strs, const Position &pos);
+	void MergeStorage(const StringBundle &storage);
 	void CheckTranslations(const char *names[], int name_count, const Position &pos);
 	int Write(FileWriter *fw);
 

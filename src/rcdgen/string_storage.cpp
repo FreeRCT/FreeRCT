@@ -101,3 +101,15 @@ void StringsStorage::AddToBundle(std::shared_ptr<StringsNode> strs, const Positi
 	StringBundle &sb = iter->second;
 	sb.Fill(strs, pos);
 }
+
+/**
+ * Retrieve the stored bundle of string by key name.
+ * @param key Key to retrieve.
+ * @return Pointer to the bundle, or \c nullptr if not found.
+ */
+const StringBundle *StringsStorage::GetBundle(const std::string &key)
+{
+	auto iter = this->bundles.find(key);
+	if (iter == this->bundles.end()) return nullptr;
+	return &iter->second;
+}

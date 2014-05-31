@@ -13,6 +13,7 @@
 #include <cmath>
 #include "ast.h"
 #include "nodes.h"
+#include "string_storage.h"
 #include "file_writing.h"
 
 /**
@@ -515,6 +516,21 @@ TextNode::TextNode(const std::string &name) : name(name)
 }
 
 /**
+ * Merge text node from storage into this text node. Already present strings have precedence over storage strings.
+ * @param storage Text to merge.
+ */
+void TextNode::MergeStorage(const TextNode &storage)
+{
+	assert(this->name == storage.name);
+	for (int i = 0; i < LNG_COUNT; i++) {
+		if (this->pos[i].line < 0 && storage.pos[i].line >= 0) {
+			this->pos[i] = storage.pos[i];
+			this->texts[i] = storage.texts[i];
+		}
+	}
+}
+
+/**
  * Compute the number of bytes needed to store this text node in an RCD file.
  * @return Size needed to store this string.
  */
@@ -596,6 +612,24 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 }
 
 /**
+ * Merge bundle strings from the storage with bundle. Already available strings take precedence.
+ * @param storage Bundle from storage to merge.
+ */
+void StringBundle::MergeStorage(const StringBundle &storage)
+{
+	assert(this->key == "" || storage.key == "" || this->key == storage.key);
+	for (const auto stor : storage.texts) {
+		auto iter = this->texts.find(stor.first);
+		if (iter == this->texts.end()) {
+			std::pair<std::string, TextNode> p(stor.first, stor.second);
+			this->texts.insert(p);
+			continue;
+		}
+		iter->second.MergeStorage(stor.second);
+	}
+}
+
+/**
  * Verify whether the strings are all valid.
  * @param names Expected string names.
  * @param name_count Number of names in \a names.
@@ -603,6 +637,11 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
  */
 void StringBundle::CheckTranslations(const char *names[], int name_count, const Position &pos)
 {
+	if (this->key != "") {	// Merge strings from storage, if available.
+		const StringBundle *stored = _strings_storage.GetBundle(this->key);
+		if (stored != nullptr) this->MergeStorage(*stored);
+	}
+
 	/* Check that the bundle has no extra strings. */
 	for (const auto &text : this->texts) {
 		bool found = false;
