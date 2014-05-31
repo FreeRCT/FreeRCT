@@ -1848,6 +1848,39 @@ static std::shared_ptr<StringNode> ConvertStringNode(std::shared_ptr<NodeGroup> 
 	return tn;
 }
 
+/**
+ * Convert the compact 'text: "...";' notation for string into a #StringsNode.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created 'strings' node.
+ */
+static std::shared_ptr<StringsNode> ConvertStringTextsNode(std::shared_ptr<NodeGroup> ng)
+{
+	std::shared_ptr<Expression> argument;
+	ExpandExpressions(ng->exprs, &argument, 1, ng->pos, "stringtexts");
+	std::string key = GetString(argument, 0, "file");
+
+	auto tn = std::make_shared<StringsNode>();
+	Values vals("stringtexts", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+	
+	for (int i = 0; i < vals.named_count; i++) {
+		std::shared_ptr<ValueInformation> vi = vals.named_values[i];
+		if (vi->used) continue;
+
+		tn->strings.emplace_back();
+		auto &str = tn->strings.back();
+		str.name = vi->name;
+		str.text = vi->GetString(ng->pos, "stringtexts");
+		str.text_pos = vi->pos;
+		str.key = key;
+
+		vi->used = true;
+	}
+
+	vals.VerifyUsage();
+	return tn;
+}
+
 /** Symbols of a 'track_voxel' node. */
 static const Symbol _track_voxel_symbols[] = {
 	{"north", 0},
@@ -2233,6 +2266,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "frame_data") return ConvertFrameDataNode(ng);
 	if (ng->name == "strings") return ConvertStringsNode(ng);
 	if (ng->name == "string") return ConvertStringNode(ng);
+	if (ng->name == "stringtexts") return ConvertStringTextsNode(ng);
 	if (ng->name == "track_voxel") return ConvertTrackVoxel(ng);
 	if (ng->name == "connection") return ConvertConnection(ng);
 	if (ng->name == "track_piece") return ConvertTrackPieceNode(ng);
