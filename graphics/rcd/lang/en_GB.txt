@@ -1,0 +1,201 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+strings {
+	lang: "en_GB";
+
+	stringtexts("gui") {
+		TITLEBAR_TIP:  "Click at the title bar to raise the window, drag the title bar to move the window";
+		LANGUAGE_NAME: "English (UK)";
+
+		MONTH_JANUARY:   "January";
+		MONTH_FEBRUARY:  "February";
+		MONTH_MARCH:     "March";
+		MONTH_APRIL:     "April";
+		MONTH_MAY:       "May";
+		MONTH_JUNE:      "June";
+		MONTH_JULY:      "July";
+		MONTH_AUGUST:    "August";
+		MONTH_SEPTEMBER: "September";
+		MONTH_OCTOBER:   "October";
+		MONTH_NOVEMBER:  "November";
+		MONTH_DECEMBER:  "December";
+
+		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+
+		// Toolbar gui strings.
+		TOOLBAR_GUI_QUIT:                 "Quit";
+		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Quit the program";
+		TOOLBAR_GUI_SETTINGS:             "Settings";
+		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Change the game's settings";
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";
+		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Switch between playing and editing scenario";
+		TOOLBAR_GUI_PATHS:                "Paths";
+		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Build paths and queues";
+		TOOLBAR_GUI_SAVE:                 "Save";
+		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Save the game";
+		TOOLBAR_GUI_LOAD:                 "Load";
+		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Load a game";
+		TOOLBAR_GUI_RIDE_SELECT:          "Buy ride";
+		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Buy a new ride for your park";
+		TOOLBAR_GUI_TERRAFORM:            "Landscaping";
+		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modify landscape";
+		TOOLBAR_GUI_FINANCES:             "Finances";
+		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Manage Company Finances";
+
+		// Quit program strings.
+		QUIT_CAPTION: "Quit program?";
+		QUIT_MESSAGE: "Quit the program?";
+		QUIT_NO:      "No";
+		QUIT_YES:     "Yes";
+
+		// Error message strings.
+		ERROR_MESSAGE_CAPTION: "Message";
+		ERROR_MESSAGE_SPRITE:  "Failed to draw sprite";
+
+		// Guest info gui strings.
+		GUEST_INFO_MONEY:     "Available cash";
+		GUEST_INFO_HAPPINESS: "Happiness level";
+		GUEST_INFO_HUNGER:    "Hunger";
+		GUEST_INFO_THIRST:    "Thirst";
+		GUEST_INFO_WASTE:     "Waste";
+		GUEST_INFO_ITEMS:     "Items held";
+
+		// Items for guests gui strings.
+		ITEM_NONE:     "None";
+		ITEM_MAP:      "Map";
+		ITEM_UMBRELLA: "Umbrella";
+		ITEM_WRAPPER:  "Wrapper";
+
+		// Path gui strings.
+		PATH_GUI_TITLE:            "Paths";
+		PATH_GUI_LONG:             "Long";
+		PATH_GUI_BUY:              "Buy";
+		PATH_GUI_REMOVE:           "Remove";
+		PATH_GUI_LONG_TIP:         "Build a long path";
+		PATH_GUI_BUY_TIP:          "Buy a path tile";
+		PATH_GUI_BULLDOZER_TIP:    "Click to remove the last built path and get your money back (works until you close the window)";
+		PATH_GUI_SLOPE_DOWN_TIP:   "Build path downwards";
+		PATH_GUI_SLOPE_FLAT_TIP:   "Build path horizontally";
+		PATH_GUI_SLOPE_UP_TIP:     "Build path upwards";
+
+		PATH_GUI_FORWARD:          "Forward";
+		PATH_GUI_BACKWARD:         "Back";
+		PATH_GUI_FORWARD_TIP:      "Move a tile forward";
+		PATH_GUI_BACKWARD_TIP:     "Move a tile backward";
+		
+		PATH_GUI_NW_DIRECTION_TIP: "Build path in north-west direction";
+		PATH_GUI_NE_DIRECTION_TIP: "Build path in north-east direction";
+		PATH_GUI_SW_DIRECTION_TIP: "Build path in south-west direction";
+		PATH_GUI_SE_DIRECTION_TIP: "Build path in south-east direction";
+
+		// Ride select gui strings.
+		RIDE_SELECT_TITLE:           "Ride selection";
+		RIDE_SELECT_SHOPS:           "Shops";
+		RIDE_SELECT_SHOPS_TOOLTIP:   "Click to display available shop types";
+		RIDE_SELECT_GENTLE:          "Gentle rides";
+		RIDE_SELECT_GENTLE_TOOLTIP:  "Click to display available gentle ride types";
+		RIDE_SELECT_WET:             "Wet rides";
+		RIDE_SELECT_WET_TOOLTIP:     "Click to display available wet ride types";
+		RIDE_SELECT_COASTER:         "Coasters";
+		RIDE_SELECT_COASTER_TOOLTIP: "Click to display available roller coaster types";
+		RIDE_SELECT_RIDE:            "Select";
+		RIDE_SELECT_RIDE_TOOLTIP:    "Click to select the selected ride";
+		RIDE_SELECT_ROT_POS_TOOLTIP: "Click to rotate the ride in counter-clockwise direction";
+		RIDE_SELECT_ROT_NEG_TOOLTIP: "Click to rotate the ride in clockwise direction";
+
+		// Shop manager window strings.
+		SHOP_MANAGER_TITLE:              "Shop \"%1%\"";
+		SHOP_MANAGER_COST_PRICE_TEXT:    "Cost price";
+		SHOP_MANAGER_SELLING_PRICE_TEXT: "Selling price";
+		SHOP_MANAGER_ITEMS_SOLD_TEXT:    "Items sold";
+		SHOP_MANAGER_ITEM_PROFIT_TEXT:   "Item profit";
+		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Selling profit";
+		SHOP_MANAGER_SHOP_COST_TEXT:     "Personnel costs";
+		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total profit";
+		SHOP_MANAGER_OPENED_TEXT:        "Shop is open";
+		SHOP_MANAGER_CLOSED_TEXT:        "Shop is closed";
+
+		// Terraform gui strings.
+		TERRAFORM_TITLE:       "Modify landscape";
+		TERRAFORM_ADD_TEXT:    "+";
+		TERRAFORM_ADD_TOOLTIP: "Increase size of the terraforming area";
+		TERRAFORM_SUB_TEXT:    "-";
+		TERRAFORM_SUB_TOOLTIP: "Decrease size of the terraforming area";
+		TERRAFORM_LEVEL_TEXT:  "Level terraforming area";
+		TERRAFORM_MOVE_TEXT:   "Move terraform area as-is";
+
+		// Finances gui strings.
+		FINANCES_TITLE:                  "Manage Finances";
+		FINANCES_RIDE_CONSTRUCTION_TEXT: "Ride Construction";
+		FINANCES_RIDE_RUNNING_TEXT:      "Ride Running Costs";
+		FINANCES_LAND_PURCHASE_TEXT:     "Land Purchase";
+		FINANCES_LANDSCAPING_TEXT:       "Landscaping";
+		FINANCES_PARK_TICKETS_TEXT:      "Park Entrance Tickets";
+		FINANCES_RIDE_TICKETS_TEXT:      "Ride Tickets";
+		FINANCES_SHOP_SALES_TEXT:        "Shop Sales";
+		FINANCES_SHOP_STOCK_TEXT:        "Shop Stock";
+		FINANCES_FOOD_SALES_TEXT:        "Food/Drink Sales";
+		FINANCES_FOOD_STOCK_TEXT:        "Food/Drink Stock";
+		FINANCES_STAFF_WAGES_TEXT:       "Staff Wages";
+		FINANCES_MARKETING_TEXT:         "Marketing";
+		FINANCES_RESEARCH_TEXT:          "Research";
+		FINANCES_LOAN_INTEREST_TEXT:     "Loan Interest";
+		FINANCES_TOTAL_TEXT:             "Total";
+
+		// Coaster construction strings.
+		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Selects track pieces with a bend to the left";
+		COASTER_BUILD_NO_BEND_TOOLTIP:    "Selects a straight track piece";
+		COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Selects track pieces with a bend to the right";
+		COASTER_BUILD_BANK_LEFT_TOOLTIP:  "Selects track pieces that end with a banking to the left";
+		COASTER_BUILD_BANK_NONE_TOOLTIP:  "Selects track pieces that end with a level banking";
+		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selects track pieces that end with a banking to the right";
+		COASTER_BUILD_BUY_TOOLTIP:        "Click to buy the selected track piece";
+
+		// Money symbols.
+		MONEY_CURRENCY_SYMBOL:     "$";
+		MONEY_THOUSANDS_SEPARATOR: ",";
+		MONEY_DECIMAL_SEPARATOR:   ".";
+
+		// Setting gui strings.
+		SETTING_TITLE:            "Settings";
+		SETTING_LANGUAGE:         "Change language";
+		SETTING_LANGUAGE_TOOLTIP: "Change the language of the game";
+	}
+
+	stringtexts("ice-cream-stall") {
+		NAME_INSTANCE1:        "The ice palace";
+		NAME_INSTANCE2:        "Coool drinks";
+		NAME_TYPE:             "Icecream stall";
+		DESCRIPTION_TYPE:      "Shop for sunny drinks and icecreams";
+		DESCRIPTION_RECOLOUR1: "Cup colour";
+		DESCRIPTION_RECOLOUR2: "Ice colour";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:             "Vanilla Icecream";
+		NAME_ITEM2:            "Fresh drink";
+	}
+
+	stringtexts("snack-shop") {
+		NAME_INSTANCE1:        "The happy snacker";
+		NAME_INSTANCE2:        "Pizza palace";
+		NAME_TYPE:             "Snack shop";
+		DESCRIPTION_TYPE:      "Shop where you can buy good cookies";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Cookies";
+		NAME_ITEM2:            "Pizza";
+	}
+
+	stringtexts("basic-coaster") {
+		NAME_INSTANCE:    "Crazy roller";
+		NAME_TYPE:        "Basic rollercoaster";
+		DESCRIPTION_TYPE: "Basic steel rollercoaster ride";
+	}
+}

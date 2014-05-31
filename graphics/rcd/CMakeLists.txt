@@ -16,38 +16,35 @@ project(rcd_files)
 # Make declaring the list shorter/nicer
 set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd")
 
-#    Output file       Source file         Lang file
+#    Output file       Source file
 list(APPEND RCDFILES
-     "freerct.rcd"     "${FP}/freerct.txt" ""
-     "path_8bpp64.rcd" "${FP}/paths.txt"   ""
-     "shops.rcd"       "${FP}/shops.txt"   "shops"
-     "gui.rcd"         "${FP}/gui.txt"     "gui"
-     "tracks.rcd"      "${FP}/tracks.txt"  "tracks"
+     "freerct.rcd"     "${FP}/freerct.txt"
+     "path_8bpp64.rcd" "${FP}/paths.txt"
+     "shops.rcd"       "${FP}/shops.txt"
+     "gui.rcd"         "${FP}/gui.txt"
+     "tracks.rcd"      "${FP}/tracks.txt"
 )
 
 get_target_property(RCDGEN_EXE rcdgen LOCATION)
 
-list(LENGTH RCDFILES RCDFILES_LENGTH)
-math(EXPR RCDFILES_LENGTH_DIV_3 "${RCDFILES_LENGTH} / 3 - 1")
+# Get lang files
+file(GLOB LANGFILES ${FP}/lang/*.txt)
 
-FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_3})
-	math(EXPR INDEX_1 "${RCDFILE} * 3")
+list(LENGTH RCDFILES RCDFILES_LENGTH)
+math(EXPR RCDFILES_LENGTH_DIV_2 "${RCDFILES_LENGTH} / 2 - 1")
+
+FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_2})
+	math(EXPR INDEX_1 "${RCDFILE} * 2")
 	math(EXPR INDEX_2 "${INDEX_1} + 1")
-	math(EXPR INDEX_3 "${INDEX_1} + 2")
 	list(GET RCDFILES ${INDEX_1} OUTFILE)
 	list(GET RCDFILES ${INDEX_2} SRCFILE)
-	list(GET RCDFILES ${INDEX_3} DEPTYPE)
-
-	IF(DEPTYPE)
-		file(GLOB LANGLIST ${FP}/lang/*_${DEPTYPE}.txt)
-	ENDIF()
 
 	set(OUT_DIR "${FRCT_BINARY_DIR}/rcd")
 	add_custom_command(OUTPUT ${OUT_DIR}/${OUTFILE} ${FP}/${OUTFILE}
-	                   COMMAND rcdgen ${SRCFILE}
+	                   COMMAND rcdgen ${LANGFILES} ${SRCFILE}
 	                   COMMAND ${CMAKE_COMMAND} -E copy ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}
 	                   COMMENT "Generating rcd files from ${SRCFILE}"
-	                   DEPENDS ${SRCFILE} ${LANGLIST} ${RCDGEN_EXE}
+	                   DEPENDS ${SRCFILE} ${LANGFILES} ${RCDGEN_EXE}
 	                   WORKING_DIRECTORY ${FP}
 	)
 

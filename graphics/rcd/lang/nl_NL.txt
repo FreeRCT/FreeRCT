@@ -1,0 +1,186 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+strings {
+	lang: "nl_NL";
+
+	stringtexts("gui") {
+		TITLEBAR_TIP:  "Klik op de titelbalk om het venster te verhogen, sleep de titelbalk om het venster te verplaatsen";
+		LANGUAGE_NAME: "Nederlands";
+
+		MONTH_JANUARY:   "Januari";
+		MONTH_FEBRUARY:  "Februari";
+		MONTH_MARCH:     "Maart";
+		MONTH_APRIL:     "April";
+		MONTH_MAY:       "Mei";
+		MONTH_JUNE:      "Juni";
+		MONTH_JULY:      "Juli";
+		MONTH_AUGUST:    "Augustus";
+		MONTH_SEPTEMBER: "September";
+		MONTH_OCTOBER:   "Oktober";
+		MONTH_NOVEMBER:  "November";
+		MONTH_DECEMBER:  "December";
+
+		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+
+		// Toolbar gui strings.
+		TOOLBAR_GUI_QUIT:                 "Afsluiten";
+		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Sluit het programma";
+		TOOLBAR_GUI_SETTINGS:             "Instellingen";
+		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Verander de instellingen van het spel";
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelen";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewerker";
+		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Wissel tussen spelen en scenario bewerken";
+		TOOLBAR_GUI_PATHS:                "Paden";
+		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bouw paden en wachtrijen";
+		TOOLBAR_GUI_SAVE:                 "Opslaan";
+		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Sla het huidige spel op";
+		TOOLBAR_GUI_LOAD:                 "Laden";
+		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Laad een spel";
+		TOOLBAR_GUI_RIDE_SELECT:          "Koop een attractie";
+		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Koop een nieuwe attractie voor in je park";
+		TOOLBAR_GUI_TERRAFORM:            "Terravorming";
+		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Verander het landschap";
+		TOOLBAR_GUI_FINANCES:             "Financiën";
+		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Beheer de bedrijfsfinanciën";
+
+		// Quit program strings.
+		QUIT_CAPTION: "Programma sluiten?";
+		QUIT_MESSAGE: "Het programma sluiten?";
+		QUIT_NO:      "Nee";
+		QUIT_YES:     "Ja";
+
+		// Error message strings.
+		ERROR_MESSAGE_CAPTION: "Boodschap";
+		ERROR_MESSAGE_SPRITE:  "Het tekenen van de sprite is mislukt";
+
+		// Guest info gui strings.
+		GUEST_INFO_MONEY:     "Geld op zak";
+		GUEST_INFO_HAPPINESS: "Gelukkigheid";
+		GUEST_INFO_HUNGER:    "Honger";
+		GUEST_INFO_THIRST:    "Dorst";
+		GUEST_INFO_WASTE:     "Afval";
+		GUEST_INFO_ITEMS:     "Voorwerpen bij zich";
+
+		// Items for guests gui strings.
+		ITEM_NONE:     "Geen";
+		ITEM_MAP:      "Kaart";
+		ITEM_UMBRELLA: "Paraplu";
+		ITEM_WRAPPER:  "Verpakking";
+
+		// Path gui strings.
+		PATH_GUI_TITLE:    "Paden";
+		PATH_GUI_LONG:     "Lang";
+		PATH_GUI_BUY:      "Koop";
+		PATH_GUI_REMOVE:   "Verwijderen";
+		PATH_GUI_LONG_TIP: "Bouw een lang pad";
+		PATH_GUI_BUY_TIP:  "Koop een pad tegel";
+		PATH_GUI_BULLDOZER_TIP:  "Klik om het laatst geplaatste pad te verwijderen en je geld terug te krijgen (werkt totdat je het venster sluit)";
+		PATH_GUI_SLOPE_DOWN_TIP: "Bouw pad omlaag";
+		PATH_GUI_SLOPE_FLAT_TIP: "Bouw pad vlak";
+		PATH_GUI_SLOPE_UP_TIP:   "Bouw pad omhoog";
+
+		PATH_GUI_FORWARD:      "Vooruit";
+		PATH_GUI_BACKWARD:     "Terug";
+		PATH_GUI_FORWARD_TIP:  "Beweeg een tegel vooruit";
+		PATH_GUI_BACKWARD_TIP: "Beweeg een tegel terug";
+
+		PATH_GUI_NW_DIRECTION_TIP: "Bouw pad in noord-westelijke richting";
+		PATH_GUI_NE_DIRECTION_TIP: "Bouw pad in noord-oostelijke richting";
+		PATH_GUI_SW_DIRECTION_TIP: "Bouw pad in zuid-westelijke richting";
+		PATH_GUI_SE_DIRECTION_TIP: "Bouw pad in zuid-oostelijke richting";
+
+		// Ride select gui strings.
+		RIDE_SELECT_TITLE:           "Attractie selectie";
+		RIDE_SELECT_SHOPS:           "Winkel";
+		RIDE_SELECT_SHOPS_TOOLTIP:   "Klik voor een weergave van beschikbare winkels";
+		RIDE_SELECT_GENTLE:          "Rustige attracties";
+		RIDE_SELECT_GENTLE_TOOLTIP:  "Klik voor een weergave van beschikbare rustige attracties";
+		RIDE_SELECT_WET:             "Water attracties";
+		RIDE_SELECT_WET_TOOLTIP:     "Klik voor een weergave van beschikbare water attracties";
+		RIDE_SELECT_COASTER:         "Achtbanen";
+		RIDE_SELECT_COASTER_TOOLTIP: "Klik voor een weergave van beschikbare achtbanen";
+		RIDE_SELECT_RIDE:            "Selecteer";
+		RIDE_SELECT_RIDE_TOOLTIP:    "Klik om de geselecteerde attractie te selecteren";
+		RIDE_SELECT_ROT_POS_TOOLTIP: "Klik om je attractie tegen de klok in te draaien";
+		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klik om je attractie met de klok mee te draaien";
+
+		// Shop manager window strings.
+		SHOP_MANAGER_TITLE:              "Winkel \"%1%\"";
+		SHOP_MANAGER_COST_PRICE_TEXT:    "Kostprijs";
+		SHOP_MANAGER_SELLING_PRICE_TEXT: "Verkoop prijs";
+		SHOP_MANAGER_ITEMS_SOLD_TEXT:    "Verkochte voorwerpen";
+		SHOP_MANAGER_ITEM_PROFIT_TEXT:   "Voorwerp winst";
+		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Verkoop winst";
+		SHOP_MANAGER_SHOP_COST_TEXT:     "Personeels kosten";
+		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Totale winst";
+		SHOP_MANAGER_OPENED_TEXT:        "Winkel is open";
+		SHOP_MANAGER_CLOSED_TEXT:        "Winkel is gesloten";
+
+		// Terraform gui strings.
+		TERRAFORM_TITLE:       "Pas landschap aan";
+		TERRAFORM_ADD_TEXT:    "+";
+		TERRAFORM_ADD_TOOLTIP: "Vergoot het terravorm gebied";
+		TERRAFORM_SUB_TEXT:    "-";
+		TERRAFORM_SUB_TOOLTIP: "Verklein het terravorm gebied";
+		TERRAFORM_LEVEL_TEXT:  "Niveau terravorm gebied";
+		TERRAFORM_MOVE_TEXT:   "Verplaats het terravorm gebied";
+
+		// Finances gui strings.
+		FINANCES_TITLE:                  "Beheer financiën";
+		FINANCES_RIDE_CONSTRUCTION_TEXT: "Attractie bouw";
+		FINANCES_RIDE_RUNNING_TEXT:      "Attractie exploitatiekosten";
+		FINANCES_LAND_PURCHASE_TEXT:     "Gebied aanschaf";
+		FINANCES_LANDSCAPING_TEXT:       "Terravorming";
+		FINANCES_PARK_TICKETS_TEXT:      "Park tickets";
+		FINANCES_RIDE_TICKETS_TEXT:      "Attractie tickets";
+		FINANCES_SHOP_SALES_TEXT:        "Verkopen winkel";
+		FINANCES_SHOP_STOCK_TEXT:        "Winkel voorraden";
+		FINANCES_FOOD_SALES_TEXT:        "Verkopen eten/drinken";
+		FINANCES_FOOD_STOCK_TEXT:        "Eten/drinken voorraden";
+		FINANCES_STAFF_WAGES_TEXT:       "Personeels salaris";
+		FINANCES_MARKETING_TEXT:         "Marketing";
+		FINANCES_RESEARCH_TEXT:          "Onderzoek";
+		FINANCES_LOAN_INTEREST_TEXT:     "Lening rente";
+		FINANCES_TOTAL_TEXT:             "Totaal";
+
+		// Coaster construction strings.
+		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Selecteer een baanstuk met een bocht naar links";
+		COASTER_BUILD_NO_BEND_TOOLTIP:    "Selecteer een recht baanstuk";
+		COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Selecteer een baanstuk met een bocht naar rechts";
+		COASTER_BUILD_BANK_LEFT_TOOLTIP:  "Selecteer een baanstuk dat eindigt met een wenteling naar links";
+		COASTER_BUILD_BANK_NONE_TOOLTIP:  "Selecteer een baanstuk dat vlak eindigt";
+		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selecteer een baanstuk dat eindigt met een wenteling naar rechts";
+		COASTER_BUILD_BUY_TOOLTIP:        "Klik om het geselecteerde baanstuk te kopen";
+
+		// Money symbols.
+		MONEY_CURRENCY_SYMBOL:     "€";
+		MONEY_THOUSANDS_SEPARATOR: ".";
+		MONEY_DECIMAL_SEPARATOR:   ",";
+
+		// Setting gui strings.
+		SETTING_TITLE:            "Instellingen";
+		SETTING_LANGUAGE:         "Wijzig taal";
+		SETTING_LANGUAGE_TOOLTIP: "Verander de taal van het spel";
+	}
+
+	stringtexts("snack-shop") {
+		NAME_INSTANCE1:   "De blije oppeuzelaar";
+		NAME_INSTANCE2:   "Pizza paleis";
+		NAME_TYPE:        "Snack kraampje";
+		DESCRIPTION_TYPE: "Winkel waar je lekkere koekjes kunt kopen";
+		NAME_ITEM1:       "Koekjes";
+		NAME_ITEM2:       "Pizza";
+	}
+
+	stringtexts("basic-coaster") {
+		NAME_INSTANCE:    "Gekke achtbaan";
+		NAME_TYPE:        "Standaard achtbaan";
+		DESCRIPTION_TYPE: "Standaard stalen achtbaan";
+	}
+}

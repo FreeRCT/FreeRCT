@@ -120,15 +120,7 @@ file("gui.rcd") {
 			x_base: 0; y_base: 0; width: 5; height: 5;
 		}
 
-		// GUI texts.
-		texts: strings {
-			import "lang/da_DK_gui.txt";
-			import "lang/de_DE_gui.txt";
-			import "lang/en_GB_gui.txt";
-			import "lang/es_ES_gui.txt";
-			import "lang/fr_FR_gui.txt";
-			import "lang/nl_NL_gui.txt";
-		}
+		texts: strings { key: "gui"; }
 	}
 
 	// Check boxes.

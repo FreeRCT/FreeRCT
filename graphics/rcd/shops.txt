@@ -47,14 +47,7 @@ file("shops.rcd") {
 		type_item1: non_salt_food;
 		type_item2: salt_food;
 
-		texts: strings {
-			import "lang/da_DK_shops.txt";
-			import "lang/de_DE_shops.txt";
-			import "lang/en_GB_shops.txt";
-			import "lang/es_ES_shops.txt";
-			import "lang/fr_FR_shops.txt";
-			import "lang/nl_NL_shops.txt";
-		}
+		texts: strings { key: "snack-shop"; }
 	}
 
 	// Ice cream stall.

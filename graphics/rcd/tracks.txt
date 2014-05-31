@@ -19,14 +19,7 @@ file("tracks.rcd") {
 		max_number_trains: 2;
 		max_number_cars: 1;
 
-		texts: strings {
-			import "lang/da_DK_tracks.txt";
-			import "lang/de_DE_tracks.txt";
-			import "lang/en_GB_tracks.txt";
-			import "lang/es_ES_tracks.txt";
-			import "lang/fr_FR_tracks.txt";
-			import "lang/nl_NL_tracks.txt";
-		}
+		texts: strings { key: "basic-coaster"; }
 
 		// Flat, straight pieces.
 		track_piece {

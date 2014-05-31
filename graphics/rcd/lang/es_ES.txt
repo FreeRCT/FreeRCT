@@ -1,0 +1,182 @@
+// $Id$
+//
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+strings {
+	lang: "es_ES";
+
+	stringtexts("gui") {
+		LANGUAGE_NAME: "Español";
+
+		MONTH_JANUARY:   "Enero";
+		MONTH_FEBRUARY:  "Febrero";
+		MONTH_MARCH:     "Marzo";
+		MONTH_APRIL:     "Abril";
+		MONTH_MAY:       "Mayo";
+		MONTH_JUNE:      "Junio";
+		MONTH_JULY:      "Julio";
+		MONTH_AUGUST:    "Agosto";
+		MONTH_SEPTEMBER: "Septiembre";
+		MONTH_OCTOBER:   "Octubre";
+		MONTH_NOVEMBER:  "Noviembre";
+		MONTH_DECEMBER:  "Diciembre";
+
+		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+
+		// Toolbar gui strings.
+		TOOLBAR_GUI_QUIT:                 "Salir";
+		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Salir del programa";
+		TOOLBAR_GUI_SETTINGS:             "Ajustes";
+		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Cambiar los ajustes del juego";
+		TOOLBAR_GUI_PATHS:                "Caminos";
+		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Construir caminos";
+		TOOLBAR_GUI_SAVE:                 "Guardar";
+		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Guardar el juego";
+		TOOLBAR_GUI_LOAD:                 "Cargar";
+		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Cargar un juego";
+		TOOLBAR_GUI_RIDE_SELECT:          "Comprar atracción";
+		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Compra una nueva atracción para tu parque";
+		TOOLBAR_GUI_TERRAFORM:            "Terreno";
+		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modificar el terreno";
+		TOOLBAR_GUI_FINANCES:             "Finanzas";
+		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Administrar las finanzas del parque";
+
+		// Quit program strings.
+		QUIT_CAPTION: "¿Salir del programa?";
+		QUIT_MESSAGE: "¿Salir del programa?";
+		QUIT_NO:      "No";
+		QUIT_YES:     "Sí";
+
+		// Error message strings.
+		ERROR_MESSAGE_CAPTION: "Mensaje";
+		ERROR_MESSAGE_SPRITE:  "Fallo al dibujar un sprite";
+
+		// Guest info gui strings.
+		GUEST_INFO_MONEY:     "Dinero disponible";
+		GUEST_INFO_HAPPINESS: "Nivel de felicidad";
+		GUEST_INFO_HUNGER:    "Hambre";
+		GUEST_INFO_THIRST:    "Sed";
+		GUEST_INFO_WASTE:     "Residuos";
+		GUEST_INFO_ITEMS:     "Objetos";
+
+		// Items for guests gui strings.
+		ITEM_NONE:     "Nada";
+		ITEM_MAP:      "Mapa";
+		ITEM_UMBRELLA: "Paraguas";
+		ITEM_WRAPPER:  "Envoltorio";
+
+		// Path gui strings.
+		PATH_GUI_TITLE:          "Caminos";
+		PATH_GUI_LONG:           "Largo";
+		PATH_GUI_BUY:            "Comprar";
+		PATH_GUI_REMOVE:         "Eliminar";
+		PATH_GUI_LONG_TIP:       "Construir un camino largo";
+		PATH_GUI_BUY_TIP:        "Comprar un trozo de camino";
+		
+		PATH_GUI_SLOPE_DOWN_TIP: "Contruye el camino hacia abajo";
+		PATH_GUI_SLOPE_FLAT_TIP: "Construye el camino horizontal";
+		PATH_GUI_SLOPE_UP_TIP:   "Contruye el camino hacia arriba";
+
+		PATH_GUI_FORWARD:        "Adelante";
+		PATH_GUI_BACKWARD:       "Atrás";
+		PATH_GUI_FORWARD_TIP:    "Move a tile forward";
+		PATH_GUI_BACKWARD_TIP:   "Move a tile backward";
+
+		PATH_GUI_NW_DIRECTION_TIP: "Construye un camino en dirección noroeste";
+		PATH_GUI_NE_DIRECTION_TIP: "Construye un camino en dirección noreste";
+		PATH_GUI_SW_DIRECTION_TIP: "Construye un camino en dirección suroeste";
+		PATH_GUI_SE_DIRECTION_TIP: "Construye un camino en dirección sureste";
+
+		// Ride select gui strings.
+		RIDE_SELECT_TITLE:           "Selección de atracción";
+		RIDE_SELECT_SHOPS:           "Tiendas";
+		RIDE_SELECT_SHOPS_TOOLTIP:   "Click para mostrar tipos de tiendas disponibles";
+		RIDE_SELECT_GENTLE:          "Atracciones ligeras";
+		RIDE_SELECT_GENTLE_TOOLTIP:  "Click para mostar tipos de atracciones ligeras disponibles";
+		RIDE_SELECT_WET:             "Atracciones húmedas";
+		RIDE_SELECT_WET_TOOLTIP:     "Click para mostar tipos de atracciones húmedas disponibles";
+		RIDE_SELECT_COASTER:         "Montañas rusas";
+		RIDE_SELECT_COASTER_TOOLTIP: "Click para mostar tipos de montañas rusas disponibles";
+		RIDE_SELECT_RIDE:            "Selecciona";
+		RIDE_SELECT_RIDE_TOOLTIP:    "Click para seleccionar la atracción seleccionada";
+		RIDE_SELECT_ROT_POS_TOOLTIP: "Click para rotar la atracción en el sentido opuesto a las agujas del reloj";
+		RIDE_SELECT_ROT_NEG_TOOLTIP: "Click para rotar la atracción en el sentido de las agujas del reloj";
+
+		// Shop manager window strings.
+		SHOP_MANAGER_TITLE:              "Tienda \"%1%\"";
+		SHOP_MANAGER_COST_PRICE_TEXT:    "Coste";
+		SHOP_MANAGER_SELLING_PRICE_TEXT: "Precio de venta";
+		SHOP_MANAGER_ITEMS_SOLD_TEXT:    "Objetos vendidos";
+		SHOP_MANAGER_ITEM_PROFIT_TEXT:   "Beneficio de objetos";
+		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Beneficio de ventas";
+		SHOP_MANAGER_SHOP_COST_TEXT:     "Costes de personal";
+		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Beneficio total";
+		SHOP_MANAGER_OPENED_TEXT:        "Tienda abierta";
+		SHOP_MANAGER_CLOSED_TEXT:        "Tienda cerrada";
+
+		// Terraform gui strings.
+		TERRAFORM_TITLE:       "Transformar terreno";
+		TERRAFORM_ADD_TEXT:    "+";
+		TERRAFORM_ADD_TOOLTIP: "Incrementar el tamaño del área de transformación";
+		TERRAFORM_SUB_TEXT:    "-";
+		TERRAFORM_SUB_TOOLTIP: "Disminuir el tamaño del área de transformación";
+		TERRAFORM_LEVEL_TEXT:  "Nivel del área de transformación";
+		TERRAFORM_MOVE_TEXT:   "Mover área de transformación como tal";
+
+		// Finances gui strings.
+		FINANCES_TITLE:                  "Administrar finanzas";
+		FINANCES_RIDE_CONSTRUCTION_TEXT: "Construcción de atracciones";
+		FINANCES_RIDE_RUNNING_TEXT:      "Mantenimiento de atracciones";
+		FINANCES_LAND_PURCHASE_TEXT:     "Compra de tierras";
+		FINANCES_LANDSCAPING_TEXT:       "Transformación del terreno";
+		FINANCES_PARK_TICKETS_TEXT:      "Entradas al parque";
+		FINANCES_RIDE_TICKETS_TEXT:      "Entradas a las atracciones";
+		FINANCES_SHOP_SALES_TEXT:        "Venta de las tiendas";
+		FINANCES_SHOP_STOCK_TEXT:        "Stock de las tiendas";
+		FINANCES_FOOD_SALES_TEXT:        "Venta de comida/bebida";
+		FINANCES_FOOD_STOCK_TEXT:        "Stock de comida/bebida";
+		FINANCES_STAFF_WAGES_TEXT:       "Salarios";
+		FINANCES_MARKETING_TEXT:         "Marketing";
+		FINANCES_RESEARCH_TEXT:          "Investigación";
+		FINANCES_LOAN_INTEREST_TEXT:     "Intereses de préstamos";
+		FINANCES_TOTAL_TEXT:             "Total";
+
+		// Coaster construction strings.
+		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Selecciona las piezas inclinadas a la izquierda";
+		COASTER_BUILD_NO_BEND_TOOLTIP:    "Selecciona las piezas rectas";
+		COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Selecciona las piezas inclinadas a la derecha";
+		COASTER_BUILD_BANK_LEFT_TOOLTIP:  "Selecciona las piezas que terminen con inclinación a la izquierda";
+		COASTER_BUILD_BANK_NONE_TOOLTIP:  "Selecciona las piezas que terminen sin inclinación";
+		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selecciona las piezas que terminen con inclinación a la derecha";
+		COASTER_BUILD_BUY_TOOLTIP:        "Click para comprar la pieza seleccionada";
+
+		// Money symbols.
+		MONEY_CURRENCY_SYMBOL:     "€";
+		MONEY_THOUSANDS_SEPARATOR: ".";
+		MONEY_DECIMAL_SEPARATOR:   ",";
+
+		// Setting gui strings.
+		SETTING_TITLE:            "Ajustes";
+		SETTING_LANGUAGE:         "Cambiar el idioma";
+		SETTING_LANGUAGE_TOOLTIP: "Cambiar el idioma del juego";
+	}
+
+	stringtexts("snack-shop") {
+		NAME_INSTANCE1:   "El Snacker feliz";
+		NAME_INSTANCE2:   "El Palacio de la Pizza";
+		NAME_TYPE:        "Tienda de Snacks";
+		DESCRIPTION_TYPE: "Tienda en la que puedes comprar buenas galletas";
+		NAME_ITEM1:       "Galletas";
+		NAME_ITEM2:       "Pizza";
+	}
+
+	stringtexts("basic-coaster") {
+		NAME_INSTANCE:    "Montaña rusa loca";
+		NAME_TYPE:        "Montaña rusa básica";
+		DESCRIPTION_TYPE: "Montaña rusa básica hecha de metal";
+	}
+}
