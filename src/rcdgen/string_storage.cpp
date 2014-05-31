@@ -99,5 +99,5 @@ void StringsStorage::AddToBundle(std::shared_ptr<StringsNode> strs, const Positi
 		iter = this->bundles.insert(p).first;
 	}
 	StringBundle &sb = iter->second;
-	sb.Fill(strs);
+	sb.Fill(strs, pos);
 }

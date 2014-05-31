@@ -563,8 +563,15 @@ void TextNode::Write(FileBlock *fb) const
  * Copy the strings into the bundle, ordered by the string name.
  * @param strs Strings to copy.
  */
-void StringBundle::Fill(std::shared_ptr<StringsNode> strs)
+void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 {
+	std::string strs_key = strs->GetKey();
+	if (this->key == "") {
+		this->key = strs_key;
+	} else if (strs_key != "" && this->key != strs_key) {
+		fprintf(stderr, "Error at %s: Bundle gets key \"%s\" but already has key \"%s\".\n", pos.ToString(), this->key.c_str(), strs_key.c_str());
+		exit(1);
+	}
 	for (auto &str : strs->strings) {
 		if (str.lang_index < 0) {
 			fprintf(stderr, "Error at %s: String does not have a language.\n", str.text_pos.ToString());

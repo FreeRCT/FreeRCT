@@ -1631,7 +1631,7 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	sb->item_type[0] = vals.GetNumber("type_item1");
 	sb->item_type[1] = vals.GetNumber("type_item2");
 	sb->shop_text = std::make_shared<StringBundle>();
-	sb->shop_text->Fill(vals.GetStrings("texts"));
+	sb->shop_text->Fill(vals.GetStrings("texts"), ng->pos);
 	sb->shop_text->CheckTranslations(_shops_string_names, lengthof(_shops_string_names), ng->pos);
 
 	int free_recolour = 0;
@@ -1729,7 +1729,7 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->close_button = vals.GetSprite("close_button");
 	gb->terraform_dot = vals.GetSprite("terraform_dot");
 	gb->gui_text = std::make_shared<StringBundle>();
-	gb->gui_text->Fill(vals.GetStrings("texts"));
+	gb->gui_text->Fill(vals.GetStrings("texts"), ng->pos);
 	gb->gui_text->CheckTranslations(_gui_string_names, lengthof(_gui_string_names), ng->pos);
 
 	vals.VerifyUsage();
@@ -2005,7 +2005,7 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 	rb->number_trains = vals.GetNumber("max_number_trains");
 	rb->number_cars = vals.GetNumber("max_number_cars");
 	rb->text = std::make_shared<StringBundle>();
-	rb->text->Fill(vals.GetStrings("texts"));
+	rb->text->Fill(vals.GetStrings("texts"), ng->pos);
 	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
 
 	for (int i = 0; i < vals.unnamed_count; i++) {

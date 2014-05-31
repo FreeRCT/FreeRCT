@@ -502,10 +502,11 @@ public:
 /** Collection of translated strings for a game object. */
 class StringBundle : public BlockNode {
 public:
-	void Fill(std::shared_ptr<StringsNode> strs);
+	void Fill(std::shared_ptr<StringsNode> strs, const Position &pos);
 	void CheckTranslations(const char *names[], int name_count, const Position &pos);
 	int Write(FileWriter *fw);
 
+	std::string key; ///< Name of the bundle, if available.
 	std::map<std::string, TextNode> texts; ///< Translated text nodes, one for each name.
 };
 
