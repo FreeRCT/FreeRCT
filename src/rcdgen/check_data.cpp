@@ -366,7 +366,7 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, std::shared_ptr<NameTable
 		int col = 0;
 		for (auto &il : nr->identifiers) {
 			if (il->IsValid()) {
-				CheckIsSingleName(il->name.c_str(), il->pos);
+				CheckIsSingleName(il->name, il->pos);
 				std::shared_ptr<ValueInformation> vi = std::make_shared<ValueInformation>();
 				vi->expr_value = nullptr;
 				vi->node_value = bn->GetSubNode(row, col, il->name.c_str(), il->pos);

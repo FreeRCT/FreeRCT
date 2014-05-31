@@ -315,7 +315,7 @@ bool IdentifierLine::IsValid() const
 	if (valid && this->name[0] == '\0') valid = false;
 	if (valid && this->name[0] == '_') {
 		valid = false;
-		if (!ParameterizedName::HasNoParameters(this->name.c_str())) {
+		if (!ParameterizedName::HasNoParameters(this->name)) {
 			fprintf(stderr, "Cannot disable parameterized name \"%s\"", this->name.c_str());
 			exit(1);
 		}
