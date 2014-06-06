@@ -155,7 +155,7 @@ void GuiWindow::ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items,
 	if (colour == COL_RANGE_INVALID) colour = wid->colour;
 
 	/* Calculate top-left position of window */
-	Point16 pos = {static_cast<int16>(GetWidgetScreenX(wid)), static_cast<int16>(GetWidgetScreenY(wid) + wid->pos.height)};
+	Point16 pos(static_cast<int16>(GetWidgetScreenX(wid)), static_cast<int16>(GetWidgetScreenY(wid) + wid->pos.height));
 
 	new DropdownMenuWindow(this->wtype, this->wnumber, widnum, items, pos, wid->min_x, selected_index, colour);
 }
@@ -280,8 +280,8 @@ void GuiWindow::ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, 
 	if (colour == COL_RANGE_INVALID) colour = wid->colour;
 
 	/* Calculate top-left position of window */
-	Point16 pos = {static_cast<int16>(GetWidgetScreenX(wid)), static_cast<int16>(GetWidgetScreenY(wid) + wid->pos.height)};
+	Point16 pos(static_cast<int16>(GetWidgetScreenX(wid)), static_cast<int16>(GetWidgetScreenY(wid) + wid->pos.height));
 
 	new RecolourDropdownWindow(this->wtype, this->wnumber, widnum, pos, colour, entry);
 }
-	
+

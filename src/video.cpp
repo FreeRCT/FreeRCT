@@ -322,11 +322,7 @@ ClippedRectangle VideoSystem::GetClippedRectangle()
  */
 static void UpdateMousePosition(int16 x, int16 y)
 {
-	Point16 p;
-
-	p.x = x;
-	p.y = y;
-	_manager.MouseMoveEvent(p);
+	_manager.MouseMoveEvent({x, y});
 }
 
 /**
@@ -1162,10 +1158,10 @@ void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint32 colo
  */
 void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint32 colour)
 {
-	Point16 top_left     = {static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y)};
-	Point16 top_right    = {static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y)};
-	Point16 bottom_left  = {static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y + rect.height - 1)};
-	Point16 bottom_right = {static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y + rect.height - 1)};
+	Point16 top_left    (static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y));
+	Point16 top_right   (static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y));
+	Point16 bottom_left (static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y + rect.height - 1));
+	Point16 bottom_right(static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y + rect.height - 1));
 	this->DrawLine(top_left, top_right, colour);
 	this->DrawLine(top_left, bottom_left, colour);
 	this->DrawLine(top_right, bottom_right, colour);

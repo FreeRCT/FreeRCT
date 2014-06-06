@@ -601,9 +601,7 @@ void WorldAdditions::Commit()
  */
 VoxelStack *WorldAdditions::GetModifyStack(uint16 x, uint16 y)
 {
-	Point32 pt;
-	pt.x = x;
-	pt.y = y;
+	Point32 pt(x, y);
 
 	auto iter = this->modified_stacks.find(pt);
 	if (iter != this->modified_stacks.end()) return iter->second;
@@ -620,9 +618,7 @@ VoxelStack *WorldAdditions::GetModifyStack(uint16 x, uint16 y)
  */
 const VoxelStack *WorldAdditions::GetStack(uint16 x, uint16 y) const
 {
-	Point32 pt;
-	pt.x = x;
-	pt.y = y;
+	Point32 pt(x, y);
 
 	const auto iter = this->modified_stacks.find(pt);
 	if (iter != this->modified_stacks.end()) return iter->second;

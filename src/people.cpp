@@ -54,38 +54,26 @@ static bool IsGoodEdgeRoad(int16 x, int16 y)
  */
 static Point16 FindEdgeRoad()
 {
-	Point16 pt;
-
 	int16 highest_x = _world.GetXSize() - 1;
 	int16 highest_y = _world.GetYSize() - 1;
 	for (int x = 1; x < highest_x; x++) {
 		if (IsGoodEdgeRoad(x, 0)) {
-			pt.x = x;
-			pt.y = 0;
-			return pt;
+			return {x, 0};
 		}
 		if (IsGoodEdgeRoad(x, highest_y)) {
-			pt.x = x;
-			pt.y = highest_y;
-			return pt;
+			return {x, highest_y};
 		}
 	}
 	for (int y = 1; y < highest_y; y++) {
 		if (IsGoodEdgeRoad(0, y)) {
-			pt.x = 0;
-			pt.y = y;
-			return pt;
+			return {0, y};
 		}
 		if (IsGoodEdgeRoad(highest_x, y)) {
-			pt.x = highest_x;
-			pt.y = y;
-			return pt;
+			return {highest_x, y};
 		}
 	}
 
-	pt.x = -1;
-	pt.y = -1;
-	return pt;
+	return {-1, -1};
 }
 
 Guests::Guests() : block(0), rnd()

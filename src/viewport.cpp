@@ -609,11 +609,9 @@ void MultiCursor::MarkDirty()
 
 CursorType MultiCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
 {
-	Point32 pt;
-
 	if (this->type == CUR_TYPE_INVALID) return CUR_TYPE_INVALID;
-	pt.x = xpos;
-	pt.y = ypos;
+
+	Point32 pt(xpos, ypos);
 	if (!this->rect.IsPointInside(pt)) return CUR_TYPE_INVALID;
 	if (zpos != this->GetZpos(xpos, ypos)) return CUR_TYPE_INVALID;
 	return CUR_TYPE_TILE;
@@ -621,11 +619,9 @@ CursorType MultiCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
 
 uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
-	Point16 pt;
-
 	if (this->type == CUR_TYPE_INVALID) return zpos;
-	pt.x = xpos;
-	pt.y = ypos;
+
+	Point32 pt(xpos, ypos);
 	if (!this->rect.IsPointInside(pt)) return zpos;
 	return std::max(zpos, this->GetZpos(xpos, ypos));
 }

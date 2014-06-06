@@ -115,15 +115,12 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 
 	for (int x = 0; x < this->xsize; x++) {
 		for (int y = 0; y < this->ysize; y++) {
-			Point16 left;
-			left.x = base.x + (x + y) * TERRAFORM_ELEMENT_SIZE / 2;
-			left.y = base.y + (y - x) * TERRAFORM_ELEMENT_SIZE / 4;
-			Point16 top, bottom;
-			top.x = left.x + TERRAFORM_ELEMENT_SIZE / 2;
-			top.y = left.y - TERRAFORM_ELEMENT_SIZE / 4;
+			Point16 left(base.x + (x + y) * TERRAFORM_ELEMENT_SIZE / 2, base.y + (y - x) * TERRAFORM_ELEMENT_SIZE / 4);
+
+			Point16 top(left.x + TERRAFORM_ELEMENT_SIZE / 2, left.y - TERRAFORM_ELEMENT_SIZE / 4);
 			_video.DrawLine(left, top, MakeRGBA(255, 255, 255, OPAQUE));
-			bottom.x = top.x;
-			bottom.y = left.y + TERRAFORM_ELEMENT_SIZE / 4;
+
+			Point16 bottom(top.x, left.y + TERRAFORM_ELEMENT_SIZE / 4);
 			_video.DrawLine(left, bottom, MakeRGBA(255, 255, 255, OPAQUE));
 			left.x += TERRAFORM_ELEMENT_SIZE; // Move 'left' to the right.
 			_video.DrawLine(top, left, MakeRGBA(255, 255, 255, OPAQUE));

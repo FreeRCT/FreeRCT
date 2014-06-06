@@ -25,13 +25,11 @@
  */
 void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, ColourRange colour)
 {
-	Point32 pt;
 	const ImageData * const *spr_base = pressed ? bsd.pressed : bsd.normal;
 	static Recolouring rc; // Only COL_RANGE_BROWN is modified each time.
 	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, colour));
 
-	pt.x = rect.base.x;
-	pt.y = rect.base.y;
+	Point32 pt = rect.base;
 	_video.BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, GS_NORMAL);
 	int xleft = pt.x + spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->width;
 	int ytop = pt.y + spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->height;

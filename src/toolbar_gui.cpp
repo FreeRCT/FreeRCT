@@ -81,7 +81,7 @@ ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 
 Point32 ToolbarWindow::OnInitialPosition()
 {
-	static const Point32 pt = {10, 0};
+	static const Point32 pt(10, 0);
 	return pt;
 }
 
@@ -305,9 +305,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 	/* -99,999,999.99 = Maximum amount of money that is worth handling for now. */
 	static const int64 LARGE_MONEY_AMOUNT = -9999999999;
 	static const int LARGE_TEMPERATURE = 999; // Large enough to format all temperatures.
-	Point32 p;
-	p.x = 0;
-	p.y = 0;
+	Point32 p(0, 0);
 
 	switch (wid_num) {
 		case BTB_STATUS:
@@ -316,15 +314,13 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 
 		case BTB_VIEW_DIRECTION: {
 			Rectangle16 rect = _sprite_manager.GetTableSpriteSize(SPR_GUI_COMPASS_START); // It's the same size for all compass sprites.
-			p.x = rect.width;
-			p.y = rect.height;
+			p = {rect.width, rect.height};
 			break;
 		}
 
 		case BTB_WEATHER: {
 			Rectangle16 rect = _sprite_manager.GetTableSpriteSize(SPR_GUI_WEATHER_START);
-			p.x = rect.width;
-			p.y = rect.height;
+			p = {rect.width, rect.height};
 			break;
 		}
 
@@ -344,8 +340,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 			remaining -= GetMoneyStringSize(LARGE_MONEY_AMOUNT).x;
 			remaining -= GetMaxDateSize().x;
 			remaining -= _sprite_manager.GetTableSpriteSize(SPR_GUI_COMPASS_START).base.x; // It's the same size for all compass sprites.
-			p.x = remaining;
-			p.y = BOTTOM_BAR_HEIGHT;
+			p = {remaining, BOTTOM_BAR_HEIGHT};
 			break;
 		}
 

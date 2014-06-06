@@ -233,9 +233,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
 
 	for (uint i = 0; i < 3; i++) {
 		const VoxelCorner &vc = neighbours[corner].neighbour_tiles[i];
-		Point32 pos2;
-		pos2.x = pos.x + vc.rel_xy.x;
-		pos2.y = pos.y + vc.rel_xy.y;
+		Point32 pos2(pos.x + vc.rel_xy.x, pos.y + vc.rel_xy.y);
 		gd = this->GetGroundData(pos2);
 		if (gd == nullptr) continue;
 		if (_world.GetTileOwner(pos2.x, pos2.y) != OWN_PARK) continue;
@@ -532,9 +530,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		SetXFoundations(pos.x, pos.y);
 		SetYFoundations(pos.x, pos.y);
 
-		Point32 pt;
-		pt.x = pos.x - 1;
-		pt.y = pos.y;
+		Point32 pt(pos.x - 1, pos.y);
 		auto iter2 = this->changes.find(pt);
 		if (iter2 == this->changes.end()) {
 			SetXFoundations(pt.x, pt.y);
@@ -677,20 +673,17 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 	uint16 w, h;
 
 	if (dot_mode) { // Change entire world.
-		p.x = 0;
-		p.y = 0;
+		p = {0, 0};
 		w = _world.GetXSize();
 		h = _world.GetYSize();
 	} else { // Single tile mode.
-		p.x = c->xpos;
-		p.y = c->ypos;
+		p = {c->xpos, c->ypos};
 		w = 1;
 		h = 1;
 	}
 	TerrainChanges changes(p, w, h);
 
-	p.x = c->xpos;
-	p.y = c->ypos;
+	p = {c->xpos, c->ypos};
 
 	bool ok;
 	switch (c->type) {

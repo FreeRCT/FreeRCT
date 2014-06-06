@@ -525,9 +525,7 @@ const uint8 *GetDateString(const Date &d, const char *format)
  */
 Point32 GetMaxDateSize()
 {
-	Point32 point;
-	point.x = 0;
-	point.y = 0;
+	Point32 point(0, 0);
 
 	Date d;
 	for (int i = 1; i < 13; i++) {
@@ -548,9 +546,9 @@ Point32 GetMaxDateSize()
  */
 Point32 GetMoneyStringSize(const Money &amount)
 {
-	Point32 p;
 	uint8 textbuf[64];
 	MoneyStrFmt(textbuf, lengthof(textbuf), (int64)amount / 100.0);
+	Point32 p;
 	_video.GetTextSize(textbuf, &p.x, &p.y);
 	return p;
 }

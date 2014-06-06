@@ -549,9 +549,7 @@ void ScrollbarWidget::Draw(const GuiWindow *w)
 
 	const ImageData * const *imd = this->IsShaded() ? scroll_sprites.shaded : scroll_sprites.normal;
 
-	Point32 pos;
-	pos.x = w->GetWidgetScreenX(this);
-	pos.y = w->GetWidgetScreenY(this);
+	Point32 pos(w->GetWidgetScreenX(this), w->GetWidgetScreenY(this));
 
 	/* Draw left/up button. */
 	_video.BlitImage(pos, imd[WLS_LEFT_BUTTON], rc, GS_NORMAL);

@@ -156,9 +156,7 @@ Point32 ComputeInitialPosition::FindPosition(Window *new_w)
 
 	this->skip = new_w;
 
-	Point32 best;
-	best.x = this->base_pos;
-	best.y = this->base_pos;
+	Point32 best(this->base_pos, this->base_pos);
 
 	bool found_empty = false;
 	for (Window *w = _manager.top; w != nullptr; w = w->lower) {
@@ -174,9 +172,7 @@ Point32 ComputeInitialPosition::FindPosition(Window *new_w)
 		y[3] = w->rect.base.y + w->rect.height + GAP;
 
 		for (uint i = 0; i < lengthof(test_positions); i++) {
-			Point32 pt;
-			pt.x = x[test_positions[i].x];
-			pt.y = y[test_positions[i].y];
+			Point32 pt(x[test_positions[i].x], y[test_positions[i].y]);
 			if (this->IsScreenEmpty(Rectangle32(pt.x, pt.y, new_w->rect.width, new_w->rect.height))) {
 				if (!found_empty || GetDistanceToMouse(best) > GetDistanceToMouse(pt)) {
 					best = pt;
@@ -471,7 +467,7 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 	if (bw->wtype == WT_TITLEBAR) return WMME_MOVE_WINDOW;
 	if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
 
-	Point16 widget_pos = {static_cast<int16>(this->mouse_pos.x - bw->pos.base.x), static_cast<int16>(this->mouse_pos.y - bw->pos.base.y)};
+	Point16 widget_pos(static_cast<int16>(this->mouse_pos.x - bw->pos.base.x), static_cast<int16>(this->mouse_pos.y - bw->pos.base.y));
 	LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
 	if (lw != nullptr) {
 		if (lw->IsShaded()) return WMME_NONE;

@@ -185,9 +185,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 {
 	switch (wid_num) {
 		case RSEL_LIST: {
-			Point32 rect;
-			rect.x = this->GetWidgetScreenX(wid);
-			rect.y = this->GetWidgetScreenY(wid);
+			Point32 rect(this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid));
 			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_LIST);
 			int lines = sb->GetVisibleCount();
 			int start = sb->GetStart();
