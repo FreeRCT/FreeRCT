@@ -134,6 +134,7 @@ public:
 
 	virtual void SetSize(uint width, uint height);
 	void SetPosition(int x, int y);
+	void SetPosition(Point32 pos);
 	virtual Point32 OnInitialPosition();
 
 	void MarkDirty();
@@ -313,6 +314,7 @@ public:
 
 	void CloseAllWindows();
 	void ResetAllWindows();
+	void RepositionAllWindows();
 
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);

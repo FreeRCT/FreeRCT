@@ -28,6 +28,7 @@
 #include "palette.h"
 #include "sprite_store.h"
 #include "ride_type.h"
+#include "viewport.h"
 
 /**
  * %Window manager.
@@ -84,14 +85,22 @@ void Window::SetSize(uint width, uint height)
 }
 
 /**
- * Set the initial position of the top-left corner of the window.
- * @param x Initial X position.
- * @param y Initial Y position.
+ * Set the position of the top-left corner of the window.
+ * @param x X position.
+ * @param y Y position.
  */
-void Window::SetPosition(int32 x, int32 y)
+void Window::SetPosition(int x, int y)
 {
-	this->rect.base.x = x;
-	this->rect.base.y = y;
+	this->SetPosition({x, y});
+}
+
+/**
+ * Set the position of the top-left corner of the window.
+ * @param pos Point to set to.
+ */
+void Window::SetPosition(Point32 pos)
+{
+	this->rect.base = pos;
 }
 
 /** Compute the initial position of a window. */
@@ -663,6 +672,25 @@ void WindowManager::ResetAllWindows()
 }
 
 /**
+ * Moves relevant windows if they've been moved offscreen by a window resize.
+ * Also forces the bottom toolbar to be moved, as that will always be in the wrong position.
+ */
+void WindowManager::RepositionAllWindows()
+{
+	Viewport *vp = GetViewport();
+	if (vp == nullptr) return;
+	Rectangle32 vp_rect = vp->rect;
+	for (Window *w = this->top; w != nullptr; w = w->lower) {
+		if (w->wtype == WC_MAINDISPLAY) continue;
+		/* Add an arbitrary amount for closebox/titlebar,
+		 * so the window is still actually accessible. */
+		if (!vp_rect.IsPointInside(Point32(w->rect.base.x + 20, w->rect.base.y + 20)) || w->wtype == WC_BOTTOM_TOOLBAR) {
+			w->SetPosition(w->OnInitialPosition());
+		}
+	}
+}
+
+/**
  * Get the z-priority of a window type (higher number means further up in the window stack).
  * @param wt Window type.
  * @return Z-priority of the provided type.
@@ -832,11 +860,8 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 				return;
 			}
 			this->current_window->MarkDirty();
-			Point32 new_pos;
-			new_pos.x = pos.x - this->move_offset.x;
-			new_pos.y = pos.y - this->move_offset.y;
 			assert(this->current_window->wtype != WC_MAINDISPLAY); // Cannot move the main display!
-			this->current_window->rect.base = new_pos;
+			this->current_window->SetPosition(pos.x - this->move_offset.x, pos.y - this->move_offset.y);
 			this->current_window->MarkDirty();
 			break;
 		}

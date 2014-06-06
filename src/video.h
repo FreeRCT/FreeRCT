@@ -12,6 +12,7 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
+#include <set>
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include "geometry.h"
@@ -60,6 +61,8 @@ public:
 	~VideoSystem();
 
 	bool Initialize(const char *font_name, int font_size);
+	bool SetResolution(const Point32 &res);
+	void GetResolutions();
 	void MainLoop();
 	void Shutdown();
 
@@ -148,6 +151,7 @@ public:
 	void DrawRectangle(const Rectangle32 &rect, uint32 colour);
 
 	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
+	std::set<Point32> resolutions; ///< Set (for automatic sorting) of available resolutions.
 
 private:
 	int vid_width;    ///< Width of the application window.

@@ -18,6 +18,20 @@
  */
 template <typename CT>
 struct Point {
+
+	Point() = default;
+
+	/**
+	 * Parameterised constructor.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 */
+	Point(CT x, CT y)
+	{
+		this->x = x;
+		this->y = y;
+	}
+
 	typedef CT CoordType; ///< Type of the coordinate value.
 
 	CT x; ///< X coordinate.

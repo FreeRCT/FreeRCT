@@ -27,6 +27,7 @@ strings {
 		MONTH_DECEMBER:  "December";
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_QUIT:                 "Quit";
@@ -164,9 +165,11 @@ strings {
 		MONEY_DECIMAL_SEPARATOR:   ".";
 
 		// Setting gui strings.
-		SETTING_TITLE:            "Settings";
-		SETTING_LANGUAGE:         "Change language";
-		SETTING_LANGUAGE_TOOLTIP: "Change the language of the game";
+		SETTING_TITLE:              "Settings";
+		SETTING_LANGUAGE:           "Change language";
+		SETTING_LANGUAGE_TOOLTIP:   "Change the language of the game";
+		SETTING_RESOLUTION:         "Change resolution";
+		SETTING_RESOLUTION_TOOLTIP: "Change the screen resolution of the game";
 	}
 
 	stringtexts("ice-cream-stall") {

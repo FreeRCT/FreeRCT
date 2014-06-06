@@ -32,8 +32,9 @@ public:
  * @ingroup gui_group
  */
 enum SettingGuiWidgets {
-	SW_TITLEBAR, ///< Titlebar widget.
-	SW_LANGUAGE, ///< Change language dropdown widget.
+	SW_TITLEBAR,   ///< Titlebar widget.
+	SW_LANGUAGE,   ///< Change language dropdown widget.
+	SW_RESOLUTION, ///< Change resolution widget.
 };
 
 /**
@@ -52,6 +53,10 @@ static const WidgetPart _setting_widgets[] = {
 						SetData(GUI_SETTING_LANGUAGE, GUI_SETTING_LANGUAGE_TOOLTIP), SetPadding(3, 3, 3, 3),
 				Widget(WT_DROPDOWN_BUTTON, SW_LANGUAGE, COL_RANGE_BLUE),
 						SetData(STR_ARG1, STR_NULL), SetMinimalSize(100, 10), SetPadding(3, 3, 3, 3),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
+						SetData(GUI_SETTING_RESOLUTION, GUI_SETTING_RESOLUTION_TOOLTIP), SetPadding(3, 3, 3, 3),
+				Widget(WT_DROPDOWN_BUTTON, SW_RESOLUTION, COL_RANGE_BLUE),
+						SetData(GUI_RESOLUTION, STR_NULL), SetMinimalSize(100, 10), SetPadding(3, 3, 3, 3),
 			EndContainer(),
 	EndContainer(),
 };
@@ -68,6 +73,11 @@ void SettingWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case SW_LANGUAGE:
 			_str_params.SetStrID(1, GUI_LANGUAGE_NAME); /// \todo Language name should be part of the language's properties, rather than a string.
 			break;
+
+		case SW_RESOLUTION:
+			_str_params.SetNumber(1, _video.GetXSize());
+			_str_params.SetNumber(2, _video.GetYSize());
+			break;
 	}
 }
 
@@ -83,6 +93,23 @@ void SettingWindow::OnClick(WidgetNumber number, const Point16 &pos)
 			this->ShowDropdownMenu(number, itemlist, _current_language);
 			break;
 		}
+
+		case SW_RESOLUTION: {
+			/* Get current resolution index. */
+			int index = 0;
+			auto iter = _video.resolutions.find({_video.GetXSize(), _video.GetYSize()});
+			if (iter != _video.resolutions.end()) {
+				index = std::distance(_video.resolutions.begin(), iter);
+			}
+
+			DropdownList itemlist;
+			for (const auto &res : _video.resolutions) {
+				_str_params.SetNumber(1, res.x);
+				_str_params.SetNumber(2, res.y);
+				itemlist.push_back(DropdownItem(GUI_RESOLUTION));
+			}
+			this->ShowDropdownMenu(number, itemlist, index);
+		}
 	}
 }
 
@@ -95,6 +122,18 @@ void SettingWindow::OnChange(ChangeCode code, uint32 parameter)
 			_current_language = parameter & 0xFF;
 			_manager.ResetAllWindows();
 			break;
+
+		case SW_RESOLUTION: {
+			int index = 0;
+			for (const auto &it : _video.resolutions) {
+				if (index == (int)(parameter & 0xFF)) {
+					_video.SetResolution(it);
+					break;
+				}
+				index++;
+			}
+			break;
+		}
 
 		default: NOT_REACHED();
 	}

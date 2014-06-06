@@ -32,6 +32,7 @@ static const char *_gui_string_names[] = {
 	"MONTH_DECEMBER",
 
 	"NUMBERED_INSTANCE_NAME",
+	"RESOLUTION",
 
 	/* Toolbar GUI strings. */
 	"TOOLBAR_GUI_QUIT",
@@ -172,6 +173,8 @@ static const char *_gui_string_names[] = {
 	"SETTING_TITLE",
 	"SETTING_LANGUAGE",
 	"SETTING_LANGUAGE_TOOLTIP",
+	"SETTING_RESOLUTION",
+	"SETTING_RESOLUTION_TOOLTIP",
 };
 
 /** String names of the shops. */

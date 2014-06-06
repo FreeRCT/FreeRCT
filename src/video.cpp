@@ -150,39 +150,18 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	if (this->initialized) return true;
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) return false;
 
-	this->vid_width = 800;
-	this->vid_height = 600;
-
 	char caption[50];
 	snprintf(caption, sizeof(caption), "FreeRCT %s", _freerct_revision);
-	this->window = SDL_CreateWindow(caption, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, this->vid_width, this->vid_height, 0);
+	this->window = SDL_CreateWindow(caption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
 	if (this->window == nullptr) {
 		SDL_Quit();
-		fprintf(stderr, "Could not create window at %dx%d (%s)\n", this->vid_width, this->vid_height, SDL_GetError());
+		fprintf(stderr, "Could not create window (%s)\n", SDL_GetError());
 		return false;
 	}
 
-	this->renderer = SDL_CreateRenderer(this->window, -1, 0);
-	if (this->renderer == nullptr) {
-		SDL_Quit();
-		fprintf(stderr, "Could not create renderer (%s)\n", SDL_GetError());
-		return false;
-	}
+	this->GetResolutions();
 
-	this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, this->vid_width, this->vid_height);
-	if (this->texture == nullptr) {
-		SDL_Quit();
-		fprintf(stderr, "Could not create texture (%s)\n", SDL_GetError());
-		return false;
-	}
-
-	this->mem = new uint32[this->vid_width * this->vid_height];
-	if (this->mem == nullptr) {
-		SDL_Quit();
-		fprintf(stderr, "Failed to obtain window display storage.\n");
-		return false;
-	}
-
+	this->SetResolution({800, 600});
 
 	/* SDL_CreateRGBSurfaceFrom() pretends to use a void* for the data,
 	 * but it's really treated as endian-specific uint32*.
@@ -220,11 +199,79 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	this->dirty = true; // Ensure it gets painted.
 	this->missing_sprites = false;
 
-	this->blit_rect = ClippedRectangle(0, 0, this->GetXSize(), this->GetYSize());
 	this->digit_size.x = 0;
 	this->digit_size.y = 0;
 
 	return true;
+}
+
+
+/**
+ * Change the resolution of the game window, including
+ * reinitialising some screen-size related data structures.
+ * @param res Resolution to set the screen to.
+ * @return True if resolution was changed.
+ */
+bool VideoSystem::SetResolution(const Point32 &res)
+{
+	if (this->initialized && this->GetXSize() == res.x && this->GetYSize() == res.y) return true;
+
+	/* Destroy old window, if it exists. */
+	if (this->initialized) {
+		delete[] mem;
+		this->mem = nullptr;
+		SDL_DestroyTexture(this->texture);
+		this->texture = nullptr;
+		SDL_DestroyRenderer(this->renderer);
+		this->renderer = nullptr;
+	}
+
+	this->vid_width = res.x;
+	this->vid_height = res.y;
+	SDL_SetWindowSize(this->window, this->vid_width, this->vid_height);
+
+	this->renderer = SDL_CreateRenderer(this->window, -1, 0);
+	if (this->renderer == nullptr) {
+		SDL_Quit();
+		fprintf(stderr, "Could not create renderer (%s)\n", SDL_GetError());
+		return false;
+	}
+
+	this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, this->vid_width, this->vid_height);
+	if (this->texture == nullptr) {
+		SDL_Quit();
+		fprintf(stderr, "Could not create texture (%s)\n", SDL_GetError());
+		return false;
+	}
+
+	this->mem = new uint32[this->vid_width * this->vid_height];
+	if (this->mem == nullptr) {
+		SDL_Quit();
+		fprintf(stderr, "Failed to obtain window display storage.\n");
+		return false;
+	}
+
+	/* Update internal screen size data structures. */
+	this->blit_rect = ClippedRectangle(0, 0, this->vid_width, this->vid_height);
+	Viewport *vp = GetViewport();
+	if (vp != nullptr) vp->SetSize(this->vid_width, this->vid_height);
+	_manager.RepositionAllWindows();
+	this->MarkDisplayDirty();
+	return true;
+}
+
+/** Gets the available default resolutions that are supported by the graphics driver. */
+void VideoSystem::GetResolutions()
+{
+	int num_modes = SDL_GetNumDisplayModes(0); // \todo Support multiple displays?
+	SDL_DisplayMode mode;
+	for (int i = 0; i < num_modes; i++) {
+		if (SDL_GetDisplayMode(0, i, &mode) != 0) {
+			fprintf(stderr, "Could not query display mode (%s)\n", SDL_GetError());
+			continue;
+		}
+		this->resolutions.emplace(mode.w, mode.h);
+	}
 }
 
 /** Mark the entire display as being out of date (it needs the be repainted). */
@@ -345,6 +392,9 @@ bool VideoSystem::HandleEvent()
 			return true;
 
 		case SDL_WINDOWEVENT:
+			if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+				this->SetResolution({event.window.data1, event.window.data2});
+			}
 			if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
 				_video.MarkDisplayDirty();
 				UpdateWindows();
