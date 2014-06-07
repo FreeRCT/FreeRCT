@@ -56,21 +56,13 @@ static Point16 FindEdgeRoad()
 {
 	int16 highest_x = _world.GetXSize() - 1;
 	int16 highest_y = _world.GetYSize() - 1;
-	for (int x = 1; x < highest_x; x++) {
-		if (IsGoodEdgeRoad(x, 0)) {
-			return {x, 0};
-		}
-		if (IsGoodEdgeRoad(x, highest_y)) {
-			return {x, highest_y};
-		}
+	for (int16 x = 1; x < highest_x; x++) {
+		if (IsGoodEdgeRoad(x, 0))         return {x, 0};
+		if (IsGoodEdgeRoad(x, highest_y)) return {x, highest_y};
 	}
-	for (int y = 1; y < highest_y; y++) {
-		if (IsGoodEdgeRoad(0, y)) {
-			return {0, y};
-		}
-		if (IsGoodEdgeRoad(highest_x, y)) {
-			return {highest_x, y};
-		}
+	for (int16 y = 1; y < highest_y; y++) {
+		if (IsGoodEdgeRoad(0, y))         return {0, y};
+		if (IsGoodEdgeRoad(highest_x, y)) return {highest_x, y};
 	}
 
 	return {-1, -1};
