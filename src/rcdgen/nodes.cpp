@@ -110,6 +110,153 @@ int SpriteBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+FilePattern::FilePattern()
+{
+	this->length = -1;
+}
+
+/**
+ * Find the next \c '{' character in the provided and return a pointer to it. If not available, return \c nullptr.
+ * @param p String to search.
+ * @return Pointer to \c '{' or \c nullptr.
+ */
+static const char *SkipToCurOpen(const char *p)
+{
+	for (;;) {
+		if (*p == '\0') return nullptr;
+		if (*p == '{') return p;
+		p++;
+	}
+}
+
+/**
+ * Advance the pointer over white space, and the word \c "seq". Return \c nullptr if the word is not available.
+ * @param p String to search.
+ * @return Pointer into the string, behind the \c "seq" word, or \c nullptr
+ */
+static const char *SkipSeq(const char *p)
+{
+	while (*p == ' ') p++;
+	if (p[0] == 's' && p[1] == 'e' && p[2] == 'q') return p + 3;
+	return nullptr;
+}
+
+/**
+ * Advance the pointer over white space, and the provided character \a q. Return \c nullptr if the character is not available.
+ * @param p String to search.
+ * @return Pointer into the string, behind the \a q character, or \c nullptr
+ */
+static const char *SkipChar(const char *p, char q)
+{
+	while (*p == ' ') p++;
+	if (*p == q) return p + 1;
+	return nullptr;
+}
+
+/**
+ * Advance the pointer over white space, and read the number behind it. Return \c nullptr if no number is available.
+ * @param p String to search.
+ * @param num [out] Value of the read number, if any.
+ * @return Pointer into the string, behind the number, or \c nullptr
+ */
+static const char *SkipNumber(const char *p, int *num)
+{
+	while (*p == ' ') p++;
+	*num = 0;
+	bool found_number = false;
+	while (*p >= '0' && *p <= '9') {
+		*num = *num * 10 + *p - '0';
+		found_number = true;
+		p++;
+	}
+	if (!found_number) return nullptr;
+	if (*num < 0) return nullptr; // Overflow.
+	return p;
+}
+
+/**
+ * Advance the pointer over white space, and the word \c "..". Return \c nullptr if the word is not available.
+ * @param p String to search.
+ * @return Pointer into the string, behind the \c ".." word, or \c nullptr
+ */
+static const char *SkipDotDot(const char *p)
+{
+	while (*p == ' ') p++;
+	if (p[0] == '.' && p[1] == '.') return p + 2;
+	return nullptr;
+}
+
+/**
+ * Store the filename in the file pattern class, and parse the name for the "{seq(first..last,length)}" pattern.
+ * @param fname Filename to store.
+ */
+void FilePattern::SetFilename(const std::string &fname)
+{
+	this->prefix = fname;
+	this->length = 0; // Default, just the filename.
+
+	const char *txt = fname.c_str();
+	const char *p = txt;
+
+	p = SkipToCurOpen(p);      if (p == nullptr) return;
+
+	const char *q = p + 1;
+	q = SkipSeq(q);            if (q == nullptr) return;
+	q = SkipChar(q, '(');      if (q == nullptr) return;
+
+	int fnum;
+	q = SkipNumber(q, &fnum);  if (q == nullptr) return;
+	q = SkipDotDot(q);         if (q == nullptr) return;
+	int flast;
+	q = SkipNumber(q, &flast); if (q == nullptr) return;
+
+	q = SkipChar(q, ',');      if (q == nullptr) return;
+	int flen;
+	q = SkipNumber(q, &flen);  if (q == nullptr) return;
+	q = SkipChar(q, ')');      if (q == nullptr) return;
+	q = SkipChar(q, '}');      if (q == nullptr) return;
+
+	if (flast < fnum || flen <= 0 || flen > 4) return;
+
+	this->prefix = fname.substr(0, p - txt);
+	this->suffix = fname.substr(q - txt);
+	this->first = fnum;
+	this->last = flast;
+	this->length = flen;
+}
+
+/**
+ * Get the number of filenames represented by the class.
+ * @return Number of unique filenames available in the class.
+ */
+int FilePattern::GetCount() const
+{
+	if (this->length < 0) return 0;
+	if (this->length == 0) return 1;
+	return this->last - this->first + 1;
+}
+
+/**
+ * Construct the \a index-th filename.
+ * @param index Index number of the filename to generate from the pattern.
+ * @return The filename expressed by 'seq' at the provided index.
+ */
+std::string FilePattern::MakeFilename(int index) const
+{
+	char buffer[8];
+
+	assert(this->length >= 0);
+	if (this->length == 0) return this->prefix;
+
+	int val = this->first + index;
+	snprintf(buffer, lengthof(buffer), "%d", val);
+	buffer[lengthof(buffer) - 1] = '\0';
+
+	std::string s = this->prefix;
+	for (int i = strlen(buffer); i < this->length; i++) s += "0";
+	return s + buffer + this->suffix;
+}
+
 /**
  * Constructor of a sprite sheet.
  * @param pos %Position of the sheet node.
@@ -179,11 +326,63 @@ std::shared_ptr<BlockNode> SheetBlock::GetSubNode(int row, int col, const char *
 	if (err == nullptr) {
 		err = spr_blk->sprite_image.CopySprite(img, this->x_offset, this->y_offset,
 				this->x_base + this->x_step * col, this->y_base + this->y_step * row, this->width, this->height, this->crop);
-		}
+	}
 	if (err != nullptr) {
 		fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", pos.ToString(), name, err);
 		exit(1);
 	}
+	return spr_blk;
+}
+
+std::shared_ptr<BlockNode> SpriteFilesBlock::GetSubNode(int row, int col, const char *name, const Position &pos)
+{
+	const char *err = nullptr;
+	if (row >= 1) err = "No sprites available at this row.";
+	if (err == nullptr && col >= this->file.GetCount()) err = "No sprite available at the queried column.";
+
+	if (err != nullptr) {
+report_error:
+		fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", pos.ToString(), name, err);
+		exit(1);
+	}
+
+	ImageFile *imf = nullptr;
+	ImageFile *rmf = nullptr;
+	Image *img = nullptr;
+	Image8bpp *rim = nullptr;
+
+	imf = new ImageFile;
+	err = imf->LoadFile(this->file.MakeFilename(col));
+	if (err != nullptr) goto report_error;
+
+	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
+	if (imf->Is8bpp()) {
+		img = new Image8bpp(imf, bmd);
+		if (this->recolour.length >= 0) fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
+	} else {
+		Image32bpp *im32 = new Image32bpp(imf, bmd);
+		img = im32;
+		if (this->recolour.length >= 0) {
+			rmf = new ImageFile;
+			err = rmf->LoadFile(this->recolour.MakeFilename(col));
+			if (err != nullptr) goto report_error;
+			if (!rmf->Is8bpp()) {
+				err = "Recolour file is not an 8bpp image.\n";
+				goto report_error;
+			}
+			rim = new Image8bpp(rmf, nullptr);
+			im32->SetRecolourImage(rim);
+		}
+	}
+
+	std::shared_ptr<SpriteBlock> spr_blk(new SpriteBlock);
+	err = spr_blk->sprite_image.CopySprite(img, this->xoffset, this->yoffset, this->xbase, this->ybase, this->width, this->height, this->crop);
+	if (err != nullptr) goto report_error;
+
+	delete imf;
+	delete rmf;
+	delete img;
+	delete rim;
 	return spr_blk;
 }
 

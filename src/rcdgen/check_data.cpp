@@ -1331,7 +1331,57 @@ static std::shared_ptr<SheetBlock> ConvertSheetNode(std::shared_ptr<NodeGroup> n
 		std::shared_ptr<ValueInformation> vi = vals.FindValue("mask");
 		bm = std::dynamic_pointer_cast<BitMask>(vi->node_value);
 		if (bm == nullptr) {
-			fprintf(stderr, "Error at %s: Field \"mask\" of node \"sheet\" is not a bitmask node\n", vi->pos.ToString());
+			fprintf(stderr, "Error at %s: Field \"mask\" of node \"sheet\" is not a bitmask node.\n", vi->pos.ToString());
+			exit(1);
+		}
+		vi->node_value = nullptr;
+	}
+	sb->mask = bm;
+
+	vals.VerifyUsage();
+	return sb;
+}
+
+/**
+ * Convert a node group to a 'spritefiles' node.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created sprite-files node.
+ */
+static std::shared_ptr<SpriteFilesBlock> ConvertSpriteFilesNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, ng->name.c_str());
+	auto sb = std::make_shared<SpriteFilesBlock>();
+
+	Values vals(ng->name.c_str(), ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	sb->file.SetFilename(vals.GetString("file"));
+	sb->xbase   = vals.GetNumber("x_base");
+	sb->ybase   = vals.GetNumber("y_base");
+	sb->width   = vals.GetNumber("width");
+	sb->height  = vals.GetNumber("height");
+	sb->xoffset = vals.GetNumber("x_offset");
+	sb->yoffset = vals.GetNumber("y_offset");
+
+	if (vals.HasValue("recolour")) {
+		sb->recolour.SetFilename(vals.GetString("recolour"));
+		int count = sb->recolour.GetCount();
+		if (count > 1 && count != sb->file.GetCount()) {
+			fprintf(stderr, "Error at %s: Filename pattern \"file\" represents %d files, while the pattern at \"recolour\" has %d files.\n",
+					ng->pos.ToString(), sb->file.GetCount(), count);
+			exit(1);
+		}
+	}
+
+	sb->crop = true;
+	if (vals.HasValue("crop")) sb->crop = vals.GetNumber("crop") != 0;
+
+	std::shared_ptr<BitMask> bm;
+	if (vals.HasValue("mask")) {
+		std::shared_ptr<ValueInformation> vi = vals.FindValue("mask");
+		bm = std::dynamic_pointer_cast<BitMask>(vi->node_value);
+		if (bm == nullptr) {
+			fprintf(stderr, "Error at %s: Field \"mask\" of node \"sheet\" is not a bitmask node.\n", vi->pos.ToString());
 			exit(1);
 		}
 		vi->node_value = nullptr;
@@ -2260,6 +2310,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 {
 	if (ng->name == "file") return ConvertFileNode(ng);
 	if (ng->name == "sheet") return ConvertSheetNode(ng);
+	if (ng->name == "spritefiles") return ConvertSpriteFilesNode(ng);
 	if (ng->name == "sprite") return ConvertSpriteNode(ng);
 	if (ng->name == "person_graphics") return ConvertPersonGraphicsNode(ng);
 	if (ng->name == "recolour") return ConvertRecolourNode(ng);

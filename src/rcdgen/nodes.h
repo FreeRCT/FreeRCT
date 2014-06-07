@@ -110,6 +110,22 @@ public:
 
 class BitMask;
 
+/** Class for storage of a filename pattern of the form \c "prefix{seq(first..last,length)}suffix". */
+class FilePattern {
+public:
+	FilePattern();
+	
+	void SetFilename(const std::string &fname);
+	int GetCount() const;
+	std::string MakeFilename(int index) const;
+
+	std::string prefix; ///< Common prefix part of the name.
+	std::string suffix; ///< Common suffix part of the name.
+	int first;          ///< First number to insert.
+	int last;           ///< Last number to insert.
+	int length;         ///< Length of the number part, \c 0 means no number and suffix available, \c -1 means no filename at all.
+};
+
 /** Block containing a sprite sheet. */
 class SheetBlock : public BlockNode {
 public:
@@ -140,6 +156,25 @@ public:
 	std::shared_ptr<BitMask> mask; ///< Bit mask to apply first (if available).
 	ImageFile *rmf;   ///< Loaded recolour file.
 	Image8bpp *rim;   ///< Recolour image.
+};
+
+class SpriteFilesBlock : public BlockNode {
+public:
+	std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos) override;
+
+	Position pos;         ///< Line number defining the sheet.
+	FilePattern file;     ///< %File pattern representing the files to load.
+	FilePattern recolour; ///< %File pattern representing the files containing 32bpp recolour information, if available.
+
+	int xbase;   ///< Horizontal base offset in the sheet.
+	int ybase;   ///< Vertical base offset in the sheet.
+	int xoffset; ///< Sprite offset (from the origin to the left edge of the sprite).
+	int yoffset; ///< Sprite offset (from the origin to the top edge of the sprite).
+	int width;   ///< Width of a sprite.
+	int height;  ///< Height of a sprite.
+	bool crop;   ///< Crop sprite.
+
+	std::shared_ptr<BitMask> mask; ///< Bit mask to apply first (if available).
 };
 
 /** A 'TSEL' block. */
