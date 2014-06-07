@@ -106,6 +106,12 @@ static CubicBezier LoadBezier(RcdFileReader *rcdfile)
 }
 
 /**
+ * \fn ENSURE_LENGTH(x)
+ * Make sure the RCD file being loaded has at least \a x bytes of data left.
+ * @param x Minimal number of bytes required.
+ */
+
+/**
  * Load a track curve.
  * @param rcdfile Data file being loaded.
  * @param curve [out] The loaded track curve, may be \c nullptr (which indicates a not supplied track curve).

@@ -12,6 +12,7 @@
 #ifndef STRING_STORAGE_H
 #define STRING_STORAGE_H
 
+/** Storage of translation strings for future use. */
 class StringsStorage {
 public:
 	StringsStorage();

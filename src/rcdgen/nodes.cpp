@@ -144,6 +144,7 @@ static const char *SkipSeq(const char *p)
 /**
  * Advance the pointer over white space, and the provided character \a q. Return \c nullptr if the character is not available.
  * @param p String to search.
+ * @param q Character to match.
  * @return Pointer into the string, behind the \a q character, or \c nullptr
  */
 static const char *SkipChar(const char *p, char q)
@@ -638,6 +639,7 @@ StringsNode::StringsNode() : BlockNode()
 /**
  * Add a string to the collection of strings.
  * @param node String to add.
+ * @param pos Position of the string node, for error reporting.
  */
 void StringsNode::Add(const StringNode &node, const Position &pos)
 {
@@ -777,6 +779,7 @@ void TextNode::Write(FileBlock *fb) const
 /**
  * Copy the strings into the bundle, ordered by the string name.
  * @param strs Strings to copy.
+ * @param pos Position of the string bundle, for error reporting.
  */
 void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 {

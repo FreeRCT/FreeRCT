@@ -158,6 +158,7 @@ public:
 	Image8bpp *rim;   ///< Recolour image.
 };
 
+/** A 'spritefiles' block. */
 class SpriteFilesBlock : public BlockNode {
 public:
 	std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos) override;
