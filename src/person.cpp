@@ -897,6 +897,7 @@ void Guest::VisitShop(RideInstance *ri)
 			this->cash -= ri->GetSaleItemPrice(i);
 			this->AddItem(ri->GetSaleItemType(i));
 			this->happiness = std::min(100, this->happiness + 10);
+			NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
 			return;
 		}
 	}
