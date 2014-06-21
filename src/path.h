@@ -94,17 +94,6 @@ enum PathSprites {
 	PATHBIT_NW = 7, ///< Bit number for north-west edge in expanded notation.
 };
 
-/**
- * Available path types.
- * @ingroup map_group
- */
-enum PathRideType {
-	PT_INVALID = 0x3FF,     ///< Invalid path type and invalid ride type.
-	PT_CONCRETE = 0x3FE,    ///< Concrete path type.
-	PT_START = PT_CONCRETE, ///< First valid path type.
-	/* Values 0 .. PT_START-1 are ride instance numbers. */
-};
-
 extern const PathSprites _path_up_from_edge[EDGE_COUNT];
 extern const PathSprites _path_down_from_edge[EDGE_COUNT];
 extern const uint8 _path_expand[];
