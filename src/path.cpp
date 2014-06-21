@@ -254,25 +254,6 @@ uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
 }
 
 /**
- * Get the right path sprite for putting in the world (for having a slope \a tsl from edge \a edge).
- * @param tsl Slope of the path.
- * @param edge Edge to connect from.
- * @return The imploded path sprite to use.
- * @todo Path sprites should connect to neighbouring paths.
- */
-uint8 GetPathSprite(TrackSlope tsl, TileEdge edge)
-{
-	assert(edge < EDGE_COUNT);
-
-	switch (tsl) {
-		case TSL_FLAT: return PATH_EMPTY;
-		case TSL_DOWN: return _path_down_from_edge[edge];
-		case TSL_UP:   return _path_up_from_edge[edge];
-		default: NOT_REACHED();
-	}
-}
-
-/**
  * Add edges of the neighbouring path tiles.
  * @param xpos X coordinate of the central voxel with a path tile.
  * @param ypos Y coordinate of the central voxel with a path tile.
