@@ -295,7 +295,7 @@ public:
 	ClickableSprite allowed; ///< Sprite types looking for.
 	bool found;              ///< Found a match.
 	DrawData data;           ///< Drawing data of the match found so far.
-	uint8 pixel;             ///< Pixel colour of the closest sprite.
+	uint32 pixel;            ///< Pixel colour of the closest sprite.
 	FinderData *fdata;       ///< Finder data to return.
 
 protected:
