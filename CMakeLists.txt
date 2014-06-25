@@ -35,16 +35,15 @@ message(STATUS "Building FreeRCT")
 add_subdirectory(src)
 
 IF(NOT MSVC)
-	get_target_property(FREERCT_EXE freerct LOCATION)
 	add_custom_target(run
-	                  COMMAND ${FREERCT_EXE}
+	                  COMMAND freerct
 	                  WORKING_DIRECTORY ${FRCT_BINARY_DIR}
 	)
 	add_dependencies(run freerct)
 
-	# WARNING: Assumes gdb is in path, doesn't(/can't) find it
+	# Warning: assumes gdb exists
 	add_custom_target(gdbrun
-	                  COMMAND gdb ${FREERCT_EXE}
+	                  COMMAND gdb freerct
 	                  WORKING_DIRECTORY ${FRCT_BINARY_DIR}
 	)
 	add_dependencies(gdbrun freerct)
@@ -52,7 +51,10 @@ IF(NOT MSVC)
 	# Documentation rules
 	find_package(Doxygen)
 	IF(DOXYGEN_FOUND)
-		add_custom_target(doc COMMAND ${DOXYGEN_EXECUTABLE})
+		add_custom_target(doc
+		                  COMMAND ${DOXYGEN_EXECUTABLE}
+		                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		)
 	ENDIF()
 
 	list(APPEND DOCFILES
@@ -61,11 +63,11 @@ IF(NOT MSVC)
 		 "savegame"
 	)
 
-	# Warning: doesn't check for rst2html's existence
+	# Warning: assumes rst2html exists
 	FOREACH(DOCFILE ${DOCFILES})
 		add_custom_target(${DOCFILE}.html
 		                  COMMAND rst2html ${DOCFILE}.rst ${DOCFILE}.html
-						  WORKING_DIRECTORY doc
+		                  WORKING_DIRECTORY doc
 		)
 	ENDFOREACH()
 

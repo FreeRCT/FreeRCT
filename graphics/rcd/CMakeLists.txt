@@ -25,8 +25,6 @@ list(APPEND RCDFILES
      "tracks.rcd"      "${FP}/tracks.txt"
 )
 
-get_target_property(RCDGEN_EXE rcdgen LOCATION)
-
 # Get lang files
 file(GLOB LANGFILES ${FP}/lang/*.txt)
 
@@ -44,7 +42,7 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_2})
 	                   COMMAND rcdgen ${LANGFILES} ${SRCFILE}
 	                   COMMAND ${CMAKE_COMMAND} -E copy ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}
 	                   COMMENT "Generating rcd files from ${SRCFILE}"
-	                   DEPENDS ${SRCFILE} ${LANGFILES} ${RCDGEN_EXE}
+	                   DEPENDS ${SRCFILE} ${LANGFILES} rcdgen
 	                   WORKING_DIRECTORY ${FP}
 	)
 

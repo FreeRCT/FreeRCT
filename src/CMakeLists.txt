@@ -20,21 +20,19 @@ file(GLOB freerct_SRCS
      ${CMAKE_SOURCE_DIR}/src/*.h
 )
 
-get_target_property(RCDGEN_EXE rcdgen LOCATION)
-
 set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/coasters_strings)
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND ${RCDGEN_EXE} --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix COASTERS --base STR_GENERIC_COASTER_START
+                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix COASTERS --base STR_GENERIC_COASTER_START
                    COMMENT "Generating COASTERS string files"
 )
 set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/shops_strings)
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND ${RCDGEN_EXE} --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix SHOPS --base STR_GENERIC_SHOP_START
+                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix SHOPS --base STR_GENERIC_SHOP_START
                    COMMENT "Generating SHOPS string files"
 )
 set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/gui_strings)
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND ${RCDGEN_EXE} --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GUI --base STR_GUI_START
+                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GUI --base STR_GUI_START
                    COMMENT "Generating GUI string files"
 )
 
