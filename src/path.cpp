@@ -291,10 +291,13 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			}
 			if (v != nullptr) {
 				uint16 number = v->GetInstance();
-				if (number == SRI_PATH) { // Valid path.
-					v->SetInstanceData(SetPathEdge(v->GetInstanceData(), edge2, add_edges));
-					MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
-					modified = true;
+				if (number == SRI_PATH) {
+					uint16 instance_data = v->GetInstanceData();
+					if (instance_data != PATH_INVALID) { // Valid path.
+						v->SetInstanceData(SetPathEdge(instance_data, edge2, add_edges));
+						MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
+						modified = true;
+					}
 				} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
 					if ((v->GetInstanceData() & (1 << edge2)) != 0) modified = true;
 				}
@@ -310,10 +313,13 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			}
 			if (v != nullptr) {
 				uint16 number = v->GetInstance();
-				if (number == SRI_PATH) { // Valid path.
-					v->SetInstanceData(SetPathEdge(v->GetInstanceData(), edge2, add_edges));
-					MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
-					modified = true;
+				if (number == SRI_PATH) {
+					uint16 instance_data = v->GetInstanceData();
+					if (instance_data != PATH_INVALID) { // Valid path.
+						v->SetInstanceData(SetPathEdge(instance_data, edge2, add_edges));
+						MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
+						modified = true;
+					}
 				} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
 					if ((v->GetInstanceData() & (1 << edge2)) != 0) modified = true;
 				}
