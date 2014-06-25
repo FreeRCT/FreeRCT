@@ -489,6 +489,7 @@ void DataWidget::Draw(const GuiWindow *w)
 			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
 			break;
 	}
+	if (this->number > 0) w->DrawWidget(this->number, this);
 	if (bsd != nullptr && this->IsShaded()) OverlayShaded(border_rect);
 }
 
