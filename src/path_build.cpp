@@ -206,7 +206,7 @@ static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, 
 
 		Voxel *av = avs->GetCreate(zpos - 1, true);
 		av->SetInstance(SRI_PATH);
-		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, _path_down_from_edge[edge], EDGE_ALL, true, true);
+		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos - 1, _path_down_from_edge[edge], EDGE_ALL, true, true);
 		av->SetInstanceData(slope);
 
 		av = avs->GetCreate(zpos, true);
@@ -219,7 +219,7 @@ static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, 
 		av->SetInstance(SRI_PATH);
 		av->SetInstanceData(PATH_INVALID);
 
-		MarkVoxelDirty(xpos, ypos, zpos);
+		MarkVoxelDirty(xpos, ypos, zpos - 1);
 	}
 	return true;
 }
