@@ -222,6 +222,28 @@ struct Rectangle {
 		this->height = (this->base.y < yend) ? yend - this->base.y : 0;
 	}
 
+	/**
+	 * Merge the area of the provided rectangle with this rectangle, so both areas are included.
+	 * @param rect %Rectangle to merge.
+	 */
+	void MergeArea(const Rectangle<PT, SZ> &rect)
+	{
+		this->MergeArea(rect.base.x, rect.base.y, rect.width, rect.height);
+	}
+
+	/**
+	 * Merge the area of the provided rectangle coordinates with this rectangle, so both areas are included.
+	 * @param startx Base X coordinate of the area to merge.
+	 * @param starty Base Y coordinate of the area to merge.
+	 * @param w Horizontal length of the area to merge.
+	 * @param h Vertical length of the area to merge.
+	 */
+	void MergeArea(typename PT::CoordType startx, typename PT::CoordType starty, SZ w, SZ h)
+	{
+		this->AddPoint(startx, starty);
+		this->AddPoint(startx + w, starty + h);
+	}
+
 	PT base;   ///< Base coordinate.
 	SZ width;  ///< Width of the rectangle.
 	SZ height; ///< Height of the rectangle.
