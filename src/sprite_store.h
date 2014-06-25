@@ -576,6 +576,7 @@ private:
 
 bool LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageData **spr);
 bool LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **txt);
+Rectangle16 GetSpriteSize(const ImageData *imd);
 
 extern SpriteManager _sprite_manager;
 extern GuiSprites _gui_sprites;

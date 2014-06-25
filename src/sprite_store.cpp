@@ -1371,6 +1371,22 @@ void SpriteManager::AddAnimation(Animation *anim)
 }
 
 /**
+ * Get the size of an image including its origin.
+ * @param imd Image to inspect.
+ * @return Size of the image, including its origin.
+ */
+Rectangle16 GetSpriteSize(const ImageData *imd)
+{
+	Rectangle16 rect;
+
+	if (imd != nullptr && imd->width != 0 && imd->height != 0) {
+		rect.AddPoint(imd->xoffset, imd->yoffset);
+		rect.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
+	}
+	return rect;
+}
+
+/**
  * Set the size of the rectangle for fitting a range of sprites.
  * @param first First sprite number to fit.
  * @param end One beyond the last sprite number to fit.
@@ -1381,8 +1397,7 @@ void SpriteManager::SetSpriteSize(uint16 first, uint16 end, Rectangle16 &rect)
 	for (uint16 i = first; i < end; i++) {
 		const ImageData *imd = this->GetTableSprite(i);
 		if (imd == nullptr || imd->width == 0 || imd->height == 0) continue;
-		rect.AddPoint(imd->xoffset, imd->yoffset);
-		rect.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
+		rect.MergeArea(GetSpriteSize(imd));
 	}
 }
 
@@ -1440,9 +1455,7 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	/* 'Simple' single sprites. */
 	const ImageData *imd = this->GetTableSprite(number);
 	if (imd != nullptr && imd->width != 0 && imd->height != 0) {
-		result.width = 0; result.height = 0;
-		result.AddPoint(imd->xoffset, imd->yoffset);
-		result.AddPoint(imd->xoffset + (int16)imd->width - 1, imd->yoffset + (int16)imd->height - 1);
+		result = GetSpriteSize(imd);
 		return result;
 	}
 
