@@ -120,8 +120,9 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize video. */
-	if (!_video.Initialize(font_path, atoi(font_size_text))) {
-		fprintf(stderr, "Failed to initialize window or the font, aborting\n");
+	std::string err = _video.Initialize(font_path, atoi(font_size_text));
+	if (!err.empty()) {
+		fprintf(stderr, "Failed to initialize window or the font (%s), aborting\n", err.c_str());
 		exit(1);
 	}
 

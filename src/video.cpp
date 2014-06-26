@@ -143,25 +143,30 @@ VideoSystem::~VideoSystem()
  * Initialize the video system, preparing it for use.
  * @param font_name Name of the font file to load.
  * @param font_size Size of the font.
- * @return Whether initialization was a success.
+ * @return Error message if initialization failed, else an empty text.
  */
-bool VideoSystem::Initialize(const char *font_name, int font_size)
+std::string VideoSystem::Initialize(const char *font_name, int font_size)
 {
-	if (this->initialized) return true;
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) return false;
+	if (this->initialized) return "";
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		std::string err = "SDL video initialization failed: ";
+		err += SDL_GetError();
+		return err;
+	}
 
 	char caption[50];
 	snprintf(caption, sizeof(caption), "FreeRCT %s", _freerct_revision);
 	this->window = SDL_CreateWindow(caption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
 	if (this->window == nullptr) {
+		std::string err = "SDL window creation failed: ";
+		err += SDL_GetError();
 		SDL_Quit();
-		fprintf(stderr, "Could not create window (%s)\n", SDL_GetError());
-		return false;
+		return err;
 	}
 
 	this->GetResolutions();
 
-	this->SetResolution({800, 600});
+	this->SetResolution({800, 600}); // Allocates this->mem, return value is ignored.
 
 	/* SDL_CreateRGBSurfaceFrom() pretends to use a void* for the data,
 	 * but it's really treated as endian-specific uint32*.
@@ -183,15 +188,23 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	if (TTF_Init() != 0) {
 		SDL_Quit();
 		delete[] this->mem;
-		return false;
+		std::string err = "TTF font initialization failed: ";
+		err += TTF_GetError();
+		return err;
 	}
 
 	this->font = TTF_OpenFont(font_name, font_size);
 	if (this->font == nullptr) {
+		std::string err = "TTF Opening font \"";
+		err += font_name;
+		err += "\" size ";
+		err += std::to_string(font_size);
+		err += " failed: ";
+		err += TTF_GetError();
 		TTF_Quit();
 		SDL_Quit();
 		delete[] this->mem;
-		return false;
+		return err;
 	}
 
 	this->font_height = TTF_FontLineSkip(this->font);
@@ -202,7 +215,7 @@ bool VideoSystem::Initialize(const char *font_name, int font_size)
 	this->digit_size.x = 0;
 	this->digit_size.y = 0;
 
-	return true;
+	return "";
 }
 
 
