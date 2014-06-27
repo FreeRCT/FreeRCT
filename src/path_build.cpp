@@ -53,10 +53,11 @@ bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge)
  * @param ypos Y coordinate of the voxel.
  * @param zpos Z coordinate of the voxel.
  * @param edge Entry edge.
+ * @param path_type For building (ie not \a test_only), the type of path to build.
  * @param test_only Only test whether it could be created.
  * @return Whether the path is or could be built.
  */
-static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bool test_only)
+static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, PathType path_type, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
@@ -93,7 +94,7 @@ static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bo
 		Voxel *av = avs->GetCreate(zpos, true);
 		av->SetInstance(SRI_PATH);
 		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, _path_up_from_edge[edge], EDGE_ALL, true, true);
-		av->SetInstanceData(slope);
+		av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 		av = avs->GetCreate(zpos + 1, true);
 		av->ClearVoxel();
@@ -115,10 +116,11 @@ static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bo
  * @param xpos X coordinate of the voxel.
  * @param ypos Y coordinate of the voxel.
  * @param zpos Z coordinate of the voxel.
+ * @param path_type For building (ie not \a test_only), the type of path to build.
  * @param test_only Only test whether it could be created.
  * @return Whether the path is or could be built.
  */
-static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
+static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, PathType path_type, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
@@ -149,7 +151,7 @@ static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 		Voxel *av = avs->GetCreate(zpos, true);
 		av->SetInstance(SRI_PATH);
 		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, PATH_EMPTY, EDGE_ALL, true, true);
-		av->SetInstanceData(slope);
+		av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 		av = avs->GetCreate(zpos + 1, true);
 		av->ClearVoxel();
@@ -167,10 +169,11 @@ static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
  * @param ypos Y coordinate of the voxel.
  * @param zpos Z coordinate of the voxel.
  * @param edge Entry edge.
+ * @param path_type For building (ie not \a test_only), the type of path to build.
  * @param test_only Only test whether it could be created.
  * @return Whether the path is or could be built.
  */
-static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, bool test_only)
+static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, PathType path_type, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
@@ -207,7 +210,7 @@ static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, 
 		Voxel *av = avs->GetCreate(zpos - 1, true);
 		av->SetInstance(SRI_PATH);
 		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos - 1, _path_down_from_edge[edge], EDGE_ALL, true, true);
-		av->SetInstanceData(slope);
+		av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 		av = avs->GetCreate(zpos, true);
 		av->ClearVoxel();
@@ -247,10 +250,10 @@ static bool RemovePath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 	assert(ps < PATH_COUNT);
 
 	v = vs->Get(zpos + 1);
-	assert(v->GetInstance() == SRI_PATH && v->GetInstanceData() == PATH_INVALID);
+	assert(v->GetInstance() == SRI_PATH && !HasValidPath(v->GetInstanceData()));
 	if (ps >= PATH_FLAT_COUNT) {
 		v = vs->Get(zpos + 2);
-		assert(v->GetInstance() == SRI_PATH && v->GetInstanceData() == PATH_INVALID);
+		assert(v->GetInstance() == SRI_PATH && !HasValidPath(v->GetInstanceData()));
 	}
 
 	if (!test_only) {
@@ -306,9 +309,9 @@ static uint8 CanBuildPathFromEdge(int16 xpos, int16 ypos, int8 zpos, TileEdge ed
 
 	uint8 slopes = 0;
 	// XXX Check for already existing paths.
-	if (BuildDownwardPath(xpos, ypos, zpos, edge, true)) slopes |= 1 << TSL_DOWN;
-	if (BuildFlatPath(xpos, ypos, zpos, true)) slopes |= 1 << TSL_FLAT;
-	if (BuildUpwardPath(xpos, ypos, zpos, edge, true)) slopes |= 1 << TSL_UP;
+	if (BuildDownwardPath(xpos, ypos, zpos, edge, PAT_INVALID, true)) slopes |= 1 << TSL_DOWN;
+	if (BuildFlatPath(xpos, ypos, zpos, PAT_INVALID, true)) slopes |= 1 << TSL_FLAT;
+	if (BuildUpwardPath(xpos, ypos, zpos, edge, PAT_INVALID, true)) slopes |= 1 << TSL_UP;
 	return slopes;
 }
 
@@ -364,6 +367,7 @@ static uint8 GetPathAttachPoints(int16 xpos, int16 ypos, int8 zpos)
 /** Default constructor. */
 PathBuildManager::PathBuildManager() : MouseMode(WC_PATH_BUILDER, MM_PATH_BUILDING)
 {
+	this->path_type = PAT_INVALID; // Initialized by the path gui on first opening.
 	this->state = PBS_IDLE;
 	this->selected_arrow = INVALID_EDGE;
 	this->selected_slope = TSL_INVALID;
@@ -598,15 +602,15 @@ void PathBuildManager::ComputeWorldAdditions()
 	TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
 	switch (this->selected_slope) {
 		case TSL_DOWN:
-			BuildDownwardPath(xpos, ypos, zpos, edge, false);
+			BuildDownwardPath(xpos, ypos, zpos, edge, this->path_type, false);
 			break;
 
 		case TSL_FLAT:
-			BuildFlatPath(xpos, ypos, zpos, false);
+			BuildFlatPath(xpos, ypos, zpos, this->path_type, false);
 			break;
 
 		case TSL_UP:
-			BuildUpwardPath(xpos, ypos, zpos, edge, false);
+			BuildUpwardPath(xpos, ypos, zpos, edge, this->path_type, false);
 			break;
 
 		default:
@@ -854,7 +858,7 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 					/* Add path tile to the voxel. */
 					Voxel *v = _additions.GetCreateVoxel(vx, vy, vz, true);
 					v->SetInstance(SRI_PATH);
-					v->SetInstanceData(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true));
+					v->SetInstanceData(MakePathInstanceData(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true), this->path_type));
 
 					if (*slope_prio == TSL_UP) {
 						vz++;

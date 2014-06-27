@@ -836,14 +836,14 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 	uint8 platform_shape = PATH_INVALID;
 	SmallRideInstance sri = voxel->GetInstance();
-	uint16 number = voxel->GetInstanceData();
-	if (sri == SRI_PATH && number != PATH_INVALID) { // A path (and not something reserved above it).
+	uint16 instance_data = voxel->GetInstanceData();
+	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		DrawData dd;
 		dd.level = slice;
 		dd.z_height = zpos;
 		dd.order = SO_PATH;
-		platform_shape = _path_rotation[GetImplodedPathSlope(voxel)][this->orient];
-		dd.sprite = this->sprites->GetPathSprite(number, GetImplodedPathSlope(voxel), this->orient);
+		platform_shape = _path_rotation[GetImplodedPathSlope(instance_data)][this->orient];
+		dd.sprite = this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient);
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 		dd.recolour = nullptr;
@@ -852,7 +852,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		DrawData dd[4];
 		int count = DrawRide(slice, zpos,
 				this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
-				this->orient, sri, number, dd, &platform_shape);
+				this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) this->draw_images.insert(dd[i]);
 	}
 
@@ -1119,7 +1119,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		}
 	} else if ((this->allowed & CS_PATH) != 0 && HasValidPath(voxel)) {
 		/* Looking for a path? */
-		const ImageData *img = this->sprites->GetPathSprite(number, GetImplodedPathSlope(voxel), this->orient);
+		uint16 instance_data = voxel->GetInstanceData();
+		const ImageData *img = this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient);
 		DrawData dd;
 		dd.level = slice;
 		dd.z_height = zpos;

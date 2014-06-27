@@ -12,7 +12,7 @@
 #ifndef PATH_BUILD_H
 #define PATH_BUILD_H
 
-#include "tile.h"
+#include "path.h"
 #include "viewport.h"
 
 struct SurfaceVoxelData;
@@ -65,6 +65,7 @@ public:
 	inline bool GetLongButtonIsPressed() const;
 
 	PathBuildState state; ///< State of the path building process.
+	PathType path_type;   ///< Selected type of path to use for building.
 
 private:
 	uint8 mouse_state; ///< State of the mouse buttons.

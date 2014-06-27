@@ -293,8 +293,10 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 				uint16 number = v->GetInstance();
 				if (number == SRI_PATH) {
 					uint16 instance_data = v->GetInstanceData();
-					if (instance_data != PATH_INVALID) { // Valid path.
-						v->SetInstanceData(SetPathEdge(instance_data, edge2, add_edges));
+					if (HasValidPath(instance_data)) { // Valid path.
+						uint8 new_slope = SetPathEdge(GetImplodedPathSlope(instance_data), edge2, add_edges);
+						instance_data = SetImplodedPathSlope(instance_data, new_slope);
+						v->SetInstanceData(instance_data);
 						MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
 						modified = true;
 					}
@@ -315,8 +317,10 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 				uint16 number = v->GetInstance();
 				if (number == SRI_PATH) {
 					uint16 instance_data = v->GetInstanceData();
-					if (instance_data != PATH_INVALID) { // Valid path.
-						v->SetInstanceData(SetPathEdge(instance_data, edge2, add_edges));
+					if (HasValidPath(instance_data)) { // Valid path.
+						uint8 new_slope = SetPathEdge(GetImplodedPathSlope(instance_data), edge2, add_edges);
+						instance_data = SetImplodedPathSlope(instance_data, new_slope);
+						v->SetInstanceData(instance_data);
 						MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
 						modified = true;
 					}
