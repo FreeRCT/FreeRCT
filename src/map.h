@@ -330,6 +330,17 @@ public:
 };
 
 /**
+ * Does the instance data indicate a valid path (that is, a voxel with an actual path tile)?
+ * @param instance_data Instance data to examine.
+ * @return Whether the instance data indicates a valid path.
+ * @pre The instance must be #SRI_PATH
+ */
+static inline bool HasValidPath(uint16 instance_data)
+{
+	return instance_data != PATH_INVALID;
+}
+
+/**
  * Does the given voxel contain a valid path?
  * @param v %Voxel to examine.
  * @return @c true if the voxel contains a valid path, else \c false.
@@ -337,7 +348,31 @@ public:
  */
 static inline bool HasValidPath(const Voxel *v)
 {
-	return v->instance == SRI_PATH && v->instance_data != PATH_INVALID;
+	return v->instance == SRI_PATH && HasValidPath(v->instance_data);
+}
+
+/**
+ * Extract the imploded path slope from the instance data.
+ * @param instance_data Instance data to examine.
+ * @return Imploded slope of the path.
+ * @pre instance data must be a valid path.
+ */
+static inline PathSprites GetImplodedPathSlope(uint16 instance_data)
+{
+	return (PathSprites)GB(instance_data, 0, 6);
+}
+
+/**
+ * Change the path slope in the path instance data.
+ * @param instance_data Previous instance data.
+ * @param slope New imploded path slope.
+ * @return New instance data of a path.
+ * @pre instance data must be a valid path.
+ */
+static inline uint16 SetImplodedPathSlope(uint16 instance_data, uint8 slope)
+{
+	SB(instance_data, 0, 6, slope);
+	return instance_data;
 }
 
 /**
@@ -349,8 +384,32 @@ static inline bool HasValidPath(const Voxel *v)
 static inline PathSprites GetImplodedPathSlope(const Voxel *v)
 {
 	assert(HasValidPath(v));
-	assert(v->instance_data < PATH_COUNT);
-	return (PathSprites)v->instance_data;
+
+	PathSprites ps = GetImplodedPathSlope(v->instance_data);
+	assert(ps < PATH_COUNT);
+	return ps;
+}
+
+/**
+ * Get the path type from the path voxel instance data.
+ * @param instance_data Instance data to examine.
+ * @return Type of path.
+ * @pre instance data must be a valid path.
+ */
+static inline PathType GetPathType(uint16 instance_data)
+{
+	return (PathType)GB(instance_data, 6, 2);
+}
+
+/**
+ * Construct instance data for a valid path.
+ * @param slope Imploded slope of the path.
+ * @param path_type Type of the path.
+ * @return Instance data of a valid path.
+ */
+static inline uint16 MakePathInstanceData(uint8 slope, PathType path_type)
+{
+	return slope | (path_type << 6);
 }
 
 /** Possible ownerships of a tile. */
