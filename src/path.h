@@ -94,6 +94,17 @@ enum PathSprites {
 	PATHBIT_NW = 7, ///< Bit number for north-west edge in expanded notation.
 };
 
+/** Available types of paths. */
+enum PathType {
+	PAT_WOOD,     ///< Wood path.
+	PAT_TILED,    ///< Tiled path.
+	PAT_ASPHALT,  ///< Asphalt path.
+	PAT_CONCRETE, ///< Concrete path.
+
+	PAT_COUNT,    ///< Number of path types.
+	PAT_INVALID = 0xff, ///< Invalid path type.
+};
+
 extern const PathSprites _path_up_from_edge[EDGE_COUNT];
 extern const PathSprites _path_down_from_edge[EDGE_COUNT];
 extern const uint8 _path_expand[];

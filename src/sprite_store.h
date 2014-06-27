@@ -87,6 +87,13 @@ public:
 	ImageData *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
 };
 
+/** Path status. */
+enum PathStatus {
+	PAS_UNUSED,      ///< %Path is not loaded.
+	PAS_NORMAL_PATH, ///< %Path to walk on.
+	PAS_QUEUE_PATH,  ///< %Path to queue on.
+};
+
 /**
  * %Path sprites.
  * @ingroup sprites_group
@@ -95,6 +102,7 @@ class Path {
 public:
 	Path();
 
+	PathStatus status; ///< Status of this path.
 	ImageData *sprites[PATH_COUNT]; ///< %Path sprites, may contain \c nullptr sprites.
 };
 
@@ -448,7 +456,7 @@ public:
 
 	/**
 	 * Get a path tile sprite.
-	 * @param type Type of path. @see PathTypes
+	 * @param type Type of path. @see PathType
 	 * @param slope Slope of the path (in #VOR_NORTH orientation).
 	 * @param orient Display orientation.
 	 * @return Requested sprite if available.
@@ -457,7 +465,7 @@ public:
 	const ImageData *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
 	{
 		// this->path[type] is not used, as there exists only one type of paths.
-		return this->path_sprites.sprites[_path_rotation[slope][orient]];
+		return this->path_sprites[PAT_CONCRETE].sprites[_path_rotation[slope][orient]];
 	}
 
 	/**
@@ -526,7 +534,7 @@ public:
 	Support support;                  ///< Support block.
 	TileSelection tile_select;        ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
-	Path path_sprites;                ///< %Path sprites.
+	Path path_sprites[PAT_COUNT];     ///< %Path sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.
 

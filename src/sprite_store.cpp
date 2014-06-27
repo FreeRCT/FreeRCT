@@ -352,6 +352,7 @@ bool SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 Path::Path()
 {
+	this->status = PAS_UNUSED;
 	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
 }
 
@@ -373,10 +374,11 @@ bool SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
 	if (ss == nullptr) return false;
-	Path *path = &ss->path_sprites;
+	Path *path = &ss->path_sprites[PAT_CONCRETE];
 	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum])) return false;
 	}
+	path->status = PAS_NORMAL_PATH;
 	return true;
 }
 
