@@ -364,21 +364,28 @@ Path::Path()
  */
 bool SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
+	if (rcd_file->version != 3 || rcd_file->size != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
 
 	uint16 type = rcd_file->GetUInt16();
-	if (type != 16) return false; // Only 'concrete' paths exist.
+	PathType pt = PAT_INVALID;
+	switch (type & 0x7FFF) {
+		case  4: pt = PAT_WOOD; break;
+		case  8: pt = PAT_TILED; break;
+		case 12: pt = PAT_ASPHALT; break;
+		case 16: pt = PAT_CONCRETE; break;
+		default: return false; // Unknown type of path.
+	}
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
 	if (ss == nullptr) return false;
-	Path *path = &ss->path_sprites[PAT_CONCRETE];
+	Path *path = &ss->path_sprites[pt];
 	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum])) return false;
 	}
-	path->status = PAS_NORMAL_PATH;
+	path->status = ((type & 0x8000) != 0) ? PAS_QUEUE_PATH : PAS_NORMAL_PATH;
 	return true;
 }
 

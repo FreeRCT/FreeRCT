@@ -709,16 +709,22 @@ Path coverage is a set of at most 47 flat images. Paths can connect to
 neighbouring tiles through four edges, optionally also covering the corner
 between two connecting edges.
 
-Starting at offset 14 are the sprite block numbers of each sprite. As normal,
+Starting at offset 18 are the sprite block numbers of each sprite. As normal,
 use 0 to denote absence of a sprite. Two letter words in the description
 denote an edge connects, one letter words denote the corner is covered.
 
 Besides the maximal 47 flat sprites there are also 4 sprites with one edge
-raised. FreeRCT can read path blocks with version 1.
+raised. FreeRCT can read path blocks with version 3.
+
+Available path surface types:
 
 - Empty (0) Reserved, do not use in the RCD file.
+- Wood (4)
+- Tiled (8)
+- Asphalt (12)
 - Concrete (16)
 
+Add 0x8000 (32768) to the surface type to indicate the path should be used for queueing.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -729,7 +735,7 @@ Offset  Length  Description
   12       2    Type of path surface.
   14       2    Zoom-width of a tile.
   16       2    Change in Z height of the tiles.
-  18       4    (empty).
+  18       4    Path without connections to other path tiles.
   22       4    NE.
   26       4    SE.
   30       4    NE, SE.
@@ -788,6 +794,7 @@ Version history
 
 - 1 (20110925) Initial version.
 - 2 (20110930) Added tile width and z-height fields.
+- 3 (20140526) Added wood, tiled, and asphalt surface types, and 0x8000 queue bit.
 
 
 Platforms

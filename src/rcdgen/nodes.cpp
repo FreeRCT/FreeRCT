@@ -553,7 +553,7 @@ int ANSPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-PATHBlock::PATHBlock() : GameBlock("PATH", 1)
+PATHBlock::PATHBlock() : GameBlock("PATH", 3)
 {
 }
 

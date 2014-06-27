@@ -799,7 +799,11 @@ static std::shared_ptr<FUNDBlock> ConvertFUNDNode(std::shared_ptr<NodeGroup> ng)
 
 /** Symbols for the PATH game block. */
 static const Symbol _path_symbols[] = {
+	{"wood", 4},
+	{"tiled", 8},
+	{"asphalt", 12},
 	{"concrete", 16},
+	{"queue", 0x8000},
 	{nullptr, 0},
 };
 
