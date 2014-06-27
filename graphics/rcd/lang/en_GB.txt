@@ -96,6 +96,9 @@ strings {
 		PATH_GUI_SW_DIRECTION_TIP: "Build path in south-west direction";
 		PATH_GUI_SE_DIRECTION_TIP: "Build path in south-east direction";
 
+		PATH_GUI_NORMAL_PATH:      "Normal paths";
+		PATH_GUI_QUEUE_PATH:       "Queue paths";
+
 		// Ride select gui strings.
 		RIDE_SELECT_TITLE:           "Ride selection";
 		RIDE_SELECT_SHOPS:           "Shops";

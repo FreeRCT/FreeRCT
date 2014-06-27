@@ -48,6 +48,7 @@ public:
 	void ComputeNewLongPath(const Point32 &mousexy);
 	void ConfirmLongPath();
 	void SelectArrow(TileEdge direction);
+	void SelectPathType(PathType pt);
 	void SelectSlope(TrackSlope slope);
 	void SelectMovement(bool move_forward);
 	void SelectLong();

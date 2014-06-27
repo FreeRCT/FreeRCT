@@ -101,6 +101,9 @@ static const char *_gui_string_names[] = {
 	"PATH_GUI_SW_DIRECTION_TIP",
 	"PATH_GUI_SE_DIRECTION_TIP",
 
+	"PATH_GUI_NORMAL_PATH",
+	"PATH_GUI_QUEUE_PATH",
+
 	/* Ride selection window. */
 	"RIDE_SELECT_TITLE",
 	"RIDE_SELECT_SHOPS",

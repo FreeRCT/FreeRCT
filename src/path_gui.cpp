@@ -26,10 +26,19 @@ public:
 	PathBuildGui();
 	~PathBuildGui();
 
+	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
+
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
 	void SetButtons();
+
+private:
+	Rectangle16 path_type_button_size;             ///< Size of the path type buttons.
+	const ImageData *path_type_sprites[PAT_COUNT]; ///< Sprite to use for showing the path type in the Gui.
+	bool normal_path_types[PAT_COUNT];             ///< Which path types are normal paths.
+	bool queue_path_types[PAT_COUNT];              ///< Which path types are queue paths.
 };
 
 /**
@@ -49,6 +58,14 @@ enum PathBuildWidgets {
 	PATH_GUI_LONG,         ///< Build a long path.
 	PATH_GUI_BUY,          ///< Buy a path tile.
 	PATH_GUI_REMOVE,       ///< Remove a path tile.
+	PATH_GUI_NORMAL_PATH0, ///< Button to select #PAT_WOOD type normal paths.
+	PATH_GUI_NORMAL_PATH1, ///< Button to select #PAT_TILED type normal paths.
+	PATH_GUI_NORMAL_PATH2, ///< Button to select #PAT_ASPHALT type normal paths.
+	PATH_GUI_NORMAL_PATH3, ///< Button to select #PAT_CONCRETE type normal paths.
+	PATH_GUI_QUEUE_PATH0,  ///< Button to select #PAT_WOOD type queue paths.
+	PATH_GUI_QUEUE_PATH1,  ///< Button to select #PAT_TILED type queue paths.
+	PATH_GUI_QUEUE_PATH2,  ///< Button to select #PAT_ASPHALT type queue paths.
+	PATH_GUI_QUEUE_PATH3,  ///< Button to select #PAT_CONCRETE type queue paths.
 };
 
 static const int SPR_NE_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_NE; ///< Sprite for building in NE direction.
@@ -104,19 +121,129 @@ static const WidgetPart _path_build_gui_parts[] = {
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
 					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_REMOVE, COL_RANGE_GREY),    SetData(GUI_PATH_GUI_REMOVE, GUI_PATH_GUI_BULLDOZER_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
+				Intermediate(5, 2), SetPadding(5, 2, 2, 2), SetHorPIP(0, 2, 0),
+					Widget(WT_CENTERED_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetFill(1, 0), SetData(GUI_PATH_GUI_QUEUE_PATH, STR_NULL),
+					Widget(WT_CENTERED_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetFill(1, 0), SetData(GUI_PATH_GUI_NORMAL_PATH, STR_NULL),
+
+					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH0, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH0, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+
+					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH1, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH1, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+
+					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH2, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH2, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+
+					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
 			EndContainer(),
 	EndContainer(),
 };
 
-PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
+PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE), path_type_button_size()
 {
+	/* Setup path type bits. */
+	const SpriteStorage *store = _sprite_manager.GetSprites(64); // GUI size.
+	for (int i = 0; i < PAT_COUNT; i++) {
+		switch (store->path_sprites[i].status) {
+			case PAS_UNUSED:
+				this->normal_path_types[i] = false;
+				this->queue_path_types[i]  = false;
+				this->path_type_sprites[i] = nullptr;
+				break;
+
+			case PAS_NORMAL_PATH:
+				this->normal_path_types[i] = true;
+				this->queue_path_types[i]  = false;
+				this->path_type_sprites[i] = store->GetPathSprite(i, PATH_NE_NW_SE_SW, VOR_NORTH);
+				this->path_type_button_size.MergeArea(GetSpriteSize(this->path_type_sprites[i]));
+				break;
+
+			case PAS_QUEUE_PATH:
+				this->normal_path_types[i] = false;
+				this->queue_path_types[i]  = true;
+				this->path_type_sprites[i] = store->GetPathSprite(i, PATH_NE_SW, VOR_NORTH);
+				this->path_type_button_size.MergeArea(GetSpriteSize(this->path_type_sprites[i]));
+				break;
+
+			default:
+				NOT_REACHED();
+		}
+	}
+
 	this->SetupWidgetTree(_path_build_gui_parts, lengthof(_path_build_gui_parts));
+
+	/* Select an initial path type if not done already. */
+	if (_path_builder.path_type == PAT_INVALID) {
+		for (int i = 0; i < PAT_COUNT; i++) {
+			if (this->normal_path_types[i]) {
+				_path_builder.path_type = (PathType)i;
+				break;
+			}
+			if (_path_builder.path_type == PAT_INVALID && this->queue_path_types[i]) {
+				_path_builder.path_type = (PathType)i; // Queue path is better than an invalid one, continue searching.
+			}
+		}
+	}
+
 	_path_builder.SetPathGuiState(true);
 }
 
 PathBuildGui::~PathBuildGui()
 {
 	_path_builder.SetPathGuiState(false);
+}
+
+void PathBuildGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+{
+	switch (wid_num) {
+		case PATH_GUI_NORMAL_PATH0:
+		case PATH_GUI_NORMAL_PATH1:
+		case PATH_GUI_NORMAL_PATH2:
+		case PATH_GUI_NORMAL_PATH3:
+		case PATH_GUI_QUEUE_PATH0:
+		case PATH_GUI_QUEUE_PATH1:
+		case PATH_GUI_QUEUE_PATH2:
+		case PATH_GUI_QUEUE_PATH3:
+			wid->min_x = this->path_type_button_size.width + 2 + 2;
+			wid->min_y = this->path_type_button_size.height + 2 + 2;
+			break;
+	}
+}
+
+void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+{
+	static Recolouring recolour; // Never changed.
+
+	switch (wid_num) {
+		case PATH_GUI_NORMAL_PATH0:
+		case PATH_GUI_NORMAL_PATH1:
+		case PATH_GUI_NORMAL_PATH2:
+		case PATH_GUI_NORMAL_PATH3:
+			if (this->normal_path_types[wid_num - PATH_GUI_NORMAL_PATH0]) {
+				const ImageData *img = this->path_type_sprites[wid_num - PATH_GUI_NORMAL_PATH0];
+				if (img != nullptr) {
+					int dx = (wid->pos.width - path_type_button_size.width) / 2;
+					int dy = (wid->pos.height - path_type_button_size.height) / 2;
+					_video.BlitImage(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y, img, recolour, GS_NORMAL);
+				}
+			}
+			break;
+
+		case PATH_GUI_QUEUE_PATH0:
+		case PATH_GUI_QUEUE_PATH1:
+		case PATH_GUI_QUEUE_PATH2:
+		case PATH_GUI_QUEUE_PATH3:
+			if (this->queue_path_types[wid_num - PATH_GUI_QUEUE_PATH0]) {
+				const ImageData *img = this->path_type_sprites[wid_num - PATH_GUI_QUEUE_PATH0];
+				if (img != nullptr) {
+					int dx = (wid->pos.width - path_type_button_size.width) / 2;
+					int dy = (wid->pos.height - path_type_button_size.height) / 2;
+					_video.BlitImage(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y, img, recolour, GS_NORMAL);
+				}
+			}
+			break;
+	}
 }
 
 void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
@@ -152,6 +279,26 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 		case PATH_GUI_REMOVE:
 		case PATH_GUI_BUY:
 			_path_builder.SelectBuyRemove(number == PATH_GUI_BUY);
+			break;
+
+		case PATH_GUI_NORMAL_PATH0:
+		case PATH_GUI_NORMAL_PATH1:
+		case PATH_GUI_NORMAL_PATH2:
+		case PATH_GUI_NORMAL_PATH3:
+			if (this->normal_path_types[number - PATH_GUI_NORMAL_PATH0]) {
+				_path_builder.SelectPathType((PathType)(number - PATH_GUI_NORMAL_PATH0));
+				this->SetButtons();
+			}
+			break;
+
+		case PATH_GUI_QUEUE_PATH0:
+		case PATH_GUI_QUEUE_PATH1:
+		case PATH_GUI_QUEUE_PATH2:
+		case PATH_GUI_QUEUE_PATH3:
+			if (this->queue_path_types[number - PATH_GUI_QUEUE_PATH0]) {
+				_path_builder.SelectPathType((PathType)(number - PATH_GUI_QUEUE_PATH0));
+				this->SetButtons();
+			}
 			break;
 
 		default:
@@ -191,6 +338,21 @@ void PathBuildGui::SetButtons()
 	this->SetWidgetShaded(PATH_GUI_BACKWARD, !_path_builder.GetBackwardIsEnabled());
 	this->SetWidgetShaded(PATH_GUI_LONG,     !_path_builder.GetLongButtonIsEnabled());
 	this->SetWidgetPressed(PATH_GUI_LONG,     _path_builder.GetLongButtonIsPressed());
+
+	for (int i = 0; i < PAT_COUNT; i++) {
+		if (this->normal_path_types[i]) {
+			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, false);
+			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, true);
+			this->SetWidgetPressed(PATH_GUI_NORMAL_PATH0 + i, (i == _path_builder.path_type));
+		} else if (this->queue_path_types[i]) {
+			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, true);
+			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, false);
+			this->SetWidgetPressed(PATH_GUI_QUEUE_PATH0 + i, (i == _path_builder.path_type));
+		} else {
+			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, true);
+			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, true);
+		}
+	}
 }
 
 void PathBuildGui::OnChange(ChangeCode code, uint32 parameter)

@@ -485,6 +485,19 @@ void PathBuildManager::SelectArrow(TileEdge direction)
 }
 
 /**
+ * A new path type should be used for building paths.
+ * @param pt New path type to use.
+ */
+void PathBuildManager::SelectPathType(PathType pt)
+{
+	if (this->path_type == pt) return;
+
+	this->path_type = pt;
+	if (this->state < PBS_WAIT_BUY) return; // Nothing else to update.
+	this->UpdateState();
+}
+
+/**
  * See whether moving in the indicated direction of the tile position is possible/makes sense.
  * @param direction Direction of movement.
  * @param delta_z Proposed change of Z height.
