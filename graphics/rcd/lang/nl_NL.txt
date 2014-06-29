@@ -27,6 +27,7 @@ strings {
 		MONTH_DECEMBER:  "December";
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_QUIT:                 "Afsluiten";
@@ -94,6 +95,9 @@ strings {
 		PATH_GUI_NE_DIRECTION_TIP: "Bouw pad in noord-oostelijke richting";
 		PATH_GUI_SW_DIRECTION_TIP: "Bouw pad in zuid-westelijke richting";
 		PATH_GUI_SE_DIRECTION_TIP: "Bouw pad in zuid-oostelijke richting";
+
+		PATH_GUI_NORMAL_PATH:      "Normale paden";
+		PATH_GUI_QUEUE_PATH:       "Wachtrijen";
 
 		// Ride select gui strings.
 		RIDE_SELECT_TITLE:           "Attractie selectie";
@@ -167,6 +171,20 @@ strings {
 		SETTING_TITLE:            "Instellingen";
 		SETTING_LANGUAGE:         "Wijzig taal";
 		SETTING_LANGUAGE_TOOLTIP: "Verander de taal van het spel";
+		SETTING_RESOLUTION:         "Verander de resolutie";
+		SETTING_RESOLUTION_TOOLTIP: "Verander de resolutie van het spel";
+	}
+	
+	stringtexts("ice-cream-stall") {
+		NAME_INSTANCE1:        "Het ijs paleis";
+		NAME_INSTANCE2:        "Koele drankjes";
+		NAME_TYPE:             "Ijskraampje";
+		DESCRIPTION_TYPE:      "Winkel voor zonnige drankjes en ijs";
+		DESCRIPTION_RECOLOUR1: "Beker kleur";
+		DESCRIPTION_RECOLOUR2: "Ijs kleur";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:             "Vanille ijs";
+		NAME_ITEM2:            "Frisdrank";
 	}
 
 	stringtexts("snack-shop") {
@@ -174,6 +192,9 @@ strings {
 		NAME_INSTANCE2:   "Pizza paleis";
 		NAME_TYPE:        "Snack kraampje";
 		DESCRIPTION_TYPE: "Winkel waar je lekkere koekjes kunt kopen";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
 		NAME_ITEM1:       "Koekjes";
 		NAME_ITEM2:       "Pizza";
 	}
