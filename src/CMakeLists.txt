@@ -23,16 +23,19 @@ file(GLOB freerct_SRCS
 set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/coasters_strings)
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix COASTERS --base STR_GENERIC_COASTER_START
+				   DEPENDS rcdgen
                    COMMENT "Generating COASTERS string files"
 )
 set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/shops_strings)
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix SHOPS --base STR_GENERIC_SHOP_START
+				   DEPENDS rcdgen
                    COMMENT "Generating SHOPS string files"
 )
 set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/gui_strings)
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GUI --base STR_GUI_START
+				   DEPENDS rcdgen
                    COMMENT "Generating GUI string files"
 )
 
