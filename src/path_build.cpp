@@ -19,6 +19,68 @@
 PathBuildManager _path_builder; ///< %Path build manager.
 
 /**
+ * Build a path at a tile, and claim the voxels above it as well.
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param path_type For building (ie not \a test_only), the type of path to build.
+ * @param path_spr Imploded sprite number.
+ * @see RemovePathAtTile
+ */
+static void BuildPathAtTile(int xpos, int ypos, int zpos, PathType path_type, uint8 path_spr)
+{
+	VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
+
+	Voxel *av = avs->GetCreate(zpos, true);
+	av->SetInstance(SRI_PATH);
+	uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, path_spr, EDGE_ALL, true, true);
+	av->SetInstanceData(MakePathInstanceData(slope, path_type));
+
+	av = avs->GetCreate(zpos + 1, true);
+	av->ClearVoxel();
+	av->SetInstance(SRI_PATH);
+	av->SetInstanceData(PATH_INVALID);
+
+	if (path_spr >= PATH_FLAT_COUNT) { // For non-flat sprites, add another voxel.
+		av = avs->GetCreate(zpos + 2, true);
+		av->ClearVoxel();
+		av->SetInstance(SRI_PATH);
+		av->SetInstanceData(PATH_INVALID);
+	}
+
+	MarkVoxelDirty(xpos, ypos, zpos);
+}
+
+/**
+ * Remove a path from a tile, and free the voxels above it as well.
+ * @param xpos X coordinate of the voxel.
+ * @param ypos Y coordinate of the voxel.
+ * @param zpos Z coordinate of the voxel.
+ * @param path_spr Imploded sprite number.
+ * @see BuildPathAtTile
+ */
+static void RemovePathAtTile(int xpos, int ypos, int zpos, uint8 path_spr)
+{
+	VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
+
+	Voxel *av = avs->GetCreate(zpos, false);
+		av->SetInstance(SRI_FREE);
+		av->SetInstanceData(0);
+		AddRemovePathEdges(xpos, ypos, zpos, path_spr, EDGE_ALL, true, false);
+		MarkVoxelDirty(xpos, ypos, zpos);
+
+		av = avs->GetCreate(zpos + 1, false);
+		av->SetInstance(SRI_FREE);
+		av->SetInstanceData(0);
+
+		if (path_spr >= PATH_FLAT_COUNT) {
+			av = avs->GetCreate(zpos + 2, false);
+			av->SetInstance(SRI_FREE);
+			av->SetInstanceData(0);
+		}
+}
+
+/**
  * Does a path run at/to the bottom the given voxel in the neighbouring voxel?
  * @param xpos X coordinate of the voxel.
  * @param ypos Y coordinate of the voxel.
@@ -87,27 +149,7 @@ static bool BuildUpwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, Pa
 		}
 	}
 
-	if (!test_only) {
-		/* Build an upward path. */
-		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
-
-		Voxel *av = avs->GetCreate(zpos, true);
-		av->SetInstance(SRI_PATH);
-		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, _path_up_from_edge[edge], EDGE_ALL, true, true);
-		av->SetInstanceData(MakePathInstanceData(slope, path_type));
-
-		av = avs->GetCreate(zpos + 1, true);
-		av->ClearVoxel();
-		av->SetInstance(SRI_PATH);
-		av->SetInstanceData(PATH_INVALID);
-
-		av = avs->GetCreate(zpos + 2, true);
-		av->ClearVoxel();
-		av->SetInstance(SRI_PATH);
-		av->SetInstanceData(PATH_INVALID);
-
-		MarkVoxelDirty(xpos, ypos, zpos);
-	}
+	if (!test_only) BuildPathAtTile(xpos, ypos, zpos, path_type, _path_up_from_edge[edge]);
 	return true;
 }
 
@@ -144,22 +186,7 @@ static bool BuildFlatPath(int16 xpos, int16 ypos, int8 zpos, PathType path_type,
 		}
 	}
 
-	if (!test_only) {
-		/* Build a flat path. */
-		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
-
-		Voxel *av = avs->GetCreate(zpos, true);
-		av->SetInstance(SRI_PATH);
-		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, PATH_EMPTY, EDGE_ALL, true, true);
-		av->SetInstanceData(MakePathInstanceData(slope, path_type));
-
-		av = avs->GetCreate(zpos + 1, true);
-		av->ClearVoxel();
-		av->SetInstance(SRI_PATH);
-		av->SetInstanceData(PATH_INVALID);
-
-		MarkVoxelDirty(xpos, ypos, zpos);
-	}
+	if (!test_only) BuildPathAtTile(xpos, ypos, zpos, path_type, PATH_EMPTY);
 	return true;
 }
 
@@ -203,27 +230,7 @@ static bool BuildDownwardPath(int16 xpos, int16 ypos, int8 zpos, TileEdge edge, 
 		}
 	}
 
-	if (!test_only) {
-		/* Build an downward path. */
-		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
-
-		Voxel *av = avs->GetCreate(zpos - 1, true);
-		av->SetInstance(SRI_PATH);
-		uint8 slope = AddRemovePathEdges(xpos, ypos, zpos - 1, _path_down_from_edge[edge], EDGE_ALL, true, true);
-		av->SetInstanceData(MakePathInstanceData(slope, path_type));
-
-		av = avs->GetCreate(zpos, true);
-		av->ClearVoxel();
-		av->SetInstance(SRI_PATH);
-		av->SetInstanceData(PATH_INVALID);
-
-		av = avs->GetCreate(zpos + 1, true);
-		av->ClearVoxel();
-		av->SetInstance(SRI_PATH);
-		av->SetInstanceData(PATH_INVALID);
-
-		MarkVoxelDirty(xpos, ypos, zpos - 1);
-	}
+	if (!test_only) BuildPathAtTile(xpos, ypos, zpos - 1, path_type, _path_down_from_edge[edge]);
 	return true;
 }
 
@@ -256,25 +263,7 @@ static bool RemovePath(int16 xpos, int16 ypos, int8 zpos, bool test_only)
 		assert(v->GetInstance() == SRI_PATH && !HasValidPath(v->GetInstanceData()));
 	}
 
-	if (!test_only) {
-		VoxelStack *avs = _additions.GetModifyStack(xpos, ypos);
-
-		Voxel *av = avs->GetCreate(zpos, false);
-		av->SetInstance(SRI_FREE);
-		av->SetInstanceData(0);
-		AddRemovePathEdges(xpos, ypos, zpos, ps, EDGE_ALL, true, false);
-		MarkVoxelDirty(xpos, ypos, zpos);
-
-		av = avs->GetCreate(zpos + 1, false);
-		av->SetInstance(SRI_FREE);
-		av->SetInstanceData(0);
-
-		if (ps >= PATH_FLAT_COUNT) {
-			av = avs->GetCreate(zpos + 2, false);
-			av->SetInstance(SRI_FREE);
-			av->SetInstanceData(0);
-		}
-	}
+	if (!test_only) RemovePathAtTile(xpos, ypos, zpos, ps);
 	return true;
 }
 
