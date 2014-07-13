@@ -67,7 +67,7 @@ IF(NOT MSVC)
 	FOREACH(DOCFILE ${DOCFILES})
 		add_custom_target(${DOCFILE}.html
 		                  COMMAND rst2html ${DOCFILE}.rst ${DOCFILE}.html
-		                  WORKING_DIRECTORY doc
+		                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
 		)
 	ENDFOREACH()
 
