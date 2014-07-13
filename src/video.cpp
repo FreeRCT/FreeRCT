@@ -999,13 +999,15 @@ void VideoSystem::GetTextSize(const uint8 *text, int *width, int *height)
  */
 void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height)
 {
+	assert(smallest <= biggest);
 	if (this->digit_size.x == 0) { // First call, initialize the variable.
 		this->digit_size.x = 0;
 		this->digit_size.y = 0;
-		for (int i = '0'; i < '9'; i++) {
-			uint8 buffer[2];
+		
+		uint8 buffer[2];
+		buffer[1] = '\0';
+		for (uint8 i = '0'; i <= '9'; i++) {
 			buffer[0] = i;
-			buffer[1] = '\0';
 			int w, h;
 			this->GetTextSize(buffer, &w, &h);
 			if (w > this->digit_size.x) this->digit_size.x = w;
@@ -1014,15 +1016,12 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 	}
 
 	int digit_count = 1;
-	if (smallest < 0) {
-		smallest = -smallest;
-		digit_count++; // Add a 'digit' for the '-' sign.
-	}
-	if (biggest < 0) biggest = -biggest;
-	if (smallest > biggest) biggest = smallest;
-	while (biggest > 9) {
+	if (smallest < 0) digit_count++; // Add a 'digit' for the '-' sign.
+
+	int64 tmp = std::max(std::abs(smallest), std::abs(biggest));
+	while (tmp > 9) {
 		digit_count++;
-		biggest /= 10;
+		tmp /= 10;
 	}
 
 	*width = digit_count * this->digit_size.x;
