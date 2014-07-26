@@ -856,33 +856,27 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 				slope_prio = slope_prios_up;
 			}
 			/* Find best slope, and take it. */
-			while (*slope_prio != TSL_INVALID) {
-				if ((slopes & (1 << *slope_prio)) != 0) {
-					vx += dxy.x;
-					vy += dxy.y;
-					/* Decide path tile. */
-					uint8 path_tile;
-					if (*slope_prio == TSL_UP) {
-						path_tile = _path_down_from_edge[direction];
-					} else if (*slope_prio == TSL_DOWN) {
-						path_tile = _path_up_from_edge[direction];
-						vz--;
-					} else {
-						path_tile = PATH_EMPTY;
-					}
-					/* Add path tile to the voxel. */
-					Voxel *v = _additions.GetCreateVoxel(vx, vy, vz, true);
-					v->SetInstance(SRI_PATH);
-					v->SetInstanceData(MakePathInstanceData(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true), this->path_type));
-
-					if (*slope_prio == TSL_UP) {
-						vz++;
-					}
-					break; // End finding a good slope.
-				}
-				slope_prio++;
-			}
+			while (*slope_prio != TSL_INVALID && (slopes & (1 << *slope_prio)) == 0) slope_prio++;
 			if (*slope_prio == TSL_INVALID) break;
+
+			vx += dxy.x;
+			vy += dxy.y;
+			/* Decide path tile. */
+			uint8 path_tile;
+			if (*slope_prio == TSL_UP) {
+				path_tile = _path_down_from_edge[direction];
+			} else if (*slope_prio == TSL_DOWN) {
+				path_tile = _path_up_from_edge[direction];
+				vz--;
+			} else {
+				path_tile = PATH_EMPTY;
+			}
+			/* Add path tile to the voxel. */
+			Voxel *v = _additions.GetCreateVoxel(vx, vy, vz, true);
+			v->SetInstance(SRI_PATH);
+			v->SetInstanceData(MakePathInstanceData(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true), this->path_type));
+
+			if (*slope_prio == TSL_UP) vz++;
 		}
 		vp->EnableWorldAdditions();
 		vp->EnsureAdditionsAreVisible();
