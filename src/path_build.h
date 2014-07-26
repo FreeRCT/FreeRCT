@@ -84,7 +84,6 @@ private:
 
 	void ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, uint8 *zpos);
 	void ComputeWorldAdditions();
-	bool TryMove(TileEdge direction, int delta_z, bool need_path);
 	void MoveCursor(TileEdge edge, bool move_up);
 	void UpdateState();
 };

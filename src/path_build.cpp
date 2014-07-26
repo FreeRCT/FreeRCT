@@ -487,36 +487,6 @@ void PathBuildManager::SelectPathType(PathType pt)
 }
 
 /**
- * See whether moving in the indicated direction of the tile position is possible/makes sense.
- * @param direction Direction of movement.
- * @param delta_z Proposed change of Z height.
- * @param need_path %Voxel should contain a path.
- * @return Tile cursor position was moved.
- */
-bool PathBuildManager::TryMove(TileEdge direction, int delta_z, bool need_path)
-{
-	Point16 dxy = _tile_dxy[direction];
-	if ((dxy.x < 0 && this->xpos == 0) || (dxy.x > 0 && this->xpos == _world.GetXSize() - 1)) return false;
-	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return false;
-	if ((delta_z < 0 && this->zpos == 0) || (delta_z > 0 && this->zpos == WORLD_Z_SIZE - 1)) return false;
-	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->xpos + dxy.x, this->ypos + dxy.y) != OWN_PARK) return false;
-	const Voxel *v = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + delta_z);
-	/* Fail if the new voxel is a reference voxel, or it contains a ride. */
-	if (v != nullptr && v->GetInstance() >= SRI_FULL_RIDES) return false;
-
-	if (need_path && !PathExistsAtBottomEdge(this->xpos, this->ypos, this->zpos + delta_z, direction)) {
-		return false;
-	}
-
-	this->xpos += dxy.x;
-	this->ypos += dxy.y;
-	this->zpos += delta_z;
-	this->state = PBS_WAIT_ARROW;
-	this->UpdateState();
-	return true;
-}
-
-/**
  * Try to move the tile cursor to a new tile.
  * @param edge Direction of movement.
  * @param move_up Current tile seems to move up.
@@ -525,15 +495,58 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 {
 	if (this->state <= PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || edge == INVALID_EDGE) return;
 
-	/* First try to find a voxel with a path at it. */
-	if (!move_up && this->TryMove(edge, -1, true)) return;
-	if (this->TryMove(edge, 0, true)) return;
-	if ( move_up && this->TryMove(edge,  1, true)) return;
+	/* Test whether we can move in the indicated direction. */
+	Point16 dxy = _tile_dxy[edge];
+	if ((dxy.x < 0 && this->xpos == 0) || (dxy.x > 0 && this->xpos == _world.GetXSize() - 1)) return;
+	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->xpos + dxy.x, this->ypos + dxy.y) != OWN_PARK) return;
 
-	/* Otherwise just settle for a surface. */
-	if (!move_up && this->TryMove(edge, -1, false)) return;
-	if (this->TryMove(edge, 0, false)) return;
-	if ( move_up && this->TryMove(edge,  1, false)) return;
+	const Voxel *v_top, *v_bot;
+	if (move_up) {
+		/* Exit of current tile is at the top. */
+		v_top = (this->zpos > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + 1);
+		v_bot = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos);
+	} else {
+		/* Exit of current tile is at the bottom. */
+		v_top = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos);
+		v_bot = (this->zpos == 0) ? nullptr : _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos - 1);
+	}
+
+	/* Try to find a voxel with a path. */
+	if (HasValidPath(v_top)) {
+		this->xpos += dxy.x;
+		this->ypos += dxy.y;
+		if (move_up) this->zpos++;
+		this->state = PBS_WAIT_ARROW;
+		this->UpdateState();
+		return;
+	}
+	if (HasValidPath(v_bot)) {
+		this->xpos += dxy.x;
+		this->ypos += dxy.y;
+		if (!move_up) this->zpos--;
+		this->state = PBS_WAIT_ARROW;
+		this->UpdateState();
+		return;
+	}
+
+	/* Try to find a voxel with surface. */
+	if (v_top->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_top->GetGroundSlope())) {
+		this->xpos += dxy.x;
+		this->ypos += dxy.y;
+		if (move_up) this->zpos++;
+		this->state = PBS_WAIT_ARROW;
+		this->UpdateState();
+		return;
+	}
+	if (v_bot->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_bot->GetGroundSlope())) {
+		this->xpos += dxy.x;
+		this->ypos += dxy.y;
+		if (!move_up) this->zpos--;
+		this->state = PBS_WAIT_ARROW;
+		this->UpdateState();
+		return;
+	}
 }
 
 /**
