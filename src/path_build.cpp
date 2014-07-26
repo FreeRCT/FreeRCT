@@ -861,22 +861,16 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 
 			vx += dxy.x;
 			vy += dxy.y;
-			/* Decide path tile. */
-			uint8 path_tile;
 			if (*slope_prio == TSL_UP) {
-				path_tile = _path_down_from_edge[direction];
+				if (!BuildUpwardPath(vx, vy, vz, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
+				vz++;
 			} else if (*slope_prio == TSL_DOWN) {
-				path_tile = _path_up_from_edge[direction];
+				if (!BuildDownwardPath(vx, vy, vz, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
 				vz--;
 			} else {
-				path_tile = PATH_EMPTY;
+				if (!BuildFlatPath(vx, vy, vz, this->path_type, false)) break;
 			}
-			/* Add path tile to the voxel. */
-			Voxel *v = _additions.GetCreateVoxel(vx, vy, vz, true);
-			v->SetInstance(SRI_PATH);
-			v->SetInstanceData(MakePathInstanceData(AddRemovePathEdges(vx, vy, vz, path_tile, EDGE_ALL, true, true), this->path_type));
 
-			if (*slope_prio == TSL_UP) vz++;
 		}
 		vp->EnableWorldAdditions();
 		vp->EnsureAdditionsAreVisible();
