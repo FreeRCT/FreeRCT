@@ -87,13 +87,6 @@ public:
 	ImageData *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
 };
 
-/** Path status. */
-enum PathStatus {
-	PAS_UNUSED,      ///< %Path is not loaded.
-	PAS_NORMAL_PATH, ///< %Path to walk on.
-	PAS_QUEUE_PATH,  ///< %Path to queue on.
-};
-
 /**
  * %Path sprites.
  * @ingroup sprites_group
@@ -558,6 +551,8 @@ public:
 	const ImageData *GetTableSprite(uint16 number) const;
 	const Rectangle16 &GetTableSpriteSize(uint16 number);
 	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
+
+	PathStatus GetPathStatus(PathType path_type);
 
 protected:
 	const char *Load(const char *fname);

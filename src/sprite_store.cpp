@@ -1527,3 +1527,15 @@ const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType
 	}
 	return nullptr;
 }
+
+/**
+ * Get the status of a path type.
+ * @param path_type %Path type to query.
+ * @return Status of the path type.
+ */
+PathStatus SpriteManager::GetPathStatus(PathType path_type)
+{
+	const Path &path = this->store.path_sprites[path_type];
+	return path.status;
+}
+
