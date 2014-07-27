@@ -92,6 +92,12 @@ enum PathSprites {
 	PATHBIT_SE = 5, ///< Bit number for south-east edge in expanded notation.
 	PATHBIT_SW = 6, ///< Bit number for south-west edge in expanded notation.
 	PATHBIT_NW = 7, ///< Bit number for north-west edge in expanded notation.
+
+	PATHMASK_NE = 1 << PATHBIT_NE, ///< Mask for masking #PATHBIT_NE.
+	PATHMASK_SE = 1 << PATHBIT_SE, ///< Mask for masking #PATHBIT_SE.
+	PATHMASK_SW = 1 << PATHBIT_SW, ///< Mask for masking #PATHBIT_SW.
+	PATHMASK_NW = 1 << PATHBIT_NW, ///< Mask for masking #PATHBIT_NW.
+	PATHMASK_EDGES = PATHMASK_NE | PATHMASK_SE | PATHMASK_SW | PATHMASK_NW, ///< Mask for masking the expanded path edges.
 };
 
 /** Available types of paths. */
@@ -121,6 +127,6 @@ extern const uint8 _path_rotation[PATH_COUNT][4];
 bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge);
 
 uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect);
-uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint8 dirs, bool use_additions, bool add_edges);
+uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint8 dirs, bool use_additions, PathStatus status);
 
 #endif

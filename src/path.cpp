@@ -254,6 +254,19 @@ uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
 }
 
 /**
+ * Get number of edge connections (0, 1, many) of an imploded slope.
+ * @param impl_slope Slope to check (imploded number).
+ * @return Exact count of edges for \c 0 and \c 1, else \c 2 which means 'more than 1'.
+ */
+static int GetQuePathEdgeConnectCount(uint8 impl_slope)
+{
+	uint8 exp_edges = _path_expand[impl_slope] & PATHMASK_EDGES;
+	if (exp_edges == 0) return 0;
+	if (exp_edges == PATHMASK_NE || exp_edges == PATHMASK_SE || exp_edges == PATHMASK_SW || exp_edges == PATHMASK_NW) return 1;
+	return 2;
+}
+
+/**
  * Examine, and perhaps modify a neighbouring path edge or ride connection, to make it connect (or not if not \a add_edges)
  * to the centre examined tile.
  * @param xpos X coordinate of the neighbouring voxel.
@@ -263,11 +276,19 @@ uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
  * @param edge Edge to examine, and/or connected to.
  * @param add_edges If set, add edges (else, remove them).
  * @param at_bottom Whether a path connection is expected at the bottom (if \c false, it should be at the top).
+ * @param dest_voxel [out] %Voxel containing the neighbouring path, or \c nullptr.
+ * @param dest_inst_data [out] New instance of the voxel. Only valid if \a dest_voxel is not \c nullptr.
+ * @param dest_status [out] Status of the neighbouring path.
  * @return Neighbouring voxel was (logically) connected to the centre tile.
  */
-static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool use_additions, TileEdge edge, bool add_edges, bool at_bottom)
+static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool use_additions, TileEdge edge, bool add_edges, bool at_bottom,
+		Voxel **dest_voxel, uint16 *dest_inst_data, PathStatus *dest_status)
 {
 	Voxel *v;
+
+	*dest_voxel = nullptr;
+	*dest_status = PAS_UNUSED;
+	*dest_inst_data = PATH_INVALID;
 
 	if (use_additions) {
 		v = _additions.GetCreateVoxel(xpos, ypos, zpos, false);
@@ -288,13 +309,22 @@ static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool 
 			if (slope != _path_down_from_edge[edge]) return false;
 		}
 
+		PathStatus status = _sprite_manager.GetPathStatus(GetPathType(instance_data));
+		if (add_edges && status == PAS_QUEUE_PATH) { // Only try to connect to queue paths if they are not yet connected to 2 (or more) neighbours.
+			if (GetQuePathEdgeConnectCount(slope) > 1) return false;
+		}
+
 		slope = SetPathEdge(slope, edge, add_edges);
-		instance_data = SetImplodedPathSlope(instance_data, slope);
-		v->SetInstanceData(instance_data);
-		MarkVoxelDirty(xpos, ypos, zpos);
+		*dest_status = status;
+		*dest_voxel = v;
+		*dest_inst_data = SetImplodedPathSlope(instance_data, slope);
 		return true;
+
 	} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
-		if ((v->GetInstanceData() & (1 << edge)) != 0) return true;
+		if ((v->GetInstanceData() & (1 << edge)) != 0) {
+			*dest_status = PAS_QUEUE_PATH;
+			return true;
+		}
 	}
 	return false;
 }
@@ -308,11 +338,17 @@ static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool 
  * @param slope Imploded path slope of the central voxel.
  * @param dirs Edge directions to change (bitset of #TileEdge), usually #EDGE_ALL.
  * @param use_additions Use #_additions rather than #_world.
- * @param add_edges If set, add edges (else, remove them).
+ * @param status Status of the path. #PAS_UNUSED means to remove the edges.
  * @return Updated (imploded) slope at the central voxel.
  */
-uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint8 dirs, bool use_additions, bool add_edges)
+uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint8 dirs, bool use_additions, PathStatus status)
 {
+	PathStatus ngb_status[4];    // Neighbour path status, #PAS_UNUSED means do not connect.
+	Voxel *ngb_voxel[4];         // Neighbour voxels with path, may be null if it doesn't need changing.
+	uint16 ngb_instance_data[4]; // New instance data, if the voxel exists.
+	uint8 ngb_zpos[4];           // Z coordinate of the neighbouring voxel.
+
+	std::fill_n(ngb_status, lengthof(ngb_status), PAS_UNUSED); // Clear path all statuses to prevent connecting to it if an edge is skipped.
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		if ((dirs & (1 << edge)) == 0) continue; // Skip directions that should not be updated.
 		int delta_z = 0;
@@ -330,14 +366,59 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
 		bool modified = false;
 		if (delta_z <= 0 || zpos < WORLD_Z_SIZE - 1) {
-			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges, true);
+			ngb_zpos[edge] = zpos + delta_z;
+			modified = ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, status != PAS_UNUSED, true,
+					&ngb_voxel[edge], &ngb_instance_data[edge], &ngb_status[edge]);
 		}
 		delta_z--;
-		if (delta_z >= 0 || zpos > 0) {
-			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges, false);
+		if (!modified && (delta_z >= 0 || zpos > 0)) {
+			ngb_zpos[edge] = zpos + delta_z;
+			ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, status != PAS_UNUSED, false,
+					&ngb_voxel[edge], &ngb_instance_data[edge], &ngb_status[edge]);
 		}
-
-		if (modified && slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, add_edges);
 	}
-	return slope;
+
+	switch (status) {
+		case PAS_UNUSED: // All edges get removed.
+		case PAS_NORMAL_PATH: // All edges get added.
+			for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+				if (ngb_status[edge] != PAS_UNUSED) {
+					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, status != PAS_UNUSED);
+					if (ngb_voxel[edge] != nullptr) {
+						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
+						MarkVoxelDirty(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]);
+					}
+				}
+			}
+			return slope;
+
+		case PAS_QUEUE_PATH:
+			/* Pass 1: Try to add other queue paths. */
+			for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+				if (ngb_status[edge] == PAS_QUEUE_PATH) {
+					if (GetQuePathEdgeConnectCount(slope) > 1) break;
+
+					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
+					if (ngb_voxel[edge] != nullptr) {
+						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
+						MarkVoxelDirty(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]);
+					}
+				}
+			}
+			/* Pass 2: Add normal paths. */
+			for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+				if (ngb_status[edge] == PAS_NORMAL_PATH) {
+					if (GetQuePathEdgeConnectCount(slope) > 1) break;
+
+					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
+					if (ngb_voxel[edge] != nullptr) {
+						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
+						MarkVoxelDirty(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]);
+					}
+				}
+			}
+			return slope;
+
+		default: NOT_REACHED();
+	}
 }

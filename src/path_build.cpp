@@ -23,7 +23,7 @@ PathBuildManager _path_builder; ///< %Path build manager.
  * @param xpos X coordinate of the voxel.
  * @param ypos Y coordinate of the voxel.
  * @param zpos Z coordinate of the voxel.
- * @param path_type For building (ie not \a test_only), the type of path to build.
+ * @param path_type The type of path to build.
  * @param path_spr Imploded sprite number.
  * @see RemovePathAtTile
  */
@@ -33,7 +33,7 @@ static void BuildPathAtTile(int xpos, int ypos, int zpos, PathType path_type, ui
 
 	Voxel *av = avs->GetCreate(zpos, true);
 	av->SetInstance(SRI_PATH);
-	uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, path_spr, EDGE_ALL, true, true);
+	uint8 slope = AddRemovePathEdges(xpos, ypos, zpos, path_spr, EDGE_ALL, true, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 	av = avs->GetCreate(zpos + 1, true);
@@ -66,7 +66,7 @@ static void RemovePathAtTile(int xpos, int ypos, int zpos, uint8 path_spr)
 	Voxel *av = avs->GetCreate(zpos, false);
 		av->SetInstance(SRI_FREE);
 		av->SetInstanceData(0);
-		AddRemovePathEdges(xpos, ypos, zpos, path_spr, EDGE_ALL, true, false);
+		AddRemovePathEdges(xpos, ypos, zpos, path_spr, EDGE_ALL, true, PAS_UNUSED);
 		MarkVoxelDirty(xpos, ypos, zpos);
 
 		av = avs->GetCreate(zpos + 1, false);
