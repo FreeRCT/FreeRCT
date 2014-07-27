@@ -254,6 +254,45 @@ uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
 }
 
 /**
+ * Examine, and perhaps modify a neighbouring path edge or ride connection, to make it connect (or not if not \a add_edges)
+ * to the centre examined tile.
+ * @param xpos X coordinate of the neighbouring voxel.
+ * @param ypos Y coordinate of the neighbouring voxel.
+ * @param zpos Z coordinate of the neighbouring voxel.
+ * @param use_additions Use #_additions rather than #_world.
+ * @param edge Edge to examine, and/or connected to.
+ * @param add_edges If set, add edges (else, remove them).
+ * @return Neighbouring voxel was (logically) connected to the centre tile.
+ */
+static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool use_additions, TileEdge edge, bool add_edges)
+{
+	Voxel *v;
+
+	if (use_additions) {
+		v = _additions.GetCreateVoxel(xpos, ypos, zpos, false);
+	} else {
+		v = _world.GetCreateVoxel(xpos, ypos, zpos, false);
+	}
+	if (v == nullptr) return false;
+
+	uint16 number = v->GetInstance();
+	if (number == SRI_PATH) {
+		uint16 instance_data = v->GetInstanceData();
+		if (!HasValidPath(instance_data)) return false;
+
+		uint8 new_slope = SetPathEdge(GetImplodedPathSlope(instance_data), edge, add_edges);
+		instance_data = SetImplodedPathSlope(instance_data, new_slope);
+		v->SetInstanceData(instance_data);
+		MarkVoxelDirty(xpos, ypos, zpos);
+		return true;
+	} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
+		if ((v->GetInstanceData() & (1 << edge)) != 0) return true;
+	}
+	return false;
+}
+
+
+/**
  * Add edges of the neighbouring path tiles.
  * @param xpos X coordinate of the central voxel with a path tile.
  * @param ypos Y coordinate of the central voxel with a path tile.
@@ -283,52 +322,13 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
 		bool modified = false;
 		if (delta_z <= 0 || zpos < WORLD_Z_SIZE - 1) {
-			Voxel *v;
-			if (use_additions) {
-				v = _additions.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
-			} else {
-				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
-			}
-			if (v != nullptr) {
-				uint16 number = v->GetInstance();
-				if (number == SRI_PATH) {
-					uint16 instance_data = v->GetInstanceData();
-					if (HasValidPath(instance_data)) { // Valid path.
-						uint8 new_slope = SetPathEdge(GetImplodedPathSlope(instance_data), edge2, add_edges);
-						instance_data = SetImplodedPathSlope(instance_data, new_slope);
-						v->SetInstanceData(instance_data);
-						MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
-						modified = true;
-					}
-				} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
-					if ((v->GetInstanceData() & (1 << edge2)) != 0) modified = true;
-				}
-			}
+			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges);
 		}
 		delta_z--;
 		if (delta_z >= 0 || zpos > 0) {
-			Voxel *v;
-			if (use_additions) {
-				v = _additions.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
-			} else {
-				v = _world.GetCreateVoxel(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, false);
-			}
-			if (v != nullptr) {
-				uint16 number = v->GetInstance();
-				if (number == SRI_PATH) {
-					uint16 instance_data = v->GetInstanceData();
-					if (HasValidPath(instance_data)) { // Valid path.
-						uint8 new_slope = SetPathEdge(GetImplodedPathSlope(instance_data), edge2, add_edges);
-						instance_data = SetImplodedPathSlope(instance_data, new_slope);
-						v->SetInstanceData(instance_data);
-						MarkVoxelDirty(xpos + dxy.x, ypos + dxy.y, zpos + delta_z);
-						modified = true;
-					}
-				} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
-					if ((v->GetInstanceData() & (1 << edge2)) != 0) modified = true;
-				}
-			}
+			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges);
 		}
+
 		if (modified && slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, add_edges);
 	}
 	return slope;
