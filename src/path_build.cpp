@@ -513,7 +513,7 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 	}
 
 	/* Try to find a voxel with a path. */
-	if (HasValidPath(v_top)) {
+	if (v_top != nullptr && HasValidPath(v_top)) {
 		this->xpos += dxy.x;
 		this->ypos += dxy.y;
 		if (move_up) this->zpos++;
@@ -521,7 +521,7 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 		this->UpdateState();
 		return;
 	}
-	if (HasValidPath(v_bot)) {
+	if (v_bot != nullptr && HasValidPath(v_bot)) {
 		this->xpos += dxy.x;
 		this->ypos += dxy.y;
 		if (!move_up) this->zpos--;
@@ -531,7 +531,7 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 	}
 
 	/* Try to find a voxel with surface. */
-	if (v_top->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_top->GetGroundSlope())) {
+	if (v_top != nullptr && v_top->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_top->GetGroundSlope())) {
 		this->xpos += dxy.x;
 		this->ypos += dxy.y;
 		if (move_up) this->zpos++;
@@ -539,7 +539,7 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 		this->UpdateState();
 		return;
 	}
-	if (v_bot->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_bot->GetGroundSlope())) {
+	if (v_bot != nullptr && v_bot->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_bot->GetGroundSlope())) {
 		this->xpos += dxy.x;
 		this->ypos += dxy.y;
 		if (!move_up) this->zpos--;
