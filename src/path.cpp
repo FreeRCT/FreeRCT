@@ -262,9 +262,10 @@ uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
  * @param use_additions Use #_additions rather than #_world.
  * @param edge Edge to examine, and/or connected to.
  * @param add_edges If set, add edges (else, remove them).
+ * @param at_bottom Whether a path connection is expected at the bottom (if \c false, it should be at the top).
  * @return Neighbouring voxel was (logically) connected to the centre tile.
  */
-static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool use_additions, TileEdge edge, bool add_edges)
+static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool use_additions, TileEdge edge, bool add_edges, bool at_bottom)
 {
 	Voxel *v;
 
@@ -280,8 +281,15 @@ static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool 
 		uint16 instance_data = v->GetInstanceData();
 		if (!HasValidPath(instance_data)) return false;
 
-		uint8 new_slope = SetPathEdge(GetImplodedPathSlope(instance_data), edge, add_edges);
-		instance_data = SetImplodedPathSlope(instance_data, new_slope);
+		uint8 slope = GetImplodedPathSlope(instance_data);
+		if (at_bottom) {
+			if (slope >= PATH_FLAT_COUNT && slope != _path_up_from_edge[edge]) return false;
+		} else {
+			if (slope != _path_down_from_edge[edge]) return false;
+		}
+
+		slope = SetPathEdge(slope, edge, add_edges);
+		instance_data = SetImplodedPathSlope(instance_data, slope);
 		v->SetInstanceData(instance_data);
 		MarkVoxelDirty(xpos, ypos, zpos);
 		return true;
@@ -322,11 +330,11 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
 		bool modified = false;
 		if (delta_z <= 0 || zpos < WORLD_Z_SIZE - 1) {
-			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges);
+			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges, true);
 		}
 		delta_z--;
 		if (delta_z >= 0 || zpos > 0) {
-			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges);
+			modified |= ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, add_edges, false);
 		}
 
 		if (modified && slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, add_edges);
