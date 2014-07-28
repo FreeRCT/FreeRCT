@@ -761,17 +761,27 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 							xpos++;
 							src_base++;
+							src += 3;
 						}
 						break;
 
 					case 1: { // Partial opaque pixels.
-						uint opacity = *src++;
+						uint8 opacity = *src++;
 						mode &= 0x3F;
 						for (; mode > 0; mode--) {
-							uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), opacity);
-							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							/* Cheat transparency a bit by just recolouring the previously drawn pixel */
+							uint32 old_pixel = *src_base;
+
+							uint r = sf(src[0]) * opacity + GetR(old_pixel) * (256 - opacity);
+							uint g = sf(src[1]) * opacity + GetG(old_pixel) * (256 - opacity);
+							uint b = sf(src[2]) * opacity + GetB(old_pixel) * (256 - opacity);
+
+							/* Opaque, but colour adjusted depending on the old pixel. */
+							uint32 ndest = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
+							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
 							xpos++;
 							src_base++;
+							src += 3;
 						}
 						break;
 					}
@@ -786,8 +796,14 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 						uint8 opacity = *src++;
 						mode &= 0x3F;
 						for (; mode > 0; mode--) {
-							uint32 rgb = table[*src++];
-							uint32 colour = MakeRGBA(sf(GetR(rgb)), sf(GetG(rgb)), sf(GetB(rgb)), opacity);
+							uint32 old_pixel = *src_base;
+							uint32 recoloured = table[*src++];
+
+							uint r = sf(GetR(recoloured)) * opacity + GetR(old_pixel) * (256 - opacity);
+							uint g = sf(GetG(recoloured)) * opacity + GetG(old_pixel) * (256 - opacity);
+							uint b = sf(GetB(recoloured)) * opacity + GetB(old_pixel) * (256 - opacity);
+
+							uint32 colour = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
 							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 							xpos++;
 							src_base++;
