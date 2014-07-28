@@ -681,6 +681,137 @@ static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
 }
 
 /**
+ * Blit 8bpp images to the screen.
+ * @param cr Clipped rectangle to draw to.
+ * @param x_base Base X coordinate of the sprite data.
+ * @param y_base Base Y coordinate of the sprite data.
+ * @param spr The sprite to blit.
+ * @param numx Number of sprites to draw in horizontal direction.
+ * @param numy Number of sprites to draw in vertical direction.
+ * @param recoloured Shifted palette to use.
+ */
+static void Blit8bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const uint8 *recoloured)
+{
+	uint32 *line_base = cr.address + x_base + cr.pitch * y_base;
+	int32 ypos = y_base;
+	for (int yoff = 0; yoff < spr->height; yoff++) {
+		uint32 offset = spr->table[yoff];
+		if (offset != INVALID_JUMP) {
+			int32 xpos = x_base;
+			uint32 *src_base = line_base;
+			for (;;) {
+				uint8 rel_off = spr->data[offset];
+				uint8 count   = spr->data[offset + 1];
+				uint8 *pixels = &spr->data[offset + 2];
+				offset += 2 + count;
+
+				xpos += rel_off & 127;
+				src_base += rel_off & 127;
+				while (count > 0) {
+					uint32 colour = _palette[recoloured[*pixels]];
+					BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+					pixels++;
+					xpos++;
+					src_base++;
+					count--;
+				}
+				if ((rel_off & 128) != 0) break;
+			}
+		}
+		line_base += cr.pitch;
+		ypos++;
+	}
+}
+
+/**
+ * Blit 32bpp images to the screen.
+ * @param cr Clipped rectangle to draw to.
+ * @param x_base Base X coordinate of the sprite data.
+ * @param y_base Base Y coordinate of the sprite data.
+ * @param spr The sprite to blit.
+ * @param numx Number of sprites to draw in horizontal direction.
+ * @param numy Number of sprites to draw in vertical direction.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
+ */
+static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
+{
+	uint32 *line_base = cr.address + x_base + cr.pitch * y_base;
+	ShiftFunc sf = GetGradientShiftFunc(shift);
+	int32 ypos = y_base;
+	const uint8 *src = spr->data + 2; // Skip the length word.
+	for (int yoff = 0; yoff < spr->height; yoff++) {
+		int32 xpos = x_base;
+		uint32 *src_base = line_base;
+		for (;;) {
+			uint8 mode = *src++;
+			if (mode == 0) break;
+			switch (mode >> 6) {
+				case 0: // Fully opaque pixels.
+					mode &= 0x3F;
+					for (; mode > 0; mode--) {
+						uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
+						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+						xpos++;
+						src_base++;
+						src += 3;
+					}
+					break;
+
+				case 1: { // Partial opaque pixels.
+					uint8 opacity = *src++;
+					mode &= 0x3F;
+					for (; mode > 0; mode--) {
+						/* Cheat transparency a bit by just recolouring the previously drawn pixel */
+						uint32 old_pixel = *src_base;
+
+						uint r = sf(src[0]) * opacity + GetR(old_pixel) * (256 - opacity);
+						uint g = sf(src[1]) * opacity + GetG(old_pixel) * (256 - opacity);
+						uint b = sf(src[2]) * opacity + GetB(old_pixel) * (256 - opacity);
+
+						/* Opaque, but colour adjusted depending on the old pixel. */
+						uint32 ndest = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
+						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
+						xpos++;
+						src_base++;
+						src += 3;
+					}
+					break;
+				}
+				case 2: // Fully transparent pixels.
+					xpos += mode & 0x3F;
+					src_base += mode & 0x3F;
+					break;
+
+				case 3: { // Recoloured pixels.
+					uint8 layer = *src++;
+					const uint32 *table = recolour.GetRecolourTable(layer - 1);
+					uint8 opacity = *src++;
+					mode &= 0x3F;
+					for (; mode > 0; mode--) {
+						uint32 old_pixel = *src_base;
+						uint32 recoloured = table[*src++];
+
+						uint r = sf(GetR(recoloured)) * opacity + GetR(old_pixel) * (256 - opacity);
+						uint g = sf(GetG(recoloured)) * opacity + GetG(old_pixel) * (256 - opacity);
+						uint b = sf(GetB(recoloured)) * opacity + GetB(old_pixel) * (256 - opacity);
+
+						uint32 colour = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
+						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+						xpos++;
+						src_base++;
+					}
+					break;
+				}
+			}
+		}
+		line_base += cr.pitch;
+		ypos++;
+		src += 2; // Skip the length word.
+	}
+}
+
+/**
  * Blit pixels from the \a spr relative to \a img_base into the area.
  * @param x_base Base X coordinate of the sprite data.
  * @param y_base Base Y coordinate of the sprite data.
@@ -710,112 +841,10 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 	while (numy > 0 && y_base + (numy - 1) * spr->height >= this->blit_rect.height) numy--;
 	if (numy == 0) return;
 
-	uint32 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
 	if (GB(spr->flags, IFG_IS_8BPP, 1) != 0) {
-		const uint8 *recoloured = recolour.GetPalette(shift); // Get the palette after recolouring and gradient shifting.
-		/* Drawing 8bpp image. */
-		int32 ypos = y_base;
-		for (int yoff = 0; yoff < spr->height; yoff++) {
-			uint32 offset = spr->table[yoff];
-			if (offset != INVALID_JUMP) {
-				int32 xpos = x_base;
-				uint32 *src_base = line_base;
-				for (;;) {
-					uint8 rel_off = spr->data[offset];
-					uint8 count   = spr->data[offset + 1];
-					uint8 *pixels = &spr->data[offset + 2];
-					offset += 2 + count;
-
-					xpos += rel_off & 127;
-					src_base += rel_off & 127;
-					while (count > 0) {
-						uint32 colour = _palette[recoloured[*pixels]];
-						BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-						pixels++;
-						xpos++;
-						src_base++;
-						count--;
-					}
-					if ((rel_off & 128) != 0) break;
-				}
-			}
-			line_base += this->blit_rect.pitch;
-			ypos++;
-		}
+		Blit8bppImages(this->blit_rect, x_base, y_base, spr, numx, numy, recolour.GetPalette(shift));
 	} else {
-		/* Drawing 32bpp image. */
-		ShiftFunc sf = GetGradientShiftFunc(shift);
-		int32 ypos = y_base;
-		const uint8 *src = spr->data + 2; // Skip the length word.
-		for (int yoff = 0; yoff < spr->height; yoff++) {
-			int32 xpos = x_base;
-			uint32 *src_base = line_base;
-			for (;;) {
-				uint8 mode = *src++;
-				if (mode == 0) break;
-				switch (mode >> 6) {
-					case 0: // Fully opaque pixels.
-						mode &= 0x3F;
-						for (; mode > 0; mode--) {
-							uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
-							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-							xpos++;
-							src_base++;
-							src += 3;
-						}
-						break;
-
-					case 1: { // Partial opaque pixels.
-						uint8 opacity = *src++;
-						mode &= 0x3F;
-						for (; mode > 0; mode--) {
-							/* Cheat transparency a bit by just recolouring the previously drawn pixel */
-							uint32 old_pixel = *src_base;
-
-							uint r = sf(src[0]) * opacity + GetR(old_pixel) * (256 - opacity);
-							uint g = sf(src[1]) * opacity + GetG(old_pixel) * (256 - opacity);
-							uint b = sf(src[2]) * opacity + GetB(old_pixel) * (256 - opacity);
-
-							/* Opaque, but colour adjusted depending on the old pixel. */
-							uint32 ndest = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
-							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
-							xpos++;
-							src_base++;
-							src += 3;
-						}
-						break;
-					}
-					case 2: // Fully transparent pixels.
-						xpos += mode & 0x3F;
-						src_base += mode & 0x3F;
-						break;
-
-					case 3: { // Recoloured pixels.
-						uint8 layer = *src++;
-						const uint32 *table = recolour.GetRecolourTable(layer - 1);
-						uint8 opacity = *src++;
-						mode &= 0x3F;
-						for (; mode > 0; mode--) {
-							uint32 old_pixel = *src_base;
-							uint32 recoloured = table[*src++];
-
-							uint r = sf(GetR(recoloured)) * opacity + GetR(old_pixel) * (256 - opacity);
-							uint g = sf(GetG(recoloured)) * opacity + GetG(old_pixel) * (256 - opacity);
-							uint b = sf(GetB(recoloured)) * opacity + GetB(old_pixel) * (256 - opacity);
-
-							uint32 colour = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
-							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-							xpos++;
-							src_base++;
-						}
-						break;
-					}
-				}
-			}
-			line_base += this->blit_rect.pitch;
-			ypos++;
-			src += 2; // Skip the length word.
-		}
+		Blit32bppImages(this->blit_rect, x_base, y_base, spr, numx, numy, recolour, shift);
 	}
 }
 
