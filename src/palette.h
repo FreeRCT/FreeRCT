@@ -36,6 +36,36 @@ static inline uint32 MakeRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
 }
 
 /**
+ * Retrieve the redness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Redness of the examined pixel.
+ */
+static inline uint8 GetR(uint32 rgba)
+{
+	return rgba >> 24;
+}
+
+/**
+ * Retrieve the greenness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Greenness of the examined pixel.
+ */
+static inline uint8 GetG(uint32 rgba)
+{
+	return rgba >> 16;
+}
+
+/**
+ * Retrieve the blueness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Blueness of the examined pixel.
+ */
+static inline uint8 GetB(uint32 rgba)
+{
+	return rgba >> 8;
+}
+
+/**
  * Retrieve the opaqueness of the provided pixel value.
  * @param rgba Pixel value to examine.
  * @return Opaqueness of the examined pixel.

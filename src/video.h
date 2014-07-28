@@ -131,7 +131,7 @@ public:
 		this->BlitImages(x, ymin, spr, 1, numy, recolour);
 	}
 
-	void BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour);
+	void BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
 
 	void FinishRepaint();
 

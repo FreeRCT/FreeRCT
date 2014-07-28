@@ -640,183 +640,7 @@ static ShiftFunc GetGradientShiftFunc(GradientShift shift)
  */
 void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, GradientShift shift)
 {
-	if (img == nullptr) {
-		this->missing_sprites = true;
-		return;
-	}
-
-	int im_left = 0;
-	int im_top = 0;
-	int im_right = img->width;
-	int im_bottom = img->height;
-
-	x += img->xoffset;
-	y += img->yoffset;
-
-	if (x < 0) {
-		im_left = -x;
-		if (im_left >= im_right) return;
-		x = 0;
-	}
-	if (y < 0) {
-		im_top = -y;
-		if (im_top >= im_bottom) return;
-		y = 0;
-	}
-
-	this->blit_rect.ValidateAddress();
-	if (x >= this->blit_rect.width || y >= this->blit_rect.height) return;
-
-	if (x + im_right > this->blit_rect.width) {
-		im_right = this->blit_rect.width - x;
-		if (im_left >= im_right) return;
-	}
-	if (y + im_bottom > this->blit_rect.height) {
-		im_bottom = this->blit_rect.height - y;
-		if (im_top >= im_bottom) return;
-	}
-
-	uint32 *base = this->blit_rect.address + x + y * this->blit_rect.pitch;
-	if (GB(img->flags, IFG_IS_8BPP, 1) != 0) {
-		const uint8 *recoloured = recolour.GetPalette(shift); // Get the palette after recolouring and gradient shifting.
-		/* Draw an 8bpp image. */
-		for (; im_top < im_bottom; im_top++) {
-			uint32 *dest = base;
-			uint32 offset = img->table[im_top];
-			if (offset == INVALID_JUMP) {
-				base += this->blit_rect.pitch;
-				continue;
-			}
-
-			int xpos = 0;
-			for (;;) {
-				uint8 rel_off = img->data[offset];
-				uint8 count   = img->data[offset + 1];
-				uint8 *pixels = &img->data[offset + 2];
-				offset += 2 + count;
-
-				if (xpos + (rel_off & 127) >= im_left) {
-					if (xpos >= im_left) {
-						dest += (rel_off & 127);
-					} else {
-						dest += (rel_off & 127) + xpos - im_left;
-					}
-				}
-				xpos += rel_off & 127;
-
-				for (; count > 0; count--) {
-					if (xpos >= im_right) break;
-					if (xpos >= im_left) {
-						*dest = _palette[recoloured[*pixels]];
-						dest++;
-					}
-					xpos++;
-					pixels++;
-				}
-				if (xpos >= im_right || (rel_off & 128) != 0) break;
-			}
-			base += this->blit_rect.pitch;
-		}
-	} else {
-		/* Draw a 32bpp image. */
-		ShiftFunc sf = GetGradientShiftFunc(shift);
-		const uint8 *start = img->data;
-		for (int ypos = 0; ypos < im_top; ypos++) start += start[0] | (start[1] << 8);
-		for (; im_top < im_bottom; im_top++) {
-			const uint8 *src = start + 2; // Skip length.
-			start += start[0] + (start[1] << 8); // Jump to next line.
-			uint32 *dest = base;
-			int xpos = 0;
-			for (;;) {
-				uint8 mode = *src++;
-				if (mode == 0) break;
-				switch (mode >> 6) {
-					case 0: // Fully opaque pixels.
-						mode &= 0x3F;
-						while (mode > 0) {
-							if (xpos >= im_left) {
-								*dest++ = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
-							}
-							xpos++;
-							src += 3;
-							mode--;
-							if (xpos >= im_right) goto next_line;
-						}
-						break;
-
-					case 1: { // Partial opaque pixels.
-						uint opacity = *src++;
-						mode &= 0x3F;
-						while (mode > 0) {
-							if (xpos >= im_left) {
-								uint32 val = *dest >> 8;
-								uint col = sf(src[2]) * opacity + (val & 0xFF) * (256 - opacity);
-								uint32 ndest = (col & 0xFF00) | OPAQUE;
-								val >>= 8;
-								col = sf(src[1]) * opacity + (val & 0xFF) * (256 - opacity);
-								ndest |= (col << 8) & 0xFF0000;
-								val >>= 8;
-								col = sf(src[0]) * opacity + (val & 0xFF) * (256 - opacity);
-								*dest++ = ndest | ((col << 16) & 0xFF000000);
-							}
-							xpos++;
-							src += 3;
-							mode--;
-							if (xpos >= im_right) goto next_line;
-						}
-						break;
-					}
-					case 2: // Fully transparent pixels.
-						mode &= 0x3F;
-						if (xpos + mode >= im_left) {
-							if (xpos >= im_left) {
-								dest += mode;
-							} else {
-								dest += mode + xpos - im_left;
-							}
-						}
-						xpos += mode;
-						if (xpos >= im_right) goto next_line;
-						break;
-
-					case 3: { // Recoloured pixels.
-						uint8 layer = *src++;
-						const uint32 *table = recolour.GetRecolourTable(layer - 1);
-						uint8 opacity = *src++;
-						mode &= 0x3F;
-						while (mode > 0) {
-							if (xpos >= im_left) {
-								if (opacity == TRANSPARENT) {
-									dest++; src++;
-								} else if (opacity == OPAQUE) {
-									*dest++ = SetA(table[*src++], opacity);
-								} else {
-									uint32 val = *dest >> 8;
-									uint32 other = table[*src++] >> 8;
-									uint col = sf(other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
-									uint32 ndest = (col & 0xFF00) | OPAQUE;
-									val >>= 8;
-									other >>= 8;
-									col = sf(other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
-									ndest |= (col << 8) & 0xFF0000;
-									val >>= 8;
-									other >>= 8;
-									col = sf(other & 0xFF) * opacity + (val & 0xFF) * (256 - opacity);
-									*dest++ = ndest | ((col << 16) & 0xFF000000);
-								}
-							}
-							xpos++;
-							mode--;
-							if (xpos >= im_right) goto next_line;
-						}
-						break;
-					}
-				}
-			}
-next_line:
-			base += this->blit_rect.pitch;
-		}
-	}
+	this->BlitImages(x, y, img, 1, 1, recolour, shift);
 }
 
 /**
@@ -864,8 +688,9 @@ static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
  * @param numx Number of sprites to draw in horizontal direction.
  * @param numy Number of sprites to draw in vertical direction.
  * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
  */
-void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour)
+void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
 {
 	this->blit_rect.ValidateAddress();
 
@@ -887,7 +712,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 
 	uint32 *line_base = this->blit_rect.address + x_base + this->blit_rect.pitch * y_base;
 	if (GB(spr->flags, IFG_IS_8BPP, 1) != 0) {
-		const uint8 *recoloured = recolour.GetPalette(GS_NORMAL); // Get the palette after recolouring and gradient shifting.
+		const uint8 *recoloured = recolour.GetPalette(shift); // Get the palette after recolouring and gradient shifting.
 		/* Drawing 8bpp image. */
 		int32 ypos = y_base;
 		for (int yoff = 0; yoff < spr->height; yoff++) {
@@ -919,6 +744,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 		}
 	} else {
 		/* Drawing 32bpp image. */
+		ShiftFunc sf = GetGradientShiftFunc(shift);
 		int32 ypos = y_base;
 		const uint8 *src = spr->data + 2; // Skip the length word.
 		for (int yoff = 0; yoff < spr->height; yoff++) {
@@ -931,7 +757,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 					case 0: // Fully opaque pixels.
 						mode &= 0x3F;
 						for (; mode > 0; mode--) {
-							uint32 colour = MakeRGBA(src[0], src[1], src[2], OPAQUE);
+							uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
 							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 							xpos++;
 							src_base++;
@@ -942,7 +768,7 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 						uint opacity = *src++;
 						mode &= 0x3F;
 						for (; mode > 0; mode--) {
-							uint32 colour = MakeRGBA(src[0], src[1], src[2], opacity);
+							uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), opacity);
 							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 							xpos++;
 							src_base++;
@@ -960,7 +786,8 @@ void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, u
 						uint8 opacity = *src++;
 						mode &= 0x3F;
 						for (; mode > 0; mode--) {
-							uint32 colour = SetA(table[*src++], opacity);
+							uint32 rgb = table[*src++];
+							uint32 colour = MakeRGBA(sf(GetR(rgb)), sf(GetG(rgb)), sf(GetB(rgb)), opacity);
 							BlitPixel(this->blit_rect, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 							xpos++;
 							src_base++;
@@ -1003,7 +830,7 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 	if (this->digit_size.x == 0) { // First call, initialize the variable.
 		this->digit_size.x = 0;
 		this->digit_size.y = 0;
-		
+
 		uint8 buffer[2];
 		buffer[1] = '\0';
 		for (uint8 i = '0'; i <= '9'; i++) {
