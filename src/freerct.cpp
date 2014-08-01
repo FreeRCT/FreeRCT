@@ -109,8 +109,8 @@ int main(int argc, char **argv)
 
 	cfg_file.Load("freerct.cfg");
 	const char *font_path = cfg_file.GetValue("font", "medium-path");
-	const char *font_size_text = cfg_file.GetValue("font", "medium-size");
-	if (font_path == nullptr || *font_path == '\0' || font_size_text == nullptr || *font_size_text == '\0') {
+	int font_size = cfg_file.GetNum("font", "medium-size");
+	if (font_path == nullptr || *font_path == '\0' || font_size == -1) {
 		fprintf(stderr, "Failed to find font settings. Did you make a 'freerct.cfg' file next to the 'freerct' program?\n");
 		fprintf(stderr, "Example content (you may need to change the path and.or the size):\n"
 		                "[font]\n"
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Initialize video. */
-	std::string err = _video.Initialize(font_path, atoi(font_size_text));
+	std::string err = _video.Initialize(font_path, font_size);
 	if (!err.empty()) {
 		fprintf(stderr, "Failed to initialize window or the font (%s), aborting\n", err.c_str());
 		exit(1);
