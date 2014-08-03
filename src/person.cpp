@@ -424,28 +424,34 @@ void Guest::DecideMoveDirection()
 
 			/* Decide whether to visit the exit at all. */
 			RideVisitDesire rvd = RVD_NO_VISIT;
-			if (exit_edge == start_edge) {
-				/* Nothing to do, the edge is already blocked by the default value above. */
-			} else if (PathExistsAtBottomEdge(this->x_vox, this->y_vox, z, exit_edge)) {
-				rvd = RVD_NO_RIDE; // but a path instead.
-			} else {
-				const RideInstance *ri = RideExistsAtBottom(this->x_vox, this->y_vox, z, exit_edge);
-				if (ri != nullptr && ri->state == RIS_OPEN) {
-					if (ri == this->wants_visit) { // Guest decided before that this shop/ride should be visited.
-						rvd = RVD_MUST_VISIT;
-						seen_wanted_ride = true;
+			if (exit_edge != start_edge) { // Skip incoming edge.
+				int x = this->x_vox;
+				int y = this->y_vox;
+				TileEdge edge = exit_edge;
+				bool travel = TravelQueuePath(&x, &y, &z, &edge);
+				if (travel) {
+					if (PathExistsAtBottomEdge(x, y, z, edge)) {
+						rvd = RVD_NO_RIDE; // but a path instead.
 					} else {
-						Point16 dxy = _tile_dxy[exit_edge];
-						if (ri->CanBeVisited(this->x_vox + dxy.x, this->y_vox + dxy.y, z, exit_edge)) {
-							rvd = this->WantToVisit(ri);
-							/* Want to visit this ride, and no favorite one yet. Set it as wanted. */
-							// \todo Difference between #RVD_MAY_VISIT and #RVD_MUST_VISIT is too small; merge them.
-							if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->wants_visit == nullptr) {
-								/* Decided to want to visit one ride, and no wanted ride yet. */
-								// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
-								this->wants_visit = ri;
-								seen_wanted_ride = true;
+						const RideInstance *ri = RideExistsAtBottom(x, y, z, edge);
+						if (ri != nullptr && ri->state == RIS_OPEN) {
+							if (ri == this->wants_visit) { // Guest decided before that this shop/ride should be visited.
 								rvd = RVD_MUST_VISIT;
+								seen_wanted_ride = true;
+							} else {
+								Point16 dxy = _tile_dxy[edge];
+								if (ri->CanBeVisited(x + dxy.x, y + dxy.y, z, edge)) {
+									rvd = this->WantToVisit(ri);
+									/* Want to visit this ride, and no favorite one yet. Set it as wanted. */
+									// \todo Difference between #RVD_MAY_VISIT and #RVD_MUST_VISIT is too small; merge them.
+									if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->wants_visit == nullptr) {
+										/* Decided to want to visit one ride, and no wanted ride yet. */
+										// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
+										this->wants_visit = ri;
+										seen_wanted_ride = true;
+										rvd = RVD_MUST_VISIT;
+									}
+								}
 							}
 						}
 					}
