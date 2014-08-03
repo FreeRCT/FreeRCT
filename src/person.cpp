@@ -387,7 +387,12 @@ void Guest::DecideMoveDirection()
 	uint8 bot_exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions at the bottom by default.
 	uint8 shops = 0; // Number of exits with a shop with normal desire to go there.
 	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
+	this->queue_mode = false;
 	if (HasValidPath(v)) {
+		/* If walking on a queue path, enable queue mode. */
+		// \todo Only walk in queue mode when going to a ride.
+		if (_sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH) this->queue_mode = true;
+
 		uint8 top_exits = 0; // Exits at the top of the voxel.
 
 		uint8 slope = GetImplodedPathSlope(v);
@@ -472,6 +477,8 @@ void Guest::DecideMoveDirection()
 			if (GB(shops, exit_edge + PATHBIT_NE, 1) != 0) {
 				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
 				shop_count++;
+			} else if (this->queue_mode) { // Queue mode, walk at the center.
+				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
 			} else {
 				walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
 			}
