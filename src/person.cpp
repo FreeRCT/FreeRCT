@@ -388,6 +388,7 @@ void Guest::DecideMoveDirection()
 	uint8 shops = 0; // Number of exits with a shop with normal desire to go there.
 	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
 	this->queue_mode = false;
+	bool seen_wanted_ride = false;
 	if (HasValidPath(v)) {
 		/* If walking on a queue path, enable queue mode. */
 		// \todo Only walk in queue mode when going to a ride.
@@ -430,8 +431,24 @@ void Guest::DecideMoveDirection()
 			} else {
 				const RideInstance *ri = RideExistsAtBottom(this->x_vox, this->y_vox, z, exit_edge);
 				if (ri != nullptr && ri->state == RIS_OPEN) {
-					Point16 dxy = _tile_dxy[exit_edge];
-					if (ri->CanBeVisited(this->x_vox + dxy.x, this->y_vox + dxy.y, z, exit_edge)) rvd = this->WantToVisit(ri);
+					if (ri == this->wants_visit) { // Guest decided before that this shop/ride should be visited.
+						rvd = RVD_MUST_VISIT;
+						seen_wanted_ride = true;
+					} else {
+						Point16 dxy = _tile_dxy[exit_edge];
+						if (ri->CanBeVisited(this->x_vox + dxy.x, this->y_vox + dxy.y, z, exit_edge)) {
+							rvd = this->WantToVisit(ri);
+							/* Want to visit this ride, and no favorite one yet. Set it as wanted. */
+							// \todo Difference between #RVD_MAY_VISIT and #RVD_MUST_VISIT is too small; merge them.
+							if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->wants_visit == nullptr) {
+								/* Decided to want to visit one ride, and no wanted ride yet. */
+								// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
+								this->wants_visit = ri;
+								seen_wanted_ride = true;
+								rvd = RVD_MUST_VISIT;
+							}
+						}
+					}
 				}
 			}
 			switch (rvd) {
@@ -460,6 +477,8 @@ void Guest::DecideMoveDirection()
 			shops = must_shops;
 		}
 	}
+
+	if (!seen_wanted_ride) this->wants_visit = nullptr; // Wanted ride has gone missing, stop looking for it.
 
 	/* At this point:
 	 *
