@@ -213,6 +213,122 @@ const uint8 _path_rotation[PATH_COUNT][4] = {
 	{PATH_RAMP_SW,             PATH_RAMP_SE,             PATH_RAMP_NE,             PATH_RAMP_NW            },
 };
 
+/**
+ * Find all edges that are an exit for a path in the given voxel. No investigation is performed whether the exits connect to anything.
+ * @param v %Voxel to investigate.
+ * @return Exits for a path in the queried voxel. Lower 4 bits are exits at the bottom; upper 4 bits are exits at the top.
+ */
+uint8 GetPathExits(const Voxel *v)
+{
+	SmallRideInstance instance = v->GetInstance();
+	if (instance != SRI_PATH) return 0;
+	uint16 inst_data = v->GetInstanceData();
+	if (!HasValidPath(inst_data)) return 0;
+
+	PathSprites slope = GetImplodedPathSlope(inst_data);
+	if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
+		return (_path_expand[slope] >> PATHBIT_NE) & 0xF;
+	}
+
+	switch (slope) {
+		case PATH_RAMP_NE: return (1 << EDGE_NE) | (0x10 << EDGE_SW);
+		case PATH_RAMP_NW: return (1 << EDGE_NW) | (0x10 << EDGE_SE);
+		case PATH_RAMP_SE: return (1 << EDGE_SE) | (0x10 << EDGE_NW);
+		case PATH_RAMP_SW: return (1 << EDGE_SW) | (0x10 << EDGE_NE);
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Find all edges that are an exit for a path in the given voxel. No investigation is performed whether the exits connect to anything.
+ * @param xpos X position of the voxel.
+ * @param ypos Y position of the voxel.
+ * @param zpos Z position of the voxel.
+ * @return Exits for a path in the queried voxel. Lower 4 bits are exits at the bottom; upper 4 bits are exits at the top.
+ */
+uint8 GetPathExits(int xpos, int ypos, int zpos)
+{
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return 0;
+	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
+	if (v == nullptr) return 0;
+	return GetPathExits(v);
+}
+
+/**
+ * Walk over a queue path from the given entry edge at the given position.
+ * If it leads to a new voxel edge, the provided position and edge is update with the exit point.
+ * @param xp [inout] Start voxel X position before the queue path, updated to last voxel position.
+ * @param yp [inout] Start voxel Y position before the queue path, updated to last voxel position.
+ * @param zp [inout] Start voxel Z position before the queue path, updated to last voxel position.
+ * @param entry Direction used for entry to the path, updated to last edge exit direction.
+ * @return Whether a (possibly) new last voxel could be found, \c false means the path leads to nowhere.
+ * @note Parameter values may get changed during the call, do not rely on their values except when \c true is returned.
+ */
+bool TravelQueuePath(int *xp, int *yp, int *zp, TileEdge *entry)
+{
+	int orig_xp = *xp;
+	int orig_yp = *yp;
+	int orig_zp = *zp;
+
+	int xpos = *xp;
+	int ypos = *yp;
+	int zpos = *zp;
+	TileEdge edge = *entry;
+
+	/* Check that entry voxel actually exists. */
+	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
+
+	for (;;) {
+		xpos += _tile_dxy[edge].x;
+		ypos += _tile_dxy[edge].y;
+		if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
+
+		const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
+		if (vx == nullptr || !HasValidPath(vx)) {
+			/* No path here, check the voxel below. */
+			if (zpos == 0) return true; // Path ends here.
+			zpos--;
+			vx = _world.GetVoxel(xpos, ypos, zpos);
+			if (vx == nullptr || !HasValidPath(vx)) return true; // Path ends here.
+		}
+
+		if (xpos == orig_xp && ypos == orig_yp && zpos == orig_zp) return false; // Cycle detected.
+
+		/* Stop if we found a non-queue path. */
+		if (_sprite_manager.GetPathStatus(GetPathType(vx->GetInstanceData())) != PAS_QUEUE_PATH) return true;
+
+		/* At this point:
+		 * *xp, *yp, *zp, edge (and *entry) contain the last valid voxel edge.
+		 * xpos, ypos, zpos, vx is the next queue path tile position.
+		 */
+
+		uint8 exits = GetPathExits(vx);
+
+		/* Check that the new tile can go back to our last tile. */
+		uint8 rev_edge = (edge + 2) % 4;
+		if (!((exits & (0x01 << rev_edge)) != 0 && zpos == *zp) &&
+				!((exits & (0x10 << rev_edge)) != 0 && zpos == *zp -1)) {
+			return false;
+		}
+
+		/* Find exit to the next path tile. */
+		for (edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+			if (edge == rev_edge) continue; // Skip the direction we came from.
+			if ((exits & (0x01 << edge)) != 0) break;
+			if ((exits & (0x10 << edge)) != 0) {
+				zpos++;
+				break;
+			}
+		}
+
+		if (edge == EDGE_COUNT) return false; // Queue path doesn't have a second exit.
+
+		*xp = xpos;
+		*yp = ypos;
+		*zp = zpos;
+		*entry = edge;
+	}
+}
 
 /**
  * Set the edge of a path sprite. Also updates the corner pieces of the flat path tiles.
