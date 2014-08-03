@@ -375,9 +375,11 @@ TileEdge Person::GetCurrentEdge() const
 }
 
 /**
+ * @fn Person::DecideMoveDirection()
  * Decide where to go from the current position.
  */
-void Person::DecideMoveDirection()
+
+void Guest::DecideMoveDirection()
 {
 	TileEdge start_edge = this->GetCurrentEdge(); // Edge the person is currently.
 
@@ -736,6 +738,8 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->thirst_level = 50;
 	this->stomach_level = 0;
 	this->waste = 0;
+	this->wants_visit = nullptr;
+	this->queue_mode = false;
 }
 
 /**

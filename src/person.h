@@ -134,7 +134,7 @@ protected:
 
 	TileEdge GetCurrentEdge() const;
 
-	void DecideMoveDirection();
+	virtual void DecideMoveDirection() = 0;
 	void StartAnimation(const WalkInformation *walk);
 
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
@@ -153,6 +153,8 @@ public:
 
 	int16 happiness; ///< Happiness of the guest (values are 0-100).
 	Money cash;      ///< Amount of money carried by the guest (should be non-negative).
+	const RideInstance *wants_visit; ///< Ride that the guest wants to visit, \c nullptr there is no favorite ride.
+	bool queue_mode; ///< Whether we are queueing.
 
 	/* Possessions of the guest. */
 	bool has_map;        ///< Whether guest has a park map.
@@ -167,6 +169,7 @@ public:
 	uint8 waste;         ///< Amount of food/drink waste that should be disposed.
 
 protected:
+	void DecideMoveDirection() override;
 	RideVisitDesire WantToVisit(const RideInstance *ri) override;
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
