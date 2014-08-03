@@ -429,7 +429,7 @@ void Guest::DecideMoveDirection()
 				rvd = RVD_NO_RIDE; // but a path instead.
 			} else {
 				const RideInstance *ri = RideExistsAtBottom(this->x_vox, this->y_vox, z, exit_edge);
-				if (ri != nullptr) {
+				if (ri != nullptr && ri->state == RIS_OPEN) {
 					Point16 dxy = _tile_dxy[exit_edge];
 					if (ri->CanBeVisited(this->x_vox + dxy.x, this->y_vox + dxy.y, z, exit_edge)) rvd = this->WantToVisit(ri);
 				}
