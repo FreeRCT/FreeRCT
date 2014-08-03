@@ -510,7 +510,7 @@ void Guest::DecideMoveDirection()
 		}
 	}
 	/* No exits, or all normal shops: Add 'return' as option. */
-	if (walk_count == 0 || walk_count == shop_count) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
+	if (walk_count == 0 || (walk_count == shop_count && this->wants_visit == nullptr)) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
 
 	const WalkInformation *new_walk;
 	if (walk_count == 1) {
