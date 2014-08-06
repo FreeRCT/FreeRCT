@@ -486,7 +486,7 @@ void DataWidget::Draw(const GuiWindow *w)
 
 		default:
 			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align);
+			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align, this->wtype == WT_TITLEBAR);
 			break;
 	}
 	if (this->number > 0) w->DrawWidget(this->number, this);

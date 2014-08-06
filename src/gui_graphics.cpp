@@ -100,12 +100,20 @@ void OverlayShaded(const Rectangle32 &rect)
  * @param y Y position at the screen.
  * @param width Maximal width of the text.
  * @param align Horizontal alignment of the string.
+ * @param outline Whether to make the string "bold" (default false).
  */
-void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment align)
+void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment align, bool outline)
 {
 	uint8 buffer[1024]; // Arbitrary limit.
 
 	DrawText(strid, buffer, lengthof(buffer));
+	/** \todo Reduce the naiviness of this. */
+	if (outline) {
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x + 1, y, width, align);
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x, y + 1, width, align);
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x - 1, y, width, align);
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x, y - 1, width, align);
+	}
 	_video.BlitText(buffer, _palette[colour], x, y, width, align);
 }
 

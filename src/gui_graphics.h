@@ -28,7 +28,7 @@ inline int GetTextHeight()
 	return _video.GetTextHeight();
 }
 
-void DrawString(StringID strid, uint8 colour, int x, int y, int width = 0x7FFF, Alignment align = ALG_LEFT);
+void DrawString(StringID strid, uint8 colour, int x, int y, int width = 0x7FFF, Alignment align = ALG_LEFT, bool outline = false);
 bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour);
 
 void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height);
