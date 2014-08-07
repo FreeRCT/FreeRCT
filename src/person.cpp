@@ -21,6 +21,7 @@
 #include "map.h"
 #include "ride_type.h"
 #include "viewport.h"
+#include "weather.h"
 
 static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about each type of person.
 
@@ -824,6 +825,7 @@ bool Guest::DailyUpdate()
  */
 RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 {
+	/// \todo Make warm food attractive on cold days.
 	switch (it) {
 		case ITP_NOTHING:
 			return RVD_NO_VISIT;
@@ -832,7 +834,8 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 		case ITP_ICE_CREAM:
 			if (this->food > 0 || this->drink > 0) return RVD_NO_VISIT;
 			if (this->waste > 100 || this->stomach_level > 100) return RVD_NO_VISIT;
-			if (use_random) return this->rnd.Success1024(this->thirst_level * 4) ? RVD_MAY_VISIT : RVD_NO_VISIT;
+			if (_weather.temperature < 20) return RVD_NO_VISIT;
+			if (use_random) return this->rnd.Success1024(this->thirst_level * 4 + _weather.temperature * 2) ? RVD_MAY_VISIT : RVD_NO_VISIT;
 			return RVD_MAY_VISIT;
 
 		case ITP_NORMAL_FOOD:
@@ -854,7 +857,6 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 
 RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
 {
-	/// \todo Make shops selling cold food more attractive with higher temperatures (and shops selling warm food on colder days?).
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 		if (this->NeedForItem(ri->GetSaleItemType(i), true) != RVD_NO_VISIT) return RVD_MAY_VISIT;
 	}
