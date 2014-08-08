@@ -543,6 +543,7 @@ void Person::StartAnimation(const WalkInformation *walk)
 /**
  * Mark this person as 'not in use'. (Called by #Guests.)
  * @param ar How to de-activate the person.
+ * @todo Check #total_happiness against scenario requirements for evaluation of the park.
  */
 void Person::DeActivate(AnimateResult ar)
 {
@@ -558,6 +559,7 @@ void Person::DeActivate(AnimateResult ar)
 		/* If not wandered off-world, remove the person from the voxel person list. */
 		this->RemoveSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
 	}
+
 	this->type = PERSON_INVALID;
 	delete[] this->name;
 	this->name = nullptr;
@@ -759,6 +761,7 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->Person::Activate(start, person_type);
 
 	this->happiness = 50 + this->rnd.Uniform(50);
+	this->total_happiness = 0;
 	this->cash = 3000 + this->rnd.Uniform(4095);
 
 	this->has_map = false;
@@ -934,7 +937,9 @@ void Guest::VisitShop(RideInstance *ri)
 			ri->SellItem(i);
 			this->cash -= ri->GetSaleItemPrice(i);
 			this->AddItem(ri->GetSaleItemType(i));
+			int16 old_happiness = this->happiness;
 			this->happiness = std::min(100, this->happiness + 10);
+			this->total_happiness = std::min(1000, this->total_happiness + this->happiness - old_happiness);
 			NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
 			return;
 		}

@@ -151,10 +151,11 @@ public:
 
 	void VisitShop(RideInstance *ri);
 
-	int16 happiness; ///< Happiness of the guest (values are 0-100).
-	Money cash;      ///< Amount of money carried by the guest (should be non-negative).
+	int16 happiness;        ///< Happiness of the guest (values are 0-100).
+	uint16 total_happiness; ///< Sum of all good experiences (for evaluating the day after getting home, values are 0-1000).
+	Money cash;             ///< Amount of money carried by the guest (should be non-negative).
 	const RideInstance *wants_visit; ///< Ride that the guest wants to visit, \c nullptr there is no favorite ride.
-	bool queue_mode; ///< Whether we are queueing.
+	bool queue_mode;        ///< Whether we are queueing.
 
 	/* Possessions of the guest. */
 	bool has_map;        ///< Whether guest has a park map.
