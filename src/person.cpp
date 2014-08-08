@@ -543,17 +543,10 @@ void Person::StartAnimation(const WalkInformation *walk)
 /**
  * Mark this person as 'not in use'. (Called by #Guests.)
  * @param ar How to de-activate the person.
- * @todo Check #total_happiness against scenario requirements for evaluation of the park.
  */
 void Person::DeActivate(AnimateResult ar)
 {
 	if (!this->IsActive()) return;
-
-	/* Close possible Guest Info window */
-	Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
-	if (wi != nullptr) {
-		_manager.DeleteWindow(wi);
-	}
 
 	if (ar == OAR_REMOVE && _world.VoxelExists(this->x_vox, this->y_vox, this->z_vox)) {
 		/* If not wandered off-world, remove the person from the voxel person list. */
@@ -776,6 +769,21 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->waste = 0;
 	this->wants_visit = nullptr;
 	this->queue_mode = false;
+}
+
+void Guest::DeActivate(AnimateResult ar)
+{
+	if (this->IsActive()) {
+		/* Close possible Guest Info window */
+		Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
+		if (wi != nullptr) {
+			_manager.DeleteWindow(wi);
+		}
+
+		/// \todo Evaluate #total_happiness against scenario requirements for evaluating the park value.
+	}
+
+	this->Person::DeActivate(ar);
 }
 
 /**

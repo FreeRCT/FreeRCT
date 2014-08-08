@@ -147,6 +147,7 @@ public:
 	~Guest();
 
 	void Activate(const Point16 &start, PersonType person_type) override;
+	void DeActivate(AnimateResult ar) override;
 	bool DailyUpdate() override;
 
 	void VisitShop(RideInstance *ri);
