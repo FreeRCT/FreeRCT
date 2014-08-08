@@ -376,6 +376,46 @@ TileEdge Person::GetCurrentEdge() const
 }
 
 /**
+ * Decide whether visiting the exit edge is useful.
+ * @param current_edge Edge at the current position.
+ * @param x X coordinate of the current voxel.
+ * @param y Y coordinate of the current voxel.
+ * @param z Z coordinate of the current voxel.
+ * @param exit_edge Exit edge being examined.
+ * @param seen_wanted_ride [inout] Whether the wanted ride is seen.
+ */
+RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, int z, TileEdge exit_edge, bool *seen_wanted_ride)
+{
+	if (current_edge == exit_edge) return RVD_NO_VISIT; // Skip incoming edge (may get added later if no other options exist).
+
+	bool travel = TravelQueuePath(&x, &y, &z, &exit_edge);
+	if (!travel) return RVD_NO_VISIT; // Path leads to nowhere.
+
+	if (PathExistsAtBottomEdge(x, y, z, exit_edge)) return RVD_NO_RIDE; // Found a path.
+
+	const RideInstance *ri = RideExistsAtBottom(x, y, z, exit_edge);
+	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
+
+	if (ri == this->wants_visit) { // Guest decided before that this shop/ride should be visited.
+		*seen_wanted_ride = true;
+		return RVD_MUST_VISIT;
+	}
+
+	Point16 dxy = _tile_dxy[exit_edge];
+	if (!ri->CanBeVisited(x + dxy.x, y + dxy.y, z, exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
+
+	RideVisitDesire rvd = this->WantToVisit(ri);
+	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->wants_visit == nullptr) {
+		/* Decided to want to visit one ride, and no wanted ride yet. */
+		// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
+		this->wants_visit = ri;
+		*seen_wanted_ride = true;
+		return RVD_MUST_VISIT;
+	}
+	return rvd;
+}
+
+/**
  * @fn Person::DecideMoveDirection()
  * Decide where to go from the current position.
  */
@@ -423,41 +463,7 @@ void Guest::DecideMoveDirection()
 				continue;
 			}
 
-			/* Decide whether to visit the exit at all. */
-			RideVisitDesire rvd = RVD_NO_VISIT;
-			if (exit_edge != start_edge) { // Skip incoming edge.
-				int x = this->x_vox;
-				int y = this->y_vox;
-				TileEdge edge = exit_edge;
-				bool travel = TravelQueuePath(&x, &y, &z, &edge);
-				if (travel) {
-					if (PathExistsAtBottomEdge(x, y, z, edge)) {
-						rvd = RVD_NO_RIDE; // but a path instead.
-					} else {
-						const RideInstance *ri = RideExistsAtBottom(x, y, z, edge);
-						if (ri != nullptr && ri->state == RIS_OPEN) {
-							if (ri == this->wants_visit) { // Guest decided before that this shop/ride should be visited.
-								rvd = RVD_MUST_VISIT;
-								seen_wanted_ride = true;
-							} else {
-								Point16 dxy = _tile_dxy[edge];
-								if (ri->CanBeVisited(x + dxy.x, y + dxy.y, z, edge)) {
-									rvd = this->WantToVisit(ri);
-									/* Want to visit this ride, and no favorite one yet. Set it as wanted. */
-									// \todo Difference between #RVD_MAY_VISIT and #RVD_MUST_VISIT is too small; merge them.
-									if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->wants_visit == nullptr) {
-										/* Decided to want to visit one ride, and no wanted ride yet. */
-										// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
-										this->wants_visit = ri;
-										seen_wanted_ride = true;
-										rvd = RVD_MUST_VISIT;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			RideVisitDesire rvd = ComputeExitDesire(start_edge, this->x_vox, this->y_vox, z, exit_edge, &seen_wanted_ride);
 			switch (rvd) {
 				case RVD_NO_RIDE:
 					break; // A path is one of the options.

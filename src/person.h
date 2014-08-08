@@ -172,6 +172,7 @@ public:
 
 protected:
 	void DecideMoveDirection() override;
+	RideVisitDesire ComputeExitDesire(TileEdge current_edge, int x, int y, int z, TileEdge exit_edge, bool *seen_wanted_ride);
 	RideVisitDesire WantToVisit(const RideInstance *ri) override;
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
