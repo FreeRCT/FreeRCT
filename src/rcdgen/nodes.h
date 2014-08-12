@@ -114,7 +114,7 @@ class BitMask;
 class FilePattern {
 public:
 	FilePattern();
-	
+
 	void SetFilename(const std::string &fname);
 	int GetCount() const;
 	std::string MakeFilename(int index) const;
@@ -932,6 +932,6 @@ public:
 FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values);
 
 void GenerateStringsHeaderFile(const char *prefix, const char *base, const char *header);
-void GenerateStringsCodeFile(const char *prefix, const char *base, const char *code);
+void GenerateStringsCodeFile(const char *prefix, const char *code);
 
 #endif

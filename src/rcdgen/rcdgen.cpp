@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 	if (prefix != nullptr) {
 		/* Prefix specified, generate strings. */
 		if (header != nullptr) GenerateStringsHeaderFile(prefix, base, header);
-		if (code != nullptr) GenerateStringsCodeFile(prefix, base, code);
+		if (code != nullptr) GenerateStringsCodeFile(prefix, code);
 		exit(0);
 	}
 

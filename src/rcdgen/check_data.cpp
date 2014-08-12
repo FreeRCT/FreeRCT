@@ -1916,7 +1916,7 @@ static std::shared_ptr<StringsNode> ConvertStringTextsNode(std::shared_ptr<NodeG
 	auto tn = std::make_shared<StringsNode>();
 	Values vals("stringtexts", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, false);
-	
+
 	for (int i = 0; i < vals.named_count; i++) {
 		std::shared_ptr<ValueInformation> vi = vals.named_values[i];
 		if (vi->used) continue;
@@ -2455,10 +2455,9 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 /**
  * Generate a code file with string names.
  * @param prefix Kind of strings (either \c "GUI" or \c "SHOPS").
- * @param base Value of the first entry.
  * @param code Name of the output code file.
  */
-void GenerateStringsCodeFile(const char *prefix, const char *base, const char *code)
+void GenerateStringsCodeFile(const char *prefix, const char *code)
 {
 	const char **names = nullptr;
 	const char *nice_name = nullptr;
