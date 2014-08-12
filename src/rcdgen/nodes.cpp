@@ -865,7 +865,7 @@ void StringBundle::CheckTranslations(const char *names[], int name_count, const 
 	}
 
 	/* Check that all strings have a British English text, and count the missing translations. */
-	std::array<int, LNG_COUNT> missing_count{};
+	std::array<int, LNG_COUNT> missing_count{{}};
 
 	for (const auto &iter : this->texts) {
 		if (iter.second.pos[LNG_EN_GB].line < 0) {
