@@ -48,6 +48,7 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copy_voxel_objects)
 	dest->instance = src->instance;
 	dest->instance_data = src->instance_data;
 	dest->ground = src->ground;
+	dest->fence = src->fence;
 	if (copy_voxel_objects) CopyVoxelObjectList(dest, src);
 }
 

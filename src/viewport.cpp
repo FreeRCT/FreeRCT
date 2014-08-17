@@ -30,6 +30,7 @@
 #include "select_mode.h"
 #include "person.h"
 #include "weather.h"
+#include "fence.h"
 
 #include <set>
 
@@ -939,6 +940,33 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		}
 
 		gslope = voxel->GetGroundSlope();
+	}
+	
+	/* Fences */
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		FenceType fence_type = voxel->GetFenceType(edge);
+		if (fence_type != FENCE_TYPE_INVALID) {
+			DrawData dd;
+			dd.level = slice;
+			dd.z_height = zpos;
+			dd.order = (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT;
+			TileSlope slope = ExpandTileSlope(voxel->GetGroundSlope());
+			dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, slope, this->orient);
+			int32 extra_y = 0;
+			if ((slope & TSB_STEEP) != 0) {
+				/* Is lower edge of steep slope? */
+				uint8 corner_height[4];
+				ComputeCornerHeight(slope, (slope & TSB_TOP) != 0 ? 1 : 0, corner_height);
+				if (corner_height[edge] == 0 || corner_height[(edge+1) % 4] == 0) {
+
+					extra_y = this->tile_height;
+				}
+ 			}
+			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y + extra_y;
+			dd.recolour = nullptr;
+			this->draw_images.insert(dd);
+		}
 	}
 
 	/* Sprite cursor (arrow) */

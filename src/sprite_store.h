@@ -15,6 +15,7 @@
 #include "orientation.h"
 #include "path.h"
 #include "tile.h"
+#include "fence.h"
 #include "person_type.h"
 #include "language.h"
 #include "track_piece.h"
@@ -85,6 +86,22 @@ public:
 	TileCorners();
 
 	ImageData *sprites[VOR_NUM_ORIENT][NUM_SLOPE_SPRITES]; ///< Corner selection sprites.
+};
+
+/**
+ * %Fence sprites.
+ * @ingroup sprite_group
+ */
+class Fence : public RcdBlock {
+public:
+	Fence();
+	~Fence();
+
+	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+
+	uint8 type;    ///< Type of fence. (@see FenceType)
+	uint16 width;  ///< Width of a tile.
+	ImageData *sprites[FENCE_COUNT]; ///< Fence sprites, may contain \c nullptr sprites.
 };
 
 /**
@@ -434,6 +451,7 @@ public:
 
 	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
 	void AddAnimationSprites(AnimationSprites *an_spr);
+	void AddFence(Fence *fnc);
 
 	/**
 	 * Get a ground sprite.
@@ -445,6 +463,33 @@ public:
 	const ImageData *GetSurfaceSprite(uint8 type, uint8 surf_spr, ViewOrientation orient) const
 	{
 		return this->surface[type].surface[_slope_rotation[surf_spr][orient]];
+	}
+
+	/**
+	 * Get a fence sprite.
+	 * @param type FenceType of fence.
+	 * @param edge The edge of the voxel.
+	 * @param slope The exploded slope of the voxel.
+	 * @param orient Orientation.
+	 * @return Requested sprite if available.
+	 */
+	const ImageData *GetFenceSprite(FenceType type, TileEdge edge, TileSlope slope, ViewOrientation orient) const
+	{
+		if (this->fence[type] == nullptr) return nullptr;
+
+		uint8 corner_height[4];
+		ComputeCornerHeight(slope, (slope & TSB_TOP) != 0 ? 1 : 0, corner_height);
+
+		/* 
+		 * Compute edge case 0..2
+		 * 0 = flat, 1 = one corner raised, 2 = other corner raised
+		 */
+		uint8 edge_case = (corner_height[edge] > corner_height[(edge+1) % 4] ? 1 : 0) +
+				(corner_height[(edge+1) % 4] > corner_height[edge] ? 2 : 0);
+
+		uint8 sprite = edge_case + edge * FENCE_EDGE_COUNT;
+		sprite = (sprite + FENCE_COUNT - FENCE_EDGE_COUNT * orient) % FENCE_COUNT;
+		return this->fence[type]->sprites[sprite];
 	}
 
 	/**
@@ -526,6 +571,7 @@ public:
 	Support support;                  ///< Support block.
 	TileSelection tile_select;        ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
+	Fence *fence[FENCE_COUNT];        ///< Available fence types.
 	Path path_sprites[PAT_COUNT];     ///< %Path sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.

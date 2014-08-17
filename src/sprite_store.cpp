@@ -350,6 +350,37 @@ bool SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
+Fence::Fence() : RcdBlock()
+{
+	this->type = FENCE_TYPE_INVALID;
+	this->width = 0;
+	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
+}
+
+Fence::~Fence()
+{
+}
+
+/**
+ * Load a fence sprites block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool Fence::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+{
+	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * FENCE_COUNT) return false;
+
+	this->width  = rcd_file->GetUInt16();
+	this->type = rcd_file->GetUInt16();
+	if (this->type >= FENCE_TYPE_COUNT) return false; // Unknown fence type.
+
+	for (uint sprnum = 0; sprnum < FENCE_COUNT; sprnum++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
+	}
+	return true;
+}
+
 Path::Path()
 {
 	this->status = PAS_UNUSED;
@@ -1068,6 +1099,7 @@ bool GuiSprites::HasSufficientGraphics() const
 SpriteStorage::SpriteStorage(uint16 _size) : size(_size)
 {
 	this->Clear();
+	for (uint8 i = 0; i < FENCE_TYPE_COUNT; i++) this->fence[i] = nullptr;
 }
 
 SpriteStorage::~SpriteStorage()
@@ -1108,6 +1140,18 @@ void SpriteStorage::AddAnimationSprites(AnimationSprites *an_spr)
 {
 	assert(an_spr->width == this->size);
 	this->animations.insert(std::make_pair(an_spr->anim_type, an_spr));
+}
+
+/**
+ * Add fence sprites.
+ * @param tc New fence sprites.
+ * @pre Width of the fence sprites must match with #size.
+ */
+void SpriteStorage::AddFence(Fence *fnc)
+{
+	assert(fnc->width == this->size);
+	assert(fnc->type < FENCE_TYPE_COUNT);
+	this->fence[fnc->type] = fnc;
 }
 
 /** Sprite manager constructor. */
@@ -1183,6 +1227,17 @@ const char *SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "TCOR") == 0) {
 			if (!this->LoadTCOR(&rcd_file, sprites)) return "Tile-corners block loading failed.";
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "FENC") == 0) {
+			Fence *block = new Fence;
+			if (!block->Load(&rcd_file, sprites)) {
+				delete block;
+				return "Fence block loading failed.";
+			}
+			this->AddBlock(block);
+			this->store.AddFence(block);
 			continue;
 		}
 

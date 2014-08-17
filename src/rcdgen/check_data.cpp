@@ -2236,11 +2236,11 @@ static std::shared_ptr<CSPLBlock> ConvertCSPLNode(std::shared_ptr<NodeGroup> ng)
 
 /** Fence symbols. */
 static const Symbol _fence_symbols[] = {
-	{"border", 1},
-	{"wood", 2},
-	{"conifer", 3},
-	{"bricks", 4},
-	{nullptr, 0}
+	{"border",  0},
+	{"wood",    1},
+	{"conifer", 2},
+	{"bricks",  3},
+	{nullptr,   0}
 };
 
 /**

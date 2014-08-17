@@ -76,16 +76,18 @@ enum SpriteOrder {
 	SO_NONE            = 0,                             ///< No drawing.
 	SO_FOUNDATION      = (1  << CS_LENGTH),             ///< Draw foundation sprites.
 	SO_GROUND          = (2  << CS_LENGTH) | CS_GROUND, ///< Draw ground sprites.
-	SO_SUPPORT         = (3  << CS_LENGTH),             ///< Draw support sprites.
-	SO_PLATFORM        = (4  << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
-	SO_PATH            = (5  << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
-	SO_PLATFORM_BACK   = (6  << CS_LENGTH) | CS_RIDE,   ///< Background behind the ride (platform background).
-	SO_RIDE            = (7  << CS_LENGTH) | CS_RIDE,   ///< Draw ride sprites.
-	SO_RIDE_CARS       = (8  << CS_LENGTH) | CS_RIDE,   ///< Cars at a ride.
-	SO_RIDE_FRONT      = (9  << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
-	SO_PLATFORM_FRONT  = (10 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
-	SO_PERSON          = (11 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
-	SO_CURSOR          = (12 << CS_LENGTH),             ///< Draw cursor sprites.
+	SO_FENCE_BACK      = (3  << CS_LENGTH),             ///< Draw fence on the back edges
+	SO_SUPPORT         = (4  << CS_LENGTH),             ///< Draw support sprites.
+	SO_PLATFORM        = (5  << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
+	SO_PATH            = (6  << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
+	SO_PLATFORM_BACK   = (7  << CS_LENGTH) | CS_RIDE,   ///< Background behind the ride (platform background).
+	SO_RIDE            = (8  << CS_LENGTH) | CS_RIDE,   ///< Draw ride sprites.
+	SO_RIDE_CARS       = (9  << CS_LENGTH) | CS_RIDE,   ///< Cars at a ride.
+	SO_RIDE_FRONT      = (10 << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
+	SO_PLATFORM_FRONT  = (11 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
+	SO_PERSON          = (12 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
+	SO_FENCE_FRONT     = (13 << CS_LENGTH),             ///< Draw fence on the front edges
+	SO_CURSOR          = (14 << CS_LENGTH),             ///< Draw cursor sprites.
 };
 
 /** Data found by Viewport::ComputeCursorPosition. */
