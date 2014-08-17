@@ -477,6 +477,66 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
 }
 
 /**
+ * Add/remove land border fence based on current land ownership for the given
+ * tile rectangle.
+ * @param x Base X coordinate of the rectangle.
+ * @param y Base Y coordinate of the rectangle.
+ * @param width Length in X direction of the rectangle.
+ * @param height Length in Y direction of the rectangle.
+ */
+void UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height)
+{
+	/*
+	 * Iterate over given rectangle plus one tile, unless the map border
+	 * is reached.
+	 */
+	uint16 x_min = x > 0 ? x-1 : x;
+	uint16 y_min = y > 0 ? y-1 : y;
+	uint16 x_max = std::min(_world.GetXSize()-1, x + width + 1);
+	uint16 y_max = std::min(_world.GetYSize()-1, y + height + 1);
+
+	for (uint16 ix = x_min; ix < x_max; ix++) {
+		for (uint16 iy = y_min; iy < y_max; iy++) {
+			VoxelStack *vs = _world.GetModifyStack(ix, iy);
+			TileOwner owner = vs->owner;
+
+			for (int16 i = vs->height - 1; i >= 0; i--) {
+				Voxel &v = vs->voxels[i];
+
+				/* Only update border fence on the surface. */
+				if (v.GetGroundType() == GTP_INVALID) continue;
+				TileSlope slope =  ExpandTileSlope(v.GetGroundSlope());
+				if ((slope & TSB_TOP) != 0) continue; // Handle steep slopes at the bottom voxel
+
+				for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+					bool fence;
+					if (owner == OWN_PARK) {
+						fence = false;
+					} else {
+						if ((ix == 0 && _tile_dxy[edge].x == -1) || (iy == 0 && _tile_dxy[edge].y == -1)) continue;
+						uint16 neighbour_x = ix + _tile_dxy[edge].x;
+						uint16 neighbour_y = iy + _tile_dxy[edge].y;
+						if (neighbour_x >= _world.GetXSize() || neighbour_y >= _world.GetYSize()) continue;
+						TileOwner neighbour_owner = _world.GetTileOwner(neighbour_x, neighbour_y);
+						fence = neighbour_owner == OWN_PARK;
+					}
+
+					/* Only set/unset land border fence if the edge doesn't have some other fence type. */
+					Voxel *fence_voxel = StoreFenceInUpperVoxel(slope, edge) ? vs->GetCreate(i + 1, true) : &v;
+					FenceType curr_type = fence_voxel != nullptr ? fence_voxel->GetFenceType(edge) : FENCE_TYPE_INVALID;
+					if (curr_type != (fence ? FENCE_TYPE_LAND_BORDER : FENCE_TYPE_INVALID)) {
+						fence_voxel->SetFenceType(edge, fence ? FENCE_TYPE_LAND_BORDER : FENCE_TYPE_INVALID);
+					}
+				}
+
+				/* There are no fences below ground. */
+				break;
+			}
+		}
+	}
+}
+
+/**
  * Set the ownership of a tile
  * @param x X coordinate of the tile.
  * @param y Y coordinate of the tile.
@@ -485,6 +545,8 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
 void VoxelWorld::SetTileOwner(uint16 x, uint16 y, TileOwner owner)
 {
 	this->GetModifyStack(x, y)->owner = owner;
+
+	UpdateLandBorderFence(x, y, 1, 1);
 }
 
 /**
@@ -499,9 +561,11 @@ void VoxelWorld::SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 heigh
 {
 	for (uint16 ix = x; ix < x + width; ix++) {
 		for (uint16 iy = y; iy < y + height; iy++) {
-			this->SetTileOwner(ix, iy, owner);
+			this->GetModifyStack(ix, iy)->owner = owner;
 		}
 	}
+
+	UpdateLandBorderFence(x, y, width, height);
 }
 
 /**
