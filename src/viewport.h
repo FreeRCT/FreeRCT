@@ -29,6 +29,7 @@ enum ViewportMouseMode {
 	MM_PATH_BUILDING,  ///< Construct paths.
 	MM_SHOP_PLACEMENT, ///< Placement of a shop.
 	MM_COASTER_BUILD,  ///< Building or editing a coaster track.
+	MM_FENCE_BUILDING, ///< Building of fences.
 
 	MM_COUNT,          ///< Number of mouse modes.
 };
@@ -47,6 +48,10 @@ enum CursorType {
 	CUR_TYPE_ARROW_SE, ///< Show a build arrow in the SE direction.
 	CUR_TYPE_ARROW_SW, ///< Show a build arrow in the SW direction.
 	CUR_TYPE_ARROW_NW, ///< Show a build arrow in the NW direction.
+	CUR_TYPE_EDGE_NE,  ///< Show a NE edge sprite highlight.
+	CUR_TYPE_EDGE_SE,  ///< Show a SE edge sprite highlight.
+	CUR_TYPE_EDGE_SW,  ///< Show a SW edge sprite highlight.
+	CUR_TYPE_EDGE_NW,  ///< Show a NW edge sprite highlight.
 
 	CUR_TYPE_INVALID = 0xFF, ///< Invalid/unused cursor.
 };
@@ -57,9 +62,10 @@ enum CursorType {
 enum ClickableSprite {
 	CS_NONE   = 0,      ///< No valid sprite.
 	CS_GROUND = 1 << 0, ///< Ground sprite.
-	CS_PATH   = 1 << 1, ///< Path sprite.
-	CS_RIDE   = 1 << 2, ///< Ride sprite.
-	CS_PERSON = 1 << 3, ///< Person sprite.
+	CS_GROUND_EDGE = 1 << 1, ///< Ground edge sprite.
+	CS_PATH   = 1 << 2, ///< Path sprite.
+	CS_RIDE   = 1 << 3, ///< Ride sprite.
+	CS_PERSON = 1 << 4, ///< Person sprite.
 
 	CS_LENGTH = 8,      ///< Bitlength of the enum.
 	CS_MASK = 0x0f,     ///< Used for converting between this and #SpriteOrder.
@@ -76,27 +82,37 @@ enum SpriteOrder {
 	SO_NONE            = 0,                             ///< No drawing.
 	SO_FOUNDATION      = (1  << CS_LENGTH),             ///< Draw foundation sprites.
 	SO_GROUND          = (2  << CS_LENGTH) | CS_GROUND, ///< Draw ground sprites.
-	SO_FENCE_BACK      = (3  << CS_LENGTH),             ///< Draw fence on the back edges
-	SO_SUPPORT         = (4  << CS_LENGTH),             ///< Draw support sprites.
-	SO_PLATFORM        = (5  << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
-	SO_PATH            = (6  << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
-	SO_PLATFORM_BACK   = (7  << CS_LENGTH) | CS_RIDE,   ///< Background behind the ride (platform background).
-	SO_RIDE            = (8  << CS_LENGTH) | CS_RIDE,   ///< Draw ride sprites.
-	SO_RIDE_CARS       = (9  << CS_LENGTH) | CS_RIDE,   ///< Cars at a ride.
-	SO_RIDE_FRONT      = (10 << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
-	SO_PLATFORM_FRONT  = (11 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
-	SO_PERSON          = (12 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
-	SO_FENCE_FRONT     = (13 << CS_LENGTH),             ///< Draw fence on the front edges
-	SO_CURSOR          = (14 << CS_LENGTH),             ///< Draw cursor sprites.
+	SO_GROUND_EDGE     = (3  << CS_LENGTH) | CS_GROUND_EDGE, ///< Used for ground edge detection
+	SO_FENCE_BACK      = (4  << CS_LENGTH),             ///< Draw fence on the back edges
+	SO_SUPPORT         = (5  << CS_LENGTH),             ///< Draw support sprites.
+	SO_PLATFORM        = (6  << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
+	SO_PATH            = (7  << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
+	SO_PLATFORM_BACK   = (8  << CS_LENGTH) | CS_RIDE,   ///< Background behind the ride (platform background).
+	SO_RIDE            = (9  << CS_LENGTH) | CS_RIDE,   ///< Draw ride sprites.
+	SO_RIDE_CARS       = (10 << CS_LENGTH) | CS_RIDE,   ///< Cars at a ride.
+	SO_RIDE_FRONT      = (11 << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
+	SO_PLATFORM_FRONT  = (12 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
+	SO_PERSON          = (13 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
+	SO_FENCE_FRONT     = (14 << CS_LENGTH),             ///< Draw fence on the front edges
+	SO_CURSOR          = (15 << CS_LENGTH),             ///< Draw cursor sprites.
+};
+
+/**
+ * TODO: find a better name for this enum
+ */
+enum FindWhat {
+	FW_TILE,   ///< Find whole tile only
+	FW_CORNER, ///< Find whole tile or corner
+	FW_EDGE,   ///< Find tile edge
 };
 
 /** Data found by Viewport::ComputeCursorPosition. */
 class FinderData {
 public:
-	FinderData(ClickableSprite allowed_types, bool select_corner);
+	FinderData(ClickableSprite allowed_types, FindWhat select);
 
 	ClickableSprite allowed; ///< Bit-set of sprite-types looking for. @see ClickableSprites
-	bool select_corner;      ///< Select a corner of a ground tile.
+	FindWhat select;         ///< What to select of the ground tile.
 
 	CursorType cursor;       ///< Type of cursor suggested.
 	uint16 xvoxel;           ///< X position of the voxel with the closest sprite.
@@ -184,6 +200,28 @@ public:
 };
 
 /**
+ * Single tile edge cursor.
+ * @ingroup viewport_group
+ */
+class EdgeCursor : public BaseCursor { // XXX todo: later on, check if this will end up being edge-independent and can be renamed as SpriteCursor.
+public:
+	EdgeCursor(Viewport *vp);
+
+	uint16 xpos; ///< %Voxel x position of the cursor.
+	uint16 ypos; ///< %Voxel y position of the cursor.
+	uint8  zpos; ///< %Voxel z position of the cursor.
+	const ImageData *sprite; ///< Cursor sprite.
+	uint8 yoffset; ///< Y offset for where to render the sprite on the screen.
+
+	bool SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always = false);
+
+	void MarkDirty() override;
+	CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) override;
+	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
+};
+
+
+/**
  * Class for displaying parts of the world.
  * @ingroup viewport_group
  */
@@ -220,6 +258,7 @@ public:
 	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
 	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
 	MultiCursor area_cursor;     ///< Cursor for showing an area.
+	EdgeCursor edge_cursor;      ///< Cursor for showing an edge sprite
 	Point16 mouse_pos;           ///< Last known position of the mouse.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 

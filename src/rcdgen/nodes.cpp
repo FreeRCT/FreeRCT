@@ -422,7 +422,7 @@ int TCORBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SURFBlock::SURFBlock() : GameBlock("SURF", 4)
+SURFBlock::SURFBlock() : GameBlock("SURF", 5)
 {
 }
 

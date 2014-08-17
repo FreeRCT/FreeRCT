@@ -52,6 +52,7 @@ enum ToolbarGuiWidgets {
 	TB_GUI_SAVE,        ///< Save game button.
 	TB_GUI_LOAD,        ///< Load game button.
 	TB_GUI_RIDE_SELECT, ///< Select ride button.
+	TB_GUI_FENCE,       ///< Select fence button.
 	TB_GUI_TERRAFORM,   ///< Terraform button.
 	TB_GUI_FINANCES,    ///< Finances button.
 };
@@ -69,6 +70,7 @@ static const WidgetPart _toolbar_widgets[] = {
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_SAVE,        COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_SAVE,        GUI_TOOLBAR_GUI_TOOLTIP_SAVE_GAME),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_LOAD,        COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_LOAD,        GUI_TOOLBAR_GUI_TOOLTIP_LOAD_GAME),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_RIDE_SELECT, COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_RIDE_SELECT, GUI_TOOLBAR_GUI_TOOLTIP_RIDE_SELECT),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FENCE,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FENCE,       GUI_TOOLBAR_GUI_TOOLTIP_FENCE),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_TERRAFORM,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_TERRAFORM,   GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FINANCES,    COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FINANCES,    GUI_TOOLBAR_GUI_TOOLTIP_FINANCES),
 	EndContainer(),
@@ -142,6 +144,10 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 
 		case TB_GUI_RIDE_SELECT:
 			ShowRideSelectGui();
+			break;
+
+		case TB_GUI_FENCE:
+			ShowFenceGui();
 			break;
 
 		case TB_GUI_TERRAFORM:

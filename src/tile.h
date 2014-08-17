@@ -189,7 +189,8 @@ enum GroundType {
 	GTP_GRASS2,      ///< Long grass type.
 	GTP_GRASS3,      ///< Rough grass type.
 	GTP_DESERT,      ///< Desert ground type.
-	GTP_CURSOR_TEST, ///< Test tile for hit-testing of ground-tiles.
+	GTP_CURSOR_TEST, ///< Test tile for hit-testing of ground-tiles. (tile, corner)
+	GTP_CURSOR_EDGE_TEST, ///< Test tile for hit-testing of ground-tiles. (edge)
 
 	GTP_COUNT,       ///< Number of ground types.
 

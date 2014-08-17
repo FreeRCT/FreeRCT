@@ -49,6 +49,7 @@ enum WindowTypes {
 	WC_PATH_BUILDER,    ///< %Path build GUI.
 	WC_RIDE_SELECT,     ///< Ride selection window.
 	WC_SHOP_MANAGER,    ///< Management window of a shop.
+	WC_FENCE,           ///< Fence window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.
 	WC_SETTING,         ///< Setting window.
@@ -359,6 +360,7 @@ void ShowGuestInfoGui(const Person *person);
 void ShowPathBuildGui();
 void ShowRideSelectGui();
 void ShowShopManagementGui(uint16 ri);
+void ShowFenceGui();
 void ShowTerraformGui();
 void ShowFinancesGui();
 void ShowCoasterManagementGui(RideInstance *coaster);

@@ -299,7 +299,7 @@ SurfaceData::SurfaceData()
  */
 bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 4 || rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
+	if (rcd_file->version != 5 || rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
 	uint16 gt = rcd_file->GetUInt16(); // Ground type bytes.
 	uint8 type = GTP_INVALID;
@@ -309,6 +309,7 @@ bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 	if (gt == 19) type = GTP_GRASS3;
 	if (gt == 32) type = GTP_DESERT;
 	if (gt == 48) type = GTP_CURSOR_TEST;
+	if (gt == 49) type = GTP_CURSOR_EDGE_TEST;
 	if (type == GTP_INVALID) return false; // Unknown type of ground.
 
 	uint16 width  = rcd_file->GetUInt16();
@@ -1581,6 +1582,17 @@ const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType
 		if (anim->person_type == per_type) return anim;
 	}
 	return nullptr;
+}
+
+/**
+ * Get the fence rcd data for a given fence type
+ * @param fence_type The fence type (@see FenceType)
+ * @return Fence object or nullptr
+ */
+const Fence *SpriteManager::GetFence(FenceType fence_type) const
+{
+	assert(fence_type < FENCE_TYPE_COUNT);
+	return this->store.fence[fence_type];
 }
 
 /**

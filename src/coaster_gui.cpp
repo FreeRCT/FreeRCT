@@ -1334,7 +1334,7 @@ void CoasterBuildMode::UpdateDisplay(bool mousepos_changed)
 
 	Viewport *vp = GetViewport();
 	if (use_mousepos) {
-		FinderData fdata(CS_GROUND, false);
+		FinderData fdata(CS_GROUND, FW_TILE);
 		if (vp->ComputeCursorPosition(&fdata) != CS_GROUND) {
 			DisableWorldAdditions();
 			return;

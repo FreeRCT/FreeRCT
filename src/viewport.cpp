@@ -31,6 +31,7 @@
 #include "person.h"
 #include "weather.h"
 #include "fence.h"
+#include "fence_build.h"
 
 #include <set>
 
@@ -275,7 +276,7 @@ public:
 protected:
 	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) override;
 	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
-	const ImageData *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope);
+	const ImageData *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope, uint8 &yoffset);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
 	Point16 north_offsets[4];
@@ -669,6 +670,67 @@ bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool alway
 }
 
 /**
+ * Constructor of an edge cursor.
+ * @param vp %Viewport displaying the cursor.
+ */
+EdgeCursor::EdgeCursor(Viewport *vp) : BaseCursor(vp)
+{
+	this->xpos = 0;
+	this->ypos = 0;
+	this->zpos = 0;
+}
+
+void EdgeCursor::MarkDirty()
+{
+	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+}
+
+/**
+ * Get a cursor.
+ * @param xpos Expected x coordinate of the cursor.
+ * @param ypos Expected y coordinate of the cursor.
+ * @param zpos Expected z coordinate of the cursor.
+ * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
+ */
+CursorType EdgeCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
+	return this->type;
+}
+
+uint8 EdgeCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
+{
+	if (this->type == CUR_TYPE_INVALID) return zpos;
+	if (this->xpos != xpos || this->ypos != ypos || zpos >= this->zpos) return zpos;
+	return this->zpos;
+}
+
+/**
+ * Set a cursor.
+ * @param xpos X position of the voxel containing the cursor.
+ * @param ypos Y position of the voxel containing the cursor.
+ * @param zpos Z position of the voxel containing the cursor.
+ * @param type Type of cursor to set.
+ * @param always Always set the cursor (else, only set it if it changed).
+ * @param yoffset Offset in screen y coordinates for where to render the sprite related to given voxel.
+ * @return %Cursor has been set/changed.
+ */
+bool EdgeCursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always)
+{
+	if (!always && this->xpos == xpos && this->ypos == ypos && this->zpos == zpos && this->type == type) return false;
+	this->MarkDirty();
+	this->xpos = xpos;
+	this->ypos = ypos;
+	this->zpos = zpos;
+	this->type = type;
+	this->sprite = sprite;
+	this->yoffset = yoffset;
+	this->MarkDirty();
+	return true;
+}
+
+
+/**
  * Get the cursor type at a given position.
  * @param xpos X position of the voxel being drawn.
  * @param ypos Y position of the voxel being drawn.
@@ -685,7 +747,9 @@ CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
 	}
 	ct = this->tile_cursor.GetCursor(xpos, ypos, zpos);
 	if (ct != CUR_TYPE_INVALID) return ct;
-	return this->area_cursor.GetCursor(xpos, ypos, zpos);
+	ct = this->area_cursor.GetCursor(xpos, ypos, zpos);
+	if (ct != CUR_TYPE_INVALID) return ct;
+	return this->edge_cursor.GetCursor(xpos, ypos, zpos);
 }
 
 /**
@@ -702,6 +766,7 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 	}
 	zpos = this->tile_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	zpos = this->area_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
+	zpos = this->edge_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	assert(zpos != 255);
 	return zpos;
 }
@@ -712,10 +777,12 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
  * @param ypos Y position of the voxel being drawn.
  * @param zpos Z position of the voxel being drawn.
  * @param tslope Slope of the tile.
+ * @param yoffset Offset in screen y coordinates for where to render the sprite related to given voxel.
  * @return Pointer to the cursor sprite, or \c nullptr if no cursor available.
  */
-const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope)
+const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope, uint8 &yoffset)
 {
+	yoffset = 0;
 	if (!this->enable_cursors) return nullptr;
 
 	CursorType ctype = this->vp->GetCursorAtPos(xpos, ypos, zpos);
@@ -736,6 +803,18 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 		case CUR_TYPE_ARROW_SW:
 		case CUR_TYPE_ARROW_NW:
 			return this->sprites->GetArrowSprite(ctype - CUR_TYPE_ARROW_NE, this->orient);
+
+		case CUR_TYPE_EDGE_NE:
+		case CUR_TYPE_EDGE_SE:
+		case CUR_TYPE_EDGE_SW:
+		case CUR_TYPE_EDGE_NW: {
+			Viewport *vp = GetViewport();
+			if (vp != nullptr) {
+				yoffset = vp->edge_cursor.yoffset;
+				return vp->edge_cursor.sprite;
+			}
+			return nullptr;
+		}
 
 		default:
 			return nullptr;
@@ -820,7 +899,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	}
 
 	if (voxel == nullptr) { // Draw cursor above stack.
-		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT);
+		uint8 yoffset = 0;
+		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT, yoffset);
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
@@ -828,7 +908,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			dd.order = SO_CURSOR;
 			dd.sprite = mspr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
 			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
@@ -970,7 +1050,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	}
 
 	/* Sprite cursor (arrow) */
-	const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope);
+	uint8 cursor_yoffset = 0;
+	const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope, cursor_yoffset);
 	if (mspr != nullptr) {
 		DrawData dd;
 		dd.level = slice;
@@ -978,7 +1059,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		dd.order = SO_CURSOR;
 		dd.sprite = mspr;
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+		dd.base.y = this->yoffset + ynorth - this->rect.base.y + cursor_yoffset;
 		dd.recolour = nullptr;
 		this->draw_images.insert(dd);
 	}
@@ -1072,10 +1153,18 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
  * @param allowed Bit-set of sprite types to look for. @see #ClickableSprite
  * @param select_corner Select the tile corner (otherwise, a tile cursor is returned).
  */
-FinderData::FinderData(ClickableSprite allowed, bool select_corner)
+FinderData::FinderData(ClickableSprite allowed, FindWhat select)
 {
 	this->allowed = allowed;
-	this->select_corner = select_corner;
+	this->select = select;
+
+	/* 
+	 * CS_GROUND must not be allowed when looking for edge,
+	 * or the other way around.
+	 */
+	assert(select != FW_EDGE || (allowed & SO_GROUND) == 0);
+	assert(select == FW_EDGE || (allowed & SO_GROUND_EDGE) == 0);
+
 	// Other data is initialized in PixelFinder::PixelFinder, or Viewport::ComputeCursorPosition.
 }
 
@@ -1120,6 +1209,29 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		case 2: slice = -xpos - ypos; break;
 		case 3: slice = -xpos + ypos; break;
 		default: NOT_REACHED();
+	}
+	/* Looking for surface edge? */
+	if ((this->allowed & SO_GROUND_EDGE) != 0 && voxel->GetGroundType() != GTP_INVALID) {
+		const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_EDGE_TEST, voxel->GetGroundSlope(), this->orient);
+		DrawData dd;
+		dd.level = slice;
+		dd.z_height = zpos;
+		dd.order = SO_GROUND_EDGE;
+		dd.sprite = nullptr;
+		dd.base.x = this->rect.base.x - xnorth;
+		dd.base.y = this->rect.base.y - ynorth;
+		dd.recolour = nullptr;
+		if (spr != nullptr && (!this->found || this->data < dd)) {
+			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
+			if (pixel != 0) {
+				this->found = true;
+				this->data = dd;
+				this->fdata->xvoxel = xpos;
+				this->fdata->yvoxel = ypos;
+				this->fdata->zvoxel = zpos;
+				this->pixel = pixel;
+			}
+		}
 	}
 
 	if (voxel == nullptr) return; // Ignore cursors, they are not clickable.
@@ -1231,7 +1343,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
  * @param yview Y pixel position of the center viewpoint of the main display.
  * @param zview Z pixel position of the center viewpoint of the main display.
  */
-Viewport::Viewport(uint32 xview, uint32 yview, uint32 zview) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), area_cursor(this)
+Viewport::Viewport(uint32 xview, uint32 yview, uint32 zview) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), area_cursor(this), edge_cursor(this)
 {
 	this->xview = xview;
 	this->yview = yview;
@@ -1384,8 +1496,8 @@ ClickableSprite Viewport::ComputeCursorPosition(FinderData *fdata)
 	collector.Collect(false);
 	if (!collector.found) return CS_NONE;
 
-	fdata->cursor = CUR_TYPE_TILE;
-	if (fdata->select_corner && (collector.data.order & CS_MASK) == CS_GROUND) {
+	fdata->cursor = fdata->select == FW_EDGE ? CUR_TYPE_EDGE_NE : CUR_TYPE_TILE;
+	if (fdata->select == FW_CORNER && (collector.data.order & CS_MASK) == CS_GROUND) {
 		if (collector.pixel == _palette[181]) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_NORTH, this->orientation);
 		} else if (collector.pixel == _palette[182]) {
@@ -1394,6 +1506,21 @@ ClickableSprite Viewport::ComputeCursorPosition(FinderData *fdata)
 			fdata->cursor = (CursorType)AddOrientations(VOR_WEST,  this->orientation);
 		} else if (collector.pixel == _palette[185]) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_SOUTH, this->orientation);
+		}
+	}
+	else if (fdata->select == FW_EDGE && (collector.data.order & CS_MASK) == CS_GROUND_EDGE) {
+		uint8 base_edge = EDGE_COUNT;
+		if (collector.pixel == _palette[181]) {
+			base_edge = (uint8)EDGE_NE;
+		} else if (collector.pixel == _palette[182]) {
+			base_edge = (uint8)EDGE_SE;
+		} else if (collector.pixel == _palette[184]) {
+			base_edge = (uint8)EDGE_NW;
+		} else if (collector.pixel == _palette[185]) {
+			base_edge = (uint8)EDGE_SW;
+		}
+		if (base_edge < EDGE_COUNT) {
+			fdata->cursor = (CursorType)((base_edge + (uint8)this->orientation) % 4 + (uint8)CUR_TYPE_EDGE_NE);
 		}
 	}
 	return (ClickableSprite)(collector.data.order & CS_MASK);
@@ -1684,4 +1811,5 @@ void InitMouseModes()
 	_mouse_modes.RegisterMode(&_shop_placer);
 	_mouse_modes.RegisterMode(&_select_mousemode);
 	_mouse_modes.RegisterMode(&_coaster_builder);
+	_mouse_modes.RegisterMode(&_fence_builder);
 }

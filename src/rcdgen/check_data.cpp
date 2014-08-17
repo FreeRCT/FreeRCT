@@ -722,6 +722,7 @@ static const Symbol _surface_types[] = {
 	{"long_grass",   19},
 	{"sand",         32},
 	{"cursor",       48},
+	{"cursor_edge",  49},
 	{nullptr, 0},
 };
 

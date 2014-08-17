@@ -573,6 +573,35 @@ file("freerct.rcd") {
 		}
 	}
 
+	// Cursor tile edge test sprites
+	SURF {
+		tile_width: 64;
+		z_height: 16;
+		surf_type: cursor_edge;
+
+		(n#,   _n#,  _n#,  _n#
+		|n#n,  n#e,  n#s,  n#w
+		|n#ne, n#es, n#sw, n#nw
+		|n#ns, n#ew, _n#ns,_n#ew
+		|n#nes,n#esw,n#nsw,n#new): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites/terrain/groundtiles/tileselection28bpp64_masked.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(n#Nt,  n#Et,  n#St,  n#Wt): sheet {
+			x_base: 0; y_base: 320; x_step: 64; y_step: 64;
+			file: "../sprites/terrain/groundtiles/tileselection28bpp64_masked.png";
+			x_offset: -32; y_offset: -17; width: 64; height: 64;
+			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 0; }
+		}
+		(n#Nb,  n#Eb,  n#Sb,  n#Wb): sheet {
+			x_base: 0; y_base: 320; x_step: 64; y_step: 64;
+			file: "../sprites/terrain/groundtiles/tileselection28bpp64_masked.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+			mask: bitmask { type: "voxel64"; x_pos: 0; y_pos: 16; }
+		}
+	}
+
 	// Ground surface sprites.
 	SURF {
 		tile_width: 64;

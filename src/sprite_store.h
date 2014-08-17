@@ -597,6 +597,7 @@ public:
 	const ImageData *GetTableSprite(uint16 number) const;
 	const Rectangle16 &GetTableSpriteSize(uint16 number);
 	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
+	const Fence *GetFence(FenceType fence) const;
 
 	PathStatus GetPathStatus(PathType path_type);
 

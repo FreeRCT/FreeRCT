@@ -45,6 +45,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Load a game";
 		TOOLBAR_GUI_RIDE_SELECT:          "Buy ride";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Buy a new ride for your park";
+		TOOLBAR_GUI_FENCE:                "Build fence";
+		TOOLBAR_GUI_TOOLTIP_FENCE:        "Build fence in your park";
 		TOOLBAR_GUI_TERRAFORM:            "Landscaping";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modify landscape";
 		TOOLBAR_GUI_FINANCES:             "Finances";
@@ -125,6 +127,9 @@ strings {
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total profit";
 		SHOP_MANAGER_OPENED_TEXT:        "Shop is open";
 		SHOP_MANAGER_CLOSED_TEXT:        "Shop is closed";
+
+		// Fence gui strings.
+		FENCE_TITLE:           "Build fences";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Modify landscape";

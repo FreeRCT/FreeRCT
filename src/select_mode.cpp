@@ -51,7 +51,7 @@ void SelectMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 {
 	this->mouse_state = state & MB_CURRENT;
 	if (this->mouse_state != 0) {
-		FinderData fdata(CS_RIDE | CS_PERSON, false);
+		FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
 		switch (vp->ComputeCursorPosition(&fdata)) {
 			case CS_RIDE: {
 				RideInstance *ri = _rides_manager.GetRideInstance(fdata.ride);
