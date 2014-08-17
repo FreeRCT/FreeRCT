@@ -701,4 +701,57 @@ file("freerct.rcd") {
 			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
 		}
 	}
+
+	// Park border fence
+	FENC {
+		width: 64;
+		type: border;
+
+		(ne_hor, se_hor, sw_hor, nw_hor
+		|ne_n,   se_e,   sw_s,   nw_w
+		|ne_e,   se_s,   sw_w,   nw_n): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites/scenery/fence_border8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+	// Wooden fence
+	FENC {
+		width: 64;
+		type: wood;
+
+		(ne_hor, se_hor, sw_hor, nw_hor
+		|ne_n,   se_e,   sw_s,   nw_w
+		|ne_e,   se_s,   sw_w,   nw_n): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites/scenery/fence_wood8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+	// Conifer fence
+	FENC {
+		width: 64;
+		type: conifer;
+
+		(ne_hor, se_hor, sw_hor, nw_hor
+		|ne_n,   se_e,   sw_s,   nw_w
+		|ne_e,   se_s,   sw_w,   nw_n): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites/scenery/fence8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+	// Bricks fence
+	FENC {
+		width: 64;
+		type: bricks;
+
+		(ne_hor, se_hor, sw_hor, nw_hor
+		|ne_n,   se_e,   sw_s,   nw_w
+		|ne_e,   se_s,   sw_w,   nw_n): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites/scenery/fence_bricks8bpp64.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
 }
