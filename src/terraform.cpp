@@ -467,18 +467,30 @@ bool TerrainChanges::ModifyWorld(int direction)
 		GroundType gt = v->GetGroundType();
 		assert(gt != GTP_INVALID);
 		FoundationType ft = v->GetFoundationType();
-		bool steep = IsImplodedSteepSlope(v->GetGroundSlope());
+		FenceType fence[4];
+ 		for (uint8 i = 0; i < 4; i++) fence[i] = v->GetFenceType((TileEdge)i);
+		TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
 		v->SetGroundType(GTP_INVALID);
 		v->SetFoundationType(FDT_INVALID);
 		v->SetGroundSlope(0);
 		v->SetFoundationSlope(0);
-		if (steep) {
+		for (uint8 i = 0; i < 4; i++) v->SetFenceType((TileEdge)i, FENCE_TYPE_INVALID);
+		if (MayHaveGroundFenceInVoxelAbove(slope)) {
 			Voxel *w = vs->GetCreate(gd.height + 1, false);
-			assert(w->GetGroundType() == gt); // Should be the same type of ground as the base voxel.
-			w->SetFoundationType(FDT_INVALID);
-			w->SetGroundType(GTP_INVALID);
-			w->SetGroundSlope(0);
-			w->SetFoundationSlope(0);
+			if ((slope & TSB_STEEP) != 0) {
+				assert(w->GetGroundType() == gt); // Should be the same type of ground as the base voxel.
+				w->SetFoundationType(FDT_INVALID);
+				w->SetGroundType(GTP_INVALID);
+				w->SetGroundSlope(0);
+				w->SetFoundationSlope(0);
+			}
+			if (w != nullptr) { // w will always exist if steep slope, but not always for non-steep.
+				for (uint8 i = 0; i < 4; i++) {
+					FenceType f = w->GetFenceType((TileEdge)i);
+					if (f != FENCE_TYPE_INVALID) fence[i] = f;
+					w->SetFenceType((TileEdge)i, FENCE_TYPE_INVALID);
+				}
+			}
 		}
 
 		if (direction > 0) {
@@ -500,6 +512,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		TileSlope new_slope;
 		uint8 height;
 		ComputeSlopeAndHeight(current, &new_slope, &height);
+		TileSlope new_exp_slope = ExpandTileSlope(new_slope);
 		if (height >= WORLD_Z_SIZE) return false;
 
 		v = vs->GetCreate(height, true);
@@ -508,12 +521,22 @@ bool TerrainChanges::ModifyWorld(int direction)
 		v->SetFoundationType(ft);
 		v->SetFoundationSlope(0);
 
-		if (IsImplodedSteepSlope(new_slope)) {
+		for (uint8 i = 0; i < 4; i++) {
+			v->SetFenceType((TileEdge)i, StoreFenceInUpperVoxel(new_exp_slope, (TileEdge)i) ? FENCE_TYPE_INVALID : fence[i]);
+		}
+
+		if (MayHaveGroundFenceInVoxelAbove(new_exp_slope)) {
 			v = vs->GetCreate(height + 1, true);
-			v->SetGroundType(gt);
-			v->SetGroundSlope(new_slope + 4); // Set top-part as well for steep slopes.
-			v->SetFoundationType(ft);
-			v->SetFoundationSlope(0);
+			if ((TSB_STEEP & new_exp_slope) != 0) {
+				/* Only for steep slopes, the upper voxel will have actual ground. */
+				v->SetGroundType(gt);
+				v->SetGroundSlope(new_slope + 4); // Set top-part as well for steep slopes.
+				v->SetFoundationType(ft);
+				v->SetFoundationSlope(0);
+			}
+			for (uint8 i = 0; i < 4; i++) {
+				v->SetFenceType((TileEdge)i, StoreFenceInUpperVoxel(new_exp_slope, (TileEdge)i) ? fence[i] : FENCE_TYPE_INVALID);
+			}
 		}
 	}
 
