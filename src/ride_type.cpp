@@ -21,6 +21,7 @@
 #include "gamelevel.h"
 #include "window.h"
 #include "finances.h"
+#include "random.h"
 
 /**
  * \page Rides
@@ -150,6 +151,10 @@ RideInstance::RideInstance(const RideType *rt)
 	this->recolours.AssignRandomColours();
 	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
 	std::fill_n(this->item_count, NUMBER_ITEM_TYPES_SOLD, 0);
+
+	this->reliability = 365 / 2; // \todo Make different reliabilities for different rides; read from RCDs
+	this->breakdown_ctr = -1;
+	this->breakdown_state = BDS_UNOPENED;
 }
 
 RideInstance::~RideInstance()
@@ -271,6 +276,40 @@ void RideInstance::OnNewMonth()
 	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
 
+/** Daily update of breakages and maintenance. */
+void RideInstance::OnNewDay()
+{
+	this->HandleBreakdown();
+}
+
+/** Handle breakdowns of rides. */
+void RideInstance::HandleBreakdown()
+{
+	if (this->state != RIS_OPEN) return;
+
+	switch (this->breakdown_state) {
+		case BDS_UNOPENED:
+		case BDS_BROKEN:
+			break;
+
+		case BDS_NEEDS_NEW_CTR:
+			this->breakdown_ctr = this->rnd.Exponential(this->reliability);
+			this->breakdown_state = BDS_WILL_BREAK;
+			break;
+
+		case BDS_WILL_BREAK:
+			this->breakdown_ctr--;
+
+		default:
+			NOT_REACHED();
+	}
+
+	if (this->breakdown_ctr <= 0) {
+		this->breakdown_state = BDS_BROKEN;
+		/* \todo Call a mechanic. */
+	}
+}
+
 /**
  * Open the ride for the public.
  * @pre The ride is open.
@@ -279,6 +318,10 @@ void RideInstance::OpenRide()
 {
 	assert(this->state == RIS_CLOSED);
 	this->state = RIS_OPEN;
+	if (this->breakdown_state == BDS_UNOPENED) {
+		this->breakdown_ctr = this->rnd.Exponential(this->reliability) + BREAKDOWN_GRACE_PERIOD;
+		this->breakdown_state = BDS_WILL_BREAK;
+	}
 
 	/* Perform payments if they have not been done this month. */
 	bool money_paid = false;
@@ -348,6 +391,15 @@ void RidesManager::OnNewMonth()
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
 		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
 		this->instances[i]->OnNewMonth();
+	}
+}
+
+/** A new day has started; break rides randomly. */
+void RidesManager::OnNewDay()
+{
+	for (uint16 i = 0; i < lengthof(this->instances); i++) {
+		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
+		this->instances[i]->OnNewDay();
 	}
 }
 

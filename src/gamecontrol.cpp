@@ -76,6 +76,7 @@ void OnNewMonth()
 /** Runs various procedures that have to be done daily. */
 void OnNewDay()
 {
+	_rides_manager.OnNewDay();
 	_guests.OnNewDay();
 	_weather.OnNewDay();
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
@@ -93,4 +94,3 @@ void OnNewFrame(uint32 frame_delay)
 	_guests.OnAnimate(frame_delay);
 	_rides_manager.OnAnimate(frame_delay);
 }
-

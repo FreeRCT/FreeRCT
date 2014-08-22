@@ -12,6 +12,7 @@
 #include "stdafx.h"
 #include "random.h"
 #include <time.h>
+#include <cmath>
 
 uint32 Random::seed = 0;
 
@@ -35,6 +36,18 @@ bool Random::Success(int perc)
 {
 	assert(perc >= 0 && perc <= 100);
 	return this->Success1024((uint)perc * 1024 / 100);
+}
+
+/**
+ * Draw a number from an exponential distribution.
+ * @param mean The mean interval between events
+ * @return An interval length drawn from the exponential distribution
+ */
+uint16 Random::Exponential(uint16 mean)
+{
+	assert(mean > 0);
+	double u = this->DrawNumber() * (1.0 / 4294967296.0); // Uniform between [0,1)
+	return -mean * log(1.0 - u);
 }
 
 /**
@@ -93,4 +106,3 @@ void Random::Save(Saver &svr)
 	svr.PutLong(Random::seed);
 	svr.EndBlock();
 }
-

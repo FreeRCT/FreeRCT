@@ -14,12 +14,15 @@
 
 #include "palette.h"
 #include "money.h"
+#include "random.h"
 
 static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of types of rides.
 static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
 
 static const int NUMBER_ITEM_TYPES_SOLD = 2; ///< Number of different items that a ride can sell.
+
+static const int BREAKDOWN_GRACE_PERIOD = 30; ///< Number of days to wait before random breakdowns after first time opening ride.
 
 class RideInstance;
 
@@ -104,6 +107,14 @@ enum RideInstanceFlags {
 	RIF_OPENED_PAID  = 1, ///< Bit number of the flags indicating the open costs have been paid this month.
 };
 
+/** Breakdown states which determine if and how a ride will break in a given day. */
+enum BreakdownState {
+	BDS_BROKEN,        ///< Ride is currently broken.
+	BDS_WILL_BREAK,    ///< Ride will break at some point in the future.
+	BDS_NEEDS_NEW_CTR, ///< Ride needs a new value for RideInstance::breakdown_ctr.
+	BDS_UNOPENED,      ///< The ride has never been opened and thus is immune from breakdown.
+};
+
 /**
  * A ride in the park.
  * @todo Add ride parts and other things that need to be stored with a ride.
@@ -126,9 +137,11 @@ public:
 
 	virtual void OnAnimate(int delay);
 	void OnNewMonth();
+	void OnNewDay();
 	void BuildRide();
 	void OpenRide();
 	void CloseRide();
+	void HandleBreakdown();
 
 	uint16 GetIndex() const;
 
@@ -142,8 +155,14 @@ public:
 	Money item_price[NUMBER_ITEM_TYPES_SOLD]; ///< Selling price of each item type.
 	int64 item_count[NUMBER_ITEM_TYPES_SOLD]; ///< Number of items sold for each type.
 
+	int16 breakdown_ctr;     ///< Breakdown counter.
+	uint16 reliability;      ///< Mean number of days in between breakdowns.
+	BreakdownState breakdown_state; ///<Breakdown state for the ride.
+
 protected:
 	const RideType *type; ///< Ride type used.
+
+	Random rnd;           ///< Random number generator for determining ride breakage.
 };
 
 /** Storage of available ride types. */
@@ -166,6 +185,7 @@ public:
 
 	void OnAnimate(int delay);
 	void OnNewMonth();
+	void OnNewDay();
 
 	/**
 	 * Get a ride type from the class.

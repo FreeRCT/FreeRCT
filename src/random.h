@@ -18,6 +18,7 @@ public:
 	bool Success1024(uint upper);
 	bool Success(int perc);
 	uint16 Uniform(uint16 incl_upper);
+	uint16 Exponential(uint16 mean);
 
 	static void Load(Loader &ldr);
 	static void Save(Saver &svr);
