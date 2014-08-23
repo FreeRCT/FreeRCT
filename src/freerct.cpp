@@ -64,12 +64,12 @@ void ShowGraphicsErrorMessage()
 }
 
 /**
- * Main entry point.
+ * Main entry point of our FreeRCT game.
  * @param argc Argument count.
  * @param argv Argument vector.
  * @return The exit code of the program.
  */
-int main(int argc, char **argv)
+int freerct_main(int argc, char **argv)
 {
 	GetOptData opt_data(argc - 1, argv + 1, _options);
 
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 		switch (opt_id) {
 			case 'h':
 				PrintUsage();
-				exit(0);
+				return 0;
 
 			case -1:
 				break;
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 			default:
 				/* -2 or some other weird thing happened. */
 				fprintf(stderr, "ERROR while processing the command-line\n");
-				exit(1);
+				return 1;
 		}
 	} while (opt_id != -1);
 
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 
 	if (!_gui_sprites.HasSufficientGraphics()) {
 		fprintf(stderr, "Insufficient graphics loaded.\n");
-		exit(1);
+		return 1;
 	}
 
 	cfg_file.Load("freerct.cfg");
@@ -116,14 +116,14 @@ int main(int argc, char **argv)
 		                "[font]\n"
 		                "medium-size = 12\n"
 		                "medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf\n");
-		exit(1);
+		return 1;
 	}
 
 	/* Initialize video. */
 	std::string err = _video.Initialize(font_path, font_size);
 	if (!err.empty()) {
 		fprintf(stderr, "Failed to initialize window or the font (%s), aborting\n", err.c_str());
-		exit(1);
+		return 1;
 	}
 
 	InitMouseModes();
@@ -138,5 +138,5 @@ int main(int argc, char **argv)
 	UninitLanguage();
 	DestroyImageStorage();
 	_video.Shutdown();
-	exit(0);
+	return 0;
 }
