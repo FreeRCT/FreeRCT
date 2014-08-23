@@ -45,6 +45,11 @@ IF(UNIX)
 		 ${CMAKE_SOURCE_DIR}/src/unix/*.cpp
 		 ${CMAKE_SOURCE_DIR}/src/unix/*.h
 	)
+ELSEIF(WIN32)
+	file(GLOB freerct_platform_SRCS
+		 ${CMAKE_SOURCE_DIR}/src/windows/*.cpp
+		 ${CMAKE_SOURCE_DIR}/src/windows/*.h
+	)
 ENDIF()
 set(freerct_SRCS ${freerct_SRCS} ${freerct_platform_SRCS})
 
@@ -63,7 +68,14 @@ set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h GENE
 set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp GENERATED)
 set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h GENERATED)
 
-add_executable(freerct ${freerct_SRCS})
+# On windows, "WIN32" option need to be passed to
+# add_excutable to get a Windows instead of Console
+# application.
+IF(WIN32)
+	add_executable(freerct WIN32 ${freerct_SRCS})
+ELSE()
+	add_executable(freerct ${freerct_SRCS})
+ENDIF()
 add_dependencies(freerct rcd)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
@@ -199,6 +211,8 @@ ENDIF()
 # Add platform define
 IF(UNIX)
 	add_definitions("-DLINUX")
+ELSEIF(WIN32)
+	add_definitions("-DWINDOWS")
 ELSE()
 	message(FATAL_ERROR "Unsupported platform")
 ENDIF()

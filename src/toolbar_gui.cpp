@@ -346,7 +346,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 			remaining -= GetMoneyStringSize(LARGE_MONEY_AMOUNT).x;
 			remaining -= GetMaxDateSize().x;
 			remaining -= _sprite_manager.GetTableSpriteSize(SPR_GUI_COMPASS_START).base.x; // It's the same size for all compass sprites.
-			p = {remaining, BOTTOM_BAR_HEIGHT};
+			p = {remaining, (int32)BOTTOM_BAR_HEIGHT};
 			break;
 		}
 

@@ -20,6 +20,9 @@
 	#include "unix/fileio_unix.h"
 	#include <dirent.h>
 	#include <unistd.h>
+#elif WINDOWS
+	#include "windows/fileio_windows.h"
+	#include <direct.h> // contains chdir in windows
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -102,6 +105,8 @@ DirectoryReader *MakeDirectoryReader()
 {
 #ifdef LINUX
 	return new UnixDirectoryReader();
+#elif WINDOWS
+	return new WindowsDirectoryReader();
 #else
 	assert_compile(false);
 #endif

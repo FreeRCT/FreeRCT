@@ -86,6 +86,8 @@ ENDIF()
 # TODO: Extend for debug/release versions
 IF(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
+	# Accept zlib from OpenTTD useful compiled by previous Visual Studio version.
+	set_target_properties(rcdgen PROPERTIES LINK_FLAGS "/SAFESEH:NO")
 ELSE()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -pedantic -Wall")
 ENDIF()

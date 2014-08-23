@@ -20,6 +20,7 @@
 #include "gamecontrol.h"
 #include "window.h"
 #include "viewport.h"
+#include <string>
 
 VideoSystem _video;  ///< Video sub-system.
 static bool _finish; ///< Finish execution of the main loop (and program).
