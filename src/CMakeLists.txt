@@ -39,6 +39,15 @@ add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMENT "Generating GUI string files"
 )
 
+# Add platform specific files
+IF(UNIX)
+	file(GLOB freerct_platform_SRCS
+		 ${CMAKE_SOURCE_DIR}/src/unix/*.cpp
+		 ${CMAKE_SOURCE_DIR}/src/unix/*.h
+	)
+ENDIF()
+set(freerct_SRCS ${freerct_SRCS} ${freerct_platform_SRCS})
+
 # Add generated files
 set(freerct_SRCS ${freerct_SRCS}
   ${CMAKE_SOURCE_DIR}/src/rev.cpp

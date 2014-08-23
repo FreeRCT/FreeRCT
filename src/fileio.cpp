@@ -16,11 +16,13 @@
 #include "stdafx.h"
 #include "fileio.h"
 #include "string_func.h"
-
+#ifdef LINUX
+	#include "unix/fileio_unix.h"
+	#include <dirent.h>
+	#include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <dirent.h>
-#include <unistd.h>
 
 /**
  * Base class implementation of a directory reader, never returning any content.
@@ -90,109 +92,6 @@ const char *DirectoryReader::NextFile()
 	return entry;
 }
 
-/**
- * Directory reader for a Unix system.
- * @ingroup fileio_group
- */
-class UnixDirectoryReader : public DirectoryReader {
-public:
-	UnixDirectoryReader();
-	virtual ~UnixDirectoryReader();
-
-	void OpenPath(const char *path) override;
-	const char *NextEntry() override;
-	void ClosePath() override;
-	const char *MakePath(const char *directory, const char *fname) override;
-
-	bool EntryIsFile() override;
-	bool EntryIsDirectory() override;
-
-private:
-	DIR *dirfp;           ///< Directory stream if not \c nullptr.
-	dirent *entry;        ///< Pointer to current directory entry (or \c nullptr).
-	char dpath[MAX_PATH]; ///< Directory path.
-	char fpath[MAX_PATH]; ///< File path returned by #NextEntry.
-};
-
-UnixDirectoryReader::UnixDirectoryReader() : DirectoryReader('/')
-{
-	this->dirfp = nullptr;
-}
-
-UnixDirectoryReader::~UnixDirectoryReader()
-{
-	this->ClosePath();
-}
-
-void UnixDirectoryReader::OpenPath(const char *path)
-{
-	if (this->dirfp != nullptr) this->ClosePath();
-
-	SafeStrncpy(this->dpath, path, MAX_PATH);
-	this->dirfp = opendir(this->dpath);
-}
-
-const char *UnixDirectoryReader::NextEntry()
-{
-	if (this->dirfp == nullptr) return nullptr;
-
-	this->entry = readdir(this->dirfp);
-	if (this->entry == nullptr) {
-		this->ClosePath();
-		return nullptr;
-	}
-
-	return this->MakePath(this->dpath, this->entry->d_name);
-}
-
-const char *UnixDirectoryReader::MakePath(const char *directory, const char *fname)
-{
-	snprintf(this->fpath, MAX_PATH, "%s%c%s", directory, this->dir_sep, fname);
-	this->fpath[MAX_PATH - 1] = '\0'; // Better safe than sorry.
-	return this->fpath;
-}
-
-void UnixDirectoryReader::ClosePath()
-{
-	if (this->dirfp != nullptr) closedir(this->dirfp);
-	this->dirfp = nullptr;
-}
-
-bool UnixDirectoryReader::EntryIsFile()
-{
-	return PathIsFile(this->fpath);
-}
-
-bool UnixDirectoryReader::EntryIsDirectory()
-{
-	return PathIsDirectory(this->fpath);
-}
-
-/**
- * Test whether the given path points to a normal file.
- * @param path Path to investigate.
- * @return Whether the given path points to a normal file.
- */
-bool PathIsFile(const char *path)
-{
-	struct stat st;
-
-	if (stat(path, &st) != 0) return false;
-	return S_ISREG(st.st_mode);
-}
-
-/**
- * Test whether the given path points to a directory.
- * @param path Path to investigate.
- * @return Whether the given path points to a directory.
- */
-bool PathIsDirectory(const char *path)
-{
-	struct stat st;
-
-	if (stat(path, &st) != 0) return false;
-	return S_ISDIR(st.st_mode);
-}
 
 /**
  * Construct a directory reader object (specific for the operating system).
@@ -201,7 +100,11 @@ bool PathIsDirectory(const char *path)
  */
 DirectoryReader *MakeDirectoryReader()
 {
+#ifdef LINUX
 	return new UnixDirectoryReader();
+#else
+	assert_compile(false);
+#endif
 }
 
 /**
