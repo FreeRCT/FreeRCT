@@ -841,9 +841,9 @@ bool Guest::DailyUpdate()
 	int16 happiness_change = 0;
 	if (!eating) {
 		if (this->has_wrapper && this->rnd.Success1024(25)) this->has_wrapper = false; // XXX Drop litter.
-		happiness_change--;
+		if (this->hunger_level > 200) happiness_change--;
 	}
-	if (this->waste > 100) happiness_change -= 2;
+	if (this->waste > 170) happiness_change -= 2;
 
 	this->ChangeHappiness(happiness_change);
 	return this->happiness > 10; // De-activate if at or below 10.
