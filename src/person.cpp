@@ -794,6 +794,20 @@ void Guest::DeActivate(AnimateResult ar)
 }
 
 /**
+ * Update the happiness of the guest.
+ * @param amount Amount of change.
+ */
+void Guest::ChangeHappiness(int16 amount)
+{
+	if (amount == 0) return;
+
+	int16 old_happiness = this->happiness;
+	this->happiness = Clamp(this->happiness + amount, 0, 100);
+	if (amount > 0) this->total_happiness = std::min(1000, this->total_happiness + this->happiness - old_happiness);
+	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
+}
+
+/**
  * Daily ponderings of a guest.
  * @return If \c false, de-activate the guest.
  * @todo Make de-activation a bit more random.
@@ -824,14 +838,14 @@ bool Guest::DailyUpdate()
 		if (this->waste < 255) this->waste++;
 	}
 
+	int16 happiness_change = 0;
 	if (!eating) {
 		if (this->has_wrapper && this->rnd.Success1024(25)) this->has_wrapper = false; // XXX Drop litter.
-		if (this->happiness > 0) this->happiness--;
+		happiness_change--;
 	}
-	if (this->waste > 100) this->happiness = std::max(0, this->happiness - 2);
+	if (this->waste > 100) happiness_change -= 2;
 
-	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
-
+	this->ChangeHappiness(happiness_change);
 	return this->happiness > 10; // De-activate if at or below 10.
 }
 
@@ -952,15 +966,10 @@ void Guest::VisitShop(RideInstance *ri)
 			ri->SellItem(i);
 			this->cash -= ri->GetSaleItemPrice(i);
 			this->AddItem(ri->GetSaleItemType(i));
-			int16 old_happiness = this->happiness;
-			this->happiness = std::min(100, this->happiness + 10);
-			this->total_happiness = std::min(1000, this->total_happiness + this->happiness - old_happiness);
-			NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
+			this->ChangeHappiness(10);
 			return;
 		}
 	}
 
-	this->happiness = std::max(0, this->happiness - 10); // Cannot buy anything!
-
-	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
+	this->ChangeHappiness(-10);
 }

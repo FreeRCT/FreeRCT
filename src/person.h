@@ -150,9 +150,10 @@ public:
 	void DeActivate(AnimateResult ar) override;
 	bool DailyUpdate() override;
 
+	void ChangeHappiness(int16 amount);
 	void VisitShop(RideInstance *ri);
 
-	int16 happiness;        ///< Happiness of the guest (values are 0-100).
+	int16 happiness;        ///< Happiness of the guest (values are 0-100). Use #ChangeHappiness to change the guest happiness.
 	uint16 total_happiness; ///< Sum of all good experiences (for evaluating the day after getting home, values are 0-1000).
 	Money cash;             ///< Amount of money carried by the guest (should be non-negative).
 	const RideInstance *wants_visit; ///< Ride that the guest wants to visit, \c nullptr there is no favorite ride.
