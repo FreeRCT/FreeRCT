@@ -1154,7 +1154,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
  * @param allowed Bit-set of sprite types to look for. @see #ClickableSprite
  * @param select What to find of a ground tile.
  */
-FinderData::FinderData(ClickableSprite allowed, FindWhat select)
+FinderData::FinderData(ClickableSprite allowed, GroundTilePart select)
 {
 	this->allowed = allowed;
 	this->select = select;

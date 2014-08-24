@@ -97,10 +97,8 @@ enum SpriteOrder {
 	SO_CURSOR          = (15 << CS_LENGTH),             ///< Draw cursor sprites.
 };
 
-/**
- * TODO: find a better name for this enum
- */
-enum FindWhat {
+/** Part of a ground tile to select. */
+enum GroundTilePart {
 	FW_TILE,   ///< Find whole tile only.
 	FW_CORNER, ///< Find whole tile or corner.
 	FW_EDGE,   ///< Find tile edge.
@@ -109,10 +107,10 @@ enum FindWhat {
 /** Data found by Viewport::ComputeCursorPosition. */
 class FinderData {
 public:
-	FinderData(ClickableSprite allowed_types, FindWhat select);
+	FinderData(ClickableSprite allowed_types, GroundTilePart select);
 
 	ClickableSprite allowed; ///< Bit-set of sprite-types looking for. @see ClickableSprites
-	FindWhat select;         ///< What to select of the ground tile.
+	GroundTilePart select;   ///< What part to select of a ground tile.
 
 	CursorType cursor;       ///< Type of cursor suggested.
 	uint16 xvoxel;           ///< X position of the voxel with the closest sprite.
