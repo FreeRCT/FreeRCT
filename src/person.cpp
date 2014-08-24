@@ -417,97 +417,114 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 }
 
 /**
- * @fn Person::DecideMoveDirection()
- * Decide where to go from the current position.
+ * Which way can the guest leave?
+ * @param v %Voxel to cross next for the guest.
+ * @param start_edge %Edge where the person is currently (entry edge of the voxel).
+ * @param seen_wanted_ride [out] Whether the wanted ride was seen.
+ * @param queue_mode [out] Whether the quest should be queuing.
+ * @return Possible exit directions in low nibble, exits with a shop in high nibble.
+ * @pre \a v must have a path.
  */
-
-void Guest::DecideMoveDirection()
+uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_mode)
 {
-	TileEdge start_edge = this->GetCurrentEdge(); // Edge the person is currently.
+	assert(HasValidPath(v));
 
-	/* Which way can the guest leave? */
-	uint8 bot_exits = (1 << PATHBIT_NE) | (1 << PATHBIT_SW) | (1 << PATHBIT_SE) | (1 << PATHBIT_NW); // All exit directions at the bottom by default.
-	uint8 shops = 0; // Number of exits with a shop with normal desire to go there.
-	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
-	this->queue_mode = false;
-	bool seen_wanted_ride = false;
-	if (HasValidPath(v)) {
-		/* If walking on a queue path, enable queue mode. */
-		// \todo Only walk in queue mode when going to a ride.
-		if (_sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH) this->queue_mode = true;
+	/* If walking on a queue path, enable queue mode. */
+	// \todo Only walk in queue mode when going to a ride.
+	*queue_mode = _sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH;
+	*seen_wanted_ride = false;
 
-		uint8 top_exits = 0; // Exits at the top of the voxel.
+	uint8 bot_exits = 0xF; // All exit directions at the bottom by default.
+	uint8 shops = 0;       // Number of exits with a shop with normal desire to go there.
+	uint8 top_exits = 0;   // Exits at the top of the voxel.
+	uint8 must_shops = 0;  // Shops with a high desire to visit.
 
-		uint8 slope = GetImplodedPathSlope(v);
-		if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
-			bot_exits &= _path_expand[slope]; // Masks to exits only, as that's what 'bot_exits' contains here.
-		} else { // At a path ramp.
-			switch (slope) {
-				case PATH_RAMP_NE: bot_exits = 1 << PATHBIT_NE; top_exits = 1 << PATHBIT_SW; break;
-				case PATH_RAMP_NW: bot_exits = 1 << PATHBIT_NW; top_exits = 1 << PATHBIT_SE; break;
-				case PATH_RAMP_SE: bot_exits = 1 << PATHBIT_SE; top_exits = 1 << PATHBIT_NW; break;
-				case PATH_RAMP_SW: bot_exits = 1 << PATHBIT_SW; top_exits = 1 << PATHBIT_NE; break;
-				default: NOT_REACHED();
-			}
-		}
-
-		uint8 must_shops = 0; // Shops with a high desire to visit.
-
-		/* Being at a path tile, make extra sure we don't leave the path. */
-		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
-			int z; // Decide z position of the exit.
-			if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0) {
-				z = this->z_vox;
-			} else if (GB(top_exits, exit_edge + PATHBIT_NE, 1) != 0) {
-				z = this->z_vox + 1;
-			} else {
-				continue;
-			}
-
-			RideVisitDesire rvd = ComputeExitDesire(start_edge, this->x_vox, this->y_vox, z, exit_edge, &seen_wanted_ride);
-			switch (rvd) {
-				case RVD_NO_RIDE:
-					break; // A path is one of the options.
-
-				case RVD_NO_VISIT: // No desire to visit this exit; clear it.
-					SB(bot_exits, exit_edge + PATHBIT_NE, 1, 0);
-					SB(top_exits, exit_edge + PATHBIT_NE, 1, 0);
-					break;
-
-				case RVD_MAY_VISIT: // It's one of the options (since the person is not coming from it).
-					SB(shops, exit_edge + PATHBIT_NE, 1, 1);
-					break;
-
-				case RVD_MUST_VISIT: // It is very desirable to visit this shop (since the person is not coming from it).
-					SB(must_shops, exit_edge + PATHBIT_NE, 1, 1);
-					break;
-
-				default: NOT_REACHED();
-			}
-		}
-		bot_exits |= top_exits; // Difference between bottom-exit and top-exit is not relevant any more.
-		if (must_shops != 0) {  // If there are shops that must be visited, ignore everything else.
-			bot_exits &= must_shops;
-			shops = must_shops;
+	uint8 slope = GetImplodedPathSlope(v);
+	if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
+		bot_exits &= _path_expand[slope] >> PATHBIT_NE; // Masks to exits only, as that's what 'bot_exits' contains here.
+	} else { // At a path ramp.
+		switch (slope) {
+			case PATH_RAMP_NE: bot_exits = 1 << EDGE_NE; top_exits = 1 << EDGE_SW; break;
+			case PATH_RAMP_NW: bot_exits = 1 << EDGE_NW; top_exits = 1 << EDGE_SE; break;
+			case PATH_RAMP_SE: bot_exits = 1 << EDGE_SE; top_exits = 1 << EDGE_NW; break;
+			case PATH_RAMP_SW: bot_exits = 1 << EDGE_SW; top_exits = 1 << EDGE_NE; break;
+			default: NOT_REACHED();
 		}
 	}
 
-	if (!seen_wanted_ride) this->wants_visit = nullptr; // Wanted ride has gone missing, stop looking for it.
+	/* Being at a path tile, make extra sure we don't leave the path. */
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		int z; // Decide z position of the exit.
+		if (GB(bot_exits, exit_edge, 1) != 0) {
+			z = this->z_vox;
+		} else if (GB(top_exits, exit_edge, 1) != 0) {
+			z = this->z_vox + 1;
+		} else {
+			continue;
+		}
 
-	/* At this point:
-	 *
-	 * bot_exits = bit-set of exit directions,
-	 * shops     = bit-set of directions that lead to a shop.
-	 */
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->x_vox, this->y_vox, z, exit_edge, seen_wanted_ride);
+		switch (rvd) {
+			case RVD_NO_RIDE:
+				break; // A path is one of the options.
+
+			case RVD_NO_VISIT: // No desire to visit this exit; clear it.
+				SB(bot_exits, exit_edge, 1, 0);
+				SB(top_exits, exit_edge, 1, 0);
+				break;
+
+			case RVD_MAY_VISIT: // It's one of the options (since the person is not coming from it).
+				SB(shops, exit_edge, 1, 1);
+				break;
+
+			case RVD_MUST_VISIT: // It is very desirable to visit this shop (since the person is not coming from it).
+				SB(must_shops, exit_edge, 1, 1);
+				break;
+
+			default: NOT_REACHED();
+		}
+	}
+	bot_exits |= top_exits; // Difference between bottom-exit and top-exit is not relevant any more.
+	if (must_shops != 0) {  // If there are shops that must be visited, ignore everything else.
+		bot_exits &= must_shops;
+		shops = must_shops;
+	}
+	return (shops << 4) | bot_exits;
+}
+
+
+/**
+ * @fn Person::DecideMoveDirection()
+ * Decide where to go from the current position.
+ */
+void Guest::DecideMoveDirection()
+{
+	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
+	TileEdge start_edge = this->GetCurrentEdge(); // Edge the person is currently.
+
+	uint8 exits, shops;
+	if (HasValidPath(v)) {
+		bool seen_wanted_ride, queue_mode;
+		exits = GetExitDirections(v, start_edge, &seen_wanted_ride, &queue_mode);
+		shops = exits >> 4;
+		exits &= 0xF;
+
+		this->queue_mode = queue_mode;
+		if (!seen_wanted_ride) this->wants_visit = nullptr; // Wanted ride has gone missing, stop looking for it.
+	} else { // Not at a path -> lost.
+		exits = 0xF;
+		shops = 0;
+		this->queue_mode = false;
+		this->wants_visit = nullptr;
+	}
 
 	const WalkInformation *walks[4]; // Walks that can be done at this tile.
 	uint8 walk_count = 0;
 	uint8 shop_count = 0;
-
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		if (start_edge == exit_edge) continue;
-		if (GB(bot_exits, exit_edge + PATHBIT_NE, 1) != 0) {
-			if (GB(shops, exit_edge + PATHBIT_NE, 1) != 0) {
+		if (GB(exits, exit_edge, 1) != 0) {
+			if (GB(shops, exit_edge, 1) != 0) {
 				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
 				shop_count++;
 			} else if (this->queue_mode) { // Queue mode, walk at the center.
