@@ -480,7 +480,7 @@ public:
 		uint8 corner_height[4];
 		ComputeCornerHeight(slope, (slope & TSB_TOP) != 0 ? 1 : 0, corner_height);
 
-		/* 
+		/*
 		 * Compute edge case 0..2
 		 * 0 = flat, 1 = one corner raised, 2 = other corner raised
 		 */

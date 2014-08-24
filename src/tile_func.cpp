@@ -115,7 +115,8 @@ bool MayHaveGroundFenceInVoxelAbove(TileSlope slope)
 /**
  * For some ground slopes, the fence type is stored in the voxel above.
  * Check if this is the case for given edge of a voxel with the given slope.
- * @param slope Exploded slope
+ * @param slope Exploded slope.
+ * @param edge Edge to inspect.
  * @return true if one or more edges of a voxel with given slope will have the fence stored in the voxel above.
  */
 bool StoreFenceInUpperVoxel(TileSlope slope, TileEdge edge)

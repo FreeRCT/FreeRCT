@@ -1145,7 +1145,7 @@ void SpriteStorage::AddAnimationSprites(AnimationSprites *an_spr)
 
 /**
  * Add fence sprites.
- * @param tc New fence sprites.
+ * @param fnc New fence sprites.
  * @pre Width of the fence sprites must match with #size.
  */
 void SpriteStorage::AddFence(Fence *fnc)

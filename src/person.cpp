@@ -383,6 +383,7 @@ TileEdge Person::GetCurrentEdge() const
  * @param z Z coordinate of the current voxel.
  * @param exit_edge Exit edge being examined.
  * @param seen_wanted_ride [inout] Whether the wanted ride is seen.
+ * @return Desire of the guest to visit the indicated edge.
  */
 RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, int z, TileEdge exit_edge, bool *seen_wanted_ride)
 {
@@ -786,7 +787,7 @@ void Guest::DeActivate(AnimateResult ar)
 			_manager.DeleteWindow(wi);
 		}
 
-		/// \todo Evaluate #total_happiness against scenario requirements for evaluating the park value.
+		/// \todo Evaluate Guest::total_happiness against scenario requirements for evaluating the park value.
 	}
 
 	this->Person::DeActivate(ar);

@@ -169,6 +169,10 @@ void FenceGui::OnChange(ChangeCode code, uint32 parameter)
 	_fence_builder.SelectFenceType(selected);
 }
 
+/**
+ * Handle a click on a fence.
+ * @param fence The clicked fence.
+ */
 void FenceGui::OnClickFence(const Fence *fence)
 {
 	_fence_builder.SelectFenceType(fence != nullptr ? (FenceType)fence->type : FENCE_TYPE_INVALID);

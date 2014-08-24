@@ -101,9 +101,9 @@ enum SpriteOrder {
  * TODO: find a better name for this enum
  */
 enum FindWhat {
-	FW_TILE,   ///< Find whole tile only
-	FW_CORNER, ///< Find whole tile or corner
-	FW_EDGE,   ///< Find tile edge
+	FW_TILE,   ///< Find whole tile only.
+	FW_CORNER, ///< Find whole tile or corner.
+	FW_EDGE,   ///< Find tile edge.
 };
 
 /** Data found by Viewport::ComputeCursorPosition. */

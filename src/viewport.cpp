@@ -711,8 +711,9 @@ uint8 EdgeCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
  * @param ypos Y position of the voxel containing the cursor.
  * @param zpos Z position of the voxel containing the cursor.
  * @param type Type of cursor to set.
- * @param always Always set the cursor (else, only set it if it changed).
+ * @param sprite Sprite to display.
  * @param yoffset Offset in screen y coordinates for where to render the sprite related to given voxel.
+ * @param always Always set the cursor (else, only set it if it changed).
  * @return %Cursor has been set/changed.
  */
 bool EdgeCursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always)
@@ -1151,14 +1152,14 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 /**
  * Constructor of the finder data class.
  * @param allowed Bit-set of sprite types to look for. @see #ClickableSprite
- * @param select_corner Select the tile corner (otherwise, a tile cursor is returned).
+ * @param select What to find of a ground tile.
  */
 FinderData::FinderData(ClickableSprite allowed, FindWhat select)
 {
 	this->allowed = allowed;
 	this->select = select;
 
-	/* 
+	/*
 	 * CS_GROUND must not be allowed when looking for edge,
 	 * or the other way around.
 	 */

@@ -92,10 +92,10 @@ void FenceBuildManager::SetCursors()
 		assert(ss != nullptr);
 		const ImageData *sprite = ss->GetFenceSprite(this->selected_fence_type, edge, ExpandTileSlope(v->GetGroundSlope()), vp->orientation);
 		/*
-		 * The lower edges of steep slope needs an yoffset to be rendered 
+		 * The lower edges of steep slope needs an yoffset to be rendered
 		 * as if they belonged to the lower voxel.
 		 */
-		bool steep_lower_edge = (slope & TSB_STEEP) != 0 && 
+		bool steep_lower_edge = (slope & TSB_STEEP) != 0 &&
 			(slope & (1 << edge)) == 0 &&
 			(slope & (1 << ((edge + 1) % 4))) == 0;
 		vp->edge_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel + extra_z, fdata.cursor, sprite, steep_lower_edge ? vp->tile_height : 0);
@@ -153,7 +153,7 @@ void FenceBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 
 /**
  * Set the selected fence type.
- * @param fence Fence type to select or FENCE_TYPE_INVALID
+ * @param fence_type Fence type to select or #FENCE_TYPE_INVALID.
  */
 void FenceBuildManager::SelectFenceType(FenceType fence_type)
 {

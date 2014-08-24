@@ -676,7 +676,7 @@ static inline bool IsVoxelInsideWorld(int x, int y, int z)
 static inline bool IsRaisedEdge(TileEdge edge, TileSlope slope)
 {
 	assert((slope & TSB_STEEP) == 0);
-	return (slope & (1 << edge)) != 0 && 
+	return (slope & (1 << edge)) != 0 &&
 			(slope & (1 << ((edge + 1) % 4))) != 0;
 }
 
