@@ -597,6 +597,16 @@ void Guest::DecideMoveDirection()
 		this->wants_visit = nullptr;
 	}
 
+	if (this->activity == GA_WANDER) { // Prevent wandering guests from walking out the park.
+		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+			if (GB(exits, exit_edge, 1) == 0) continue;
+			if (_world.GetTileOwner(this->x_vox + _tile_dxy[exit_edge].x, this->y_vox + _tile_dxy[exit_edge].y) != OWN_PARK) {
+				SB(exits, exit_edge, 1, 0);
+				SB(shops, exit_edge, 1, 0);
+			}
+		}
+	}
+
 	/* Decide which direction to go. */
 	SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
 	uint8 walk_count = 0;
