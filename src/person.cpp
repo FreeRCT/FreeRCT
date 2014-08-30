@@ -499,9 +499,17 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
  */
 void Guest::DecideMoveDirection()
 {
-	const Voxel *v = _world.GetVoxel(this->x_vox, this->y_vox, this->z_vox);
+	const VoxelStack *vs = _world.GetStack(this->x_vox, this->y_vox);
+	const Voxel *v = vs->Get(this->z_vox);
 	TileEdge start_edge = this->GetCurrentEdge(); // Edge the person is currently.
 
+	if (this->activity == GA_ENTER_PARK && vs->owner == OWN_PARK) {
+		// \todo Pay the park fee, go home if insufficient monies.
+		this->activity = GA_WANDER;
+		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
+	}
+
+	/* Find feasible exits and shops. */
 	uint8 exits, shops;
 	if (HasValidPath(v)) {
 		bool seen_wanted_ride, queue_mode;
@@ -518,6 +526,7 @@ void Guest::DecideMoveDirection()
 		this->wants_visit = nullptr;
 	}
 
+	/* Decide which direction to go. */
 	const WalkInformation *walks[4]; // Walks that can be done at this tile.
 	uint8 walk_count = 0;
 	uint8 shop_count = 0;
@@ -541,7 +550,11 @@ void Guest::DecideMoveDirection()
 	if (walk_count == 1) {
 		new_walk = walks[0];
 	} else {
-		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
+		switch (this->activity) {
+			default:
+				new_walk = walks[this->rnd.Uniform(walk_count - 1)];
+				break;
+		}
 	}
 
 	this->StartAnimation(new_walk);
