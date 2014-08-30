@@ -471,6 +471,8 @@ public:
 	VoxelStack *Copy(bool copyPersons) const;
 	void MoveStack(VoxelStack *old_stack);
 
+	int GetGroundOffset() const;
+
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr);
 

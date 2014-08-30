@@ -377,6 +377,19 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 }
 
 /**
+ * Get the offset of ground in the voxel stack.
+ * @param offset in VoxelStack::voxels containing the ground.
+ */
+int VoxelStack::GetGroundOffset() const
+{
+	for (int i = this->height - 1; i >= 0; i--) {
+		const Voxel &v = this->voxels[i];
+		if (v.GetGroundType() != GTP_INVALID && !IsImplodedSteepSlopeTop(v.GetGroundSlope())) return i;
+	}
+	NOT_REACHED();
+}
+
+/**
  * Load a voxel stack from the save game file.
  * @param ldr Input stream to read.
  */
@@ -455,14 +468,9 @@ const VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y) const
 uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y) const
 {
 	const VoxelStack *vs = this->GetStack(x, y);
-	for (int16 i = vs->height - 1; i >= 0; i--) {
-		const Voxel &v = vs->voxels[i];
-		if (v.GetGroundType() != GTP_INVALID && !IsImplodedSteepSlopeTop(v.GetGroundSlope())) {
-			assert(vs->base + i >= 0 && vs->base + i <= 255);
-			return (uint8)(vs->base + i);
-		}
-	}
-	NOT_REACHED();
+	int offset = vs->GetGroundOffset();
+	assert(vs->base + offset >= 0 && vs->base + offset <= 255);
+	return vs->base + offset;
 }
 
 /**
