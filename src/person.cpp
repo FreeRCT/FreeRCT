@@ -19,6 +19,7 @@
 #include "person.h"
 #include "fileio.h"
 #include "map.h"
+#include "path_finding.h"
 #include "ride_type.h"
 #include "viewport.h"
 #include "weather.h"
@@ -492,6 +493,76 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 	return (shops << 4) | bot_exits;
 }
 
+/**
+ * From a junction, find the direction that leads to an entrance of the park.
+ * @param pos_x X position of the current position.
+ * @param pos_y Y position of the current position.
+ * @param pos_z Z position of the current position.
+ * @return Edge to go to to go to an entrance of the park, or #INVALID_EDGE if no path could be found.
+ */
+static TileEdge GetParkEntryDirection(int pos_x, int pos_y, int pos_z)
+{
+	PathSearcher ps(pos_x, pos_y, pos_z); // Current position is the destination.
+
+	/* Add path tiles with a connection to outside the park to the initial starting points. */
+	for (int x = 0; x < _world.GetXSize() - 1; x++) {
+		for (int y = 0; y < _world.GetYSize() - 1; y++) {
+			const VoxelStack *vs = _world.GetStack(x, y);
+			if (vs->owner == OWN_PARK) {
+				if (_world.GetStack(x + 1, y)->owner != OWN_PARK || _world.GetStack(x, y + 1)->owner != OWN_PARK) {
+					int offset = vs->GetGroundOffset();
+					const Voxel *v = vs->voxels + offset;
+					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT) {
+						if ((GetPathExits(v) & ((1 << EDGE_SE) | (1 << EDGE_SW))) != 0) ps.AddStart(x, y, vs->base + offset);
+					}
+				}
+			} else {
+				vs = _world.GetStack(x + 1, y);
+				if (vs->owner == OWN_PARK) {
+					int offset = vs->GetGroundOffset();
+					const Voxel *v = vs->voxels + offset;
+					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT) {
+						if ((GetPathExits(v) & (1 << EDGE_NE)) != 0) ps.AddStart(x + 1, y, vs->base + offset);
+					}
+				}
+
+				vs = _world.GetStack(x, y + 1);
+				if (vs->owner == OWN_PARK) {
+					int offset = vs->GetGroundOffset();
+					const Voxel *v = vs->voxels + offset;
+					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT) {
+						if ((GetPathExits(v) & (1 << EDGE_NW)) != 0) ps.AddStart(x, y + 1, vs->base + offset);
+					}
+				}
+			}
+		}
+	}
+	if (!ps.Search()) return INVALID_EDGE; // Search failed.
+
+	const WalkedPosition *dest = ps.dest_pos;
+	const WalkedPosition *prev = dest->prev_pos;
+	if (prev == nullptr) return INVALID_EDGE; // Already at tile.
+
+	return GetAdjacentEdge(dest->x, dest->y, prev->x, prev->y);
+}
+
+/**
+ * Get the index of the exit edge to use.
+ * @param desired_edge Edge to use for leaving.
+ * @param exits Available exits.
+ * @return Index of the desired edge in the available edges, or \c -1
+ */
+static int GetDesiredEdgeIndex(TileEdge desired_edge, uint8 exits)
+{
+	int i = 0;
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		if (GB(exits, exit_edge, 1) != 0) {
+			if (exit_edge == desired_edge) return i;
+			i++;
+		}
+	}
+	return -1;
+}
 
 /**
  * @fn Person::DecideMoveDirection()
@@ -551,14 +622,20 @@ void Guest::DecideMoveDirection()
 			}
 		}
 	}
-	/* No exits, or all normal shops: Add 'return' as option. */
-	if (walk_count == 0 || (walk_count == shop_count && this->wants_visit == nullptr)) walks[walk_count++] = _walk_path_tile[start_edge][start_edge];
 
 	const WalkInformation *new_walk;
 	if (walk_count == 1) {
 		new_walk = walks[0];
 	} else {
 		switch (this->activity) {
+			case GA_ENTER_PARK: { // Find the park entrance.
+				TileEdge desired = GetParkEntryDirection(this->x_vox, this->y_vox, this->z_vox);
+				int selected = GetDesiredEdgeIndex(desired, exits);
+				if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
+				new_walk = walks[selected];
+				break;
+			}
+
 			default:
 				new_walk = walks[this->rnd.Uniform(walk_count - 1)];
 				break;
