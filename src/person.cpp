@@ -777,6 +777,7 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 {
 	this->Person::Activate(start, person_type);
 
+	this->activity = GA_ENTER_PARK;
 	this->happiness = 50 + this->rnd.Uniform(50);
 	this->total_happiness = 0;
 	this->cash = 3000 + this->rnd.Uniform(4095);

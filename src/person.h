@@ -140,6 +140,13 @@ protected:
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
 };
 
+/** Activities of the guest. */
+enum GuestActivity {
+	GA_ENTER_PARK,   ///< Find the entrance to the park.
+	GA_WANDER,       ///< Wander around in the park.
+	GA_GO_HOME,      ///< Find a way to home.
+};
+
 /** Guests walking around in the world. */
 class Guest : public Person {
 public:
@@ -153,6 +160,7 @@ public:
 	void ChangeHappiness(int16 amount);
 	void VisitShop(RideInstance *ri);
 
+	GuestActivity activity; ///< Activity being done by the guest currently.
 	int16 happiness;        ///< Happiness of the guest (values are 0-100). Use #ChangeHappiness to change the guest happiness.
 	uint16 total_happiness; ///< Sum of all good experiences (for evaluating the day after getting home, values are 0-1000).
 	Money cash;             ///< Amount of money carried by the guest (should be non-negative).
