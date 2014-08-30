@@ -125,3 +125,19 @@ bool StoreFenceInUpperVoxel(TileSlope slope, TileEdge edge)
 	/* Are both edge corners raised? */
 	return (slope & (1 << edge)) != 0 && (slope & (1 << ((edge + 1) % 4))) != 0;
 }
+
+/**
+ * Find the outgoing edge of tile \a x1, \a y1) to arrive at adjacent tile (\a x2, \a y2).
+ * @param x1 X coordinate first tile.
+ * @param y1 Y coordinate first tile.
+ * @param x2 X coordinate second tile.
+ * @param y2 Y coordinate second tile.
+ * @return Outgoing edge of the first tile to reach the second tile, or #INVALID_EDGE if no valid edge could be found.
+ */
+TileEdge GetAdjacentEdge(int x1, int y1, int x2, int y2)
+{
+	for (TileEdge te = EDGE_BEGIN; te < EDGE_COUNT; te++) {
+		if (x1 + _tile_dxy[te].x == x2 && y1 + _tile_dxy[te].y == y2) return te;
+	}
+	return INVALID_EDGE;
+}

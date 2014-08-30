@@ -242,5 +242,6 @@ void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output);
 void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base);
 bool MayHaveGroundFenceInVoxelAbove(TileSlope slope);
 bool StoreFenceInUpperVoxel(TileSlope slope, TileEdge edge);
+TileEdge GetAdjacentEdge(int x1, int y1, int x2, int y2);
 
 #endif
