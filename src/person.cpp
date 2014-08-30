@@ -527,15 +527,23 @@ void Guest::DecideMoveDirection()
 	}
 
 	/* Decide which direction to go. */
-	const WalkInformation *walks[4]; // Walks that can be done at this tile.
+	SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
 	uint8 walk_count = 0;
 	uint8 shop_count = 0;
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
-		if (start_edge == exit_edge) continue;
+		if (GB(exits, exit_edge, 1) == 0) continue;
+		walk_count++;
+		if (GB(shops, exit_edge, 1) != 0) shop_count++;
+	}
+	/* No exits, or all normal shops: Add 'return' as option. */
+	if (walk_count == 0 || (walk_count == shop_count && this->wants_visit == nullptr)) SB(exits, start_edge, 1, 1);
+
+	const WalkInformation *walks[4]; // Walks that can be done at this tile.
+	walk_count = 0;
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		if (GB(exits, exit_edge, 1) != 0) {
-			if (GB(shops, exit_edge, 1) != 0) {
+			if (GB(shops, exit_edge, 1) != 0) { // Moving to a shop.
 				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
-				shop_count++;
 			} else if (this->queue_mode) { // Queue mode, walk at the center.
 				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
 			} else {
