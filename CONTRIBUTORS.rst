@@ -14,14 +14,14 @@ Developers
 ==========
 The people with commit access, who can actually make your code/graphics be in the game.
 
-=============== ======== ============================
-Name            Nick     Email
-=============== ======== ============================
-Albert Hofkamp  Alberth  Alberth289346@gmail.com
-Leif Linse      Zuu      leif.linse@gmail.com
-Charles Pigott  LordAro  charlespigott@googlemail.com
-Richard Wheeler Zephyris imrichwheeler@gmail.com
-=============== ======== ============================
+=============== ======== =========================
+Name            Nick     Area
+=============== ======== =========================
+Albert Hofkamp  Alberth  Lead programmer
+Leif Linse      Zuu      General programming
+Charles Pigott  LordAro  Chief correctness officer
+Richard Wheeler Zephyris Artist
+=============== ======== =========================
 
 Contributors
 ============
