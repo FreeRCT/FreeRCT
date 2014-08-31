@@ -378,7 +378,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 
 /**
  * Get the offset of ground in the voxel stack.
- * @param offset in VoxelStack::voxels containing the ground.
+ * @return Index in the voxel array for the voxel containing the ground.
  */
 int VoxelStack::GetGroundOffset() const
 {
