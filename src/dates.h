@@ -12,7 +12,7 @@
 #ifndef DATES_H
 #define DATES_H
 
-static const int TICK_COUNT_PER_DAY = 100; ///< Number of ticks in a day (stored in #Date::frac).
+static const int TICK_COUNT_PER_DAY = 300; ///< Number of ticks in a day (stored in #Date::frac).
 
 typedef uint32 CompressedDate; ///< Compressed date for easy transfer/storage.
 
