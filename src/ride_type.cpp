@@ -299,6 +299,7 @@ void RideInstance::HandleBreakdown()
 
 		case BDS_WILL_BREAK:
 			this->breakdown_ctr--;
+			break;
 
 		default:
 			NOT_REACHED();
