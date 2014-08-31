@@ -11,7 +11,7 @@ strings {
 
 	stringtexts("gui") {
 		TITLEBAR_TIP:  "Klik op de titelbalk om het venster te verhogen, sleep de titelbalk om het venster te verplaatsen";
-		LANGUAGE_NAME: "Nederlands";
+		LANGUAGE_NAME: "Nederlands (NL)";
 
 		MONTH_JANUARY:   "Januari";
 		MONTH_FEBRUARY:  "Februari";
@@ -45,6 +45,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Laad een spel";
 		TOOLBAR_GUI_RIDE_SELECT:          "Koop een attractie";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Koop een nieuwe attractie voor in je park";
+		TOOLBAR_GUI_FENCE:                "Bouw hekwerk";
+		TOOLBAR_GUI_TOOLTIP_FENCE:        "Bouw hekwerk in je park";
 		TOOLBAR_GUI_TERRAFORM:            "Terravorming";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Verander het landschap";
 		TOOLBAR_GUI_FINANCES:             "Financiën";
@@ -125,6 +127,9 @@ strings {
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Totale winst";
 		SHOP_MANAGER_OPENED_TEXT:        "Winkel is open";
 		SHOP_MANAGER_CLOSED_TEXT:        "Winkel is gesloten";
+
+		// Fence gui strings.
+		FENCE_TITLE:           "Bouw hekwerk";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Pas landschap aan";
