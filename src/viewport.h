@@ -68,7 +68,7 @@ enum ClickableSprite {
 	CS_PERSON = 1 << 4, ///< Person sprite.
 
 	CS_LENGTH = 8,      ///< Bitlength of the enum.
-	CS_MASK = 0x0f,     ///< Used for converting between this and #SpriteOrder.
+	CS_MASK = 0x1f,     ///< Used for converting between this and #SpriteOrder.
 };
 DECLARE_ENUM_AS_BIT_SET(ClickableSprite)
 
