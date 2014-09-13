@@ -17,6 +17,7 @@
 #include "sprite_store.h"
 #include "ride_type.h"
 #include "person.h"
+#include "people.h"
 #include "fileio.h"
 #include "map.h"
 #include "path_finding.h"
@@ -547,6 +548,30 @@ static TileEdge GetParkEntryDirection(int pos_x, int pos_y, int pos_z)
 }
 
 /**
+ * From a junction, find the direction that leads to the 'go home' tile.
+ * @param pos_x X position of the current position.
+ * @param pos_y Y position of the current position.
+ * @param pos_z Z position of the current position.
+ * @return Edge to go to to go to the 'go home' tile, or #INVALID_EDGE if no path could be found.
+ */
+static TileEdge GetGoHomeDirection(int pos_x, int pos_y, int pos_z)
+{
+	PathSearcher ps(pos_x, pos_y, pos_z); // Current position is the destination.
+
+	int x = _guests.start_voxel.x;
+	int y = _guests.start_voxel.y;
+	ps.AddStart(x, y, _world.GetGroundHeight(x, y));
+
+	if (!ps.Search()) return INVALID_EDGE;
+
+	const WalkedPosition *dest = ps.dest_pos;
+	const WalkedPosition *prev = dest->prev_pos;
+	if (prev == nullptr) return INVALID_EDGE; // Already at tile.
+
+	return GetAdjacentEdge(dest->x, dest->y, prev->x, prev->y);
+}
+
+/**
  * Get the index of the exit edge to use.
  * @param desired_edge Edge to use for leaving.
  * @param exits Available exits.
@@ -646,6 +671,14 @@ void Guest::DecideMoveDirection()
 				break;
 			}
 
+			case GA_GO_HOME: {
+				TileEdge desired = GetGoHomeDirection(this->x_vox, this->y_vox, this->z_vox);
+				int selected = GetDesiredEdgeIndex(desired, exits);
+				if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
+				new_walk = walks[selected];
+				break;
+			}
+
 			default:
 				new_walk = walks[this->rnd.Uniform(walk_count - 1)];
 				break;
@@ -691,11 +724,12 @@ void Person::DeActivate(AnimateResult ar)
 }
 
 /**
- * Update the animation of the person.
+ * Update the animation of the guest.
  * @param delay Amount of milliseconds since the last update.
  * @return If \c false, de-activate the person.
+ * @todo Merge things common to all persons to Person::OnAnimate.
  */
-AnimateResult Person::OnAnimate(int delay)
+AnimateResult Guest::OnAnimate(int delay)
 {
 	this->frame_time -= delay;
 	if (this->frame_time > 0) return OAR_OK;
@@ -795,6 +829,11 @@ AnimateResult Person::OnAnimate(int delay)
 		return OAR_DEACTIVATE;
 	}
 
+	/* If the guest arrived at the 'go home' tile while going home, quit. */
+	if (this->activity == GA_GO_HOME && this->x_vox == _guests.start_voxel.x && this->y_vox == _guests.start_voxel.y) {
+		return OAR_DEACTIVATE;
+	}
+
 	/* Handle raising of z position. */
 	if (this->z_pos > 128) {
 		dz++;
@@ -809,10 +848,9 @@ AnimateResult Person::OnAnimate(int delay)
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
 			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge)) {
-				Guest *guest = dynamic_cast<Guest *>(this);
-				if (guest != nullptr) guest->VisitShop(ri);
+				this->VisitShop(ri);
 			}
-			/* Ride is closed, or not a guest, fall-through to reversing movement. */
+			/* Ride is closed, fall-through to reversing movement. */
 
 		} else if (HasValidPath(v)) {
 			this->AddSelf(v);
@@ -936,7 +974,7 @@ void Guest::ChangeHappiness(int16 amount)
 /**
  * Daily ponderings of a guest.
  * @return If \c false, de-activate the guest.
- * @todo Make de-activation a bit more random.
+ * @todo Make going home a bit more random.
  * @todo Implement dropping litter (Guest::has_wrapper) to the path, and also drop the wrapper when passing a non-empty litter bin.
  */
 bool Guest::DailyUpdate()
@@ -972,7 +1010,9 @@ bool Guest::DailyUpdate()
 	if (this->waste > 170) happiness_change -= 2;
 
 	this->ChangeHappiness(happiness_change);
-	return this->happiness > 10; // De-activate if at or below 10.
+
+	if (this->activity == GA_WANDER && this->happiness <= 10) this->activity = GA_GO_HOME; // Go home when bored.
+	return true;
 }
 
 /**
@@ -983,6 +1023,8 @@ bool Guest::DailyUpdate()
  */
 RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 {
+	if (this->activity != GA_WANDER) return RVD_NO_VISIT; // Not arrived yet, or going home -> no ride.
+
 	/// \todo Make warm food attractive on cold days.
 	switch (it) {
 		case ITP_NOTHING:

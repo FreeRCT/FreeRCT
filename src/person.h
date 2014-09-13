@@ -99,7 +99,7 @@ public:
 
 	const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
 
-	AnimateResult OnAnimate(int delay);
+	virtual AnimateResult OnAnimate(int delay) = 0;
 	virtual bool DailyUpdate() = 0;
 
 	virtual void Activate(const Point16 &start, PersonType person_type);
@@ -155,6 +155,8 @@ public:
 
 	void Activate(const Point16 &start, PersonType person_type) override;
 	void DeActivate(AnimateResult ar) override;
+
+	AnimateResult OnAnimate(int delay) override;
 	bool DailyUpdate() override;
 
 	void ChangeHappiness(int16 amount);
