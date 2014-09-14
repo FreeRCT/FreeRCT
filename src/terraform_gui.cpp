@@ -42,11 +42,13 @@ private:
 
 /** Widget numbers of the terraform GUI. */
 enum TerraformWidgets {
-	TERR_DISPLAY, ///< Widget displaying the current terraform size.
-	TERR_ADD,     ///< 'Increase' button.
-	TERR_SUB,     ///< 'Decrease' button.
-	TERR_LEVEL,   ///< Level the terraform area.
-	TERR_MOVE,    ///< Move the terraform area.
+	TERR_DISPLAY,    ///< Widget displaying the current terraform size.
+	TERR_ADD,        ///< 'Increase' button.
+	TERR_SUB,        ///< 'Decrease' button.
+	TERR_LEVEL,      ///< Level the terraform area.
+	TERR_LEVEL_TEXT, ///< Text of the 'level' radio button.
+	TERR_MOVE,       ///< Move the terraform area.
+	TERR_MOVE_TEXT,  ///< Textof the 'move' radio button.
 };
 
 /** Widget parts of the #TerraformGui window. */
@@ -67,9 +69,9 @@ static const WidgetPart _terraform_gui_parts[] = {
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
 			Intermediate(2, 2),
 				Widget(WT_RADIOBUTTON, TERR_LEVEL, COL_RANGE_DARK_GREEN), SetPadding(0, 2, 0, 0),
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_LEVEL_TEXT, STR_NULL),
+				Widget(WT_LEFT_TEXT, TERR_LEVEL_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_LEVEL_TEXT, STR_NULL),
 				Widget(WT_RADIOBUTTON, TERR_MOVE, COL_RANGE_DARK_GREEN), SetPadding(0, 2, 0, 0),
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_MOVE_TEXT, STR_NULL),
+				Widget(WT_LEFT_TEXT, TERR_MOVE_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_MOVE_TEXT, STR_NULL),
 	EndContainer(),
 };
 
@@ -140,10 +142,12 @@ void TerraformGui::OnClick(WidgetNumber wid, const Point16 &pos)
 			this->DecreaseSize();
 			break;
 
+		case TERR_LEVEL_TEXT:
 		case TERR_LEVEL:
 			if (!this->level) this->Setlevelling(true);
 			break;
 
+		case TERR_MOVE_TEXT:
 		case TERR_MOVE:
 			if (this->level) this->Setlevelling(false);
 			break;

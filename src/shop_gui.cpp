@@ -19,25 +19,27 @@
 
 /** Widgets of the shop management window. */
 enum ShopManagerWidgets {
-	SMW_TITLEBAR,     ///< Title bar widget.
-	SMW_ITEM1_HEAD,   ///< Name of the first item being sold.
-	SMW_ITEM2_HEAD,   ///< Name of the second item being sold.
-	SMW_ITEM1_COST,   ///< Cost of the first item.
-	SMW_ITEM2_COST,   ///< Cost of the second item.
-	SMW_ITEM1_SELL,   ///< Selling price of the first item.
-	SMW_ITEM2_SELL,   ///< Selling price of the second item.
-	SMW_ITEM1_PROFIT, ///< Profit of a first item.
-	SMW_ITEM2_PROFIT, ///< Profit of a second item.
-	SMW_ITEM1_COUNT,  ///< Number of first items sold in total.
-	SMW_ITEM2_COUNT,  ///< Number of second items sold in total.
-	SMW_SELL_PROFIT,  ///< Total selling profit.
-	SMW_SHOP_COST,    ///< Shop maintenance/personnel costs.
-	SMW_TOTAL_PROFIT, ///< Total shop profit.
-	SMW_SHOP_OPENED,  ///< Radio button of 'shop is open'.
-	SMW_SHOP_CLOSED,  ///< Radio button of 'shop is closed'.
-	SMW_RECOLOUR1,    ///< First recolour dropdown.
-	SMW_RECOLOUR2,    ///< Second recolour dropdown.
-	SMW_RECOLOUR3,    ///< Third recolour dropdown.
+	SMW_TITLEBAR,         ///< Title bar widget.
+	SMW_ITEM1_HEAD,       ///< Name of the first item being sold.
+	SMW_ITEM2_HEAD,       ///< Name of the second item being sold.
+	SMW_ITEM1_COST,       ///< Cost of the first item.
+	SMW_ITEM2_COST,       ///< Cost of the second item.
+	SMW_ITEM1_SELL,       ///< Selling price of the first item.
+	SMW_ITEM2_SELL,       ///< Selling price of the second item.
+	SMW_ITEM1_PROFIT,     ///< Profit of a first item.
+	SMW_ITEM2_PROFIT,     ///< Profit of a second item.
+	SMW_ITEM1_COUNT,      ///< Number of first items sold in total.
+	SMW_ITEM2_COUNT,      ///< Number of second items sold in total.
+	SMW_SELL_PROFIT,      ///< Total selling profit.
+	SMW_SHOP_COST,        ///< Shop maintenance/personnel costs.
+	SMW_TOTAL_PROFIT,     ///< Total shop profit.
+	SMW_SHOP_OPENED,      ///< Radio button of 'shop is open'.
+	SMW_SHOP_OPENED_TEXT, ///< 'shop is open' text label.
+	SMW_SHOP_CLOSED,      ///< Radio button of 'shop is closed'.
+	SMW_SHOP_CLOSED_TEXT, ///< 'shop is closed' text label.
+	SMW_RECOLOUR1,        ///< First recolour dropdown.
+	SMW_RECOLOUR2,        ///< Second recolour dropdown.
+	SMW_RECOLOUR3,        ///< Third recolour dropdown.
 };
 
 /** Widget parts of the #ShopManagerWindow. */
@@ -84,9 +86,9 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 			Intermediate(2, 1),
 				Intermediate(2, 2),
 					Widget(WT_RADIOBUTTON, SMW_SHOP_OPENED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_OPENED_TEXT, STR_NULL),
+					Widget(WT_LEFT_TEXT, SMW_SHOP_OPENED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_OPENED_TEXT, STR_NULL),
 					Widget(WT_RADIOBUTTON, SMW_SHOP_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_CLOSED_TEXT, STR_NULL),
+					Widget(WT_LEFT_TEXT, SMW_SHOP_CLOSED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_CLOSED_TEXT, STR_NULL),
 				Intermediate(1, 4),
 					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR1, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR1, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
@@ -197,6 +199,7 @@ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 void ShopManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 {
 	switch (wid_num) {
+		case SMW_SHOP_OPENED_TEXT:
 		case SMW_SHOP_OPENED:
 			if (this->shop->state != RIS_OPEN) {
 				this->shop->OpenRide();
@@ -204,6 +207,7 @@ void ShopManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 			}
 			break;
 
+		case SMW_SHOP_CLOSED_TEXT:
 		case SMW_SHOP_CLOSED:
 			if (this->shop->state != RIS_CLOSED) {
 				this->shop->CloseRide();
