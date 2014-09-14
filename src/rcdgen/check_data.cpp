@@ -1712,6 +1712,39 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 }
 
 /**
+ * Load a set of sprites by name.
+ * @param names Array of names of the sprites.
+ * @param count Number of expected sprites.
+ * @param vals Value structures expected to contain the sprites.
+ * @param dest Destination array to srite to.
+ */
+static void LoadNamedSprites(const char *names[], size_t count, Values &vals, std::shared_ptr<SpriteBlock> *dest)
+{
+	for (uint i = 0; i < count; i++) {
+		const char *name = names[i];
+		assert(name != nullptr);
+		dest[i] = vals.GetSprite(name);
+	}
+}
+
+/** Names of compass sprites. */
+static const char *compass_names[] = {
+	"compass_n", "compass_e", "compass_s", "compass_w", nullptr
+};
+/** Names of weather sprites. */
+static const char *weather_names[] = {
+	"sunny", "light_cloud", "thick_cloud", "rain", "thunder", nullptr
+};
+/** Names of red/orange/green light sprites. */
+static const char *light_rog_names[] = {
+	"light_rog_red", "light_rog_orange", "light_rog_green", "light_rog_none", nullptr
+};
+/** Names of red/green light sprites. */
+static const char *light_rg_names[] = {
+	"light_rg_red", "light_rg_green", "light_rg_none", nullptr
+};
+
+/**
  * Convert a node group to a GSLP game block.
  * @param ng Generic tree of nodes to convert.
  * @return The created GSLP game block.
@@ -1757,25 +1790,13 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 
 	gb->disabled = vals.GetSprite("disabled");
 
-	static const char *compass_names[] = {
-		"compass_n", "compass_e", "compass_s", "compass_w", nullptr
-	};
-	for (uint i = 0; i < lengthof(gb->compass); i++) {
-		const char *name = compass_names[i];
-		assert(name != nullptr);
-		gb->compass[i] = vals.GetSprite(name);
-	}
+	LoadNamedSprites(compass_names, lengthof(gb->compass), vals, gb->compass);
 
 	gb->bulldozer = vals.GetSprite("bulldozer");
 
-	static const char *weather_names[] = {
-		"weather_0", "weather_1", "weather_2", "weather_3", nullptr
-	};
-	for (uint i = 0; i < lengthof(gb->weather); i++) {
-		const char *name = weather_names[i];
-		assert(name != nullptr);
-		gb->weather[i] = vals.GetSprite(name);
-	}
+	LoadNamedSprites(weather_names, lengthof(gb->weather), vals, gb->weather);
+	LoadNamedSprites(light_rog_names, lengthof(gb->rog_lights), vals, gb->rog_lights);
+	LoadNamedSprites(light_rg_names, lengthof(gb->rg_lights), vals, gb->rg_lights);
 
 	gb->pos_2d = vals.GetSprite("pos_2d");
 	gb->neg_2d = vals.GetSprite("neg_2d");

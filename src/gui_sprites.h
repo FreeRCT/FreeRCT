@@ -34,9 +34,15 @@ enum GuiSpritesTable {
 	SPR_GUI_COMPASS_END = SPR_GUI_COMPASS_START + TC_END, ///< End of viewing direction sprites.
 
 	SPR_GUI_WEATHER_START = SPR_GUI_COMPASS_END, ///< Start of weather sprites. @see WeatherSprites
-	SPR_GUI_WEATHER_END = SPR_GUI_WEATHER_START + WES_COUNT, ///< End of weather sprites.
+	SPR_GUI_WEATHER_END = SPR_GUI_WEATHER_START + WTP_COUNT, ///< End of weather sprites.
 
-	SPR_GUI_SLOPES_START = SPR_GUI_WEATHER_END, ///< Start of track slopes. @see TrackSlope
+	SPR_GUI_ROG_LIGHTS_START = SPR_GUI_WEATHER_END, ///< Start of red/orange/green lights.
+	SPR_GUI_ROG_LIGHTS_END = SPR_GUI_ROG_LIGHTS_START + 4, ///< End of red/orange/green lights.
+
+	SPR_GUI_RG_LIGHTS_START = SPR_GUI_ROG_LIGHTS_END, ///< Start of red/green lights.
+	SPR_GUI_RG_LIGHTS_END = SPR_GUI_RG_LIGHTS_START + 3, ///< End of red/green lights.
+
+	SPR_GUI_SLOPES_START = SPR_GUI_RG_LIGHTS_END, ///< Start of track slopes. @see TrackSlope
 	SPR_GUI_SLOPES_END = SPR_GUI_SLOPES_START + TSL_COUNT_VERTICAL, ///< End of track slopes.
 
 	SPR_GUI_BUILDARROW_START = SPR_GUI_SLOPES_END, ///< Start of build arrows. @see TileEdge

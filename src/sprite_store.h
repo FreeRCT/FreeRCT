@@ -19,6 +19,7 @@
 #include "person_type.h"
 #include "language.h"
 #include "track_piece.h"
+#include "weather.h"
 #include <map>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
@@ -362,17 +363,19 @@ struct ScrollbarSpriteData {
 	ImageData *shaded[WLS_COUNT]; ///< Sprites for a shaded scrollbar.
 };
 
-/**
- * Offsets of weather sprites to #SPR_GUI_WEATHER_START, for different types of weather.
- * @todo Add weather.
- */
-enum WeatherSprites {
-	WES_SUNNY,        ///< Sprite offset for sunny weather.
-	WES_LIGHT_CLOUDS, ///< Sprite offset for light clouds.
-	WES_THICK_CLOUDS, ///< Sprite offset for thick clouds.
-	WES_RAINING,      ///< Sprite offset of rain.
+/** Red/orange/green light sprites. */
+enum LightRedOrangeGreen {
+	LROG_RED,    ///< Red light of the red/orange/green light.
+	LROG_ORANGE, ///< Orange light of the red/orange/green light.
+	LROG_GREEN,  ///< Green light of the red/orange/green light.
+	LROG_NONE,   ///< No light of the red/orange/green light.
+};
 
-	WES_COUNT,        ///< Number of weather sprites.
+/** Red/green light sprites. */
+enum LightRedGreen {
+	LRG_RED,    ///< Red light of the red/green light.
+	LRG_GREEN,  ///< Green light of the red/green light.
+	LRG_NONE,   ///< No light of the red/green light.
 };
 
 /**
@@ -433,7 +436,9 @@ struct GuiSprites {
 	ImageData *dot_sprite;                  ///< 'Dot' in the terraform window, represents an area of (0, 0) tiles.
 	ImageData *bulldozer;                   ///< Bulldozer sprite.
 	ImageData *compass[TC_END];             ///< Viewing direction sprites.
-	ImageData *weather[WES_COUNT];          ///< Weather sprites.
+	ImageData *weather[WTP_COUNT];          ///< Weather sprites.
+	ImageData *lights_rog[4];               ///< Red/orange/green light. @see LightRedOrangeGreen
+	ImageData *lights_rg[3];                ///< Red/green light. @see LightRedGreen
 
 	TextData *text;                         ///< Texts of the GUI.
 };

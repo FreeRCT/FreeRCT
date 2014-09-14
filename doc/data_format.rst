@@ -1389,20 +1389,28 @@ Offset  Length  Version  Field name          Description
  124       4      7-     compass_s           Compass displaying viewing in south direction.
  128       4      7-     compass_w           Compass displaying viewing in west direction.
  132       4      7-     bulldozer           Bulldozer (destroy) button.
- 136       4      7-     weather_0           First weather sprite (fully sunny)
- 140       4      7-     weather_1           Second weather sprite (sunny, thin clouds)
- 144       4      7-     weather_2           Third weather sprite (thick clouds)
- 148       4      7-     weather_3           Fourth weather sprite (raining)
- 152       4      2-     pos_2d              Flat rotation positive direction (counter clock wise).
- 156       4      2-     neg_2d              Flat rotation negative direction (clock wise).
- 160       4      2-     pos_3d              Diametric rotation positive direction (counter clock wise).
- 164       4      2-     neg_3d              Diametric rotation negative direction (clock wise).
- 168       4      3-     close_button        Close Button.
+ 136       4      7-     sunny               First weather sprite (fully sunny).
+ 140       4      7-     light_cloud         Second weather sprite (sunny, thin clouds).
+ 144       4      7-     thick_cloud         Third weather sprite (thick clouds).
+ 148       4      7-     rain                Fourth weather sprite (raining).
+ 152       4      8-     thunder             Fifth weather sprite (thunder storm).
+ 156       4      8-     light_rog_red       Red of a red/orange/green light.
+ 160       4      8-     light_rog_orange    Orange of a red/orange/green light.
+ 164       4      8-     light_rog_green     Green of a red/orange/green light.
+ 168       4      8-     light_rog_none      None of a red/orange/green light.
+ 172       4      8-     light_rg_red        Red of a red/green light.
+ 176       4      8-     light_rg_green      Green of a red/green light.
+ 180       4      8-     light_rg_none       None of a red/green light.
+ 184       4      2-     pos_2d              Flat rotation positive direction (counter clock wise).
+ 188       4      2-     neg_2d              Flat rotation negative direction (clock wise).
+ 192       4      2-     pos_3d              Diametric rotation positive direction (counter clock wise).
+ 196       4      2-     neg_3d              Diametric rotation negative direction (clock wise).
+ 200       4      3-     close_button        Close Button.
   --       4      3-3                        Maximise button.
   --       4      3-3                        Minimise button.
- 172       4      4-     terraform_dot       Terraform dot.
- 176       4      2-     texts               Text of the guis (reference to a TEXT block).
- 180                                         Total length.
+ 204       4      4-     terraform_dot       Terraform dot.
+ 208       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 212                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1414,6 +1422,8 @@ Version history
 - 4 (20121202) Added terraform dot, removed maximise and minimise buttons.
 - 5 (20130706) Added bends, banking, and triangle arrow Gui sprites.
 - 6 (20130809) Added disabled overlay sprite.
+- 7 (20131215) Added weather sprites.
+- 8 (20140914) Added thunder storm sprite, and red/orange/green and red/green lights.
 
 
 Persons

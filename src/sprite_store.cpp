@@ -987,7 +987,7 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->version != 7 || rcd_file->size != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WES_COUNT + 4 + 2) * 4 + 4) return false;
+	if (rcd_file->version != 8 || rcd_file->size != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 + 4) return false;
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1015,8 +1015,14 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->compass[i])) return false;
 	}
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->bulldozer)) return false;
-	for (uint i = 0; i < WES_COUNT; i++) {
+	for (uint i = 0; i < WTP_COUNT; i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->weather[i])) return false;
+	}
+	for (uint i = 0; i < 4; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->lights_rog[i])) return false;
+	}
+	for (uint i = 0; i < 3; i++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &this->lights_rg[i])) return false;
 	}
 
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
@@ -1075,7 +1081,9 @@ void GuiSprites::Clear()
 	this->dot_sprite = nullptr;
 	this->bulldozer = nullptr;
 	for (uint i = 0; i < TC_END; i++) this->compass[i] = nullptr;
-	for (uint i = 0; i < WES_COUNT; i++) this->weather[i] = nullptr;
+	for (uint i = 0; i < WTP_COUNT; i++) this->weather[i] = nullptr;
+	for (uint i = 0; i < 4; i++) this->lights_rog[i] = nullptr;
+	for (uint i = 0; i < 3; i++) this->lights_rg[i] = nullptr;
 }
 
 /**
@@ -1483,6 +1491,7 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	static Rectangle16 powers;
 	static Rectangle16 compasses;
 	static Rectangle16 weathers;
+	static Rectangle16 lights;
 
 	if (number >= SPR_GUI_COMPASS_START && number < SPR_GUI_COMPASS_END) {
 		if (compasses.width == 0) SetSpriteSize(SPR_GUI_COMPASS_START, SPR_GUI_COMPASS_END, compasses);
@@ -1491,6 +1500,13 @@ const Rectangle16 &SpriteManager::GetTableSpriteSize(uint16 number)
 	if (number >= SPR_GUI_WEATHER_START && number < SPR_GUI_WEATHER_END) {
 		if (weathers.width == 0) SetSpriteSize(SPR_GUI_WEATHER_START, SPR_GUI_WEATHER_END, weathers);
 		return weathers;
+	}
+	if ((number >= SPR_GUI_ROG_LIGHTS_START && number < SPR_GUI_ROG_LIGHTS_END) || (number >= SPR_GUI_RG_LIGHTS_START && number < SPR_GUI_RG_LIGHTS_END) ) {
+		if (lights.width == 0) {
+			SetSpriteSize(SPR_GUI_ROG_LIGHTS_START, SPR_GUI_ROG_LIGHTS_END, lights);
+			SetSpriteSize(SPR_GUI_RG_LIGHTS_START, SPR_GUI_RG_LIGHTS_END, lights);
+		}
+		return lights;
 	}
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END) {
 		if (slopes.width == 0) SetSpriteSize(SPR_GUI_SLOPES_START, SPR_GUI_SLOPES_END, slopes);
@@ -1541,6 +1557,8 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 {
 	if (number >= SPR_GUI_COMPASS_START && number < SPR_GUI_COMPASS_END) return _gui_sprites.compass[number - SPR_GUI_COMPASS_START];
 	if (number >= SPR_GUI_WEATHER_START && number < SPR_GUI_WEATHER_END) return _gui_sprites.weather[number - SPR_GUI_WEATHER_START];
+	if (number >= SPR_GUI_ROG_LIGHTS_START && number < SPR_GUI_ROG_LIGHTS_END) return _gui_sprites.lights_rog[number - SPR_GUI_ROG_LIGHTS_START];
+	if (number >= SPR_GUI_RG_LIGHTS_START && number < SPR_GUI_RG_LIGHTS_END)   return _gui_sprites.lights_rg[number - SPR_GUI_RG_LIGHTS_START];
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END)   return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
 	if (number >= SPR_GUI_BEND_START   && number < SPR_GUI_BEND_END) return _gui_sprites.bend_select[number - SPR_GUI_BEND_START];
 	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END) return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];

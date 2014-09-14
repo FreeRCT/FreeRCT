@@ -374,7 +374,6 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 
 		case BTB_WEATHER: {
 			int spr = SPR_GUI_WEATHER_START + _weather.GetWeatherType();
-			if (spr >= SPR_GUI_WEATHER_END) spr = SPR_GUI_WEATHER_END - 1; /// \todo Add sprite for thunder to make the list weather sprites complete.
 			const ImageData *img = _sprite_manager.GetTableSprite(spr);
 			if (img != nullptr) _video.BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
 			break;

@@ -712,7 +712,9 @@ public:
 	std::shared_ptr<SpriteBlock> disabled;        ///< Pattern to overlay over disabled buttons.
 	std::shared_ptr<SpriteBlock> compass[4];      ///< Compass sprites denoting viewing directions.
 	std::shared_ptr<SpriteBlock> bulldozer;       ///< Bulldoze/delete.
-	std::shared_ptr<SpriteBlock> weather[4];      ///< Weather sprites (sunny -> rainy).
+	std::shared_ptr<SpriteBlock> weather[5];      ///< Weather sprites (sunny -> thunder).
+	std::shared_ptr<SpriteBlock> rog_lights[4];   ///< Red/orange/green lights (red, orange, green, none).
+	std::shared_ptr<SpriteBlock> rg_lights[3];    ///< Red/green lights (red, green, none).
 	std::shared_ptr<SpriteBlock> pos_2d;          ///< Flat rotation positive direction (counter clock wise)
 	std::shared_ptr<SpriteBlock> neg_2d;          ///< Flat rotation negative direction (clock wise)
 	std::shared_ptr<SpriteBlock> pos_3d;          ///< Diametric rotation positive direction (counter clock wise)

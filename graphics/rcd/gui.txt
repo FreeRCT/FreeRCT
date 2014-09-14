@@ -101,10 +101,22 @@ file("gui.rcd") {
 			width: 35-1; height: 101-71; file: "../sprites/gui/buttons_8bpp.png";
 		}
 
-		(weather_0, weather_1, weather_2, weather_3): sheet {
+		(sunny, light_cloud, thick_cloud, rain, thunder): sheet {
 			x_base: 3; y_base: 209; x_step: 49-3; y_step: 0;
 			file: "../sprites/gui/buttons_8bpp.png";
 			x_offset: 0; y_offset: 0; width: 45-3; height: 251-209;
+		}
+
+		(light_rog_red, light_rog_orange, light_rog_green, light_rog_none): sheet {
+			x_base: 21; y_base: 183; x_step: 15+3; y_step: 0;
+			file: "../sprites/gui/buttons_8bpp.png";
+			x_offset: 0; y_offset: 0; width: 15; height: 23;
+		}
+
+		(light_rg_red, light_rg_green, light_rg_none): sheet {
+			x_base: 21; y_base: 157; x_step: 15+3; y_step: 0;
+			file: "../sprites/gui/buttons_8bpp.png";
+			x_offset: 0; y_offset: 0; width: 15; height: 23;
 		}
 
 		// Window button sprites.

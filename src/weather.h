@@ -12,16 +12,15 @@
 #ifndef WEATHER_H
 #define WEATHER_H
 
-/**
- * Types of weather.
- * @todo Eliminate the need for #WeatherSprites by adding a thunder sprite.
- */
+/** Types of weather. */
 enum WeatherType {
 	WTP_SUNNY,        ///< Sunny weather.
 	WTP_LIGHT_CLOUDS, ///< Light clouds.
 	WTP_THICK_CLOUDS, ///< Thick clouds.
 	WTP_RAINING,      ///< Rain.
 	WTP_THUNDERSTORM, ///< Heavy rain with thunder.
+
+	WTP_COUNT,        ///< Number of weather types.
 };
 
 /** The weather in the game. */
