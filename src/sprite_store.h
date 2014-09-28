@@ -404,10 +404,11 @@ struct GuiSprites {
 
 	BorderSpriteData titlebar;              ///< Title bar sprite data.
 	BorderSpriteData button;                ///< Normal button sprite data.
-	BorderSpriteData rounded_button;        ///< Rounded button sprite data.
-	BorderSpriteData frame;                 ///< Frame sprite data.
-	BorderSpriteData panel;                 ///< Panel sprite data.
-	BorderSpriteData inset_frame;           ///< Inset frame sprite data.
+	BorderSpriteData left_tabbar;           ///< Sprite data of the left filler of a tab bar row.
+	BorderSpriteData tab_tabbar;            ///< Sprite data of the tab in the tab bar row.
+	BorderSpriteData right_tabbar;          ///< Sprite data of the right filler of a tab bar row.
+	BorderSpriteData tabbar_panel;          ///< Sprite data of the panel below a tab bar row.
+	BorderSpriteData panel;                 ///< Sprite data of the normal panel.
 
 	CheckableWidgetSpriteData checkbox;     ///< Check box sprite data.
 	CheckableWidgetSpriteData radio_button; ///< Radio button sprite data.

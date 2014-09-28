@@ -733,21 +733,22 @@ bool BorderSpriteData::IsLoaded() const
  */
 bool GuiSprites::LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 2 + 8 * 1 + WBS_COUNT * 4) return false;
+	if (rcd_file->version != 2 || rcd_file->size != 2 + 8 * 1 + WBS_COUNT * 4) return false;
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
 	BorderSpriteData *sprdata = nullptr;
 	bool pressed = false;
 	switch (tp) {
-		case 32: sprdata = &this->titlebar;       pressed = false; break;
-		case 48: sprdata = &this->button;         pressed = false; break;
-		case 49: sprdata = &this->button;         pressed = true;  break;
-		case 52: sprdata = &this->rounded_button; pressed = false; break;
-		case 53: sprdata = &this->rounded_button; pressed = true;  break;
-		case 64: sprdata = &this->frame;          pressed = false; break;
-		case 68: sprdata = &this->panel;          pressed = false; break;
-		case 80: sprdata = &this->inset_frame;    pressed = false; break;
+		case 1: sprdata = &this->left_tabbar;  pressed = false; break;
+		case 2: sprdata = &this->tab_tabbar;   pressed = true;  break;
+		case 3: sprdata = &this->tab_tabbar;   pressed = false; break;
+		case 4: sprdata = &this->right_tabbar; pressed = false; break;
+		case 5: sprdata = &this->tabbar_panel; pressed = false; break;
+		case 6: sprdata = &this->titlebar;     pressed = false; break;
+		case 7: sprdata = &this->button;       pressed = false; break;
+		case 8: sprdata = &this->button;       pressed = true;  break;
+		case 9: sprdata = &this->panel;        pressed = false; break;
 		default:
 			return false;
 	}
@@ -1049,10 +1050,11 @@ void GuiSprites::Clear()
 {
 	this->titlebar.Clear();
 	this->button.Clear();
-	this->rounded_button.Clear();
-	this->frame.Clear();
+	this->left_tabbar.Clear();
+	this->tab_tabbar.Clear();
+	this->right_tabbar.Clear();
+	this->tabbar_panel.Clear();
 	this->panel.Clear();
-	this->inset_frame.Clear();
 
 	this->checkbox.Clear();
 	this->radio_button.Clear();
@@ -1094,11 +1096,11 @@ void GuiSprites::Clear()
 bool GuiSprites::HasSufficientGraphics() const
 {
 	return this->titlebar.IsLoaded() && this->button.IsLoaded()
-			&& this->rounded_button.IsLoaded() && this->frame.IsLoaded()
-			&& this->panel.IsLoaded()          && this->inset_frame.IsLoaded()
-			&& this->checkbox.IsLoaded()       && this->radio_button.IsLoaded()
-			&& this->hor_scroll.IsLoaded()     && this->vert_scroll.IsLoaded()
-			&& this->close_sprite != nullptr;
+			&& this->left_tabbar.IsLoaded()  && this->tab_tabbar.IsLoaded()
+			&& this->right_tabbar.IsLoaded() && this->tabbar_panel.IsLoaded()
+			&& this->panel.IsLoaded()        && this->checkbox.IsLoaded()
+			&& this->radio_button.IsLoaded() && this->hor_scroll.IsLoaded()
+			&& this->vert_scroll.IsLoaded()  && this->close_sprite != nullptr;
 }
 
 /**

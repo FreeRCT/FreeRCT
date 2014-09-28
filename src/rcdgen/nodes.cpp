@@ -932,7 +932,7 @@ int SHOPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-GBORBlock::GBORBlock() : GameBlock("GBOR", 1)
+GBORBlock::GBORBlock() : GameBlock("GBOR", 2)
 {
 }
 

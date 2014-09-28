@@ -381,60 +381,235 @@ file("gui.rcd") {
 	}
 
 	GBOR {
-		widget_type: frame;
-		border_top: 2;
-		border_left: 2;
-		border_right: 2;
+		widget_type: left_tabbar;
+		border_top: 0;
+		border_left: 0;
+		border_right: 0;
 		border_bottom: 2;
-		min_width: 13;
-		min_height: 13;
+		min_width: 5;
+		min_height: 5;
 		h_stepsize: 1;
 		v_stepsize: 1;
 
 		top_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -2; y_offset: -2;
-			x_base: 60; y_base: 34; width: 8; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
 		}
 		top_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: 0;  y_offset: -2;
-			x_base: 69; y_base: 34; width: 1; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
 		}
 		top_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -5; y_offset: -2;
-			x_base: 71; y_base: 34; width: 8; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
 		}
 		middle_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -2; y_offset: 0;
-			x_base: 60; y_base: 43; width: 8; height: 1;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
 		}
 		middle_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
+			file: "../sprites/gui/GUItabs.png";
 			x_offset: 0; y_offset: 0;
-			x_base: 69; y_base: 43; width: 1; height: 1;
+			x_base: 5; y_base: 165; width: 1; height: 1;
 		}
 		middle_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -5; y_offset: 0;
-			x_base: 71; y_base: 43; width: 8; height: 1;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
 		}
 		bottom_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -2; y_offset: -5;
-			x_base: 60; y_base: 45; width: 8; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 167; width: 1; height: 3;
 		}
 		bottom_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: 0;  y_offset: -5;
-			x_base: 69; y_base: 45; width: 1; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: 0;
+			x_base: 6; y_base: 167; width: 1; height: 3;
 		}
 		bottom_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -5; y_offset: -5;
-			x_base: 71; y_base: 45; width: 8; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 7; y_base: 167; width: 1; height: 3;
+		}
+	}
+
+
+	GBOR {
+		widget_type: right_tabbar;
+		border_top: 0;
+		border_left: 0;
+		border_right: 0;
+		border_bottom: 2;
+		min_width: 5;
+		min_height: 5;
+		h_stepsize: 1;
+		v_stepsize: 1;
+
+		top_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
+		}
+		top_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
+		}
+		top_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
+		}
+		middle_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
+		}
+		middle_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
+		}
+		middle_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 5; y_base: 165; width: 1; height: 1;
+		}
+		bottom_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 79; y_base: 167; width: 1; height: 3;
+		}
+		bottom_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: 0;
+			x_base: 79; y_base: 167; width: 1; height: 3;
+		}
+		bottom_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -1; y_offset: 0;
+			x_base: 81; y_base: 167; width: 3; height: 3;
+		}
+	}
+
+	GBOR {
+		widget_type: tab_tabbar;
+		border_top: 2;
+		border_left: 3;
+		border_right: 3;
+		border_bottom: 2;
+		min_width: 5;
+		min_height: 5;
+		h_stepsize: 1;
+		v_stepsize: 1;
+
+		top_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -3; y_offset: -2;
+			x_base:  9; y_base: 154; width: 4; height: 3;
+		}
+		top_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: -2;
+			x_base: 19; y_base: 154; width: 1; height: 3;
+		}
+		top_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: -2;
+			x_base: 21; y_base: 154; width: 4; height: 3;
+		}
+		middle_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -3; y_offset: 0;
+			x_base:  9; y_base: 165; width: 4; height: 1;
+		}
+		middle_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 19; y_base: 165; width: 1; height: 1;
+		}
+		middle_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 21; y_base: 165; width: 4; height: 1;
+		}
+		bottom_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -3; y_offset: 0;
+			x_base:  9; y_base: 167; width: 4; height: 3;
+		}
+		bottom_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: 0;
+			x_base: 19; y_base: 167; width: 1; height: 3;
+		}
+		bottom_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 21; y_base: 167; width: 4; height: 3;
+		}
+	}
+
+	GBOR {
+		widget_type: pressed_tab_tabbar;
+		border_top: 2;
+		border_left: 3;
+		border_right: 3;
+		border_bottom: 2;
+		min_width: 5;
+		min_height: 5;
+		h_stepsize: 1;
+		v_stepsize: 1;
+
+		top_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -3; y_offset: -2;
+			x_base: 57; y_base: 154; width: 4; height: 3;
+		}
+		top_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: -2;
+			x_base: 67; y_base: 154; width: 1; height: 3;
+		}
+		top_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: -2;
+			x_base: 69; y_base: 154; width: 4; height: 3;
+		}
+		middle_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -3; y_offset: 0;
+			x_base: 57; y_base: 165; width: 4; height: 1;
+		}
+		middle_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 67; y_base: 165; width: 1; height: 1;
+		}
+		middle_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 69; y_base: 165; width: 4; height: 1;
+		}
+		bottom_left: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -3; y_offset: 0;
+			x_base: 57; y_base: 167; width: 4; height: 3;
+		}
+		bottom_middle: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: 0;
+			x_base: 67; y_base: 167; width: 1; height: 3;
+		}
+		bottom_right: sprite {
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 69; y_base: 167; width: 4; height: 3;
 		}
 	}
 
@@ -497,176 +672,60 @@ file("gui.rcd") {
 	}
 
 	GBOR {
-		widget_type: inset;
-		border_top: 1;
-		border_left: 1;
-		border_right: 1;
-		border_bottom: 1;
-		min_width: 15;
-		min_height: 15;
+		widget_type: tabbar_panel;
+		border_top: 0;
+		border_left: 3;
+		border_right: 3;
+		border_bottom: 2;
+		min_width: 10;
+		min_height: 10;
 		h_stepsize: 1;
 		v_stepsize: 1;
 
 		top_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -1; y_offset: -1;
-			x_base: 160; y_base: 34; width: 8; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0; y_offset: 0;
+			x_base: 77; y_base: 167; width: 1; height: 1;
 		}
 		top_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
+			file: "../sprites/gui/GUItabs.png";
 			x_offset: 0;  y_offset: -1;
-			x_base: 169; y_base: 34; width: 1; height: 8;
+			x_base: 77; y_base: 167; width: 1; height: 1;
 		}
 		top_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
+			file: "../sprites/gui/GUItabs.png";
 			x_offset: -6; y_offset: -1;
-			x_base: 171; y_base: 34; width: 8; height: 8;
+			x_base: 77; y_base: 167; width: 1; height: 1;
 		}
 		middle_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -1; y_offset: 0;
-			x_base: 160; y_base: 43; width: 8; height: 1;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -2; y_offset: 0;
+			x_base: 5; y_base: 171; width: 3; height: 1;
 		}
 		middle_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
+			file: "../sprites/gui/GUItabs.png";
 			x_offset: 0; y_offset: 0;
-			x_base: 169; y_base: 43; width: 1; height: 1;
+			x_base: 79; y_base: 171; width: 1; height: 1;
 		}
 		middle_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -6; y_offset: 0;
-			x_base: 171; y_base: 43; width: 8; height: 1;
-		}
-		bottom_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -1; y_offset: -6;
-			x_base: 160; y_base: 45; width: 8; height: 8;
-		}
-		bottom_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: 0;  y_offset: -6;
-			x_base: 169; y_base: 45; width: 1; height: 8;
-		}
-		bottom_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -6; y_offset: -6;
-			x_base: 171; y_base: 45; width: 8; height: 8;
-		}
-	}
-
-	GBOR {
-		widget_type: rounded_button;
-		border_top: 3;
-		border_left: 3;
-		border_right: 3;
-		border_bottom: 3;
-		min_width: 11;
-		min_height: 11;
-		h_stepsize: 1;
-		v_stepsize: 1;
-
-		top_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -3; y_offset: -3;
-			x_base: 60; y_base: 34; width: 8; height: 8;
-		}
-		top_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: 0;  y_offset: -3;
-			x_base: 69; y_base: 34; width: 1; height: 8;
-		}
-		top_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -4; y_offset: -3;
-			x_base: 71; y_base: 34; width: 8; height: 8;
-		}
-		middle_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -3; y_offset: 0;
-			x_base: 60; y_base: 43; width: 8; height: 1;
-		}
-		middle_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
+			file: "../sprites/gui/GUItabs.png";
 			x_offset: 0; y_offset: 0;
-			x_base: 69; y_base: 43; width: 1; height: 1;
+			x_base: 81; y_base: 171; width: 3; height: 1;
 		}
-		middle_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -4; y_offset: 0;
-				x_base: 71; y_base: 43; width: 8; height: 1;
-			}
 		bottom_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -3; y_offset: -4;
-			x_base: 60; y_base: 45; width: 8; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: -2; y_offset: 0;
+			x_base: 5; y_base: 177; width: 3; height: 3;
 		}
 		bottom_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: 0;  y_offset: -4;
-			x_base: 69; y_base: 45; width: 1; height: 8;
+			file: "../sprites/gui/GUItabs.png";
+			x_offset: 0;  y_offset: 0;
+			x_base: 179; y_base: 177; width: 1; height: 3;
 		}
 		bottom_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -4; y_offset: -4;
-			x_base: 71; y_base: 45; width: 8; height: 8;
-		}
-	}
-
-	GBOR {
-		widget_type: pressed_rounded_button;
-		border_top: 3;
-		border_left: 3;
-		border_right: 3;
-		border_bottom: 3;
-		min_width: 11;
-		min_height: 11;
-		h_stepsize: 1;
-		v_stepsize: 1;
-
-		top_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -3; y_offset: -3;
-			x_base: 100; y_base: 34; width: 8; height: 8;
-		}
-		top_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: 0;  y_offset: -3;
-			x_base: 109; y_base: 34; width: 1; height: 8;
-		}
-		top_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -4; y_offset: -3;
-			x_base: 111; y_base: 34; width: 8; height: 8;
-		}
-		middle_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -3; y_offset: 0;
-			x_base: 100; y_base: 43; width: 8; height: 1;
-		}
-		middle_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
+			file: "../sprites/gui/GUItabs.png";
 			x_offset: 0; y_offset: 0;
-			x_base: 109; y_base: 43; width: 1; height: 1;
-		}
-		middle_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -4; y_offset: 0;
-			x_base: 111; y_base: 43; width: 8; height: 1;
-		}
-		bottom_left: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -3; y_offset: -4;
-			x_base: 100; y_base: 45; width: 8; height: 8;
-		}
-		bottom_middle: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: 0;  y_offset: -4;
-			x_base: 109; y_base: 45; width: 1; height: 8;
-		}
-		bottom_right: sprite {
-			file: "../sprites/gui/GUIEles.png";
-			x_offset: -4; y_offset: -4;
-			x_base: 111; y_base: 45; width: 8; height: 8;
+			x_base: 81; y_base: 177; width: 3; height: 3;
 		}
 	}
 

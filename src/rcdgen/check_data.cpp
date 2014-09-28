@@ -1157,14 +1157,15 @@ static std::shared_ptr<ANSPBlock> ConvertANSPNode(std::shared_ptr<NodeGroup> ng)
 
 /** Symbols of the GBOR block. */
 static const Symbol _gbor_symbols[] = {
-	{"titlebar", 32},
-	{"button", 48},
-	{"pressed_button", 49},
-	{"rounded_button", 52},
-	{"pressed_rounded_button", 53},
-	{"frame", 64},
-	{"panel", 68},
-	{"inset", 80},
+	{"left_tabbar", 1},
+	{"pressed_tab_tabbar", 2},
+	{"tab_tabbar", 3},
+	{"right_tabbar", 4},
+	{"tabbar_panel", 5},
+	{"titlebar", 6},
+	{"button", 7},
+	{"pressed_button", 8},
+	{"panel", 9},
 	{nullptr, 0}
 };
 

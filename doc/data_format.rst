@@ -1182,7 +1182,7 @@ In addition, a horizontal and a vertical
 offset needs to be specified relative to the bounding box of the widget
 contents.
 
-That leads to the following block. FreeRCT can read these blocks with version 1.
+That leads to the following block. FreeRCT can read these blocks with version 2.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -1215,18 +1215,24 @@ Offset  Length  Description
 Known widget types:
 
 - 0 Invalid, do not use.
-- 16 Window border.
-- 32 Title bar.
-- 48 button, 49 pressed button, 52 rounded button, 53 pressed rounded button.
-- 64 frame.
-- 68 panel.
-- 80 inset frame.
+- 1 Empty left side of a tab bar.
+- 2 Selected tab (pressed button).
+- 3 Unselected tab.
+- 4 Empty right side of a tab bar.
+- 5 Panel below the tab bar.
+- 6 Title bar.
+- 7 Button.
+- 8 Pressed button.
+- 9 Panel.
 
 Version history
 ...............
 
 - 1 (20111023) Initial version.
 - 1 (20111029) Added 'panel' type (version was not incremented).
+- 2 (20140921) Removed unused border sprites, added tab-bar types ('Empty left
+  side of a tab bar' to 'Panel below the tab bar'), and renumbered the widget
+  types.
 
 
 Check box and radio buttons
