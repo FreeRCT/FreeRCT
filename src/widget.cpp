@@ -261,6 +261,15 @@ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			break;
 		}
 
+		case WT_LEFT_FILLER_TAB:
+			this->InitMinimalSize(&_gui_sprites.left_tabbar, 0, 0);
+			break;
+
+		case WT_RIGHT_FILLER_TAB:
+			this->InitMinimalSize(&_gui_sprites.right_tabbar, 0, 0);
+			break;
+
+
 		default:
 			NOT_REACHED();
 	}
@@ -268,8 +277,6 @@ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 
 void LeafWidget::Draw(const GuiWindow *w)
 {
-	assert(this->wtype != WT_RESIZEBOX);
-
 	int left   = w->GetWidgetScreenX(this) + this->paddings[PAD_LEFT];
 	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
 	int right  = w->GetWidgetScreenX(this) + this->pos.width - 1 - this->paddings[PAD_RIGHT];
@@ -288,25 +295,33 @@ void LeafWidget::Draw(const GuiWindow *w)
 		_video.BlitImage(left, top, _gui_sprites.radio_button.sprites[spr_num], rc, GS_NORMAL);
 		return;
 	}
-	assert(this->wtype == WT_CLOSEBOX);
 
-	const BorderSpriteData &bsd = _gui_sprites.panel;
-	left += bsd.border_left;
-	top += bsd.border_top;
-	right -= bsd.border_right;
-	bottom -= bsd.border_bottom;
+	const BorderSpriteData *bsd;
+	switch (this->wtype) {
+		case WT_CLOSEBOX:         bsd = &_gui_sprites.panel; break;
+		case WT_LEFT_FILLER_TAB:  bsd = &_gui_sprites.left_tabbar; break;
+		case WT_RIGHT_FILLER_TAB: bsd = &_gui_sprites.right_tabbar; break;
+		default: NOT_REACHED();
+	}
+
+	left += bsd->border_left;
+	top += bsd->border_top;
+	right -= bsd->border_right;
+	bottom -= bsd->border_bottom;
 	assert(right - left + 1 >= 0);
 	assert(bottom - top + 1 >= 0);
 
 	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
-	DrawBorderSprites(bsd, false, rect, this->colour);
+	DrawBorderSprites(*bsd, false, rect, this->colour);
 
-	int xoffset = left + (right - 1 - left - _gui_sprites.close_sprite->width) / 2;
-	int yoffset = top + (bottom - 1 - top - _gui_sprites.close_sprite->height) / 2;
+	if (this->wtype == WT_CLOSEBOX) {
+		int xoffset = left + (right - 1 - left - _gui_sprites.close_sprite->width) / 2;
+		int yoffset = top + (bottom - 1 - top - _gui_sprites.close_sprite->height) / 2;
 
-	const ImageData *imgdata = _gui_sprites.close_sprite;
-	if (imgdata != nullptr) _video.BlitImage(xoffset + 1, yoffset + 1, imgdata, rc, GS_NORMAL);
-	/* Closebox is never shaded. */
+		const ImageData *imgdata = _gui_sprites.close_sprite;
+		if (imgdata != nullptr) _video.BlitImage(xoffset + 1, yoffset + 1, imgdata, rc, GS_NORMAL);
+		/* Closebox is never shaded. */
+	}
 }
 
 void LeafWidget::AutoRaiseButtons(const Point32 &base)
@@ -356,6 +371,20 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			bsd = &_gui_sprites.button;
 			pressable = 1;
 			break;
+
+		case WT_TEXT_TAB:
+			bsd = &_gui_sprites.tab_tabbar;
+			pressable = 1;
+			break;
+
+		case WT_IMAGE_TAB: {
+			const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(this->value);
+			this->value_width = rect.width;
+			this->value_height = rect.height;
+			this->InitMinimalSize(&_gui_sprites.tab_tabbar, this->value_width + 1, this->value_height + 1);
+			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
+			return;
+		}
 
 		case WT_IMAGE_BUTTON:
 		case WT_IMAGE_PUSHBUTTON: {
@@ -426,6 +455,12 @@ void DataWidget::Draw(const GuiWindow *w)
 			pressed = this->IsPressed() ? 1 : 0;
 			break;
 
+		case WT_TEXT_TAB:
+		case WT_IMAGE_TAB:
+			bsd = &_gui_sprites.tab_tabbar;
+			pressed = this->IsPressed() ? 1 : 0;
+			break;
+
 		default:
 			NOT_REACHED();
 	}
@@ -458,6 +493,7 @@ void DataWidget::Draw(const GuiWindow *w)
 	static Recolouring rc; // Never modified
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	switch (this->wtype) {
+		case WT_IMAGE_TAB:
 		case WT_IMAGE_BUTTON:
 		case WT_IMAGE_PUSHBUTTON: {
 			const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(this->value);
@@ -878,7 +914,8 @@ void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 		this->resize_x = this->child->resize_x;
 		this->resize_y = this->child->resize_y;
 	}
-	this->InitMinimalSize(&_gui_sprites.panel, this->min_x, this->min_y);
+	const BorderSpriteData *bsd = (this->wtype == WT_PANEL) ? &_gui_sprites.panel : &_gui_sprites.tabbar_panel;
+	this->InitMinimalSize(bsd, this->min_x, this->min_y);
 	if (this->child == nullptr && this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
@@ -920,7 +957,8 @@ void BackgroundWidget::Draw(const GuiWindow *w)
 	assert(bottom - top + 1 >= 0);
 
 	Rectangle32 rect(left, top, right - left + 1, bottom - top + 1);
-	DrawBorderSprites(_gui_sprites.panel, false, rect, this->colour);
+	const BorderSpriteData &bsd = (this->wtype == WT_PANEL) ? _gui_sprites.panel : _gui_sprites.tabbar_panel;
+	DrawBorderSprites(bsd, false, rect, this->colour);
 
 	if (this->number != INVALID_WIDGET_INDEX) w->DrawWidget(this->number, this);
 	if (this->child != nullptr) this->child->Draw(w);
@@ -1511,11 +1549,14 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 						break;
 
 					case WT_PANEL:
-						*dest = new BackgroundWidget(WT_PANEL);
+					case WT_TAB_PANEL:
+						*dest = new BackgroundWidget(parts->data.new_widget.wtype);
 						break;
 
 					case WT_TEXT_BUTTON:
 					case WT_IMAGE_BUTTON:
+					case WT_TEXT_TAB:
+					case WT_IMAGE_TAB:
 					case WT_TEXT_PUSHBUTTON:
 					case WT_IMAGE_PUSHBUTTON:
 					case WT_DROPDOWN_BUTTON:
@@ -1529,6 +1570,8 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 					case WT_RADIOBUTTON:
 					case WT_CLOSEBOX:
 					case WT_RESIZEBOX:
+					case WT_LEFT_FILLER_TAB:
+					case WT_RIGHT_FILLER_TAB:
 						*dest = new LeafWidget(parts->data.new_widget.wtype);
 						break;
 
@@ -1743,7 +1786,7 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
 
 	*biggest = std::max(*biggest, (*dest)->number); // Update biggest widget number.
 
-	if ((*dest)->wtype == WT_PANEL) {
+	if ((*dest)->wtype == WT_PANEL || (*dest)->wtype == WT_TAB_PANEL) {
 		/* Panel widget. */
 		BackgroundWidget *bg = static_cast<BackgroundWidget *>(*dest);
 		if (remaining > 0 && parts->type == WPT_END_CON) {

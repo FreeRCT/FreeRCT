@@ -45,6 +45,11 @@ enum WidgetType {
 	WT_HOR_SCROLLBAR,    ///< Scrollbar widget.
 	WT_VERT_SCROLLBAR,   ///< Scrollbar widget.
 	WT_DROPDOWN_BUTTON,  ///< Dropdown widget.
+	WT_TEXT_TAB,         ///< Tab with text (centred).
+	WT_IMAGE_TAB,        ///< Tab with image(s).
+	WT_LEFT_FILLER_TAB,  ///< Filler widget at the left of the tab bar.
+	WT_RIGHT_FILLER_TAB, ///< Filler widget at the right of the tab bar.
+	WT_TAB_PANEL,
 	WT_GRID,             ///< Intermediate widget.
 };
 
