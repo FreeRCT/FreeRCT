@@ -30,35 +30,55 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, colour));
 
 	Point32 pt = rect.base;
-	_video.BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, GS_NORMAL);
-	int xleft = pt.x + spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->width;
-	int ytop = pt.y + spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->height;
+	int xleft = pt.x;
+	int ytop = pt.y;
+	if (spr_base[WBS_TOP_LEFT] != nullptr) {
+		_video.BlitImage(pt, spr_base[WBS_TOP_LEFT], rc, GS_NORMAL);
+		xleft += spr_base[WBS_TOP_LEFT]->xoffset + spr_base[WBS_TOP_LEFT]->width;
+		ytop += spr_base[WBS_TOP_LEFT]->yoffset + spr_base[WBS_TOP_LEFT]->height;
+	}
 
 	pt.x = rect.base.x + rect.width - 1;
-	_video.BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, GS_NORMAL);
-	int xright = pt.x + spr_base[WBS_TOP_RIGHT]->xoffset;
+	int xright = pt.x;
+	if (spr_base[WBS_TOP_RIGHT] != nullptr) {
+		_video.BlitImage(pt, spr_base[WBS_TOP_RIGHT], rc, GS_NORMAL);
+		xright += spr_base[WBS_TOP_RIGHT]->xoffset;
+	}
 
-	uint16 numx = (xright - xleft) / spr_base[WBS_TOP_MIDDLE]->width;
-	_video.BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_TOP_MIDDLE], rc);
+	uint16 numx = xright - xleft;
+	if (spr_base[WBS_TOP_MIDDLE] != nullptr) {
+		numx /= spr_base[WBS_TOP_MIDDLE]->width;
+	} else if (spr_base[WBS_BOTTOM_MIDDLE] != nullptr) {
+		numx /= spr_base[WBS_BOTTOM_MIDDLE]->width;
+	} // else assume sprite width is 1.
+	if (spr_base[WBS_TOP_MIDDLE] != nullptr) _video.BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_TOP_MIDDLE], rc);
 
 	pt.x = rect.base.x;
 	pt.y = rect.base.y + rect.height - 1;
-	_video.BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, GS_NORMAL);
-	int ybot = pt.y + spr_base[WBS_BOTTOM_LEFT]->yoffset;
+	int ybot = pt.y;
+	if (spr_base[WBS_BOTTOM_LEFT] != nullptr) {
+		_video.BlitImage(pt, spr_base[WBS_BOTTOM_LEFT], rc, GS_NORMAL);
+		ybot += spr_base[WBS_BOTTOM_LEFT]->yoffset;
+	}
 
-	uint16 numy = (ybot - ytop) / spr_base[WBS_MIDDLE_LEFT]->height;
-	_video.BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_LEFT], rc);
+	uint16 numy = ybot - ytop;
+	if (spr_base[WBS_MIDDLE_LEFT] != nullptr) {
+		numy /= spr_base[WBS_MIDDLE_LEFT]->height;
+	} else if (spr_base[WBS_MIDDLE_RIGHT] != nullptr) {
+		numy /= spr_base[WBS_MIDDLE_RIGHT]->height;
+	} // else assume sprite height is 1.
+	if (spr_base[WBS_MIDDLE_LEFT] != nullptr) _video.BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_LEFT], rc);
 
 	pt.x = rect.base.x + rect.width - 1;
 	pt.y = rect.base.y + rect.height - 1;
-	_video.BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT], rc, GS_NORMAL);
+	if (spr_base[WBS_BOTTOM_RIGHT] != nullptr) _video.BlitImage(pt, spr_base[WBS_BOTTOM_RIGHT], rc, GS_NORMAL);
 
-	_video.BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_BOTTOM_MIDDLE], rc);
+	if (spr_base[WBS_BOTTOM_MIDDLE] != nullptr) _video.BlitHorizontal(xleft, numx, pt.y, spr_base[WBS_BOTTOM_MIDDLE], rc);
 
 	pt.x = rect.base.x + rect.width - 1;
-	_video.BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_RIGHT], rc);
+	if (spr_base[WBS_MIDDLE_RIGHT] != nullptr) _video.BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_RIGHT], rc);
 
-	_video.BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
+	if (spr_base[WBS_MIDDLE_MIDDLE] != nullptr) _video.BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
 }
 
 /**
