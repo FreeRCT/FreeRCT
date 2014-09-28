@@ -33,7 +33,16 @@ public:
 	bool Load8bpp(RcdFileReader *rcd_file, size_t length);
 	bool Load32bpp(RcdFileReader *rcd_file, size_t length);
 
-	uint32 GetPixel(uint16 xoffset, uint16 yoffset) const;
+	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
+
+	/**
+	 * Is the sprite just a single pixel?
+	 * @return Whether the sprite is a single pixel.
+	 */
+	inline bool IsSinglePixel() const
+	{
+		return this->width == 1 && this->height == 1;
+	}
 
 	uint32 flags;  ///< Flags of the image. @see ImageFlags
 	uint16 width;  ///< Width of the image.

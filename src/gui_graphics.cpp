@@ -11,9 +11,31 @@
 
 #include "stdafx.h"
 #include "sprite_store.h"
+#include "palette.h"
 #include "sprite_data.h"
 #include "math_func.h"
 #include "video.h"
+
+/**
+ * Draw the same sprite repeatedly over a (potentially) large area. The function recognizes a single-pixel
+ * sprite as a special case, and converts it to a VideoSystem::FillSurface call.
+ * @param x_base Left edge coordinate to start drawing.
+ * @param y_base Top edge coordinate to start drawing.
+ * @param spr Sprite to draw.
+ * @param numx Number of horizontal repeats of the sprite.
+ * @param numy Number of vertical repeats of the sprite.
+ * @param recolour Recolouring information.
+ */
+static void DrawRepeatedSprites(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour)
+{
+	if (numx == 0 || numy == 0) return;
+	if (!spr->IsSinglePixel()) {
+		_video.BlitImages(x_base, y_base, spr, numx, numy, recolour);
+		return;
+	}
+	uint32 colour = spr->GetPixel(0, 0, &recolour);
+	_video.FillSurface(colour, {x_base, y_base, numx, numy});
+}
 
 /**
  * Draw border sprites around some contents.
@@ -78,7 +100,7 @@ void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangl
 	pt.x = rect.base.x + rect.width - 1;
 	if (spr_base[WBS_MIDDLE_RIGHT] != nullptr) _video.BlitVertical(ytop, numy, pt.x, spr_base[WBS_MIDDLE_RIGHT], rc);
 
-	if (spr_base[WBS_MIDDLE_MIDDLE] != nullptr) _video.BlitImages(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
+	if (spr_base[WBS_MIDDLE_MIDDLE] != nullptr) DrawRepeatedSprites(xleft, ytop, spr_base[WBS_MIDDLE_MIDDLE], numx, numy, rc);
 }
 
 /**

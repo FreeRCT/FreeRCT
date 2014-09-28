@@ -10,9 +10,9 @@
 /** @file sprite_data.h Code for sprite data. */
 
 #include "stdafx.h"
+#include "palette.h"
 #include "sprite_data.h"
 #include "fileio.h"
-#include "palette.h"
 #include "bitmath.h"
 
 #include <vector>
@@ -176,9 +176,11 @@ bool ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
  * Return the pixel-value of the provided position.
  * @param xoffset Horizontal offset in the sprite.
  * @param yoffset Vertical offset in the sprite.
+ * @param recolour Recolouring to apply to the retrieved pixel. Use \c nullptr for disabling recolouring.
+ * @param shift Gradient shift to apply to the retrieved pixel. Use #GS_NORMAL for not shifting the colour.
  * @return Pixel value at the given position, or \c 0 if transparent.
  */
-uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
+uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour, GradientShift shift) const
 {
 	if (xoffset >= this->width) return _palette[0];
 	if (yoffset >= this->height) return _palette[0];
@@ -194,7 +196,14 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 			uint8 count = this->data[offset + 1];
 			xpos += (rel_pos & 127);
 			if (xpos > xoffset) return _palette[0];
-			if (xoffset - xpos < count) return _palette[this->data[offset + 2 + xoffset - xpos]];
+			if (xoffset - xpos < count) {
+				uint8 pixel = this->data[offset + 2 + xoffset - xpos];
+				if (recolour != nullptr) {
+					const uint8 *recolour_table = recolour->GetPalette(shift);
+					pixel = recolour_table[pixel];
+				}
+				return _palette[pixel];
+			}
 			xpos += count;
 			offset += 2 + count;
 			if ((rel_pos & 128) != 0) break;
@@ -221,20 +230,25 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 					case 3: ptr += 1 + 1 + (mode & 0x3F); break;
 				}
 			} else {
+				ShiftFunc sf = GetGradientShiftFunc(shift);
 				switch (mode >> 6) {
 					case 0:
 						ptr += 3 * xoffset;
-						return MakeRGBA(ptr[0], ptr[1], ptr[2], OPAQUE);
+						return MakeRGBA(sf(ptr[0]), sf(ptr[1]), sf(ptr[2]), OPAQUE);
 					case 1: {
 						uint8 opacity = *ptr;
 						ptr += 1 + 3 * xoffset;
-						return MakeRGBA(ptr[0], ptr[1], ptr[2], opacity);
+						return MakeRGBA(sf(ptr[0]), sf(ptr[1]), sf(ptr[2]), opacity);
 					}
 					case 2:
 						return _palette[0]; // Arbitrary fully transparent.
 					case 3: {
 						uint8 opacity = ptr[1];
-						return MakeRGBA(0, 0, 0, opacity); // Arbitrary colour with the correct opacity.
+						if (recolour == nullptr) return MakeRGBA(0, 0, 0, opacity); // Arbitrary colour with the correct opacity.
+						const uint32 *table = recolour->GetRecolourTable(ptr[0] - 1);
+						ptr += 2 + xoffset;
+						uint32 recoloured = table[*ptr];
+						return MakeRGBA(sf(GetR(recoloured)), sf(GetG(recoloured)), sf(GetB(recoloured)), opacity);
 					}
 				}
 			}
