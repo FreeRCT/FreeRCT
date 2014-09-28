@@ -189,7 +189,7 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset) const
 		if (offset == INVALID_JUMP) return _palette[0];
 
 		uint16 xpos = 0;
-		while (xpos < xoffset) {
+		while (xpos <= xoffset) {
 			uint8 rel_pos = this->data[offset];
 			uint8 count = this->data[offset + 1];
 			xpos += (rel_pos & 127);
