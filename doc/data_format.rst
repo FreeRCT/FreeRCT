@@ -528,7 +528,7 @@ Version history
 
 Shops/stalls
 ~~~~~~~~~~~~
-One tile objects, selling useful things to guests. FreeRCT can read block version 4.
+One tile objects, selling useful things to guests. FreeRCT can read block version 5.
 
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
@@ -568,11 +568,16 @@ Item types:
 
 - Nothing (0)
 - A drink (8)
-- An icecream (9)
+- An ice-cream (9)
 - Non-salty food (16)
 - Salty food (24)
 - Umbrella (32)
+- Balloon (33) since version 5
 - Map of the park (40)
+- Souvenir (41) since version 5
+- Money (ATM) (48) since version 5
+- Toilet (49) since version 5
+- First aid (50) since version 5
 
 Version history
 ...............
@@ -580,7 +585,8 @@ Version history
 - 1 (20110925) Initial version.
 - 2 (20120708) Added recolouring information.
 - 3 (20120714) Added a TEXT block reference for the shop texts.
-- 4 (20121005) Added Items to sell, and costs to pay.
+- 4 (20121005) Added items to sell, and costs to pay.
+- 5 (20141010) Added more items.
 
 
 Build direction arrows

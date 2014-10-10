@@ -930,6 +930,7 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 
 	this->has_map = false;
 	this->has_umbrella = false;
+	this->has_balloon = false;
 	this->has_wrapper = false;
 	this->salty_food = false;
 	this->food = 0;
@@ -938,6 +939,8 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->thirst_level = 50;
 	this->stomach_level = 0;
 	this->waste = 0;
+	this->nausea = 0;
+	this->souvenirs = 0;
 	this->wants_visit = nullptr;
 	this->queue_mode = false;
 }
@@ -976,6 +979,8 @@ void Guest::ChangeHappiness(int16 amount)
  * @return If \c false, de-activate the guest.
  * @todo Make going home a bit more random.
  * @todo Implement dropping litter (Guest::has_wrapper) to the path, and also drop the wrapper when passing a non-empty litter bin.
+ * @todo Implement nausea (Guest::nausea).
+ * @todo Implement energy (for tiredness of guests).
  */
 bool Guest::DailyUpdate()
 {
@@ -1048,8 +1053,25 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 		case ITP_UMBRELLA:
 			return (this->has_umbrella) ? RVD_NO_VISIT : RVD_MAY_VISIT;
 
+		case ITP_BALLOON:
+			/// \todo Add some form or age? (just a "is_child" boolean would suffice)
+			return (this->has_balloon) ? RVD_NO_VISIT : RVD_MAY_VISIT;
+
 		case ITP_PARK_MAP:
 			return (this->has_map) ? RVD_NO_VISIT : RVD_MAY_VISIT;
+
+		case ITP_SOUVENIR:
+			return (this->souvenirs < 2) ? RVD_MAY_VISIT : RVD_NO_VISIT;
+
+		case ITP_MONEY:
+			return (this->cash < 2000) ? RVD_MAY_VISIT : RVD_NO_VISIT;
+
+		case ITP_TOILET:
+			if (this->waste > 200) return RVD_MUST_VISIT;
+			return (this->waste > 120) ? RVD_MAY_VISIT : RVD_NO_VISIT;
+
+		case ITP_FIRST_AID:
+			return (this->nausea > 120) ? RVD_MUST_VISIT : RVD_NO_VISIT;
 
 		default: NOT_REACHED();
 	}
@@ -1099,8 +1121,28 @@ void Guest::AddItem(ItemType it)
 			this->has_umbrella = true;
 			break;
 
+		case ITP_BALLOON:
+			this->has_balloon = true;
+			break;
+
 		case ITP_PARK_MAP:
 			this->has_map = true;
+			break;
+
+		case ITP_SOUVENIR:
+			if (this->souvenirs < 100) souvenirs++; // Arbitrary upper limit, unlikely to be ever reached.
+			break;
+
+		case ITP_MONEY:
+			this->cash += 5000;
+			break;
+
+		case ITP_TOILET:
+			this->waste = std::min<uint8>(this->waste, 10);
+			break;
+
+		case ITP_FIRST_AID:
+			this->nausea = std::min<uint8>(this->nausea, 10);
 			break;
 
 		default: NOT_REACHED();

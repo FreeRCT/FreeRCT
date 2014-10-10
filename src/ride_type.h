@@ -57,7 +57,12 @@ enum ItemType {
 	ITP_NORMAL_FOOD = 16, ///< 'plain' food.
 	ITP_SALTY_FOOD = 24,  ///< 'salty' food, makes thirsty.
 	ITP_UMBRELLA = 32,    ///< Umbrella against the rain.
+	ITP_BALLOON = 33,     ///< Balloon.
 	ITP_PARK_MAP = 40,    ///< Map of the park, may improve finding the attractions.
+	ITP_SOUVENIR = 41,    ///< Souvenir of the park.
+	ITP_MONEY = 48,       ///< Money for more spending (i.e. an ATM).
+	ITP_TOILET = 49,      ///< Dropping of waste.
+	ITP_FIRST_AID = 50,   ///< Nausea treatment.
 };
 
 /** Base class of ride types. */

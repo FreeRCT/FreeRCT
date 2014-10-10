@@ -44,8 +44,24 @@ RideInstance *ShopType::CreateInstance() const
  */
 static bool IsValidItemType(uint8 val)
 {
-	return val == ITP_NOTHING || val == ITP_DRINK || val == ITP_ICE_CREAM || val == ITP_NORMAL_FOOD ||
-			val == ITP_SALTY_FOOD || val == ITP_UMBRELLA || val == ITP_PARK_MAP;
+	switch (val) {
+		case ITP_NOTHING:
+		case ITP_DRINK:
+		case ITP_ICE_CREAM:
+		case ITP_NORMAL_FOOD:
+		case ITP_SALTY_FOOD:
+		case ITP_UMBRELLA:
+		case ITP_BALLOON:
+		case ITP_PARK_MAP:
+		case ITP_SOUVENIR:
+		case ITP_MONEY:
+		case ITP_TOILET:
+		case ITP_FIRST_AID:
+			return true;
+
+		default:
+			return false;
+	}
 }
 
 /**
@@ -57,7 +73,7 @@ static bool IsValidItemType(uint8 val)
  */
 bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 4 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
+	if (rcd_file->version != 5 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
 	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
 	this->height = rcd_file->GetUInt8();
 	if (this->height != 1) return false; // Other heights may fail.

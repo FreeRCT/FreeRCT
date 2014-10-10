@@ -1656,7 +1656,12 @@ static const Symbol _shop_symbols[] = {
 	{"non_salt_food", 16},
 	{"salt_food", 24},
 	{"umbrella", 32},
+	{"balloon", 33},
 	{"map", 40},
+	{"souvenir", 41},
+	{"money", 48},
+	{"toilet", 49},
+	{"first_aid", 50},
 	{nullptr, 0},
 };
 

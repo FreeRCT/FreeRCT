@@ -903,7 +903,7 @@ int StringBundle::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SHOPBlock::SHOPBlock() : GameBlock("SHOP", 4)
+SHOPBlock::SHOPBlock() : GameBlock("SHOP", 5)
 {
 }
 
