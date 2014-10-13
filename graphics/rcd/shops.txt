@@ -77,4 +77,43 @@ file("shops.rcd") {
 			string { lang: "en_GB"; name: "NAME_ITEM2";            text: "Fresh drink"; }
 		}
 	}
+
+	// Toilet.
+	SHOP {
+		tile_width: 64;
+		height: 1;
+
+		(se, sw, nw, ne): spritefiles {
+			x_base: 1; y_base: 0;
+			file: "../sprites/ride_shops/toilet/64_000{seq(1..4,1)}.png";
+			recolour: "../sprites/ride_shops/toilet/64p_000{seq(1..4,1)}.png";
+			x_offset: -33; y_offset: -33; width: 64; height: 64;
+		}
+
+		recolour {
+			original: grey;
+			replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+			                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+		}
+
+		flags: bitset(se_entrance);
+		cost_item1: 100;
+		cost_item2: 0;
+		cost_ownership: 0;
+		cost_opened: 50;
+		type_item1: toilet;
+		type_item2: 0;
+
+		texts: strings {
+			string { lang: "en_GB"; name: "NAME_INSTANCE1";        text: "Toilet"; }
+			string { lang: "en_GB"; name: "NAME_INSTANCE2";        text: "Bathroom"; }
+			string { lang: "en_GB"; name: "NAME_TYPE";             text: "Toilet"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_TYPE";      text: "Go here when you gotta go"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR1"; text: "Toilet colour"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR2"; text: "-"; }
+			string { lang: "en_GB"; name: "DESCRIPTION_RECOLOUR3"; text: "-"; }
+			string { lang: "en_GB"; name: "NAME_ITEM1";            text: "Toilet"; }
+			string { lang: "en_GB"; name: "NAME_ITEM2";            text: ""; }
+		}
+	}
 }
