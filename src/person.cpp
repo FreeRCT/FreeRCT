@@ -1159,8 +1159,14 @@ void Guest::VisitShop(RideInstance *ri)
 	bool can_buy[NUMBER_ITEM_TYPES_SOLD];
 	int count = 0;
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
-		can_buy[i] = ri->GetSaleItemPrice(i) <= this->cash && this->NeedForItem(ri->GetSaleItemType(i), false) != RVD_NO_VISIT;
-		if (can_buy[i]) count++;
+		ItemType it = ri->GetSaleItemType(i);
+		bool canbuy = true;
+		if (it == ITP_NOTHING) canbuy = false;
+		if (canbuy && ri->GetSaleItemPrice(i) > this->cash) canbuy = false;
+		if (canbuy && this->NeedForItem(it, false) == RVD_NO_VISIT) canbuy = false;
+
+		can_buy[i] = canbuy;
+		if (canbuy) count++;
 	}
 	if (count > 1) {
 		count = 1 + this->rnd.Uniform(count - 1);
