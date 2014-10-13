@@ -42,8 +42,8 @@ file("shops.rcd") {
 
 		(se, sw, nw, ne): spritefiles {
 			x_base: 0; y_base: 0;
-			file: "../sprites/objects/1x1/ice_cream_stall/64_000{seq(1..4,1)}.png";
-			recolour: "../sprites/objects/1x1/ice_cream_stall/64p_000{seq(1..4,1)}.png";
+			file: "../sprites/ride_shops/ice_cream_stall/64_000{seq(1..4,1)}.png";
+			recolour: "../sprites/ride_shops/ice_cream_stall/64p_000{seq(1..4,1)}.png";
 			x_offset: -32; y_offset: -97; width: 64; height: 128;
 		}
 
