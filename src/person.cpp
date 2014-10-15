@@ -1014,6 +1014,23 @@ bool Guest::DailyUpdate()
 	}
 	if (this->waste > 170) happiness_change -= 2;
 
+	switch (_weather.GetWeatherType()) {
+		case WTP_SUNNY:
+			if (this->happiness < 80) happiness_change += 1;
+			break;
+
+		case WTP_LIGHT_CLOUDS:
+		case WTP_THICK_CLOUDS:
+			break;
+
+		case WTP_RAINING:
+		case WTP_THUNDERSTORM:
+			if (!this->has_umbrella) happiness_change -= 5;
+			break;
+
+		default: NOT_REACHED();
+	}
+
 	this->ChangeHappiness(happiness_change);
 
 	if (this->activity == GA_WANDER && this->happiness <= 10) this->activity = GA_GO_HOME; // Go home when bored.
