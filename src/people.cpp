@@ -214,6 +214,19 @@ void Guests::OnNewDay()
 }
 
 /**
+ * Notification that the ride is being removed.
+ * @param ri Ride being removed.
+ */
+void Guests::NotifyRideDeletion(const RideInstance *ri) {
+	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
+		Guest *p = this->block.Get(i);
+		if (!p->IsActive()) continue;
+
+		p->NotifyRideDeletion(ri);
+	}
+}
+
+/**
  * Return whether there are still non-active guests.
  * @return \c true if there are non-active guests, else \c false.
  */

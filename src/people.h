@@ -74,6 +74,8 @@ public:
 	void DoTick();
 	void OnNewDay();
 
+	void NotifyRideDeletion(const RideInstance *);
+
 	Point16 start_voxel;  ///< Entry x/y coordinate of the voxel stack at the edge (negative X/Y coordinate means invalid).
 
 private:

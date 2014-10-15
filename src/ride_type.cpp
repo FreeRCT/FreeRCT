@@ -21,6 +21,8 @@
 #include "gamelevel.h"
 #include "window.h"
 #include "finances.h"
+#include "person.h"
+#include "people.h"
 #include "random.h"
 
 /**
@@ -570,6 +572,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
+	_guests.NotifyRideDeletion(this->instances[num]);
 	delete this->instances[num];
 	this->instances[num] = nullptr;
 }

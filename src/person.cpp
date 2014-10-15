@@ -419,6 +419,14 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 }
 
 /**
+ * Notify the guest of removal of a ride.
+ * @param ri Ride being deleted.
+ */
+void Guest::NotifyRideDeletion(const RideInstance *ri) {
+	if (this->wants_visit == ri) this->wants_visit = nullptr;
+}
+
+/**
  * Which way can the guest leave?
  * @param v %Voxel to cross next for the guest.
  * @param start_edge %Edge where the person is currently (entry edge of the voxel).
