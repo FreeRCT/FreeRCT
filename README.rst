@@ -56,13 +56,14 @@ Building is as simple as
 -  **src/rcdgen** directory contains the source code of the *rcdgen* program, that builds RCD files from source (which are read by *freerct*).
 - **graphics/rcd** directory contains the source files of the RCD data files, except the graphics.
 - **graphics/sprites** directory contains all the graphics of the game.
+- **bin** directory contains the actual *freerct* executable along with some other files required to actually run the program.
 
 The *cmake/make* commands above will generate the *rcdgen* program, the rcd files and build the 'freerct' program in the src directory.
 
 Config file
 -----------
 
-Finally, you need a 'freerct.cfg' INI format file next to the 'freerct' program, containing the path to the font file you want to use. It looks like
+Finally, you need a 'freerct.cfg' INI format file next to the 'freerct' program in the **bin** directory, containing the path to the font file you want to use. It looks like
 
 ::
 
@@ -81,7 +82,7 @@ Now run the program
 
 ::
 
-        $ cd src
+        $ cd bin
         $ ./freerct
 
 or
