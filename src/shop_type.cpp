@@ -176,3 +176,18 @@ uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) 
 	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
 	return ROL(entrances, 4, this->orientation);
 }
+
+bool ShopInstance::EnterRide(int guest)
+{
+	return false; // Don't stay inside a shop.
+}
+
+void ShopInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
+{
+	/* Put the guest just outside the ride. */
+	Point16 dxy = _exit_dxy[(entry_edge + 2) % 4];
+	*xpos = this->xpos * 256 + dxy.x;
+	*ypos = this->ypos * 256 + dxy.y;
+	*zpos = this->zpos * 256;
+	return;
+}

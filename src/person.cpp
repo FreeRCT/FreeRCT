@@ -855,8 +855,19 @@ AnimateResult Guest::OnAnimate(int delay)
 		if (instance >= SRI_FULL_RIDES) {
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
-			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge)) {
-				this->VisitShop(ri);
+			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->VisitRide(ri)) {
+				/* Visited ride, ask ride where to go. */
+				if (ri->EnterRide(this->id)) {
+					assert(false); // Rides should not request a guest to stay.
+				}
+				uint32 xpos, ypos, zpos;
+				ri->GetExit(this->id, exit_edge, &xpos, &ypos, &zpos);
+				this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
+				this->y_vox = ypos >> 8; this->y_pos = ypos & 0xff;
+				this->z_vox = zpos >> 8; this->z_pos = zpos & 0xff;
+				this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+				this->DecideMoveDirection();
+				return OAR_OK;
 			}
 			/* Ride is closed, fall-through to reversing movement. */
 
@@ -1175,9 +1186,9 @@ void Guest::AddItem(ItemType it)
 /**
  * Visit the shop.
  * @param ri Ride being visited.
- * @note It is called 'shop', but it is quite generic, so it may be usable for more rides (without queue in front of it).
+ * @return Guest actually visited the ride, perform the RideInstance::EnterRide protocol, to make the guest stay inside, if needed.
  */
-void Guest::VisitShop(RideInstance *ri)
+bool Guest::VisitRide(RideInstance *ri)
 {
 	bool can_buy[NUMBER_ITEM_TYPES_SOLD];
 	int count = 0;
@@ -1206,9 +1217,10 @@ void Guest::VisitShop(RideInstance *ri)
 			this->cash -= ri->GetSaleItemPrice(i);
 			this->AddItem(ri->GetSaleItemType(i));
 			this->ChangeHappiness(10);
-			return;
+			return true;
 		}
 	}
 
 	this->ChangeHappiness(-10);
+	return false;
 }

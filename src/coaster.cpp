@@ -602,6 +602,16 @@ uint8 CoasterInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvo
 	return 0; /// \todo add entrance bits for the coaster.
 }
 
+bool CoasterInstance::EnterRide(int guest)
+{
+	return true; /// \todo Store the guest number.
+}
+
+void CoasterInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
+{
+	assert(false); // Not yet implemented.
+}
+
 /**
  * Check the state of the coaster ride, and set the #state flag.
  * @return The new coaster instance state.

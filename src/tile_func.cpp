@@ -36,6 +36,14 @@ const Point16 _tile_dxy[EDGE_COUNT] = {
 	{ 0, -1}, ///< EDGE_NW
 };
 
+/** Pixel position for a guest exiting a ride exit, relative to the base position of the exit voxel of the ride. */
+const Point16 _exit_dxy[EDGE_COUNT] = {
+	{ -1, 128}, ///< EDGE_NE
+	{128, 256}, ///< EDGE_SE
+	{256, 128}, ///< EDGE_SW
+	{128,  -1}, ///< EDGE_NW
+};
+
 /**
  * Compute the height of the corners of an expanded ground tile.
  * @param slope Expanded slope.

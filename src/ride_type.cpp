@@ -200,7 +200,26 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
- * Can the ride be visited, assuming the shop is approached from direction \a edge?
+ * \fn bool RideInstance::EnterRide(int guest)
+ * The given guest enters the ride. If the call returns \c false, the guest should immediately call RideInstance::GetExit
+ * to get the exit coordinates. If the call returns \c true, the guest should wait until the ride sends a Guest::ExitRide
+ * request (and then call RideInstance::GetExit for the coordinates).
+ * @param guest Number of the guest entering the ride.
+ * @return Whether the guest should stay in the ride.
+ */
+
+/**
+ * \fn void RideInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
+ * Get the exit coordinates of the ride, is near the middle of a tile edge.
+ * @param guest Number of the guest querying the exit coordinates.
+ * @param entry_edge %Edge used for entering the ride.
+ * @param xpos X world position of the exit.
+ * @param ypos Y world position of the exit.
+ * @param zpos Z world position of the exit
+ */
+
+/**
+ * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param xvox X position of the voxel with the ride.
  * @param yvox Y position of the voxel with the ride.
  * @param zvox Z position of the voxel with the ride.
