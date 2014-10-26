@@ -864,10 +864,8 @@ AnimateResult Guest::OnAnimate(int delay)
 			this->AddSelf(v);
 			this->DecideMoveDirection();
 			return OAR_OK;
-		}
 
-		/* Maybe a path below this voxel? */
-		if (this->z_vox > 0) {
+		} else if (this->z_vox > 0) { // Maybe a path below this voxel?
 			dz--;
 			this->z_vox--;
 			this->z_pos = 255;
