@@ -115,7 +115,7 @@ void FenceGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 				lines--;
 
 				Recolouring recolouring;
-				_video.BlitImage(rect.x, rect.y - sprite->yoffset, sprite, recolouring, GS_NORMAL);
+				_video.BlitImage({rect.x, rect.y - sprite->yoffset}, sprite, recolouring, GS_NORMAL);
 				rect.y += sprite->height;
 			}
 			break;

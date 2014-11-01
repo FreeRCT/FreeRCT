@@ -225,7 +225,8 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 				if (img != nullptr) {
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
-					_video.BlitImage(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y, img, recolour, GS_NORMAL);
+					Point32 pt(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y);
+					_video.BlitImage(pt, img, recolour, GS_NORMAL);
 				}
 			}
 			break;
@@ -239,7 +240,8 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 				if (img != nullptr) {
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
-					_video.BlitImage(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y, img, recolour, GS_NORMAL);
+					Point32 pt(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y);
+					_video.BlitImage(pt, img, recolour, GS_NORMAL);
 				}
 			}
 			break;

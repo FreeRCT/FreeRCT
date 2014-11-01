@@ -487,20 +487,7 @@ void VideoSystem::FinishRepaint()
  */
 void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift)
 {
-	this->BlitImage(img_base.x, img_base.y, spr, recolour, shift);
-}
-
-/**
- * Blit an image at the specified position (top-left position) relative to #blit_rect.
- * @param x Horizontal position.
- * @param y Vertical position.
- * @param img The sprite image data to blit.
- * @param recolour Sprite recolouring definition.
- * @param shift Gradient shift.
- */
-void VideoSystem::BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, GradientShift shift)
-{
-	this->BlitImages(x, y, img, 1, 1, recolour, shift);
+	this->BlitImages(img_base, spr, 1, 1, recolour, shift);
 }
 
 /**
@@ -673,20 +660,19 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 
 /**
  * Blit pixels from the \a spr relative to \a img_base into the area.
- * @param x_base Base X coordinate of the sprite data.
- * @param y_base Base Y coordinate of the sprite data.
+ * @param pt Base coordinates of the sprite data.
  * @param spr The sprite to blit.
  * @param numx Number of sprites to draw in horizontal direction.
  * @param numy Number of sprites to draw in vertical direction.
  * @param recolour Sprite recolouring definition.
  * @param shift Gradient shift.
  */
-void VideoSystem::BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
+void VideoSystem::BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
 {
 	this->blit_rect.ValidateAddress();
 
-	x_base += spr->xoffset;
-	y_base += spr->yoffset;
+	int x_base = pt.x + spr->xoffset;
+	int y_base = pt.y + spr->yoffset;
 
 	/* Don't draw wildly outside the screen. */
 	while (numx > 0 && x_base + spr->width < 0) {

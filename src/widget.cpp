@@ -292,7 +292,7 @@ void LeafWidget::Draw(const GuiWindow *w)
 		} else if ((this->flags & LWF_PRESSED) != 0) {
 			spr_num += WCS_EMPTY_PRESSED;
 		}
-		_video.BlitImage(left, top, _gui_sprites.radio_button.sprites[spr_num], rc, GS_NORMAL);
+		_video.BlitImage({left, top}, _gui_sprites.radio_button.sprites[spr_num], rc, GS_NORMAL);
 		return;
 	}
 
@@ -319,7 +319,7 @@ void LeafWidget::Draw(const GuiWindow *w)
 		int yoffset = top + (bottom - 1 - top - _gui_sprites.close_sprite->height) / 2;
 
 		const ImageData *imgdata = _gui_sprites.close_sprite;
-		if (imgdata != nullptr) _video.BlitImage(xoffset + 1, yoffset + 1, imgdata, rc, GS_NORMAL);
+		if (imgdata != nullptr) _video.BlitImage({xoffset + 1, yoffset + 1}, imgdata, rc, GS_NORMAL);
 		/* Closebox is never shaded. */
 	}
 }
@@ -500,7 +500,7 @@ void DataWidget::Draw(const GuiWindow *w)
 			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
 			yoffset -= rect.base.y;
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-			if (imgdata != nullptr) _video.BlitImage(xoffset + pressed, yoffset + pressed, imgdata, rc, GS_NORMAL);
+			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata, rc, GS_NORMAL);
 			break;
 		}
 
@@ -513,7 +513,7 @@ void DataWidget::Draw(const GuiWindow *w)
 
 			if (imgdata != nullptr) {
 				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
-				_video.BlitImage(right - imgrect.width + pressed, triangle_yoff, imgdata, rc, GS_NORMAL);
+				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata, rc, GS_NORMAL);
 			}
 			/* Note: Reusing the same string parameters from above */
 			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left - imgrect.width, align);

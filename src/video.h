@@ -101,9 +101,6 @@ public:
 	void SetClippedRectangle(const ClippedRectangle &cr);
 	ClippedRectangle GetClippedRectangle();
 
-	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift);
-	void BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, GradientShift shift);
-
 	/**
 	 * Blit a row of sprites.
 	 * @param xmin Start X position.
@@ -114,7 +111,7 @@ public:
 	 */
 	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const ImageData *spr, const Recolouring &recolour)
 	{
-		this->BlitImages(xmin, y, spr, numx, 1, recolour);
+		this->BlitImages({xmin, y}, spr, numx, 1, recolour);
 	}
 
 	/**
@@ -127,10 +124,11 @@ public:
 	 */
 	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const ImageData *spr, const Recolouring &recolour)
 	{
-		this->BlitImages(x, ymin, spr, 1, numy, recolour);
+		this->BlitImages({x, ymin}, spr, 1, numy, recolour);
 	}
 
-	void BlitImages(int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
+	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift);
+	void BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
 
 	void FinishRepaint();
 

@@ -368,14 +368,14 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 			Viewport *vp = GetViewport();
 			int dir = (vp == nullptr) ? 0 : vp->orientation;
 			const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
-			if (img != nullptr) _video.BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
+			if (img != nullptr) _video.BlitImage({GetWidgetScreenX(wid), GetWidgetScreenY(wid)}, img, recolour, GS_NORMAL);
 			break;
 		}
 
 		case BTB_WEATHER: {
 			int spr = SPR_GUI_WEATHER_START + _weather.GetWeatherType();
 			const ImageData *img = _sprite_manager.GetTableSprite(spr);
-			if (img != nullptr) _video.BlitImage(GetWidgetScreenX(wid), GetWidgetScreenY(wid), img, recolour, GS_NORMAL);
+			if (img != nullptr) _video.BlitImage({GetWidgetScreenX(wid), GetWidgetScreenY(wid)}, img, recolour, GS_NORMAL);
 			break;
 		}
 	}

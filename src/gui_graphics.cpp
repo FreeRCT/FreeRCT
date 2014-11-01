@@ -30,7 +30,7 @@ static void DrawRepeatedSprites(int32 x_base, int32 y_base, const ImageData *spr
 {
 	if (numx == 0 || numy == 0) return;
 	if (!spr->IsSinglePixel()) {
-		_video.BlitImages(x_base, y_base, spr, numx, numy, recolour);
+		_video.BlitImages({x_base, y_base}, spr, numx, numy, recolour);
 		return;
 	}
 	uint32 colour = spr->GetPixel(0, 0, &recolour);
@@ -129,7 +129,7 @@ void OverlayShaded(const Rectangle32 &rect)
 	uint16 numy = (r.height + img->height - 1) / img->height;
 
 	static const Recolouring recolour; // Fixed recolouring mapping.
-	_video.BlitImages(base_x, base_y, img, numx, numy, recolour);
+	_video.BlitImages({base_x, base_y}, img, numx, numy, recolour);
 
 	_video.SetClippedRectangle(cr); // Restore clipped area.
 }
