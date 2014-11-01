@@ -127,7 +127,18 @@ public:
 		this->BlitImages({x, ymin}, spr, 1, numy, recolour);
 	}
 
-	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift);
+	/**
+	 * Blit pixels from the \a spr relative to #blit_rect into the area.
+	 * @param img_base Coordinate of the sprite data.
+	 * @param spr The sprite to blit.
+	 * @param recolour Sprite recolouring definition.
+	 * @param shift Gradient shift.
+	 */
+	inline void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift)
+	{
+		this->BlitImages(img_base, spr, 1, 1, recolour, shift);
+	}
+
 	void BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
 
 	void FinishRepaint();

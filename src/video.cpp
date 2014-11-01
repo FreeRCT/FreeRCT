@@ -479,18 +479,6 @@ void VideoSystem::FinishRepaint()
 }
 
 /**
- * Blit pixels from the \a spr relative to #blit_rect into the area.
- * @param img_base Coordinate of the sprite data.
- * @param spr The sprite to blit.
- * @param recolour Sprite recolouring definition.
- * @param shift Gradient shift.
- */
-void VideoSystem::BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift)
-{
-	this->BlitImages(img_base, spr, 1, 1, recolour, shift);
-}
-
-/**
  * Blit a pixel to an area of \a numx times \a numy sprites.
  * @param cr Clipped rectangle.
  * @param scr_base Base address of the screen array.
