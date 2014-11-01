@@ -155,9 +155,9 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 		return err;
 	}
 
-	char caption[50];
-	snprintf(caption, sizeof(caption), "FreeRCT %s", _freerct_revision);
-	this->window = SDL_CreateWindow(caption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
+	std::string caption = "FreeRCT ";
+	caption += _freerct_revision;
+	this->window = SDL_CreateWindow(caption.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
 	if (this->window == nullptr) {
 		std::string err = "SDL window creation failed: ";
 		err += SDL_GetError();
