@@ -479,33 +479,6 @@ void VideoSystem::FinishRepaint()
 }
 
 /**
- * Fill the rectangle with a single colour.
- * @param colour Colour to fill with.
- * @param rect %Rectangle to fill.
- */
-void VideoSystem::FillSurface(uint32 colour, const Rectangle32 &rect)
-{
-	ClippedRectangle cr = this->GetClippedRectangle();
-
-	int x = Clamp((int)rect.base.x, 0, (int)cr.width);
-	int w = Clamp((int)(rect.base.x + rect.width), 0, (int)cr.width);
-	int y = Clamp((int)rect.base.y, 0, (int)cr.height);
-	int h = Clamp((int)(rect.base.y + rect.height), 0, (int)cr.height);
-
-	w -= x;
-	h -= y;
-	if (w == 0 || h == 0) return;
-
-	uint32 *pixels_base = cr.address + x + y * cr.pitch;
-	while (h > 0) {
-		uint32 *pixels = pixels_base;
-		for (int i = 0; i < w; i++) *pixels++ = colour;
-		pixels_base += cr.pitch;
-		h--;
-	}
-}
-
-/**
  * Blit pixels from the \a spr relative to #blit_rect into the area.
  * @param img_base Coordinate of the sprite data.
  * @param spr The sprite to blit.
@@ -937,4 +910,31 @@ void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint32 colour)
 	this->DrawLine(top_left, bottom_left, colour);
 	this->DrawLine(top_right, bottom_right, colour);
 	this->DrawLine(bottom_left, bottom_right, colour);
+}
+
+/**
+ * Fill the rectangle with a single colour.
+ * @param rect %Rectangle to fill.
+ * @param colour Colour to fill with.
+ */
+void VideoSystem::FillRectangle(const Rectangle32 &rect, uint32 colour)
+{
+	ClippedRectangle cr = this->GetClippedRectangle();
+
+	int x = Clamp((int)rect.base.x, 0, (int)cr.width);
+	int w = Clamp((int)(rect.base.x + rect.width), 0, (int)cr.width);
+	int y = Clamp((int)rect.base.y, 0, (int)cr.height);
+	int h = Clamp((int)(rect.base.y + rect.height), 0, (int)cr.height);
+
+	w -= x;
+	h -= y;
+	if (w == 0 || h == 0) return;
+
+	uint32 *pixels_base = cr.address + x + y * cr.pitch;
+	while (h > 0) {
+		uint32 *pixels = pixels_base;
+		for (int i = 0; i < w; i++) *pixels++ = colour;
+		pixels_base += cr.pitch;
+		h--;
+	}
 }

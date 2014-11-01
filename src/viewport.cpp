@@ -1022,7 +1022,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 		gslope = voxel->GetGroundSlope();
 	}
-	
+
 	/* Fences */
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		FenceType fence_type = voxel->GetFenceType(edge);
@@ -1404,7 +1404,7 @@ void Viewport::OnDraw()
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 	static const Recolouring recolour;
 
-	_video.FillSurface(MakeRGBA(0, 0, 0, OPAQUE), this->rect); // Black background.
+	_video.FillRectangle(this->rect, MakeRGBA(0, 0, 0, OPAQUE)); // Black background.
 
 	ClippedRectangle cr = _video.GetClippedRectangle();
 	assert(this->rect.base.x >= 0 && this->rect.base.y >= 0);

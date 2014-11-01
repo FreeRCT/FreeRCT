@@ -101,7 +101,6 @@ public:
 	void SetClippedRectangle(const ClippedRectangle &cr);
 	ClippedRectangle GetClippedRectangle();
 
-	void FillSurface(uint32 colour, const Rectangle32 &rect);
 	void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift);
 	void BlitImage(int x, int y, const ImageData *img, const Recolouring &recolour, GradientShift shift);
 
@@ -149,6 +148,7 @@ public:
 	void BlitText(const uint8 *text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
 	void DrawLine(const Point16 &start, const Point16 &end, uint32 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint32 colour);
+	void FillRectangle(const Rectangle32 &rect, uint32 colour);
 
 	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
 	std::set<Point32> resolutions; ///< Set (for automatic sorting) of available resolutions.

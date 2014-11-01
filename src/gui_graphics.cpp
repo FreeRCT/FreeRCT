@@ -18,7 +18,7 @@
 
 /**
  * Draw the same sprite repeatedly over a (potentially) large area. The function recognizes a single-pixel
- * sprite as a special case, and converts it to a VideoSystem::FillSurface call.
+ * sprite as a special case, and converts it to a VideoSystem::FillRectangle call.
  * @param x_base Left edge coordinate to start drawing.
  * @param y_base Top edge coordinate to start drawing.
  * @param spr Sprite to draw.
@@ -34,7 +34,7 @@ static void DrawRepeatedSprites(int32 x_base, int32 y_base, const ImageData *spr
 		return;
 	}
 	uint32 colour = spr->GetPixel(0, 0, &recolour);
-	_video.FillSurface(colour, {x_base, y_base, numx, numy});
+	_video.FillRectangle({x_base, y_base, numx, numy}, colour);
 }
 
 /**

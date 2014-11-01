@@ -990,7 +990,7 @@ void UpdateWindows()
 	 * windows truly disappear (even if there is no other window behind it).
 	 */
 	Rectangle32 rect(0, 0, _video.GetXSize(), _video.GetYSize());
-	_video.FillSurface(MakeRGBA(0, 0, 0, OPAQUE), rect);
+	_video.FillRectangle(rect, MakeRGBA(0, 0, 0, OPAQUE));
 
 	Window *w = _manager.bottom;
 	while (w != nullptr) {
