@@ -77,7 +77,7 @@ public:
 	 */
 	inline Money& operator+=(const Money& other)
 	{
-		if ((INT64_MAX - abs(other.m_value)) < abs(this->m_value) &&
+		if ((INT64_MAX - std::abs(other.m_value)) < std::abs(this->m_value) &&
 		    (this->m_value < 0) == (other.m_value < 0)) {
 			this->m_value = (this->m_value < 0) ? INT64_MIN : INT64_MAX ;
 		} else {
@@ -219,7 +219,7 @@ public:
 	 */
 	inline Money& operator*=(const int factor)
 	{
-		if (factor != 0 && (INT64_MAX / abs(factor)) < abs(this->m_value)) {
+		if (factor != 0 && (INT64_MAX / std::abs(factor)) < std::abs(this->m_value)) {
 			this->m_value = ((this->m_value < 0) == (factor < 0)) ? INT64_MAX : INT64_MIN;
 		} else {
 			this->m_value *= factor;
