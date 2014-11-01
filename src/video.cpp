@@ -165,6 +165,15 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 		return err;
 	}
 
+	this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
+	if (this->renderer == nullptr) {
+		std::string err = "SDL renderer creation failed: ";
+		err += SDL_GetError();
+		SDL_DestroyWindow(this->window);
+		SDL_Quit();
+		return err;
+	}
+
 	this->GetResolutions();
 
 	this->SetResolution({800, 600}); // Allocates this->mem, return value is ignored.
@@ -236,20 +245,11 @@ bool VideoSystem::SetResolution(const Point32 &res)
 		this->mem = nullptr;
 		SDL_DestroyTexture(this->texture);
 		this->texture = nullptr;
-		SDL_DestroyRenderer(this->renderer);
-		this->renderer = nullptr;
 	}
 
 	this->vid_width = res.x;
 	this->vid_height = res.y;
 	SDL_SetWindowSize(this->window, this->vid_width, this->vid_height);
-
-	this->renderer = SDL_CreateRenderer(this->window, -1, 0);
-	if (this->renderer == nullptr) {
-		SDL_Quit();
-		fprintf(stderr, "Could not create renderer (%s)\n", SDL_GetError());
-		return false;
-	}
 
 	this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, this->vid_width, this->vid_height);
 	if (this->texture == nullptr) {
