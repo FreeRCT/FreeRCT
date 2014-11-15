@@ -399,7 +399,7 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 	const RideInstance *ri = RideExistsAtBottom(x, y, z, exit_edge);
 	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
 
-	if (ri == this->wants_visit) { // Guest decided before that this shop/ride should be visited.
+	if (ri == this->ride) { // Guest decided before that this shop/ride should be visited.
 		*seen_wanted_ride = true;
 		return RVD_MUST_VISIT;
 	}
@@ -408,10 +408,10 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 	if (!ri->CanBeVisited(x + dxy.x, y + dxy.y, z, exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
 
 	RideVisitDesire rvd = this->WantToVisit(ri);
-	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->wants_visit == nullptr) {
+	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
 		/* Decided to want to visit one ride, and no wanted ride yet. */
 		// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
-		this->wants_visit = ri;
+		this->ride = ri;
 		*seen_wanted_ride = true;
 		return RVD_MUST_VISIT;
 	}
@@ -423,7 +423,7 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
  * @param ri Ride being deleted.
  */
 void Guest::NotifyRideDeletion(const RideInstance *ri) {
-	if (this->wants_visit == ri) this->wants_visit = nullptr;
+	if (this->ride == ri) this->ride = nullptr;
 }
 
 /**
@@ -622,12 +622,12 @@ void Guest::DecideMoveDirection()
 		exits &= 0xF;
 
 		this->queue_mode = queue_mode;
-		if (!seen_wanted_ride) this->wants_visit = nullptr; // Wanted ride has gone missing, stop looking for it.
+		if (!seen_wanted_ride) this->ride = nullptr; // Wanted ride has gone missing, stop looking for it.
 	} else { // Not at a path -> lost.
 		exits = 0xF;
 		shops = 0;
 		this->queue_mode = false;
-		this->wants_visit = nullptr;
+		this->ride = nullptr;
 	}
 
 	if (this->activity == GA_WANDER) { // Prevent wandering guests from walking out the park.
@@ -650,7 +650,7 @@ void Guest::DecideMoveDirection()
 		if (GB(shops, exit_edge, 1) != 0) shop_count++;
 	}
 	/* No exits, or all normal shops: Add 'return' as option. */
-	if (walk_count == 0 || (walk_count == shop_count && this->wants_visit == nullptr)) SB(exits, start_edge, 1, 1);
+	if (walk_count == 0 || (walk_count == shop_count && this->ride == nullptr)) SB(exits, start_edge, 1, 1);
 
 	const WalkInformation *walks[4]; // Walks that can be done at this tile.
 	walk_count = 0;
@@ -958,7 +958,7 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->waste = 0;
 	this->nausea = 0;
 	this->souvenirs = 0;
-	this->wants_visit = nullptr;
+	this->ride = nullptr;
 	this->queue_mode = false;
 }
 
