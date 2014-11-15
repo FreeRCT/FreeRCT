@@ -169,7 +169,6 @@ public:
 	uint16 total_happiness; ///< Sum of all good experiences (for evaluating the day after getting home, values are 0-1000).
 	Money cash;             ///< Amount of money carried by the guest (should be non-negative).
 	RideInstance *ride;     ///< Ride that the guest wants to visit or is visiting \c nullptr there is no favorite ride.
-	bool queue_mode;        ///< Whether we are queueing.
 
 	/* Possessions of the guest. */
 	bool has_map;        ///< Whether guest has a park map.

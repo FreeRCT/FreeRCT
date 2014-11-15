@@ -431,17 +431,17 @@ void Guest::NotifyRideDeletion(const RideInstance *ri) {
  * @param v %Voxel to cross next for the guest.
  * @param start_edge %Edge where the person is currently (entry edge of the voxel).
  * @param seen_wanted_ride [out] Whether the wanted ride was seen.
- * @param queue_mode [out] Whether the quest should be queuing.
+ * @param queue_path [out] Whether the quest is walking on a queue path (that may or may not lead to a ride).
  * @return Possible exit directions in low nibble, exits with a shop in high nibble.
  * @pre \a v must have a path.
  */
-uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_mode)
+uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_path)
 {
 	assert(HasValidPath(v));
 
 	/* If walking on a queue path, enable queue mode. */
 	// \todo Only walk in queue mode when going to a ride.
-	*queue_mode = _sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH;
+	*queue_path = _sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH;
 	*seen_wanted_ride = false;
 
 	uint8 bot_exits = 0xF; // All exit directions at the bottom by default.
@@ -615,18 +615,18 @@ void Guest::DecideMoveDirection()
 
 	/* Find feasible exits and shops. */
 	uint8 exits, shops;
+	bool queue_path;
 	if (HasValidPath(v)) {
-		bool seen_wanted_ride, queue_mode;
-		exits = GetExitDirections(v, start_edge, &seen_wanted_ride, &queue_mode);
+		bool seen_wanted_ride;
+		exits = GetExitDirections(v, start_edge, &seen_wanted_ride, &queue_path);
 		shops = exits >> 4;
 		exits &= 0xF;
 
-		this->queue_mode = queue_mode;
 		if (!seen_wanted_ride) this->ride = nullptr; // Wanted ride has gone missing, stop looking for it.
 	} else { // Not at a path -> lost.
 		exits = 0xF;
 		shops = 0;
-		this->queue_mode = false;
+		queue_path = false;
 		this->ride = nullptr;
 	}
 
@@ -658,7 +658,7 @@ void Guest::DecideMoveDirection()
 		if (GB(exits, exit_edge, 1) != 0) {
 			if (GB(shops, exit_edge, 1) != 0) { // Moving to a shop.
 				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
-			} else if (this->queue_mode) { // Queue mode, walk at the center.
+			} else if (queue_path) { // Queue path, walk at the center.
 				walks[walk_count++] = _center_path_tile[start_edge][exit_edge];
 			} else {
 				walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
@@ -960,7 +960,6 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->nausea = 0;
 	this->souvenirs = 0;
 	this->ride = nullptr;
-	this->queue_mode = false;
 }
 
 void Guest::DeActivate(AnimateResult ar)
