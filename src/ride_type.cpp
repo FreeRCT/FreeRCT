@@ -219,6 +219,11 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \fn void RemoveAllPeople()
+ * Immediately remove all guests and staff which is inside the ride.
+ */
+
+/**
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param xvox X position of the voxel with the ride.
  * @param yvox Y position of the voxel with the ride.
@@ -591,6 +596,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
+	this->instances[num]->RemoveAllPeople();
 	_guests.NotifyRideDeletion(this->instances[num]);
 	delete this->instances[num];
 	this->instances[num] = nullptr;

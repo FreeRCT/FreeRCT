@@ -195,6 +195,7 @@ public:
 	uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const override;
 	bool EnterRide(int guest) override;
 	void GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos) override;
+	void RemoveAllPeople() override;
 
 	RideInstanceState DecideRideState();
 

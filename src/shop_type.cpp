@@ -191,3 +191,8 @@ void ShopInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 
 	*zpos = this->zpos * 256;
 	return;
 }
+
+void ShopInstance::RemoveAllPeople()
+{
+	/* Nothing to do, there is never anyone in the ride. */
+}

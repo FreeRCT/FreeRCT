@@ -612,6 +612,11 @@ void CoasterInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint
 	assert(false); // Not yet implemented.
 }
 
+void CoasterInstance::RemoveAllPeople()
+{
+	assert(false); // Not yet implemented.
+}
+
 /**
  * Check the state of the coaster ride, and set the #state flag.
  * @return The new coaster instance state.
