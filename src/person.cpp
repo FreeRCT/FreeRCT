@@ -630,7 +630,21 @@ void Guest::DecideMoveDirection()
 		this->ride = nullptr;
 	}
 
-	if (this->activity == GA_WANDER) { // Prevent wandering guests from walking out the park.
+	/* Switch between wandering and queuing depending on being on a queue path and having a desired ride. */
+	if (this->activity == GA_WANDER) {
+		if (queue_path && this->ride != nullptr) {
+			this->activity = GA_QUEUING;
+		} else {
+			queue_path = false;
+		}
+	} else if (this->activity == GA_QUEUING) {
+		if (this->ride == nullptr) {
+			this->activity = GA_WANDER;
+			queue_path = false;
+		}
+	}
+
+	if (this->activity == GA_WANDER || this->activity == GA_QUEUING) { // Prevent wandering and queuing guests from walking out the park.
 		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 			if (GB(exits, exit_edge, 1) == 0) continue;
 			if (_world.GetTileOwner(this->x_vox + _tile_dxy[exit_edge].x, this->y_vox + _tile_dxy[exit_edge].y) != OWN_PARK) {
@@ -1062,7 +1076,7 @@ bool Guest::DailyUpdate()
  */
 RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 {
-	if (this->activity != GA_WANDER) return RVD_NO_VISIT; // Not arrived yet, or going home -> no ride.
+	if (this->activity != GA_WANDER && this->activity != GA_QUEUING) return RVD_NO_VISIT; // Not arrived yet, or going home -> no ride.
 
 	/// \todo Make warm food attractive on cold days.
 	switch (it) {

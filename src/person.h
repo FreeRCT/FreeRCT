@@ -142,9 +142,10 @@ protected:
 
 /** Activities of the guest. */
 enum GuestActivity {
-	GA_ENTER_PARK,   ///< Find the entrance to the park.
-	GA_WANDER,       ///< Wander around in the park.
-	GA_GO_HOME,      ///< Find a way to home.
+	GA_ENTER_PARK, ///< Find the entrance to the park.
+	GA_WANDER,     ///< Wander around in the park.
+	GA_QUEUING,    ///< Guest is queuing for a ride.
+	GA_GO_HOME,    ///< Find a way to home.
 };
 
 /** %Guests walking around in the world. */
