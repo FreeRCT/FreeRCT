@@ -168,7 +168,7 @@ public:
 	int16 happiness;        ///< Happiness of the guest (values are 0-100). Use #ChangeHappiness to change the guest happiness.
 	uint16 total_happiness; ///< Sum of all good experiences (for evaluating the day after getting home, values are 0-1000).
 	Money cash;             ///< Amount of money carried by the guest (should be non-negative).
-	const RideInstance *ride; ///< Ride that the guest wants to visit or is visiting \c nullptr there is no favorite ride.
+	RideInstance *ride;     ///< Ride that the guest wants to visit or is visiting \c nullptr there is no favorite ride.
 	bool queue_mode;        ///< Whether we are queueing.
 
 	/* Possessions of the guest. */

@@ -396,7 +396,7 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 
 	if (PathExistsAtBottomEdge(x, y, z, exit_edge)) return RVD_NO_RIDE; // Found a path.
 
-	const RideInstance *ri = RideExistsAtBottom(x, y, z, exit_edge);
+	RideInstance *ri = RideExistsAtBottom(x, y, z, exit_edge);
 	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
 
 	if (ri == this->ride) { // Guest decided before that this shop/ride should be visited.

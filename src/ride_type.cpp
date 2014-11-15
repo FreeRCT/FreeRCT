@@ -616,7 +616,7 @@ void RidesManager::CheckNoAllocatedRides() const
  * @pre voxel coordinate must be valid in the world.
  * @return The ride at the neighbouring voxel, if available (else \c nullptr is returned).
  */
-const RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge)
+RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge)
 {
 	xpos += _tile_dxy[edge].x;
 	ypos += _tile_dxy[edge].y;
