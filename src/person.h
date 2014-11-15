@@ -160,7 +160,8 @@ public:
 	bool DailyUpdate() override;
 
 	void ChangeHappiness(int16 amount);
-	bool VisitRide(RideInstance *ri);
+	ItemType SelectItem(const RideInstance *ri);
+	void BuyItem(RideInstance *ri);
 	void NotifyRideDeletion(const RideInstance *ri);
 
 	GuestActivity activity; ///< Activity being done by the guest currently.

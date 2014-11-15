@@ -855,11 +855,12 @@ AnimateResult Guest::OnAnimate(int delay)
 		if (instance >= SRI_FULL_RIDES) {
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
-			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->VisitRide(ri)) {
-				/* Visited ride, ask ride where to go. */
+			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
 				if (ri->EnterRide(this->id)) {
 					assert(false); // Rides should not request a guest to stay.
 				}
+				this->BuyItem(ri);
+
 				uint32 xpos, ypos, zpos;
 				ri->GetExit(this->id, exit_edge, &xpos, &ypos, &zpos);
 				this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
@@ -1184,11 +1185,11 @@ void Guest::AddItem(ItemType it)
 }
 
 /**
- * Visit the shop.
- * @param ri Ride being visited.
- * @return Guest actually visited the ride, perform the RideInstance::EnterRide protocol, to make the guest stay inside, if needed.
+ * Select an item to buy from the ride.
+ * @param ri Ride instance to buy from.
+ * @return Item to buy, or #ITP_NOTHING if there is nothing of interest.
  */
-bool Guest::VisitRide(RideInstance *ri)
+ItemType Guest::SelectItem(const RideInstance *ri)
 {
 	bool can_buy[NUMBER_ITEM_TYPES_SOLD];
 	int count = 0;
@@ -1202,25 +1203,33 @@ bool Guest::VisitRide(RideInstance *ri)
 		can_buy[i] = canbuy;
 		if (canbuy) count++;
 	}
-	if (count > 1) {
-		count = 1 + this->rnd.Uniform(count - 1);
-		for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
-			if (!can_buy[i]) continue;
-			if (count != 1) can_buy[i] = false;
-			count = std::max(0, count - 1);
-		}
-	}
+	if (count == 0) return ITP_NOTHING;
 
+	count = (count == 1) ? 1 : (1 + this->rnd.Uniform(count - 1));
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
-		if (can_buy[i]) {
-			ri->SellItem(i);
-			this->cash -= ri->GetSaleItemPrice(i);
-			this->AddItem(ri->GetSaleItemType(i));
-			this->ChangeHappiness(10);
-			return true;
+		if (!can_buy[i]) continue;
+		if (count == 1) return ri->GetSaleItemType(i);
+		count--;
+	}
+	return ITP_NOTHING;
+}
+
+/**
+ * Buy an item from the ride.
+ * @param ri Ride being visited.
+ */
+void Guest::BuyItem(RideInstance *ri)
+{
+	ItemType it = this->SelectItem(ri);
+	if (it != ITP_NOTHING) {
+		for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+			if (it == ri->GetSaleItemType(i)) {
+				ri->SellItem(i);
+				this->cash -= ri->GetSaleItemPrice(i);
+				this->AddItem(ri->GetSaleItemType(i));
+				this->ChangeHappiness(10);
+			}
 		}
 	}
-
 	this->ChangeHappiness(-10);
-	return false;
 }
