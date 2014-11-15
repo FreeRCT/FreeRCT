@@ -70,6 +70,26 @@ public:
 	bool CanUsePersonType(PersonType ptype);
 	uint CountActiveGuests();
 
+	/**
+	 * Get a guest from the array.
+	 * @param idx Index of the person (should be between \c 0 and #GUEST_BLOCK_SIZE).
+	 * @return The requested person.
+	 */
+	inline Guest *Get(int idx)
+	{
+		return this->block.Get(idx);
+	}
+
+	/**
+	 * Get a guest from the array.
+	 * @param idx Index of the person (should be between \c 0 and #GUEST_BLOCK_SIZE).
+	 * @return The requested person.
+	 */
+	inline const Guest *Get(int idx) const
+	{
+		return this->block.Get(idx);
+	}
+
 	void OnAnimate(int delay);
 	void DoTick();
 	void OnNewDay();
