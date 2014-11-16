@@ -144,7 +144,7 @@ bool Guests::FindNextFreeGuest() const
  */
 uint Guests::CountActiveGuests()
 {
-	uint count = (this->free_idx > 0) ? (this->free_idx - 1) : 0;
+	uint count = this->free_idx > 0;
 	for (uint i = this->free_idx; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *g = this->block.Get(i);
 		if (g->IsActive()) count++;
