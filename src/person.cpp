@@ -938,6 +938,13 @@ RideVisitDesire Person::WantToVisit(const RideInstance *ri)
 }
 
 /**
+ * @fn AnimateResult Person::OnAnimate(int delay)
+ * Update the animation of the person.
+ * @param delay Amount of milliseconds since the last update.
+ * @return Whether to keep the person active or how to deactivate him/her.
+ */
+
+/**
  * @fn bool Person::DailyUpdate()
  * Daily ponderings of a person.
  * @return If \c false, de-activate the person.

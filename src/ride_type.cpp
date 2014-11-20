@@ -219,7 +219,7 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
- * \fn void RemoveAllPeople()
+ * \fn void RideInstance::RemoveAllPeople()
  * Immediately remove all guests and staff which is inside the ride.
  */
 
