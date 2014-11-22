@@ -13,6 +13,7 @@
 #define SHOP_TYPE_H
 
 #include "ride_type.h"
+#include "guest_batches.h"
 
 /**
  * A 'ride' where you can buy food, drinks, and other stuff you need for a visit.
@@ -24,6 +25,7 @@ public:
 	~ShopType();
 
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
+	int GetRideCapacity() const;
 
 	const ImageData *GetView(uint8 orientation) const override;
 	const StringID *GetInstanceNames() const override;
@@ -50,11 +52,15 @@ public:
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	void GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos) override;
 	void RemoveAllPeople() override;
+	void OnAnimate(int delay) override;
 
 	uint8 orientation; ///< Orientation of the shop.
 	uint16 xpos;       ///< X position of the shop base voxel.
 	uint16 ypos;       ///< Y position of the shop base voxel.
 	uint8  zpos;       ///< Z position of the shop base voxel.
+
+private:
+	OnRideGuests onride_guests; ///< Guests in the ride.
 };
 
 #endif

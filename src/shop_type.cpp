@@ -112,6 +112,15 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	return true;
 }
 
+/**
+ * Compute the capacity of onride guests in the shop.
+ * @return Size of a batch in bits 0..7, and number of batches in bits 8..14. \c 0 means guests don't stay in the ride.
+ */
+int ShopType::GetRideCapacity() const
+{
+	return 0;
+}
+
 const StringID *ShopType::GetInstanceNames() const
 {
 	static const StringID names[] = {SHOPS_NAME_INSTANCE1, SHOPS_NAME_INSTANCE2, STR_INVALID};
@@ -128,6 +137,10 @@ ShopInstance::ShopInstance(const ShopType *type) : RideInstance(type)
 	this->xpos = 0;
 	this->ypos = 0;
 	this->zpos = 0;
+
+	int capacity = type->GetRideCapacity();
+	assert(capacity == 0 || (capacity & 0xFF) == 1); ///< \todo Implement loading of guests into a batch.
+	this->onride_guests.Configure(capacity & 0xFF, capacity >> 8);
 }
 
 ShopInstance::~ShopInstance()
@@ -181,9 +194,13 @@ uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) 
 
 RideEntryResult ShopInstance::EnterRide(int guest, TileEdge entry)
 {
-	Guest *g = _guests.Get(guest);
-	g->ExitRide(this, entry);
-	return RER_DONE;
+	if (this->onride_guests.num_batches == 0) { // No onride guests, handle it all now.
+		Guest *g = _guests.Get(guest);
+		g->ExitRide(this, entry);
+		return RER_DONE;
+	}
+
+	return RER_REFUSED;
 }
 
 void ShopInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
@@ -198,5 +215,39 @@ void ShopInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 
 
 void ShopInstance::RemoveAllPeople()
 {
-	/* Nothing to do, there is never anyone in the ride. */
+	for (GuestBatch &gb : this->onride_guests.batches) {
+		if (gb.state == BST_EMPTY) continue;
+
+		for (GuestData &gd : gb.guests) {
+			if (!gd.IsEmpty()) {
+				Guest *g = _guests.Get(gd.guest);
+				g->ExitRide(this, gd.entry);
+
+				gd.Clear();
+			}
+		}
+		gb.state = BST_EMPTY;
+	}
+}
+
+void ShopInstance::OnAnimate(int delay)
+{
+	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.
+
+	/* Kick out guests that are done. */
+	int start = -1;
+	for (;;) {
+		start = this->onride_guests.GetFinishedBatch(start);
+		if (start < 0) break;
+
+		GuestBatch &gb = this->onride_guests.batches.at(start);
+		GuestData & gd = gb.guests[0];
+		if (!gd.IsEmpty()) {
+			Guest *g = _guests.Get(gd.guest);
+			g->ExitRide(this, gd.entry);
+
+			gd.Clear();
+		}
+		gb.state = BST_EMPTY;
+	}
 }
