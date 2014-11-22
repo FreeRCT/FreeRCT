@@ -120,7 +120,7 @@ private:
 ShopManagerWindow::ShopManagerWindow(ShopInstance *ri) : GuiWindow(WC_SHOP_MANAGER, ri->GetIndex())
 {
 	this->shop = ri;
-	this->SetShopType(this->shop->GetShopType());
+	this->SetRideType(this->shop->GetShopType());
 	this->SetupWidgetTree(_shop_manager_gui_parts, lengthof(_shop_manager_gui_parts));
 	this->SetShopToggleButtons();
 

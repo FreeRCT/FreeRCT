@@ -226,7 +226,7 @@ protected:
 
 	virtual void OnClick(WidgetNumber widget, const Point16 &pos);
 
-	void SetShopType(const RideType *ride_type);
+	void SetRideType(const RideType *ride_type);
 
 	/* In dropdown.cpp */
 	void ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour = COL_RANGE_INVALID);
