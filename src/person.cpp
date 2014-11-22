@@ -422,8 +422,23 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
  * Notify the guest of removal of a ride.
  * @param ri Ride being deleted.
  */
-void Guest::NotifyRideDeletion(const RideInstance *ri) {
-	if (this->ride == ri) this->ride = nullptr;
+void Guest::NotifyRideDeletion(const RideInstance *ri)
+{
+	if (this->ride == ri) {
+		switch (this->activity) {
+			case GA_QUEUING:
+				this->activity = GA_WANDER;
+				this->ride = nullptr;
+				break;
+
+			case GA_ON_RIDE:
+				NOT_REACHED(); // The ride should throw out its guests before deleting itself.
+
+			default:
+				this->ride = nullptr;
+				break;
+		}
+	}
 }
 
 /**
@@ -433,11 +448,15 @@ void Guest::NotifyRideDeletion(const RideInstance *ri) {
  */
 void Guest::ExitRide(RideInstance *ri, TileEdge entry)
 {
+	assert(this->activity == GA_ON_RIDE);
+	assert(this->ride == ri);
+
 	uint32 xpos, ypos, zpos;
 	ri->GetExit(this->id, entry, &xpos, &ypos, &zpos);
 	this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
 	this->y_vox = ypos >> 8; this->y_pos = ypos & 0xff;
 	this->z_vox = zpos >> 8; this->z_pos = zpos & 0xff;
+	this->activity = GA_WANDER;
 	this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
 	this->DecideMoveDirection();
 }
@@ -717,6 +736,9 @@ void Guest::DecideMoveDirection()
 				break;
 			}
 
+			case GA_ON_RIDE:
+				NOT_REACHED();
+
 			default:
 				new_walk = walks[this->rnd.Uniform(walk_count - 1)];
 				break;
@@ -769,6 +791,8 @@ void Person::DeActivate(AnimateResult ar)
  */
 AnimateResult Guest::OnAnimate(int delay)
 {
+	if (this->activity == GA_ON_RIDE) return OAR_OK; // Guest is not animated while on ride.
+
 	this->frame_time -= delay;
 	if (this->frame_time > 0) return OAR_OK;
 
@@ -887,15 +911,18 @@ AnimateResult Guest::OnAnimate(int delay)
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
 			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
 				/* All lights are green, let's try to enter the ride. */
+				this->activity = GA_ON_RIDE;
+				this->ride = ri;
 				RideEntryResult rer = ri->EnterRide(this->id, exit_edge);
-				assert(rer != RER_ENTERED); // Rides should not request a guest to stay.
 				if (rer != RER_REFUSED) {
 					this->BuyItem(ri);
-					this->ExitRide(ri, exit_edge);
+					/* Either the guest is already back at a path or he will be (through ExitRide). */
 					return OAR_OK;
 				}
 
 				/* Could not enter, find another ride. */
+				this->ride = nullptr;
+				this->activity = GA_WANDER;
 			}
 			/* Ride is closed, fall-through to reversing movement. */
 
@@ -1104,7 +1131,7 @@ assert_compile(WASTE_STOP_BUYING_FOOD > WASTE_MAY_TOILET);
  */
 RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 {
-	if (this->activity != GA_WANDER && this->activity != GA_QUEUING) return RVD_NO_VISIT; // Not arrived yet, or going home -> no ride.
+	if (this->activity == GA_ENTER_PARK || this->activity == GA_GO_HOME) return RVD_NO_VISIT; // Not arrived yet, or going home -> no ride.
 
 	/// \todo Make warm food attractive on cold days.
 	switch (it) {

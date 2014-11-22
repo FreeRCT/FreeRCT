@@ -12,6 +12,8 @@
 #include "stdafx.h"
 #include "map.h"
 #include "shop_type.h"
+#include "person.h"
+#include "people.h"
 #include "fileio.h"
 
 #include "generated/shops_strings.cpp"
@@ -179,7 +181,9 @@ uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) 
 
 RideEntryResult ShopInstance::EnterRide(int guest, TileEdge entry)
 {
-	return RER_DONE; // Don't stay inside a shop.
+	Guest *g = _guests.Get(guest);
+	g->ExitRide(this, entry);
+	return RER_DONE;
 }
 
 void ShopInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
