@@ -1075,6 +1075,14 @@ bool Guest::DailyUpdate()
 	return true;
 }
 
+static const int WASTE_STOP_BUYING_FOOD = 150; ///< Waste level where the guest stop buying food.
+static const int WASTE_MAY_TOILET       = 100; ///< Minimal level of waste before desiring to visit a toilet at all.
+static const int WASTE_MUST_TOILET      = 200; ///< Level of waste before really needing to visit a toilet.
+static const int NAUSEA_MUST_FIRST_AID  = 200; ///< Level of nausea before really needing help in reducing nausea.
+
+/** Ensure that guests have a desire to visit a toilet before stopping to buy more food (and thus stop raising the waste level). */
+assert_compile(WASTE_STOP_BUYING_FOOD > WASTE_MAY_TOILET);
+
 /**
  * How useful is the item for the guest?
  * @param it Item offered.
@@ -1093,7 +1101,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 		case ITP_DRINK:
 		case ITP_ICE_CREAM:
 			if (this->food > 0 || this->drink > 0) return RVD_NO_VISIT;
-			if (this->waste > 100 || this->stomach_level > 100) return RVD_NO_VISIT;
+			if (this->waste >= WASTE_STOP_BUYING_FOOD || this->stomach_level > 100) return RVD_NO_VISIT;
 			if (_weather.temperature < 20) return RVD_NO_VISIT;
 			if (use_random) return this->rnd.Success1024(this->thirst_level * 4 + _weather.temperature * 2) ? RVD_MAY_VISIT : RVD_NO_VISIT;
 			return RVD_MAY_VISIT;
@@ -1101,7 +1109,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 		case ITP_NORMAL_FOOD:
 		case ITP_SALTY_FOOD:
 			if (this->food > 0 || this->drink > 0) return RVD_NO_VISIT;
-			if (this->waste > 100 || this->stomach_level > 100) return RVD_NO_VISIT;
+			if (this->waste >= WASTE_STOP_BUYING_FOOD || this->stomach_level > 100) return RVD_NO_VISIT;
 			if (use_random) return this->rnd.Success1024(this->hunger_level * 4) ? RVD_MAY_VISIT : RVD_NO_VISIT;
 			return RVD_MAY_VISIT;
 
@@ -1122,11 +1130,11 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 			return (this->cash < 2000) ? RVD_MAY_VISIT : RVD_NO_VISIT;
 
 		case ITP_TOILET:
-			if (this->waste > 200) return RVD_MUST_VISIT;
-			return (this->waste > 120) ? RVD_MAY_VISIT : RVD_NO_VISIT;
+			if (this->waste > WASTE_MUST_TOILET) return RVD_MUST_VISIT;
+			return (this->waste >= WASTE_MAY_TOILET) ? RVD_MAY_VISIT : RVD_NO_VISIT;
 
 		case ITP_FIRST_AID:
-			return (this->nausea > 120) ? RVD_MUST_VISIT : RVD_NO_VISIT;
+			return (this->nausea >= NAUSEA_MUST_FIRST_AID) ? RVD_MUST_VISIT : RVD_NO_VISIT;
 
 		default: NOT_REACHED();
 	}
