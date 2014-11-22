@@ -47,7 +47,7 @@ public:
 
 	void SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos);
 	uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const override;
-	bool EnterRide(int guest) override;
+	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	void GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos) override;
 	void RemoveAllPeople() override;
 

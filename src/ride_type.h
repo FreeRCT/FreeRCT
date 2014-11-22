@@ -120,6 +120,13 @@ enum BreakdownState {
 	BDS_UNOPENED,      ///< The ride has never been opened and thus is immune from breakdown.
 };
 
+/** Answers of RideInstance::EnterRide */
+enum RideEntryResult {
+	RER_REFUSED, ///< Entry is refused.
+	RER_ENTERED, ///< Entry is given, the guest is staying inside the ride.
+	RER_DONE,    ///< Entry is given, and visit is immediately done.
+};
+
 /**
  * A ride in the park.
  * @todo Add ride parts and other things that need to be stored with a ride.
@@ -131,7 +138,7 @@ public:
 
 	virtual void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
 	virtual uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const = 0;
-	virtual bool EnterRide(int guest) = 0;
+	virtual RideEntryResult EnterRide(int guest, TileEdge entry_edge) = 0;
 	virtual void GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos) = 0;
 	virtual void RemoveAllPeople() = 0;
 	bool CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const;

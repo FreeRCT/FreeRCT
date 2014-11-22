@@ -177,9 +177,9 @@ uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) 
 	return ROL(entrances, 4, this->orientation);
 }
 
-bool ShopInstance::EnterRide(int guest)
+RideEntryResult ShopInstance::EnterRide(int guest, TileEdge entry)
 {
-	return false; // Don't stay inside a shop.
+	return RER_DONE; // Don't stay inside a shop.
 }
 
 void ShopInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)

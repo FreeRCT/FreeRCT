@@ -870,19 +870,22 @@ AnimateResult Guest::OnAnimate(int delay)
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
 			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
-				if (ri->EnterRide(this->id)) {
-					assert(false); // Rides should not request a guest to stay.
-				}
-				this->BuyItem(ri);
+				/* All lights are green, let's try to enter the ride. */
+				RideEntryResult rer = ri->EnterRide(this->id, exit_edge);
+				assert(rer != RER_ENTERED); // Rides should not request a guest to stay.
+				if (rer != RER_REFUSED) {
+					this->BuyItem(ri);
 
-				uint32 xpos, ypos, zpos;
-				ri->GetExit(this->id, exit_edge, &xpos, &ypos, &zpos);
-				this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
-				this->y_vox = ypos >> 8; this->y_pos = ypos & 0xff;
-				this->z_vox = zpos >> 8; this->z_pos = zpos & 0xff;
-				this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
-				this->DecideMoveDirection();
-				return OAR_OK;
+					uint32 xpos, ypos, zpos;
+					ri->GetExit(this->id, exit_edge, &xpos, &ypos, &zpos);
+					this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
+					this->y_vox = ypos >> 8; this->y_pos = ypos & 0xff;
+					this->z_vox = zpos >> 8; this->z_pos = zpos & 0xff;
+					this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+					this->DecideMoveDirection();
+					return OAR_OK;
+				}
+				/* Could not enter, find another ride. */
 			}
 			/* Ride is closed, fall-through to reversing movement. */
 

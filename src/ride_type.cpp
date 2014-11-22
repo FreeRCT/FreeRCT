@@ -200,12 +200,14 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
- * \fn bool RideInstance::EnterRide(int guest)
- * The given guest enters the ride. If the call returns \c false, the guest should immediately call RideInstance::GetExit
- * to get the exit coordinates. If the call returns \c true, the guest should wait until the ride sends a Guest::ExitRide
- * request (and then call RideInstance::GetExit for the coordinates).
+ * \fn RideEntryResult RideInstance::EnterRide(int guest, TileEdge entry_edge)
+ * The given guest tries to enter the ride. Meaning and further handling of the ride visit depends on the return value.
+ * - If the call returns #RER_REFUSED, the guest is not given entry (ride is full), it should be tried again at another time.
+ * - If the call returns #RER_ENTERED, the guest is given access, and is now staying in the ride. The ride calls Guest::ExitRide when it is done.
+ * - If the call returns #RER_DONE, the guest is given access, and the ride is also immediately visited (Guest::ExitRide is called before returning this answer).
  * @param guest Number of the guest entering the ride.
- * @return Whether the guest should stay in the ride.
+ * @param entry_edge Edge of entering the ride. Value is passed back through Guest::ExitRide, to use as parameter in RideInstance::GetExit.
+ * @return Whether the guest is accepted, and if so, if the guest is staying inside.
  */
 
 /**

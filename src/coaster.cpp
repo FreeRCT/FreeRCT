@@ -602,9 +602,9 @@ uint8 CoasterInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvo
 	return 0; /// \todo add entrance bits for the coaster.
 }
 
-bool CoasterInstance::EnterRide(int guest)
+RideEntryResult CoasterInstance::EnterRide(int guest, TileEdge edge)
 {
-	return true; /// \todo Store the guest number.
+	return RER_REFUSED; /// \todo Store the guest number.
 }
 
 void CoasterInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
