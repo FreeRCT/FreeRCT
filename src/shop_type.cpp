@@ -18,6 +18,9 @@
 
 #include "generated/shops_strings.cpp"
 
+static const int TOILET_TIME = 5000;  ///< Duration of visiting the toilet.
+static const int CAPACITY_TOILET = 2; ///< Maximum number of guests that can use the toilet at the same time.
+
 ShopType::ShopType() : RideType(RTK_SHOP)
 {
 	this->height = 0;
@@ -118,6 +121,9 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
  */
 int ShopType::GetRideCapacity() const
 {
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		if (this->item_type[i] == ITP_TOILET) return 1 | (CAPACITY_TOILET << 8);
+	}
 	return 0;
 }
 
@@ -200,6 +206,15 @@ RideEntryResult ShopInstance::EnterRide(int guest, TileEdge entry)
 		return RER_DONE;
 	}
 
+	/* Guest should wait for the ride to finish, find a spot. */
+	int free_batch = this->onride_guests.GetFreeBatch();
+	if (free_batch >= 0) {
+		GuestBatch &gb = this->onride_guests.GetBatch(free_batch);
+		if (gb.AddGuest(guest, entry)) {
+			gb.Start(TOILET_TIME);
+			return RER_ENTERED;
+		}
+	}
 	return RER_REFUSED;
 }
 
