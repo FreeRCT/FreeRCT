@@ -164,6 +164,7 @@ public:
 	ItemType SelectItem(const RideInstance *ri);
 	void BuyItem(RideInstance *ri);
 	void NotifyRideDeletion(const RideInstance *ri);
+	void ExitRide(RideInstance *ri, TileEdge entry);
 
 	GuestActivity activity; ///< Activity being done by the guest currently.
 	int16 happiness;        ///< Happiness of the guest (values are 0-100). Use #ChangeHappiness to change the guest happiness.

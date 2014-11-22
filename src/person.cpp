@@ -427,6 +427,22 @@ void Guest::NotifyRideDeletion(const RideInstance *ri) {
 }
 
 /**
+ * Exit the ride, and continue walking in the park.
+ * @param ri Ride to exit.
+ * @param entry Entry direction of the ride.
+ */
+void Guest::ExitRide(RideInstance *ri, TileEdge entry)
+{
+	uint32 xpos, ypos, zpos;
+	ri->GetExit(this->id, entry, &xpos, &ypos, &zpos);
+	this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
+	this->y_vox = ypos >> 8; this->y_pos = ypos & 0xff;
+	this->z_vox = zpos >> 8; this->z_pos = zpos & 0xff;
+	this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+	this->DecideMoveDirection();
+}
+
+/**
  * Which way can the guest leave?
  * @param v %Voxel to cross next for the guest.
  * @param start_edge %Edge where the person is currently (entry edge of the voxel).
@@ -875,16 +891,10 @@ AnimateResult Guest::OnAnimate(int delay)
 				assert(rer != RER_ENTERED); // Rides should not request a guest to stay.
 				if (rer != RER_REFUSED) {
 					this->BuyItem(ri);
-
-					uint32 xpos, ypos, zpos;
-					ri->GetExit(this->id, exit_edge, &xpos, &ypos, &zpos);
-					this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
-					this->y_vox = ypos >> 8; this->y_pos = ypos & 0xff;
-					this->z_vox = zpos >> 8; this->z_pos = zpos & 0xff;
-					this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
-					this->DecideMoveDirection();
+					this->ExitRide(ri, exit_edge);
 					return OAR_OK;
 				}
+
 				/* Could not enter, find another ride. */
 			}
 			/* Ride is closed, fall-through to reversing movement. */
