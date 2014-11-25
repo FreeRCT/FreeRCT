@@ -100,7 +100,7 @@ public:
 
 	const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
 
-	virtual AnimateResult OnAnimate(int delay) = 0;
+	virtual AnimateResult OnAnimate(int delay);
 	virtual bool DailyUpdate() = 0;
 
 	virtual void Activate(const Point16 &start, PersonType person_type);

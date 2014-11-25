@@ -784,15 +784,13 @@ void Person::DeActivate(AnimateResult ar)
 }
 
 /**
- * Update the animation of the guest.
+ * Update the animation of a person.
  * @param delay Amount of milliseconds since the last update.
- * @return If \c false, de-activate the person.
- * @todo Merge things common to all persons to Person::OnAnimate.
+ * @return Whether to keep the person active or how to deactivate him/her.
+ * @return Result code of the visit.
  */
-AnimateResult Guest::OnAnimate(int delay)
+AnimateResult Person::OnAnimate(int delay)
 {
-	if (this->activity == GA_ON_RIDE) return OAR_OK; // Guest is not animated while on ride.
-
 	this->frame_time -= delay;
 	if (this->frame_time > 0) return OAR_OK;
 
@@ -958,13 +956,6 @@ RideVisitDesire Person::WantToVisit(const RideInstance *ri)
 }
 
 /**
- * @fn AnimateResult Person::OnAnimate(int delay)
- * Update the animation of the person.
- * @param delay Amount of milliseconds since the last update.
- * @return Whether to keep the person active or how to deactivate him/her.
- */
-
-/**
  * @fn bool Person::DailyUpdate()
  * Daily ponderings of a person.
  * @return If \c false, de-activate the person.
@@ -1016,6 +1007,12 @@ void Guest::DeActivate(AnimateResult ar)
 	}
 
 	this->Person::DeActivate(ar);
+}
+
+AnimateResult Guest::OnAnimate(int delay)
+{
+	if (this->activity == GA_ON_RIDE) return OAR_OK; // Guest is not animated while on ride.
+	return this->Person::OnAnimate(delay);
 }
 
 /**
