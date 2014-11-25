@@ -73,6 +73,7 @@ struct WalkInformation {
 
 /** Exit codes of the Person::OnAnimate call. */
 enum AnimateResult {
+	OAR_CONTINUE,   ///< No result yet, continue the routine.
 	OAR_OK,         ///< All OK, keep running.
 	OAR_REMOVE,     ///< Remove person from the person-list, and de-activate.
 	OAR_DEACTIVATE, ///< Person is already removed from the person-list, only de-activate.
@@ -138,6 +139,7 @@ protected:
 	void StartAnimation(const WalkInformation *walk);
 
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
+	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
 };
 
 /** Activities of the guest. */
@@ -193,6 +195,7 @@ protected:
 	RideVisitDesire ComputeExitDesire(TileEdge current_edge, int x, int y, int z, TileEdge exit_edge, bool *seen_wanted_ride);
 	uint8 GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_mode);
 	RideVisitDesire WantToVisit(const RideInstance *ri) override;
+	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
 	void AddItem(ItemType it);

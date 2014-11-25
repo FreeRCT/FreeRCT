@@ -909,22 +909,10 @@ AnimateResult Guest::OnAnimate(int delay)
 		if (instance >= SRI_FULL_RIDES) {
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
-			if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
-				/* All lights are green, let's try to enter the ride. */
-				this->activity = GA_ON_RIDE;
-				this->ride = ri;
-				RideEntryResult rer = ri->EnterRide(this->id, exit_edge);
-				if (rer != RER_REFUSED) {
-					this->BuyItem(ri);
-					/* Either the guest is already back at a path or he will be (through ExitRide). */
-					return OAR_OK;
-				}
+			AnimateResult ar = this->VisitRideOnAnimate(ri, exit_edge);
+			if (ar != OAR_CONTINUE) return ar;
 
-				/* Could not enter, find another ride. */
-				this->ride = nullptr;
-				this->activity = GA_WANDER;
-			}
-			/* Ride is closed, fall-through to reversing movement. */
+			/* Ride is could not be visited, fall-through to reversing movement. */
 
 		} else if (HasValidPath(v)) {
 			this->AddSelf(v);
@@ -1036,6 +1024,32 @@ void Guest::DeActivate(AnimateResult ar)
 	}
 
 	this->Person::DeActivate(ar);
+}
+
+/**
+ * Handle guest ride visiting.
+ * @param ri Ride that can be visited.
+ * @param exit_edge Exit edge being examined.
+ * @return Result code of the visit.
+ */
+AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
+{
+	if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
+		/* All lights are green, let's try to enter the ride. */
+		this->activity = GA_ON_RIDE;
+		this->ride = ri;
+		RideEntryResult rer = ri->EnterRide(this->id, exit_edge);
+		if (rer != RER_REFUSED) {
+			this->BuyItem(ri);
+			/* Either the guest is already back at a path or he will be (through ExitRide). */
+			return OAR_OK;
+		}
+
+		/* Could not enter, find another ride. */
+		this->ride = nullptr;
+		this->activity = GA_WANDER;
+	}
+	return OAR_CONTINUE;
 }
 
 /**
