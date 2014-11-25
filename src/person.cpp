@@ -885,16 +885,8 @@ AnimateResult Guest::OnAnimate(int delay)
 	assert(this->x_pos >= 0 && this->x_pos < 256);
 	assert(this->y_pos >= 0 && this->y_pos < 256);
 
-	/* If the guest ended up off-world, quit. */
-	if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
-			this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
-		return OAR_DEACTIVATE;
-	}
-
-	/* If the guest arrived at the 'go home' tile while going home, quit. */
-	if (this->activity == GA_GO_HOME && this->x_vox == _guests.start_voxel.x && this->y_vox == _guests.start_voxel.y) {
-		return OAR_DEACTIVATE;
-	}
+	AnimateResult ar = this->EdgeOfWorldOnAnimate();
+	if (ar != OAR_CONTINUE) return ar;
 
 	/* Handle raising of z position. */
 	if (this->z_pos > 128) {
@@ -1024,6 +1016,26 @@ void Guest::DeActivate(AnimateResult ar)
 	}
 
 	this->Person::DeActivate(ar);
+}
+
+/**
+ * Handle the case of a guest reaching the end of the game world.
+ * @return Result code of the visit.
+ */
+AnimateResult Guest::EdgeOfWorldOnAnimate()
+{
+	/* If the guest ended up off-world, quit. */
+	if (this->x_vox < 0 || this->x_vox >= _world.GetXSize() * 256 ||
+			this->y_vox < 0 || this->y_vox >= _world.GetYSize() * 256) {
+		return OAR_DEACTIVATE;
+	}
+
+	/* If the guest arrived at the 'go home' tile while going home, quit. */
+	if (this->activity == GA_GO_HOME && this->x_vox == _guests.start_voxel.x && this->y_vox == _guests.start_voxel.y) {
+		return OAR_DEACTIVATE;
+	}
+
+	return OAR_CONTINUE;
 }
 
 /**

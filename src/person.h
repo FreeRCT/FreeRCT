@@ -139,6 +139,7 @@ protected:
 	void StartAnimation(const WalkInformation *walk);
 
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
+	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
 };
 
@@ -195,6 +196,7 @@ protected:
 	RideVisitDesire ComputeExitDesire(TileEdge current_edge, int x, int y, int z, TileEdge exit_edge, bool *seen_wanted_ride);
 	uint8 GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_mode);
 	RideVisitDesire WantToVisit(const RideInstance *ri) override;
+	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
