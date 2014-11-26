@@ -199,6 +199,7 @@ protected:
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	void HandleParkExits(uint8 *exits, uint8* shops);
+	const WalkInformation *WalkForActivity(const WalkInformation **walks, uint8 walk_count, uint8 exits);
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
 	void AddItem(ItemType it);

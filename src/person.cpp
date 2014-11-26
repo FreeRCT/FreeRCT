@@ -711,30 +711,7 @@ void Guest::DecideMoveDirection()
 	if (walk_count == 1) {
 		new_walk = walks[0];
 	} else {
-		switch (this->activity) {
-			case GA_ENTER_PARK: { // Find the park entrance.
-				TileEdge desired = GetParkEntryDirection(this->x_vox, this->y_vox, this->z_vox);
-				int selected = GetDesiredEdgeIndex(desired, exits);
-				if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
-				new_walk = walks[selected];
-				break;
-			}
-
-			case GA_GO_HOME: {
-				TileEdge desired = GetGoHomeDirection(this->x_vox, this->y_vox, this->z_vox);
-				int selected = GetDesiredEdgeIndex(desired, exits);
-				if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
-				new_walk = walks[selected];
-				break;
-			}
-
-			case GA_ON_RIDE:
-				NOT_REACHED();
-
-			default:
-				new_walk = walks[this->rnd.Uniform(walk_count - 1)];
-				break;
-		}
+		new_walk = this->WalkForActivity(walks, walk_count, exits);
 	}
 
 	this->StartAnimation(new_walk);
@@ -756,6 +733,43 @@ void Guest::HandleParkExits(uint8 *exits, uint8 *shops)
 			}
 		}
 	}
+}
+
+/**
+ * Find new walk based on activity.
+ * @param walks Possible walks.
+ * @param walk_count Number of available walks.
+ * @param exits Valid exits for the walk.
+ * @return Walk info for the activity.
+ */
+const WalkInformation *Guest::WalkForActivity(const WalkInformation **walks, uint8 walk_count, uint8 exits)
+{
+	const WalkInformation *new_walk;
+	switch (this->activity) {
+		case GA_ENTER_PARK: { // Find the park entrance.
+			TileEdge desired = GetParkEntryDirection(this->x_vox, this->y_vox, this->z_vox);
+			int selected = GetDesiredEdgeIndex(desired, exits);
+			if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
+			new_walk = walks[selected];
+			break;
+		}
+
+		case GA_GO_HOME: {
+			TileEdge desired = GetGoHomeDirection(this->x_vox, this->y_vox, this->z_vox);
+			int selected = GetDesiredEdgeIndex(desired, exits);
+			if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
+			new_walk = walks[selected];
+			break;
+		}
+
+		case GA_ON_RIDE:
+			NOT_REACHED();
+
+		default:
+			new_walk = walks[this->rnd.Uniform(walk_count - 1)];
+			break;
+	}
+	return new_walk;
 }
 
 /**
