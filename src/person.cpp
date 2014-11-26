@@ -679,15 +679,7 @@ void Guest::DecideMoveDirection()
 		}
 	}
 
-	if (this->activity == GA_WANDER || this->activity == GA_QUEUING) { // Prevent wandering and queuing guests from walking out the park.
-		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
-			if (GB(exits, exit_edge, 1) == 0) continue;
-			if (_world.GetTileOwner(this->x_vox + _tile_dxy[exit_edge].x, this->y_vox + _tile_dxy[exit_edge].y) != OWN_PARK) {
-				SB(exits, exit_edge, 1, 0);
-				SB(shops, exit_edge, 1, 0);
-			}
-		}
-	}
+	this->HandleParkExits(&exits, &shops); // Handle guests trying to wander out.
 
 	/* Decide which direction to go. */
 	SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
@@ -746,6 +738,24 @@ void Guest::DecideMoveDirection()
 	}
 
 	this->StartAnimation(new_walk);
+}
+
+/**
+ * Prevent guests from wandering out of the park.
+ * @param exits [inout] Possible exits at the tile.
+ * @param shops [inout] Possible shops at the tile.
+ */
+void Guest::HandleParkExits(uint8 *exits, uint8 *shops)
+{
+	if (this->activity == GA_WANDER || this->activity == GA_QUEUING) { // Prevent wandering and queuing guests from walking out the park.
+		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+			if (GB(*exits, exit_edge, 1) == 0) continue;
+			if (_world.GetTileOwner(this->x_vox + _tile_dxy[exit_edge].x, this->y_vox + _tile_dxy[exit_edge].y) != OWN_PARK) {
+				SB(*exits, exit_edge, 1, 0);
+				SB(*shops, exit_edge, 1, 0);
+			}
+		}
+	}
 }
 
 /**

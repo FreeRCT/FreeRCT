@@ -35,6 +35,7 @@ AWaters1         GUI
 brianltacker     Coasters
 jjhdnd           GUI
 PovAddictW       FileIO
+sgtbigman        Staff
 stanekj          Rides
 tnt.freesoftware GUI
 ================ ========

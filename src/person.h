@@ -198,6 +198,7 @@ protected:
 	RideVisitDesire WantToVisit(const RideInstance *ri) override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
+	void HandleParkExits(uint8 *exits, uint8* shops);
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
 	void AddItem(ItemType it);
