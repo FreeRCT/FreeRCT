@@ -115,6 +115,15 @@ public:
 		return this->type != PERSON_INVALID;
 	}
 
+	/**
+	 * Test whether this person is a guest or not.
+	 * @return Whether the person is a guest.
+	 */
+	bool IsGuest() const
+	{
+		return this->type >= PERSON_MIN_GUEST && this->type <= PERSON_MAX_GUEST;
+	}
+
 	void SetName(const char *name);
 	const char *GetName() const;
 

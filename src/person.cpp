@@ -115,7 +115,7 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
  */
 void Person::SetName(const char *name)
 {
-	assert(PersonIsAGuest(this->type));
+	assert(this->IsGuest());
 
 	int length = strlen(name);
 	this->name = new char[length];
@@ -132,7 +132,7 @@ const char *Person::GetName() const
 {
 	static char buffer[16];
 
-	assert(PersonIsAGuest(this->type));
+	assert(this->IsGuest());
 	if (this->name != nullptr) return this->name;
 	sprintf(buffer, "Guest %u", this->id);
 	return buffer;
@@ -1109,7 +1109,7 @@ void Guest::ChangeHappiness(int16 amount)
  */
 bool Guest::DailyUpdate()
 {
-	assert(PersonIsAGuest(this->type));
+	assert(this->IsGuest());
 
 	/* Handle eating and drinking. */
 	bool eating = false;

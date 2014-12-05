@@ -60,16 +60,6 @@ inline const PersonTypeData &GetPersonTypeData(PersonType pt)
 	return ModifyPersonTypeData(pt);
 }
 
-/**
- * Function to decide whether a person type is a guest or not.
- * @param type %Person type to test.
- * @return Whether the given person type is a guest.
- */
-static inline bool PersonIsAGuest(uint8 type)
-{
-	return type >= PERSON_MIN_GUEST && type <= PERSON_MAX_GUEST;
-}
-
 bool LoadPRSG(RcdFileReader *rcd_file);
 
 #endif
