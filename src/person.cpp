@@ -985,6 +985,20 @@ RideVisitDesire Person::WantToVisit(const RideInstance *ri)
  * @return If \c false, de-activate the person.
  */
 
+/**
+ * @fn AnimateResult Person::EdgeOfWorldOnAnimate()
+ * Handle the case of a guest reaching the end of the game world.
+ * @return Result code of the visit.
+ */
+
+/**
+ * @fn AnimateResult Person::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
+ * Handle guest ride visiting.
+ * @param ri Ride that can be visited.
+ * @param exit_edge Exit edge being examined.
+ * @return Result code of the visit.
+ */
+
 Guest::Guest() : Person()
 {
 }
@@ -1039,10 +1053,6 @@ AnimateResult Guest::OnAnimate(int delay)
 	return this->Person::OnAnimate(delay);
 }
 
-/**
- * Handle the case of a guest reaching the end of the game world.
- * @return Result code of the visit.
- */
 AnimateResult Guest::EdgeOfWorldOnAnimate()
 {
 	/* If the guest ended up off-world, quit. */
@@ -1059,12 +1069,6 @@ AnimateResult Guest::EdgeOfWorldOnAnimate()
 	return OAR_CONTINUE;
 }
 
-/**
- * Handle guest ride visiting.
- * @param ri Ride that can be visited.
- * @param exit_edge Exit edge being examined.
- * @return Result code of the visit.
- */
 AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
 {
 	if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {

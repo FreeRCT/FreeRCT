@@ -67,6 +67,7 @@ struct GuestBatch {
 	void OnAnimate(int delay);
 };
 
+/** Class holding the guests of a ride as a number of batches with a size. */
 class OnRideGuests {
 public:
 	OnRideGuests(int batch_size = 0, int num_batches = 0);
