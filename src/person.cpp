@@ -679,7 +679,11 @@ void Guest::DecideMoveDirection()
 		}
 	}
 
-	this->HandleParkExits(&exits, &shops); // Handle guests trying to wander out.
+	if (this->activity == GA_WANDER || this->activity == GA_QUEUING) { // Prevent wandering and queuing guests from walking out the park.
+		uint8 exits_viable = this->GetInparkDirections();
+		exits &= exits_viable;
+		shops &= exits_viable;
+	}
 
 	/* Decide which direction to go. */
 	SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
@@ -718,21 +722,24 @@ void Guest::DecideMoveDirection()
 }
 
 /**
- * Prevent guests from wandering out of the park.
- * @param exits [inout] Possible exits at the tile.
- * @param shops [inout] Possible shops at the tile.
+ * Get the directions to neighboring tiles that lead to or stay in the park.
+ * @return Exits from the current tile that stay or lead into the park in the low nibble.
  */
-void Guest::HandleParkExits(uint8 *exits, uint8 *shops)
+uint8 Person::GetInparkDirections()
 {
-	if (this->activity == GA_WANDER || this->activity == GA_QUEUING) { // Prevent wandering and queuing guests from walking out the park.
-		for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
-			if (GB(*exits, exit_edge, 1) == 0) continue;
-			if (_world.GetTileOwner(this->x_vox + _tile_dxy[exit_edge].x, this->y_vox + _tile_dxy[exit_edge].y) != OWN_PARK) {
-				SB(*exits, exit_edge, 1, 0);
-				SB(*shops, exit_edge, 1, 0);
-			}
+	uint8 exits = 0;
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		Point16 dxy = _tile_dxy[exit_edge];
+
+		if (this->x_vox + dxy.x < 0 || this->x_vox + dxy.x >= _world.GetXSize()) continue;
+		if (this->y_vox + dxy.y < 0 || this->y_vox + dxy.y >= _world.GetYSize()) continue;
+
+		if (_world.GetTileOwner(this->x_vox + dxy.x, this->y_vox + dxy.y) == OWN_PARK) {
+			SB(exits, exit_edge, 1, 1);
 		}
 	}
+
+	return exits;
 }
 
 /**

@@ -143,6 +143,7 @@ protected:
 	char *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
 
 	TileEdge GetCurrentEdge() const;
+	uint8 GetInparkDirections();
 
 	virtual void DecideMoveDirection() = 0;
 	void StartAnimation(const WalkInformation *walk);
@@ -207,7 +208,6 @@ protected:
 	RideVisitDesire WantToVisit(const RideInstance *ri) override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
-	void HandleParkExits(uint8 *exits, uint8* shops);
 	const WalkInformation *WalkForActivity(const WalkInformation **walks, uint8 walk_count, uint8 exits);
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
