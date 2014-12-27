@@ -479,23 +479,12 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 	*queue_path = _sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH;
 	*seen_wanted_ride = false;
 
-	uint8 bot_exits = 0xF; // All exit directions at the bottom by default.
 	uint8 shops = 0;       // Number of exits with a shop with normal desire to go there.
-	uint8 top_exits = 0;   // Exits at the top of the voxel.
 	uint8 must_shops = 0;  // Shops with a high desire to visit.
 
-	uint8 slope = GetImplodedPathSlope(v);
-	if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
-		bot_exits &= _path_expand[slope] >> PATHBIT_NE; // Masks to exits only, as that's what 'bot_exits' contains here.
-	} else { // At a path ramp.
-		switch (slope) {
-			case PATH_RAMP_NE: bot_exits = 1 << EDGE_NE; top_exits = 1 << EDGE_SW; break;
-			case PATH_RAMP_NW: bot_exits = 1 << EDGE_NW; top_exits = 1 << EDGE_SE; break;
-			case PATH_RAMP_SE: bot_exits = 1 << EDGE_SE; top_exits = 1 << EDGE_NW; break;
-			case PATH_RAMP_SW: bot_exits = 1 << EDGE_SW; top_exits = 1 << EDGE_NE; break;
-			default: NOT_REACHED();
-		}
-	}
+	uint8 exits = GetPathExits(v);
+	uint8 bot_exits = exits & 0x0F; // Exits at the bottom of the voxel.
+	uint8 top_exits = (exits >> 4) & 0x0F; // Exits at the top of the voxel.
 
 	/* Being at a path tile, make extra sure we don't leave the path. */
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
