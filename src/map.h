@@ -536,7 +536,7 @@ public:
 	}
 
 	/**
-	 * Get X size of the world.
+	 * Get X voxel size of the world.
 	 * @return Length of the world in X direction.
 	 */
 	inline uint16 GetXSize() const
@@ -545,7 +545,7 @@ public:
 	}
 
 	/**
-	 * Get Y size of the world.
+	 * Get Y voxel size of the world.
 	 * @return Length of the world in Y direction.
 	 */
 	inline uint16 GetYSize() const
@@ -578,8 +578,8 @@ public:
 	void Load(Loader &ldr);
 
 private:
-	uint16 x_size; ///< Current max x size.
-	uint16 y_size; ///< Current max y size.
+	uint16 x_size; ///< Current max x size (in voxels).
+	uint16 y_size; ///< Current max y size (in voxels).
 
 	VoxelStack stacks[WORLD_X_SIZE * WORLD_Y_SIZE]; ///< All voxel stacks in the world.
 };
