@@ -86,16 +86,16 @@ Guests::~Guests()
 void Guests::Initialize()
 {
 	this->valid_ptypes = 0;
-	for (PersonType pertype = PERSON_MIN_GUEST; pertype <= PERSON_MAX_GUEST; pertype++) {
-		bool usable = true;
-		for (AnimationType antype = ANIM_BEGIN; antype <= ANIM_LAST; antype++) {
-			if (_sprite_manager.GetAnimation(antype, pertype) == nullptr) {
-				usable = false;
-				break;
-			}
+	PersonType pertype = PERSON_GUEST;
+	bool usable = true;
+
+	for (AnimationType antype = ANIM_BEGIN; antype <= ANIM_LAST; antype++) {
+		if (_sprite_manager.GetAnimation(antype, pertype) == nullptr) {
+			usable = false;
+			break;
 		}
-		if (usable) this->valid_ptypes |= 1u << (pertype - PERSON_MIN_GUEST);
 	}
+	if (usable) this->valid_ptypes |= 1u << (pertype - PERSON_ANY);
 }
 
 /**
@@ -105,8 +105,8 @@ void Guests::Initialize()
  */
 bool Guests::CanUsePersonType(PersonType ptype)
 {
-	if (ptype < PERSON_MIN_GUEST || ptype > PERSON_MAX_GUEST) return false;
-	return (this->valid_ptypes & (1 << (ptype - PERSON_MIN_GUEST))) != 0;
+	if (ptype != PERSON_GUEST) return false;
+	return (this->valid_ptypes & (1 << (ptype - PERSON_ANY))) != 0;
 }
 
 /**
@@ -196,7 +196,7 @@ void Guests::DoTick()
  */
 void Guests::OnNewDay()
 {
-	PersonType ptype = PERSON_PILLAR;
+	PersonType ptype = PERSON_GUEST;
 	if (!this->CanUsePersonType(ptype)) return;
 	if (this->CountActiveGuests() >= _scenario.max_guests) return;
 	if (!this->rnd.Success1024(_scenario.GetSpawnProbability(512))) return;

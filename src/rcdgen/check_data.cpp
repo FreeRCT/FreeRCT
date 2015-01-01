@@ -1071,12 +1071,15 @@ static std::shared_ptr<PRSGBlock> ConvertPRSGNode(std::shared_ptr<NodeGroup> ng)
 
 /** Symbols for an ANIM and ANSP blocks. */
 static const Symbol _anim_symbols[] = {
-	{"pillar",  8},
-	{"earth",  16},
-	{"walk_ne", 1}, // Walk in north-east direction.
-	{"walk_se", 2}, // Walk in south-east direction.
-	{"walk_sw", 3}, // Walk in south-west direction.
-	{"walk_nw", 4}, // Walk in north-west direction.
+	{"guest",        8},
+	{"handyman",    17},
+	{"mechanic",    18},
+	{"guard",       19},
+	{"entertainer", 20},
+	{"walk_ne",      1}, // Walk in north-east direction.
+	{"walk_se",      2}, // Walk in south-east direction.
+	{"walk_sw",      3}, // Walk in south-west direction.
+	{"walk_nw",      4}, // Walk in north-west direction.
 	{nullptr, 0}
 };
 
@@ -1501,8 +1504,11 @@ static std::shared_ptr<BitMask> ConvertBitMaskNode(std::shared_ptr<NodeGroup> ng
 
 /** Names of person types and colour ranges. */
 static const Symbol _person_graphics_symbols[] = {
-	{"pillar",  8},
-	{"earth",  16},
+	{"guest",        8},
+	{"handyman",    17},
+	{"mechanic",    18},
+	{"guard",       19},
+	{"entertainer", 20},
 	{"grey",         COL_GREY},
 	{"green_brown",  COL_GREEN_BROWN},
 	{"orange_brown", COL_ORANGE_BROWN},

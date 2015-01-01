@@ -493,7 +493,7 @@ bool PersonGraphics::AddRecolour(uint8 orig, uint32 replace)
 	return false;
 }
 
-PRSGBlock::PRSGBlock() : GameBlock("PRSG", 1)
+PRSGBlock::PRSGBlock() : GameBlock("PRSG", 2)
 {
 }
 

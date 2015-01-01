@@ -58,7 +58,7 @@ PersonTypeData &ModifyPersonTypeData(PersonType pt)
 bool LoadPRSG(RcdFileReader *rcd_file)
 {
 	uint32 length = rcd_file->size;
-	if (rcd_file->version != 1 || length < 1) return false;
+	if (rcd_file->version < 1 || rcd_file->version > 2 || length < 1) return false;
 	uint8 count = rcd_file->GetUInt8();
 	length--;
 
@@ -71,8 +71,12 @@ bool LoadPRSG(RcdFileReader *rcd_file)
 
 		PersonType pt;
 		switch (ps) {
-			case  8: pt = PERSON_PILLAR;  break;
-			case 16: pt = PERSON_EARTH;   break;
+			case  8:
+			case 16: pt = PERSON_GUEST; break;
+			case 17: pt = PERSON_HANDYMAN; break;
+			case 18: pt = PERSON_MECHANIC; break;
+			case 19: pt = PERSON_GUARD; break;
+			case 20: pt = PERSON_ENTERTAINER; break;
 			default: pt = PERSON_INVALID; break;
 		}
 

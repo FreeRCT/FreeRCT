@@ -19,15 +19,15 @@ class RcdFileReader;
 
 /** Types of persons. */
 enum PersonType {
-	PERSON_ANY    = 0, ///< No people displayed in the animation.
-	PERSON_PILLAR = 1, ///< %Guests from the planet of Pillars (test graphics).
-	PERSON_EARTH  = 2, ///< Earth-bound guests.
-	PERSON_TYPE_COUNT, ///< Number of known types of persons.
+	PERSON_ANY,         ///< No people displayed in the animation.
+	PERSON_GUEST,       ///< %Guests.
+	PERSON_HANDYMAN,    ///< %Staff handymen.
+	PERSON_MECHANIC,    ///< %Staff mechanics.
+	PERSON_GUARD,       ///< %Staff security guards.
+	PERSON_ENTERTAINER, ///< %Staff entertainers.
+	PERSON_TYPE_COUNT,  ///< Number of known types of persons.
 
 	PERSON_INVALID = 0xFF, ///< Invalid person type.
-
-	PERSON_MIN_GUEST = PERSON_ANY,   ///< First value of a guest.
-	PERSON_MAX_GUEST = PERSON_EARTH, ///< Last value of a guest.
 };
 DECLARE_POSTFIX_INCREMENT(PersonType)
 

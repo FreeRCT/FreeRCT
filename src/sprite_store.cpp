@@ -605,8 +605,12 @@ static PersonType DecodePersonType(uint8 pt)
 {
 	switch (pt) {
 		case  0: return PERSON_ANY;
-		case  8: return PERSON_PILLAR;
-		case 16: return PERSON_EARTH;
+		case  8:
+		case 16: return PERSON_GUEST;
+		case 17: return PERSON_HANDYMAN;
+		case 18: return PERSON_MECHANIC;
+		case 19: return PERSON_GUARD;
+		case 20: return PERSON_ENTERTAINER;
 		default: return PERSON_INVALID;
 	}
 }

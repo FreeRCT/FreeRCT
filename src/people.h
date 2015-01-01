@@ -60,6 +60,7 @@ protected:
 /**
  * All our guests.
  * @todo Allow to have several blocks of guests.
+ * @todo #valid_ptypes should be removed.
  */
 class Guests {
 public:
@@ -113,7 +114,7 @@ private:
 	void AddFree(Guest *g);
 	Guest *GetFree();
 };
-assert_compile(PERSON_MAX_GUEST - PERSON_MIN_GUEST + 1 <= 16); ///< Verify that all person types fit in #Guests::valid_ptypes
+assert_compile(PERSON_GUEST + 1 <= 16); ///< Verify that all person types fit in #Guests::valid_ptypes
 
 extern Guests _guests;
 

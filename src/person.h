@@ -121,7 +121,7 @@ public:
 	 */
 	bool IsGuest() const
 	{
-		return this->type >= PERSON_MIN_GUEST && this->type <= PERSON_MAX_GUEST;
+		return this->type == PERSON_GUEST;
 	}
 
 	void SetName(const char *name);

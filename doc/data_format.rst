@@ -1442,7 +1442,7 @@ Persons
 =======
 Persons are an important concept in the game. Their properties are defined in
 the game blocks below.
-FreeRCT can read blocks with version 1.
+FreeRCT can read blocks with version 1 or 2.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -1471,9 +1471,18 @@ Offset  Length  Description
 
 A person type defines the kind of persons:
 
-- *Any* (0) Any kind of person (eg persons are not shown).
-- *Pillar* (8) Guests from the Pillar Planet (test graphics).
-- *Earth* (16) Earth-bound persons.
+============  =====  =======  ============================================
+Name          Value  Version  Description
+============  =====  =======  ============================================
+Any             0      1-     Any kind of person (persons are not shown).
+Pillar          8      1-1    Guests from the Pillar planet (testing).
+Guest           8      2-     Guests.
+Earth          16      1-1    Earth-bound persons.
+Handyman       17      2-     Handymen.
+Mechanic       18      2-     Mechanics.
+Guard          19      2-     Security guards.
+Entertainer    20      2-     Entertainers.
+============  =====  =======  ============================================
 
 The *any* kind is used as fall back.
 
@@ -1490,6 +1499,8 @@ Version history
 ...............
 
 - 1 (20120708) Initial version.
+- 2 (20141230) Renamed type 'Pillar' to 'Guest', removed type 'Earth', and
+  added staff types (Handyman, Mechanic, Guard, Entertainer).
 
 
 Animation
