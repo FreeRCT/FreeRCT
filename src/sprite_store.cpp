@@ -1139,6 +1139,8 @@ void SpriteStorage::RemoveAnimations(AnimationType anim_type, PersonType pers_ty
 			++iter2;
 			this->animations.erase(iter);
 			iter = iter2;
+		} else {
+			++iter;
 		}
 	}
 }
