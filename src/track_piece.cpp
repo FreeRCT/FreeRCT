@@ -270,6 +270,7 @@ bool PositionedTrackPiece::CanBePlaced() const
 		if (_world.GetGroundHeight(part_pos.x, part_pos.y) > part_pos.z) return false;
 		const Voxel *vx = _world.GetVoxel(part_pos);
 		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
+		tvx++;
 	}
 	return true;
 }
