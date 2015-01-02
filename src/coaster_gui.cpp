@@ -1340,13 +1340,13 @@ void CoasterBuildMode::UpdateDisplay(bool mousepos_changed)
 			return;
 		}
 		/* Found ground, is the position the same? */
-		if (mousepos_changed && fdata.xvoxel == this->track_xpos && fdata.yvoxel == this->track_ypos && fdata.zvoxel == this->track_zpos) {
+		if (mousepos_changed && fdata.voxel_pos.x == this->track_xpos && fdata.voxel_pos.y == this->track_ypos && fdata.voxel_pos.z == this->track_zpos) {
 			return;
 		}
 
-		this->track_xpos = fdata.xvoxel;
-		this->track_ypos = fdata.yvoxel;
-		this->track_zpos = fdata.zvoxel;
+		this->track_xpos = fdata.voxel_pos.x;
+		this->track_ypos = fdata.voxel_pos.y;
+		this->track_zpos = fdata.voxel_pos.z;
 	}
 	_additions.Clear();
 	EnableWorldAdditions();

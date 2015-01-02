@@ -113,9 +113,7 @@ public:
 	GroundTilePart select;   ///< What part to select of a ground tile.
 
 	CursorType cursor;       ///< Type of cursor suggested.
-	uint16 xvoxel;           ///< X position of the voxel with the closest sprite.
-	uint16 yvoxel;           ///< Y position of the voxel with the closest sprite.
-	uint8  zvoxel;           ///< Z position of the voxel with the closest sprite.
+	XYZPoint16 voxel_pos;    ///< Position of the voxel with the closest sprite.
 	const Person *person;    ///< Found person, if any.
 	uint16 ride;             ///< Found ride instance, if any.
 };

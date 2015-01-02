@@ -1181,9 +1181,7 @@ PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp, f
 	this->pixel = _palette[0]; // 0 is transparent, and is not used in sprites.
 	this->fdata = fdata;
 
-	fdata->xvoxel = 0;
-	fdata->yvoxel = 0;
-	fdata->zvoxel = 0;
+	fdata->voxel_pos = XYZPoint16(0, 0, 0);
 	fdata->person = nullptr;
 	fdata->ride   = INVALID_RIDE_INSTANCE;
 }
@@ -1227,9 +1225,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			if (pixel != 0) {
 				this->found = true;
 				this->data = dd;
-				this->fdata->xvoxel = xpos;
-				this->fdata->yvoxel = ypos;
-				this->fdata->zvoxel = zpos;
+				this->fdata->voxel_pos.x = xpos;
+				this->fdata->voxel_pos.y = ypos;
+				this->fdata->voxel_pos.z = zpos;
 				this->pixel = pixel;
 			}
 		}
@@ -1250,9 +1248,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd[i];
-					this->fdata->xvoxel = xpos;
-					this->fdata->yvoxel = ypos;
-					this->fdata->zvoxel = zpos;
+					this->fdata->voxel_pos.x = xpos;
+					this->fdata->voxel_pos.y = ypos;
+					this->fdata->voxel_pos.z = zpos;
 					this->pixel = pixel;
 					this->fdata->ride = number;
 				}
@@ -1275,9 +1273,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
-				this->fdata->xvoxel = xpos;
-				this->fdata->yvoxel = ypos;
-				this->fdata->zvoxel = zpos;
+				this->fdata->voxel_pos.x = xpos;
+				this->fdata->voxel_pos.y = ypos;
+				this->fdata->voxel_pos.z = zpos;
 				this->pixel = pixel;
 			}
 		}
@@ -1297,9 +1295,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
-				this->fdata->xvoxel = xpos;
-				this->fdata->yvoxel = ypos;
-				this->fdata->zvoxel = zpos;
+				this->fdata->voxel_pos.x = xpos;
+				this->fdata->voxel_pos.y = ypos;
+				this->fdata->voxel_pos.z = zpos;
 				this->pixel = pixel;
 			}
 		}
@@ -1326,9 +1324,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd;
-					this->fdata->xvoxel = xpos;
-					this->fdata->yvoxel = ypos;
-					this->fdata->zvoxel = zpos;
+					this->fdata->voxel_pos.x = xpos;
+					this->fdata->voxel_pos.y = ypos;
+					this->fdata->voxel_pos.z = zpos;
 					this->pixel = pixel;
 					this->fdata->person = pers;
 				}

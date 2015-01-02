@@ -650,10 +650,10 @@ void TileTerraformMouseMode::SetCursors()
 	FinderData fdata(CS_GROUND, single ? FW_CORNER : FW_TILE);
 	if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
 		if (single) {
-			vp->tile_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel, fdata.cursor);
+			vp->tile_cursor.SetCursor(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z, fdata.cursor);
 			vp->area_cursor.SetInvalid();
 		} else {
-			Rectangle32 rect(fdata.xvoxel - this->xsize / 2, fdata.yvoxel - this->ysize / 2, this->xsize, this->ysize);
+			Rectangle32 rect(fdata.voxel_pos.x - this->xsize / 2, fdata.voxel_pos.y - this->ysize / 2, this->xsize, this->ysize);
 			vp->tile_cursor.SetInvalid();
 			vp->area_cursor.SetCursor(rect, CUR_TYPE_TILE);
 		}

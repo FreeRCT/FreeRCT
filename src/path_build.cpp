@@ -406,7 +406,7 @@ void PathBuildManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, co
 		if (this->state == PBS_WAIT_VOXEL) {
 			FinderData fdata((CS_GROUND | CS_PATH), FW_TILE);
 			if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
-				vp->tile_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel, fdata.cursor);
+				vp->tile_cursor.SetCursor(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z, fdata.cursor);
 			}
 		}
 	}
@@ -422,7 +422,7 @@ void PathBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 		} else {
 			FinderData fdata((CS_GROUND | CS_PATH), FW_TILE);
 			if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
-				this->TileClicked(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel);
+				this->TileClicked(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z);
 			}
 		}
 	}

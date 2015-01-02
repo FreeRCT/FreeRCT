@@ -73,7 +73,7 @@ void FenceBuildManager::SetCursors()
 	FinderData fdata(CS_GROUND_EDGE, FW_EDGE);
 	if (vp->ComputeCursorPosition(&fdata) != CS_NONE && fdata.cursor >= CUR_TYPE_EDGE_NE && fdata.cursor <= CUR_TYPE_EDGE_NW) {
 		TileEdge edge = (TileEdge)((uint8)fdata.cursor - (uint8)CUR_TYPE_EDGE_NE);
-		const Voxel *v = _world.GetVoxel(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel);
+		const Voxel *v = _world.GetVoxel(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z);
 		assert(v != nullptr);
 		TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
 		/*
@@ -85,7 +85,7 @@ void FenceBuildManager::SetCursors()
 		int32 extra_z = 0;
 		if ((slope & TSB_TOP) == 0 && IsRaisedEdge(edge, slope)) {
 			extra_z = 1;
-			v = _world.GetCreateVoxel(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel + extra_z, true);
+			v = _world.GetCreateVoxel(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z + extra_z, true);
 			assert(v != nullptr);
 		}
 		const SpriteStorage *ss = _sprite_manager.GetSprites(vp->tile_width);
@@ -98,7 +98,7 @@ void FenceBuildManager::SetCursors()
 		bool steep_lower_edge = (slope & TSB_STEEP) != 0 &&
 			(slope & (1 << edge)) == 0 &&
 			(slope & (1 << ((edge + 1) % 4))) == 0;
-		vp->edge_cursor.SetCursor(fdata.xvoxel, fdata.yvoxel, fdata.zvoxel + extra_z, fdata.cursor, sprite, steep_lower_edge ? vp->tile_height : 0);
+		vp->edge_cursor.SetCursor(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z + extra_z, fdata.cursor, sprite, steep_lower_edge ? vp->tile_height : 0);
 	}
 }
 
