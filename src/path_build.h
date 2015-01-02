@@ -82,7 +82,7 @@ private:
 	uint8 allowed_slopes;      ///< Allowed slope directions for the build direction.
 	TrackSlope selected_slope; ///< Last selected slope (#TSL_INVALID if none has been chosen).
 
-	void ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, uint8 *zpos);
+	XYZPoint16 ComputeArrowCursorPosition();
 	void ComputeWorldAdditions();
 	void MoveCursor(TileEdge edge, bool move_up);
 	void UpdateState();

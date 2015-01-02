@@ -562,30 +562,27 @@ void PathBuildManager::SelectMovement(bool move_forward)
 
 /**
  * Compute the voxel to display the arrow cursor.
- * @param xpos [out] Computed X position of the voxel that should contain the arrow cursor.
- * @param ypos [out] Computed Y position of the voxel that should contain the arrow cursor.
- * @param zpos [out] Computed Z position of the voxel that should contain the arrow cursor.
+ * @return Computed position of the voxel that should contain the arrow cursor.
  */
-void PathBuildManager::ComputeArrowCursorPosition(uint16 *xpos, uint16 *ypos, uint8 *zpos)
+XYZPoint16 PathBuildManager::ComputeArrowCursorPosition()
 {
 	assert(this->state > PBS_WAIT_ARROW && this->state <= PBS_WAIT_BUY);
 	assert(this->selected_arrow != INVALID_EDGE);
 
 	Point16 dxy = _tile_dxy[this->selected_arrow];
-	*xpos = this->xpos + dxy.x;
-	*ypos = this->ypos + dxy.y;
+	int xpos = this->xpos + dxy.x;
+	int ypos = this->ypos + dxy.y;
 
 	uint8 bit = 1 << this->selected_arrow;
-	*zpos = this->zpos;
+	int zpos = this->zpos;
 	if ((bit & this->allowed_arrows) == 0) { // Build direction is not at the bottom of the voxel.
 		assert(((bit << 4) &  this->allowed_arrows) != 0); // Should be available at the top of the voxel.
-		(*zpos)++;
+		zpos++;
 	}
 
 	/* Do some paranoia checking. */
-	assert(*xpos < _world.GetXSize());
-	assert(*ypos < _world.GetYSize());
-	assert(*zpos < WORLD_Z_SIZE);
+	assert(IsVoxelInsideWorld(xpos, ypos, zpos));
+	return XYZPoint16(xpos, ypos, zpos);
 }
 
 /** Compute the new contents of the voxel where the path should be added from the #_world. */
@@ -596,21 +593,19 @@ void PathBuildManager::ComputeWorldAdditions()
 
 	if (((1 << this->selected_slope) & this->allowed_slopes) == 0) return;
 
-	uint16 xpos, ypos;
-	uint8 zpos;
-	this->ComputeArrowCursorPosition(&xpos, &ypos, &zpos);
+	XYZPoint16 arrow_pos = this->ComputeArrowCursorPosition();
 	TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
 	switch (this->selected_slope) {
 		case TSL_DOWN:
-			BuildDownwardPath(XYZPoint16(xpos, ypos, zpos), edge, this->path_type, false);
+			BuildDownwardPath(arrow_pos, edge, this->path_type, false);
 			break;
 
 		case TSL_FLAT:
-			BuildFlatPath(XYZPoint16(xpos, ypos, zpos), this->path_type, false);
+			BuildFlatPath(arrow_pos, this->path_type, false);
 			break;
 
 		case TSL_UP:
-			BuildUpwardPath(XYZPoint16(xpos, ypos, zpos), edge, this->path_type, false);
+			BuildUpwardPath(arrow_pos, edge, this->path_type, false);
 			break;
 
 		default:
@@ -658,10 +653,8 @@ void PathBuildManager::UpdateState()
 	/* Set the arrow cursor. Note that display is controlled later. */
 	if (vp != nullptr) {
 		if (this->state > PBS_WAIT_ARROW && this->state <= PBS_WAIT_BUY) {
-			uint16 x_arrow, y_arrow;
-			uint8 z_arrow;
-			this->ComputeArrowCursorPosition(&x_arrow, &y_arrow, &z_arrow);
-			vp->arrow_cursor.SetCursor(XYZPoint16(x_arrow, y_arrow, z_arrow), (CursorType)(CUR_TYPE_ARROW_NE + this->selected_arrow));
+			XYZPoint16 arrow_pos = this->ComputeArrowCursorPosition();
+			vp->arrow_cursor.SetCursor(arrow_pos, (CursorType)(CUR_TYPE_ARROW_NE + this->selected_arrow));
 		} else {
 			vp->arrow_cursor.SetInvalid();
 		}
@@ -670,10 +663,8 @@ void PathBuildManager::UpdateState()
 	/* See whether the PBS_WAIT_SLOPE state can be left automatically. */
 	if (this->state == PBS_WAIT_SLOPE) {
 		/* Compute allowed slopes. */
-		uint16 x_arrow, y_arrow;
-		uint8 z_arrow;
-		this->ComputeArrowCursorPosition(&x_arrow, &y_arrow, &z_arrow);
-		this->allowed_slopes = CanBuildPathFromEdge(XYZPoint16(x_arrow, y_arrow, z_arrow), (TileEdge)((this->selected_arrow + 2) % 4));
+		XYZPoint16 arrow_pos = this->ComputeArrowCursorPosition();
+		this->allowed_slopes = CanBuildPathFromEdge(arrow_pos, (TileEdge)((this->selected_arrow + 2) % 4));
 
 		/* If a valid selection has been made, or if only one choice exists, take it. */
 		if (this->selected_slope != TSL_INVALID && ((1 << this->selected_slope) & this->allowed_slopes) != 0) {
