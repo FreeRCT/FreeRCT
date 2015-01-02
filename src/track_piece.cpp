@@ -245,12 +245,11 @@ PositionedTrackPiece::PositionedTrackPiece(const XYZPoint16 &vox_pos, ConstTrack
 bool PositionedTrackPiece::IsOnWorld() const
 {
 	assert(this->piece != nullptr);
-	if (!IsVoxelInsideWorld(this->base_voxel.x, this->base_voxel.y, this->base_voxel.z)) return false;
-	if (!IsVoxelInsideWorld(this->base_voxel.x + this->piece->exit_dx, this->base_voxel.y + this->piece->exit_dy,
-			this->base_voxel.z + this->piece->exit_dz)) return false;
+	if (!IsVoxelInsideWorld(this->base_voxel)) return false;
+	if (!IsVoxelInsideWorld(this->base_voxel + XYZPoint16(this->piece->exit_dx, this->piece->exit_dy, this->piece->exit_dz))) return false;
 	const TrackVoxel *tvx = this->piece->track_voxels;
 	for (int i = 0; i < this->piece->voxel_count; i++) {
-		if (!IsVoxelInsideWorld(this->base_voxel.x + tvx->dx, this->base_voxel.y + tvx->dy, this->base_voxel.z + tvx->dz)) return false;
+		if (!IsVoxelInsideWorld(this->base_voxel + XYZPoint16(tvx->dx, tvx->dy, tvx->dz))) return false;
 		tvx++;
 	}
 	return true;
@@ -268,7 +267,7 @@ bool PositionedTrackPiece::CanBePlaced() const
 	for (int i = 0; i < this->piece->voxel_count; i++) {
 		/* Is the voxel above ground level? */
 		if (_world.GetGroundHeight(this->base_voxel.x + tvx->dx, this->base_voxel.y + tvx->dy) > this->base_voxel.z + tvx->dz) return false;
-		const Voxel *vx = _world.GetVoxel(XYZPoint16(this->base_voxel.x + tvx->dx, this->base_voxel.y + tvx->dy, this->base_voxel.z + tvx->dz));
+		const Voxel *vx = _world.GetVoxel(this->base_voxel + XYZPoint16(tvx->dx, tvx->dy, tvx->dz));
 		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
 	}
 	return true;

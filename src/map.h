@@ -643,14 +643,12 @@ static inline bool IsVoxelstackInsideWorld(int x, int y)
 
 /**
  * Is the given world voxel coordinate within the world boundaries?
- * @param x X position of the voxel.
- * @param y Y position of the voxel.
- * @param z Z position of the voxel.
+ * @param vox Position of the voxel.
  * @return %Voxel coordinate is within world boundaries.
  */
-static inline bool IsVoxelInsideWorld(int x, int y, int z)
+static inline bool IsVoxelInsideWorld(const XYZPoint16 &vox)
 {
-	return z >= 0 && z < WORLD_Z_SIZE && IsVoxelstackInsideWorld(x, y);
+	return vox.z >= 0 && vox.z < WORLD_Z_SIZE && IsVoxelstackInsideWorld(vox.x, vox.y);
 }
 
 /**

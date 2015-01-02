@@ -293,9 +293,7 @@ public:
 	 */
 	inline XYZPoint16 GetEndXYZ() const
 	{
-		return XYZPoint16(this->base_voxel.x + this->piece->exit_dx,
-		                  this->base_voxel.y + this->piece->exit_dy,
-		                  this->base_voxel.z + this->piece->exit_dz);
+		return this->base_voxel + XYZPoint16(this->piece->exit_dx, this->piece->exit_dy, this->piece->exit_dz);
 	}
 
 	XYZPoint16 base_voxel; ///< Position (in voxels) of the entry point of the track piece.

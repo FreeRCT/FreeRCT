@@ -568,19 +568,17 @@ XYZPoint16 PathBuildManager::ComputeArrowCursorPosition()
 	assert(this->selected_arrow != INVALID_EDGE);
 
 	Point16 dxy = _tile_dxy[this->selected_arrow];
-	int xpos = this->pos.x + dxy.x;
-	int ypos = this->pos.y + dxy.y;
+	XYZPoint16 arr_pos = this->pos + XYZPoint16(dxy.x, dxy.y, 0);
 
 	uint8 bit = 1 << this->selected_arrow;
-	int zpos = this->pos.z;
 	if ((bit & this->allowed_arrows) == 0) { // Build direction is not at the bottom of the voxel.
 		assert(((bit << 4) &  this->allowed_arrows) != 0); // Should be available at the top of the voxel.
-		zpos++;
+		arr_pos.z++;
 	}
 
 	/* Do some paranoia checking. */
-	assert(IsVoxelInsideWorld(xpos, ypos, zpos));
-	return XYZPoint16(xpos, ypos, zpos);
+	assert(IsVoxelInsideWorld(arr_pos));
+	return arr_pos;
 }
 
 /** Compute the new contents of the voxel where the path should be added from the #_world. */
