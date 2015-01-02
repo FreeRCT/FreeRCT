@@ -18,7 +18,6 @@
  */
 template <typename CT>
 struct Point {
-
 	Point() = default;
 
 	/**
@@ -64,6 +63,61 @@ template <typename CT>
 inline bool operator==(const Point<CT> &p, const Point<CT> &q)
 {
 	return p.x == q.x && p.y == q.y;
+}
+
+/**
+ * Generic 3D point template.
+ * @tparam CT Type of the coordinates.
+ */
+template <typename CT>
+struct XYZPoint {
+	XYZPoint() = default;
+
+	/**
+	 * Constructor for creating a point at a given coordinate.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @param z Z coordinate.
+	 */
+	XYZPoint(CT x, CT y, CT z)
+	{
+		this->x = x;
+		this->y = y;
+		this->z = z;
+	}
+
+	typedef CT CoordType; ///< Type of the coordinate value.
+
+	CT x; ///< X coordinate.
+	CT y; ///< Y coordinate.
+	CT z; ///< Z coordinate.
+};
+
+typedef XYZPoint<int32> XYZPoint32; ///< 32 bit 3D point.
+typedef XYZPoint<int16> XYZPoint16; ///< 16 bit 3D point.
+
+/**
+ * Test for 3D point equality.
+ * @param p First point to compare.
+ * @param q Second point to compare.
+ * @return Points are logically equal (same x, y, and z position).
+ */
+template <typename CT>
+inline bool operator==(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
+{
+	return p.x == q.x && p.y == q.y && p.z == q.z;
+}
+
+/**
+ * Test for 3D point inequality.
+ * @param p First point to compare.
+ * @param q Second point to compare.
+ * @return Points are logically inequal (x, y, or z position is different).
+ */
+template <typename CT>
+inline bool operator!=(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
+{
+	return !(p == q);
 }
 
 /**
