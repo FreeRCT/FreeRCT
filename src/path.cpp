@@ -385,9 +385,7 @@ static int GetQuePathEdgeConnectCount(uint8 impl_slope)
 /**
  * Examine, and perhaps modify a neighbouring path edge or ride connection, to make it connect (or not if not \a add_edges)
  * to the centre examined tile.
- * @param xpos X coordinate of the neighbouring voxel.
- * @param ypos Y coordinate of the neighbouring voxel.
- * @param zpos Z coordinate of the neighbouring voxel.
+ * @param voxel_pos Coordinate of the neighbouring voxel.
  * @param use_additions Use #_additions rather than #_world.
  * @param edge Edge to examine, and/or connected to.
  * @param add_edges If set, add edges (else, remove them).
@@ -397,7 +395,7 @@ static int GetQuePathEdgeConnectCount(uint8 impl_slope)
  * @param dest_status [out] Status of the neighbouring path.
  * @return Neighbouring voxel was (logically) connected to the centre tile.
  */
-static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool use_additions, TileEdge edge, bool add_edges, bool at_bottom,
+static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, bool use_additions, TileEdge edge, bool add_edges, bool at_bottom,
 		Voxel **dest_voxel, uint16 *dest_inst_data, PathStatus *dest_status)
 {
 	Voxel *v;
@@ -407,9 +405,9 @@ static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool 
 	*dest_inst_data = PATH_INVALID;
 
 	if (use_additions) {
-		v = _additions.GetCreateVoxel(xpos, ypos, zpos, false);
+		v = _additions.GetCreateVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z, false);
 	} else {
-		v = _world.GetCreateVoxel(xpos, ypos, zpos, false);
+		v = _world.GetCreateVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z, false);
 	}
 	if (v == nullptr) return false;
 
@@ -448,21 +446,19 @@ static bool ExamineNeighbourPathEdge(uint16 xpos, uint16 ypos, uint8 zpos, bool 
 
 /**
  * Add edges of the neighbouring path tiles.
- * @param xpos X coordinate of the central voxel with a path tile.
- * @param ypos Y coordinate of the central voxel with a path tile.
- * @param zpos Z coordinate of the central voxel with a path tile.
+ * @param voxel_pos Coordinate of the central voxel with a path tile.
  * @param slope Imploded path slope of the central voxel.
  * @param dirs Edge directions to change (bitset of #TileEdge), usually #EDGE_ALL.
  * @param use_additions Use #_additions rather than #_world.
  * @param status Status of the path. #PAS_UNUSED means to remove the edges.
  * @return Updated (imploded) slope at the central voxel.
  */
-uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint8 dirs, bool use_additions, PathStatus status)
+uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, bool use_additions, PathStatus status)
 {
 	PathStatus ngb_status[4];    // Neighbour path status, #PAS_UNUSED means do not connect.
 	Voxel *ngb_voxel[4];         // Neighbour voxels with path, may be null if it doesn't need changing.
 	uint16 ngb_instance_data[4]; // New instance data, if the voxel exists.
-	uint8 ngb_zpos[4];           // Z coordinate of the neighbouring voxel.
+	XYZPoint16 ngb_pos[4];       // Coordinate of the neighbouring voxel.
 
 	std::fill_n(ngb_status, lengthof(ngb_status), PAS_UNUSED); // Clear path all statuses to prevent connecting to it if an edge is skipped.
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
@@ -476,20 +472,21 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 			}
 		}
 		Point16 dxy = _tile_dxy[edge];
-		if ((dxy.x < 0 && xpos == 0) || (dxy.x > 0 && xpos == _world.GetXSize() - 1)) continue;
-		if ((dxy.y < 0 && ypos == 0) || (dxy.y > 0 && ypos == _world.GetYSize() - 1)) continue;
+		ngb_pos[edge].x = voxel_pos.x + dxy.x;
+		ngb_pos[edge].y = voxel_pos.y + dxy.y;
+		if (!IsVoxelstackInsideWorld(ngb_pos[edge].x, ngb_pos[edge].y)) continue;
 
 		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
 		bool modified = false;
-		if (delta_z <= 0 || zpos < WORLD_Z_SIZE - 1) {
-			ngb_zpos[edge] = zpos + delta_z;
-			modified = ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, status != PAS_UNUSED, true,
+		if (delta_z <= 0 || voxel_pos.z < WORLD_Z_SIZE - 1) {
+			ngb_pos[edge].z = voxel_pos.z + delta_z;
+			modified = ExamineNeighbourPathEdge(ngb_pos[edge], use_additions, edge2, status != PAS_UNUSED, true,
 					&ngb_voxel[edge], &ngb_instance_data[edge], &ngb_status[edge]);
 		}
 		delta_z--;
-		if (!modified && (delta_z >= 0 || zpos > 0)) {
-			ngb_zpos[edge] = zpos + delta_z;
-			ExamineNeighbourPathEdge(xpos + dxy.x, ypos + dxy.y, zpos + delta_z, use_additions, edge2, status != PAS_UNUSED, false,
+		if (!modified && (delta_z >= 0 || voxel_pos.z > 0)) {
+			ngb_pos[edge].z = voxel_pos.z + delta_z;
+			ExamineNeighbourPathEdge(ngb_pos[edge], use_additions, edge2, status != PAS_UNUSED, false,
 					&ngb_voxel[edge], &ngb_instance_data[edge], &ngb_status[edge]);
 		}
 	}
@@ -502,7 +499,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, status != PAS_UNUSED);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(XYZPoint16(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]));
+						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
 			}
@@ -517,7 +514,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(XYZPoint16(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]));
+						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
 			}
@@ -529,7 +526,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(XYZPoint16(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]));
+						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
 			}

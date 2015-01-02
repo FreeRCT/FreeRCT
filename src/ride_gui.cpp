@@ -491,7 +491,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			vx->SetInstance((SmallRideInstance)this->instance);
 			uint8 entrances = si->GetEntranceDirections(si->xpos, si->ypos, si->zpos);
 			vx->SetInstanceData(entrances);
-			AddRemovePathEdges(si->xpos, si->ypos, si->zpos, PATH_EMPTY, entrances, true, PAS_QUEUE_PATH);
+			AddRemovePathEdges(XYZPoint16(si->xpos, si->ypos, si->zpos), PATH_EMPTY, entrances, true, PAS_QUEUE_PATH);
 			_additions.MarkDirty(vp);
 			vp->EnsureAdditionsAreVisible();
 			this->state = SPS_GOOD_POS;
