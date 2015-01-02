@@ -467,7 +467,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 	Point32 wxy = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 
 	/* Clean current display if needed. */
-	switch (this->ComputeShopVoxel(wxy.x, wxy.y, vp->zview)) {
+	switch (this->ComputeShopVoxel(wxy.x, wxy.y, vp->view_pos.z)) {
 		case RPR_FAIL:
 			if (this->state == SPS_BAD_POS) return; // Nothing to do.
 			_additions.MarkDirty(vp);

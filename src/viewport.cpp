@@ -187,10 +187,7 @@ public:
 		return ComputeYFunction(x, y, z, this->orient, this->tile_width, this->tile_height);
 	}
 
-	int32 xview; ///< X position of the centre point of the display.
-	int32 yview; ///< Y position of the centre point of the display.
-	int32 zview; ///< Z position of the centre point of the display.
-
+	XYZPoint32 view_pos;          ///< Position of the centre point of the display.
 	uint16 tile_width;            ///< Width of a tile.
 	uint16 tile_height;           ///< Height of a tile.
 	ViewOrientation orient;       ///< Direction of view.
@@ -213,15 +210,13 @@ protected:
 
 	/**
 	 * Handle a voxel that should be collected.
-	 * @param vx   %Voxel to add, \c nullptr means 'cursor above stack'.
-	 * @param xpos X world position.
-	 * @param ypos Y world position.
-	 * @param zpos Z world position.
+	 * @param vx %Voxel to add, \c nullptr means 'cursor above stack'.
+	 * @param view_pos World position.
 	 * @param xnorth X coordinate of the north corner at the display.
 	 * @param ynorth y coordinate of the north corner at the display.
 	 * @note Implement in a derived class.
 	 */
-	virtual void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) = 0;
+	virtual void CollectVoxel(const Voxel *vx, const XYZPoint16 &view_pos, int32 xnorth, int32 ynorth) = 0;
 };
 
 /**
@@ -274,7 +269,7 @@ public:
 	bool enable_cursors; ///< Enable cursor drawing.
 
 protected:
-	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) override;
+	void CollectVoxel(const Voxel *vx, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth) override;
 	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
 	const ImageData *GetCursorSpriteAtPos(uint16 xpos, uint16 ypos, uint8 zpos, uint8 tslope, uint8 &yoffset);
 
@@ -301,7 +296,7 @@ public:
 	FinderData *fdata;       ///< Finder data to return.
 
 protected:
-	void CollectVoxel(const Voxel *vx, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth) override;
+	void CollectVoxel(const Voxel *vx, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth) override;
 };
 
 /**
@@ -313,9 +308,7 @@ protected:
 VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
 {
 	this->vp = vp;
-	this->xview = vp->xview;
-	this->yview = vp->yview;
-	this->zview = vp->zview;
+	this->view_pos = vp->view_pos;
 	this->tile_width = vp->tile_width;
 	this->tile_height = vp->tile_height;
 	this->orient = vp->orientation;
@@ -331,7 +324,7 @@ VoxelCollector::~VoxelCollector()
 }
 
 /**
- * Set screen area of interest (relative to the (#xview, #yview, and #zview position).
+ * Set screen area of interest (relative to the (#voxel_pos position).
  * @param xpos Horizontal position of the top-left corner.
  * @param ypos Vertical position of the top-left corner.
  * @param width Width of the area.
@@ -339,8 +332,8 @@ VoxelCollector::~VoxelCollector()
  */
 void VoxelCollector::SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height)
 {
-	this->rect.base.x = this->ComputeX(this->xview, this->yview) + xpos;
-	this->rect.base.y = this->ComputeY(this->xview, this->yview, this->zview) + ypos;
+	this->rect.base.x = this->ComputeX(this->view_pos.x, this->view_pos.y) + xpos;
+	this->rect.base.y = this->ComputeY(this->view_pos.x, this->view_pos.y, this->view_pos.z) + ypos;
 	this->rect.width = width;
 	this->rect.height = height;
 }
@@ -370,7 +363,7 @@ void VoxelCollector::Collect(bool use_additions)
 				if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
 				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
 
-				this->CollectVoxel(&stack->voxels[count], xpos, ypos, zpos, north_x, north_y);
+				this->CollectVoxel(&stack->voxels[count], XYZPoint16(xpos, ypos, zpos), north_x, north_y);
 			}
 			/* Possibly cursors should be drawn above this. */
 			if (this->draw_above_stack) {
@@ -380,7 +373,7 @@ void VoxelCollector::Collect(bool use_additions)
 					if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
 					if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
 
-					this->CollectVoxel(nullptr, xpos, ypos, zpos, north_x, north_y);
+					this->CollectVoxel(nullptr, XYZPoint16(xpos, ypos, zpos), north_x, north_y);
 				}
 			}
 		}
@@ -866,31 +859,29 @@ static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrienta
 /**
  * Add all sprites of the voxel to the set of sprites to draw.
  * @param voxel %Voxel to add, \c nullptr means 'cursor above stack'.
- * @param xpos X world position.
- * @param ypos Y world position.
- * @param zpos Z world position.
+ * @param voxel_pos World position.
  * @param xnorth X coordinate of the north corner at the display.
  * @param ynorth y coordinate of the north corner at the display.
  * @todo Can we gain time by checking for cursors once at every voxel stack, and only test every \a zpos when there is one in a stack?
  */
-void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth)
+void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth)
 {
 	int32 slice;
 	switch (this->orient) {
-		case 0: slice =  xpos + ypos; break;
-		case 1: slice =  xpos - ypos; break;
-		case 2: slice = -xpos - ypos; break;
-		case 3: slice = -xpos + ypos; break;
+		case 0: slice =  voxel_pos.x + voxel_pos.y; break;
+		case 1: slice =  voxel_pos.x - voxel_pos.y; break;
+		case 2: slice = -voxel_pos.x - voxel_pos.y; break;
+		case 3: slice = -voxel_pos.x + voxel_pos.y; break;
 		default: NOT_REACHED();
 	}
 
 	if (voxel == nullptr) { // Draw cursor above stack.
 		uint8 yoffset = 0;
-		const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, SL_FLAT, yoffset);
+		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos.x, voxel_pos.y, voxel_pos.z, SL_FLAT, yoffset);
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
-			dd.z_height = zpos;
+			dd.z_height = voxel_pos.z;
 			dd.order = SO_CURSOR;
 			dd.sprite = mspr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
@@ -907,7 +898,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		DrawData dd;
 		dd.level = slice;
-		dd.z_height = zpos;
+		dd.z_height = voxel_pos.z;
 		dd.order = SO_PATH;
 		platform_shape = _path_rotation[GetImplodedPathSlope(instance_data)][this->orient];
 		dd.sprite = this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient);
@@ -917,7 +908,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		this->draw_images.insert(dd);
 	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
 		DrawData dd[4];
-		int count = DrawRide(slice, zpos,
+		int count = DrawRide(slice, voxel_pos.z,
 				this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
 				this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) this->draw_images.insert(dd[i]);
@@ -940,7 +931,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			if (img != nullptr) {
 				DrawData dd;
 				dd.level = slice;
-				dd.z_height = zpos;
+				dd.z_height = voxel_pos.z;
 				dd.order = SO_FOUNDATION;
 				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
@@ -954,7 +945,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			if (img != nullptr) {
 				DrawData dd;
 				dd.level = slice;
-				dd.z_height = zpos;
+				dd.z_height = voxel_pos.z;
 				dd.order = SO_FOUNDATION;
 				dd.sprite = img;
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
@@ -970,7 +961,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 	if (voxel->GetGroundType() != GTP_INVALID) {
 		DrawData dd;
 		dd.level = slice;
-		dd.z_height = zpos;
+		dd.z_height = voxel_pos.z;
 		dd.order = SO_GROUND;
 		uint8 slope = voxel->GetGroundSlope();
 		dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), slope, this->orient);
@@ -1014,7 +1005,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		if (fence_type != FENCE_TYPE_INVALID) {
 			DrawData dd;
 			dd.level = slice;
-			dd.z_height = zpos;
+			dd.z_height = voxel_pos.z;
 			dd.order = (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT;
 			TileSlope slope = ExpandTileSlope(voxel->GetGroundSlope());
 			dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, slope, this->orient);
@@ -1037,11 +1028,11 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 
 	/* Sprite cursor (arrow) */
 	uint8 cursor_yoffset = 0;
-	const ImageData *mspr = this->GetCursorSpriteAtPos(xpos, ypos, zpos, gslope, cursor_yoffset);
+	const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos.x, voxel_pos.y, voxel_pos.z, gslope, cursor_yoffset);
 	if (mspr != nullptr) {
 		DrawData dd;
 		dd.level = slice;
-		dd.z_height = zpos;
+		dd.z_height = voxel_pos.z;
 		dd.order = SO_CURSOR;
 		dd.sprite = mspr;
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
@@ -1064,7 +1055,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		if (pl_spr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
-			dd.z_height = zpos;
+			dd.z_height = voxel_pos.z;
 			dd.order = SO_PLATFORM;
 			dd.sprite = pl_spr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
@@ -1079,11 +1070,11 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 		uint16 height = this->ground_height;
 		this->ground_height = -1;
 		uint8 slope = this->ground_slope;
-		while (height < zpos) {
-			int yoffset = (zpos - height) * this->vp->tile_height; // Compensate y position of support.
+		while (height < voxel_pos.z) {
+			int yoffset = (voxel_pos.z - height) * this->vp->tile_height; // Compensate y position of support.
 			uint sprnum;
 			if (slope == SL_FLAT) {
-				if (height + 1 < zpos) {
+				if (height + 1 < voxel_pos.z) {
 					sprnum = SSP_FLAT_DOUBLE_NS + (this->orient & 1);
 					height += 2;
 				} else {
@@ -1123,7 +1114,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int z
 			int x_off = ComputeX(vo->x_pos, vo->y_pos);
 			int y_off = ComputeY(vo->x_pos, vo->y_pos, vo->z_pos);
 			dd.level = slice;
-			dd.z_height = zpos;
+			dd.z_height = voxel_pos.z;
 			dd.order = SO_PERSON;
 			dd.sprite = anim_spr;
 			dd.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
@@ -1178,20 +1169,18 @@ PixelFinder::~PixelFinder()
 /**
  * Find the closest sprite.
  * @param voxel %Voxel to examine, \c nullptr means 'cursor above stack'.
- * @param xpos X world position.
- * @param ypos Y world position.
- * @param zpos Z world position.
+ * @param voxel_pos World position.
  * @param xnorth X coordinate of the north corner at the display.
  * @param ynorth y coordinate of the north corner at the display.
  */
-void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos, int32 xnorth, int32 ynorth)
+void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth)
 {
 	int32 slice;
 	switch (this->orient) {
-		case 0: slice =  xpos + ypos; break;
-		case 1: slice =  xpos - ypos; break;
-		case 2: slice = -xpos - ypos; break;
-		case 3: slice = -xpos + ypos; break;
+		case 0: slice =  voxel_pos.x + voxel_pos.y; break;
+		case 1: slice =  voxel_pos.x - voxel_pos.y; break;
+		case 2: slice = -voxel_pos.x - voxel_pos.y; break;
+		case 3: slice = -voxel_pos.x + voxel_pos.y; break;
 		default: NOT_REACHED();
 	}
 	/* Looking for surface edge? */
@@ -1199,7 +1188,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_EDGE_TEST, voxel->GetGroundSlope(), this->orient);
 		DrawData dd;
 		dd.level = slice;
-		dd.z_height = zpos;
+		dd.z_height = voxel_pos.z;
 		dd.order = SO_GROUND_EDGE;
 		dd.sprite = nullptr;
 		dd.base.x = this->rect.base.x - xnorth;
@@ -1210,9 +1199,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			if (pixel != 0) {
 				this->found = true;
 				this->data = dd;
-				this->fdata->voxel_pos.x = xpos;
-				this->fdata->voxel_pos.y = ypos;
-				this->fdata->voxel_pos.z = zpos;
+				this->fdata->voxel_pos = voxel_pos;
 				this->pixel = pixel;
 			}
 		}
@@ -1224,7 +1211,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 	if ((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) {
 		/* Looking for a ride? */
 		DrawData dd[4];
-		int count = DrawRide(slice, zpos, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
+		int count = DrawRide(slice, voxel_pos.z, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
 				this->orient, number, voxel->GetInstanceData(), dd, nullptr);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
@@ -1233,9 +1220,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd[i];
-					this->fdata->voxel_pos.x = xpos;
-					this->fdata->voxel_pos.y = ypos;
-					this->fdata->voxel_pos.z = zpos;
+					this->fdata->voxel_pos = voxel_pos;
 					this->pixel = pixel;
 					this->fdata->ride = number;
 				}
@@ -1247,7 +1232,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		const ImageData *img = this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient);
 		DrawData dd;
 		dd.level = slice;
-		dd.z_height = zpos;
+		dd.z_height = voxel_pos.z;
 		dd.order = SO_PATH;
 		dd.sprite = nullptr;
 		dd.base.x = this->rect.base.x - xnorth;
@@ -1258,9 +1243,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
-				this->fdata->voxel_pos.x = xpos;
-				this->fdata->voxel_pos.y = ypos;
-				this->fdata->voxel_pos.z = zpos;
+				this->fdata->voxel_pos = voxel_pos;
 				this->pixel = pixel;
 			}
 		}
@@ -1269,7 +1252,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 		const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
 		DrawData dd;
 		dd.level = slice;
-		dd.z_height = zpos;
+		dd.z_height = voxel_pos.z;
 		dd.order = SO_GROUND;
 		dd.sprite = nullptr;
 		dd.base.x = this->rect.base.x - xnorth;
@@ -1280,9 +1263,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
-				this->fdata->voxel_pos.x = xpos;
-				this->fdata->voxel_pos.y = ypos;
-				this->fdata->voxel_pos.z = zpos;
+				this->fdata->voxel_pos = voxel_pos;
 				this->pixel = pixel;
 			}
 		}
@@ -1298,7 +1279,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
 			DrawData dd;
 			dd.level = slice;
-			dd.z_height = zpos;
+			dd.z_height = voxel_pos.z;
 			dd.order = SO_PERSON;
 			dd.sprite = nullptr;
 			dd.base.x = this->rect.base.x - xnorth - x_off;
@@ -1309,9 +1290,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd;
-					this->fdata->voxel_pos.x = xpos;
-					this->fdata->voxel_pos.y = ypos;
-					this->fdata->voxel_pos.z = zpos;
+					this->fdata->voxel_pos = voxel_pos;
 					this->pixel = pixel;
 					this->fdata->person = pers;
 				}
@@ -1323,16 +1302,11 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, int xpos, int ypos, int zpos,
 
 /**
  * %Viewport constructor.
- * @param xview X pixel position of the center viewpoint of the main display.
- * @param yview Y pixel position of the center viewpoint of the main display.
- * @param zview Z pixel position of the center viewpoint of the main display.
+ * @param view_pos Pixel position of the center viewpoint of the main display.
  */
-Viewport::Viewport(uint32 xview, uint32 yview, uint32 zview) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), area_cursor(this), edge_cursor(this)
+Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), area_cursor(this), edge_cursor(this)
 {
-	this->xview = xview;
-	this->yview = yview;
-	this->zview = zview;
-
+	this->view_pos = view_pos;
 	this->tile_width  = 64;
 	this->tile_height = 16;
 	this->orientation = VOR_NORTH;
@@ -1444,8 +1418,8 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 	Rectangle32 rect;
 	const Point16 *pt;
 
-	int32 center_x = this->ComputeX(this->xview, this->yview) - this->rect.base.x - this->rect.width / 2;
-	int32 center_y = this->ComputeY(this->xview, this->yview, this->zview) - this->rect.base.y - this->rect.height / 2;
+	int32 center_x = this->ComputeX(this->view_pos.x, this->view_pos.y) - this->rect.base.x - this->rect.width / 2;
+	int32 center_y = this->ComputeY(this->view_pos.x, this->view_pos.y, this->view_pos.z) - this->rect.base.y - this->rect.height / 2;
 
 	pt = &_corner_dxy[this->orientation];
 	rect.base.y = this->ComputeY((xpos + pt->x) * 256, (ypos + pt->y) * 256, (zpos + height) * 256) - center_y;
@@ -1535,23 +1509,23 @@ Point32 Viewport::ComputeHorizontalTranslation(int dx, int dy)
 	Point32 new_xy;
 	switch (this->orientation) {
 		case VOR_NORTH:
-			new_xy.x = this->xview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			new_xy.y = this->yview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.y = this->view_pos.y - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
 			break;
 
 		case VOR_EAST:
-			new_xy.x = this->xview - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			new_xy.y = this->yview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.y = this->view_pos.y - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
 			break;
 
 		case VOR_SOUTH:
-			new_xy.x = this->xview - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			new_xy.y = this->yview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.y = this->view_pos.y + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
 			break;
 
 		case VOR_WEST:
-			new_xy.x = this->xview + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			new_xy.y = this->yview + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.y = this->view_pos.y + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
 			break;
 
 		default:
@@ -1572,9 +1546,9 @@ void Viewport::MoveViewport(int dx, int dy)
 	Point32 new_xy = this->ComputeHorizontalTranslation(dx, dy);
 	int32 new_x = Clamp<int32>(new_xy.x, 0, _world.GetXSize() * 256 - 1);
 	int32 new_y = Clamp<int32>(new_xy.y, 0, _world.GetYSize() * 256 - 1);
-	if (new_x != this->xview || new_y != this->yview) {
-		this->xview = new_x;
-		this->yview = new_y;
+	if (new_x != this->view_pos.x || new_y != this->view_pos.y) {
+		this->view_pos.x = new_x;
+		this->view_pos.y = new_y;
 		this->MarkDirty();
 	}
 }
@@ -1776,14 +1750,12 @@ ViewportMouseMode MouseModes::GetMouseMode()
 
 /**
  * Open the main isometric display window.
- * @param xview X pixel position of the center viewpoint of the main display.
- * @param yview Y pixel position of the center viewpoint of the main display.
- * @param zview Z pixel position of the center viewpoint of the main display.
+ * @param view_pos Pixel position of the center viewpoint of the main display.
  * @ingroup viewport_group
  */
-void ShowMainDisplay(uint32 xview, uint32 yview, uint32 zview)
+void ShowMainDisplay(const XYZPoint32 &view_pos)
 {
-	new Viewport(xview, yview, zview);
+	new Viewport(view_pos);
 	_mouse_modes.SetViewportMousemode();
 }
 

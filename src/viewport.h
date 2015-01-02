@@ -219,7 +219,7 @@ public:
  */
 class Viewport : public Window {
 public:
-	Viewport(uint32 xview, uint32 yview, uint32 zview);
+	Viewport(const XYZPoint32 &view_pos);
 	~Viewport();
 
 	void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height = 0);
@@ -240,10 +240,7 @@ public:
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 
-	int32 xview; ///< X position of the centre point of the viewport.
-	int32 yview; ///< Y position of the centre point of the viewport.
-	int32 zview; ///< Z position of the centre point of the viewport.
-
+	XYZPoint32 view_pos;         ///< Position of the centre point of the viewport.
 	uint16 tile_width;           ///< Width of a tile.
 	uint16 tile_height;          ///< Height of a tile.
 	ViewOrientation orientation; ///< Direction of view.

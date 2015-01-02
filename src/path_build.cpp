@@ -816,12 +816,12 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 		/* X constant. */
 		vx /= 256;
 		vy = Clamp<int32>(mousexy.y + c1 * lambda_x, 0, _world.GetYSize() * 256 - 1) / 256;
-		vz = Clamp<int32>(vp->zview + c3 * lambda_x, 0, WORLD_Z_SIZE * 256 - 1) / 256;
+		vz = Clamp<int32>(vp->view_pos.z + c3 * lambda_x, 0, WORLD_Z_SIZE * 256 - 1) / 256;
 	} else {
 		/* Y constant. */
 		vx = Clamp<int32>(mousexy.x + c1 * lambda_y, 0, _world.GetXSize() * 256 - 1) / 256;
 		vy /= 256;
-		vz = Clamp<int32>(vp->zview + c2 * lambda_y, 0, WORLD_Z_SIZE * 256 - 1) / 256;
+		vz = Clamp<int32>(vp->view_pos.z + c2 * lambda_y, 0, WORLD_Z_SIZE * 256 - 1) / 256;
 	}
 
 	if (this->xlong != vx || this->ylong != vy || this->zlong != vz) {

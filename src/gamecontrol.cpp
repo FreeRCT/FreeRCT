@@ -41,11 +41,8 @@ void StartNewGame()
 
 	_game_mode_mgr.SetGameMode(GM_PLAY);
 
-	uint32 xview = _world.GetXSize() * 256 / 2;
-	uint32 yview = _world.GetYSize() * 256 / 2;
-	uint32 zview = 8 * 256;
-
-	ShowMainDisplay(xview, yview, zview);
+	XYZPoint32 view_pos(_world.GetXSize() * 256 / 2, _world.GetYSize() * 256 / 2, 8 * 256);
+	ShowMainDisplay(view_pos);
 	ShowToolbar();
 	ShowBottomToolbar();
 }
