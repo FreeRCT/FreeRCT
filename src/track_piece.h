@@ -49,10 +49,8 @@ struct TrackVoxel {
 
 	ImageData *back[4];  ///< Reference to the background tracks (N/E/S/W view).
 	ImageData *front[4]; ///< Reference to the front tracks (N/E/S/W view).
-	int8 dx;     ///< Relative X position of the voxel.
-	int8 dy;     ///< Relative Y position of the voxel.
-	int8 dz;     ///< Relative Z position of the voxel.
-	uint8 flags; ///< Flags of the voxel (space requirements, platform direction).
+	XYZPoint16 dxyz;     ///< Relative position of the voxel.
+	uint8 flags;         ///< Flags of the voxel (space requirements, platform direction).
 };
 
 /** Banking of the track piece. */
@@ -170,9 +168,7 @@ public:
 
 	uint8 entry_connect;      ///< Entry connection code
 	uint8 exit_connect;       ///< Exit connection code
-	int8 exit_dx;             ///< Relative X position of the exit voxel.
-	int8 exit_dy;             ///< Relative Y position of the exit voxel.
-	int8 exit_dz;             ///< Relative Z position of the exit voxel.
+	XYZPoint16 exit_dxyz;     ///< Relative position of the exit voxel.
 	int8 speed;               ///< If non-zero, the minimal speed of cars at the track.
 	uint16 track_flags;       ///< Flags of the track piece.
 	Money cost;               ///< Cost of this track piece.
@@ -293,7 +289,7 @@ public:
 	 */
 	inline XYZPoint16 GetEndXYZ() const
 	{
-		return this->base_voxel + XYZPoint16(this->piece->exit_dx, this->piece->exit_dy, this->piece->exit_dz);
+		return this->base_voxel + this->piece->exit_dxyz;
 	}
 
 	XYZPoint16 base_voxel; ///< Position (in voxels) of the entry point of the track piece.

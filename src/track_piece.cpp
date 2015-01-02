@@ -42,9 +42,9 @@ bool TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sp
 	for (uint i = 0; i < 4; i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->front[i])) return false;
 	}
-	this->dx = rcd_file->GetInt8();
-	this->dy = rcd_file->GetInt8();
-	this->dz = rcd_file->GetInt8();
+	this->dxyz.x = rcd_file->GetInt8();
+	this->dxyz.y = rcd_file->GetInt8();
+	this->dxyz.z = rcd_file->GetInt8();
 	this->flags = rcd_file->GetUInt8();
 	return true;
 }
@@ -196,9 +196,9 @@ bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	this->entry_connect = rcd_file->GetUInt8();
 	this->exit_connect  = rcd_file->GetUInt8();
-	this->exit_dx = rcd_file->GetInt8();
-	this->exit_dy = rcd_file->GetInt8();
-	this->exit_dz = rcd_file->GetInt8();
+	this->exit_dxyz.x = rcd_file->GetInt8();
+	this->exit_dxyz.y = rcd_file->GetInt8();
+	this->exit_dxyz.z = rcd_file->GetInt8();
 	this->speed   = rcd_file->GetInt8();
 	this->track_flags = rcd_file->GetUInt16();
 	this->cost = rcd_file->GetUInt32();
@@ -246,10 +246,10 @@ bool PositionedTrackPiece::IsOnWorld() const
 {
 	assert(this->piece != nullptr);
 	if (!IsVoxelInsideWorld(this->base_voxel)) return false;
-	if (!IsVoxelInsideWorld(this->base_voxel + XYZPoint16(this->piece->exit_dx, this->piece->exit_dy, this->piece->exit_dz))) return false;
+	if (!IsVoxelInsideWorld(this->GetEndXYZ())) return false;
 	const TrackVoxel *tvx = this->piece->track_voxels;
 	for (int i = 0; i < this->piece->voxel_count; i++) {
-		if (!IsVoxelInsideWorld(this->base_voxel + XYZPoint16(tvx->dx, tvx->dy, tvx->dz))) return false;
+		if (!IsVoxelInsideWorld(this->base_voxel + tvx->dxyz)) return false;
 		tvx++;
 	}
 	return true;
@@ -266,8 +266,9 @@ bool PositionedTrackPiece::CanBePlaced() const
 	const TrackVoxel *tvx = this->piece->track_voxels;
 	for (int i = 0; i < this->piece->voxel_count; i++) {
 		/* Is the voxel above ground level? */
-		if (_world.GetGroundHeight(this->base_voxel.x + tvx->dx, this->base_voxel.y + tvx->dy) > this->base_voxel.z + tvx->dz) return false;
-		const Voxel *vx = _world.GetVoxel(this->base_voxel + XYZPoint16(tvx->dx, tvx->dy, tvx->dz));
+		const XYZPoint16 part_pos = this->base_voxel + tvx->dxyz;
+		if (_world.GetGroundHeight(part_pos.x, part_pos.y) > part_pos.z) return false;
+		const Voxel *vx = _world.GetVoxel(part_pos);
 		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
 	}
 	return true;

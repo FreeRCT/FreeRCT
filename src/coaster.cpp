@@ -787,7 +787,7 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 	const CoasterType *ct = this->GetCoasterType();
 	const TrackVoxel *tvx = placed.piece->track_voxels;
 	for (int i = 0; i < placed.piece->voxel_count; i++) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + XYZPoint16(tvx->dx, tvx->dy, tvx->dz), true);
+		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
 		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
@@ -803,7 +803,7 @@ void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &pl
 {
 	const TrackVoxel *tvx = placed.piece->track_voxels;
 	for (int i = 0; i < placed.piece->voxel_count; i++) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + XYZPoint16(tvx->dx, tvx->dy, tvx->dz), false);
+		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, false);
 		assert(vx->GetInstance() == (SmallRideInstance)this->GetIndex());
 		vx->SetInstance(SRI_FREE);
 		vx->SetInstanceData(0); // Not really needed.
