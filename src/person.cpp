@@ -395,8 +395,12 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 {
 	if (current_edge == exit_edge) return RVD_NO_VISIT; // Skip incoming edge (may get added later if no other options exist).
 
-	bool travel = TravelQueuePath(&x, &y, &z, &exit_edge);
+	XYZPoint16 voxel_pos(x, y, z);
+	bool travel = TravelQueuePath(&voxel_pos, &exit_edge);
 	if (!travel) return RVD_NO_VISIT; // Path leads to nowhere.
+	x = voxel_pos.x;
+	y = voxel_pos.y;
+	z = voxel_pos.z;
 
 	if (PathExistsAtBottomEdge(x, y, z, exit_edge)) return RVD_NO_RIDE; // Found a path.
 

@@ -128,7 +128,7 @@ struct Voxel;
 
 uint8 GetPathExits(const Voxel *v);
 uint8 GetPathExits(int xpos, int ypos, int zpos);
-bool TravelQueuePath(int *xp, int *yp, int *zp, TileEdge *entry);
+bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry);
 
 bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge);
 

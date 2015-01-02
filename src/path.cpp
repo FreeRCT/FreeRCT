@@ -257,22 +257,20 @@ uint8 GetPathExits(int xpos, int ypos, int zpos)
 /**
  * Walk over a queue path from the given entry edge at the given position.
  * If it leads to a new voxel edge, the provided position and edge is update with the exit point.
- * @param xp [inout] Start voxel X position before the queue path, updated to last voxel position.
- * @param yp [inout] Start voxel Y position before the queue path, updated to last voxel position.
- * @param zp [inout] Start voxel Z position before the queue path, updated to last voxel position.
+ * @param voxel_pos [inout] Start voxel position before the queue path, updated to last voxel position.
  * @param entry Direction used for entry to the path, updated to last edge exit direction.
  * @return Whether a (possibly) new last voxel could be found, \c false means the path leads to nowhere.
  * @note Parameter values may get changed during the call, do not rely on their values except when \c true is returned.
  */
-bool TravelQueuePath(int *xp, int *yp, int *zp, TileEdge *entry)
+bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry)
 {
-	int orig_xp = *xp;
-	int orig_yp = *yp;
-	int orig_zp = *zp;
+	int orig_xp = voxel_pos->x;
+	int orig_yp = voxel_pos->y;
+	int orig_zp = voxel_pos->z;
 
-	int xpos = *xp;
-	int ypos = *yp;
-	int zpos = *zp;
+	int xpos = voxel_pos->x;
+	int ypos = voxel_pos->y;
+	int zpos = voxel_pos->z;
 	TileEdge edge = *entry;
 
 	/* Check that entry voxel actually exists. */
@@ -298,7 +296,7 @@ bool TravelQueuePath(int *xp, int *yp, int *zp, TileEdge *entry)
 		if (_sprite_manager.GetPathStatus(GetPathType(vx->GetInstanceData())) != PAS_QUEUE_PATH) return true;
 
 		/* At this point:
-		 * *xp, *yp, *zp, edge (and *entry) contain the last valid voxel edge.
+		 * voxel_pos->x, voxel_pos->y, voxel_pos->z, edge (and *entry) contain the last valid voxel edge.
 		 * xpos, ypos, zpos, vx is the next queue path tile position.
 		 */
 
@@ -306,8 +304,8 @@ bool TravelQueuePath(int *xp, int *yp, int *zp, TileEdge *entry)
 
 		/* Check that the new tile can go back to our last tile. */
 		uint8 rev_edge = (edge + 2) % 4;
-		if (!((exits & (0x01 << rev_edge)) != 0 && zpos == *zp) &&
-				!((exits & (0x10 << rev_edge)) != 0 && zpos == *zp -1)) {
+		if (!((exits & (0x01 << rev_edge)) != 0 && zpos == voxel_pos->z) &&
+				!((exits & (0x10 << rev_edge)) != 0 && zpos == voxel_pos->z - 1)) {
 			return false;
 		}
 
@@ -323,9 +321,9 @@ bool TravelQueuePath(int *xp, int *yp, int *zp, TileEdge *entry)
 
 		if (edge == EDGE_COUNT) return false; // Queue path doesn't have a second exit.
 
-		*xp = xpos;
-		*yp = ypos;
-		*zp = zpos;
+		voxel_pos->x = xpos;
+		voxel_pos->y = ypos;
+		voxel_pos->z = zpos;
 		*entry = edge;
 	}
 }
