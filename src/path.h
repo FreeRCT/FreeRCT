@@ -129,7 +129,7 @@ struct Voxel;
 uint8 GetPathExits(const Voxel *v);
 bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry);
 
-bool PathExistsAtBottomEdge(int xpos, int ypos, int zpos, TileEdge edge);
+bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge);
 
 uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect);
 uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, bool use_additions, PathStatus status);

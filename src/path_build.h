@@ -44,7 +44,7 @@ public:
 
 	void SetPathGuiState(bool opened);
 
-	void TileClicked(uint16 xpos, uint16 ypos, uint8 zpos);
+	void TileClicked(const XYZPoint16 &click_pos);
 	void ComputeNewLongPath(const Point32 &mousexy);
 	void ConfirmLongPath();
 	void SelectArrow(TileEdge direction);

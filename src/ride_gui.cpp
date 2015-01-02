@@ -393,7 +393,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
 		if ((selected_shop->flags & (1 << entrance)) == 0) continue; // No entrance here.
 		TileEdge entr = (TileEdge)((entrance + vp->orientation + this->orientation) & 3); // Perform rotation specified by the user in the GUI.
-		if (PathExistsAtBottomEdge(xpos, ypos, zpos, entr)) return true;
+		if (PathExistsAtBottomEdge(XYZPoint16(xpos, ypos, zpos), entr)) return true;
 	}
 	return false;
 }

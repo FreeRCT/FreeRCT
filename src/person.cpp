@@ -402,7 +402,7 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 	y = voxel_pos.y;
 	z = voxel_pos.z;
 
-	if (PathExistsAtBottomEdge(x, y, z, exit_edge)) return RVD_NO_RIDE; // Found a path.
+	if (PathExistsAtBottomEdge(XYZPoint16(x, y, z), exit_edge)) return RVD_NO_RIDE; // Found a path.
 
 	RideInstance *ri = RideExistsAtBottom(x, y, z, exit_edge);
 	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
