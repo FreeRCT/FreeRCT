@@ -736,10 +736,10 @@ public:
 
 	void OpenWindow(uint16 instance) const override
 	{
-		mode->instance = instance;
-		mode->SetNoPiece();
-		mode->DisableDisplay();
-		mode->SetState(BS_STARTING);
+		this->mode->instance = instance;
+		this->mode->SetNoPiece();
+		this->mode->DisableDisplay();
+		this->mode->SetState(BS_STARTING);
 	}
 
 	void CloseWindow(uint16 instance) const override
@@ -799,15 +799,15 @@ public:
 
 	void OpenWindow(uint16 instance) const override
 	{
-		mode->instance = instance; // Nothing has happened yet, so switching can still be done.
+		this->mode->instance = instance; // Nothing has happened yet, so switching can still be done.
 	}
 
 	void CloseWindow(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
+		if (this->mode->instance != instance) return;
 
-		mode->instance = INVALID_RIDE_INSTANCE;
-		mode->SetState(BS_OFF);
+		this->mode->instance = INVALID_RIDE_INSTANCE;
+		this->mode->SetState(BS_OFF);
 	}
 
 	bool MayActivateMode() const override
@@ -817,17 +817,17 @@ public:
 
 	void ActivateMode(const Point16 &pos) const override
 	{
-		mode->EnableDisplay();
-		mode->UpdateDisplay(false);
+		this->mode->EnableDisplay();
+		this->mode->UpdateDisplay(false);
 		BuilderState new_state;
-		if (mode->cur_piece == nullptr) {
+		if (this->mode->cur_piece == nullptr) {
 			new_state = BS_ON;
-		} else if (mode->use_mousepos) {
+		} else if (this->mode->use_mousepos) {
 			new_state = BS_MOUSE;
 		} else {
 			new_state = BS_FIXED;
 		}
-		mode->SetState(new_state);
+		this->mode->SetState(new_state);
 	}
 
 	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
@@ -849,20 +849,20 @@ public:
 
 	void ShowNoPiece(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetNoPiece();
+		if (this->mode->instance != instance) return;
+		this->mode->SetNoPiece();
 	}
 
 	void SelectPosition(uint16 instance, ConstTrackPiecePtr piece, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetSelectPosition(piece, direction);
+		if (this->mode->instance != instance) return;
+		this->mode->SetSelectPosition(piece, direction);
 	}
 
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		if (this->mode->instance != instance) return;
+		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
 	}
 };
 
@@ -883,10 +883,10 @@ public:
 
 	void CloseWindow(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
-		mode->DisableDisplay();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_STARTING);
+		if (this->mode->instance != instance) return;
+		this->mode->DisableDisplay();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_STARTING);
 		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
@@ -897,12 +897,12 @@ public:
 
 	void ActivateMode(const Point16 &pos) const override
 	{
-		mode->SetMousePosition(pos);
+		this->mode->SetMousePosition(pos);
 	}
 
 	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
-		mode->SetMousePosition(pos); // Nothing is displayed.
+		this->mode->SetMousePosition(pos); // Nothing is displayed.
 	}
 
 	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
@@ -912,9 +912,9 @@ public:
 
 	void LeaveMode() const override
 	{
-		mode->DisableDisplay();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_STARTING);
+		this->mode->DisableDisplay();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_STARTING);
 	}
 
 	bool EnableCursors() const override
@@ -924,24 +924,24 @@ public:
 
 	void ShowNoPiece(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetNoPiece();
+		if (this->mode->instance != instance) return;
+		this->mode->SetNoPiece();
 	}
 
 	void SelectPosition(uint16 instance, ConstTrackPiecePtr piece, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetSelectPosition(piece, direction);
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_MOUSE);
+		if (this->mode->instance != instance) return;
+		this->mode->SetSelectPosition(piece, direction);
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_MOUSE);
 	}
 
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_FIXED);
+		if (this->mode->instance != instance) return;
+		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_FIXED);
 	}
 };
 
@@ -962,10 +962,10 @@ public:
 
 	void CloseWindow(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
-		mode->DisableDisplay();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_DOWN);
+		if (this->mode->instance != instance) return;
+		this->mode->DisableDisplay();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_DOWN);
 		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
@@ -976,32 +976,32 @@ public:
 
 	void ActivateMode(const Point16 &pos) const override
 	{
-		mode->SetMousePosition(pos);
-		mode->UpdateDisplay(true);
+		this->mode->SetMousePosition(pos);
+		this->mode->UpdateDisplay(true);
 	}
 
 	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
 	{
-		mode->SetMousePosition(pos);
-		mode->UpdateDisplay(true);
+		this->mode->SetMousePosition(pos);
+		this->mode->UpdateDisplay(true);
 	}
 
 	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
-		PositionedTrackPiece ptp(XYZPoint16(mode->track_xpos, mode->track_ypos, mode->track_zpos), mode->cur_piece);
+		PositionedTrackPiece ptp(XYZPoint16(this->mode->track_xpos, this->mode->track_ypos, this->mode->track_zpos), this->mode->cur_piece);
 		if (ptp.CanBePlaced()) {
-			mode->SetNoPiece();
-			mode->UpdateDisplay(false);
-			NotifyChange(WC_COASTER_BUILD, mode->instance, CHG_PIECE_POSITIONED, 0);
-			mode->SetState(BS_ON);
+			this->mode->SetNoPiece();
+			this->mode->UpdateDisplay(false);
+			NotifyChange(WC_COASTER_BUILD, this->mode->instance, CHG_PIECE_POSITIONED, 0);
+			this->mode->SetState(BS_ON);
 		}
 	}
 
 	void LeaveMode() const override
 	{
-		mode->DisableDisplay();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_STARTING);
+		this->mode->DisableDisplay();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_STARTING);
 	}
 
 	bool EnableCursors() const override
@@ -1011,25 +1011,25 @@ public:
 
 	void ShowNoPiece(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetNoPiece();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_ON);
+		if (this->mode->instance != instance) return;
+		this->mode->SetNoPiece();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_ON);
 	}
 
 	void SelectPosition(uint16 instance, ConstTrackPiecePtr piece, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetSelectPosition(piece, direction);
-		mode->UpdateDisplay(false);
+		if (this->mode->instance != instance) return;
+		this->mode->SetSelectPosition(piece, direction);
+		this->mode->UpdateDisplay(false);
 	}
 
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_FIXED);
+		if (this->mode->instance != instance) return;
+		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_FIXED);
 	}
 };
 
@@ -1050,10 +1050,10 @@ public:
 
 	void CloseWindow(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
-		mode->DisableDisplay();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_DOWN);
+		if (this->mode->instance != instance) return;
+		this->mode->DisableDisplay();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_DOWN);
 		_mouse_modes.SetViewportMousemode(); // Select another mouse mode.
 	}
 
@@ -1076,9 +1076,9 @@ public:
 
 	void LeaveMode() const override
 	{
-		mode->DisableDisplay();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_STARTING);
+		this->mode->DisableDisplay();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_STARTING);
 	}
 
 	bool EnableCursors() const override
@@ -1088,25 +1088,25 @@ public:
 
 	void ShowNoPiece(uint16 instance) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetNoPiece();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_ON);
+		if (this->mode->instance != instance) return;
+		this->mode->SetNoPiece();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_ON);
 	}
 
 	void SelectPosition(uint16 instance, ConstTrackPiecePtr piece, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetSelectPosition(piece, direction);
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_MOUSE);
+		if (this->mode->instance != instance) return;
+		this->mode->SetSelectPosition(piece, direction);
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_MOUSE);
 	}
 
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
-		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
-		mode->UpdateDisplay(false);
+		if (this->mode->instance != instance) return;
+		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		this->mode->UpdateDisplay(false);
 	}
 };
 
@@ -1123,11 +1123,11 @@ public:
 
 	void OpenWindow(uint16 instance) const override
 	{
-		mode->instance = instance;
-		mode->SetNoPiece();
-		mode->EnableDisplay();
-		mode->UpdateDisplay(false);
-		mode->SetState(BS_ON);
+		this->mode->instance = instance;
+		this->mode->SetNoPiece();
+		this->mode->EnableDisplay();
+		this->mode->UpdateDisplay(false);
+		this->mode->SetState(BS_ON);
 	}
 
 	void CloseWindow(uint16 instance) const override
@@ -1141,7 +1141,7 @@ public:
 
 	void ActivateMode(const Point16 &pos) const override
 	{
-		mode->SetMousePosition(pos);
+		this->mode->SetMousePosition(pos);
 	}
 
 	void OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos) const override
@@ -1154,7 +1154,7 @@ public:
 
 	void LeaveMode() const override
 	{
-		mode->SetState(BS_OFF);
+		this->mode->SetState(BS_OFF);
 	}
 
 	bool EnableCursors() const override
