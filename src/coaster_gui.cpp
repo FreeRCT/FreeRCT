@@ -586,8 +586,7 @@ void CoasterBuildWindow::SetupSelection()
 int CoasterBuildWindow::BuildTrackPiece()
 {
 	if (this->sel_piece == nullptr) return -1;
-	PositionedTrackPiece ptp(XYZPoint16(_coaster_builder.track_xpos, _coaster_builder.track_ypos, _coaster_builder.track_zpos),
-	                         this->sel_piece);
+	PositionedTrackPiece ptp(_coaster_builder.track_pos, this->sel_piece);
 	if (!ptp.CanBePlaced()) return -1;
 
 	/* Add the piece to the coaster instance. */
@@ -862,7 +861,7 @@ public:
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (this->mode->instance != instance) return;
-		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		this->mode->SetFixedPiece(piece, vox, direction);
 	}
 };
 
@@ -939,7 +938,7 @@ public:
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (this->mode->instance != instance) return;
-		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		this->mode->SetFixedPiece(piece, vox, direction);
 		this->mode->UpdateDisplay(false);
 		this->mode->SetState(BS_FIXED);
 	}
@@ -988,7 +987,7 @@ public:
 
 	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
-		PositionedTrackPiece ptp(XYZPoint16(this->mode->track_xpos, this->mode->track_ypos, this->mode->track_zpos), this->mode->cur_piece);
+		PositionedTrackPiece ptp(this->mode->track_pos, this->mode->cur_piece);
 		if (ptp.CanBePlaced()) {
 			this->mode->SetNoPiece();
 			this->mode->UpdateDisplay(false);
@@ -1027,7 +1026,7 @@ public:
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (this->mode->instance != instance) return;
-		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		this->mode->SetFixedPiece(piece, vox, direction);
 		this->mode->UpdateDisplay(false);
 		this->mode->SetState(BS_FIXED);
 	}
@@ -1105,7 +1104,7 @@ public:
 	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (this->mode->instance != instance) return;
-		this->mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
+		this->mode->SetFixedPiece(piece, vox, direction);
 		this->mode->UpdateDisplay(false);
 	}
 };
@@ -1339,18 +1338,16 @@ void CoasterBuildMode::UpdateDisplay(bool mousepos_changed)
 			return;
 		}
 		/* Found ground, is the position the same? */
-		if (mousepos_changed && fdata.voxel_pos.x == this->track_xpos && fdata.voxel_pos.y == this->track_ypos && fdata.voxel_pos.z == this->track_zpos) {
+		if (mousepos_changed && fdata.voxel_pos == this->track_pos) {
 			return;
 		}
 
-		this->track_xpos = fdata.voxel_pos.x;
-		this->track_ypos = fdata.voxel_pos.y;
-		this->track_zpos = fdata.voxel_pos.z;
+		this->track_pos = fdata.voxel_pos;
 	}
 	_additions.Clear();
 	EnableWorldAdditions();
-	PositionedTrackPiece ptp(XYZPoint16(this->track_xpos, this->track_ypos, this->track_zpos), this->cur_piece);
+	PositionedTrackPiece ptp(this->track_pos, this->cur_piece);
 	CoasterInstance *ci = static_cast<CoasterInstance *>(_rides_manager.GetRideInstance(this->instance));
 	if (ptp.CanBePlaced()) ci->PlaceTrackPieceInAdditions(ptp);
-	vp->arrow_cursor.SetCursor(XYZPoint16(this->track_xpos, this->track_ypos, this->track_zpos), (CursorType)(CUR_TYPE_ARROW_NE + this->direction));
+	vp->arrow_cursor.SetCursor(this->track_pos, (CursorType)(CUR_TYPE_ARROW_NE + this->direction));
 }

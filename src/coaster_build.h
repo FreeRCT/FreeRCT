@@ -64,9 +64,7 @@ public:
 	TileEdge direction;           ///< Orientation of the build cursor.
 	uint8 mouse_state;            ///< Stored state of the mouse buttons.
 	Point16 mouse_pos;            ///< Stored mouse position.
-	uint16 track_xpos;            ///< Entry X position of the selected track piece.
-	uint16 track_ypos;            ///< Entry Y position of the selected track piece.
-	uint8  track_zpos;            ///< Entry Z position of the selected track piece.
+	XYZPoint16 track_pos;         ///< Entry position of the selected track piece.
 	bool suppress_display;        ///< Suppress display of a track piece.
 	bool use_mousepos;            ///< Use mouse position to derive the position of the track piece.
 
@@ -110,18 +108,14 @@ public:
 
 	/**
 	 * Denote to the mouse mode handler to display a track piece at the given position.
-	 * @param piece Selected track piece to attach.
-	 * @param x X position of the piece.
-	 * @param y Y position of the piece.
-	 * @param z Z position of the piece.
+	 * @aram piece Selected track piece to attach.
+	 * @param vox Position of the piece.
 	 * @param direction Direction of building (to use with a cursor).
 	 */
-	void SetFixedPiece(ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction)
+	void SetFixedPiece(ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction)
 	{
 		this->cur_piece = piece;
-		this->track_xpos = x;
-		this->track_ypos = y;
-		this->track_zpos = z;
+		this->track_pos = vox;
 		this->direction = direction;
 		this->use_mousepos = false;
 	}
