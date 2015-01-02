@@ -37,7 +37,6 @@ void StartNewGame()
 	_finances_manager.SetScenario(_scenario);
 	_date.Initialize();
 	_weather.Initialize();
-	_guests.Initialize();
 
 	_game_mode_mgr.SetGameMode(GM_PLAY);
 

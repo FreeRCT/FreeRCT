@@ -75,38 +75,10 @@ Guests::Guests() : block(0), rnd()
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
 	this->next_daily_index = 0;
-	this->valid_ptypes = 0;
 }
 
 Guests::~Guests()
 {
-}
-
-/** After loading the RCD files, check what resources actually exist. */
-void Guests::Initialize()
-{
-	this->valid_ptypes = 0;
-	PersonType pertype = PERSON_GUEST;
-	bool usable = true;
-
-	for (AnimationType antype = ANIM_BEGIN; antype <= ANIM_LAST; antype++) {
-		if (_sprite_manager.GetAnimation(antype, pertype) == nullptr) {
-			usable = false;
-			break;
-		}
-	}
-	if (usable) this->valid_ptypes |= 1u << (pertype - PERSON_ANY);
-}
-
-/**
- * Can guests of the given person type be used for the level?
- * @param ptype %Person type to examine.
- * @return Whether the given person type can be used for playing a level.
- */
-bool Guests::CanUsePersonType(PersonType ptype)
-{
-	if (ptype != PERSON_GUEST) return false;
-	return (this->valid_ptypes & (1 << (ptype - PERSON_ANY))) != 0;
 }
 
 /**
@@ -192,12 +164,10 @@ void Guests::DoTick()
 /**
  * A new day arrived, handle daily chores of the park.
  * @todo Add popularity rating concept.
- * @todo Person type should be configurable too.
  */
 void Guests::OnNewDay()
 {
-	PersonType ptype = PERSON_GUEST;
-	if (!this->CanUsePersonType(ptype)) return;
+	/* Try adding a new guest to the park. */
 	if (this->CountActiveGuests() >= _scenario.max_guests) return;
 	if (!this->rnd.Success1024(_scenario.GetSpawnProbability(512))) return;
 
@@ -210,7 +180,7 @@ void Guests::OnNewDay()
 	if (!this->HasFreeGuests()) return; // No more quests available.
 	/* New guest! */
 	Guest *g = this->GetFree();
-	g->Activate(this->start_voxel, ptype);
+	g->Activate(this->start_voxel, PERSON_GUEST);
 }
 
 /**

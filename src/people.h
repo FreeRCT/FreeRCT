@@ -60,15 +60,12 @@ protected:
 /**
  * All our guests.
  * @todo Allow to have several blocks of guests.
- * @todo #valid_ptypes should be removed.
  */
 class Guests {
 public:
 	Guests();
 	~Guests();
 
-	void Initialize();
-	bool CanUsePersonType(PersonType ptype);
 	uint CountActiveGuests();
 
 	/**
@@ -106,15 +103,12 @@ private:
 	int daily_frac;       ///< Frame counter.
 	int next_daily_index; ///< Index of the next guest to give daily service.
 
-	uint16 valid_ptypes;  ///< Person types that can be used.
-
 	bool FindNextFreeGuest();
 	bool FindNextFreeGuest() const;
 	bool HasFreeGuests() const;
 	void AddFree(Guest *g);
 	Guest *GetFree();
 };
-assert_compile(PERSON_GUEST + 1 <= 16); ///< Verify that all person types fit in #Guests::valid_ptypes
 
 extern Guests _guests;
 
