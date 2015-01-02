@@ -532,7 +532,7 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
  */
 static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 {
-	PathSearcher ps(pos.x, pos.y, pos.z); // Current position is the destination.
+	PathSearcher ps(pos); // Current position is the destination.
 
 	/* Add path tiles with a connection to outside the park to the initial starting points. */
 	for (int x = 0; x < _world.GetXSize() - 1; x++) {
@@ -542,8 +542,9 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 				if (_world.GetStack(x + 1, y)->owner != OWN_PARK || _world.GetStack(x, y + 1)->owner != OWN_PARK) {
 					int offset = vs->GetGroundOffset();
 					const Voxel *v = vs->voxels + offset;
-					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT) {
-						if ((GetPathExits(v) & ((1 << EDGE_SE) | (1 << EDGE_SW))) != 0) ps.AddStart(x, y, vs->base + offset);
+					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
+							(GetPathExits(v) & ((1 << EDGE_SE) | (1 << EDGE_SW))) != 0) {
+						ps.AddStart(XYZPoint16(x, y, vs->base + offset));
 					}
 				}
 			} else {
@@ -551,8 +552,9 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 				if (vs->owner == OWN_PARK) {
 					int offset = vs->GetGroundOffset();
 					const Voxel *v = vs->voxels + offset;
-					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT) {
-						if ((GetPathExits(v) & (1 << EDGE_NE)) != 0) ps.AddStart(x + 1, y, vs->base + offset);
+					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
+							(GetPathExits(v) & (1 << EDGE_NE)) != 0) {
+						ps.AddStart(XYZPoint16(x + 1, y, vs->base + offset));
 					}
 				}
 
@@ -560,8 +562,9 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 				if (vs->owner == OWN_PARK) {
 					int offset = vs->GetGroundOffset();
 					const Voxel *v = vs->voxels + offset;
-					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT) {
-						if ((GetPathExits(v) & (1 << EDGE_NW)) != 0) ps.AddStart(x, y + 1, vs->base + offset);
+					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
+							(GetPathExits(v) & (1 << EDGE_NW)) != 0) {
+						ps.AddStart(XYZPoint16(x, y + 1, vs->base + offset));
 					}
 				}
 			}
@@ -573,7 +576,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 	const WalkedPosition *prev = dest->prev_pos;
 	if (prev == nullptr) return INVALID_EDGE; // Already at tile.
 
-	return GetAdjacentEdge(dest->x, dest->y, prev->x, prev->y);
+	return GetAdjacentEdge(dest->cur_vox.x, dest->cur_vox.y, prev->cur_vox.x, prev->cur_vox.y);
 }
 
 /**
@@ -583,11 +586,11 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
  */
 static TileEdge GetGoHomeDirection(const XYZPoint16 &pos)
 {
-	PathSearcher ps(pos.x, pos.y, pos.z); // Current position is the destination.
+	PathSearcher ps(pos); // Current position is the destination.
 
 	int x = _guests.start_voxel.x;
 	int y = _guests.start_voxel.y;
-	ps.AddStart(x, y, _world.GetGroundHeight(x, y));
+	ps.AddStart(XYZPoint16(x, y, _world.GetGroundHeight(x, y)));
 
 	if (!ps.Search()) return INVALID_EDGE;
 
@@ -595,7 +598,7 @@ static TileEdge GetGoHomeDirection(const XYZPoint16 &pos)
 	const WalkedPosition *prev = dest->prev_pos;
 	if (prev == nullptr) return INVALID_EDGE; // Already at tile.
 
-	return GetAdjacentEdge(dest->x, dest->y, prev->x, prev->y);
+	return GetAdjacentEdge(dest->cur_vox.x, dest->cur_vox.y, prev->cur_vox.x, prev->cur_vox.y);
 }
 
 /**

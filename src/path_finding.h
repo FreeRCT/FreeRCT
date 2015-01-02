@@ -14,14 +14,14 @@
 
 #include <set>
 
+#include "geometry.h"
+
 /** Intermediate position of a walk. */
 class WalkedPosition {
 public:
-	WalkedPosition(int x, int y, int z, uint32 traveled, uint32 estimate, const WalkedPosition *prev_pos);
+	WalkedPosition(const XYZPoint16 &cur_vox, uint32 traveled, uint32 estimate, const WalkedPosition *prev_pos);
 
-	int x; ///< X coordinate of the current position.
-	int y; ///< Y coordinate of the current position.
-	int z; ///< Z coordinate of the current position.
+	XYZPoint16 cur_vox; ///< Coordinate of the current position.
 	mutable uint32 traveled; ///< Length of the traveled path so far.
 	mutable uint32 estimate; ///< Estimated distance to the destination.
 	mutable const WalkedPosition *prev_pos; ///< Position coming from (\c nullptr for initial position).
@@ -43,23 +43,21 @@ typedef std::multiset<WalkedDistance> OpenPoints; ///< Points for further explor
 /** Class for searching (and hopefully finding) a path between tiles. */
 class PathSearcher {
 public:
-	PathSearcher(int dest_x, int dest_y, int dest_z);
+	PathSearcher(const XYZPoint16 &dest_vox);
 
-	void AddStart(int start_x, int start_y, int start_z);
+	void AddStart(const XYZPoint16 &start_vox);
 	bool Search();
 	void Clear();
 
-	int dest_x; ///< X coordinate of the desired destination voxel.
-	int dest_y; ///< Y coordinate of the desired destination voxel.
-	int dest_z; ///< Z coordinate of the desired destination voxel.
+	XYZPoint16 dest_vox; ///< Coordinate of the desired destination voxel.
 	const WalkedPosition *dest_pos; ///< If path was found, this points to the end-point of the walk.
 
 protected:
 	PositionSet positions;   ///< Examined positions.
 	OpenPoints  open_points; ///< Open points to examine further.
 
-	inline uint32 GetEstimate(int x, int y, int z);
-	void AddOpen(int x, int y, int z, uint32 traveled, const WalkedPosition *prev_pos);
+	inline uint32 GetEstimate(const XYZPoint16 &vox);
+	void AddOpen(const XYZPoint16 &vox, uint32 traveled, const WalkedPosition *prev_pos);
 };
 
 #endif

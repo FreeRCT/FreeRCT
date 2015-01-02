@@ -15,15 +15,13 @@
 
 /**
  * Constructor of a walked position.
- * @param x Current X position.
- * @param y Current Y position.
- * @param z Current Z position.
+ * @param cur_vox Current voxel position.
  * @param traveled Length of travel from the starting point so far.
  * @param estimate Estimated length of remaining travel to the destination (should be less or equal to the real value for optimal solutions).
  * @param prev_pos Previous walked position used to get at the new position, \c nullptr for the first position.
  */
-WalkedPosition::WalkedPosition(int x, int y, int z, uint32 traveled, uint32 estimate, const WalkedPosition *prev_pos)
-		: x(x), y(y), z(z), traveled(traveled), estimate(estimate), prev_pos(prev_pos)
+WalkedPosition::WalkedPosition(const XYZPoint16 &cur_vox, uint32 traveled, uint32 estimate, const WalkedPosition *prev_pos)
+		: cur_vox(cur_vox), traveled(traveled), estimate(estimate), prev_pos(prev_pos)
 {
 }
 
@@ -35,9 +33,7 @@ WalkedPosition::WalkedPosition(int x, int y, int z, uint32 traveled, uint32 esti
 */
 bool operator<(const WalkedPosition &wp1, const WalkedPosition &wp2)
 {
-	if (wp1.x != wp2.x) return wp1.x < wp2.x;
-	if (wp1.y != wp2.y) return wp1.y < wp2.y;
-	return wp1.z < wp2.z;
+	return wp1.cur_vox < wp2.cur_vox;
 }
 
 /**
@@ -66,55 +62,45 @@ bool operator<(const WalkedDistance &wd1, const WalkedDistance &wd2)
 
 /**
  * Constructor, find a path to (\a dest_x, \a dest_y, \a dest_z). Give starting points through PathSearcher::AddStart.
- * @param dest_x X coordinate of the destination voxel.
- * @param dest_y Y coordinate of the destination voxel.
- * @param dest_z Z coordinate of the destination voxel.
+ * @param dest_vox Coordinate of the destination voxel.
  */
-PathSearcher::PathSearcher(int dest_x, int dest_y, int dest_z)
+PathSearcher::PathSearcher(const XYZPoint16 &dest_vox)
 {
-	this->dest_x = dest_x;
-	this->dest_y = dest_y;
-	this->dest_z = dest_z;
+	this->dest_vox = dest_vox;
 	this->dest_pos = nullptr;
 }
 
 /**
  * Add a starting point to the searcher.
- * @param start_x X coordinate of the start voxel.
- * @param start_y Y coordinate of the start voxel.
- * @param start_z Z coordinate of the start voxel.
+ * @param start_vox Coordinate of the start voxel.
  */
-void PathSearcher::AddStart(int start_x, int start_y, int start_z)
+void PathSearcher::AddStart(const XYZPoint16 &start_vox)
 {
-	this->AddOpen(start_x, start_y, start_z, 0, nullptr);
+	this->AddOpen(start_vox, 0, nullptr);
 }
 
 /**
  * Get an (optimistic) estimate of the path length to go to the destination voxel.
- * @param x Current x position in voxels.
- * @param y Current y position in voxels.
- * @param z Current z position in voxels.
+ * @param vox Current position in voxels.
  * @return Estimate of the length of path still to go.
  */
-inline uint32 PathSearcher::GetEstimate(int x, int y, int z)
+inline uint32 PathSearcher::GetEstimate(const XYZPoint16 &vox)
 {
-	int32 val = abs(x - this->dest_x) + abs(y - this->dest_y);
-	if (val < abs(z - this->dest_z)) return abs(z - this->dest_z);
+	int32 val = abs(vox.x - this->dest_vox.x) + abs(vox.y - this->dest_vox.y);
+	if (val < abs(vox.z - this->dest_vox.z)) return abs(vox.z - this->dest_vox.z);
 	return val;
 }
 
 /**
  * Add a new open position to the set of open points, if it is better than already available.
- * @param x X position of the current position.
- * @param y Y position of the current position.
- * @param z Z position of the current position.
+ * @param vox Position of the current position.
  * @param traveled Distance traveled to get to the current position.
  * @param prev_pos Previous position (\c nullptr for the start position).
  */
-void PathSearcher::AddOpen(int x, int y, int z, uint32 traveled, const WalkedPosition *prev_pos)
+void PathSearcher::AddOpen(const XYZPoint16 &vox, uint32 traveled, const WalkedPosition *prev_pos)
 {
-	uint32 estimate = this->GetEstimate(x, y, z);
-	WalkedPosition wp(x, y, z, traveled, estimate, prev_pos);
+	uint32 estimate = this->GetEstimate(vox);
+	WalkedPosition wp(vox, traveled, estimate, prev_pos);
 
 	/* Find the position. */
 	PositionSet::iterator pos_iter = this->positions.find(wp);
@@ -149,13 +135,13 @@ bool PathSearcher::Search()
 
 		/* Reached the destination? */
 		const WalkedPosition *wp = wd.pos;
-		if (wp->x == this->dest_x && wp->y == this->dest_y && wp->z == this->dest_z) {
+		if (wp->cur_vox == this->dest_vox) {
 			this->dest_pos = wp;
 			return true;
 		}
 
 		/* Add new open points. */
-		const Voxel *v = _world.GetVoxel(XYZPoint16(wp->x, wp->y, wp->z));
+		const Voxel *v = _world.GetVoxel(wp->cur_vox);
 		if (v == nullptr) continue; // No voxel at the expected point, don't bother.
 
 		uint8 exits = GetPathExits(v);
@@ -164,29 +150,29 @@ bool PathSearcher::Search()
 
 			/* There is an outgoing connection, is it also on the world? */
 			Point16 dxy = _tile_dxy[edge];
-			if (dxy.x < 0 && wp->x == 0) continue;
-			if (dxy.x > 0 && wp->x + 1 == _world.GetXSize()) continue;
-			if (dxy.y < 0 && wp->y == 0) continue;
-			if (dxy.y > 0 && wp->y + 1 == _world.GetYSize()) continue;
+			if (dxy.x < 0 && wp->cur_vox.x == 0) continue;
+			if (dxy.x > 0 && wp->cur_vox.x + 1 == _world.GetXSize()) continue;
+			if (dxy.y < 0 && wp->cur_vox.y == 0) continue;
+			if (dxy.y > 0 && wp->cur_vox.y + 1 == _world.GetYSize()) continue;
 
-			int new_z = ((exits & (0x10 << edge)) != 0) ? wp->z + 1 : wp->z;
-			if (new_z < 0 || new_z >= WORLD_Z_SIZE) continue;
+			int extra_z = ((exits & (0x10 << edge)) != 0);
+			if (wp->cur_vox.z + extra_z < 0 || wp->cur_vox.z + extra_z >= WORLD_Z_SIZE) continue;
 
 			/* Now check the other side, new_z is the voxel where the path should be at the bottom. */
-			const Voxel *v2 = _world.GetVoxel(XYZPoint16(wp->x + dxy.x, wp->y + dxy.y, new_z));
+			const Voxel *v2 = _world.GetVoxel(wp->cur_vox + XYZPoint16(dxy.x, dxy.y, extra_z));
 			if (v2 == nullptr) continue;
 
 			uint8 other_exits = GetPathExits(v2);
 			if ((other_exits & (1 << ((edge + 2) % 4))) == 0) { // No path here, try one voxel below
-				new_z--;
-				if (new_z < 0) continue;
-				v2 = _world.GetVoxel(XYZPoint16(wp->x + dxy.x, wp->y + dxy.y, new_z));
+				extra_z--;
+				if (wp->cur_vox.z + extra_z < 0) continue;
+				v2 = _world.GetVoxel(wp->cur_vox + XYZPoint16(dxy.x, dxy.y, extra_z));
 				if (v2 == nullptr) continue;
 				other_exits = GetPathExits(v2);
 				if ((other_exits & (0x10 << ((edge + 2) % 4))) == 0) continue;
 			}
 			/* Add new open point to the path finder. */
-			this->AddOpen(wp->x + dxy.x, wp->y + dxy.y, new_z, wp->traveled + 1, wp);
+			this->AddOpen(wp->cur_vox + XYZPoint16(dxy.x, dxy.y, extra_z), wp->traveled + 1, wp);
 		}
 	}
 	return false;

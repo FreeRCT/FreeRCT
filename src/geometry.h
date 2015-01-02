@@ -143,6 +143,18 @@ inline bool operator!=(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
 }
 
 /**
+ * Comparsion of two 3D points.
+ * @param p First point to compare.
+ * @param q Second point to compare.
+ * @return
+ */
+template <typename CT>
+inline bool operator<(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
+{
+	return p.x < q.x && p.y < q.y && p.z < q.z;
+}
+
+/**
  * Add two 3D points together.
  * @param p First point to add.
  * @param q Second point to add.
