@@ -364,26 +364,24 @@ void ShowRideSelectGui()
 /**
  * Can a shop be placed at the given voxel?
  * @param selected_shop Shop to place.
- * @param xpos X coordinate of the voxel.
- * @param ypos Y coordinate of the voxel.
- * @param zpos Z coordinate of the voxel.
+ * @param pos Coordinate of the voxel.
  * @pre voxel coordinate must be valid in the world.
  * @pre \a selected_shop may not be \c nullptr.
  * @return Shop can be placed at the given position.
  */
-bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos, int ypos, int zpos)
+bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos)
 {
 	/* 1. Can the position itself be used to build a shop? */
-	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
-	const Voxel *vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos));
+	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
+	const Voxel *vx = _world.GetVoxel(pos);
 	if (vx != nullptr) {
 		if (!vx->CanPlaceInstance()) return false; // Cannot build on a path or other ride.
 		return vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT; // Can build at a flat surface.
 	}
 
 	/* 2. Is the shop just above non-flat ground? */
-	if (zpos > 0) {
-		vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos - 1));
+	if (pos.z > 0) {
+		vx = _world.GetVoxel(XYZPoint16(pos.x, pos.y, pos.z - 1));
 		if (vx != nullptr && vx->GetInstance() == SRI_FREE &&
 				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
 	}
@@ -393,7 +391,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
 		if ((selected_shop->flags & (1 << entrance)) == 0) continue; // No entrance here.
 		TileEdge entr = (TileEdge)((entrance + vp->orientation + this->orientation) & 3); // Perform rotation specified by the user in the GUI.
-		if (PathExistsAtBottomEdge(XYZPoint16(xpos, ypos, zpos), entr)) return true;
+		if (PathExistsAtBottomEdge(pos, entr)) return true;
 	}
 	return false;
 }
@@ -401,12 +399,10 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 /**
  * Decide at which voxel to place a shop. It should be placed at a voxel intersecting with the view line
  * through the given point in the world.
- * @param xworld X coordinate of the point.
- * @param yworld Y coordinate of the point.
- * @param zworld Z coordinate of the point.
+ * @param world_pos Coordinate of the point.
  * @return Result of the placement process.
  */
-RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 yworld, int32 zworld)
+RidePlacementResult ShopPlacementManager::ComputeShopVoxel(XYZPoint32 world_pos)
 {
 	ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
 	assert(si != nullptr && si->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
@@ -425,33 +421,33 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(int32 xworld, int32 y
 		default: NOT_REACHED();
 	}
 
+	XYZPoint16 pos;
 	/* Move to the top voxel of the world. */
-	int zpos = WORLD_Z_SIZE - 1;
-	int dz = zpos * 256 - zworld;
-	xworld += dx * dz / 2;
-	yworld += dy * dz / 2;
+	pos.z = WORLD_Z_SIZE - 1;
+	int dz = pos.z * 256 - world_pos.z;
+	world_pos.x += dx * dz / 2;
+	world_pos.y += dy * dz / 2;
 
-	while (zpos >= 0) {
-		int xpos = xworld / 256;
-		int ypos = yworld / 256;
-		if (IsVoxelstackInsideWorld(xpos, ypos) && this->CanPlaceShop(st, xpos, ypos, zpos)) {
+	while (pos.z >= 0) {
+		pos.x = world_pos.x / 256;
+		pos.y = world_pos.y / 256;
+		if (IsVoxelstackInsideWorld(pos.x, pos.y) && this->CanPlaceShop(st, pos)) {
 			/* Position of the shop the same as previously? */
-			if (si->xpos != (uint16)xpos || si->ypos != (uint16)ypos || si->zpos != (uint8)zpos ||
-					si->orientation != this->orientation) {
-				si->SetRide((this->orientation + vp->orientation) & 3, xpos, ypos, zpos);
+			if (si->vox_pos != pos || si->orientation != this->orientation) {
+				si->SetRide((this->orientation + vp->orientation) & 3, pos);
 				return RPR_CHANGED;
 			}
 			return RPR_SAMEPOS;
 		} else {
 			/* Since z gets smaller, we subtract dx and dy, thus the checks reverse. */
-			if (xpos < 0 && dx > 0) break;
-			if (xpos >= _world.GetXSize() && dx < 0) break;
-			if (ypos < 0 && dy > 0) break;
-			if (ypos >= _world.GetYSize() && dy < 0) break;
+			if (pos.x < 0 && dx > 0) break;
+			if (pos.x >= _world.GetXSize() && dx < 0) break;
+			if (pos.y < 0 && dy > 0) break;
+			if (pos.y >= _world.GetYSize() && dy < 0) break;
 		}
-		xworld -= 128 * dx;
-		yworld -= 128 * dy;
-		zpos--;
+		world_pos.x -= 128 * dx;
+		world_pos.y -= 128 * dy;
+		pos.z--;
 	}
 	return RPR_FAIL;
 }
@@ -467,7 +463,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 	Point32 wxy = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 
 	/* Clean current display if needed. */
-	switch (this->ComputeShopVoxel(wxy.x, wxy.y, vp->view_pos.z)) {
+	switch (this->ComputeShopVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z))) {
 		case RPR_FAIL:
 			if (this->state == SPS_BAD_POS) return; // Nothing to do.
 			_additions.MarkDirty(vp);
@@ -486,12 +482,12 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			/// \todo Let the shop do this.
 			ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
 			assert(si != nullptr && si->GetKind() == RTK_SHOP);
-			Voxel *vx = _additions.GetCreateVoxel(XYZPoint16(si->xpos, si->ypos, si->zpos), true);
+			Voxel *vx = _additions.GetCreateVoxel(si->vox_pos, true);
 			assert(this->instance >= SRI_FULL_RIDES && this->instance <= SRI_LAST);
 			vx->SetInstance((SmallRideInstance)this->instance);
-			uint8 entrances = si->GetEntranceDirections(si->xpos, si->ypos, si->zpos);
+			uint8 entrances = si->GetEntranceDirections(si->vox_pos);
 			vx->SetInstanceData(entrances);
-			AddRemovePathEdges(XYZPoint16(si->xpos, si->ypos, si->zpos), PATH_EMPTY, entrances, true, PAS_QUEUE_PATH);
+			AddRemovePathEdges(si->vox_pos, PATH_EMPTY, entrances, true, PAS_QUEUE_PATH);
 			_additions.MarkDirty(vp);
 			vp->EnsureAdditionsAreVisible();
 			this->state = SPS_GOOD_POS;

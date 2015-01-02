@@ -191,11 +191,9 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
- * \fn uint8 RideInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
+ * \fn uint8 RideInstance::GetEntranceDirections(const XYZPoint16 &vox) const
  * Get the set edges with an entrance to the ride.
- * @param xvox X position of the voxel with the ride.
- * @param yvox Y position of the voxel with the ride.
- * @param zvox Z position of the voxel with the ride.
+ * @param vox Position of the voxel with the ride.
  * @return Bit set of #TileEdge that allows entering the ride (seen from the ride).
  */
 
@@ -211,13 +209,11 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
- * \fn void RideInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
+ * \fn XYZPoint32 RideInstance::GetExit(int guest, TileEdge entry_edge)
  * Get the exit coordinates of the ride, is near the middle of a tile edge.
  * @param guest Number of the guest querying the exit coordinates.
  * @param entry_edge %Edge used for entering the ride.
- * @param xpos X world position of the exit.
- * @param ypos Y world position of the exit.
- * @param zpos Z world position of the exit
+ * @return World position of the exit.
  */
 
 /**
@@ -227,16 +223,14 @@ const RideType *RideInstance::GetRideType() const
 
 /**
  * Can the ride be visited, assuming it is approached from direction \a edge?
- * @param xvox X position of the voxel with the ride.
- * @param yvox Y position of the voxel with the ride.
- * @param zvox Z position of the voxel with the ride.
+ * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
  * @return Whether the ride can be visited.
  */
-bool RideInstance::CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const
+bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 {
 	if (this->state != RIS_OPEN) return false;
-	return GB(this->GetEntranceDirections(xvox, yvox, zvox), (edge + 2) % 4, 1) != 0;
+	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
 }
 
 /**
@@ -617,24 +611,22 @@ void RidesManager::CheckNoAllocatedRides() const
 
 /**
  * Does a ride entrance exists at/to the bottom the given voxel in the neighbouring voxel?
- * @param xpos X coordinate of the voxel.
- * @param ypos Y coordinate of the voxel.
- * @param zpos Z coordinate of the voxel.
+ * @param pos Coordinate of the voxel.
  * @param edge Direction to move to get the neighbouring voxel.
  * @pre voxel coordinate must be valid in the world.
  * @return The ride at the neighbouring voxel, if available (else \c nullptr is returned).
  */
-RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge)
+RideInstance *RideExistsAtBottom(XYZPoint16 pos, TileEdge edge)
 {
-	xpos += _tile_dxy[edge].x;
-	ypos += _tile_dxy[edge].y;
-	if (!IsVoxelstackInsideWorld(xpos, ypos)) return nullptr;
+	pos.x += _tile_dxy[edge].x;
+	pos.y += _tile_dxy[edge].y;
+	if (!IsVoxelstackInsideWorld(pos.x, pos.y)) return nullptr;
 
-	const Voxel *vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos));
+	const Voxel *vx = _world.GetVoxel(pos);
 	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) {
 		/* No ride here, check the voxel below. */
-		if (zpos == 0) return nullptr;
-		vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos - 1));
+		if (pos.z == 0) return nullptr;
+		vx = _world.GetVoxel(XYZPoint16(pos.x, pos.y, pos.z - 1));
 	}
 	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) return nullptr;
 	return _rides_manager.GetRideInstance(vx->GetInstance());

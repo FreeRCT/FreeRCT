@@ -59,8 +59,8 @@ public:
 	Point16 mouse_pos;        ///< Stored mouse position.
 
 private:
-	bool CanPlaceShop(const ShopType *selected_shop, int xpos, int ypos, int zpos);
-	RidePlacementResult ComputeShopVoxel(int32 xworld, int32 yworld, int32 zworld);
+	bool CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos);
+	RidePlacementResult ComputeShopVoxel(XYZPoint32 world_pos);
 	void PlaceShop(const Point16 &pos);
 };
 

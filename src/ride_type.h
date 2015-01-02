@@ -137,11 +137,11 @@ public:
 	virtual ~RideInstance();
 
 	virtual void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
-	virtual uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const = 0;
+	virtual uint8 GetEntranceDirections(const XYZPoint16 &vox) const = 0;
 	virtual RideEntryResult EnterRide(int guest, TileEdge entry_edge) = 0;
-	virtual void GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos) = 0;
+	virtual XYZPoint32 GetExit(int guest, TileEdge entry_edge) = 0;
 	virtual void RemoveAllPeople() = 0;
-	bool CanBeVisited(uint16 xvox, uint16 yvox, uint8 zvox, TileEdge edge) const;
+	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const;
 
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
@@ -217,7 +217,7 @@ public:
 	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
 };
 
-RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge);
+RideInstance *RideExistsAtBottom(XYZPoint16 pos, TileEdge edge);
 
 extern RidesManager _rides_manager;
 

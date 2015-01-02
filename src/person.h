@@ -203,7 +203,7 @@ public:
 
 protected:
 	void DecideMoveDirection() override;
-	RideVisitDesire ComputeExitDesire(TileEdge current_edge, int x, int y, int z, TileEdge exit_edge, bool *seen_wanted_ride);
+	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride);
 	uint8 GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_mode);
 	RideVisitDesire WantToVisit(const RideInstance *ri) override;
 	AnimateResult EdgeOfWorldOnAnimate() override;

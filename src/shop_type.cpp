@@ -140,9 +140,6 @@ const StringID *ShopType::GetInstanceNames() const
 ShopInstance::ShopInstance(const ShopType *type) : RideInstance(type)
 {
 	this->orientation = 0;
-	this->xpos = 0;
-	this->ypos = 0;
-	this->zpos = 0;
 
 	int capacity = type->GetRideCapacity();
 	assert(capacity == 0 || (capacity & 0xFF) == 1); ///< \todo Implement loading of guests into a batch.
@@ -178,21 +175,19 @@ void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData
  * @param ypos Y position of the shop.
  * @param zpos Z position of the shop.
  */
-void ShopInstance::SetRide(uint8 orientation, uint16 xpos, uint16 ypos, uint8 zpos)
+void ShopInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 {
 	assert(this->state == RIS_ALLOCATED);
-	assert(_world.GetTileOwner(xpos, ypos) == OWN_PARK); // May only place it in your own park.
+	assert(_world.GetTileOwner(pos.x, pos.y) == OWN_PARK); // May only place it in your own park.
 
 	this->orientation = orientation;
-	this->xpos = xpos;
-	this->ypos = ypos;
-	this->zpos = zpos;
+	this->vox_pos = pos;
 	this->flags = 0;
 }
 
-uint8 ShopInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
+uint8 ShopInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
-	if (xvox != this->xpos || yvox != this->ypos || zvox != this->zpos) return 0;
+	if (vox != this->vox_pos) return 0;
 
 	uint8 entrances = this->GetShopType()->flags & SHF_ENTRANCE_BITS;
 	return ROL(entrances, 4, this->orientation);
@@ -218,14 +213,12 @@ RideEntryResult ShopInstance::EnterRide(int guest, TileEdge entry)
 	return RER_REFUSED;
 }
 
-void ShopInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
+XYZPoint32 ShopInstance::GetExit(int guest, TileEdge entry_edge)
 {
 	/* Put the guest just outside the ride. */
 	Point16 dxy = _exit_dxy[(entry_edge + 2) % 4];
-	*xpos = this->xpos * 256 + dxy.x;
-	*ypos = this->ypos * 256 + dxy.y;
-	*zpos = this->zpos * 256;
-	return;
+	return XYZPoint32(this->vox_pos.x * 256 + dxy.x, this->vox_pos.y * 256 + dxy.y, this->vox_pos.z * 256);
+
 }
 
 void ShopInstance::RemoveAllPeople()

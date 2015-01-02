@@ -192,9 +192,9 @@ public:
 	}
 
 	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
-	uint8 GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const override;
+	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
-	void GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos) override;
+	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
 	void RemoveAllPeople() override;
 
 	RideInstanceState DecideRideState();

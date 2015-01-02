@@ -382,27 +382,21 @@ TileEdge Person::GetCurrentEdge() const
 /**
  * Decide whether visiting the exit edge is useful.
  * @param current_edge Edge at the current position.
- * @param x X coordinate of the current voxel.
- * @param y Y coordinate of the current voxel.
- * @param z Z coordinate of the current voxel.
+ * @param cur_pos Coordinate of the current voxel.
  * @param exit_edge Exit edge being examined.
  * @param seen_wanted_ride [inout] Whether the wanted ride is seen.
  * @return Desire of the guest to visit the indicated edge.
  */
-RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, int z, TileEdge exit_edge, bool *seen_wanted_ride)
+RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride)
 {
 	if (current_edge == exit_edge) return RVD_NO_VISIT; // Skip incoming edge (may get added later if no other options exist).
 
-	XYZPoint16 voxel_pos(x, y, z);
-	bool travel = TravelQueuePath(&voxel_pos, &exit_edge);
+	bool travel = TravelQueuePath(&cur_pos, &exit_edge);
 	if (!travel) return RVD_NO_VISIT; // Path leads to nowhere.
-	x = voxel_pos.x;
-	y = voxel_pos.y;
-	z = voxel_pos.z;
 
-	if (PathExistsAtBottomEdge(XYZPoint16(x, y, z), exit_edge)) return RVD_NO_RIDE; // Found a path.
+	if (PathExistsAtBottomEdge(cur_pos, exit_edge)) return RVD_NO_RIDE; // Found a path.
 
-	RideInstance *ri = RideExistsAtBottom(x, y, z, exit_edge);
+	RideInstance *ri = RideExistsAtBottom(cur_pos, exit_edge);
 	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
 
 	if (ri == this->ride) { // Guest decided before that this shop/ride should be visited.
@@ -411,7 +405,7 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, int x, int y, in
 	}
 
 	Point16 dxy = _tile_dxy[exit_edge];
-	if (!ri->CanBeVisited(x + dxy.x, y + dxy.y, z, exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
+	if (!ri->CanBeVisited(XYZPoint16(cur_pos.x + dxy.x, cur_pos.y + dxy.y, cur_pos.z), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
 
 	RideVisitDesire rvd = this->WantToVisit(ri);
 	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
@@ -457,11 +451,10 @@ void Guest::ExitRide(RideInstance *ri, TileEdge entry)
 	assert(this->activity == GA_ON_RIDE);
 	assert(this->ride == ri);
 
-	uint32 xpos, ypos, zpos;
-	ri->GetExit(this->id, entry, &xpos, &ypos, &zpos);
-	this->vox_pos.x = xpos >> 8; this->x_pos = xpos & 0xff;
-	this->vox_pos.y = ypos >> 8; this->y_pos = ypos & 0xff;
-	this->vox_pos.z = zpos >> 8; this->z_pos = zpos & 0xff;
+	XYZPoint32 exit_pos = ri->GetExit(this->id, entry);
+	this->vox_pos.x = exit_pos.x >> 8; this->x_pos = exit_pos.x & 0xff;
+	this->vox_pos.y = exit_pos.y >> 8; this->y_pos = exit_pos.y & 0xff;
+	this->vox_pos.z = exit_pos.z >> 8; this->z_pos = exit_pos.z & 0xff;
 	this->activity = GA_WANDER;
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	this->DecideMoveDirection();
@@ -503,7 +496,7 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 			continue;
 		}
 
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos.x, this->vox_pos.y, z, exit_edge, seen_wanted_ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, XYZPoint16(this->vox_pos.x, this->vox_pos.y, z), exit_edge, seen_wanted_ride);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break; // A path is one of the options.
@@ -1066,7 +1059,7 @@ AnimateResult Guest::EdgeOfWorldOnAnimate()
 
 AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
 {
-	if (ri->CanBeVisited(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
+	if (ri->CanBeVisited(this->vox_pos, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
 		/* All lights are green, let's try to enter the ride. */
 		this->activity = GA_ON_RIDE;
 		this->ride = ri;

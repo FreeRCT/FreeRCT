@@ -597,7 +597,7 @@ void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageD
 	}
 }
 
-uint8 CoasterInstance::GetEntranceDirections(uint16 xvox, uint16 yvox, uint8 zvox) const
+uint8 CoasterInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
 	return 0; /// \todo add entrance bits for the coaster.
 }
@@ -607,7 +607,7 @@ RideEntryResult CoasterInstance::EnterRide(int guest, TileEdge edge)
 	return RER_REFUSED; /// \todo Store the guest number.
 }
 
-void CoasterInstance::GetExit(int guest, TileEdge entry_edge, uint32 *xpos, uint32 *ypos, uint32 *zpos)
+XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge entry_edge)
 {
 	assert(false); // Not yet implemented.
 }
