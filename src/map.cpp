@@ -142,7 +142,7 @@ VoxelObject::~VoxelObject()
 /** Mark the voxel containing the voxel object as dirty, so it is repainted. */
 void VoxelObject::MarkDirty()
 {
-	MarkVoxelDirty(this->x_vox, this->y_vox, this->z_vox);
+	MarkVoxelDirty(XYZPoint16(this->x_vox, this->y_vox, this->z_vox));
 }
 
 /** Default constructor. */
@@ -707,6 +707,6 @@ void WorldAdditions::MarkDirty(Viewport *vp)
 	for (const auto &iter : this->modified_stacks) {
 		const Point32 pt = iter.first;
 		const VoxelStack *vstack = iter.second;
-		if (vstack != nullptr) vp->MarkVoxelDirty(pt.x, pt.x, vstack->base, vstack->height);
+		if (vstack != nullptr) vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.x, vstack->base), vstack->height);
 	}
 }

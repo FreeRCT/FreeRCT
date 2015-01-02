@@ -502,7 +502,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, status != PAS_UNUSED);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]);
+						MarkVoxelDirty(XYZPoint16(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]));
 					}
 				}
 			}
@@ -517,7 +517,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]);
+						MarkVoxelDirty(XYZPoint16(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]));
 					}
 				}
 			}
@@ -529,7 +529,7 @@ uint8 AddRemovePathEdges(uint16 xpos, uint16 ypos, uint8 zpos, uint8 slope, uint
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]);
+						MarkVoxelDirty(XYZPoint16(xpos + _tile_dxy[edge].x, ypos + _tile_dxy[edge].y, ngb_zpos[edge]));
 					}
 				}
 			}

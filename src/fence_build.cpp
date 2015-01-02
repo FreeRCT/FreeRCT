@@ -148,7 +148,7 @@ void FenceBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 			assert(v != nullptr);
 		}
 		v->SetFenceType(edge, this->selected_fence_type);
-		vp->MarkVoxelDirty(c->cursor_pos.x, c->cursor_pos.y, c->cursor_pos.z + extra_z);
+		vp->MarkVoxelDirty(XYZPoint16(c->cursor_pos.x, c->cursor_pos.y, c->cursor_pos.z + extra_z));
 	}
 }
 

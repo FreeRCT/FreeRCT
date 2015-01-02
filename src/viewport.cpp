@@ -495,7 +495,7 @@ Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
 
 void Cursor::MarkDirty()
 {
-	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos.x, this->cursor_pos.y, this->cursor_pos.z);
+	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos);
 }
 
 /**
@@ -588,8 +588,8 @@ void MultiCursor::MarkDirty()
 
 	for (uint x = 0; x < this->rect.width; x++) {
 		for (uint y = 0; y < this->rect.height; y++) {
-			this->vp->MarkVoxelDirty(this->rect.base.x + x, this->rect.base.y + y,
-					this->GetZpos(this->rect.base.x + x, this->rect.base.y + y));
+			this->vp->MarkVoxelDirty(XYZPoint16(this->rect.base.x + x, this->rect.base.y + y,
+					this->GetZpos(this->rect.base.x + x, this->rect.base.y + y)));
 		}
 	}
 }
@@ -665,7 +665,7 @@ EdgeCursor::EdgeCursor(Viewport *vp) : BaseCursor(vp)
 
 void EdgeCursor::MarkDirty()
 {
-	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos.x, this->cursor_pos.y, this->cursor_pos.z);
+	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos);
 }
 
 /**
@@ -710,25 +710,22 @@ bool EdgeCursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, const 
 
 /**
  * Get the cursor type at a given position.
- * @param xpos X position of the voxel being drawn.
- * @param ypos Y position of the voxel being drawn.
- * @param zpos Z position of the voxel being drawn.
+ * @param voxel_pos Position of the voxel being drawn.
  * @return %Cursor type at the position (\c CUR_TYPE_INVALID means no cursor available).
  */
-CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
+CursorType Viewport::GetCursorAtPos(const XYZPoint16 &voxel_pos)
 {
 	CursorType ct = CUR_TYPE_INVALID;
 
-	XYZPoint16 cursor_pos(xpos, ypos, zpos);
 	if (this->additions_enabled && !this->additions_displayed) {
-		ct = this->arrow_cursor.GetCursor(cursor_pos);
+		ct = this->arrow_cursor.GetCursor(voxel_pos);
 		if (ct != CUR_TYPE_INVALID) return ct;
 	}
-	ct = this->tile_cursor.GetCursor(cursor_pos);
+	ct = this->tile_cursor.GetCursor(voxel_pos);
 	if (ct != CUR_TYPE_INVALID) return ct;
-	ct = this->area_cursor.GetCursor(cursor_pos);
+	ct = this->area_cursor.GetCursor(voxel_pos);
 	if (ct != CUR_TYPE_INVALID) return ct;
-	return this->edge_cursor.GetCursor(cursor_pos);
+	return this->edge_cursor.GetCursor(voxel_pos);
 }
 
 /**
@@ -764,7 +761,7 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(uint16 xpos, uint16 ypos,
 	yoffset = 0;
 	if (!this->enable_cursors) return nullptr;
 
-	CursorType ctype = this->vp->GetCursorAtPos(xpos, ypos, zpos);
+	CursorType ctype = this->vp->GetCursorAtPos(XYZPoint16(xpos, ypos, zpos));
 	switch (ctype) {
 		case CUR_TYPE_NORTH:
 		case CUR_TYPE_EAST:
@@ -1380,15 +1377,13 @@ void Viewport::OnDraw()
 
 /**
  * Mark a voxel as in need of getting painted.
- * @param xpos X position of the voxel.
- * @param ypos Y position of the voxel.
- * @param zpos Z position of the voxel.
+ * @param voxel_pos Position of the voxel.
  * @param height Number of voxels to mark above the specified coordinate (\c 0 means inspect the voxel itself).
  */
-void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
+void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 {
 	if (height <= 0) {
-		const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
+		const Voxel *v = _world.GetVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z);
 		if (v == nullptr) {
 			height = 1;
 		} else {
@@ -1422,18 +1417,18 @@ void Viewport::MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
 	int32 center_y = this->ComputeY(this->view_pos.x, this->view_pos.y, this->view_pos.z) - this->rect.base.y - this->rect.height / 2;
 
 	pt = &_corner_dxy[this->orientation];
-	rect.base.y = this->ComputeY((xpos + pt->x) * 256, (ypos + pt->y) * 256, (zpos + height) * 256) - center_y;
+	rect.base.y = this->ComputeY((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256, (voxel_pos.z + height) * 256) - center_y;
 
 	pt = &_corner_dxy[RotateCounterClockwise(this->orientation)];
-	rect.base.x = this->ComputeX((xpos + pt->x) * 256, (ypos + pt->y) * 256) - center_x;
+	rect.base.x = this->ComputeX((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256) - center_x;
 
 	pt = &_corner_dxy[RotateClockwise(this->orientation)];
-	int32 d = this->ComputeX((xpos + pt->x) * 256, (ypos + pt->y) * 256) - center_x;
+	int32 d = this->ComputeX((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256) - center_x;
 	assert(d >= rect.base.x);
 	rect.width = d - rect.base.x + 1;
 
 	pt = &_corner_dxy[RotateClockwise(RotateClockwise(this->orientation))];
-	d = this->ComputeY((xpos + pt->x) * 256, (ypos + pt->y) * 256, zpos * 256) - center_y;
+	d = this->ComputeY((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256, voxel_pos.z * 256) - center_y;
 	assert(d >= rect.base.y);
 	rect.height = d - rect.base.y + 1;
 
@@ -1665,15 +1660,13 @@ Viewport *GetViewport()
 
 /**
  * Mark a voxel as in need of getting painted.
- * @param xpos X position of the voxel.
- * @param ypos Y position of the voxel.
- * @param zpos Z position of the voxel.
+ * @param voxel_pos Position of the voxel.
  * @param height Number of voxels to mark above the specified coordinate (\c 0 means inspect the voxel itself).
  */
-void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height)
+void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 {
 	Viewport *vp = GetViewport();
-	if (vp != nullptr) vp->MarkVoxelDirty(xpos, ypos, zpos, height);
+	if (vp != nullptr) vp->MarkVoxelDirty(voxel_pos, height);
 }
 
 /**

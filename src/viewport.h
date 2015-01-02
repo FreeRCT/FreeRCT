@@ -222,14 +222,14 @@ public:
 	Viewport(const XYZPoint32 &view_pos);
 	~Viewport();
 
-	void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height = 0);
+	void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
 	void OnDraw() override;
 
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
 
 	ClickableSprite ComputeCursorPosition(FinderData *fdata);
-	CursorType GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos);
+	CursorType GetCursorAtPos(const XYZPoint16 &voxel_pos);
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 
 	void EnableWorldAdditions();
@@ -334,6 +334,6 @@ void EnableWorldAdditions();
 void DisableWorldAdditions();
 Viewport *GetViewport();
 
-void MarkVoxelDirty(int16 xpos, int16 ypos, int16 zpos, int16 height = 0);
+void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
 
 #endif

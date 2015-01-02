@@ -740,7 +740,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		c->cursor_pos.z = _world.GetGroundHeight(c->cursor_pos.x, c->cursor_pos.y);
 		for (const auto &iter : changes.changes) {
 			const Point32 &pt = iter.first;
-			vp->MarkVoxelDirty(pt.x, pt.y, iter.second.height);
+			vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 		}
 	}
 }
@@ -791,7 +791,7 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 	for (const auto &iter : changes.changes) {
 		const Point32 &pt = iter.first;
 		c->ResetZPosition(pt);
-		vp->MarkVoxelDirty(pt.x, pt.y, iter.second.height);
+		vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 	}
 }
 

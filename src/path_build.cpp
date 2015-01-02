@@ -48,7 +48,7 @@ static void BuildPathAtTile(int xpos, int ypos, int zpos, PathType path_type, ui
 		av->SetInstanceData(PATH_INVALID);
 	}
 
-	MarkVoxelDirty(xpos, ypos, zpos);
+	MarkVoxelDirty(XYZPoint16(xpos, ypos, zpos));
 }
 
 /**
@@ -67,7 +67,7 @@ static void RemovePathAtTile(int xpos, int ypos, int zpos, uint8 path_spr)
 		av->SetInstance(SRI_FREE);
 		av->SetInstanceData(0);
 		AddRemovePathEdges(xpos, ypos, zpos, path_spr, EDGE_ALL, true, PAS_UNUSED);
-		MarkVoxelDirty(xpos, ypos, zpos);
+		MarkVoxelDirty(XYZPoint16(xpos, ypos, zpos));
 
 		av = avs->GetCreate(zpos + 1, false);
 		av->SetInstance(SRI_FREE);
