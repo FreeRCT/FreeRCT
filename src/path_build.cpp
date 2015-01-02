@@ -90,12 +90,12 @@ bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge)
 	voxel_pos.y += _tile_dxy[edge].y;
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
 
-	const Voxel *vx = _world.GetVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z);
+	const Voxel *vx = _world.GetVoxel(voxel_pos);
 	if (vx == nullptr || !HasValidPath(vx)) {
 		/* No path here, check the voxel below. */
 		if (voxel_pos.z == 0) return false;
 		voxel_pos.z--;
-		vx = _world.GetVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z);
+		vx = _world.GetVoxel(voxel_pos);
 		if (vx == nullptr || !HasValidPath(vx)) return false;
 		/* Path must end at the top of the voxel. */
 		return GetImplodedPathSlope(vx) == _path_up_from_edge[edge];
@@ -273,14 +273,14 @@ static uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge)
 	if (!IsVoxelstackInsideWorld(voxel_pos.x + dxy.x, voxel_pos.y + dxy.y) ||
 			(_game_mode_mgr.InPlayMode() && _world.GetTileOwner(voxel_pos.x + dxy.x, voxel_pos.y + dxy.y) != OWN_PARK)) return 0;
 
-	const Voxel *v = _world.GetVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z);
+	const Voxel *v = _world.GetVoxel(voxel_pos);
 	if (v != nullptr && HasValidPath(v)) {
 		PathSprites ps = GetImplodedPathSlope(v);
 		if (ps < PATH_FLAT_COUNT) return 1 << TSL_FLAT;
 		if (ps == _path_up_from_edge[edge]) return 1 << TSL_UP;
 	}
 	if (voxel_pos.z > 0) {
-		v = _world.GetVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z - 1);
+		v = _world.GetVoxel(XYZPoint16(voxel_pos.x, voxel_pos.y, voxel_pos.z - 1));
 		if (v != nullptr &&  HasValidPath(v) && GetImplodedPathSlope(v) == _path_down_from_edge[edge]) return 1 << TSL_DOWN;
 	}
 
@@ -303,7 +303,7 @@ static uint8 GetPathAttachPoints(const XYZPoint16 &voxel_pos)
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return 0;
 	if (voxel_pos.z >= WORLD_Z_SIZE - 1) return 0; // The voxel containing the flat path, and one above it.
 
-	const Voxel *v = _world.GetVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z);
+	const Voxel *v = _world.GetVoxel(voxel_pos);
 	if (v == nullptr) return 0;
 
 	uint8 edges = 0;
@@ -487,12 +487,12 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 	const Voxel *v_top, *v_bot;
 	if (move_up) {
 		/* Exit of current tile is at the top. */
-		v_top = (this->pos.z > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z + 1);
-		v_bot = _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z);
+		v_top = (this->pos.z > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z + 1));
+		v_bot = _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z));
 	} else {
 		/* Exit of current tile is at the bottom. */
-		v_top = _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z);
-		v_bot = (this->pos.z == 0) ? nullptr : _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z - 1);
+		v_top = _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z));
+		v_bot = (this->pos.z == 0) ? nullptr : _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z - 1));
 	}
 
 	/* Try to find a voxel with a path. */
@@ -543,7 +543,7 @@ void PathBuildManager::SelectMovement(bool move_forward)
 	TileEdge edge = (move_forward) ? this->selected_arrow : (TileEdge)((this->selected_arrow + 2) % 4);
 
 	bool move_up;
-	const Voxel *v = _world.GetVoxel(this->pos.x, this->pos.y, this->pos.z);
+	const Voxel *v = _world.GetVoxel(this->pos);
 	if (v == nullptr) return;
 	if (HasValidPath(v)) {
 		move_up = (GetImplodedPathSlope(v) == _path_down_from_edge[edge]);
@@ -706,7 +706,7 @@ bool PathBuildManager::GetRemoveIsEnabled() const
 {
 	if (this->state == PBS_IDLE || this->state == PBS_WAIT_VOXEL) return false;
 	/* If current tile has a path, it can be removed. */
-	const Voxel *v = _world.GetVoxel(this->pos.x, this->pos.y, this->pos.z);
+	const Voxel *v = _world.GetVoxel(this->pos);
 	if (v != nullptr && HasValidPath(v)) return true;
 	return this->state == PBS_WAIT_BUY;
 }
@@ -878,7 +878,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		// Removing a path tile.
 		if (this->state <= PBS_WAIT_VOXEL || this->state > PBS_WAIT_BUY) return;
 		TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
-		const Voxel *v = _world.GetVoxel(this->pos.x, this->pos.y, this->pos.z);
+		const Voxel *v = _world.GetVoxel(this->pos);
 		if (v == nullptr || !HasValidPath(v)) {
 			this->MoveCursor(edge, false);
 			this->UpdateState();

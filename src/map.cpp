@@ -125,7 +125,7 @@ VoxelObject::~VoxelObject()
 {
 	if (this->added) {
 		this->MarkDirty();
-		Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
+		Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 		this->RemoveSelf(v);
 	}
 }
@@ -286,7 +286,7 @@ void VoxelWorld::SetWorldSize(uint16 xs, uint16 ys)
 static void AddFoundations(VoxelWorld *world, uint16 xpos, uint16 ypos, int16 z, uint8 bits)
 {
 	for (int16 zpos = 0; zpos < z; zpos++) {
-		Voxel *v = world->GetCreateVoxel(xpos, ypos, zpos, true);
+		Voxel *v = world->GetCreateVoxel(XYZPoint16(xpos, ypos, zpos), true);
 		if (v->GetFoundationType() == FDT_INVALID) {
 			v->SetFoundationType(FDT_GROUND);
 			v->SetFoundationSlope(bits);
@@ -304,7 +304,7 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 {
 	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
 		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
-			Voxel *v = this->GetCreateVoxel(xpos, ypos, z, true);
+			Voxel *v = this->GetCreateVoxel(XYZPoint16(xpos, ypos, z), true);
 			v->SetFoundationType(FDT_INVALID);
 			v->SetGroundType(GTP_GRASS0);
 			v->SetGroundSlope(ImplodeTileSlope(SL_FLAT));

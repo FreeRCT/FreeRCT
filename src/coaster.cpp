@@ -258,7 +258,7 @@ void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos,
 	if (this->yaw != 0xff && change_voxel) {
 		/* Valid data, and changing voxel -> remove self from the old voxel. */
 		this->MarkDirty();
-		Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
+		Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 		this->RemoveSelf(v);
 	}
 
@@ -279,7 +279,7 @@ void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos,
 		this->MarkDirty(); // Voxel or orientation has changed, repaint the possibly new voxel.
 
 		if (change_voxel) { // With a really new voxel, also add self to the new voxel.
-			Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
+			Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 			this->AddSelf(v);
 		}
 	}
@@ -791,7 +791,7 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 	const CoasterType *ct = this->GetCoasterType();
 	const TrackVoxel *tvx = placed.piece->track_voxels;
 	for (int i = 0; i < placed.piece->voxel_count; i++) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel.x + tvx->dx, placed.base_voxel.y + tvx->dy, placed.base_voxel.z + tvx->dz, true);
+		Voxel *vx = _additions.GetCreateVoxel(XYZPoint16(placed.base_voxel.x + tvx->dx, placed.base_voxel.y + tvx->dy, placed.base_voxel.z + tvx->dz), true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
 		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
@@ -807,7 +807,7 @@ void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &pl
 {
 	const TrackVoxel *tvx = placed.piece->track_voxels;
 	for (int i = 0; i < placed.piece->voxel_count; i++) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel.x + tvx->dx, placed.base_voxel.y + tvx->dy, placed.base_voxel.z + tvx->dz, false);
+		Voxel *vx = _additions.GetCreateVoxel(XYZPoint16(placed.base_voxel.x + tvx->dx, placed.base_voxel.y + tvx->dy, placed.base_voxel.z + tvx->dz), false);
 		assert(vx->GetInstance() == (SmallRideInstance)this->GetIndex());
 		vx->SetInstance(SRI_FREE);
 		vx->SetInstanceData(0); // Not really needed.

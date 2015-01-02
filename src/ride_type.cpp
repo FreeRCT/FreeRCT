@@ -630,11 +630,11 @@ RideInstance *RideExistsAtBottom(int xpos, int ypos, int zpos, TileEdge edge)
 	ypos += _tile_dxy[edge].y;
 	if (!IsVoxelstackInsideWorld(xpos, ypos)) return nullptr;
 
-	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
+	const Voxel *vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos));
 	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) {
 		/* No ride here, check the voxel below. */
 		if (zpos == 0) return nullptr;
-		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
+		vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos - 1));
 	}
 	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) return nullptr;
 	return _rides_manager.GetRideInstance(vx->GetInstance());

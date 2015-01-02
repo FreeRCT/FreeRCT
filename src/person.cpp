@@ -150,9 +150,9 @@ const char *Person::GetName() const
  * @return Z height of the path in the voxel at the give position.
  * @todo Make it work at sloped surface too, in case the person ends up at path-less land.
  */
-static int16 GetZHeight(XYZPoint16 vox, int16 x_pos, int16 y_pos)
+static int16 GetZHeight(const XYZPoint16 &vox, int16 x_pos, int16 y_pos)
 {
-	const Voxel *v = _world.GetVoxel(vox.x, vox.y, vox.z);
+	const Voxel *v = _world.GetVoxel(vox);
 	if (HasValidPath(v)) {
 		uint8 slope = GetImplodedPathSlope(v);
 		if (slope < PATH_FLAT_COUNT) return 0;
@@ -188,7 +188,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	this->vox_pos.x = start.x;
 	this->vox_pos.y = start.y;
 	this->vox_pos.z = _world.GetGroundHeight(start.x, start.y);
-	this->AddSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
+	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 
 	if (start.x == 0) {
 		this->x_pos = 0;
@@ -463,7 +463,7 @@ void Guest::ExitRide(RideInstance *ri, TileEdge entry)
 	this->vox_pos.y = ypos >> 8; this->y_pos = ypos & 0xff;
 	this->vox_pos.z = zpos >> 8; this->z_pos = zpos & 0xff;
 	this->activity = GA_WANDER;
-	this->AddSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
+	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	this->DecideMoveDirection();
 }
 
@@ -795,9 +795,9 @@ void Person::DeActivate(AnimateResult ar)
 {
 	if (!this->IsActive()) return;
 
-	if (ar == OAR_REMOVE && _world.VoxelExists(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z)) {
+	if (ar == OAR_REMOVE && _world.VoxelExists(this->vox_pos)) {
 		/* If not wandered off-world, remove the person from the voxel person list. */
-		this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
+		this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	}
 
 	this->type = PERSON_INVALID;
@@ -879,7 +879,7 @@ AnimateResult Person::OnAnimate(int delay)
 	int dz = 0;
 	TileEdge exit_edge = INVALID_EDGE;
 
-	this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
+	this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	if (this->x_pos < 0) {
 		dx--;
 		this->vox_pos.x--;
@@ -915,7 +915,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->z_pos = 0;
 	}
 	/* At bottom of the voxel. */
-	Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
+	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 	if (v != nullptr) {
 		SmallRideInstance instance = v->GetInstance();
 		if (instance >= SRI_FULL_RIDES) {
@@ -935,7 +935,7 @@ AnimateResult Person::OnAnimate(int delay)
 			dz--;
 			this->vox_pos.z--;
 			this->z_pos = 255;
-			Voxel *w = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
+			Voxel *w = _world.GetCreateVoxel(this->vox_pos, false);
 			if (w != nullptr && HasValidPath(w)) {
 				this->AddSelf(w);
 				this->DecideMoveDirection();
@@ -948,7 +948,7 @@ AnimateResult Person::OnAnimate(int delay)
 		if (dy != 0) { this->vox_pos.y -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
 		if (dz != 0) { this->vox_pos.z -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
 
-		this->AddSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
+		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
@@ -957,7 +957,7 @@ AnimateResult Person::OnAnimate(int delay)
 		dz--;
 		this->vox_pos.z--;
 		this->z_pos = 255;
-		v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
+		v = _world.GetCreateVoxel(this->vox_pos, false);
 	}
 	if (v != nullptr && HasValidPath(v)) {
 		this->AddSelf(v);

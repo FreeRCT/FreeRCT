@@ -155,7 +155,7 @@ bool PathSearcher::Search()
 		}
 
 		/* Add new open points. */
-		const Voxel *v = _world.GetVoxel(wp->x, wp->y, wp->z);
+		const Voxel *v = _world.GetVoxel(XYZPoint16(wp->x, wp->y, wp->z));
 		if (v == nullptr) continue; // No voxel at the expected point, don't bother.
 
 		uint8 exits = GetPathExits(v);
@@ -173,14 +173,14 @@ bool PathSearcher::Search()
 			if (new_z < 0 || new_z >= WORLD_Z_SIZE) continue;
 
 			/* Now check the other side, new_z is the voxel where the path should be at the bottom. */
-			const Voxel *v2 = _world.GetVoxel(wp->x + dxy.x, wp->y + dxy.y, new_z);
+			const Voxel *v2 = _world.GetVoxel(XYZPoint16(wp->x + dxy.x, wp->y + dxy.y, new_z));
 			if (v2 == nullptr) continue;
 
 			uint8 other_exits = GetPathExits(v2);
 			if ((other_exits & (1 << ((edge + 2) % 4))) == 0) { // No path here, try one voxel below
 				new_z--;
 				if (new_z < 0) continue;
-				v2 = _world.GetVoxel(wp->x + dxy.x, wp->y + dxy.y, new_z);
+				v2 = _world.GetVoxel(XYZPoint16(wp->x + dxy.x, wp->y + dxy.y, new_z));
 				if (v2 == nullptr) continue;
 				other_exits = GetPathExits(v2);
 				if ((other_exits & (0x10 << ((edge + 2) % 4))) == 0) continue;

@@ -73,7 +73,7 @@ void FenceBuildManager::SetCursors()
 	FinderData fdata(CS_GROUND_EDGE, FW_EDGE);
 	if (vp->ComputeCursorPosition(&fdata) != CS_NONE && fdata.cursor >= CUR_TYPE_EDGE_NE && fdata.cursor <= CUR_TYPE_EDGE_NW) {
 		TileEdge edge = (TileEdge)((uint8)fdata.cursor - (uint8)CUR_TYPE_EDGE_NE);
-		const Voxel *v = _world.GetVoxel(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z);
+		const Voxel *v = _world.GetVoxel(fdata.voxel_pos);
 		assert(v != nullptr);
 		TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
 		/*
@@ -85,7 +85,7 @@ void FenceBuildManager::SetCursors()
 		int32 extra_z = 0;
 		if ((slope & TSB_TOP) == 0 && IsRaisedEdge(edge, slope)) {
 			extra_z = 1;
-			v = _world.GetCreateVoxel(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z + extra_z, true);
+			v = _world.GetCreateVoxel(XYZPoint16(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z + extra_z), true);
 			assert(v != nullptr);
 		}
 		const SpriteStorage *ss = _sprite_manager.GetSprites(vp->tile_width);

@@ -1381,7 +1381,7 @@ void Viewport::OnDraw()
 void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 {
 	if (height <= 0) {
-		const Voxel *v = _world.GetVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z);
+		const Voxel *v = _world.GetVoxel(voxel_pos);
 		if (v == nullptr) {
 			height = 1;
 		} else {

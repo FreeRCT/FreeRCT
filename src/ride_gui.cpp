@@ -375,7 +375,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 {
 	/* 1. Can the position itself be used to build a shop? */
 	if (_world.GetTileOwner(xpos, ypos) != OWN_PARK) return false;
-	const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
+	const Voxel *vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos));
 	if (vx != nullptr) {
 		if (!vx->CanPlaceInstance()) return false; // Cannot build on a path or other ride.
 		return vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT; // Can build at a flat surface.
@@ -383,7 +383,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, int xpos,
 
 	/* 2. Is the shop just above non-flat ground? */
 	if (zpos > 0) {
-		vx = _world.GetVoxel(xpos, ypos, zpos - 1);
+		vx = _world.GetVoxel(XYZPoint16(xpos, ypos, zpos - 1));
 		if (vx != nullptr && vx->GetInstance() == SRI_FREE &&
 				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
 	}
@@ -486,7 +486,7 @@ void ShopPlacementManager::PlaceShop(const Point16 &pos)
 			/// \todo Let the shop do this.
 			ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
 			assert(si != nullptr && si->GetKind() == RTK_SHOP);
-			Voxel *vx = _additions.GetCreateVoxel(si->xpos, si->ypos, si->zpos, true);
+			Voxel *vx = _additions.GetCreateVoxel(XYZPoint16(si->xpos, si->ypos, si->zpos), true);
 			assert(this->instance >= SRI_FULL_RIDES && this->instance <= SRI_LAST);
 			vx->SetInstance((SmallRideInstance)this->instance);
 			uint8 entrances = si->GetEntranceDirections(si->xpos, si->ypos, si->zpos);

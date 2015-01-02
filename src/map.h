@@ -510,27 +510,23 @@ public:
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.
-	 * @param x X coordinate of the voxel.
-	 * @param y Y coordinate of the voxel.
-	 * @param z Z coordinate of the voxel.
+	 * @param vox Coordinate of the voxel.
 	 * @return Address of the voxel (if it exists).
 	 */
-	inline const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
+	inline const Voxel *GetVoxel(const XYZPoint16 &vox) const
 	{
-		return this->GetStack(x, y)->Get(z);
+		return this->GetStack(vox.x, vox.y)->Get(vox.z);
 	}
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.
-	 * @param x X coordinate of the voxel.
-	 * @param y Y coordinate of the voxel.
-	 * @param z Z coordinate of the voxel.
+	 * @param vox Coordinate of the voxel.
 	 * @param create If the requested voxel does not exist, try to create it.
 	 * @return Address of the voxel (if it exists or could be created).
 	 */
-	inline Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
+	inline Voxel *GetCreateVoxel(const XYZPoint16 &vox, bool create)
 	{
-		return this->GetModifyStack(x, y)->GetCreate(z, create);
+		return this->GetModifyStack(vox.x, vox.y)->GetCreate(vox.z, create);
 	}
 
 	/**
@@ -553,17 +549,15 @@ public:
 
 	/**
 	 * Does the provided voxel exist in the world?
-	 * @param x X coordinate of the voxel.
-	 * @param y Y coordinate of the voxel.
-	 * @param z Z coordinate of the voxel.
+	 * @param vox Coordinate of the voxel.
 	 * @return Whether a voxel with content exists at the given position.
 	 */
-	inline bool VoxelExists(int16 x, int16 y, int16 z) const
+	inline bool VoxelExists(const XYZPoint16 &vox) const
 	{
-		if (x < 0 || x >= (int)this->GetXSize()) return false;
-		if (y < 0 || y >= (int)this->GetYSize()) return false;
-		const VoxelStack *vs = this->GetStack(x, y);
-		if (z < vs->base || z >= vs->base + (int)vs->height) return false;
+		if (vox.x < 0 || vox.x >= (int)this->GetXSize()) return false;
+		if (vox.y < 0 || vox.y >= (int)this->GetYSize()) return false;
+		const VoxelStack *vs = this->GetStack(vox.x, vox.y);
+		if (vox.z < vs->base || vox.z >= vs->base + (int)vs->height) return false;
 		return true;
 	}
 
@@ -607,27 +601,23 @@ public:
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.
-	 * @param x X coordinate of the voxel.
-	 * @param y Y coordinate of the voxel.
-	 * @param z Z coordinate of the voxel.
+	 * @param vox Coordinate of the voxel.
 	 * @return Address of the voxel (if it exists).
 	 */
-	inline const Voxel *GetVoxel(uint16 x, uint16 y, int16 z) const
+	inline const Voxel *GetVoxel(const XYZPoint16 &vox) const
 	{
-		return this->GetStack(x, y)->Get(z);
+		return this->GetStack(vox.x, vox.y)->Get(vox.z);
 	}
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.
-	 * @param x X coordinate of the voxel.
-	 * @param y Y coordinate of the voxel.
-	 * @param z Z coordinate of the voxel.
+	 * @param vox Coordinate of the voxel.
 	 * @param create If the requested voxel does not exist, try to create it.
 	 * @return Address of the voxel (if it exists or could be created).
 	 */
-	inline Voxel *GetCreateVoxel(uint16 x, uint16 y, int16 z, bool create)
+	inline Voxel *GetCreateVoxel(const XYZPoint16 &vox, bool create)
 	{
-		return this->GetModifyStack(x, y)->GetCreate(z, create);
+		return this->GetModifyStack(vox.x, vox.y)->GetCreate(vox.z, create);
 	}
 
 	void MarkDirty(Viewport *vp);

@@ -249,33 +249,27 @@ uint8 GetPathExits(const Voxel *v)
  */
 bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry)
 {
-	int orig_xp = voxel_pos->x;
-	int orig_yp = voxel_pos->y;
-	int orig_zp = voxel_pos->z;
-
-	int xpos = voxel_pos->x;
-	int ypos = voxel_pos->y;
-	int zpos = voxel_pos->z;
+	XYZPoint16 new_pos = *voxel_pos;
 	TileEdge edge = *entry;
 
 	/* Check that entry voxel actually exists. */
-	if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
+	if (!IsVoxelstackInsideWorld(new_pos.x, new_pos.y)) return false;
 
 	for (;;) {
-		xpos += _tile_dxy[edge].x;
-		ypos += _tile_dxy[edge].y;
-		if (!IsVoxelstackInsideWorld(xpos, ypos)) return false;
+		new_pos.x += _tile_dxy[edge].x;
+		new_pos.y += _tile_dxy[edge].y;
+		if (!IsVoxelstackInsideWorld(new_pos.x, new_pos.y)) return false;
 
-		const Voxel *vx = _world.GetVoxel(xpos, ypos, zpos);
+		const Voxel *vx = _world.GetVoxel(new_pos);
 		if (vx == nullptr || !HasValidPath(vx)) {
 			/* No path here, check the voxel below. */
-			if (zpos == 0) return true; // Path ends here.
-			zpos--;
-			vx = _world.GetVoxel(xpos, ypos, zpos);
+			if (new_pos.z == 0) return true; // Path ends here.
+			new_pos.z--;
+			vx = _world.GetVoxel(new_pos);
 			if (vx == nullptr || !HasValidPath(vx)) return true; // Path ends here.
 		}
 
-		if (xpos == orig_xp && ypos == orig_yp && zpos == orig_zp) return false; // Cycle detected.
+		if (new_pos == *voxel_pos) return false; // Cycle detected.
 
 		/* Stop if we found a non-queue path. */
 		if (_sprite_manager.GetPathStatus(GetPathType(vx->GetInstanceData())) != PAS_QUEUE_PATH) return true;
@@ -289,8 +283,8 @@ bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry)
 
 		/* Check that the new tile can go back to our last tile. */
 		uint8 rev_edge = (edge + 2) % 4;
-		if (!((exits & (0x01 << rev_edge)) != 0 && zpos == voxel_pos->z) &&
-				!((exits & (0x10 << rev_edge)) != 0 && zpos == voxel_pos->z - 1)) {
+		if (!((exits & (0x01 << rev_edge)) != 0 && new_pos.z == voxel_pos->z) &&
+				!((exits & (0x10 << rev_edge)) != 0 && new_pos.z == voxel_pos->z - 1)) {
 			return false;
 		}
 
@@ -299,16 +293,14 @@ bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry)
 			if (edge == rev_edge) continue; // Skip the direction we came from.
 			if ((exits & (0x01 << edge)) != 0) break;
 			if ((exits & (0x10 << edge)) != 0) {
-				zpos++;
+				new_pos.z++;
 				break;
 			}
 		}
 
 		if (edge == EDGE_COUNT) return false; // Queue path doesn't have a second exit.
 
-		voxel_pos->x = xpos;
-		voxel_pos->y = ypos;
-		voxel_pos->z = zpos;
+		*voxel_pos = new_pos;
 		*entry = edge;
 	}
 }
@@ -388,9 +380,9 @@ static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, bool use_addit
 	*dest_inst_data = PATH_INVALID;
 
 	if (use_additions) {
-		v = _additions.GetCreateVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z, false);
+		v = _additions.GetCreateVoxel(voxel_pos, false);
 	} else {
-		v = _world.GetCreateVoxel(voxel_pos.x, voxel_pos.y, voxel_pos.z, false);
+		v = _world.GetCreateVoxel(voxel_pos, false);
 	}
 	if (v == nullptr) return false;
 

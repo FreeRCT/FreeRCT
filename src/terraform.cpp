@@ -138,7 +138,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 	auto iter = this->changes.find(pos);
 	if (iter == this->changes.end()) {
 		uint8 height = _world.GetGroundHeight(pos.x, pos.y);
-		const Voxel *v = _world.GetVoxel(pos.x, pos.y, height);
+		const Voxel *v = _world.GetVoxel(XYZPoint16(pos.x, pos.y, height));
 		assert(v != nullptr && v->GetGroundType() != GTP_INVALID);
 		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
 		iter = this->changes.insert(p).first;
