@@ -49,7 +49,7 @@ public:
 	void CloseWindow(uint16 instance);
 	void ShowNoPiece(uint16 instance);
 	void SelectPosition(uint16 instance, ConstTrackPiecePtr piece, TileEdge direction);
-	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction);
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction);
 
 	bool MayActivateMode() override;
 	void ActivateMode(const Point16 &pos) override;

@@ -279,44 +279,26 @@ typedef std::shared_ptr<const TrackPiece> ConstTrackPiecePtr;
  */
 class PositionedTrackPiece {
 public:
-	PositionedTrackPiece();
-	PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos, ConstTrackPiecePtr piece);
+	PositionedTrackPiece() = default;
+	PositionedTrackPiece(const XYZPoint16 &vox_pos, ConstTrackPiecePtr piece);
 
 	bool IsOnWorld() const;
 	bool CanBePlaced() const;
-	bool CanBeSuccessor(uint16 x, uint16 y, uint8 z, uint8 connect) const;
+	bool CanBeSuccessor(const XYZPoint16 &vox, uint8 connect) const;
 	bool CanBeSuccessor(const PositionedTrackPiece &pred) const;
 
 	/**
-	 * Get the X position of the exit voxel.
-	 * @return The X position of the exit voxel.
+	 * Get the position of the exit voxel.
+	 * @return The position of the exit voxel.
 	 */
-	inline uint16 GetEndX() const
+	inline XYZPoint16 GetEndXYZ() const
 	{
-		return this->x_base + this->piece->exit_dx;
+		return XYZPoint16(this->base_voxel.x + this->piece->exit_dx,
+		                  this->base_voxel.y + this->piece->exit_dy,
+		                  this->base_voxel.z + this->piece->exit_dz);
 	}
 
-	/**
-	 * Get the Y position of the exit voxel.
-	 * @return The Y position of the exit voxel.
-	 */
-	inline uint16 GetEndY() const
-	{
-		return this->y_base + this->piece->exit_dy;
-	}
-
-	/**
-	 * Get the Z position of the exit voxel.
-	 * @return The Z position of the exit voxel.
-	 */
-	inline uint8 GetEndZ() const
-	{
-		return this->z_base + this->piece->exit_dz;
-	}
-
-	uint16 x_base; ///< X position of the entry point of the track piece.
-	uint16 y_base; ///< Y position of the entry point of the track piece.
-	uint8 z_base;  ///< Z position of the entry point of the track piece.
+	XYZPoint16 base_voxel; ///< Position (in voxels) of the entry point of the track piece.
 	uint32 distance_base; ///< Base distance of this track piece in its roller coaster.
 
 	ConstTrackPiecePtr piece; ///< Track piece placed at the given position, may be \c nullptr.

@@ -383,9 +383,9 @@ void CoasterTrain::OnAnimate(int delay)
 		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
 
 		/* Get position of the back of the car. */
-		int32 xpos_back = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->x_base << 8);
-		int32 ypos_back = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
-		int32 zpos_back = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
+		int32 xpos_back = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->base_voxel.x << 8);
+		int32 ypos_back = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->base_voxel.y << 8);
+		int32 zpos_back = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->base_voxel.z << 8);
 
 		/* Get roll from the center of the car. */
 		position += car_length / 2;
@@ -403,9 +403,9 @@ void CoasterTrain::OnAnimate(int delay)
 			ptp = this->coaster->pieces;
 		}
 		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
-		int32 xpos_front = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->x_base << 8);
-		int32 ypos_front = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->y_base << 8);
-		int32 zpos_front = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->z_base << 8);
+		int32 xpos_front = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->base_voxel.x << 8);
+		int32 ypos_front = ptp->piece->car_ypos->GetValue(position - ptp->distance_base) + (ptp->base_voxel.y << 8);
+		int32 zpos_front = ptp->piece->car_zpos->GetValue(position - ptp->distance_base) * 2 + (ptp->base_voxel.z << 8);
 
 		int32 xder = xpos_front - xpos_back;
 		int32 yder = ypos_front - ypos_back;
@@ -652,20 +652,18 @@ int CoasterInstance::GetFirstPlacedTrackPiece() const
 
 /**
  * Find the first placed track piece at a given position with a given entry connection.
- * @param x Required X position.
- * @param y Required Y position.
- * @param z Required Z position.
+ * @param vox Required voxel position.
  * @param entry_connect Required entry connection.
  * @param start First index to search.
  * @param end End of the search (one beyond the last positioned track piece to search).
  * @return Index of the requested positioned track piece if it exists, else \c -1.
  */
-int CoasterInstance::FindSuccessorPiece(uint16 x, uint16 y, uint8 z, uint8 entry_connect, int start, int end)
+int CoasterInstance::FindSuccessorPiece(const XYZPoint16 &vox, uint8 entry_connect, int start, int end)
 {
 	if (start < 0) start = 0;
 	if (end > MAX_PLACED_TRACK_PIECES) end = MAX_PLACED_TRACK_PIECES;
 	for (; start < end; start++) {
-		if (this->pieces[start].CanBeSuccessor(x, y, z, entry_connect)) return start;
+		if (this->pieces[start].CanBeSuccessor(vox, entry_connect)) return start;
 	}
 	return -1;
 }
@@ -677,7 +675,7 @@ int CoasterInstance::FindSuccessorPiece(uint16 x, uint16 y, uint8 z, uint8 entry
  */
 int CoasterInstance::FindSuccessorPiece(const PositionedTrackPiece &placed)
 {
-	return this->FindSuccessorPiece(placed.GetEndX(), placed.GetEndY(), placed.GetEndZ(), placed.piece->exit_connect);
+	return this->FindSuccessorPiece(placed.GetEndXYZ(), placed.piece->exit_connect);
 }
 
 /**
@@ -733,7 +731,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 	distance += ptp->piece->piece_length;
 
 	for (int i = 1; i < count; i++) {
-		int j = this->FindSuccessorPiece(ptp->GetEndX(), ptp->GetEndY(), ptp->GetEndZ(), ptp->piece->exit_connect, i, count);
+		int j = this->FindSuccessorPiece(ptp->GetEndXYZ(), ptp->piece->exit_connect, i, count);
 		if (j < 0) return false;
 		ptp++; // Now points to pieces[i].
 		if (i != j) {
@@ -793,7 +791,7 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 	const CoasterType *ct = this->GetCoasterType();
 	const TrackVoxel *tvx = placed.piece->track_voxels;
 	for (int i = 0; i < placed.piece->voxel_count; i++) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.x_base + tvx->dx, placed.y_base + tvx->dy, placed.z_base + tvx->dz, true);
+		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel.x + tvx->dx, placed.base_voxel.y + tvx->dy, placed.base_voxel.z + tvx->dz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
 		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
@@ -809,7 +807,7 @@ void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &pl
 {
 	const TrackVoxel *tvx = placed.piece->track_voxels;
 	for (int i = 0; i < placed.piece->voxel_count; i++) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.x_base + tvx->dx, placed.y_base + tvx->dy, placed.z_base + tvx->dz, false);
+		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel.x + tvx->dx, placed.base_voxel.y + tvx->dy, placed.base_voxel.z + tvx->dz, false);
 		assert(vx->GetInstance() == (SmallRideInstance)this->GetIndex());
 		vx->SetInstance(SRI_FREE);
 		vx->SetInstanceData(0); // Not really needed.

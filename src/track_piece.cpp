@@ -226,24 +226,14 @@ bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return length == 0;
 }
 
-/** Default constructor. */
-PositionedTrackPiece::PositionedTrackPiece()
-{
-	this->piece = nullptr;
-}
-
 /**
  * Constructor taking values for all its fields.
- * @param xpos X position of the positioned track piece.
- * @param ypos Y position of the positioned track piece.
- * @param zpos Z position of the positioned track piece.
+ * @param vox_pos Position of the positioned track piece.
  * @param piece Track piece to use.
  */
-PositionedTrackPiece::PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos, ConstTrackPiecePtr piece)
+PositionedTrackPiece::PositionedTrackPiece(const XYZPoint16 &vox_pos, ConstTrackPiecePtr piece)
 {
-	this->x_base = xpos;
-	this->y_base = ypos;
-	this->z_base = zpos;
+	this->base_voxel = vox_pos;
 	this->piece = piece;
 }
 
@@ -255,12 +245,12 @@ PositionedTrackPiece::PositionedTrackPiece(uint16 xpos, uint16 ypos, uint8 zpos,
 bool PositionedTrackPiece::IsOnWorld() const
 {
 	assert(this->piece != nullptr);
-	if (!IsVoxelInsideWorld(this->x_base, this->y_base, this->z_base)) return false;
-	if (!IsVoxelInsideWorld(this->x_base + this->piece->exit_dx, this->y_base + this->piece->exit_dy,
-			this->z_base + this->piece->exit_dz)) return false;
+	if (!IsVoxelInsideWorld(this->base_voxel.x, this->base_voxel.y, this->base_voxel.z)) return false;
+	if (!IsVoxelInsideWorld(this->base_voxel.x + this->piece->exit_dx, this->base_voxel.y + this->piece->exit_dy,
+			this->base_voxel.z + this->piece->exit_dz)) return false;
 	const TrackVoxel *tvx = this->piece->track_voxels;
 	for (int i = 0; i < this->piece->voxel_count; i++) {
-		if (!IsVoxelInsideWorld(this->x_base + tvx->dx, this->y_base + tvx->dy, this->z_base + tvx->dz)) return false;
+		if (!IsVoxelInsideWorld(this->base_voxel.x + tvx->dx, this->base_voxel.y + tvx->dy, this->base_voxel.z + tvx->dz)) return false;
 		tvx++;
 	}
 	return true;
@@ -277,8 +267,8 @@ bool PositionedTrackPiece::CanBePlaced() const
 	const TrackVoxel *tvx = this->piece->track_voxels;
 	for (int i = 0; i < this->piece->voxel_count; i++) {
 		/* Is the voxel above ground level? */
-		if (_world.GetGroundHeight(this->x_base + tvx->dx, this->y_base + tvx->dy) > this->z_base + tvx->dz) return false;
-		const Voxel *vx = _world.GetVoxel(this->x_base + tvx->dx, this->y_base + tvx->dy, this->z_base + tvx->dz);
+		if (_world.GetGroundHeight(this->base_voxel.x + tvx->dx, this->base_voxel.y + tvx->dy) > this->base_voxel.z + tvx->dz) return false;
+		const Voxel *vx = _world.GetVoxel(this->base_voxel.x + tvx->dx, this->base_voxel.y + tvx->dy, this->base_voxel.z + tvx->dz);
 		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
 	}
 	return true;
@@ -286,15 +276,13 @@ bool PositionedTrackPiece::CanBePlaced() const
 
 /**
  * Can this positioned track piece function as a successor for the given exit conditions?
- * @param x Required X position.
- * @param y Required Y position.
- * @param z Required Z position.
+ * @param vox Required coordinate position.
  * @param connect Required entry connection.
  * @return This positioned track piece can be used as successor.
  */
-bool PositionedTrackPiece::CanBeSuccessor(uint16 x, uint16 y, uint8 z, uint8 connect) const
+bool PositionedTrackPiece::CanBeSuccessor(const XYZPoint16 &vox, uint8 connect) const
 {
-	return this->piece != nullptr && this->x_base == x && this->y_base == y && this->z_base == z && this->piece->entry_connect == connect;
+	return this->piece != nullptr && this->base_voxel == vox && this->piece->entry_connect == connect;
 }
 
 /**
@@ -305,5 +293,5 @@ bool PositionedTrackPiece::CanBeSuccessor(uint16 x, uint16 y, uint8 z, uint8 con
 bool PositionedTrackPiece::CanBeSuccessor(const PositionedTrackPiece &pred) const
 {
 	if (pred.piece == nullptr) return false;
-	return this->CanBeSuccessor(pred.GetEndX(), pred.GetEndY(), pred.GetEndZ(), pred.piece->exit_connect);
+	return this->CanBeSuccessor(pred.GetEndXYZ(), pred.piece->exit_connect);
 }

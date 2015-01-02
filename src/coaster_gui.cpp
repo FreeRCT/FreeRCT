@@ -570,8 +570,7 @@ void CoasterBuildWindow::SetupSelection()
 		} else {
 			if (this->cur_after) {
 				TileEdge dir = (TileEdge)(this->cur_piece->piece->exit_connect & 3); /// \todo Define this in the data format
-				_coaster_builder.DisplayPiece(this->wnumber, this->sel_piece, this->cur_piece->GetEndX(),
-						this->cur_piece->GetEndY(), this->cur_piece->GetEndZ(), dir);
+				_coaster_builder.DisplayPiece(this->wnumber, this->sel_piece, this->cur_piece->GetEndXYZ(), dir);
 			}
 			// XXX else: display before start.
 		}
@@ -587,8 +586,8 @@ void CoasterBuildWindow::SetupSelection()
 int CoasterBuildWindow::BuildTrackPiece()
 {
 	if (this->sel_piece == nullptr) return -1;
-	PositionedTrackPiece ptp(_coaster_builder.track_xpos, _coaster_builder.track_ypos,
-			_coaster_builder.track_zpos, this->sel_piece);
+	PositionedTrackPiece ptp(XYZPoint16(_coaster_builder.track_xpos, _coaster_builder.track_ypos, _coaster_builder.track_zpos),
+	                         this->sel_piece);
 	if (!ptp.CanBePlaced()) return -1;
 
 	/* Add the piece to the coaster instance. */
@@ -719,7 +718,7 @@ public:
 	 * @param z Z position of the piece.
 	 * @param direction Direction of building (to use with a cursor).
 	 */
-	virtual void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction) const = 0;
+	virtual void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const = 0;
 
 	CoasterBuildMode * const mode; ///< Coaster build mouse mode.
 };
@@ -782,7 +781,7 @@ public:
 	{
 	}
 
-	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction) const override
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 	}
 };
@@ -860,10 +859,10 @@ public:
 		mode->SetSelectPosition(piece, direction);
 	}
 
-	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction) const override
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, x, y, z, direction);
+		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
 	}
 };
 
@@ -937,10 +936,10 @@ public:
 		mode->SetState(BS_MOUSE);
 	}
 
-	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction) const override
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, x, y, z, direction);
+		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_FIXED);
 	}
@@ -989,7 +988,7 @@ public:
 
 	void OnMouseButtonEvent(Viewport *vp, uint8 state) const override
 	{
-		PositionedTrackPiece ptp(mode->track_xpos, mode->track_ypos, mode->track_zpos, mode->cur_piece);
+		PositionedTrackPiece ptp(XYZPoint16(mode->track_xpos, mode->track_ypos, mode->track_zpos), mode->cur_piece);
 		if (ptp.CanBePlaced()) {
 			mode->SetNoPiece();
 			mode->UpdateDisplay(false);
@@ -1025,10 +1024,10 @@ public:
 		mode->UpdateDisplay(false);
 	}
 
-	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction) const override
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, x, y, z, direction);
+		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
 		mode->UpdateDisplay(false);
 		mode->SetState(BS_FIXED);
 	}
@@ -1103,10 +1102,10 @@ public:
 		mode->SetState(BS_MOUSE);
 	}
 
-	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction) const override
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 		if (mode->instance != instance) return;
-		mode->SetFixedPiece(piece, x, y, z, direction);
+		mode->SetFixedPiece(piece, vox.x, vox.y, vox.z, direction);
 		mode->UpdateDisplay(false);
 	}
 };
@@ -1171,7 +1170,7 @@ public:
 	{
 	}
 
-	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction) const override
+	void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const override
 	{
 	}
 };
@@ -1248,9 +1247,9 @@ void CoasterBuildMode::SelectPosition(uint16 instance, ConstTrackPiecePtr piece,
  * @param z Z position of the piece.
  * @param direction Direction of building (to use with a cursor).
  */
-void CoasterBuildMode::DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, int x, int y, int z, TileEdge direction)
+void CoasterBuildMode::DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction)
 {
-	_coaster_build_states[this->state]->DisplayPiece(instance, piece, x, y, z, direction);
+	_coaster_build_states[this->state]->DisplayPiece(instance, piece, vox, direction);
 }
 
 /**
@@ -1350,7 +1349,7 @@ void CoasterBuildMode::UpdateDisplay(bool mousepos_changed)
 	}
 	_additions.Clear();
 	EnableWorldAdditions();
-	PositionedTrackPiece ptp(this->track_xpos, this->track_ypos, this->track_zpos, this->cur_piece);
+	PositionedTrackPiece ptp(XYZPoint16(this->track_xpos, this->track_ypos, this->track_zpos), this->cur_piece);
 	CoasterInstance *ci = static_cast<CoasterInstance *>(_rides_manager.GetRideInstance(this->instance));
 	if (ptp.CanBePlaced()) ci->PlaceTrackPieceInAdditions(ptp);
 	vp->arrow_cursor.SetCursor(XYZPoint16(this->track_xpos, this->track_ypos, this->track_zpos), (CursorType)(CUR_TYPE_ARROW_NE + this->direction));
