@@ -381,7 +381,7 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, const XYZ
 
 	/* 2. Is the shop just above non-flat ground? */
 	if (pos.z > 0) {
-		vx = _world.GetVoxel(XYZPoint16(pos.x, pos.y, pos.z - 1));
+		vx = _world.GetVoxel(pos + XYZPoint16(0, 0, -1));
 		if (vx != nullptr && vx->GetInstance() == SRI_FREE &&
 				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
 	}
@@ -421,33 +421,33 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(XYZPoint32 world_pos)
 		default: NOT_REACHED();
 	}
 
-	XYZPoint16 pos;
+	XYZPoint16 vox_pos;
 	/* Move to the top voxel of the world. */
-	pos.z = WORLD_Z_SIZE - 1;
-	int dz = pos.z * 256 - world_pos.z;
+	vox_pos.z = WORLD_Z_SIZE - 1;
+	int dz = vox_pos.z * 256 - world_pos.z;
 	world_pos.x += dx * dz / 2;
 	world_pos.y += dy * dz / 2;
 
-	while (pos.z >= 0) {
-		pos.x = world_pos.x / 256;
-		pos.y = world_pos.y / 256;
-		if (IsVoxelstackInsideWorld(pos.x, pos.y) && this->CanPlaceShop(st, pos)) {
+	while (vox_pos.z >= 0) {
+		vox_pos.x = world_pos.x / 256;
+		vox_pos.y = world_pos.y / 256;
+		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceShop(st, vox_pos)) {
 			/* Position of the shop the same as previously? */
-			if (si->vox_pos != pos || si->orientation != this->orientation) {
-				si->SetRide((this->orientation + vp->orientation) & 3, pos);
+			if (si->vox_pos != vox_pos || si->orientation != this->orientation) {
+				si->SetRide((this->orientation + vp->orientation) & 3, vox_pos);
 				return RPR_CHANGED;
 			}
 			return RPR_SAMEPOS;
 		} else {
 			/* Since z gets smaller, we subtract dx and dy, thus the checks reverse. */
-			if (pos.x < 0 && dx > 0) break;
-			if (pos.x >= _world.GetXSize() && dx < 0) break;
-			if (pos.y < 0 && dy > 0) break;
-			if (pos.y >= _world.GetYSize() && dy < 0) break;
+			if (vox_pos.x < 0 && dx > 0) break;
+			if (vox_pos.x >= _world.GetXSize() && dx < 0) break;
+			if (vox_pos.y < 0 && dy > 0) break;
+			if (vox_pos.y >= _world.GetYSize() && dy < 0) break;
 		}
 		world_pos.x -= 128 * dx;
 		world_pos.y -= 128 * dy;
-		pos.z--;
+		vox_pos.z--;
 	}
 	return RPR_FAIL;
 }

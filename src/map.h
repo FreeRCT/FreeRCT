@@ -356,9 +356,7 @@ public:
 	bool added;               ///< Whether the voxel object has been added to a voxel.
 
 	XYZPoint16 vox_pos; ///< %Voxel position of the object.
-	int16 x_pos; ///< X position of the person inside the voxel (0..255).
-	int16 y_pos; ///< Y position of the person inside the voxel (0..255).
-	int16 z_pos; ///< Z position of the person inside the voxel (0..255).
+	XYZPoint16 pix_pos; ///< Position of the object inside the voxel (0..255, but may be outside).
 };
 
 /**

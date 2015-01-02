@@ -191,19 +191,19 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 
 	if (start.x == 0) {
-		this->x_pos = 0;
-		this->y_pos = 128 - this->offset;
+		this->pix_pos.x = 0;
+		this->pix_pos.y = 128 - this->offset;
 	} else if (start.x == _world.GetXSize() - 1) {
-		this->x_pos = 255;
-		this->y_pos = 128 + this->offset;
+		this->pix_pos.x = 255;
+		this->pix_pos.y = 128 + this->offset;
 	} else if (start.y == 0) {
-		this->x_pos = 128 + this->offset;
-		this->y_pos = 0;
+		this->pix_pos.x = 128 + this->offset;
+		this->pix_pos.y = 0;
 	} else {
-		this->x_pos = 128 - this->offset;
-		this->y_pos = 255;
+		this->pix_pos.x = 128 - this->offset;
+		this->pix_pos.y = 255;
 	}
-	this->z_pos = GetZHeight(this->vox_pos, this->x_pos, this->y_pos);
+	this->pix_pos.z = GetZHeight(this->vox_pos, this->pix_pos.x, this->pix_pos.y);
 
 	this->DecideMoveDirection();
 }
@@ -366,16 +366,16 @@ static const WalkInformation *_center_path_tile[4][4] = {
  */
 TileEdge Person::GetCurrentEdge() const
 {
-	assert(this->x_pos >= 0 && this->x_pos <= 255);
-	assert(this->y_pos >= 0 && this->y_pos <= 255);
+	assert(this->pix_pos.x >= 0 && this->pix_pos.x <= 255);
+	assert(this->pix_pos.y >= 0 && this->pix_pos.y <= 255);
 
-	int x = (this->x_pos < 128) ? this->x_pos : 255 - this->x_pos;
-	int y = (this->y_pos < 128) ? this->y_pos : 255 - this->y_pos;
+	int x = (this->pix_pos.x < 128) ? this->pix_pos.x : 255 - this->pix_pos.x;
+	int y = (this->pix_pos.y < 128) ? this->pix_pos.y : 255 - this->pix_pos.y;
 
 	if (x < y) {
-		return (this->x_pos < 128) ? EDGE_NE : EDGE_SW;
+		return (this->pix_pos.x < 128) ? EDGE_NE : EDGE_SW;
 	} else {
-		return (this->y_pos < 128) ? EDGE_NW : EDGE_SE;
+		return (this->pix_pos.y < 128) ? EDGE_NW : EDGE_SE;
 	}
 }
 
@@ -405,7 +405,7 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 	}
 
 	Point16 dxy = _tile_dxy[exit_edge];
-	if (!ri->CanBeVisited(XYZPoint16(cur_pos.x + dxy.x, cur_pos.y + dxy.y, cur_pos.z), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
+	if (!ri->CanBeVisited(cur_pos + XYZPoint16(dxy.x, dxy.y, 0), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
 
 	RideVisitDesire rvd = this->WantToVisit(ri);
 	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
@@ -452,9 +452,9 @@ void Guest::ExitRide(RideInstance *ri, TileEdge entry)
 	assert(this->ride == ri);
 
 	XYZPoint32 exit_pos = ri->GetExit(this->id, entry);
-	this->vox_pos.x = exit_pos.x >> 8; this->x_pos = exit_pos.x & 0xff;
-	this->vox_pos.y = exit_pos.y >> 8; this->y_pos = exit_pos.y & 0xff;
-	this->vox_pos.z = exit_pos.z >> 8; this->z_pos = exit_pos.z & 0xff;
+	this->vox_pos.x = exit_pos.x >> 8; this->pix_pos.x = exit_pos.x & 0xff;
+	this->vox_pos.y = exit_pos.y >> 8; this->pix_pos.y = exit_pos.y & 0xff;
+	this->vox_pos.z = exit_pos.z >> 8; this->pix_pos.z = exit_pos.z & 0xff;
 	this->activity = GA_WANDER;
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	this->DecideMoveDirection();
@@ -487,16 +487,16 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 
 	/* Being at a path tile, make extra sure we don't leave the path. */
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
-		int z; // Decide z position of the exit.
+		int extra_z; // Decide z position of the exit.
 		if (GB(bot_exits, exit_edge, 1) != 0) {
-			z = this->vox_pos.z;
+			extra_z = 0;
 		} else if (GB(top_exits, exit_edge, 1) != 0) {
-			z = this->vox_pos.z + 1;
+			extra_z = 1;
 		} else {
 			continue;
 		}
 
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, XYZPoint16(this->vox_pos.x, this->vox_pos.y, z), exit_edge, seen_wanted_ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, seen_wanted_ride);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break; // A path is one of the options.
@@ -833,20 +833,20 @@ AnimateResult Person::OnAnimate(int delay)
 
 	uint16 index = this->frame_index;
 	const AnimationFrame *frame = &this->frames[index];
-	this->x_pos += frame->dx;
-	this->y_pos += frame->dy;
+	this->pix_pos.x += frame->dx;
+	this->pix_pos.y += frame->dy;
 
 	bool reached = false; // Set to true when we are beyond the limit!
 	if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
-		if (frame->dx > 0) reached |= this->x_pos > x_limit;
-		if (frame->dx < 0) reached |= this->x_pos < x_limit;
+		if (frame->dx > 0) reached |= this->pix_pos.x > x_limit;
+		if (frame->dx < 0) reached |= this->pix_pos.x < x_limit;
 
-		if (y_limit >= 0) this->y_pos += sign(y_limit - this->y_pos); // Also slowly move the other axis in the right direction.
+		if (y_limit >= 0) this->pix_pos.y += sign(y_limit - this->pix_pos.y); // Also slowly move the other axis in the right direction.
 	} else {
-		if (frame->dy > 0) reached |= this->y_pos > y_limit;
-		if (frame->dy < 0) reached |= this->y_pos < y_limit;
+		if (frame->dy > 0) reached |= this->pix_pos.y > y_limit;
+		if (frame->dy < 0) reached |= this->pix_pos.y < y_limit;
 
-		if (x_limit >= 0) this->x_pos += sign(x_limit - this->x_pos); // Also slowly move the other axis in the right direction.
+		if (x_limit >= 0) this->pix_pos.x += sign(x_limit - this->pix_pos.x); // Also slowly move the other axis in the right direction.
 	}
 
 	if (!reached) {
@@ -856,7 +856,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->frame_index = index;
 		this->frame_time = this->frames[index].duration;
 
-		this->z_pos = GetZHeight(this->vox_pos, this->x_pos, this->y_pos);
+		this->pix_pos.z = GetZHeight(this->vox_pos, this->pix_pos.x, this->pix_pos.y);
 		return OAR_OK;
 	}
 
@@ -873,39 +873,39 @@ AnimateResult Person::OnAnimate(int delay)
 	TileEdge exit_edge = INVALID_EDGE;
 
 	this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
-	if (this->x_pos < 0) {
+	if (this->pix_pos.x < 0) {
 		dx--;
 		this->vox_pos.x--;
-		this->x_pos += 256;
+		this->pix_pos.x += 256;
 		exit_edge = EDGE_NE;
-	} else if (this->x_pos > 255) {
+	} else if (this->pix_pos.x > 255) {
 		dx++;
 		this->vox_pos.x++;
-		this->x_pos -= 256;
+		this->pix_pos.x -= 256;
 		exit_edge = EDGE_SW;
 	}
-	if (this->y_pos < 0) {
+	if (this->pix_pos.y < 0) {
 		dy--;
 		this->vox_pos.y--;
-		this->y_pos += 256;
+		this->pix_pos.y += 256;
 		exit_edge = EDGE_NW;
-	} else if (this->y_pos > 255) {
+	} else if (this->pix_pos.y > 255) {
 		dy++;
 		this->vox_pos.y++;
-		this->y_pos -= 256;
+		this->pix_pos.y -= 256;
 		exit_edge = EDGE_SE;
 	}
-	assert(this->x_pos >= 0 && this->x_pos < 256);
-	assert(this->y_pos >= 0 && this->y_pos < 256);
+	assert(this->pix_pos.x >= 0 && this->pix_pos.x < 256);
+	assert(this->pix_pos.y >= 0 && this->pix_pos.y < 256);
 
 	AnimateResult ar = this->EdgeOfWorldOnAnimate();
 	if (ar != OAR_CONTINUE) return ar;
 
 	/* Handle raising of z position. */
-	if (this->z_pos > 128) {
+	if (this->pix_pos.z > 128) {
 		dz++;
 		this->vox_pos.z++;
-		this->z_pos = 0;
+		this->pix_pos.z = 0;
 	}
 	/* At bottom of the voxel. */
 	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
@@ -927,7 +927,7 @@ AnimateResult Person::OnAnimate(int delay)
 		} else if (this->vox_pos.z > 0) { // Maybe a path below this voxel?
 			dz--;
 			this->vox_pos.z--;
-			this->z_pos = 255;
+			this->pix_pos.z = 255;
 			Voxel *w = _world.GetCreateVoxel(this->vox_pos, false);
 			if (w != nullptr && HasValidPath(w)) {
 				this->AddSelf(w);
@@ -937,9 +937,9 @@ AnimateResult Person::OnAnimate(int delay)
 		}
 
 		/* Restore the person at the previous tile (ie reverse movement). */
-		if (dx != 0) { this->vox_pos.x -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
-		if (dy != 0) { this->vox_pos.y -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
-		if (dz != 0) { this->vox_pos.z -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
+		if (dx != 0) { this->vox_pos.x -= dx; this->pix_pos.x = (dx > 0) ? 255 : 0; }
+		if (dy != 0) { this->vox_pos.y -= dy; this->pix_pos.y = (dy > 0) ? 255 : 0; }
+		if (dz != 0) { this->vox_pos.z -= dz; this->pix_pos.z = (dz > 0) ? 255 : 0; }
 
 		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 		this->DecideMoveDirection();
@@ -949,7 +949,7 @@ AnimateResult Person::OnAnimate(int delay)
 	if (this->vox_pos.z > 0) {
 		dz--;
 		this->vox_pos.z--;
-		this->z_pos = 255;
+		this->pix_pos.z = 255;
 		v = _world.GetCreateVoxel(this->vox_pos, false);
 	}
 	if (v != nullptr && HasValidPath(v)) {

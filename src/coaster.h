@@ -123,7 +123,7 @@ public:
 
 	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
 
-	void Set(int16 xvoxel, int16 yvoxel, int8  zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw);
+	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
 	void PreRemove();
 
 	const CarType *car_type; ///< Car type data.

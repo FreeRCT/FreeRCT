@@ -86,11 +86,33 @@ struct XYZPoint {
 		this->z = z;
 	}
 
+	/**
+	 * Get the 2D coordinates of the 3D point.
+	 * @return X & Y coordinates.
+	 */
+	Point<CT> Get2D() const
+	{
+		return Point<CT>(this->x, this->y);
+	}
+
 	typedef CT CoordType; ///< Type of the coordinate value.
 
 	CT x; ///< X coordinate.
 	CT y; ///< Y coordinate.
 	CT z; ///< Z coordinate.
+
+	/**
+	 * Add a 3D point to this one.
+	 * @param q Second point to add.
+	 * @return All 3 dimensions added to each other.
+	 */
+	inline XYZPoint<CT> operator+=(const XYZPoint<CT> &q)
+	{
+		this->x += q.x;
+		this->y += q.y;
+		this->z += q.z;
+		return *this;
+	}
 };
 
 typedef XYZPoint<int32> XYZPoint32; ///< 32 bit 3D point.
@@ -118,6 +140,20 @@ template <typename CT>
 inline bool operator!=(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
 {
 	return !(p == q);
+}
+
+/**
+ * Add two 3D points together.
+ * @param p First point to add.
+ * @param q Second point to add.
+ * @return All 3 dimensions added to each other.
+ * @note Takes a copy of the lhs.
+ */
+template <typename CT>
+inline XYZPoint<CT> operator+(XYZPoint<CT> p, const XYZPoint<CT> &q)
+{
+	p += q;
+	return p;
 }
 
 /**

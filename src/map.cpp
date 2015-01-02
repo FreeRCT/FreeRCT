@@ -707,6 +707,6 @@ void WorldAdditions::MarkDirty(Viewport *vp)
 	for (const auto &iter : this->modified_stacks) {
 		const Point32 pt = iter.first;
 		const VoxelStack *vstack = iter.second;
-		if (vstack != nullptr) vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.x, vstack->base), vstack->height);
+		if (vstack != nullptr) vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, vstack->base), vstack->height);
 	}
 }

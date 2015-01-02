@@ -626,7 +626,7 @@ RideInstance *RideExistsAtBottom(XYZPoint16 pos, TileEdge edge)
 	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) {
 		/* No ride here, check the voxel below. */
 		if (pos.z == 0) return nullptr;
-		vx = _world.GetVoxel(XYZPoint16(pos.x, pos.y, pos.z - 1));
+		vx = _world.GetVoxel(pos + XYZPoint16(0, 0, -1));
 	}
 	if (vx == nullptr || vx->GetInstance() < SRI_FULL_RIDES) return nullptr;
 	return _rides_manager.GetRideInstance(vx->GetInstance());

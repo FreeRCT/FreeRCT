@@ -280,7 +280,7 @@ static uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge)
 		if (ps == _path_up_from_edge[edge]) return 1 << TSL_UP;
 	}
 	if (voxel_pos.z > 0) {
-		v = _world.GetVoxel(XYZPoint16(voxel_pos.x, voxel_pos.y, voxel_pos.z - 1));
+		v = _world.GetVoxel(voxel_pos + XYZPoint16(0, 0, -1));
 		if (v != nullptr &&  HasValidPath(v) && GetImplodedPathSlope(v) == _path_down_from_edge[edge]) return 1 << TSL_DOWN;
 	}
 
@@ -487,12 +487,12 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 	const Voxel *v_top, *v_bot;
 	if (move_up) {
 		/* Exit of current tile is at the top. */
-		v_top = (this->pos.z > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z + 1));
-		v_bot = _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z));
+		v_top = (this->pos.z > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(this->pos + XYZPoint16(dxy.x, dxy.y, 1));
+		v_bot = _world.GetVoxel(this->pos + XYZPoint16(dxy.x, dxy.y, 0));
 	} else {
 		/* Exit of current tile is at the bottom. */
-		v_top = _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z));
-		v_bot = (this->pos.z == 0) ? nullptr : _world.GetVoxel(XYZPoint16(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z - 1));
+		v_top = _world.GetVoxel(this->pos + XYZPoint16(dxy.x, dxy.y, 0));
+		v_bot = (this->pos.z == 0) ? nullptr : _world.GetVoxel(this->pos + XYZPoint16(dxy.x, dxy.y, -1));
 	}
 
 	/* Try to find a voxel with a path. */
@@ -780,7 +780,7 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 		default: NOT_REACHED();
 	}
 
-	XYZPoint16 path_pos = XYZPoint16(0, 0, 0);
+	XYZPoint16 path_pos(0, 0, 0);
 	path_pos.y = this->pos.y * 256 + 128;
 	int32 lambda_y = path_pos.y - mousexy.y; // Distance to constant Y plane at current tile cursor.
 	path_pos.x = this->pos.x * 256 + 128;

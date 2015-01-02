@@ -85,7 +85,7 @@ void FenceBuildManager::SetCursors()
 		int32 extra_z = 0;
 		if ((slope & TSB_TOP) == 0 && IsRaisedEdge(edge, slope)) {
 			extra_z = 1;
-			v = _world.GetCreateVoxel(XYZPoint16(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z + extra_z), true);
+			v = _world.GetCreateVoxel(fdata.voxel_pos + XYZPoint16(0, 0, extra_z), true);
 			assert(v != nullptr);
 		}
 		const SpriteStorage *ss = _sprite_manager.GetSprites(vp->tile_width);
@@ -148,7 +148,7 @@ void FenceBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 			assert(v != nullptr);
 		}
 		v->SetFenceType(edge, this->selected_fence_type);
-		vp->MarkVoxelDirty(XYZPoint16(c->cursor_pos.x, c->cursor_pos.y, c->cursor_pos.z + extra_z));
+		vp->MarkVoxelDirty(c->cursor_pos + XYZPoint16(0, 0, extra_z));
 	}
 }
 

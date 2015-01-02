@@ -238,22 +238,19 @@ const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, View
 
 /**
  * Set the position and orientation of the car. It requests repainting of voxels.
- * @param xvoxel %Voxel in x direction.
- * @param yvoxel %Voxel in y direction.
- * @param zvoxel %Voxel in z direction.
- * @param xpos X position within the voxel (may be outside the \c 0..255 boundary).
- * @param ypos Y position within the voxel (may be outside the \c 0..255 boundary).
- * @param zpos Z position within the voxel (may be outside the \c 0..255 boundary).
+ * @param vox_pos %Voxel position of car.
+ * @param pix_pos Position within the voxel (may be outside the \c 0..255 boundary).
  * @param pitch Pitch of the car.
  * @param roll Roll of the car.
  * @param yaw Yaw of the car.
  */
-void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw)
+void DisplayCoasterCar::Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw)
 {
-	bool change_voxel = this->vox_pos.x != xvoxel || this->vox_pos.y != yvoxel || this->vox_pos.z != zvoxel;
+	bool change_voxel = this->vox_pos != vox_pos;
 
-	if (!change_voxel && this->x_pos == xpos && this->y_pos == ypos && this->z_pos == zpos &&
-			this->pitch == pitch && this->roll == roll && this->yaw == yaw) return; // Nothing changed.
+	if (!change_voxel && this->pix_pos == pix_pos && this->pitch == pitch && this->roll == roll && this->yaw == yaw) {
+		return; // Nothing changed.
+	}
 
 	if (this->yaw != 0xff && change_voxel) {
 		/* Valid data, and changing voxel -> remove self from the old voxel. */
@@ -263,14 +260,8 @@ void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos,
 	}
 
 	/* Update voxel and orientation. */
-	this->vox_pos.x = xvoxel;
-	this->vox_pos.y = yvoxel;
-	this->vox_pos.z = zvoxel;
-
-	this->x_pos = xpos;
-	this->y_pos = ypos;
-	this->z_pos = zpos;
-
+	this->vox_pos = vox_pos;
+	this->pix_pos = pix_pos;
 	this->pitch = pitch;
 	this->roll = roll;
 	this->yaw = yaw;
@@ -509,9 +500,14 @@ void CoasterTrain::OnAnimate(int delay)
 		xpos_front &= 0xFFFFFF00;
 		ypos_front &= 0xFFFFFF00;
 		zpos_front &= 0xFFFFFF00;
+		XYZPoint16 back( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8);
+		XYZPoint16 front(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8);
 
-		car.back.Set( xpos_back  >> 8, ypos_back  >> 8, zpos_back  >> 8, xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back,  pitch, roll, yaw);
-		car.front.Set(xpos_front >> 8, ypos_front >> 8, zpos_front >> 8, xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front, pitch, roll, yaw);
+		XYZPoint16 back_pix( xpos_middle - xpos_back,  ypos_middle - ypos_back,  zpos_middle - zpos_back);
+		XYZPoint16 front_pix(xpos_middle - xpos_front, ypos_middle - ypos_front, zpos_middle - zpos_front);
+
+		car.back.Set (back,  back_pix,  pitch, roll, yaw);
+		car.front.Set(front, front_pix, pitch, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
 	}
 }

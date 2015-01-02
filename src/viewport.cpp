@@ -1106,8 +1106,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		DrawData dd;
 		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &dd.recolour);
 		if (anim_spr != nullptr) {
-			int x_off = ComputeX(vo->x_pos, vo->y_pos);
-			int y_off = ComputeY(vo->x_pos, vo->y_pos, vo->z_pos);
+			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
+			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
 			dd.level = slice;
 			dd.z_height = voxel_pos.z;
 			dd.order = SO_PERSON;
@@ -1270,8 +1270,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 			assert(pers != nullptr && pers->walk != nullptr);
 			AnimationType anim_type = pers->walk->anim_type;
 			const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
-			int x_off = ComputeX(pers->x_pos, pers->y_pos);
-			int y_off = ComputeY(pers->x_pos, pers->y_pos, pers->z_pos);
+			int x_off = ComputeX(pers->pix_pos.x, pers->pix_pos.y);
+			int y_off = ComputeY(pers->pix_pos.x, pers->pix_pos.y, pers->pix_pos.z);
 			DrawData dd;
 			dd.level = slice;
 			dd.z_height = voxel_pos.z;
