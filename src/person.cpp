@@ -144,17 +144,15 @@ const char *Person::GetName() const
 
 /**
  * Compute the height of the path in the given voxel, at the given x/y position.
- * @param x_vox X coordinate of the voxel.
- * @param y_vox Y coordinate of the voxel.
- * @param z_vox Z coordinate of the voxel.
+ * @param vox Coordinates of the voxel.
  * @param x_pos X position in the voxel.
  * @param y_pos Y position in the voxel.
  * @return Z height of the path in the voxel at the give position.
  * @todo Make it work at sloped surface too, in case the person ends up at path-less land.
  */
-static int16 GetZHeight(int16 x_vox, int16 y_vox, int16 z_vox, int16 x_pos, int16 y_pos)
+static int16 GetZHeight(XYZPoint16 vox, int16 x_pos, int16 y_pos)
 {
-	const Voxel *v = _world.GetVoxel(x_vox, y_vox, z_vox);
+	const Voxel *v = _world.GetVoxel(vox.x, vox.y, vox.z);
 	if (HasValidPath(v)) {
 		uint8 slope = GetImplodedPathSlope(v);
 		if (slope < PATH_FLAT_COUNT) return 0;
@@ -187,10 +185,10 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	this->recolour = person_type_data.graphics.MakeRecolouring();
 
 	/* Set up initial position. */
-	this->x_vox = start.x;
-	this->y_vox = start.y;
-	this->z_vox = _world.GetGroundHeight(start.x, start.y);
-	this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+	this->vox_pos.x = start.x;
+	this->vox_pos.y = start.y;
+	this->vox_pos.z = _world.GetGroundHeight(start.x, start.y);
+	this->AddSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
 
 	if (start.x == 0) {
 		this->x_pos = 0;
@@ -205,7 +203,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 		this->x_pos = 128 - this->offset;
 		this->y_pos = 255;
 	}
-	this->z_pos = GetZHeight(this->x_vox, this->y_vox, this->z_vox, this->x_pos, this->y_pos);
+	this->z_pos = GetZHeight(this->vox_pos, this->x_pos, this->y_pos);
 
 	this->DecideMoveDirection();
 }
@@ -461,11 +459,11 @@ void Guest::ExitRide(RideInstance *ri, TileEdge entry)
 
 	uint32 xpos, ypos, zpos;
 	ri->GetExit(this->id, entry, &xpos, &ypos, &zpos);
-	this->x_vox = xpos >> 8; this->x_pos = xpos & 0xff;
-	this->y_vox = ypos >> 8; this->y_pos = ypos & 0xff;
-	this->z_vox = zpos >> 8; this->z_pos = zpos & 0xff;
+	this->vox_pos.x = xpos >> 8; this->x_pos = xpos & 0xff;
+	this->vox_pos.y = ypos >> 8; this->y_pos = ypos & 0xff;
+	this->vox_pos.z = zpos >> 8; this->z_pos = zpos & 0xff;
 	this->activity = GA_WANDER;
-	this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+	this->AddSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
 	this->DecideMoveDirection();
 }
 
@@ -498,14 +496,14 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		int z; // Decide z position of the exit.
 		if (GB(bot_exits, exit_edge, 1) != 0) {
-			z = this->z_vox;
+			z = this->vox_pos.z;
 		} else if (GB(top_exits, exit_edge, 1) != 0) {
-			z = this->z_vox + 1;
+			z = this->vox_pos.z + 1;
 		} else {
 			continue;
 		}
 
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->x_vox, this->y_vox, z, exit_edge, seen_wanted_ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos.x, this->vox_pos.y, z, exit_edge, seen_wanted_ride);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break; // A path is one of the options.
@@ -536,14 +534,12 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 
 /**
  * From a junction, find the direction that leads to an entrance of the park.
- * @param pos_x X position of the current position.
- * @param pos_y Y position of the current position.
- * @param pos_z Z position of the current position.
+ * @param pos Current position.
  * @return Edge to go to to go to an entrance of the park, or #INVALID_EDGE if no path could be found.
  */
-static TileEdge GetParkEntryDirection(int pos_x, int pos_y, int pos_z)
+static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 {
-	PathSearcher ps(pos_x, pos_y, pos_z); // Current position is the destination.
+	PathSearcher ps(pos.x, pos.y, pos.z); // Current position is the destination.
 
 	/* Add path tiles with a connection to outside the park to the initial starting points. */
 	for (int x = 0; x < _world.GetXSize() - 1; x++) {
@@ -589,14 +585,12 @@ static TileEdge GetParkEntryDirection(int pos_x, int pos_y, int pos_z)
 
 /**
  * From a junction, find the direction that leads to the 'go home' tile.
- * @param pos_x X position of the current position.
- * @param pos_y Y position of the current position.
- * @param pos_z Z position of the current position.
+ * @param pos Current position.
  * @return Edge to go to to go to the 'go home' tile, or #INVALID_EDGE if no path could be found.
  */
-static TileEdge GetGoHomeDirection(int pos_x, int pos_y, int pos_z)
+static TileEdge GetGoHomeDirection(const XYZPoint16 &pos)
 {
-	PathSearcher ps(pos_x, pos_y, pos_z); // Current position is the destination.
+	PathSearcher ps(pos.x, pos.y, pos.z); // Current position is the destination.
 
 	int x = _guests.start_voxel.x;
 	int y = _guests.start_voxel.y;
@@ -635,8 +629,8 @@ static int GetDesiredEdgeIndex(TileEdge desired_edge, uint8 exits)
  */
 void Guest::DecideMoveDirection()
 {
-	const VoxelStack *vs = _world.GetStack(this->x_vox, this->y_vox);
-	const Voxel *v = vs->Get(this->z_vox);
+	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
+	const Voxel *v = vs->Get(this->vox_pos.z);
 	TileEdge start_edge = this->GetCurrentEdge(); // Edge the person is currently.
 
 	if (this->activity == GA_ENTER_PARK && vs->owner == OWN_PARK) {
@@ -728,10 +722,10 @@ uint8 Person::GetInparkDirections()
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		Point16 dxy = _tile_dxy[exit_edge];
 
-		if (this->x_vox + dxy.x < 0 || this->x_vox + dxy.x >= _world.GetXSize()) continue;
-		if (this->y_vox + dxy.y < 0 || this->y_vox + dxy.y >= _world.GetYSize()) continue;
+		if (this->vox_pos.x + dxy.x < 0 || this->vox_pos.x + dxy.x >= _world.GetXSize()) continue;
+		if (this->vox_pos.y + dxy.y < 0 || this->vox_pos.y + dxy.y >= _world.GetYSize()) continue;
 
-		if (_world.GetTileOwner(this->x_vox + dxy.x, this->y_vox + dxy.y) == OWN_PARK) {
+		if (_world.GetTileOwner(this->vox_pos.x + dxy.x, this->vox_pos.y + dxy.y) == OWN_PARK) {
 			SB(exits, exit_edge, 1, 1);
 		}
 	}
@@ -751,7 +745,7 @@ const WalkInformation *Guest::WalkForActivity(const WalkInformation **walks, uin
 	const WalkInformation *new_walk;
 	switch (this->activity) {
 		case GA_ENTER_PARK: { // Find the park entrance.
-			TileEdge desired = GetParkEntryDirection(this->x_vox, this->y_vox, this->z_vox);
+			TileEdge desired = GetParkEntryDirection(this->vox_pos);
 			int selected = GetDesiredEdgeIndex(desired, exits);
 			if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
 			new_walk = walks[selected];
@@ -759,7 +753,7 @@ const WalkInformation *Guest::WalkForActivity(const WalkInformation **walks, uin
 		}
 
 		case GA_GO_HOME: {
-			TileEdge desired = GetGoHomeDirection(this->x_vox, this->y_vox, this->z_vox);
+			TileEdge desired = GetGoHomeDirection(this->vox_pos);
 			int selected = GetDesiredEdgeIndex(desired, exits);
 			if (selected < 0) selected = this->rnd.Uniform(walk_count - 1);
 			new_walk = walks[selected];
@@ -801,9 +795,9 @@ void Person::DeActivate(AnimateResult ar)
 {
 	if (!this->IsActive()) return;
 
-	if (ar == OAR_REMOVE && _world.VoxelExists(this->x_vox, this->y_vox, this->z_vox)) {
+	if (ar == OAR_REMOVE && _world.VoxelExists(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z)) {
 		/* If not wandered off-world, remove the person from the voxel person list. */
-		this->RemoveSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+		this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
 	}
 
 	this->type = PERSON_INVALID;
@@ -869,7 +863,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->frame_index = index;
 		this->frame_time = this->frames[index].duration;
 
-		this->z_pos = GetZHeight(this->x_vox, this->y_vox, this->z_vox, this->x_pos, this->y_pos);
+		this->z_pos = GetZHeight(this->vox_pos, this->x_pos, this->y_pos);
 		return OAR_OK;
 	}
 
@@ -885,26 +879,26 @@ AnimateResult Person::OnAnimate(int delay)
 	int dz = 0;
 	TileEdge exit_edge = INVALID_EDGE;
 
-	this->RemoveSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+	this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
 	if (this->x_pos < 0) {
 		dx--;
-		this->x_vox--;
+		this->vox_pos.x--;
 		this->x_pos += 256;
 		exit_edge = EDGE_NE;
 	} else if (this->x_pos > 255) {
 		dx++;
-		this->x_vox++;
+		this->vox_pos.x++;
 		this->x_pos -= 256;
 		exit_edge = EDGE_SW;
 	}
 	if (this->y_pos < 0) {
 		dy--;
-		this->y_vox--;
+		this->vox_pos.y--;
 		this->y_pos += 256;
 		exit_edge = EDGE_NW;
 	} else if (this->y_pos > 255) {
 		dy++;
-		this->y_vox++;
+		this->vox_pos.y++;
 		this->y_pos -= 256;
 		exit_edge = EDGE_SE;
 	}
@@ -917,11 +911,11 @@ AnimateResult Person::OnAnimate(int delay)
 	/* Handle raising of z position. */
 	if (this->z_pos > 128) {
 		dz++;
-		this->z_vox++;
+		this->vox_pos.z++;
 		this->z_pos = 0;
 	}
 	/* At bottom of the voxel. */
-	Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+	Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
 	if (v != nullptr) {
 		SmallRideInstance instance = v->GetInstance();
 		if (instance >= SRI_FULL_RIDES) {
@@ -937,11 +931,11 @@ AnimateResult Person::OnAnimate(int delay)
 			this->DecideMoveDirection();
 			return OAR_OK;
 
-		} else if (this->z_vox > 0) { // Maybe a path below this voxel?
+		} else if (this->vox_pos.z > 0) { // Maybe a path below this voxel?
 			dz--;
-			this->z_vox--;
+			this->vox_pos.z--;
 			this->z_pos = 255;
-			Voxel *w = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+			Voxel *w = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
 			if (w != nullptr && HasValidPath(w)) {
 				this->AddSelf(w);
 				this->DecideMoveDirection();
@@ -950,20 +944,20 @@ AnimateResult Person::OnAnimate(int delay)
 		}
 
 		/* Restore the person at the previous tile (ie reverse movement). */
-		if (dx != 0) { this->x_vox -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
-		if (dy != 0) { this->y_vox -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
-		if (dz != 0) { this->z_vox -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
+		if (dx != 0) { this->vox_pos.x -= dx; this->x_pos = (dx > 0) ? 255 : 0; }
+		if (dy != 0) { this->vox_pos.y -= dy; this->y_pos = (dy > 0) ? 255 : 0; }
+		if (dz != 0) { this->vox_pos.z -= dz; this->z_pos = (dz > 0) ? 255 : 0; }
 
-		this->AddSelf(_world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false));
+		this->AddSelf(_world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false));
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
 	/* No voxel here, try one level below. */
-	if (this->z_vox > 0) {
+	if (this->vox_pos.z > 0) {
 		dz--;
-		this->z_vox--;
+		this->vox_pos.z--;
 		this->z_pos = 255;
-		v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
 	}
 	if (v != nullptr && HasValidPath(v)) {
 		this->AddSelf(v);
@@ -1060,10 +1054,10 @@ AnimateResult Guest::OnAnimate(int delay)
 AnimateResult Guest::EdgeOfWorldOnAnimate()
 {
 	/* If the guest ended up off-world, quit. */
-	if (!IsVoxelstackInsideWorld(this->x_vox, this->y_vox)) return OAR_DEACTIVATE;
+	if (!IsVoxelstackInsideWorld(this->vox_pos.x, this->vox_pos.y)) return OAR_DEACTIVATE;
 
 	/* If the guest arrived at the 'go home' tile while going home, quit. */
-	if (this->activity == GA_GO_HOME && this->x_vox == _guests.start_voxel.x && this->y_vox == _guests.start_voxel.y) {
+	if (this->activity == GA_GO_HOME && this->vox_pos.x == _guests.start_voxel.x && this->vox_pos.y == _guests.start_voxel.y) {
 		return OAR_DEACTIVATE;
 	}
 
@@ -1072,7 +1066,7 @@ AnimateResult Guest::EdgeOfWorldOnAnimate()
 
 AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
 {
-	if (ri->CanBeVisited(this->x_vox, this->y_vox, this->z_vox, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
+	if (ri->CanBeVisited(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, exit_edge) && this->SelectItem(ri) != ITP_NOTHING) {
 		/* All lights are green, let's try to enter the ride. */
 		this->activity = GA_ON_RIDE;
 		this->ride = ri;

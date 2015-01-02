@@ -250,7 +250,7 @@ const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, View
  */
 void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos, int16 ypos, int16 zpos, uint8 pitch, uint8 roll, uint8 yaw)
 {
-	bool change_voxel = this->x_vox != xvoxel || this->y_vox != yvoxel || this->z_vox != zvoxel;
+	bool change_voxel = this->vox_pos.x != xvoxel || this->vox_pos.y != yvoxel || this->vox_pos.z != zvoxel;
 
 	if (!change_voxel && this->x_pos == xpos && this->y_pos == ypos && this->z_pos == zpos &&
 			this->pitch == pitch && this->roll == roll && this->yaw == yaw) return; // Nothing changed.
@@ -258,14 +258,14 @@ void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos,
 	if (this->yaw != 0xff && change_voxel) {
 		/* Valid data, and changing voxel -> remove self from the old voxel. */
 		this->MarkDirty();
-		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
 		this->RemoveSelf(v);
 	}
 
 	/* Update voxel and orientation. */
-	this->x_vox = xvoxel;
-	this->y_vox = yvoxel;
-	this->z_vox = zvoxel;
+	this->vox_pos.x = xvoxel;
+	this->vox_pos.y = yvoxel;
+	this->vox_pos.z = zvoxel;
 
 	this->x_pos = xpos;
 	this->y_pos = ypos;
@@ -279,7 +279,7 @@ void DisplayCoasterCar::Set(int16 xvoxel, int16 yvoxel, int8 zvoxel, int16 xpos,
 		this->MarkDirty(); // Voxel or orientation has changed, repaint the possibly new voxel.
 
 		if (change_voxel) { // With a really new voxel, also add self to the new voxel.
-			Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+			Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
 			this->AddSelf(v);
 		}
 	}

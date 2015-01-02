@@ -125,7 +125,7 @@ VoxelObject::~VoxelObject()
 {
 	if (this->added) {
 		this->MarkDirty();
-		Voxel *v = _world.GetCreateVoxel(this->x_vox, this->y_vox, this->z_vox, false);
+		Voxel *v = _world.GetCreateVoxel(this->vox_pos.x, this->vox_pos.y, this->vox_pos.z, false);
 		this->RemoveSelf(v);
 	}
 }
@@ -142,7 +142,7 @@ VoxelObject::~VoxelObject()
 /** Mark the voxel containing the voxel object as dirty, so it is repainted. */
 void VoxelObject::MarkDirty()
 {
-	MarkVoxelDirty(XYZPoint16(this->x_vox, this->y_vox, this->z_vox));
+	MarkVoxelDirty(this->vox_pos);
 }
 
 /** Default constructor. */
