@@ -281,8 +281,8 @@ bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry)
 		if (_sprite_manager.GetPathStatus(GetPathType(vx->GetInstanceData())) != PAS_QUEUE_PATH) return true;
 
 		/* At this point:
-		 * voxel_pos->x, voxel_pos->y, voxel_pos->z, edge (and *entry) contain the last valid voxel edge.
-		 * xpos, ypos, zpos, vx is the next queue path tile position.
+		 * voxel_pos, edge (and *entry) contain the last valid voxel edge.
+		 * new_pos, vx is the next queue path tile position.
 		 */
 
 		uint8 exits = GetPathExits(vx);

@@ -437,9 +437,7 @@ void PathBuildManager::TileClicked(const XYZPoint16 &click_pos)
 	uint8 dirs = GetPathAttachPoints(click_pos);
 	if (dirs == 0) return;
 
-	this->xpos = click_pos.x;
-	this->ypos = click_pos.y;
-	this->zpos = click_pos.z;
+	this->pos = click_pos;
 	this->allowed_arrows = dirs;
 	this->state = PBS_WAIT_ARROW;
 	this->UpdateState();
@@ -482,34 +480,34 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 
 	/* Test whether we can move in the indicated direction. */
 	Point16 dxy = _tile_dxy[edge];
-	if ((dxy.x < 0 && this->xpos == 0) || (dxy.x > 0 && this->xpos == _world.GetXSize() - 1)) return;
-	if ((dxy.y < 0 && this->ypos == 0) || (dxy.y > 0 && this->ypos == _world.GetYSize() - 1)) return;
-	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->xpos + dxy.x, this->ypos + dxy.y) != OWN_PARK) return;
+	if ((dxy.x < 0 && this->pos.x == 0) || (dxy.x > 0 && this->pos.x == _world.GetXSize() - 1)) return;
+	if ((dxy.y < 0 && this->pos.y == 0) || (dxy.y > 0 && this->pos.y == _world.GetYSize() - 1)) return;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->pos.x + dxy.x, this->pos.y + dxy.y) != OWN_PARK) return;
 
 	const Voxel *v_top, *v_bot;
 	if (move_up) {
 		/* Exit of current tile is at the top. */
-		v_top = (this->zpos > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos + 1);
-		v_bot = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos);
+		v_top = (this->pos.z > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z + 1);
+		v_bot = _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z);
 	} else {
 		/* Exit of current tile is at the bottom. */
-		v_top = _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos);
-		v_bot = (this->zpos == 0) ? nullptr : _world.GetVoxel(this->xpos + dxy.x, this->ypos + dxy.y, this->zpos - 1);
+		v_top = _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z);
+		v_bot = (this->pos.z == 0) ? nullptr : _world.GetVoxel(this->pos.x + dxy.x, this->pos.y + dxy.y, this->pos.z - 1);
 	}
 
 	/* Try to find a voxel with a path. */
 	if (v_top != nullptr && HasValidPath(v_top)) {
-		this->xpos += dxy.x;
-		this->ypos += dxy.y;
-		if (move_up) this->zpos++;
+		this->pos.x += dxy.x;
+		this->pos.y += dxy.y;
+		if (move_up) this->pos.z++;
 		this->state = PBS_WAIT_ARROW;
 		this->UpdateState();
 		return;
 	}
 	if (v_bot != nullptr && HasValidPath(v_bot)) {
-		this->xpos += dxy.x;
-		this->ypos += dxy.y;
-		if (!move_up) this->zpos--;
+		this->pos.x += dxy.x;
+		this->pos.y += dxy.y;
+		if (!move_up) this->pos.z--;
 		this->state = PBS_WAIT_ARROW;
 		this->UpdateState();
 		return;
@@ -517,17 +515,17 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 
 	/* Try to find a voxel with surface. */
 	if (v_top != nullptr && v_top->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_top->GetGroundSlope())) {
-		this->xpos += dxy.x;
-		this->ypos += dxy.y;
-		if (move_up) this->zpos++;
+		this->pos.x += dxy.x;
+		this->pos.y += dxy.y;
+		if (move_up) this->pos.z++;
 		this->state = PBS_WAIT_ARROW;
 		this->UpdateState();
 		return;
 	}
 	if (v_bot != nullptr && v_bot->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_bot->GetGroundSlope())) {
-		this->xpos += dxy.x;
-		this->ypos += dxy.y;
-		if (!move_up) this->zpos--;
+		this->pos.x += dxy.x;
+		this->pos.y += dxy.y;
+		if (!move_up) this->pos.z--;
 		this->state = PBS_WAIT_ARROW;
 		this->UpdateState();
 		return;
@@ -545,7 +543,7 @@ void PathBuildManager::SelectMovement(bool move_forward)
 	TileEdge edge = (move_forward) ? this->selected_arrow : (TileEdge)((this->selected_arrow + 2) % 4);
 
 	bool move_up;
-	const Voxel *v = _world.GetVoxel(this->xpos, this->ypos, this->zpos);
+	const Voxel *v = _world.GetVoxel(this->pos.x, this->pos.y, this->pos.z);
 	if (v == nullptr) return;
 	if (HasValidPath(v)) {
 		move_up = (GetImplodedPathSlope(v) == _path_down_from_edge[edge]);
@@ -570,11 +568,11 @@ XYZPoint16 PathBuildManager::ComputeArrowCursorPosition()
 	assert(this->selected_arrow != INVALID_EDGE);
 
 	Point16 dxy = _tile_dxy[this->selected_arrow];
-	int xpos = this->xpos + dxy.x;
-	int ypos = this->ypos + dxy.y;
+	int xpos = this->pos.x + dxy.x;
+	int ypos = this->pos.y + dxy.y;
 
 	uint8 bit = 1 << this->selected_arrow;
-	int zpos = this->zpos;
+	int zpos = this->pos.z;
 	if ((bit & this->allowed_arrows) == 0) { // Build direction is not at the bottom of the voxel.
 		assert(((bit << 4) &  this->allowed_arrows) != 0); // Should be available at the top of the voxel.
 		zpos++;
@@ -625,12 +623,12 @@ void PathBuildManager::UpdateState()
 
 	/* The tile cursor is controlled by the viewport if waiting for a voxel or earlier. */
 	if (vp != nullptr && this->state > PBS_WAIT_VOXEL && this->state <= PBS_WAIT_BUY) {
-		vp->tile_cursor.SetCursor(XYZPoint16(this->xpos, this->ypos, this->zpos), CUR_TYPE_TILE);
+		vp->tile_cursor.SetCursor(this->pos, CUR_TYPE_TILE);
 	}
 
 	/* See whether the PBS_WAIT_ARROW state can be left automatically. */
 	if (this->state == PBS_WAIT_ARROW) {
-		this->allowed_arrows = GetPathAttachPoints(XYZPoint16(this->xpos, this->ypos, this->zpos));
+		this->allowed_arrows = GetPathAttachPoints(this->pos);
 
 		/* If a valid selection has been made, or if only one choice exists, take it. */
 		if (this->selected_arrow != INVALID_EDGE && ((0x11 << this->selected_arrow) & this->allowed_arrows) != 0) {
@@ -708,7 +706,7 @@ bool PathBuildManager::GetRemoveIsEnabled() const
 {
 	if (this->state == PBS_IDLE || this->state == PBS_WAIT_VOXEL) return false;
 	/* If current tile has a path, it can be removed. */
-	const Voxel *v = _world.GetVoxel(this->xpos, this->ypos, this->zpos);
+	const Voxel *v = _world.GetVoxel(this->pos.x, this->pos.y, this->pos.z);
 	if (v != nullptr && HasValidPath(v)) return true;
 	return this->state == PBS_WAIT_BUY;
 }
@@ -739,9 +737,9 @@ void PathBuildManager::SelectLong()
 	} else {
 		/* Enable long mode. */
 		this->state = PBS_LONG_BUILD;
-		this->xlong = _world.GetXSize();
-		this->ylong = _world.GetYSize();
-		this->zlong = WORLD_Z_SIZE;
+		this->long_pos.x = _world.GetXSize();
+		this->long_pos.y = _world.GetYSize();
+		this->long_pos.z = WORLD_Z_SIZE;
 		this->UpdateState();
 	}
 }
@@ -782,51 +780,47 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 		default: NOT_REACHED();
 	}
 
-	int32 vx, vy, vz;
-	vy = this->ypos * 256 + 128;
-	int32 lambda_y = vy - mousexy.y; // Distance to constant Y plane at current tile cursor.
-	vx = this->xpos * 256 + 128;
-	int32 lambda_x = vx - mousexy.x; // Distance to constant X plane at current tile cursor.
+	XYZPoint16 path_pos = XYZPoint16(0, 0, 0);
+	path_pos.y = this->pos.y * 256 + 128;
+	int32 lambda_y = path_pos.y - mousexy.y; // Distance to constant Y plane at current tile cursor.
+	path_pos.x = this->pos.x * 256 + 128;
+	int32 lambda_x = path_pos.x - mousexy.x; // Distance to constant X plane at current tile cursor.
 
 	if (abs(lambda_x) < abs(lambda_y)) {
 		/* X constant. */
-		vx /= 256;
-		vy = Clamp<int32>(mousexy.y + c1 * lambda_x, 0, _world.GetYSize() * 256 - 1) / 256;
-		vz = Clamp<int32>(vp->view_pos.z + c3 * lambda_x, 0, WORLD_Z_SIZE * 256 - 1) / 256;
+		path_pos.x /= 256;
+		path_pos.y = Clamp<int32>(mousexy.y + c1 * lambda_x, 0, _world.GetYSize() * 256 - 1) / 256;
+		path_pos.z = Clamp<int32>(vp->view_pos.z + c3 * lambda_x, 0, WORLD_Z_SIZE * 256 - 1) / 256;
 	} else {
 		/* Y constant. */
-		vx = Clamp<int32>(mousexy.x + c1 * lambda_y, 0, _world.GetXSize() * 256 - 1) / 256;
-		vy /= 256;
-		vz = Clamp<int32>(vp->view_pos.z + c2 * lambda_y, 0, WORLD_Z_SIZE * 256 - 1) / 256;
+		path_pos.x = Clamp<int32>(mousexy.x + c1 * lambda_y, 0, _world.GetXSize() * 256 - 1) / 256;
+		path_pos.y /= 256;
+		path_pos.z = Clamp<int32>(vp->view_pos.z + c2 * lambda_y, 0, WORLD_Z_SIZE * 256 - 1) / 256;
 	}
 
-	if (this->xlong != vx || this->ylong != vy || this->zlong != vz) {
-		this->xlong = vx;
-		this->ylong = vy;
-		this->zlong = vz;
+	if (this->long_pos != path_pos) {
+		this->long_pos = path_pos;
 
 		_additions.Clear();
-		vx = this->xpos;
-		vy = this->ypos;
-		vz = this->zpos;
+		path_pos = this->pos;
 		/* Find the right direction from the selected tile to the current cursor location. */
 		TileEdge direction;
 		Point16 dxy;
 		for (direction = EDGE_BEGIN; direction < EDGE_COUNT; direction++) {
 			dxy = _tile_dxy[direction];
-			if (!GoodDirection(dxy.x, vx, this->xlong) || !GoodDirection(dxy.y, vy, this->ylong)) continue;
+			if (!GoodDirection(dxy.x, path_pos.x, this->long_pos.x) || !GoodDirection(dxy.y, path_pos.y, this->long_pos.y)) continue;
 			break;
 		}
 		if (direction == EDGE_COUNT) return;
 
 		/* 'Walk' to the cursor as long as possible. */
-		while (vx != this->xlong || vy != this->ylong) {
-			uint8 slopes = CanBuildPathFromEdge(XYZPoint16(vx, vy, vz), direction);
+		while (path_pos.x != this->long_pos.x || path_pos.y != this->long_pos.y) {
+			uint8 slopes = CanBuildPathFromEdge(path_pos, direction);
 			const TrackSlope *slope_prio;
 			/* Get order of slope preference. */
-			if (vz > this->zlong) {
+			if (path_pos.z > this->long_pos.z) {
 				slope_prio = slope_prios_down;
-			} else if (vz == this->zlong) {
+			} else if (path_pos.z == this->long_pos.z) {
 				slope_prio = slope_prios_flat;
 			} else {
 				slope_prio = slope_prios_up;
@@ -835,16 +829,16 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 			while (*slope_prio != TSL_INVALID && (slopes & (1 << *slope_prio)) == 0) slope_prio++;
 			if (*slope_prio == TSL_INVALID) break;
 
-			vx += dxy.x;
-			vy += dxy.y;
+			path_pos.x += dxy.x;
+			path_pos.y += dxy.y;
 			if (*slope_prio == TSL_UP) {
-				if (!BuildUpwardPath(XYZPoint16(vx, vy, vz), static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
-				vz++;
+				if (!BuildUpwardPath(path_pos, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
+				path_pos.z++;
 			} else if (*slope_prio == TSL_DOWN) {
-				if (!BuildDownwardPath(XYZPoint16(vx, vy, vz), static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
-				vz--;
+				if (!BuildDownwardPath(path_pos, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
+				path_pos.z--;
 			} else {
-				if (!BuildFlatPath(XYZPoint16(vx, vy, vz), this->path_type, false)) break;
+				if (!BuildFlatPath(path_pos, this->path_type, false)) break;
 			}
 
 		}
@@ -871,9 +865,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		// Buy a long path.
 		if (this->state == PBS_LONG_BUY) {
 			_additions.Commit();
-			this->xpos = this->xlong;
-			this->ypos = this->ylong;
-			this->zpos = this->zlong;
+			this->pos = this->long_pos;
 			this->state = PBS_WAIT_ARROW;
 			this->UpdateState();
 			return;
@@ -886,7 +878,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		// Removing a path tile.
 		if (this->state <= PBS_WAIT_VOXEL || this->state > PBS_WAIT_BUY) return;
 		TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
-		const Voxel *v = _world.GetVoxel(this->xpos, this->ypos, this->zpos);
+		const Voxel *v = _world.GetVoxel(this->pos.x, this->pos.y, this->pos.z);
 		if (v == nullptr || !HasValidPath(v)) {
 			this->MoveCursor(edge, false);
 			this->UpdateState();
@@ -895,7 +887,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		PathSprites ps = GetImplodedPathSlope(v);
 
 		_additions.Clear();
-		if (RemovePath(XYZPoint16(this->xpos, this->ypos, this->zpos), false)) {
+		if (RemovePath(this->pos, false)) {
 			_additions.Commit();
 		}
 

@@ -71,13 +71,9 @@ public:
 private:
 	uint8 mouse_state; ///< State of the mouse buttons.
 
-	uint16 xpos;               ///< X coordinate of the selected voxel.
-	uint16 xlong;              ///< X coordinate of the long path destination voxel.
-	uint16 ypos;               ///< Y coordinate of the selected voxel.
-	uint16 ylong;              ///< Y coordinate of the long path destination voxel.
-	uint8  zpos;               ///< Z coordinate of the selected voxel.
-	uint8  zlong;              ///< Z coordinate of the long path destination voxel.
-	uint8 allowed_arrows;      ///< Allowed build directions from the voxel (bitset of #TileEdge, lower 4 bits are at bottom, upper 4 bits at top).
+	XYZPoint16 pos;       ///< Coordinate of the selected voxel.
+	XYZPoint16 long_pos;  ///< Coordinate of the long path destination voxel.
+	uint8 allowed_arrows; ///< Allowed build directions from the voxel (bitset of #TileEdge, lower 4 bits are at bottom, upper 4 bits at top).
 	TileEdge selected_arrow;   ///< Last selected build direction (#INVALID_EDGE if none has been chosen).
 	uint8 allowed_slopes;      ///< Allowed slope directions for the build direction.
 	TrackSlope selected_slope; ///< Last selected slope (#TSL_INVALID if none has been chosen).
