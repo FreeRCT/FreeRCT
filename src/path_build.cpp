@@ -60,20 +60,20 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
 	VoxelStack *avs = _additions.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, false);
+	av->SetInstance(SRI_FREE);
+	av->SetInstanceData(0);
+	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, PAS_UNUSED);
+	MarkVoxelDirty(voxel_pos);
+
+	av = avs->GetCreate(voxel_pos.z + 1, false);
+	av->SetInstance(SRI_FREE);
+	av->SetInstanceData(0);
+
+	if (path_spr >= PATH_FLAT_COUNT) {
+		av = avs->GetCreate(voxel_pos.z + 2, false);
 		av->SetInstance(SRI_FREE);
 		av->SetInstanceData(0);
-		AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, PAS_UNUSED);
-		MarkVoxelDirty(voxel_pos);
-
-		av = avs->GetCreate(voxel_pos.z + 1, false);
-		av->SetInstance(SRI_FREE);
-		av->SetInstanceData(0);
-
-		if (path_spr >= PATH_FLAT_COUNT) {
-			av = avs->GetCreate(voxel_pos.z + 2, false);
-			av->SetInstance(SRI_FREE);
-			av->SetInstanceData(0);
-		}
+	}
 }
 
 /**
