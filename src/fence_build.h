@@ -45,31 +45,26 @@ public:
 	void OnMouseWheelEvent(Viewport *vp, int direction) override;
 
 	void SelectFenceType(FenceType fence_type);
-	inline FenceType GetSelectedFenceType() const;
+
+	/**
+	 * Get the selected fence type
+	 * @return The selected fence type or FENCE_TYPE_INVALID if no fence type is selected.
+	 */
+	inline FenceType GetSelectedFenceType() const
+	{
+		return this->selected_fence_type;
+	}
 
 
 private:
-	FenceBuildState state;     ///< Own state.
-	uint8 mouse_state;         ///< State of the mouse buttons.
+	FenceBuildState state; ///< Own state.
+	uint8 mouse_state;     ///< State of the mouse buttons.
 
-	uint16 xpos;               ///< X coordinate of the selected voxel.
-	uint16 xlong;              ///< X coordinate of the long fence destination voxel.
-	uint16 ypos;               ///< Y coordinate of the selected voxel.
-	uint16 ylong;              ///< Y coordinate of the long fence destination voxel.
-	uint8  zpos;               ///< Z coordinate of the selected voxel.
-	uint8  zlong;              ///< Z coordinate of the long fence destination voxel.
+	//XYZPoint16 pos;        ///< Coordinate of the selected voxel (unimplemented).
+	//XYZPoint16 long_pos;   ///< Coordinate of the long fence destination voxel (unimplemented).
 
 	FenceType selected_fence_type; ///< Selected fence type or FENCE_TYPE_INVALID if no fence type is selected
 };
-
-/**
- * Get the selected fence type
- * @return The selected fence type or FENCE_TYPE_INVALID if no fence type is selected.
- */
-inline FenceType FenceBuildManager::GetSelectedFenceType() const
-{
-	return this->selected_fence_type;
-}
 
 extern FenceBuildManager _fence_builder;
 
