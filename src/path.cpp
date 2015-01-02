@@ -240,21 +240,6 @@ uint8 GetPathExits(const Voxel *v)
 }
 
 /**
- * Find all edges that are an exit for a path in the given voxel. No investigation is performed whether the exits connect to anything.
- * @param xpos X position of the voxel.
- * @param ypos Y position of the voxel.
- * @param zpos Z position of the voxel.
- * @return Exits for a path in the queried voxel. Lower 4 bits are exits at the bottom; upper 4 bits are exits at the top.
- */
-uint8 GetPathExits(int xpos, int ypos, int zpos)
-{
-	if (!IsVoxelstackInsideWorld(xpos, ypos)) return 0;
-	const Voxel *v = _world.GetVoxel(xpos, ypos, zpos);
-	if (v == nullptr) return 0;
-	return GetPathExits(v);
-}
-
-/**
  * Walk over a queue path from the given entry edge at the given position.
  * If it leads to a new voxel edge, the provided position and edge is update with the exit point.
  * @param voxel_pos [inout] Start voxel position before the queue path, updated to last voxel position.
