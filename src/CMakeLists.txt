@@ -78,8 +78,6 @@ ELSE()
 ENDIF()
 add_dependencies(freerct rcd)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
-
 # Library detection
 find_package(SDL2 REQUIRED)
 IF(SDL2_FOUND)

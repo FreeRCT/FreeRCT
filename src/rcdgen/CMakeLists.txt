@@ -94,7 +94,7 @@ ENDIF()
 
 IF(NOT WIN32 AND BISON_FOUND AND FLEX_FOUND)
 	add_custom_target(exportscanner
-	                  COMMAND ${CMAKE_COMMAND} -P ExportScanner.cmake
+	                  COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_SOURCE_DIR}/CMake/ExportRcdgenScanner.cmake
 	                  COMMENT "Generating scanner files"
 	)
 ENDIF()
