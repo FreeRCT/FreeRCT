@@ -98,7 +98,8 @@ void FenceBuildManager::SetCursors()
 		bool steep_lower_edge = (slope & TSB_STEEP) != 0 &&
 			(slope & (1 << edge)) == 0 &&
 			(slope & (1 << ((edge + 1) % 4))) == 0;
-		vp->edge_cursor.SetCursor(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z + extra_z, fdata.cursor, sprite, steep_lower_edge ? vp->tile_height : 0);
+		fdata.voxel_pos.z += extra_z;
+		vp->edge_cursor.SetCursor(fdata.voxel_pos, fdata.cursor, sprite, steep_lower_edge ? vp->tile_height : 0);
 	}
 }
 
@@ -133,21 +134,21 @@ void FenceBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 
 	if ((this->mouse_state & MB_LEFT) != 0) { // Left-click -> build fence
 		EdgeCursor *c = &vp->edge_cursor;
-		if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->xpos, c->ypos) != OWN_PARK) return;
+		if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->cursor_pos.x, c->cursor_pos.y) != OWN_PARK) return;
 
 		TileEdge edge = (TileEdge)((uint8)c->type - (uint8)CUR_TYPE_EDGE_NE);
-		VoxelStack *vs = _world.GetModifyStack(c->xpos, c->ypos);
-		Voxel *v = vs->GetCreate(c->zpos, false);
+		VoxelStack *vs = _world.GetModifyStack(c->cursor_pos.x, c->cursor_pos.y);
+		Voxel *v = vs->GetCreate(c->cursor_pos.z, false);
 		assert(v != nullptr);
 		TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
 		int32 extra_z = 0;
 		if ((slope & TSB_TOP) == 0 && IsRaisedEdge(edge, slope)) {
 			extra_z = 1;
-			v = vs->GetCreate(c->zpos + extra_z, true);
+			v = vs->GetCreate(c->cursor_pos.z + extra_z, true);
 			assert(v != nullptr);
 		}
 		v->SetFenceType(edge, this->selected_fence_type);
-		vp->MarkVoxelDirty(c->xpos, c->ypos, c->zpos + extra_z);
+		vp->MarkVoxelDirty(c->cursor_pos.x, c->cursor_pos.y, c->cursor_pos.z + extra_z);
 	}
 }
 

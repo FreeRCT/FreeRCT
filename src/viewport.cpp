@@ -497,52 +497,44 @@ void BaseCursor::SetInvalid()
  */
 Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
 {
-	this->xpos = 0;
-	this->ypos = 0;
-	this->zpos = 0;
+	this->cursor_pos = XYZPoint16(0, 0, 0);
 }
 
 void Cursor::MarkDirty()
 {
-	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos.x, this->cursor_pos.y, this->cursor_pos.z);
 }
 
 /**
  * Get a cursor.
- * @param xpos Expected x coordinate of the cursor.
- * @param ypos Expected y coordinate of the cursor.
- * @param zpos Expected z coordinate of the cursor.
+ * @param cursor_pos Expected coordinate of the cursor.
  * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
  */
-CursorType Cursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+CursorType Cursor::GetCursor(const XYZPoint16 &cursor_pos)
 {
-	if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
+	if (this->cursor_pos != cursor_pos) return CUR_TYPE_INVALID;
 	return this->type;
 }
 
 uint8 Cursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	if (this->type == CUR_TYPE_INVALID) return zpos;
-	if (this->xpos != xpos || this->ypos != ypos || zpos >= this->zpos) return zpos;
-	return this->zpos;
+	if (this->cursor_pos.x != xpos || this->cursor_pos.y != ypos || zpos >= this->cursor_pos.z) return zpos;
+	return this->cursor_pos.z;
 }
 
 /**
  * Set a cursor.
- * @param xpos X position of the voxel containing the cursor.
- * @param ypos Y position of the voxel containing the cursor.
- * @param zpos Z position of the voxel containing the cursor.
+ * @param cursor_pos Position of the voxel containing the cursor.
  * @param type Type of cursor to set.
  * @param always Always set the cursor (else, only set it if it changed).
  * @return %Cursor has been set/changed.
  */
-bool Cursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always)
+bool Cursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always)
 {
-	if (!always && this->xpos == xpos && this->ypos == ypos && this->zpos == zpos && this->type == type) return false;
+	if (!always && this->cursor_pos == cursor_pos && this->type == type) return false;
 	this->MarkDirty();
-	this->xpos = xpos;
-	this->ypos = ypos;
-	this->zpos = zpos;
+	this->cursor_pos = cursor_pos;
 	this->type = type;
 	this->MarkDirty();
 	return true;
@@ -609,13 +601,13 @@ void MultiCursor::MarkDirty()
 	}
 }
 
-CursorType MultiCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+CursorType MultiCursor::GetCursor(const XYZPoint16 &cursor_pos)
 {
 	if (this->type == CUR_TYPE_INVALID) return CUR_TYPE_INVALID;
 
-	Point32 pt(xpos, ypos);
+	Point32 pt(cursor_pos.x, cursor_pos.y);
 	if (!this->rect.IsPointInside(pt)) return CUR_TYPE_INVALID;
-	if (zpos != this->GetZpos(xpos, ypos)) return CUR_TYPE_INVALID;
+	if (cursor_pos.z != this->GetZpos(cursor_pos.x, cursor_pos.y)) return CUR_TYPE_INVALID;
 	return CUR_TYPE_TILE;
 }
 
@@ -675,54 +667,46 @@ bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool alway
  */
 EdgeCursor::EdgeCursor(Viewport *vp) : BaseCursor(vp)
 {
-	this->xpos = 0;
-	this->ypos = 0;
-	this->zpos = 0;
+	this->cursor_pos = XYZPoint16(0, 0, 0);
 }
 
 void EdgeCursor::MarkDirty()
 {
-	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->xpos, this->ypos, this->zpos);
+	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos.x, this->cursor_pos.y, this->cursor_pos.z);
 }
 
 /**
  * Get a cursor.
- * @param xpos Expected x coordinate of the cursor.
- * @param ypos Expected y coordinate of the cursor.
- * @param zpos Expected z coordinate of the cursor.
+ * @param cursor_pos Expected coordinate of the cursor.
  * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
  */
-CursorType EdgeCursor::GetCursor(uint16 xpos, uint16 ypos, uint8 zpos)
+CursorType EdgeCursor::GetCursor(const XYZPoint16 &cursor_pos)
 {
-	if (this->xpos != xpos || this->ypos != ypos || this->zpos != zpos) return CUR_TYPE_INVALID;
+	if (this->cursor_pos != cursor_pos) return CUR_TYPE_INVALID;
 	return this->type;
 }
 
 uint8 EdgeCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	if (this->type == CUR_TYPE_INVALID) return zpos;
-	if (this->xpos != xpos || this->ypos != ypos || zpos >= this->zpos) return zpos;
-	return this->zpos;
+	if (this->cursor_pos.x != xpos || this->cursor_pos.y != ypos || zpos >= this->cursor_pos.z) return zpos;
+	return this->cursor_pos.z;
 }
 
 /**
  * Set a cursor.
- * @param xpos X position of the voxel containing the cursor.
- * @param ypos Y position of the voxel containing the cursor.
- * @param zpos Z position of the voxel containing the cursor.
+ * @param cursor_pos Position of the voxel containing the cursor.
  * @param type Type of cursor to set.
  * @param sprite Sprite to display.
  * @param yoffset Offset in screen y coordinates for where to render the sprite related to given voxel.
  * @param always Always set the cursor (else, only set it if it changed).
  * @return %Cursor has been set/changed.
  */
-bool EdgeCursor::SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always)
+bool EdgeCursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always)
 {
-	if (!always && this->xpos == xpos && this->ypos == ypos && this->zpos == zpos && this->type == type) return false;
+	if (!always && this->cursor_pos == cursor_pos && this->type == type) return false;
 	this->MarkDirty();
-	this->xpos = xpos;
-	this->ypos = ypos;
-	this->zpos = zpos;
+	this->cursor_pos = cursor_pos;
 	this->type = type;
 	this->sprite = sprite;
 	this->yoffset = yoffset;
@@ -742,15 +726,16 @@ CursorType Viewport::GetCursorAtPos(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	CursorType ct = CUR_TYPE_INVALID;
 
+	XYZPoint16 cursor_pos(xpos, ypos, zpos);
 	if (this->additions_enabled && !this->additions_displayed) {
-		ct = this->arrow_cursor.GetCursor(xpos, ypos, zpos);
+		ct = this->arrow_cursor.GetCursor(cursor_pos);
 		if (ct != CUR_TYPE_INVALID) return ct;
 	}
-	ct = this->tile_cursor.GetCursor(xpos, ypos, zpos);
+	ct = this->tile_cursor.GetCursor(cursor_pos);
 	if (ct != CUR_TYPE_INVALID) return ct;
-	ct = this->area_cursor.GetCursor(xpos, ypos, zpos);
+	ct = this->area_cursor.GetCursor(cursor_pos);
 	if (ct != CUR_TYPE_INVALID) return ct;
-	return this->edge_cursor.GetCursor(xpos, ypos, zpos);
+	return this->edge_cursor.GetCursor(cursor_pos);
 }
 
 /**

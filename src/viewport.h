@@ -140,7 +140,7 @@ public:
 	 * @param zpos Expected z coordinate of the cursor.
 	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
 	 */
-	virtual CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) = 0;
+	virtual CursorType GetCursor(const XYZPoint16 &cursor_pos) = 0;
 
 	/**
 	 * Get the maximum height of the \a xpos, \a ypos stack that needs to be examined.
@@ -162,14 +162,12 @@ class Cursor : public BaseCursor {
 public:
 	Cursor(Viewport *vp);
 
-	uint16 xpos; ///< %Voxel x position of the cursor.
-	uint16 ypos; ///< %Voxel y position of the cursor.
-	uint8  zpos; ///< %Voxel z position of the cursor.
+	XYZPoint16 cursor_pos; ///< %Voxel position of the cursor.
 
-	bool SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, bool always = false);
+	bool SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always = false);
 
 	void MarkDirty() override;
-	CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) override;
+	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
 };
 
@@ -187,7 +185,7 @@ public:
 	bool SetCursor(const Rectangle32 &rect, CursorType type, bool always = false);
 
 	void MarkDirty() override;
-	CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) override;
+	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
 
 	void ClearZPositions();
@@ -203,16 +201,14 @@ class EdgeCursor : public BaseCursor { // XXX todo: later on, check if this will
 public:
 	EdgeCursor(Viewport *vp);
 
-	uint16 xpos; ///< %Voxel x position of the cursor.
-	uint16 ypos; ///< %Voxel y position of the cursor.
-	uint8  zpos; ///< %Voxel z position of the cursor.
+	XYZPoint16 cursor_pos; ///< %Voxel position of the cursor.
 	const ImageData *sprite; ///< Cursor sprite.
 	uint8 yoffset; ///< Y offset for where to render the sprite on the screen.
 
-	bool SetCursor(uint16 xpos, uint16 ypos, uint8 zpos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always = false);
+	bool SetCursor(const XYZPoint16 &cursor_pos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always = false);
 
 	void MarkDirty() override;
-	CursorType GetCursor(uint16 xpos, uint16 ypos, uint8 zpos) override;
+	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
 };
 

@@ -406,7 +406,7 @@ void PathBuildManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, co
 		if (this->state == PBS_WAIT_VOXEL) {
 			FinderData fdata((CS_GROUND | CS_PATH), FW_TILE);
 			if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
-				vp->tile_cursor.SetCursor(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z, fdata.cursor);
+				vp->tile_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
 			}
 		}
 	}
@@ -645,7 +645,7 @@ void PathBuildManager::UpdateState()
 
 	/* The tile cursor is controlled by the viewport if waiting for a voxel or earlier. */
 	if (vp != nullptr && this->state > PBS_WAIT_VOXEL && this->state <= PBS_WAIT_BUY) {
-		vp->tile_cursor.SetCursor(this->xpos, this->ypos, this->zpos, CUR_TYPE_TILE);
+		vp->tile_cursor.SetCursor(XYZPoint16(this->xpos, this->ypos, this->zpos), CUR_TYPE_TILE);
 	}
 
 	/* See whether the PBS_WAIT_ARROW state can be left automatically. */
@@ -676,7 +676,7 @@ void PathBuildManager::UpdateState()
 			uint16 x_arrow, y_arrow;
 			uint8 z_arrow;
 			this->ComputeArrowCursorPosition(&x_arrow, &y_arrow, &z_arrow);
-			vp->arrow_cursor.SetCursor(x_arrow, y_arrow, z_arrow, (CursorType)(CUR_TYPE_ARROW_NE + this->selected_arrow));
+			vp->arrow_cursor.SetCursor(XYZPoint16(x_arrow, y_arrow, z_arrow), (CursorType)(CUR_TYPE_ARROW_NE + this->selected_arrow));
 		} else {
 			vp->arrow_cursor.SetInvalid();
 		}

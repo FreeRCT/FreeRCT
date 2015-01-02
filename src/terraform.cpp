@@ -650,7 +650,7 @@ void TileTerraformMouseMode::SetCursors()
 	FinderData fdata(CS_GROUND, single ? FW_CORNER : FW_TILE);
 	if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
 		if (single) {
-			vp->tile_cursor.SetCursor(fdata.voxel_pos.x, fdata.voxel_pos.y, fdata.voxel_pos.z, fdata.cursor);
+			vp->tile_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
 			vp->area_cursor.SetInvalid();
 		} else {
 			Rectangle32 rect(fdata.voxel_pos.x - this->xsize / 2, fdata.voxel_pos.y - this->ysize / 2, this->xsize, this->ysize);
@@ -690,7 +690,7 @@ void TileTerraformMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
 static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bool dot_mode)
 {
 	Cursor *c = &vp->tile_cursor;
-	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->xpos, c->ypos) != OWN_PARK) return;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->cursor_pos.x, c->cursor_pos.y) != OWN_PARK) return;
 
 	Point32 p;
 	uint16 w, h;
@@ -700,13 +700,13 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		w = _world.GetXSize();
 		h = _world.GetYSize();
 	} else { // Single tile mode.
-		p = {c->xpos, c->ypos};
+		p = {c->cursor_pos.x, c->cursor_pos.y};
 		w = 1;
 		h = 1;
 	}
 	TerrainChanges changes(p, w, h);
 
-	p = {c->xpos, c->ypos};
+	p = {c->cursor_pos.x, c->cursor_pos.y};
 
 	bool ok;
 	switch (c->type) {
@@ -737,7 +737,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		 * Note that the mouse cursor position is not changed at all, it still points at the original position.
 		 * The coupling is restored with the next mouse movement.
 		 */
-		c->zpos = _world.GetGroundHeight(c->xpos, c->ypos);
+		c->cursor_pos.z = _world.GetGroundHeight(c->cursor_pos.x, c->cursor_pos.y);
 		for (const auto &iter : changes.changes) {
 			const Point32 &pt = iter.first;
 			vp->MarkVoxelDirty(pt.x, pt.y, iter.second.height);

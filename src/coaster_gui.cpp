@@ -1353,5 +1353,5 @@ void CoasterBuildMode::UpdateDisplay(bool mousepos_changed)
 	PositionedTrackPiece ptp(this->track_xpos, this->track_ypos, this->track_zpos, this->cur_piece);
 	CoasterInstance *ci = static_cast<CoasterInstance *>(_rides_manager.GetRideInstance(this->instance));
 	if (ptp.CanBePlaced()) ci->PlaceTrackPieceInAdditions(ptp);
-	vp->arrow_cursor.SetCursor(this->track_xpos, this->track_ypos, this->track_zpos, (CursorType)(CUR_TYPE_ARROW_NE + this->direction));
+	vp->arrow_cursor.SetCursor(XYZPoint16(this->track_xpos, this->track_ypos, this->track_zpos), (CursorType)(CUR_TYPE_ARROW_NE + this->direction));
 }
