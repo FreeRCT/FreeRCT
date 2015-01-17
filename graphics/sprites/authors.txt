@@ -7,3 +7,4 @@ gui/dot.png
 gui/GUItriangles.png - derived from parts of GUIEles2.png
 gui/pillar.png
 gui/buttons_8bpp.png
+paths/path/litter3.png

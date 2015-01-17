@@ -42,6 +42,128 @@ file("path_8bpp64.rcd") {
 		}
 	}
 
+	PDEC {
+		tile_width: 64;
+
+		(lamp_post_ne,        lamp_post_se,        lamp_post_sw,        lamp_post_nw
+		|demolished_post_ne,  demolished_post_se,  demolished_post_sw,  demolished_post_nw
+		|litter_bin_ne,       litter_bin_se,       litter_bin_sw,       litter_bin_nw
+		|overflow_bin_ne,     overflow_bin_se,     overflow_bin_sw,     overflow_bin_nw
+		|demolished_bin_ne,   demolished_bin_se,   demolished_bin_sw,   demolished_bin_nw
+		|bench_ne,            bench_se,            bench_sw,            bench_nw
+		|demolished_bench_ne, demolished_bench_se, demolished_bench_sw, demolished_bench_nw) : sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+			file: "../sprites/paths/path/litter3.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+
+		litter_flat: sprite { x_base: 0; y_base: 455;
+			file: "../sprites/paths/path/litter3.png";
+			width: 3; height: 4; x_offset: -2; y_offset: -1; }
+		litter_flat: sprite { x_base: 9; y_base: 456;
+			file: "../sprites/paths/path/litter3.png";
+			width: 2; height: 4; x_offset: 0; y_offset: -2; }
+		litter_flat: sprite { x_base: 13; y_base: 454;
+			file: "../sprites/paths/path/litter3.png";
+			width: 4; height: 3; x_offset: -2; y_offset: -1; }
+		litter_flat: sprite { x_base: 18; y_base: 451;
+			file: "../sprites/paths/path/litter3.png";
+			width: 4; height: 3; x_offset: -2; y_offset: -1; }
+
+		litter_ne: sprite { x_base: 67; y_base: 461;
+			file: "../sprites/paths/path/litter3.png";
+			width: 3; height: 3; x_offset: -1; y_offset: -1; }
+		litter_ne: sprite { x_base: 76; y_base: 461;
+			file: "../sprites/paths/path/litter3.png";
+			width: 3; height: 2; x_offset: 0; y_offset: -1; }
+		litter_ne: sprite { x_base: 75; y_base: 454;
+			file: "../sprites/paths/path/litter3.png";
+			width: 2; height: 4; x_offset: 0; y_offset: -1; }
+		litter_ne: sprite { x_base: 81; y_base: 453;
+			file: "../sprites/paths/path/litter3.png";
+			width: 2; height: 4; x_offset: -1; y_offset: -1; }
+
+		litter_se: sprite { x_base: 98; y_base: 449;
+			file: "../sprites/paths/path/litter3.png";
+			width: 4; height: 3; x_offset: -2; y_offset: -1; }
+		litter_se: sprite { x_base: 101; y_base: 456;
+			file: "../sprites/paths/path/litter3.png";
+			width: 3; height: 2; x_offset: -1; y_offset: 0; }
+		litter_se: sprite { x_base: 110; y_base: 457;
+			file: "../sprites/paths/path/litter3.png";
+			width: 4; height: 3; x_offset: -1; y_offset: -1; }
+
+		litter_sw: sprite { x_base: 130; y_base: 453;
+			file: "../sprites/paths/path/litter3.png";
+			width: 3; height: 2; x_offset: -1; y_offset: 0; }
+		litter_sw: sprite { x_base: 137; y_base: 458;
+			file: "../sprites/paths/path/litter3.png";
+			width: 2; height: 1; x_offset: 0; y_offset: 0; }
+		litter_sw: sprite { x_base: 146; y_base: 452;
+			file: "../sprites/paths/path/litter3.png";
+			width: 2; height: 3; x_offset: 0; y_offset: -1; }
+
+		litter_nw: sprite { x_base: 174; y_base: 467;
+			file: "../sprites/paths/path/litter3.png";
+			width: 4; height: 3; x_offset: -2; y_offset: -1; }
+		litter_nw: sprite { x_base: 166; y_base: 462;
+			file: "../sprites/paths/path/litter3.png";
+			width: 4; height: 2; x_offset: -2; y_offset: 0; }
+		litter_nw: sprite { x_base: 160; y_base: 456;
+			file: "../sprites/paths/path/litter3.png";
+			width: 3; height: 4; x_offset: -1; y_offset: -1; }
+
+		vomit_flat: sprite { x_base: 0; y_base: 489;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 5; x_offset: -3; y_offset: -2; }
+		vomit_flat: sprite { x_base: 2; y_base: 480;
+			file: "../sprites/paths/path/litter3.png";
+			width: 6; height: 7; x_offset: -3; y_offset: -3; }
+		vomit_flat: sprite { x_base: 10; y_base: 482;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 4; x_offset: -3; y_offset: -1; }
+
+		vomit_ne: sprite { x_base: 0; y_base: 489;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 5; x_offset: -3; y_offset: -2; }
+		vomit_ne: sprite { x_base: 2; y_base: 480;
+			file: "../sprites/paths/path/litter3.png";
+			width: 6; height: 7; x_offset: -3; y_offset: -3; }
+		vomit_ne: sprite { x_base: 10; y_base: 482;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 4; x_offset: -3; y_offset: -1; }
+
+		vomit_se: sprite { x_base: 0; y_base: 489;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 5; x_offset: -3; y_offset: -2; }
+		vomit_se: sprite { x_base: 2; y_base: 480;
+			file: "../sprites/paths/path/litter3.png";
+			width: 6; height: 7; x_offset: -3; y_offset: -3; }
+		vomit_se: sprite { x_base: 10; y_base: 482;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 4; x_offset: -3; y_offset: -1; }
+
+		vomit_sw: sprite { x_base: 0; y_base: 489;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 5; x_offset: -3; y_offset: -2; }
+		vomit_sw: sprite { x_base: 2; y_base: 480;
+			file: "../sprites/paths/path/litter3.png";
+			width: 6; height: 7; x_offset: -3; y_offset: -3; }
+		vomit_sw: sprite { x_base: 10; y_base: 482;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 4; x_offset: -3; y_offset: -1; }
+
+		vomit_nw: sprite { x_base: 0; y_base: 489;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 5; x_offset: -3; y_offset: -2; }
+		vomit_nw: sprite { x_base: 2; y_base: 480;
+			file: "../sprites/paths/path/litter3.png";
+			width: 6; height: 7; x_offset: -3; y_offset: -3; }
+		vomit_nw: sprite { x_base: 10; y_base: 482;
+			file: "../sprites/paths/path/litter3.png";
+			width: 7; height: 4; x_offset: -3; y_offset: -1; }
+	}
+
 	// Tiled queue paths.
 	PATH {
 		path_type: tiled + queue;
