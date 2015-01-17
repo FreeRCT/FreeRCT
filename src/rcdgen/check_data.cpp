@@ -888,6 +888,89 @@ static std::shared_ptr<PATHBlock> ConvertPATHNode(std::shared_ptr<NodeGroup> ng)
 	return blk;
 }
 
+/**
+ * Get a sprite of the PDEC block.
+ * @param prefix Prefix of the name.
+ * @param dir Requested direction.
+ * @param vals Node values with the sprites.
+ * @return The requested sprite.
+ */
+static std::shared_ptr<SpriteBlock> GetPDECSprite(const char *prefix, int dir, Values &vals)
+{
+	char text[32];
+	int length = strlen(prefix);
+	assert(length < 28);
+	strcpy(text, prefix);
+
+	text[length++] = '_'; // 28
+	text[length++] = (dir == 0 || dir == 3) ? 'n' : 's'; // 29
+	text[length++] = (dir < 2) ? 'e' : 'w'; // 30
+	text[length++] = '\0'; // 31
+
+	return vals.GetSprite(text);
+}
+
+/**
+ * Look for sprites with the provided name, put at most 4 of them in the destination array.
+ * @param dest Pointer to the destination array (size 4).
+ * @param name Name of the field to look for.
+ * @param vals Node values with the sprites.
+ */
+static void GetPDECPathSprites(std::shared_ptr<SpriteBlock> *dest, const char *name, Values &vals)
+{
+	int count = 0;
+	for (int i = 0; i < vals.named_count; i++) {
+		std::shared_ptr<ValueInformation> vi = vals.named_values[i];
+		if (!vi->used && vi->name == name) {
+			vi->used = true;
+			*dest = vi->GetSprite(vi->pos, name);
+			dest++;
+			count++;
+			if (count == 4) break;
+		}
+	}
+}
+
+/**
+ * Convert a node group to a PDEC game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created PDEC game block.
+ */
+static std::shared_ptr<PDECBlock> ConvertPDECNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "PDEC");
+	auto blk = std::make_shared<PDECBlock>();
+
+	Values vals("PDEC", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	blk->tile_width = vals.GetNumber("tile_width");
+
+	for (int dir = 0; dir < 4; dir++) {
+		blk->litter_bin[dir]       = GetPDECSprite("litter_bin",       dir, vals);
+		blk->overflow_bin[dir]     = GetPDECSprite("overflow_bin",     dir, vals);
+		blk->demolished_bin[dir]   = GetPDECSprite("demolished_bin",   dir, vals);
+		blk->lamp_post[dir]        = GetPDECSprite("lamp_post",        dir, vals);
+		blk->demolished_post[dir]  = GetPDECSprite("demolished_post",  dir, vals);
+		blk->bench[dir]            = GetPDECSprite("bench",            dir, vals);
+		blk->demolished_bench[dir] = GetPDECSprite("demolished_bench", dir, vals);
+	}
+
+	GetPDECPathSprites(blk->litter_flat, "litter_flat", vals);
+	GetPDECPathSprites(blk->litter_ne,   "litter_ne",   vals);
+	GetPDECPathSprites(blk->litter_se,   "litter_se",   vals);
+	GetPDECPathSprites(blk->litter_sw,   "litter_sw",   vals);
+	GetPDECPathSprites(blk->litter_nw,   "litter_nw",   vals);
+	GetPDECPathSprites(blk->vomit_flat,  "vomit_flat",  vals);
+	GetPDECPathSprites(blk->vomit_ne,    "vomit_ne",    vals);
+	GetPDECPathSprites(blk->vomit_se,    "vomit_se",    vals);
+	GetPDECPathSprites(blk->vomit_sw,    "vomit_sw",    vals);
+	GetPDECPathSprites(blk->vomit_nw,    "vomit_nw",    vals);
+
+	vals.VerifyUsage();
+	return blk;
+}
+
 /** Symbols for the platform game block. */
 static const Symbol _platform_symbols[] = {
 	{"wood", 16},
@@ -2372,6 +2455,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "ANIM") return ConvertANIMNode(ng);
 	if (ng->name == "ANSP") return ConvertANSPNode(ng);
 	if (ng->name == "PATH") return ConvertPATHNode(ng);
+	if (ng->name == "PDEC") return ConvertPDECNode(ng);
 	if (ng->name == "PLAT") return ConvertPLATNode(ng);
 	if (ng->name == "SUPP") return ConvertSUPPNode(ng);
 	if (ng->name == "SHOP") return ConvertSHOPNode(ng);

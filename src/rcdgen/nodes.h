@@ -403,6 +403,32 @@ public:
 	std::array<std::shared_ptr<SpriteBlock>, PTS_COUNT> sprites; ///< Path sprites.
 };
 
+class PDECBlock : public GameBlock {
+public:
+	PDECBlock();
+
+	int Write(FileWriter *fw) override;
+
+	int tile_width;                                   ///< Width of the tile.
+	std::shared_ptr<SpriteBlock> litter_bin[4];       ///< Litter bin (4 edges).
+	std::shared_ptr<SpriteBlock> overflow_bin[4];     ///< Overflowing litter bin (4 edges).
+	std::shared_ptr<SpriteBlock> demolished_bin[4];   ///< Demolished litter bin (4 edges).
+	std::shared_ptr<SpriteBlock> lamp_post[4];        ///< Lamp post (4 edges).
+	std::shared_ptr<SpriteBlock> demolished_post[4];  ///< Demolished lamp post (4 edges).
+	std::shared_ptr<SpriteBlock> bench[4];            ///< Benches (4 edges).
+	std::shared_ptr<SpriteBlock> demolished_bench[4]; ///< Demolished benches (4 edges).
+	std::shared_ptr<SpriteBlock> litter_flat[4];      ///< Litter at flat path (4 types).
+	std::shared_ptr<SpriteBlock> litter_ne[4];        ///< Litter at ramp, NE edge up (4 types).
+	std::shared_ptr<SpriteBlock> litter_se[4];        ///< Litter at ramp, SE edge up (4 types).
+	std::shared_ptr<SpriteBlock> litter_sw[4];        ///< Litter at ramp, SW edge up (4 types).
+	std::shared_ptr<SpriteBlock> litter_nw[4];        ///< Litter at ramp, NW edge up (4 types).
+	std::shared_ptr<SpriteBlock> vomit_flat[4];       ///< Vomit at flat path (4 types).
+	std::shared_ptr<SpriteBlock> vomit_ne[4];         ///< Vomit at ramp, NE edge up (4 types).
+	std::shared_ptr<SpriteBlock> vomit_se[4];         ///< Vomit at ramp, SE edge up (4 types).
+	std::shared_ptr<SpriteBlock> vomit_sw[4];         ///< Vomit at ramp, SW edge up (4 types).
+	std::shared_ptr<SpriteBlock> vomit_nw[4];         ///< Vomit at ramp, NW edge up (4 types).
+};
+
 /** Platform sprites. */
 enum PlatformSprites {
 	PLA_NS,            ///< Flat platform for north and south view.

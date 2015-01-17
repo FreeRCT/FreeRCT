@@ -803,6 +803,100 @@ Version history
 - 3 (20140526) Added wood, tiled, and asphalt surface types, and 0x8000 queue bit.
 
 
+Path decoration
+~~~~~~~~~~~~~~~
+Path decorations are the benches, lamp posts, and litter bins at the path. It
+also includes litter for the path, as well as vomit. FreeRCT can read version 1
+path decoration blocks.
+
+The purpose of different litter types is to have a few different litter
+graphics to get a little variation in appearance.
+
+======  ======  =======  =================================================
+Offset  Length  Version  Description
+======  ======  =======  =================================================
+   0       4      1-     Magic string 'PDEC'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string,
+                         version, and length.
+  12       2      1-     Tile width.
+  14       4      1-     Litter bin north east.
+  18       4      1-     Litter bin south east.
+  22       4      1-     Litter bin south west.
+  26       4      1-     Litter bin north west.
+  30       4      1-     Overflowing litter bin north east.
+  34       4      1-     Overflowing litter bin south east.
+  38       4      1-     Overflowing litter bin south west.
+  42       4      1-     Overflowing litter bin north west.
+  46       4      1-     Demolished litter bin north east.
+  50       4      1-     Demolished litter bin south east.
+  54       4      1-     Demolished litter bin south west.
+  58       4      1-     Demolished litter bin north west.
+  62       4      1-     Lamp post north east.
+  66       4      1-     Lamp post south east.
+  70       4      1-     Lamp post south west.
+  74       4      1-     Lamp post north west.
+  78       4      1-     Demolished lamp post north east.
+  82       4      1-     Demolished lamp post south east.
+  86       4      1-     Demolished lamp post south west.
+  90       4      1-     Demolished lamp post north west.
+  94       4      1-     Bench north east.
+  98       4      1-     Bench south east.
+ 102       4      1-     Bench south west.
+ 106       4      1-     Bench north west.
+ 110       4      1-     Demolished bench north east.
+ 114       4      1-     Demolished bench south east.
+ 118       4      1-     Demolished bench south west.
+ 122       4      1-     Demolished bench north west.
+ 126       4      1-     Litter at flat path, type 1.
+ 130       4      1-     Litter at flat path, type 2.
+ 134       4      1-     Litter at flat path, type 3.
+ 138       4      1-     Litter at flat path, type 4.
+ 142       4      1-     Litter at ramp with NE edge up, type 1.
+ 146       4      1-     Litter at ramp with NE edge up, type 2.
+ 150       4      1-     Litter at ramp with NE edge up, type 3.
+ 154       4      1-     Litter at ramp with NE edge up, type 4.
+ 158       4      1-     Litter at ramp with SE edge up, type 1.
+ 162       4      1-     Litter at ramp with SE edge up, type 2.
+ 166       4      1-     Litter at ramp with SE edge up, type 3.
+ 170       4      1-     Litter at ramp with SE edge up, type 4.
+ 174       4      1-     Litter at ramp with SW edge up, type 1.
+ 178       4      1-     Litter at ramp with SW edge up, type 2.
+ 182       4      1-     Litter at ramp with SW edge up, type 3.
+ 186       4      1-     Litter at ramp with SW edge up, type 4.
+ 190       4      1-     Litter at ramp with NW edge up, type 1.
+ 194       4      1-     Litter at ramp with NW edge up, type 2.
+ 198       4      1-     Litter at ramp with NW edge up, type 3.
+ 202       4      1-     Litter at ramp with NW edge up, type 4.
+ 206       4      1-     Vomit at flat path, type 1.
+ 210       4      1-     Vomit at flat path, type 2.
+ 214       4      1-     Vomit at flat path, type 3.
+ 218       4      1-     Vomit at flat path, type 4.
+ 222       4      1-     Vomit at ramp with NE edge up, type 1.
+ 226       4      1-     Vomit at ramp with NE edge up, type 2.
+ 230       4      1-     Vomit at ramp with NE edge up, type 3.
+ 234       4      1-     Vomit at ramp with NE edge up, type 4.
+ 238       4      1-     Vomit at ramp with SE edge up, type 1.
+ 242       4      1-     Vomit at ramp with SE edge up, type 2.
+ 246       4      1-     Vomit at ramp with SE edge up, type 3.
+ 250       4      1-     Vomit at ramp with SE edge up, type 4.
+ 254       4      1-     Vomit at ramp with SW edge up, type 1.
+ 258       4      1-     Vomit at ramp with SW edge up, type 2.
+ 262       4      1-     Vomit at ramp with SW edge up, type 3.
+ 266       4      1-     Vomit at ramp with SW edge up, type 4.
+ 270       4      1-     Vomit at ramp with NW edge up, type 1.
+ 274       4      1-     Vomit at ramp with NW edge up, type 2.
+ 278       4      1-     Vomit at ramp with NW edge up, type 3.
+ 282       4      1-     Vomit at ramp with NW edge up, type 4.
+ 286                     Total length.
+======  ======  =======  =================================================
+
+Version history
+...............
+
+- 1 (20150106) Initial version.
+
+
 Platforms
 ~~~~~~~~~
 Platforms put up in the air, to carry the weight of a path.

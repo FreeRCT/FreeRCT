@@ -569,6 +569,48 @@ int PATHBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+PDECBlock::PDECBlock() : GameBlock("PDEC", 1)
+{
+}
+
+/**
+ * Write the sprite if available.
+ * @param spr Sprite to wite (if not \c nullptr).
+ * @param fw File to write to.
+ * @return \c 0 if no sprite available, else the block number of the written sprite.
+ */
+static uint32 WriteSprite(std::shared_ptr<SpriteBlock> &spr, FileWriter *fw)
+{
+	if (spr == nullptr) return 0;
+	return spr->Write(fw);
+}
+
+int PDECBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 286 - 12);
+	fb->SaveUInt16(this->tile_width);
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->litter_bin[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->overflow_bin[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->demolished_bin[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->lamp_post[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->demolished_post[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->bench[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->demolished_bench[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->litter_flat[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->litter_ne[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->litter_se[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->litter_sw[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->litter_nw[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->vomit_flat[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->vomit_ne[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->vomit_se[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->vomit_sw[i], fw));
+	for (int i = 0; i < 4; i++) fb->SaveUInt32(WriteSprite(this->vomit_nw[i], fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
 PLATBlock::PLATBlock() : GameBlock("PLAT", 2)
 {
 }
