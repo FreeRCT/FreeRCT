@@ -408,7 +408,7 @@ bool SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 		default: return false; // Unknown type of path.
 	}
 
-	uint16 width  = rcd_file->GetUInt16();
+	uint16 width = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
@@ -418,6 +418,112 @@ bool SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 		if (!LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum])) return false;
 	}
 	path->status = ((type & 0x8000) != 0) ? PAS_QUEUE_PATH : PAS_NORMAL_PATH;
+	return true;
+}
+
+PathDecoration::PathDecoration()
+{
+	/* Initialize sprite pointers. */
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		this->litterbin[edge] = nullptr;
+		this->overflow_bin[edge] = nullptr;
+		this->demolished_bin[edge] = nullptr;
+		this->lamp_post[edge] = nullptr;
+		this->demolished_lamp[edge] = nullptr;
+		this->bench[edge] = nullptr;
+		this->demolished_bench[edge] = nullptr;
+
+		for (int tp = 0; tp < 4; tp++) {
+			this->ramp_litter[edge][tp] = nullptr;
+			this->ramp_vomit[edge][tp] = nullptr;
+		}
+	}
+
+	for (int tp = 0; tp < 4; tp++) {
+		this->flat_litter[tp] = nullptr;
+		this->flat_vomit[tp] = nullptr;
+	}
+
+	/* Initialize counts. */
+	this->flat_litter_count = 0;
+	this->flat_vomit_count = 0;
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		this->ramp_litter_count[edge] = 0;
+		this->ramp_vomit_count[edge] = 0;
+	}
+}
+
+/**
+ * Load a path decoration sprites block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool SpriteManager::LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites)
+{
+	/* Size is 2 byte tile width, 7 groups of sprites at the edges, 2 kinds of (flat+4 ramp) 4 type sprites. */
+	if (rcd_file->version != 1 || rcd_file->size != 2 + 7*4*4 + 2*(1+4)*4*4) return false;
+
+	uint16 width = rcd_file->GetUInt16();
+	SpriteStorage *ss = this->GetSpriteStore(width);
+	if (ss == nullptr) return false;
+	PathDecoration *pdec = &ss->path_decoration;
+
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->litterbin[edge])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->overflow_bin[edge])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_bin[edge])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->lamp_post[edge])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_lamp[edge])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->bench[edge])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_bench[edge])) return false;
+	}
+
+	for (int tp = 0; tp < 4; tp++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->flat_litter[tp])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		for (int tp = 0; tp < 4; tp++) {
+			if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_litter[edge][tp])) return false;
+		}
+	}
+
+	for (int tp = 0; tp < 4; tp++) {
+		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->flat_vomit[tp])) return false;
+	}
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		for (int tp = 0; tp < 4; tp++) {
+			if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_vomit[edge][tp])) return false;
+		}
+	}
+
+	/* Data loaded, setup the counts. */
+	for (pdec->flat_litter_count = 0; pdec->flat_litter_count < 4; pdec->flat_litter_count++) if (pdec->flat_litter[pdec->flat_litter_count] == nullptr) break;
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		int count = 0;
+		while (count < 4 && pdec->ramp_litter[edge][count] != nullptr) count++;
+		pdec->ramp_litter_count[edge] = count;
+	}
+
+	for (pdec->flat_vomit_count = 0; pdec->flat_vomit_count < 4; pdec->flat_vomit_count++) if (pdec->flat_vomit[pdec->flat_vomit_count] == nullptr) break;
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		int count = 0;
+		while (count < 4 && pdec->ramp_vomit[edge][count] != nullptr) count++;
+		pdec->ramp_vomit_count[edge] = count;
+	}
+
 	return true;
 }
 
@@ -1239,6 +1345,11 @@ const char *SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "PATH") == 0) {
 			if (!this->LoadPATH(&rcd_file, sprites)) return "Path-sprites block loading failed.";
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "PDEC") == 0) {
+			if (!this->LoadPDEC(&rcd_file, sprites)) return "Path decoration block loading failed.";
 			continue;
 		}
 

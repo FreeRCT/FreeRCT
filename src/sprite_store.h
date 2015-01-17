@@ -118,6 +118,33 @@ public:
 };
 
 /**
+ * %Path decoration sprites.
+ * @ingroup sprites_group
+ */
+class PathDecoration {
+public:
+	PathDecoration();
+
+	ImageData *litterbin[4];        ///< Normal (non-demolished, non-full) litter bins.
+	ImageData *overflow_bin[4];     ///< Overflowing (non-demolished) litter bins.
+	ImageData *demolished_bin[4];   ///< Demolished litter bins.
+	ImageData *lamp_post[4];        ///< Lamp posts (non-demolished).
+	ImageData *demolished_lamp[4];  ///< Demolished lamp posts.
+	ImageData *bench[4];            ///< Normal (non-demolished) benches.
+	ImageData *demolished_bench[4]; ///< Demolished benches.
+
+	ImageData *flat_litter[4];    ///< 4 types of litter at flat path tile (may be \c nullptr).
+	ImageData *ramp_litter[4][4]; ///< For each ramp, 4 types of litter (may be \c nullptr).
+	ImageData *flat_vomit[4];     ///< 4 types of vomit at flat path tile (may be \c nullptr).
+	ImageData *ramp_vomit[4][4];  ///< For each ramp, 4 types of vomit at flat path tile (may be \c nullptr).
+
+	int flat_litter_count;    ///< Number of litter graphics for flat path tiles.
+	int flat_vomit_count;     ///< Number of vomit  graphics for flat path tiles.
+	int ramp_litter_count[4]; ///< Number of litter graphics for each type of ramp.
+	int ramp_vomit_count[4];  ///< Number of vomit  graphics for each type of ramp.
+};
+
+/**
  * %Foundation sprites.
  * @ingroup sprites_group
  */
@@ -579,6 +606,7 @@ public:
 	TileCorners tile_corners;         ///< Tile corner sprites.
 	Fence *fence[FENCE_COUNT];        ///< Available fence types.
 	Path path_sprites[PAT_COUNT];     ///< %Path sprites.
+	PathDecoration path_decoration;   ///< %Path decoration sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.
 
@@ -622,6 +650,7 @@ private:
 	bool LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites);
+	bool LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites);
