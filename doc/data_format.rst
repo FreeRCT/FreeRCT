@@ -407,6 +407,8 @@ Known types of ground:
   tile is selected. Colour 181 means 'north corner', 182 means 'east corner',
   184 means 'west corner', 185 means 'south corner', and 183 means 'entire
   tile'.
+- Cursor edge (49), cursor test tiles. Internal use. Like the Cursor test
+  tiles, but for edges instead of corners.
 
 To do: Move the cursor tile to another position.
 
@@ -418,6 +420,7 @@ Version history
 - 3 (20110925) Removed sprite blocks for viewing in east, south, and west direction.
 -   (20111014) Added 'Cursor' tiles type.
 - 4 (20130602) Steep slope sprites split in a bottom and top part.
+- 5 (20140817) Add cursor edge test sprites.
 
 
 Tile selection
