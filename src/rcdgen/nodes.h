@@ -403,6 +403,7 @@ public:
 	std::array<std::shared_ptr<SpriteBlock>, PTS_COUNT> sprites; ///< Path sprites.
 };
 
+/** Path decoration PDEC block. */
 class PDECBlock : public GameBlock {
 public:
 	PDECBlock();

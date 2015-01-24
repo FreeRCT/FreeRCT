@@ -324,7 +324,7 @@ VoxelCollector::~VoxelCollector()
 }
 
 /**
- * Set screen area of interest (relative to the (#voxel_pos position).
+ * Set screen area of interest (relative to the (#Viewport::view_pos position).
  * @param xpos Horizontal position of the top-left corner.
  * @param ypos Vertical position of the top-left corner.
  * @param width Width of the area.

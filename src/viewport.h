@@ -135,9 +135,7 @@ public:
 
 	/**
 	 * Get a cursor.
-	 * @param xpos Expected x coordinate of the cursor.
-	 * @param ypos Expected y coordinate of the cursor.
-	 * @param zpos Expected z coordinate of the cursor.
+	 * @param cursor_pos Expected coordinate of the cursor.
 	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
 	 */
 	virtual CursorType GetCursor(const XYZPoint16 &cursor_pos) = 0;

@@ -712,9 +712,7 @@ public:
 	 * Notification from the construction window to display a track piece at a given position.
 	 * @param instance Ride number of the window.
 	 * @param piece Track piece to display.
-	 * @param x X position of the piece.
-	 * @param y Y position of the piece.
-	 * @param z Z position of the piece.
+	 * @param vox Position of the piece.
 	 * @param direction Direction of building (to use with a cursor).
 	 */
 	virtual void DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction) const = 0;
@@ -1241,9 +1239,7 @@ void CoasterBuildMode::SelectPosition(uint16 instance, ConstTrackPiecePtr piece,
  * Notification from the construction window to display a track piece at a given position.
  * @param instance Ride number of the window.
  * @param piece Track piece to display.
- * @param x X position of the piece.
- * @param y Y position of the piece.
- * @param z Z position of the piece.
+ * @param vox Position of the piece.
  * @param direction Direction of building (to use with a cursor).
  */
 void CoasterBuildMode::DisplayPiece(uint16 instance, ConstTrackPiecePtr piece, const XYZPoint16 &vox, TileEdge direction)

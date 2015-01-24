@@ -108,7 +108,7 @@ public:
 
 	/**
 	 * Denote to the mouse mode handler to display a track piece at the given position.
-	 * @aram piece Selected track piece to attach.
+	 * @param piece Selected track piece to attach.
 	 * @param vox Position of the piece.
 	 * @param direction Direction of building (to use with a cursor).
 	 */

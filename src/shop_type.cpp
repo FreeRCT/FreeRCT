@@ -171,9 +171,7 @@ void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData
 /**
  * Update a ride instance with its position in the world.
  * @param orientation Orientation of the shop.
- * @param xpos X position of the shop.
- * @param ypos Y position of the shop.
- * @param zpos Z position of the shop.
+ * @param pos Position of the shop.
  */
 void ShopInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 {
