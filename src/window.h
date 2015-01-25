@@ -99,6 +99,22 @@ enum WmMouseEvent {
 };
 
 /**
+ * Key codes of the window manager.
+ * @ingroup window_group
+ */
+enum WmKeyCode {
+	WMKC_CURSOR_UP,    ///< Up arrow key is pressed.
+	WMKC_CURSOR_LEFT,  ///< Left arrow key is pressed.
+	WMKC_CURSOR_RIGHT, ///< Right arrow key is pressed.
+	WMKC_CURSOR_DOWN,  ///< Down arrow key is pressed.
+	WMKC_BACKSPACE,    ///< Backspace is pressed.
+	WMKC_DELETE,       ///< Delete is pressed.
+	WMKC_CANCEL,       ///< Cancel is pressed.
+	WMKC_CONFIRM,      ///< Confirm is pressed.
+	WMKC_SYMBOL,       ///< A symbol is entered.
+};
+
+/**
  * Available mouse modes of the window manager.
  * @ingroup window_group
  */
@@ -320,6 +336,7 @@ public:
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);
 	void MouseWheelEvent(int direction);
+	bool KeyEvent(WmKeyCode key_code, const uint8 *symbol);
 	void Tick();
 
 	Point16 GetMousePosition() const;

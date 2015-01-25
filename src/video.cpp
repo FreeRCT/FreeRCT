@@ -149,6 +149,7 @@ VideoSystem::~VideoSystem()
 std::string VideoSystem::Initialize(const char *font_name, int font_size)
 {
 	if (this->initialized) return "";
+
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		std::string err = "SDL video initialization failed: ";
 		err += SDL_GetError();
@@ -194,6 +195,8 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 	} else {
 		printf("Could not set window icon (%s)\n", SDL_GetError());
 	}
+
+	SDL_StartTextInput(); // Enable Unicode character input.
 
 	if (TTF_Init() != 0) {
 		SDL_Quit();
@@ -340,6 +343,27 @@ static void UpdateMousePosition(int16 x, int16 y)
 }
 
 /**
+ * Process input from the keyboard.
+ * @param key_code Kind of input.
+ * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
+ * @return Game-ending event has happened.
+ */
+static bool HandleKeyInput(WmKeyCode key_code, const uint8 *symbol)
+{
+	if (_window_manager.KeyEvent(key_code, symbol)) return false;
+
+	if (key_code == WMKC_CURSOR_LEFT) {
+		GetViewport()->Rotate(-1);
+	} else if (key_code == WMKC_CURSOR_RIGHT) {
+		GetViewport()->Rotate(1);
+	} else if (key_code == WMKC_SYMBOL && symbol[0] == 'q') {
+		QuitProgram();
+		return true;
+	}
+	return false;
+}
+
+/**
  * Handle an input event.
  * @return Game-ending event has happened.
  */
@@ -348,24 +372,25 @@ bool VideoSystem::HandleEvent()
 	SDL_Event event;
 	if (SDL_PollEvent(&event) != 1) return true;
 	switch (event.type) {
+		case SDL_TEXTINPUT:
+			return HandleKeyInput(WMKC_SYMBOL, (const uint8 *)event.text.text);
+
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-				case SDLK_q:
-					QuitProgram();
-					return true;
+				case SDLK_UP:        return HandleKeyInput(WMKC_CURSOR_UP, nullptr);
+				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT, nullptr);
+				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT, nullptr);
+				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN, nullptr);
+				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL, nullptr);
+				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE, nullptr);
+				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE, nullptr);
 
-				case SDLK_LEFT:
-					GetViewport()->Rotate(-1);
-					break;
+				case SDLK_RETURN:
+				case SDLK_RETURN2:
+				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM, nullptr);
 
-				case SDLK_RIGHT:
-					GetViewport()->Rotate(1);
-					break;
-
-				default:
-					break;
+				default:             return false;
 			}
-			return false;
 
 		case SDL_MOUSEMOTION:
 			UpdateMousePosition(event.button.x, event.button.y);

@@ -978,6 +978,17 @@ void WindowManager::MouseWheelEvent(int direction)
 }
 
 /**
+ * Process input from the keyboard.
+ * @param key_code Kind of input.
+ * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
+ * @return Key event has been processed.
+ */
+bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return false; // \todo Perform key processing in window mouse modes.
+}
+
+/**
  * Redraw (parts of) the windows.
  * @todo [medium/difficult] Do this much less stupid.
  * @ingroup window_group
