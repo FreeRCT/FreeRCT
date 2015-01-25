@@ -715,14 +715,15 @@ static std::shared_ptr<TSELBlock> ConvertTSELNode(std::shared_ptr<NodeGroup> ng)
 
 /** Available types of surface. */
 static const Symbol _surface_types[] = {
-	{"reserved",      0},
-	{"the_green",    16},
-	{"short_grass",  17},
-	{"medium_grass", 18},
-	{"long_grass",   19},
-	{"sand",         32},
-	{"cursor",       48},
-	{"cursor_edge",  49},
+	{"reserved",          0},
+	{"the_green",        16},
+	{"short_grass",      17},
+	{"medium_grass",     18},
+	{"long_grass",       19},
+	{"semi_transparent", 20},
+	{"sand",             32},
+	{"cursor",           48},
+	{"cursor_edge",      49},
 	{nullptr, 0},
 };
 

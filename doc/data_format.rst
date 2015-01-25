@@ -379,7 +379,7 @@ Version history
 Ground tiles block
 ~~~~~~~~~~~~~~~~~~
 A set of ground tiles that form a smooth surface. Current version in
-FreeRCT is 4.
+FreeRCT is 6.
 
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
@@ -401,7 +401,8 @@ Offset  Length  Version  Description
 Known types of ground:
 
 - Empty  (0), do not use in the RCD file.
-- Grass  (16-19,) Green grass ground, with increasing length grass on it.
+- Grass  (16-19), green grass ground, with increasing length grass on it.
+- Semi-transparent grass (20), for underground view.
 - Sand   (32), desert 'ground'.
 - Cursor (48), cursor test tiles. Internal use. Defines what part of a
   tile is selected. Colour 181 means 'north corner', 182 means 'east corner',
@@ -421,6 +422,7 @@ Version history
 -   (20111014) Added 'Cursor' tiles type.
 - 4 (20130602) Steep slope sprites split in a bottom and top part.
 - 5 (20140817) Add cursor edge test sprites.
+- 6 (20150123) Added 'semi-transparent grass' type.
 
 
 Tile selection
