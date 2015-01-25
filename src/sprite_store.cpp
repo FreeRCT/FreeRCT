@@ -325,11 +325,6 @@ bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 	return true;
 }
 
-TileSelection::TileSelection()
-{
-	for (uint i = 0; i < lengthof(this->surface); i++) this->surface[i] = nullptr;
-}
-
 /**
  * Load a tile selection block from a RCD file.
  * @param rcd_file RCD file used for loading.
@@ -345,7 +340,7 @@ bool SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
 	if (ss == nullptr) return false;
-	TileSelection *ts = &ss->tile_select;
+	SurfaceData *ts = &ss->tile_select;
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &ts->surface[sprnum])) return false;
 	}

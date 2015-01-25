@@ -68,17 +68,6 @@ public:
 };
 
 /**
- * Highlight the currently selected ground tile with a selection cursor.
- * @ingroup sprites_group
- */
-class TileSelection {
-public:
-	TileSelection();
-
-	ImageData *surface[NUM_SLOPE_SPRITES]; ///< Sprites with a selection cursor.
-};
-
-/**
  * Highlight the currently selected corner of a ground tile with a corner selection sprite.
  * @ingroup sprites_group
  */
@@ -602,7 +591,7 @@ public:
 	Foundation foundation[FDT_COUNT]; ///< Foundation.
 	Platform platform;                ///< %Platform block.
 	Support support;                  ///< Support block.
-	TileSelection tile_select;        ///< Tile selection sprites.
+	SurfaceData tile_select;          ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
 	Fence *fence[FENCE_COUNT];        ///< Available fence types.
 	Path path_sprites[PAT_COUNT];     ///< %Path sprites.
