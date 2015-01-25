@@ -53,7 +53,7 @@ void ShutdownGame()
 
 	_game_mode_mgr.SetGameMode(GM_NONE);
 	_mouse_modes.SetMouseMode(MM_INACTIVE);
-	_manager.CloseAllWindows();
+	_window_manager.CloseAllWindows();
 }
 
 /** Runs various procedures that have to be done yearly. */
@@ -84,7 +84,7 @@ void OnNewDay()
 */
 void OnNewFrame(uint32 frame_delay)
 {
-	_manager.Tick();
+	_window_manager.Tick();
 	_guests.DoTick();
 	DateOnTick();
 	_guests.OnAnimate(frame_delay);

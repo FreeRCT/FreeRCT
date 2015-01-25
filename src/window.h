@@ -341,7 +341,7 @@ private:
 	Point16 move_offset;    ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
 };
 
-extern WindowManager _manager;
+extern WindowManager _window_manager;
 
 bool IsLeftClick(uint8 state);
 

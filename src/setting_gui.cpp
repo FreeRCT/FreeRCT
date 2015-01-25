@@ -120,7 +120,7 @@ void SettingWindow::OnChange(ChangeCode code, uint32 parameter)
 	switch ((parameter >> 16) & 0xFF) {
 		case SW_LANGUAGE:
 			_current_language = parameter & 0xFF;
-			_manager.ResetAllWindows();
+			_window_manager.ResetAllWindows();
 			break;
 
 		case SW_RESOLUTION: {

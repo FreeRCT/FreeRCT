@@ -128,7 +128,7 @@ void FenceGui::OnClick(WidgetNumber number, const Point16 &pos)
 	switch (number) {
 		case FENCE_GUI_LIST: {
 			BaseWidget *wid = GetWidget<BaseWidget>(number);
-			Point16 mouse = _manager.GetMousePosition();
+			Point16 mouse = _window_manager.GetMousePosition();
 			Point32 rect;
 			int lines = -1; // computed later when we know sprite size
 			rect.x = this->GetWidgetScreenX(wid);

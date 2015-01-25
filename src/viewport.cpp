@@ -1677,7 +1677,7 @@ void MouseModes::SetViewportMousemode()
 	if (this->main_display == nullptr) return;
 
 	/* First try all windows from top to bottom. */
-	Window *w = _manager.top;
+	Window *w = _window_manager.top;
 	while (w != nullptr) {
 		for (uint i = 0; i < lengthof(this->modes); i++) {
 			MouseMode *mm = this->modes[i];

@@ -269,7 +269,7 @@ bool VideoSystem::SetResolution(const Point32 &res)
 	this->blit_rect = ClippedRectangle(0, 0, this->vid_width, this->vid_height);
 	Viewport *vp = GetViewport();
 	if (vp != nullptr) vp->SetSize(this->vid_width, this->vid_height);
-	_manager.RepositionAllWindows();
+	_window_manager.RepositionAllWindows();
 	this->MarkDisplayDirty();
 	return true;
 }
@@ -336,7 +336,7 @@ ClippedRectangle VideoSystem::GetClippedRectangle()
  */
 static void UpdateMousePosition(int16 x, int16 y)
 {
-	_manager.MouseMoveEvent({x, y});
+	_window_manager.MouseMoveEvent({x, y});
 }
 
 /**
@@ -372,7 +372,7 @@ bool VideoSystem::HandleEvent()
 			return false;
 
 		case SDL_MOUSEWHEEL:
-			_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
+			_window_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
 			return false;
 
 		case SDL_MOUSEBUTTONUP:
@@ -380,17 +380,17 @@ bool VideoSystem::HandleEvent()
 			switch (event.button.button) {
 				case SDL_BUTTON_LEFT:
 					UpdateMousePosition(event.button.x, event.button.y);
-					_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
+					_window_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
 					break;
 
 				case SDL_BUTTON_MIDDLE:
 					UpdateMousePosition(event.button.x, event.button.y);
-					_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
+					_window_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
 					break;
 
 				case SDL_BUTTON_RIGHT:
 					UpdateMousePosition(event.button.x, event.button.y);
-					_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
+					_window_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
 					break;
 
 				default:

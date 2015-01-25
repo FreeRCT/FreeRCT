@@ -34,7 +34,7 @@
  * %Window manager.
  * @ingroup window_group
  */
-WindowManager _manager;
+WindowManager _window_manager;
 
 static uint GetWindowZPriority(WindowTypes wt);
 
@@ -61,7 +61,7 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber) : rect(0, 0, 0, 0), wtyp
 	this->lower  = nullptr;
 	this->flags  = 0;
 
-	_manager.AddToStack(this); // Add to window stack.
+	_window_manager.AddToStack(this); // Add to window stack.
 }
 
 /**
@@ -70,7 +70,7 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber) : rect(0, 0, 0, 0), wtyp
  */
 Window::~Window()
 {
-	assert(!_manager.HasWindow(this));
+	assert(!_window_manager.HasWindow(this));
 }
 
 /**
@@ -135,7 +135,7 @@ ComputeInitialPosition::ComputeInitialPosition()
  */
 static int GetDistanceToMouse(const Point32 &pt)
 {
-	Point16 mouse_pos = _manager.GetMousePosition();
+	Point16 mouse_pos = _window_manager.GetMousePosition();
 	return abs(mouse_pos.x - pt.x) + abs(mouse_pos.y - pt.y);
 }
 
@@ -159,7 +159,7 @@ Point32 ComputeInitialPosition::FindPosition(Window *new_w)
 	Point32 best(this->base_pos, this->base_pos);
 
 	bool found_empty = false;
-	for (Window *w = _manager.top; w != nullptr; w = w->lower) {
+	for (Window *w = _window_manager.top; w != nullptr; w = w->lower) {
 		if (w == new_w) continue;
 		x[0] = w->rect.base.x - new_w->rect.width - GAP;
 		x[1] = w->rect.base.x;
@@ -203,7 +203,7 @@ bool ComputeInitialPosition::IsScreenEmpty(const Rectangle32 &rect)
 			|| rect.base.x + rect.width  > _video.GetXSize()
 			|| rect.base.y + rect.height > _video.GetYSize()) return false;
 
-	for (Window *w = _manager.top; w != nullptr; w = w->lower) {
+	for (Window *w = _window_manager.top; w != nullptr; w = w->lower) {
 		if (w == this->skip || new_prio > GetWindowZPriority(w->wtype)) continue;
 		if (w->rect.Intersects(rect)) return false;
 	}
@@ -992,7 +992,7 @@ void UpdateWindows()
 	Rectangle32 rect(0, 0, _video.GetXSize(), _video.GetYSize());
 	_video.FillRectangle(rect, MakeRGBA(0, 0, 0, OPAQUE));
 
-	Window *w = _manager.bottom;
+	Window *w = _window_manager.bottom;
 	while (w != nullptr) {
 		w->OnDraw();
 		w = w->higher;
@@ -1004,7 +1004,7 @@ void UpdateWindows()
 /** A tick has passed, update whatever must be updated. */
 void WindowManager::Tick()
 {
-	Window *w = _manager.top;
+	Window *w = _window_manager.top;
 	while (w != nullptr) {
 		if (w->timeout > 0) {
 			w->timeout--;
@@ -1025,7 +1025,7 @@ void WindowManager::Tick()
  */
 Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber)
 {
-	Window *w = _manager.top;
+	Window *w = _window_manager.top;
 	while (w != nullptr) {
 		if (w->wtype == wtype && (wnumber == ALL_WINDOWS_OF_TYPE || w->wnumber == wnumber)) return w;
 		w = w->lower;
@@ -1057,7 +1057,7 @@ bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber)
 {
 	Window *w = GetWindowByType(wtype, wnumber);
 	if (w != nullptr) {
-		_manager.RaiseWindow(w);
+		_window_manager.RaiseWindow(w);
 		w->SetHighlight(true);
 	}
 
