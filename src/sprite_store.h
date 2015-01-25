@@ -64,6 +64,8 @@ class SurfaceData {
 public:
 	SurfaceData();
 
+	bool HasAllSprites() const;
+
 	ImageData *surface[NUM_SLOPE_SPRITES]; ///< Sprites displaying the slopes.
 };
 

@@ -356,10 +356,15 @@ static bool HandleKeyInput(WmKeyCode key_code, const uint8 *symbol)
 		GetViewport()->Rotate(-1);
 	} else if (key_code == WMKC_CURSOR_RIGHT) {
 		GetViewport()->Rotate(1);
-	} else if (key_code == WMKC_SYMBOL && symbol[0] == 'q') {
-		QuitProgram();
-		return true;
+	} else if (key_code == WMKC_SYMBOL) {
+		if (symbol[0] == '1') {
+			GetViewport()->ToggleUndergroundMode();
+		} else if (symbol[0] == 'q') {
+			QuitProgram();
+			return true;
+		}
 	}
+
 	return false;
 }
 
@@ -371,6 +376,7 @@ bool VideoSystem::HandleEvent()
 {
 	SDL_Event event;
 	if (SDL_PollEvent(&event) != 1) return true;
+
 	switch (event.type) {
 		case SDL_TEXTINPUT:
 			return HandleKeyInput(WMKC_SYMBOL, (const uint8 *)event.text.text);

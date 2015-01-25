@@ -238,6 +238,10 @@ public:
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 
+	bool IsUndergroundModeAvailable() const;
+	void SetUndergroundMode();
+	void ToggleUndergroundMode();
+
 	XYZPoint32 view_pos;         ///< Position of the centre point of the viewport.
 	uint16 tile_width;           ///< Width of a tile.
 	uint16 tile_height;          ///< Height of a tile.
@@ -248,6 +252,7 @@ public:
 	EdgeCursor edge_cursor;      ///< Cursor for showing an edge sprite
 	Point16 mouse_pos;           ///< Last known position of the mouse.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
+	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
 
 private:
 	bool additions_displayed;    ///< Additions in #_additions are displayed to the user.

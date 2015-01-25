@@ -194,6 +194,7 @@ public:
 	const SpriteStorage *sprites; ///< Sprite collection of the right size.
 	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c nullptr.
 	bool draw_above_stack;        ///< Also draw voxels above the voxel stack (for cursors).
+	bool underground_mode;        ///< Whether to draw underground mode sprites (else draw normal surface sprites).
 
 	Rectangle32 rect; ///< Screen area of interest.
 
@@ -313,6 +314,7 @@ VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
 	this->tile_height = vp->tile_height;
 	this->orient = vp->orientation;
 	this->draw_above_stack = draw_above_stack;
+	this->underground_mode = vp->underground_mode;
 
 	this->sprites = _sprite_manager.GetSprites(this->tile_width);
 	assert(this->sprites != nullptr);
@@ -959,7 +961,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		dd.z_height = voxel_pos.z;
 		dd.order = SO_GROUND;
 		uint8 slope = voxel->GetGroundSlope();
-		dd.sprite = this->sprites->GetSurfaceSprite(voxel->GetGroundType(), slope, this->orient);
+		uint8 type = (this->underground_mode) ? GTP_UNDERGROUND : voxel->GetGroundType();
+		dd.sprite = this->sprites->GetSurfaceSprite(type, slope, this->orient);
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 		dd.recolour = nullptr;
@@ -1101,6 +1104,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		}
 	}
 
+	/* Add voxel objects (persons, ride cars, etc). */
 	const VoxelObject *vo = voxel->voxel_objects;
 	while (vo != nullptr) {
 		DrawData dd;
@@ -1312,6 +1316,7 @@ Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WIND
 	this->mouse_pos.y = 0;
 	this->additions_enabled = false;
 	this->additions_displayed = false;
+	this->underground_mode = false;
 
 	uint16 width  = _video.GetXSize();
 	uint16 height = _video.GetYSize();
@@ -1324,6 +1329,35 @@ Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WIND
 Viewport::~Viewport()
 {
 	_mouse_modes.main_display = nullptr;
+}
+
+/**
+ * Can the viewport switch to underground mode view?
+ * @return Whether underground mode view is available.
+ */
+bool Viewport::IsUndergroundModeAvailable() const
+{
+	const SpriteStorage *storage = _sprite_manager.GetSprites(this->tile_width);
+	return storage->surface[GTP_UNDERGROUND].HasAllSprites();
+}
+
+/** Enable the underground mode view, if possible. */
+void Viewport::SetUndergroundMode()
+{
+	if (!IsUndergroundModeAvailable()) return;
+	this->underground_mode = true;
+	this->MarkDirty();
+}
+
+/** Toggle the underground mode view on/off. */
+void Viewport::ToggleUndergroundMode()
+{
+	if (this->underground_mode) {
+		this->underground_mode = false;
+		this->MarkDirty();
+	} else {
+		this->SetUndergroundMode();
+	}
 }
 
 /**

@@ -292,6 +292,18 @@ SurfaceData::SurfaceData()
 }
 
 /**
+ * Test whether the surface is complete (has all sprites).
+ * @return Whether the surface is complete.
+ */
+bool SurfaceData::HasAllSprites() const
+{
+	for (uint i = 0; i < lengthof(this->surface); i++) {
+		if (this->surface[i] == nullptr) return false;
+	}
+	return true;
+}
+
+/**
  * Load a surface game block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
