@@ -299,7 +299,7 @@ SurfaceData::SurfaceData()
  */
 bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 5 || rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
+	if (rcd_file->version != 6 || rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
 
 	uint16 gt = rcd_file->GetUInt16(); // Ground type bytes.
 	uint8 type = GTP_INVALID;
@@ -307,6 +307,7 @@ bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 	if (gt == 17) type = GTP_GRASS1;
 	if (gt == 18) type = GTP_GRASS2;
 	if (gt == 19) type = GTP_GRASS3;
+	if (gt == 20) type = GTP_UNDERGROUND;
 	if (gt == 32) type = GTP_DESERT;
 	if (gt == 48) type = GTP_CURSOR_TEST;
 	if (gt == 49) type = GTP_CURSOR_EDGE_TEST;
