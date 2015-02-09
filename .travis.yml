@@ -33,3 +33,16 @@ notifications:
       - "Build details : %{build_url}"
     use_notice: true
     skip_join: true
+
+env:
+  global:
+    secure: hG7oaDFfJcgeuNfIu5x3RlQrj7qIhxzV4EEZsGTMvGMVY64cjVgpR5Mtyd04ZBBJuWxJ4FT/USOFlotLxYAwpEp92DAeHsBUVQzsiIrx0JNWxsxadZ6bR32WgKfx6bDCMLLY92CdByKFUCsBzZXAidNd+KIEs/5IHkYxKEGdjlY=
+
+addons:
+  coverity_scan:
+    project:
+      name: "FreeRCT/FreeRCT"
+      description: "Build from Travis-CI"
+    build_command_prepend: "cmake ."
+    build_command: "make -j2"
+    branch_pattern: master
