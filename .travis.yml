@@ -1,7 +1,9 @@
 language: cpp
-complier:
+
+compiler:
   - gcc
   - clang
+
 before_install:
   # No SDL2 in the default repos yet
   - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
@@ -11,13 +13,15 @@ before_install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   - sudo apt-get -qq install cmake build-essential libsdl2-dev libsdl2-ttf-dev bison flex libpng-dev
+
 install:
   - cd $TRAVIS_BUILD_DIR
   - cmake .
+
 script:
   - make -j2
+
 notifications:
-  email: false
   irc:
     channels:
       - "irc.oftc.net#freerct"
