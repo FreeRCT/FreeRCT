@@ -172,8 +172,7 @@ public:
 	int8 speed;               ///< If non-zero, the minimal speed of cars at the track.
 	uint16 track_flags;       ///< Flags of the track piece.
 	Money cost;               ///< Cost of this track piece.
-	int voxel_count;          ///< Number of voxels in #track_voxels.
-	TrackVoxel *track_voxels; ///< Track voxels of this piece.
+	std::vector<TrackVoxel *> track_voxels; ///< Track voxels of this piece.
 
 	uint32 piece_length;      ///< Length of the track piece for the cars, in 1/256 pixel.
 	TrackCurve *car_xpos;     ///< X position of cars over this track piece.
@@ -198,10 +197,7 @@ public:
 	 */
 	inline bool HasPlatform() const
 	{
-		for (int i = 0; i < this->voxel_count; i++) {
-			if (this->track_voxels[i].HasPlatform()) return true;
-		}
-		return false;
+		return std::any_of(this->track_voxels.cbegin(), this->track_voxels.cend(), [](TrackVoxel *tv){ return tv->HasPlatform(); });
 	}
 
 	/**

@@ -160,8 +160,6 @@ static bool LoadTrackCurve(RcdFileReader *rcdfile, TrackCurve **curve, uint32 *l
 
 TrackPiece::TrackPiece()
 {
-	this->voxel_count = 0;
-	this->track_voxels = nullptr;
 	this->piece_length = 0;
 	this->car_xpos = nullptr;
 	this->car_ypos = nullptr;
@@ -173,7 +171,7 @@ TrackPiece::TrackPiece()
 
 TrackPiece::~TrackPiece()
 {
-	delete[] this->track_voxels;
+	for(const auto &tv : this->track_voxels) delete tv;
 	delete this->car_xpos;
 	delete this->car_ypos;
 	delete this->car_zpos;
@@ -202,14 +200,15 @@ bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	this->speed   = rcd_file->GetInt8();
 	this->track_flags = rcd_file->GetUInt16();
 	this->cost = rcd_file->GetUInt32();
-	this->voxel_count = rcd_file->GetUInt16();
+	uint16 voxel_count = rcd_file->GetUInt16();
 
-	if (length < 36u * this->voxel_count) return false;
-	length -= 36u * this->voxel_count;
+	if (length < 36u * voxel_count) return false;
+	length -= 36u * voxel_count;
 
-	this->track_voxels = new TrackVoxel[this->voxel_count];
-	for (int i = 0; i < this->voxel_count; i++) {
-		if (!this->track_voxels[i].Load(rcd_file, 36, sprites)) return false;
+	//for (auto &tv : this->track_voxels) {
+	for (uint16 i = 0; i < voxel_count; i++) {
+		this->track_voxels.emplace_back(new TrackVoxel);
+		if (!this->track_voxels.back()->Load(rcd_file, 36, sprites)) return false;
 	}
 	if (length < 4u) return false;
 	length -= 4;
@@ -247,12 +246,9 @@ bool PositionedTrackPiece::IsOnWorld() const
 	assert(this->piece != nullptr);
 	if (!IsVoxelInsideWorld(this->base_voxel)) return false;
 	if (!IsVoxelInsideWorld(this->GetEndXYZ())) return false;
-	const TrackVoxel *tvx = this->piece->track_voxels;
-	for (int i = 0; i < this->piece->voxel_count; i++) {
-		if (!IsVoxelInsideWorld(this->base_voxel + tvx->dxyz)) return false;
-		tvx++;
-	}
-	return true;
+	XYZPoint16 base = this->base_voxel;
+	return std::all_of(this->piece->track_voxels.begin(), this->piece->track_voxels.end(),
+	                   [base](TrackVoxel * tv){ return IsVoxelInsideWorld(base + tv->dxyz); });
 }
 
 /**
@@ -263,14 +259,12 @@ bool PositionedTrackPiece::IsOnWorld() const
 bool PositionedTrackPiece::CanBePlaced() const
 {
 	if (!this->IsOnWorld()) return false;
-	const TrackVoxel *tvx = this->piece->track_voxels;
-	for (int i = 0; i < this->piece->voxel_count; i++) {
+	for (const auto &tvx : this->piece->track_voxels) {
 		/* Is the voxel above ground level? */
 		const XYZPoint16 part_pos = this->base_voxel + tvx->dxyz;
 		if (_world.GetGroundHeight(part_pos.x, part_pos.y) > part_pos.z) return false;
 		const Voxel *vx = _world.GetVoxel(part_pos);
 		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
-		tvx++;
 	}
 	return true;
 }

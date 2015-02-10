@@ -76,13 +76,11 @@ bool CarType::Load(RcdFileReader *rcdfile, const ImageMap &sprites)
 
 CoasterType::CoasterType() : RideType(RTK_COASTER)
 {
-	this->voxel_count = 0;
-	this->voxels = nullptr;
+	this->voxels = {};
 }
 
 CoasterType::~CoasterType()
 {
-	delete[] this->voxels;
 }
 
 /**
@@ -121,17 +119,8 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 		piece = (*iter).second;
 	}
 	/* Setup a track voxel list for fast access in the type. */
-	this->voxel_count = 0;
 	for (const auto &piece : this->pieces) {
-		this->voxel_count += piece->voxel_count;
-	}
-	this->voxels = new const TrackVoxel *[this->voxel_count]();
-	int vi = 0;
-	for (const auto &piece : this->pieces) {
-		for (int j = 0; j < piece->voxel_count; j++) {
-			this->voxels[vi] = &piece->track_voxels[j];
-			vi++;
-		}
+		this->voxels.insert(this->voxels.end(), piece->track_voxels.begin(), piece->track_voxels.end());
 	}
 	return true;
 }
@@ -178,10 +167,9 @@ const StringID *CoasterType::GetInstanceNames() const
  */
 int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 {
-	for (int i = 0; i < this->voxel_count; i++) {
-		if (this->voxels[i] == tvx) return i;
-	}
-	NOT_REACHED();
+	auto match = std::find_if(this->voxels.begin(), this->voxels.end(), [tvx](const TrackVoxel *tv){ return tv == tvx; });
+	assert(match != this->voxels.end());
+	return std::distance(this->voxels.begin(), match);
 }
 
 /** Default constructor, no sprites available yet. */
@@ -556,7 +544,7 @@ void CoasterInstance::OnAnimate(int delay)
 void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	const CoasterType *ct = this->GetCoasterType();
-	assert(voxel_number < ct->voxel_count);
+	assert(voxel_number < ct->voxels.size());
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
 	sprites[1] = tv->back[orient];  // SO_RIDE
@@ -785,13 +773,11 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 	SmallRideInstance ride_number = (SmallRideInstance)this->GetIndex();
 
 	const CoasterType *ct = this->GetCoasterType();
-	const TrackVoxel *tvx = placed.piece->track_voxels;
-	for (int i = 0; i < placed.piece->voxel_count; i++) {
+	for (const auto& tvx : placed.piece->track_voxels) {
 		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
 		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
-		tvx++;
 	}
 }
 
@@ -801,13 +787,11 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
  */
 void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &placed)
 {
-	const TrackVoxel *tvx = placed.piece->track_voxels;
-	for (int i = 0; i < placed.piece->voxel_count; i++) {
+	for (const auto& tvx : placed.piece->track_voxels) {
 		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, false);
 		assert(vx->GetInstance() == (SmallRideInstance)this->GetIndex());
 		vx->SetInstance(SRI_FREE);
 		vx->SetInstanceData(0); // Not really needed.
-		tvx++;
 	}
 }
 
