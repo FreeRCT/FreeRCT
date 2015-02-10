@@ -449,7 +449,7 @@ void PathBuildManager::TileClicked(const XYZPoint16 &click_pos)
  */
 void PathBuildManager::SelectArrow(TileEdge direction)
 {
-	if (this->state < PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || direction >= INVALID_EDGE) return;
+	if (this->state < PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || direction >= EDGE_COUNT) return;
 	if ((this->allowed_arrows & (0x11 << direction)) == 0) return;
 	this->selected_arrow = direction;
 	this->state = PBS_WAIT_SLOPE;
