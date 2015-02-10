@@ -123,8 +123,7 @@ void Person::SetName(const char *name)
 
 	int length = strlen(name);
 	this->name = new char[length];
-	memcpy(this->name, name, length);
-	this->name[length] = '\0';
+	std::copy_n(name, length, this->name);
 }
 
 /**
