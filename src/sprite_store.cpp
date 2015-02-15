@@ -1327,7 +1327,7 @@ const char *SpriteManager::Load(const char *filename)
 
 		/* Skip meta blocks. */
 		if (strcmp(rcd_file.name, "INFO") == 0) {
-			rcd_file.SkipBytes(rcd_file.size);
+			if (!rcd_file.SkipBytes(rcd_file.size)) return "Invalid INFO block.";
 			continue;
 		}
 
@@ -1514,7 +1514,7 @@ const char *SpriteManager::Load(const char *filename)
 
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", rcd_file.name, rcd_file.version);
-		rcd_file.SkipBytes(rcd_file.size);
+		if (!rcd_file.SkipBytes(rcd_file.size)) return "Error skipping unknown block.";
 	}
 }
 
@@ -1750,4 +1750,3 @@ PathStatus SpriteManager::GetPathStatus(PathType path_type)
 	const Path &path = this->store.path_sprites[path_type];
 	return path.status;
 }
-

@@ -245,12 +245,13 @@ bool RcdFileReader::ReadBlockHeader()
 /**
  * Skip a number of bytes in the file.
  * @param count Number of bytes to move forward.
+ * @return Skipping was successful.
  */
-void RcdFileReader::SkipBytes(uint32 count)
+bool RcdFileReader::SkipBytes(uint32 count)
 {
 	this->file_pos += count;
 	if (this->file_pos > this->file_size) this->file_pos = this->file_size;
-	fseek(this->fp, this->file_pos, SEEK_SET);
+	return fseek(this->fp, this->file_pos, SEEK_SET) == 0;
 }
 
 /**
