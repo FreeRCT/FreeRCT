@@ -94,7 +94,10 @@ ConfigFile::~ConfigFile()
 /** Clean the config file. */
 void ConfigFile::Clear()
 {
-	for (auto &iter : this->sections) delete iter;
+	for (const auto &sect : this->sections) {
+		for (const auto &item : sect->items) delete item;
+		delete sect;
+	}
 }
 
 /**
