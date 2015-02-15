@@ -152,7 +152,7 @@ const char *Person::GetName() const
 static int16 GetZHeight(const XYZPoint16 &vox, int16 x_pos, int16 y_pos)
 {
 	const Voxel *v = _world.GetVoxel(vox);
-	if (HasValidPath(v)) {
+	if (v && HasValidPath(v)) {
 		uint8 slope = GetImplodedPathSlope(v);
 		if (slope < PATH_FLAT_COUNT) return 0;
 		switch (slope) {

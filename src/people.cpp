@@ -45,7 +45,7 @@ static bool IsGoodEdgeRoad(int16 x, int16 y)
 	if (x < 0 || y < 0) return false;
 	int16 z = _world.GetGroundHeight(x, y);
 	const Voxel *vs = _world.GetVoxel(XYZPoint16(x, y, z));
-	return HasValidPath(vs) && GetImplodedPathSlope(vs) < PATH_FLAT_COUNT;
+	return vs && HasValidPath(vs) && GetImplodedPathSlope(vs) < PATH_FLAT_COUNT;
 }
 
 /**
