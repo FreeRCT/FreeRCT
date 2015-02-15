@@ -171,7 +171,7 @@ TrackPiece::TrackPiece()
 
 TrackPiece::~TrackPiece()
 {
-	for(const auto &tv : this->track_voxels) delete tv;
+	for (const auto &tv : this->track_voxels) delete tv;
 	delete this->car_xpos;
 	delete this->car_ypos;
 	delete this->car_zpos;
@@ -205,7 +205,6 @@ bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	if (length < 36u * voxel_count) return false;
 	length -= 36u * voxel_count;
 
-	//for (auto &tv : this->track_voxels) {
 	for (uint16 i = 0; i < voxel_count; i++) {
 		this->track_voxels.emplace_back(new TrackVoxel);
 		if (!this->track_voxels.back()->Load(rcd_file, 36, sprites)) return false;
