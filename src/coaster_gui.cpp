@@ -312,26 +312,22 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CCW_BANK_LEFT:
 		case CCW_BANK_RIGHT:
 			this->sel_bank = (TrackPieceBanking)(widget - CCW_BANK_NONE);
-			this->SetupSelection();
 			break;
 
 		case CCW_PLATFORM:
 			this->sel_platform = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_TRUE;
-			this->SetupSelection();
 			break;
 
 		case CCW_NO_PLATFORM:
 			this->sel_platform = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_FALSE;
-			this->SetupSelection();
+			break;
 
 		case CCW_POWERED:
 			this->sel_power = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_TRUE;
-			this->SetupSelection();
 			break;
 
 		case CCW_NOT_POWERED:
 			this->sel_power = this->IsWidgetPressed(widget) ? BSL_NONE : BSL_FALSE;
-			this->SetupSelection();
 			break;
 
 		case CCW_SLOPE_DOWN:
@@ -342,7 +338,6 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CCW_SLOPE_VERTICAL_DOWN:
 		case CCW_SLOPE_VERTICAL_UP:
 			this->sel_slope = (TrackSlope)(widget - CCW_SLOPE_DOWN);
-			this->SetupSelection();
 			break;
 
 		case CCW_DISPLAY_PIECE: {
@@ -354,7 +349,6 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 				this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : nullptr;
 				this->cur_after = true;
 			}
-			this->SetupSelection();
 			break;
 		}
 		case CCW_REMOVE: {
@@ -363,7 +357,6 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 			this->ci->RemovePositionedPiece(*this->cur_piece);
 			_additions.Commit();
 			this->cur_piece = pred_index == -1 ? nullptr : &this->ci->pieces[pred_index];
-			this->SetupSelection();
 			break;
 		}
 
@@ -375,23 +368,21 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CCW_BEND_NORMAL_RIGHT:
 		case CCW_BEND_WIDE_RIGHT:
 			this->sel_bend = (TrackBend)(widget - CCW_BEND_WIDE_LEFT);
-			this->SetupSelection();
 			break;
 
 		case CCW_ROT_NEG:
 			if (this->cur_piece == nullptr) {
 				this->build_direction = (TileEdge)((this->build_direction + 1) % 4);
-				this->SetupSelection();
 			}
 			break;
 
 		case CCW_ROT_POS:
 			if (this->cur_piece == nullptr) {
 				this->build_direction = (TileEdge)((this->build_direction + 3) % 4);
-				this->SetupSelection();
 			}
 			break;
 	}
+	this->SetupSelection();
 }
 
 /**
