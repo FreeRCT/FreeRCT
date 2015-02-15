@@ -141,25 +141,23 @@ const char *RcdFileCollection::ScanFileForMetaInfo(const char *fname)
 	RcdFileReader rcd_file(fname);
 	if (!rcd_file.CheckFileHeader("RCDF", 2)) return "Wrong header";
 
-	/* Load blocks. */
-	for (uint blk_num = 1;; blk_num++) {
-		if (!rcd_file.ReadBlockHeader()) break; // End reached.
-
-		if (strcmp(rcd_file.name, "INFO") != 0) break; // Found a non-meta block, end scanning.
-
-		/* Load INFO block. */
-		if (rcd_file.version != 1) return "INFO block has wrong version";
-		uint32 remaining = rcd_file.size;
-		std::string build = GetString(rcd_file, 16, &remaining);
-		std::string name = GetString(rcd_file, 64, &remaining);
-		std::string uri = GetString(rcd_file, 128, &remaining);
-		std::string website = GetString(rcd_file, 128, &remaining);
-		std::string description = GetString(rcd_file, 512, &remaining);
-		if (remaining != 0) return "Error while reading INFO text.";
-
-		RcdFileInfo rfi(fname, uri, build);
-		this->AddFile(rfi);
-		return nullptr; // Success.
+	/* Load block. */
+	if (!rcd_file.ReadBlockHeader() || (strcmp(rcd_file.name, "INFO") != 0)) {
+		/* End reached or found a non-meta block, end scanning. */
+		return "No INFO block found.";
 	}
-	return "No INFO block found.";
+
+	/* Load INFO block. */
+	if (rcd_file.version != 1) return "INFO block has wrong version";
+	uint32 remaining = rcd_file.size;
+	std::string build = GetString(rcd_file, 16, &remaining);
+	std::string name = GetString(rcd_file, 64, &remaining);
+	std::string uri = GetString(rcd_file, 128, &remaining);
+	std::string website = GetString(rcd_file, 128, &remaining);
+	std::string description = GetString(rcd_file, 512, &remaining);
+	if (remaining != 0) return "Error while reading INFO text.";
+
+	RcdFileInfo rfi(fname, uri, build);
+	this->AddFile(rfi);
+	return nullptr; // Success.
 }
