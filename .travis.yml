@@ -45,4 +45,5 @@ addons:
       description: "Build from Travis-CI"
     build_command_prepend: "cmake ."
     build_command: "make -j2"
+    notification_email: freerct@gmail.com
     branch_pattern: master
