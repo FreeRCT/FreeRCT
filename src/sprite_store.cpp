@@ -180,8 +180,8 @@ bool TextData::Load(RcdFileReader *rcd_file)
 		if (used_strings >= lengthof(strings)) return false; // Too many text strings.
 
 		if (length < 3) return false;
-		int str_length   = rcd_file->GetUInt16();
-		int ident_length = rcd_file->GetUInt8();
+		uint16 str_length   = rcd_file->GetUInt16();
+		uint8  ident_length = rcd_file->GetUInt8();
 
 		if (static_cast<uint32>(str_length) > length) return false; // String does not fit in the block.
 		length -= 3;
@@ -196,8 +196,8 @@ bool TextData::Load(RcdFileReader *rcd_file)
 
 		while (trs_length > 0) {
 			if (length < 3) return false;
-			int tr_length   = rcd_file->GetUInt16();
-			int lang_length = rcd_file->GetUInt8();
+			uint16 tr_length   = rcd_file->GetUInt16();
+			uint8  lang_length = rcd_file->GetUInt8();
 			length -= 3;
 
 			if (tr_length > trs_length) return false;
