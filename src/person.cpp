@@ -121,9 +121,9 @@ void Person::SetName(const char *name)
 {
 	assert(this->IsGuest());
 
-	int length = strlen(name);
-	this->name = new char[length];
-	std::copy_n(name, length, this->name);
+	int len = strlen(name);
+	this->name = new char[len + 1];
+	strcpy(this->name, name); // Already know name has \0, because of strlen.
 }
 
 /**
