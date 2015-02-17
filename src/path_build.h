@@ -21,6 +21,7 @@ class Viewport;
 /** Possible states of the path building process. */
 enum PathBuildState {
 	PBS_IDLE,       ///< Waiting for the path GUI to be opened.
+	PBS_SINGLE,     ///< Build a single path.
 	PBS_WAIT_VOXEL, ///< Wait for a voxel to be selected.
 	PBS_WAIT_ARROW, ///< Wait for an arrow direction to be selected.
 	PBS_WAIT_SLOPE, ///< Wait for a slope to be selected.
@@ -43,6 +44,8 @@ public:
 	void OnMouseButtonEvent(Viewport *vp, uint8 state) override;
 
 	void SetPathGuiState(bool opened);
+	void SetState(PathBuildState state);
+
 
 	void TileClicked(const XYZPoint16 &click_pos);
 	void ComputeNewLongPath(const Point32 &mousexy);
@@ -54,6 +57,7 @@ public:
 	void SelectLong();
 	void SelectBuyRemove(bool buy);
 
+	inline PathBuildState GetState() const;
 	inline uint8 GetAllowedArrows() const;
 	inline TileEdge GetSelectedArrow() const;
 	inline uint8 GetAllowedSlopes() const;
@@ -65,11 +69,11 @@ public:
 	inline bool GetLongButtonIsEnabled() const;
 	inline bool GetLongButtonIsPressed() const;
 
-	PathBuildState state; ///< State of the path building process.
 	PathType path_type;   ///< Selected type of path to use for building.
 
 private:
-	uint8 mouse_state; ///< State of the mouse buttons.
+	PathBuildState state; ///< State of the path building process.
+	uint8 mouse_state;    ///< State of the mouse buttons.
 
 	XYZPoint16 pos;       ///< Coordinate of the selected voxel.
 	XYZPoint16 long_pos;  ///< Coordinate of the long path destination voxel.
@@ -83,6 +87,15 @@ private:
 	void MoveCursor(TileEdge edge, bool move_up);
 	void UpdateState();
 };
+
+/**
+ * Get the current state of the path build manager.
+ * @return PathBuildState of the path build manager.
+ */
+inline PathBuildState PathBuildManager::GetState() const
+{
+	return this->state;
+}
 
 /**
  * Get the allowed directions of building from the selected tile.

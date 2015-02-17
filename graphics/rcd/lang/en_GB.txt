@@ -101,6 +101,11 @@ strings {
 		PATH_GUI_NORMAL_PATH:      "Normal paths";
 		PATH_GUI_QUEUE_PATH:       "Queue paths";
 
+		PATH_GUI_SINGLE:           "Single";
+		PATH_GUI_DIRECTIONAL:      "Directional";
+		PATH_GUI_SINGLE_TIP:       "Place a single path";
+		PATH_GUI_DIRECTIONAL_TIP:  "Begin directional path placement";
+
 		// Ride select gui strings.
 		RIDE_SELECT_TITLE:           "Ride selection";
 		RIDE_SELECT_SHOPS:           "Shops";

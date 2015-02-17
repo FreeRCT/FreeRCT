@@ -66,6 +66,8 @@ enum PathBuildWidgets {
 	PATH_GUI_QUEUE_PATH1,  ///< Button to select #PAT_TILED type queue paths.
 	PATH_GUI_QUEUE_PATH2,  ///< Button to select #PAT_ASPHALT type queue paths.
 	PATH_GUI_QUEUE_PATH3,  ///< Button to select #PAT_CONCRETE type queue paths.
+	PATH_GUI_SINGLE,       ///< Build a single path.
+	PATH_GUI_DIRECTIONAL,  ///< Build a path using the path build interface.
 };
 
 static const int SPR_NE_DIRECTION = SPR_GUI_BUILDARROW_START + EDGE_NE; ///< Sprite for building in NE direction.
@@ -136,6 +138,9 @@ static const WidgetPart _path_build_gui_parts[] = {
 
 					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
 					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+				Intermediate(1, 2),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_SINGLE, COL_RANGE_GREY), SetData(GUI_PATH_GUI_SINGLE, GUI_PATH_GUI_SINGLE_TIP),
+					Widget(WT_TEXT_BUTTON, PATH_GUI_DIRECTIONAL, COL_RANGE_GREY), SetData(GUI_PATH_GUI_DIRECTIONAL, GUI_PATH_GUI_DIRECTIONAL_TIP),
 			EndContainer(),
 	EndContainer(),
 };
@@ -303,6 +308,15 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 			}
 			break;
 
+		case PATH_GUI_SINGLE:
+			_path_builder.SetState(PBS_SINGLE);
+			this->SetButtons();
+			break;
+		case PATH_GUI_DIRECTIONAL:
+			_path_builder.SetState(PBS_WAIT_VOXEL);
+			this->SetButtons();
+			break;
+
 		default:
 			break;
 	}
@@ -355,6 +369,9 @@ void PathBuildGui::SetButtons()
 			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, true);
 		}
 	}
+
+	this->SetWidgetPressed(PATH_GUI_SINGLE,      _path_builder.GetState() == PBS_SINGLE);
+	this->SetWidgetPressed(PATH_GUI_DIRECTIONAL, _path_builder.GetState() != PBS_SINGLE);
 }
 
 void PathBuildGui::OnChange(ChangeCode code, uint32 parameter)

@@ -366,7 +366,7 @@ void PathBuildManager::ActivateMode(const Point16 &pos)
 {
 	this->selected_arrow = INVALID_EDGE;
 	this->selected_slope = TSL_INVALID;
-	if (this->state != PBS_IDLE) this->state = PBS_WAIT_VOXEL;
+	if (this->state != PBS_IDLE) this->state = PBS_SINGLE;
 	this->UpdateState();
 
 	this->mouse_state = 0;
@@ -390,9 +390,16 @@ void PathBuildManager::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, co
 	} else if ((this->mouse_state & MB_RIGHT) != 0) {
 		/* Drag the window if button is pressed down. */
 		vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
+	} else if ((this->mouse_state & MB_LEFT) != 0 && this->state == PBS_SINGLE) {
+		/* Continue adding paths (click and drag). */
+		FinderData fdata((CS_GROUND | CS_PATH), FW_TILE);
+		if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
+			vp->tile_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
+			this->TileClicked(fdata.voxel_pos);
+		}
 	} else {
 		/* Only update tile cursor if no tile selected yet. */
-		if (this->state == PBS_WAIT_VOXEL) {
+		if (this->state == PBS_SINGLE || this->state == PBS_WAIT_VOXEL) {
 			FinderData fdata((CS_GROUND | CS_PATH), FW_TILE);
 			if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
 				vp->tile_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
@@ -412,6 +419,11 @@ void PathBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 			FinderData fdata((CS_GROUND | CS_PATH), FW_TILE);
 			if (vp->ComputeCursorPosition(&fdata) != CS_NONE) this->TileClicked(fdata.voxel_pos);
 		}
+	} else if ((this->mouse_state & MB_RIGHT) != 0 && this->state == PBS_SINGLE) {
+		FinderData fdata(CS_PATH, FW_TILE);
+		if (vp->ComputeCursorPosition(&fdata) != CS_NONE && RemovePath(fdata.voxel_pos, false)) {
+			_additions.Commit();
+		}
 	}
 }
 
@@ -421,10 +433,20 @@ void PathBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
  */
 void PathBuildManager::SetPathGuiState(bool opened)
 {
-	this->state = opened ? PBS_WAIT_VOXEL : PBS_IDLE;
-	this->UpdateState();
+	PathBuildState state = opened ? PBS_SINGLE : PBS_IDLE;
+	this->SetState(state);
 	Viewport *vp = GetViewport();
 	if (opened || (vp != nullptr && _mouse_modes.GetMouseMode() == MM_PATH_BUILDING)) _mouse_modes.SetViewportMousemode();
+}
+
+/**
+ * Set the state of the path build manager.
+ * @param state PathBuildState of the manager.
+ */
+void PathBuildManager::SetState(PathBuildState state)
+{
+	this->state = state;
+	this->UpdateState();
 }
 
 /**
@@ -434,13 +456,46 @@ void PathBuildManager::SetPathGuiState(bool opened)
 void PathBuildManager::TileClicked(const XYZPoint16 &click_pos)
 {
 	if (this->state == PBS_IDLE || this->state > PBS_WAIT_BUY) return;
-	uint8 dirs = GetPathAttachPoints(click_pos);
-	if (dirs == 0) return;
 
-	this->pos = click_pos;
-	this->allowed_arrows = dirs;
-	this->state = PBS_WAIT_ARROW;
-	this->UpdateState();
+	if (this->state == PBS_SINGLE) {
+		this->pos = click_pos;
+		const Voxel *v = _world.GetCreateVoxel(this->pos, false);
+		TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
+
+		if (ts == SL_FLAT) {
+			BuildFlatPath(this->pos, this->path_type, false);
+		} else {
+			TileEdge edge = INVALID_EDGE;
+
+			switch (ts) {
+				case TSB_NORTHEAST: 
+					edge = EDGE_SW;
+					break;
+				case TSB_NORTHWEST:
+					edge = EDGE_SE;
+					break;
+				case TSB_SOUTHEAST:
+					edge = EDGE_NW;
+					break;
+				case TSB_SOUTHWEST:
+					edge = EDGE_NE;
+					break;
+				default:
+					return;
+			}
+
+			BuildUpwardPath(this->pos, edge, this->path_type, false);
+		}
+
+		_additions.Commit();
+	} else {
+		uint8 dirs = GetPathAttachPoints(click_pos);
+		if (dirs == 0) return;
+
+		this->pos = click_pos;
+		this->allowed_arrows = dirs;
+		this->SetState(PBS_WAIT_ARROW);
+	}
 }
 
 /**
@@ -449,11 +504,10 @@ void PathBuildManager::TileClicked(const XYZPoint16 &click_pos)
  */
 void PathBuildManager::SelectArrow(TileEdge direction)
 {
-	if (this->state < PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || direction >= EDGE_COUNT) return;
+	if (this->state < PBS_WAIT_ARROW || this->state > PBS_WAIT_BUY || direction >= INVALID_EDGE) return;
 	if ((this->allowed_arrows & (0x11 << direction)) == 0) return;
 	this->selected_arrow = direction;
-	this->state = PBS_WAIT_SLOPE;
-	this->UpdateState();
+	this->SetState(PBS_WAIT_SLOPE);
 }
 
 /**
@@ -500,16 +554,14 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 		this->pos.x += dxy.x;
 		this->pos.y += dxy.y;
 		if (move_up) this->pos.z++;
-		this->state = PBS_WAIT_ARROW;
-		this->UpdateState();
+		this->SetState(PBS_WAIT_ARROW);
 		return;
 	}
 	if (v_bot != nullptr && HasValidPath(v_bot)) {
 		this->pos.x += dxy.x;
 		this->pos.y += dxy.y;
 		if (!move_up) this->pos.z--;
-		this->state = PBS_WAIT_ARROW;
-		this->UpdateState();
+		this->SetState(PBS_WAIT_ARROW);
 		return;
 	}
 
@@ -518,16 +570,14 @@ void PathBuildManager::MoveCursor(TileEdge edge, bool move_up)
 		this->pos.x += dxy.x;
 		this->pos.y += dxy.y;
 		if (move_up) this->pos.z++;
-		this->state = PBS_WAIT_ARROW;
-		this->UpdateState();
+		this->SetState(PBS_WAIT_ARROW);
 		return;
 	}
 	if (v_bot != nullptr && v_bot->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_bot->GetGroundSlope())) {
 		this->pos.x += dxy.x;
 		this->pos.y += dxy.y;
 		if (!move_up) this->pos.z--;
-		this->state = PBS_WAIT_ARROW;
-		this->UpdateState();
+		this->SetState(PBS_WAIT_ARROW);
 		return;
 	}
 }
@@ -614,9 +664,10 @@ void PathBuildManager::UpdateState()
 {
 	Viewport *vp = GetViewport();
 
-	if (this->state == PBS_IDLE) {
+	if (this->state == PBS_IDLE || this->state == PBS_SINGLE) {
+		DisableWorldAdditions();
 		this->selected_arrow = INVALID_EDGE;
-		this->selected_slope = TSL_INVALID;
+		this->selected_slope = this->state == PBS_IDLE ? TSL_INVALID : TSL_FLAT;
 	}
 
 	/* The tile cursor is controlled by the viewport if waiting for a voxel or earlier. */
@@ -679,7 +730,7 @@ void PathBuildManager::UpdateState()
 
 	/* Handle _additions display. */
 	if (vp != nullptr) {
-		if (this->state == PBS_WAIT_SLOPE) {
+		if (this->state == PBS_SINGLE || this->state == PBS_WAIT_SLOPE) {
 			_additions.Clear();
 			vp->EnableWorldAdditions();
 		} else if (this->state == PBS_WAIT_BUY) {
@@ -718,8 +769,7 @@ void PathBuildManager::SelectSlope(TrackSlope slope)
 	if (this->state < PBS_WAIT_SLOPE || slope >= TSL_COUNT_GENTLE) return;
 	if ((this->allowed_slopes & (1 << slope)) != 0) {
 		this->selected_slope = slope;
-		this->state = PBS_WAIT_SLOPE;
-		this->UpdateState();
+		this->SetState(PBS_WAIT_SLOPE);
 	}
 }
 
@@ -728,17 +778,15 @@ void PathBuildManager::SelectLong()
 {
 	if (this->state == PBS_LONG_BUY || this->state == PBS_LONG_BUILD) {
 		/* Disable long mode. */
-		this->state = PBS_WAIT_ARROW;
-		this->UpdateState();
+		this->SetState(PBS_WAIT_ARROW);
 	} else if (this->state < PBS_WAIT_ARROW) {
 		return;
 	} else {
 		/* Enable long mode. */
-		this->state = PBS_LONG_BUILD;
 		this->long_pos.x = _world.GetXSize();
 		this->long_pos.y = _world.GetYSize();
 		this->long_pos.z = WORLD_Z_SIZE;
-		this->UpdateState();
+		this->SetState(PBS_LONG_BUILD);
 	}
 }
 
@@ -849,8 +897,7 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 void PathBuildManager::ConfirmLongPath()
 {
 	if (this->state == PBS_LONG_BUY || this->state != PBS_LONG_BUILD) return;
-	this->state = PBS_LONG_BUY; // Switch to 'buy' mode.
-	this->UpdateState();
+	this->SetState(PBS_LONG_BUY); // Switch to 'buy' mode.
 }
 
 /**
@@ -864,8 +911,7 @@ void PathBuildManager::SelectBuyRemove(bool buying)
 		if (this->state == PBS_LONG_BUY) {
 			_additions.Commit();
 			this->pos = this->long_pos;
-			this->state = PBS_WAIT_ARROW;
-			this->UpdateState();
+			this->SetState(PBS_WAIT_ARROW);
 			return;
 		}
 		// Buying a path tile.
