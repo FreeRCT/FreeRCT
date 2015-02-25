@@ -77,6 +77,29 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
 }
 
 /**
+ * Change the path type of a currently existing path.
+ * @param voxel_pos Coordinate of the voxel.
+ * @param path_type The type of path to change to.
+ * @param path_spr Imploded sprite number.
+ */
+static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uint8 path_spr)
+{
+	VoxelStack *avs = _additions.GetModifyStack(voxel_pos.x, voxel_pos.y);
+
+	Voxel *av = avs->GetCreate(voxel_pos.z, false);
+	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, PAS_UNUSED);
+
+	/* Reset flat path to one without edges or corners. */
+	if (path_spr < PATH_FLAT_COUNT)
+		path_spr = PATH_EMPTY;
+
+	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, _sprite_manager.GetPathStatus(path_type));
+	av->SetInstanceData(MakePathInstanceData(slope, path_type));
+
+	MarkVoxelDirty(voxel_pos);
+}
+
+/**
  * Does a path run at/to the bottom the given voxel in the neighbouring voxel?
  * @param voxel_pos Coordinate of the voxel.
  * @param edge Direction to move to get the neighbouring voxel.
@@ -254,6 +277,32 @@ static bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only)
 	}
 
 	if (!test_only) RemovePathAtTile(voxel_pos, ps);
+	return true;
+}
+
+/**
+ * (Try to) change the path type of the current path at the given voxel.
+ * @param voxel_pos Coordinate of the voxel.
+ * @param path_type For changing (ie not \a test_only), the type of path to change to.
+ * @param test_only Only test whether it could be changed.
+ * @return Whether the path's type could be changed.
+ */
+static bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only)
+{
+	const VoxelStack *vs = _world.GetStack(voxel_pos.x, voxel_pos.y);
+	const Voxel *v = vs->Get(voxel_pos.z);
+	if (v == nullptr || !HasValidPath(v)) return false;
+	PathSprites ps = GetImplodedPathSlope(v);
+	assert(ps < PATH_COUNT);
+
+	v = vs->Get(voxel_pos.z + 1);
+	assert(v->GetInstance() == SRI_PATH && !HasValidPath(v->GetInstanceData()));
+	if (ps >= PATH_FLAT_COUNT) {
+		v = vs->Get(voxel_pos.z + 2);
+		assert(v->GetInstance() == SRI_PATH && !HasValidPath(v->GetInstanceData()));
+	}
+
+	if (!test_only) ChangePathAtTile(voxel_pos, path_type, ps);
 	return true;
 }
 
@@ -460,33 +509,37 @@ void PathBuildManager::TileClicked(const XYZPoint16 &click_pos)
 	if (this->state == PBS_SINGLE) {
 		this->pos = click_pos;
 		const Voxel *v = _world.GetCreateVoxel(this->pos, false);
-		TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
 
-		if (ts == SL_FLAT) {
-			BuildFlatPath(this->pos, this->path_type, false);
+		if (v != nullptr && HasValidPath(v)) {
+			ChangePath(this->pos, this->path_type, false);
 		} else {
-			TileEdge edge = INVALID_EDGE;
+			TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
 
-			switch (ts) {
-				case TSB_NORTHEAST: 
-					edge = EDGE_SW;
-					break;
-				case TSB_NORTHWEST:
-					edge = EDGE_SE;
-					break;
-				case TSB_SOUTHEAST:
-					edge = EDGE_NW;
-					break;
-				case TSB_SOUTHWEST:
-					edge = EDGE_NE;
-					break;
-				default:
-					return;
+			if (ts == SL_FLAT) {
+				BuildFlatPath(this->pos, this->path_type, false);
+			} else {
+				TileEdge edge = INVALID_EDGE;
+
+				switch (ts) {
+					case TSB_NORTHEAST:
+						edge = EDGE_SW;
+						break;
+					case TSB_NORTHWEST:
+						edge = EDGE_SE;
+						break;
+					case TSB_SOUTHEAST:
+						edge = EDGE_NW;
+						break;
+					case TSB_SOUTHWEST:
+						edge = EDGE_NE;
+						break;
+					default:
+						return;
+				}
+
+				BuildUpwardPath(this->pos, edge, this->path_type, false);
 			}
-
-			BuildUpwardPath(this->pos, edge, this->path_type, false);
 		}
-
 		_additions.Commit();
 	} else {
 		uint8 dirs = GetPathAttachPoints(click_pos);
@@ -640,10 +693,24 @@ void PathBuildManager::ComputeWorldAdditions()
 	if (((1 << this->selected_slope) & this->allowed_slopes) == 0) return;
 
 	XYZPoint16 arrow_pos = this->ComputeArrowCursorPosition();
+
+	const Voxel *v = _world.GetVoxel(arrow_pos);
+	if (v != nullptr && HasValidPath(v)) {
+		ChangePath(arrow_pos, this->path_type, false);
+		return;
+	}
+
 	TileEdge edge = (TileEdge)((this->selected_arrow + 2) % 4);
 	switch (this->selected_slope) {
 		case TSL_DOWN:
-			BuildDownwardPath(arrow_pos, edge, this->path_type, false);
+			v = _world.GetVoxel(arrow_pos + XYZPoint16(0, 0, -1));
+
+			if (v != nullptr && HasValidPath(v)) {
+				arrow_pos.z--;
+				ChangePath(arrow_pos, this->path_type, false);
+			} else {
+				BuildDownwardPath(arrow_pos, edge, this->path_type, false);
+			}
 			break;
 
 		case TSL_FLAT:
@@ -877,16 +944,29 @@ void PathBuildManager::ComputeNewLongPath(const Point32 &mousexy)
 
 			path_pos.x += dxy.x;
 			path_pos.y += dxy.y;
-			if (*slope_prio == TSL_UP) {
-				if (!BuildUpwardPath(path_pos, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
-				path_pos.z++;
-			} else if (*slope_prio == TSL_DOWN) {
-				if (!BuildDownwardPath(path_pos, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
-				path_pos.z--;
-			} else {
-				if (!BuildFlatPath(path_pos, this->path_type, false)) break;
-			}
 
+			const Voxel *v = _world.GetVoxel(path_pos);
+			if (v != nullptr && HasValidPath(v)) {
+				if (!ChangePath(path_pos, this->path_type, false)) break;
+
+				if (*slope_prio == TSL_UP) path_pos.z++;
+			} else {
+				if (*slope_prio == TSL_UP) {
+					if (!BuildUpwardPath(path_pos, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
+					path_pos.z++;
+				} else if (*slope_prio == TSL_DOWN) {
+					v = _world.GetVoxel(path_pos + XYZPoint16(0, 0, -1));
+
+					if (v != nullptr && HasValidPath(v)) {
+						if (!ChangePath(path_pos + XYZPoint16(0, 0, -1), this->path_type, false)) break;
+					} else {
+						if (!BuildDownwardPath(path_pos, static_cast<TileEdge>((direction + 2) & 3), this->path_type, false)) break;
+					}
+					path_pos.z--;
+				} else {
+					if (!BuildFlatPath(path_pos, this->path_type, false)) break;
+				}
+			}
 		}
 		vp->EnableWorldAdditions();
 		vp->EnsureAdditionsAreVisible();
