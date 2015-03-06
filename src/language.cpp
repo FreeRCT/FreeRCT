@@ -44,6 +44,7 @@ const char * const _lang_names[] = {
 	"da_DK", // Danish.
 	"de_DE", // German.
 	"en_GB", // English (Also the default language).
+	"en_US", // English (US).
 	"es_ES", // Spanish.
 	"fr_FR", // French.
 	"nl_NL", // Dutch.

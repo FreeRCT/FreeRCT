@@ -648,6 +648,7 @@ static const char *_languages[] = {
 	"da_DK", // LNG_DA_DK
 	"de_DE", // LNG_DE_DE
 	"en_GB", // LNG_EN_GB (default)
+	"en_US", // LNG_EN_US
 	"es_ES", // LNG_ES_ES
 	"fr_FR", // LNG_FR_FR
 	"nl_NL", // LNG_NL_NL

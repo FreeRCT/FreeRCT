@@ -22,7 +22,7 @@ Leif Linse      Zuu       General programming
 Charles Pigott  LordAro   Chief correctness officer
 Nicolas Reed    sgtbigman General programming
 Richard Wheeler Zephyris  Artist
-=============== ========  =========================
+=============== ========= =========================
 
 Contributors
 ============
@@ -45,12 +45,13 @@ Translators
 ===========
 Multilingual people who manage to translate the strangeness of (our) English into their own language.
 
-============== ========
-Name/Nick      Language
-============== ========
-arroyoc        Spanish
-Jacob Hellwing Danish
-Olivier Herau  French
-cheno4you      Dutch
-fuchsylp       German
-============== ========
+=============== ============
+Name/Nick       Language
+=============== ============
+Jacob Hellwing  Danish
+cheno4you       Dutch
+veilleuxanthony English (US)
+Olivier Herau   French
+fuchsylp        German
+arroyoc         Spanish
+=============== ============

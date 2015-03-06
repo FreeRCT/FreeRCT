@@ -513,6 +513,7 @@ enum Languages {
 	LNG_DA_DK, ///< da_DK language.
 	LNG_DE_DE, ///< de_DE language.
 	LNG_EN_GB, ///< en_GB language (default).
+	LNG_EN_US, ///< en_US language.
 	LNG_ES_ES, ///< es_ES language.
 	LNG_FR_FR, ///< fr_FR language.
 	LNG_NL_NL, ///< nl_NL language.

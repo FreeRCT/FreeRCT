@@ -302,6 +302,7 @@ Tag    Description
 da_DK  Denmark.
 de_DE  Germany.
 en_GB  Great Britain (default).
+en_US  United States.
 es_ES  Spain.
 nl_NL  The Netherlands.
 =====  =========================
