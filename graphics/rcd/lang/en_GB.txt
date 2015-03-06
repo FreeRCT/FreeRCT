@@ -193,7 +193,7 @@ strings {
 		DESCRIPTION_RECOLOUR1: "Cup colour";
 		DESCRIPTION_RECOLOUR2: "Ice colour";
 		DESCRIPTION_RECOLOUR3: "-";
-		NAME_ITEM1:             "Vanilla Icecream";
+		NAME_ITEM1:            "Vanilla Icecream";
 		NAME_ITEM2:            "Fresh drink";
 	}
 
@@ -207,6 +207,18 @@ strings {
 		DESCRIPTION_RECOLOUR3: "-";
 		NAME_ITEM1:            "Cookies";
 		NAME_ITEM2:            "Pizza";
+	}
+
+	stringtexts("toilet") {
+		NAME_INSTANCE1:        "Toilet";
+		NAME_INSTANCE2:        "Bathroom";
+		NAME_TYPE:             "Toilet";
+		DESCRIPTION_TYPE:      "Go here when you gotta go";
+		DESCRIPTION_RECOLOUR1: "Toilet colour";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Toilet";
+		NAME_ITEM2:            "";
 	}
 
 	stringtexts("basic-coaster") {

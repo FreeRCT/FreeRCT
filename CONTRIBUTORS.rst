@@ -14,14 +14,15 @@ Developers
 ==========
 The people with commit access, who can actually make your code/graphics be in the game.
 
-=============== ======== =========================
-Name            Nick     Area
-=============== ======== =========================
-Albert Hofkamp  Alberth  Lead programmer
-Leif Linse      Zuu      General programming
-Charles Pigott  LordAro  Chief correctness officer
-Richard Wheeler Zephyris Artist
-=============== ======== =========================
+=============== ========= =========================
+Name            Nick      Area
+=============== ========= =========================
+Albert Hofkamp  Alberth   Lead programmer
+Leif Linse      Zuu       General programming
+Charles Pigott  LordAro   Chief correctness officer
+Nicolas Reed    sgtbigman General programming
+Richard Wheeler Zephyris  Artist
+=============== ========  =========================
 
 Contributors
 ============
@@ -35,7 +36,6 @@ AWaters1         GUI
 brianltacker     Coasters
 jjhdnd           GUI
 PovAddictW       FileIO
-sgtbigman        Staff
 stanekj          Rides
 tnt.freesoftware GUI
 ================ ========
