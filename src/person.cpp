@@ -1030,9 +1030,7 @@ void Guest::DeActivate(AnimateResult ar)
 	if (this->IsActive()) {
 		/* Close possible Guest Info window */
 		Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
-		if (wi != nullptr) {
-			_window_manager.DeleteWindow(wi);
-		}
+		if (wi != nullptr) delete wi;
 
 		/// \todo Evaluate Guest::total_happiness against scenario requirements for evaluating the park value.
 	}
