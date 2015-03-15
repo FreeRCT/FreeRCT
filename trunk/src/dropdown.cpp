@@ -135,7 +135,7 @@ void DropdownMenuWindow::OnClick(WidgetNumber number, const Point16 &pos)
 	int send = this->parent_btn << 16 | index;
 	NotifyChange(this->parent_type, this->parent_num, CHG_DROPDOWN_RESULT, send);
 
-	_window_manager.DeleteWindow(this);
+	delete this;
 }
 
 /**
@@ -148,7 +148,7 @@ void DropdownMenuWindow::OnClick(WidgetNumber number, const Point16 &pos)
 void GuiWindow::ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour)
 {
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (w != nullptr) _window_manager.DeleteWindow(w);
+	if (w != nullptr) delete w;
 
 	DataWidget *wid = this->GetWidget<DataWidget>(widnum);
 	assert(wid->wtype == WT_DROPDOWN_BUTTON);
@@ -253,7 +253,7 @@ void RecolourDropdownWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 			_video.MarkDisplayDirty();
 		}
 
-		_window_manager.DeleteWindow(this);
+		delete this;
 	}
 }
 
@@ -273,7 +273,7 @@ void RecolourDropdownWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *
 void GuiWindow::ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour)
 {
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (w != nullptr) _window_manager.DeleteWindow(w);
+	if (w != nullptr) delete w;
 
 	DataWidget *wid = this->GetWidget<DataWidget>(widnum);
 	assert(wid->wtype == WT_DROPDOWN_BUTTON);

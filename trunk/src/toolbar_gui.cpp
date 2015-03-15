@@ -447,14 +447,14 @@ QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	if (number == QP_YES) QuitProgram();
-	_window_manager.DeleteWindow(this);
+	delete this;
 }
 
 /** Ask the user whether the program should be stopped. */
 void ShowQuitProgram()
 {
 	Window *w = GetWindowByType(WC_QUIT, ALL_WINDOWS_OF_TYPE);
-	if (w != nullptr) _window_manager.DeleteWindow(w);
+	if (w != nullptr) delete w;
 
 	new QuitProgramWindow();
 }

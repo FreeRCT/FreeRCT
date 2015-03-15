@@ -326,7 +326,6 @@ public:
 	bool HasWindow(Window *w);
 	void AddToStack(Window *w);
 	void RemoveFromStack(Window *w);
-	void DeleteWindow(Window *w);
 	void RaiseWindow(Window *w);
 
 	void CloseAllWindows();

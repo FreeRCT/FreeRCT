@@ -64,13 +64,11 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber) : rect(0, 0, 0, 0), wtyp
 	_window_manager.AddToStack(this); // Add to window stack.
 }
 
-/**
- * Destructor.
- * Do not call directly, use #WindowManager::DeleteWindow instead.
- */
+/** Destructor. */
 Window::~Window()
 {
-	assert(!_window_manager.HasWindow(this));
+	_window_manager.RemoveFromStack(this);
+	this->MarkDirty();
 }
 
 /**
@@ -653,9 +651,7 @@ WindowManager::~WindowManager()
 /** Close all windows at the display. */
 void WindowManager::CloseAllWindows()
 {
-	while (this->top != nullptr) {
-		this->DeleteWindow(this->top);
-	}
+	while (this->top != nullptr) delete this->top;
 }
 
 /** Reinitialize all windows in the display. */
@@ -760,17 +756,6 @@ void WindowManager::RemoveFromStack(Window *w)
 
 	w->higher = nullptr;
 	w->lower  = nullptr;
-}
-
-/**
- * Delete a window.
- * @param w Window to remove.
- */
-void WindowManager::DeleteWindow(Window *w)
-{
-	this->RemoveFromStack(w);
-	w->MarkDirty();
-	delete w;
 }
 
 /**
@@ -929,7 +914,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 	/* Close dropdown window if click is not inside it */
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
 	if (pressed && w != nullptr && !w->rect.IsPointInside(this->mouse_pos)) {
-		this->DeleteWindow(w);
+		delete w;
 		return; // Don't handle click any further.
 	}
 
@@ -948,7 +933,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 						break;
 
 					case WMME_CLOSE_WINDOW:
-						this->DeleteWindow(this->current_window);
+						delete this->current_window;
 						break;
 
 					default:
