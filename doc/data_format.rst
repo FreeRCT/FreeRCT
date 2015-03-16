@@ -1,5 +1,5 @@
 :Author: Alberth
-:Version: $Id$
+:Version: 2015-03-06
 
 .. contents::
    :depth: 3

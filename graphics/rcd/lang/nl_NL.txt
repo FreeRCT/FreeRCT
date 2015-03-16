@@ -1,5 +1,3 @@
-// $Id$
-//
 // This file is part of FreeRCT.
 // FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 // FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -179,7 +177,7 @@ strings {
 		SETTING_RESOLUTION:         "Verander de resolutie";
 		SETTING_RESOLUTION_TOOLTIP: "Verander de resolutie van het spel";
 	}
-	
+
 	stringtexts("ice-cream-stall") {
 		NAME_INSTANCE1:        "Het ijs paleis";
 		NAME_INSTANCE2:        "Koele drankjes";
