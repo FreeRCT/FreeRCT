@@ -1,36 +1,9 @@
-Very quick how-to
-=================
-
-Currently only Linux is officially supported, but Windows support should be possible with a few minor modifications.
-
-Package building
-----------------
-
-* For building native *Debian/Ubuntu/Linux Mint* packages, the repository has a 'debian' subdirectory with a build description. There is also an **unofficial** PPA at https://launchpad.net/~adrian-arroyocalle/+archive/freerct, set up by Adrián Arroyo Calle.
-
-Check out
----------
-
-The source code is in Subversion, so you need a svn client to get it.
-
-The command to do this is
-
-::
-
-        $ svn checkout http://freerct.googlecode.com/svn/trunk/  freerct-read-only
-
-(see also the 'source' tab of the project)
-
-There is also a git mirror of the project on github.
-
-The command to get this is
-
-::
-
-        $ git clone https://github.com/FreeRCT/FreeRCT.git
+FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.
 
 Building the program
 --------------------
+
+Currently only Linux is officially supported, although Windows *should* work. Let us know if it's broken.
 
 Almost everything is written in C++, which means you need *g++* or *clang++* to compile it. FreeRCT uses C++11 features, so g++ 4.8+ or clang 3.3+ is recommended.
 In addition, you need:
@@ -47,9 +20,10 @@ Building is as simple as
 
 ::
 
-        $ cd freerct-read-only # Go into the downloaded source directory.
-        $ cmake .              # Checks libraries are where they're supposed to be and replaces some strings
-        $ make                 # Let make do the heavy work.
+        $ git clone https://github.com/FreeRCT/FreeRCT.git
+        $ cd FreeRCT # Go into the downloaded source directory.
+        $ cmake .    # Checks libraries are where they're supposed to be and replaces some strings
+        $ make       # Let make do the heavy work.
 
 
 -  **src** directory contains the source code of the FreeRCT program itself.
