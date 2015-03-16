@@ -94,101 +94,23 @@ ENDIF()
 set(SAVED_LC_ALL "$ENV{LC_ALL}")
 set(ENV{LC_ALL} C)
 
-# Hg check only exists in 2.8.10
-IF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.hg" AND ${CMAKE_VERSION} STRLESS "2.8.10")
-	message(FATAL_ERROR "Hg detection requires CMake 2.8.10 or higher. Please upgrade CMake and try again.")
-ELSE()
-	find_package(Hg)
-ENDIF()
-
 # Determine version string
-find_package(Subversion)
 find_package(Git)
-IF(SUBVERSION_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn")
-	# svn checkout
-	set(SHORT_VCS "r")
-	message(STATUS "Detected svn checkout")
-	execute_process(COMMAND ${Subversion_SVN_EXECUTABLE} info --xml ${CMAKE_SOURCE_DIR}
-	                OUTPUT_VARIABLE INFO_XML
-	)
-
-	set(REGEX_STRING "<date>([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T([0-9][0-9]):([0-9][0-9]):[0-9][0-9].[0-9]*Z</date>")
-	string(REGEX MATCH   ${REGEX_STRING} INFO_XML "${INFO_XML}")
-	string(REGEX REPLACE ${REGEX_STRING} "\\1\\2\\3-\\4\\5" DATE_STRING "${INFO_XML}")
-	IF(DATE_STRING STREQUAL "")
-		message(FATAL_ERROR "No date found")
-	ENDIF()
-	Subversion_WC_INFO(${CMAKE_SOURCE_DIR} co)
-	set(REV ${co_WC_LAST_CHANGED_REV})
-
-ELSEIF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
-	# Assume UTC timezone (how svn stores it)
-	execute_process(COMMAND ${GIT_EXECUTABLE} log -1 "--pretty=%ci"
-	                OUTPUT_VARIABLE GITLOG
+IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+	execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always
+	                OUTPUT_VARIABLE VERSION_STRING
 	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 	)
-	set(REGEX_STRING "([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):[0-9][0-9] .*")
-	string(REGEX REPLACE ${REGEX_STRING} "\\1\\2\\3-\\4\\5" DATE_STRING ${GITLOG})
-
-	file(GLOB GITFILES ${CMAKE_SOURCE_DIR}/.git/svn/*)
-	IF(GITFILES STREQUAL "")
-		# git checkout
-		message(STATUS "Detected git checkout")
-		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list HEAD --count
-		                OUTPUT_VARIABLE REV
-		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-		)
-		set(SHORT_VCS "g")
-	ELSE()
-		# git svn checkout
-		message(STATUS "Detected git svn checkout")
-		execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-		                OUTPUT_VARIABLE CHASH
-		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-		)
-		execute_process(COMMAND ${GIT_EXECUTABLE} svn HEAD find-rev ${CHASH}
-		                OUTPUT_VARIABLE REV
-		                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-		)
-		set(SHORT_VCS "r")
-	ENDIF()
-
-	string(STRIP "${REV}" REV) # Get rid of a newline
-
-ELSEIF(HG_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.hg")
-	# WARNING: hg < 2.4 don't like date method
-	execute_process(COMMAND ${HG_EXECUTABLE} parent "--template={date(date, '%Y%m%d-%H%M')}"
-	                OUTPUT_VARIABLE DATE_STRING
-	)
-	execute_process(COMMAND ${HG_EXECUTABLE} parent "--template={svnrev}"
-	                OUTPUT_VARIABLE REV
-	)
-
-	IF(REV STREQUAL "")
-		# mercurial checkout
-		message(STATUS "Detected mercurial checkout!")
-		execute_process(COMMAND ${HG_EXECUTABLE} parent "--template={rev}"
-		                OUTPUT_VARIABLE REV
-		)
-		set(SHORT_VCS "h")
-	ELSE()
-		# hgsubversion checkout
-		message(STATUS "Detected hgsubversion checkout!")
-		set(SHORT_VCS "r")
-	ENDIF()
+	string(STRIP "${VERSION_STRING}" VERSION_STRING) # Newline
 ELSE()
 	# Only do this if you really want to
 	IF(OVERRIDE_VCS)
 		message(WARNING "WARNING: No VCS checkout detected but overridden by user")
-		set(DATE_STRING "norev")
-		set(SHORT_VCS "n")
-		set(REV "000")
+		set(VERSION_STRING "0.0.0-norev")
 	ELSE()
 		message(FATAL_ERROR "No VCS checkout detected. Enable the OVERRIDE_VCS option if this is intended. This is not recommended.")
 	ENDIF()
 ENDIF()
-
-set(VERSION_STRING ${DATE_STRING}.${SHORT_VCS}${REV})
 
 message(STATUS "Version string: ${VERSION_STRING}")
 message(STATUS "Generating src/rev.cpp")
