@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: $Id$
+:Version: 2014-04-19
 
 .. contents::
    :depth: 3

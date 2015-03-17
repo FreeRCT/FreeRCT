@@ -1,5 +1,3 @@
-// $Id$
-//
 // This file is part of FreeRCT.
 // FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 // FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -76,7 +74,7 @@ strings {
 		PATH_GUI_REMOVE:         "Eliminar";
 		PATH_GUI_LONG_TIP:       "Construir un camino largo";
 		PATH_GUI_BUY_TIP:        "Comprar un trozo de camino";
-		
+
 		PATH_GUI_SLOPE_DOWN_TIP: "Contruye el camino hacia abajo";
 		PATH_GUI_SLOPE_FLAT_TIP: "Construye el camino horizontal";
 		PATH_GUI_SLOPE_UP_TIP:   "Contruye el camino hacia arriba";

@@ -1,5 +1,3 @@
-// $Id$
-//
 // This file is part of FreeRCT.
 // FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 // FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -92,7 +90,7 @@ strings {
 		PATH_GUI_BACKWARD:         "Back";
 		PATH_GUI_FORWARD_TIP:      "Move a tile forward";
 		PATH_GUI_BACKWARD_TIP:     "Move a tile backward";
-		
+
 		PATH_GUI_NW_DIRECTION_TIP: "Build path in north-west direction";
 		PATH_GUI_NE_DIRECTION_TIP: "Build path in north-east direction";
 		PATH_GUI_SW_DIRECTION_TIP: "Build path in south-west direction";
