@@ -36,7 +36,7 @@ notifications:
 
 env:
   global:
-    secure: hG7oaDFfJcgeuNfIu5x3RlQrj7qIhxzV4EEZsGTMvGMVY64cjVgpR5Mtyd04ZBBJuWxJ4FT/USOFlotLxYAwpEp92DAeHsBUVQzsiIrx0JNWxsxadZ6bR32WgKfx6bDCMLLY92CdByKFUCsBzZXAidNd+KIEs/5IHkYxKEGdjlY=
+    secure: "gUgAXzGLyEkqSuMav5PLylFL3vtDO+TetIqzivkWDP5G6Md2W4xCSxBtgORtgOSngfJFipnoSvIzRo85ZyOJXKxN+1Ayy4D+xanFHpfY5pZtdhrpd9nbUXM/XLTJ9KeCd7n8BUq3Qd1h6cEAfCwvajSavC+bll3Df3MfSxISLdI="
 
 addons:
   coverity_scan:
