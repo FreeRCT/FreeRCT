@@ -325,7 +325,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 
 GuiWindow::~GuiWindow()
 {
-	if (this->tree != nullptr) delete this->tree;
+	delete this->tree;
 	delete[] this->widgets;
 }
 
