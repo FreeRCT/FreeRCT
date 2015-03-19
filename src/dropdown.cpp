@@ -146,7 +146,7 @@ void DropdownMenuWindow::OnClick(WidgetNumber number, const Point16 &pos)
 void GuiWindow::ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour)
 {
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (w != nullptr) delete w;
+	delete w;
 
 	DataWidget *wid = this->GetWidget<DataWidget>(widnum);
 	assert(wid->wtype == WT_DROPDOWN_BUTTON);
@@ -271,7 +271,7 @@ void RecolourDropdownWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *
 void GuiWindow::ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour)
 {
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (w != nullptr) delete w;
+	delete w;
 
 	DataWidget *wid = this->GetWidget<DataWidget>(widnum);
 	assert(wid->wtype == WT_DROPDOWN_BUTTON);

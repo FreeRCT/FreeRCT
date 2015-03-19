@@ -889,7 +889,7 @@ BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype)
 
 BackgroundWidget::~BackgroundWidget()
 {
-	if (this->child != nullptr) delete this->child;
+	delete this->child;
 }
 
 /**

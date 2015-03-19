@@ -452,7 +452,7 @@ void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)
 void ShowQuitProgram()
 {
 	Window *w = GetWindowByType(WC_QUIT, ALL_WINDOWS_OF_TYPE);
-	if (w != nullptr) delete w;
+	delete w;
 
 	new QuitProgramWindow();
 }
