@@ -465,7 +465,7 @@ public:
 	VoxelStack *Copy(bool copyPersons) const;
 	void MoveStack(VoxelStack *old_stack);
 
-	int GetGroundOffset() const;
+	int GetBaseGroundOffset() const;
 
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr);
@@ -491,7 +491,7 @@ public:
 
 	VoxelStack *GetModifyStack(uint16 x, uint16 y);
 	const VoxelStack *GetStack(uint16 x, uint16 y) const;
-	uint8 GetGroundHeight(uint16 x, uint16 y) const;
+	uint8 GetBaseGroundHeight(uint16 x, uint16 y) const;
 
 	/**
 	 * Move a voxel stack to this world. May destroy the original stack in the process.

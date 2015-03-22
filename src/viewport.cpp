@@ -578,7 +578,7 @@ uint8 MultiCursor::GetZpos(int xpos, int ypos)
 	assert(xoff >= 0 && xoff < (int)this->rect.width);
 	assert(yoff >= 0 && yoff < (int)this->rect.height);
 
-	if (this->zpos[xoff][yoff] < 0) this->zpos[xoff][yoff] = _world.GetGroundHeight(xpos, ypos);
+	if (this->zpos[xoff][yoff] < 0) this->zpos[xoff][yoff] = _world.GetBaseGroundHeight(xpos, ypos);
 	return this->zpos[xoff][yoff];
 }
 

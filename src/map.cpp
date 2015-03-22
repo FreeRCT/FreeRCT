@@ -375,10 +375,10 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 }
 
 /**
- * Get the offset of ground in the voxel stack.
- * @return Index in the voxel array for the voxel containing the ground.
+ * Get the offset of the base of ground in the voxel stack (for steep slopes the bottom voxel).
+ * @return Index in the voxel array for the base voxel containing the ground.
  */
-int VoxelStack::GetGroundOffset() const
+int VoxelStack::GetBaseGroundOffset() const
 {
 	for (int i = this->height - 1; i >= 0; i--) {
 		const Voxel &v = this->voxels[i];
@@ -463,10 +463,10 @@ const VoxelStack *VoxelWorld::GetStack(uint16 x, uint16 y) const
  * @param y Vertical position.
  * @return Height of the ground (for steep slopes, the base voxel height).
  */
-uint8 VoxelWorld::GetGroundHeight(uint16 x, uint16 y) const
+uint8 VoxelWorld::GetBaseGroundHeight(uint16 x, uint16 y) const
 {
 	const VoxelStack *vs = this->GetStack(x, y);
-	int offset = vs->GetGroundOffset();
+	int offset = vs->GetBaseGroundOffset();
 	assert(vs->base + offset >= 0 && vs->base + offset <= 255);
 	return vs->base + offset;
 }
