@@ -16,10 +16,10 @@ set(CMAKE_USE_RELATIVE_PATHS ON)
 option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 
 # Create the directories that the binaries and data files go into
-set(FRCT_BINARY_DIR ${CMAKE_BINARY_DIR}/bin)
-file(MAKE_DIRECTORY ${FRCT_BINARY_DIR})
-file(MAKE_DIRECTORY ${FRCT_BINARY_DIR}/rcd)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${FRCT_BINARY_DIR})
+set(FRCT_BINARY_DIR "${CMAKE_BINARY_DIR}/bin")
+file(MAKE_DIRECTORY "${FRCT_BINARY_DIR}")
+file(MAKE_DIRECTORY "${FRCT_BINARY_DIR}/rcd")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${FRCT_BINARY_DIR}")
 
 # Include individual projects
 message(STATUS "")
@@ -36,14 +36,14 @@ add_subdirectory(src)
 IF(NOT MSVC)
 	add_custom_target(run
 	                  COMMAND freerct
-	                  WORKING_DIRECTORY ${FRCT_BINARY_DIR}
+	                  WORKING_DIRECTORY "${FRCT_BINARY_DIR}"
 	)
 	add_dependencies(run freerct)
 
 	# Warning: assumes gdb exists
 	add_custom_target(gdbrun
 	                  COMMAND gdb freerct
-	                  WORKING_DIRECTORY ${FRCT_BINARY_DIR}
+	                  WORKING_DIRECTORY "${FRCT_BINARY_DIR}"
 	)
 	add_dependencies(gdbrun freerct)
 
@@ -52,7 +52,7 @@ IF(NOT MSVC)
 	IF(DOXYGEN_FOUND)
 		add_custom_target(doc
 		                  COMMAND ${DOXYGEN_EXECUTABLE}
-		                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		                  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 		)
 	ENDIF()
 
@@ -64,9 +64,9 @@ IF(NOT MSVC)
 
 	# Warning: assumes rst2html exists
 	FOREACH(DOCFILE ${DOCFILES})
-		add_custom_target(${DOCFILE}.html
+		add_custom_target("${DOCFILE}.html"
 		                  COMMAND rst2html ${DOCFILE}.rst ${DOCFILE}.html
-		                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
+		                  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/doc"
 		)
 	ENDFOREACH()
 

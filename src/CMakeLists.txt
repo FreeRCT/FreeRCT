@@ -14,23 +14,23 @@ project(freerct)
 # Source files
 # TODO: Use explicit list instead?
 file(GLOB freerct_SRCS
-     ${CMAKE_SOURCE_DIR}/src/*.cpp
-     ${CMAKE_SOURCE_DIR}/src/*.h
+     "${CMAKE_SOURCE_DIR}/src/*.cpp"
+     "${CMAKE_SOURCE_DIR}/src/*.h"
 )
 
-set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/coasters_strings)
+set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings")
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix COASTERS --base STR_GENERIC_COASTER_START
 				   DEPENDS rcdgen
                    COMMENT "Generating COASTERS string files"
 )
-set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/shops_strings)
+set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/shops_strings")
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix SHOPS --base STR_GENERIC_SHOP_START
 				   DEPENDS rcdgen
                    COMMENT "Generating SHOPS string files"
 )
-set(STRINGFILE ${CMAKE_SOURCE_DIR}/src/generated/gui_strings)
+set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/gui_strings")
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GUI --base STR_GUI_START
 				   DEPENDS rcdgen
@@ -40,31 +40,31 @@ add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
 # Add platform specific files
 IF(UNIX)
 	file(GLOB freerct_platform_SRCS
-		 ${CMAKE_SOURCE_DIR}/src/unix/*.cpp
-		 ${CMAKE_SOURCE_DIR}/src/unix/*.h
+	     "${CMAKE_SOURCE_DIR}/src/unix/*.cpp"
+	     "${CMAKE_SOURCE_DIR}/src/unix/*.h"
 	)
 ELSEIF(WIN32)
 	file(GLOB freerct_platform_SRCS
-		 ${CMAKE_SOURCE_DIR}/src/windows/*.cpp
-		 ${CMAKE_SOURCE_DIR}/src/windows/*.h
+	     "${CMAKE_SOURCE_DIR}/src/windows/*.cpp"
+	     "${CMAKE_SOURCE_DIR}/src/windows/*.h"
 	)
 ENDIF()
 set(freerct_SRCS ${freerct_SRCS} ${freerct_platform_SRCS})
 
 # Add generated files
 set(freerct_SRCS ${freerct_SRCS}
-  ${CMAKE_SOURCE_DIR}/src/rev.cpp
-  ${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h
-  ${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h
-  ${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h
+    "${CMAKE_SOURCE_DIR}/src/rev.cpp"
+    "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h"
+    "${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h"
+    "${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h"
 )
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/rev.cpp GENERATED)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.cpp GENERATED)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h GENERATED)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/gui_strings.cpp GENERATED)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h GENERATED)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp GENERATED)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/rev.cpp" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.cpp" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.cpp" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h" GENERATED)
 
 # On windows, "WIN32" option need to be passed to
 # add_excutable to get a Windows instead of Console
@@ -79,20 +79,16 @@ add_dependencies(freerct rcd)
 # Library detection
 find_package(SDL2 REQUIRED)
 IF(SDL2_FOUND)
-	include_directories(${SDL2_INCLUDE_DIR})
+	include_directories("${SDL2_INCLUDE_DIR}")
 	target_link_libraries(freerct ${SDL2_LIBRARY})
 ENDIF()
 
 find_package(SDL2_ttf REQUIRED)
 # Legacy variable names
 IF(SDL2_TTF_FOUND)
-	include_directories(${SDL2TTF_INCLUDE_DIR})
+	include_directories("${SDL2TTF_INCLUDE_DIR}")
 	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
 ENDIF()
-
-# Translated messages are bad
-set(SAVED_LC_ALL "$ENV{LC_ALL}")
-set(ENV{LC_ALL} C)
 
 # Determine version string
 find_package(Git)
@@ -114,10 +110,7 @@ ENDIF()
 
 message(STATUS "Version string: ${VERSION_STRING}")
 message(STATUS "Generating src/rev.cpp")
-configure_file(${CMAKE_SOURCE_DIR}/src/rev.cpp.in ${CMAKE_SOURCE_DIR}/src/rev.cpp)
-
-# Restore
-set(ENV{LC_ALL} ${SAVED_LC_ALL})
+configure_file("${CMAKE_SOURCE_DIR}/src/rev.cpp.in" "${CMAKE_SOURCE_DIR}/src/rev.cpp")
 
 # Compiler flags
 # TODO: Extend for debug/release versions
