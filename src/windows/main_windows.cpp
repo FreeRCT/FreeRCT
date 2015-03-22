@@ -63,6 +63,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
 	/** \todo port FS2OTTD from OpenTTD and use here to convert command line string to UTF8 */
 	char *cmdline = strdup(GetCommandLine());
+	assert(cmdline != nullptr); // If this fails, a lot more will
 
 	argc = ParseCommandLine(cmdline, argv, lengthof(argv));
 

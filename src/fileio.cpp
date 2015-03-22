@@ -123,9 +123,15 @@ RcdFileReader::RcdFileReader(const char *fname)
 	this->fp = fopen(fname, "rb");
 	if (this->fp == nullptr) return;
 
-	fseek(this->fp, 0L, SEEK_END);
+	if (fseek(this->fp, 0L, SEEK_END) != 0) {
+		fclose(this->fp);
+		return;
+	}
 	this->file_size = ftell(this->fp);
-	fseek(this->fp, 0L, SEEK_SET);
+	if (fseek(this->fp, 0L, SEEK_SET) != 0) {
+		fclose(this->fp);
+		return;
+	}
 }
 
 /** Destructor. */
