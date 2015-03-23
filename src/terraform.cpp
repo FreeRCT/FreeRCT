@@ -135,7 +135,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 
 	auto iter = this->changes.find(pos);
 	if (iter == this->changes.end()) {
-		uint8 height = _world.GetGroundHeight(pos.x, pos.y);
+		uint8 height = _world.GetBaseGroundHeight(pos.x, pos.y);
 		const Voxel *v = _world.GetVoxel(XYZPoint16(pos.x, pos.y, height));
 		assert(v != nullptr && v->GetGroundType() != GTP_INVALID);
 		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
@@ -735,7 +735,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		 * Note that the mouse cursor position is not changed at all, it still points at the original position.
 		 * The coupling is restored with the next mouse movement.
 		 */
-		c->cursor_pos.z = _world.GetGroundHeight(c->cursor_pos.x, c->cursor_pos.y);
+		c->cursor_pos.z = _world.GetBaseGroundHeight(c->cursor_pos.x, c->cursor_pos.y);
 		for (const auto &iter : changes.changes) {
 			const Point32 &pt = iter.first;
 			vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));

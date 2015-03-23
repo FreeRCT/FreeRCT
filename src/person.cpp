@@ -184,7 +184,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	/* Set up initial position. */
 	this->vox_pos.x = start.x;
 	this->vox_pos.y = start.y;
-	this->vox_pos.z = _world.GetGroundHeight(start.x, start.y);
+	this->vox_pos.z = _world.GetBaseGroundHeight(start.x, start.y);
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 
 	if (start.x == 0) {
@@ -537,7 +537,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 			const VoxelStack *vs = _world.GetStack(x, y);
 			if (vs->owner == OWN_PARK) {
 				if (_world.GetStack(x + 1, y)->owner != OWN_PARK || _world.GetStack(x, y + 1)->owner != OWN_PARK) {
-					int offset = vs->GetGroundOffset();
+					int offset = vs->GetBaseGroundOffset();
 					const Voxel *v = vs->voxels + offset;
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & ((1 << EDGE_SE) | (1 << EDGE_SW))) != 0) {
@@ -547,7 +547,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 			} else {
 				vs = _world.GetStack(x + 1, y);
 				if (vs->owner == OWN_PARK) {
-					int offset = vs->GetGroundOffset();
+					int offset = vs->GetBaseGroundOffset();
 					const Voxel *v = vs->voxels + offset;
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & (1 << EDGE_NE)) != 0) {
@@ -557,7 +557,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 
 				vs = _world.GetStack(x, y + 1);
 				if (vs->owner == OWN_PARK) {
-					int offset = vs->GetGroundOffset();
+					int offset = vs->GetBaseGroundOffset();
 					const Voxel *v = vs->voxels + offset;
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & (1 << EDGE_NW)) != 0) {
@@ -587,7 +587,7 @@ static TileEdge GetGoHomeDirection(const XYZPoint16 &pos)
 
 	int x = _guests.start_voxel.x;
 	int y = _guests.start_voxel.y;
-	ps.AddStart(XYZPoint16(x, y, _world.GetGroundHeight(x, y)));
+	ps.AddStart(XYZPoint16(x, y, _world.GetBaseGroundHeight(x, y)));
 
 	if (!ps.Search()) return INVALID_EDGE;
 

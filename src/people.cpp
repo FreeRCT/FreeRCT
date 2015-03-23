@@ -41,7 +41,7 @@ GuestBlock::GuestBlock(uint16 base_id)
 static bool IsGoodEdgeRoad(int16 x, int16 y)
 {
 	if (x < 0 || y < 0) return false;
-	int16 z = _world.GetGroundHeight(x, y);
+	int16 z = _world.GetBaseGroundHeight(x, y);
 	const Voxel *vs = _world.GetVoxel(XYZPoint16(x, y, z));
 	return vs && HasValidPath(vs) && GetImplodedPathSlope(vs) < PATH_FLAT_COUNT;
 }
