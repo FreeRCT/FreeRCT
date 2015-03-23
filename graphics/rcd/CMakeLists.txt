@@ -24,7 +24,7 @@ list(APPEND RCDFILES
 )
 
 # Get lang files
-file(GLOB LANGFILES ${FP}/lang/*.txt)
+file(GLOB LANGFILES "${FP}/lang/*.txt")
 
 list(LENGTH RCDFILES RCDFILES_LENGTH)
 math(EXPR RCDFILES_LENGTH_DIV_2 "${RCDFILES_LENGTH} / 2 - 1")
@@ -36,16 +36,16 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_2})
 	list(GET RCDFILES ${INDEX_2} SRCFILE)
 
 	set(OUT_DIR "${FRCT_BINARY_DIR}/rcd")
-	add_custom_command(OUTPUT ${OUT_DIR}/${OUTFILE} ${FP}/${OUTFILE}
+	add_custom_command(OUTPUT "${OUT_DIR}/${OUTFILE}" "${FP}/${OUTFILE}"
 	                   COMMAND rcdgen ${LANGFILES} ${SRCFILE}
 	                   COMMAND ${CMAKE_COMMAND} -E copy ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}
 	                   COMMENT "Generating rcd files from ${SRCFILE}"
 	                   DEPENDS ${SRCFILE} ${LANGFILES} rcdgen
-	                   WORKING_DIRECTORY ${FP}
+	                   WORKING_DIRECTORY "${FP}"
 	)
 
-	list(APPEND OUTFILES ${OUT_DIR}/${OUTFILE})
+	list(APPEND OUTFILES "${OUT_DIR}/${OUTFILE}")
 ENDFOREACH(RCDFILE)
 
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${OUTFILES}")
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${OUTFILES})
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -62,7 +62,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 10 "parser.y" /* yacc.c:339  */
+#line 8 "parser.y" /* yacc.c:339  */
 
 #include <cstdio>
 #include "scanner_funcs.h"
@@ -443,11 +443,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    37,    37,    42,    47,    53,    58,    64,    70,    77,
-      82,    88,    95,   100,   106,   113,   118,   124,   130,   137,
-     142,   148,   155,   161,   167,   174,   180,   186,   191,   196,
-     202,   207,   215,   224,   229,   235,   240,   246,   252,   260,
-     268,   275
+       0,    35,    35,    40,    45,    51,    56,    62,    68,    75,
+      80,    86,    93,    98,   104,   111,   116,   122,   128,   135,
+     140,   146,   153,   159,   165,   172,   178,   184,   189,   194,
+     200,   205,   213,   222,   227,   233,   238,   244,   250,   258,
+     266,   273
 };
 #endif
 
@@ -1269,7 +1269,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 37 "parser.y" /* yacc.c:1646  */
+#line 35 "parser.y" /* yacc.c:1646  */
     {
 	_parsed_data = (yyvsp[0].values);
 }
@@ -1277,7 +1277,7 @@ yyreduce:
     break;
 
   case 3:
-#line 42 "parser.y" /* yacc.c:1646  */
+#line 40 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.exprlist) = std::make_shared<ExpressionList>();
 	(yyval.exprlist)->exprs.push_back((yyvsp[0].expr));
@@ -1286,7 +1286,7 @@ yyreduce:
     break;
 
   case 4:
-#line 47 "parser.y" /* yacc.c:1646  */
+#line 45 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.exprlist) = (yyvsp[-2].exprlist);
 	(yyval.exprlist)->exprs.push_back((yyvsp[0].expr));
@@ -1295,7 +1295,7 @@ yyreduce:
     break;
 
   case 5:
-#line 53 "parser.y" /* yacc.c:1646  */
+#line 51 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.expr) = (yyvsp[0].expr);
 }
@@ -1303,7 +1303,7 @@ yyreduce:
     break;
 
   case 6:
-#line 58 "parser.y" /* yacc.c:1646  */
+#line 56 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '&', (yyvsp[0].expr));
@@ -1312,7 +1312,7 @@ yyreduce:
     break;
 
   case 7:
-#line 64 "parser.y" /* yacc.c:1646  */
+#line 62 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '|', (yyvsp[0].expr));
@@ -1321,7 +1321,7 @@ yyreduce:
     break;
 
   case 8:
-#line 70 "parser.y" /* yacc.c:1646  */
+#line 68 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '^', (yyvsp[0].expr));
@@ -1330,7 +1330,7 @@ yyreduce:
     break;
 
   case 9:
-#line 77 "parser.y" /* yacc.c:1646  */
+#line 75 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.expr) = (yyvsp[0].expr);
 }
@@ -1338,7 +1338,7 @@ yyreduce:
     break;
 
   case 10:
-#line 82 "parser.y" /* yacc.c:1646  */
+#line 80 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '<', (yyvsp[0].expr));
@@ -1347,7 +1347,7 @@ yyreduce:
     break;
 
   case 11:
-#line 88 "parser.y" /* yacc.c:1646  */
+#line 86 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '>', (yyvsp[0].expr));
@@ -1356,7 +1356,7 @@ yyreduce:
     break;
 
   case 12:
-#line 95 "parser.y" /* yacc.c:1646  */
+#line 93 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.expr) = (yyvsp[0].expr);
 }
@@ -1364,7 +1364,7 @@ yyreduce:
     break;
 
   case 13:
-#line 100 "parser.y" /* yacc.c:1646  */
+#line 98 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '+', (yyvsp[0].expr));
@@ -1373,7 +1373,7 @@ yyreduce:
     break;
 
   case 14:
-#line 106 "parser.y" /* yacc.c:1646  */
+#line 104 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '-', (yyvsp[0].expr));
@@ -1382,7 +1382,7 @@ yyreduce:
     break;
 
   case 15:
-#line 113 "parser.y" /* yacc.c:1646  */
+#line 111 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.expr) = (yyvsp[0].expr);
 }
@@ -1390,7 +1390,7 @@ yyreduce:
     break;
 
   case 16:
-#line 118 "parser.y" /* yacc.c:1646  */
+#line 116 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '*', (yyvsp[0].expr));
@@ -1399,7 +1399,7 @@ yyreduce:
     break;
 
   case 17:
-#line 124 "parser.y" /* yacc.c:1646  */
+#line 122 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '/', (yyvsp[0].expr));
@@ -1408,7 +1408,7 @@ yyreduce:
     break;
 
   case 18:
-#line 130 "parser.y" /* yacc.c:1646  */
+#line 128 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<BinaryOperator>(pos, (yyvsp[-2].expr), '%', (yyvsp[0].expr));
@@ -1417,7 +1417,7 @@ yyreduce:
     break;
 
   case 19:
-#line 137 "parser.y" /* yacc.c:1646  */
+#line 135 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.expr) = (yyvsp[0].expr);
 }
@@ -1425,7 +1425,7 @@ yyreduce:
     break;
 
   case 20:
-#line 142 "parser.y" /* yacc.c:1646  */
+#line 140 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<UnaryOperator>(pos, '-', (yyvsp[0].expr));
@@ -1434,7 +1434,7 @@ yyreduce:
     break;
 
   case 21:
-#line 148 "parser.y" /* yacc.c:1646  */
+#line 146 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-1].line));
 	(yyval.expr) = std::make_shared<UnaryOperator>(pos, '~', (yyvsp[0].expr));
@@ -1443,7 +1443,7 @@ yyreduce:
     break;
 
   case 22:
-#line 155 "parser.y" /* yacc.c:1646  */
+#line 153 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[0].chars).line);
 	(yyval.expr) = std::make_shared<StringLiteral>(pos, (yyvsp[0].chars).value);
@@ -1452,7 +1452,7 @@ yyreduce:
     break;
 
   case 23:
-#line 161 "parser.y" /* yacc.c:1646  */
+#line 159 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[0].number).line);
 	(yyval.expr) = std::make_shared<NumberLiteral>(pos, (yyvsp[0].number).value);
@@ -1461,7 +1461,7 @@ yyreduce:
     break;
 
   case 24:
-#line 167 "parser.y" /* yacc.c:1646  */
+#line 165 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[0].chars).line);
 	CheckIsSingleName((yyvsp[0].chars).value, pos);
@@ -1471,7 +1471,7 @@ yyreduce:
     break;
 
   case 25:
-#line 174 "parser.y" /* yacc.c:1646  */
+#line 172 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-2].line));
 	(yyval.expr) = std::make_shared<BitSet>(pos, nullptr);
@@ -1480,7 +1480,7 @@ yyreduce:
     break;
 
   case 26:
-#line 180 "parser.y" /* yacc.c:1646  */
+#line 178 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-3].line));
 	(yyval.expr) = std::make_shared<BitSet>(pos, (yyvsp[-1].exprlist));
@@ -1489,7 +1489,7 @@ yyreduce:
     break;
 
   case 27:
-#line 186 "parser.y" /* yacc.c:1646  */
+#line 184 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.expr) = (yyvsp[-1].expr);
 }
@@ -1497,7 +1497,7 @@ yyreduce:
     break;
 
   case 28:
-#line 191 "parser.y" /* yacc.c:1646  */
+#line 189 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.values) = std::make_shared<NamedValueList>();
 }
@@ -1505,7 +1505,7 @@ yyreduce:
     break;
 
   case 29:
-#line 196 "parser.y" /* yacc.c:1646  */
+#line 194 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.values) = (yyvsp[-1].values);
 	(yyval.values)->values.push_back((yyvsp[0].value));
@@ -1514,7 +1514,7 @@ yyreduce:
     break;
 
   case 30:
-#line 202 "parser.y" /* yacc.c:1646  */
+#line 200 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.value) = std::make_shared<NamedValue>(nullptr, (yyvsp[0].group));
 }
@@ -1522,7 +1522,7 @@ yyreduce:
     break;
 
   case 31:
-#line 207 "parser.y" /* yacc.c:1646  */
+#line 205 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-2].chars).line);
 	CheckIsSingleName((yyvsp[-2].chars).value, pos);
@@ -1533,7 +1533,7 @@ yyreduce:
     break;
 
   case 32:
-#line 215 "parser.y" /* yacc.c:1646  */
+#line 213 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-3].chars).line);
 	CheckIsSingleName((yyvsp[-3].chars).value, pos);
@@ -1545,7 +1545,7 @@ yyreduce:
     break;
 
   case 33:
-#line 224 "parser.y" /* yacc.c:1646  */
+#line 222 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.value) = std::make_shared<NamedValue>((yyvsp[-2].iden_table), (yyvsp[0].group));
 }
@@ -1553,7 +1553,7 @@ yyreduce:
     break;
 
   case 34:
-#line 229 "parser.y" /* yacc.c:1646  */
+#line 227 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-2].line));
 	(yyval.value) = std::make_shared<ImportValue>(pos, (yyvsp[-1].chars).value);
@@ -1562,7 +1562,7 @@ yyreduce:
     break;
 
   case 35:
-#line 235 "parser.y" /* yacc.c:1646  */
+#line 233 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.iden_table) = (yyvsp[-1].iden_table);
 }
@@ -1570,7 +1570,7 @@ yyreduce:
     break;
 
   case 36:
-#line 240 "parser.y" /* yacc.c:1646  */
+#line 238 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.iden_table) = std::make_shared<NameTable>();
 	(yyval.iden_table)->rows.push_back((yyvsp[0].iden_row));
@@ -1579,7 +1579,7 @@ yyreduce:
     break;
 
   case 37:
-#line 246 "parser.y" /* yacc.c:1646  */
+#line 244 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.iden_table) = (yyvsp[-2].iden_table);
 	(yyval.iden_table)->rows.push_back((yyvsp[0].iden_row));
@@ -1588,7 +1588,7 @@ yyreduce:
     break;
 
   case 38:
-#line 252 "parser.y" /* yacc.c:1646  */
+#line 250 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.iden_row) = std::make_shared<NameRow>();
 	Position pos(filename, (yyvsp[0].chars).line);
@@ -1599,7 +1599,7 @@ yyreduce:
     break;
 
   case 39:
-#line 260 "parser.y" /* yacc.c:1646  */
+#line 258 "parser.y" /* yacc.c:1646  */
     {
 	(yyval.iden_row) = (yyvsp[-2].iden_row);
 	Position pos(filename, (yyvsp[0].chars).line);
@@ -1610,7 +1610,7 @@ yyreduce:
     break;
 
   case 40:
-#line 268 "parser.y" /* yacc.c:1646  */
+#line 266 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-3].chars).line);
 	CheckIsSingleName((yyvsp[-3].chars).value, pos);
@@ -1620,7 +1620,7 @@ yyreduce:
     break;
 
   case 41:
-#line 275 "parser.y" /* yacc.c:1646  */
+#line 273 "parser.y" /* yacc.c:1646  */
     {
 	Position pos(filename, (yyvsp[-6].chars).line);
 	CheckIsSingleName((yyvsp[-6].chars).value, pos);
@@ -1858,6 +1858,6 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 282 "parser.y" /* yacc.c:1906  */
+#line 280 "parser.y" /* yacc.c:1906  */
 
 
