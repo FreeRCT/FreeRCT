@@ -587,6 +587,7 @@ uint8 CoasterInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 RideEntryResult CoasterInstance::EnterRide(int guest, TileEdge edge)
 {
 	return RER_REFUSED; /// \todo Store the guest number.
+	/** \todo Implement RemoveAllPeople when allowing people on the ride. */
 }
 
 XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge entry_edge)
@@ -596,7 +597,7 @@ XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge entry_edge)
 
 void CoasterInstance::RemoveAllPeople()
 {
-	assert(false); // Not yet implemented.
+	/** \todo Implement when allowing people on the ride. */
 }
 
 /**
