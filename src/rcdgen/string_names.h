@@ -69,6 +69,7 @@ static const char *_gui_string_names[] = {
 
 	/* Guest info window. */
 	"GUEST_INFO_MONEY",
+	"GUEST_INFO_MONEY_SPENT",
 	"GUEST_INFO_HAPPINESS",
 	"GUEST_INFO_HUNGER",
 	"GUEST_INFO_THIRST",

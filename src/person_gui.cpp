@@ -19,6 +19,7 @@
 enum GuestInfoWidgets {
 	GIW_TITLEBAR,     ///< Title bar widget.
 	GIW_MONEY,        ///< Current amount of money.
+	GIW_MONEY_SPENT,  ///< Total amount of money spent.
 	GIW_HAPPINESS,    ///< Happiness level.
 	GIW_ITEMS,        ///< List of carried items.
 	GIW_HUNGER_LEVEL, ///< Amount of hunger.
@@ -34,9 +35,12 @@ static const WidgetPart _guest_info_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(6, 2), SetPadding(2, 2, 2, 2),
+			Intermediate(7, 2), SetPadding(2, 2, 2, 2),
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_MONEY, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GIW_MONEY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_MONEY_SPENT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, GIW_MONEY_SPENT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_HAPPINESS, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GIW_HAPPINESS, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
@@ -87,6 +91,10 @@ void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 		case GIW_MONEY:
 			_str_params.SetMoney(1, this->guest->cash);
+			break;
+
+		case GIW_MONEY_SPENT:
+			_str_params.SetMoney(1, this->guest->cash_spent);
 			break;
 
 		case GIW_HAPPINESS:

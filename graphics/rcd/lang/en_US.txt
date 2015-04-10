@@ -61,12 +61,13 @@ strings {
 		ERROR_MESSAGE_SPRITE:  "Failed to draw sprite";
 
 		// Guest info gui strings.
-		GUEST_INFO_MONEY:     "Available cash";
-		GUEST_INFO_HAPPINESS: "Happiness level";
-		GUEST_INFO_HUNGER:    "Hunger";
-		GUEST_INFO_THIRST:    "Thirst";
-		GUEST_INFO_WASTE:     "Trash";
-		GUEST_INFO_ITEMS:     "Items held";
+		GUEST_INFO_MONEY:       "Available cash";
+		GUEST_INFO_MONEY_SPENT: "Cash spent";
+		GUEST_INFO_HAPPINESS:   "Happiness level";
+		GUEST_INFO_HUNGER:      "Hunger";
+		GUEST_INFO_THIRST:      "Thirst";
+		GUEST_INFO_WASTE:       "Trash";
+		GUEST_INFO_ITEMS:       "Items held";
 
 		// Items for guests gui strings.
 		ITEM_NONE:     "None";

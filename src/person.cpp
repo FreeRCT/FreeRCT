@@ -1005,6 +1005,7 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->happiness = 50 + this->rnd.Uniform(50);
 	this->total_happiness = 0;
 	this->cash = 3000 + this->rnd.Uniform(4095);
+	this->cash_spent = 0;
 
 	this->has_map = false;
 	this->has_umbrella = false;
@@ -1332,6 +1333,7 @@ void Guest::BuyItem(RideInstance *ri)
 		for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 			if (it == ri->GetSaleItemType(i)) {
 				ri->SellItem(i);
+				this->cash_spent += ri->GetSaleItemPrice(i);
 				this->cash -= ri->GetSaleItemPrice(i);
 				this->AddItem(ri->GetSaleItemType(i));
 				this->ChangeHappiness(10);
