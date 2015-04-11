@@ -75,7 +75,7 @@ static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_ob
 void Voxel::Load(Loader &ldr, uint32 version)
 {
 	this->ClearVoxel();
-	if (version == 1) {
+	if (version == 1 || version == 2) {
 		this->ground = ldr.GetLong(); /// \todo Check sanity of the data.
 		this->instance = ldr.GetByte();
 		if (this->instance == SRI_FREE) {
@@ -86,6 +86,8 @@ void Voxel::Load(Loader &ldr, uint32 version)
 			this->instance_data = 0; // Full rides load after the world, overwriting map data.
 			ldr.SetFailMessage("Unknown voxel instance data");
 		}
+
+		if (version == 2) this->fence = ldr.GetWord();
 	} else {
 		ldr.SetFailMessage("Unknown voxel version");
 	}
@@ -104,6 +106,7 @@ void Voxel::Save(Saver &svr) const
 	} else {
 		svr.PutByte(SRI_FREE); // Full rides save their own data from the world.
 	}
+	svr.PutWord(this->fence);
 }
 
 /**
@@ -395,7 +398,7 @@ void VoxelStack::Load(Loader &ldr)
 {
 	this->Clear();
 	uint32 version = ldr.OpenBlock("VSTK");
-	if (version == 1) {
+	if (version == 1 || version == 2) {
 		int16 base = ldr.GetWord();
 		uint16 height = ldr.GetWord();
 		uint8 owner = ldr.GetByte();
@@ -419,7 +422,7 @@ void VoxelStack::Load(Loader &ldr)
  */
 void VoxelStack::Save(Saver &svr) const
 {
-	svr.StartBlock("VSTK", 1);
+	svr.StartBlock("VSTK", 2);
 	svr.PutWord(this->base);
 	svr.PutWord(this->height);
 	svr.PutByte(this->owner);
