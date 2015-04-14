@@ -150,6 +150,40 @@ void Weather::OnNewDay()
 }
 
 /**
+ * Load weather data from the save game.
+ * @param ldr Input stream to load from.
+ */
+void Weather::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("WTHR");
+	if (version == 1) {
+		this->temperature = ldr.GetLong();
+		this->current = ldr.GetLong();
+		this->next = ldr.GetLong();
+		this->change = ldr.GetLong();
+	} else if (version != 0) {
+		ldr.SetFailMessage("Incorrect version of weather block.");
+	}
+	ldr.CloseBlock();
+
+	if (version == 0 || ldr.IsFail()) this->Initialize();
+}
+
+/**
+ * Save weather data to the save game.
+ * @param svr Output stream to save to.
+ */
+void Weather::Save(Saver &svr)
+{
+	svr.StartBlock("WTHR", 1);
+	svr.PutLong(this->temperature);
+	svr.PutLong(this->current);
+	svr.PutLong(this->next);
+	svr.PutLong(this->change);
+	svr.EndBlock();
+}
+
+/**
  * Get the current type of weather.
  * @return The type of weather of today.
  */
