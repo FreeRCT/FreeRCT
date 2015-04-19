@@ -5,7 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file freerct.cpp Main program for unix. */
+/** @file main_unix.cpp Main program for unix. */
 
 
 #include "../stdafx.h"

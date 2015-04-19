@@ -7,10 +7,6 @@
 
 /** @file fileio_windows.cpp File IO Windows specific functions. */
 
-/**
- * @defgroup fileio_group File IO
- */
-
 #include "../stdafx.h"
 #include "fileio_windows.h"
 #include "../string_func.h"
