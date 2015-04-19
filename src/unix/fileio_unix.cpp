@@ -5,11 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file fileio.cpp File IO Unix specific functions. */
-
-/**
- * @defgroup fileio_group File IO
- */
+/** @file fileio_unix.cpp File IO Unix specific functions. */
 
 #include "../stdafx.h"
 #include "fileio_unix.h"

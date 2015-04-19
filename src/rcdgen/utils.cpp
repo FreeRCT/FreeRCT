@@ -5,7 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file utils.cpp Support code for rcdgen. */
+/** @file utils.cpp %Support code for rcdgen. */
 
 #include "../stdafx.h"
 #include <cassert>

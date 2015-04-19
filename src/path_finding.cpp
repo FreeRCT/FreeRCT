@@ -5,7 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file path_finding.h Path finder code. */
+/** @file path_finding.cpp %Path finder code. */
 
 #include "stdafx.h"
 #include "path_finding.h"

@@ -5,7 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sprite_data.h Code for sprite data. */
+/** @file sprite_data.cpp Code for sprite data. */
 
 #include "stdafx.h"
 #include "palette.h"
