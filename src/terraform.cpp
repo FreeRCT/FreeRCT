@@ -109,7 +109,7 @@ bool GroundData::GetCornerModified(TileCorner corner) const
  * @param xsize Horizontal size of the world part.
  * @param ysize Vertical size of the world part.
  */
-TerrainChanges::TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize)
+TerrainChanges::TerrainChanges(const Point16 &base, uint16 xsize, uint16 ysize)
 {
 	assert(base.x >= 0 && base.y >= 0 && xsize > 0 && ysize > 0
 			&& base.x + xsize <= _world.GetXSize() && base.y + ysize <= _world.GetYSize());
@@ -128,7 +128,7 @@ TerrainChanges::~TerrainChanges()
  * @param pos Voxel stack position.
  * @return Pointer to the ground data, or \c nullptr if outside the world.
  */
-GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
+GroundData *TerrainChanges::GetGroundData(const Point16 &pos)
 {
 	if (pos.x < this->base.x || pos.x >= this->base.x + this->xsize) return nullptr;
 	if (pos.y < this->base.y || pos.y >= this->base.y + this->ysize) return nullptr;
@@ -138,7 +138,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 		uint8 height = _world.GetBaseGroundHeight(pos.x, pos.y);
 		const Voxel *v = _world.GetVoxel(XYZPoint16(pos.x, pos.y, height));
 		assert(v != nullptr && v->GetGroundType() != GTP_INVALID);
-		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
+		std::pair<Point16, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
 		iter = this->changes.insert(p).first;
 	}
 	return &(*iter).second;
@@ -150,7 +150,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
  * @param direction Levelling direction (decides whether to find the lowest or highest corner).
  * @param height [inout] Extremest height found so far.
  */
-void TerrainChanges::UpdatelevellingHeight(const Point32 &pos, int direction, uint8 *height)
+void TerrainChanges::UpdatelevellingHeight(const Point16 &pos, int direction, uint8 *height)
 {
 	const GroundData *gd = this->GetGroundData(pos);
 
@@ -174,7 +174,7 @@ void TerrainChanges::UpdatelevellingHeight(const Point32 &pos, int direction, ui
  * @param direction Levelling direction (decides what constraint to use).
  * @return Change is OK for the map.
  */
-bool TerrainChanges::ChangeVoxel(const Point32 &pos, uint8 height, int direction)
+bool TerrainChanges::ChangeVoxel(const Point16 &pos, uint8 height, int direction)
 {
 	GroundData *gd = this->GetGroundData(pos);
 	bool ok = true;
@@ -199,7 +199,7 @@ bool TerrainChanges::ChangeVoxel(const Point32 &pos, uint8 height, int direction
  * @param direction Direction of change.
  * @return Change is OK for the map.
  */
-bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int direction)
+bool TerrainChanges::ChangeCorner(const Point16 &pos, TileCorner corner, int direction)
 {
 	assert(corner >= TC_NORTH && corner < TC_END);
 	assert(direction == 1 || direction == -1);
@@ -231,7 +231,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
 
 	for (uint i = 0; i < 3; i++) {
 		const VoxelCorner &vc = neighbours[corner].neighbour_tiles[i];
-		Point32 pos2(pos.x + vc.rel_xy.x, pos.y + vc.rel_xy.y);
+		Point16 pos2(pos.x + vc.rel_xy.x, pos.y + vc.rel_xy.y);
 		gd = this->GetGroundData(pos2);
 		if (gd == nullptr) continue;
 		if (_world.GetTileOwner(pos2.x, pos2.y) != OWN_PARK) continue;
@@ -446,7 +446,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 	/* First iteration: Change the ground of the tiles, checking
 	 * whether the change is actually allowed with the other game elements. */
 	for (auto &iter : this->changes) {
-		const Point32 &pos = iter.first;
+		const Point16 &pos = iter.first;
 		const GroundData &gd = iter.second;
 		if (gd.modified == 0) continue;
 
@@ -544,14 +544,14 @@ bool TerrainChanges::ModifyWorld(int direction)
 	 * modified, the voxel will have to perform adding of foundations
 	 * there as well. */
 	for (auto &iter : this->changes) {
-		const Point32 &pos = iter.first;
+		const Point16 &pos = iter.first;
 		const GroundData &gd = iter.second;
 		if (gd.modified == 0) continue;
 
 		SetXFoundations(pos.x, pos.y);
 		SetYFoundations(pos.x, pos.y);
 
-		Point32 pt(pos.x - 1, pos.y);
+		Point16 pt(pos.x - 1, pos.y);
 		auto iter2 = this->changes.find(pt);
 		if (iter2 == this->changes.end()) {
 			SetXFoundations(pt.x, pt.y);
@@ -651,7 +651,7 @@ void TileTerraformMouseMode::SetCursors()
 			vp->tile_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
 			vp->area_cursor.SetInvalid();
 		} else {
-			Rectangle32 rect(fdata.voxel_pos.x - this->xsize / 2, fdata.voxel_pos.y - this->ysize / 2, this->xsize, this->ysize);
+			Rectangle16 rect(fdata.voxel_pos.x - this->xsize / 2, fdata.voxel_pos.y - this->ysize / 2, this->xsize, this->ysize);
 			vp->tile_cursor.SetInvalid();
 			vp->area_cursor.SetCursor(rect, CUR_TYPE_TILE);
 		}
@@ -690,7 +690,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 	Cursor *c = &vp->tile_cursor;
 	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->cursor_pos.x, c->cursor_pos.y) != OWN_PARK) return;
 
-	Point32 p;
+	Point16 p;
 	uint16 w, h;
 
 	if (dot_mode) { // Change entire world.
@@ -737,7 +737,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		 */
 		c->cursor_pos.z = _world.GetBaseGroundHeight(c->cursor_pos.x, c->cursor_pos.y);
 		for (const auto &iter : changes.changes) {
-			const Point32 &pt = iter.first;
+			const Point16 &pt = iter.first;
 			vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 		}
 	}
@@ -751,7 +751,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
  */
 static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 {
-	Point32 p;
+	Point16 p;
 
 	MultiCursor *c = &vp->area_cursor;
 	TerrainChanges changes(c->rect.base, c->rect.width, c->rect.height);
@@ -787,7 +787,7 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 	/* Like the dotmode, the cursor position is changed, but the mouse position is not touched to allow more
 	 * mousewheel events to happen at the same place. */
 	for (const auto &iter : changes.changes) {
-		const Point32 &pt = iter.first;
+		const Point16 &pt = iter.first;
 		c->ResetZPosition(pt);
 		vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 	}

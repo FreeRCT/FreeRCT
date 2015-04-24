@@ -175,10 +175,10 @@ class MultiCursor : public BaseCursor {
 public:
 	MultiCursor(Viewport *vp);
 
-	Rectangle32 rect;   ///< Rectangle with cursors.
+	Rectangle16 rect;   ///< Rectangle with cursors.
 	int16 zpos[10][10]; ///< Cached Z positions of the cursors (negative means not set).
 
-	bool SetCursor(const Rectangle32 &rect, CursorType type, bool always = false);
+	bool SetCursor(const Rectangle16 &rect, CursorType type, bool always = false);
 
 	void MarkDirty() override;
 	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;
@@ -186,7 +186,7 @@ public:
 
 	void ClearZPositions();
 	uint8 GetZpos(int xpos, int ypos);
-	void ResetZPosition(const Point32 &pos);
+	void ResetZPosition(const Point16 &pos);
 };
 
 /**

@@ -32,7 +32,7 @@ struct GroundData {
  * Map of voxels to ground modification data.
  * @ingroup map_group
  */
-typedef std::map<Point32, GroundData> GroundModificationMap;
+typedef std::map<Point16, GroundData> GroundModificationMap;
 
 /**
  * Store and manage terrain changes.
@@ -41,22 +41,22 @@ typedef std::map<Point32, GroundData> GroundModificationMap;
  */
 class TerrainChanges {
 public:
-	TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize);
+	TerrainChanges(const Point16 &base, uint16 xsize, uint16 ysize);
 	~TerrainChanges();
 
-	void UpdatelevellingHeight(const Point32 &pos, int direction, uint8 *height);
-	bool ChangeVoxel(const Point32 &pos, uint8 height, int direction);
-	bool ChangeCorner(const Point32 &pos, TileCorner corner, int direction);
+	void UpdatelevellingHeight(const Point16 &pos, int direction, uint8 *height);
+	bool ChangeVoxel(const Point16 &pos, uint8 height, int direction);
+	bool ChangeCorner(const Point16 &pos, TileCorner corner, int direction);
 	bool ModifyWorld(int direction);
 
 	GroundModificationMap changes; ///< Registered changes.
 
 private:
-	Point32 base; ///< Base position of the smooth changing world.
+	Point16 base; ///< Base position of the smooth changing world.
 	uint16 xsize; ///< Horizontal size of the smooth changing world.
 	uint16 ysize; ///< Vertical size of the smooth changing world.
 
-	GroundData *GetGroundData(const Point32 &pos);
+	GroundData *GetGroundData(const Point16 &pos);
 };
 
 /** State of the terraform coordinator. */

@@ -556,7 +556,7 @@ void MultiCursor::ClearZPositions()
  * Reset the cached height of a voxel in the area.
  * @param pos Position to reset (may be outside the cursor).
  */
-void MultiCursor::ResetZPosition(const Point32 &pos)
+void MultiCursor::ResetZPosition(const Point16 &pos)
 {
 	if (this->rect.IsPointInside(pos)) {
 		this->zpos[pos.x - this->rect.base.x][pos.y - this->rect.base.y] = -1;
@@ -598,7 +598,7 @@ CursorType MultiCursor::GetCursor(const XYZPoint16 &cursor_pos)
 {
 	if (this->type == CUR_TYPE_INVALID) return CUR_TYPE_INVALID;
 
-	Point32 pt(cursor_pos.x, cursor_pos.y);
+	Point16 pt(cursor_pos.x, cursor_pos.y);
 	if (!this->rect.IsPointInside(pt)) return CUR_TYPE_INVALID;
 	if (cursor_pos.z != this->GetZpos(cursor_pos.x, cursor_pos.y)) return CUR_TYPE_INVALID;
 	return CUR_TYPE_TILE;
@@ -608,7 +608,7 @@ uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	if (this->type == CUR_TYPE_INVALID) return zpos;
 
-	Point32 pt(xpos, ypos);
+	Point16 pt(xpos, ypos);
 	if (!this->rect.IsPointInside(pt)) return zpos;
 	return std::max(zpos, this->GetZpos(xpos, ypos));
 }
@@ -621,7 +621,7 @@ uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
  * @return Whether the function has set the cursor.
  * @note The \a rect should be non-empty, and less than 10x10 tiles.
  */
-bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool always)
+bool MultiCursor::SetCursor(const Rectangle16 &rect, CursorType type, bool always)
 {
 	if (type == CUR_TYPE_INVALID) {
 		if (!always && this->type == CUR_TYPE_INVALID) return false;
@@ -632,7 +632,7 @@ bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool alway
 	assert(type == CUR_TYPE_TILE);
 
 	/* Copy and sanitize cursor. */
-	Rectangle32 r(rect);
+	Rectangle16 r(rect);
 	r.RestrictTo(0, 0, static_cast<int>(_world.GetXSize()), static_cast<int>(_world.GetYSize()));
 	if (r.width > 10) r.width = 10;
 	if (r.height > 10) r.height = 10;
