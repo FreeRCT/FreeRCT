@@ -996,8 +996,9 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Fences */
+	uint16 fences = voxel->GetFences();
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		FenceType fence_type = voxel->GetFenceType(edge);
+		FenceType fence_type = GetFenceType(fences, edge);
 		if (fence_type != FENCE_TYPE_INVALID) {
 			DrawData dd;
 			dd.level = slice;

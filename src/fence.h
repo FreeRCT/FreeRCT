@@ -41,4 +41,7 @@ enum FenceType {
 /* 4 bits are used to store FenceType in the map array. */
 assert_compile(FENCE_TYPE_COUNT <= FENCE_TYPE_INVALID);
 
+/** %Fence data with #FENCE_TYPE_INVALID at all four edges. */
+static const uint16 ALL_INVALID_FENCES = FENCE_TYPE_INVALID | (FENCE_TYPE_INVALID << 4) | (FENCE_TYPE_INVALID << 8) | (FENCE_TYPE_INVALID << 12);
+
 #endif

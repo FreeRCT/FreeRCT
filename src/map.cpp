@@ -46,7 +46,7 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copy_voxel_objects)
 	dest->instance = src->instance;
 	dest->instance_data = src->instance_data;
 	dest->ground = src->ground;
-	dest->fence = src->fence;
+	dest->fences = src->fences;
 	if (copy_voxel_objects) CopyVoxelObjectList(dest, src);
 }
 
@@ -65,6 +65,16 @@ static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_ob
 		src++;
 		count--;
 	}
+}
+
+/** Make the voxel empty. */
+void Voxel::ClearVoxel()
+{
+	this->SetGroundType(GTP_INVALID);
+	this->SetFoundationType(FDT_INVALID);
+	this->SetGrowth(0);
+	this->SetFences(ALL_INVALID_FENCES);
+	this->ClearInstances();
 }
 
 /**
@@ -87,7 +97,7 @@ void Voxel::Load(Loader &ldr, uint32 version)
 			ldr.SetFailMessage("Unknown voxel instance data");
 		}
 
-		if (version == 2) this->fence = ldr.GetWord();
+		if (version == 2) this->fences = ldr.GetWord();
 	} else {
 		ldr.SetFailMessage("Unknown voxel version");
 	}
@@ -106,7 +116,7 @@ void Voxel::Save(Saver &svr) const
 	} else {
 		svr.PutByte(SRI_FREE); // Full rides save their own data from the world.
 	}
-	svr.PutWord(this->fence);
+	svr.PutWord(this->fences);
 }
 
 /**
