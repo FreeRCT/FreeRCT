@@ -271,7 +271,7 @@ protected:
 	void CollectVoxel(const Voxel *vx, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth) override;
 	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
 	CursorType GetCursorType(const XYZPoint16 &voxel_pos);
-	const ImageData *GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope, uint8 &yoffset);
+	const ImageData *GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
 	Point16 north_offsets[4];
@@ -763,12 +763,10 @@ CursorType SpriteCollector::GetCursorType(const XYZPoint16 &voxel_pos)
  * Get the cursor sprite at a given voxel.
  * @param voxel_pos Position of the voxel being drawn.
  * @param tslope Slope of the tile.
- * @param yoffset Offset in screen y coordinates for where to render the sprite related to given voxel.
  * @return Pointer to the cursor sprite, or \c nullptr if no cursor available.
  */
-const ImageData *SpriteCollector::GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope, uint8 &yoffset)
+const ImageData *SpriteCollector::GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope)
 {
-	yoffset = 0;
 	CursorType ctype = this->GetCursorType(voxel_pos);
 	switch (ctype) {
 		case CUR_TYPE_NORTH:
@@ -899,8 +897,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		CursorType ctype = this->GetCursorType(voxel_pos);
 		if (ctype == CUR_TYPE_INVALID) return;
 
-		uint8 cursor_yoffset = 0;
-		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, SL_FLAT, cursor_yoffset);
+		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, SL_FLAT);
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
@@ -908,7 +905,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.order = SO_CURSOR;
 			dd.sprite = mspr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-			dd.base.y = this->yoffset + ynorth - this->rect.base.y + cursor_yoffset;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
@@ -1044,8 +1041,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	/* Sprite cursor (arrow) */
 	CursorType ctype = this->GetCursorType(voxel_pos);
 	if (ctype != CUR_TYPE_INVALID) {
-		uint8 cursor_yoffset = 0;
-		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, gslope, cursor_yoffset);
+		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, gslope);
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
@@ -1054,7 +1050,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.order = SO_CURSOR;
 			dd.sprite = mspr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-			dd.base.y = this->yoffset + ynorth - this->rect.base.y + cursor_yoffset;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}

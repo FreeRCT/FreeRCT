@@ -143,35 +143,6 @@ public:
 	}
 
 	/**
-	 * Set the fence type of one of the four edges.
-	 * @param edge The edge to modify EDGE_NE..EDGE_NW
-	 * @return The fence type or FENCE_TYPE_INVALID if the edge has no fence
-	 * @note For steep slope all fences are stored in the top voxel. For non-steep
-	 * slope that have both corners raised, the fence type is stored in the voxel
-	 * above. This method will get what is stored in this voxel. You need to make
-	 * sure to call this method for the right voxel in the voxel stack.
-	 */
-	inline FenceType GetFenceType(TileEdge edge) const
-	{
-		return (FenceType)GB(this->fences, (edge & 3) * 4, 4);
-	}
-
-	/**
-	 * Set the fence type of one of the four edges.
-	 * @param edge The edge to modify EDGE_NE..EDGE_NW
-	 * @param fence_type The fence type to use or FENCE_TYPE_INVALID to disable fence of this edge
-	 * @note For steep slope all fences should be stored in the top voxel. For non-steep
-	 * slope that have both corners raised, the fence type should be stored in the voxel
-	 * above. This method will set the fence type of the given voxel. You need to make
-	 * sure to call this method for the right voxel in the voxel stack.
-	 */
-	inline void SetFenceType(TileEdge edge, FenceType fence_type)
-	{
-		assert(fence_type < FENCE_TYPE_COUNT || fence_type == FENCE_TYPE_INVALID);
-		SB(this->fences, (edge & 3) * 4, 4, fence_type & 0xF);
-	}
-
-	/**
 	 * Ground and foundations.
 	 * - bit  0.. 3 (4): Type of foundation. @see FoundationType
 	 * - bit  4.. 7 (4): Ground type. @see GroundType
