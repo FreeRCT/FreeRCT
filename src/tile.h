@@ -72,6 +72,8 @@ enum TileSlope {
 	TSB_SOUTHEAST = TSB_SOUTH | TSB_EAST, ///< Both south and east corners are raised.
 	TSB_SOUTHWEST = TSB_SOUTH | TSB_WEST, ///< Both south and west corners are raised.
 
+	TS_TOP_OFFSET = 4, ///< Offset of imploded steep top-slopes relative to their base slope.
+
 };
 DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
@@ -144,7 +146,7 @@ static inline bool IsImplodedSteepSlope(uint8 ts)
  */
 static inline bool IsImplodedSteepSlopeTop(uint8 ts)
 {
-	return ts >= 19;
+	return ts >= 15 + TS_TOP_OFFSET;
 }
 
 /**
@@ -240,8 +242,6 @@ extern const Point16 _exit_dxy[EDGE_COUNT];
 
 void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output);
 void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base);
-bool MayHaveGroundFenceInVoxelAbove(TileSlope slope);
-bool StoreFenceInUpperVoxel(TileSlope slope, TileEdge edge);
 TileEdge GetAdjacentEdge(int x1, int y1, int x2, int y2);
 
 #endif
