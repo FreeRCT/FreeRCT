@@ -660,6 +660,12 @@ protected:
 	VoxelStackMap modified_stacks; ///< Modified voxel stacks.
 };
 
+uint16 MergeGroundFencesAtBase(uint16 vxbase_fences, uint16 fences, uint8 base_tile_slope);
+bool HasTopVoxelFences(uint8 base_tile_slope);
+uint16 MergeGroundFencesAtTop(uint16 vxtop_fences, uint16 fences, uint8 base_tile_slope);
+void AddGroundFencesToMap(uint16 fences, VoxelStack *stack, int base_z);
+uint16 GetGroundFencesFromMap(const VoxelStack *stack, int base_z);
+
 extern VoxelWorld _world;
 extern WorldAdditions _additions;
 
