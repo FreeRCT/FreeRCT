@@ -603,8 +603,7 @@ uint16 GetGroundFencesFromMap(const VoxelStack *stack, int base_z)
 }
 
 /**
- * Add/remove land border fence based on current land ownership for the given
- * tile rectangle.
+ * Add/remove land border fence based on current land ownership for the given tile rectangle.
  * @param x Base X coordinate of the rectangle.
  * @param y Base Y coordinate of the rectangle.
  * @param width Length in X direction of the rectangle.
@@ -626,38 +625,29 @@ void UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height)
 			VoxelStack *vs = _world.GetModifyStack(ix, iy);
 			TileOwner owner = vs->owner;
 
-			for (int16 i = vs->height - 1; i >= 0; i--) {
-				Voxel &v = vs->voxels[i];
+			int16 height = vs->GetBaseGroundOffset() + vs->base;
+			uint16 fences = GetGroundFencesFromMap(vs, height);
+			for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+				FenceType ftype = GetFenceType(fences, edge);
+				/* Don't overwrite user-buildable fences. */
+				if (ftype >= FENCE_TYPE_BUILDABLE_BEGIN && ftype < FENCE_TYPE_COUNT) continue;
 
-				/* Only update border fence on the surface. */
-				if (v.GetGroundType() == GTP_INVALID) continue;
-				TileSlope slope =  ExpandTileSlope(v.GetGroundSlope());
-				if ((slope & TSB_TOP) != 0) continue; // Handle steep slopes at the bottom voxel
-
-				for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-					bool fence;
-					if (owner == OWN_PARK) {
-						fence = false;
-					} else {
-						if ((ix == 0 && _tile_dxy[edge].x == -1) || (iy == 0 && _tile_dxy[edge].y == -1)) continue;
-						uint16 neighbour_x = ix + _tile_dxy[edge].x;
-						uint16 neighbour_y = iy + _tile_dxy[edge].y;
-						if (neighbour_x >= _world.GetXSize() || neighbour_y >= _world.GetYSize()) continue;
-						TileOwner neighbour_owner = _world.GetTileOwner(neighbour_x, neighbour_y);
-						fence = neighbour_owner == OWN_PARK;
-					}
-
-					/* Only set/unset land border fence if the edge doesn't have some other fence type. */
-					Voxel *fence_voxel = StoreFenceInUpperVoxel(slope, edge) ? vs->GetCreate(i + 1, true) : &v;
-					FenceType curr_type = fence_voxel != nullptr ? fence_voxel->GetFenceType(edge) : FENCE_TYPE_INVALID;
-					if (curr_type != (fence ? FENCE_TYPE_LAND_BORDER : FENCE_TYPE_INVALID)) {
-						fence_voxel->SetFenceType(edge, fence ? FENCE_TYPE_LAND_BORDER : FENCE_TYPE_INVALID);
+				/* Decide whether a fence is needed (add a border fence just outside player-owned land). */
+				ftype = FENCE_TYPE_INVALID;
+				if (owner != OWN_PARK) {
+					const Point16 pt = _tile_dxy[edge];
+					if ((ix > 0 || pt.x >= 0) && (iy > 0 || pt.y >= 0)) {
+						uint16 nx = ix + pt.x;
+						uint16 ny = iy + pt.y;
+						if (nx < _world.GetXSize() && ny < _world.GetYSize() && _world.GetTileOwner(nx, ny) == OWN_PARK) {
+							ftype = FENCE_TYPE_LAND_BORDER;
+						}
 					}
 				}
 
-				/* There are no fences below ground. */
-				break;
+				fences = SetFenceType(fences, edge, ftype);
 			}
+			AddGroundFencesToMap(fences, vs, height);
 		}
 	}
 }
