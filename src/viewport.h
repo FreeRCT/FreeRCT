@@ -198,10 +198,8 @@ public:
 	EdgeCursor(Viewport *vp);
 
 	XYZPoint16 cursor_pos; ///< %Voxel position of the cursor.
-	const ImageData *sprite; ///< Cursor sprite.
-	uint8 yoffset; ///< Y offset for where to render the sprite on the screen.
 
-	bool SetCursor(const XYZPoint16 &cursor_pos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always = false);
+	bool SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always = false);
 
 	void MarkDirty() override;
 	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;

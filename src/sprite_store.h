@@ -491,15 +491,16 @@ public:
 	 * Get a fence sprite.
 	 * @param type FenceType of fence.
 	 * @param edge The edge of the voxel.
-	 * @param slope The exploded slope of the voxel.
+	 * @param tslope The imploded slope of the voxel.
 	 * @param orient Orientation.
 	 * @return Requested sprite if available.
 	 */
-	const ImageData *GetFenceSprite(FenceType type, TileEdge edge, TileSlope slope, ViewOrientation orient) const
+	const ImageData *GetFenceSprite(FenceType type, TileEdge edge, uint8 tslope, ViewOrientation orient) const
 	{
 		if (this->fence[type] == nullptr) return nullptr;
 
 		uint8 corner_height[4];
+		TileSlope slope = ExpandTileSlope(tslope);
 		ComputeCornerHeight(slope, (slope & TSB_TOP) != 0 ? 1 : 0, corner_height);
 
 		/*
