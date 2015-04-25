@@ -518,28 +518,27 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
  * The following functions interact with the map.
  * - #GetGroundFencesFromMap gets the fences at ground level from a voxel stack.
  * - #AddGroundFencesToMap sets the fences to a voxel stack.
- *
  */
 static const uint16 _fences_mask_at_base[] = {
-	0xFFFF, // Imploded ground slope  0
-	0xFFFF, // Imploded ground slope  1
-	0xFFFF, // Imploded ground slope  2
-	0xFFF0, // Imploded ground slope  3
-	0xFFFF, // Imploded ground slope  4
-	0xFFFF, // Imploded ground slope  5
-	0xFF0F, // Imploded ground slope  6
-	0xFF00, // Imploded ground slope  7
-	0xFFFF, // Imploded ground slope  8
-	0x0FFF, // Imploded ground slope  9
-	0xFFFF, // Imploded ground slope 10
-	0x0FF0, // Imploded ground slope 11
-	0xF0FF, // Imploded ground slope 12
-	0x00FF, // Imploded ground slope 13
-	0xF00F, // Imploded ground slope 14
-	0x0FF0, // Imploded ground slope 15 (base steep north)
-	0xFF00, // Imploded ground slope 16 (base steep east)
-	0xF00F, // Imploded ground slope 17 (base steep south)
-	0x00FF, // Imploded ground slope 18 (base steep west)
+	0xFFFF, // ISL_FLAT
+	0xFFFF, // ISL_NORTH
+	0xFFFF, // ISL_EAST
+	0xFFF0, // ISL_NORTH_EAST
+	0xFFFF, // ISL_SOUTH
+	0xFFFF, // ISL_NORTH_SOUTH
+	0xFF0F, // ISL_EAST_SOUTH
+	0xFF00, // ISL_NORTH_EAST_SOUTH
+	0xFFFF, // ISL_WEST
+	0x0FFF, // ISL_NORTH_WEST
+	0xFFFF, // ISL_EAST_WEST
+	0x0FF0, // ISL_NORTH_EAST_WEST
+	0xF0FF, // ISL_SOUTH_WEST
+	0x00FF, // ISL_NORTH_SOUTH_WEST
+	0xF00F, // ISL_EAST_SOUTH_WEST
+	0x0FF0, // ISL_BOTTOM_STEEP_NORTH
+	0xFF00, // ISL_BOTTOM_STEEP_EAST
+	0xF00F, // ISL_BOTTOM_STEEP_SOUTH
+	0x00FF, // ISL_BOTTOM_STEEP_WEST
 };
 
 /**
