@@ -137,9 +137,9 @@ public:
 	 * Set all the fences of the voxel.
 	 * @param fences Type of the fences at each edge.
 	 */
-	inline uint16 SetFences(uint16 fences)
+	inline void SetFences(uint16 fences)
 	{
-		return this->fences = fences;
+		this->fences = fences;
 	}
 
 	/**
