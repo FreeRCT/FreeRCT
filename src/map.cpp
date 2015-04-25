@@ -495,27 +495,51 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
 	return this->GetStack(x, y)->owner;
 }
 
-/** Map of imploded base ground slope to mask of fence nibbles at the base voxel. */
+/**
+ * At ground level of each voxel stack are 4 fences, one at each edge (ordered as #EDGE_NE .. # EDGE_NW).
+ * Due to slopes, some fences are at the bottom voxel (the base voxel) of the ground level, the other
+ * fences are at the top voxel. The rule for placement is
+ * - Both fences near the top edge of a steep slope are in the top voxel.
+ * - Both fences near the bottom edge of a steep slope are in the bottom voxel.
+ * - Fences on edges of non-steep slopes with both corners raised are in the top voxel.
+ * - Other fences of non-steep slopes are in the bottom voxel.
+ *
+ * Each voxel has the possibility to store 4 fences (one at each edge). In the general case with a
+ * base voxel and a top voxel, there are 8 positions for fences, where 4 of them are used to store
+ * ground level fences. Below is the mask for getting the fences at base voxel level, for each non-top slope.
+ * A \c 0xF nibble means the fence is stored in the base voxel, a \c 0x0 nibble means the fence is stored
+ * in the top voxel. (Top-slopes make no sense to include here, as they only describe the top voxel.)
+ *
+ * To work with the masks, the following functions exist:
+ * - #MergeGroundFencesAtBase sets the given fences for the base voxel.
+ * - #HasTopVoxelFences tells whether the slope has any fences in the top voxel (that is, does it have a top voxel at all?)
+ * - #MergeGroundFencesAtTop sets the given fences for the top voxel.
+ *
+ * The following functions interact with the map.
+ * - #GetGroundFencesFromMap gets the fences at ground level from a voxel stack.
+ * - #AddGroundFencesToMap sets the fences to a voxel stack.
+ *
+ */
 static const uint16 _fences_mask_at_base[] = {
-	0xFFFF, //  0
-	0xFFFF, //  1
-	0xFFFF, //  2
-	0xFFF0, //  3
-	0xFFFF, //  4
-	0xFFFF, //  5
-	0xFF0F, //  6
-	0xFF00, //  7
-	0xFFFF, //  8
-	0x0FFF, //  9
-	0xFFFF, // 10
-	0x0FF0, // 11
-	0xF0FF, // 12
-	0x00FF, // 13
-	0xF00F, // 14
-	0x0FF0, // 15 base steep north
-	0xFF00, // 16 base steep east
-	0xF00F, // 17 base steep south
-	0x00FF, // 18 base steep west
+	0xFFFF, // Imploded ground slope  0
+	0xFFFF, // Imploded ground slope  1
+	0xFFFF, // Imploded ground slope  2
+	0xFFF0, // Imploded ground slope  3
+	0xFFFF, // Imploded ground slope  4
+	0xFFFF, // Imploded ground slope  5
+	0xFF0F, // Imploded ground slope  6
+	0xFF00, // Imploded ground slope  7
+	0xFFFF, // Imploded ground slope  8
+	0x0FFF, // Imploded ground slope  9
+	0xFFFF, // Imploded ground slope 10
+	0x0FF0, // Imploded ground slope 11
+	0xF0FF, // Imploded ground slope 12
+	0x00FF, // Imploded ground slope 13
+	0xF00F, // Imploded ground slope 14
+	0x0FF0, // Imploded ground slope 15 (base steep north)
+	0xFF00, // Imploded ground slope 16 (base steep east)
+	0xF00F, // Imploded ground slope 17 (base steep south)
+	0x00FF, // Imploded ground slope 18 (base steep west)
 };
 
 /**
@@ -529,8 +553,8 @@ uint16 MergeGroundFencesAtBase(uint16 vxbase_fences, uint16 fences, uint8 base_t
 {
 	assert(base_tile_slope < lengthof(_fences_mask_at_base)); // Top steep slopes are not allowed.
 	uint16 mask = _fences_mask_at_base[base_tile_slope];
-	fences &= mask;
-	mask ^= 0xFFFF;
+	fences &= mask; // Kill any fence not in the base voxel.
+	mask ^= 0xFFFF; // Swap mask to keep only non-fences of the current voxel data.
 	return (vxbase_fences & mask) | fences;
 }
 
@@ -556,8 +580,8 @@ uint16 MergeGroundFencesAtTop(uint16 vxtop_fences, uint16 fences, uint8 base_til
 {
 	assert(base_tile_slope < lengthof(_fences_mask_at_base)); // Top steep slopes are not allowed.
 	uint16 mask = _fences_mask_at_base[base_tile_slope];
-	vxtop_fences &= mask;
-	mask ^= 0xFFFF;
+	vxtop_fences &= mask; // Keep fences of top voxel that are at ground level in the base voxel.
+	mask ^= 0xFFFF; // Swap mask to keep fences that belong in the top voxel.
 	return (fences & mask) | vxtop_fences;
 }
 
@@ -592,12 +616,12 @@ uint16 GetGroundFencesFromMap(const VoxelStack *stack, int base_z)
 
 	assert(slope < lengthof(_fences_mask_at_base)); // Top steep slopes are not allowed.
 	uint16 mask = _fences_mask_at_base[slope];
-	uint16 fences = v->GetFences() & mask;
+	uint16 fences = v->GetFences() & mask; // Get ground level fences of the base voxel.
 	if (HasTopVoxelFences(slope)) {
 		v = stack->Get(base_z + 1);
 		uint top_fences = (v != nullptr) ? v->GetFences() : ALL_INVALID_FENCES;
-		mask ^= 0xFFFF;
-		fences |= top_fences & mask;
+		mask ^= 0xFFFF; // Swap all bits to top voxel mask.
+		fences |= top_fences & mask; // Add fences of the top voxel.
 	}
 	return fences;
 }
