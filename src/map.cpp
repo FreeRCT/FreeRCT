@@ -85,7 +85,7 @@ void Voxel::ClearVoxel()
 void Voxel::Load(Loader &ldr, uint32 version)
 {
 	this->ClearVoxel();
-	if (version == 1 || version == 2) {
+	if (version >= 1 && version <= 3) {
 		this->ground = ldr.GetLong(); /// \todo Check sanity of the data.
 		this->instance = ldr.GetByte();
 		if (this->instance == SRI_FREE) {
@@ -97,7 +97,7 @@ void Voxel::Load(Loader &ldr, uint32 version)
 			ldr.SetFailMessage("Unknown voxel instance data");
 		}
 
-		if (version == 2) this->fences = ldr.GetWord();
+		if (version >= 2) this->fences = ldr.GetWord();
 	} else {
 		ldr.SetFailMessage("Unknown voxel version");
 	}
@@ -408,7 +408,7 @@ void VoxelStack::Load(Loader &ldr)
 {
 	this->Clear();
 	uint32 version = ldr.OpenBlock("VSTK");
-	if (version == 1 || version == 2) {
+	if (version >= 1 && version <= 3) {
 		int16 base = ldr.GetWord();
 		uint16 height = ldr.GetWord();
 		uint8 owner = ldr.GetByte();
@@ -421,6 +421,37 @@ void VoxelStack::Load(Loader &ldr)
 			delete[] this->voxels;
 			this->voxels = (height > 0) ? MakeNewVoxels(height) : nullptr;
 			for (uint i = 0; i < height; i++) this->voxels[i].Load(ldr, version);
+
+			/* In version 3 of VSTK, the fences of the lowest corner of steep slopes have moved from the top voxel to the base voxel. */
+			if (version < 3) {
+
+				static const uint16 low_fences_mask[4] = { // Mask for getting the low fences.
+					(0xf << (4 * EDGE_SE)) | (0xf << (4 * EDGE_SW)), // ISL_TOP_STEEP_NORTH
+					(0xf << (4 * EDGE_SW)) | (0xf << (4 * EDGE_NW)), // ISL_TOP_STEEP_EAST
+					(0xf << (4 * EDGE_NW)) | (0xf << (4 * EDGE_NE)), // ISL_TOP_STEEP_SOUTH
+					(0xf << (4 * EDGE_NE)) | (0xf << (4 * EDGE_SE)), // ISL_TOP_STEEP_WEST
+				};
+
+				for (uint i = 0; i < height; i++) {
+					if (this->voxels[i].GetGroundType() == GTP_INVALID) continue;
+					if (!IsImplodedSteepSlopeTop(this->voxels[i].GetGroundSlope())) continue;
+					uint16 mask = low_fences_mask[this->voxels[i].GetGroundSlope() - ISL_TOP_STEEP_NORTH];
+
+					/* Take out the fences of the top voxel that should be in the base voxel.
+					 * Make the low fences in the high voxel invalid. */
+					uint16 fences = this->voxels[i].GetFences();
+					uint16 lower_fences = fences & mask;
+					uint16 high_invalid = ALL_INVALID_FENCES & mask;
+					mask ^= 0xffff;
+					this->voxels[i].SetFences(high_invalid | (fences & mask));
+
+					/* Fix low fences. */
+					fences = this->voxels[i + 1].GetFences();
+					this->voxels[i + 1].SetFences(lower_fences | (fences & mask));
+
+					break; // Only one steep ground slope in a voxel stack at most.
+				}
+			}
 		}
 	}
 	ldr.CloseBlock();
@@ -432,7 +463,7 @@ void VoxelStack::Load(Loader &ldr)
  */
 void VoxelStack::Save(Saver &svr) const
 {
-	svr.StartBlock("VSTK", 2);
+	svr.StartBlock("VSTK", 3);
 	svr.PutWord(this->base);
 	svr.PutWord(this->height);
 	svr.PutByte(this->owner);
