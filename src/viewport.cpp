@@ -270,7 +270,8 @@ public:
 protected:
 	void CollectVoxel(const Voxel *vx, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth) override;
 	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
-	const ImageData *GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope, uint8 &yoffset);
+	CursorType GetCursorType(const XYZPoint16 &voxel_pos);
+	const ImageData *GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
 	Point16 north_offsets[4];
@@ -556,7 +557,7 @@ void MultiCursor::ClearZPositions()
  * Reset the cached height of a voxel in the area.
  * @param pos Position to reset (may be outside the cursor).
  */
-void MultiCursor::ResetZPosition(const Point32 &pos)
+void MultiCursor::ResetZPosition(const Point16 &pos)
 {
 	if (this->rect.IsPointInside(pos)) {
 		this->zpos[pos.x - this->rect.base.x][pos.y - this->rect.base.y] = -1;
@@ -598,7 +599,7 @@ CursorType MultiCursor::GetCursor(const XYZPoint16 &cursor_pos)
 {
 	if (this->type == CUR_TYPE_INVALID) return CUR_TYPE_INVALID;
 
-	Point32 pt(cursor_pos.x, cursor_pos.y);
+	Point16 pt(cursor_pos.x, cursor_pos.y);
 	if (!this->rect.IsPointInside(pt)) return CUR_TYPE_INVALID;
 	if (cursor_pos.z != this->GetZpos(cursor_pos.x, cursor_pos.y)) return CUR_TYPE_INVALID;
 	return CUR_TYPE_TILE;
@@ -608,7 +609,7 @@ uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
 	if (this->type == CUR_TYPE_INVALID) return zpos;
 
-	Point32 pt(xpos, ypos);
+	Point16 pt(xpos, ypos);
 	if (!this->rect.IsPointInside(pt)) return zpos;
 	return std::max(zpos, this->GetZpos(xpos, ypos));
 }
@@ -621,7 +622,7 @@ uint8 MultiCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
  * @return Whether the function has set the cursor.
  * @note The \a rect should be non-empty, and less than 10x10 tiles.
  */
-bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool always)
+bool MultiCursor::SetCursor(const Rectangle16 &rect, CursorType type, bool always)
 {
 	if (type == CUR_TYPE_INVALID) {
 		if (!always && this->type == CUR_TYPE_INVALID) return false;
@@ -632,7 +633,7 @@ bool MultiCursor::SetCursor(const Rectangle32 &rect, CursorType type, bool alway
 	assert(type == CUR_TYPE_TILE);
 
 	/* Copy and sanitize cursor. */
-	Rectangle32 r(rect);
+	Rectangle16 r(rect);
 	r.RestrictTo(0, 0, static_cast<int>(_world.GetXSize()), static_cast<int>(_world.GetYSize()));
 	if (r.width > 10) r.width = 10;
 	if (r.height > 10) r.height = 10;
@@ -675,8 +676,12 @@ void EdgeCursor::MarkDirty()
  */
 CursorType EdgeCursor::GetCursor(const XYZPoint16 &cursor_pos)
 {
-	if (this->cursor_pos != cursor_pos) return CUR_TYPE_INVALID;
-	return this->type;
+	if (this->type < CUR_TYPE_EDGE_NE || this->type > CUR_TYPE_EDGE_NW) return CUR_TYPE_INVALID;
+	if (this->cursor_pos.x != cursor_pos.x || this->cursor_pos.y != cursor_pos.y) return CUR_TYPE_INVALID;
+	/* Edge cursor lives at two z positions, to allow fences to be placed in the upper voxel. */
+	if (this->cursor_pos.z == cursor_pos.z) return this->type;
+	if (this->cursor_pos.z + 1 == cursor_pos.z) return this->type;
+	return CUR_TYPE_INVALID;
 }
 
 uint8 EdgeCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
@@ -690,19 +695,15 @@ uint8 EdgeCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
  * Set a cursor.
  * @param cursor_pos Position of the voxel containing the cursor.
  * @param type Type of cursor to set.
- * @param sprite Sprite to display.
- * @param yoffset Offset in screen y coordinates for where to render the sprite related to given voxel.
  * @param always Always set the cursor (else, only set it if it changed).
  * @return %Cursor has been set/changed.
  */
-bool EdgeCursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, const ImageData *sprite, uint8 yoffset, bool always)
+bool EdgeCursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always)
 {
 	if (!always && this->cursor_pos == cursor_pos && this->type == type) return false;
 	this->MarkDirty();
 	this->cursor_pos = cursor_pos;
 	this->type = type;
-	this->sprite = sprite;
-	this->yoffset = yoffset;
 	this->MarkDirty();
 	return true;
 }
@@ -748,18 +749,25 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 }
 
 /**
+ * Get the cursor type at the given voxel.
+ * @param voxel_pos Position of the voxel.
+ * @return Type of the cursor to display.
+ */
+CursorType SpriteCollector::GetCursorType(const XYZPoint16 &voxel_pos)
+{
+	if (!this->enable_cursors) return CUR_TYPE_INVALID;
+	return this->vp->GetCursorAtPos(voxel_pos);
+}
+
+/**
  * Get the cursor sprite at a given voxel.
  * @param voxel_pos Position of the voxel being drawn.
  * @param tslope Slope of the tile.
- * @param yoffset Offset in screen y coordinates for where to render the sprite related to given voxel.
  * @return Pointer to the cursor sprite, or \c nullptr if no cursor available.
  */
-const ImageData *SpriteCollector::GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope, uint8 &yoffset)
+const ImageData *SpriteCollector::GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope)
 {
-	yoffset = 0;
-	if (!this->enable_cursors) return nullptr;
-
-	CursorType ctype = this->vp->GetCursorAtPos(voxel_pos);
+	CursorType ctype = this->GetCursorType(voxel_pos);
 	switch (ctype) {
 		case CUR_TYPE_NORTH:
 		case CUR_TYPE_EAST:
@@ -782,12 +790,27 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(const XYZPoint16 &voxel_p
 		case CUR_TYPE_EDGE_SE:
 		case CUR_TYPE_EDGE_SW:
 		case CUR_TYPE_EDGE_NW: {
-			Viewport *vp = GetViewport();
-			if (vp != nullptr) {
-				yoffset = vp->edge_cursor.yoffset;
-				return vp->edge_cursor.sprite;
+			/* Edge cursor exists at two voxels, check whether the sprite needs to be drawn in the base or in the top voxel. */
+			TileEdge edge = static_cast<TileEdge>(ctype - CUR_TYPE_EDGE_NE);
+			TileEdge unrot_edge = static_cast<TileEdge>((4 + edge - this->orient) & 3);
+			uint16 fences = SetFenceType(ALL_INVALID_FENCES, unrot_edge, _fence_builder.GetSelectedFenceType());
+			uint8 unrot_tslope = _slope_rotation[tslope][this->orient];
+
+			if (this->vp->edge_cursor.cursor_pos.z == voxel_pos.z) {
+				/* Base voxel of the ground is being drawn. */
+				fences = MergeGroundFencesAtBase(ALL_INVALID_FENCES, fences, unrot_tslope);
+				if (GetFenceType(fences, unrot_edge) == FENCE_TYPE_INVALID) return nullptr;
+			} else {
+				/* Top voxel of the ground is being drawn.
+				 * The code relies on getting the slope from the voxel below instead of having the fences themselves available.
+				 * For this reason, you cannot draw fences at raised edges of non-steep tiles with the cursor code.
+				 */
+				uint8 nontop_slope = unrot_tslope - (IsImplodedSteepSlope(unrot_tslope) ? TS_TOP_OFFSET : 0);
+				if (!HasTopVoxelFences(nontop_slope)) return nullptr;
+				fences = MergeGroundFencesAtTop(ALL_INVALID_FENCES, fences, nontop_slope);
+				if (GetFenceType(fences, unrot_edge) == FENCE_TYPE_INVALID) return nullptr;
 			}
-			return nullptr;
+			return this->sprites->GetFenceSprite(_fence_builder.GetSelectedFenceType(), edge, tslope, this->orient);
 		}
 
 		default:
@@ -871,8 +894,10 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	if (voxel == nullptr) { // Draw cursor above stack.
-		uint8 yoffset = 0;
-		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, SL_FLAT, yoffset);
+		CursorType ctype = this->GetCursorType(voxel_pos);
+		if (ctype == CUR_TYPE_INVALID) return;
+
+		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, SL_FLAT);
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
@@ -880,7 +905,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.order = SO_CURSOR;
 			dd.sprite = mspr;
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-			dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
@@ -996,45 +1021,39 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Fences */
+	uint16 fences = voxel->GetFences();
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		FenceType fence_type = voxel->GetFenceType(edge);
+		FenceType fence_type = GetFenceType(fences, edge);
 		if (fence_type != FENCE_TYPE_INVALID) {
 			DrawData dd;
 			dd.level = slice;
 			dd.z_height = voxel_pos.z;
+			if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
 			dd.order = (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT;
-			TileSlope slope = ExpandTileSlope(voxel->GetGroundSlope());
-			dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, slope, this->orient);
-			int32 extra_y = 0;
-			if ((slope & TSB_STEEP) != 0) {
-				/* Is lower edge of steep slope? */
-				uint8 corner_height[4];
-				ComputeCornerHeight(slope, (slope & TSB_TOP) != 0 ? 1 : 0, corner_height);
-				if (corner_height[edge] == 0 || corner_height[(edge+1) % 4] == 0) {
-
-					extra_y = this->tile_height;
-				}
- 			}
+			dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient);
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-			dd.base.y = this->yoffset + ynorth - this->rect.base.y + extra_y;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
 	}
 
 	/* Sprite cursor (arrow) */
-	uint8 cursor_yoffset = 0;
-	const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, gslope, cursor_yoffset);
-	if (mspr != nullptr) {
-		DrawData dd;
-		dd.level = slice;
-		dd.z_height = voxel_pos.z;
-		dd.order = SO_CURSOR;
-		dd.sprite = mspr;
-		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-		dd.base.y = this->yoffset + ynorth - this->rect.base.y + cursor_yoffset;
-		dd.recolour = nullptr;
-		this->draw_images.insert(dd);
+	CursorType ctype = this->GetCursorType(voxel_pos);
+	if (ctype != CUR_TYPE_INVALID) {
+		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, gslope);
+		if (mspr != nullptr) {
+			DrawData dd;
+			dd.level = slice;
+			dd.z_height = voxel_pos.z;
+			if (ctype >= CUR_TYPE_EDGE_NE && ctype <= CUR_TYPE_EDGE_NW && IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
+			dd.order = SO_CURSOR;
+			dd.sprite = mspr;
+			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+			dd.recolour = nullptr;
+			this->draw_images.insert(dd);
+		}
 	}
 
 	/* Add platforms. */

@@ -46,7 +46,7 @@ static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copy_voxel_objects)
 	dest->instance = src->instance;
 	dest->instance_data = src->instance_data;
 	dest->ground = src->ground;
-	dest->fence = src->fence;
+	dest->fences = src->fences;
 	if (copy_voxel_objects) CopyVoxelObjectList(dest, src);
 }
 
@@ -67,6 +67,16 @@ static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_ob
 	}
 }
 
+/** Make the voxel empty. */
+void Voxel::ClearVoxel()
+{
+	this->SetGroundType(GTP_INVALID);
+	this->SetFoundationType(FDT_INVALID);
+	this->SetGrowth(0);
+	this->SetFences(ALL_INVALID_FENCES);
+	this->ClearInstances();
+}
+
 /**
  * Load a voxel from the save game.
  * @param ldr Input stream to read.
@@ -75,7 +85,7 @@ static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_ob
 void Voxel::Load(Loader &ldr, uint32 version)
 {
 	this->ClearVoxel();
-	if (version == 1 || version == 2) {
+	if (version >= 1 && version <= 3) {
 		this->ground = ldr.GetLong(); /// \todo Check sanity of the data.
 		this->instance = ldr.GetByte();
 		if (this->instance == SRI_FREE) {
@@ -87,7 +97,7 @@ void Voxel::Load(Loader &ldr, uint32 version)
 			ldr.SetFailMessage("Unknown voxel instance data");
 		}
 
-		if (version == 2) this->fence = ldr.GetWord();
+		if (version >= 2) this->fences = ldr.GetWord();
 	} else {
 		ldr.SetFailMessage("Unknown voxel version");
 	}
@@ -106,7 +116,7 @@ void Voxel::Save(Saver &svr) const
 	} else {
 		svr.PutByte(SRI_FREE); // Full rides save their own data from the world.
 	}
-	svr.PutWord(this->fence);
+	svr.PutWord(this->fences);
 }
 
 /**
@@ -398,7 +408,7 @@ void VoxelStack::Load(Loader &ldr)
 {
 	this->Clear();
 	uint32 version = ldr.OpenBlock("VSTK");
-	if (version == 1 || version == 2) {
+	if (version >= 1 && version <= 3) {
 		int16 base = ldr.GetWord();
 		uint16 height = ldr.GetWord();
 		uint8 owner = ldr.GetByte();
@@ -411,6 +421,37 @@ void VoxelStack::Load(Loader &ldr)
 			delete[] this->voxels;
 			this->voxels = (height > 0) ? MakeNewVoxels(height) : nullptr;
 			for (uint i = 0; i < height; i++) this->voxels[i].Load(ldr, version);
+
+			/* In version 3 of VSTK, the fences of the lowest corner of steep slopes have moved from the top voxel to the base voxel. */
+			if (version < 3) {
+
+				static const uint16 low_fences_mask[4] = { // Mask for getting the low fences.
+					(0xf << (4 * EDGE_SE)) | (0xf << (4 * EDGE_SW)), // ISL_TOP_STEEP_NORTH
+					(0xf << (4 * EDGE_SW)) | (0xf << (4 * EDGE_NW)), // ISL_TOP_STEEP_EAST
+					(0xf << (4 * EDGE_NW)) | (0xf << (4 * EDGE_NE)), // ISL_TOP_STEEP_SOUTH
+					(0xf << (4 * EDGE_NE)) | (0xf << (4 * EDGE_SE)), // ISL_TOP_STEEP_WEST
+				};
+
+				for (uint i = 0; i < height; i++) {
+					if (this->voxels[i].GetGroundType() == GTP_INVALID) continue;
+					if (!IsImplodedSteepSlopeTop(this->voxels[i].GetGroundSlope())) continue;
+					uint16 mask = low_fences_mask[this->voxels[i].GetGroundSlope() - ISL_TOP_STEEP_NORTH];
+
+					/* Take out the fences of the top voxel that should be in the base voxel.
+					 * Make the low fences in the high voxel invalid. */
+					uint16 fences = this->voxels[i].GetFences();
+					uint16 lower_fences = fences & mask;
+					uint16 high_invalid = ALL_INVALID_FENCES & mask;
+					mask ^= 0xffff;
+					this->voxels[i].SetFences(high_invalid | (fences & mask));
+
+					/* Fix low fences. */
+					fences = this->voxels[i + 1].GetFences();
+					this->voxels[i + 1].SetFences(lower_fences | (fences & mask));
+
+					break; // Only one steep ground slope in a voxel stack at most.
+				}
+			}
 		}
 	}
 	ldr.CloseBlock();
@@ -422,7 +463,7 @@ void VoxelStack::Load(Loader &ldr)
  */
 void VoxelStack::Save(Saver &svr) const
 {
-	svr.StartBlock("VSTK", 2);
+	svr.StartBlock("VSTK", 3);
 	svr.PutWord(this->base);
 	svr.PutWord(this->height);
 	svr.PutByte(this->owner);
@@ -486,8 +527,137 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
 }
 
 /**
- * Add/remove land border fence based on current land ownership for the given
- * tile rectangle.
+ * At ground level of each voxel stack are 4 fences, one at each edge (ordered as #EDGE_NE .. # EDGE_NW).
+ * Due to slopes, some fences are at the bottom voxel (the base voxel) of the ground level, the other
+ * fences are at the top voxel. The rule for placement is
+ * - Both fences near the top edge of a steep slope are in the top voxel.
+ * - Both fences near the bottom edge of a steep slope are in the bottom voxel.
+ * - Fences on edges of non-steep slopes with both corners raised are in the top voxel.
+ * - Other fences of non-steep slopes are in the bottom voxel.
+ *
+ * Each voxel has the possibility to store 4 fences (one at each edge). In the general case with a
+ * base voxel and a top voxel, there are 8 positions for fences, where 4 of them are used to store
+ * ground level fences. Below is the mask for getting the fences at base voxel level, for each non-top slope.
+ * A \c 0xF nibble means the fence is stored in the base voxel, a \c 0x0 nibble means the fence is stored
+ * in the top voxel. (Top-slopes make no sense to include here, as they only describe the top voxel.)
+ *
+ * To work with the masks, the following functions exist:
+ * - #MergeGroundFencesAtBase sets the given fences for the base voxel.
+ * - #HasTopVoxelFences tells whether the slope has any fences in the top voxel (that is, does it have a top voxel at all?)
+ * - #MergeGroundFencesAtTop sets the given fences for the top voxel.
+ *
+ * The following functions interact with the map.
+ * - #GetGroundFencesFromMap gets the fences at ground level from a voxel stack.
+ * - #AddGroundFencesToMap sets the fences to a voxel stack.
+ */
+static const uint16 _fences_mask_at_base[] = {
+	0xFFFF, // ISL_FLAT
+	0xFFFF, // ISL_NORTH
+	0xFFFF, // ISL_EAST
+	0xFFF0, // ISL_NORTH_EAST
+	0xFFFF, // ISL_SOUTH
+	0xFFFF, // ISL_NORTH_SOUTH
+	0xFF0F, // ISL_EAST_SOUTH
+	0xFF00, // ISL_NORTH_EAST_SOUTH
+	0xFFFF, // ISL_WEST
+	0x0FFF, // ISL_NORTH_WEST
+	0xFFFF, // ISL_EAST_WEST
+	0x0FF0, // ISL_NORTH_EAST_WEST
+	0xF0FF, // ISL_SOUTH_WEST
+	0x00FF, // ISL_NORTH_SOUTH_WEST
+	0xF00F, // ISL_EAST_SOUTH_WEST
+	0x0FF0, // ISL_BOTTOM_STEEP_NORTH
+	0xFF00, // ISL_BOTTOM_STEEP_EAST
+	0xF00F, // ISL_BOTTOM_STEEP_SOUTH
+	0x00FF, // ISL_BOTTOM_STEEP_WEST
+};
+
+/**
+ * Set the ground fences at a base ground voxel.
+ * @param vxbase_fences %Voxel fences data of the base ground voxel.
+ * @param fences Ground fences of the voxel stack.
+ * @param base_tile_slope Slope of the ground.
+ * @return The merged ground fences of the \a vxbase_fences. Non-ground fences are preserved.
+ */
+uint16 MergeGroundFencesAtBase(uint16 vxbase_fences, uint16 fences, uint8 base_tile_slope)
+{
+	assert(base_tile_slope < lengthof(_fences_mask_at_base)); // Top steep slopes are not allowed.
+	uint16 mask = _fences_mask_at_base[base_tile_slope];
+	fences &= mask; // Kill any fence not in the base voxel.
+	mask ^= 0xFFFF; // Swap mask to keep only non-fences of the current voxel data.
+	return (vxbase_fences & mask) | fences;
+}
+
+/**
+ * Whether the ground tile slope has fences in the top voxel.
+ * @param base_tile_slope Slope of the ground.
+ * @return Whether there are any ground fences to be set in the top voxel.
+ */
+bool HasTopVoxelFences(uint8 base_tile_slope)
+{
+	return _fences_mask_at_base[base_tile_slope] != 0xFFFF;
+}
+
+/**
+ * Set the ground fences at a top ground voxel.
+ * @param vxtop_fences %Voxel fences data of the top ground voxel.
+ * @param fences Ground fences of the voxel stack.
+ * @param base_tile_slope Slope of the ground.
+ * @return The merged ground fences of the \a vxtop_fences. Non-ground fences are preserved.
+ * @note If there is no top voxel, use #ALL_INVALID_FENCES as \a vxtop_fences value.
+ */
+uint16 MergeGroundFencesAtTop(uint16 vxtop_fences, uint16 fences, uint8 base_tile_slope)
+{
+	assert(base_tile_slope < lengthof(_fences_mask_at_base)); // Top steep slopes are not allowed.
+	uint16 mask = _fences_mask_at_base[base_tile_slope];
+	vxtop_fences &= mask; // Keep fences of top voxel that are at ground level in the base voxel.
+	mask ^= 0xFFFF; // Swap mask to keep fences that belong in the top voxel.
+	return (fences & mask) | vxtop_fences;
+}
+
+/**
+ * Set the ground fences of a voxel stack.
+ * @param fences Ground fences to set.
+ * @param stack The voxel stack to assign to.
+ * @param base_z Height of the base voxel.
+ */
+void AddGroundFencesToMap(uint16 fences, VoxelStack *stack, int base_z)
+{
+	Voxel *v = stack->GetCreate(base_z, false); // It should have ground at least.
+	assert(v->GetGroundType() != GTP_INVALID);
+	uint8 slope = v->GetGroundSlope();
+
+	v->SetFences(MergeGroundFencesAtBase(v->GetFences(), fences, slope));
+	v = stack->GetCreate(base_z + 1, HasTopVoxelFences(slope));
+	if (v != nullptr) v->SetFences(MergeGroundFencesAtTop(v->GetFences(), fences, slope));
+}
+
+/**
+ * Get the ground fences of the given voxel stack.
+ * @param stack The voxel stack to query.
+ * @param base_z Height of the ground.
+ * @return Fences at the edges of the ground in the queried voxel stack.
+ */
+uint16 GetGroundFencesFromMap(const VoxelStack *stack, int base_z)
+{
+	const Voxel *v = stack->Get(base_z);
+	assert(v->GetGroundType() != GTP_INVALID);
+	uint8 slope = v->GetGroundSlope();
+
+	assert(slope < lengthof(_fences_mask_at_base)); // Top steep slopes are not allowed.
+	uint16 mask = _fences_mask_at_base[slope];
+	uint16 fences = v->GetFences() & mask; // Get ground level fences of the base voxel.
+	if (HasTopVoxelFences(slope)) {
+		v = stack->Get(base_z + 1);
+		uint top_fences = (v != nullptr) ? v->GetFences() : ALL_INVALID_FENCES;
+		mask ^= 0xFFFF; // Swap all bits to top voxel mask.
+		fences |= top_fences & mask; // Add fences of the top voxel.
+	}
+	return fences;
+}
+
+/**
+ * Add/remove land border fence based on current land ownership for the given tile rectangle.
  * @param x Base X coordinate of the rectangle.
  * @param y Base Y coordinate of the rectangle.
  * @param width Length in X direction of the rectangle.
@@ -509,38 +679,29 @@ void UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height)
 			VoxelStack *vs = _world.GetModifyStack(ix, iy);
 			TileOwner owner = vs->owner;
 
-			for (int16 i = vs->height - 1; i >= 0; i--) {
-				Voxel &v = vs->voxels[i];
+			int16 height = vs->GetBaseGroundOffset() + vs->base;
+			uint16 fences = GetGroundFencesFromMap(vs, height);
+			for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+				FenceType ftype = GetFenceType(fences, edge);
+				/* Don't overwrite user-buildable fences. */
+				if (ftype >= FENCE_TYPE_BUILDABLE_BEGIN && ftype < FENCE_TYPE_COUNT) continue;
 
-				/* Only update border fence on the surface. */
-				if (v.GetGroundType() == GTP_INVALID) continue;
-				TileSlope slope =  ExpandTileSlope(v.GetGroundSlope());
-				if ((slope & TSB_TOP) != 0) continue; // Handle steep slopes at the bottom voxel
-
-				for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-					bool fence;
-					if (owner == OWN_PARK) {
-						fence = false;
-					} else {
-						if ((ix == 0 && _tile_dxy[edge].x == -1) || (iy == 0 && _tile_dxy[edge].y == -1)) continue;
-						uint16 neighbour_x = ix + _tile_dxy[edge].x;
-						uint16 neighbour_y = iy + _tile_dxy[edge].y;
-						if (neighbour_x >= _world.GetXSize() || neighbour_y >= _world.GetYSize()) continue;
-						TileOwner neighbour_owner = _world.GetTileOwner(neighbour_x, neighbour_y);
-						fence = neighbour_owner == OWN_PARK;
-					}
-
-					/* Only set/unset land border fence if the edge doesn't have some other fence type. */
-					Voxel *fence_voxel = StoreFenceInUpperVoxel(slope, edge) ? vs->GetCreate(i + 1, true) : &v;
-					FenceType curr_type = fence_voxel != nullptr ? fence_voxel->GetFenceType(edge) : FENCE_TYPE_INVALID;
-					if (curr_type != (fence ? FENCE_TYPE_LAND_BORDER : FENCE_TYPE_INVALID)) {
-						fence_voxel->SetFenceType(edge, fence ? FENCE_TYPE_LAND_BORDER : FENCE_TYPE_INVALID);
+				/* Decide whether a fence is needed (add a border fence just outside player-owned land). */
+				ftype = FENCE_TYPE_INVALID;
+				if (owner != OWN_PARK) {
+					const Point16 pt = _tile_dxy[edge];
+					if ((ix > 0 || pt.x >= 0) && (iy > 0 || pt.y >= 0)) {
+						uint16 nx = ix + pt.x;
+						uint16 ny = iy + pt.y;
+						if (nx < _world.GetXSize() && ny < _world.GetYSize() && _world.GetTileOwner(nx, ny) == OWN_PARK) {
+							ftype = FENCE_TYPE_LAND_BORDER;
+						}
 					}
 				}
 
-				/* There are no fences below ground. */
-				break;
+				fences = SetFenceType(fences, edge, ftype);
 			}
+			AddGroundFencesToMap(fences, vs, height);
 		}
 	}
 }

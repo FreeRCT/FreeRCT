@@ -114,35 +114,32 @@ public:
 		this->instance_data = instance_data;
 	}
 
-	uint16 fence; ///< 4 bits used for each edge. EDGE_NE..EDGE_NW. Gives the fence type or FENCE_TYPE_INVALID if the voxel has no fence for this edge.
+	/**
+	 * Fences of the voxel. @see FenceType
+	 * - bit  0.. 3: Fence type of the NE edge.
+	 * - bit  4.. 7: Fence type of the SE edge.
+	 * - bit  8..11: Fence type of the SW edge.
+	 * - bit 12..15: Fence type of the NW edge.
+	 */
+	uint16 fences;
 
 	/**
-	 * Set the fence type of one of the four edges.
-	 * @param edge The edge to modify EDGE_NE..EDGE_NW
-	 * @return The fence type or FENCE_TYPE_INVALID if the edge has no fence
-	 * @note For steep slope all fences are stored in the top voxel. For non-steep
-	 * slope that have both corners raised, the fence type is stored in the voxel
-	 * above. This method will get what is stored in this voxel. You need to make
-	 * sure to call this method for the right voxel in the voxel stack.
+	 * Get the fences of the voxel. Use #GetFenceType and #SetFenceType for further manipulation
+	 * of the fence data.
+	 * @return Type of the fences at each edge.
 	 */
-	inline FenceType GetFenceType(TileEdge edge) const
+	inline uint16 GetFences() const
 	{
-		return (FenceType)GB(this->fence, (edge & 3) * 4, 4);
+		return this->fences;
 	}
 
 	/**
-	 * Set the fence type of one of the four edges.
-	 * @param edge The edge to modify EDGE_NE..EDGE_NW
-	 * @param fence_type The fence type to use or FENCE_TYPE_INVALID to disable fence of this edge
-	 * @note For steep slope all fences should be stored in the top voxel. For non-steep
-	 * slope that have both corners raised, the fence type should be stored in the voxel
-	 * above. This method will set the fence type of the given voxel. You need to make
-	 * sure to call this method for the right voxel in the voxel stack.
+	 * Set all the fences of the voxel.
+	 * @param fences Type of the fences at each edge.
 	 */
-	inline void SetFenceType(TileEdge edge, FenceType fence_type)
+	inline void SetFences(uint16 fences)
 	{
-		assert(fence_type < FENCE_TYPE_COUNT || fence_type == FENCE_TYPE_INVALID);
-		SB(this->fence, (edge & 3) * 4, 4, fence_type & 0xF);
+		this->fences = fences;
 	}
 
 	/**
@@ -276,18 +273,6 @@ public:
 		return this->GetInstance() == SRI_FREE && this->GetGroundType() == GTP_INVALID && this->GetFoundationType() == FDT_INVALID;
 	}
 
-	/** Make the voxel empty. */
-	void ClearVoxel()
-	{
-		this->SetGroundType(GTP_INVALID);
-		this->SetFoundationType(FDT_INVALID);
-		this->SetGrowth(0);
-		for (TileEdge i = EDGE_BEGIN; i < EDGE_COUNT; i++) {
-			this->SetFenceType(i, FENCE_TYPE_INVALID);
-		}
-		this->ClearInstances();
-	}
-
 	VoxelObject *voxel_objects; ///< First voxel object in this voxel.
 
 	/**
@@ -299,6 +284,7 @@ public:
 		return this->voxel_objects != nullptr;
 	}
 
+	void ClearVoxel();
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr, uint32 version);
 };
@@ -438,6 +424,29 @@ static inline PathType GetPathType(uint16 instance_data)
 static inline uint16 MakePathInstanceData(uint8 slope, PathType path_type)
 {
 	return slope | (path_type << 6);
+}
+
+/**
+ * Get the fence type of one of the four edges.
+ * @param fences Fences data of the voxel.
+ * @param edge The edge to retrieve.
+ * @return The fence type or #FENCE_TYPE_INVALID if the edge has no fence.
+ */
+inline FenceType GetFenceType(uint16 fences, TileEdge edge)
+{
+	return static_cast<FenceType>(GB(fences, edge * 4, 4));
+}
+
+/**
+ * Set the fence type of one of the four edges.
+ * @param fences Fences data of the voxel.
+ * @param edge The edge to set.
+ * @param ftype Type of fence to set at the given edge.
+ * @return The updated fences data.
+ */
+inline uint16 SetFenceType(uint16 fences, TileEdge edge, FenceType ftype)
+{
+	return SB(fences, edge * 4, 4, ftype);
 }
 
 /** Possible ownerships of a tile. */
@@ -621,6 +630,12 @@ public:
 protected:
 	VoxelStackMap modified_stacks; ///< Modified voxel stacks.
 };
+
+uint16 MergeGroundFencesAtBase(uint16 vxbase_fences, uint16 fences, uint8 base_tile_slope);
+bool HasTopVoxelFences(uint8 base_tile_slope);
+uint16 MergeGroundFencesAtTop(uint16 vxtop_fences, uint16 fences, uint8 base_tile_slope);
+void AddGroundFencesToMap(uint16 fences, VoxelStack *stack, int base_z);
+uint16 GetGroundFencesFromMap(const VoxelStack *stack, int base_z);
 
 extern VoxelWorld _world;
 extern WorldAdditions _additions;

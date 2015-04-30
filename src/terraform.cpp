@@ -109,7 +109,7 @@ bool GroundData::GetCornerModified(TileCorner corner) const
  * @param xsize Horizontal size of the world part.
  * @param ysize Vertical size of the world part.
  */
-TerrainChanges::TerrainChanges(const Point32 &base, uint16 xsize, uint16 ysize)
+TerrainChanges::TerrainChanges(const Point16 &base, uint16 xsize, uint16 ysize)
 {
 	assert(base.x >= 0 && base.y >= 0 && xsize > 0 && ysize > 0
 			&& base.x + xsize <= _world.GetXSize() && base.y + ysize <= _world.GetYSize());
@@ -128,7 +128,7 @@ TerrainChanges::~TerrainChanges()
  * @param pos Voxel stack position.
  * @return Pointer to the ground data, or \c nullptr if outside the world.
  */
-GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
+GroundData *TerrainChanges::GetGroundData(const Point16 &pos)
 {
 	if (pos.x < this->base.x || pos.x >= this->base.x + this->xsize) return nullptr;
 	if (pos.y < this->base.y || pos.y >= this->base.y + this->ysize) return nullptr;
@@ -138,7 +138,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
 		uint8 height = _world.GetBaseGroundHeight(pos.x, pos.y);
 		const Voxel *v = _world.GetVoxel(XYZPoint16(pos.x, pos.y, height));
 		assert(v != nullptr && v->GetGroundType() != GTP_INVALID);
-		std::pair<Point32, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
+		std::pair<Point16, GroundData> p(pos, GroundData(height, ExpandTileSlope(v->GetGroundSlope())));
 		iter = this->changes.insert(p).first;
 	}
 	return &(*iter).second;
@@ -150,7 +150,7 @@ GroundData *TerrainChanges::GetGroundData(const Point32 &pos)
  * @param direction Levelling direction (decides whether to find the lowest or highest corner).
  * @param height [inout] Extremest height found so far.
  */
-void TerrainChanges::UpdatelevellingHeight(const Point32 &pos, int direction, uint8 *height)
+void TerrainChanges::UpdatelevellingHeight(const Point16 &pos, int direction, uint8 *height)
 {
 	const GroundData *gd = this->GetGroundData(pos);
 
@@ -174,7 +174,7 @@ void TerrainChanges::UpdatelevellingHeight(const Point32 &pos, int direction, ui
  * @param direction Levelling direction (decides what constraint to use).
  * @return Change is OK for the map.
  */
-bool TerrainChanges::ChangeVoxel(const Point32 &pos, uint8 height, int direction)
+bool TerrainChanges::ChangeVoxel(const Point16 &pos, uint8 height, int direction)
 {
 	GroundData *gd = this->GetGroundData(pos);
 	bool ok = true;
@@ -199,7 +199,7 @@ bool TerrainChanges::ChangeVoxel(const Point32 &pos, uint8 height, int direction
  * @param direction Direction of change.
  * @return Change is OK for the map.
  */
-bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int direction)
+bool TerrainChanges::ChangeCorner(const Point16 &pos, TileCorner corner, int direction)
 {
 	assert(corner >= TC_NORTH && corner < TC_END);
 	assert(direction == 1 || direction == -1);
@@ -231,7 +231,7 @@ bool TerrainChanges::ChangeCorner(const Point32 &pos, TileCorner corner, int dir
 
 	for (uint i = 0; i < 3; i++) {
 		const VoxelCorner &vc = neighbours[corner].neighbour_tiles[i];
-		Point32 pos2(pos.x + vc.rel_xy.x, pos.y + vc.rel_xy.y);
+		Point16 pos2(pos.x + vc.rel_xy.x, pos.y + vc.rel_xy.y);
 		gd = this->GetGroundData(pos2);
 		if (gd == nullptr) continue;
 		if (_world.GetTileOwner(pos2.x, pos2.y) != OWN_PARK) continue;
@@ -252,7 +252,6 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 {
 	if (v == nullptr || v->IsEmpty()) return;
 
-	assert(v->GetGroundType() == GTP_INVALID);
 	uint16 instance = v->GetInstance();
 	if (instance >= SRI_FULL_RIDES) { // A ride needs the entire voxel.
 		std::fill_n(bounds, 4, height);
@@ -343,15 +342,15 @@ static void SetFoundations(VoxelStack *stack, uint8 my_first, uint8 my_second, u
 }
 
 /**
- * Update the foundations in two #_additions voxel stacks along the SW edge of the first stack and the NE edge of the second stack.
+ * Update the foundations in two voxel stacks along the SW edge of the first stack and the NE edge of the second stack.
  * @param xpos X position of the first voxel stack.
  * @param ypos Y position of the first voxel stack.
  * @note The first or the second voxel stack may be off-world.
  */
 static void SetXFoundations(int xpos, int ypos)
 {
-	VoxelStack *first = (xpos < 0) ? nullptr : _additions.GetModifyStack(xpos, ypos);
-	VoxelStack *second = (xpos + 1 == _world.GetXSize()) ? nullptr : _additions.GetModifyStack(xpos + 1, ypos);
+	VoxelStack *first = (xpos < 0) ? nullptr : _world.GetModifyStack(xpos, ypos);
+	VoxelStack *second = (xpos + 1 == _world.GetXSize()) ? nullptr : _world.GetModifyStack(xpos + 1, ypos);
 	assert(first != nullptr || second != nullptr);
 
 	/* Get ground height at all corners. */
@@ -388,15 +387,15 @@ static void SetXFoundations(int xpos, int ypos)
 }
 
 /**
- * Update the foundations in two #_additions voxel stacks along the SE edge of the first stack and the NW edge of the second stack.
+ * Update the foundations in two voxel stacks along the SE edge of the first stack and the NW edge of the second stack.
  * @param xpos X position of the first voxel stack.
  * @param ypos Y position of the first voxel stack.
  * @note The first or the second voxel stack may be off-world.
  */
 static void SetYFoundations(int xpos, int ypos)
 {
-	VoxelStack *first = (ypos < 0) ? nullptr : _additions.GetModifyStack(xpos, ypos);
-	VoxelStack *second = (ypos + 1 == _world.GetYSize()) ? nullptr : _additions.GetModifyStack(xpos, ypos + 1);
+	VoxelStack *first = (ypos < 0) ? nullptr : _world.GetModifyStack(xpos, ypos);
+	VoxelStack *second = (ypos + 1 == _world.GetYSize()) ? nullptr : _world.GetModifyStack(xpos, ypos + 1);
 	assert(first != nullptr || second != nullptr);
 
 	/* Get ground height at all corners. */
@@ -433,7 +432,7 @@ static void SetYFoundations(int xpos, int ypos)
 }
 
 /**
- * Perform the proposed changes in #_additions (and committing them afterwards).
+ * Perform the proposed changes.
  * @param direction Direction of change.
  * @return Whether the change could actually be performed (else nothing is changed).
  */
@@ -441,12 +440,41 @@ bool TerrainChanges::ModifyWorld(int direction)
 {
 	assert(_mouse_modes.GetMouseMode() == MM_TILE_TERRAFORM);
 
-	_additions.Clear();
-
-	/* First iteration: Change the ground of the tiles, checking
-	 * whether the change is actually allowed with the other game elements. */
+	/* First iteration: Check that the world can be safely changed (no collisions with other game elements.) */
 	for (auto &iter : this->changes) {
-		const Point32 &pos = iter.first;
+		const Point16 &pos = iter.first;
+		const GroundData &gd = iter.second;
+		if (gd.modified == 0) continue;
+
+		uint8 current[4]; // Height of each corner after applying modification.
+		ComputeCornerHeight(static_cast<TileSlope>(gd.orig_slope), gd.height, current);
+
+		/* Apply modification. */
+		for (uint8 i = TC_NORTH; i < TC_END; i++) {
+			if ((gd.modified & (1 << i)) == 0) continue; // Corner was not changed.
+			current[i] += direction;
+		}
+
+		if (direction > 0) {
+			/* Moving upwards, compute upper bound on corner heights. */
+			uint8 max_above[4];
+			std::fill_n(max_above, lengthof(max_above), std::min(gd.height + 3, WORLD_Z_SIZE - 1));
+
+			const VoxelStack *vs = _world.GetStack(pos.x, pos.y);
+			for (int i = 2; i >= 0; i--) {
+				SetUpperBoundary(vs->Get(gd.height + i), gd.height + i, max_above);
+			}
+
+			/* Check boundaries. */
+			for (uint i = 0; i < 4; i++) {
+				if (current[i] > max_above[i]) return false;
+			}
+		} /* else: Moving downwards always works, since there is nothing underground yet. */
+	}
+
+	/* Second iteration: Change the ground of the tiles. */
+	for (auto &iter : this->changes) {
+		const Point16 &pos = iter.first;
 		const GroundData &gd = iter.second;
 		if (gd.modified == 0) continue;
 
@@ -460,98 +488,65 @@ bool TerrainChanges::ModifyWorld(int direction)
 		}
 
 		/* Clear the current ground from the stack. */
-		VoxelStack *vs = _additions.GetModifyStack(pos.x, pos.y);
+		VoxelStack *vs = _world.GetModifyStack(pos.x, pos.y);
 		Voxel *v = vs->GetCreate(gd.height, false); // Should always exist.
 		GroundType gt = v->GetGroundType();
 		assert(gt != GTP_INVALID);
 		FoundationType ft = v->GetFoundationType();
-		FenceType fence[4];
- 		for (uint8 i = 0; i < 4; i++) fence[i] = v->GetFenceType((TileEdge)i);
-		TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
+		uint16 fences = GetGroundFencesFromMap(vs, gd.height);
+
+		uint8 slope = v->GetGroundSlope();
+		assert(!IsImplodedSteepSlopeTop(slope));
+		AddGroundFencesToMap(ALL_INVALID_FENCES, vs, gd.height);
 		v->SetGroundType(GTP_INVALID);
 		v->SetFoundationType(FDT_INVALID);
 		v->SetGroundSlope(0);
 		v->SetFoundationSlope(0);
-		for (uint8 i = 0; i < 4; i++) v->SetFenceType((TileEdge)i, FENCE_TYPE_INVALID);
-		if (MayHaveGroundFenceInVoxelAbove(slope)) {
+		if (IsImplodedSteepSlope(slope)) {
 			Voxel *w = vs->GetCreate(gd.height + 1, false);
-			if ((slope & TSB_STEEP) != 0) {
-				assert(w->GetGroundType() == gt); // Should be the same type of ground as the base voxel.
-				w->SetFoundationType(FDT_INVALID);
-				w->SetGroundType(GTP_INVALID);
-				w->SetGroundSlope(0);
-				w->SetFoundationSlope(0);
-			}
-			if (w != nullptr) { // w will always exist if steep slope, but not always for non-steep.
-				for (uint8 i = 0; i < 4; i++) {
-					FenceType f = w->GetFenceType((TileEdge)i);
-					if (f != FENCE_TYPE_INVALID) fence[i] = f;
-					w->SetFenceType((TileEdge)i, FENCE_TYPE_INVALID);
-				}
-			}
+			assert(w->GetGroundType() == gt); // Should be the same type of ground as the base voxel.
+			w->SetFoundationType(FDT_INVALID);
+			w->SetGroundType(GTP_INVALID);
+			w->SetGroundSlope(0);
+			w->SetFoundationSlope(0);
 		}
-
-		if (direction > 0) {
-			/* Moving upwards, compute upper bound on corner heights. */
-			uint8 max_above[4];
-			std::fill_n(max_above, lengthof(max_above), gd.height + 3);
-
-			for (int i = 2; i >= 0; i--) {
-				SetUpperBoundary(vs->Get(gd.height + i), gd.height + i, max_above);
-			}
-
-			/* Check boundaries. */
-			for (uint i = 0; i < 4; i++) {
-				if (current[i] > max_above[i]) return false;
-			}
-		} /* else: Moving downwards always works, since there is nothing underground yet. */
 
 		/* Add new ground to the stack. */
 		TileSlope new_slope;
 		uint8 height;
 		ComputeSlopeAndHeight(current, &new_slope, &height);
-		TileSlope new_exp_slope = ExpandTileSlope(new_slope);
-		if (height >= WORLD_Z_SIZE) return false;
+		assert(height < WORLD_Z_SIZE);
 
 		v = vs->GetCreate(height, true);
 		v->SetGroundSlope(new_slope);
 		v->SetGroundType(gt);
 		v->SetFoundationType(ft);
 		v->SetFoundationSlope(0);
-
-		for (uint8 i = 0; i < 4; i++) {
-			v->SetFenceType((TileEdge)i, StoreFenceInUpperVoxel(new_exp_slope, (TileEdge)i) ? FENCE_TYPE_INVALID : fence[i]);
-		}
-
-		if (MayHaveGroundFenceInVoxelAbove(new_exp_slope)) {
+		if (IsImplodedSteepSlope(new_slope)) {
 			v = vs->GetCreate(height + 1, true);
-			if ((TSB_STEEP & new_exp_slope) != 0) {
-				/* Only for steep slopes, the upper voxel will have actual ground. */
-				v->SetGroundType(gt);
-				v->SetGroundSlope(new_slope + 4); // Set top-part as well for steep slopes.
-				v->SetFoundationType(ft);
-				v->SetFoundationSlope(0);
-			}
-			for (uint8 i = 0; i < 4; i++) {
-				v->SetFenceType((TileEdge)i, StoreFenceInUpperVoxel(new_exp_slope, (TileEdge)i) ? fence[i] : FENCE_TYPE_INVALID);
-			}
+			/* Only for steep slopes, the upper voxel will have actual ground. */
+			v->SetGroundType(gt);
+			v->SetGroundSlope(new_slope + TS_TOP_OFFSET); // Set top-part as well for steep slopes.
+			v->SetFoundationType(ft);
+			v->SetFoundationSlope(0);
 		}
+		AddGroundFencesToMap(fences, vs, height); // Add fences last, as it assumes ground has been fully set.
 	}
 
-	/* Second iteration: Add foundations to every changed tile edge.
+	/* Third iteration: Add foundations to every changed tile edge.
 	 * The general idea is that each modified voxel handles adding
 	 * of foundation to its SE and SW edge. If the NE or NW voxel is not
 	 * modified, the voxel will have to perform adding of foundations
 	 * there as well. */
 	for (auto &iter : this->changes) {
-		const Point32 &pos = iter.first;
+		const Point16 &pos = iter.first;
 		const GroundData &gd = iter.second;
 		if (gd.modified == 0) continue;
 
 		SetXFoundations(pos.x, pos.y);
 		SetYFoundations(pos.x, pos.y);
 
-		Point32 pt(pos.x - 1, pos.y);
+		Point16 pt(pos.x - 1, pos.y);
 		auto iter2 = this->changes.find(pt);
 		if (iter2 == this->changes.end()) {
 			SetXFoundations(pt.x, pt.y);
@@ -571,7 +566,6 @@ bool TerrainChanges::ModifyWorld(int direction)
 		}
 	}
 
-	_additions.Commit();
 	return true;
 }
 
@@ -651,7 +645,7 @@ void TileTerraformMouseMode::SetCursors()
 			vp->tile_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
 			vp->area_cursor.SetInvalid();
 		} else {
-			Rectangle32 rect(fdata.voxel_pos.x - this->xsize / 2, fdata.voxel_pos.y - this->ysize / 2, this->xsize, this->ysize);
+			Rectangle16 rect(fdata.voxel_pos.x - this->xsize / 2, fdata.voxel_pos.y - this->ysize / 2, this->xsize, this->ysize);
 			vp->tile_cursor.SetInvalid();
 			vp->area_cursor.SetCursor(rect, CUR_TYPE_TILE);
 		}
@@ -690,7 +684,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 	Cursor *c = &vp->tile_cursor;
 	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->cursor_pos.x, c->cursor_pos.y) != OWN_PARK) return;
 
-	Point32 p;
+	Point16 p;
 	uint16 w, h;
 
 	if (dot_mode) { // Change entire world.
@@ -728,7 +722,6 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 
 	if (ok) {
 		ok = changes.ModifyWorld(direction);
-		_additions.Clear();
 		if (!ok) return;
 
 		/* Move voxel selection along with the terrain to allow another mousewheel event at the same place.
@@ -737,7 +730,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		 */
 		c->cursor_pos.z = _world.GetBaseGroundHeight(c->cursor_pos.x, c->cursor_pos.y);
 		for (const auto &iter : changes.changes) {
-			const Point32 &pt = iter.first;
+			const Point16 &pt = iter.first;
 			vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 		}
 	}
@@ -751,7 +744,7 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
  */
 static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 {
-	Point32 p;
+	Point16 p;
 
 	MultiCursor *c = &vp->area_cursor;
 	TerrainChanges changes(c->rect.base, c->rect.width, c->rect.height);
@@ -781,13 +774,12 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 	}
 
 	bool ok = changes.ModifyWorld(direction);
-	_additions.Clear();
 	if (!ok) return;
 
 	/* Like the dotmode, the cursor position is changed, but the mouse position is not touched to allow more
 	 * mousewheel events to happen at the same place. */
 	for (const auto &iter : changes.changes) {
-		const Point32 &pt = iter.first;
+		const Point16 &pt = iter.first;
 		c->ResetZPosition(pt);
 		vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 	}

@@ -70,34 +70,10 @@ void FenceBuildManager::SetCursors()
 
 	FinderData fdata(CS_GROUND_EDGE, FW_EDGE);
 	if (vp->ComputeCursorPosition(&fdata) != CS_NONE && fdata.cursor >= CUR_TYPE_EDGE_NE && fdata.cursor <= CUR_TYPE_EDGE_NW) {
-		TileEdge edge = (TileEdge)((uint8)fdata.cursor - (uint8)CUR_TYPE_EDGE_NE);
 		const Voxel *v = _world.GetVoxel(fdata.voxel_pos);
-		assert(v != nullptr);
-		TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
-		/*
-		 * Fence for steep slopes and fully raised edges go into the voxel above.
-		 * Click on steep slope already have the upper edge z given in fdata, but
-		 * for clicking on upper edge, we need to get the voxel above the one
-		 * clicked.
-		 */
-		int32 extra_z = 0;
-		if ((slope & TSB_TOP) == 0 && IsRaisedEdge(edge, slope)) {
-			extra_z = 1;
-			v = _world.GetCreateVoxel(fdata.voxel_pos + XYZPoint16(0, 0, extra_z), true);
-			assert(v != nullptr);
-		}
-		const SpriteStorage *ss = _sprite_manager.GetSprites(vp->tile_width);
-		assert(ss != nullptr);
-		const ImageData *sprite = ss->GetFenceSprite(this->selected_fence_type, edge, ExpandTileSlope(v->GetGroundSlope()), vp->orientation);
-		/*
-		 * The lower edges of steep slope needs an yoffset to be rendered
-		 * as if they belonged to the lower voxel.
-		 */
-		bool steep_lower_edge = (slope & TSB_STEEP) != 0 &&
-			(slope & (1 << edge)) == 0 &&
-			(slope & (1 << ((edge + 1) % 4))) == 0;
-		fdata.voxel_pos.z += extra_z;
-		vp->edge_cursor.SetCursor(fdata.voxel_pos, fdata.cursor, sprite, steep_lower_edge ? vp->tile_height : 0);
+		assert(v->GetGroundType() != GTP_INVALID);
+		if (IsImplodedSteepSlopeTop(v->GetGroundSlope())) fdata.voxel_pos.z--; // Select base of the ground for the edge cursor.
+		vp->edge_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
 	}
 }
 
@@ -136,17 +112,10 @@ void FenceBuildManager::OnMouseButtonEvent(Viewport *vp, uint8 state)
 
 		TileEdge edge = (TileEdge)((uint8)c->type - (uint8)CUR_TYPE_EDGE_NE);
 		VoxelStack *vs = _world.GetModifyStack(c->cursor_pos.x, c->cursor_pos.y);
-		Voxel *v = vs->GetCreate(c->cursor_pos.z, false);
-		assert(v != nullptr);
-		TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
-		int32 extra_z = 0;
-		if ((slope & TSB_TOP) == 0 && IsRaisedEdge(edge, slope)) {
-			extra_z = 1;
-			v = vs->GetCreate(c->cursor_pos.z + extra_z, true);
-			assert(v != nullptr);
-		}
-		v->SetFenceType(edge, this->selected_fence_type);
-		vp->MarkVoxelDirty(c->cursor_pos + XYZPoint16(0, 0, extra_z));
+		uint16 fences = GetGroundFencesFromMap(vs, c->cursor_pos.z);
+		fences = SetFenceType(fences, edge, this->selected_fence_type);
+		AddGroundFencesToMap(fences, vs, c->cursor_pos.z);
+		vp->MarkVoxelDirty(c->cursor_pos);
 	}
 }
 

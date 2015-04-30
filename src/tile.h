@@ -72,10 +72,41 @@ enum TileSlope {
 	TSB_SOUTHEAST = TSB_SOUTH | TSB_EAST, ///< Both south and east corners are raised.
 	TSB_SOUTHWEST = TSB_SOUTH | TSB_WEST, ///< Both south and west corners are raised.
 
+	TS_TOP_OFFSET = 4, ///< Offset of imploded steep top-slopes relative to their base slope.
+
 };
 DECLARE_ENUM_AS_BIT_SET(TileSlope)
 
-static const uint8 NUM_SLOPE_SPRITES = 15 + 4 + 4; ///< Number of sprites for defining a surface tile.
+/** Tile slopes in imploded (sprite) order. */
+enum ImplodedSlopes {
+	ISL_FLAT,               ///< Flat surface tile.
+	ISL_NORTH,              ///< North corner up.
+	ISL_EAST,               ///< East corner up.
+	ISL_NORTH_EAST,         ///< North, east corners up.
+	ISL_SOUTH,              ///< South corner up.
+	ISL_NORTH_SOUTH,        ///< North, south corners up.
+	ISL_EAST_SOUTH,         ///< East, south corners up.
+	ISL_NORTH_EAST_SOUTH,   ///< North, east, south corners up.
+	ISL_WEST,               ///< West corner up.
+	ISL_NORTH_WEST,         ///< West, north corners up.
+	ISL_EAST_WEST,          ///< West, east corners up.
+	ISL_NORTH_EAST_WEST,    ///< West, north, east corners up.
+	ISL_SOUTH_WEST,         ///< West, south corners up.
+	ISL_NORTH_SOUTH_WEST,   ///< West, north, south corners up.
+	ISL_EAST_SOUTH_WEST,    ///< West, east, south corners up.
+
+	ISL_BOTTOM_STEEP_NORTH, ///< Steep slope, north top (bottom part).
+	ISL_BOTTOM_STEEP_EAST,  ///< Steep slope, east  top (bottom part).
+	ISL_BOTTOM_STEEP_SOUTH, ///< Steep slope, south top (bottom part).
+	ISL_BOTTOM_STEEP_WEST,  ///< Steep slope, west  top (bottom part).
+
+	ISL_TOP_STEEP_NORTH,    ///< Steep slope, north top (top part).
+	ISL_TOP_STEEP_EAST,     ///< Steep slope, east  top (top part).
+	ISL_TOP_STEEP_SOUTH,    ///< Steep slope, south top (top part).
+	ISL_TOP_STEEP_WEST,     ///< Steep slope, west  top (top part).
+
+	NUM_SLOPE_SPRITES = 15 + 4 + 4, ///< Number of sprites for defining a surface tile.
+};
 
 /** Sprites for supports available for use. */
 enum SupportSprites {
@@ -134,7 +165,7 @@ DECLARE_POSTFIX_INCREMENT(TileEdge)
  */
 static inline bool IsImplodedSteepSlope(uint8 ts)
 {
-	return ts >= 15;
+	return ts >= ISL_BOTTOM_STEEP_NORTH;
 }
 
 /**
@@ -144,7 +175,7 @@ static inline bool IsImplodedSteepSlope(uint8 ts)
  */
 static inline bool IsImplodedSteepSlopeTop(uint8 ts)
 {
-	return ts >= 19;
+	return ts >= ISL_TOP_STEEP_NORTH;
 }
 
 /**
@@ -155,9 +186,9 @@ static inline bool IsImplodedSteepSlopeTop(uint8 ts)
  */
 static inline TileSlope ExpandTileSlope(uint8 v)
 {
-	if (v < 15) return (TileSlope)v;
-	if (v < 19) return TSB_STEEP | (TileSlope)(1 << (v - 15));
-	return TSB_STEEP | TSB_TOP | (TileSlope)(1 << (v - 19));
+	if (v < ISL_BOTTOM_STEEP_NORTH) return static_cast<TileSlope>(v);
+	if (v < ISL_TOP_STEEP_NORTH) return static_cast<TileSlope>(TSB_STEEP | (1 << (v - ISL_BOTTOM_STEEP_NORTH)));
+	return static_cast<TileSlope>(TSB_STEEP | TSB_TOP | (1 << (v - ISL_TOP_STEEP_NORTH)));
 }
 
 /**
@@ -170,7 +201,7 @@ static inline uint8 ImplodeTileSlope(TileSlope s)
 {
 	if ((s & TSB_STEEP) == 0) return s;
 
-	uint8 base = ((s & TSB_TOP) == 0) ? 15 : 19;
+	uint8 base = ((s & TSB_TOP) == 0) ? ISL_BOTTOM_STEEP_NORTH : ISL_TOP_STEEP_NORTH;
 	if ((s & TSB_NORTH) != 0) return base;
 	if ((s & TSB_EAST)  != 0) return base + 1;
 	if ((s & TSB_SOUTH) != 0) return base + 2;
@@ -240,8 +271,6 @@ extern const Point16 _exit_dxy[EDGE_COUNT];
 
 void ComputeCornerHeight(TileSlope slope, uint8 base_height, uint8 *output);
 void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base);
-bool MayHaveGroundFenceInVoxelAbove(TileSlope slope);
-bool StoreFenceInUpperVoxel(TileSlope slope, TileEdge edge);
 TileEdge GetAdjacentEdge(int x1, int y1, int x2, int y2);
 
 #endif

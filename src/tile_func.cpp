@@ -103,36 +103,6 @@ void ComputeSlopeAndHeight(uint8 *corners, TileSlope *slope, uint8 *base)
 }
 
 /**
- * For some ground slopes, the fence type is stored in the voxel above.
- * Check if this is the case for a voxel with the given exploded slope.
- * @param slope Exploded slope
- * @return true if one or more edges of a voxel with given slope will have the fence stored in the voxel above.
- */
-bool MayHaveGroundFenceInVoxelAbove(TileSlope slope)
-{
-	if ((slope & TSB_STEEP) != 0) return true;
-	for (uint8 i = 0; i < 4; i++) {
-		/* Are there two adjacent corners that are raised? */
-		if ((slope & (1 << i)) != 0 && (slope & (1 << ((i + 1) % 4))) != 0) return true;
-	}
-	return false;
-}
-
-/**
- * For some ground slopes, the fence type is stored in the voxel above.
- * Check if this is the case for given edge of a voxel with the given slope.
- * @param slope Exploded slope.
- * @param edge Edge to inspect.
- * @return true if one or more edges of a voxel with given slope will have the fence stored in the voxel above.
- */
-bool StoreFenceInUpperVoxel(TileSlope slope, TileEdge edge)
-{
-	if ((slope & TSB_STEEP) != 0) return true;
-	/* Are both edge corners raised? */
-	return (slope & (1 << edge)) != 0 && (slope & (1 << ((edge + 1) % 4))) != 0;
-}
-
-/**
  * Find the outgoing edge of tile \a x1, \a y1) to arrive at adjacent tile (\a x2, \a y2).
  * @param x1 X coordinate first tile.
  * @param y1 Y coordinate first tile.

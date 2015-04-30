@@ -220,6 +220,7 @@ Version history
 
 - 1 (20140419) Initial version.
 - 2 (20150410) Added fence data.
+- 3 (20150428) Fences near the lowest corner of a steep slope moved from top voxel to base voxel.
 
 
 .. vim: spell
