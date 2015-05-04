@@ -401,6 +401,19 @@ int VoxelStack::GetBaseGroundOffset() const
 }
 
 /**
+ * Get the offset of the top of ground in the voxel stack (for steep slopes the top voxel).
+ * @return Index in the voxel array for the top voxel containing the ground.
+ */
+int VoxelStack::GetTopGroundOffset() const
+{
+	for (int i = this->height - 1; i >= 0; i--) {
+		const Voxel &v = this->voxels[i];
+		if (v.GetGroundType() != GTP_INVALID) return i;
+	}
+	NOT_REACHED();
+}
+
+/**
  * Load a voxel stack from the save game file.
  * @param ldr Input stream to read.
  */
@@ -511,6 +524,20 @@ uint8 VoxelWorld::GetBaseGroundHeight(uint16 x, uint16 y) const
 {
 	const VoxelStack *vs = this->GetStack(x, y);
 	int offset = vs->GetBaseGroundOffset();
+	assert(vs->base + offset >= 0 && vs->base + offset <= 255);
+	return vs->base + offset;
+}
+
+/**
+ * Return the top height of the ground at the given voxel stack.
+ * @param x Horizontal position.
+ * @param y Vertical position.
+ * @return Height of the ground (for steep slopes, the top voxel height).
+ */
+uint8 VoxelWorld::GetTopGroundHeight(uint16 x, uint16 y) const
+{
+	const VoxelStack *vs = this->GetStack(x, y);
+	int offset = vs->GetTopGroundOffset();
 	assert(vs->base + offset >= 0 && vs->base + offset <= 255);
 	return vs->base + offset;
 }

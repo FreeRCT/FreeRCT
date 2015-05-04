@@ -474,6 +474,7 @@ public:
 	VoxelStack *Copy(bool copyPersons) const;
 	void MoveStack(VoxelStack *old_stack);
 
+	int GetTopGroundOffset() const;
 	int GetBaseGroundOffset() const;
 
 	void Save(Saver &svr) const;
@@ -500,6 +501,7 @@ public:
 
 	VoxelStack *GetModifyStack(uint16 x, uint16 y);
 	const VoxelStack *GetStack(uint16 x, uint16 y) const;
+	uint8 GetTopGroundHeight(uint16 x, uint16 y) const;
 	uint8 GetBaseGroundHeight(uint16 x, uint16 y) const;
 
 	/**
