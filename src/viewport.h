@@ -11,6 +11,7 @@
 #define VIEWPORT_H
 
 #include "window.h"
+#include "mouse_mode.h"
 
 class Viewport;
 class Person;
@@ -30,28 +31,6 @@ enum ViewportMouseMode {
 	MM_FENCE_BUILDING, ///< Building of fences.
 
 	MM_COUNT,          ///< Number of mouse modes.
-};
-
-/**
- * Available cursor types.
- * @ingroup viewport_group
- */
-enum CursorType {
-	CUR_TYPE_NORTH,    ///< Show a N corner highlight.
-	CUR_TYPE_EAST,     ///< Show a E corner highlight.
-	CUR_TYPE_SOUTH,    ///< Show a S corner highlight.
-	CUR_TYPE_WEST,     ///< Show a W corner highlight.
-	CUR_TYPE_TILE,     ///< Show a tile highlight.
-	CUR_TYPE_ARROW_NE, ///< Show a build arrow in the NE direction.
-	CUR_TYPE_ARROW_SE, ///< Show a build arrow in the SE direction.
-	CUR_TYPE_ARROW_SW, ///< Show a build arrow in the SW direction.
-	CUR_TYPE_ARROW_NW, ///< Show a build arrow in the NW direction.
-	CUR_TYPE_EDGE_NE,  ///< Show a NE edge sprite highlight.
-	CUR_TYPE_EDGE_SE,  ///< Show a SE edge sprite highlight.
-	CUR_TYPE_EDGE_SW,  ///< Show a SW edge sprite highlight.
-	CUR_TYPE_EDGE_NW,  ///< Show a NW edge sprite highlight.
-
-	CUR_TYPE_INVALID = 0xFF, ///< Invalid/unused cursor.
 };
 
 /**
