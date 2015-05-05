@@ -390,7 +390,24 @@ public:
 		return false;
 	}
 
-	Point16 GetMousePosition() const;
+	/**
+	 * Get last reported position of the mouse cursor (at the screen).
+	 * @return Last known position of the mouse at the screen.
+	 */
+	inline Point16 GetMousePosition() const
+	{
+		return this->mouse_pos;
+	}
+
+	/**
+	 * Get last reported state of the buttons (lower 4 bits).
+	 * @return Last reported state of the mouse buttons.
+	 * @see MouseButtons
+	 */
+	inline uint8 GetMouseState() const
+	{
+		return this->mouse_state;
+	}
 
 	void UpdateWindows();
 

@@ -23,7 +23,6 @@ class RideInstance;
  */
 enum ViewportMouseMode {
 	MM_INACTIVE,       ///< Inactive mode.
-	MM_OBJECT_SELECT,  ///< Object selection from the display.
 	MM_PATH_BUILDING,  ///< Construct paths.
 	MM_SHOP_PLACEMENT, ///< Placement of a shop.
 	MM_COASTER_BUILD,  ///< Building or editing a coaster track.

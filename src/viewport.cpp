@@ -26,7 +26,6 @@
 #include "coaster_build.h"
 #include "shop_type.h"
 #include "terraform.h"
-#include "select_mode.h"
 #include "person.h"
 #include "weather.h"
 #include "fence.h"
@@ -1495,12 +1494,50 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 	this->mouse_pos = pos;
 
 	if (_window_manager.SelectorMouseMoveEvent(this, pos)) return;
+
+	/* Intercept RMB drag for moving the viewport. */
+	if ((_window_manager.GetMouseState() & MB_RIGHT) != 0) {
+		this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
+		return;
+	}
+
 	_mouse_modes.current->OnMouseMoveEvent(this, old_mouse_pos, pos);
 }
 
 WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 {
 	if (_window_manager.SelectorMouseButtonEvent(state)) return WMME_NONE;
+
+	/* Did the user click on something that has a window? */
+	if ((state & MB_CURRENT) != 0) {
+		FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
+		switch (this->ComputeCursorPosition(&fdata)) {
+			case CS_RIDE: {
+				RideInstance *ri = _rides_manager.GetRideInstance(fdata.ride);
+				if (ri == nullptr) break;
+				switch (ri->GetKind()) {
+					case RTK_SHOP:
+						ShowShopManagementGui(fdata.ride);
+						return WMME_NONE;
+
+					case RTK_COASTER:
+						ShowCoasterManagementGui(ri);
+						return WMME_NONE;
+
+					default: break; // Other types are not implemented yet.
+				}
+				break;
+			}
+
+			case CS_PERSON:
+				ShowGuestInfoGui(fdata.person);
+				return WMME_NONE;
+
+			default: break;
+		}
+
+	}
+
 	_mouse_modes.current->OnMouseButtonEvent(this, state);
 	return WMME_NONE;
 }
@@ -1701,7 +1738,6 @@ void InitMouseModes()
 {
 	_mouse_modes.RegisterMode(&_path_builder);
 	_mouse_modes.RegisterMode(&_shop_placer);
-	_mouse_modes.RegisterMode(&_select_mousemode);
 	_mouse_modes.RegisterMode(&_coaster_builder);
 	_mouse_modes.RegisterMode(&_fence_builder);
 }

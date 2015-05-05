@@ -893,15 +893,6 @@ Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 }
 
 /**
- * Return the current mouse position.
- * @return The last reported mouse position.
- */
-Point16 WindowManager::GetMousePosition() const
-{
-	return this->mouse_pos;
-}
-
-/**
  * Mouse moved to new coordinates.
  * @param pos New position of the mouse.
  */
