@@ -15,8 +15,6 @@
 #include "math_func.h"
 #include "memory.h"
 
-TileTerraformMouseMode _terraformer; ///< Terraform coordination object.
-
 /**
  * Structure describing a corner at a voxel stack.
  * @ingroup map_group
@@ -438,8 +436,6 @@ static void SetYFoundations(int xpos, int ypos)
  */
 bool TerrainChanges::ModifyWorld(int direction)
 {
-	assert(_mouse_modes.GetMouseMode() == MM_TILE_TERRAFORM);
-
 	/* First iteration: Check that the world can be safely changed (no collisions with other game elements.) */
 	for (auto &iter : this->changes) {
 		const Point16 &pos = iter.first;
@@ -569,120 +565,18 @@ bool TerrainChanges::ModifyWorld(int direction)
 	return true;
 }
 
-TileTerraformMouseMode::TileTerraformMouseMode() : MouseMode(WC_NONE, MM_TILE_TERRAFORM)
-{
-	this->state = TFS_OFF;
-	this->mouse_state = 0;
-	this->xsize = 1;
-	this->ysize = 1;
-	this->pixel_counter = 0;
-	this->levelling = true;
-}
-
-/** Terraform GUI window just opened. */
-void TileTerraformMouseMode::OpenWindow()
-{
-	if (this->state == TFS_OFF) {
-		this->state = TFS_NO_MOUSE;
-		_mouse_modes.SetMouseMode(this->mode);
-	}
-}
-
-/** Terraform GUI window just closed. */
-void TileTerraformMouseMode::CloseWindow()
-{
-	if (this->state == TFS_ON) {
-		this->state = TFS_OFF; // Prevent enabling again.
-		_mouse_modes.SetViewportMousemode();
-	}
-	this->state = TFS_OFF; // In case the mouse mode was not active.
-}
-
-/**
- * Update the size of the terraform area.
- * @param xsize Horizontal length of the area. May be \c 0.
- * @param ysize Vertical length of the area. May be \c 0.
- */
-void TileTerraformMouseMode::SetSize(int xsize, int ysize)
-{
-	this->xsize = xsize;
-	this->ysize = ysize;
-	if (this->state != TFS_ON) return;
-	this->SetCursors();
-}
-
-/**
- * Set the 'levelling' mode. This has no further visible effect until a raise/lower action is performed.
- * @param levelling The new levelling setting.
- */
-void TileTerraformMouseMode::Setlevelling(bool levelling)
-{
-	this->levelling = levelling;
-}
-
-bool TileTerraformMouseMode::MayActivateMode()
-{
-	return this->state != TFS_OFF;
-}
-
-void TileTerraformMouseMode::ActivateMode(const Point16 &pos)
-{
-	this->mouse_state = 0;
-	this->state = TFS_ON;
-	this->SetCursors();
-}
-
-/** Set/modify the cursors of the viewport. */
-void TileTerraformMouseMode::SetCursors()
-{
-	Viewport *vp = GetViewport();
-	if (vp == nullptr) return;
-
-	bool single = this->xsize <= 1 && this->ysize <= 1;
-	FinderData fdata(CS_GROUND, single ? FW_CORNER : FW_TILE);
-	if (vp->ComputeCursorPosition(&fdata) != CS_NONE) {
-		if (single) {
-			vp->tile_cursor.SetCursor(fdata.voxel_pos, fdata.cursor);
-			vp->area_cursor.SetInvalid();
-		} else {
-			Rectangle16 rect(fdata.voxel_pos.x - this->xsize / 2, fdata.voxel_pos.y - this->ysize / 2, this->xsize, this->ysize);
-			vp->tile_cursor.SetInvalid();
-			vp->area_cursor.SetCursor(rect, CUR_TYPE_TILE);
-		}
-	}
-}
-
-void TileTerraformMouseMode::LeaveMode()
-{
-	Viewport *vp = GetViewport();
-	if (vp != nullptr) {
-		vp->tile_cursor.SetInvalid();
-		vp->area_cursor.SetInvalid();
-	}
-	if (this->state == TFS_ON) this->state = TFS_NO_MOUSE;
-}
-
-bool TileTerraformMouseMode::EnableCursors()
-{
-	return this->state != TFS_OFF;
-}
-
-void TileTerraformMouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
-{
-	this->mouse_state = state & MB_CURRENT;
-}
-
 /**
  * Change the terrain while in 'dot' mode (i.e. a single corner or a single tile changing the entire world).
+ * @param voxel_pos Position of the center voxel.
+ * @param ctype Cursor type.
  * @param vp %Viewport displaying the world.
  * @param levelling If \c true, use levelling mode (only change the lowest/highest corners of a tile), else move every corner.
  * @param direction Direction of change.
  * @param dot_mode Using dot-mode (infinite world changes).
  */
-static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bool dot_mode)
+void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, Viewport *vp, bool levelling, int direction, bool dot_mode)
 {
-	Cursor *c = &vp->tile_cursor;
-	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(c->cursor_pos.x, c->cursor_pos.y) != OWN_PARK) return;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(voxel_pos.x, voxel_pos.y) != OWN_PARK) return;
 
 	Point16 p;
 	uint16 w, h;
@@ -692,21 +586,21 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		w = _world.GetXSize();
 		h = _world.GetYSize();
 	} else { // Single tile mode.
-		p = {c->cursor_pos.x, c->cursor_pos.y};
+		p = voxel_pos;
 		w = 1;
 		h = 1;
 	}
 	TerrainChanges changes(p, w, h);
 
-	p = {c->cursor_pos.x, c->cursor_pos.y};
+	p = voxel_pos;
 
 	bool ok;
-	switch (c->type) {
+	switch (ctype) {
 		case CUR_TYPE_NORTH:
 		case CUR_TYPE_EAST:
 		case CUR_TYPE_SOUTH:
 		case CUR_TYPE_WEST:
-			ok = changes.ChangeCorner(p, (TileCorner)(c->type - CUR_TYPE_NORTH), direction);
+			ok = changes.ChangeCorner(p, static_cast<TileCorner>(ctype - CUR_TYPE_NORTH), direction);
 			break;
 
 		case CUR_TYPE_TILE: {
@@ -724,11 +618,6 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 		ok = changes.ModifyWorld(direction);
 		if (!ok) return;
 
-		/* Move voxel selection along with the terrain to allow another mousewheel event at the same place.
-		 * Note that the mouse cursor position is not changed at all, it still points at the original position.
-		 * The coupling is restored with the next mouse movement.
-		 */
-		c->cursor_pos.z = _world.GetBaseGroundHeight(c->cursor_pos.x, c->cursor_pos.y);
 		for (const auto &iter : changes.changes) {
 			const Point16 &pt = iter.first;
 			vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
@@ -738,23 +627,23 @@ static void ChangeTileCursorMode(Viewport *vp, bool levelling, int direction, bo
 
 /**
  * Change the terrain while in 'area' mode (i.e. a rectangle of tiles that changes).
+ * @param area Affected area.
  * @param vp %Viewport displaying the world.
  * @param levelling If \c true, use levelling mode (only change the lowest/highest corners of a tile), else move every corner.
  * @param direction Direction of change.
  */
-static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
+void ChangeAreaCursorMode(const Rectangle16 &area, Viewport *vp, bool levelling, int direction)
 {
 	Point16 p;
 
-	MultiCursor *c = &vp->area_cursor;
-	TerrainChanges changes(c->rect.base, c->rect.width, c->rect.height);
+	TerrainChanges changes(area.base, area.width, area.height);
 
 	uint8 height = (direction > 0) ? WORLD_Z_SIZE : 0;
 	if (levelling) {
-		for (uint dx = 0; dx < c->rect.width; dx++) {
-			p.x = c->rect.base.x + dx;
-			for (uint dy = 0; dy < c->rect.height; dy++) {
-				p.y = c->rect.base.y + dy;
+		for (uint dx = 0; dx < area.width; dx++) {
+			p.x = area.base.x + dx;
+			for (uint dy = 0; dy < area.height; dy++) {
+				p.y = area.base.y + dy;
 				if (_game_mode_mgr.InEditorMode() || _world.GetTileOwner(p.x, p.y) == OWN_PARK) {
 					changes.UpdatelevellingHeight(p, direction, &height);
 				}
@@ -763,66 +652,20 @@ static void ChangeAreaCursorMode(Viewport *vp, bool levelling, int direction)
 	}
 
 	/* Make the change in 'changes'. */
-	for (uint dx = 0; dx < c->rect.width; dx++) {
-		p.x = c->rect.base.x + dx;
-		for (uint dy = 0; dy < c->rect.height; dy++) {
-			p.y = c->rect.base.y + dy;
+	for (uint dx = 0; dx < area.width; dx++) {
+		p.x = area.base.x + dx;
+		for (uint dy = 0; dy < area.height; dy++) {
+			p.y = area.base.y + dy;
 			if (_game_mode_mgr.InEditorMode() || _world.GetTileOwner(p.x, p.y) == OWN_PARK) {
 				if (!changes.ChangeVoxel(p, height, direction)) return;
 			}
 		}
 	}
 
-	bool ok = changes.ModifyWorld(direction);
-	if (!ok) return;
+	changes.ModifyWorld(direction);
 
-	/* Like the dotmode, the cursor position is changed, but the mouse position is not touched to allow more
-	 * mousewheel events to happen at the same place. */
 	for (const auto &iter : changes.changes) {
 		const Point16 &pt = iter.first;
-		c->ResetZPosition(pt);
 		vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
-	}
-}
-
-void TileTerraformMouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
-{
-	if (vp->tile_cursor.type != CUR_TYPE_INVALID) {
-		ChangeTileCursorMode(vp, this->levelling, direction, this->xsize == 0 && this->ysize == 0);
-	} else {
-		ChangeAreaCursorMode(vp, this->levelling, direction);
-	}
-}
-
-void TileTerraformMouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
-{
-	if ((this->mouse_state & MB_RIGHT) != 0) {
-		/* Drag the window if button is pressed down. */
-		vp->MoveViewport(pos.x - old_pos.x, pos.y - old_pos.y);
-
-	} else if ((this->mouse_state & MB_LEFT) != 0) {
-		/* Terraforming with holding left mouse button and move mouse up and down. */
-
-		if (pos.y - old_pos.y > 0) {
-			this->pixel_counter--;
-		} else if (pos.y - old_pos.y < 0) {
-			this->pixel_counter++;
-		} else {
-			return;
-		}
-
-		if (this->pixel_counter == 10 || this->pixel_counter == -10) {
-			if (vp->tile_cursor.type != CUR_TYPE_INVALID) {
-				bool dot_mode = this->xsize == 0 && this->ysize == 0;
-				ChangeTileCursorMode(vp, this->levelling, pixel_counter / 10, dot_mode);
-			} else {
-				ChangeAreaCursorMode(vp, this->levelling, pixel_counter / 10);
-			}
-			this->pixel_counter = 0;
-		}
-
-	} else {
-		this->pixel_counter = 0; // Reset counter when LMB is not pressed.
-		this->SetCursors();
 	}
 }
