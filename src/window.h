@@ -19,6 +19,7 @@
 class Viewport;
 class RideType;
 class Person;
+class MouseModeSelector;
 
 /** An item in a dropdown list. */
 class DropdownItem {
@@ -210,8 +211,11 @@ public:
 		return this->rect.base.y + wid->pos.base.y;
 	}
 
+	inline void SetSelector(MouseModeSelector *selector);
 	inline void MarkWidgetDirty(WidgetNumber wnum);
-	bool initialized; ///< Flag telling widgets whether the window has already been initialized.
+
+	bool initialized;            ///< Flag telling widgets whether the window has already been initialized.
+	MouseModeSelector *selector; ///< Currently active selector of this window. May be \c nullptr. Change through #SetSelector.
 
 protected:
 	Point16 mouse_pos;         ///< Mouse position relative to the window (negative coordinates means 'out of window').
@@ -325,6 +329,7 @@ public:
 	void AddToStack(Window *w);
 	void RemoveFromStack(Window *w);
 	void RaiseWindow(Window *w);
+	void SetSelector(GuiWindow *w, MouseModeSelector *selector);
 
 	void CloseAllWindows();
 	void ResetAllWindows();
@@ -346,18 +351,31 @@ public:
 private:
 	Window *FindWindowByPosition(const Point16 &pos) const;
 	void UpdateCurrentWindow();
+	GuiWindow *GetSelector();
 
 	void StartWindowMove();
 
-	Point16 mouse_pos;      ///< Last reported mouse position.
-	Window *current_window; ///< 'Current' window under the mouse.
-	uint8 mouse_state;      ///< Last reported mouse button state (lower 4 bits).
-	uint8 mouse_mode;       ///< Mouse mode of the window manager. @see WmMouseModes
+	Point16 mouse_pos;        ///< Last reported mouse position.
+	Window *current_window;   ///< 'Current' window under the mouse.
+	GuiWindow *select_window; ///< Cache containing the highest window with active GuiWindow::selector field
+	                          ///< (\c nullptr if no such window exists). Only valid if #select_valid holds.
+	bool select_valid;        ///< State of the #select_window cache.
+	uint8 mouse_state;        ///< Last reported mouse button state (lower 4 bits).
+	uint8 mouse_mode;         ///< Mouse mode of the window manager. @see WmMouseModes
 
-	Point16 move_offset;    ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
+	Point16 move_offset;      ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
 };
 
 extern WindowManager _window_manager;
+
+/**
+ * Set a new selector for the window.
+ * @param selector Selector to set. May be \c nullptr to deselect a selector.
+ */
+inline void GuiWindow::SetSelector(MouseModeSelector *selector)
+{
+	_window_manager.SetSelector(this, selector);
+}
 
 bool IsLeftClick(uint8 state);
 

@@ -27,6 +27,7 @@
 #include "sprite_store.h"
 #include "ride_type.h"
 #include "viewport.h"
+#include "mouse_mode.h"
 
 /**
  * %Window manager.
@@ -321,6 +322,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 	this->SetHighlight(true);
 	this->ride_type = nullptr;
 	this->initialized = false;
+	this->selector = nullptr;
 }
 
 GuiWindow::~GuiWindow()
@@ -637,6 +639,8 @@ WindowManager::WindowManager()
 	this->mouse_pos.x = -10000; // A very unlikely position for a window.
 	this->mouse_pos.y = -10000;
 	this->current_window = nullptr;
+	this->select_window = nullptr;
+	this->select_valid = true;
 	this->mouse_state = 0;
 	this->mouse_mode = WMMM_PASS_THROUGH;
 }
@@ -708,6 +712,9 @@ void WindowManager::AddToStack(Window *w)
 	assert(w->lower == nullptr && w->higher == nullptr);
 	assert(!this->HasWindow(w));
 
+	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
+	this->select_valid = false;
+
 	uint w_prio = GetWindowZPriority(w->wtype);
 	if (this->top == nullptr || w_prio >= GetWindowZPriority(this->top->wtype)) {
 		/* Add to the top. */
@@ -740,6 +747,9 @@ void WindowManager::RemoveFromStack(Window *w)
 {
 	assert(this->HasWindow(w));
 
+	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
+	this->select_valid = false;
+
 	if (w->higher == nullptr) {
 		this->top = w->lower;
 	} else {
@@ -767,6 +777,62 @@ void WindowManager::RaiseWindow(Window *w)
 		this->AddToStack(w);
 		w->MarkDirty();
 	}
+}
+
+/**
+ * Set a new mouse mode selector for the given window, the current selector may become invalid.
+ * @param w %Window owning the selector to set.
+ * @param selector Selector to set. May be \c nullptr to deselect a selector.
+ */
+void WindowManager::SetSelector(GuiWindow *w, MouseModeSelector *selector)
+{
+	if (w->selector == selector) return;
+
+	if (!this->select_valid) {
+		w->selector = selector; // Cache is invalid, any change is fine.
+		return;
+	}
+
+	if (this->select_window == w) {
+		this->select_window->selector->MarkDirty();
+		this->select_window->selector = selector;
+		if (selector == nullptr) {
+			this->select_valid = false;
+		} else {
+			this->select_window->selector->MarkDirty();
+		}
+	} else if (w->selector != nullptr) {
+		w->selector = selector; // w is definitely below this->select_window.
+	} else {
+		w->selector = selector; // w may be above this->select_window, invalidate cache.
+
+		this->select_window->selector->MarkDirty();
+		this->select_valid = false;
+	}
+}
+
+/**
+ * Get the currently active selector.
+ * @return The currently active selector, or \c nullptr if no such window exists.
+ */
+GuiWindow *WindowManager::GetSelector()
+{
+	if (this->select_valid) return this->select_window;
+
+	Window *w = this->top;
+	while (w != nullptr) {
+		GuiWindow *gw = dynamic_cast<GuiWindow *>(w);
+		if (gw != nullptr && gw->selector != nullptr) {
+			this->select_window = gw;
+			this->select_valid = true;
+			this->select_window->selector->MarkDirty();
+			return this->select_window;
+		}
+		w = w->lower;
+	}
+	this->select_window = nullptr;
+	this->select_valid = true;
+	return this->select_window;
 }
 
 /**
