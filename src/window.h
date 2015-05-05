@@ -188,6 +188,9 @@ public:
 	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	virtual void OnMouseLeaveEvent() override;
+	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
+	virtual void SelectorMouseButtonEvent(uint8 state);
+	virtual void SelectorMouseWheelEvent(int direction);
 	virtual void TimeoutCallback() override;
 	virtual void SetHighlight(bool value) override;
 
@@ -340,6 +343,52 @@ public:
 	void MouseWheelEvent(int direction);
 	bool KeyEvent(WmKeyCode key_code, const uint8 *symbol);
 	void Tick();
+
+	/**
+	 * Mouse moved in the viewport. Forward the call to the selector window.
+	 * @oaram vp %Viewport where the mouse moved.
+	 * @param pos New position of the mouse in the viewport.
+	 * @return Call could be forwarded.
+	 */
+	inline bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+	{
+		GuiWindow *gw = this->GetSelector();
+		if (gw != nullptr) {
+			gw->SelectorMouseMoveEvent(vp, pos);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Mouse button changed in the viewport. Forward the call to the selector window.
+	 * @param state Previous and current state of the mouse buttons. @see MouseButtons
+	 * @return Call could be forwarded.
+	 */
+	inline bool SelectorMouseButtonEvent(uint8 state)
+	{
+		GuiWindow *gw = this->GetSelector();
+		if (gw != nullptr) {
+			gw->SelectorMouseButtonEvent(state);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Mouse wheel turned in the viewport. Forward the call to the selector window.
+	 * @param direction Direction of turning (-1 or +1).
+	 * @return Call could be forwarded.
+	 */
+	inline bool SelectorMouseWheelEvent(int direction)
+	{
+		GuiWindow *gw = this->GetSelector();
+		if (gw != nullptr) {
+			gw->SelectorMouseWheelEvent(direction);
+			return true;
+		}
+		return false;
+	}
 
 	Point16 GetMousePosition() const;
 

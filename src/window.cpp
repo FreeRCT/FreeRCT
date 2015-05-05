@@ -493,6 +493,31 @@ void GuiWindow::OnMouseLeaveEvent()
 }
 
 /**
+ * Mouse moved in the viewport while the window has an active mouse selector.
+ * @param vp %Viewport where the mouse moved.
+ * @param pos New position of the mouse in the viewport.
+ */
+void GuiWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+}
+
+/**
+ * Mouse buttons changed state while the window has an active mouse selector.
+ * @param state Previous and current state of the mouse buttons. @see MouseButtons
+ */
+void GuiWindow::SelectorMouseButtonEvent(uint8 state)
+{
+}
+
+/**
+ * Mouse wheel turned while the window has an active mouse selector.
+ * @param direction Direction of turning (-1 or +1).
+ */
+void GuiWindow::SelectorMouseWheelEvent(int direction)
+{
+}
+
+/**
  * A click with the left button at a widget has been detected.
  * @param widget %Widget number.
  * @param pos %Position in the \a widget.
