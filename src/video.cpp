@@ -436,7 +436,7 @@ bool VideoSystem::HandleEvent()
 			}
 			if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
 				_video.MarkDisplayDirty();
-				UpdateWindows();
+				_window_manager.UpdateWindows();
 			}
 			return false;
 

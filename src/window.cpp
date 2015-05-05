@@ -976,7 +976,7 @@ bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
  * @todo [medium/difficult] Do this much less stupid.
  * @ingroup window_group
  */
-void UpdateWindows()
+void WindowManager::UpdateWindows()
 {
 	if (!_video.DisplayNeedsRepaint()) return;
 
@@ -986,11 +986,7 @@ void UpdateWindows()
 	Rectangle32 rect(0, 0, _video.GetXSize(), _video.GetYSize());
 	_video.FillRectangle(rect, MakeRGBA(0, 0, 0, OPAQUE));
 
-	Window *w = _window_manager.bottom;
-	while (w != nullptr) {
-		w->OnDraw();
-		w = w->higher;
-	}
+	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw();
 
 	_video.FinishRepaint();
 }
@@ -1007,7 +1003,7 @@ void WindowManager::Tick()
 		w = w->lower;
 	}
 
-	UpdateWindows();
+	this->UpdateWindows();
 }
 
 /**

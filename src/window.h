@@ -338,6 +338,8 @@ public:
 
 	Point16 GetMousePosition() const;
 
+	void UpdateWindows();
+
 	Window *top;    ///< Top-most window in the window stack.
 	Window *bottom; ///< Lowest window in the window stack.
 
@@ -359,7 +361,6 @@ extern WindowManager _window_manager;
 
 bool IsLeftClick(uint8 state);
 
-void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber);
 bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber);
 void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter);
