@@ -162,6 +162,7 @@ public:
 	void SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height);
 
 	void Collect(bool use_additions);
+	void SetSelector(MouseModeSelector *selector);
 
 	/**
 	 * Convert 3D position to the horizontal 2D position.
@@ -192,6 +193,7 @@ public:
 	ViewOrientation orient;       ///< Direction of view.
 	const SpriteStorage *sprites; ///< Sprite collection of the right size.
 	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c nullptr.
+	MouseModeSelector *selector;  ///< Mouse mode selector.
 	bool draw_above_stack;        ///< Also draw voxels above the voxel stack (for cursors).
 	bool underground_mode;        ///< Whether to draw underground mode sprites (else draw normal surface sprites).
 
@@ -272,7 +274,7 @@ protected:
 	void CollectVoxel(const Voxel *vx, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth) override;
 	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
 	CursorType GetCursorType(const XYZPoint16 &voxel_pos);
-	const ImageData *GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope);
+	const ImageData *GetCursorSpriteAtPos(CursorType ctype, const XYZPoint16 &voxel_pos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
 	Point16 north_offsets[4];
@@ -309,6 +311,7 @@ protected:
 VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
 {
 	this->vp = vp;
+	this->selector = nullptr;
 	this->view_pos = vp->view_pos;
 	this->tile_width = vp->tile_width;
 	this->tile_height = vp->tile_height;
@@ -338,6 +341,15 @@ void VoxelCollector::SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 
 	this->rect.base.y = this->ComputeY(this->view_pos.x, this->view_pos.y, this->view_pos.z) + ypos;
 	this->rect.width = width;
 	this->rect.height = height;
+}
+
+/**
+ * Set the mouse mode selector.
+ * @param selector Selector to use while rendering.
+ */
+void VoxelCollector::SetSelector(MouseModeSelector *selector)
+{
+	this->selector = selector;
 }
 
 /**
@@ -757,18 +769,20 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 CursorType SpriteCollector::GetCursorType(const XYZPoint16 &voxel_pos)
 {
 	if (!this->enable_cursors) return CUR_TYPE_INVALID;
-	return this->vp->GetCursorAtPos(voxel_pos);
+	CursorType ctype = this->vp->GetCursorAtPos(voxel_pos);
+	if (ctype == CUR_TYPE_INVALID && this->selector != nullptr) ctype = this->selector->GetCursor(voxel_pos);
+	return ctype;
 }
 
 /**
  * Get the cursor sprite at a given voxel.
+ * @param ctype Cursor type to get.
  * @param voxel_pos Position of the voxel being drawn.
  * @param tslope Slope of the tile.
  * @return Pointer to the cursor sprite, or \c nullptr if no cursor available.
  */
-const ImageData *SpriteCollector::GetCursorSpriteAtPos(const XYZPoint16 &voxel_pos, uint8 tslope)
+const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, const XYZPoint16 &voxel_pos, uint8 tslope)
 {
-	CursorType ctype = this->GetCursorType(voxel_pos);
 	switch (ctype) {
 		case CUR_TYPE_NORTH:
 		case CUR_TYPE_EAST:
@@ -898,7 +912,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		CursorType ctype = this->GetCursorType(voxel_pos);
 		if (ctype == CUR_TYPE_INVALID) return;
 
-		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, SL_FLAT);
+		const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, SL_FLAT);
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
@@ -1042,7 +1056,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	/* Sprite cursor (arrow) */
 	CursorType ctype = this->GetCursorType(voxel_pos);
 	if (ctype != CUR_TYPE_INVALID) {
-		const ImageData *mspr = this->GetCursorSpriteAtPos(voxel_pos, gslope);
+		const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, gslope);
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.level = slice;
@@ -1401,10 +1415,11 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	return ComputeYFunction(xpos, ypos, zpos, this->orientation, this->tile_width, this->tile_height);
 }
 
-void Viewport::OnDraw()
+void Viewport::OnDraw(MouseModeSelector *selector)
 {
-	SpriteCollector collector(this, _mouse_modes.current->EnableCursors());
+	SpriteCollector collector(this, (selector != nullptr) || _mouse_modes.current->EnableCursors());
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
+	collector.SetSelector(selector);
 	collector.Collect(this->additions_enabled && this->additions_displayed);
 	static const Recolouring recolour;
 

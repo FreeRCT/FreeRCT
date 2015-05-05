@@ -229,9 +229,10 @@ void Window::MarkDirty()
 
 /**
  * Paint the window to the screen.
+ * @param selector Mouse mode selector to render.
  * @note The window manager already locked the surface.
  */
-void Window::OnDraw()
+void Window::OnDraw(MouseModeSelector *selector)
 {
 }
 
@@ -445,7 +446,7 @@ void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	/* Do nothing by default. */
 }
 
-void GuiWindow::OnDraw()
+void GuiWindow::OnDraw(MouseModeSelector *selector)
 {
 	this->tree->Draw(this);
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video.DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
@@ -1077,7 +1078,9 @@ void WindowManager::UpdateWindows()
 	Rectangle32 rect(0, 0, _video.GetXSize(), _video.GetYSize());
 	_video.FillRectangle(rect, MakeRGBA(0, 0, 0, OPAQUE));
 
-	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw();
+	GuiWindow *sel_window = this->GetSelector();
+	MouseModeSelector *selector = (sel_window == nullptr) ? nullptr : sel_window->selector;
+	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw(selector);
 
 	_video.FinishRepaint();
 }

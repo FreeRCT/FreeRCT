@@ -155,7 +155,7 @@ public:
 
 	void MarkDirty();
 
-	virtual void OnDraw();
+	virtual void OnDraw(MouseModeSelector *selector);
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
@@ -176,7 +176,7 @@ class GuiWindow : public Window {
 public:
 	GuiWindow(WindowTypes wtype, WindowNumber wnumber);
 	virtual ~GuiWindow();
-	virtual void OnDraw() override;
+	virtual void OnDraw(MouseModeSelector *selector) override;
 
 	virtual void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 	virtual void SetWidgetStringParameters(WidgetNumber wid_num) const;
