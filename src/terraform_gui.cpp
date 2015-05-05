@@ -14,6 +14,7 @@
 #include "sprite_store.h"
 #include "sprite_data.h"
 #include "gui_sprites.h"
+#include "mouse_mode.h"
 
 static const int TERRAFORM_MAX_SIZE = 9;      ///< Maximum length of tiles for terraforming (both X and Y).
 static const int TERRAFORM_ELEMENT_SIZE = 16; ///< Horizontal size of a tile in the display (pixels).
@@ -27,6 +28,9 @@ public:
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 
+	void SelectorMouseWheelEvent(int direction) override;
+	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+
 	bool level; ///< If true, level the area, else move it up/down as-is.
 	int xsize;  ///< Size of the terraform area in horizontal direction.
 	int ysize;  ///< Size of the terraform area in vertical direction.
@@ -36,6 +40,8 @@ private:
 	void SetTerraformSize(int xs = -1, int ys = -1);
 	void IncreaseSize();
 	void DecreaseSize();
+
+	CursorMouseMode tiles_selector;  ///< %Selector for displaying/handling tile(s).
 };
 
 /** Widget numbers of the terraform GUI. */
@@ -78,13 +84,41 @@ TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
 	this->Setlevelling(true);
 	this->SetTerraformSize(1, 1);
-
-	_terraformer.OpenWindow();
 }
 
 TerraformGui::~TerraformGui()
 {
-	_terraformer.CloseWindow();
+	this->SetSelector(nullptr);
+}
+
+void TerraformGui::SelectorMouseWheelEvent(int direction)
+{
+	if (this->selector == nullptr) return;
+
+	Viewport *vp = GetViewport();
+	if (this->xsize == 0 && this->ysize == 0) { // 'dot' mode.
+		ChangeTileCursorMode(this->tiles_selector.area.base, this->tiles_selector.cur_cursor, vp, this->level, direction, true);
+	} else {
+		ChangeAreaCursorMode(this->tiles_selector.area, vp, this->level, direction);
+	}
+	this->tiles_selector.InitTileData();
+}
+
+void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+	if (this->selector == nullptr) return;
+
+	FinderData fdata(CS_GROUND, (this->xsize == 0 && this->ysize == 0) ? FW_CORNER : FW_TILE);
+	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND) return;
+	Rectangle16 &sel_rect = this->tiles_selector.area;
+	int xsel = sel_rect.base.x + sel_rect.width / 2;
+	int ysel = sel_rect.base.y + sel_rect.height / 2;
+	if (fdata.cursor == this->tiles_selector.cur_cursor && fdata.voxel_pos.x == xsel && fdata.voxel_pos.y == ysel) return;
+
+	this->tiles_selector.MarkDirty();
+	this->tiles_selector.cur_cursor = fdata.cursor; // Copy cursor and position.
+	this->tiles_selector.SetPosition(fdata.voxel_pos.x - sel_rect.width / 2, fdata.voxel_pos.y - sel_rect.height / 2);
+	this->tiles_selector.MarkDirty();
 }
 
 void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
@@ -170,8 +204,6 @@ void TerraformGui::Setlevelling(bool level)
 	this->SetWidgetPressed(TERR_MOVE, !this->level);
 	this->MarkWidgetDirty(TERR_LEVEL);
 	this->MarkWidgetDirty(TERR_MOVE);
-
-	_terraformer.Setlevelling(level);
 }
 
 /**
@@ -185,7 +217,16 @@ void TerraformGui::SetTerraformSize(int xs, int ys)
 	if (ys >= 0) this->ysize = ys;
 
 	this->MarkWidgetDirty(TERR_DISPLAY);
-	_terraformer.SetSize(this->xsize, this->ysize);
+
+	if (this->selector != nullptr) this->selector->MarkDirty();
+
+	if (this->xsize == 0 && this->ysize == 0) {
+		this->tiles_selector.SetSize(1, 1);
+	} else {
+		this->tiles_selector.SetSize(this->xsize, this->ysize);
+	}
+	SetSelector(&this->tiles_selector);
+	if (this->selector != nullptr) this->selector->MarkDirty();
 }
 
 /** Increase the size of the terraform area. */

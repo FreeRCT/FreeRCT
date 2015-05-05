@@ -19,6 +19,7 @@
 class Viewport;
 class RideType;
 class Person;
+class MouseModeSelector;
 
 /** An item in a dropdown list. */
 class DropdownItem {
@@ -154,7 +155,7 @@ public:
 
 	void MarkDirty();
 
-	virtual void OnDraw();
+	virtual void OnDraw(MouseModeSelector *selector);
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
 	virtual void OnMouseWheelEvent(int direction);
@@ -175,7 +176,7 @@ class GuiWindow : public Window {
 public:
 	GuiWindow(WindowTypes wtype, WindowNumber wnumber);
 	virtual ~GuiWindow();
-	virtual void OnDraw() override;
+	virtual void OnDraw(MouseModeSelector *selector) override;
 
 	virtual void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 	virtual void SetWidgetStringParameters(WidgetNumber wid_num) const;
@@ -187,6 +188,9 @@ public:
 	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	virtual void OnMouseLeaveEvent() override;
+	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
+	virtual void SelectorMouseButtonEvent(uint8 state);
+	virtual void SelectorMouseWheelEvent(int direction);
 	virtual void TimeoutCallback() override;
 	virtual void SetHighlight(bool value) override;
 
@@ -210,8 +214,11 @@ public:
 		return this->rect.base.y + wid->pos.base.y;
 	}
 
+	inline void SetSelector(MouseModeSelector *selector);
 	inline void MarkWidgetDirty(WidgetNumber wnum);
-	bool initialized; ///< Flag telling widgets whether the window has already been initialized.
+
+	bool initialized;            ///< Flag telling widgets whether the window has already been initialized.
+	MouseModeSelector *selector; ///< Currently active selector of this window. May be \c nullptr. Change through #SetSelector.
 
 protected:
 	Point16 mouse_pos;         ///< Mouse position relative to the window (negative coordinates means 'out of window').
@@ -325,6 +332,7 @@ public:
 	void AddToStack(Window *w);
 	void RemoveFromStack(Window *w);
 	void RaiseWindow(Window *w);
+	void SetSelector(GuiWindow *w, MouseModeSelector *selector);
 
 	void CloseAllWindows();
 	void ResetAllWindows();
@@ -336,7 +344,55 @@ public:
 	bool KeyEvent(WmKeyCode key_code, const uint8 *symbol);
 	void Tick();
 
+	/**
+	 * Mouse moved in the viewport. Forward the call to the selector window.
+	 * @oaram vp %Viewport where the mouse moved.
+	 * @param pos New position of the mouse in the viewport.
+	 * @return Call could be forwarded.
+	 */
+	inline bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+	{
+		GuiWindow *gw = this->GetSelector();
+		if (gw != nullptr) {
+			gw->SelectorMouseMoveEvent(vp, pos);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Mouse button changed in the viewport. Forward the call to the selector window.
+	 * @param state Previous and current state of the mouse buttons. @see MouseButtons
+	 * @return Call could be forwarded.
+	 */
+	inline bool SelectorMouseButtonEvent(uint8 state)
+	{
+		GuiWindow *gw = this->GetSelector();
+		if (gw != nullptr) {
+			gw->SelectorMouseButtonEvent(state);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Mouse wheel turned in the viewport. Forward the call to the selector window.
+	 * @param direction Direction of turning (-1 or +1).
+	 * @return Call could be forwarded.
+	 */
+	inline bool SelectorMouseWheelEvent(int direction)
+	{
+		GuiWindow *gw = this->GetSelector();
+		if (gw != nullptr) {
+			gw->SelectorMouseWheelEvent(direction);
+			return true;
+		}
+		return false;
+	}
+
 	Point16 GetMousePosition() const;
+
+	void UpdateWindows();
 
 	Window *top;    ///< Top-most window in the window stack.
 	Window *bottom; ///< Lowest window in the window stack.
@@ -344,22 +400,34 @@ public:
 private:
 	Window *FindWindowByPosition(const Point16 &pos) const;
 	void UpdateCurrentWindow();
+	GuiWindow *GetSelector();
 
 	void StartWindowMove();
 
-	Point16 mouse_pos;      ///< Last reported mouse position.
-	Window *current_window; ///< 'Current' window under the mouse.
-	uint8 mouse_state;      ///< Last reported mouse button state (lower 4 bits).
-	uint8 mouse_mode;       ///< Mouse mode of the window manager. @see WmMouseModes
+	Point16 mouse_pos;        ///< Last reported mouse position.
+	Window *current_window;   ///< 'Current' window under the mouse.
+	GuiWindow *select_window; ///< Cache containing the highest window with active GuiWindow::selector field
+	                          ///< (\c nullptr if no such window exists). Only valid if #select_valid holds.
+	bool select_valid;        ///< State of the #select_window cache.
+	uint8 mouse_state;        ///< Last reported mouse button state (lower 4 bits).
+	uint8 mouse_mode;         ///< Mouse mode of the window manager. @see WmMouseModes
 
-	Point16 move_offset;    ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
+	Point16 move_offset;      ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
 };
 
 extern WindowManager _window_manager;
 
+/**
+ * Set a new selector for the window.
+ * @param selector Selector to set. May be \c nullptr to deselect a selector.
+ */
+inline void GuiWindow::SetSelector(MouseModeSelector *selector)
+{
+	_window_manager.SetSelector(this, selector);
+}
+
 bool IsLeftClick(uint8 state);
 
-void UpdateWindows();
 Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber);
 bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber);
 void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter);

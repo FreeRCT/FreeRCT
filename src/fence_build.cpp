@@ -83,7 +83,6 @@ void FenceBuildManager::LeaveMode()
 	Viewport *vp = GetViewport();
 	if (vp != nullptr) {
 		vp->tile_cursor.SetInvalid();
-		vp->area_cursor.SetInvalid();
 	}
 	if (this->state == FBS_ON) this->state = FBS_NO_MOUSE;
 }

@@ -11,6 +11,7 @@
 #define VIEWPORT_H
 
 #include "window.h"
+#include "mouse_mode.h"
 
 class Viewport;
 class Person;
@@ -23,35 +24,12 @@ class RideInstance;
 enum ViewportMouseMode {
 	MM_INACTIVE,       ///< Inactive mode.
 	MM_OBJECT_SELECT,  ///< Object selection from the display.
-	MM_TILE_TERRAFORM, ///< Terraforming tiles.
 	MM_PATH_BUILDING,  ///< Construct paths.
 	MM_SHOP_PLACEMENT, ///< Placement of a shop.
 	MM_COASTER_BUILD,  ///< Building or editing a coaster track.
 	MM_FENCE_BUILDING, ///< Building of fences.
 
 	MM_COUNT,          ///< Number of mouse modes.
-};
-
-/**
- * Available cursor types.
- * @ingroup viewport_group
- */
-enum CursorType {
-	CUR_TYPE_NORTH,    ///< Show a N corner highlight.
-	CUR_TYPE_EAST,     ///< Show a E corner highlight.
-	CUR_TYPE_SOUTH,    ///< Show a S corner highlight.
-	CUR_TYPE_WEST,     ///< Show a W corner highlight.
-	CUR_TYPE_TILE,     ///< Show a tile highlight.
-	CUR_TYPE_ARROW_NE, ///< Show a build arrow in the NE direction.
-	CUR_TYPE_ARROW_SE, ///< Show a build arrow in the SE direction.
-	CUR_TYPE_ARROW_SW, ///< Show a build arrow in the SW direction.
-	CUR_TYPE_ARROW_NW, ///< Show a build arrow in the NW direction.
-	CUR_TYPE_EDGE_NE,  ///< Show a NE edge sprite highlight.
-	CUR_TYPE_EDGE_SE,  ///< Show a SE edge sprite highlight.
-	CUR_TYPE_EDGE_SW,  ///< Show a SW edge sprite highlight.
-	CUR_TYPE_EDGE_NW,  ///< Show a NW edge sprite highlight.
-
-	CUR_TYPE_INVALID = 0xFF, ///< Invalid/unused cursor.
 };
 
 /**
@@ -168,28 +146,6 @@ public:
 };
 
 /**
- * %Cursor consisting of one or more tiles.
- * The cursor at every tile is a tile cursor (#CUR_TYPE_TILE).
- */
-class MultiCursor : public BaseCursor {
-public:
-	MultiCursor(Viewport *vp);
-
-	Rectangle16 rect;   ///< Rectangle with cursors.
-	int16 zpos[10][10]; ///< Cached Z positions of the cursors (negative means not set).
-
-	bool SetCursor(const Rectangle16 &rect, CursorType type, bool always = false);
-
-	void MarkDirty() override;
-	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;
-	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
-
-	void ClearZPositions();
-	uint8 GetZpos(int xpos, int ypos);
-	void ResetZPosition(const Point16 &pos);
-};
-
-/**
  * Single tile edge cursor.
  * @ingroup viewport_group
  */
@@ -217,7 +173,7 @@ public:
 	~Viewport();
 
 	void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
-	void OnDraw() override;
+	void OnDraw(MouseModeSelector *selector) override;
 
 	void Rotate(int direction);
 	void MoveViewport(int dx, int dy);
@@ -244,7 +200,6 @@ public:
 	ViewOrientation orientation; ///< Direction of view.
 	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
 	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
-	MultiCursor area_cursor;     ///< Cursor for showing an area.
 	EdgeCursor edge_cursor;      ///< Cursor for showing an edge sprite
 	Point16 mouse_pos;           ///< Last known position of the mouse.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.

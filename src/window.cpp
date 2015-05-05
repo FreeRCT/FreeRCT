@@ -27,6 +27,7 @@
 #include "sprite_store.h"
 #include "ride_type.h"
 #include "viewport.h"
+#include "mouse_mode.h"
 
 /**
  * %Window manager.
@@ -228,9 +229,10 @@ void Window::MarkDirty()
 
 /**
  * Paint the window to the screen.
+ * @param selector Mouse mode selector to render.
  * @note The window manager already locked the surface.
  */
-void Window::OnDraw()
+void Window::OnDraw(MouseModeSelector *selector)
 {
 }
 
@@ -321,6 +323,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 	this->SetHighlight(true);
 	this->ride_type = nullptr;
 	this->initialized = false;
+	this->selector = nullptr;
 }
 
 GuiWindow::~GuiWindow()
@@ -443,7 +446,7 @@ void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	/* Do nothing by default. */
 }
 
-void GuiWindow::OnDraw()
+void GuiWindow::OnDraw(MouseModeSelector *selector)
 {
 	this->tree->Draw(this);
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video.DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
@@ -488,6 +491,31 @@ void GuiWindow::OnMouseLeaveEvent()
 {
 	this->mouse_pos.x = -1;
 	this->mouse_pos.y = -1;
+}
+
+/**
+ * Mouse moved in the viewport while the window has an active mouse selector.
+ * @param vp %Viewport where the mouse moved.
+ * @param pos New position of the mouse in the viewport.
+ */
+void GuiWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+}
+
+/**
+ * Mouse buttons changed state while the window has an active mouse selector.
+ * @param state Previous and current state of the mouse buttons. @see MouseButtons
+ */
+void GuiWindow::SelectorMouseButtonEvent(uint8 state)
+{
+}
+
+/**
+ * Mouse wheel turned while the window has an active mouse selector.
+ * @param direction Direction of turning (-1 or +1).
+ */
+void GuiWindow::SelectorMouseWheelEvent(int direction)
+{
 }
 
 /**
@@ -637,6 +665,8 @@ WindowManager::WindowManager()
 	this->mouse_pos.x = -10000; // A very unlikely position for a window.
 	this->mouse_pos.y = -10000;
 	this->current_window = nullptr;
+	this->select_window = nullptr;
+	this->select_valid = true;
 	this->mouse_state = 0;
 	this->mouse_mode = WMMM_PASS_THROUGH;
 }
@@ -708,6 +738,9 @@ void WindowManager::AddToStack(Window *w)
 	assert(w->lower == nullptr && w->higher == nullptr);
 	assert(!this->HasWindow(w));
 
+	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
+	this->select_valid = false;
+
 	uint w_prio = GetWindowZPriority(w->wtype);
 	if (this->top == nullptr || w_prio >= GetWindowZPriority(this->top->wtype)) {
 		/* Add to the top. */
@@ -740,6 +773,9 @@ void WindowManager::RemoveFromStack(Window *w)
 {
 	assert(this->HasWindow(w));
 
+	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
+	this->select_valid = false;
+
 	if (w->higher == nullptr) {
 		this->top = w->lower;
 	} else {
@@ -767,6 +803,62 @@ void WindowManager::RaiseWindow(Window *w)
 		this->AddToStack(w);
 		w->MarkDirty();
 	}
+}
+
+/**
+ * Set a new mouse mode selector for the given window, the current selector may become invalid.
+ * @param w %Window owning the selector to set.
+ * @param selector Selector to set. May be \c nullptr to deselect a selector.
+ */
+void WindowManager::SetSelector(GuiWindow *w, MouseModeSelector *selector)
+{
+	if (w->selector == selector) return;
+
+	if (!this->select_valid) {
+		w->selector = selector; // Cache is invalid, any change is fine.
+		return;
+	}
+
+	if (this->select_window == w) {
+		this->select_window->selector->MarkDirty();
+		this->select_window->selector = selector;
+		if (selector == nullptr) {
+			this->select_valid = false;
+		} else {
+			this->select_window->selector->MarkDirty();
+		}
+	} else if (w->selector != nullptr) {
+		w->selector = selector; // w is definitely below this->select_window.
+	} else {
+		w->selector = selector; // w may be above this->select_window, invalidate cache.
+
+		this->select_window->selector->MarkDirty();
+		this->select_valid = false;
+	}
+}
+
+/**
+ * Get the currently active selector.
+ * @return The currently active selector, or \c nullptr if no such window exists.
+ */
+GuiWindow *WindowManager::GetSelector()
+{
+	if (this->select_valid) return this->select_window;
+
+	Window *w = this->top;
+	while (w != nullptr) {
+		GuiWindow *gw = dynamic_cast<GuiWindow *>(w);
+		if (gw != nullptr && gw->selector != nullptr) {
+			this->select_window = gw;
+			this->select_valid = true;
+			this->select_window->selector->MarkDirty();
+			return this->select_window;
+		}
+		w = w->lower;
+	}
+	this->select_window = nullptr;
+	this->select_valid = true;
+	return this->select_window;
 }
 
 /**
@@ -976,7 +1068,7 @@ bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
  * @todo [medium/difficult] Do this much less stupid.
  * @ingroup window_group
  */
-void UpdateWindows()
+void WindowManager::UpdateWindows()
 {
 	if (!_video.DisplayNeedsRepaint()) return;
 
@@ -986,11 +1078,9 @@ void UpdateWindows()
 	Rectangle32 rect(0, 0, _video.GetXSize(), _video.GetYSize());
 	_video.FillRectangle(rect, MakeRGBA(0, 0, 0, OPAQUE));
 
-	Window *w = _window_manager.bottom;
-	while (w != nullptr) {
-		w->OnDraw();
-		w = w->higher;
-	}
+	GuiWindow *sel_window = this->GetSelector();
+	MouseModeSelector *selector = (sel_window == nullptr) ? nullptr : sel_window->selector;
+	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw(selector);
 
 	_video.FinishRepaint();
 }
@@ -1007,7 +1097,7 @@ void WindowManager::Tick()
 		w = w->lower;
 	}
 
-	UpdateWindows();
+	this->UpdateWindows();
 }
 
 /**
