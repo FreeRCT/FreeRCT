@@ -11,6 +11,8 @@
 #define MOUSE_MODE_H
 
 #include "geometry.h"
+#include "math_func.h"
+#include "map.h"
 
 /**
  * Available cursor types.
@@ -96,5 +98,123 @@ public:
 	Rectangle16 area;      ///< Position and size of the selected area (over-approximation of voxel stacks).
 	CursorType cur_cursor; ///< Cursor to return at the #GetCursor call.
 };
+
+/** Cursor data of a tile. */
+struct CursorTileData {
+	int8 cursor_height;  ///< Height of the cursor (equal to ground height, except at steep slopes). Negative value means 'unknown'.
+	bool cursor_enabled; ///< Whether the tile should have a cursor displayed.
+
+	/** Initialize #CursorTileData data members. */
+	virtual void Init()
+	{
+		this->cursor_height = -1;
+		this->cursor_enabled = false;
+	}
+
+	/**
+	 * Get the height of the ground at the tile (top-voxel in case of steep slope).
+	 * @param abs_x Absolute world X position of the tile.
+	 * @param abs_y Absolute world Y position of the tile.
+	 * @return Height of the ground at the tile (top-voxel in case of steep slope).
+	 */
+	int8 GetGroundHeight(int abs_x, int abs_y)
+	{
+		if (this->cursor_height >= 0) return this->cursor_height;
+		this->cursor_height = _world.GetTopGroundHeight(abs_x, abs_y);
+		return this->cursor_height;
+	}
+};
+
+void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height); // viewport.cpp
+
+/** Template for a mouse mode selector with an area of data. */
+template <typename TileData>
+class TileDataMouseMode : public MouseModeSelector {
+public:
+	TileDataMouseMode() : MouseModeSelector()
+	{
+	}
+
+	~TileDataMouseMode()
+	{
+	}
+
+	void MarkDirty() override
+	{
+		for (int x = 0; x < this->area.width; x++) {
+			int xpos = this->area.base.x + x;
+			for (int y = 0; y < this->area.height; y++) {
+				int ypos = this->area.base.y + y;
+				TileData &td = this->tile_data[this->GetTileOffset(x, y)];
+				if (!td.cursor_enabled) continue;
+
+				MarkVoxelDirty(XYZPoint16(xpos, ypos, td.GetGroundHeight(xpos, ypos)), 0);
+			}
+		}
+	}
+
+	CursorType GetCursor(const XYZPoint16 &voxel_pos) override
+	{
+		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
+		if (index == INVALID_TILE_INDEX) return CUR_TYPE_INVALID;
+		TileData &td = this->tile_data[index];
+		if (td.cursor_enabled && td.GetGroundHeight(voxel_pos.x, voxel_pos.y) == voxel_pos.z) return this->cur_cursor;
+		return CUR_TYPE_INVALID;
+	}
+
+	/**
+	 * Set the size of the cursor area.
+	 * @param xsize Horizontal size of the area.
+	 * @param ysize Vertical size of the area.
+	 * @pre World must have been marked dirty before moving the area.
+	 * @post World must be marked dirty after moving the area.
+	 */
+	void SetSize(int xsize, int ysize)
+	{
+		xsize = Clamp(xsize, 0, 128); // Arbitrary upper limit.
+		ysize = Clamp(ysize, 0, 128);
+		this->area.width = xsize;
+		this->area.height = ysize;
+		this->InitTileData();
+	}
+
+	/**
+	 * Set the position of the cursor area. Clears the cursor and range data.
+	 * @param xbase X coordinate of the base position.
+	 * @param ybase Y coordinate of the base position.
+	 * @pre World must have been marked dirty before moving the area.
+	 * @post World must be marked dirty after moving the area.
+	 */
+	void SetPosition(int xbase, int ybase)
+	{
+		this->area.base.x = xbase;
+		this->area.base.y = ybase;
+		this->InitTileData();
+	}
+
+	/** Initialize the tile data of the cursor area. */
+	void InitTileData()
+	{
+		if (this->area.width == 0 || this->area.height == 0) return;
+
+		/* Setup the cursor area for the current position and size. */
+		int size = this->area.width * this->area.height;
+		this->tile_data.resize(size);
+		for (int x = 0; x < this->area.width; x++) {
+			int xpos = this->area.base.x + x;
+			for (int y = 0; y < this->area.height; y++) {
+				int ypos = this->area.base.y + y;
+				TileData &td = this->tile_data[this->GetTileOffset(x, y)];
+				td.Init();
+				td.cursor_enabled = (IsVoxelstackInsideWorld(xpos, ypos) && _world.GetTileOwner(xpos, ypos) == OWN_PARK);
+			}
+		}
+	}
+
+	std::vector<TileData> tile_data; ///< Tile data of the area.
+};
+
+/** Mouse mode displaying a cursor of some size at the ground. */
+typedef TileDataMouseMode<CursorTileData> CursorMouseMode;
 
 #endif
