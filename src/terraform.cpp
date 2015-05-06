@@ -627,14 +627,18 @@ void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, Viewport *
 
 /**
  * Change the terrain while in 'area' mode (i.e. a rectangle of tiles that changes).
- * @param area Affected area.
+ * @param orig_area Affected area (maybe partly off-world).
  * @param vp %Viewport displaying the world.
  * @param levelling If \c true, use levelling mode (only change the lowest/highest corners of a tile), else move every corner.
  * @param direction Direction of change.
  */
-void ChangeAreaCursorMode(const Rectangle16 &area, Viewport *vp, bool levelling, int direction)
+void ChangeAreaCursorMode(const Rectangle16 &orig_area, Viewport *vp, bool levelling, int direction)
 {
 	Point16 p;
+
+	Rectangle16 area(orig_area); // Restrict area to on-world.
+	area.RestrictTo(0, 0, _world.GetXSize(), _world.GetYSize());
+	if (area.width == 0 || area.height == 0) return;
 
 	TerrainChanges changes(area.base, area.width, area.height);
 
