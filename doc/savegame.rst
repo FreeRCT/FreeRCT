@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: 2014-04-19
+:Version: 2015-05-05
 
 .. contents::
    :depth: 3
@@ -38,13 +38,14 @@ Offset  Length  Version  Description
   28       ?      3-     Current basic world block.
    ?      16      1-     Current random number block
    ?       ?      2-     Current financial data.
+   ?      28      4-     Current weather block.
    ?                     Total length of the save file.
 ======  ======  =======  ======================================================
 
 
 File header
 -----------
-The file header consists of 3 parts. Current version number is 3.
+The file header consists of 3 parts. Current version number is 4.
 
 ======  ======  ======================================================
 Offset  Length  Description
@@ -61,6 +62,7 @@ Version history
 - 1 (20140410) Initial version.
 - 2 (20140419) Added financial data.
 - 3 (20140419) Added basic world data.
+- 4 (20150505) Added weather data.
 
 
 Current date block
@@ -222,5 +224,27 @@ Version history
 - 2 (20150410) Added fence data.
 - 3 (20150428) Fences near the lowest corner of a steep slope moved from top voxel to base voxel.
 
+
+Current weather block
+-------------
+The weather block stores the current weather. Current version is 1.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "WTHR".
+   4       4      1-     Version number of the weather block.
+   8       4      1-     Current temperature, in 1/10 degrees Celsius.
+  12       4      1-     Current weather type.
+  16       4      1-     Next weather type.
+  20       4      1-     Speed of change in the weather.
+  24       4      1-     "RHTW"
+  28                     Total size.
+======  ======  =======  ======================================================
+
+Version history
+~~~~~~~~~~~~~~~
+
+- 1 (20150505) Initial version.
 
 .. vim: spell

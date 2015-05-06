@@ -26,7 +26,7 @@ class Weather {
 public:
 	Weather();
 
-	int temperature; ///< Current temperature, in 1/10 degrees Celcius.
+	int temperature; ///< Current temperature, in 1/10 degrees Celsius.
 
 	int current; ///< Current weather.
 	int next;    ///< Next weather type.
@@ -34,6 +34,8 @@ public:
 
 	void Initialize();
 	void OnNewDay();
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	WeatherType GetWeatherType() const;
 

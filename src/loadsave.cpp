@@ -252,7 +252,7 @@ void Saver::PutLongLong(uint64 val)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 3) ldr.SetFailMessage("Bad file header");
+	if (version > 4) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
 
 	Loader reset_loader(nullptr);
@@ -261,6 +261,7 @@ static void LoadElements(Loader &ldr)
 	_world.Load((version >= 3) ? ldr : reset_loader);
 	Random::Load(ldr);
 	_finances_manager.Load((version >= 2) ? ldr : reset_loader);
+	_weather.Load((version >= 4) ? ldr : reset_loader);
 
 	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
@@ -272,13 +273,14 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 3);
+	svr.StartBlock("FCTS", 4);
 	svr.EndBlock();
 
 	SaveDate(svr);
 	_world.Save(svr);
 	Random::Save(svr);
 	_finances_manager.Save(svr);
+	_weather.Save(svr);
 }
 
 /**
