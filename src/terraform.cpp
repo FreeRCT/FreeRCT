@@ -11,7 +11,7 @@
 #include "map.h"
 #include "viewport.h"
 #include "terraform.h"
-#include "gamemode.h"
+#include "gamecontrol.h"
 #include "math_func.h"
 #include "memory.h"
 

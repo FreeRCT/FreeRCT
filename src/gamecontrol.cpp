@@ -15,10 +15,11 @@
 #include "people.h"
 #include "window.h"
 #include "dates.h"
-#include "gamemode.h"
 #include "viewport.h"
 #include "weather.h"
 #include "freerct.h"
+
+GameModeManager _game_mode_mgr; ///< Game mode manager object.
 
 /** Initialize all game data structures for playing a new game. */
 void StartNewGame()
@@ -86,4 +87,23 @@ void OnNewFrame(uint32 frame_delay)
 	DateOnTick();
 	_guests.OnAnimate(frame_delay);
 	_rides_manager.OnAnimate(frame_delay);
+}
+
+GameModeManager::GameModeManager()
+{
+	this->game_mode = GM_NONE;
+}
+
+GameModeManager::~GameModeManager()
+{
+}
+
+/**
+ * Change game mode of the program.
+ * @param new_mode New mode to use.
+ */
+void GameModeManager::SetGameMode(GameMode new_mode)
+{
+	this->game_mode = new_mode;
+	NotifyChange(WC_TOOLBAR, 0, CHG_UPDATE_BUTTONS, 0);
 }

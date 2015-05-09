@@ -20,7 +20,7 @@
 #include "person.h"
 #include "people.h"
 #include "viewport.h"
-#include "gamemode.h"
+#include "gamecontrol.h"
 #include "weather.h"
 
 void ShowQuitProgram();

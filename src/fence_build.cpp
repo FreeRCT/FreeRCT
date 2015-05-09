@@ -12,7 +12,7 @@
 #include "map.h"
 #include "window.h"
 #include "math_func.h"
-#include "gamemode.h"
+#include "gamecontrol.h"
 #include <math.h>
 
 FenceBuildManager _fence_builder; ///< %Fence build manager.
