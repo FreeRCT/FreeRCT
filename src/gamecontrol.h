@@ -10,13 +10,57 @@
 #ifndef GAMECONTROL_H
 #define GAMECONTROL_H
 
-void StartNewGame();
-void ShutdownGame();
-
 void OnNewDay();
 void OnNewMonth();
 void OnNewYear();
 void OnNewFrame(uint32 frame_delay);
+
+/** Actions that can be run to control the game. */
+enum GameControlAction {
+	GCA_NONE,      ///< No action to run.
+	GCA_NEW_GAME,  ///< Prepare a new game.
+	GCA_LOAD_GAME, ///< Load a saved game.
+	GCA_SAVE_GAME, ///< Save the current game.
+	GCA_QUIT,      ///< Quit the game.
+};
+
+/**
+ * Class controlling the current game.
+ */
+class GameControl {
+public:
+	GameControl();
+	~GameControl();
+
+	/**
+	 * If applicable, run the latest action.
+	 */
+	inline void DoNextAction()
+	{
+		if (this->next_action != GCA_NONE) this->RunAction();
+	}
+
+	void Initialize();
+	void Uninitialize();
+
+	void NewGame();
+	void LoadGame(const std::string &fname);
+	void SaveGame(const std::string &fname);
+	void QuitGame();
+
+	bool running; ///< Indicates whether a game is currently running.
+
+private:
+	void RunAction();
+	void NewLevel();
+	void StartLevel();
+	void ShutdownLevel();
+
+	GameControlAction next_action; ///< Action game control wants to run, or #GCA_NONE for 'no action'.
+	std::string fname;             ///< Filename of game level to load from or save to.
+};
+
+extern GameControl _game_control;
 
 /**
  * The current game mode controls what user operations that are allowed
@@ -29,7 +73,9 @@ enum GameMode {
 	GM_EDITOR, ///< The current scenario is being edited.
 };
 
-/** Class managing the game mode of the program. */
+/** Class managing the game mode of the program.
+ *  @todo Move functionality to GameControl class?
+ */
 class GameModeManager {
 public:
 	GameModeManager();

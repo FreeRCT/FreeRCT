@@ -21,13 +21,6 @@
 #include <string>
 
 VideoSystem _video;  ///< Video sub-system.
-static bool _finish; ///< Finish execution of the main loop (and program).
-
-/** End the program. */
-void QuitProgram()
-{
-	_finish = true;
-}
 
 /** Default constructor of a clipped rectangle. */
 ClippedRectangle::ClippedRectangle()
@@ -358,7 +351,7 @@ static bool HandleKeyInput(WmKeyCode key_code, const uint8 *symbol)
 		if (symbol[0] == '1') {
 			GetViewport()->ToggleUndergroundMode();
 		} else if (symbol[0] == 'q') {
-			QuitProgram();
+			_game_control.QuitGame();
 			return true;
 		}
 	}
@@ -441,7 +434,7 @@ bool VideoSystem::HandleEvent()
 			return false;
 
 		case SDL_QUIT:
-			QuitProgram();
+			_game_control.QuitGame();
 			return true;
 
 		default:
@@ -454,9 +447,8 @@ void VideoSystem::MainLoop()
 {
 	static const uint32 FRAME_DELAY = 30; // Number of milliseconds between two frames.
 	bool missing_sprites_check = false;
-	_finish = false;
 
-	while (!_finish) {
+	for (;;) {
 		uint32 start = SDL_GetTicks();
 
 		OnNewFrame(FRAME_DELAY);
@@ -465,7 +457,10 @@ void VideoSystem::MainLoop()
 		for (;;) {
 			if (HandleEvent()) break;
 		}
-		if (_finish) break;
+
+		/* If necessary, run the latest game control action. */
+		_game_control.DoNextAction();
+		if (!_game_control.running) break;
 
 		uint32 now = SDL_GetTicks();
 		if (now >= start) { // No wrap around.
