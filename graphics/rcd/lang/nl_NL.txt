@@ -99,10 +99,10 @@ strings {
 		PATH_GUI_NORMAL_PATH:      "Normale paden";
 		PATH_GUI_QUEUE_PATH:       "Wachtrijen";
 
-		PATH_GUI_SINGLE:		"Enkel";
-		PATH_GUI_DIRECTIONAL:		"Richting";
-		PATH_GUI_SINGLE_TIP:		"Plaats een enkel pad";
-		PATH_GUI_DIRECTIONAL_TIP:	"Begin een gericht pad te leggen";
+		PATH_GUI_SINGLE:           "Enkel";
+		PATH_GUI_DIRECTIONAL:      "Richting";
+		PATH_GUI_SINGLE_TIP:       "Plaats een enkel pad";
+		PATH_GUI_DIRECTIONAL_TIP:  "Begin een gericht pad te leggen";
 
 		// Ride select gui strings.
 		RIDE_SELECT_TITLE:           "Attractie selectie";
