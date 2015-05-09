@@ -99,10 +99,10 @@ strings {
 		PATH_GUI_NORMAL_PATH:      "Normale paden";
 		PATH_GUI_QUEUE_PATH:       "Wachtrijen";
 
-		PATH_GUI_SINGLE:		"Enkel";
-		PATH_GUI_DIRECTIONAL:		"Richting";
-		PATH_GUI_SINGLE_TIP:		"Plaats een enkel pad";
-		PATH_GUI_DIRECTIONAL_TIP:	"Begin een gericht pad te leggen";
+		PATH_GUI_SINGLE:           "Enkel";
+		PATH_GUI_DIRECTIONAL:      "Richting";
+		PATH_GUI_SINGLE_TIP:       "Plaats een enkel pad";
+		PATH_GUI_DIRECTIONAL_TIP:  "Begin een gericht pad te leggen";
 
 		// Ride select gui strings.
 		RIDE_SELECT_TITLE:           "Attractie selectie";
@@ -208,16 +208,16 @@ strings {
 	}
 
 	stringtexts("toilet") {
-                 NAME_INSTANCE1:        "Toilet";
-                 NAME_INSTANCE2:        "Badhuis";
-                 NAME_TYPE:             "Toilet";
-                 DESCRIPTION_TYPE:      "Ga hier wanneer je nodig moet";
-                 DESCRIPTION_RECOLOUR1: "Toilet kleur";
-                 DESCRIPTION_RECOLOUR2: "-";
-                 DESCRIPTION_RECOLOUR3: "-";
-                 NAME_ITEM1:            "Toilet";
-                 NAME_ITEM2:            "";
-         }
+		NAME_INSTANCE1:        "Toilet";
+		NAME_INSTANCE2:        "Badhuis";
+		NAME_TYPE:             "Toilet";
+		DESCRIPTION_TYPE:      "Ga hierheen wanneer je nodig moet";
+		DESCRIPTION_RECOLOUR1: "Toilet kleur";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Toilet";
+		NAME_ITEM2:            "";
+	}
 
 	stringtexts("basic-coaster") {
 		NAME_INSTANCE:    "Gekke achtbaan";
