@@ -211,7 +211,7 @@ strings {
                  NAME_INSTANCE1:        "Toilet";
                  NAME_INSTANCE2:        "Badhuis";
                  NAME_TYPE:             "Toilet";
-                 DESCRIPTION_TYPE:      "Ga hier wanneer je nodig moet";
+                 DESCRIPTION_TYPE:      "Ga hierheen wanneer je nodig moet";
                  DESCRIPTION_RECOLOUR1: "Toilet kleur";
                  DESCRIPTION_RECOLOUR2: "-";
                  DESCRIPTION_RECOLOUR3: "-";
