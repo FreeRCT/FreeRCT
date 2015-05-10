@@ -806,12 +806,11 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
-		return;
 	}
 
 	uint8 platform_shape = PATH_INVALID;
-	SmallRideInstance sri = voxel->GetInstance();
-	uint16 instance_data = voxel->GetInstanceData();
+	SmallRideInstance sri = (voxel == nullptr) ? SRI_FREE : voxel->GetInstance();
+	uint16 instance_data = (voxel == nullptr) ? 0 : voxel->GetInstanceData();
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		DrawData dd;
 		dd.level = slice;
@@ -832,7 +831,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Foundations. */
-	if (voxel->GetFoundationType() != FDT_INVALID) {
+	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID) {
 		uint8 fslope = voxel->GetFoundationSlope();
 		uint8 sw, se; // SW foundations, SE foundations.
 		switch (this->orient) {
@@ -875,7 +874,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	/* Ground surface. */
 	uint8 gslope = SL_FLAT;
-	if (voxel->GetGroundType() != GTP_INVALID) {
+	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID) {
 		DrawData dd;
 		dd.level = slice;
 		dd.z_height = voxel_pos.z;
@@ -918,20 +917,22 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Fences */
-	uint16 fences = voxel->GetFences();
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		FenceType fence_type = GetFenceType(fences, edge);
-		if (fence_type != FENCE_TYPE_INVALID) {
-			DrawData dd;
-			dd.level = slice;
-			dd.z_height = voxel_pos.z;
-			if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
-			dd.order = (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT;
-			dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient);
-			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-			dd.recolour = nullptr;
-			this->draw_images.insert(dd);
+	if (voxel != nullptr) {
+		uint16 fences = voxel->GetFences();
+		for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+			FenceType fence_type = GetFenceType(fences, edge);
+			if (fence_type != FENCE_TYPE_INVALID) {
+				DrawData dd;
+				dd.level = slice;
+				dd.z_height = voxel_pos.z;
+				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
+				dd.order = (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT;
+				dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient);
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = nullptr;
+				this->draw_images.insert(dd);
+			}
 		}
 	}
 
@@ -1019,7 +1020,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Add voxel objects (persons, ride cars, etc). */
-	const VoxelObject *vo = voxel->voxel_objects;
+	const VoxelObject *vo = (voxel == nullptr) ? nullptr : voxel->voxel_objects;
 	while (vo != nullptr) {
 		DrawData dd;
 		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &dd.recolour);
