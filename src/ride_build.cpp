@@ -53,6 +53,13 @@ static const WidgetPart _simple_ride_construction_gui_parts[] = {
 	EndContainer(),
 };
 
+/** Result codes in trying to place a shop in the world. */
+enum RidePlacementResult {
+	RPR_FAIL,    ///< Ride could not be placed in the world.
+	RPR_SAMEPOS, ///< Ride got placed at the same spot as previously.
+	RPR_CHANGED, ///< Ride got placed at a different spot in the world.
+};
+
 /**
  * Window for building simple 'plop down' rides. If the window is closed without building the ride, it is deleted.
  * @todo Add a 'Cancel build' button for people that fail to understand closing the window has that function.
@@ -66,18 +73,29 @@ public:
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 
+	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	void SelectorMouseButtonEvent(uint8 state) override;
+
+	RideMouseMode selector; ///< Mouse mode displaying the new ride.
 private:
 	RideInstance *instance; ///< Instance to build, set to \c nullptr after build to prevent deletion of the instance.
 	TileEdge orientation;   ///< Orientation of the simple ride.
+
+	bool CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos, ViewOrientation vp_orient);
+	RidePlacementResult ComputeShopVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient);
 };
 
 RideBuildWindow::RideBuildWindow(RideInstance *ri) : GuiWindow(WC_RIDE_BUILD, ri->GetIndex()), instance(ri), orientation(EDGE_SE)
 {
 	this->SetupWidgetTree(_simple_ride_construction_gui_parts, lengthof(_simple_ride_construction_gui_parts));
+	this->selector.cur_cursor = CUR_TYPE_INVALID;
+	this->selector.SetSize(0, 0); // Disable the selector.
+	this->SetSelector(&this->selector);
 }
 
 RideBuildWindow::~RideBuildWindow()
 {
+	this->SetSelector(nullptr);
 	if (this->instance != nullptr) _rides_manager.DeleteInstance(this->instance->GetIndex());
 }
 
@@ -134,16 +152,16 @@ void RideBuildWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 	}
 }
 
-#if 0
 /**
  * Can a shop be placed at the given voxel?
  * @param selected_shop Shop to place.
  * @param pos Coordinate of the voxel.
+ * @param vp_orient Orientation of the viewport.
  * @pre voxel coordinate must be valid in the world.
  * @pre \a selected_shop may not be \c nullptr.
  * @return Shop can be placed at the given position.
  */
-bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos)
+bool RideBuildWindow::CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos, ViewOrientation vp_orient)
 {
 	/* 1. Can the position itself be used to build a shop? */
 	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
@@ -161,33 +179,29 @@ bool ShopPlacementManager::CanPlaceShop(const ShopType *selected_shop, const XYZ
 	}
 
 	/* 3. Is there a path at the right place? */
-	Viewport *vp = GetViewport();
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
 		if ((selected_shop->flags & (1 << entrance)) == 0) continue; // No entrance here.
-		TileEdge entr = (TileEdge)((entrance + vp->orientation + this->orientation) & 3); // Perform rotation specified by the user in the GUI.
+		TileEdge entr = static_cast<TileEdge>((entrance + vp_orient + this->orientation) & 3); // Perform rotation specified by the user in the GUI.
 		if (PathExistsAtBottomEdge(pos, entr)) return true;
 	}
 	return false;
 }
 
 /**
- * Decide at which voxel to place a shop. It should be placed at a voxel intersecting with the view line
- * through the given point in the world.
+ * Decide at which voxel to place a shop. It should be placed at a voxel intersecting with the view line through the given point in the world.
  * @param world_pos Coordinate of the point.
+ * @param vp_orient Orientation of the viewport.
  * @return Result of the placement process.
  */
-RidePlacementResult ShopPlacementManager::ComputeShopVoxel(XYZPoint32 world_pos)
+RidePlacementResult RideBuildWindow::ComputeShopVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient)
 {
-	ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
+	ShopInstance *si = static_cast<ShopInstance *>(this->instance);
 	assert(si != nullptr && si->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
 	const ShopType *st = si->GetShopType();
 	assert(st != nullptr);
 
-	Viewport *vp = GetViewport();
-	if (vp == nullptr) return RPR_FAIL;
-
 	int dx, dy; // Change of xworld and yworld for every (zworld / 2) change.
-	switch (vp->orientation) {
+	switch (vp_orient) {
 		case VOR_NORTH: dx =  1; dy =  1; break;
 		case VOR_WEST:  dx = -1; dy =  1; break;
 		case VOR_SOUTH: dx = -1; dy = -1; break;
@@ -205,10 +219,10 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(XYZPoint32 world_pos)
 	while (vox_pos.z >= 0) {
 		vox_pos.x = world_pos.x / 256;
 		vox_pos.y = world_pos.y / 256;
-		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceShop(st, vox_pos)) {
+		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceShop(st, vox_pos, vp_orient)) {
 			/* Position of the shop the same as previously? */
 			if (si->vox_pos != vox_pos || si->orientation != this->orientation) {
-				si->SetRide((this->orientation + vp->orientation) & 3, vox_pos);
+				si->SetRide((this->orientation + vp_orient) & 3, vox_pos);
 				return RPR_CHANGED;
 			}
 			return RPR_SAMEPOS;
@@ -226,49 +240,73 @@ RidePlacementResult ShopPlacementManager::ComputeShopVoxel(XYZPoint32 world_pos)
 	return RPR_FAIL;
 }
 
-/**
- * Place the shop at the indicated mouse position (if possible), and update the state to #SPS_BAD_POS or #SPS_GOOD_POS.
- * @param pos Mouse position.
- * @pre World additions should be ours to use, and have been enabled.
- */
-void ShopPlacementManager::PlaceShop(const Point16 &pos)
+void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
-	Viewport *vp = GetViewport();
 	Point32 wxy = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 
 	/* Clean current display if needed. */
-	switch (this->ComputeShopVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z))) {
+	switch (this->ComputeShopVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z), vp->orientation)) {
 		case RPR_FAIL:
-			if (this->state == SPS_BAD_POS) return; // Nothing to do.
-			_additions.MarkDirty(vp);
-			_additions.Clear();
-			this->state = SPS_BAD_POS;
+			this->selector.MarkDirty(); // Does not do anything with a zero-sized mouse selector.
+			this->selector.SetSize(0, 0);
 			return;
 
 		case RPR_SAMEPOS:
-			if (this->state == SPS_GOOD_POS) return; // Already placed and shown.
-			/* FALL-THROUGH */
-
 		case RPR_CHANGED: {
-			_additions.MarkDirty(vp);
-			_additions.Clear();
+			this->selector.MarkDirty();
 
 			/// \todo Let the shop do this.
-			ShopInstance *si = static_cast<ShopInstance *>(_rides_manager.GetRideInstance(this->instance));
+			ShopInstance *si = static_cast<ShopInstance *>(this->instance);
 			assert(si != nullptr && si->GetKind() == RTK_SHOP);
-			Voxel *vx = _additions.GetCreateVoxel(si->vox_pos, true);
-			assert(this->instance >= SRI_FULL_RIDES && this->instance <= SRI_LAST);
-			vx->SetInstance((SmallRideInstance)this->instance);
+
+			this->selector.SetSize(1, 1);
+			this->selector.SetPosition(si->vox_pos.x, si->vox_pos.y);
+			RideTileData &rtd = this->selector.tile_data[this->selector.GetTileOffset(0, 0)];
+			rtd.AddVoxel(si->vox_pos.z);
+			rtd.SetupRideInfoSpace();
+			SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
 			uint8 entrances = si->GetEntranceDirections(si->vox_pos);
-			vx->SetInstanceData(entrances);
-			AddRemovePathEdges(si->vox_pos, PATH_EMPTY, entrances, true, PAS_QUEUE_PATH);
-			_additions.MarkDirty(vp);
-			vp->EnsureAdditionsAreVisible();
-			this->state = SPS_GOOD_POS;
+			rtd.SetRideData(si->vox_pos.z, inst_number, entrances);
+			this->selector.MarkDirty();
 			return;
 		}
 
 		default: NOT_REACHED();
 	}
 }
-#endif
+
+void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
+{
+	if (!IsLeftClick(state)) return;
+
+	if (this->selector.area.width != 1 || this->selector.area.height != 1) return;
+
+	ShopInstance *si = static_cast<ShopInstance *>(this->instance);
+	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
+	uint8 entrances = si->GetEntranceDirections(si->vox_pos);
+
+	Voxel *v = _world.GetCreateVoxel(si->vox_pos, true);
+	assert(v != nullptr && v->GetInstance() == SRI_FREE);
+	v->SetInstance(inst_number);
+	v->SetInstanceData(entrances);
+
+	_rides_manager.NewInstanceAdded(inst_number);
+	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, entrances, false, PAS_QUEUE_PATH);
+
+	this->instance = nullptr; // Delete this window, and
+	si = nullptr; // (Also clean the copy of the pointer.)
+	delete this;
+
+	ShowShopManagementGui(inst_number); // Open gui for the new shop.
+}
+
+/**
+ * Open a builder for simple (plop down) rides.
+ * @param ri Instance to place.
+ */
+void ShowRideBuildGui(RideInstance *ri)
+{
+	if (HighlightWindowByType(WC_RIDE_BUILD, ri->GetIndex())) return;
+
+	new RideBuildWindow(ri);
+}

@@ -465,6 +465,7 @@ void ShowTerraformGui();
 void ShowFinancesGui();
 void ShowCoasterManagementGui(RideInstance *coaster);
 void ShowCoasterBuildGui(CoasterInstance *coaster);
+void ShowRideBuildGui(RideInstance *instance);
 void ShowErrorMessage(StringID strid);
 void ShowSettingGui();
 
