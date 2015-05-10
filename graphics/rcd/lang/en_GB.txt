@@ -170,6 +170,13 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selects track pieces that end with a banking to the right";
 		COASTER_BUILD_BUY_TOOLTIP:        "Click to buy the selected track piece";
 
+		// Ride build window strings.
+		RIDE_BUILD_TITLEBAR:              "Place the ride";
+		RIDE_BUILD_ROTATE_TOOLTIP:        "Click to rotate the ride";
+		RIDE_BUILD_DISPLAY_TOOLTIP:       "A picture of the ride you are buying";
+		RIDE_BUILD_NAME_TEXT:             "Buying a %1%";
+		RIDE_BUILD_COST_TEXT:             "Cost %1%";
+
 		// Money symbols.
 		MONEY_CURRENCY_SYMBOL:     "$";
 		MONEY_THOUSANDS_SEPARATOR: ",";
