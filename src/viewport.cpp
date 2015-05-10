@@ -811,6 +811,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	uint8 platform_shape = PATH_INVALID;
 	SmallRideInstance sri = (voxel == nullptr) ? SRI_FREE : voxel->GetInstance();
 	uint16 instance_data = (voxel == nullptr) ? 0 : voxel->GetInstanceData();
+	if (this->selector != nullptr) this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data);
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		DrawData dd;
 		dd.level = slice;

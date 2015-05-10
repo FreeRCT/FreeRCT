@@ -50,6 +50,18 @@ public:
 	virtual uint32 GetZRange(uint xpos, uint ypos) = 0;
 
 	/**
+	 * Get the ride data of a voxel for rendering, if required.
+	 * @param voxel %Voxel being rendered (may be null).
+	 * @param voxel_pos Position of the voxel in the world.
+	 * @param [inout] sri Ride instance that should be rendered.
+	 * @param [inout] instance_data Instance data that should be rendered.
+	 */
+	virtual void GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data)
+	{
+		// By default, don't change anything.
+	}
+
+	/**
 	 * Get the offset of the tile position in the area. Parameters are unchecked.
 	 * @param x Horizontal relative offset in the area.
 	 * @param y Vertical relative offset in the area.
@@ -97,10 +109,10 @@ public:
 	}
 
 	Rectangle16 area;      ///< Position and size of the selected area (over-approximation of voxel stacks).
-	CursorType cur_cursor; ///< Cursor to return at the #GetCursor call.
+	CursorType cur_cursor; ///< %Cursor to return at the #GetCursor call.
 };
 
-/** Cursor data of a tile. */
+/** %Cursor data of a tile. */
 struct CursorTileData {
 	int8 cursor_height;  ///< Height of the cursor (equal to ground height, except at steep slopes). Negative value means 'unknown'.
 	bool cursor_enabled; ///< Whether the tile should have a cursor displayed.
