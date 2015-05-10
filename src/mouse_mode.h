@@ -232,7 +232,176 @@ public:
 	std::vector<TileData> tile_data; ///< Tile data of the area.
 };
 
-/** Mouse mode displaying a cursor of some size at the ground. */
-typedef TileDataMouseMode<CursorTileData> CursorMouseMode;
+/** Ride information of a voxel. */
+struct VoxelRideData {
+	SmallRideInstance sri; ///< Instance using the voxel.
+	uint16 instance_data;  ///< Data of the instance.
+};
+
+/** %Tile data with ride voxel information. */
+struct RideTileData : public CursorTileData {
+	uint8 lowest;  ///< Lowest voxel in the stack that should be rendered.
+	uint8 highest; ///< Highest voxel in the stack that should be rendered.
+	std::vector<VoxelRideData> ride_info; ///< Ride information of voxels RideTileData::lowest to RideTileData::highest (inclusive).
+
+	/** Initialize #RideTileData and #CursorTileData data members. */
+	void Init() override
+	{
+		this->CursorTileData::Init();
+		this->lowest = 1;
+		this->highest = 0;
+	}
+
+	/**
+	 * After initializing the  voxels RideTileData::lowest and RideTileData::highest data members, initialize
+	 * the ride data for all voxels in-between.
+	 */
+	void SetupRideInfoSpace()
+	{
+		int size = std::max(0, this->highest - this->lowest + 1);
+		this->ride_info.resize(size);
+		for (int z = 0; z < size; z++) this->ride_info[z].sri = SRI_FREE;
+	}
+
+	/**
+	 * Add a (z-position) of a voxel to the vertical voxel range to render.
+	 * @param zpos Vertical voxel position to add.
+	 * @see TileDataMouseMode::GetZRange
+	 */
+	void AddVoxel(uint8 zpos)
+	{
+		if (this->lowest > this->highest) {
+			this->lowest = zpos;
+			this->highest = zpos;
+		} else {
+			this->lowest = std::min(this->lowest,   zpos);
+			this->highest = std::max(this->highest, zpos);
+		}
+	}
+
+	/**
+	 * Get the range of interesting voxels in the stack.
+	 * @return The range of interesting voxels (highest z in upper 16 bit, lowest z in lower 16 bit), or \c 0.
+	 */
+	uint32 GetZRange()
+	{
+		if (this->lowest > this->highest) return 0;
+		uint32 value = this->highest;
+		return (value << 16) | this->lowest;
+	}
+
+	/**
+	 * Set the ride data of a voxel.
+	 * @param zpos Z position of the voxel.
+	 * @param sri Ride instance number.
+	 * @param instance_data Instance data.
+	 * @pre All voxels must have been added before (RideTileData::AddVoxel), and
+	 *      space must have been set up (RideTileData::SetupRideInfoSpace).
+	 */
+	void SetRideData(uint8 zpos, SmallRideInstance sri, uint16 instance_data)
+	{
+		if (zpos >= this->lowest && zpos <= this->highest) {
+			VoxelRideData &vrd = this->ride_info[zpos - this->lowest];
+			vrd.sri = sri;
+			vrd.instance_data = instance_data;
+		}
+	}
+};
+
+/**
+ * Template for a mouse mode selector with tile ride-data.
+ * @tparam TileData Tile data for each voxel stack covered by the mouse mode.
+ */
+template <typename TileData>
+class RideTileDataMouseMode : public TileDataMouseMode<TileData> {
+public:
+	RideTileDataMouseMode() : TileDataMouseMode<TileData>()
+	{
+	}
+
+	~RideTileDataMouseMode()
+	{
+	}
+
+	void GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
+	{
+		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
+		if (index == INVALID_TILE_INDEX) return;
+
+		const TileData &td = this->tile_data[index];
+		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return;
+
+		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
+		*sri = vrd.sri;
+		*instance_data = vrd.instance_data;
+	}
+
+	/**
+	 * Denote that the given voxel will contain part of a ride.
+	 * @param pos Absolute world position.
+	 */
+	void AddVoxel(const XYZPoint16 &pos)
+	{
+		uint32 index = this->GetTileIndex(pos.x, pos.y);
+		assert(index != INVALID_TILE_INDEX);
+		TileData &td = this->tile_data[index];
+		td.cursor_enabled = true;
+		td.AddVoxel(pos.z);
+	}
+
+	/**
+	 * Setup space for the ride information.
+	 * @pre RideTileDataMouseMode::AddVoxel must have been done.
+	 */
+	void SetupRideInfoSpace()
+	{
+		for (int x = 0; x < this->area.width; x++) {
+			for (int y = 0; y < this->area.height; y++) this->tile_data[this->GetTileOffset(x, y)].SetupRideInfoSpace();
+		}
+	}
+
+	/**
+	 * Set ride data at the given position in the area. Disabled tiles are silently skipped.
+	 * @param pos World position.
+	 * @param sri Ride instance number.
+	 * @param instance_data Instance data.
+	 */
+	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data)
+	{
+		uint32 index = this->GetTileIndex(pos.x, pos.y);
+		assert(index != INVALID_TILE_INDEX);
+		TileData &td = this->tile_data[index];
+		if (!td.cursor_enabled) return;
+		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
+		vrd.sri = sri;
+		vrd.instance_data = instance_data;
+	}
+
+	void MarkDirty() override
+	{
+		for (int x = 0; x < this->area.width; x++) {
+			int xpos = this->area.base.x + x;
+			for (int y = 0; y < this->area.height; y++) {
+				int ypos = this->area.base.y + y;
+				TileData &td = this->tile_data[this->GetTileOffset(x, y)];
+				if (!td.cursor_enabled) continue;
+
+				MarkVoxelDirty(XYZPoint16(xpos, ypos, td.GetGroundHeight(xpos, ypos)), 0);
+				if (td.lowest <= td.highest) MarkVoxelDirty(XYZPoint16(xpos, ypos, td.lowest), td.highest - td.lowest + 1);
+			}
+		}
+	}
+
+	uint32 GetZRange(uint xpos, uint ypos) override
+	{
+		uint32 index = this->GetTileIndex(xpos, ypos);
+		if (index == INVALID_TILE_INDEX) return 0;
+		TileData &td = this->tile_data[index];
+		return td.GetZRange();
+	}
+};
+
+typedef TileDataMouseMode<CursorTileData> CursorMouseMode; ///< Mouse mode displaying a cursor of some size at the ground.
+typedef RideTileDataMouseMode<RideTileData> RideMouseMode; ///< Mouse mode displaying a cursor and (part of) a ride.
 
 #endif
