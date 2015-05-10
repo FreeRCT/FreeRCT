@@ -328,6 +328,11 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 
 GuiWindow::~GuiWindow()
 {
+	/* The derived window should have released the selector before arriving here,
+	 * as release may cause a MarkDirty call.
+	 */
+	assert(this->selector == nullptr);
+
 	delete this->tree;
 	delete[] this->widgets;
 }
