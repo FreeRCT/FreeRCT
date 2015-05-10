@@ -369,25 +369,32 @@ void VoxelCollector::Collect(bool use_additions)
 			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
 
 			const VoxelStack *stack = use_additions ? _additions.GetStack(xpos, ypos) : _world.GetStack(xpos, ypos);
-			this->SetupSupports(stack, xpos, ypos);
+
+			/* Compute lowest and highest voxel to render. */
 			uint zpos = stack->base;
-			for (int count = 0; count < stack->height; zpos++, count++) {
+			uint top = stack->base + stack->height - 1;
+
+			if (this->selector != nullptr) {
+				uint32 range = this->selector->GetZRange(xpos, ypos);
+				if (range != 0) {
+					zpos = std::min(zpos, (range & 0xFFFF));
+					top = std::max(top, (range >> 16));
+				}
+			}
+			if (this->draw_above_stack) { // Possibly add cursor on top.
+				top = std::max(top, static_cast<uint>(this->vp->GetMaxCursorHeight(xpos, ypos, (top == 0) ? top : top - 1)));
+			}
+
+			this->SetupSupports(stack, xpos, ypos);
+
+			for (; zpos <= top; zpos++) {
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
 				if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
 				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
 
-				this->CollectVoxel(&stack->voxels[count], XYZPoint16(xpos, ypos, zpos), north_x, north_y);
-			}
-			/* Possibly cursors should be drawn above this. */
-			if (this->draw_above_stack) {
-				uint8 zmax = this->vp->GetMaxCursorHeight(xpos, ypos, (zpos == 0) ? zpos : zpos - 1);
-				for (; zpos <= zmax; zpos++) {
-					int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
-					if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
-					if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
-
-					this->CollectVoxel(nullptr, XYZPoint16(xpos, ypos, zpos), north_x, north_y);
-				}
+				int count = zpos - stack->base;
+				const Voxel *voxel = (count >= 0 && count < stack->height) ? &stack->voxels[count] : nullptr;
+				this->CollectVoxel(voxel, XYZPoint16(xpos, ypos, zpos), north_x, north_y);
 			}
 		}
 	}

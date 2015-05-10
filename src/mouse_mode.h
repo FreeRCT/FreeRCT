@@ -47,6 +47,7 @@ public:
 
 	virtual void MarkDirty() = 0;
 	virtual CursorType GetCursor(const XYZPoint16 &voxel_pos) = 0;
+	virtual uint32 GetZRange(uint xpos, uint ypos) = 0;
 
 	/**
 	 * Get the offset of the tile position in the area. Parameters are unchecked.
@@ -160,6 +161,11 @@ public:
 		TileData &td = this->tile_data[index];
 		if (td.cursor_enabled && td.GetGroundHeight(voxel_pos.x, voxel_pos.y) == voxel_pos.z) return this->cur_cursor;
 		return CUR_TYPE_INVALID;
+	}
+
+	uint32 GetZRange(uint xpos, uint ypos) override
+	{
+		return 0;
 	}
 
 	/**

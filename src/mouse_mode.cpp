@@ -34,3 +34,12 @@ MouseModeSelector::~MouseModeSelector()
  * @param voxel_pos %Voxel to decorate with a cursor.
  * @return The cursor to use, or #CUR_TYPE_INVALID if no cursor should be displayed.
  */
+
+/**
+ * \fn MouseModeSelector::GetZRange(uint xpos, uint ypos)
+ * Get the vertical range of voxels to render.
+ * @param xpos Horizontal position of the stack.
+ * @param ypos Vertical position of the stack.
+ * @return \c 0 if no interest in rendering in the stack, else lowest voxel
+ *         position in lower 16 bit, top voxel position in upper 16 bit.
+ */
