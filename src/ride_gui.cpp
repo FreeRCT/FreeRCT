@@ -247,25 +247,22 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 		case RSEL_SELECT: {
 			if (this->ride_types[this->current_kind] == 0) return;
 
-			if (this->current_kind == RTK_SHOP) {
-				bool pressed = this->IsWidgetPressed(wid_num);
-				if (pressed) {
-					_shop_placer.SetSelection(-1);
-					pressed = false;
+			if (this->current_ride != -1) {
+				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
+				if (ride_type == nullptr) return;
+
+				uint16 instance = _rides_manager.GetFreeInstance(ride_type);
+				if (instance == INVALID_RIDE_INSTANCE) return;
+
+				RideInstance *ri = _rides_manager.CreateInstance(ride_type, instance);
+
+				if (this->current_kind == RTK_SHOP) {
+					assert(ride_type->kind == RTK_SHOP);
+					ShowRideBuildGui(ri);
 				} else {
-					pressed = _shop_placer.SetSelection(this->current_ride);
-				}
-				this->SetWidgetPressed(wid_num, pressed);
-			} else {
-				if (this->current_ride != -1) {
-					const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
-					assert(ride_type != nullptr && ride_type->kind == RTK_COASTER);
-					uint16 instance = _rides_manager.GetFreeInstance(ride_type);
-					if (instance != INVALID_RIDE_INSTANCE) {
-						RideInstance *ri = _rides_manager.CreateInstance(ride_type, instance);
-						_rides_manager.NewInstanceAdded(instance);
-						ShowCoasterManagementGui(ri);
-					}
+					assert(ride_type->kind == RTK_COASTER);
+					_rides_manager.NewInstanceAdded(instance);
+					ShowCoasterManagementGui(ri);
 				}
 			}
 			break;
