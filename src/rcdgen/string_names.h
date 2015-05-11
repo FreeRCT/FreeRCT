@@ -176,7 +176,7 @@ static const char *_gui_string_names[] = {
 	"COASTER_BUILD_BUY_TOOLTIP",
 
 	/* Ride build window. */
-	"RIDE_BUILD_TITLEBAR",
+	"RIDE_BUILD_TITLEBAR_SHOP",
 	"RIDE_BUILD_ROTATE_TOOLTIP",
 	"RIDE_BUILD_DISPLAY_TOOLTIP",
 	"RIDE_BUILD_NAME_TEXT",

@@ -29,7 +29,7 @@ enum RideBuildWidgets {
 static const WidgetPart _simple_ride_construction_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, RBW_TITLEBAR, COL_RANGE_DARK_RED), SetData(GUI_RIDE_BUILD_TITLEBAR, GUI_TITLEBAR_TIP),
+			Widget(WT_TITLEBAR, RBW_TITLEBAR, COL_RANGE_DARK_RED), SetData(STR_ARG1, GUI_TITLEBAR_TIP),
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 
@@ -78,6 +78,7 @@ public:
 
 	RideMouseMode selector; ///< Mouse mode displaying the new ride.
 private:
+	StringID str_titlebar;  ///< String to use for the titlebar of the window.
 	RideInstance *instance; ///< Instance to build, set to \c nullptr after build to prevent deletion of the instance.
 	TileEdge orientation;   ///< Orientation of the simple ride.
 
@@ -87,6 +88,15 @@ private:
 
 RideBuildWindow::RideBuildWindow(RideInstance *ri) : GuiWindow(WC_RIDE_BUILD, ri->GetIndex()), instance(ri), orientation(EDGE_SE)
 {
+	switch (ri->GetKind()) {
+		case RTK_SHOP:
+			str_titlebar = GUI_RIDE_BUILD_TITLEBAR_SHOP;
+			break;
+
+		default:
+			NOT_REACHED(); // Make sure other ride kinds are caught when adding.
+	}
+
 	this->SetupWidgetTree(_simple_ride_construction_gui_parts, lengthof(_simple_ride_construction_gui_parts));
 	this->selector.cur_cursor = CUR_TYPE_INVALID;
 	this->selector.SetSize(0, 0); // Disable the selector.
@@ -103,7 +113,7 @@ void RideBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case RBW_TITLEBAR:
-			_str_params.SetUint8(1, (uint8 *)this->instance->name);
+			_str_params.SetStrID(1, str_titlebar);
 			break;
 
 		case RBW_TYPE_NAME:
