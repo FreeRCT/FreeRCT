@@ -22,7 +22,6 @@
 #include "sprite_store.h"
 #include "sprite_data.h"
 #include "path_build.h"
-#include "shop_placement.h"
 #include "coaster_build.h"
 #include "shop_type.h"
 #include "terraform.h"
@@ -369,25 +368,32 @@ void VoxelCollector::Collect(bool use_additions)
 			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
 
 			const VoxelStack *stack = use_additions ? _additions.GetStack(xpos, ypos) : _world.GetStack(xpos, ypos);
-			this->SetupSupports(stack, xpos, ypos);
+
+			/* Compute lowest and highest voxel to render. */
 			uint zpos = stack->base;
-			for (int count = 0; count < stack->height; zpos++, count++) {
+			uint top = stack->base + stack->height - 1;
+
+			if (this->selector != nullptr) {
+				uint32 range = this->selector->GetZRange(xpos, ypos);
+				if (range != 0) {
+					zpos = std::min(zpos, (range & 0xFFFF));
+					top = std::max(top, (range >> 16));
+				}
+			}
+			if (this->draw_above_stack) { // Possibly add cursor on top.
+				top = std::max(top, static_cast<uint>(this->vp->GetMaxCursorHeight(xpos, ypos, (top == 0) ? top : top - 1)));
+			}
+
+			this->SetupSupports(stack, xpos, ypos);
+
+			for (; zpos <= top; zpos++) {
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
 				if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
 				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
 
-				this->CollectVoxel(&stack->voxels[count], XYZPoint16(xpos, ypos, zpos), north_x, north_y);
-			}
-			/* Possibly cursors should be drawn above this. */
-			if (this->draw_above_stack) {
-				uint8 zmax = this->vp->GetMaxCursorHeight(xpos, ypos, (zpos == 0) ? zpos : zpos - 1);
-				for (; zpos <= zmax; zpos++) {
-					int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
-					if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
-					if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
-
-					this->CollectVoxel(nullptr, XYZPoint16(xpos, ypos, zpos), north_x, north_y);
-				}
+				int count = zpos - stack->base;
+				const Voxel *voxel = (count >= 0 && count < stack->height) ? &stack->voxels[count] : nullptr;
+				this->CollectVoxel(voxel, XYZPoint16(xpos, ypos, zpos), north_x, north_y);
 			}
 		}
 	}
@@ -799,12 +805,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.recolour = nullptr;
 			this->draw_images.insert(dd);
 		}
-		return;
 	}
 
 	uint8 platform_shape = PATH_INVALID;
-	SmallRideInstance sri = voxel->GetInstance();
-	uint16 instance_data = voxel->GetInstanceData();
+	SmallRideInstance sri = (voxel == nullptr) ? SRI_FREE : voxel->GetInstance();
+	uint16 instance_data = (voxel == nullptr) ? 0 : voxel->GetInstanceData();
+	if (this->selector != nullptr) this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data);
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		DrawData dd;
 		dd.level = slice;
@@ -825,7 +831,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Foundations. */
-	if (voxel->GetFoundationType() != FDT_INVALID) {
+	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID) {
 		uint8 fslope = voxel->GetFoundationSlope();
 		uint8 sw, se; // SW foundations, SE foundations.
 		switch (this->orient) {
@@ -868,7 +874,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	/* Ground surface. */
 	uint8 gslope = SL_FLAT;
-	if (voxel->GetGroundType() != GTP_INVALID) {
+	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID) {
 		DrawData dd;
 		dd.level = slice;
 		dd.z_height = voxel_pos.z;
@@ -911,20 +917,22 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Fences */
-	uint16 fences = voxel->GetFences();
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		FenceType fence_type = GetFenceType(fences, edge);
-		if (fence_type != FENCE_TYPE_INVALID) {
-			DrawData dd;
-			dd.level = slice;
-			dd.z_height = voxel_pos.z;
-			if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
-			dd.order = (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT;
-			dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient);
-			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
-			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
-			dd.recolour = nullptr;
-			this->draw_images.insert(dd);
+	if (voxel != nullptr) {
+		uint16 fences = voxel->GetFences();
+		for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+			FenceType fence_type = GetFenceType(fences, edge);
+			if (fence_type != FENCE_TYPE_INVALID) {
+				DrawData dd;
+				dd.level = slice;
+				dd.z_height = voxel_pos.z;
+				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
+				dd.order = (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT;
+				dd.sprite = this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient);
+				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
+				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
+				dd.recolour = nullptr;
+				this->draw_images.insert(dd);
+			}
 		}
 	}
 
@@ -1012,7 +1020,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Add voxel objects (persons, ride cars, etc). */
-	const VoxelObject *vo = voxel->voxel_objects;
+	const VoxelObject *vo = (voxel == nullptr) ? nullptr : voxel->voxel_objects;
 	while (vo != nullptr) {
 		DrawData dd;
 		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &dd.recolour);
@@ -1737,7 +1745,6 @@ void ShowMainDisplay(const XYZPoint32 &view_pos)
 void InitMouseModes()
 {
 	_mouse_modes.RegisterMode(&_path_builder);
-	_mouse_modes.RegisterMode(&_shop_placer);
 	_mouse_modes.RegisterMode(&_coaster_builder);
 	_mouse_modes.RegisterMode(&_fence_builder);
 }
