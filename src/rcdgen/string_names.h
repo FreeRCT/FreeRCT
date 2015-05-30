@@ -55,6 +55,8 @@ static const char *_gui_string_names[] = {
 	"TOOLBAR_GUI_FINANCES",
 	"TOOLBAR_GUI_TOOLTIP_FINANCES",
 
+	"BOTTOMBAR_GUESTCOUNT",
+
 	/* Quit program strings. */
 	"QUIT_CAPTION",
 	"QUIT_MESSAGE",

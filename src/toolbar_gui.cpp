@@ -17,6 +17,8 @@
 #include "math_func.h"
 #include "sprite_store.h"
 #include "gui_sprites.h"
+#include "person.h"
+#include "people.h"
 #include "viewport.h"
 #include "gamemode.h"
 #include "weather.h"
@@ -229,6 +231,9 @@ public:
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
+
+private:
+	int32 guest_count; ///< Number of guests in the park.
 };
 
 /**
@@ -241,6 +246,7 @@ enum BottomToolbarGuiWidgets {
 	BTB_WEATHER,        ///< Weather sprite.
 	BTB_TEMPERATURE,    ///< Temperature in the park.
 	BTB_VIEW_DIRECTION, ///< Status panel containing viewing direction.
+	BTB_GUESTCOUNT,     ///< Display of number of guests in the park.
 	BTB_DATE,           ///< Status panel containing date.
 };
 
@@ -258,8 +264,10 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 		Widget(WT_EMPTY, BTB_EMPTY, COL_RANGE_INVALID),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
 			Intermediate(1, 0), SetPadding(0, 3, 0, 3),
-				Widget(WT_LEFT_TEXT, BTB_STATUS, COL_RANGE_ORANGE_BROWN), SetPadding(3, 5, 30, 0), SetData(STR_ARG1, STR_NULL),
-						SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(0, 0),
+				Intermediate(3, 1),
+					Widget(WT_LEFT_TEXT, BTB_STATUS, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetFill(0, 0),
+					Widget(WT_LEFT_TEXT, BTB_GUESTCOUNT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL), SetFill(0, 0),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
 				Widget(WT_EMPTY, BTB_WEATHER, COL_RANGE_ORANGE_BROWN), SetPadding(3, 3, 3, 3), SetFill(0, 1),
 				Widget(WT_RIGHT_TEXT, BTB_TEMPERATURE, COL_RANGE_ORANGE_BROWN), SetFill(0, 0), SetData(STR_ARG1, STR_NULL),
 				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(1, 0),
@@ -272,6 +280,7 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 
 BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
+	this->guest_count = _guests.CountGuestsInPark();
 	this->SetupWidgetTree(_bottom_toolbar_widgets, lengthof(_bottom_toolbar_widgets));
 }
 
@@ -297,12 +306,39 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case BTB_TEMPERATURE:
 			_str_params.SetTemperature(1, _weather.temperature);
 			break;
+
+		case BTB_GUESTCOUNT:
+			_str_params.SetNumber(1, this->guest_count);
+			break;
 	}
 }
 
 void BottomToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 {
-	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
+	switch (code) {
+		case CHG_DISPLAY_OLD:
+			this->MarkDirty();
+			break;
+
+		case CHG_GUEST_COUNT:
+			/* Parameter decides meaning.
+			 * - 0 means a guest left.
+			 * - 1 means a guest entered.
+			 * - otherwise, recount.
+			 */
+			if (parameter == 0) {
+				this->guest_count = std::max(0, this->guest_count - 1);
+			} else if (parameter == 1) {
+				this->guest_count++;
+			} else {
+				this->guest_count = _guests.CountGuestsInPark();
+			}
+			this->MarkDirty();
+			break;
+
+		default:
+			break; // Ignore other messages.
+	}
 }
 
 void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
@@ -310,6 +346,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 	/* -99,999,999.99 = Maximum amount of money that is worth handling for now. */
 	static const int64 LARGE_MONEY_AMOUNT = -9999999999;
 	static const int LARGE_TEMPERATURE = 999; // Large enough to format all temperatures.
+	static const int MANY_GUESTS = 10000;
 	Point32 p(0, 0);
 
 	switch (wid_num) {
@@ -332,6 +369,11 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 		case BTB_TEMPERATURE:
 			_str_params.SetTemperature(1, LARGE_TEMPERATURE);
 			GetTextSize(STR_ARG1, &p.x, &p.y);
+			break;
+
+		case BTB_GUESTCOUNT:
+			_str_params.SetNumber(1, MANY_GUESTS);
+			GetTextSize(GUI_BOTTOMBAR_GUESTCOUNT, &p.x, &p.y);
 			break;
 
 		case BTB_EMPTY:

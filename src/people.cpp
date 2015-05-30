@@ -123,6 +123,20 @@ uint Guests::CountActiveGuests()
 }
 
 /**
+ * Count the number of guests in the park.
+ * @return The number of guests in the park.
+ */
+uint Guests::CountGuestsInPark()
+{
+	uint count = this->free_idx > 0;
+	for (uint i = this->free_idx; i < GUEST_BLOCK_SIZE; i++) {
+		Guest *g = this->block.Get(i);
+		if (g->IsActive() && g->IsInPark()) count++;
+	}
+	return count;
+}
+
+/**
  * Some time has passed, update the animation.
  * @param delay Number of milliseconds time that have past since the last animation update.
  */
