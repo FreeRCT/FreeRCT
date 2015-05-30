@@ -130,14 +130,14 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 			break;
 
 		case TB_GUI_SAVE: {
-			SaveGame("saved.fct");
+			SaveGameFile("saved.fct");
 			/// \todo Provide option to enter the filename for saving.
 			/// \todo Provide feedback on the save.
 			break;
 		}
 
 		case TB_GUI_LOAD: {
-			LoadGame("saved.fct");
+			LoadGameFile("saved.fct");
 			/// \todo Provide option to select the file to load.
 			break;
 		}
