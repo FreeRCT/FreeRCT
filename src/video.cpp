@@ -591,6 +591,9 @@ static void Blit8bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_bas
 				src_base += rel_off & 127;
 				while (count > 0) {
 					uint32 colour = _palette[recoloured[*pixels]];
+					if (GetA(colour) != OPAQUE) {
+						colour =  BlendPixels(GetR(colour), GetG(colour), GetB(colour), *src_base, GetA(colour));
+					}
 					BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 					pixels++;
 					xpos++;
@@ -631,17 +634,28 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 			switch (mode >> 6) {
 				case 0: // Fully opaque pixels.
 					mode &= 0x3F;
-					for (; mode > 0; mode--) {
-						uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
-						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-						xpos++;
-						src_base++;
-						src += 3;
+					if (shift == GS_SEMI_TRANSPARENT) {
+						src += 3 * mode;
+						for (; mode > 0; mode--) {
+							uint32 ndest = BlendPixels(255, 255, 255, *src_base, OPACITY_SEMI_TRANSPARENT);
+							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
+							xpos++;
+							src_base++;
+						}
+					} else {
+						for (; mode > 0; mode--) {
+							uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
+							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							xpos++;
+							src_base++;
+							src += 3;
+						}
 					}
 					break;
 
 				case 1: { // Partial opaque pixels.
 					uint8 opacity = *src++;
+					if (shift == GS_SEMI_TRANSPARENT && opacity > OPACITY_SEMI_TRANSPARENT) opacity = OPACITY_SEMI_TRANSPARENT;
 					mode &= 0x3F;
 					for (; mode > 0; mode--) {
 						uint32 ndest = BlendPixels(sf(src[0]), sf(src[1]), sf(src[2]), *src_base, opacity);
@@ -661,6 +675,7 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 					uint8 layer = *src++;
 					const uint32 *table = recolour.GetRecolourTable(layer - 1);
 					uint8 opacity = *src++;
+					if (shift == GS_SEMI_TRANSPARENT && opacity > OPACITY_SEMI_TRANSPARENT) opacity = OPACITY_SEMI_TRANSPARENT;
 					mode &= 0x3F;
 					for (; mode > 0; mode--) {
 						uint32 colour = table[*src++];
