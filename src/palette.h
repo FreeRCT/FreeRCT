@@ -15,9 +15,6 @@ class Random;
 extern const uint32 _palette[256];  ///< The 8bpp FreeRCT palette.
 extern const uint32 * const _recolour_palettes[18]; ///< 32bpp recolour tables.
 
-static const uint8 TRANSPARENT = 0; ///< Opacity value of a fully transparent pixel.
-static const uint8 OPAQUE = 255;    ///< Opacity value of a fully opaque pixel.
-
 static const int MAX_RECOLOUR = 4;  ///< Maximum number of recolourings that can be defined in a #Recolouring class.
 
 /**
@@ -117,11 +114,12 @@ enum GuiTextColours {
 
 /** Colours. */
 enum PaletteColours {
-	COL_BACKGROUND = 0,     ///< Index of background behind the world display.
-	COL_HIGHLIGHT  = 1,     ///< Index of window highlighting edge colour when (re)opening.
+	COL_BACKGROUND = 0,       ///< Index of background behind the world display.
+	COL_HIGHLIGHT  = 1,       ///< Index of window highlighting edge colour when (re)opening.
+	COL_SEMI_TRANSPARENT = 2, ///< Index of semi-transparent white colour (for #GS_SEMI_TRANSPARENT).
 
-	COL_SERIES_START = 10,  ///< Index of the first series.
-	COL_SERIES_LENGTH = 12, ///< Number of shades in a single run.
+	COL_SERIES_START = 10,    ///< Index of the first series.
+	COL_SERIES_LENGTH = 12,   ///< Number of shades in a single run.
 	COL_SERIES_END = COL_SERIES_START + COL_RANGE_COUNT * COL_SERIES_LENGTH, ///< First colour after the series.
 };
 
@@ -138,7 +136,17 @@ enum GradientShift {
 	GS_DAY,            ///< Shift gradient four steps lighter.
 
 	GS_COUNT,          ///< Number of gradient shifts.
+	GS_SEMI_TRANSPARENT = GS_COUNT, ///< Semi-transparent for buying rides.
+
 	GS_INVALID = 0xff, ///< Invalid gradient shift.
+};
+
+/** Opacities used in the program. */
+enum Opacities {
+	TRANSPARENT = 0, ///< Opacity value of a fully transparent pixel.
+	OPAQUE = 255,    ///< Opacity value of a fully opaque pixel.
+
+	OPACITY_SEMI_TRANSPARENT = 100, ///< Opacity of the semi-transparent white colour while buying a ride.
 };
 
 static const int STEP_SIZE = 18; ///< Amount of colour shift for each gradient step.
@@ -235,6 +243,16 @@ static inline uint8 ShiftGradientDay(uint8 col)
 }
 
 /**
+ * Gradient shift function for #GS_SEMI_TRANSPARENT.
+ * @param col Input colour.
+ * @return Result colour.
+ */
+static inline uint8 ShiftGradientTransparent(uint8 col)
+{
+	return 255; // Full white in every channel.
+}
+
+/**
  * Select gradient shift function based on the \a shift.
  * @param shift Desired amount of gradient shift.
  * @return Recolour function implementing the shift.
@@ -251,6 +269,7 @@ static inline ShiftFunc GetGradientShiftFunc(GradientShift shift)
 		case GS_LIGHT:          return ShiftGradientLight;
 		case GS_VERY_LIGHT:     return ShiftGradientVeryLight;
 		case GS_DAY:            return ShiftGradientDay;
+		case GS_SEMI_TRANSPARENT: return ShiftGradientTransparent;
 		default: NOT_REACHED();
 	}
 }

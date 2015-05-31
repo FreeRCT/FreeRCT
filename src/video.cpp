@@ -545,6 +545,24 @@ static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
 }
 
 /**
+ * Blend new pixel (\a r, \a g, \a b) with \a old_pixel.
+ * @param r Red channel of the new pixel.
+ * @param g Green channel of the new pixel.
+ * @param b Blue channel of the new pixel.
+ * @param old_pixel Previous plotted pixel.
+ * @param opacity Opacity of the new pixel.
+ */
+static uint32 BlendPixels(uint r, uint g, uint b, uint32 old_pixel, uint opacity)
+{
+	r = r * opacity + GetR(old_pixel) * (256 - opacity);
+	g = g * opacity + GetG(old_pixel) * (256 - opacity);
+	b = b * opacity + GetB(old_pixel) * (256 - opacity);
+
+	/* Opaque, but colour adjusted depending on the old pixel. */
+	return MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
+}
+
+/**
  * Blit 8bpp images to the screen.
  * @param cr Clipped rectangle to draw to.
  * @param x_base Base X coordinate of the sprite data.
@@ -573,6 +591,9 @@ static void Blit8bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_bas
 				src_base += rel_off & 127;
 				while (count > 0) {
 					uint32 colour = _palette[recoloured[*pixels]];
+					if (GetA(colour) != OPAQUE) {
+						colour =  BlendPixels(GetR(colour), GetG(colour), GetB(colour), *src_base, GetA(colour));
+					}
 					BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 					pixels++;
 					xpos++;
@@ -613,28 +634,31 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 			switch (mode >> 6) {
 				case 0: // Fully opaque pixels.
 					mode &= 0x3F;
-					for (; mode > 0; mode--) {
-						uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
-						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-						xpos++;
-						src_base++;
-						src += 3;
+					if (shift == GS_SEMI_TRANSPARENT) {
+						src += 3 * mode;
+						for (; mode > 0; mode--) {
+							uint32 ndest = BlendPixels(255, 255, 255, *src_base, OPACITY_SEMI_TRANSPARENT);
+							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
+							xpos++;
+							src_base++;
+						}
+					} else {
+						for (; mode > 0; mode--) {
+							uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
+							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							xpos++;
+							src_base++;
+							src += 3;
+						}
 					}
 					break;
 
 				case 1: { // Partial opaque pixels.
 					uint8 opacity = *src++;
+					if (shift == GS_SEMI_TRANSPARENT && opacity > OPACITY_SEMI_TRANSPARENT) opacity = OPACITY_SEMI_TRANSPARENT;
 					mode &= 0x3F;
 					for (; mode > 0; mode--) {
-						/* Cheat transparency a bit by just recolouring the previously drawn pixel */
-						uint32 old_pixel = *src_base;
-
-						uint r = sf(src[0]) * opacity + GetR(old_pixel) * (256 - opacity);
-						uint g = sf(src[1]) * opacity + GetG(old_pixel) * (256 - opacity);
-						uint b = sf(src[2]) * opacity + GetB(old_pixel) * (256 - opacity);
-
-						/* Opaque, but colour adjusted depending on the old pixel. */
-						uint32 ndest = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
+						uint32 ndest = BlendPixels(sf(src[0]), sf(src[1]), sf(src[2]), *src_base, opacity);
 						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
 						xpos++;
 						src_base++;
@@ -651,16 +675,11 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 					uint8 layer = *src++;
 					const uint32 *table = recolour.GetRecolourTable(layer - 1);
 					uint8 opacity = *src++;
+					if (shift == GS_SEMI_TRANSPARENT && opacity > OPACITY_SEMI_TRANSPARENT) opacity = OPACITY_SEMI_TRANSPARENT;
 					mode &= 0x3F;
 					for (; mode > 0; mode--) {
-						uint32 old_pixel = *src_base;
-						uint32 recoloured = table[*src++];
-
-						uint r = sf(GetR(recoloured)) * opacity + GetR(old_pixel) * (256 - opacity);
-						uint g = sf(GetG(recoloured)) * opacity + GetG(old_pixel) * (256 - opacity);
-						uint b = sf(GetB(recoloured)) * opacity + GetB(old_pixel) * (256 - opacity);
-
-						uint32 colour = MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
+						uint32 colour = table[*src++];
+						colour = BlendPixels(sf(GetR(colour)), sf(GetG(colour)), sf(GetB(colour)), *src_base, opacity);
 						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
 						xpos++;
 						src_base++;

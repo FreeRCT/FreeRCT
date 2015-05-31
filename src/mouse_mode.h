@@ -55,10 +55,11 @@ public:
 	 * @param voxel_pos Position of the voxel in the world.
 	 * @param [inout] sri Ride instance that should be rendered.
 	 * @param [inout] instance_data Instance data that should be rendered.
+	 * @return Whether to highlight returned ride.
 	 */
-	virtual void GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data)
+	virtual bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data)
 	{
-		// By default, don't change anything.
+		return false;
 	}
 
 	/**
@@ -323,17 +324,18 @@ public:
 	{
 	}
 
-	void GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
+	bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
 	{
 		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
-		if (index == INVALID_TILE_INDEX) return;
+		if (index == INVALID_TILE_INDEX) return false;
 
 		const TileData &td = this->tile_data[index];
-		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return;
+		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return false;
 
 		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
 		*sri = vrd.sri;
 		*instance_data = vrd.instance_data;
+		return true;
 	}
 
 	/**

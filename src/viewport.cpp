@@ -230,6 +230,7 @@ struct DrawData {
 	const ImageData *sprite;     ///< Mouse cursor to draw.
 	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
 	const Recolouring *recolour; ///< Recolouring of the sprite.
+	bool highlight;              ///< Highlight the sprite (semi-transparent white).
 };
 
 /**
@@ -765,6 +766,7 @@ static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrienta
 		dd[idx].base.x = basex;
 		dd[idx].base.y = basey;
 		dd[idx].recolour = &ri->recolours;
+		dd[idx].highlight = false;
 		idx++;
 	}
 	return idx;
@@ -803,6 +805,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = nullptr;
+			dd.highlight = false;
 			this->draw_images.insert(dd);
 		}
 	}
@@ -810,7 +813,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	uint8 platform_shape = PATH_INVALID;
 	SmallRideInstance sri = (voxel == nullptr) ? SRI_FREE : voxel->GetInstance();
 	uint16 instance_data = (voxel == nullptr) ? 0 : voxel->GetInstanceData();
-	if (this->selector != nullptr) this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data);
+	bool highlight = false;
+	if (this->selector != nullptr) highlight = this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data);
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		DrawData dd;
 		dd.level = slice;
@@ -821,13 +825,17 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 		dd.recolour = nullptr;
+		dd.highlight = highlight;
 		this->draw_images.insert(dd);
 	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
 		DrawData dd[4];
 		int count = DrawRide(slice, voxel_pos.z,
 				this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
 				this->orient, sri, instance_data, dd, &platform_shape);
-		for (int i = 0; i < count; i++) this->draw_images.insert(dd[i]);
+		for (int i = 0; i < count; i++) {
+			dd[i].highlight = highlight;
+			this->draw_images.insert(dd[i]);
+		}
 	}
 
 	/* Foundations. */
@@ -853,6 +861,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = nullptr;
+				dd.highlight = false;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -867,6 +876,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = nullptr;
+				dd.highlight = false;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -885,6 +895,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 		dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 		dd.recolour = nullptr;
+		dd.highlight = false;
 		this->draw_images.insert(dd);
 		switch (slope) {
 			// XXX There are no sprites for partial support of a platform.
@@ -931,6 +942,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 				dd.recolour = nullptr;
+				dd.highlight = false;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -950,6 +962,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = nullptr;
+			dd.highlight = false;
 			this->draw_images.insert(dd);
 		}
 	}
@@ -974,6 +987,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 			dd.base.y = this->yoffset + ynorth - this->rect.base.y;
 			dd.recolour = nullptr;
+			dd.highlight = false;
 			this->draw_images.insert(dd);
 		}
 
@@ -1014,6 +1028,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.base.x = this->xoffset + xnorth - this->rect.base.x;
 				dd.base.y = this->yoffset + ynorth - this->rect.base.y + yoffset;
 				dd.recolour = nullptr;
+				dd.highlight = false;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -1033,6 +1048,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.sprite = anim_spr;
 			dd.base.x = this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off;
 			dd.base.y = this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off;
+			dd.highlight = false;
 			this->draw_images.insert(dd);
 		}
 		vo = vo->next_object;
@@ -1108,6 +1124,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		dd.base.x = this->rect.base.x - xnorth;
 		dd.base.y = this->rect.base.y - ynorth;
 		dd.recolour = nullptr;
+		dd.highlight = false;
 		if (spr != nullptr && (!this->found || this->data < dd)) {
 			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
 			if (pixel != 0) {
@@ -1152,6 +1169,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		dd.base.x = this->rect.base.x - xnorth;
 		dd.base.y = this->rect.base.y - ynorth;
 		dd.recolour = nullptr;
+		dd.highlight = false;
 		if (img != nullptr && (!this->found || this->data < dd)) {
 			uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
 			if (GetA(pixel) != TRANSPARENT) {
@@ -1172,6 +1190,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		dd.base.x = this->rect.base.x - xnorth;
 		dd.base.y = this->rect.base.y - ynorth;
 		dd.recolour = nullptr;
+		dd.highlight = false;
 		if (spr != nullptr && (!this->found || this->data < dd)) {
 			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
 			if (GetA(pixel) != TRANSPARENT) {
@@ -1199,6 +1218,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 			dd.base.x = this->rect.base.x - xnorth - x_off;
 			dd.base.y = this->rect.base.y - ynorth - y_off;
 			dd.recolour = nullptr;
+			dd.highlight = false;
 			if (anim_spr && (!this->found || this->data < dd)) {
 				uint32 pixel = anim_spr->GetPixel(dd.base.x - anim_spr->xoffset, dd.base.y - anim_spr->yoffset);
 				if (GetA(pixel) != TRANSPARENT) {
@@ -1317,7 +1337,7 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	for (const auto &iter : collector.draw_images) {
 		const DrawData &dd = iter;
 		const Recolouring &rec = (dd.recolour == nullptr) ? recolour : *dd.recolour;
-		_video.BlitImage(dd.base, dd.sprite, rec, gs);
+		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
 	}
 
 	_video.SetClippedRectangle(cr);

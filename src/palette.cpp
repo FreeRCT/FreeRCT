@@ -176,14 +176,19 @@ const uint8 *Recolouring::GetPalette(GradientShift shift) const
 	if (this->shift == shift) return this->colour_map;
 
 	for (int i = 0; i < COL_SERIES_START; i++) this->colour_map[i] = i;
-	for (int i = COL_SERIES_END; i < 256; i++) this->colour_map[i] = i;
-	for (int rng = 0; rng < COL_RANGE_COUNT; rng++) {
-		int base = GetColourRangeBase((ColourRange)rng);
-		int baseval = GetColourRangeBase(this->GetReplacementRange((ColourRange)rng));
-		for (int col = 0; col < COL_SERIES_LENGTH; col++) {
-			this->colour_map[base + col] = baseval + Clamp(col + shift - GS_NORMAL, 0, COL_SERIES_LENGTH - 1);
+	if (shift == GS_SEMI_TRANSPARENT) {
+		for (int i = COL_SERIES_START; i < COL_SERIES_END; i++) this->colour_map[i] = COL_SEMI_TRANSPARENT;
+	} else {
+		for (int rng = 0; rng < COL_RANGE_COUNT; rng++) {
+			int base = GetColourRangeBase((ColourRange)rng);
+			int baseval = GetColourRangeBase(this->GetReplacementRange((ColourRange)rng));
+			for (int col = 0; col < COL_SERIES_LENGTH; col++) {
+				this->colour_map[base + col] = baseval + Clamp(col + shift - GS_NORMAL, 0, COL_SERIES_LENGTH - 1);
+			}
 		}
 	}
+	for (int i = COL_SERIES_END; i < 256; i++) this->colour_map[i] = i;
+
 	this->shift = shift;
 	return this->colour_map;
 }
@@ -202,10 +207,11 @@ ColourRange Recolouring::GetReplacementRange(ColourRange src) const
 	return dest;
 }
 
+/** 8 bpp colours mapped to 32 bpp. */
 const uint32 _palette[256] = {
 	MakeRGBA(  0,   0,   0, TRANSPARENT), //  0 COL_BACKGROUND (background behind world display)
 	MakeRGBA(255, 255, 255, OPAQUE), //  1 COL_HIGHLIGHT (full white to highlight window edge)
-	MakeRGBA(  0,   0,   0, OPAQUE), //  2 unused
+	MakeRGBA(255, 255, 255, OPACITY_SEMI_TRANSPARENT), //  2 COL_SEMI_TRANSPARENT (semi-transparent white buy-ride colour)
 	MakeRGBA(  0,   0,   0, OPAQUE), //  3 unused
 	MakeRGBA(  0,   0,   0, OPAQUE), //  4 unused
 	MakeRGBA(  0,   0,   0, OPAQUE), //  5 unused
