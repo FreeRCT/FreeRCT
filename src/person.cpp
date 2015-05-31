@@ -13,13 +13,11 @@
 #include "math_func.h"
 #include "person_type.h"
 #include "sprite_store.h"
-#include "ride_type.h"
 #include "person.h"
 #include "people.h"
 #include "fileio.h"
 #include "map.h"
 #include "path_finding.h"
-#include "ride_type.h"
 #include "viewport.h"
 #include "weather.h"
 
@@ -628,6 +626,7 @@ void Guest::DecideMoveDirection()
 
 	if (this->activity == GA_ENTER_PARK && vs->owner == OWN_PARK) {
 		// \todo Pay the park fee, go home if insufficient monies.
+		NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_GUEST_COUNT, 1);
 		this->activity = GA_WANDER;
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
 	}
@@ -1000,9 +999,9 @@ Guest::~Guest()
 
 void Guest::Activate(const Point16 &start, PersonType person_type)
 {
+	this->activity = GA_ENTER_PARK;
 	this->Person::Activate(start, person_type);
 
-	this->activity = GA_ENTER_PARK;
 	this->happiness = 50 + this->rnd.Uniform(50);
 	this->total_happiness = 0;
 	this->cash = 3000 + this->rnd.Uniform(4095);
@@ -1148,7 +1147,10 @@ bool Guest::DailyUpdate()
 
 	this->ChangeHappiness(happiness_change);
 
-	if (this->activity == GA_WANDER && this->happiness <= 10) this->activity = GA_GO_HOME; // Go home when bored.
+	if (this->activity == GA_WANDER && this->happiness <= 10) {
+		this->activity = GA_GO_HOME; // Go home when bored.
+		NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_GUEST_COUNT, 0);
+	}
 	return true;
 }
 

@@ -13,6 +13,7 @@
 #include "map.h"
 #include "random.h"
 #include "money.h"
+#include "ride_type.h"
 
 struct WalkInformation;
 class RideInstance;
@@ -168,6 +169,16 @@ public:
 
 	void Activate(const Point16 &start, PersonType person_type) override;
 	void DeActivate(AnimateResult ar) override;
+
+	/**
+	 * Is the guest in the park?
+	 * @return Whether the guest is in the park.
+	 * @todo Split #GA_GO_HOME into LEAVING_PARK and FINDING_EDGE for better estimation.
+	 */
+	bool IsInPark() const
+	{
+		return this->activity != GA_ENTER_PARK && this->activity != GA_GO_HOME;
+	}
 
 	AnimateResult OnAnimate(int delay) override;
 	bool DailyUpdate() override;

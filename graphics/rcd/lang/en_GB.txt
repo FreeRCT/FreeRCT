@@ -50,6 +50,8 @@ strings {
 		TOOLBAR_GUI_FINANCES:             "Finances";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Manage Company Finances";
 
+		BOTTOMBAR_GUESTCOUNT:             "%1% guest(s)";
+
 		// Quit program strings.
 		QUIT_CAPTION: "Quit program?";
 		QUIT_MESSAGE: "Quit the program?";

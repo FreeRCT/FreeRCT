@@ -17,6 +17,8 @@
 #include "math_func.h"
 #include "sprite_store.h"
 #include "gui_sprites.h"
+#include "person.h"
+#include "people.h"
 #include "viewport.h"
 #include "gamemode.h"
 #include "weather.h"
@@ -229,6 +231,9 @@ public:
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
+
+private:
+	int32 guest_count; ///< Number of guests in the park.
 };
 
 /**
@@ -236,11 +241,12 @@ public:
  * @ingroup gui_group
  */
 enum BottomToolbarGuiWidgets {
+	BTB_EMPTY,          ///< Empty widget defining the width of the status bar.
 	BTB_STATUS,         ///< Status panel containing cash and rating readout.
 	BTB_WEATHER,        ///< Weather sprite.
 	BTB_TEMPERATURE,    ///< Temperature in the park.
-	BTB_SPACING,        ///< Status panel containing nothing (yet).
 	BTB_VIEW_DIRECTION, ///< Status panel containing viewing direction.
+	BTB_GUESTCOUNT,     ///< Display of number of guests in the park.
 	BTB_DATE,           ///< Status panel containing date.
 };
 
@@ -255,22 +261,26 @@ static const uint32 BOTTOM_BAR_POSITION_X = 75; ///< Separation of the toolbar f
  */
 static const WidgetPart _bottom_toolbar_widgets[] = {
 	Intermediate(0, 1),
+		Widget(WT_EMPTY, BTB_EMPTY, COL_RANGE_INVALID),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
 			Intermediate(1, 0), SetPadding(0, 3, 0, 3),
-				Widget(WT_LEFT_TEXT, BTB_STATUS, COL_RANGE_ORANGE_BROWN), SetPadding(3, 5, 30, 0), SetData(STR_ARG1, STR_NULL),
-						SetMinimalSize(1, BOTTOM_BAR_HEIGHT), // Temp X value
+				Intermediate(3, 1),
+					Widget(WT_LEFT_TEXT, BTB_STATUS, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetFill(0, 0),
+					Widget(WT_LEFT_TEXT, BTB_GUESTCOUNT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL), SetFill(0, 0),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
 				Widget(WT_EMPTY, BTB_WEATHER, COL_RANGE_ORANGE_BROWN), SetPadding(3, 3, 3, 3), SetFill(0, 1),
-				Widget(WT_RIGHT_TEXT, BTB_TEMPERATURE, COL_RANGE_ORANGE_BROWN), SetFill(1, 0), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_EMPTY, BTB_SPACING, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), // Temp X value
-				Widget(WT_EMPTY, BTB_VIEW_DIRECTION, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), // Temp X value
+				Widget(WT_RIGHT_TEXT, BTB_TEMPERATURE, COL_RANGE_ORANGE_BROWN), SetFill(0, 0), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(1, 0),
+				Widget(WT_EMPTY, BTB_VIEW_DIRECTION, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(0, 0),
 				Widget(WT_RIGHT_TEXT, BTB_DATE, COL_RANGE_ORANGE_BROWN), SetPadding(3, 0, 30, 0), SetData(STR_ARG1, STR_NULL),
-						SetMinimalSize(1, BOTTOM_BAR_HEIGHT), // Temp X value
+						SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(0, 0),
 			EndContainer(),
 	EndContainer(),
 };
 
 BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
+	this->guest_count = _guests.CountGuestsInPark();
 	this->SetupWidgetTree(_bottom_toolbar_widgets, lengthof(_bottom_toolbar_widgets));
 }
 
@@ -296,12 +306,39 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case BTB_TEMPERATURE:
 			_str_params.SetTemperature(1, _weather.temperature);
 			break;
+
+		case BTB_GUESTCOUNT:
+			_str_params.SetNumber(1, this->guest_count);
+			break;
 	}
 }
 
 void BottomToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 {
-	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
+	switch (code) {
+		case CHG_DISPLAY_OLD:
+			this->MarkDirty();
+			break;
+
+		case CHG_GUEST_COUNT:
+			/* Parameter decides meaning.
+			 * - 0 means a guest left.
+			 * - 1 means a guest entered.
+			 * - otherwise, recount.
+			 */
+			if (parameter == 0) {
+				this->guest_count = std::max(0, this->guest_count - 1);
+			} else if (parameter == 1) {
+				this->guest_count++;
+			} else {
+				this->guest_count = _guests.CountGuestsInPark();
+			}
+			this->MarkDirty();
+			break;
+
+		default:
+			break; // Ignore other messages.
+	}
 }
 
 void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
@@ -309,6 +346,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 	/* -99,999,999.99 = Maximum amount of money that is worth handling for now. */
 	static const int64 LARGE_MONEY_AMOUNT = -9999999999;
 	static const int LARGE_TEMPERATURE = 999; // Large enough to format all temperatures.
+	static const int MANY_GUESTS = 10000;
 	Point32 p(0, 0);
 
 	switch (wid_num) {
@@ -333,20 +371,14 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 			GetTextSize(STR_ARG1, &p.x, &p.y);
 			break;
 
-		case BTB_SPACING: {
-			_str_params.SetNumber(1, LARGE_TEMPERATURE);
-			Point32 temp_size;
-			GetTextSize(STR_ARG1, &temp_size.x, &temp_size.y);
-
-			int32 remaining = _video.GetXSize() - (2 * BOTTOM_BAR_POSITION_X);
-			remaining -= temp_size.x;
-			remaining -= _sprite_manager.GetTableSpriteSize(SPR_GUI_WEATHER_START).width;
-			remaining -= GetMoneyStringSize(LARGE_MONEY_AMOUNT).x;
-			remaining -= GetMaxDateSize().x;
-			remaining -= _sprite_manager.GetTableSpriteSize(SPR_GUI_COMPASS_START).base.x; // It's the same size for all compass sprites.
-			p = {remaining, (int32)BOTTOM_BAR_HEIGHT};
+		case BTB_GUESTCOUNT:
+			_str_params.SetNumber(1, MANY_GUESTS);
+			GetTextSize(GUI_BOTTOMBAR_GUESTCOUNT, &p.x, &p.y);
 			break;
-		}
+
+		case BTB_EMPTY:
+			p.x = _video.GetXSize() - (2 * BOTTOM_BAR_POSITION_X);
+			break;
 
 		case BTB_DATE:
 			p = GetMaxDateSize();

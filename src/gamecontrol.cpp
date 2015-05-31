@@ -11,7 +11,6 @@
 #include "gamecontrol.h"
 #include "finances.h"
 #include "sprite_store.h"
-#include "ride_type.h"
 #include "person.h"
 #include "people.h"
 #include "window.h"

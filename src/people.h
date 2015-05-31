@@ -65,6 +65,7 @@ public:
 	~Guests();
 
 	uint CountActiveGuests();
+	uint CountGuestsInPark();
 
 	/**
 	 * Get a guest from the array.

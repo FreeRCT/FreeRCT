@@ -66,6 +66,7 @@ enum ChangeCode {
 	CHG_DISPLAY_OLD,      ///< Displayed data is old.
 	CHG_PIECE_POSITIONED, ///< The track piece is at the correct position.
 	CHG_DROPDOWN_RESULT,  ///< The selection of a dropdown window.
+	CHG_GUEST_COUNT,      ///< Number of guests in the park has changed.
 };
 
 /** Various state flags of the %Window. */
