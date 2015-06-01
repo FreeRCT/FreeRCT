@@ -756,8 +756,7 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypo
  * Prepare to add the sprite for a ride.
  * @param slice Depth of this sprite.
  * @param zpos Z position of the voxel being drawn.
- * @param basex X position of the sprite in the screen.
- * @param basey Y position of the sprite in the screen.
+ * @param base_pos Base position of the sprite in the screen.
  * @param orient View orientation.
  * @param number Ride instance number.
  * @param voxel_number Number of the voxel.
@@ -765,7 +764,7 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypo
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  * @return The number of \a dd entries filled.
  */
-static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
+static int DrawRide(int32 slice, int zpos, const Point32 base_pos, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == nullptr) return 0;
@@ -780,7 +779,7 @@ static int DrawRide(int32 slice, int zpos, int32 basex, int32 basey, ViewOrienta
 	for (int i = 0; i < 4; i++) {
 		if (sprites[i] == nullptr) continue;
 
-		dd[idx].Set(slice, zpos, sprite_numbers[i], sprites[i], Point32(basex, basey), &ri->recolours);
+		dd[idx].Set(slice, zpos, sprite_numbers[i], sprites[i], base_pos, &ri->recolours);
 		idx++;
 	}
 	return idx;
@@ -834,8 +833,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		this->draw_images.insert(dd);
 	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
 		DrawData dd[4];
-		int count = DrawRide(slice, voxel_pos.z,
-				xnorth - this->rect.base.x, ynorth - this->rect.base.y,
+		int count = DrawRide(slice, voxel_pos.z, Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y),
 				this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) {
 			dd[i].highlight = highlight;
@@ -1091,7 +1089,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	if ((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) {
 		/* Looking for a ride? */
 		DrawData dd[4];
-		int count = DrawRide(slice, voxel_pos.z, this->rect.base.x - xnorth, this->rect.base.y - ynorth,
+		int count = DrawRide(slice, voxel_pos.z, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
 				this->orient, number, voxel->GetInstanceData(), dd, nullptr);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
