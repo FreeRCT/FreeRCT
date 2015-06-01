@@ -805,6 +805,9 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		default: NOT_REACHED();
 	}
 
+	xnorth += this->xoffset;
+	ynorth += this->yoffset;
+
 	if (voxel == nullptr) { // Draw cursor above stack.
 		CursorType ctype = this->GetCursorType(voxel_pos);
 		if (ctype == CUR_TYPE_INVALID) return;
@@ -813,7 +816,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		if (mspr != nullptr) {
 			DrawData dd;
 			dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr,
-					Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y));
+					Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y));
 			this->draw_images.insert(dd);
 		}
 	}
@@ -827,12 +830,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		platform_shape = _path_rotation[GetImplodedPathSlope(instance_data)][this->orient];
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_PATH, this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient),
-				Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y), nullptr, highlight);
+				Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y), nullptr, highlight);
 		this->draw_images.insert(dd);
 	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
 		DrawData dd[4];
 		int count = DrawRide(slice, voxel_pos.z,
-				this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y,
+				xnorth - this->rect.base.x, ynorth - this->rect.base.y,
 				this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) {
 			dd[i].highlight = highlight;
@@ -856,7 +859,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			const ImageData *img = fnd->sprites[3 + sw - 1];
 			if (img != nullptr) {
 				DrawData dd;
-				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y));
+				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y));
 				this->draw_images.insert(dd);
 			}
 		}
@@ -864,7 +867,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			const ImageData *img = fnd->sprites[se - 1];
 			if (img != nullptr) {
 				DrawData dd;
-				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y));
+				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y));
 				this->draw_images.insert(dd);
 			}
 		}
@@ -877,7 +880,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		uint8 type = (this->underground_mode) ? GTP_UNDERGROUND : voxel->GetGroundType();
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_GROUND, this->sprites->GetSurfaceSprite(type, slope, this->orient),
-				Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y));
+				Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y));
 		this->draw_images.insert(dd);
 		switch (slope) {
 			// XXX There are no sprites for partial support of a platform.
@@ -918,7 +921,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT,
 						this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient),
-						Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y));
+						Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y));
 				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
 				this->draw_images.insert(dd);
 			}
@@ -931,7 +934,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, gslope);
 		if (mspr != nullptr) {
 			DrawData dd;
-			dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y));
+			dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y));
 			if (ctype >= CUR_TYPE_EDGE_NE && ctype <= CUR_TYPE_EDGE_NW && IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
 			this->draw_images.insert(dd);
 		}
@@ -950,7 +953,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		}
 		if (pl_spr != nullptr) {
 			DrawData dd;
-			dd.Set(slice, voxel_pos.z, SO_PLATFORM, pl_spr, Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y));
+			dd.Set(slice, voxel_pos.z, SO_PLATFORM, pl_spr, Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y));
 			this->draw_images.insert(dd);
 		}
 
@@ -985,7 +988,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			if (img != nullptr) {
 				DrawData dd;
 				dd.Set(slice, height, SO_SUPPORT, img,
-						Point32(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y + yoffset));
+						Point32(xnorth - this->rect.base.x, ynorth - this->rect.base.y + yoffset));
 				this->draw_images.insert(dd);
 			}
 		}
@@ -1000,8 +1003,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
 			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr,
-					Point32(this->xoffset + this->north_offsets[this->orient].x + xnorth - this->rect.base.x + x_off,
-					        this->yoffset + this->north_offsets[this->orient].y + ynorth - this->rect.base.y + y_off));
+					Point32(xnorth + this->north_offsets[this->orient].x - this->rect.base.x + x_off,
+					        ynorth + this->north_offsets[this->orient].y - this->rect.base.y + y_off));
 			this->draw_images.insert(dd);
 		}
 		vo = vo->next_object;
