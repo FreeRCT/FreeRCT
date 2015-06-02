@@ -808,13 +808,13 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	if (voxel == nullptr) { // Draw cursor above stack.
 		CursorType ctype = this->GetCursorType(voxel_pos);
-		if (ctype == CUR_TYPE_INVALID) return;
-
-		const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, SL_FLAT);
-		if (mspr != nullptr) {
-			DrawData dd;
-			dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, north_point);
-			this->draw_images.insert(dd);
+		if (ctype != CUR_TYPE_INVALID) {
+			const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, SL_FLAT);
+			if (mspr != nullptr) {
+				DrawData dd;
+				dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, north_point);
+				this->draw_images.insert(dd);
+			}
 		}
 	}
 
