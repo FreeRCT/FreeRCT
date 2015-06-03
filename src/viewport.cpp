@@ -989,14 +989,15 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	/* Add voxel objects (persons, ride cars, etc). */
 	const VoxelObject *vo = (voxel == nullptr) ? nullptr : voxel->voxel_objects;
 	while (vo != nullptr) {
-		DrawData dd;
-		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &dd.recolour);
+		const Recolouring *recolour;
+		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &recolour);
 		if (anim_spr != nullptr) {
 			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
-			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr,
-					Point32(north_point.x + this->north_offsets[this->orient].x + x_off,
-					        north_point.y + this->north_offsets[this->orient].y + y_off));
+			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
+			            north_point.y + this->north_offsets[this->orient].y + y_off);
+			DrawData dd;
+			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr, pos, recolour);
 			this->draw_images.insert(dd);
 		}
 		vo = vo->next_object;
