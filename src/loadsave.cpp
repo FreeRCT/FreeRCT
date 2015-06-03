@@ -288,7 +288,7 @@ static void SaveElements(Saver &svr)
  * @param fname Name of the file to load. Use \c nullptr to initialize to default.
  * @return Whether loading was successful.
  */
-bool LoadGame(const char *fname)
+bool LoadGameFile(const char *fname)
 {
 	FILE *fp;
 
@@ -313,7 +313,7 @@ bool LoadGame(const char *fname)
  * @param fname Name of the file to write.
  * @return Whether saving was successful.
  */
-bool SaveGame(const char *fname)
+bool SaveGameFile(const char *fname)
 {
 	FILE *fp = fopen(fname, "wb");
 	if (fp == nullptr) return false;

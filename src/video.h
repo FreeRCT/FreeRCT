@@ -16,8 +16,6 @@
 #include "geometry.h"
 #include "palette.h"
 
-void QuitProgram();
-
 class ImageData;
 
 /** Clipped rectangle. */

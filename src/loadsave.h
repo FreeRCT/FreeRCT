@@ -56,7 +56,7 @@ private:
 	const char *blk_name; ///< Name of the current block.
 };
 
-bool LoadGame(const char *fname);
-bool SaveGame(const char *fname);
+bool LoadGameFile(const char *fname);
+bool SaveGameFile(const char *fname);
 
 #endif

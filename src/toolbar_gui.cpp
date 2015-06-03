@@ -20,7 +20,7 @@
 #include "person.h"
 #include "people.h"
 #include "viewport.h"
-#include "gamemode.h"
+#include "gamecontrol.h"
 #include "weather.h"
 
 void ShowQuitProgram();
@@ -130,14 +130,14 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 			break;
 
 		case TB_GUI_SAVE: {
-			SaveGame("saved.fct");
+			_game_control.SaveGame("saved.fct");
 			/// \todo Provide option to enter the filename for saving.
 			/// \todo Provide feedback on the save.
 			break;
 		}
 
 		case TB_GUI_LOAD: {
-			LoadGame("saved.fct");
+			_game_control.LoadGame("saved.fct");
 			/// \todo Provide option to select the file to load.
 			break;
 		}
@@ -476,7 +476,7 @@ QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 
 void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
-	if (number == QP_YES) QuitProgram();
+	if (number == QP_YES) _game_control.QuitGame();
 	delete this;
 }
 

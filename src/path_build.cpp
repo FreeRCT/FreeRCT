@@ -10,7 +10,7 @@
 #include "stdafx.h"
 #include "path_build.h"
 #include "map.h"
-#include "gamemode.h"
+#include "gamecontrol.h"
 #include "window.h"
 #include "math_func.h"
 

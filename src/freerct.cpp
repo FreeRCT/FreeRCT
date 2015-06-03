@@ -21,6 +21,7 @@
 #include "fileio.h"
 #include "gamecontrol.h"
 
+GameControl _game_control; ///< Game controller.
 void InitMouseModes();
 
 /**
@@ -126,13 +127,14 @@ int freerct_main(int argc, char **argv)
 
 	InitMouseModes();
 
-	StartNewGame();
+	/// \todo Allow for loading directly from a saved game.
+	_game_control.Initialize();
 
 	/* Loops until told not to. */
 	_video.MainLoop();
 
-	/* Closing down. */
-	ShutdownGame();
+	_game_control.Uninitialize();
+
 	UninitLanguage();
 	DestroyImageStorage();
 	_video.Shutdown();
