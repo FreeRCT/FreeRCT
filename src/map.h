@@ -370,6 +370,8 @@ public:
 	}
 
 	void MarkDirty();
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	VoxelObject *next_object; ///< Next voxel object in the linked list.
 	VoxelObject *prev_object; ///< Previous voxel object in the linked list.
