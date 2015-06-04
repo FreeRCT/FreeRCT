@@ -79,6 +79,22 @@ Guests::~Guests()
 {
 }
 
+/** Deactivate all guests and reset variables. */
+void Guests::Uninitialize()
+{
+	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
+		Guest *g = this->block.Get(i);
+		if (g->IsActive()) {
+			g->DeActivate(OAR_REMOVE);
+			this->AddFree(g);
+		}
+	}
+	this->start_voxel.x = -1;
+	this->start_voxel.y = -1;
+	this->daily_frac = 0;
+	this->next_daily_index = 0;
+}
+
 /**
  * Update #free_idx to the next free guest (if available).
  * @return Whether a free guest was found.

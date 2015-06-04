@@ -64,6 +64,8 @@ public:
 	Guests();
 	~Guests();
 
+	void Uninitialize();
+
 	uint CountActiveGuests();
 	uint CountGuestsInPark();
 
