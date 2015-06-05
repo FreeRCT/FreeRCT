@@ -179,6 +179,7 @@ void GameControl::StartLevel()
 void GameControl::ShutdownLevel()
 {
 	/// \todo Clean out the game data structures.
+	_guests.Uninitialize();
 	_game_mode_mgr.SetGameMode(GM_NONE);
 	_mouse_modes.SetMouseMode(MM_INACTIVE);
 	_window_manager.CloseAllWindows();
