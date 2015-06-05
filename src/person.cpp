@@ -1136,6 +1136,70 @@ void Guest::DeActivate(AnimateResult ar)
 	this->Person::DeActivate(ar);
 }
 
+/**
+ * Load a guest from the save game.
+ * @param ldr Input stream to read.
+ */
+void Guest::Load(Loader &ldr)
+{
+	this->Person::Load(ldr);
+
+	this->activity = static_cast<GuestActivity>(ldr.GetByte());
+	this->happiness = ldr.GetWord();
+	this->total_happiness = ldr.GetWord();
+	this->cash = static_cast<Money>(ldr.GetLongLong());
+	this->cash_spent = static_cast<Money>(ldr.GetLongLong());
+
+	uint16 ride_index = ldr.GetWord();
+	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+
+	this->has_map = ldr.GetByte();
+	this->has_umbrella = ldr.GetByte();
+	this->has_wrapper = ldr.GetByte();
+	this->has_balloon = ldr.GetByte();
+	this->salty_food = ldr.GetByte();
+	this->souvenirs = ldr.GetByte();
+	this->food = ldr.GetByte();
+	this->drink = ldr.GetByte();
+	this->hunger_level = ldr.GetByte();
+	this->thirst_level = ldr.GetByte();
+	this->stomach_level = ldr.GetByte();
+	this->waste = ldr.GetByte();
+	this->nausea = ldr.GetByte();
+}
+
+/**
+ * Save guest data to the save game file.
+ * @param svr Output stream to save to.
+ */
+void Guest::Save(Saver &svr)
+{
+	this->Person::Save(svr);
+
+	svr.PutByte(this->activity);
+	svr.PutWord(this->happiness);
+	svr.PutWord(this->total_happiness);
+	svr.PutLongLong(static_cast<uint64>(this->cash));
+	svr.PutLongLong(static_cast<uint64>(this->cash_spent));
+
+	uint16 ride_index = (this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE;
+	svr.PutWord(ride_index);
+
+	svr.PutByte(this->has_map);
+	svr.PutByte(this->has_umbrella);
+	svr.PutByte(this->has_wrapper);
+	svr.PutByte(this->has_balloon);
+	svr.PutByte(this->salty_food);
+	svr.PutByte(this->souvenirs);
+	svr.PutByte(this->food);
+	svr.PutByte(this->drink);
+	svr.PutByte(this->hunger_level);
+	svr.PutByte(this->thirst_level);
+	svr.PutByte(this->stomach_level);
+	svr.PutByte(this->waste);
+	svr.PutByte(this->nausea);
+}
+
 AnimateResult Guest::OnAnimate(int delay)
 {
 	if (this->activity == GA_ON_RIDE) return OAR_OK; // Guest is not animated while on ride.

@@ -173,6 +173,9 @@ public:
 	void Activate(const Point16 &start, PersonType person_type) override;
 	void DeActivate(AnimateResult ar) override;
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	/**
 	 * Is the guest in the park?
 	 * @return Whether the guest is in the park.
