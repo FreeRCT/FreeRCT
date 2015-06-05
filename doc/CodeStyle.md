@@ -1,6 +1,6 @@
 # Introduction #
 
-As in any open source project, many people will read and perhaps even modify the code. Quite likely this will happen long after you have left. Therefore, it is important to make the code easily understandable.
+As in any open source project, many people will read and modify the code. Quite likely this will happen long after you have left. Therefore, it is important to make the code easily understandable.
 
 To make this happen, the project has a number of rules and guide lines for code.
   * Document every part.
@@ -10,11 +10,11 @@ To make this happen, the project has a number of rules and guide lines for code.
 ## Documenting code ##
 
 Everybody knows we should do it, but most programmers think they can live without. When you write programs of less than a thousand lines that you never give to other people, you probably can.
-FreeRCT is however close to 30,000 lines (when I write this page), and growing. There are just too many details to remember all.
+FreeRCT is however close to 75,000 lines (at time of writing) and growing. There are just too many details to remember all.
 
 Of course you can read the code of the method to understand what it does, and for code that you want to change you have to do that, but what if you just want to call the function?
 The latter kind of use is where documentation makes the difference. In this project, you can read just a few lines of text instead of reverse engineering the intended use from the code, and hope you didn't miss an important detail.
-(Alberth: Since I switched to documenting all my code, I found that it actually speeds up my work instead of slowing down, despite the additional time needed to write the documentation.)
+("Since I switched to documenting all my code, I found that it actually speeds up my work instead of slowing down, despite the additional time needed to write the documentation." ~Alberth)
 
 The project uses [Doxygen](http://www.doxygen.org/) for documenting the code. There is no public generated documentation you can browse, but it is easy to install the program locally, and build your own documentation html tree.
 
@@ -77,8 +77,6 @@ It is **really useful** to show TAB and trailing white space in your editor, or 
 
 It's a GPL project, so the GPL license must be added above every file in the project. The following template file might be useful:
 ```
-/* $Id$ */
-
 /*
  * This file is part of FreeRCT.
  * FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
@@ -93,9 +91,7 @@ It's a GPL project, so the GPL license must be added above every file in the pro
 
 #endif
 ```
-The `$Id$` is used by [http:subversion.apache.org Subversion] to denote the revision of the file. See the `svn:keywords` property of `svn propset` for details.
-
-Lines 3 to 8 are the condensed GPL license.
+Lines 1 to 6 are the condensed GPL license.
 
 The `/** @file fileio.h File IO declarations. */` is the Doxygen file header documentation. Adjust it for your new file.
 
@@ -107,9 +103,9 @@ Try to have as many `#include` lines in the `.cpp` files as you can (instead of 
 
 ### Classes and structures ###
 
-There is no clear rule about using classes versus structures. In general, `struct`s are more plain data-like, while classes are more real objects. When using `malloc` and friends, `struct`s are usually better.
+There is no clear rule about using classes versus structures. In general, `struct`s are more plain data-like, while classes are more real objects.
 
-Classes and structures use camelcase names, like
+Classes and structures use CamelCase names, like
 ```
 /** Base class for windows with a widget tree. */
 class GuiWindow : public Window {
@@ -122,17 +118,17 @@ The general order is `public`, `protected`, and `private`. Methods go before dat
 
 Methods also use camel case for their name. Names of formal parameters are lowercase only, with underscore characters to enhance readability. If a parameter has a 1-to-1 correspondence with a data member, use the same name.
 
-The first creation of a virtual method is expressed by the `virtual` keyword. Derived classes and all implementations use a `/* virtual */` prefix to denote the method is virtual.
+The first creation of a virtual method is expressed by the `virtual` keyword. Any derived methods must use the `override` keyword.
 
 Most code is not very protective about data access, and puts all variables in the public space to make them easily readable, and avoid getter and setter clutter (There is no code other than this project that accesses the data, no need to stay compatible with older versions etc.)
 Whether an external user has write access should be clear too. If it is not clear, it should be documented.
 
 
 Templates and abstract (base) classes are fine, but they should have a concrete positive influence on the size or complexity of the code.
-Standard containers for simple cases are avoided to reduce memory fragmentation. Use an array, or a single or double linked list instead (or whatever is the right solution).
+Standard containers for simple cases are avoided to reduce memory fragmentation. Use an C-style array instead (or whatever is the right solution).
 
 ### Enumerations ###
-Enumerations use camelcase, like
+Enumerations also use CamelCase, like
 ```
 /** Sprites for supports available for use. */
 enum SupportSprites {
@@ -151,14 +147,13 @@ In general, they should be avoided, but there are good use cases. Try to make th
 
 They start with an underscore character, followed by lowercase letters and underscores for readability, for example
 ```
-WindowManager _manager; ///< %Window manager.
+WindowManager _window_manager; ///< %Window manager.
 ```
 
-Constants are in uppercase, just like enumeration values. For example:
+Constants are in UPPER_CASE, just like enumeration values. For example:
 ```
 static const int WORLD_X_SIZE = 128; ///< Maximal length of the X side (North-West side) of the world.
 ```
-
 
 ### Methods and function implementation ###
 
@@ -168,7 +163,7 @@ Method and function bodies are statements mixed with (variable) declarations. To
   * Pointer and reference declarations are attached to the name rather than the type.
   * Declarations are done at or near their first use. If possible, declare iterators inside the `for` statement.
   * Variables that contain commonly used objects often have the same name, try to use the same convention.
-  * Accesses to members of the class are always prefixed with `this->` to make them stand out with local variables.
+  * Accesses to members of the class are *always* prefixed with `this->` to make them stand out with local variables.
 
 Simple statements like assignment or function calls that are very long can be split over multiple lines. In that case, add **2** additional TABs before the second and further lines to show the line is a continuation. For example
 ```
@@ -179,7 +174,7 @@ return this->titlebar.IsLoaded() && this->button.IsLoaded()
 
 Statements that have a block statement like `if`, `while`, `for`, and so on, may be either written at a single line, or split over sveral lines by adding curly brackets. The opening curly bracket is at the end of the line above the block, and the closing is at the same indentation as the starting indent, like
 ```
-for (uint i = 0; i < TBN_COUNT; i++) this->bend_select[i] = NULL;
+for (uint i = 0; i < TBN_COUNT; i++) this->bend_select[i] = nullptr;
 
 while (true) {
 	if (iter == this->animations.end()) return;
@@ -206,8 +201,8 @@ Normally, the switch is complete. Use the `NOT_REACHED();` macro to denote some 
 
 
   * There is a space between the keyword (`if`, `while`, etc) and the opening parenthesis.
-  * Integer and pointer comparisons are explicit. That is, do `if (p != NULL)` or `while (i == 0)` instead of relying on the implicit conversion `if (p)` or `while (!i)`. Boolean comparisons are not explicit.
-  * `free` and `delete` can handle `NULL` values, no need to check against them yourself.
+  * Integer and pointer comparisons are explicit. That is, do `if (p != nullptr)` or `while (i == 0)` instead of relying on the implicit conversion `if (p)` or `while (!i)`. Boolean comparisons are not explicit.
+  * `free` and `delete` can handle `nullptr` values, no need to check against them yourself.
   * A line containing only comment uses C-style comment, like `/* ... */`. Comments behind some code use line comment, like `a = 3; // ...`
 
 Other expression rules
@@ -215,8 +210,8 @@ Other expression rules
   * There are operator priorities in C++, you don't need to enforce them by adding parentheses. For uncommon or unclear cases, it may be useful to add them though.
   * Use spaces around operators like `a + b` or `a != 4 && b * 2 < 15 * f`.
 
-Finally, as  a general rule, don't be over-generic in the implementation. Only add functionality in the functions and methods that you actually need now. If you need more tomorrow, add it tomorrow. Plans for the future sometimes don't happen, and then there is all this future functionality that nobody needs, which is only in the way.
+Finally, as  a general rule, don't be over-generic in the implementation. Only add functionality in the functions and methods that you actually need now. If you need more tomorrow, add it tomorrow. Plans for the future sometimes don't happen, and then there is all this future functionality that nobody needs, which only gets in the way.
 
 ## Acknowledgment ##
 
-Many thanks to the [OpenTTD](http://www.openttd.org/) project for [defining the code style](http://wiki.openttd.org/Coding_style).
+Many thanks to the [OpenTTD](http://www.openttd.org/) project for helping to define the [code style](http://wiki.openttd.org/Coding_style).

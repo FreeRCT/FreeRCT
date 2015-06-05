@@ -11,4 +11,4 @@ Links related to the project itself.
 Below a list of websites that seem to contain useful information about related games.
 
   * [The Definitive RCT Reference Guide](http://www.jumpjet.info/Classic-Games/Windows/RCT/index.html)
-  * [RollerCoaster Tycoon Technical Information Depot](http://www.strategyplanet.com/rctuk/tid/)
+  * [RollerCoaster Tycoon Technical Information Depot](http://tid.rctspace.com/)

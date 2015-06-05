@@ -1,6 +1,6 @@
 # Introduction #
 
-This is a first step in documenting what steps are needed to compile FreeRCT on Windows using Visual Studio. We hope to reduce the length of this list later on.
+This is a first step in documenting what steps are needed to compile FreeRCT on Windows using Visual Studio. We hope to reduce the length of this list later on. Build instructions for building on Linux are at [BuildProgram.md](BuildProgram.md)
 
 # Details #
 
@@ -30,7 +30,7 @@ medium-size = 12
 medium-path = ./vera.ttf
 ```
 
-**Note:** if you plan to distribute your bin directory, mind the license of the fort. You are likely required to include its copyright/license files.
+**Note:** if you plan to distribute your bin directory, mind the license of the font. You are likely required to include its copyright/license files.
 
 ## CMake ##
   1. Start the CMake GUI application
@@ -43,7 +43,7 @@ PNG_LIBRARY_DEBUG = F:\libraries\OpenTTD_essentials\win32\library\libpng.lib
 PNG_LIBRARY_RELEASE = F:\libraries\OpenTTD_essentials\win32\library\libpng.lib
 PNG_PNG_INCLUDE_DIR = F:\libraries\OpenTTD_essentials\shared\include\
 SDL2MAIN_LIBRARY = F:\libraries\SDL2\lib\x86\SDL2main.lib
-SDL2TTFMAIN_LIBRARY = 
+SDL2TTFMAIN_LIBRARY =
 SDL2TTF_INCLUDE_DIR = F:\libraries\SDL2_ttf\include\
 SDL2TTF_LIBRARY = F:\libraries\SDL2_ttf\lib\x86\SDL2_ttf.lib
 SDL2_INCLUDE_DIR = F:\libraries\SDL2\include\

@@ -2,18 +2,11 @@
 
 Currently only Linux is officially supported, but Windows support should be possible with a few minor modifications. See [BuildProgramVisualStudio](BuildProgramVisualStudio.md) for instructions on building FreeRCT on Windows using Visual Studio.
 
-## Package building ##
-  * For building native _Debian/Ubuntu/Linux Mint_ packages, the repository has a 'debian' subdirectory with a build description. There is also an _**unofficial**_ PPA at https://launchpad.net/~adrian-arroyocalle/+archive/freerct, set up by Adrián Arroyo Calle.
+## Checkout ##
 
-## Check out ##
+The source code is hosted on GitHub, so it is recommended you make a git clone of the repo. Alternatively, you can download a zip of the current state of the repo.
 
-The source code is in Subversion, so you need a svn client to get it.
-
-The command to do this is
-<pre>
-$ svn checkout http://freerct.googlecode.com/svn/trunk/   freerct-read-only<br>
-</pre>
-(see also the 'source' tab of the project)
+A command to make a git clone is `git clone https://github.com/FreeRCT/FreeRCT`.
 
 ## Building the program ##
 
@@ -30,11 +23,11 @@ The existence of these programs/libraries is checked by `cmake`.
 
 Building is as simple as
 
-<pre>
-$ cd freerct-read-only # Go into the downloaded source directory.<br>
-$ cmake .              # Checks libraries are where they're supposed to be and replaces some strings<br>
-$ make                 # Let make do the heavy work.<br>
-</pre>
+```
+$ cd FreeRCT # Go into the downloaded source directory, where the README is located.
+$ cmake .    # Checks libraries are where they're supposed to be and replaces some strings
+$ make       # Let make do the heavy work
+```
 
   * _src_ directory contains the source code of the FreeRCT program itself.
   * _src/rcdgen_ directory contains the source code of the _rcdgen_ program, that builds RCD files from source (which are read by _freerct_).
@@ -55,23 +48,17 @@ medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf
 
 This means the medium sized font is 12 points high, and its source font definition file is at the indicated path. Make sure you use a path that actually exists.
 
-The actual file is not that critical, as long as it contains the ASCII characters, in the font-size you mention in the file.
+The actual font file is not that critical, as long as it contains the ASCII characters, in the font-size you mention in the file.
 
 ## Running the program ##
 
 Now run the program
 
-<pre>
-$ cd src<br>
-$ ./freerct<br>
-</pre>
+```
+$ cd bin
+$ ./freerct
+```
 
-or
+Running the command `make run` will work too.
 
-<pre>
-$ make run<br>
-</pre>
-
-which should open a window containing a piece of greenly coloured flat world, and a toolbar near the left top (see also the pictures in the blog).
-
-Pressing 'q' quits the program.
+which should open a window containing an oddly familiar looking piece of greenly coloured flat world.

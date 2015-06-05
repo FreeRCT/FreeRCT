@@ -3,12 +3,12 @@ This page serves as a table of contents to the wiki pages documenting what the p
 **Most of what is discussed here is not yet implemented**
 
 # Global design #
-  * GameContent
+  * [GameContent](GameContent.md)
   * [Interface](Interface.md)
   * [Windows](Windows.md)
 
 # Park items #
-  * ParkScenery
-  * ParkStaff
-  * ParkGuests
-  * ParkGuestItems
+  * [ParkScenery](ParkScenery.md)
+  * [ParkStaff](ParkStaff.md)
+  * [ParkGuests](ParkGuests.md)
+  * [ParkGuestItems](ParkGuestItems.md)
