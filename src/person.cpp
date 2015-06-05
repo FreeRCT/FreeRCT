@@ -405,6 +405,57 @@ static const WalkInformation *DecodeWalk(uint16 number)
 }
 
 /**
+ * Load a person from the save game.
+ * @param ldr Input stream to read.
+ */
+void Person::Load(Loader &ldr)
+{
+	this->VoxelObject::Load(ldr);
+
+	this->id = ldr.GetWord();
+	this->type = (PersonType)ldr.GetByte();
+	this->offset = ldr.GetWord();
+	this->name = ldr.GetText();
+
+	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
+	this->recolour = person_type_data.graphics.MakeRecolouring();
+	this->recolour.Load(ldr);
+
+	this->walk = DecodeWalk(ldr.GetWord());
+	this->frame_index = ldr.GetWord();
+	this->frame_time = (int16)ldr.GetWord();
+
+	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
+	assert(anim != nullptr && anim->frame_count != 0);
+
+	this->frames = anim->frames;
+	this->frame_count = anim->frame_count;
+
+	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	this->MarkDirty();
+}
+
+/**
+ * Save person data to the save game file.
+ * @param svr Output stream to write.
+ */
+void Person::Save(Saver &svr)
+{
+	this->VoxelObject::Save(svr);
+
+	svr.PutWord(this->id);
+	svr.PutByte(this->type);
+	svr.PutWord(this->offset);
+	svr.PutText(this->name);
+
+	this->recolour.Save(svr);
+
+	svr.PutWord(EncodeWalk(this->walk));
+	svr.PutWord(this->frame_index);
+	svr.PutWord((uint16)this->frame_time);
+}
+
+/**
  * Decide at which edge the person is.
  * @return Nearest edge of the person.
  */

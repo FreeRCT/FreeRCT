@@ -105,6 +105,9 @@ public:
 	virtual void Activate(const Point16 &start, PersonType person_type);
 	virtual void DeActivate(AnimateResult ar);
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	/**
 	 * Test whether this person is active in the game or not.
 	 * @return Whether the person is active in the game.
