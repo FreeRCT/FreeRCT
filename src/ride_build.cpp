@@ -26,6 +26,7 @@ enum RideBuildWidgets {
 	RBW_NEG_ROTATE,   ///< Negative rotate button.
 };
 
+/** Widget parts of the #RideBuildWindow GUI. */
 static const WidgetPart _simple_ride_construction_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
@@ -86,6 +87,10 @@ private:
 	RidePlacementResult ComputeShopVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient);
 };
 
+/**
+ * Constructor of the #RideBuildWindow, for 'plopping down' a ride.
+ * @param ri Ride to 'plop down'.
+ */
 RideBuildWindow::RideBuildWindow(RideInstance *ri) : GuiWindow(WC_RIDE_BUILD, ri->GetIndex()), instance(ri), orientation(EDGE_SE)
 {
 	switch (ri->GetKind()) {

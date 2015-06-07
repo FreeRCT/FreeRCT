@@ -54,6 +54,10 @@ static int ParseCommandLine(char *line, char **argv, int max_argc)
 
 /**
  * Main entry point.
+ * @param hInstance Instance of the application.
+ * @param hPrevInstance Previous instance of the application.
+ * @param lpCmdLine Command line of the application.
+ * @param nCmdShow How the window is shown.
  * @return The exit code of the program.
  */
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
