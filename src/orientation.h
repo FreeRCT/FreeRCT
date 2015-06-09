@@ -72,4 +72,20 @@ static inline ViewOrientation SubtractOrientations(const ViewOrientation &vor1, 
 	return (ViewOrientation)((vor1 + 4 - vor2) & 3);
 }
 
+/**
+ * Works out if a tile edge is at the back of tile, depending on orientation.
+ * @param orient Orientation of the viewport.
+ * @param edge The tile edge to test.
+ * @return If edge is at the back of a tile.
+ */
+static inline bool IsBackEdge(ViewOrientation orient, TileEdge edge)
+{
+	static const uint16 BACK = (((1u << VOR_NORTH) | (1u << VOR_WEST)) << (EDGE_NW * 4)) |
+			(((1u << VOR_NORTH) | (1u << VOR_EAST)) << (EDGE_NE * 4)) |
+			(((1u << VOR_SOUTH) | (1u << VOR_EAST)) << (EDGE_SE * 4)) |
+			(((1u << VOR_SOUTH) | (1u << VOR_WEST)) << (EDGE_SW * 4));
+
+	return (BACK & (1u << (orient + 4 * edge))) != 0;
+}
+
 #endif

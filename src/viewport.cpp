@@ -913,7 +913,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			FenceType fence_type = GetFenceType(fences, edge);
 			if (fence_type != FENCE_TYPE_INVALID) {
 				DrawData dd;
-				dd.Set(slice, voxel_pos.z, (edge + 4 * this->orient + 1) % 4 < EDGE_SW ? SO_FENCE_BACK : SO_FENCE_FRONT,
+				dd.Set(slice, voxel_pos.z, IsBackEdge(this->orient, edge) ? SO_FENCE_BACK : SO_FENCE_FRONT,
 						this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient), north_point);
 				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
 				this->draw_images.insert(dd);
