@@ -64,8 +64,8 @@ public:
 
 	/**
 	 * Get the offset of the tile position in the area. Parameters are unchecked.
-	 * @param x Horizontal relative offset in the area.
-	 * @param y Vertical relative offset in the area.
+	 * @param rel_x Horizontal relative offset in the area.
+	 * @param rel_y Vertical relative offset in the area.
 	 * @return Index in the tile data.
 	 */
 	inline uint32 GetTileOffset(int rel_x, int rel_y) const

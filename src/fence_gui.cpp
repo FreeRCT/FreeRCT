@@ -18,6 +18,9 @@
 #include "gui_sprites.h"
 #include "sprite_data.h"
 
+assert_compile(FENCE_TYPE_COUNT <= FENCE_TYPE_INVALID); ///< #FENCE_TYPE_INVALID should be the biggest value as it is tested below.
+assert_compile(FENCE_TYPE_INVALID <= 0xF); ///< Fence type for one side must fit in 4 bit.
+
 /**
  * %Fence build GUI.
  * @ingroup gui_group

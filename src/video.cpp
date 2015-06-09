@@ -546,6 +546,7 @@ static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
  * @param b Blue channel of the new pixel.
  * @param old_pixel Previous plotted pixel.
  * @param opacity Opacity of the new pixel.
+ * @return The resulting pixel colour (always fully opaque).
  */
 static uint32 BlendPixels(uint r, uint g, uint b, uint32 old_pixel, uint opacity)
 {

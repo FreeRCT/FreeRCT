@@ -348,7 +348,7 @@ public:
 
 	/**
 	 * Mouse moved in the viewport. Forward the call to the selector window.
-	 * @oaram vp %Viewport where the mouse moved.
+	 * @param vp %Viewport where the mouse moved.
 	 * @param pos New position of the mouse in the viewport.
 	 * @return Call could be forwarded.
 	 */
