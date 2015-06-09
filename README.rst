@@ -1,6 +1,6 @@
 FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.
 
-.. image:: doc/images/demo.png
+.. image:: doc/images/20150609-freerct.png
 
 Building the program
 --------------------
