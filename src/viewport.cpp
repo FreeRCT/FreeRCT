@@ -908,7 +908,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	/* Fences */
 	if (voxel != nullptr) {
-		uint16 fences = voxel->GetFences();
+		uint32 fences = voxel->GetFences();
+		if (this->selector != nullptr) fences = this->selector->GetFences(voxel, voxel_pos, fences);
 		for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 			FenceType fence_type = GetFenceType(fences, edge);
 			if (fence_type != FENCE_TYPE_INVALID) {
@@ -916,6 +917,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.Set(slice, voxel_pos.z, IsBackEdge(this->orient, edge) ? SO_FENCE_BACK : SO_FENCE_FRONT,
 						this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient), north_point);
 				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
+				if (GB(fences, 16 + edge, 1) != 0) dd.highlight = true;
 				this->draw_images.insert(dd);
 			}
 		}

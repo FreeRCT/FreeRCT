@@ -50,7 +50,7 @@ public:
 	virtual uint32 GetZRange(uint xpos, uint ypos) = 0;
 
 	/**
-	 * Get the ride data of a voxel for rendering, if required.
+	 * Get the ride data of a voxel for rendering.
 	 * @param voxel %Voxel being rendered (may be null).
 	 * @param voxel_pos Position of the voxel in the world.
 	 * @param [inout] sri Ride instance that should be rendered.
@@ -61,6 +61,22 @@ public:
 	{
 		return false;
 	}
+
+	/**
+	 * Get the fences of the voxel for rendering.
+	 * @param voxel %Voxel being rendered (may be null).
+	 * @param voxel_pos Position of the voxel in the world.
+	 * @param fences Fence data in the world, bottom 16 bit are fences themselves,
+	 * 	bit 16..19 denote whether to highlight the fence at the edge (bit 16 for #EDGE_NE, bit 17 for #EDGE_SE, and so on).
+	 * 	Highlighting is always off.
+	 * @return Fence data to draw, including highlighting.
+	 * @see GetFenceType, SetFenceType
+	 */
+	virtual uint32 GetFences(const Voxel *voxel, const XYZPoint16 &voxel_pos, uint32 fences)
+	{
+		return fences;
+	}
+
 
 	/**
 	 * Get the offset of the tile position in the area. Parameters are unchecked.
