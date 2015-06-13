@@ -260,6 +260,17 @@ struct VoxelRideData {
 	}
 };
 
+/** Fence information of a voxel. */
+struct VoxelFenceData {
+	FenceType fence_type; ///< Type of the fence to show. Only valid if #fence_edge is valid.
+	TileEdge fence_edge;  ///< Edge of the fence, or #INVALID_EDGE if not valid.
+
+	/** Initialization. */
+	inline void Setup() {
+		this->fence_edge = INVALID_EDGE;
+	}
+};
+
 /**
  * %Tile data with voxel information.
  * @tparam VoxelContentData Data to keep for each voxel in the selector.
@@ -420,7 +431,7 @@ public:
 	}
 
 	/**
-	 * Set ride data at the given position in the area. Disabled tiles are silently skipped.
+	 * Set ride data at the given position in the area. Tiles with disabled cursor are silently skipped.
 	 * @param pos World position.
 	 * @param sri Ride instance number.
 	 * @param instance_data Instance data.
@@ -432,6 +443,48 @@ public:
 		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
 		vrd.sri = sri;
 		vrd.instance_data = instance_data;
+	}
+};
+
+/** Mouse mode displaying a cursor and fences. */
+class FencesMouseMode : public VoxelTileDataMouseMode<VoxelTileData<VoxelFenceData>> {
+public:
+	FencesMouseMode() : VoxelTileDataMouseMode<VoxelTileData<VoxelFenceData>>()
+	{
+	}
+
+	~FencesMouseMode()
+	{
+	}
+
+	uint32 GetFences(const Voxel *voxel, const XYZPoint16 &voxel_pos, uint32 fences) override
+	{
+		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
+		if (index == INVALID_TILE_INDEX) return fences;
+
+		const VoxelTileData<VoxelFenceData> &td = this->tile_data[index];
+		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return fences;
+
+		const VoxelFenceData &vfd = td.ride_info[voxel_pos.z - td.lowest];
+		if (vfd.fence_edge != INVALID_EDGE) {
+			fences = SetFenceType(fences, vfd.fence_edge, vfd.fence_type); // Kills the top 16 bit, but they are all 0.
+			fences |= 0x10000 << vfd.fence_edge; // Set highlight bit for the new fence.
+		}
+		return fences;
+	}
+
+	/**
+	 * Set fence data at the given position in the area. Tiles with disabled cursor are silently skipped.
+	 * @param pos World position.
+	 * @param fence_data Data of the fences at the voxel. @see MouseModeSelector::GetFences
+	 */
+	void SetFenceData(const XYZPoint16 &pos, FenceType fence_type, TileEdge edge)
+	{
+		VoxelTileData<VoxelFenceData> &td = this->GetTileData(pos);
+		if (!td.cursor_enabled) return;
+		VoxelFenceData &vfd = td.ride_info[pos.z - td.lowest];
+		vfd.fence_type = fence_type;
+		vfd.fence_edge = edge;
 	}
 };
 
