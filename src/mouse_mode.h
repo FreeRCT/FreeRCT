@@ -328,20 +328,6 @@ public:
 	{
 	}
 
-	bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
-	{
-		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
-		if (index == INVALID_TILE_INDEX) return false;
-
-		const TileData &td = this->tile_data[index];
-		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return false;
-
-		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
-		*sri = vrd.sri;
-		*instance_data = vrd.instance_data;
-		return true;
-	}
-
 	/**
 	 * Denote that the given voxel will contain part of a ride.
 	 * @param pos Absolute world position.
@@ -413,6 +399,20 @@ public:
 
 	~RideMouseMode()
 	{
+	}
+
+	bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
+	{
+		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
+		if (index == INVALID_TILE_INDEX) return false;
+
+		const VoxelTileData &td = this->tile_data[index];
+		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return false;
+
+		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
+		*sri = vrd.sri;
+		*instance_data = vrd.instance_data;
+		return true;
 	}
 
 	/**
