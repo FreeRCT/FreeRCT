@@ -311,23 +311,6 @@ struct VoxelTileData : public CursorTileData {
 		uint32 value = this->highest;
 		return (value << 16) | this->lowest;
 	}
-
-	/**
-	 * Set the ride data of a voxel.
-	 * @param zpos Z position of the voxel.
-	 * @param sri Ride instance number.
-	 * @param instance_data Instance data.
-	 * @pre All voxels must have been added before (VoxelTileData::AddVoxel), and
-	 *      space must have been set up (VoxelTileData::SetupRideInfoSpace).
-	 */
-	void SetRideData(uint8 zpos, SmallRideInstance sri, uint16 instance_data)
-	{
-		if (zpos >= this->lowest && zpos <= this->highest) {
-			VoxelRideData &vrd = this->ride_info[zpos - this->lowest];
-			vrd.sri = sri;
-			vrd.instance_data = instance_data;
-		}
-	}
 };
 
 /**
