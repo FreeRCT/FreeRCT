@@ -260,11 +260,15 @@ struct VoxelRideData {
 	}
 };
 
-/** %Tile data with ride voxel information. */
+/**
+ * %Tile data with voxel information.
+ * @tparam VoxelContentData Data to keep for each voxel in the selector.
+ */
+template <typename VoxelContentData>
 struct VoxelTileData : public CursorTileData {
 	uint8 lowest;  ///< Lowest voxel in the stack that should be rendered.
 	uint8 highest; ///< Highest voxel in the stack that should be rendered.
-	std::vector<VoxelRideData> ride_info; ///< Ride information of voxels VoxelTileData::lowest to VoxelTileData::highest (inclusive).
+	std::vector<VoxelContentData> ride_info; ///< Information of voxels VoxelTileData::lowest to VoxelTileData::highest (inclusive).
 
 	/** Initialize #VoxelTileData and #CursorTileData data members. */
 	void Init() override
@@ -391,9 +395,9 @@ public:
 typedef TileDataMouseMode<CursorTileData> CursorMouseMode; ///< Mouse mode displaying a cursor of some size at the ground.
 
 /** Mouse mode displaying a cursor and (part of) a ride. */
-class RideMouseMode : public VoxelTileDataMouseMode<VoxelTileData> {
+class RideMouseMode : public VoxelTileDataMouseMode<VoxelTileData<VoxelRideData>> {
 public:
-	RideMouseMode() : VoxelTileDataMouseMode<VoxelTileData>()
+	RideMouseMode() : VoxelTileDataMouseMode<VoxelTileData<VoxelRideData>>()
 	{
 	}
 
@@ -406,7 +410,7 @@ public:
 		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
 		if (index == INVALID_TILE_INDEX) return false;
 
-		const VoxelTileData &td = this->tile_data[index];
+		const VoxelTileData<VoxelRideData> &td = this->tile_data[index];
 		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return false;
 
 		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
@@ -423,7 +427,7 @@ public:
 	 */
 	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data)
 	{
-		VoxelTileData &td = this->GetTileData(pos);
+		VoxelTileData<VoxelRideData> &td = this->GetTileData(pos);
 		if (!td.cursor_enabled) return;
 		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
 		vrd.sri = sri;
