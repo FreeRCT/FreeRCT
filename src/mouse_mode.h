@@ -253,6 +253,11 @@ public:
 struct VoxelRideData {
 	SmallRideInstance sri; ///< Instance using the voxel.
 	uint16 instance_data;  ///< Data of the instance.
+
+	/** Initialization of the voxel ride data. */
+	inline void Setup() {
+		this->sri = SRI_FREE;
+	}
 };
 
 /** %Tile data with ride voxel information. */
@@ -277,7 +282,7 @@ struct VoxelTileData : public CursorTileData {
 	{
 		int size = std::max(0, this->highest - this->lowest + 1);
 		this->ride_info.resize(size);
-		for (int z = 0; z < size; z++) this->ride_info[z].sri = SRI_FREE;
+		for (int z = 0; z < size; z++) this->ride_info[z].Setup();
 	}
 
 	/**
