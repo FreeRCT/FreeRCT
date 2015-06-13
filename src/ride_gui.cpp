@@ -31,7 +31,6 @@ public:
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
-	void OnChange(ChangeCode code, uint32 parameter) override;
 
 protected:
 	int16 ride_types[RTK_RIDE_KIND_COUNT]; ///< Number of ride types for each kind.
@@ -249,13 +248,6 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 			break;
 		}
 	}
-}
-
-void RideSelectGui::OnChange(ChangeCode code, uint32 parameter)
-{
-	if (code != CHG_MOUSE_MODE_LOST) return;
-
-	this->SetWidgetPressed(RSEL_SELECT, false);
 }
 
 /**

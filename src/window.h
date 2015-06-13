@@ -62,7 +62,6 @@ enum WindowTypes {
 enum ChangeCode {
 	CHG_UPDATE_BUTTONS,   ///< Recompute the state of the buttons.
 	CHG_VIEWPORT_ROTATED, ///< Viewport rotated.
-	CHG_MOUSE_MODE_LOST,  ///< Lost the mouse mode.
 	CHG_DISPLAY_OLD,      ///< Displayed data is old.
 	CHG_PIECE_POSITIONED, ///< The track piece is at the correct position.
 	CHG_DROPDOWN_RESULT,  ///< The selection of a dropdown window.
