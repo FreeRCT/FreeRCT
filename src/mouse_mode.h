@@ -256,12 +256,12 @@ struct VoxelRideData {
 };
 
 /** %Tile data with ride voxel information. */
-struct RideTileData : public CursorTileData {
+struct VoxelTileData : public CursorTileData {
 	uint8 lowest;  ///< Lowest voxel in the stack that should be rendered.
 	uint8 highest; ///< Highest voxel in the stack that should be rendered.
-	std::vector<VoxelRideData> ride_info; ///< Ride information of voxels RideTileData::lowest to RideTileData::highest (inclusive).
+	std::vector<VoxelRideData> ride_info; ///< Ride information of voxels VoxelTileData::lowest to VoxelTileData::highest (inclusive).
 
-	/** Initialize #RideTileData and #CursorTileData data members. */
+	/** Initialize #VoxelTileData and #CursorTileData data members. */
 	void Init() override
 	{
 		this->CursorTileData::Init();
@@ -270,7 +270,7 @@ struct RideTileData : public CursorTileData {
 	}
 
 	/**
-	 * After initializing the  voxels RideTileData::lowest and RideTileData::highest data members, initialize
+	 * After initializing the  voxels VoxelTileData::lowest and VoxelTileData::highest data members, initialize
 	 * the ride data for all voxels in-between.
 	 */
 	void SetupRideInfoSpace()
@@ -312,8 +312,8 @@ struct RideTileData : public CursorTileData {
 	 * @param zpos Z position of the voxel.
 	 * @param sri Ride instance number.
 	 * @param instance_data Instance data.
-	 * @pre All voxels must have been added before (RideTileData::AddVoxel), and
-	 *      space must have been set up (RideTileData::SetupRideInfoSpace).
+	 * @pre All voxels must have been added before (VoxelTileData::AddVoxel), and
+	 *      space must have been set up (VoxelTileData::SetupRideInfoSpace).
 	 */
 	void SetRideData(uint8 zpos, SmallRideInstance sri, uint16 instance_data)
 	{
@@ -330,13 +330,13 @@ struct RideTileData : public CursorTileData {
  * @tparam TileData Tile data for each voxel stack covered by the mouse mode.
  */
 template <typename TileData>
-class RideTileDataMouseMode : public TileDataMouseMode<TileData> {
+class VoxelTileDataMouseMode : public TileDataMouseMode<TileData> {
 public:
-	RideTileDataMouseMode() : TileDataMouseMode<TileData>()
+	VoxelTileDataMouseMode() : TileDataMouseMode<TileData>()
 	{
 	}
 
-	~RideTileDataMouseMode()
+	~VoxelTileDataMouseMode()
 	{
 	}
 
@@ -369,7 +369,7 @@ public:
 
 	/**
 	 * Setup space for the ride information.
-	 * @pre RideTileDataMouseMode::AddVoxel must have been done.
+	 * @pre VoxelTileDataMouseMode::AddVoxel must have been done.
 	 */
 	void SetupRideInfoSpace()
 	{
@@ -420,6 +420,17 @@ public:
 };
 
 typedef TileDataMouseMode<CursorTileData> CursorMouseMode; ///< Mouse mode displaying a cursor of some size at the ground.
-typedef RideTileDataMouseMode<RideTileData> RideMouseMode; ///< Mouse mode displaying a cursor and (part of) a ride.
+
+/** Mouse mode displaying a cursor and (part of) a ride. */
+class RideMouseMode : public VoxelTileDataMouseMode<VoxelTileData> {
+public:
+	RideMouseMode() : VoxelTileDataMouseMode<VoxelTileData>()
+	{
+	}
+
+	~RideMouseMode()
+	{
+	}
+};
 
 #endif
