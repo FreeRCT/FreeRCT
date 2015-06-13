@@ -367,20 +367,15 @@ public:
 	}
 
 	/**
-	 * Set ride data at the given position in the area. Disabled tiles are silently skipped.
-	 * @param pos World position.
-	 * @param sri Ride instance number.
-	 * @param instance_data Instance data.
+	 * Get the tile data at the given position.
+	 * @param pos Position to get (only \c x and \c y are used).
+	 * @return Reference of the tile data.
 	 */
-	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data)
+	TileData &GetTileData(const XYZPoint16 &pos)
 	{
 		uint32 index = this->GetTileIndex(pos.x, pos.y);
 		assert(index != INVALID_TILE_INDEX);
-		TileData &td = this->tile_data[index];
-		if (!td.cursor_enabled) return;
-		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
-		vrd.sri = sri;
-		vrd.instance_data = instance_data;
+		return this->tile_data[index];
 	}
 
 	void MarkDirty() override
@@ -418,6 +413,21 @@ public:
 
 	~RideMouseMode()
 	{
+	}
+
+	/**
+	 * Set ride data at the given position in the area. Disabled tiles are silently skipped.
+	 * @param pos World position.
+	 * @param sri Ride instance number.
+	 * @param instance_data Instance data.
+	 */
+	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data)
+	{
+		VoxelTileData &td = this->GetTileData(pos);
+		if (!td.cursor_enabled) return;
+		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
+		vrd.sri = sri;
+		vrd.instance_data = instance_data;
 	}
 };
 
