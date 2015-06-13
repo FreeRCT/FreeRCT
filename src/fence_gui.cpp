@@ -32,7 +32,6 @@ public:
 
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
-	void OnChange(ChangeCode code, uint32 parameter) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 
 private:
@@ -162,14 +161,6 @@ void FenceGui::OnClick(WidgetNumber number, const Point16 &pos)
 		default:
 			break;
 	}
-}
-
-void FenceGui::OnChange(ChangeCode code, uint32 parameter)
-{
-	if (code != CHG_MOUSE_MODE_LOST) return;
-
-	FenceType selected = (FenceType)(parameter - (uint32)FENCE_TYPE_BUILDABLE_BEGIN);
-	_fence_builder.SelectFenceType(selected);
 }
 
 /**
