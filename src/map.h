@@ -633,6 +633,7 @@ protected:
 	VoxelStackMap modified_stacks; ///< Modified voxel stacks.
 };
 
+int GetVoxelZOffsetForFence(TileEdge edge, uint8 base_tile_slope);
 uint16 MergeGroundFencesAtBase(uint16 vxbase_fences, uint16 fences, uint8 base_tile_slope);
 bool HasTopVoxelFences(uint8 base_tile_slope);
 uint16 MergeGroundFencesAtTop(uint16 vxtop_fences, uint16 fences, uint8 base_tile_slope);

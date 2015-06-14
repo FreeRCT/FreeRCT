@@ -554,7 +554,7 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
 }
 
 /**
- * At ground level of each voxel stack are 4 fences, one at each edge (ordered as #EDGE_NE .. # EDGE_NW).
+ * At ground level of each voxel stack are 4 fences, one at each edge (ordered as #EDGE_NE to #EDGE_NW).
  * Due to slopes, some fences are at the bottom voxel (the base voxel) of the ground level, the other
  * fences are at the top voxel. The rule for placement is
  * - Both fences near the top edge of a steep slope are in the top voxel.
@@ -568,7 +568,10 @@ TileOwner VoxelWorld::GetTileOwner(uint16 x, uint16 y)
  * A \c 0xF nibble means the fence is stored in the base voxel, a \c 0x0 nibble means the fence is stored
  * in the top voxel. (Top-slopes make no sense to include here, as they only describe the top voxel.)
  *
- * To work with the masks, the following functions exist:
+ * The elementary function is
+ * - #GetVoxelZOffsetForFence to query which voxel stores a fences at a given edge for a given ground slope.
+ *
+ * To work with the masks, handling all fences of a tile, the following functions exist:
  * - #MergeGroundFencesAtBase sets the given fences for the base voxel.
  * - #HasTopVoxelFences tells whether the slope has any fences in the top voxel (that is, does it have a top voxel at all?)
  * - #MergeGroundFencesAtTop sets the given fences for the top voxel.
@@ -598,6 +601,19 @@ static const uint16 _fences_mask_at_base[] = {
 	0xF00F, // ISL_BOTTOM_STEEP_SOUTH
 	0x00FF, // ISL_BOTTOM_STEEP_WEST
 };
+
+/**
+ * Get relative voxel offset for fence placement at an edge for a given bottom ground slope.
+ * @param edge Edge being queried.
+ * @param base_tile_slope Slope of the ground.
+ * @return Offset of voxel position relative to the base voxel (\c 0 for bottom voxel, \c 1 for top voxel).
+ */
+int GetVoxelZOffsetForFence(TileEdge edge, uint8 base_tile_slope)
+{
+	assert(base_tile_slope < lengthof(_fences_mask_at_base)); // Top steep slopes are not allowed.
+	uint16 mask = ~_fences_mask_at_base[base_tile_slope]; // Swap bits, so 0 means bottom, 0xF means top.
+	return GB(mask, 4 * edge, 1); // Take lowest bit of the edge.
+}
 
 /**
  * Set the ground fences at a base ground voxel.
