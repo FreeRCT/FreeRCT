@@ -25,7 +25,6 @@ enum ViewportMouseMode {
 	MM_INACTIVE,       ///< Inactive mode.
 	MM_PATH_BUILDING,  ///< Construct paths.
 	MM_COASTER_BUILD,  ///< Building or editing a coaster track.
-	MM_FENCE_BUILDING, ///< Building of fences.
 
 	MM_COUNT,          ///< Number of mouse modes.
 };
@@ -144,24 +143,6 @@ public:
 };
 
 /**
- * Single tile edge cursor.
- * @ingroup viewport_group
- */
-class EdgeCursor : public BaseCursor { // XXX todo: later on, check if this will end up being edge-independent and can be renamed as SpriteCursor.
-public:
-	EdgeCursor(Viewport *vp);
-
-	XYZPoint16 cursor_pos; ///< %Voxel position of the cursor.
-
-	bool SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always = false);
-
-	void MarkDirty() override;
-	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;
-	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
-};
-
-
-/**
  * Class for displaying parts of the world.
  * @ingroup viewport_group
  */
@@ -198,7 +179,6 @@ public:
 	ViewOrientation orientation; ///< Direction of view.
 	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
 	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
-	EdgeCursor edge_cursor;      ///< Cursor for showing an edge sprite
 	Point16 mouse_pos;           ///< Last known position of the mouse.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.

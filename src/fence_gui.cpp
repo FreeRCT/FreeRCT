@@ -15,7 +15,6 @@
 #include "viewport.h"
 #include "language.h"
 #include "gamecontrol.h"
-#include "fence_build.h"
 #include "gui_sprites.h"
 #include "sprite_data.h"
 
