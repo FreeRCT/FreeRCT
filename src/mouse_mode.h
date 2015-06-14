@@ -50,7 +50,7 @@ public:
 	virtual uint32 GetZRange(uint xpos, uint ypos) = 0;
 
 	/**
-	 * Get the ride data of a voxel for rendering, if required.
+	 * Get the ride data of a voxel for rendering.
 	 * @param voxel %Voxel being rendered (may be null).
 	 * @param voxel_pos Position of the voxel in the world.
 	 * @param [inout] sri Ride instance that should be rendered.
@@ -61,6 +61,22 @@ public:
 	{
 		return false;
 	}
+
+	/**
+	 * Get the fences of the voxel for rendering.
+	 * @param voxel %Voxel being rendered (may be null).
+	 * @param voxel_pos Position of the voxel in the world.
+	 * @param fences Fence data in the world, bottom 16 bit are fences themselves,
+	 * 	bit 16..19 denote whether to highlight the fence at the edge (bit 16 for #EDGE_NE, bit 17 for #EDGE_SE, and so on).
+	 * 	Highlighting is always off.
+	 * @return Fence data to draw, including highlighting.
+	 * @see GetFenceType, SetFenceType
+	 */
+	virtual uint32 GetFences(const Voxel *voxel, const XYZPoint16 &voxel_pos, uint32 fences)
+	{
+		return fences;
+	}
+
 
 	/**
 	 * Get the offset of the tile position in the area. Parameters are unchecked.
@@ -237,15 +253,35 @@ public:
 struct VoxelRideData {
 	SmallRideInstance sri; ///< Instance using the voxel.
 	uint16 instance_data;  ///< Data of the instance.
+
+	/** Initialization of the voxel ride data. */
+	inline void Setup() {
+		this->sri = SRI_FREE;
+	}
 };
 
-/** %Tile data with ride voxel information. */
-struct RideTileData : public CursorTileData {
+/** Fence information of a voxel. */
+struct VoxelFenceData {
+	FenceType fence_type; ///< Type of the fence to show. Only valid if #fence_edge is valid.
+	TileEdge fence_edge;  ///< Edge of the fence, or #INVALID_EDGE if not valid.
+
+	/** Initialization. */
+	inline void Setup() {
+		this->fence_edge = INVALID_EDGE;
+	}
+};
+
+/**
+ * %Tile data with voxel information.
+ * @tparam VoxelContentData Data to keep for each voxel in the selector.
+ */
+template <typename VoxelContentData>
+struct VoxelTileData : public CursorTileData {
 	uint8 lowest;  ///< Lowest voxel in the stack that should be rendered.
 	uint8 highest; ///< Highest voxel in the stack that should be rendered.
-	std::vector<VoxelRideData> ride_info; ///< Ride information of voxels RideTileData::lowest to RideTileData::highest (inclusive).
+	std::vector<VoxelContentData> ride_info; ///< Information of voxels VoxelTileData::lowest to VoxelTileData::highest (inclusive).
 
-	/** Initialize #RideTileData and #CursorTileData data members. */
+	/** Initialize #VoxelTileData and #CursorTileData data members. */
 	void Init() override
 	{
 		this->CursorTileData::Init();
@@ -254,14 +290,14 @@ struct RideTileData : public CursorTileData {
 	}
 
 	/**
-	 * After initializing the  voxels RideTileData::lowest and RideTileData::highest data members, initialize
+	 * After initializing the  voxels VoxelTileData::lowest and VoxelTileData::highest data members, initialize
 	 * the ride data for all voxels in-between.
 	 */
 	void SetupRideInfoSpace()
 	{
 		int size = std::max(0, this->highest - this->lowest + 1);
 		this->ride_info.resize(size);
-		for (int z = 0; z < size; z++) this->ride_info[z].sri = SRI_FREE;
+		for (int z = 0; z < size; z++) this->ride_info[z].Setup();
 	}
 
 	/**
@@ -290,23 +326,6 @@ struct RideTileData : public CursorTileData {
 		uint32 value = this->highest;
 		return (value << 16) | this->lowest;
 	}
-
-	/**
-	 * Set the ride data of a voxel.
-	 * @param zpos Z position of the voxel.
-	 * @param sri Ride instance number.
-	 * @param instance_data Instance data.
-	 * @pre All voxels must have been added before (RideTileData::AddVoxel), and
-	 *      space must have been set up (RideTileData::SetupRideInfoSpace).
-	 */
-	void SetRideData(uint8 zpos, SmallRideInstance sri, uint16 instance_data)
-	{
-		if (zpos >= this->lowest && zpos <= this->highest) {
-			VoxelRideData &vrd = this->ride_info[zpos - this->lowest];
-			vrd.sri = sri;
-			vrd.instance_data = instance_data;
-		}
-	}
 };
 
 /**
@@ -314,28 +333,14 @@ struct RideTileData : public CursorTileData {
  * @tparam TileData Tile data for each voxel stack covered by the mouse mode.
  */
 template <typename TileData>
-class RideTileDataMouseMode : public TileDataMouseMode<TileData> {
+class VoxelTileDataMouseMode : public TileDataMouseMode<TileData> {
 public:
-	RideTileDataMouseMode() : TileDataMouseMode<TileData>()
+	VoxelTileDataMouseMode() : TileDataMouseMode<TileData>()
 	{
 	}
 
-	~RideTileDataMouseMode()
+	~VoxelTileDataMouseMode()
 	{
-	}
-
-	bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
-	{
-		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
-		if (index == INVALID_TILE_INDEX) return false;
-
-		const TileData &td = this->tile_data[index];
-		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return false;
-
-		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
-		*sri = vrd.sri;
-		*instance_data = vrd.instance_data;
-		return true;
 	}
 
 	/**
@@ -353,7 +358,7 @@ public:
 
 	/**
 	 * Setup space for the ride information.
-	 * @pre RideTileDataMouseMode::AddVoxel must have been done.
+	 * @pre VoxelTileDataMouseMode::AddVoxel must have been done.
 	 */
 	void SetupRideInfoSpace()
 	{
@@ -363,20 +368,15 @@ public:
 	}
 
 	/**
-	 * Set ride data at the given position in the area. Disabled tiles are silently skipped.
-	 * @param pos World position.
-	 * @param sri Ride instance number.
-	 * @param instance_data Instance data.
+	 * Get the tile data at the given position.
+	 * @param pos Position to get (only \c x and \c y are used).
+	 * @return Reference of the tile data.
 	 */
-	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data)
+	TileData &GetTileData(const XYZPoint16 &pos)
 	{
 		uint32 index = this->GetTileIndex(pos.x, pos.y);
 		assert(index != INVALID_TILE_INDEX);
-		TileData &td = this->tile_data[index];
-		if (!td.cursor_enabled) return;
-		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
-		vrd.sri = sri;
-		vrd.instance_data = instance_data;
+		return this->tile_data[index];
 	}
 
 	void MarkDirty() override
@@ -404,6 +404,88 @@ public:
 };
 
 typedef TileDataMouseMode<CursorTileData> CursorMouseMode; ///< Mouse mode displaying a cursor of some size at the ground.
-typedef RideTileDataMouseMode<RideTileData> RideMouseMode; ///< Mouse mode displaying a cursor and (part of) a ride.
+
+/** Mouse mode displaying a cursor and (part of) a ride. */
+class RideMouseMode : public VoxelTileDataMouseMode<VoxelTileData<VoxelRideData>> {
+public:
+	RideMouseMode() : VoxelTileDataMouseMode<VoxelTileData<VoxelRideData>>()
+	{
+	}
+
+	~RideMouseMode()
+	{
+	}
+
+	bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
+	{
+		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
+		if (index == INVALID_TILE_INDEX) return false;
+
+		const VoxelTileData<VoxelRideData> &td = this->tile_data[index];
+		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return false;
+
+		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
+		*sri = vrd.sri;
+		*instance_data = vrd.instance_data;
+		return true;
+	}
+
+	/**
+	 * Set ride data at the given position in the area. Tiles with disabled cursor are silently skipped.
+	 * @param pos World position.
+	 * @param sri Ride instance number.
+	 * @param instance_data Instance data.
+	 */
+	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data)
+	{
+		VoxelTileData<VoxelRideData> &td = this->GetTileData(pos);
+		if (!td.cursor_enabled) return;
+		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
+		vrd.sri = sri;
+		vrd.instance_data = instance_data;
+	}
+};
+
+/** Mouse mode displaying a cursor and fences. */
+class FencesMouseMode : public VoxelTileDataMouseMode<VoxelTileData<VoxelFenceData>> {
+public:
+	FencesMouseMode() : VoxelTileDataMouseMode<VoxelTileData<VoxelFenceData>>()
+	{
+	}
+
+	~FencesMouseMode()
+	{
+	}
+
+	uint32 GetFences(const Voxel *voxel, const XYZPoint16 &voxel_pos, uint32 fences) override
+	{
+		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
+		if (index == INVALID_TILE_INDEX) return fences;
+
+		const VoxelTileData<VoxelFenceData> &td = this->tile_data[index];
+		if (!td.cursor_enabled || voxel_pos.z < td.lowest || voxel_pos.z > td.highest) return fences;
+
+		const VoxelFenceData &vfd = td.ride_info[voxel_pos.z - td.lowest];
+		if (vfd.fence_edge != INVALID_EDGE) {
+			fences = SetFenceType(fences, vfd.fence_edge, vfd.fence_type); // Kills the top 16 bit, but they are all 0.
+			fences |= 0x10000 << vfd.fence_edge; // Set highlight bit for the new fence.
+		}
+		return fences;
+	}
+
+	/**
+	 * Set fence data at the given position in the area. Tiles with disabled cursor are silently skipped.
+	 * @param pos World position.
+	 * @param fence_data Data of the fences at the voxel. @see MouseModeSelector::GetFences
+	 */
+	void SetFenceData(const XYZPoint16 &pos, FenceType fence_type, TileEdge edge)
+	{
+		VoxelTileData<VoxelFenceData> &td = this->GetTileData(pos);
+		if (!td.cursor_enabled) return;
+		VoxelFenceData &vfd = td.ride_info[pos.z - td.lowest];
+		vfd.fence_type = fence_type;
+		vfd.fence_edge = edge;
+	}
+};
 
 #endif

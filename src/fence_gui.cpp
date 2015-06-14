@@ -14,7 +14,7 @@
 #include "window.h"
 #include "viewport.h"
 #include "language.h"
-#include "fence_build.h"
+#include "gamecontrol.h"
 #include "gui_sprites.h"
 #include "sprite_data.h"
 
@@ -34,6 +34,13 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 
+	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	void SelectorMouseButtonEvent(uint8 state) override;
+
+	FenceType fence_type;      ///< Currently selected fence type (#FENCE_TYPE_INVALID means no type selected).
+	XYZPoint16 fence_base;     ///< Voxel position (base of tghe ground) where fence has been placed (only valid if #fence_edge is valid).
+	TileEdge fence_edge;       ///< Edge where new fence has been placed, #INVALID_EDGE for no placed fence.
+	FencesMouseMode fence_sel; ///< Mouse selector for building fences.
 private:
 	void OnClickFence(const Fence *fence);
 };
@@ -70,12 +77,15 @@ FenceGui::FenceGui() : GuiWindow(WC_FENCE, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_fence_build_gui_parts, lengthof(_fence_build_gui_parts));
 	this->SetScrolledWidget(FENCE_GUI_LIST, FENCE_GUI_SCROLL_LIST);
-	_fence_builder.OpenWindow();
+
+	this->fence_type = FENCE_TYPE_INVALID;
+	this->fence_edge = INVALID_EDGE;
+	this->fence_sel.SetSize(0, 0);
 }
 
 FenceGui::~FenceGui()
 {
-	_fence_builder.CloseWindow();
+	this->SetSelector(nullptr);
 }
 
 void FenceGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
@@ -164,12 +174,75 @@ void FenceGui::OnClick(WidgetNumber number, const Point16 &pos)
 }
 
 /**
- * Handle a click on a fence.
+ * Handle a click on a fence in the GUI.
  * @param fence The clicked fence.
  */
 void FenceGui::OnClickFence(const Fence *fence)
 {
-	_fence_builder.SelectFenceType(fence != nullptr ? (FenceType)fence->type : FENCE_TYPE_INVALID);
+	FenceType clicked_type = (FenceType)fence->type;
+	assert(clicked_type != FENCE_TYPE_INVALID);
+
+	if (this->fence_type == FENCE_TYPE_INVALID) {
+		this->fence_sel.SetSize(1, 1);
+		this->SetSelector(&this->fence_sel);
+	}
+	this->fence_type = clicked_type;
+}
+
+void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+	if (this->fence_type == FENCE_TYPE_INVALID || this->selector == nullptr) return;
+
+	FinderData fdata(CS_GROUND_EDGE, FW_EDGE);
+	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND_EDGE) return;
+	if (fdata.cursor < CUR_TYPE_EDGE_NE || fdata.cursor > CUR_TYPE_EDGE_NW) return;
+
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(fdata.voxel_pos.x, fdata.voxel_pos.y) != OWN_PARK) return;
+
+	/* Normalize voxel position to the base ground voxel. */
+	const Voxel *v = _world.GetVoxel(fdata.voxel_pos);
+	assert(v->GetGroundType() != GTP_INVALID);
+	uint8 slope = v->GetGroundSlope();
+	if (IsImplodedSteepSlopeTop(slope)) {
+		fdata.voxel_pos.z--; // Select base of the ground for the edge cursor.
+		/* Post-pone 'slope' update until decided that a new fence position needs to be calculated. */
+	}
+
+	TileEdge edge = static_cast<TileEdge>(EDGE_NE + (fdata.cursor - CUR_TYPE_EDGE_NE));
+	if (edge == this->fence_edge && fdata.voxel_pos == this->fence_base) return;
+
+	/* New fence, or moved fence. Update the mouse selector. */
+	this->fence_sel.MarkDirty();
+
+	this->fence_edge = edge; // Store new edge and base position.
+	this->fence_base = fdata.voxel_pos;
+
+	/* Compute actual voxel that contains the fence. */
+	if (IsImplodedSteepSlopeTop(slope)) {
+		slope = _world.GetVoxel(fdata.voxel_pos)->GetGroundSlope();
+	}
+	fdata.voxel_pos.z += GetVoxelZOffsetForFence(edge, slope);
+
+	this->fence_sel.SetPosition(fdata.voxel_pos.x, fdata.voxel_pos.y);
+	this->fence_sel.AddVoxel(fdata.voxel_pos);
+	this->fence_sel.SetupRideInfoSpace();
+	this->fence_sel.SetFenceData(fdata.voxel_pos, this->fence_type, edge);
+
+	this->fence_sel.MarkDirty();
+}
+
+void FenceGui::SelectorMouseButtonEvent(uint8 state)
+{
+	if (!IsLeftClick(state)) return;
+	if (this->fence_sel.area.width != 1 || this->fence_sel.area.height != 1) return;
+	if (this->fence_edge == INVALID_EDGE) return;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->fence_base.x, this->fence_base.y) != OWN_PARK) return;
+
+	VoxelStack *vs = _world.GetModifyStack(this->fence_base.x, this->fence_base.y);
+	uint16 fences = GetGroundFencesFromMap(vs, this->fence_base.z);
+	fences = SetFenceType(fences, this->fence_edge, this->fence_type);
+	AddGroundFencesToMap(fences, vs, this->fence_base.z);
+	MarkVoxelDirty(this->fence_base);
 }
 
 /**

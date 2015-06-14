@@ -633,6 +633,7 @@ protected:
 	VoxelStackMap modified_stacks; ///< Modified voxel stacks.
 };
 
+int GetVoxelZOffsetForFence(TileEdge edge, uint8 base_tile_slope);
 uint16 MergeGroundFencesAtBase(uint16 vxbase_fences, uint16 fences, uint8 base_tile_slope);
 bool HasTopVoxelFences(uint8 base_tile_slope);
 uint16 MergeGroundFencesAtTop(uint16 vxtop_fences, uint16 fences, uint8 base_tile_slope);
@@ -664,21 +665,6 @@ static inline bool IsVoxelstackInsideWorld(int x, int y)
 static inline bool IsVoxelInsideWorld(const XYZPoint16 &vox)
 {
 	return vox.z >= 0 && vox.z < WORLD_Z_SIZE && IsVoxelstackInsideWorld(vox.x, vox.y);
-}
-
-/**
- * Is both corners of given edge raised of a voxel with the
- * given non-steep slope?
- * @param edge The edge to check
- * @param slope The slope of a voxel.
- * @pre (slope & TSB_STEEP) == 0
- * @return True if both corners of given edge are raised, otherwise false.
- */
-static inline bool IsRaisedEdge(TileEdge edge, TileSlope slope)
-{
-	assert((slope & TSB_STEEP) == 0);
-	return (slope & (1 << edge)) != 0 &&
-			(slope & (1 << ((edge + 1) % 4))) != 0;
 }
 
 #endif

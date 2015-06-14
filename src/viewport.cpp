@@ -28,7 +28,6 @@
 #include "person.h"
 #include "weather.h"
 #include "fence.h"
-#include "fence_build.h"
 
 #include <set>
 
@@ -575,60 +574,6 @@ bool Cursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool alway
 }
 
 /**
- * Constructor of an edge cursor.
- * @param vp %Viewport displaying the cursor.
- */
-EdgeCursor::EdgeCursor(Viewport *vp) : BaseCursor(vp)
-{
-	this->cursor_pos = XYZPoint16(0, 0, 0);
-}
-
-void EdgeCursor::MarkDirty()
-{
-	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos);
-}
-
-/**
- * Get a cursor.
- * @param cursor_pos Expected coordinate of the cursor.
- * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
- */
-CursorType EdgeCursor::GetCursor(const XYZPoint16 &cursor_pos)
-{
-	if (this->type < CUR_TYPE_EDGE_NE || this->type > CUR_TYPE_EDGE_NW) return CUR_TYPE_INVALID;
-	if (this->cursor_pos.x != cursor_pos.x || this->cursor_pos.y != cursor_pos.y) return CUR_TYPE_INVALID;
-	/* Edge cursor lives at two z positions, to allow fences to be placed in the upper voxel. */
-	if (this->cursor_pos.z == cursor_pos.z) return this->type;
-	if (this->cursor_pos.z + 1 == cursor_pos.z) return this->type;
-	return CUR_TYPE_INVALID;
-}
-
-uint8 EdgeCursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
-{
-	if (this->type == CUR_TYPE_INVALID) return zpos;
-	if (this->cursor_pos.x != xpos || this->cursor_pos.y != ypos || zpos >= this->cursor_pos.z) return zpos;
-	return this->cursor_pos.z;
-}
-
-/**
- * Set a cursor.
- * @param cursor_pos Position of the voxel containing the cursor.
- * @param type Type of cursor to set.
- * @param always Always set the cursor (else, only set it if it changed).
- * @return %Cursor has been set/changed.
- */
-bool EdgeCursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always)
-{
-	if (!always && this->cursor_pos == cursor_pos && this->type == type) return false;
-	this->MarkDirty();
-	this->cursor_pos = cursor_pos;
-	this->type = type;
-	this->MarkDirty();
-	return true;
-}
-
-
-/**
  * Get the cursor type at a given position.
  * @param voxel_pos Position of the voxel being drawn.
  * @return %Cursor type at the position (\c CUR_TYPE_INVALID means no cursor available).
@@ -641,9 +586,7 @@ CursorType Viewport::GetCursorAtPos(const XYZPoint16 &voxel_pos)
 		ct = this->arrow_cursor.GetCursor(voxel_pos);
 		if (ct != CUR_TYPE_INVALID) return ct;
 	}
-	ct = this->tile_cursor.GetCursor(voxel_pos);
-	if (ct != CUR_TYPE_INVALID) return ct;
-	return this->edge_cursor.GetCursor(voxel_pos);
+	return this->tile_cursor.GetCursor(voxel_pos);
 }
 
 /**
@@ -659,7 +602,6 @@ uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 		zpos = this->arrow_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	}
 	zpos = this->tile_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
-	zpos = this->edge_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	assert(zpos != 255);
 	return zpos;
 }
@@ -703,33 +645,6 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, const X
 		case CUR_TYPE_ARROW_SW:
 		case CUR_TYPE_ARROW_NW:
 			return this->sprites->GetArrowSprite(ctype - CUR_TYPE_ARROW_NE, this->orient);
-
-		case CUR_TYPE_EDGE_NE:
-		case CUR_TYPE_EDGE_SE:
-		case CUR_TYPE_EDGE_SW:
-		case CUR_TYPE_EDGE_NW: {
-			/* Edge cursor exists at two voxels, check whether the sprite needs to be drawn in the base or in the top voxel. */
-			TileEdge edge = static_cast<TileEdge>(ctype - CUR_TYPE_EDGE_NE);
-			TileEdge unrot_edge = static_cast<TileEdge>((4 + edge - this->orient) & 3);
-			uint16 fences = SetFenceType(ALL_INVALID_FENCES, unrot_edge, _fence_builder.GetSelectedFenceType());
-			uint8 unrot_tslope = _slope_rotation[tslope][this->orient];
-
-			if (this->vp->edge_cursor.cursor_pos.z == voxel_pos.z) {
-				/* Base voxel of the ground is being drawn. */
-				fences = MergeGroundFencesAtBase(ALL_INVALID_FENCES, fences, unrot_tslope);
-				if (GetFenceType(fences, unrot_edge) == FENCE_TYPE_INVALID) return nullptr;
-			} else {
-				/* Top voxel of the ground is being drawn.
-				 * The code relies on getting the slope from the voxel below instead of having the fences themselves available.
-				 * For this reason, you cannot draw fences at raised edges of non-steep tiles with the cursor code.
-				 */
-				uint8 nontop_slope = unrot_tslope - (IsImplodedSteepSlope(unrot_tslope) ? TS_TOP_OFFSET : 0);
-				if (!HasTopVoxelFences(nontop_slope)) return nullptr;
-				fences = MergeGroundFencesAtTop(ALL_INVALID_FENCES, fences, nontop_slope);
-				if (GetFenceType(fences, unrot_edge) == FENCE_TYPE_INVALID) return nullptr;
-			}
-			return this->sprites->GetFenceSprite(_fence_builder.GetSelectedFenceType(), edge, tslope, this->orient);
-		}
 
 		default:
 			return nullptr;
@@ -908,7 +823,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	/* Fences */
 	if (voxel != nullptr) {
-		uint16 fences = voxel->GetFences();
+		uint32 fences = voxel->GetFences();
+		if (this->selector != nullptr) fences = this->selector->GetFences(voxel, voxel_pos, fences);
 		for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 			FenceType fence_type = GetFenceType(fences, edge);
 			if (fence_type != FENCE_TYPE_INVALID) {
@@ -916,6 +832,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.Set(slice, voxel_pos.z, IsBackEdge(this->orient, edge) ? SO_FENCE_BACK : SO_FENCE_FRONT,
 						this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient), north_point);
 				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
+				if (GB(fences, 16 + edge, 1) != 0) dd.highlight = true;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -1159,7 +1076,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
  * %Viewport constructor.
  * @param view_pos Pixel position of the center viewpoint of the main display.
  */
-Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this), edge_cursor(this)
+Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this)
 {
 	this->view_pos = view_pos;
 	this->tile_width  = 64;
@@ -1687,5 +1604,4 @@ void InitMouseModes()
 {
 	_mouse_modes.RegisterMode(&_path_builder);
 	_mouse_modes.RegisterMode(&_coaster_builder);
-	_mouse_modes.RegisterMode(&_fence_builder);
 }
