@@ -817,14 +817,18 @@ void WindowManager::RaiseWindow(Window *w)
  */
 void WindowManager::SetSelector(GuiWindow *w, MouseModeSelector *selector)
 {
-	if (w->selector == selector) return;
+	if (w->selector == selector) return; // Setting the same selector in the window again is fine.
 
 	if (!this->select_valid) {
 		w->selector = selector; // Cache is invalid, any change is fine.
 		return;
 	}
 
-	if (this->select_window == w) {
+	if (this->select_window == nullptr) { // No selected window yet, invalidate cache if a real selector is added to the window.
+		w->selector = selector;
+		if (selector != nullptr) this->select_valid = false;
+
+	} else if (this->select_window == w) { // Currently selected window changes its selector.
 		this->select_window->selector->MarkDirty();
 		this->select_window->selector = selector;
 		if (selector == nullptr) {
@@ -832,7 +836,8 @@ void WindowManager::SetSelector(GuiWindow *w, MouseModeSelector *selector)
 		} else {
 			this->select_window->selector->MarkDirty();
 		}
-	} else if (w->selector != nullptr) {
+
+	} else if (w->selector != nullptr) { // A non-selected window changes its selector.
 		w->selector = selector; // w is definitely below this->select_window.
 	} else {
 		w->selector = selector; // w may be above this->select_window, invalidate cache.
