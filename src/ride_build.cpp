@@ -276,12 +276,12 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 
 			this->selector.SetSize(1, 1);
 			this->selector.SetPosition(si->vox_pos.x, si->vox_pos.y);
-			RideTileData &rtd = this->selector.tile_data[this->selector.GetTileOffset(0, 0)];
-			rtd.AddVoxel(si->vox_pos.z);
-			rtd.SetupRideInfoSpace();
+			this->selector.AddVoxel(si->vox_pos);
+			this->selector.SetupRideInfoSpace();
+
 			SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
 			uint8 entrances = si->GetEntranceDirections(si->vox_pos);
-			rtd.SetRideData(si->vox_pos.z, inst_number, entrances);
+			this->selector.SetRideData(si->vox_pos, inst_number, entrances);
 			this->selector.MarkDirty();
 			return;
 		}
