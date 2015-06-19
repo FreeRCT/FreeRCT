@@ -761,6 +761,28 @@ void CoasterInstance::RemovePositionedPiece(PositionedTrackPiece &piece)
 }
 
 /**
+ * Get the number of this ride.
+ * @return The (unique) number of this ride.
+ */
+SmallRideInstance CoasterInstance::GetRideNumber() const
+{
+	SmallRideInstance ride_number = (SmallRideInstance)this->GetIndex();
+	assert(ride_number >= SRI_FULL_RIDES && ride_number <= SRI_LAST);
+	return ride_number;
+}
+
+/**
+ * Get the instance data of a track voxel that is to be placed in a voxel.
+ * @param tv Track voxel to display in a voxel.
+ * @return instance data of that track voxel.
+ */
+uint16 CoasterInstance::GetInstanceData(const TrackVoxel *tv) const
+{
+	const CoasterType *ct = this->GetCoasterType();
+	return ct->GetTrackVoxelIndex(tv);
+}
+
+/**
  * Add the positioned track piece to #_additions.
  * @param placed Track piece to place.
  * @pre placed->CanBePlaced() should hold.
@@ -768,15 +790,13 @@ void CoasterInstance::RemovePositionedPiece(PositionedTrackPiece &piece)
 void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &placed)
 {
 	assert(placed.CanBePlaced());
-	assert(this->GetIndex() >= SRI_FULL_RIDES && this->GetIndex() <= SRI_LAST);
-	SmallRideInstance ride_number = (SmallRideInstance)this->GetIndex();
+	SmallRideInstance ride_number = this->GetRideNumber();
 
-	const CoasterType *ct = this->GetCoasterType();
 	for (const auto& tvx : placed.piece->track_voxels) {
 		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
-		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
+		vx->SetInstanceData(this->GetInstanceData(tvx));
 	}
 }
 
@@ -788,7 +808,7 @@ void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &pl
 {
 	for (const auto& tvx : placed.piece->track_voxels) {
 		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, false);
-		assert(vx->GetInstance() == (SmallRideInstance)this->GetIndex());
+		assert(vx->GetInstance() == this->GetRideNumber());
 		vx->SetInstance(SRI_FREE);
 		vx->SetInstanceData(0); // Not really needed.
 	}

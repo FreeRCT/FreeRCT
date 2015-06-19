@@ -205,6 +205,8 @@ public:
 	int FindSuccessorPiece(const PositionedTrackPiece &placed);
 	int FindPredecessorPiece(const PositionedTrackPiece &placed);
 
+	SmallRideInstance GetRideNumber() const;
+	uint16 GetInstanceData(const TrackVoxel *tv) const;
 	void PlaceTrackPieceInAdditions(const PositionedTrackPiece &piece);
 	void RemoveTrackPieceInAdditions(const PositionedTrackPiece &piece);
 
