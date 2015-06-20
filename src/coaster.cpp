@@ -756,7 +756,7 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 void CoasterInstance::RemovePositionedPiece(PositionedTrackPiece &piece)
 {
 	assert(piece.piece != nullptr);
-	this->RemoveTrackPieceInAdditions(piece);
+	this->RemoveTrackPieceInWorld(piece);
 	piece.piece = nullptr;
 }
 
@@ -783,17 +783,17 @@ uint16 CoasterInstance::GetInstanceData(const TrackVoxel *tv) const
 }
 
 /**
- * Add the positioned track piece to #_additions.
+ * Add the positioned track piece to #_world.
  * @param placed Track piece to place.
  * @pre placed->CanBePlaced() should hold.
  */
-void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &placed)
+void CoasterInstance::PlaceTrackPieceInWorld(const PositionedTrackPiece &placed)
 {
 	assert(placed.CanBePlaced());
 	SmallRideInstance ride_number = this->GetRideNumber();
 
 	for (const auto& tvx : placed.piece->track_voxels) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
+		Voxel *vx = _world.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
 		vx->SetInstanceData(this->GetInstanceData(tvx));
@@ -801,13 +801,13 @@ void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &pla
 }
 
 /**
- * Add 'removal' of the positioned track piece to #_additions.
+ * Add 'removal' of the positioned track piece to #_world.
  * @param placed Track piece to be removed.
  */
-void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &placed)
+void CoasterInstance::RemoveTrackPieceInWorld(const PositionedTrackPiece &placed)
 {
 	for (const auto& tvx : placed.piece->track_voxels) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, false);
+		Voxel *vx = _world.GetCreateVoxel(placed.base_voxel + tvx->dxyz, false);
 		assert(vx->GetInstance() == this->GetRideNumber());
 		vx->SetInstance(SRI_FREE);
 		vx->SetInstanceData(0); // Not really needed.

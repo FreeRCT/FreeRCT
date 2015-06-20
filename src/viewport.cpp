@@ -22,7 +22,6 @@
 #include "sprite_store.h"
 #include "sprite_data.h"
 #include "path_build.h"
-#include "coaster_build.h"
 #include "shop_type.h"
 #include "terraform.h"
 #include "person.h"
@@ -1603,5 +1602,4 @@ void ShowMainDisplay(const XYZPoint32 &view_pos)
 void InitMouseModes()
 {
 	_mouse_modes.RegisterMode(&_path_builder);
-	_mouse_modes.RegisterMode(&_coaster_builder);
 }

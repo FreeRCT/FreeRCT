@@ -207,8 +207,8 @@ public:
 
 	SmallRideInstance GetRideNumber() const;
 	uint16 GetInstanceData(const TrackVoxel *tv) const;
-	void PlaceTrackPieceInAdditions(const PositionedTrackPiece &piece);
-	void RemoveTrackPieceInAdditions(const PositionedTrackPiece &piece);
+	void PlaceTrackPieceInWorld(const PositionedTrackPiece &piece);
+	void RemoveTrackPieceInWorld(const PositionedTrackPiece &piece);
 
 	int GetMaxNumberOfTrains() const;
 	void SetNumberOfTrains(int number_trains);
