@@ -223,6 +223,21 @@ bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 }
 
 /**
+ * Get the area covered by a piece at flat ground.
+ * @return Smallest rectangle surrounding all parts of the trackpiece at flat ground.
+ * @note Base position may be negative.
+ */
+Rectangle16 TrackPiece::GetArea() const
+{
+	Rectangle16 rect;
+	rect.AddPoint(0, 0);
+	for (const TrackVoxel *tv : this->track_voxels) {
+		rect.AddPoint(tv->dxyz.x, tv->dxyz.y);
+	}
+	return rect;
+}
+
+/**
  * Constructor taking values for all its fields.
  * @param vox_pos Position of the positioned track piece.
  * @param piece Track piece to use.
