@@ -163,6 +163,7 @@ public:
 	~TrackPiece();
 
 	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+	Rectangle16 GetArea() const;
 
 	uint8 entry_connect;      ///< Entry connection code
 	uint8 exit_connect;       ///< Exit connection code

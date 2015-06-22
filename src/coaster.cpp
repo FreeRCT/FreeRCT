@@ -756,39 +756,59 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 void CoasterInstance::RemovePositionedPiece(PositionedTrackPiece &piece)
 {
 	assert(piece.piece != nullptr);
-	this->RemoveTrackPieceInAdditions(piece);
+	this->RemoveTrackPieceInWorld(piece);
 	piece.piece = nullptr;
 }
 
 /**
- * Add the positioned track piece to #_additions.
+ * Get the number of this ride.
+ * @return The (unique) number of this ride.
+ */
+SmallRideInstance CoasterInstance::GetRideNumber() const
+{
+	SmallRideInstance ride_number = (SmallRideInstance)this->GetIndex();
+	assert(ride_number >= SRI_FULL_RIDES && ride_number <= SRI_LAST);
+	return ride_number;
+}
+
+/**
+ * Get the instance data of a track voxel that is to be placed in a voxel.
+ * @param tv Track voxel to display in a voxel.
+ * @return instance data of that track voxel.
+ */
+uint16 CoasterInstance::GetInstanceData(const TrackVoxel *tv) const
+{
+	const CoasterType *ct = this->GetCoasterType();
+	return ct->GetTrackVoxelIndex(tv);
+}
+
+/**
+ * Add the positioned track piece to #_world.
  * @param placed Track piece to place.
  * @pre placed->CanBePlaced() should hold.
  */
-void CoasterInstance::PlaceTrackPieceInAdditions(const PositionedTrackPiece &placed)
+void CoasterInstance::PlaceTrackPieceInWorld(const PositionedTrackPiece &placed)
 {
 	assert(placed.CanBePlaced());
-	assert(this->GetIndex() >= SRI_FULL_RIDES && this->GetIndex() <= SRI_LAST);
-	SmallRideInstance ride_number = (SmallRideInstance)this->GetIndex();
+	SmallRideInstance ride_number = this->GetRideNumber();
 
-	const CoasterType *ct = this->GetCoasterType();
 	for (const auto& tvx : placed.piece->track_voxels) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
+		Voxel *vx = _world.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
-		vx->SetInstanceData(ct->GetTrackVoxelIndex(tvx));
+		vx->SetInstanceData(this->GetInstanceData(tvx));
 	}
 }
 
 /**
- * Add 'removal' of the positioned track piece to #_additions.
+ * Add 'removal' of the positioned track piece to #_world.
  * @param placed Track piece to be removed.
  */
-void CoasterInstance::RemoveTrackPieceInAdditions(const PositionedTrackPiece &placed)
+void CoasterInstance::RemoveTrackPieceInWorld(const PositionedTrackPiece &placed)
 {
 	for (const auto& tvx : placed.piece->track_voxels) {
-		Voxel *vx = _additions.GetCreateVoxel(placed.base_voxel + tvx->dxyz, false);
-		assert(vx->GetInstance() == (SmallRideInstance)this->GetIndex());
+		Voxel *vx = _world.GetCreateVoxel(placed.base_voxel + tvx->dxyz, false);
+		assert(vx->GetInstance() == this->GetRideNumber());
 		vx->SetInstance(SRI_FREE);
 		vx->SetInstanceData(0); // Not really needed.
 	}

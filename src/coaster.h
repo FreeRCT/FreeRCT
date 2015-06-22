@@ -205,8 +205,10 @@ public:
 	int FindSuccessorPiece(const PositionedTrackPiece &placed);
 	int FindPredecessorPiece(const PositionedTrackPiece &placed);
 
-	void PlaceTrackPieceInAdditions(const PositionedTrackPiece &piece);
-	void RemoveTrackPieceInAdditions(const PositionedTrackPiece &piece);
+	SmallRideInstance GetRideNumber() const;
+	uint16 GetInstanceData(const TrackVoxel *tv) const;
+	void PlaceTrackPieceInWorld(const PositionedTrackPiece &piece);
+	void RemoveTrackPieceInWorld(const PositionedTrackPiece &piece);
 
 	int GetMaxNumberOfTrains() const;
 	void SetNumberOfTrains(int number_trains);
