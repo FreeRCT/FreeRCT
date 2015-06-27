@@ -476,7 +476,8 @@ public:
 	/**
 	 * Set fence data at the given position in the area. Tiles with disabled cursor are silently skipped.
 	 * @param pos World position.
-	 * @param fence_data Data of the fences at the voxel. @see MouseModeSelector::GetFences
+	 * @param fence_type Type of the new fence.
+	 * @param edge Edge of the new fence.
 	 */
 	void SetFenceData(const XYZPoint16 &pos, FenceType fence_type, TileEdge edge)
 	{

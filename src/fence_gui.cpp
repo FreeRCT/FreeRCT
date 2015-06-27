@@ -38,7 +38,7 @@ public:
 	void SelectorMouseButtonEvent(uint8 state) override;
 
 	FenceType fence_type;      ///< Currently selected fence type (#FENCE_TYPE_INVALID means no type selected).
-	XYZPoint16 fence_base;     ///< Voxel position (base of tghe ground) where fence has been placed (only valid if #fence_edge is valid).
+	XYZPoint16 fence_base;     ///< Voxel position (base of the ground) where fence has been placed (only valid if #fence_edge is valid).
 	TileEdge fence_edge;       ///< Edge where new fence has been placed, #INVALID_EDGE for no placed fence.
 	FencesMouseMode fence_sel; ///< Mouse selector for building fences.
 private:
