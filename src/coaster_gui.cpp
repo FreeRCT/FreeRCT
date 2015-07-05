@@ -107,6 +107,10 @@ public:
 	PositionedTrackPiece pos_piece; ///< Piece to display, actual piece may be \c nullptr if nothing to display.
 };
 
+/**
+ * Constructor of the trackpiece mouse mode.
+ * @param ci Coaster to edit.
+ */
 TrackPieceMouseMode::TrackPieceMouseMode(CoasterInstance *ci) : RideMouseMode()
 {
 	this->ci = ci;
