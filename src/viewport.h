@@ -35,9 +35,9 @@ enum ClickableSprite {
 	CS_NONE   = 0,      ///< No valid sprite.
 	CS_GROUND = 1 << 0, ///< Ground sprite.
 	CS_GROUND_EDGE = 1 << 1, ///< Ground edge sprite.
-	CS_PATH   = 1 << 2, ///< Path sprite.
+	CS_PATH   = 1 << 2, ///< %Path sprite.
 	CS_RIDE   = 1 << 3, ///< Ride sprite.
-	CS_PERSON = 1 << 4, ///< Person sprite.
+	CS_PERSON = 1 << 4, ///< %Person sprite.
 
 	CS_LENGTH = 8,      ///< Bitlength of the enum.
 	CS_MASK = 0x1f,     ///< Used for converting between this and #SpriteOrder.
