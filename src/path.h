@@ -124,7 +124,9 @@ extern const uint8 _path_rotation[PATH_COUNT][4];
 
 struct Voxel;
 
+uint8 GetPathExits(PathSprites slope, bool use_path_connections);
 uint8 GetPathExits(const Voxel *v);
+
 bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry);
 
 bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge);
