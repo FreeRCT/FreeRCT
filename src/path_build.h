@@ -182,4 +182,14 @@ inline bool PathBuildManager::GetLongButtonIsPressed() const
 
 extern PathBuildManager _path_builder;
 
+bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge);
+bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only);
+bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only);
+bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, bool test_only);
+bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only);
+bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only);
+uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge);
+uint8 GetPathAttachPoints(const XYZPoint16 &voxel_pos);
+
+
 #endif

@@ -12,6 +12,8 @@
 #include "window.h"
 #include "viewport.h"
 #include "language.h"
+#include "gamecontrol.h"
+#include "mouse_mode.h"
 #include "path_build.h"
 #include "gui_sprites.h"
 
@@ -30,13 +32,32 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
-	void SetButtons();
+	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+
+
+	RideMouseMode ride_selector; ///< Mouse mode selector for displaying new (or existing) paths.
 
 private:
+	void BuildSinglePath(const XYZPoint16 &pos);
+	void SetButtons();
+	void SetupSelector();
+	void BuyPathTile();
+	void RemovePathTile();
+	bool MoveSelection(bool move_forward);
+
 	Rectangle16 path_type_button_size;             ///< Size of the path type buttons.
 	const ImageData *path_type_sprites[PAT_COUNT]; ///< Sprite to use for showing the path type in the Gui.
 	bool normal_path_types[PAT_COUNT];             ///< Which path types are normal paths.
 	bool queue_path_types[PAT_COUNT];              ///< Which path types are queue paths.
+
+	XYZPoint16 mouse_pos;     ///< Last found mouse position in the viewport window.
+	XYZPoint16 build_pos;     ///< Position of directional build. Invalid if x coordinate is negative.
+	TileEdge build_direction; ///< Direction of building (#INVALID_EDGE if no direction decided).
+	PathType path_type;       ///< Selected type of path to use for building.
+	TrackSlope sel_slope;     ///< Selected slope (#TSL_INVALID if not slope decided).
+	ClickableSprite mouse_at; ///< Sprite below the mouse cursor (#CS_NONE means none).
+	bool single_tile_mode;    ///< If set, build single tiles at the ground, else build directional
 };
 
 /**
@@ -141,9 +162,9 @@ static const WidgetPart _path_build_gui_parts[] = {
 	EndContainer(),
 };
 
-PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE), path_type_button_size()
+/** Constructor of the path build gui. */
+PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE), ride_selector(), path_type_button_size()
 {
-	/* Setup path type bits. */
 	const SpriteStorage *store = _sprite_manager.GetSprites(64); // GUI size.
 	for (int i = 0; i < PAT_COUNT; i++) {
 		switch (store->path_sprites[i].status) {
@@ -174,25 +195,194 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE), 
 
 	this->SetupWidgetTree(_path_build_gui_parts, lengthof(_path_build_gui_parts));
 
-	/* Select an initial path type if not done already. */
-	if (_path_builder.path_type == PAT_INVALID) {
-		for (int i = 0; i < PAT_COUNT; i++) {
-			if (this->normal_path_types[i]) {
-				_path_builder.path_type = (PathType)i;
-				break;
-			}
-			if (_path_builder.path_type == PAT_INVALID && this->queue_path_types[i]) {
-				_path_builder.path_type = (PathType)i; // Queue path is better than an invalid one, continue searching.
-			}
+	/* Select an initial path type. */
+	this->path_type = PAT_INVALID;
+	for (int i = 0; i < PAT_COUNT; i++) {
+		if (this->normal_path_types[i]) {
+			this->path_type = (PathType)i;
+			break;
+		}
+		if (this->path_type == PAT_INVALID && this->queue_path_types[i]) {
+			this->path_type = (PathType)i; // Queue path is better than an invalid one, continue searching.
 		}
 	}
 
-	_path_builder.SetPathGuiState(true);
+	this->SetSelector(&this->ride_selector);
+	if (this->path_type == PAT_INVALID) {
+		this->ride_selector.SetSize(0, 0);
+	} else {
+		this->ride_selector.SetSize(1, 1);
+	}
+	this->mouse_pos.x = -1; // Incorrect position, first mouse move will fix it.
+
+	this->single_tile_mode = true;
+	this->build_pos.x = -1;
+	this->build_direction = INVALID_EDGE;
+	this->sel_slope = TSL_INVALID;
+
+	this->SetButtons();
 }
 
 PathBuildGui::~PathBuildGui()
 {
-	_path_builder.SetPathGuiState(false);
+	this->SetSelector(nullptr);
+}
+
+void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+	if (this->path_type == PAT_INVALID) return;
+
+	FinderData fdata(CS_GROUND | CS_PATH, FW_TILE);
+	this->mouse_at = vp->ComputeCursorPosition(&fdata);
+	if (this->mouse_at == CS_NONE || fdata.voxel_pos == this->mouse_pos) return;
+
+	this->mouse_pos = fdata.voxel_pos;
+	this->SetButtons();
+	this->SetupSelector();
+}
+
+void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
+{
+	if (this->ride_selector.area.width == 0 || this->path_type == PAT_INVALID) return;
+
+	if (this->single_tile_mode) {
+		if ((state & MB_LEFT) != 0) {
+			const Point16 &sel_base = this->ride_selector.area.base;
+			VoxelTileData<VoxelRideData> &td = this->ride_selector.GetTileData(sel_base.x, sel_base.y);
+			uint16 zpos = td.GetGroundHeight(sel_base.x, sel_base.y);
+			this->BuildSinglePath(XYZPoint16(sel_base.x, sel_base.y, zpos));
+		} else if ((state & MB_RIGHT) != 0) {
+			RemovePath(this->mouse_pos, false);
+		}
+		return;
+	}
+	/* Directional build. */
+
+	if (!IsLeftClick(state)) return;
+
+	/* Click with directional build, set or move the build position. */
+	this->ride_selector.MarkDirty();
+
+	this->ride_selector.SetSize(1, 1);
+	this->build_pos = this->mouse_pos;
+	this->ride_selector.SetPosition(this->mouse_pos.x, this->mouse_pos.y);
+	this->ride_selector.MarkDirty();
+	this->SetButtons();
+	this->SetupSelector();
+}
+
+/**
+ * From a position with a path tile, get the neighbouring position, where the entry edge at the bottom matches with the exit edge at \a pos.
+ * @param pos Start position.
+ * @param direction Direction to move.
+ */
+static XYZPoint16 GetNeighbourPathPosition(const XYZPoint16 &pos, TileEdge direction)
+{
+	uint8 dirs = GetPathAttachPoints(pos);
+	int extra_z = ((dirs & (0x10 << direction)) != 0) ? 1 : 0;
+
+	const Point16 &dxy = _tile_dxy[direction];
+	return XYZPoint16(pos.x + dxy.x, pos.y + dxy.y, pos.z + extra_z);
+}
+
+/** Construct selector display. */
+void PathBuildGui::SetupSelector()
+{
+	if (this->single_tile_mode || (!this->single_tile_mode && this->build_pos.x < 0)) {
+		/* Single tile mode or directional mode without build position, always follow the mouse. */
+		const Point16 &sel_base = this->ride_selector.area.base;
+		if (sel_base.x != this->mouse_pos.x || sel_base.y != this->mouse_pos.y) {
+			this->ride_selector.MarkDirty();
+
+			this->ride_selector.SetSize(1, 1);
+			this->ride_selector.SetPosition(this->mouse_pos.x, this->mouse_pos.y);
+			this->ride_selector.MarkDirty();
+		}
+		return;
+	}
+
+	/* Directional mode, if a build position but no direction and slope, use build position for the cursor. */
+	if (this->build_direction == INVALID_EDGE || this->sel_slope == TSL_INVALID) {
+		const Point16 &sel_base = this->ride_selector.area.base;
+		if (sel_base.x != this->build_pos.x || sel_base.y != this->build_pos.y) {
+			this->ride_selector.MarkDirty();
+
+			this->ride_selector.SetSize(1, 1);
+			this->ride_selector.SetPosition(this->build_pos.x, this->build_pos.y);
+			this->ride_selector.MarkDirty();
+		}
+		return;
+	}
+
+	/* Directional mode, build position, a direction and a slope. Show what will be build. */
+	XYZPoint16 add_pos = GetNeighbourPathPosition(this->build_pos, this->build_direction);
+
+	uint8 path_slope;
+	switch (this->sel_slope) {
+		case TSL_UP:
+			path_slope = _path_up_from_edge[(this->build_direction + 2) % 4];
+			break;
+
+		case TSL_FLAT:
+			path_slope = PATH_EMPTY;
+			break;
+
+		case TSL_DOWN:
+			add_pos.z--;
+			path_slope = _path_down_from_edge[(this->build_direction + 2) % 4];
+			break;
+
+		default: NOT_REACHED();
+	}
+
+	const Point16 &sel_base = this->ride_selector.area.base;
+	if (sel_base.x != add_pos.x || sel_base.y != add_pos.y) this->ride_selector.MarkDirty();
+	this->ride_selector.SetSize(1, 1);
+	this->ride_selector.SetPosition(add_pos.x, add_pos.y);
+	this->ride_selector.AddVoxel(add_pos);
+	this->ride_selector.SetupRideInfoSpace(); // Make space for the ride data at 'add_pos'.
+
+	VoxelTileData<VoxelRideData> &vtd = this->ride_selector.GetTileData(add_pos);
+	if (!vtd.cursor_enabled) return;
+	VoxelRideData &vrd = vtd.ride_info[add_pos.z - vtd.lowest];
+	vrd.sri = SRI_PATH;
+	vrd.instance_data = MakePathInstanceData(path_slope, this->path_type);
+	this->ride_selector.MarkDirty();
+}
+
+/**
+ * Build a single path tile ath \a pos of the current type. If it contains a path already, the path type is changed.
+ * @param pos Position to build the path. Must be a ground voxel.
+ */
+void PathBuildGui::BuildSinglePath(const XYZPoint16 &pos)
+{
+	assert(this->path_type != PAT_INVALID);
+
+	Voxel *v = _world.GetCreateVoxel(pos, false);
+	if (v == nullptr || v->GetGroundType() == GTP_INVALID) return; // No voxel or no ground here.
+
+	SmallRideInstance sri = v->GetInstance();
+	if (sri == SRI_PATH) {
+		ChangePath(pos, this->path_type, false);
+		return;
+	}
+	if (sri != SRI_FREE) return; // Some other ride here.
+
+	TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
+	if (ts == SL_FLAT) {
+		BuildFlatPath(pos, this->path_type, false);
+		return;
+	}
+
+	ts ^= TSB_NORTH | TSB_EAST | TSB_SOUTH | TSB_WEST; // Swap raised and not raised corners.
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if (ts == _corners_at_edge[edge]) { // 'edge' is at the low end due to swapping.
+			BuildUpwardPath(pos, edge, this->path_type, false);
+			return;
+		}
+	}
+
+	/* Wrong slope, ignore build request. */
 }
 
 void PathBuildGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
@@ -255,7 +445,9 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 		case PATH_GUI_SLOPE_DOWN:
 		case PATH_GUI_SLOPE_FLAT:
 		case PATH_GUI_SLOPE_UP:
-			_path_builder.SelectSlope((TrackSlope)(number - PATH_GUI_SLOPE_DOWN));
+			this->sel_slope = static_cast<TrackSlope>(number - PATH_GUI_SLOPE_DOWN); // Verified in 'SetButtons'.
+			this->SetButtons();
+			this->SetupSelector();
 			break;
 
 		case PATH_GUI_NE_DIRECTION:
@@ -264,20 +456,28 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 		case PATH_GUI_NW_DIRECTION: {
 			Viewport *vp = GetViewport();
 			if (vp != nullptr) {
-				TileEdge edge = (TileEdge)AddOrientations((ViewOrientation)(number - PATH_GUI_NE_DIRECTION), vp->orientation);
-				_path_builder.SelectArrow(edge);
+				ViewOrientation clicked = static_cast<ViewOrientation>(number - PATH_GUI_NE_DIRECTION);
+				TileEdge edge = static_cast<TileEdge>(AddOrientations(clicked, vp->orientation));
+				this->build_direction = edge; // Verified in 'SetButtons'.
+				this->SetButtons();
+				this->SetupSelector();
 			}
 			break;
 		}
 
 		case PATH_GUI_FORWARD:
 		case PATH_GUI_BACKWARD:
-			_path_builder.SelectMovement(number == PATH_GUI_FORWARD);
+			this->MoveSelection(number == PATH_GUI_FORWARD);
+			this->SetButtons();
+			this->SetupSelector();
 			break;
 
 		case PATH_GUI_REMOVE:
+			this->RemovePathTile();
+			break;
+
 		case PATH_GUI_BUY:
-			_path_builder.SelectBuyRemove(number == PATH_GUI_BUY);
+			this->BuyPathTile();
 			break;
 
 		case PATH_GUI_NORMAL_PATH0:
@@ -285,8 +485,9 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 		case PATH_GUI_NORMAL_PATH2:
 		case PATH_GUI_NORMAL_PATH3:
 			if (this->normal_path_types[number - PATH_GUI_NORMAL_PATH0]) {
-				_path_builder.SelectPathType((PathType)(number - PATH_GUI_NORMAL_PATH0));
+				this->path_type = static_cast<PathType>(number - PATH_GUI_NORMAL_PATH0);
 				this->SetButtons();
+				this->SetupSelector();
 			}
 			break;
 
@@ -295,23 +496,77 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 		case PATH_GUI_QUEUE_PATH2:
 		case PATH_GUI_QUEUE_PATH3:
 			if (this->queue_path_types[number - PATH_GUI_QUEUE_PATH0]) {
-				_path_builder.SelectPathType((PathType)(number - PATH_GUI_QUEUE_PATH0));
+				this->path_type = static_cast<PathType>(number - PATH_GUI_QUEUE_PATH0);
 				this->SetButtons();
+				this->SetupSelector();
 			}
 			break;
 
 		case PATH_GUI_SINGLE:
-			_path_builder.SetState(PBS_SINGLE);
+			this->single_tile_mode = true;
 			this->SetButtons();
+			this->SetupSelector();
 			break;
+
 		case PATH_GUI_DIRECTIONAL:
-			_path_builder.SetState(PBS_WAIT_VOXEL);
+			this->single_tile_mode = false;
+			this->build_pos.x = -1;
+			this->build_direction = INVALID_EDGE;
+
 			this->SetButtons();
+			this->SetupSelector();
 			break;
 
 		default:
 			break;
 	}
+}
+
+/**
+ * Decide at which edges a path could be started from the given voxel.
+ * @param v The voxel to investigate.
+ * @param invalid Return value in case there is no ground at the voxel.
+ * @param bottom If a path can be started at the lower level, which edges should be returned?
+ *        Useful values are \c 1 (only the lower edge) and \c 0x11 (both lower end upper edge of the voxel).
+ * @return For each edge which edges are useful to consider for starting a path.
+ *         Low nibble defines interesting edge at the bottom of the voxel, High nibble defines interesting edges at the top of the voxel.
+ */
+static uint8 GetGroundEdgesForPaths(const Voxel *v, uint8 invalid = 0xFF, uint8 bottom = 1)
+{
+	if (v == nullptr || v->GetGroundType() == GTP_INVALID) return invalid;
+	TileSlope slope = ExpandTileSlope(v->GetGroundSlope());
+	if ((slope & (TSB_STEEP | TSB_TOP)) == TSB_STEEP) return 0; // Bottom of a steep slope cannot have a path.
+	uint directions = 0;
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		directions |= ((slope & _corners_at_edge[edge]) != 0) ? (0x10 << edge) : (bottom << edge);
+	}
+	return directions;
+}
+
+/**
+ * As a first upper limit, which edges of the given voxel can be used to build a path from?
+ * @param pos Current position.
+ * @return For all 8 edges of the voxel (4 at the bottom in the low nibble, 4 at the top at the high nibble), whether they should be checked further.
+ */
+static uint8 GetDirections(const XYZPoint16 &pos)
+{
+	if (!IsVoxelstackInsideWorld(pos.x, pos.y)) {
+		return 0xFF; // Assume any slope off-world.
+	}
+
+	const Voxel *v = _world.GetVoxel(pos);
+	if (v == nullptr) {
+		return 0xFF; // Free space is also free form.
+	}
+
+	SmallRideInstance sri = v->GetInstance();
+	if (sri == SRI_PATH) { // Follow path at 'pos'.
+		return GetPathExits(GetImplodedPathSlope(v->GetInstanceData()), false);
+	}
+	if (sri == SRI_FREE) { // No ride, but perhaps some ground?
+		return GetGroundEdgesForPaths(v, 0x0F, 0x01);
+	}
+	return 0;
 }
 
 /** Set the buttons at the path builder GUI. */
@@ -320,41 +575,105 @@ void PathBuildGui::SetButtons()
 	Viewport *vp = GetViewport();
 	if (vp == nullptr) return;
 
-	/* Update arrow buttons. */
-	uint8 directions = _path_builder.GetAllowedArrows();
-	TileEdge sel_dir = _path_builder.GetSelectedArrow();
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		TileEdge rot_edge = (TileEdge)SubtractOrientations((ViewOrientation)edge, vp->orientation);
-		if (((0x11 << edge) & directions) != 0) {
-			this->SetWidgetShaded(PATH_GUI_NE_DIRECTION + rot_edge, false);
-			this->SetWidgetPressed(PATH_GUI_NE_DIRECTION + rot_edge, edge == sel_dir);
-		} else {
-			this->SetWidgetShaded(PATH_GUI_NE_DIRECTION + rot_edge, true);
+	/* Compute feasible directions for the arrow buttons. */
+	bool disabled = this->single_tile_mode || this->build_pos.x < 0;
+	uint8 directions; // Bits in low nibble indicate buildable directions.
+	uint8 exits; // For the valid 'build_pos' voxel, which edges of the voxel can have a path (low nibble bottom, high nibble top).
+	if (disabled) {
+		directions = 0; // Don't care, buttons are disabled.
+		exits = 0;
+	} else {
+		assert(this->build_pos.x >= 0); // Realized by 'disabled' above.
+		exits = GetDirections(this->build_pos);
+		directions = 0;
+		for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+			TileEdge reverse_edge = static_cast<TileEdge>((edge + 2) % 4);
+			XYZPoint16 neighbour(this->build_pos.x + _tile_dxy[edge].x, this->build_pos.y + _tile_dxy[edge].y, this->build_pos.z);
+			if (((0x01 << edge) & exits) != 0 && CanBuildPathFromEdge(neighbour, reverse_edge) != 0) {
+				directions |= 1 << edge;
+				continue;
+			}
+			if (((0x10 << edge) & exits) != 0) {
+				neighbour.z++;
+				if (CanBuildPathFromEdge(neighbour, reverse_edge) != 0) {
+					directions |= 1 << edge;
+					continue;
+				}
+			}
 		}
 	}
-	/* Update the slope buttons. */
-	uint8 allowed_slopes = _path_builder.GetAllowedSlopes();
-	TrackSlope sel_slope = _path_builder.GetSelectedSlope();
-	for (TrackSlope ts = TSL_BEGIN; ts < TSL_COUNT_GENTLE; ts++) {
-		bool option_allowed = ((1 << ts) & allowed_slopes) != 0;
-		this->SetWidgetShaded(PATH_GUI_SLOPE_DOWN + ts, !option_allowed);
-		this->SetWidgetPressed(PATH_GUI_SLOPE_DOWN + ts, ts == sel_slope && option_allowed);
+
+	/* Auto-(de)select build direction if possible. */
+	if (this->build_direction != INVALID_EDGE && (directions & (1 << this->build_direction)) == 0) this->build_direction = INVALID_EDGE;
+
+	if (this->build_direction == INVALID_EDGE) {
+		for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+			if (directions == (1 << edge)) {
+				this->build_direction = edge;
+				break;
+			}
+		}
 	}
-	this->SetWidgetShaded(PATH_GUI_BUY,      !_path_builder.GetBuyIsEnabled());
-	this->SetWidgetShaded(PATH_GUI_REMOVE,   !_path_builder.GetRemoveIsEnabled());
-	this->SetWidgetShaded(PATH_GUI_FORWARD,  !_path_builder.GetForwardIsEnabled());
-	this->SetWidgetShaded(PATH_GUI_BACKWARD, !_path_builder.GetBackwardIsEnabled());
+
+	/* Update arrow buttons. */
+	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		TileEdge rot_edge = static_cast<TileEdge>(SubtractOrientations(static_cast<ViewOrientation>(edge), vp->orientation));
+		this->SetWidgetShaded(PATH_GUI_NE_DIRECTION + rot_edge, disabled || ((0x11 << edge) & directions) == 0);
+		this->SetWidgetPressed(PATH_GUI_NE_DIRECTION + rot_edge, edge == this->build_direction);
+	}
+
+	/* Compute allowed slopes. */
+	disabled = this->single_tile_mode || this->build_pos.x < 0 || this->build_direction == INVALID_EDGE;
+	uint8 allowed_slopes;
+	if (disabled) {
+		allowed_slopes = 0; // Slopes are disabled.
+	} else {
+		assert(this->build_pos.x >= 0); // Realized by 'disabled' above.
+		assert(this->build_direction != INVALID_EDGE);
+
+		TileEdge reverse_edge = static_cast<TileEdge>((this->build_direction + 2) % 4);
+		XYZPoint16 neighbour(this->build_pos.x + _tile_dxy[this->build_direction].x, this->build_pos.y + _tile_dxy[this->build_direction].y, this->build_pos.z);
+		if ((exits & (0x01 << this->build_direction)) != 0) {
+			allowed_slopes = CanBuildPathFromEdge(neighbour, reverse_edge);
+		} else if ((exits & (0x10 << this->build_direction)) != 0) {
+			neighbour.z++;
+			allowed_slopes = CanBuildPathFromEdge(neighbour, reverse_edge);
+		} else {
+			allowed_slopes = 0;
+		}
+	}
+
+	/* Auto-(de)select a slope. */
+	if (this->sel_slope != TSL_INVALID && (allowed_slopes & (1 << this->sel_slope)) == 0) this->sel_slope = TSL_INVALID;
+
+	if (this->sel_slope == TSL_INVALID) {
+		if (allowed_slopes == (1 << TSL_UP))   this->sel_slope = TSL_UP;
+		if (allowed_slopes == (1 << TSL_FLAT)) this->sel_slope = TSL_FLAT;
+		if (allowed_slopes == (1 << TSL_DOWN)) this->sel_slope = TSL_DOWN;
+	}
+
+	/* Update the slope buttons. */
+	for (TrackSlope ts = TSL_BEGIN; ts < TSL_COUNT_GENTLE; ts++) {
+		this->SetWidgetShaded(PATH_GUI_SLOPE_DOWN + ts, disabled || (allowed_slopes & (1 << ts)) == 0);
+		this->SetWidgetPressed(PATH_GUI_SLOPE_DOWN + ts, ts == sel_slope);
+	}
+
+	disabled = this->single_tile_mode || this->build_direction == INVALID_EDGE || this->sel_slope == TSL_INVALID;
+	this->SetWidgetShaded(PATH_GUI_BUY,      disabled);
+	this->SetWidgetShaded(PATH_GUI_REMOVE,   disabled);
+	this->SetWidgetShaded(PATH_GUI_FORWARD,  disabled);
+	this->SetWidgetShaded(PATH_GUI_BACKWARD, disabled);
 
 	/* Path type selection buttons. */
 	for (int i = 0; i < PAT_COUNT; i++) {
 		if (this->normal_path_types[i]) {
 			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, false);
 			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, true);
-			this->SetWidgetPressed(PATH_GUI_NORMAL_PATH0 + i, (i == _path_builder.path_type));
+			this->SetWidgetPressed(PATH_GUI_NORMAL_PATH0 + i, (i == this->path_type));
 		} else if (this->queue_path_types[i]) {
 			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, true);
 			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, false);
-			this->SetWidgetPressed(PATH_GUI_QUEUE_PATH0 + i, (i == _path_builder.path_type));
+			this->SetWidgetPressed(PATH_GUI_QUEUE_PATH0 + i, (i == this->path_type));
 		} else {
 			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, true);
 			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, true);
@@ -362,14 +681,141 @@ void PathBuildGui::SetButtons()
 	}
 
 	/* Path mode selection. */
-	this->SetWidgetPressed(PATH_GUI_SINGLE,      _path_builder.GetState() == PBS_SINGLE);
-	this->SetWidgetPressed(PATH_GUI_DIRECTIONAL, _path_builder.GetState() != PBS_SINGLE);
+	this->SetWidgetPressed(PATH_GUI_SINGLE,      this->single_tile_mode);
+	this->SetWidgetPressed(PATH_GUI_DIRECTIONAL, !this->single_tile_mode);
+}
+
+/** Add a path tile to the current position and orientation in the directional build mode. */
+void PathBuildGui::BuyPathTile()
+{
+	if (this->path_type == PAT_INVALID) return;
+	if (this->single_tile_mode) return;
+	if (this->build_pos.x < 0) return;
+	if (this->build_direction == INVALID_EDGE) return;
+
+	XYZPoint16 path_pos = GetNeighbourPathPosition(this->build_pos, this->build_direction);
+	switch (this->sel_slope) {
+		case TSL_UP: {
+			TileEdge start_edge = static_cast<TileEdge>((this->build_direction + 2) % 4);
+			BuildUpwardPath(path_pos, start_edge, this->path_type, false);
+			break;
+		}
+		case TSL_FLAT:
+			BuildFlatPath(path_pos, this->path_type, false);
+			break;
+
+		case TSL_DOWN: {
+			TileEdge start_edge = static_cast<TileEdge>((this->build_direction + 2) % 4);
+			BuildDownwardPath(path_pos, start_edge, this->path_type, false);
+			path_pos.z--;
+			break;
+		}
+
+		case TSL_INVALID:
+		default:
+			return; // Ignore request.
+	}
+	this->build_pos = path_pos;
+	this->SetButtons();
+	this->SetupSelector();
+}
+
+/** Remove a path tile from the game in directional mode. */
+void PathBuildGui::RemovePathTile()
+{
+	if (this->path_type == PAT_INVALID) return;
+	if (this->single_tile_mode) return;
+	if (this->build_pos.x < 0) return;
+	if (this->build_direction == INVALID_EDGE) return;
+
+	XYZPoint16 remove_pos = this->build_pos;
+	if (RemovePath(remove_pos, true)) {
+		if (!this->MoveSelection(false)) {
+			this->build_pos.x = -1; // Moving failed, let the user select a new tile.
+		}
+		RemovePath(remove_pos, false);
+		this->SetButtons();
+		this->SetupSelector();
+	}
+}
+
+/**
+ * Move the cursor in forward or backward direction.
+ * @param move_forward If set, move forward (in #build_direction), else move backward.
+ * @return Whether the position was moved.
+ */
+bool PathBuildGui::MoveSelection(bool move_forward)
+{
+	if (this->path_type == PAT_INVALID) return false;
+	if (this->single_tile_mode) return false; // Single tile mode has no direction.
+	if (this->build_pos.x < 0) return false;
+	if (this->build_direction == INVALID_EDGE) return false;
+
+	TileEdge edge = move_forward ? this->build_direction : static_cast<TileEdge>((this->build_direction + 2) % 4);
+
+	bool move_up;
+	const Voxel *v = _world.GetVoxel(this->build_pos);
+	if (v == nullptr) return false;
+	if (HasValidPath(v)) {
+		move_up = (GetImplodedPathSlope(v) == _path_down_from_edge[edge]);
+	} else if (v->GetGroundType() != GTP_INVALID) {
+		TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
+		if ((ts & TSB_STEEP) != 0) return false;
+		move_up = ((ts & _corners_at_edge[edge]) != 0);
+	} else {
+		return false; // Surface type but no valid ground/path surface.
+	}
+
+	/* Test whether we can move in the indicated direction. */
+	Point16 dxy = _tile_dxy[edge];
+	if ((dxy.x < 0 && this->build_pos.x == 0) || (dxy.x > 0 && this->build_pos.x == _world.GetXSize() - 1)) return false;
+	if ((dxy.y < 0 && this->build_pos.y == 0) || (dxy.y > 0 && this->build_pos.y == _world.GetYSize() - 1)) return false;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->build_pos.x + dxy.x, this->build_pos.y + dxy.y) != OWN_PARK) return false;
+
+	const Voxel *v_top, *v_bot;
+	if (move_up) {
+		/* Exit of current tile is at the top. */
+		v_top = (this->build_pos.z > WORLD_Z_SIZE - 2) ? nullptr : _world.GetVoxel(this->build_pos + XYZPoint16(dxy.x, dxy.y, 1));
+		v_bot = _world.GetVoxel(this->build_pos + XYZPoint16(dxy.x, dxy.y, 0));
+	} else {
+		/* Exit of current tile is at the bottom. */
+		v_top = _world.GetVoxel(this->build_pos + XYZPoint16(dxy.x, dxy.y, 0));
+		v_bot = (this->build_pos.z == 0) ? nullptr : _world.GetVoxel(this->build_pos + XYZPoint16(dxy.x, dxy.y, -1));
+	}
+
+	/* Try to find a voxel with a path. */
+	if (v_top != nullptr && HasValidPath(v_top)) {
+		this->build_pos.x += dxy.x;
+		this->build_pos.y += dxy.y;
+		if (move_up) this->build_pos.z++;
+		return true;
+	}
+	if (v_bot != nullptr && HasValidPath(v_bot)) {
+		this->build_pos.x += dxy.x;
+		this->build_pos.y += dxy.y;
+		if (!move_up) this->build_pos.z--;
+		return true;
+	}
+
+	/* Try to find a voxel with surface. */
+	if (v_top != nullptr && v_top->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_top->GetGroundSlope())) {
+		this->build_pos.x += dxy.x;
+		this->build_pos.y += dxy.y;
+		if (move_up) this->build_pos.z++;
+		return true;
+	}
+	if (v_bot != nullptr && v_bot->GetGroundType() != GTP_INVALID && !IsImplodedSteepSlope(v_bot->GetGroundSlope())) {
+		this->build_pos.x += dxy.x;
+		this->build_pos.y += dxy.y;
+		if (!move_up) this->build_pos.z--;
+		return true;
+	}
+	return false;
 }
 
 void PathBuildGui::OnChange(ChangeCode code, uint32 parameter)
 {
 	switch (code) {
-		case CHG_UPDATE_BUTTONS:
 		case CHG_VIEWPORT_ROTATED:
 			this->SetButtons();
 			break;

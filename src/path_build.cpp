@@ -25,11 +25,11 @@ PathBuildManager _path_builder; ///< %Path build manager.
  */
 static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uint8 path_spr)
 {
-	VoxelStack *avs = _additions.GetModifyStack(voxel_pos.x, voxel_pos.y);
+	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, true);
 	av->SetInstance(SRI_PATH);
-	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, _sprite_manager.GetPathStatus(path_type));
+	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 	av = avs->GetCreate(voxel_pos.z + 1, true);
@@ -55,12 +55,12 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
  */
 static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
 {
-	VoxelStack *avs = _additions.GetModifyStack(voxel_pos.x, voxel_pos.y);
+	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, false);
 	av->SetInstance(SRI_FREE);
 	av->SetInstanceData(0);
-	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, PAS_UNUSED);
+	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, PAS_UNUSED);
 	MarkVoxelDirty(voxel_pos);
 
 	av = avs->GetCreate(voxel_pos.z + 1, false);
@@ -82,16 +82,16 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
  */
 static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uint8 path_spr)
 {
-	VoxelStack *avs = _additions.GetModifyStack(voxel_pos.x, voxel_pos.y);
+	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, false);
-	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, PAS_UNUSED);
+	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, PAS_UNUSED);
 
 	/* Reset flat path to one without edges or corners. */
 	if (path_spr < PATH_FLAT_COUNT)
 		path_spr = PATH_EMPTY;
 
-	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, true, _sprite_manager.GetPathStatus(path_type));
+	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 	MarkVoxelDirty(voxel_pos);
@@ -133,7 +133,7 @@ bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge)
  * @param test_only Only test whether it could be created.
  * @return Whether the path is or could be built.
  */
-static bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only)
+bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
@@ -174,7 +174,7 @@ static bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType
  * @param test_only Only test whether it could be created.
  * @return Whether the path is or could be built.
  */
-static bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only)
+bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
@@ -210,7 +210,7 @@ static bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool 
  * @param test_only Only test whether it could be created.
  * @return Whether the path is or could be built.
  */
-static bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, bool test_only)
+bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
@@ -253,7 +253,7 @@ static bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path
  * @param test_only Only test whether it could be removed.
  * @return Whether the path is or could be removed.
  */
-static bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only)
+bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
@@ -285,7 +285,7 @@ static bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only)
  * @param test_only Only test whether it could be changed.
  * @return Whether the path's type could be changed.
  */
-static bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only)
+bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only)
 {
 	const VoxelStack *vs = _world.GetStack(voxel_pos.x, voxel_pos.y);
 	const Voxel *v = vs->Get(voxel_pos.z);
@@ -310,7 +310,7 @@ static bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool tes
  * @param edge Entry edge.
  * @return Bit-set of track slopes, indicating the directions of building paths.
  */
-static uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge)
+uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge)
 {
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return 0;
 	if (voxel_pos.z < 0 || voxel_pos.z >= WORLD_Z_SIZE - 1) return 0;
@@ -345,7 +345,7 @@ static uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge)
  * @return Attach points for paths starting from the given voxel coordinates.
  *         Upper 4 bits are the edges at the top of the voxel, lower 4 bits are the attach points for the bottom of the voxel.
  */
-static uint8 GetPathAttachPoints(const XYZPoint16 &voxel_pos)
+uint8 GetPathAttachPoints(const XYZPoint16 &voxel_pos)
 {
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return 0;
 	if (voxel_pos.z >= WORLD_Z_SIZE - 1) return 0; // The voxel containing the flat path, and one above it.
