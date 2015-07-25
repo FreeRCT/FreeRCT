@@ -53,7 +53,6 @@ enum PathBuildWidgets {
 	PATH_GUI_NW_DIRECTION, ///< Build arrow in NW direction.
 	PATH_GUI_FORWARD,      ///< Move the arrow a path tile forward.
 	PATH_GUI_BACKWARD,     ///< Move the arrow a path tile backward.
-	PATH_GUI_LONG,         ///< Build a long path.
 	PATH_GUI_BUY,          ///< Buy a path tile.
 	PATH_GUI_REMOVE,       ///< Remove a path tile.
 	PATH_GUI_NORMAL_PATH0, ///< Button to select #PAT_WOOD type normal paths.
@@ -113,11 +112,10 @@ static const WidgetPart _path_build_gui_parts[] = {
 								SetData(GUI_PATH_GUI_FORWARD, GUI_PATH_GUI_FORWARD_TIP),
 						Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BACKWARD, COL_RANGE_GREY),
 								SetData(GUI_PATH_GUI_BACKWARD, GUI_PATH_GUI_BACKWARD_TIP),
-				Intermediate(1, 7), SetPadding(5, 5, 5, 5), SetHorPIP(0, 2, 0),
+				Intermediate(1, 6), SetPadding(5, 5, 5, 5), SetHorPIP(0, 2, 0),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_LONG,       COL_RANGE_GREY),    SetData(GUI_PATH_GUI_LONG, GUI_PATH_GUI_LONG_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
-					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BUY,    COL_RANGE_GREY),    SetData(GUI_PATH_GUI_BUY, GUI_PATH_GUI_BUY_TIP),
+					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BUY,    COL_RANGE_GREEN),   SetData(GUI_PATH_GUI_BUY, GUI_PATH_GUI_BUY_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
 					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_REMOVE, COL_RANGE_GREY),    SetData(GUI_PATH_GUI_REMOVE, GUI_PATH_GUI_BULLDOZER_TIP),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
@@ -277,10 +275,6 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 			_path_builder.SelectMovement(number == PATH_GUI_FORWARD);
 			break;
 
-		case PATH_GUI_LONG:
-			_path_builder.SelectLong();
-			break;
-
 		case PATH_GUI_REMOVE:
 		case PATH_GUI_BUY:
 			_path_builder.SelectBuyRemove(number == PATH_GUI_BUY);
@@ -350,9 +344,8 @@ void PathBuildGui::SetButtons()
 	this->SetWidgetShaded(PATH_GUI_REMOVE,   !_path_builder.GetRemoveIsEnabled());
 	this->SetWidgetShaded(PATH_GUI_FORWARD,  !_path_builder.GetForwardIsEnabled());
 	this->SetWidgetShaded(PATH_GUI_BACKWARD, !_path_builder.GetBackwardIsEnabled());
-	this->SetWidgetShaded(PATH_GUI_LONG,     !_path_builder.GetLongButtonIsEnabled());
-	this->SetWidgetPressed(PATH_GUI_LONG,     _path_builder.GetLongButtonIsPressed());
 
+	/* Path type selection buttons. */
 	for (int i = 0; i < PAT_COUNT; i++) {
 		if (this->normal_path_types[i]) {
 			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, false);
@@ -368,6 +361,7 @@ void PathBuildGui::SetButtons()
 		}
 	}
 
+	/* Path mode selection. */
 	this->SetWidgetPressed(PATH_GUI_SINGLE,      _path_builder.GetState() == PBS_SINGLE);
 	this->SetWidgetPressed(PATH_GUI_DIRECTIONAL, _path_builder.GetState() != PBS_SINGLE);
 }
