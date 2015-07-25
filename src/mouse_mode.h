@@ -374,7 +374,18 @@ public:
 	 */
 	TileData &GetTileData(const XYZPoint16 &pos)
 	{
-		uint32 index = this->GetTileIndex(pos.x, pos.y);
+		return GetTileData(pos.x, pos.y);
+	}
+
+	/**
+	 * Get the tile data at the given position.
+	 * @param xpos Horizontal coordinate of the position to get.
+	 * @param ypos Vertical coordinate of the position to get.
+	 * @return Reference of the tile data.
+	 */
+	TileData &GetTileData(int16 xpos, int16 ypos)
+	{
+		uint32 index = this->GetTileIndex(xpos, ypos);
 		assert(index != INVALID_TILE_INDEX);
 		return this->tile_data[index];
 	}
