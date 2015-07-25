@@ -22,7 +22,6 @@
 #include "gamecontrol.h"
 
 GameControl _game_control; ///< Game controller.
-void InitMouseModes();
 
 /**
  * Error handling for fatal non-user errors.
@@ -124,8 +123,6 @@ int freerct_main(int argc, char **argv)
 		fprintf(stderr, "Failed to initialize window or the font (%s), aborting\n", err.c_str());
 		return 1;
 	}
-
-	InitMouseModes();
 
 	/// \todo Allow for loading directly from a saved game.
 	_game_control.Initialize();

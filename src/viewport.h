@@ -23,8 +23,6 @@ class RideInstance;
  */
 enum ViewportMouseMode {
 	MM_INACTIVE,       ///< Inactive mode.
-	MM_PATH_BUILDING,  ///< Construct paths.
-
 	MM_COUNT,          ///< Number of mouse modes.
 };
 
