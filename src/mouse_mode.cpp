@@ -29,7 +29,7 @@ MouseModeSelector::~MouseModeSelector()
 
 /**
  * \fn MouseModeSelector::MarkDirty()
- *  Mark all voxels changed by the selector as dirty, so they get redrawn.
+ * Mark all voxels changed by the selector as dirty, so they get redrawn.
  */
 
 /**

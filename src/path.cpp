@@ -212,6 +212,28 @@ const uint8 _path_rotation[PATH_COUNT][4] = {
 };
 
 /**
+ * Find interesting edges that can be an exit for a path.
+ * @param slope Current path at the voxel.
+ * @param use_path_connections Use the connections' of the path itself (else connect in all directions).
+ * @return Exits for a path in the queried voxel. Lower 4 bits are exits at the bottom; upper 4 bits are exits at the top.
+ */
+uint8 GetPathExits(PathSprites slope, bool use_path_connections)
+{
+	if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
+		if (use_path_connections) return (_path_expand[slope] >> PATHBIT_NE) & 0xF;
+		return 0xF;
+	}
+
+	switch (slope) {
+		case PATH_RAMP_NE: return (1 << EDGE_NE) | (0x10 << EDGE_SW);
+		case PATH_RAMP_NW: return (1 << EDGE_NW) | (0x10 << EDGE_SE);
+		case PATH_RAMP_SE: return (1 << EDGE_SE) | (0x10 << EDGE_NW);
+		case PATH_RAMP_SW: return (1 << EDGE_SW) | (0x10 << EDGE_NE);
+		default: NOT_REACHED();
+	}
+}
+
+/**
  * Find all edges that are an exit for a path in the given voxel. No investigation is performed whether the exits connect to anything.
  * @param v %Voxel to investigate.
  * @return Exits for a path in the queried voxel. Lower 4 bits are exits at the bottom; upper 4 bits are exits at the top.
@@ -223,18 +245,7 @@ uint8 GetPathExits(const Voxel *v)
 	uint16 inst_data = v->GetInstanceData();
 	if (!HasValidPath(inst_data)) return 0;
 
-	PathSprites slope = GetImplodedPathSlope(inst_data);
-	if (slope < PATH_FLAT_COUNT) { // At a flat path tile.
-		return (_path_expand[slope] >> PATHBIT_NE) & 0xF;
-	}
-
-	switch (slope) {
-		case PATH_RAMP_NE: return (1 << EDGE_NE) | (0x10 << EDGE_SW);
-		case PATH_RAMP_NW: return (1 << EDGE_NW) | (0x10 << EDGE_SE);
-		case PATH_RAMP_SE: return (1 << EDGE_SE) | (0x10 << EDGE_NW);
-		case PATH_RAMP_SW: return (1 << EDGE_SW) | (0x10 << EDGE_NE);
-		default: NOT_REACHED();
-	}
+	return GetPathExits(GetImplodedPathSlope(inst_data), true);
 }
 
 /**

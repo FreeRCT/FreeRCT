@@ -13,7 +13,6 @@
  */
 
 #include "stdafx.h"
-#include "math_func.h"
 #include "viewport.h"
 #include "map.h"
 #include "mouse_mode.h"
@@ -21,9 +20,7 @@
 #include "palette.h"
 #include "sprite_store.h"
 #include "sprite_data.h"
-#include "path_build.h"
 #include "shop_type.h"
-#include "terraform.h"
 #include "person.h"
 #include "weather.h"
 #include "fence.h"
@@ -1596,10 +1593,4 @@ void ShowMainDisplay(const XYZPoint32 &view_pos)
 {
 	new Viewport(view_pos);
 	_mouse_modes.SetViewportMousemode();
-}
-
-/** Initialize the mouse modes. */
-void InitMouseModes()
-{
-	_mouse_modes.RegisterMode(&_path_builder);
 }
