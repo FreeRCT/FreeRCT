@@ -115,7 +115,7 @@ static inline int32 ComputeYFunction(int32 x, int32 y, int32 z, ViewOrientation 
  */
 class VoxelCollector {
 public:
-	VoxelCollector(Viewport *vp, bool draw_above_stack);
+	VoxelCollector(Viewport *vp);
 	virtual ~VoxelCollector();
 
 	void SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height);
@@ -153,7 +153,6 @@ public:
 	const SpriteStorage *sprites; ///< Sprite collection of the right size.
 	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c nullptr.
 	MouseModeSelector *selector;  ///< Mouse mode selector.
-	bool draw_above_stack;        ///< Also draw voxels above the voxel stack (for cursors).
 	bool underground_mode;        ///< Whether to draw underground mode sprites (else draw normal surface sprites).
 
 	Rectangle32 rect; ///< Screen area of interest.
@@ -241,7 +240,7 @@ typedef std::multiset<DrawData> DrawImages;
  */
 class SpriteCollector : public VoxelCollector {
 public:
-	SpriteCollector(Viewport *vp, bool enable_cursors);
+	SpriteCollector(Viewport *vp);
 	~SpriteCollector();
 
 	void SetXYOffset(int16 xoffset, int16 yoffset);
@@ -249,12 +248,10 @@ public:
 	DrawImages draw_images; ///< Sprites to draw ordered by viewing distance.
 	int16 xoffset; ///< Horizontal offset of the top-left coordinate to the top-left of the display.
 	int16 yoffset; ///< Vertical offset of the top-left coordinate to the top-left of the display.
-	bool enable_cursors; ///< Enable cursor drawing.
 
 protected:
 	void CollectVoxel(const Voxel *vx, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth) override;
 	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
-	CursorType GetCursorType(const XYZPoint16 &voxel_pos);
 	const ImageData *GetCursorSpriteAtPos(CursorType ctype, const XYZPoint16 &voxel_pos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
@@ -286,10 +283,9 @@ protected:
 /**
  * Base class constructor.
  * @param vp %Viewport querying the voxel information.
- * @param draw_above_stack Also visit the cursors above a voxel stack.
  * @todo Can we remove some variables, as \a vp is stored now as well?
  */
-VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
+VoxelCollector::VoxelCollector(Viewport *vp)
 {
 	this->vp = vp;
 	this->selector = nullptr;
@@ -297,7 +293,6 @@ VoxelCollector::VoxelCollector(Viewport *vp, bool draw_above_stack)
 	this->tile_width = vp->tile_width;
 	this->tile_height = vp->tile_height;
 	this->orient = vp->orientation;
-	this->draw_above_stack = draw_above_stack;
 	this->underground_mode = vp->underground_mode;
 
 	this->sprites = _sprite_manager.GetSprites(this->tile_width);
@@ -362,10 +357,6 @@ void VoxelCollector::Collect()
 					top = std::max(top, (range >> 16));
 				}
 			}
-			if (this->draw_above_stack) { // Possibly add cursor on top.
-				top = std::max(top, static_cast<uint>(this->vp->GetMaxCursorHeight(xpos, ypos, (top == 0) ? top : top - 1)));
-			}
-
 			this->SetupSupports(stack, xpos, ypos);
 
 			for (; zpos <= top; zpos++) {
@@ -384,14 +375,12 @@ void VoxelCollector::Collect()
 /**
  * Constructor of sprites collector.
  * @param vp %Viewport that needs the sprites.
- * @param enable_cursors Also collect cursors.
  */
-SpriteCollector::SpriteCollector(Viewport *vp, bool enable_cursors) : VoxelCollector(vp, true)
+SpriteCollector::SpriteCollector(Viewport *vp) : VoxelCollector(vp)
 {
 	this->draw_images.clear();
 	this->xoffset = 0;
 	this->yoffset = 0;
-	this->enable_cursors = enable_cursors;
 
 	this->north_offsets[VOR_NORTH].x = 0;                     this->north_offsets[VOR_NORTH].y = 0;
 	this->north_offsets[VOR_EAST].x  = -this->tile_width / 2; this->north_offsets[VOR_EAST].y  = this->tile_width / 4;
@@ -412,113 +401,6 @@ void SpriteCollector::SetXYOffset(int16 xoffset, int16 yoffset)
 {
 	this->xoffset = xoffset;
 	this->yoffset = yoffset;
-}
-
-/**
- * Constructor of a cursor.
- * @param vp %Viewport displaying the cursor.
- */
-BaseCursor::BaseCursor(Viewport *vp)
-{
-	this->vp = vp;
-	this->type = CUR_TYPE_INVALID;
-}
-
-BaseCursor::~BaseCursor()
-{
-}
-
-/** Mark the cursor as being invalid, and update the viewport if necessary. */
-void BaseCursor::SetInvalid()
-{
-	this->MarkDirty();
-	this->type = CUR_TYPE_INVALID;
-}
-
-/**
- * Constructor of a cursor.
- * @param vp %Viewport displaying the cursor.
- */
-Cursor::Cursor(Viewport *vp) : BaseCursor(vp)
-{
-	this->cursor_pos = XYZPoint16(0, 0, 0);
-}
-
-void Cursor::MarkDirty()
-{
-	if (this->type != CUR_TYPE_INVALID) this->vp->MarkVoxelDirty(this->cursor_pos);
-}
-
-/**
- * Get a cursor.
- * @param cursor_pos Expected coordinate of the cursor.
- * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
- */
-CursorType Cursor::GetCursor(const XYZPoint16 &cursor_pos)
-{
-	if (this->cursor_pos != cursor_pos) return CUR_TYPE_INVALID;
-	return this->type;
-}
-
-uint8 Cursor::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
-{
-	if (this->type == CUR_TYPE_INVALID) return zpos;
-	if (this->cursor_pos.x != xpos || this->cursor_pos.y != ypos || zpos >= this->cursor_pos.z) return zpos;
-	return this->cursor_pos.z;
-}
-
-/**
- * Set a cursor.
- * @param cursor_pos Position of the voxel containing the cursor.
- * @param type Type of cursor to set.
- * @param always Always set the cursor (else, only set it if it changed).
- * @return %Cursor has been set/changed.
- */
-bool Cursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always)
-{
-	if (!always && this->cursor_pos == cursor_pos && this->type == type) return false;
-	this->MarkDirty();
-	this->cursor_pos = cursor_pos;
-	this->type = type;
-	this->MarkDirty();
-	return true;
-}
-
-/**
- * Get the cursor type at a given position.
- * @param voxel_pos Position of the voxel being drawn.
- * @return %Cursor type at the position (\c CUR_TYPE_INVALID means no cursor available).
- */
-CursorType Viewport::GetCursorAtPos(const XYZPoint16 &voxel_pos)
-{
-	return this->tile_cursor.GetCursor(voxel_pos);
-}
-
-/**
- * Get the highest voxel that should be examined in a voxel stack (since cursors may be placed above all voxels).
- * @param xpos X position of the voxel stack.
- * @param ypos Y position of the voxel stack.
- * @param zpos Z position of the top voxel.
- * @return Highest voxel to draw.
- */
-uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
-{
-	zpos = this->tile_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
-	assert(zpos != 255);
-	return zpos;
-}
-
-/**
- * Get the cursor type at the given voxel.
- * @param voxel_pos Position of the voxel.
- * @return Type of the cursor to display.
- */
-CursorType SpriteCollector::GetCursorType(const XYZPoint16 &voxel_pos)
-{
-	if (!this->enable_cursors) return CUR_TYPE_INVALID;
-	CursorType ctype = this->vp->GetCursorAtPos(voxel_pos);
-	if (ctype == CUR_TYPE_INVALID && this->selector != nullptr) ctype = this->selector->GetCursor(voxel_pos);
-	return ctype;
 }
 
 /**
@@ -622,18 +504,6 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	Point32 north_point(this->xoffset + xnorth - this->rect.base.x, this->yoffset + ynorth - this->rect.base.y);
-
-	if (voxel == nullptr) { // Draw cursor above stack.
-		CursorType ctype = this->GetCursorType(voxel_pos);
-		if (ctype != CUR_TYPE_INVALID) {
-			const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, SL_FLAT);
-			if (mspr != nullptr) {
-				DrawData dd;
-				dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, north_point);
-				this->draw_images.insert(dd);
-			}
-		}
-	}
 
 	uint8 platform_shape = PATH_INVALID;
 	SmallRideInstance sri = (voxel == nullptr) ? SRI_FREE : voxel->GetInstance();
@@ -740,15 +610,17 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		}
 	}
 
-	/* Sprite cursor (arrow) */
-	CursorType ctype = this->GetCursorType(voxel_pos);
-	if (ctype != CUR_TYPE_INVALID) {
-		const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, gslope);
-		if (mspr != nullptr) {
-			DrawData dd;
-			dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, north_point);
-			if (ctype >= CUR_TYPE_EDGE_NE && ctype <= CUR_TYPE_EDGE_NW && IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
-			this->draw_images.insert(dd);
+	/* Sprite cursor. */
+	if (this->selector != nullptr) {
+		CursorType ctype = this->selector->GetCursor(voxel_pos);
+		if (ctype != CUR_TYPE_INVALID) {
+			const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, gslope);
+			if (mspr != nullptr) {
+				DrawData dd;
+				dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, north_point);
+				if (ctype >= CUR_TYPE_EDGE_NE && ctype <= CUR_TYPE_EDGE_NW && IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
+				this->draw_images.insert(dd);
+			}
 		}
 	}
 
@@ -848,7 +720,7 @@ FinderData::FinderData(ClickableSprite allowed, GroundTilePart select)
  * @param vp %Viewport that needs the tile position.
  * @param fdata Finder data.
  */
-PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp, false)
+PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp)
 {
 	this->allowed = fdata->allowed;
 	this->found = false;
@@ -978,7 +850,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
  * %Viewport constructor.
  * @param view_pos Pixel position of the center viewpoint of the main display.
  */
-Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE), tile_cursor(this), arrow_cursor(this)
+Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE)
 {
 	this->view_pos = view_pos;
 	this->tile_width  = 64;
@@ -1058,7 +930,7 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 
 void Viewport::OnDraw(MouseModeSelector *selector)
 {
-	SpriteCollector collector(this, (selector != nullptr) || _mouse_modes.current->EnableCursors());
+	SpriteCollector collector(this);
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.SetSelector(selector);
 	collector.Collect();

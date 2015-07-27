@@ -89,57 +89,6 @@ public:
 };
 
 /**
- * Base class of a viewport cursor.
- * @ingroup viewport_group
- */
-class BaseCursor {
-public:
-	BaseCursor(Viewport *vp);
-	virtual ~BaseCursor();
-
-	Viewport *vp;    ///< Parent viewport object.
-	CursorType type; ///< Type of cursor.
-
-	/** Update the cursor at the screen. */
-	virtual void MarkDirty() = 0;
-
-	/**
-	 * Get a cursor.
-	 * @param cursor_pos Expected coordinate of the cursor.
-	 * @return The cursor sprite if the cursor exists and the coordinates are correct, else \c nullptr.
-	 */
-	virtual CursorType GetCursor(const XYZPoint16 &cursor_pos) = 0;
-
-	/**
-	 * Get the maximum height of the \a xpos, \a ypos stack that needs to be examined.
-	 * @param xpos X position of the voxel.
-	 * @param ypos Y position of the voxel.
-	 * @param zpos Top of the stack found so far.
-	 * @return Highest voxel to draw for this cursor.
-	 */
-	virtual uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) = 0;
-
-	void SetInvalid();
-};
-
-/**
- * Single tile cursor.
- * @ingroup viewport_group
- */
-class Cursor : public BaseCursor {
-public:
-	Cursor(Viewport *vp);
-
-	XYZPoint16 cursor_pos; ///< %Voxel position of the cursor.
-
-	bool SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool always = false);
-
-	void MarkDirty() override;
-	CursorType GetCursor(const XYZPoint16 &cursor_pos) override;
-	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos) override;
-};
-
-/**
  * Class for displaying parts of the world.
  * @ingroup viewport_group
  */
@@ -155,7 +104,6 @@ public:
 	void MoveViewport(int dx, int dy);
 
 	ClickableSprite ComputeCursorPosition(FinderData *fdata);
-	CursorType GetCursorAtPos(const XYZPoint16 &voxel_pos);
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 
 	Point32 ComputeHorizontalTranslation(int dx, int dy);
@@ -170,8 +118,6 @@ public:
 	uint16 tile_width;           ///< Width of a tile.
 	uint16 tile_height;          ///< Height of a tile.
 	ViewOrientation orientation; ///< Direction of view.
-	Cursor tile_cursor;          ///< Cursor for selecting a tile (or tile corner).
-	Cursor arrow_cursor;         ///< Cursor for showing the path/track build direction.
 	Point16 mouse_pos;           ///< Last known position of the mouse.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
