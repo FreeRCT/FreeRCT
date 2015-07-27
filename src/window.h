@@ -410,6 +410,15 @@ public:
 		return this->mouse_state;
 	}
 
+	/**
+	 * Retrieve the main world diaplay window.
+	 * @return The main display window, or \c nullptr if not available.
+	 */
+	inline Viewport *GetViewport() const
+	{
+		return this->viewport;
+	}
+
 	void UpdateWindows();
 
 	Window *top;    ///< Top-most window in the window stack.
@@ -426,6 +435,7 @@ private:
 	Window *current_window;   ///< 'Current' window under the mouse.
 	GuiWindow *select_window; ///< Cache containing the highest window with active GuiWindow::selector field
 	                          ///< (\c nullptr if no such window exists). Only valid if #select_valid holds.
+	Viewport *viewport;       ///< Viewport window (\c nullptr if not available).
 	bool select_valid;        ///< State of the #select_window cache.
 	uint8 mouse_state;        ///< Last reported mouse button state (lower 4 bits).
 	uint8 mouse_mode;         ///< Mouse mode of the window manager. @see WmMouseModes

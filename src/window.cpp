@@ -702,7 +702,7 @@ void WindowManager::ResetAllWindows()
  */
 void WindowManager::RepositionAllWindows()
 {
-	Viewport *vp = GetViewport();
+	Viewport *vp = this->GetViewport(); /// \todo This is weird, shouldn't the display tell the size to the window manager?
 	if (vp == nullptr) return;
 	Rectangle32 vp_rect = vp->rect;
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
@@ -743,6 +743,11 @@ void WindowManager::AddToStack(Window *w)
 	assert(w->lower == nullptr && w->higher == nullptr);
 	assert(!this->HasWindow(w));
 
+	if (w->wtype == WC_MAINDISPLAY) { // Add the main world display as viewport.
+		assert(this->viewport == nullptr);
+		this->viewport = static_cast<Viewport *>(w);
+	}
+
 	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
 	this->select_valid = false;
 
@@ -777,6 +782,8 @@ void WindowManager::AddToStack(Window *w)
 void WindowManager::RemoveFromStack(Window *w)
 {
 	assert(this->HasWindow(w));
+
+	if (w == this->viewport) this->viewport = nullptr;
 
 	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
 	this->select_valid = false;

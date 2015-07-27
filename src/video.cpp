@@ -260,7 +260,7 @@ bool VideoSystem::SetResolution(const Point32 &res)
 
 	/* Update internal screen size data structures. */
 	this->blit_rect = ClippedRectangle(0, 0, this->vid_width, this->vid_height);
-	Viewport *vp = GetViewport();
+	Viewport *vp = _window_manager.GetViewport();
 	if (vp != nullptr) vp->SetSize(this->vid_width, this->vid_height);
 	_window_manager.RepositionAllWindows();
 	this->MarkDisplayDirty();
@@ -343,12 +343,12 @@ static bool HandleKeyInput(WmKeyCode key_code, const uint8 *symbol)
 	if (_window_manager.KeyEvent(key_code, symbol)) return false;
 
 	if (key_code == WMKC_CURSOR_LEFT) {
-		GetViewport()->Rotate(-1);
+		_window_manager.GetViewport()->Rotate(-1);
 	} else if (key_code == WMKC_CURSOR_RIGHT) {
-		GetViewport()->Rotate(1);
+		_window_manager.GetViewport()->Rotate(1);
 	} else if (key_code == WMKC_SYMBOL) {
 		if (symbol[0] == '1') {
-			GetViewport()->ToggleUndergroundMode();
+			_window_manager.GetViewport()->ToggleUndergroundMode();
 		} else if (symbol[0] == 'q') {
 			_game_control.QuitGame();
 			return true;

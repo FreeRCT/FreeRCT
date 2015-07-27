@@ -197,8 +197,6 @@ private:
 
 extern MouseModes _mouse_modes;
 
-Viewport *GetViewport();
-
 void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
 
 #endif

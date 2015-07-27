@@ -1268,23 +1268,13 @@ void MouseModes::RegisterMode(MouseMode *mm)
 }
 
 /**
- * Get the address of the viewport window.
- * @return Address of the viewport.
- * @note Function may return \c nullptr.
- */
-Viewport *GetViewport()
-{
-	return _mouse_modes.main_display;
-}
-
-/**
  * Mark a voxel as in need of getting painted.
  * @param voxel_pos Position of the voxel.
  * @param height Number of voxels to mark above the specified coordinate (\c 0 means inspect the voxel itself).
  */
 void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 {
-	Viewport *vp = GetViewport();
+	Viewport *vp = _window_manager.GetViewport();
 	if (vp != nullptr) vp->MarkVoxelDirty(voxel_pos, height);
 }
 
@@ -1368,5 +1358,4 @@ ViewportMouseMode MouseModes::GetMouseMode()
 void ShowMainDisplay(const XYZPoint32 &view_pos)
 {
 	new Viewport(view_pos);
-	_mouse_modes.SetViewportMousemode();
 }
