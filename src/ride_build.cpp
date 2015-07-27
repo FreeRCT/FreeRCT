@@ -306,7 +306,7 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 	v->SetInstanceData(entrances);
 
 	_rides_manager.NewInstanceAdded(inst_number);
-	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, entrances, false, PAS_QUEUE_PATH);
+	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
 
 	this->instance = nullptr; // Delete this window, and
 	si = nullptr; // (Also clean the copy of the pointer.)

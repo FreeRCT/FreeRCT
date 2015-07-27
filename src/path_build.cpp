@@ -29,7 +29,7 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, true);
 	av->SetInstance(SRI_PATH);
-	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, _sprite_manager.GetPathStatus(path_type));
+	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 	av = avs->GetCreate(voxel_pos.z + 1, true);
@@ -60,7 +60,7 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
 	Voxel *av = avs->GetCreate(voxel_pos.z, false);
 	av->SetInstance(SRI_FREE);
 	av->SetInstanceData(0);
-	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, PAS_UNUSED);
+	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, PAS_UNUSED);
 	MarkVoxelDirty(voxel_pos);
 
 	av = avs->GetCreate(voxel_pos.z + 1, false);
@@ -85,13 +85,13 @@ static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, ui
 	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, false);
-	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, PAS_UNUSED);
+	AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, PAS_UNUSED);
 
 	/* Reset flat path to one without edges or corners. */
 	if (path_spr < PATH_FLAT_COUNT)
 		path_spr = PATH_EMPTY;
 
-	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, false, _sprite_manager.GetPathStatus(path_type));
+	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 	MarkVoxelDirty(voxel_pos);

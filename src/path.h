@@ -132,6 +132,6 @@ bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry);
 bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge);
 
 uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect);
-uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, bool use_additions, PathStatus status);
+uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, PathStatus status);
 
 #endif
