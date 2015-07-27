@@ -54,8 +54,6 @@
  * #SRI_SAME_AS_SOUTH ride instance numbers for the other corners.
  */
 
-static const int ADDITIONS_TIMEOUT_LENGTH = 15; ///< Length of the time interval of displaying or not displaying world additions.
-
 /**
  * Convert 3D position to the horizontal 2D position.
  * @param x X position in the game world.
