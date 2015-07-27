@@ -54,19 +54,6 @@
  * #SRI_SAME_AS_SOUTH ride instance numbers for the other corners.
  */
 
-/**
- * \page mouse_modes_page Mouse modes
- *
- * Mouse modes are the means to introduce new ways of handling the mouse.
- * #MouseModes is the overall mouse mode manager (through #_mouse_modes) that contains all mouse modes, and manages switching
- * between them.
- *
- * A single mouse mode is a class derived from #MouseMode. It should have an entry in #ViewportMouseMode, and implement the
- * interface defined in #MouseMode. An object should statically be available, and get registered in #InitMouseModes.
- */
-
-MouseModes _mouse_modes; ///< Mouse modes in the game.
-
 static const int ADDITIONS_TIMEOUT_LENGTH = 15; ///< Length of the time interval of displaying or not displaying world additions.
 
 /**
@@ -857,8 +844,6 @@ Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WIND
 	this->tile_height = 16;
 	this->orientation = VOR_NORTH;
 
-	_mouse_modes.main_display = this;
-
 	this->mouse_pos.x = 0;
 	this->mouse_pos.y = 0;
 	this->underground_mode = false;
@@ -873,7 +858,6 @@ Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WIND
 
 Viewport::~Viewport()
 {
-	_mouse_modes.main_display = nullptr;
 }
 
 /**
@@ -1136,10 +1120,7 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 	/* Intercept RMB drag for moving the viewport. */
 	if ((_window_manager.GetMouseState() & MB_RIGHT) != 0) {
 		this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
-		return;
 	}
-
-	_mouse_modes.current->OnMouseMoveEvent(this, old_mouse_pos, pos);
 }
 
 WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
@@ -1175,96 +1156,12 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 		}
 
 	}
-
-	_mouse_modes.current->OnMouseButtonEvent(this, state);
 	return WMME_NONE;
 }
 
 void Viewport::OnMouseWheelEvent(int direction)
 {
-	if (_window_manager.SelectorMouseWheelEvent(direction)) return;
-	_mouse_modes.current->OnMouseWheelEvent(this, direction);
-}
-
-/**
- * Constructor of a mouse mode.
- * @param p_wtype Window associated with the mouse mode (use #WC_NONE if no window).
- * @param p_mode Mouse mode implemented by the object.
- */
-MouseMode::MouseMode(WindowTypes p_wtype, ViewportMouseMode p_mode) : wtype(p_wtype), mode(p_mode)
-{
-}
-
-MouseMode::~MouseMode()
-{
-}
-
-/**
- * The mouse moved while in this mouse mode.
- * @param vp %Viewport object.
- * @param old_pos Previous position.
- * @param pos Current position.
- */
-void MouseMode::OnMouseMoveEvent(Viewport *vp, const Point16 &old_pos, const Point16 &pos)
-{
-}
-
-/**
- * A mouse click was detected.
- * @param vp %Viewport object.
- * @param state State of the mouse buttons. @see MouseButtons
- */
-void MouseMode::OnMouseButtonEvent(Viewport *vp, uint8 state)
-{
-}
-
-/**
- * A mouse wheelie event has been detected.
- * @param vp %Viewport object.
- * @param direction Direction of movement.
- */
-void MouseMode::OnMouseWheelEvent(Viewport *vp, int direction)
-{
-}
-
-DefaultMouseMode::DefaultMouseMode() : MouseMode(WC_NONE, MM_INACTIVE)
-{
-}
-
-bool DefaultMouseMode::MayActivateMode()
-{
-	return true;
-}
-
-void DefaultMouseMode::ActivateMode(const Point16 &pos)
-{
-}
-
-void DefaultMouseMode::LeaveMode()
-{
-}
-
-bool DefaultMouseMode::EnableCursors()
-{
-	return false;
-}
-
-MouseModes::MouseModes()
-{
-	this->main_display = nullptr;
-	this->current = &default_mode;
-	for (int i = 0; i < MM_COUNT; i++) this->modes[i] = nullptr;
-}
-
-/**
- * Register a mouse mode.
- * @param mm Mouse mode to register.
- */
-void MouseModes::RegisterMode(MouseMode *mm)
-{
-	assert(mm->mode < MM_COUNT);
-	assert(this->modes[mm->mode] == nullptr);
-	this->modes[mm->mode] = mm;
+	_window_manager.SelectorMouseWheelEvent(direction);
 }
 
 /**
@@ -1276,78 +1173,6 @@ void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 {
 	Viewport *vp = _window_manager.GetViewport();
 	if (vp != nullptr) vp->MarkVoxelDirty(voxel_pos, height);
-}
-
-/**
- * Decide the most appropriate mouse mode of the viewport, depending on available windows.
- * @todo Perhaps force a redraw/recompute in some way to ensure the right state is displayed?
- * @todo Perhaps switch mode when a window associated with a mode is raised?
- */
-void MouseModes::SetViewportMousemode()
-{
-	if (this->main_display == nullptr) return;
-
-	/* First try all windows from top to bottom. */
-	Window *w = _window_manager.top;
-	while (w != nullptr) {
-		for (uint i = 0; i < lengthof(this->modes); i++) {
-			MouseMode *mm = this->modes[i];
-			if (mm != nullptr && mm->wtype == w->wtype && mm->MayActivateMode()) {
-				this->SwitchMode(mm);
-				return;
-			}
-		}
-		w = w->lower;
-	}
-	/* Try all mouse modes without a window. */
-	for (uint i = 0; i < lengthof(this->modes); i++) {
-		MouseMode *mm = this->modes[i];
-		if (mm != nullptr && mm->wtype == WC_NONE && mm->MayActivateMode()) {
-			this->SwitchMode(mm);
-			return;
-		}
-	}
-	/* Switch to the default mouse mode unconditionally. */
-	this->SwitchMode(&default_mode);
-}
-
-/**
- * Try to switch to a given mouse mode.
- * @param mode Mode to switch to.
- */
-void MouseModes::SetMouseMode(ViewportMouseMode mode)
-{
-	for (uint i = 0; i < lengthof(this->modes); i++) {
-		MouseMode *mm = this->modes[i];
-		if (mm != nullptr && mm->mode == mode) {
-			if (mm->MayActivateMode()) this->SwitchMode(mm);
-			break;
-		}
-	}
-}
-
-/**
- * Switch to a new mouse mode.
- * @param new_mode Mode to switch to.
- * @pre New mode must allow activation of its mode.
- */
-void MouseModes::SwitchMode(MouseMode *new_mode)
-{
-	assert(new_mode->MayActivateMode());
-	if (this->main_display == nullptr || new_mode == this->current) return;
-
-	this->current->LeaveMode();
-	this->current = new_mode;
-	this->current->ActivateMode(this->main_display->mouse_pos);
-}
-
-/**
- * Get the current mouse mode.
- * @return The current mouse mode.
- */
-ViewportMouseMode MouseModes::GetMouseMode()
-{
-	return this->current->mode;
 }
 
 /**
