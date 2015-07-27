@@ -55,20 +55,6 @@
  */
 
 /**
- * \page world_additions_page World additions
- *
- * The #_world (described in \ref the_world_page) contains the 'current' world. The game allows changing of the world
- * (building rides, terraforming, removing shops, etc.) while the game runs. To keep both separate, and make it easy to
- * revert changes when the user changes his mind, changes are not stored in the world itself, but in #_additions
- * (implemented in #WorldAdditions). It is a layer on top of #_world that can be toggled on and off
- * (#EnableWorldAdditions and #DisableWorldAdditions do that).
- * There are also functions to clear the additions, and to copy changes to the world itself (thus making the change a part of
- * the game world).
- *
- * See also \ref mouse_modes_page.
- */
-
-/**
  * \page mouse_modes_page Mouse modes
  *
  * Mouse modes are the means to introduce new ways of handling the mouse.
@@ -79,29 +65,9 @@
  * interface defined in #MouseMode. An object should statically be available, and get registered in #InitMouseModes.
  */
 
-/**
- * Proposed additions to the game world. Not part of the game itself, but they are displayed by calling
- * #EnableWorldAdditions (and stopped being displayed with #DisableWorldAdditions).
- * The additions will flash on and off to show they are not decided yet.
- */
-WorldAdditions _additions;
 MouseModes _mouse_modes; ///< Mouse modes in the game.
 
 static const int ADDITIONS_TIMEOUT_LENGTH = 15; ///< Length of the time interval of displaying or not displaying world additions.
-
-/** Enable flashing display of showing proposed game world additions to the player. */
-void EnableWorldAdditions()
-{
-	Viewport *vp = GetViewport();
-	if (vp != nullptr) vp->EnableWorldAdditions();
-}
-
-/** Disable flashing display of showing proposed game world additions to the player. */
-void DisableWorldAdditions()
-{
-	Viewport *vp = GetViewport();
-	if (vp != nullptr) vp->DisableWorldAdditions();
-}
 
 /**
  * Convert 3D position to the horizontal 2D position.
@@ -154,7 +120,7 @@ public:
 
 	void SetWindowSize(int16 xpos, int16 ypos, uint16 width, uint16 height);
 
-	void Collect(bool use_additions);
+	void Collect();
 	void SetSelector(MouseModeSelector *selector);
 
 	/**
@@ -371,10 +337,9 @@ void VoxelCollector::SetSelector(MouseModeSelector *selector)
  * Perform the collecting cycle.
  * This part walks over the voxels, and call #CollectVoxel for each useful voxel.
  * A derived class may then inspect the voxel in more detail.
- * @param use_additions Use the #_additions voxels for drawing.
  * @todo Do this less stupid. Walking the whole world is not going to work in general.
  */
-void VoxelCollector::Collect(bool use_additions)
+void VoxelCollector::Collect()
 {
 	for (uint xpos = 0; xpos < _world.GetXSize(); xpos++) {
 		int32 world_x = (xpos + ((this->orient == VOR_SOUTH || this->orient == VOR_WEST) ? 1 : 0)) * 256;
@@ -384,7 +349,7 @@ void VoxelCollector::Collect(bool use_additions)
 			if (north_x + this->tile_width / 2 <= (int32)this->rect.base.x) continue; // Right of voxel column is at left of window.
 			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
 
-			const VoxelStack *stack = use_additions ? _additions.GetStack(xpos, ypos) : _world.GetStack(xpos, ypos);
+			const VoxelStack *stack = _world.GetStack(xpos, ypos);
 
 			/* Compute lowest and highest voxel to render. */
 			uint zpos = stack->base;
@@ -414,56 +379,6 @@ void VoxelCollector::Collect(bool use_additions)
 			}
 		}
 	}
-}
-
-/** Enable flashing display of showing proposed game world additions to the player. */
-void Viewport::EnableWorldAdditions()
-{
-	if (this->additions_enabled) return;
-
-	this->additions_enabled = true;
-	this->additions_displayed = true;
-	_additions.MarkDirty(this);
-	this->arrow_cursor.MarkDirty();
-	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
-}
-
-/** Disable flashing display of showing proposed game world additions to the player. */
-void Viewport::DisableWorldAdditions()
-{
-	this->additions_enabled = false;
-	if (this->additions_displayed) {
-		this->additions_displayed = false;
-		_additions.MarkDirty(this);
-		this->arrow_cursor.MarkDirty();
-	}
-	this->timeout = 0;
-}
-
-/**
- * Reset the display state of the world additions, such that they become visible directly.
- * @pre World additions have to be enabled.
- */
-void Viewport::EnsureAdditionsAreVisible()
-{
-	assert(this->additions_enabled);
-	if (!this->additions_displayed) {
-		this->additions_displayed = true;
-		_additions.MarkDirty(this);
-		this->arrow_cursor.MarkDirty();
-	}
-	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
-}
-
-/** Toggle display of world additions (in #_additions) if enabled. */
-void Viewport::TimeoutCallback()
-{
-	if (!this->additions_enabled) return;
-
-	this->additions_displayed = !this->additions_displayed;
-	_additions.MarkDirty(this);
-	this->arrow_cursor.MarkDirty();
-	this->timeout = ADDITIONS_TIMEOUT_LENGTH;
 }
 
 /**
@@ -576,12 +491,6 @@ bool Cursor::SetCursor(const XYZPoint16 &cursor_pos, CursorType type, bool alway
  */
 CursorType Viewport::GetCursorAtPos(const XYZPoint16 &voxel_pos)
 {
-	CursorType ct = CUR_TYPE_INVALID;
-
-	if (this->additions_enabled && !this->additions_displayed) {
-		ct = this->arrow_cursor.GetCursor(voxel_pos);
-		if (ct != CUR_TYPE_INVALID) return ct;
-	}
 	return this->tile_cursor.GetCursor(voxel_pos);
 }
 
@@ -594,9 +503,6 @@ CursorType Viewport::GetCursorAtPos(const XYZPoint16 &voxel_pos)
  */
 uint8 Viewport::GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos)
 {
-	if (this->additions_enabled && !this->additions_displayed) {
-		zpos = this->arrow_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
-	}
 	zpos = this->tile_cursor.GetMaxCursorHeight(xpos, ypos, zpos);
 	assert(zpos != 255);
 	return zpos;
@@ -1083,8 +989,6 @@ Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WIND
 
 	this->mouse_pos.x = 0;
 	this->mouse_pos.y = 0;
-	this->additions_enabled = false;
-	this->additions_displayed = false;
 	this->underground_mode = false;
 
 	uint16 width  = _video.GetXSize();
@@ -1157,7 +1061,7 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	SpriteCollector collector(this, (selector != nullptr) || _mouse_modes.current->EnableCursors());
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.SetSelector(selector);
-	collector.Collect(this->additions_enabled && this->additions_displayed);
+	collector.Collect();
 	static const Recolouring recolour;
 
 	_video.FillRectangle(this->rect, MakeRGBA(0, 0, 0, OPAQUE)); // Black background.
@@ -1248,7 +1152,7 @@ ClickableSprite Viewport::ComputeCursorPosition(FinderData *fdata)
 	int16 yp = this->mouse_pos.y - this->rect.height / 2;
 	PixelFinder collector(this, fdata);
 	collector.SetWindowSize(xp, yp, 1, 1);
-	collector.Collect(false);
+	collector.Collect();
 	if (!collector.found) return CS_NONE;
 
 	fdata->cursor = fdata->select == FW_EDGE ? CUR_TYPE_EDGE_NE : CUR_TYPE_TILE;

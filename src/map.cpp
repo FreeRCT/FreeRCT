@@ -205,21 +205,6 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 }
 
 /**
- * Make a copy of self.
- * @param copyPersons Copy the person list too.
- * @return The copied structure.
- */
-VoxelStack *VoxelStack::Copy(bool copyPersons) const
-{
-	VoxelStack *vs = new VoxelStack;
-	if (this->height > 0) {
-		vs->MakeVoxelStack(this->base, this->height);
-		CopyStackData(vs->voxels, this->voxels, this->height, copyPersons);
-	}
-	return vs;
-}
-
-/**
  * Get a voxel in the world by voxel coordinate.
  * @param z Z coordinate of the voxel.
  * @return Address of the voxel (if it exists or could be created).
@@ -843,75 +828,3 @@ void VoxelWorld::Save(Saver &svr) const
 	}
 }
 
-WorldAdditions::WorldAdditions()
-{
-}
-
-WorldAdditions::~WorldAdditions()
-{
-	this->Clear();
-}
-
-/** Remove all modifications. */
-void WorldAdditions::Clear()
-{
-	for (auto &iter : this->modified_stacks) {
-		delete iter.second;
-	}
-	this->modified_stacks.clear();
-}
-
-/** Move modifications to the 'real' #_world. */
-void WorldAdditions::Commit()
-{
-	for (auto &iter : this->modified_stacks) {
-		Point32 pt = iter.first;
-		_world.MoveStack(pt.x, pt.y, iter.second);
-	}
-	this->Clear();
-}
-
-/**
- * Get a voxel stack with the purpose of modifying it. If necessary, a copy from the #_world stack is made.
- * @param x X coordinate of the stack.
- * @param y Y coordinate of the stack.
- * @return The requested voxel stack.
- */
-VoxelStack *WorldAdditions::GetModifyStack(uint16 x, uint16 y)
-{
-	Point32 pt(x, y);
-
-	auto iter = this->modified_stacks.find(pt);
-	if (iter != this->modified_stacks.end()) return iter->second;
-	std::pair<Point32, VoxelStack *> p(pt, _world.GetStack(x, y)->Copy(false));
-	iter = this->modified_stacks.insert(p).first;
-	return iter->second;
-}
-
-/**
- * Get a voxel stack (read-only) either from the modifications, or from the 'real' #_world.
- * @param x X coordinate of the stack.
- * @param y Y coordinate of the stack.
- * @return The requested voxel stack.
- */
-const VoxelStack *WorldAdditions::GetStack(uint16 x, uint16 y) const
-{
-	Point32 pt(x, y);
-
-	const auto iter = this->modified_stacks.find(pt);
-	if (iter != this->modified_stacks.end()) return iter->second;
-	return _world.GetStack(x, y);
-}
-
-/**
- * Mark the additions in the display as outdated, so they get repainted.
- * @param vp %Viewport displaying the world.
- */
-void WorldAdditions::MarkDirty(Viewport *vp)
-{
-	for (const auto &iter : this->modified_stacks) {
-		const Point32 pt = iter.first;
-		const VoxelStack *vstack = iter.second;
-		if (vstack != nullptr) vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, vstack->base), vstack->height);
-	}
-}

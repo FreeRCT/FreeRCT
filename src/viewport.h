@@ -158,10 +158,6 @@ public:
 	CursorType GetCursorAtPos(const XYZPoint16 &voxel_pos);
 	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 
-	void EnableWorldAdditions();
-	void DisableWorldAdditions();
-	void EnsureAdditionsAreVisible();
-
 	Point32 ComputeHorizontalTranslation(int dx, int dy);
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
@@ -181,13 +177,9 @@ public:
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
 
 private:
-	bool additions_displayed;    ///< Additions in #_additions are displayed to the user.
-
 	void OnMouseMoveEvent(const Point16 &pos) override;
 	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	void OnMouseWheelEvent(int direction) override;
-
-	void TimeoutCallback();
 };
 
 /** A single mouse mode. */
@@ -259,8 +251,6 @@ private:
 
 extern MouseModes _mouse_modes;
 
-void EnableWorldAdditions();
-void DisableWorldAdditions();
 Viewport *GetViewport();
 
 void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
