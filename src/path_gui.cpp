@@ -454,7 +454,7 @@ void PathBuildGui::OnClick(WidgetNumber number, const Point16 &pos)
 		case PATH_GUI_SE_DIRECTION:
 		case PATH_GUI_SW_DIRECTION:
 		case PATH_GUI_NW_DIRECTION: {
-			Viewport *vp = GetViewport();
+			Viewport *vp = _window_manager.GetViewport();
 			if (vp != nullptr) {
 				ViewOrientation clicked = static_cast<ViewOrientation>(number - PATH_GUI_NE_DIRECTION);
 				TileEdge edge = static_cast<TileEdge>(AddOrientations(clicked, vp->orientation));
@@ -572,7 +572,7 @@ static uint8 GetDirections(const XYZPoint16 &pos)
 /** Set the buttons at the path builder GUI. */
 void PathBuildGui::SetButtons()
 {
-	Viewport *vp = GetViewport();
+	Viewport *vp = _window_manager.GetViewport();
 	if (vp == nullptr) return;
 
 	/* Compute feasible directions for the arrow buttons. */

@@ -471,7 +471,6 @@ public:
 	const Voxel *Get(int16 z) const;
 	Voxel *GetCreate(int16 z, bool create);
 
-	VoxelStack *Copy(bool copyPersons) const;
 	void MoveStack(VoxelStack *old_stack);
 
 	int GetTopGroundOffset() const;
@@ -589,50 +588,6 @@ private:
  */
 typedef std::map<Point32, VoxelStack *> VoxelStackMap;
 
-/**
- * Proposed additions to #_world.
- * Temporary buffer to make changes in the world, and show them to the user
- * without having them really in the game until the user confirms.
- * @note This world does not use the #Voxel::voxel_objects list.
- */
-class WorldAdditions {
-public:
-	WorldAdditions();
-	~WorldAdditions();
-
-	void Clear();
-	void Commit();
-
-	VoxelStack *GetModifyStack(uint16 x, uint16 y);
-	const VoxelStack *GetStack(uint16 x, uint16 y) const;
-
-	/**
-	 * Get a voxel in the world by voxel coordinate.
-	 * @param vox Coordinate of the voxel.
-	 * @return Address of the voxel (if it exists).
-	 */
-	inline const Voxel *GetVoxel(const XYZPoint16 &vox) const
-	{
-		return this->GetStack(vox.x, vox.y)->Get(vox.z);
-	}
-
-	/**
-	 * Get a voxel in the world by voxel coordinate.
-	 * @param vox Coordinate of the voxel.
-	 * @param create If the requested voxel does not exist, try to create it.
-	 * @return Address of the voxel (if it exists or could be created).
-	 */
-	inline Voxel *GetCreateVoxel(const XYZPoint16 &vox, bool create)
-	{
-		return this->GetModifyStack(vox.x, vox.y)->GetCreate(vox.z, create);
-	}
-
-	void MarkDirty(Viewport *vp);
-
-protected:
-	VoxelStackMap modified_stacks; ///< Modified voxel stacks.
-};
-
 int GetVoxelZOffsetForFence(TileEdge edge, uint8 base_tile_slope);
 uint16 MergeGroundFencesAtBase(uint16 vxbase_fences, uint16 fences, uint8 base_tile_slope);
 bool HasTopVoxelFences(uint8 base_tile_slope);
@@ -641,10 +596,6 @@ void AddGroundFencesToMap(uint16 fences, VoxelStack *stack, int base_z);
 uint16 GetGroundFencesFromMap(const VoxelStack *stack, int base_z);
 
 extern VoxelWorld _world;
-extern WorldAdditions _additions;
-
-void EnableWorldAdditions();
-void DisableWorldAdditions();
 
 /**
  * Is the given world voxelstack coordinate within the world boundaries?

@@ -370,7 +370,6 @@ static int GetQuePathEdgeConnectCount(uint8 impl_slope)
  * Examine, and perhaps modify a neighbouring path edge or ride connection, to make it connect (or not if not \a add_edges)
  * to the centre examined tile.
  * @param voxel_pos Coordinate of the neighbouring voxel.
- * @param use_additions Use #_additions rather than #_world.
  * @param edge Edge to examine, and/or connected to.
  * @param add_edges If set, add edges (else, remove them).
  * @param at_bottom Whether a path connection is expected at the bottom (if \c false, it should be at the top).
@@ -379,7 +378,7 @@ static int GetQuePathEdgeConnectCount(uint8 impl_slope)
  * @param dest_status [out] Status of the neighbouring path.
  * @return Neighbouring voxel was (logically) connected to the centre tile.
  */
-static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, bool use_additions, TileEdge edge, bool add_edges, bool at_bottom,
+static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, TileEdge edge, bool add_edges, bool at_bottom,
 		Voxel **dest_voxel, uint16 *dest_inst_data, PathStatus *dest_status)
 {
 	Voxel *v;
@@ -388,11 +387,7 @@ static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, bool use_addit
 	*dest_status = PAS_UNUSED;
 	*dest_inst_data = PATH_INVALID;
 
-	if (use_additions) {
-		v = _additions.GetCreateVoxel(voxel_pos, false);
-	} else {
-		v = _world.GetCreateVoxel(voxel_pos, false);
-	}
+	v = _world.GetCreateVoxel(voxel_pos, false);
 	if (v == nullptr) return false;
 
 	uint16 number = v->GetInstance();
@@ -433,11 +428,10 @@ static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, bool use_addit
  * @param voxel_pos Coordinate of the central voxel with a path tile.
  * @param slope Imploded path slope of the central voxel.
  * @param dirs Edge directions to change (bitset of #TileEdge), usually #EDGE_ALL.
- * @param use_additions Use #_additions rather than #_world.
  * @param status Status of the path. #PAS_UNUSED means to remove the edges.
  * @return Updated (imploded) slope at the central voxel.
  */
-uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, bool use_additions, PathStatus status)
+uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, PathStatus status)
 {
 	PathStatus ngb_status[4];    // Neighbour path status, #PAS_UNUSED means do not connect.
 	Voxel *ngb_voxel[4];         // Neighbour voxels with path, may be null if it doesn't need changing.
@@ -464,13 +458,13 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, b
 		bool modified = false;
 		if (delta_z <= 0 || voxel_pos.z < WORLD_Z_SIZE - 1) {
 			ngb_pos[edge].z = voxel_pos.z + delta_z;
-			modified = ExamineNeighbourPathEdge(ngb_pos[edge], use_additions, edge2, status != PAS_UNUSED, true,
+			modified = ExamineNeighbourPathEdge(ngb_pos[edge], edge2, status != PAS_UNUSED, true,
 					&ngb_voxel[edge], &ngb_instance_data[edge], &ngb_status[edge]);
 		}
 		delta_z--;
 		if (!modified && (delta_z >= 0 || voxel_pos.z > 0)) {
 			ngb_pos[edge].z = voxel_pos.z + delta_z;
-			ExamineNeighbourPathEdge(ngb_pos[edge], use_additions, edge2, status != PAS_UNUSED, false,
+			ExamineNeighbourPathEdge(ngb_pos[edge], edge2, status != PAS_UNUSED, false,
 					&ngb_voxel[edge], &ngb_instance_data[edge], &ngb_status[edge]);
 		}
 	}
