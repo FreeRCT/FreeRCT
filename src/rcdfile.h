@@ -10,7 +10,6 @@
 #ifndef RCDFILE_H
 #define RCDFILE_H
 
-#include <string>
 #include <map>
 
 /** Information about an RCD file. */

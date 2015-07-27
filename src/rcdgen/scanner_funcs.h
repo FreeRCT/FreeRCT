@@ -10,7 +10,6 @@
 #ifndef SCANNER_FUNCS_H
 #define SCANNER_FUNCS_H
 
-#include <string>
 #include "ast.h"
 #include "../stdafx.h"
 

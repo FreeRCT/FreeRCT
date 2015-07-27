@@ -12,7 +12,6 @@
 
 #include "../fileio.h"
 #include "../stdafx.h"
-#include <string>
 #include <windows.h>
 
 /**

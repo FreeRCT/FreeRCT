@@ -14,7 +14,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <windows.h>
-#include <string>
 
 WindowsDirectoryReader::WindowsDirectoryReader() : DirectoryReader('\\')
 {
