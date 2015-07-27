@@ -11,7 +11,6 @@
 #define FILE_WRITING_H
 
 #include <list>
-#include <string>
 
 /** A block in an RCD file. See #StartSave for details on usage. */
 class FileBlock {

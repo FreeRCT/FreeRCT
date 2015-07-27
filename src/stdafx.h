@@ -85,6 +85,7 @@
 #include <climits>
 #include <cassert>
 #include <algorithm>
+#include <string>
 
 #if defined(UNIX) || defined(__MINGW32__)
 	#include <sys/types.h>

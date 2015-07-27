@@ -10,7 +10,6 @@
 #ifndef NODES_H
 #define NODES_H
 
-#include <string>
 #include <list>
 #include <vector>
 #include <set>

@@ -11,7 +11,6 @@
 #define IMAGE_H
 
 #include <png.h>
-#include <string>
 
 /** Bitmask description. */
 class BitMaskData {

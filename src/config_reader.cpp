@@ -11,7 +11,6 @@
 #include "config_reader.h"
 #include "fileio.h"
 #include "string_func.h"
-#include <string>
 
 /**
  * Construct a key/value item.

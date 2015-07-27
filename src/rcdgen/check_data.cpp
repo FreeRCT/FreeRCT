@@ -11,7 +11,6 @@
 #include <map>
 #include <vector>
 #include <memory>
-#include <string>
 #include <ctime>
 #include "ast.h"
 #include "nodes.h"

@@ -18,7 +18,6 @@
 #include "gamecontrol.h"
 #include "window.h"
 #include "viewport.h"
-#include <string>
 
 VideoSystem _video;  ///< Video sub-system.
 
