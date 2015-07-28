@@ -182,9 +182,9 @@ public:
 	virtual void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 	virtual void SetWidgetStringParameters(WidgetNumber wid_num) const;
 	virtual void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
-	virtual void SetSize(uint width, uint height);
+	virtual void SetSize(uint width, uint height) override;
 	StringID TranslateStringNumber(StringID str_id) const;
-	virtual void ResetSize();
+	virtual void ResetSize() override;
 
 	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
