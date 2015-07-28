@@ -699,17 +699,18 @@ void WindowManager::ResetAllWindows()
 /**
  * Moves relevant windows if they've been moved offscreen by a window resize.
  * Also forces the bottom toolbar to be moved, as that will always be in the wrong position.
+ * @param new_width New width of the display.
+ * @param new_height New height of the display.
  */
-void WindowManager::RepositionAllWindows()
+void WindowManager::RepositionAllWindows(uint new_width, uint new_height)
 {
-	Viewport *vp = this->GetViewport(); /// \todo This is weird, shouldn't the display tell the size to the window manager?
-	if (vp == nullptr) return;
-	Rectangle32 vp_rect = vp->rect;
+	Rectangle32 rect(0, 0, new_width, new_height);
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
-		if (w->wtype == WC_MAINDISPLAY) continue;
-		/* Add an arbitrary amount for closebox/titlebar,
-		 * so the window is still actually accessible. */
-		if (!vp_rect.IsPointInside(Point32(w->rect.base.x + 20, w->rect.base.y + 20)) || w->wtype == WC_BOTTOM_TOOLBAR) {
+		if (w->wtype == WC_MAINDISPLAY) {
+			w->SetSize(new_width, new_height);
+
+		/* Add an arbitrary amount for closebox/titlebar, so the window is still actually accessible. */
+		} else if (!rect.IsPointInside(Point32(w->rect.base.x + 20, w->rect.base.y + 20)) || w->wtype == WC_BOTTOM_TOOLBAR) {
 			w->SetPosition(w->OnInitialPosition());
 		}
 	}

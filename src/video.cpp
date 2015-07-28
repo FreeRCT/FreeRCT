@@ -260,9 +260,7 @@ bool VideoSystem::SetResolution(const Point32 &res)
 
 	/* Update internal screen size data structures. */
 	this->blit_rect = ClippedRectangle(0, 0, this->vid_width, this->vid_height);
-	Viewport *vp = _window_manager.GetViewport();
-	if (vp != nullptr) vp->SetSize(this->vid_width, this->vid_height);
-	_window_manager.RepositionAllWindows();
+	_window_manager.RepositionAllWindows(this->vid_width, this->vid_height);
 	this->MarkDisplayDirty();
 	return true;
 }
