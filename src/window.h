@@ -337,7 +337,7 @@ public:
 
 	void CloseAllWindows();
 	void ResetAllWindows();
-	void RepositionAllWindows();
+	void RepositionAllWindows(uint new_width, uint new_height);
 
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);
