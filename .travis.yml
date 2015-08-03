@@ -1,25 +1,18 @@
+sudo: false
 language: cpp
 
 compiler:
   - gcc
   - clang
 
-before_install:
-  # No SDL2 in the default repos yet
-  - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
-  # GCC 4.8 not in the repos either
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo apt-get -qq update
-  - sudo apt-get install -qq g++-4.8 # Needed for newer stdlib
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  - sudo apt-get -qq install cmake build-essential libsdl2-dev libsdl2-ttf-dev bison flex libpng-dev
+#before_install:
+  #  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 install:
-  - cd $TRAVIS_BUILD_DIR
   - cmake .
 
 script:
-  - make -j2
+  - make
 
 notifications:
   irc:
@@ -38,11 +31,26 @@ env:
     secure: "gUgAXzGLyEkqSuMav5PLylFL3vtDO+TetIqzivkWDP5G6Md2W4xCSxBtgORtgOSngfJFipnoSvIzRo85ZyOJXKxN+1Ayy4D+xanFHpfY5pZtdhrpd9nbUXM/XLTJ9KeCd7n8BUq3Qd1h6cEAfCwvajSavC+bll3Df3MfSxISLdI="
 
 addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - ubuntu-precise
+    packages:
+      - build-essential
+      - cmake
+      - gcc-4.8
+      - g++-4.8
+      - clang
+      - bison
+      - flex
+      - libpng-dev
+      - libsdl2-dev
+      - libsdl2-ttf-dev
   coverity_scan:
     project:
       name: "FreeRCT/FreeRCT"
       description: "Build from Travis-CI"
     build_command_prepend: "cmake ."
-    build_command: "make -j2"
+    build_command: "make"
     notification_email: freerct@gmail.com
     branch_pattern: coverity
