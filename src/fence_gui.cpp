@@ -211,6 +211,15 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	TileEdge edge = static_cast<TileEdge>(EDGE_NE + (fdata.cursor - CUR_TYPE_EDGE_NE));
 	if (edge == this->fence_edge && fdata.voxel_pos == this->fence_base) return;
 
+	/* Does this edge contain two connected paths or a connected path and ride entrance/exit? */
+	uint16 instance_data = v->GetInstanceData();
+	if (HasValidPath(instance_data)) {
+		uint8 slope = GetImplodedPathSlope(instance_data);
+		slope = _path_expand[slope];
+
+		if (GB(slope, PATHBIT_NE + edge, 1) != 0) edge = INVALID_EDGE; // Prevent placing on top of paths.
+	}
+
 	/* New fence, or moved fence. Update the mouse selector. */
 	this->fence_sel.MarkDirty();
 
