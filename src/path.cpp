@@ -390,6 +390,10 @@ static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, TileEdge edge,
 	v = _world.GetCreateVoxel(voxel_pos, false);
 	if (v == nullptr) return false;
 
+	uint16 fences = v->GetFences();
+	FenceType fence_type = GetFenceType(fences, edge);
+	if (fence_type != FENCE_TYPE_INVALID) return false;
+
 	uint16 number = v->GetInstance();
 	if (number == SRI_PATH) {
 		uint16 instance_data = v->GetInstanceData();
@@ -438,6 +442,9 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 	uint16 ngb_instance_data[4]; // New instance data, if the voxel exists.
 	XYZPoint16 ngb_pos[4];       // Coordinate of the neighbouring voxel.
 
+	Voxel *v = _world.GetCreateVoxel(voxel_pos, false);
+	uint16 fences = v->GetFences();
+
 	std::fill_n(ngb_status, lengthof(ngb_status), PAS_UNUSED); // Clear path all statuses to prevent connecting to it if an edge is skipped.
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		if ((dirs & (1 << edge)) == 0) continue; // Skip directions that should not be updated.
@@ -453,6 +460,9 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 		ngb_pos[edge].x = voxel_pos.x + dxy.x;
 		ngb_pos[edge].y = voxel_pos.y + dxy.y;
 		if (!IsVoxelstackInsideWorld(ngb_pos[edge].x, ngb_pos[edge].y)) continue;
+
+		FenceType fence_type = GetFenceType(fences, edge);
+		if (fence_type != FENCE_TYPE_INVALID) continue;
 
 		TileEdge edge2 = (TileEdge)((edge + 2) % 4);
 		bool modified = false;
