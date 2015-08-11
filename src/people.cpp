@@ -96,6 +96,53 @@ void Guests::Uninitialize()
 }
 
 /**
+ * Load guests from the save game.
+ * @param ldr Input stream to read.
+ */
+void Guests::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("GSTS");
+	if (version == 1) {
+		this->start_voxel.x = ldr.GetWord();
+		this->start_voxel.y = ldr.GetWord();
+		this->daily_frac = ldr.GetWord();
+		this->next_daily_index = ldr.GetWord();
+		this->free_idx = ldr.GetLong();
+		uint active_guest_count = ldr.GetLong();
+		for (uint i = 0; i < active_guest_count; i++) {
+			Guest *g = this->block.Get(ldr.GetWord());
+			g->Load(ldr);
+		}
+	} else {
+		ldr.SetFailMessage("Incorrect version of Guests block.");
+	}
+	ldr.CloseBlock();
+}
+
+/**
+ * Save guests to the save game.
+ * @param svr Output stream to save to.
+ */
+void Guests::Save(Saver &svr)
+{
+	svr.StartBlock("GSTS", 1);
+	svr.PutWord(this->start_voxel.x);
+	svr.PutWord(this->start_voxel.y);
+	svr.PutWord(this->daily_frac);
+	svr.PutWord(this->next_daily_index);
+	svr.PutLong(this->free_idx);
+	svr.PutLong(this->CountActiveGuests());
+	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
+		Guest *g = this->block.Get(i);
+		if (g->IsActive()) {
+			svr.PutWord(g->id);
+			g->Save(svr);
+		}
+	}
+	svr.EndBlock();
+}
+
+/**
  * Update #free_idx to the next free guest (if available).
  * @return Whether a free guest was found.
  */

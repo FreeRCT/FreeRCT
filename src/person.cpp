@@ -412,7 +412,6 @@ void Person::Load(Loader &ldr)
 {
 	this->VoxelObject::Load(ldr);
 
-	this->id = ldr.GetWord();
 	this->type = (PersonType)ldr.GetByte();
 	this->offset = ldr.GetWord();
 	this->name = ldr.GetText();
@@ -443,7 +442,6 @@ void Person::Save(Saver &svr)
 {
 	this->VoxelObject::Save(svr);
 
-	svr.PutWord(this->id);
 	svr.PutByte(this->type);
 	svr.PutWord(this->offset);
 	svr.PutText(this->name);

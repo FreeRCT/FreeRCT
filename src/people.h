@@ -66,6 +66,9 @@ public:
 
 	void Uninitialize();
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	uint CountActiveGuests();
 	uint CountGuestsInPark();
 

@@ -13,6 +13,8 @@
 #include "finances.h"
 #include "map.h"
 #include "string_func.h"
+#include "person.h"
+#include "people.h"
 
 /**
  * Constructor of the loader class.
@@ -315,7 +317,7 @@ void Saver::PutText(const uint8 *str, int length)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 4) ldr.SetFailMessage("Bad file header");
+	if (version > 5) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
 
 	Loader reset_loader(nullptr);
@@ -325,6 +327,7 @@ static void LoadElements(Loader &ldr)
 	Random::Load(ldr);
 	_finances_manager.Load((version >= 2) ? ldr : reset_loader);
 	_weather.Load((version >= 4) ? ldr : reset_loader);
+	_guests.Load((version >= 5) ? ldr : reset_loader);
 
 	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
@@ -336,7 +339,7 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 4);
+	svr.StartBlock("FCTS", 5);
 	svr.EndBlock();
 
 	SaveDate(svr);
@@ -344,6 +347,7 @@ static void SaveElements(Saver &svr)
 	Random::Save(svr);
 	_finances_manager.Save(svr);
 	_weather.Save(svr);
+	_guests.Save(svr);
 }
 
 /**
