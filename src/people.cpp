@@ -130,7 +130,7 @@ bool Guests::FindNextFreeGuest() const
  */
 uint Guests::CountActiveGuests()
 {
-	uint count = this->free_idx > 0;
+	uint count = this->free_idx;
 	for (uint i = this->free_idx; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *g = this->block.Get(i);
 		if (g->IsActive()) count++;
@@ -144,8 +144,8 @@ uint Guests::CountActiveGuests()
  */
 uint Guests::CountGuestsInPark()
 {
-	uint count = this->free_idx > 0;
-	for (uint i = this->free_idx; i < GUEST_BLOCK_SIZE; i++) {
+	uint count = 0;
+	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *g = this->block.Get(i);
 		if (g->IsActive() && g->IsInPark()) count++;
 	}
