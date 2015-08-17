@@ -167,6 +167,33 @@ void Recolouring::AssignRandomColours()
 }
 
 /**
+ * Load recolour information.
+ * ldr Input stream to load from.
+ */
+void Recolouring::Load(Loader &ldr)
+{
+	assert(MAX_RECOLOUR == 4); // Check that we are compatible with other saves.
+	for (int i = 0; i < MAX_RECOLOUR; i++) {
+		uint8 val = ldr.GetByte();
+		this->entries[i].AssignDest((ColourRange)val);
+	}
+}
+
+/**
+ * Save the recolouring information.
+ * @param svr Output stream to write to.
+ */
+void Recolouring::Save(Saver &svr)
+{
+	assert(MAX_RECOLOUR == 4); // Check that we are compatible with other saves.
+	for (int i = 0; i < MAX_RECOLOUR; i++) {
+		const RecolourEntry &entry = this->entries[i];
+		uint8 val = (entry.source == COL_RANGE_INVALID) ? COL_RANGE_INVALID : entry.dest;
+		svr.PutByte(val);
+	}
+}
+
+/**
  * Compute the palette of the #Recolouring object from the #entries and the gradient shift.
  * @param shift Applied gradient shift.
  * @return 8bpp palette, including recolouring.

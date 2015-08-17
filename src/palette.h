@@ -323,6 +323,9 @@ public:
 	void Set(int index, const RecolourEntry &entry);
 	void AssignRandomColours();
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	const uint8 *GetPalette(GradientShift shift) const;
 
 	/**
