@@ -275,6 +275,7 @@ void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
  * From a position with a path tile, get the neighbouring position, where the entry edge at the bottom matches with the exit edge at \a pos.
  * @param pos Start position.
  * @param direction Direction to move.
+ * @return The coordinate of the neighbour voxel with its entry at the bottom from the path at \a pos, in the given direction.
  */
 static XYZPoint16 GetNeighbourPathPosition(const XYZPoint16 &pos, TileEdge direction)
 {
