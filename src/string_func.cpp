@@ -135,6 +135,49 @@ int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint)
 }
 
 /**
+ * Encode a code point into UTF-8.
+ * @param codepoint Code point to encode.
+ * @param dest [out] If supplied and not \c nullptr, the encoded character is written to this position. String is \em not terminated.
+ * @return Length of the encoded character in bytes.
+ * @note It is recommended to use this function for measuring required output size (by making \a dest a \c nullptr), before writing the encoded string.
+ */
+int EncodeUtf8Char(uint32 codepoint, uint8 *dest)
+{
+	if (codepoint < 0x7F + 1) {
+		/* 7 bits, U+0000 .. U+007F, 1 byte: 0xxx.xxxx */
+		if (dest != nullptr) *dest = codepoint;
+		return 1;
+	}
+	if (codepoint < 0x7FF + 1) {
+		/* 11 bits, U+0080 .. U+07FF, 2 bytes: 110x.xxxx, 10xx.xxxx */
+		if (dest != nullptr) {
+			dest[0] = 0xC0 | ((codepoint >> 6) & 0x1F);
+			dest[1] = 0x80 | (codepoint & 0x3F);
+		}
+		return 2;
+	}
+	if (codepoint < 0xFFFF + 1) {
+		/* 16 bits, U+0800 .. U+FFFF, 3 bytes: 1110.xxxx, 10xx.xxxx, 10xx.xxxx */
+		if (dest != nullptr) {
+			dest[0] = 0xE0 | ((codepoint >> 12) & 0x0F);
+			dest[1] = 0x80 | ((codepoint >> 6) & 0x3F);
+			dest[2] = 0x80 | (codepoint & 0x3F);
+		}
+		return 3;
+	}
+	assert(codepoint <= 0x10FFFF); // Max Unicode code point, RFC 3629.
+
+	/* 21 bits, U+10000 .. U+1FFFFF, 4 bytes: 1111.0xxx, 10xx.xxxx, 10xx.xxxx, 10xx.xxxx */
+	if (dest != nullptr) {
+		dest[0] = 0xF0 | ((codepoint >> 18) & 0x07);
+		dest[1] = 0x80 | ((codepoint >> 12) & 0x3F);
+		dest[2] = 0x80 | ((codepoint >> 6) & 0x3F);
+		dest[3] = 0x80 | (codepoint & 0x3F);
+	}
+	return 4;
+}
+
+/**
  * Are the two strings equal?
  * @param s1 First string to compare.
  * @param s2 Second string to compare.
