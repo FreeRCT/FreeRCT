@@ -25,6 +25,7 @@
 #include "shop_type.h"
 #include "coaster.h"
 #include "gui_sprites.h"
+#include "string_func.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
 GuiSprites _gui_sprites;       ///< GUI sprites.
@@ -81,52 +82,6 @@ TextData::~TextData()
 {
 	delete[] this->strings;
 	delete[] this->text_data;
-}
-
-/**
- * Decode an UTF-8 character.
- * @param data Pointer to the start of the data.
- * @param length Length of the \a data buffer.
- * @param[out] codepoint If decoding was successful, the value of the decoded character.
- * @return Number of bytes read to decode the character, or \c 0 if reading failed.
- */
-static int DecodeUtf8Char(uint8 *data, size_t length, uint32 *codepoint)
-{
-	if (length < 1) return 0;
-	uint32 value = *data;
-	data++;
-	if ((value & 0x80) == 0) {
-		*codepoint = value;
-		return 1;
-	}
-	int size;
-	uint32 min_value;
-	if ((value & 0xE0) == 0xC0) {
-		size = 2;
-		min_value = 0x80;
-		value &= 0x1F;
-	} else if ((value & 0xF0) == 0xE0) {
-		size = 3;
-		min_value = 0x800;
-		value &= 0x0F;
-	} else if ((value & 0xF8) == 0xF0) {
-		size = 4;
-		min_value = 0x10000;
-		value &= 0x07;
-	} else {
-		return 0;
-	}
-
-	if (length < static_cast<size_t>(size)) return 0;
-	for (int n = 1; n < size; n++) {
-		uint8 val = *data;
-		data++;
-		if ((val & 0xC0) != 0x80) return 0;
-		value = (value << 6) | (val & 0x3F);
-	}
-	if (value < min_value || (value >= 0xD800 && value <= 0xDFFF) || value > 0x10FFFF) return 0;
-	*codepoint = value;
-	return size;
 }
 
 /**
