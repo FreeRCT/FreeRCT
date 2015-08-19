@@ -113,13 +113,13 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
  * @param name New name of the guest.
  * @note Currently unused.
  */
-void Person::SetName(const char *name)
+void Person::SetName(const uint8 *name)
 {
 	assert(this->IsGuest());
 
-	int len = strlen(name);
-	this->name = new char[len + 1];
-	strcpy(this->name, name); // Already know name has \0, because of strlen.
+	int len = strlen((char *)name);
+	this->name = new uint8[len + 1];
+	strcpy((char *)this->name, (char *)name); // Already know name has \0, because of strlen.
 }
 
 /**
@@ -127,13 +127,13 @@ void Person::SetName(const char *name)
  * The name is returned in memory owned by the person. Do not free this data. It may change on each call.
  * @return Static buffer containing the name of the person.
  */
-const char *Person::GetName() const
+const uint8 *Person::GetName() const
 {
-	static char buffer[16];
+	static uint8 buffer[16];
 
 	assert(this->IsGuest());
 	if (this->name != nullptr) return this->name;
-	sprintf(buffer, "Guest %u", this->id);
+	sprintf((char *)buffer, "Guest %u", this->id);
 	return buffer;
 }
 

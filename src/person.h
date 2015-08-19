@@ -123,8 +123,8 @@ public:
 		return this->type == PERSON_GUEST;
 	}
 
-	void SetName(const char *name);
-	const char *GetName() const;
+	void SetName(const uint8 *name);
+	const uint8 *GetName() const;
 
 	uint16 id;       ///< Unique id of the person.
 	PersonType type; ///< Type of person.
@@ -139,7 +139,7 @@ public:
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
-	char *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
+	uint8 *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
 
 	TileEdge GetCurrentEdge() const;
 	uint8 GetInparkDirections();
