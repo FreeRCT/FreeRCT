@@ -356,6 +356,55 @@ static const WalkInformation *_center_path_tile[4][4] = {
 };
 
 /**
+ * Encode a walk into a number for serialization.
+ * @param wi Walk to encode.
+ * @return The encoded walk.
+ */
+static uint16 EncodeWalk(const WalkInformation *wi)
+{
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			int k = 0;
+			const WalkInformation *wij = _walk_path_tile[i][j];
+			while (wij->anim_type != ANIM_INVALID) {
+				if (wi == wij) return (0 << 12) | (i << 8) | (j << 4) | k;
+				k++;
+				wij++;
+			}
+		}
+	}
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			int k = 0;
+			const WalkInformation *wij = _center_path_tile[i][j];
+			while (wij->anim_type != ANIM_INVALID) {
+				if (wi == wij) return (1 << 12) | (i << 8) | (j << 4) | k;
+				k++;
+				wij++;
+			}
+		}
+	}
+	NOT_REACHED();
+}
+
+/**
+ * Decode a walk number back to a walk.
+ * @param number Value to decode.
+ * @return The walk encoded by the number.
+ */
+static const WalkInformation *DecodeWalk(uint16 number)
+{
+	int k = number & 0xF;
+	int j = (number >> 4) & 0xF;
+	int i = (number >> 8) & 0xF;
+	int c = (number >> 12) & 0xF;
+	if (c == 0) return &_walk_path_tile[i][j][k];
+	if (c == 1) return &_center_path_tile[i][j][k];
+
+	NOT_REACHED();
+}
+
+/**
  * Decide at which edge the person is.
  * @return Nearest edge of the person.
  */
