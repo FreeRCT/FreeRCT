@@ -39,6 +39,7 @@ public:
 	RideMouseMode ride_selector; ///< Mouse mode selector for displaying new (or existing) paths.
 
 private:
+	void TryAddRemovePath(uint8 m_state);
 	void BuildSinglePath(const XYZPoint16 &pos);
 	void SetButtons();
 	void SetupSelector();
@@ -228,6 +229,25 @@ PathBuildGui::~PathBuildGui()
 	this->SetSelector(nullptr);
 }
 
+/**
+ * Try to add (if LMB pressed) or remove (if RMB pressed) a path tile at the voxel pointed to by the mouse.
+ * @param m_state Mouse button state.
+ */
+void PathBuildGui::TryAddRemovePath(uint8 m_state)
+{
+	if ((m_state & (MB_LEFT | MB_RIGHT)) == 0) return; // No buttons pressed.
+
+	const Voxel *v = _world.GetVoxel(this->mouse_pos);
+	if (!v) return; // No voxel -> no ground there.
+
+	uint16 instance = v->GetInstance();
+	if ((m_state & MB_LEFT) != 0) {
+		this->BuildSinglePath(this->mouse_pos); // Build new path or change type of path.
+	} else if (instance == SRI_PATH && (m_state & MB_RIGHT) != 0) {
+		RemovePath(this->mouse_pos, false);
+	}
+}
+
 void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
 	if (this->path_type == PAT_INVALID) return;
@@ -237,6 +257,8 @@ void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	if (this->mouse_at == CS_NONE || fdata.voxel_pos == this->mouse_pos) return;
 
 	this->mouse_pos = fdata.voxel_pos;
+	if (this->single_tile_mode) this->TryAddRemovePath(_window_manager.GetMouseState());
+
 	this->SetButtons();
 	this->SetupSelector();
 }
@@ -246,14 +268,7 @@ void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
 	if (this->ride_selector.area.width == 0 || this->path_type == PAT_INVALID) return;
 
 	if (this->single_tile_mode) {
-		if ((state & MB_LEFT) != 0) {
-			const Point16 &sel_base = this->ride_selector.area.base;
-			VoxelTileData<VoxelRideData> &td = this->ride_selector.GetTileData(sel_base.x, sel_base.y);
-			uint16 zpos = td.GetGroundHeight(sel_base.x, sel_base.y);
-			this->BuildSinglePath(XYZPoint16(sel_base.x, sel_base.y, zpos));
-		} else if ((state & MB_RIGHT) != 0) {
-			RemovePath(this->mouse_pos, false);
-		}
+		this->TryAddRemovePath(state);
 		return;
 	}
 	/* Directional build. */
@@ -364,6 +379,9 @@ void PathBuildGui::BuildSinglePath(const XYZPoint16 &pos)
 
 	SmallRideInstance sri = v->GetInstance();
 	if (sri == SRI_PATH) {
+		/* Rebuilding the same path type can be useful for queue paths after their neighbours have
+		 * changed, as queue paths prefer to connect to other queue paths.
+		 */
 		ChangePath(pos, this->path_type, false);
 		return;
 	}
