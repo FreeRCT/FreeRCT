@@ -104,7 +104,6 @@ public:
 	void MoveViewport(int dx, int dy);
 
 	ClickableSprite ComputeCursorPosition(FinderData *fdata);
-	uint8 GetMaxCursorHeight(uint16 xpos, uint16 ypos, uint8 zpos);
 
 	Point32 ComputeHorizontalTranslation(int dx, int dy);
 	int32 ComputeX(int32 xpos, int32 ypos);
