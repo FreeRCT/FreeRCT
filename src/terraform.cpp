@@ -569,12 +569,11 @@ bool TerrainChanges::ModifyWorld(int direction)
  * Change the terrain while in 'dot' mode (i.e. a single corner or a single tile changing the entire world).
  * @param voxel_pos Position of the center voxel.
  * @param ctype Cursor type.
- * @param vp %Viewport displaying the world.
  * @param levelling If \c true, use levelling mode (only change the lowest/highest corners of a tile), else move every corner.
  * @param direction Direction of change.
  * @param dot_mode Using dot-mode (infinite world changes).
  */
-void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, Viewport *vp, bool levelling, int direction, bool dot_mode)
+void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, bool levelling, int direction, bool dot_mode)
 {
 	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(voxel_pos.x, voxel_pos.y) != OWN_PARK) return;
 
@@ -620,7 +619,7 @@ void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, Viewport *
 
 		for (const auto &iter : changes.changes) {
 			const Point16 &pt = iter.first;
-			vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
+			MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 		}
 	}
 }
@@ -628,11 +627,10 @@ void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, Viewport *
 /**
  * Change the terrain while in 'area' mode (i.e. a rectangle of tiles that changes).
  * @param orig_area Affected area (maybe partly off-world).
- * @param vp %Viewport displaying the world.
  * @param levelling If \c true, use levelling mode (only change the lowest/highest corners of a tile), else move every corner.
  * @param direction Direction of change.
  */
-void ChangeAreaCursorMode(const Rectangle16 &orig_area, Viewport *vp, bool levelling, int direction)
+void ChangeAreaCursorMode(const Rectangle16 &orig_area, bool levelling, int direction)
 {
 	Point16 p;
 
@@ -670,6 +668,6 @@ void ChangeAreaCursorMode(const Rectangle16 &orig_area, Viewport *vp, bool level
 
 	for (const auto &iter : changes.changes) {
 		const Point16 &pt = iter.first;
-		vp->MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
+		MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
 	}
 }

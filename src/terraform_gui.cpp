@@ -95,11 +95,10 @@ void TerraformGui::SelectorMouseWheelEvent(int direction)
 {
 	if (this->selector == nullptr) return;
 
-	Viewport *vp = _window_manager.GetViewport();
 	if (this->xsize == 0 && this->ysize == 0) { // 'dot' mode.
-		ChangeTileCursorMode(this->tiles_selector.area.base, this->tiles_selector.cur_cursor, vp, this->level, direction, true);
+		ChangeTileCursorMode(this->tiles_selector.area.base, this->tiles_selector.cur_cursor, this->level, direction, true);
 	} else {
-		ChangeAreaCursorMode(this->tiles_selector.area, vp, this->level, direction);
+		ChangeAreaCursorMode(this->tiles_selector.area, this->level, direction);
 	}
 	this->tiles_selector.InitTileData();
 }
