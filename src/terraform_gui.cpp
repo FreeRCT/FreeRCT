@@ -95,8 +95,8 @@ void TerraformGui::SelectorMouseWheelEvent(int direction)
 {
 	if (this->selector == nullptr) return;
 
-	if (this->xsize == 0 && this->ysize == 0) { // 'dot' mode.
-		ChangeTileCursorMode(this->tiles_selector.area.base, this->tiles_selector.cur_cursor, this->level, direction, true);
+	if (this->xsize <= 1 && this->ysize <= 1) { // 'dot' mode, or single tile mode..
+		ChangeTileCursorMode(this->tiles_selector.area.base, this->tiles_selector.cur_cursor, this->level, direction, (this->xsize == 0 && this->ysize == 0));
 	} else {
 		ChangeAreaCursorMode(this->tiles_selector.area, this->level, direction);
 	}
@@ -107,7 +107,7 @@ void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
 	if (this->selector == nullptr) return;
 
-	FinderData fdata(CS_GROUND, (this->xsize == 0 && this->ysize == 0) ? FW_CORNER : FW_TILE);
+	FinderData fdata(CS_GROUND, (this->xsize <= 1 && this->ysize <= 1) ? FW_CORNER : FW_TILE);
 	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND) return;
 	Rectangle16 &sel_rect = this->tiles_selector.area;
 	int xsel = sel_rect.base.x + sel_rect.width / 2;
