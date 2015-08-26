@@ -59,7 +59,7 @@ private:
 	GroundData *GetGroundData(const Point16 &pos);
 };
 
-void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, Viewport *vp, bool levelling, int direction, bool dot_mode);
-void ChangeAreaCursorMode(const Rectangle16 &area, Viewport *vp, bool levelling, int direction);
+void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, bool levelling, int direction, bool dot_mode);
+void ChangeAreaCursorMode(const Rectangle16 &area, bool levelling, int direction);
 
 #endif
