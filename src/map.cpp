@@ -156,6 +156,35 @@ void VoxelObject::MarkDirty()
 	MarkVoxelDirty(this->vox_pos);
 }
 
+/**
+ * Load a voxel object from the save game.
+ * @param ldr Input stream to read.
+ */
+void VoxelObject::Load(Loader &ldr)
+{
+	uint32 x = ldr.GetLong();
+	uint32 y = ldr.GetLong();
+	uint32 z = ldr.GetLong();
+
+	XYZPoint32 xyz(x, y, z);
+
+	this->vox_pos = this->GetVoxelCoordinate(xyz);
+	this->pix_pos = this->GetInVoxelCoordinate(xyz);
+}
+
+/**
+ * Save a voxel object to the save game file.
+ * @param svr Output stream to write.
+ */
+void VoxelObject::Save(Saver &svr)
+{
+	XYZPoint32 xyz = this->MergeCoordinates();
+
+	svr.PutLong(xyz.x);
+	svr.PutLong(xyz.y);
+	svr.PutLong(xyz.z);
+}
+
 /** Default constructor. */
 VoxelStack::VoxelStack()
 {

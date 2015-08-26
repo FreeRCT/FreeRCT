@@ -22,6 +22,7 @@ public:
 	uint16 GetWord();
 	uint32 GetLong();
 	uint64 GetLongLong();
+	uint8 *GetText();
 
 	void SetFailMessage(const char *fail_msg);
 	const char *GetFailMessage() const;
@@ -50,6 +51,7 @@ public:
 	void PutWord(uint16 val);
 	void PutLong(uint32 val);
 	void PutLongLong(uint64 val);
+	void PutText(const uint8 *str, int length = -1);
 
 private:
 	FILE *fp; ///< Output file stream.

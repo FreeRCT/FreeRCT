@@ -247,4 +247,85 @@ Version history
 
 - 1 (20150505) Initial version.
 
+
+Current guests block
+-------------
+The guests block stores all guests. Current version is 1.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "GSTS".
+   4       4      1-     Version number of the guests block.
+   8       2      1-     Start voxel x coordinate.
+  10       2      1-     Start voxel y coordinate.
+  12       2      1-     Frame counter.
+  14       2      1-     Next guest (index) to animate.
+  16       4      1-     Lowest 'free' index for next new guest.
+  20       4      1-     Number of active guests.
+  24       ?      1-     Contents of "number" active guests.
+   ?       4      1-     "STSG"
+======  ======  =======  ======================================================
+
+A single guest is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       2      1-     Unique id of the guest.
+   2       4      1-     Voxel and pixel position x coordinate values.
+   6       4      1-     Voxel and pixel position y coordinate values.
+  10       4      1-     Voxel and pixel position z coordinate values.
+  14       1      1-     Type of the person.
+  15       2      1-     Offset with respect to center of path/tile.
+  17       4      1-     Length of the name string.
+  21      ?*4     1-     Name characters.
+   ?       4      1-     Recolour information.
+   ?       2      1-     Current walk information (animation), in compressed format.
+   ?       2      1-     Current displayed frame of the animation.
+   ?       2      1-     Remaining displayed time of the current frame.
+   ?       1      1-     Current activity.
+   ?       2      1-     Current happiness.
+   ?       2      1-     Sum of happiness for calculations once guest goes home.
+   ?       8      1-     Cash on hand.
+   ?       8      1-     Cash spent.
+   ?       2      1-     Ride index.
+   ?       1      1-     Whether or not the guest has a map.
+   ?       1      1-     Whether or not the guest has an umbrella.
+   ?       1      1-     Whether or not the guest has a food/drink wrapper.
+   ?       1      1-     Whether or not the guest has a balloon.
+   ?       1      1-     Whether or not the held food is salty.
+   ?       1      1-     Number of souvenirs bought by the guest.
+   ?       1      1-     Number of food units held.
+   ?       1      1-     Number of drink units held.
+   ?       1      1-     Hunger level.
+   ?       1      1-     Thirst level.
+   ?       1      1-     Stomach fill level.
+   ?       1      1-     Waste level.
+   ?       1      1-     Nausea level.
+======  ======  =======  ======================================================
+
+Walks on a path tile are stored in a 16 bit number, which contains the following information.
+
+- bit 12..15 Normal (0) or centered (1) path tile walk.
+- bit 8..11  The entry edge.
+- bit 4..7   The exit edge.
+- bit 0..3   The number of 90 degrees turns.
+
+A normal walk uses the 'offset' of the person to make it move in the right area
+of the tile (and the opposing direction uses the left area of the tile. A
+centered walk is like a normal walk, but the person is gradually moved onto the
+center of the path, to form a queue.
+
+Within a tile, a person enters from the entry edge, and leaves at the exit
+edge. (With 0=NE, 1=SE, 2=SW, and 3=NW for all edges.) If the walk at the tile
+requires a change in direction, one or more 90 degrees turns are made around
+the center of the tile (while respecting the offset in case of normal tile
+walks), in counter-clockwise direction.
+
+Version history
+~~~~~~~~~~~~~~~
+
+- 1 (20150823) Initial version.
+
 .. vim: spell

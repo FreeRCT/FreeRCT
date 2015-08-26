@@ -333,7 +333,45 @@ public:
 		}
 	}
 
+	/**
+	 * Merge voxel coordinate, #vox_pos, with in-voxel coordinate, #pix_pos.
+	 * @return Merged coordinates as 32 bit 3D point. Lower 8 bits are the in-voxel coordinate; upper remaining bits are the voxel coordinate.
+	 * @see GetVoxelCoordinate, GetInVoxelCoordinate
+	 */
+	inline XYZPoint32 MergeCoordinates()
+	{
+		uint32 x = (static_cast<uint32>(this->vox_pos.x) << 8) | (this->pix_pos.x & 0xff);
+		uint32 y = (static_cast<uint32>(this->vox_pos.y) << 8) | (this->pix_pos.y & 0xff);
+		uint32 z = (static_cast<uint32>(this->vox_pos.z) << 8) | (this->pix_pos.z & 0xff);
+
+		return XYZPoint32(x, y, z);
+	}
+
+	/**
+	 * Obtain bits 8..24 of a 32 bit 3D point.
+	 * @param p The point containing merged data.
+	 * @return The bits as a 16 bit 3D point.
+	 * @see MergeCoordinates
+	 */
+	inline XYZPoint16 GetVoxelCoordinate(const XYZPoint32 &p)
+	{
+		return XYZPoint16(p.x >> 8, p.y >> 8, p.z >> 8);
+	}
+
+	/**
+	 * Obtain the first 8 bits of the merged coordinates.
+	 * @param p The point containing the merged data.
+	 * @return The bits as a 16 bit 3D point.
+	 * @see MergeCoordinates
+	 */
+	inline XYZPoint16 GetInVoxelCoordinate(const XYZPoint32 &p)
+	{
+		return XYZPoint16(p.x & 0xff, p.y & 0xff, p.z & 0xff);
+	}
+
 	void MarkDirty();
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	VoxelObject *next_object; ///< Next voxel object in the linked list.
 	VoxelObject *prev_object; ///< Previous voxel object in the linked list.

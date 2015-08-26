@@ -105,6 +105,9 @@ public:
 	virtual void Activate(const Point16 &start, PersonType person_type);
 	virtual void DeActivate(AnimateResult ar);
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	/**
 	 * Test whether this person is active in the game or not.
 	 * @return Whether the person is active in the game.
@@ -123,8 +126,8 @@ public:
 		return this->type == PERSON_GUEST;
 	}
 
-	void SetName(const char *name);
-	const char *GetName() const;
+	void SetName(const uint8 *name);
+	const uint8 *GetName() const;
 
 	uint16 id;       ///< Unique id of the person.
 	PersonType type; ///< Type of person.
@@ -139,7 +142,7 @@ public:
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
-	char *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
+	uint8 *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
 
 	TileEdge GetCurrentEdge() const;
 	uint8 GetInparkDirections();
@@ -169,6 +172,9 @@ public:
 
 	void Activate(const Point16 &start, PersonType person_type) override;
 	void DeActivate(AnimateResult ar) override;
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	/**
 	 * Is the guest in the park?

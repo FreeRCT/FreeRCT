@@ -113,13 +113,13 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
  * @param name New name of the guest.
  * @note Currently unused.
  */
-void Person::SetName(const char *name)
+void Person::SetName(const uint8 *name)
 {
 	assert(this->IsGuest());
 
-	int len = strlen(name);
-	this->name = new char[len + 1];
-	strcpy(this->name, name); // Already know name has \0, because of strlen.
+	int len = strlen((char *)name);
+	this->name = new uint8[len + 1];
+	strcpy((char *)this->name, (char *)name); // Already know name has \0, because of strlen.
 }
 
 /**
@@ -127,13 +127,13 @@ void Person::SetName(const char *name)
  * The name is returned in memory owned by the person. Do not free this data. It may change on each call.
  * @return Static buffer containing the name of the person.
  */
-const char *Person::GetName() const
+const uint8 *Person::GetName() const
 {
-	static char buffer[16];
+	static uint8 buffer[16];
 
 	assert(this->IsGuest());
 	if (this->name != nullptr) return this->name;
-	sprintf(buffer, "Guest %u", this->id);
+	sprintf((char *)buffer, "Guest %u", this->id);
 	return buffer;
 }
 
@@ -354,6 +354,104 @@ static const WalkInformation *_center_path_tile[4][4] = {
 	{_center_sw_ne, _center_sw_se, _center_sw_sw, _center_sw_nw},
 	{_center_nw_ne, _center_nw_se, _center_nw_sw, _center_nw_nw},
 };
+
+/**
+ * Encode a walk into a number for serialization.
+ * @param wi Walk to encode.
+ * @return The encoded walk.
+ */
+static uint16 EncodeWalk(const WalkInformation *wi)
+{
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			int k = 0;
+			const WalkInformation *wij = _walk_path_tile[i][j];
+			while (wij->anim_type != ANIM_INVALID) {
+				if (wi == wij) return (0 << 12) | (i << 8) | (j << 4) | k;
+				k++;
+				wij++;
+			}
+		}
+	}
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			int k = 0;
+			const WalkInformation *wij = _center_path_tile[i][j];
+			while (wij->anim_type != ANIM_INVALID) {
+				if (wi == wij) return (1 << 12) | (i << 8) | (j << 4) | k;
+				k++;
+				wij++;
+			}
+		}
+	}
+	NOT_REACHED();
+}
+
+/**
+ * Decode a walk number back to a walk.
+ * @param number Value to decode.
+ * @return The walk encoded by the number.
+ */
+static const WalkInformation *DecodeWalk(uint16 number)
+{
+	int k = number & 0xF;
+	int j = (number >> 4) & 0xF;
+	int i = (number >> 8) & 0xF;
+	int c = (number >> 12) & 0xF;
+	if (c == 0) return &_walk_path_tile[i][j][k];
+	if (c == 1) return &_center_path_tile[i][j][k];
+
+	NOT_REACHED();
+}
+
+/**
+ * Load a person from the save game.
+ * @param ldr Input stream to read.
+ */
+void Person::Load(Loader &ldr)
+{
+	this->VoxelObject::Load(ldr);
+
+	this->type = (PersonType)ldr.GetByte();
+	this->offset = ldr.GetWord();
+	this->name = ldr.GetText();
+
+	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
+	this->recolour = person_type_data.graphics.MakeRecolouring();
+	this->recolour.Load(ldr);
+
+	this->walk = DecodeWalk(ldr.GetWord());
+	this->frame_index = ldr.GetWord();
+	this->frame_time = (int16)ldr.GetWord();
+
+	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
+	assert(anim != nullptr && anim->frame_count != 0);
+
+	this->frames = anim->frames;
+	this->frame_count = anim->frame_count;
+
+	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	this->MarkDirty();
+}
+
+/**
+ * Save person data to the save game file.
+ * @param svr Output stream to write.
+ */
+void Person::Save(Saver &svr)
+{
+	this->VoxelObject::Save(svr);
+
+	svr.PutByte(this->type);
+	svr.PutWord(this->offset);
+	svr.PutText(this->name);
+
+	this->recolour.Save(svr);
+
+	svr.PutWord(EncodeWalk(this->walk));
+	svr.PutWord(this->frame_index);
+	svr.PutWord((uint16)this->frame_time);
+}
 
 /**
  * Decide at which edge the person is.
@@ -1034,6 +1132,70 @@ void Guest::DeActivate(AnimateResult ar)
 	}
 
 	this->Person::DeActivate(ar);
+}
+
+/**
+ * Load a guest from the save game.
+ * @param ldr Input stream to read.
+ */
+void Guest::Load(Loader &ldr)
+{
+	this->Person::Load(ldr);
+
+	this->activity = static_cast<GuestActivity>(ldr.GetByte());
+	this->happiness = ldr.GetWord();
+	this->total_happiness = ldr.GetWord();
+	this->cash = static_cast<Money>(ldr.GetLongLong());
+	this->cash_spent = static_cast<Money>(ldr.GetLongLong());
+
+	uint16 ride_index = ldr.GetWord();
+	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+
+	this->has_map = ldr.GetByte();
+	this->has_umbrella = ldr.GetByte();
+	this->has_wrapper = ldr.GetByte();
+	this->has_balloon = ldr.GetByte();
+	this->salty_food = ldr.GetByte();
+	this->souvenirs = ldr.GetByte();
+	this->food = ldr.GetByte();
+	this->drink = ldr.GetByte();
+	this->hunger_level = ldr.GetByte();
+	this->thirst_level = ldr.GetByte();
+	this->stomach_level = ldr.GetByte();
+	this->waste = ldr.GetByte();
+	this->nausea = ldr.GetByte();
+}
+
+/**
+ * Save guest data to the save game file.
+ * @param svr Output stream to save to.
+ */
+void Guest::Save(Saver &svr)
+{
+	this->Person::Save(svr);
+
+	svr.PutByte(this->activity);
+	svr.PutWord(this->happiness);
+	svr.PutWord(this->total_happiness);
+	svr.PutLongLong(static_cast<uint64>(this->cash));
+	svr.PutLongLong(static_cast<uint64>(this->cash_spent));
+
+	uint16 ride_index = (this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE;
+	svr.PutWord(ride_index);
+
+	svr.PutByte(this->has_map);
+	svr.PutByte(this->has_umbrella);
+	svr.PutByte(this->has_wrapper);
+	svr.PutByte(this->has_balloon);
+	svr.PutByte(this->salty_food);
+	svr.PutByte(this->souvenirs);
+	svr.PutByte(this->food);
+	svr.PutByte(this->drink);
+	svr.PutByte(this->hunger_level);
+	svr.PutByte(this->thirst_level);
+	svr.PutByte(this->stomach_level);
+	svr.PutByte(this->waste);
+	svr.PutByte(this->nausea);
 }
 
 AnimateResult Guest::OnAnimate(int delay)
