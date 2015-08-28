@@ -291,7 +291,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	std::list<std::shared_ptr<PersonGraphics>> person_graphics; ///< Stored person graphics.
+	std::vector<std::shared_ptr<PersonGraphics>> person_graphics; ///< Stored person graphics.
 };
 
 /** ANIM frame data for a single frame. */
@@ -312,7 +312,7 @@ public:
 	int person_type; ///< Type of person being defined.
 	int anim_type;   ///< Type of animation being defined.
 
-	std::list<std::shared_ptr<FrameData>> frames; ///< Frame data of every frame.
+	std::vector<std::shared_ptr<FrameData>> frames; ///< Frame data of every frame.
 };
 
 /** ANSP game block. */
@@ -326,7 +326,7 @@ public:
 	int person_type; ///< Type of person being defined.
 	int anim_type;   ///< Type of animation being defined.
 
-	std::list<std::shared_ptr<SpriteBlock>> frames; ///< Sprite for every frame.
+	std::vector<std::shared_ptr<SpriteBlock>> frames; ///< Sprite for every frame.
 };
 
 /** Path sprites. */
@@ -844,7 +844,7 @@ public:
 	std::shared_ptr<Connection> entry; ///< Entry connection code.
 	std::shared_ptr<Connection> exit;  ///< Exit connection code.
 
-	std::list<std::shared_ptr<TrackVoxel>> track_voxels; ///< Voxels in the track piece.
+	std::vector<std::shared_ptr<TrackVoxel>> track_voxels; ///< Voxels in the track piece.
 
 	std::shared_ptr<Curve> car_xpos;  ///< Path for cars over the track piece in X direction.
 	std::shared_ptr<Curve> car_ypos;  ///< Path for cars over the track piece in Y direction.
@@ -874,7 +874,7 @@ public:
 
 	std::shared_ptr<StringBundle> text; ///< Text of the coaster (reference to a TEXT block).
 
-	std::list<std::shared_ptr<TrackPieceNode>> track_blocks; ///< Track pieces of the roller coaster.
+	std::vector<std::shared_ptr<TrackPieceNode>> track_blocks; ///< Track pieces of the roller coaster.
 };
 
 /** 'CARS' game block. */

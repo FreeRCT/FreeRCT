@@ -1117,6 +1117,35 @@ static std::shared_ptr<TCORBlock> ConvertTCORNode(std::shared_ptr<NodeGroup> ng)
 }
 
 /**
+ * @tparam T Type to cast the element to.
+ * @param vals %Values to examine.
+ * @param node_name Name of the element field (error reporting only).
+ * @param max_count Maximum number of allowed field instances, \c 0 disables the check.
+ * @return The found elements.
+ */
+template <typename T>
+static std::vector<std::shared_ptr<T>> GetTypedData(Values &vals, const char *node_name, int max_count)
+{
+	std::vector<std::shared_ptr<T>> elements;
+
+	for (int i = 0; i < vals.unnamed_count; i++) {
+		std::shared_ptr<ValueInformation> &vi = vals.unnamed_values[i];
+		if (vi->used) continue;
+		auto data = std::dynamic_pointer_cast<T>(vi->node_value);
+		if (data == nullptr) continue; // Silently skip 'weird' data type, unused entries are caught later anyway.
+		if (max_count > 0 && static_cast<int>(elements.size()) == max_count) {
+			fprintf(stderr, "Error at %s: Too many \"%s\" elements in a %s block\n", vi->pos.ToString(), node_name, vals.node_name);
+			exit(1);
+		}
+		elements.push_back(data);
+		vi->node_value = nullptr;
+		vi->used = true;
+	}
+
+	return elements;
+}
+
+/**
  * Convert a node group to a PRSG game block.
  * @param ng Generic tree of nodes to convert.
  * @return The created PRSG game block.
@@ -1129,22 +1158,7 @@ static std::shared_ptr<PRSGBlock> ConvertPRSGNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("PRSG", ng->pos);
 	vals.PrepareNamedValues(ng->values, false, true);
 
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> &vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto pg = std::dynamic_pointer_cast<PersonGraphics>(vi->node_value);
-		if (pg == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a person_graphics node\n", vi->pos.ToString());
-			exit(1);
-		}
-		blk->person_graphics.push_back(pg);
-		vi->node_value = nullptr;
-		if (blk->person_graphics.size() > 255) {
-			fprintf(stderr, "Error at %s: Too many person graphics in a PRSG block\n", vi->pos.ToString());
-			exit(1);
-		}
-		vi->used = true;
-	}
+	blk->person_graphics = GetTypedData<PersonGraphics>(vals, "person_graphics", 255);
 
 	vals.VerifyUsage();
 	return blk;
@@ -1179,23 +1193,7 @@ static std::shared_ptr<ANIMBlock> ConvertANIMNode(std::shared_ptr<NodeGroup> ng)
 
 	blk->person_type = vals.GetNumber("person_type");
 	blk->anim_type = vals.GetNumber("anim_type");
-
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> &vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto fd = std::dynamic_pointer_cast<FrameData>(vi->node_value);
-		if (fd == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a \"frame_data\" node\n", vi->pos.ToString());
-			exit(1);
-		}
-		blk->frames.push_back(fd);
-		vi->node_value = nullptr;
-		if (blk->frames.size() > 0xFFFF) {
-			fprintf(stderr, "Error at %s: Too many frames in an ANIM block\n", vi->pos.ToString());
-			exit(1);
-		}
-		vi->used = true;
-	}
+	blk->frames = GetTypedData<FrameData>(vals, "frame_data", 0xFFFF);
 
 	vals.VerifyUsage();
 	return blk;
@@ -1217,23 +1215,7 @@ static std::shared_ptr<ANSPBlock> ConvertANSPNode(std::shared_ptr<NodeGroup> ng)
 	blk->tile_width  = vals.GetNumber("tile_width");
 	blk->person_type = vals.GetNumber("person_type");
 	blk->anim_type   = vals.GetNumber("anim_type");
-
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> &vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto sp = std::dynamic_pointer_cast<SpriteBlock>(vi->node_value);
-		if (sp == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a \"sprite\" node\n", vi->pos.ToString());
-			exit(1);
-		}
-		blk->frames.push_back(sp);
-		vi->node_value = nullptr;
-		if (blk->frames.size() > 0xFFFF) {
-			fprintf(stderr, "Error at %s: Too many frames in an ANSP block\n", vi->pos.ToString());
-			exit(1);
-		}
-		vi->used = true;
-	}
+	blk->frames = GetTypedData<SpriteBlock>(vals, "sprite", 0xFFFF);
 
 	vals.VerifyUsage();
 	return blk;
@@ -1648,20 +1630,9 @@ static std::shared_ptr<PersonGraphics> ConvertPersonGraphicsNode(std::shared_ptr
 	vals.PrepareNamedValues(ng->values, true, true, _person_graphics_symbols);
 
 	pg->person_type = vals.GetNumber("person_type");
-
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> &vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto rc = std::dynamic_pointer_cast<Recolouring>(vi->node_value);
-		if (rc == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a recolour node\n", vi->pos.ToString());
-			exit(1);
-		}
-		if (!pg->AddRecolour(rc->orig, rc->replace)) {
-			fprintf(stderr, "Error at %s: Recolouring node cannot be stored (maximum is 3)\n", vi->pos.ToString());
-			exit(1);
-		}
-		vi->used = true;
+	std::vector<std::shared_ptr<Recolouring>> recolours = GetTypedData<Recolouring>(vals, "recolour", 3);
+	for (auto &rc : recolours) {
+		pg->AddRecolour(rc->orig, rc->replace);
 	}
 
 	vals.VerifyUsage();
@@ -1782,22 +1753,10 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	sb->shop_text->Fill(vals.GetStrings("texts"), ng->pos);
 	sb->shop_text->CheckTranslations(_shops_string_names, lengthof(_shops_string_names), ng->pos);
 
-	int free_recolour = 0;
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto rc = std::dynamic_pointer_cast<Recolouring>(vi->node_value);
-		if (rc == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a \"recolour\" node\n", vi->pos.ToString());
-			exit(1);
-		}
-		if (free_recolour >= 3) {
-			fprintf(stderr, "Error at %s: Recolouring node cannot be stored (maximum is 3)\n", vi->pos.ToString());
-			exit(1);
-		}
-		sb->recol[free_recolour] = *rc;
-		free_recolour++;
-		vi->used = true;
+	std::vector<std::shared_ptr<Recolouring>> recolours = GetTypedData<Recolouring>(vals, "recolour", 3);
+	int i = 0;
+	for (auto &rc : recolours) {
+		sb->recol[i++] = *rc;
 	}
 
 	vals.VerifyUsage();
@@ -2170,20 +2129,7 @@ static std::shared_ptr<TrackPieceNode> ConvertTrackPieceNode(std::shared_ptr<Nod
 	tb->car_yaw = (vals.HasValue("car_yaw")) ? vals.GetCurve("car_yaw") : NULL;
 
 	tb->ComputeTrackLength(ng->pos);
-
-	/* Unnamed values are track voxels that need to be claimed (partly) for the track piece. */
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto tv = std::dynamic_pointer_cast<TrackVoxel>(vi->node_value);
-		if (tv == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a \"track_voxel\" node\n", vi->pos.ToString());
-			exit(1);
-		}
-		tb->track_voxels.push_back(tv);
-		vi->node_value = nullptr;
-		vi->used = true;
-	}
+	tb->track_voxels = GetTypedData<TrackVoxel>(vals, "track_voxel", 0);
 
 	vals.VerifyUsage();
 	return tb;
@@ -2209,19 +2155,7 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 	rb->text = std::make_shared<StringBundle>();
 	rb->text->Fill(vals.GetStrings("texts"), ng->pos);
 	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
-
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto tb = std::dynamic_pointer_cast<TrackPieceNode>(vi->node_value);
-		if (tb == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a \"track_piece\" node\n", vi->pos.ToString());
-			exit(1);
-		}
-		rb->track_blocks.push_back(tb);
-		vi->node_value = nullptr;
-		vi->used = true;
-	}
+	rb->track_blocks = GetTypedData<TrackPieceNode>(vals, "track_piece", 0);
 
 	vals.VerifyUsage();
 	return rb;
@@ -2269,22 +2203,11 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 static std::shared_ptr<BlockNode> ConvertSplinesNode(std::shared_ptr<NodeGroup> ng)
 {
 	ExpandNoExpression(ng->exprs, ng->pos, ng->name.c_str());
-	auto blk = std::make_shared<CubicSplines>();
 	Values vals(ng->name.c_str(), ng->pos);
 	vals.PrepareNamedValues(ng->values, false, true);
 
-	for (int i = 0; i < vals.unnamed_count; i++) {
-		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
-		if (vi->used) continue;
-		auto cs = std::dynamic_pointer_cast<CubicSpline>(vi->node_value);
-		if (cs == nullptr) {
-			fprintf(stderr, "Error at %s: Node is not a \"cubic\" node\n", vi->pos.ToString());
-			exit(1);
-		}
-		blk->curve.push_back(cs);
-		vi->node_value = nullptr;
-		vi->used = true;
-	}
+	auto blk = std::make_shared<CubicSplines>();
+	blk->curve = GetTypedData<CubicSpline>(vals, "cubic", 0);
 
 	vals.VerifyUsage();
 	return blk;
