@@ -2350,47 +2350,47 @@ static std::shared_ptr<INFOBlock> ConvertINFONode(std::shared_ptr<NodeGroup> ng)
  */
 static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng)
 {
+	if (ng->name == "bitmask") return ConvertBitMaskNode(ng);
+	if (ng->name == "connection") return ConvertConnection(ng);
+	if (ng->name == "cubic") return ConvertCubicNode(ng);
 	if (ng->name == "file") return ConvertFileNode(ng);
-	if (ng->name == "sheet") return ConvertSheetNode(ng);
-	if (ng->name == "spritefiles") return ConvertSpriteFilesNode(ng);
-	if (ng->name == "sprite") return ConvertSpriteNode(ng);
+	if (ng->name == "frame_data") return ConvertFrameDataNode(ng);
 	if (ng->name == "person_graphics") return ConvertPersonGraphicsNode(ng);
 	if (ng->name == "recolour") return ConvertRecolourNode(ng);
-	if (ng->name == "frame_data") return ConvertFrameDataNode(ng);
-	if (ng->name == "strings") return ConvertStringsNode(ng);
-	if (ng->name == "string") return ConvertStringNode(ng);
-	if (ng->name == "stringtexts") return ConvertStringTextsNode(ng);
-	if (ng->name == "track_voxel") return ConvertTrackVoxel(ng);
-	if (ng->name == "connection") return ConvertConnection(ng);
-	if (ng->name == "track_piece") return ConvertTrackPieceNode(ng);
-	if (ng->name == "bitmask") return ConvertBitMaskNode(ng);
+	if (ng->name == "sheet") return ConvertSheetNode(ng);
 	if (ng->name == "splines") return ConvertSplinesNode(ng);
-	if (ng->name == "cubic") return ConvertCubicNode(ng);
+	if (ng->name == "sprite") return ConvertSpriteNode(ng);
+	if (ng->name == "spritefiles") return ConvertSpriteFilesNode(ng);
+	if (ng->name == "string") return ConvertStringNode(ng);
+	if (ng->name == "strings") return ConvertStringsNode(ng);
+	if (ng->name == "stringtexts") return ConvertStringTextsNode(ng);
+	if (ng->name == "track_piece") return ConvertTrackPieceNode(ng);
+	if (ng->name == "track_voxel") return ConvertTrackVoxel(ng);
 
 	/* Game blocks. */
-	if (ng->name == "TSEL") return ConvertTSELNode(ng);
-	if (ng->name == "TCOR") return ConvertTCORNode(ng);
-	if (ng->name == "SURF") return ConvertSURFNode(ng);
-	if (ng->name == "FUND") return ConvertFUNDNode(ng);
-	if (ng->name == "PRSG") return ConvertPRSGNode(ng);
 	if (ng->name == "ANIM") return ConvertANIMNode(ng);
 	if (ng->name == "ANSP") return ConvertANSPNode(ng);
-	if (ng->name == "PATH") return ConvertPATHNode(ng);
-	if (ng->name == "PDEC") return ConvertPDECNode(ng);
-	if (ng->name == "PLAT") return ConvertPLATNode(ng);
-	if (ng->name == "SUPP") return ConvertSUPPNode(ng);
-	if (ng->name == "SHOP") return ConvertSHOPNode(ng);
-	if (ng->name == "GBOR") return ConvertGBORNode(ng);
-	if (ng->name == "GCHK") return ConvertGCHKNode(ng);
-	if (ng->name == "GSLI") return ConvertGSLINode(ng);
-	if (ng->name == "GSCL") return ConvertGSCLNode(ng);
 	if (ng->name == "BDIR") return ConvertBDIRNode(ng);
-	if (ng->name == "GSLP") return ConvertGSLPNode(ng);
-	if (ng->name == "RCST") return ConvertRCSTNode(ng);
 	if (ng->name == "CARS") return ConvertCARSNode(ng);
 	if (ng->name == "CSPL") return ConvertCSPLNode(ng);
 	if (ng->name == "FENC") return ConvertFENCNode(ng);
+	if (ng->name == "FUND") return ConvertFUNDNode(ng);
+	if (ng->name == "GBOR") return ConvertGBORNode(ng);
+	if (ng->name == "GCHK") return ConvertGCHKNode(ng);
+	if (ng->name == "GSCL") return ConvertGSCLNode(ng);
+	if (ng->name == "GSLI") return ConvertGSLINode(ng);
+	if (ng->name == "GSLP") return ConvertGSLPNode(ng);
 	if (ng->name == "INFO") return ConvertINFONode(ng);
+	if (ng->name == "PATH") return ConvertPATHNode(ng);
+	if (ng->name == "PDEC") return ConvertPDECNode(ng);
+	if (ng->name == "PLAT") return ConvertPLATNode(ng);
+	if (ng->name == "PRSG") return ConvertPRSGNode(ng);
+	if (ng->name == "RCST") return ConvertRCSTNode(ng);
+	if (ng->name == "SHOP") return ConvertSHOPNode(ng);
+	if (ng->name == "SUPP") return ConvertSUPPNode(ng);
+	if (ng->name == "SURF") return ConvertSURFNode(ng);
+	if (ng->name == "TCOR") return ConvertTCORNode(ng);
+	if (ng->name == "TSEL") return ConvertTSELNode(ng);
 
 	/* Unknown type of node. */
 	fprintf(stderr, "Error at %s: Do not know how to check and simplify node \"%s\".\n", ng->pos.ToString(), ng->name.c_str());
