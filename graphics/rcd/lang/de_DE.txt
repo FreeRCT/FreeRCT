@@ -8,6 +8,7 @@ strings {
 	lang: "de_DE";
 
 	stringtexts("gui") {
+		TITLEBAR_TIP:  "Ein Klick auf die Titelleiste holt das Fenster in den Vordergrund, ziehen der Titelleiste verschiebt das Fenster";
 		LANGUAGE_NAME: "Deutsch";
 
 		MONTH_JANUARY:   "Januar";
@@ -24,12 +25,16 @@ strings {
 		MONTH_DECEMBER:  "Dezember";
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_QUIT:                 "Beenden";
 		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Beendet das Spiel";
 		TOOLBAR_GUI_SETTINGS:             "Einstellungen";
 		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Spieleinstellungen ändern";
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spielen";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";
+		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Umschalten zwischem Spielen und dem Editor";
 		TOOLBAR_GUI_PATHS:                "Wege";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege und Warteschlangen errichten";
 		TOOLBAR_GUI_SAVE:                 "Speichern";
@@ -38,10 +43,14 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Spiel laden";
 		TOOLBAR_GUI_RIDE_SELECT:          "Attraktion kaufen";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Eine neue Attraktion für den Park kaufen";
+		TOOLBAR_GUI_FENCE:                "Zäune kaufen";
+		TOOLBAR_GUI_TOOLTIP_FENCE:        "Baue Zäune in deinem Park";
 		TOOLBAR_GUI_TERRAFORM:            "Landschaftsgestaltung";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Verändert die Landschaft";
 		TOOLBAR_GUI_FINANCES:             "Finanzen";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Verwaltet das Firmenvermögen";
+
+		BOTTOMBAR_GUESTCOUNT:             "%1% Besucher";
 
 		// Quit program strings.
 		QUIT_CAPTION: "Beenden?";
@@ -54,12 +63,13 @@ strings {
 		ERROR_MESSAGE_SPRITE:  "Sprite konnte nicht gezeichnet werden (Failed to draw sprite).";
 
 		// Guest info gui strings.
-		GUEST_INFO_MONEY:     "Verfügbares Geld";
-		GUEST_INFO_HAPPINESS: "Fröhlichkeit";
-		GUEST_INFO_HUNGER:    "Hunger";
-		GUEST_INFO_THIRST:    "Durst";
-		GUEST_INFO_WASTE:     "Müll";
-		GUEST_INFO_ITEMS:     "Inventar";
+		GUEST_INFO_MONEY:       "Verfügbares Geld";
+		GUEST_INFO_MONEY_SPENT: "Ausgegebenes Geld";
+		GUEST_INFO_HAPPINESS:   "Fröhlichkeit";
+		GUEST_INFO_HUNGER:      "Hunger";
+		GUEST_INFO_THIRST:      "Durst";
+		GUEST_INFO_WASTE:       "Müll";
+		GUEST_INFO_ITEMS:       "Inventar";
 
 		// Items for guests gui strings.
 		ITEM_NONE:     "nichts";
@@ -89,6 +99,14 @@ strings {
 		PATH_GUI_SW_DIRECTION_TIP: "Baut Weg in süd-westliche Richtung";
 		PATH_GUI_SE_DIRECTION_TIP: "Baut Weg in süd-östliche Richtung";
 
+		PATH_GUI_NORMAL_PATH:      "Normale Wege";
+		PATH_GUI_QUEUE_PATH:       "Warteschlange";
+
+		PATH_GUI_SINGLE:           "Einzeln";
+		PATH_GUI_DIRECTIONAL:      "Lange Wege";
+		PATH_GUI_SINGLE_TIP:       "Plaziert einen einzelnen Wegabschnitt";
+		PATH_GUI_DIRECTIONAL_TIP:  "Begin eines längeren Weges";
+
 		// Ride select gui strings.
 		RIDE_SELECT_TITLE:           "Attraktion auswählen";
 		RIDE_SELECT_SHOPS:           "Geschäfte";
@@ -115,6 +133,9 @@ strings {
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Gewinn";
 		SHOP_MANAGER_OPENED_TEXT:        "Geschäft geöffnet";
 		SHOP_MANAGER_CLOSED_TEXT:        "Geschäft geschlossen";
+
+		// Fence gui strings.
+		FENCE_TITLE:           "Baue Zäune";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Landschaft verändern";
@@ -152,15 +173,36 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Wählt Streckenteile mit Neigung nach rechts aus";
 		COASTER_BUILD_BUY_TOOLTIP:        "Kauft das gewählte Streckenteil";
 
+		// Ride build window strings.
+		RIDE_BUILD_TITLEBAR_SHOP:         "Geschäft plazieren";
+		RIDE_BUILD_ROTATE_TOOLTIP:        "Rotieren des Fahrgeschäfts";
+		RIDE_BUILD_DISPLAY_TOOLTIP:       "Ein Bild des Fahrgeschäfts";
+		RIDE_BUILD_NAME_TEXT:             "Kaufen %1%";
+		RIDE_BUILD_COST_TEXT:             "Kosten %1%";
+
 		// Money symbols.
-		MONEY_CURRENCY_SYMBOL:     "$";
-		MONEY_THOUSANDS_SEPARATOR: ",";
-		MONEY_DECIMAL_SEPARATOR:   ".";
+		MONEY_CURRENCY_SYMBOL:     "€";
+		MONEY_THOUSANDS_SEPARATOR: ".";
+		MONEY_DECIMAL_SEPARATOR:   ",";
 
 		// Setting gui strings.
-		SETTING_TITLE:            "Einstellungen";
-		SETTING_LANGUAGE:         "Sprache ändern";
-		SETTING_LANGUAGE_TOOLTIP: "Ändert die Sprache des Spieles";
+		SETTING_TITLE:              "Einstellungen";
+		SETTING_LANGUAGE:           "Sprache ändern";
+		SETTING_LANGUAGE_TOOLTIP:   "Ändert die Sprache des Spieles";
+		SETTING_RESOLUTION:         "Auflösung wechseln";
+		SETTING_RESOLUTION_TOOLTIP: "Ändert die Grafische auflösung des Spiels";
+	}
+
+	stringtexts("ice-cream-stall") {
+		NAME_INSTANCE1:        "The ice palace";
+		NAME_INSTANCE2:        "Kalte Getränke";
+		NAME_TYPE:             "Eiscremeshop";
+		DESCRIPTION_TYPE:      "Geschäft für kühle Getränke und Eiscreme";
+		DESCRIPTION_RECOLOUR1: "Becherfarbe";
+		DESCRIPTION_RECOLOUR2: "Cremefarbe";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Vanille Eiscreme";
+		NAME_ITEM2:            "Erfrischungsgetränk";
 	}
 
 	stringtexts("snack-shop") {
@@ -168,8 +210,23 @@ strings {
 		NAME_INSTANCE2:   "Pizzapalast";
 		NAME_TYPE:        "Snackshop";
 		DESCRIPTION_TYPE: "Geschäft, das leckere Kekse verkauft";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
 		NAME_ITEM1:       "Kekse";
 		NAME_ITEM2:       "Pizza";
+	}
+
+	stringtexts("toilet") {
+		NAME_INSTANCE1:        "Toilet";
+		NAME_INSTANCE2:        "Toiletten";
+		NAME_TYPE:             "Toiletten";
+		DESCRIPTION_TYPE:      "Wenn sie mal müssen, dann müssen sie hier her";
+		DESCRIPTION_RECOLOUR1: "Toilettenfarbe";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Toilet";
+		NAME_ITEM2:            "";
 	}
 
 	stringtexts("basic-coaster") {
