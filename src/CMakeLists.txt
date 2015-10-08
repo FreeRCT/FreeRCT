@@ -36,6 +36,8 @@ add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
 				   DEPENDS rcdgen
                    COMMENT "Generating GUI string files"
 )
+# for ressource handling
+file(WRITE ${CMAKE_SOURCE_DIR}/src/generated/comp_info.h "const char* INSTALL_PATH_RCD = \"${CMAKE_INSTALL_PREFIX}/share/FreeRCT\";")
 
 # Add platform specific files
 IF(UNIX)
@@ -57,6 +59,7 @@ set(freerct_SRCS ${freerct_SRCS}
     "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h"
+    "${CMAKE_SOURCE_DIR}/src/generated/comp_info.h"
 )
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/rev.cpp" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.cpp" GENERATED)
@@ -65,6 +68,7 @@ set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.cpp" 
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/comp_info.h" GENERATED)
 
 # On windows, "WIN32" option need to be passed to
 # add_excutable to get a Windows instead of Console
@@ -128,3 +132,6 @@ ELSEIF(WIN32)
 ELSE()
 	message(FATAL_ERROR "Unsupported platform")
 ENDIF()
+
+# Install rules
+INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION bin)

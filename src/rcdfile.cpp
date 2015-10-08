@@ -11,6 +11,7 @@
 #include "rcdfile.h"
 #include "fileio.h"
 #include "string_func.h"
+#include "generated/comp_info.h"
 
 RcdFileCollection _rcd_collection; ///< Available RCD files.
 
@@ -72,6 +73,7 @@ void RcdFileCollection::AddFile(const RcdFileInfo &rcd)
  */
 static const char *_rcd_paths[] = {
 	"rcd",
+	INSTALL_PATH_RCD,
 	nullptr,
 };
 
