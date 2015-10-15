@@ -34,7 +34,7 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Spieleinstellungen ändern";
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spielen";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";
-		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Umschalten zwischem Spielen und dem Editor";
+		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Umschalten zwischen Spielen und dem Editor";
 		TOOLBAR_GUI_PATHS:                "Wege";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege und Warteschlangen errichten";
 		TOOLBAR_GUI_SAVE:                 "Speichern";
@@ -84,7 +84,7 @@ strings {
 		PATH_GUI_REMOVE:         "Abreißen";
 		PATH_GUI_LONG_TIP:       "Baut einen langen Pfad";
 		PATH_GUI_BUY_TIP:        "Ein Wegstück kaufen";
-		PATH_GUI_BULLDOZER_TIP:  "Zuletzt gebaute Wegstück abreißen und das Geld zurückbekommen (funktioniert bis das Fenster geschlossen wird)";
+		PATH_GUI_BULLDOZER_TIP:  "Zuletzt gebautes Wegstück abreißen und das Geld zurückbekommen (funktioniert bis das Fenster geschlossen wird)";
 		PATH_GUI_SLOPE_DOWN_TIP: "Baut einen abfallenden Weg";
 		PATH_GUI_SLOPE_FLAT_TIP: "Baut einen ebenen Weg";
 		PATH_GUI_SLOPE_UP_TIP:   "Baut einen ansteigenden Weg";
@@ -105,7 +105,7 @@ strings {
 		PATH_GUI_SINGLE:           "Einzeln";
 		PATH_GUI_DIRECTIONAL:      "Lange Wege";
 		PATH_GUI_SINGLE_TIP:       "Plaziert einen einzelnen Wegabschnitt";
-		PATH_GUI_DIRECTIONAL_TIP:  "Begin eines längeren Weges";
+		PATH_GUI_DIRECTIONAL_TIP:  "Beginn eines längeren Weges";
 
 		// Ride select gui strings.
 		RIDE_SELECT_TITLE:           "Attraktion auswählen";
@@ -190,7 +190,7 @@ strings {
 		SETTING_LANGUAGE:           "Sprache ändern";
 		SETTING_LANGUAGE_TOOLTIP:   "Ändert die Sprache des Spieles";
 		SETTING_RESOLUTION:         "Auflösung wechseln";
-		SETTING_RESOLUTION_TOOLTIP: "Ändert die Grafische auflösung des Spiels";
+		SETTING_RESOLUTION_TOOLTIP: "Ändert die grafische Auflösung des Spiels";
 	}
 
 	stringtexts("ice-cream-stall") {
