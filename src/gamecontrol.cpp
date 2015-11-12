@@ -68,10 +68,16 @@ GameControl::~GameControl()
 }
 
 /** Initialize the game controller. */
-void GameControl::Initialize()
+void GameControl::Initialize(const char *fname)
 {
 	this->running = true;
-	this->NewGame();
+
+	if (fname == nullptr) {
+		this->NewGame();
+	} else {
+		this->LoadGame(fname);
+	}
+
 	this->RunAction();
 }
 
@@ -92,10 +98,8 @@ void GameControl::RunAction()
 		case GCA_LOAD_GAME:
 			this->ShutdownLevel();
 
-			if (this->next_action == GCA_NEW_GAME) {
+			if (this->next_action == GCA_NEW_GAME || !LoadGameFile(this->fname.c_str())) {
 				this->NewLevel();
-			} else {
-				LoadGameFile(this->fname.c_str());
 			}
 
 			this->StartLevel();

@@ -40,7 +40,7 @@ public:
 		if (this->next_action != GCA_NONE) this->RunAction();
 	}
 
-	void Initialize();
+	void Initialize(const char *fname);
 	void Uninitialize();
 
 	void NewGame();
