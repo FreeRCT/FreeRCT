@@ -20,6 +20,7 @@
 #include "getoptdata.h"
 #include "fileio.h"
 #include "gamecontrol.h"
+#include "string_func.h"
 
 GameControl _game_control; ///< Game controller.
 
@@ -42,6 +43,7 @@ void error(const char *str, ...)
 /** Command-line options of the program. */
 static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
+	GETOPT_VALUE('l', "--load"),
 	GETOPT_END()
 };
 
@@ -50,7 +52,8 @@ static void PrintUsage()
 {
 	printf("Usage: freerct [options]\n");
 	printf("Options:\n");
-	printf("  -h, --help     Display this help text and exit\n");
+	printf("  -h, --help           Display this help text and exit\n");
+	printf("  -l, --load [file]    Load game from specified file\n");
 }
 
 /** Show that there are missing sprites. */
@@ -72,12 +75,18 @@ int freerct_main(int argc, char **argv)
 	GetOptData opt_data(argc - 1, argv + 1, _options);
 
 	int opt_id;
+	const char *file_name = nullptr;
 	do {
 		opt_id = opt_data.GetOpt();
 		switch (opt_id) {
 			case 'h':
 				PrintUsage();
 				return 0;
+			case 'l':
+				if (opt_data.opt != nullptr) {
+					file_name = StrDup(opt_data.opt);
+				}
+				break;
 
 			case -1:
 				break;
@@ -124,8 +133,9 @@ int freerct_main(int argc, char **argv)
 		return 1;
 	}
 
-	/// \todo Allow for loading directly from a saved game.
-	_game_control.Initialize();
+	_game_control.Initialize(file_name);
+
+	delete[] file_name;
 
 	/* Loops until told not to. */
 	_video.MainLoop();
