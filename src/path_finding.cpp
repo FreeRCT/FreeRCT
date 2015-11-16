@@ -125,9 +125,9 @@ void PathSearcher::AddOpen(const XYZPoint16 &vox, uint32 traveled, const WalkedP
 bool PathSearcher::Search()
 {
 	this->dest_pos = nullptr;
-	while (!open_points.empty()) {
-		WalkedDistance wd = *open_points.begin();
-		open_points.erase(open_points.begin());
+	while (!this->open_points.empty()) {
+		WalkedDistance wd = *this->open_points.begin();
+		this->open_points.erase(this->open_points.begin());
 
 		if (wd.traveled != wd.pos->traveled || wd.estimate != wd.pos->estimate) continue; // Invalid open point.
 
