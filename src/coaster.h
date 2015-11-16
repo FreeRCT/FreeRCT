@@ -144,6 +144,18 @@ public:
 		this->front.PreRemove();
 		this->back.PreRemove();
 	}
+
+	void Load(Loader &ldr)
+	{
+		this->front.Load(ldr);
+		this->back.Load(ldr);
+	}
+
+	void Save(Saver &svr)
+	{
+		this->front.Save(svr);
+		this->back.Save(svr);
+	}
 };
 
 class CoasterInstance;
