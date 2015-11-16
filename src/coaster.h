@@ -173,6 +173,9 @@ public:
 
 	void OnAnimate(int delay);
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	const CoasterInstance *coaster;        ///< Roller coaster owning the train.
 	std::vector<CoasterCar> cars;          ///< Cars in the train. \c 0 means the train is not used.
 	uint32 back_position;                  ///< Position of the back-end of the train (in 1/256 pixels).

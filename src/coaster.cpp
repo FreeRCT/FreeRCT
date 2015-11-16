@@ -543,6 +543,26 @@ void CoasterTrain::OnAnimate(int delay)
 	}
 }
 
+void CoasterTrain::Load(Loader &ldr)
+{
+	for (std::vector<CoasterCar>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
+		it->Load(ldr);
+	}
+
+	this->back_position = ldr.GetLong();
+	this->speed = (int32)ldr.GetLong();
+}
+
+void CoasterTrain::Save(Saver &svr)
+{
+	for (std::vector<CoasterCar>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
+		it->Save(svr);
+	}
+
+	svr.PutLong(this->back_position);
+	svr.PutLong((uint32)this->speed);
+}
+
 /**
  * Constructor of a roller coaster instance.
  * @param ct Coaster type being built.
