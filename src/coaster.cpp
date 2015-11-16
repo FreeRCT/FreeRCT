@@ -961,3 +961,88 @@ int CoasterInstance::GetNumberOfCars() const
 	if (number_cars == 0) number_cars = 1;
 	return number_cars;
 }
+
+void CoasterInstance::Load(Loader &ldr)
+{
+	this->RideInstance::Load(ldr);
+
+	this->capacity = (int)ldr.GetLong();
+	this->coaster_length = ldr.GetLong();
+
+	const CoasterType *ct = this->GetCoasterType();
+
+	uint saved_pieces = ldr.GetWord();
+	if (saved_pieces == 0) {
+		ldr.SetFailMessage("Invalid number of track pieces.");
+	}
+
+	for (uint i = 0; i < saved_pieces; i++) {
+		uint32 index = ldr.GetLong();
+		ConstTrackPiecePtr piece = ct->pieces[index];
+
+		if (piece != nullptr) {
+			this->pieces[i].piece = piece;
+			this->pieces[i].Load(ldr);
+			this->PlaceTrackPieceInWorld(this->pieces[i]);
+		} else {
+			ldr.SetFailMessage("Invalid track piece.");
+		}
+	}
+
+	int number_of_trains = (int)ldr.GetLong();
+	if (number_of_trains > 0) {
+		this->SetNumberOfTrains(number_of_trains);
+
+		int number_of_cars = (int)ldr.GetLong();
+		if (number_of_cars > 0) {
+			this->SetNumberOfCars(number_of_cars);
+
+			for (int i = 0; i < number_of_trains; i++) {
+				this->trains[i].Load(ldr);
+			}
+		} else {
+			ldr.SetFailMessage("Invalid number of cars.");
+		}
+	} else {
+		ldr.SetFailMessage("Invalid number of trains.");
+	}
+}
+
+void CoasterInstance::Save(Saver &svr)
+{
+	this->RideInstance::Save(svr);
+
+	svr.PutLong((uint32)this->capacity);
+	svr.PutLong(this->coaster_length);
+
+	int count = 0;
+	for (int i = 0; i < this->capacity; i++) {
+		if (this->pieces[i].piece != nullptr) {
+			count++;
+		}
+	}
+	svr.PutWord(count);
+
+	const CoasterType *ct = this->GetCoasterType();
+
+	for (int i = 0; i < this->capacity; i++) {
+		if (this->pieces[i].piece != nullptr) {
+			for (uint j = 0; j < ct->pieces.size(); j++) {
+				if (this->pieces[i].piece == ct->pieces[j]) {
+					svr.PutLong(j);
+					this->pieces[i].Save(svr);
+					break;
+				}
+			}
+		}
+	}
+
+	int number_of_trains = this->GetNumberOfTrains();
+
+	svr.PutLong((uint32)number_of_trains);
+	svr.PutLong((uint32)this->GetNumberOfCars());
+
+	for (int i = 0; i < number_of_trains; i++) {
+		this->trains[i].Save(svr);
+	}
+}

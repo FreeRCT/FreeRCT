@@ -236,6 +236,9 @@ public:
 	void SetNumberOfCars(int number_cars);
 	int GetNumberOfCars() const;
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
 	uint32 coaster_length;        ///< Total length of the roller coaster track (in 1/256 pixels).
