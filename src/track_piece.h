@@ -287,6 +287,9 @@ public:
 		return this->base_voxel + this->piece->exit_dxyz;
 	}
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	XYZPoint16 base_voxel; ///< Position (in voxels) of the entry point of the track piece.
 	uint32 distance_base; ///< Base distance of this track piece in its roller coaster.
 
