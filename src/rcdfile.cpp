@@ -58,9 +58,9 @@ RcdFileCollection::RcdFileCollection()
  */
 void RcdFileCollection::AddFile(const RcdFileInfo &rcd)
 {
-	auto iter = rcdfiles.find(rcd.uri);
-	if (iter == rcdfiles.end()) {
-		rcdfiles.emplace(std::make_pair(rcd.uri, rcd));
+	auto iter = this->rcdfiles.find(rcd.uri);
+	if (iter == this->rcdfiles.end()) {
+		this->rcdfiles.emplace(std::make_pair(rcd.uri, rcd));
 	} else if (iter->second.build < rcd.build) {
 		iter->second = rcd;
 	}
