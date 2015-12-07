@@ -328,4 +328,54 @@ Version history
 
 - 1 (20150823) Initial version.
 
+
+Current rides block
+-------------
+The rides block stores all rides. Current version is 1.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "RIDS".
+   4       4      1-     Version number of the rides block.
+   8       2      1-     Number of allocated rides.
+  10       ?      1-     Contents of "number" allocated rides.
+   ?       4      1-     "SDIR"
+======  ======  =======  ======================================================
+
+A single ride is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       1      1-     Ride type 'kind' (Shop, coaster, etc).
+   1       4      1-     Length of the RideType name string.
+   5      ?*4     1-     RideType's name characters (from RCD file).
+   ?       4      1-     Length of the name string.
+   ?      ?*4     1-     Name characters.
+   ?       2      1-     State and flags of the ride.
+   ?       4      1-     Recolour information.
+   ?       8      1-     Total profit of the ride.
+   ?       8      1-     Total profit of selling items.
+   ?       2      1-     Breakdown counter.
+   ?       2      1-     Mean number of days in between breakdowns.
+   ?       1      1-     Breakdown state of the ride.
+======  ======  =======  ======================================================
+
+A single shop is stored as follows.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       1      1-     Orientation of the shop.
+   1       2      1-     Voxel x coordinate.
+   3       2      1-     Voxel y coordinate.
+   5       2      1-     Voxel z coordinate.
+======  ======  =======  ======================================================
+
+Version history
+~~~~~~~~~~~~~~~
+
+- 1 (20151206) Initial version.
+
 .. vim: spell
