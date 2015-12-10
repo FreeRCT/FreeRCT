@@ -198,6 +198,7 @@ public:
 	RideInstance *CreateInstance(const RideType *type, uint16 num);
 	void NewInstanceAdded(uint16 num);
 	void DeleteInstance(uint16 num);
+	void DeleteAllRideInstances();
 	void CheckNoAllocatedRides() const;
 
 	void OnAnimate(int delay);

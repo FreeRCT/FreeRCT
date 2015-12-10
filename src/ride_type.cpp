@@ -677,6 +677,13 @@ void RidesManager::DeleteInstance(uint16 num)
 	this->instances[num] = nullptr;
 }
 
+void RidesManager::DeleteAllRideInstances()
+{
+	for (uint i = 0; i < lengthof(this->instances); i++) {
+		if (this->instances[i] != nullptr) this->DeleteInstance(this->instances[i]->GetIndex());
+	}
+}
+
 /**
  * Check that no rides are under construction at the moment of calling.
  * @note This is just a checking function, perhaps eventually remove it?
