@@ -464,18 +464,32 @@ void RidesManager::Load(Loader &ldr)
 			const RideType *ride_type = nullptr;
 			RideTypeKind ride_kind = static_cast<RideTypeKind>(ldr.GetByte());
 			const uint8 *ride_type_name = ldr.GetText();
+			bool found = false;
 
-			for (uint j = 0; j < lengthof(this->ride_types); j++) {
-				ride_type = this->ride_types[j];
-				const uint8 *tmp_name = _language.GetText(ride_type->GetString(ride_type->GetTypeName()));
+			if (ride_type_name != nullptr) {
+				for (uint j = 0; j < lengthof(this->ride_types); j++) {
+					ride_type = this->ride_types[j];
+					const uint8 *tmp_name = _language.GetText(ride_type->GetString(ride_type->GetTypeName()));
 
-				if (ride_kind == ride_type->kind && StrEqual(tmp_name, ride_type_name)) break;
+					if (ride_kind == ride_type->kind && StrEqual(tmp_name, ride_type_name)) {
+						found = true;
+						break;
+					}
+				}
+			} else {
+				ldr.SetFailMessage("Invalid ride type name.");
 			}
 
-			if (ride_type == nullptr) break;
+			if (ride_type == nullptr || !found) {
+				ldr.SetFailMessage("Unknown/invalid ride type.");
+				break;
+			}
 
 			uint16 instance = this->GetFreeInstance(ride_type);
-			if (instance == INVALID_RIDE_INSTANCE) break;
+			if (instance == INVALID_RIDE_INSTANCE) {
+				ldr.SetFailMessage("Invalid ride instance.");
+				break;
+			}
 
 			this->instances[i] = this->CreateInstance(ride_type, instance);
 			this->instances[i]->Load(ldr);
