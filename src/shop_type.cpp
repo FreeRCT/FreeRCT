@@ -255,3 +255,38 @@ void ShopInstance::OnAnimate(int delay)
 		gb.state = BST_EMPTY;
 	}
 }
+
+void ShopInstance::Load(Loader &ldr)
+{
+	this->RideInstance::Load(ldr);
+
+	this->orientation = ldr.GetByte();
+	uint16 x = ldr.GetWord();
+	uint16 y = ldr.GetWord();
+	uint16 z = ldr.GetWord();
+
+	this->vox_pos = XYZPoint16(x, y, z);
+
+	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->GetIndex());
+	uint8 entrances = this->GetEntranceDirections(this->vox_pos);
+
+	Voxel *v = _world.GetCreateVoxel(this->vox_pos, true);
+	if (v != nullptr && v->GetInstance() == SRI_FREE) {
+		v->SetInstance(inst_number);
+		v->SetInstanceData(entrances);
+
+		AddRemovePathEdges(this->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
+	} else {
+		ldr.SetFailMessage("Invalid world coordinates for shop.");
+	}
+}
+
+void ShopInstance::Save(Saver &svr)
+{
+	this->RideInstance::Save(svr);
+
+	svr.PutByte(this->orientation);
+	svr.PutWord(this->vox_pos.x);
+	svr.PutWord(this->vox_pos.y);
+	svr.PutWord(this->vox_pos.z);
+}
