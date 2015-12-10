@@ -123,6 +123,9 @@ public:
 	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
 	void PreRemove();
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	const CarType *car_type; ///< Car type data.
 	uint8 pitch;             ///< Pitch of the car.
 	uint8 roll;              ///< Roll of the car.

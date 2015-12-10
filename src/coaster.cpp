@@ -269,6 +269,32 @@ void DisplayCoasterCar::PreRemove()
 	this->MarkDirty();
 }
 
+void DisplayCoasterCar::Load(Loader &ldr)
+{
+	this->VoxelObject::Load(ldr);
+
+	this->pitch = ldr.GetByte();
+	this->roll = ldr.GetByte();
+	this->yaw = ldr.GetByte();
+
+	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
+
+	if (v != nullptr) {
+		this->AddSelf(v);
+	} else {
+		ldr.SetFailMessage("Invalid world coordinates for coaster car.");
+	}
+}
+
+void DisplayCoasterCar::Save(Saver &svr)
+{
+	this->VoxelObject::Save(svr);
+
+	svr.PutByte(this->pitch);
+	svr.PutByte(this->roll);
+	svr.PutByte(this->yaw);
+}
+
 CoasterTrain::CoasterTrain()
 {
 	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
