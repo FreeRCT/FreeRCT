@@ -16,6 +16,7 @@
 
 static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of types of rides.
 static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
+static const int MAX_RIDE_INSTANCE_NAME_LENGTH = 64; ///< Maximum number of characters in ride instance name.
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
 
 static const int NUMBER_ITEM_TYPES_SOLD = 2; ///< Number of different items that a ride can sell.
@@ -156,9 +157,12 @@ public:
 	void CloseRide();
 	void HandleBreakdown();
 
+	virtual void Load(Loader &ldr);
+	virtual void Save(Saver &svr);
+
 	uint16 GetIndex() const;
 
-	uint8 name[64];          ///< Name of the ride, if it is instantiated.
+	uint8 *name;             ///< Name of the ride, if it is instantiated.
 	uint8 state;             ///< State of the instance. @see RideInstanceState
 	uint8 flags;             ///< Flags of the instance. @see RideInstanceFlags
 	Recolouring recolours;   ///< Recolour map of the instance.
@@ -199,6 +203,9 @@ public:
 	void OnAnimate(int delay);
 	void OnNewMonth();
 	void OnNewDay();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	/**
 	 * Get a ride type from the class.
