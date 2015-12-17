@@ -398,8 +398,27 @@ void CoasterTrain::OnAnimate(int delay)
 
 		/** \todo Air and rail friction */
 
-		if (this->speed < 65536 / 1000 && (this->cur_piece->piece->HasPower() || this->cur_piece->piece->HasPlatform())) {
-			this->speed = 65536 / 1000;
+		if (this->speed < 65536 / 1000) {
+			uint32 indexed_car_position = this->back_position;
+			const PositionedTrackPiece *indexed_car_piece = this->cur_piece;
+			int car_index = i;
+
+			do {
+				if (indexed_car_piece->piece->HasPower() || indexed_car_piece->piece->HasPlatform()) {
+					this->speed = 65536 / 1000;
+					break;
+				}
+
+				if (indexed_car_position >= this->coaster->coaster_length) {
+					indexed_car_position -= this->coaster->coaster_length;
+					indexed_car_piece = this->coaster->pieces;
+				} else {
+					indexed_car_piece++;
+					indexed_car_position += (car_length + this->coaster->car_type->inter_car_length);
+				}
+
+				car_index--;
+			} while (car_index >= 0);
 		}
 
 		/* Unroll the orientation vector. */
