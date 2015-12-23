@@ -143,7 +143,7 @@ StringID RideType::GetString(uint16 number) const
  */
 RideInstance::RideInstance(const RideType *rt)
 {
-	this->name[0] = '\0';
+	this->name = nullptr;
 	this->type = rt;
 	this->state = RIS_ALLOCATED;
 	this->flags = 0;
@@ -160,6 +160,8 @@ RideInstance::RideInstance(const RideType *rt)
 RideInstance::~RideInstance()
 {
 	/* Nothing to do currently. In the future, free instance memory. */
+	delete[] this->name;
+	this->name = nullptr;
 }
 
 /**
@@ -381,6 +383,35 @@ void RideInstance::BuildRide()
 	this->state = RIS_BUILDING;
 }
 
+void RideInstance::Load(Loader &ldr)
+{
+	this->name = ldr.GetText();
+
+	uint16 state_and_flags = ldr.GetWord();
+	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
+	this->flags = state_and_flags & 0xff;
+	this->recolours.Load(ldr);
+	this->total_profit = static_cast<Money>(ldr.GetLongLong());
+	this->total_sell_profit = static_cast<Money>(ldr.GetLongLong());
+	this->breakdown_ctr = (int16)ldr.GetWord();
+	this->reliability = ldr.GetWord();
+	this->breakdown_state = static_cast<BreakdownState>(ldr.GetByte());
+}
+
+void RideInstance::Save(Saver &svr)
+{
+	svr.PutByte(static_cast<uint8>(this->GetKind()));
+	svr.PutText(_language.GetText(this->type->GetString(this->type->GetTypeName())));
+	svr.PutText(this->name);
+	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
+	this->recolours.Save(svr);
+	svr.PutLongLong(static_cast<uint64>(this->total_profit));
+	svr.PutLongLong(static_cast<uint64>(this->total_sell_profit));
+	svr.PutWord((uint16)this->breakdown_ctr);
+	svr.PutWord(this->reliability);
+	svr.PutByte(static_cast<uint8>(this->breakdown_state));
+}
+
 /** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
@@ -422,6 +453,69 @@ void RidesManager::OnNewDay()
 		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
 		this->instances[i]->OnNewDay();
 	}
+}
+
+void RidesManager::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("RIDS");
+	if (version == 1) {
+		uint16 allocated_ride_count = ldr.GetWord();
+		for (uint16 i = 0; i < allocated_ride_count; i++) {
+			const RideType *ride_type = nullptr;
+			RideTypeKind ride_kind = static_cast<RideTypeKind>(ldr.GetByte());
+			const uint8 *ride_type_name = ldr.GetText();
+			bool found = false;
+
+			if (ride_type_name != nullptr) {
+				for (uint j = 0; j < lengthof(this->ride_types); j++) {
+					ride_type = this->ride_types[j];
+					const uint8 *tmp_name = _language.GetText(ride_type->GetString(ride_type->GetTypeName()));
+
+					if (ride_kind == ride_type->kind && StrEqual(tmp_name, ride_type_name)) {
+						found = true;
+						break;
+					}
+				}
+			} else {
+				ldr.SetFailMessage("Invalid ride type name.");
+			}
+
+			if (ride_type == nullptr || !found) {
+				ldr.SetFailMessage("Unknown/invalid ride type.");
+				break;
+			}
+
+			uint16 instance = this->GetFreeInstance(ride_type);
+			if (instance == INVALID_RIDE_INSTANCE) {
+				ldr.SetFailMessage("Invalid ride instance.");
+				break;
+			}
+
+			this->instances[i] = this->CreateInstance(ride_type, instance);
+			this->instances[i]->Load(ldr);
+		}
+	} else if (version != 0) {
+		ldr.SetFailMessage("Incorrect version of rides block.");
+	}
+	ldr.CloseBlock();
+}
+
+void RidesManager::Save(Saver &svr)
+{
+	svr.StartBlock("RIDS", 1);
+	int count = 0;
+	uint16 allocated_ride_indexes[MAX_NUMBER_OF_RIDE_INSTANCES];
+	for (uint16 i = 0; i < lengthof(this->instances); i++) {
+		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
+		allocated_ride_indexes[count] = i;
+		count++;
+	}
+	svr.PutWord(count);
+	for (uint16 i = 0; i < count; i++) {
+		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
+		this->instances[allocated_ride_indexes[i]]->Save(svr);
+	}
+	svr.EndBlock();
 }
 
 /**
@@ -543,13 +637,14 @@ void RidesManager::NewInstanceAdded(uint16 num)
 			idx = 0;
 		}
 
+		ri->name = new uint8[MAX_RIDE_INSTANCE_NAME_LENGTH];
 		/* Construct a new name. */
 		if (shop_num == 1) {
-			DrawText(rt->GetString(names[idx]), ri->name, lengthof(ri->name));
+			DrawText(rt->GetString(names[idx]), ri->name, MAX_RIDE_INSTANCE_NAME_LENGTH);
 		} else {
 			_str_params.SetStrID(1, rt->GetString(names[idx]));
 			_str_params.SetNumber(2, shop_num);
-			DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, lengthof(ri->name));
+			DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, MAX_RIDE_INSTANCE_NAME_LENGTH);
 		}
 
 		if (this->FindRideByName(ri->name) == nullptr) break;
@@ -594,6 +689,13 @@ void RidesManager::DeleteInstance(uint16 num)
 	_guests.NotifyRideDeletion(this->instances[num]);
 	delete this->instances[num];
 	this->instances[num] = nullptr;
+}
+
+void RidesManager::DeleteAllRideInstances()
+{
+	for (uint i = 0; i < lengthof(this->instances); i++) {
+		if (this->instances[i] != nullptr) this->DeleteInstance(this->instances[i]->GetIndex());
+	}
 }
 
 /**

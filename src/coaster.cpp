@@ -269,6 +269,32 @@ void DisplayCoasterCar::PreRemove()
 	this->MarkDirty();
 }
 
+void DisplayCoasterCar::Load(Loader &ldr)
+{
+	this->VoxelObject::Load(ldr);
+
+	this->pitch = ldr.GetByte();
+	this->roll = ldr.GetByte();
+	this->yaw = ldr.GetByte();
+
+	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
+
+	if (v != nullptr) {
+		this->AddSelf(v);
+	} else {
+		ldr.SetFailMessage("Invalid world coordinates for coaster car.");
+	}
+}
+
+void DisplayCoasterCar::Save(Saver &svr)
+{
+	this->VoxelObject::Save(svr);
+
+	svr.PutByte(this->pitch);
+	svr.PutByte(this->roll);
+	svr.PutByte(this->yaw);
+}
+
 CoasterTrain::CoasterTrain()
 {
 	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
@@ -515,6 +541,26 @@ void CoasterTrain::OnAnimate(int delay)
 		car.front.Set(front, front_pix, pitch, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
 	}
+}
+
+void CoasterTrain::Load(Loader &ldr)
+{
+	for (std::vector<CoasterCar>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
+		it->Load(ldr);
+	}
+
+	this->back_position = ldr.GetLong();
+	this->speed = (int32)ldr.GetLong();
+}
+
+void CoasterTrain::Save(Saver &svr)
+{
+	for (std::vector<CoasterCar>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
+		it->Save(svr);
+	}
+
+	svr.PutLong(this->back_position);
+	svr.PutLong((uint32)this->speed);
 }
 
 /**
@@ -914,4 +960,89 @@ int CoasterInstance::GetNumberOfCars() const
 	int number_cars = this->trains[0].cars.size();
 	if (number_cars == 0) number_cars = 1;
 	return number_cars;
+}
+
+void CoasterInstance::Load(Loader &ldr)
+{
+	this->RideInstance::Load(ldr);
+
+	this->capacity = (int)ldr.GetLong();
+	this->coaster_length = ldr.GetLong();
+
+	const CoasterType *ct = this->GetCoasterType();
+
+	uint saved_pieces = ldr.GetWord();
+	if (saved_pieces == 0) {
+		ldr.SetFailMessage("Invalid number of track pieces.");
+	}
+
+	for (uint i = 0; i < saved_pieces; i++) {
+		uint32 index = ldr.GetLong();
+		ConstTrackPiecePtr piece = ct->pieces[index];
+
+		if (piece != nullptr) {
+			this->pieces[i].piece = piece;
+			this->pieces[i].Load(ldr);
+			this->PlaceTrackPieceInWorld(this->pieces[i]);
+		} else {
+			ldr.SetFailMessage("Invalid track piece.");
+		}
+	}
+
+	int number_of_trains = (int)ldr.GetLong();
+	if (number_of_trains > 0) {
+		this->SetNumberOfTrains(number_of_trains);
+
+		int number_of_cars = (int)ldr.GetLong();
+		if (number_of_cars > 0) {
+			this->SetNumberOfCars(number_of_cars);
+
+			for (int i = 0; i < number_of_trains; i++) {
+				this->trains[i].Load(ldr);
+			}
+		} else {
+			ldr.SetFailMessage("Invalid number of cars.");
+		}
+	} else {
+		ldr.SetFailMessage("Invalid number of trains.");
+	}
+}
+
+void CoasterInstance::Save(Saver &svr)
+{
+	this->RideInstance::Save(svr);
+
+	svr.PutLong((uint32)this->capacity);
+	svr.PutLong(this->coaster_length);
+
+	int count = 0;
+	for (int i = 0; i < this->capacity; i++) {
+		if (this->pieces[i].piece != nullptr) {
+			count++;
+		}
+	}
+	svr.PutWord(count);
+
+	const CoasterType *ct = this->GetCoasterType();
+
+	for (int i = 0; i < this->capacity; i++) {
+		if (this->pieces[i].piece != nullptr) {
+			for (uint j = 0; j < ct->pieces.size(); j++) {
+				if (this->pieces[i].piece == ct->pieces[j]) {
+					svr.PutLong(j);
+					this->pieces[i].Save(svr);
+					break;
+				}
+			}
+		}
+	}
+
+	int number_of_trains = this->GetNumberOfTrains();
+
+	svr.PutLong((uint32)number_of_trains);
+	svr.PutLong((uint32)this->GetNumberOfCars());
+
+	for (int i = 0; i < number_of_trains; i++) {
+		this->trains[i].Save(svr);
+	}
 }

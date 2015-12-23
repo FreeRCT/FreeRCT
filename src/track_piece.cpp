@@ -302,3 +302,21 @@ bool PositionedTrackPiece::CanBeSuccessor(const PositionedTrackPiece &pred) cons
 	if (pred.piece == nullptr) return false;
 	return this->CanBeSuccessor(pred.GetEndXYZ(), pred.piece->exit_connect);
 }
+
+void PositionedTrackPiece::Load(Loader &ldr)
+{
+	uint16 x = ldr.GetWord();
+	uint16 y = ldr.GetWord();
+	uint16 z = ldr.GetWord();
+
+	this->base_voxel = XYZPoint16(x, y, z);
+	this->distance_base = ldr.GetLong();
+}
+
+void PositionedTrackPiece::Save(Saver &svr)
+{
+	svr.PutWord(this->base_voxel.x);
+	svr.PutWord(this->base_voxel.y);
+	svr.PutWord(this->base_voxel.z);
+	svr.PutLong(this->distance_base);
+}

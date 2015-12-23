@@ -123,6 +123,9 @@ public:
 	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
 	void PreRemove();
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
 	const CarType *car_type; ///< Car type data.
 	uint8 pitch;             ///< Pitch of the car.
 	uint8 roll;              ///< Roll of the car.
@@ -141,6 +144,18 @@ public:
 		this->front.PreRemove();
 		this->back.PreRemove();
 	}
+
+	void Load(Loader &ldr)
+	{
+		this->front.Load(ldr);
+		this->back.Load(ldr);
+	}
+
+	void Save(Saver &svr)
+	{
+		this->front.Save(svr);
+		this->back.Save(svr);
+	}
 };
 
 class CoasterInstance;
@@ -157,6 +172,9 @@ public:
 	void SetLength(int length);
 
 	void OnAnimate(int delay);
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	const CoasterInstance *coaster;        ///< Roller coaster owning the train.
 	std::vector<CoasterCar> cars;          ///< Cars in the train. \c 0 means the train is not used.
@@ -217,6 +235,9 @@ public:
 	int GetMaxNumberOfCars() const;
 	void SetNumberOfCars(int number_cars);
 	int GetNumberOfCars() const;
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.

@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: 2015-05-05
+:Version: 2015-12-10
 
 .. contents::
    :depth: 3
@@ -45,7 +45,7 @@ Offset  Length  Version  Description
 
 File header
 -----------
-The file header consists of 3 parts. Current version number is 4.
+The file header consists of 3 parts. Current version number is 6.
 
 ======  ======  ======================================================
 Offset  Length  Description
@@ -63,6 +63,8 @@ Version history
 - 2 (20140419) Added financial data.
 - 3 (20140419) Added basic world data.
 - 4 (20150505) Added weather data.
+- 5 (20150823) Added guests data.
+- 6 (20151210) Added rides data.
 
 
 Current date block
@@ -327,5 +329,103 @@ Version history
 ~~~~~~~~~~~~~~~
 
 - 1 (20150823) Initial version.
+
+
+Current rides block
+-------------
+The rides block stores all rides. Current version is 1.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "RIDS".
+   4       4      1-     Version number of the rides block.
+   8       2      1-     Number of allocated rides.
+  10       ?      1-     Contents of "number" allocated rides.
+   ?       4      1-     "SDIR"
+======  ======  =======  ======================================================
+
+A single ride is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       1      1-     Ride type 'kind' (Shop, coaster, etc).
+   1       4      1-     Length of the RideType name string.
+   5      ?*4     1-     RideType's name characters (from RCD file).
+   ?       4      1-     Length of the name string.
+   ?      ?*4     1-     Name characters.
+   ?       2      1-     State and flags of the ride.
+   ?       4      1-     Recolour information.
+   ?       8      1-     Total profit of the ride.
+   ?       8      1-     Total profit of selling items.
+   ?       2      1-     Breakdown counter.
+   ?       2      1-     Mean number of days in between breakdowns.
+   ?       1      1-     Breakdown state of the ride.
+======  ======  =======  ======================================================
+
+A single shop is stored as follows.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       1      1-     Orientation of the shop.
+   1       2      1-     Voxel x coordinate.
+   3       2      1-     Voxel y coordinate.
+   5       2      1-     Voxel z coordinate.
+======  ======  =======  ======================================================
+
+A single coaster is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4       1-    Number of positioned track pieces.
+   4       4       1-    Total length of the roller coaster (in 1/256 pixels).
+   8       2       1-    Number of placed track pieces.
+   10      ?       1-    Contents of "number" placed track pieces.
+   ?       4       1-    Number of trains in this coaster.
+   ?       4       1-    Number of cars in a single train.
+   ?       ?       1-    Contents of "number" trains.
+======  ======  =======  ======================================================
+
+A single PositionedTrackPiece is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       2       1-    Entry voxel x coordinate.
+   2       2       1-    Entry voxel y coordinate.
+   4       2       1-    Entry voxel z coordinate.
+   6       4       1-    Base distance of this piece in its roller coaster.
+======  ======  =======  ======================================================
+
+A single train is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       ?       1-    Contents of "number" cars.
+   ?       4       1-    Position of the back-end of train (in 1/256 pixels).
+   ?       4       1-    Amount of forward motion / millisecond, 1/256 pixels.
+======  ======  =======  ======================================================
+
+A single displayed coaster car is stored as follows:
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     Voxel and pixel position x coordinate values.
+   4       4      1-     Voxel and pixel position y coordinate values.
+   8       4      1-     Voxel and pixel position z coordinate values.
+   12      1      1-     Pitch of the car.
+   13      1      1-     Roll of the car.
+   14      1      1-     Yaw of the car.
+======  ======  =======  ======================================================
+
+Version history
+~~~~~~~~~~~~~~~
+
+- 1 (20151210) Initial version.
 
 .. vim: spell

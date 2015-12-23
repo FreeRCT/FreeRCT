@@ -52,6 +52,9 @@ public:
 	void RemoveAllPeople() override;
 	void OnAnimate(int delay) override;
 
+	void Load(Loader &ldr) override;
+	void Save(Saver &svr) override;
+
 	uint8 orientation;  ///< Orientation of the shop.
 	XYZPoint16 vox_pos; ///< Position of the shop base voxel.
 
