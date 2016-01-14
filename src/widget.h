@@ -49,6 +49,7 @@ enum WidgetType {
 	WT_RIGHT_FILLER_TAB, ///< Filler widget at the right of the tab bar.
 	WT_TAB_PANEL,
 	WT_GRID,             ///< Intermediate widget.
+	WT_EDIT_TEXT,        ///< Text box for text input.
 };
 
 /**

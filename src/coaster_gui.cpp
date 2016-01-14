@@ -67,12 +67,13 @@ void ShowCoasterRemove(CoasterInstance *ci)
 
 /** Widget numbers of the roller coaster instance window. */
 enum CoasterInstanceWidgets {
-	CIW_TITLEBAR, ///< Titlebar widget.
-	CIW_REMOVE,   ///< Remove button widget.
-	CIW_EDIT,     ///< Edit coaster widget.
-	CIW_CLOSE,    ///< Close coaster widget
-	CIW_TEST,     ///< Test coaster widget
-	CIW_OPEN,     ///< Open coaster widget
+	CIW_TITLEBAR,  ///< Titlebar widget.
+	CIW_REMOVE,    ///< Remove button widget.
+	CIW_EDIT,      ///< Edit coaster widget.
+	CIW_CLOSE,     ///< Close coaster widget
+	CIW_TEST,      ///< Test coaster widget
+	CIW_OPEN,      ///< Open coaster widget
+	CIW_EDIT_NAME, ///< Rename the coaster.
 };
 
 /** Widget parts of the #CoasterInstanceWindow. */
@@ -98,6 +99,8 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 
 		Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED),
 				SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
+		Widget(WT_TEXT_PUSHBUTTON, CIW_EDIT_NAME, COL_RANGE_DARK_RED),
+				SetFill(1, 1), SetData(GUI_COASTER_MANAGEMENT_RENAME, GUI_COASTER_MANAGEMENT_RENAME_TOOLTIP),
 	EndContainer(),
 };
 
@@ -160,6 +163,11 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CIW_TEST:
 		case CIW_OPEN:
 			this->SetCoasterStateForRadioButton(widget);
+			break;
+
+		case CIW_EDIT_NAME:
+			if (HighlightWindowByType(WC_EDIT_TEXT, ALL_WINDOWS_OF_TYPE)) return;
+			ShowEditTextGui(this->ci->name);
 			break;
 	}
 }

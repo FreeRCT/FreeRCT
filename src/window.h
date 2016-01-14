@@ -56,6 +56,7 @@ enum WindowTypes {
 	WC_FINANCES,        ///< Finance management window.
 	WC_SETTING,         ///< Setting window.
 	WC_DROPDOWN,        ///< Dropdown window.
+	WC_EDIT_TEXT,       ///< Edit text window.
 
 	WC_NONE,            ///< Invalid window type.
 };
@@ -113,6 +114,7 @@ enum WmKeyCode {
 	WMKC_DELETE,       ///< Delete is pressed.
 	WMKC_CANCEL,       ///< Cancel is pressed.
 	WMKC_CONFIRM,      ///< Confirm is pressed.
+	WMKC_SPACE,        ///< Space is pressed.
 	WMKC_SYMBOL,       ///< A symbol is entered.
 };
 
@@ -164,6 +166,7 @@ public:
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
+	virtual bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol);
 
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);
@@ -194,6 +197,7 @@ public:
 	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
 	virtual void SelectorMouseButtonEvent(uint8 state);
 	virtual void SelectorMouseWheelEvent(int direction);
+	virtual bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
 	virtual void TimeoutCallback() override;
 	virtual void SetHighlight(bool value) override;
 
@@ -480,5 +484,6 @@ void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);
 void ShowErrorMessage(StringID strid);
 void ShowSettingGui();
+void ShowEditTextGui(uint8 *text);
 
 #endif

@@ -201,6 +201,15 @@ strings {
 		SETTING_LANGUAGE_TOOLTIP:   "Change the language of the game";
 		SETTING_RESOLUTION:         "Change resolution";
 		SETTING_RESOLUTION_TOOLTIP: "Change the screen resolution of the game";
+
+		// Edit text strings.
+		EDIT_TEXT_CAPTION: "Edit text";
+		EDIT_TEXT_CANCEL:  "Cancel";
+		EDIT_TEXT_OK:      "Ok";
+
+		// Coaster management strings.
+		COASTER_MANAGEMENT_RENAME:         "Rename";
+		COASTER_MANAGEMENT_RENAME_TOOLTIP: "Rename this coaster";
 	}
 
 	stringtexts("ice-cream-stall") {

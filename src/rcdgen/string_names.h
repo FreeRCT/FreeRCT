@@ -206,6 +206,15 @@ static const char *_gui_string_names[] = {
 	"SETTING_LANGUAGE_TOOLTIP",
 	"SETTING_RESOLUTION",
 	"SETTING_RESOLUTION_TOOLTIP",
+
+	// Edit text strings.
+	"EDIT_TEXT_CAPTION",
+	"EDIT_TEXT_CANCEL",
+	"EDIT_TEXT_OK",
+
+	/* Coaster management window. */
+	"COASTER_MANAGEMENT_RENAME",
+	"COASTER_MANAGEMENT_RENAME_TOOLTIP",
 };
 
 /** String names of the shops. */

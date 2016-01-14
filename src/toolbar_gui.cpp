@@ -25,6 +25,8 @@
 
 void ShowQuitProgram();
 
+class EditTextWindow;
+
 /**
  * Top toolbar.
  * @ingroup gui_group
@@ -55,6 +57,7 @@ enum ToolbarGuiWidgets {
 	TB_GUI_FENCE,       ///< Select fence button.
 	TB_GUI_TERRAFORM,   ///< Terraform button.
 	TB_GUI_FINANCES,    ///< Finances button.
+	TB_GUI_EDIT_TEXT,   ///< Edit text button.
 };
 
 /**
@@ -73,6 +76,7 @@ static const WidgetPart _toolbar_widgets[] = {
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FENCE,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FENCE,       GUI_TOOLBAR_GUI_TOOLTIP_FENCE),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_TERRAFORM,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_TERRAFORM,   GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FINANCES,    COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FINANCES,    GUI_TOOLBAR_GUI_TOOLTIP_FINANCES),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_EDIT_TEXT,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FINANCES,    GUI_TOOLBAR_GUI_TOOLTIP_FINANCES),
 	EndContainer(),
 };
 
@@ -156,6 +160,10 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 
 		case TB_GUI_FINANCES:
 			ShowFinancesGui();
+			break;
+
+		case TB_GUI_EDIT_TEXT:
+			ShowEditTextGui((uint8 *)"test");
 			break;
 	}
 }

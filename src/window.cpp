@@ -273,6 +273,17 @@ void Window::OnMouseLeaveEvent()
 }
 
 /**
+ * Process input from the keyboard.
+ * @param key_code Kind of input.
+ * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
+ * @return Key event has been processed.
+ */
+bool Window::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return false;
+}
+
+/**
  * Timeout callback.
  * Called when #timeout decremented to 0.
  */
@@ -521,6 +532,17 @@ void GuiWindow::SelectorMouseButtonEvent(uint8 state)
  */
 void GuiWindow::SelectorMouseWheelEvent(int direction)
 {
+}
+
+/**
+ * Process input from the keyboard.
+ * @param key_code Kind of input.
+ * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
+ * @return Key event has been processed.
+ */
+bool GuiWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return false;
 }
 
 /**
@@ -1069,6 +1091,10 @@ void WindowManager::MouseWheelEvent(int direction)
  */
 bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
 {
+	this->UpdateCurrentWindow();
+	if (this->current_window != nullptr) {
+		return this->current_window->OnKeyEvent(key_code, symbol);
+	}
 	return false; // \todo Perform key processing in window mouse modes.
 }
 

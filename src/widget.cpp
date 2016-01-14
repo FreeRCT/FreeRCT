@@ -58,6 +58,7 @@ BaseWidget::BaseWidget(WidgetType wtype)
 		case WT_LEFT_TEXT:
 		case WT_CENTERED_TEXT:
 		case WT_RIGHT_TEXT:
+		case WT_EDIT_TEXT:
 			this->fill_x = 1;
 			break;
 
@@ -405,6 +406,9 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			return;
 		}
 
+		case WT_EDIT_TEXT:
+			break;
+
 		default:
 			NOT_REACHED();
 	}
@@ -442,6 +446,7 @@ void DataWidget::Draw(const GuiWindow *w)
 		case WT_LEFT_TEXT:
 		case WT_CENTERED_TEXT:
 		case WT_RIGHT_TEXT:
+		case WT_EDIT_TEXT:
 			break;
 
 		case WT_TEXT_BUTTON:
@@ -1562,6 +1567,7 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 					case WT_LEFT_TEXT:
 					case WT_CENTERED_TEXT:
 					case WT_RIGHT_TEXT:
+					case WT_EDIT_TEXT:
 						*dest = new DataWidget(parts->data.new_widget.wtype);
 						break;
 
