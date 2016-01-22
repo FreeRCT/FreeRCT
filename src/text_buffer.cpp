@@ -32,12 +32,14 @@ const std::string &TextBuffer::GetText() const
 
 void TextBuffer::AppendText(const char *txt)
 {
+	if (std::string(this->text + txt).length() > max_length) return;
 	this->text += txt;
 	this->current_position = this->text.length();
 }
 
 void TextBuffer::InsertText(const char *txt)
 {
+	if (std::string(this->text + txt).length() > max_length) return;
 	int prev_length = this->text.length();
 	this->text.insert(this->current_position, txt);
 	int inc_position = this->text.length() - prev_length;

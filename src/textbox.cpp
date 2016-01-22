@@ -16,7 +16,7 @@
 
 class EditTextWindow : public GuiWindow {
 public:
-	EditTextWindow(uint8 *text);
+	EditTextWindow(uint8 **text, uint max_length);
 	~EditTextWindow();
 
 	Point32 OnInitialPosition() override;
@@ -24,10 +24,13 @@ public:
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
+	void OnDraw(MouseModeSelector *selector) override;
+
+	void Complete();
 
 private:
 	TextBuffer text_buffer;
-	uint8 *text;
+	uint8 **text;
 };
 
 /**
@@ -66,10 +69,11 @@ static const WidgetPart _edit_text_widgets[] = {
 			EndContainer()
 };
 
-EditTextWindow::EditTextWindow(uint8 *text) : GuiWindow(WC_EDIT_TEXT, ALL_WINDOWS_OF_TYPE)
+EditTextWindow::EditTextWindow(uint8 **text, uint max_length) : GuiWindow(WC_EDIT_TEXT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_edit_text_widgets, lengthof(_edit_text_widgets));
-	this->text_buffer.InsertText((char *)text); //\0x5f");
+	this->text_buffer.SetMaxLength(max_length);
+	this->text_buffer.InsertText((char *)*text);
 	this->text = text;
 }
 
@@ -105,14 +109,22 @@ void EditTextWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	if (number == ETW_OK || number == ETW_CANCEL) {
 		if (number == ETW_OK) {
-			this->text = (uint8 *)this->text_buffer.GetText().c_str();
+			Complete();
+			//int len = this->text_buffer.GetText().length();
+			//SafeStrncpy(*this->text, (const uint8 *)this->text_buffer.GetText().c_str(), len + 1);
 		}
 		delete this;
+	} else if (number == ETW_EDIT_TEXT) {
+		//this->text_buffer.SetPosition(pos.x / 5);
+		printf("%d\n", pos.x);
 	}
 }
 
 bool EditTextWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 {
+	bool finish = false;
+	bool completed = false;
+
 	switch (key_code) {
 		case WMKC_BACKSPACE:
 			this->text_buffer.RemovePrevCharacter();
@@ -129,6 +141,13 @@ bool EditTextWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 		case WMKC_SPACE:
 			this->text_buffer.InsertText((const char *)" ");
 			break;
+		case WMKC_CONFIRM:
+			completed = true;
+			//int len = this->text_buffer.GetText().length();
+			//SafeStrncpy(*this->text, (const uint8 *)this->text_buffer.GetText().c_str(), len + 1);
+		case WMKC_CANCEL:
+			finish = true;
+			break;
 		case WMKC_SYMBOL:
 			if (SDL_GetModState() & KMOD_CTRL) {
 				if (symbol[0] == 'v') {
@@ -143,16 +162,32 @@ bool EditTextWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 		default:
 			break;
 	}
-	this->MarkDirty();
+	if (!finish) {
+		this->MarkDirty();
+	} else {
+		if (completed) Complete();
+		delete this;
+	}
 	return true;
+}
+
+void EditTextWindow::OnDraw(MouseModeSelector *selector)
+{
+	this->GuiWindow::OnDraw(selector);
+}
+
+void EditTextWindow::Complete()
+{
+	int len = this->text_buffer.GetText().length();
+	SafeStrncpy(*this->text, (const uint8 *)this->text_buffer.GetText().c_str(), len + 1);
 }
 
 /**
  * Open the edit text window.
  * @ingroup gui_group
  */
-void ShowEditTextGui(uint8 *text)
+void ShowEditTextGui(uint8 **text, uint max_length)
 {
 	if (HighlightWindowByType(WC_EDIT_TEXT, ALL_WINDOWS_OF_TYPE)) return;
-	new EditTextWindow(text);
+	new EditTextWindow(text, max_length);
 }

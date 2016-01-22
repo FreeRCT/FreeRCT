@@ -163,7 +163,7 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 			break;
 
 		case TB_GUI_EDIT_TEXT:
-			ShowEditTextGui((uint8 *)"test");
+			ShowEditTextGui((uint8 **)"test", 64);
 			break;
 	}
 }

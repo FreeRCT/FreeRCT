@@ -167,7 +167,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 
 		case CIW_EDIT_NAME:
 			if (HighlightWindowByType(WC_EDIT_TEXT, ALL_WINDOWS_OF_TYPE)) return;
-			ShowEditTextGui(this->ci->name);
+			ShowEditTextGui(&this->ci->name, MAX_RIDE_INSTANCE_NAME_LENGTH);
 			break;
 	}
 }

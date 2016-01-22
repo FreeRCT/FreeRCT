@@ -484,6 +484,6 @@ void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);
 void ShowErrorMessage(StringID strid);
 void ShowSettingGui();
-void ShowEditTextGui(uint8 *text);
+void ShowEditTextGui(uint8 **text, uint max_length);
 
 #endif

@@ -29,9 +29,12 @@ class TextBuffer {
 		int GetPosition();
 		void IncPosition() { if (this->current_position < this->text.length() - 1) this->current_position++; };
 		void DecPosition() { if (this->current_position > 0) this->current_position--; };
+
+		void SetMaxLength(uint max_length) { this->max_length = max_length; };
 	private:
 		std::string text;
 		uint current_position;
+		uint max_length;
 };
 
 #endif
