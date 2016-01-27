@@ -58,12 +58,12 @@ BaseWidget::BaseWidget(WidgetType wtype)
 		case WT_LEFT_TEXT:
 		case WT_CENTERED_TEXT:
 		case WT_RIGHT_TEXT:
-		case WT_EDIT_TEXT:
 			this->fill_x = 1;
 			break;
 
 		case WT_TEXT_BUTTON:
 		case WT_TEXT_PUSHBUTTON:
+		case WT_EDIT_TEXT:
 			this->fill_x = 1;
 			this->fill_y = 1;
 			break;
@@ -367,6 +367,7 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 
 		case WT_TEXT_BUTTON:
 		case WT_TEXT_PUSHBUTTON:
+		case WT_EDIT_TEXT:
 			bsd = &_gui_sprites.button;
 			pressable = 1;
 			break;
@@ -406,9 +407,6 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			return;
 		}
 
-		case WT_EDIT_TEXT:
-			break;
-
 		default:
 			NOT_REACHED();
 	}
@@ -446,7 +444,11 @@ void DataWidget::Draw(const GuiWindow *w)
 		case WT_LEFT_TEXT:
 		case WT_CENTERED_TEXT:
 		case WT_RIGHT_TEXT:
+			break;
+
 		case WT_EDIT_TEXT:
+			bsd = &_gui_sprites.button;
+			pressed = 1;
 			break;
 
 		case WT_TEXT_BUTTON:
@@ -488,7 +490,7 @@ void DataWidget::Draw(const GuiWindow *w)
 		DrawBorderSprites(*bsd, (pressed != 0), border_rect, this->colour);
 	}
 	Alignment align = ALG_CENTER;
-	if (this->wtype == WT_LEFT_TEXT) {
+	if (this->wtype == WT_LEFT_TEXT || this->wtype == WT_EDIT_TEXT) {
 		align = ALG_LEFT;
 	} else if (this->wtype == WT_RIGHT_TEXT) {
 		align = ALG_RIGHT;
