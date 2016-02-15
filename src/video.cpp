@@ -234,7 +234,7 @@ bool VideoSystem::SetResolution(const Point32 &res)
 
 	/* Destroy old window, if it exists. */
 	if (this->initialized) {
-		delete[] mem;
+		delete[] this->mem;
 		this->mem = nullptr;
 		SDL_DestroyTexture(this->texture);
 		this->texture = nullptr;

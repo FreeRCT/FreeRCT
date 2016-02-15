@@ -658,6 +658,7 @@ RideEntryResult CoasterInstance::EnterRide(int guest, TileEdge edge)
 XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge entry_edge)
 {
 	assert(false); // Not yet implemented.
+	return XYZPoint32(); // Suppress compiler warning
 }
 
 void CoasterInstance::RemoveAllPeople()
