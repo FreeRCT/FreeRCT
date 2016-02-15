@@ -15,16 +15,22 @@
 #define MONEY_H
 
 /**
- * Overflow safe integer
- * you multiply the maximum value with 2, or add 2, or subtract something from
- * the minimum value, etc.
+ * Overflow safe integer.
+ * You can multiply the maximum value by 2, or add 2, or subtract something
+ * from the minimum value, etc., and it won't go past the limit. Think of it
+ * as a clamped integer.
+ * @ingroup finances_group
  */
 class Money {
 private:
 	int64 m_value; ///< Non-overflow safe backend to store the value in.
 
 public:
-	Money() : m_value(0)
+	/**
+	 * Constructor.
+	 * @param num (optional) The value to create a Money class with. Defaults to 0.
+	 */
+	Money(int64 num = 0) : m_value(num)
 	{
 	}
 
@@ -35,15 +41,6 @@ public:
 	Money(const Money& other)
 	{
 		this->m_value = other.m_value;
-	}
-
-	/**
-	 * Constructor.
-	 * @param num The value to create a Money class with.
-	 */
-	Money(int64 num)
-	{
-		this->m_value = num;
 	}
 
 	/**
