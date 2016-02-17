@@ -29,10 +29,51 @@ struct Point {
 		this->y = y;
 	}
 
+	/**
+	 * Cast constructor. Allows conversion between 16-bit and 32-bit points.
+	 * @note This function does no bounds checking. The underlying types control the behavior of the cast; if you cast a 32-bit value to a 16-bit value, you get what you get.
+	 * @tparam OCT Other coordinate type
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 */
+	template <typename OCT>
+	Point<CT>(Point<OCT>& that) :
+		x(static_cast<CT>(that.x)),
+		y(static_cast<CT>(that.y))
+	{
+
+	}
+
 	typedef CT CoordType; ///< Type of the coordinate value.
 
 	CT x; ///< X coordinate.
 	CT y; ///< Y coordinate.
+
+	/**
+	 * Addition operator
+	 * @param r Right hand side
+	 * @return Point with x = this->x + r.x, y = this->y + r.y
+	 */
+	Point<CT> operator+(const Point<CT>& r) const {
+		return Point<CT>(this->x + r.x, this->y + r.y);
+	}
+
+	/**
+	 * Negation operator
+	 * @return Point with x = -that.x, y = -that.y
+	 */
+	Point<CT> operator-() const {
+		return Point<CT>(-this->x, -this->y);
+	}
+
+	/**
+	 * Subtraction operator
+	 * @param r Right hand side
+	 * @return Point with x = this->x - r.x, y = this->y - r.y
+	 */
+	Point<CT> operator-(const Point<CT>& r) const {
+		return (*this) + (-r);
+	}
 };
 
 typedef Point<int32> Point32; ///< 32 bit 2D point.
