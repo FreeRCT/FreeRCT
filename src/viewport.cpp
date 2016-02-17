@@ -1010,31 +1010,35 @@ ClickableSprite Viewport::ComputeCursorPosition(FinderData *fdata)
 	if (!collector.found) return CS_NONE;
 
 	fdata->cursor = fdata->select == FW_EDGE ? CUR_TYPE_EDGE_NE : CUR_TYPE_TILE;
+// Temporary use of shorter name
+#define GETCOLOR(x, y) ( _palette[GetColorInFreeRCTPalette(x, y)] )
 	if (fdata->select == FW_CORNER && (collector.data.order & CS_MASK) == CS_GROUND) {
-		if (collector.pixel == _palette[181]) {
+		if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MED_DARK)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_NORTH, this->orientation);
-		} else if (collector.pixel == _palette[182]) {
+		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_DARK)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_EAST,  this->orientation);
-		} else if (collector.pixel == _palette[184]) {
+		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_VERY_MILD_BRIGHT)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_WEST,  this->orientation);
-		} else if (collector.pixel == _palette[185]) {
+		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_BRIGHT)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_SOUTH, this->orientation);
 		}
 	}
 	else if (fdata->select == FW_EDGE && (collector.data.order & CS_MASK) == CS_GROUND_EDGE) {
 		uint8 base_edge = EDGE_COUNT;
-		if (collector.pixel == _palette[181]) {
+		if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MED_DARK)) {
 			base_edge = (uint8)EDGE_NE;
-		} else if (collector.pixel == _palette[182]) {
+		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_DARK)) {
 			base_edge = (uint8)EDGE_SE;
-		} else if (collector.pixel == _palette[184]) {
+		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_VERY_MILD_BRIGHT)) {
 			base_edge = (uint8)EDGE_NW;
-		} else if (collector.pixel == _palette[185]) {
+		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_BRIGHT)) {
 			base_edge = (uint8)EDGE_SW;
 		}
 		if (base_edge < EDGE_COUNT) {
 			fdata->cursor = (CursorType)((base_edge + (uint8)this->orientation) % 4 + (uint8)CUR_TYPE_EDGE_NE);
 		}
+// Done with the macro, unclutter the translation unit
+#undef GETCOLOR
 	}
 	return (ClickableSprite)(collector.data.order & CS_MASK);
 }

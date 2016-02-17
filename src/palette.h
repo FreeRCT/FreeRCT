@@ -13,6 +13,60 @@
 class Random;
 
 extern const uint32 _palette[256];  ///< The 8bpp FreeRCT palette.
+
+/**
+ * The index into _palette where a given color starts
+ */
+enum PaletteColorStartIndex {
+	PCSI_GRAY				= 10 + ( 0 * 12),
+	PCSI_GREEN_BROWN		= 10 + ( 1 * 12),
+	PCSI_ORANGE_BORWN		= 10 + ( 2 * 12),
+	PCSI_YELLOW				= 10 + ( 3 * 12),
+	PCSI_DARK_RED			= 10 + ( 4 * 12),
+	PCSI_DARK_GREEN			= 10 + ( 5 * 12),
+	PCSI_LIGHT_GREEN		= 10 + ( 6 * 12),
+	PCSI_GREEN				= 10 + ( 7 * 12),
+	PCSI_PINK_BROWN			= 10 + ( 8 * 12),
+	PCSI_DARK_PURPLE		= 10 + ( 9 * 12),
+	PCSI_BLUE				= 10 + (10 * 12),
+	PCSI_DARK_JADE_GREEN	= 10 + (11 * 12),
+	PCSI_PURPLE				= 10 + (12 * 12),
+	PCSI_RED				= 10 + (13 * 12),
+	PCSI_ORANGE				= 10 + (14 * 12),
+	PCSI_SEA_GREEN			= 10 + (15 * 12),
+	PCSI_PINK				= 10 + (16 * 12),
+	PCSI_BROWN				= 10 + (17 * 12)
+};
+
+/**
+ * The brightness / darknes of a color in _palette
+ */
+enum PaletteColorIntensity {
+	PCI_DARKEST = 0,
+	PCI_VERY_DARK = 1,
+	PCI_DARK = 2,
+	PCI_MED_DARK = 3,
+	PCI_MILD_DARK = 4,
+	PCI_VERY_MILD_DARK = 5,
+	PCI_VERY_MILD_BRIGHT = 6,
+	PCI_MILD_BRIGHT = 7,
+	PCI_MED_BRIGHT = 8,
+	PCI_BRIGHT = 9,
+	PCI_VERY_BRIGHT = 10,
+	PCI_BRIGHTEST = 11
+};
+
+/**
+ * Get the index of the desired color in the initially-defined color palette.
+ * @param i Desired color
+ * @param n Desired intensity
+ * @return Index into _palette where the given color may be found
+ */
+inline char GetColorInFreeRCTPalette(PaletteColorStartIndex i,
+									 PaletteColorIntensity n) {
+	return i + n;
+}
+
 extern const uint32 * const _recolour_palettes[18]; ///< 32bpp recolour tables.
 
 static const int MAX_RECOLOUR = 4;  ///< Maximum number of recolourings that can be defined in a #Recolouring class.
