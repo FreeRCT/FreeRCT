@@ -24,7 +24,6 @@ public:
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
-	void OnDraw(MouseModeSelector *selector) override;
 
 	void Complete();
 
@@ -92,8 +91,14 @@ Point32 EditTextWindow::OnInitialPosition()
 void EditTextWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
-		case ETW_EDIT_TEXT:
+		case ETW_EDIT_TEXT: {
 			_str_params.SetUint8(1, (uint8 *)this->text_buffer.GetText().c_str());
+			const DataWidget *wid = this->GetWidget<DataWidget>(wid_num);
+			int width, second_width, height, second_height = 0;
+			_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
+			_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
+			_video.BlitText((const uint8 *)"_", MakeRGBA(255, 255, 255, OPAQUE), GetWidgetScreenX(wid) + second_width + width, GetWidgetScreenY(wid) + (height / 2), second_width);
+			}
 			break;
 		default:
 			break;
@@ -169,11 +174,6 @@ bool EditTextWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 		delete this;
 	}
 	return true;
-}
-
-void EditTextWindow::OnDraw(MouseModeSelector *selector)
-{
-	this->GuiWindow::OnDraw(selector);
 }
 
 void EditTextWindow::Complete()

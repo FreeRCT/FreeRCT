@@ -26,8 +26,8 @@ class TextBuffer {
 		void RemoveCurrentCharacter();
 
 		void SetPosition(int position) { this->current_position = position; };
-		int GetPosition();
-		void IncPosition() { if (this->current_position < this->text.length() - 1) this->current_position++; };
+		const int GetPosition() const { return this->current_position; };
+		void IncPosition() { if (this->current_position < this->text.length()) this->current_position++; };
 		void DecPosition() { if (this->current_position > 0) this->current_position--; };
 
 		void SetMaxLength(uint max_length) { this->max_length = max_length; };
