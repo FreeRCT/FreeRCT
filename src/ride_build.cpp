@@ -74,7 +74,7 @@ public:
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 
-	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(uint8 state) override;
 
 	RideMouseMode selector; ///< Mouse mode displaying the new ride.
@@ -255,7 +255,13 @@ RidePlacementResult RideBuildWindow::ComputeShopVoxel(XYZPoint32 world_pos, View
 	return RPR_FAIL;
 }
 
-void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+/**
+ * Handles mouse movement input
+ * @param vp %Viewport where the mouse movement occured
+ * @param pos New mouse position
+ * @return True if the event no longer needs to be handled (currently always false)
+ */
+bool RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
 	Point32 wxy = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 
@@ -264,7 +270,7 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		case RPR_FAIL:
 			this->selector.MarkDirty(); // Does not do anything with a zero-sized mouse selector.
 			this->selector.SetSize(0, 0);
-			return;
+			return false;
 
 		case RPR_SAMEPOS:
 		case RPR_CHANGED: {
@@ -283,7 +289,7 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			uint8 entrances = si->GetEntranceDirections(si->vox_pos);
 			this->selector.SetRideData(si->vox_pos, inst_number, entrances);
 			this->selector.MarkDirty();
-			return;
+			return false;
 		}
 
 		default: NOT_REACHED();

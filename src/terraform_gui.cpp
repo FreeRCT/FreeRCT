@@ -29,7 +29,7 @@ public:
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 
 	void SelectorMouseWheelEvent(int direction) override;
-	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 
 	bool level; ///< If true, level the area, else move it up/down as-is.
 	int xsize;  ///< Size of the terraform area in horizontal direction.
@@ -103,21 +103,29 @@ void TerraformGui::SelectorMouseWheelEvent(int direction)
 	this->tiles_selector.InitTileData();
 }
 
-void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+/**
+ * Handles mouse movement input
+ * @param vp %Viewport where the mouse movement occured
+ * @param pos New mouse position
+ * @return True if the event no longer needs to be handled (currently always false)
+ */
+bool TerraformGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
-	if (this->selector == nullptr) return;
+	if (this->selector == nullptr) return false;
 
 	FinderData fdata(CS_GROUND, (this->xsize <= 1 && this->ysize <= 1) ? FW_CORNER : FW_TILE);
-	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND) return;
+	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND) return false;
 	Rectangle16 &sel_rect = this->tiles_selector.area;
 	int xsel = sel_rect.base.x + sel_rect.width / 2;
 	int ysel = sel_rect.base.y + sel_rect.height / 2;
-	if (fdata.cursor == this->tiles_selector.cur_cursor && fdata.voxel_pos.x == xsel && fdata.voxel_pos.y == ysel) return;
+	if (fdata.cursor == this->tiles_selector.cur_cursor && fdata.voxel_pos.x == xsel && fdata.voxel_pos.y == ysel) return false;
 
 	this->tiles_selector.MarkDirty();
 	this->tiles_selector.cur_cursor = fdata.cursor; // Copy cursor and position.
 	this->tiles_selector.SetPosition(fdata.voxel_pos.x - sel_rect.width / 2, fdata.voxel_pos.y - sel_rect.height / 2);
 	this->tiles_selector.MarkDirty();
+
+	return false;
 }
 
 void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const

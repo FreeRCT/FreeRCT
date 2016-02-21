@@ -670,8 +670,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		if (anim_spr != nullptr) {
 			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
-			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
-			            north_point.y + this->north_offsets[this->orient].y + y_off);
+			Point32 offset(x_off, y_off);
+			Point32 pos = north_point + offset + this->north_offsets[this->orient];
 			DrawData dd;
 			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr, pos, recolour);
 			this->draw_images.insert(dd);
@@ -1010,35 +1010,31 @@ ClickableSprite Viewport::ComputeCursorPosition(FinderData *fdata)
 	if (!collector.found) return CS_NONE;
 
 	fdata->cursor = fdata->select == FW_EDGE ? CUR_TYPE_EDGE_NE : CUR_TYPE_TILE;
-// Temporary use of shorter name
-#define GETCOLOR(x, y) ( _palette[GetColorInFreeRCTPalette(x, y)] )
 	if (fdata->select == FW_CORNER && (collector.data.order & CS_MASK) == CS_GROUND) {
-		if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MED_DARK)) {
+		if (collector.pixel == GetColor(PCSI_ORANGE, PCI_MED_DARK)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_NORTH, this->orientation);
-		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_DARK)) {
+		} else if (collector.pixel == GetColor(PCSI_ORANGE, PCI_MILD_DARK)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_EAST,  this->orientation);
-		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_VERY_MILD_BRIGHT)) {
+		} else if (collector.pixel == GetColor(PCSI_ORANGE, PCI_VERY_MILD_BRIGHT)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_WEST,  this->orientation);
-		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_BRIGHT)) {
+		} else if (collector.pixel == GetColor(PCSI_ORANGE, PCI_MILD_BRIGHT)) {
 			fdata->cursor = (CursorType)AddOrientations(VOR_SOUTH, this->orientation);
 		}
 	}
 	else if (fdata->select == FW_EDGE && (collector.data.order & CS_MASK) == CS_GROUND_EDGE) {
 		uint8 base_edge = EDGE_COUNT;
-		if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MED_DARK)) {
+		if (collector.pixel == GetColor(PCSI_ORANGE, PCI_MED_DARK)) {
 			base_edge = (uint8)EDGE_NE;
-		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_DARK)) {
+		} else if (collector.pixel == GetColor(PCSI_ORANGE, PCI_MILD_DARK)) {
 			base_edge = (uint8)EDGE_SE;
-		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_VERY_MILD_BRIGHT)) {
+		} else if (collector.pixel == GetColor(PCSI_ORANGE, PCI_VERY_MILD_BRIGHT)) {
 			base_edge = (uint8)EDGE_NW;
-		} else if (collector.pixel == GETCOLOR(PCSI_ORANGE, PCI_MILD_BRIGHT)) {
+		} else if (collector.pixel == GetColor(PCSI_ORANGE, PCI_MILD_BRIGHT)) {
 			base_edge = (uint8)EDGE_SW;
 		}
 		if (base_edge < EDGE_COUNT) {
 			fdata->cursor = (CursorType)((base_edge + (uint8)this->orientation) % 4 + (uint8)CUR_TYPE_EDGE_NE);
 		}
-// Done with the macro, unclutter the translation unit
-#undef GETCOLOR
 	}
 	return (ClickableSprite)(collector.data.order & CS_MASK);
 }

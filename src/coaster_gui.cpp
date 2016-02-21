@@ -287,7 +287,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 
-	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(uint8 state) override;
 
 private:
@@ -626,23 +626,31 @@ void CoasterBuildWindow::SetupSelection()
 	this->piece_selector.pos_piece.piece = nullptr;
 }
 
-void CoasterBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+/**
+ * Handles coaster build mouse movement events
+ * @param vp Viewport
+ * @param pos Mouse position
+ * @return True if the event no longer needs to be handled (currently always false)
+ */
+bool CoasterBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
-	if (this->selector == nullptr || this->piece_selector.pos_piece.piece == nullptr) return; // No active selector.
-	if (this->sel_piece == nullptr || this->cur_piece != nullptr) return; // No piece, or fixed position.
+	if (this->selector == nullptr || this->piece_selector.pos_piece.piece == nullptr) return false; // No active selector.
+	if (this->sel_piece == nullptr || this->cur_piece != nullptr) return false; // No piece, or fixed position.
 
 	FinderData fdata(CS_GROUND, FW_TILE);
-	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND) return;
+	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND) return false;
 	XYZPoint16 &piece_base = this->piece_selector.pos_piece.base_voxel;
 	int dx = fdata.voxel_pos.x - piece_base.x;
 	int dy = fdata.voxel_pos.y - piece_base.y;
-	if (dx == 0 && dy == 0) return;
+	if (dx == 0 && dy == 0) return false;
 
 	this->piece_selector.MarkDirty();
 
 	this->piece_selector.SetPosition(this->piece_selector.area.base.x + dx, this->piece_selector.area.base.y + dy);
 	uint8 height = _world.GetTopGroundHeight(fdata.voxel_pos.x, fdata.voxel_pos.y);
 	this->piece_selector.SetTrackPiece(XYZPoint16(fdata.voxel_pos.x, fdata.voxel_pos.y, height), this->sel_piece);
+
+	return false;
 }
 
 void CoasterBuildWindow::SelectorMouseButtonEvent(uint8 state)

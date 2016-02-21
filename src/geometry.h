@@ -37,7 +37,7 @@ struct Point {
 	 * @param y Y coordinate.
 	 */
 	template <typename OCT>
-	Point<CT>(Point<OCT>& that) :
+	Point<CT>(const Point<OCT>& that) :
 		x(static_cast<CT>(that.x)),
 		y(static_cast<CT>(that.y))
 	{

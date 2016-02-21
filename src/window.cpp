@@ -502,9 +502,11 @@ void GuiWindow::OnMouseLeaveEvent()
  * Mouse moved in the viewport while the window has an active mouse selector.
  * @param vp %Viewport where the mouse moved.
  * @param pos New position of the mouse in the viewport.
+ * @return True if the event no longer needs to be handled (currently always false)
  */
-void GuiWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+bool GuiWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
+	return false;
 }
 
 /**
@@ -671,6 +673,7 @@ WindowManager::WindowManager()
 	this->mouse_pos.y = -10000;
 	this->current_window = nullptr;
 	this->select_window = nullptr;
+	this->focus_holder = nullptr;
 	this->select_valid = true;
 	this->mouse_state = 0;
 	this->mouse_mode = WMMM_PASS_THROUGH;
@@ -919,18 +922,34 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 	if (pos == this->mouse_pos) return;
 	this->mouse_pos = pos;
 
+	// TODO: add a MOUSE_BUTTON_DOWN mode, send events only to the window that
+	// was corrent at the time the mode began.
 	switch (this->mouse_mode) {
-		case WMMM_PASS_THROUGH: {
+		case WMMM_PASS_THROUGH:	{
+			/* Compute position relative to window origin. */
+			Point16 pos2;
+			if(this->current_window != nullptr) {
+				pos2 = pos - static_cast<Point16>(this->current_window->rect.base);
+			}
+
+			// If a window demands focus, it gets it.
+			if (this->focus_holder != nullptr) {
+				this->focus_holder->OnMouseMoveEvent(pos2);
+				return;
+			}
+
 			this->UpdateCurrentWindow();
 			if (this->current_window == nullptr) {
 				return;
 			}
 
-			/* Compute position relative to window origin. */
-			Point16 pos2;
-			pos2.x = pos.x - this->current_window->rect.base.x;
-			pos2.y = pos.y - this->current_window->rect.base.y;
 			this->current_window->OnMouseMoveEvent(pos2);
+			if((this->mouse_state & MB_RIGHT) == MB_RIGHT) {
+				if(this->focus_holder == nullptr) {
+					this->focus_holder = this->current_window;
+				}
+				this->mouse_mode = WMMM_RIGHT_MOUSE_BUTTON_DOWN;
+			}
 			break;
 		}
 
@@ -944,6 +963,25 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 			this->current_window->SetPosition(pos.x - this->move_offset.x, pos.y - this->move_offset.y);
 			this->current_window->MarkDirty();
 			break;
+		}
+
+		case WMMM_RIGHT_MOUSE_BUTTON_DOWN: {
+			if((this->mouse_state & MB_RIGHT) != MB_RIGHT) {
+				this->mouse_mode = WMMM_PASS_THROUGH;
+				this->focus_holder = nullptr;
+				return;
+			}
+
+			Point16 pos2;
+			if(this->current_window != nullptr) {
+				pos2 = pos - static_cast<Point16>(this->current_window->rect.base);
+			}
+
+			if (this->focus_holder != nullptr) {
+				this->focus_holder->OnMouseMoveEvent(pos2);
+				return;
+			}
+
 		}
 
 		default:
@@ -1043,6 +1081,9 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 
 		case WMMM_MOVE_WINDOW:
 			this->mouse_mode = WMMM_PASS_THROUGH; // Mouse clicks stop window movement.
+			break;
+
+		case WMMM_RIGHT_MOUSE_BUTTON_DOWN:
 			break;
 
 		default:

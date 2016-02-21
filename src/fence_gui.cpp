@@ -34,7 +34,7 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
 
-	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(uint8 state) override;
 
 	FenceType fence_type;      ///< Currently selected fence type (#FENCE_TYPE_INVALID means no type selected).
@@ -189,15 +189,21 @@ void FenceGui::OnClickFence(const Fence *fence)
 	this->fence_type = clicked_type;
 }
 
-void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+/**
+ * Handles mouse movement input
+ * @param vp %Viewport where the mouse movement occured
+ * @param pos New mouse position
+ * @return True if the event no longer needs to be handled (currently always false)
+ */
+bool FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
-	if (this->fence_type == FENCE_TYPE_INVALID || this->selector == nullptr) return;
+	if (this->fence_type == FENCE_TYPE_INVALID || this->selector == nullptr) return false;
 
 	FinderData fdata(CS_GROUND_EDGE, FW_EDGE);
-	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND_EDGE) return;
-	if (fdata.cursor < CUR_TYPE_EDGE_NE || fdata.cursor > CUR_TYPE_EDGE_NW) return;
+	if (vp->ComputeCursorPosition(&fdata) != CS_GROUND_EDGE) return false;
+	if (fdata.cursor < CUR_TYPE_EDGE_NE || fdata.cursor > CUR_TYPE_EDGE_NW) return false;
 
-	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(fdata.voxel_pos.x, fdata.voxel_pos.y) != OWN_PARK) return;
+	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(fdata.voxel_pos.x, fdata.voxel_pos.y) != OWN_PARK) return false;
 
 	/* Normalize voxel position to the base ground voxel. */
 	const Voxel *v = _world.GetVoxel(fdata.voxel_pos);
@@ -209,7 +215,7 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	}
 
 	TileEdge edge = static_cast<TileEdge>(EDGE_NE + (fdata.cursor - CUR_TYPE_EDGE_NE));
-	if (edge == this->fence_edge && fdata.voxel_pos == this->fence_base) return;
+	if (edge == this->fence_edge && fdata.voxel_pos == this->fence_base) return false;
 
 	/* Does this edge contain two connected paths or a connected path and ride entrance/exit? */
 	uint16 instance_data = v->GetInstanceData();
@@ -238,6 +244,8 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	this->fence_sel.SetFenceData(fdata.voxel_pos, this->fence_type, edge);
 
 	this->fence_sel.MarkDirty();
+
+	return false;
 }
 
 void FenceGui::SelectorMouseButtonEvent(uint8 state)

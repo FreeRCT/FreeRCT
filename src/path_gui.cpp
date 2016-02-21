@@ -18,6 +18,15 @@
 #include "gui_sprites.h"
 
 /**
+ * RMB event mode, used to decide how to handle new click / move events where RMB is held.
+ */
+enum PathSelectorRmbMode {
+	PS_RMB_MODE_NONE,
+	PS_RMB_MODE_DELETE,
+	PS_RMB_MODE_MOVE
+};
+
+/**
  * %Path build GUI.
  * @ingroup gui_group
  */
@@ -33,19 +42,21 @@ public:
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
 	void SelectorMouseButtonEvent(uint8 state) override;
-	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 
 
 	RideMouseMode ride_selector; ///< Mouse mode selector for displaying new (or existing) paths.
 
 private:
-	void TryAddRemovePath(uint8 m_state);
+	bool TryAddRemovePath(uint8 m_state);
 	void BuildSinglePath(const XYZPoint16 &pos);
 	void SetButtons();
 	void SetupSelector();
 	void BuyPathTile();
 	void RemovePathTile();
 	bool MoveSelection(bool move_forward);
+	bool IsInDeleteMode();
+	bool IsInMoveMode();
 
 	Rectangle16 path_type_button_size;             ///< Size of the path type buttons.
 	const ImageData *path_type_sprites[PAT_COUNT]; ///< Sprite to use for showing the path type in the Gui.
@@ -59,6 +70,7 @@ private:
 	TrackSlope sel_slope;     ///< Selected slope (#TSL_INVALID if not slope decided).
 	ClickableSprite mouse_at; ///< Sprite below the mouse cursor (#CS_NONE means none).
 	bool single_tile_mode;    ///< If set, build single tiles at the ground, else build directional
+	PathSelectorRmbMode mode;         ///< Set when we are currently deleting tiles
 };
 
 /**
@@ -164,7 +176,11 @@ static const WidgetPart _path_build_gui_parts[] = {
 };
 
 /** Constructor of the path build gui. */
-PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE), ride_selector(), path_type_button_size()
+PathBuildGui::PathBuildGui() :
+		GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE),
+		ride_selector(),
+		path_type_button_size(),
+		mode(PS_RMB_MODE_NONE)
 {
 	const SpriteStorage *store = _sprite_manager.GetSprites(64); // GUI size.
 	for (int i = 0; i < PAT_COUNT; i++) {
@@ -232,35 +248,91 @@ PathBuildGui::~PathBuildGui()
 /**
  * Try to add (if LMB pressed) or remove (if RMB pressed) a path tile at the voxel pointed to by the mouse.
  * @param m_state Mouse button state.
+ * @return Whether a path was deleted
  */
-void PathBuildGui::TryAddRemovePath(uint8 m_state)
+bool PathBuildGui::TryAddRemovePath(uint8 m_state)
 {
-	if ((m_state & (MB_LEFT | MB_RIGHT)) == 0) return; // No buttons pressed.
+	if ((m_state & (MB_LEFT | MB_RIGHT)) == 0) return false; // No buttons pressed.
 
 	const Voxel *v = _world.GetVoxel(this->mouse_pos);
-	if (!v) return; // No voxel -> no ground there.
+	if (!v) return false; // No voxel -> no ground there.
 
 	uint16 instance = v->GetInstance();
 	if ((m_state & MB_LEFT) != 0) {
 		this->BuildSinglePath(this->mouse_pos); // Build new path or change type of path.
+		return false;
 	} else if (instance == SRI_PATH && (m_state & MB_RIGHT) != 0) {
 		RemovePath(this->mouse_pos, false);
+		return true;
 	}
+	return false;
 }
 
-void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+/**
+ * Is the Path GUI in delete mode?
+ * @return true if the Path GUI is in delete mode.
+ */
+inline bool PathBuildGui::IsInDeleteMode()
 {
-	if (this->path_type == PAT_INVALID) return;
+	return this->mode == PS_RMB_MODE_DELETE;
+}
+
+/**
+ * Is the Path GUI in move mode?
+ * @return true if the Path GUI is in move mode.
+ */
+inline bool PathBuildGui::IsInMoveMode()
+{
+	return this->mode == PS_RMB_MODE_MOVE;
+}
+
+/**
+ * Handles mouse movement input.
+ * @param vp %Viewport where the mouse movement occured
+ * @param pos New mouse position
+ * @return True if the Path Selector is in delete mode (i.e. currently removing tiles), otherwise false.
+ */
+bool PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+	// Check to see which RMB state we should be in.
+	// The whole purpose of checking our RMB state is to tell the Viewport
+	// whether it should process the event; we want the screen to hold still if
+	// we're deleting paths.
+	uint8 mouse_state = _window_manager.GetMouseState();
+	if((mouse_state & MB_RIGHT) == 0) {
+		this->mode = PS_RMB_MODE_NONE;
+	}
+	else if(!IsInDeleteMode()) {
+		this->mode = PS_RMB_MODE_MOVE;
+	}
+
+	if (this->path_type == PAT_INVALID) {
+		return IsInDeleteMode();
+	}
 
 	FinderData fdata(CS_GROUND | CS_PATH, FW_TILE);
 	this->mouse_at = vp->ComputeCursorPosition(&fdata);
-	if (this->mouse_at == CS_NONE || fdata.voxel_pos == this->mouse_pos) return;
+	if (this->mouse_at == CS_NONE || fdata.voxel_pos == this->mouse_pos) {
+		return IsInDeleteMode();
+	}
 
-	this->mouse_pos = fdata.voxel_pos;
-	if (this->single_tile_mode) this->TryAddRemovePath(_window_manager.GetMouseState());
+	// Move mode will sometimes let the voxel selection hop over to a
+	// neighboring voxel if the redraw isn't fast enough. If we don't skip the
+	// voxel position update, it will switch to a delete state in voxel hop
+	// cases, which is not desirable.
+	if (!IsInMoveMode()) this->mouse_pos = fdata.voxel_pos;
+
+	// Note: this if should depend on order. Don't rearrange the tests.
+	if (this->single_tile_mode && this->TryAddRemovePath(mouse_state) && !IsInDeleteMode())	{
+		this->mode = PS_RMB_MODE_DELETE;
+	}
 
 	this->SetButtons();
-	this->SetupSelector();
+	if (!IsInMoveMode()) {
+	    this->SetupSelector();
+	}
+
+	return IsInDeleteMode();
 }
 
 void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
@@ -268,7 +340,12 @@ void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
 	if (this->ride_selector.area.width == 0 || this->path_type == PAT_INVALID) return;
 
 	if (this->single_tile_mode) {
-		this->TryAddRemovePath(state);
+		if(!IsInMoveMode() && this->TryAddRemovePath(state)) {
+			this->mode = PS_RMB_MODE_DELETE;
+		}
+		else if ((state & MB_RIGHT) == 0) {
+			this->mode = PS_RMB_MODE_NONE;
+		}
 		return;
 	}
 	/* Directional build. */

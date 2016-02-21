@@ -119,8 +119,9 @@ enum WmKeyCode {
  * @ingroup window_group
  */
 enum WmMouseModes {
-	WMMM_PASS_THROUGH, ///< No special mode, pass events on to the windows.
-	WMMM_MOVE_WINDOW,  ///< Move the current window.
+	WMMM_PASS_THROUGH,              ///< No special mode, pass events on to the windows.
+	WMMM_RIGHT_MOUSE_BUTTON_DOWN,   ///< Mouse button is being held down outside of MOVE_WINDOW
+	WMMM_MOVE_WINDOW,               ///< Move the current window.
 };
 
 typedef uint32 WindowNumber; ///< Type of a window number.
@@ -189,7 +190,7 @@ public:
 	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	virtual void OnMouseLeaveEvent() override;
-	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
+	virtual bool SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
 	virtual void SelectorMouseButtonEvent(uint8 state);
 	virtual void SelectorMouseWheelEvent(int direction);
 	virtual void TimeoutCallback() override;
@@ -355,8 +356,7 @@ public:
 	{
 		GuiWindow *gw = this->GetSelector();
 		if (gw != nullptr) {
-			gw->SelectorMouseMoveEvent(vp, pos);
-			return true;
+			return gw->SelectorMouseMoveEvent(vp, pos);
 		}
 		return false;
 	}
@@ -419,6 +419,24 @@ public:
 		return this->viewport;
 	}
 
+	/**
+	 * Retrieve windows forcibly holding focus
+	 * @return The window forcibly holding the focus, or nullptr if none is forcibly holding focus
+	 */
+	inline Window *GetFocusHolder() const
+	{
+		return this->focus_holder;
+	}
+
+	/**
+	 * Tell the window manager to send all mouse move events to the given window before any others
+	 * @param fh The window to receive events
+	 */
+	inline void SetFocusHolder(Window* fh)
+	{
+		this->focus_holder = fh;
+	}
+
 	void UpdateWindows();
 
 	Window *top;    ///< Top-most window in the window stack.
@@ -433,8 +451,8 @@ private:
 
 	Point16 mouse_pos;        ///< Last reported mouse position.
 	Window *current_window;   ///< 'Current' window under the mouse.
-	GuiWindow *select_window; ///< Cache containing the highest window with active GuiWindow::selector field
-	                          ///< (\c nullptr if no such window exists). Only valid if #select_valid holds.
+	Window *focus_holder;     ///< Window that's currently demanding events be routed to it
+	GuiWindow *select_window; ///< Cache containing the highest window with active GuiWindow::selector field (\c nullptr if no such window exists). Only valid if #select_valid holds.
 	Viewport *viewport;       ///< Viewport window (\c nullptr if not available).
 	bool select_valid;        ///< State of the #select_window cache.
 	uint8 mouse_state;        ///< Last reported mouse button state (lower 4 bits).
