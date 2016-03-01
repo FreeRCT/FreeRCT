@@ -115,13 +115,12 @@ void EditTextWindow::OnClick(WidgetNumber number, const Point16 &pos)
 	if (number == ETW_OK || number == ETW_CANCEL) {
 		if (number == ETW_OK) {
 			Complete();
-			//int len = this->text_buffer.GetText().length();
-			//SafeStrncpy(*this->text, (const uint8 *)this->text_buffer.GetText().c_str(), len + 1);
 		}
 		delete this;
 	} else if (number == ETW_EDIT_TEXT) {
-		//this->text_buffer.SetPosition(pos.x / 5);
-		printf("%d\n", pos.x);
+		int second_width, second_height;
+		_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
+		this->text_buffer.SetPosition((pos.x - second_width) / second_width);
 	}
 }
 
