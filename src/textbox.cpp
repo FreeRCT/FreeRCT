@@ -147,17 +147,24 @@ bool EditTextWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 			break;
 		case WMKC_CONFIRM:
 			completed = true;
-			//int len = this->text_buffer.GetText().length();
-			//SafeStrncpy(*this->text, (const uint8 *)this->text_buffer.GetText().c_str(), len + 1);
 		case WMKC_CANCEL:
 			finish = true;
 			break;
 		case WMKC_SYMBOL:
 			if (SDL_GetModState() & KMOD_CTRL) {
-				if (symbol[0] == 'v') {
-					this->text_buffer.InsertText(SDL_GetClipboardText());
-				} else if (symbol[0] == 'c') {
-					SDL_SetClipboardText(this->text_buffer.GetText().c_str());
+				switch (symbol[0]) {
+					case 'v':
+						this->text_buffer.InsertText(SDL_GetClipboardText());
+						break;
+					case 'c':
+						SDL_SetClipboardText(this->text_buffer.GetText().c_str());
+						break;
+					case 'x':
+						SDL_SetClipboardText(this->text_buffer.GetText().c_str());
+						this->text_buffer.SetText((const char *)"");
+						break;
+					default:
+						break;
 				}
 			} else {
 				this->text_buffer.InsertText((const char *)symbol);

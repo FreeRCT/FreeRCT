@@ -381,6 +381,7 @@ bool VideoSystem::HandleEvent()
 				case SDLK_SPACE:     return HandleKeyInput(WMKC_SPACE, nullptr);
 				case SDLK_c:         return HandleKeyInput(WMKC_SYMBOL, (const uint8 *)"c");
 				case SDLK_v:         return HandleKeyInput(WMKC_SYMBOL, (const uint8 *)"v");
+				case SDLK_x:         return HandleKeyInput(WMKC_SYMBOL, (const uint8 *)"x");
 
 				case SDLK_RETURN:
 				case SDLK_RETURN2:
