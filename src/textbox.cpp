@@ -30,6 +30,7 @@ public:
 private:
 	TextBuffer text_buffer;
 	uint8 **text;
+	uint start;
 };
 
 /**
@@ -39,6 +40,7 @@ private:
 enum EditTextWidgets {
 	ETW_TITLEBAR,  ///< Titlebar widget.
 	ETW_EDIT_TEXT, ///< Edit text box.
+	ETW_SCROLL_TEXT, ///< Scroll bar for text box.
 	ETW_OK,        ///< 'ok' button.
 	ETW_CANCEL,    ///< 'cancel' button.
 };
@@ -54,10 +56,11 @@ static const WidgetPart _edit_text_widgets[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
-			Intermediate(2, 0),
+			Intermediate(2, 1),
 				Widget(WT_EDIT_TEXT, ETW_EDIT_TEXT, COL_RANGE_BLUE),
 						SetData(STR_ARG1, STR_NULL), SetPadding(5, 5, 5, 5),
 						SetMinimalSize(200, 10),
+				Widget(WT_HOR_SCROLLBAR, ETW_SCROLL_TEXT, COL_RANGE_BLUE),
 			EndContainer(),
 			Intermediate(1, 5), SetPadding(0, 0, 3, 0),
 				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
@@ -71,9 +74,15 @@ static const WidgetPart _edit_text_widgets[] = {
 EditTextWindow::EditTextWindow(uint8 **text, uint max_length) : GuiWindow(WC_EDIT_TEXT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_edit_text_widgets, lengthof(_edit_text_widgets));
+	this->SetScrolledWidget(ETW_EDIT_TEXT, ETW_SCROLL_TEXT);
 	this->text_buffer.SetMaxLength(max_length);
 	this->text_buffer.InsertText((char *)*text);
 	this->text = text;
+	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
+	int item_width, item_height = 0;
+	_video.GetTextSize((const uint8 *)"_", &item_width, &item_height);
+	sb->SetItemSize(item_width);
+	sb->SetItemCount(this->text_buffer.GetText().length());
 }
 
 EditTextWindow::~EditTextWindow()
@@ -94,7 +103,9 @@ void EditTextWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case ETW_EDIT_TEXT: {
 			_str_params.SetUint8(1, (uint8 *)this->text_buffer.GetText().c_str());
 			const DataWidget *wid = this->GetWidget<DataWidget>(wid_num);
+			//const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
 			int width, second_width, height, second_height = 0;
+			//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(sb->GetStart(), sb->GetVisibleCount()).c_str(), &width, &height);
 			_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
 			_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
 			_video.BlitText((const uint8 *)"_", MakeRGBA(255, 255, 255, OPAQUE), GetWidgetScreenX(wid) + second_width + width, GetWidgetScreenY(wid) + (height / 2), second_width);
@@ -104,6 +115,27 @@ void EditTextWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 	}
 }
+
+/*
+void EditTextWindow::GetVisibleCount() const
+{
+	//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
+	//wid->pos.width;
+}
+
+void EditTextWindow::ScrollTo(uint offset)
+{
+	int text_length = this->text_buffer.GetText().length();
+	//if (offset >= text_length) offset = (text_length > 0) ? text_length - 1 : 0;
+
+	//if (offset < start) {
+	// set start
+	//} else {
+	//visible_count;
+	//if (offset >= start + visible_count) set start (offset - visible_count);
+	//}
+}
+*/
 
 void EditTextWindow::OnChange(ChangeCode code, uint32 parameter)
 {
