@@ -577,7 +577,7 @@ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 void ScrollbarWidget::Draw(const GuiWindow *w)
 {
 	static Recolouring rc; // Only COL_RANGE_BROWN is modified each time.
-	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, colour));
+	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, this->colour));
 
 	const ScrollbarSpriteData &scroll_sprites = (this->wtype == WT_HOR_SCROLLBAR) ? _gui_sprites.hor_scroll : _gui_sprites.vert_scroll;
 	if (!scroll_sprites.IsLoaded()) return;
