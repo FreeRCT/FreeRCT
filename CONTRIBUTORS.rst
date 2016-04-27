@@ -38,6 +38,7 @@ jjhdnd           GUI
 PovAddictW       FileIO
 stanekj          Rides
 tnt.freesoftware GUI
+Paul Page        Graphics
 ================ ========
 
 
