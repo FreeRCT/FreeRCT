@@ -237,6 +237,8 @@ void PathBuildGui::TryAddRemovePath(uint8 m_state)
 {
 	if ((m_state & (MB_LEFT | MB_RIGHT)) == 0) return; // No buttons pressed.
 
+	if (!IsVoxelstackInsideWorld(mouse_pos.x, mouse_pos.y)) return;
+
 	const Voxel *v = _world.GetVoxel(this->mouse_pos);
 	if (!v) return; // No voxel -> no ground there.
 
