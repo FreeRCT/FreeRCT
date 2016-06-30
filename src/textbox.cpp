@@ -56,19 +56,18 @@ static const WidgetPart _edit_text_widgets[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
-			Intermediate(2, 1),
+			Intermediate(3, 1),
 				Widget(WT_EDIT_TEXT, ETW_EDIT_TEXT, COL_RANGE_BLUE),
 						SetData(STR_ARG1, STR_NULL), SetPadding(5, 5, 5, 5),
 						SetMinimalSize(200, 10),
 				Widget(WT_HOR_SCROLLBAR, ETW_SCROLL_TEXT, COL_RANGE_BLUE),
+				Intermediate(1, 0), SetPadding(0, 0, 3, 0),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
+					Widget(WT_TEXT_PUSHBUTTON, ETW_OK, COL_RANGE_YELLOW), SetData(GUI_EDIT_TEXT_OK, STR_NULL),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
+					Widget(WT_TEXT_PUSHBUTTON, ETW_CANCEL, COL_RANGE_YELLOW), SetData(GUI_EDIT_TEXT_CANCEL, STR_NULL),
+					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
 			EndContainer(),
-			Intermediate(1, 5), SetPadding(0, 0, 3, 0),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-				Widget(WT_TEXT_PUSHBUTTON, ETW_OK, COL_RANGE_YELLOW), SetData(GUI_EDIT_TEXT_OK, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-				Widget(WT_TEXT_PUSHBUTTON, ETW_CANCEL, COL_RANGE_YELLOW), SetData(GUI_EDIT_TEXT_CANCEL, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-			EndContainer()
 };
 
 EditTextWindow::EditTextWindow(uint8 **text, uint max_length) : GuiWindow(WC_EDIT_TEXT, ALL_WINDOWS_OF_TYPE)
