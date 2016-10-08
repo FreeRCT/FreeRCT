@@ -19,6 +19,7 @@ public:
 	EditTextWindow(uint8 **text, uint max_length);
 	~EditTextWindow();
 
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	Point32 OnInitialPosition() override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
@@ -31,6 +32,8 @@ private:
 	TextBuffer text_buffer;
 	uint8 **text;
 	uint start;
+	int cursor_width;
+	int cursor_height;
 };
 
 /**
@@ -78,14 +81,37 @@ EditTextWindow::EditTextWindow(uint8 **text, uint max_length) : GuiWindow(WC_EDI
 	this->text_buffer.InsertText((char *)*text);
 	this->text = text;
 	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
-	int item_width, item_height = 0;
-	_video.GetTextSize((const uint8 *)"_", &item_width, &item_height);
-	sb->SetItemSize(item_width);
+	_video.GetTextSize((const uint8 *)"_", &this->cursor_width, &this->cursor_height);
+	sb->SetItemSize(this->cursor_width);
 	sb->SetItemCount(this->text_buffer.GetText().length());
 }
 
 EditTextWindow::~EditTextWindow()
 {
+}
+
+void EditTextWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+{
+	switch (wid_num) {
+		case ETW_EDIT_TEXT: {
+			//_str_params.SetUint8(1, (uint8 *)this->text_buffer.GetText().c_str());
+			const DataWidget *wid = this->GetWidget<DataWidget>(wid_num);
+			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
+			int width, height = 0; // second_width, second_height 
+			int start_index = 0;
+			int end_index = sb->GetVisibleCount();
+			if (this->text_buffer.GetPosition() < sb->GetVisibleCount()) {
+				start_index = 0;
+				end_index = this->text_buffer.GetPosition();
+			}
+			_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(start_index, end_index).c_str(), &width, &height);
+			//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(sb->GetStart(), sb->GetVisibleCount()).c_str(), &width, &height);
+			//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
+			//_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
+			_video.BlitText((const uint8 *)"_", MakeRGBA(255, 255, 255, OPAQUE), GetWidgetScreenX(wid) + this->cursor_width + width, GetWidgetScreenY(wid) + (height / 2), this->cursor_width);
+			}
+			break;
+	}
 }
 
 Point32 EditTextWindow::OnInitialPosition()
@@ -101,13 +127,15 @@ void EditTextWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	switch (wid_num) {
 		case ETW_EDIT_TEXT: {
 			_str_params.SetUint8(1, (uint8 *)this->text_buffer.GetText().c_str());
+	/*
 			const DataWidget *wid = this->GetWidget<DataWidget>(wid_num);
-			//const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
+			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
 			int width, second_width, height, second_height = 0;
 			//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(sb->GetStart(), sb->GetVisibleCount()).c_str(), &width, &height);
 			_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
 			_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
 			_video.BlitText((const uint8 *)"_", MakeRGBA(255, 255, 255, OPAQUE), GetWidgetScreenX(wid) + second_width + width, GetWidgetScreenY(wid) + (height / 2), second_width);
+	*/
 			}
 			break;
 		default:
@@ -149,9 +177,9 @@ void EditTextWindow::OnClick(WidgetNumber number, const Point16 &pos)
 		}
 		delete this;
 	} else if (number == ETW_EDIT_TEXT) {
-		int second_width, second_height;
-		_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
-		this->text_buffer.SetPosition((pos.x - second_width) / second_width);
+		//int second_width, second_height;
+		//_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
+		this->text_buffer.SetPosition((pos.x - this->cursor_width) / this->cursor_width);
 	}
 }
 
