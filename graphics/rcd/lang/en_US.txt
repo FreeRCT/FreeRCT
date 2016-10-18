@@ -171,6 +171,16 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selects track pieces that end with a banking to the right";
 		COASTER_BUILD_BUY_TOOLTIP:        "Click to buy the selected track piece";
 
+		// Entity remove button strings.
+		ENTITY_REMOVE:         "Remove";
+		ENTITY_REMOVE_TOOLTIP: "Remove this?";
+
+		// Entity remove window strings.
+		ENTITY_REMOVE_CAPTION: "Remove";
+		ENTITY_REMOVE_MESSAGE: "Remove %1%?";
+		ENTITY_REMOVE_YES:     "Yes";
+		ENTITY_REMOVE_NO:      "No";
+
 		// Money symbols.
 		MONEY_CURRENCY_SYMBOL:     "$";
 		MONEY_THOUSANDS_SEPARATOR: ",";
