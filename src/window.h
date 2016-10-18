@@ -45,6 +45,7 @@ enum WindowTypes {
 	WC_GUEST_INFO,      ///< Person window.
 	WC_COASTER_MANAGER, ///< Roller coaster manager window.
 	WC_COASTER_BUILD,   ///< Roller coaster build/edit window.
+	WC_COASTER_REMOVE,  ///< Roller coaster remove window.
 	WC_RIDE_BUILD,      ///< Simple ride build window.
 	WC_PATH_BUILDER,    ///< %Path build GUI.
 	WC_RIDE_SELECT,     ///< Ride selection window.
