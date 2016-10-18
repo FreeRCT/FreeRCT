@@ -50,6 +50,7 @@ enum WindowTypes {
 	WC_PATH_BUILDER,    ///< %Path build GUI.
 	WC_RIDE_SELECT,     ///< Ride selection window.
 	WC_SHOP_MANAGER,    ///< Management window of a shop.
+	WC_SHOP_REMOVE,     ///< Shop remove window.
 	WC_FENCE,           ///< Fence window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.

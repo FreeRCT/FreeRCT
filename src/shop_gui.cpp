@@ -14,6 +14,53 @@
 #include "language.h"
 #include "sprite_store.h"
 #include "shop_type.h"
+#include "entity_gui.h"
+
+/** Window to prompt for removing a shop. */
+class ShopRemoveWindow : public EntityRemoveWindow  {
+public:
+	ShopRemoveWindow(ShopInstance *si);
+
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+
+private:
+	ShopInstance *si; ///< Shop instance to remove.
+};
+
+/**
+ * Constructor of the shop remove window.
+ * @param si Shop instance to remove.
+ */
+ShopRemoveWindow::ShopRemoveWindow(ShopInstance *si) : EntityRemoveWindow(WC_SHOP_REMOVE, si->GetIndex())
+{
+	this->si = si;
+}
+
+void ShopRemoveWindow::OnClick(WidgetNumber number, const Point16 &pos)
+{
+	if (number == ERW_YES) {
+		delete GetWindowByType(WC_SHOP_MANAGER, this->si->GetIndex());
+		_rides_manager.DeleteInstance(this->si->GetIndex());
+	}
+	delete this;
+}
+
+void ShopRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+{
+	if (wid_num == ERW_MESSAGE) _str_params.SetUint8(1, (uint8 *)this->si->name);
+}
+
+/**
+ * Open a shop remove window for the given shop.
+ * @param si Shop instance to remove.
+ */
+void ShowShopRemove(ShopInstance *si)
+{
+	if (HighlightWindowByType(WC_SHOP_REMOVE, si->GetIndex())) return;
+
+	new ShopRemoveWindow(si);
+}
 
 /** Widgets of the shop management window. */
 enum ShopManagerWidgets {
@@ -38,6 +85,7 @@ enum ShopManagerWidgets {
 	SMW_RECOLOUR1,        ///< First recolour dropdown.
 	SMW_RECOLOUR2,        ///< Second recolour dropdown.
 	SMW_RECOLOUR3,        ///< Third recolour dropdown.
+	SMW_REMOVE,           ///< Remove button widget.
 };
 
 /** Widget parts of the #ShopManagerWindow. */
@@ -92,6 +140,9 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR3, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetResize(1, 0),
+			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+				Widget(WT_TEXT_PUSHBUTTON, SMW_REMOVE, COL_RANGE_DARK_RED),
+						SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 		EndContainer(),
 };
 
@@ -222,6 +273,9 @@ void ShopManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 			}
 			break;
 		}
+		case SMW_REMOVE:
+			ShowShopRemove(this->shop);
+			break;
 	}
 }
 
