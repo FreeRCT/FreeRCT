@@ -178,6 +178,16 @@ static const char *_gui_string_names[] = {
 	"COASTER_BUILD_BANK_RIGHT_TOOLTIP",
 	"COASTER_BUILD_BUY_TOOLTIP",
 
+	/* Entity remove button. */
+	"ENTITY_REMOVE",
+	"ENTITY_REMOVE_TOOLTIP",
+
+	/* Entity remove window. */
+	"ENTITY_REMOVE_CAPTION",
+	"ENTITY_REMOVE_YES",
+	"ENTITY_REMOVE_NO",
+	"ENTITY_REMOVE_MESSAGE",
+
 	/* Ride build window. */
 	"RIDE_BUILD_TITLEBAR_SHOP",
 	"RIDE_BUILD_ROTATE_TOOLTIP",

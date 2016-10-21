@@ -173,6 +173,16 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selects track pieces that end with a banking to the right";
 		COASTER_BUILD_BUY_TOOLTIP:        "Click to buy the selected track piece";
 
+		// Entity remove button strings.
+		ENTITY_REMOVE:         "Remove";
+		ENTITY_REMOVE_TOOLTIP: "Remove this?";
+
+		// Entity remove window strings.
+		ENTITY_REMOVE_CAPTION: "Remove";
+		ENTITY_REMOVE_MESSAGE: "Remove %1%?";
+		ENTITY_REMOVE_YES:     "Yes";
+		ENTITY_REMOVE_NO:      "No";
+
 		// Ride build window strings.
 		RIDE_BUILD_TITLEBAR_SHOP:         "Place shop";
 		RIDE_BUILD_ROTATE_TOOLTIP:        "Click to rotate the ride";
