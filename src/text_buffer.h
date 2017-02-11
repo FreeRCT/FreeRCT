@@ -26,7 +26,7 @@ class TextBuffer {
 		void RemoveCurrentCharacter();
 
 		void SetPosition(int position) { this->current_position = position; };
-		const int GetPosition() const { return this->current_position; };
+		const uint GetPosition() const { return this->current_position; };
 		void IncPosition() { if (this->current_position < this->text.length()) this->current_position++; };
 		void DecPosition() { if (this->current_position > 0) this->current_position--; };
 
