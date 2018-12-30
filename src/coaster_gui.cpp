@@ -364,6 +364,7 @@ private:
 	void SetupSelection();
 	int SetButtons(int start_widget, int count, uint avail, int cur_sel, int invalid_val);
 	void BuildTrackPiece();
+	void UpdateSelectedPiece();
 
 	TrackPieceMouseMode piece_selector; ///< Selector for displaying new track pieces.
 };
@@ -458,7 +459,9 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CCW_REMOVE: {
 			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
 			this->ci->RemovePositionedPiece(*this->cur_piece);
+
 			this->cur_piece = pred_index == -1 ? nullptr : &this->ci->pieces[pred_index];
+			this->UpdateSelectedPiece();
 			break;
 		}
 
@@ -483,6 +486,20 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 				this->build_direction = (TileEdge)((this->build_direction + 3) % 4);
 			}
 			break;
+
+		case CCW_BACKWARD: {
+			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
+			this->cur_piece = &this->ci->pieces[pred_index];
+			this->UpdateSelectedPiece();
+			break;
+		}
+
+		case CCW_FORWARD: {
+			int succ_index = this->ci->FindSuccessorPiece(*this->cur_piece);
+			this->cur_piece = &this->ci->pieces[succ_index];
+			this->UpdateSelectedPiece();
+			break;
+		}
 	}
 	this->SetupSelection();
 }
@@ -644,11 +661,17 @@ void CoasterBuildWindow::SetupSelection()
 	bool enabled = (this->cur_piece == nullptr && CountBits(directions) > 1);
 	this->SetWidgetShaded(CCW_ROT_NEG,  !enabled);
 	this->SetWidgetShaded(CCW_ROT_POS,  !enabled);
-	enabled = (this->cur_piece != nullptr && this->cur_sel != nullptr);
+
+	/* Set shading of forward/back buttons. */
+	enabled = this->cur_piece != nullptr && this->ci->FindSuccessorPiece(*this->cur_piece) != -1;
+	this->SetWidgetShaded(CCW_FORWARD, !enabled);
+	enabled = this->cur_piece != nullptr && this->ci->FindPredecessorPiece(*this->cur_piece) != -1;
 	this->SetWidgetShaded(CCW_BACKWARD, !enabled);
-	this->SetWidgetShaded(CCW_FORWARD,  !enabled);
-	enabled = (this->cur_piece != nullptr && this->cur_sel == nullptr);
+
+	enabled = this->cur_piece != nullptr && this->ci->FindSuccessorPiece(*this->cur_piece) == -1;
 	this->SetWidgetShaded(CCW_DISPLAY_PIECE, !enabled);
+
+	enabled = this->cur_piece != nullptr;
 	this->SetWidgetShaded(CCW_REMOVE, !enabled);
 
 	this->sel_bank = static_cast<TrackPieceBanking>(this->SetButtons(CCW_BANK_NONE, TPB_COUNT, avail_bank, this->sel_bank, TPB_INVALID));
@@ -657,9 +680,8 @@ void CoasterBuildWindow::SetupSelection()
 	this->sel_platform = static_cast<BoolSelect>(this->SetButtons(CCW_NO_PLATFORM, 2, avail_platform, this->sel_platform, BSL_NONE));
 	this->sel_power = static_cast<BoolSelect>(this->SetButtons(CCW_NOT_POWERED, 2, avail_power, this->sel_power, BSL_NONE));
 
-	if (this->sel_piece == nullptr) {
-		this->piece_selector.SetSize(0, 0); // Nothing to display.
-		this->piece_selector.pos_piece.piece = nullptr;
+	if (this->sel_piece == nullptr) { // Highlight current piece
+		this->piece_selector.SetTrackPiece(this->cur_piece->base_voxel, this->cur_piece->piece);
 		return;
 	}
 
@@ -726,9 +748,19 @@ void CoasterBuildWindow::BuildTrackPiece()
 
 		/* Piece was added, change the setup for the next piece. */
 		this->cur_piece = &this->ci->pieces[ptp_index];
-		int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
-		this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : nullptr;
+
+		this->UpdateSelectedPiece();
+
 		this->cur_after = true;
+	}
+}
+
+/** Update the instance variable cur_sel to reflect changes in the value of the current piece (cur_piece). */
+void CoasterBuildWindow::UpdateSelectedPiece()
+{
+	if (this->cur_piece != nullptr){
+		int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
+		this->cur_sel = succ != -1 ? &this->ci->pieces[succ] : nullptr;
 	}
 }
 
