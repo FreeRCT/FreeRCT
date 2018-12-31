@@ -196,6 +196,7 @@ public:
 	bool IsAccessible();
 
 	void OnAnimate(int delay) override;
+	void CloseRide() override;
 
 	/**
 	 * Get the coaster type of this ride.
@@ -205,6 +206,8 @@ public:
 	{
 		return static_cast<const CoasterType *>(this->type);
 	}
+
+	void TestRide();
 
 	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;

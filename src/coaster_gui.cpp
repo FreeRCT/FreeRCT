@@ -69,6 +69,10 @@ void ShowCoasterRemove(CoasterInstance *ci)
 enum CoasterInstanceWidgets {
 	CIW_TITLEBAR, ///< Titlebar widget.
 	CIW_REMOVE,   ///< Remove button widget.
+	CIW_EDIT,     ///< Edit coaster widget.
+	CIW_CLOSE,    ///< Close coaster widget
+	CIW_TEST,     ///< Test coaster widget
+	CIW_OPEN,     ///< Open coaster widget
 };
 
 /** Widget parts of the #CoasterInstanceWindow. */
@@ -79,8 +83,19 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetMinimalSize(100, 100),
+		Intermediate(1, 0),
+			Widget(WT_TEXT_PUSHBUTTON, CIW_EDIT, COL_RANGE_DARK_RED),
+					SetData(STR_NULL, STR_NULL), SetFill(1, 1), SetMinimalSize(100, 100),
+
+			/* Close/test coaster radio button button panel */
+			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(0, 1),
+				Widget(WT_RADIOBUTTON, CIW_CLOSE, COL_RANGE_RED), SetPadding(0, 2, 0, 0),
+				Widget(WT_RADIOBUTTON, CIW_TEST, COL_RANGE_YELLOW), SetPadding(0, 2, 0, 0),
+				Widget(WT_RADIOBUTTON, CIW_OPEN, COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
+			EndContainer(),
+		EndContainer(),
+
 		Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED),
 				SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 	EndContainer(),
@@ -95,6 +110,9 @@ public:
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
+
+	void SetCoasterStateForRadioButton(WidgetNumber radio);
+	void SetRadioChecked(WidgetNumber radio, bool checked);
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to display and control.
@@ -128,7 +146,70 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 
 void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 {
-	if (widget == CIW_REMOVE) ShowCoasterRemove(this->ci);
+	switch (widget) {
+		case CIW_REMOVE:
+			ShowCoasterRemove(this->ci);
+			break;
+
+		case CIW_EDIT:
+			this->ci->CloseRide();
+			ShowCoasterBuildGui(this->ci);
+			break;
+
+		case CIW_CLOSE:
+		case CIW_TEST:
+		case CIW_OPEN:
+			this->SetCoasterStateForRadioButton(widget);
+			break;
+	}
+}
+
+/**
+ * Update the coaster instance associated with this window to a new state that is determined by the 
+ * radio button clicked. If the radio button is not one of the ride state control radio buttons in this
+ * window, an error will be raised.
+ *
+ * @param radio A radio button that was clicked by the user.
+ */
+void CoasterInstanceWindow::SetCoasterStateForRadioButton(WidgetNumber radio)
+{
+	switch (radio) {
+		case CIW_CLOSE:
+			this->ci->CloseRide();
+			break;
+
+		case CIW_TEST:
+			this->ci->TestRide();
+			break;
+
+		case CIW_OPEN:
+			/// \todo implement ride opening
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+
+	this->SetRadioChecked(radio, true);
+
+	WidgetNumber radioButtons[] = { CIW_CLOSE, CIW_TEST, CIW_OPEN };
+	for(uint i = 0; i < lengthof(radioButtons); i++){
+		if(radioButtons[i] != radio){
+			this->SetRadioChecked(radioButtons[i], false);
+		}
+	}
+}
+
+/**
+ * Make a radio button either checked or not checked according the parameters.
+ * @param radio Radio button acted on by this method.
+ * @param checked Boolean flag to decided if the radio button should be checked (true) or unchecked (false).
+ */
+void CoasterInstanceWindow::SetRadioChecked(WidgetNumber radio, bool checked)
+{
+	this->SetWidgetChecked(radio, checked);
+	this->SetWidgetPressed(radio, checked);
+	this->MarkWidgetDirty(radio);
 }
 
 /**

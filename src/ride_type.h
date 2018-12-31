@@ -154,7 +154,7 @@ public:
 	void OnNewDay();
 	void BuildRide();
 	void OpenRide();
-	void CloseRide();
+	virtual void CloseRide();
 	void HandleBreakdown();
 
 	virtual void Load(Loader &ldr);
