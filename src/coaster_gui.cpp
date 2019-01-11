@@ -69,6 +69,10 @@ void ShowCoasterRemove(CoasterInstance *ci)
 enum CoasterInstanceWidgets {
 	CIW_TITLEBAR, ///< Titlebar widget.
 	CIW_REMOVE,   ///< Remove button widget.
+	CIW_EDIT,     ///< Edit coaster widget.
+	CIW_CLOSE,    ///< Close coaster widget
+	CIW_TEST,     ///< Test coaster widget
+	CIW_OPEN,     ///< Open coaster widget
 };
 
 /** Widget parts of the #CoasterInstanceWindow. */
@@ -79,8 +83,19 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetMinimalSize(100, 100),
+		Intermediate(1, 0),
+			Widget(WT_TEXT_PUSHBUTTON, CIW_EDIT, COL_RANGE_DARK_RED),
+					SetData(STR_NULL, STR_NULL), SetFill(1, 1), SetMinimalSize(100, 100),
+
+			/* Close/test coaster radio button button panel */
+			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(0, 1),
+				Widget(WT_RADIOBUTTON, CIW_CLOSE, COL_RANGE_RED), SetPadding(0, 2, 0, 0),
+				Widget(WT_RADIOBUTTON, CIW_TEST, COL_RANGE_YELLOW), SetPadding(0, 2, 0, 0),
+				Widget(WT_RADIOBUTTON, CIW_OPEN, COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
+			EndContainer(),
+		EndContainer(),
+
 		Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED),
 				SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 	EndContainer(),
@@ -95,6 +110,9 @@ public:
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
+
+	void SetCoasterStateForRadioButton(WidgetNumber radio);
+	void SetRadioChecked(WidgetNumber radio, bool checked);
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to display and control.
@@ -128,7 +146,70 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 
 void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 {
-	if (widget == CIW_REMOVE) ShowCoasterRemove(this->ci);
+	switch (widget) {
+		case CIW_REMOVE:
+			ShowCoasterRemove(this->ci);
+			break;
+
+		case CIW_EDIT:
+			this->ci->CloseRide();
+			ShowCoasterBuildGui(this->ci);
+			break;
+
+		case CIW_CLOSE:
+		case CIW_TEST:
+		case CIW_OPEN:
+			this->SetCoasterStateForRadioButton(widget);
+			break;
+	}
+}
+
+/**
+ * Update the coaster instance associated with this window to a new state that is determined by the 
+ * radio button clicked. If the radio button is not one of the ride state control radio buttons in this
+ * window, an error will be raised.
+ *
+ * @param radio A radio button that was clicked by the user.
+ */
+void CoasterInstanceWindow::SetCoasterStateForRadioButton(WidgetNumber radio)
+{
+	switch (radio) {
+		case CIW_CLOSE:
+			this->ci->CloseRide();
+			break;
+
+		case CIW_TEST:
+			this->ci->TestRide();
+			break;
+
+		case CIW_OPEN:
+			/// \todo implement ride opening
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+
+	this->SetRadioChecked(radio, true);
+
+	WidgetNumber radioButtons[] = { CIW_CLOSE, CIW_TEST, CIW_OPEN };
+	for(uint i = 0; i < lengthof(radioButtons); i++){
+		if(radioButtons[i] != radio){
+			this->SetRadioChecked(radioButtons[i], false);
+		}
+	}
+}
+
+/**
+ * Make a radio button either checked or not checked according the parameters.
+ * @param radio Radio button acted on by this method.
+ * @param checked Boolean flag to decided if the radio button should be checked (true) or unchecked (false).
+ */
+void CoasterInstanceWindow::SetRadioChecked(WidgetNumber radio, bool checked)
+{
+	this->SetWidgetChecked(radio, checked);
+	this->SetWidgetPressed(radio, checked);
+	this->MarkWidgetDirty(radio);
 }
 
 /**
@@ -364,6 +445,7 @@ private:
 	void SetupSelection();
 	int SetButtons(int start_widget, int count, uint avail, int cur_sel, int invalid_val);
 	void BuildTrackPiece();
+	void UpdateSelectedPiece();
 
 	TrackPieceMouseMode piece_selector; ///< Selector for displaying new track pieces.
 };
@@ -458,7 +540,9 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CCW_REMOVE: {
 			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
 			this->ci->RemovePositionedPiece(*this->cur_piece);
+
 			this->cur_piece = pred_index == -1 ? nullptr : &this->ci->pieces[pred_index];
+			this->UpdateSelectedPiece();
 			break;
 		}
 
@@ -483,6 +567,20 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 				this->build_direction = (TileEdge)((this->build_direction + 3) % 4);
 			}
 			break;
+
+		case CCW_BACKWARD: {
+			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
+			this->cur_piece = &this->ci->pieces[pred_index];
+			this->UpdateSelectedPiece();
+			break;
+		}
+
+		case CCW_FORWARD: {
+			int succ_index = this->ci->FindSuccessorPiece(*this->cur_piece);
+			this->cur_piece = &this->ci->pieces[succ_index];
+			this->UpdateSelectedPiece();
+			break;
+		}
 	}
 	this->SetupSelection();
 }
@@ -644,11 +742,17 @@ void CoasterBuildWindow::SetupSelection()
 	bool enabled = (this->cur_piece == nullptr && CountBits(directions) > 1);
 	this->SetWidgetShaded(CCW_ROT_NEG,  !enabled);
 	this->SetWidgetShaded(CCW_ROT_POS,  !enabled);
-	enabled = (this->cur_piece != nullptr && this->cur_sel != nullptr);
+
+	/* Set shading of forward/back buttons. */
+	enabled = this->cur_piece != nullptr && this->ci->FindSuccessorPiece(*this->cur_piece) != -1;
+	this->SetWidgetShaded(CCW_FORWARD, !enabled);
+	enabled = this->cur_piece != nullptr && this->ci->FindPredecessorPiece(*this->cur_piece) != -1;
 	this->SetWidgetShaded(CCW_BACKWARD, !enabled);
-	this->SetWidgetShaded(CCW_FORWARD,  !enabled);
-	enabled = (this->cur_piece != nullptr && this->cur_sel == nullptr);
+
+	enabled = this->cur_piece != nullptr && this->ci->FindSuccessorPiece(*this->cur_piece) == -1;
 	this->SetWidgetShaded(CCW_DISPLAY_PIECE, !enabled);
+
+	enabled = this->cur_piece != nullptr;
 	this->SetWidgetShaded(CCW_REMOVE, !enabled);
 
 	this->sel_bank = static_cast<TrackPieceBanking>(this->SetButtons(CCW_BANK_NONE, TPB_COUNT, avail_bank, this->sel_bank, TPB_INVALID));
@@ -657,9 +761,8 @@ void CoasterBuildWindow::SetupSelection()
 	this->sel_platform = static_cast<BoolSelect>(this->SetButtons(CCW_NO_PLATFORM, 2, avail_platform, this->sel_platform, BSL_NONE));
 	this->sel_power = static_cast<BoolSelect>(this->SetButtons(CCW_NOT_POWERED, 2, avail_power, this->sel_power, BSL_NONE));
 
-	if (this->sel_piece == nullptr) {
-		this->piece_selector.SetSize(0, 0); // Nothing to display.
-		this->piece_selector.pos_piece.piece = nullptr;
+	if (this->sel_piece == nullptr) { // Highlight current piece
+		this->piece_selector.SetTrackPiece(this->cur_piece->base_voxel, this->cur_piece->piece);
 		return;
 	}
 
@@ -726,9 +829,19 @@ void CoasterBuildWindow::BuildTrackPiece()
 
 		/* Piece was added, change the setup for the next piece. */
 		this->cur_piece = &this->ci->pieces[ptp_index];
-		int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
-		this->cur_sel = (succ >= 0) ? &this->ci->pieces[succ] : nullptr;
+
+		this->UpdateSelectedPiece();
+
 		this->cur_after = true;
+	}
+}
+
+/** Update the instance variable cur_sel to reflect changes in the value of the current piece (cur_piece). */
+void CoasterBuildWindow::UpdateSelectedPiece()
+{
+	if (this->cur_piece != nullptr){
+		int succ = this->ci->FindSuccessorPiece(*this->cur_piece);
+		this->cur_sel = succ != -1 ? &this->ci->pieces[succ] : nullptr;
 	}
 }
 

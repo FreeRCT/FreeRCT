@@ -604,6 +604,28 @@ void CoasterInstance::OnAnimate(int delay)
 	}
 }
 
+void CoasterInstance::TestRide()
+{
+	if (this->state != RIS_TESTING) {
+		this->CloseRide();
+		this->state = RIS_TESTING;
+	}
+	this->DecideRideState();
+}
+
+void CoasterInstance::CloseRide()
+{
+	for (uint i = 0; i < lengthof(this->trains); i++) {
+		CoasterTrain &train = this->trains[i];
+		train.back_position = 0;
+		train.speed = 0;
+		train.cur_piece = this->pieces;
+		train.cars.resize(0);
+		train.OnAnimate(0);
+	}
+	RideInstance::CloseRide();
+}
+
 void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	const CoasterType *ct = this->GetCoasterType();
