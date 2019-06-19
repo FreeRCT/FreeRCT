@@ -94,7 +94,6 @@ void EditTextWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) con
 {
 	switch (wid_num) {
 		case ETW_EDIT_TEXT: {
-			//_str_params.SetUint8(1, (uint8 *)this->text_buffer.GetText().c_str());
 			const DataWidget *wid = this->GetWidget<DataWidget>(wid_num);
 			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
 			int width, height = 0; // second_width, second_height 
@@ -105,9 +104,6 @@ void EditTextWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) con
 				end_index = this->text_buffer.GetPosition();
 			}
 			_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(start_index, end_index).c_str(), &width, &height);
-			//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(sb->GetStart(), sb->GetVisibleCount()).c_str(), &width, &height);
-			//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
-			//_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
 			_video.BlitText((const uint8 *)"_", MakeRGBA(255, 255, 255, OPAQUE), GetWidgetScreenX(wid) + this->cursor_width + width, GetWidgetScreenY(wid) + (height / 2), this->cursor_width);
 			}
 			break;
@@ -127,42 +123,12 @@ void EditTextWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	switch (wid_num) {
 		case ETW_EDIT_TEXT: {
 			_str_params.SetUint8(1, (uint8 *)this->text_buffer.GetText().c_str());
-	/*
-			const DataWidget *wid = this->GetWidget<DataWidget>(wid_num);
-			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
-			int width, second_width, height, second_height = 0;
-			//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(sb->GetStart(), sb->GetVisibleCount()).c_str(), &width, &height);
-			_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
-			_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
-			_video.BlitText((const uint8 *)"_", MakeRGBA(255, 255, 255, OPAQUE), GetWidgetScreenX(wid) + second_width + width, GetWidgetScreenY(wid) + (height / 2), second_width);
-	*/
 			}
 			break;
 		default:
 			break;
 	}
 }
-
-/*
-void EditTextWindow::GetVisibleCount() const
-{
-	//_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(0, this->text_buffer.GetPosition()).c_str(), &width, &height);
-	//wid->pos.width;
-}
-
-void EditTextWindow::ScrollTo(uint offset)
-{
-	int text_length = this->text_buffer.GetText().length();
-	//if (offset >= text_length) offset = (text_length > 0) ? text_length - 1 : 0;
-
-	//if (offset < start) {
-	// set start
-	//} else {
-	//visible_count;
-	//if (offset >= start + visible_count) set start (offset - visible_count);
-	//}
-}
-*/
 
 void EditTextWindow::OnChange(ChangeCode code, uint32 parameter)
 {
@@ -177,8 +143,6 @@ void EditTextWindow::OnClick(WidgetNumber number, const Point16 &pos)
 		}
 		delete this;
 	} else if (number == ETW_EDIT_TEXT) {
-		//int second_width, second_height;
-		//_video.GetTextSize((const uint8 *)"_", &second_width, &second_height);
 		this->text_buffer.SetPosition((pos.x - this->cursor_width) / this->cursor_width);
 	}
 }
