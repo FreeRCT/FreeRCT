@@ -5,7 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file textbox.cpp Implementation of the textbox widget. */
+/** @file text_gui.cpp %Window for manipulating text. */
 
 #include "stdafx.h"
 #include "window.h"
