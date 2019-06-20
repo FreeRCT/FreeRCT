@@ -96,7 +96,7 @@ void EditTextWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) con
 		case ETW_EDIT_TEXT: {
 			const DataWidget *wid = this->GetWidget<DataWidget>(wid_num);
 			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(ETW_SCROLL_TEXT);
-			int width, height = 0; // second_width, second_height 
+			int width, height = 0;
 			int start_index = 0;
 			int end_index = sb->GetVisibleCount();
 			if (this->text_buffer.GetPosition() < sb->GetVisibleCount()) {
