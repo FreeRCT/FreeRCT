@@ -41,11 +41,11 @@ private:
  * @ingroup gui_group
  */
 enum EditTextWidgets {
-	ETW_TITLEBAR,  ///< Titlebar widget.
-	ETW_EDIT_TEXT, ///< Edit text box.
+	ETW_TITLEBAR,    ///< Titlebar widget.
+	ETW_EDIT_TEXT,   ///< Edit text box.
 	ETW_SCROLL_TEXT, ///< Scroll bar for text box.
-	ETW_OK,        ///< 'ok' button.
-	ETW_CANCEL,    ///< 'cancel' button.
+	ETW_OK,          ///< 'ok' button.
+	ETW_CANCEL,      ///< 'cancel' button.
 };
 
 /**
