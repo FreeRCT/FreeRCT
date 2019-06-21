@@ -121,9 +121,8 @@ Point32 EditTextWindow::OnInitialPosition()
 void EditTextWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
-		case ETW_EDIT_TEXT: {
+		case ETW_EDIT_TEXT:
 			_str_params.SetUint8(1, (uint8 *)this->text_buffer.GetText().c_str());
-			}
 			break;
 		default:
 			break;
