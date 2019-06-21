@@ -105,7 +105,7 @@ void EditTextWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) con
 			}
 			_video.GetTextSize((const uint8 *)this->text_buffer.GetText().substr(start_index, end_index).c_str(), &width, &height);
 			_video.BlitText((const uint8 *)"_", MakeRGBA(255, 255, 255, OPAQUE), GetWidgetScreenX(wid) + this->cursor_width + width, GetWidgetScreenY(wid) + (height / 2), this->cursor_width);
-			}
+		}
 			break;
 	}
 }
