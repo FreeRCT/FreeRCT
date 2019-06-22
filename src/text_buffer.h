@@ -25,12 +25,30 @@ class TextBuffer {
 		void RemovePrevCharacter();
 		void RemoveCurrentCharacter();
 
-		void SetPosition(int position) { this->current_position = position; };
-		const uint GetPosition() const { return this->current_position; };
-		void IncPosition() { this->current_position = std::min(this->text.length() - 1, this->current_position + 1); };
-		void DecPosition() { this->current_position = std::max((size_t)0, this->current_position - 1); };
+		void SetPosition(int position)
+		{
+			this->current_position = position;
+		}
 
-		void SetMaxLength(uint max_length) { this->max_length = max_length; };
+		const uint GetPosition() const
+		{
+			return this->current_position;
+		}
+
+		void IncPosition()
+		{
+			this->current_position = std::min(this->text.length() - 1, this->current_position + 1);
+		}
+
+		void DecPosition()
+		{
+			this->current_position = std::max((size_t)0, this->current_position - 1);
+		}
+
+		void SetMaxLength(uint max_length)
+		{
+			this->max_length = max_length;
+		}
 	private:
 		std::string text;
 		size_t current_position;
