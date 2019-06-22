@@ -13,46 +13,47 @@
 #include <string>
 
 class TextBuffer {
-	public:
-		TextBuffer();
-		~TextBuffer();
+public:
+	TextBuffer();
+	~TextBuffer();
 
-		void SetText(const char *txt);
-		const std::string &GetText() const;
-		void AppendText(const char *txt);
-		void InsertText(const char *txt);
-		void RemoveLastCharacter();
-		void RemovePrevCharacter();
-		void RemoveCurrentCharacter();
+	void SetText(const char *txt);
+	const std::string &GetText() const;
+	void AppendText(const char *txt);
+	void InsertText(const char *txt);
+	void RemoveLastCharacter();
+	void RemovePrevCharacter();
+	void RemoveCurrentCharacter();
 
-		void SetPosition(int position)
-		{
-			this->current_position = position;
-		}
+	void SetPosition(int position)
+	{
+		this->current_position = position;
+	}
 
-		const uint GetPosition() const
-		{
-			return this->current_position;
-		}
+	const uint GetPosition() const
+	{
+		return this->current_position;
+	}
 
-		void IncPosition()
-		{
-			this->current_position = std::min(this->text.length() - 1, this->current_position + 1);
-		}
+	void IncPosition()
+	{
+		this->current_position = std::min(this->text.length() - 1, this->current_position + 1);
+	}
 
-		void DecPosition()
-		{
-			this->current_position = std::max((size_t)0, this->current_position - 1);
-		}
+	void DecPosition()
+	{
+		this->current_position = std::max((size_t)0, this->current_position - 1);
+	}
 
-		void SetMaxLength(uint max_length)
-		{
-			this->max_length = max_length;
-		}
-	private:
-		std::string text;
-		size_t current_position;
-		uint max_length;
+	void SetMaxLength(uint max_length)
+	{
+		this->max_length = max_length;
+	}
+
+private:
+	std::string text;
+	size_t current_position;
+	uint max_length;
 };
 
 #endif
