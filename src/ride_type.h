@@ -140,9 +140,8 @@ public:
 	virtual RideEntryResult EnterRide(int guest, TileEdge entry_edge) = 0;
 	virtual XYZPoint32 GetExit(int guest, TileEdge entry_edge) = 0;
 	virtual void RemoveAllPeople() = 0;
+	virtual std::vector<XYZPoint16> GetAllPiecePositions() = 0;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const;
-
-	virtual std::vector<XYZPoint16> get_all_positions() = 0;
 
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;

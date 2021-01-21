@@ -222,6 +222,11 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \fn void RideInstance::GetAllPiecePositions()
+ * Returns a vector with the coordinates of all voxels which are occupied by this ride.
+ */
+
+/**
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
@@ -687,10 +692,11 @@ void RidesManager::DeleteInstance(uint16 num)
 	this->instances[num]->RemoveAllPeople();
 	_guests.NotifyRideDeletion(this->instances[num]);
 
-	for (const XYZPoint16& position : this->instances[num]->get_all_positions()) {
-		Voxel& voxel = *_world.GetCreateVoxel(position, false);
-		assert(voxel.instance == num + SRI_FULL_RIDES);
-		voxel.ClearInstances();
+	for (const XYZPoint16& position : this->instances[num]->GetAllPiecePositions()) {
+		Voxel *voxel = _world.GetCreateVoxel(position, false);
+		assert(voxel);
+		assert(voxel->instance == num + SRI_FULL_RIDES);
+		voxel->ClearInstances();
 	}
 
 	delete this->instances[num];

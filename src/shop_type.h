@@ -55,7 +55,7 @@ public:
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
 
-	std::vector<XYZPoint16> get_all_positions() override {
+	std::vector<XYZPoint16> GetAllPiecePositions() override {
 		return {vox_pos};
 	}
 

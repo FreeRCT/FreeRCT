@@ -242,7 +242,7 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	std::vector<XYZPoint16> get_all_positions() override;
+	std::vector<XYZPoint16> GetAllPiecePositions() override;
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
