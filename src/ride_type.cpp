@@ -677,7 +677,6 @@ void RidesManager::NewInstanceAdded(uint16 num)
 /**
  * Destroy the indicated instance.
  * @param num The ride number to destroy.
- * @todo The small matter of cleaning up in the world map.
  * @pre Instance must be closed.
  */
 void RidesManager::DeleteInstance(uint16 num)
@@ -687,6 +686,13 @@ void RidesManager::DeleteInstance(uint16 num)
 	assert(num < lengthof(this->instances));
 	this->instances[num]->RemoveAllPeople();
 	_guests.NotifyRideDeletion(this->instances[num]);
+
+	for (const XYZPoint16& position : this->instances[num]->get_all_positions()) {
+		Voxel& voxel = *_world.GetCreateVoxel(position, false);
+		assert(voxel.instance == num + SRI_FULL_RIDES);
+		voxel.ClearInstances();
+	}
+
 	delete this->instances[num];
 	this->instances[num] = nullptr;
 }

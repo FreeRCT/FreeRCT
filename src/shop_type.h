@@ -55,6 +55,10 @@ public:
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
 
+	std::vector<XYZPoint16> get_all_positions() override {
+		return {vox_pos};
+	}
+
 	uint8 orientation;  ///< Orientation of the shop.
 	XYZPoint16 vox_pos; ///< Position of the shop base voxel.
 

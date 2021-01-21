@@ -142,6 +142,8 @@ public:
 	virtual void RemoveAllPeople() = 0;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const;
 
+	virtual std::vector<XYZPoint16> get_all_positions() = 0;
+
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
 	Money GetSaleItemPrice(int item_index) const;

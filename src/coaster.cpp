@@ -721,6 +721,22 @@ int CoasterInstance::GetFirstPlacedTrackPiece() const
 	return -1;
 }
 
+std::vector<XYZPoint16> CoasterInstance::get_all_positions() {
+	std::vector<XYZPoint16> result;
+
+	const int start_piece = GetFirstPlacedTrackPiece();
+	if (start_piece < 0) return result;
+
+	result.push_back(this->pieces[start_piece].base_voxel);
+	for (int p = start_piece;;) {
+		p = FindSuccessorPiece(this->pieces[p]);
+		if (p < 0 || p == start_piece) break;
+		result.push_back(this->pieces[p].base_voxel);
+	}
+
+	return result;
+}
+
 /**
  * Find the first placed track piece at a given position with a given entry connection.
  * @param vox Required voxel position.
