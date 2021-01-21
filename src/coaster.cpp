@@ -723,19 +723,14 @@ int CoasterInstance::GetFirstPlacedTrackPiece() const
 
 std::vector<XYZPoint16> CoasterInstance::GetAllPiecePositions() {
 	std::vector<XYZPoint16> result;
-
 	const int start_piece = GetFirstPlacedTrackPiece();
-	if (start_piece < 0) return result;
-
-	result.emplace_back(this->pieces[start_piece].base_voxel);
 	for (int p = start_piece;;) {
-		p = FindSuccessorPiece(this->pieces[p]);
-		if (p < 0 || p == start_piece) break;
 		for (const TrackVoxel *subpiece : this->pieces[p].piece->track_voxels) {
 			result.emplace_back(this->pieces[p].base_voxel + subpiece->dxyz);
 		}
+		p = FindSuccessorPiece(this->pieces[p]);
+		if (p < 0 || p == start_piece) break;
 	}
-
 	return result;
 }
 
