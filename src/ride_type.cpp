@@ -695,8 +695,10 @@ void RidesManager::DeleteInstance(uint16 num)
 	for (const XYZPoint16& position : this->instances[num]->GetAllPiecePositions()) {
 		Voxel *voxel = _world.GetCreateVoxel(position, false);
 		assert(voxel);
-		assert(voxel->instance == num + SRI_FULL_RIDES);
-		voxel->ClearInstances();
+		if (voxel->instance != SRI_FREE) {
+			assert(voxel->instance == num + SRI_FULL_RIDES);
+			voxel->ClearInstances();
+		}
 	}
 
 	delete this->instances[num];
