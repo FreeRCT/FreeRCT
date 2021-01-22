@@ -222,8 +222,8 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
- * \fn void RideInstance::GetAllPiecePositions()
- * Returns a vector with the coordinates of all voxels which are occupied by this ride.
+ * \fn void RideInstance::RemoveFromWorld()
+ * Immediately remove this ride from all voxels it currently occupies.
  */
 
 /**
@@ -691,16 +691,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	assert(num < lengthof(this->instances));
 	this->instances[num]->RemoveAllPeople();
 	_guests.NotifyRideDeletion(this->instances[num]);
-
-	for (const XYZPoint16& position : this->instances[num]->GetAllPiecePositions()) {
-		Voxel *voxel = _world.GetCreateVoxel(position, false);
-		assert(voxel);
-		if (voxel->instance != SRI_FREE) {
-			assert(voxel->instance == num + SRI_FULL_RIDES);
-			voxel->ClearInstances();
-		}
-	}
-
+	this->instances[num]->RemoveFromWorld();
 	delete this->instances[num];
 	this->instances[num] = nullptr;
 }

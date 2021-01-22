@@ -721,18 +721,16 @@ int CoasterInstance::GetFirstPlacedTrackPiece() const
 	return -1;
 }
 
-std::vector<XYZPoint16> CoasterInstance::GetAllPiecePositions() {
-	std::vector<XYZPoint16> result;
+void CoasterInstance::RemoveFromWorld()
+{
+	const uint16 index = this->GetIndex();
 	const int start_piece = GetFirstPlacedTrackPiece();
-	if (start_piece < 0) return result;
+	if (start_piece < 0) return;
 	for (int p = start_piece;;) {
-		for (const TrackVoxel *subpiece : this->pieces[p].piece->track_voxels) {
-			result.emplace_back(this->pieces[p].base_voxel + subpiece->dxyz);
-		}
+		this->pieces[p].RemoveFromWorld(index);
 		p = FindSuccessorPiece(this->pieces[p]);
 		if (p < 0 || p == start_piece) break;
 	}
-	return result;
 }
 
 /**

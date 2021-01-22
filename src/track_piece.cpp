@@ -179,6 +179,22 @@ TrackPiece::~TrackPiece()
 }
 
 /**
+ * Immediately remove a piece of this type from all voxels it occupies.
+ * @param ride_index The index of the coaster that owns the piece.
+ * @param base_voxel the piece's absolute coordinates.
+ */
+void TrackPiece::RemoveFromWorld(const uint16 ride_index, const XYZPoint16 base_voxel) const {
+	for (const TrackVoxel *subpiece : this->track_voxels) {
+		Voxel *voxel = _world.GetCreateVoxel(base_voxel + subpiece->dxyz, false);
+		assert(voxel);
+		if (voxel->instance != SRI_FREE) {
+			assert(voxel->instance == ride_index);
+			voxel->ClearInstances();
+		}
+	}
+}
+
+/**
  * Load a track piece.
  * @param rcd_file Data file being loaded.
  * @param sprites Already loaded sprite blocks.
@@ -301,6 +317,14 @@ bool PositionedTrackPiece::CanBeSuccessor(const PositionedTrackPiece &pred) cons
 {
 	if (pred.piece == nullptr) return false;
 	return this->CanBeSuccessor(pred.GetEndXYZ(), pred.piece->exit_connect);
+}
+
+/**
+ * Immediately remove this piece from all voxels it occupies.
+ * @param ride_index The index of the coaster that owns this piece.
+ */
+void PositionedTrackPiece::RemoveFromWorld(const uint16 ride_index) {
+	this->piece->RemoveFromWorld(ride_index, base_voxel);
 }
 
 void PositionedTrackPiece::Load(Loader &ldr)
