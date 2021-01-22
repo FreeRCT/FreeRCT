@@ -222,6 +222,11 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \fn void RideInstance::RemoveFromWorld()
+ * Immediately remove this ride from all voxels it currently occupies.
+ */
+
+/**
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
@@ -677,7 +682,6 @@ void RidesManager::NewInstanceAdded(uint16 num)
 /**
  * Destroy the indicated instance.
  * @param num The ride number to destroy.
- * @todo The small matter of cleaning up in the world map.
  * @pre Instance must be closed.
  */
 void RidesManager::DeleteInstance(uint16 num)
@@ -687,6 +691,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	assert(num < lengthof(this->instances));
 	this->instances[num]->RemoveAllPeople();
 	_guests.NotifyRideDeletion(this->instances[num]);
+	this->instances[num]->RemoveFromWorld();
 	delete this->instances[num];
 	this->instances[num] = nullptr;
 }

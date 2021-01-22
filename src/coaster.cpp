@@ -721,6 +721,18 @@ int CoasterInstance::GetFirstPlacedTrackPiece() const
 	return -1;
 }
 
+void CoasterInstance::RemoveFromWorld()
+{
+	const uint16 index = this->GetIndex();
+	const int start_piece = GetFirstPlacedTrackPiece();
+	if (start_piece < 0) return;
+	for (int p = start_piece;;) {
+		this->pieces[p].RemoveFromWorld(index);
+		p = FindSuccessorPiece(this->pieces[p]);
+		if (p < 0 || p == start_piece) break;
+	}
+}
+
 /**
  * Find the first placed track piece at a given position with a given entry connection.
  * @param vox Required voxel position.

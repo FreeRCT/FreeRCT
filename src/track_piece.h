@@ -181,6 +181,8 @@ public:
 	TrackCurve *car_roll;     ///< Roll of cars over this track piece.
 	TrackCurve *car_yaw;      ///< Yaw of cars over this track piece, may be \c null.
 
+	void RemoveFromWorld(uint16 ride_index, XYZPoint16 base_voxel) const;
+
 	/**
 	 * Check whether the track piece is powered.
 	 * @return Whether the track piece enforces a non-zero speed.
@@ -277,6 +279,8 @@ public:
 	bool CanBePlaced() const;
 	bool CanBeSuccessor(const XYZPoint16 &vox, uint8 connect) const;
 	bool CanBeSuccessor(const PositionedTrackPiece &pred) const;
+
+	void RemoveFromWorld(uint16 ride_index);
 
 	/**
 	 * Get the position of the exit voxel.

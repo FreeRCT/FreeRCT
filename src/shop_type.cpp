@@ -234,6 +234,17 @@ void ShopInstance::RemoveAllPeople()
 	}
 }
 
+void ShopInstance::RemoveFromWorld()
+{
+	const uint16 index = this->GetIndex();
+	Voxel *voxel = _world.GetCreateVoxel(vox_pos, false);
+	assert(voxel);
+	if (voxel->instance != SRI_FREE) {
+		assert(voxel->instance == index);
+		voxel->ClearInstances();
+	}
+}
+
 void ShopInstance::OnAnimate(int delay)
 {
 	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.
