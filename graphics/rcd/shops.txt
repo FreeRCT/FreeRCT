@@ -14,7 +14,7 @@ file("shops.rcd") {
 	// Snack shop.
 	SHOP {
 		tile_width: 64;
-		height: 1;
+		height: 2;
 
 		(se, sw, nw, ne): spritefiles {
 			x_base: 0; y_base: 0;
@@ -36,7 +36,7 @@ file("shops.rcd") {
 	// Ice cream stall.
 	SHOP {
 		tile_width: 64;
-		height: 1;
+		height: 3;
 
 		(se, sw, nw, ne): spritefiles {
 			x_base: 0; y_base: 0;
@@ -69,7 +69,7 @@ file("shops.rcd") {
 	// Toilet.
 	SHOP {
 		tile_width: 64;
-		height: 1;
+		height: 2;
 
 		(se, sw, nw, ne): spritefiles {
 			x_base: 1; y_base: 0;

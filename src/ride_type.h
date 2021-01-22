@@ -136,11 +136,13 @@ public:
 	virtual ~RideInstance();
 
 	virtual void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
+	virtual bool ShouldDrawPiece(uint16 voxel_number) const;
 	virtual uint8 GetEntranceDirections(const XYZPoint16 &vox) const = 0;
 	virtual RideEntryResult EnterRide(int guest, TileEdge entry_edge) = 0;
 	virtual XYZPoint32 GetExit(int guest, TileEdge entry_edge) = 0;
 	virtual void RemoveAllPeople() = 0;
 	virtual void RemoveFromWorld() = 0;
+	virtual void InsertIntoWorld() = 0;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const;
 
 	void SellItem(int item_index);

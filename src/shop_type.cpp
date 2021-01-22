@@ -19,6 +19,8 @@
 static const int TOILET_TIME = 5000;  ///< Duration of visiting the toilet.
 static const int CAPACITY_TOILET = 2; ///< Maximum number of guests that can use the toilet at the same time.
 
+static const int INVISIBLE_SHOP_TILE = 255; ///< Voxel instance data value to indicate that the shop piece should not be rendered
+
 ShopType::ShopType() : RideType(RTK_SHOP)
 {
 	this->height = 0;
@@ -79,7 +81,7 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	if (rcd_file->version != 5 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
 	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
 	this->height = rcd_file->GetUInt8();
-	if (this->height != 1) return false; // Other heights may fail.
+	if (this->height < 1) return false;
 	this->flags = rcd_file->GetUInt8() & 0xF;
 
 	for (int i = 0; i < 4; i++) {
@@ -158,6 +160,11 @@ const ShopType *ShopInstance::GetShopType() const
 	return static_cast<const ShopType *>(this->type);
 }
 
+bool ShopInstance::ShouldDrawPiece(const uint16 voxel_number) const
+{
+	return voxel_number != INVISIBLE_SHOP_TILE && RideInstance::ShouldDrawPiece(voxel_number);
+}
+
 void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	sprites[0] = nullptr;
@@ -234,14 +241,29 @@ void ShopInstance::RemoveAllPeople()
 	}
 }
 
+void ShopInstance::InsertIntoWorld()
+{
+	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+	const int16 height = this->GetShopType()->height;
+	const uint8 entrances = this->GetEntranceDirections(this->vox_pos);
+	for (int16 i = 0; i < height; ++i) {
+		Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), true);
+		assert(voxel && voxel->GetInstance() == SRI_FREE);
+		voxel->SetInstance(index);
+		voxel->SetInstanceData(i > 0 ? INVISIBLE_SHOP_TILE : entrances);
+	}
+}
+
 void ShopInstance::RemoveFromWorld()
 {
 	const uint16 index = this->GetIndex();
-	Voxel *voxel = _world.GetCreateVoxel(vox_pos, false);
-	assert(voxel);
-	if (voxel->instance != SRI_FREE) {
-		assert(voxel->instance == index);
-		voxel->ClearInstances();
+	const int16 height = this->GetShopType()->height;
+	for (int16 i = 0; i < height; ++i) {
+		Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), false);
+		if (voxel && voxel->instance != SRI_FREE) {
+			assert(voxel->instance == index);
+			voxel->ClearInstances();
+		}
 	}
 }
 
@@ -281,14 +303,18 @@ void ShopInstance::Load(Loader &ldr)
 	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->GetIndex());
 	uint8 entrances = this->GetEntranceDirections(this->vox_pos);
 
-	Voxel *v = _world.GetCreateVoxel(this->vox_pos, true);
-	if (v != nullptr && v->GetInstance() == SRI_FREE) {
-		v->SetInstance(inst_number);
-		v->SetInstanceData(entrances);
+	const int16 height = this->GetShopType()->height;
+	for (int16 i = 0; i < height; ++i) {
+		Voxel *v = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), true);
+		if (v != nullptr && v->GetInstance() == SRI_FREE) {
+			v->SetInstance(inst_number);
+			v->SetInstanceData(i > 0 ? INVISIBLE_SHOP_TILE : entrances);
 
-		AddRemovePathEdges(this->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
-	} else {
-		ldr.SetFailMessage("Invalid world coordinates for shop.");
+			AddRemovePathEdges(this->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
+		} else {
+			ldr.SetFailMessage("Invalid world coordinates for shop.");
+			return;
+		}
 	}
 }
 

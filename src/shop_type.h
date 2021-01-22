@@ -44,6 +44,7 @@ public:
 
 	const ShopType *GetShopType() const;
 	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
+	bool ShouldDrawPiece(uint16 voxel_number) const override;
 
 	void SetRide(uint8 orientation, const XYZPoint16 &pos);
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
@@ -55,6 +56,7 @@ public:
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
 
+	void InsertIntoWorld() override;
 	void RemoveFromWorld() override;
 
 	uint8 orientation;  ///< Orientation of the shop.

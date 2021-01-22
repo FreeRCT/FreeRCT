@@ -178,18 +178,30 @@ void RideBuildWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
  */
 bool RideBuildWindow::CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos, ViewOrientation vp_orient)
 {
+	// This function assumes that all shop have size 1×1.
+
 	/* 1. Can the position itself be used to build a shop? */
 	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
 	const Voxel *vx = _world.GetVoxel(pos);
 	if (vx != nullptr) {
-		if (!vx->CanPlaceInstance()) return false; // Cannot build on a path or other ride.
-		return vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT; // Can build at a flat surface.
+		for (int8 h = selected_shop->height - 1; h >= 0; --h) {
+			const Voxel *v = _world.GetVoxel(pos + XYZPoint16(0, 0, h));
+			if (v && !v->CanPlaceInstance()) return false; // Cannot build on a path or other ride.
+		}
+
+		if (vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT) return true; // Can build at a flat surface.
 	}
 
 	/* 2. Is the shop just above non-flat ground? */
 	if (pos.z > 0) {
 		vx = _world.GetVoxel(pos + XYZPoint16(0, 0, -1));
-		if (vx != nullptr && vx->GetInstance() == SRI_FREE &&
+
+		for (int8 h = selected_shop->height - 1; h >= 0; --h) {
+			const Voxel *v = _world.GetVoxel(pos + XYZPoint16(0, 0, h - 1));
+			if (v && !v->CanPlaceInstance()) return false;
+		}
+
+		if (vx != nullptr && vx->CanPlaceInstance() &&
 				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
 	}
 
@@ -298,15 +310,9 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 
 	ShopInstance *si = static_cast<ShopInstance *>(this->instance);
 	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
-	uint8 entrances = si->GetEntranceDirections(si->vox_pos);
-
-	Voxel *v = _world.GetCreateVoxel(si->vox_pos, true);
-	assert(v != nullptr && v->GetInstance() == SRI_FREE);
-	v->SetInstance(inst_number);
-	v->SetInstanceData(entrances);
 
 	_rides_manager.NewInstanceAdded(inst_number);
-	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
+	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, si->GetEntranceDirections(si->vox_pos), PAS_QUEUE_PATH);
 
 	this->instance = nullptr; // Delete this window, and
 	si = nullptr; // (Also clean the copy of the pointer.)

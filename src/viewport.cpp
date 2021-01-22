@@ -451,7 +451,7 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypo
 static int DrawRide(int32 slice, int zpos, const Point32 base_pos, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
-	if (ri == nullptr) return 0;
+	if (ri == nullptr || !ri->ShouldDrawPiece(voxel_number)) return 0;
 	/* Shops are connected in every direction. */
 	if (platform != nullptr) *platform = (ri->GetKind() == RTK_SHOP) ? PATH_NE_NW_SE_SW : PATH_INVALID;
 

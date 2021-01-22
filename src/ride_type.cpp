@@ -227,6 +227,23 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \fn void RideInstance::InsertIntoWorld()
+ * Ensure that this shop is linked into the voxels it is meant to occupy.
+ */
+
+/**
+ * \fn void ShouldDrawPiece::InsertIntoWorld()
+ * Whether the specified piece of the ride should be visible to the player.
+ * @param voxel_number The instance data of the piece to check.
+ * @return `false` if the ride piece is meant to be fully invisible; `true` otherwise.
+ */
+bool RideInstance::ShouldDrawPiece(uint16 voxel_number) const
+{
+	// By default, all pieces are drawn, unless a subclass implements a special case
+	return true;
+}
+
+/**
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
@@ -630,6 +647,8 @@ void RidesManager::NewInstanceAdded(uint16 num)
 	RideInstance *ri = this->GetRideInstance(num);
 	const RideType *rt = ri->GetRideType();
 	assert(ri->state == RIS_ALLOCATED);
+
+	ri->InsertIntoWorld();
 
 	/* Find a new name for the instance. */
 	const StringID *names = rt->GetInstanceNames();
