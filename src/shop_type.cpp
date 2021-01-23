@@ -160,15 +160,10 @@ const ShopType *ShopInstance::GetShopType() const
 	return static_cast<const ShopType *>(this->type);
 }
 
-bool ShopInstance::ShouldDrawPiece(const uint16 voxel_number) const
-{
-	return voxel_number != INVISIBLE_SHOP_TILE && RideInstance::ShouldDrawPiece(voxel_number);
-}
-
 void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	sprites[0] = nullptr;
-	sprites[1] = this->type->GetView((4 + this->orientation - orient) & 3);
+	sprites[1] = voxel_number == INVISIBLE_SHOP_TILE ? nullptr : this->type->GetView((4 + this->orientation - orient) & 3);
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
 }
@@ -302,6 +297,7 @@ void ShopInstance::Load(Loader &ldr)
 
 	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->GetIndex());
 	uint8 entrances = this->GetEntranceDirections(this->vox_pos);
+	AddRemovePathEdges(this->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
 
 	const int16 height = this->GetShopType()->height;
 	for (int16 i = 0; i < height; ++i) {
@@ -309,8 +305,6 @@ void ShopInstance::Load(Loader &ldr)
 		if (v != nullptr && v->GetInstance() == SRI_FREE) {
 			v->SetInstance(inst_number);
 			v->SetInstanceData(i > 0 ? INVISIBLE_SHOP_TILE : entrances);
-
-			AddRemovePathEdges(this->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
 		} else {
 			ldr.SetFailMessage("Invalid world coordinates for shop.");
 			return;

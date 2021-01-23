@@ -178,32 +178,25 @@ void RideBuildWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
  */
 bool RideBuildWindow::CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos, ViewOrientation vp_orient)
 {
-	// This function assumes that all shop have size 1×1.
+	// This function assumes that all shops have size 1×1.
 
 	/* 1. Can the position itself be used to build a shop? */
 	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
-	const Voxel *vx = _world.GetVoxel(pos);
-	if (vx != nullptr) {
+
+	auto check_if_location_is_suited = [&pos, selected_shop](const int8 offset, const bool need_flat_ground) {
+		const Voxel *vx = _world.GetVoxel(pos + XYZPoint16(0, 0, offset));
+		if (!vx || vx->GetGroundType() == GTP_INVALID || (need_flat_ground != (vx->GetGroundSlope() == SL_FLAT))) return false;
 		for (int8 h = selected_shop->height - 1; h >= 0; --h) {
-			const Voxel *v = _world.GetVoxel(pos + XYZPoint16(0, 0, h));
-			if (v && !v->CanPlaceInstance()) return false; // Cannot build on a path or other ride.
-		}
-
-		if (vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT) return true; // Can build at a flat surface.
-	}
-
-	/* 2. Is the shop just above non-flat ground? */
-	if (pos.z > 0) {
-		vx = _world.GetVoxel(pos + XYZPoint16(0, 0, -1));
-
-		for (int8 h = selected_shop->height - 1; h >= 0; --h) {
-			const Voxel *v = _world.GetVoxel(pos + XYZPoint16(0, 0, h - 1));
+			const Voxel *v = _world.GetVoxel(pos + XYZPoint16(0, 0, h + offset));
 			if (v && !v->CanPlaceInstance()) return false;
 		}
+		return true;
+	};
 
-		if (vx != nullptr && vx->CanPlaceInstance() &&
-				vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() != SL_FLAT) return true;
-	}
+	if (check_if_location_is_suited(0, true)) return true;
+
+	/* 2. Is the shop just above non-flat ground? */
+	if (pos.z > 0 && check_if_location_is_suited(-1, false)) return true;
 
 	/* 3. Is there a path at the right place? */
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
