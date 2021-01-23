@@ -46,6 +46,7 @@ const char * const _lang_names[] = {
 	"es_ES", // Spanish.
 	"fr_FR", // French.
 	"nl_NL", // Dutch.
+	"sv_SE", // Swedish (Sweden)
 };
 
 assert_compile(lengthof(_lang_names) == LANGUAGE_COUNT); ///< Ensure number of language matches with array sizes.

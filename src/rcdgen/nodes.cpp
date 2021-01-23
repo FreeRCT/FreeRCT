@@ -650,6 +650,7 @@ static const char *_languages[] = {
 	"es_ES", // LNG_ES_ES
 	"fr_FR", // LNG_FR_FR
 	"nl_NL", // LNG_NL_NL
+	"sv_SE", // LNG_SV_SE
 };
 
 /**
