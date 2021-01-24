@@ -227,6 +227,11 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \fn void RideInstance::InsertIntoWorld()
+ * Ensure that this shop is linked into the voxels it is meant to occupy.
+ */
+
+/**
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
@@ -630,6 +635,7 @@ void RidesManager::NewInstanceAdded(uint16 num)
 	RideInstance *ri = this->GetRideInstance(num);
 	const RideType *rt = ri->GetRideType();
 	assert(ri->state == RIS_ALLOCATED);
+	ri->InsertIntoWorld();
 
 	/* Find a new name for the instance. */
 	const StringID *names = rt->GetInstanceNames();

@@ -243,6 +243,9 @@ public:
 	void Save(Saver &svr);
 
 	void RemoveFromWorld() override;
+	void InsertIntoWorld() override {
+		/* This was already done during construction – nothing left to do here. */
+	}
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
