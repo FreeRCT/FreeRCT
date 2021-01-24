@@ -1,0 +1,249 @@
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+strings {
+	lang: "sv_SE";
+
+	stringtexts("gui") {
+		TITLEBAR_TIP:  "Klicka på titelfältet för att lyfta fram fönstret längst fram, dra titelfältet för att flytta fönstret";
+		LANGUAGE_NAME: "Svenska (Sverige)";
+
+		MONTH_JANUARY:   "Januari";
+		MONTH_FEBRUARY:  "Februari";
+		MONTH_MARCH:     "Mars";
+		MONTH_APRIL:     "April";
+		MONTH_MAY:       "Maj";
+		MONTH_JUNE:      "Juni";
+		MONTH_JULY:      "Juli";
+		MONTH_AUGUST:    "Augusti";
+		MONTH_SEPTEMBER: "September";
+		MONTH_OCTOBER:   "Oktober";
+		MONTH_NOVEMBER:  "November";
+		MONTH_DECEMBER:  "December";
+
+		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+		RESOLUTION:             "%1%x%2%";
+
+		// Toolbar gui strings.
+		TOOLBAR_GUI_QUIT:                 "Avsluta";
+		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Avsluta programmet";
+		TOOLBAR_GUI_SETTINGS:             "Inställningar";
+		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Ändra spelets inställningar";
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spela";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Redigerare";
+		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Byt mellan att spela och redigera scenariot";
+		TOOLBAR_GUI_PATHS:                "Gångvägar";
+		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bygg gångvägar och köer";
+		TOOLBAR_GUI_SAVE:                 "Spara";
+		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Spara spelet";
+		TOOLBAR_GUI_LOAD:                 "Ladda";
+		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Ladda en sparfil";
+		TOOLBAR_GUI_RIDE_SELECT:          "Köp åkattraktion";
+		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Köp en ny åkakktraktion för din park";
+		TOOLBAR_GUI_FENCE:                "Bygg staket";
+		TOOLBAR_GUI_TOOLTIP_FENCE:        "Bygg staket i din park";
+		TOOLBAR_GUI_TERRAFORM:            "Landskapsmåleri";
+		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Ändra landskapet";
+		TOOLBAR_GUI_FINANCES:             "Ekonimi";
+		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Hantera företagets ekonomi";
+
+		BOTTOMBAR_GUESTCOUNT:             "%1% gäst(er)";
+
+		// Quit program strings.
+		QUIT_CAPTION: "Avsluta programmet?";
+		QUIT_MESSAGE: "Avsluta programmet?";
+		QUIT_NO:      "Nej";
+		QUIT_YES:     "Ja";
+
+		// Error message strings.
+		ERROR_MESSAGE_CAPTION: "Meddelande";
+		ERROR_MESSAGE_SPRITE:  "Misslyckades att rita en sprite";
+
+		// Guest info gui strings.
+		GUEST_INFO_MONEY:       "Tillgängliga pengar";
+		GUEST_INFO_MONEY_SPENT: "Pengar spenderade";
+		GUEST_INFO_HAPPINESS:   "Glädjenivå";
+		GUEST_INFO_HUNGER:      "Hunger";
+		GUEST_INFO_THIRST:      "Törst";
+		GUEST_INFO_WASTE:       "Sopor";
+		GUEST_INFO_ITEMS:       "Hållna föremål";
+
+		// Items for guests gui strings.
+		ITEM_NONE:     "Inget";
+		ITEM_MAP:      "Karta";
+		ITEM_UMBRELLA: "Paraply";
+		ITEM_WRAPPER:  "Matförpackning";
+
+		// Path gui strings.
+		PATH_GUI_TITLE:            "Vägar";
+		PATH_GUI_LONG:             "Lång";
+		PATH_GUI_BUY:              "Köp";
+		PATH_GUI_REMOVE:           "Ta bort";
+		PATH_GUI_LONG_TIP:         "Bygg en lång väg";
+		PATH_GUI_BUY_TIP:          "Bygg en väg";
+		PATH_GUI_BULLDOZER_TIP:    "Klicka för att ta bort den senast byggda vägen och få dina pengar tillbaka (fungerar tills du stänger fönstret)";
+		PATH_GUI_SLOPE_DOWN_TIP:   "Bygg väg neråt";
+		PATH_GUI_SLOPE_FLAT_TIP:   "Bygg väg vågrätt";
+		PATH_GUI_SLOPE_UP_TIP:     "Bygg väg uppåt";
+
+		PATH_GUI_FORWARD:          "Frammåt";
+		PATH_GUI_BACKWARD:         "Bakåt";
+		PATH_GUI_FORWARD_TIP:      "Flytta en vägbit frammåt";
+		PATH_GUI_BACKWARD_TIP:     "Flytta en vägbit bakåt";
+
+		PATH_GUI_NW_DIRECTION_TIP: "Bygg väg i nordvästra riktningen";
+		PATH_GUI_NE_DIRECTION_TIP: "Bygg väg i nordöstra riktningen";
+		PATH_GUI_SW_DIRECTION_TIP: "Bygg väg i sydvästra riktningen";
+		PATH_GUI_SE_DIRECTION_TIP: "Bygg väg i sydöstra riktningen";
+
+		PATH_GUI_NORMAL_PATH:      "Normal väg";
+		PATH_GUI_QUEUE_PATH:       "Köväg";
+
+		PATH_GUI_SINGLE:           "Enstaka";
+		PATH_GUI_DIRECTIONAL:      "Riktad";
+		PATH_GUI_SINGLE_TIP:       "Placera en enstaka väg";
+		PATH_GUI_DIRECTIONAL_TIP:  "Påbörja riktad vägplacering";
+
+		// Ride select gui strings.
+		RIDE_SELECT_TITLE:           "Val av åkattraktion";
+		RIDE_SELECT_SHOPS:           "Butiker";
+		RIDE_SELECT_SHOPS_TOOLTIP:   "Klicka för att visa de tillgängliga butikstyperna";
+		RIDE_SELECT_GENTLE:          "Lugna åkattraktioner";
+		RIDE_SELECT_GENTLE_TOOLTIP:  "Klicka för att visa tillgängliga lugna åkattraktioner";
+		RIDE_SELECT_WET:             "Våta åkattraktioner";
+		RIDE_SELECT_WET_TOOLTIP:     "Klicka för att visa tillgängliga våta åkattraktioner";
+		RIDE_SELECT_COASTER:         "Berg-och-dalbanor";
+		RIDE_SELECT_COASTER_TOOLTIP: "Klicka för att visa tillgängliga berg-och-dalbanetyper";
+		RIDE_SELECT_RIDE:            "Välj";
+		RIDE_SELECT_RIDE_TOOLTIP:    "Klicka för att välja den valda åkattraktionen";
+		RIDE_SELECT_ROT_POS_TOOLTIP: "Klicka för att rotera åkattraktionen motsols";
+		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klicka för att rotera åkattraktionen medsols";
+
+		// Shop manager window strings.
+		SHOP_MANAGER_TITLE:              "Butik \"%1%\"";
+		SHOP_MANAGER_COST_PRICE_TEXT:    "Inköpspris";
+		SHOP_MANAGER_SELLING_PRICE_TEXT: "Försäljningspris";
+		SHOP_MANAGER_ITEMS_SOLD_TEXT:    "Föremål sålda";
+		SHOP_MANAGER_ITEM_PROFIT_TEXT:   "Föremålsvinst";
+		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Försälningsvinst";
+		SHOP_MANAGER_SHOP_COST_TEXT:     "Personalkostnad";
+		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total vinst";
+		SHOP_MANAGER_OPENED_TEXT:        "Butiken är öppen";
+		SHOP_MANAGER_CLOSED_TEXT:        "Butiken är stängd";
+
+		// Fence gui strings.
+		FENCE_TITLE:           "Bygg staket";
+
+		// Terraform gui strings.
+		TERRAFORM_TITLE:       "Ändra landskapet";
+		TERRAFORM_ADD_TEXT:    "+";
+		TERRAFORM_ADD_TOOLTIP: "Öka storleken av terraformeringsytan";
+		TERRAFORM_SUB_TEXT:    "-";
+		TERRAFORM_SUB_TOOLTIP: "Minska storleken av terraformeringsytan";
+		TERRAFORM_LEVEL_TEXT:  "Jämna terraformeringsytan";
+		TERRAFORM_MOVE_TEXT:   "Flytta terraformeringsytan som den är";
+
+		// Finances gui strings.
+		FINANCES_TITLE:                  "Hantera ekonomin";
+		FINANCES_RIDE_CONSTRUCTION_TEXT: "Konstruktion av åkattraktioner";
+		FINANCES_RIDE_RUNNING_TEXT:      "Åkattraktion driftkostnader";
+		FINANCES_LAND_PURCHASE_TEXT:     "Köp av land";
+		FINANCES_LANDSCAPING_TEXT:       "Landskapsmåleri";
+		FINANCES_PARK_TICKETS_TEXT:      "Entrébiljetter för parken";
+		FINANCES_RIDE_TICKETS_TEXT:      "Åkattraktionsbiljetter";
+		FINANCES_SHOP_SALES_TEXT:        "Butiksförsäljning";
+		FINANCES_SHOP_STOCK_TEXT:        "Butikslager";
+		FINANCES_FOOD_SALES_TEXT:        "Försäljning av mat/dryck";
+		FINANCES_FOOD_STOCK_TEXT:        "Påfyllning av mat/dryck-lager";
+		FINANCES_STAFF_WAGES_TEXT:       "Personalens löner";
+		FINANCES_MARKETING_TEXT:         "Marknadsföring";
+		FINANCES_RESEARCH_TEXT:          "Forskning";
+		FINANCES_LOAN_INTEREST_TEXT:     "Låneränta";
+		FINANCES_TOTAL_TEXT:             "Totalt";
+
+		// Coaster construction strings.
+		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Väljer spårbitar med en vänsterböj";
+		COASTER_BUILD_NO_BEND_TOOLTIP:    "Väljer en rak spårbit";
+		COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Väljer spårbitar med en högerböj";
+		COASTER_BUILD_BANK_LEFT_TOOLTIP:  "Väljer spårbitar som slutar med en vänsterlutning";
+		COASTER_BUILD_BANK_NONE_TOOLTIP:  "Väljer spårbitar som slutar med en lutningsutjämning";
+		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Väljer spårbitar som slutar med en högerlutning";
+		COASTER_BUILD_BUY_TOOLTIP:        "Klicka för att köpa den valda spårbiten";
+
+		// Entity remove button strings.
+		ENTITY_REMOVE:         "Ta bort";
+		ENTITY_REMOVE_TOOLTIP: "Ta bort detta objekt?";
+
+		// Entity remove window strings.
+		ENTITY_REMOVE_CAPTION: "Ta bort";
+		ENTITY_REMOVE_MESSAGE: "Ta bort %1%?";
+		ENTITY_REMOVE_YES:     "Ja";
+		ENTITY_REMOVE_NO:      "Nej";
+
+		// Ride build window strings.
+		RIDE_BUILD_TITLEBAR_SHOP:         "Placera butik";
+		RIDE_BUILD_ROTATE_TOOLTIP:        "Klicka för att rotera åkattraktionen";
+		RIDE_BUILD_DISPLAY_TOOLTIP:       "En bild av åkattraktionen du köper";
+		RIDE_BUILD_NAME_TEXT:             "Köper en %1%";
+		RIDE_BUILD_COST_TEXT:             "Kostnad %1%";
+
+		// Money symbols.
+		MONEY_CURRENCY_SYMBOL:     "$";
+		MONEY_THOUSANDS_SEPARATOR: ",";
+		MONEY_DECIMAL_SEPARATOR:   ".";
+
+		// Setting gui strings.
+		SETTING_TITLE:              "Inställningar";
+		SETTING_LANGUAGE:           "Byt språk";
+		SETTING_LANGUAGE_TOOLTIP:   "Byt spelets språk";
+		SETTING_RESOLUTION:         "Byt upplösning";
+		SETTING_RESOLUTION_TOOLTIP: "Byt spelets upplösning";
+	}
+
+	stringtexts("ice-cream-stall") {
+		NAME_INSTANCE1:        "Ispalatset";
+		// The triple l is intentional as the original name spells cool with 3 o's
+		// so I tried emulating that
+		NAME_INSTANCE2:        "Kallla drycker";
+		NAME_TYPE:             "Glasstånd";
+		DESCRIPTION_TYPE:      "Butik som säljer drycker och glass";
+		DESCRIPTION_RECOLOUR1: "Bägarfärg";
+		DESCRIPTION_RECOLOUR2: "Isfärg";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Vaniljglass";
+		NAME_ITEM2:            "Frisk dryck";
+	}
+
+	stringtexts("snack-shop") {
+		NAME_INSTANCE1:        "Den glada snackern";
+		NAME_INSTANCE2:        "Pizzapalatset";
+		NAME_TYPE:             "Snacksbutik";
+		DESCRIPTION_TYPE:      "Butik där du kan köpa goda kakor";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Kakor";
+		NAME_ITEM2:            "Pizza";
+	}
+
+	stringtexts("toilet") {
+		NAME_INSTANCE1:        "Toalett";
+		NAME_INSTANCE2:        "Badrum";
+		NAME_TYPE:             "Toalett";
+		DESCRIPTION_TYPE:      "Gå hit när du är nödig";
+		DESCRIPTION_RECOLOUR1: "Toalettfärg";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Toalett";
+		NAME_ITEM2:            "";
+	}
+
+	stringtexts("basic-coaster") {
+		NAME_INSTANCE:    "Galen berg-och-dalbana";
+		NAME_TYPE:        "Enkel berg-och-dalbana";
+		DESCRIPTION_TYPE: "Enkel stålberg-och-dalbana";
+	}
+}

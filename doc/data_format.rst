@@ -305,6 +305,7 @@ en_GB  Great Britain (default).
 en_US  United States.
 es_ES  Spain.
 nl_NL  The Netherlands.
+sv_SE  Sweden.
 =====  =========================
 
 If a string does not exist in the queried language, the program will fall back

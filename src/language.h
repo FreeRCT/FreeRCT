@@ -68,6 +68,7 @@ enum Languages {
 	LANG_ES_ES, ///< Spanish.
 	LANG_FR_FR, ///< French.
 	LANG_NL_NL, ///< Dutch.
+	LANG_SV_SE, ///< Swedish.
 
 	LANGUAGE_COUNT, ///< Number of available languages.
 };
