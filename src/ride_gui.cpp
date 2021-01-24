@@ -129,10 +129,7 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 	this->SetNewRideKind(this->current_kind, true);
 }
 
-RideSelectGui::~RideSelectGui()
-{
-	_rides_manager.CheckNoAllocatedRides(); // Check that no rides are being constructed.
-}
+RideSelectGui::~RideSelectGui() = default;
 
 void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
@@ -244,6 +241,7 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 					_rides_manager.NewInstanceAdded(instance);
 					ShowCoasterManagementGui(ri);
 				}
+				delete this;
 			}
 			break;
 		}
