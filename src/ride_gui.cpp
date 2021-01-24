@@ -26,7 +26,6 @@
 class RideSelectGui : public GuiWindow {
 public:
 	RideSelectGui();
-	~RideSelectGui() = default;
 
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
@@ -239,7 +238,6 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 					_rides_manager.NewInstanceAdded(instance);
 					ShowCoasterManagementGui(ri);
 				}
-				delete this;
 			}
 			break;
 		}
