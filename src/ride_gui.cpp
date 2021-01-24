@@ -26,7 +26,7 @@
 class RideSelectGui : public GuiWindow {
 public:
 	RideSelectGui();
-	~RideSelectGui();
+	~RideSelectGui() = default;
 
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
@@ -128,8 +128,6 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 	}
 	this->SetNewRideKind(this->current_kind, true);
 }
-
-RideSelectGui::~RideSelectGui() = default;
 
 void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
