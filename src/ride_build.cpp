@@ -182,19 +182,33 @@ bool RideBuildWindow::CanPlaceShop(const ShopType *selected_shop, const XYZPoint
 
 	/* 1. Can the position itself be used to build a shop? */
 	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
-	auto check_if_location_is_suited = [&pos, selected_shop](const int8 offset, const bool need_flat_ground) {
+	auto check_if_location_is_suited = [&pos, selected_shop](const bool is_flat_ground) {
+		const int8 offset = is_flat_ground ? 0 : -1;
 		const Voxel *vx = _world.GetVoxel(pos + XYZPoint16(0, 0, offset));
-		if (vx == nullptr || vx->GetGroundType() == GTP_INVALID || (need_flat_ground != (vx->GetGroundSlope() == SL_FLAT))) return false;
+		if (vx == nullptr || vx->GetGroundType() == GTP_INVALID) return false;
+		if (is_flat_ground) {
+			if (vx->GetGroundSlope() != SL_FLAT) return false;
+		} else {
+			if (vx->GetGroundSlope() == SL_FLAT) return false;
+			const Voxel *top_voxel = _world.GetVoxel(pos);
+			if (top_voxel != nullptr) {
+				const uint8 slope = top_voxel->GetGroundSlope();
+				if (slope & ISL_BOTTOM_STEEP_NORTH) return false;
+				if (slope & ISL_BOTTOM_STEEP_SOUTH) return false;
+				if (slope & ISL_BOTTOM_STEEP_EAST) return false;
+				if (slope & ISL_BOTTOM_STEEP_WEST) return false;
+			}
+		}
 		for (int8 h = selected_shop->height - 1; h >= 0; --h) {
 			const Voxel *v = _world.GetVoxel(pos + XYZPoint16(0, 0, h + offset));
 			if (v != nullptr && !v->CanPlaceInstance()) return false;
 		}
 		return true;
 	};
-	if (check_if_location_is_suited(0, true)) return true;
+	if (check_if_location_is_suited(true)) return true;
 
 	/* 2. Is the shop just above non-flat ground? */
-	if (pos.z > 0 && check_if_location_is_suited(-1, false)) return true;
+	if (pos.z > 0 && check_if_location_is_suited(false)) return true;
 
 	/* 3. Is there a path at the right place? */
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
