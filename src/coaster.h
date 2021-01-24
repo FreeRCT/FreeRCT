@@ -244,7 +244,7 @@ public:
 
 	void RemoveFromWorld() override;
 	void InsertIntoWorld() override {
-		// This was already done during construction – nothing left to do here
+		/* This was already done during construction – nothing left to do here. */
 	}
 
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.

@@ -19,8 +19,6 @@
 static const int TOILET_TIME = 5000;  ///< Duration of visiting the toilet.
 static const int CAPACITY_TOILET = 2; ///< Maximum number of guests that can use the toilet at the same time.
 
-static const int INVISIBLE_SHOP_TILE = 255; ///< Voxel instance data value to indicate that the shop piece should not be rendered
-
 ShopType::ShopType() : RideType(RTK_SHOP)
 {
 	this->height = 0;
@@ -163,7 +161,7 @@ const ShopType *ShopInstance::GetShopType() const
 void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	sprites[0] = nullptr;
-	sprites[1] = voxel_number == INVISIBLE_SHOP_TILE ? nullptr : this->type->GetView((4 + this->orientation - orient) & 3);
+	sprites[1] = voxel_number == SHF_ENTRANCE_NONE ? nullptr : this->type->GetView((4 + this->orientation - orient) & 3);
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
 }
@@ -245,7 +243,7 @@ void ShopInstance::InsertIntoWorld()
 		Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), true);
 		assert(voxel && voxel->GetInstance() == SRI_FREE);
 		voxel->SetInstance(index);
-		voxel->SetInstanceData(i > 0 ? INVISIBLE_SHOP_TILE : entrances);
+		voxel->SetInstanceData(i > 0 ? SHF_ENTRANCE_NONE : entrances);
 	}
 }
 
@@ -304,7 +302,7 @@ void ShopInstance::Load(Loader &ldr)
 		Voxel *v = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), true);
 		if (v != nullptr && v->GetInstance() == SRI_FREE) {
 			v->SetInstance(inst_number);
-			v->SetInstanceData(i > 0 ? INVISIBLE_SHOP_TILE : entrances);
+			v->SetInstanceData(i > 0 ? SHF_ENTRANCE_NONE : entrances);
 		} else {
 			ldr.SetFailMessage("Invalid world coordinates for shop.");
 			return;

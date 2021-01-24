@@ -46,6 +46,7 @@ enum ShopFlags {
 	SHF_NW_ENTRANCE = 1 << EDGE_NW, ///< Entrance in NW direction (unrotated).
 
 	SHF_ENTRANCE_BITS = (SHF_NE_ENTRANCE | SHF_SE_ENTRANCE | SHF_SW_ENTRANCE | SHF_NW_ENTRANCE), ///< Bit mask for the entrances.
+	SHF_ENTRANCE_NONE = 0, ///< Shop tile without entrances (used for upper storeys of buildings)
 };
 
 /** Type of items that can be bought. */
