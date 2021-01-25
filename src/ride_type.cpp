@@ -157,13 +157,6 @@ RideInstance::RideInstance(const RideType *rt)
 	this->breakdown_state = BDS_UNOPENED;
 }
 
-RideInstance::~RideInstance()
-{
-	/* Nothing to do currently. In the future, free instance memory. */
-	delete[] this->name;
-	this->name = nullptr;
-}
-
 /**
  * Get the kind of the ride.
  * @return the kind of the ride.
@@ -395,7 +388,7 @@ void RideInstance::BuildRide()
 
 void RideInstance::Load(Loader &ldr)
 {
-	this->name = ldr.GetText();
+	this->name.reset(ldr.GetText());
 
 	uint16 state_and_flags = ldr.GetWord();
 	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
@@ -412,7 +405,7 @@ void RideInstance::Save(Saver &svr)
 {
 	svr.PutByte(static_cast<uint8>(this->GetKind()));
 	svr.PutText(_language.GetText(this->type->GetString(this->type->GetTypeName())));
-	svr.PutText(this->name);
+	svr.PutText(this->name.get());
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
 	this->recolours.Save(svr);
 	svr.PutLongLong(static_cast<uint64>(this->total_profit));
@@ -486,6 +479,7 @@ void RidesManager::Load(Loader &ldr)
 						break;
 					}
 				}
+				delete[] ride_type_name;
 			} else {
 				ldr.SetFailMessage("Invalid ride type name.");
 			}
@@ -621,7 +615,7 @@ RideInstance *RidesManager::FindRideByName(const uint8 *name)
 {
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
 		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
-		if (StrEqual(name, this->instances[i]->name)) return this->instances[i];
+		if (StrEqual(name, this->instances[i]->name.get())) return this->instances[i];
 	}
 	return nullptr;
 }
@@ -648,17 +642,17 @@ void RidesManager::NewInstanceAdded(uint16 num)
 			idx = 0;
 		}
 
-		ri->name = new uint8[MAX_RIDE_INSTANCE_NAME_LENGTH];
+		ri->name.reset(new uint8[MAX_RIDE_INSTANCE_NAME_LENGTH]);
 		/* Construct a new name. */
 		if (shop_num == 1) {
-			DrawText(rt->GetString(names[idx]), ri->name, MAX_RIDE_INSTANCE_NAME_LENGTH);
+			DrawText(rt->GetString(names[idx]), ri->name.get(), MAX_RIDE_INSTANCE_NAME_LENGTH);
 		} else {
 			_str_params.SetStrID(1, rt->GetString(names[idx]));
 			_str_params.SetNumber(2, shop_num);
-			DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name, MAX_RIDE_INSTANCE_NAME_LENGTH);
+			DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name.get(), MAX_RIDE_INSTANCE_NAME_LENGTH);
 		}
 
-		if (this->FindRideByName(ri->name) == nullptr) break;
+		if (this->FindRideByName(ri->name.get()) == nullptr) break;
 
 		idx++;
 	}

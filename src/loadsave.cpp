@@ -167,7 +167,7 @@ uint8 *Loader::GetText()
 		p += len;
 	}
 	txt[enc_length] = '\0';
-	delete cpoints;
+	delete[] cpoints;
 	return txt;
 }
 
