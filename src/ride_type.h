@@ -202,7 +202,6 @@ public:
 	void NewInstanceAdded(uint16 num);
 	void DeleteInstance(uint16 num);
 	void DeleteAllRideInstances();
-	void CheckNoAllocatedRides() const;
 
 	void OnAnimate(int delay);
 	void OnNewMonth();

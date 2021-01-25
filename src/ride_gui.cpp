@@ -26,7 +26,6 @@
 class RideSelectGui : public GuiWindow {
 public:
 	RideSelectGui();
-	~RideSelectGui();
 
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
@@ -127,11 +126,6 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 		}
 	}
 	this->SetNewRideKind(this->current_kind, true);
-}
-
-RideSelectGui::~RideSelectGui()
-{
-	_rides_manager.CheckNoAllocatedRides(); // Check that no rides are being constructed.
 }
 
 void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
