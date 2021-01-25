@@ -710,17 +710,6 @@ void RidesManager::DeleteAllRideInstances()
 }
 
 /**
- * Check that no rides are under construction at the moment of calling.
- * @note This is just a checking function, perhaps eventually remove it?
- */
-void RidesManager::CheckNoAllocatedRides() const
-{
-	for (uint i = 0; i < lengthof(this->instances); i++) {
-		assert(this->instances[i] == nullptr || this->instances[i]->state != RIS_ALLOCATED);
-	}
-}
-
-/**
  * Does a ride entrance exists at/to the bottom the given voxel in the neighbouring voxel?
  * @param pos Coordinate of the voxel.
  * @param edge Direction to move to get the neighbouring voxel.
