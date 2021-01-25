@@ -238,6 +238,7 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 					_rides_manager.NewInstanceAdded(instance);
 					ShowCoasterManagementGui(ri);
 				}
+				delete this;
 			}
 			break;
 		}
