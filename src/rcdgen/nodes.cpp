@@ -945,15 +945,17 @@ int StringBundle::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SHOPBlock::SHOPBlock() : GameBlock("SHOP", 5)
+SHOPBlock::SHOPBlock() : GameBlock("SHOP", 6)
 {
 }
 
 int SHOPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 66 - 12);
+	fb->StartSave(this->blk_name, this->version, 68 - 12);
 	fb->SaveUInt16(this->tile_width);
+	fb->SaveUInt8(this->ride_width_x);
+	fb->SaveUInt8(this->ride_width_y);
 	fb->SaveUInt8(this->height);
 	fb->SaveUInt8(this->flags);
 	fb->SaveUInt32(this->ne_view->Write(fw));

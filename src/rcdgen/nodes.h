@@ -582,6 +582,8 @@ public:
 	int Write(FileWriter *fw) override;
 
 	int tile_width;       ///< Zoom-width of a tile of the surface.
+	int ride_width_x;     ///< The number of voxels the shop occupies in x direction.
+	int ride_width_y;     ///< The number of voxels the shop occupies in y direction.
 	int height;           ///< Height of the shop in voxels.
 	int flags;            ///< Byte with flags of the shop.
 	Recolouring recol[3]; ///< Recolour definitions of the shop.

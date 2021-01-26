@@ -958,7 +958,7 @@ void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 					switch (ri->GetKind()) {
 						case RTK_SHOP: {
 							const ShopInstance *si = static_cast<const ShopInstance *>(ri);
-							height = si->GetShopType()->height;
+							height = si->GetShopType()->GetHeight(voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
 							break;
 						}
 

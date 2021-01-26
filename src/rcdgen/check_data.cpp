@@ -1737,6 +1737,8 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	vals.PrepareNamedValues(ng->values, true, true, _shop_symbols);
 
 	sb->tile_width = vals.GetNumber("tile_width");
+	sb->ride_width_x = vals.GetNumber("ride_width_x");
+	sb->ride_width_y = vals.GetNumber("ride_width_y");
 	sb->height = vals.GetNumber("height");
 	sb->flags = vals.GetNumber("flags");
 	sb->ne_view = vals.GetSprite("ne");

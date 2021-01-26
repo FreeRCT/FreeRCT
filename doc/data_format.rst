@@ -535,7 +535,7 @@ Version history
 
 Shops/stalls
 ~~~~~~~~~~~~
-One tile objects, selling useful things to guests. FreeRCT can read block version 5.
+One tile objects, selling useful things to guests. FreeRCT can read block version 6.
 
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
@@ -545,23 +545,25 @@ Offset  Length  Version  Description
    8       4      1-     Length of the block excluding magic string, version, and length.
   12       2      1-     Zoom-width of a tile of the surface.
   --       2      1-3    Height of the shop in voxels.
-  14       1      4-     Height of the shop in voxels.
-  15       1      4-     Shop flags.
-  16       4      1-     Unrotated view (ne).
-  20       4      1-     View after 1 quarter negative rotation (se).
-  24       4      1-     View after 2 quarter negative rotations (sw).
-  28       4      1-     View after 3 quarter negative rotations (nw).
-  32       4      2-     First recolouring specification.
-  36       4      2-     Second recolouring specification.
-  40       4      2-     Third recolouring specification.
-  44       4      4-     Cost of the first item.
-  48       4      4-     Cost of the second item.
-  52       4      4-     Monthly cost of having the shop.
-  56       4      4-     Additional monthly cost of having an opened shop.
-  60       1      4-     Item type of the first item.
-  61       1      4-     Item type of the second item.
-  62       4      3-     Text of the shop (reference to a TEXT block).
-  66                     Total length.
+  14       1      6-     Number of voxels the shop occupies in x direction.
+  15       1      6-     Number of voxels the shop occupies in y direction.
+  16       1      4-     Height of the shop in voxels.
+  17       1      4-     Shop flags.
+  18       4      1-     Unrotated view (ne).
+  22       4      1-     View after 1 quarter negative rotation (se).
+  26       4      1-     View after 2 quarter negative rotations (sw).
+  30       4      1-     View after 3 quarter negative rotations (nw).
+  34       4      2-     First recolouring specification.
+  38       4      2-     Second recolouring specification.
+  42       4      2-     Third recolouring specification.
+  46       4      4-     Cost of the first item.
+  50       4      4-     Cost of the second item.
+  54       4      4-     Monthly cost of having the shop.
+  58       4      4-     Additional monthly cost of having an opened shop.
+  62       1      4-     Item type of the first item.
+  63       1      4-     Item type of the second item.
+  64       4      3-     Text of the shop (reference to a TEXT block).
+  68                     Total length.
 ======  ======  =======  ===================================================================================
 
 Shop flags:

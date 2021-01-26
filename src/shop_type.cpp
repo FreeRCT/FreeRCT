@@ -19,20 +19,14 @@
 static const int TOILET_TIME = 5000;  ///< Duration of visiting the toilet.
 static const int CAPACITY_TOILET = 2; ///< Maximum number of guests that can use the toilet at the same time.
 
-ShopType::ShopType() : RideType(RTK_SHOP)
+ShopType::ShopType() : FixedRideType(RTK_SHOP)
 {
-	this->height = 0;
-	std::fill_n(this->views, lengthof(this->views), nullptr);
+	/* Nothing to do currently. */
 }
 
 ShopType::~ShopType()
 {
 	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
-}
-
-const ImageData *ShopType::GetView(uint8 orientation) const
-{
-	return (orientation < 4) ? this->views[orientation] : nullptr;
 }
 
 RideInstance *ShopType::CreateInstance() const
@@ -76,10 +70,9 @@ static bool IsValidItemType(uint8 val)
  */
 bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 5 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
-	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
-	this->height = rcd_file->GetUInt8();
-	if (this->height < 1) return false;
+	if (rcd_file->version != 6) return false;
+	const uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
+	if (!this->LoadCommon(rcd_file, sprites, texts)) return false;
 	this->flags = rcd_file->GetUInt8() & 0xF;
 
 	for (int i = 0; i < 4; i++) {
@@ -113,10 +106,6 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	return true;
 }
 
-/**
- * Compute the capacity of onride guests in the shop.
- * @return Size of a batch in bits 0..7, and number of batches in bits 8..14. \c 0 means guests don't stay in the ride.
- */
 int ShopType::GetRideCapacity() const
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
@@ -135,17 +124,14 @@ const StringID *ShopType::GetInstanceNames() const
  * Constructor of a shop 'ride'.
  * @param type Kind of shop.
  */
-ShopInstance::ShopInstance(const ShopType *type) : RideInstance(type)
+ShopInstance::ShopInstance(const ShopType *type) : FixedRideInstance(type)
 {
-	this->orientation = 0;
-
-	int capacity = type->GetRideCapacity();
-	assert(capacity == 0 || (capacity & 0xFF) == 1); ///< \todo Implement loading of guests into a batch.
-	this->onride_guests.Configure(capacity & 0xFF, capacity >> 8);
+	/* Nothing to do currently. */
 }
 
 ShopInstance::~ShopInstance()
 {
+	/* Nothing to do currently. */
 }
 
 /**
@@ -158,14 +144,6 @@ const ShopType *ShopInstance::GetShopType() const
 	return static_cast<const ShopType *>(this->type);
 }
 
-void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
-{
-	sprites[0] = nullptr;
-	sprites[1] = voxel_number == SHF_ENTRANCE_NONE ? nullptr : this->type->GetView((4 + this->orientation - orient) & 3);
-	sprites[2] = nullptr;
-	sprites[3] = nullptr;
-}
-
 /**
  * Update a ride instance with its position in the world.
  * @param orientation Orientation of the shop.
@@ -173,11 +151,7 @@ void ShopInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData
  */
 void ShopInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 {
-	assert(this->state == RIS_ALLOCATED);
-	assert(_world.GetTileOwner(pos.x, pos.y) == OWN_PARK); // May only place it in your own park.
-
-	this->orientation = orientation;
-	this->vox_pos = pos;
+	FixedRideInstance::SetRide(orientation, pos);
 	this->flags = 0;
 }
 
@@ -217,105 +191,14 @@ XYZPoint32 ShopInstance::GetExit(int guest, TileEdge entry_edge)
 
 }
 
-void ShopInstance::RemoveAllPeople()
-{
-	for (GuestBatch &gb : this->onride_guests.batches) {
-		if (gb.state == BST_EMPTY) continue;
-
-		for (GuestData &gd : gb.guests) {
-			if (!gd.IsEmpty()) {
-				Guest *g = _guests.Get(gd.guest);
-				g->ExitRide(this, gd.entry);
-
-				gd.Clear();
-			}
-		}
-		gb.state = BST_EMPTY;
-	}
-}
-
-void ShopInstance::InsertIntoWorld()
-{
-	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
-	const int16 height = this->GetShopType()->height;
-	const uint8 entrances = this->GetEntranceDirections(this->vox_pos);
-	for (int16 i = 0; i < height; ++i) {
-		Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), true);
-		assert(voxel && voxel->GetInstance() == SRI_FREE);
-		voxel->SetInstance(index);
-		voxel->SetInstanceData(i > 0 ? SHF_ENTRANCE_NONE : entrances);
-	}
-}
-
-void ShopInstance::RemoveFromWorld()
-{
-	const uint16 index = this->GetIndex();
-	const int16 height = this->GetShopType()->height;
-	for (int16 i = 0; i < height; ++i) {
-		Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), false);
-		if (voxel && voxel->instance != SRI_FREE) {
-			assert(voxel->instance == index);
-			voxel->ClearInstances();
-		}
-	}
-}
-
-void ShopInstance::OnAnimate(int delay)
-{
-	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.
-
-	/* Kick out guests that are done. */
-	int start = -1;
-	for (;;) {
-		start = this->onride_guests.GetFinishedBatch(start);
-		if (start < 0) break;
-
-		GuestBatch &gb = this->onride_guests.batches.at(start);
-		GuestData & gd = gb.guests[0];
-		if (!gd.IsEmpty()) {
-			Guest *g = _guests.Get(gd.guest);
-			g->ExitRide(this, gd.entry);
-
-			gd.Clear();
-		}
-		gb.state = BST_EMPTY;
-	}
-}
-
 void ShopInstance::Load(Loader &ldr)
 {
-	this->RideInstance::Load(ldr);
-
-	this->orientation = ldr.GetByte();
-	uint16 x = ldr.GetWord();
-	uint16 y = ldr.GetWord();
-	uint16 z = ldr.GetWord();
-
-	this->vox_pos = XYZPoint16(x, y, z);
-
-	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->GetIndex());
-	uint8 entrances = this->GetEntranceDirections(this->vox_pos);
-	AddRemovePathEdges(this->vox_pos, PATH_EMPTY, entrances, PAS_QUEUE_PATH);
-
-	const int16 height = this->GetShopType()->height;
-	for (int16 i = 0; i < height; ++i) {
-		Voxel *v = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(0, 0, i), true);
-		if (v != nullptr && v->GetInstance() == SRI_FREE) {
-			v->SetInstance(inst_number);
-			v->SetInstanceData(i > 0 ? SHF_ENTRANCE_NONE : entrances);
-		} else {
-			ldr.SetFailMessage("Invalid world coordinates for shop.");
-			return;
-		}
-	}
+	this->FixedRideInstance::Load(ldr);
+	AddRemovePathEdges(this->vox_pos, PATH_EMPTY, this->GetEntranceDirections(this->vox_pos), PAS_QUEUE_PATH);
 }
 
 void ShopInstance::Save(Saver &svr)
 {
-	this->RideInstance::Save(svr);
-
-	svr.PutByte(this->orientation);
-	svr.PutWord(this->vox_pos.x);
-	svr.PutWord(this->vox_pos.y);
-	svr.PutWord(this->vox_pos.z);
+	this->FixedRideInstance::Save(svr);
+	/* Nothing shop-specific to do here currently. */
 }

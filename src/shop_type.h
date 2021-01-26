@@ -10,56 +10,41 @@
 #ifndef SHOP_TYPE_H
 #define SHOP_TYPE_H
 
-#include "ride_type.h"
-#include "guest_batches.h"
+#include "fixed_ride_type.h"
 
 /**
  * A 'ride' where you can buy food, drinks, and other stuff you need for a visit.
  * @todo Allow for other sized sprites + different recolours.
  */
-class ShopType : public RideType {
+class ShopType : public FixedRideType {
 public:
 	ShopType();
 	~ShopType();
 
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
-	int GetRideCapacity() const;
+	int GetRideCapacity() const override;
 
-	const ImageData *GetView(uint8 orientation) const override;
 	const StringID *GetInstanceNames() const override;
 	RideInstance *CreateInstance() const override;
 
-	int8 height; ///< Number of voxels used by this shop.
 	uint8 flags; ///< Shop flags. @see ShopFlags
-
-protected:
-	ImageData *views[4]; ///< 64 pixel wide shop graphics.
 };
 
 /** Shop 'ride'. */
-class ShopInstance : public RideInstance {
+class ShopInstance : public FixedRideInstance {
 public:
 	ShopInstance(const ShopType *type);
 	~ShopInstance();
 
 	const ShopType *GetShopType() const;
-	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
 
-	void SetRide(uint8 orientation, const XYZPoint16 &pos);
+	void SetRide(uint8 orientation, const XYZPoint16 &pos) override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
-	void RemoveAllPeople() override;
-	void OnAnimate(int delay) override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
-
-	void InsertIntoWorld() override;
-	void RemoveFromWorld() override;
-
-	uint8 orientation;  ///< Orientation of the shop.
-	XYZPoint16 vox_pos; ///< Position of the shop base voxel.
 
 private:
 	OnRideGuests onride_guests; ///< Guests in the ride.
