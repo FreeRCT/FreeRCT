@@ -178,8 +178,9 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
- * \fn void RideInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+ * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
  * Get the sprites to display for the provided voxel number.
+ * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
  * @param orient View orientation.
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
@@ -669,6 +670,8 @@ void RidesManager::NewInstanceAdded(uint16 num)
 
 	switch (ri->GetKind()) {
 		case RTK_SHOP:
+		case RTK_GENTLE:
+		case RTK_THRILL:
 			ri->CloseRide();
 			break;
 

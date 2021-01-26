@@ -81,7 +81,7 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 		ImageData *view;
 		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
 		if (width != 64) continue; // Silently discard other sizes.
-		this->views[i] = view;
+		this->views[i].reset(new ImageData*[1] {view});
 	}
 
 	for (uint i = 0; i < 3; i++) {

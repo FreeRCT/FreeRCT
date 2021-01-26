@@ -187,6 +187,8 @@ strings {
 
 		// Ride build window strings.
 		RIDE_BUILD_TITLEBAR_SHOP:         "Place shop";
+		RIDE_BUILD_TITLEBAR_GENTLE:       "Place gentle ride";
+		RIDE_BUILD_TITLEBAR_THRILL:       "Place thrill ride";
 		RIDE_BUILD_ROTATE_TOOLTIP:        "Click to rotate the ride";
 		RIDE_BUILD_DISPLAY_TOOLTIP:       "A picture of the ride you are buying";
 		RIDE_BUILD_NAME_TEXT:             "Buying a %1%";

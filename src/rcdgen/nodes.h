@@ -614,10 +614,10 @@ public:
 	int ownership_cost;   ///< Monthly cost of having the ride.
 	int opened_cost;      ///< Additional monthly cost of having an opened ride.
 
-	std::shared_ptr<SpriteBlock> ne_view; ///< Unrotated view.
-	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
-	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
-	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> nw_views; ///< Rotated 270 degrees.
 	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the ride.
 };
 

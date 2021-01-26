@@ -1787,19 +1787,24 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->ride_width_x = vals.GetNumber("ride_width_x");
 	block->ride_width_y = vals.GetNumber("ride_width_y");
 	block->heights.reset(new int8[block->ride_width_x * block->ride_width_y]);
+	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
+	block->se_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
+	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
+	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
 	for (int x = 0; x < block->ride_width_x; ++x) {
 		for (int y = 0; y < block->ride_width_y; ++y) {
-			std::string key = "height_";
-			key += std::to_string(x);
-			key += '_';
-			key += std::to_string(y);
+			std::string key = "height_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
 			block->heights[x * block->ride_width_y + y] = vals.GetNumber(key.c_str());
+			key = "ne_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			block->ne_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
+			key = "se_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			block->se_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
+			key = "nw_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			block->nw_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
+			key = "sw_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			block->sw_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
 		}
 	}
-	block->ne_view = vals.GetSprite("ne");
-	block->se_view = vals.GetSprite("se");
-	block->sw_view = vals.GetSprite("sw");
-	block->nw_view = vals.GetSprite("nw");
 	block->entrance_fee = vals.GetNumber("entrance_fee");
 	block->ownership_cost = vals.GetNumber("cost_ownership");
 	block->opened_cost = vals.GetNumber("cost_opened");

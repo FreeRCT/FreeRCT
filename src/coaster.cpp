@@ -626,7 +626,7 @@ void CoasterInstance::CloseRide()
 	RideInstance::CloseRide();
 }
 
-void CoasterInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	const CoasterType *ct = this->GetCoasterType();
 	assert(voxel_number < ct->voxels.size());

@@ -14,12 +14,8 @@
 #include "people.h"
 #include "fileio.h"
 
-constexpr int8 FIXED_RIDE_VOXEL_NUMBER_MAIN_POSITION = 1;  ///< Voxel instance data to indicate that the voxel is the ride's main position.
-constexpr int8 FIXED_RIDE_VOXEL_NUMBER_OTHER_POSITION = 0; ///< Voxel instance data to indicate that the voxel is NOT the ride's main position.
-
 FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k)
 {
-	std::fill_n(this->views, lengthof(this->views), nullptr);
 	this->width_x = this->width_y = 0;
 }
 
@@ -30,7 +26,8 @@ FixedRideType::~FixedRideType()
 
 const ImageData *FixedRideType::GetView(uint8 orientation) const
 {
-	return (orientation < 4) ? this->views[orientation] : nullptr;
+	// NOCOM
+	return (orientation < 4) ? this->views[orientation][0] : nullptr;
 }
 
 /**
@@ -65,10 +62,12 @@ const FixedRideType *FixedRideInstance::GetFixedRideType() const
 	return static_cast<const FixedRideType *>(this->type);
 }
 
-void FixedRideInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
+	const FixedRideType* t = GetFixedRideType();
 	sprites[0] = nullptr;
-	sprites[1] = voxel_number == SHF_ENTRANCE_NONE ? nullptr : this->type->GetView((4 + this->orientation - orient) & 3);
+	sprites[1] = voxel_number == SHF_ENTRANCE_NONE ? nullptr :
+			t->views[(4 + this->orientation - orient) & 3][(vox.x - vox_pos.x) * t->width_y + vox.y - vox_pos.y];
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
 }
@@ -121,7 +120,7 @@ void FixedRideInstance::InsertIntoWorld()
 				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(x, y, h), true);
 				assert(voxel && voxel->GetInstance() == SRI_FREE);
 				voxel->SetInstance(index);
-				voxel->SetInstanceData(x == 0 && y == 0 && h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+				voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
 			}
 		}
 	}

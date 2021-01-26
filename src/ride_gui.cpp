@@ -233,14 +233,18 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 				if (instance == INVALID_RIDE_INSTANCE) return;
 
 				RideInstance *ri = _rides_manager.CreateInstance(ride_type, instance);
-
-				if (this->current_kind == RTK_SHOP) {
-					assert(ride_type->kind == RTK_SHOP);
-					ShowRideBuildGui(ri);
-				} else {
-					assert(ride_type->kind == RTK_COASTER);
-					_rides_manager.NewInstanceAdded(instance);
-					ShowCoasterManagementGui(ri);
+				assert(this->current_kind == ride_type->kind);
+				switch (ride_type->kind) {
+					case RTK_SHOP:
+					case RTK_GENTLE:
+					case RTK_THRILL:
+						ShowRideBuildGui(ri);
+						break;
+					case RTK_COASTER:
+						_rides_manager.NewInstanceAdded(instance);
+						ShowCoasterManagementGui(ri);
+						break;
+					default: NOT_REACHED(); // Add cases for more ride types here when they get implemented.
 				}
 				delete this;
 			}

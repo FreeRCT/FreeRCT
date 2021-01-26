@@ -40,8 +40,7 @@ public:
 		return heights[x * width_y + y];
 	}
 
-protected:
-	ImageData *views[4]; ///< Ride graphics with a width and height of (64 px * width_x|y).
+	std::unique_ptr<ImageData *[]> views[4]; ///< Ride graphics with a width and height of 64 px each, one for each voxel occupied by the ride.
 };
 
 /** Fixed rides. */
@@ -51,7 +50,7 @@ public:
 	~FixedRideInstance();
 
 	const FixedRideType *GetFixedRideType() const;
-	void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
 
 	virtual void SetRide(uint8 orientation, const XYZPoint16 &pos);
 	void RemoveAllPeople() override;

@@ -612,18 +612,18 @@ Offset  Length  Version  Description
   16       1      1-     Length of the ride in y direction in voxels.
   17       x      1-     Heights of the ride in voxels. The number x of height bytes is
                          equal to the product of the ride lengths in x and y direction.
-  17+x     4      1-     Unrotated view (ne).
-  21+x     4      1-     View after 1 quarter negative rotation (se).
-  25+x     4      1-     View after 2 quarter negative rotations (sw).
-  29+x     4      1-     View after 3 quarter negative rotations (nw).
-  33+x     4      1-     First recolouring specification.
-  37+x     4      1-     Second recolouring specification.
-  41+x     4      1-     Third recolouring specification.
-  45+x     4      1-     Entrance fee.
-  49+x     4      1-     Monthly cost of having the ride.
-  53+x     4      1-     Additional monthly cost of having an opened ride.
-  57+x     4      1-     Text of the ride (reference to a TEXT block).
-  61+x                   Total length.
+  17+x     4*x    1-     Unrotated views (ne).
+  17+5*x   4*x    1-     Views after 1 quarter negative rotation (se).
+  17+9*x   4*x    1-     Views after 2 quarter negative rotations (sw).
+  17+13*x  4*x    1-     Views after 3 quarter negative rotations (nw).
+  17+17*x  4      1-     First recolouring specification.
+  21+17*x  4      1-     Second recolouring specification.
+  25+17*x  4      1-     Third recolouring specification.
+  29+17*x  4      1-     Entrance fee.
+  33+17*x  4      1-     Monthly cost of having the ride.
+  37+17*x  4      1-     Additional monthly cost of having an opened ride.
+  41+17*x  4      1-     Text of the ride (reference to a TEXT block).
+  45+17*x                Total length.
   
 ======  ======  =======  ===================================================================================
 

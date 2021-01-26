@@ -47,7 +47,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (static_cast<int>(rcd_file->size) != 49 + this->width_x * this->width_y) return false;
+	if (static_cast<int>(rcd_file->size) != 33 + 17 * (this->width_x * this->width_y)) return false;
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
 		for (int8 y = 0; y < this->width_y; ++y) {
@@ -56,10 +56,15 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	}
 
 	for (int i = 0; i < 4; i++) {
-		ImageData *view;
-		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
-		if (width != 64) continue; // Silently discard other sizes.
-		this->views[i] = view;
+		this->views[i].reset(new ImageData*[this->width_x * this->width_y]);
+		for (int x = 0; x < this->width_x; ++x) {
+			for (int y = 0; y < this->width_y; ++y) {
+				ImageData *view;
+				if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+				if (width != 64) continue; // Silently discard other sizes.
+				this->views[i][x * width_y + y] = view;
+			}
+		}
 	}
 
 	for (uint i = 0; i < 3; i++) {
@@ -117,7 +122,7 @@ const GentleThrillRideType *GentleThrillRideInstance::GetGentleThrillRideType() 
 
 uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
-	return 0; // \todo Ride entrances are not implemented yet.
+	return SHF_ENTRANCE_BITS; // \todo Ride entrances are not implemented yet.
 }
 
 RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
