@@ -223,6 +223,17 @@ static const char *_shops_string_names[] = {
 	"DESCRIPTION_RECOLOUR3",
 };
 
+/** String names of the gentle and thrill rides. */
+static const char *_gentle_thrill_rides_string_names[] = {
+	"NAME_INSTANCE1",
+	"NAME_INSTANCE2",
+	"NAME_TYPE",
+	"DESCRIPTION_TYPE",
+	"DESCRIPTION_RECOLOUR1",
+	"DESCRIPTION_RECOLOUR2",
+	"DESCRIPTION_RECOLOUR3",
+};
+
 /** String names of the coaster ride types. */
 static const char *_coaster_string_names[] = {
 	"NAME_INSTANCE",

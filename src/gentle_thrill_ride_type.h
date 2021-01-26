@@ -5,40 +5,36 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file shop_type.h Shops. */
+/** @file gentle_thrill_type.h Gentle and thrill rides. */
 
-#ifndef SHOP_TYPE_H
-#define SHOP_TYPE_H
+#ifndef GENTLE_THRILL_RIDE_TYPE_H
+#define GENTLE_THRILL_RIDE_TYPE_H
 
 #include "fixed_ride_type.h"
 
 /**
- * A 'ride' where you can buy food, drinks, and other stuff you need for a visit.
- * @todo Allow for other sized sprites + different recolours.
+ * A gentle ride or a thrilling ride.
  */
-class ShopType : public FixedRideType {
+class GentleThrillRideType : public FixedRideType {
 public:
-	ShopType();
-	~ShopType();
+	GentleThrillRideType();
+	~GentleThrillRideType();
 
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 	int GetRideCapacity() const override;
 
 	const StringID *GetInstanceNames() const override;
 	RideInstance *CreateInstance() const override;
-
-	uint8 flags; ///< Shop flags. @see ShopFlags
 };
 
-/** Shop 'ride'. */
-class ShopInstance : public FixedRideInstance {
+/** A gentle or thrill ride. */
+class GentleThrillRideInstance : public FixedRideInstance {
 public:
-	ShopInstance(const ShopType *type);
-	~ShopInstance();
+	GentleThrillRideInstance(const GentleThrillRideType *type);
+	~GentleThrillRideInstance();
 
-	const ShopType *GetShopType() const;
+	const GentleThrillRideType *GetGentleThrillRideType() const;
 
-	void SetRide(uint8 orientation, const XYZPoint16 &pos) override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;

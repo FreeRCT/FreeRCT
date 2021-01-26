@@ -1737,8 +1737,6 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	vals.PrepareNamedValues(ng->values, true, true, _shop_symbols);
 
 	sb->tile_width = vals.GetNumber("tile_width");
-	sb->ride_width_x = vals.GetNumber("ride_width_x");
-	sb->ride_width_y = vals.GetNumber("ride_width_y");
 	sb->height = vals.GetNumber("height");
 	sb->flags = vals.GetNumber("flags");
 	sb->ne_view = vals.GetSprite("ne");
@@ -1763,6 +1761,60 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 
 	vals.VerifyUsage();
 	return sb;
+}
+
+/**
+ * Convert a node group to a FGTR game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created FGTR game block.
+ */
+static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "FGTR");
+	auto block = std::make_shared<FGTRBlock>();
+
+	Values vals("FGTR", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	const std::string category = vals.GetString("category");
+	if (category == "gentle") block->is_thrill_ride = false;
+	else if (category == "thrill") block->is_thrill_ride = true;
+	else {
+		fprintf(stderr, "Error at %s: Invalid category '%s' (expected 'gentle' or 'thrill').\n", ng->pos.ToString(), category.c_str());
+		return nullptr;
+	}
+	block->tile_width = vals.GetNumber("tile_width");
+	block->ride_width_x = vals.GetNumber("ride_width_x");
+	block->ride_width_y = vals.GetNumber("ride_width_y");
+	block->heights.reset(new int8[block->ride_width_x * block->ride_width_y]);
+	for (int x = 0; x < block->ride_width_x; ++x) {
+		for (int y = 0; y < block->ride_width_y; ++y) {
+			std::string key = "height_";
+			key += std::to_string(x);
+			key += '_';
+			key += std::to_string(y);
+			block->heights[x * block->ride_width_y + y] = vals.GetNumber(key.c_str());
+		}
+	}
+	block->ne_view = vals.GetSprite("ne");
+	block->se_view = vals.GetSprite("se");
+	block->sw_view = vals.GetSprite("sw");
+	block->nw_view = vals.GetSprite("nw");
+	block->entrance_fee = vals.GetNumber("entrance_fee");
+	block->ownership_cost = vals.GetNumber("cost_ownership");
+	block->opened_cost = vals.GetNumber("cost_opened");
+	block->ride_text = std::make_shared<StringBundle>();
+	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
+	block->ride_text->CheckTranslations(_gentle_thrill_rides_string_names, lengthof(_gentle_thrill_rides_string_names), ng->pos);
+
+	std::vector<std::shared_ptr<Recolouring>> recolours = GetTypedData<Recolouring>(vals, "recolour", 3);
+	int i = 0;
+	for (auto &rc : recolours) {
+		block->recol[i++] = *rc;
+	}
+
+	vals.VerifyUsage();
+	return block;
 }
 
 /**
@@ -2376,6 +2428,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "CARS") return ConvertCARSNode(ng);
 	if (ng->name == "CSPL") return ConvertCSPLNode(ng);
 	if (ng->name == "FENC") return ConvertFENCNode(ng);
+	if (ng->name == "FGTR") return ConvertFGTRNode(ng);
 	if (ng->name == "FUND") return ConvertFUNDNode(ng);
 	if (ng->name == "GBOR") return ConvertGBORNode(ng);
 	if (ng->name == "GCHK") return ConvertGCHKNode(ng);
@@ -2456,6 +2509,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _shops_string_names;
 		length = lengthof(_shops_string_names);
 		nice_name = "Shops";
+	} else if (strcmp(prefix, "GENTLE_THRILL_RIDES") == 0) {
+		names = _gentle_thrill_rides_string_names;
+		length = lengthof(_gentle_thrill_rides_string_names);
+		nice_name = "GentleThrillRides";
 	} else if (strcmp(prefix, "COASTERS") == 0) {
 		names = _coaster_string_names;
 		length = lengthof(_coaster_string_names);
@@ -2515,6 +2572,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *code)
 		length = lengthof(_shops_string_names);
 		nice_name = "Shops";
 		lower_name = "shops";
+	} else if (strcmp(prefix, "GENTLE_THRILL_RIDES") == 0) {
+		names = _gentle_thrill_rides_string_names;
+		length = lengthof(_gentle_thrill_rides_string_names);
+		nice_name = "GentleThrillRides";
+		lower_name = "gentle_thrill_rides";
 	} else if (strcmp(prefix, "COASTERS") == 0) {
 		names = _coaster_string_names;
 		length = lengthof(_coaster_string_names);

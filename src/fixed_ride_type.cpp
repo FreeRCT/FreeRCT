@@ -20,6 +20,7 @@ constexpr int8 FIXED_RIDE_VOXEL_NUMBER_OTHER_POSITION = 0; ///< Voxel instance d
 FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k)
 {
 	std::fill_n(this->views, lengthof(this->views), nullptr);
+	this->width_x = this->width_y = 0;
 }
 
 FixedRideType::~FixedRideType()
@@ -37,26 +38,6 @@ const ImageData *FixedRideType::GetView(uint8 orientation) const
  * Compute the capacity of onride guests in the ride.
  * @return Size of a batch in bits 0..7, and number of batches in bits 8..14. \c 0 means guests don't stay in the ride.
  */
-
-/**
- * Load a type of fixed ride from an RCD file. This function is meant to be called only from within the #Load() function of derived classes.
- * @param rcd_file Rcd file being loaded.
- * @param sprites Already loaded sprites.
- * @param texts Already loaded texts.
- * @return Loading was successful.
- */
-bool FixedRideType::LoadCommon(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
-{
-	this->width_x = rcd_file->GetUInt8();
-	this->width_y = rcd_file->GetUInt8();
-	this->heights.reset(new int8[this->width_x * this->width_y]);
-	for (int8 x = 0; x < this->width_x; ++x) {
-		for (int8 y = 0; y < this->width_y; ++y) {
-			this->heights[x * this->width_y + y] = rcd_file->GetUInt8();
-		}
-	}
-	return true;
-}
 
 /**
  * Constructor of a fixed ride.

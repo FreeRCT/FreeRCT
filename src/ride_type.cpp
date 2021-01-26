@@ -31,10 +31,12 @@
  *
  * - The #RideType represents the type of a ride, e.g. "the kiosk" or a "basic steel roller coaster".
  *   - Shop types are implement in #ShopType.
+ *   - Gentle ride types and thrill ride types are implemented in #GentleThrillRideType.
  *   - Coaster types are implemented in #CoasterType.
  *
  * - The #RideInstance represents actual rides in the park.
  *   - Shops instances are implemented in #ShopInstance.
+ *   - Gentle ride instances and thrill ride instances are implemented in #GentleThrillRideInstance.
  *   - Coasters instances are implemented in #CoasterInstance.
  *
  * The #RidesManager (#_rides_manager) manages both ride types and ride instances.

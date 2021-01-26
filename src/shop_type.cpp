@@ -70,9 +70,10 @@ static bool IsValidItemType(uint8 val)
  */
 bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 6) return false;
-	const uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
-	if (!this->LoadCommon(rcd_file, sprites, texts)) return false;
+	if (rcd_file->version != 5 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
+	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
+	this->width_x = this->width_y = 1;
+	this->heights.reset(new int8(rcd_file->GetUInt8()));
 	this->flags = rcd_file->GetUInt8() & 0xF;
 
 	for (int i = 0; i < 4; i++) {

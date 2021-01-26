@@ -21,7 +21,6 @@ public:
 	explicit FixedRideType(RideTypeKind kind);
 	~FixedRideType();
 
-	bool LoadCommon(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 	virtual int GetRideCapacity() const = 0;
 
 	const ImageData *GetView(uint8 orientation) const override;
@@ -67,7 +66,7 @@ public:
 	uint8 orientation;  ///< Orientation of the shop.
 	XYZPoint16 vox_pos; ///< Position of the shop base voxel.
 
-private:
+protected:
 	OnRideGuests onride_guests; ///< Guests in the ride.
 };
 

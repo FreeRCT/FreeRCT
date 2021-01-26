@@ -945,17 +945,15 @@ int StringBundle::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SHOPBlock::SHOPBlock() : GameBlock("SHOP", 6)
+SHOPBlock::SHOPBlock() : GameBlock("SHOP", 5)
 {
 }
 
 int SHOPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 68 - 12);
+	fb->StartSave(this->blk_name, this->version, 66 - 12);
 	fb->SaveUInt16(this->tile_width);
-	fb->SaveUInt8(this->ride_width_x);
-	fb->SaveUInt8(this->ride_width_y);
 	fb->SaveUInt8(this->height);
 	fb->SaveUInt8(this->flags);
 	fb->SaveUInt32(this->ne_view->Write(fw));
@@ -972,6 +970,38 @@ int SHOPBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->item_type[0]);
 	fb->SaveUInt8(this->item_type[1]);
 	fb->SaveUInt32(this->shop_text->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
+FGTRBlock::FGTRBlock() : GameBlock("FGTR", 1)
+{
+}
+
+int FGTRBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 61 + (this->ride_width_x * this->ride_width_y) - 12);
+	fb->SaveUInt8(this->is_thrill_ride ? 1 : 0);
+	fb->SaveUInt16(this->tile_width);
+	fb->SaveUInt8(this->ride_width_x);
+	fb->SaveUInt8(this->ride_width_y);
+	for (int8 x = 0; x < this->ride_width_x; ++x) {
+		for (int8 y = 0; y < this->ride_width_y; ++y) {
+			fb->SaveUInt8(this->heights[x * ride_width_y + y]);
+		}
+	}
+	fb->SaveUInt32(this->ne_view->Write(fw));
+	fb->SaveUInt32(this->se_view->Write(fw));
+	fb->SaveUInt32(this->sw_view->Write(fw));
+	fb->SaveUInt32(this->nw_view->Write(fw));
+	fb->SaveUInt32(this->recol[0].Encode());
+	fb->SaveUInt32(this->recol[1].Encode());
+	fb->SaveUInt32(this->recol[2].Encode());
+	fb->SaveUInt32(this->entrance_fee);
+	fb->SaveUInt32(this->ownership_cost);
+	fb->SaveUInt32(this->opened_cost);
+	fb->SaveUInt32(this->ride_text->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

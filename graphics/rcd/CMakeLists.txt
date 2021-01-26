@@ -16,11 +16,12 @@ set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd")
 
 #    Output file       Source file
 list(APPEND RCDFILES
-     "freerct.rcd"     "${FP}/freerct.txt"
-     "path_8bpp64.rcd" "${FP}/paths.txt"
-     "shops.rcd"       "${FP}/shops.txt"
-     "gui.rcd"         "${FP}/gui.txt"
-     "tracks.rcd"      "${FP}/tracks.txt"
+     "freerct.rcd"              "${FP}/freerct.txt"
+     "path_8bpp64.rcd"          "${FP}/paths.txt"
+     "shops.rcd"                "${FP}/shops.txt"
+     "gentle_thrill_rides.rcd"  "${FP}/gentle_thrill_rides.txt"
+     "gui.rcd"                  "${FP}/gui.txt"
+     "tracks.rcd"               "${FP}/tracks.txt"
 )
 
 # Get lang files
@@ -45,7 +46,7 @@ FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_2})
 	)
 
 	list(APPEND OUTFILES "${OUT_DIR}/${OUTFILE}")
+	set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${OUT_DIR}/${OUTFILE}")
 ENDFOREACH(RCDFILE)
 
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${OUTFILES})
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})

@@ -246,4 +246,14 @@ strings {
 		NAME_TYPE:        "Basic rollercoaster";
 		DESCRIPTION_TYPE: "Basic steel rollercoaster ride";
 	}
+
+	stringtexts("spooky-manor") {
+		NAME_INSTANCE1:        "Palace of Fear";
+		NAME_INSTANCE2:        "Aisles of Darkness";
+		NAME_TYPE:             "Spooky Manor";
+		DESCRIPTION_TYPE:      "A dark, creepy mansion that terrifies any guests brave enough to enter it.";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
 }

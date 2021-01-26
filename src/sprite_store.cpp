@@ -23,6 +23,7 @@
 #include "fileio.h"
 #include "math_func.h"
 #include "shop_type.h"
+#include "gentle_thrill_ride_type.h"
 #include "coaster.h"
 #include "gui_sprites.h"
 #include "string_func.h"
@@ -1431,6 +1432,16 @@ const char *SpriteManager::Load(const char *filename)
 				return "Shop type failed to load.";
 			}
 			_rides_manager.AddRideType(shop_type);
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "FGTR") == 0) {
+			GentleThrillRideType *ride_type = new GentleThrillRideType;
+			if (!ride_type->Load(&rcd_file, sprites, texts)) {
+				delete ride_type;
+				return "Gentle/Thrill ride type failed to load.";
+			}
+			_rides_manager.AddRideType(ride_type);
 			continue;
 		}
 

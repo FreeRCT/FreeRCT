@@ -1,0 +1,52 @@
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+file("gentle_thrill_rides.rcd") {
+	INFO {
+		name: "Baseset gentle and thrill rides";
+		uri: "org.freerct/baseset/shops/2";
+		description: "FreeRCT baseset gentle and thrill rides.";
+	}
+
+	// Spooky Manor
+	FGTR {
+		category: "gentle";
+		tile_width: 64;
+		ride_width_x: 3;
+		ride_width_y: 4;
+		height_0_0: 1;
+		height_0_1: 1;
+		height_0_2: 5;
+		height_0_3: 10;
+		height_1_0: 4;
+		height_1_1: 2;
+		height_1_2: 6;
+		height_1_3: 40;
+		height_2_0: 3;
+		height_2_1: 2;
+		height_2_2: 7;
+		height_2_3: 30;
+
+		(se, sw, nw, ne): spritefiles {
+			x_base: 1; y_base: 0;
+			file: "../sprites/ride_shops/toilet/64_000{seq(1..4,1)}.png";
+			recolour: "../sprites/ride_shops/toilet/64p_000{seq(1..4,1)}.png";
+			x_offset: -33; y_offset: -33; width: 64; height: 64;
+		}
+
+		recolour {
+			original: grey;
+			replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+			                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+		}
+
+		entrance_fee: 50;
+		cost_ownership: 100;
+		cost_opened: 3000;
+
+		texts: strings { key: "spooky-manor"; }
+	}
+}

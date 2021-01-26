@@ -48,6 +48,11 @@ enum StringTable {
 	 */
 	STR_GENERIC_COASTER_START = STR_GENERIC_SHOP_START + 256,
 
+	/**
+	 * Generic gentle/thrill ride strings, translated to 'real' string numbers by each gentle/thrill type object by means of the RideType::GetString function.
+	 */
+	STR_GENERIC_GENTLE_THRILL_RIDES_START = STR_GENERIC_COASTER_START + 256,
+
 	STR_GENERIC_END = 0xFFFF,
 
 	STR_INVALID = STR_GENERIC_END, ///< Invalid string.
@@ -55,6 +60,7 @@ enum StringTable {
 
 #include "generated/gui_strings.h"
 #include "generated/shops_strings.h"
+#include "generated/gentle_thrill_rides_strings.h"
 #include "generated/coasters_strings.h"
 
 typedef uint16 StringID; ///< Type of a string value.

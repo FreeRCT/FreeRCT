@@ -76,7 +76,7 @@ public:
 	virtual RideInstance *CreateInstance() const = 0;
 	void SetupStrings(TextData *text, StringID base, StringID start, StringID end, StringID name, StringID desc);
 
-	const RideTypeKind kind; ///< Kind of ride type.
+	RideTypeKind kind;       ///< Kind of ride type.
 	Money monthly_cost;      ///< Monthly costs for owning a ride.
 	Money monthly_open_cost; ///< Monthly extra costs if the ride is opened.
 	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.

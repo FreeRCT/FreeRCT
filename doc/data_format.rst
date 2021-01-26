@@ -535,7 +535,7 @@ Version history
 
 Shops/stalls
 ~~~~~~~~~~~~
-One tile objects, selling useful things to guests. FreeRCT can read block version 6.
+One tile objects, selling useful things to guests. FreeRCT can read block version 5.
 
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
@@ -545,25 +545,23 @@ Offset  Length  Version  Description
    8       4      1-     Length of the block excluding magic string, version, and length.
   12       2      1-     Zoom-width of a tile of the surface.
   --       2      1-3    Height of the shop in voxels.
-  14       1      6-     Number of voxels the shop occupies in x direction.
-  15       1      6-     Number of voxels the shop occupies in y direction.
-  16       1      4-     Height of the shop in voxels.
-  17       1      4-     Shop flags.
-  18       4      1-     Unrotated view (ne).
-  22       4      1-     View after 1 quarter negative rotation (se).
-  26       4      1-     View after 2 quarter negative rotations (sw).
-  30       4      1-     View after 3 quarter negative rotations (nw).
-  34       4      2-     First recolouring specification.
-  38       4      2-     Second recolouring specification.
-  42       4      2-     Third recolouring specification.
-  46       4      4-     Cost of the first item.
-  50       4      4-     Cost of the second item.
-  54       4      4-     Monthly cost of having the shop.
-  58       4      4-     Additional monthly cost of having an opened shop.
-  62       1      4-     Item type of the first item.
-  63       1      4-     Item type of the second item.
-  64       4      3-     Text of the shop (reference to a TEXT block).
-  68                     Total length.
+  14       1      4-     Height of the shop in voxels.
+  15       1      4-     Shop flags.
+  16       4      1-     Unrotated view (ne).
+  20       4      1-     View after 1 quarter negative rotation (se).
+  24       4      1-     View after 2 quarter negative rotations (sw).
+  28       4      1-     View after 3 quarter negative rotations (nw).
+  32       4      2-     First recolouring specification.
+  36       4      2-     Second recolouring specification.
+  40       4      2-     Third recolouring specification.
+  44       4      4-     Cost of the first item.
+  48       4      4-     Cost of the second item.
+  52       4      4-     Monthly cost of having the shop.
+  56       4      4-     Additional monthly cost of having an opened shop.
+  60       1      4-     Item type of the first item.
+  61       1      4-     Item type of the second item.
+  62       4      3-     Text of the shop (reference to a TEXT block).
+  66                     Total length.
 ======  ======  =======  ===================================================================================
 
 Shop flags:
@@ -596,6 +594,43 @@ Version history
 - 3 (20120714) Added a TEXT block reference for the shop texts.
 - 4 (20121005) Added items to sell, and costs to pay.
 - 5 (20141010) Added more items.
+
+
+Fixed gentle and thrill rides
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Gentle and thrill rides consisting of a single building. FreeRCT can read block version 1.
+
+======  ======  =======  ===================================================================================
+Offset  Length  Version  Description
+======  ======  =======  ===================================================================================
+   0       4      1-     Magic string 'FGTR'.
+   4       4      1-     Version number of the block.
+   8       4      1-     Length of the block excluding magic string, version, and length.
+  12       1      1-     Magic number 1 for thrill rides or 0 for gentle rides.
+  13       2      1-     Zoom-width of a tile of the surface.
+  15       1      1-     Length of the ride in x direction in voxels.
+  16       1      1-     Length of the ride in y direction in voxels.
+  17       x      1-     Heights of the ride in voxels. The number x of height bytes is
+                         equal to the product of the ride lengths in x and y direction.
+  17+x     4      1-     Unrotated view (ne).
+  21+x     4      1-     View after 1 quarter negative rotation (se).
+  25+x     4      1-     View after 2 quarter negative rotations (sw).
+  29+x     4      1-     View after 3 quarter negative rotations (nw).
+  33+x     4      1-     First recolouring specification.
+  37+x     4      1-     Second recolouring specification.
+  41+x     4      1-     Third recolouring specification.
+  45+x     4      1-     Entrance fee.
+  49+x     4      1-     Monthly cost of having the ride.
+  53+x     4      1-     Additional monthly cost of having an opened ride.
+  57+x     4      1-     Text of the ride (reference to a TEXT block).
+  61+x                   Total length.
+  
+======  ======  =======  ===================================================================================
+
+Version history
+...............
+
+- 1 (20210126) Initial version.
 
 
 Build direction arrows

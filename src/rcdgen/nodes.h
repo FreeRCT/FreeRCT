@@ -582,8 +582,6 @@ public:
 	int Write(FileWriter *fw) override;
 
 	int tile_width;       ///< Zoom-width of a tile of the surface.
-	int ride_width_x;     ///< The number of voxels the shop occupies in x direction.
-	int ride_width_y;     ///< The number of voxels the shop occupies in y direction.
 	int height;           ///< Height of the shop in voxels.
 	int flags;            ///< Byte with flags of the shop.
 	Recolouring recol[3]; ///< Recolour definitions of the shop.
@@ -597,6 +595,30 @@ public:
 	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
 	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
 	std::shared_ptr<StringBundle> shop_text;   ///< Texts of the shop.
+};
+
+/** Class for describing a FGTR game block. */
+class FGTRBlock : public GameBlock {
+public:
+	FGTRBlock();
+
+	int Write(FileWriter *fw) override;
+
+	bool is_thrill_ride;  ///< True for thrill rides, false for gentle rides.
+	int tile_width;       ///< Zoom-width of a tile of the surface.
+	int8 ride_width_x;    ///< The number of voxels the ride occupies in x direction.
+	int8 ride_width_y;    ///< The number of voxels the ride occupies in y direction.
+	std::unique_ptr<int8[]> heights; ///< Heights of the ride in voxels.
+	Recolouring recol[3]; ///< Recolour definitions of the ride.
+	int entrance_fee;     ///< Cost of the ride.
+	int ownership_cost;   ///< Monthly cost of having the ride.
+	int opened_cost;      ///< Additional monthly cost of having an opened ride.
+
+	std::shared_ptr<SpriteBlock> ne_view; ///< Unrotated view.
+	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
+	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
+	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
+	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the ride.
 };
 
 /** GBOR game block. */
