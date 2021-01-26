@@ -111,6 +111,8 @@ strings {
 		RIDE_SELECT_SHOPS_TOOLTIP:   "Click to display available shop types";
 		RIDE_SELECT_GENTLE:          "Gentle rides";
 		RIDE_SELECT_GENTLE_TOOLTIP:  "Click to display available gentle ride types";
+		RIDE_SELECT_THRILL:          "Thrill rides";
+		RIDE_SELECT_THRILL_TOOLTIP:  "Click to display available thrill ride types";
 		RIDE_SELECT_WET:             "Wet rides";
 		RIDE_SELECT_WET_TOOLTIP:     "Click to display available wet ride types";
 		RIDE_SELECT_COASTER:         "Coasters";

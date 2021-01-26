@@ -32,6 +32,7 @@ class RideInstance;
 enum RideTypeKind {
 	RTK_SHOP,    ///< Ride type allows buying useful stuff.
 	RTK_GENTLE,  ///< Gentle kind of ride.
+	RTK_THRILL,  ///< Thrilling kind of ride.
 	RTK_WET,     ///< Ride type uses water.
 	RTK_COASTER, ///< Ride type is a coaster.
 

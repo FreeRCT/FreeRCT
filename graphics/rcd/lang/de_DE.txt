@@ -113,6 +113,8 @@ strings {
 		RIDE_SELECT_SHOPS_TOOLTIP:   "Verfügbare Geschäfte anzeigen";
 		RIDE_SELECT_GENTLE:          "Gemäßigte Attraktionen";
 		RIDE_SELECT_GENTLE_TOOLTIP:  "Verfügbare gemäßigte Attraktionen anzeigen";
+		RIDE_SELECT_THRILL:          "Aufregende Attraktionen";
+		RIDE_SELECT_THRILL_TOOLTIP:  "Verfügbare aufregende Attraktionen anzeigen";
 		RIDE_SELECT_WET:             "Wasserattraktionen";
 		RIDE_SELECT_WET_TOOLTIP:     "Verfügbare Wasserattraktionen anzeigen";
 		RIDE_SELECT_COASTER:         "Achterbahnen";
