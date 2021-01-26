@@ -135,7 +135,7 @@ enum RideEntryResult {
 class RideInstance {
 public:
 	RideInstance(const RideType *rt);
-	virtual ~RideInstance();
+	virtual ~RideInstance() = default;
 
 	virtual void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
 	virtual uint8 GetEntranceDirections(const XYZPoint16 &vox) const = 0;
@@ -166,7 +166,7 @@ public:
 
 	uint16 GetIndex() const;
 
-	uint8 *name;             ///< Name of the ride, if it is instantiated.
+	std::unique_ptr<uint8[]> name; ///< Name of the ride, if it is instantiated.
 	uint8 state;             ///< State of the instance. @see RideInstanceState
 	uint8 flags;             ///< Flags of the instance. @see RideInstanceFlags
 	Recolouring recolours;   ///< Recolour map of the instance.
