@@ -51,7 +51,7 @@ void CoasterRemoveWindow::OnClick(WidgetNumber number, const Point16 &pos)
 
 void CoasterRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	if (wid_num == ERW_MESSAGE) _str_params.SetUint8(1, (uint8 *)this->ci->name);
+	if (wid_num == ERW_MESSAGE) _str_params.SetUint8(1, (uint8 *)this->ci->name.get());
 }
 
 /**
@@ -139,7 +139,7 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 {
 	switch (wid_num) {
 		case CIW_TITLEBAR:
-			_str_params.SetUint8(1, (uint8 *)this->ci->name);
+			_str_params.SetUint8(1, (uint8 *)this->ci->name.get());
 			break;
 	}
 }
@@ -493,7 +493,7 @@ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case CCW_TITLEBAR:
-			_str_params.SetUint8(1, (uint8 *)this->ci->name);
+			_str_params.SetUint8(1, (uint8 *)this->ci->name.get());
 			break;
 	}
 }

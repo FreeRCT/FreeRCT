@@ -48,7 +48,7 @@ void ShopRemoveWindow::OnClick(WidgetNumber number, const Point16 &pos)
 
 void ShopRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	if (wid_num == ERW_MESSAGE) _str_params.SetUint8(1, (uint8 *)this->si->name);
+	if (wid_num == ERW_MESSAGE) _str_params.SetUint8(1, (uint8 *)this->si->name.get());
 }
 
 /**
@@ -202,7 +202,7 @@ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case SMW_TITLEBAR:
-			_str_params.SetUint8(1, this->shop->name);
+			_str_params.SetUint8(1, this->shop->name.get());
 			break;
 
 		case SMW_ITEM1_COST:
