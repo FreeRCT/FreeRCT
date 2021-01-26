@@ -37,6 +37,7 @@ RideInstance *GentleThrillRideType::CreateInstance() const
  * @param sprites Already loaded sprites.
  * @param texts Already loaded texts.
  * @return Loading was successful.
+ * @todo #GentleThrillRideType::Load and #ShopType::Load share a lot of similar code. Pull it out into a common function in #FixedRideType.
  */
 bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {

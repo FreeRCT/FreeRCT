@@ -7,7 +7,7 @@
 file("gentle_thrill_rides.rcd") {
 	INFO {
 		name: "Baseset gentle and thrill rides";
-		uri: "org.freerct/baseset/shops/2";
+		uri: "org.freerct/baseset/gentle_thrill/1";
 		description: "FreeRCT baseset gentle and thrill rides.";
 	}
 
