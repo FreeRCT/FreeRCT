@@ -141,6 +141,13 @@ static const char *_gui_string_names[] = {
 	"SHOP_MANAGER_OPENED_TEXT",
 	"SHOP_MANAGER_CLOSED_TEXT",
 
+	/* Gentle/thrill ride manager window strings. */
+	"GENTLE_THRILL_RIDES_MANAGER_TITLE",
+	"GENTLE_RIDES_MANAGER_TITLE",
+	"THRILL_RIDES_MANAGER_TITLE",
+	"GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT",
+	"GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT",
+
 	/* Fence window. */
 	"FENCE_TITLE",
 

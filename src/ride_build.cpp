@@ -374,13 +374,16 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 	_rides_manager.NewInstanceAdded(inst_number);
 	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, si->GetEntranceDirections(si->vox_pos), PAS_QUEUE_PATH);
 
+	/* Open GUI for the new ride or shop. */
 	switch (si->GetKind()) {
 		case RTK_SHOP:
-			ShowShopManagementGui(inst_number); // Open gui for the new shop.
+			ShowShopManagementGui(inst_number);
 			break;
-		default:
-			// NOCOM open GUI for other ride types
+		case RTK_GENTLE:
+		case RTK_THRILL:
+			ShowGentleThrillRideManagementGui(inst_number);
 			break;
+		default: NOT_REACHED(); // \todo open GUI for other ride types
 	}
 
 	this->instance = nullptr; // Delete this window, and

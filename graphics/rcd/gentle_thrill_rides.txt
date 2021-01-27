@@ -50,22 +50,31 @@ file("gentle_thrill_rides.rcd") {
 		(se_{vert(0..2)}_{hor(0..3)}): sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 32;
 			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64_mask.png";
 			x_offset: -32; y_offset: 0; width: 64; height: 32;
 		}
 		(ne_{vert(0..2)}_{hor(0..3)}): sheet {
 			x_base: 0; y_base: 256; x_step: 64; y_step: 32;
 			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64_mask.png";
 			x_offset: -32; y_offset: 0; width: 64; height: 32;
 		}
 		(nw_{vert(0..2)}_{hor(0..3)}): sheet {
 			x_base: 0; y_base: 128; x_step: 64; y_step: 32;
 			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64_mask.png";
 			x_offset: -32; y_offset: 0; width: 64; height: 32;
 		}
 		(sw_{vert(0..2)}_{hor(0..3)}): sheet {
 			x_base: 0; y_base: 384; x_step: 64; y_step: 32;
 			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64_mask.png";
 			x_offset: -32; y_offset: 0; width: 64; height: 32;
+		}
+
+		recolour {
+			original: orange_brown;
+			replace: bitset(dark_purple, grey, green_brown, orange_brown, dark_red, dark_green, pink_brown, brown);
 		}
 
 		entrance_fee: 50;

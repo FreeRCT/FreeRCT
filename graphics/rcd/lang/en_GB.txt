@@ -136,6 +136,14 @@ strings {
 		SHOP_MANAGER_OPENED_TEXT:        "Shop is open";
 		SHOP_MANAGER_CLOSED_TEXT:        "Shop is closed";
 
+		// Gentle/thrill ride manager window strings.
+		// NOCOM
+		GENTLE_THRILL_RIDES_MANAGER_TITLE:       "%1% \"%2%\"";
+		GENTLE_RIDES_MANAGER_TITLE:              "Gentle Ride";
+		THRILL_RIDES_MANAGER_TITLE:              "Thrill Ride";
+		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT: "Ride is open";
+		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT: "Ride is closed";
+
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";
 
@@ -254,7 +262,7 @@ strings {
 		NAME_INSTANCE2:        "Aisles of Darkness";
 		NAME_TYPE:             "Spooky Manor";
 		DESCRIPTION_TYPE:      "A dark, creepy mansion that terrifies any guests brave enough to enter it.";
-		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR1: "Walls";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
 	}

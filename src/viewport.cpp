@@ -1140,11 +1140,15 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 						ShowShopManagementGui(fdata.ride);
 						return WMME_NONE;
 
+					case RTK_GENTLE:
+					case RTK_THRILL:
+						ShowGentleThrillRideManagementGui(fdata.ride);
+						return WMME_NONE;
+
 					case RTK_COASTER:
 						ShowCoasterManagementGui(ri);
 						return WMME_NONE;
 
-					// NOCOM
 					default: break; // Other types are not implemented yet.
 				}
 				break;
