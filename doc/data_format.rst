@@ -616,14 +616,18 @@ Offset  Length  Version  Description
   17+5*x   4*x    1-     Views after 1 quarter negative rotation (se).
   17+9*x   4*x    1-     Views after 2 quarter negative rotations (sw).
   17+13*x  4*x    1-     Views after 3 quarter negative rotations (nw).
-  17+17*x  4      1-     First recolouring specification.
-  21+17*x  4      1-     Second recolouring specification.
-  25+17*x  4      1-     Third recolouring specification.
-  29+17*x  4      1-     Entrance fee.
-  33+17*x  4      1-     Monthly cost of having the ride.
-  37+17*x  4      1-     Additional monthly cost of having an opened ride.
-  41+17*x  4      1-     Text of the ride (reference to a TEXT block).
-  45+17*x                Total length.
+  17+17*x  4      1-     Unrotated (ne) preview.
+  21+17*x  4      1-     se preview.
+  25+17*x  4      1-     sw preview.
+  29+17*x  4      1-     nw preview.
+  33+17*x  4      1-     First recolouring specification.
+  37+17*x  4      1-     Second recolouring specification.
+  41+17*x  4      1-     Third recolouring specification.
+  45+17*x  4      1-     Entrance fee.
+  49+17*x  4      1-     Monthly cost of having the ride.
+  53+17*x  4      1-     Additional monthly cost of having an opened ride.
+  57+17*x  4      1-     Text of the ride (reference to a TEXT block).
+  61+17*x                Total length.
   
 ======  ======  =======  ===================================================================================
 

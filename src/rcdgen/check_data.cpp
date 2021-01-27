@@ -1805,6 +1805,10 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 			block->sw_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
 		}
 	}
+	block->previews[0] = vals.GetSprite("preview_ne");
+	block->previews[1] = vals.GetSprite("preview_se");
+	block->previews[2] = vals.GetSprite("preview_sw");
+	block->previews[3] = vals.GetSprite("preview_nw");
 	block->entrance_fee = vals.GetNumber("entrance_fee");
 	block->ownership_cost = vals.GetNumber("cost_ownership");
 	block->opened_cost = vals.GetNumber("cost_opened");

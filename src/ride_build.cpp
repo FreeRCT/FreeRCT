@@ -84,7 +84,7 @@ private:
 	RideInstance *instance; ///< Instance to build, set to \c nullptr after build to prevent deletion of the instance.
 	TileEdge orientation;   ///< Orientation of the simple ride.
 
-	bool CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, ViewOrientation vp_orient);
+	bool CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, uint8 ride_orient, ViewOrientation vp_orient);
 	RidePlacementResult ComputeFixedRideVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient);
 };
 
@@ -220,24 +220,26 @@ static bool CanPlaceFixedRideOnSlope(const XYZPoint16& position, const int8 heig
  * Can a fixed ride be placed at the given voxel?
  * @param selected_ride Ride to place.
  * @param pos Coordinate of the voxel.
+ * @param ride_orient Orientation of the ride.
  * @param vp_orient Orientation of the viewport.
  * @pre voxel coordinate must be valid in the world.
  * @pre \a selected_ride may not be \c nullptr.
  * @return Ride can be placed at the given position.
  */
-// NOCOM
-bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, ViewOrientation vp_orient)
+bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, uint8 ride_orient, ViewOrientation vp_orient)
 {
 	/* 1. Can the position itself be used to build a ride? */
 	for (int x = 0; x < selected_ride->width_x; ++x) {
 		for (int y = 0; y < selected_ride->width_y; ++y) {
-			if (_world.GetTileOwner(pos.x + x, pos.y + y) != OWN_PARK) return false;
+			const XYZPoint16 location = selected_ride->OrientatedOffset(ride_orient, x, y) + pos;
+			if (!IsVoxelstackInsideWorld(location.x, location.y) || _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
 		}
 	}
 	bool can_place = true;
 	for (int x = 0; x < selected_ride->width_x && can_place; ++x) {
 		for (int y = 0; y < selected_ride->width_y && can_place; ++y) {
-			can_place &= CanPlaceFixedRideOnFlatGround(pos + XYZPoint16(x, y, 0), selected_ride->GetHeight(x, y));
+			const XYZPoint16 location = selected_ride->OrientatedOffset(ride_orient, x, y);
+			can_place &= CanPlaceFixedRideOnFlatGround(pos + location, selected_ride->GetHeight(x, y));
 		}
 	}
 	if (can_place) return true;
@@ -247,7 +249,8 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
 		can_place = true;
 		for (int x = 0; x < selected_ride->width_x && can_place; ++x) {
 			for (int y = 0; y < selected_ride->width_y && can_place; ++y) {
-				can_place &= CanPlaceFixedRideOnSlope(pos + XYZPoint16(x, y, 0), selected_ride->GetHeight(x, y));
+				const XYZPoint16 location = selected_ride->OrientatedOffset(ride_orient, x, y);
+				can_place &= CanPlaceFixedRideOnSlope(pos + location, selected_ride->GetHeight(x, y));
 			}
 		}
 		if (can_place) return true;
@@ -296,7 +299,7 @@ RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos,
 	while (vox_pos.z >= 0) {
 		vox_pos.x = world_pos.x / 256;
 		vox_pos.y = world_pos.y / 256;
-		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceFixedRide(st, vox_pos, vp_orient)) {
+		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceFixedRide(st, vox_pos, this->orientation + vp_orient, vp_orient)) {
 			/* Position of the ride the same as previously? */
 			if (si->vox_pos != vox_pos || si->orientation != this->orientation) {
 				si->SetRide((this->orientation + vp_orient) & 3, vox_pos);

@@ -618,6 +618,7 @@ public:
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> nw_views; ///< Rotated 270 degrees.
+	std::shared_ptr<SpriteBlock> previews[4]; ///< Previews for ne,se,sw,nw.
 	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the ride.
 };
 

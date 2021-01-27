@@ -40,7 +40,11 @@ public:
 		return heights[x * width_y + y];
 	}
 
+	static XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y);
+	static XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y);
+
 	std::unique_ptr<ImageData *[]> views[4]; ///< Ride graphics with a width and height of 64 px each, one for each voxel occupied by the ride.
+	ImageData* previews[4];                  ///< Previews for the ride construction window.
 };
 
 /** Fixed rides. */

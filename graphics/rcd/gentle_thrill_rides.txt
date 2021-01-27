@@ -30,6 +30,23 @@ file("gentle_thrill_rides.rcd") {
 		height_2_2: 3;
 		height_3_2: 5;
 
+		preview_se: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/preview_se.png";
+		}
+		preview_sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/preview_sw.png";
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/preview_ne.png";
+		}
+		preview_nw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/preview_nw.png";
+		}
+
 		(se_{vert(0..2)}_{hor(0..3)}): sheet {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 32;
 			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
