@@ -184,36 +184,35 @@ static bool CheckSufficientVerticalSpace(const XYZPoint16& position, const int8 
 {
 	for (int8 h = 0; h <= height; ++h) {
 		const Voxel *v = _world.GetVoxel(position + XYZPoint16(0, 0, h));
-		if (v != nullptr && !v->CanPlaceInstance()) return false;
+		if (v == nullptr) continue;
+		if (!v->CanPlaceInstance()) return false;
+		if (h > 0 && v->GetGroundType() != GTP_INVALID) return false;
 	}
 	return true;
 }
 
 /**
- * Checks whether the given location is suited to place a fixed ride of the given height on flat ground.
+ * Checks whether the given location is suited to place a fixed ride on flat ground.
  * @param position Coordinate of the base voxel.
- * @param height Height of the object.
  * @return The space is flat and suited to build the ride.
  */
-static bool CanPlaceFixedRideOnFlatGround(const XYZPoint16& position, const int8 height)
+static bool CanPlaceFixedRideOnFlatGround(const XYZPoint16& position)
 {
 	const Voxel *vx = _world.GetVoxel(position);
-	return vx != nullptr && vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT && CheckSufficientVerticalSpace(position, height);
+	return vx != nullptr && vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT;
 }
 
 /**
- * Checks whether the given location is suited to place a fixed ride of the given height on a slope.
+ * Checks whether the given location is suited to place a fixed ride on a slope.
  * @param position Coordinate of the base voxel.
- * @param height Height of the object.
  * @return The space is suited to build the ride.
  */
-static bool CanPlaceFixedRideOnSlope(const XYZPoint16& position, const int8 height)
+static bool CanPlaceFixedRideOnSlope(const XYZPoint16& position)
 {
 	const Voxel *vx = _world.GetVoxel(position + XYZPoint16(0, 0, -1));
 	if (vx == nullptr || vx->GetGroundType() == GTP_INVALID || vx->GetGroundSlope() == SL_FLAT) return false;
 	const Voxel *top_voxel = _world.GetVoxel(position);
-	if (top_voxel != nullptr && IsImplodedSteepSlope(top_voxel->GetGroundSlope())) return false;
-	return CheckSufficientVerticalSpace(position, height);
+	return top_voxel == nullptr || !IsImplodedSteepSlope(top_voxel->GetGroundSlope());
 }
 
 /**
@@ -235,25 +234,32 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
 			if (!IsVoxelstackInsideWorld(location.x, location.y) || _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
 		}
 	}
-	bool can_place = true;
-	for (int x = 0; x < selected_ride->width_x && can_place; ++x) {
-		for (int y = 0; y < selected_ride->width_y && can_place; ++y) {
-			const XYZPoint16 location = selected_ride->OrientatedOffset(ride_orient, x, y);
-			can_place &= CanPlaceFixedRideOnFlatGround(pos + location, selected_ride->GetHeight(x, y));
+	bool can_place_base = false;
+	bool can_place_air = true;
+	for (int x = 0; x < selected_ride->width_x; ++x) {
+		for (int y = 0; y < selected_ride->width_y; ++y) {
+			const XYZPoint16 location = pos + selected_ride->OrientatedOffset(ride_orient, x, y);
+			can_place_base |= CanPlaceFixedRideOnFlatGround(location);
+			can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
+			if (!can_place_air) break;
 		}
+		if (!can_place_air) break;
 	}
-	if (can_place) return true;
+	if (can_place_air && can_place_base) return true;
 
 	/* 2. Is the ride just above non-flat ground? */
 	if (pos.z > 0) {
-		can_place = true;
-		for (int x = 0; x < selected_ride->width_x && can_place; ++x) {
-			for (int y = 0; y < selected_ride->width_y && can_place; ++y) {
-				const XYZPoint16 location = selected_ride->OrientatedOffset(ride_orient, x, y);
-				can_place &= CanPlaceFixedRideOnSlope(pos + location, selected_ride->GetHeight(x, y));
+		can_place_base = false;
+		can_place_air = true;
+		for (int x = 0; x < selected_ride->width_x; ++x) {
+			for (int y = 0; y < selected_ride->width_y; ++y) {
+				const XYZPoint16 location = pos + selected_ride->OrientatedOffset(ride_orient, x, y);
+				can_place_base |= CanPlaceFixedRideOnSlope(location);
+				can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
+				if (!can_place_air) break;
 			}
 		}
-		if (can_place) return true;
+		if (can_place_air && can_place_base) return true;
 	}
 
 	/* 3. For shops only: Is there a path at the right place? */
