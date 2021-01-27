@@ -1793,15 +1793,15 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
 	for (int x = 0; x < block->ride_width_x; ++x) {
 		for (int y = 0; y < block->ride_width_y; ++y) {
-			std::string key = "height_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			std::string key = "height_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 			block->heights[x * block->ride_width_y + y] = vals.GetNumber(key.c_str());
-			key = "ne_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			key = "ne_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 			block->ne_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
-			key = "se_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 			block->se_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
-			key = "nw_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 			block->nw_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
-			key = "sw_"; key += std::to_string(x); key += '_'; key += std::to_string(y);
+			key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 			block->sw_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
 		}
 	}

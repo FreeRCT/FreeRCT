@@ -17,34 +17,38 @@ file("gentle_thrill_rides.rcd") {
 		tile_width: 64;
 		ride_width_x: 3;
 		ride_width_y: 4;
-		height_0_0: 6;
-		height_0_1: 4;
-		height_0_2: 4;
-		height_0_3: 6;
-		height_1_0: 4;
+		height_0_0: 5;
+		height_1_0: 3;
+		height_2_0: 3;
+		height_3_0: 5;
+		height_0_1: 3;
 		height_1_1: 2;
-		height_1_2: 2;
-		height_1_3: 4;
-		height_2_0: 6;
-		height_2_1: 4;
-		height_2_2: 4;
-		height_2_3: 6;
+		height_2_1: 2;
+		height_3_1: 3;
+		height_0_2: 5;
+		height_1_2: 3;
+		height_2_2: 3;
+		height_3_2: 5;
 
-		(se_0_0, se_0_1, se_0_2, se_0_3, se_1_0, se_1_1, se_1_2, se_1_3, se_2_0, se_2_1, se_2_2, se_2_3): spritefiles {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 0; width: 64; height: 32;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/se_{seq(1..12,2)}.png";
+		(se_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 32;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			x_offset: -32; y_offset: 0; width: 64; height: 32;
 		}
-		(ne_0_0, ne_0_1, ne_0_2, ne_0_3, ne_1_0, ne_1_1, ne_1_2, ne_1_3, ne_2_0, ne_2_1, ne_2_2, ne_2_3): spritefiles {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 0; width: 64; height: 32;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/ne_{seq(1..12,2)}.png";
+		(ne_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 256; x_step: 64; y_step: 32;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			x_offset: -32; y_offset: 0; width: 64; height: 32;
 		}
-		(nw_0_0, nw_0_1, nw_0_2, nw_0_3, nw_1_0, nw_1_1, nw_1_2, nw_1_3, nw_2_0, nw_2_1, nw_2_2, nw_2_3): spritefiles {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 0; width: 64; height: 32;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/nw_{seq(1..12,2)}.png";
+		(nw_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 128; x_step: 64; y_step: 32;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			x_offset: -32; y_offset: 0; width: 64; height: 32;
 		}
-		(sw_0_0, sw_0_1, sw_0_2, sw_0_3, sw_1_0, sw_1_1, sw_1_2, sw_1_3, sw_2_0, sw_2_1, sw_2_2, sw_2_3): spritefiles {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 0; width: 64; height: 32;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/sw_{seq(1..12,2)}.png";
+		(sw_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 384; x_step: 64; y_step: 32;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/spritesheet_64.png";
+			x_offset: -32; y_offset: 0; width: 64; height: 32;
 		}
 
 		entrance_fee: 50;
