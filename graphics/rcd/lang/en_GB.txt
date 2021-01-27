@@ -137,7 +137,6 @@ strings {
 		SHOP_MANAGER_CLOSED_TEXT:        "Shop is closed";
 
 		// Gentle/thrill ride manager window strings.
-		// NOCOM
 		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% \"%2%\"";
 		GENTLE_RIDES_MANAGER_TITLE:                    "Gentle Ride";
 		THRILL_RIDES_MANAGER_TITLE:                    "Thrill Ride";
