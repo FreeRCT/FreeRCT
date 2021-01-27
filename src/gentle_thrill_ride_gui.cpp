@@ -64,30 +64,9 @@ void ShowGentleThrillRideRemove(GentleThrillRideInstance *si)
 
 /** Widgets of the gentle/thrill ride management window. */
 enum GentleThrillRideManagerWidgets {
-	/*SMW_TITLEBAR,         ///< Title bar widget.
-	SMW_ITEM1_HEAD,       ///< Name of the first item being sold.
-	SMW_ITEM2_HEAD,       ///< Name of the second item being sold.
-	SMW_ITEM1_COST,       ///< Cost of the first item.
-	SMW_ITEM2_COST,       ///< Cost of the second item.
-	SMW_ITEM1_SELL,       ///< Selling price of the first item.
-	SMW_ITEM2_SELL,       ///< Selling price of the second item.
-	SMW_ITEM1_PROFIT,     ///< Profit of a first item.
-	SMW_ITEM2_PROFIT,     ///< Profit of a second item.
-	SMW_ITEM1_COUNT,      ///< Number of first items sold in total.
-	SMW_ITEM2_COUNT,      ///< Number of second items sold in total.
-	SMW_SELL_PROFIT,      ///< Total selling profit.
-	SMW_SHOP_COST,        ///< Shop maintenance/personnel costs.
-	SMW_TOTAL_PROFIT,     ///< Total shop profit.
-	SMW_SHOP_OPENED,      ///< Radio button of 'shop is open'.
-	SMW_SHOP_OPENED_TEXT, ///< 'shop is open' text label.
-	SMW_SHOP_CLOSED,      ///< Radio button of 'shop is closed'.
-	SMW_SHOP_CLOSED_TEXT, ///< 'shop is closed' text label.
-	SMW_RECOLOUR1,        ///< First recolour dropdown.
-	SMW_RECOLOUR2,        ///< Second recolour dropdown.
-	SMW_RECOLOUR3,        ///< Third recolour dropdown.
-	SMW_REMOVE,           ///< Remove button widget.*/
-	// NOCOM
 	GTRMW_TITLEBAR,
+	GTRMW_MONTHLY_COST,
+	GTRMW_ENTRANCE_FEE,
 	GTRMW_RIDE_OPENED,
 	GTRMW_RIDE_OPENED_TEXT,
 	GTRMW_RIDE_CLOSED,
@@ -100,12 +79,17 @@ enum GentleThrillRideManagerWidgets {
 
 /** Widget parts of the #GentleThrillRideManagerWindow. */
 static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
-	// NOCOM
 	Intermediate(0, 1),
 		Intermediate(1, 0),
 			Widget(WT_TITLEBAR, GTRMW_TITLEBAR, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_TITLE, GUI_TITLEBAR_TIP),
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(2, 2),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, GTRMW_MONTHLY_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, GTRMW_ENTRANCE_FEE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 			Intermediate(2, 1),
 				Intermediate(2, 2),
@@ -113,70 +97,15 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 					Widget(WT_LEFT_TEXT, GTRMW_RIDE_OPENED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT, STR_NULL),
 					Widget(WT_RADIOBUTTON, GTRMW_RIDE_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
 					Widget(WT_LEFT_TEXT, GTRMW_RIDE_CLOSED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT, STR_NULL),
-				Intermediate(1, 4),
+				Intermediate(1, 3),
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR1, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR1, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR3, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetResize(1, 0),
+					SetResize(1, 0),
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 				Widget(WT_TEXT_PUSHBUTTON, GTRMW_REMOVE, COL_RANGE_DARK_RED),
 						SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 		EndContainer(),
-	
-	/*Intermediate(0, 1),
-		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, SMW_TITLEBAR, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_TITLE, GUI_TITLEBAR_TIP),
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-		EndContainer(),
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(8, 3), SetPadding(2, 2, 2, 2),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-				Widget(WT_CENTERED_TEXT, SMW_ITEM1_HEAD, COL_RANGE_DARK_RED), SetData(SHOPS_NAME_ITEM1, STR_NULL), SetMinimalSize(60, 10),
-				Widget(WT_CENTERED_TEXT, SMW_ITEM2_HEAD, COL_RANGE_DARK_RED), SetData(SHOPS_NAME_ITEM2, STR_NULL), SetMinimalSize(60, 10),
-
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_COST_PRICE_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM1_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM2_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_SELLING_PRICE_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM1_SELL, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM2_SELL, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_ITEM_PROFIT_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM1_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM2_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_ITEMS_SOLD_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM1_COUNT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_ITEM2_COUNT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_SELL_PROFIT_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_SELL_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_SHOP_COST_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_SHOP_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_TOTAL_PROFIT_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SMW_TOTAL_PROFIT, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 1),
-				Intermediate(2, 2),
-					Widget(WT_RADIOBUTTON, SMW_SHOP_OPENED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-					Widget(WT_LEFT_TEXT, SMW_SHOP_OPENED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_OPENED_TEXT, STR_NULL),
-					Widget(WT_RADIOBUTTON, SMW_SHOP_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-					Widget(WT_LEFT_TEXT, SMW_SHOP_CLOSED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_SHOP_MANAGER_CLOSED_TEXT, STR_NULL),
-				Intermediate(1, 4),
-					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR1, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, SMW_RECOLOUR3, COL_RANGE_DARK_RED), SetData(SHOPS_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetResize(1, 0),
-			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-				Widget(WT_TEXT_PUSHBUTTON, SMW_REMOVE, COL_RANGE_DARK_RED),
-						SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
-		EndContainer(),*/
 };
 
 /** GUI window for interacting with a gentle/thrill ride instance. */
@@ -223,67 +152,29 @@ void GentleThrillRideManagerWindow::SetGentleThrillRideToggleButtons()
 
 void GentleThrillRideManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 {
-	// NOCOM
-	/* if (wid_num != SMW_ITEM1_COUNT && wid_num != SMW_ITEM2_COUNT) return;
-
-	int w, h;
-	_video.GetNumberRangeSize(0, 100000, &w, &h);
-	wid->min_x = std::max(wid->min_x, (uint16)w);
-	wid->min_y = std::max(wid->min_y, (uint16)h); */
 }
 
 void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	// NOCOM
 	switch (wid_num) {
 		case GTRMW_TITLEBAR:
 			_str_params.SetUint8(1, _language.GetText(this->ride->GetKind() == RTK_GENTLE ? GUI_GENTLE_RIDES_MANAGER_TITLE : GUI_THRILL_RIDES_MANAGER_TITLE));
 			_str_params.SetUint8(2, this->ride->name.get());
 			break;
 
-		/* case SMW_ITEM1_COST:
-		case SMW_ITEM2_COST: {
-			const ShopType *st = this->shop->GetShopType();
-			_str_params.SetMoney(1, st->item_cost[wid_num - SMW_ITEM1_COST]);
-			break;
-		}
+		case GTRMW_MONTHLY_COST: {
+			const FixedRideType *type = this->ride->GetFixedRideType();
+			_str_params.SetMoney(1, type->monthly_cost + (this->ride->state == RIS_CLOSED ? Money(0) : type->monthly_open_cost));
+		} break;
 
-		case SMW_ITEM1_SELL:
-		case SMW_ITEM2_SELL:
-			_str_params.SetMoney(1, this->shop->GetSaleItemPrice(wid_num - SMW_ITEM1_SELL));
+		case GTRMW_ENTRANCE_FEE:
+			_str_params.SetMoney(1, this->ride->GetFixedRideType()->item_cost[0]);
 			break;
-
-		case SMW_ITEM1_PROFIT:
-		case SMW_ITEM2_PROFIT: {
-			const ShopType *st = this->shop->GetShopType();
-			const Money &cost = st->item_cost[wid_num - SMW_ITEM1_PROFIT];
-			const Money &sell = this->shop->GetSaleItemPrice(wid_num - SMW_ITEM1_PROFIT);
-			_str_params.SetMoney(1, sell - cost);
-			break;
-		}
-
-		case SMW_ITEM1_COUNT:
-		case SMW_ITEM2_COUNT:
-			_str_params.SetNumber(1, this->shop->item_count[wid_num - SMW_ITEM1_COUNT]);
-			break;
-
-		case SMW_SELL_PROFIT:
-			_str_params.SetMoney(1, this->shop->total_sell_profit);
-			break;
-
-		case SMW_SHOP_COST:
-			_str_params.SetMoney(1, this->shop->total_profit - this->shop->total_sell_profit);
-			break;
-
-		case SMW_TOTAL_PROFIT:
-			_str_params.SetMoney(1, this->shop->total_profit);
-			break; */
 	}
 }
 
 void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 {
-	// NOCOM
 	switch (wid_num) {
 		case GTRMW_RIDE_OPENED_TEXT:
 		case GTRMW_RIDE_OPENED:

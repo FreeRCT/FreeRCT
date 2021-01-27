@@ -138,11 +138,13 @@ strings {
 
 		// Gentle/thrill ride manager window strings.
 		// NOCOM
-		GENTLE_THRILL_RIDES_MANAGER_TITLE:       "%1% \"%2%\"";
-		GENTLE_RIDES_MANAGER_TITLE:              "Gentle Ride";
-		THRILL_RIDES_MANAGER_TITLE:              "Thrill Ride";
-		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT: "Ride is open";
-		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT: "Ride is closed";
+		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% \"%2%\"";
+		GENTLE_RIDES_MANAGER_TITLE:                    "Gentle Ride";
+		THRILL_RIDES_MANAGER_TITLE:                    "Thrill Ride";
+		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Ride is open";
+		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Ride is closed";
+		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Monthly cost:";
+		GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT: "Entrance fee:";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";

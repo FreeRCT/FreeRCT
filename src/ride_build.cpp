@@ -345,7 +345,6 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
 			assert(si != nullptr);
 
-			// NOCOM
 			const FixedRideType* type = si->GetFixedRideType();
 			{
 				XYZPoint16 location = si->vox_pos;
