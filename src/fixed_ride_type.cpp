@@ -172,8 +172,9 @@ void FixedRideInstance::RemoveFromWorld()
 	const int8 wy = this->GetFixedRideType()->width_y;
 	for (int8 x = 0; x < wx; ++x) {
 		for (int8 y = 0; y < wy; ++y) {
-			const XYZPoint16 unrotated_pos = FixedRideType::UnorientatedOffset(this->orientation, x, y);
+			const XYZPoint16 unrotated_pos = FixedRideType::OrientatedOffset(this->orientation, x, y);
 			const int8 height = this->GetFixedRideType()->GetHeight(x, y);
+			if (!IsVoxelstackInsideWorld(this->vox_pos.x + unrotated_pos.x, this->vox_pos.y + unrotated_pos.y)) continue;
 			for (int16 h = 0; h < height; ++h) {
 				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(unrotated_pos.x, unrotated_pos.y, h), false);
 				if (voxel && voxel->instance != SRI_FREE) {

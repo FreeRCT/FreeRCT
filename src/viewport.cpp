@@ -453,8 +453,11 @@ static int DrawRide(int32 slice, const XYZPoint16 & pos, const Point32 base_pos,
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == nullptr) return 0;
-	/* Shops are connected in every direction. */
-	if (platform != nullptr) *platform = (ri->GetKind() == RTK_SHOP && pos.z == static_cast<const ShopInstance*>(ri)->vox_pos.z) ? PATH_NE_NW_SE_SW : PATH_INVALID;
+	/* Fixed rides are connected in every direction. */
+	if (platform != nullptr) *platform = (
+			(ri->GetKind() == RTK_SHOP || ri->GetKind() == RTK_GENTLE || ri->GetKind() == RTK_THRILL) &&
+			pos.z == static_cast<const FixedRideInstance*>(ri)->vox_pos.z) ?
+		PATH_NE_NW_SE_SW : PATH_INVALID;
 
 	const ImageData *sprites[4];
 	ri->GetSprites(pos, voxel_number, orient, sprites);
@@ -961,7 +964,8 @@ void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 						case RTK_GENTLE:
 						case RTK_THRILL: {
 							const FixedRideInstance *si = static_cast<const FixedRideInstance *>(ri);
-							height = si->GetFixedRideType()->GetHeight(voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
+							const XYZPoint16 pos = FixedRideType::UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
+							height = si->GetFixedRideType()->GetHeight(pos.x, pos.y);
 							break;
 						}
 

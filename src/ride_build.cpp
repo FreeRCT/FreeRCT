@@ -185,7 +185,7 @@ static bool CheckSufficientVerticalSpace(const XYZPoint16& position, const int8 
 	for (int8 h = 0; h <= height; ++h) {
 		const Voxel *v = _world.GetVoxel(position + XYZPoint16(0, 0, h));
 		if (v == nullptr) continue;
-		if (!v->CanPlaceInstance()) return false;
+		if (!v->CanPlaceInstance() || v->GetGroundSlope() != SL_FLAT) return false;
 		if (h > 0 && v->GetGroundType() != GTP_INVALID) return false;
 	}
 	return true;
@@ -331,7 +331,6 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	Point32 wxy = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 
 	/* Clean current display if needed. */
-	/* NOCOM Do this for all voxels if a ride occupies multiple tiles. */
 	switch (this->ComputeFixedRideVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z), vp->orientation)) {
 		case RPR_FAIL:
 			this->selector.MarkDirty(); // Does not do anything with a zero-sized mouse selector.
@@ -348,18 +347,34 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 
 			// NOCOM
 			const FixedRideType* type = si->GetFixedRideType();
-			this->selector.SetPosition(si->vox_pos.x, si->vox_pos.y);
-			this->selector.SetSize(type->width_x, type->width_y);
+			{
+				XYZPoint16 location = si->vox_pos;
+				XYZPoint16 extent = type->OrientatedOffset(si->orientation, type->width_x, type->width_y);
+				if (extent.x < 0) {
+					location.x += extent.x + 1;
+					extent.x *= -1;
+				}
+				if (extent.y < 0) {
+					location.y += extent.y + 1;
+					extent.y *= -1;
+				}
+				this->selector.SetPosition(location.x, location.y);
+				this->selector.SetSize(extent.x, extent.y);
+			}
 			for (int8 x = 0; x < type->width_x; ++x) {
 				for (int8 y = 0; y < type->width_y; ++y) {
-					this->selector.AddVoxel(si->vox_pos + XYZPoint16(x, y, 0));
+					this->selector.AddVoxel(si->vox_pos + type->OrientatedOffset(si->orientation, x, y));
 				}
 			}
 			this->selector.SetupRideInfoSpace();
 
 			SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
-			uint8 entrances = si->GetEntranceDirections(si->vox_pos);
-			this->selector.SetRideData(si->vox_pos, inst_number, entrances);
+			for (int8 x = 0; x < type->width_x; ++x) {
+				for (int8 y = 0; y < type->width_y; ++y) {
+					const XYZPoint16 pos = si->vox_pos + type->OrientatedOffset(si->orientation, x, y);
+					this->selector.SetRideData(pos, inst_number, si->GetEntranceDirections(pos));
+				}
+			}
 			this->selector.MarkDirty();
 			return;
 		}
@@ -375,13 +390,18 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 	if (this->selector.area.width < 1 || this->selector.area.height < 1) return;
 
 	FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
-	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
+	const SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
+	const RideTypeKind kind = si->GetKind();
 
 	_rides_manager.NewInstanceAdded(inst_number);
 	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, si->GetEntranceDirections(si->vox_pos), PAS_QUEUE_PATH);
 
+	this->instance = nullptr; // Delete this window, and
+	si = nullptr; // (Also clean the copy of the pointer.)
+	delete this;
+
 	/* Open GUI for the new ride or shop. */
-	switch (si->GetKind()) {
+	switch (kind) {
 		case RTK_SHOP:
 			ShowShopManagementGui(inst_number);
 			break;
@@ -391,10 +411,6 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 			break;
 		default: NOT_REACHED(); // \todo open GUI for other ride types
 	}
-
-	this->instance = nullptr; // Delete this window, and
-	si = nullptr; // (Also clean the copy of the pointer.)
-	delete this;
 }
 
 /**
