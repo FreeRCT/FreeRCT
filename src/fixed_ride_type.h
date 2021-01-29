@@ -43,6 +43,13 @@ public:
 	static XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y);
 	static XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y);
 
+	/*
+	 * The sprite for the a-th animation phase at the voxel (x,y) is located at index
+	 * [(a * ride_width_x * ride_width_y) + (x * ride_width_y) + y].
+	 * The values for the ride's animation phases range from 1 to `animation_phases`.
+	 * Animation phase 0 refers to the images used for the ride when it is not animating.
+	 */
+	unsigned animation_phases;               ///< Number of phases in the ride's animation (0 if the ride has no animation).
 	std::unique_ptr<ImageData *[]> views[4]; ///< Ride graphics with a width and height of 64 px each, one for each voxel occupied by the ride.
 	ImageData* previews[4];                  ///< Previews for the ride construction window.
 };

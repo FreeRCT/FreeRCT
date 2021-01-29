@@ -41,13 +41,19 @@ RideInstance *GentleThrillRideType::CreateInstance() const
  */
 bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 1 || rcd_file->size < 5) return false;
+	if (rcd_file->version != 1 || rcd_file->size < 9) return false;
 	this->kind = rcd_file->GetUInt8() ? RTK_THRILL : RTK_GENTLE;
 	const uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
+	this->animation_phases = rcd_file->GetUInt32();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (static_cast<int>(rcd_file->size) != 49 + 17 * (this->width_x * this->width_y)) return false;
+	if (rcd_file->size !=
+			53 + (this->width_x * this->width_y) +
+			16 * (this->width_x * this->width_y * (this->animation_phases + 1))) {
+		return false;
+	}
+	
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
 		for (int8 y = 0; y < this->width_y; ++y) {
@@ -56,13 +62,15 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	}
 
 	for (int i = 0; i < 4; i++) {
-		this->views[i].reset(new ImageData*[this->width_x * this->width_y]);
+		this->views[i].reset(new ImageData*[this->width_x * this->width_y * (this->animation_phases + 1)]);
 		for (int x = 0; x < this->width_x; ++x) {
 			for (int y = 0; y < this->width_y; ++y) {
-				ImageData *view;
-				if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
-				if (width != 64) continue; // Silently discard other sizes.
-				this->views[i][x * width_y + y] = view;
+				for (unsigned a = 0; a <= this->animation_phases; ++a) {
+					ImageData *view;
+					if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+					if (width != 64) continue; // Silently discard other sizes.
+					this->views[i][(a * width_x * width_y) + (x * width_y) + y] = view;
+				}
 			}
 		}
 	}

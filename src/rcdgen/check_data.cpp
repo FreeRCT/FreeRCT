@@ -1786,23 +1786,29 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->tile_width = vals.GetNumber("tile_width");
 	block->ride_width_x = vals.GetNumber("ride_width_x");
 	block->ride_width_y = vals.GetNumber("ride_width_y");
+	block->animation_phases = vals.GetNumber("animation_phases");
 	block->heights.reset(new int8[block->ride_width_x * block->ride_width_y]);
-	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
-	block->se_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
-	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
-	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y]);
+	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
+	block->se_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
+	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
+	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
+	const auto key_for = [](std::string prefix, const int x, const int y, const int a) {
+		prefix += '_'; prefix += std::to_string(y);
+		prefix += '_'; prefix += std::to_string(x);
+		prefix += '_'; prefix += std::to_string(a);
+		return prefix.c_str();
+	};
 	for (int x = 0; x < block->ride_width_x; ++x) {
 		for (int y = 0; y < block->ride_width_y; ++y) {
 			std::string key = "height_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 			block->heights[x * block->ride_width_y + y] = vals.GetNumber(key.c_str());
-			key = "ne_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->ne_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
-			key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->se_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
-			key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->nw_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
-			key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->sw_views[x * block->ride_width_y + y] = vals.GetSprite(key.c_str());
+			for (int a = 0; a <= block->animation_phases; ++a) {
+				const int index = (a * block->ride_width_x * block->ride_width_y) + (x * block->ride_width_y) + y;
+				block->ne_views[index] = vals.GetSprite(key_for("ne", x, y, a));
+				block->se_views[index] = vals.GetSprite(key_for("se", x, y, a));
+				block->nw_views[index] = vals.GetSprite(key_for("nw", x, y, a));
+				block->sw_views[index] = vals.GetSprite(key_for("sw", x, y, a));
+			}
 		}
 	}
 	block->previews[0] = vals.GetSprite("preview_ne");

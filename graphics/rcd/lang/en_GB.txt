@@ -262,7 +262,7 @@ strings {
 		NAME_INSTANCE1:        "Palace of Fear";
 		NAME_INSTANCE2:        "Aisles of Darkness";
 		NAME_TYPE:             "Spooky Manor";
-		DESCRIPTION_TYPE:      "A dark, creepy mansion that terrifies any guests brave enough to enter it.";
+		DESCRIPTION_TYPE:      "A dark, creepy mansion that terrifies any guest brave enough to enter it.";
 		DESCRIPTION_RECOLOUR1: "Walls";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";

@@ -614,6 +614,13 @@ public:
 	int ownership_cost;   ///< Monthly cost of having the ride.
 	int opened_cost;      ///< Additional monthly cost of having an opened ride.
 
+	int animation_phases; ///< The number of sprites per tile and orientation in the ride's animation.
+	/*
+	 * The sprite for the a-th animation phase at the voxel (x,y) is located at index
+	 * [(a * ride_width_x * ride_width_y) + (x * ride_width_y) + y].
+	 * The values for the ride's animation phases range from 1 to `animation_phases`.
+	 * Animation phase 0 refers to the images used for the ride when it is not animating.
+	 */
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.

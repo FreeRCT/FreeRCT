@@ -596,40 +596,40 @@ Version history
 - 5 (20141010) Added more items.
 
 
-Fixed gentle and thrill rides
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Gentle and thrill rides
+~~~~~~~~~~~~~~~~~~~~~~~
 Gentle and thrill rides consisting of a single building. FreeRCT can read block version 1.
 
-======  ======  =======  ===================================================================================
-Offset  Length  Version  Description
-======  ======  =======  ===================================================================================
-   0       4      1-     Magic string 'FGTR'.
-   4       4      1-     Version number of the block.
-   8       4      1-     Length of the block excluding magic string, version, and length.
-  12       1      1-     Magic number 1 for thrill rides or 0 for gentle rides.
-  13       2      1-     Zoom-width of a tile of the surface.
-  15       1      1-     Length of the ride in x direction in voxels.
-  16       1      1-     Length of the ride in y direction in voxels.
-  17       x      1-     Heights of the ride in voxels. The number x of height bytes is
-                         equal to the product of the ride lengths in x and y direction.
-  17+x     4*x    1-     Unrotated views (ne).
-  17+5*x   4*x    1-     Views after 1 quarter negative rotation (se).
-  17+9*x   4*x    1-     Views after 2 quarter negative rotations (sw).
-  17+13*x  4*x    1-     Views after 3 quarter negative rotations (nw).
-  17+17*x  4      1-     Unrotated (ne) preview.
-  21+17*x  4      1-     se preview.
-  25+17*x  4      1-     sw preview.
-  29+17*x  4      1-     nw preview.
-  33+17*x  4      1-     First recolouring specification.
-  37+17*x  4      1-     Second recolouring specification.
-  41+17*x  4      1-     Third recolouring specification.
-  45+17*x  4      1-     Entrance fee.
-  49+17*x  4      1-     Monthly cost of having the ride.
-  53+17*x  4      1-     Additional monthly cost of having an opened ride.
-  57+17*x  4      1-     Text of the ride (reference to a TEXT block).
-  61+17*x                Total length.
-  
-======  ======  =======  ===================================================================================
+=================  ==========  =======  ===================================================================================
+Offset             Length      Version  Description
+=================  ==========  =======  ===================================================================================
+   0                4          1-       Magic string 'FGTR'.
+   4                4          1-       Version number of the block.
+   8                4          1-       Length of the block excluding magic string, version, and length.
+  12                1          1-       Magic number 1 for thrill rides or 0 for gentle rides.
+  13                2          1-       Zoom-width of a tile of the surface.
+  15                1          1-       Length of the ride in x direction in voxels.
+  16                1          1-       Length of the ride in y direction in voxels.
+  17                4          1-       Number a of phases in the ride's animation.
+  21                s          1-       Heights of the ride in voxels, for each tile occupied by the ride. The number s of
+                                        height bytes is equal to the product of the ride lengths in x and y direction.
+  21+s              4*s*(a+1)  1-       Unrotated views (ne), for each tile and animation phase.
+  21+s+4*s*(a+1)    4*s*(a+1)  1-       Views after 1 quarter negative rotation (se).
+  21+s+8*s*(a+1)    4*s*(a+1)  1-       Views after 2 quarter negative rotations (sw).
+  21+s+12*s*(a+1)   4*s*(a+1)  1-       Views after 3 quarter negative rotations (nw).
+  21+s+16*s*(a+1)   4          1-       Unrotated (ne) preview.
+  25+s+16*s*(a+1)   4          1-       se preview.
+  29+s+16*s*(a+1)   4          1-       sw preview.
+  33+s+16*s*(a+1)   4          1-       nw preview.
+  37+s+16*s*(a+1)   4          1-       First recolouring specification.
+  41+s+16*s*(a+1)   4          1-       Second recolouring specification.
+  45+s+16*s*(a+1)   4          1-       Third recolouring specification.
+  49+s+16*s*(a+1)   4          1-       Entrance fee.
+  53+s+16*s*(a+1)   4          1-       Monthly cost of having the ride.
+  57+s+16*s*(a+1)   4          1-       Additional monthly cost of having an opened ride.
+  61+s+16*s*(a+1)   4          1-       Text of the ride (reference to a TEXT block).
+  65+s+16*s*(a+1)                       Total length.
+=================  ==========  =======  ===================================================================================
 
 Version history
 ...............

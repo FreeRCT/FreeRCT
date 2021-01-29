@@ -73,6 +73,7 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	if (rcd_file->version != 5 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
 	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
 	this->width_x = this->width_y = 1;
+	this->animation_phases = 0;  // Shops don't have animations.
 	this->heights.reset(new int8[1]);
 	this->heights[0] = rcd_file->GetUInt8();
 	this->flags = rcd_file->GetUInt8() & 0xF;
