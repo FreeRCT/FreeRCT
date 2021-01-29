@@ -182,11 +182,12 @@ void RideBuildWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
  */
 static bool CheckSufficientVerticalSpace(const XYZPoint16& position, const int8 height)
 {
-	for (int8 h = 0; h <= height; ++h) {
+	for (int8 h = 0; h < height; ++h) {
 		const Voxel *v = _world.GetVoxel(position + XYZPoint16(0, 0, h));
 		if (v == nullptr) continue;
-		if (!v->CanPlaceInstance() || v->GetGroundSlope() != SL_FLAT) return false;
+
 		if (h > 0 && v->GetGroundType() != GTP_INVALID) return false;
+		if (!v->CanPlaceInstance() || v->GetGroundSlope() != SL_FLAT) return false;
 	}
 	return true;
 }

@@ -1777,9 +1777,11 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	vals.PrepareNamedValues(ng->values, true, true);
 
 	const std::string category = vals.GetString("category");
-	if (category == "gentle") block->is_thrill_ride = false;
-	else if (category == "thrill") block->is_thrill_ride = true;
-	else {
+	if (category == "gentle") {
+		block->is_thrill_ride = false;
+	} else if (category == "thrill") {
+		block->is_thrill_ride = true;
+	} else {
 		fprintf(stderr, "Error at %s: Invalid category '%s' (expected 'gentle' or 'thrill').\n", ng->pos.ToString(), category.c_str());
 		return nullptr;
 	}
@@ -1788,10 +1790,11 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->ride_width_y = vals.GetNumber("ride_width_y");
 	block->animation_phases = vals.GetNumber("animation_phases");
 	block->heights.reset(new int8[block->ride_width_x * block->ride_width_y]);
-	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
-	block->se_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
-	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
-	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->ride_width_x * block->ride_width_y * (block->animation_phases + 1)]);
+	const int sprites_per_orientation = block->ride_width_x * block->ride_width_y * (block->animation_phases + 1);
+	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[sprites_per_orientation]);
+	block->se_views.reset(new std::shared_ptr<SpriteBlock>[sprites_per_orientation]);
+	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[sprites_per_orientation]);
+	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[sprites_per_orientation]);
 	const auto key_for = [](std::string prefix, const int x, const int y, const int a) {
 		prefix += '_'; prefix += std::to_string(y);
 		prefix += '_'; prefix += std::to_string(x);
