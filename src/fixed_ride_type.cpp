@@ -16,7 +16,11 @@
 
 FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k)
 {
-	this->width_x = this->width_y = this->animation_phases = 0;
+	this->width_x = this->width_y = 0;
+	animation_idle = nullptr;
+	animation_starting = nullptr;
+	animation_working = nullptr;
+	animation_stopping = nullptr;
 }
 
 FixedRideType::~FixedRideType()
@@ -103,8 +107,8 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 	else {
 		const FixedRideType* t = GetFixedRideType();
 		const XYZPoint16 unrotated_pos = t->UnorientatedOffset(this->orientation, vox.x - vox_pos.x, vox.y - vox_pos.y);
-		/* \todo This index always assumes that the current animation phase is 0. */
-		sprites[1] = t->views[(4 + this->orientation - orient) & 3][unrotated_pos.x * t->width_y + unrotated_pos.y];
+		/* \todo Consider animation frame. */
+		sprites[1] = t->animation_idle->sprites[(4 + this->orientation - orient) & 3][unrotated_pos.x * t->width_y + unrotated_pos.y];
 	}
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;

@@ -70,20 +70,15 @@ static bool IsValidItemType(uint8 val)
  */
 bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 5 || rcd_file->size != 2 + 1 + 1 + 4 * 4 + 3 * 4 + 4 * 4 + 2 + 4) return false;
-	uint16 width = rcd_file->GetUInt16(); /// \todo Widths other than 64.
+	if (rcd_file->version != 6 || rcd_file->size != 40) return false;
 	this->width_x = this->width_y = 1;
-	this->animation_phases = 0;  // Shops don't have animations.
 	this->heights.reset(new int8[1]);
 	this->heights[0] = rcd_file->GetUInt8();
 	this->flags = rcd_file->GetUInt8() & 0xF;
 
+	animation_idle = _sprite_manager.GetFrameSet(rcd_file->GetUInt32());
 	for (int i = 0; i < 4; i++) {
-		ImageData *view;
-		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
-		if (width != 64) continue; // Silently discard other sizes.
-		this->views[i].reset(new ImageData*[1] {view});
-		this->previews[i] = view;
+		previews[i] = animation_idle->sprites[i][0];
 	}
 
 	for (uint i = 0; i < 3; i++) {

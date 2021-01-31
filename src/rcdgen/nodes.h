@@ -574,6 +574,34 @@ public:
 	std::map<std::string, TextNode> texts; ///< Translated text nodes, one for each name.
 };
 
+/** Class for describing a FSET game block. */
+class FSETBlock : public GameBlock {
+public:
+	FSETBlock();
+
+	int Write(FileWriter *fw) override;
+
+	int tile_width; ///< Zoom-width of a tile of the surface.
+	int width_x;    ///< The number of voxels in x direction.
+	int width_y;    ///< The number of voxels in y direction.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> nw_views; ///< Rotated 270 degrees.
+};
+
+/** Class for describing a TIMA game block. */
+class TIMABlock : public GameBlock {
+public:
+	TIMABlock();
+
+	int Write(FileWriter *fw) override;
+
+	int frames;                       ///< The number of frames in the animation.
+	std::unique_ptr<int[]> durations; ///< The duration of each frame in milliseconds.
+	std::unique_ptr<std::shared_ptr<FSETBlock>[]> views; ///< The frames' image sets.
+};
+
 /** Class for describing a SHOP game block. */
 class SHOPBlock : public GameBlock {
 public:
@@ -581,7 +609,6 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	int tile_width;       ///< Zoom-width of a tile of the surface.
 	int height;           ///< Height of the shop in voxels.
 	int flags;            ///< Byte with flags of the shop.
 	Recolouring recol[3]; ///< Recolour definitions of the shop.
@@ -590,10 +617,7 @@ public:
 	int opened_cost;      ///< Additional monthly cost of having an opened shop.
 	int item_type[2];     ///< Item type of both items at sale.
 
-	std::shared_ptr<SpriteBlock> ne_view; ///< Unrotated view.
-	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
-	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
-	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
+	std::shared_ptr<FSETBlock> views;
 	std::shared_ptr<StringBundle> shop_text;   ///< Texts of the shop.
 };
 
@@ -605,7 +629,6 @@ public:
 	int Write(FileWriter *fw) override;
 
 	bool is_thrill_ride;  ///< True for thrill rides, false for gentle rides.
-	int tile_width;       ///< Zoom-width of a tile of the surface.
 	int8 ride_width_x;    ///< The number of voxels the ride occupies in x direction.
 	int8 ride_width_y;    ///< The number of voxels the ride occupies in y direction.
 	std::unique_ptr<int8[]> heights; ///< Heights of the ride in voxels.
@@ -614,17 +637,10 @@ public:
 	int ownership_cost;   ///< Monthly cost of having the ride.
 	int opened_cost;      ///< Additional monthly cost of having an opened ride.
 
-	int animation_phases; ///< The number of sprites per tile and orientation in the ride's animation.
-	/*
-	 * The sprite for the a-th animation phase at the voxel (x,y) is located at index
-	 * [(a * ride_width_x * ride_width_y) + (x * ride_width_y) + y].
-	 * The values for the ride's animation phases range from 1 to `animation_phases`.
-	 * Animation phase 0 refers to the images used for the ride when it is not animating.
-	 */
-	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
-	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
-	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
-	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> nw_views; ///< Rotated 270 degrees.
+	std::shared_ptr<FSETBlock> idle_animation;
+	std::shared_ptr<TIMABlock> starting_animation;
+	std::shared_ptr<TIMABlock> working_animation;
+	std::shared_ptr<TIMABlock> stopping_animation;
 	std::shared_ptr<SpriteBlock> previews[4]; ///< Previews for ne,se,sw,nw.
 	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the ride.
 };

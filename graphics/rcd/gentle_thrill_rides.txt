@@ -14,7 +14,6 @@ file("gentle_thrill_rides.rcd") {
 	// Spooky Manor
 	FGTR {
 		category: "gentle";
-		tile_width: 64;
 		ride_width_x: 3;
 		ride_width_y: 4;
 		height_0_0: 5;
@@ -47,30 +46,37 @@ file("gentle_thrill_rides.rcd") {
 			file: "../sprites/gentle_thrill_rides/spooky_manor/preview_nw.png";
 		}
 
-		animation_phases: 0;
-		(se_{vert(0..2)}_{hor(0..3)}_0): sheet {
-			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
-		}
-		(nw_{vert(0..2)}_{hor(0..3)}_0): sheet {
-			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
-		}
-		(ne_{vert(0..2)}_{hor(0..3)}_0): sheet {
-			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
-		}
-		(sw_{vert(0..2)}_{hor(0..3)}_0): sheet {
-			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+		animation_starting:  TIMA { frames: 0; }
+		animation_working: TIMA { frames: 0; }
+		animation_stopping: TIMA { frames: 0; }
+		animation_idle: FSET {
+			tile_width: 64;
+			width_x: 3;
+			width_y: 4;
+			(se_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(nw_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(ne_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(sw_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}	
 		}
 
 		recolour {
