@@ -25,7 +25,7 @@ strings {
 		MONTH_DECEMBER:  "Dezember";
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
-		RESOLUTION:             "%1%x%2%";
+		RESOLUTION:             "%1%×%2%";
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_QUIT:                 "Beenden";
@@ -104,7 +104,7 @@ strings {
 
 		PATH_GUI_SINGLE:           "Einzeln";
 		PATH_GUI_DIRECTIONAL:      "Lange Wege";
-		PATH_GUI_SINGLE_TIP:       "Plaziert einen einzelnen Wegabschnitt";
+		PATH_GUI_SINGLE_TIP:       "Platziert einen einzelnen Wegabschnitt";
 		PATH_GUI_DIRECTIONAL_TIP:  "Beginn eines längeren Weges";
 
 		// Ride select gui strings.
@@ -151,9 +151,9 @@ strings {
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Landschaft verändern";
 		TERRAFORM_ADD_TEXT:    "+";
-		TERRAFORM_ADD_TOOLTIP: "Vergößert den zu veränderten Bereich";
+		TERRAFORM_ADD_TOOLTIP: "Vergrößert den zu verändernden Bereich";
 		TERRAFORM_SUB_TEXT:    "-";
-		TERRAFORM_SUB_TOOLTIP: "Verkleinert den zu veränderten Bereich";
+		TERRAFORM_SUB_TOOLTIP: "Verkleinert den zu verändernden Bereich";
 		TERRAFORM_LEVEL_TEXT:  "Gewählten Bereich einebnen";
 		TERRAFORM_MOVE_TEXT:   "Landschaft unverändert verschieben";
 
@@ -168,7 +168,7 @@ strings {
 		FINANCES_SHOP_SALES_TEXT:        "Geschäftsumsätze";
 		FINANCES_SHOP_STOCK_TEXT:        "Geschäftsinventur";
 		FINANCES_FOOD_SALES_TEXT:        "Essens-/Getränkeverkäufe";
-		FINANCES_FOOD_STOCK_TEXT:        "Essens/-Getränkeinventur";
+		FINANCES_FOOD_STOCK_TEXT:        "Essens-/Getränkeinventur";
 		FINANCES_STAFF_WAGES_TEXT:       "Mitarbeiterlöhne";
 		FINANCES_MARKETING_TEXT:         "Marketing";
 		FINANCES_RESEARCH_TEXT:          "Forschung";
@@ -217,21 +217,21 @@ strings {
 	}
 
 	stringtexts("ice-cream-stall") {
-		NAME_INSTANCE1:        "The ice palace";
+		NAME_INSTANCE1:        "Der Eis-Palast";
 		NAME_INSTANCE2:        "Kalte Getränke";
 		NAME_TYPE:             "Eiscremeshop";
 		DESCRIPTION_TYPE:      "Geschäft für kühle Getränke und Eiscreme";
 		DESCRIPTION_RECOLOUR1: "Becherfarbe";
 		DESCRIPTION_RECOLOUR2: "Cremefarbe";
 		DESCRIPTION_RECOLOUR3: "-";
-		NAME_ITEM1:            "Vanille Eiscreme";
+		NAME_ITEM1:            "Vanille-Eiscreme";
 		NAME_ITEM2:            "Erfrischungsgetränk";
 	}
 
 	stringtexts("snack-shop") {
-		NAME_INSTANCE1:   "The happy snacker";
+		NAME_INSTANCE1:   "Schnellrestaurant";
 		NAME_INSTANCE2:   "Pizzapalast";
-		NAME_TYPE:        "Snackshop";
+		NAME_TYPE:        "Imbiss";
 		DESCRIPTION_TYPE: "Geschäft, das leckere Kekse verkauft";
 		DESCRIPTION_RECOLOUR1: "-";
 		DESCRIPTION_RECOLOUR2: "-";
@@ -241,10 +241,10 @@ strings {
 	}
 
 	stringtexts("toilet") {
-		NAME_INSTANCE1:        "Toilet";
+		NAME_INSTANCE1:        "Toiletten";
 		NAME_INSTANCE2:        "Toiletten";
 		NAME_TYPE:             "Toiletten";
-		DESCRIPTION_TYPE:      "Wenn sie mal müssen, dann müssen sie hier her";
+		DESCRIPTION_TYPE:      "Wenn Sie mal müssen, dann müssen Sie hier her";
 		DESCRIPTION_RECOLOUR1: "Toilettenfarbe";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
