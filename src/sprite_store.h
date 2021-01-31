@@ -171,6 +171,41 @@ public:
 };
 
 /**
+ * Frame sets.
+ * @ingroup sprite_group
+ */
+class FrameSet : public RcdBlock {
+public:
+	FrameSet();
+	~FrameSet();
+
+	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+
+	uint16 width;   ///< Width of a tile.
+	uint16 width_x; ///< The number of voxels in x direction.
+	uint16 width_y; ///< The number of voxels in y direction.
+	std::unique_ptr<ImageData*[]> sprites[4]; ///< Sprites for the ne,se,sw,nw orientations.
+};
+typedef std::map<int, FrameSet *> FrameSetsMap; ///< Map of available frame sets.
+
+/**
+ * Timed animations.
+ * @ingroup sprite_group
+ */
+class TimedAnimation : public RcdBlock {
+public:
+	TimedAnimation();
+	~TimedAnimation();
+
+	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+
+	int frames;   ///< Number of frames
+	std::unique_ptr<int[]> durations;   ///< Duration of each frame in milliseconds.
+	std::unique_ptr<const FrameSet*[]> views; ///< Each frame's set of sprites.
+};
+typedef std::map<int, TimedAnimation *> TimedAnimationsMap; ///< Map of available timed animations.
+
+/**
  * Displayed object.
  * (For now, just the arrows pointing in the build direction, hopefully also usable for other 1x1 tile objects.)
  * @ingroup sprites_group
@@ -599,6 +634,8 @@ public:
 	PathDecoration path_decoration;   ///< %Path decoration sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.
+	FrameSetsMap frame_sets;             ///< Frame sets.
+	TimedAnimationsMap timed_animations; ///< Timed animations.
 
 protected:
 	void Clear();
@@ -622,6 +659,8 @@ public:
 	const Rectangle16 &GetTableSpriteSize(uint16 number);
 	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
 	const Fence *GetFence(FenceType fence) const;
+	const FrameSet *GetFrameSet(int index) const;
+	const TimedAnimation *GetTimedAnimation(int index) const;
 
 	PathStatus GetPathStatus(PathType path_type);
 

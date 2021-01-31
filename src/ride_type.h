@@ -32,6 +32,7 @@ class RideInstance;
 enum RideTypeKind {
 	RTK_SHOP,    ///< Ride type allows buying useful stuff.
 	RTK_GENTLE,  ///< Gentle kind of ride.
+	RTK_THRILL,  ///< Thrilling kind of ride.
 	RTK_WET,     ///< Ride type uses water.
 	RTK_COASTER, ///< Ride type is a coaster.
 
@@ -75,7 +76,7 @@ public:
 	virtual RideInstance *CreateInstance() const = 0;
 	void SetupStrings(TextData *text, StringID base, StringID start, StringID end, StringID name, StringID desc);
 
-	const RideTypeKind kind; ///< Kind of ride type.
+	RideTypeKind kind;       ///< Kind of ride type.
 	Money monthly_cost;      ///< Monthly costs for owning a ride.
 	Money monthly_open_cost; ///< Monthly extra costs if the ride is opened.
 	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
@@ -136,7 +137,7 @@ public:
 	RideInstance(const RideType *rt);
 	virtual ~RideInstance() = default;
 
-	virtual void GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
+	virtual void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
 	virtual uint8 GetEntranceDirections(const XYZPoint16 &vox) const = 0;
 	virtual RideEntryResult EnterRide(int guest, TileEdge entry_edge) = 0;
 	virtual XYZPoint32 GetExit(int guest, TileEdge entry_edge) = 0;

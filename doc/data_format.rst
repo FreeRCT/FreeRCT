@@ -535,7 +535,7 @@ Version history
 
 Shops/stalls
 ~~~~~~~~~~~~
-One tile objects, selling useful things to guests. FreeRCT can read block version 5.
+One tile objects, selling useful things to guests. FreeRCT can read block version 6.
 
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
@@ -543,25 +543,26 @@ Offset  Length  Version  Description
    0       4      1-     Magic string 'SHOP'.
    4       4      1-     Version number of the block.
    8       4      1-     Length of the block excluding magic string, version, and length.
-  12       2      1-     Zoom-width of a tile of the surface.
+  --       2      1-5    Zoom-width of a tile of the surface.
   --       2      1-3    Height of the shop in voxels.
-  14       1      4-     Height of the shop in voxels.
-  15       1      4-     Shop flags.
-  16       4      1-     Unrotated view (ne).
-  20       4      1-     View after 1 quarter negative rotation (se).
-  24       4      1-     View after 2 quarter negative rotations (sw).
-  28       4      1-     View after 3 quarter negative rotations (nw).
-  32       4      2-     First recolouring specification.
-  36       4      2-     Second recolouring specification.
-  40       4      2-     Third recolouring specification.
-  44       4      4-     Cost of the first item.
-  48       4      4-     Cost of the second item.
-  52       4      4-     Monthly cost of having the shop.
-  56       4      4-     Additional monthly cost of having an opened shop.
-  60       1      4-     Item type of the first item.
-  61       1      4-     Item type of the second item.
-  62       4      3-     Text of the shop (reference to a TEXT block).
-  66                     Total length.
+  12       1      4-     Height of the shop in voxels.
+  13       1      4-     Shop flags.
+  --       4      1-5    Unrotated view (ne).
+  --       4      1-5    View after 1 quarter negative rotation (se).
+  --       4      1-5    View after 2 quarter negative rotations (sw).
+  --       4      1-5    View after 3 quarter negative rotations (nw).
+  14       4      6-     Image set (reference to an FSET block).
+  18       4      2-     First recolouring specification.
+  22       4      2-     Second recolouring specification.
+  26       4      2-     Third recolouring specification.
+  30       4      4-     Cost of the first item.
+  34       4      4-     Cost of the second item.
+  38       4      4-     Monthly cost of having the shop.
+  42       4      4-     Additional monthly cost of having an opened shop.
+  46       1      4-     Item type of the first item.
+  47       1      4-     Item type of the second item.
+  48       4      3-     Text of the shop (reference to a TEXT block).
+  52                     Total length.
 ======  ======  =======  ===================================================================================
 
 Shop flags:
@@ -594,6 +595,97 @@ Version history
 - 3 (20120714) Added a TEXT block reference for the shop texts.
 - 4 (20121005) Added items to sell, and costs to pay.
 - 5 (20141010) Added more items.
+- 6 (20210131) Use an FSET block instead of saving the sprites directly.
+
+
+Frame Sets
+~~~~~~~~~~
+A set of sprites for an object (e.g. a ride) that occupies (x*y) tiles. FreeRCT can read block version 1.
+
+===============  =======  =======  =================================================================
+Offset           Length   Version  Description
+===============  =======  =======  =================================================================
+   0              4        1-      Magic string 'FSET'.
+   4              4        1-      Version number of the block.
+   8              4        1-      Length of the block excluding magic string, version, and length.
+  12              2        1-      Zoom-width of a tile of the surface.
+  14              1        1-      Number x of tiles in x direction.
+  15              1        1-      Number y of tiles in y direction.
+  16              4*x*y    1-      Unrotated views (ne), for each tile.
+  16+4*x*y        4*x*y    1-      Views after 1 quarter negative rotation (se).
+  16+8*x*y        4*x*y    1-      Views after 2 quarter negative rotations (sw).
+  16+12*x*y       4*x*y    1-      Views after 3 quarter negative rotations (nw).
+  16+16*x*y                        Total length.
+===============  =======  =======  =================================================================
+
+A view consists of a sprite block reference for each tile of the object,
+with x as the minor index and y as the major index.
+
+Version history
+...............
+
+- 1 (20210131) Initial version.
+
+
+Timed animations
+~~~~~~~~~~~~~~~~
+An animation, consisting of a sequence of f frame sets and a duration for each frame. FreeRCT can read block version 1.
+
+===========  =======  =======  ==================================================================
+Offset       Length   Version  Description
+===========  =======  =======  ==================================================================
+   0          4        1-      Magic string 'TIMA'.
+   4          4        1-      Version number of the block.
+   8          4        1-      Length of the block excluding magic string, version, and length.
+  12          4        1-      Number f of frames in the block.
+  16          4*f      1-      Duration of each frame in milliseconds.
+  16+4*f      4*f      1-      Reference to an FSET block, for each frame.
+  16+8*f                       Total length.
+===========  =======  =======  ==================================================================
+
+Version history
+...............
+
+- 1 (20210131) Initial version.
+
+
+Gentle and thrill rides
+~~~~~~~~~~~~~~~~~~~~~~~
+Gentle and thrill rides consisting of a single building. FreeRCT can read block version 1.
+
+=========  ======  =======  ===================================================================================
+Offset     Length  Version  Description
+=========  ======  =======  ===================================================================================
+   0        4       1-      Magic string 'FGTR'.
+   4        4       1-      Version number of the block.
+   8        4       1-      Length of the block excluding magic string, version, and length.
+  12        1       1-      Magic number 1 for thrill rides or 0 for gentle rides.
+  13        1       1-      Length of the ride in x direction in voxels.
+  14        1       1-      Length of the ride in y direction in voxels.
+  15        s       1-      Heights of the ride in voxels, for each tile occupied by the ride. The number s of
+                            height bytes is equal to the product of the ride lengths in x and y direction.
+  15+s      4       1-      Idle animation (reference to an FSET block).
+  19+s      4       1-      Starting animation (reference to a TIMA block).
+  23+s      4       1-      Working animation (reference to a TIMA block).
+  27+s      4       1-      Stopping animation (reference to a TIMA block).
+  31+s      4       1-      Unrotated (ne) preview.
+  35+s      4       1-      se preview.
+  39+s      4       1-      sw preview.
+  43+s      4       1-      nw preview.
+  47+s      4       1-      First recolouring specification.
+  51+s      4       1-      Second recolouring specification.
+  55+s      4       1-      Third recolouring specification.
+  59+s      4       1-      Entrance fee.
+  63+s      4       1-      Monthly cost of having the ride.
+  67+s      4       1-      Additional monthly cost of having an opened ride.
+  71+s      4       1-      Text of the ride (reference to a TEXT block).
+  75+s                      Total length.
+=========  ======  =======  ===================================================================================
+
+Version history
+...............
+
+- 1 (20210126) Initial version.
 
 
 Build direction arrows

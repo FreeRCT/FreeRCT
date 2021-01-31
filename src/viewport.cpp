@@ -439,7 +439,7 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypo
 /**
  * Prepare to add the sprite for a ride.
  * @param slice Depth of this sprite.
- * @param zpos Z position of the voxel being drawn.
+ * @param pos Position of the voxel being drawn.
  * @param base_pos Base position of the sprite in the screen.
  * @param orient View orientation.
  * @param number Ride instance number.
@@ -448,22 +448,26 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypo
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  * @return The number of \a dd entries filled.
  */
-static int DrawRide(int32 slice, int zpos, const Point32 base_pos, ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
+static int DrawRide(int32 slice, const XYZPoint16 & pos, const Point32 base_pos,
+		ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == nullptr) return 0;
-	/* Shops are connected in every direction. */
-	if (platform != nullptr) *platform = (ri->GetKind() == RTK_SHOP && zpos == static_cast<const ShopInstance*>(ri)->vox_pos.z) ? PATH_NE_NW_SE_SW : PATH_INVALID;
+	/* Fixed rides are connected in every direction. */
+	if (platform != nullptr) *platform = (
+			(ri->GetKind() == RTK_SHOP || ri->GetKind() == RTK_GENTLE || ri->GetKind() == RTK_THRILL) &&
+			pos.z == static_cast<const FixedRideInstance*>(ri)->vox_pos.z) ?
+		PATH_NE_NW_SE_SW : PATH_INVALID;
 
 	const ImageData *sprites[4];
-	ri->GetSprites(voxel_number, orient, sprites);
+	ri->GetSprites(pos, voxel_number, orient, sprites);
 
 	int idx = 0;
 	static const SpriteOrder sprite_numbers[4] = {SO_PLATFORM_BACK, SO_RIDE, SO_RIDE_FRONT, SO_PLATFORM_FRONT};
 	for (int i = 0; i < 4; i++) {
 		if (sprites[i] == nullptr) continue;
 
-		dd[idx].Set(slice, zpos, sprite_numbers[i], sprites[i], base_pos, &ri->recolours);
+		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, &ri->recolours);
 		idx++;
 	}
 	return idx;
@@ -503,7 +507,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		this->draw_images.insert(dd);
 	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
 		DrawData dd[4];
-		int count = DrawRide(slice, voxel_pos.z, north_point, this->orient, sri, instance_data, dd, &platform_shape);
+		int count = DrawRide(slice, voxel_pos, north_point, this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) {
 			dd[i].highlight = highlight;
 			this->draw_images.insert(dd[i]);
@@ -760,7 +764,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	if ((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) {
 		/* Looking for a ride? */
 		DrawData dd[4];
-		int count = DrawRide(slice, voxel_pos.z, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
+		int count = DrawRide(slice, voxel_pos, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
 				this->orient, number, voxel->GetInstanceData(), dd, nullptr);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
@@ -956,9 +960,12 @@ void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 				const RideInstance *ri = _rides_manager.GetRideInstance(number);
 				if (ri != nullptr) {
 					switch (ri->GetKind()) {
-						case RTK_SHOP: {
-							const ShopInstance *si = static_cast<const ShopInstance *>(ri);
-							height = si->GetShopType()->height;
+						case RTK_SHOP:
+						case RTK_GENTLE:
+						case RTK_THRILL: {
+							const FixedRideInstance *si = static_cast<const FixedRideInstance *>(ri);
+							const XYZPoint16 pos = FixedRideType::UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
+							height = si->GetFixedRideType()->GetHeight(pos.x, pos.y);
 							break;
 						}
 
@@ -1135,6 +1142,11 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 				switch (ri->GetKind()) {
 					case RTK_SHOP:
 						ShowShopManagementGui(fdata.ride);
+						return WMME_NONE;
+
+					case RTK_GENTLE:
+					case RTK_THRILL:
+						ShowGentleThrillRideManagementGui(fdata.ride);
 						return WMME_NONE;
 
 					case RTK_COASTER:

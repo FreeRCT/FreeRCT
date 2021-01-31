@@ -19,6 +19,7 @@
 
 assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many GUI strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
+assert_compile((int)GENTLE_THRILL_RIDES_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
 
 Language _language;                 ///< Language strings.
 StringParameters _str_params;       ///< Default string parameters.

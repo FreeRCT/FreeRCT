@@ -11,6 +11,7 @@
 #include "viewport.h"
 #include "sprite_store.h"
 #include "shop_type.h"
+#include "gentle_thrill_ride_type.h"
 #include "mouse_mode.h"
 #include "language.h"
 
@@ -83,8 +84,8 @@ private:
 	RideInstance *instance; ///< Instance to build, set to \c nullptr after build to prevent deletion of the instance.
 	TileEdge orientation;   ///< Orientation of the simple ride.
 
-	bool CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos, ViewOrientation vp_orient);
-	RidePlacementResult ComputeShopVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient);
+	bool CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, uint8 ride_orient, ViewOrientation vp_orient);
+	RidePlacementResult ComputeFixedRideVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient);
 };
 
 /**
@@ -96,6 +97,12 @@ RideBuildWindow::RideBuildWindow(RideInstance *ri) : GuiWindow(WC_RIDE_BUILD, ri
 	switch (ri->GetKind()) {
 		case RTK_SHOP:
 			str_titlebar = GUI_RIDE_BUILD_TITLEBAR_SHOP;
+			break;
+		case RTK_GENTLE:
+			str_titlebar = GUI_RIDE_BUILD_TITLEBAR_GENTLE;
+			break;
+		case RTK_THRILL:
+			str_titlebar = GUI_RIDE_BUILD_TITLEBAR_THRILL;
 			break;
 
 		default:
@@ -143,7 +150,7 @@ void RideBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) co
 			if (this->instance == nullptr) return;
 
 			const RideType *ride_type = this->instance->GetRideType();
-			if (ride_type->kind != RTK_SHOP) return;
+			if (ride_type->kind != RTK_SHOP && ride_type->kind != RTK_GENTLE && ride_type->kind != RTK_THRILL) return;
 
 			static const Recolouring recolour; // Never modified, display 'original' image in the GUI.
 			Point32 pt(this->GetWidgetScreenX(wid) + wid->pos.width / 2, this->GetWidgetScreenY(wid) + wid->pos.height - 40);
@@ -168,67 +175,97 @@ void RideBuildWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 }
 
 /**
- * Checks whether the air space above the ground at the given location is suited to place a shop of the given height.
+ * Checks whether the air space above the ground at the given location is suited to place a fixed ride of the given height.
  * @param position Coordinate of the base voxel.
  * @param height Height of the object.
- * @return The space is suited to build the shop.
+ * @return The space is suited to build the ride.
  */
 static bool CheckSufficientVerticalSpace(const XYZPoint16& position, const int8 height)
 {
-	for (int8 h = 0; h <= height; ++h) {
+	for (int8 h = 0; h < height; ++h) {
 		const Voxel *v = _world.GetVoxel(position + XYZPoint16(0, 0, h));
-		if (v != nullptr && !v->CanPlaceInstance()) return false;
+		if (v == nullptr) continue;
+
+		if (h > 0 && v->GetGroundType() != GTP_INVALID) return false;
+		if (!v->CanPlaceInstance() || v->GetGroundSlope() != SL_FLAT) return false;
 	}
 	return true;
 }
 
 /**
- * Checks whether the given location is suited to place a shop of the given height on flat ground.
+ * Checks whether the given location is suited to place a fixed ride on flat ground.
  * @param position Coordinate of the base voxel.
- * @param height Height of the object.
- * @return The space is flat and suited to build the shop.
+ * @return The space is flat and suited to build the ride.
  */
-static bool CanPlaceShopOnFlatGround(const XYZPoint16& position, const int8 height)
+static bool CanPlaceFixedRideOnFlatGround(const XYZPoint16& position)
 {
 	const Voxel *vx = _world.GetVoxel(position);
-	return vx != nullptr && vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT && CheckSufficientVerticalSpace(position, height);
+	return vx != nullptr && vx->GetGroundType() != GTP_INVALID && vx->GetGroundSlope() == SL_FLAT;
 }
 
 /**
- * Checks whether the given location is suited to place a shop of the given height on a slope.
+ * Checks whether the given location is suited to place a fixed ride on a slope.
  * @param position Coordinate of the base voxel.
- * @param height Height of the object.
- * @return The space is suited to build the shop.
+ * @return The space is suited to build the ride.
  */
-static bool CanPlaceShopOnSlope(const XYZPoint16& position, const int8 height)
+static bool CanPlaceFixedRideOnSlope(const XYZPoint16& position)
 {
 	const Voxel *vx = _world.GetVoxel(position + XYZPoint16(0, 0, -1));
 	if (vx == nullptr || vx->GetGroundType() == GTP_INVALID || vx->GetGroundSlope() == SL_FLAT) return false;
 	const Voxel *top_voxel = _world.GetVoxel(position);
-	if (top_voxel != nullptr && IsImplodedSteepSlope(top_voxel->GetGroundSlope())) return false;
-	return CheckSufficientVerticalSpace(position, height);
+	return top_voxel == nullptr || !IsImplodedSteepSlope(top_voxel->GetGroundSlope());
 }
 
 /**
- * Can a shop be placed at the given voxel?
- * @param selected_shop Shop to place.
+ * Can a fixed ride be placed at the given voxel?
+ * @param selected_ride Ride to place.
  * @param pos Coordinate of the voxel.
+ * @param ride_orient Orientation of the ride.
  * @param vp_orient Orientation of the viewport.
  * @pre voxel coordinate must be valid in the world.
- * @pre \a selected_shop may not be \c nullptr.
- * @return Shop can be placed at the given position.
- * @todo Extend this function to handle buildings of other base sizes than 1×1.
+ * @pre \a selected_ride may not be \c nullptr.
+ * @return Ride can be placed at the given position.
  */
-bool RideBuildWindow::CanPlaceShop(const ShopType *selected_shop, const XYZPoint16 &pos, ViewOrientation vp_orient)
+bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, uint8 ride_orient, ViewOrientation vp_orient)
 {
-	/* 1. Can the position itself be used to build a shop? */
-	if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
-	if (CanPlaceShopOnFlatGround(pos, selected_shop->height)) return true;
+	/* 1. Can the position itself be used to build a ride? */
+	for (int x = 0; x < selected_ride->width_x; ++x) {
+		for (int y = 0; y < selected_ride->width_y; ++y) {
+			const XYZPoint16 location = selected_ride->OrientatedOffset(ride_orient, x, y) + pos;
+			if (!IsVoxelstackInsideWorld(location.x, location.y) || _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
+		}
+	}
+	bool can_place_base = false;
+	bool can_place_air = true;
+	for (int x = 0; x < selected_ride->width_x; ++x) {
+		for (int y = 0; y < selected_ride->width_y; ++y) {
+			const XYZPoint16 location = pos + selected_ride->OrientatedOffset(ride_orient, x, y);
+			can_place_base |= CanPlaceFixedRideOnFlatGround(location);
+			can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
+			if (!can_place_air) break;
+		}
+		if (!can_place_air) break;
+	}
+	if (can_place_air && can_place_base) return true;
 
-	/* 2. Is the shop just above non-flat ground? */
-	if (pos.z > 0 && CanPlaceShopOnSlope(pos, selected_shop->height)) return true;
+	/* 2. Is the ride just above non-flat ground? */
+	if (pos.z > 0) {
+		can_place_base = false;
+		can_place_air = true;
+		for (int x = 0; x < selected_ride->width_x; ++x) {
+			for (int y = 0; y < selected_ride->width_y; ++y) {
+				const XYZPoint16 location = pos + selected_ride->OrientatedOffset(ride_orient, x, y);
+				can_place_base |= CanPlaceFixedRideOnSlope(location);
+				can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
+				if (!can_place_air) break;
+			}
+		}
+		if (can_place_air && can_place_base) return true;
+	}
 
-	/* 3. Is there a path at the right place? */
+	/* 3. For shops only: Is there a path at the right place? */
+	if (selected_ride->kind != RTK_SHOP) return false;
+	const ShopType *selected_shop = static_cast<const ShopType*>(selected_ride);
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
 		if ((selected_shop->flags & (1 << entrance)) == 0) continue; // No entrance here.
 		TileEdge entr = static_cast<TileEdge>((entrance + vp_orient + this->orientation) & 3); // Perform rotation specified by the user in the GUI.
@@ -238,16 +275,16 @@ bool RideBuildWindow::CanPlaceShop(const ShopType *selected_shop, const XYZPoint
 }
 
 /**
- * Decide at which voxel to place a shop. It should be placed at a voxel intersecting with the view line through the given point in the world.
+ * Decide at which voxel to place a fixed ride. It should be placed at a voxel intersecting with the view line through the given point in the world.
  * @param world_pos Coordinate of the point.
  * @param vp_orient Orientation of the viewport.
  * @return Result of the placement process.
  */
-RidePlacementResult RideBuildWindow::ComputeShopVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient)
+RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient)
 {
-	ShopInstance *si = static_cast<ShopInstance *>(this->instance);
-	assert(si != nullptr && si->GetKind() == RTK_SHOP); // It should be possible to set the position of a shop.
-	const ShopType *st = si->GetShopType();
+	FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
+	assert(si != nullptr);
+	const FixedRideType *st = si->GetFixedRideType();
 	assert(st != nullptr);
 
 	int dx, dy; // Change of xworld and yworld for every (zworld / 2) change.
@@ -269,8 +306,8 @@ RidePlacementResult RideBuildWindow::ComputeShopVoxel(XYZPoint32 world_pos, View
 	while (vox_pos.z >= 0) {
 		vox_pos.x = world_pos.x / 256;
 		vox_pos.y = world_pos.y / 256;
-		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceShop(st, vox_pos, vp_orient)) {
-			/* Position of the shop the same as previously? */
+		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceFixedRide(st, vox_pos, this->orientation + vp_orient, vp_orient)) {
+			/* Position of the ride the same as previously? */
 			if (si->vox_pos != vox_pos || si->orientation != this->orientation) {
 				si->SetRide((this->orientation + vp_orient) & 3, vox_pos);
 				return RPR_CHANGED;
@@ -295,7 +332,7 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	Point32 wxy = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 
 	/* Clean current display if needed. */
-	switch (this->ComputeShopVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z), vp->orientation)) {
+	switch (this->ComputeFixedRideVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z), vp->orientation)) {
 		case RPR_FAIL:
 			this->selector.MarkDirty(); // Does not do anything with a zero-sized mouse selector.
 			this->selector.SetSize(0, 0);
@@ -305,18 +342,39 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		case RPR_CHANGED: {
 			this->selector.MarkDirty();
 
-			/// \todo Let the shop do this.
-			ShopInstance *si = static_cast<ShopInstance *>(this->instance);
-			assert(si != nullptr && si->GetKind() == RTK_SHOP);
+			/// \todo Let the ride do this.
+			FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
+			assert(si != nullptr);
 
-			this->selector.SetSize(1, 1);
-			this->selector.SetPosition(si->vox_pos.x, si->vox_pos.y);
-			this->selector.AddVoxel(si->vox_pos);
+			const FixedRideType* type = si->GetFixedRideType();
+			{
+				XYZPoint16 location = si->vox_pos;
+				XYZPoint16 extent = type->OrientatedOffset(si->orientation, type->width_x, type->width_y);
+				if (extent.x < 0) {
+					location.x += extent.x + 1;
+					extent.x *= -1;
+				}
+				if (extent.y < 0) {
+					location.y += extent.y + 1;
+					extent.y *= -1;
+				}
+				this->selector.SetPosition(location.x, location.y);
+				this->selector.SetSize(extent.x, extent.y);
+			}
+			for (int8 x = 0; x < type->width_x; ++x) {
+				for (int8 y = 0; y < type->width_y; ++y) {
+					this->selector.AddVoxel(si->vox_pos + type->OrientatedOffset(si->orientation, x, y));
+				}
+			}
 			this->selector.SetupRideInfoSpace();
 
 			SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
-			uint8 entrances = si->GetEntranceDirections(si->vox_pos);
-			this->selector.SetRideData(si->vox_pos, inst_number, entrances);
+			for (int8 x = 0; x < type->width_x; ++x) {
+				for (int8 y = 0; y < type->width_y; ++y) {
+					const XYZPoint16 pos = si->vox_pos + type->OrientatedOffset(si->orientation, x, y);
+					this->selector.SetRideData(pos, inst_number, si->GetEntranceDirections(pos));
+				}
+			}
 			this->selector.MarkDirty();
 			return;
 		}
@@ -329,10 +387,11 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 {
 	if (!IsLeftClick(state)) return;
 
-	if (this->selector.area.width != 1 || this->selector.area.height != 1) return;
+	if (this->selector.area.width < 1 || this->selector.area.height < 1) return;
 
-	ShopInstance *si = static_cast<ShopInstance *>(this->instance);
-	SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
+	FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
+	const SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
+	const RideTypeKind kind = si->GetKind();
 
 	_rides_manager.NewInstanceAdded(inst_number);
 	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, si->GetEntranceDirections(si->vox_pos), PAS_QUEUE_PATH);
@@ -341,7 +400,17 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 	si = nullptr; // (Also clean the copy of the pointer.)
 	delete this;
 
-	ShowShopManagementGui(inst_number); // Open gui for the new shop.
+	/* Open GUI for the new ride or shop. */
+	switch (kind) {
+		case RTK_SHOP:
+			ShowShopManagementGui(inst_number);
+			break;
+		case RTK_GENTLE:
+		case RTK_THRILL:
+			ShowGentleThrillRideManagementGui(inst_number);
+			break;
+		default: NOT_REACHED(); // \todo open GUI for other ride types
+	}
 }
 
 /**

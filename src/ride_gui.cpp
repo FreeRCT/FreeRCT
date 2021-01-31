@@ -47,6 +47,7 @@ protected:
 enum RideSelectWidgets {
 	RSEL_SHOPS,       ///< Button to select 'shops' type.
 	RSEL_GENTLE,      ///< Button to select 'gentle rides' type.
+	RSEL_THRILL,      ///< Button to select 'thrill rides' type.
 	RSEL_WET,         ///< Button to select 'wet rides' type.
 	RSEL_COASTER,     ///< Button to select 'coaster rides' type.
 	RSEL_LIST,        ///< Ride selection list.
@@ -57,7 +58,7 @@ enum RideSelectWidgets {
 };
 
 /** Widgets of the select bar. */
-static const WidgetNumber _ride_type_select_bar[] = {RSEL_SHOPS, RSEL_GENTLE, RSEL_WET, RSEL_COASTER, INVALID_WIDGET_INDEX};
+static const WidgetNumber _ride_type_select_bar[] = {RSEL_SHOPS, RSEL_GENTLE, RSEL_THRILL, RSEL_WET, RSEL_COASTER, INVALID_WIDGET_INDEX};
 assert_compile(lengthof(_ride_type_select_bar) == RTK_RIDE_KIND_COUNT + 1); ///< Select bar should have all ride types.
 
 /**
@@ -79,6 +80,8 @@ static const WidgetPart _ride_select_gui_parts[] = {
 							SetData(GUI_RIDE_SELECT_SHOPS, GUI_RIDE_SELECT_SHOPS_TOOLTIP),
 					Widget(WT_TEXT_TAB, RSEL_GENTLE, COL_RANGE_DARK_GREEN),
 							SetData(GUI_RIDE_SELECT_GENTLE, GUI_RIDE_SELECT_GENTLE_TOOLTIP),
+					Widget(WT_TEXT_TAB, RSEL_THRILL, COL_RANGE_DARK_GREEN),
+							SetData(GUI_RIDE_SELECT_THRILL, GUI_RIDE_SELECT_THRILL_TOOLTIP),
 					Widget(WT_TEXT_TAB, RSEL_WET, COL_RANGE_DARK_GREEN),
 							SetData(GUI_RIDE_SELECT_WET, GUI_RIDE_SELECT_WET_TOOLTIP),
 					Widget(WT_TEXT_TAB, RSEL_COASTER, COL_RANGE_DARK_GREEN),
@@ -206,6 +209,7 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 	switch (wid_num) {
 		case RSEL_SHOPS:
 		case RSEL_GENTLE:
+		case RSEL_THRILL:
 		case RSEL_WET:
 		case RSEL_COASTER:
 			if (this->SetNewRideKind(wid_num - RSEL_SHOPS)) this->MarkDirty();
@@ -229,14 +233,18 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 				if (instance == INVALID_RIDE_INSTANCE) return;
 
 				RideInstance *ri = _rides_manager.CreateInstance(ride_type, instance);
-
-				if (this->current_kind == RTK_SHOP) {
-					assert(ride_type->kind == RTK_SHOP);
-					ShowRideBuildGui(ri);
-				} else {
-					assert(ride_type->kind == RTK_COASTER);
-					_rides_manager.NewInstanceAdded(instance);
-					ShowCoasterManagementGui(ri);
+				assert(this->current_kind == ride_type->kind);
+				switch (ride_type->kind) {
+					case RTK_SHOP:
+					case RTK_GENTLE:
+					case RTK_THRILL:
+						ShowRideBuildGui(ri);
+						break;
+					case RTK_COASTER:
+						_rides_manager.NewInstanceAdded(instance);
+						ShowCoasterManagementGui(ri);
+						break;
+					default: NOT_REACHED(); // Add cases for more ride types here when they get implemented.
 				}
 				delete this;
 			}

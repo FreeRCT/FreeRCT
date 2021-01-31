@@ -162,6 +162,8 @@ public:
 	long long GetNumber(const Position &pos, const char *node, const Symbol *symbols = nullptr);
 	std::string GetString(const Position &pos, const char *node);
 	std::shared_ptr<SpriteBlock> GetSprite(const Position &pos, const char *node);
+	std::shared_ptr<FSETBlock> GetFrameSet(const Position &pos, const char *node);
+	std::shared_ptr<TIMABlock> GetTimedAnimation(const Position &pos, const char *node);
 	std::shared_ptr<Connection> GetConnection(const Position &pos, const char *node);
 	std::shared_ptr<StringsNode> GetStrings(const Position &pos, const char *node);
 	std::shared_ptr<Curve> GetCurve(const Position &pos, const char *node);
@@ -257,6 +259,40 @@ std::shared_ptr<SpriteBlock> ValueInformation::GetSprite(const Position &pos, co
 		return sb;
 	}
 	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a sprite node\n", pos.ToString(), this->name.c_str(), node);
+	exit(1);
+}
+
+/**
+ * Get a frame set (#FSETBlock) from the given node value.
+ * @param pos %Position of the node (for reporting errors).
+ * @param node %Name of the node.
+ * @return The sprite.
+ */
+std::shared_ptr<FSETBlock> ValueInformation::GetFrameSet(const Position &pos, const char *node)
+{
+	auto sb = std::dynamic_pointer_cast<FSETBlock>(this->node_value);
+	if (sb != nullptr) {
+		this->node_value = nullptr;
+		return sb;
+	}
+	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a frame set node\n", pos.ToString(), this->name.c_str(), node);
+	exit(1);
+}
+
+/**
+ * Get a timed animation (#TIMABlock) from the given node value.
+ * @param pos %Position of the node (for reporting errors).
+ * @param node %Name of the node.
+ * @return The sprite.
+ */
+std::shared_ptr<TIMABlock> ValueInformation::GetTimedAnimation(const Position &pos, const char *node)
+{
+	auto sb = std::dynamic_pointer_cast<TIMABlock>(this->node_value);
+	if (sb != nullptr) {
+		this->node_value = nullptr;
+		return sb;
+	}
+	fprintf(stderr, "Error at %s: Field \"%s\" of node \"%s\" is not a timed animation node\n", pos.ToString(), this->name.c_str(), node);
 	exit(1);
 }
 
@@ -395,6 +431,8 @@ public:
 	long long GetNumber(const char *fld_name, const Symbol *symbols = nullptr);
 	std::string GetString(const char *fld_name);
 	std::shared_ptr<SpriteBlock> GetSprite(const char *fld_name);
+	std::shared_ptr<FSETBlock> GetFrameSet(const char *fld_name);
+	std::shared_ptr<TIMABlock> GetTimedAnimation(const char *fld_name);
 	std::shared_ptr<Connection> GetConnection(const char *fld_name);
 	std::shared_ptr<StringsNode> GetStrings(const char *fld_name);
 	std::shared_ptr<Curve> GetCurve(const char *fld_name);
@@ -606,6 +644,26 @@ std::string Values::GetString(const char *fld_name)
 std::shared_ptr<SpriteBlock> Values::GetSprite(const char *fld_name)
 {
 	return FindValue(fld_name)->GetSprite(this->pos, this->node_name);
+}
+
+/**
+ * Get a frame set (#FSETBlock) from the named value with the provided name.
+ * @param fld_name Name of the field to retrieve.
+ * @return The sprite.
+ */
+std::shared_ptr<FSETBlock> Values::GetFrameSet(const char *fld_name)
+{
+	return FindValue(fld_name)->GetFrameSet(this->pos, this->node_name);
+}
+
+/**
+ * Get a timed animation (#TIMABlock) from the named value with the provided name.
+ * @param fld_name Name of the field to retrieve.
+ * @return The sprite.
+ */
+std::shared_ptr<TIMABlock> Values::GetTimedAnimation(const char *fld_name)
+{
+	return FindValue(fld_name)->GetTimedAnimation(this->pos, this->node_name);
 }
 
 /**
@@ -1736,13 +1794,9 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("SHOP", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true, _shop_symbols);
 
-	sb->tile_width = vals.GetNumber("tile_width");
 	sb->height = vals.GetNumber("height");
 	sb->flags = vals.GetNumber("flags");
-	sb->ne_view = vals.GetSprite("ne");
-	sb->se_view = vals.GetSprite("se");
-	sb->sw_view = vals.GetSprite("sw");
-	sb->nw_view = vals.GetSprite("nw");
+	sb->views = vals.GetFrameSet("images");
 	sb->item_cost[0] = vals.GetNumber("cost_item1");
 	sb->item_cost[1] = vals.GetNumber("cost_item2");
 	sb->ownership_cost = vals.GetNumber("cost_ownership");
@@ -1761,6 +1815,141 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 
 	vals.VerifyUsage();
 	return sb;
+}
+
+/**
+ * Convert a node group to a FSET game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created FSET game block.
+ */
+static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "FSET");
+	auto block = std::make_shared<FSETBlock>();
+
+	Values vals("FSET", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	block->tile_width = vals.GetNumber("tile_width");
+	block->width_x = vals.GetNumber("width_x");
+	block->width_y = vals.GetNumber("width_y");
+	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
+	block->se_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
+	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
+	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
+
+	for (int x = 0; x < block->width_x; ++x) {
+		for (int y = 0; y < block->width_y; ++y) {
+			std::string key = "ne_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+			block->ne_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+		}
+	}
+	for (int x = 0; x < block->width_x; ++x) {
+		for (int y = 0; y < block->width_y; ++y) {
+			std::string key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+			block->se_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+		}
+	}
+	for (int x = 0; x < block->width_x; ++x) {
+		for (int y = 0; y < block->width_y; ++y) {
+			std::string key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+			block->sw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+		}
+	}
+	for (int x = 0; x < block->width_x; ++x) {
+		for (int y = 0; y < block->width_y; ++y) {
+			std::string key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+			block->nw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+		}
+	}
+
+	vals.VerifyUsage();
+	return block;
+}
+
+/**
+ * Convert a node group to a TIMA game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created TIMA game block.
+ */
+static std::shared_ptr<TIMABlock> ConvertTIMANode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "TIMA");
+	auto block = std::make_shared<TIMABlock>();
+
+	Values vals("TIMA", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	block->frames = vals.GetNumber("frames");
+	block->durations.reset(new int[block->frames]);
+	block->views.reset(new std::shared_ptr<FSETBlock>[block->frames]);
+	for (int f = 0; f < block->frames; ++f) {
+		std::string key = "duration_"; key += std::to_string(f);
+		block->durations[f] = vals.GetNumber(key.c_str());
+	}
+	for (int f = 0; f < block->frames; ++f) {
+		std::string key = "frame_"; key += std::to_string(f);
+		block->views[f] = vals.GetFrameSet(key.c_str());
+	}
+
+	vals.VerifyUsage();
+	return block;
+}
+
+/**
+ * Convert a node group to a FGTR game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created FGTR game block.
+ */
+static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "FGTR");
+	auto block = std::make_shared<FGTRBlock>();
+
+	Values vals("FGTR", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	const std::string category = vals.GetString("category");
+	if (category == "gentle") {
+		block->is_thrill_ride = false;
+	} else if (category == "thrill") {
+		block->is_thrill_ride = true;
+	} else {
+		fprintf(stderr, "Error at %s: Invalid category '%s' (expected 'gentle' or 'thrill').\n", ng->pos.ToString(), category.c_str());
+		return nullptr;
+	}
+	block->ride_width_x = vals.GetNumber("ride_width_x");
+	block->ride_width_y = vals.GetNumber("ride_width_y");
+	block->heights.reset(new int8[block->ride_width_x * block->ride_width_y]);
+	for (int x = 0; x < block->ride_width_x; ++x) {
+		for (int y = 0; y < block->ride_width_y; ++y) {
+			std::string key = "height_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+			block->heights[x * block->ride_width_y + y] = vals.GetNumber(key.c_str());
+		}
+	}
+	block->idle_animation = vals.GetFrameSet("animation_idle");
+	block->starting_animation = vals.GetTimedAnimation("animation_starting");
+	block->working_animation = vals.GetTimedAnimation("animation_working");
+	block->stopping_animation = vals.GetTimedAnimation("animation_stopping");
+	block->previews[0] = vals.GetSprite("preview_ne");
+	block->previews[1] = vals.GetSprite("preview_se");
+	block->previews[2] = vals.GetSprite("preview_sw");
+	block->previews[3] = vals.GetSprite("preview_nw");
+	block->entrance_fee = vals.GetNumber("entrance_fee");
+	block->ownership_cost = vals.GetNumber("cost_ownership");
+	block->opened_cost = vals.GetNumber("cost_opened");
+	block->ride_text = std::make_shared<StringBundle>();
+	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
+	block->ride_text->CheckTranslations(_gentle_thrill_rides_string_names, lengthof(_gentle_thrill_rides_string_names), ng->pos);
+
+	std::vector<std::shared_ptr<Recolouring>> recolours = GetTypedData<Recolouring>(vals, "recolour", 3);
+	int i = 0;
+	for (auto &rc : recolours) {
+		block->recol[i++] = *rc;
+	}
+
+	vals.VerifyUsage();
+	return block;
 }
 
 /**
@@ -2374,6 +2563,8 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "CARS") return ConvertCARSNode(ng);
 	if (ng->name == "CSPL") return ConvertCSPLNode(ng);
 	if (ng->name == "FENC") return ConvertFENCNode(ng);
+	if (ng->name == "FGTR") return ConvertFGTRNode(ng);
+	if (ng->name == "FSET") return ConvertFSETNode(ng);
 	if (ng->name == "FUND") return ConvertFUNDNode(ng);
 	if (ng->name == "GBOR") return ConvertGBORNode(ng);
 	if (ng->name == "GCHK") return ConvertGCHKNode(ng);
@@ -2390,6 +2581,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "SUPP") return ConvertSUPPNode(ng);
 	if (ng->name == "SURF") return ConvertSURFNode(ng);
 	if (ng->name == "TCOR") return ConvertTCORNode(ng);
+	if (ng->name == "TIMA") return ConvertTIMANode(ng);
 	if (ng->name == "TSEL") return ConvertTSELNode(ng);
 
 	/* Unknown type of node. */
@@ -2454,6 +2646,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _shops_string_names;
 		length = lengthof(_shops_string_names);
 		nice_name = "Shops";
+	} else if (strcmp(prefix, "GENTLE_THRILL_RIDES") == 0) {
+		names = _gentle_thrill_rides_string_names;
+		length = lengthof(_gentle_thrill_rides_string_names);
+		nice_name = "GentleThrillRides";
 	} else if (strcmp(prefix, "COASTERS") == 0) {
 		names = _coaster_string_names;
 		length = lengthof(_coaster_string_names);
@@ -2513,6 +2709,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *code)
 		length = lengthof(_shops_string_names);
 		nice_name = "Shops";
 		lower_name = "shops";
+	} else if (strcmp(prefix, "GENTLE_THRILL_RIDES") == 0) {
+		names = _gentle_thrill_rides_string_names;
+		length = lengthof(_gentle_thrill_rides_string_names);
+		nice_name = "GentleThrillRides";
+		lower_name = "gentle_thrill_rides";
 	} else if (strcmp(prefix, "COASTERS") == 0) {
 		names = _coaster_string_names;
 		length = lengthof(_coaster_string_names);

@@ -945,21 +945,17 @@ int StringBundle::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SHOPBlock::SHOPBlock() : GameBlock("SHOP", 5)
+SHOPBlock::SHOPBlock() : GameBlock("SHOP", 6)
 {
 }
 
 int SHOPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 66 - 12);
-	fb->SaveUInt16(this->tile_width);
+	fb->StartSave(this->blk_name, this->version, 52 - 12);
 	fb->SaveUInt8(this->height);
 	fb->SaveUInt8(this->flags);
-	fb->SaveUInt32(this->ne_view->Write(fw));
-	fb->SaveUInt32(this->se_view->Write(fw));
-	fb->SaveUInt32(this->sw_view->Write(fw));
-	fb->SaveUInt32(this->nw_view->Write(fw));
+	fb->SaveUInt32(this->views->Write(fw));
 	fb->SaveUInt32(this->recol[0].Encode());
 	fb->SaveUInt32(this->recol[1].Encode());
 	fb->SaveUInt32(this->recol[2].Encode());
@@ -970,6 +966,88 @@ int SHOPBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->item_type[0]);
 	fb->SaveUInt8(this->item_type[1]);
 	fb->SaveUInt32(this->shop_text->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
+FSETBlock::FSETBlock() : GameBlock("FSET", 1)
+{
+}
+
+int FSETBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 16 + (16 * this->width_x * this->width_y) - 12);
+	fb->SaveUInt16(this->tile_width);
+	fb->SaveUInt8(this->width_x);
+	fb->SaveUInt8(this->width_y);
+	for (int8 x = 0; x < this->width_x; ++x) {
+		for (int8 y = 0; y < this->width_y; ++y) {
+			fb->SaveUInt32(this->ne_views[x * this->width_y + y]->Write(fw));
+		}
+	}
+	for (int8 x = 0; x < this->width_x; ++x) {
+		for (int8 y = 0; y < this->width_y; ++y) {
+			fb->SaveUInt32(this->se_views[x * this->width_y + y]->Write(fw));
+		}
+	}
+	for (int8 x = 0; x < this->width_x; ++x) {
+		for (int8 y = 0; y < this->width_y; ++y) {
+			fb->SaveUInt32(this->sw_views[x * this->width_y + y]->Write(fw));
+		}
+	}
+	for (int8 x = 0; x < this->width_x; ++x) {
+		for (int8 y = 0; y < this->width_y; ++y) {
+			fb->SaveUInt32(this->nw_views[x * this->width_y + y]->Write(fw));
+		}
+	}
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
+TIMABlock::TIMABlock() : GameBlock("TIMA", 1)
+{
+}
+
+int TIMABlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 16 + (8 * this->frames) - 12);
+	fb->SaveUInt32(this->frames);
+	for (int8 f = 0; f < this->frames; ++f) fb->SaveUInt32(this->durations[f]);
+	for (int8 f = 0; f < this->frames; ++f) fb->SaveUInt32(this->views[f]->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
+FGTRBlock::FGTRBlock() : GameBlock("FGTR", 1)
+{
+}
+
+int FGTRBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 75 + (this->ride_width_x * this->ride_width_y) - 12);
+	fb->SaveUInt8(this->is_thrill_ride ? 1 : 0);
+	fb->SaveUInt8(this->ride_width_x);
+	fb->SaveUInt8(this->ride_width_y);
+	for (int8 x = 0; x < this->ride_width_x; ++x) {
+		for (int8 y = 0; y < this->ride_width_y; ++y) {
+			fb->SaveUInt8(this->heights[x * ride_width_y + y]);
+		}
+	}
+	fb->SaveUInt32(this->idle_animation->Write(fw));
+	fb->SaveUInt32(this->starting_animation->Write(fw));
+	fb->SaveUInt32(this->working_animation->Write(fw));
+	fb->SaveUInt32(this->stopping_animation->Write(fw));
+	for (auto& preview : this->previews) fb->SaveUInt32(preview->Write(fw));
+	fb->SaveUInt32(this->recol[0].Encode());
+	fb->SaveUInt32(this->recol[1].Encode());
+	fb->SaveUInt32(this->recol[2].Encode());
+	fb->SaveUInt32(this->entrance_fee);
+	fb->SaveUInt32(this->ownership_cost);
+	fb->SaveUInt32(this->opened_cost);
+	fb->SaveUInt32(this->ride_text->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

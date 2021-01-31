@@ -51,6 +51,8 @@ enum WindowTypes {
 	WC_RIDE_SELECT,     ///< Ride selection window.
 	WC_SHOP_MANAGER,    ///< Management window of a shop.
 	WC_SHOP_REMOVE,     ///< Shop remove window.
+	WC_GENTLE_THRILL_RIDE_MANAGER, ///< Management window of a gentle/thrill ride.
+	WC_GENTLE_THRILL_RIDE_REMOVE,  ///< Gentle/Thrill ride remove window.
 	WC_FENCE,           ///< Fence window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.
@@ -472,6 +474,7 @@ void ShowGuestInfoGui(const Person *person);
 void ShowPathBuildGui();
 void ShowRideSelectGui();
 void ShowShopManagementGui(uint16 ri);
+void ShowGentleThrillRideManagementGui(uint16 ri);
 void ShowFenceGui();
 void ShowTerraformGui();
 void ShowFinancesGui();

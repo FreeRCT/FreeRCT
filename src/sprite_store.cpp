@@ -23,6 +23,7 @@
 #include "fileio.h"
 #include "math_func.h"
 #include "shop_type.h"
+#include "gentle_thrill_ride_type.h"
 #include "coaster.h"
 #include "gui_sprites.h"
 #include "string_func.h"
@@ -321,6 +322,73 @@ Fence::Fence() : RcdBlock()
 
 Fence::~Fence()
 {
+}
+
+FrameSet::FrameSet()
+{
+	this->width = this->width_x = this->width_y = 0;
+}
+
+FrameSet::~FrameSet()
+{
+}
+
+/**
+ * Load a frame set block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+{
+	if (rcd_file->version != 1 || rcd_file->size < 4) return false;
+
+	this->width = rcd_file->GetUInt16();
+	this->width_x = rcd_file->GetUInt8();
+	this->width_y = rcd_file->GetUInt8();
+	if (static_cast<int>(rcd_file->size) != 4 + 16 * this->width_x * this->width_y) return false;
+	for (int i = 0; i < 4; ++i) {
+		this->sprites[i].reset(new ImageData*[this->width_x * this->width_y]);
+		for (int x = 0; x < this->width_x; ++x) {
+			for (int y = 0; y < this->width_y; ++y) {
+				ImageData *view;
+				if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+				if (this->width != 64) continue; /// \todo Widths other than 64.
+				this->sprites[i][x * this->width_y + y] = view;
+			}
+		}
+	}
+	return true;
+}
+
+TimedAnimation::TimedAnimation()
+{
+	this->frames = 0;
+}
+
+TimedAnimation::~TimedAnimation()
+{
+}
+
+/**
+ * Load a frame set block from a RCD file.
+ * @param rcd_file RCD file used for loading.
+ * @param sprites Map of already loaded sprites.
+ * @return Loading was successful.
+ */
+bool TimedAnimation::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+{
+	if (rcd_file->version != 1 || rcd_file->size < 4) return false;
+
+	this->frames = rcd_file->GetUInt32();
+	if (static_cast<int>(rcd_file->size) != 4 + 8 * this->frames) return false;
+	this->durations.reset(new int[this->frames]);
+	this->views.reset(new const FrameSet*[this->frames]);
+	for (int f = 0; f < this->frames; ++f) this->durations[f] = rcd_file->GetUInt32();
+	for (int f = 0; f < this->frames; ++f) {
+		this->views[f] = _sprite_manager.GetFrameSet(rcd_file->GetUInt32());
+	}
+	return true;
 }
 
 /**
@@ -1193,6 +1261,8 @@ SpriteStorage::~SpriteStorage()
 void SpriteStorage::Clear()
 {
 	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
+	for (auto& pair : frame_sets) delete pair.second;
+	for (auto& pair : timed_animations) delete pair.second;
 }
 
 /**
@@ -1431,6 +1501,36 @@ const char *SpriteManager::Load(const char *filename)
 				return "Shop type failed to load.";
 			}
 			_rides_manager.AddRideType(shop_type);
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "FSET") == 0) {
+			FrameSet *fset = new FrameSet;
+			if (!fset->Load(&rcd_file, sprites)) {
+				delete fset;
+				return "Frame set failed to load.";
+			}
+			this->store.frame_sets[blk_num] = fset;
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "TIMA") == 0) {
+			TimedAnimation *anim = new TimedAnimation;
+			if (!anim->Load(&rcd_file, sprites)) {
+				delete anim;
+				return "Timed animation failed to load.";
+			}
+			this->store.timed_animations[blk_num] = anim;
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "FGTR") == 0) {
+			GentleThrillRideType *ride_type = new GentleThrillRideType;
+			if (!ride_type->Load(&rcd_file, sprites, texts)) {
+				delete ride_type;
+				return "Gentle/Thrill ride type failed to load.";
+			}
+			_rides_manager.AddRideType(ride_type);
 			continue;
 		}
 
@@ -1691,6 +1791,28 @@ const Fence *SpriteManager::GetFence(FenceType fence_type) const
 {
 	assert(fence_type < FENCE_TYPE_COUNT);
 	return this->store.fence[fence_type];
+}
+
+/**
+ * Get the frame set rcd data at a given frame set index
+ * @param index The FSET block's index in the rcd file.
+ * @return FrameSet object or nullptr.
+ */
+const FrameSet *SpriteManager::GetFrameSet(const int index) const
+{
+	auto it = this->store.frame_sets.find(index);
+	return it == this->store.frame_sets.end() ? nullptr : it->second;
+}
+
+/**
+ * Get the timed animation rcd data at a given timed animation index
+ * @param index The TIMA block's index in the rcd file.
+ * @return TimedAnimation object or nullptr.
+ */
+const TimedAnimation *SpriteManager::GetTimedAnimation(const int index) const
+{
+	auto it = this->store.timed_animations.find(index);
+	return it == this->store.timed_animations.end() ? nullptr : it->second;
 }
 
 /**

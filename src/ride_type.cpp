@@ -31,10 +31,12 @@
  *
  * - The #RideType represents the type of a ride, e.g. "the kiosk" or a "basic steel roller coaster".
  *   - Shop types are implement in #ShopType.
+ *   - Gentle ride types and thrill ride types are implemented in #GentleThrillRideType.
  *   - Coaster types are implemented in #CoasterType.
  *
  * - The #RideInstance represents actual rides in the park.
  *   - Shops instances are implemented in #ShopInstance.
+ *   - Gentle ride instances and thrill ride instances are implemented in #GentleThrillRideInstance.
  *   - Coasters instances are implemented in #CoasterInstance.
  *
  * The #RidesManager (#_rides_manager) manages both ride types and ride instances.
@@ -176,8 +178,9 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
- * \fn void RideInstance::GetSprites(uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+ * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
  * Get the sprites to display for the provided voxel number.
+ * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
  * @param orient View orientation.
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
@@ -667,6 +670,8 @@ void RidesManager::NewInstanceAdded(uint16 num)
 
 	switch (ri->GetKind()) {
 		case RTK_SHOP:
+		case RTK_GENTLE:
+		case RTK_THRILL:
 			ri->CloseRide();
 			break;
 

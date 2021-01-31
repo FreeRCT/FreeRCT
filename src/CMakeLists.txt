@@ -30,6 +30,12 @@ add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
 				   DEPENDS rcdgen
                    COMMENT "Generating SHOPS string files"
 )
+set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings")
+add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
+                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GENTLE_THRILL_RIDES --base STR_GENERIC_GENTLE_THRILL_RIDES_START
+				   DEPENDS rcdgen
+                   COMMENT "Generating GENTLE/THRILL RIDES string files"
+)
 set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/gui_strings")
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GUI --base STR_GUI_START
@@ -57,6 +63,7 @@ set(freerct_SRCS ${freerct_SRCS}
     "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h"
+    "${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.h"
 )
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/rev.cpp" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.cpp" GENERATED)
@@ -65,6 +72,8 @@ set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.cpp" 
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.cpp" GENERATED)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.h" GENERATED)
 
 # On windows, "WIN32" option need to be passed to
 # add_excutable to get a Windows instead of Console

@@ -113,6 +113,8 @@ strings {
 		RIDE_SELECT_SHOPS_TOOLTIP:   "Click to display available shop types";
 		RIDE_SELECT_GENTLE:          "Gentle rides";
 		RIDE_SELECT_GENTLE_TOOLTIP:  "Click to display available gentle ride types";
+		RIDE_SELECT_THRILL:          "Thrill rides";
+		RIDE_SELECT_THRILL_TOOLTIP:  "Click to display available thrill ride types";
 		RIDE_SELECT_WET:             "Wet rides";
 		RIDE_SELECT_WET_TOOLTIP:     "Click to display available wet ride types";
 		RIDE_SELECT_COASTER:         "Coasters";
@@ -133,6 +135,15 @@ strings {
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total profit";
 		SHOP_MANAGER_OPENED_TEXT:        "Shop is open";
 		SHOP_MANAGER_CLOSED_TEXT:        "Shop is closed";
+
+		// Gentle/thrill ride manager window strings.
+		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% \"%2%\"";
+		GENTLE_RIDES_MANAGER_TITLE:                    "Gentle Ride";
+		THRILL_RIDES_MANAGER_TITLE:                    "Thrill Ride";
+		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Ride is open";
+		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Ride is closed";
+		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Monthly cost:";
+		GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT: "Entrance fee:";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";
@@ -185,6 +196,8 @@ strings {
 
 		// Ride build window strings.
 		RIDE_BUILD_TITLEBAR_SHOP:         "Place shop";
+		RIDE_BUILD_TITLEBAR_GENTLE:       "Place gentle ride";
+		RIDE_BUILD_TITLEBAR_THRILL:       "Place thrill ride";
 		RIDE_BUILD_ROTATE_TOOLTIP:        "Click to rotate the ride";
 		RIDE_BUILD_DISPLAY_TOOLTIP:       "A picture of the ride you are buying";
 		RIDE_BUILD_NAME_TEXT:             "Buying a %1%";
@@ -243,5 +256,15 @@ strings {
 		NAME_INSTANCE:    "Crazy roller";
 		NAME_TYPE:        "Basic rollercoaster";
 		DESCRIPTION_TYPE: "Basic steel rollercoaster ride";
+	}
+
+	stringtexts("spooky-manor") {
+		NAME_INSTANCE1:        "Palace of Fear";
+		NAME_INSTANCE2:        "Aisles of Darkness";
+		NAME_TYPE:             "Spooky Manor";
+		DESCRIPTION_TYPE:      "A dark, creepy mansion that terrifies any guest brave enough to enter it.";
+		DESCRIPTION_RECOLOUR1: "Walls";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
 	}
 }
