@@ -136,6 +136,15 @@ strings {
 		SHOP_MANAGER_OPENED_TEXT:        "Geschäft geöffnet";
 		SHOP_MANAGER_CLOSED_TEXT:        "Geschäft geschlossen";
 
+		// Gentle/thrill ride manager window strings.
+		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% \"%2%\"";
+		GENTLE_RIDES_MANAGER_TITLE:                    "Gemäßigte Attraktion";
+		THRILL_RIDES_MANAGER_TITLE:                    "Aufregende Attraktion";
+		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Attraktion geöffnet";
+		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Attraktion geschlossen";
+		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Monatliche Kosten:";
+		GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT: "Eintrittspreis:";
+
 		// Fence gui strings.
 		FENCE_TITLE:           "Baue Zäune";
 
@@ -175,12 +184,24 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Wählt Streckenteile mit Neigung nach rechts aus";
 		COASTER_BUILD_BUY_TOOLTIP:        "Kauft das gewählte Streckenteil";
 
+		// Entity remove button strings.
+		ENTITY_REMOVE:         "Abreißen";
+		ENTITY_REMOVE_TOOLTIP: "Das hier abreißen?";
+
+		// Entity remove window strings.
+		ENTITY_REMOVE_CAPTION: "Abreißen";
+		ENTITY_REMOVE_MESSAGE: "%1% abreißen?";
+		ENTITY_REMOVE_YES:     "Ja";
+		ENTITY_REMOVE_NO:      "Nein";
+
 		// Ride build window strings.
-		RIDE_BUILD_TITLEBAR_SHOP:         "Geschäft plazieren";
+		RIDE_BUILD_TITLEBAR_SHOP:         "Geschäft platzieren";
+		RIDE_BUILD_TITLEBAR_GENTLE:       "Gemäßigte Attraktion platzieren";
+		RIDE_BUILD_TITLEBAR_THRILL:       "Aufregende Attraktion platzieren";
 		RIDE_BUILD_ROTATE_TOOLTIP:        "Rotieren des Fahrgeschäfts";
 		RIDE_BUILD_DISPLAY_TOOLTIP:       "Ein Bild des Fahrgeschäfts";
-		RIDE_BUILD_NAME_TEXT:             "Kaufen %1%";
-		RIDE_BUILD_COST_TEXT:             "Kosten %1%";
+		RIDE_BUILD_NAME_TEXT:             "%1% kaufen";
+		RIDE_BUILD_COST_TEXT:             "Kosten: %1%";
 
 		// Money symbols.
 		MONEY_CURRENCY_SYMBOL:     "€";
@@ -235,5 +256,15 @@ strings {
 		NAME_INSTANCE:    "Verrückte Achterbahn";
 		NAME_TYPE:        "Standard-Achterbahn";
 		DESCRIPTION_TYPE: "Standard-Stahlachterbahn";
+	}
+
+	stringtexts("spooky-manor") {
+		NAME_INSTANCE1:        "Palast der Furcht";
+		NAME_INSTANCE2:        "Finstere Gänge";
+		NAME_TYPE:             "Spukschloss";
+		DESCRIPTION_TYPE:      "Ein finsteres Schloss, das jeden Gast, der so mutig ist, sich hineinzuwagen, in Angst und Schrecken versetzt.";
+		DESCRIPTION_RECOLOUR1: "Wände";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
 	}
 }
