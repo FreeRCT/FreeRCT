@@ -30,7 +30,7 @@ const ImageData *FixedRideType::GetView(uint8 orientation) const
 }
 
 /**
- * \fn int GetRideCapacity() const
+ * \fn int FixedRideType::GetRideCapacity() const
  * Compute the capacity of onride guests in the ride.
  * @return Size of a batch in bits 0..7, and number of batches in bits 8..14. \c 0 means guests don't stay in the ride.
  */
