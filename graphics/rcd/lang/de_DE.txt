@@ -125,7 +125,7 @@ strings {
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Attraktion im Uhrzeigersinn drehen";
 
 		// Shop manager window strings.
-		SHOP_MANAGER_TITLE:              "Geschäft \"%1%\"";
+		SHOP_MANAGER_TITLE:              "Geschäft »%1%«";
 		SHOP_MANAGER_COST_PRICE_TEXT:    "Baukosten";
 		SHOP_MANAGER_SELLING_PRICE_TEXT: "Verkaufspreis";
 		SHOP_MANAGER_ITEMS_SOLD_TEXT:    "Verkaufte Einheiten";
@@ -137,7 +137,7 @@ strings {
 		SHOP_MANAGER_CLOSED_TEXT:        "Geschäft geschlossen";
 
 		// Gentle/thrill ride manager window strings.
-		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% \"%2%\"";
+		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% »%2%«";
 		GENTLE_RIDES_MANAGER_TITLE:                    "Gemäßigte Attraktion";
 		THRILL_RIDES_MANAGER_TITLE:                    "Aufregende Attraktion";
 		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Attraktion geöffnet";
