@@ -267,4 +267,13 @@ strings {
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
 	}
+	stringtexts("ship-swing") {
+		NAME_INSTANCE1:        "Keelhauler";
+		NAME_INSTANCE2:        "Pirates Ahoi";
+		NAME_TYPE:             "Ship Swing";
+		DESCRIPTION_TYPE:      "A ship swinging back and forth.";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
 }

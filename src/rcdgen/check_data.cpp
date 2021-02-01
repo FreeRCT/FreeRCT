@@ -377,6 +377,7 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, std::shared_ptr<NameTable
 				int col = 0;
 				do {
 					const char *nm = parms_name.GetParmName(row, col);
+					// fprintf(stdout, "NOCOM Asigning name %s row/col %ix%i (size %ix%i)\n", nm, row, col, parms_name.hor_range.size(), parms_name.vert_range.size());
 					std::shared_ptr<ValueInformation> vi = std::make_shared<ValueInformation>();
 					vi->expr_value = nullptr;
 					vi->node_value = bn->GetSubNode(row, col, nm, il->pos);
