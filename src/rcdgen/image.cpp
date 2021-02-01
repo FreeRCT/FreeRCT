@@ -739,9 +739,6 @@ const char *SpriteImage::CopySprite(Image *img, int xoffset, int yoffset, int xp
 
 	int img_width = img->GetWidth();
 	int img_height = img->GetHeight();
-
-	// fprintf(stdout, "NOCOM: off %dx%d pos %dx%d size %dx%d image %dx%d\n", xoffset, yoffset, xpos, ypos, xsize, ysize, img_width, img_height);
-
 	if (xpos < 0 || ypos < 0) return "Negative starting position";
 	if (xpos >= img_width || ypos >= img_height) return "Starting position beyond image";
 	if (xsize < 0 || ysize < 0) return "Negative image size";

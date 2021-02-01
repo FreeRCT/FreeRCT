@@ -25,6 +25,9 @@ public:
 
 	const StringID *GetInstanceNames() const override;
 	RideInstance *CreateInstance() const override;
+
+private:
+	int capacity;
 };
 
 /** A gentle or thrill ride. */

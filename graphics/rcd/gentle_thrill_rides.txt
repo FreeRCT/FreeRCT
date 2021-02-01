@@ -87,6 +87,9 @@ file("gentle_thrill_rides.rcd") {
 		entrance_fee: 50;
 		cost_ownership: 100;
 		cost_opened: 3000;
+		capacity: 24;
+		idle_duration: 30000;
+		working_duration: 30000;
 
 		texts: strings { key: "spooky-manor"; }
 	}
@@ -126,8 +129,104 @@ file("gentle_thrill_rides.rcd") {
 
 		animation_starting: TIMA { frames: 0; }
 		animation_working: TIMA {
-			frames: 0;
-			
+			// NOCOM
+			frames: 4;
+			duration_0: 90;
+			duration_1: 90;
+			duration_2: 90;
+			duration_3: 90;
+			frame_0: FSET {
+				tile_width: 64; width_x: 5; width_y: 2;
+				(se_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_0.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(nw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_0.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(ne_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*2; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_0.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(sw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*3; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_0.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}	
+			}
+			frame_1: FSET {
+				tile_width: 64; width_x: 5; width_y: 2;
+				(se_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_1.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(nw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_1.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(ne_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*2; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_1.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(sw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*3; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_1.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}	
+			}
+			frame_2: FSET {
+				tile_width: 64; width_x: 5; width_y: 2;
+				(se_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_2.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(nw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_2.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(ne_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*2; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_2.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(sw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*3; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_2.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}	
+			}
+			frame_3: FSET {
+				tile_width: 64; width_x: 5; width_y: 2;
+				(se_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_3.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(nw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_3.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(ne_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*2; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_3.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}
+				(sw_{hor(0..4)}_{vert(0..1)}): sheet {
+					x_base: 128*3; y_base: 0; x_step: 64; y_step: 192;
+					file: "../sprites/gentle_thrill_rides/ship_swing/64_working_3.png"; crop: 0;
+					x_offset: -32; y_offset: 32-192; width: 64; height: 192;
+				}	
+			}
 		}
 		animation_stopping: TIMA { frames: 0; }
 		animation_idle: FSET {
@@ -159,6 +258,9 @@ file("gentle_thrill_rides.rcd") {
 		entrance_fee: 80;
 		cost_ownership: 100;
 		cost_opened: 2000;
+		capacity: 16;
+		idle_duration: 20000;
+		working_duration: 40000;
 
 		texts: strings { key: "ship-swing"; }
 	}

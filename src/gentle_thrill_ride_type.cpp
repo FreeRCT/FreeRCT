@@ -18,7 +18,7 @@
 
 GentleThrillRideType::GentleThrillRideType() : FixedRideType(RTK_GENTLE /* Kind will be set later in Load(). */)
 {
-	/* Nothing to do currently. */
+	capacity = 0;
 }
 
 GentleThrillRideType::~GentleThrillRideType()
@@ -41,12 +41,12 @@ RideInstance *GentleThrillRideType::CreateInstance() const
  */
 bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 1 || rcd_file->size < 3) return false;
+	if (rcd_file->version != 2 || rcd_file->size < 3) return false;
 	this->kind = rcd_file->GetUInt8() ? RTK_THRILL : RTK_GENTLE;
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (static_cast<int>(rcd_file->size) != 63 + (this->width_x * this->width_y)) return false;
+	if (static_cast<int>(rcd_file->size) != 75 + (this->width_x * this->width_y)) return false;
 	
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -73,6 +73,30 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->item_cost[1] = 0;                    // Unused.
 	this->monthly_cost = rcd_file->GetInt32();
 	this->monthly_open_cost = rcd_file->GetInt32();
+	this->capacity = rcd_file->GetUInt32();
+	this->idle_duration = rcd_file->GetUInt32();
+	this->working_duration = rcd_file->GetUInt32();
+
+	/* Check that all animations fit to the ride. */
+	if (animation_idle == nullptr || animation_starting == nullptr ||
+			animation_working == nullptr || animation_stopping == nullptr ||
+			animation_idle->width_x != this->width_x || animation_idle->width_y != this->width_y) {
+		return false;
+	}
+	int working_animation_min_length = 0;
+	for (int i = 0; i < animation_starting->frames; ++i) {
+		if (animation_starting->views[i]->width_x != this->width_x || animation_starting->views[i]->width_y != this->width_y) return false;
+		working_animation_min_length += animation_starting->durations[i];
+	}
+	for (int i = 0; i < animation_working->frames; ++i) {
+		if (animation_working->views[i]->width_x != this->width_x || animation_working->views[i]->width_y != this->width_y) return false;
+		working_animation_min_length += animation_working->durations[i];
+	}
+	for (int i = 0; i < animation_stopping->frames; ++i) {
+		if (animation_stopping->views[i]->width_x != this->width_x || animation_stopping->views[i]->width_y != this->width_y) return false;
+		working_animation_min_length += animation_stopping->durations[i];
+	}
+	if (working_animation_min_length > this->working_duration) return false;
 
 	TextData *text_data;
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
@@ -85,7 +109,8 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 
 int GentleThrillRideType::GetRideCapacity() const
 {
-	return 0; // \todo Guest entering rides is not implemented yet.
+	return 0;
+	// return capacity; NOCOM
 }
 
 const StringID *GentleThrillRideType::GetInstanceNames() const

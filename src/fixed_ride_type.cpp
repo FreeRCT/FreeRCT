@@ -7,16 +7,19 @@
 
 /** @file fixed_ride_type.cpp Implementation of the fixed rides. */
 
+#include <SDL_timer.h>
 #include "stdafx.h"
 #include "map.h"
 #include "fixed_ride_type.h"
 #include "person.h"
 #include "people.h"
 #include "fileio.h"
+#include "math_func.h"
+#include "viewport.h"
 
 FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k)
 {
-	this->width_x = this->width_y = 0;
+	this->width_x = this->width_y = this->idle_duration = this->working_duration = 0;
 	animation_idle = nullptr;
 	animation_starting = nullptr;
 	animation_working = nullptr;
@@ -50,6 +53,9 @@ FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(t
 	int capacity = type->GetRideCapacity();
 	assert(capacity == 0 || (capacity & 0xFF) == 1); ///< \todo Implement loading of guests into a batch.
 	this->onride_guests.Configure(capacity & 0xFF, capacity >> 8);
+
+	this->is_working = false;
+	this->time_left_in_phase = 0;
 }
 
 FixedRideInstance::~FixedRideInstance()
@@ -100,18 +106,59 @@ const FixedRideType *FixedRideInstance::GetFixedRideType() const
 	return static_cast<const FixedRideType *>(this->type);
 }
 
+void FixedRideInstance::CloseRide() {
+	RideInstance::CloseRide();
+	is_working = false;
+	this->time_left_in_phase = 0;
+}
+
+void FixedRideInstance::OpenRide() {
+	RideInstance::OpenRide();
+	is_working = false;
+	this->time_left_in_phase = GetFixedRideType()->idle_duration;
+}
+
 void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	sprites[0] = nullptr;
-	if (voxel_number == SHF_ENTRANCE_NONE) sprites[1] = nullptr;
-	else {
-		const FixedRideType* t = GetFixedRideType();
-		const XYZPoint16 unrotated_pos = t->UnorientatedOffset(this->orientation, vox.x - vox_pos.x, vox.y - vox_pos.y);
-		/* \todo Consider animation frame. */
-		sprites[1] = t->animation_idle->sprites[(4 + this->orientation - orient) & 3][unrotated_pos.x * t->width_y + unrotated_pos.y];
-	}
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
+
+	if (voxel_number == SHF_ENTRANCE_NONE) {
+		sprites[1] = nullptr;
+	} else {
+		const FixedRideType* t = GetFixedRideType();
+		const FrameSet *set_to_use;
+		if (is_working) {
+			/* Check whether we are starting up, slowing down, or in the middle of the phase. */
+			const int relative_time = Clamp(t->working_duration - time_left_in_phase, 0, t->working_duration);
+			const int start_duration = t->animation_starting->GetTotalDuration();
+			if (relative_time < start_duration) {
+				/* Starting up. */
+				const int index = t->animation_starting->GetFrame(relative_time, false);
+				assert(index >= 0 && index < t->animation_starting->frames);
+				set_to_use = t->animation_starting->views[index];
+			} else {
+				const int stop_duration = t->animation_stopping->GetTotalDuration();
+				if (relative_time > t->working_duration - stop_duration) {
+					/* Slowing down. */
+					const int index = t->animation_stopping->GetFrame(stop_duration + relative_time - t->working_duration, false);
+					assert(index >= 0 && index < t->animation_stopping->frames);
+					set_to_use = t->animation_stopping->views[index];
+				} else {
+					/* Main part of the working animation. */
+					const int index = t->animation_working->GetFrame(relative_time - start_duration, true);
+					assert(index >= 0 && index < t->animation_working->frames);
+					set_to_use = t->animation_working->views[index];
+				}
+			}
+		} else {
+			/* The ride is idle. */
+			set_to_use = t->animation_idle;
+		}
+		const XYZPoint16 unrotated_pos = t->UnorientatedOffset(this->orientation, vox.x - vox_pos.x, vox.y - vox_pos.y);
+		sprites[1] = set_to_use->sprites[(4 + this->orientation - orient) & 3][unrotated_pos.x * t->width_y + unrotated_pos.y];
+	}
 }
 
 /**
@@ -193,6 +240,27 @@ void FixedRideInstance::RemoveFromWorld()
 
 void FixedRideInstance::OnAnimate(int delay)
 {
+	const FixedRideType* t = GetFixedRideType();
+	if (this->state == RIS_OPEN && t->working_duration > 0) {
+		this->time_left_in_phase -= delay;
+		bool needs_update = this->is_working;
+		if (this->time_left_in_phase < 0) {
+			this->is_working = !this->is_working;
+			this->time_left_in_phase += (this->is_working ? t->working_duration : t->idle_duration);
+			needs_update = true;
+			// NOCOM kick out guests and stuff
+		}
+
+		/* Update the view during the working phase to ensure smooth animations, as well as on phase switches. */
+		if (needs_update) {
+			for (int8 x = 0; x < t->width_x; ++x) {
+				for (int8 y = 0; y < t->width_y; ++y) {
+					MarkVoxelDirty(this->vox_pos + t->OrientatedOffset(this->orientation, x, y));
+				}
+			}
+		}
+	}
+
 	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.
 
 	/* Kick out guests that are done. */
@@ -222,6 +290,8 @@ void FixedRideInstance::Load(Loader &ldr)
 	uint16 y = ldr.GetWord();
 	uint16 z = ldr.GetWord();
 	this->vox_pos = XYZPoint16(x, y, z);
+	this->time_left_in_phase = ldr.GetLong();
+	this->is_working = ldr.GetByte() == 1;
 
 	InsertIntoWorld();
 }
@@ -234,4 +304,6 @@ void FixedRideInstance::Save(Saver &svr)
 	svr.PutWord(this->vox_pos.x);
 	svr.PutWord(this->vox_pos.y);
 	svr.PutWord(this->vox_pos.z);
+	svr.PutLong(this->time_left_in_phase);
+	svr.PutByte(this->is_working ? 1 : 0);
 }

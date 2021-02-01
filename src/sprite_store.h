@@ -199,6 +199,9 @@ public:
 
 	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
+	int GetTotalDuration() const;
+	int GetFrame(int time, bool loop_around) const;
+
 	int frames;   ///< Number of frames
 	std::unique_ptr<int[]> durations;   ///< Duration of each frame in milliseconds.
 	std::unique_ptr<const FrameSet*[]> views; ///< Each frame's set of sprites.

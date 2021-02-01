@@ -377,7 +377,6 @@ static void AssignNames(std::shared_ptr<BlockNode> bn, std::shared_ptr<NameTable
 				int col = 0;
 				do {
 					const char *nm = parms_name.GetParmName(row, col);
-					// fprintf(stdout, "NOCOM Asigning name %s row/col %ix%i (size %ix%i)\n", nm, row, col, parms_name.hor_range.size(), parms_name.vert_range.size());
 					std::shared_ptr<ValueInformation> vi = std::make_shared<ValueInformation>();
 					vi->expr_value = nullptr;
 					vi->node_value = bn->GetSubNode(row, col, nm, il->pos);
@@ -1939,6 +1938,9 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->entrance_fee = vals.GetNumber("entrance_fee");
 	block->ownership_cost = vals.GetNumber("cost_ownership");
 	block->opened_cost = vals.GetNumber("cost_opened");
+	block->capacity = vals.GetNumber("capacity");
+	block->idle_duration = vals.GetNumber("idle_duration");
+	block->working_duration = vals.GetNumber("working_duration");
 	block->ride_text = std::make_shared<StringBundle>();
 	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
 	block->ride_text->CheckTranslations(_gentle_thrill_rides_string_names, lengthof(_gentle_thrill_rides_string_names), ng->pos);

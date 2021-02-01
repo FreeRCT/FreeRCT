@@ -636,6 +636,9 @@ public:
 	int entrance_fee;     ///< Cost of the ride.
 	int ownership_cost;   ///< Monthly cost of having the ride.
 	int opened_cost;      ///< Additional monthly cost of having an opened ride.
+	int capacity;         ///< Number of guests that can enter the ride.
+	int idle_duration;    ///< Duration of the idle phase in milliseconds.
+	int working_duration; ///< Duration of the working phase in milliseconds.
 
 	std::shared_ptr<FSETBlock> idle_animation;
 	std::shared_ptr<TIMABlock> starting_animation;

@@ -43,6 +43,8 @@ public:
 	static XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y);
 	static XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y);
 
+	int idle_duration;                        ///< Duration of the idle phase in milliseconds.
+	int working_duration;                     ///< Duration of the working phase in milliseconds.
 	const FrameSet *animation_idle;           ///< Ride graphics when the ride is not working
 	const TimedAnimation *animation_starting; ///< Ride graphics when the ride is starting to work
 	const TimedAnimation *animation_working;  ///< Ride graphics when the ride is working
@@ -62,6 +64,8 @@ public:
 	virtual void SetRide(uint8 orientation, const XYZPoint16 &pos);
 	void RemoveAllPeople() override;
 	void OnAnimate(int delay) override;
+	void OpenRide() override;
+	void CloseRide() override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
@@ -74,6 +78,9 @@ public:
 
 protected:
 	OnRideGuests onride_guests; ///< Guests in the ride.
+
+	bool is_working;        /// Whether the ride is currently in the working phase.
+	int time_left_in_phase; /// Number of milliseconds left in the current phase.
 };
 
 #endif
