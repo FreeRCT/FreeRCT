@@ -240,6 +240,7 @@ void FixedRideInstance::RemoveFromWorld()
 
 void FixedRideInstance::OnAnimate(int delay)
 {
+	bool kickout_guests = true;
 	const FixedRideType* t = GetFixedRideType();
 	if (this->state == RIS_OPEN && t->working_duration > 0) {
 		this->time_left_in_phase -= delay;
@@ -248,7 +249,8 @@ void FixedRideInstance::OnAnimate(int delay)
 			this->is_working = !this->is_working;
 			this->time_left_in_phase += (this->is_working ? t->working_duration : t->idle_duration);
 			needs_update = true;
-			// NOCOM kick out guests and stuff
+		} else {
+			kickout_guests = false;
 		}
 
 		/* Update the view during the working phase to ensure smooth animations, as well as on phase switches. */
@@ -264,6 +266,7 @@ void FixedRideInstance::OnAnimate(int delay)
 	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.
 
 	/* Kick out guests that are done. */
+	if (!kickout_guests) return;
 	int start = -1;
 	for (;;) {
 		start = this->onride_guests.GetFinishedBatch(start);
