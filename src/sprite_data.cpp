@@ -15,9 +15,10 @@
 
 #include <vector>
 
-static const int MAX_IMAGE_COUNT = 5000; ///< Maximum number of images that can be loaded (arbitrary number).
+static const uint32 MAX_IMAGE_COUNT = 10000; ///< Maximum number of images that can be loaded (arbitrary number).
 
 static std::vector<ImageData> _sprites;  ///< Available sprites to the program.
+static uint32 _sprites_loaded;           ///< Total number of sprites loaded.
 
 ImageData::ImageData()
 {
@@ -262,14 +263,20 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
  */
 ImageData *LoadImage(RcdFileReader *rcd_file)
 {
+	if (_sprites_loaded == MAX_IMAGE_COUNT) {
+		fprintf(stderr, "Attempt to load too many sprites! MAX_IMAGE_COUNT needs to be increased.\n");
+		exit(1);
+	}
 	bool is_8bpp = strcmp(rcd_file->name, "8PXL") == 0;
 	if (rcd_file->version != (is_8bpp ? 2 : 1)) return nullptr;
 
 	_sprites.emplace_back();
+	_sprites_loaded++;
 	ImageData *imd = &_sprites.back();
 	bool loaded = is_8bpp ? imd->Load8bpp(rcd_file, rcd_file->size) : imd->Load32bpp(rcd_file, rcd_file->size);
 	if (!loaded) {
 		_sprites.pop_back();
+		_sprites_loaded--;
 		return nullptr;
 	}
 	imd->flags = is_8bpp ? (1 << IFG_IS_8BPP) : 0;
