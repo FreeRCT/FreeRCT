@@ -1,0 +1,270 @@
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+strings {
+	lang: "nds";
+
+	stringtexts("gui") {
+		TITLEBAR_TIP:  "Klick de Titelbalken an, um dat Fenster na boven to halen; treck de Titelbalken, um dat Fenster to verschuven";
+		LANGUAGE_NAME: "Plattdüütsch";
+
+		MONTH_JANUARY:   "Januar";
+		MONTH_FEBRUARY:  "Februar";
+		MONTH_MARCH:     "Määrt";
+		MONTH_APRIL:     "April";
+		MONTH_MAY:       "Mai";
+		MONTH_JUNE:      "Juni";
+		MONTH_JULY:      "Juli";
+		MONTH_AUGUST:    "August";
+		MONTH_SEPTEMBER: "September";
+		MONTH_OCTOBER:   "Oktober";
+		MONTH_NOVEMBER:  "November";
+		MONTH_DECEMBER:  "Dezember";
+
+		NUMBERED_INSTANCE_NAME: "%1% #%2%";
+		RESOLUTION:             "%1%×%2%";
+
+		// Toolbar gui strings.
+		TOOLBAR_GUI_QUIT:                 "Verlaten";
+		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Dat Speel verlaten";
+		TOOLBAR_GUI_SETTINGS:             "Instellens";
+		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "De Speel-Instellens ännern";
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker";
+		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Tüsken de Spölen un de Bewarken vun eener Rutfödderung umschalten";
+		TOOLBAR_GUI_PATHS:                "Wege";
+		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege un Wachtslangen bauen";
+		TOOLBAR_GUI_SAVE:                 "Sekern";
+		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Dat Speel sekern";
+		TOOLBAR_GUI_LOAD:                 "Laden";
+		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Een Speel laden";
+		TOOLBAR_GUI_RIDE_SELECT:          "Bude bauen";
+		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Eene neje Bude för dienen Park bauen";
+		TOOLBAR_GUI_FENCE:                "Schütten bauen";
+		TOOLBAR_GUI_TOOLTIP_FENCE:        "Schütten in dienem Park bauen";
+		TOOLBAR_GUI_TERRAFORM:            "Landskupp";
+		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "De Landskupp bewarken";
+		TOOLBAR_GUI_FINANCES:             "Geld";
+		TOOLBAR_GUI_TOOLTIP_FINANCES:     "De Firmen-Finanzen besörgen";
+
+		BOTTOMBAR_GUESTCOUNT:             "%1% Gasten";
+
+		// Quit program strings.
+		QUIT_CAPTION: "Speel verlaten";
+		QUIT_MESSAGE: "Dat Speel verlaten?";
+		QUIT_NO:      "Nee";
+		QUIT_YES:     "Jau";
+
+		// Error message strings.
+		ERROR_MESSAGE_CAPTION: "Naricht";
+		ERROR_MESSAGE_SPRITE:  "Kunn Sprite-Billers nich teken";
+
+		// Guest info gui strings.
+		GUEST_INFO_MONEY:       "Baargeld";
+		GUEST_INFO_MONEY_SPENT: "Geld utgeven";
+		GUEST_INFO_HAPPINESS:   "Frohlichheid";
+		GUEST_INFO_HUNGER:      "Hunger";
+		GUEST_INFO_THIRST:      "Dörst";
+		GUEST_INFO_WASTE:       "Maal mutten";
+		GUEST_INFO_ITEMS:       "Hollt Dingen";
+
+		// Items for guests gui strings.
+		ITEM_NONE:     "Nix";
+		ITEM_MAP:      "Kaart";
+		ITEM_UMBRELLA: "Schirm";
+		ITEM_WRAPPER:  "Verpacken";
+
+		// Path gui strings.
+		PATH_GUI_TITLE:            "Wege";
+		PATH_GUI_LONG:             "Lang";
+		PATH_GUI_BUY:              "Kopen";
+		PATH_GUI_REMOVE:           "Ofrieten";
+		PATH_GUI_LONG_TIP:         "Eenen langen Weg bauen";
+		PATH_GUI_BUY_TIP:          "Een Wegdeel kopen";
+		PATH_GUI_BULLDOZER_TIP:    "Click to remove the last built path and get your money back (works until you close the window)";
+		PATH_GUI_SLOPE_DOWN_TIP:   "Weg na unnern bauen";
+		PATH_GUI_SLOPE_FLAT_TIP:   "Weg na vörn bauen";
+		PATH_GUI_SLOPE_UP_TIP:     "Weg na boven bauen";
+
+		PATH_GUI_FORWARD:          "Na vörn";
+		PATH_GUI_BACKWARD:         "Torügg";
+		PATH_GUI_FORWARD_TIP:      "Een Feld na vörn gahn";
+		PATH_GUI_BACKWARD_TIP:     "Een Feld torügg gahn";
+
+		PATH_GUI_NW_DIRECTION_TIP: "Weg in Noordwest-Richtung bauen";
+		PATH_GUI_NE_DIRECTION_TIP: "Weg in Noordoost-Richtung bauen";
+		PATH_GUI_SW_DIRECTION_TIP: "Weg in Südwest-Richtung bauen";
+		PATH_GUI_SE_DIRECTION_TIP: "Weg in Südoost-Richtung bauen";
+
+		PATH_GUI_NORMAL_PATH:      "Normaale Wegen";
+		PATH_GUI_QUEUE_PATH:       "Wachtslangen";
+
+		PATH_GUI_SINGLE:           "Enkelt";
+		PATH_GUI_DIRECTIONAL:      "Richtung";
+		PATH_GUI_SINGLE_TIP:       "Enkelte Wegdelen bauen";
+		PATH_GUI_DIRECTIONAL_TIP:  "Begünn eenen langen Weg to bauen";
+
+		// Ride select gui strings.
+		RIDE_SELECT_TITLE:           "Bude utkören";
+		RIDE_SELECT_SHOPS:           "Laden";
+		RIDE_SELECT_SHOPS_TOOLTIP:   "Klick, um verfögbare Ladens to wiesen";
+		RIDE_SELECT_GENTLE:          "Sachte Buden";
+		RIDE_SELECT_GENTLE_TOOLTIP:  "Klick, um verfögbare sachte Buden to wiesen";
+		RIDE_SELECT_THRILL:          "Upregend Buden";
+		RIDE_SELECT_THRILL_TOOLTIP:  "Klick, um verfögbare upregend Buden to wiesen";
+		RIDE_SELECT_WET:             "Waterbuden";
+		RIDE_SELECT_WET_TOOLTIP:     "Klick, um verfögbare Waterbuden to wiesen";
+		RIDE_SELECT_COASTER:         "Achterbahn";
+		RIDE_SELECT_COASTER_TOOLTIP: "Klick, um verfögbare Achterbahnen to wiesen";
+		RIDE_SELECT_RIDE:            "Utkören";
+		RIDE_SELECT_RIDE_TOOLTIP:    "Klick, um de utköört Bude uttokören";
+		RIDE_SELECT_ROT_POS_TOOLTIP: "Klick, um de Bude tegen de Klockwiesersinn to dreihen";
+		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klick, um de Bude na de Klockwiesersinn to dreihen";
+
+		// Shop manager window strings.
+		SHOP_MANAGER_TITLE:              "Laden »%1%«";
+		SHOP_MANAGER_COST_PRICE_TEXT:    "Inkoop-Pries";
+		SHOP_MANAGER_SELLING_PRICE_TEXT: "Verkoop-Pries";
+		SHOP_MANAGER_ITEMS_SOLD_TEXT:    "Verkoopt";
+		SHOP_MANAGER_ITEM_PROFIT_TEXT:   "Gewinn pro Ding";
+		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Verkoop-Gewinn";
+		SHOP_MANAGER_SHOP_COST_TEXT:     "Personaalkosten";
+		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Gewinn all tosamen";
+		SHOP_MANAGER_OPENED_TEXT:        "Laden is open";
+		SHOP_MANAGER_CLOSED_TEXT:        "Laden is dicht";
+
+		// Gentle/thrill ride manager window strings.
+		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% »%2%«";
+		GENTLE_RIDES_MANAGER_TITLE:                    "Sachte Bude";
+		THRILL_RIDES_MANAGER_TITLE:                    "Upregend Bude";
+		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Bude is open";
+		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Bude is dicht";
+		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Kosten pro Maant:";
+		GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT: "Intree:";
+
+		// Fence gui strings.
+		FENCE_TITLE:           "Schütten bauen";
+
+		// Terraform gui strings.
+		TERRAFORM_TITLE:       "Landskupp bewarken";
+		TERRAFORM_ADD_TEXT:    "+";
+		TERRAFORM_ADD_TOOLTIP: "Grött vun de Kuntrei tum Bewarken verhogen";
+		TERRAFORM_SUB_TEXT:    "–";
+		TERRAFORM_SUB_TOOLTIP: "Grött vun de Kuntrei tum Bewarken minnern";
+		TERRAFORM_LEVEL_TEXT:  "Kuntrei tum Bewarken platt maken";
+		TERRAFORM_MOVE_TEXT:   "Kuntrei tum Bewarken verschuven as se is";
+
+		// Finances gui strings.
+		FINANCES_TITLE:                  "Finanzen besörgen";
+		FINANCES_RIDE_CONSTRUCTION_TEXT: "Buden bauen";
+		FINANCES_RIDE_RUNNING_TEXT:      "Buden-Kosten";
+		FINANCES_LAND_PURCHASE_TEXT:     "Land kopen";
+		FINANCES_LANDSCAPING_TEXT:       "Landskupp bewarken";
+		FINANCES_PARK_TICKETS_TEXT:      "Park-Intree";
+		FINANCES_RIDE_TICKETS_TEXT:      "Buden-Intree";
+		FINANCES_SHOP_SALES_TEXT:        "Laden-Verkopens";
+		FINANCES_SHOP_STOCK_TEXT:        "Ladens nafüllen";
+		FINANCES_FOOD_SALES_TEXT:        "Eten un Dranken verkopen";
+		FINANCES_FOOD_STOCK_TEXT:        "Eten un Dranken nafüllen";
+		FINANCES_STAFF_WAGES_TEXT:       "Personaal-Lohnen";
+		FINANCES_MARKETING_TEXT:         "Werbung";
+		FINANCES_RESEARCH_TEXT:          "Forschung";
+		FINANCES_LOAN_INTEREST_TEXT:     "Börgtinsen";
+		FINANCES_TOTAL_TEXT:             "All tosamen";
+
+		// Coaster construction strings.
+		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Spoordelen mit Boog na links utkören";
+		COASTER_BUILD_NO_BEND_TOOLTIP:    "Spoordelen sünner Boog utkören";
+		COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Spoordelen mit Boog na rechts utkören";
+		COASTER_BUILD_BANK_LEFT_TOOLTIP:  "Spoordelen mit Schüünte na links utkören";
+		COASTER_BUILD_BANK_NONE_TOOLTIP:  "Spoordelen sünner Schüünte utkören";
+		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Spoordelen mit Schüünte na rechts utkören";
+		COASTER_BUILD_BUY_TOOLTIP:        "Klick, um dat utköört Spoordeel to kopen";
+
+		// Entity remove button strings.
+		ENTITY_REMOVE:         "Ofrieten";
+		ENTITY_REMOVE_TOOLTIP: "Dat hier ofrieten?";
+
+		// Entity remove window strings.
+		ENTITY_REMOVE_CAPTION: "Ofrieten";
+		ENTITY_REMOVE_MESSAGE: "%1% ofrieten?";
+		ENTITY_REMOVE_YES:     "Jau";
+		ENTITY_REMOVE_NO:      "Nee";
+
+		// Ride build window strings.
+		RIDE_BUILD_TITLEBAR_SHOP:         "Laden bauen";
+		RIDE_BUILD_TITLEBAR_GENTLE:       "Sachte Bude bauen";
+		RIDE_BUILD_TITLEBAR_THRILL:       "Upregend Bude bauen";
+		RIDE_BUILD_ROTATE_TOOLTIP:        "Klick, um de Bude to dreihen";
+		RIDE_BUILD_DISPLAY_TOOLTIP:       "Een Bill vun de Bude, wat du jüüst koopst";
+		RIDE_BUILD_NAME_TEXT:             "%1% kopen";
+		RIDE_BUILD_COST_TEXT:             "Kosten: %1%";
+
+		// Money symbols.
+		MONEY_CURRENCY_SYMBOL:     "€";
+		MONEY_THOUSANDS_SEPARATOR: ".";
+		MONEY_DECIMAL_SEPARATOR:   ",";
+
+		// Setting gui strings.
+		SETTING_TITLE:              "Instellens";
+		SETTING_LANGUAGE:           "Spraak ännern";
+		SETTING_LANGUAGE_TOOLTIP:   "De Spraak vun de Speel ännern";
+		SETTING_RESOLUTION:         "Uplösen ännern";
+		SETTING_RESOLUTION_TOOLTIP: "De Grött vun de Speelfenster ännern";
+	}
+
+	stringtexts("ice-cream-stall") {
+		NAME_INSTANCE1:        "De Ies-Palast";
+		NAME_INSTANCE2:        "Kolle Dranken";
+		NAME_TYPE:             "Iesverkoop";
+		DESCRIPTION_TYPE:      "Verkoopt kolle Drankens un Ies.";
+		DESCRIPTION_RECOLOUR1: "Becherfarv";
+		DESCRIPTION_RECOLOUR2: "Iesfarv";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Vanille-Ies";
+		NAME_ITEM2:            "Frisk Drank";
+	}
+
+	stringtexts("snack-shop") {
+		NAME_INSTANCE1:        "Happkes Imbiss";
+		NAME_INSTANCE2:        "Pizza-Palast";
+		NAME_TYPE:             "Imbiss";
+		DESCRIPTION_TYPE:      "Laden, waar du gode Kookjes kopen kannst.";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Kookjes";
+		NAME_ITEM2:            "Pizza";
+	}
+
+	stringtexts("toilet") {
+		NAME_INSTANCE1:        "Klo";
+		NAME_INSTANCE2:        "Gemack";
+		NAME_TYPE:             "Oftritt";
+		DESCRIPTION_TYPE:      "Wenn du maal muttst, muttst du hier hen.";
+		DESCRIPTION_RECOLOUR1: "Oftritt-Farv";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+		NAME_ITEM1:            "Oftritt";
+		NAME_ITEM2:            "";
+	}
+
+	stringtexts("basic-coaster") {
+		NAME_INSTANCE:    "Malle Rull";
+		NAME_TYPE:        "Normaale Achterbahn";
+		DESCRIPTION_TYPE: "Normaale Achterbahn ut Stahl.";
+	}
+
+	stringtexts("spooky-manor") {
+		NAME_INSTANCE1:        "Palast vun Angst";
+		NAME_INSTANCE2:        "Düüstere Gangen";
+		NAME_TYPE:             "Spöökslött";
+		DESCRIPTION_TYPE:      "Een dunkers, düüsters Kasteel, wat elkeen Gast, well sik daar in traut, doodsbenaut maakt.";
+		DESCRIPTION_RECOLOUR1: "Wanden";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+}
