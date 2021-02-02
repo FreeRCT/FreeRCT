@@ -267,4 +267,13 @@ strings {
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
 	}
+	stringtexts("ship-swing") {
+		NAME_INSTANCE1:        "Kielholer";
+		NAME_INSTANCE2:        "Piraten Ahoi";
+		NAME_TYPE:             "Schiffschaukel";
+		DESCRIPTION_TYPE:      "Ein Schiff, das vor und zurück schwingt.";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
 }
