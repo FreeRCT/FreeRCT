@@ -1895,19 +1895,7 @@ static std::shared_ptr<TIMABlock> ConvertTIMANode(std::shared_ptr<NodeGroup> ng)
 	}
 
 	if (vals.HasValue("sheet")) {
-		const int tile_width = vals.GetNumber("tile_width");
-		/* const int width_x = vals.GetNumber("width_x");
-		const int width_y = vals.GetNumber("width_y");
-		const int sprite_w = vals.GetNumber("sprite_w");
-		const int sprite_h = vals.GetNumber("sprite_h");
-		const int x_offset = vals.GetNumber("x_offset");
-		const int y_offset = vals.GetNumber("y_offset"); */
-
 		/* Re-use SheetBlock code to load the sheet image from disk and take care of bitmasks and recolouring. */
-		/* block->image_cache.reset(new SheetBlock(ng->pos));
-		block->image_cache->file = vals.GetString("sheet");
-		if (vals.HasValue("recolour")) block->image_cache->recolour = vals.GetString("recolour");
-		Image *image = block->image_cache->GetSheet(); */
 		std::shared_ptr<ValueInformation> sheet_node = vals.FindValue("sheet");
 		auto sheet = std::dynamic_pointer_cast<SheetBlock>(sheet_node->node_value);
 		if (sheet == nullptr) {
@@ -1915,6 +1903,7 @@ static std::shared_ptr<TIMABlock> ConvertTIMANode(std::shared_ptr<NodeGroup> ng)
 			exit(1);
 		}
 		sheet_node->node_value = nullptr;
+		const int tile_width = vals.GetNumber("tile_width");
 		const int width_x = sheet->x_count;
 		const int width_y = sheet->y_count;
 		const int sprite_w = sheet->width;
