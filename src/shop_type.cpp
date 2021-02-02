@@ -108,12 +108,12 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	return true;
 }
 
-int ShopType::GetRideCapacity() const
+FixedRideType::RideCapacity ShopType::GetRideCapacity() const
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
-		if (this->item_type[i] == ITP_TOILET) return 1 | (CAPACITY_TOILET << 8);
+		if (this->item_type[i] == ITP_TOILET) return FixedRideType::RideCapacity{CAPACITY_TOILET, 1};
 	}
-	return 0;
+	return FixedRideType::RideCapacity{0, 0};
 }
 
 const StringID *ShopType::GetInstanceNames() const

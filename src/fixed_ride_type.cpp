@@ -37,9 +37,9 @@ const ImageData *FixedRideType::GetView(uint8 orientation) const
 }
 
 /**
- * \fn int FixedRideType::GetRideCapacity() const
+ * \fn FixedRideType::RideCapacity FixedRideType::GetRideCapacity() const
  * Compute the capacity of onride guests in the ride.
- * @return Size of a batch in bits 0..7, and number of batches in bits 8..14. \c 0 means guests don't stay in the ride.
+ * @return Number of batches and number of guests per batch. If either is \c 0, guests don't stay in the ride.
  */
 
 /**
@@ -50,9 +50,9 @@ FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(t
 {
 	this->orientation = 0;
 
-	int capacity = type->GetRideCapacity();
-	assert(capacity == 0 || (capacity & 0xFF) == 1); ///< \todo Implement loading of guests into a batch.
-	this->onride_guests.Configure(capacity & 0xFF, capacity >> 8);
+	/* \todo Implement loading of guests into a batch. */
+	const FixedRideType::RideCapacity capacity = type->GetRideCapacity();
+	this->onride_guests.Configure(capacity.guests_per_batch, capacity.number_of_batches);
 
 	this->is_working = false;
 	this->time_left_in_phase = 0;

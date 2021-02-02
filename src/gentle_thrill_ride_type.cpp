@@ -107,10 +107,9 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	return true;
 }
 
-int GentleThrillRideType::GetRideCapacity() const
+FixedRideType::RideCapacity GentleThrillRideType::GetRideCapacity() const
 {
-	return 0;
-	// return capacity; NOCOM
+	return FixedRideType::RideCapacity{1, capacity};
 }
 
 const StringID *GentleThrillRideType::GetInstanceNames() const

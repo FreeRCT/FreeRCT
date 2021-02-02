@@ -21,7 +21,12 @@ public:
 	explicit FixedRideType(RideTypeKind kind);
 	~FixedRideType();
 
-	virtual int GetRideCapacity() const = 0;
+	/* Information about how many guests can use the ride at the same time. */
+	struct RideCapacity {
+		int number_of_batches; ///< How many batches of guests fit into the ride.
+		int guests_per_batch;  ///< How many guests may be in each batch.
+	};
+	virtual RideCapacity GetRideCapacity() const = 0;
 
 	const ImageData *GetView(uint8 orientation) const override;
 
