@@ -1,3 +1,10 @@
+/*
+ * This file is part of FreeRCT.
+ * FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+ * FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -5,6 +12,18 @@ import java.io.*;
 import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
+/**
+ * This program provides an easy way to generate spritesheets for ride animations from individual (blender) images.
+ * Let's assume you've made an animation with `f` frames for a ride with a size of `x` × `y` tiles.
+ * The base images, all of which are of size `w` × `h`, are located in `src_dir`.
+ * The images are called "PREFIX0000.png" through "PREFIX9999.png", where `PREFIX` may be different for each of the four rotations
+ * (let's call the prefixes `se`,`ne`,`nw`,`sw` in this order). The number of the animation's starting frame is `idOff`.
+ * To generate the spritesheet and save it as `output_file`, run
+ *    java GenerateSpritesheet src_dir output_file idOff se ne nw sw f x y w h
+ * Before running the program the first time you need to run
+ *    javac GenerateSpritesheet.java
+ */
 
 public class GenerateSpritesheet {
 	public static void main(String[] args) throws Exception {

@@ -145,11 +145,14 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 					const int index = t->animation_stopping->GetFrame(stop_duration + relative_time - t->working_duration, false);
 					assert(index >= 0 && index < t->animation_stopping->frames);
 					set_to_use = t->animation_stopping->views[index];
-				} else {
+				} else if (t->animation_working->GetTotalDuration() > 0) {
 					/* Main part of the working animation. */
 					const int index = t->animation_working->GetFrame(relative_time - start_duration, true);
 					assert(index >= 0 && index < t->animation_working->frames);
 					set_to_use = t->animation_working->views[index];
+				} else {
+					/* The artist did not find time to create a working animation. */
+					set_to_use = t->animation_idle;
 				}
 			}
 		} else {
