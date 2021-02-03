@@ -685,6 +685,11 @@ Offset     Length  Version  Description
   87+s                      Total length.
 =========  ======  =======  ===================================================================================
 
+The duration of the ride's working phase needs to be at least as long as the sum of the durations of all
+frames of the starting, working and stopping animations. If the working phase is longer than that, the
+working animation will be played in a loop to ensure the animation durations match.
+If the working animation has a total length of zero, the idle image will be used in its stead.
+
 Version history
 ...............
 
