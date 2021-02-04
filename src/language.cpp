@@ -559,6 +559,39 @@ Point32 GetMoneyStringSize(const Money &amount)
  */
 void InitLanguage()
 {
+	/* Typical system language strings may be "de_DE.UTF-8" or "nds:de_DE:en_GB:en". */
+	auto try_language = [](std::string lang) {
+		int id = GetLanguageIndex(lang.c_str());
+		if (id >= 0) {
+			_current_language = id;
+			return true;
+		}
+
+		for (;;) {
+			size_t pos = lang.find(':');
+			std::string name;
+			bool single_language = false;
+			if (pos == std::string::npos) {
+				name = lang;
+				single_language = true;
+			} else {
+				name = lang.substr(0, pos);
+				lang = lang.substr(pos + 1);
+			}
+
+			pos = name.find('.');
+			if (pos != std::string::npos) name = name.substr(0, pos);
+			id = GetLanguageIndex(name.c_str());
+			if (id >= 0) {
+				_current_language = id;
+				return true;
+			}
+
+			if (single_language) break;
+		}
+		return false;
+	};
+	if (!try_language(getenv("LANG"))) try_language(getenv("LANGUAGE"));
 }
 
 /** Clean up the language. */
