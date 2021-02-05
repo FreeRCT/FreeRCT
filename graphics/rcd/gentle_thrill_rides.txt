@@ -87,7 +87,8 @@ file("gentle_thrill_rides.rcd") {
 		entrance_fee: 50;
 		cost_ownership: 100;
 		cost_opened: 3000;
-		capacity: 24;
+		guests_per_batch: 4;
+		number_of_batches: 6;
 		idle_duration: 30000;
 		working_duration: 30000;
 
@@ -172,7 +173,8 @@ file("gentle_thrill_rides.rcd") {
 		entrance_fee: 80;
 		cost_ownership: 100;
 		cost_opened: 2000;
-		capacity: 16;
+		guests_per_batch: 16;
+		number_of_batches: 1;
 		idle_duration: 20000;
 		working_duration: 40000;
 

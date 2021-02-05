@@ -27,7 +27,7 @@ public:
 	RideInstance *CreateInstance() const override;
 
 private:
-	int capacity;
+	FixedRideType::RideCapacity capacity;
 };
 
 /** A gentle or thrill ride. */

@@ -18,7 +18,8 @@
 
 GentleThrillRideType::GentleThrillRideType() : FixedRideType(RTK_GENTLE /* Kind will be set later in Load(). */)
 {
-	capacity = 0;
+	capacity.number_of_batches = 0;
+	capacity.guests_per_batch = 0;
 }
 
 GentleThrillRideType::~GentleThrillRideType()
@@ -46,7 +47,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (static_cast<int>(rcd_file->size) != 75 + (this->width_x * this->width_y)) return false;
+	if (static_cast<int>(rcd_file->size) != 79 + (this->width_x * this->width_y)) return false;
 	
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -73,7 +74,8 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->item_cost[1] = 0;                    // Unused.
 	this->monthly_cost = rcd_file->GetInt32();
 	this->monthly_open_cost = rcd_file->GetInt32();
-	this->capacity = rcd_file->GetUInt32();
+	this->capacity.number_of_batches = rcd_file->GetUInt32();
+	this->capacity.guests_per_batch = rcd_file->GetUInt32();
 	this->idle_duration = rcd_file->GetUInt32();
 	this->working_duration = rcd_file->GetUInt32();
 
@@ -97,6 +99,8 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 		working_animation_min_length += animation_stopping->durations[i];
 	}
 	if (working_animation_min_length > this->working_duration) return false;
+	if (capacity.number_of_batches < 1 || capacity.guests_per_batch < 1) return false;
+	if (capacity.number_of_batches > 1 && working_animation_min_length != 0) return false;
 
 	TextData *text_data;
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
@@ -109,7 +113,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 
 FixedRideType::RideCapacity GentleThrillRideType::GetRideCapacity() const
 {
-	return FixedRideType::RideCapacity{1, capacity};
+	return capacity;
 }
 
 const StringID *GentleThrillRideType::GetInstanceNames() const

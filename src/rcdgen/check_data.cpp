@@ -2001,7 +2001,8 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->entrance_fee = vals.GetNumber("entrance_fee");
 	block->ownership_cost = vals.GetNumber("cost_ownership");
 	block->opened_cost = vals.GetNumber("cost_opened");
-	block->capacity = vals.GetNumber("capacity");
+	block->number_of_batches = vals.GetNumber("number_of_batches");
+	block->guests_per_batch = vals.GetNumber("guests_per_batch");
 	block->idle_duration = vals.GetNumber("idle_duration");
 	block->working_duration = vals.GetNumber("working_duration");
 	block->ride_text = std::make_shared<StringBundle>();

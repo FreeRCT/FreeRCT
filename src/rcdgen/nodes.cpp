@@ -1027,7 +1027,7 @@ FGTRBlock::FGTRBlock() : GameBlock("FGTR", 2)
 int FGTRBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 87 + (this->ride_width_x * this->ride_width_y) - 12);
+	fb->StartSave(this->blk_name, this->version, 91 + (this->ride_width_x * this->ride_width_y) - 12);
 	fb->SaveUInt8(this->is_thrill_ride ? 1 : 0);
 	fb->SaveUInt8(this->ride_width_x);
 	fb->SaveUInt8(this->ride_width_y);
@@ -1047,7 +1047,8 @@ int FGTRBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->entrance_fee);
 	fb->SaveUInt32(this->ownership_cost);
 	fb->SaveUInt32(this->opened_cost);
-	fb->SaveUInt32(this->capacity);
+	fb->SaveUInt32(this->number_of_batches);
+	fb->SaveUInt32(this->guests_per_batch);
 	fb->SaveUInt32(this->idle_duration);
 	fb->SaveUInt32(this->working_duration);
 	fb->SaveUInt32(this->ride_text->Write(fw));
