@@ -125,6 +125,16 @@ int freerct_main(int argc, char **argv)
 		                "medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf\n");
 		return 1;
 	}
+	/* Overwrite the default language settings if the user specified a custom language in the config file. */
+	const char *preferred_language = cfg_file.GetValue("language", "language");
+	if (preferred_language != nullptr) {
+		int index = GetLanguageIndex(preferred_language);
+		if (index < 0) {
+			fprintf(stderr, "Warning: Language '%s' is not known, ignoring\n");
+		} else {
+			_current_language = index;
+		}
+	}
 
 	/* Initialize video. */
 	std::string err = _video.Initialize(font_path, font_size);
