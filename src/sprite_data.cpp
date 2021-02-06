@@ -263,7 +263,7 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
  */
 ImageData *LoadImage(RcdFileReader *rcd_file)
 {
-	if (_sprites_loaded == MAX_IMAGE_COUNT) {
+	if (_sprites_loaded >= MAX_IMAGE_COUNT) {
 		fprintf(stderr, "Attempt to load too many sprites! MAX_IMAGE_COUNT needs to be increased.\n");
 		exit(1);
 	}
