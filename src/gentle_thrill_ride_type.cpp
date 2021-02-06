@@ -191,8 +191,22 @@ bool GentleThrillRideInstance::CanPlaceEntranceOrExit(const XYZPoint16& pos, con
 {
 	if (pos.z != this->vox_pos.z || !IsVoxelstackInsideWorld(pos.x, pos.y) || _world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
 
-	// NOCOM check whether it's adjacent
+	/* Is the position directly adjacent to the ride? */
+	const GentleThrillRideType *t = this->GetGentleThrillRideType();
+	const XYZPoint16 corner = this->vox_pos + FixedRideType::OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
+	const int nw_line_y = std::min(this->vox_pos.y, corner.y) - 1;
+	const int se_line_y = std::max(this->vox_pos.y, corner.y) + 1;
+	const int ne_line_x = std::min(this->vox_pos.x, corner.x) - 1;
+	const int sw_line_x = std::max(this->vox_pos.x, corner.x) + 1;
+	if (pos.y == nw_line_y || pos.y == se_line_y) {
+		if (pos.x <= ne_line_x || pos.x >= sw_line_x) return false;
+	} else if (pos.x == ne_line_x || pos.x == sw_line_x) {
+		if (pos.y <= nw_line_y || pos.y >= se_line_y) return false;
+	} else {
+		return false;
+	}
 
+	/* Is there enough vertical space available? */
 	const int8 height = entrance ? RideEntranceExitType::entrance_height : RideEntranceExitType::exit_height;
 	for (int16 h = 0; h < height; ++h) {
 		Voxel *voxel = _world.GetCreateVoxel(pos + XYZPoint16(0, 0, h), false);
