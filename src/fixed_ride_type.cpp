@@ -145,13 +145,21 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 	sprites[3] = nullptr;
 
 	const FixedRideType* t = GetFixedRideType();
-	const int orientation_index = (4 + this->orientation - orient) & 3;
+	auto entrance_exit_rotation = [this, t, &vox]() {
+		const XYZPoint16 corner = this->vox_pos + FixedRideType::OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
+		if (vox.y == std::min(this->vox_pos.y, corner.y) - 1) return VOR_WEST;
+		if (vox.y == std::max(this->vox_pos.y, corner.y) + 1) return VOR_EAST;
+		if (vox.x == std::min(this->vox_pos.x, corner.x) - 1) return VOR_NORTH;
+		if (vox.x == std::max(this->vox_pos.x, corner.x) + 1) return VOR_SOUTH;
+		NOT_REACHED();  // Invalid entrance/exit location.
+	};
+	auto orientation_index = [orient](const int o) {
+		return (4 + o - orient) & 3;
+	};
 	if (IsEntranceLocation(vox)) {
-		// NOCOM consider entrance rotation
-		sprites[1] = _rides_manager.entrances[this->entrance_type]->images[orientation_index];
+		sprites[1] = _rides_manager.entrances[this->entrance_type]->images[orientation_index(entrance_exit_rotation())];
 	} else if (IsExitLocation(vox)) {
-		// NOCOM consider exit rotation
-		sprites[1] = _rides_manager.exits[this->exit_type]->images[orientation_index];
+		sprites[1] = _rides_manager.exits[this->exit_type]->images[orientation_index(entrance_exit_rotation())];
 	} else if (voxel_number == SHF_ENTRANCE_NONE) {
 		sprites[1] = nullptr;
 	} else {
@@ -187,7 +195,7 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 			set_to_use = t->animation_idle;
 		}
 		const XYZPoint16 unrotated_pos = t->UnorientatedOffset(this->orientation, vox.x - vox_pos.x, vox.y - vox_pos.y);
-		sprites[1] = set_to_use->sprites[orientation_index][unrotated_pos.x * t->width_y + unrotated_pos.y];
+		sprites[1] = set_to_use->sprites[orientation_index(this->orientation)][unrotated_pos.x * t->width_y + unrotated_pos.y];
 	}
 }
 

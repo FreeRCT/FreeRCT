@@ -17,19 +17,19 @@ file("entrance_exit.rcd") {
 		tile_width: 64;
 		se: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/entrance-generic.png";
-		}
-		sw: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/entrance-generic.png";
-		}
-		ne: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/entrance-generic.png";
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_1.png";
 		}
 		nw: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/entrance-generic.png";
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_1.png";
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_2.png";
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_2.png";
 		}
 		name: strings { key: "entrance-generic"; }
 	}
@@ -40,19 +40,19 @@ file("entrance_exit.rcd") {
 		tile_width: 64;
 		se: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/exit-generic.png";
-		}
-		sw: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/exit-generic.png";
-		}
-		ne: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/exit-generic.png";
+			file: "../sprites/ride_entrance_exit/generic/64_exit_1.png";
 		}
 		nw: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/exit-generic.png";
+			file: "../sprites/ride_entrance_exit/generic/64_exit_1.png";
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/generic/64_exit_2.png";
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/generic/64_exit_2.png";
 		}
 		name: strings { key: "exit-generic"; }
 	}
