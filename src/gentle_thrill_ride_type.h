@@ -21,10 +21,13 @@ public:
 	~GentleThrillRideType();
 
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
-	int GetRideCapacity() const override;
+	FixedRideType::RideCapacity GetRideCapacity() const override;
 
 	const StringID *GetInstanceNames() const override;
 	RideInstance *CreateInstance() const override;
+
+private:
+	FixedRideType::RideCapacity capacity;
 };
 
 /** A gentle or thrill ride. */

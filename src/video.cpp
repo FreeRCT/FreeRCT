@@ -621,6 +621,9 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 	for (int yoff = 0; yoff < spr->height; yoff++) {
 		int32 xpos = x_base;
 		uint32 *src_base = line_base;
+		auto is_in_drawing_region = [&cr, &src_base]() {
+			return src_base >= cr.address && src_base < cr.address + cr.width * cr.height;
+		};
 		for (;;) {
 			uint8 mode = *src++;
 			if (mode == 0) break;
@@ -630,15 +633,19 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 					if (shift == GS_SEMI_TRANSPARENT) {
 						src += 3 * mode;
 						for (; mode > 0; mode--) {
-							uint32 ndest = BlendPixels(255, 255, 255, *src_base, OPACITY_SEMI_TRANSPARENT);
-							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
+							if (is_in_drawing_region()) {
+								uint32 ndest = BlendPixels(255, 255, 255, *src_base, OPACITY_SEMI_TRANSPARENT);
+								BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
+							}
 							xpos++;
 							src_base++;
 						}
 					} else {
 						for (; mode > 0; mode--) {
-							uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
-							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							if (is_in_drawing_region()) {
+								uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
+								BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+							}
 							xpos++;
 							src_base++;
 							src += 3;
@@ -651,8 +658,10 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 					if (shift == GS_SEMI_TRANSPARENT && opacity > OPACITY_SEMI_TRANSPARENT) opacity = OPACITY_SEMI_TRANSPARENT;
 					mode &= 0x3F;
 					for (; mode > 0; mode--) {
-						uint32 ndest = BlendPixels(sf(src[0]), sf(src[1]), sf(src[2]), *src_base, opacity);
-						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
+						if (is_in_drawing_region()) {
+							uint32 ndest = BlendPixels(sf(src[0]), sf(src[1]), sf(src[2]), *src_base, opacity);
+							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
+						}
 						xpos++;
 						src_base++;
 						src += 3;
@@ -672,8 +681,10 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 					mode &= 0x3F;
 					for (; mode > 0; mode--) {
 						uint32 colour = table[*src++];
-						colour = BlendPixels(sf(GetR(colour)), sf(GetG(colour)), sf(GetB(colour)), *src_base, opacity);
-						BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+						if (is_in_drawing_region()) {
+							colour = BlendPixels(sf(GetR(colour)), sf(GetG(colour)), sf(GetB(colour)), *src_base, opacity);
+							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
+						}
 						xpos++;
 						src_base++;
 					}

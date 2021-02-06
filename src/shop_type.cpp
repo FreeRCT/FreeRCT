@@ -77,9 +77,12 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	this->flags = rcd_file->GetUInt8() & 0xF;
 
 	animation_idle = _sprite_manager.GetFrameSet(rcd_file->GetUInt32());
+	if (animation_idle == nullptr || animation_idle->width_x != this->width_x || animation_idle->width_y != this->width_y) return false;
 	for (int i = 0; i < 4; i++) {
 		previews[i] = animation_idle->sprites[i][0];
 	}
+	this->working_duration = 0;  // Shops don't have working phases.
+	this->idle_duration = 1;     // Ignored.
 
 	for (uint i = 0; i < 3; i++) {
 		uint32 recolour = rcd_file->GetUInt32();
@@ -105,12 +108,12 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	return true;
 }
 
-int ShopType::GetRideCapacity() const
+FixedRideType::RideCapacity ShopType::GetRideCapacity() const
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
-		if (this->item_type[i] == ITP_TOILET) return 1 | (CAPACITY_TOILET << 8);
+		if (this->item_type[i] == ITP_TOILET) return FixedRideType::RideCapacity{CAPACITY_TOILET, 1};
 	}
-	return 0;
+	return FixedRideType::RideCapacity{0, 0};
 }
 
 const StringID *ShopType::GetInstanceNames() const

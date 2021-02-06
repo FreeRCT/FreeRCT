@@ -157,7 +157,7 @@ public:
 	void OnNewMonth();
 	void OnNewDay();
 	void BuildRide();
-	void OpenRide();
+	virtual void OpenRide();
 	virtual void CloseRide();
 	void HandleBreakdown();
 
