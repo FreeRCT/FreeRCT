@@ -156,13 +156,11 @@ uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) con
 
 RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
 {
-	// NOCOM
 	return RER_REFUSED; // \todo Ride entrances are not implemented yet.
 }
 
 XYZPoint32 GentleThrillRideInstance::GetExit(int guest, TileEdge entry_edge)
 {
-	// NOCOM
 	NOT_REACHED(); // \todo Ride exits are not implemented yet.
 }
 

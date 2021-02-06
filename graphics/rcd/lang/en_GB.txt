@@ -269,10 +269,10 @@ strings {
 	}
 
 	stringtexts("entrance-generic") {
-		NAME: "Standard Entrance";
+		NAME: "Generic Entrance";
 	}
 	stringtexts("exit-generic") {
-		NAME: "Standard Exit";
+		NAME: "Generic Exit";
 	}
 
 	stringtexts("spooky-manor") {

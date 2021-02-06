@@ -181,12 +181,14 @@ GentleThrillRideManagerWindow::~GentleThrillRideManagerWindow()
 
 assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
 
-/** Update the radio buttons of the window. */
+/** Update all buttons of the window related to the ride's open/closed state. */
 void GentleThrillRideManagerWindow::SetGentleThrillRideToggleButtons()
 {
 	this->SetWidgetChecked(GTRMW_RIDE_OPENED, this->ride->state == RIS_OPEN);
 	this->SetWidgetChecked(GTRMW_RIDE_CLOSED, this->ride->state == RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_RIDE_OPENED, !this->ride->CanOpenRide());
+	this->SetWidgetShaded(GTRMW_PLACE_ENTRANCE, this->ride->state != RIS_CLOSED);
+	this->SetWidgetShaded(GTRMW_PLACE_EXIT, this->ride->state != RIS_CLOSED);
 }
 
 void GentleThrillRideManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
@@ -295,11 +297,7 @@ void GentleThrillRideManagerWindow::ChooseEntranceExitClicked(const bool entranc
 
 void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
-	// NOCOM
-	Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
-	XYZPoint16 vox_pos;
-	vox_pos.z = WORLD_Z_SIZE - 1;
-	int dz = vox_pos.z * 256 - vp->view_pos.z;
+	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 	int dx, dy;
 	switch (vp->orientation) {
 		case VOR_NORTH: dx =  1; dy =  1; break;
@@ -308,32 +306,21 @@ void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const P
 		case VOR_EAST:  dx =  1; dy = -1; break;
 		default: NOT_REACHED();
 	}
-	world_pos.x += dx * dz / 2;
-	world_pos.y += dy * dz / 2;
-	while (vox_pos.z > this->ride->vox_pos.z) {
-		vox_pos.x = world_pos.x / 256;
-		vox_pos.y = world_pos.y / 256;
-		if (vox_pos.x < 0 && dx > 0) break;
-		if (vox_pos.x >= _world.GetXSize() && dx < 0) break;
-		if (vox_pos.y < 0 && dy > 0) break;
-		if (vox_pos.y >= _world.GetYSize() && dy < 0) break;
-		world_pos.x -= 128 * dx;
-		world_pos.y -= 128 * dy;
-		vox_pos.z--;
-	}
+	const int dz = (this->ride->vox_pos.z - (vp->view_pos.z / 256)) / 2;
+	const XYZPoint16 location(world_pos.x / 256 + dz * dx, world_pos.y / 256 + dz * dy, this->ride->vox_pos.z);
 
 	entrance_exit_placement.MarkDirty();
-	entrance_exit_placement.SetPosition(vox_pos.x, vox_pos.y);
-	if (this->ride->CanPlaceEntranceOrExit(vox_pos, this->is_placing_entrance)) {
+	entrance_exit_placement.SetPosition(location.x, location.y);
+	if (this->ride->CanPlaceEntranceOrExit(location, this->is_placing_entrance)) {
 		if (this->is_placing_entrance) {
-			this->ride->temp_entrance_pos = vox_pos;
+			this->ride->temp_entrance_pos = location;
 		} else {
-			this->ride->temp_exit_pos = vox_pos;
+			this->ride->temp_exit_pos = location;
 		}
 		entrance_exit_placement.SetSize(1, 1);
-		entrance_exit_placement.AddVoxel(vox_pos);
+		entrance_exit_placement.AddVoxel(location);
 		entrance_exit_placement.SetupRideInfoSpace();
-		entrance_exit_placement.SetRideData(vox_pos, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS);
+		entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS);
 	} else {
 		if (this->is_placing_entrance) {
 			this->ride->temp_entrance_pos = XYZPoint16::invalid();
