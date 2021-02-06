@@ -371,6 +371,33 @@ TimedAnimation::~TimedAnimation()
 }
 
 /**
+ * How long this animation needs to play once.
+ * @return The duration in milliseconds.
+ */
+int TimedAnimation::GetTotalDuration() const {
+	int total = 0;
+	for (int i = 0; i < frames; ++i) total += durations[i];
+	return total;
+}
+
+/**
+ * The frame to display at the given time.
+ * @param time The time in milliseconds relative to the animation's begin.
+ * @param loop_around Whether the animation should play in an endless loop.
+ * @return The current frame, or -1 if the result is invalid.
+ */
+int TimedAnimation::GetFrame(int time, const bool loop_around) const {
+	const int total_length = GetTotalDuration();
+	if (total_length <= 0 || (!loop_around && total_length > time)) return -1;
+	time %= total_length;
+	for (int i = 0; i < frames; ++i) {
+		time -= durations[i];
+		if (time <= 0) return i;
+	}
+	NOT_REACHED();
+}
+
+/**
  * Load a frame set block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.

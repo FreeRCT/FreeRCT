@@ -6,6 +6,8 @@
 /CMakeCache.txt
 /cmake_install.cmake
 /bin
+/CMakeDoxyfile.in
+/CMakeDoxygenDefaults.cmake
 
 # /doc/
 /doc/html
@@ -131,3 +133,5 @@
 /src/rcdgen/CMakeFiles
 /src/rcdgen/cmake_install.cmake
 /src/rcdgen/CMakeCache.txt
+
+/utils/*.class
