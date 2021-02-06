@@ -63,10 +63,30 @@ FixedRideInstance::~FixedRideInstance()
 }
 
 /**
+ * Whether the ride's entrance should be rendered at the given location.
+ * @param pos Absolute voxel in the world.
+ * @return An entrance is located at the given location.
+ */
+bool FixedRideInstance::IsEntranceLocation(const XYZPoint16& pos) const
+{
+	return false;
+}
+
+/**
+ * Whether the ride's exit should be rendered at the given location.
+ * @param pos Absolute voxel in the world.
+ * @return An exit is located at the given location.
+ */
+bool FixedRideInstance::IsExitLocation(const XYZPoint16& pos) const
+{
+	return false;
+}
+
+/**
  * Determine at which voxel in the world a ride piece should be located.
  * @param orientation Orientation of the fixed ride.
  * @param x Unrotated x coordinate of the ride piece, relative to the ride's base voxel.
- * @param x Unrotated y coordinate of the ride piece, relative to the ride's base voxel.
+ * @param y Unrotated y coordinate of the ride piece, relative to the ride's base voxel.
  * @return Rotated location of the ride piece, relative to the ride's base voxel.
  */
 XYZPoint16 FixedRideType::OrientatedOffset(const uint8 orientation, const int x, const int y)
@@ -124,10 +144,17 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
 
-	if (voxel_number == SHF_ENTRANCE_NONE) {
+	const FixedRideType* t = GetFixedRideType();
+	const int orientation_index = (4 + this->orientation - orient) & 3;
+	if (IsEntranceLocation(vox)) {
+		// NOCOM consider entrance rotation
+		sprites[1] = _rides_manager.entrances[this->entrance_type]->images[orientation_index];
+	} else if (IsExitLocation(vox)) {
+		// NOCOM consider exit rotation
+		sprites[1] = _rides_manager.exits[this->exit_type]->images[orientation_index];
+	} else if (voxel_number == SHF_ENTRANCE_NONE) {
 		sprites[1] = nullptr;
 	} else {
-		const FixedRideType* t = GetFixedRideType();
 		const FrameSet *set_to_use;
 		if (is_working) {
 			/* Check whether we are starting up, slowing down, or in the middle of the phase. */
@@ -160,7 +187,7 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 			set_to_use = t->animation_idle;
 		}
 		const XYZPoint16 unrotated_pos = t->UnorientatedOffset(this->orientation, vox.x - vox_pos.x, vox.y - vox_pos.y);
-		sprites[1] = set_to_use->sprites[(4 + this->orientation - orient) & 3][unrotated_pos.x * t->width_y + unrotated_pos.y];
+		sprites[1] = set_to_use->sprites[orientation_index][unrotated_pos.x * t->width_y + unrotated_pos.y];
 	}
 }
 

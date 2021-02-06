@@ -602,6 +602,23 @@ public:
 	std::unique_ptr<std::shared_ptr<FSETBlock>[]> views; ///< The frames' image sets.
 };
 
+/** Class for describing a RIEE game block. */
+class RIEEBlock : public GameBlock {
+public:
+	RIEEBlock();
+
+	int Write(FileWriter *fw) override;
+
+	bool is_entrance;                     ///< True if this is an entrance, false if it's an exit.
+	int tile_width;                       ///< Zoom-width of a tile of the surface.
+	std::shared_ptr<StringBundle> name;   ///< The entrance/exit's name.
+	std::shared_ptr<SpriteBlock> ne_view; ///< Unrotated view.
+	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
+	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
+	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
+	Recolouring recol[3];                 ///< Recolour definitions of the entrance/exit.
+};
+
 /** Class for describing a SHOP game block. */
 class SHOPBlock : public GameBlock {
 public:

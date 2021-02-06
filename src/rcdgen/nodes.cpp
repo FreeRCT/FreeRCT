@@ -1020,6 +1020,26 @@ int TIMABlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+RIEEBlock::RIEEBlock() : GameBlock("RIEE", 1)
+{
+}
+
+int RIEEBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 47 - 12);
+	fb->SaveUInt8(this->is_entrance ? 1 : 0);
+	fb->SaveUInt32(this->name->Write(fw));
+	fb->SaveUInt16(this->tile_width);
+	fb->SaveUInt32(this->ne_view->Write(fw));
+	fb->SaveUInt32(this->se_view->Write(fw));
+	fb->SaveUInt32(this->sw_view->Write(fw));
+	fb->SaveUInt32(this->nw_view->Write(fw));
+	for (Recolouring& r : this->recol) fb->SaveUInt32(r.Encode());
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
 FGTRBlock::FGTRBlock() : GameBlock("FGTR", 2)
 {
 }

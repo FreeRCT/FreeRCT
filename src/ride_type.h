@@ -18,6 +18,7 @@ static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of type
 static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
 static const int MAX_RIDE_INSTANCE_NAME_LENGTH = 64; ///< Maximum number of characters in ride instance name.
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
+static const int MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS = 32; ///< Maximal number of types of ride entrances or exits.
 
 static const int NUMBER_ITEM_TYPES_SOLD = 2; ///< Number of different items that a ride can sell.
 
@@ -64,6 +65,22 @@ enum ItemType {
 	ITP_MONEY = 48,       ///< Money for more spending (i.e. an ATM).
 	ITP_TOILET = 49,      ///< Dropping of waste.
 	ITP_FIRST_AID = 50,   ///< Nausea treatment.
+};
+
+/** Class describing an entrance or exit of rides. */
+class RideEntranceExitType {
+public:
+	RideEntranceExitType();
+	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
+
+	bool is_entrance;       ///< Whether this is an entrance type or exit type.
+	StringID name;          ///< Name of the entrance or exit type.
+	ImageData* images[4];   ///< The entrance/exit's graphics.
+	Recolouring recolours;  ///< Sprite recolour map.
+
+	/* The following two values must be the same for all entrance/exit sets. */
+	static uint8 entrance_height; ///< The height of all rides' entrances in voxels.
+	static uint8 exit_height;     ///< The height of all rides' exits in voxels.
 };
 
 /** Base class of ride types. */
@@ -157,6 +174,7 @@ public:
 	void OnNewMonth();
 	void OnNewDay();
 	void BuildRide();
+	virtual bool CanOpenRide() const;
 	virtual void OpenRide();
 	virtual void CloseRide();
 	void HandleBreakdown();
@@ -180,6 +198,9 @@ public:
 	uint16 reliability;      ///< Mean number of days in between breakdowns.
 	BreakdownState breakdown_state; ///<Breakdown state for the ride.
 
+	uint16 entrance_type;    ///< Index of this ride's entrance.
+	uint16 exit_type;        ///< Index of this ride's exit.
+
 protected:
 	const RideType *type; ///< Ride type used.
 
@@ -197,6 +218,7 @@ public:
 	RideInstance *FindRideByName(const uint8 *name);
 
 	bool AddRideType(RideType *type);
+	bool AddRideEntranceExitType(RideEntranceExitType *type);
 
 	uint16 GetFreeInstance(const RideType *type);
 	RideInstance *CreateInstance(const RideType *type, uint16 num);
@@ -224,6 +246,8 @@ public:
 
 	const RideType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];  ///< Loaded types of rides.
 	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
+	const RideEntranceExitType* entrances[MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS]; ///< Available ride entrance types.
+	const RideEntranceExitType* exits[MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS];     ///< Available ride exit types.
 };
 
 RideInstance *RideExistsAtBottom(XYZPoint16 pos, TileEdge edge);

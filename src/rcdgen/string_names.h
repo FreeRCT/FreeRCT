@@ -199,6 +199,16 @@ static const char *_gui_string_names[] = {
 	"ENTITY_REMOVE_NO",
 	"ENTITY_REMOVE_MESSAGE",
 
+	/* Ride entrance/exit placement buttons. */
+	"PLACE_ENTRANCE",
+	"PLACE_ENTRANCE_TOOLTIP",
+	"PLACE_EXIT",
+	"PLACE_EXIT_TOOLTIP",
+	"CHOOSE_ENTRANCE",
+	"CHOOSE_ENTRANCE_TOOLTIP",
+	"CHOOSE_EXIT",
+	"CHOOSE_EXIT_TOOLTIP",
+
 	/* Ride build window. */
 	"RIDE_BUILD_TITLEBAR_SHOP",
 	"RIDE_BUILD_TITLEBAR_GENTLE",
@@ -250,6 +260,11 @@ static const char *_coaster_string_names[] = {
 	"NAME_INSTANCE",
 	"NAME_TYPE",
 	"DESCRIPTION_TYPE",
+};
+
+/** String name of an entrance or exit. */
+static const char *_entrance_exit_string_names[] = {
+	"NAME"
 };
 
 #endif

@@ -22,6 +22,7 @@
 #include "person.h"
 #include "people.h"
 #include "random.h"
+#include "generated/entrance_exit_strings.cpp"
 
 /**
  * \page Rides
@@ -43,6 +44,43 @@
  */
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
+
+/* \todo Move these constants to the RCD files. */
+uint8 RideEntranceExitType::entrance_height = 4;
+uint8 RideEntranceExitType::exit_height = 3;
+
+RideEntranceExitType::RideEntranceExitType()
+{
+	/* Nothing to do currently. */
+}
+
+/**
+ * Load a type of ride entrance or exit from the RCD file.
+ * @param rcd_file Rcd file being loaded.
+ * @param sprites Already loaded sprites.
+ * @param texts Already loaded texts.
+ * @return Loading was successful.
+ */
+bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+{
+	if (rcd_file->version != 1 || rcd_file->size != 35) return false;
+	this->is_entrance = rcd_file->GetUInt8() > 0;
+	TextData *text_data;
+	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	this->name = _language.RegisterStrings(*text_data, _entrance_exit_strings_table);
+	const int width = rcd_file->GetUInt16();
+	for (int i = 0; i < 4; i++) {
+		ImageData *view;
+		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+		if (width != 64) continue; /// \todo Widths other than 64.
+		this->images[i] = view;
+	}
+	for (int i = 0; i < 3; i++) {
+		uint32 recolour = rcd_file->GetUInt32();
+		this->recolours.Set(i, RecolourEntry(recolour));
+	}
+	return true;
+}
 
 /**
  * Ride type base class constructor.
@@ -149,6 +187,8 @@ RideInstance::RideInstance(const RideType *rt)
 	this->type = rt;
 	this->state = RIS_ALLOCATED;
 	this->flags = 0;
+	this->entrance_type = 0;
+	this->exit_type = 0;
 	this->recolours = rt->recolours;
 	this->recolours.AssignRandomColours();
 	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
@@ -340,12 +380,21 @@ void RideInstance::HandleBreakdown()
 }
 
 /**
+ * Check whether the ride can be opened.
+ * @return The ride can be opened.
+ */
+bool RideInstance::CanOpenRide() const
+{
+	return this->state == RIS_CLOSED;
+}
+
+/**
  * Open the ride for the public.
  * @pre The ride is open.
  */
 void RideInstance::OpenRide()
 {
-	assert(this->state == RIS_CLOSED);
+	assert(this->CanOpenRide());
 	this->state = RIS_OPEN;
 	if (this->breakdown_state == BDS_UNOPENED) {
 		this->breakdown_ctr = this->rnd.Exponential(this->reliability) + BREAKDOWN_GRACE_PERIOD;
@@ -402,6 +451,8 @@ void RideInstance::Load(Loader &ldr)
 	this->breakdown_ctr = (int16)ldr.GetWord();
 	this->reliability = ldr.GetWord();
 	this->breakdown_state = static_cast<BreakdownState>(ldr.GetByte());
+	this->entrance_type = ldr.GetWord();
+	this->exit_type = ldr.GetWord();
 }
 
 void RideInstance::Save(Saver &svr)
@@ -416,6 +467,8 @@ void RideInstance::Save(Saver &svr)
 	svr.PutWord((uint16)this->breakdown_ctr);
 	svr.PutWord(this->reliability);
 	svr.PutByte(static_cast<uint8>(this->breakdown_state));
+	svr.PutWord(this->entrance_type);
+	svr.PutWord(this->exit_type);
 }
 
 /** Default constructor of the rides manager. */
@@ -423,10 +476,14 @@ RidesManager::RidesManager()
 {
 	std::fill_n(this->ride_types, lengthof(this->ride_types), nullptr);
 	std::fill_n(this->instances, lengthof(this->instances), nullptr);
+	std::fill_n(this->entrances, lengthof(this->entrances), nullptr);
+	std::fill_n(this->exits, lengthof(this->exits), nullptr);
 }
 
 RidesManager::~RidesManager()
 {
+	for (uint i = 0; i < lengthof(this->entrances); i++) delete this->entrances[i];
+	for (uint i = 0; i < lengthof(this->exits); i++) delete this->exits[i];
 	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
 	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
 }
@@ -573,6 +630,23 @@ bool RidesManager::AddRideType(RideType *type)
 	for (uint i = 0; i < lengthof(this->ride_types); i++) {
 		if (this->ride_types[i] == nullptr) {
 			this->ride_types[i] = type;
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Add a new ride entrance or exit type to the manager.
+ * @param type New ride entrance/exit type to add.
+ * @return \c true if the addition was successful, else \c false.
+ */
+bool RidesManager::AddRideEntranceExitType(RideEntranceExitType *type)
+{
+	auto& array = type->is_entrance ? this->entrances : this->exits;
+	for (uint i = 0; i < lengthof(array); i++) {
+		if (array[i] == nullptr) {
+			array[i] = type;
 			return true;
 		}
 	}

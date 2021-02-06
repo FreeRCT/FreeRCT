@@ -128,7 +128,10 @@ const StringID *GentleThrillRideType::GetInstanceNames() const
  */
 GentleThrillRideInstance::GentleThrillRideInstance(const GentleThrillRideType *type) : FixedRideInstance(type)
 {
-	/* Nothing to do currently. */
+	this->entrance_pos = XYZPoint16::invalid();
+	this->exit_pos = XYZPoint16::invalid();
+	this->temp_entrance_pos = XYZPoint16::invalid();
+	this->temp_exit_pos = XYZPoint16::invalid();
 }
 
 GentleThrillRideInstance::~GentleThrillRideInstance()
@@ -153,22 +156,138 @@ uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) con
 
 RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
 {
+	// NOCOM
 	return RER_REFUSED; // \todo Ride entrances are not implemented yet.
 }
 
 XYZPoint32 GentleThrillRideInstance::GetExit(int guest, TileEdge entry_edge)
 {
+	// NOCOM
 	NOT_REACHED(); // \todo Ride exits are not implemented yet.
+}
+
+bool GentleThrillRideInstance::IsEntranceLocation(const XYZPoint16& pos) const
+{
+	return pos == this->entrance_pos || pos == this->temp_entrance_pos;
+}
+
+bool GentleThrillRideInstance::IsExitLocation(const XYZPoint16& pos) const
+{
+	return pos == this->exit_pos || pos == this->temp_exit_pos;
+}
+
+bool GentleThrillRideInstance::CanOpenRide() const
+{
+	return this->entrance_pos != XYZPoint16::invalid() && this->exit_pos != XYZPoint16::invalid() && FixedRideInstance::CanOpenRide();
+}
+
+/**
+ * Checks whether the ride's entrance or exit could be moved to the given location.
+ * @param pos Absolute voxel in the world.
+ * @param entrance Whether we're placing an entrance or exit.
+ * @return The entrance or exit can be placed there.
+ */
+bool GentleThrillRideInstance::CanPlaceEntranceOrExit(const XYZPoint16& pos, const bool entrance) const
+{
+	if (pos.z != this->vox_pos.z || !IsVoxelstackInsideWorld(pos.x, pos.y) || _world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
+
+	// NOCOM check whether it's adjacent
+
+	const int8 height = entrance ? RideEntranceExitType::entrance_height : RideEntranceExitType::exit_height;
+	for (int16 h = 0; h < height; ++h) {
+		Voxel *voxel = _world.GetCreateVoxel(pos + XYZPoint16(0, 0, h), false);
+		if (voxel != nullptr && voxel->instance != SRI_FREE) return false;
+	}
+	return true;
+}
+
+/**
+ * Move the ride's entrance to the given location.
+ * @param pos Absolute voxel in the world.
+ */
+void GentleThrillRideInstance::SetEntrancePos(const XYZPoint16& pos)
+{
+	const int8 height = RideEntranceExitType::entrance_height;
+	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+	if (this->entrance_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->entrance_pos + XYZPoint16(0, 0, h), false);
+			if (voxel != nullptr && voxel->instance != SRI_FREE) {
+				assert(voxel->instance == index);
+				voxel->ClearInstances();
+			}
+		}
+	}
+
+	this->entrance_pos = pos;
+		if (this->entrance_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->entrance_pos + XYZPoint16(0, 0, h), true);
+			assert(voxel != nullptr && voxel->instance == SRI_FREE);
+			voxel->SetInstance(index);
+			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+		}
+	}
+}
+
+/**
+ * Move the ride's exit to the given location.
+ * @param pos Absolute voxel in the world.
+ */
+void GentleThrillRideInstance::SetExitPos(const XYZPoint16& pos)
+{
+	const int8 height = RideEntranceExitType::exit_height;
+	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+	if (this->exit_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->exit_pos + XYZPoint16(0, 0, h), false);
+			if (voxel != nullptr && voxel->instance != SRI_FREE) {
+				assert(voxel->instance == index);
+				voxel->ClearInstances();
+			}
+		}
+	}
+
+	this->exit_pos = pos;
+		if (this->exit_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->exit_pos + XYZPoint16(0, 0, h), true);
+			assert(voxel != nullptr && voxel->instance == SRI_FREE);
+			voxel->SetInstance(index);
+			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+		}
+	}
+}
+
+void GentleThrillRideInstance::RemoveFromWorld()
+{
+	SetEntrancePos(XYZPoint16::invalid());
+	SetExitPos(XYZPoint16::invalid());
+	FixedRideInstance::RemoveFromWorld();
 }
 
 void GentleThrillRideInstance::Load(Loader &ldr)
 {
 	this->FixedRideInstance::Load(ldr);
-	/* Nothing to do here currently. */
+
+	XYZPoint16 pos;
+	pos.x = ldr.GetWord();
+	pos.y = ldr.GetWord();
+	pos.z = ldr.GetWord();
+	SetEntrancePos(pos);
+	pos.x = ldr.GetWord();
+	pos.y = ldr.GetWord();
+	pos.z = ldr.GetWord();
+	SetExitPos(pos);
 }
 
 void GentleThrillRideInstance::Save(Saver &svr)
 {
 	this->FixedRideInstance::Save(svr);
-	/* Nothing to do here currently. */
+	svr.PutWord(this->entrance_pos.x);
+	svr.PutWord(this->entrance_pos.y);
+	svr.PutWord(this->entrance_pos.z);
+	svr.PutWord(this->exit_pos.x);
+	svr.PutWord(this->exit_pos.y);
+	svr.PutWord(this->exit_pos.z);
 }

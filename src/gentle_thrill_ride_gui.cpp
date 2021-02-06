@@ -15,6 +15,8 @@
 #include "sprite_store.h"
 #include "gentle_thrill_ride_type.h"
 #include "entity_gui.h"
+#include "mouse_mode.h"
+#include "viewport.h"
 
 /** Window to prompt for removing a gentle/thrill ride. */
 class GentleThrillRideRemoveWindow : public EntityRemoveWindow  {
@@ -74,6 +76,10 @@ enum GentleThrillRideManagerWidgets {
 	GTRMW_RECOLOUR1,
 	GTRMW_RECOLOUR2,
 	GTRMW_RECOLOUR3,
+	GTRMW_PLACE_ENTRANCE,
+	GTRMW_CHOOSE_ENTRANCE,
+	GTRMW_PLACE_EXIT,
+	GTRMW_CHOOSE_EXIT,
 	GTRMW_REMOVE,
 };
 
@@ -102,6 +108,16 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR3, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
 					SetResize(1, 0),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(2, 2),
+				Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
+						SetData(GUI_PLACE_ENTRANCE, GUI_PLACE_ENTRANCE_TOOLTIP),
+				Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_EXIT, COL_RANGE_DARK_RED),
+						SetData(GUI_PLACE_EXIT, GUI_PLACE_EXIT_TOOLTIP),
+				Widget(WT_DROPDOWN_BUTTON, GTRMW_CHOOSE_ENTRANCE, COL_RANGE_DARK_RED),
+						SetData(GUI_CHOOSE_ENTRANCE, GUI_CHOOSE_ENTRANCE_TOOLTIP),
+				Widget(WT_DROPDOWN_BUTTON, GTRMW_CHOOSE_EXIT, COL_RANGE_DARK_RED),
+						SetData(GUI_CHOOSE_EXIT, GUI_CHOOSE_EXIT_TOOLTIP),
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 				Widget(WT_TEXT_PUSHBUTTON, GTRMW_REMOVE, COL_RANGE_DARK_RED),
 						SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
@@ -112,16 +128,23 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 class GentleThrillRideManagerWindow : public GuiWindow {
 public:
 	GentleThrillRideManagerWindow(GentleThrillRideInstance *ri);
+	~GentleThrillRideManagerWindow() override;
 
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
+	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	void SelectorMouseButtonEvent(uint8 state) override;
 
 private:
 	GentleThrillRideInstance *ride; ///< Gentle/Thrill ride instance getting managed by this window.
 
 	void SetGentleThrillRideToggleButtons();
+
+	void ChooseEntranceExitClicked(bool entrance);
+	RideMouseMode entrance_exit_placement;
+	bool is_placing_entrance;
 };
 
 /**
@@ -139,6 +162,21 @@ GentleThrillRideManagerWindow::GentleThrillRideManagerWindow(GentleThrillRideIns
 		const RecolourEntry &re = this->ride->recolours.entries[i];
 		if (!re.IsValid()) this->GetWidget<LeafWidget>(GTRMW_RECOLOUR1 + i)->SetShaded(true);
 	}
+	
+	SetSelector(nullptr);
+	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
+
+	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
+	if (this->ride->entrance_pos == XYZPoint16::invalid()) {
+		ChooseEntranceExitClicked(true);
+	} else if (this->ride->exit_pos == XYZPoint16::invalid()) {
+		ChooseEntranceExitClicked(false);
+	}
+}
+
+GentleThrillRideManagerWindow::~GentleThrillRideManagerWindow()
+{
+	SetSelector(nullptr);
 }
 
 assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
@@ -148,6 +186,7 @@ void GentleThrillRideManagerWindow::SetGentleThrillRideToggleButtons()
 {
 	this->SetWidgetChecked(GTRMW_RIDE_OPENED, this->ride->state == RIS_OPEN);
 	this->SetWidgetChecked(GTRMW_RIDE_CLOSED, this->ride->state == RIS_CLOSED);
+	this->SetWidgetShaded(GTRMW_RIDE_OPENED, !this->ride->CanOpenRide());
 }
 
 void GentleThrillRideManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
@@ -178,7 +217,7 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 
 	switch (wid_num) {
 		case GTRMW_RIDE_OPENED_TEXT:
 		case GTRMW_RIDE_OPENED:
-			if (this->ride->state != RIS_OPEN) {
+			if (this->ride->CanOpenRide()) {
 				this->ride->OpenRide();
 				this->SetGentleThrillRideToggleButtons();
 			}
@@ -201,15 +240,157 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 
 			}
 			break;
 		}
+
+		case GTRMW_PLACE_ENTRANCE:
+			ChooseEntranceExitClicked(true);
+			break;
+		case GTRMW_PLACE_EXIT:
+			ChooseEntranceExitClicked(false);
+			break;
+
+		case GTRMW_CHOOSE_ENTRANCE: {
+			DropdownList itemlist;
+			for (int i = 0; _rides_manager.entrances[i] != nullptr; i++) {
+				_str_params.SetUint8(1, _language.GetText(_rides_manager.entrances[i]->name));
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(wid_num, itemlist, this->ride->entrance_type, COL_RANGE_DARK_RED);
+			break;
+		}
+		case GTRMW_CHOOSE_EXIT: {
+			DropdownList itemlist;
+			for (int i = 0; _rides_manager.exits[i] != nullptr; i++) {
+				_str_params.SetUint8(1, _language.GetText(_rides_manager.exits[i]->name));
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(wid_num, itemlist, this->ride->exit_type, COL_RANGE_DARK_RED);
+			break;
+		}
+
 		case GTRMW_REMOVE:
 			ShowGentleThrillRideRemove(this->ride);
 			break;
 	}
 }
 
-void GentleThrillRideManagerWindow::OnChange(ChangeCode code, uint32 parameter)
+/**
+ * Called when the Choose Entrance or Choose Exit button was clicked.
+ * @param entrance Entrance or exit button.
+ */
+void GentleThrillRideManagerWindow::ChooseEntranceExitClicked(const bool entrance)
 {
-	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
+	this->ride->temp_entrance_pos = XYZPoint16::invalid();
+	this->ride->temp_exit_pos = XYZPoint16::invalid();
+
+	if (this->selector == nullptr || (this->is_placing_entrance != entrance)) {
+		this->is_placing_entrance = entrance;
+		SetSelector(&entrance_exit_placement);
+	} else {
+		SetSelector(nullptr);
+	}
+
+	entrance_exit_placement.SetSize(0, 0);
+	entrance_exit_placement.MarkDirty();
+}
+
+void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+	// NOCOM
+	Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
+	XYZPoint16 vox_pos;
+	vox_pos.z = WORLD_Z_SIZE - 1;
+	int dz = vox_pos.z * 256 - vp->view_pos.z;
+	int dx, dy;
+	switch (vp->orientation) {
+		case VOR_NORTH: dx =  1; dy =  1; break;
+		case VOR_WEST:  dx = -1; dy =  1; break;
+		case VOR_SOUTH: dx = -1; dy = -1; break;
+		case VOR_EAST:  dx =  1; dy = -1; break;
+		default: NOT_REACHED();
+	}
+	world_pos.x += dx * dz / 2;
+	world_pos.y += dy * dz / 2;
+	while (vox_pos.z > this->ride->vox_pos.z) {
+		vox_pos.x = world_pos.x / 256;
+		vox_pos.y = world_pos.y / 256;
+		if (vox_pos.x < 0 && dx > 0) break;
+		if (vox_pos.x >= _world.GetXSize() && dx < 0) break;
+		if (vox_pos.y < 0 && dy > 0) break;
+		if (vox_pos.y >= _world.GetYSize() && dy < 0) break;
+		world_pos.x -= 128 * dx;
+		world_pos.y -= 128 * dy;
+		vox_pos.z--;
+	}
+
+	entrance_exit_placement.MarkDirty();
+	entrance_exit_placement.SetPosition(vox_pos.x, vox_pos.y);
+	if (this->ride->CanPlaceEntranceOrExit(vox_pos, this->is_placing_entrance)) {
+		if (this->is_placing_entrance) {
+			this->ride->temp_entrance_pos = vox_pos;
+		} else {
+			this->ride->temp_exit_pos = vox_pos;
+		}
+		entrance_exit_placement.SetSize(1, 1);
+		entrance_exit_placement.AddVoxel(vox_pos);
+		entrance_exit_placement.SetupRideInfoSpace();
+		entrance_exit_placement.SetRideData(vox_pos, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS);
+	} else {
+		if (this->is_placing_entrance) {
+			this->ride->temp_entrance_pos = XYZPoint16::invalid();
+		} else {
+			this->ride->temp_exit_pos = XYZPoint16::invalid();
+		}
+		entrance_exit_placement.SetSize(0, 0);
+	}
+	entrance_exit_placement.MarkDirty();
+}
+
+void GentleThrillRideManagerWindow::SelectorMouseButtonEvent(const uint8 state)
+{
+	if (!IsLeftClick(state)) return;
+	if (entrance_exit_placement.area.width != 1 || entrance_exit_placement.area.height != 1) return;
+
+	if (this->is_placing_entrance) {
+		assert(this->ride->CanPlaceEntranceOrExit(this->ride->temp_entrance_pos, true));
+		this->ride->SetEntrancePos(this->ride->temp_entrance_pos);
+	} else {
+		assert(this->ride->CanPlaceEntranceOrExit(this->ride->temp_exit_pos, false));
+		this->ride->SetExitPos(this->ride->temp_exit_pos);
+	}
+
+	this->ride->temp_entrance_pos = XYZPoint16::invalid();
+	this->ride->temp_exit_pos = XYZPoint16::invalid();
+	SetSelector(nullptr);
+
+	/* If the user is still in the process of building the ride, immediately prompt for the placement of the other side-building as well. */
+	if (this->ride->entrance_pos == XYZPoint16::invalid()) {
+		ChooseEntranceExitClicked(true);
+	} else if (this->ride->exit_pos == XYZPoint16::invalid()) {
+		ChooseEntranceExitClicked(false);
+	}
+}
+
+void GentleThrillRideManagerWindow::OnChange(const ChangeCode code, const uint32 parameter)
+{
+	switch (code) {
+		case CHG_DISPLAY_OLD:
+			this->MarkDirty();
+			break;
+		case CHG_DROPDOWN_RESULT:
+			switch ((parameter >> 16) & 0xFF) {
+				case GTRMW_CHOOSE_ENTRANCE:
+					this->ride->entrance_type = parameter & 0xFF;
+					break;
+				case GTRMW_CHOOSE_EXIT:
+					this->ride->exit_type = parameter & 0xFF;
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
 }
 
 /**

@@ -18,6 +18,7 @@ set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd")
 list(APPEND RCDFILES
      "freerct.rcd"              "${FP}/freerct.txt"
      "path_8bpp64.rcd"          "${FP}/paths.txt"
+     "entrance_exit.rcd"        "${FP}/entrance_exit.txt"
      "shops.rcd"                "${FP}/shops.txt"
      "gentle_thrill_rides.rcd"  "${FP}/gentle_thrill_rides.txt"
      "gui.rcd"                  "${FP}/gui.txt"

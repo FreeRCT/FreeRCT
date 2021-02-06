@@ -85,6 +85,15 @@ struct XYZPoint {
 	}
 
 	/**
+	 * A special "invalid" constant.
+	 * @return A point denoting invalid coordinates.
+	 */
+	static inline XYZPoint invalid()
+	{
+		return XYZPoint(-1, -1, -1);
+	}
+
+	/**
 	 * Get the 2D coordinates of the 3D point.
 	 * @return X & Y coordinates.
 	 */

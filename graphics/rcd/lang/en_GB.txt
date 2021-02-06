@@ -194,6 +194,16 @@ strings {
 		ENTITY_REMOVE_YES:     "Yes";
 		ENTITY_REMOVE_NO:      "No";
 
+		// Ride entrance/exit placement buttons.
+		PLACE_ENTRANCE:          "Place Entrance";
+		PLACE_ENTRANCE_TOOLTIP:  "Place the ride's entrance";
+		PLACE_EXIT:              "Place Exit";
+		PLACE_EXIT_TOOLTIP:      "Place the ride's exit";
+		CHOOSE_ENTRANCE:         "Entrance Style";
+		CHOOSE_ENTRANCE_TOOLTIP: "Change the ride's entrance's style";
+		CHOOSE_EXIT:             "Exit Style";
+		CHOOSE_EXIT_TOOLTIP:     "Change the ride's exit's style";
+
 		// Ride build window strings.
 		RIDE_BUILD_TITLEBAR_SHOP:         "Place shop";
 		RIDE_BUILD_TITLEBAR_GENTLE:       "Place gentle ride";
@@ -256,6 +266,13 @@ strings {
 		NAME_INSTANCE:    "Crazy roller";
 		NAME_TYPE:        "Basic rollercoaster";
 		DESCRIPTION_TYPE: "Basic steel rollercoaster ride";
+	}
+
+	stringtexts("entrance-generic") {
+		NAME: "Standard Entrance";
+	}
+	stringtexts("exit-generic") {
+		NAME: "Standard Exit";
 	}
 
 	stringtexts("spooky-manor") {

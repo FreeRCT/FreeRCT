@@ -38,12 +38,26 @@ public:
 
 	const GentleThrillRideType *GetGentleThrillRideType() const;
 
+	bool IsEntranceLocation(const XYZPoint16& pos) const override;
+	bool IsExitLocation(const XYZPoint16& pos) const override;
+	bool CanOpenRide() const override;
+
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
 
+	bool CanPlaceEntranceOrExit(const XYZPoint16& pos, bool entrance) const;
+	void SetEntrancePos(const XYZPoint16& pos);
+	void SetExitPos(const XYZPoint16& pos);
+	void RemoveFromWorld() override;
+
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
+
+	XYZPoint16 entrance_pos;      ///< Location of the ride's entrance.
+	XYZPoint16 exit_pos;          ///< Location of the ride's exit.
+	XYZPoint16 temp_entrance_pos; ///< Temporary location of the ride's entrance while the user is moving the entrance.
+	XYZPoint16 temp_exit_pos;     ///< Temporary location of the ride's exit while the user is moving the exit.
 };
 
 #endif

@@ -1960,6 +1960,49 @@ static std::shared_ptr<TIMABlock> ConvertTIMANode(std::shared_ptr<NodeGroup> ng)
 }
 
 /**
+ * Convert a node group to a RIEE game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created RIEE game block.
+ */
+static std::shared_ptr<RIEEBlock> ConvertRIEENode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "RIEE");
+	auto block = std::make_shared<RIEEBlock>();
+
+	Values vals("RIEE", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	const std::string type = vals.GetString("type");
+	if (type == "exit") {
+		block->is_entrance = false;
+	} else if (type == "entrance") {
+		block->is_entrance = true;
+	} else {
+		fprintf(stderr, "Error at %s: Invalid type '%s' (expected 'entrance' or 'exit').\n", ng->pos.ToString(), type.c_str());
+		return nullptr;
+	}
+
+	block->tile_width = vals.GetNumber("tile_width");
+	block->ne_view = vals.GetSprite("ne");
+	block->se_view = vals.GetSprite("se");
+	block->sw_view = vals.GetSprite("sw");
+	block->nw_view = vals.GetSprite("nw");
+
+	std::vector<std::shared_ptr<Recolouring>> recolours = GetTypedData<Recolouring>(vals, "recolour", 3);
+	int i = 0;
+	for (auto &rc : recolours) {
+		block->recol[i++] = *rc;
+	}
+
+	block->name = std::make_shared<StringBundle>();
+	block->name->Fill(vals.GetStrings("name"), ng->pos);
+	block->name->CheckTranslations(_entrance_exit_string_names, lengthof(_entrance_exit_string_names), ng->pos);
+
+	vals.VerifyUsage();
+	return block;
+}
+
+/**
  * Convert a node group to a FGTR game block.
  * @param ng Generic tree of nodes to convert.
  * @return The created FGTR game block.
@@ -2644,6 +2687,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "PLAT") return ConvertPLATNode(ng);
 	if (ng->name == "PRSG") return ConvertPRSGNode(ng);
 	if (ng->name == "RCST") return ConvertRCSTNode(ng);
+	if (ng->name == "RIEE") return ConvertRIEENode(ng);
 	if (ng->name == "SHOP") return ConvertSHOPNode(ng);
 	if (ng->name == "SUPP") return ConvertSUPPNode(ng);
 	if (ng->name == "SURF") return ConvertSURFNode(ng);
@@ -2721,6 +2765,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _coaster_string_names;
 		length = lengthof(_coaster_string_names);
 		nice_name = "Coasters";
+	} else if (strcmp(prefix, "ENTRANCE_EXIT") == 0) {
+		names = _entrance_exit_string_names;
+		length = lengthof(_entrance_exit_string_names);
+		nice_name = "EntranceExit";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);
@@ -2786,6 +2834,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *code)
 		length = lengthof(_coaster_string_names);
 		nice_name = "Coasters";
 		lower_name = "coasters";
+	} else if (strcmp(prefix, "ENTRANCE_EXIT") == 0) {
+		names = _entrance_exit_string_names;
+		length = lengthof(_entrance_exit_string_names);
+		nice_name = "EntranceExit";
+		lower_name = "entrance_exit";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);

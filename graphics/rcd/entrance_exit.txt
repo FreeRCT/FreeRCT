@@ -1,0 +1,59 @@
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+file("entrance_exit.rcd") {
+	INFO {
+		name: "Baseset entrances and exits.";
+		uri: "org.freerct/baseset/entrance_exits/1";
+		description: "FreeRCT baseset ride entrances and exits.";
+	}
+
+	// Generic entrance
+	RIEE {
+		type: "entrance";
+		tile_width: 64;
+		se: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance-generic.png";
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance-generic.png";
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance-generic.png";
+		}
+		nw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance-generic.png";
+		}
+		name: strings { key: "entrance-generic"; }
+	}
+
+	// Generic exit
+	RIEE {
+		type: "exit";
+		tile_width: 64;
+		se: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit-generic.png";
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit-generic.png";
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit-generic.png";
+		}
+		nw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit-generic.png";
+		}
+		name: strings { key: "exit-generic"; }
+	}
+}
