@@ -689,7 +689,7 @@ Offset     Length  Version  Description
 The duration of the ride's working phase needs to be at least as long as the sum of the durations of all
 frames of the starting, working and stopping animations. If the working phase is longer than that, the
 working animation will be played in a loop to ensure the animation durations match.
-If the working animation has a total length of zero, the idle image will be used in its stead.
+If the working animation has a total length of zero, the idle image will be used instead.
 
 The number of guest batches and the number of guests per batch must both be at least 1. If the number of
 guest batches is greater than 1, the duration of the starting, working and stopping animations must be zero.
