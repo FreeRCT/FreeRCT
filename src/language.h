@@ -166,6 +166,8 @@ private:
 };
 
 int GetLanguageIndex(const char *lang_name);
+const char *GetLanguageName(int index);
+const char *GetSimilarLanguage(const std::string&);
 void InitLanguage();
 void UninitLanguage();
 
@@ -174,6 +176,7 @@ void GetTextSize(StringID num, int *width, int *height);
 
 extern Language _language;
 extern StringParameters _str_params;
+extern const char * const _lang_names[];
 
 void DrawText(StringID num, uint8 *buffer, uint length, StringParameters *params = &_str_params);
 

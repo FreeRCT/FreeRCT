@@ -76,6 +76,53 @@ int GetLanguageIndex(const char *lang_name)
 	return -1;
 }
 
+/**
+ * Get the name of a given language index.
+ * @param index Index of the language.
+ * @return Name of the language, or \c nullptr if the index is invalid.
+ */
+const char *GetLanguageName(const int index)
+{
+	if (index < 0 || index >= LANGUAGE_COUNT) return nullptr;
+	return _lang_names[index];
+}
+
+/**
+ * Try to find a language whose name is similar to the provided name.
+ * @param lang_name Name to compare to.
+ * @return Most similar language name, or \c nullptr if no language has a similar name.
+ */
+const char *GetSimilarLanguage(const std::string& lang_name)
+{
+	const char *best_match = nullptr;
+	double score = 1.5;  // Arbitrary treshold to suppress random matches.
+	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
+		const std::string name(_lang_names[i]);
+		const int length = std::min(name.size(), lang_name.size());
+		double s = std::max(name.size(), lang_name.size()) - length;
+		s *= -1;
+		for (int j = 0; j < length; ++j) {
+			const char c1 = lang_name.at(j);
+			const char c2 = name.at(j);
+			if (c1 == c2) {
+				s++;
+			} else if (c1 >= 'a' && c1 <= 'z' && c2 >= 'A' && c2 <= 'Z' && c1 + 'A' - 'a' == c2) {
+				s += 0.5;
+			} else if (c2 >= 'a' && c2 <= 'z' && c1 >= 'A' && c1 <= 'Z' && c2 + 'A' - 'a' == c1) {
+				s += 0.5;
+			} else {
+				s--;
+			}
+		}
+		s *= 10.0 / length;  // Ensure that the name's length does not influence scoring.
+		if (s > score) {
+			score = s;
+			best_match = _lang_names[i];
+		}
+	}
+	return best_match;
+}
+
 StringParameters::StringParameters()
 {
 	this->Clear();
