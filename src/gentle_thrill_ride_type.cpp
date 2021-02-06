@@ -229,16 +229,18 @@ void GentleThrillRideInstance::SetEntrancePos(const XYZPoint16& pos)
 				voxel->ClearInstances();
 			}
 		}
+		AddRemovePathEdges(this->entrance_pos, PATH_EMPTY, EDGE_ALL, PAS_UNUSED);
 	}
 
 	this->entrance_pos = pos;
-		if (this->entrance_pos != XYZPoint16::invalid()) {
+	if (this->entrance_pos != XYZPoint16::invalid()) {
 		for (int16 h = 0; h < height; ++h) {
 			Voxel *voxel = _world.GetCreateVoxel(this->entrance_pos + XYZPoint16(0, 0, h), true);
 			assert(voxel != nullptr && voxel->instance == SRI_FREE);
 			voxel->SetInstance(index);
 			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
 		}
+		AddRemovePathEdges(this->entrance_pos, PATH_EMPTY, EDGE_ALL, PAS_QUEUE_PATH);
 	}
 }
 
@@ -258,6 +260,7 @@ void GentleThrillRideInstance::SetExitPos(const XYZPoint16& pos)
 				voxel->ClearInstances();
 			}
 		}
+		AddRemovePathEdges(this->exit_pos, PATH_EMPTY, EDGE_ALL, PAS_UNUSED);
 	}
 
 	this->exit_pos = pos;
@@ -268,6 +271,7 @@ void GentleThrillRideInstance::SetExitPos(const XYZPoint16& pos)
 			voxel->SetInstance(index);
 			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
 		}
+		AddRemovePathEdges(this->exit_pos, PATH_EMPTY, EDGE_ALL, PAS_NORMAL_PATH);
 	}
 }
 

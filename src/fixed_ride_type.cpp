@@ -138,28 +138,36 @@ void FixedRideInstance::OpenRide() {
 	this->time_left_in_phase = GetFixedRideType()->idle_duration;
 }
 
+/**
+ * Get the rotation of an entrance or exit placed at the given location.
+ * @param vox The absolute coordinates.
+ * @return The rotation.
+ */
+int FixedRideInstance::EntranceExitRotation(const XYZPoint16& vox) const
+{
+	const FixedRideType* t = GetFixedRideType();
+	const XYZPoint16 corner = this->vox_pos + FixedRideType::OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
+	if (vox.y == std::min(this->vox_pos.y, corner.y) - 1) return VOR_WEST;
+	if (vox.y == std::max(this->vox_pos.y, corner.y) + 1) return VOR_EAST;
+	if (vox.x == std::min(this->vox_pos.x, corner.x) - 1) return VOR_NORTH;
+	if (vox.x == std::max(this->vox_pos.x, corner.x) + 1) return VOR_SOUTH;
+	NOT_REACHED();  // Invalid entrance/exit location.
+}
+
 void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	sprites[0] = nullptr;
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
 
-	const FixedRideType* t = GetFixedRideType();
-	auto entrance_exit_rotation = [this, t, &vox]() {
-		const XYZPoint16 corner = this->vox_pos + FixedRideType::OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
-		if (vox.y == std::min(this->vox_pos.y, corner.y) - 1) return VOR_WEST;
-		if (vox.y == std::max(this->vox_pos.y, corner.y) + 1) return VOR_EAST;
-		if (vox.x == std::min(this->vox_pos.x, corner.x) - 1) return VOR_NORTH;
-		if (vox.x == std::max(this->vox_pos.x, corner.x) + 1) return VOR_SOUTH;
-		NOT_REACHED();  // Invalid entrance/exit location.
-	};
 	auto orientation_index = [orient](const int o) {
 		return (4 + o - orient) & 3;
 	};
+	const FixedRideType* t = GetFixedRideType();
 	if (IsEntranceLocation(vox)) {
-		sprites[1] = _rides_manager.entrances[this->entrance_type]->images[orientation_index(entrance_exit_rotation())];
+		sprites[1] = _rides_manager.entrances[this->entrance_type]->images[orientation_index(EntranceExitRotation(vox))];
 	} else if (IsExitLocation(vox)) {
-		sprites[1] = _rides_manager.exits[this->exit_type]->images[orientation_index(entrance_exit_rotation())];
+		sprites[1] = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox))];
 	} else if (voxel_number == SHF_ENTRANCE_NONE) {
 		sprites[1] = nullptr;
 	} else {
