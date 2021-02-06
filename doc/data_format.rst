@@ -651,7 +651,7 @@ Version history
 
 Gentle and thrill rides
 ~~~~~~~~~~~~~~~~~~~~~~~
-Gentle and thrill rides consisting of a single building. FreeRCT can read block version 1.
+Gentle and thrill rides consisting of a single building. FreeRCT can read block version 2.
 
 =========  ======  =======  ===================================================================================
 Offset     Length  Version  Description
@@ -678,14 +678,27 @@ Offset     Length  Version  Description
   59+s      4       1-      Entrance fee.
   63+s      4       1-      Monthly cost of having the ride.
   67+s      4       1-      Additional monthly cost of having an opened ride.
-  71+s      4       1-      Text of the ride (reference to a TEXT block).
-  75+s                      Total length.
+  71+s      4       2-      Number of guest batches that can use the ride at the same time.
+  75+s      4       2-      Maximum number of guests in each guest batch.
+  79+s      4       2-      Duration of the ride's idle phase in milliseconds.
+  83+s      4       2-      Total duration of the ride's working phase in milliseconds.
+  87+s      4       1-      Text of the ride (reference to a TEXT block).
+  91+s                      Total length.
 =========  ======  =======  ===================================================================================
+
+The duration of the ride's working phase needs to be at least as long as the sum of the durations of all
+frames of the starting, working and stopping animations. If the working phase is longer than that, the
+working animation will be played in a loop to ensure the animation durations match.
+If the working animation has a total length of zero, the idle image will be used instead.
+
+The number of guest batches and the number of guests per batch must both be at least 1. If the number of
+guest batches is greater than 1, the duration of the starting, working and stopping animations must be zero.
 
 Version history
 ...............
 
 - 1 (20210126) Initial version.
+- 2 (20210201) Added timing of phases and ride capacity.
 
 
 Build direction arrows

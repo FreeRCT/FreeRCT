@@ -1883,13 +1883,76 @@ static std::shared_ptr<TIMABlock> ConvertTIMANode(std::shared_ptr<NodeGroup> ng)
 	block->frames = vals.GetNumber("frames");
 	block->durations.reset(new int[block->frames]);
 	block->views.reset(new std::shared_ptr<FSETBlock>[block->frames]);
-	for (int f = 0; f < block->frames; ++f) {
-		std::string key = "duration_"; key += std::to_string(f);
-		block->durations[f] = vals.GetNumber(key.c_str());
+
+	if (vals.HasValue("fps")) {
+		const int duration = 1000 / vals.GetNumber("fps");
+		for (int f = 0; f < block->frames; ++f) block->durations[f] = duration;
+	} else {
+		for (int f = 0; f < block->frames; ++f) {
+			std::string key = "duration_"; key += std::to_string(f);
+			block->durations[f] = vals.GetNumber(key.c_str());
+		}
 	}
-	for (int f = 0; f < block->frames; ++f) {
-		std::string key = "frame_"; key += std::to_string(f);
-		block->views[f] = vals.GetFrameSet(key.c_str());
+
+	if (vals.HasValue("sheet")) {
+		/* Re-use SheetBlock code to load the sheet image from disk and take care of bitmasks and recolouring. */
+		std::shared_ptr<ValueInformation> sheet_node = vals.FindValue("sheet");
+		auto sheet = std::dynamic_pointer_cast<SheetBlock>(sheet_node->node_value);
+		if (sheet == nullptr) {
+			fprintf(stderr, "Error at %s: Field \"sheet\" of node \"TIMA\" is not a spritesheet node.\n", sheet_node->pos.ToString());
+			exit(1);
+		}
+		sheet_node->node_value = nullptr;
+		const int tile_width = vals.GetNumber("tile_width");
+		const int width_x = sheet->x_count;
+		const int width_y = sheet->y_count;
+		const int sprite_w = sheet->width;
+		const int sprite_h = sheet->height;
+		const int x_offset = sheet->x_offset;
+		const int y_offset = sheet->y_offset;
+		Image *image = sheet->GetSheet();
+
+		for (int f = 0; f < block->frames; ++f) {
+			std::shared_ptr<FSETBlock> fset(new FSETBlock);
+			block->views[f] = fset;
+			fset->tile_width = tile_width;
+			fset->width_x = width_x;
+			fset->width_y = width_y;
+			fset->ne_views.reset(new std::shared_ptr<SpriteBlock>[width_x * width_y]);
+			fset->se_views.reset(new std::shared_ptr<SpriteBlock>[width_x * width_y]);
+			fset->nw_views.reset(new std::shared_ptr<SpriteBlock>[width_x * width_y]);
+			fset->sw_views.reset(new std::shared_ptr<SpriteBlock>[width_x * width_y]);
+			for (int v = 0; v < 4; ++v) {
+				std::unique_ptr<std::shared_ptr<SpriteBlock>[]>* view;
+				switch (v) {
+					case 0: view = &fset->se_views; break;
+					case 1: view = &fset->ne_views; break;
+					case 2: view = &fset->nw_views; break;
+					case 3: view = &fset->sw_views; break;
+					default: NOT_REACHED();
+				}
+				for (int x = 0; x < width_x; ++x) {
+					for (int y = 0; y < width_y; ++y) {
+						std::shared_ptr<SpriteBlock> subsprite(new SpriteBlock);
+						const char* err = subsprite->sprite_image.CopySprite(image, x_offset, y_offset,
+								f * sprite_w * width_x + sprite_w * x,
+								v * sprite_h * width_y + sprite_h * y,
+								sprite_w, sprite_h, false);
+						if (err != nullptr) {
+							fprintf(stderr, "Error at %s, loading of the sprite for frame %d col %d row %d view %d failed: %s\n",
+									ng->pos.ToString(), f, x, y, v, err);
+							exit(1);
+						}
+						(*view)[x * width_y + y] = subsprite;
+					}
+				}
+			}
+		}
+	} else {
+		for (int f = 0; f < block->frames; ++f) {
+			std::string key = "frame_"; key += std::to_string(f);
+			block->views[f] = vals.GetFrameSet(key.c_str());
+		}
 	}
 
 	vals.VerifyUsage();
@@ -1938,6 +2001,10 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->entrance_fee = vals.GetNumber("entrance_fee");
 	block->ownership_cost = vals.GetNumber("cost_ownership");
 	block->opened_cost = vals.GetNumber("cost_opened");
+	block->number_of_batches = vals.GetNumber("number_of_batches");
+	block->guests_per_batch = vals.GetNumber("guests_per_batch");
+	block->idle_duration = vals.GetNumber("idle_duration");
+	block->working_duration = vals.GetNumber("working_duration");
 	block->ride_text = std::make_shared<StringBundle>();
 	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
 	block->ride_text->CheckTranslations(_gentle_thrill_rides_string_names, lengthof(_gentle_thrill_rides_string_names), ng->pos);
