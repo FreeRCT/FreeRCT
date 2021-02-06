@@ -73,7 +73,7 @@ enum Languages {
 	LANG_EN_US, ///< English (US).
 	LANG_ES_ES, ///< Spanish.
 	LANG_FR_FR, ///< French.
-	LANG_NDS,   ///< Low German.
+	LANG_NDS_DE, ///< Low German.
 	LANG_NL_NL, ///< Dutch.
 	LANG_SV_SE, ///< Swedish.
 

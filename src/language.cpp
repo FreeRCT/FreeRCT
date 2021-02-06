@@ -46,7 +46,7 @@ const char * const _lang_names[] = {
 	"en_US", // English (US).
 	"es_ES", // Spanish.
 	"fr_FR", // French.
-	"nds",   // Low German.
+	"nds_DE", // Low German.
 	"nl_NL", // Dutch.
 	"sv_SE", // Swedish (Sweden)
 };

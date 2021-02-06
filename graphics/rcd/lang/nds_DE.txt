@@ -5,7 +5,7 @@
 //
 
 strings {
-	lang: "nds";
+	lang: "nds_DE";
 
 	stringtexts("gui") {
 		TITLEBAR_TIP:  "Klick de Titelbalken an, um dat Fenster na boven to halen; treck de Titelbalken, um dat Fenster to verschuven";
@@ -264,6 +264,15 @@ strings {
 		NAME_TYPE:             "Spöökslött";
 		DESCRIPTION_TYPE:      "Een dunkers, düüsters Kasteel, wat elkeen Gast, well sik daar in traut, doodsbenaut maakt.";
 		DESCRIPTION_RECOLOUR1: "Wanden";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("ship-swing") {
+		NAME_INSTANCE1:        "Kielhaler";
+		NAME_INSTANCE2:        "Piraten Ahoi";
+		NAME_TYPE:             "Schippschaukel";
+		DESCRIPTION_TYPE:      "Een Schipp, wat na vörn un achtern swingt.";
+		DESCRIPTION_RECOLOUR1: "-";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
 	}

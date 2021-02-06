@@ -649,7 +649,7 @@ static const char *_languages[] = {
 	"en_US", // LNG_EN_US
 	"es_ES", // LNG_ES_ES
 	"fr_FR", // LNG_FR_FR
-	"nds",   // LNG_NDS
+	"nds_DE", // LNG_NDS_DE
 	"nl_NL", // LNG_NL_NL
 	"sv_SE", // LNG_SV_SE
 };
