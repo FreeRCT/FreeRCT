@@ -1339,6 +1339,8 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 	switch (it) {
 		case ITP_NOTHING:
 			return RVD_NO_VISIT;
+		case ITP_RIDE:
+			return RVD_MAY_VISIT;
 
 		case ITP_DRINK:
 		case ITP_ICE_CREAM:
@@ -1399,6 +1401,7 @@ void Guest::AddItem(ItemType it)
 {
 	switch (it) {
 		case ITP_NOTHING:
+		case ITP_RIDE:
 			break;
 
 		case ITP_DRINK:

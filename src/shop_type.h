@@ -37,6 +37,7 @@ public:
 	~ShopInstance();
 
 	const ShopType *GetShopType() const;
+	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
 
 	void SetRide(uint8 orientation, const XYZPoint16 &pos) override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;

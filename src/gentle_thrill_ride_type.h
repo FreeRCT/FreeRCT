@@ -45,11 +45,13 @@ public:
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
+	void InitializeItemPricesAndStatistics() override;
 
 	bool CanPlaceEntranceOrExit(const XYZPoint16& pos, bool entrance) const;
 	void SetEntrancePos(const XYZPoint16& pos);
 	void SetExitPos(const XYZPoint16& pos);
 	void RemoveFromWorld() override;
+	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;

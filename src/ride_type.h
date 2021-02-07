@@ -65,6 +65,7 @@ enum ItemType {
 	ITP_MONEY = 48,       ///< Money for more spending (i.e. an ATM).
 	ITP_TOILET = 49,      ///< Dropping of waste.
 	ITP_FIRST_AID = 50,   ///< Nausea treatment.
+	ITP_RIDE = 60,        ///< Entrance ticket for a normal ride.
 };
 
 /** Class describing an entrance or exit of rides. */
@@ -161,11 +162,13 @@ public:
 	virtual void RemoveAllPeople() = 0;
 	virtual void RemoveFromWorld() = 0;
 	virtual void InsertIntoWorld() = 0;
-	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const;
+	virtual bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const = 0;
 
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
 	Money GetSaleItemPrice(int item_index) const;
+	virtual Money GetSaleItemCost(int item_index) const;
+	virtual void InitializeItemPricesAndStatistics();
 
 	RideTypeKind GetKind() const;
 	const RideType *GetRideType() const;

@@ -70,6 +70,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 		uint32 recolour = rcd_file->GetUInt32();
 		this->recolours.Set(i, RecolourEntry(recolour));
 	}
+	this->item_type[0] = ITP_RIDE;
 	this->item_cost[0] = rcd_file->GetInt32(); // Entrance fee.
 	this->item_cost[1] = 0;                    // Unused.
 	this->monthly_cost = rcd_file->GetInt32();
@@ -149,19 +150,41 @@ const GentleThrillRideType *GentleThrillRideInstance::GetGentleThrillRideType() 
 	return static_cast<const GentleThrillRideType *>(this->type);
 }
 
+void GentleThrillRideInstance::InitializeItemPricesAndStatistics()
+{
+	FixedRideInstance::InitializeItemPricesAndStatistics();
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		this->item_price[i] = GetRideType()->item_cost[i];
+	}
+}
+
 uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
-	return SHF_ENTRANCE_BITS; // \todo Ride entrances are not implemented yet.
+	return SHF_ENTRANCE_BITS;  // Used for rendering of platforms only.
 }
 
 RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
 {
-	return RER_REFUSED; // \todo Ride entrances are not implemented yet.
+	if (_guests.Get(guest)->cash < GetSaleItemPrice(0)) return RER_REFUSED;
+	const int b = onride_guests.GetLoadingBatch();
+	if (b < 0) return RER_REFUSED;
+	return this->onride_guests.batches[b].AddGuest(guest, entry) ? RER_ENTERED : RER_REFUSED;
 }
 
 XYZPoint32 GentleThrillRideInstance::GetExit(int guest, TileEdge entry_edge)
 {
-	NOT_REACHED(); // \todo Ride exits are not implemented yet.
+	const int direction = this->EntranceExitRotation(this->exit_pos);
+	XYZPoint32 p(this->exit_pos.x * 256, this->exit_pos.y * 256, this->vox_pos.z * 256);
+	Random r;  // Don't put all guests on exactly the same spot.
+	const int d = 128 + r.Uniform(32) - 16;
+	switch (direction) {
+		case VOR_WEST:  p.x += d; p.y -= 32;     break;
+		case VOR_EAST:  p.x += d; p.y += 256+32; break;
+		case VOR_NORTH: p.x -= 32;  p.y += d;    break;
+		case VOR_SOUTH: p.x += 32;  p.y += d;    break;
+		default: NOT_REACHED();
+	}
+	return p;
 }
 
 bool GentleThrillRideInstance::IsEntranceLocation(const XYZPoint16& pos) const
@@ -280,6 +303,11 @@ void GentleThrillRideInstance::RemoveFromWorld()
 	SetEntrancePos(XYZPoint16::invalid());
 	SetExitPos(XYZPoint16::invalid());
 	FixedRideInstance::RemoveFromWorld();
+}
+
+bool GentleThrillRideInstance::CanBeVisited(const XYZPoint16 &vox, const TileEdge edge) const
+{
+	return this->state == RIS_OPEN && vox == this->entrance_pos && (edge + 2) % 4 == EntranceExitRotation(this->entrance_pos);
 }
 
 void GentleThrillRideInstance::Load(Loader &ldr)

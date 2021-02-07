@@ -268,16 +268,12 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \n bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
  * @return Whether the ride can be visited.
  */
-bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
-{
-	if (this->state != RIS_OPEN) return false;
-	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
-}
 
 /**
  * Sell an item to a customer.
@@ -287,14 +283,21 @@ void RideInstance::SellItem(int item_index)
 {
 	assert(item_index >= 0 && item_index < NUMBER_ITEM_TYPES_SOLD);
 
+	const Money cost = this->GetSaleItemCost(item_index);
+	const Money price = this->GetSaleItemPrice(item_index);
 	this->item_count[item_index]++;
-	Money profit = this->item_price[item_index] - this->type->item_cost[item_index];
+	const Money profit = price - cost;
 	this->total_sell_profit += profit;
 	this->total_profit += profit;
 
-	_finances_manager.PayShopStock(this->type->item_cost[item_index]);
-	_finances_manager.EarnShopSales(this->item_price[item_index]);
-	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
+	if (this->GetKind() == RTK_SHOP) {
+		_finances_manager.PayShopStock(cost);
+		_finances_manager.EarnShopSales(price);
+		NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
+	} else {
+		_finances_manager.EarnRideTickets(price);
+		NotifyChange(this->GetKind() == RTK_COASTER ? WC_COASTER_MANAGER : WC_GENTLE_THRILL_RIDE_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
+	}
 }
 
 /**
@@ -317,6 +320,27 @@ Money RideInstance::GetSaleItemPrice(int item_index) const
 {
 	assert(item_index >= 0 && item_index < NUMBER_ITEM_TYPES_SOLD);
 	return this->item_price[item_index];
+}
+
+/**
+ * Get the cost of an item sold by a ride.
+ * @param item_index Index in the items being sold (\c 0 to #NUMBER_ITEM_TYPES_SOLD).
+ * @return Cost of selling the item.
+ */
+Money RideInstance::GetSaleItemCost(int item_index) const
+{
+	return this->type->item_cost[item_index];
+}
+
+/** Initialize the prices of all sold items with default values, and reset the profit statistics. */
+void RideInstance::InitializeItemPricesAndStatistics()
+{
+	this->total_profit = 0;
+	this->total_sell_profit = 0;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		this->item_price[i] = GetRideType()->item_cost[i] * 12 / 10; // Make 20% profit.
+		this->item_count[i] = 0;
+	}
 }
 
 /**
@@ -446,6 +470,8 @@ void RideInstance::Load(Loader &ldr)
 	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
 	this->flags = state_and_flags & 0xff;
 	this->recolours.Load(ldr);
+	for (Money& m : this->item_price) m = static_cast<Money>(ldr.GetLongLong());
+	for (int64& m : this->item_count) m = ldr.GetLongLong();
 	this->total_profit = static_cast<Money>(ldr.GetLongLong());
 	this->total_sell_profit = static_cast<Money>(ldr.GetLongLong());
 	this->breakdown_ctr = (int16)ldr.GetWord();
@@ -462,6 +488,8 @@ void RideInstance::Save(Saver &svr)
 	svr.PutText(this->name.get());
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
 	this->recolours.Save(svr);
+	for (const Money& m : this->item_price) svr.PutLongLong(static_cast<uint64>(m));
+	for (const int64& m : this->item_count) svr.PutLongLong(m);
 	svr.PutLongLong(static_cast<uint64>(this->total_profit));
 	svr.PutLongLong(static_cast<uint64>(this->total_sell_profit));
 	svr.PutWord((uint16)this->breakdown_ctr);
@@ -735,12 +763,7 @@ void RidesManager::NewInstanceAdded(uint16 num)
 	}
 
 	/* Initialize money and counters. */
-	ri->total_profit = 0;
-	ri->total_sell_profit = 0;
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
-		ri->item_price[i] = rt->item_cost[i] * 12 / 10; // Make 20% profit.
-		ri->item_count[i] = 0;
-	}
+	ri->InitializeItemPricesAndStatistics();
 
 	switch (ri->GetKind()) {
 		case RTK_SHOP:
