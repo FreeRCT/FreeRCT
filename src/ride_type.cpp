@@ -508,6 +508,8 @@ void RideInstance::Load(Loader &ldr)
 	uint16 state_and_flags = ldr.GetWord();
 	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
 	this->flags = state_and_flags & 0xff;
+	this->SetEntranceType(ldr.GetWord());
+	this->SetExitType(ldr.GetWord());
 	this->recolours.Load(ldr);
 	this->entrance_recolours.Load(ldr);
 	this->exit_recolours.Load(ldr);
@@ -518,8 +520,6 @@ void RideInstance::Load(Loader &ldr)
 	this->breakdown_ctr = (int16)ldr.GetWord();
 	this->reliability = ldr.GetWord();
 	this->breakdown_state = static_cast<BreakdownState>(ldr.GetByte());
-	this->entrance_type = ldr.GetWord();
-	this->exit_type = ldr.GetWord();
 }
 
 void RideInstance::Save(Saver &svr)
@@ -528,6 +528,8 @@ void RideInstance::Save(Saver &svr)
 	svr.PutText(_language.GetText(this->type->GetString(this->type->GetTypeName())));
 	svr.PutText(this->name.get());
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
+	svr.PutWord(this->entrance_type);
+	svr.PutWord(this->exit_type);
 	this->recolours.Save(svr);
 	this->entrance_recolours.Save(svr);
 	this->exit_recolours.Save(svr);
@@ -538,8 +540,6 @@ void RideInstance::Save(Saver &svr)
 	svr.PutWord((uint16)this->breakdown_ctr);
 	svr.PutWord(this->reliability);
 	svr.PutByte(static_cast<uint8>(this->breakdown_state));
-	svr.PutWord(this->entrance_type);
-	svr.PutWord(this->exit_type);
 }
 
 /** Default constructor of the rides manager. */
