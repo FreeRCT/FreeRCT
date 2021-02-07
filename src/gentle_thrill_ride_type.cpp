@@ -158,6 +158,13 @@ void GentleThrillRideInstance::InitializeItemPricesAndStatistics()
 	}
 }
 
+const Recolouring *GentleThrillRideInstance::GetRecolours(const XYZPoint16 &pos) const
+{
+	if (pos == entrance_pos || pos == temp_entrance_pos) return &this->entrance_recolours;
+	if (pos == exit_pos || pos == temp_exit_pos) return &this->exit_recolours;
+	return FixedRideInstance::GetRecolours(pos);
+}
+
 uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
 	return SHF_ENTRANCE_BITS;  // Used for rendering of platforms only.

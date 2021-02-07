@@ -22,6 +22,7 @@
 #include "person.h"
 #include "people.h"
 #include "random.h"
+#include "generated/entrance_exit_strings.h"
 #include "generated/entrance_exit_strings.cpp"
 
 /**
@@ -65,9 +66,15 @@ bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 {
 	if (rcd_file->version != 1 || rcd_file->size != 35) return false;
 	this->is_entrance = rcd_file->GetUInt8() > 0;
+
 	TextData *text_data;
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
-	this->name = _language.RegisterStrings(*text_data, _entrance_exit_strings_table);
+	StringID base = _language.RegisterStrings(*text_data, _entrance_exit_strings_table);
+	this->name = base + (ENTRANCE_EXIT_NAME - STR_GENERIC_ENTRANCE_EXIT_START);
+	this->recolour_description_1 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR1 - STR_GENERIC_ENTRANCE_EXIT_START);
+	this->recolour_description_2 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR2 - STR_GENERIC_ENTRANCE_EXIT_START);
+	this->recolour_description_3 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR3 - STR_GENERIC_ENTRANCE_EXIT_START);
+
 	const int width = rcd_file->GetUInt16();
 	for (int i = 0; i < 4; i++) {
 		ImageData *view;
@@ -187,10 +194,12 @@ RideInstance::RideInstance(const RideType *rt)
 	this->type = rt;
 	this->state = RIS_ALLOCATED;
 	this->flags = 0;
-	this->entrance_type = 0;
-	this->exit_type = 0;
 	this->recolours = rt->recolours;
+	this->SetEntranceType(0);
+	this->SetExitType(0);
 	this->recolours.AssignRandomColours();
+	this->entrance_recolours.AssignRandomColours();
+	this->exit_recolours.AssignRandomColours();
 	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
 	std::fill_n(this->item_count, NUMBER_ITEM_TYPES_SOLD, 0);
 
@@ -276,6 +285,16 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * The recolouring map to apply to this ride at the given position.
+ * @param pos Position in the world.
+ * @return Recoluring to use.
+ */
+const Recolouring *RideInstance::GetRecolours(const XYZPoint16 &pos) const
+{
+	return &this->recolours;
+}
+
+/**
  * Sell an item to a customer.
  * @param item_index Index of the item being sold.
  */
@@ -341,6 +360,26 @@ void RideInstance::InitializeItemPricesAndStatistics()
 		this->item_price[i] = GetRideType()->item_cost[i] * 12 / 10; // Make 20% profit.
 		this->item_count[i] = 0;
 	}
+}
+
+/**
+ * Change the ride's entrance type.
+ * @param type Index of the new entrance.
+ */
+void RideInstance::SetEntranceType(const int type)
+{
+	this->entrance_type = type;
+	this->entrance_recolours = _rides_manager.entrances[type]->recolours;
+}
+
+/**
+ * Change the ride's exit type.
+ * @param type Index of the new exit.
+ */
+void RideInstance::SetExitType(const int type)
+{
+	this->exit_type = type;
+	this->exit_recolours = _rides_manager.exits[type]->recolours;
 }
 
 /**
@@ -470,6 +509,8 @@ void RideInstance::Load(Loader &ldr)
 	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
 	this->flags = state_and_flags & 0xff;
 	this->recolours.Load(ldr);
+	this->entrance_recolours.Load(ldr);
+	this->exit_recolours.Load(ldr);
 	for (Money& m : this->item_price) m = static_cast<Money>(ldr.GetLongLong());
 	for (int64& m : this->item_count) m = ldr.GetLongLong();
 	this->total_profit = static_cast<Money>(ldr.GetLongLong());
@@ -488,6 +529,8 @@ void RideInstance::Save(Saver &svr)
 	svr.PutText(this->name.get());
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
 	this->recolours.Save(svr);
+	this->entrance_recolours.Save(svr);
+	this->exit_recolours.Save(svr);
 	for (const Money& m : this->item_price) svr.PutLongLong(static_cast<uint64>(m));
 	for (const int64& m : this->item_count) svr.PutLongLong(m);
 	svr.PutLongLong(static_cast<uint64>(this->total_profit));

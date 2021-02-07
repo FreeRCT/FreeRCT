@@ -660,7 +660,7 @@ Offset       Length   Version  Description
    4          4        1-      Version number of the block.
    8          1        1-      Magic number 1 for entrances or 0 for exits.
    9          4        1-      Length of the block excluding magic string, version, and length.
-  13          4        1-      Name of the entrance/exit type (reference to a TEXT block).
+  13          4        1-      Strings of the entrance/exit type (reference to a TEXT block).
   17          2        1-      Zoom-width of a tile of the surface.
   19          4        1-      Unrotated (ne) image.
   23          4        1-      se image.

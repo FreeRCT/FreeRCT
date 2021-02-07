@@ -76,6 +76,9 @@ public:
 
 	bool is_entrance;       ///< Whether this is an entrance type or exit type.
 	StringID name;          ///< Name of the entrance or exit type.
+	StringID recolour_description_1; ///< First recolouring description.
+	StringID recolour_description_2; ///< Second recolouring description.
+	StringID recolour_description_3; ///< Third recolouring description.
 	ImageData* images[4];   ///< The entrance/exit's graphics.
 	Recolouring recolours;  ///< Sprite recolour map.
 
@@ -157,6 +160,7 @@ public:
 	virtual ~RideInstance() = default;
 
 	virtual void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
+	virtual const Recolouring *GetRecolours(const XYZPoint16 &pos) const;
 	virtual uint8 GetEntranceDirections(const XYZPoint16 &vox) const = 0;
 	virtual RideEntryResult EnterRide(int guest, TileEdge entry_edge) = 0;
 	virtual XYZPoint32 GetExit(int guest, TileEdge entry_edge) = 0;
@@ -182,16 +186,20 @@ public:
 	virtual void OpenRide();
 	virtual void CloseRide();
 	void HandleBreakdown();
+	void SetEntranceType(int type);
+	void SetExitType(int type);
 
 	virtual void Load(Loader &ldr);
 	virtual void Save(Saver &svr);
 
 	uint16 GetIndex() const;
 
-	std::unique_ptr<uint8[]> name; ///< Name of the ride, if it is instantiated.
-	uint8 state;             ///< State of the instance. @see RideInstanceState
-	uint8 flags;             ///< Flags of the instance. @see RideInstanceFlags
-	Recolouring recolours;   ///< Recolour map of the instance.
+	std::unique_ptr<uint8[]> name;  ///< Name of the ride, if it is instantiated.
+	uint8 state;                    ///< State of the instance. @see RideInstanceState
+	uint8 flags;                    ///< Flags of the instance. @see RideInstanceFlags
+	Recolouring recolours;          ///< Recolour map of the instance.
+	Recolouring entrance_recolours; ///< Recolour map of the ride's entrance.
+	Recolouring exit_recolours;     ///< Recolour map of the ride's exit.
 
 	Money total_profit;      ///< Total profit of the ride.
 	Money total_sell_profit; ///< Profit of selling items.

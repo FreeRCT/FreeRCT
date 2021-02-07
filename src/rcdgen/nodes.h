@@ -611,7 +611,7 @@ public:
 
 	bool is_entrance;                     ///< True if this is an entrance, false if it's an exit.
 	int tile_width;                       ///< Zoom-width of a tile of the surface.
-	std::shared_ptr<StringBundle> name;   ///< The entrance/exit's name.
+	std::shared_ptr<StringBundle> texts;  ///< The entrance/exit's strings.
 	std::shared_ptr<SpriteBlock> ne_view; ///< Unrotated view.
 	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
 	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.

@@ -38,6 +38,7 @@ public:
 
 	const GentleThrillRideType *GetGentleThrillRideType() const;
 
+	const Recolouring *GetRecolours(const XYZPoint16 &pos) const override;
 	bool IsEntranceLocation(const XYZPoint16& pos) const override;
 	bool IsExitLocation(const XYZPoint16& pos) const override;
 	bool CanOpenRide() const override;

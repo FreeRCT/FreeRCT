@@ -270,9 +270,27 @@ strings {
 
 	stringtexts("entrance-generic") {
 		NAME: "Generic Entrance";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
 	}
 	stringtexts("exit-generic") {
 		NAME: "Generic Exit";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("entrance-alt") {
+		NAME: "Alternative Entrance";
+		DESCRIPTION_RECOLOUR1: "Walls";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("exit-alt") {
+		NAME: "Alternative Exit";
+		DESCRIPTION_RECOLOUR1: "Walls";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
 	}
 
 	stringtexts("spooky-manor") {

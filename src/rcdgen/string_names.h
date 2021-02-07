@@ -262,9 +262,12 @@ static const char *_coaster_string_names[] = {
 	"DESCRIPTION_TYPE",
 };
 
-/** String name of an entrance or exit. */
+/** String names of an entrance or exit. */
 static const char *_entrance_exit_string_names[] = {
-	"NAME"
+	"NAME",
+	"DESCRIPTION_RECOLOUR1",
+	"DESCRIPTION_RECOLOUR2",
+	"DESCRIPTION_RECOLOUR3",
 };
 
 #endif

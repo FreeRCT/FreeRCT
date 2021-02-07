@@ -1994,9 +1994,9 @@ static std::shared_ptr<RIEEBlock> ConvertRIEENode(std::shared_ptr<NodeGroup> ng)
 		block->recol[i++] = *rc;
 	}
 
-	block->name = std::make_shared<StringBundle>();
-	block->name->Fill(vals.GetStrings("name"), ng->pos);
-	block->name->CheckTranslations(_entrance_exit_string_names, lengthof(_entrance_exit_string_names), ng->pos);
+	block->texts = std::make_shared<StringBundle>();
+	block->texts->Fill(vals.GetStrings("texts"), ng->pos);
+	block->texts->CheckTranslations(_entrance_exit_string_names, lengthof(_entrance_exit_string_names), ng->pos);
 
 	vals.VerifyUsage();
 	return block;

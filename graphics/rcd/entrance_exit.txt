@@ -31,7 +31,7 @@ file("entrance_exit.rcd") {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
 			file: "../sprites/ride_entrance_exit/generic/64_entrance_2.png";
 		}
-		name: strings { key: "entrance-generic"; }
+		texts: strings { key: "entrance-generic"; }
 	}
 
 	// Generic exit
@@ -54,6 +54,68 @@ file("entrance_exit.rcd") {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
 			file: "../sprites/ride_entrance_exit/generic/64_exit_2.png";
 		}
-		name: strings { key: "exit-generic"; }
+		texts: strings { key: "exit-generic"; }
+	}
+
+	// Alt entrance
+	RIEE {
+		type: "entrance";
+		tile_width: 64;
+		se: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+		}
+		nw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+		}
+		recolour {
+			original: blue;
+			replace: bitset(grey, green_brown, orange_brown, yellow, dark_red, dark_green, light_green, green, pink_brown, dark_purple, blue, jade_green, purple, red, orange, sea_green, pink, brown);
+		}
+		texts: strings { key: "entrance-alt"; }
+	}
+
+	// Alt exit
+	RIEE {
+		type: "exit";
+		tile_width: 64;
+		se: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+		}
+		nw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+		}
+		ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+		}
+		sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
+			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+		}
+		recolour {
+			original: blue;
+			replace: bitset(grey, green_brown, orange_brown, yellow, dark_red, dark_green, light_green, green, pink_brown, dark_purple, blue, jade_green, purple, red, orange, sea_green, pink, brown);
+		}
+		texts: strings { key: "exit-alt"; }
 	}
 }

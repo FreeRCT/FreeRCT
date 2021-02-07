@@ -1029,7 +1029,7 @@ int RIEEBlock::Write(FileWriter *fw)
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 47 - 12);
 	fb->SaveUInt8(this->is_entrance ? 1 : 0);
-	fb->SaveUInt32(this->name->Write(fw));
+	fb->SaveUInt32(this->texts->Write(fw));
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt32(this->ne_view->Write(fw));
 	fb->SaveUInt32(this->se_view->Write(fw));

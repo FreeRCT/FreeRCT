@@ -46,7 +46,7 @@ enum StringTable {
 	/**
 	 * Generic shop strings, translated to 'real' string numbers by each shop type object by means of the RideType::GetString function.
 	 */
-	STR_GENERIC_SHOP_START = STR_GENERIC_ENTRANCE_EXIT_START + 64,
+	STR_GENERIC_SHOP_START = STR_GENERIC_ENTRANCE_EXIT_START + 256,
 
 	/**
 	 * Generic coaster strings, translated to 'real' string numbers by each coaster type object by means of the RideType::GetString function.

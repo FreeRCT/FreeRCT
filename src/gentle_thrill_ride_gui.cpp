@@ -17,6 +17,7 @@
 #include "entity_gui.h"
 #include "mouse_mode.h"
 #include "viewport.h"
+#include "generated/entrance_exit_strings.h"
 
 /** Window to prompt for removing a gentle/thrill ride. */
 class GentleThrillRideRemoveWindow : public EntityRemoveWindow  {
@@ -80,6 +81,12 @@ enum GentleThrillRideManagerWidgets {
 	GTRMW_CHOOSE_ENTRANCE,
 	GTRMW_PLACE_EXIT,
 	GTRMW_CHOOSE_EXIT,
+	GTRMW_ENTRANCE_RECOLOUR1,
+	GTRMW_ENTRANCE_RECOLOUR2,
+	GTRMW_ENTRANCE_RECOLOUR3,
+	GTRMW_EXIT_RECOLOUR1,
+	GTRMW_EXIT_RECOLOUR2,
+	GTRMW_EXIT_RECOLOUR3,
 	GTRMW_REMOVE,
 };
 
@@ -109,7 +116,7 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR3, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
 					SetResize(1, 0),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 2),
+			Intermediate(3, 2),
 				Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
 						SetData(GUI_PLACE_ENTRANCE, GUI_PLACE_ENTRANCE_TOOLTIP),
 				Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_EXIT, COL_RANGE_DARK_RED),
@@ -118,6 +125,16 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 						SetData(GUI_CHOOSE_ENTRANCE, GUI_CHOOSE_ENTRANCE_TOOLTIP),
 				Widget(WT_DROPDOWN_BUTTON, GTRMW_CHOOSE_EXIT, COL_RANGE_DARK_RED),
 						SetData(GUI_CHOOSE_EXIT, GUI_CHOOSE_EXIT_TOOLTIP),
+				Intermediate(1, 3),
+					Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					SetResize(1, 0),
+				Intermediate(1, 3),
+					Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					SetResize(1, 0),
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 				Widget(WT_TEXT_PUSHBUTTON, GTRMW_REMOVE, COL_RANGE_DARK_RED),
 						SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
@@ -130,7 +147,6 @@ public:
 	GentleThrillRideManagerWindow(GentleThrillRideInstance *ri);
 	~GentleThrillRideManagerWindow() override;
 
-	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
@@ -141,6 +157,7 @@ private:
 	GentleThrillRideInstance *ride; ///< Gentle/Thrill ride instance getting managed by this window.
 
 	void SetGentleThrillRideToggleButtons();
+	void UpdateRecolourButtons();
 
 	void ChooseEntranceExitClicked(bool entrance);
 	RideMouseMode entrance_exit_placement;
@@ -157,11 +174,7 @@ GentleThrillRideManagerWindow::GentleThrillRideManagerWindow(GentleThrillRideIns
 	this->SetRideType(this->ride->GetGentleThrillRideType());
 	this->SetupWidgetTree(_gentle_thrill_ride_manager_gui_parts, lengthof(_gentle_thrill_ride_manager_gui_parts));
 	this->SetGentleThrillRideToggleButtons();
-
-	for (int i = 0; i < 3; i++) {
-		const RecolourEntry &re = this->ride->recolours.entries[i];
-		if (!re.IsValid()) this->GetWidget<LeafWidget>(GTRMW_RECOLOUR1 + i)->SetShaded(true);
-	}
+	this->UpdateRecolourButtons();
 	
 	SetSelector(nullptr);
 	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
@@ -181,6 +194,24 @@ GentleThrillRideManagerWindow::~GentleThrillRideManagerWindow()
 
 assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
 
+/** Update all recolour buttons of the wondow. */
+void GentleThrillRideManagerWindow::UpdateRecolourButtons()
+{
+	for (int i = 0; i < 3; i++) {
+		const RecolourEntry &re = this->ride->recolours.entries[i];
+		this->GetWidget<LeafWidget>(GTRMW_RECOLOUR1 + i)->SetShaded(!re.IsValid());
+	}
+	for (int i = 0; i < 3; i++) {
+		const RecolourEntry &re = this->ride->entrance_recolours.entries[i];
+		this->GetWidget<LeafWidget>(GTRMW_ENTRANCE_RECOLOUR1 + i)->SetShaded(!re.IsValid());
+	}
+	for (int i = 0; i < 3; i++) {
+		const RecolourEntry &re = this->ride->exit_recolours.entries[i];
+		this->GetWidget<LeafWidget>(GTRMW_EXIT_RECOLOUR1 + i)->SetShaded(!re.IsValid());
+	}
+	ResetSize();
+}
+
 /** Update all buttons of the window related to the ride's open/closed state. */
 void GentleThrillRideManagerWindow::SetGentleThrillRideToggleButtons()
 {
@@ -189,10 +220,6 @@ void GentleThrillRideManagerWindow::SetGentleThrillRideToggleButtons()
 	this->SetWidgetShaded(GTRMW_RIDE_OPENED, !this->ride->CanOpenRide());
 	this->SetWidgetShaded(GTRMW_PLACE_ENTRANCE, this->ride->state != RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_PLACE_EXIT, this->ride->state != RIS_CLOSED);
-}
-
-void GentleThrillRideManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
-{
 }
 
 void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
@@ -210,6 +237,25 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 
 		case GTRMW_ENTRANCE_FEE:
 			_str_params.SetMoney(1, this->ride->GetFixedRideType()->item_cost[0]);
+			break;
+
+		case GTRMW_ENTRANCE_RECOLOUR1:
+			_str_params.SetStrID(1, _rides_manager.entrances[this->ride->entrance_type]->recolour_description_1);
+			break;
+		case GTRMW_ENTRANCE_RECOLOUR2:
+			_str_params.SetStrID(1, _rides_manager.entrances[this->ride->entrance_type]->recolour_description_2);
+			break;
+		case GTRMW_ENTRANCE_RECOLOUR3:
+			_str_params.SetStrID(1, _rides_manager.entrances[this->ride->entrance_type]->recolour_description_3);
+			break;
+		case GTRMW_EXIT_RECOLOUR1:
+			_str_params.SetStrID(1, _rides_manager.exits[this->ride->exit_type]->recolour_description_1);
+			break;
+		case GTRMW_EXIT_RECOLOUR2:
+			_str_params.SetStrID(1, _rides_manager.exits[this->ride->exit_type]->recolour_description_2);
+			break;
+		case GTRMW_EXIT_RECOLOUR3:
+			_str_params.SetStrID(1, _rides_manager.exits[this->ride->exit_type]->recolour_description_3);
 			break;
 	}
 }
@@ -237,6 +283,24 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 
 		case GTRMW_RECOLOUR2:
 		case GTRMW_RECOLOUR3: {
 			RecolourEntry *re = &this->ride->recolours.entries[wid_num - GTRMW_RECOLOUR1];
+			if (re->IsValid()) {
+				this->ShowRecolourDropdown(wid_num, re, COL_RANGE_DARK_RED);
+			}
+			break;
+		}
+		case GTRMW_ENTRANCE_RECOLOUR1:
+		case GTRMW_ENTRANCE_RECOLOUR2:
+		case GTRMW_ENTRANCE_RECOLOUR3: {
+			RecolourEntry *re = &this->ride->entrance_recolours.entries[wid_num - GTRMW_ENTRANCE_RECOLOUR1];
+			if (re->IsValid()) {
+				this->ShowRecolourDropdown(wid_num, re, COL_RANGE_DARK_RED);
+			}
+			break;
+		}
+		case GTRMW_EXIT_RECOLOUR1:
+		case GTRMW_EXIT_RECOLOUR2:
+		case GTRMW_EXIT_RECOLOUR3: {
+			RecolourEntry *re = &this->ride->exit_recolours.entries[wid_num - GTRMW_EXIT_RECOLOUR1];
 			if (re->IsValid()) {
 				this->ShowRecolourDropdown(wid_num, re, COL_RANGE_DARK_RED);
 			}
@@ -366,10 +430,12 @@ void GentleThrillRideManagerWindow::OnChange(const ChangeCode code, const uint32
 		case CHG_DROPDOWN_RESULT:
 			switch ((parameter >> 16) & 0xFF) {
 				case GTRMW_CHOOSE_ENTRANCE:
-					this->ride->entrance_type = parameter & 0xFF;
+					this->ride->SetEntranceType(parameter & 0xFF);
+					this->UpdateRecolourButtons();
 					break;
 				case GTRMW_CHOOSE_EXIT:
-					this->ride->exit_type = parameter & 0xFF;
+					this->ride->SetExitType(parameter & 0xFF);
+					this->UpdateRecolourButtons();
 					break;
 				default:
 					break;
