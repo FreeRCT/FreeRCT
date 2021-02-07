@@ -1041,7 +1041,12 @@ AnimateResult Person::OnAnimate(int delay)
 		if (dz != 0) { this->vox_pos.z -= dz; this->pix_pos.z = (dz > 0) ? 255 : 0; }
 
 		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
-		if (move_on) this->DecideMoveDirection();
+		if (move_on) {
+			this->DecideMoveDirection();
+		} else {
+			/* Freeze the animation until we may continue. */
+			this->frame_time += delay;
+		}
 		return OAR_OK;
 	}
 	/* No voxel here, try one level below. */

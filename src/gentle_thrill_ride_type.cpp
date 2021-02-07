@@ -236,8 +236,11 @@ bool GentleThrillRideInstance::CanPlaceEntranceOrExit(const XYZPoint16& pos, con
 	/* Is there enough vertical space available? */
 	const int8 height = entrance ? RideEntranceExitType::entrance_height : RideEntranceExitType::exit_height;
 	for (int16 h = 0; h < height; ++h) {
-		Voxel *voxel = _world.GetCreateVoxel(pos + XYZPoint16(0, 0, h), false);
-		if (voxel != nullptr && voxel->instance != SRI_FREE) return false;
+		Voxel *v = _world.GetCreateVoxel(pos + XYZPoint16(0, 0, h), false);
+		if (v == nullptr) continue;
+
+		if (h > 0 && v->GetGroundType() != GTP_INVALID) return false;
+		if (!v->CanPlaceInstance() || v->GetGroundSlope() != SL_FLAT) return false;
 	}
 	return true;
 }
