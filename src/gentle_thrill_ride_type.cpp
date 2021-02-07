@@ -167,8 +167,7 @@ RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
 {
 	if (_guests.Get(guest)->cash < GetSaleItemPrice(0)) return RER_REFUSED;
 	const int b = onride_guests.GetLoadingBatch();
-	if (b < 0) return RER_REFUSED;
-	return this->onride_guests.batches[b].AddGuest(guest, entry) ? RER_ENTERED : RER_REFUSED;
+	return (b >= 0 && this->onride_guests.batches[b].AddGuest(guest, entry)) ? RER_ENTERED : RER_WAIT;
 }
 
 XYZPoint32 GentleThrillRideInstance::GetExit(int guest, TileEdge entry_edge)

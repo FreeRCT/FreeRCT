@@ -1007,12 +1007,14 @@ AnimateResult Person::OnAnimate(int delay)
 	/* At bottom of the voxel. */
 	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 	if (v != nullptr) {
+		bool move_on = true;
 		SmallRideInstance instance = v->GetInstance();
 		if (instance >= SRI_FULL_RIDES) {
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
 			AnimateResult ar = this->VisitRideOnAnimate(ri, exit_edge);
-			if (ar != OAR_CONTINUE) return ar;
+			if (ar != OAR_CONTINUE && ar != OAR_HALT) return ar;
+			move_on = (ar != OAR_HALT);
 
 			/* Ride is could not be visited, fall-through to reversing movement. */
 
@@ -1039,7 +1041,7 @@ AnimateResult Person::OnAnimate(int delay)
 		if (dz != 0) { this->vox_pos.z -= dz; this->pix_pos.z = (dz > 0) ? 255 : 0; }
 
 		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
-		this->DecideMoveDirection();
+		if (move_on) this->DecideMoveDirection();
 		return OAR_OK;
 	}
 	/* No voxel here, try one level below. */
@@ -1225,7 +1227,11 @@ AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
 		/* All lights are green, let's try to enter the ride. */
 		this->activity = GA_ON_RIDE;
 		this->ride = ri;
-		RideEntryResult rer = ri->EnterRide(this->id, exit_edge);
+		const RideEntryResult rer = ri->EnterRide(this->id, exit_edge);
+		if (rer == RER_WAIT) {
+			this->activity = GA_QUEUING;
+			return OAR_HALT;
+		}
 		if (rer != RER_REFUSED) {
 			this->BuyItem(ri);
 			/* Either the guest is already back at a path or he will be (through ExitRide). */

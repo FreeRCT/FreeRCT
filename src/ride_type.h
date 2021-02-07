@@ -144,6 +144,7 @@ enum RideEntryResult {
 	RER_REFUSED, ///< Entry is refused.
 	RER_ENTERED, ///< Entry is given, the guest is staying inside the ride.
 	RER_DONE,    ///< Entry is given, and visit is immediately done.
+	RER_WAIT,    ///< No entry is given, but the guest is told to wait outside and try again a little while later.
 };
 
 /**
