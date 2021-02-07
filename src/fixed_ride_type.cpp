@@ -367,6 +367,7 @@ void FixedRideInstance::Load(Loader &ldr)
 	this->vox_pos = XYZPoint16(x, y, z);
 	this->time_left_in_phase = ldr.GetLong();
 	this->is_working = ldr.GetByte() == 1;
+	this->onride_guests.Load(ldr);
 
 	InsertIntoWorld();
 }
@@ -381,4 +382,5 @@ void FixedRideInstance::Save(Saver &svr)
 	svr.PutWord(this->vox_pos.z);
 	svr.PutLong(this->time_left_in_phase);
 	svr.PutByte(this->is_working ? 1 : 0);
+	this->onride_guests.Save(svr);
 }

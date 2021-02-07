@@ -36,6 +36,9 @@ struct GuestData {
 
 	void Clear();
 	void Set(int guest, TileEdge entry);
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 };
 
 /** State of the batch. */
@@ -63,6 +66,9 @@ struct GuestBatch {
 	void Start(int ride_time);
 
 	void OnAnimate(int delay);
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 };
 
 /** Class holding the guests of a ride as a number of batches with a size. */
@@ -127,6 +133,9 @@ public:
 	std::vector<GuestBatch> batches; ///< Batches of guests.
 	int batch_size;  ///< Size of a batch of guests.
 	int num_batches; ///< Number of batches in the ride.
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 
 private:
 	int GetNextBatch(BatchState state, int start);

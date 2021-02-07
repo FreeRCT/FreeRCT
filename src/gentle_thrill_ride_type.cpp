@@ -176,12 +176,12 @@ XYZPoint32 GentleThrillRideInstance::GetExit(int guest, TileEdge entry_edge)
 	const int direction = this->EntranceExitRotation(this->exit_pos);
 	XYZPoint32 p(this->exit_pos.x * 256, this->exit_pos.y * 256, this->vox_pos.z * 256);
 	Random r;  // Don't put all guests on exactly the same spot.
-	const int d = 128 + r.Uniform(32) - 16;
+	const int d = 128 + r.Uniform(128) - 64;
 	switch (direction) {
-		case VOR_WEST:  p.x += d; p.y -= 32;     break;
-		case VOR_EAST:  p.x += d; p.y += 256+32; break;
-		case VOR_NORTH: p.x -= 32;  p.y += d;    break;
-		case VOR_SOUTH: p.x += 32;  p.y += d;    break;
+		case VOR_WEST:  p.x += d;       p.y -= 32;      break;
+		case VOR_EAST:  p.x += d;       p.y += 256+32;  break;
+		case VOR_NORTH: p.x -= 32;      p.y += d;       break;
+		case VOR_SOUTH: p.x += 256+32;  p.y += d;       break;
 		default: NOT_REACHED();
 	}
 	return p;

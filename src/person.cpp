@@ -1164,6 +1164,8 @@ void Guest::Load(Loader &ldr)
 	this->stomach_level = ldr.GetByte();
 	this->waste = ldr.GetByte();
 	this->nausea = ldr.GetByte();
+
+	if (this->activity == GA_ON_RIDE) this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
 }
 
 /**

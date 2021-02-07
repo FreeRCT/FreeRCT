@@ -36,6 +36,18 @@ void GuestData::Set(int guest, TileEdge entry)
 	this->entry = entry;
 }
 
+void GuestData::Load(Loader &ldr)
+{
+	this->guest = ldr.GetLong();
+	this->entry = static_cast<TileEdge>(ldr.GetByte());
+}
+
+void GuestData::Save(Saver &svr)
+{
+	svr.PutLong(this->guest);
+	svr.PutByte(this->entry);
+}
+
 /**
  * Return whether the batch is entirely empty.
  * @return Whether the batch is entirely empty.
@@ -105,6 +117,22 @@ void GuestBatch::OnAnimate(int delay)
 	}
 }
 
+void GuestBatch::Load(Loader &ldr)
+{
+	this->state = static_cast<BatchState>(ldr.GetByte());
+	this->remaining = ldr.GetLong();
+	this->gate = ldr.GetWord();
+	for (GuestData &g : this->guests) g.Load(ldr);
+}
+
+void GuestBatch::Save(Saver &svr)
+{
+	svr.PutByte(this->state);
+	svr.PutLong(this->remaining);
+	svr.PutWord(this->gate);
+	for (GuestData &g : this->guests) g.Save(svr);
+}
+
 /**
  * Constructor for storage of on-ride guests.
  * @param batch_size Size of one group of guests.
@@ -162,4 +190,20 @@ void OnRideGuests::OnAnimate(int delay)
 
 		this->batches.at(start).OnAnimate(delay);
 	}
+}
+
+
+void OnRideGuests::Load(Loader &ldr)
+{
+	this->batch_size = ldr.GetWord();
+	this->num_batches = ldr.GetWord();
+	this->Configure(this->batch_size, this->num_batches);
+	for (GuestBatch &b : this->batches) b.Load(ldr);
+}
+
+void OnRideGuests::Save(Saver &svr)
+{
+	svr.PutWord(this->batch_size);
+	svr.PutWord(this->num_batches);
+	for (GuestBatch &b : this->batches) b.Save(svr);
 }
