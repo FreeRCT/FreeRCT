@@ -99,23 +99,22 @@ const char *GetSimilarLanguage(const std::string& lang_name)
 	double score = 1.5;  // Arbitrary treshold to suppress random matches.
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
 		const std::string name(_lang_names[i]);
-		const int length = std::min(name.size(), lang_name.size());
-		double s = std::max(name.size(), lang_name.size()) - length;
-		s *= -1;
-		for (int j = 0; j < length; ++j) {
+		const int common_length = std::min(name.size(), lang_name.size());
+		double s = common_length - std::max<int>(name.size(), lang_name.size());
+		for (int j = 0; j < common_length; ++j) {
 			const char c1 = lang_name.at(j);
 			const char c2 = name.at(j);
 			if (c1 == c2) {
 				s++;
-			} else if (c1 >= 'a' && c1 <= 'z' && c2 >= 'A' && c2 <= 'Z' && c1 + 'A' - 'a' == c2) {
+			} else if (c1 >= 'a' && c1 <= 'z' && c1 + 'A' - 'a' == c2) {
 				s += 0.5;
-			} else if (c2 >= 'a' && c2 <= 'z' && c1 >= 'A' && c1 <= 'Z' && c2 + 'A' - 'a' == c1) {
+			} else if (c2 >= 'a' && c2 <= 'z' && c2 + 'A' - 'a' == c1) {
 				s += 0.5;
 			} else {
 				s--;
 			}
 		}
-		s *= 10.0 / length;  // Ensure that the name's length does not influence scoring.
+		s *= 10.0 / common_length;  // Ensure that the name's length does not influence scoring.
 		if (s > score) {
 			score = s;
 			best_match = _lang_names[i];

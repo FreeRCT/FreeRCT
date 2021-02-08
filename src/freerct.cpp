@@ -56,8 +56,15 @@ static void PrintUsage()
 	printf("  -h, --help           Display this help text and exit.\n");
 	printf("  -l, --load [file]    Load game from specified file.\n");
 	printf("  -a, --language lang  Use the specified language.\n");
-	printf("                       Valid languages are:");
+
+	printf("\nValid languages are:\n   ");
+	int length = 0;
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
+		length += strlen(_lang_names[i]) + 1;
+		if (length > 50) {  // Linewrap after an arbitrary number of characters.
+			printf("\n   ");
+			length = strlen(_lang_names[i]);
+		}
 		printf(" %s", _lang_names[i]);
 	}
 	printf("\n");
@@ -144,7 +151,7 @@ int freerct_main(int argc, char **argv)
 			fprintf(stderr, "The language '%s' set on the command line is not known.\n", preferred_language);
 			const char *similar = GetSimilarLanguage(preferred_language);
 			if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
-			fprintf(stderr, "Call 'freerct --help' for a list of all supported languages.\n");
+			fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
 		} else {
 			_current_language = index;
 			language_set = true;
@@ -160,7 +167,7 @@ int freerct_main(int argc, char **argv)
 				fprintf(stderr, "The language '%s' set in the configuration file (freerct.cfg) is not known.\n", preferred_language);
 				const char *similar = GetSimilarLanguage(preferred_language);
 				if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
-				fprintf(stderr, "Call 'freerct --help' for a list of all supported languages.\n");
+				fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
 			} else {
 				_current_language = index;
 			}
