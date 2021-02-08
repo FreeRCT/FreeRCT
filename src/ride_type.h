@@ -74,13 +74,13 @@ public:
 	RideEntranceExitType();
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
-	bool is_entrance;       ///< Whether this is an entrance type or exit type.
-	StringID name;          ///< Name of the entrance or exit type.
+	bool is_entrance;                ///< Whether this is an entrance type or exit type.
+	StringID name;                   ///< Name of the entrance or exit type.
 	StringID recolour_description_1; ///< First recolouring description.
 	StringID recolour_description_2; ///< Second recolouring description.
 	StringID recolour_description_3; ///< Third recolouring description.
-	ImageData* images[4];   ///< The entrance/exit's graphics.
-	Recolouring recolours;  ///< Sprite recolour map.
+	ImageData* images[4][2];         ///< The entrance/exit's graphics.
+	Recolouring recolours;           ///< Sprite recolour map.
 
 	/* The following two values must be the same for all entrance/exit sets. */
 	static uint8 entrance_height; ///< The height of all rides' entrances in voxels.

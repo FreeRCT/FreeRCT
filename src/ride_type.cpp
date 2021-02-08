@@ -64,7 +64,7 @@ RideEntranceExitType::RideEntranceExitType()
  */
 bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 35) return false;
+	if (rcd_file->version != 1 || rcd_file->size != 51) return false;
 	this->is_entrance = rcd_file->GetUInt8() > 0;
 
 	TextData *text_data;
@@ -77,10 +77,12 @@ bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 
 	const int width = rcd_file->GetUInt16();
 	for (int i = 0; i < 4; i++) {
-		ImageData *view;
-		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
-		if (width != 64) continue; /// \todo Widths other than 64.
-		this->images[i] = view;
+		for (int j = 0; j < 2; j++) {
+			ImageData *view;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+			if (width != 64) continue; /// \todo Widths other than 64.
+			this->images[i][j] = view;
+		}
 	}
 	for (int i = 0; i < 3; i++) {
 		uint32 recolour = rcd_file->GetUInt32();

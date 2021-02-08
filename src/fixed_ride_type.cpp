@@ -162,9 +162,13 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 	};
 	const FixedRideType* t = GetFixedRideType();
 	if (IsEntranceLocation(vox)) {
-		sprites[1] = _rides_manager.entrances[this->entrance_type]->images[orientation_index(EntranceExitRotation(vox))];
+		const ImageData *const *array = _rides_manager.entrances[this->entrance_type]->images[orientation_index(EntranceExitRotation(vox))];
+		sprites[1] = array[0];
+		sprites[2] = array[1];
 	} else if (IsExitLocation(vox)) {
-		sprites[1] = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox))];
+		const ImageData *const *array = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox))];
+		sprites[1] = array[0];
+		sprites[2] = array[1];
 	} else if (voxel_number == SHF_ENTRANCE_NONE) {
 		sprites[1] = nullptr;
 	} else {

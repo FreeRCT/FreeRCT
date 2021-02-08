@@ -15,21 +15,37 @@ file("entrance_exit.rcd") {
 	RIEE {
 		type: "entrance";
 		tile_width: 64;
-		se: sprite {
+		ne_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_1.png";
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0001.png";
 		}
-		nw: sprite {
+		se_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_1.png";
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0002.png";
 		}
-		ne: sprite {
+		sw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_2.png";
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0003.png";
 		}
-		sw: sprite {
+		nw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_2.png";
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0004.png";
+		}
+		ne_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0005.png";
+		}
+		se_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0006.png";
+		}
+		sw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0007.png";
+		}
+		nw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_generic/64_0008.png";
 		}
 		texts: strings { key: "entrance-generic"; }
 	}
@@ -38,48 +54,84 @@ file("entrance_exit.rcd") {
 	RIEE {
 		type: "exit";
 		tile_width: 64;
-		se: sprite {
+		ne_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_1.png";
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0001.png";
 		}
-		nw: sprite {
+		se_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_1.png";
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0002.png";
 		}
-		ne: sprite {
+		sw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_2.png";
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0003.png";
 		}
-		sw: sprite {
+		nw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_2.png";
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0004.png";
+		}
+		ne_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0005.png";
+		}
+		se_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0006.png";
+		}
+		sw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0007.png";
+		}
+		nw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_generic/64_0008.png";
 		}
 		texts: strings { key: "exit-generic"; }
 	}
 
-	// Alt entrance
+	// Alternative entrance
 	RIEE {
 		type: "entrance";
 		tile_width: 64;
-		se: sprite {
+		ne_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0001.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0001.png";
 		}
-		nw: sprite {
+		se_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0002.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0002.png";
 		}
-		ne: sprite {
+		sw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0003.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0003.png";
 		}
-		sw: sprite {
+		nw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
-			file: "../sprites/ride_entrance_exit/generic/64_entrance_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_entrance_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0004.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0004.png";
+		}
+		ne_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0005.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0005.png";
+		}
+		se_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0006.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0006.png";
+		}
+		sw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0007.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0007.png";
+		}
+		nw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0008.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0008.png";
 		}
 		recolour {
 			original: blue;
@@ -88,29 +140,49 @@ file("entrance_exit.rcd") {
 		texts: strings { key: "entrance-alt"; }
 	}
 
-	// Alt exit
+	// Alternative exit
 	RIEE {
 		type: "exit";
 		tile_width: 64;
-		se: sprite {
+		ne_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0001.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0001.png";
 		}
-		nw: sprite {
+		se_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0002.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0002.png";
 		}
-		ne: sprite {
+		sw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0003.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0003.png";
 		}
-		sw: sprite {
+		nw_fg: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
-			file: "../sprites/ride_entrance_exit/generic/64_exit_alt.png";
-			recolour: "../sprites/ride_entrance_exit/generic/64_exit_alt_mask.png";
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0004.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0004.png";
+		}
+		ne_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0005.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0005.png";
+		}
+		se_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0006.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0006.png";
+		}
+		sw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0007.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0007.png";
+		}
+		nw_bg: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-58; width: 64; height: 58;
+			file: "../sprites/ride_entrance_exit/exit_alt/64_0008.png";
+			recolour: "../sprites/ride_entrance_exit/exit_alt/64m_0008.png";
 		}
 		recolour {
 			original: blue;

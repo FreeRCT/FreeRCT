@@ -609,14 +609,14 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	bool is_entrance;                     ///< True if this is an entrance, false if it's an exit.
-	int tile_width;                       ///< Zoom-width of a tile of the surface.
-	std::shared_ptr<StringBundle> texts;  ///< The entrance/exit's strings.
-	std::shared_ptr<SpriteBlock> ne_view; ///< Unrotated view.
-	std::shared_ptr<SpriteBlock> se_view; ///< Rotated 90 degrees.
-	std::shared_ptr<SpriteBlock> sw_view; ///< Rotated 180 degrees.
-	std::shared_ptr<SpriteBlock> nw_view; ///< Rotated 270 degrees.
-	Recolouring recol[3];                 ///< Recolour definitions of the entrance/exit.
+	bool is_entrance;                         ///< True if this is an entrance, false if it's an exit.
+	int tile_width;                           ///< Zoom-width of a tile of the surface.
+	std::shared_ptr<StringBundle> texts;      ///< The entrance/exit's strings.
+	std::shared_ptr<SpriteBlock> ne_views[2]; ///< Unrotated view.
+	std::shared_ptr<SpriteBlock> se_views[2]; ///< Rotated 90 degrees.
+	std::shared_ptr<SpriteBlock> sw_views[2]; ///< Rotated 180 degrees.
+	std::shared_ptr<SpriteBlock> nw_views[2]; ///< Rotated 270 degrees.
+	Recolouring recol[3];                     ///< Recolour definitions of the entrance/exit.
 };
 
 /** Class for describing a SHOP game block. */
