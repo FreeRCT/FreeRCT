@@ -296,17 +296,18 @@ Offset  Length  Description
 The languages use one of the following tags (currently ``name of language -
 name of country area`` but that may change in the future).
 
-=====  =========================
-Tag    Description
-=====  =========================
-da_DK  Denmark.
-de_DE  Germany.
-en_GB  Great Britain (default).
-en_US  United States.
-es_ES  Spain.
-nl_NL  The Netherlands.
-sv_SE  Sweden.
-=====  =========================
+======  ===================================
+Tag     Description
+======  ===================================
+da_DK   Denmark.
+de_DE   Germany.
+en_GB   Great Britain (default).
+en_US   United States.
+es_ES   Spain.
+nds_DE  Low German (Germany).
+nl_NL   The Netherlands.
+sv_SE   Sweden.
+======  ===================================
 
 If a string does not exist in the queried language, the program will fall back
 to the ``en_GB`` language.
