@@ -85,6 +85,25 @@ struct XYZPoint {
 	}
 
 	/**
+	 * Conversion operator between points of various byte lengths.
+	 * @return An equal point with a different template specialisation.
+	 */
+	template <typename C>
+	inline operator XYZPoint<C>() const
+	{
+		return XYZPoint<C>(x, y, z);
+	}
+
+	/**
+	 * A special "invalid" constant.
+	 * @return A point denoting invalid coordinates.
+	 */
+	static inline XYZPoint invalid()
+	{
+		return XYZPoint(-1, -1, -1);
+	}
+
+	/**
 	 * Get the 2D coordinates of the 3D point.
 	 * @return X & Y coordinates.
 	 */

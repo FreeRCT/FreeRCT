@@ -74,6 +74,7 @@ struct WalkInformation {
 enum AnimateResult {
 	OAR_CONTINUE,   ///< No result yet, continue the routine.
 	OAR_OK,         ///< All OK, keep running.
+	OAR_HALT,       ///< The person must stay where it is.
 	OAR_REMOVE,     ///< Remove person from the person-list, and de-activate.
 	OAR_DEACTIVATE, ///< Person is already removed from the person-list, only de-activate.
 };

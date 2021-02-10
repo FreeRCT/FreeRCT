@@ -194,6 +194,16 @@ strings {
 		ENTITY_REMOVE_YES:     "Ja";
 		ENTITY_REMOVE_NO:      "Nein";
 
+		// Ride entrance/exit placement buttons.
+		PLACE_ENTRANCE:          "Eingang bauen";
+		PLACE_ENTRANCE_TOOLTIP:  "Den Eingang der Attraktion verschieben";
+		PLACE_EXIT:              "Ausgang bauen";
+		PLACE_EXIT_TOOLTIP:      "Den Ausgang der Attraktion verschieben";
+		CHOOSE_ENTRANCE:         "Eingangs-Stil";
+		CHOOSE_ENTRANCE_TOOLTIP: "Das Aussehen des Eingangs festlegen";
+		CHOOSE_EXIT:             "Ausgangs-Stil";
+		CHOOSE_EXIT_TOOLTIP:     "Das Aussehen des Ausgangs festlegen";
+
 		// Ride build window strings.
 		RIDE_BUILD_TITLEBAR_SHOP:         "Geschäft platzieren";
 		RIDE_BUILD_TITLEBAR_GENTLE:       "Gemäßigte Attraktion platzieren";
@@ -256,6 +266,13 @@ strings {
 		NAME_INSTANCE:    "Verrückte Achterbahn";
 		NAME_TYPE:        "Standard-Achterbahn";
 		DESCRIPTION_TYPE: "Standard-Stahlachterbahn";
+	}
+
+	stringtexts("entrance-generic") {
+		NAME: "Normaler Eingang";
+	}
+	stringtexts("exit-generic") {
+		NAME: "Normaler Ausgang";
 	}
 
 	stringtexts("spooky-manor") {

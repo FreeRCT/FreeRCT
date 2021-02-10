@@ -165,6 +165,12 @@ uint8 ShopInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 	return ROL(entrances, 4, this->orientation);
 }
 
+bool ShopInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
+{
+	if (this->state != RIS_OPEN) return false;
+	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
+}
+
 RideEntryResult ShopInstance::EnterRide(int guest, TileEdge entry)
 {
 	if (this->onride_guests.num_batches == 0) { // No onride guests, handle it all now.
@@ -174,7 +180,7 @@ RideEntryResult ShopInstance::EnterRide(int guest, TileEdge entry)
 	}
 
 	/* Guest should wait for the ride to finish, find a spot. */
-	int free_batch = this->onride_guests.GetFreeBatch();
+	int free_batch = this->onride_guests.GetLoadingBatch();
 	if (free_batch >= 0) {
 		GuestBatch &gb = this->onride_guests.GetBatch(free_batch);
 		if (gb.AddGuest(guest, entry)) {

@@ -650,6 +650,39 @@ Version history
 - 1 (20210131) Initial version.
 
 
+Rides entrances and exits
+~~~~~~~~~~~~~~~~~~~~~~~~~
+An entrance or exit for a ride. FreeRCT can read block version 1.
+
+===========  =======  =======  ==================================================================
+Offset       Length   Version  Description
+===========  =======  =======  ==================================================================
+   0          4        1-      Magic string 'RIEE'.
+   4          4        1-      Version number of the block.
+   8          4        1-      Length of the block excluding magic string, version, and length.
+  12          1        1-      Magic number 1 for entrances or 0 for exits.
+  13          4        1-      Strings of the entrance/exit type (reference to a TEXT block).
+  17          2        1-      Zoom-width of a tile of the surface.
+  19          4        1-      Unrotated (ne) image, background sprite.
+  23          4        1-      ne image, foreground sprite.
+  27          4        1-      se image, background.
+  31          4        1-      se image, foreground.
+  35          4        1-      sw image, background.
+  39          4        1-      sw image, foreground.
+  43          4        1-      nw image, background.
+  47          4        1-      nw image, foreground.
+  51          4        1-      First recolouring specification.
+  55          4        1-      Second recolouring specification.
+  59          4        1-      Third recolouring specification.
+  63                           Total length.
+===========  =======  =======  ==================================================================
+
+Version history
+...............
+
+- 1 (20210206) Initial version.
+
+
 Gentle and thrill rides
 ~~~~~~~~~~~~~~~~~~~~~~~
 Gentle and thrill rides consisting of a single building. FreeRCT can read block version 2.

@@ -70,6 +70,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 		uint32 recolour = rcd_file->GetUInt32();
 		this->recolours.Set(i, RecolourEntry(recolour));
 	}
+	this->item_type[0] = ITP_RIDE;
 	this->item_cost[0] = rcd_file->GetInt32(); // Entrance fee.
 	this->item_cost[1] = 0;                    // Unused.
 	this->monthly_cost = rcd_file->GetInt32();
@@ -128,7 +129,10 @@ const StringID *GentleThrillRideType::GetInstanceNames() const
  */
 GentleThrillRideInstance::GentleThrillRideInstance(const GentleThrillRideType *type) : FixedRideInstance(type)
 {
-	/* Nothing to do currently. */
+	this->entrance_pos = XYZPoint16::invalid();
+	this->exit_pos = XYZPoint16::invalid();
+	this->temp_entrance_pos = XYZPoint16::invalid();
+	this->temp_exit_pos = XYZPoint16::invalid();
 }
 
 GentleThrillRideInstance::~GentleThrillRideInstance()
@@ -146,29 +150,197 @@ const GentleThrillRideType *GentleThrillRideInstance::GetGentleThrillRideType() 
 	return static_cast<const GentleThrillRideType *>(this->type);
 }
 
+void GentleThrillRideInstance::InitializeItemPricesAndStatistics()
+{
+	FixedRideInstance::InitializeItemPricesAndStatistics();
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		this->item_price[i] = GetRideType()->item_cost[i];
+	}
+}
+
+const Recolouring *GentleThrillRideInstance::GetRecolours(const XYZPoint16 &pos) const
+{
+	if (pos == entrance_pos || pos == temp_entrance_pos) return &this->entrance_recolours;
+	if (pos == exit_pos || pos == temp_exit_pos) return &this->exit_recolours;
+	return FixedRideInstance::GetRecolours(pos);
+}
+
 uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
-	return SHF_ENTRANCE_BITS; // \todo Ride entrances are not implemented yet.
+	return SHF_ENTRANCE_BITS;  // Used for rendering of platforms only.
 }
 
 RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
 {
-	return RER_REFUSED; // \todo Ride entrances are not implemented yet.
+	if (_guests.Get(guest)->cash < GetSaleItemPrice(0)) return RER_REFUSED;
+	const int b = onride_guests.GetLoadingBatch();
+	return (b >= 0 && this->onride_guests.batches[b].AddGuest(guest, entry)) ? RER_ENTERED : RER_WAIT;
 }
 
 XYZPoint32 GentleThrillRideInstance::GetExit(int guest, TileEdge entry_edge)
 {
-	NOT_REACHED(); // \todo Ride exits are not implemented yet.
+	const int direction = this->EntranceExitRotation(this->exit_pos);
+	XYZPoint32 p(this->exit_pos.x * 256, this->exit_pos.y * 256, this->vox_pos.z * 256);
+	Random r;  // Don't put all guests on exactly the same spot.
+	const int d = 128 + r.Uniform(128) - 64;
+	switch (direction) {
+		case VOR_WEST:  p.x += d;       p.y -= 32;      break;
+		case VOR_EAST:  p.x += d;       p.y += 256+32;  break;
+		case VOR_NORTH: p.x -= 32;      p.y += d;       break;
+		case VOR_SOUTH: p.x += 256+32;  p.y += d;       break;
+		default: NOT_REACHED();
+	}
+	return p;
+}
+
+bool GentleThrillRideInstance::IsEntranceLocation(const XYZPoint16& pos) const
+{
+	return pos == this->entrance_pos || pos == this->temp_entrance_pos;
+}
+
+bool GentleThrillRideInstance::IsExitLocation(const XYZPoint16& pos) const
+{
+	return pos == this->exit_pos || pos == this->temp_exit_pos;
+}
+
+bool GentleThrillRideInstance::CanOpenRide() const
+{
+	return this->entrance_pos != XYZPoint16::invalid() && this->exit_pos != XYZPoint16::invalid() && FixedRideInstance::CanOpenRide();
+}
+
+/**
+ * Checks whether the ride's entrance or exit could be moved to the given location.
+ * @param pos Absolute voxel in the world.
+ * @param entrance Whether we're placing an entrance or exit.
+ * @return The entrance or exit can be placed there.
+ */
+bool GentleThrillRideInstance::CanPlaceEntranceOrExit(const XYZPoint16& pos, const bool entrance) const
+{
+	if (pos.z != this->vox_pos.z || !IsVoxelstackInsideWorld(pos.x, pos.y) || _world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
+
+	/* Is the position directly adjacent to the ride? */
+	const GentleThrillRideType *t = this->GetGentleThrillRideType();
+	const XYZPoint16 corner = this->vox_pos + FixedRideType::OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
+	const int nw_line_y = std::min(this->vox_pos.y, corner.y) - 1;
+	const int se_line_y = std::max(this->vox_pos.y, corner.y) + 1;
+	const int ne_line_x = std::min(this->vox_pos.x, corner.x) - 1;
+	const int sw_line_x = std::max(this->vox_pos.x, corner.x) + 1;
+	if (pos.y == nw_line_y || pos.y == se_line_y) {
+		if (pos.x <= ne_line_x || pos.x >= sw_line_x) return false;
+	} else if (pos.x == ne_line_x || pos.x == sw_line_x) {
+		if (pos.y <= nw_line_y || pos.y >= se_line_y) return false;
+	} else {
+		return false;
+	}
+
+	/* Is there enough vertical space available? */
+	const int8 height = entrance ? RideEntranceExitType::entrance_height : RideEntranceExitType::exit_height;
+	for (int16 h = 0; h < height; ++h) {
+		Voxel *v = _world.GetCreateVoxel(pos + XYZPoint16(0, 0, h), false);
+		if (v == nullptr) continue;
+
+		if (h > 0 && v->GetGroundType() != GTP_INVALID) return false;
+		if (!v->CanPlaceInstance() || v->GetGroundSlope() != SL_FLAT) return false;
+	}
+	return true;
+}
+
+/**
+ * Move the ride's entrance to the given location.
+ * @param pos Absolute voxel in the world.
+ */
+void GentleThrillRideInstance::SetEntrancePos(const XYZPoint16& pos)
+{
+	const int8 height = RideEntranceExitType::entrance_height;
+	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+	if (this->entrance_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->entrance_pos + XYZPoint16(0, 0, h), false);
+			if (voxel != nullptr && voxel->instance != SRI_FREE) {
+				assert(voxel->instance == index);
+				voxel->ClearInstances();
+			}
+		}
+		AddRemovePathEdges(this->entrance_pos, PATH_EMPTY, EDGE_ALL, PAS_UNUSED);
+	}
+
+	this->entrance_pos = pos;
+	if (this->entrance_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->entrance_pos + XYZPoint16(0, 0, h), true);
+			assert(voxel != nullptr && voxel->instance == SRI_FREE);
+			voxel->SetInstance(index);
+			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+		}
+		AddRemovePathEdges(this->entrance_pos, PATH_EMPTY, EDGE_ALL, PAS_QUEUE_PATH);
+	}
+}
+
+/**
+ * Move the ride's exit to the given location.
+ * @param pos Absolute voxel in the world.
+ */
+void GentleThrillRideInstance::SetExitPos(const XYZPoint16& pos)
+{
+	const int8 height = RideEntranceExitType::exit_height;
+	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+	if (this->exit_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->exit_pos + XYZPoint16(0, 0, h), false);
+			if (voxel != nullptr && voxel->instance != SRI_FREE) {
+				assert(voxel->instance == index);
+				voxel->ClearInstances();
+			}
+		}
+		AddRemovePathEdges(this->exit_pos, PATH_EMPTY, EDGE_ALL, PAS_UNUSED);
+	}
+
+	this->exit_pos = pos;
+		if (this->exit_pos != XYZPoint16::invalid()) {
+		for (int16 h = 0; h < height; ++h) {
+			Voxel *voxel = _world.GetCreateVoxel(this->exit_pos + XYZPoint16(0, 0, h), true);
+			assert(voxel != nullptr && voxel->instance == SRI_FREE);
+			voxel->SetInstance(index);
+			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+		}
+		AddRemovePathEdges(this->exit_pos, PATH_EMPTY, EDGE_ALL, PAS_NORMAL_PATH);
+	}
+}
+
+void GentleThrillRideInstance::RemoveFromWorld()
+{
+	SetEntrancePos(XYZPoint16::invalid());
+	SetExitPos(XYZPoint16::invalid());
+	FixedRideInstance::RemoveFromWorld();
+}
+
+bool GentleThrillRideInstance::CanBeVisited(const XYZPoint16 &vox, const TileEdge edge) const
+{
+	return this->state == RIS_OPEN && vox == this->entrance_pos && (edge + 2) % 4 == EntranceExitRotation(this->entrance_pos);
 }
 
 void GentleThrillRideInstance::Load(Loader &ldr)
 {
 	this->FixedRideInstance::Load(ldr);
-	/* Nothing to do here currently. */
+
+	XYZPoint16 pos;
+	pos.x = ldr.GetWord();
+	pos.y = ldr.GetWord();
+	pos.z = ldr.GetWord();
+	SetEntrancePos(pos);
+	pos.x = ldr.GetWord();
+	pos.y = ldr.GetWord();
+	pos.z = ldr.GetWord();
+	SetExitPos(pos);
 }
 
 void GentleThrillRideInstance::Save(Saver &svr)
 {
 	this->FixedRideInstance::Save(svr);
-	/* Nothing to do here currently. */
+	svr.PutWord(this->entrance_pos.x);
+	svr.PutWord(this->entrance_pos.y);
+	svr.PutWord(this->entrance_pos.z);
+	svr.PutWord(this->exit_pos.x);
+	svr.PutWord(this->exit_pos.y);
+	svr.PutWord(this->exit_pos.z);
 }

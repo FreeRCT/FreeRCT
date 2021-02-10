@@ -22,6 +22,8 @@
 #include "person.h"
 #include "people.h"
 #include "random.h"
+#include "generated/entrance_exit_strings.h"
+#include "generated/entrance_exit_strings.cpp"
 
 /**
  * \page Rides
@@ -43,6 +45,51 @@
  */
 
 RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides in the park.
+
+/* \todo Move these constants to the RCD files. */
+uint8 RideEntranceExitType::entrance_height = 4;
+uint8 RideEntranceExitType::exit_height = 3;
+
+RideEntranceExitType::RideEntranceExitType()
+{
+	/* Nothing to do currently. */
+}
+
+/**
+ * Load a type of ride entrance or exit from the RCD file.
+ * @param rcd_file Rcd file being loaded.
+ * @param sprites Already loaded sprites.
+ * @param texts Already loaded texts.
+ * @return Loading was successful.
+ */
+bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+{
+	if (rcd_file->version != 1 || rcd_file->size != 51) return false;
+	this->is_entrance = rcd_file->GetUInt8() > 0;
+
+	TextData *text_data;
+	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	StringID base = _language.RegisterStrings(*text_data, _entrance_exit_strings_table);
+	this->name = base + (ENTRANCE_EXIT_NAME - STR_GENERIC_ENTRANCE_EXIT_START);
+	this->recolour_description_1 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR1 - STR_GENERIC_ENTRANCE_EXIT_START);
+	this->recolour_description_2 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR2 - STR_GENERIC_ENTRANCE_EXIT_START);
+	this->recolour_description_3 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR3 - STR_GENERIC_ENTRANCE_EXIT_START);
+
+	const int width = rcd_file->GetUInt16();
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 2; j++) {
+			ImageData *view;
+			if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+			if (width != 64) continue; /// \todo Widths other than 64.
+			this->images[i][j] = view;
+		}
+	}
+	for (int i = 0; i < 3; i++) {
+		uint32 recolour = rcd_file->GetUInt32();
+		this->recolours.Set(i, RecolourEntry(recolour));
+	}
+	return true;
+}
 
 /**
  * Ride type base class constructor.
@@ -150,7 +197,11 @@ RideInstance::RideInstance(const RideType *rt)
 	this->state = RIS_ALLOCATED;
 	this->flags = 0;
 	this->recolours = rt->recolours;
+	this->SetEntranceType(0);
+	this->SetExitType(0);
 	this->recolours.AssignRandomColours();
+	this->entrance_recolours.AssignRandomColours();
+	this->exit_recolours.AssignRandomColours();
 	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
 	std::fill_n(this->item_count, NUMBER_ITEM_TYPES_SOLD, 0);
 
@@ -228,15 +279,21 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
+ * \n bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
  * @return Whether the ride can be visited.
  */
-bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
+
+/**
+ * The recolouring map to apply to this ride at the given position.
+ * @param pos Position in the world.
+ * @return Recoluring to use.
+ */
+const Recolouring *RideInstance::GetRecolours(const XYZPoint16 &pos) const
 {
-	if (this->state != RIS_OPEN) return false;
-	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
+	return &this->recolours;
 }
 
 /**
@@ -247,14 +304,21 @@ void RideInstance::SellItem(int item_index)
 {
 	assert(item_index >= 0 && item_index < NUMBER_ITEM_TYPES_SOLD);
 
+	const Money cost = this->GetSaleItemCost(item_index);
+	const Money price = this->GetSaleItemPrice(item_index);
 	this->item_count[item_index]++;
-	Money profit = this->item_price[item_index] - this->type->item_cost[item_index];
+	const Money profit = price - cost;
 	this->total_sell_profit += profit;
 	this->total_profit += profit;
 
-	_finances_manager.PayShopStock(this->type->item_cost[item_index]);
-	_finances_manager.EarnShopSales(this->item_price[item_index]);
-	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
+	if (this->GetKind() == RTK_SHOP) {
+		_finances_manager.PayShopStock(cost);
+		_finances_manager.EarnShopSales(price);
+		NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
+	} else {
+		_finances_manager.EarnRideTickets(price);
+		NotifyChange(this->GetKind() == RTK_COASTER ? WC_COASTER_MANAGER : WC_GENTLE_THRILL_RIDE_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
+	}
 }
 
 /**
@@ -277,6 +341,47 @@ Money RideInstance::GetSaleItemPrice(int item_index) const
 {
 	assert(item_index >= 0 && item_index < NUMBER_ITEM_TYPES_SOLD);
 	return this->item_price[item_index];
+}
+
+/**
+ * Get the cost of an item sold by a ride.
+ * @param item_index Index in the items being sold (\c 0 to #NUMBER_ITEM_TYPES_SOLD).
+ * @return Cost of selling the item.
+ */
+Money RideInstance::GetSaleItemCost(int item_index) const
+{
+	return this->type->item_cost[item_index];
+}
+
+/** Initialize the prices of all sold items with default values, and reset the profit statistics. */
+void RideInstance::InitializeItemPricesAndStatistics()
+{
+	this->total_profit = 0;
+	this->total_sell_profit = 0;
+	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		this->item_price[i] = GetRideType()->item_cost[i] * 12 / 10; // Make 20% profit.
+		this->item_count[i] = 0;
+	}
+}
+
+/**
+ * Change the ride's entrance type.
+ * @param type Index of the new entrance.
+ */
+void RideInstance::SetEntranceType(const int type)
+{
+	this->entrance_type = type;
+	this->entrance_recolours = _rides_manager.entrances[type]->recolours;
+}
+
+/**
+ * Change the ride's exit type.
+ * @param type Index of the new exit.
+ */
+void RideInstance::SetExitType(const int type)
+{
+	this->exit_type = type;
+	this->exit_recolours = _rides_manager.exits[type]->recolours;
 }
 
 /**
@@ -340,12 +445,21 @@ void RideInstance::HandleBreakdown()
 }
 
 /**
+ * Check whether the ride can be opened.
+ * @return The ride can be opened.
+ */
+bool RideInstance::CanOpenRide() const
+{
+	return this->state == RIS_CLOSED;
+}
+
+/**
  * Open the ride for the public.
  * @pre The ride is open.
  */
 void RideInstance::OpenRide()
 {
-	assert(this->state == RIS_CLOSED);
+	assert(this->CanOpenRide());
 	this->state = RIS_OPEN;
 	if (this->breakdown_state == BDS_UNOPENED) {
 		this->breakdown_ctr = this->rnd.Exponential(this->reliability) + BREAKDOWN_GRACE_PERIOD;
@@ -396,7 +510,13 @@ void RideInstance::Load(Loader &ldr)
 	uint16 state_and_flags = ldr.GetWord();
 	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
 	this->flags = state_and_flags & 0xff;
+	this->SetEntranceType(ldr.GetWord());
+	this->SetExitType(ldr.GetWord());
 	this->recolours.Load(ldr);
+	this->entrance_recolours.Load(ldr);
+	this->exit_recolours.Load(ldr);
+	for (Money& m : this->item_price) m = static_cast<Money>(ldr.GetLongLong());
+	for (int64& m : this->item_count) m = ldr.GetLongLong();
 	this->total_profit = static_cast<Money>(ldr.GetLongLong());
 	this->total_sell_profit = static_cast<Money>(ldr.GetLongLong());
 	this->breakdown_ctr = (int16)ldr.GetWord();
@@ -410,7 +530,13 @@ void RideInstance::Save(Saver &svr)
 	svr.PutText(_language.GetText(this->type->GetString(this->type->GetTypeName())));
 	svr.PutText(this->name.get());
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
+	svr.PutWord(this->entrance_type);
+	svr.PutWord(this->exit_type);
 	this->recolours.Save(svr);
+	this->entrance_recolours.Save(svr);
+	this->exit_recolours.Save(svr);
+	for (const Money& m : this->item_price) svr.PutLongLong(static_cast<uint64>(m));
+	for (const int64& m : this->item_count) svr.PutLongLong(m);
 	svr.PutLongLong(static_cast<uint64>(this->total_profit));
 	svr.PutLongLong(static_cast<uint64>(this->total_sell_profit));
 	svr.PutWord((uint16)this->breakdown_ctr);
@@ -423,10 +549,14 @@ RidesManager::RidesManager()
 {
 	std::fill_n(this->ride_types, lengthof(this->ride_types), nullptr);
 	std::fill_n(this->instances, lengthof(this->instances), nullptr);
+	std::fill_n(this->entrances, lengthof(this->entrances), nullptr);
+	std::fill_n(this->exits, lengthof(this->exits), nullptr);
 }
 
 RidesManager::~RidesManager()
 {
+	for (uint i = 0; i < lengthof(this->entrances); i++) delete this->entrances[i];
+	for (uint i = 0; i < lengthof(this->exits); i++) delete this->exits[i];
 	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
 	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
 }
@@ -580,6 +710,23 @@ bool RidesManager::AddRideType(RideType *type)
 }
 
 /**
+ * Add a new ride entrance or exit type to the manager.
+ * @param type New ride entrance/exit type to add.
+ * @return \c true if the addition was successful, else \c false.
+ */
+bool RidesManager::AddRideEntranceExitType(RideEntranceExitType *type)
+{
+	auto& array = type->is_entrance ? this->entrances : this->exits;
+	for (uint i = 0; i < lengthof(array); i++) {
+		if (array[i] == nullptr) {
+			array[i] = type;
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * Check whether the ride type can actually be created.
  * @param type Ride type that should be created.
  * @return Index of a free instance if it exists (claim it immediately using #CreateInstance), or #INVALID_RIDE_INSTANCE if all instances are used.
@@ -661,12 +808,7 @@ void RidesManager::NewInstanceAdded(uint16 num)
 	}
 
 	/* Initialize money and counters. */
-	ri->total_profit = 0;
-	ri->total_sell_profit = 0;
-	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
-		ri->item_price[i] = rt->item_cost[i] * 12 / 10; // Make 20% profit.
-		ri->item_count[i] = 0;
-	}
+	ri->InitializeItemPricesAndStatistics();
 
 	switch (ri->GetKind()) {
 		case RTK_SHOP:

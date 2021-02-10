@@ -1551,6 +1551,16 @@ const char *SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(rcd_file.name, "RIEE") == 0) {
+			RideEntranceExitType *e = new RideEntranceExitType;
+			if (!e->Load(&rcd_file, sprites, texts)) {
+				delete e;
+				return "Entrance/Exit failed to load.";
+			}
+			_rides_manager.AddRideEntranceExitType(e);
+			continue;
+		}
+
 		if (strcmp(rcd_file.name, "FGTR") == 0) {
 			GentleThrillRideType *ride_type = new GentleThrillRideType;
 			if (!ride_type->Load(&rcd_file, sprites, texts)) {

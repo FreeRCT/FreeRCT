@@ -467,7 +467,7 @@ static int DrawRide(int32 slice, const XYZPoint16 & pos, const Point32 base_pos,
 	for (int i = 0; i < 4; i++) {
 		if (sprites[i] == nullptr) continue;
 
-		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, &ri->recolours);
+		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, ri->GetRecolours(pos));
 		idx++;
 	}
 	return idx;

@@ -595,6 +595,11 @@ bool CoasterInstance::IsAccessible()
 	return this->GetFirstPlacedTrackPiece() >= 0;
 }
 
+bool CoasterInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
+{
+	return false;  // \todo Implement entrances and exits for coasters.
+}
+
 void CoasterInstance::OnAnimate(int delay)
 {
 	for (uint i = 0; i < lengthof(this->trains); i++) {

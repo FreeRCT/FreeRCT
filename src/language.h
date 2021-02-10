@@ -39,9 +39,14 @@ enum StringTable {
 
 	STR_END_FREE_SPACE = 0xF800,
 	/**
+	 * Generic strings for ride entrances and exits.
+	 */
+	STR_GENERIC_ENTRANCE_EXIT_START = STR_END_FREE_SPACE,
+
+	/**
 	 * Generic shop strings, translated to 'real' string numbers by each shop type object by means of the RideType::GetString function.
 	 */
-	STR_GENERIC_SHOP_START = STR_END_FREE_SPACE,
+	STR_GENERIC_SHOP_START = STR_GENERIC_ENTRANCE_EXIT_START + 256,
 
 	/**
 	 * Generic coaster strings, translated to 'real' string numbers by each coaster type object by means of the RideType::GetString function.

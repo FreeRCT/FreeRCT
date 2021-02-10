@@ -78,6 +78,10 @@ public:
 	void InsertIntoWorld() override;
 	void RemoveFromWorld() override;
 
+	virtual bool IsEntranceLocation(const XYZPoint16& pos) const;
+	virtual bool IsExitLocation(const XYZPoint16& pos) const;
+	int EntranceExitRotation(const XYZPoint16& vox) const;
+
 	uint8 orientation;  ///< Orientation of the shop.
 	XYZPoint16 vox_pos; ///< Position of the shop base voxel.
 
