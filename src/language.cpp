@@ -77,6 +77,52 @@ int GetLanguageIndex(const char *lang_name)
 	return -1;
 }
 
+/**
+ * Get the name of a given language index.
+ * @param index Index of the language.
+ * @return Name of the language, or \c nullptr if the index is invalid.
+ */
+const char *GetLanguageName(const int index)
+{
+	if (index < 0 || index >= LANGUAGE_COUNT) return nullptr;
+	return _lang_names[index];
+}
+
+/**
+ * Try to find a language whose name is similar to the provided name.
+ * @param lang_name Name to compare to.
+ * @return Most similar language name, or \c nullptr if no language has a similar name.
+ */
+const char *GetSimilarLanguage(const std::string& lang_name)
+{
+	const char *best_match = nullptr;
+	double score = 1.5;  // Arbitrary treshold to suppress random matches.
+	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
+		const std::string name(_lang_names[i]);
+		const int common_length = std::min(name.size(), lang_name.size());
+		double s = common_length - std::max<int>(name.size(), lang_name.size());
+		for (int j = 0; j < common_length; ++j) {
+			const char c1 = lang_name.at(j);
+			const char c2 = name.at(j);
+			if (c1 == c2) {
+				s++;
+			} else if (c1 >= 'a' && c1 <= 'z' && c1 + 'A' - 'a' == c2) {
+				s += 0.5;
+			} else if (c2 >= 'a' && c2 <= 'z' && c2 + 'A' - 'a' == c1) {
+				s += 0.5;
+			} else {
+				s--;
+			}
+		}
+		s *= 10.0 / common_length;  // Ensure that the name's length does not influence scoring.
+		if (s > score) {
+			score = s;
+			best_match = _lang_names[i];
+		}
+	}
+	return best_match;
+}
+
 StringParameters::StringParameters()
 {
 	this->Clear();
@@ -556,10 +602,52 @@ Point32 GetMoneyStringSize(const Money &amount)
 }
 
 /**
+ * Attempt to set FreeRCT's language according to the value of an environment variable.
+ * @param lang Content of a language-related environment variable.
+ * @return A supported language was detected and selected.
+ */
+static bool TrySetLanguage(std::string lang) {
+	/* Typical system language strings may be "de_DE.UTF-8" or "nds:de_DE:en_GB:en". */
+	int id = GetLanguageIndex(lang.c_str());
+	if (id >= 0) {
+		_current_language = id;
+		return true;
+	}
+
+	for (;;) {
+		size_t pos = lang.find(':');
+		std::string name;
+		bool single_language = false;
+		if (pos == std::string::npos) {
+			name = lang;
+			single_language = true;
+		} else {
+			name = lang.substr(0, pos);
+			lang = lang.substr(pos + 1);
+		}
+
+		pos = name.find('.');
+		if (pos != std::string::npos) name = name.substr(0, pos);
+		id = GetLanguageIndex(name.c_str());
+		if (id >= 0) {
+			_current_language = id;
+			return true;
+		}
+
+		if (single_language) break;
+	}
+	return false;
+}
+
+/**
  * Initialize language support.
  */
 void InitLanguage()
 {
+	for (auto& var : {"FREERCT_LANG", "LANG", "LANGUAGE"}) {
+		const char *environment_variable = getenv(var);
+		if (environment_variable != nullptr && TrySetLanguage(environment_variable)) break;
+	}
 }
 
 /** Clean up the language. */

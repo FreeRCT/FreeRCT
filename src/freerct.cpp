@@ -44,6 +44,7 @@ void error(const char *str, ...)
 static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
 	GETOPT_VALUE('l', "--load"),
+	GETOPT_VALUE('a', "--language"),
 	GETOPT_END()
 };
 
@@ -52,8 +53,21 @@ static void PrintUsage()
 {
 	printf("Usage: freerct [options]\n");
 	printf("Options:\n");
-	printf("  -h, --help           Display this help text and exit\n");
-	printf("  -l, --load [file]    Load game from specified file\n");
+	printf("  -h, --help           Display this help text and exit.\n");
+	printf("  -l, --load [file]    Load game from specified file.\n");
+	printf("  -a, --language lang  Use the specified language.\n");
+
+	printf("\nValid languages are:\n   ");
+	int length = 0;
+	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
+		length += strlen(_lang_names[i]) + 1;
+		if (length > 50) {  // Linewrap after an arbitrary number of characters.
+			printf("\n   ");
+			length = strlen(_lang_names[i]);
+		}
+		printf(" %s", _lang_names[i]);
+	}
+	printf("\n");
 }
 
 /** Show that there are missing sprites. */
@@ -76,12 +90,16 @@ int freerct_main(int argc, char **argv)
 
 	int opt_id;
 	const char *file_name = nullptr;
+	const char *preferred_language = nullptr;
 	do {
 		opt_id = opt_data.GetOpt();
 		switch (opt_id) {
 			case 'h':
 				PrintUsage();
 				return 0;
+			case 'a':
+				preferred_language = StrDup(opt_data.opt);
+				break;
 			case 'l':
 				if (opt_data.opt != nullptr) {
 					file_name = StrDup(opt_data.opt);
@@ -124,6 +142,36 @@ int freerct_main(int argc, char **argv)
 		                "medium-size = 12\n"
 		                "medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf\n");
 		return 1;
+	}
+	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
+	bool language_set = false;
+	if (preferred_language != nullptr) {
+		int index = GetLanguageIndex(preferred_language);
+		if (index < 0) {
+			fprintf(stderr, "The language '%s' set on the command line is not known.\n", preferred_language);
+			const char *similar = GetSimilarLanguage(preferred_language);
+			if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
+			fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
+		} else {
+			_current_language = index;
+			language_set = true;
+		}
+		delete[] preferred_language;
+		preferred_language = nullptr;
+	}
+	if (!language_set) {
+		preferred_language = cfg_file.GetValue("language", "language");
+		if (preferred_language != nullptr) {
+			int index = GetLanguageIndex(preferred_language);
+			if (index < 0) {
+				fprintf(stderr, "The language '%s' set in the configuration file (freerct.cfg) is not known.\n", preferred_language);
+				const char *similar = GetSimilarLanguage(preferred_language);
+				if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
+				fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
+			} else {
+				_current_language = index;
+			}
+		}
 	}
 
 	/* Initialize video. */
