@@ -127,10 +127,6 @@ public:
 		return this->type == PERSON_GUEST;
 	}
 
-	/**
-	 * Test whether this person is a guest queuing for a ride.
-	 * @return Whether the person is a guest and queuing.
-	 */
 	bool IsQueuingGuest() const;
 	bool IsQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos, bool only_in_front);
 
