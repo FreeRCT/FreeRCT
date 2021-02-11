@@ -23,6 +23,9 @@
 
 static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about each type of person.
 
+static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests queuing for a ride.
+assert_compile(256 % QUEUE_DISTANCE == 0);
+
 /**
  * Construct a recolour mapping of this person type.
  * @return The constructed recolouring.
@@ -484,6 +487,8 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 {
 	if (current_edge == exit_edge) return RVD_NO_VISIT; // Skip incoming edge (may get added later if no other options exist).
 
+	const TileEdge original_exit_edge = exit_edge;
+	const XYZPoint16 original_cur_pos = cur_pos;
 	bool travel = TravelQueuePath(&cur_pos, &exit_edge);
 	if (!travel) return RVD_NO_VISIT; // Path leads to nowhere.
 
@@ -499,6 +504,17 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 
 	Point16 dxy = _tile_dxy[exit_edge];
 	if (!ri->CanBeVisited(cur_pos + XYZPoint16(dxy.x, dxy.y, 0), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
+
+	/* Check whether the queue is so long that someone is queuing near the tile edge. */
+	XYZPoint32 tile_edge_pix_pos(128, 128, 0);
+	switch (original_exit_edge) {
+		case EDGE_NE: tile_edge_pix_pos.x = 0; break;
+		case EDGE_NW: tile_edge_pix_pos.y = 0; break;
+		case EDGE_SW: tile_edge_pix_pos.x = 255; break;
+		case EDGE_SE: tile_edge_pix_pos.y = 255; break;
+		default: NOT_REACHED();
+	}
+	if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) return RVD_NO_VISIT;
 
 	RideVisitDesire rvd = this->WantToVisit(ri);
 	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
@@ -895,6 +911,63 @@ void Person::DeActivate(AnimateResult ar)
 	this->name = nullptr;
 }
 
+
+/**
+ * Test whether this person is a guest queuing for a ride.
+ * @return Whether the person is a guest and queuing.
+ */
+bool Person::IsQueuingGuest() const
+{
+	return this->IsGuest() && static_cast<const Guest*>(this)->activity == GA_QUEUING;
+}
+
+/**
+ * Check whether another guest who is queuing for a ride is standing close to the specified position.
+ * @param vox_pos Coordinates of the voxel in the world.
+ * @param pix_pos Pixel position inside the voxel.
+ * @param only_in_front Whether to consider only guests standing in front of this one.
+ * @return Another queuing guest is close by.
+ */
+bool Person::IsQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos, const bool only_in_front)
+{
+	/*
+	 * To ensure that guests on a neighbouring tile are also considered, we also need to check
+	 * the next voxel in all four directions, as well as the one above and the one below that.
+	 */
+	const XYZPoint32 merged_pos = MergeCoordinates(vox_pos, pix_pos);
+	std::vector<XYZPoint16> voxels = {vox_pos};
+	for (const XYZPoint16& vx : {
+			vox_pos,
+			XYZPoint16(vox_pos.x + 1, vox_pos.y, vox_pos.z),
+			XYZPoint16(vox_pos.x - 1, vox_pos.y, vox_pos.z),
+			XYZPoint16(vox_pos.x, vox_pos.y + 1, vox_pos.z),
+			XYZPoint16(vox_pos.x, vox_pos.y - 1, vox_pos.z)}) {
+		if (!IsVoxelstackInsideWorld(vx.x, vx.y)) continue;
+
+		for (const XYZPoint16& checkme : {vx, XYZPoint16(vx.x, vx.y, vx.z + 1), XYZPoint16(vx.x, vx.y, vx.z - 1)}) {
+			const Voxel *voxel = _world.GetVoxel(checkme);
+			if (voxel == nullptr) continue;
+
+			for (VoxelObject *v = voxel->voxel_objects; v != nullptr; v = v->next_object) {
+				if (v == this) continue;
+				Guest *g = dynamic_cast<Guest*>(v);
+				if (g == nullptr || !g->IsQueuingGuest()) continue;
+
+				const XYZPoint32 coords = g->MergeCoordinates();
+				if (std::hypot(coords.x - merged_pos.x, coords.y - merged_pos.y) < QUEUE_DISTANCE) {
+					if (!only_in_front) return true;
+					const AnimationFrame &frame = this->frames[this->frame_index];
+					if (frame.dx > 0 && coords.x > merged_pos.x) return true;
+					if (frame.dx < 0 && coords.x < merged_pos.x) return true;
+					if (frame.dy > 0 && coords.y > merged_pos.y) return true;
+					if (frame.dy < 0 && coords.y < merged_pos.y) return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 /**
  * Update the animation of a person.
  * @param delay Amount of milliseconds since the last update.
@@ -930,6 +1003,11 @@ AnimateResult Person::OnAnimate(int delay)
 
 	uint16 index = this->frame_index;
 	const AnimationFrame *frame = &this->frames[index];
+	if (this->IsQueuingGuest() && this->IsQueuingGuestNearby(this->vox_pos, this->pix_pos, true)) {
+		/* Freeze in place if we are too close to the person queuing in front of us. */
+		this->frame_time += delay;
+		return OAR_OK;
+	}
 	this->pix_pos.x += frame->dx;
 	this->pix_pos.y += frame->dy;
 
