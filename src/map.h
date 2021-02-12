@@ -335,16 +335,28 @@ public:
 
 	/**
 	 * Merge voxel coordinate, #vox_pos, with in-voxel coordinate, #pix_pos.
+	 * @param vox_pos Coordinates of the voxel in the world.
+	 * @param pix_pos Pixel position inside the voxel.
 	 * @return Merged coordinates as 32 bit 3D point. Lower 8 bits are the in-voxel coordinate; upper remaining bits are the voxel coordinate.
 	 * @see GetVoxelCoordinate, GetInVoxelCoordinate
 	 */
-	inline XYZPoint32 MergeCoordinates()
+	static inline XYZPoint32 MergeCoordinates(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos)
 	{
-		uint32 x = (static_cast<uint32>(this->vox_pos.x) << 8) | (this->pix_pos.x & 0xff);
-		uint32 y = (static_cast<uint32>(this->vox_pos.y) << 8) | (this->pix_pos.y & 0xff);
-		uint32 z = (static_cast<uint32>(this->vox_pos.z) << 8) | (this->pix_pos.z & 0xff);
+		uint32 x = (static_cast<uint32>(vox_pos.x) << 8) | (pix_pos.x & 0xff);
+		uint32 y = (static_cast<uint32>(vox_pos.y) << 8) | (pix_pos.y & 0xff);
+		uint32 z = (static_cast<uint32>(vox_pos.z) << 8) | (pix_pos.z & 0xff);
 
 		return XYZPoint32(x, y, z);
+	}
+
+	/**
+	 * Merge voxel coordinate, #vox_pos, with in-voxel coordinate, #pix_pos.
+	 * @return Merged coordinates as 32 bit 3D point. Lower 8 bits are the in-voxel coordinate; upper remaining bits are the voxel coordinate.
+	 * @see GetVoxelCoordinate, GetInVoxelCoordinate
+	 */
+	inline XYZPoint32 MergeCoordinates() const
+	{
+		return MergeCoordinates(this->vox_pos, this->pix_pos);
 	}
 
 	/**
