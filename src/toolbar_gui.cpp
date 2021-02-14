@@ -45,8 +45,8 @@ public:
  * @ingroup gui_group
  */
 enum ToolbarGuiWidgets {
-	TB_DROPDOWN_MAIN,
-	TB_DROPDOWN_SPEED,
+	TB_DROPDOWN_MAIN,   ///< Main menu dropdown.
+	TB_DROPDOWN_SPEED,  ///< Game speed dropdown.
 	TB_GUI_PATHS,       ///< Build paths button.
 	TB_GUI_RIDE_SELECT, ///< Select ride button.
 	TB_GUI_FENCE,       ///< Select fence button.
@@ -59,12 +59,12 @@ enum ToolbarGuiWidgets {
  * @ingroup gui_group
  */
 enum DropdownMain {
-	DDM_QUIT,
-	DDM_SETTINGS,
-	DDM_GAME_MODE,
-	DDM_SAVE,
-	DDM_LOAD,
-	DDM_COUNT
+	DDM_QUIT,      ///< Quit the game.
+	DDM_SETTINGS,  ///< General settings.
+	DDM_GAME_MODE, ///< Switch game mode.
+	DDM_SAVE,      ///< Save game.
+	DDM_LOAD,      ///< Load game.
+	DDM_COUNT      ///< Number of entries.
 };
 
 /**

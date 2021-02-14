@@ -24,7 +24,7 @@ enum GameControlAction {
 	GCA_QUIT,      ///< Quit the game.
 };
 
-/** How fast the game can run. */
+/** How fast the game should run. */
 enum GameSpeed {
 	GSP_PAUSE,  ///< The game is paused.
 	GSP_1,      ///< Normal speed.
