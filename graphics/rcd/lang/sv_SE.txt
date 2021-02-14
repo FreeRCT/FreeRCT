@@ -34,6 +34,8 @@ strings {
 		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Ladda";
 		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Spara";
 
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spela";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Redigerare";
 		TOOLBAR_GUI_PATHS:                "Gångvägar";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bygg gångvägar och köer";
 		TOOLBAR_GUI_RIDE_SELECT:          "Köp åkattraktion";

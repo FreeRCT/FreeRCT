@@ -32,6 +32,8 @@ strings {
 		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Charger";
 		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Sauvegarder";
 
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Jouer";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editeur";
 		TOOLBAR_GUI_PATHS:                "Chemins";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Consrtuit les allées et files d'attente";
 		TOOLBAR_GUI_RIDE_SELECT:          "Acheter";

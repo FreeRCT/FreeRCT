@@ -28,12 +28,23 @@ strings {
 		RESOLUTION:             "%1%×%2%";
 
 		// Toolbar gui strings.
+		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
+		TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP:  "Höövdmenü";
 		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Verlaten";
 		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Instellens";
 		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spölen/Bewarker";
 		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
 		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Sekern";
+		TOOLBAR_GUI_DROPDOWN_SPEED:         "Gauheid";
+		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "De Speel-Gauheid ännern";
+		TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE:   "Anhollt";
+		TOOLBAR_GUI_DROPDOWN_SPEED_1:       "1×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_2:       "2×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_4:       "4×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_8:       "8×";
 
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker";
 		TOOLBAR_GUI_PATHS:                "Wege";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege un Wachtslangen bauen";
 		TOOLBAR_GUI_RIDE_SELECT:          "Bude bauen";
@@ -189,6 +200,16 @@ strings {
 		ENTITY_REMOVE_YES:     "Jau";
 		ENTITY_REMOVE_NO:      "Nee";
 
+		// Ride entrance/exit placement buttons.
+		PLACE_ENTRANCE:          "Ingang bauen";
+		PLACE_ENTRANCE_TOOLTIP:  "De Ingang vun de Bude bauen";
+		PLACE_EXIT:              "Utgang bauen";
+		PLACE_EXIT_TOOLTIP:      "De Utgang vun de Bude bauen";
+		CHOOSE_ENTRANCE:         "Ingangs-Utsehn";
+		CHOOSE_ENTRANCE_TOOLTIP: "Dat Utsehn vun de Ingang vun de Bude ännern";
+		CHOOSE_EXIT:             "Utgangs-Utsehn";
+		CHOOSE_EXIT_TOOLTIP:     "Dat Utsehn vun de Utgang vun de Bude ännern";
+
 		// Ride build window strings.
 		RIDE_BUILD_TITLEBAR_SHOP:         "Laden bauen";
 		RIDE_BUILD_TITLEBAR_GENTLE:       "Sachte Bude bauen";
@@ -199,7 +220,7 @@ strings {
 		RIDE_BUILD_COST_TEXT:             "Kosten: %1%";
 
 		// Money symbols.
-		MONEY_CURRENCY_SYMBOL:     "€";
+		MONEY_CURRENCY_SYMBOL:     "DM ";
 		MONEY_THOUSANDS_SEPARATOR: ".";
 		MONEY_DECIMAL_SEPARATOR:   ",";
 
@@ -251,6 +272,31 @@ strings {
 		NAME_INSTANCE:    "Malle Rull";
 		NAME_TYPE:        "Normaale Achterbahn";
 		DESCRIPTION_TYPE: "Normaale Achterbahn ut Stahl.";
+	}
+
+	stringtexts("entrance-generic") {
+		NAME: "Normaaler Ingang";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("exit-generic") {
+		NAME: "Normaaler Utgang";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("entrance-alt") {
+		NAME: "Besünnerer Ingang";
+		DESCRIPTION_RECOLOUR1: "Wanden";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("exit-alt") {
+		NAME: "Besünnerer Utgang";
+		DESCRIPTION_RECOLOUR1: "Wanden";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
 	}
 
 	stringtexts("spooky-manor") {

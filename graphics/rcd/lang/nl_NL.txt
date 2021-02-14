@@ -34,6 +34,8 @@ strings {
 		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
 		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Opslaan";
 
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelen";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewerker";
 		TOOLBAR_GUI_PATHS:                "Paden";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bouw paden en wachtrijen";
 		TOOLBAR_GUI_RIDE_SELECT:          "Koop een attractie";
