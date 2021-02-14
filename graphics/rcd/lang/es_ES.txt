@@ -26,16 +26,13 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Salir";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Salir del programa";
-		TOOLBAR_GUI_SETTINGS:             "Ajustes";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Cambiar los ajustes del juego";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Salir";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Ajustes";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Cargar";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Guardar";
+
 		TOOLBAR_GUI_PATHS:                "Caminos";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Construir caminos";
-		TOOLBAR_GUI_SAVE:                 "Guardar";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Guardar el juego";
-		TOOLBAR_GUI_LOAD:                 "Cargar";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Cargar un juego";
 		TOOLBAR_GUI_RIDE_SELECT:          "Comprar atracción";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Compra una nueva atracción para tu parque";
 		TOOLBAR_GUI_TERRAFORM:            "Terreno";

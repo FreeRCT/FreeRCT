@@ -28,19 +28,25 @@ strings {
 		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Quit";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Quit the program";
-		TOOLBAR_GUI_SETTINGS:             "Settings";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Change the game's settings";
+		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menu";
+		TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP:  "Main Menu";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Quit";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Settings";
+		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Play/Editor";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Load";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Save";
+		TOOLBAR_GUI_DROPDOWN_SPEED:         "Speed";
+		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Change the game speed";
+		TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE:   "Pause";
+		TOOLBAR_GUI_DROPDOWN_SPEED_1:       "1×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_2:       "2×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_4:       "4×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_8:       "8×";
+
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";
-		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Switch between playing and editing scenario";
 		TOOLBAR_GUI_PATHS:                "Paths";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Build paths and queues";
-		TOOLBAR_GUI_SAVE:                 "Save";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Save the game";
-		TOOLBAR_GUI_LOAD:                 "Load";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Load a game";
 		TOOLBAR_GUI_RIDE_SELECT:          "Buy ride";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Buy a new ride for your park";
 		TOOLBAR_GUI_FENCE:                "Build fence";

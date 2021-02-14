@@ -45,16 +45,26 @@ public:
  * @ingroup gui_group
  */
 enum ToolbarGuiWidgets {
-	TB_GUI_QUIT,        ///< Quit program button.
-	TB_GUI_SETTINGS,    ///< Settings button.
-	TB_GUI_GAME_MODE,   ///< Switch game mode button.
+	TB_DROPDOWN_MAIN,
+	TB_DROPDOWN_SPEED,
 	TB_GUI_PATHS,       ///< Build paths button.
-	TB_GUI_SAVE,        ///< Save game button.
-	TB_GUI_LOAD,        ///< Load game button.
 	TB_GUI_RIDE_SELECT, ///< Select ride button.
 	TB_GUI_FENCE,       ///< Select fence button.
 	TB_GUI_TERRAFORM,   ///< Terraform button.
 	TB_GUI_FINANCES,    ///< Finances button.
+};
+
+/**
+ * Entries in the main menu dropdown.
+ * @ingroup gui_group
+ */
+enum DropdownMain {
+	DDM_QUIT,
+	DDM_SETTINGS,
+	DDM_GAME_MODE,
+	DDM_SAVE,
+	DDM_LOAD,
+	DDM_COUNT
 };
 
 /**
@@ -63,12 +73,9 @@ enum ToolbarGuiWidgets {
  */
 static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
-		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_QUIT,        COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_QUIT,        GUI_TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM),
-		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_SETTINGS,    COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_SETTINGS,    GUI_TOOLBAR_GUI_TOOLTIP_SETTINGS),
-		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_GAME_MODE,   COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1,                    GUI_TOOLBAR_GUI_TOOLTIP_GAME_MODE),
+		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_MAIN, GUI_TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP),
+		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_SPEED,  COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_SPEED, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_PATHS,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_PATHS,       GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
-		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_SAVE,        COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_SAVE,        GUI_TOOLBAR_GUI_TOOLTIP_SAVE_GAME),
-		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_LOAD,        COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_LOAD,        GUI_TOOLBAR_GUI_TOOLTIP_LOAD_GAME),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_RIDE_SELECT, COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_RIDE_SELECT, GUI_TOOLBAR_GUI_TOOLTIP_RIDE_SELECT),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FENCE,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FENCE,       GUI_TOOLBAR_GUI_TOOLTIP_FENCE),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_TERRAFORM,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_TERRAFORM,   GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
@@ -113,34 +120,28 @@ StringID GetSwitchGameModeString()
 void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	switch (number) {
-		case TB_GUI_QUIT:
-			ShowQuitProgram();
+		case TB_DROPDOWN_MAIN: {
+			DropdownList itemlist;
+			for (int i = 0; i < DDM_COUNT; i++) {
+				_str_params.SetStrID(1, i == DDM_GAME_MODE ? GetSwitchGameModeString() : GUI_TOOLBAR_GUI_DROPDOWN_MAIN_QUIT + i);
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
-
-		case TB_GUI_SETTINGS:
-			ShowSettingGui();
+		}
+		case TB_DROPDOWN_SPEED: {
+			DropdownList itemlist;
+			for (int i = 0; i < GSP_COUNT; i++) {
+				_str_params.SetStrID(1, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE + i);
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(number, itemlist, _game_control.speed);
 			break;
-
-		case TB_GUI_GAME_MODE:
-			_game_mode_mgr.SetGameMode(_game_mode_mgr.InEditorMode() ? GM_PLAY : GM_EDITOR);
-			break;
+		}
 
 		case TB_GUI_PATHS:
 			ShowPathBuildGui();
 			break;
-
-		case TB_GUI_SAVE: {
-			_game_control.SaveGame("saved.fct");
-			/// \todo Provide option to enter the filename for saving.
-			/// \todo Provide feedback on the save.
-			break;
-		}
-
-		case TB_GUI_LOAD: {
-			_game_control.LoadGame("saved.fct");
-			/// \todo Provide option to select the file to load.
-			break;
-		}
 
 		case TB_GUI_RIDE_SELECT:
 			ShowRideSelectGui();
@@ -163,32 +164,36 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 {
 	switch (code) {
-		case CHG_UPDATE_BUTTONS:
-			/* Esure the right string parameters are used. */
-			this->MarkWidgetDirty(TB_GUI_GAME_MODE);
-			break;
-
-		default:
-			break;
-	}
-}
-
-void ToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
-{
-	switch (wid_num) {
-		case TB_GUI_GAME_MODE: {
-			/* Use max width of the two strings to display on this button. */
-			int width, height;
-
-			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_GAME_MODE_PLAY);
-			GetTextSize(STR_ARG1, &width, &height);
-			wid->min_x = std::max(wid->min_x, (uint16)width);
-			wid->min_y = std::max(wid->min_y, (uint16)height);
-
-			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_GAME_MODE_EDITOR);
-			GetTextSize(STR_ARG1, &width, &height);
-			wid->min_x = std::max(wid->min_x, (uint16)width);
-			wid->min_y = std::max(wid->min_y, (uint16)height);
+		case CHG_DROPDOWN_RESULT: {
+			const int entry = parameter & 0xFF;
+			switch ((parameter >> 16) & 0xFF) {
+				case TB_DROPDOWN_MAIN:
+					switch (entry) {
+						case DDM_QUIT:
+							ShowQuitProgram();
+							break;
+						case DDM_SETTINGS:
+							ShowSettingGui();
+							break;
+						case DDM_GAME_MODE:
+							_game_mode_mgr.SetGameMode(_game_mode_mgr.InEditorMode() ? GM_PLAY : GM_EDITOR);
+							break;
+						case DDM_SAVE:
+							/* \todo Provide option to enter the filename for saving. */
+							_game_control.SaveGame("saved.fct");
+							/* \todo Provide feedback on the save. */
+							break;
+						case DDM_LOAD:
+							/* \todo Provide option to select the file to load. */
+							_game_control.LoadGame("saved.fct");
+							break;
+						default: NOT_REACHED();
+					}
+					break;
+				case TB_DROPDOWN_SPEED:
+					_game_control.speed = static_cast<GameSpeed>(entry);
+					break;
+			}
 			break;
 		}
 
@@ -197,16 +202,12 @@ void ToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 	}
 }
 
+void ToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+{
+}
+
 void ToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	switch (wid_num) {
-		case TB_GUI_GAME_MODE:
-			_str_params.SetStrID(1, GetSwitchGameModeString());
-			break;
-
-		default:
-			break;
-	}
 }
 
 /**

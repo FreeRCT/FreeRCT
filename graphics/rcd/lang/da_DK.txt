@@ -27,16 +27,13 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Afslut";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Afslut spillet";
-		TOOLBAR_GUI_SETTINGS:             "Indstillinger";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Ændre spilindstillingerne";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Afslut";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Indstillinger";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Hent";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Gem";
+
 		TOOLBAR_GUI_PATHS:                "Stier";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Byg stier og køer";
-		TOOLBAR_GUI_SAVE:                 "Gem";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Gem spil";
-		TOOLBAR_GUI_LOAD:                 "Hent";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Hent gemt spil";
 		TOOLBAR_GUI_RIDE_SELECT:          "Byg forlystelse";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Byg en ny forlystelse i din park";
 		TOOLBAR_GUI_TERRAFORM:            "Landskabsændring";

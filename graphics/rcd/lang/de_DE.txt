@@ -28,19 +28,14 @@ strings {
 		RESOLUTION:             "%1%×%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Beenden";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Beendet das Spiel";
-		TOOLBAR_GUI_SETTINGS:             "Einstellungen";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Spieleinstellungen ändern";
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spielen";
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";
-		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Umschalten zwischen Spielen und dem Editor";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Beenden";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Einstellungen";
+		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spielen/Editor";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Speichern";
+
 		TOOLBAR_GUI_PATHS:                "Wege";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege und Warteschlangen errichten";
-		TOOLBAR_GUI_SAVE:                 "Speichern";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Spiel speichern";
-		TOOLBAR_GUI_LOAD:                 "Laden";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Spiel laden";
 		TOOLBAR_GUI_RIDE_SELECT:          "Attraktion kaufen";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Eine neue Attraktion für den Park kaufen";
 		TOOLBAR_GUI_FENCE:                "Zäune kaufen";

@@ -28,19 +28,14 @@ strings {
 		RESOLUTION:             "%1%×%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Verlaten";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Dat Speel verlaten";
-		TOOLBAR_GUI_SETTINGS:             "Instellens";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "De Speel-Instellens ännern";
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen";
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker";
-		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Tüsken de Spölen un de Bewarken vun eener Rutfödderung umschalten";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Verlaten";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Instellens";
+		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spölen/Bewarker";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Sekern";
+
 		TOOLBAR_GUI_PATHS:                "Wege";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege un Wachtslangen bauen";
-		TOOLBAR_GUI_SAVE:                 "Sekern";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Dat Speel sekern";
-		TOOLBAR_GUI_LOAD:                 "Laden";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Een Speel laden";
 		TOOLBAR_GUI_RIDE_SELECT:          "Bude bauen";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Eene neje Bude för dienen Park bauen";
 		TOOLBAR_GUI_FENCE:                "Schütten bauen";
