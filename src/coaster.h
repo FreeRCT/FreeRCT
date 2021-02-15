@@ -215,6 +215,7 @@ public:
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
 	void RemoveAllPeople() override;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
+	bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const override;
 
 	RideInstanceState DecideRideState();
 

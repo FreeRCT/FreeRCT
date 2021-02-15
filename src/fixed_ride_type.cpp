@@ -169,7 +169,7 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 		const ImageData *const *array = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox))];
 		sprites[1] = array[0];
 		sprites[2] = array[1];
-	} else if (voxel_number == SHF_ENTRANCE_NONE) {
+	} else if (vox.z != this->vox_pos.z) {
 		sprites[1] = nullptr;
 	} else {
 		const FrameSet *set_to_use;
@@ -255,10 +255,11 @@ void FixedRideInstance::InsertIntoWorld()
 			const int8 height = this->GetFixedRideType()->GetHeight(x, y);
 			const XYZPoint16 location = FixedRideType::OrientatedOffset(this->orientation, x, y);
 			for (int16 h = 0; h < height; ++h) {
-				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(location.x, location.y, h), true);
+				const XYZPoint16 p = this->vox_pos + XYZPoint16(location.x, location.y, h);
+				Voxel *voxel = _world.GetCreateVoxel(p, true);
 				assert(voxel && voxel->GetInstance() == SRI_FREE);
 				voxel->SetInstance(index);
-				voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+				voxel->SetInstanceData(h == 0 ? GetEntranceDirections(p) : SHF_ENTRANCE_NONE);
 			}
 		}
 	}

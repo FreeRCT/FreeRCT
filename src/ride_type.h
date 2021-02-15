@@ -168,6 +168,7 @@ public:
 	virtual void RemoveFromWorld() = 0;
 	virtual void InsertIntoWorld() = 0;
 	virtual bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const = 0;
+	virtual bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const;
 
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
