@@ -120,6 +120,7 @@ void GameControl::RunAction()
 			this->ShutdownLevel();
 
 			if (this->next_action == GCA_NEW_GAME || !LoadGameFile(this->fname.c_str())) {
+				LoadGameFile(nullptr);  // Default-initialize everything.
 				this->NewLevel();
 			}
 
@@ -193,6 +194,7 @@ void GameControl::NewLevel()
 void GameControl::StartLevel()
 {
 	_game_mode_mgr.SetGameMode(GM_PLAY);
+	this->speed = GSP_1;
 
 	XYZPoint32 view_pos(_world.GetXSize() * 256 / 2, _world.GetYSize() * 256 / 2, 8 * 256);
 	ShowMainDisplay(view_pos);
