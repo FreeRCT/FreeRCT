@@ -24,6 +24,16 @@ enum GameControlAction {
 	GCA_QUIT,      ///< Quit the game.
 };
 
+/** How fast the game should run. */
+enum GameSpeed {
+	GSP_PAUSE,  ///< The game is paused.
+	GSP_1,      ///< Normal speed.
+	GSP_2,      ///< Double speed.
+	GSP_4,      ///< 4 times speed.
+	GSP_8,      ///< 8 times speed.
+	GSP_COUNT   ///< Number of entries.
+};
+
 /**
  * Class controlling the current game.
  */
@@ -49,6 +59,8 @@ public:
 	void QuitGame();
 
 	bool running; ///< Indicates whether a game is currently running.
+
+	GameSpeed speed;  ///< Speed of the game.
 
 private:
 	void RunAction();

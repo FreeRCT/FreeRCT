@@ -44,20 +44,40 @@ void OnNewDay()
 }
 
 /**
+ * Converts a speed setting to a factor.
+ * @param speed Game speed setting.
+ * @return The value to multiply all times with to achieve the desired speed.
+*/
+static int speed_factor(GameSpeed speed)
+{
+	switch (speed) {
+		case GSP_PAUSE: return 0;
+		case GSP_1:     return 1;
+		case GSP_2:     return 2;
+		case GSP_4:     return 4;
+		case GSP_8:     return 8;
+		default:       NOT_REACHED();
+	}
+}
+
+/**
  * For every frame do...
  * @param frame_delay Number of milliseconds between two frames.
 */
-void OnNewFrame(uint32 frame_delay)
+void OnNewFrame(const uint32 frame_delay)
 {
 	_window_manager.Tick();
-	_guests.DoTick();
-	DateOnTick();
-	_guests.OnAnimate(frame_delay);
-	_rides_manager.OnAnimate(frame_delay);
+	for (int i = speed_factor(_game_control.speed); i > 0; i--) {
+		_guests.DoTick();
+		DateOnTick();
+		_guests.OnAnimate(frame_delay);
+		_rides_manager.OnAnimate(frame_delay);
+	}
 }
 
 GameControl::GameControl()
 {
+	this->speed = GSP_1;
 	this->running = false;
 	this->next_action = GCA_NONE;
 	this->fname = "";
@@ -70,6 +90,7 @@ GameControl::~GameControl()
 /** Initialize the game controller. */
 void GameControl::Initialize(const char *fname)
 {
+	this->speed = GSP_1;
 	this->running = true;
 
 	if (fname == nullptr) {

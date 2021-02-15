@@ -28,19 +28,16 @@ strings {
 		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Afsluiten";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Sluit het programma";
-		TOOLBAR_GUI_SETTINGS:             "Instellingen";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Verander de instellingen van het spel";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Afsluiten";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Instellingen";
+		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spelen/Bewerker";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Opslaan";
+
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelen";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewerker";
-		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Wissel tussen spelen en scenario bewerken";
 		TOOLBAR_GUI_PATHS:                "Paden";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bouw paden en wachtrijen";
-		TOOLBAR_GUI_SAVE:                 "Opslaan";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Sla het huidige spel op";
-		TOOLBAR_GUI_LOAD:                 "Laden";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Laad een spel";
 		TOOLBAR_GUI_RIDE_SELECT:          "Koop een attractie";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Koop een nieuwe attractie voor in je park";
 		TOOLBAR_GUI_FENCE:                "Bouw hekwerk";

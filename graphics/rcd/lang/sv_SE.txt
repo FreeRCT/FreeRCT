@@ -28,19 +28,16 @@ strings {
 		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Avsluta";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Avsluta programmet";
-		TOOLBAR_GUI_SETTINGS:             "Inställningar";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Ändra spelets inställningar";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Avsluta";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Inställningar";
+		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spela/Redigerare";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Ladda";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Spara";
+
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spela";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Redigerare";
-		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Byt mellan att spela och redigera scenariot";
 		TOOLBAR_GUI_PATHS:                "Gångvägar";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bygg gångvägar och köer";
-		TOOLBAR_GUI_SAVE:                 "Spara";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Spara spelet";
-		TOOLBAR_GUI_LOAD:                 "Ladda";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Ladda en sparfil";
 		TOOLBAR_GUI_RIDE_SELECT:          "Köp åkattraktion";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Köp en ny åkakktraktion för din park";
 		TOOLBAR_GUI_FENCE:                "Bygg staket";

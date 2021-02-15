@@ -26,19 +26,16 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_QUIT:                 "Quitter";
-		TOOLBAR_GUI_TOOLTIP_QUIT_PROGRAM: "Quitte the program";
-		TOOLBAR_GUI_SETTINGS:             "Paramètres";
-		TOOLBAR_GUI_TOOLTIP_SETTINGS:     "Change les paramètres du jeu";
+		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Quitter";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Paramètres";
+		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Jouer/Editeur";
+		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Charger";
+		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Sauvegarder";
+
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Jouer";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editeur";
-		TOOLBAR_GUI_TOOLTIP_GAME_MODE:    "Bascule entre les mode Jeu et Editeur de scénario";
 		TOOLBAR_GUI_PATHS:                "Chemins";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Consrtuit les allées et files d'attente";
-		TOOLBAR_GUI_SAVE:                 "Sauvegarder";
-		TOOLBAR_GUI_TOOLTIP_SAVE_GAME:    "Sauvegarder le jeu";
-		TOOLBAR_GUI_LOAD:                 "Charger";
-		TOOLBAR_GUI_TOOLTIP_LOAD_GAME:    "Charge un jeu";
 		TOOLBAR_GUI_RIDE_SELECT:          "Acheter";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Achèete une nouvelle attraction pour votre parc";
 		TOOLBAR_GUI_TERRAFORM:            "Terraformer";
