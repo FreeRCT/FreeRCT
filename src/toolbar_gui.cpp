@@ -62,6 +62,7 @@ enum DropdownMain {
 	DDM_QUIT,      ///< Quit the game.
 	DDM_SETTINGS,  ///< General settings.
 	DDM_GAME_MODE, ///< Switch game mode.
+	DDM_NEW,       ///< New game.
 	DDM_SAVE,      ///< Save game.
 	DDM_LOAD,      ///< Load game.
 	DDM_COUNT      ///< Number of entries.
@@ -186,6 +187,9 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 						case DDM_LOAD:
 							/* \todo Provide option to select the file to load. */
 							_game_control.LoadGame("saved.fct");
+							break;
+						case DDM_NEW:
+							_game_control.NewGame();
 							break;
 						default: NOT_REACHED();
 					}
