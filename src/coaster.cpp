@@ -688,6 +688,11 @@ XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge entry_edge)
 	return XYZPoint32(); // Suppress compiler warning
 }
 
+bool CoasterInstance::PathEdgeWanted(const XYZPoint16 &vox, const TileEdge edge) const
+{
+	return false;  // \todo Check whether there is an entrance or exit here.
+}
+
 void CoasterInstance::RemoveAllPeople()
 {
 	/** \todo Implement when allowing people on the ride. */

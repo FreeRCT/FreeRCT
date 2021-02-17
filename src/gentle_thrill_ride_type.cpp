@@ -167,7 +167,7 @@ const Recolouring *GentleThrillRideInstance::GetRecolours(const XYZPoint16 &pos)
 
 uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
-	return SHF_ENTRANCE_BITS;  // Used for rendering of platforms only.
+	return (vox == this->entrance_pos || vox == this->exit_pos) ? 1 << EntranceExitRotation(vox) : SHF_ENTRANCE_NONE;
 }
 
 RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
@@ -266,13 +266,20 @@ void GentleThrillRideInstance::SetEntrancePos(const XYZPoint16& pos)
 
 	this->entrance_pos = pos;
 	if (this->entrance_pos != XYZPoint16::invalid()) {
+		int edges = 0;
 		for (int16 h = 0; h < height; ++h) {
-			Voxel *voxel = _world.GetCreateVoxel(this->entrance_pos + XYZPoint16(0, 0, h), true);
+			const XYZPoint16 p = this->entrance_pos + XYZPoint16(0, 0, h);
+			Voxel *voxel = _world.GetCreateVoxel(p, true);
 			assert(voxel != nullptr && voxel->instance == SRI_FREE);
 			voxel->SetInstance(index);
-			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+			if (h == 0) {
+				edges = GetEntranceDirections(p);
+				voxel->SetInstanceData(edges);
+			} else {
+				voxel->SetInstanceData(SHF_ENTRANCE_NONE);
+			}
 		}
-		AddRemovePathEdges(this->entrance_pos, PATH_EMPTY, EDGE_ALL, PAS_QUEUE_PATH);
+		AddRemovePathEdges(this->entrance_pos, PATH_EMPTY, edges, PAS_QUEUE_PATH);
 	}
 }
 
@@ -297,13 +304,20 @@ void GentleThrillRideInstance::SetExitPos(const XYZPoint16& pos)
 
 	this->exit_pos = pos;
 		if (this->exit_pos != XYZPoint16::invalid()) {
+		int edges = 0;
 		for (int16 h = 0; h < height; ++h) {
-			Voxel *voxel = _world.GetCreateVoxel(this->exit_pos + XYZPoint16(0, 0, h), true);
+			const XYZPoint16 p = this->exit_pos + XYZPoint16(0, 0, h);
+			Voxel *voxel = _world.GetCreateVoxel(p, true);
 			assert(voxel != nullptr && voxel->instance == SRI_FREE);
 			voxel->SetInstance(index);
-			voxel->SetInstanceData(h == 0 ? SHF_ENTRANCE_BITS : SHF_ENTRANCE_NONE);
+			if (h == 0) {
+				edges = GetEntranceDirections(p);
+				voxel->SetInstanceData(edges);
+			} else {
+				voxel->SetInstanceData(SHF_ENTRANCE_NONE);
+			}
 		}
-		AddRemovePathEdges(this->exit_pos, PATH_EMPTY, EDGE_ALL, PAS_NORMAL_PATH);
+		AddRemovePathEdges(this->exit_pos, PATH_EMPTY, edges, PAS_NORMAL_PATH);
 	}
 }
 

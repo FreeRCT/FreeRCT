@@ -385,6 +385,17 @@ void RideInstance::SetExitType(const int type)
 }
 
 /**
+ * Whether a path edge to/from this ride should be drawn at the given location.
+ * @param vox Coordinates in the world.
+ * @param edge Tile edge to check.
+ * @return A path edge should be added.
+ */
+bool RideInstance::PathEdgeWanted(const XYZPoint16 &vox, const TileEdge edge) const
+{
+	return (_world.GetVoxel(vox)->GetInstanceData() & (1 << edge)) != 0;
+}
+
+/**
  * Some time has passed, update the state of the ride. Default implementation does nothing.
  * @param delay Number of milliseconds that passed.
  */

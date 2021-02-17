@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "path.h"
 #include "map.h"
+#include "ride_type.h"
 #include "viewport.h"
 
 /** Imploded path tile sprite number to use for an 'up' slope from a given edge. */
@@ -418,7 +419,7 @@ static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, TileEdge edge,
 		return true;
 
 	} else if (number >= SRI_FULL_RIDES) { // A ride instance. Does it have an entrance here?
-		if ((v->GetInstanceData() & (1 << edge)) != 0) {
+		if (_rides_manager.GetRideInstance(number)->PathEdgeWanted(voxel_pos, edge)) {
 			*dest_status = PAS_QUEUE_PATH;
 			return true;
 		}
