@@ -297,6 +297,26 @@ const Recolouring *RideInstance::GetRecolours(const XYZPoint16 &pos) const
 }
 
 /**
+ * Whether the ride's entrance should be rendered at the given location.
+ * @param pos Absolute voxel in the world.
+ * @return An entrance is located at the given location.
+ */
+bool RideInstance::IsEntranceLocation(const XYZPoint16& pos) const
+{
+	return false;
+}
+
+/**
+ * Whether the ride's exit should be rendered at the given location.
+ * @param pos Absolute voxel in the world.
+ * @return An exit is located at the given location.
+ */
+bool RideInstance::IsExitLocation(const XYZPoint16& pos) const
+{
+	return false;
+}
+
+/**
  * Sell an item to a customer.
  * @param item_index Index of the item being sold.
  */
@@ -461,7 +481,7 @@ void RideInstance::HandleBreakdown()
  */
 bool RideInstance::CanOpenRide() const
 {
-	return this->state == RIS_CLOSED;
+	return this->state == RIS_CLOSED || this->state == RIS_TESTING;
 }
 
 /**

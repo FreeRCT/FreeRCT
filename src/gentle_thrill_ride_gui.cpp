@@ -194,7 +194,7 @@ GentleThrillRideManagerWindow::~GentleThrillRideManagerWindow()
 
 assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
 
-/** Update all recolour buttons of the wondow. */
+/** Update all recolour buttons of the window. */
 void GentleThrillRideManagerWindow::UpdateRecolourButtons()
 {
 	for (int i = 0; i < 3; i++) {

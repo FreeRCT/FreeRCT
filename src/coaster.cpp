@@ -23,6 +23,8 @@ CoasterPlatform _coaster_platforms[CPT_COUNT]; ///< Sprites for the coaster plat
 static CarType _car_types[16]; ///< Car types available to the program (arbitrary limit).
 static uint _used_types = 0;   ///< First free car type in #_car_types.
 
+static const uint16 ENTRANCE_OR_EXIT = INT16_MAX;  ///< Indicates that a voxel belongs to an entrance or exit.
+
 /**
  * Get a new car type.
  * @return A free car type, or \c nullptr if no free car type available.
@@ -563,6 +565,14 @@ void CoasterTrain::Save(Saver &svr)
 	svr.PutLong((uint32)this->speed);
 }
 
+/** Default constructor for a station of length 0 with no entrance or exit. */
+CoasterStation::CoasterStation()
+{
+	this->direction = INVALID_EDGE;
+	this->entrance = XYZPoint16::invalid();
+	this->exit = XYZPoint16::invalid();
+}
+
 /**
  * Constructor of a roller coaster instance.
  * @param ct Coaster type being built.
@@ -579,11 +589,24 @@ CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *car_type)
 		train.cur_piece = this->pieces;
 	}
 	this->car_type = car_type;
+	this->temp_entrance_pos = XYZPoint16::invalid();
+	this->temp_exit_pos = XYZPoint16::invalid();
 }
 
 CoasterInstance::~CoasterInstance()
 {
 	delete[] this->pieces;
+}
+
+const Recolouring *CoasterInstance::GetRecolours(const XYZPoint16 &pos) const
+{
+	if (pos == this->temp_entrance_pos) return &this->entrance_recolours;
+	if (pos == this->temp_exit_pos) return &this->exit_recolours;
+	for (const CoasterStation &s : this->stations) {
+		if (pos == s.entrance) return &this->entrance_recolours;
+		if (pos == s.exit) return &this->exit_recolours;
+	}
+	return RideInstance::GetRecolours(pos);
 }
 
 /**
@@ -597,7 +620,7 @@ bool CoasterInstance::IsAccessible()
 
 bool CoasterInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 {
-	return false;  // \todo Implement entrances and exits for coasters.
+	return false;  // \todo Implement guests entering and exiting coasters.
 }
 
 void CoasterInstance::OnAnimate(int delay)
@@ -634,6 +657,30 @@ void CoasterInstance::CloseRide()
 void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
 {
 	const CoasterType *ct = this->GetCoasterType();
+
+	sprites[0] = nullptr;
+	sprites[3] = nullptr;
+	auto orientation_index = [orient](const int o) {
+		return (4 + o - orient) & 3;
+	};
+	if (this->IsEntranceLocation(vox)) {
+		const ImageData *const *array = _rides_manager.entrances[this->entrance_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
+		sprites[1] = array[0];
+		sprites[2] = array[1];
+		return;
+	}
+	if (this->IsExitLocation(vox)) {
+		const ImageData *const *array = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
+		sprites[1] = array[0];
+		sprites[2] = array[1];
+		return;
+	}
+	if (voxel_number == ENTRANCE_OR_EXIT) {
+		sprites[1] = nullptr;
+		sprites[2] = nullptr;
+		return;
+	}
+
 	assert(voxel_number < ct->voxels.size());
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
@@ -644,7 +691,7 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 		sprites[3] = nullptr; // SO_PLATFORM_FRONT
 	} else {
 		const CoasterPlatform &platform = _coaster_platforms[ct->platform_type];
-		TileEdge edge = static_cast<TileEdge>((tv->GetPlatformDirection() + 4 - orient) & 3);
+		TileEdge edge = static_cast<TileEdge>(orientation_index(tv->GetPlatformDirection()));
 		switch (edge) {
 			case EDGE_NE:
 				sprites[0] = platform.ne_sw_back;
@@ -673,7 +720,10 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 
 uint8 CoasterInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 {
-	return 0; /// \todo add entrance bits for the coaster.
+	for (const CoasterStation &s : this->stations) {
+		if (s.entrance == vox || s.exit == vox) return 1 << this->EntranceExitRotation(vox, &s);
+	}
+	return SHF_ENTRANCE_NONE;
 }
 
 RideEntryResult CoasterInstance::EnterRide(int guest, TileEdge edge)
@@ -690,7 +740,10 @@ XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge entry_edge)
 
 bool CoasterInstance::PathEdgeWanted(const XYZPoint16 &vox, const TileEdge edge) const
 {
-	return false;  // \todo Check whether there is an entrance or exit here.
+	for (const CoasterStation &s : this->stations) {
+		if (s.entrance == vox || s.exit == vox) return edge == this->EntranceExitRotation(vox, &s);
+	}
+	return false;
 }
 
 void CoasterInstance::RemoveAllPeople()
@@ -733,6 +786,7 @@ int CoasterInstance::GetFirstPlacedTrackPiece() const
 
 void CoasterInstance::RemoveFromWorld()
 {
+	this->RemoveStationsFromWorld();
 	const uint16 index = this->GetIndex();
 	const int start_piece = GetFirstPlacedTrackPiece();
 	if (start_piece < 0) return;
@@ -740,6 +794,49 @@ void CoasterInstance::RemoveFromWorld()
 		this->pieces[p].RemoveFromWorld(index);
 		p = FindSuccessorPiece(this->pieces[p]);
 		if (p < 0 || p == start_piece) break;
+	}
+}
+
+/** Immediately remove all entrances and exits of this ride from all voxels they currently occupy. */
+void CoasterInstance::RemoveStationsFromWorld()
+{
+	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+	for (CoasterStation &s : this->stations) {
+		for (const XYZPoint16 &p : {s.entrance, s.exit}) {
+			if (p != XYZPoint16::invalid()) {
+				const int8 height = (p == s.entrance) ? RideEntranceExitType::entrance_height : RideEntranceExitType::exit_height;
+				for (int16 h = 0; h < height; ++h) {
+					Voxel *voxel = _world.GetCreateVoxel(p + XYZPoint16(0, 0, h), false);
+					if (voxel != nullptr && voxel->instance != SRI_FREE) {
+						assert(voxel->instance == index);
+						voxel->ClearInstances();
+					}
+				}
+				AddRemovePathEdges(p, PATH_EMPTY, EDGE_ALL, PAS_UNUSED);
+			}
+		}
+	}
+}
+
+/** Link all entrances and exits of this ride into all voxels they are meant to occupy. */
+void CoasterInstance::InsertStationsIntoWorld()
+{
+	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+	for (CoasterStation &s : this->stations) {
+		for (const XYZPoint16 &p : {s.entrance, s.exit}) {
+			if (p != XYZPoint16::invalid()) {
+				const bool entrance = (p == s.entrance);
+				const int8 height = entrance ? RideEntranceExitType::entrance_height : RideEntranceExitType::exit_height;
+				for (int16 h = 0; h < height; ++h) {
+					const XYZPoint16 pos = p + XYZPoint16(0, 0, h);
+					Voxel *voxel = _world.GetCreateVoxel(pos, true);
+					assert(voxel != nullptr && voxel->instance == SRI_FREE);
+					voxel->SetInstance(index);
+					voxel->SetInstanceData(ENTRANCE_OR_EXIT);
+				}
+				AddRemovePathEdges(p, PATH_EMPTY, GetEntranceDirections(p), entrance ? PAS_QUEUE_PATH : PAS_NORMAL_PATH);
+			}
+		}
 	}
 }
 
@@ -795,6 +892,7 @@ int CoasterInstance::FindPredecessorPiece(const PositionedTrackPiece &placed)
  */
 bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 {
+	this->UpdateStations();
 	if (modified != nullptr) *modified = false;
 
 	/* First step, move all non-null track pieces to the start of the array. */
@@ -853,6 +951,7 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 	for (int i = 0; i < this->capacity; i++) {
 		if (this->pieces[i].piece == nullptr) {
 			this->pieces[i] = placed;
+			if (placed.piece->IsStartingPiece()) this->UpdateStations();
 			return i;
 		}
 	}
@@ -867,6 +966,7 @@ void CoasterInstance::RemovePositionedPiece(PositionedTrackPiece &piece)
 {
 	assert(piece.piece != nullptr);
 	this->RemoveTrackPieceInWorld(piece);
+	if (piece.piece->IsStartingPiece()) this->UpdateStations();
 	piece.piece = nullptr;
 }
 
@@ -1007,6 +1107,229 @@ int CoasterInstance::GetNumberOfCars() const
 	return number_cars;
 }
 
+bool CoasterInstance::CanOpenRide() const
+{
+	return !this->stations.empty() && !this->NeedsEntrance() && !this->NeedsExit() && RideInstance::CanOpenRide();
+}
+
+/**
+ * Check whether the coaster does not have enough entrances yet.
+ * @return At least one entrance is lacking.
+ */
+bool CoasterInstance::NeedsEntrance() const
+{
+	for (const CoasterStation &s : this->stations) {
+		if (s.entrance == XYZPoint16::invalid()) return true;
+	}
+	return false;
+}
+
+/**
+ * Check whether the coaster does not have enough exits yet.
+ * @return At least one exit is lacking.
+ */
+bool CoasterInstance::NeedsExit() const
+{
+	for (const CoasterStation &s : this->stations) {
+		if (s.exit == XYZPoint16::invalid()) return true;
+	}
+	return false;
+}
+
+bool CoasterInstance::IsEntranceLocation(const XYZPoint16& pos) const
+{
+	if (pos == this->temp_entrance_pos) return true;
+	for (const CoasterStation &s : this->stations) {
+		if (s.entrance == pos) return true;
+	}
+	return false;
+}
+bool CoasterInstance::IsExitLocation(const XYZPoint16& pos) const
+{
+	if (pos == this->temp_exit_pos) return true;
+	for (const CoasterStation &s : this->stations) {
+		if (s.exit == pos) return true;
+	}
+	return false;
+}
+
+/**
+ * Get the rotation of an entrance or exit placed at the given location.
+ * @param vox The absolute coordinates.
+ * @param station The station to which the entrance/exit belongs (may be \c nullptr if any station will do).
+ * @return The rotation.
+ */
+int CoasterInstance::EntranceExitRotation(const XYZPoint16& vox, const CoasterStation *station) const
+{
+	if (station != nullptr) {
+		switch (station->direction) {
+			case EDGE_NE:
+			case EDGE_SW:
+				return (vox.y < station->locations[0].y) ? EDGE_NW : EDGE_SE;
+			case EDGE_NW:
+			case EDGE_SE:
+				return (vox.x < station->locations[0].x) ? EDGE_NE : EDGE_SW;
+			default:
+				NOT_REACHED();
+		}
+	}
+
+	/* If the position belongs to a placed entrance or exit, prefer that one. */
+	for (const CoasterStation &s : this->stations) {
+		if (s.entrance == vox || s.exit == vox) return this->EntranceExitRotation(vox, &s);
+	}
+	/* It is a temporary location. Any station adjacent to the location will do. */
+	for (const CoasterStation &s : this->stations) {
+		if (this->CanPlaceEntranceOrExit(vox, true, nullptr)) return this->EntranceExitRotation(vox, &s);
+	}
+	NOT_REACHED();
+}
+
+/** Reinitialize the station information. This needs to be done after station pieces were added or deleted. */
+void CoasterInstance::UpdateStations()
+{
+	this->RemoveStationsFromWorld();
+	const int start_piece = GetFirstPlacedTrackPiece();
+	if (start_piece < 0) {
+		this->stations.clear();
+		return;
+	}
+
+	std::vector<CoasterStation> result;
+	std::unique_ptr<CoasterStation> current_station;
+	for (int p = start_piece;;) {
+		const PositionedTrackPiece &piece = this->pieces[p];
+		if (piece.piece->IsStartingPiece()) {
+			if (current_station.get() == nullptr) current_station.reset(new CoasterStation);
+			current_station->direction = piece.piece->GetStartDirection();
+			for (const TrackVoxel *track : piece.piece->track_voxels) {
+				current_station->locations.emplace_back(piece.base_voxel + track->dxyz);
+			}
+		} else if (current_station.get() != nullptr) {
+			bool entrance_found = false, exit_found = false;
+			for (CoasterStation &old : this->stations) {
+				if (!entrance_found && old.entrance != XYZPoint16::invalid()) {
+					for (const XYZPoint16 &p : old.locations) {
+						if (std::abs(p.x - old.entrance.x) + std::abs(p.y - old.entrance.y) != 1) continue;
+						if (std::find(current_station->locations.begin(), current_station->locations.end(), p) != current_station->locations.end()) {
+							entrance_found = true;
+							current_station->entrance = old.entrance;
+							break;
+						}
+					}
+				}
+				if (!exit_found && old.exit != XYZPoint16::invalid()) {
+					for (const XYZPoint16 &p : old.locations) {
+						if (std::abs(p.x - old.exit.x) + std::abs(p.y - old.exit.y) != 1) continue;
+						if (std::find(current_station->locations.begin(), current_station->locations.end(), p) != current_station->locations.end()) {
+							exit_found = true;
+							current_station->exit = old.exit;
+							break;
+						}
+					}
+				}
+				if (entrance_found && exit_found) break;
+			}
+			result.emplace_back(*current_station);
+			current_station.reset();
+		}
+		p = FindSuccessorPiece(this->pieces[p]);
+		if (p < 0 || p == start_piece) break;
+	}
+
+	this->stations = result;
+	this->InsertStationsIntoWorld();
+}
+
+/**
+ * Check whether an entrance or exit can be placed at the given location.
+ * @param pos Absolute voxel in the world.
+ * @param entrance Whether we're placing an entrance or exit.
+ * @param station The station for which the entrance/exit is intended (may be \c nullptr if any station will do).
+ * @return The entrance or exit can be placed.
+ */
+bool CoasterInstance::CanPlaceEntranceOrExit(const XYZPoint16 &pos, const bool entrance, const CoasterStation *station) const
+{
+	if (!IsVoxelstackInsideWorld(pos.x, pos.y) || _world.GetTileOwner(pos.x, pos.y) != OWN_PARK) return false;
+	if (station == nullptr) {
+		for (const CoasterStation &s : this->stations) {
+			if (this->CanPlaceEntranceOrExit(pos, entrance, &s)) return true;
+		}
+		return false;
+	}
+
+	if (station->locations.empty() || station->direction == INVALID_EDGE) return false;
+	switch (station->direction) {
+		case EDGE_NE:
+		case EDGE_SW: {
+			if (std::abs(pos.y - station->locations[0].y) != 1) return false;  // Not directly adjacent.
+			short min_x = station->locations[0].x;
+			short max_x = min_x;
+			short min_z = station->locations[0].z;
+			for (const XYZPoint16 &p : station->locations) {
+				min_x = std::min(min_x, p.x);
+				max_x = std::max(max_x, p.x);
+				min_z = std::min(min_z, p.z);
+			}
+			if (pos.x < min_x || pos.x > max_x || pos.z != min_z) return false;  // Out of bounds.
+			break;
+		}
+		case EDGE_NW:
+		case EDGE_SE: {
+			if (std::abs(pos.x - station->locations[0].x) != 1) return false;  // Not directly adjacent.
+			short min_y = station->locations[0].y;
+			short max_y = min_y;
+			short min_z = station->locations[0].z;
+			for (const XYZPoint16 &p : station->locations) {
+				min_y = std::min(min_y, p.y);
+				max_y = std::max(max_y, p.y);
+				min_z = std::min(min_z, p.z);
+			}
+			if (pos.y < min_y || pos.y > max_y || pos.z != min_z) return false;  // Out of bounds.
+			break;
+		}
+		default: NOT_REACHED();
+	}
+
+	/* Is there enough vertical space available? */
+	const int8 height = entrance ? RideEntranceExitType::entrance_height : RideEntranceExitType::exit_height;
+	for (int16 h = 0; h < height; ++h) {
+		Voxel *v = _world.GetCreateVoxel(pos + XYZPoint16(0, 0, h), false);
+		if (v == nullptr) continue;
+
+		if (h > 0 && v->GetGroundType() != GTP_INVALID) return false;
+		if (!v->CanPlaceInstance() || v->GetGroundSlope() != SL_FLAT) return false;
+	}
+	return true;
+}
+
+/**
+ * Place an entrance or exit at the given location.
+ * @param pos Absolute voxel in the world.
+ * @param entrance Whether we're placing an entrance or exit.
+ * @param station The station for which the entrance/exit is intended (may be \c nullptr if any station will do).
+ * @return The entrance or exit was placed.
+ */
+bool CoasterInstance::PlaceEntranceOrExit(const XYZPoint16 &pos, const bool entrance, CoasterStation *station)
+{
+	if (station == nullptr) {
+		for (CoasterStation &s : this->stations) {
+			if (this->PlaceEntranceOrExit(pos, entrance, &s)) return true;
+		}
+		return false;
+	}
+
+	if (!this->CanPlaceEntranceOrExit(pos, entrance, station)) return false;
+	this->RemoveStationsFromWorld();
+	if (entrance) {
+		station->entrance = pos;
+	} else {
+		station->exit = pos;
+	}
+	this->InsertStationsIntoWorld();
+	return true;
+}
+
 void CoasterInstance::Load(Loader &ldr)
 {
 	this->RideInstance::Load(ldr);
@@ -1034,23 +1357,34 @@ void CoasterInstance::Load(Loader &ldr)
 		}
 	}
 
-	int number_of_trains = (int)ldr.GetLong();
-	if (number_of_trains > 0) {
-		this->SetNumberOfTrains(number_of_trains);
-
-		int number_of_cars = (int)ldr.GetLong();
-		if (number_of_cars > 0) {
-			this->SetNumberOfCars(number_of_cars);
-
-			for (int i = 0; i < number_of_trains; i++) {
-				this->trains[i].Load(ldr);
-			}
-		} else {
-			ldr.SetFailMessage("Invalid number of cars.");
-		}
-	} else {
-		ldr.SetFailMessage("Invalid number of trains.");
+	const int number_of_trains = (int)ldr.GetLong();
+	this->SetNumberOfTrains(number_of_trains);
+	const int number_of_cars = (int)ldr.GetLong();
+	this->SetNumberOfCars(number_of_cars);
+	for (int i = 0; i < number_of_trains; i++) {
+		this->trains[i].Load(ldr);
 	}
+
+	const int nr_stations = ldr.GetWord();
+	this->stations.resize(nr_stations);
+	for (int i = 0; i < nr_stations; ++i) {
+		this->stations[i].entrance.x = ldr.GetWord();
+		this->stations[i].entrance.y = ldr.GetWord();
+		this->stations[i].entrance.z = ldr.GetWord();
+		this->stations[i].exit.x = ldr.GetWord();
+		this->stations[i].exit.y = ldr.GetWord();
+		this->stations[i].exit.z = ldr.GetWord();
+		this->stations[i].direction = static_cast<TileEdge>(ldr.GetByte());
+		const int nr_locations = ldr.GetWord();
+		this->stations[i].locations.resize(nr_locations);
+		for (int j = 0; j < nr_locations; ++j) {
+			this->stations[i].locations[j].x = ldr.GetWord();
+			this->stations[i].locations[j].y = ldr.GetWord();
+			this->stations[i].locations[j].z = ldr.GetWord();
+		}
+	}
+
+	this->InsertStationsIntoWorld();
 }
 
 void CoasterInstance::Save(Saver &svr)
@@ -1089,5 +1423,22 @@ void CoasterInstance::Save(Saver &svr)
 
 	for (int i = 0; i < number_of_trains; i++) {
 		this->trains[i].Save(svr);
+	}
+
+	svr.PutWord(this->stations.size());
+	for (const CoasterStation &s : this->stations) {
+		svr.PutWord(s.entrance.x);
+		svr.PutWord(s.entrance.y);
+		svr.PutWord(s.entrance.z);
+		svr.PutWord(s.exit.x);
+		svr.PutWord(s.exit.y);
+		svr.PutWord(s.exit.z);
+		svr.PutByte(s.direction);
+		svr.PutWord(s.locations.size());
+		for (const XYZPoint16 &p : s.locations) {
+			svr.PutWord(p.x);
+			svr.PutWord(p.y);
+			svr.PutWord(p.z);
+		}
 	}
 }

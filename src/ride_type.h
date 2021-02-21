@@ -189,6 +189,8 @@ public:
 	void HandleBreakdown();
 	void SetEntranceType(int type);
 	void SetExitType(int type);
+	virtual bool IsEntranceLocation(const XYZPoint16& pos) const;
+	virtual bool IsExitLocation(const XYZPoint16& pos) const;
 
 	virtual void Load(Loader &ldr);
 	virtual void Save(Saver &svr);

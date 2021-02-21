@@ -178,6 +178,7 @@ uint8 *Loader::GetText()
  */
 void Loader::SetFailMessage(const char *fail_msg)
 {
+	fprintf(stderr, "ERROR while loading: %s\n", fail_msg);
 	if (this->IsFail()) return; // Do not overwrite the first message.
 	this->fail_msg = fail_msg;
 }

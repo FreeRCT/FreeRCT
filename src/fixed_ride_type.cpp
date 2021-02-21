@@ -60,26 +60,6 @@ FixedRideInstance::~FixedRideInstance()
 }
 
 /**
- * Whether the ride's entrance should be rendered at the given location.
- * @param pos Absolute voxel in the world.
- * @return An entrance is located at the given location.
- */
-bool FixedRideInstance::IsEntranceLocation(const XYZPoint16& pos) const
-{
-	return false;
-}
-
-/**
- * Whether the ride's exit should be rendered at the given location.
- * @param pos Absolute voxel in the world.
- * @return An exit is located at the given location.
- */
-bool FixedRideInstance::IsExitLocation(const XYZPoint16& pos) const
-{
-	return false;
-}
-
-/**
  * Determine at which voxel in the world a ride piece should be located.
  * @param orientation Orientation of the fixed ride.
  * @param x Unrotated x coordinate of the ride piece, relative to the ride's base voxel.
