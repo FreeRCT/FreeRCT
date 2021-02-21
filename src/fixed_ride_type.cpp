@@ -131,11 +131,12 @@ int FixedRideInstance::EntranceExitRotation(const XYZPoint16& vox) const
 	NOT_REACHED();  // Invalid entrance/exit location.
 }
 
-void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
+	if (platform != nullptr && vox.z == this->vox_pos.z) *platform = PATH_NE_NW_SE_SW;
 
 	auto orientation_index = [orient](const int o) {
 		return (4 + o - orient) & 3;

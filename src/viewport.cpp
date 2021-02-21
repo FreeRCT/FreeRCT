@@ -453,14 +453,10 @@ static int DrawRide(int32 slice, const XYZPoint16 & pos, const Point32 base_pos,
 {
 	const RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == nullptr) return 0;
-	/* Fixed rides are connected in every direction. */
-	if (platform != nullptr) *platform = (
-			(ri->GetKind() == RTK_SHOP || ri->GetKind() == RTK_GENTLE || ri->GetKind() == RTK_THRILL) &&
-			pos.z == static_cast<const FixedRideInstance*>(ri)->vox_pos.z) ?
-		PATH_NE_NW_SE_SW : PATH_INVALID;
 
+	if (platform != nullptr) *platform = PATH_INVALID;
 	const ImageData *sprites[4];
-	ri->GetSprites(pos, voxel_number, orient, sprites);
+	ri->GetSprites(pos, voxel_number, orient, sprites, platform);
 
 	int idx = 0;
 	static const SpriteOrder sprite_numbers[4] = {SO_PLATFORM_BACK, SO_RIDE, SO_RIDE_FRONT, SO_PLATFORM_FRONT};

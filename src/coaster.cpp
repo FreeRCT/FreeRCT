@@ -654,7 +654,7 @@ void CoasterInstance::CloseRide()
 	RideInstance::CloseRide();
 }
 
-void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
 {
 	const CoasterType *ct = this->GetCoasterType();
 
@@ -667,12 +667,14 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 		const ImageData *const *array = _rides_manager.entrances[this->entrance_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
 		sprites[1] = array[0];
 		sprites[2] = array[1];
+		if (platform != nullptr) *platform = PATH_NE_NW_SE_SW;
 		return;
 	}
 	if (this->IsExitLocation(vox)) {
 		const ImageData *const *array = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
 		sprites[1] = array[0];
 		sprites[2] = array[1];
+		if (platform != nullptr) *platform = PATH_NE_NW_SE_SW;
 		return;
 	}
 	if (voxel_number == ENTRANCE_OR_EXIT) {

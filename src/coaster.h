@@ -219,7 +219,7 @@ public:
 
 	void TestRide();
 
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;

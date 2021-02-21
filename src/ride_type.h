@@ -159,7 +159,7 @@ public:
 	RideInstance(const RideType *rt);
 	virtual ~RideInstance() = default;
 
-	virtual void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const = 0;
+	virtual void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const = 0;
 	virtual const Recolouring *GetRecolours(const XYZPoint16 &pos) const;
 	virtual uint8 GetEntranceDirections(const XYZPoint16 &vox) const = 0;
 	virtual RideEntryResult EnterRide(int guest, TileEdge entry_edge) = 0;
