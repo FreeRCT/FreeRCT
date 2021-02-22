@@ -185,16 +185,16 @@ CoasterInstanceWindow::~CoasterInstanceWindow()
 	}
 }
 
-assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
+assert_compile(MAX_RECOLOUR >= MAX_RIDE_RECOLOURS); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
 
 /** Update all recolour buttons of the window. */
 void CoasterInstanceWindow::UpdateRecolourButtons()
 {
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
 		const RecolourEntry &re = this->ci->entrance_recolours.entries[i];
 		this->GetWidget<LeafWidget>(CIW_ENTRANCE_RECOLOUR1 + i)->SetShaded(!re.IsValid());
 	}
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
 		const RecolourEntry &re = this->ci->exit_recolours.entries[i];
 		this->GetWidget<LeafWidget>(CIW_EXIT_RECOLOUR1 + i)->SetShaded(!re.IsValid());
 	}
@@ -378,15 +378,8 @@ void CoasterInstanceWindow::OnChange(const ChangeCode code, const uint32 paramet
 void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
-	int dx, dy;
-	switch (vp->orientation) {
-		case VOR_NORTH: dx =  1; dy =  1; break;
-		case VOR_WEST:  dx = -1; dy =  1; break;
-		case VOR_SOUTH: dx = -1; dy = -1; break;
-		case VOR_EAST:  dx =  1; dy = -1; break;
-		default: NOT_REACHED();
-	}
-
+	const int8 dx = _orientation_signum_dx[vp->orientation];
+	const int8 dy = _orientation_signum_dy[vp->orientation];
 	entrance_exit_placement.MarkDirty();
 	bool placed = false;
 	for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {

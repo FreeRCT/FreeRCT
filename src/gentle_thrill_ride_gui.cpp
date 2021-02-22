@@ -192,20 +192,20 @@ GentleThrillRideManagerWindow::~GentleThrillRideManagerWindow()
 	SetSelector(nullptr);
 }
 
-assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
+assert_compile(MAX_RECOLOUR >= MAX_RIDE_RECOLOURS); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
 
 /** Update all recolour buttons of the window. */
 void GentleThrillRideManagerWindow::UpdateRecolourButtons()
 {
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
 		const RecolourEntry &re = this->ride->recolours.entries[i];
 		this->GetWidget<LeafWidget>(GTRMW_RECOLOUR1 + i)->SetShaded(!re.IsValid());
 	}
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
 		const RecolourEntry &re = this->ride->entrance_recolours.entries[i];
 		this->GetWidget<LeafWidget>(GTRMW_ENTRANCE_RECOLOUR1 + i)->SetShaded(!re.IsValid());
 	}
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
 		const RecolourEntry &re = this->ride->exit_recolours.entries[i];
 		this->GetWidget<LeafWidget>(GTRMW_EXIT_RECOLOUR1 + i)->SetShaded(!re.IsValid());
 	}
@@ -362,14 +362,8 @@ void GentleThrillRideManagerWindow::ChooseEntranceExitClicked(const bool entranc
 void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
-	int dx, dy;
-	switch (vp->orientation) {
-		case VOR_NORTH: dx =  1; dy =  1; break;
-		case VOR_WEST:  dx = -1; dy =  1; break;
-		case VOR_SOUTH: dx = -1; dy = -1; break;
-		case VOR_EAST:  dx =  1; dy = -1; break;
-		default: NOT_REACHED();
-	}
+	const int8 dx = _orientation_signum_dx[vp->orientation];
+	const int8 dy = _orientation_signum_dy[vp->orientation];
 	const int dz = (this->ride->vox_pos.z - (vp->view_pos.z / 256)) / 2;
 	const XYZPoint16 location(world_pos.x / 256 + dz * dx, world_pos.y / 256 + dz * dy, this->ride->vox_pos.z);
 

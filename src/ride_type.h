@@ -20,6 +20,8 @@ static const int MAX_RIDE_INSTANCE_NAME_LENGTH = 64; ///< Maximum number of char
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
 static const int MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS = 32; ///< Maximal number of types of ride entrances or exits.
 
+static const int MAX_RIDE_RECOLOURS = 3;  ///< Maximum number of entries in a RideInstance's recolour map.
+
 static const int NUMBER_ITEM_TYPES_SOLD = 2; ///< Number of different items that a ride can sell.
 
 static const int BREAKDOWN_GRACE_PERIOD = 30; ///< Number of days to wait before random breakdowns after first time opening ride.

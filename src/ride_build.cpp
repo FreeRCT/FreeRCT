@@ -287,14 +287,9 @@ RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos,
 	const FixedRideType *st = si->GetFixedRideType();
 	assert(st != nullptr);
 
-	int dx, dy; // Change of xworld and yworld for every (zworld / 2) change.
-	switch (vp_orient) {
-		case VOR_NORTH: dx =  1; dy =  1; break;
-		case VOR_WEST:  dx = -1; dy =  1; break;
-		case VOR_SOUTH: dx = -1; dy = -1; break;
-		case VOR_EAST:  dx =  1; dy = -1; break;
-		default: NOT_REACHED();
-	}
+	/* Change of xworld and yworld for every (zworld / 2) change. */
+	const int8 dx = _orientation_signum_dx[vp_orient];
+	const int8 dy = _orientation_signum_dy[vp_orient];
 
 	XYZPoint16 vox_pos;
 	/* Move to the top voxel of the world. */

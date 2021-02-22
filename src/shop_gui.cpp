@@ -173,13 +173,13 @@ ShopManagerWindow::ShopManagerWindow(ShopInstance *ri) : GuiWindow(WC_SHOP_MANAG
 	this->SetupWidgetTree(_shop_manager_gui_parts, lengthof(_shop_manager_gui_parts));
 	this->SetShopToggleButtons();
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
 		const RecolourEntry &re = this->shop->recolours.entries[i];
 		if (!re.IsValid()) this->GetWidget<LeafWidget>(SMW_RECOLOUR1 + i)->SetShaded(true);
 	}
 }
 
-assert_compile(MAX_RECOLOUR >= 3); ///< Check that the 3 recolourings of a shop fit in the Recolouring::entries array.
+assert_compile(MAX_RECOLOUR >= MAX_RIDE_RECOLOURS); ///< Check that the 3 recolourings of a shop fit in the Recolouring::entries array.
 
 /** Update the radio buttons of the window. */
 void ShopManagerWindow::SetShopToggleButtons()
