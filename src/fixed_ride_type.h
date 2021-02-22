@@ -64,7 +64,7 @@ public:
 	~FixedRideInstance();
 
 	const FixedRideType *GetFixedRideType() const;
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
 
 	virtual void SetRide(uint8 orientation, const XYZPoint16 &pos);
 	void RemoveAllPeople() override;
@@ -78,8 +78,6 @@ public:
 	void InsertIntoWorld() override;
 	void RemoveFromWorld() override;
 
-	virtual bool IsEntranceLocation(const XYZPoint16& pos) const;
-	virtual bool IsExitLocation(const XYZPoint16& pos) const;
 	int EntranceExitRotation(const XYZPoint16& vox) const;
 
 	uint8 orientation;  ///< Orientation of the shop.

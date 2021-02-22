@@ -10,6 +10,7 @@
 #ifndef ORIENTATION_H
 #define ORIENTATION_H
 
+#include "stdafx.h"
 #include "tile.h"
 
 /**
@@ -25,6 +26,9 @@ enum ViewOrientation {
 	VOR_NUM_ORIENT = 4,   ///< Number of orientations.
 	VOR_INVALID = 0xFF,   ///< Invalid orientation.
 };
+
+extern const int8 _orientation_signum_dx[VOR_NUM_ORIENT];
+extern const int8 _orientation_signum_dy[VOR_NUM_ORIENT];
 
 /**
  * Rotate view 90 degrees clockwise.

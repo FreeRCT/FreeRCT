@@ -229,12 +229,13 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
- * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+ * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
  * Get the sprites to display for the provided voxel number.
  * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
  * @param orient View orientation.
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
+ * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */
 
 /**
@@ -294,6 +295,26 @@ const RideType *RideInstance::GetRideType() const
 const Recolouring *RideInstance::GetRecolours(const XYZPoint16 &pos) const
 {
 	return &this->recolours;
+}
+
+/**
+ * Whether the ride's entrance should be rendered at the given location.
+ * @param pos Absolute voxel in the world.
+ * @return An entrance is located at the given location.
+ */
+bool RideInstance::IsEntranceLocation(const XYZPoint16& pos) const
+{
+	return false;
+}
+
+/**
+ * Whether the ride's exit should be rendered at the given location.
+ * @param pos Absolute voxel in the world.
+ * @return An exit is located at the given location.
+ */
+bool RideInstance::IsExitLocation(const XYZPoint16& pos) const
+{
+	return false;
 }
 
 /**
@@ -461,7 +482,7 @@ void RideInstance::HandleBreakdown()
  */
 bool RideInstance::CanOpenRide() const
 {
-	return this->state == RIS_CLOSED;
+	return this->state == RIS_CLOSED || this->state == RIS_TESTING;
 }
 
 /**

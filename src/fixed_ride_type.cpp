@@ -60,26 +60,6 @@ FixedRideInstance::~FixedRideInstance()
 }
 
 /**
- * Whether the ride's entrance should be rendered at the given location.
- * @param pos Absolute voxel in the world.
- * @return An entrance is located at the given location.
- */
-bool FixedRideInstance::IsEntranceLocation(const XYZPoint16& pos) const
-{
-	return false;
-}
-
-/**
- * Whether the ride's exit should be rendered at the given location.
- * @param pos Absolute voxel in the world.
- * @return An exit is located at the given location.
- */
-bool FixedRideInstance::IsExitLocation(const XYZPoint16& pos) const
-{
-	return false;
-}
-
-/**
  * Determine at which voxel in the world a ride piece should be located.
  * @param orientation Orientation of the fixed ride.
  * @param x Unrotated x coordinate of the ride piece, relative to the ride's base voxel.
@@ -151,11 +131,12 @@ int FixedRideInstance::EntranceExitRotation(const XYZPoint16& vox) const
 	NOT_REACHED();  // Invalid entrance/exit location.
 }
 
-void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const
+void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[2] = nullptr;
 	sprites[3] = nullptr;
+	if (platform != nullptr && vox.z == this->vox_pos.z) *platform = PATH_NE_NW_SE_SW;
 
 	auto orientation_index = [orient](const int o) {
 		return (4 + o - orient) & 3;

@@ -67,12 +67,22 @@ void ShowCoasterRemove(CoasterInstance *ci)
 
 /** Widget numbers of the roller coaster instance window. */
 enum CoasterInstanceWidgets {
-	CIW_TITLEBAR, ///< Titlebar widget.
-	CIW_REMOVE,   ///< Remove button widget.
-	CIW_EDIT,     ///< Edit coaster widget.
-	CIW_CLOSE,    ///< Close coaster widget
-	CIW_TEST,     ///< Test coaster widget
-	CIW_OPEN,     ///< Open coaster widget
+	CIW_TITLEBAR,            ///< Titlebar widget.
+	CIW_REMOVE,              ///< Remove button widget.
+	CIW_EDIT,                ///< Edit coaster widget.
+	CIW_CLOSE,               ///< Close coaster widget
+	CIW_TEST,                ///< Test coaster widget
+	CIW_OPEN,                ///< Open coaster widget
+	CIW_PLACE_ENTRANCE,      ///< Entrance placement.
+	CIW_CHOOSE_ENTRANCE,     ///< Entrance style.
+	CIW_PLACE_EXIT,          ///< Exit placement.
+	CIW_CHOOSE_EXIT,         ///< Exit style.
+	CIW_ENTRANCE_RECOLOUR1,  ///< First entrance colour.
+	CIW_ENTRANCE_RECOLOUR2,  ///< Second entrance colour.
+	CIW_ENTRANCE_RECOLOUR3,  ///< Third entrance colour.
+	CIW_EXIT_RECOLOUR1,      ///< First exit colour.
+	CIW_EXIT_RECOLOUR2,      ///< Second exit colour.
+	CIW_EXIT_RECOLOUR3,      ///< Third exit colour.
 };
 
 /** Widget parts of the #CoasterInstanceWindow. */
@@ -96,6 +106,27 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 			EndContainer(),
 		EndContainer(),
 
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(3, 2),
+				Widget(WT_TEXT_PUSHBUTTON, CIW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
+						SetData(GUI_PLACE_ENTRANCE, GUI_PLACE_ENTRANCE_TOOLTIP),
+				Widget(WT_TEXT_PUSHBUTTON, CIW_PLACE_EXIT, COL_RANGE_DARK_RED),
+						SetData(GUI_PLACE_EXIT, GUI_PLACE_EXIT_TOOLTIP),
+				Widget(WT_DROPDOWN_BUTTON, CIW_CHOOSE_ENTRANCE, COL_RANGE_DARK_RED),
+						SetData(GUI_CHOOSE_ENTRANCE, GUI_CHOOSE_ENTRANCE_TOOLTIP),
+				Widget(WT_DROPDOWN_BUTTON, CIW_CHOOSE_EXIT, COL_RANGE_DARK_RED),
+						SetData(GUI_CHOOSE_EXIT, GUI_CHOOSE_EXIT_TOOLTIP),
+				Intermediate(1, 3),
+					Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					SetResize(1, 0),
+				Intermediate(1, 3),
+					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+					SetResize(1, 0),
+
 		Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED),
 				SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 	EndContainer(),
@@ -110,12 +141,20 @@ public:
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
+	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	void SelectorMouseButtonEvent(uint8 state) override;
 
-	void SetCoasterStateForRadioButton(WidgetNumber radio);
+	void SetCoasterState();
 	void SetRadioChecked(WidgetNumber radio, bool checked);
+	void UpdateRecolourButtons();
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to display and control.
+
+	void ChooseEntranceExitClicked(bool entrance);
+	RideMouseMode entrance_exit_placement;
+	bool is_placing_entrance;
 };
 
 /**
@@ -126,13 +165,40 @@ CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *ci) : GuiWindow(WC
 {
 	this->ci = ci;
 	this->SetupWidgetTree(_coaster_instance_gui_parts, lengthof(_coaster_instance_gui_parts));
+	this->SetCoasterState();
+	this->UpdateRecolourButtons();
+
+	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
+	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
+	if (this->ci->NeedsEntrance()) {
+		ChooseEntranceExitClicked(true);
+	} else if (this->ci->NeedsExit()) {
+		ChooseEntranceExitClicked(false);
+	}
 }
 
 CoasterInstanceWindow::~CoasterInstanceWindow()
 {
+	SetSelector(nullptr);
 	if (!GetWindowByType(WC_COASTER_BUILD, this->wnumber) && !this->ci->IsAccessible()) {
 		_rides_manager.DeleteInstance(this->ci->GetIndex());
 	}
+}
+
+assert_compile(MAX_RECOLOUR >= MAX_RIDE_RECOLOURS); ///< Check that the 3 recolourings of a gentle/thrill ride fit in the Recolouring::entries array.
+
+/** Update all recolour buttons of the window. */
+void CoasterInstanceWindow::UpdateRecolourButtons()
+{
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
+		const RecolourEntry &re = this->ci->entrance_recolours.entries[i];
+		this->GetWidget<LeafWidget>(CIW_ENTRANCE_RECOLOUR1 + i)->SetShaded(!re.IsValid());
+	}
+	for (int i = 0; i < MAX_RIDE_RECOLOURS; i++) {
+		const RecolourEntry &re = this->ci->exit_recolours.entries[i];
+		this->GetWidget<LeafWidget>(CIW_EXIT_RECOLOUR1 + i)->SetShaded(!re.IsValid());
+	}
+	ResetSize();
 }
 
 void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
@@ -140,6 +206,25 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 	switch (wid_num) {
 		case CIW_TITLEBAR:
 			_str_params.SetUint8(1, (uint8 *)this->ci->name.get());
+			break;
+
+		case CIW_ENTRANCE_RECOLOUR1:
+			_str_params.SetStrID(1, _rides_manager.entrances[this->ci->entrance_type]->recolour_description_1);
+			break;
+		case CIW_ENTRANCE_RECOLOUR2:
+			_str_params.SetStrID(1, _rides_manager.entrances[this->ci->entrance_type]->recolour_description_2);
+			break;
+		case CIW_ENTRANCE_RECOLOUR3:
+			_str_params.SetStrID(1, _rides_manager.entrances[this->ci->entrance_type]->recolour_description_3);
+			break;
+		case CIW_EXIT_RECOLOUR1:
+			_str_params.SetStrID(1, _rides_manager.exits[this->ci->exit_type]->recolour_description_1);
+			break;
+		case CIW_EXIT_RECOLOUR2:
+			_str_params.SetStrID(1, _rides_manager.exits[this->ci->exit_type]->recolour_description_2);
+			break;
+		case CIW_EXIT_RECOLOUR3:
+			_str_params.SetStrID(1, _rides_manager.exits[this->ci->exit_type]->recolour_description_3);
 			break;
 	}
 }
@@ -157,11 +242,83 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 			break;
 
 		case CIW_CLOSE:
-		case CIW_TEST:
-		case CIW_OPEN:
-			this->SetCoasterStateForRadioButton(widget);
+			this->ci->CloseRide();
+			this->SetCoasterState();
 			break;
+		case CIW_TEST:
+			this->ci->TestRide();
+			this->SetCoasterState();
+			break;
+		case CIW_OPEN:
+			if (this->ci->CanOpenRide()) this->ci->OpenRide();
+			this->SetCoasterState();
+			break;
+
+		case CIW_ENTRANCE_RECOLOUR1:
+		case CIW_ENTRANCE_RECOLOUR2:
+		case CIW_ENTRANCE_RECOLOUR3: {
+			RecolourEntry *re = &this->ci->entrance_recolours.entries[widget - CIW_ENTRANCE_RECOLOUR1];
+			if (re->IsValid()) {
+				this->ShowRecolourDropdown(widget, re, COL_RANGE_DARK_RED);
+			}
+			break;
+		}
+		case CIW_EXIT_RECOLOUR1:
+		case CIW_EXIT_RECOLOUR2:
+		case CIW_EXIT_RECOLOUR3: {
+			RecolourEntry *re = &this->ci->exit_recolours.entries[widget - CIW_EXIT_RECOLOUR1];
+			if (re->IsValid()) {
+				this->ShowRecolourDropdown(widget, re, COL_RANGE_DARK_RED);
+			}
+			break;
+		}
+
+		case CIW_PLACE_ENTRANCE:
+			ChooseEntranceExitClicked(true);
+			break;
+		case CIW_PLACE_EXIT:
+			ChooseEntranceExitClicked(false);
+			break;
+
+		case CIW_CHOOSE_ENTRANCE: {
+			DropdownList itemlist;
+			for (int i = 0; _rides_manager.entrances[i] != nullptr; i++) {
+				_str_params.SetUint8(1, _language.GetText(_rides_manager.entrances[i]->name));
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(widget, itemlist, this->ci->entrance_type, COL_RANGE_DARK_RED);
+			break;
+		}
+		case CIW_CHOOSE_EXIT: {
+			DropdownList itemlist;
+			for (int i = 0; _rides_manager.exits[i] != nullptr; i++) {
+				_str_params.SetUint8(1, _language.GetText(_rides_manager.exits[i]->name));
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(widget, itemlist, this->ci->exit_type, COL_RANGE_DARK_RED);
+			break;
+		}
 	}
+}
+
+/**
+ * Called when the Choose Entrance or Choose Exit button was clicked.
+ * @param entrance Entrance or exit button.
+ */
+void CoasterInstanceWindow::ChooseEntranceExitClicked(const bool entrance)
+{
+	this->ci->temp_entrance_pos = XYZPoint16::invalid();
+	this->ci->temp_exit_pos = XYZPoint16::invalid();
+
+	if (this->selector == nullptr || (this->is_placing_entrance != entrance)) {
+		this->is_placing_entrance = entrance;
+		SetSelector(&entrance_exit_placement);
+	} else {
+		SetSelector(nullptr);
+	}
+
+	entrance_exit_placement.SetSize(0, 0);
+	entrance_exit_placement.MarkDirty();
 }
 
 /**
@@ -171,33 +328,14 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
  *
  * @param radio A radio button that was clicked by the user.
  */
-void CoasterInstanceWindow::SetCoasterStateForRadioButton(WidgetNumber radio)
+void CoasterInstanceWindow::SetCoasterState()
 {
-	switch (radio) {
-		case CIW_CLOSE:
-			this->ci->CloseRide();
-			break;
+	this->SetRadioChecked(CIW_CLOSE, this->ci->state == RIS_CLOSED);
+	this->SetRadioChecked(CIW_TEST, this->ci->state == RIS_TESTING);
+	this->SetRadioChecked(CIW_OPEN, this->ci->state == RIS_OPEN);
 
-		case CIW_TEST:
-			this->ci->TestRide();
-			break;
-
-		case CIW_OPEN:
-			/// \todo implement ride opening
-			break;
-
-		default:
-			NOT_REACHED();
-	}
-
-	this->SetRadioChecked(radio, true);
-
-	WidgetNumber radioButtons[] = { CIW_CLOSE, CIW_TEST, CIW_OPEN };
-	for(uint i = 0; i < lengthof(radioButtons); i++){
-		if(radioButtons[i] != radio){
-			this->SetRadioChecked(radioButtons[i], false);
-		}
-	}
+	this->GetWidget<LeafWidget>(CIW_OPEN)->SetShaded(!this->ci->CanOpenRide());
+	/* \todo Disable the Test button if the track is not closed. */
 }
 
 /**
@@ -212,6 +350,94 @@ void CoasterInstanceWindow::SetRadioChecked(WidgetNumber radio, bool checked)
 	this->MarkWidgetDirty(radio);
 }
 
+void CoasterInstanceWindow::OnChange(const ChangeCode code, const uint32 parameter)
+{
+	switch (code) {
+		case CHG_DISPLAY_OLD:
+			this->MarkDirty();
+			break;
+		case CHG_DROPDOWN_RESULT:
+			switch ((parameter >> 16) & 0xFF) {
+				case CIW_CHOOSE_ENTRANCE:
+					this->ci->SetEntranceType(parameter & 0xFF);
+					this->UpdateRecolourButtons();
+					break;
+				case CIW_CHOOSE_EXIT:
+					this->ci->SetExitType(parameter & 0xFF);
+					this->UpdateRecolourButtons();
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+{
+	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
+	const int8 dx = _orientation_signum_dx[vp->orientation];
+	const int8 dy = _orientation_signum_dy[vp->orientation];
+	entrance_exit_placement.MarkDirty();
+	bool placed = false;
+	for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {
+		const int dz = (z - (vp->view_pos.z / 256)) / 2;
+		const XYZPoint16 location(world_pos.x / 256 + dz * dx, world_pos.y / 256 + dz * dy, z);
+		if (!this->ci->CanPlaceEntranceOrExit(location, this->is_placing_entrance, nullptr)) continue;
+
+		if (this->is_placing_entrance) {
+			this->ci->temp_entrance_pos = location;
+		} else {
+			this->ci->temp_exit_pos = location;
+		}
+		this->entrance_exit_placement.SetSize(1, 1);
+		this->entrance_exit_placement.SetPosition(location.x, location.y);
+		this->entrance_exit_placement.AddVoxel(location);
+		this->entrance_exit_placement.SetupRideInfoSpace();
+		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS);
+		placed = true;
+		break;
+	}
+	if (!placed) {
+		if (this->is_placing_entrance) {
+			this->ci->temp_entrance_pos = XYZPoint16::invalid();
+		} else {
+			this->ci->temp_exit_pos = XYZPoint16::invalid();
+		}
+		entrance_exit_placement.SetSize(0, 0);
+	}
+	entrance_exit_placement.MarkDirty();
+}
+
+void CoasterInstanceWindow::SelectorMouseButtonEvent(const uint8 state)
+{
+	if (!IsLeftClick(state)) return;
+	if (entrance_exit_placement.area.width != 1 || entrance_exit_placement.area.height != 1) return;
+
+	if (this->ci->PlaceEntranceOrExit(this->is_placing_entrance ? this->ci->temp_entrance_pos : this->ci->temp_exit_pos, this->is_placing_entrance, nullptr)) {
+		this->ci->temp_entrance_pos = XYZPoint16::invalid();
+		this->ci->temp_exit_pos = XYZPoint16::invalid();
+		SetSelector(nullptr);
+
+		/* If the user is still in the process of building the ride, immediately prompt for the placement of another side-building as well. */
+		const bool need_entrance = this->ci->NeedsEntrance();
+		const bool need_exit = this->ci->NeedsExit();
+		if (this->is_placing_entrance && need_exit) {
+			/* After placing an entrance, preferably build an exit next. */
+			ChooseEntranceExitClicked(false);
+		} else if (!this->is_placing_entrance && need_entrance) {
+			/* After placing an exit, preferably build an entrance next. */
+			ChooseEntranceExitClicked(true);
+		} else if (need_entrance) {
+			ChooseEntranceExitClicked(true);
+		} else if (need_exit) {
+			ChooseEntranceExitClicked(false);
+		}
+	}
+}
+
 /**
  * Open a roller coaster management window for the given roller coaster ride.
  * @param coaster Coaster instance to display.
@@ -222,8 +448,22 @@ void ShowCoasterManagementGui(RideInstance *coaster)
 	CoasterInstance *ci = static_cast<CoasterInstance *>(coaster);
 	assert(ci != nullptr);
 
-	RideInstanceState ris = ci->DecideRideState();
-	if (ris == RIS_TESTING || ris == RIS_CLOSED || ris == RIS_OPEN) {
+	const int old_state = ci->state;
+	const int ris = ci->DecideRideState();
+	if (old_state != ris) {
+		switch (old_state) {
+			case RIS_OPEN:
+				ci->OpenRide();
+				break;
+			case RIS_TESTING:
+				ci->TestRide();
+				break;
+			default:
+				ci->CloseRide();
+				break;
+		}
+	}
+	if (ci->state == RIS_TESTING || ci->state == RIS_CLOSED || ci->state == RIS_OPEN) {
 		if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex())) return;
 
 		new CoasterInstanceWindow(ci);

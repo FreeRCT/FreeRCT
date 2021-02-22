@@ -183,6 +183,16 @@ public:
 	const PositionedTrackPiece *cur_piece; ///< Track piece that has the back-end position of the train.
 };
 
+/** A station belonging to a coaster. */
+struct CoasterStation {
+	CoasterStation();
+
+	std::vector<XYZPoint16> locations;  ///< Voxels occupied by the station.
+	TileEdge direction;                 ///< The start direction of the station's first tile.
+	XYZPoint16 entrance;                ///< Position of the station's entrance (may be \c invalid()).
+	XYZPoint16 exit;                    ///< Position of the station's exit (may be \c invalid()).
+};
+
 /**
  * A roller coaster in the world.
  * Since roller coaster rides need to be constructed by the user first, an instance can exist
@@ -209,13 +219,15 @@ public:
 
 	void TestRide();
 
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4]) const override;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
 	void RemoveAllPeople() override;
+	bool CanOpenRide() const override;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
 	bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const override;
+	const Recolouring *GetRecolours(const XYZPoint16 &pos) const override;
 
 	RideInstanceState DecideRideState();
 
@@ -227,6 +239,14 @@ public:
 	int FindSuccessorPiece(const XYZPoint16 &vox, uint8 entry_connect, int start = 0, int end = MAX_PLACED_TRACK_PIECES);
 	int FindSuccessorPiece(const PositionedTrackPiece &placed);
 	int FindPredecessorPiece(const PositionedTrackPiece &placed);
+	void UpdateStations();
+	bool CanPlaceEntranceOrExit(const XYZPoint16 &pos, bool entrance, const CoasterStation *station) const;
+	bool PlaceEntranceOrExit(const XYZPoint16 &pos, bool entrance, CoasterStation *station);
+	bool NeedsEntrance() const;
+	bool NeedsExit() const;
+	bool IsEntranceLocation(const XYZPoint16& pos) const override;
+	bool IsExitLocation(const XYZPoint16& pos) const override;
+	int EntranceExitRotation(const XYZPoint16& vox, const CoasterStation *station) const;
 
 	SmallRideInstance GetRideNumber() const;
 	uint16 GetInstanceData(const TrackVoxel *tv) const;
@@ -244,6 +264,8 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
+	void RemoveStationsFromWorld();
+	void InsertStationsIntoWorld();
 	void RemoveFromWorld() override;
 	void InsertIntoWorld() override {
 		/* This was already done during construction – nothing left to do here. */
@@ -254,6 +276,9 @@ public:
 	uint32 coaster_length;        ///< Total length of the roller coaster track (in 1/256 pixels).
 	CoasterTrain trains[4];       ///< Trains at the roller coaster (with an arbitrary max size). A train without cars means the train is not used.
 	const CarType *car_type;      ///< Type of cars running at the coaster.
+	std::vector<CoasterStation> stations;  ///< All stations of this coaster.
+	XYZPoint16 temp_entrance_pos;          ///< Temporary location of one of the ride's entrance while the user is moving the entrance.
+	XYZPoint16 temp_exit_pos;              ///< Temporary location of one of the ride's exit while the user is moving the exit.
 };
 
 bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites);
