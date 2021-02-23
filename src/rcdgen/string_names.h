@@ -199,6 +199,10 @@ static const char *_gui_string_names[] = {
 	"COASTER_BUILD_BANK_RIGHT_TOOLTIP",
 	"COASTER_BUILD_BUY_TOOLTIP",
 
+	/* Coaster management window. */
+	"COASTER_MANAGER_NUMBER_TRAINS",
+	"COASTER_MANAGER_NUMBER_CARS",
+
 	/* Entity remove button. */
 	"ENTITY_REMOVE",
 	"ENTITY_REMOVE_TOOLTIP",

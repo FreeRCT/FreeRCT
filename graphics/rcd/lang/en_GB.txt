@@ -191,6 +191,10 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selects track pieces that end with a banking to the right";
 		COASTER_BUILD_BUY_TOOLTIP:        "Click to buy the selected track piece";
 
+		// Coaster management strings.
+		COASTER_MANAGER_NUMBER_TRAINS:  "Trains: %1%";
+		COASTER_MANAGER_NUMBER_CARS:    "Cars: %1%";
+
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Remove";
 		ENTITY_REMOVE_TOOLTIP: "Remove this?";

@@ -83,6 +83,8 @@ enum CoasterInstanceWidgets {
 	CIW_EXIT_RECOLOUR1,      ///< First exit colour.
 	CIW_EXIT_RECOLOUR2,      ///< Second exit colour.
 	CIW_EXIT_RECOLOUR3,      ///< Third exit colour.
+	CIW_NUMBER_TRAINS,       ///< Number of trains dropdown.
+	CIW_NUMBER_CARS,       ///< Number of cars dropdown.
 };
 
 /** Widget parts of the #CoasterInstanceWindow. */
@@ -126,6 +128,11 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
 					SetResize(1, 0),
+
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(1, 2),
+				Widget(WT_DROPDOWN_BUTTON, CIW_NUMBER_CARS, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_NUMBER_CARS, STR_NULL),
+				Widget(WT_DROPDOWN_BUTTON, CIW_NUMBER_TRAINS, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_NUMBER_TRAINS, STR_NULL),
 
 		Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED),
 				SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
@@ -226,6 +233,13 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 		case CIW_EXIT_RECOLOUR3:
 			_str_params.SetStrID(1, _rides_manager.exits[this->ci->exit_type]->recolour_description_3);
 			break;
+
+		case CIW_NUMBER_TRAINS:
+			_str_params.SetNumber(1, this->ci->number_of_trains);
+			break;
+		case CIW_NUMBER_CARS:
+			_str_params.SetNumber(1, this->ci->cars_per_train);
+			break;
 	}
 }
 
@@ -298,6 +312,27 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 			this->ShowDropdownMenu(widget, itemlist, this->ci->exit_type, COL_RANGE_DARK_RED);
 			break;
 		}
+
+		case CIW_NUMBER_TRAINS: {
+			DropdownList itemlist;
+			const int max = this->ci->GetMaxNumberOfTrains(this->ci->cars_per_train);
+			for (int i = 1; i <= max; i++) {
+				_str_params.SetNumber(1, i);
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(widget, itemlist, this->ci->number_of_trains - 1, COL_RANGE_DARK_RED);
+			break;
+		}
+		case CIW_NUMBER_CARS: {
+			DropdownList itemlist;
+			const int max = this->ci->GetMaxNumberOfCars();
+			for (int i = 1; i <= max; i++) {
+				_str_params.SetNumber(1, i);
+				itemlist.push_back(DropdownItem(STR_ARG1));
+			}
+			this->ShowDropdownMenu(widget, itemlist, this->ci->cars_per_train - 1, COL_RANGE_DARK_RED);
+			break;
+		}
 	}
 }
 
@@ -336,6 +371,9 @@ void CoasterInstanceWindow::SetCoasterState()
 
 	this->GetWidget<LeafWidget>(CIW_OPEN)->SetShaded(!this->ci->CanOpenRide());
 	/* \todo Disable the Test button if the track is not closed. */
+
+	this->GetWidget<LeafWidget>(CIW_NUMBER_CARS)->SetShaded(this->ci->state != RIS_CLOSED);
+	this->GetWidget<LeafWidget>(CIW_NUMBER_TRAINS)->SetShaded(this->ci->state != RIS_CLOSED);
 }
 
 /**
@@ -365,6 +403,12 @@ void CoasterInstanceWindow::OnChange(const ChangeCode code, const uint32 paramet
 				case CIW_CHOOSE_EXIT:
 					this->ci->SetExitType(parameter & 0xFF);
 					this->UpdateRecolourButtons();
+					break;
+				case CIW_NUMBER_CARS:
+					this->ci->SetNumberOfCars((parameter & 0xFF) + 1 /* Counting from 1 on because there can not be 0 cars/trains. */);
+					break;
+				case CIW_NUMBER_TRAINS:
+					this->ci->SetNumberOfTrains((parameter & 0xFF) + 1);
 					break;
 				default:
 					break;
@@ -448,28 +492,19 @@ void ShowCoasterManagementGui(RideInstance *coaster)
 	CoasterInstance *ci = static_cast<CoasterInstance *>(coaster);
 	assert(ci != nullptr);
 
-	const int old_state = ci->state;
-	const int ris = ci->DecideRideState();
-	if (old_state != ris) {
-		switch (old_state) {
-			case RIS_OPEN:
-				ci->OpenRide();
-				break;
-			case RIS_TESTING:
-				ci->TestRide();
-				break;
-			default:
-				ci->CloseRide();
-				break;
-		}
-	}
-	if (ci->state == RIS_TESTING || ci->state == RIS_CLOSED || ci->state == RIS_OPEN) {
-		if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex())) return;
-
-		new CoasterInstanceWindow(ci);
+	if (!ci->MakePositionedPiecesLooping(nullptr)) {
+		assert(ci->state == RIS_BUILDING);
+		ShowCoasterBuildGui(ci);
 		return;
 	}
-	ShowCoasterBuildGui(ci);
+
+	/* Complete the construction process if necessary. */
+	if (ci->state == RIS_BUILDING) ci->CloseRide();
+	if (ci->cars_per_train < 1) ci->SetNumberOfCars(ci->GetMaxNumberOfCars());
+	if (ci->number_of_trains < 1) ci->SetNumberOfTrains(ci->GetMaxNumberOfTrains(ci->cars_per_train));
+
+	if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex())) return;
+	new CoasterInstanceWindow(ci);
 }
 
 /** Mouse selector for building/selecting new track pieces. */

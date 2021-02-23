@@ -181,6 +181,7 @@ public:
 	uint32 back_position;                  ///< Position of the back-end of the train (in 1/256 pixels).
 	int32 speed;                           ///< Amount of forward motion / millisecond, in 1/256 pixels.
 	const PositionedTrackPiece *cur_piece; ///< Track piece that has the back-end position of the train.
+	bool halt;                             ///< The train is frozen in place until this is \c false.
 };
 
 /** A station belonging to a coaster. */
@@ -189,6 +190,7 @@ struct CoasterStation {
 
 	std::vector<XYZPoint16> locations;  ///< Voxels occupied by the station.
 	TileEdge direction;                 ///< The start direction of the station's first tile.
+	uint32 length;                      ///< The station's length in pixels.
 	XYZPoint16 entrance;                ///< Position of the station's entrance (may be \c invalid()).
 	XYZPoint16 exit;                    ///< Position of the station's exit (may be \c invalid()).
 };
@@ -218,6 +220,7 @@ public:
 	}
 
 	void TestRide();
+	void OpenRide() override;
 
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
@@ -228,8 +231,6 @@ public:
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
 	bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const override;
 	const Recolouring *GetRecolours(const XYZPoint16 &pos) const override;
-
-	RideInstanceState DecideRideState();
 
 	bool MakePositionedPiecesLooping(bool *modified);
 	int GetFirstPlacedTrackPiece() const;
@@ -253,13 +254,14 @@ public:
 	void PlaceTrackPieceInWorld(const PositionedTrackPiece &piece);
 	void RemoveTrackPieceInWorld(const PositionedTrackPiece &piece);
 
-	int GetMaxNumberOfTrains() const;
-	void SetNumberOfTrains(int number_trains);
-	int GetNumberOfTrains() const;
-
+	uint32 GetShortestStation() const;
+	uint32 GetTrainLength(int cars_per_train) const;
+	uint32 GetTrainSpacing() const;
+	int GetMaxNumberOfTrains(int cars_per_train) const;
 	int GetMaxNumberOfCars() const;
+	void SetNumberOfTrains(int number_trains);
 	void SetNumberOfCars(int number_cars);
-	int GetNumberOfCars() const;
+	void ReinitializeTrains(bool halt);
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -274,7 +276,9 @@ public:
 	PositionedTrackPiece *pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
 	uint32 coaster_length;        ///< Total length of the roller coaster track (in 1/256 pixels).
-	CoasterTrain trains[4];       ///< Trains at the roller coaster (with an arbitrary max size). A train without cars means the train is not used.
+	int number_of_trains;         ///< Current number of trains.
+	int cars_per_train;           ///< Current number of cars in each train.
+	CoasterTrain trains[12];      ///< Trains at the roller coaster (with an arbitrary max size). A train without cars means the train is not used.
 	const CarType *car_type;      ///< Type of cars running at the coaster.
 	std::vector<CoasterStation> stations;  ///< All stations of this coaster.
 	XYZPoint16 temp_entrance_pos;          ///< Temporary location of one of the ride's entrance while the user is moving the entrance.
