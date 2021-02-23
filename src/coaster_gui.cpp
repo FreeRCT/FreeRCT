@@ -404,11 +404,13 @@ void CoasterInstanceWindow::OnChange(const ChangeCode code, const uint32 paramet
 					this->ci->SetExitType(parameter & 0xFF);
 					this->UpdateRecolourButtons();
 					break;
-				case CIW_NUMBER_CARS:
-					this->ci->SetNumberOfCars((parameter & 0xFF) + 1 /* Counting from 1 on because there can not be 0 cars/trains. */);
-					break;
 				case CIW_NUMBER_TRAINS:
-					this->ci->SetNumberOfTrains((parameter & 0xFF) + 1);
+					this->ci->SetNumberOfTrains((parameter & 0xFF) + 1 /* Counting from 1 on because there can not be 0 cars/trains. */);
+					break;
+				case CIW_NUMBER_CARS:
+					this->ci->SetNumberOfCars((parameter & 0xFF) + 1);
+					/* This also updates the positions of all trains in case the train length changed. */
+					this->ci->SetNumberOfTrains(std::min(this->ci->number_of_trains, this->ci->GetMaxNumberOfTrains(this->ci->number_of_trains)));
 					break;
 				default:
 					break;

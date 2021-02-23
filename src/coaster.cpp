@@ -310,22 +310,16 @@ CoasterTrain::CoasterTrain()
  * Change the length of the train.
  * @param length New length of the train.
  */
-void CoasterTrain::SetLength(int length)
+void CoasterTrain::SetLength(const int length)
 {
-	if (length > static_cast<int>(this->cars.size())) {
-		this->cars.resize(length);
-		for (auto &car : this->cars) {
-			car.front.car_type = this->coaster->car_type;
-			car.back.car_type = this->coaster->car_type;
-		}
-		return;
-	} else if (length < static_cast<int>(this->cars.size())) {
-		CoasterCar *car = &this->cars[length];
-		for (uint idx = length; idx < this->cars.size(); idx++) {
-			car->PreRemove();
-			car++;
-		}
-		this->cars.resize(length);
+	for (CoasterCar &car : this->cars) {
+		car.PreRemove();
+	}
+	this->cars.clear();
+	this->cars.resize(length);
+	for (CoasterCar &car : this->cars) {
+		car.front.car_type = this->coaster->car_type;
+		car.back.car_type = this->coaster->car_type;
 	}
 }
 
@@ -636,19 +630,6 @@ void CoasterInstance::OnAnimate(int delay)
 		CoasterTrain &train = this->trains[i];
 		if (train.cars.size() == 0) break;
 		train.OnAnimate(delay);
-	}
-}
-
-/**
- * Reset all trains to their initial positions in the station.
- * @param halt Whether to force-pause the trains there.
- */
-void CoasterInstance::ReinitializeTrains(const bool halt)
-{
-	this->SetNumberOfCars(this->cars_per_train);
-	this->SetNumberOfTrains(this->number_of_trains);
-	for (int i = 0; i < this->number_of_trains; i++) {
-		this->trains[i].halt = halt;
 	}
 }
 
@@ -1041,7 +1022,10 @@ void CoasterInstance::RemoveTrackPieceInWorld(const PositionedTrackPiece &placed
 	}
 }
 
-// NOCOM doc
+/**
+ * Find the length of the ride's shortest station.
+ * @return Shortest station length in pixels.
+ */
 uint32 CoasterInstance::GetShortestStation() const
 {
 	if (this->stations.empty()) return 0;
@@ -1050,29 +1034,43 @@ uint32 CoasterInstance::GetShortestStation() const
 	return l;
 }
 
-// NOCOM doc
-uint32 CoasterInstance::GetTrainLength(const int cars_per_train) const
+/**
+ * Determine the length of a train with the given number of cars.
+ * @param cars Number of cars in the train.
+ * @return Train length in pixels.
+ */
+uint32 CoasterInstance::GetTrainLength(const int cars) const
 {
-	return cars_per_train > 0 ? (cars_per_train * this->car_type->car_length / 256 + (cars_per_train - 1) * this->car_type->inter_car_length / 256) : 0;
+	return cars > 0 ? (cars * this->car_type->car_length / 256 + (cars - 1) * this->car_type->inter_car_length / 256) : 0;
 }
 
-// NOCOM doc
+/**
+ * Decide the minimum spacing between two trains in a station.
+ * @return Spacing in pixels.
+ */
 uint32 CoasterInstance::GetTrainSpacing() const
 {
 	return this->car_type->car_length / 256;
 }
 
-// NOCOM doc
-int CoasterInstance::GetMaxNumberOfTrains(const int cars_per_train) const
+/**
+ * Determine how many trains of the given size this ride can own at most.
+ * @param cars Number of cars in each train.
+ * @return Maximum number of trains allowed.
+ */
+int CoasterInstance::GetMaxNumberOfTrains(const int cars) const
 {
-	if (cars_per_train < 1) return 0;
-	if (cars_per_train > GetMaxNumberOfCars()) return 0;
+	if (cars < 1) return 0;
+	if (cars > GetMaxNumberOfCars()) return 0;
 	return std::max(1, std::min<int>(
-		this->GetShortestStation() / (this->GetTrainLength(cars_per_train) + this->GetTrainSpacing()),
+		this->GetShortestStation() / (this->GetTrainLength(cars) + this->GetTrainSpacing()),
 		this->GetCoasterType()->max_number_trains));
 }
 
-// NOCOM doc
+/**
+ * Determine how many cars each train in this ride can own at most.
+ * @return Maximum number of cars per train allowed.
+ */
 int CoasterInstance::GetMaxNumberOfCars() const
 {
 	const uint32 shortest_station = this->GetShortestStation();
@@ -1082,12 +1080,27 @@ int CoasterInstance::GetMaxNumberOfCars() const
 	NOT_REACHED();
 }
 
-// NOCOM doc
+/**
+ * Change the number of cars in this ride's trains. Does not update the positions of the trains.
+ * @param number_cars Number of cars in each train.
+ * @pre This should not be done while the ride is running.
+ */
+void CoasterInstance::SetNumberOfCars(const int number_cars)
+{
+	this->cars_per_train = number_cars;
+	for (int i = 0; i < this->number_of_trains; i++) {
+		this->trains[i].SetLength(this->cars_per_train);
+	}
+}
+
+/**
+ * Change the number of trains in this ride's trains, and move all trains to their initial positions inside the first station.
+ * @param number_trains Number of trains.
+ * @pre This should not be done while the ride is running.
+ */
 void CoasterInstance::SetNumberOfTrains(const int number_trains)
 {
-	assert(this->state == RIS_CLOSED || number_trains == 0);
 	this->number_of_trains = number_trains;
-
 	PositionedTrackPiece *location = this->pieces;
 	uint32 back_position = 0;
 	uint32 back_position_in_piece = 0;
@@ -1109,16 +1122,20 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 		} else {
 			train.SetLength(0);
 		}
+		train.OnAnimate(0);
 	}
 }
 
-// NOCOM doc
-void CoasterInstance::SetNumberOfCars(const int number_cars)
+/**
+ * Reset all trains to their initial positions in the station.
+ * @param halt Whether to force-pause the trains there.
+ */
+void CoasterInstance::ReinitializeTrains(const bool halt)
 {
-	assert(this->state == RIS_CLOSED || this->number_of_trains == 0);
-	this->cars_per_train = number_cars;
+	this->SetNumberOfCars(this->cars_per_train);
+	this->SetNumberOfTrains(this->number_of_trains);  // This takes care of actually moving the trains to the correct positions.
 	for (int i = 0; i < this->number_of_trains; i++) {
-		this->trains[i].SetLength(this->cars_per_train);
+		this->trains[i].halt = halt;
 	}
 }
 
