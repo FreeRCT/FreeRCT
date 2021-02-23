@@ -422,29 +422,6 @@ void CoasterTrain::OnAnimate(int delay)
 
 		/** \todo Air and rail friction */
 
-		if (this->speed < 65536 / 1000) {
-			uint32 indexed_car_position = this->back_position;
-			const PositionedTrackPiece *indexed_car_piece = this->cur_piece;
-			int car_index = i;
-
-			do {
-				if (indexed_car_piece->piece->HasPower() || indexed_car_piece->piece->HasPlatform()) {
-					this->speed = 65536 / 1000;
-					break;
-				}
-
-				if (indexed_car_position >= this->coaster->coaster_length) {
-					indexed_car_position -= this->coaster->coaster_length;
-					indexed_car_piece = this->coaster->pieces;
-				} else {
-					indexed_car_piece++;
-					indexed_car_position += (car_length + this->coaster->car_type->inter_car_length);
-				}
-
-				car_index--;
-			} while (car_index >= 0);
-		}
-
 		/* Unroll the orientation vector. */
 		Unroll(roll, &yder, &zder);
 		float horizontal_speed = std::hypot(xder, yder);
@@ -538,6 +515,32 @@ void CoasterTrain::OnAnimate(int delay)
 		car.back.Set (back,  back_pix,  pitch, roll, yaw);
 		car.front.Set(front, front_pix, pitch, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
+	}
+
+	if (delay <= 0) return;
+	bool has_platform = false, has_power = false;
+	uint32 indexed_car_position = this->back_position;
+	const PositionedTrackPiece *indexed_car_piece = this->cur_piece;
+	int car_index = cars.size();
+	do {
+		car_index--;
+		if (indexed_car_piece->piece->HasPlatform()) {
+			has_platform = true;
+			break;
+		}
+		has_power |= indexed_car_piece->piece->HasPower();
+		indexed_car_position += (car_length + this->coaster->car_type->inter_car_length);
+		if (indexed_car_position >= this->coaster->coaster_length) {
+			indexed_car_position -= this->coaster->coaster_length;
+			indexed_car_piece = this->coaster->pieces;
+		}
+		while (indexed_car_piece->distance_base + indexed_car_piece->piece->piece_length < indexed_car_position) {
+			indexed_car_piece++;
+		}
+	} while (car_index > 0);
+	/* Powered tiles speed the car up if it is slow; station tiles set a fixed speed. */
+	if (has_platform || (has_power && this->speed < 65536 / 1000)) {
+		this->speed -= std::min<int32>(delay, std::max<int32>(-delay, this->speed - 65536 / 1000));
 	}
 }
 
