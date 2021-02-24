@@ -482,6 +482,7 @@ void CoasterInstanceWindow::SelectorMouseButtonEvent(const uint8 state)
 		} else if (need_exit) {
 			ChooseEntranceExitClicked(false);
 		}
+		SetCoasterState();
 	}
 }
 
@@ -506,7 +507,11 @@ void ShowCoasterManagementGui(RideInstance *coaster)
 	if (ci->cars_per_train < 1) ci->SetNumberOfCars(ci->GetMaxNumberOfCars());
 	if (ci->number_of_trains < 1) ci->SetNumberOfTrains(ci->GetMaxNumberOfTrains(ci->cars_per_train));
 
-	if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex())) return;
+	Window *w;
+	if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex(), &w)) {
+		static_cast<CoasterInstanceWindow*>(w)->SetCoasterState();
+		return;
+	}
 	new CoasterInstanceWindow(ci);
 }
 

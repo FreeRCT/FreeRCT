@@ -184,7 +184,7 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	const CoasterInstance *coaster;        ///< Roller coaster owning the train.
+	CoasterInstance *coaster;              ///< Roller coaster owning the train.
 	std::vector<CoasterCar> cars;          ///< Cars in the train. \c 0 means the train is not used.
 	uint32 back_position;                  ///< Position of the back-end of the train (in 1/256 pixels).
 	int32 speed;                           ///< Amount of forward motion / millisecond, in 1/256 pixels.
@@ -271,6 +271,7 @@ public:
 	void SetNumberOfTrains(int number_trains);
 	void SetNumberOfCars(int number_cars);
 	void ReinitializeTrains(bool test_mode);
+	void Crash(CoasterTrain *t1, CoasterTrain *t2);
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);

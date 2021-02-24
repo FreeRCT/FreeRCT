@@ -1143,15 +1143,17 @@ void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint
  * Highlight and raise a window of a given type.
  * @param wtype %Window type to look for.
  * @param wnumber %Window number to look for (use #ALL_WINDOWS_OF_TYPE for any window of type \a wtype).
+ * @param window [out] If the return value is \c true, this will point to the highlighted window.
  * @return A window has been highlighted and raised.
  * @ingroup window_group
  */
-bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber)
+bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber, Window **window)
 {
 	Window *w = GetWindowByType(wtype, wnumber);
 	if (w != nullptr) {
 		_window_manager.RaiseWindow(w);
 		w->SetHighlight(true);
+		if (window != nullptr) *window = w;
 	}
 
 	return w != nullptr;

@@ -461,7 +461,7 @@ inline void GuiWindow::SetSelector(MouseModeSelector *selector)
 bool IsLeftClick(uint8 state);
 
 Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber);
-bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber);
+bool HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber, Window **window = nullptr);
 void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter);
 
 class RideInstance;

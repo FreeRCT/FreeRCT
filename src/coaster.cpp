@@ -559,22 +559,25 @@ void CoasterTrain::OnAnimate(int delay)
 		const int32 max_speed_change = delay;  // Determines how quickly trains accelerate and brake.
 		this->speed -= std::min<int32>(max_speed_change, std::max<int32>(-max_speed_change, this->speed - 65536 / 1000));
 	}
+
+	bool other_train_in_front = false;
+	for (CoasterTrain &train : this->coaster->trains) {
+		if (&train == this || train.cars.empty() || this->back_position > train.back_position) continue;
+		if (delay > 0 && indexed_car_position > train.back_position) {
+			this->coaster->Crash(this, &train);
+			return;
+		}
+		other_train_in_front |= (indexed_car_position + 256 * this->coaster->GetTrainSpacing() > train.back_position);
+	}
+
 	if (!has_platform && this->station_policy == TSP_LEAVING_STATION) this->station_policy = TSP_NO_STATION;
 	if (this->station_policy == TSP_ENTERING_STATION || this->station_policy == TSP_IN_STATION) {
 		if (!front_is_in_station && this->time_left_waiting <= 0) {
 			this->station_policy = TSP_LEAVING_STATION;
+		} else if (front_is_in_station && !other_train_in_front) {
+			this->station_policy = TSP_ENTERING_STATION;
 		} else {
-			bool can_continue_in_station = front_is_in_station;
-			if (can_continue_in_station) {
-				for (const CoasterTrain &train : this->coaster->trains) {
-					if (&train == this || train.cars.empty()) continue;
-					if (this->back_position < train.back_position && indexed_car_position + 256 * this->coaster->GetTrainSpacing() > train.back_position) {
-						can_continue_in_station = false;
-						break;
-					}
-				}
-			}
-			this->station_policy = can_continue_in_station ? TSP_ENTERING_STATION : TSP_IN_STATION;
+			this->station_policy = TSP_IN_STATION;
 		}
 	}
 }
@@ -1179,6 +1182,22 @@ void CoasterInstance::ReinitializeTrains(const bool test_mode)
 		this->trains[i].station_policy = TSP_ENTERING_STATION;
 		this->trains[i].time_left_waiting = test_mode ? TRAIN_DEPARTURE_INTERVAL_TESTING : TRAIN_DEPARTURE_INTERVAL;
 	}
+}
+
+/**
+ * A train of this coaster crashed.
+ * @param t1 The train that crashed.
+ * @param t2 The train with which the first train collided. May be \c nullptr if no second train is involved.
+ */
+void CoasterInstance::Crash(CoasterTrain *t1, CoasterTrain *t2)
+{
+	// NOCOM let all people in the crashing trains die
+
+	this->CloseRide();
+	this->breakdown_state = BDS_BROKEN;
+	/* \todo Display animation of a big ball of fire. */
+	/* \todo Decrease ride excitement rating and park rating. */
+	ShowCoasterManagementGui(this);  // Inform the player. \todo Show a message "Coaster X crashed, N people died."
 }
 
 bool CoasterInstance::CanOpenRide() const
