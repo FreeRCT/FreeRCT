@@ -300,6 +300,6 @@ void RideSelectGui::SetNewRide(int number)
  */
 void ShowRideSelectGui()
 {
-	if (HighlightWindowByType(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)) return;
+	if (HighlightWindowByType(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE) != nullptr) return;
 	new RideSelectGui;
 }

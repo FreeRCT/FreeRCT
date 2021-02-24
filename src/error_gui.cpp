@@ -69,6 +69,6 @@ void ErrorMessageWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
  */
 void ShowErrorMessage(StringID strid)
 {
-	if (HighlightWindowByType(WC_ERROR_MESSAGE, strid)) return;
+	if (HighlightWindowByType(WC_ERROR_MESSAGE, strid) != nullptr) return;
 	new ErrorMessageWindow(strid);
 }

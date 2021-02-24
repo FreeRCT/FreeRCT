@@ -414,7 +414,7 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
  */
 void ShowRideBuildGui(RideInstance *ri)
 {
-	if (HighlightWindowByType(WC_RIDE_BUILD, ri->GetIndex())) return;
+	if (HighlightWindowByType(WC_RIDE_BUILD, ri->GetIndex()) != nullptr) return;
 
 	new RideBuildWindow(ri);
 }

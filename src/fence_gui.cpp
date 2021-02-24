@@ -260,6 +260,6 @@ void FenceGui::SelectorMouseButtonEvent(uint8 state)
  */
 void ShowFenceGui()
 {
-	if (HighlightWindowByType(WC_FENCE, ALL_WINDOWS_OF_TYPE)) return;
+	if (HighlightWindowByType(WC_FENCE, ALL_WINDOWS_OF_TYPE) != nullptr) return;
 	new FenceGui;
 }

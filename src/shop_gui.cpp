@@ -57,7 +57,7 @@ void ShopRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
  */
 void ShowShopRemove(ShopInstance *si)
 {
-	if (HighlightWindowByType(WC_SHOP_REMOVE, si->GetIndex())) return;
+	if (HighlightWindowByType(WC_SHOP_REMOVE, si->GetIndex()) != nullptr) return;
 
 	new ShopRemoveWindow(si);
 }
@@ -290,7 +290,7 @@ void ShopManagerWindow::OnChange(ChangeCode code, uint32 parameter)
  */
 void ShowShopManagementGui(uint16 number)
 {
-	if (HighlightWindowByType(WC_SHOP_MANAGER, number)) return;
+	if (HighlightWindowByType(WC_SHOP_MANAGER, number) != nullptr) return;
 
 	RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == nullptr || ri->GetKind() != RTK_SHOP) return;

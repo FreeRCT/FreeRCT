@@ -259,6 +259,6 @@ void TerraformGui::DecreaseSize()
 /** Open the terraform window (or if it is already opened, highlight and raise it). */
 void ShowTerraformGui()
 {
-	if (HighlightWindowByType(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)) return;
+	if (HighlightWindowByType(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE) != nullptr) return;
 	new TerraformGui;
 }

@@ -60,7 +60,7 @@ void CoasterRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
  */
 void ShowCoasterRemove(CoasterInstance *ci)
 {
-	if (HighlightWindowByType(WC_COASTER_REMOVE, ci->GetIndex())) return;
+	if (HighlightWindowByType(WC_COASTER_REMOVE, ci->GetIndex()) != nullptr) return;
 
 	new CoasterRemoveWindow(ci);
 }
@@ -504,8 +504,8 @@ void ShowCoasterManagementGui(RideInstance *coaster)
 	if (ci->cars_per_train < 1) ci->SetNumberOfCars(ci->GetMaxNumberOfCars());
 	if (ci->number_of_trains < 1) ci->SetNumberOfTrains(ci->GetMaxNumberOfTrains(ci->cars_per_train));
 
-	Window *w;
-	if (HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex(), &w)) {
+	Window *w = HighlightWindowByType(WC_COASTER_MANAGER, coaster->GetIndex());
+	if (w != nullptr) {
 		static_cast<CoasterInstanceWindow*>(w)->SetCoasterState();
 		return;
 	}
@@ -1132,7 +1132,7 @@ void CoasterBuildWindow::UpdateSelectedPiece()
 void ShowCoasterBuildGui(CoasterInstance *coaster)
 {
 	if (coaster->GetKind() != RTK_COASTER) return;
-	if (HighlightWindowByType(WC_COASTER_BUILD, coaster->GetIndex())) return;
+	if (HighlightWindowByType(WC_COASTER_BUILD, coaster->GetIndex()) != nullptr) return;
 
 	new CoasterBuildWindow(coaster);
 }

@@ -852,6 +852,6 @@ void PathBuildGui::OnChange(ChangeCode code, uint32 parameter)
  */
 void ShowPathBuildGui()
 {
-	if (HighlightWindowByType(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)) return;
+	if (HighlightWindowByType(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE) != nullptr) return;
 	new PathBuildGui;
 }
