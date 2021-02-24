@@ -1310,7 +1310,7 @@ AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
 		/* All lights are green, let's try to enter the ride. */
 		this->activity = GA_ON_RIDE;
 		this->ride = ri;
-		const RideEntryResult rer = ri->EnterRide(this->id, exit_edge);
+		const RideEntryResult rer = ri->EnterRide(this->id, this->vox_pos, exit_edge);
 		if (rer == RER_WAIT) {
 			this->activity = GA_QUEUING;
 			return OAR_HALT;

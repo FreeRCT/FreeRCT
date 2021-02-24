@@ -13,7 +13,7 @@
 #include <map>
 #include <vector>
 #include "map.h"
-#include "ride_type.h"
+#include "person.h"
 #include "track_piece.h"
 
 static const int MAX_PLACED_TRACK_PIECES = 1024; ///< Maximum number of track pieces in a single roller coaster.
@@ -135,27 +135,14 @@ public:
 /** Coaster car drawn at the front and the back position. */
 class CoasterCar {
 public:
-	DisplayCoasterCar front; ///< %Voxel image displayed at the front of the car.
-	DisplayCoasterCar back;  ///< %Voxel image displayed at the end of the car.
+	DisplayCoasterCar front;     ///< %Voxel image displayed at the front of the car.
+	DisplayCoasterCar back;      ///< %Voxel image displayed at the end of the car.
+	std::vector<Guest*> guests;  ///< Guests currently in the car.
 
-	/** Car is about to be removed from the train, clean up if necessary. */
-	void PreRemove()
-	{
-		this->front.PreRemove();
-		this->back.PreRemove();
-	}
+	void PreRemove();
 
-	void Load(Loader &ldr)
-	{
-		this->front.Load(ldr);
-		this->back.Load(ldr);
-	}
-
-	void Save(Saver &svr)
-	{
-		this->front.Save(svr);
-		this->back.Save(svr);
-	}
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
 };
 
 /** How a coaster train is behaving in regard to a station. */
@@ -200,6 +187,7 @@ struct CoasterStation {
 	std::vector<XYZPoint16> locations;  ///< Voxels occupied by the station.
 	TileEdge direction;                 ///< The start direction of the station's first tile.
 	uint32 length;                      ///< The station's length in pixels.
+	uint32 back_position;               ///< Position of the begin of the station in 1/256 pixels.
 	XYZPoint16 entrance;                ///< Position of the station's entrance (may be \c invalid()).
 	XYZPoint16 exit;                    ///< Position of the station's exit (may be \c invalid()).
 };
@@ -233,13 +221,14 @@ public:
 
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
-	RideEntryResult EnterRide(int guest, TileEdge entry) override;
+	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
 	void RemoveAllPeople() override;
 	bool CanOpenRide() const override;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
 	bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const override;
 	const Recolouring *GetRecolours(const XYZPoint16 &pos) const override;
+	void InitializeItemPricesAndStatistics() override;
 
 	bool MakePositionedPiecesLooping(bool *modified);
 	int GetFirstPlacedTrackPiece() const;

@@ -41,7 +41,7 @@ public:
 
 	void SetRide(uint8 orientation, const XYZPoint16 &pos) override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
-	RideEntryResult EnterRide(int guest, TileEdge entry) override;
+	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
 
 	void Load(Loader &ldr) override;

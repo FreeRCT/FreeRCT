@@ -170,8 +170,9 @@ uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) con
 	return (vox == this->entrance_pos || vox == this->exit_pos) ? 1 << EntranceExitRotation(vox) : SHF_ENTRANCE_NONE;
 }
 
-RideEntryResult GentleThrillRideInstance::EnterRide(int guest, TileEdge entry)
+RideEntryResult GentleThrillRideInstance::EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry)
 {
+	assert(vox == this->entrance_pos);
 	if (_guests.Get(guest)->cash < GetSaleItemPrice(0)) return RER_REFUSED;
 	const int b = onride_guests.GetLoadingBatch();
 	return (b >= 0 && this->onride_guests.batches[b].AddGuest(guest, entry)) ? RER_ENTERED : RER_WAIT;
