@@ -24,6 +24,9 @@ CoasterPlatform _coaster_platforms[CPT_COUNT]; ///< Sprites for the coaster plat
 static CarType _car_types[16]; ///< Car types available to the program (arbitrary limit).
 static uint _used_types = 0;   ///< First free car type in #_car_types.
 
+static const int32 TRAIN_DEPARTURE_INTERVAL = 30000;        ///< How many milliseconds a train should wait in the station. \todo Make this user-configurable.
+static const int32 TRAIN_DEPARTURE_INTERVAL_TESTING = 3000; ///< How many milliseconds a train should wait in the station in test mode.
+
 static const uint16 ENTRANCE_OR_EXIT = INT16_MAX;  ///< Indicates that a voxel belongs to an entrance or exit.
 
 /**
@@ -104,7 +107,7 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	if (this->platform_type == 0 || this->platform_type >= CPT_COUNT) return false;
 
 	this->item_type[0] = ITP_RIDE;
-	this->item_cost[0] = 100;  // Entrance fee. NOCOM read from RCD.
+	this->item_cost[0] = 100;  // Entrance fee. \todo Read this from the RCD file.
 	this->item_cost[1] = 0;    // Unused.
 
 	TextData *text_data;
@@ -329,9 +332,6 @@ void CoasterCar::PreRemove()
 	this->front.PreRemove();
 	this->back.PreRemove();
 }
-
-static const int32 TRAIN_DEPARTURE_INTERVAL = 30000; ///< How many milliseconds a train should wait in the station. NOCOM Make this user-configurable.
-static const int32 TRAIN_DEPARTURE_INTERVAL_TESTING = 3000; ///< How many milliseconds a train should wait in the station in test mode.
 
 CoasterTrain::CoasterTrain()
 {
@@ -877,7 +877,7 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 		auto it = free_slots.begin();
 		std::advance(it, r.Uniform(free_slots.size() - 1));
 		it->first->guests[it->second] = guest;
-		if (free_slots.size() == 1) loading_train->time_left_waiting = 0;  // NOCOM consider minimum waiting time
+		if (free_slots.size() == 1) loading_train->time_left_waiting = 0;  // \todo Allow defining a minimum waiting time.
 		return RER_ENTERED;
 	}
 	NOT_REACHED();

@@ -84,7 +84,7 @@ enum CoasterInstanceWidgets {
 	CIW_EXIT_RECOLOUR2,      ///< Second exit colour.
 	CIW_EXIT_RECOLOUR3,      ///< Third exit colour.
 	CIW_NUMBER_TRAINS,       ///< Number of trains dropdown.
-	CIW_NUMBER_CARS,       ///< Number of cars dropdown.
+	CIW_NUMBER_CARS,         ///< Number of cars dropdown.
 };
 
 /** Widget parts of the #CoasterInstanceWindow. */
@@ -253,7 +253,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CIW_EDIT:
 			this->ci->CloseRide();
 			ShowCoasterBuildGui(this->ci);
-			delete this;  // Allowing the user to change ride settings while the coaster is under construction can cause all sorts of nasty crashes.
+			delete this;  // The user must not change ride settings while the coaster is under construction.
 			break;
 
 		case CIW_CLOSE:
@@ -369,10 +369,7 @@ void CoasterInstanceWindow::SetCoasterState()
 	this->SetRadioChecked(CIW_CLOSE, this->ci->state == RIS_CLOSED);
 	this->SetRadioChecked(CIW_TEST, this->ci->state == RIS_TESTING);
 	this->SetRadioChecked(CIW_OPEN, this->ci->state == RIS_OPEN);
-
 	this->GetWidget<LeafWidget>(CIW_OPEN)->SetShaded(!this->ci->CanOpenRide());
-	/* \todo Disable the Test button if the track is not closed. */
-
 	this->GetWidget<LeafWidget>(CIW_NUMBER_CARS)->SetShaded(this->ci->state != RIS_CLOSED);
 	this->GetWidget<LeafWidget>(CIW_NUMBER_TRAINS)->SetShaded(this->ci->state != RIS_CLOSED);
 }

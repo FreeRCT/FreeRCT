@@ -176,8 +176,8 @@ public:
 	uint32 back_position;                  ///< Position of the back-end of the train (in 1/256 pixels).
 	int32 speed;                           ///< Amount of forward motion / millisecond, in 1/256 pixels.
 	const PositionedTrackPiece *cur_piece; ///< Track piece that has the back-end position of the train.
-	TrainStationPolicy station_policy;     ///< The train is supposed to stop when reaching the front of the station.
-	int32 time_left_waiting;               ///< The number of milliseconds this train should still wait in a station before departing.
+	TrainStationPolicy station_policy;     ///< The train's behaviour regarding stations.
+	int32 time_left_waiting;               ///< The number of milliseconds left this train should wait in a station before departing.
 };
 
 /** A station belonging to a coaster. */
@@ -277,7 +277,7 @@ public:
 	uint32 coaster_length;        ///< Total length of the roller coaster track (in 1/256 pixels).
 	int number_of_trains;         ///< Current number of trains.
 	int cars_per_train;           ///< Current number of cars in each train.
-	CoasterTrain trains[12];      ///< Trains at the roller coaster (with an arbitrary max size). A train without cars means the train is not used.
+	CoasterTrain trains[4];       ///< Trains at the roller coaster (with an arbitrary max size). A train without cars means the train is not used.
 	const CarType *car_type;      ///< Type of cars running at the coaster.
 	std::vector<CoasterStation> stations;  ///< All stations of this coaster.
 	XYZPoint16 temp_entrance_pos;          ///< Temporary location of one of the ride's entrance while the user is moving the entrance.

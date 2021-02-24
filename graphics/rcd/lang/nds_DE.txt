@@ -191,6 +191,10 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Spoordelen mit Schüünte na rechts utkören";
 		COASTER_BUILD_BUY_TOOLTIP:        "Klick, um dat utköört Spoordeel to kopen";
 
+		// Coaster management strings.
+		COASTER_MANAGER_NUMBER_TRAINS:  "Zügen: %1%";
+		COASTER_MANAGER_NUMBER_CARS:    "Wagens: %1%";
+
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Ofrieten";
 		ENTITY_REMOVE_TOOLTIP: "Dat hier ofrieten?";
