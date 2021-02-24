@@ -253,6 +253,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CIW_EDIT:
 			this->ci->CloseRide();
 			ShowCoasterBuildGui(this->ci);
+			delete this;  // Allowing the user to change ride settings while the coaster is under construction can cause all sorts of nasty crashes.
 			break;
 
 		case CIW_CLOSE:

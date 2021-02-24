@@ -297,12 +297,16 @@ void DisplayCoasterCar::Save(Saver &svr)
 	svr.PutByte(this->yaw);
 }
 
+static const int32 TRAIN_DEPARTURE_INTERVAL = 10000; ///< How many milliseconds a train should wait in the station. \todo Make this user-configurable.
+static const int32 TRAIN_DEPARTURE_INTERVAL_TESTING = 2000; ///< How many milliseconds a train should wait in the station in test mode.
+
 CoasterTrain::CoasterTrain()
 {
 	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
 	this->back_position = 0;
 	this->speed = 0;
-	this->halt = false;
+	this->station_policy = TSP_IN_STATION;
+	this->time_left_waiting = 0;
 	this->cur_piece = nullptr; // Set later.
 }
 
@@ -351,7 +355,14 @@ static void inline Unroll(uint roll, int32 *dy, int32 *dz)
  */
 void CoasterTrain::OnAnimate(int delay)
 {
-	if (this->halt) delay = 0;
+	if (this->coaster->state != RIS_OPEN && this->coaster->state != RIS_TESTING) delay = 0;
+	if (this->station_policy == TSP_IN_STATION) {
+		this->time_left_waiting -= delay;
+		delay = 0;  // Don't move forward while in station.
+	} else if (this->station_policy != TSP_ENTERING_STATION) {
+		this->time_left_waiting = 0;
+	}
+
 	if (this->speed >= 0) {
 		this->back_position += this->speed * delay;
 		if (this->back_position >= this->coaster->coaster_length) {
@@ -517,18 +528,21 @@ void CoasterTrain::OnAnimate(int delay)
 		position += this->coaster->car_type->inter_car_length;
 	}
 
-	if (delay <= 0) return;
 	bool has_platform = false, has_power = false;
 	uint32 indexed_car_position = this->back_position;
 	const PositionedTrackPiece *indexed_car_piece = this->cur_piece;
 	int car_index = cars.size();
 	do {
-		car_index--;
-		if (indexed_car_piece->piece->HasPlatform()) {
-			has_platform = true;
-			break;
+		if (car_index > 0) {
+			if (indexed_car_piece->piece->HasPlatform()) {
+				has_platform = true;
+				if (this->station_policy == TSP_NO_STATION) {
+					this->station_policy = TSP_ENTERING_STATION;
+					this->time_left_waiting = this->coaster->state == RIS_TESTING ? TRAIN_DEPARTURE_INTERVAL_TESTING : TRAIN_DEPARTURE_INTERVAL;
+				}
+			}
+			has_power |= indexed_car_piece->piece->HasPower();
 		}
-		has_power |= indexed_car_piece->piece->HasPower();
 		indexed_car_position += (car_length + this->coaster->car_type->inter_car_length);
 		if (indexed_car_position >= this->coaster->coaster_length) {
 			indexed_car_position -= this->coaster->coaster_length;
@@ -537,10 +551,31 @@ void CoasterTrain::OnAnimate(int delay)
 		while (indexed_car_piece->distance_base + indexed_car_piece->piece->piece_length < indexed_car_position) {
 			indexed_car_piece++;
 		}
+		car_index--;
 	} while (car_index > 0);
+	const bool front_is_in_station = indexed_car_piece->piece->HasPlatform();
 	/* Powered tiles speed the car up if it is slow; station tiles set a fixed speed. */
 	if (has_platform || (has_power && this->speed < 65536 / 1000)) {
-		this->speed -= std::min<int32>(delay, std::max<int32>(-delay, this->speed - 65536 / 1000));
+		const int32 max_speed_change = delay;  // Determines how quickly trains accelerate and brake.
+		this->speed -= std::min<int32>(max_speed_change, std::max<int32>(-max_speed_change, this->speed - 65536 / 1000));
+	}
+	if (!has_platform && this->station_policy == TSP_LEAVING_STATION) this->station_policy = TSP_NO_STATION;
+	if (this->station_policy == TSP_ENTERING_STATION || this->station_policy == TSP_IN_STATION) {
+		if (!front_is_in_station && this->time_left_waiting <= 0) {
+			this->station_policy = TSP_LEAVING_STATION;
+		} else {
+			bool can_continue_in_station = front_is_in_station;
+			if (can_continue_in_station) {
+				for (const CoasterTrain &train : this->coaster->trains) {
+					if (&train == this || train.cars.empty()) continue;
+					if (this->back_position < train.back_position && indexed_car_position + 256 * this->coaster->GetTrainSpacing() > train.back_position) {
+						can_continue_in_station = false;
+						break;
+					}
+				}
+			}
+			this->station_policy = can_continue_in_station ? TSP_ENTERING_STATION : TSP_IN_STATION;
+		}
 	}
 }
 
@@ -552,7 +587,8 @@ void CoasterTrain::Load(Loader &ldr)
 
 	this->back_position = ldr.GetLong();
 	this->speed = (int32)ldr.GetLong();
-	this->halt = ldr.GetByte() > 0;
+	this->station_policy = static_cast<TrainStationPolicy>(ldr.GetByte());
+	this->time_left_waiting = ldr.GetLong();
 }
 
 void CoasterTrain::Save(Saver &svr)
@@ -563,7 +599,8 @@ void CoasterTrain::Save(Saver &svr)
 
 	svr.PutLong(this->back_position);
 	svr.PutLong((uint32)this->speed);
-	svr.PutByte(this->halt ? 1 : 0);
+	svr.PutByte(this->station_policy);
+	svr.PutLong(this->time_left_waiting);
 }
 
 /** Default constructor for a station of length 0 with no entrance or exit. */
@@ -644,7 +681,7 @@ void CoasterInstance::TestRide()
 		 * If the user clicked the Test button again during testing, reset the trains anyway.
 		 */
 		this->CloseRide();
-		this->ReinitializeTrains(false);
+		this->ReinitializeTrains(true);
 	}
 	this->state = RIS_TESTING;
 }
@@ -666,7 +703,7 @@ void CoasterInstance::CloseRide()
 		CoasterTrain &train = this->trains[i];
 		train.back_position = 0;
 		train.speed = 0;
-		train.halt = true;
+		train.station_policy = TSP_IN_STATION;
 		train.cur_piece = this->pieces;
 		train.cars.resize(0);
 		train.OnAnimate(0);
@@ -1053,7 +1090,7 @@ uint32 CoasterInstance::GetTrainLength(const int cars) const
  */
 uint32 CoasterInstance::GetTrainSpacing() const
 {
-	return this->car_type->car_length / 256;
+	return this->car_type->car_length / 512;  // Half a car length.
 }
 
 /**
@@ -1113,7 +1150,8 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 		train.cur_piece = location;
 		train.back_position = back_position;
 		train.speed = 0;
-		train.halt = true;
+		train.station_policy = TSP_IN_STATION;
+		train.time_left_waiting = 0;
 		if (static_cast<int>(i) < number_trains) {
 			train.SetLength(this->cars_per_train);
 			back_position += train_length;
@@ -1131,14 +1169,15 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 
 /**
  * Reset all trains to their initial positions in the station.
- * @param halt Whether to force-pause the trains there.
+ * @param test_mode Whether the ride is in test mode.
  */
-void CoasterInstance::ReinitializeTrains(const bool halt)
+void CoasterInstance::ReinitializeTrains(const bool test_mode)
 {
 	this->SetNumberOfCars(this->cars_per_train);
 	this->SetNumberOfTrains(this->number_of_trains);  // This takes care of actually moving the trains to the correct positions.
 	for (int i = 0; i < this->number_of_trains; i++) {
-		this->trains[i].halt = halt;
+		this->trains[i].station_policy = TSP_ENTERING_STATION;
+		this->trains[i].time_left_waiting = test_mode ? TRAIN_DEPARTURE_INTERVAL_TESTING : TRAIN_DEPARTURE_INTERVAL;
 	}
 }
 

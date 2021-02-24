@@ -158,6 +158,14 @@ public:
 	}
 };
 
+/** How a coaster train is behaving in regard to a station. */
+enum TrainStationPolicy {
+	TSP_LEAVING_STATION,   ///< The train is leaving a station.
+	TSP_ENTERING_STATION,  ///< The train is entering a station.
+	TSP_IN_STATION,        ///< The train is waiting motionlessly in a station.
+	TSP_NO_STATION,        ///< The train is nowhere near a station.
+};
+
 class CoasterInstance;
 
 /**
@@ -181,7 +189,8 @@ public:
 	uint32 back_position;                  ///< Position of the back-end of the train (in 1/256 pixels).
 	int32 speed;                           ///< Amount of forward motion / millisecond, in 1/256 pixels.
 	const PositionedTrackPiece *cur_piece; ///< Track piece that has the back-end position of the train.
-	bool halt;                             ///< The train is frozen in place until this is \c false.
+	TrainStationPolicy station_policy;     ///< The train is supposed to stop when reaching the front of the station.
+	int32 time_left_waiting;               ///< The number of milliseconds this train should still wait in a station before departing.
 };
 
 /** A station belonging to a coaster. */
@@ -261,7 +270,7 @@ public:
 	int GetMaxNumberOfCars() const;
 	void SetNumberOfTrains(int number_trains);
 	void SetNumberOfCars(int number_cars);
-	void ReinitializeTrains(bool halt);
+	void ReinitializeTrains(bool test_mode);
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
