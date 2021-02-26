@@ -131,6 +131,8 @@ public:
 
 /** %Cursor data of a tile. */
 struct CursorTileData {
+	virtual ~CursorTileData() = default;
+
 	int8 cursor_height;  ///< Height of the cursor (equal to ground height, except at steep slopes). Negative value means 'unknown'.
 	bool cursor_enabled; ///< Whether the tile should have a cursor displayed.
 
@@ -277,6 +279,8 @@ struct VoxelFenceData {
  */
 template <typename VoxelContentData>
 struct VoxelTileData : public CursorTileData {
+	virtual ~VoxelTileData() = default;
+
 	uint8 lowest;  ///< Lowest voxel in the stack that should be rendered.
 	uint8 highest; ///< Highest voxel in the stack that should be rendered.
 	std::vector<VoxelContentData> ride_info; ///< Information of voxels VoxelTileData::lowest to VoxelTileData::highest (inclusive).

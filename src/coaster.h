@@ -261,8 +261,8 @@ public:
 	void SetNumberOfCars(int number_cars);
 	int GetNumberOfCars() const;
 
-	void Load(Loader &ldr);
-	void Save(Saver &svr);
+	void Load(Loader &ldr) override;
+	void Save(Saver &svr) override;
 
 	void RemoveStationsFromWorld();
 	void InsertStationsIntoWorld();
