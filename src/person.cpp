@@ -954,7 +954,7 @@ bool Person::IsQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& p
 				if (g == nullptr || !g->IsQueuingGuest()) continue;
 
 				const XYZPoint32 coords = g->MergeCoordinates();
-				if (std::hypot(coords.x - merged_pos.x, coords.y - merged_pos.y) < QUEUE_DISTANCE) {
+				if (hypot(coords.x - merged_pos.x, coords.y - merged_pos.y) < QUEUE_DISTANCE) {
 					if (!only_in_front) return true;
 					const AnimationFrame &frame = this->frames[this->frame_index];
 					if (frame.dx > 0 && coords.x > merged_pos.x) return true;
