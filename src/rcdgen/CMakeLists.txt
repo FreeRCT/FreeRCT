@@ -35,6 +35,11 @@ set(rcdgen_SRCS ${rcdgen_SRCS}
 add_executable(rcdgen ${rcdgen_SRCS})
 
 # Library detection
+IF(APPLE)
+	# Avoid searching for headers in frameworks (like Mono), and libraries in LIBDIR.
+	set(CMAKE_FIND_FRAMEWORK LAST)
+ENDIF()
+
 find_package(PNG REQUIRED)
 IF(PNG_FOUND)
 	include_directories("${PNG_INCLUDE_DIR}")
