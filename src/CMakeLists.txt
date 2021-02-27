@@ -97,14 +97,14 @@ add_dependencies(freerct rcd)
 # Library detection
 find_package(SDL2 REQUIRED)
 IF(SDL2_FOUND)
-	include_directories("${SDL2_INCLUDE_DIR}")
+	include_directories(${SDL2_INCLUDE_DIR})
 	target_link_libraries(freerct ${SDL2_LIBRARY})
 ENDIF()
 
 find_package(SDL2_ttf REQUIRED)
 # Legacy variable names
 IF(SDL2_TTF_FOUND)
-	include_directories("${SDL2TTF_INCLUDE_DIR}")
+	include_directories(${SDL2TTF_INCLUDE_DIR})
 	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
 ENDIF()
 

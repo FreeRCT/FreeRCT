@@ -42,14 +42,14 @@ ENDIF()
 
 find_package(PNG REQUIRED)
 IF(PNG_FOUND)
-	include_directories("${PNG_INCLUDE_DIR}")
-	target_link_libraries(rcdgen "${PNG_LIBRARY}")
+	include_directories(${PNG_INCLUDE_DIR})
+	target_link_libraries(rcdgen ${PNG_LIBRARY})
 ENDIF()
 
 find_package(ZLIB REQUIRED)
 IF(ZLIB_FOUND)
-	include_directories("${ZLIB_INCLUDE_DIR}")
-	target_link_libraries(rcdgen "${ZLIB_LIBRARY}")
+	include_directories(${ZLIB_INCLUDE_DIR})
+	target_link_libraries(rcdgen ${ZLIB_LIBRARY})
 ENDIF()
 
 find_package(BISON)
