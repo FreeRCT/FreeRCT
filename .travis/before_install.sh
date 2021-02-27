@@ -1,8 +1,7 @@
 #!/bin/bash
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-  brew update
-  brew install sdl2 sdl2_ttf
+  HOMEBREW_NO_AUTO_UPDATE=1 brew install sdl2 sdl2_ttf
 else
   # No SDL2 in the default repos yet
   sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
