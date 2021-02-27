@@ -36,8 +36,8 @@ public:
 	Point32 OnInitialPosition() override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
-	void SetWidgetStringParameters(WidgetNumber wid_num) const;
-	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 };
 
 /**

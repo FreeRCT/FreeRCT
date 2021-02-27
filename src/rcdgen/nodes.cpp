@@ -501,7 +501,7 @@ int PRSGBlock::Write(FileWriter *fw)
 	fb->StartSave(this->blk_name, this->version, 1 + this->person_graphics.size() * 13);
 	fb->SaveUInt8(this->person_graphics.size());
 
-	for (const auto pg : this->person_graphics) {
+	for (const auto &pg : this->person_graphics) {
 		fb->SaveUInt8(pg->person_type);
 		fb->SaveUInt32(pg->recol[0].Encode());
 		fb->SaveUInt32(pg->recol[1].Encode());
@@ -523,7 +523,7 @@ int ANIMBlock::Write(FileWriter *fw)
 	fb->SaveUInt16(this->anim_type);
 	fb->SaveUInt16(this->frames.size());
 
-	for (const auto fd : this->frames) {
+	for (const auto &fd : this->frames) {
 		fb->SaveUInt16(fd->duration);
 		fb->SaveInt16(fd->change_x);
 		fb->SaveInt16(fd->change_y);
@@ -863,7 +863,7 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 void StringBundle::MergeStorage(const StringBundle &storage)
 {
 	assert(this->key == "" || storage.key == "" || this->key == storage.key);
-	for (const auto stor : storage.texts) {
+	for (const auto &stor : storage.texts) {
 		auto iter = this->texts.find(stor.first);
 		if (iter == this->texts.end()) {
 			std::pair<std::string, TextNode> p(stor.first, stor.second);
@@ -1658,7 +1658,7 @@ static void SaveCarEntry(FileBlock *fb, std::shared_ptr<Curve> entry, int rot, i
 	std::shared_ptr<CubicSplines> splines = std::dynamic_pointer_cast<CubicSplines>(entry);
 	fb->SaveUInt8(2);
 	fb->SaveUInt8(splines->curve.size());
-	for (const auto spline : splines->curve) {
+	for (const auto &spline : splines->curve) {
 		fb->SaveUInt32(spline->first);
 		fb->SaveUInt32(spline->last);
 		int abcd[4] = {spline->a, spline->b, spline->c, spline->d};

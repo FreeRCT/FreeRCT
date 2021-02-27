@@ -30,9 +30,9 @@ public:
 	FenceGui();
 	~FenceGui();
 
-	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
-	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid);
+	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(uint8 state) override;

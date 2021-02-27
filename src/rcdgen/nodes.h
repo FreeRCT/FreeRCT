@@ -56,6 +56,7 @@ public:
 class FileNode : public BlockNode {
 public:
 	FileNode(const std::string &file_name);
+	virtual ~FileNode() = default;
 
 	void Write(FileWriter *fw);
 
@@ -100,6 +101,8 @@ enum SurfaceSprites {
 /** Block containing a sprite. */
 class SpriteBlock : public BlockNode {
 public:
+	virtual ~SpriteBlock() = default;
+
 	int Write(FileWriter *fw);
 
 	SpriteImage sprite_image; ///< The stored sprite.
@@ -127,7 +130,7 @@ public:
 class SheetBlock : public BlockNode {
 public:
 	SheetBlock(const Position &pos);
-	~SheetBlock();
+	virtual ~SheetBlock();
 
 	std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos) override;
 	Image *GetSheet();
@@ -158,6 +161,8 @@ public:
 /** A 'spritefiles' block. */
 class SpriteFilesBlock : public BlockNode {
 public:
+	virtual ~SpriteFilesBlock() = default;
+
 	std::shared_ptr<BlockNode> GetSubNode(int row, int col, const char *name, const Position &pos) override;
 
 	Position pos;         ///< Line number defining the sheet.
@@ -179,6 +184,7 @@ public:
 class TSELBlock : public GameBlock {
 public:
 	TSELBlock();
+	virtual ~TSELBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -191,6 +197,7 @@ public:
 class TCORBlock : public GameBlock {
 public:
 	TCORBlock();
+	virtual ~TCORBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -206,6 +213,7 @@ public:
 class SURFBlock : public GameBlock {
 public:
 	SURFBlock();
+	virtual ~SURFBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -231,6 +239,7 @@ enum FoundationSprites {
 class FUNDBlock : public GameBlock {
 public:
 	FUNDBlock();
+	virtual ~FUNDBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -268,6 +277,7 @@ enum ColourRange {
 class Recolouring : public BlockNode {
 public:
 	Recolouring();
+	virtual ~Recolouring() = default;
 
 	uint8 orig;     ///< Colour range to replace.
 	uint32 replace; ///< Bitset of colour ranges that may be used as replacement.
@@ -278,6 +288,8 @@ public:
 /** Definition of graphics of one type of person. */
 class PersonGraphics : public BlockNode {
 public:
+	virtual ~PersonGraphics() = default;
+
 	int person_type;      ///< Type of person being defined.
 	Recolouring recol[3]; ///< Recolour definitions.
 
@@ -288,6 +300,7 @@ public:
 class PRSGBlock : public GameBlock {
 public:
 	PRSGBlock();
+	virtual ~PRSGBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -297,6 +310,8 @@ public:
 /** ANIM frame data for a single frame. */
 class FrameData : public BlockNode {
 public:
+	virtual ~FrameData() = default;
+
 	int duration; ///< Duration of this frame.
 	int change_x; ///< Change in x after the frame is displayed.
 	int change_y; ///< Change in y after the frame is displayed.
@@ -306,6 +321,7 @@ public:
 class ANIMBlock : public GameBlock {
 public:
 	ANIMBlock();
+	virtual ~ANIMBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -319,6 +335,7 @@ public:
 class ANSPBlock : public GameBlock {
 public:
 	ANSPBlock();
+	virtual ~ANSPBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -390,6 +407,7 @@ enum PathSprites {
 class PATHBlock : public GameBlock {
 public:
 	PATHBlock();
+	virtual ~PATHBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -404,6 +422,7 @@ public:
 class PDECBlock : public GameBlock {
 public:
 	PDECBlock();
+	virtual ~PDECBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -451,6 +470,7 @@ enum PlatformSprites {
 class PLATBlock : public GameBlock {
 public:
 	PLATBlock();
+	virtual ~PLATBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -495,6 +515,7 @@ enum SupportSprites {
 class SUPPBlock : public GameBlock {
 public:
 	SUPPBlock();
+	virtual ~SUPPBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -526,6 +547,7 @@ int GetLanguageIndex(const char *lname, const Position &pos);
 class StringNode : public BlockNode {
 public:
 	StringNode();
+	virtual ~StringNode() = default;
 
 	std::string name;  ///< Name of the string.
 	std::string text;  ///< Text of the string named #name.
@@ -538,6 +560,7 @@ public:
 class StringsNode : public BlockNode {
 public:
 	StringsNode();
+	virtual ~StringsNode() = default;
 
 	void Add(const StringNode &node, const Position &pos);
 	void SetKey(const std::string &key, const Position &pos);
@@ -566,6 +589,8 @@ public:
 /** Collection of translated strings for a game object. */
 class StringBundle : public BlockNode {
 public:
+	virtual ~StringBundle() = default;
+
 	void Fill(std::shared_ptr<StringsNode> strs, const Position &pos);
 	void MergeStorage(const StringBundle &storage);
 	void CheckTranslations(const char *names[], int name_count, const Position &pos);
@@ -579,6 +604,7 @@ public:
 class FSETBlock : public GameBlock {
 public:
 	FSETBlock();
+	virtual ~FSETBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -595,6 +621,7 @@ public:
 class TIMABlock : public GameBlock {
 public:
 	TIMABlock();
+	virtual ~TIMABlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -607,6 +634,7 @@ public:
 class RIEEBlock : public GameBlock {
 public:
 	RIEEBlock();
+	virtual ~RIEEBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -624,6 +652,7 @@ public:
 class SHOPBlock : public GameBlock {
 public:
 	SHOPBlock();
+	virtual ~SHOPBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -643,6 +672,7 @@ public:
 class FGTRBlock : public GameBlock {
 public:
 	FGTRBlock();
+	virtual ~FGTRBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -671,6 +701,7 @@ public:
 class GBORBlock : public GameBlock {
 public:
 	GBORBlock();
+	virtual ~GBORBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -699,6 +730,7 @@ public:
 class GCHKBlock : public GameBlock {
 public:
 	GCHKBlock();
+	virtual ~GCHKBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -716,6 +748,7 @@ public:
 class GSLIBlock : public GameBlock {
 public:
 	GSLIBlock();
+	virtual ~GSLIBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -734,6 +767,7 @@ public:
 class GSCLBlock : public GameBlock {
 public:
 	GSCLBlock();
+	virtual ~GSCLBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -762,6 +796,7 @@ public:
 class BDIRBlock : public GameBlock {
 public:
 	BDIRBlock();
+	virtual ~BDIRBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -777,6 +812,7 @@ public:
 class GSLPBlock : public GameBlock {
 public:
 	GSLPBlock();
+	virtual ~GSLPBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -829,6 +865,7 @@ public:
 class CubicSpline : public BlockNode {
 public:
 	CubicSpline();
+	virtual ~CubicSpline() = default;
 
 	int a;     ///< Fourth cubic spline parameter.
 	int b;     ///< Fourth cubic spline parameter.
@@ -850,6 +887,8 @@ public:
 class CubicSplines : public Curve {
 public:
 	CubicSplines();
+	virtual ~CubicSplines() = default;
+
 	double GetValue(int index, int step) override;
 
 	std::vector<std::shared_ptr<CubicSpline>> curve; ///< Bezier curve describing the table values.
@@ -859,6 +898,8 @@ public:
 class FixedTable : public Curve {
 public:
 	FixedTable();
+	virtual ~FixedTable() = default;
+
 	double GetValue(int index, int step) override;
 
 	int value; ///< Fixed value of the curve data.
@@ -868,6 +909,7 @@ public:
 class TrackVoxel : public BlockNode {
 public:
 	TrackVoxel();
+	virtual ~TrackVoxel() = default;
 
 	void Write(FileWriter *fw, FileBlock *fb, int rot);
 
@@ -887,6 +929,7 @@ public:
 	Connection(const Connection &c);
 	Connection &operator=(const Connection &c);
 	Connection(const std::string &name, int direction);
+	virtual ~Connection() = default;
 
 	uint8 Encode(const std::map<std::string, int> &connections, int rot);
 
@@ -897,6 +940,8 @@ public:
 /** A 'track_piece' block. */
 class TrackPieceNode : public BlockNode {
 public:
+	virtual ~TrackPieceNode() = default;
+
 	void UpdateConnectionMap(std::map<std::string, int> *connections);
 	void Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *fb);
 
@@ -935,6 +980,7 @@ private:
 class RCSTBlock : public GameBlock {
 public:
 	RCSTBlock();
+	virtual ~RCSTBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -952,6 +998,7 @@ public:
 class CARSBlock : public GameBlock {
 public:
 	CARSBlock();
+	virtual ~CARSBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -967,6 +1014,8 @@ public:
 /** Node block containing a bitmask. */
 class BitMask : public BlockNode {
 public:
+	virtual ~BitMask() = default;
+
 	BitMaskData data; ///< Data of the bit mask.
 };
 
@@ -974,6 +1023,7 @@ public:
 class CSPLBlock : public GameBlock {
 public:
 	CSPLBlock();
+	virtual ~CSPLBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -993,6 +1043,7 @@ public:
 class FENCBlock : public GameBlock {
 public:
 	FENCBlock();
+	virtual ~FENCBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
@@ -1016,6 +1067,7 @@ public:
 class INFOBlock : public MetaBlock {
 public:
 	INFOBlock();
+	virtual ~INFOBlock() = default;
 
 	int Write(FileWriter *fw) override;
 
