@@ -26,6 +26,10 @@ public:
 	const StringID *GetInstanceNames() const override;
 	RideInstance *CreateInstance() const override;
 
+	int16 working_cycles_min;            ///< Minimum number of working cycles.
+	int16 working_cycles_max;            ///< Maximum number of working cycles.
+	int16 working_cycles_default;        ///< Default number of working cycles.
+
 private:
 	FixedRideType::RideCapacity capacity;
 };

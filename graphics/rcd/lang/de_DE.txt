@@ -131,6 +131,15 @@ strings {
 		RIDE_SELECT_ROT_POS_TOOLTIP: "Attraktion gegen den Uhrzeigersinn drehen";
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Attraktion im Uhrzeigersinn drehen";
 
+		// Generic ride manager window strings.
+		RIDE_MANAGER_DECREASE:          "-";
+		RIDE_MANAGER_INCREASE:          "+";
+		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Eintrittspreis:";
+		RIDE_MANAGER_RELIABILITY:       "Zuverlässigkeit: %.1f%%";
+		RIDE_MANAGER_BROKEN_DOWN:       "Defekt";
+		RIDE_MANAGER_MAINTENANCE_TEXT:  "Wartungsintervall (Minuten):";
+		RIDE_MANAGER_MAINTENANCE_NEVER: "Nie";
+
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Geschäft »%1%«";
 		SHOP_MANAGER_COST_PRICE_TEXT:    "Baukosten";
@@ -150,7 +159,7 @@ strings {
 		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Attraktion geöffnet";
 		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Attraktion geschlossen";
 		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Monatliche Kosten:";
-		GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT: "Eintrittspreis:";
+		GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT:       "Arbeitszyklen:";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Baue Zäune";

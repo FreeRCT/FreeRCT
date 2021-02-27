@@ -688,6 +688,12 @@ public:
 	int guests_per_batch;  ///< Number of guests in each guest batch.
 	int idle_duration;     ///< Duration of the idle phase in milliseconds.
 	int working_duration;  ///< Duration of the working phase in milliseconds.
+	int16 working_cycles_min;            ///< Minimum number of working cycles.
+	int16 working_cycles_max;            ///< Maximum number of working cycles.
+	int16 working_cycles_default;        ///< Default number of working cycles.
+	int16 reliability_max;               ///< Maximum reliability.
+	int16 reliability_decrease_daily;    ///< Reliability decrease per day.
+	int16 reliability_decrease_monthly;  ///< Maximum reliability decrease per month.
 
 	std::shared_ptr<FSETBlock> idle_animation;
 	std::shared_ptr<TIMABlock> starting_animation;

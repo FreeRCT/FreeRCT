@@ -80,8 +80,9 @@ public:
 
 	int EntranceExitRotation(const XYZPoint16& vox) const;
 
-	uint8 orientation;  ///< Orientation of the shop.
-	XYZPoint16 vox_pos; ///< Position of the shop base voxel.
+	uint8 orientation;     ///< Orientation of the shop.
+	XYZPoint16 vox_pos;    ///< Position of the shop base voxel.
+	int16 working_cycles;  ///< Number of working cycles.
 
 protected:
 	OnRideGuests onride_guests; ///< Guests in the ride.

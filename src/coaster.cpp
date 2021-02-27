@@ -713,7 +713,7 @@ bool CoasterInstance::IsAccessible()
 
 bool CoasterInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 {
-	if (this->state != RIS_OPEN) return false;
+	if (!RideInstance::CanBeVisited(vox, edge)) return false;
 	for (const CoasterStation &s : this->stations) {
 		if (vox == s.entrance && (edge + 2) % 4 == EntranceExitRotation(vox, &s)) return true;
 	}
@@ -1323,7 +1323,7 @@ void CoasterInstance::Crash(CoasterTrain *t1, CoasterTrain *t2)
 	}
 
 	this->CloseRide();
-	this->breakdown_state = BDS_BROKEN;
+	this->BreakDown();
 	/* \todo Display animation of a big ball of fire. */
 	/* \todo Decrease ride excitement rating and park rating. */
 	printf("%d guests died in a ball of fire when %s crashed.\n", number_dead, this->name.get());  // \todo Show this as a message in-game.

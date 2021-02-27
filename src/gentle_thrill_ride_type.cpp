@@ -42,12 +42,12 @@ RideInstance *GentleThrillRideType::CreateInstance() const
  */
 bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 2 || rcd_file->size < 3) return false;
+	if (rcd_file->version != 3 || rcd_file->size < 3) return false;
 	this->kind = rcd_file->GetUInt8() ? RTK_THRILL : RTK_GENTLE;
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (static_cast<int>(rcd_file->size) != 79 + (this->width_x * this->width_y)) return false;
+	if (static_cast<int>(rcd_file->size) != 91 + (this->width_x * this->width_y)) return false;
 	
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -103,6 +103,20 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	if (capacity.number_of_batches < 1 || capacity.guests_per_batch < 1) return false;
 	if (capacity.number_of_batches > 1 && working_animation_min_length != 0) return false;
 
+	this->working_cycles_min = rcd_file->GetUInt16();
+	this->working_cycles_max = rcd_file->GetUInt16();
+	this->working_cycles_default = rcd_file->GetUInt16();
+	this->reliability_max = rcd_file->GetUInt16();
+	this->reliability_decrease_daily = rcd_file->GetUInt16();
+	this->reliability_decrease_monthly = rcd_file->GetUInt16();
+	if (this->working_cycles_min < 1) return false;
+	if (this->working_cycles_max < this->working_cycles_min) return false;
+	if (this->working_cycles_default < this->working_cycles_min) return false;
+	if (this->working_cycles_default > this->working_cycles_max) return false;
+	if (this->reliability_max < 0 || this->reliability_max > RELIABILITY_RANGE) return false;
+	if (this->reliability_decrease_daily < 0 || this->reliability_decrease_daily > RELIABILITY_RANGE) return false;
+	if (this->reliability_decrease_monthly < 0 || this->reliability_decrease_monthly > RELIABILITY_RANGE) return false;
+
 	TextData *text_data;
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
 	StringID base = _language.RegisterStrings(*text_data, _gentle_thrill_rides_strings_table);
@@ -133,6 +147,7 @@ GentleThrillRideInstance::GentleThrillRideInstance(const GentleThrillRideType *t
 	this->exit_pos = XYZPoint16::invalid();
 	this->temp_entrance_pos = XYZPoint16::invalid();
 	this->temp_exit_pos = XYZPoint16::invalid();
+	this->working_cycles = type->working_cycles_default;
 }
 
 GentleThrillRideInstance::~GentleThrillRideInstance()
@@ -331,7 +346,7 @@ void GentleThrillRideInstance::RemoveFromWorld()
 
 bool GentleThrillRideInstance::CanBeVisited(const XYZPoint16 &vox, const TileEdge edge) const
 {
-	return this->state == RIS_OPEN && vox == this->entrance_pos && (edge + 2) % 4 == EntranceExitRotation(this->entrance_pos);
+	return RideInstance::CanBeVisited(vox, edge) && vox == this->entrance_pos && (edge + 2) % 4 == EntranceExitRotation(this->entrance_pos);
 }
 
 void GentleThrillRideInstance::Load(Loader &ldr)

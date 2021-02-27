@@ -70,10 +70,19 @@ enum GentleThrillRideManagerWidgets {
 	GTRMW_TITLEBAR,
 	GTRMW_MONTHLY_COST,
 	GTRMW_ENTRANCE_FEE,
+	GTRMW_ENTRANCE_FEE_DECREASE,
+	GTRMW_ENTRANCE_FEE_INCREASE,
+	GTRMW_CYCLES,
+	GTRMW_CYCLES_DECREASE,
+	GTRMW_CYCLES_INCREASE,
 	GTRMW_RIDE_OPENED,
 	GTRMW_RIDE_OPENED_TEXT,
 	GTRMW_RIDE_CLOSED,
 	GTRMW_RIDE_CLOSED_TEXT,
+	GTRMW_RELIABILITY,
+	GTRMW_MAINTENANCE,
+	GTRMW_MAINTENANCE_DECREASE,
+	GTRMW_MAINTENANCE_INCREASE,
 	GTRMW_RECOLOUR1,
 	GTRMW_RECOLOUR2,
 	GTRMW_RECOLOUR3,
@@ -98,18 +107,34 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 2),
+			Intermediate(1, 2),
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GTRMW_MONTHLY_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
-				Widget(WT_RIGHT_TEXT, GTRMW_ENTRANCE_FEE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 1),
+			Intermediate(2, 2),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
+				Intermediate(1, 3),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_ENTRANCE_FEE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
+					Widget(WT_CENTERED_TEXT, GTRMW_ENTRANCE_FEE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_ENTRANCE_FEE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT, STR_NULL),
+				Intermediate(1, 3),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_CYCLES_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
+					Widget(WT_CENTERED_TEXT, GTRMW_CYCLES, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_CYCLES_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(4, 1),
 				Intermediate(2, 2),
 					Widget(WT_RADIOBUTTON, GTRMW_RIDE_OPENED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
 					Widget(WT_LEFT_TEXT, GTRMW_RIDE_OPENED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT, STR_NULL),
 					Widget(WT_RADIOBUTTON, GTRMW_RIDE_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
 					Widget(WT_LEFT_TEXT, GTRMW_RIDE_CLOSED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT, STR_NULL),
+				Widget(WT_LEFT_TEXT, GTRMW_RELIABILITY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Intermediate(1, 4),
+					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_MAINTENANCE_TEXT, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_MAINTENANCE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
+					Widget(WT_CENTERED_TEXT, GTRMW_MAINTENANCE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_MAINTENANCE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
 				Intermediate(1, 3),
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR1, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR1, STR_NULL), SetPadding(2, 2, 2, 2),
 					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
@@ -156,7 +181,7 @@ public:
 private:
 	GentleThrillRideInstance *ride; ///< Gentle/Thrill ride instance getting managed by this window.
 
-	void SetGentleThrillRideToggleButtons();
+	void UpdateButtons();
 	void UpdateRecolourButtons();
 
 	void ChooseEntranceExitClicked(bool entrance);
@@ -173,7 +198,7 @@ GentleThrillRideManagerWindow::GentleThrillRideManagerWindow(GentleThrillRideIns
 	this->ride = ri;
 	this->SetRideType(this->ride->GetGentleThrillRideType());
 	this->SetupWidgetTree(_gentle_thrill_ride_manager_gui_parts, lengthof(_gentle_thrill_ride_manager_gui_parts));
-	this->SetGentleThrillRideToggleButtons();
+	this->UpdateButtons();
 	this->UpdateRecolourButtons();
 	
 	SetSelector(nullptr);
@@ -213,13 +238,19 @@ void GentleThrillRideManagerWindow::UpdateRecolourButtons()
 }
 
 /** Update all buttons of the window related to the ride's open/closed state. */
-void GentleThrillRideManagerWindow::SetGentleThrillRideToggleButtons()
+void GentleThrillRideManagerWindow::UpdateButtons()
 {
 	this->SetWidgetChecked(GTRMW_RIDE_OPENED, this->ride->state == RIS_OPEN);
 	this->SetWidgetChecked(GTRMW_RIDE_CLOSED, this->ride->state == RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_RIDE_OPENED, !this->ride->CanOpenRide());
 	this->SetWidgetShaded(GTRMW_PLACE_ENTRANCE, this->ride->state != RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_PLACE_EXIT, this->ride->state != RIS_CLOSED);
+	this->SetWidgetShaded(GTRMW_CYCLES_DECREASE,
+			this->ride->state != RIS_CLOSED || this->ride->working_cycles <= this->ride->GetGentleThrillRideType()->working_cycles_min);
+	this->SetWidgetShaded(GTRMW_CYCLES_INCREASE,
+			this->ride->state != RIS_CLOSED || this->ride->working_cycles >= this->ride->GetGentleThrillRideType()->working_cycles_max);
+	this->SetWidgetShaded(GTRMW_MAINTENANCE_DECREASE, this->ride->maintenance_interval <= 0);
+	this->SetWidgetShaded(GTRMW_ENTRANCE_FEE_DECREASE, this->ride->item_price[0] <= 0);
 }
 
 void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
@@ -235,8 +266,29 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 			_str_params.SetMoney(1, type->monthly_cost + (this->ride->state == RIS_CLOSED ? Money(0) : type->monthly_open_cost));
 		} break;
 
+		case GTRMW_RELIABILITY:
+			if (this->ride->broken) {
+				_str_params.SetStrID(1, GUI_RIDE_MANAGER_BROKEN_DOWN);
+			} else {
+				char buffer[1024];
+				snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_RIDE_MANAGER_RELIABILITY)),
+						this->ride->reliability / 100.0);
+				_str_params.SetUint8(1, reinterpret_cast<uint8*>(buffer));
+			}
+			break;
+
+		case GTRMW_CYCLES:
+			_str_params.SetNumber(1, this->ride->working_cycles);
+			break;
 		case GTRMW_ENTRANCE_FEE:
-			_str_params.SetMoney(1, this->ride->GetFixedRideType()->item_cost[0]);
+			_str_params.SetMoney(1, this->ride->item_price[0]);
+			break;
+		case GTRMW_MAINTENANCE:
+			if (this->ride->maintenance_interval > 0) {
+				_str_params.SetNumber(1, this->ride->maintenance_interval / (60 * 1000));
+			} else {
+				_str_params.SetStrID(1, GUI_RIDE_MANAGER_MAINTENANCE_NEVER);
+			}
 			break;
 
 		case GTRMW_ENTRANCE_RECOLOUR1:
@@ -267,7 +319,7 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 
 		case GTRMW_RIDE_OPENED:
 			if (this->ride->CanOpenRide()) {
 				this->ride->OpenRide();
-				this->SetGentleThrillRideToggleButtons();
+				this->UpdateButtons();
 			}
 			break;
 
@@ -275,7 +327,7 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 
 		case GTRMW_RIDE_CLOSED:
 			if (this->ride->state != RIS_CLOSED) {
 				this->ride->CloseRide();
-				this->SetGentleThrillRideToggleButtons();
+				this->UpdateButtons();
 			}
 			break;
 
@@ -306,6 +358,31 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 
 			}
 			break;
 		}
+
+		case GTRMW_ENTRANCE_FEE_INCREASE:
+			this->ride->item_price[0] += ENTRANCE_FEE_STEP_SIZE;
+			this->UpdateButtons();
+			break;
+		case GTRMW_ENTRANCE_FEE_DECREASE:
+			this->ride->item_price[0] = std::max<int>(0, this->ride->item_price[0] - ENTRANCE_FEE_STEP_SIZE);
+			this->UpdateButtons();
+			break;
+		case GTRMW_CYCLES_INCREASE:
+			this->ride->working_cycles++;
+			this->UpdateButtons();
+			break;
+		case GTRMW_CYCLES_DECREASE:
+			this->ride->working_cycles--;
+			this->UpdateButtons();
+			break;
+		case GTRMW_MAINTENANCE_INCREASE:
+			this->ride->maintenance_interval += MAINTENANCE_INTERVAL_STEP_SIZE;
+			this->UpdateButtons();
+			break;
+		case GTRMW_MAINTENANCE_DECREASE:
+			this->ride->maintenance_interval -= MAINTENANCE_INTERVAL_STEP_SIZE;
+			this->UpdateButtons();
+			break;
 
 		case GTRMW_PLACE_ENTRANCE:
 			ChooseEntranceExitClicked(true);

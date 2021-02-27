@@ -685,11 +685,11 @@ Version history
 
 Gentle and thrill rides
 ~~~~~~~~~~~~~~~~~~~~~~~
-Gentle and thrill rides consisting of a single building. FreeRCT can read block version 2.
+Gentle and thrill rides consisting of a single building. FreeRCT can read block version 3.
 
-=========  ======  =======  ===================================================================================
+=========  ======  =======  ========================================================================================
 Offset     Length  Version  Description
-=========  ======  =======  ===================================================================================
+=========  ======  =======  ========================================================================================
    0        4       1-      Magic string 'FGTR'.
    4        4       1-      Version number of the block.
    8        4       1-      Length of the block excluding magic string, version, and length.
@@ -715,10 +715,16 @@ Offset     Length  Version  Description
   71+s      4       2-      Number of guest batches that can use the ride at the same time.
   75+s      4       2-      Maximum number of guests in each guest batch.
   79+s      4       2-      Duration of the ride's idle phase in milliseconds.
-  83+s      4       2-      Total duration of the ride's working phase in milliseconds.
-  87+s      4       1-      Text of the ride (reference to a TEXT block).
-  91+s                      Total length.
-=========  ======  =======  ===================================================================================
+  83+s      4       2-      Total duration of the ride's working phase per working cycle in milliseconds.
+  87+s      2       3-      Mimimum number of cycles (must be at least 1).
+  89+s      2       3-      Maximum number of cycles (must be at least the minimum number).
+  91+s      2       3-      Default number of cycles (must be at least the minimum and at most the maximum number).
+  93+s      2       3-      Maximum reliability factor (in percents of a percent).
+  95+s      2       3-      Daily reliability decrease (in percents of a percent).
+  97+s      2       3-      Monthly decrease of the maximum reliability (in percents of a percent).
+  99+s      4       1-      Text of the ride (reference to a TEXT block).
+ 103+s                      Total length.
+=========  ======  =======  ========================================================================================
 
 The duration of the ride's working phase needs to be at least as long as the sum of the durations of all
 frames of the starting, working and stopping animations. If the working phase is longer than that, the
@@ -733,6 +739,7 @@ Version history
 
 - 1 (20210126) Initial version.
 - 2 (20210201) Added timing of phases and ride capacity.
+- 3 (20210227) Added minimum and maximum number of working cycles and reliability parameters.
 
 
 Build direction arrows

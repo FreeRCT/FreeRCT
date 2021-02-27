@@ -167,7 +167,7 @@ uint8 ShopInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 
 bool ShopInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 {
-	if (this->state != RIS_OPEN) return false;
+	if (!RideInstance::CanBeVisited(vox, edge)) return false;
 	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
 }
 

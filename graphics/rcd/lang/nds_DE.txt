@@ -131,6 +131,15 @@ strings {
 		RIDE_SELECT_ROT_POS_TOOLTIP: "Klick, um de Bude tegen de Klockwiesersinn to dreihen";
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klick, um de Bude na de Klockwiesersinn to dreihen";
 
+		// Generic ride manager window strings.
+		RIDE_MANAGER_DECREASE:          "-";
+		RIDE_MANAGER_INCREASE:          "+";
+		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Intree:";
+		RIDE_MANAGER_RELIABILITY:       "Toverlatigheid: %.1f%%";
+		RIDE_MANAGER_BROKEN_DOWN:       "Kaputt";
+		RIDE_MANAGER_MAINTENANCE_TEXT:  "Tied tüsken Nakiekens (Menüten):";
+		RIDE_MANAGER_MAINTENANCE_NEVER: "Nienich";
+
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Laden »%1%«";
 		SHOP_MANAGER_COST_PRICE_TEXT:    "Inkoop-Pries";
@@ -150,7 +159,7 @@ strings {
 		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Bude is open";
 		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Bude is dicht";
 		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Kosten pro Maant:";
-		GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT: "Intree:";
+		GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT:       "Tahl vun Warkrunnen:";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Schütten bauen";
