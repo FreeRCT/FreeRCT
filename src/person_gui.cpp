@@ -131,7 +131,7 @@ void GuestInfoWindow::OnChange(ChangeCode code, uint32 parameter)
  */
 void ShowGuestInfoGui(const Person *person)
 {
-	if (HighlightWindowByType(WC_GUEST_INFO, person->id)) return;
+	if (HighlightWindowByType(WC_GUEST_INFO, person->id) != nullptr) return;
 
 	const Guest *guest = dynamic_cast<const Guest *>(person);
 

@@ -60,7 +60,7 @@ void GentleThrillRideRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_nu
  */
 void ShowGentleThrillRideRemove(GentleThrillRideInstance *si)
 {
-	if (HighlightWindowByType(WC_GENTLE_THRILL_RIDE_REMOVE, si->GetIndex())) return;
+	if (HighlightWindowByType(WC_GENTLE_THRILL_RIDE_REMOVE, si->GetIndex()) != nullptr) return;
 
 	new GentleThrillRideRemoveWindow(si);
 }
@@ -446,7 +446,7 @@ void GentleThrillRideManagerWindow::OnChange(const ChangeCode code, const uint32
  */
 void ShowGentleThrillRideManagementGui(uint16 number)
 {
-	if (HighlightWindowByType(WC_GENTLE_THRILL_RIDE_MANAGER, number)) return;
+	if (HighlightWindowByType(WC_GENTLE_THRILL_RIDE_MANAGER, number) != nullptr) return;
 
 	RideInstance *ri = _rides_manager.GetRideInstance(number);
 	if (ri == nullptr || (ri->GetKind() != RTK_GENTLE && ri->GetKind() != RTK_THRILL)) return;

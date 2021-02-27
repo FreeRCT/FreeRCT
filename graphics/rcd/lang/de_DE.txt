@@ -191,6 +191,10 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Wählt Streckenteile mit Neigung nach rechts aus";
 		COASTER_BUILD_BUY_TOOLTIP:        "Kauft das gewählte Streckenteil";
 
+		// Coaster management strings.
+		COASTER_MANAGER_NUMBER_TRAINS:  "Züge: %1%";
+		COASTER_MANAGER_NUMBER_CARS:    "Wagen: %1%";
+
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Abreißen";
 		ENTITY_REMOVE_TOOLTIP: "Das hier abreißen?";

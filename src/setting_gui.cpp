@@ -143,6 +143,6 @@ void SettingWindow::OnChange(ChangeCode code, uint32 parameter)
  */
 void ShowSettingGui()
 {
-	if (HighlightWindowByType(WC_SETTING, ALL_WINDOWS_OF_TYPE)) return;
+	if (HighlightWindowByType(WC_SETTING, ALL_WINDOWS_OF_TYPE) != nullptr) return;
 	new SettingWindow();
 }
