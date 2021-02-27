@@ -11,6 +11,10 @@ ENDIF()
 
 PROJECT(rcdgen)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+set(CMAKE_CXX_EXTENSIONS NO)
+
 # Source files
 set(BisonOutput "${CMAKE_SOURCE_DIR}/src/rcdgen/parser.cpp")
 set(FlexOutput "${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.cpp")
@@ -35,16 +39,21 @@ set(rcdgen_SRCS ${rcdgen_SRCS}
 add_executable(rcdgen ${rcdgen_SRCS})
 
 # Library detection
+IF(APPLE)
+	# Avoid searching for headers in frameworks (like Mono), and libraries in LIBDIR.
+	set(CMAKE_FIND_FRAMEWORK LAST)
+ENDIF()
+
 find_package(PNG REQUIRED)
 IF(PNG_FOUND)
-	include_directories("${PNG_INCLUDE_DIR}")
-	target_link_libraries(rcdgen "${PNG_LIBRARY}")
+	include_directories(${PNG_INCLUDE_DIR})
+	target_link_libraries(rcdgen ${PNG_LIBRARY})
 ENDIF()
 
 find_package(ZLIB REQUIRED)
 IF(ZLIB_FOUND)
-	include_directories("${ZLIB_INCLUDE_DIR}")
-	target_link_libraries(rcdgen "${ZLIB_LIBRARY}")
+	include_directories(${ZLIB_INCLUDE_DIR})
+	target_link_libraries(rcdgen ${ZLIB_LIBRARY})
 ENDIF()
 
 find_package(BISON)
@@ -83,11 +92,22 @@ ENDIF()
 # Compiler flags
 # TODO: Extend for debug/release versions
 IF(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
+	# "If /Zc:rvalueCast is specified, the compiler follows section 5.4 of the
+	# C++11 standard". We need C++11 for the way we use threads.
+	add_compile_options(/Zc:rvalueCast)
+
+	IF(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		# Enable multi-threaded compilation.
+		add_compile_options(/MP)
+	ENDIF()
+
+	add_compile_options(/W3)
+
 	# Accept zlib from OpenTTD useful compiled by previous Visual Studio version.
 	set_target_properties(rcdgen PROPERTIES LINK_FLAGS "/SAFESEH:NO")
 ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -pedantic -Wall")
+	add_compile_options(-g)
+	add_compile_options(-Wall -Wextra -pedantic)
 ENDIF()
 
 IF(NOT WIN32 AND BISON_FOUND AND FLEX_FOUND)

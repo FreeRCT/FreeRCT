@@ -1,0 +1,61 @@
+name: "CodeQL"
+
+on:
+  pull_request:
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: 'cpp'
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
+        # queries: ./path/to/local/query, your-org/your-repo/queries@main
+
+    - name: Install dependencies
+      run: |
+        echo "::group::Update apt"
+        sudo apt-get update
+        echo "::endgroup::"
+
+        echo "::group::Install dependencies"
+        sudo apt-get install -y --no-install-recommends \
+          libpng-dev \
+          libsdl2-dev \
+          libsdl2-ttf-dev \
+          zlib1g-dev \
+          # EOF
+        echo "::endgroup::"
+      env:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+
+        echo "::group::CMake"
+        cmake ..
+        echo "::endgroup::"
+
+        echo "::group::Build"
+        echo "Running on $(nproc) cores"
+        cmake --build . -j $(nproc)
+        echo "::endgroup::"
+
+    # The interesting bit!
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1

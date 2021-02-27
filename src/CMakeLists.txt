@@ -11,6 +11,10 @@ ENDIF()
 
 project(freerct)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+set(CMAKE_CXX_EXTENSIONS NO)
+
 # Source files
 # TODO: Use explicit list instead?
 file(GLOB freerct_SRCS
@@ -97,14 +101,14 @@ add_dependencies(freerct rcd)
 # Library detection
 find_package(SDL2 REQUIRED)
 IF(SDL2_FOUND)
-	include_directories("${SDL2_INCLUDE_DIR}")
+	include_directories(${SDL2_INCLUDE_DIR})
 	target_link_libraries(freerct ${SDL2_LIBRARY})
 ENDIF()
 
 find_package(SDL2_ttf REQUIRED)
 # Legacy variable names
 IF(SDL2_TTF_FOUND)
-	include_directories("${SDL2TTF_INCLUDE_DIR}")
+	include_directories(${SDL2TTF_INCLUDE_DIR})
 	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
 ENDIF()
 
@@ -133,11 +137,21 @@ configure_file("${CMAKE_SOURCE_DIR}/src/rev.cpp.in" "${CMAKE_SOURCE_DIR}/src/rev
 # Compiler flags
 # TODO: Extend for debug/release versions
 IF(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
-	# Note: SDL must be dynamic
+	# "If /Zc:rvalueCast is specified, the compiler follows section 5.4 of the
+	# C++11 standard". We need C++11 for the way we use threads.
+	add_compile_options(/Zc:rvalueCast)
+
+	IF(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		# Enable multi-threaded compilation.
+		add_compile_options(/MP)
+	ENDIF()
+
+	add_compile_options(/W3)
 ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -pedantic -Wall")
+	add_compile_options(-g)
+	add_compile_options(-Wall -Wextra -pedantic)
 ENDIF()
+
 # Add platform define
 IF(UNIX)
 	add_definitions("-DLINUX")

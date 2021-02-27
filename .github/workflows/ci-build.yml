@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+    - master
+
+jobs:
+  linux:
+    name: Linux
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - compiler: clang
+          cxxcompiler: clang++
+        - compiler: gcc
+          cxxcompiler: g++
+
+    runs-on: ubuntu-20.04
+    env:
+      CC: ${{ matrix.compiler }}
+      CXX: ${{ matrix.cxxcompiler }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        echo "::group::Update apt"
+        sudo apt-get update
+        echo "::endgroup::"
+
+        echo "::group::Install dependencies"
+        sudo apt-get install -y --no-install-recommends \
+          libpng-dev \
+          libsdl2-dev \
+          libsdl2-ttf-dev \
+          zlib1g-dev \
+          # EOF
+        echo "::endgroup::"
+      env:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Install GCC problem matcher
+      uses: ammaraskar/gcc-problem-matcher@master
+
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+
+        echo "::group::CMake"
+        cmake ..
+        echo "::endgroup::"
+
+        echo "::group::Build"
+        echo "Running on $(nproc) cores"
+        cmake --build . -j $(nproc)
+        echo "::endgroup::"
+
+  macos:
+    name: Mac OS
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - arch: x64
+          full_arch: x86_64
+
+    runs-on: macos-latest
+    env:
+      MACOSX_DEPLOYMENT_TARGET: 10.9
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Prepare cache key
+      id: key
+      run: |
+        echo "::set-output name=image::$ImageOS-$ImageVersion"
+
+    - name: Enable vcpkg cache
+      uses: actions/cache@v2
+      with:
+        path: /usr/local/share/vcpkg/installed
+        key: ${{ steps.key.outputs.image }}-vcpkg-${{ matrix.arch }}
+
+    - name: Prepare vcpkg
+      run: |
+        vcpkg install --triplet=${{ matrix.arch }}-osx-dynamic \
+          libpng \
+          sdl2 \
+          sdl2-ttf \
+          zlib \
+          # EOF
+
+    - name: Install GCC problem matcher
+      uses: ammaraskar/gcc-problem-matcher@master
+
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+
+        echo "::group::CMake"
+        cmake ${GITHUB_WORKSPACE} \
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.full_arch }} \
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-osx-dynamic \
+          -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
+          # EOF
+        echo "::endgroup::"
+
+        echo "::group::Build"
+        echo "Running on $(sysctl -n hw.logicalcpu) cores"
+        cmake --build . -j $(sysctl -n hw.logicalcpu)
+        echo "::endgroup::"
+
+  windows:
+    name: Windows
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86, x64]
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Prepare cache key
+      id: key
+      shell: powershell
+      run: |
+        # Work around caching failure with GNU tar
+        New-Item -Type Junction -Path vcpkg -Target c:\vcpkg
+
+        Write-Output "::set-output name=image::$env:ImageOS-$env:ImageVersion"
+
+    - name: Enable vcpkg cache
+      uses: actions/cache@v2
+      with:
+        path: vcpkg/installed
+        key: ${{ steps.key.outputs.image }}-vcpkg-${{ matrix.arch }}
+
+    - name: Prepare vcpkg
+      shell: bash
+      run: |
+        vcpkg install --triplet=${{ matrix.arch }}-windows \
+          libpng \
+          sdl2 \
+          sdl2-ttf \
+          zlib \
+          # EOF
+
+    - name: Install MSVC problem matcher
+      uses: ammaraskar/msvc-problem-matcher@master
+
+    - name: Configure developer command prompt for ${{ matrix.arch }}
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+
+    - name: Build
+      shell: bash
+      run: |
+        mkdir build
+        cd build
+
+        echo "::group::CMake"
+        cmake .. \
+          -GNinja \
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows \
+          -DCMAKE_TOOLCHAIN_FILE="c:\vcpkg\scripts\buildsystems\vcpkg.cmake" \
+          # EOF
+        echo "::endgroup::"
+
+        echo "::group::Build"
+        cmake --build .
+        echo "::endgroup::"
