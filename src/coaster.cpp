@@ -97,12 +97,15 @@ CoasterType::~CoasterType()
 bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
 	uint32 length = rcd_file->size;
-	if (rcd_file->version != 5 || length < 2 + 1 + 1 + 1 + 4 + 2) return false;
-	length -= 2 + 1 + 1 + 1 + 4 + 2;
+	if (rcd_file->version != 6 || length < 2 + 1 + 1 + 1 + 4 + 2 + 6) return false;
+	length -= 2 + 1 + 1 + 1 + 4 + 2 + 6;
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
 	this->max_number_trains = rcd_file->GetUInt8();
 	this->max_number_cars = rcd_file->GetUInt8();
+	this->reliability_max = rcd_file->GetUInt16();
+	this->reliability_decrease_daily = rcd_file->GetUInt16();
+	this->reliability_decrease_monthly = rcd_file->GetUInt16();
 	if (this->coaster_kind == 0 || this->coaster_kind >= CST_COUNT) return false;
 	if (this->platform_type == 0 || this->platform_type >= CPT_COUNT) return false;
 
@@ -722,6 +725,9 @@ bool CoasterInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 
 void CoasterInstance::OnAnimate(int delay)
 {
+	RideInstance::OnAnimate(delay);
+	if (this->broken) return;
+
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
 		if (train.cars.size() == 0) break;

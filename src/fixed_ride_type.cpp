@@ -271,6 +271,7 @@ void FixedRideInstance::RemoveFromWorld()
 
 void FixedRideInstance::OnAnimate(const int delay)
 {
+	RideInstance::OnAnimate(delay);
 	if (this->broken) return;
 
 	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.

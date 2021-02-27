@@ -1152,24 +1152,27 @@ Version history
 Roller coaster tracks
 ~~~~~~~~~~~~~~~~~~~~~
 A ``RCST`` block contains all information of a single type of roller coaster.
-It currently contains track piece definitions only. FreeRCT supports version 5
+It currently contains track piece definitions only. FreeRCT supports version 6
 of the ``RCST`` block.
 
-======  ======  =======  ==================  =================================================================
-Offset  Length  Version  Field name          Description
-======  ======  =======  ==================  =================================================================
-   0       4      1-                         Magic string 'RCST'.
-   4       4      1-                         Version number of the block.
-   8       4      1-                         Length of the block excluding magic string, version, and length.
-  12       2      1-     coaster_type        Type of roller coaster.
-  14       1      2-     platform_type       Platform type.
-  15       1      5-     max_number_trains   Maximum number of trains at the roller coaster.
-  16       1      5-     max_number_cars     Maximum number of cars in a train.
-  17       4      3-     texts               Texts of the coaster.
-  21       2      1-     <derived>           Number of track piece definitions (called 'n').
-  23      4*n     1-                         The track piece definitions (references to ``TRCK``).
-23+4*n                                       Total length of the ``RCST`` block.
-======  ======  =======  ==================  =================================================================
+======  ======  =======  =============================  ========================================================================
+Offset  Length  Version  Field name                     Description
+======  ======  =======  =============================  ========================================================================
+   0       4      1-                                    Magic string 'RCST'.
+   4       4      1-                                    Version number of the block.
+   8       4      1-                                    Length of the block excluding magic string, version, and length.
+  12       2      1-     coaster_type                   Type of roller coaster.
+  14       1      2-     platform_type                  Platform type.
+  15       1      5-     max_number_trains              Maximum number of trains at the roller coaster.
+  16       1      5-     max_number_cars                Maximum number of cars in a train.
+  17       2      6-     reliability_max                Maximum reliability factor (in percents of a percent).
+  19       2      6-     reliability_decrease_daily     Daily reliability decrease (in percents of a percent).
+  21       2      6-     reliability_decrease_monthly   Monthly decrease of the maximum reliability (in percents of a percent).
+  23       4      3-     texts                          Texts of the coaster.
+  27       2      1-     <derived>                      Number of track piece definitions (called 'n').
+  29      4*n     1-                                    The track piece definitions (references to ``TRCK``).
+29+4*n                                                  Total length of the ``RCST`` block.
+======  ======  =======  =============================  ========================================================================
 
 Currently defined coaster types:
 
@@ -1188,6 +1191,7 @@ Version history
 - 3 (20130511) Added a TEXT reference.
 - 4 (20131117) Moved platform bits from track piece to track voxel.
 - 5 (20131227) Added ``number_of_trains`` and ``number_of_cars`` fields.
+- 6 (20210227) Added reliability parameters.
 
 Track pieces
 ~~~~~~~~~~~~

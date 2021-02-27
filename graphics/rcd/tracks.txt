@@ -16,6 +16,9 @@ file("tracks.rcd") {
 		platform_type: 1; // Wooden platforms.
 		max_number_trains: 3;
 		max_number_cars: 4;
+		reliability_max: 5000;
+		reliability_decrease_daily: 10;
+		reliability_decrease_monthly: 1;
 
 		texts: strings { key: "basic-coaster"; }
 

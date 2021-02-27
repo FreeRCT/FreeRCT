@@ -2461,6 +2461,9 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 	rb->platform_type = vals.GetNumber("platform_type");
 	rb->number_trains = vals.GetNumber("max_number_trains");
 	rb->number_cars = vals.GetNumber("max_number_cars");
+	rb->reliability_max = vals.GetNumber("reliability_max");
+	rb->reliability_decrease_daily = vals.GetNumber("reliability_decrease_daily");
+	rb->reliability_decrease_monthly = vals.GetNumber("reliability_decrease_monthly");
 	rb->text = std::make_shared<StringBundle>();
 	rb->text->Fill(vals.GetStrings("texts"), ng->pos);
 	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
