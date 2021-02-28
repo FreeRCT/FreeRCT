@@ -134,6 +134,17 @@ message(STATUS "Version string: ${VERSION_STRING}")
 message(STATUS "Generating src/rev.cpp")
 configure_file("${CMAKE_SOURCE_DIR}/src/rev.cpp.in" "${CMAKE_SOURCE_DIR}/src/rev.cpp")
 
+IF(ASAN)
+	set(CMAKE_C_FLAGS
+		"-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g"
+		CACHE STRING "Flags used by the C compiler during AddressSanitizer builds."
+		FORCE)
+	set(CMAKE_CXX_FLAGS
+		"-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g"
+		CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds."
+		FORCE)
+ENDIF()
+
 # Compiler flags
 # TODO: Extend for debug/release versions
 IF(MSVC)
