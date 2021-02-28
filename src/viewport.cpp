@@ -961,7 +961,10 @@ void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 						case RTK_THRILL: {
 							const FixedRideInstance *si = static_cast<const FixedRideInstance *>(ri);
 							const XYZPoint16 pos = FixedRideType::UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
-							height = si->GetFixedRideType()->GetHeight(pos.x, pos.y);
+							height =
+								si->IsEntranceLocation(voxel_pos) ? RideEntranceExitType::entrance_height :
+								si->IsExitLocation(voxel_pos) ? RideEntranceExitType::exit_height :
+								si->GetFixedRideType()->GetHeight(pos.x, pos.y);
 							break;
 						}
 

@@ -1557,7 +1557,10 @@ const char *SpriteManager::Load(const char *filename)
 				delete e;
 				return "Entrance/Exit failed to load.";
 			}
-			_rides_manager.AddRideEntranceExitType(e);
+			if (!_rides_manager.AddRideEntranceExitType(e)) {
+				delete e;
+				return "No space for entrance/exit left.";
+			}
 			continue;
 		}
 

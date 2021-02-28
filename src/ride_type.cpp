@@ -750,8 +750,8 @@ bool RidesManager::AddRideType(RideType *type)
  */
 bool RidesManager::AddRideEntranceExitType(RideEntranceExitType *type)
 {
-	auto array = type->is_entrance ? this->entrances : this->exits;
-	for (uint i = 0; i < lengthof(array); i++) {
+	const RideEntranceExitType **array = type->is_entrance ? this->entrances : this->exits;
+	for (uint i = 0; i < MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS; i++) {
 		if (array[i] == nullptr) {
 			array[i] = type;
 			return true;
