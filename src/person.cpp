@@ -1599,3 +1599,112 @@ void Guest::BuyItem(RideInstance *ri)
 	}
 	this->ChangeHappiness(-10);
 }
+
+Mechanic::Mechanic()
+{
+	this->activity = MA_WANDER;
+	this->ride = nullptr;
+	this->ride_location_pos = XYZPoint16::invalid();
+	this->ride_location_edge = INVALID_EDGE;
+}
+
+Mechanic::~Mechanic()
+{
+	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
+}
+
+/**
+ * Notify the mechanic of removal of a ride.
+ * @param ri Ride being deleted.
+ */
+void Mechanic::NotifyRideDeletion(const RideInstance *ri)
+{
+	if (this->ride == ri) {
+		this->ride = nullptr;
+		this->activity = MA_WANDER;
+	}
+}
+
+/**
+ * Tell this mechanic to inspect or repair a ride.
+ * @param ri Ride to inspect or repair.
+ * @param pos Position of the ride.
+ * @param edge The edge by which to enter the ride.
+ */
+void Mechanic::SetRide(RideInstance *ri, const XYZPoint16 &pos, TileEdge edge)
+{
+	assert(this->ride == nullptr);
+	this->ride = ri;
+	this->ride_location_pos = pos;
+	this->ride_location_edge = edge;
+	this->activity = MA_UNDERWAY;
+}
+
+/**
+ * Load a mechanic from the save game.
+ * @param ldr Input stream to read.
+ */
+void Mechanic::Load(Loader &ldr)
+{
+	this->Person::Load(ldr);
+
+	this->activity = static_cast<MechanicActivity>(ldr.GetByte());
+	const int ride_index = ldr.GetWord();
+	if (ride_index != INVALID_RIDE_INSTANCE) {
+		this->ride = _rides_manager.GetRideInstance(ride_index);
+		this->ride_location_pos.x = ldr.GetWord();
+		this->ride_location_pos.y = ldr.GetWord();
+		this->ride_location_pos.z = ldr.GetWord(); 
+		this->ride_location_edge = static_cast<TileEdge>(ldr.GetByte());
+	}
+}
+
+/**
+ * Save mechanic data to the save game file.
+ * @param svr Output stream to save to.
+ */
+void Mechanic::Save(Saver &svr)
+{
+	this->Person::Save(svr);
+
+	svr.PutByte(this->activity);
+	if (this->ride == nullptr) {
+		svr.PutWord(INVALID_RIDE_INSTANCE);
+	} else {
+		svr.PutWord(this->ride->GetIndex());
+		svr.PutWord(this->ride_location_pos.x);
+		svr.PutWord(this->ride_location_pos.y);
+		svr.PutWord(this->ride_location_pos.z);
+		svr.PutByte(this->ride_location_edge);
+	}
+}
+
+bool Mechanic::DailyUpdate() {
+	/* Nothing special to do. */
+	return true;
+}
+
+AnimateResult Mechanic::EdgeOfWorldOnAnimate() {
+	/* Staff may not leave the world. */
+	return OAR_CONTINUE;
+}
+
+AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge edge) {
+	if (ri != this->ride || edge != this->ride_location_edge) return OAR_CONTINUE;
+
+	if (this->activity == MA_UNDERWAY) {
+		this->activity = MA_INSPECTING;
+		this->StartAnimation(*_center_path_tile[edge]);
+		return OAR_OK;
+	}
+
+	ri->MechanicArrived();
+	this->ride = nullptr;
+	this->activity = MA_WANDER;
+	return OAR_CONTINUE;
+}
+
+void Mechanic::DecideMoveDirection() {
+	// NOCOM
+	// if (this->ride == nullptr) then walk around randomly. Otherwise targeted walking to the destination.
+}

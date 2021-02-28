@@ -234,4 +234,34 @@ protected:
 	void AddItem(ItemType it);
 };
 
+/** Activities of a mechanic. */
+enum MechanicActivity {
+	MA_WANDER,      ///< Walk around waiting for something to do.
+	MA_INSPECTING,  ///< Currently inspecting a ride.
+	MA_UNDERWAY,    ///< On our way to inspect a ride.
+};
+
+/** %Mechanics walking around in the world. */
+class Mechanic : public Person {
+public:
+	Mechanic();
+	~Mechanic();
+
+	bool DailyUpdate() override;
+	void DecideMoveDirection() override;
+	AnimateResult EdgeOfWorldOnAnimate() override;
+	AnimateResult VisitRideOnAnimate(RideInstance*, TileEdge) override;
+
+	void NotifyRideDeletion(const RideInstance *ri);
+	void SetRide(RideInstance *ri, const XYZPoint16 &pos, TileEdge edge);
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	MechanicActivity activity;     ///< What we're doing right now.
+	RideInstance *ride;            ///< The ride we are inspecting or planning to inspect next.
+	XYZPoint16 ride_location_pos;  ///< The location of the ride (only valid if #ride is not \c nullptr).
+	TileEdge ride_location_edge;   ///< The edge by which to enter the ride (only valid if #ride is not \c nullptr).
+};
+
 #endif

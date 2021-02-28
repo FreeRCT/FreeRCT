@@ -328,6 +328,11 @@ bool RideInstance::IsExitLocation(const XYZPoint16& pos) const
 }
 
 /**
+ * \fn std::pair<XYZPoint16, TileEdge> RideInstance::GetMechanicEntrance() const
+ * The voxel and edge at which a mechanic interacts with the ride for maintenance and repairs.
+ */
+
+/**
  * Sell an item to a customer.
  * @param item_index Index of the item being sold.
  */
@@ -485,7 +490,7 @@ void RideInstance::BreakDown()
 void RideInstance::CallMechanic()
 {
 	if (this->mechanic_pending) return;
-	/* \todo NOCOM Actually request a mechanic. */
+	_staff.RequestMechanic(this);
 	this->mechanic_pending = true;
 }
 
@@ -896,6 +901,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	assert(num < lengthof(this->instances));
 	this->instances[num]->RemoveAllPeople();
 	_guests.NotifyRideDeletion(this->instances[num]);
+	_staff.NotifyRideDeletion(this->instances[num]);
 	this->instances[num]->RemoveFromWorld();
 	delete this->instances[num];
 	this->instances[num] = nullptr;

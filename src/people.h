@@ -10,6 +10,8 @@
 #ifndef PEOPLE_H
 #define PEOPLE_H
 
+#include <list>
+
 static const int GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
 
 /** A block of guests. */
@@ -114,6 +116,33 @@ private:
 	Guest *GetFree();
 };
 
+/**
+ * All the staff (handymen, mechanics, entertainers, guards) in the park.
+ * @todo Currently only mechanics are supported.
+ */
+class Staff {
+public:
+	Staff();
+	~Staff();
+	void Uninitialize();
+
+	uint CountMechanics() const;
+	void RequestMechanic(RideInstance *ride);
+	void NotifyRideDeletion(const RideInstance *);
+
+	void OnAnimate(int delay);
+	void DoTick();
+	void OnNewDay();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+private:
+	std::list<std::unique_ptr<Mechanic>> mechanics;  ///< All mechanics.
+	std::list<RideInstance*> mechanic_requests;      ///< Rides in need of a mechanic.
+};
+
 extern Guests _guests;
+extern Staff _staff;
 
 #endif

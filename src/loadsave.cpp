@@ -318,7 +318,7 @@ void Saver::PutText(const uint8 *str, int length)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 6) ldr.SetFailMessage("Bad file header");
+	if (version > 7) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
 
 	Loader reset_loader(nullptr);
@@ -330,6 +330,7 @@ static void LoadElements(Loader &ldr)
 	_weather.Load((version >= 4) ? ldr : reset_loader);
 	_rides_manager.Load((version >= 6) ? ldr : reset_loader);
 	_guests.Load((version >= 5) ? ldr : reset_loader);
+	_staff.Load((version >= 6) ? ldr : reset_loader);
 
 	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
@@ -341,7 +342,7 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 6);
+	svr.StartBlock("FCTS", 7);
 	svr.EndBlock();
 
 	SaveDate(svr);
@@ -351,6 +352,7 @@ static void SaveElements(Saver &svr)
 	_weather.Save(svr);
 	_rides_manager.Save(svr);
 	_guests.Save(svr);
+	_staff.Save(svr);
 }
 
 /**

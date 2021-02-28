@@ -889,6 +889,14 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 	NOT_REACHED();
 }
 
+std::pair<XYZPoint16, TileEdge> CoasterInstance::GetMechanicEntrance() const
+{
+	for (const CoasterStation &s : this->stations) {  // Pick the first exit there is.
+		if (s.exit != XYZPoint16::invalid()) return std::make_pair(s.exit, static_cast<TileEdge>(this->EntranceExitRotation(s.exit, &s)));
+	}
+	NOT_REACHED();
+}
+
 /* We here (mis-)use the TileEdge parameter as the index of the station at which the guest is getting off. */
 XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge station_index)
 {

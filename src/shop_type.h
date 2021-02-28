@@ -43,6 +43,7 @@ public:
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
+	std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;

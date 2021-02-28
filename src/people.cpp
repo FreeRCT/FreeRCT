@@ -19,6 +19,7 @@
 #include "gamelevel.h"
 
 Guests _guests; ///< %Guests in the world/park.
+Staff _staff;   ///< %Staff in the world/park.
 
 /**
  * Guest block constructor. Fills the id of the persons with an incrementing number.
@@ -302,4 +303,128 @@ Guest *Guests::GetFree()
 	Guest *g = this->block.Get(this->free_idx);
 	this->free_idx++;
 	return g;
+}
+
+Staff::Staff()
+{
+	/* Nothing to do currently. */
+}
+
+Staff::~Staff()
+{
+	/* Nothing to do currently. */
+}
+
+/** Remove all staff and reset all variables. */
+void Staff::Uninitialize()
+{
+	this->mechanic_requests.clear();
+	this->mechanics.clear();
+}
+
+/**
+ * Load staff from the save game.
+ * @param ldr Input stream to read.
+ */
+void Staff::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("STAF");
+	if (version == 1) {
+		for (uint i = ldr.GetLong(); i > 0; i--) {
+			Mechanic *m = new Mechanic;
+			m->Load(ldr);
+			this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+		}
+	} else {
+		ldr.SetFailMessage("Incorrect version of Staff block.");
+	}
+	ldr.CloseBlock();
+}
+
+/**
+ * Save staff to the save game.
+ * @param svr Output stream to save to.
+ */
+void Staff::Save(Saver &svr)
+{
+	svr.StartBlock("STAF", 1);
+	svr.PutLong(this->mechanics.size());
+	for (auto& m : this->mechanics) m->Save(svr);
+	svr.EndBlock();
+}
+
+/**
+ * Request that a mechanic should inspect or repair a ride as soon as possible.
+ * @param ride Ride to inspect or repair.
+ */
+void Staff::RequestMechanic(RideInstance *ride)
+{
+	mechanic_requests.push_back(ride);
+}
+
+/**
+ * Notification that the ride is being removed.
+ * @param ri Ride being removed.
+ */
+void Staff::NotifyRideDeletion(const RideInstance *ri) {
+	for (auto& m : this->mechanics) m->NotifyRideDeletion(ri);
+}
+
+/**
+ * Some time has passed, update the animation.
+ * @param delay Number of milliseconds time that have past since the last animation update.
+ */
+void Staff::OnAnimate(const int delay)
+{
+	for (auto& m : this->mechanics) m->OnAnimate(delay);
+}
+
+/** A new frame arrived. */
+void Staff::DoTick()
+{
+	while (!this->mechanic_requests.empty()) {
+		const std::pair<XYZPoint16, TileEdge> location = this->mechanic_requests.front()->GetMechanicEntrance();
+		Mechanic *nearest_mechanic = nullptr;
+		for (auto& m : this->mechanics) {
+			if (m->activity == MA_WANDER) {
+				nearest_mechanic = m.get();
+				// NOCOM check distance
+			}
+		}
+		if (nearest_mechanic == nullptr) break;  // No more free mechanics available.
+		nearest_mechanic->SetRide(this->mechanic_requests.front(), location.first, location.second);
+	}
+}
+
+/** A new day arrived. */
+void Staff::OnNewDay()
+{
+	/* Nothing to do currently */
+
+	// NOCOM
+	if (this->mechanics.empty()) {
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				Voxel *v = _world.GetCreateVoxel(XYZPoint16(x, y, 8), false);
+				if (v != nullptr && v->instance == SRI_PATH) {
+					Mechanic *m = new Mechanic;
+					m->vox_pos.x = x;
+					m->vox_pos.y = y;
+					m->vox_pos.z = 8;
+					m->AddSelf(v);
+					this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+					return;
+				}
+			}
+		}
+	}
+}
+
+/**
+ * How many the mechanics there are in the park currently.
+ * @return number of mechanics.
+ */
+uint Staff::CountMechanics() const
+{
+	return this->mechanics.size();
 }
