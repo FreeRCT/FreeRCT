@@ -21,6 +21,8 @@
 #include "viewport.h"
 #include "weather.h"
 
+#include <cmath>
+
 static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about each type of person.
 
 static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests queuing for a ride.

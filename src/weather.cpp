@@ -196,7 +196,7 @@ WeatherType Weather::GetWeatherType() const
 void Weather::SetTemperature()
 {
 	if (_date.day <= 15) {
-		int prev_month = _date.GetPreviousMonth();
+		int prev_month = std::max(1, _date.GetPreviousMonth());
 		int prev_length = _days_per_month[prev_month] - 15; // 16, 17, ...
 		prev_length += _date.day - 1;
 		int this_length = 15 - _date.day;
