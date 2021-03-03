@@ -77,7 +77,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->monthly_open_cost = rcd_file->GetInt32();
 	this->capacity.number_of_batches = rcd_file->GetUInt32();
 	this->capacity.guests_per_batch = rcd_file->GetUInt32();
-	this->idle_duration = rcd_file->GetUInt32();
+	this->default_idle_duration = rcd_file->GetUInt32();
 	this->working_duration = rcd_file->GetUInt32();
 
 	/* Check that all animations fit to the ride. */

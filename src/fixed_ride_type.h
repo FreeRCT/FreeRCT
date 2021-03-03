@@ -48,7 +48,7 @@ public:
 	static XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y);
 	static XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y);
 
-	int idle_duration;                        ///< Duration of the idle phase in milliseconds.
+	int default_idle_duration;                ///< Default duration of the idle phase in milliseconds.
 	int working_duration;                     ///< Duration of the working phase in milliseconds.
 	const FrameSet *animation_idle;           ///< Ride graphics when the ride is not working
 	const TimedAnimation *animation_starting; ///< Ride graphics when the ride is starting to work
@@ -80,9 +80,11 @@ public:
 
 	int EntranceExitRotation(const XYZPoint16& vox) const;
 
-	uint8 orientation;     ///< Orientation of the shop.
-	XYZPoint16 vox_pos;    ///< Position of the shop base voxel.
-	int16 working_cycles;  ///< Number of working cycles.
+	uint8 orientation;      ///< Orientation of the shop.
+	XYZPoint16 vox_pos;     ///< Position of the shop base voxel.
+	int16 working_cycles;   ///< Number of working cycles.
+	int max_idle_duration;  ///< Maximum duration of the idle phase in milliseconds.
+	int min_idle_duration;  ///< Minimum duration of the idle phase in milliseconds.
 
 protected:
 	OnRideGuests onride_guests; ///< Guests in the ride.

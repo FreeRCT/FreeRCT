@@ -19,7 +19,7 @@
 
 FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k)
 {
-	this->width_x = this->width_y = this->idle_duration = this->working_duration = 0;
+	this->width_x = this->width_y = this->default_idle_duration = this->working_duration = 0;
 	animation_idle = nullptr;
 	animation_starting = nullptr;
 	animation_working = nullptr;
@@ -54,6 +54,8 @@ FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(t
 	this->is_working = false;
 	this->time_left_in_phase = 0;
 	this->working_cycles = 1;
+	this->max_idle_duration = type->default_idle_duration;
+	this->min_idle_duration = 0;
 }
 
 FixedRideInstance::~FixedRideInstance()
@@ -113,7 +115,7 @@ void FixedRideInstance::CloseRide() {
 void FixedRideInstance::OpenRide() {
 	RideInstance::OpenRide();
 	is_working = false;
-	this->time_left_in_phase = GetFixedRideType()->idle_duration;
+	this->time_left_in_phase = this->max_idle_duration;
 }
 
 /**
@@ -283,7 +285,7 @@ void FixedRideInstance::OnAnimate(const int delay)
 		this->time_left_in_phase -= delay;
 		if (this->time_left_in_phase < 0) {
 			this->is_working = !this->is_working;
-			this->time_left_in_phase += (this->is_working ? (this->working_cycles * t->working_duration) : t->idle_duration);
+			this->time_left_in_phase += (this->is_working ? (this->working_cycles * t->working_duration) : this->max_idle_duration);
 			force_start = this->is_working;
 			needs_update = true;
 		}
@@ -329,6 +331,7 @@ void FixedRideInstance::OnAnimate(const int delay)
 				}
 			}
 		}
+		/* \todo Only start if the waiting time exceeded #min_idle_duration. */
 		if (is_full) {
 			this->is_working = true;
 			this->time_left_in_phase = this->working_cycles * t->working_duration;
@@ -357,6 +360,8 @@ void FixedRideInstance::Load(Loader &ldr)
 	uint16 z = ldr.GetWord();
 	this->vox_pos = XYZPoint16(x, y, z);
 	this->working_cycles = ldr.GetWord();
+	this->max_idle_duration = ldr.GetLong();
+	this->min_idle_duration = ldr.GetLong();
 	this->time_left_in_phase = ldr.GetLong();
 	this->is_working = ldr.GetByte() == 1;
 	this->onride_guests.Load(ldr);
@@ -373,6 +378,8 @@ void FixedRideInstance::Save(Saver &svr)
 	svr.PutWord(this->vox_pos.y);
 	svr.PutWord(this->vox_pos.z);
 	svr.PutWord(this->working_cycles);
+	svr.PutLong(this->max_idle_duration);
+	svr.PutLong(this->min_idle_duration);
 	svr.PutLong(this->time_left_in_phase);
 	svr.PutByte(this->is_working ? 1 : 0);
 	this->onride_guests.Save(svr);

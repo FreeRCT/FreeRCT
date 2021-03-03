@@ -139,6 +139,8 @@ strings {
 		RIDE_MANAGER_BROKEN_DOWN:       "Kaputt";
 		RIDE_MANAGER_MAINTENANCE_TEXT:  "Tied tüsken Nakiekens (Menüten):";
 		RIDE_MANAGER_MAINTENANCE_NEVER: "Nienich";
+		RIDE_MANAGER_MAX_IDLE_TEXT:     "Hoogste Wachttied (Sekünnen):";
+		RIDE_MANAGER_MIN_IDLE_TEXT:     "Minnste Wachttied (Sekünnen):";
 
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Laden »%1%«";

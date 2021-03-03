@@ -139,6 +139,8 @@ strings {
 		RIDE_MANAGER_BROKEN_DOWN:       "Defekt";
 		RIDE_MANAGER_MAINTENANCE_TEXT:  "Wartungsintervall (Minuten):";
 		RIDE_MANAGER_MAINTENANCE_NEVER: "Nie";
+		RIDE_MANAGER_MAX_IDLE_TEXT:     "Maximale Wartezeit (Sekunden):";
+		RIDE_MANAGER_MIN_IDLE_TEXT:     "Minimale Wartezeit (Sekunden):";
 
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Geschäft »%1%«";

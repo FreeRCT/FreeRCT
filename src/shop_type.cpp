@@ -81,8 +81,8 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	for (int i = 0; i < 4; i++) {
 		previews[i] = animation_idle->sprites[i][0];
 	}
-	this->working_duration = 0;  // Shops don't have working phases.
-	this->idle_duration = 1;     // Ignored.
+	this->working_duration = 0;       // Shops don't have working phases.
+	this->default_idle_duration = 1;  // Ignored.
 
 	for (uint i = 0; i < 3; i++) {
 		uint32 recolour = rcd_file->GetUInt32();

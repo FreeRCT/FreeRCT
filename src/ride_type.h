@@ -91,6 +91,7 @@ public:
 
 static const int ENTRANCE_FEE_STEP_SIZE = 10;                     ///< Step size of changing a ride's entrance fee in the GUI.
 static const int MAINTENANCE_INTERVAL_STEP_SIZE = 5 * 60 * 1000;  ///< Step size of changing a ride's maintenance interval in the GUI, in milliseconds.
+static const int IDLE_DURATION_STEP_SIZE = 5 * 1000;              ///< Step size of changing a ride's idle duration in the GUI, in milliseconds.
 
 static const int16 RELIABILITY_RANGE = 10000;  ///< Reliability parameters are in range 0..10000.
 

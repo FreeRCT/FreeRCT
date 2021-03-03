@@ -75,6 +75,12 @@ enum GentleThrillRideManagerWidgets {
 	GTRMW_CYCLES,
 	GTRMW_CYCLES_DECREASE,
 	GTRMW_CYCLES_INCREASE,
+	GTRMW_MIN_IDLE,
+	GTRMW_MIN_IDLE_DECREASE,
+	GTRMW_MIN_IDLE_INCREASE,
+	GTRMW_MAX_IDLE,
+	GTRMW_MAX_IDLE_DECREASE,
+	GTRMW_MAX_IDLE_INCREASE,
 	GTRMW_RIDE_OPENED,
 	GTRMW_RIDE_OPENED_TEXT,
 	GTRMW_RIDE_CLOSED,
@@ -111,7 +117,7 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GTRMW_MONTHLY_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 2),
+			Intermediate(4, 2),
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
 				Intermediate(1, 3),
 					Widget(WT_TEXT_PUSHBUTTON, GTRMW_ENTRANCE_FEE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
@@ -122,6 +128,16 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 					Widget(WT_TEXT_PUSHBUTTON, GTRMW_CYCLES_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
 					Widget(WT_CENTERED_TEXT, GTRMW_CYCLES, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, GTRMW_CYCLES_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_MIN_IDLE_TEXT, STR_NULL),
+				Intermediate(1, 3),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_MIN_IDLE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
+					Widget(WT_CENTERED_TEXT, GTRMW_MIN_IDLE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_MIN_IDLE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_MAX_IDLE_TEXT, STR_NULL),
+				Intermediate(1, 3),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_MAX_IDLE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
+					Widget(WT_CENTERED_TEXT, GTRMW_MAX_IDLE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, GTRMW_MAX_IDLE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 			Intermediate(4, 1),
 				Intermediate(2, 2),
@@ -245,12 +261,16 @@ void GentleThrillRideManagerWindow::UpdateButtons()
 	this->SetWidgetShaded(GTRMW_RIDE_OPENED, !this->ride->CanOpenRide());
 	this->SetWidgetShaded(GTRMW_PLACE_ENTRANCE, this->ride->state != RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_PLACE_EXIT, this->ride->state != RIS_CLOSED);
+	this->SetWidgetShaded(GTRMW_MAINTENANCE_DECREASE, this->ride->maintenance_interval <= 0);
+	this->SetWidgetShaded(GTRMW_ENTRANCE_FEE_DECREASE, this->ride->item_price[0] <= 0);
 	this->SetWidgetShaded(GTRMW_CYCLES_DECREASE,
 			this->ride->state != RIS_CLOSED || this->ride->working_cycles <= this->ride->GetGentleThrillRideType()->working_cycles_min);
 	this->SetWidgetShaded(GTRMW_CYCLES_INCREASE,
 			this->ride->state != RIS_CLOSED || this->ride->working_cycles >= this->ride->GetGentleThrillRideType()->working_cycles_max);
-	this->SetWidgetShaded(GTRMW_MAINTENANCE_DECREASE, this->ride->maintenance_interval <= 0);
-	this->SetWidgetShaded(GTRMW_ENTRANCE_FEE_DECREASE, this->ride->item_price[0] <= 0);
+	this->SetWidgetShaded(GTRMW_MIN_IDLE_DECREASE, this->ride->state != RIS_CLOSED || this->ride->min_idle_duration <= 0);
+	this->SetWidgetShaded(GTRMW_MIN_IDLE_INCREASE, this->ride->state != RIS_CLOSED || this->ride->min_idle_duration >= this->ride->max_idle_duration);
+	this->SetWidgetShaded(GTRMW_MAX_IDLE_DECREASE, this->ride->state != RIS_CLOSED || this->ride->max_idle_duration <= this->ride->min_idle_duration);
+	this->SetWidgetShaded(GTRMW_MAX_IDLE_INCREASE, this->ride->state != RIS_CLOSED);
 }
 
 void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
@@ -277,6 +297,12 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 			}
 			break;
 
+		case GTRMW_MAX_IDLE:
+			_str_params.SetNumber(1, this->ride->max_idle_duration / 1000);
+			break;
+		case GTRMW_MIN_IDLE:
+			_str_params.SetNumber(1, this->ride->min_idle_duration / 1000);
+			break;
 		case GTRMW_CYCLES:
 			_str_params.SetNumber(1, this->ride->working_cycles);
 			break;
@@ -373,6 +399,22 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 
 			break;
 		case GTRMW_CYCLES_DECREASE:
 			this->ride->working_cycles--;
+			this->UpdateButtons();
+			break;
+		case GTRMW_MAX_IDLE_INCREASE:
+			this->ride->max_idle_duration += IDLE_DURATION_STEP_SIZE;
+			this->UpdateButtons();
+			break;
+		case GTRMW_MAX_IDLE_DECREASE:
+			this->ride->max_idle_duration -= IDLE_DURATION_STEP_SIZE;
+			this->UpdateButtons();
+			break;
+		case GTRMW_MIN_IDLE_INCREASE:
+			this->ride->min_idle_duration += IDLE_DURATION_STEP_SIZE;
+			this->UpdateButtons();
+			break;
+		case GTRMW_MIN_IDLE_DECREASE:
+			this->ride->min_idle_duration -= IDLE_DURATION_STEP_SIZE;
 			this->UpdateButtons();
 			break;
 		case GTRMW_MAINTENANCE_INCREASE:

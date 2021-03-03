@@ -147,6 +147,8 @@ static const char *_gui_string_names[] = {
 	"RIDE_MANAGER_RELIABILITY",
 	"RIDE_MANAGER_MAINTENANCE_TEXT",
 	"RIDE_MANAGER_MAINTENANCE_NEVER",
+	"RIDE_MANAGER_MIN_IDLE_TEXT",
+	"RIDE_MANAGER_MAX_IDLE_TEXT",
 
 	/* Shop manager window strings. */
 	"SHOP_MANAGER_TITLE",
