@@ -319,7 +319,6 @@ Staff::~Staff()
 void Staff::Uninitialize()
 {
 	this->mechanic_requests.clear();
-	this->mechanics.clear();
 }
 
 /**
@@ -331,9 +330,7 @@ void Staff::Load(Loader &ldr)
 	uint32 version = ldr.OpenBlock("STAF");
 	if (version == 1) {
 		for (uint i = ldr.GetLong(); i > 0; i--) {
-			Mechanic *m = new Mechanic;
-			m->Load(ldr);
-			this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+			this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
 		}
 	} else {
 		ldr.SetFailMessage("Incorrect version of Staff block.");
@@ -348,8 +345,8 @@ void Staff::Load(Loader &ldr)
 void Staff::Save(Saver &svr)
 {
 	svr.StartBlock("STAF", 1);
-	svr.PutLong(this->mechanics.size());
-	for (auto& m : this->mechanics) m->Save(svr);
+	svr.PutLong(this->mechanic_requests.size());
+	for (RideInstance *ride : this->mechanic_requests) svr.PutWord(ride->GetIndex());
 	svr.EndBlock();
 }
 
@@ -367,7 +364,7 @@ void Staff::RequestMechanic(RideInstance *ride)
  * @param ri Ride being removed.
  */
 void Staff::NotifyRideDeletion(const RideInstance *ri) {
-	for (auto& m : this->mechanics) m->NotifyRideDeletion(ri);
+	/* \todo Forward this to the mechanics. */
 }
 
 /**
@@ -376,55 +373,24 @@ void Staff::NotifyRideDeletion(const RideInstance *ri) {
  */
 void Staff::OnAnimate(const int delay)
 {
-	for (auto& m : this->mechanics) m->OnAnimate(delay);
+	/* \todo Forward this to the staff. */
 }
 
 /** A new frame arrived. */
 void Staff::DoTick()
 {
-	while (!this->mechanic_requests.empty()) {
-		const std::pair<XYZPoint16, TileEdge> location = this->mechanic_requests.front()->GetMechanicEntrance();
-		Mechanic *nearest_mechanic = nullptr;
-		for (auto& m : this->mechanics) {
-			if (m->activity == MA_WANDER) {
-				nearest_mechanic = m.get();
-				// NOCOM check distance
-			}
-		}
-		if (nearest_mechanic == nullptr) break;  // No more free mechanics available.
-		nearest_mechanic->SetRide(this->mechanic_requests.front(), location.first, location.second);
-	}
+	/* \todo Assign mechanic requests to available mechanics. */
 }
 
 /** A new day arrived. */
 void Staff::OnNewDay()
 {
-	/* Nothing to do currently */
-
-	// NOCOM
-	if (this->mechanics.empty()) {
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				Voxel *v = _world.GetCreateVoxel(XYZPoint16(x, y, 8), false);
-				if (v != nullptr && v->instance == SRI_PATH) {
-					Mechanic *m = new Mechanic;
-					m->vox_pos.x = x;
-					m->vox_pos.y = y;
-					m->vox_pos.z = 8;
-					m->AddSelf(v);
-					this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
-					return;
-				}
-			}
-		}
+	/* Nothing to do currently. */
+	/* But as long as mechanics are not implemented, we magically repair or inspect 1 ride per day. */
+	if (!this->mechanic_requests.empty()) {
+		Random rnd;
+		if (rnd.Uniform(100) > 10) return;  // Don't do it at once though.
+		this->mechanic_requests.front()->MechanicArrived();
+		this->mechanic_requests.erase(this->mechanic_requests.begin());
 	}
-}
-
-/**
- * How many the mechanics there are in the park currently.
- * @return number of mechanics.
- */
-uint Staff::CountMechanics() const
-{
-	return this->mechanics.size();
 }

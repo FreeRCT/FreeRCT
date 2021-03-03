@@ -118,7 +118,7 @@ private:
 
 /**
  * All the staff (handymen, mechanics, entertainers, guards) in the park.
- * @todo Currently only mechanics are supported.
+ * @todo This is just a stub currently.
  */
 class Staff {
 public:
@@ -126,7 +126,6 @@ public:
 	~Staff();
 	void Uninitialize();
 
-	uint CountMechanics() const;
 	void RequestMechanic(RideInstance *ride);
 	void NotifyRideDeletion(const RideInstance *);
 
@@ -138,8 +137,7 @@ public:
 	void Save(Saver &svr);
 
 private:
-	std::list<std::unique_ptr<Mechanic>> mechanics;  ///< All mechanics.
-	std::list<RideInstance*> mechanic_requests;      ///< Rides in need of a mechanic.
+	std::list<RideInstance*> mechanic_requests;  ///< Rides in need of a mechanic.
 };
 
 extern Guests _guests;
