@@ -195,7 +195,8 @@ public:
 	void SelectorMouseButtonEvent(uint8 state) override;
 
 private:
-	GentleThrillRideInstance *ride; ///< Gentle/Thrill ride instance getting managed by this window.
+	GentleThrillRideInstance *ride;  ///< Gentle/Thrill ride instance getting managed by this window.
+	mutable char text_buffer[1024];  ///< Buffer for custom strings.
 
 	void UpdateButtons();
 	void UpdateRecolourButtons();
@@ -290,10 +291,9 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 			if (this->ride->broken) {
 				_str_params.SetStrID(1, GUI_RIDE_MANAGER_BROKEN_DOWN);
 			} else {
-				char buffer[1024];
-				snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_RIDE_MANAGER_RELIABILITY)),
+				snprintf(text_buffer, lengthof(text_buffer), reinterpret_cast<const char*>(_language.GetText(GUI_RIDE_MANAGER_RELIABILITY)),
 						this->ride->reliability / 100.0);
-				_str_params.SetUint8(1, reinterpret_cast<uint8*>(buffer));
+				_str_params.SetUint8(1, reinterpret_cast<uint8*>(text_buffer));
 			}
 			break;
 

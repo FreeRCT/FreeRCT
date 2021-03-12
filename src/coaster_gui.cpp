@@ -116,7 +116,7 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 		EndContainer(),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(3, 1),
+			Intermediate(3, 1), SetEqualSize(true, true),
 				Intermediate(1, 4),
 					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, CIW_ENTRANCE_FEE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
@@ -177,7 +177,8 @@ public:
 	void UpdateRecolourButtons();
 
 private:
-	CoasterInstance *ci; ///< Roller coaster instance to display and control.
+	CoasterInstance *ci;             ///< Roller coaster instance to display and control.
+	mutable char text_buffer[1024];  ///< Buffer for custom strings.
 
 	void ChooseEntranceExitClicked(bool entrance);
 	RideMouseMode entrance_exit_placement;
@@ -250,10 +251,9 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 			if (this->ci->broken) {
 				_str_params.SetStrID(1, GUI_RIDE_MANAGER_BROKEN_DOWN);
 			} else {
-				char buffer[1024];
-				snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_RIDE_MANAGER_RELIABILITY)),
+				snprintf(text_buffer, lengthof(text_buffer), reinterpret_cast<const char*>(_language.GetText(GUI_RIDE_MANAGER_RELIABILITY)),
 						this->ci->reliability / 100.0);
-				_str_params.SetUint8(1, reinterpret_cast<uint8*>(buffer));
+				_str_params.SetUint8(1, reinterpret_cast<uint8*>(text_buffer));
 			}
 			break;
 
