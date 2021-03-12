@@ -80,6 +80,12 @@ enum CoasterInstanceWidgets {
 	CIW_MAINTENANCE,            ///< Maintenance interval display.
 	CIW_MAINTENANCE_DECREASE,   ///< Decrease maintenance interval button.
 	CIW_MAINTENANCE_INCREASE,   ///< Increase maintenance interval button.
+	CIW_MIN_IDLE,               ///< Minimum idle time display.
+	CIW_MIN_IDLE_DECREASE,      ///< Decrease minimum idle time button.
+	CIW_MIN_IDLE_INCREASE,      ///< Increase minimum idle time button.
+	CIW_MAX_IDLE,               ///< Maximum idle time display.
+	CIW_MAX_IDLE_DECREASE,      ///< Decrease maximum idle time button.
+	CIW_MAX_IDLE_INCREASE,      ///< Increase maximum idle time button.
 	CIW_PLACE_ENTRANCE,      ///< Entrance placement.
 	CIW_CHOOSE_ENTRANCE,     ///< Entrance style.
 	CIW_PLACE_EXIT,          ///< Exit placement.
@@ -116,18 +122,26 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 		EndContainer(),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(3, 1), SetEqualSize(true, true),
-				Intermediate(1, 4),
+			Intermediate(2, 1),
+				Intermediate(4, 4),
 					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, CIW_ENTRANCE_FEE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
 					Widget(WT_CENTERED_TEXT, CIW_ENTRANCE_FEE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, CIW_ENTRANCE_FEE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
-				Widget(WT_LEFT_TEXT, CIW_RELIABILITY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-				Intermediate(1, 4),
+					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_MIN_IDLE_TEXT, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, CIW_MIN_IDLE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
+					Widget(WT_CENTERED_TEXT, CIW_MIN_IDLE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, CIW_MIN_IDLE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
+					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_MAX_IDLE_TEXT, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, CIW_MAX_IDLE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
+					Widget(WT_CENTERED_TEXT, CIW_MAX_IDLE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, CIW_MAX_IDLE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
 					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_MAINTENANCE_TEXT, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, CIW_MAINTENANCE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_DECREASE, STR_NULL),
 					Widget(WT_CENTERED_TEXT, CIW_MAINTENANCE, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, CIW_MAINTENANCE_INCREASE, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INCREASE, STR_NULL),
+				Widget(WT_LEFT_TEXT, CIW_RELIABILITY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 			Intermediate(3, 2),
 				Widget(WT_TEXT_PUSHBUTTON, CIW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
@@ -239,6 +253,12 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 		case CIW_ENTRANCE_FEE:
 			_str_params.SetMoney(1, this->ci->item_price[0]);
 			break;
+		case CIW_MAX_IDLE:
+			_str_params.SetNumber(1, this->ci->max_idle_duration / 1000);
+			break;
+		case CIW_MIN_IDLE:
+			_str_params.SetNumber(1, this->ci->min_idle_duration / 1000);
+			break;
 
 		case CIW_MAINTENANCE:
 			if (this->ci->maintenance_interval > 0) {
@@ -312,6 +332,22 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 			break;
 		case CIW_ENTRANCE_FEE_DECREASE:
 			this->ci->item_price[0] = std::max<int>(0, this->ci->item_price[0] - ENTRANCE_FEE_STEP_SIZE);
+			this->SetCoasterState();
+			break;
+		case CIW_MAX_IDLE_INCREASE:
+			this->ci->max_idle_duration += IDLE_DURATION_STEP_SIZE;
+			this->SetCoasterState();
+			break;
+		case CIW_MAX_IDLE_DECREASE:
+			this->ci->max_idle_duration -= IDLE_DURATION_STEP_SIZE;
+			this->SetCoasterState();
+			break;
+		case CIW_MIN_IDLE_INCREASE:
+			this->ci->min_idle_duration += IDLE_DURATION_STEP_SIZE;
+			this->SetCoasterState();
+			break;
+		case CIW_MIN_IDLE_DECREASE:
+			this->ci->min_idle_duration -= IDLE_DURATION_STEP_SIZE;
 			this->SetCoasterState();
 			break;
 
@@ -433,6 +469,10 @@ void CoasterInstanceWindow::SetCoasterState()
 	this->GetWidget<LeafWidget>(CIW_NUMBER_TRAINS)->SetShaded(this->ci->state != RIS_CLOSED);
 	this->SetWidgetShaded(CIW_MAINTENANCE_DECREASE, this->ci->maintenance_interval <= 0);
 	this->SetWidgetShaded(CIW_ENTRANCE_FEE_DECREASE, this->ci->item_price[0] <= 0);
+	this->SetWidgetShaded(CIW_MIN_IDLE_DECREASE, this->ci->state == RIS_OPEN || this->ci->min_idle_duration <= 0);
+	this->SetWidgetShaded(CIW_MIN_IDLE_INCREASE, this->ci->state == RIS_OPEN || this->ci->min_idle_duration >= this->ci->max_idle_duration);
+	this->SetWidgetShaded(CIW_MAX_IDLE_DECREASE, this->ci->state == RIS_OPEN || this->ci->max_idle_duration <= this->ci->min_idle_duration);
+	this->SetWidgetShaded(CIW_MAX_IDLE_INCREASE, this->ci->state == RIS_OPEN);
 }
 
 /**

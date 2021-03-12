@@ -283,6 +283,8 @@ public:
 	std::vector<CoasterStation> stations;  ///< All stations of this coaster.
 	XYZPoint16 temp_entrance_pos;          ///< Temporary location of one of the ride's entrance while the user is moving the entrance.
 	XYZPoint16 temp_exit_pos;              ///< Temporary location of one of the ride's exit while the user is moving the exit.
+	int max_idle_duration;                 ///< Maximum duration how long a train may wait in a station in milliseconds.
+	int min_idle_duration;                 ///< Minimum duration how long a train may wait in a station in milliseconds.
 };
 
 bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites);

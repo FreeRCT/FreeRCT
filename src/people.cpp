@@ -385,11 +385,11 @@ void Staff::DoTick()
 /** A new day arrived. */
 void Staff::OnNewDay()
 {
-	/* Nothing to do currently. */
-	/* But as long as mechanics are not implemented, we magically repair or inspect 1 ride per day. */
+	/* As long as mechanics are not implemented, we magically repair or inspect a ride occasionally. */
 	if (!this->mechanic_requests.empty()) {
 		Random rnd;
-		if (rnd.Uniform(100) > 10) return;  // Don't do it at once though.
+		if (rnd.Uniform(7) > 2) return;
+		printf("Magically repairing %s.\n", this->mechanic_requests.front()->name.get());
 		this->mechanic_requests.front()->MechanicArrived();
 		this->mechanic_requests.erase(this->mechanic_requests.begin());
 	}
