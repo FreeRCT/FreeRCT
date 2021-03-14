@@ -330,7 +330,7 @@ static void LoadElements(Loader &ldr)
 	_weather.Load((version >= 4) ? ldr : reset_loader);
 	_rides_manager.Load((version >= 6) ? ldr : reset_loader);
 	_guests.Load((version >= 5) ? ldr : reset_loader);
-	_staff.Load((version >= 6) ? ldr : reset_loader);
+	_staff.Load((version >= 7) ? ldr : reset_loader);
 
 	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
