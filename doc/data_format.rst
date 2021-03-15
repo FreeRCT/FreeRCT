@@ -719,9 +719,9 @@ Offset     Length  Version  Description
   87+s      2       3-      Mimimum number of cycles (must be at least 1).
   89+s      2       3-      Maximum number of cycles (must be at least the minimum number).
   91+s      2       3-      Default number of cycles (must be at least the minimum and at most the maximum number).
-  93+s      2       3-      Maximum reliability factor (in percents of a percent).
-  95+s      2       3-      Daily reliability decrease (in percents of a percent).
-  97+s      2       3-      Monthly decrease of the maximum reliability (in percents of a percent).
+  93+s      2       3-      Maximum reliability (in range 0..10000).
+  95+s      2       3-      Daily reliability decrease (in range 0..10000).
+  97+s      2       3-      Monthly decrease of the maximum reliability (in range 0..10000).
   99+s      4       1-      Text of the ride (reference to a TEXT block).
  103+s                      Total length.
 =========  ======  =======  ========================================================================================
@@ -733,6 +733,14 @@ If the working animation has a total length of zero, the idle image will be used
 
 The number of guest batches and the number of guests per batch must both be at least 1. If the number of
 guest batches is greater than 1, the duration of the starting, working and stopping animations must be zero.
+
+Every ride instance has an actual reliability and a maximum reliability. Initially both values are equal
+to the ride type's maximum reliability. The actual reliability decreases daily by the daily reliability
+decrease factor. The maximum reliability decreases monthly by the monthly maximum reliability decrease
+factor. The actual reliability determines how likely the ride is to break down (lower values indicating
+a higher risk). When a mechanic repairs or inspects the ride, its actual reliability is reset to its
+current maximum reliability. The maximum reliability is never reset.
+
 
 Version history
 ...............
@@ -1165,9 +1173,9 @@ Offset  Length  Version  Field name                     Description
   14       1      2-     platform_type                  Platform type.
   15       1      5-     max_number_trains              Maximum number of trains at the roller coaster.
   16       1      5-     max_number_cars                Maximum number of cars in a train.
-  17       2      6-     reliability_max                Maximum reliability factor (in percents of a percent).
-  19       2      6-     reliability_decrease_daily     Daily reliability decrease (in percents of a percent).
-  21       2      6-     reliability_decrease_monthly   Monthly decrease of the maximum reliability (in percents of a percent).
+  17       2      6-     reliability_max                Maximum reliability (in range 0..10000).
+  19       2      6-     reliability_decrease_daily     Daily reliability decrease (in range 0..10000).
+  21       2      6-     reliability_decrease_monthly   Monthly decrease of the maximum reliability (in range 0..10000).
   23       4      3-     texts                          Texts of the coaster.
   27       2      1-     <derived>                      Number of track piece definitions (called 'n').
   29      4*n     1-                                    The track piece definitions (references to ``TRCK``).
@@ -1181,6 +1189,8 @@ Currently defined coaster types:
 Currently define platform types:
 
 - 1 Wood.
+
+For more information regarding the reliability parameters, see the section on `Gentle and thrill rides`_.
 
 
 Version history
