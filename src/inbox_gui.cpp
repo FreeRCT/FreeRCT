@@ -89,7 +89,9 @@ const Message *InboxGui::GetMessage(const WidgetNumber wid_num) const
 	const int nr_messages = _inbox.messages.size();
 	const int message_index = nr_messages - wid_num - scrollbar->GetStart();
 	if (message_index < 0 || message_index >= nr_messages) return nullptr;
-	return &_inbox.messages[message_index];
+	auto it = _inbox.messages.begin();
+	std::advance(it, message_index);
+	return &*it;
 }
 
 void InboxGui::OnClick(const WidgetNumber wid_num, const Point16 &pos)
@@ -132,7 +134,19 @@ void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) con
 	_video.FillRectangle(Rectangle32(x, y, w, h), TEXT_BLACK);
 
 	uint8 colour;
-	msg->SetStringParametersAndColour(&colour);
+	switch (msg->category) {
+		case MSC_GOOD: colour = COL_RANGE_BLUE;   break;
+		case MSC_INFO: colour = COL_RANGE_YELLOW; break;
+		case MSC_BAD:  colour = COL_RANGE_RED;    break;
+		default:
+			printf("ERROR: Invalid message category %d\n", msg->category);
+			NOT_REACHED();
+	}
+	/* Conversion from a Colour Range to a Palette index. */
+	colour *= COL_SERIES_LENGTH;
+	colour += COL_SERIES_START + COL_SERIES_LENGTH / 2;
+
+	msg->SetStringParameters();
 	DrawString(msg->message, colour, x + MESSAGE_PADDING, y + h / 2, text_w);
 
 	_str_params.SetDate(1, msg->timestamp);

@@ -204,8 +204,16 @@ strings {
 		MESSAGE_REPAIRED:         "%1% has been repaired.";
 		MESSAGE_CRASH_NO_DEAD:    "%1% crashed!";
 		MESSAGE_CRASH_WITH_DEAD:  "%2% guest(s) died when %1% crashed!";
-		MESSAGE_BAD_RATING:       "Your park rating is critically low. The park will be closed in %1% week(s) if the rating does not improve.";
+		MESSAGE_BAD_RATING:       "The park rating is critically low. The park will be closed in %1% week(s) if the rating does not improve.";
 		MESSAGE_GUEST_LOST:       "%1% is lost and cannot find the park exit.";
+		MESSAGE_COMPLAIN_QUEUE:   "The queue line for %1% is very long.";
+		MESSAGE_COMPLAIN_HUNGRY:  "Many guests are hungry and don’t know where they may buy food.";
+		MESSAGE_COMPLAIN_THIRSTY: "Many guests are thirsty and don’t know where they may buy something to drink.";
+		MESSAGE_COMPLAIN_TOILET:  "Many guests are in need of a toilet and don’t know where to find one.";
+		MESSAGE_COMPLAIN_LITTER:  "The guests complain about the littered paths in the park.";
+		MESSAGE_CHEAP_FEE:        "The guests declare that the entrance fee is surprisingly cheap.";
+		MESSAGE_AWARD_WON:        "The park has won an award: %1%";
+		MESSAGE_NEGATIVE_AWARD:   "The park has received a negative award: %1%";
 
 		// Coaster construction strings.
 		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Selects track pieces with a bend to the left";

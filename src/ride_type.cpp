@@ -483,7 +483,7 @@ void RideInstance::BreakDown()
 {
 	if (this->broken) return;
 	this->broken = true;
-	_inbox.SendMessage(Message(MSG_INFO, GUI_MESSAGE_BROKEN_DOWN, this->GetIndex()));
+	_inbox.SendMessage(Message(GUI_MESSAGE_BROKEN_DOWN, this->GetIndex()));
 	this->CallMechanic();
 }
 
@@ -499,7 +499,7 @@ void RideInstance::CallMechanic()
 void RideInstance::MechanicArrived()
 {
 	assert(this->mechanic_pending);
-	if (this->broken) _inbox.SendMessage(Message(MSG_INFO, GUI_MESSAGE_REPAIRED, this->GetIndex()));
+	if (this->broken) _inbox.SendMessage(Message(GUI_MESSAGE_REPAIRED, this->GetIndex()));
 	this->broken = false;
 	this->time_since_last_maintenance = 0;
 	this->reliability = this->max_reliability;
@@ -902,6 +902,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
 	this->instances[num]->RemoveAllPeople();
+	_inbox.NotifyRideDeletion(num + SRI_FULL_RIDES);
 	_guests.NotifyRideDeletion(this->instances[num]);
 	_staff.NotifyRideDeletion(this->instances[num]);
 	this->instances[num]->RemoveFromWorld();

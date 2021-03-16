@@ -205,15 +205,23 @@ static const char *_gui_string_names[] = {
 
 	/* Messages and inbox. */
 	"INBOX_TITLE",
-	"MESSAGE_NEW_RIDE",         ///< A new ride type is now available for purchase (Data1: Ride Type ID).
-	"MESSAGE_SCENARIO_WON",     ///< Congrats message when the player wins the scenario.
-	"MESSAGE_SCENARIO_LOST",    ///< Message when the player looses the scenario.
-	"MESSAGE_BROKEN_DOWN",      ///< A ride has broken down (Data1: Ride instance ID).
-	"MESSAGE_REPAIRED",         ///< A broken ride has been repaired (Data1: Ride instance ID).
-	"MESSAGE_CRASH_NO_DEAD",    ///< A ride has crashed, but nobody has died (Data1: Ride instance ID).
-	"MESSAGE_CRASH_WITH_DEAD",  ///< A ride has crashed and guests have died (Data1: Ride instance ID; Data2: number of dead guests).
-	"MESSAGE_BAD_RATING",       ///< The park rating has fallen below the scenario's minimum rating (Data1: weeks left before the park is closed).
-	"MESSAGE_GUEST_LOST",       ///< A guest wants to go home and is unable to find the park entrance (Data1: Guest ID).
+	"MESSAGE_NEW_RIDE",          ///< A new ride type is now available for purchase (Data1: Ride Type ID).
+	"MESSAGE_SCENARIO_WON",      ///< Congrats message when the player wins the scenario.
+	"MESSAGE_SCENARIO_LOST",     ///< Message when the player looses the scenario.
+	"MESSAGE_BROKEN_DOWN",       ///< A ride has broken down (Data1: Ride instance ID).
+	"MESSAGE_REPAIRED",          ///< A broken ride has been repaired (Data1: Ride instance ID).
+	"MESSAGE_CRASH_NO_DEAD",     ///< A ride has crashed, but nobody has died (Data1: Ride instance ID).
+	"MESSAGE_CRASH_WITH_DEAD",   ///< A ride has crashed and guests have died (Data1: Ride instance ID; Data2: number of dead guests).
+	"MESSAGE_BAD_RATING",        ///< The park rating has fallen below the scenario's minimum rating (Data1: weeks left before the park is closed).
+	"MESSAGE_GUEST_LOST",        ///< A guest wants to go home and is unable to find the park entrance (Data1: Guest ID).
+	"MESSAGE_COMPLAIN_QUEUE",    ///< A ride's queue is very long (Data1: Ride instance ID).
+	"MESSAGE_COMPLAIN_HUNGRY",   ///< Many guests are hungry.
+	"MESSAGE_COMPLAIN_THIRSTY",  ///< Many guests are thirsty.
+	"MESSAGE_COMPLAIN_TOILET",   ///< Many guests are in need of a toilet.
+	"MESSAGE_COMPLAIN_LITTER",   ///< The paths are very dirty.
+	"MESSAGE_CHEAP_FEE",         ///< The entrance fee is very cheap.
+	"MESSAGE_AWARD_WON",         ///< The park has won an award.
+	"MESSAGE_NEGATIVE_AWARD",    ///< The park has received a negative award.
 
 	/* Coaster construction window. */
 	"COASTER_BUILD_LEFT_BEND_TOOLTIP",

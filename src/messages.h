@@ -10,7 +10,7 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include <vector>
+#include <list>
 
 #include "stdafx.h"
 #include "dates.h"
@@ -19,9 +19,9 @@
 
 /** The available categories of messages. */
 enum MessageCategory {
-	MSG_GOOD,  ///< Good news, e.g. the scenario is won or a new attraction is available.
-	MSG_INFO,  ///< Informational message, e.g. a ride has been repaired.
-	MSG_BAD,   ///< Bad news, e.g. a ride has crashed or the scenario is lost.
+	MSC_GOOD,  ///< Good news, e.g. the scenario is won or a new attraction is available.
+	MSC_INFO,  ///< Informational message, e.g. a ride has been repaired.
+	MSC_BAD,   ///< Bad news, e.g. a ride has crashed or the scenario is lost.
 };
 
 /** What kind of exra data is associated with a message. */
@@ -37,9 +37,9 @@ enum MessageDataType {
 /** One message. */
 struct Message {
 	explicit Message();
-	explicit Message(MessageCategory cat, StringID str, uint32 d1 = 0, uint32 d2 = 0);
+	explicit Message(StringID str, uint32 d1 = 0, uint32 d2 = 0);
 
-	void SetStringParametersAndColour(uint8 *colour) const;
+	void SetStringParameters() const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
@@ -51,7 +51,7 @@ struct Message {
 	uint32 data1, data2;        ///< Extra data the message refers to (see #data_type).
 
 private:
-	void InitMessageDataType();
+	void InitMessageDataTypes();
 };
 
 /** All the player's messages. */
@@ -62,7 +62,10 @@ struct Inbox {
 	void SendMessage(const Message &message);
 	void Clear();
 
-	std::vector<Message> messages;   ///< All messages belonging to the player.
+	void NotifyRideDeletion(uint16 ride);
+	void NotifyGuestDeletion(uint16 guest);
+
+	std::list<Message> messages;   ///< All messages belonging to the player.
 };
 extern Inbox _inbox;
 

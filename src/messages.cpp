@@ -15,64 +15,85 @@
 /** Default constructor, for loading only. */
 Message::Message()
 {
-	this->category = MSG_INFO;
 	this->message = STR_NULL;
 	this->data1 = 0;
 	this->data2 = 0;
+	this->category = MSC_INFO;
 	this->data_type = MDT_NONE;
 }
 
 /**
  * Common constructor for a message.
- * @param cat Type of this message.
  * @param str The actual message.
  * @param d1 Extra data as required by #str.
  * @param d2 Extra data as required by #str.
  */
-Message::Message(MessageCategory cat, StringID str, uint32 d1, uint32 d2)
+Message::Message(StringID str, uint32 d1, uint32 d2)
 {
-	this->category = cat;
 	this->message = str;
 	this->data1 = d1;
 	this->data2 = d2;
 	this->timestamp = _date;
-	this->InitMessageDataType();
+	this->InitMessageDataTypes();
 }
 
-/** Set the message's %MessageDataType from the #message ID. */
-void Message::InitMessageDataType()
+/** Set the message's %MessageDataType and %MessageCategory from the #message ID. */
+void Message::InitMessageDataTypes()
 {
 	switch (this->message) {
 		case GUI_MESSAGE_SCENARIO_WON:
-		case GUI_MESSAGE_SCENARIO_LOST:
+		case GUI_MESSAGE_CHEAP_FEE:
+		case GUI_MESSAGE_AWARD_WON:
+			this->category = MSC_GOOD;
 			this->data_type = MDT_NONE;
 			return;
+
+		case GUI_MESSAGE_SCENARIO_LOST:
+		case GUI_MESSAGE_COMPLAIN_HUNGRY:
+		case GUI_MESSAGE_COMPLAIN_THIRSTY:
+		case GUI_MESSAGE_COMPLAIN_TOILET:
+		case GUI_MESSAGE_COMPLAIN_LITTER:
+		case GUI_MESSAGE_NEGATIVE_AWARD:
+			this->category = MSC_BAD;
+			this->data_type = MDT_NONE;
+			return;
+
 		case GUI_MESSAGE_BAD_RATING:
+			this->category = MSC_BAD;
 			this->data_type = MDT_PARK;
 			return;
+
 		case GUI_MESSAGE_GUEST_LOST:
+			this->category = MSC_INFO;
 			this->data_type = MDT_GUEST;
 			return;
+
 		case GUI_MESSAGE_NEW_RIDE:
+			this->category = MSC_GOOD;
 			this->data_type = MDT_RIDE_TYPE;
 			return;
+
 		case GUI_MESSAGE_CRASH_WITH_DEAD:
-		case GUI_MESSAGE_BROKEN_DOWN:
-		case GUI_MESSAGE_REPAIRED:
 		case GUI_MESSAGE_CRASH_NO_DEAD:
+			this->category = MSC_BAD;
 			this->data_type = MDT_RIDE_INSTANCE;
 			return;
+
+		case GUI_MESSAGE_BROKEN_DOWN:
+		case GUI_MESSAGE_REPAIRED:
+		case GUI_MESSAGE_COMPLAIN_QUEUE:
+			this->category = MSC_INFO;
+			this->data_type = MDT_RIDE_INSTANCE;
+			return;
+
 		default:
 			printf("ERROR: Invalid message string %d (%s)\n", this->message, _language.GetText(this->message));
 			NOT_REACHED();
 	}
 }
 
-/**
- * Set the string parameters for this message.
- * @param colour [out] Filled in with the colour index in which this message should be drawn.
- */
-void Message::SetStringParametersAndColour(uint8 *colour) const
+/** Set the string parameters for this message. */
+void Message::SetStringParameters() const
 {
 	switch (this->data_type) {
 		case MDT_NONE:
@@ -95,34 +116,19 @@ void Message::SetStringParametersAndColour(uint8 *colour) const
 			printf("ERROR: Invalid message type %d\n", this->data_type);
 			NOT_REACHED();
 	}
-
-	switch (this->category) {
-		case MSG_GOOD: *colour = COL_RANGE_BLUE;   break;
-		case MSG_INFO: *colour = COL_RANGE_YELLOW; break;
-		case MSG_BAD: *colour = COL_RANGE_RED;     break;
-
-		default:
-			printf("ERROR: Invalid message category %d\n", this->category);
-			NOT_REACHED();
-	}
-	/* Conversion from a colour range to a palette index. */
-	*colour *= COL_SERIES_LENGTH;
-	*colour += COL_SERIES_START + COL_SERIES_LENGTH / 2;
 }
 
 void Message::Load(Loader &ldr)
 {
-	this->category = static_cast<MessageCategory>(ldr.GetByte());
 	this->message = ldr.GetWord();
 	this->data1 = ldr.GetLong();
 	this->data2 = ldr.GetLong();
 	this->timestamp = Date(CompressedDate(ldr.GetLong()));
-	this->InitMessageDataType();
+	this->InitMessageDataTypes();
 }
 
 void Message::Save(Saver &svr) const
 {
-	svr.PutByte(this->category);
 	svr.PutWord(this->message);
 	svr.PutLong(this->data1);
 	svr.PutLong(this->data2);
@@ -142,7 +148,37 @@ void Inbox::Clear()
 void Inbox::SendMessage(const Message &message)
 {
 	this->messages.push_back(message);
-	// NOCOM update GUI
+	/* The GUI will update itself. */
+}
+
+/**
+ * Notification that the ride is being removed.
+ * @param ri Ride being removed.
+ */
+void Inbox::NotifyRideDeletion(const uint16 ride)
+{
+	for (auto it = this->messages.begin(); it != this->messages.end();) {
+		if (it->data_type == MDT_RIDE_INSTANCE && it->data1 == ride) {
+			it = this->messages.erase(it);
+		} else {
+			it++;
+		}
+	}
+}
+
+/**
+ * Notification that the guest is being removed.
+ * @param ri Guest being removed.
+ */
+void Inbox::NotifyGuestDeletion(const uint16 guest)
+{
+	for (auto it = this->messages.begin(); it != this->messages.end();) {
+		if (it->data_type == MDT_GUEST && it->data1 == guest) {
+			it = this->messages.erase(it);
+		} else {
+			it++;
+		}
+	}
 }
 
 void Inbox::Load(Loader &ldr)

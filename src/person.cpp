@@ -17,6 +17,7 @@
 #include "people.h"
 #include "fileio.h"
 #include "map.h"
+#include "messages.h"
 #include "path_finding.h"
 #include "viewport.h"
 #include "weather.h"
@@ -908,6 +909,7 @@ void Person::DeActivate(AnimateResult ar)
 		this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	}
 
+	_inbox.NotifyGuestDeletion(this->id);
 	this->type = PERSON_INVALID;
 	delete[] this->name;
 	this->name = nullptr;
