@@ -246,6 +246,7 @@ public:
 	bool IsEntranceLocation(const XYZPoint16& pos) const override;
 	bool IsExitLocation(const XYZPoint16& pos) const override;
 	int EntranceExitRotation(const XYZPoint16& vox, const CoasterStation *station) const;
+	std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const override;
 
 	SmallRideInstance GetRideNumber() const;
 	uint16 GetInstanceData(const TrackVoxel *tv) const;
@@ -282,6 +283,8 @@ public:
 	std::vector<CoasterStation> stations;  ///< All stations of this coaster.
 	XYZPoint16 temp_entrance_pos;          ///< Temporary location of one of the ride's entrance while the user is moving the entrance.
 	XYZPoint16 temp_exit_pos;              ///< Temporary location of one of the ride's exit while the user is moving the exit.
+	int max_idle_duration;                 ///< Maximum duration how long a train may wait in a station in milliseconds.
+	int min_idle_duration;                 ///< Minimum duration how long a train may wait in a station in milliseconds.
 };
 
 bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites);

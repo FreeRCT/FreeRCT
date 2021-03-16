@@ -99,6 +99,9 @@ RideType::RideType(RideTypeKind rtk) : kind(rtk)
 {
 	this->monthly_cost      = 12345; // Arbitrary non-zero cost.
 	this->monthly_open_cost = 12345; // Arbitrary non-zero cost.
+	this->reliability_max = RELIABILITY_RANGE;
+	this->reliability_decrease_daily = 0;
+	this->reliability_decrease_monthly = 0;
 	std::fill_n(this->item_type, NUMBER_ITEM_TYPES_SOLD, ITP_NOTHING);
 	std::fill_n(this->item_cost, NUMBER_ITEM_TYPES_SOLD, 12345); // Artbitary non-zero cost.
 	this->SetupStrings(nullptr, 0, 0, 0, 0, 0);
@@ -205,9 +208,11 @@ RideInstance::RideInstance(const RideType *rt)
 	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
 	std::fill_n(this->item_count, NUMBER_ITEM_TYPES_SOLD, 0);
 
-	this->reliability = 365 / 2; // \todo Make different reliabilities for different rides; read from RCDs
-	this->breakdown_ctr = -1;
-	this->breakdown_state = BDS_UNOPENED;
+	this->max_reliability = type->reliability_max;
+	this->reliability = this->max_reliability;
+	this->time_since_last_maintenance = 0;
+	this->maintenance_interval = 30 * 60 * 1000;  // Half an hour by default.
+	this->broken = false;
 }
 
 /**
@@ -281,12 +286,16 @@ const RideType *RideInstance::GetRideType() const
  */
 
 /**
- * \n bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
  * Can the ride be visited, assuming it is approached from direction \a edge?
  * @param vox Position of the voxel with the ride.
  * @param edge Direction of movement (exit direction of the neighbouring voxel).
  * @return Whether the ride can be visited.
+ * @note Derived classes need to override this function and perform additional checks regarding the location's suitability.
  */
+bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
+{
+	return this->state == RIS_OPEN && !this->broken;
+}
 
 /**
  * The recolouring map to apply to this ride at the given position.
@@ -317,6 +326,11 @@ bool RideInstance::IsExitLocation(const XYZPoint16& pos) const
 {
 	return false;
 }
+
+/**
+ * \fn std::pair<XYZPoint16, TileEdge> RideInstance::GetMechanicEntrance() const
+ * The voxel and edge at which a mechanic interacts with the ride for maintenance and repairs.
+ */
 
 /**
  * Sell an item to a customer.
@@ -421,11 +435,14 @@ bool RideInstance::PathEdgeWanted(const XYZPoint16 &vox, const TileEdge edge) co
  * Some time has passed, update the state of the ride. Default implementation does nothing.
  * @param delay Number of milliseconds that passed.
  */
-void RideInstance::OnAnimate(int delay)
+void RideInstance::OnAnimate(const int delay)
 {
+	if (this->state != RIS_OPEN) return;
+	this->time_since_last_maintenance += delay;
+	if (this->maintenance_interval > 0 && this->time_since_last_maintenance > this->maintenance_interval) this->CallMechanic();
 }
 
-/** Monthly update of the shop administration. */
+/** Monthly update of the shop administration and ride reliability. */
 void RideInstance::OnNewMonth()
 {
 	this->total_profit -= this->type->monthly_cost;
@@ -439,42 +456,52 @@ void RideInstance::OnNewMonth()
 		SB(this->flags, RIF_OPENED_PAID, 1, 0);
 	}
 
+	this->max_reliability = (RELIABILITY_RANGE - type->reliability_decrease_monthly) * this->max_reliability / RELIABILITY_RANGE;
+	this->reliability = std::min(this->reliability, this->max_reliability);
+
 	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
 
-/** Daily update of breakages and maintenance. */
+/** Daily update of reliability and breakages. */
 void RideInstance::OnNewDay()
 {
-	this->HandleBreakdown();
+	if (this->state == RIS_OPEN) {
+		this->reliability = (RELIABILITY_RANGE - type->reliability_decrease_daily) * this->reliability / RELIABILITY_RANGE;
+		if (!this->broken) {
+			int breakdown_chance = 0;
+			for (int i = 0; i < 5; i++) {
+				if (this->rnd.Uniform(RELIABILITY_RANGE) > this->reliability) breakdown_chance++;
+			}
+			if (breakdown_chance >= 3) this->BreakDown();
+		}
+	}
 }
 
-/** Handle breakdowns of rides. */
-void RideInstance::HandleBreakdown()
+/** Cause the ride to break down now. */
+void RideInstance::BreakDown()
 {
-	if (this->state != RIS_OPEN) return;
+	if (this->broken) return;
+	this->broken = true;
+	printf("%s is broken down.\n", this->name.get());  // \todo Show this as a message in-game.
+	this->CallMechanic();
+}
 
-	switch (this->breakdown_state) {
-		case BDS_UNOPENED:
-		case BDS_BROKEN:
-			break;
+/** Request a mechanic to inspect or repair this ride. */
+void RideInstance::CallMechanic()
+{
+	if (this->mechanic_pending) return;
+	_staff.RequestMechanic(this);
+	this->mechanic_pending = true;
+}
 
-		case BDS_NEEDS_NEW_CTR:
-			this->breakdown_ctr = this->rnd.Exponential(this->reliability);
-			this->breakdown_state = BDS_WILL_BREAK;
-			break;
-
-		case BDS_WILL_BREAK:
-			this->breakdown_ctr--;
-			break;
-
-		default:
-			NOT_REACHED();
-	}
-
-	if (this->breakdown_ctr <= 0) {
-		this->breakdown_state = BDS_BROKEN;
-		/* \todo Call a mechanic. */
-	}
+/** Callback when a mechanic arrived to repair or inspect this ride. */
+void RideInstance::MechanicArrived()
+{
+	assert(this->mechanic_pending);
+	this->broken = false;
+	this->time_since_last_maintenance = 0;
+	this->reliability = this->max_reliability;
+	this->mechanic_pending = false;
 }
 
 /**
@@ -494,10 +521,6 @@ void RideInstance::OpenRide()
 {
 	assert(this->CanOpenRide());
 	this->state = RIS_OPEN;
-	if (this->breakdown_state == BDS_UNOPENED) {
-		this->breakdown_ctr = this->rnd.Exponential(this->reliability) + BREAKDOWN_GRACE_PERIOD;
-		this->breakdown_state = BDS_WILL_BREAK;
-	}
 
 	/* Perform payments if they have not been done this month. */
 	bool money_paid = false;
@@ -553,9 +576,12 @@ void RideInstance::Load(Loader &ldr)
 	for (int64& m : this->item_count) m = ldr.GetLongLong();
 	this->total_profit = static_cast<Money>(ldr.GetLongLong());
 	this->total_sell_profit = static_cast<Money>(ldr.GetLongLong());
-	this->breakdown_ctr = (int16)ldr.GetWord();
 	this->reliability = ldr.GetWord();
-	this->breakdown_state = static_cast<BreakdownState>(ldr.GetByte());
+	this->max_reliability = ldr.GetWord();
+	this->maintenance_interval = ldr.GetLong();
+	this->time_since_last_maintenance = ldr.GetLong();
+	this->broken = ldr.GetByte() > 0;
+	this->mechanic_pending = ldr.GetByte() > 0;
 }
 
 void RideInstance::Save(Saver &svr)
@@ -573,9 +599,12 @@ void RideInstance::Save(Saver &svr)
 	for (const int64& m : this->item_count) svr.PutLongLong(m);
 	svr.PutLongLong(static_cast<uint64>(this->total_profit));
 	svr.PutLongLong(static_cast<uint64>(this->total_sell_profit));
-	svr.PutWord((uint16)this->breakdown_ctr);
 	svr.PutWord(this->reliability);
-	svr.PutByte(static_cast<uint8>(this->breakdown_state));
+	svr.PutWord(this->max_reliability);
+	svr.PutLong(this->maintenance_interval);
+	svr.PutLong(this->time_since_last_maintenance);
+	svr.PutByte(this->broken ? 1 : 0);
+	svr.PutByte(this->mechanic_pending ? 1 : 0);
 }
 
 /** Default constructor of the rides manager. */
@@ -872,6 +901,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	assert(num < lengthof(this->instances));
 	this->instances[num]->RemoveAllPeople();
 	_guests.NotifyRideDeletion(this->instances[num]);
+	_staff.NotifyRideDeletion(this->instances[num]);
 	this->instances[num]->RemoveFromWorld();
 	delete this->instances[num];
 	this->instances[num] = nullptr;

@@ -131,6 +131,17 @@ strings {
 		RIDE_SELECT_ROT_POS_TOOLTIP: "Click to rotate the ride in counter-clockwise direction";
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Click to rotate the ride in clockwise direction";
 
+		// Generic ride manager window strings.
+		RIDE_MANAGER_DECREASE:          "-";
+		RIDE_MANAGER_INCREASE:          "+";
+		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Entrance fee:";
+		RIDE_MANAGER_RELIABILITY:       "Reliability: %.1f%%";
+		RIDE_MANAGER_BROKEN_DOWN:       "Broken down";
+		RIDE_MANAGER_MAINTENANCE_TEXT:  "Maintenance interval (minutes):";
+		RIDE_MANAGER_MAINTENANCE_NEVER: "Never";
+		RIDE_MANAGER_MAX_IDLE_TEXT:     "Maximum idle duration (seconds):";
+		RIDE_MANAGER_MIN_IDLE_TEXT:     "Minimum idle duration (seconds):";
+
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Shop \"%1%\"";
 		SHOP_MANAGER_COST_PRICE_TEXT:    "Cost price";
@@ -150,7 +161,7 @@ strings {
 		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Ride is open";
 		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Ride is closed";
 		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Monthly cost:";
-		GENTLE_THRILL_RIDES_MANAGER_ENTRANCE_FEE_TEXT: "Entrance fee:";
+		GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT:       "Number of cycles:";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";

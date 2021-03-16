@@ -39,6 +39,7 @@ void OnNewDay()
 {
 	_rides_manager.OnNewDay();
 	_guests.OnNewDay();
+	_staff.OnNewDay();
 	_weather.OnNewDay();
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
@@ -69,8 +70,10 @@ void OnNewFrame(const uint32 frame_delay)
 	_window_manager.Tick();
 	for (int i = speed_factor(_game_control.speed); i > 0; i--) {
 		_guests.DoTick();
+		_staff.DoTick();
 		DateOnTick();
 		_guests.OnAnimate(frame_delay);
+		_staff.OnAnimate(frame_delay);
 		_rides_manager.OnAnimate(frame_delay);
 	}
 }
@@ -210,6 +213,7 @@ void GameControl::ShutdownLevel()
 	_window_manager.CloseAllWindows();
 	_rides_manager.DeleteAllRideInstances();
 	_guests.Uninitialize();
+	_staff.Uninitialize();
 }
 
 GameModeManager::GameModeManager()

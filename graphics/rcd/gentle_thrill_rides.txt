@@ -91,6 +91,12 @@ file("gentle_thrill_rides.rcd") {
 		number_of_batches: 6;
 		idle_duration: 30000;
 		working_duration: 30000;
+		working_cycles_min: 1;
+		working_cycles_max: 1;
+		working_cycles_default: 1;
+		reliability_max: 10000;
+		reliability_decrease_daily: 50;
+		reliability_decrease_monthly: 5;
 
 		texts: strings { key: "spooky-manor"; }
 	}
@@ -175,8 +181,14 @@ file("gentle_thrill_rides.rcd") {
 		cost_opened: 2000;
 		guests_per_batch: 16;
 		number_of_batches: 1;
-		idle_duration: 20000;
-		working_duration: 40000;
+		idle_duration: 30000;
+		working_duration: 10000;
+		working_cycles_min: 3;
+		working_cycles_max: 9;
+		working_cycles_default: 5;
+		reliability_max: 9000;
+		reliability_decrease_daily: 100;
+		reliability_decrease_monthly: 100;
 
 		texts: strings { key: "ship-swing"; }
 	}

@@ -19,6 +19,7 @@
 #include "gamelevel.h"
 
 Guests _guests; ///< %Guests in the world/park.
+Staff _staff;   ///< %Staff in the world/park.
 
 /**
  * Guest block constructor. Fills the id of the persons with an incrementing number.
@@ -302,4 +303,94 @@ Guest *Guests::GetFree()
 	Guest *g = this->block.Get(this->free_idx);
 	this->free_idx++;
 	return g;
+}
+
+Staff::Staff()
+{
+	/* Nothing to do currently. */
+}
+
+Staff::~Staff()
+{
+	/* Nothing to do currently. */
+}
+
+/** Remove all staff and reset all variables. */
+void Staff::Uninitialize()
+{
+	this->mechanic_requests.clear();
+}
+
+/**
+ * Load staff from the save game.
+ * @param ldr Input stream to read.
+ */
+void Staff::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenBlock("STAF");
+	if (version == 1) {
+		for (uint i = ldr.GetLong(); i > 0; i--) {
+			this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
+		}
+	} else {
+		ldr.SetFailMessage("Incorrect version of Staff block.");
+	}
+	ldr.CloseBlock();
+}
+
+/**
+ * Save staff to the save game.
+ * @param svr Output stream to save to.
+ */
+void Staff::Save(Saver &svr)
+{
+	svr.StartBlock("STAF", 1);
+	svr.PutLong(this->mechanic_requests.size());
+	for (RideInstance *ride : this->mechanic_requests) svr.PutWord(ride->GetIndex());
+	svr.EndBlock();
+}
+
+/**
+ * Request that a mechanic should inspect or repair a ride as soon as possible.
+ * @param ride Ride to inspect or repair.
+ */
+void Staff::RequestMechanic(RideInstance *ride)
+{
+	mechanic_requests.push_back(ride);
+}
+
+/**
+ * Notification that the ride is being removed.
+ * @param ri Ride being removed.
+ */
+void Staff::NotifyRideDeletion(const RideInstance *ri) {
+	/* \todo Forward this to the mechanics. */
+}
+
+/**
+ * Some time has passed, update the animation.
+ * @param delay Number of milliseconds time that have past since the last animation update.
+ */
+void Staff::OnAnimate(const int delay)
+{
+	/* \todo Forward this to the staff. */
+}
+
+/** A new frame arrived. */
+void Staff::DoTick()
+{
+	/* \todo Assign mechanic requests to available mechanics. */
+}
+
+/** A new day arrived. */
+void Staff::OnNewDay()
+{
+	/* As long as mechanics are not implemented, we magically repair or inspect a ride occasionally. */
+	if (!this->mechanic_requests.empty()) {
+		Random rnd;
+		if (rnd.Uniform(7) > 2) return;
+		printf("Magically repairing %s.\n", this->mechanic_requests.front()->name.get());
+		this->mechanic_requests.front()->MechanicArrived();
+		this->mechanic_requests.erase(this->mechanic_requests.begin());
+	}
 }

@@ -1041,14 +1041,14 @@ int RIEEBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-FGTRBlock::FGTRBlock() : GameBlock("FGTR", 2)
+FGTRBlock::FGTRBlock() : GameBlock("FGTR", 3)
 {
 }
 
 int FGTRBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 91 + (this->ride_width_x * this->ride_width_y) - 12);
+	fb->StartSave(this->blk_name, this->version, 103 + (this->ride_width_x * this->ride_width_y) - 12);
 	fb->SaveUInt8(this->is_thrill_ride ? 1 : 0);
 	fb->SaveUInt8(this->ride_width_x);
 	fb->SaveUInt8(this->ride_width_y);
@@ -1072,6 +1072,12 @@ int FGTRBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->guests_per_batch);
 	fb->SaveUInt32(this->idle_duration);
 	fb->SaveUInt32(this->working_duration);
+	fb->SaveUInt16(this->working_cycles_min);
+	fb->SaveUInt16(this->working_cycles_max);
+	fb->SaveUInt16(this->working_cycles_default);
+	fb->SaveUInt16(this->reliability_max);
+	fb->SaveUInt16(this->reliability_decrease_daily);
+	fb->SaveUInt16(this->reliability_decrease_monthly);
 	fb->SaveUInt32(this->ride_text->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
@@ -1729,7 +1735,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 	}
 }
 
-RCSTBlock::RCSTBlock() : GameBlock("RCST", 5)
+RCSTBlock::RCSTBlock() : GameBlock("RCST", 6)
 {
 }
 
@@ -1743,11 +1749,14 @@ int RCSTBlock::Write(FileWriter *fw)
 
 	/* Write the data. */
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 23 - 12 + 4 * 4 * this->track_blocks.size());
+	fb->StartSave(this->blk_name, this->version, 29 - 12 + 4 * 4 * this->track_blocks.size());
 	fb->SaveUInt16(this->coaster_type);
 	fb->SaveUInt8(this->platform_type);
 	fb->SaveUInt8(this->number_trains);
 	fb->SaveUInt8(this->number_cars);
+	fb->SaveUInt16(this->reliability_max);
+	fb->SaveUInt16(this->reliability_decrease_daily);
+	fb->SaveUInt16(this->reliability_decrease_monthly);
 	fb->SaveUInt32(this->text->Write(fw));
 	fb->SaveUInt16(4 * this->track_blocks.size());
 	for (auto iter : this->track_blocks) {

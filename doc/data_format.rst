@@ -685,11 +685,11 @@ Version history
 
 Gentle and thrill rides
 ~~~~~~~~~~~~~~~~~~~~~~~
-Gentle and thrill rides consisting of a single building. FreeRCT can read block version 2.
+Gentle and thrill rides consisting of a single building. FreeRCT can read block version 3.
 
-=========  ======  =======  ===================================================================================
+=========  ======  =======  ========================================================================================
 Offset     Length  Version  Description
-=========  ======  =======  ===================================================================================
+=========  ======  =======  ========================================================================================
    0        4       1-      Magic string 'FGTR'.
    4        4       1-      Version number of the block.
    8        4       1-      Length of the block excluding magic string, version, and length.
@@ -715,10 +715,16 @@ Offset     Length  Version  Description
   71+s      4       2-      Number of guest batches that can use the ride at the same time.
   75+s      4       2-      Maximum number of guests in each guest batch.
   79+s      4       2-      Duration of the ride's idle phase in milliseconds.
-  83+s      4       2-      Total duration of the ride's working phase in milliseconds.
-  87+s      4       1-      Text of the ride (reference to a TEXT block).
-  91+s                      Total length.
-=========  ======  =======  ===================================================================================
+  83+s      4       2-      Total duration of the ride's working phase per working cycle in milliseconds.
+  87+s      2       3-      Mimimum number of cycles (must be at least 1).
+  89+s      2       3-      Maximum number of cycles (must be at least the minimum number).
+  91+s      2       3-      Default number of cycles (must be at least the minimum and at most the maximum number).
+  93+s      2       3-      Maximum reliability (in range 0..10000).
+  95+s      2       3-      Daily reliability decrease (in range 0..10000).
+  97+s      2       3-      Monthly decrease of the maximum reliability (in range 0..10000).
+  99+s      4       1-      Text of the ride (reference to a TEXT block).
+ 103+s                      Total length.
+=========  ======  =======  ========================================================================================
 
 The duration of the ride's working phase needs to be at least as long as the sum of the durations of all
 frames of the starting, working and stopping animations. If the working phase is longer than that, the
@@ -728,11 +734,20 @@ If the working animation has a total length of zero, the idle image will be used
 The number of guest batches and the number of guests per batch must both be at least 1. If the number of
 guest batches is greater than 1, the duration of the starting, working and stopping animations must be zero.
 
+Every ride instance has an actual reliability and a maximum reliability. Initially both values are equal
+to the ride type's maximum reliability. The actual reliability decreases daily by the daily reliability
+decrease factor. The maximum reliability decreases monthly by the monthly maximum reliability decrease
+factor. The actual reliability determines how likely the ride is to break down (lower values indicating
+a higher risk). When a mechanic repairs or inspects the ride, its actual reliability is reset to its
+current maximum reliability. The maximum reliability is never reset.
+
+
 Version history
 ...............
 
 - 1 (20210126) Initial version.
 - 2 (20210201) Added timing of phases and ride capacity.
+- 3 (20210227) Added minimum and maximum number of working cycles and reliability parameters.
 
 
 Build direction arrows
@@ -1145,24 +1160,27 @@ Version history
 Roller coaster tracks
 ~~~~~~~~~~~~~~~~~~~~~
 A ``RCST`` block contains all information of a single type of roller coaster.
-It currently contains track piece definitions only. FreeRCT supports version 5
+It currently contains track piece definitions only. FreeRCT supports version 6
 of the ``RCST`` block.
 
-======  ======  =======  ==================  =================================================================
-Offset  Length  Version  Field name          Description
-======  ======  =======  ==================  =================================================================
-   0       4      1-                         Magic string 'RCST'.
-   4       4      1-                         Version number of the block.
-   8       4      1-                         Length of the block excluding magic string, version, and length.
-  12       2      1-     coaster_type        Type of roller coaster.
-  14       1      2-     platform_type       Platform type.
-  15       1      5-     max_number_trains   Maximum number of trains at the roller coaster.
-  16       1      5-     max_number_cars     Maximum number of cars in a train.
-  17       4      3-     texts               Texts of the coaster.
-  21       2      1-     <derived>           Number of track piece definitions (called 'n').
-  23      4*n     1-                         The track piece definitions (references to ``TRCK``).
-23+4*n                                       Total length of the ``RCST`` block.
-======  ======  =======  ==================  =================================================================
+======  ======  =======  =============================  ========================================================================
+Offset  Length  Version  Field name                     Description
+======  ======  =======  =============================  ========================================================================
+   0       4      1-                                    Magic string 'RCST'.
+   4       4      1-                                    Version number of the block.
+   8       4      1-                                    Length of the block excluding magic string, version, and length.
+  12       2      1-     coaster_type                   Type of roller coaster.
+  14       1      2-     platform_type                  Platform type.
+  15       1      5-     max_number_trains              Maximum number of trains at the roller coaster.
+  16       1      5-     max_number_cars                Maximum number of cars in a train.
+  17       2      6-     reliability_max                Maximum reliability (in range 0..10000).
+  19       2      6-     reliability_decrease_daily     Daily reliability decrease (in range 0..10000).
+  21       2      6-     reliability_decrease_monthly   Monthly decrease of the maximum reliability (in range 0..10000).
+  23       4      3-     texts                          Texts of the coaster.
+  27       2      1-     <derived>                      Number of track piece definitions (called 'n').
+  29      4*n     1-                                    The track piece definitions (references to ``TRCK``).
+29+4*n                                                  Total length of the ``RCST`` block.
+======  ======  =======  =============================  ========================================================================
 
 Currently defined coaster types:
 
@@ -1171,6 +1189,8 @@ Currently defined coaster types:
 Currently define platform types:
 
 - 1 Wood.
+
+For more information regarding the reliability parameters, see the section on `Gentle and thrill rides`_.
 
 
 Version history
@@ -1181,6 +1201,7 @@ Version history
 - 3 (20130511) Added a TEXT reference.
 - 4 (20131117) Moved platform bits from track piece to track voxel.
 - 5 (20131227) Added ``number_of_trains`` and ``number_of_cars`` fields.
+- 6 (20210227) Added reliability parameters.
 
 Track pieces
 ~~~~~~~~~~~~

@@ -89,6 +89,12 @@ public:
 	static uint8 exit_height;     ///< The height of all rides' exits in voxels.
 };
 
+static const int ENTRANCE_FEE_STEP_SIZE = 10;                     ///< Step size of changing a ride's entrance fee in the GUI.
+static const int MAINTENANCE_INTERVAL_STEP_SIZE = 5 * 60 * 1000;  ///< Step size of changing a ride's maintenance interval in the GUI, in milliseconds.
+static const int IDLE_DURATION_STEP_SIZE = 5 * 1000;              ///< Step size of changing a ride's idle duration in the GUI, in milliseconds.
+
+static const int16 RELIABILITY_RANGE = 10000;  ///< Reliability parameters are in range 0..10000.
+
 /** Base class of ride types. */
 class RideType {
 public:
@@ -105,6 +111,10 @@ public:
 	ItemType item_type[NUMBER_ITEM_TYPES_SOLD]; ///< Type of items being sold.
 	Money item_cost[NUMBER_ITEM_TYPES_SOLD];    ///< Cost of the items on sale.
 	Recolouring recolours;   ///< Sprite recolour map.
+
+	int16 reliability_max;               ///< Maximum reliability.
+	int16 reliability_decrease_daily;    ///< Reliability decrease per day.
+	int16 reliability_decrease_monthly;  ///< Maximum reliability decrease per month.
 
 	StringID GetString(uint16 number) const;
 	StringID GetTypeName() const;
@@ -136,14 +146,6 @@ enum RideInstanceFlags {
 	RIF_OPENED_PAID  = 1, ///< Bit number of the flags indicating the open costs have been paid this month.
 };
 
-/** Breakdown states which determine if and how a ride will break in a given day. */
-enum BreakdownState {
-	BDS_BROKEN,        ///< Ride is currently broken.
-	BDS_WILL_BREAK,    ///< Ride will break at some point in the future.
-	BDS_NEEDS_NEW_CTR, ///< Ride needs a new value for RideInstance::breakdown_ctr.
-	BDS_UNOPENED,      ///< The ride has never been opened and thus is immune from breakdown.
-};
-
 /** Answers of RideInstance::EnterRide */
 enum RideEntryResult {
 	RER_REFUSED, ///< Entry is refused.
@@ -169,7 +171,7 @@ public:
 	virtual void RemoveAllPeople() = 0;
 	virtual void RemoveFromWorld() = 0;
 	virtual void InsertIntoWorld() = 0;
-	virtual bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const = 0;
+	virtual bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const;
 	virtual bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const;
 
 	void SellItem(int item_index);
@@ -188,11 +190,14 @@ public:
 	virtual bool CanOpenRide() const;
 	virtual void OpenRide();
 	virtual void CloseRide();
-	void HandleBreakdown();
+	void BreakDown();
+	void CallMechanic();
+	void MechanicArrived();
 	void SetEntranceType(int type);
 	void SetExitType(int type);
 	virtual bool IsEntranceLocation(const XYZPoint16& pos) const;
 	virtual bool IsExitLocation(const XYZPoint16& pos) const;
+	virtual std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const = 0;
 
 	virtual void Load(Loader &ldr);
 	virtual void Save(Saver &svr);
@@ -211,17 +216,19 @@ public:
 	Money item_price[NUMBER_ITEM_TYPES_SOLD]; ///< Selling price of each item type.
 	int64 item_count[NUMBER_ITEM_TYPES_SOLD]; ///< Number of items sold for each type.
 
-	int16 breakdown_ctr;     ///< Breakdown counter.
-	uint16 reliability;      ///< Mean number of days in between breakdowns.
-	BreakdownState breakdown_state; ///<Breakdown state for the ride.
+	int16 reliability;                   ///< Current reliability in 0..10000.
+	int16 max_reliability;               ///< Current maximum reliability in 0..10000.
+	uint32 maintenance_interval;         ///< Desired number of milliseconds between maintenance operations (\c 0 means never).
+	uint32 time_since_last_maintenance;  ///< Number of milliseconds since the last maintenance operation.
+	bool broken;                         ///< The ride is currently broken down.
 
 	uint16 entrance_type;    ///< Index of this ride's entrance.
 	uint16 exit_type;        ///< Index of this ride's exit.
 
 protected:
-	const RideType *type; ///< Ride type used.
-
-	Random rnd;           ///< Random number generator for determining ride breakage.
+	const RideType *type;   ///< Ride type used.
+	Random rnd;             ///< Random number generator for determining ride breakage.
+	bool mechanic_pending;  ///< Whether a mechanic has been called and did not arrive yet.
 };
 
 /** Storage of available ride types. */

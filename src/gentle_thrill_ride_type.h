@@ -26,6 +26,10 @@ public:
 	const StringID *GetInstanceNames() const override;
 	RideInstance *CreateInstance() const override;
 
+	int16 working_cycles_min;            ///< Minimum number of working cycles.
+	int16 working_cycles_max;            ///< Maximum number of working cycles.
+	int16 working_cycles_default;        ///< Default number of working cycles.
+
 private:
 	FixedRideType::RideCapacity capacity;
 };
@@ -53,6 +57,7 @@ public:
 	void SetExitPos(const XYZPoint16& pos);
 	void RemoveFromWorld() override;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
+	std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;

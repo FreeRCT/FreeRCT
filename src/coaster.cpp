@@ -24,7 +24,6 @@ CoasterPlatform _coaster_platforms[CPT_COUNT]; ///< Sprites for the coaster plat
 static CarType _car_types[16]; ///< Car types available to the program (arbitrary limit).
 static uint _used_types = 0;   ///< First free car type in #_car_types.
 
-static const int32 TRAIN_DEPARTURE_INTERVAL = 30000;        ///< How many milliseconds a train should wait in the station. \todo Make this user-configurable.
 static const int32 TRAIN_DEPARTURE_INTERVAL_TESTING = 3000; ///< How many milliseconds a train should wait in the station in test mode.
 
 static const uint16 ENTRANCE_OR_EXIT = INT16_MAX;  ///< Indicates that a voxel belongs to an entrance or exit.
@@ -97,12 +96,15 @@ CoasterType::~CoasterType()
 bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
 	uint32 length = rcd_file->size;
-	if (rcd_file->version != 5 || length < 2 + 1 + 1 + 1 + 4 + 2) return false;
-	length -= 2 + 1 + 1 + 1 + 4 + 2;
+	if (rcd_file->version != 6 || length < 2 + 1 + 1 + 1 + 4 + 2 + 6) return false;
+	length -= 2 + 1 + 1 + 1 + 4 + 2 + 6;
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
 	this->max_number_trains = rcd_file->GetUInt8();
 	this->max_number_cars = rcd_file->GetUInt8();
+	this->reliability_max = rcd_file->GetUInt16();
+	this->reliability_decrease_daily = rcd_file->GetUInt16();
+	this->reliability_decrease_monthly = rcd_file->GetUInt16();
 	if (this->coaster_kind == 0 || this->coaster_kind >= CST_COUNT) return false;
 	if (this->platform_type == 0 || this->platform_type >= CPT_COUNT) return false;
 
@@ -572,7 +574,7 @@ void CoasterTrain::OnAnimate(int delay)
 				has_platform = true;
 				if (this->station_policy == TSP_NO_STATION) {
 					this->station_policy = TSP_ENTERING_STATION;
-					this->time_left_waiting = this->coaster->state == RIS_TESTING ? TRAIN_DEPARTURE_INTERVAL_TESTING : TRAIN_DEPARTURE_INTERVAL;
+					this->time_left_waiting = this->coaster->state == RIS_TESTING ? TRAIN_DEPARTURE_INTERVAL_TESTING : this->coaster->max_idle_duration;
 				}
 			}
 			has_power |= indexed_car_piece->piece->HasPower();
@@ -684,6 +686,8 @@ CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *car_type)
 	this->car_type = car_type;
 	this->temp_entrance_pos = XYZPoint16::invalid();
 	this->temp_exit_pos = XYZPoint16::invalid();
+	this->max_idle_duration = 30000;
+	this->min_idle_duration = 5000;
 }
 
 CoasterInstance::~CoasterInstance()
@@ -713,7 +717,7 @@ bool CoasterInstance::IsAccessible()
 
 bool CoasterInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 {
-	if (this->state != RIS_OPEN) return false;
+	if (!RideInstance::CanBeVisited(vox, edge)) return false;
 	for (const CoasterStation &s : this->stations) {
 		if (vox == s.entrance && (edge + 2) % 4 == EntranceExitRotation(vox, &s)) return true;
 	}
@@ -722,6 +726,9 @@ bool CoasterInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 
 void CoasterInstance::OnAnimate(int delay)
 {
+	RideInstance::OnAnimate(delay);
+	if (this->broken) return;
+
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
 		if (train.cars.size() == 0) break;
@@ -856,6 +863,8 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 	Random r;
 	for (const CoasterStation &s : this->stations) {
 		if (s.entrance != vox) continue;
+
+		/* Find the frontmost train in this station. */
 		CoasterTrain *loading_train = nullptr;
 		for (CoasterTrain &t : this->trains) {
 			if (t.station_policy == TSP_IN_STATION &&
@@ -867,18 +876,35 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 		}
 		if (loading_train == nullptr) return RER_WAIT;
 
+		/* Find all free seats in the train. */
 		std::set<std::pair<CoasterCar*, int>> free_slots;
 		for (CoasterCar &car : loading_train->cars) {
 			for (uint i = 0; i < car.guests.size(); i++) {
 				if (car.guests[i] == nullptr) free_slots.insert(std::make_pair(&car, i));
 			}
 		}
-		assert(!free_slots.empty());
+		if (free_slots.empty()) return RER_WAIT;
+
 		auto it = free_slots.begin();
 		std::advance(it, r.Uniform(free_slots.size() - 1));
 		it->first->guests[it->second] = guest;
-		if (free_slots.size() == 1) loading_train->time_left_waiting = 0;  // \todo Allow defining a minimum waiting time.
+		if (free_slots.size() == 1) {
+			/* Start the train as soon as the minimum idle duration has elapsed. */
+			if (loading_train->time_left_waiting > this->max_idle_duration - this->min_idle_duration) {
+				loading_train->time_left_waiting += this->max_idle_duration - this->min_idle_duration;
+			} else {
+				loading_train->time_left_waiting = 0;
+			}
+		}
 		return RER_ENTERED;
+	}
+	NOT_REACHED();
+}
+
+std::pair<XYZPoint16, TileEdge> CoasterInstance::GetMechanicEntrance() const
+{
+	for (const CoasterStation &s : this->stations) {  // Pick the first exit there is.
+		if (s.exit != XYZPoint16::invalid()) return std::make_pair(s.exit, static_cast<TileEdge>(this->EntranceExitRotation(s.exit, &s)));
 	}
 	NOT_REACHED();
 }
@@ -1291,7 +1317,7 @@ void CoasterInstance::ReinitializeTrains(const bool test_mode)
 	this->SetNumberOfTrains(this->number_of_trains);  // This takes care of actually moving the trains to the correct positions.
 	for (int i = 0; i < this->number_of_trains; i++) {
 		this->trains[i].station_policy = TSP_ENTERING_STATION;
-		this->trains[i].time_left_waiting = test_mode ? TRAIN_DEPARTURE_INTERVAL_TESTING : TRAIN_DEPARTURE_INTERVAL;
+		this->trains[i].time_left_waiting = test_mode ? TRAIN_DEPARTURE_INTERVAL_TESTING : this->max_idle_duration;
 	}
 }
 
@@ -1323,7 +1349,7 @@ void CoasterInstance::Crash(CoasterTrain *t1, CoasterTrain *t2)
 	}
 
 	this->CloseRide();
-	this->breakdown_state = BDS_BROKEN;
+	this->BreakDown();
 	/* \todo Display animation of a big ball of fire. */
 	/* \todo Decrease ride excitement rating and park rating. */
 	printf("%d guests died in a ball of fire when %s crashed.\n", number_dead, this->name.get());  // \todo Show this as a message in-game.
@@ -1593,6 +1619,8 @@ void CoasterInstance::Load(Loader &ldr)
 		this->trains[i].Load(ldr);
 	}
 
+	this->max_idle_duration = ldr.GetLong();
+	this->min_idle_duration = ldr.GetLong();
 	const int nr_stations = ldr.GetWord();
 	this->stations.resize(nr_stations);
 	for (int i = 0; i < nr_stations; ++i) {
@@ -1652,6 +1680,8 @@ void CoasterInstance::Save(Saver &svr)
 		this->trains[i].Save(svr);
 	}
 
+	svr.PutLong(this->max_idle_duration);
+	svr.PutLong(this->min_idle_duration);
 	svr.PutWord(this->stations.size());
 	for (const CoasterStation &s : this->stations) {
 		svr.PutWord(s.entrance.x);

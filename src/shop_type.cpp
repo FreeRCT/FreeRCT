@@ -81,8 +81,8 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	for (int i = 0; i < 4; i++) {
 		previews[i] = animation_idle->sprites[i][0];
 	}
-	this->working_duration = 0;  // Shops don't have working phases.
-	this->idle_duration = 1;     // Ignored.
+	this->working_duration = 0;       // Shops don't have working phases.
+	this->default_idle_duration = 1;  // Ignored.
 
 	for (uint i = 0; i < 3; i++) {
 		uint32 recolour = rcd_file->GetUInt32();
@@ -167,7 +167,7 @@ uint8 ShopInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 
 bool ShopInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 {
-	if (this->state != RIS_OPEN) return false;
+	if (!RideInstance::CanBeVisited(vox, edge)) return false;
 	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
 }
 
@@ -190,6 +190,15 @@ RideEntryResult ShopInstance::EnterRide(int guest, const XYZPoint16 &vox, TileEd
 		}
 	}
 	return RER_REFUSED;
+}
+
+std::pair<XYZPoint16, TileEdge> ShopInstance::GetMechanicEntrance() const
+{
+	const int dirs = this->GetEntranceDirections(this->vox_pos);
+	for (int edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
+		if ((dirs & (1 << edge)) != 0) return std::make_pair(this->vox_pos, static_cast<TileEdge>(edge));
+	}
+	NOT_REACHED();
 }
 
 XYZPoint32 ShopInstance::GetExit(int guest, TileEdge entry_edge)

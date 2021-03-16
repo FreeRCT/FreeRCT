@@ -19,7 +19,7 @@
 
 FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k)
 {
-	this->width_x = this->width_y = this->idle_duration = this->working_duration = 0;
+	this->width_x = this->width_y = this->default_idle_duration = this->working_duration = 0;
 	animation_idle = nullptr;
 	animation_starting = nullptr;
 	animation_working = nullptr;
@@ -53,6 +53,9 @@ FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(t
 	this->onride_guests.Configure(capacity.guests_per_batch, capacity.number_of_batches);
 	this->is_working = false;
 	this->time_left_in_phase = 0;
+	this->working_cycles = 1;
+	this->max_idle_duration = type->default_idle_duration;
+	this->min_idle_duration = 0;
 }
 
 FixedRideInstance::~FixedRideInstance()
@@ -112,7 +115,7 @@ void FixedRideInstance::CloseRide() {
 void FixedRideInstance::OpenRide() {
 	RideInstance::OpenRide();
 	is_working = false;
-	this->time_left_in_phase = GetFixedRideType()->idle_duration;
+	this->time_left_in_phase = this->max_idle_duration;
 }
 
 /**
@@ -156,7 +159,8 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 		const FrameSet *set_to_use;
 		if (is_working) {
 			/* Check whether we are starting up, slowing down, or in the middle of the phase. */
-			const int relative_time = Clamp(t->working_duration - time_left_in_phase, 0, t->working_duration);
+			const int total_duration = this->working_cycles * t->working_duration;
+			const int relative_time = Clamp(total_duration - time_left_in_phase, 0, total_duration);
 			const int start_duration = t->animation_starting == nullptr ? 0 : t->animation_starting->GetTotalDuration();
 			if (relative_time < start_duration) {
 				/* Starting up. */
@@ -165,9 +169,9 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 				set_to_use = t->animation_starting->views[index];
 			} else {
 				const int stop_duration = t->animation_stopping == nullptr ? 0 : t->animation_stopping->GetTotalDuration();
-				if (relative_time > t->working_duration - stop_duration) {
+				if (relative_time > total_duration - stop_duration) {
 					/* Slowing down. */
-					const int index = t->animation_stopping->GetFrame(stop_duration + relative_time - t->working_duration, false);
+					const int index = t->animation_stopping->GetFrame(stop_duration + relative_time - total_duration, false);
 					assert(index >= 0 && index < t->animation_stopping->frames);
 					set_to_use = t->animation_stopping->views[index];
 				} else if (t->animation_working != nullptr && t->animation_working->GetTotalDuration() > 0) {
@@ -269,6 +273,9 @@ void FixedRideInstance::RemoveFromWorld()
 
 void FixedRideInstance::OnAnimate(const int delay)
 {
+	RideInstance::OnAnimate(delay);
+	if (this->broken) return;
+
 	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.
 
 	const FixedRideType* t = GetFixedRideType();
@@ -278,7 +285,7 @@ void FixedRideInstance::OnAnimate(const int delay)
 		this->time_left_in_phase -= delay;
 		if (this->time_left_in_phase < 0) {
 			this->is_working = !this->is_working;
-			this->time_left_in_phase += (this->is_working ? t->working_duration : t->idle_duration);
+			this->time_left_in_phase += (this->is_working ? (this->working_cycles * t->working_duration) : this->max_idle_duration);
 			force_start = this->is_working;
 			needs_update = true;
 		}
@@ -324,10 +331,11 @@ void FixedRideInstance::OnAnimate(const int delay)
 				}
 			}
 		}
+		/* \todo Only start if the waiting time exceeded #min_idle_duration. */
 		if (is_full) {
 			this->is_working = true;
-			this->time_left_in_phase = t->working_duration;
-			batch.Start(t->working_duration);
+			this->time_left_in_phase = this->working_cycles * t->working_duration;
+			batch.Start(this->time_left_in_phase);
 			needs_update = true;
 		}
 	}
@@ -351,6 +359,9 @@ void FixedRideInstance::Load(Loader &ldr)
 	uint16 y = ldr.GetWord();
 	uint16 z = ldr.GetWord();
 	this->vox_pos = XYZPoint16(x, y, z);
+	this->working_cycles = ldr.GetWord();
+	this->max_idle_duration = ldr.GetLong();
+	this->min_idle_duration = ldr.GetLong();
 	this->time_left_in_phase = ldr.GetLong();
 	this->is_working = ldr.GetByte() == 1;
 	this->onride_guests.Load(ldr);
@@ -366,6 +377,9 @@ void FixedRideInstance::Save(Saver &svr)
 	svr.PutWord(this->vox_pos.x);
 	svr.PutWord(this->vox_pos.y);
 	svr.PutWord(this->vox_pos.z);
+	svr.PutWord(this->working_cycles);
+	svr.PutLong(this->max_idle_duration);
+	svr.PutLong(this->min_idle_duration);
 	svr.PutLong(this->time_left_in_phase);
 	svr.PutByte(this->is_working ? 1 : 0);
 	this->onride_guests.Save(svr);

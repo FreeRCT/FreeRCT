@@ -2052,6 +2052,12 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->guests_per_batch = vals.GetNumber("guests_per_batch");
 	block->idle_duration = vals.GetNumber("idle_duration");
 	block->working_duration = vals.GetNumber("working_duration");
+	block->working_cycles_min = vals.GetNumber("working_cycles_min");
+	block->working_cycles_max = vals.GetNumber("working_cycles_max");
+	block->working_cycles_default = vals.GetNumber("working_cycles_default");
+	block->reliability_max = vals.GetNumber("reliability_max");
+	block->reliability_decrease_daily = vals.GetNumber("reliability_decrease_daily");
+	block->reliability_decrease_monthly = vals.GetNumber("reliability_decrease_monthly");
 	block->ride_text = std::make_shared<StringBundle>();
 	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
 	block->ride_text->CheckTranslations(_gentle_thrill_rides_string_names, lengthof(_gentle_thrill_rides_string_names), ng->pos);
@@ -2455,6 +2461,9 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 	rb->platform_type = vals.GetNumber("platform_type");
 	rb->number_trains = vals.GetNumber("max_number_trains");
 	rb->number_cars = vals.GetNumber("max_number_cars");
+	rb->reliability_max = vals.GetNumber("reliability_max");
+	rb->reliability_decrease_daily = vals.GetNumber("reliability_decrease_daily");
+	rb->reliability_decrease_monthly = vals.GetNumber("reliability_decrease_monthly");
 	rb->text = std::make_shared<StringBundle>();
 	rb->text->Fill(vals.GetStrings("texts"), ng->pos);
 	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
