@@ -22,14 +22,15 @@ class InboxGui : public GuiWindow {
 public:
 	InboxGui();
 
+	void OnDraw(MouseModeSelector *selector) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 
 	const Message *GetMessage(WidgetNumber wid_num) const;
 };
 
-static const int IBX_NR_ROWS = 8;   ///< Number of message rows in the inbox window.
-static const int BUTTON_WIDTH = 500;  ///< Pixel width of a message row.
+static const int IBX_NR_ROWS = 5;     ///< Number of message rows in the inbox window.
+static const int BUTTON_WIDTH = 400;  ///< Pixel width of a message row.
 static const int BUTTON_HEIGHT = 50;  ///< Pixel height of the buttons.
 /**
  * Widget numbers of the inbox GUI.
@@ -63,9 +64,6 @@ static const WidgetPart _inbox_gui_parts[] = {
 						INBOX_ROW_BUTTON(3),
 						INBOX_ROW_BUTTON(4),
 						INBOX_ROW_BUTTON(5),
-						INBOX_ROW_BUTTON(6),
-						INBOX_ROW_BUTTON(7),
-						INBOX_ROW_BUTTON(8),
 			Widget(WT_VERT_SCROLLBAR, IBX_SCROLLBAR, COL_RANGE_GREY),
 	EndContainer(),
 };
@@ -120,6 +118,12 @@ void InboxGui::OnClick(const WidgetNumber wid_num, const Point16 &pos)
 }
 
 static const int MESSAGE_PADDING = 2;  ///< Padding inside a message row
+
+void InboxGui::OnDraw(MouseModeSelector *s)
+{
+	this->GetWidget<ScrollbarWidget>(IBX_SCROLLBAR)->SetItemCount(_inbox.messages.size());
+	GuiWindow::OnDraw(s);
+}
 
 void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) const
 {

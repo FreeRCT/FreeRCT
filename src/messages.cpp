@@ -148,7 +148,7 @@ void Inbox::Clear()
 void Inbox::SendMessage(const Message &message)
 {
 	this->messages.push_back(message);
-	/* The GUI will update itself. */
+	/* The GUI will update itself on its own. */
 }
 
 /**

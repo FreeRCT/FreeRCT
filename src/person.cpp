@@ -517,7 +517,10 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 		case EDGE_SE: tile_edge_pix_pos.y = 255; break;
 		default: NOT_REACHED();
 	}
-	if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) return RVD_NO_VISIT;
+	if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) {
+		ri->NotifyLongQueue();
+		return RVD_NO_VISIT;
+	}
 
 	RideVisitDesire rvd = this->WantToVisit(ri);
 	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
