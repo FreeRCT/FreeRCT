@@ -1350,9 +1350,9 @@ void CoasterInstance::Crash(CoasterTrain *t1, CoasterTrain *t2)
 	}
 
 	if (number_dead > 0) {
-		_inbox.SendMessage(Message(GUI_MESSAGE_CRASH_WITH_DEAD, this->GetIndex(), number_dead));
+		_inbox.SendMessage(new Message(GUI_MESSAGE_CRASH_WITH_DEAD, this->GetIndex(), number_dead));
 	} else {
-		_inbox.SendMessage(Message(GUI_MESSAGE_CRASH_NO_DEAD, this->GetIndex()));
+		_inbox.SendMessage(new Message(GUI_MESSAGE_CRASH_NO_DEAD, this->GetIndex()));
 	}
 	this->CloseRide();
 	this->BreakDown();

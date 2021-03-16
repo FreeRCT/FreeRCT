@@ -11,6 +11,7 @@
 #include "person.h"
 #include "people.h"
 #include "ride_type.h"
+#include "window.h"
 
 /** Default constructor, for loading only. */
 Message::Message()
@@ -118,6 +119,30 @@ void Message::SetStringParameters() const
 	}
 }
 
+/** The user clicked this message's button. */
+void Message::OnClick() const
+{
+	switch (this->data_type) {
+		case MDT_NONE:
+			break;
+		case MDT_GUEST:
+			ShowGuestInfoGui(_guests.Get(this->data1));
+			break;
+		case MDT_RIDE_INSTANCE:
+			ShowRideManagementGui(this->data1);
+			break;
+		case MDT_RIDE_TYPE:
+			ShowRideSelectGui();  // \todo Pre-select the ride type indicated by the message.
+			break;
+		case MDT_PARK:
+			/* \todo Implement showing park management GUI. */
+			break;
+		case MDT_GOTO:
+			/* \todo Move the main view to the coordinates indicated by the message. */
+			break;
+	}
+}
+
 void Message::Load(Loader &ldr)
 {
 	this->message = ldr.GetWord();
@@ -145,10 +170,39 @@ void Inbox::Clear()
  * Add a message to the inbox and notify the player.
  * @param message Message to send.
  */
-void Inbox::SendMessage(const Message &message)
+void Inbox::SendMessage(Message *message)
 {
-	this->messages.push_back(message);
-	/* The GUI will update itself on its own. */
+	this->messages.push_back(std::unique_ptr<Message>(message));
+	if (this->display_message == nullptr) {
+		this->display_time = 0;
+		this->display_message = message;
+	}
+}
+
+/**
+ * Some time has passed.
+ * @param time Number of milliseconds realtime since the last call to this method.
+ */
+void Inbox::Tick(const uint32 time)
+{
+	if (this->display_message == nullptr) return;
+	this->display_time += time;
+	if (this->display_time > 10000) this->DismissDisplayMessage();  // Automatically dismiss messages after an arbitrary timeout of 10 seconds.
+}
+
+/** Dismiss the display message, and show the next one if applicable. */
+void Inbox::DismissDisplayMessage()
+{
+	this->display_time = 0;
+	bool found = false;
+	for (auto &msg : this->messages) {
+		if (found) {
+			display_message = msg.get();
+			return;
+		}
+		if (msg.get() == display_message) found = true;
+	}
+	display_message = nullptr;
 }
 
 /**
@@ -158,7 +212,8 @@ void Inbox::SendMessage(const Message &message)
 void Inbox::NotifyRideDeletion(const uint16 ride)
 {
 	for (auto it = this->messages.begin(); it != this->messages.end();) {
-		if (it->data_type == MDT_RIDE_INSTANCE && it->data1 == ride) {
+		if ((*it)->data_type == MDT_RIDE_INSTANCE && (*it)->data1 == ride) {
+			if (it->get() == this->display_message) this->DismissDisplayMessage();
 			it = this->messages.erase(it);
 		} else {
 			it++;
@@ -173,7 +228,8 @@ void Inbox::NotifyRideDeletion(const uint16 ride)
 void Inbox::NotifyGuestDeletion(const uint16 guest)
 {
 	for (auto it = this->messages.begin(); it != this->messages.end();) {
-		if (it->data_type == MDT_GUEST && it->data1 == guest) {
+		if ((*it)->data_type == MDT_GUEST && (*it)->data1 == guest) {
+			if (it->get() == this->display_message) this->DismissDisplayMessage();
 			it = this->messages.erase(it);
 		} else {
 			it++;
@@ -185,17 +241,17 @@ void Inbox::Load(Loader &ldr)
 {
 	this->Clear();
 	for (long i = ldr.GetLong(); i > 0; i--) {
-		Message m;
-		m.Load(ldr);
-		this->messages.push_back(m);
+		Message *m = new Message;
+		m->Load(ldr);
+		this->messages.push_back(std::unique_ptr<Message>(m));
 	}
 }
 
 void Inbox::Save(Saver &svr) const
 {
 	svr.PutLong(this->messages.size());
-	for (const Message &m : this->messages) {
-		m.Save(svr);
+	for (const auto &m : this->messages) {
+		m->Save(svr);
 	}
 }
 

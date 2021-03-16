@@ -11,6 +11,7 @@
 #define MESSAGES_H
 
 #include <list>
+#include <memory>
 
 #include "stdafx.h"
 #include "dates.h"
@@ -35,11 +36,13 @@ enum MessageDataType {
 };
 
 /** One message. */
-struct Message {
+class Message {
+public:
 	explicit Message();
 	explicit Message(StringID str, uint32 d1 = 0, uint32 d2 = 0);
 
 	void SetStringParameters() const;
+	void OnClick() const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
@@ -59,13 +62,17 @@ struct Inbox {
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
 
-	void SendMessage(const Message &message);
+	void SendMessage(Message *message);
 	void Clear();
+	void Tick(uint32 time);
+	void DismissDisplayMessage();
 
 	void NotifyRideDeletion(uint16 ride);
 	void NotifyGuestDeletion(uint16 guest);
 
-	std::list<Message> messages;   ///< All messages belonging to the player.
+	std::list<std::unique_ptr<Message>> messages;  ///< All messages belonging to the player.
+	Message *display_message;                      ///< Message to display in the bottom toolbar (may be \c nullptr).
+	uint32 display_time;                           ///< Number of milliseconds for which the #display_message (if any) has been shown.
 };
 extern Inbox _inbox;
 

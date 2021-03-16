@@ -11,6 +11,7 @@
 #include "person.h"
 #include "people.h"
 #include "window.h"
+#include "sprite_data.h"
 #include "sprite_store.h"
 #include "gui_sprites.h"
 
@@ -31,7 +32,7 @@ public:
 
 static const int IBX_NR_ROWS = 5;     ///< Number of message rows in the inbox window.
 static const int BUTTON_WIDTH = 400;  ///< Pixel width of a message row.
-static const int BUTTON_HEIGHT = 50;  ///< Pixel height of the buttons.
+static const int BUTTON_HEIGHT = 50;  ///< Pixel height of a message row.
 /**
  * Widget numbers of the inbox GUI.
  * @ingroup gui_group
@@ -89,32 +90,14 @@ const Message *InboxGui::GetMessage(const WidgetNumber wid_num) const
 	if (message_index < 0 || message_index >= nr_messages) return nullptr;
 	auto it = _inbox.messages.begin();
 	std::advance(it, message_index);
-	return &*it;
+	return it->get();
 }
 
 void InboxGui::OnClick(const WidgetNumber wid_num, const Point16 &pos)
 {
 	const Message *msg = this->GetMessage(wid_num);
 	if (msg == nullptr) return GuiWindow::OnClick(wid_num, pos);
-	switch (msg->data_type) {
-		case MDT_NONE:
-			break;
-		case MDT_GUEST:
-			ShowGuestInfoGui(_guests.Get(msg->data1));
-			break;
-		case MDT_RIDE_INSTANCE:
-			ShowRideManagementGui(msg->data1);
-			break;
-		case MDT_RIDE_TYPE:
-			ShowRideSelectGui();  // \todo Pre-select the ride type indicated by the message.
-			break;
-		case MDT_PARK:
-			/* \todo Implement showing park management GUI. */
-			break;
-		case MDT_GOTO:
-			/* \todo Move the main view to the coordinates indicated by the message. */
-			break;
-	}
+	msg->OnClick();
 }
 
 static const int MESSAGE_PADDING = 2;  ///< Padding inside a message row
@@ -134,8 +117,19 @@ void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) con
 	const int y = this->GetWidgetScreenY(wid) + MESSAGE_PADDING;
 	const int w = wid->pos.width - 2 * MESSAGE_PADDING;
 	const int h = wid->pos.height - 2 * MESSAGE_PADDING;
-	const int text_w = w - BUTTON_HEIGHT - 3 * MESSAGE_PADDING;
-	_video.FillRectangle(Rectangle32(x, y, w, h), TEXT_BLACK);
+	DrawMessage(msg, Rectangle32(x, y, w, h), false);
+}
+
+/**
+ * Draw an inbox message on the screen.
+ * @param msg Message to draw.
+ * @param rect Rectangle on the screen.
+ * @param narrow Whether to use a condensed layout.
+ */
+void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
+{
+	const int text_w = rect.width - rect.height - 3 * MESSAGE_PADDING;
+	_video.FillRectangle(rect, TEXT_BLACK);
 
 	uint8 colour;
 	switch (msg->category) {
@@ -151,10 +145,12 @@ void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) con
 	colour += COL_SERIES_START + COL_SERIES_LENGTH / 2;
 
 	msg->SetStringParameters();
-	DrawString(msg->message, colour, x + MESSAGE_PADDING, y + h / 2, text_w);
+	DrawString(msg->message, colour, rect.base.x + MESSAGE_PADDING, rect.base.y + rect.height / (narrow ? 5 : 2), text_w);
 
-	_str_params.SetDate(1, msg->timestamp);
-	DrawString(STR_ARG1, TEXT_WHITE, x + MESSAGE_PADDING, y, text_w);
+	if (!narrow) {
+		_str_params.SetDate(1, msg->timestamp);
+		DrawString(STR_ARG1, TEXT_WHITE, rect.base.x + MESSAGE_PADDING, rect.base.y, text_w);
+	}
 
 	int sprite_to_draw;
 	switch (msg->data_type) {
@@ -167,9 +163,13 @@ void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) con
 		default: NOT_REACHED();
 	}
 	static Recolouring rc; // Never modified
-	const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(sprite_to_draw);
 	const ImageData *imgdata = _sprite_manager.GetTableSprite(sprite_to_draw);
-	if (imgdata != nullptr) _video.BlitImage({x + w - BUTTON_HEIGHT, y}, imgdata, rc, GS_NORMAL);
+	if (imgdata != nullptr) {
+		_video.BlitImage(Point32(
+				rect.base.x + rect.width - rect.height,
+				rect.base.y + (static_cast<int>(imgdata->height) - static_cast<int>(rect.height)) / 2),
+			imgdata, rc, GS_NORMAL);
+	}
 }
 
 /** Open the inbox window (or if it is already opened, highlight and raise it). */

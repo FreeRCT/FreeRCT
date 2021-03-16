@@ -485,7 +485,7 @@ void RideInstance::BreakDown()
 {
 	if (this->broken) return;
 	this->broken = true;
-	_inbox.SendMessage(Message(GUI_MESSAGE_BROKEN_DOWN, this->GetIndex()));
+	_inbox.SendMessage(new Message(GUI_MESSAGE_BROKEN_DOWN, this->GetIndex()));
 	this->CallMechanic();
 }
 
@@ -501,7 +501,7 @@ void RideInstance::CallMechanic()
 void RideInstance::MechanicArrived()
 {
 	assert(this->mechanic_pending);
-	if (this->broken) _inbox.SendMessage(Message(GUI_MESSAGE_REPAIRED, this->GetIndex()));
+	if (this->broken) _inbox.SendMessage(new Message(GUI_MESSAGE_REPAIRED, this->GetIndex()));
 	this->broken = false;
 	this->time_since_last_maintenance = 0;
 	this->reliability = this->max_reliability;
@@ -571,7 +571,7 @@ void RideInstance::NotifyLongQueue()
 	if (this->state != RIS_OPEN || this->broken) return;
 	if (this->time_since_last_long_queue_message > 10 * 60 * 1000) {  // Arbitrary threshold of 10 minutes to ensure that this notification is not repeated too often.
 		this->time_since_last_long_queue_message = 0;
-		_inbox.SendMessage(Message(GUI_MESSAGE_COMPLAIN_QUEUE, this->GetIndex()));
+		_inbox.SendMessage(new Message(GUI_MESSAGE_COMPLAIN_QUEUE, this->GetIndex()));
 	}
 }
 

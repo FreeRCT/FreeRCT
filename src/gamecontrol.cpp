@@ -69,6 +69,7 @@ static int speed_factor(GameSpeed speed)
 void OnNewFrame(const uint32 frame_delay)
 {
 	_window_manager.Tick();
+	_inbox.Tick(frame_delay);
 	for (int i = speed_factor(_game_control.speed); i > 0; i--) {
 		_guests.DoTick();
 		_staff.DoTick();

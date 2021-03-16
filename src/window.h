@@ -19,6 +19,7 @@
 class Viewport;
 class RideType;
 class Person;
+class Message;
 class MouseModeSelector;
 
 /** An item in a dropdown list. */
@@ -479,12 +480,13 @@ void ShowGentleThrillRideManagementGui(uint16 ri);
 void ShowFenceGui();
 void ShowTerraformGui();
 void ShowFinancesGui();
-void ShowInboxGui();
 bool ShowRideManagementGui(uint16 ride);
 void ShowCoasterManagementGui(RideInstance *coaster);
 void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);
 void ShowErrorMessage(StringID strid);
 void ShowSettingGui();
+void ShowInboxGui();
+void DrawMessage(const Message *msg, const Rectangle32 &rect, bool narrow);
 
 #endif
