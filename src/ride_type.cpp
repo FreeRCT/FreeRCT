@@ -19,6 +19,7 @@
 #include "gamelevel.h"
 #include "window.h"
 #include "finances.h"
+#include "messages.h"
 #include "person.h"
 #include "people.h"
 #include "random.h"
@@ -482,7 +483,7 @@ void RideInstance::BreakDown()
 {
 	if (this->broken) return;
 	this->broken = true;
-	printf("%s is broken down.\n", this->name.get());  // \todo Show this as a message in-game.
+	_inbox.SendMessage(Message(MSG_INFO, GUI_MESSAGE_BROKEN_DOWN, this->GetIndex()));
 	this->CallMechanic();
 }
 
@@ -498,6 +499,7 @@ void RideInstance::CallMechanic()
 void RideInstance::MechanicArrived()
 {
 	assert(this->mechanic_pending);
+	if (this->broken) _inbox.SendMessage(Message(MSG_INFO, GUI_MESSAGE_REPAIRED, this->GetIndex()));
 	this->broken = false;
 	this->time_since_last_maintenance = 0;
 	this->reliability = this->max_reliability;

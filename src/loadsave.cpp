@@ -12,6 +12,7 @@
 #include "random.h"
 #include "finances.h"
 #include "map.h"
+#include "messages.h"
 #include "string_func.h"
 #include "person.h"
 #include "people.h"
@@ -318,7 +319,7 @@ void Saver::PutText(const uint8 *str, int length)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 7) ldr.SetFailMessage("Bad file header");
+	if (version > 8) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
 
 	Loader reset_loader(nullptr);
@@ -331,6 +332,7 @@ static void LoadElements(Loader &ldr)
 	_rides_manager.Load((version >= 6) ? ldr : reset_loader);
 	_guests.Load((version >= 5) ? ldr : reset_loader);
 	_staff.Load((version >= 7) ? ldr : reset_loader);
+	_inbox.Load((version >= 8) ? ldr : reset_loader);
 
 	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
@@ -342,7 +344,7 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 7);
+	svr.StartBlock("FCTS", 8);
 	svr.EndBlock();
 
 	SaveDate(svr);
@@ -353,6 +355,7 @@ static void SaveElements(Saver &svr)
 	_rides_manager.Save(svr);
 	_guests.Save(svr);
 	_staff.Save(svr);
+	_inbox.Save(svr);
 }
 
 /**

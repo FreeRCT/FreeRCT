@@ -14,6 +14,7 @@
 #include "fileio.h"
 #include "memory.h"
 #include "map.h"
+#include "messages.h"
 #include "people.h"
 #include "viewport.h"
 
@@ -1348,11 +1349,15 @@ void CoasterInstance::Crash(CoasterTrain *t1, CoasterTrain *t2)
 		}
 	}
 
+	if (number_dead > 0) {
+		_inbox.SendMessage(Message(MSG_BAD, GUI_MESSAGE_CRASH_WITH_DEAD, this->GetIndex(), number_dead));
+	} else {
+		_inbox.SendMessage(Message(MSG_BAD, GUI_MESSAGE_CRASH_NO_DEAD, this->GetIndex()));
+	}
 	this->CloseRide();
 	this->BreakDown();
 	/* \todo Display animation of a big ball of fire. */
 	/* \todo Decrease ride excitement rating and park rating. */
-	printf("%d guests died in a ball of fire when %s crashed.\n", number_dead, this->name.get());  // \todo Show this as a message in-game.
 	ShowCoasterManagementGui(this);
 }
 

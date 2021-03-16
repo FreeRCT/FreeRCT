@@ -1155,3 +1155,32 @@ Window *HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber)
 	}
 	return w;
 }
+
+/**
+ * Open a window of the correct type to manage a ride.
+ * @param ride Ride to manage.
+ * @return A window was opened.
+ */
+bool ShowRideManagementGui(const uint16 ride)
+{
+	RideInstance *ri = _rides_manager.GetRideInstance(ride);
+	if (ri == nullptr) return false;
+
+	switch (ri->GetKind()) {
+		case RTK_SHOP:
+			ShowShopManagementGui(ride);
+			return true;
+
+		case RTK_GENTLE:
+		case RTK_THRILL:
+			ShowGentleThrillRideManagementGui(ride);
+			return true;
+
+		case RTK_COASTER:
+			ShowCoasterManagementGui(ri);
+			return true;
+
+		default: NOT_REACHED();  // Other types are not implemented yet.
+	}
+	return false;
+}

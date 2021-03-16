@@ -1138,27 +1138,9 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 	if ((state & MB_CURRENT) != 0) {
 		FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
 		switch (this->ComputeCursorPosition(&fdata)) {
-			case CS_RIDE: {
-				RideInstance *ri = _rides_manager.GetRideInstance(fdata.ride);
-				if (ri == nullptr) break;
-				switch (ri->GetKind()) {
-					case RTK_SHOP:
-						ShowShopManagementGui(fdata.ride);
-						return WMME_NONE;
-
-					case RTK_GENTLE:
-					case RTK_THRILL:
-						ShowGentleThrillRideManagementGui(fdata.ride);
-						return WMME_NONE;
-
-					case RTK_COASTER:
-						ShowCoasterManagementGui(ri);
-						return WMME_NONE;
-
-					default: break; // Other types are not implemented yet.
-				}
+			case CS_RIDE:
+				if (ShowRideManagementGui(fdata.ride)) return WMME_NONE;
 				break;
-			}
 
 			case CS_PERSON:
 				ShowGuestInfoGui(fdata.person);

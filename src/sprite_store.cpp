@@ -1154,7 +1154,7 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->version != 8 || rcd_file->size != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 + 4) return false;
+	if (rcd_file->version != 9 || rcd_file->size != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 + 4 + 4 * 5) return false;
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1199,6 +1199,12 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->close_sprite)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->dot_sprite)) return false;
+
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_goto)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_park)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_guest)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride_type)) return false;
 
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
 	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
@@ -1248,6 +1254,11 @@ void GuiSprites::Clear()
 	this->close_sprite = nullptr;
 	this->dot_sprite = nullptr;
 	this->bulldozer = nullptr;
+	this->message_goto = nullptr;
+	this->message_park = nullptr;
+	this->message_ride = nullptr;
+	this->message_guest = nullptr;
+	this->message_ride_type = nullptr;
 	for (uint i = 0; i < TC_END; i++) this->compass[i] = nullptr;
 	for (uint i = 0; i < WTP_COUNT; i++) this->weather[i] = nullptr;
 	for (uint i = 0; i < 4; i++) this->lights_rog[i] = nullptr;
@@ -1801,6 +1812,11 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_ROT3D_POS:      return _gui_sprites.rot_3d_pos;
 		case SPR_GUI_ROT3D_NEG:      return _gui_sprites.rot_3d_neg;
 		case SPR_GUI_BULLDOZER:      return _gui_sprites.bulldozer;
+		case SPR_GUI_MESSAGE_GOTO:       return _gui_sprites.message_goto;
+		case SPR_GUI_MESSAGE_PARK:       return _gui_sprites.message_park;
+		case SPR_GUI_MESSAGE_GUEST:      return _gui_sprites.message_guest;
+		case SPR_GUI_MESSAGE_RIDE:       return _gui_sprites.message_ride;
+		case SPR_GUI_MESSAGE_RIDE_TYPE:  return _gui_sprites.message_ride_type;
 		default:                     return nullptr;
 	}
 }

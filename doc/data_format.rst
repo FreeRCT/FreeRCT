@@ -1623,7 +1623,7 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 7.
+FreeRCT can read blocks with version 9.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
@@ -1682,8 +1682,13 @@ Offset  Length  Version  Field name          Description
   --       4      3-3                        Maximise button.
   --       4      3-3                        Minimise button.
  204       4      4-     terraform_dot       Terraform dot.
- 208       4      2-     texts               Text of the guis (reference to a TEXT block).
- 212                                         Total length.
+ 208       4      9-     message_goto        Inbox: Go To Location button.
+ 212       4      9-     message_park        Inbox: Park Management button.
+ 216       4      9-     message_guest       Inbox: Guest Window button.
+ 220       4      9-     message_ride        Inbox: Ride Instance Window button.
+ 224       4      9-     message_ride_type   Inbox: Ride Select GUI button.
+ 228       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 232                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1697,6 +1702,7 @@ Version history
 - 6 (20130809) Added disabled overlay sprite.
 - 7 (20131215) Added weather sprites.
 - 8 (20140914) Added thunder storm sprite, and red/orange/green and red/green lights.
+- 9 (20210316) Added message button sprites.
 
 
 Persons

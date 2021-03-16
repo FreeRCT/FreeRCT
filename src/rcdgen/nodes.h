@@ -850,6 +850,11 @@ public:
 	std::shared_ptr<SpriteBlock> disabled;        ///< Pattern to overlay over disabled buttons.
 	std::shared_ptr<SpriteBlock> compass[4];      ///< Compass sprites denoting viewing directions.
 	std::shared_ptr<SpriteBlock> bulldozer;       ///< Bulldoze/delete.
+	std::shared_ptr<SpriteBlock> message_goto;       ///< Inbox: Go To Location button.
+	std::shared_ptr<SpriteBlock> message_park;       ///< Inbox: Park Management button.
+	std::shared_ptr<SpriteBlock> message_guest;      ///< Inbox: Guest Window button.
+	std::shared_ptr<SpriteBlock> message_ride;       ///< Inbox: Ride Instance Window button.
+	std::shared_ptr<SpriteBlock> message_ride_type;  ///< Inbox: Ride Select GUI button.
 	std::shared_ptr<SpriteBlock> weather[5];      ///< Weather sprites (sunny -> thunder).
 	std::shared_ptr<SpriteBlock> rog_lights[4];   ///< Red/orange/green lights (red, orange, green, none).
 	std::shared_ptr<SpriteBlock> rg_lights[3];    ///< Red/green lights (red, green, none).

@@ -56,6 +56,7 @@ enum WindowTypes {
 	WC_FENCE,           ///< Fence window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.
+	WC_INBOX,           ///< Inbox window.
 	WC_SETTING,         ///< Setting window.
 	WC_DROPDOWN,        ///< Dropdown window.
 
@@ -478,6 +479,8 @@ void ShowGentleThrillRideManagementGui(uint16 ri);
 void ShowFenceGui();
 void ShowTerraformGui();
 void ShowFinancesGui();
+void ShowInboxGui();
+bool ShowRideManagementGui(uint16 ride);
 void ShowCoasterManagementGui(RideInstance *coaster);
 void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);

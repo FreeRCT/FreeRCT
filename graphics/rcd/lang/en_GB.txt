@@ -56,6 +56,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modify landscape";
 		TOOLBAR_GUI_FINANCES:             "Finances";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Manage Company Finances";
+		TOOLBAR_GUI_INBOX:                "Inbox";
+		TOOLBAR_GUI_TOOLTIP_INBOX:        "View all your messages";
 
 		BOTTOMBAR_GUESTCOUNT:             "%1% guest(s)";
 
@@ -192,6 +194,18 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Research";
 		FINANCES_LOAN_INTEREST_TEXT:     "Loan Interest";
 		FINANCES_TOTAL_TEXT:             "Total";
+
+		// Messages and inbox.
+		INBOX_TITLE:              "Inbox";
+		MESSAGE_NEW_RIDE:         "A new attraction is now available: %1%";
+		MESSAGE_SCENARIO_WON:     "Congratulations, you have won the scenario!";
+		MESSAGE_SCENARIO_LOST:    "You have lost the scenario. May you be more lucky when you try again.";
+		MESSAGE_BROKEN_DOWN:      "%1% is broken down.";
+		MESSAGE_REPAIRED:         "%1% has been repaired.";
+		MESSAGE_CRASH_NO_DEAD:    "%1% crashed!";
+		MESSAGE_CRASH_WITH_DEAD:  "%2% guest(s) died when %1% crashed!";
+		MESSAGE_BAD_RATING:       "Your park rating is critically low. The park will be closed in %1% week(s) if the rating does not improve.";
+		MESSAGE_GUEST_LOST:       "%1% is lost and cannot find the park exit.";
 
 		// Coaster construction strings.
 		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Selects track pieces with a bend to the left";

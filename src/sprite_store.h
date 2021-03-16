@@ -494,6 +494,11 @@ struct GuiSprites {
 	ImageData *weather[WTP_COUNT];          ///< Weather sprites.
 	ImageData *lights_rog[4];               ///< Red/orange/green light. @see LightRedOrangeGreen
 	ImageData *lights_rg[3];                ///< Red/green light. @see LightRedGreen
+	ImageData *message_goto;                ///< Inbox button go to location sprite.
+	ImageData *message_park;                ///< Inbox button park management sprite.
+	ImageData *message_guest;               ///< Inbox button guest window sprite.
+	ImageData *message_ride;                ///< Inbox button ride instance window sprite.
+	ImageData *message_ride_type;           ///< Inbox button ride select gui sprite.
 
 	TextData *text;                         ///< Texts of the GUI.
 };

@@ -56,6 +56,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Verändert die Landschaft";
 		TOOLBAR_GUI_FINANCES:             "Finanzen";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Verwaltet das Firmenvermögen";
+		TOOLBAR_GUI_INBOX:                "Posteingang";
+		TOOLBAR_GUI_TOOLTIP_INBOX:        "Alle Nachrichten betrachten";
 
 		BOTTOMBAR_GUESTCOUNT:             "%1% Besucher";
 
@@ -192,6 +194,18 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Forschung";
 		FINANCES_LOAN_INTEREST_TEXT:     "Darlehenszinsen";
 		FINANCES_TOTAL_TEXT:             "Gesamt";
+
+		// Messages and inbox.
+		INBOX_TITLE:              "Posteingang";
+		MESSAGE_NEW_RIDE:         "Eine neue Attraktion ist nun verfügbar: %1%";
+		MESSAGE_SCENARIO_WON:     "Gratulation, du hast das Szenario gewonnen!";
+		MESSAGE_SCENARIO_LOST:    "Du hast das Szenario verloren. Möge dir bei deinem nächsten Versuch mehr Glück beschieden sein.";
+		MESSAGE_BROKEN_DOWN:      "%1% ist defekt.";
+		MESSAGE_REPAIRED:         "%1% wurde repariert.";
+		MESSAGE_CRASH_NO_DEAD:    "%1% hatte einen Unfall!";
+		MESSAGE_CRASH_WITH_DEAD:  "%2% Gäste starben bei einem Unfall auf %1%!";
+		MESSAGE_BAD_RATING:       "Die Parkbewertung ist äußerst schlecht. Wenn sie sich nicht verbessert, wird der Park in %1% Woche(n) geschlossen.";
+		MESSAGE_GUEST_LOST:       "%1% hat sich verirrt und kann den Parkausgang nicht finden.";
 
 		// Coaster construction strings.
 		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Wählt Streckenteile mit Linkskurve aus";

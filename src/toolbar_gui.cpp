@@ -52,6 +52,7 @@ enum ToolbarGuiWidgets {
 	TB_GUI_FENCE,       ///< Select fence button.
 	TB_GUI_TERRAFORM,   ///< Terraform button.
 	TB_GUI_FINANCES,    ///< Finances button.
+	TB_GUI_INBOX,       ///< Inbox button.
 };
 
 /**
@@ -81,6 +82,7 @@ static const WidgetPart _toolbar_widgets[] = {
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FENCE,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FENCE,       GUI_TOOLBAR_GUI_TOOLTIP_FENCE),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_TERRAFORM,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_TERRAFORM,   GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FINANCES,    COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FINANCES,    GUI_TOOLBAR_GUI_TOOLTIP_FINANCES),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_INBOX,    COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_INBOX,    GUI_TOOLBAR_GUI_TOOLTIP_INBOX),
 	EndContainer(),
 };
 
@@ -158,6 +160,10 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 
 		case TB_GUI_FINANCES:
 			ShowFinancesGui();
+			break;
+
+		case TB_GUI_INBOX:
+			ShowInboxGui();
 			break;
 	}
 }
