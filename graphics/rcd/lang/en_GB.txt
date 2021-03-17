@@ -197,7 +197,7 @@ strings {
 
 		// Messages and inbox.
 		INBOX_TITLE:              "Inbox";
-		MESSAGE_NEW_RIDE:         "A new attraction is now available: %1%";
+		MESSAGE_NEW_RIDE:         "A new ride is now available: %1%";
 		MESSAGE_SCENARIO_WON:     "Congratulations, you have won the scenario!";
 		MESSAGE_SCENARIO_LOST:    "You have lost the scenario. May you be more lucky when you try again.";
 		MESSAGE_BROKEN_DOWN:      "%1% is broken down.";

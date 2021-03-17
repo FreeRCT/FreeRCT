@@ -43,10 +43,14 @@ void Message::InitMessageDataTypes()
 {
 	switch (this->message) {
 		case GUI_MESSAGE_SCENARIO_WON:
-		case GUI_MESSAGE_CHEAP_FEE:
 		case GUI_MESSAGE_AWARD_WON:
 			this->category = MSC_GOOD;
 			this->data_type = MDT_NONE;
+			return;
+
+		case GUI_MESSAGE_CHEAP_FEE:
+			this->category = MSC_GOOD;
+			this->data_type = MDT_PARK;
 			return;
 
 		case GUI_MESSAGE_SCENARIO_LOST:
@@ -88,7 +92,7 @@ void Message::InitMessageDataTypes()
 			return;
 
 		default:
-			printf("ERROR: Invalid message string %d (%s)\n", this->message, _language.GetText(this->message));
+			printf("ERROR: Invalid message string %d ('%s')\n", this->message, _language.GetText(this->message));
 			NOT_REACHED();
 	}
 }
@@ -114,7 +118,6 @@ void Message::SetStringParameters() const
 			_str_params.SetNumber(2, this->data2);
 			break;
 		default:
-			printf("ERROR: Invalid message type %d\n", this->data_type);
 			NOT_REACHED();
 	}
 }
@@ -201,14 +204,14 @@ void Inbox::DismissDisplayMessage()
 			changed = true;
 			break;
 		}
-		if (msg.get() == display_message) found = true;
+		found = (msg.get() == display_message);
 	}
 	if (!changed) this->display_message = nullptr;
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
 /**
- * Notification that the ride is being removed.
+ * Notification that a ride is being removed.
  * @param ri Ride being removed.
  */
 void Inbox::NotifyRideDeletion(const uint16 ride)
@@ -224,7 +227,7 @@ void Inbox::NotifyRideDeletion(const uint16 ride)
 }
 
 /**
- * Notification that the guest is being removed.
+ * Notification that a guest is being removed.
  * @param ri Guest being removed.
  */
 void Inbox::NotifyGuestDeletion(const uint16 guest)

@@ -51,7 +51,7 @@ public:
 	MessageCategory category;   ///< Type of this message.
 	StringID message;           ///< Message content.
 	MessageDataType data_type;  ///< Type of the extra data.
-	uint32 data1, data2;        ///< Extra data the message refers to (see #data_type).
+	uint32 data1, data2;        ///< Extra data the message may refer to (the meaning depends on #data_type).
 
 private:
 	void InitMessageDataTypes();

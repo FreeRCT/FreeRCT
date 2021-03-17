@@ -30,11 +30,14 @@ public:
 	const Message *GetMessage(WidgetNumber wid_num) const;
 };
 
-static const int IBX_NR_ROWS = 5;     ///< Number of message rows in the inbox window.
-static const int BUTTON_WIDTH = 400;  ///< Pixel width of a message row.
-static const int BUTTON_HEIGHT = 50;  ///< Pixel height of a message row.
+static const int IBX_NR_ROWS = 5;      ///< Number of message rows in the inbox window.
+static const int BUTTON_WIDTH = 400;   ///< Pixel width of a message row.
+static const int BUTTON_HEIGHT = 50;   ///< Pixel height of a message row.
+static const int MESSAGE_PADDING = 2;  ///< Padding inside a message row.
+
 /**
  * Widget numbers of the inbox GUI.
+ * The widget indices for the message rows are 1..#IBX_NR_ROWS.
  * @ingroup gui_group
  */
 enum InboxWidgets {
@@ -45,11 +48,7 @@ enum InboxWidgets {
 #define INBOX_ROW_BUTTON(index) \
 	Widget(WT_EMPTY, index, COL_RANGE_GREY), SetData(STR_ARG1, STR_NULL), SetResize(0, BUTTON_HEIGHT), SetMinimalSize(BUTTON_WIDTH, BUTTON_HEIGHT) \
 
-/**
- * Widget parts of the #InboxGui window.
- * The widget indices are #IBX_SCROLLBAR for the scrollbar,
- * and 1..#IBX_NR_ROWS for the message rows.
- */
+/** Widget parts of the #InboxGui window. */
 static const WidgetPart _inbox_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
@@ -100,8 +99,6 @@ void InboxGui::OnClick(const WidgetNumber wid_num, const Point16 &pos)
 	msg->OnClick();
 }
 
-static const int MESSAGE_PADDING = 2;  ///< Padding inside a message row
-
 void InboxGui::OnDraw(MouseModeSelector *s)
 {
 	this->GetWidget<ScrollbarWidget>(IBX_SCROLLBAR)->SetItemCount(_inbox.messages.size());
@@ -136,9 +133,7 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 		case MSC_GOOD: colour = COL_RANGE_BLUE;   break;
 		case MSC_INFO: colour = COL_RANGE_YELLOW; break;
 		case MSC_BAD:  colour = COL_RANGE_RED;    break;
-		default:
-			printf("ERROR: Invalid message category %d\n", msg->category);
-			NOT_REACHED();
+		default: NOT_REACHED();
 	}
 	/* Conversion from a Colour Range to a Palette index. */
 	colour *= COL_SERIES_LENGTH;
@@ -162,7 +157,7 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 		case MDT_RIDE_TYPE:     sprite_to_draw = SPR_GUI_MESSAGE_RIDE_TYPE; break;
 		default: NOT_REACHED();
 	}
-	static Recolouring rc; // Never modified
+	static Recolouring rc;  // Never modified.
 	const ImageData *imgdata = _sprite_manager.GetTableSprite(sprite_to_draw);
 	if (imgdata != nullptr) {
 		_video.BlitImage(Point32(
@@ -172,7 +167,7 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 	}
 }
 
-/** Open the inbox window (or if it is already opened, highlight and raise it). */
+/** Open the inbox window (or if it is already open, highlight and raise it). */
 void ShowInboxGui()
 {
 	if (HighlightWindowByType(WC_INBOX, ALL_WINDOWS_OF_TYPE) != nullptr) return;
