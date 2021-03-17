@@ -239,9 +239,9 @@ const uint32 _palette[256] = {
 	MakeRGBA(  0,   0,   0, TRANSPARENT), //  0 COL_BACKGROUND (background behind world display)
 	MakeRGBA(255, 255, 255, OPAQUE), //  1 COL_HIGHLIGHT (full white to highlight window edge)
 	MakeRGBA(255, 255, 255, OPACITY_SEMI_TRANSPARENT), //  2 COL_SEMI_TRANSPARENT (semi-transparent white buy-ride colour)
-	MakeRGBA(  0,   0,   0, OPAQUE), //  3 unused
-	MakeRGBA(  0,   0,   0, OPAQUE), //  4 unused
-	MakeRGBA(  0,   0,   0, OPAQUE), //  5 unused
+	MakeRGBA(220, 200, 100, OPAQUE), //  3 Background for tooltips.
+	MakeRGBA( 20,  20,  50, OPAQUE), //  4 Text colour for tooltips.
+	MakeRGBA(  0,   0,   0, OPAQUE), //  5 Border colour for tooltips.
 	MakeRGBA(  0,   0,   0, OPAQUE), //  6 unused
 	MakeRGBA(  0,   0,   0, OPAQUE), //  7 unused
 	MakeRGBA(  0,   0,   0, OPAQUE), //  8 unused

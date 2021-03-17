@@ -110,6 +110,9 @@ enum ColourRange {
 enum GuiTextColours {
 	TEXT_BLACK = 0, ///< Black text colour.
 	TEXT_WHITE = 1, ///< White text colour.
+	TEXT_TOOLTIP_BACKGROUND = 3,   ///< Background colour for tooltips.
+	TEXT_TOOLTIP_TEXT = 4,         ///< Text colour for tooltips.
+	TEXT_TOOLTIP_BORDER = 5,       ///< Border colour for tooltips.
 };
 
 /** Colours. */

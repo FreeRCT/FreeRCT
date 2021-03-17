@@ -308,6 +308,16 @@ void Window::ResetSize()
 }
 
 /**
+ * Find the widget for which a tooltip should be shown.
+ * @param pt Mouse cursor position.
+ * @return The widget (may be \c nullptr).
+ */
+BaseWidget *Window::FindTooltipWidget(Point16 pt)
+{
+	return nullptr;
+}
+
+/**
  * Gui window constructor.
  * @param wtype %Window type (for finding a window in the stack).
  * @param wnumber Number of the window within the \a wtype.
@@ -657,6 +667,14 @@ void GuiWindow::SetHighlight(bool value)
 	this->MarkDirty();
 }
 
+BaseWidget *GuiWindow::FindTooltipWidget(Point16 pt)
+{
+	if (this->tree == nullptr) return nullptr;
+	pt.x -= this->rect.base.x;
+	pt.y -= this->rect.base.y;
+	return this->tree->FindTooltipWidget(pt);
+}
+
 /**
  * %Window manager default constructor.
  * @todo Move this to a separate InitWindowSystem?
@@ -674,6 +692,7 @@ WindowManager::WindowManager()
 	this->select_valid = true;
 	this->mouse_state = 0;
 	this->mouse_mode = WMMM_PASS_THROUGH;
+	this->tooltip_widget = nullptr;
 }
 
 /** %Window manager destructor. */
@@ -1079,7 +1098,17 @@ bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
  */
 void WindowManager::UpdateWindows()
 {
-	if (!_video.DisplayNeedsRepaint()) return;
+	BaseWidget *tt = nullptr;
+	Point32 tooltip_offset;
+	for (Window *w = this->top; w != nullptr; w = w->lower) {
+		tt = w->FindTooltipWidget(GetMousePosition());
+		if (tt != nullptr) {
+			tooltip_offset = w->rect.base;
+			break;
+		}
+	}
+
+	if (!_video.DisplayNeedsRepaint() && this->tooltip_widget == tt) return;
 
 	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
 	 * windows truly disappear (even if there is no other window behind it).
@@ -1090,6 +1119,9 @@ void WindowManager::UpdateWindows()
 	GuiWindow *sel_window = this->GetSelector();
 	MouseModeSelector *selector = (sel_window == nullptr) ? nullptr : sel_window->selector;
 	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw(selector);
+	this->tooltip_widget = tt;
+
+	if (this->tooltip_widget != nullptr) this->tooltip_widget->DrawTooltip(tooltip_offset);
 
 	_video.FinishRepaint();
 }
