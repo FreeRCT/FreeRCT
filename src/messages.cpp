@@ -194,15 +194,17 @@ void Inbox::Tick(const uint32 time)
 void Inbox::DismissDisplayMessage()
 {
 	this->display_time = 0;
-	bool found = false;
+	bool found = false, changed = false;
 	for (auto &msg : this->messages) {
 		if (found) {
 			display_message = msg.get();
-			return;
+			changed = true;
+			break;
 		}
 		if (msg.get() == display_message) found = true;
 	}
-	display_message = nullptr;
+	if (!changed) this->display_message = nullptr;
+	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
 /**
