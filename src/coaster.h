@@ -218,6 +218,7 @@ public:
 
 	void TestRide();
 	void OpenRide() override;
+	void RecalculateRatings() override;
 
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;

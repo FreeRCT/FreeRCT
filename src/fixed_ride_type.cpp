@@ -310,7 +310,10 @@ void FixedRideInstance::OnAnimate(const int delay)
 				break;
 			}
 		}
-		if (is_empty) gb.state = BST_EMPTY;
+		if (is_empty) {
+			gb.state = BST_EMPTY;
+			this->RecalculateRatings();  // Recalculate ratings whenever a batch has completed running.
+		}
 	}
 
 	/* Ensure there is always a Loading batch, except when all batches are Running. */

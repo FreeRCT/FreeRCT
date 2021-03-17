@@ -46,6 +46,7 @@ public:
 	bool IsEntranceLocation(const XYZPoint16& pos) const override;
 	bool IsExitLocation(const XYZPoint16& pos) const override;
 	bool CanOpenRide() const override;
+	void RecalculateRatings() override;
 
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;

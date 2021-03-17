@@ -354,6 +354,14 @@ bool GentleThrillRideInstance::CanBeVisited(const XYZPoint16 &vox, const TileEdg
 	return RideInstance::CanBeVisited(vox, edge) && vox == this->entrance_pos && (edge + 2) % 4 == EntranceExitRotation(this->entrance_pos);
 }
 
+void GentleThrillRideInstance::RecalculateRatings()
+{
+	/* \todo Implement a scoring system. */
+	this->excitement_rating = 300;
+	this->intensity_rating = 190;
+	this->nausea_rating = 80;
+}
+
 void GentleThrillRideInstance::Load(Loader &ldr)
 {
 	this->FixedRideInstance::Load(ldr);

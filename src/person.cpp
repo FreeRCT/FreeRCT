@@ -1485,6 +1485,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
+		if (ri->GetSaleItemPrice(i) > this->cash) continue;
 		RideVisitDesire rvd = this->NeedForItem(ri->GetSaleItemType(i), true);
 		if (rvd != RVD_NO_VISIT) return rvd;
 	}

@@ -98,6 +98,10 @@ enum CoasterInstanceWidgets {
 	CIW_EXIT_RECOLOUR3,      ///< Third exit colour.
 	CIW_NUMBER_TRAINS,       ///< Number of trains dropdown.
 	CIW_NUMBER_CARS,         ///< Number of cars dropdown.
+	CIW_MONTHLY_COST,        ///< Monthly operating cost.
+	CIW_EXCITEMENT_RATING,   ///< Ride's excitement rating.
+	CIW_INTENSITY_RATING,    ///< Ride's intensity rating.
+	CIW_NAUSEA_RATING,       ///< Ride's nausea rating.
 };
 
 /** Widget parts of the #CoasterInstanceWindow. */
@@ -108,18 +112,16 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 
-		Intermediate(1, 0),
-			Widget(WT_TEXT_PUSHBUTTON, CIW_EDIT, COL_RANGE_DARK_RED),
-					SetData(STR_NULL, STR_NULL), SetFill(1, 1), SetMinimalSize(100, 100),
-
-			/* Close/test coaster radio button button panel */
-			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(0, 1),
-				Widget(WT_RADIOBUTTON, CIW_CLOSE, COL_RANGE_RED), SetPadding(0, 2, 0, 0),
-				Widget(WT_RADIOBUTTON, CIW_TEST, COL_RANGE_YELLOW), SetPadding(0, 2, 0, 0),
-				Widget(WT_RADIOBUTTON, CIW_OPEN, COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
-			EndContainer(),
-		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(4, 2),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, CIW_MONTHLY_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_EXCITEMENT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, CIW_EXCITEMENT_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INTENSITY, STR_NULL),
+				Widget(WT_RIGHT_TEXT, CIW_INTENSITY_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_NAUSEA, STR_NULL),
+				Widget(WT_RIGHT_TEXT, CIW_NAUSEA_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 			Intermediate(2, 1),
@@ -143,33 +145,44 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 				Widget(WT_LEFT_TEXT, CIW_RELIABILITY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(3, 2),
-				Widget(WT_TEXT_PUSHBUTTON, CIW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
-						SetData(GUI_PLACE_ENTRANCE, GUI_PLACE_ENTRANCE_TOOLTIP),
-				Widget(WT_TEXT_PUSHBUTTON, CIW_PLACE_EXIT, COL_RANGE_DARK_RED),
-						SetData(GUI_PLACE_EXIT, GUI_PLACE_EXIT_TOOLTIP),
-				Widget(WT_DROPDOWN_BUTTON, CIW_CHOOSE_ENTRANCE, COL_RANGE_DARK_RED),
-						SetData(GUI_CHOOSE_ENTRANCE, GUI_CHOOSE_ENTRANCE_TOOLTIP),
-				Widget(WT_DROPDOWN_BUTTON, CIW_CHOOSE_EXIT, COL_RANGE_DARK_RED),
-						SetData(GUI_CHOOSE_EXIT, GUI_CHOOSE_EXIT_TOOLTIP),
-				Intermediate(1, 3),
-					Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					SetResize(1, 0),
-				Intermediate(1, 3),
-					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					SetResize(1, 0),
+			Intermediate(1, 3),
+				Intermediate(2, 1),
+					Intermediate(3, 2),
+						Widget(WT_TEXT_PUSHBUTTON, CIW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
+								SetData(GUI_PLACE_ENTRANCE, GUI_PLACE_ENTRANCE_TOOLTIP),
+						Widget(WT_TEXT_PUSHBUTTON, CIW_PLACE_EXIT, COL_RANGE_DARK_RED),
+								SetData(GUI_PLACE_EXIT, GUI_PLACE_EXIT_TOOLTIP),
+						Widget(WT_DROPDOWN_BUTTON, CIW_CHOOSE_ENTRANCE, COL_RANGE_DARK_RED),
+								SetData(GUI_CHOOSE_ENTRANCE, GUI_CHOOSE_ENTRANCE_TOOLTIP),
+						Widget(WT_DROPDOWN_BUTTON, CIW_CHOOSE_EXIT, COL_RANGE_DARK_RED),
+								SetData(GUI_CHOOSE_EXIT, GUI_CHOOSE_EXIT_TOOLTIP),
+						Intermediate(1, 3),
+							Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, CIW_ENTRANCE_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							SetResize(1, 0),
+						Intermediate(1, 3),
+							Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, CIW_EXIT_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							SetResize(1, 0),
+					Intermediate(1, 2),
+						Widget(WT_DROPDOWN_BUTTON, CIW_NUMBER_CARS, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_NUMBER_CARS, STR_NULL),
+						Widget(WT_DROPDOWN_BUTTON, CIW_NUMBER_TRAINS, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_NUMBER_TRAINS, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+					Intermediate(0, 1),
+						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
+						Widget(WT_RADIOBUTTON, CIW_CLOSE, COL_RANGE_RED), SetPadding(0, 2, 0, 0),
+						Widget(WT_RADIOBUTTON, CIW_TEST, COL_RANGE_YELLOW), SetPadding(0, 2, 0, 0),
+						Widget(WT_RADIOBUTTON, CIW_OPEN, COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
+						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
+					EndContainer(),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(1, 2),
-				Widget(WT_DROPDOWN_BUTTON, CIW_NUMBER_CARS, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_NUMBER_CARS, STR_NULL),
-				Widget(WT_DROPDOWN_BUTTON, CIW_NUMBER_TRAINS, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_NUMBER_TRAINS, STR_NULL),
-
-		Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED),
-				SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
+			Intermediate(1, 2), SetEqualSize(true, true),
+				Widget(WT_TEXT_PUSHBUTTON, CIW_EDIT, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_EDIT, STR_NULL), SetFill(1, 1),
+				Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED), SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 	EndContainer(),
 };
 
@@ -248,6 +261,19 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 	switch (wid_num) {
 		case CIW_TITLEBAR:
 			_str_params.SetUint8(1, (uint8 *)this->ci->name.get());
+			break;
+
+		case CIW_MONTHLY_COST:
+			_str_params.SetMoney(1, this->ci->GetRideType()->monthly_cost + (this->ci->state == RIS_OPEN ? this->ci->GetRideType()->monthly_open_cost : Money(0)));
+			break;
+		case CIW_EXCITEMENT_RATING:
+			SetRideRatingStringParam(this->ci->excitement_rating);
+			break;
+		case CIW_INTENSITY_RATING:
+			SetRideRatingStringParam(this->ci->intensity_rating);
+			break;
+		case CIW_NAUSEA_RATING:
+			SetRideRatingStringParam(this->ci->nausea_rating);
 			break;
 
 		case CIW_ENTRANCE_FEE:
@@ -464,9 +490,11 @@ void CoasterInstanceWindow::SetCoasterState()
 	this->SetRadioChecked(CIW_CLOSE, this->ci->state == RIS_CLOSED);
 	this->SetRadioChecked(CIW_TEST, this->ci->state == RIS_TESTING);
 	this->SetRadioChecked(CIW_OPEN, this->ci->state == RIS_OPEN);
-	this->GetWidget<LeafWidget>(CIW_OPEN)->SetShaded(!this->ci->CanOpenRide());
-	this->GetWidget<LeafWidget>(CIW_NUMBER_CARS)->SetShaded(this->ci->state != RIS_CLOSED);
-	this->GetWidget<LeafWidget>(CIW_NUMBER_TRAINS)->SetShaded(this->ci->state != RIS_CLOSED);
+
+	this->SetWidgetShaded(CIW_EDIT, this->ci->state != RIS_CLOSED);
+	this->SetWidgetShaded(CIW_OPEN, !this->ci->CanOpenRide());
+	this->SetWidgetShaded(CIW_NUMBER_CARS, this->ci->state != RIS_CLOSED);
+	this->SetWidgetShaded(CIW_NUMBER_TRAINS, this->ci->state != RIS_CLOSED);
 	this->SetWidgetShaded(CIW_MAINTENANCE_DECREASE, this->ci->maintenance_interval <= 0);
 	this->SetWidgetShaded(CIW_ENTRANCE_FEE_DECREASE, this->ci->item_price[0] <= 0);
 	this->SetWidgetShaded(CIW_MIN_IDLE_DECREASE, this->ci->state == RIS_OPEN || this->ci->min_idle_duration <= 0);

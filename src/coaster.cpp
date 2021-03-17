@@ -576,6 +576,7 @@ void CoasterTrain::OnAnimate(int delay)
 				if (this->station_policy == TSP_NO_STATION) {
 					this->station_policy = TSP_ENTERING_STATION;
 					this->time_left_waiting = this->coaster->state == RIS_TESTING ? TRAIN_DEPARTURE_INTERVAL_TESTING : this->coaster->max_idle_duration;
+					this->coaster->RecalculateRatings();  // Recalculate ratings whenever a train has completed a circuit.
 				}
 			}
 			has_power |= indexed_car_piece->piece->HasPower();
@@ -1587,6 +1588,14 @@ bool CoasterInstance::PlaceEntranceOrExit(const XYZPoint16 &pos, const bool entr
 	}
 	this->InsertStationsIntoWorld();
 	return true;
+}
+
+void CoasterInstance::RecalculateRatings()
+{
+	/* \todo Implement a scoring system. */
+	this->excitement_rating = 410;
+	this->intensity_rating = 380;
+	this->nausea_rating = 270;
 }
 
 void CoasterInstance::Load(Loader &ldr)

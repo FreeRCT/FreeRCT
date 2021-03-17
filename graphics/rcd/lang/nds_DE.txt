@@ -143,6 +143,16 @@ strings {
 		RIDE_MANAGER_MAINTENANCE_NEVER: "Nienich";
 		RIDE_MANAGER_MAX_IDLE_TEXT:     "Hoogste Wachttied (Sekünnen):";
 		RIDE_MANAGER_MIN_IDLE_TEXT:     "Minnste Wachttied (Sekünnen):";
+		RIDE_MANAGER_EXCITEMENT:        "Anregenheids-Beweerten:";
+		RIDE_MANAGER_INTENSITY:         "Intensivheids-Beweerten:";
+		RIDE_MANAGER_NAUSEA:            "Övelheids-Beweerten:";
+		RIDE_MANAGER_RATING_VERY_LOW:   "%.2f (bannig leeg)";
+		RIDE_MANAGER_RATING_LOW:        "%.2f (leeg)";
+		RIDE_MANAGER_RATING_MEDIUM:     "%.2f (middel)";
+		RIDE_MANAGER_RATING_HIGH:       "%.2f (hoog)";
+		RIDE_MANAGER_RATING_VERY_HIGH:  "%.2f (bannig hoog)";
+		RIDE_MANAGER_RATING_EXTREME:    "%.2f (unbannig baldadig)";
+		RIDE_MANAGER_RATING_NOT_YET_CALCULATED: "???";
 
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Laden »%1%«";
@@ -153,15 +163,11 @@ strings {
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Verkoop-Gewinn";
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Personaalkosten";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Gewinn all tosamen";
-		SHOP_MANAGER_OPENED_TEXT:        "Laden is open";
-		SHOP_MANAGER_CLOSED_TEXT:        "Laden is dicht";
 
 		// Gentle/thrill ride manager window strings.
 		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% »%2%«";
 		GENTLE_RIDES_MANAGER_TITLE:                    "Sachte Bude";
 		THRILL_RIDES_MANAGER_TITLE:                    "Upregend Bude";
-		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Bude is open";
-		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Bude is dicht";
 		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Kosten pro Maant:";
 		GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT:       "Tahl vun Warkrunnen:";
 
@@ -227,10 +233,11 @@ strings {
 		// Coaster management strings.
 		COASTER_MANAGER_NUMBER_TRAINS:  "Zügen: %1%";
 		COASTER_MANAGER_NUMBER_CARS:    "Wagens: %1%";
+		COASTER_MANAGER_EDIT:           "Spoor bewarken";
 
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Ofrieten";
-		ENTITY_REMOVE_TOOLTIP: "Dat hier ofrieten?";
+		ENTITY_REMOVE_TOOLTIP: "Deese Bude ofrieten";
 
 		// Entity remove window strings.
 		ENTITY_REMOVE_CAPTION: "Ofrieten";

@@ -191,6 +191,38 @@ StringID RideType::GetString(uint16 number) const
 }
 
 /**
+ * Sets the string parameters for a ride rating attribute (excitement, intensity, or nausea).
+ * @param rating Value of the ride's rating attribute.
+ */
+void SetRideRatingStringParam(const uint32 rating)
+{
+	if (rating == RATING_NOT_YET_CALCULATED) {
+		_str_params.SetStrID(1, GUI_RIDE_MANAGER_RATING_NOT_YET_CALCULATED);
+		return;
+	}
+
+	static char _text_buffer[1024];
+	const uint8 *str;
+
+	if (rating < 100) {
+		str = _language.GetText(GUI_RIDE_MANAGER_RATING_VERY_LOW);
+	} else if (rating < 250) {
+		str = _language.GetText(GUI_RIDE_MANAGER_RATING_LOW);
+	} else if (rating < 450) {
+		str = _language.GetText(GUI_RIDE_MANAGER_RATING_MEDIUM);
+	} else if (rating < 700) {
+		str = _language.GetText(GUI_RIDE_MANAGER_RATING_HIGH);
+	} else if (rating < 1000) {
+		str = _language.GetText(GUI_RIDE_MANAGER_RATING_VERY_HIGH);
+	} else {
+		str = _language.GetText(GUI_RIDE_MANAGER_RATING_EXTREME);
+	}
+
+	snprintf(_text_buffer, lengthof(_text_buffer), reinterpret_cast<const char*>(str), rating / 100.0);
+	_str_params.SetUint8(1, reinterpret_cast<uint8*>(_text_buffer));
+}
+
+/**
  * Constructor of the base ride instance class.
  * @param rt Type of the ride instance.
  */
@@ -215,6 +247,9 @@ RideInstance::RideInstance(const RideType *rt)
 	this->maintenance_interval = 30 * 60 * 1000;  // Half an hour by default.
 	this->broken = false;
 	this->time_since_last_long_queue_message = 0;
+	this->excitement_rating = RATING_NOT_YET_CALCULATED;
+	this->intensity_rating = RATING_NOT_YET_CALCULATED;
+	this->nausea_rating = RATING_NOT_YET_CALCULATED;
 }
 
 /**
@@ -332,6 +367,11 @@ bool RideInstance::IsExitLocation(const XYZPoint16& pos) const
 /**
  * \fn std::pair<XYZPoint16, TileEdge> RideInstance::GetMechanicEntrance() const
  * The voxel and edge at which a mechanic interacts with the ride for maintenance and repairs.
+ */
+
+/**
+ * \fn void RideInstance::RecalculateRatings()
+ * Update the excitement, intensity, and nausea rating stats.
  */
 
 /**
@@ -598,6 +638,9 @@ void RideInstance::Load(Loader &ldr)
 	this->broken = ldr.GetByte() > 0;
 	this->mechanic_pending = ldr.GetByte() > 0;
 	this->time_since_last_long_queue_message = ldr.GetLong();
+	this->excitement_rating = ldr.GetLong();
+	this->intensity_rating = ldr.GetLong();
+	this->nausea_rating = ldr.GetLong();
 }
 
 void RideInstance::Save(Saver &svr)
@@ -622,6 +665,9 @@ void RideInstance::Save(Saver &svr)
 	svr.PutByte(this->broken ? 1 : 0);
 	svr.PutByte(this->mechanic_pending ? 1 : 0);
 	svr.PutLong(this->time_since_last_long_queue_message);
+	svr.PutLong(this->excitement_rating);
+	svr.PutLong(this->intensity_rating);
+	svr.PutLong(this->nausea_rating);
 }
 
 /** Default constructor of the rides manager. */
