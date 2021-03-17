@@ -1041,14 +1041,14 @@ int RIEEBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-FGTRBlock::FGTRBlock() : GameBlock("FGTR", 3)
+FGTRBlock::FGTRBlock() : GameBlock("FGTR", 4)
 {
 }
 
 int FGTRBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 103 + (this->ride_width_x * this->ride_width_y) - 12);
+	fb->StartSave(this->blk_name, this->version, 123 + (this->ride_width_x * this->ride_width_y) - 12);
 	fb->SaveUInt8(this->is_thrill_ride ? 1 : 0);
 	fb->SaveUInt8(this->ride_width_x);
 	fb->SaveUInt8(this->ride_width_y);
@@ -1078,6 +1078,11 @@ int FGTRBlock::Write(FileWriter *fw)
 	fb->SaveUInt16(this->reliability_max);
 	fb->SaveUInt16(this->reliability_decrease_daily);
 	fb->SaveUInt16(this->reliability_decrease_monthly);
+	fb->SaveUInt32(this->intensity_base);
+	fb->SaveUInt32(this->nausea_base);
+	fb->SaveUInt32(this->excitement_base);
+	fb->SaveUInt32(this->excitement_increase_cycle);
+	fb->SaveUInt32(this->excitement_increase_scenery);
 	fb->SaveUInt32(this->ride_text->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);

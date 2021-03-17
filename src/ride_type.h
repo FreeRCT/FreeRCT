@@ -186,8 +186,8 @@ public:
 	const RideType *GetRideType() const;
 
 	virtual void OnAnimate(int delay);
-	void OnNewMonth();
-	void OnNewDay();
+	virtual void OnNewMonth();
+	virtual void OnNewDay();
 	void BuildRide();
 	virtual bool CanOpenRide() const;
 	virtual void OpenRide();

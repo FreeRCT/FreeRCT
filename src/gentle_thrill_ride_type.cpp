@@ -42,12 +42,12 @@ RideInstance *GentleThrillRideType::CreateInstance() const
  */
 bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 3 || rcd_file->size < 3) return false;
+	if (rcd_file->version != 4 || rcd_file->size < 3) return false;
 	this->kind = rcd_file->GetUInt8() ? RTK_THRILL : RTK_GENTLE;
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (static_cast<int>(rcd_file->size) != 91 + (this->width_x * this->width_y)) return false;
+	if (static_cast<int>(rcd_file->size) != 111 + (this->width_x * this->width_y)) return false;
 	
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -109,6 +109,12 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->reliability_max = rcd_file->GetUInt16();
 	this->reliability_decrease_daily = rcd_file->GetUInt16();
 	this->reliability_decrease_monthly = rcd_file->GetUInt16();
+	this->intensity_base = rcd_file->GetUInt32();
+	this->nausea_base = rcd_file->GetUInt32();
+	this->excitement_base = rcd_file->GetUInt32();
+	this->excitement_increase_cycle = rcd_file->GetUInt32();
+	this->excitement_increase_scenery = rcd_file->GetUInt32();
+
 	if (this->working_cycles_min < 1) return false;
 	if (this->working_cycles_max < this->working_cycles_min) return false;
 	if (this->working_cycles_default < this->working_cycles_min) return false;
@@ -356,10 +362,27 @@ bool GentleThrillRideInstance::CanBeVisited(const XYZPoint16 &vox, const TileEdg
 
 void GentleThrillRideInstance::RecalculateRatings()
 {
-	/* \todo Implement a scoring system. */
-	this->excitement_rating = 300;
-	this->intensity_rating = 190;
-	this->nausea_rating = 80;
+	const GentleThrillRideType *t = this->GetGentleThrillRideType();
+	this->intensity_rating = t->intensity_base;
+	this->nausea_rating = t->nausea_base;
+	this->excitement_rating = t->excitement_base + this->working_cycles * t->excitement_increase_cycle;
+	
+	if (t->excitement_increase_scenery == 0) return;
+	int scenery = 0;
+	for (int x = -t->width_x; x < 2 * t->width_x; x++) {
+		for (int y = -t->width_y; y < 2 * t->width_y; y++) {
+			const XYZPoint16 location = FixedRideType::OrientatedOffset(this->orientation, x, y);
+			if (!IsVoxelstackInsideWorld(this->vox_pos.x + location.x, this->vox_pos.y + location.y)) continue;
+			const int8 height = t->GetHeight((t->width_x + x) / 3, (t->width_y + y) / 3);
+			for (int h = -height; h < 2 * height; h++) {
+				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(location.x, location.y, h), false);
+				if (voxel == nullptr) continue;
+				if (voxel->instance == SRI_SCENERY) scenery++;
+				if (IsImplodedSteepSlope(voxel->GetGroundSlope())) scenery++;  // Bonus for building among hills
+			}
+		}
+	}
+	this->excitement_rating += scenery * t->excitement_increase_scenery;
 }
 
 void GentleThrillRideInstance::Load(Loader &ldr)

@@ -271,6 +271,12 @@ void FixedRideInstance::RemoveFromWorld()
 	}
 }
 
+void FixedRideInstance::OnNewDay()
+{
+	RideInstance::OnNewDay();
+	this->RecalculateRatings();
+}
+
 void FixedRideInstance::OnAnimate(const int delay)
 {
 	RideInstance::OnAnimate(delay);
@@ -310,10 +316,7 @@ void FixedRideInstance::OnAnimate(const int delay)
 				break;
 			}
 		}
-		if (is_empty) {
-			gb.state = BST_EMPTY;
-			this->RecalculateRatings();  // Recalculate ratings whenever a batch has completed running.
-		}
+		if (is_empty) gb.state = BST_EMPTY;
 	}
 
 	/* Ensure there is always a Loading batch, except when all batches are Running. */

@@ -29,6 +29,11 @@ public:
 	int16 working_cycles_min;            ///< Minimum number of working cycles.
 	int16 working_cycles_max;            ///< Maximum number of working cycles.
 	int16 working_cycles_default;        ///< Default number of working cycles.
+	int32 intensity_base;                ///< Base intensity rating.
+	int32 nausea_base;                   ///< Base nausea rating.
+	int32 excitement_base;               ///< Base excitement rating.
+	int32 excitement_increase_cycle;     ///< Excitement rating increase per working cycle.
+	int32 excitement_increase_scenery;   ///< Excitement rating increase per nearby scenery item.
 
 private:
 	FixedRideType::RideCapacity capacity;
