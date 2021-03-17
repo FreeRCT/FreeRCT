@@ -33,6 +33,7 @@ BaseWidget::BaseWidget(WidgetType wtype)
 {
 	this->wtype = wtype;
 	this->number = INVALID_WIDGET_INDEX;
+	this->tooltip = STR_NULL;
 
 	this->min_x = 0;
 	this->min_y = 0;
@@ -175,6 +176,38 @@ void BaseWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 }
 
 /**
+ * Find the widget for which a tooltip should be shown.
+ * @param pt Mouse cursor position.
+ * @return The widget (may be \c nullptr).
+ */
+BaseWidget *BaseWidget::FindTooltipWidget(const Point16 &pt)
+{
+	return (this->tooltip != STR_NULL && this->pos.IsPointInside(pt)) ? this : nullptr;
+}
+
+static const int TOOLTIP_MAX_WIDTH = 300;     ///< Maximum width of a tooltip.
+static const int TOOLTIP_BORDER_SPACING = 2;  ///< Spacing around a tooltip's borders.
+
+/**
+ * Draw the widget's tooltip.
+ * @param p Absolute pixel to which this widget's location is relative.
+ */
+void BaseWidget::DrawTooltip(Point32 p)
+{
+	int inner_w, inner_h;
+	GetMultilineTextSize(this->tooltip, TOOLTIP_MAX_WIDTH, &inner_w, &inner_h);
+	const int outer_w = inner_w + 2 * TOOLTIP_BORDER_SPACING;
+	const int outer_h = inner_h + 2 * TOOLTIP_BORDER_SPACING;
+	const int x = std::max(0, std::min<int>(_video.GetXSize() - outer_w, p.x + this->pos.base.x));
+	const int y = std::max(0, std::min(_video.GetYSize() - outer_h, p.y + this->pos.base.y + this->pos.height));
+
+	Rectangle32 r(x, y, outer_w, outer_h);
+	_video.FillRectangle(r, _palette[TEXT_TOOLTIP_BACKGROUND]);
+	DrawMultilineString(this->tooltip, x + TOOLTIP_BORDER_SPACING, y + TOOLTIP_BORDER_SPACING, TOOLTIP_MAX_WIDTH, inner_h + GetTextHeight(), TEXT_TOOLTIP_TEXT);
+	_video.DrawRectangle(r, _palette[TEXT_TOOLTIP_BORDER]);
+}
+
+/**
  * Draw the widget.
  * @param w %Window being drawn.
  */
@@ -221,7 +254,6 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
 {
 	this->flags = 0;
 	this->colour = COL_RANGE_INVALID;
-	this->tooltip = STR_NULL;
 }
 
 /**
@@ -1307,6 +1339,12 @@ void IntermediateWidget::Draw(const GuiWindow *w)
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 		this->childs[idx]->Draw(w);
 	}
+}
+
+BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
+{
+	BaseWidget *w = this->GetWidgetByPosition(pt);
+	return w == nullptr ? nullptr : w->FindTooltipWidget(pt);
 }
 
 BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)

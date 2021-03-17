@@ -97,6 +97,10 @@ public:
 	uint16 resize_x;           ///< Horizontal resize step.
 	uint16 resize_y;           ///< Vertical resize step.
 	uint8 paddings[PAD_COUNT]; ///< Padding.
+	StringID tooltip;          ///< Tool-tip of the widget.
+
+	virtual BaseWidget *FindTooltipWidget(const Point16 &pt);
+	void DrawTooltip(Point32 p);
 
 protected:
 	void SetWidget(BaseWidget **wid_array);
@@ -183,9 +187,8 @@ public:
 		this->flags = (value) ? (this->flags | LWF_SHADED) : (this->flags & ~LWF_SHADED);
 	}
 
-	uint8 flags;        ///< Flags of the leaf widget. @see LeafWidgetFlags
-	ColourRange colour; ///< Colour of the widget.
-	StringID tooltip;   ///< Tool-tip of the widget.
+	uint8 flags;          ///< Flags of the leaf widget. @see LeafWidgetFlags
+	ColourRange colour;   ///< Colour of the widget.
 };
 
 /**
@@ -309,6 +312,7 @@ public:
 	void Draw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
+	BaseWidget *FindTooltipWidget(const Point16 &pt) override;
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();

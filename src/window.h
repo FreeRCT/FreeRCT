@@ -171,6 +171,8 @@ public:
 	virtual void SetHighlight(bool value);
 	virtual void OnChange(ChangeCode code, uint32 parameter);
 	virtual void ResetSize();
+
+	virtual BaseWidget *FindTooltipWidget(Point16 pt);
 };
 
 /**
@@ -224,6 +226,8 @@ public:
 
 	bool initialized;            ///< Flag telling widgets whether the window has already been initialized.
 	MouseModeSelector *selector; ///< Currently active selector of this window. May be \c nullptr. Change through #SetSelector.
+
+	BaseWidget *FindTooltipWidget(Point16 pt) override;
 
 protected:
 	Point16 mouse_pos;         ///< Mouse position relative to the window (negative coordinates means 'out of window').
@@ -443,6 +447,7 @@ private:
 	bool select_valid;        ///< State of the #select_window cache.
 	uint8 mouse_state;        ///< Last reported mouse button state (lower 4 bits).
 	uint8 mouse_mode;         ///< Mouse mode of the window manager. @see WmMouseModes
+	BaseWidget *tooltip_widget;   ///< The widget for which we are currently showing a tooltip.
 
 	Point16 move_offset;      ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
 };
