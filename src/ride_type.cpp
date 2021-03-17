@@ -208,11 +208,11 @@ void SetRideRatingStringParam(const uint32 rating)
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_VERY_LOW);
 	} else if (rating < 250) {
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_LOW);
-	} else if (rating < 450) {
+	} else if (rating < 500) {
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_MEDIUM);
-	} else if (rating < 700) {
+	} else if (rating < 750) {
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_HIGH);
-	} else if (rating < 1000) {
+	} else if (rating < 1050) {
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_VERY_HIGH);
 	} else {
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_EXTREME);

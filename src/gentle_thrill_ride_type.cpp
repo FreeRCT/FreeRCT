@@ -377,8 +377,10 @@ void GentleThrillRideInstance::RecalculateRatings()
 			for (int h = -height; h < 2 * height; h++) {
 				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(location.x, location.y, h), false);
 				if (voxel == nullptr) continue;
-				if (voxel->instance == SRI_SCENERY) scenery++;
-				if (IsImplodedSteepSlope(voxel->GetGroundSlope())) scenery++;  // Bonus for building among hills
+
+				if (voxel->instance == SRI_SCENERY) scenery++;                 // Bonus for building among flower beds or forests.
+				if (IsImplodedSteepSlope(voxel->GetGroundSlope())) scenery++;  // Bonus for building among hills.
+				/* \todo Add boni for accurately mowed lawns and building near water. */
 			}
 		}
 	}

@@ -192,6 +192,15 @@ struct CoasterStation {
 	XYZPoint16 exit;                    ///< Position of the station's exit (may be \c invalid()).
 };
 
+/** Holds data about the intensity of a coaster at a specific point. */
+struct CoasterIntensityStatistics {
+	int32 precision;     ///< Over how many individual test results this entry is sampled.
+	int32 speed;         ///< Average speed of trains passing through here.
+	int32 vertical_g;    ///< Average vertical G force of trains passing through here.
+	int32 horizontal_g;  ///< Average horizontal G force of trains passing through here.
+};
+static const int COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION = 500;  ///< Minimum distance of two points in a coaster's intensity statistics map.
+
 /**
  * A roller coaster in the world.
  * Since roller coaster rides need to be constructed by the user first, an instance can exist
@@ -263,6 +272,7 @@ public:
 	void SetNumberOfCars(int number_cars);
 	void ReinitializeTrains(bool test_mode);
 	void Crash(CoasterTrain *t1, CoasterTrain *t2);
+	void SampleStatistics(uint32 point, int32 speed, int32 vg, int32 hg);
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
@@ -286,6 +296,7 @@ public:
 	XYZPoint16 temp_exit_pos;              ///< Temporary location of one of the ride's exit while the user is moving the exit.
 	int max_idle_duration;                 ///< Maximum duration how long a train may wait in a station in milliseconds.
 	int min_idle_duration;                 ///< Minimum duration how long a train may wait in a station in milliseconds.
+	std::map<uint32, CoasterIntensityStatistics> intensity_statistics;  ///< Intensity along the track.
 };
 
 bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites);

@@ -563,6 +563,12 @@ void CoasterTrain::OnAnimate(int delay)
 		car.back.Set (back,  back_pix,  pitch, roll, yaw);
 		car.front.Set(front, front_pix, pitch, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
+
+		if (i == 0 && this->station_policy == TSP_NO_STATION) {
+			this->coaster->SampleStatistics(this->back_position, this->speed,
+					pitch > 8 ? static_cast<int>(pitch) - 16 : pitch,
+					roll  > 8 ? static_cast<int>(roll)  - 16 : roll);
+		}
 	}
 
 	bool has_platform = false, has_power = false;
@@ -764,6 +770,7 @@ void CoasterInstance::OpenRide()
 
 void CoasterInstance::CloseRide()
 {
+	this->intensity_statistics.clear();
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
 		train.back_position = 0;
@@ -774,6 +781,7 @@ void CoasterInstance::CloseRide()
 		train.OnAnimate(0);
 	}
 	RideInstance::CloseRide();
+	this->RecalculateRatings();
 }
 
 void CoasterInstance::InitializeItemPricesAndStatistics()
@@ -1590,12 +1598,80 @@ bool CoasterInstance::PlaceEntranceOrExit(const XYZPoint16 &pos, const bool entr
 	return true;
 }
 
+/**
+ * Update the intensity statistics with a piece of new information.
+ * @param point Position along the coaster.
+ * @param speed Current speed of a train.
+ * @param vg Current vertical G force.
+ * @param hg Current horizontal G force.
+ */
+void CoasterInstance::SampleStatistics(uint32 point, const int32 speed, const int32 vg, const int32 hg)
+{
+	point /= COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION;
+	auto it = this->intensity_statistics.find(point);
+	if (it == this->intensity_statistics.end()) {
+		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{1, speed, vg, hg}));
+	} else {
+		it->second.speed        = (it->second.precision * it->second.speed        + speed) / (it->second.precision + 1);
+		it->second.vertical_g   = (it->second.precision * it->second.vertical_g   + vg   ) / (it->second.precision + 1);
+		it->second.horizontal_g = (it->second.precision * it->second.horizontal_g + hg   ) / (it->second.precision + 1);
+		it->second.precision++;
+	}
+}
+
 void CoasterInstance::RecalculateRatings()
 {
-	/* \todo Implement a scoring system. */
-	this->excitement_rating = 410;
-	this->intensity_rating = 380;
-	this->nausea_rating = 270;
+	if (this->intensity_statistics.empty()) {
+		this->excitement_rating = RATING_NOT_YET_CALCULATED;
+		this->intensity_rating = RATING_NOT_YET_CALCULATED;
+		this->nausea_rating = RATING_NOT_YET_CALCULATED;
+		return;
+	}
+
+	uint64 exc = 100;
+	uint64 iny = 100;
+	uint64 nau = 100;
+	uint32 statpoints = 0;
+	for (const auto &pair : this->intensity_statistics) {
+		exc += std::abs(pair.second.speed);
+		iny += std::abs(pair.second.speed);
+		iny += std::abs(pair.second.horizontal_g * pair.second.speed);
+		iny += std::abs(pair.second.vertical_g   * pair.second.speed);
+		nau += std::abs(pair.second.vertical_g   * pair.second.speed);
+		statpoints++;
+	}
+	iny /= statpoints;
+	nau /= statpoints;
+	exc /= statpoints;
+
+	const int start_piece = GetFirstPlacedTrackPiece();
+	for (int p = start_piece;;) {
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dy = -2; dy <= 2; dy++) {
+				if (!IsVoxelstackInsideWorld(this->pieces[p].base_voxel.x + dx, this->pieces[p].base_voxel.y + dy)) continue;
+				for (int dh = -4; dh <= 2; dh++) {
+					Voxel *voxel = _world.GetCreateVoxel(this->pieces[p].base_voxel + XYZPoint16(dx, dy, dh), false);
+					if (voxel == nullptr) continue;
+
+					/* Even small coasters have a huge capture area, so we need to keep the individual boni very small. */
+					if (voxel->instance == SRI_SCENERY) exc++;                                            // Bonus for building among flower beds or forests.
+					if (IsImplodedSteepSlope(voxel->GetGroundSlope())) exc++;                             // Bonus for building among hills.
+					if (voxel->instance >= SRI_FULL_RIDES && voxel->instance != this->GetIndex()) exc++;  // Bonus for building near other rides.
+					/* \todo Add boni for accurately mowed lawns and building near water. */
+				}
+			}
+		}
+
+		p = FindSuccessorPiece(this->pieces[p]);
+		if (p < 0 || p == start_piece) break;
+	}
+
+	exc -= std::min(exc / 2, nau);
+	exc -= std::min(exc / 2, iny);
+
+	this->intensity_rating  = iny;
+	this->nausea_rating     = nau;
+	this->excitement_rating = exc;
 }
 
 void CoasterInstance::Load(Loader &ldr)
@@ -1656,6 +1732,16 @@ void CoasterInstance::Load(Loader &ldr)
 		}
 	}
 
+	this->intensity_statistics.clear();
+	for (long i = ldr.GetLong(); i > 0; i--) {
+		const uint32 point = ldr.GetLong();
+		const int32 precision = ldr.GetLong();
+		const int32 speed = ldr.GetLong();
+		const int32 vg = ldr.GetLong();
+		const int32 hg = ldr.GetLong();
+		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{precision, speed, vg, hg}));
+	}
+
 	this->InsertStationsIntoWorld();
 }
 
@@ -1713,5 +1799,14 @@ void CoasterInstance::Save(Saver &svr)
 			svr.PutWord(p.y);
 			svr.PutWord(p.z);
 		}
+	}
+
+	svr.PutLong(this->intensity_statistics.size());
+	for (const auto &pair : this->intensity_statistics) {
+		svr.PutLong(pair.first);
+		svr.PutLong(pair.second.precision);
+		svr.PutLong(pair.second.speed);
+		svr.PutLong(pair.second.vertical_g);
+		svr.PutLong(pair.second.horizontal_g);
 	}
 }
