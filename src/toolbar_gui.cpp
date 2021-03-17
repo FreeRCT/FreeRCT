@@ -17,6 +17,7 @@
 #include "math_func.h"
 #include "sprite_store.h"
 #include "gui_sprites.h"
+#include "messages.h"
 #include "person.h"
 #include "people.h"
 #include "viewport.h"
@@ -52,6 +53,7 @@ enum ToolbarGuiWidgets {
 	TB_GUI_FENCE,       ///< Select fence button.
 	TB_GUI_TERRAFORM,   ///< Terraform button.
 	TB_GUI_FINANCES,    ///< Finances button.
+	TB_GUI_INBOX,       ///< Inbox button.
 };
 
 /**
@@ -81,6 +83,7 @@ static const WidgetPart _toolbar_widgets[] = {
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FENCE,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FENCE,       GUI_TOOLBAR_GUI_TOOLTIP_FENCE),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_TERRAFORM,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_TERRAFORM,   GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_FINANCES,    COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_FINANCES,    GUI_TOOLBAR_GUI_TOOLTIP_FINANCES),
+		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_INBOX,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_INBOX,       GUI_TOOLBAR_GUI_TOOLTIP_INBOX),
 	EndContainer(),
 };
 
@@ -159,6 +162,10 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 		case TB_GUI_FINANCES:
 			ShowFinancesGui();
 			break;
+
+		case TB_GUI_INBOX:
+			ShowInboxGui();
+			break;
 	}
 }
 
@@ -236,6 +243,7 @@ public:
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
+	void OnClick(const WidgetNumber wid_num, const Point16 &pos) override;
 
 private:
 	int32 guest_count; ///< Number of guests in the park.
@@ -250,6 +258,7 @@ enum BottomToolbarGuiWidgets {
 	BTB_STATUS,         ///< Status panel containing cash and rating readout.
 	BTB_WEATHER,        ///< Weather sprite.
 	BTB_TEMPERATURE,    ///< Temperature in the park.
+	BTB_MESSAGE,        ///< A preview of the last message.
 	BTB_VIEW_DIRECTION, ///< Status panel containing viewing direction.
 	BTB_GUESTCOUNT,     ///< Display of number of guests in the park.
 	BTB_DATE,           ///< Status panel containing date.
@@ -275,6 +284,8 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
 				Widget(WT_EMPTY, BTB_WEATHER, COL_RANGE_ORANGE_BROWN), SetPadding(3, 3, 3, 3), SetFill(0, 1),
 				Widget(WT_RIGHT_TEXT, BTB_TEMPERATURE, COL_RANGE_ORANGE_BROWN), SetFill(0, 0), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(1, 0),
+				Widget(WT_EMPTY, BTB_MESSAGE, COL_RANGE_ORANGE_BROWN), SetFill(1, 0), SetMinimalSize(300, BOTTOM_BAR_HEIGHT), 
 				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(1, 0),
 				Widget(WT_EMPTY, BTB_VIEW_DIRECTION, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(0, 0),
 				Widget(WT_RIGHT_TEXT, BTB_DATE, COL_RANGE_ORANGE_BROWN), SetPadding(3, 0, 30, 0), SetData(STR_ARG1, STR_NULL),
@@ -315,6 +326,18 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case BTB_GUESTCOUNT:
 			_str_params.SetNumber(1, this->guest_count);
 			break;
+	}
+}
+
+void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos)
+{
+	if (wid_num != BTB_MESSAGE || _inbox.display_message == nullptr) return GuiWindow::OnClick(wid_num, pos);
+
+	BaseWidget *w = this->GetWidget<BaseWidget>(wid_num);
+	if (pos.x < w->pos.width - w->pos.height) {
+		_inbox.DismissDisplayMessage();
+	} else {
+		_inbox.display_message->OnClick();
 	}
 }
 
@@ -413,6 +436,12 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 			if (img != nullptr) _video.BlitImage({GetWidgetScreenX(wid), GetWidgetScreenY(wid)}, img, recolour, GS_NORMAL);
 			break;
 		}
+
+		case BTB_MESSAGE:
+			if (_inbox.display_message != nullptr) {
+				DrawMessage(_inbox.display_message, Rectangle32(this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height), true);
+			}
+			break;
 	}
 }
 

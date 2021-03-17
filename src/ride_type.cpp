@@ -19,6 +19,7 @@
 #include "gamelevel.h"
 #include "window.h"
 #include "finances.h"
+#include "messages.h"
 #include "person.h"
 #include "people.h"
 #include "random.h"
@@ -213,6 +214,7 @@ RideInstance::RideInstance(const RideType *rt)
 	this->time_since_last_maintenance = 0;
 	this->maintenance_interval = 30 * 60 * 1000;  // Half an hour by default.
 	this->broken = false;
+	this->time_since_last_long_queue_message = 0;
 }
 
 /**
@@ -439,6 +441,7 @@ void RideInstance::OnAnimate(const int delay)
 {
 	if (this->state != RIS_OPEN) return;
 	this->time_since_last_maintenance += delay;
+	this->time_since_last_long_queue_message += delay;
 	if (this->maintenance_interval > 0 && this->time_since_last_maintenance > this->maintenance_interval) this->CallMechanic();
 }
 
@@ -482,7 +485,7 @@ void RideInstance::BreakDown()
 {
 	if (this->broken) return;
 	this->broken = true;
-	printf("%s is broken down.\n", this->name.get());  // \todo Show this as a message in-game.
+	_inbox.SendMessage(new Message(GUI_MESSAGE_BROKEN_DOWN, this->GetIndex()));
 	this->CallMechanic();
 }
 
@@ -498,6 +501,7 @@ void RideInstance::CallMechanic()
 void RideInstance::MechanicArrived()
 {
 	assert(this->mechanic_pending);
+	if (this->broken) _inbox.SendMessage(new Message(GUI_MESSAGE_REPAIRED, this->GetIndex()));
 	this->broken = false;
 	this->time_since_last_maintenance = 0;
 	this->reliability = this->max_reliability;
@@ -521,6 +525,7 @@ void RideInstance::OpenRide()
 {
 	assert(this->CanOpenRide());
 	this->state = RIS_OPEN;
+	this->time_since_last_long_queue_message = 0;
 
 	/* Perform payments if they have not been done this month. */
 	bool money_paid = false;
@@ -560,6 +565,16 @@ void RideInstance::BuildRide()
 	this->state = RIS_BUILDING;
 }
 
+/** Inform this ride that the queue is very long. This might send a message to the player. */
+void RideInstance::NotifyLongQueue()
+{
+	if (this->state != RIS_OPEN || this->broken) return;
+	if (this->time_since_last_long_queue_message > 10 * 60 * 1000) {  // Arbitrary threshold of 10 minutes to ensure that this notification is not repeated too often.
+		this->time_since_last_long_queue_message = 0;
+		_inbox.SendMessage(new Message(GUI_MESSAGE_COMPLAIN_QUEUE, this->GetIndex()));
+	}
+}
+
 void RideInstance::Load(Loader &ldr)
 {
 	this->name.reset(ldr.GetText());
@@ -582,6 +597,7 @@ void RideInstance::Load(Loader &ldr)
 	this->time_since_last_maintenance = ldr.GetLong();
 	this->broken = ldr.GetByte() > 0;
 	this->mechanic_pending = ldr.GetByte() > 0;
+	this->time_since_last_long_queue_message = ldr.GetLong();
 }
 
 void RideInstance::Save(Saver &svr)
@@ -605,6 +621,7 @@ void RideInstance::Save(Saver &svr)
 	svr.PutLong(this->time_since_last_maintenance);
 	svr.PutByte(this->broken ? 1 : 0);
 	svr.PutByte(this->mechanic_pending ? 1 : 0);
+	svr.PutLong(this->time_since_last_long_queue_message);
 }
 
 /** Default constructor of the rides manager. */
@@ -900,6 +917,7 @@ void RidesManager::DeleteInstance(uint16 num)
 	num -= SRI_FULL_RIDES;
 	assert(num < lengthof(this->instances));
 	this->instances[num]->RemoveAllPeople();
+	_inbox.NotifyRideDeletion(num + SRI_FULL_RIDES);
 	_guests.NotifyRideDeletion(this->instances[num]);
 	_staff.NotifyRideDeletion(this->instances[num]);
 	this->instances[num]->RemoveFromWorld();

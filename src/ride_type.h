@@ -179,6 +179,7 @@ public:
 	Money GetSaleItemPrice(int item_index) const;
 	virtual Money GetSaleItemCost(int item_index) const;
 	virtual void InitializeItemPricesAndStatistics();
+	void NotifyLongQueue();
 
 	RideTypeKind GetKind() const;
 	const RideType *GetRideType() const;
@@ -221,6 +222,7 @@ public:
 	uint32 maintenance_interval;         ///< Desired number of milliseconds between maintenance operations (\c 0 means never).
 	uint32 time_since_last_maintenance;  ///< Number of milliseconds since the last maintenance operation.
 	bool broken;                         ///< The ride is currently broken down.
+	uint32 time_since_last_long_queue_message;  ///< Number of milliseconds since this ride last sent a message that the queue is very long.
 
 	uint16 entrance_type;    ///< Index of this ride's entrance.
 	uint16 exit_type;        ///< Index of this ride's exit.

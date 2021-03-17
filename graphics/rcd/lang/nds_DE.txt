@@ -56,6 +56,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "De Landskupp bewarken";
 		TOOLBAR_GUI_FINANCES:             "Geld";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "De Firmen-Finanzen besörgen";
+		TOOLBAR_GUI_INBOX:                "Narichtens";
+		TOOLBAR_GUI_TOOLTIP_INBOX:        "All diene Narichtens ankieken";
 
 		BOTTOMBAR_GUESTCOUNT:             "%1% Gasten";
 
@@ -192,6 +194,26 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Forschung";
 		FINANCES_LOAN_INTEREST_TEXT:     "Börgtinsen";
 		FINANCES_TOTAL_TEXT:             "All tosamen";
+
+		// Messages and inbox.
+		INBOX_TITLE:              "Narichtens";
+		MESSAGE_NEW_RIDE:         "Eene neje Bude kann nu baut worden: %1%";
+		MESSAGE_SCENARIO_WON:     "Glückwunsk, du hest de Rutfödderung winnt!";
+		MESSAGE_SCENARIO_LOST:    "Du hest de Rutfödderung verloren. Hopentlik hest du bi de anner Versöök mehr Glück.";
+		MESSAGE_BROKEN_DOWN:      "%1% is kaputt.";
+		MESSAGE_REPAIRED:         "%1% is repareert worden.";
+		MESSAGE_CRASH_NO_DEAD:    "%1% hett eenen Unfall baut!";
+		MESSAGE_CRASH_WITH_DEAD:  "%2% Gasten sünd bi eenem Unfall up %1% doodgahn!";
+		MESSAGE_BAD_RATING:       "De Parkbeweerten is bannig leeg. Wenn se nich beter word, word de Park in %1% Weken dichtmaakt.";
+		MESSAGE_GUEST_LOST:       "%1% is fehlgahn un kann de Parkutgang nich finnen.";
+		MESSAGE_COMPLAIN_QUEUE:   "De Wachtslang för %1% is bannig lang.";
+		MESSAGE_COMPLAIN_HUNGRY:  "Mennig Gasten hebben Hunger un weten nich, waar se wat to eten kopen könen.";
+		MESSAGE_COMPLAIN_THIRSTY: "Mennig Gasten hebben Dörst un weten nich, waar se wat to drinken kopen könen.";
+		MESSAGE_COMPLAIN_TOILET:  "Mennig Gasten bruken een Klo un weten nich, waar se eens finnen könen.";
+		MESSAGE_COMPLAIN_LITTER:  "De Gasten sünd vergrellt um de dreckigen Wegen im Park.";
+		MESSAGE_CHEAP_FEE:        "De Gasten finnen, dat de Park-Intree temelk billig is.";
+		MESSAGE_AWARD_WON:        "De Park hett eenen Pries wunnen: %1%";
+		MESSAGE_NEGATIVE_AWARD:   "De Park hett eenen Malus-Pries kregen: %1%";
 
 		// Coaster construction strings.
 		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Spoordelen mit Boog na links utkören";

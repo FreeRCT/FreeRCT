@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "gamecontrol.h"
 #include "finances.h"
+#include "messages.h"
 #include "sprite_store.h"
 #include "person.h"
 #include "people.h"
@@ -68,6 +69,7 @@ static int speed_factor(GameSpeed speed)
 void OnNewFrame(const uint32 frame_delay)
 {
 	_window_manager.Tick();
+	_inbox.Tick(frame_delay);
 	for (int i = speed_factor(_game_control.speed); i > 0; i--) {
 		_guests.DoTick();
 		_staff.DoTick();
@@ -188,6 +190,7 @@ void GameControl::NewLevel()
 	_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
 	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
 
+	_inbox.Clear();
 	_finances_manager.SetScenario(_scenario);
 	_date.Initialize();
 	_weather.Initialize();

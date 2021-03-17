@@ -19,6 +19,7 @@
 class Viewport;
 class RideType;
 class Person;
+class Message;
 class MouseModeSelector;
 
 /** An item in a dropdown list. */
@@ -56,6 +57,7 @@ enum WindowTypes {
 	WC_FENCE,           ///< Fence window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.
+	WC_INBOX,           ///< Inbox window.
 	WC_SETTING,         ///< Setting window.
 	WC_DROPDOWN,        ///< Dropdown window.
 
@@ -478,6 +480,7 @@ void ShowBottomToolbar();
 void ShowGuestInfoGui(const Person *person);
 void ShowPathBuildGui();
 void ShowRideSelectGui();
+bool ShowRideManagementGui(uint16 ride);
 void ShowShopManagementGui(uint16 ri);
 void ShowGentleThrillRideManagementGui(uint16 ri);
 void ShowFenceGui();
@@ -488,5 +491,7 @@ void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);
 void ShowErrorMessage(StringID strid);
 void ShowSettingGui();
+void ShowInboxGui();
+void DrawMessage(const Message *msg, const Rectangle32 &rect, bool narrow);
 
 #endif

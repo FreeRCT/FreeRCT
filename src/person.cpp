@@ -17,6 +17,7 @@
 #include "people.h"
 #include "fileio.h"
 #include "map.h"
+#include "messages.h"
 #include "path_finding.h"
 #include "viewport.h"
 #include "weather.h"
@@ -516,7 +517,10 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 		case EDGE_SE: tile_edge_pix_pos.y = 255; break;
 		default: NOT_REACHED();
 	}
-	if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) return RVD_NO_VISIT;
+	if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) {
+		ri->NotifyLongQueue();
+		return RVD_NO_VISIT;
+	}
 
 	RideVisitDesire rvd = this->WantToVisit(ri);
 	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
@@ -908,6 +912,7 @@ void Person::DeActivate(AnimateResult ar)
 		this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	}
 
+	_inbox.NotifyGuestDeletion(this->id);
 	this->type = PERSON_INVALID;
 	delete[] this->name;
 	this->name = nullptr;

@@ -2155,6 +2155,12 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 
 	gb->bulldozer = vals.GetSprite("bulldozer");
 
+	gb->message_goto = vals.GetSprite("message_goto");
+	gb->message_park = vals.GetSprite("message_park");
+	gb->message_guest = vals.GetSprite("message_guest");
+	gb->message_ride = vals.GetSprite("message_ride");
+	gb->message_ride_type = vals.GetSprite("message_ride_type");
+
 	LoadNamedSprites(weather_names, lengthof(gb->weather), vals, gb->weather);
 	LoadNamedSprites(light_rog_names, lengthof(gb->rog_lights), vals, gb->rog_lights);
 	LoadNamedSprites(light_rg_names, lengthof(gb->rg_lights), vals, gb->rg_lights);

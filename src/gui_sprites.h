@@ -18,6 +18,12 @@ enum GuiSpritesTable {
 	SPR_GUI_ROT3D_POS, ///< 3d (xy-plane) rotation in positive direction (counter clockwise).
 	SPR_GUI_ROT3D_NEG, ///< 3d (xy-plane) rotation in negative direction (clockwise).
 
+	SPR_GUI_MESSAGE_GOTO,      ///< Inbox button go to location sprite.
+	SPR_GUI_MESSAGE_PARK,      ///< Inbox button park management sprite.
+	SPR_GUI_MESSAGE_GUEST,     ///< Inbox button guest window sprite.
+	SPR_GUI_MESSAGE_RIDE,      ///< Inbox button ride instance window sprite.
+	SPR_GUI_MESSAGE_RIDE_TYPE, ///< Inbox button ride select gui sprite.
+
 	SPR_GUI_TRIANGLE_LEFT,  ///< Triangular arrow to the left.
 	SPR_GUI_TRIANGLE_RIGHT, ///< Triangular arrow to the right.
 	SPR_GUI_TRIANGLE_UP,    ///< Upward triangular arrow.

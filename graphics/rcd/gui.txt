@@ -130,6 +130,13 @@ file("gui.rcd") {
 			x_base: 0; y_base: 0; width: 5; height: 5;
 		}
 
+		(message_goto, message_park, message_guest, message_ride, message_ride_type): sheet {
+			x_base: 0; y_base: 0; x_step: 46; y_step: 0;
+			file: "../sprites/gui/messages.png";
+			x_offset: 0; y_offset: 0; width: 46; height: 46; crop: 0;
+		}
+
+
 		texts: strings { key: "gui"; }
 	}
 
