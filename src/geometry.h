@@ -168,7 +168,9 @@ inline bool operator!=(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
 template <typename CT>
 inline bool operator<(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
 {
-	return p.x < q.x && p.y < q.y && p.z < q.z;
+	if (p.x != q.x) return p.x < q.x;
+	if (p.y != q.y) return p.y < q.y;
+	return p.z < q.z;
 }
 
 /**

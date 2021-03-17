@@ -67,7 +67,7 @@ static const WidgetPart _inbox_gui_parts[] = {
 			Widget(WT_VERT_SCROLLBAR, IBX_SCROLLBAR, COL_RANGE_GREY),
 	EndContainer(),
 };
-#undef INBOX_ROW
+#undef INBOX_ROW_BUTTON
 
 InboxGui::InboxGui() : GuiWindow(WC_INBOX, ALL_WINDOWS_OF_TYPE)
 {

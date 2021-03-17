@@ -1644,24 +1644,30 @@ void CoasterInstance::RecalculateRatings()
 	nau /= statpoints;
 	exc /= statpoints;
 
+	std::set<XYZPoint16> considered_locations;
+	const uint16 index = this->GetIndex();
 	const int start_piece = GetFirstPlacedTrackPiece();
 	for (int p = start_piece;;) {
 		for (int dx = -2; dx <= 2; dx++) {
 			for (int dy = -2; dy <= 2; dy++) {
 				if (!IsVoxelstackInsideWorld(this->pieces[p].base_voxel.x + dx, this->pieces[p].base_voxel.y + dy)) continue;
 				for (int dh = -4; dh <= 2; dh++) {
-					Voxel *voxel = _world.GetCreateVoxel(this->pieces[p].base_voxel + XYZPoint16(dx, dy, dh), false);
+					XYZPoint16 pos(dx, dy, dh);
+					pos += this->pieces[p].base_voxel;
+
+					if (considered_locations.count(pos)) continue;
+					considered_locations.insert(pos);
+
+					Voxel *voxel = _world.GetCreateVoxel(pos, false);
 					if (voxel == nullptr) continue;
 
-					/* Even small coasters have a huge capture area, so we need to keep the individual boni very small. */
-					if (voxel->instance == SRI_SCENERY) exc++;                                            // Bonus for building among flower beds or forests.
-					if (IsImplodedSteepSlope(voxel->GetGroundSlope())) exc++;                             // Bonus for building among hills.
-					if (voxel->instance >= SRI_FULL_RIDES && voxel->instance != this->GetIndex()) exc++;  // Bonus for building near other rides.
-					/* \todo Add boni for accurately mowed lawns and building near water. */
+					if (IsImplodedSteepSlope(voxel->GetGroundSlope()))                 exc += 2;
+					if (voxel->instance == SRI_SCENERY)                                exc += 4;
+					if (voxel->instance >= SRI_FULL_RIDES && voxel->instance != index) exc += 7;
+					/* \todo Also give a bonus for accurately mowed lawns and building near water. */
 				}
 			}
 		}
-
 		p = FindSuccessorPiece(this->pieces[p]);
 		if (p < 0 || p == start_piece) break;
 	}

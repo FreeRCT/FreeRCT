@@ -166,6 +166,8 @@ void Message::Save(Saver &svr) const
 /** Reset the inbox to a clean state. */
 void Inbox::Clear()
 {
+	this->display_time = 0;
+	this->display_message = nullptr;
 	this->messages.clear();
 }
 
