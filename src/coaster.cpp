@@ -341,7 +341,7 @@ CoasterTrain::CoasterTrain()
 	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
 	this->back_position = 0;
 	this->speed = 0;
-	this->station_policy = TSP_IN_STATION;
+	this->station_policy = TSP_IN_STATION_BACK;
 	this->time_left_waiting = 0;
 	this->cur_piece = nullptr; // Set later.
 }
@@ -393,9 +393,11 @@ static void inline Unroll(uint roll, int32 *dy, int32 *dz)
 void CoasterTrain::OnAnimate(int delay)
 {
 	if (this->coaster->state != RIS_OPEN && this->coaster->state != RIS_TESTING) delay = 0;
-	if (this->station_policy == TSP_IN_STATION) {
+	if (this->station_policy == TSP_IN_STATION_FRONT) {
 		this->time_left_waiting -= delay;
 		delay = 0;  // Don't move forward while in station.
+	} else if (this->station_policy == TSP_IN_STATION_BACK) {
+		delay = 0;
 	} else if (this->station_policy != TSP_ENTERING_STATION) {
 		this->time_left_waiting = 0;
 	}
@@ -604,21 +606,22 @@ void CoasterTrain::OnAnimate(int delay)
 		this->speed -= std::min<int32>(max_speed_change, std::max<int32>(-max_speed_change, this->speed - 65536 / 1000));
 	}
 
-	bool other_train_in_front = false;
+	bool other_train_directly_in_front = false, other_train_in_station_front = false;
 	for (CoasterTrain &train : this->coaster->trains) {
 		if (&train == this || train.cars.empty() || this->back_position > train.back_position) continue;
 		if (delay > 0 && indexed_car_position > train.back_position) {
 			this->coaster->Crash(this, &train);
 			return;
 		}
-		other_train_in_front |= (indexed_car_position + 256 * this->coaster->GetTrainSpacing() > train.back_position);
+		other_train_directly_in_front |= (indexed_car_position + 256 * this->coaster->GetTrainSpacing() > train.back_position);
+		other_train_in_station_front |= (indexed_car_position + 2 * 256 * this->coaster->GetTrainSpacing() > train.back_position);
 	}
 
 	if (!has_platform && this->station_policy == TSP_LEAVING_STATION) this->station_policy = TSP_NO_STATION;
-	if (this->station_policy == TSP_ENTERING_STATION || this->station_policy == TSP_IN_STATION) {
+	if (this->station_policy == TSP_ENTERING_STATION || this->station_policy == TSP_IN_STATION_FRONT || this->station_policy == TSP_IN_STATION_BACK) {
 		if (!front_is_in_station && this->time_left_waiting <= 0) {
 			this->station_policy = TSP_LEAVING_STATION;
-		} else if (front_is_in_station && !other_train_in_front) {
+		} else if (front_is_in_station && !other_train_directly_in_front) {
 			this->station_policy = TSP_ENTERING_STATION;
 		} else {
 			if (this->station_policy == TSP_ENTERING_STATION) {
@@ -636,7 +639,7 @@ void CoasterTrain::OnAnimate(int delay)
 					}
 				}
 			}
-			this->station_policy = TSP_IN_STATION;
+			this->station_policy = other_train_in_station_front ? TSP_IN_STATION_BACK : TSP_IN_STATION_FRONT;
 		}
 	}
 }
@@ -775,7 +778,7 @@ void CoasterInstance::CloseRide()
 		CoasterTrain &train = this->trains[i];
 		train.back_position = 0;
 		train.speed = 0;
-		train.station_policy = TSP_IN_STATION;
+		train.station_policy = TSP_IN_STATION_BACK;
 		train.cur_piece = this->pieces;
 		train.cars.resize(0);
 		train.OnAnimate(0);
@@ -877,7 +880,7 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 		/* Find the frontmost train in this station. */
 		CoasterTrain *loading_train = nullptr;
 		for (CoasterTrain &t : this->trains) {
-			if (t.station_policy == TSP_IN_STATION &&
+			if (t.station_policy == TSP_IN_STATION_FRONT &&
 					t.back_position >= s.back_position &&
 					t.back_position < s.back_position + 256 * s.length &&
 					(loading_train == nullptr || loading_train->back_position < t.back_position)) {
@@ -1300,7 +1303,7 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 		train.cur_piece = location;
 		train.back_position = back_position;
 		train.speed = 0;
-		train.station_policy = TSP_IN_STATION;
+		train.station_policy = (i + 1 == number_trains) ? TSP_IN_STATION_FRONT : TSP_IN_STATION_BACK;
 		train.time_left_waiting = 0;
 		if (static_cast<int>(i) < number_trains) {
 			train.SetLength(this->cars_per_train);

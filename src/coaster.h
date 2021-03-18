@@ -149,7 +149,8 @@ public:
 enum TrainStationPolicy {
 	TSP_LEAVING_STATION,   ///< The train is leaving a station.
 	TSP_ENTERING_STATION,  ///< The train is entering a station.
-	TSP_IN_STATION,        ///< The train is waiting motionlessly in a station.
+	TSP_IN_STATION_FRONT,  ///< The train is waiting motionlessly at the front of a station.
+	TSP_IN_STATION_BACK,   ///< The train is waiting motionlessly in a station behind another train.
 	TSP_NO_STATION,        ///< The train is nowhere near a station.
 };
 
@@ -199,7 +200,7 @@ struct CoasterIntensityStatistics {
 	int32 vertical_g;    ///< Average vertical G force of trains passing through here.
 	int32 horizontal_g;  ///< Average horizontal G force of trains passing through here.
 };
-static const int COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION = 500;  ///< Minimum distance of two points in a coaster's intensity statistics map.
+static const int COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION = 0x8000;  ///< Minimum distance of two points in a coaster's intensity statistics map.
 
 /**
  * A roller coaster in the world.
