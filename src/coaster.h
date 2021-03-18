@@ -195,6 +195,7 @@ struct CoasterStation {
 
 /** Holds data about the intensity of a coaster at a specific point. */
 struct CoasterIntensityStatistics {
+	bool valid;          ///< Whether this data point should be considered for the calculation.
 	int32 precision;     ///< Over how many individual test results this entry is sampled.
 	int32 speed;         ///< Average speed of trains passing through here.
 	int32 vertical_g;    ///< Average vertical G force of trains passing through here.
@@ -273,7 +274,7 @@ public:
 	void SetNumberOfCars(int number_cars);
 	void ReinitializeTrains(bool test_mode);
 	void Crash(CoasterTrain *t1, CoasterTrain *t2);
-	void SampleStatistics(uint32 point, int32 speed, int32 vg, int32 hg);
+	void SampleStatistics(uint32 point, bool valid, int32 speed, int32 vg, int32 hg);
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;

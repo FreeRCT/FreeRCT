@@ -234,6 +234,7 @@ strings {
 		COASTER_MANAGER_NUMBER_TRAINS:  "Trains: %1%";
 		COASTER_MANAGER_NUMBER_CARS:    "Cars: %1%";
 		COASTER_MANAGER_EDIT:           "Edit track";
+		COASTER_MANAGER_NO_GRAPHS_YET:  "No measurements yet";
 
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Remove";

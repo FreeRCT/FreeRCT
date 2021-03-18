@@ -242,6 +242,7 @@ static const char *_gui_string_names[] = {
 	"COASTER_MANAGER_NUMBER_TRAINS",
 	"COASTER_MANAGER_NUMBER_CARS",
 	"COASTER_MANAGER_EDIT",
+	"COASTER_MANAGER_NO_GRAPHS_YET",
 
 	/* Entity remove button. */
 	"ENTITY_REMOVE",

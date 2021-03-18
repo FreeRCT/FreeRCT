@@ -234,6 +234,7 @@ strings {
 		COASTER_MANAGER_NUMBER_TRAINS:  "Zügen: %1%";
 		COASTER_MANAGER_NUMBER_CARS:    "Wagens: %1%";
 		COASTER_MANAGER_EDIT:           "Spoor bewarken";
+		COASTER_MANAGER_NO_GRAPHS_YET:  "Noch nich meten";
 
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Ofrieten";

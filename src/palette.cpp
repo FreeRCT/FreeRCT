@@ -242,7 +242,7 @@ const uint32 _palette[256] = {
 	MakeRGBA(220, 200, 100, OPAQUE), //  3 Background for tooltips.
 	MakeRGBA( 20,  20,  50, OPAQUE), //  4 Text colour for tooltips.
 	MakeRGBA(  0,   0,   0, OPAQUE), //  5 Border colour for tooltips.
-	MakeRGBA(  0,   0,   0, OPAQUE), //  6 unused
+	MakeRGBA(130, 130, 130, OPAQUE), //  6 Grey text colour.
 	MakeRGBA(  0,   0,   0, OPAQUE), //  7 unused
 	MakeRGBA(  0,   0,   0, OPAQUE), //  8 unused
 	MakeRGBA(  0,   0,   0, OPAQUE), //  9 unused

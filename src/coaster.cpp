@@ -566,8 +566,14 @@ void CoasterTrain::OnAnimate(int delay)
 		car.front.Set(front, front_pix, pitch, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
 
-		if (i == 0 && this->station_policy == TSP_NO_STATION) {
-			this->coaster->SampleStatistics(this->back_position, this->speed,
+		if (i == 0) {
+			/*
+			 * \todo This "calculation" of horizontal and vertical G forces is extremely
+			 * simplistic. For now this is good enough, but when we have coasters with loopings,
+			 * banked curves and so on, this will need to be replaced with a proper physics
+			 * model, as the results of this magic would make no sense for such tracks.
+			 */
+			this->coaster->SampleStatistics(this->back_position, this->station_policy == TSP_NO_STATION, this->speed,
 					pitch > 8 ? static_cast<int>(pitch) - 16 : pitch,
 					roll  > 8 ? static_cast<int>(roll)  - 16 : roll);
 		}
@@ -1608,13 +1614,14 @@ bool CoasterInstance::PlaceEntranceOrExit(const XYZPoint16 &pos, const bool entr
  * @param vg Current vertical G force.
  * @param hg Current horizontal G force.
  */
-void CoasterInstance::SampleStatistics(uint32 point, const int32 speed, const int32 vg, const int32 hg)
+void CoasterInstance::SampleStatistics(uint32 point, const bool valid, const int32 speed, const int32 vg, const int32 hg)
 {
 	point /= COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION;
 	auto it = this->intensity_statistics.find(point);
 	if (it == this->intensity_statistics.end()) {
-		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{1, speed, vg, hg}));
+		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{valid, 1, speed, vg, hg}));
 	} else {
+		it->second.valid &= valid;
 		it->second.speed        = (it->second.precision * it->second.speed        + speed) / (it->second.precision + 1);
 		it->second.vertical_g   = (it->second.precision * it->second.vertical_g   + vg   ) / (it->second.precision + 1);
 		it->second.horizontal_g = (it->second.precision * it->second.horizontal_g + hg   ) / (it->second.precision + 1);
@@ -1624,18 +1631,12 @@ void CoasterInstance::SampleStatistics(uint32 point, const int32 speed, const in
 
 void CoasterInstance::RecalculateRatings()
 {
-	if (this->intensity_statistics.empty()) {
-		this->excitement_rating = RATING_NOT_YET_CALCULATED;
-		this->intensity_rating = RATING_NOT_YET_CALCULATED;
-		this->nausea_rating = RATING_NOT_YET_CALCULATED;
-		return;
-	}
-
 	uint64 exc = 100;
 	uint64 iny = 100;
 	uint64 nau = 100;
 	uint32 statpoints = 0;
 	for (const auto &pair : this->intensity_statistics) {
+		if (!pair.second.valid) continue;
 		exc += std::abs(pair.second.speed);
 		iny += std::abs(pair.second.speed);
 		iny += std::abs(pair.second.horizontal_g * pair.second.speed);
@@ -1643,6 +1644,13 @@ void CoasterInstance::RecalculateRatings()
 		nau += std::abs(pair.second.vertical_g   * pair.second.speed);
 		statpoints++;
 	}
+	if (statpoints == 0) {
+		this->excitement_rating = RATING_NOT_YET_CALCULATED;
+		this->intensity_rating = RATING_NOT_YET_CALCULATED;
+		this->nausea_rating = RATING_NOT_YET_CALCULATED;
+		return;
+	}
+
 	iny /= statpoints;
 	nau /= statpoints;
 	exc /= statpoints;
@@ -1744,11 +1752,12 @@ void CoasterInstance::Load(Loader &ldr)
 	this->intensity_statistics.clear();
 	for (long i = ldr.GetLong(); i > 0; i--) {
 		const uint32 point = ldr.GetLong();
+		const bool valid = ldr.GetByte() != 0;
 		const int32 precision = ldr.GetLong();
 		const int32 speed = ldr.GetLong();
 		const int32 vg = ldr.GetLong();
 		const int32 hg = ldr.GetLong();
-		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{precision, speed, vg, hg}));
+		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{valid, precision, speed, vg, hg}));
 	}
 
 	this->InsertStationsIntoWorld();
@@ -1813,6 +1822,7 @@ void CoasterInstance::Save(Saver &svr)
 	svr.PutLong(this->intensity_statistics.size());
 	for (const auto &pair : this->intensity_statistics) {
 		svr.PutLong(pair.first);
+		svr.PutByte(pair.second.valid ? 1 : 0);
 		svr.PutLong(pair.second.precision);
 		svr.PutLong(pair.second.speed);
 		svr.PutLong(pair.second.vertical_g);

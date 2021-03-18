@@ -113,6 +113,7 @@ enum GuiTextColours {
 	TEXT_TOOLTIP_BACKGROUND = 3,   ///< Background colour for tooltips.
 	TEXT_TOOLTIP_TEXT = 4,         ///< Text colour for tooltips.
 	TEXT_TOOLTIP_BORDER = 5,       ///< Border colour for tooltips.
+	TEXT_GREY = 6,                 ///< Grey text colour.
 };
 
 /** Colours. */

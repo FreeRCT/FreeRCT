@@ -29,7 +29,31 @@ struct Point {
 		this->y = y;
 	}
 
+	/**
+	 * Copy constructor.
+	 * @param p %Point to copy.
+	 */
+	template<typename CT2>
+	Point(const Point<CT2> &p)
+	{
+		this->x = p.x;
+		this->y = p.y;
+	}
+
 	typedef CT CoordType; ///< Type of the coordinate value.
+
+	/**
+	 * Add a 2D point to this one.
+	 * @param q Second point to add.
+	 * @return Both dimensions added to each other.
+	 */
+	template<typename CT2>
+	inline Point<CT> operator+=(const Point<CT2> &q)
+	{
+		this->x += q.x;
+		this->y += q.y;
+		return *this;
+	}
 
 	CT x; ///< X coordinate.
 	CT y; ///< Y coordinate.
@@ -222,7 +246,8 @@ struct Rectangle {
 	 * Copy constructor.
 	 * @param rect %Rectangle to copy.
 	 */
-	Rectangle(const Rectangle<PT, SZ> &rect)
+	template<typename PT2, typename SZ2>
+	Rectangle(const Rectangle<PT2, SZ2> &rect)
 	{
 		this->base.x = rect.base.x;
 		this->base.y = rect.base.y;

@@ -102,7 +102,10 @@ enum CoasterInstanceWidgets {
 	CIW_EXCITEMENT_RATING,   ///< Ride's excitement rating.
 	CIW_INTENSITY_RATING,    ///< Ride's intensity rating.
 	CIW_NAUSEA_RATING,       ///< Ride's nausea rating.
+	CIW_GRAPH,               ///< Speed/forces graph.
 };
+
+static const int GRAPH_HEIGHT = 100;  ///< Height of the graph display in pixels.
 
 /** Widget parts of the #CoasterInstanceWindow. */
 static const WidgetPart _coaster_instance_gui_parts[] = {
@@ -180,6 +183,9 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 					EndContainer(),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Widget(WT_EMPTY, CIW_GRAPH, COL_RANGE_DARK_RED), SetMinimalSize(GRAPH_HEIGHT, GRAPH_HEIGHT),
+
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 			Intermediate(1, 2), SetEqualSize(true, true),
 				Widget(WT_TEXT_PUSHBUTTON, CIW_EDIT, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_EDIT, STR_NULL), SetFill(1, 1),
 				Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED), SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
@@ -194,6 +200,7 @@ public:
 	~CoasterInstanceWindow();
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
@@ -254,6 +261,50 @@ void CoasterInstanceWindow::UpdateRecolourButtons()
 		this->GetWidget<LeafWidget>(CIW_EXIT_RECOLOUR1 + i)->SetShaded(!re.IsValid());
 	}
 	ResetSize();
+}
+
+static const int GRAPH_NR_Y_AXIS_LABELS = 4;    ///< Number of labels on the graph's vertical axis.
+
+void CoasterInstanceWindow::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) const
+{
+	if (wid_num != CIW_GRAPH) return GuiWindow::DrawWidget(wid_num, wid);
+
+	Rectangle32 pos = wid->pos;
+	pos.base += this->rect.base;
+
+	bool has_valid_datapoint = false;
+	std::set<Point32> datapoints;
+	int32 ymax = 1;
+	for (const auto &pair : this->ci->intensity_statistics) {
+		const int32 y = pair.second.speed;
+		ymax = std::max(y, ymax);
+		datapoints.insert(Point32(pos.width * pair.first * COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION / this->ci->coaster_length, y));
+		has_valid_datapoint |= pair.second.valid;
+	}
+
+	if (!has_valid_datapoint) {
+		DrawString(GUI_COASTER_MANAGER_NO_GRAPHS_YET, TEXT_WHITE, pos.base.x, pos.base.y + (pos.height - GetTextHeight()) / 2, pos.width, ALG_CENTER);
+		return;
+	}
+
+	_video.FillRectangle(pos, TEXT_BLACK);
+	for (int i = 1; i <= GRAPH_NR_Y_AXIS_LABELS; i++) {
+		const int y = pos.base.y + pos.height * (GRAPH_NR_Y_AXIS_LABELS - i) / GRAPH_NR_Y_AXIS_LABELS;
+		_video.DrawLine(Point32(pos.base.x, y), Point32(pos.base.x + pos.width, y), _palette[TEXT_GREY]);
+	}
+
+	std::set<Point16> scaled_datapoints;
+	for (const Point32 &p : datapoints) scaled_datapoints.insert(Point32(p.x + pos.base.x, pos.base.y + pos.height - pos.height * p.y / ymax));
+	auto p1 = scaled_datapoints.begin();
+	auto p2 = p1;
+	p2++;
+	for (; p2 != scaled_datapoints.end(); p1++, p2++) _video.DrawLine(*p1, *p2, _palette[TEXT_WHITE]);
+
+	for (int i = 1; i <= GRAPH_NR_Y_AXIS_LABELS; i++) {
+		_str_params.SetNumber(1, ymax * i / GRAPH_NR_Y_AXIS_LABELS);
+		const int y = pos.base.y + pos.height * (GRAPH_NR_Y_AXIS_LABELS - i) / GRAPH_NR_Y_AXIS_LABELS;
+		DrawString(STR_ARG1, TEXT_GREY, pos.base.x, y, pos.width, ALG_RIGHT);
+	}
 }
 
 void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
