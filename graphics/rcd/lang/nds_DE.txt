@@ -235,6 +235,12 @@ strings {
 		COASTER_MANAGER_NUMBER_CARS:    "Wagens: %1%";
 		COASTER_MANAGER_EDIT:           "Spoor bewarken";
 		COASTER_MANAGER_NO_GRAPHS_YET:  "Noch nich meten";
+		COASTER_MANAGER_GRAPH_SPEED:          "Gauheid";
+		COASTER_MANAGER_GRAPH_VERT_G:         "Vertikaal G";
+		COASTER_MANAGER_GRAPH_HORZ_G:         "Horizontaal G";
+		COASTER_MANAGER_GRAPH_TOOLTIP_SPEED:  "Gauheids-Graph wiesen";
+		COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Graph över vertikaale G-Kräften wiesen";
+		COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: "Graph över horizontaale G-Kräften wiesen";
 
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Ofrieten";

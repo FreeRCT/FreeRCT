@@ -235,6 +235,12 @@ strings {
 		COASTER_MANAGER_NUMBER_CARS:    "Wagen: %1%";
 		COASTER_MANAGER_EDIT:           "Strecke bearbeiten";
 		COASTER_MANAGER_NO_GRAPHS_YET:  "Noch keine Messungen";
+		COASTER_MANAGER_GRAPH_SPEED:          "Geschwindigkeit";
+		COASTER_MANAGER_GRAPH_VERT_G:         "Vertikale G";
+		COASTER_MANAGER_GRAPH_HORZ_G:         "Horizontale G";
+		COASTER_MANAGER_GRAPH_TOOLTIP_SPEED:  "Geschwindigkeitsgraph zeigen";
+		COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Graph über vertikale G-Kräfte zeigen";
+		COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: "Graph über horizontale G-Kräfte zeigen";
 
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Abreißen";
