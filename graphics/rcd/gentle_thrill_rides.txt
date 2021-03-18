@@ -198,7 +198,7 @@ file("gentle_thrill_rides.rcd") {
 		nausea_base: 280;
 		excitement_base: 138;
 		excitement_increase_cycle: 24;
-		excitement_increase_scenery: 7;
+		excitement_increase_scenery: 3;
 
 		texts: strings { key: "ship-swing"; }
 	}
