@@ -224,9 +224,9 @@ public:
 	uint32 time_since_last_maintenance;  ///< Number of milliseconds since the last maintenance operation.
 	bool broken;                         ///< The ride is currently broken down.
 	uint32 time_since_last_long_queue_message;  ///< Number of milliseconds since this ride last sent a message that the queue is very long.
-	uint32 excitement_rating;                   ///< Ride's excitement rating.
-	uint32 intensity_rating;                    ///< Ride's intensity rating.
-	uint32 nausea_rating;                       ///< Ride's nausea rating.
+	uint32 excitement_rating;                   ///< Ride's excitement rating in percent.
+	uint32 intensity_rating;                    ///< Ride's intensity rating in percent.
+	uint32 nausea_rating;                       ///< Ride's nausea rating in percent.
 
 	uint16 entrance_type;    ///< Index of this ride's entrance.
 	uint16 exit_type;        ///< Index of this ride's exit.

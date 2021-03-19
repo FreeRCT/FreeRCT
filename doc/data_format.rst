@@ -722,11 +722,11 @@ Offset     Length  Version  Description
   93+s      2       3-      Maximum reliability (in range 0..10000).
   95+s      2       3-      Daily reliability decrease (in range 0..10000).
   97+s      2       3-      Monthly decrease of the maximum reliability (in range 0..10000).
-  99+s      4       4-      Base intensity rating.
- 103+s      4       4-      Base nausea rating.
- 107+s      4       4-      Base excitement rating.
- 111+s      4       4-      Excitement increase per working cycle.
- 115+s      4       4-      Excitement increase per nearby scenery item.
+  99+s      4       4-      Intensity rating in percent.
+ 103+s      4       4-      Nausea rating in percent.
+ 107+s      4       4-      Base excitement rating in percent.
+ 111+s      4       4-      Absolute excitement rating increase per working cycle (must be >= 0).
+ 115+s      4       4-      Absolute excitement rating increase per nearby scenery item (must be >= 0).
  119+s      4       1-      Text of the ride (reference to a TEXT block).
  123+s                      Total length.
 =========  ======  =======  ========================================================================================

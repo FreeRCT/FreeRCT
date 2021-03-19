@@ -48,7 +48,7 @@ struct Point {
 	 * @return Both dimensions added to each other.
 	 */
 	template<typename CT2>
-	inline Point<CT> operator+=(const Point<CT2> &q)
+	inline Point<CT> &operator+=(const Point<CT2> &q)
 	{
 		this->x += q.x;
 		this->y += q.y;
@@ -147,7 +147,7 @@ struct XYZPoint {
 	 * @param q Second point to add.
 	 * @return All 3 dimensions added to each other.
 	 */
-	inline XYZPoint<CT> operator+=(const XYZPoint<CT> &q)
+	inline XYZPoint<CT> &operator+=(const XYZPoint<CT> &q)
 	{
 		this->x += q.x;
 		this->y += q.y;

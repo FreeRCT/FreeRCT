@@ -209,9 +209,9 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 
 /** What kind of data to display in the graph. */
 enum GraphMode {
-	GM_SPEED,
-	GM_VERT_G,
-	GM_HORZ_G,
+	GM_SPEED,   ///< Display speed graph.
+	GM_VERT_G,  ///< Display vertical G forces graph.
+	GM_HORZ_G,  ///< Display horizontal G forces graph.
 };
 
 /** Window to display and setup a roller coaster. */

@@ -1610,6 +1610,7 @@ bool CoasterInstance::PlaceEntranceOrExit(const XYZPoint16 &pos, const bool entr
 /**
  * Update the intensity statistics with a piece of new information.
  * @param point Position along the coaster.
+ * @param valid Whether to use this statistics point for calculating the ride ratings.
  * @param speed Current speed of a train.
  * @param vg Current vertical G force.
  * @param hg Current horizontal G force.
@@ -1631,9 +1632,9 @@ void CoasterInstance::SampleStatistics(uint32 point, const bool valid, const int
 
 void CoasterInstance::RecalculateRatings()
 {
-	uint64 exc = 100;
-	uint64 iny = 100;
-	uint64 nau = 100;
+	uint64 exc = 100;  // Excitement rating in percent.
+	uint64 iny = 100;  // Intensity rating in percent.
+	uint64 nau = 100;  // Nausea rating in percent.
 	uint32 statpoints = 0;
 	for (const auto &pair : this->intensity_statistics) {
 		if (!pair.second.valid) continue;
