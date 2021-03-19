@@ -135,14 +135,10 @@ int freerct_main(int argc, char **argv)
 	cfg_file.Load("freerct.cfg");
 	const char *font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
-	if (font_path == nullptr || *font_path == '\0' || font_size == -1) {
-		fprintf(stderr, "Failed to find font settings. Did you make a 'freerct.cfg' file next to the 'freerct' program?\n");
-		fprintf(stderr, "Example content (you may need to change the path and.or the size):\n"
-		                "[font]\n"
-		                "medium-size = 12\n"
-		                "medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf\n");
-		return 1;
-	}
+	/* Use default values if no font has been set. */
+	if (font_path == nullptr) font_path = "../utils/font/Ubuntu-L.ttf";
+	if (font_size < 1) font_size = 15;
+
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
 	bool language_set = false;
 	if (preferred_language != nullptr) {
