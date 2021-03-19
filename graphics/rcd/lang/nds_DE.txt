@@ -93,7 +93,7 @@ strings {
 		PATH_GUI_REMOVE:           "Ofrieten";
 		PATH_GUI_LONG_TIP:         "Eenen langen Weg bauen";
 		PATH_GUI_BUY_TIP:          "Een Wegdeel kopen";
-		PATH_GUI_BULLDOZER_TIP:    "Click to remove the last built path and get your money back (works until you close the window)";
+		PATH_GUI_BULLDOZER_TIP:    "Klick, um dat tolest koopt Wegdeel oftorieten un dien Geld torüggtokriegen (dat gaht, bit du dat Finster dichtmaakst)";
 		PATH_GUI_SLOPE_DOWN_TIP:   "Weg na unnern bauen";
 		PATH_GUI_SLOPE_FLAT_TIP:   "Weg na vörn bauen";
 		PATH_GUI_SLOPE_UP_TIP:     "Weg na boven bauen";
