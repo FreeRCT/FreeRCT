@@ -2123,7 +2123,7 @@ static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
 		block->previews[2] = vals.GetSprite("preview_sw");
 		block->previews[3] = vals.GetSprite("preview_nw");
 	}
-	block->animation = vals.GetFrameSet("animation");
+	block->animation = vals.GetTimedAnimation("animation");
 	block->animation->unrotated_views_only_allowed = true;
 
 	block->buy_cost = vals.GetNumber("buy_cost");

@@ -78,6 +78,7 @@ void OnNewFrame(const uint32 frame_delay)
 		_guests.OnAnimate(frame_delay);
 		_staff.OnAnimate(frame_delay);
 		_rides_manager.OnAnimate(frame_delay);
+		_scenery.OnAnimate(frame_delay);
 	}
 }
 

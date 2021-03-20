@@ -1014,15 +1014,24 @@ int FSETBlock::Write(FileWriter *fw)
 
 TIMABlock::TIMABlock() : GameBlock("TIMA", 1)
 {
+	this->unrotated_views_only = false;
+	this->unrotated_views_only_allowed = false;
 }
 
 int TIMABlock::Write(FileWriter *fw)
 {
+	if (!this->unrotated_views_only_allowed && this->unrotated_views_only) {
+		fprintf(stderr, "Error: TIMA block which requires all views to be specified has specified only the unrotated views");
+		::exit(1);
+	}
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 16 + (8 * this->frames) - 12);
 	fb->SaveUInt32(this->frames);
-	for (int8 f = 0; f < this->frames; ++f) fb->SaveUInt32(this->durations[f]);
-	for (int8 f = 0; f < this->frames; ++f) fb->SaveUInt32(this->views[f]->Write(fw));
+	for (int8 f = 0; f < this->frames; f++) fb->SaveUInt32(this->durations[f]);
+	for (int8 f = 0; f < this->frames; f++) {
+		this->views[f]->unrotated_views_only_allowed = this->unrotated_views_only_allowed;
+		fb->SaveUInt32(this->views[f]->Write(fw));
+	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
@@ -1111,8 +1120,8 @@ int SCNYBlock::Write(FileWriter *fw)
 	}
 	fb->SaveUInt32(this->animation->Write(fw));
 	for (auto& preview : this->previews) fb->SaveUInt32(preview->Write(fw));
-	fb->SaveUInt32(this->buy_cost);
-	fb->SaveUInt32(this->return_cost);
+	fb->SaveInt32(this->buy_cost);
+	fb->SaveInt32(this->return_cost);
 	fb->SaveUInt8(this->symmetric ? 1 : 0);
 	fb->SaveUInt8(this->category);
 	fb->SaveUInt32(this->ride_text->Write(fw));

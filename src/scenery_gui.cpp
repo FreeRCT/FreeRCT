@@ -12,6 +12,7 @@
 #include "window.h"
 #include "viewport.h"
 #include "language.h"
+#include "finances.h"
 #include "gamecontrol.h"
 #include "gui_sprites.h"
 #include "sprite_data.h"
@@ -236,12 +237,38 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	scenery_sel.MarkDirty();
 }
 
-void SceneryGui::SelectorMouseButtonEvent(uint8 state)
+void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 {
+	if ((state & MB_RIGHT) != 0) {
+		Viewport *vp = _window_manager.GetViewport();
+		const Point32 world_pos = vp->ComputeHorizontalTranslation(
+				vp->rect.width  / 2 - _window_manager.GetMousePosition().x,
+				vp->rect.height / 2 - _window_manager.GetMousePosition().y);
+		const int8 dx = _orientation_signum_dx[vp->orientation];
+		const int8 dy = _orientation_signum_dy[vp->orientation];
+		for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {
+			const int dz = (z - (vp->view_pos.z / 256)) / 2;
+			XYZPoint16 location(world_pos.x / 256 + dz * dx, world_pos.y / 256 + dz * dy, z);
+			if (!IsVoxelstackInsideWorld(location.x, location.y)) continue;
+			if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(location.x, location.y) != OWN_PARK) continue;
+
+			SceneryInstance *i = _scenery.GetItem(location);
+			if (i != nullptr) {
+				if (i->type->category != SCC_SCENARIO) {
+					_finances_manager.PayLandscaping(i->type->return_cost);
+					_scenery.RemoveItem(i->vox_pos);
+				}
+				return;
+			}
+		}
+		return;
+	}
+
 	if (this->instance.get() == nullptr) return;
 	if (!IsLeftClick(state)) return;
 	if (scenery_sel.area.width < 1 || scenery_sel.area.height < 1) return;
 
+	_finances_manager.PayLandscaping(this->selected_type->buy_cost);
 	_scenery.AddItem(this->instance.release());
 
 	this->SetType(this->selected_type);  // Prepare to place another instance.

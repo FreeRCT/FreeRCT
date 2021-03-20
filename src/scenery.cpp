@@ -10,8 +10,10 @@
 #include "scenery.h"
 
 #include "fileio.h"
+#include "gamecontrol.h"
 #include "generated/scenery_strings.h"
 #include "generated/scenery_strings.cpp"
+#include "viewport.h"
 
 SceneryManager _scenery;
 
@@ -52,15 +54,15 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 		}
 	}
 
-	this->animation = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	this->animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	for (int i = 0; i < 4; i++) {
 		ImageData *view;
 		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
 		this->previews[i] = view;
 	}
 
-	this->buy_cost = Money(rcd_file->GetUInt32());
-	this->return_cost = Money(rcd_file->GetUInt32());
+	this->buy_cost = Money(rcd_file->GetInt32());
+	this->return_cost = Money(rcd_file->GetInt32());
 	this->symmetric = rcd_file->GetUInt8() > 0;
 	this->category = static_cast<SceneryCategory>(rcd_file->GetUInt8());
 
@@ -79,6 +81,7 @@ SceneryInstance::SceneryInstance(const SceneryType *t)
 	this->type = t;
 	this->vox_pos = XYZPoint16::invalid();
 	this->orientation = 0;
+	this->frametime = 0;
 }
 
 /**
@@ -94,7 +97,8 @@ bool SceneryInstance::CanPlace() const
 	for (int8 x = 0; x < wx; x++) {
 		for (int8 y = 0; y < wy; y++) {
 			XYZPoint16 location = this->vox_pos + OrientatedOffset(this->orientation, x, y);
-			if (!IsVoxelstackInsideWorld(location.x, location.y) || _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
+			if (!IsVoxelstackInsideWorld(location.x, location.y)) return false;
+			if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
 			const int8 height = this->type->GetHeight(x, y);
 			for (int16 h = 0; h < height; h++) {
 				location.z = this->vox_pos.z + h;
@@ -151,7 +155,9 @@ void SceneryInstance::RemoveFromWorld()
 			const int8 height = this->type->GetHeight(x, y);
 			if (!IsVoxelstackInsideWorld(this->vox_pos.x + unrotated_pos.x, this->vox_pos.y + unrotated_pos.y)) continue;
 			for (int16 h = 0; h < height; h++) {
-				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(unrotated_pos.x, unrotated_pos.y, h), false);
+				const XYZPoint16 p = this->vox_pos + XYZPoint16(unrotated_pos.x, unrotated_pos.y, h);
+				Voxel *voxel = _world.GetCreateVoxel(p, false);
+				MarkVoxelDirty(p, 1);
 				if (voxel != nullptr && voxel->instance != SRI_FREE) {
 					assert(voxel->instance == SRI_SCENERY);
 					assert(voxel->instance_data == (h == 0 ? voxel_data : INVALID_VOXEL_DATA));
@@ -179,7 +185,20 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
 	sprites[3] = nullptr;
 	if (voxel_number == INVALID_VOXEL_DATA) return;
 	const XYZPoint16 unrotated_pos = UnorientatedOffset(this->orientation, vox.x - this->vox_pos.x, vox.y - this->vox_pos.y);
-	sprites[1] = this->type->animation->sprites[(this->orientation + 4 - orient) & 3][unrotated_pos.x * this->type->width_y + unrotated_pos.y];
+	sprites[1] = this->type->animation->views
+		[this->type->animation->GetFrame(this->frametime, true)]
+			->sprites[(this->orientation + 4 - orient) & 3]
+				[unrotated_pos.x * this->type->width_y + unrotated_pos.y];
+}
+
+/**
+ * Some time has passed, update this item's animation.
+ * @param delay Number of milliseconds that passed.
+ */
+void SceneryInstance::OnAnimate(const int delay)
+{
+	this->frametime += delay;
+	this->frametime %= this->type->animation->GetTotalDuration();
 }
 
 void SceneryInstance::Load(Loader &ldr)
@@ -257,6 +276,15 @@ void SceneryManager::Clear()
 }
 
 /**
+ * Some time has passed, update the state of the scenery items.
+ * @param delay Number of milliseconds that passed.
+ */
+void SceneryManager::OnAnimate(const int delay)
+{
+	for (auto &pair : this->all_items) pair.second->OnAnimate(delay);
+}
+
+/**
  * Insert a new scenery item into the world.
  * @param item Item to insert.
  * @note Takes ownership of the pointer.
@@ -286,12 +314,14 @@ void SceneryManager::RemoveItem(const XYZPoint16 &pos)
  * @param pos Any of the positions occupied by the item.
  * @return The item, or \c nullptr if there isn't one here.
  */
-const SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos) const
+SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 {
 	auto it = this->all_items.find(pos);
 	if (it != this->all_items.end()) return it->second.get();
 
-	const uint16 instance_data = _world.GetVoxel(pos)->instance_data;
+	const Voxel* voxel = _world.GetVoxel(pos);
+	if (voxel == nullptr) return nullptr;
+	const uint16 instance_data = voxel->instance_data;
 	if (instance_data == INVALID_VOXEL_DATA) return nullptr;
 
 	const SceneryType *type = this->scenery_item_types[instance_data].get();

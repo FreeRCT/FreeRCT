@@ -961,7 +961,11 @@ void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 				if (IsImplodedSteepSlope(v->GetGroundSlope())) height = 2;
 			}
 			SmallRideInstance number = v->GetInstance();
-			if (number >= SRI_FULL_RIDES) { // A ride.
+			if (number == SRI_SCENERY) {
+				const SceneryInstance *si = _scenery.GetItem(voxel_pos);
+				const XYZPoint16 pos = UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
+				height = si->type->GetHeight(pos.x, pos.y);
+			} else if (number >= SRI_FULL_RIDES) {  // A ride.
 				const RideInstance *ri = _rides_manager.GetRideInstance(number);
 				if (ri != nullptr) {
 					switch (ri->GetKind()) {

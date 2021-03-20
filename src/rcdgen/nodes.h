@@ -611,12 +611,12 @@ public:
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int width_x;    ///< The number of voxels in x direction.
 	int width_y;    ///< The number of voxels in y direction.
-	bool unrotated_views_only;                                ///< Whether only the unrotated views have been specified.
-	bool unrotated_views_only_allowed;                        ///< Whether it is allowed to specify only the unrotated views.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> nw_views; ///< Rotated 270 degrees.
+	bool unrotated_views_only;                                ///< Whether only the unrotated views have been specified.
+	bool unrotated_views_only_allowed;                        ///< Whether it is allowed to specify only the unrotated views.
 };
 
 /** Class for describing a TIMA game block. */
@@ -630,6 +630,8 @@ public:
 	int frames;                       ///< The number of frames in the animation.
 	std::unique_ptr<int[]> durations; ///< The duration of each frame in milliseconds.
 	std::unique_ptr<std::shared_ptr<FSETBlock>[]> views; ///< The frames' image sets.
+	bool unrotated_views_only;                           ///< Whether only the unrotated views have been specified.
+	bool unrotated_views_only_allowed;                   ///< Whether it is allowed to specify only the unrotated views.
 };
 
 /** Class for describing a RIEE game block. */
@@ -726,7 +728,7 @@ public:
 	int32 buy_cost;                   ///< Cost to place this item.
 	int32 return_cost;                ///< Cost when removing this item.
 
-	std::shared_ptr<FSETBlock> animation;      ///< Main image.
+	std::shared_ptr<TIMABlock> animation;      ///< Main image.
 	std::shared_ptr<SpriteBlock> previews[4];  ///< Previews for ne,se,sw,nw.
 	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the scenery item.
 };

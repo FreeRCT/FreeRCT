@@ -48,9 +48,9 @@ public:
 	Money buy_cost;      ///< Cost of buying this item.
 	Money return_cost;   ///< Amount of money returned or consumed when removing this item.
 
-	bool symmetric;             ///< Whether this item is perfectly symmetric and can therefore not be rotated.
-	const FrameSet *animation;  ///< Graphics for this scenery item.
-	ImageData* previews[4];     ///< Previews for the scenery placement window.
+	bool symmetric;                   ///< Whether this item is perfectly symmetric and can therefore not be rotated.
+	const TimedAnimation *animation;  ///< Graphics for this scenery item.
+	ImageData* previews[4];           ///< Previews for the scenery placement window.
 
 	/**
 	 * The height of this scenery item at the given position.
@@ -71,6 +71,7 @@ public:
 
 	bool CanPlace() const;
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const;
+	void OnAnimate(int delay);
 
 	void InsertIntoWorld();
 	void RemoveFromWorld();
@@ -81,6 +82,7 @@ public:
 	const SceneryType *type;   ///< Type of item.
 	XYZPoint16 vox_pos;        ///< Position of the item's base voxel.
 	uint8 orientation;         ///< Orientation of the item.
+	uint32 frametime;          ///< Time in the animation, in milliseconds.
 };
 
 /** All the scenery items in the world. */
@@ -92,11 +94,12 @@ public:
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
 	std::vector<const SceneryType*> GetAllTypes(SceneryCategory cat) const;
 
+	void OnAnimate(int delay);
 	void Clear();
 
 	void AddItem(SceneryInstance* item);
 	void RemoveItem(const XYZPoint16 &pos);
-	const SceneryInstance *GetItem(const XYZPoint16 &pos) const;
+	SceneryInstance *GetItem(const XYZPoint16 &pos);
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;

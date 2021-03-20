@@ -770,13 +770,13 @@ Offset           Length   Version  Description
   13              1        1-      Length of the item in y direction in voxels.
   14              s        1-      Heights of the item in voxels, for each tile occupied by the item. The number s of
                                    height bytes is equal to the product of the item lengths in x and y direction.
-  14+s            4        1-      Animation (reference to an FSET block).
+  14+s            4        1-      Animation (reference to a TIMA block).
   18+s            4        1-      Unrotated (ne) preview.
   22+s            4        1-      se preview.
   26+s            4        1-      sw preview.
   30+s            4        1-      nw preview.
-  34+s            4        1-      Cost for buying this item.
-  38+s            4        1-      Cost or return for selling this item.
+  34+s            4        1-      Cost for buying this item (should be positive).
+  38+s            4        1-      Cost or return for selling this item (positive for a fee, negative if the player gets money back).
   42+s            1        1-      Whether this item is considered symmetric (1 for true, 0 for false). Symmetric items can't be rotated.
   43+s            1        1-      Item type category.
   44+s            4        1-      Text of the item (reference to a TEXT block).

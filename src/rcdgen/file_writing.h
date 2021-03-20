@@ -22,8 +22,9 @@ public:
 	void SaveUInt8(uint8 d);
 	void SaveInt8(int8 d);
 	void SaveUInt16(uint16 d);
-	void SaveInt16(uint16 d);
+	void SaveInt16(int16 d);
 	void SaveUInt32(uint32 d);
+	void SaveInt32(int32 d);
 	void SaveBytes(uint8 *data, int size);
 	void CheckEndSave();
 
