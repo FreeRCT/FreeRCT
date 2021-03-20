@@ -52,8 +52,10 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Eine neue Attraktion für den Park kaufen";
 		TOOLBAR_GUI_FENCE:                "Zäune kaufen";
 		TOOLBAR_GUI_TOOLTIP_FENCE:        "Baue Zäune in deinem Park";
+		TOOLBAR_GUI_SCENERY:              "Landschaft";
+		TOOLBAR_GUI_TOOLTIP_SCENERY:      "Platziere Landschaftsgegenstände in deinem Park";
 		TOOLBAR_GUI_TERRAFORM:            "Landschaftsgestaltung";
-		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Verändert die Landschaft";
+		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Verändert das Relief der Landschaft";
 		TOOLBAR_GUI_FINANCES:             "Finanzen";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Verwaltet das Firmenvermögen";
 		TOOLBAR_GUI_INBOX:                "Posteingang";
@@ -173,6 +175,11 @@ strings {
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Baue Zäune";
+
+		// Scenery gui strings.
+		SCENERY_TITLE:               "Landschaft";
+		SCENERY_CATEGORY_TREES:      "Bäume";
+		SCENERY_CATEGORY_FLOWERBEDS: "Blumenbeete";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Landschaft verändern";
@@ -372,6 +379,12 @@ strings {
 
 	stringtexts("flowers1") {
 		NAME: "Blumenbeet 1";
+	}
+	stringtexts("flowers2") {
+		NAME: "Blumenbeet 2";
+	}
+	stringtexts("flowers3") {
+		NAME: "Blumenbeet 3";
 	}
 	stringtexts("tree1") {
 		NAME: "Baum 1";

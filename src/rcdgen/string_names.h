@@ -60,6 +60,8 @@ static const char *_gui_string_names[] = {
 	"TOOLBAR_GUI_TOOLTIP_RIDE_SELECT",
 	"TOOLBAR_GUI_FENCE",
 	"TOOLBAR_GUI_TOOLTIP_FENCE",
+	"TOOLBAR_GUI_SCENERY",
+	"TOOLBAR_GUI_TOOLTIP_SCENERY",
 	"TOOLBAR_GUI_TERRAFORM",
 	"TOOLBAR_GUI_TOOLTIP_TERRAFORM",
 	"TOOLBAR_GUI_FINANCES",
@@ -181,6 +183,11 @@ static const char *_gui_string_names[] = {
 
 	/* Fence window. */
 	"FENCE_TITLE",
+
+	/* Scenery window. */
+	"SCENERY_TITLE",
+	"SCENERY_CATEGORY_TREES",
+	"SCENERY_CATEGORY_FLOWERBEDS",
 
 	/* Terraform window. */
 	"TERRAFORM_TITLE",

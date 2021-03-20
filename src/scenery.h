@@ -12,6 +12,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 #include "stdafx.h"
 #include "language.h"
@@ -23,6 +24,14 @@
 static const int MAX_NUMBER_OF_SCENERY_TYPES = 128;  ///< Maximal number of scenery types (limit is uint16 in the map).
 static const uint16 INVALID_VOXEL_DATA = 0xffff;     ///< Voxel instance data value that indicates that no scenery item should be drawn.
 
+/** Available categories of scenery types. */
+enum SceneryCategory {
+	/* Keep the values in sync with the constants from the SCNY block documentation! */
+	SCC_SCENARIO   = 0,  ///< Can not be built or removed by the player.
+	SCC_TREES      = 1,  ///< Trees.
+	SCC_FLOWERBEDS = 2,  ///< Flowerbeds.
+};
+
 /** A type of scenery, e.g. trees, flower beds. */
 class SceneryType {
 public:
@@ -30,13 +39,14 @@ public:
 
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
-	StringID name;   ///< Name of this item type.
-	uint8 width_x;   ///< Number of voxels in x direction occupied by this item.
-	uint8 width_y;   ///< Number of voxels in x direction occupied by this item.
+	SceneryCategory category;  ///< Category of scenery.
+	StringID name;             ///< Name of this item type.
+	uint8 width_x;             ///< Number of voxels in x direction occupied by this item.
+	uint8 width_y;             ///< Number of voxels in x direction occupied by this item.
 	std::unique_ptr<int8[]> heights;
 
-	Money buy_cost;      ///< Cost of buying this item. Values less than 0 indicate that this item can't be placed or removed by the player.
-	Money return_cost;   ///< Amount of money returned or consumed when removing this item (may be positive or negative). Only valid if #buy_cost is not negative.
+	Money buy_cost;      ///< Cost of buying this item.
+	Money return_cost;   ///< Amount of money returned or consumed when removing this item.
 
 	bool symmetric;             ///< Whether this item is perfectly symmetric and can therefore not be rotated.
 	const FrameSet *animation;  ///< Graphics for this scenery item.
@@ -59,12 +69,15 @@ class SceneryInstance {
 public:
 	explicit SceneryInstance(const SceneryType *t);
 
+	bool CanPlace() const;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const;
+
 	void InsertIntoWorld();
 	void RemoveFromWorld();
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
-	
+
 	const SceneryType *type;   ///< Type of item.
 	XYZPoint16 vox_pos;        ///< Position of the item's base voxel.
 	uint8 orientation;         ///< Orientation of the item.
@@ -77,11 +90,13 @@ public:
 
 	bool AddSceneryType(SceneryType *type);
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
+	std::vector<const SceneryType*> GetAllTypes(SceneryCategory cat) const;
 
 	void Clear();
 
 	void AddItem(SceneryInstance* item);
 	void RemoveItem(const XYZPoint16 &pos);
+	const SceneryInstance *GetItem(const XYZPoint16 &pos) const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;

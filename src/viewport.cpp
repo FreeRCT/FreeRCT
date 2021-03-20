@@ -24,6 +24,7 @@
 #include "person.h"
 #include "weather.h"
 #include "fence.h"
+#include "scenery.h"
 
 #include <set>
 
@@ -437,33 +438,41 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypo
 }
 
 /**
- * Prepare to add the sprite for a ride.
+ * Prepare to add the sprite for a ride or a scenery item.
  * @param slice Depth of this sprite.
  * @param pos Position of the voxel being drawn.
  * @param base_pos Base position of the sprite in the screen.
  * @param orient View orientation.
- * @param number Ride instance number.
- * @param voxel_number Number of the voxel.
+ * @param number Ride instance number (\c SRI_SCENERY for scenery items).
+ * @param voxel_number Instance data of the voxel.
  * @param dd [out] Data to draw (4 entries).
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  * @return The number of \a dd entries filled.
  */
-static int DrawRide(int32 slice, const XYZPoint16 & pos, const Point32 base_pos,
+static int DrawRideOrScenery(int32 slice, const XYZPoint16 & pos, const Point32 base_pos,
 		ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
-	const RideInstance *ri = _rides_manager.GetRideInstance(number);
-	if (ri == nullptr) return 0;
-
 	if (platform != nullptr) *platform = PATH_INVALID;
 	const ImageData *sprites[4];
-	ri->GetSprites(pos, voxel_number, orient, sprites, platform);
+	const Recolouring *recolour = nullptr;
+
+	if (number == SRI_SCENERY) {
+		const SceneryInstance *si = _scenery.GetItem(pos);
+		if (si == nullptr) return 0;
+		si->GetSprites(pos, voxel_number, orient, sprites, platform);
+	} else {
+		const RideInstance *ri = _rides_manager.GetRideInstance(number);
+		if (ri == nullptr) return 0;
+		ri->GetSprites(pos, voxel_number, orient, sprites, platform);
+		recolour = ri->GetRecolours(pos);
+	}
 
 	int idx = 0;
 	static const SpriteOrder sprite_numbers[4] = {SO_PLATFORM_BACK, SO_RIDE, SO_RIDE_FRONT, SO_PLATFORM_FRONT};
 	for (int i = 0; i < 4; i++) {
 		if (sprites[i] == nullptr) continue;
 
-		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, ri->GetRecolours(pos));
+		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, recolour);
 		idx++;
 	}
 	return idx;
@@ -501,9 +510,9 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		dd.Set(slice, voxel_pos.z, SO_PATH, this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient),
 				north_point, nullptr, highlight);
 		this->draw_images.insert(dd);
-	} else if (sri >= SRI_FULL_RIDES) { // A normal ride.
+	} else if (sri >= SRI_FULL_RIDES || sri == SRI_SCENERY) { // A normal ride, or a scenery item.
 		DrawData dd[4];
-		int count = DrawRide(slice, voxel_pos, north_point, this->orient, sri, instance_data, dd, &platform_shape);
+		int count = DrawRideOrScenery(slice, voxel_pos, north_point, this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) {
 			dd[i].highlight = highlight;
 			this->draw_images.insert(dd[i]);
@@ -760,7 +769,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	if ((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) {
 		/* Looking for a ride? */
 		DrawData dd[4];
-		int count = DrawRide(slice, voxel_pos, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
+		int count = DrawRideOrScenery(slice, voxel_pos, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
 				this->orient, number, voxel->GetInstanceData(), dd, nullptr);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {

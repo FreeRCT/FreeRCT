@@ -611,6 +611,8 @@ public:
 	int tile_width; ///< Zoom-width of a tile of the surface.
 	int width_x;    ///< The number of voxels in x direction.
 	int width_y;    ///< The number of voxels in y direction.
+	bool unrotated_views_only;                                ///< Whether only the unrotated views have been specified.
+	bool unrotated_views_only_allowed;                        ///< Whether it is allowed to specify only the unrotated views.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
@@ -716,6 +718,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
+	int8 category;                    ///< Item type category.
 	int8 width_x;                     ///< The number of voxels the item occupies in x direction.
 	int8 width_y;                     ///< The number of voxels the item occupies in y direction.
 	std::unique_ptr<int8[]> heights;  ///< Heights of the item in voxels.

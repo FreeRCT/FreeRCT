@@ -973,10 +973,16 @@ int SHOPBlock::Write(FileWriter *fw)
 
 FSETBlock::FSETBlock() : GameBlock("FSET", 1)
 {
+	this->unrotated_views_only = false;
+	this->unrotated_views_only_allowed = false;
 }
 
 int FSETBlock::Write(FileWriter *fw)
 {
+	if (!this->unrotated_views_only_allowed && this->unrotated_views_only) {
+		fprintf(stderr, "Error: FSET block which requires all views to be specified has specified only the unrotated views");
+		::exit(1);
+	}
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 16 + (16 * this->width_x * this->width_y) - 12);
 	fb->SaveUInt16(this->tile_width);
@@ -1095,7 +1101,7 @@ SCNYBlock::SCNYBlock() : GameBlock("SCNY", 1)
 int SCNYBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 47 - 12 + (this->width_x * this->width_y));
+	fb->StartSave(this->blk_name, this->version, 48 - 12 + (this->width_x * this->width_y));
 	fb->SaveUInt8(this->width_x);
 	fb->SaveUInt8(this->width_y);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -1108,6 +1114,7 @@ int SCNYBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->buy_cost);
 	fb->SaveUInt32(this->return_cost);
 	fb->SaveUInt8(this->symmetric ? 1 : 0);
+	fb->SaveUInt8(this->category);
 	fb->SaveUInt32(this->ride_text->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);

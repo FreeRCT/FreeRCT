@@ -775,12 +775,19 @@ Offset           Length   Version  Description
   22+s            4        1-      se preview.
   26+s            4        1-      sw preview.
   30+s            4        1-      nw preview.
-  34+s            4        1-      Cost for buying this item (negative values indicate it can't be bought by the player).
-  38+s            4        1-      Money for selling this item (can be positive or negative; ignored if the buying cost is negative).
+  34+s            4        1-      Cost for buying this item.
+  38+s            4        1-      Cost or return for selling this item.
   42+s            1        1-      Whether this item is considered symmetric (1 for true, 0 for false). Symmetric items can't be rotated.
-  43+s            4        1-      Text of the item (reference to a TEXT block).
-  47+s                             Total length.
+  43+s            1        1-      Item type category.
+  44+s            4        1-      Text of the item (reference to a TEXT block).
+  48+s                             Total length.
 ===============  =======  =======  =========================================================================================================
+
+Valid scenery categories are:
+
+- 0: Scenario item (can not be built or removed by the player).
+- 1: Trees.
+- 2: Flowerbeds.
 
 Version history
 ...............

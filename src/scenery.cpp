@@ -18,6 +18,7 @@ SceneryManager _scenery;
 /** Default constructor. */
 SceneryType::SceneryType()
 {
+	this->category = SCC_SCENARIO;
 	this->name = STR_NULL;
 	this->width_x = 0;
 	this->width_y = 0;
@@ -42,11 +43,11 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (rcd_file->size != 35 + (this->width_x * this->width_y)) return false;
+	if (rcd_file->size != 36 + (this->width_x * this->width_y)) return false;
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
-	for (int8 x = 0; x < this->width_x; ++x) {
-		for (int8 y = 0; y < this->width_y; ++y) {
+	for (int8 x = 0; x < this->width_x; x++) {
+		for (int8 y = 0; y < this->width_y; y++) {
 			this->heights[x * this->width_y + y] = rcd_file->GetUInt8();
 		}
 	}
@@ -61,6 +62,7 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	this->buy_cost = Money(rcd_file->GetUInt32());
 	this->return_cost = Money(rcd_file->GetUInt32());
 	this->symmetric = rcd_file->GetUInt8() > 0;
+	this->category = static_cast<SceneryCategory>(rcd_file->GetUInt8());
 
 	TextData *text_data;
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
@@ -79,17 +81,54 @@ SceneryInstance::SceneryInstance(const SceneryType *t)
 	this->orientation = 0;
 }
 
+/**
+ * Checks whether this item can be placed at the current position.
+ * @return The item can be placed here.
+ */
+bool SceneryInstance::CanPlace() const
+{
+	if (this->vox_pos == XYZPoint16::invalid()) return false;
+
+	const int8 wx = this->type->width_x;
+	const int8 wy = this->type->width_y;
+	for (int8 x = 0; x < wx; x++) {
+		for (int8 y = 0; y < wy; y++) {
+			XYZPoint16 location = this->vox_pos + OrientatedOffset(this->orientation, x, y);
+			if (!IsVoxelstackInsideWorld(location.x, location.y) || _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
+			const int8 height = this->type->GetHeight(x, y);
+			for (int16 h = 0; h < height; h++) {
+				location.z = this->vox_pos.z + h;
+				const Voxel *voxel = _world.GetVoxel(location);
+				if (voxel == nullptr) {
+					if (h == 0) return false;
+					continue;
+				}
+
+				if (!voxel->CanPlaceInstance()) return false;
+				if (h == 0) {
+					if (voxel->GetGroundType() == GTP_INVALID) return false;
+					if (voxel->GetGroundSlope() != SL_FLAT) return false;
+				} else {
+					if (voxel->GetGroundType() != GTP_INVALID) return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
 /** Link this item into the voxels it occupies. */
 void SceneryInstance::InsertIntoWorld()
 {
 	const uint16 voxel_data = _scenery.GetSceneryTypeIndex(this->type);
 	const int8 wx = this->type->width_x;
 	const int8 wy = this->type->width_y;
-	for (int8 x = 0; x < wx; ++x) {
-		for (int8 y = 0; y < wy; ++y) {
+	for (int8 x = 0; x < wx; x++) {
+		for (int8 y = 0; y < wy; y++) {
 			const int8 height = this->type->GetHeight(x, y);
 			const XYZPoint16 location = OrientatedOffset(this->orientation, x, y);
-			for (int16 h = 0; h < height; ++h) {
+			for (int16 h = 0; h < height; h++) {
 				const XYZPoint16 p = this->vox_pos + XYZPoint16(location.x, location.y, h);
 				Voxel *voxel = _world.GetCreateVoxel(p, true);
 				assert(voxel && voxel->GetInstance() == SRI_FREE);
@@ -106,12 +145,12 @@ void SceneryInstance::RemoveFromWorld()
 	const uint16 voxel_data = _scenery.GetSceneryTypeIndex(this->type);
 	const int8 wx = this->type->width_x;
 	const int8 wy = this->type->width_y;
-	for (int8 x = 0; x < wx; ++x) {
-		for (int8 y = 0; y < wy; ++y) {
+	for (int8 x = 0; x < wx; x++) {
+		for (int8 y = 0; y < wy; y++) {
 			const XYZPoint16 unrotated_pos = OrientatedOffset(this->orientation, x, y);
 			const int8 height = this->type->GetHeight(x, y);
 			if (!IsVoxelstackInsideWorld(this->vox_pos.x + unrotated_pos.x, this->vox_pos.y + unrotated_pos.y)) continue;
-			for (int16 h = 0; h < height; ++h) {
+			for (int16 h = 0; h < height; h++) {
 				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(unrotated_pos.x, unrotated_pos.y, h), false);
 				if (voxel != nullptr && voxel->instance != SRI_FREE) {
 					assert(voxel->instance == SRI_SCENERY);
@@ -121,6 +160,26 @@ void SceneryInstance::RemoveFromWorld()
 			}
 		}
 	}
+}
+
+/**
+ * Get the sprites to display for the provided voxel number.
+ * @param vox The voxel's absolute coordinates.
+ * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
+ * @param orient View orientation.
+ * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
+ * @param platform [out] Shape of the support platform, if needed. @see PathSprites
+ */
+
+void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], uint8 *platform) const
+{
+	sprites[0] = nullptr;
+	sprites[1] = nullptr;
+	sprites[2] = nullptr;
+	sprites[3] = nullptr;
+	if (voxel_number == INVALID_VOXEL_DATA) return;
+	const XYZPoint16 unrotated_pos = UnorientatedOffset(this->orientation, vox.x - this->vox_pos.x, vox.y - this->vox_pos.y);
+	sprites[1] = this->type->animation->sprites[(this->orientation + 4 - orient) & 3][unrotated_pos.x * this->type->width_y + unrotated_pos.y];
 }
 
 void SceneryInstance::Load(Loader &ldr)
@@ -176,6 +235,22 @@ uint16 SceneryManager::GetSceneryTypeIndex(const SceneryType *type) const
 	NOT_REACHED();
 }
 
+/**
+ * Returns all scenery types with the given category.
+ * @param cat Category of interest.
+ * @return All types in the category.
+ */
+std::vector<const SceneryType*> SceneryManager::GetAllTypes(SceneryCategory cat) const
+{
+	std::vector<const SceneryType*> result;
+	for (uint i = 0; i < MAX_NUMBER_OF_SCENERY_TYPES; i++) {
+		if (this->scenery_item_types[i].get() != nullptr && this->scenery_item_types[i]->category == cat) {
+			result.push_back(this->scenery_item_types[i].get());
+		}
+	}
+	return result;
+}
+
 /** Remove all scenery items. */
 void SceneryManager::Clear()
 {
@@ -205,6 +280,42 @@ void SceneryManager::RemoveItem(const XYZPoint16 &pos)
 	assert(it != this->all_items.end());
 	it->second->RemoveFromWorld();
 	this->all_items.erase(it);  // This deletes the instance.
+}
+
+/**
+ * Get the item at the specified position.
+ * @param pos Any of the positions occupied by the item.
+ * @return The item, or \c nullptr if there isn't one here.
+ */
+const SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos) const
+{
+	auto it = this->all_items.find(pos);
+	if (it != this->all_items.end()) return it->second.get();
+
+	const uint16 instance_data = _world.GetVoxel(pos)->instance_data;
+	if (instance_data == INVALID_VOXEL_DATA) return nullptr;
+
+	const SceneryType *type = this->scenery_item_types[instance_data].get();
+	const int search_radius = std::max(type->width_x, type->width_y);
+	for (int x = -search_radius; x <= search_radius; x++) {
+		for (int y = -search_radius; y <= search_radius; y++) {
+			const XYZPoint16 p(pos.x + x, pos.y + y, pos.z);
+			it = this->all_items.find(p);
+			if (it == this->all_items.end()) continue;
+			if (it->second->type != type) continue;
+
+			const XYZPoint16 &corner1 = it->second->vox_pos;
+			const XYZPoint16 corner2 = corner1 + OrientatedOffset(it->second->orientation, type->width_x - 1, type->width_y - 1);
+			if (
+					p.x >= std::min(corner1.x, corner2.x) &&
+					p.x <= std::max(corner1.x, corner2.x) &&
+					p.y >= std::min(corner1.y, corner2.y) &&
+					p.y <= std::max(corner1.y, corner2.y)) {
+				return it->second.get();
+			}
+		}
+	}
+	return nullptr;
 }
 
 void SceneryManager::Load(Loader &ldr)

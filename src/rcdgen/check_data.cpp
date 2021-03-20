@@ -1844,22 +1844,31 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 			block->ne_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
 		}
 	}
-	for (int x = 0; x < block->width_x; ++x) {
-		for (int y = 0; y < block->width_y; ++y) {
-			std::string key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->se_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+	if (vals.HasValue("unrotated_views_only") && vals.GetNumber("unrotated_views_only") > 0) {
+		block->unrotated_views_only = true;
+		for (int i = 0; i < block->width_x * block->width_y; i++) {
+			block->se_views[i] = block->ne_views[i];
+			block->sw_views[i] = block->ne_views[i];
+			block->nw_views[i] = block->ne_views[i];
 		}
-	}
-	for (int x = 0; x < block->width_x; ++x) {
-		for (int y = 0; y < block->width_y; ++y) {
-			std::string key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->sw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+	} else {
+		for (int x = 0; x < block->width_x; ++x) {
+			for (int y = 0; y < block->width_y; ++y) {
+				std::string key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+				block->se_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+			}
 		}
-	}
-	for (int x = 0; x < block->width_x; ++x) {
-		for (int y = 0; y < block->width_y; ++y) {
-			std::string key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->nw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+		for (int x = 0; x < block->width_x; ++x) {
+			for (int y = 0; y < block->width_y; ++y) {
+				std::string key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+				block->sw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+			}
+		}
+		for (int x = 0; x < block->width_x; ++x) {
+			for (int y = 0; y < block->width_y; ++y) {
+				std::string key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+				block->nw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+			}
 		}
 	}
 
@@ -2092,6 +2101,8 @@ static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("SCNY", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
+	block->symmetric = vals.GetNumber("symmetric") > 0;
+	block->category = vals.GetNumber("category");
 	block->width_x = vals.GetNumber("width_x");
 	block->width_y = vals.GetNumber("width_y");
 	block->heights.reset(new int8[block->width_x * block->width_y]);
@@ -2101,15 +2112,22 @@ static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
 			block->heights[x * block->width_y + y] = vals.GetNumber(key.c_str());
 		}
 	}
-	block->animation = vals.GetFrameSet("animation");
+
 	block->previews[0] = vals.GetSprite("preview_ne");
-	block->previews[1] = vals.GetSprite("preview_se");
-	block->previews[2] = vals.GetSprite("preview_sw");
-	block->previews[3] = vals.GetSprite("preview_nw");
+	if (block->symmetric) {
+		block->previews[1] = block->previews[0];
+		block->previews[2] = block->previews[0];
+		block->previews[3] = block->previews[0];
+	} else {
+		block->previews[1] = vals.GetSprite("preview_se");
+		block->previews[2] = vals.GetSprite("preview_sw");
+		block->previews[3] = vals.GetSprite("preview_nw");
+	}
+	block->animation = vals.GetFrameSet("animation");
+	block->animation->unrotated_views_only_allowed = true;
 
 	block->buy_cost = vals.GetNumber("buy_cost");
 	block->return_cost = vals.GetNumber("return_cost");
-	block->symmetric = vals.GetNumber("symmetric") > 0;
 
 	block->ride_text = std::make_shared<StringBundle>();
 	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);

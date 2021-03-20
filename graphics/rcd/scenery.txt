@@ -15,58 +15,83 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "flowers1"; }
 
+		category:      2;
 		width_x:       1;
 		width_y:       1;
 		height_0_0:    1;
-		symmetric:     1;
 		buy_cost:    500;
 		return_cost: 100;
 
-		// NOCOM
+		symmetric: 1;
 		animation: FSET {
 			tile_width: 64;
-			width_x: 3;
-			width_y: 4;
-			(se_{vert(0..2)}_{hor(0..3)}): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/flowers1.png";
 			}
-			(nw_{vert(0..2)}_{hor(0..3)}): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
-			}
-			(ne_{vert(0..2)}_{hor(0..3)}): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
-			}
-			(sw_{vert(0..2)}_{hor(0..3)}): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
-				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
-				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
-				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
-			}	
-		}
-		preview_se: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
-			file: "../sprites/gentle_thrill_rides/ship_swing/preview_se.png";
-		}
-		preview_sw: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
-			file: "../sprites/gentle_thrill_rides/ship_swing/preview_sw.png";
 		}
 		preview_ne: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
-			file: "../sprites/gentle_thrill_rides/ship_swing/preview_ne.png";
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 42;
+			file: "../sprites/scenery/objects/flowers1.png";
 		}
-		preview_nw: sprite {
-			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
-			file: "../sprites/gentle_thrill_rides/ship_swing/preview_nw.png";
+	}
+
+	// Flowerbed 2
+	SCNY {
+		texts: strings { key: "flowers2"; }
+
+		category:      2;
+		width_x:       1;
+		width_y:       1;
+		height_0_0:    1;
+		buy_cost:    500;
+		return_cost: 100;
+
+		symmetric: 1;
+		animation: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/flowers2.png";
+			}
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 42;
+			file: "../sprites/scenery/objects/flowers2.png";
+		}
+	}
+
+	// Flowerbed 3
+	SCNY {
+		texts: strings { key: "flowers3"; }
+
+		category:      2;
+		width_x:       1;
+		width_y:       1;
+		height_0_0:    1;
+		buy_cost:    500;
+		return_cost: 100;
+
+		symmetric: 1;
+		animation: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/flowers3.png";
+			}
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 42;
+			file: "../sprites/scenery/objects/flowers3.png";
 		}
 	}
 }
