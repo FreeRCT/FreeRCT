@@ -137,6 +137,13 @@ void SceneryInstance::InsertIntoWorld()
 				Voxel *voxel = _world.GetCreateVoxel(p, true);
 				assert(voxel != nullptr && voxel->GetInstance() == SRI_FREE);
 				voxel->SetInstance(SRI_SCENERY);
+				/*
+				 * On a large map, there may be more than 65535 individual scenery instances
+				 * in existance. Therefore we do not assign items an individual index number
+				 * like for rides, but store only the index of our %SceneryType in the voxel
+				 * and lookup the instance dynamically whenever necessary. Since most
+				 * scenery items occupy only very few voxels, this lookup is fast.
+				 */
 				voxel->SetInstanceData(h == 0 ? voxel_data : INVALID_VOXEL_DATA);
 			}
 		}
@@ -176,7 +183,6 @@ void SceneryInstance::RemoveFromWorld()
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */
-
 void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], uint8 *platform) const
 {
 	sprites[0] = nullptr;
