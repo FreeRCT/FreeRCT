@@ -94,4 +94,88 @@ file("scenery.rcd") {
 			file: "../sprites/scenery/objects/flowers3.png";
 		}
 	}
+
+	// Tree 1
+	SCNY {
+		texts: strings { key: "tree1"; }
+
+		category:      1;
+		width_x:       1;
+		width_y:       1;
+		height_0_0:    6;
+		buy_cost:    500;
+		return_cost: 100;
+
+		symmetric: 1;
+		animation: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-104; width: 64; height: 104;
+				file: "../sprites/scenery/objects/tree1.png";
+			}
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 39; height: 64;
+			file: "../sprites/scenery/objects/tree1_preview.png";
+		}
+	}
+
+	// Tree 2
+	SCNY {
+		texts: strings { key: "tree2"; }
+
+		category:      1;
+		width_x:       1;
+		width_y:       1;
+		height_0_0:    6;
+		buy_cost:    500;
+		return_cost: 100;
+
+		symmetric: 1;
+		animation: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-108; width: 64; height: 108;
+				file: "../sprites/scenery/objects/tree2.png";
+			}
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 38; height: 64;
+			file: "../sprites/scenery/objects/tree2_preview.png";
+		}
+	}
+
+	// Tree 3
+	SCNY {
+		texts: strings { key: "tree3"; }
+
+		category:      1;
+		width_x:       1;
+		width_y:       1;
+		height_0_0:    6;
+		buy_cost:    500;
+		return_cost: 100;
+
+		symmetric: 1;
+		animation: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-113; width: 64; height: 113;
+				file: "../sprites/scenery/objects/tree3.png";
+			}
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 36; height: 64;
+			file: "../sprites/scenery/objects/tree3_preview.png";
+		}
+	}
 }

@@ -389,4 +389,10 @@ strings {
 	stringtexts("tree1") {
 		NAME: "Boom 1";
 	}
+	stringtexts("tree2") {
+		NAME: "Boom 2";
+	}
+	stringtexts("tree3") {
+		NAME: "Boom 3";
+	}
 }
