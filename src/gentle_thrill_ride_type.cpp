@@ -56,10 +56,10 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 		}
 	}
 
-	animation_idle = _sprite_manager.GetFrameSet(rcd_file->GetUInt32());
-	animation_starting = _sprite_manager.GetTimedAnimation(rcd_file->GetUInt32());
-	animation_working = _sprite_manager.GetTimedAnimation(rcd_file->GetUInt32());
-	animation_stopping = _sprite_manager.GetTimedAnimation(rcd_file->GetUInt32());
+	animation_idle = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	animation_starting = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	animation_working = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	animation_stopping = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	for (int i = 0; i < 4; i++) {
 		ImageData *view;
 		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
@@ -247,7 +247,7 @@ bool GentleThrillRideInstance::CanPlaceEntranceOrExit(const XYZPoint16& pos, con
 
 	/* Is the position directly adjacent to the ride? */
 	const GentleThrillRideType *t = this->GetGentleThrillRideType();
-	const XYZPoint16 corner = this->vox_pos + FixedRideType::OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
+	const XYZPoint16 corner = this->vox_pos + OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
 	const int nw_line_y = std::min(this->vox_pos.y, corner.y) - 1;
 	const int se_line_y = std::max(this->vox_pos.y, corner.y) + 1;
 	const int ne_line_x = std::min(this->vox_pos.x, corner.x) - 1;
@@ -371,7 +371,7 @@ void GentleThrillRideInstance::RecalculateRatings()
 	int scenery = 0;
 	for (int x = -t->width_x; x < 2 * t->width_x; x++) {
 		for (int y = -t->width_y; y < 2 * t->width_y; y++) {
-			const XYZPoint16 location = FixedRideType::OrientatedOffset(this->orientation, x, y);
+			const XYZPoint16 location = OrientatedOffset(this->orientation, x, y);
 			if (!IsVoxelstackInsideWorld(this->vox_pos.x + location.x, this->vox_pos.y + location.y)) continue;
 			const int8 height = t->GetHeight((t->width_x + x) / 3, (t->width_y + y) / 3);
 			for (int h = -height; h < 2 * height; h++) {

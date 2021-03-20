@@ -29,3 +29,38 @@ const int8 _orientation_signum_dy[VOR_NUM_ORIENT] = {
 	-1, ///< VOR_SOUTH
 	+1, ///< VOR_WEST
 };
+
+/**
+ * Determine at which voxel in the world a piece of a multi-voxel object should be located.
+ * @param orientation Orientation of the object.
+ * @param x Unrotated x coordinate of the object piece, relative to the object's base voxel.
+ * @param y Unrotated y coordinate of the object piece, relative to the object's base voxel.
+ * @return Rotated location of the object piece, relative to the object's base voxel.
+ */
+XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y)
+{
+	switch (orientation % VOR_NUM_ORIENT) {
+		case VOR_EAST: return XYZPoint16(x, y, 0);
+		case VOR_WEST: return XYZPoint16(-x, -y, 0);
+		case VOR_NORTH: return XYZPoint16(-y, x, 0);
+		case VOR_SOUTH: return XYZPoint16(y, -x, 0);
+	}
+	NOT_REACHED();
+}
+/**
+ * Determine at which voxel in the world a object piece should be located.
+ * @param orientation Orientation of the fixed object.
+ * @param x Rotated x coordinate of the object piece, relative to the object's base voxel.
+ * @param x Rotated y coordinate of the object piece, relative to the object's base voxel.
+ * @return Unrotated location of the object piece, relative to the object's base voxel.
+ */
+XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y)
+{
+	switch (orientation % VOR_NUM_ORIENT) {
+		case VOR_EAST: return XYZPoint16(x, y, 0);
+		case VOR_WEST: return XYZPoint16(-x, -y, 0);
+		case VOR_SOUTH: return XYZPoint16(-y, x, 0);
+		case VOR_NORTH: return XYZPoint16(y, -x, 0);
+	}
+	NOT_REACHED();
+}

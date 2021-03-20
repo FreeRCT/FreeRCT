@@ -369,4 +369,11 @@ strings {
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
 	}
+
+	stringtexts("flowers1") {
+		NAME: "Flowerbed 1";
+	}
+	stringtexts("tree1") {
+		NAME: "Tree 1";
+	}
 }

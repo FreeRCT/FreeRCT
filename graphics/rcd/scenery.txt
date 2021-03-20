@@ -1,0 +1,72 @@
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+file("scenery.rcd") {
+	INFO {
+		name: "Baseset scenery items.";
+		uri: "org.freerct/baseset/scenery/1";
+		description: "FreeRCT baseset scenery item types.";
+	}
+
+	// Flowerbed 1
+	SCNY {
+		texts: strings { key: "flowers1"; }
+
+		width_x:       1;
+		width_y:       1;
+		height_0_0:    1;
+		symmetric:     1;
+		buy_cost:    500;
+		return_cost: 100;
+
+		// NOCOM
+		animation: FSET {
+			tile_width: 64;
+			width_x: 3;
+			width_y: 4;
+			(se_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(nw_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(ne_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(sw_{vert(0..2)}_{hor(0..3)}): sheet {
+				x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}	
+		}
+		preview_se: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/ship_swing/preview_se.png";
+		}
+		preview_sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/ship_swing/preview_sw.png";
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/ship_swing/preview_ne.png";
+		}
+		preview_nw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/ship_swing/preview_nw.png";
+		}
+	}
+}

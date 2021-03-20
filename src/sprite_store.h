@@ -186,7 +186,8 @@ public:
 	uint16 width_y; ///< The number of voxels in y direction.
 	std::unique_ptr<ImageData*[]> sprites[4]; ///< Sprites for the ne,se,sw,nw orientations.
 };
-typedef std::map<int, FrameSet *> FrameSetsMap; ///< Map of available frame sets.
+typedef std::pair<std::string, int> ImageSetKey;         ///< Pair of <RCD file name, RCD block number>.
+typedef std::map<ImageSetKey, FrameSet *> FrameSetsMap;  ///< Map of available frame sets.
 
 /**
  * Timed animations.
@@ -206,7 +207,7 @@ public:
 	std::unique_ptr<int[]> durations;   ///< Duration of each frame in milliseconds.
 	std::unique_ptr<const FrameSet*[]> views; ///< Each frame's set of sprites.
 };
-typedef std::map<int, TimedAnimation *> TimedAnimationsMap; ///< Map of available timed animations.
+typedef std::map<ImageSetKey, TimedAnimation *> TimedAnimationsMap; ///< Map of available timed animations.
 
 /**
  * Displayed object.
@@ -667,8 +668,8 @@ public:
 	const Rectangle16 &GetTableSpriteSize(uint16 number);
 	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
 	const Fence *GetFence(FenceType fence) const;
-	const FrameSet *GetFrameSet(int index) const;
-	const TimedAnimation *GetTimedAnimation(int index) const;
+	const FrameSet *GetFrameSet(const ImageSetKey &key) const;
+	const TimedAnimation *GetTimedAnimation(const ImageSetKey &key) const;
 
 	PathStatus GetPathStatus(PathType path_type);
 

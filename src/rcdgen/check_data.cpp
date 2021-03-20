@@ -2080,6 +2080,46 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 }
 
 /**
+ * Convert a node group to a SCNY game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created SCNY game block.
+ */
+static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "SCNY");
+	auto block = std::make_shared<SCNYBlock>();
+
+	Values vals("SCNY", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, true);
+
+	block->width_x = vals.GetNumber("width_x");
+	block->width_y = vals.GetNumber("width_y");
+	block->heights.reset(new int8[block->width_x * block->width_y]);
+	for (int x = 0; x < block->width_x; ++x) {
+		for (int y = 0; y < block->width_y; ++y) {
+			std::string key = "height_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+			block->heights[x * block->width_y + y] = vals.GetNumber(key.c_str());
+		}
+	}
+	block->animation = vals.GetFrameSet("animation");
+	block->previews[0] = vals.GetSprite("preview_ne");
+	block->previews[1] = vals.GetSprite("preview_se");
+	block->previews[2] = vals.GetSprite("preview_sw");
+	block->previews[3] = vals.GetSprite("preview_nw");
+
+	block->buy_cost = vals.GetNumber("buy_cost");
+	block->return_cost = vals.GetNumber("return_cost");
+	block->symmetric = vals.GetNumber("symmetric") > 0;
+
+	block->ride_text = std::make_shared<StringBundle>();
+	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
+	block->ride_text->CheckTranslations(_scenery_string_names, lengthof(_scenery_string_names), ng->pos);
+
+	vals.VerifyUsage();
+	return block;
+}
+
+/**
  * Load a set of sprites by name.
  * @param names Array of names of the sprites.
  * @param count Number of expected sprites.
@@ -2714,6 +2754,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "PRSG") return ConvertPRSGNode(ng);
 	if (ng->name == "RCST") return ConvertRCSTNode(ng);
 	if (ng->name == "RIEE") return ConvertRIEENode(ng);
+	if (ng->name == "SCNY") return ConvertSCNYNode(ng);
 	if (ng->name == "SHOP") return ConvertSHOPNode(ng);
 	if (ng->name == "SUPP") return ConvertSUPPNode(ng);
 	if (ng->name == "SURF") return ConvertSURFNode(ng);
@@ -2795,6 +2836,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _entrance_exit_string_names;
 		length = lengthof(_entrance_exit_string_names);
 		nice_name = "EntranceExit";
+	} else if (strcmp(prefix, "SCENERY") == 0) {
+		names = _scenery_string_names;
+		length = lengthof(_scenery_string_names);
+		nice_name = "Scenery";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);
@@ -2865,6 +2910,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *code)
 		length = lengthof(_entrance_exit_string_names);
 		nice_name = "EntranceExit";
 		lower_name = "entrance_exit";
+	} else if (strcmp(prefix, "SCENERY") == 0) {
+		names = _scenery_string_names;
+		length = lengthof(_scenery_string_names);
+		nice_name = "Scenery";
+		lower_name = "scenery";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);

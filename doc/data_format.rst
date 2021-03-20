@@ -756,6 +756,38 @@ Version history
 - 4 (20210317) Added excitement, intensity, nausea parameters.
 
 
+Scenery items
+~~~~~~~~~~~~~
+A scenery item, such as trees or flower beds. FreeRCT can read block version 1.
+
+===============  =======  =======  =========================================================================================================
+Offset           Length   Version  Description
+===============  =======  =======  =========================================================================================================
+   0              4        1-      Magic string 'SCNY'.
+   4              4        1-      Version number of the block.
+   8              4        1-      Length of the block excluding magic string, version, and length.
+  12              1        1-      Length of the item in x direction in voxels.
+  13              1        1-      Length of the item in y direction in voxels.
+  14              s        1-      Heights of the item in voxels, for each tile occupied by the item. The number s of
+                                   height bytes is equal to the product of the item lengths in x and y direction.
+  14+s            4        1-      Animation (reference to an FSET block).
+  18+s            4        1-      Unrotated (ne) preview.
+  22+s            4        1-      se preview.
+  26+s            4        1-      sw preview.
+  30+s            4        1-      nw preview.
+  34+s            4        1-      Cost for buying this item (negative values indicate it can't be bought by the player).
+  38+s            4        1-      Money for selling this item (can be positive or negative; ignored if the buying cost is negative).
+  42+s            1        1-      Whether this item is considered symmetric (1 for true, 0 for false). Symmetric items can't be rotated.
+  43+s            4        1-      Text of the item (reference to a TEXT block).
+  47+s                             Total length.
+===============  =======  =======  =========================================================================================================
+
+Version history
+...............
+
+- 1 (20210320) Initial version.
+
+
 Build direction arrows
 ~~~~~~~~~~~~~~~~~~~~~~
 Arrows to point out direction of constructing new game elements. FreeRCT can

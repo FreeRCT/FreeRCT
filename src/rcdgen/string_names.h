@@ -331,4 +331,9 @@ static const char *_entrance_exit_string_names[] = {
 	"DESCRIPTION_RECOLOUR3",
 };
 
+/** String names of a scenery item. */
+static const char *_scenery_string_names[] = {
+	"NAME",
+};
+
 #endif

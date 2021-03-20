@@ -965,7 +965,7 @@ void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
 							} else if (si->IsExitLocation(voxel_pos)) {
 								height = RideEntranceExitType::exit_height;
 							} else {
-								const XYZPoint16 pos = FixedRideType::UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
+								const XYZPoint16 pos = UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
 								height = si->GetFixedRideType()->GetHeight(pos.x, pos.y);
 							}
 							break;

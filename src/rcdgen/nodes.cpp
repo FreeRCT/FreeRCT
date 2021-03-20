@@ -1088,6 +1088,31 @@ int FGTRBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+SCNYBlock::SCNYBlock() : GameBlock("SCNY", 1)
+{
+}
+
+int SCNYBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 47 - 12 + (this->width_x * this->width_y));
+	fb->SaveUInt8(this->width_x);
+	fb->SaveUInt8(this->width_y);
+	for (int8 x = 0; x < this->width_x; ++x) {
+		for (int8 y = 0; y < this->width_y; ++y) {
+			fb->SaveUInt8(this->heights[x * width_y + y]);
+		}
+	}
+	fb->SaveUInt32(this->animation->Write(fw));
+	for (auto& preview : this->previews) fb->SaveUInt32(preview->Write(fw));
+	fb->SaveUInt32(this->buy_cost);
+	fb->SaveUInt32(this->return_cost);
+	fb->SaveUInt8(this->symmetric ? 1 : 0);
+	fb->SaveUInt32(this->ride_text->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
 GBORBlock::GBORBlock() : GameBlock("GBOR", 2)
 {
 }

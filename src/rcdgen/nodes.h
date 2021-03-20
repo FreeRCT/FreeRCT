@@ -708,6 +708,26 @@ public:
 	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the ride.
 };
 
+/** Class for describing a SCNY game block. */
+class SCNYBlock : public GameBlock {
+public:
+	SCNYBlock();
+	virtual ~SCNYBlock() = default;
+
+	int Write(FileWriter *fw) override;
+
+	int8 width_x;                     ///< The number of voxels the item occupies in x direction.
+	int8 width_y;                     ///< The number of voxels the item occupies in y direction.
+	std::unique_ptr<int8[]> heights;  ///< Heights of the item in voxels.
+	bool symmetric;                   ///< Whether the item cannot be rotated.
+	int32 buy_cost;                   ///< Cost to place this item.
+	int32 return_cost;                ///< Cost when removing this item.
+
+	std::shared_ptr<FSETBlock> animation;      ///< Main image.
+	std::shared_ptr<SpriteBlock> previews[4];  ///< Previews for ne,se,sw,nw.
+	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the scenery item.
+};
+
 /** GBOR game block. */
 class GBORBlock : public GameBlock {
 public:
