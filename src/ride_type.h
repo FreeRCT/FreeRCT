@@ -93,7 +93,8 @@ static const int ENTRANCE_FEE_STEP_SIZE = 10;                     ///< Step size
 static const int MAINTENANCE_INTERVAL_STEP_SIZE = 5 * 60 * 1000;  ///< Step size of changing a ride's maintenance interval in the GUI, in milliseconds.
 static const int IDLE_DURATION_STEP_SIZE = 5 * 1000;              ///< Step size of changing a ride's idle duration in the GUI, in milliseconds.
 
-static const int16 RELIABILITY_RANGE = 10000;  ///< Reliability parameters are in range 0..10000.
+static const int16 RELIABILITY_RANGE = 10000;                ///< Reliability parameters are in range 0..10000.
+static const uint32 RATING_NOT_YET_CALCULATED = 0xffffffff;  ///< Excitement/intensity/nausea rating was not calculated yet.
 
 /** Base class of ride types. */
 class RideType {
@@ -185,8 +186,8 @@ public:
 	const RideType *GetRideType() const;
 
 	virtual void OnAnimate(int delay);
-	void OnNewMonth();
-	void OnNewDay();
+	virtual void OnNewMonth();
+	virtual void OnNewDay();
 	void BuildRide();
 	virtual bool CanOpenRide() const;
 	virtual void OpenRide();
@@ -223,15 +224,22 @@ public:
 	uint32 time_since_last_maintenance;  ///< Number of milliseconds since the last maintenance operation.
 	bool broken;                         ///< The ride is currently broken down.
 	uint32 time_since_last_long_queue_message;  ///< Number of milliseconds since this ride last sent a message that the queue is very long.
+	uint32 excitement_rating;                   ///< Ride's excitement rating in percent.
+	uint32 intensity_rating;                    ///< Ride's intensity rating in percent.
+	uint32 nausea_rating;                       ///< Ride's nausea rating in percent.
 
 	uint16 entrance_type;    ///< Index of this ride's entrance.
 	uint16 exit_type;        ///< Index of this ride's exit.
 
 protected:
+	virtual void RecalculateRatings() = 0;
+
 	const RideType *type;   ///< Ride type used.
 	Random rnd;             ///< Random number generator for determining ride breakage.
 	bool mechanic_pending;  ///< Whether a mechanic has been called and did not arrive yet.
 };
+
+void SetRideRatingStringParam(uint32 rating);
 
 /** Storage of available ride types. */
 class RidesManager {

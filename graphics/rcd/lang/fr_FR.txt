@@ -113,8 +113,6 @@ strings {
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Bénéfice des ventes";
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Coûts du personnel";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Bénéfice total";
-		SHOP_MANAGER_OPENED_TEXT:        "La boutique est ouverte";
-		SHOP_MANAGER_CLOSED_TEXT:        "La boutique est fermée";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Modifier le terrain";

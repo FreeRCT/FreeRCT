@@ -694,6 +694,11 @@ public:
 	int16 reliability_max;               ///< Maximum reliability.
 	int16 reliability_decrease_daily;    ///< Reliability decrease per day.
 	int16 reliability_decrease_monthly;  ///< Maximum reliability decrease per month.
+	int32 intensity_base;                ///< The ride's base intensity rating.
+	int32 nausea_base;                   ///< The ride's base nausea rating.
+	int32 excitement_base;               ///< The ride's base excitement rating.
+	int32 excitement_increase_cycle;     ///< The ride's excitement rating increase per working cycle.
+	int32 excitement_increase_scenery;   ///< The ride's excitement rating increase per nearby scenery item.
 
 	std::shared_ptr<FSETBlock> idle_animation;
 	std::shared_ptr<TIMABlock> starting_animation;

@@ -128,8 +128,6 @@ strings {
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Försälningsvinst";
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Personalkostnad";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total vinst";
-		SHOP_MANAGER_OPENED_TEXT:        "Butiken är öppen";
-		SHOP_MANAGER_CLOSED_TEXT:        "Butiken är stängd";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Bygg staket";

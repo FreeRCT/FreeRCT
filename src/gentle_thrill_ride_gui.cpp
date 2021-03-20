@@ -69,6 +69,9 @@ void ShowGentleThrillRideRemove(GentleThrillRideInstance *si)
 enum GentleThrillRideManagerWidgets {
 	GTRMW_TITLEBAR,
 	GTRMW_MONTHLY_COST,
+	GTRMW_EXCITEMENT_RATING,
+	GTRMW_INTENSITY_RATING,
+	GTRMW_NAUSEA_RATING,
 	GTRMW_ENTRANCE_FEE,
 	GTRMW_ENTRANCE_FEE_DECREASE,
 	GTRMW_ENTRANCE_FEE_INCREASE,
@@ -81,10 +84,8 @@ enum GentleThrillRideManagerWidgets {
 	GTRMW_MAX_IDLE,
 	GTRMW_MAX_IDLE_DECREASE,
 	GTRMW_MAX_IDLE_INCREASE,
-	GTRMW_RIDE_OPENED,
-	GTRMW_RIDE_OPENED_TEXT,
-	GTRMW_RIDE_CLOSED,
-	GTRMW_RIDE_CLOSED_TEXT,
+	GTRMW_RIDE_OPEN,
+	GTRMW_RIDE_CLOSE,
 	GTRMW_RELIABILITY,
 	GTRMW_MAINTENANCE,
 	GTRMW_MAINTENANCE_DECREASE,
@@ -112,10 +113,17 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 			Widget(WT_TITLEBAR, GTRMW_TITLEBAR, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_TITLE, GUI_TITLEBAR_TIP),
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
+
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(1, 2),
+			Intermediate(4, 2),
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GTRMW_MONTHLY_COST, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_EXCITEMENT, STR_NULL),
+				Widget(WT_RIGHT_TEXT, GTRMW_EXCITEMENT_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_INTENSITY, STR_NULL),
+				Widget(WT_RIGHT_TEXT, GTRMW_INTENSITY_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_NAUSEA, STR_NULL),
+				Widget(WT_RIGHT_TEXT, GTRMW_NAUSEA_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 			Intermediate(2, 1),
@@ -143,40 +151,43 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 				Widget(WT_LEFT_TEXT, GTRMW_RELIABILITY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 1),
-				Intermediate(2, 2),
-					Widget(WT_RADIOBUTTON, GTRMW_RIDE_OPENED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-					Widget(WT_LEFT_TEXT, GTRMW_RIDE_OPENED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT, STR_NULL),
-					Widget(WT_RADIOBUTTON, GTRMW_RIDE_CLOSED, COL_RANGE_DARK_RED), SetPadding(0, 2, 0, 0),
-					Widget(WT_LEFT_TEXT, GTRMW_RIDE_CLOSED_TEXT, COL_RANGE_DARK_RED), SetData(GUI_GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT, STR_NULL),
-				Intermediate(1, 3),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR1, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR2, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR3, COL_RANGE_DARK_RED), SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
-					SetResize(1, 0),
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(3, 2),
-				Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
-						SetData(GUI_PLACE_ENTRANCE, GUI_PLACE_ENTRANCE_TOOLTIP),
-				Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_EXIT, COL_RANGE_DARK_RED),
-						SetData(GUI_PLACE_EXIT, GUI_PLACE_EXIT_TOOLTIP),
-				Widget(WT_DROPDOWN_BUTTON, GTRMW_CHOOSE_ENTRANCE, COL_RANGE_DARK_RED),
-						SetData(GUI_CHOOSE_ENTRANCE, GUI_CHOOSE_ENTRANCE_TOOLTIP),
-				Widget(WT_DROPDOWN_BUTTON, GTRMW_CHOOSE_EXIT, COL_RANGE_DARK_RED),
-						SetData(GUI_CHOOSE_EXIT, GUI_CHOOSE_EXIT_TOOLTIP),
-				Intermediate(1, 3),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					SetResize(1, 0),
-				Intermediate(1, 3),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
-					SetResize(1, 0),
+			Intermediate(1, 3), SetEqualSize(false, true),
+				Intermediate(2, 1),
+					Intermediate(1, 3),
+						Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR1, COL_RANGE_DARK_RED),
+								SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR1, STR_NULL), SetPadding(2, 2, 2, 2),
+						Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR2, COL_RANGE_DARK_RED),
+								SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR2, STR_NULL), SetPadding(2, 2, 2, 2),
+						Widget(WT_DROPDOWN_BUTTON, GTRMW_RECOLOUR3, COL_RANGE_DARK_RED),
+								SetData(GENTLE_THRILL_RIDES_DESCRIPTION_RECOLOUR3, STR_NULL), SetPadding(2, 2, 2, 2),
+					Intermediate(3, 2),
+						Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_ENTRANCE, COL_RANGE_DARK_RED),
+								SetData(GUI_PLACE_ENTRANCE, GUI_PLACE_ENTRANCE_TOOLTIP),
+						Widget(WT_TEXT_PUSHBUTTON, GTRMW_PLACE_EXIT, COL_RANGE_DARK_RED),
+								SetData(GUI_PLACE_EXIT, GUI_PLACE_EXIT_TOOLTIP),
+						Widget(WT_DROPDOWN_BUTTON, GTRMW_CHOOSE_ENTRANCE, COL_RANGE_DARK_RED),
+								SetData(GUI_CHOOSE_ENTRANCE, GUI_CHOOSE_ENTRANCE_TOOLTIP),
+						Widget(WT_DROPDOWN_BUTTON, GTRMW_CHOOSE_EXIT, COL_RANGE_DARK_RED),
+								SetData(GUI_CHOOSE_EXIT, GUI_CHOOSE_EXIT_TOOLTIP),
+						Intermediate(1, 3),
+							Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, GTRMW_ENTRANCE_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+						Intermediate(1, 3),
+							Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR1, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR2, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+							Widget(WT_DROPDOWN_BUTTON, GTRMW_EXIT_RECOLOUR3, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL), SetPadding(2, 2, 2, 2),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+					Intermediate(0, 1),
+						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
+						Widget(WT_RADIOBUTTON, GTRMW_RIDE_CLOSE, COL_RANGE_RED),   SetPadding(0, 2, 0, 0),
+						Widget(WT_RADIOBUTTON, GTRMW_RIDE_OPEN, COL_RANGE_GREEN),  SetPadding(0, 2, 0, 0),
+						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
+				EndContainer(),
+
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-				Widget(WT_TEXT_PUSHBUTTON, GTRMW_REMOVE, COL_RANGE_DARK_RED),
-						SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
+				Widget(WT_TEXT_PUSHBUTTON, GTRMW_REMOVE, COL_RANGE_DARK_RED), SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 		EndContainer(),
 };
 
@@ -255,9 +266,9 @@ void GentleThrillRideManagerWindow::UpdateRecolourButtons()
 /** Update all buttons of the window related to the ride's open/closed state. */
 void GentleThrillRideManagerWindow::UpdateButtons()
 {
-	this->SetWidgetChecked(GTRMW_RIDE_OPENED, this->ride->state == RIS_OPEN);
-	this->SetWidgetChecked(GTRMW_RIDE_CLOSED, this->ride->state == RIS_CLOSED);
-	this->SetWidgetShaded(GTRMW_RIDE_OPENED, !this->ride->CanOpenRide());
+	this->SetWidgetChecked(GTRMW_RIDE_OPEN, this->ride->state == RIS_OPEN);
+	this->SetWidgetChecked(GTRMW_RIDE_CLOSE, this->ride->state == RIS_CLOSED);
+	this->SetWidgetShaded(GTRMW_RIDE_OPEN, !this->ride->CanOpenRide());
 	this->SetWidgetShaded(GTRMW_PLACE_ENTRANCE, this->ride->state != RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_PLACE_EXIT, this->ride->state != RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_MAINTENANCE_DECREASE, this->ride->maintenance_interval <= 0);
@@ -280,10 +291,18 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 			_str_params.SetUint8(2, this->ride->name.get());
 			break;
 
-		case GTRMW_MONTHLY_COST: {
-			const FixedRideType *type = this->ride->GetFixedRideType();
-			_str_params.SetMoney(1, type->monthly_cost + (this->ride->state == RIS_CLOSED ? Money(0) : type->monthly_open_cost));
-		} break;
+		case GTRMW_MONTHLY_COST:
+			_str_params.SetMoney(1, this->ride->GetRideType()->monthly_cost + (this->ride->state == RIS_OPEN ? this->ride->GetRideType()->monthly_open_cost : Money(0)));
+			break;
+		case GTRMW_EXCITEMENT_RATING:
+			SetRideRatingStringParam(this->ride->excitement_rating);
+			break;
+		case GTRMW_INTENSITY_RATING:
+			SetRideRatingStringParam(this->ride->intensity_rating);
+			break;
+		case GTRMW_NAUSEA_RATING:
+			SetRideRatingStringParam(this->ride->nausea_rating);
+			break;
 
 		case GTRMW_RELIABILITY:
 			if (this->ride->broken) {
@@ -339,16 +358,14 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 {
 	switch (wid_num) {
-		case GTRMW_RIDE_OPENED_TEXT:
-		case GTRMW_RIDE_OPENED:
+		case GTRMW_RIDE_OPEN:
 			if (this->ride->CanOpenRide()) {
 				this->ride->OpenRide();
 				this->UpdateButtons();
 			}
 			break;
 
-		case GTRMW_RIDE_CLOSED_TEXT:
-		case GTRMW_RIDE_CLOSED:
+		case GTRMW_RIDE_CLOSE:
 			if (this->ride->state != RIS_CLOSED) {
 				this->ride->CloseRide();
 				this->UpdateButtons();
@@ -530,6 +547,7 @@ void GentleThrillRideManagerWindow::SelectorMouseButtonEvent(const uint8 state)
 	} else if (this->ride->exit_pos == XYZPoint16::invalid()) {
 		ChooseEntranceExitClicked(false);
 	}
+	this->UpdateButtons();
 }
 
 void GentleThrillRideManagerWindow::OnChange(const ChangeCode code, const uint32 parameter)

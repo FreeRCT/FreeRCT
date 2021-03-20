@@ -29,7 +29,31 @@ struct Point {
 		this->y = y;
 	}
 
+	/**
+	 * Copy constructor.
+	 * @param p %Point to copy.
+	 */
+	template<typename CT2>
+	Point(const Point<CT2> &p)
+	{
+		this->x = p.x;
+		this->y = p.y;
+	}
+
 	typedef CT CoordType; ///< Type of the coordinate value.
+
+	/**
+	 * Add a 2D point to this one.
+	 * @param q Second point to add.
+	 * @return Both dimensions added to each other.
+	 */
+	template<typename CT2>
+	inline Point<CT> &operator+=(const Point<CT2> &q)
+	{
+		this->x += q.x;
+		this->y += q.y;
+		return *this;
+	}
 
 	CT x; ///< X coordinate.
 	CT y; ///< Y coordinate.
@@ -123,7 +147,7 @@ struct XYZPoint {
 	 * @param q Second point to add.
 	 * @return All 3 dimensions added to each other.
 	 */
-	inline XYZPoint<CT> operator+=(const XYZPoint<CT> &q)
+	inline XYZPoint<CT> &operator+=(const XYZPoint<CT> &q)
 	{
 		this->x += q.x;
 		this->y += q.y;
@@ -168,7 +192,9 @@ inline bool operator!=(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
 template <typename CT>
 inline bool operator<(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
 {
-	return p.x < q.x && p.y < q.y && p.z < q.z;
+	if (p.x != q.x) return p.x < q.x;
+	if (p.y != q.y) return p.y < q.y;
+	return p.z < q.z;
 }
 
 /**
@@ -220,7 +246,8 @@ struct Rectangle {
 	 * Copy constructor.
 	 * @param rect %Rectangle to copy.
 	 */
-	Rectangle(const Rectangle<PT, SZ> &rect)
+	template<typename PT2, typename SZ2>
+	Rectangle(const Rectangle<PT2, SZ2> &rect)
 	{
 		this->base.x = rect.base.x;
 		this->base.y = rect.base.y;

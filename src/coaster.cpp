@@ -341,7 +341,7 @@ CoasterTrain::CoasterTrain()
 	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
 	this->back_position = 0;
 	this->speed = 0;
-	this->station_policy = TSP_IN_STATION;
+	this->station_policy = TSP_IN_STATION_BACK;
 	this->time_left_waiting = 0;
 	this->cur_piece = nullptr; // Set later.
 }
@@ -393,9 +393,11 @@ static void inline Unroll(uint roll, int32 *dy, int32 *dz)
 void CoasterTrain::OnAnimate(int delay)
 {
 	if (this->coaster->state != RIS_OPEN && this->coaster->state != RIS_TESTING) delay = 0;
-	if (this->station_policy == TSP_IN_STATION) {
+	if (this->station_policy == TSP_IN_STATION_FRONT) {
 		this->time_left_waiting -= delay;
 		delay = 0;  // Don't move forward while in station.
+	} else if (this->station_policy == TSP_IN_STATION_BACK) {
+		delay = 0;
 	} else if (this->station_policy != TSP_ENTERING_STATION) {
 		this->time_left_waiting = 0;
 	}
@@ -563,6 +565,18 @@ void CoasterTrain::OnAnimate(int delay)
 		car.back.Set (back,  back_pix,  pitch, roll, yaw);
 		car.front.Set(front, front_pix, pitch, roll, yaw);
 		position += this->coaster->car_type->inter_car_length;
+
+		if (i == 0) {
+			/*
+			 * \todo This "calculation" of horizontal and vertical G forces is extremely
+			 * simplistic. For now this is good enough, but when we have coasters with loopings,
+			 * banked curves and so on, this will need to be replaced with a proper physics
+			 * model, as the results of this magic would make no sense for such tracks.
+			 */
+			this->coaster->SampleStatistics(this->back_position, this->station_policy == TSP_NO_STATION, this->speed,
+					pitch > 8 ? static_cast<int>(pitch) - 16 : pitch,
+					roll  > 8 ? static_cast<int>(roll)  - 16 : roll);
+		}
 	}
 
 	bool has_platform = false, has_power = false;
@@ -576,6 +590,7 @@ void CoasterTrain::OnAnimate(int delay)
 				if (this->station_policy == TSP_NO_STATION) {
 					this->station_policy = TSP_ENTERING_STATION;
 					this->time_left_waiting = this->coaster->state == RIS_TESTING ? TRAIN_DEPARTURE_INTERVAL_TESTING : this->coaster->max_idle_duration;
+					this->coaster->RecalculateRatings();  // Recalculate ratings whenever a train has completed a circuit.
 				}
 			}
 			has_power |= indexed_car_piece->piece->HasPower();
@@ -597,21 +612,22 @@ void CoasterTrain::OnAnimate(int delay)
 		this->speed -= std::min<int32>(max_speed_change, std::max<int32>(-max_speed_change, this->speed - 65536 / 1000));
 	}
 
-	bool other_train_in_front = false;
+	bool other_train_directly_in_front = false, other_train_in_station_front = false;
 	for (CoasterTrain &train : this->coaster->trains) {
 		if (&train == this || train.cars.empty() || this->back_position > train.back_position) continue;
 		if (delay > 0 && indexed_car_position > train.back_position) {
 			this->coaster->Crash(this, &train);
 			return;
 		}
-		other_train_in_front |= (indexed_car_position + 256 * this->coaster->GetTrainSpacing() > train.back_position);
+		other_train_directly_in_front |= (indexed_car_position + 256 * this->coaster->GetTrainSpacing() > train.back_position);
+		other_train_in_station_front |= (indexed_car_position + 2 * 256 * this->coaster->GetTrainSpacing() > train.back_position);
 	}
 
 	if (!has_platform && this->station_policy == TSP_LEAVING_STATION) this->station_policy = TSP_NO_STATION;
-	if (this->station_policy == TSP_ENTERING_STATION || this->station_policy == TSP_IN_STATION) {
+	if (this->station_policy == TSP_ENTERING_STATION || this->station_policy == TSP_IN_STATION_FRONT || this->station_policy == TSP_IN_STATION_BACK) {
 		if (!front_is_in_station && this->time_left_waiting <= 0) {
 			this->station_policy = TSP_LEAVING_STATION;
-		} else if (front_is_in_station && !other_train_in_front) {
+		} else if (front_is_in_station && !other_train_directly_in_front) {
 			this->station_policy = TSP_ENTERING_STATION;
 		} else {
 			if (this->station_policy == TSP_ENTERING_STATION) {
@@ -629,7 +645,7 @@ void CoasterTrain::OnAnimate(int delay)
 					}
 				}
 			}
-			this->station_policy = TSP_IN_STATION;
+			this->station_policy = other_train_in_station_front ? TSP_IN_STATION_BACK : TSP_IN_STATION_FRONT;
 		}
 	}
 }
@@ -763,16 +779,18 @@ void CoasterInstance::OpenRide()
 
 void CoasterInstance::CloseRide()
 {
+	this->intensity_statistics.clear();
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
 		train.back_position = 0;
 		train.speed = 0;
-		train.station_policy = TSP_IN_STATION;
+		train.station_policy = TSP_IN_STATION_BACK;
 		train.cur_piece = this->pieces;
 		train.cars.resize(0);
 		train.OnAnimate(0);
 	}
 	RideInstance::CloseRide();
+	this->RecalculateRatings();
 }
 
 void CoasterInstance::InitializeItemPricesAndStatistics()
@@ -868,7 +886,7 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 		/* Find the frontmost train in this station. */
 		CoasterTrain *loading_train = nullptr;
 		for (CoasterTrain &t : this->trains) {
-			if (t.station_policy == TSP_IN_STATION &&
+			if (t.station_policy == TSP_IN_STATION_FRONT &&
 					t.back_position >= s.back_position &&
 					t.back_position < s.back_position + 256 * s.length &&
 					(loading_train == nullptr || loading_train->back_position < t.back_position)) {
@@ -1291,7 +1309,7 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 		train.cur_piece = location;
 		train.back_position = back_position;
 		train.speed = 0;
-		train.station_policy = TSP_IN_STATION;
+		train.station_policy = (i + 1 == number_trains) ? TSP_IN_STATION_FRONT : TSP_IN_STATION_BACK;
 		train.time_left_waiting = 0;
 		if (static_cast<int>(i) < number_trains) {
 			train.SetLength(this->cars_per_train);
@@ -1589,6 +1607,91 @@ bool CoasterInstance::PlaceEntranceOrExit(const XYZPoint16 &pos, const bool entr
 	return true;
 }
 
+/**
+ * Update the intensity statistics with a piece of new information.
+ * @param point Position along the coaster.
+ * @param valid Whether to use this statistics point for calculating the ride ratings.
+ * @param speed Current speed of a train.
+ * @param vg Current vertical G force.
+ * @param hg Current horizontal G force.
+ */
+void CoasterInstance::SampleStatistics(uint32 point, const bool valid, const int32 speed, const int32 vg, const int32 hg)
+{
+	point /= COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION;
+	auto it = this->intensity_statistics.find(point);
+	if (it == this->intensity_statistics.end()) {
+		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{valid, 1, speed, vg, hg}));
+	} else {
+		it->second.valid &= valid;
+		it->second.speed        = (it->second.precision * it->second.speed        + speed) / (it->second.precision + 1);
+		it->second.vertical_g   = (it->second.precision * it->second.vertical_g   + vg   ) / (it->second.precision + 1);
+		it->second.horizontal_g = (it->second.precision * it->second.horizontal_g + hg   ) / (it->second.precision + 1);
+		it->second.precision++;
+	}
+}
+
+void CoasterInstance::RecalculateRatings()
+{
+	uint64 exc = 100;  // Excitement rating in percent.
+	uint64 iny = 100;  // Intensity rating in percent.
+	uint64 nau = 100;  // Nausea rating in percent.
+	uint32 statpoints = 0;
+	for (const auto &pair : this->intensity_statistics) {
+		if (!pair.second.valid) continue;
+		exc += std::abs(pair.second.speed);
+		iny += std::abs(pair.second.speed);
+		iny += std::abs(pair.second.horizontal_g * pair.second.speed);
+		iny += std::abs(pair.second.vertical_g   * pair.second.speed);
+		nau += std::abs(pair.second.vertical_g   * pair.second.speed);
+		statpoints++;
+	}
+	if (statpoints == 0) {
+		this->excitement_rating = RATING_NOT_YET_CALCULATED;
+		this->intensity_rating = RATING_NOT_YET_CALCULATED;
+		this->nausea_rating = RATING_NOT_YET_CALCULATED;
+		return;
+	}
+
+	iny /= statpoints;
+	nau /= statpoints;
+	exc /= statpoints;
+
+	std::set<XYZPoint16> considered_locations;
+	const uint16 index = this->GetIndex();
+	const int start_piece = GetFirstPlacedTrackPiece();
+	for (int p = start_piece;;) {
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dy = -2; dy <= 2; dy++) {
+				if (!IsVoxelstackInsideWorld(this->pieces[p].base_voxel.x + dx, this->pieces[p].base_voxel.y + dy)) continue;
+				for (int dh = -4; dh <= 2; dh++) {
+					XYZPoint16 pos(dx, dy, dh);
+					pos += this->pieces[p].base_voxel;
+
+					if (considered_locations.count(pos)) continue;
+					considered_locations.insert(pos);
+
+					Voxel *voxel = _world.GetCreateVoxel(pos, false);
+					if (voxel == nullptr) continue;
+
+					if (IsImplodedSteepSlope(voxel->GetGroundSlope()))                 exc += 2;
+					if (voxel->instance == SRI_SCENERY)                                exc += 4;
+					if (voxel->instance >= SRI_FULL_RIDES && voxel->instance != index) exc += 7;
+					/* \todo Also give a bonus for accurately mowed lawns and building near water. */
+				}
+			}
+		}
+		p = FindSuccessorPiece(this->pieces[p]);
+		if (p < 0 || p == start_piece) break;
+	}
+
+	exc -= std::min(exc / 2, nau);
+	exc -= std::min(exc / 2, iny);
+
+	this->intensity_rating  = iny;
+	this->nausea_rating     = nau;
+	this->excitement_rating = exc;
+}
+
 void CoasterInstance::Load(Loader &ldr)
 {
 	this->RideInstance::Load(ldr);
@@ -1645,6 +1748,17 @@ void CoasterInstance::Load(Loader &ldr)
 			this->stations[i].locations[j].y = ldr.GetWord();
 			this->stations[i].locations[j].z = ldr.GetWord();
 		}
+	}
+
+	this->intensity_statistics.clear();
+	for (long i = ldr.GetLong(); i > 0; i--) {
+		const uint32 point = ldr.GetLong();
+		const bool valid = ldr.GetByte() != 0;
+		const int32 precision = ldr.GetLong();
+		const int32 speed = ldr.GetLong();
+		const int32 vg = ldr.GetLong();
+		const int32 hg = ldr.GetLong();
+		this->intensity_statistics.emplace(std::make_pair(point, CoasterIntensityStatistics{valid, precision, speed, vg, hg}));
 	}
 
 	this->InsertStationsIntoWorld();
@@ -1704,5 +1818,15 @@ void CoasterInstance::Save(Saver &svr)
 			svr.PutWord(p.y);
 			svr.PutWord(p.z);
 		}
+	}
+
+	svr.PutLong(this->intensity_statistics.size());
+	for (const auto &pair : this->intensity_statistics) {
+		svr.PutLong(pair.first);
+		svr.PutByte(pair.second.valid ? 1 : 0);
+		svr.PutLong(pair.second.precision);
+		svr.PutLong(pair.second.speed);
+		svr.PutLong(pair.second.vertical_g);
+		svr.PutLong(pair.second.horizontal_g);
 	}
 }

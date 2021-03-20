@@ -111,8 +111,6 @@ strings {
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Omsætning";
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Lønninger";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total profit";
-		SHOP_MANAGER_OPENED_TEXT:        "Butikken er lukket";
-		SHOP_MANAGER_CLOSED_TEXT:        "Butikken er åben";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Ændre landskab";

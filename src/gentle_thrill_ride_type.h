@@ -29,6 +29,11 @@ public:
 	int16 working_cycles_min;            ///< Minimum number of working cycles.
 	int16 working_cycles_max;            ///< Maximum number of working cycles.
 	int16 working_cycles_default;        ///< Default number of working cycles.
+	int32 intensity_base;                ///< Intensity rating in percent.
+	int32 nausea_base;                   ///< Nausea rating in percent.
+	int32 excitement_base;               ///< Base excitement rating in percent.
+	int32 excitement_increase_cycle;     ///< Absolute excitement rating increase per working cycle.
+	int32 excitement_increase_scenery;   ///< Absolute excitement rating increase per nearby scenery item.
 
 private:
 	FixedRideType::RideCapacity capacity;
@@ -46,6 +51,7 @@ public:
 	bool IsEntranceLocation(const XYZPoint16& pos) const override;
 	bool IsExitLocation(const XYZPoint16& pos) const override;
 	bool CanOpenRide() const override;
+	void RecalculateRatings() override;
 
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;

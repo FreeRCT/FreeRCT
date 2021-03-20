@@ -125,8 +125,6 @@ strings {
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Verkoop winst";
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Personeels kosten";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Totale winst";
-		SHOP_MANAGER_OPENED_TEXT:        "Winkel is open";
-		SHOP_MANAGER_CLOSED_TEXT:        "Winkel is gesloten";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Bouw hekwerk";

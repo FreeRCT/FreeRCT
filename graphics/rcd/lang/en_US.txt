@@ -128,8 +128,6 @@ strings {
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Selling profit";
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Employee wages";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total profit";
-		SHOP_MANAGER_OPENED_TEXT:        "Shop is open";
-		SHOP_MANAGER_CLOSED_TEXT:        "Shop is closed";
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";

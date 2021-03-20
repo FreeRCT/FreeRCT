@@ -722,8 +722,13 @@ Offset     Length  Version  Description
   93+s      2       3-      Maximum reliability (in range 0..10000).
   95+s      2       3-      Daily reliability decrease (in range 0..10000).
   97+s      2       3-      Monthly decrease of the maximum reliability (in range 0..10000).
-  99+s      4       1-      Text of the ride (reference to a TEXT block).
- 103+s                      Total length.
+  99+s      4       4-      Intensity rating in percent.
+ 103+s      4       4-      Nausea rating in percent.
+ 107+s      4       4-      Base excitement rating in percent.
+ 111+s      4       4-      Absolute excitement rating increase per working cycle (must be >= 0).
+ 115+s      4       4-      Absolute excitement rating increase per nearby scenery item (must be >= 0).
+ 119+s      4       1-      Text of the ride (reference to a TEXT block).
+ 123+s                      Total length.
 =========  ======  =======  ========================================================================================
 
 The duration of the ride's working phase needs to be at least as long as the sum of the durations of all
@@ -748,6 +753,7 @@ Version history
 - 1 (20210126) Initial version.
 - 2 (20210201) Added timing of phases and ride capacity.
 - 3 (20210227) Added minimum and maximum number of working cycles and reliability parameters.
+- 4 (20210317) Added excitement, intensity, nausea parameters.
 
 
 Build direction arrows

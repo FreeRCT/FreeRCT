@@ -143,6 +143,16 @@ strings {
 		RIDE_MANAGER_MAINTENANCE_NEVER: "Never";
 		RIDE_MANAGER_MAX_IDLE_TEXT:     "Maximum idle duration (seconds):";
 		RIDE_MANAGER_MIN_IDLE_TEXT:     "Minimum idle duration (seconds):";
+		RIDE_MANAGER_EXCITEMENT:        "Excitement rating:";
+		RIDE_MANAGER_INTENSITY:         "Intensity rating:";
+		RIDE_MANAGER_NAUSEA:            "Nausea rating:";
+		RIDE_MANAGER_RATING_VERY_LOW:   "%.2f (very low)";
+		RIDE_MANAGER_RATING_LOW:        "%.2f (low)";
+		RIDE_MANAGER_RATING_MEDIUM:     "%.2f (medium)";
+		RIDE_MANAGER_RATING_HIGH:       "%.2f (high)";
+		RIDE_MANAGER_RATING_VERY_HIGH:  "%.2f (very high)";
+		RIDE_MANAGER_RATING_EXTREME:    "%.2f (extreme)";
+		RIDE_MANAGER_RATING_NOT_YET_CALCULATED: "???";
 
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Shop \"%1%\"";
@@ -153,15 +163,11 @@ strings {
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Selling profit";
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Personnel costs";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total profit";
-		SHOP_MANAGER_OPENED_TEXT:        "Shop is open";
-		SHOP_MANAGER_CLOSED_TEXT:        "Shop is closed";
 
 		// Gentle/thrill ride manager window strings.
 		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% \"%2%\"";
 		GENTLE_RIDES_MANAGER_TITLE:                    "Gentle Ride";
 		THRILL_RIDES_MANAGER_TITLE:                    "Thrill Ride";
-		GENTLE_THRILL_RIDES_MANAGER_OPENED_TEXT:       "Ride is open";
-		GENTLE_THRILL_RIDES_MANAGER_CLOSED_TEXT:       "Ride is closed";
 		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Monthly cost:";
 		GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT:       "Number of cycles:";
 
@@ -227,10 +233,18 @@ strings {
 		// Coaster management strings.
 		COASTER_MANAGER_NUMBER_TRAINS:  "Trains: %1%";
 		COASTER_MANAGER_NUMBER_CARS:    "Cars: %1%";
+		COASTER_MANAGER_EDIT:           "Edit track";
+		COASTER_MANAGER_NO_GRAPHS_YET:  "No measurements yet";
+		COASTER_MANAGER_GRAPH_SPEED:          "Speed";
+		COASTER_MANAGER_GRAPH_VERT_G:         "Vertical G";
+		COASTER_MANAGER_GRAPH_HORZ_G:         "Horizontal G";
+		COASTER_MANAGER_GRAPH_TOOLTIP_SPEED:  "Show speed graph";
+		COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Show vertical G forces graph";
+		COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: "Show horizontal G forces graph";
 
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Remove";
-		ENTITY_REMOVE_TOOLTIP: "Remove this?";
+		ENTITY_REMOVE_TOOLTIP: "Remove this ride";
 
 		// Entity remove window strings.
 		ENTITY_REMOVE_CAPTION: "Remove";

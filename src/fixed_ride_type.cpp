@@ -271,6 +271,12 @@ void FixedRideInstance::RemoveFromWorld()
 	}
 }
 
+void FixedRideInstance::OnNewDay()
+{
+	RideInstance::OnNewDay();
+	this->RecalculateRatings();
+}
+
 void FixedRideInstance::OnAnimate(const int delay)
 {
 	RideInstance::OnAnimate(delay);

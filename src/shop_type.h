@@ -44,6 +44,9 @@ public:
 	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
 	std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const override;
+	void RecalculateRatings() override {
+		/* Shops don't have rating stats. */
+	}
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;

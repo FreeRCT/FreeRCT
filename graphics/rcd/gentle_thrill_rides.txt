@@ -97,6 +97,11 @@ file("gentle_thrill_rides.rcd") {
 		reliability_max: 10000;
 		reliability_decrease_daily: 50;
 		reliability_decrease_monthly: 5;
+		intensity_base: 21;
+		nausea_base: 49;
+		excitement_base: 197;
+		excitement_increase_cycle: 0;
+		excitement_increase_scenery: 1;
 
 		texts: strings { key: "spooky-manor"; }
 	}
@@ -189,6 +194,11 @@ file("gentle_thrill_rides.rcd") {
 		reliability_max: 9000;
 		reliability_decrease_daily: 100;
 		reliability_decrease_monthly: 100;
+		intensity_base: 400;
+		nausea_base: 280;
+		excitement_base: 138;
+		excitement_increase_cycle: 24;
+		excitement_increase_scenery: 3;
 
 		texts: strings { key: "ship-swing"; }
 	}

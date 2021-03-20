@@ -71,6 +71,7 @@ public:
 	void OnAnimate(int delay) override;
 	void OpenRide() override;
 	void CloseRide() override;
+	void OnNewDay() override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;

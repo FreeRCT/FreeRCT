@@ -149,7 +149,8 @@ public:
 enum TrainStationPolicy {
 	TSP_LEAVING_STATION,   ///< The train is leaving a station.
 	TSP_ENTERING_STATION,  ///< The train is entering a station.
-	TSP_IN_STATION,        ///< The train is waiting motionlessly in a station.
+	TSP_IN_STATION_FRONT,  ///< The train is waiting motionlessly at the front of a station.
+	TSP_IN_STATION_BACK,   ///< The train is waiting motionlessly in a station behind another train.
 	TSP_NO_STATION,        ///< The train is nowhere near a station.
 };
 
@@ -192,6 +193,16 @@ struct CoasterStation {
 	XYZPoint16 exit;                    ///< Position of the station's exit (may be \c invalid()).
 };
 
+/** Holds data about the intensity of a coaster at a specific point. */
+struct CoasterIntensityStatistics {
+	bool valid;          ///< Whether this data point should be considered for the calculation.
+	int32 precision;     ///< Over how many individual test results this entry is sampled.
+	int32 speed;         ///< Average speed of trains passing through here.
+	int32 vertical_g;    ///< Average vertical G force of trains passing through here.
+	int32 horizontal_g;  ///< Average horizontal G force of trains passing through here.
+};
+static const int COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION = 0x8000;  ///< Minimum distance of two points in a coaster's intensity statistics map.
+
 /**
  * A roller coaster in the world.
  * Since roller coaster rides need to be constructed by the user first, an instance can exist
@@ -218,6 +229,7 @@ public:
 
 	void TestRide();
 	void OpenRide() override;
+	void RecalculateRatings() override;
 
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
@@ -262,6 +274,7 @@ public:
 	void SetNumberOfCars(int number_cars);
 	void ReinitializeTrains(bool test_mode);
 	void Crash(CoasterTrain *t1, CoasterTrain *t2);
+	void SampleStatistics(uint32 point, bool valid, int32 speed, int32 vg, int32 hg);
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
@@ -285,6 +298,7 @@ public:
 	XYZPoint16 temp_exit_pos;              ///< Temporary location of one of the ride's exit while the user is moving the exit.
 	int max_idle_duration;                 ///< Maximum duration how long a train may wait in a station in milliseconds.
 	int min_idle_duration;                 ///< Minimum duration how long a train may wait in a station in milliseconds.
+	std::map<uint32, CoasterIntensityStatistics> intensity_statistics;  ///< Intensity along the track.
 };
 
 bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites);

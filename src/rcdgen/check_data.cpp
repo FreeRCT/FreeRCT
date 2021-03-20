@@ -2045,6 +2045,7 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->previews[1] = vals.GetSprite("preview_se");
 	block->previews[2] = vals.GetSprite("preview_sw");
 	block->previews[3] = vals.GetSprite("preview_nw");
+
 	block->entrance_fee = vals.GetNumber("entrance_fee");
 	block->ownership_cost = vals.GetNumber("cost_ownership");
 	block->opened_cost = vals.GetNumber("cost_opened");
@@ -2058,6 +2059,12 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	block->reliability_max = vals.GetNumber("reliability_max");
 	block->reliability_decrease_daily = vals.GetNumber("reliability_decrease_daily");
 	block->reliability_decrease_monthly = vals.GetNumber("reliability_decrease_monthly");
+	block->intensity_base = vals.GetNumber("intensity_base");
+	block->nausea_base = vals.GetNumber("nausea_base");
+	block->excitement_base = vals.GetNumber("excitement_base");
+	block->excitement_increase_cycle = vals.GetNumber("excitement_increase_cycle");
+	block->excitement_increase_scenery = vals.GetNumber("excitement_increase_scenery");
+
 	block->ride_text = std::make_shared<StringBundle>();
 	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
 	block->ride_text->CheckTranslations(_gentle_thrill_rides_string_names, lengthof(_gentle_thrill_rides_string_names), ng->pos);
