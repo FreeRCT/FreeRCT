@@ -16,6 +16,7 @@
 #include "people.h"
 #include "window.h"
 #include "dates.h"
+#include "scenery.h"
 #include "viewport.h"
 #include "weather.h"
 #include "freerct.h"
@@ -215,6 +216,7 @@ void GameControl::ShutdownLevel()
 	_game_mode_mgr.SetGameMode(GM_NONE);
 	_window_manager.CloseAllWindows();
 	_rides_manager.DeleteAllRideInstances();
+	_scenery.Clear();
 	_guests.Uninitialize();
 	_staff.Uninitialize();
 }

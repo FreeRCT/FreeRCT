@@ -131,7 +131,7 @@ void SceneryInstance::InsertIntoWorld()
 			for (int16 h = 0; h < height; h++) {
 				const XYZPoint16 p = this->vox_pos + XYZPoint16(location.x, location.y, h);
 				Voxel *voxel = _world.GetCreateVoxel(p, true);
-				assert(voxel && voxel->GetInstance() == SRI_FREE);
+				assert(voxel != nullptr && voxel->GetInstance() == SRI_FREE);
 				voxel->SetInstance(SRI_SCENERY);
 				voxel->SetInstanceData(h == 0 ? voxel_data : INVALID_VOXEL_DATA);
 			}
@@ -154,7 +154,7 @@ void SceneryInstance::RemoveFromWorld()
 				Voxel *voxel = _world.GetCreateVoxel(this->vox_pos + XYZPoint16(unrotated_pos.x, unrotated_pos.y, h), false);
 				if (voxel != nullptr && voxel->instance != SRI_FREE) {
 					assert(voxel->instance == SRI_SCENERY);
-					assert(voxel->instance_data == voxel_data);
+					assert(voxel->instance_data == (h == 0 ? voxel_data : INVALID_VOXEL_DATA));
 					voxel->ClearInstances();
 				}
 			}
@@ -188,7 +188,6 @@ void SceneryInstance::Load(Loader &ldr)
 	this->vox_pos.y = ldr.GetWord();
 	this->vox_pos.z = ldr.GetWord();
 	this->orientation = ldr.GetByte();
-	_scenery.AddItem(this);
 }
 
 void SceneryInstance::Save(Saver &svr) const
@@ -326,6 +325,7 @@ void SceneryManager::Load(Loader &ldr)
 		for (long l = ldr.GetLong(); l > 0; l--) {
 			SceneryInstance *i = new SceneryInstance(this->scenery_item_types[ldr.GetWord()].get());
 			i->Load(ldr);
+			this->all_items[i->vox_pos] = std::unique_ptr<SceneryInstance>(i);
 		}
 	} else if (version != 0) {
 		ldr.SetFailMessage("Incorrect version of scenery block.");

@@ -13,6 +13,7 @@
 #include "finances.h"
 #include "map.h"
 #include "messages.h"
+#include "scenery.h"
 #include "string_func.h"
 #include "person.h"
 #include "people.h"
@@ -319,7 +320,7 @@ void Saver::PutText(const uint8 *str, int length)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 8) ldr.SetFailMessage("Bad file header");
+	if (version > 9) ldr.SetFailMessage("Bad file header");
 	ldr.CloseBlock();
 
 	Loader reset_loader(nullptr);
@@ -330,6 +331,7 @@ static void LoadElements(Loader &ldr)
 	_finances_manager.Load((version >= 2) ? ldr : reset_loader);
 	_weather.Load((version >= 4) ? ldr : reset_loader);
 	_rides_manager.Load((version >= 6) ? ldr : reset_loader);
+	_scenery.Load((version >= 9) ? ldr : reset_loader);
 	_guests.Load((version >= 5) ? ldr : reset_loader);
 	_staff.Load((version >= 7) ? ldr : reset_loader);
 	_inbox.Load((version >= 8) ? ldr : reset_loader);
@@ -344,7 +346,7 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 8);
+	svr.StartBlock("FCTS", 9);
 	svr.EndBlock();
 
 	SaveDate(svr);
@@ -353,6 +355,7 @@ static void SaveElements(Saver &svr)
 	_finances_manager.Save(svr);
 	_weather.Save(svr);
 	_rides_manager.Save(svr);
+	_scenery.Save(svr);
 	_guests.Save(svr);
 	_staff.Save(svr);
 	_inbox.Save(svr);
