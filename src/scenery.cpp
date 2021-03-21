@@ -362,12 +362,12 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 	if (it != this->all_items.end()) return it->second.get();
 
 	const Voxel* voxel = _world.GetVoxel(pos);
-	if (voxel == nullptr) return nullptr;
+	if (voxel == nullptr || voxel->instance != SRI_SCENERY) return nullptr;
 	const uint16 instance_data = voxel->instance_data;
 	if (instance_data == INVALID_VOXEL_DATA) return nullptr;
 
 	const SceneryType *type = this->scenery_item_types[instance_data].get();
-	const int search_radius = std::max(type->width_x, type->width_y);
+	const int search_radius = std::max(type->width_x - 1, type->width_y - 1);
 	for (int x = -search_radius; x <= search_radius; x++) {
 		for (int y = -search_radius; y <= search_radius; y++) {
 			const XYZPoint16 p(pos.x + x, pos.y + y, pos.z);
@@ -375,13 +375,12 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 			if (it == this->all_items.end()) continue;
 			if (it->second->type != type) continue;
 
-			const XYZPoint16 &corner1 = it->second->vox_pos;
-			const XYZPoint16 corner2 = corner1 + OrientatedOffset(it->second->orientation, type->width_x - 1, type->width_y - 1);
+			const XYZPoint16 corner = p + OrientatedOffset(it->second->orientation, type->width_x - 1, type->width_y - 1);
 			if (
-					p.x >= std::min(corner1.x, corner2.x) &&
-					p.x <= std::max(corner1.x, corner2.x) &&
-					p.y >= std::min(corner1.y, corner2.y) &&
-					p.y <= std::max(corner1.y, corner2.y)) {
+					pos.x >= std::min(p.x, corner.x) &&
+					pos.x <= std::max(p.x, corner.x) &&
+					pos.y >= std::min(p.y, corner.y) &&
+					pos.y <= std::max(p.y, corner.y)) {
 				return it->second.get();
 			}
 		}

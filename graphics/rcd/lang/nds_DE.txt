@@ -178,7 +178,8 @@ strings {
 
 		// Scenery gui strings.
 		SCENERY_TITLE:               "Landskupp-Dingen";
-		SCENERY_ROTATE:              "Ding dreihen";
+		SCENERY_ROTATE_POS:          "Ding tegen de Klockwieser dreihen";
+		SCENERY_ROTATE_NEG:          "Ding mit de Klockwieser dreihen";
 		SCENERY_CATEGORY_TREES:      "Bomen";
 		SCENERY_CATEGORY_FLOWERBEDS: "Blomenbedden";
 		SCENERY_CATEGORY_FOUNTAINS:  "Springbrunnens";

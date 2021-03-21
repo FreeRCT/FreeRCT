@@ -178,7 +178,8 @@ strings {
 
 		// Scenery gui strings.
 		SCENERY_TITLE:               "Scenery";
-		SCENERY_ROTATE:              "Rotate item";
+		SCENERY_ROTATE_POS:          "Rotate item counter-clockwise";
+		SCENERY_ROTATE_NEG:          "Rotate item clockwise";
 		SCENERY_CATEGORY_TREES:      "Trees";
 		SCENERY_CATEGORY_FLOWERBEDS: "Flowerbeds";
 		SCENERY_CATEGORY_FOUNTAINS:  "Fountains";

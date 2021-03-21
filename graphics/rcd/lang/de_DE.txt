@@ -178,7 +178,8 @@ strings {
 
 		// Scenery gui strings.
 		SCENERY_TITLE:               "Landschaft";
-		SCENERY_ROTATE:              "Gegenstand drehen";
+		SCENERY_ROTATE_POS:          "Gegenstand gegen den Uhrzeigersinn drehen";
+		SCENERY_ROTATE_NEG:          "Gegenstand im Uhrzeigersinn drehen";
 		SCENERY_CATEGORY_TREES:      "Bäume";
 		SCENERY_CATEGORY_FLOWERBEDS: "Blumenbeete";
 		SCENERY_CATEGORY_FOUNTAINS:  "Springbrunnen";
