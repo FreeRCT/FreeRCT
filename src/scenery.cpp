@@ -24,10 +24,12 @@ SceneryType::SceneryType()
 	this->name = STR_NULL;
 	this->width_x = 0;
 	this->width_y = 0;
-	this->buy_cost = Money(-1);
-	this->return_cost = Money(-1);
+	this->buy_cost = Money();
+	this->return_cost = Money();
+	this->return_cost_dry = Money();
 	this->symmetric = true;
-	this->animation = nullptr;
+	this->main_animation = nullptr;
+	this->dry_animation = nullptr;
 	std::fill_n(this->previews, lengthof(this->previews), nullptr);
 }
 
@@ -45,7 +47,7 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (rcd_file->size != 36 + (this->width_x * this->width_y)) return false;
+	if (rcd_file->size != 48 + (this->width_x * this->width_y)) return false;
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; x++) {
@@ -54,7 +56,9 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 		}
 	}
 
-	this->animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	this->thirst = rcd_file->GetUInt32();
+	this->main_animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	this->dry_animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	for (int i = 0; i < 4; i++) {
 		ImageData *view;
 		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
@@ -63,6 +67,7 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 
 	this->buy_cost = Money(rcd_file->GetInt32());
 	this->return_cost = Money(rcd_file->GetInt32());
+	this->return_cost_dry = Money(rcd_file->GetInt32());
 	this->symmetric = rcd_file->GetUInt8() > 0;
 	this->category = static_cast<SceneryCategory>(rcd_file->GetUInt8());
 
@@ -81,7 +86,8 @@ SceneryInstance::SceneryInstance(const SceneryType *t)
 	this->type = t;
 	this->vox_pos = XYZPoint16::invalid();
 	this->orientation = 0;
-	this->frametime = 0;
+	this->animtime = 0;
+	this->last_watered = 0;
 }
 
 /**
@@ -148,11 +154,15 @@ void SceneryInstance::InsertIntoWorld()
 			}
 		}
 	}
+	this->last_watered = 0;
+	this->animtime = 0;
+	this->MarkDirty();
 }
 
 /** Remove this item from the voxels it currently occupies. */
 void SceneryInstance::RemoveFromWorld()
 {
+	this->MarkDirty();
 	const uint16 voxel_data = _scenery.GetSceneryTypeIndex(this->type);
 	const int8 wx = this->type->width_x;
 	const int8 wy = this->type->width_y;
@@ -175,6 +185,16 @@ void SceneryInstance::RemoveFromWorld()
 	}
 }
 
+/** Mark the voxels occupied by this item as in need of repainting. */
+void SceneryInstance::MarkDirty()
+{
+	for (int8 x = 0; x < this->type->width_x; ++x) {
+		for (int8 y = 0; y < this->type->width_y; ++y) {
+			MarkVoxelDirty(this->vox_pos + OrientatedOffset(this->orientation, x, y), this->type->GetHeight(x, y));
+		}
+	}
+}
+
 /**
  * Get the sprites to display for the provided voxel number.
  * @param vox The voxel's absolute coordinates.
@@ -191,10 +211,10 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
 	sprites[3] = nullptr;
 	if (voxel_number == INVALID_VOXEL_DATA) return;
 	const XYZPoint16 unrotated_pos = UnorientatedOffset(this->orientation, vox.x - this->vox_pos.x, vox.y - this->vox_pos.y);
-	sprites[1] = this->type->animation->views
-		[this->type->animation->GetFrame(this->frametime, true)]
+	const TimedAnimation *anim = (this->NeedsWatering() ? this->type->dry_animation : this->type->main_animation);
+	sprites[1] = anim->views[anim->GetFrame(this->animtime, true)]
 			->sprites[(this->orientation + 4 - orient) & 3]
-				[unrotated_pos.x * this->type->width_y + unrotated_pos.y];
+					[unrotated_pos.x * this->type->width_y + unrotated_pos.y];
 }
 
 /**
@@ -203,8 +223,19 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
  */
 void SceneryInstance::OnAnimate(const int delay)
 {
-	this->frametime += delay;
-	this->frametime %= this->type->animation->GetTotalDuration();
+	if (this->type->thirst > 0) this->last_watered += delay;
+	this->animtime += delay;
+	this->animtime %= (this->NeedsWatering() ? this->type->dry_animation : this->type->main_animation)->GetTotalDuration();
+	this->MarkDirty();  // Ensure the animation is updated.
+}
+
+/**
+ * Whether this item is dried up for lack of watering.
+ * @return The item is dry.
+ */
+bool SceneryInstance::NeedsWatering() const
+{
+	return this->type->thirst > 0 && this->last_watered > this->type->thirst;
 }
 
 void SceneryInstance::Load(Loader &ldr)
@@ -213,6 +244,8 @@ void SceneryInstance::Load(Loader &ldr)
 	this->vox_pos.y = ldr.GetWord();
 	this->vox_pos.z = ldr.GetWord();
 	this->orientation = ldr.GetByte();
+	this->animtime = ldr.GetLong();
+	this->last_watered = ldr.GetLong();
 }
 
 void SceneryInstance::Save(Saver &svr) const
@@ -220,7 +253,9 @@ void SceneryInstance::Save(Saver &svr) const
 	svr.PutWord(this->vox_pos.x);
 	svr.PutWord(this->vox_pos.y);
 	svr.PutWord(this->vox_pos.z);
-	svr.PutByte(orientation);
+	svr.PutByte(this->orientation);
+	svr.PutLong(this->animtime);
+	svr.PutLong(this->last_watered);
 }
 
 /** Default constructor. */

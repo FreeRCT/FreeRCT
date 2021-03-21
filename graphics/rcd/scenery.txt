@@ -15,15 +15,17 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "flowers1"; }
 
-		category:       2;
-		width_x:        1;
-		width_y:        1;
-		height_0_0:     1;
-		buy_cost:     500;
-		return_cost: -100;
+		category:          2;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        1;
+		buy_cost:        500;
+		return_cost:    -100;
+		return_cost_dry: 100;
+		thirst:       200000;
 
 		symmetric: 1;
-		animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
 			tile_width: 64;
 			width_x: 1;
 			width_y: 1;
@@ -31,6 +33,16 @@ file("scenery.rcd") {
 			ne_0_0: sprite {
 				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
 				file: "../sprites/scenery/objects/flowers1.png";
+			}
+		}}
+		dry_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/flowers_dry.png";
 			}
 		}}
 		preview_ne: sprite {
@@ -43,15 +55,17 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "flowers2"; }
 
-		category:       2;
-		width_x:        1;
-		width_y:        1;
-		height_0_0:     1;
-		buy_cost:     500;
-		return_cost: -100;
+		category:          2;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        1;
+		buy_cost:        500;
+		return_cost:    -100;
+		return_cost_dry: 100;
+		thirst:       200000;
 
 		symmetric: 1;
-		animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
 			tile_width: 64;
 			width_x: 1;
 			width_y: 1;
@@ -59,6 +73,16 @@ file("scenery.rcd") {
 			ne_0_0: sprite {
 				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
 				file: "../sprites/scenery/objects/flowers2.png";
+			}
+		}}
+		dry_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/flowers_dry.png";
 			}
 		}}
 		preview_ne: sprite {
@@ -71,15 +95,17 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "flowers3"; }
 
-		category:       2;
-		width_x:        1;
-		width_y:        1;
-		height_0_0:     1;
-		buy_cost:     500;
-		return_cost: -100;
+		category:          2;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        1;
+		buy_cost:        500;
+		return_cost:    -100;
+		return_cost_dry: 100;
+		thirst:       200000;
 
 		symmetric: 1;
-		animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
 			tile_width: 64;
 			width_x: 1;
 			width_y: 1;
@@ -87,6 +113,16 @@ file("scenery.rcd") {
 			ne_0_0: sprite {
 				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
 				file: "../sprites/scenery/objects/flowers3.png";
+			}
+		}}
+		dry_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/flowers_dry.png";
 			}
 		}}
 		preview_ne: sprite {
@@ -105,9 +141,10 @@ file("scenery.rcd") {
 		height_0_0:     6;
 		buy_cost:    1000;
 		return_cost:  400;
+		thirst:         0;
 
 		symmetric: 1;
-		animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
 			tile_width: 64;
 			width_x: 1;
 			width_y: 1;
@@ -133,9 +170,10 @@ file("scenery.rcd") {
 		height_0_0:     6;
 		buy_cost:    1000;
 		return_cost:  400;
+		thirst:         0;
 
 		symmetric: 1;
-		animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
 			tile_width: 64;
 			width_x: 1;
 			width_y: 1;
@@ -161,9 +199,10 @@ file("scenery.rcd") {
 		height_0_0:     6;
 		buy_cost:    1000;
 		return_cost:  400;
+		thirst:         0;
 
 		symmetric: 1;
-		animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
 			tile_width: 64;
 			width_x: 1;
 			width_y: 1;

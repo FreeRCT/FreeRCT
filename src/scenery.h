@@ -45,12 +45,15 @@ public:
 	uint8 width_y;             ///< Number of voxels in x direction occupied by this item.
 	std::unique_ptr<int8[]> heights;
 
-	Money buy_cost;      ///< Cost of buying this item.
-	Money return_cost;   ///< Amount of money returned or consumed when removing this item.
+	Money buy_cost;         ///< Cost of buying this item.
+	Money return_cost;      ///< Amount of money returned or consumed when removing this item.
+	Money return_cost_dry;  ///< Amount of money returned or consumed when removing this item when it's dry.
+	uint32 thirst;          ///< How often in milliseconds this item needs watering (\c 0 means never).
 
-	bool symmetric;                   ///< Whether this item is perfectly symmetric and can therefore not be rotated.
-	const TimedAnimation *animation;  ///< Graphics for this scenery item.
-	ImageData* previews[4];           ///< Previews for the scenery placement window.
+	bool symmetric;                        ///< Whether this item is perfectly symmetric and can therefore not be rotated.
+	const TimedAnimation *main_animation;  ///< Graphics for this scenery item.
+	const TimedAnimation *dry_animation;   ///< Graphics for this scenery item when it's dry.
+	ImageData* previews[4];                ///< Previews for the scenery placement window.
 
 	/**
 	 * The height of this scenery item at the given position.
@@ -72,6 +75,8 @@ public:
 	bool CanPlace() const;
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const;
 	void OnAnimate(int delay);
+	bool NeedsWatering() const;
+	void MarkDirty();
 
 	void InsertIntoWorld();
 	void RemoveFromWorld();
@@ -82,7 +87,8 @@ public:
 	const SceneryType *type;   ///< Type of item.
 	XYZPoint16 vox_pos;        ///< Position of the item's base voxel.
 	uint8 orientation;         ///< Orientation of the item.
-	uint32 frametime;          ///< Time in the animation, in milliseconds.
+	uint32 animtime;           ///< Time in the animation, in milliseconds.
+	uint32 last_watered;       ///< Time since the item was last watered, in milliseconds. Only valid if the #type needs watering.
 };
 
 /** All the scenery items in the world. */

@@ -727,10 +727,13 @@ public:
 	bool symmetric;                   ///< Whether the item cannot be rotated.
 	int32 buy_cost;                   ///< Cost to place this item.
 	int32 return_cost;                ///< Cost when removing this item.
+	int32 return_cost_dry;            ///< Cost when removing this item when dry.
+	uint32 thirst;                    ///< How often this item needs to be watered.
 
-	std::shared_ptr<TIMABlock> animation;      ///< Main image.
-	std::shared_ptr<SpriteBlock> previews[4];  ///< Previews for ne,se,sw,nw.
-	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the scenery item.
+	std::shared_ptr<TIMABlock> main_animation;  ///< Main image.
+	std::shared_ptr<TIMABlock> dry_animation;   ///< Dry image.
+	std::shared_ptr<SpriteBlock> previews[4];   ///< Previews for ne,se,sw,nw.
+	std::shared_ptr<StringBundle> texts;        ///< Texts of the scenery item.
 };
 
 /** GBOR game block. */

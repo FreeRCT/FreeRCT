@@ -255,7 +255,7 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 			SceneryInstance *i = _scenery.GetItem(location);
 			if (i != nullptr) {
 				if (i->type->category != SCC_SCENARIO) {
-					_finances_manager.PayLandscaping(i->type->return_cost);
+					_finances_manager.PayLandscaping(i->NeedsWatering() ? i->type->return_cost_dry : i->type->return_cost);
 					_scenery.RemoveItem(i->vox_pos);
 				}
 				return;

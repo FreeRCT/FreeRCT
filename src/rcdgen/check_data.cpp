@@ -2113,6 +2113,9 @@ static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
 		}
 	}
 
+	block->buy_cost = vals.GetNumber("buy_cost");
+	block->return_cost = vals.GetNumber("return_cost");
+
 	block->previews[0] = vals.GetSprite("preview_ne");
 	if (block->symmetric) {
 		block->previews[1] = block->previews[0];
@@ -2123,15 +2126,23 @@ static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
 		block->previews[2] = vals.GetSprite("preview_sw");
 		block->previews[3] = vals.GetSprite("preview_nw");
 	}
-	block->animation = vals.GetTimedAnimation("animation");
-	block->animation->unrotated_views_only_allowed = true;
+	block->main_animation = vals.GetTimedAnimation("main_animation");
 
-	block->buy_cost = vals.GetNumber("buy_cost");
-	block->return_cost = vals.GetNumber("return_cost");
+	block->thirst = vals.GetNumber("thirst");
 
-	block->ride_text = std::make_shared<StringBundle>();
-	block->ride_text->Fill(vals.GetStrings("texts"), ng->pos);
-	block->ride_text->CheckTranslations(_scenery_string_names, lengthof(_scenery_string_names), ng->pos);
+	if (block->thirst > 0) {
+		block->dry_animation = vals.GetTimedAnimation("dry_animation");
+		block->return_cost_dry = vals.GetNumber("return_cost_dry");
+	} else {
+		block->dry_animation = block->main_animation;
+		block->return_cost_dry = block->return_cost;
+	}
+	block->main_animation->unrotated_views_only_allowed = true;
+	block->dry_animation->unrotated_views_only_allowed = true;
+
+	block->texts = std::make_shared<StringBundle>();
+	block->texts->Fill(vals.GetStrings("texts"), ng->pos);
+	block->texts->CheckTranslations(_scenery_string_names, lengthof(_scenery_string_names), ng->pos);
 
 	vals.VerifyUsage();
 	return block;
