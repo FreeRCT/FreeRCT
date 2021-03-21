@@ -15,14 +15,14 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "flowers1"; }
 
-		category:          2;
-		width_x:           1;
-		width_y:           1;
-		height_0_0:        1;
-		buy_cost:        500;
-		return_cost:    -100;
-		return_cost_dry: 100;
-		thirst:       200000;
+		category:               2;
+		width_x:                1;
+		width_y:                1;
+		height_0_0:             1;
+		buy_cost:             500;
+		return_cost:         -100;
+		return_cost_dry:      100;
+		watering_interval: 200000;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -55,14 +55,14 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "flowers2"; }
 
-		category:          2;
-		width_x:           1;
-		width_y:           1;
-		height_0_0:        1;
-		buy_cost:        500;
-		return_cost:    -100;
-		return_cost_dry: 100;
-		thirst:       200000;
+		category:               2;
+		width_x:                1;
+		width_y:                1;
+		height_0_0:             1;
+		buy_cost:             500;
+		return_cost:         -100;
+		return_cost_dry:      100;
+		watering_interval: 200000;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -95,14 +95,14 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "flowers3"; }
 
-		category:          2;
-		width_x:           1;
-		width_y:           1;
-		height_0_0:        1;
-		buy_cost:        500;
-		return_cost:    -100;
-		return_cost_dry: 100;
-		thirst:       200000;
+		category:               2;
+		width_x:                1;
+		width_y:                1;
+		height_0_0:             1;
+		buy_cost:             500;
+		return_cost:         -100;
+		return_cost_dry:      100;
+		watering_interval: 200000;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -135,13 +135,13 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "tree1"; }
 
-		category:       1;
-		width_x:        1;
-		width_y:        1;
-		height_0_0:     6;
-		buy_cost:    1000;
-		return_cost:  400;
-		thirst:         0;
+		category:          1;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        6;
+		buy_cost:       1000;
+		return_cost:     400;
+		watering_interval: 0;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -164,13 +164,13 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "tree2"; }
 
-		category:       1;
-		width_x:        1;
-		width_y:        1;
-		height_0_0:     6;
-		buy_cost:    1000;
-		return_cost:  400;
-		thirst:         0;
+		category:          1;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        6;
+		buy_cost:       1000;
+		return_cost:     400;
+		watering_interval: 0;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -193,13 +193,13 @@ file("scenery.rcd") {
 	SCNY {
 		texts: strings { key: "tree3"; }
 
-		category:       1;
-		width_x:        1;
-		width_y:        1;
-		height_0_0:     6;
-		buy_cost:    1000;
-		return_cost:  400;
-		thirst:         0;
+		category:          1;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        6;
+		buy_cost:       1000;
+		return_cost:     400;
+		watering_interval: 0;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -215,6 +215,41 @@ file("scenery.rcd") {
 		preview_ne: sprite {
 			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 36; height: 64;
 			file: "../sprites/scenery/objects/tree3_preview.png";
+		}
+	}
+
+	// Fountain 1
+	SCNY {
+		texts: strings { key: "fountain1"; }
+
+		category:          3;
+		width_x:           1;
+		width_y:           2;
+		height_0_0:        4;
+		height_1_0:        4;
+		buy_cost:      10000;
+		return_cost:   -2000;
+		watering_interval: 0;
+
+		symmetric: 0;
+		main_animation: TIMA {
+			frames: 30;
+			fps: 10;
+			tile_width: 64;
+			sheet: sheet {
+				x_count: 1;
+				y_count: 2;
+				width: 64; x_step: 64;
+				height: 72; y_step: 72;
+				x_offset: -32; x_base: 0;
+				y_offset: 32-72; y_base: 0;
+				file: "../sprites/scenery/objects/fountain1.png"; crop: 0;
+			}
+		}
+		(preview_ne, preview_se, preview_sw, preview_nw): sheet {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
+			file: "../sprites/scenery/objects/fountain1_preview.png";
+			x_step: 64; y_step: 0;
 		}
 	}
 }

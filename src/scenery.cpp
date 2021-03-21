@@ -27,6 +27,7 @@ SceneryType::SceneryType()
 	this->buy_cost = Money();
 	this->return_cost = Money();
 	this->return_cost_dry = Money();
+	this->watering_interval = 0;
 	this->symmetric = true;
 	this->main_animation = nullptr;
 	this->dry_animation = nullptr;
@@ -56,7 +57,7 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 		}
 	}
 
-	this->thirst = rcd_file->GetUInt32();
+	this->watering_interval = rcd_file->GetUInt32();
 	this->main_animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	this->dry_animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	for (int i = 0; i < 4; i++) {
@@ -223,7 +224,7 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
  */
 void SceneryInstance::OnAnimate(const int delay)
 {
-	if (this->type->thirst > 0) this->last_watered += delay;
+	if (this->type->watering_interval > 0) this->last_watered += delay;
 	this->animtime += delay;
 	this->animtime %= (this->NeedsWatering() ? this->type->dry_animation : this->type->main_animation)->GetTotalDuration();
 	this->MarkDirty();  // Ensure the animation is updated.
@@ -235,7 +236,7 @@ void SceneryInstance::OnAnimate(const int delay)
  */
 bool SceneryInstance::NeedsWatering() const
 {
-	return this->type->thirst > 0 && this->last_watered > this->type->thirst;
+	return this->type->watering_interval > 0 && this->last_watered > this->type->watering_interval;
 }
 
 void SceneryInstance::Load(Loader &ldr)

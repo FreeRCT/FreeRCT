@@ -728,7 +728,7 @@ public:
 	int32 buy_cost;                   ///< Cost to place this item.
 	int32 return_cost;                ///< Cost when removing this item.
 	int32 return_cost_dry;            ///< Cost when removing this item when dry.
-	uint32 thirst;                    ///< How often this item needs to be watered.
+	uint32 watering_interval;         ///< How often this item needs to be watered.
 
 	std::shared_ptr<TIMABlock> main_animation;  ///< Main image.
 	std::shared_ptr<TIMABlock> dry_animation;   ///< Dry image.

@@ -186,8 +186,10 @@ static const char *_gui_string_names[] = {
 
 	/* Scenery window. */
 	"SCENERY_TITLE",
+	"SCENERY_ROTATE",
 	"SCENERY_CATEGORY_TREES",
 	"SCENERY_CATEGORY_FLOWERBEDS",
+	"SCENERY_CATEGORY_FOUNTAINS",
 
 	/* Terraform window. */
 	"TERRAFORM_TITLE",

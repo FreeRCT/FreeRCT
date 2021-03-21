@@ -178,8 +178,10 @@ strings {
 
 		// Scenery gui strings.
 		SCENERY_TITLE:               "Scenery";
+		SCENERY_ROTATE:              "Rotate item";
 		SCENERY_CATEGORY_TREES:      "Trees";
 		SCENERY_CATEGORY_FLOWERBEDS: "Flowerbeds";
+		SCENERY_CATEGORY_FOUNTAINS:  "Fountains";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Modify landscape";
@@ -394,5 +396,8 @@ strings {
 	}
 	stringtexts("tree3") {
 		NAME: "Tree 3";
+	}
+	stringtexts("fountain1") {
+		NAME: "Fountain 1";
 	}
 }

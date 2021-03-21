@@ -52,8 +52,10 @@ private:
 enum SceneryWidgets {
 	SCENERY_GUI_LIST,             ///< List of Scenery types.
 	SCENERY_GUI_SCROLL_LIST,      ///< Scrollbar of the list.
+	SCENERY_ROTATE,               ///< Rotate button.
 	SCENERY_CATEGORY_TREES,       ///< Tab for the Trees category.
 	SCENERY_CATEGORY_FLOWERBEDS,  ///< Tab for the Flowerbeds category.
+	SCENERY_CATEGORY_FOUNTAINS,   ///< Tab for the Fountains category.
 };
 
 static const uint ITEM_COUNT   =   5;  ///< Number of items to display.
@@ -79,7 +81,9 @@ static const WidgetPart _scenery_build_gui_parts[] = {
 					Widget(WT_LEFT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
 					Widget(WT_TEXT_TAB, SCENERY_CATEGORY_TREES, COL_RANGE_DARK_GREEN), SetData(GUI_SCENERY_CATEGORY_TREES, STR_NULL),
 					Widget(WT_TEXT_TAB, SCENERY_CATEGORY_FLOWERBEDS, COL_RANGE_DARK_GREEN), SetData(GUI_SCENERY_CATEGORY_FLOWERBEDS, STR_NULL),
+					Widget(WT_TEXT_TAB, SCENERY_CATEGORY_FOUNTAINS, COL_RANGE_DARK_GREEN), SetData(GUI_SCENERY_CATEGORY_FOUNTAINS, STR_NULL),
 					Widget(WT_RIGHT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetFill(1, 1), SetResize(1, 1),
+					Widget(WT_IMAGE_PUSHBUTTON, SCENERY_ROTATE, COL_RANGE_DARK_RED), SetData(SPR_GUI_ROT2D_POS, GUI_SCENERY_ROTATE),
 				EndContainer(),
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
 				Widget(WT_EMPTY, SCENERY_GUI_LIST, COL_RANGE_DARK_GREEN),
@@ -117,6 +121,7 @@ void SceneryGui::SetCategory(const SceneryCategory cat)
 
 	this->SetWidgetPressed(SCENERY_CATEGORY_TREES,      cat == SCC_TREES);
 	this->SetWidgetPressed(SCENERY_CATEGORY_FLOWERBEDS, cat == SCC_FLOWERBEDS);
+	this->SetWidgetPressed(SCENERY_CATEGORY_FOUNTAINS,  cat == SCC_FOUNTAINS);
 }
 
 void SceneryGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) const
@@ -155,6 +160,7 @@ void SceneryGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) c
 void SceneryGui::SetType(const SceneryType *t)
 {
 	this->selected_type = t;
+	this->SetWidgetShaded(SCENERY_ROTATE, t == nullptr || t->symmetric);
 	if (t == nullptr) {
 		this->SetSelector(nullptr);
 		this->instance.reset();
@@ -170,11 +176,21 @@ void SceneryGui::SetType(const SceneryType *t)
 void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 {
 	switch (number) {
+		case SCENERY_ROTATE:
+			this->orientation++;
+			this->orientation %= 4;
+			this->scenery_sel.SetSize(0, 0);
+			this->MarkDirty();
+			break;
+
 		case SCENERY_CATEGORY_TREES:
 			this->SetCategory(SCC_TREES);
 			break;
 		case SCENERY_CATEGORY_FLOWERBEDS:
 			this->SetCategory(SCC_FLOWERBEDS);
+			break;
+		case SCENERY_CATEGORY_FOUNTAINS:
+			this->SetCategory(SCC_FOUNTAINS);
 			break;
 
 		case SCENERY_GUI_LIST: {

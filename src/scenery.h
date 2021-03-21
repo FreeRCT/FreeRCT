@@ -30,6 +30,7 @@ enum SceneryCategory {
 	SCC_SCENARIO   = 0,  ///< Can not be built or removed by the player.
 	SCC_TREES      = 1,  ///< Trees.
 	SCC_FLOWERBEDS = 2,  ///< Flowerbeds.
+	SCC_FOUNTAINS  = 3,  ///< Fountains.
 };
 
 /** A type of scenery, e.g. trees, flower beds. */
@@ -45,10 +46,10 @@ public:
 	uint8 width_y;             ///< Number of voxels in x direction occupied by this item.
 	std::unique_ptr<int8[]> heights;
 
-	Money buy_cost;         ///< Cost of buying this item.
-	Money return_cost;      ///< Amount of money returned or consumed when removing this item.
-	Money return_cost_dry;  ///< Amount of money returned or consumed when removing this item when it's dry.
-	uint32 thirst;          ///< How often in milliseconds this item needs watering (\c 0 means never).
+	Money buy_cost;            ///< Cost of buying this item.
+	Money return_cost;         ///< Amount of money returned or consumed when removing this item.
+	Money return_cost_dry;     ///< Amount of money returned or consumed when removing this item when it's dry.
+	uint32 watering_interval;  ///< How often in milliseconds this item needs watering (\c 0 means never).
 
 	bool symmetric;                        ///< Whether this item is perfectly symmetric and can therefore not be rotated.
 	const TimedAnimation *main_animation;  ///< Graphics for this scenery item.

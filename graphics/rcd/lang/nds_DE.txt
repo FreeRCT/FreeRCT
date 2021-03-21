@@ -178,8 +178,10 @@ strings {
 
 		// Scenery gui strings.
 		SCENERY_TITLE:               "Landskupp-Dingen";
+		SCENERY_ROTATE:              "Ding dreihen";
 		SCENERY_CATEGORY_TREES:      "Bomen";
 		SCENERY_CATEGORY_FLOWERBEDS: "Blomenbedden";
+		SCENERY_CATEGORY_FOUNTAINS:  "Springbrunnens";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Landskupp bewarken";
@@ -394,5 +396,8 @@ strings {
 	}
 	stringtexts("tree3") {
 		NAME: "Boom 3";
+	}
+	stringtexts("fountain1") {
+		NAME: "Springbrunnen 1";
 	}
 }

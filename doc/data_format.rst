@@ -791,6 +791,7 @@ Valid scenery categories are:
 - 0: Scenario item (can not be built or removed by the player).
 - 1: Trees.
 - 2: Flowerbeds.
+- 3: Fountains.
 
 Version history
 ...............
