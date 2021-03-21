@@ -246,7 +246,7 @@ file("scenery.rcd") {
 				file: "../sprites/scenery/objects/fountain1.png"; crop: 0;
 			}
 		}
-		(preview_ne, preview_se, preview_sw, preview_nw): sheet {
+		(preview_ne, preview_nw, preview_sw, preview_se): sheet {
 			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
 			file: "../sprites/scenery/objects/fountain1_preview.png";
 			x_step: 64; y_step: 0;
