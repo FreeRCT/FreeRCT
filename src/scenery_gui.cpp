@@ -173,6 +173,7 @@ void SceneryGui::SetType(const SceneryType *t)
 		this->instance->orientation = this->orientation;
 		this->SetSelector(&this->scenery_sel);
 	}
+	_scenery.temp_item = nullptr;
 	this->scenery_sel.SetSize(0, 0);
 	this->MarkDirty();
 }
@@ -184,6 +185,7 @@ void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 		case SCENERY_ROTATE_NEG:
 			this->orientation += (number == SCENERY_ROTATE_POS ? 3 : 1);
 			this->orientation %= 4;
+			_scenery.temp_item = nullptr;
 			this->scenery_sel.SetSize(0, 0);
 			this->MarkDirty();
 			break;
@@ -218,6 +220,8 @@ void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
 	if (this->instance.get() == nullptr) return;
+	this->instance->RemoveFromWorld();
+	_scenery.temp_item = nullptr;
 	this->instance->orientation = this->orientation;
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 	const int8 dx = _orientation_signum_dx[vp->orientation];
@@ -247,7 +251,16 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			}
 		}
 		this->scenery_sel.SetupRideInfoSpace();
+		const uint16 voxel_data = _scenery.GetSceneryTypeIndex(this->selected_type);
+		for (int8 x = 0; x < this->selected_type->width_x; x++) {
+			for (int8 y = 0; y < this->selected_type->width_y; y++) {
+				const XYZPoint16 pos = this->instance->vox_pos + OrientatedOffset(this->instance->orientation, x, y);
+				this->scenery_sel.SetRideData(pos, SRI_SCENERY, voxel_data);
+			}
+		}
 
+		_scenery.temp_item = this->instance.get();
+		this->instance->InsertIntoWorld();
 		placed = true;
 		break;
 	}
@@ -289,6 +302,7 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 	if (!IsLeftClick(state)) return;
 	if (scenery_sel.area.width < 1 || scenery_sel.area.height < 1) return;
 
+	this->instance->RemoveFromWorld();  // The scenery manager will want to re-insert it, so we must unlink it first.
 	_finances_manager.PayLandscaping(this->selected_type->buy_cost);
 	_scenery.AddItem(this->instance.release());
 

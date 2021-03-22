@@ -262,7 +262,7 @@ void SceneryInstance::Save(Saver &svr) const
 /** Default constructor. */
 SceneryManager::SceneryManager()
 {
-	/* Nothing to do currently. */
+	this->temp_item = nullptr;
 }
 
 /**
@@ -314,6 +314,7 @@ std::vector<const SceneryType*> SceneryManager::GetAllTypes(SceneryCategory cat)
 /** Remove all scenery items. */
 void SceneryManager::Clear()
 {
+	this->temp_item = nullptr;
 	while (!this->all_items.empty()) this->RemoveItem(this->all_items.begin()->first);
 }
 
@@ -360,6 +361,7 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 {
 	auto it = this->all_items.find(pos);
 	if (it != this->all_items.end()) return it->second.get();
+	if (this->temp_item != nullptr && this->temp_item->vox_pos == pos) return this->temp_item;
 
 	const Voxel* voxel = _world.GetVoxel(pos);
 	if (voxel == nullptr || voxel->instance != SRI_SCENERY) return nullptr;
@@ -372,16 +374,25 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 		for (int y = -search_radius; y <= search_radius; y++) {
 			const XYZPoint16 p(pos.x + x, pos.y + y, pos.z);
 			it = this->all_items.find(p);
-			if (it == this->all_items.end()) continue;
-			if (it->second->type != type) continue;
+			SceneryInstance *candidate;
+			if (it == this->all_items.end()) {
+				if (this->temp_item != nullptr && this->temp_item->vox_pos == p) {
+					candidate = this->temp_item;
+				} else {
+					continue;
+				}
+			} else {
+				candidate = it->second.get();
+			}
+			if (candidate->type != type) continue;
 
-			const XYZPoint16 corner = p + OrientatedOffset(it->second->orientation, type->width_x - 1, type->width_y - 1);
+			const XYZPoint16 corner = p + OrientatedOffset(candidate->orientation, type->width_x - 1, type->width_y - 1);
 			if (
 					pos.x >= std::min(p.x, corner.x) &&
 					pos.x <= std::max(p.x, corner.x) &&
 					pos.y >= std::min(p.y, corner.y) &&
 					pos.y <= std::max(p.y, corner.y)) {
-				return it->second.get();
+				return candidate;
 			}
 		}
 	}

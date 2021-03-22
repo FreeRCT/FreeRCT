@@ -111,6 +111,8 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
 
+	SceneryInstance *temp_item;  ///< An item that is currently being placed (not owned).
+
 private:
 	std::unique_ptr<SceneryType> scenery_item_types[MAX_NUMBER_OF_SCENERY_TYPES];  ///< All available scenery types.
 	std::map<XYZPoint16, std::unique_ptr<SceneryInstance>> all_items;              ///< All scenery items in the world, with their base voxel as key.

@@ -387,7 +387,7 @@ strings {
 		NAME: "Flowerbed 1";
 	}
 	stringtexts("flowers2") {
-		NAME: "Flowerbed 1";
+		NAME: "Flowerbed 2";
 	}
 	stringtexts("flowers3") {
 		NAME: "Flowerbed 3";
