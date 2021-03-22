@@ -12,6 +12,7 @@
 #include "finances.h"
 #include "messages.h"
 #include "sprite_store.h"
+#include "path_build.h"
 #include "person.h"
 #include "people.h"
 #include "window.h"
@@ -189,8 +190,26 @@ void GameControl::NewLevel()
 	_world.MakeFlatWorld(8);
 	_world.SetTileOwnerGlobally(OWN_NONE);
 	_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);
-	_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
 	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
+
+	std::vector<const SceneryType*> park_entrance_types = _scenery.GetAllTypes(SCC_SCENARIO);
+	if (park_entrance_types.size() < 3) {
+		_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
+	} else {
+		/* Assemble a park entrance and some paths. This assumes that the entrance parts are the first three scenario scenery items loaded. */
+		_world.AddEdgesWithoutBorderFence(Point16(9, 1), EDGE_SE);
+		for (int i = 0; i < 3; i++) {
+			SceneryInstance *item = new SceneryInstance(park_entrance_types[i]);
+			item->orientation = 0;
+			item->vox_pos.x = 8 + i;
+			item->vox_pos.y = 1;
+			item->vox_pos.z = (i == 1 ? 12 : 8);
+			_scenery.AddItem(item);
+		}
+		for (int i = 0; i < 6; i++) {
+			BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, false);
+		}
+	}
 
 	_inbox.Clear();
 	_finances_manager.SetScenario(_scenario);

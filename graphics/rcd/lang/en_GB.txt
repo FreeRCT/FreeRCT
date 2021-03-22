@@ -380,6 +380,9 @@ strings {
 		DESCRIPTION_RECOLOUR3: "-";
 	}
 
+	stringtexts("park-entrance-generic") {
+		NAME: "Generic Park Entrance";
+	}
 	stringtexts("flowers1") {
 		NAME: "Flowerbed 1";
 	}

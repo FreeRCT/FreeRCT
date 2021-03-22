@@ -17,6 +17,7 @@
 #include "bitmath.h"
 
 #include <map>
+#include <set>
 
 class Viewport;
 
@@ -621,6 +622,8 @@ public:
 	void SetTileOwner(uint16 x, uint16 y, TileOwner owner);
 	void SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner);
 	void SetTileOwnerGlobally(TileOwner owner);
+	void UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height);
+	void AddEdgesWithoutBorderFence(const Point16& p, TileEdge e);
 
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr);
@@ -630,6 +633,7 @@ private:
 	uint16 y_size; ///< Current max y size (in voxels).
 
 	VoxelStack stacks[WORLD_X_SIZE * WORLD_Y_SIZE]; ///< All voxel stacks in the world.
+	std::set<std::pair<Point16, TileEdge>> edges_without_border_fence;  ///< Tile edges at which no border fence is desired.
 };
 
 /**

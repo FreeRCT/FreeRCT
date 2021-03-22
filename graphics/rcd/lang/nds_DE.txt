@@ -380,6 +380,9 @@ strings {
 		DESCRIPTION_RECOLOUR3: "-";
 	}
 
+	stringtexts("park-entrance-generic") {
+		NAME: "Normaaler Parkingang";
+	}
 	stringtexts("flowers1") {
 		NAME: "Blomenbedd 1";
 	}
