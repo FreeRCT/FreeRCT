@@ -287,7 +287,7 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 			if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(location.x, location.y) != OWN_PARK) continue;
 
 			SceneryInstance *i = _scenery.GetItem(location);
-			if (i != nullptr) {
+			if (i != nullptr && i != _scenery.temp_item) {
 				if (i->type->category != SCC_SCENARIO) {
 					_finances_manager.PayLandscaping(i->NeedsWatering() ? i->type->return_cost_dry : i->type->return_cost);
 					_scenery.RemoveItem(i->vox_pos);
