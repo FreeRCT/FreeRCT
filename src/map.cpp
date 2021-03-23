@@ -327,6 +327,7 @@ static void AddFoundations(VoxelWorld *world, uint16 xpos, uint16 ypos, int16 z,
  */
 void VoxelWorld::MakeFlatWorld(int16 z)
 {
+	this->edges_without_border_fence.clear();
 	for (uint16 xpos = 0; xpos < this->x_size; xpos++) {
 		for (uint16 ypos = 0; ypos < this->y_size; ypos++) {
 			Voxel *v = this->GetCreateVoxel(XYZPoint16(xpos, ypos, z), true);
@@ -714,13 +715,24 @@ uint16 GetGroundFencesFromMap(const VoxelStack *stack, int base_z)
 }
 
 /**
+ * Override the border fence creation at a specific point by declaring that no border fence will be drawn there.
+ * @param p Voxel position.
+ * @param e Edge of the voxel at which no fence shall be placed.
+ */
+void VoxelWorld::AddEdgesWithoutBorderFence(const Point16& p, TileEdge e)
+{
+	this->edges_without_border_fence.insert(std::make_pair(p, e));
+	this->UpdateLandBorderFence(p.x - std::min<int>(p.x, 1), p.y - std::min<int>(p.y, 1), 3, 3);
+}
+
+/**
  * Add/remove land border fence based on current land ownership for the given tile rectangle.
  * @param x Base X coordinate of the rectangle.
  * @param y Base Y coordinate of the rectangle.
  * @param width Length in X direction of the rectangle.
  * @param height Length in Y direction of the rectangle.
  */
-void UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height)
+void VoxelWorld::UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height)
 {
 	/*
 	 * Iterate over given rectangle plus one tile, unless the map border
@@ -750,7 +762,8 @@ void UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height)
 					if ((ix > 0 || pt.x >= 0) && (iy > 0 || pt.y >= 0)) {
 						uint16 nx = ix + pt.x;
 						uint16 ny = iy + pt.y;
-						if (nx < _world.GetXSize() && ny < _world.GetYSize() && _world.GetTileOwner(nx, ny) == OWN_PARK) {
+						if (nx < _world.GetXSize() && ny < _world.GetYSize() && _world.GetTileOwner(nx, ny) == OWN_PARK &&
+								this->edges_without_border_fence.count(std::make_pair(Point16(ix, iy), edge)) == 0) {
 							ftype = FENCE_TYPE_LAND_BORDER;
 						}
 					}
@@ -813,9 +826,18 @@ void VoxelWorld::Load(Loader &ldr)
 	uint32 version = ldr.OpenBlock("WRLD");
 	uint16 xsize = 64;
 	uint16 ysize = 64;
-	if (version == 1) {
+	this->edges_without_border_fence.clear();
+	if (version >= 1 && version <= 2) {
 		xsize = ldr.GetWord();
 		ysize = ldr.GetWord();
+		if (version > 1) {
+			for (int i = ldr.GetWord(); i > 0; i--) {
+				Point16 p;
+				p.x = ldr.GetWord();
+				p.y = ldr.GetWord();
+				this->edges_without_border_fence.insert(std::make_pair(p, static_cast<TileEdge>(ldr.GetByte())));
+			}
+		}
 	} else if (version != 0) {
 		ldr.SetFailMessage("Unknown world version.");
 	}
@@ -845,9 +867,15 @@ void VoxelWorld::Load(Loader &ldr)
 void VoxelWorld::Save(Saver &svr) const
 {
 	/* Save basic map information (rides are saved as part of the ride). */
-	svr.StartBlock("WRLD", 1);
+	svr.StartBlock("WRLD", 2);
 	svr.PutWord(this->GetXSize());
 	svr.PutWord(this->GetYSize());
+	svr.PutWord(this->edges_without_border_fence.size());
+	for (const auto &pair : this->edges_without_border_fence) {
+		svr.PutWord(pair.first.x);
+		svr.PutWord(pair.first.y);
+		svr.PutByte(pair.second);
+	}
 	svr.EndBlock();
 	for (uint16 x = 0; x < this->GetXSize(); x++) {
 		for (uint16 y = 0; y < this->GetYSize(); y++) {

@@ -60,6 +60,8 @@ static const char *_gui_string_names[] = {
 	"TOOLBAR_GUI_TOOLTIP_RIDE_SELECT",
 	"TOOLBAR_GUI_FENCE",
 	"TOOLBAR_GUI_TOOLTIP_FENCE",
+	"TOOLBAR_GUI_SCENERY",
+	"TOOLBAR_GUI_TOOLTIP_SCENERY",
 	"TOOLBAR_GUI_TERRAFORM",
 	"TOOLBAR_GUI_TOOLTIP_TERRAFORM",
 	"TOOLBAR_GUI_FINANCES",
@@ -181,6 +183,14 @@ static const char *_gui_string_names[] = {
 
 	/* Fence window. */
 	"FENCE_TITLE",
+
+	/* Scenery window. */
+	"SCENERY_TITLE",
+	"SCENERY_ROTATE_POS",
+	"SCENERY_ROTATE_NEG",
+	"SCENERY_CATEGORY_TREES",
+	"SCENERY_CATEGORY_FLOWERBEDS",
+	"SCENERY_CATEGORY_FOUNTAINS",
 
 	/* Terraform window. */
 	"TERRAFORM_TITLE",
@@ -329,6 +339,11 @@ static const char *_entrance_exit_string_names[] = {
 	"DESCRIPTION_RECOLOUR1",
 	"DESCRIPTION_RECOLOUR2",
 	"DESCRIPTION_RECOLOUR3",
+};
+
+/** String names of a scenery item. */
+static const char *_scenery_string_names[] = {
+	"NAME",
 };
 
 #endif

@@ -231,7 +231,7 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
 	/* 1. Can the position itself be used to build a ride? */
 	for (int x = 0; x < selected_ride->width_x; ++x) {
 		for (int y = 0; y < selected_ride->width_y; ++y) {
-			const XYZPoint16 location = selected_ride->OrientatedOffset(ride_orient, x, y) + pos;
+			const XYZPoint16 location = OrientatedOffset(ride_orient, x, y) + pos;
 			if (!IsVoxelstackInsideWorld(location.x, location.y) || _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
 		}
 	}
@@ -239,7 +239,7 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
 	bool can_place_air = true;
 	for (int x = 0; x < selected_ride->width_x; ++x) {
 		for (int y = 0; y < selected_ride->width_y; ++y) {
-			const XYZPoint16 location = pos + selected_ride->OrientatedOffset(ride_orient, x, y);
+			const XYZPoint16 location = pos + OrientatedOffset(ride_orient, x, y);
 			can_place_base |= CanPlaceFixedRideOnFlatGround(location);
 			can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
 			if (!can_place_air) break;
@@ -254,7 +254,7 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
 		can_place_air = true;
 		for (int x = 0; x < selected_ride->width_x; ++x) {
 			for (int y = 0; y < selected_ride->width_y; ++y) {
-				const XYZPoint16 location = pos + selected_ride->OrientatedOffset(ride_orient, x, y);
+				const XYZPoint16 location = pos + OrientatedOffset(ride_orient, x, y);
 				can_place_base |= CanPlaceFixedRideOnSlope(location);
 				can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
 				if (!can_place_air) break;
@@ -344,7 +344,7 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			const FixedRideType* type = si->GetFixedRideType();
 			{
 				XYZPoint16 location = si->vox_pos;
-				XYZPoint16 extent = type->OrientatedOffset(si->orientation, type->width_x, type->width_y);
+				XYZPoint16 extent = OrientatedOffset(si->orientation, type->width_x, type->width_y);
 				if (extent.x < 0) {
 					location.x += extent.x + 1;
 					extent.x *= -1;
@@ -358,7 +358,7 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			}
 			for (int8 x = 0; x < type->width_x; ++x) {
 				for (int8 y = 0; y < type->width_y; ++y) {
-					this->selector.AddVoxel(si->vox_pos + type->OrientatedOffset(si->orientation, x, y));
+					this->selector.AddVoxel(si->vox_pos + OrientatedOffset(si->orientation, x, y));
 				}
 			}
 			this->selector.SetupRideInfoSpace();
@@ -366,7 +366,7 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
 			for (int8 x = 0; x < type->width_x; ++x) {
 				for (int8 y = 0; y < type->width_y; ++y) {
-					const XYZPoint16 pos = si->vox_pos + type->OrientatedOffset(si->orientation, x, y);
+					const XYZPoint16 pos = si->vox_pos + OrientatedOffset(si->orientation, x, y);
 					this->selector.SetRideData(pos, inst_number, si->GetEntranceDirections(pos));
 				}
 			}

@@ -76,7 +76,7 @@ bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const Text
 	this->heights[0] = rcd_file->GetUInt8();
 	this->flags = rcd_file->GetUInt8() & 0xF;
 
-	animation_idle = _sprite_manager.GetFrameSet(rcd_file->GetUInt32());
+	animation_idle = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	if (animation_idle == nullptr || animation_idle->width_x != this->width_x || animation_idle->width_y != this->width_y) return false;
 	for (int i = 0; i < 4; i++) {
 		previews[i] = animation_idle->sprites[i][0];

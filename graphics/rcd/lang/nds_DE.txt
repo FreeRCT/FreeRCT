@@ -52,8 +52,10 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Eene neje Bude för dienen Park bauen";
 		TOOLBAR_GUI_FENCE:                "Schütten bauen";
 		TOOLBAR_GUI_TOOLTIP_FENCE:        "Schütten in dienem Park bauen";
-		TOOLBAR_GUI_TERRAFORM:            "Landskupp";
-		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "De Landskupp bewarken";
+		TOOLBAR_GUI_SCENERY:              "Landskupp-Dingen";
+		TOOLBAR_GUI_TOOLTIP_SCENERY:      "Landskupp-Dingen in dienem Park bauen";
+		TOOLBAR_GUI_TERRAFORM:            "Landskupp-Form";
+		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "De Form vun de Landskupp bewarken";
 		TOOLBAR_GUI_FINANCES:             "Geld";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "De Firmen-Finanzen besörgen";
 		TOOLBAR_GUI_INBOX:                "Narichtens";
@@ -173,6 +175,14 @@ strings {
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Schütten bauen";
+
+		// Scenery gui strings.
+		SCENERY_TITLE:               "Landskupp-Dingen";
+		SCENERY_ROTATE_POS:          "Ding tegen de Klockwieser dreihen";
+		SCENERY_ROTATE_NEG:          "Ding mit de Klockwieser dreihen";
+		SCENERY_CATEGORY_TREES:      "Bomen";
+		SCENERY_CATEGORY_FLOWERBEDS: "Blomenbedden";
+		SCENERY_CATEGORY_FOUNTAINS:  "Springbrunnens";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Landskupp bewarken";
@@ -368,5 +378,30 @@ strings {
 		DESCRIPTION_RECOLOUR1: "-";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
+	}
+
+	stringtexts("park-entrance-generic") {
+		NAME: "Normaaler Parkingang";
+	}
+	stringtexts("flowers1") {
+		NAME: "Blomenbedd 1";
+	}
+	stringtexts("flowers2") {
+		NAME: "Blomenbedd 2";
+	}
+	stringtexts("flowers3") {
+		NAME: "Blomenbedd 3";
+	}
+	stringtexts("tree1") {
+		NAME: "Boom 1";
+	}
+	stringtexts("tree2") {
+		NAME: "Boom 2";
+	}
+	stringtexts("tree3") {
+		NAME: "Boom 3";
+	}
+	stringtexts("fountain1") {
+		NAME: "Springbrunnen 1";
 	}
 }

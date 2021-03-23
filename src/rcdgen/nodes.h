@@ -615,6 +615,8 @@ public:
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> nw_views; ///< Rotated 270 degrees.
+	bool unrotated_views_only;                                ///< Whether only the unrotated views have been specified.
+	bool unrotated_views_only_allowed;                        ///< Whether it is allowed to specify only the unrotated views.
 };
 
 /** Class for describing a TIMA game block. */
@@ -628,6 +630,8 @@ public:
 	int frames;                       ///< The number of frames in the animation.
 	std::unique_ptr<int[]> durations; ///< The duration of each frame in milliseconds.
 	std::unique_ptr<std::shared_ptr<FSETBlock>[]> views; ///< The frames' image sets.
+	bool unrotated_views_only;                           ///< Whether only the unrotated views have been specified.
+	bool unrotated_views_only_allowed;                   ///< Whether it is allowed to specify only the unrotated views.
 };
 
 /** Class for describing a RIEE game block. */
@@ -706,6 +710,30 @@ public:
 	std::shared_ptr<TIMABlock> stopping_animation;
 	std::shared_ptr<SpriteBlock> previews[4]; ///< Previews for ne,se,sw,nw.
 	std::shared_ptr<StringBundle> ride_text;   ///< Texts of the ride.
+};
+
+/** Class for describing a SCNY game block. */
+class SCNYBlock : public GameBlock {
+public:
+	SCNYBlock();
+	virtual ~SCNYBlock() = default;
+
+	int Write(FileWriter *fw) override;
+
+	int8 category;                    ///< Item type category.
+	int8 width_x;                     ///< The number of voxels the item occupies in x direction.
+	int8 width_y;                     ///< The number of voxels the item occupies in y direction.
+	std::unique_ptr<int8[]> heights;  ///< Heights of the item in voxels.
+	bool symmetric;                   ///< Whether the item cannot be rotated.
+	int32 buy_cost;                   ///< Cost to place this item.
+	int32 return_cost;                ///< Cost when removing this item.
+	int32 return_cost_dry;            ///< Cost when removing this item when dry.
+	uint32 watering_interval;         ///< How often this item needs to be watered.
+
+	std::shared_ptr<TIMABlock> main_animation;  ///< Main image.
+	std::shared_ptr<TIMABlock> dry_animation;   ///< Dry image.
+	std::shared_ptr<SpriteBlock> previews[4];   ///< Previews for ne,se,sw,nw.
+	std::shared_ptr<StringBundle> texts;        ///< Texts of the scenery item.
 };
 
 /** GBOR game block. */

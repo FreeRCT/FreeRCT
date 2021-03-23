@@ -51,7 +51,9 @@ strings {
 		TOOLBAR_GUI_RIDE_SELECT:          "Buy ride";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Buy a new ride for your park";
 		TOOLBAR_GUI_FENCE:                "Build fence";
-		TOOLBAR_GUI_TOOLTIP_FENCE:        "Build fence in your park";
+		TOOLBAR_GUI_TOOLTIP_FENCE:        "Build fences in your park";
+		TOOLBAR_GUI_SCENERY:              "Scenery";
+		TOOLBAR_GUI_TOOLTIP_SCENERY:      "Build scenery items in your park";
 		TOOLBAR_GUI_TERRAFORM:            "Landscaping";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modify landscape";
 		TOOLBAR_GUI_FINANCES:             "Finances";
@@ -173,6 +175,14 @@ strings {
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";
+
+		// Scenery gui strings.
+		SCENERY_TITLE:               "Scenery";
+		SCENERY_ROTATE_POS:          "Rotate item counter-clockwise";
+		SCENERY_ROTATE_NEG:          "Rotate item clockwise";
+		SCENERY_CATEGORY_TREES:      "Trees";
+		SCENERY_CATEGORY_FLOWERBEDS: "Flowerbeds";
+		SCENERY_CATEGORY_FOUNTAINS:  "Fountains";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Modify landscape";
@@ -368,5 +378,30 @@ strings {
 		DESCRIPTION_RECOLOUR1: "-";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
+	}
+
+	stringtexts("park-entrance-generic") {
+		NAME: "Generic Park Entrance";
+	}
+	stringtexts("flowers1") {
+		NAME: "Flowerbed 1";
+	}
+	stringtexts("flowers2") {
+		NAME: "Flowerbed 2";
+	}
+	stringtexts("flowers3") {
+		NAME: "Flowerbed 3";
+	}
+	stringtexts("tree1") {
+		NAME: "Tree 1";
+	}
+	stringtexts("tree2") {
+		NAME: "Tree 2";
+	}
+	stringtexts("tree3") {
+		NAME: "Tree 3";
+	}
+	stringtexts("fountain1") {
+		NAME: "Fountain 1";
 	}
 }

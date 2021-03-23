@@ -26,6 +26,7 @@
 #include "gentle_thrill_ride_type.h"
 #include "coaster.h"
 #include "gui_sprites.h"
+#include "scenery.h"
 #include "string_func.h"
 
 SpriteManager _sprite_manager; ///< Sprite manager.
@@ -413,7 +414,7 @@ bool TimedAnimation::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	this->views.reset(new const FrameSet*[this->frames]);
 	for (int f = 0; f < this->frames; ++f) this->durations[f] = rcd_file->GetUInt32();
 	for (int f = 0; f < this->frames; ++f) {
-		this->views[f] = _sprite_manager.GetFrameSet(rcd_file->GetUInt32());
+		this->views[f] = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	}
 	return true;
 }
@@ -1548,7 +1549,7 @@ const char *SpriteManager::Load(const char *filename)
 				delete fset;
 				return "Frame set failed to load.";
 			}
-			this->store.frame_sets[blk_num] = fset;
+			this->store.frame_sets[ImageSetKey(filename, blk_num)] = fset;
 			continue;
 		}
 
@@ -1558,7 +1559,20 @@ const char *SpriteManager::Load(const char *filename)
 				delete anim;
 				return "Timed animation failed to load.";
 			}
-			this->store.timed_animations[blk_num] = anim;
+			this->store.timed_animations[ImageSetKey(filename, blk_num)] = anim;
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "SCNY") == 0) {
+			SceneryType *s = new SceneryType;
+			if (!s->Load(&rcd_file, sprites, texts)) {
+				delete s;
+				return "Scenery type failed to load.";
+			}
+			if (!_scenery.AddSceneryType(s)) {
+				delete s;
+				return "No space for scenery type left.";
+			}
 			continue;
 		}
 
@@ -1851,23 +1865,23 @@ const Fence *SpriteManager::GetFence(FenceType fence_type) const
 
 /**
  * Get the frame set rcd data at a given frame set index
- * @param index The FSET block's index in the rcd file.
+ * @param key The FSET block's index in the rcd file.
  * @return FrameSet object or nullptr.
  */
-const FrameSet *SpriteManager::GetFrameSet(const int index) const
+const FrameSet *SpriteManager::GetFrameSet(const ImageSetKey &key) const
 {
-	auto it = this->store.frame_sets.find(index);
+	auto it = this->store.frame_sets.find(key);
 	return it == this->store.frame_sets.end() ? nullptr : it->second;
 }
 
 /**
  * Get the timed animation rcd data at a given timed animation index
- * @param index The TIMA block's index in the rcd file.
+ * @param key The TIMA block's index in the rcd file.
  * @return TimedAnimation object or nullptr.
  */
-const TimedAnimation *SpriteManager::GetTimedAnimation(const int index) const
+const TimedAnimation *SpriteManager::GetTimedAnimation(const ImageSetKey &key) const
 {
-	auto it = this->store.timed_animations.find(index);
+	auto it = this->store.timed_animations.find(key);
 	return it == this->store.timed_animations.end() ? nullptr : it->second;
 }
 

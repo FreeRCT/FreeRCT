@@ -62,6 +62,7 @@ public:
 
 	size_t GetRemaining();
 
+	std::string filename;  ///< Name of the RCD file.
 	char name[5];   ///< Name of the last found block (with #ReadBlockHeader).
 	uint32 version; ///< Version number of the last found block (with #ReadBlockHeader).
 	uint32 size;    ///< Data size of the last found block (with #ReadBlockHeader).

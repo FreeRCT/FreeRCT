@@ -973,10 +973,16 @@ int SHOPBlock::Write(FileWriter *fw)
 
 FSETBlock::FSETBlock() : GameBlock("FSET", 1)
 {
+	this->unrotated_views_only = false;
+	this->unrotated_views_only_allowed = false;
 }
 
 int FSETBlock::Write(FileWriter *fw)
 {
+	if (!this->unrotated_views_only_allowed && this->unrotated_views_only) {
+		fprintf(stderr, "Error: FSET block which requires all views to be specified has specified only the unrotated views");
+		::exit(1);
+	}
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 16 + (16 * this->width_x * this->width_y) - 12);
 	fb->SaveUInt16(this->tile_width);
@@ -1008,15 +1014,24 @@ int FSETBlock::Write(FileWriter *fw)
 
 TIMABlock::TIMABlock() : GameBlock("TIMA", 1)
 {
+	this->unrotated_views_only = false;
+	this->unrotated_views_only_allowed = false;
 }
 
 int TIMABlock::Write(FileWriter *fw)
 {
+	if (!this->unrotated_views_only_allowed && this->unrotated_views_only) {
+		fprintf(stderr, "Error: TIMA block which requires all views to be specified has specified only the unrotated views");
+		::exit(1);
+	}
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 16 + (8 * this->frames) - 12);
 	fb->SaveUInt32(this->frames);
-	for (int8 f = 0; f < this->frames; ++f) fb->SaveUInt32(this->durations[f]);
-	for (int8 f = 0; f < this->frames; ++f) fb->SaveUInt32(this->views[f]->Write(fw));
+	for (int8 f = 0; f < this->frames; f++) fb->SaveUInt32(this->durations[f]);
+	for (int8 f = 0; f < this->frames; f++) {
+		this->views[f]->unrotated_views_only_allowed = this->unrotated_views_only_allowed;
+		fb->SaveUInt32(this->views[f]->Write(fw));
+	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
@@ -1084,6 +1099,35 @@ int FGTRBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->excitement_increase_cycle);
 	fb->SaveUInt32(this->excitement_increase_scenery);
 	fb->SaveUInt32(this->ride_text->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
+SCNYBlock::SCNYBlock() : GameBlock("SCNY", 1)
+{
+}
+
+int SCNYBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 60 - 12 + (this->width_x * this->width_y));
+	fb->SaveUInt8(this->width_x);
+	fb->SaveUInt8(this->width_y);
+	for (int8 x = 0; x < this->width_x; ++x) {
+		for (int8 y = 0; y < this->width_y; ++y) {
+			fb->SaveUInt8(this->heights[x * width_y + y]);
+		}
+	}
+	fb->SaveUInt32(this->watering_interval);
+	fb->SaveUInt32(this->main_animation->Write(fw));
+	fb->SaveUInt32(this->dry_animation->Write(fw));
+	for (auto& preview : this->previews) fb->SaveUInt32(preview->Write(fw));
+	fb->SaveInt32(this->buy_cost);
+	fb->SaveInt32(this->return_cost);
+	fb->SaveInt32(this->return_cost_dry);
+	fb->SaveUInt8(this->symmetric ? 1 : 0);
+	fb->SaveUInt8(this->category);
+	fb->SaveUInt32(this->texts->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

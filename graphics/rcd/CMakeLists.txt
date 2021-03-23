@@ -22,6 +22,7 @@ list(APPEND RCDFILES
      "shops.rcd"                "${FP}/shops.txt"
      "gentle_thrill_rides.rcd"  "${FP}/gentle_thrill_rides.txt"
      "gui.rcd"                  "${FP}/gui.txt"
+     "scenery.rcd"              "${FP}/scenery.txt"
      "tracks.rcd"               "${FP}/tracks.txt"
 )
 

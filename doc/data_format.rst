@@ -756,6 +756,49 @@ Version history
 - 4 (20210317) Added excitement, intensity, nausea parameters.
 
 
+Scenery items
+~~~~~~~~~~~~~
+A scenery item, such as trees or flower beds. FreeRCT can read block version 1.
+
+===============  =======  =======  =========================================================================================================
+Offset           Length   Version  Description
+===============  =======  =======  =========================================================================================================
+   0              4        1-      Magic string 'SCNY'.
+   4              4        1-      Version number of the block.
+   8              4        1-      Length of the block excluding magic string, version, and length.
+  12              1        1-      Length of the item in x direction in voxels.
+  13              1        1-      Length of the item in y direction in voxels.
+  14              s        1-      Heights of the item in voxels, for each tile occupied by the item. The number s of
+                                   height bytes is equal to the product of the item lengths in x and y direction.
+  14+s            4        1-      How often the item needs to be watered by a handyman, in milliseconds (0 means it needs no watering).
+  18+s            4        1-      Normal animation (reference to a TIMA block).
+  22+s            4        1-      Dry animation (reference to a TIMA block).
+  26+s            4        1-      Unrotated (ne) preview.
+  30+s            4        1-      se preview.
+  34+s            4        1-      sw preview.
+  38+s            4        1-      nw preview.
+  42+s            4        1-      Cost for buying this item (should be positive).
+  46+s            4        1-      Cost or return for selling this item (positive for a fee, negative if the player gets money back).
+  50+s            4        1-      Cost or return for selling this item when dry.
+  54+s            1        1-      Whether this item is considered symmetric (1 for true, 0 for false). Symmetric items can't be rotated.
+  55+s            1        1-      Item type category.
+  56+s            4        1-      Text of the item (reference to a TEXT block).
+  60+s                             Total length.
+===============  =======  =======  =========================================================================================================
+
+Valid scenery categories are:
+
+- 0: Scenario item (can not be built or removed by the player).
+- 1: Trees.
+- 2: Flowerbeds.
+- 3: Fountains.
+
+Version history
+...............
+
+- 1 (20210320) Initial version.
+
+
 Build direction arrows
 ~~~~~~~~~~~~~~~~~~~~~~
 Arrows to point out direction of constructing new game elements. FreeRCT can

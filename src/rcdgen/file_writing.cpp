@@ -76,10 +76,10 @@ void FileBlock::SaveUInt16(uint16 d)
  * Save a 16 bit signed value into the file block.
  * @param d Value to write.
  */
-void FileBlock::SaveInt16(uint16 d)
+void FileBlock::SaveInt16(int16 d)
 {
-	this->SaveUInt8(d);
-	this->SaveUInt8(d >> 8);
+	this->SaveInt8(d);
+	this->SaveInt8(d >> 8);
 }
 
 /**
@@ -90,6 +90,16 @@ void FileBlock::SaveUInt32(uint32 d)
 {
 	this->SaveUInt16(d);
 	this->SaveUInt16(d >> 16);
+}
+
+/**
+ * Save a 32 bit signed value into the file block.
+ * @param d Value to write.
+ */
+void FileBlock::SaveInt32(int32 d)
+{
+	this->SaveInt16(d);
+	this->SaveInt16(d >> 16);
 }
 
 /**

@@ -63,41 +63,6 @@ FixedRideInstance::~FixedRideInstance()
 }
 
 /**
- * Determine at which voxel in the world a ride piece should be located.
- * @param orientation Orientation of the fixed ride.
- * @param x Unrotated x coordinate of the ride piece, relative to the ride's base voxel.
- * @param y Unrotated y coordinate of the ride piece, relative to the ride's base voxel.
- * @return Rotated location of the ride piece, relative to the ride's base voxel.
- */
-XYZPoint16 FixedRideType::OrientatedOffset(const uint8 orientation, const int x, const int y)
-{
-	switch (orientation % VOR_NUM_ORIENT) {
-		case VOR_EAST: return XYZPoint16(x, y, 0);
-		case VOR_WEST: return XYZPoint16(-x, -y, 0);
-		case VOR_NORTH: return XYZPoint16(-y, x, 0);
-		case VOR_SOUTH: return XYZPoint16(y, -x, 0);
-	}
-	NOT_REACHED();
-}
-/**
- * Determine at which voxel in the world a ride piece should be located.
- * @param orientation Orientation of the fixed ride.
- * @param x Rotated x coordinate of the ride piece, relative to the ride's base voxel.
- * @param x Rotated y coordinate of the ride piece, relative to the ride's base voxel.
- * @return Unrotated location of the ride piece, relative to the ride's base voxel.
- */
-XYZPoint16 FixedRideType::UnorientatedOffset(const uint8 orientation, const int x, const int y)
-{
-	switch (orientation % VOR_NUM_ORIENT) {
-		case VOR_EAST: return XYZPoint16(x, y, 0);
-		case VOR_WEST: return XYZPoint16(-x, -y, 0);
-		case VOR_SOUTH: return XYZPoint16(-y, x, 0);
-		case VOR_NORTH: return XYZPoint16(y, -x, 0);
-	}
-	NOT_REACHED();
-}
-
-/**
  * Get the fixed ride type of the ride.
  * @return The fixed ride type of the ride.
  */
@@ -126,7 +91,7 @@ void FixedRideInstance::OpenRide() {
 int FixedRideInstance::EntranceExitRotation(const XYZPoint16& vox) const
 {
 	const FixedRideType* t = GetFixedRideType();
-	const XYZPoint16 corner = this->vox_pos + FixedRideType::OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
+	const XYZPoint16 corner = this->vox_pos + OrientatedOffset(this->orientation, t->width_x - 1, t->width_y - 1);
 	if (vox.y == std::min(this->vox_pos.y, corner.y) - 1) return VOR_WEST;
 	if (vox.y == std::max(this->vox_pos.y, corner.y) + 1) return VOR_EAST;
 	if (vox.x == std::min(this->vox_pos.x, corner.x) - 1) return VOR_NORTH;
@@ -188,7 +153,7 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
 			/* The ride is idle. */
 			set_to_use = t->animation_idle;
 		}
-		const XYZPoint16 unrotated_pos = t->UnorientatedOffset(this->orientation, vox.x - vox_pos.x, vox.y - vox_pos.y);
+		const XYZPoint16 unrotated_pos = UnorientatedOffset(this->orientation, vox.x - vox_pos.x, vox.y - vox_pos.y);
 		sprites[1] = set_to_use->sprites[orientation_index(this->orientation)][unrotated_pos.x * t->width_y + unrotated_pos.y];
 	}
 }
@@ -205,7 +170,7 @@ void FixedRideInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 	const int8 wy = this->GetFixedRideType()->width_y;
 	for (int8 x = 0; x < wx; ++x) {
 		for (int8 y = 0; y < wy; ++y) {
-			const XYZPoint16 location = FixedRideType::OrientatedOffset(orientation, x, y);
+			const XYZPoint16 location = OrientatedOffset(orientation, x, y);
 			assert(_world.GetTileOwner(pos.x + location.x, pos.y + location.y) == OWN_PARK); // May only place it in your own park.
 		}
 	}
@@ -238,7 +203,7 @@ void FixedRideInstance::InsertIntoWorld()
 	for (int8 x = 0; x < wx; ++x) {
 		for (int8 y = 0; y < wy; ++y) {
 			const int8 height = this->GetFixedRideType()->GetHeight(x, y);
-			const XYZPoint16 location = FixedRideType::OrientatedOffset(this->orientation, x, y);
+			const XYZPoint16 location = OrientatedOffset(this->orientation, x, y);
 			for (int16 h = 0; h < height; ++h) {
 				const XYZPoint16 p = this->vox_pos + XYZPoint16(location.x, location.y, h);
 				Voxel *voxel = _world.GetCreateVoxel(p, true);
@@ -257,7 +222,7 @@ void FixedRideInstance::RemoveFromWorld()
 	const int8 wy = this->GetFixedRideType()->width_y;
 	for (int8 x = 0; x < wx; ++x) {
 		for (int8 y = 0; y < wy; ++y) {
-			const XYZPoint16 unrotated_pos = FixedRideType::OrientatedOffset(this->orientation, x, y);
+			const XYZPoint16 unrotated_pos = OrientatedOffset(this->orientation, x, y);
 			const int8 height = this->GetFixedRideType()->GetHeight(x, y);
 			if (!IsVoxelstackInsideWorld(this->vox_pos.x + unrotated_pos.x, this->vox_pos.y + unrotated_pos.y)) continue;
 			for (int16 h = 0; h < height; ++h) {
@@ -350,7 +315,7 @@ void FixedRideInstance::OnAnimate(const int delay)
 	if (needs_update) {
 		for (int8 x = 0; x < t->width_x; ++x) {
 			for (int8 y = 0; y < t->width_y; ++y) {
-				MarkVoxelDirty(this->vox_pos + t->OrientatedOffset(this->orientation, x, y));
+				MarkVoxelDirty(this->vox_pos + OrientatedOffset(this->orientation, x, y));
 			}
 		}
 	}

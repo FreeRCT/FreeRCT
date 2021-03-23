@@ -474,7 +474,7 @@ bool RideInstance::PathEdgeWanted(const XYZPoint16 &vox, const TileEdge edge) co
 }
 
 /**
- * Some time has passed, update the state of the ride. Default implementation does nothing.
+ * Some time has passed, update the state of the ride.
  * @param delay Number of milliseconds that passed.
  */
 void RideInstance::OnAnimate(const int delay)

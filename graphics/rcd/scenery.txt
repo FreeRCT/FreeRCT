@@ -1,0 +1,359 @@
+// This file is part of FreeRCT.
+// FreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+// FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
+//
+
+file("scenery.rcd") {
+	INFO {
+		name: "Baseset scenery items.";
+		uri: "org.freerct/baseset/scenery/1";
+		description: "FreeRCT baseset scenery item types.";
+	}
+
+	// Flowerbed 1
+	SCNY {
+		texts: strings { key: "flowers1"; }
+
+		category:               2;
+		width_x:                1;
+		width_y:                1;
+		height_0_0:             1;
+		buy_cost:             500;
+		return_cost:         -100;
+		return_cost_dry:      100;
+		watering_interval: 200000;
+
+		symmetric: 1;
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/64_flowers1.png";
+			}
+		}}
+		dry_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/64_flowers_dry.png";
+			}
+		}}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 42;
+			file: "../sprites/scenery/objects/64_flowers1.png";
+		}
+	}
+
+	// Flowerbed 2
+	SCNY {
+		texts: strings { key: "flowers2"; }
+
+		category:               2;
+		width_x:                1;
+		width_y:                1;
+		height_0_0:             1;
+		buy_cost:             500;
+		return_cost:         -100;
+		return_cost_dry:      100;
+		watering_interval: 200000;
+
+		symmetric: 1;
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/64_flowers2.png";
+			}
+		}}
+		dry_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/64_flowers_dry.png";
+			}
+		}}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 42;
+			file: "../sprites/scenery/objects/64_flowers2.png";
+		}
+	}
+
+	// Flowerbed 3
+	SCNY {
+		texts: strings { key: "flowers3"; }
+
+		category:               2;
+		width_x:                1;
+		width_y:                1;
+		height_0_0:             1;
+		buy_cost:             500;
+		return_cost:         -100;
+		return_cost_dry:      100;
+		watering_interval: 200000;
+
+		symmetric: 1;
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/64_flowers3.png";
+			}
+		}}
+		dry_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+				file: "../sprites/scenery/objects/64_flowers_dry.png";
+			}
+		}}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 42;
+			file: "../sprites/scenery/objects/64_flowers3.png";
+		}
+	}
+
+	// Tree 1
+	SCNY {
+		texts: strings { key: "tree1"; }
+
+		category:          1;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        6;
+		buy_cost:       1000;
+		return_cost:     400;
+		watering_interval: 0;
+
+		symmetric: 1;
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-104; width: 64; height: 104;
+				file: "../sprites/scenery/objects/64_tree1.png";
+			}
+		}}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 39; height: 64;
+			file: "../sprites/scenery/objects/64_tree1_preview.png";
+		}
+	}
+
+	// Tree 2
+	SCNY {
+		texts: strings { key: "tree2"; }
+
+		category:          1;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        6;
+		buy_cost:       1000;
+		return_cost:     400;
+		watering_interval: 0;
+
+		symmetric: 1;
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-108; width: 64; height: 108;
+				file: "../sprites/scenery/objects/64_tree2.png";
+			}
+		}}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 38; height: 64;
+			file: "../sprites/scenery/objects/64_tree2_preview.png";
+		}
+	}
+
+	// Tree 3
+	SCNY {
+		texts: strings { key: "tree3"; }
+
+		category:          1;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        6;
+		buy_cost:       1000;
+		return_cost:     400;
+		watering_interval: 0;
+
+		symmetric: 1;
+		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			unrotated_views_only: 1;
+			ne_0_0: sprite {
+				x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-113; width: 64; height: 113;
+				file: "../sprites/scenery/objects/64_tree3.png";
+			}
+		}}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 36; height: 64;
+			file: "../sprites/scenery/objects/64_tree3_preview.png";
+		}
+	}
+
+	// Fountain 1
+	SCNY {
+		texts: strings { key: "fountain1"; }
+
+		category:          3;
+		width_x:           1;
+		width_y:           2;
+		height_0_0:        4;
+		height_1_0:        3;
+		buy_cost:      10000;
+		return_cost:   -2000;
+		watering_interval: 0;
+
+		symmetric: 0;
+		main_animation: TIMA {
+			frames: 30;
+			fps: 10;
+			tile_width: 64;
+			sheet: sheet {
+				x_count: 1;
+				y_count: 2;
+				width: 64; x_step: 64;
+				height: 72; y_step: 72;
+				x_offset: -32; x_base: 0;
+				y_offset: 32-72; y_base: 0;
+				file: "../sprites/scenery/objects/64_fountain1.png"; crop: 0;
+			}
+		}
+		(preview_ne, preview_nw, preview_sw, preview_se): sheet {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
+			file: "../sprites/scenery/objects/64_fountain1_preview.png";
+			x_step: 64; y_step: 0;
+		}
+	}
+
+	// Generic Park Entrance (consists of three parts)
+	SCNY {
+		texts: strings { key: "park-entrance-generic"; }
+
+		category:          0;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        8;
+		buy_cost:          0;
+		return_cost:       0;
+		watering_interval: 0;
+
+		symmetric: 0;
+		main_animation: TIMA {
+			frames: 1;
+			fps: 10;
+			frame_0: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(ne_0_0 | nw_0_0 | sw_0_0 | se_0_0): sheet {
+					width: 64; x_step: 0;
+					height: 160; y_step: 160;
+					x_offset: -32; x_base: 0;
+					y_offset: 32-160; y_base: 0;
+					file: "../sprites/scenery/objects/64_park_entrance_generic.png"; crop: 0;
+				}
+			}
+		}
+		(preview_ne, preview_sw, preview_se, preview_nw): sheet {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
+			file: "../sprites/scenery/objects/64_park_entrance_generic_preview.png";
+			x_step: 64; y_step: 0;
+		}
+	}
+	SCNY {
+		texts: strings { key: "park-entrance-generic"; }
+
+		category:          0;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        4;
+		buy_cost:          0;
+		return_cost:       0;
+		watering_interval: 0;
+
+		symmetric: 0;
+		main_animation: TIMA {
+			frames: 1;
+			fps: 10;
+			frame_0: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(ne_0_0 | nw_0_0 | sw_0_0 | se_0_0): sheet {
+					width: 64; x_step: 0;
+					height: 96; y_step: 160;
+					x_offset: -32; x_base: 64;
+					y_offset: 32-96; y_base: 0;
+					file: "../sprites/scenery/objects/64_park_entrance_generic.png"; crop: 0;
+				}
+			}
+		}
+		(preview_ne, preview_sw, preview_se, preview_nw): sheet {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
+			file: "../sprites/scenery/objects/64_park_entrance_generic_preview.png";
+			x_step: 64; y_step: 0;
+		}
+	}
+	SCNY {
+		texts: strings { key: "park-entrance-generic"; }
+
+		category:          0;
+		width_x:           1;
+		width_y:           1;
+		height_0_0:        8;
+		buy_cost:          0;
+		return_cost:       0;
+		watering_interval: 0;
+
+		symmetric: 0;
+		main_animation: TIMA {
+			frames: 1;
+			fps: 10;
+			frame_0: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(ne_0_0 | nw_0_0 | sw_0_0 | se_0_0): sheet {
+					width: 64; x_step: 0;
+					height: 160; y_step: 160;
+					x_offset: -32; x_base: 128;
+					y_offset: 32-160; y_base: 0;
+					file: "../sprites/scenery/objects/64_park_entrance_generic.png"; crop: 0;
+				}
+			}
+		}
+		(preview_ne, preview_sw, preview_se, preview_nw): sheet {
+			x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
+			file: "../sprites/scenery/objects/64_park_entrance_generic_preview.png";
+			x_step: 64; y_step: 0;
+		}
+	}
+}

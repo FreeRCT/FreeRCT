@@ -116,6 +116,7 @@ DirectoryReader *MakeDirectoryReader()
  */
 RcdFileReader::RcdFileReader(const char *fname)
 {
+	this->filename = fname;
 	this->file_pos = 0;
 	this->file_size = 0;
 	this->name[4] = '\0';

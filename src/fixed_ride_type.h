@@ -45,9 +45,6 @@ public:
 		return heights[x * width_y + y];
 	}
 
-	static XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y);
-	static XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y);
-
 	int default_idle_duration;                ///< Default duration of the idle phase in milliseconds.
 	int working_duration;                     ///< Duration of the working phase in milliseconds.
 	const FrameSet *animation_idle;           ///< Ride graphics when the ride is not working
