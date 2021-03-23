@@ -348,6 +348,10 @@ void BottomToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 			this->MarkDirty();
 			break;
 
+		case CHG_RESOLUTION_CHANGED:
+			this->ResetSize();
+			break;
+
 		case CHG_GUEST_COUNT:
 			/* Parameter decides meaning.
 			 * - 0 means a guest left.

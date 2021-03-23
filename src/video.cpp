@@ -262,6 +262,7 @@ bool VideoSystem::SetResolution(const Point32 &res)
 	this->blit_rect = ClippedRectangle(0, 0, this->vid_width, this->vid_height);
 	_window_manager.RepositionAllWindows(this->vid_width, this->vid_height);
 	this->MarkDisplayDirty();
+	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_RESOLUTION_CHANGED, 0);
 	return true;
 }
 

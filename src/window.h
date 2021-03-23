@@ -72,6 +72,7 @@ enum ChangeCode {
 	CHG_PIECE_POSITIONED, ///< The track piece is at the correct position.
 	CHG_DROPDOWN_RESULT,  ///< The selection of a dropdown window.
 	CHG_GUEST_COUNT,      ///< Number of guests in the park has changed.
+	CHG_RESOLUTION_CHANGED,  ///< The size of the FreeRCT window was changed.
 };
 
 /** Various state flags of the %Window. */
