@@ -32,17 +32,17 @@ static const char *_gui_string_names[] = {
 	"NUMBERED_INSTANCE_NAME",
 	"RESOLUTION",
 
-	/* Toolbar GUI strings. */
+	/* Toolbar GUI and main menu strings. */
 	"TOOLBAR_GUI_DROPDOWN_MAIN",
-	"TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP",
 	/* Do not change the order of the strings between here… */
-	"TOOLBAR_GUI_DROPDOWN_MAIN_QUIT",
-	"TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS",
-	"TOOLBAR_GUI_DROPDOWN_MAIN_MODE",
-	"TOOLBAR_GUI_DROPDOWN_MAIN_NEW_GAME",
-	"TOOLBAR_GUI_DROPDOWN_MAIN_SAVE",
-	"TOOLBAR_GUI_DROPDOWN_MAIN_LOAD",
+	"MAIN_MENU_SAVE",
+	"MAIN_MENU_MODE",
+	"MAIN_MENU_SETTINGS",
+	"MAIN_MENU_MENU",
+	"MAIN_MENU_QUIT",
 	/* …and here. */
+	"MAIN_MENU_NEW_GAME",
+	"MAIN_MENU_LOAD",
 	"TOOLBAR_GUI_DROPDOWN_SPEED",
 	"TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP",
 	/* Do not change the order of the strings between here… */

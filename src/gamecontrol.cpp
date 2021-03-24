@@ -71,6 +71,8 @@ static int speed_factor(GameSpeed speed)
 void OnNewFrame(const uint32 frame_delay)
 {
 	_window_manager.Tick();
+	if (_game_control.main_menu) return;
+
 	_inbox.Tick(frame_delay);
 	for (int i = speed_factor(_game_control.speed); i > 0; i--) {
 		_guests.DoTick();
@@ -87,6 +89,7 @@ GameControl::GameControl()
 {
 	this->speed = GSP_1;
 	this->running = false;
+	this->main_menu = false;
 	this->next_action = GCA_NONE;
 	this->fname = "";
 }
@@ -102,7 +105,7 @@ void GameControl::Initialize(const char *fname)
 	this->running = true;
 
 	if (fname == nullptr) {
-		this->NewGame();
+		this->MainMenu();
 	} else {
 		this->LoadGame(fname);
 	}
@@ -138,7 +141,12 @@ void GameControl::RunAction()
 		case GCA_SAVE_GAME:
 			SaveGameFile(this->fname.c_str());
 			break;
-		
+
+		case GCA_MENU:
+			this->ShutdownLevel();
+			::ShowMainMenu();
+			break;
+
 		case GCA_QUIT:
 			this->running = false;
 			break;
@@ -148,6 +156,12 @@ void GameControl::RunAction()
 	}
 
 	this->next_action = GCA_NONE;
+}
+
+/** Prepare for a #GCA_MENU action. */
+void GameControl::MainMenu()
+{
+	this->next_action = GCA_MENU;
 }
 
 /** Prepare for a #GCA_NEW_GAME action. */

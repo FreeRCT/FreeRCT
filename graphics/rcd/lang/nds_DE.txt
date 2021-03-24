@@ -29,13 +29,13 @@ strings {
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
-		TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP:  "Höövdmenü";
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Verlaten";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Instellens";
-		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spölen/Bewarker";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Sekern";
-		TOOLBAR_GUI_DROPDOWN_MAIN_NEW_GAME: "Nejes Speel";
+		MAIN_MENU_QUIT:     "Verlaten";
+		MAIN_MENU_SETTINGS: "Instellens";
+		MAIN_MENU_MODE:     "Spölen/Bewarker";
+		MAIN_MENU_LOAD:     "Laden";
+		MAIN_MENU_SAVE:     "Sekern";
+		MAIN_MENU_NEW_GAME: "Nejes Speel";
+		MAIN_MENU_MENU:     "Höövdmenü";
 		TOOLBAR_GUI_DROPDOWN_SPEED:         "Gauheid";
 		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "De Speel-Gauheid ännern";
 		TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE:   "Anhollt";

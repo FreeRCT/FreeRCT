@@ -28,11 +28,11 @@ strings {
 		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Avsluta";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Inställningar";
-		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spela/Redigerare";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Ladda";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Spara";
+		MAIN_MENU_QUIT:     "Avsluta";
+		MAIN_MENU_SETTINGS: "Inställningar";
+		MAIN_MENU_MODE:     "Spela/Redigerare";
+		MAIN_MENU_LOAD:     "Ladda";
+		MAIN_MENU_SAVE:     "Spara";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spela";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Redigerare";

@@ -38,6 +38,7 @@ typedef std::vector<DropdownItem> DropdownList;
  * @ingroup window_group
  */
 enum WindowTypes {
+	WC_MAIN_MENU,       ///< Main menu screen.
 	WC_MAINDISPLAY,     ///< Main display of the world.
 	WC_TOOLBAR,         ///< Main toolbar.
 	WC_BOTTOM_TOOLBAR,  ///< Bottom toolbar.
@@ -476,6 +477,7 @@ void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint
 class RideInstance;
 class CoasterInstance;
 
+void ShowMainMenu();
 void ShowMainDisplay(const XYZPoint32 &view_pos);
 void ShowToolbar();
 void ShowBottomToolbar();

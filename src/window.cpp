@@ -725,7 +725,7 @@ void WindowManager::RepositionAllWindows(uint new_width, uint new_height)
 {
 	Rectangle32 rect(0, 0, new_width, new_height);
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
-		if (w->wtype == WC_MAINDISPLAY) {
+		if (w->wtype == WC_MAINDISPLAY || w->wtype == WC_MAIN_MENU) {
 			w->SetSize(new_width, new_height);
 
 		/* Add an arbitrary amount for closebox/titlebar, so the window is still actually accessible. */
@@ -750,6 +750,7 @@ static uint GetWindowZPriority(WindowTypes wt)
 		case WC_TOOLBAR:        return 1;  // Top toolbar.
 		case WC_BOTTOM_TOOLBAR: return 1;  // Bottom toolbar.
 		case WC_MAINDISPLAY:    return 0;  // Main display at the bottom of the stack.
+		case WC_MAIN_MENU:      return 2;  // Main menu at the bottom of the stack but above the viewport.
 	}
 	NOT_REACHED();
 }
@@ -766,6 +767,9 @@ void WindowManager::AddToStack(Window *w)
 	if (w->wtype == WC_MAINDISPLAY) { // Add the main world display as viewport.
 		assert(this->viewport == nullptr);
 		this->viewport = static_cast<Viewport *>(w);
+	} else if (w->wtype == WC_MAIN_MENU) {
+		delete this->viewport;
+		this->viewport = nullptr;
 	}
 
 	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
@@ -959,7 +963,7 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 				return;
 			}
 			this->current_window->MarkDirty();
-			assert(this->current_window->wtype != WC_MAINDISPLAY); // Cannot move the main display!
+			assert(this->current_window->wtype != WC_MAINDISPLAY && this->current_window->wtype != WC_MAIN_MENU); // Cannot move the main display!
 			this->current_window->SetPosition(pos.x - this->move_offset.x, pos.y - this->move_offset.y);
 			this->current_window->MarkDirty();
 			break;

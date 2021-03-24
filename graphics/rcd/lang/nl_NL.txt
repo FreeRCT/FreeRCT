@@ -28,11 +28,11 @@ strings {
 		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Afsluiten";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Instellingen";
-		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spelen/Bewerker";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Opslaan";
+		MAIN_MENU_QUIT:     "Afsluiten";
+		MAIN_MENU_SETTINGS: "Instellingen";
+		MAIN_MENU_MODE:     "Spelen/Bewerker";
+		MAIN_MENU_LOAD:     "Laden";
+		MAIN_MENU_SAVE:     "Opslaan";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelen";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewerker";

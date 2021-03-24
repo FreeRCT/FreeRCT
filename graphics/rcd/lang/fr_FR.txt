@@ -26,11 +26,11 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Quitter";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Paramètres";
-		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Jouer/Editeur";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Charger";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Sauvegarder";
+		MAIN_MENU_QUIT:     "Quitter";
+		MAIN_MENU_SETTINGS: "Paramètres";
+		MAIN_MENU_MODE:     "Jouer/Editeur";
+		MAIN_MENU_LOAD:     "Charger";
+		MAIN_MENU_SAVE:     "Sauvegarder";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Jouer";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editeur";

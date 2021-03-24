@@ -62,12 +62,11 @@ enum ToolbarGuiWidgets {
  * @ingroup gui_group
  */
 enum DropdownMain {
-	DDM_QUIT,      ///< Quit the game.
-	DDM_SETTINGS,  ///< General settings.
-	DDM_GAME_MODE, ///< Switch game mode.
-	DDM_NEW,       ///< New game.
 	DDM_SAVE,      ///< Save game.
-	DDM_LOAD,      ///< Load game.
+	DDM_GAME_MODE, ///< Switch game mode.
+	DDM_SETTINGS,  ///< General settings.
+	DDM_MENU,      ///< Back to main menu.
+	DDM_QUIT,      ///< Quit the game.
 	DDM_COUNT      ///< Number of entries.
 };
 
@@ -77,7 +76,7 @@ enum DropdownMain {
  */
 static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
-		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_MAIN, GUI_TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP),
+		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_MAIN,  STR_NULL),
 		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_SPEED,  COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_SPEED, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_PATHS,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_PATHS,       GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_RIDE_SELECT, COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_RIDE_SELECT, GUI_TOOLBAR_GUI_TOOLTIP_RIDE_SELECT),
@@ -129,7 +128,7 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 		case TB_DROPDOWN_MAIN: {
 			DropdownList itemlist;
 			for (int i = 0; i < DDM_COUNT; i++) {
-				_str_params.SetStrID(1, i == DDM_GAME_MODE ? GetSwitchGameModeString() : GUI_TOOLBAR_GUI_DROPDOWN_MAIN_QUIT + i);
+				_str_params.SetStrID(1, i == DDM_GAME_MODE ? GetSwitchGameModeString() : GUI_MAIN_MENU_SAVE + i);
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(number, itemlist, -1);
@@ -197,12 +196,8 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							_game_control.SaveGame("saved.fct");
 							/* \todo Provide feedback on the save. */
 							break;
-						case DDM_LOAD:
-							/* \todo Provide option to select the file to load. */
-							_game_control.LoadGame("saved.fct");
-							break;
-						case DDM_NEW:
-							_game_control.NewGame();
+						case DDM_MENU:
+							_game_control.MainMenu();
 							break;
 						default: NOT_REACHED();
 					}
