@@ -888,6 +888,16 @@ public:
 	std::shared_ptr<SpriteBlock> message_guest;      ///< Inbox: Guest Window button.
 	std::shared_ptr<SpriteBlock> message_ride;       ///< Inbox: Ride Instance Window button.
 	std::shared_ptr<SpriteBlock> message_ride_type;  ///< Inbox: Ride Select GUI button.
+	std::shared_ptr<SpriteBlock> mainmenu_logo;      ///< Main menu: FreeRCT logo.
+	std::shared_ptr<SpriteBlock> mainmenu_splash;    ///< Main menu: FreeRCT splashscreen.
+	std::shared_ptr<SpriteBlock> mainmenu_new;       ///< Main menu: New Game button.
+	std::shared_ptr<SpriteBlock> mainmenu_load;      ///< Main menu: Load Game button.
+	std::shared_ptr<SpriteBlock> mainmenu_settings;  ///< Main menu: Settings button.
+	std::shared_ptr<SpriteBlock> mainmenu_quit;      ///< Main menu: Quit button.
+	uint32                       mainmenu_frames;    ///< Main menu: Number of animation frames.
+	uint32                       mainmenu_duration;  ///< Main menu: Duration of each animation frame.
+	uint32                       mainmenu_splash_duration;  ///< Main menu: Duration of each animation frame.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> mainmenu_animation;  ///< Main menu: The animation frames.
 	std::shared_ptr<SpriteBlock> weather[5];      ///< Weather sprites (sunny -> thunder).
 	std::shared_ptr<SpriteBlock> rog_lights[4];   ///< Red/orange/green lights (red, orange, green, none).
 	std::shared_ptr<SpriteBlock> rg_lights[3];    ///< Red/green lights (red, green, none).

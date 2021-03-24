@@ -115,10 +115,10 @@ bool ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 	this->yoffset = rcd_file->GetInt16();
 
 	/* Check against some arbitrary limits that look sufficient at this time. */
-	if (this->width == 0 || this->width > 300 || this->height == 0 || this->height > 500) return false;
+	if (this->width == 0 || this->width > 2000 || this->height == 0 || this->height > 1200) return false;
 
 	length -= 8;
-	if (length > 100 * 1024) return false; // Another arbitrary limit.
+	if (length > 2000 * 1200) return false; // Another arbitrary limit.
 
 	/* Allocate and load the image data. */
 	this->data = new uint8[length];

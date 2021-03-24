@@ -9,6 +9,7 @@
 
 #include "stdafx.h"
 #include "gamecontrol.h"
+#include "sprite_store.h"
 #include "window.h"
 
 /**
@@ -75,60 +76,62 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 
 static const int    MAIN_MENU_BUTTON_SIZE  =    96;  ///< Size of the main menu buttons.
 static const int    MAIN_MENU_PADDING      =     4;  ///< Padding in the main menu.
-static const uint32 SPLASH_SCREEN_DURATION =  8000;  ///< Duration of the splash screen animation in milliseconds.
-static const uint32 ANIMATION_SPEED        =  5000;  ///< Speed factor for the animation.
 
 void MainMenuGui::OnDraw(MouseModeSelector *selector)
 {
+	static Recolouring rc;
 	const uint32 current_time = SDL_GetTicks();
 	uint32 frametime = current_time - this->animstart;
-	if (is_splash_screen && frametime > SPLASH_SCREEN_DURATION) {
+	if (is_splash_screen && frametime > 3 * _gui_sprites.mainmenu_splash_duration) {
 		is_splash_screen = false;
 		this->animstart = current_time;
 		frametime = 0;
 	}
 
-	_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0x0000ffff);
+	_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0xff);
 
 	const int button_x = (_video.GetXSize() - 7 * MAIN_MENU_BUTTON_SIZE) / 2;
 	const int button_y = _video.GetYSize() - MAIN_MENU_BUTTON_SIZE;
-
 	this->new_game_rect  = Rectangle32(button_x + 0 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->load_game_rect = Rectangle32(button_x + 2 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->settings_rect  = Rectangle32(button_x + 4 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->quit_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
-	int text_pos = _video.GetXSize() / 2;
-	if (!is_splash_screen) {
-		const int factor = frametime % (4 * ANIMATION_SPEED);
-		if (factor < ANIMATION_SPEED) {
-			text_pos += (text_pos - MAIN_MENU_BUTTON_SIZE / 2) * factor / ANIMATION_SPEED;
-		} else if (factor < 3 * ANIMATION_SPEED) {
-			text_pos = MAIN_MENU_BUTTON_SIZE / 2 + 2 * (text_pos - MAIN_MENU_BUTTON_SIZE / 2) -
-					2 * (text_pos - MAIN_MENU_BUTTON_SIZE / 2) * (factor - ANIMATION_SPEED) / (2 * ANIMATION_SPEED);
-		} else {
-			text_pos = MAIN_MENU_BUTTON_SIZE / 2 + (text_pos - MAIN_MENU_BUTTON_SIZE / 2) * (factor - 3 * ANIMATION_SPEED) / ANIMATION_SPEED;
-		}
+	if (!is_splash_screen || frametime > 2 * _gui_sprites.mainmenu_splash_duration) {
+		_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 2),
+				_gui_sprites.mainmenu_animation[is_splash_screen ? 0 : (frametime / _gui_sprites.mainmenu_duration) % _gui_sprites.mainmenu_frames], rc, GS_NORMAL);
+		_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 4), _gui_sprites.mainmenu_logo, rc, GS_NORMAL);
+
+		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new,      rc, GS_NORMAL);
+		_video.BlitImage(this->load_game_rect.base, _gui_sprites.mainmenu_load,     rc, GS_NORMAL);
+		_video.BlitImage(this->settings_rect.base,  _gui_sprites.mainmenu_settings, rc, GS_NORMAL);
+		_video.BlitImage(this->quit_rect.base,      _gui_sprites.mainmenu_quit,     rc, GS_NORMAL);
+
+		DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
+				this->new_game_rect.base.x,  this->new_game_rect.base.y  + MAIN_MENU_PADDING + this->new_game_rect.height,
+				this->new_game_rect.width,  ALG_CENTER, true);
+		DrawString(GUI_MAIN_MENU_LOAD, TEXT_WHITE,
+				this->load_game_rect.base.x, this->load_game_rect.base.y + MAIN_MENU_PADDING + this->load_game_rect.height,
+				this->load_game_rect.width, ALG_CENTER, true);
+		DrawString(GUI_MAIN_MENU_SETTINGS, TEXT_WHITE,
+				this->settings_rect.base.x,  this->settings_rect.base.y  + MAIN_MENU_PADDING + this->settings_rect.height,
+				this->settings_rect.width,  ALG_CENTER, true);
+		DrawString(GUI_MAIN_MENU_QUIT, TEXT_WHITE,
+				this->quit_rect.base.x,      this->quit_rect.base.y      + MAIN_MENU_PADDING + this->quit_rect.height,
+				this->quit_rect.width,      ALG_CENTER, true);
 	}
-	_video.BlitText(reinterpret_cast<const uint8*>("FreeRCT"), 0xffffffff, text_pos - _video.GetXSize() / 2, MAIN_MENU_BUTTON_SIZE, _video.GetXSize(), ALG_CENTER);
-
-	_video.FillRectangle(this->new_game_rect,  0xff0000ff);
-	_video.FillRectangle(this->load_game_rect, 0x00ff00ff);
-	_video.FillRectangle(this->settings_rect,  0xff00ffff);
-	_video.FillRectangle(this->quit_rect,      0x000000ff);
-
-	DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
-			this->new_game_rect.base.x,  this->new_game_rect.base.y  + MAIN_MENU_PADDING + this->new_game_rect.height,  this->new_game_rect.width,  ALG_CENTER, true);
-	DrawString(GUI_MAIN_MENU_LOAD, TEXT_WHITE,
-			this->load_game_rect.base.x, this->load_game_rect.base.y + MAIN_MENU_PADDING + this->load_game_rect.height, this->load_game_rect.width, ALG_CENTER, true);
-	DrawString(GUI_MAIN_MENU_SETTINGS, TEXT_WHITE,
-			this->settings_rect.base.x,  this->settings_rect.base.y  + MAIN_MENU_PADDING + this->settings_rect.height,  this->settings_rect.width,  ALG_CENTER, true);
-	DrawString(GUI_MAIN_MENU_QUIT, TEXT_WHITE,
-			this->quit_rect.base.x,      this->quit_rect.base.y      + MAIN_MENU_PADDING + this->quit_rect.height,      this->quit_rect.width,      ALG_CENTER, true);
 
 	if (is_splash_screen) {
-		_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()),
-				0x00000000 | (255 - 255 * frametime / SPLASH_SCREEN_DURATION));
+		if (frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
+			_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 2), _gui_sprites.mainmenu_splash, rc, GS_NORMAL);
+			if (frametime > _gui_sprites.mainmenu_splash_duration) {
+				_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()),
+						0xff * (frametime - _gui_sprites.mainmenu_splash_duration) / _gui_sprites.mainmenu_splash_duration);
+			}
+		} else {
+			_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()),
+						0xff - 0xff * (frametime - 2 * _gui_sprites.mainmenu_splash_duration) / _gui_sprites.mainmenu_splash_duration);
+		}
 	}
 }
 

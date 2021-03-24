@@ -1248,14 +1248,14 @@ int BDIRBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-GSLPBlock::GSLPBlock() : GameBlock("GSLP", 9)
+GSLPBlock::GSLPBlock() : GameBlock("GSLP", 10)
 {
 }
 
 int GSLPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 232 - 12);
+	fb->StartSave(this->blk_name, this->version, 268 + 4 * this->mainmenu_frames - 12);
 	fb->SaveUInt32(this->vert_down->Write(fw));
 	fb->SaveUInt32(this->steep_down->Write(fw));
 	fb->SaveUInt32(this->gentle_down->Write(fw));
@@ -1306,6 +1306,16 @@ int GSLPBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->message_guest->Write(fw));
 	fb->SaveUInt32(this->message_ride->Write(fw));
 	fb->SaveUInt32(this->message_ride_type->Write(fw));
+	fb->SaveUInt32(this->mainmenu_splash_duration);
+	fb->SaveUInt32(this->mainmenu_logo->Write(fw));
+	fb->SaveUInt32(this->mainmenu_splash->Write(fw));
+	fb->SaveUInt32(this->mainmenu_new->Write(fw));
+	fb->SaveUInt32(this->mainmenu_load->Write(fw));
+	fb->SaveUInt32(this->mainmenu_settings->Write(fw));
+	fb->SaveUInt32(this->mainmenu_quit->Write(fw));
+	fb->SaveUInt32(this->mainmenu_frames);
+	fb->SaveUInt32(this->mainmenu_duration);
+	for (uint32 i = 0; i < this->mainmenu_frames; i++) fb->SaveUInt32(this->mainmenu_animation[i]->Write(fw));
 	fb->SaveUInt32(this->gui_text->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);

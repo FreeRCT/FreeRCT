@@ -2237,6 +2237,22 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->message_ride = vals.GetSprite("message_ride");
 	gb->message_ride_type = vals.GetSprite("message_ride_type");
 
+	gb->mainmenu_logo = vals.GetSprite("mainmenu_logo");
+	gb->mainmenu_splash = vals.GetSprite("mainmenu_splash");
+	gb->mainmenu_new = vals.GetSprite("mainmenu_new");
+	gb->mainmenu_load = vals.GetSprite("mainmenu_load");
+	gb->mainmenu_settings = vals.GetSprite("mainmenu_settings");
+	gb->mainmenu_quit = vals.GetSprite("mainmenu_quit");
+	gb->mainmenu_splash_duration = vals.GetNumber("mainmenu_splash_duration");
+	gb->mainmenu_frames = vals.GetNumber("mainmenu_frames");
+	gb->mainmenu_duration = vals.GetNumber("mainmenu_duration");
+	gb->mainmenu_animation.reset(new std::shared_ptr<SpriteBlock>[gb->mainmenu_frames]);
+	for (uint32 i = 0; i < gb->mainmenu_frames; i++) {
+		std::string key = "mainmenu_animation_";
+		key += std::to_string(i);
+		gb->mainmenu_animation[i] = vals.GetSprite(key.c_str());
+	}
+
 	LoadNamedSprites(weather_names, lengthof(gb->weather), vals, gb->weather);
 	LoadNamedSprites(light_rog_names, lengthof(gb->rog_lights), vals, gb->rog_lights);
 	LoadNamedSprites(light_rg_names, lengthof(gb->rg_lights), vals, gb->rg_lights);

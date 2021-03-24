@@ -136,6 +136,29 @@ file("gui.rcd") {
 			x_offset: 0; y_offset: 0; width: 46; height: 46; crop: 0;
 		}
 
+		mainmenu_logo: sprite {
+			x_offset: -128; y_offset: -128;
+			file: "../sprites/logo/logo_256.png";
+			x_base: 0; y_base: 0; width: 256; height: 256;
+		}
+		mainmenu_splash: sprite {
+			x_offset: -512; y_offset: -512;
+			file: "../sprites/logo/logo.png";
+			x_base: 0; y_base: 0; width: 1024; height: 1024;
+		}
+		mainmenu_splash_duration: 3000;
+		mainmenu_frames: 1;
+		mainmenu_duration: 10;
+		mainmenu_animation_0: sprite {
+			x_offset: -128; y_offset: -128;
+			file: "../sprites/logo/logo_256.png";
+			x_base: 0; y_base: 0; width: 256; height: 256;
+		}
+		(mainmenu_new, mainmenu_load, mainmenu_settings, mainmenu_quit): sheet {
+			x_base: 0; y_base: 0; x_step: 96; y_step: 0;
+			file: "../sprites/gui/mainmenu.png";
+			x_offset: 0; y_offset: 0; width: 96; height: 96; crop: 0;
+		}
 
 		texts: strings { key: "gui"; }
 	}

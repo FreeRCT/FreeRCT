@@ -500,6 +500,16 @@ struct GuiSprites {
 	ImageData *message_guest;               ///< Inbox button guest window sprite.
 	ImageData *message_ride;                ///< Inbox button ride instance window sprite.
 	ImageData *message_ride_type;           ///< Inbox button ride select gui sprite.
+	ImageData *mainmenu_logo;               ///< Main menu: FreeeRCT logo.
+	ImageData *mainmenu_splash;             ///< Main menu: Splash screen.
+	ImageData *mainmenu_new;                ///< Main menu: New Game button.
+	ImageData *mainmenu_load;               ///< Main menu: Load Game button.
+	ImageData *mainmenu_settings;           ///< Main menu: Settings button.
+	ImageData *mainmenu_quit;               ///< Main menu: Quit button.
+	uint32     mainmenu_splash_duration;    ///< Main menu: Duration of the splash screen.
+	uint32     mainmenu_duration;           ///< Main menu: Duration of each animation frame.
+	uint32     mainmenu_frames;             ///< Main menu: Number of animation frames.
+	std::unique_ptr<ImageData*[]> mainmenu_animation;  ///< Main menu animation frames.
 
 	TextData *text;                         ///< Texts of the GUI.
 };
