@@ -150,9 +150,9 @@ file("gui.rcd") {
 		mainmenu_frames: 1;
 		mainmenu_duration: 10;
 		mainmenu_animation_0: sprite {
-			x_offset: -128; y_offset: -128;
-			file: "../sprites/logo/logo_256.png";
-			x_base: 0; y_base: 0; width: 256; height: 256;
+			x_offset: -700/2; y_offset: -467/2;
+			file: "../sprites/gui/mainmenu_bg.png";
+			x_base: 0; y_base: 0; width: 700; height: 467;
 		}
 		(mainmenu_new, mainmenu_load, mainmenu_settings, mainmenu_quit): sheet {
 			x_base: 0; y_base: 0; x_step: 96; y_step: 0;

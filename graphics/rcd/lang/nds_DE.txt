@@ -64,8 +64,10 @@ strings {
 		BOTTOMBAR_GUESTCOUNT:             "%1% Gasten";
 
 		// Quit program strings.
-		QUIT_CAPTION: "Speel verlaten";
-		QUIT_MESSAGE: "Dat Speel verlaten?";
+		QUIT_CAPTION: "Verlaten?";
+		QUIT_MESSAGE: "FreeRCT verlaten?";
+		RETURN_CAPTION: "Ennen?";
+		RETURN_MESSAGE: "Torügg tum Höövdmenü?";
 		QUIT_NO:      "Nee";
 		QUIT_YES:     "Jau";
 

@@ -65,7 +65,9 @@ strings {
 
 		// Quit program strings.
 		QUIT_CAPTION: "Beenden?";
-		QUIT_MESSAGE: "Spiel beenden?";
+		QUIT_MESSAGE: "FreeRCT beenden?";
+		RETURN_CAPTION: "Verlassen?";
+		RETURN_MESSAGE: "Zurück zum Hauptmenü?";
 		QUIT_NO:      "Nein";
 		QUIT_YES:     "Ja";
 

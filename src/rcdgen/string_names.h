@@ -74,6 +74,8 @@ static const char *_gui_string_names[] = {
 	/* Quit program strings. */
 	"QUIT_CAPTION",
 	"QUIT_MESSAGE",
+	"RETURN_CAPTION",
+	"RETURN_MESSAGE",
 	"QUIT_NO",
 	"QUIT_YES",
 

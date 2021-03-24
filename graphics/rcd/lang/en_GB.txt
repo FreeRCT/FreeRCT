@@ -64,8 +64,10 @@ strings {
 		BOTTOMBAR_GUESTCOUNT:             "%1% guest(s)";
 
 		// Quit program strings.
-		QUIT_CAPTION: "Quit program?";
-		QUIT_MESSAGE: "Quit the program?";
+		QUIT_CAPTION: "Quit?";
+		QUIT_MESSAGE: "Quit FreeRCT?";
+		RETURN_CAPTION: "Return?";
+		RETURN_MESSAGE: "Return to the main menu?";
 		QUIT_NO:      "No";
 		QUIT_YES:     "Yes";
 

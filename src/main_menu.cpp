@@ -75,7 +75,7 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 }
 
 static const int    MAIN_MENU_BUTTON_SIZE  =    96;  ///< Size of the main menu buttons.
-static const int    MAIN_MENU_PADDING      =     4;  ///< Padding in the main menu.
+static const int    MAIN_MENU_PADDING      =    24;  ///< Padding in the main menu.
 
 void MainMenuGui::OnDraw(MouseModeSelector *selector)
 {
@@ -108,16 +108,16 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 		_video.BlitImage(this->quit_rect.base,      _gui_sprites.mainmenu_quit,     rc, GS_NORMAL);
 
 		DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
-				this->new_game_rect.base.x,  this->new_game_rect.base.y  + MAIN_MENU_PADDING + this->new_game_rect.height,
+				this->new_game_rect.base.x,  this->new_game_rect.base.y  - MAIN_MENU_PADDING + this->new_game_rect.height,
 				this->new_game_rect.width,  ALG_CENTER, true);
 		DrawString(GUI_MAIN_MENU_LOAD, TEXT_WHITE,
-				this->load_game_rect.base.x, this->load_game_rect.base.y + MAIN_MENU_PADDING + this->load_game_rect.height,
+				this->load_game_rect.base.x, this->load_game_rect.base.y - MAIN_MENU_PADDING + this->load_game_rect.height,
 				this->load_game_rect.width, ALG_CENTER, true);
 		DrawString(GUI_MAIN_MENU_SETTINGS, TEXT_WHITE,
-				this->settings_rect.base.x,  this->settings_rect.base.y  + MAIN_MENU_PADDING + this->settings_rect.height,
+				this->settings_rect.base.x,  this->settings_rect.base.y  - MAIN_MENU_PADDING + this->settings_rect.height,
 				this->settings_rect.width,  ALG_CENTER, true);
 		DrawString(GUI_MAIN_MENU_QUIT, TEXT_WHITE,
-				this->quit_rect.base.x,      this->quit_rect.base.y      + MAIN_MENU_PADDING + this->quit_rect.height,
+				this->quit_rect.base.x,      this->quit_rect.base.y      - MAIN_MENU_PADDING + this->quit_rect.height,
 				this->quit_rect.width,      ALG_CENTER, true);
 	}
 

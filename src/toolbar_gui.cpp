@@ -24,7 +24,7 @@
 #include "gamecontrol.h"
 #include "weather.h"
 
-void ShowQuitProgram();
+void ShowQuitProgram(bool back_to_main_menu);
 
 /**
  * Top toolbar.
@@ -183,7 +183,7 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 				case TB_DROPDOWN_MAIN:
 					switch (entry) {
 						case DDM_QUIT:
-							ShowQuitProgram();
+							ShowQuitProgram(false);
 							break;
 						case DDM_SETTINGS:
 							ShowSettingGui();
@@ -197,7 +197,7 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							/* \todo Provide feedback on the save. */
 							break;
 						case DDM_MENU:
-							_game_control.MainMenu();
+							ShowQuitProgram(true);
 							break;
 						default: NOT_REACHED();
 					}
@@ -462,10 +462,13 @@ void ShowBottomToolbar()
 /** %Window to ask confirmation for ending the program. */
 class QuitProgramWindow : public GuiWindow {
 public:
-	QuitProgramWindow();
+	explicit QuitProgramWindow(bool back_to_main_menu);
 
 	Point32 OnInitialPosition() override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
+
+private:
+	bool back_to_main_menu;  ///< Just return to the main menu instead of quitting FreeRCT.
 };
 
 /**
@@ -479,25 +482,26 @@ enum QuitProgramWidgets {
 };
 
 /** Window definition of the quit program GUI. */
-static const WidgetPart _quit_program_widgets[] = {
-	Intermediate(0, 1),
-		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(GUI_QUIT_CAPTION, GUI_TITLEBAR_TIP),
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
-		EndContainer(),
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),
-			Intermediate(2,0),
-				Widget(WT_CENTERED_TEXT, QP_MESSAGE, COL_RANGE_RED),
-						SetData(GUI_QUIT_MESSAGE, STR_NULL), SetPadding(5, 5, 5, 5),
-			EndContainer(),
-			Intermediate(1, 5), SetPadding(0, 0, 3, 0),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-				Widget(WT_TEXT_PUSHBUTTON, QP_NO, COL_RANGE_YELLOW), SetData(GUI_QUIT_NO, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-				Widget(WT_TEXT_PUSHBUTTON, QP_YES, COL_RANGE_YELLOW), SetData(GUI_QUIT_YES, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-			EndContainer(),
-};
+#define QUIT_PROGRAM_WIDGET_TREE(caption, message) \
+const WidgetPart _quit_program_widgets[] = { \
+	Intermediate(0, 1), \
+		Intermediate(1, 0), \
+			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(caption, GUI_TITLEBAR_TIP), \
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED), \
+		EndContainer(), \
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED), \
+			Intermediate(2,0), \
+				Widget(WT_CENTERED_TEXT, QP_MESSAGE, COL_RANGE_RED), \
+						SetData(message, STR_NULL), SetPadding(5, 5, 5, 5), \
+			EndContainer(), \
+			Intermediate(1, 5), SetPadding(0, 0, 3, 0), \
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
+				Widget(WT_TEXT_PUSHBUTTON, QP_NO, COL_RANGE_YELLOW), SetData(GUI_QUIT_NO, STR_NULL), \
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
+				Widget(WT_TEXT_PUSHBUTTON, QP_YES, COL_RANGE_YELLOW), SetData(GUI_QUIT_YES, STR_NULL), \
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
+			EndContainer(), \
+}
 
 Point32 QuitProgramWindow::OnInitialPosition()
 {
@@ -507,23 +511,39 @@ Point32 QuitProgramWindow::OnInitialPosition()
 	return pt;
 }
 
-/** Default constructor. */
-QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
+/**
+ * Constructor.
+ * @param b Just return to the main menu instead of quitting FreeRCT.
+ */
+QuitProgramWindow::QuitProgramWindow(bool b) : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 {
+	this->back_to_main_menu = b;
+	QUIT_PROGRAM_WIDGET_TREE(this->back_to_main_menu ? GUI_RETURN_CAPTION : GUI_QUIT_CAPTION, this->back_to_main_menu ? GUI_RETURN_MESSAGE : GUI_QUIT_MESSAGE);
 	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
 }
 
 void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
-	if (number == QP_YES) _game_control.QuitGame();
+	if (number == QP_YES) {
+		if (this->back_to_main_menu) {
+			_game_control.MainMenu();
+		} else {
+			_game_control.QuitGame();
+		}
+	} else if (number != QP_NO) {
+		return;
+	}
 	delete this;
 }
 
-/** Ask the user whether the program should be stopped. */
-void ShowQuitProgram()
+/**
+ * Ask the user whether the game should be stopped.
+ * @param back_to_main_menu Just return to the main menu instead of quitting FreeRCT.
+ */
+void ShowQuitProgram(const bool back_to_main_menu)
 {
 	Window *w = GetWindowByType(WC_QUIT, ALL_WINDOWS_OF_TYPE);
 	delete w;
 
-	new QuitProgramWindow();
+	new QuitProgramWindow(back_to_main_menu);
 }
