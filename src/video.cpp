@@ -946,6 +946,8 @@ void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint32 colour)
  */
 void VideoSystem::FillRectangle(const Rectangle32 &rect, uint32 colour)
 {
+	const uint alpha = colour & 0xff;
+	if (alpha == 0) return;
 	ClippedRectangle cr = this->GetClippedRectangle();
 
 	int x = Clamp((int)rect.base.x, 0, (int)cr.width);
@@ -960,7 +962,22 @@ void VideoSystem::FillRectangle(const Rectangle32 &rect, uint32 colour)
 	uint32 *pixels_base = cr.address + x + y * cr.pitch;
 	while (h > 0) {
 		uint32 *pixels = pixels_base;
-		for (int i = 0; i < w; i++) *pixels++ = colour;
+		for (int i = 0; i < w; i++) {
+			if (alpha == 0xff) {
+				*pixels++ = colour;
+				continue;
+			}
+			int r = ((*pixels) & 0xff000000) >> 24;
+			int g = ((*pixels) & 0xff0000  ) >> 16;
+			int b = ((*pixels) & 0xff00    ) >>  8;
+			int a = ((*pixels) & 0xff      )      ;
+			r += ((colour & 0xff000000) - r) * alpha / 255;
+			g += ((colour & 0xff0000  ) - g) * alpha / 255;
+			b += ((colour & 0xff00    ) - b) * alpha / 255;
+			a += ((colour & 0xff      ) - a) * alpha / 255;
+			*pixels = (r << 24) | (g << 16) | (b << 8) | a;
+			pixels++;
+		}
 		pixels_base += cr.pitch;
 		h--;
 	}

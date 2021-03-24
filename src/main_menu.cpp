@@ -24,18 +24,22 @@ public:
 	void OnDraw(MouseModeSelector *selector) override;
 
 private:
-	uint32 frametime;            ///< Time in the animation.
+	uint32 animstart;              ///< SDL Time when the animation started.
+	static bool is_splash_screen;  ///< Whether we're currently displaying the splash screen. Static because the splash screen should be shown only once.
+
 	Rectangle32 new_game_rect;   ///< Position of the New Game button.
 	Rectangle32 load_game_rect;  ///< Position of the Load Game button.
 	Rectangle32 settings_rect;   ///< Position of the Settings button.
 	Rectangle32 quit_rect;       ///< Position of the Quit button.
 };
 
+bool MainMenuGui::is_splash_screen = true;
+
 MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetSize(_video.GetXSize(),_video.GetYSize());
 	_game_control.main_menu = true;
-	this->frametime = 0;
+	this->animstart = SDL_GetTicks();
 }
 
 MainMenuGui::~MainMenuGui()
@@ -45,6 +49,12 @@ MainMenuGui::~MainMenuGui()
 
 WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 {
+	if (is_splash_screen) {
+		is_splash_screen = false;
+		this->animstart = SDL_GetTicks();
+		return WMME_NONE;
+	}
+
 	if (!IsLeftClick(state)) return WMME_NONE;
 
 	if (this->new_game_rect.IsPointInside(_window_manager.GetMousePosition())) {
@@ -63,16 +73,22 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 	return WMME_NONE;
 }
 
-static const int MAIN_MENU_BUTTON_SIZE = 96;  ///< Size of the main menu buttons.
-static const int MAIN_MENU_PADDING     =  4;  ///< Padding in the main menu.
+static const int    MAIN_MENU_BUTTON_SIZE  =    96;  ///< Size of the main menu buttons.
+static const int    MAIN_MENU_PADDING      =     4;  ///< Padding in the main menu.
+static const uint32 SPLASH_SCREEN_DURATION =  8000;  ///< Duration of the splash screen animation in milliseconds.
+static const uint32 ANIMATION_SPEED        =  5000;  ///< Speed factor for the animation.
 
 void MainMenuGui::OnDraw(MouseModeSelector *selector)
 {
-	static Recolouring rc;
-	_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0x0000ffff);  // NOCOM
-	/* _video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 2),
-			_gui_sprites.main_menu_animation->views[_gui_sprites.main_menu_animation->GetFrame(this->frametime, true)]->sprites[0][0],
-			rc, GS_NORMAL); */
+	const uint32 current_time = SDL_GetTicks();
+	uint32 frametime = current_time - this->animstart;
+	if (is_splash_screen && frametime > SPLASH_SCREEN_DURATION) {
+		is_splash_screen = false;
+		this->animstart = current_time;
+		frametime = 0;
+	}
+
+	_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0x0000ffff);
 
 	const int button_x = (_video.GetXSize() - 7 * MAIN_MENU_BUTTON_SIZE) / 2;
 	const int button_y = _video.GetYSize() - MAIN_MENU_BUTTON_SIZE;
@@ -82,15 +98,24 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 	this->settings_rect  = Rectangle32(button_x + 4 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->quit_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
-	/* _video.BlitImage(Point32(this->new_game_rect.base),  _gui_sprites.main_menu_new,      rc, GS_NORMAL);
-	_video.BlitImage(Point32(this->load_game_rect.base), _gui_sprites.main_menu_load,     rc, GS_NORMAL);
-	_video.BlitImage(Point32(this->settings_rect.base),  _gui_sprites.main_menu_settings, rc, GS_NORMAL);
-	_video.BlitImage(Point32(this->quit_rect.base),      _gui_sprites.main_menu_quit,     rc, GS_NORMAL); */
+	int text_pos = _video.GetXSize() / 2;
+	if (!is_splash_screen) {
+		const int factor = frametime % (4 * ANIMATION_SPEED);
+		if (factor < ANIMATION_SPEED) {
+			text_pos += (text_pos - MAIN_MENU_BUTTON_SIZE / 2) * factor / ANIMATION_SPEED;
+		} else if (factor < 3 * ANIMATION_SPEED) {
+			text_pos = MAIN_MENU_BUTTON_SIZE / 2 + 2 * (text_pos - MAIN_MENU_BUTTON_SIZE / 2) -
+					2 * (text_pos - MAIN_MENU_BUTTON_SIZE / 2) * (factor - ANIMATION_SPEED) / (2 * ANIMATION_SPEED);
+		} else {
+			text_pos = MAIN_MENU_BUTTON_SIZE / 2 + (text_pos - MAIN_MENU_BUTTON_SIZE / 2) * (factor - 3 * ANIMATION_SPEED) / ANIMATION_SPEED;
+		}
+	}
+	_video.BlitText(reinterpret_cast<const uint8*>("FreeRCT"), 0xffffffff, text_pos - _video.GetXSize() / 2, MAIN_MENU_BUTTON_SIZE, _video.GetXSize(), ALG_CENTER);
 
-	_video.FillRectangle(this->new_game_rect,  0xff0000ff);  // NOCOM
-	_video.FillRectangle(this->load_game_rect, 0x00ff00ff);  // NOCOM
-	_video.FillRectangle(this->settings_rect,  0xff00ffff);  // NOCOM
-	_video.FillRectangle(this->quit_rect,      0x000000ff);  // NOCOM
+	_video.FillRectangle(this->new_game_rect,  0xff0000ff);
+	_video.FillRectangle(this->load_game_rect, 0x00ff00ff);
+	_video.FillRectangle(this->settings_rect,  0xff00ffff);
+	_video.FillRectangle(this->quit_rect,      0x000000ff);
 
 	DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
 			this->new_game_rect.base.x,  this->new_game_rect.base.y  + MAIN_MENU_PADDING + this->new_game_rect.height,  this->new_game_rect.width,  ALG_CENTER, true);
@@ -100,6 +125,11 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 			this->settings_rect.base.x,  this->settings_rect.base.y  + MAIN_MENU_PADDING + this->settings_rect.height,  this->settings_rect.width,  ALG_CENTER, true);
 	DrawString(GUI_MAIN_MENU_QUIT, TEXT_WHITE,
 			this->quit_rect.base.x,      this->quit_rect.base.y      + MAIN_MENU_PADDING + this->quit_rect.height,      this->quit_rect.width,      ALG_CENTER, true);
+
+	if (is_splash_screen) {
+		_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()),
+				0x00000000 | (255 - 255 * frametime / SPLASH_SCREEN_DURATION));
+	}
 }
 
 /**

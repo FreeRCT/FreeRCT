@@ -1102,17 +1102,18 @@ bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
  */
 void WindowManager::UpdateWindows()
 {
+	bool force_repaint = false;
 	BaseWidget *tt = nullptr;
 	Point32 tooltip_offset;
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
 		tt = w->FindTooltipWidget(GetMousePosition());
 		if (tt != nullptr) {
 			tooltip_offset = w->rect.base;
-			break;
 		}
+		force_repaint |= w->wtype == WC_MAIN_MENU;  // Ensure a smooth animation in the main menu.
 	}
 
-	if (!_video.DisplayNeedsRepaint() && this->tooltip_widget == tt) return;
+	if (!_video.DisplayNeedsRepaint() && this->tooltip_widget == tt && !force_repaint) return;
 
 	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
 	 * windows truly disappear (even if there is no other window behind it).

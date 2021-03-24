@@ -29,13 +29,13 @@ strings {
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menu";
-		MAIN_MENU_QUIT:     "Quit";
-		MAIN_MENU_SETTINGS: "Settings";
-		MAIN_MENU_MODE:     "Play/Editor";
-		MAIN_MENU_LOAD:     "Load";
-		MAIN_MENU_SAVE:     "Save";
-		MAIN_MENU_NEW_GAME: "New Game";
-		MAIN_MENU_MENU:     "Main Menu";
+		MAIN_MENU_QUIT:                     "Quit";
+		MAIN_MENU_SETTINGS:                 "Settings";
+		MAIN_MENU_MODE:                     "Play/Editor";
+		MAIN_MENU_LOAD:                     "Load";
+		MAIN_MENU_SAVE:                     "Save";
+		MAIN_MENU_NEW_GAME:                 "New Game";
+		MAIN_MENU_MENU:                     "Main Menu";
 		TOOLBAR_GUI_DROPDOWN_SPEED:         "Speed";
 		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Change the game speed";
 		TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE:   "Pause";
