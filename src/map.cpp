@@ -906,29 +906,17 @@ void ShowActionErrorMessage(const CheckActionType type, const StringID error)
  * Checks whether the player is allowed to perform an action,
  * and displays an error message if this is not the case.
  * @param type Type of action to check.
- * @param pos Where the action shall take place.
  * @param cost How expensive the action will be (ignored if ``<= 0``).
  * @return The action is allowed.
  * @note Does not check whether the land is suited for building or a removable item is located here in the first place.
  */
-bool CheckActionAllowed(const CheckActionType type, const XYZPoint16 &pos, const Money &cost)
+bool CheckActionAllowed(const CheckActionType type, const Money &cost)
 {
 	const StringID heading = (type == ACT_BUILD ? GUI_ERROR_MESSAGE_HEADING_BUILD : GUI_ERROR_MESSAGE_HEADING_REMOVE);
 
 	if (_game_mode_mgr.InPlayMode() && _game_control.speed == GSP_PAUSE) {
 		/* Game paused. */
 		ShowErrorMessage(heading, GUI_ERROR_MESSAGE_PAUSED, [](){});
-		return false;
-	}
-
-	if (!IsVoxelstackInsideWorld(pos.x, pos.y)) {
-		/* Outside the game world. No message needed. */
-		return false;
-	}
-
-	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(pos.x, pos.y) != OWN_PARK) {
-		/* Land not owned. */
-		ShowErrorMessage(heading, GUI_ERROR_MESSAGE_UNOWNED_LAND, [](){});
 		return false;
 	}
 
@@ -945,25 +933,44 @@ bool CheckActionAllowed(const CheckActionType type, const XYZPoint16 &pos, const
 /**
  * If several error messages are applicable, decides which
  * one is the more important reason to display to the user.
- * @param older A reason that existed previously.
+ * @param older [inout] A reason that existed previously (will be changed if appropriate).
  * @param other Another reason that is also applicable.
- * @return #other is more important than #older.
  */
-bool IsMoreImportantReason(const StringID older, const StringID other)
+void CheckIsMoreImportantReason(StringID *older, const StringID other)
 {
-	if (other == GUI_ERROR_MESSAGE_PAUSED) return true;
-	if (older == GUI_ERROR_MESSAGE_PAUSED) return false;
+	if (other == STR_NULL || other == STR_EMPTY) return;
+	if (*older == STR_NULL || *older == STR_EMPTY) {
+		*older = other;
+		return;
+	}
+	if (other == GUI_ERROR_MESSAGE_PAUSED) {
+		*older = other;
+		return;
+	}
+	if (*older == GUI_ERROR_MESSAGE_PAUSED) return;
 
-	if (older == GUI_ERROR_MESSAGE_OCCUPIED || older == GUI_ERROR_MESSAGE_EXPENSIVE || older == GUI_ERROR_MESSAGE_UNREMOVABLE) return false;
-	if (older == GUI_ERROR_MESSAGE_BAD_LOCATION) return true;
+	if (*older == GUI_ERROR_MESSAGE_OCCUPIED || *older == GUI_ERROR_MESSAGE_EXPENSIVE || *older == GUI_ERROR_MESSAGE_UNREMOVABLE) return;
+	if (*older == GUI_ERROR_MESSAGE_BAD_LOCATION) {
+		*older = other;
+		return;
+	}
 
-	if (other == GUI_ERROR_MESSAGE_BAD_LOCATION) return false;
-	if (other == GUI_ERROR_MESSAGE_OCCUPIED || other == GUI_ERROR_MESSAGE_EXPENSIVE || other == GUI_ERROR_MESSAGE_UNREMOVABLE) return true;
+	if (other == GUI_ERROR_MESSAGE_BAD_LOCATION) return;
+	if (other == GUI_ERROR_MESSAGE_OCCUPIED || other == GUI_ERROR_MESSAGE_EXPENSIVE || other == GUI_ERROR_MESSAGE_UNREMOVABLE) {
+		*older = other;
+		return;
+	}
 
-	if (older == GUI_ERROR_MESSAGE_UNOWNED_LAND) return true;
+	if (*older == GUI_ERROR_MESSAGE_UNOWNED_LAND) {
+		*older = other;
+		return;
+	}
 
-	if (older == GUI_ERROR_MESSAGE_SLOPE || older == GUI_ERROR_MESSAGE_UNDERGROUND) return (other != GUI_ERROR_MESSAGE_UNOWNED_LAND);
-	if (other == GUI_ERROR_MESSAGE_SLOPE || other == GUI_ERROR_MESSAGE_UNDERGROUND) return false;
+	if (*older == GUI_ERROR_MESSAGE_SLOPE || *older == GUI_ERROR_MESSAGE_UNDERGROUND) {
+		if (other != GUI_ERROR_MESSAGE_UNOWNED_LAND) *older = other;
+		return;
+	}
+	if (other == GUI_ERROR_MESSAGE_SLOPE || other == GUI_ERROR_MESSAGE_UNDERGROUND) return;
 
-	return true;
+	*older = other;
 }

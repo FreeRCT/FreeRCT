@@ -677,8 +677,8 @@ enum CheckActionType {
 	ACT_BUILD,   ///< Build rides, scenery, paths, etc.
 	ACT_REMOVE,  ///< Remove a path, scenery, etc.
 };
-bool CheckActionAllowed(CheckActionType type, const XYZPoint16 &pos, const Money &cost);
+bool CheckActionAllowed(CheckActionType type, const Money &cost);
 void ShowActionErrorMessage(CheckActionType type, StringID error = STR_NULL);
-bool IsMoreImportantReason(StringID older, StringID other);
+void CheckIsMoreImportantReason(StringID *older, StringID other);
 
 #endif
