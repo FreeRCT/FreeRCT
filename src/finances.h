@@ -72,6 +72,15 @@ public:
 	void Save(Saver &svr);
 
 	/**
+	 * The amount of cash the player currently possesses.
+	 * @return The cash.
+	 */
+	inline const Money &GetCash()
+	{
+		return this->cash;
+	}
+
+	/**
 	 * Access method for monthly transactions.
 	 * @param m how much money to pay.
 	 */

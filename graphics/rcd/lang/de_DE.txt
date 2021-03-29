@@ -70,8 +70,18 @@ strings {
 		QUIT_YES:     "Ja";
 
 		// Error message strings.
-		ERROR_MESSAGE_CAPTION: "Fehler!";
-		ERROR_MESSAGE_SPRITE:  "Sprite konnte nicht gezeichnet werden (Failed to draw sprite).";
+		ERROR_MESSAGE_CAPTION:        "Achtung";
+		ERROR_MESSAGE_SPRITE:         "Sprite konnte nicht gezeichnet werden (Failed to draw sprite).";
+		ERROR_MESSAGE_HEADING_BUILD:  "Das kann hier nicht gebaut werden …";
+		ERROR_MESSAGE_HEADING_REMOVE: "Das kann nicht entfernt werden …";
+		ERROR_MESSAGE_UNREMOVABLE:    "Unentfernbares Objekt!";
+		ERROR_MESSAGE_UNOWNED_LAND:   "Gelände gehört dem Park nicht!";
+		ERROR_MESSAGE_EXPENSIVE:      "%1% benötigt.";
+		ERROR_MESSAGE_BAD_LOCATION:   "Ungeeigneter Ort.";
+		ERROR_MESSAGE_SLOPE:          "Ebenes Gelände erforderlich.";
+		ERROR_MESSAGE_UNDERGROUND:    "Kann nicht unter der Erde gebaut werden.";
+		ERROR_MESSAGE_OCCUPIED:       "Ein anderes Objekt ist im Weg!";
+		ERROR_MESSAGE_PAUSED:         "Nicht erlaubt während das Spiel angehalten ist.";
 
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Verfügbares Geld";

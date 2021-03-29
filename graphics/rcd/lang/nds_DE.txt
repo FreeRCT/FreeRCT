@@ -70,8 +70,18 @@ strings {
 		QUIT_YES:     "Jau";
 
 		// Error message strings.
-		ERROR_MESSAGE_CAPTION: "Naricht";
-		ERROR_MESSAGE_SPRITE:  "Kunn Sprite-Billers nich teken";
+		ERROR_MESSAGE_CAPTION:        "Wahrschau";
+		ERROR_MESSAGE_SPRITE:         "Kunn Sprite-Billers nich teken!";
+		ERROR_MESSAGE_HEADING_BUILD:  "Dat kann hier nich baut worden …";
+		ERROR_MESSAGE_HEADING_REMOVE: "Dat kann nich ofrieten worden …";
+		ERROR_MESSAGE_UNREMOVABLE:    "Deeses Ding kann man nich wegmaken!";
+		ERROR_MESSAGE_UNOWNED_LAND:   "Dat Land höört nich to de Park!";
+		ERROR_MESSAGE_EXPENSIVE:      "Du bruukst tominnst %1%.";
+		ERROR_MESSAGE_BAD_LOCATION:   "De Stee is nich gadelk.";
+		ERROR_MESSAGE_SLOPE:          "Kann nich up Schüünten baut worden.";
+		ERROR_MESSAGE_UNDERGROUND:    "Kann nich unner de Eer baut worden.";
+		ERROR_MESSAGE_OCCUPIED:       "Daar staht een anner Ding im Weg!";
+		ERROR_MESSAGE_PAUSED:         "Nich verlöövt as dat Speel anhollt is.";
 
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Baargeld";

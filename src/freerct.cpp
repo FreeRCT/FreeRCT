@@ -75,7 +75,7 @@ void ShowGraphicsErrorMessage()
 {
 	/* Enough sprites are available for displaying an error message,
 	 * as this was checked in GuiSprites::HasSufficientGraphics. */
-	ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE);
+	ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE, STR_NULL, {}, 0);
 }
 
 /**

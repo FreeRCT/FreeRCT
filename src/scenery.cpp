@@ -93,40 +93,40 @@ SceneryInstance::SceneryInstance(const SceneryType *t)
 
 /**
  * Checks whether this item can be placed at the current position.
- * @return The item can be placed here.
+ * @return \c STR_NULL if the item can be placed here; otherwise the reason why it can't.
  */
-bool SceneryInstance::CanPlace() const
+StringID SceneryInstance::CanPlace() const
 {
-	if (this->vox_pos == XYZPoint16::invalid()) return false;
+	if (this->vox_pos == XYZPoint16::invalid()) return GUI_ERROR_MESSAGE_BAD_LOCATION;
 
 	const int8 wx = this->type->width_x;
 	const int8 wy = this->type->width_y;
 	for (int8 x = 0; x < wx; x++) {
 		for (int8 y = 0; y < wy; y++) {
 			XYZPoint16 location = this->vox_pos + OrientatedOffset(this->orientation, x, y);
-			if (!IsVoxelstackInsideWorld(location.x, location.y)) return false;
-			if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
+			if (!IsVoxelstackInsideWorld(location.x, location.y)) return GUI_ERROR_MESSAGE_BAD_LOCATION;
+			if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(location.x, location.y) != OWN_PARK) return GUI_ERROR_MESSAGE_UNOWNED_LAND;
 			const int8 height = this->type->GetHeight(x, y);
 			for (int16 h = 0; h < height; h++) {
 				location.z = this->vox_pos.z + h;
 				const Voxel *voxel = _world.GetVoxel(location);
 				if (voxel == nullptr) {
-					if (h == 0) return false;
+					if (h == 0) return GUI_ERROR_MESSAGE_BAD_LOCATION;
 					continue;
 				}
 
-				if (!voxel->CanPlaceInstance()) return false;
+				if (!voxel->CanPlaceInstance()) return GUI_ERROR_MESSAGE_OCCUPIED;
 				if (h == 0) {
-					if (voxel->GetGroundType() == GTP_INVALID) return false;
-					if (voxel->GetGroundSlope() != SL_FLAT) return false;
+					if (voxel->GetGroundType() == GTP_INVALID) return GUI_ERROR_MESSAGE_BAD_LOCATION;
+					if (voxel->GetGroundSlope() != SL_FLAT) return GUI_ERROR_MESSAGE_SLOPE;
 				} else {
-					if (voxel->GetGroundType() != GTP_INVALID) return false;
+					if (voxel->GetGroundType() != GTP_INVALID) return GUI_ERROR_MESSAGE_UNDERGROUND;
 				}
 			}
 		}
 	}
 
-	return true;
+	return STR_NULL;
 }
 
 /** Link this item into the voxels it occupies. */

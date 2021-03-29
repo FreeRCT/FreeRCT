@@ -70,8 +70,18 @@ strings {
 		QUIT_YES:     "Yes";
 
 		// Error message strings.
-		ERROR_MESSAGE_CAPTION: "Message";
-		ERROR_MESSAGE_SPRITE:  "Failed to draw sprite";
+		ERROR_MESSAGE_CAPTION:        "Message";
+		ERROR_MESSAGE_SPRITE:         "Failed to draw sprite";
+		ERROR_MESSAGE_HEADING_BUILD:  "This can not be placed here…";
+		ERROR_MESSAGE_HEADING_REMOVE: "This can not be removed…";
+		ERROR_MESSAGE_UNREMOVABLE:    "This object can not be removed.";
+		ERROR_MESSAGE_UNOWNED_LAND:   "You do not own the land!";
+		ERROR_MESSAGE_EXPENSIVE:      "You need at least %1%.";
+		ERROR_MESSAGE_BAD_LOCATION:   "Unsuited location.";
+		ERROR_MESSAGE_SLOPE:          "Can not be built on a slope.";
+		ERROR_MESSAGE_UNDERGROUND:    "Can not be built underground.";
+		ERROR_MESSAGE_OCCUPIED:       "Something is in the way!";
+		ERROR_MESSAGE_PAUSED:         "Not allowed while the game is paused.";
 
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Available cash";
