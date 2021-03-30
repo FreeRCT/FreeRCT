@@ -672,13 +672,4 @@ static inline bool IsVoxelInsideWorld(const XYZPoint16 &vox)
 	return vox.z >= 0 && vox.z < WORLD_Z_SIZE && IsVoxelstackInsideWorld(vox.x, vox.y);
 }
 
-/** Types of action for which it is necessary to check whether they may be performed. */
-enum CheckActionType {
-	ACT_BUILD,   ///< Build rides, scenery, paths, etc.
-	ACT_REMOVE,  ///< Remove a path, scenery, etc.
-};
-bool CheckActionAllowed(CheckActionType type, const Money &cost);
-void ShowActionErrorMessage(CheckActionType type, StringID error = STR_NULL);
-void CheckIsMoreImportantReason(StringID *older, StringID other);
-
 #endif

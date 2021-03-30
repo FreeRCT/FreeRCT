@@ -10,6 +10,9 @@
 #ifndef GAMECONTROL_H
 #define GAMECONTROL_H
 
+#include "language.h"
+#include "money.h"
+
 void OnNewDay();
 void OnNewMonth();
 void OnNewYear();
@@ -130,5 +133,14 @@ inline bool GameModeManager::InEditorMode() const
 }
 
 extern GameModeManager _game_mode_mgr;
+
+/** Types of action for which it is necessary to check whether they may be performed. */
+enum CheckActionType {
+	ACT_BUILD,   ///< Build rides, scenery, paths, etc.
+	ACT_REMOVE,  ///< Remove a path, scenery, etc.
+};
+bool CheckActionAllowed(CheckActionType type, const Money &cost);
+void ShowActionErrorMessage(CheckActionType type, StringID error = STR_NULL);
+void CheckIsMoreImportantReason(StringID *older, StringID other);
 
 #endif

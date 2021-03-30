@@ -259,3 +259,91 @@ void GameModeManager::SetGameMode(GameMode new_mode)
 	this->game_mode = new_mode;
 	NotifyChange(WC_TOOLBAR, 0, CHG_UPDATE_BUTTONS, 0);
 }
+
+/**
+ * Display an error message to inform the user that an action is not allowed.
+ * @param type Type of action that is forbidden.
+ * @param error Reason (may be \c STR_NULL).
+ */
+void ShowActionErrorMessage(const CheckActionType type, const StringID error)
+{
+	const StringID heading = (type == ACT_BUILD ? GUI_ERROR_MESSAGE_HEADING_BUILD : GUI_ERROR_MESSAGE_HEADING_REMOVE);
+	if (error == STR_NULL || error == STR_EMPTY) {
+		ShowErrorMessage(heading, STR_NULL, [](){});
+	} else {
+		ShowErrorMessage(heading, error, [](){});
+	}
+}
+
+/**
+ * Checks whether the player is allowed to perform an action,
+ * and displays an error message if this is not the case.
+ * @param type Type of action to check.
+ * @param cost How expensive the action will be (ignored if ``<= 0``).
+ * @return The action is allowed.
+ * @note Does not check whether the land is suited for building or a removable item is located here in the first place.
+ */
+bool CheckActionAllowed(const CheckActionType type, const Money &cost)
+{
+	const StringID heading = (type == ACT_BUILD ? GUI_ERROR_MESSAGE_HEADING_BUILD : GUI_ERROR_MESSAGE_HEADING_REMOVE);
+
+	if (_game_mode_mgr.InPlayMode() && _game_control.speed == GSP_PAUSE) {
+		/* Game paused. */
+		ShowErrorMessage(heading, GUI_ERROR_MESSAGE_PAUSED, [](){});
+		return false;
+	}
+
+	if (_game_mode_mgr.InPlayMode() && cost > 0 && cost > _finances_manager.GetCash()) {
+		/* Not enough cash. */
+		ShowErrorMessage(heading, GUI_ERROR_MESSAGE_EXPENSIVE, [cost]() { _str_params.SetMoney(1, cost); });
+		return false;
+	}
+
+	/** All checks clear. */
+	return true;
+}
+
+/**
+ * If several error messages are applicable, decides which
+ * one is the more important reason to display to the user.
+ * @param older [inout] A reason that existed previously (will be changed if appropriate).
+ * @param other Another reason that is also applicable.
+ */
+void CheckIsMoreImportantReason(StringID *older, const StringID other)
+{
+	if (other == STR_NULL || other == STR_EMPTY) return;
+	if (*older == STR_NULL || *older == STR_EMPTY) {
+		*older = other;
+		return;
+	}
+	if (other == GUI_ERROR_MESSAGE_PAUSED) {
+		*older = other;
+		return;
+	}
+	if (*older == GUI_ERROR_MESSAGE_PAUSED) return;
+
+	if (*older == GUI_ERROR_MESSAGE_OCCUPIED || *older == GUI_ERROR_MESSAGE_EXPENSIVE || *older == GUI_ERROR_MESSAGE_UNREMOVABLE) return;
+	if (*older == GUI_ERROR_MESSAGE_BAD_LOCATION) {
+		*older = other;
+		return;
+	}
+
+	if (other == GUI_ERROR_MESSAGE_BAD_LOCATION) return;
+	if (other == GUI_ERROR_MESSAGE_OCCUPIED || other == GUI_ERROR_MESSAGE_EXPENSIVE || other == GUI_ERROR_MESSAGE_UNREMOVABLE) {
+		*older = other;
+		return;
+	}
+
+	if (*older == GUI_ERROR_MESSAGE_UNOWNED_LAND) {
+		*older = other;
+		return;
+	}
+
+	if (*older == GUI_ERROR_MESSAGE_SLOPE || *older == GUI_ERROR_MESSAGE_UNDERGROUND) {
+		if (other != GUI_ERROR_MESSAGE_UNOWNED_LAND) *older = other;
+		return;
+	}
+	if (other == GUI_ERROR_MESSAGE_SLOPE || other == GUI_ERROR_MESSAGE_UNDERGROUND) return;
+
+	*older = other;
+}

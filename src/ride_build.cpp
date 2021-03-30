@@ -13,7 +13,7 @@
 #include "shop_type.h"
 #include "gentle_thrill_ride_type.h"
 #include "mouse_mode.h"
-#include "language.h"
+#include "gamecontrol.h"
 
 #include "gui_sprites.h"
 
