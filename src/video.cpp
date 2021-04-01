@@ -444,7 +444,6 @@ bool VideoSystem::HandleEvent()
 void VideoSystem::MainLoop()
 {
 	static const uint32 FRAME_DELAY = 30; // Number of milliseconds between two frames.
-	bool missing_sprites_check = false;
 
 	for (;;) {
 		uint32 start = SDL_GetTicks();
@@ -466,9 +465,12 @@ void VideoSystem::MainLoop()
 			if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
 		}
 
-		if (!missing_sprites_check && this->missing_sprites) {
-			ShowGraphicsErrorMessage();
-			missing_sprites_check = true;
+		if (this->missing_sprites) {
+			printf("FATAL ERROR: FreeRCT is missing some sprites.\n");
+			printf("This should not happen. You are most likely using corrupt or incompatible RCD files.\n");
+			printf("Please ensure that your RCD files can be read by this version of FreeRCT.\n");
+			printf("The program will terminate now.\n");
+			exit(1);
 		}
 	}
 }

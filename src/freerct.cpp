@@ -70,14 +70,6 @@ static void PrintUsage()
 	printf("\n");
 }
 
-/** Show that there are missing sprites. */
-void ShowGraphicsErrorMessage()
-{
-	/* Enough sprites are available for displaying an error message,
-	 * as this was checked in GuiSprites::HasSufficientGraphics. */
-	ShowErrorMessage(GUI_ERROR_MESSAGE_SPRITE, STR_NULL, {}, 0);
-}
-
 /**
  * Main entry point of our FreeRCT game.
  * @param argc Argument count.

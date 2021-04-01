@@ -11,6 +11,5 @@
 #define FREERCT_H
 
 int freerct_main(int argc, char **argv);
-void ShowGraphicsErrorMessage();
 
 #endif

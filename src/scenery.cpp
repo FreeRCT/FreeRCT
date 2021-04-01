@@ -111,14 +111,25 @@ StringID SceneryInstance::CanPlace() const
 				location.z = this->vox_pos.z + h;
 				const Voxel *voxel = _world.GetVoxel(location);
 				if (voxel == nullptr) {
-					if (h == 0) return GUI_ERROR_MESSAGE_BAD_LOCATION;
+					if (h == 0) {
+						/* If this is the upper or lower part of a steep slope, adjust the error message accordingly. */
+						location.z--;
+						voxel = _world.GetVoxel(location);
+						if (voxel != nullptr && voxel->GetGroundSlope() != SL_FLAT) return GUI_ERROR_MESSAGE_SLOPE;
+
+						location.z += 2;
+						voxel = _world.GetVoxel(location);
+						if (voxel != nullptr && voxel->GetGroundSlope() != SL_FLAT) return GUI_ERROR_MESSAGE_UNDERGROUND;
+
+						return GUI_ERROR_MESSAGE_BAD_LOCATION;
+					}
 					continue;
 				}
 
 				if (!voxel->CanPlaceInstance()) return GUI_ERROR_MESSAGE_OCCUPIED;
 				if (h == 0) {
-					if (voxel->GetGroundType() == GTP_INVALID) return GUI_ERROR_MESSAGE_BAD_LOCATION;
 					if (voxel->GetGroundSlope() != SL_FLAT) return GUI_ERROR_MESSAGE_SLOPE;
+					if (voxel->GetGroundType() == GTP_INVALID) return GUI_ERROR_MESSAGE_BAD_LOCATION;
 				} else {
 					if (voxel->GetGroundType() != GTP_INVALID) return GUI_ERROR_MESSAGE_UNDERGROUND;
 				}

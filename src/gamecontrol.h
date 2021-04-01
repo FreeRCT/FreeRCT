@@ -134,13 +134,40 @@ inline bool GameModeManager::InEditorMode() const
 
 extern GameModeManager _game_mode_mgr;
 
-/** Types of action for which it is necessary to check whether they may be performed. */
-enum CheckActionType {
-	ACT_BUILD,   ///< Build rides, scenery, paths, etc.
-	ACT_REMOVE,  ///< Remove a path, scenery, etc.
+/** A class that picks the error message that will be shown to the user if multiple messages are applicable. */
+class BestErrorMessageReason {
+public:
+	/** Types of action for which it is necessary to check whether they may be performed. */
+	enum CheckActionType {
+		ACT_BUILD,   ///< Build rides, scenery, paths, etc.
+		ACT_REMOVE,  ///< Remove a path, scenery, etc.
+	};
+
+	explicit BestErrorMessageReason(CheckActionType t);
+
+	static void ShowActionErrorMessage(CheckActionType type, StringID error = STR_NULL);
+	static bool CheckActionAllowed(CheckActionType type, const Money &cost);
+
+	void UpdateReason(StringID other);
+	bool ShowErrorMessage() const;
+
+	/**
+	 * Whether this class holds an error currently.
+	 * @return An error is set.
+	 */
+	inline bool IsSet() const
+	{
+		return this->reason != STR_NULL;
+	}
+
+	/** Clear the error. */
+	inline void Reset()
+	{
+		this->reason = STR_NULL;
+	}
+
+	CheckActionType type;   ///< Type of action.
+	StringID reason;        ///< The reason which is currently deemed most important.
 };
-bool CheckActionAllowed(CheckActionType type, const Money &cost);
-void ShowActionErrorMessage(CheckActionType type, StringID error = STR_NULL);
-void CheckIsMoreImportantReason(StringID *older, StringID other);
 
 #endif
