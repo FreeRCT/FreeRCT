@@ -72,6 +72,7 @@ public:
 class SceneryInstance {
 public:
 	explicit SceneryInstance(const SceneryType *t);
+	~SceneryInstance();
 
 	StringID CanPlace() const;
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const;
