@@ -1131,11 +1131,12 @@ void WindowManager::Tick()
 {
 	Window *w = _window_manager.top;
 	while (w != nullptr) {
+		Window *next = w->lower;
 		if (w->timeout > 0) {
 			w->timeout--;
-			if (w->timeout == 0) w->TimeoutCallback();
+			if (w->timeout == 0) w->TimeoutCallback();  // This might delete the window, do not use hereafter.
 		}
-		w = w->lower;
+		w = next;
 	}
 
 	this->UpdateWindows();

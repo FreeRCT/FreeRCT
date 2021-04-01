@@ -259,3 +259,85 @@ void GameModeManager::SetGameMode(GameMode new_mode)
 	this->game_mode = new_mode;
 	NotifyChange(WC_TOOLBAR, 0, CHG_UPDATE_BUTTONS, 0);
 }
+
+/**
+ * Constructor.
+ * @param t Type of action for which to show error messages.
+ */
+BestErrorMessageReason::BestErrorMessageReason(CheckActionType t)
+{
+	this->type = t;
+	this->reason = STR_NULL;
+}
+
+/**
+ * Show the current error message to the user, if any.
+ * @return An error was shown.
+ */
+bool BestErrorMessageReason::ShowErrorMessage() const
+{
+	if (!this->IsSet()) return false;
+	ShowActionErrorMessage(this->type, this->reason);
+	return true;
+}
+
+/**
+ * Display an error message to inform the user that an action is not allowed.
+ * @param type Type of action that is forbidden.
+ * @param error Reason (may be \c STR_NULL).
+ */
+void BestErrorMessageReason::ShowActionErrorMessage(const CheckActionType type, const StringID error)
+{
+	::ShowErrorMessage(type == ACT_BUILD ? GUI_ERROR_MESSAGE_HEADING_BUILD : GUI_ERROR_MESSAGE_HEADING_REMOVE, error, [](){});
+}
+
+/**
+ * Checks whether the player is allowed to perform an action,
+ * and displays an error message if this is not the case.
+ * @param type Type of action to check.
+ * @param cost How expensive the action will be (ignored if ``<= 0``).
+ * @return The action is allowed.
+ * @note Does not check whether the land is suited for building or a removable item is located here in the first place.
+ */
+bool BestErrorMessageReason::CheckActionAllowed(const CheckActionType type, const Money &cost)
+{
+	const StringID heading = (type == ACT_BUILD ? GUI_ERROR_MESSAGE_HEADING_BUILD : GUI_ERROR_MESSAGE_HEADING_REMOVE);
+
+	if (_game_mode_mgr.InPlayMode() && _game_control.speed == GSP_PAUSE) {
+		/* Game paused. */
+		::ShowErrorMessage(heading, GUI_ERROR_MESSAGE_PAUSED, [](){});
+		return false;
+	}
+
+	if (_game_mode_mgr.InPlayMode() && cost > 0 && cost > _finances_manager.GetCash()) {
+		/* Not enough cash. */
+		::ShowErrorMessage(heading, GUI_ERROR_MESSAGE_EXPENSIVE, [cost]() { _str_params.SetMoney(1, cost); });
+		return false;
+	}
+
+	/** All checks clear. */
+	return true;
+}
+
+/** Assigns every error message a priority, to decide which one should be shown when multiple are applicable. */
+static const std::map<StringID, int> ERROR_MESSAGE_REASON_PRIORITIES = {
+	{STR_EMPTY,                        0},
+	{STR_NULL,                         1},
+	{GUI_ERROR_MESSAGE_BAD_LOCATION,  10},
+	{GUI_ERROR_MESSAGE_UNOWNED_LAND,  20},
+	{GUI_ERROR_MESSAGE_UNDERGROUND,   30},
+	{GUI_ERROR_MESSAGE_OCCUPIED,      40},
+	{GUI_ERROR_MESSAGE_UNREMOVABLE,   50},
+	{GUI_ERROR_MESSAGE_SLOPE,         70},
+	{GUI_ERROR_MESSAGE_EXPENSIVE,     90},
+	{GUI_ERROR_MESSAGE_PAUSED,       100},
+};
+
+/**
+ * Decides whether to replace the current reason with another one.
+ * @param other Another applicable reason.
+ */
+void BestErrorMessageReason::UpdateReason(const StringID other)
+{
+	if (ERROR_MESSAGE_REASON_PRIORITIES.at(this->reason) < ERROR_MESSAGE_REASON_PRIORITIES.at(other)) this->reason = other;
+}

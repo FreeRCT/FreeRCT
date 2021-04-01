@@ -884,4 +884,3 @@ void VoxelWorld::Save(Saver &svr) const
 		}
 	}
 }
-

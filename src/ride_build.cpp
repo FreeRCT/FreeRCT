@@ -13,7 +13,7 @@
 #include "shop_type.h"
 #include "gentle_thrill_ride_type.h"
 #include "mouse_mode.h"
-#include "language.h"
+#include "gamecontrol.h"
 
 #include "gui_sprites.h"
 
@@ -83,6 +83,7 @@ private:
 	StringID str_titlebar;  ///< String to use for the titlebar of the window.
 	RideInstance *instance; ///< Instance to build, set to \c nullptr after build to prevent deletion of the instance.
 	TileEdge orientation;   ///< Orientation of the simple ride.
+	BestErrorMessageReason build_forbidden_reason;  ///< Reason why we may not place the instance at the given location, if any.
 
 	bool CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, uint8 ride_orient, ViewOrientation vp_orient);
 	RidePlacementResult ComputeFixedRideVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient);
@@ -92,7 +93,12 @@ private:
  * Constructor of the #RideBuildWindow, for 'plopping down' a ride.
  * @param ri Ride to 'plop down'.
  */
-RideBuildWindow::RideBuildWindow(RideInstance *ri) : GuiWindow(WC_RIDE_BUILD, ri->GetIndex()), instance(ri), orientation(EDGE_SE)
+RideBuildWindow::RideBuildWindow(RideInstance *ri)
+: GuiWindow(WC_RIDE_BUILD,
+  ri->GetIndex()),
+  instance(ri),
+  orientation(EDGE_SE),
+  build_forbidden_reason(BestErrorMessageReason::ACT_BUILD)
 {
 	switch (ri->GetKind()) {
 		case RTK_SHOP:
@@ -225,6 +231,7 @@ static bool CanPlaceFixedRideOnSlope(const XYZPoint16& position)
  * @pre voxel coordinate must be valid in the world.
  * @pre \a selected_ride may not be \c nullptr.
  * @return Ride can be placed at the given position.
+ * @note Sets the value of #build_forbidden_reason if appropriate.
  */
 bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, const XYZPoint16 &pos, uint8 ride_orient, ViewOrientation vp_orient)
 {
@@ -232,7 +239,14 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
 	for (int x = 0; x < selected_ride->width_x; ++x) {
 		for (int y = 0; y < selected_ride->width_y; ++y) {
 			const XYZPoint16 location = OrientatedOffset(ride_orient, x, y) + pos;
-			if (!IsVoxelstackInsideWorld(location.x, location.y) || _world.GetTileOwner(location.x, location.y) != OWN_PARK) return false;
+			if (!IsVoxelstackInsideWorld(location.x, location.y)) {
+				this->build_forbidden_reason.UpdateReason(GUI_ERROR_MESSAGE_BAD_LOCATION);
+				return false;
+			}
+			if (_world.GetTileOwner(location.x, location.y) != OWN_PARK) {
+				this->build_forbidden_reason.UpdateReason(GUI_ERROR_MESSAGE_UNOWNED_LAND);
+				return false;
+			}
 		}
 	}
 	bool can_place_base = false;
@@ -242,35 +256,36 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
 			const XYZPoint16 location = pos + OrientatedOffset(ride_orient, x, y);
 			can_place_base |= CanPlaceFixedRideOnFlatGround(location);
 			can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
-			if (!can_place_air) break;
 		}
-		if (!can_place_air) break;
 	}
-	if (can_place_air && can_place_base) return true;
+	if (!can_place_air) {
+		this->build_forbidden_reason.UpdateReason(can_place_base ? GUI_ERROR_MESSAGE_OCCUPIED : GUI_ERROR_MESSAGE_BAD_LOCATION);
+		return false;
+	}
+	if (can_place_base) return true;
 
 	/* 2. Is the ride just above non-flat ground? */
 	if (pos.z > 0) {
-		can_place_base = false;
-		can_place_air = true;
 		for (int x = 0; x < selected_ride->width_x; ++x) {
 			for (int y = 0; y < selected_ride->width_y; ++y) {
 				const XYZPoint16 location = pos + OrientatedOffset(ride_orient, x, y);
-				can_place_base |= CanPlaceFixedRideOnSlope(location);
-				can_place_air &= CheckSufficientVerticalSpace(location, selected_ride->GetHeight(x, y));
-				if (!can_place_air) break;
+				if (CanPlaceFixedRideOnSlope(location)) return true;
 			}
 		}
-		if (can_place_air && can_place_base) return true;
 	}
 
 	/* 3. For shops only: Is there a path at the right place? */
-	if (selected_ride->kind != RTK_SHOP) return false;
+	if (selected_ride->kind != RTK_SHOP) {
+		this->build_forbidden_reason.UpdateReason(GUI_ERROR_MESSAGE_BAD_LOCATION);
+		return false;
+	}
 	const ShopType *selected_shop = static_cast<const ShopType*>(selected_ride);
 	for (TileEdge entrance = EDGE_BEGIN; entrance < EDGE_COUNT; entrance++) { // Loop over the 4 unrotated directions.
 		if ((selected_shop->flags & (1 << entrance)) == 0) continue; // No entrance here.
 		TileEdge entr = static_cast<TileEdge>((entrance + vp_orient + this->orientation) & 3); // Perform rotation specified by the user in the GUI.
 		if (PathExistsAtBottomEdge(pos, entr)) return true;
 	}
+	this->build_forbidden_reason.UpdateReason(GUI_ERROR_MESSAGE_BAD_LOCATION);
 	return false;
 }
 
@@ -282,6 +297,8 @@ bool RideBuildWindow::CanPlaceFixedRide(const FixedRideType *selected_ride, cons
  */
 RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos, ViewOrientation vp_orient)
 {
+	this->build_forbidden_reason.Reset();
+	this->build_forbidden_reason.UpdateReason(GUI_ERROR_MESSAGE_BAD_LOCATION);
 	FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
 	assert(si != nullptr);
 	const FixedRideType *st = si->GetFixedRideType();
@@ -382,7 +399,11 @@ void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
 {
 	if (!IsLeftClick(state)) return;
 
-	if (this->selector.area.width < 1 || this->selector.area.height < 1) return;
+	if (this->selector.area.width < 1 || this->selector.area.height < 1) {
+		this->build_forbidden_reason.ShowErrorMessage();
+		return;
+	}
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, Money(0))) return;  // \todo Check if we have enough money.
 
 	FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
 	const SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());

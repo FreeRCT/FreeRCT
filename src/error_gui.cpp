@@ -17,38 +17,43 @@ enum ErrorMessageWidgets {
 	EMW_ERROR_MESSAGE, ///< Where the error message is shown.
 };
 
-/** Widget parts of the #ErrorMessageWindow. */
-static const WidgetPart _error_message_gui_parts[] = {
-	Intermediate(0, 1),
-		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, EMW_TITLEBAR, COL_RANGE_RED), SetData(GUI_TERRAFORM_TITLE, GUI_TITLEBAR_TIP),
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
-		EndContainer(),
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),
-			Widget(WT_CENTERED_TEXT, EMW_ERROR_MESSAGE, COL_RANGE_RED),
-				SetPadding(0, 2, 0, 2),
-				SetData(STR_ARG1, STR_NULL),
-	EndContainer(),
-};
-
 /** GUI window for showing an error message. */
 class ErrorMessageWindow : public GuiWindow {
 public:
-	ErrorMessageWindow(StringID strid);
+	ErrorMessageWindow(StringID str1, StringID str2, const std::function<void()> &string_params, uint32 timeout);
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void TimeoutCallback() override;
 
 private:
-	StringID strid; ///< The error message to be displayed.
+	std::function<void()> set_string_params;  ///< Function that sets the string parameters for the error message.
+	bool timeout_timer_running;               ///< Whether the window is going to auto-close soon.
+	uint32 timeout_duration;                  ///< Number of ticks after which the window auto-closes.
 };
 
 /**
  * Constructor of the error message window.
- * @param strid #StringID to show.
+ * @param str1 First #StringID to show.
+ * @param str2 Second #StringID to show.
  */
-ErrorMessageWindow::ErrorMessageWindow(StringID strid) : GuiWindow(WC_ERROR_MESSAGE, strid)
+ErrorMessageWindow::ErrorMessageWindow(const StringID str1, const StringID str2, const std::function<void()> &string_params, const uint32 t)
+: GuiWindow(WC_ERROR_MESSAGE, str1)
 {
-	this->strid = strid;
+	this->set_string_params = string_params;
+	this->timeout_duration = t;
+	this->timeout_timer_running = false;
+	const WidgetPart _error_message_gui_parts[] = {
+		Intermediate(0, 1),
+			Intermediate(1, 0),
+				Widget(WT_TITLEBAR, EMW_TITLEBAR, COL_RANGE_RED), SetData(GUI_TERRAFORM_TITLE, GUI_TITLEBAR_TIP),
+				Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
+			EndContainer(),
+			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),
+				Intermediate(2, 1),
+					Widget(WT_CENTERED_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(str1, STR_NULL), SetMinimalSize(200, 40),
+					Widget(WT_CENTERED_TEXT, EMW_ERROR_MESSAGE, COL_RANGE_RED),    SetData(str2, STR_NULL), SetMinimalSize(200, 40),
+		EndContainer(),
+	};
 	this->SetupWidgetTree(_error_message_gui_parts, lengthof(_error_message_gui_parts));
 }
 
@@ -56,19 +61,40 @@ void ErrorMessageWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case EMW_ERROR_MESSAGE:
-			_str_params.SetStrID(1, strid);
+			this->set_string_params();
 			break;
 
 		default: break;
 	}
 }
 
+void ErrorMessageWindow::TimeoutCallback()
+{
+	if (this->timeout_timer_running) {
+		delete this;
+	} else {
+		GuiWindow::TimeoutCallback();
+		if (this->timeout_duration > 0) {
+			this->timeout = this->timeout_duration;
+			this->timeout_timer_running = true;
+		}
+	}
+}
+
 /**
  * Open an error message window.
+ * @param str1 Message to display in the first line.
+ * @param str2 Message to display in the second line.
+ * @param string_params Function that sets the string parameters for the error message.
+ * @param timeout Number of ticks after which the window auto-closes (\c 0 means never).
  * @ingroup gui_group
  */
-void ShowErrorMessage(StringID strid)
+void ShowErrorMessage(const StringID str1, const StringID str2, const std::function<void()> &string_params, const uint32 timeout)
 {
-	if (HighlightWindowByType(WC_ERROR_MESSAGE, strid) != nullptr) return;
-	new ErrorMessageWindow(strid);
+	Window *w;
+	do {
+		w = HighlightWindowByType(WC_ERROR_MESSAGE, ALL_WINDOWS_OF_TYPE);
+		delete w;
+	} while (w != nullptr);
+	new ErrorMessageWindow(str1, str2, string_params, timeout);
 }

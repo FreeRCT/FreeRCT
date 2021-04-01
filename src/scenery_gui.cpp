@@ -43,6 +43,7 @@ private:
 	const SceneryType *selected_type;           ///< Currently selected item type.
 	uint8 orientation;                          ///< Current orientation.
 	std::unique_ptr<SceneryInstance> instance;  ///< Instance being placed.
+	BestErrorMessageReason build_forbidden_reason;  ///< Reason why we may not place the instance at the given location, if any.
 };
 
 /**
@@ -95,7 +96,7 @@ static const WidgetPart _scenery_build_gui_parts[] = {
 	EndContainer(),
 };
 
-SceneryGui::SceneryGui() : GuiWindow(WC_SCENERY, ALL_WINDOWS_OF_TYPE)
+SceneryGui::SceneryGui() : GuiWindow(WC_SCENERY, ALL_WINDOWS_OF_TYPE), build_forbidden_reason(BestErrorMessageReason::ACT_BUILD)
 {
 	this->SetupWidgetTree(_scenery_build_gui_parts, lengthof(_scenery_build_gui_parts));
 	this->SetScrolledWidget(SCENERY_GUI_LIST, SCENERY_GUI_SCROLL_LIST);
@@ -174,6 +175,7 @@ void SceneryGui::SetType(const SceneryType *t)
 		this->SetSelector(&this->scenery_sel);
 	}
 	_scenery.temp_item = nullptr;
+	this->build_forbidden_reason.Reset();
 	this->scenery_sel.SetSize(0, 0);
 	this->MarkDirty();
 }
@@ -186,6 +188,7 @@ void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			this->orientation += (number == SCENERY_ROTATE_POS ? 3 : 1);
 			this->orientation %= 4;
 			_scenery.temp_item = nullptr;
+			this->build_forbidden_reason.Reset();
 			this->scenery_sel.SetSize(0, 0);
 			this->MarkDirty();
 			break;
@@ -222,6 +225,7 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	if (this->instance.get() == nullptr) return;
 	this->instance->RemoveFromWorld();
 	_scenery.temp_item = nullptr;
+	this->build_forbidden_reason.Reset();
 	this->instance->orientation = this->orientation;
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 	const int8 dx = _orientation_signum_dx[vp->orientation];
@@ -232,7 +236,11 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		const int dz = (z - (vp->view_pos.z / 256)) / 2;
 		XYZPoint16 location(world_pos.x / 256 + dz * dx, world_pos.y / 256 + dz * dy, z);
 		this->instance->vox_pos = location;
-		if (!this->instance->CanPlace()) continue;
+		const StringID err = this->instance->CanPlace();
+		if (err != STR_NULL) {
+			this->build_forbidden_reason.UpdateReason(err);
+			continue;
+		}
 
 		XYZPoint16 extent = OrientatedOffset(this->instance->orientation, this->selected_type->width_x, this->selected_type->width_y);
 		if (extent.x < 0) {
@@ -262,6 +270,7 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		_scenery.temp_item = this->instance.get();
 		this->instance->InsertIntoWorld();
 		placed = true;
+		this->build_forbidden_reason.Reset();
 		break;
 	}
 	if (!placed) {
@@ -284,13 +293,17 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 			const int dz = (z - (vp->view_pos.z / 256)) / 2;
 			XYZPoint16 location(world_pos.x / 256 + dz * dx, world_pos.y / 256 + dz * dy, z);
 			if (!IsVoxelstackInsideWorld(location.x, location.y)) continue;
-			if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(location.x, location.y) != OWN_PARK) continue;
 
 			SceneryInstance *i = _scenery.GetItem(location);
 			if (i != nullptr && i != _scenery.temp_item) {
-				if (i->type->category != SCC_SCENARIO) {
-					_finances_manager.PayLandscaping(i->NeedsWatering() ? i->type->return_cost_dry : i->type->return_cost);
-					_scenery.RemoveItem(i->vox_pos);
+				if (i->type->category == SCC_SCENARIO && _game_mode_mgr.InPlayMode()) {
+					BestErrorMessageReason::ShowActionErrorMessage(BestErrorMessageReason::ACT_REMOVE, GUI_ERROR_MESSAGE_UNREMOVABLE);
+				} else {
+					const Money &cost = i->NeedsWatering() ? i->type->return_cost_dry : i->type->return_cost;
+					if (BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_REMOVE, cost)) {
+						_finances_manager.PayLandscaping(cost);
+						_scenery.RemoveItem(i->vox_pos);
+					}
 				}
 				return;
 			}
@@ -300,7 +313,11 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 
 	if (this->instance.get() == nullptr) return;
 	if (!IsLeftClick(state)) return;
-	if (scenery_sel.area.width < 1 || scenery_sel.area.height < 1) return;
+	if (scenery_sel.area.width < 1 || scenery_sel.area.height < 1) {
+		this->build_forbidden_reason.ShowErrorMessage();
+		return;
+	}
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->selected_type->buy_cost)) return;
 
 	this->instance->RemoveFromWorld();  // The scenery manager will want to re-insert it, so we must unlink it first.
 	_finances_manager.PayLandscaping(this->selected_type->buy_cost);
