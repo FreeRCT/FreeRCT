@@ -171,6 +171,7 @@ public:
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
+	virtual bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol);
 
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);

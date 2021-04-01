@@ -39,7 +39,6 @@ bool MainMenuGui::is_splash_screen = true;
 MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetSize(_video.GetXSize(),_video.GetYSize());
-	_game_control.main_menu = true;
 	this->animstart = SDL_GetTicks();
 }
 
@@ -88,19 +87,18 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 		frametime = 0;
 	}
 
-	_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0xff);
+	if (is_splash_screen && frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
+		_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0xff);
+	}
 
 	const int button_x = (_video.GetXSize() - 7 * MAIN_MENU_BUTTON_SIZE) / 2;
-	const int button_y = _video.GetYSize() - MAIN_MENU_BUTTON_SIZE;
+	const int button_y = _video.GetYSize() - MAIN_MENU_BUTTON_SIZE / 2;
 	this->new_game_rect  = Rectangle32(button_x + 0 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->load_game_rect = Rectangle32(button_x + 2 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->settings_rect  = Rectangle32(button_x + 4 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->quit_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
 	if (!is_splash_screen || frametime > 2 * _gui_sprites.mainmenu_splash_duration) {
-		// NOCOM
-		/* _video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 2),
-				_gui_sprites.mainmenu_animation[is_splash_screen ? 0 : (frametime / _gui_sprites.mainmenu_duration) % _gui_sprites.mainmenu_frames], rc, GS_NORMAL); */
 		_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 4), _gui_sprites.mainmenu_logo, rc, GS_NORMAL);
 
 		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new,      rc, GS_NORMAL);

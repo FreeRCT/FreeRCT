@@ -71,8 +71,6 @@ static int speed_factor(GameSpeed speed)
 void OnNewFrame(const uint32 frame_delay)
 {
 	_window_manager.Tick();
-	if (_game_control.main_menu) return;
-
 	_inbox.Tick(frame_delay);
 	for (int i = speed_factor(_game_control.speed); i > 0; i--) {
 		_guests.DoTick();
@@ -143,7 +141,8 @@ void GameControl::RunAction()
 			break;
 
 		case GCA_MENU:
-			this->ShutdownLevel();
+			this->main_menu = true;
+			this->Initialize("../graphics/sprites/gui/main_menu_savegame.fct");
 			::ShowMainMenu();
 			break;
 
@@ -239,8 +238,10 @@ void GameControl::StartLevel()
 
 	XYZPoint32 view_pos(_world.GetXSize() * 256 / 2, _world.GetYSize() * 256 / 2, 8 * 256);
 	ShowMainDisplay(view_pos);
-	ShowToolbar();
-	ShowBottomToolbar();
+	if (!this->main_menu) {
+		ShowToolbar();
+		ShowBottomToolbar();
+	}
 }
 
 /** Shutdown the game interaction. */

@@ -121,7 +121,8 @@ public:
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
 
-private:
+protected:
+	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
 	void OnMouseMoveEvent(const Point16 &pos) override;
 	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	void OnMouseWheelEvent(int direction) override;

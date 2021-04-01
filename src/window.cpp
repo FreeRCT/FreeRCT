@@ -273,6 +273,17 @@ void Window::OnMouseLeaveEvent()
 }
 
 /**
+ * Process input from the keyboard.
+ * @param key_code Kind of input.
+ * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
+ * @return Key event has been processed.
+ */
+bool Window::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return false;
+}
+
+/**
  * Timeout callback.
  * Called when #timeout decremented to 0.
  */
@@ -767,9 +778,6 @@ void WindowManager::AddToStack(Window *w)
 	if (w->wtype == WC_MAINDISPLAY) { // Add the main world display as viewport.
 		assert(this->viewport == nullptr);
 		this->viewport = static_cast<Viewport *>(w);
-	} else if (w->wtype == WC_MAIN_MENU) {
-		delete this->viewport;
-		this->viewport = nullptr;
 	}
 
 	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
@@ -1092,7 +1100,10 @@ void WindowManager::MouseWheelEvent(int direction)
  */
 bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
 {
-	return false; // \todo Perform key processing in window mouse modes.
+	for (Window *w = this->top; w != nullptr; w = w->lower) {
+		if (w->OnKeyEvent(key_code, symbol)) return true;
+	}
+	return false;
 }
 
 /**

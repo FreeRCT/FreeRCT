@@ -339,22 +339,7 @@ static void UpdateMousePosition(int16 x, int16 y)
  */
 static bool HandleKeyInput(WmKeyCode key_code, const uint8 *symbol)
 {
-	if (_window_manager.KeyEvent(key_code, symbol)) return false;
-
-	if (key_code == WMKC_CURSOR_LEFT) {
-		if (_window_manager.GetViewport() != nullptr) _window_manager.GetViewport()->Rotate(-1);
-	} else if (key_code == WMKC_CURSOR_RIGHT) {
-		if (_window_manager.GetViewport() != nullptr) _window_manager.GetViewport()->Rotate(1);
-	} else if (key_code == WMKC_SYMBOL) {
-		if (symbol[0] == '1') {
-			if (_window_manager.GetViewport() != nullptr) _window_manager.GetViewport()->ToggleUndergroundMode();
-		} else if (symbol[0] == 'q') {
-			_game_control.QuitGame();
-			return true;
-		}
-	}
-
-	return false;
+	return _window_manager.KeyEvent(key_code, symbol);
 }
 
 /**
