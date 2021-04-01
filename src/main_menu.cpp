@@ -8,8 +8,10 @@
 /** @file main_menu.cpp Implementation of the main menu. */
 
 #include "stdafx.h"
+#include "config_reader.h"
 #include "gamecontrol.h"
 #include "sprite_store.h"
+#include "viewport.h"
 #include "window.h"
 
 /**
@@ -26,7 +28,13 @@ public:
 
 private:
 	uint32 animstart;              ///< SDL Time when the animation started.
+	uint32 last_time;              ///< SDL Time when the menu was last redrawn.
 	static bool is_splash_screen;  ///< Whether we're currently displaying the splash screen. Static because the splash screen should be shown only once.
+
+	ConfigFile camera_positions;   ///< Config file listing the camera positions for the savegame.
+	uint32 nr_cameras;             ///< Total number of camera position.
+	uint32 current_camera_id;      ///< ID of the current camera position.
+	uint32 time_in_camera;         ///< Number of milliseconds since the last camera transition.
 
 	Rectangle32 new_game_rect;   ///< Position of the New Game button.
 	Rectangle32 load_game_rect;  ///< Position of the Load Game button.
@@ -39,7 +47,11 @@ bool MainMenuGui::is_splash_screen = true;
 MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetSize(_video.GetXSize(),_video.GetYSize());
-	this->animstart = SDL_GetTicks();
+	this->animstart = this->last_time = SDL_GetTicks();
+	this->camera_positions.Load("../utils/mainmenu/camera");
+	this->nr_cameras = this->camera_positions.GetNum("camera", "nr_cameras");
+	this->time_in_camera = 0;
+	this->current_camera_id = 0;
 }
 
 MainMenuGui::~MainMenuGui()
@@ -86,6 +98,20 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 		this->animstart = current_time;
 		frametime = 0;
 	}
+
+	this->time_in_camera += (current_time - last_time);
+	if (this->time_in_camera > this->camera_positions.GetNum(std::to_string(this->current_camera_id).c_str(), "duration")) {
+		this->current_camera_id++;
+		this->current_camera_id %= this->nr_cameras;
+		this->time_in_camera = 0;
+		const std::string section = std::to_string(this->current_camera_id);
+		Viewport *vp = _window_manager.GetViewport();
+		vp->orientation = static_cast<ViewOrientation>(this->camera_positions.GetNum(section.c_str(), "orientation"));
+		vp->view_pos.x  =                              this->camera_positions.GetNum(section.c_str(), "x");
+		vp->view_pos.y  =                              this->camera_positions.GetNum(section.c_str(), "y");
+		vp->view_pos.z  =                              this->camera_positions.GetNum(section.c_str(), "z");
+	}
+	this->last_time = current_time;
 
 	if (is_splash_screen && frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
 		_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0xff);

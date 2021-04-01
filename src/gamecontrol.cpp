@@ -142,7 +142,7 @@ void GameControl::RunAction()
 
 		case GCA_MENU:
 			this->main_menu = true;
-			this->Initialize("../graphics/sprites/gui/main_menu_savegame.fct");
+			this->Initialize("../utils/mainmenu/savegame.fct");
 			::ShowMainMenu();
 			break;
 
