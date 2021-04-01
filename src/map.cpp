@@ -77,6 +77,8 @@ void Voxel::ClearVoxel()
 	this->ClearInstances();
 }
 
+static const uint32 CURRENT_VERSION_VSTK = 3;   ///< Currently supported version of the VSTK block.
+
 /**
  * Load a voxel from the save game.
  * @param ldr Input stream to read.
@@ -93,13 +95,12 @@ void Voxel::Load(Loader &ldr, uint32 version)
 		} else if (this->instance >= SRI_RIDES_START && this->instance < SRI_FULL_RIDES) {
 			this->instance_data = ldr.GetWord();
 		} else {
-			this->instance_data = 0; // Full rides load after the world, overwriting map data.
-			ldr.SetFailMessage("Unknown voxel instance data");
+			throw LoadingError("Unknown voxel instance data");
 		}
 
 		if (version >= 2) this->fences = ldr.GetWord();
 	} else {
-		ldr.SetFailMessage("Unknown voxel version");
+		ldr.version_mismatch("VSTK", version, CURRENT_VERSION_VSTK);
 	}
 }
 
@@ -156,12 +157,17 @@ void VoxelObject::MarkDirty()
 	MarkVoxelDirty(this->vox_pos);
 }
 
+static const uint32 CURRENT_VERSION_VoxelObject = 1;   ///< Currently supported version of %VoxelObject.
+
 /**
  * Load a voxel object from the save game.
  * @param ldr Input stream to read.
  */
 void VoxelObject::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_VoxelObject) ldr.version_mismatch("VoxelObject", version, CURRENT_VERSION_VoxelObject);
+
 	uint32 x = ldr.GetLong();
 	uint32 y = ldr.GetLong();
 	uint32 z = ldr.GetLong();
@@ -178,6 +184,7 @@ void VoxelObject::Load(Loader &ldr)
  */
 void VoxelObject::Save(Saver &svr)
 {
+	svr.PutLong(CURRENT_VERSION_VoxelObject);
 	XYZPoint32 xyz = this->MergeCoordinates();
 
 	svr.PutLong(xyz.x);
@@ -441,7 +448,7 @@ void VoxelStack::Load(Loader &ldr)
 		uint16 height = ldr.GetWord();
 		uint8 owner = ldr.GetByte();
 		if (base < 0 || base + height > WORLD_Z_SIZE || owner >= OWN_COUNT) {
-			ldr.SetFailMessage("Incorrect voxel stack size");
+			throw LoadingError("Invalid voxel stack size");
 		} else {
 			this->base = base;
 			this->height = height;
@@ -491,7 +498,7 @@ void VoxelStack::Load(Loader &ldr)
  */
 void VoxelStack::Save(Saver &svr) const
 {
-	svr.StartBlock("VSTK", 3);
+	svr.StartBlock("VSTK", CURRENT_VERSION_VSTK);
 	svr.PutWord(this->base);
 	svr.PutWord(this->height);
 	svr.PutByte(this->owner);
@@ -817,6 +824,8 @@ void VoxelWorld::SetTileOwnerGlobally(TileOwner owner)
 	SetTileOwnerRect(0, 0, this->GetXSize(), this->GetYSize(), owner);
 }
 
+static const uint32 CURRENT_VERSION_WRLD = 2;   ///< Currently supported version of the WRLD block.
+
 /**
  * Load the world from a file.
  * @param ldr Input stream to read from.
@@ -839,17 +848,15 @@ void VoxelWorld::Load(Loader &ldr)
 			}
 		}
 	} else if (version != 0) {
-		ldr.SetFailMessage("Unknown world version.");
+		ldr.version_mismatch("WRLD", version, CURRENT_VERSION_WRLD);
 	}
 	if (xsize >= WORLD_X_SIZE || ysize >= WORLD_Y_SIZE) {
-		xsize = std::min<uint16>(xsize, WORLD_X_SIZE);
-		ysize = std::min<uint16>(ysize, WORLD_Y_SIZE);
-		ldr.SetFailMessage("Incorrect world size");
+		throw LoadingError("World size out of bounds (%u × %u)", xsize, ysize);
 	}
 	ldr.CloseBlock();
 
 	this->SetWorldSize(xsize, ysize);
-	if (!ldr.IsFail() && version != 0) {
+	if (version != 0) {
 		for (uint16 x = 0; x < xsize; x++) {
 			for (uint16 y = 0; y < ysize; y++) {
 				VoxelStack *vs = this->GetModifyStack(x, y);
@@ -857,7 +864,7 @@ void VoxelWorld::Load(Loader &ldr)
 			}
 		}
 	}
-	if (version == 0 || ldr.IsFail()) this->MakeFlatWorld(8);
+	if (version == 0) this->MakeFlatWorld(8);
 }
 
 /**
@@ -867,7 +874,7 @@ void VoxelWorld::Load(Loader &ldr)
 void VoxelWorld::Save(Saver &svr) const
 {
 	/* Save basic map information (rides are saved as part of the ride). */
-	svr.StartBlock("WRLD", 2);
+	svr.StartBlock("WRLD", CURRENT_VERSION_WRLD);
 	svr.PutWord(this->GetXSize());
 	svr.PutWord(this->GetYSize());
 	svr.PutWord(this->edges_without_border_fence.size());

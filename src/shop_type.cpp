@@ -209,14 +209,19 @@ XYZPoint32 ShopInstance::GetExit(int guest, TileEdge entry_edge)
 
 }
 
+static const uint32 CURRENT_VERSION = 1;   ///< Currently supported version of %ShopInstance.
+
 void ShopInstance::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION) ldr.version_mismatch("ShopInstance", version, CURRENT_VERSION);
 	this->FixedRideInstance::Load(ldr);
 	AddRemovePathEdges(this->vox_pos, PATH_EMPTY, this->GetEntranceDirections(this->vox_pos), PAS_QUEUE_PATH);
 }
 
 void ShopInstance::Save(Saver &svr)
 {
+	svr.PutLong(CURRENT_VERSION);
 	this->FixedRideInstance::Save(svr);
 	/* Nothing shop-specific to do here currently. */
 }

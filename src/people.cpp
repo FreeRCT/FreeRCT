@@ -96,26 +96,32 @@ void Guests::Uninitialize()
 	this->next_daily_index = 0;
 }
 
+static const uint32 CURRENT_VERSION_GSTS = 1;   ///< Currently supported version of the GSTS block.
+
 /**
  * Load guests from the save game.
  * @param ldr Input stream to read.
  */
 void Guests::Load(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("GSTS");
-	if (version == 1) {
-		this->start_voxel.x = ldr.GetWord();
-		this->start_voxel.y = ldr.GetWord();
-		this->daily_frac = ldr.GetWord();
-		this->next_daily_index = ldr.GetWord();
-		this->free_idx = ldr.GetLong();
-		uint active_guest_count = ldr.GetLong();
-		for (uint i = 0; i < active_guest_count; i++) {
-			Guest *g = this->block.Get(ldr.GetWord());
-			g->Load(ldr);
-		}
-	} else {
-		ldr.SetFailMessage("Incorrect version of Guests block.");
+	const uint32 version = ldr.OpenBlock("GSTS");
+	switch (version) {
+		case 0:
+			break;
+		case 1:
+			this->start_voxel.x = ldr.GetWord();
+			this->start_voxel.y = ldr.GetWord();
+			this->daily_frac = ldr.GetWord();
+			this->next_daily_index = ldr.GetWord();
+			this->free_idx = ldr.GetLong();
+			for (long i = ldr.GetLong(); i > 0; i--) {
+				Guest *g = this->block.Get(ldr.GetWord());
+				g->Load(ldr);
+			}
+			break;
+
+		default:
+			ldr.version_mismatch("GSTS", version, CURRENT_VERSION_GSTS);
 	}
 	ldr.CloseBlock();
 }
@@ -126,7 +132,7 @@ void Guests::Load(Loader &ldr)
  */
 void Guests::Save(Saver &svr)
 {
-	svr.StartBlock("GSTS", 1);
+	svr.StartBlock("GSTS", CURRENT_VERSION_GSTS);
 	svr.PutWord(this->start_voxel.x);
 	svr.PutWord(this->start_voxel.y);
 	svr.PutWord(this->daily_frac);
@@ -321,19 +327,25 @@ void Staff::Uninitialize()
 	this->mechanic_requests.clear();
 }
 
+static const uint32 CURRENT_VERSION_STAF = 1;   ///< Currently supported version of the STAF block.
+
 /**
  * Load staff from the save game.
  * @param ldr Input stream to read.
  */
 void Staff::Load(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("STAF");
-	if (version == 1) {
-		for (uint i = ldr.GetLong(); i > 0; i--) {
-			this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
-		}
-	} else {
-		ldr.SetFailMessage("Incorrect version of Staff block.");
+	const uint32 version = ldr.OpenBlock("STAF");
+	switch (version) {
+		case 0:
+			break;
+		case 1:
+			for (uint i = ldr.GetLong(); i > 0; i--) {
+				this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
+			}
+			break;
+		default:
+			ldr.version_mismatch("STAF", version, CURRENT_VERSION_STAF);
 	}
 	ldr.CloseBlock();
 }
@@ -344,7 +356,7 @@ void Staff::Load(Loader &ldr)
  */
 void Staff::Save(Saver &svr)
 {
-	svr.StartBlock("STAF", 1);
+	svr.StartBlock("STAF", CURRENT_VERSION_STAF);
 	svr.PutLong(this->mechanic_requests.size());
 	for (RideInstance *ride : this->mechanic_requests) svr.PutWord(ride->GetIndex());
 	svr.EndBlock();

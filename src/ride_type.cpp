@@ -615,8 +615,13 @@ void RideInstance::NotifyLongQueue()
 	}
 }
 
+static const uint32 CURRENT_VERSION_RideInstance = 1;   ///< Currently supported version of %RideInstance.
+
 void RideInstance::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_RideInstance) ldr.version_mismatch("RideInstance", version, CURRENT_VERSION_RideInstance);
+
 	this->name.reset(ldr.GetText());
 
 	uint16 state_and_flags = ldr.GetWord();
@@ -645,8 +650,8 @@ void RideInstance::Load(Loader &ldr)
 
 void RideInstance::Save(Saver &svr)
 {
-	svr.PutByte(static_cast<uint8>(this->GetKind()));
-	svr.PutText(_language.GetText(this->type->GetString(this->type->GetTypeName())));
+	svr.PutLong(CURRENT_VERSION_RideInstance);
+
 	svr.PutText(this->name.get());
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
 	svr.PutWord(this->entrance_type);
@@ -717,6 +722,8 @@ void RidesManager::OnNewDay()
 	}
 }
 
+static const uint32 CURRENT_VERSION_RIDS = 1;   ///< Currently supported version of the RIDS block.
+
 void RidesManager::Load(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("RIDS");
@@ -740,32 +747,30 @@ void RidesManager::Load(Loader &ldr)
 				}
 				delete[] ride_type_name;
 			} else {
-				ldr.SetFailMessage("Invalid ride type name.");
+				throw LoadingError("Invalid ride type name.");
 			}
 
 			if (ride_type == nullptr || !found) {
-				ldr.SetFailMessage("Unknown/invalid ride type.");
-				break;
+				throw LoadingError("Unknown/invalid ride type.");
 			}
 
 			uint16 instance = this->GetFreeInstance(ride_type);
 			if (instance == INVALID_RIDE_INSTANCE) {
-				ldr.SetFailMessage("Invalid ride instance.");
-				break;
+				throw LoadingError("Invalid ride instance.");
 			}
 
 			this->instances[i] = this->CreateInstance(ride_type, instance);
 			this->instances[i]->Load(ldr);
 		}
 	} else if (version != 0) {
-		ldr.SetFailMessage("Incorrect version of rides block.");
+		ldr.version_mismatch("RIDS", version, CURRENT_VERSION_RIDS);
 	}
 	ldr.CloseBlock();
 }
 
 void RidesManager::Save(Saver &svr)
 {
-	svr.StartBlock("RIDS", 1);
+	svr.StartBlock("RIDS", CURRENT_VERSION_RIDS);
 	int count = 0;
 	uint16 allocated_ride_indexes[MAX_NUMBER_OF_RIDE_INSTANCES];
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
@@ -775,8 +780,10 @@ void RidesManager::Save(Saver &svr)
 	}
 	svr.PutWord(count);
 	for (uint16 i = 0; i < count; i++) {
-		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
-		this->instances[allocated_ride_indexes[i]]->Save(svr);
+		RideInstance *r = this->instances[allocated_ride_indexes[i]];
+		svr.PutByte(static_cast<uint8>(r->GetKind()));
+		svr.PutText(_language.GetText(r->GetRideType()->GetString(r->GetRideType()->GetTypeName())));
+		r->Save(svr);
 	}
 	svr.EndBlock();
 }

@@ -7,6 +7,8 @@
 
 /** @file loadsave.cpp Savegame loading and saving code. */
 
+#include <cstdarg>
+
 #include "stdafx.h"
 #include "dates.h"
 #include "random.h"
@@ -19,12 +21,34 @@
 #include "people.h"
 
 /**
+ * Constructor.
+ * @param fmt Error message (may use printf-style placeholders).
+ */
+LoadingError::LoadingError(const char *fmt, ...)
+{
+	char buffer[1024];
+	va_list va;
+	va_start(va, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, va);
+	va_end(va);
+	this->message = buffer;
+}
+
+/**
+ * Retrieve the description of the error.
+ * @return The error message.
+ */
+const char* LoadingError::what() const noexcept
+{
+	return this->message.c_str();
+}
+
+/**
  * Constructor of the loader class.
  * @param fp Input file stream. Use \c nullptr for initialization to default.
  */
 Loader::Loader(FILE *fp)
 {
-	this->fail_msg = nullptr;
 	this->blk_name = nullptr;
 	this->fp = fp;
 	this->cache_count = 0;
@@ -41,7 +65,7 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 {
 	assert(strlen(name) == 4);
 
-	if (this->fp == nullptr || this->IsFail()) return 0;
+	if (this->fp == nullptr) return 0;
 
 	assert(this->blk_name == nullptr);
 	this->blk_name = name;
@@ -55,7 +79,7 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 				this->PutByte(this->blk_name[i]);
 			}
 			if (may_fail) return UINT32_MAX;
-			this->SetFailMessage("Missing block name");
+			throw LoadingError("Missing block name for %s", name);
 			return 0;
 		}
 		i++;
@@ -63,7 +87,7 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 
 	uint32 version = this->GetLong();
 	if (version == 0 || version == UINT32_MAX) {
-		this->SetFailMessage("Incorrect version number");
+		throw LoadingError("Invalid version number for %s: %u", name, version);
 		return 0;
 	}
 	return version;
@@ -72,12 +96,12 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 /** Test whether the current block is closed. */
 void Loader::CloseBlock()
 {
-	if (this->fp == nullptr || this->IsFail()) return;
+	if (this->fp == nullptr) return;
 
 	assert(this->blk_name != nullptr);
 	if (this->GetByte() != this->blk_name[3] || this->GetByte() != this->blk_name[2] ||
 			this->GetByte() != this->blk_name[1] || this->GetByte() != this->blk_name[0]) {
-		this->SetFailMessage("CloseBlock got unexpected data");
+		throw LoadingError("CloseBlock got unexpected data");
 	}
 	this->blk_name = nullptr;
 }
@@ -88,7 +112,7 @@ void Loader::CloseBlock()
  */
 uint8 Loader::GetByte()
 {
-	if (this->fp == nullptr || this->IsFail()) return 0;
+	if (this->fp == nullptr) return 0;
 	
 	if (this->cache_count > 0) {
 		this->cache_count--;
@@ -96,8 +120,7 @@ uint8 Loader::GetByte()
 	}
 	int k = getc(this->fp);
 	if (k == EOF) {
-		this->SetFailMessage("EOF encountered");
-		return 0;
+		throw LoadingError("EOF encountered");
 	}
 	return k;
 }
@@ -108,7 +131,6 @@ uint8 Loader::GetByte()
  */
 void Loader::PutByte(uint8 val)
 {
-	if (this->IsFail()) return;
 	assert(this->cache_count < (int)lengthof(this->cache));
 	this->cache[this->cache_count] = val;
 	this->cache_count++;
@@ -174,34 +196,14 @@ uint8 *Loader::GetText()
 }
 
 /**
- * Denote loading as being failed.
- * @param fail_msg Message to explain what failed. Caller must preserve the message text.
- * @note Message is mostly for internal and debugging use.
+ * Can be called while loading to notify the %Loader that loading failed because a block has an unsupported version number.
+ * @param name Name of the code path where the error occured.
+ * @param saved_version Version in the savegame.
+ * @param current_version Most recent currently supported version.
  */
-void Loader::SetFailMessage(const char *fail_msg)
+void Loader::version_mismatch(const char* name, uint saved_version, uint current_version)
 {
-	fprintf(stderr, "ERROR while loading: %s\n", fail_msg);
-	if (this->IsFail()) return; // Do not overwrite the first message.
-	this->fail_msg = fail_msg;
-}
-
-/**
- * Get the failure message of the loader.
- * @return Message why loading failed.
- * @note Message is mostly for internal and debugging use.
- */
-const char *Loader::GetFailMessage() const
-{
-	return this->fail_msg;
-}
-
-/**
- * Has loading failed?
- * @return Whether loading has failed.
- */
-bool Loader::IsFail() const
-{
-	return this->fail_msg != nullptr;
+	throw LoadingError("Version mismatch in %s block: Saved version is %u, supported version is %u", name, saved_version, current_version);
 }
 
 /**
@@ -312,6 +314,8 @@ void Saver::PutText(const uint8 *str, int length)
 	assert(count == 0);
 }
 
+static const uint32 CURRENT_VERSION_FCTS = 9;   ///< Currently supported version of the FCTS block.
+
 /**
  * Load the game elements from the input stream.
  * @param ldr Input stream to load from.
@@ -320,7 +324,7 @@ void Saver::PutText(const uint8 *str, int length)
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 9) ldr.SetFailMessage("Bad file header");
+	if (version > CURRENT_VERSION_FCTS) ldr.version_mismatch("FCTS", version, CURRENT_VERSION_FCTS);
 	ldr.CloseBlock();
 
 	Loader reset_loader(nullptr);
@@ -335,8 +339,6 @@ static void LoadElements(Loader &ldr)
 	_guests.Load((version >= 5) ? ldr : reset_loader);
 	_staff.Load((version >= 7) ? ldr : reset_loader);
 	_inbox.Load((version >= 8) ? ldr : reset_loader);
-
-	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
 
 /**
@@ -346,7 +348,7 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 9);
+	svr.StartBlock("FCTS", CURRENT_VERSION_FCTS);
 	svr.EndBlock();
 
 	SaveDate(svr);
@@ -368,22 +370,30 @@ static void SaveElements(Saver &svr)
  */
 bool LoadGameFile(const char *fname)
 {
-	FILE *fp;
+	try {
+		FILE *fp = nullptr;
+		if (fname != nullptr) {
+			fp = fopen(fname, "rb");
+			if (fp == nullptr) throw LoadingError("Cannot open file '%s' for reading", fname);
+		}
 
-	if (fname == nullptr) {
-		fp = nullptr;
-	} else {
-		fp = fopen(fname, "rb");
-		if (fp == nullptr) return false;
+		Loader ldr(fp);
+		LoadElements(ldr);
+
+		if (fp != nullptr) fclose(fp);
+		return true;
+	} catch (const std::exception &e) {
+		if (fname != nullptr) {
+			printf("ERROR: Loading '%s' failed: %s\n", fname, e.what());
+			LoadGameFile(nullptr);
+			return false;
+		}
+
+		printf("FATAL ERROR: The reset loader failed to default-initialize the game!\n");
+		printf("This should not happen. Please consider submiting a bug report.\n");
+		printf("FreeRCT will terminate now.\n");
+		::exit(1);
 	}
-	Loader ldr(fp);
-	LoadElements(ldr);
-	if (fp != nullptr) fclose(fp);
-	if (!ldr.IsFail()) return true;
-
-	Loader reset(nullptr);
-	LoadElements(reset); // Loading failed, initialize everything to default.
-	return false;
 }
 
 /**

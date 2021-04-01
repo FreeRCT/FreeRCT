@@ -146,8 +146,14 @@ void Message::OnClick() const
 	}
 }
 
+static const uint32 CURRENT_VERSION_INBX = 1;     ///< Currently supported version of the INBX block.
+static const uint32 CURRENT_VERSION_Message = 1;  ///< Currently supported version of %Message.
+
 void Message::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_Message) ldr.version_mismatch("Message", version, CURRENT_VERSION_Message);
+
 	this->message = ldr.GetWord();
 	this->data1 = ldr.GetLong();
 	this->data2 = ldr.GetLong();
@@ -157,6 +163,7 @@ void Message::Load(Loader &ldr)
 
 void Message::Save(Saver &svr) const
 {
+	svr.PutLong(CURRENT_VERSION_Message);
 	svr.PutWord(this->message);
 	svr.PutLong(this->data1);
 	svr.PutLong(this->data2);
@@ -247,19 +254,32 @@ void Inbox::NotifyGuestDeletion(const uint16 guest)
 void Inbox::Load(Loader &ldr)
 {
 	this->Clear();
-	for (long i = ldr.GetLong(); i > 0; i--) {
-		Message *m = new Message;
-		m->Load(ldr);
-		this->messages.push_back(std::unique_ptr<Message>(m));
+	const uint32 version = ldr.OpenBlock("INBX");
+	switch (version) {
+		case 0:
+			break;
+		case 1:
+			for (long i = ldr.GetLong(); i > 0; i--) {
+				Message *m = new Message;
+				m->Load(ldr);
+				this->messages.push_back(std::unique_ptr<Message>(m));
+			}
+			break;
+
+		default:
+			ldr.version_mismatch("INBX", version, CURRENT_VERSION_INBX);
 	}
+	ldr.CloseBlock();
 }
 
 void Inbox::Save(Saver &svr) const
 {
+	svr.StartBlock("INBX", CURRENT_VERSION_INBX);
 	svr.PutLong(this->messages.size());
 	for (const auto &m : this->messages) {
 		m->Save(svr);
 	}
+	svr.EndBlock();
 }
 
 Inbox _inbox;

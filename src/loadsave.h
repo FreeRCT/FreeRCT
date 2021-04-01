@@ -10,6 +10,16 @@
 #ifndef LOADSAVE_H
 #define LOADSAVE_H
 
+/** An error that occurs while loading a savegame. */
+struct LoadingError : public std::exception {
+	explicit LoadingError(const char *fmt, ...);
+
+	const char* what() const noexcept override;
+
+private:
+	std::string message;
+};
+
 /** Class for loading a save game. */
 class Loader {
 public:
@@ -24,9 +34,7 @@ public:
 	uint64 GetLongLong();
 	uint8 *GetText();
 
-	void SetFailMessage(const char *fail_msg);
-	const char *GetFailMessage() const;
-	bool IsFail() const;
+	void version_mismatch(const char* name, uint saved_version, uint current_version);
 
 private:
 	void PutByte(uint8 val);

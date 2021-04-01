@@ -36,14 +36,22 @@ void GuestData::Set(int guest, TileEdge entry)
 	this->entry = entry;
 }
 
+static const uint32 CURRENT_VERSION_GuestData    = 1;   ///< Currently supported version of %GuestData.
+static const uint32 CURRENT_VERSION_GuestBatch   = 1;   ///< Currently supported version of %GuestBatch.
+static const uint32 CURRENT_VERSION_OnRideGuests = 1;   ///< Currently supported version of %OnRideGuests.
+
 void GuestData::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_GuestData) ldr.version_mismatch("GuestData", version, CURRENT_VERSION_GuestData);
+
 	this->guest = ldr.GetLong();
 	this->entry = static_cast<TileEdge>(ldr.GetByte());
 }
 
 void GuestData::Save(Saver &svr)
 {
+	svr.PutLong(CURRENT_VERSION_GuestData);
 	svr.PutLong(this->guest);
 	svr.PutByte(this->entry);
 }
@@ -119,6 +127,9 @@ void GuestBatch::OnAnimate(int delay)
 
 void GuestBatch::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_GuestBatch) ldr.version_mismatch("GuestBatch", version, CURRENT_VERSION_GuestBatch);
+
 	this->state = static_cast<BatchState>(ldr.GetByte());
 	this->remaining = ldr.GetLong();
 	this->gate = ldr.GetWord();
@@ -127,6 +138,7 @@ void GuestBatch::Load(Loader &ldr)
 
 void GuestBatch::Save(Saver &svr)
 {
+	svr.PutLong(CURRENT_VERSION_GuestBatch);
 	svr.PutByte(this->state);
 	svr.PutLong(this->remaining);
 	svr.PutWord(this->gate);
@@ -195,6 +207,9 @@ void OnRideGuests::OnAnimate(int delay)
 
 void OnRideGuests::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_OnRideGuests) ldr.version_mismatch("OnRideGuests", version, CURRENT_VERSION_OnRideGuests);
+
 	this->batch_size = ldr.GetWord();
 	this->num_batches = ldr.GetWord();
 	this->Configure(this->batch_size, this->num_batches);
@@ -203,6 +218,7 @@ void OnRideGuests::Load(Loader &ldr)
 
 void OnRideGuests::Save(Saver &svr)
 {
+	svr.PutLong(CURRENT_VERSION_OnRideGuests);
 	svr.PutWord(this->batch_size);
 	svr.PutWord(this->num_batches);
 	for (GuestBatch &b : this->batches) b.Save(svr);

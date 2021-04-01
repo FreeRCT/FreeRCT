@@ -410,12 +410,17 @@ static const WalkInformation *DecodeWalk(uint16 number)
 	NOT_REACHED();
 }
 
+static const uint32 CURRENT_VERSION_Person = 1;   ///< Currently supported version of %Person.
+static const uint32 CURRENT_VERSION_Guest = 1;    ///< Currently supported version of %Guest.
+
 /**
  * Load a person from the save game.
  * @param ldr Input stream to read.
  */
 void Person::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_Person) ldr.version_mismatch("Person", version, CURRENT_VERSION_Person);
 	this->VoxelObject::Load(ldr);
 
 	this->type = (PersonType)ldr.GetByte();
@@ -446,6 +451,7 @@ void Person::Load(Loader &ldr)
  */
 void Person::Save(Saver &svr)
 {
+	svr.PutLong(CURRENT_VERSION_Person);
 	this->VoxelObject::Save(svr);
 
 	svr.PutByte(this->type);
@@ -1232,6 +1238,8 @@ void Guest::DeActivate(AnimateResult ar)
  */
 void Guest::Load(Loader &ldr)
 {
+	const uint32 version = ldr.GetLong();
+	if (version != CURRENT_VERSION_Guest) ldr.version_mismatch("Guest", version, CURRENT_VERSION_Guest);
 	this->Person::Load(ldr);
 
 	this->activity = static_cast<GuestActivity>(ldr.GetByte());
@@ -1266,6 +1274,7 @@ void Guest::Load(Loader &ldr)
  */
 void Guest::Save(Saver &svr)
 {
+	svr.PutLong(CURRENT_VERSION_Guest);
 	this->Person::Save(svr);
 
 	svr.PutByte(this->activity);

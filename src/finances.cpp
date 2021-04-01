@@ -61,6 +61,8 @@ Money Finances::GetTotal() const
 	return income + expenses; // Expenses are already negative.
 }
 
+static const uint32 CURRENT_VERSION_FINA = 1;   ///< Currently supported version of the FINA block.
+
 /**
  * Load all monies of one month.
  * @param ldr Input stream to load from.
@@ -91,9 +93,7 @@ void Finances::Load(Loader &ldr, uint32 version)
 			break;
 
 		default: // Unknown version.
-			ldr.SetFailMessage("Unknown version in finances");
-			this->Reset();
-			break;
+			ldr.version_mismatch("FINA", version, CURRENT_VERSION_FINA);
 	}
 }
 
@@ -199,13 +199,18 @@ void FinancesManager::Load(Loader &ldr)
 	this->Reset(); // version == 0 already handled.
 
 	uint32 version = ldr.OpenBlock("FINA");
-	if (version == 1) {
-		this->num_used = ldr.GetByte();
-		this->current = ldr.GetByte();
-		this->cash = ldr.GetLongLong();
-		for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr, version);
-	} else {
-		ldr.SetFailMessage("Unknown block in finances manager.");
+	switch (version) {
+		case 0:
+			break;
+		case 1:
+			this->num_used = ldr.GetByte();
+			this->current = ldr.GetByte();
+			this->cash = ldr.GetLongLong();
+			for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr, version);
+			break;
+
+		default:
+			ldr.version_mismatch("FINA", version, CURRENT_VERSION_FINA);
 	}
 	ldr.CloseBlock();
 	this->NotifyGui();
