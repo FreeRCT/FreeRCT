@@ -1155,7 +1155,7 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->version != 10 || rcd_file->size < 256) return false;
+	if (rcd_file->version != 9 || rcd_file->size != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 + 4 + 4 * 5) return false;
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1207,6 +1207,21 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride_type)) return false;
 
+	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
+	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
+	return true;
+}
+
+/**
+ * Load main menu sprites.
+ * @param rcd_file RCD file being loaded.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ */
+bool GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
+{
+	if (rcd_file->version != 1 || rcd_file->size != 40 - 12) return false;
+
 	this->mainmenu_splash_duration = rcd_file->GetUInt32();
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_logo)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_splash)) return false;
@@ -1214,16 +1229,7 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_load)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_settings)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_quit)) return false;
-	this->mainmenu_frames = rcd_file->GetUInt32();
-	this->mainmenu_duration = rcd_file->GetUInt32();
-	if (rcd_file->size != 256 + 4 * this->mainmenu_frames) return false;
-	this->mainmenu_animation.reset(new ImageData*[this->mainmenu_frames]);
-	for (uint32 i = 0; i < this->mainmenu_frames; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_animation[i])) return false;
-	}
 
-	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
-	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
 	return true;
 }
 
@@ -1496,6 +1502,11 @@ const char *SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "GSLP") == 0) {
 			if (!_gui_sprites.LoadGSLP(&rcd_file, sprites, texts)) return "Loading slope selection GUI sprites failed.";
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "MENU") == 0) {
+			if (!_gui_sprites.LoadMENU(&rcd_file, sprites)) return "Loading main menu sprites failed.";
 			continue;
 		}
 

@@ -454,6 +454,7 @@ struct GuiSprites {
 	bool LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts);
+	bool LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	bool HasSufficientGraphics() const;
 
@@ -507,9 +508,6 @@ struct GuiSprites {
 	ImageData *mainmenu_settings;           ///< Main menu: Settings button.
 	ImageData *mainmenu_quit;               ///< Main menu: Quit button.
 	uint32     mainmenu_splash_duration;    ///< Main menu: Duration of the splash screen.
-	uint32     mainmenu_duration;           ///< Main menu: Duration of each animation frame.
-	uint32     mainmenu_frames;             ///< Main menu: Number of animation frames.
-	std::unique_ptr<ImageData*[]> mainmenu_animation;  ///< Main menu animation frames.
 
 	TextData *text;                         ///< Texts of the GUI.
 };

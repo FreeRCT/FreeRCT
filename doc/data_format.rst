@@ -1672,83 +1672,73 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 10.
+FreeRCT can read blocks with version 9.
 
-=======  ======  =======  ========================  ==========================================================================================
-Offset   Length  Version  Field name                Description
-=======  ======  =======  ========================  ==========================================================================================
-   0        4      1-                               Magic string 'GSLP' (Gui sprites).
-   4        4      1-                               Version number of the block.
-   8        4      1-                               Length of the block excluding magic string, version, and length.
-  12        4      1-     vert_down                 Slope going vertically down.
-  16        4      1-     steep_down                Slope going steeply down.
-  20        4      1-     gentle_down               Slope going gently down.
-  24        4      1-     level                     Level slope.
-  28        4      1-     gentle_up                 Slope going gently up.
-  32        4      1-     steep_up                  Slope going steeply up.
-  36        4      1-     vert_up                   Slope going vertically up.
-  40        4      5-     wide_left                 Wide bend to the left.
-  44        4      5-     normal_left               Normal bend to the left.
-  48        4      5-     tight_left                Tight bend to the left.
-  52        4      5-     no_bend                   No bends.
-  56        4      5-     tight_right               Tight bend to the right.
-  60        4      5-     normal_right              Normal bend to the right.
-  64        4      5-     wide_right                Wide bend to the right.
-  68        4      5-     no_banking                No banking.
-  72        4      5-     bank_left                 Bank to the left.
-  76        4      5-     bank_right                Bank to the right.
-  80        4      5-     triangle_right            Arrow triangle to the right.
-  84        4      5-     triangle_left             Arrow triangle to the left.
-  88        4      5-     triangle_up               Arrow triangle upwards.
-  92        4      5-     triangle_bottom           Arrow triangle downwards.
-  96        4      7-     has_platform              Button for selecting trackpieces with platforms.
- 100        4      7-     no_platform               Button for selecting trackpieces without platforms.
- 104        4      7-     has_power                 Button for selecting trackpieces with power.
- 108        4      7-     no_power                  Button for selecting trackpieces without power.
- 112        4      6-     disabled                  Sprite to overlay over a disabled button.
- 116        4      7-     compass_n                 Compass displaying viewing in north direction.
- 120        4      7-     compass_e                 Compass displaying viewing in east direction.
- 124        4      7-     compass_s                 Compass displaying viewing in south direction.
- 128        4      7-     compass_w                 Compass displaying viewing in west direction.
- 132        4      7-     bulldozer                 Bulldozer (destroy) button.
- 136        4      7-     sunny                     First weather sprite (fully sunny).
- 140        4      7-     light_cloud               Second weather sprite (sunny, thin clouds).
- 144        4      7-     thick_cloud               Third weather sprite (thick clouds).
- 148        4      7-     rain                      Fourth weather sprite (raining).
- 152        4      8-     thunder                   Fifth weather sprite (thunder storm).
- 156        4      8-     light_rog_red             Red of a red/orange/green light.
- 160        4      8-     light_rog_orange          Orange of a red/orange/green light.
- 164        4      8-     light_rog_green           Green of a red/orange/green light.
- 168        4      8-     light_rog_none            None of a red/orange/green light.
- 172        4      8-     light_rg_red              Red of a red/green light.
- 176        4      8-     light_rg_green            Green of a red/green light.
- 180        4      8-     light_rg_none             None of a red/green light.
- 184        4      2-     pos_2d                    Flat rotation positive direction (counter clock wise).
- 188        4      2-     neg_2d                    Flat rotation negative direction (clock wise).
- 192        4      2-     pos_3d                    Diametric rotation positive direction (counter clock wise).
- 196        4      2-     neg_3d                    Diametric rotation negative direction (clock wise).
- 200        4      3-     close_button              Close Button.
-  --        4      3-3                              Maximise button.
-  --        4      3-3                              Minimise button.
- 204        4      4-     terraform_dot             Terraform dot.
- 208        4      9-     message_goto              Inbox: Go To Location button.
- 212        4      9-     message_park              Inbox: Park Management button.
- 216        4      9-     message_guest             Inbox: Guest Window button.
- 220        4      9-     message_ride              Inbox: Ride Instance Window button.
- 224        4      9-     message_ride_type         Inbox: Ride Select GUI button.
- 228        4     10-     mainmenu_splash_duration  Main menu screen: Duration of the splash screen animation in milliseconds.
- 232        4     10-     mainmenu_logo             Main menu screen: FreeRCT logo.
- 236        4     10-     mainmenu_splash           Main menu screen: FreeRCT splashscreen.
- 240        4     10-     mainmenu_new              Main menu screen: New Game button.
- 244        4     10-     mainmenu_load             Main menu screen: Load Game button.
- 248        4     10-     mainmenu_settings         Main menu screen: Settings button.
- 252        4     10-     mainmenu_quit             Main menu screen: Quit button.
- 256        4     10-     mainmenu_frames           Main menu screen: Number f of frames in the background animation.
- 260        4     10-     mainmenu_duration         Main menu screen: Duration of each frame in the background animation in milliseconds.
- 264      4*f     10-     mainmenu_frame_f          The image for each frame of the main menu's background animation.
-264+4*f     4      2-     texts                     Text of the guis (reference to a TEXT block).
-268+4*f                                             Total length.
-=======  ======  =======  ========================  ==========================================================================================
+======  ======  =======  ==================  ================================================================
+Offset  Length  Version  Field name          Description
+======  ======  =======  ==================  ================================================================
+   0       4      1-                         Magic string 'GSLP' (Gui sprites).
+   4       4      1-                         Version number of the block.
+   8       4      1-                         Length of the block excluding magic string, version, and length.
+  12       4      1-     vert_down           Slope going vertically down.
+  16       4      1-     steep_down          Slope going steeply down.
+  20       4      1-     gentle_down         Slope going gently down.
+  24       4      1-     level               Level slope.
+  28       4      1-     gentle_up           Slope going gently up.
+  32       4      1-     steep_up            Slope going steeply up.
+  36       4      1-     vert_up             Slope going vertically up.
+  40       4      5-     wide_left           Wide bend to the left.
+  44       4      5-     normal_left         Normal bend to the left.
+  48       4      5-     tight_left          Tight bend to the left.
+  52       4      5-     no_bend             No bends.
+  56       4      5-     tight_right         Tight bend to the right.
+  60       4      5-     normal_right        Normal bend to the right.
+  64       4      5-     wide_right          Wide bend to the right.
+  68       4      5-     no_banking          No banking.
+  72       4      5-     bank_left           Bank to the left.
+  76       4      5-     bank_right          Bank to the right.
+  80       4      5-     triangle_right      Arrow triangle to the right.
+  84       4      5-     triangle_left       Arrow triangle to the left.
+  88       4      5-     triangle_up         Arrow triangle upwards.
+  92       4      5-     triangle_bottom     Arrow triangle downwards.
+  96       4      7-     has_platform        Button for selecting trackpieces with platforms.
+ 100       4      7-     no_platform         Button for selecting trackpieces without platforms.
+ 104       4      7-     has_power           Button for selecting trackpieces with power.
+ 108       4      7-     no_power            Button for selecting trackpieces without power.
+ 112       4      6-     disabled            Sprite to overlay over a disabled button.
+ 116       4      7-     compass_n           Compass displaying viewing in north direction.
+ 120       4      7-     compass_e           Compass displaying viewing in east direction.
+ 124       4      7-     compass_s           Compass displaying viewing in south direction.
+ 128       4      7-     compass_w           Compass displaying viewing in west direction.
+ 132       4      7-     bulldozer           Bulldozer (destroy) button.
+ 136       4      7-     sunny               First weather sprite (fully sunny).
+ 140       4      7-     light_cloud         Second weather sprite (sunny, thin clouds).
+ 144       4      7-     thick_cloud         Third weather sprite (thick clouds).
+ 148       4      7-     rain                Fourth weather sprite (raining).
+ 152       4      8-     thunder             Fifth weather sprite (thunder storm).
+ 156       4      8-     light_rog_red       Red of a red/orange/green light.
+ 160       4      8-     light_rog_orange    Orange of a red/orange/green light.
+ 164       4      8-     light_rog_green     Green of a red/orange/green light.
+ 168       4      8-     light_rog_none      None of a red/orange/green light.
+ 172       4      8-     light_rg_red        Red of a red/green light.
+ 176       4      8-     light_rg_green      Green of a red/green light.
+ 180       4      8-     light_rg_none       None of a red/green light.
+ 184       4      2-     pos_2d              Flat rotation positive direction (counter clock wise).
+ 188       4      2-     neg_2d              Flat rotation negative direction (clock wise).
+ 192       4      2-     pos_3d              Diametric rotation positive direction (counter clock wise).
+ 196       4      2-     neg_3d              Diametric rotation negative direction (clock wise).
+ 200       4      3-     close_button        Close Button.
+  --       4      3-3                        Maximise button.
+  --       4      3-3                        Minimise button.
+ 204       4      4-     terraform_dot       Terraform dot.
+ 208       4      9-     message_goto        Inbox: Go To Location button.
+ 212       4      9-     message_park        Inbox: Park Management button.
+ 216       4      9-     message_guest       Inbox: Guest Window button.
+ 220       4      9-     message_ride        Inbox: Ride Instance Window button.
+ 224       4      9-     message_ride_type   Inbox: Ride Select GUI button.
+ 228       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 232                                         Total length.
+======  ======  =======  ==================  ================================================================
 
 Version history
 ...............
@@ -1762,7 +1752,33 @@ Version history
 - 7 (20131215) Added weather sprites.
 - 8 (20140914) Added thunder storm sprite, and red/orange/green and red/green lights.
 - 9 (20210316) Added message button sprites.
-- 10 (20210324) Added main menu images and animations.
+
+
+
+Main menu sprites
+~~~~~~~~~~~~~~~~~
+Sprites for the FreeRCT main menu and splash screen. FreeRCT can read block version 1.
+
+=========  ======  =======  ========================================================================================
+Offset     Length  Version  Description
+=========  ======  =======  ========================================================================================
+   0        4       1-      Magic string 'MENU'.
+   4        4       1-      Version number of the block.
+   8        4       1-      Length of the block excluding magic string, version, and length.
+  12        4       1-      Duration of the splash screen animation in milliseconds.
+  16        4       1-      FreeRCT logo sprite.
+  20        4       1-      FreeRCT splashscreen sprite.
+  24        4       1-      New Game button sprite.
+  28        4       1-      Load Game button sprite.
+  32        4       1-      Settings button sprite.
+  36        4       1-      Quit button sprite.
+  40                        Total length.
+=========  ======  =======  ========================================================================================
+
+Version history
+...............
+
+- 1 (20210401) Initial version.
 
 
 Persons

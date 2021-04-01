@@ -1090,6 +1090,26 @@ file("freerct.rcd") {
 		}
 	}
 
+	// Main menu and splash screen sprites.
+	MENU {
+		logo: sprite {
+			x_offset: -128; y_offset: -128;
+			file: "../sprites/logo/logo_256.png";
+			x_base: 0; y_base: 0; width: 256; height: 256;
+		}
+		splash: sprite {
+			x_offset: -128; y_offset: -128;
+			file: "../sprites/logo/logo_256.png";
+			x_base: 0; y_base: 0; width: 256; height: 256;
+		}
+		splash_duration: 3000;
+		(new_game, load_game, settings, quit): sheet {
+			x_base: 0; y_base: 0; x_step: 96; y_step: 0;
+			file: "../sprites/gui/mainmenu.png";
+			x_offset: 0; y_offset: 0; width: 96; height: 96; crop: 0;
+		}
+	}
+
 	// Park border fence
 	FENC {
 		width: 64;

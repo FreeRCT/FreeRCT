@@ -98,8 +98,9 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 	this->quit_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
 	if (!is_splash_screen || frametime > 2 * _gui_sprites.mainmenu_splash_duration) {
-		_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 2),
-				_gui_sprites.mainmenu_animation[is_splash_screen ? 0 : (frametime / _gui_sprites.mainmenu_duration) % _gui_sprites.mainmenu_frames], rc, GS_NORMAL);
+		// NOCOM
+		/* _video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 2),
+				_gui_sprites.mainmenu_animation[is_splash_screen ? 0 : (frametime / _gui_sprites.mainmenu_duration) % _gui_sprites.mainmenu_frames], rc, GS_NORMAL); */
 		_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 4), _gui_sprites.mainmenu_logo, rc, GS_NORMAL);
 
 		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new,      rc, GS_NORMAL);
