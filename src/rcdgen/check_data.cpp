@@ -2256,6 +2256,31 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 }
 
 /**
+ * Convert a node group to a MENU game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created MENU game block.
+ */
+static std::shared_ptr<MENUBlock> ConvertMENUNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "MENU");
+	auto block = std::make_shared<MENUBlock>();
+
+	Values vals("MENU", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	block->splash_duration = vals.GetNumber("splash_duration");
+	block->splash = vals.GetSprite("splash");
+	block->logo = vals.GetSprite("logo");
+	block->new_game = vals.GetSprite("new_game");
+	block->load_game = vals.GetSprite("load_game");
+	block->settings = vals.GetSprite("settings");
+	block->quit = vals.GetSprite("quit");
+
+	vals.VerifyUsage();
+	return block;
+}
+
+/**
  * Convert a 'strings' node.
  * @param ng Generic tree of nodes to convert.
  * @return The created 'strings' node.
@@ -2777,6 +2802,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "GSLI") return ConvertGSLINode(ng);
 	if (ng->name == "GSLP") return ConvertGSLPNode(ng);
 	if (ng->name == "INFO") return ConvertINFONode(ng);
+	if (ng->name == "MENU") return ConvertMENUNode(ng);
 	if (ng->name == "PATH") return ConvertPATHNode(ng);
 	if (ng->name == "PDEC") return ConvertPDECNode(ng);
 	if (ng->name == "PLAT") return ConvertPLATNode(ng);

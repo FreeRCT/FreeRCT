@@ -28,11 +28,11 @@ strings {
 		RESOLUTION:             "%1%x%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Quit";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Settings";
-		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Play/Editor";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Load";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Save";
+		MAIN_MENU_QUIT:     "Quit";
+		MAIN_MENU_SETTINGS: "Settings";
+		MAIN_MENU_MODE:     "Play/Editor";
+		MAIN_MENU_LOAD:     "Load";
+		MAIN_MENU_SAVE:     "Save";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";

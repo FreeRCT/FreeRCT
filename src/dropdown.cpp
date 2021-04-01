@@ -104,10 +104,21 @@ void DropdownMenuWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	int y = this->rect.base.y; // wid->pos is relative to the window
 	int it = 0;
 	for (auto const &item : this->items) {
+		const Rectangle32 r(this->rect.base.x, y, static_cast<uint>(wid->pos.width - 1), static_cast<uint>(GetTextHeight()));
+		uint32 highlight = 0;
 		if (it == this->selected_index) {
-			Rectangle32 r = {this->rect.base.x, y, static_cast<uint>(wid->pos.width - 1), static_cast<uint>(GetTextHeight())};
-			_video.FillRectangle(r, _palette[GetColourRangeBase(COL_RANGE_GREY) + 7]);
+			if (r.IsPointInside(_window_manager.GetMousePosition())) {
+				highlight = 4;
+			} else {
+				highlight = 2;
+			}
+		} else if (r.IsPointInside(_window_manager.GetMousePosition())) {
+			highlight = 6;
 		}
+		if (highlight != 0) {
+			_video.FillRectangle(r, _palette[GetColourRangeBase(static_cast<const LeafWidget*>(wid)->colour) + highlight]);
+		}
+
 		_video.BlitText(item.str, MakeRGBA(255, 255, 255, OPAQUE), this->rect.base.x, y, wid->pos.width);
 
 		y += GetTextHeight();

@@ -136,7 +136,6 @@ file("gui.rcd") {
 			x_offset: 0; y_offset: 0; width: 46; height: 46; crop: 0;
 		}
 
-
 		texts: strings { key: "gui"; }
 	}
 

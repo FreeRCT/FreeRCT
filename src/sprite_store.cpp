@@ -1212,6 +1212,27 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	return true;
 }
 
+/**
+ * Load main menu sprites.
+ * @param rcd_file RCD file being loaded.
+ * @param sprites Sprites loaded from this file.
+ * @return Load was successful.
+ */
+bool GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
+{
+	if (rcd_file->version != 1 || rcd_file->size != 40 - 12) return false;
+
+	this->mainmenu_splash_duration = rcd_file->GetUInt32();
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_logo)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_splash)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_new)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_load)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_settings)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_quit)) return false;
+
+	return true;
+}
+
 /** Default constructor. */
 GuiSprites::GuiSprites()
 {
@@ -1481,6 +1502,11 @@ const char *SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "GSLP") == 0) {
 			if (!_gui_sprites.LoadGSLP(&rcd_file, sprites, texts)) return "Loading slope selection GUI sprites failed.";
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "MENU") == 0) {
+			if (!_gui_sprites.LoadMENU(&rcd_file, sprites)) return "Loading main menu sprites failed.";
 			continue;
 		}
 

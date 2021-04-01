@@ -273,6 +273,17 @@ void Window::OnMouseLeaveEvent()
 }
 
 /**
+ * Process input from the keyboard.
+ * @param key_code Kind of input.
+ * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
+ * @return Key event has been processed.
+ */
+bool Window::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return false;
+}
+
+/**
  * Timeout callback.
  * Called when #timeout decremented to 0.
  */
@@ -725,7 +736,7 @@ void WindowManager::RepositionAllWindows(uint new_width, uint new_height)
 {
 	Rectangle32 rect(0, 0, new_width, new_height);
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
-		if (w->wtype == WC_MAINDISPLAY) {
+		if (w->wtype == WC_MAINDISPLAY || w->wtype == WC_MAIN_MENU) {
 			w->SetSize(new_width, new_height);
 
 		/* Add an arbitrary amount for closebox/titlebar, so the window is still actually accessible. */
@@ -750,6 +761,7 @@ static uint GetWindowZPriority(WindowTypes wt)
 		case WC_TOOLBAR:        return 1;  // Top toolbar.
 		case WC_BOTTOM_TOOLBAR: return 1;  // Bottom toolbar.
 		case WC_MAINDISPLAY:    return 0;  // Main display at the bottom of the stack.
+		case WC_MAIN_MENU:      return 2;  // Main menu at the bottom of the stack but above the viewport.
 	}
 	NOT_REACHED();
 }
@@ -959,7 +971,7 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
 				return;
 			}
 			this->current_window->MarkDirty();
-			assert(this->current_window->wtype != WC_MAINDISPLAY); // Cannot move the main display!
+			assert(this->current_window->wtype != WC_MAINDISPLAY && this->current_window->wtype != WC_MAIN_MENU); // Cannot move the main display!
 			this->current_window->SetPosition(pos.x - this->move_offset.x, pos.y - this->move_offset.y);
 			this->current_window->MarkDirty();
 			break;
@@ -1088,7 +1100,10 @@ void WindowManager::MouseWheelEvent(int direction)
  */
 bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
 {
-	return false; // \todo Perform key processing in window mouse modes.
+	for (Window *w = this->top; w != nullptr; w = w->lower) {
+		if (w->OnKeyEvent(key_code, symbol)) return true;
+	}
+	return false;
 }
 
 /**
@@ -1098,17 +1113,18 @@ bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
  */
 void WindowManager::UpdateWindows()
 {
+	bool force_repaint = false;
 	BaseWidget *tt = nullptr;
 	Point32 tooltip_offset;
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
 		tt = w->FindTooltipWidget(GetMousePosition());
 		if (tt != nullptr) {
 			tooltip_offset = w->rect.base;
-			break;
 		}
+		force_repaint |= w->wtype == WC_MAIN_MENU;  // Ensure a smooth animation in the main menu.
 	}
 
-	if (!_video.DisplayNeedsRepaint() && this->tooltip_widget == tt) return;
+	if (!_video.DisplayNeedsRepaint() && this->tooltip_widget == tt && !force_repaint) return;
 
 	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
 	 * windows truly disappear (even if there is no other window behind it).

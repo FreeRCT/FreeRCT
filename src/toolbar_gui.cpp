@@ -24,7 +24,7 @@
 #include "gamecontrol.h"
 #include "weather.h"
 
-void ShowQuitProgram();
+void ShowQuitProgram(bool back_to_main_menu);
 
 /**
  * Top toolbar.
@@ -62,12 +62,11 @@ enum ToolbarGuiWidgets {
  * @ingroup gui_group
  */
 enum DropdownMain {
-	DDM_QUIT,      ///< Quit the game.
-	DDM_SETTINGS,  ///< General settings.
-	DDM_GAME_MODE, ///< Switch game mode.
-	DDM_NEW,       ///< New game.
 	DDM_SAVE,      ///< Save game.
-	DDM_LOAD,      ///< Load game.
+	DDM_GAME_MODE, ///< Switch game mode.
+	DDM_SETTINGS,  ///< General settings.
+	DDM_MENU,      ///< Back to main menu.
+	DDM_QUIT,      ///< Quit the game.
 	DDM_COUNT      ///< Number of entries.
 };
 
@@ -77,7 +76,7 @@ enum DropdownMain {
  */
 static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
-		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_MAIN, GUI_TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP),
+		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_MAIN,  STR_NULL),
 		Widget(WT_DROPDOWN_BUTTON, TB_DROPDOWN_SPEED,  COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_DROPDOWN_SPEED, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_PATHS,       COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_PATHS,       GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
 		Widget(WT_TEXT_PUSHBUTTON, TB_GUI_RIDE_SELECT, COL_RANGE_ORANGE_BROWN), SetData(GUI_TOOLBAR_GUI_RIDE_SELECT, GUI_TOOLBAR_GUI_TOOLTIP_RIDE_SELECT),
@@ -129,7 +128,7 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 		case TB_DROPDOWN_MAIN: {
 			DropdownList itemlist;
 			for (int i = 0; i < DDM_COUNT; i++) {
-				_str_params.SetStrID(1, i == DDM_GAME_MODE ? GetSwitchGameModeString() : GUI_TOOLBAR_GUI_DROPDOWN_MAIN_QUIT + i);
+				_str_params.SetStrID(1, i == DDM_GAME_MODE ? GetSwitchGameModeString() : GUI_MAIN_MENU_SAVE + i);
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(number, itemlist, -1);
@@ -184,7 +183,7 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 				case TB_DROPDOWN_MAIN:
 					switch (entry) {
 						case DDM_QUIT:
-							ShowQuitProgram();
+							ShowQuitProgram(false);
 							break;
 						case DDM_SETTINGS:
 							ShowSettingGui();
@@ -197,12 +196,8 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							_game_control.SaveGame("saved.fct");
 							/* \todo Provide feedback on the save. */
 							break;
-						case DDM_LOAD:
-							/* \todo Provide option to select the file to load. */
-							_game_control.LoadGame("saved.fct");
-							break;
-						case DDM_NEW:
-							_game_control.NewGame();
+						case DDM_MENU:
+							ShowQuitProgram(true);
 							break;
 						default: NOT_REACHED();
 					}
@@ -467,10 +462,13 @@ void ShowBottomToolbar()
 /** %Window to ask confirmation for ending the program. */
 class QuitProgramWindow : public GuiWindow {
 public:
-	QuitProgramWindow();
+	explicit QuitProgramWindow(bool back_to_main_menu);
 
 	Point32 OnInitialPosition() override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
+
+private:
+	bool back_to_main_menu;  ///< Just return to the main menu instead of quitting FreeRCT.
 };
 
 /**
@@ -484,25 +482,26 @@ enum QuitProgramWidgets {
 };
 
 /** Window definition of the quit program GUI. */
-static const WidgetPart _quit_program_widgets[] = {
-	Intermediate(0, 1),
-		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(GUI_QUIT_CAPTION, GUI_TITLEBAR_TIP),
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
-		EndContainer(),
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),
-			Intermediate(2,0),
-				Widget(WT_CENTERED_TEXT, QP_MESSAGE, COL_RANGE_RED),
-						SetData(GUI_QUIT_MESSAGE, STR_NULL), SetPadding(5, 5, 5, 5),
-			EndContainer(),
-			Intermediate(1, 5), SetPadding(0, 0, 3, 0),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-				Widget(WT_TEXT_PUSHBUTTON, QP_NO, COL_RANGE_YELLOW), SetData(GUI_QUIT_NO, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-				Widget(WT_TEXT_PUSHBUTTON, QP_YES, COL_RANGE_YELLOW), SetData(GUI_QUIT_YES, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-			EndContainer(),
-};
+#define QUIT_PROGRAM_WIDGET_TREE(caption, message) \
+const WidgetPart _quit_program_widgets[] = { \
+	Intermediate(0, 1), \
+		Intermediate(1, 0), \
+			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(caption, GUI_TITLEBAR_TIP), \
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED), \
+		EndContainer(), \
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED), \
+			Intermediate(2,0), \
+				Widget(WT_CENTERED_TEXT, QP_MESSAGE, COL_RANGE_RED), \
+						SetData(message, STR_NULL), SetPadding(5, 5, 5, 5), \
+			EndContainer(), \
+			Intermediate(1, 5), SetPadding(0, 0, 3, 0), \
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
+				Widget(WT_TEXT_PUSHBUTTON, QP_NO, COL_RANGE_YELLOW), SetData(GUI_QUIT_NO, STR_NULL), \
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
+				Widget(WT_TEXT_PUSHBUTTON, QP_YES, COL_RANGE_YELLOW), SetData(GUI_QUIT_YES, STR_NULL), \
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
+			EndContainer(), \
+}
 
 Point32 QuitProgramWindow::OnInitialPosition()
 {
@@ -512,23 +511,39 @@ Point32 QuitProgramWindow::OnInitialPosition()
 	return pt;
 }
 
-/** Default constructor. */
-QuitProgramWindow::QuitProgramWindow() : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
+/**
+ * Constructor.
+ * @param b Just return to the main menu instead of quitting FreeRCT.
+ */
+QuitProgramWindow::QuitProgramWindow(bool b) : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
 {
+	this->back_to_main_menu = b;
+	QUIT_PROGRAM_WIDGET_TREE(this->back_to_main_menu ? GUI_RETURN_CAPTION : GUI_QUIT_CAPTION, this->back_to_main_menu ? GUI_RETURN_MESSAGE : GUI_QUIT_MESSAGE);
 	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
 }
 
 void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
-	if (number == QP_YES) _game_control.QuitGame();
+	if (number == QP_YES) {
+		if (this->back_to_main_menu) {
+			_game_control.MainMenu();
+		} else {
+			_game_control.QuitGame();
+		}
+	} else if (number != QP_NO) {
+		return;
+	}
 	delete this;
 }
 
-/** Ask the user whether the program should be stopped. */
-void ShowQuitProgram()
+/**
+ * Ask the user whether the game should be stopped.
+ * @param back_to_main_menu Just return to the main menu instead of quitting FreeRCT.
+ */
+void ShowQuitProgram(const bool back_to_main_menu)
 {
 	Window *w = GetWindowByType(WC_QUIT, ALL_WINDOWS_OF_TYPE);
 	delete w;
 
-	new QuitProgramWindow();
+	new QuitProgramWindow(back_to_main_menu);
 }

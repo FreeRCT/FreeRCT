@@ -1754,6 +1754,33 @@ Version history
 - 9 (20210316) Added message button sprites.
 
 
+
+Main menu sprites
+~~~~~~~~~~~~~~~~~
+Sprites for the FreeRCT main menu and splash screen. FreeRCT can read block version 1.
+
+=========  ======  =======  ========================================================================================
+Offset     Length  Version  Description
+=========  ======  =======  ========================================================================================
+   0        4       1-      Magic string 'MENU'.
+   4        4       1-      Version number of the block.
+   8        4       1-      Length of the block excluding magic string, version, and length.
+  12        4       1-      Duration of the splash screen animation in milliseconds.
+  16        4       1-      FreeRCT logo sprite.
+  20        4       1-      FreeRCT splashscreen sprite.
+  24        4       1-      New Game button sprite.
+  28        4       1-      Load Game button sprite.
+  32        4       1-      Settings button sprite.
+  36        4       1-      Quit button sprite.
+  40                        Total length.
+=========  ======  =======  ========================================================================================
+
+Version history
+...............
+
+- 1 (20210401) Initial version.
+
+
 Persons
 =======
 Persons are an important concept in the game. Their properties are defined in

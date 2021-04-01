@@ -26,10 +26,10 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Salir";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Ajustes";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Cargar";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Guardar";
+		MAIN_MENU_QUIT:     "Salir";
+		MAIN_MENU_SETTINGS: "Ajustes";
+		MAIN_MENU_LOAD:     "Cargar";
+		MAIN_MENU_SAVE:     "Guardar";
 
 		TOOLBAR_GUI_PATHS:                "Caminos";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Construir caminos";

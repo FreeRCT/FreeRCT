@@ -29,13 +29,13 @@ strings {
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
-		TOOLBAR_GUI_DROPDOWN_MAIN_TOOLTIP:  "Hauptmenü";
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Beenden";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Einstellungen";
-		TOOLBAR_GUI_DROPDOWN_MAIN_MODE:     "Spielen/Editor";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Laden";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Speichern";
-		TOOLBAR_GUI_DROPDOWN_MAIN_NEW_GAME: "Neues Spiel";
+		MAIN_MENU_QUIT:                     "Beenden";
+		MAIN_MENU_SETTINGS:                 "Einstellungen";
+		MAIN_MENU_MODE:                     "Spielen/Editor";
+		MAIN_MENU_LOAD:                     "Laden";
+		MAIN_MENU_SAVE:                     "Speichern";
+		MAIN_MENU_NEW_GAME:                 "Neues Spiel";
+		MAIN_MENU_MENU:                     "Hauptmenü";
 		TOOLBAR_GUI_DROPDOWN_SPEED:         "Geschwindigkeit";
 		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Die Spielgeschwindigkeit ändern";
 		TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE:   "Pause";
@@ -65,7 +65,9 @@ strings {
 
 		// Quit program strings.
 		QUIT_CAPTION: "Beenden?";
-		QUIT_MESSAGE: "Spiel beenden?";
+		QUIT_MESSAGE: "FreeRCT beenden?";
+		RETURN_CAPTION: "Verlassen?";
+		RETURN_MESSAGE: "Zurück zum Hauptmenü?";
 		QUIT_NO:      "Nein";
 		QUIT_YES:     "Ja";
 

@@ -1311,6 +1311,25 @@ int GSLPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+MENUBlock::MENUBlock() : GameBlock("MENU", 1)
+{
+}
+
+int MENUBlock::Write(FileWriter *fw)
+{
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, 40 - 12);
+	fb->SaveUInt32(this->splash_duration);
+	fb->SaveUInt32(this->logo->Write(fw));
+	fb->SaveUInt32(this->splash->Write(fw));
+	fb->SaveUInt32(this->new_game->Write(fw));
+	fb->SaveUInt32(this->load_game->Write(fw));
+	fb->SaveUInt32(this->settings->Write(fw));
+	fb->SaveUInt32(this->quit->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
 CubicSpline::CubicSpline() : BlockNode()
 {
 	this->a = 0;

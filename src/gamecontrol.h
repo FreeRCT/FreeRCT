@@ -21,6 +21,7 @@ void OnNewFrame(uint32 frame_delay);
 /** Actions that can be run to control the game. */
 enum GameControlAction {
 	GCA_NONE,      ///< No action to run.
+	GCA_MENU,      ///< Open the main menu.
 	GCA_NEW_GAME,  ///< Prepare a new game.
 	GCA_LOAD_GAME, ///< Load a saved game.
 	GCA_SAVE_GAME, ///< Save the current game.
@@ -56,12 +57,14 @@ public:
 	void Initialize(const char *fname);
 	void Uninitialize();
 
+	void MainMenu();
 	void NewGame();
 	void LoadGame(const std::string &fname);
 	void SaveGame(const std::string &fname);
 	void QuitGame();
 
-	bool running; ///< Indicates whether a game is currently running.
+	bool running;    ///< Indicates whether a game is currently running.
+	bool main_menu;  ///< Indicates whether the main menu is currently open.
 
 	GameSpeed speed;  ///< Speed of the game.
 

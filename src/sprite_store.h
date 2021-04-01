@@ -454,6 +454,7 @@ struct GuiSprites {
 	bool LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites);
 	bool LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts);
+	bool LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	bool HasSufficientGraphics() const;
 
@@ -500,6 +501,13 @@ struct GuiSprites {
 	ImageData *message_guest;               ///< Inbox button guest window sprite.
 	ImageData *message_ride;                ///< Inbox button ride instance window sprite.
 	ImageData *message_ride_type;           ///< Inbox button ride select gui sprite.
+	ImageData *mainmenu_logo;               ///< Main menu: FreeeRCT logo.
+	ImageData *mainmenu_splash;             ///< Main menu: Splash screen.
+	ImageData *mainmenu_new;                ///< Main menu: New Game button.
+	ImageData *mainmenu_load;               ///< Main menu: Load Game button.
+	ImageData *mainmenu_settings;           ///< Main menu: Settings button.
+	ImageData *mainmenu_quit;               ///< Main menu: Quit button.
+	uint32     mainmenu_splash_duration;    ///< Main menu: Duration of the splash screen.
 
 	TextData *text;                         ///< Texts of the GUI.
 };

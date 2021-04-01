@@ -27,10 +27,10 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 
 		// Toolbar gui strings.
-		TOOLBAR_GUI_DROPDOWN_MAIN_QUIT:     "Afslut";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SETTINGS: "Indstillinger";
-		TOOLBAR_GUI_DROPDOWN_MAIN_LOAD:     "Hent";
-		TOOLBAR_GUI_DROPDOWN_MAIN_SAVE:     "Gem";
+		MAIN_MENU_QUIT:     "Afslut";
+		MAIN_MENU_SETTINGS: "Indstillinger";
+		MAIN_MENU_LOAD:     "Hent";
+		MAIN_MENU_SAVE:     "Gem";
 
 		TOOLBAR_GUI_PATHS:                "Stier";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Byg stier og køer";

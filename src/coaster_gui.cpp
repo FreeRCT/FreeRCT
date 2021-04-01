@@ -341,7 +341,7 @@ void CoasterInstanceWindow::DrawWidget(const WidgetNumber wid_num, const BaseWid
 		}
 	}
 
-	_video.FillRectangle(pos, TEXT_BLACK);
+	_video.FillRectangle(pos, 0xff);
 	for (int i = 2; i < GRAPH_NR_Y_AXIS_LABELS; i++) {
 		const int y = pos.base.y + pos.height * (GRAPH_NR_Y_AXIS_LABELS - i) / (GRAPH_NR_Y_AXIS_LABELS - 1);
 		_video.DrawLine(Point32(pos.base.x, y), Point32(pos.base.x + pos.width - GRAPH_LABELS_WIDTH, y), _palette[TEXT_GREY]);

@@ -902,6 +902,23 @@ public:
 	std::shared_ptr<StringBundle> gui_text;       ///< Text of the GUIs (reference to a TEXT block).
 };
 
+/** MENU Game block. */
+class MENUBlock : public GameBlock {
+public:
+	MENUBlock();
+	virtual ~MENUBlock() = default;
+
+	int Write(FileWriter *fw) override;
+
+	std::shared_ptr<SpriteBlock> logo;             ///< FreeRCT logo.
+	std::shared_ptr<SpriteBlock> splash;           ///< FreeRCT splashscreen.
+	std::shared_ptr<SpriteBlock> new_game;         ///< New Game button.
+	std::shared_ptr<SpriteBlock> load_game;        ///< Load Game button.
+	std::shared_ptr<SpriteBlock> settings;         ///< Settings button.
+	std::shared_ptr<SpriteBlock> quit;             ///< Quit button.
+	uint32                       splash_duration;  ///< Duration of the splash screen animation.
+};
+
 /**
  * Class for storing a cubic bezier spline, as (part of) a path in a track piece.
  * @note While the parameters of a cubic spline can be floating point numbers, rcdgen does not allow entering such values.

@@ -24,6 +24,7 @@
 #include "person.h"
 #include "weather.h"
 #include "fence.h"
+#include "gamecontrol.h"
 #include "scenery.h"
 
 #include <set>
@@ -1130,8 +1131,35 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
+bool Viewport::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	if (key_code == WMKC_SYMBOL) {
+		if (symbol[0] == 'q') {
+			_game_control.QuitGame();
+			return true;
+		} else if (!_game_control.main_menu) {
+			if (symbol[0] == '1') {
+				this->ToggleUndergroundMode();
+				return true;
+			}
+		}
+	} else if (!_game_control.main_menu) {
+		if (key_code == WMKC_CURSOR_LEFT) {
+			this->Rotate(-1);
+			return true;
+		} else if (key_code == WMKC_CURSOR_RIGHT) {
+			this->Rotate(1);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void Viewport::OnMouseMoveEvent(const Point16 &pos)
 {
+	if (_game_control.main_menu) return;
+
 	Point16 old_mouse_pos = this->mouse_pos;
 	this->mouse_pos = pos;
 
@@ -1145,6 +1173,7 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 
 WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 {
+	if (_game_control.main_menu) return WMME_NONE;
 	if (_window_manager.SelectorMouseButtonEvent(state)) return WMME_NONE;
 
 	/* Did the user click on something that has a window? */
@@ -1168,6 +1197,7 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 
 void Viewport::OnMouseWheelEvent(int direction)
 {
+	if (_game_control.main_menu) return;
 	_window_manager.SelectorMouseWheelEvent(direction);
 }
 
