@@ -91,6 +91,13 @@ SceneryInstance::SceneryInstance(const SceneryType *t)
 	this->last_watered = 0;
 }
 
+/** Destructor. */
+SceneryInstance::~SceneryInstance()
+{
+	if (_scenery.temp_item == this) _scenery.temp_item = nullptr;
+	this->RemoveFromWorld();
+}
+
 /**
  * Checks whether this item can be placed at the current position.
  * @return \c STR_NULL if the item can be placed here; otherwise the reason why it can't.
@@ -359,7 +366,6 @@ void SceneryManager::RemoveItem(const XYZPoint16 &pos)
 {
 	auto it = this->all_items.find(pos);
 	assert(it != this->all_items.end());
-	it->second->RemoveFromWorld();
 	this->all_items.erase(it);  // This deletes the instance.
 }
 
