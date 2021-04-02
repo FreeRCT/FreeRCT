@@ -691,6 +691,7 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_ne;
 
+		nr_frames: 23;
 		frame_data { duration: 40; change_x: -4; change_y: 0; }
 	}
 	ANSP {
@@ -698,9 +699,10 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_ne;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_sprites: 23;
+		spritefiles {
+			file: "../sprites/guests/template_walk/128_000{seq(72..96, 2)}.png";
+			x_base: 48; y_base: 32; x_offset: -16; y_offset: -64; width: 32; height: 64;
 		}
 	}
 
@@ -709,6 +711,7 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_se;
 
+		nr_frames: 23;
 		frame_data { duration: 40; change_x: 0; change_y: 4; }
 	}
 	ANSP {
@@ -716,9 +719,10 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_se;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_sprites: 23;
+		spritefiles {
+			file: "../sprites/guests/template_walk/128_000{seq(1..24, 2)}.png";
+			x_base: 48; y_base: 32; x_offset: -16; y_offset: -64; width: 32; height: 64;
 		}
 	}
 
@@ -727,6 +731,7 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_sw;
 
+		nr_frames: 23;
 		frame_data { duration: 40; change_x: 4; change_y: 0; }
 	}
 	ANSP {
@@ -734,9 +739,10 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_sw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_sprites: 23;
+		spritefiles {
+			file: "../sprites/guests/template_walk/128_000{seq(25..48, 2)}.png";
+			x_base: 48; y_base: 32; x_offset: -16; y_offset: -64; width: 32; height: 64;
 		}
 	}
 
@@ -745,6 +751,7 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_nw;
 
+		nr_frames: 23;
 		frame_data { duration: 40; change_x: 0; change_y: -4; }
 	}
 	ANSP {
@@ -752,9 +759,10 @@ file("freerct.rcd") {
 		person_type: guest;
 		anim_type: walk_nw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_sprites: 23;
+		spritefiles {
+			file: "../sprites/guests/template_walk/128_000{seq(49..71, 2)}.png";
+			x_base: 48; y_base: 32; x_offset: -16; y_offset: -64; width: 32; height: 64;
 		}
 	}
 

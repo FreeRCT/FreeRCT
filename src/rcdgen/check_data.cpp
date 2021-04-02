@@ -1252,6 +1252,14 @@ static std::shared_ptr<ANIMBlock> ConvertANIMNode(std::shared_ptr<NodeGroup> ng)
 	blk->person_type = vals.GetNumber("person_type");
 	blk->anim_type = vals.GetNumber("anim_type");
 	blk->frames = GetTypedData<FrameData>(vals, "frame_data", 0xFFFF);
+	if (vals.HasValue("nr_frames")) {
+		const int nr_frames = vals.GetNumber("nr_frames");
+		if (blk->frames.size() != 1) {
+			fprintf(stderr, "Error at %s: nr_frames requires exactly 1 frame_data value (found %d).\n", ng->pos.ToString(), static_cast<int>(blk->frames.size()));
+			exit(1);
+		}
+		for (int i = 1; i < nr_frames; i++) blk->frames.push_back(blk->frames[0]);
+	}
 
 	vals.VerifyUsage();
 	return blk;
@@ -1273,7 +1281,34 @@ static std::shared_ptr<ANSPBlock> ConvertANSPNode(std::shared_ptr<NodeGroup> ng)
 	blk->tile_width  = vals.GetNumber("tile_width");
 	blk->person_type = vals.GetNumber("person_type");
 	blk->anim_type   = vals.GetNumber("anim_type");
-	blk->frames = GetTypedData<SpriteBlock>(vals, "sprite", 0xFFFF);
+
+	blk->frames = GetTypedData<SpriteBlock>(vals, "sprite", 0);
+	if (blk->frames.empty()) {
+		BlockNode *sprites = nullptr;
+		std::vector<std::shared_ptr<SheetBlock>>       v1 = GetTypedData<SheetBlock>      (vals, "sheet",       1);
+		std::vector<std::shared_ptr<SpriteFilesBlock>> v2 = GetTypedData<SpriteFilesBlock>(vals, "spritefiles", 1);
+
+		if (v1.empty()) {
+			if (v2.empty()) {
+				fprintf(stderr, "Error at %s: No sprites specified for ANSP block.\n", ng->pos.ToString());
+				exit(1);
+			} else {
+				sprites = v2.back().get();
+			}
+		} else {
+			if (v2.empty()) {
+				sprites = v1.back().get();
+			} else {
+				fprintf(stderr, "Error at %s: ANSP block specifies both spritefiles and sheet.\n", ng->pos.ToString());
+				exit(1);
+			}
+		}
+
+		const int nr_sprites = vals.GetNumber("nr_sprites");
+		for (int i = 0; i < nr_sprites; i++) {
+			blk->frames.push_back(std::dynamic_pointer_cast<SpriteBlock>(sprites->GetSubNode(0, i, "ANSP sprite", ng->pos)));
+		}
+	}
 
 	vals.VerifyUsage();
 	return blk;
