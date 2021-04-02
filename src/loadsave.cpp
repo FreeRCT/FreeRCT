@@ -314,7 +314,7 @@ void Saver::PutText(const uint8 *str, int length)
 	assert(count == 0);
 }
 
-static const uint32 CURRENT_VERSION_FCTS = 9;   ///< Currently supported version of the FCTS block.
+static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version of the FCTS block.
 
 /**
  * Load the game elements from the input stream.
@@ -324,21 +324,19 @@ static const uint32 CURRENT_VERSION_FCTS = 9;   ///< Currently supported version
 static void LoadElements(Loader &ldr)
 {
 	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > CURRENT_VERSION_FCTS) ldr.version_mismatch("FCTS", version, CURRENT_VERSION_FCTS);
+	if (version != 0 && version != CURRENT_VERSION_FCTS) ldr.version_mismatch("FCTS", version, CURRENT_VERSION_FCTS);
 	ldr.CloseBlock();
 
-	Loader reset_loader(nullptr);
-
 	LoadDate(ldr);
-	_world.Load((version >= 3) ? ldr : reset_loader);
+	_world.Load(ldr);
 	Random::Load(ldr);
-	_finances_manager.Load((version >= 2) ? ldr : reset_loader);
-	_weather.Load((version >= 4) ? ldr : reset_loader);
-	_rides_manager.Load((version >= 6) ? ldr : reset_loader);
-	_scenery.Load((version >= 9) ? ldr : reset_loader);
-	_guests.Load((version >= 5) ? ldr : reset_loader);
-	_staff.Load((version >= 7) ? ldr : reset_loader);
-	_inbox.Load((version >= 8) ? ldr : reset_loader);
+	_finances_manager.Load(ldr);
+	_weather.Load(ldr);
+	_rides_manager.Load(ldr);
+	_scenery.Load(ldr);
+	_guests.Load(ldr);
+	_staff.Load(ldr);
+	_inbox.Load(ldr);
 }
 
 /**
@@ -394,6 +392,7 @@ bool LoadGameFile(const char *fname)
 
 		printf("FATAL ERROR: The reset loader failed to default-initialize the game!\n");
 		printf("This should not happen. Please consider submiting a bug report.\n");
+		printf("Error message: %s\n", e.what());
 		printf("FreeRCT will terminate now.\n");
 		::exit(1);
 	}
