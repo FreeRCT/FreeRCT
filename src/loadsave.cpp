@@ -380,7 +380,10 @@ bool LoadGameFile(const char *fname)
 		Loader ldr(fp);
 		LoadElements(ldr);
 
-		if (fp != nullptr) fclose(fp);
+		if (fp != nullptr) {
+			fclose(fp);
+			SaveGameFile(fname);
+		}
 		return true;
 	} catch (const std::exception &e) {
 		if (fname != nullptr) {
