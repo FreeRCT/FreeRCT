@@ -329,7 +329,6 @@ static void LoadElements(Loader &ldr)
 
 	LoadDate(ldr);
 	_world.Load(ldr);
-	Random::Load(ldr);
 	_finances_manager.Load(ldr);
 	_weather.Load(ldr);
 	_rides_manager.Load(ldr);
@@ -337,6 +336,7 @@ static void LoadElements(Loader &ldr)
 	_guests.Load(ldr);
 	_staff.Load(ldr);
 	_inbox.Load(ldr);
+	Random::Load(ldr);
 }
 
 /**
@@ -351,7 +351,6 @@ static void SaveElements(Saver &svr)
 
 	SaveDate(svr);
 	_world.Save(svr);
-	Random::Save(svr);
 	_finances_manager.Save(svr);
 	_weather.Save(svr);
 	_rides_manager.Save(svr);
@@ -359,6 +358,7 @@ static void SaveElements(Saver &svr)
 	_guests.Save(svr);
 	_staff.Save(svr);
 	_inbox.Save(svr);
+	Random::Save(svr);
 }
 
 /**
