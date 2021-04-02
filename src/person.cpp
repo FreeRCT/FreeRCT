@@ -411,7 +411,7 @@ static const WalkInformation *DecodeWalk(uint16 number)
 }
 
 static const uint32 CURRENT_VERSION_Person = 1;   ///< Currently supported version of %Person.
-static const uint32 CURRENT_VERSION_Guest = 1;    ///< Currently supported version of %Guest.
+static const uint32 CURRENT_VERSION_Guest  = 2;   ///< Currently supported version of %Guest.
 
 /**
  * Load a person from the save game.
@@ -1193,6 +1193,17 @@ Guest::~Guest()
 {
 }
 
+/** Initialize this guest's ride preferences with random values. */
+void Guest::InitRidePreferences()
+{
+	Random r;
+	this->preferred_ride_intensity = r.Uniform(800) + 10;
+	this->min_ride_intensity       = r.Uniform(this->preferred_ride_intensity - 5);
+	this->max_ride_intensity       = r.Uniform(this->min_ride_intensity) + this->preferred_ride_intensity + 5;
+	this->max_ride_nausea          = r.Uniform(this->max_ride_intensity) + this->min_ride_intensity;
+	this->min_ride_excitement      = r.Uniform(this->preferred_ride_intensity);
+}
+
 void Guest::Activate(const Point16 &start, PersonType person_type)
 {
 	this->activity = GA_ENTER_PARK;
@@ -1217,6 +1228,7 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->nausea = 0;
 	this->souvenirs = 0;
 	this->ride = nullptr;
+	this->InitRidePreferences();
 }
 
 void Guest::DeActivate(AnimateResult ar)
@@ -1239,7 +1251,7 @@ void Guest::DeActivate(AnimateResult ar)
 void Guest::Load(Loader &ldr)
 {
 	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_Guest) ldr.version_mismatch("Guest", version, CURRENT_VERSION_Guest);
+	if (version < 1 || version > CURRENT_VERSION_Guest) ldr.version_mismatch("Guest", version, CURRENT_VERSION_Guest);
 	this->Person::Load(ldr);
 
 	this->activity = static_cast<GuestActivity>(ldr.GetByte());
@@ -1264,6 +1276,16 @@ void Guest::Load(Loader &ldr)
 	this->stomach_level = ldr.GetByte();
 	this->waste = ldr.GetByte();
 	this->nausea = ldr.GetByte();
+
+	if (version > 1) {
+		this->preferred_ride_intensity = ldr.GetLong();
+		this->min_ride_intensity = ldr.GetLong();
+		this->max_ride_intensity = ldr.GetLong();
+		this->max_ride_nausea = ldr.GetLong();
+		this->min_ride_excitement = ldr.GetLong();
+	} else {
+		this->InitRidePreferences();
+	}
 
 	if (this->activity == GA_ON_RIDE) this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
 }
@@ -1299,6 +1321,12 @@ void Guest::Save(Saver &svr)
 	svr.PutByte(this->stomach_level);
 	svr.PutByte(this->waste);
 	svr.PutByte(this->nausea);
+
+	svr.PutLong(this->preferred_ride_intensity);
+	svr.PutLong(this->min_ride_intensity);
+	svr.PutLong(this->max_ride_intensity);
+	svr.PutLong(this->max_ride_nausea);
+	svr.PutLong(this->min_ride_excitement);
 }
 
 AnimateResult Guest::OnAnimate(int delay)
