@@ -321,12 +321,12 @@ void FixedRideInstance::OnAnimate(const int delay)
 	}
 }
 
-static const uint32 CURRENT_VERSION = 1;   ///< Currently supported version of %FixedRideInstance.
+static const uint32 CURRENT_VERSION_FixedRideInstance = 1;   ///< Currently supported version of %FixedRideInstance.
 
 void FixedRideInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION) ldr.version_mismatch("FixedRideInstance", version, CURRENT_VERSION);
+	if (version != CURRENT_VERSION_FixedRideInstance) ldr.version_mismatch("FixedRideInstance", version, CURRENT_VERSION_FixedRideInstance);
 	this->RideInstance::Load(ldr);
 
 	this->orientation = ldr.GetByte();
@@ -346,7 +346,7 @@ void FixedRideInstance::Load(Loader &ldr)
 
 void FixedRideInstance::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION);
+	svr.PutLong(CURRENT_VERSION_FixedRideInstance);
 	this->RideInstance::Save(svr);
 
 	svr.PutByte(this->orientation);

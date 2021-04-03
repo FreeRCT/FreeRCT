@@ -166,7 +166,7 @@ void Recolouring::AssignRandomColours()
 	}
 }
 
-static const uint32 CURRENT_VERSION = 1;   ///< Currently supported version of %Recolouring.
+static const uint32 CURRENT_VERSION_Recolouring = 1;   ///< Currently supported version of %Recolouring.
 
 /**
  * Load recolour information.
@@ -175,7 +175,7 @@ static const uint32 CURRENT_VERSION = 1;   ///< Currently supported version of %
 void Recolouring::Load(Loader &ldr)
 {
 	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION) ldr.version_mismatch("Recolouring", version, CURRENT_VERSION);
+	if (version != CURRENT_VERSION_Recolouring) ldr.version_mismatch("Recolouring", version, CURRENT_VERSION_Recolouring);
 
 	assert(MAX_RECOLOUR == 4); // Check that we are compatible with other saves.
 	for (int i = 0; i < MAX_RECOLOUR; i++) {
@@ -190,7 +190,7 @@ void Recolouring::Load(Loader &ldr)
  */
 void Recolouring::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION);
+	svr.PutLong(CURRENT_VERSION_Recolouring);
 	assert(MAX_RECOLOUR == 4); // Check that we are compatible with other saves.
 	for (int i = 0; i < MAX_RECOLOUR; i++) {
 		const RecolourEntry &entry = this->entries[i];

@@ -327,12 +327,12 @@ void PositionedTrackPiece::RemoveFromWorld(const uint16 ride_index) {
 	this->piece->RemoveFromWorld(ride_index, base_voxel);
 }
 
-static const uint32 CURRENT_VERSION = 1;   ///< Currently supported version of %PositionedTrackPiece.
+static const uint32 CURRENT_VERSION_PositionedTrackPiece = 1;   ///< Currently supported version of %PositionedTrackPiece.
 
 void PositionedTrackPiece::Load(Loader &ldr)
 {
 	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION) ldr.version_mismatch("PositionedTrackPiece", version, CURRENT_VERSION);
+	if (version != CURRENT_VERSION_PositionedTrackPiece) ldr.version_mismatch("PositionedTrackPiece", version, CURRENT_VERSION_PositionedTrackPiece);
 
 	uint16 x = ldr.GetWord();
 	uint16 y = ldr.GetWord();
@@ -344,7 +344,7 @@ void PositionedTrackPiece::Load(Loader &ldr)
 
 void PositionedTrackPiece::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION);
+	svr.PutLong(CURRENT_VERSION_PositionedTrackPiece);
 	svr.PutWord(this->base_voxel.x);
 	svr.PutWord(this->base_voxel.y);
 	svr.PutWord(this->base_voxel.z);

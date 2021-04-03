@@ -314,6 +314,8 @@ void Saver::PutText(const uint8 *str, int length)
 	assert(count == 0);
 }
 
+/* When making any changes to saveloading code, don't forget to update the file 'doc/savegame.rst'! */
+
 static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version of the FCTS block.
 
 /**
