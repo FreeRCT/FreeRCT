@@ -20,6 +20,9 @@
 #include "person.h"
 #include "people.h"
 
+/** Whether savegame files should automatically be resaved after loading. */
+bool _automatically_resave_files = false;
+
 /**
  * Constructor.
  * @param fmt Error message (may use printf-style placeholders).
@@ -382,7 +385,7 @@ bool LoadGameFile(const char *fname)
 
 		if (fp != nullptr) {
 			fclose(fp);
-			SaveGameFile(fname);
+			if (_automatically_resave_files) SaveGameFile(fname);
 		}
 		return true;
 	} catch (const std::exception &e) {

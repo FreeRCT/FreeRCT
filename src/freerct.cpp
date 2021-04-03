@@ -45,6 +45,7 @@ static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
 	GETOPT_VALUE('l', "--load"),
 	GETOPT_VALUE('a', "--language"),
+	GETOPT_VALUE('r', "--resave"),
 	GETOPT_END()
 };
 
@@ -55,6 +56,7 @@ static void PrintUsage()
 	printf("Options:\n");
 	printf("  -h, --help           Display this help text and exit.\n");
 	printf("  -l, --load [file]    Load game from specified file.\n");
+	printf("  -r, --resave         Automatically resave games after loading.\n");
 	printf("  -a, --language lang  Use the specified language.\n");
 
 	printf("\nValid languages are:\n   ");
@@ -91,6 +93,9 @@ int freerct_main(int argc, char **argv)
 				return 0;
 			case 'a':
 				preferred_language = StrDup(opt_data.opt);
+				break;
+			case 'r':
+				_automatically_resave_files = true;
 				break;
 			case 'l':
 				if (opt_data.opt != nullptr) {
@@ -130,6 +135,7 @@ int freerct_main(int argc, char **argv)
 	/* Use default values if no font has been set. */
 	if (font_path == nullptr) font_path = "../utils/font/Ubuntu-L.ttf";
 	if (font_size < 1) font_size = 15;
+	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
 
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
 	bool language_set = false;

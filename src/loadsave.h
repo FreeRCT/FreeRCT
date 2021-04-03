@@ -69,4 +69,6 @@ private:
 bool LoadGameFile(const char *fname);
 bool SaveGameFile(const char *fname);
 
+extern bool _automatically_resave_files;
+
 #endif
