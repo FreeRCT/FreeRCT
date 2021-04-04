@@ -146,28 +146,30 @@ void Message::OnClick() const
 	}
 }
 
-static const uint32 CURRENT_VERSION_INBX = 1;     ///< Currently supported version of the INBX block.
-static const uint32 CURRENT_VERSION_Message = 1;  ///< Currently supported version of %Message.
+static const uint32 CURRENT_VERSION_INBX = 1;     ///< Currently supported version of the INBX Pattern.
+static const uint32 CURRENT_VERSION_Message = 1;  ///< Currently supported version of the %Message Pattern.
 
 void Message::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_Message) ldr.version_mismatch("Message", version, CURRENT_VERSION_Message);
+	const uint32 version = ldr.OpenPattern("mssg");
+	if (version != CURRENT_VERSION_Message) ldr.version_mismatch(version, CURRENT_VERSION_Message);
 
 	this->message = ldr.GetWord();
 	this->data1 = ldr.GetLong();
 	this->data2 = ldr.GetLong();
 	this->timestamp = Date(CompressedDate(ldr.GetLong()));
 	this->InitMessageDataTypes();
+	ldr.ClosePattern();
 }
 
 void Message::Save(Saver &svr) const
 {
-	svr.PutLong(CURRENT_VERSION_Message);
+	svr.StartPattern("mssg", CURRENT_VERSION_Message);
 	svr.PutWord(this->message);
 	svr.PutLong(this->data1);
 	svr.PutLong(this->data2);
 	svr.PutLong(this->timestamp.Compress());
+	svr.EndPattern();
 }
 
 /** Reset the inbox to a clean state. */
@@ -254,7 +256,7 @@ void Inbox::NotifyGuestDeletion(const uint16 guest)
 void Inbox::Load(Loader &ldr)
 {
 	this->Clear();
-	const uint32 version = ldr.OpenBlock("INBX");
+	const uint32 version = ldr.OpenPattern("INBX");
 	switch (version) {
 		case 0:
 			break;
@@ -267,19 +269,20 @@ void Inbox::Load(Loader &ldr)
 			break;
 
 		default:
-			ldr.version_mismatch("INBX", version, CURRENT_VERSION_INBX);
+			ldr.version_mismatch(version, CURRENT_VERSION_INBX);
 	}
-	ldr.CloseBlock();
+	ldr.ClosePattern();
 }
 
 void Inbox::Save(Saver &svr) const
 {
-	svr.StartBlock("INBX", CURRENT_VERSION_INBX);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("INBX", CURRENT_VERSION_INBX);
 	svr.PutLong(this->messages.size());
 	for (const auto &m : this->messages) {
 		m->Save(svr);
 	}
-	svr.EndBlock();
+	svr.EndPattern();
 }
 
 Inbox _inbox;

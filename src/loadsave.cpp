@@ -52,37 +52,34 @@ const char* LoadingError::what() const noexcept
  */
 Loader::Loader(FILE *fp)
 {
-	this->blk_name = nullptr;
 	this->fp = fp;
 	this->cache_count = 0;
 }
 
 /**
- * Test whether a block with the given name is being opened.
- * @param name Name of the expected block.
- * @param may_fail Whether it is allowed not to find the expected block.
- * @return Version number of the found block, \c 0 for default initialization, #UINT32_MAX for failing to find the block (only if \a may_fail was set).
- * @note If the block was not found, bytes already read of the block name are pushed back onto the stream.
+ * Test whether a pattern with the given name is being opened.
+ * @param name Name of the expected pattern.
+ * @param may_fail Whether it is allowed not to find the expected pattern.
+ * @return Version number of the found pattern, \c 0 for default initialization, #UINT32_MAX for failing to find the pattern (only if \a may_fail was set).
+ * @note If the pattern was not found, bytes already read of the pattern name are pushed back onto the stream.
  */
-uint32 Loader::OpenBlock(const char *name, bool may_fail)
+uint32 Loader::OpenPattern(const char *name, bool may_fail)
 {
 	assert(strlen(name) == 4);
-
+	this->pattern_names.push_back(name);
 	if (this->fp == nullptr) return 0;
 
-	assert(this->blk_name == nullptr);
-	this->blk_name = name;
 	int i = 0;
 	while (i < 4) {
 		uint8 val = this->GetByte();
-		if (val != this->blk_name[i]) {
+		if (val != name[i]) {
 			this->PutByte(val);
 			while (i > 0) {
 				i--;
-				this->PutByte(this->blk_name[i]);
+				this->PutByte(name[i]);
 			}
 			if (may_fail) return UINT32_MAX;
-			throw LoadingError("Missing block name for %s", name);
+			throw LoadingError("Missing pattern name for %s", name);
 			return 0;
 		}
 		i++;
@@ -96,17 +93,18 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 	return version;
 }
 
-/** Test whether the current block is closed. */
-void Loader::CloseBlock()
+/** Test whether the current pattern is closed. */
+void Loader::ClosePattern()
 {
 	if (this->fp == nullptr) return;
-
-	assert(this->blk_name != nullptr);
-	if (this->GetByte() != this->blk_name[3] || this->GetByte() != this->blk_name[2] ||
-			this->GetByte() != this->blk_name[1] || this->GetByte() != this->blk_name[0]) {
-		throw LoadingError("CloseBlock got unexpected data");
+	assert(!this->pattern_names.empty());
+	const std::string &blk_name = this->pattern_names.back();
+	for (int i = 0; i < blk_name.size(); i++) {
+		if (this->GetByte() != blk_name.at(3 - i)) {
+			throw LoadingError("ClosePattern (%s) got unexpected data", blk_name.c_str());
+		}
 	}
-	this->blk_name = nullptr;
+	this->pattern_names.pop_back();
 }
 
 /**
@@ -199,14 +197,16 @@ uint8 *Loader::GetText()
 }
 
 /**
- * Can be called while loading to notify the %Loader that loading failed because a block has an unsupported version number.
- * @param name Name of the code path where the error occured.
+ * Can be called while loading to notify the %Loader that loading failed
+ * because the current pattern has an unsupported version number.
  * @param saved_version Version in the savegame.
  * @param current_version Most recent currently supported version.
  */
-void Loader::version_mismatch(const char* name, uint saved_version, uint current_version)
+void Loader::version_mismatch(uint saved_version, uint current_version)
 {
-	throw LoadingError("Version mismatch in %s block: Saved version is %u, supported version is %u", name, saved_version, current_version);
+	assert(!this->pattern_names.empty());
+	throw LoadingError("Version mismatch in %s pattern: Saved version is %u, supported version is %u",
+			this->pattern_names.back().c_str(), saved_version, current_version);
 }
 
 /**
@@ -216,30 +216,38 @@ void Loader::version_mismatch(const char* name, uint saved_version, uint current
 Saver::Saver(FILE *fp)
 {
 	this->fp = fp;
-	this->blk_name = nullptr;
+}
+
+/** Checks that no patterns are currently open. */
+void Saver::CheckNoOpenPattern() const
+{
+	if (!this->pattern_names.empty()) {
+		throw LoadingError("Saver still has %d open pattern(s) (last is %s)",
+				static_cast<int>(this->pattern_names.size()), this->pattern_names.back().c_str());
+	}
 }
 
 /**
- * Write the start of a block to the output.
- * @param name Name of the block to write.
- * @param version Version number of the block.
+ * Write the start of a pattern to the output.
+ * @param name Name of the pattern to write.
+ * @param version Version number of the pattern.
  */
-void Saver::StartBlock(const char *name, uint32 version)
+void Saver::StartPattern(const char *name, uint32 version)
 {
 	assert(strlen(name) == 4);
-	assert(this->blk_name == nullptr);
-	this->blk_name = name;
-	for (int i = 0; i < 4; i++) this->PutByte(name[i]);
 	assert(version != 0 && version != UINT32_MAX);
+	for (int i = 0; i < 4; i++) this->PutByte(name[i]);
 	this->PutLong(version);
+	this->pattern_names.push_back(name);
 }
 
-/** Write the end of the block to the output. */
-void Saver::EndBlock()
+/** Write the end of the pattern to the output. */
+void Saver::EndPattern()
 {
-	assert(this->blk_name != nullptr);
-	for (int i = 3; i >= 0; i--) this->PutByte(this->blk_name[i]);
-	this->blk_name = nullptr;
+	assert(!this->pattern_names.empty());
+	const char *blk_name = this->pattern_names.back().c_str();
+	for (int i = 3; i >= 0; i--) this->PutByte(blk_name[i]);
+	this->pattern_names.pop_back();
 }
 
 /**
@@ -319,7 +327,7 @@ void Saver::PutText(const uint8 *str, int length)
 
 /* When making any changes to saveloading code, don't forget to update the file 'doc/savegame.rst'! */
 
-static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version of the FCTS block.
+static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version of the FCTS pattern.
 
 /**
  * Load the game elements from the input stream.
@@ -328,9 +336,9 @@ static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version
  */
 static void LoadElements(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("FCTS");
-	if (version != 0 && version != CURRENT_VERSION_FCTS) ldr.version_mismatch("FCTS", version, CURRENT_VERSION_FCTS);
-	ldr.CloseBlock();
+	uint32 version = ldr.OpenPattern("FCTS");
+	if (version != 0 && version != CURRENT_VERSION_FCTS) ldr.version_mismatch(version, CURRENT_VERSION_FCTS);
+	ldr.ClosePattern();
 
 	LoadDate(ldr);
 	_world.Load(ldr);
@@ -351,8 +359,8 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", CURRENT_VERSION_FCTS);
-	svr.EndBlock();
+	svr.StartPattern("FCTS", CURRENT_VERSION_FCTS);
+	svr.EndPattern();
 
 	SaveDate(svr);
 	_world.Save(svr);
@@ -364,6 +372,8 @@ static void SaveElements(Saver &svr)
 	_staff.Save(svr);
 	_inbox.Save(svr);
 	Random::Save(svr);
+
+	svr.CheckNoOpenPattern();
 }
 
 /**

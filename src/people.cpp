@@ -96,7 +96,7 @@ void Guests::Uninitialize()
 	this->next_daily_index = 0;
 }
 
-static const uint32 CURRENT_VERSION_GSTS = 1;   ///< Currently supported version of the GSTS block.
+static const uint32 CURRENT_VERSION_GSTS = 1;   ///< Currently supported version of the GSTS Pattern.
 
 /**
  * Load guests from the save game.
@@ -104,7 +104,7 @@ static const uint32 CURRENT_VERSION_GSTS = 1;   ///< Currently supported version
  */
 void Guests::Load(Loader &ldr)
 {
-	const uint32 version = ldr.OpenBlock("GSTS");
+	const uint32 version = ldr.OpenPattern("GSTS");
 	switch (version) {
 		case 0:
 			break;
@@ -121,9 +121,9 @@ void Guests::Load(Loader &ldr)
 			break;
 
 		default:
-			ldr.version_mismatch("GSTS", version, CURRENT_VERSION_GSTS);
+			ldr.version_mismatch(version, CURRENT_VERSION_GSTS);
 	}
-	ldr.CloseBlock();
+	ldr.ClosePattern();
 }
 
 /**
@@ -132,7 +132,8 @@ void Guests::Load(Loader &ldr)
  */
 void Guests::Save(Saver &svr)
 {
-	svr.StartBlock("GSTS", CURRENT_VERSION_GSTS);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("GSTS", CURRENT_VERSION_GSTS);
 	svr.PutWord(this->start_voxel.x);
 	svr.PutWord(this->start_voxel.y);
 	svr.PutWord(this->daily_frac);
@@ -146,7 +147,7 @@ void Guests::Save(Saver &svr)
 			g->Save(svr);
 		}
 	}
-	svr.EndBlock();
+	svr.EndPattern();
 }
 
 /**
@@ -327,7 +328,7 @@ void Staff::Uninitialize()
 	this->mechanic_requests.clear();
 }
 
-static const uint32 CURRENT_VERSION_STAF = 1;   ///< Currently supported version of the STAF block.
+static const uint32 CURRENT_VERSION_STAF = 1;   ///< Currently supported version of the STAF Pattern.
 
 /**
  * Load staff from the save game.
@@ -335,7 +336,7 @@ static const uint32 CURRENT_VERSION_STAF = 1;   ///< Currently supported version
  */
 void Staff::Load(Loader &ldr)
 {
-	const uint32 version = ldr.OpenBlock("STAF");
+	const uint32 version = ldr.OpenPattern("STAF");
 	switch (version) {
 		case 0:
 			break;
@@ -345,9 +346,9 @@ void Staff::Load(Loader &ldr)
 			}
 			break;
 		default:
-			ldr.version_mismatch("STAF", version, CURRENT_VERSION_STAF);
+			ldr.version_mismatch(version, CURRENT_VERSION_STAF);
 	}
-	ldr.CloseBlock();
+	ldr.ClosePattern();
 }
 
 /**
@@ -356,10 +357,11 @@ void Staff::Load(Loader &ldr)
  */
 void Staff::Save(Saver &svr)
 {
-	svr.StartBlock("STAF", CURRENT_VERSION_STAF);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("STAF", CURRENT_VERSION_STAF);
 	svr.PutLong(this->mechanic_requests.size());
 	for (RideInstance *ride : this->mechanic_requests) svr.PutWord(ride->GetIndex());
-	svr.EndBlock();
+	svr.EndPattern();
 }
 
 /**

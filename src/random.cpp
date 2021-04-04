@@ -82,16 +82,19 @@ uint32 Random::DrawNumber()
 	return seed;
 }
 
+static const uint32 CURRENT_VERSION_RAND = 1;   ///< Currently supported version of the RAND pattern.
+
 /**
  * Load random number for the game.
  * @param ldr Source of the data.
  */
 void Random::Load(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("RAND");
+	const uint32 version = ldr.OpenPattern("RAND");
 	/* Do nothing if version == 0, as any number in seed is fine. */
-	if (version == 1) Random::seed = ldr.GetLong();
-	ldr.CloseBlock();
+	if (version > CURRENT_VERSION_RAND) ldr.version_mismatch(version, CURRENT_VERSION_RAND);
+	if (version > 0) Random::seed = ldr.GetLong();
+	ldr.ClosePattern();
 }
 
 /**
@@ -100,7 +103,8 @@ void Random::Load(Loader &ldr)
  */
 void Random::Save(Saver &svr)
 {
-	svr.StartBlock("RAND", 1);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("RAND", CURRENT_VERSION_RAND);
 	svr.PutLong(Random::seed);
-	svr.EndBlock();
+	svr.EndPattern();
 }

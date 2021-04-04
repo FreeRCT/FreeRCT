@@ -331,8 +331,8 @@ static const uint32 CURRENT_VERSION_PositionedTrackPiece = 1;   ///< Currently s
 
 void PositionedTrackPiece::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_PositionedTrackPiece) ldr.version_mismatch("PositionedTrackPiece", version, CURRENT_VERSION_PositionedTrackPiece);
+	const uint32 version = ldr.OpenPattern("pstp");
+	if (version != CURRENT_VERSION_PositionedTrackPiece) ldr.version_mismatch(version, CURRENT_VERSION_PositionedTrackPiece);
 
 	uint16 x = ldr.GetWord();
 	uint16 y = ldr.GetWord();
@@ -340,13 +340,15 @@ void PositionedTrackPiece::Load(Loader &ldr)
 
 	this->base_voxel = XYZPoint16(x, y, z);
 	this->distance_base = ldr.GetLong();
+	ldr.ClosePattern();
 }
 
 void PositionedTrackPiece::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION_PositionedTrackPiece);
+	svr.StartPattern("pstp", CURRENT_VERSION_PositionedTrackPiece);
 	svr.PutWord(this->base_voxel.x);
 	svr.PutWord(this->base_voxel.y);
 	svr.PutWord(this->base_voxel.z);
 	svr.PutLong(this->distance_base);
+	svr.EndPattern();
 }

@@ -10,6 +10,8 @@
 #ifndef LOADSAVE_H
 #define LOADSAVE_H
 
+#include <vector>
+
 /** An error that occurs while loading a savegame. */
 struct LoadingError : public std::exception {
 	explicit LoadingError(const char *fmt, ...);
@@ -25,8 +27,8 @@ class Loader {
 public:
 	Loader(FILE *fp);
 
-	uint32 OpenBlock(const char *name, bool may_fail = false);
-	void CloseBlock();
+	uint32 OpenPattern(const char *name, bool may_fail = false);
+	void ClosePattern();
 
 	uint8 GetByte();
 	uint16 GetWord();
@@ -34,13 +36,13 @@ public:
 	uint64 GetLongLong();
 	uint8 *GetText();
 
-	void version_mismatch(const char* name, uint saved_version, uint current_version);
+	void version_mismatch(uint saved_version, uint current_version);
 
 private:
 	void PutByte(uint8 val);
 
 	const char *fail_msg; ///< If not \c nullptr, message of failure.
-	const char *blk_name; ///< Name of the current block.
+	std::vector<std::string> pattern_names; ///< Stack of the currently loaded pattern.
 
 	FILE *fp;             ///< Data stream being loaded.
 	int cache_count;      ///< Number of values in #cache.
@@ -52,8 +54,8 @@ class Saver {
 public:
 	Saver(FILE *fp);
 
-	void StartBlock(const char *name, uint32 version);
-	void EndBlock();
+	void StartPattern(const char *name, uint32 version);
+	void EndPattern();
 
 	void PutByte(uint8 val);
 	void PutWord(uint16 val);
@@ -61,9 +63,11 @@ public:
 	void PutLongLong(uint64 val);
 	void PutText(const uint8 *str, int length = -1);
 
+	void CheckNoOpenPattern() const;
+
 private:
 	FILE *fp; ///< Output file stream.
-	const char *blk_name; ///< Name of the current block.
+	std::vector<std::string> pattern_names; ///< Stack of the current pattern names.
 };
 
 bool LoadGameFile(const char *fname);

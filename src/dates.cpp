@@ -160,7 +160,7 @@ void DateOnTick()
 	if (newyear)  OnNewYear();
 }
 
-static const uint32 CURRENT_VERSION_DATE = 1;   ///< Currently supported version of the DATE block.
+static const uint32 CURRENT_VERSION_DATE = 1;   ///< Currently supported version of the DATE Pattern.
 
 /**
  * Load the current date from the save game.
@@ -168,7 +168,7 @@ static const uint32 CURRENT_VERSION_DATE = 1;   ///< Currently supported version
  */
 void LoadDate(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("DATE");
+	uint32 version = ldr.OpenPattern("DATE");
 	switch (version) {
 		case 0:
 			_date = Date();
@@ -177,9 +177,9 @@ void LoadDate(Loader &ldr)
 			_date = Date(ldr.GetLong());
 			break;
 		default:
-			ldr.version_mismatch("DATE", version, CURRENT_VERSION_DATE);
+			ldr.version_mismatch(version, CURRENT_VERSION_DATE);
 	}
-	ldr.CloseBlock();
+	ldr.ClosePattern();
 }
 
 /**
@@ -188,7 +188,8 @@ void LoadDate(Loader &ldr)
  */
 void SaveDate(Saver &svr)
 {
-	svr.StartBlock("DATE", CURRENT_VERSION_DATE);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("DATE", CURRENT_VERSION_DATE);
 	svr.PutLong(_date.Compress());
-	svr.EndBlock();
+	svr.EndPattern();
 }

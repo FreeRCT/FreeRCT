@@ -419,8 +419,8 @@ static const uint32 CURRENT_VERSION_Guest  = 2;   ///< Currently supported versi
  */
 void Person::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_Person) ldr.version_mismatch("Person", version, CURRENT_VERSION_Person);
+	const uint32 version = ldr.OpenPattern("prsn");
+	if (version != CURRENT_VERSION_Person) ldr.version_mismatch(version, CURRENT_VERSION_Person);
 	this->VoxelObject::Load(ldr);
 
 	this->type = (PersonType)ldr.GetByte();
@@ -443,6 +443,7 @@ void Person::Load(Loader &ldr)
 
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	this->MarkDirty();
+	ldr.ClosePattern();
 }
 
 /**
@@ -451,7 +452,7 @@ void Person::Load(Loader &ldr)
  */
 void Person::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION_Person);
+	svr.StartPattern("prsn", CURRENT_VERSION_Person);
 	this->VoxelObject::Save(svr);
 
 	svr.PutByte(this->type);
@@ -463,6 +464,7 @@ void Person::Save(Saver &svr)
 	svr.PutWord(EncodeWalk(this->walk));
 	svr.PutWord(this->frame_index);
 	svr.PutWord((uint16)this->frame_time);
+	svr.EndPattern();
 }
 
 /**
@@ -1250,8 +1252,8 @@ void Guest::DeActivate(AnimateResult ar)
  */
 void Guest::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version < 1 || version > CURRENT_VERSION_Guest) ldr.version_mismatch("Guest", version, CURRENT_VERSION_Guest);
+	const uint32 version = ldr.OpenPattern("gues");
+	if (version < 1 || version > CURRENT_VERSION_Guest) ldr.version_mismatch(version, CURRENT_VERSION_Guest);
 	this->Person::Load(ldr);
 
 	this->activity = static_cast<GuestActivity>(ldr.GetByte());
@@ -1288,6 +1290,7 @@ void Guest::Load(Loader &ldr)
 	}
 
 	if (this->activity == GA_ON_RIDE) this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	ldr.ClosePattern();
 }
 
 /**
@@ -1296,7 +1299,7 @@ void Guest::Load(Loader &ldr)
  */
 void Guest::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION_Guest);
+	svr.StartPattern("gues", CURRENT_VERSION_Guest);
 	this->Person::Save(svr);
 
 	svr.PutByte(this->activity);
@@ -1327,6 +1330,7 @@ void Guest::Save(Saver &svr)
 	svr.PutLong(this->max_ride_intensity);
 	svr.PutLong(this->max_ride_nausea);
 	svr.PutLong(this->min_ride_excitement);
+	svr.EndPattern();
 }
 
 AnimateResult Guest::OnAnimate(int delay)

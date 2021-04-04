@@ -61,40 +61,37 @@ Money Finances::GetTotal() const
 	return income + expenses; // Expenses are already negative.
 }
 
-static const uint32 CURRENT_VERSION_FINA = 1;   ///< Currently supported version of the FINA block.
+static const uint32 CURRENT_VERSION_FINA     = 1;   ///< Currently supported version of the FINA Pattern.
+static const uint32 CURRENT_VERSION_Finances = 1;   ///< Currently supported version of the finances Pattern.
 
 /**
  * Load all monies of one month.
  * @param ldr Input stream to load from.
- * @param version Version of the data to load.
  */
-void Finances::Load(Loader &ldr, uint32 version)
+void Finances::Load(Loader &ldr)
 {
-	switch (version) {
-		case 0: // Reset to default.
-			this->Reset();
-			break;
-
-		case 1:
-			ride_construct = ldr.GetLongLong();
-			ride_running   = ldr.GetLongLong();
-			land_purchase  = ldr.GetLongLong();
-			landscaping    = ldr.GetLongLong();
-			park_tickets   = ldr.GetLongLong();
-			ride_tickets   = ldr.GetLongLong();
-			shop_sales     = ldr.GetLongLong();
-			shop_stock     = ldr.GetLongLong();
-			food_sales     = ldr.GetLongLong();
-			food_stock     = ldr.GetLongLong();
-			staff_wages    = ldr.GetLongLong();
-			marketing      = ldr.GetLongLong();
-			research       = ldr.GetLongLong();
-			loan_interest  = ldr.GetLongLong();
-			break;
-
-		default: // Unknown version.
-			ldr.version_mismatch("FINA", version, CURRENT_VERSION_FINA);
+	const uint32 version = ldr.OpenPattern("fina");
+	if (version == 0) {
+		this->Reset();
+	} else if (version == CURRENT_VERSION_Finances) {
+		ride_construct = ldr.GetLongLong();
+		ride_running   = ldr.GetLongLong();
+		land_purchase  = ldr.GetLongLong();
+		landscaping    = ldr.GetLongLong();
+		park_tickets   = ldr.GetLongLong();
+		ride_tickets   = ldr.GetLongLong();
+		shop_sales     = ldr.GetLongLong();
+		shop_stock     = ldr.GetLongLong();
+		food_sales     = ldr.GetLongLong();
+		food_stock     = ldr.GetLongLong();
+		staff_wages    = ldr.GetLongLong();
+		marketing      = ldr.GetLongLong();
+		research       = ldr.GetLongLong();
+		loan_interest  = ldr.GetLongLong();
+	} else {
+		ldr.version_mismatch(version, CURRENT_VERSION_Finances);
 	}
+	ldr.ClosePattern();
 }
 
 /**
@@ -103,6 +100,7 @@ void Finances::Load(Loader &ldr, uint32 version)
  */
 void Finances::Save(Saver &svr)
 {
+	svr.StartPattern("fina", CURRENT_VERSION_Finances);
 	svr.PutLongLong((uint64)ride_construct);
 	svr.PutLongLong((uint64)ride_running);
 	svr.PutLongLong((uint64)land_purchase);
@@ -117,6 +115,7 @@ void Finances::Save(Saver &svr)
 	svr.PutLongLong((uint64)marketing);
 	svr.PutLongLong((uint64)research);
 	svr.PutLongLong((uint64)loan_interest);
+	svr.EndPattern();
 }
 
 /** Default constructor. */
@@ -198,7 +197,7 @@ void FinancesManager::Load(Loader &ldr)
 {
 	this->Reset(); // version == 0 already handled.
 
-	uint32 version = ldr.OpenBlock("FINA");
+	uint32 version = ldr.OpenPattern("FINA");
 	switch (version) {
 		case 0:
 			break;
@@ -206,13 +205,13 @@ void FinancesManager::Load(Loader &ldr)
 			this->num_used = ldr.GetByte();
 			this->current = ldr.GetByte();
 			this->cash = ldr.GetLongLong();
-			for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr, version);
+			for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr);
 			break;
 
 		default:
-			ldr.version_mismatch("FINA", version, CURRENT_VERSION_FINA);
+			ldr.version_mismatch(version, CURRENT_VERSION_FINA);
 	}
-	ldr.CloseBlock();
+	ldr.ClosePattern();
 	this->NotifyGui();
 }
 
@@ -222,10 +221,11 @@ void FinancesManager::Load(Loader &ldr)
  */
 void FinancesManager::Save(Saver &svr)
 {
-	svr.StartBlock("FINA", 1);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("FINA", CURRENT_VERSION_FINA);
 	svr.PutByte(this->num_used);
 	svr.PutByte(this->current);
 	svr.PutLongLong(this->cash);
 	for (int i = 0; i < this->num_used; i++) this->finances[i].Save(svr);
-	svr.EndBlock();
+	svr.EndPattern();
 }

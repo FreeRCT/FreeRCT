@@ -45,7 +45,7 @@ static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
 	GETOPT_VALUE('l', "--load"),
 	GETOPT_VALUE('a', "--language"),
-	GETOPT_VALUE('r', "--resave"),
+	GETOPT_NOVAL('r', "--resave"),
 	GETOPT_END()
 };
 

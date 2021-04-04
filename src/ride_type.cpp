@@ -619,8 +619,8 @@ static const uint32 CURRENT_VERSION_RideInstance = 1;   ///< Currently supported
 
 void RideInstance::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_RideInstance) ldr.version_mismatch("RideInstance", version, CURRENT_VERSION_RideInstance);
+	const uint32 version = ldr.OpenPattern("ride");
+	if (version != CURRENT_VERSION_RideInstance) ldr.version_mismatch(version, CURRENT_VERSION_RideInstance);
 
 	this->name.reset(ldr.GetText());
 
@@ -646,11 +646,12 @@ void RideInstance::Load(Loader &ldr)
 	this->excitement_rating = ldr.GetLong();
 	this->intensity_rating = ldr.GetLong();
 	this->nausea_rating = ldr.GetLong();
+	ldr.ClosePattern();
 }
 
 void RideInstance::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION_RideInstance);
+	svr.StartPattern("ride", CURRENT_VERSION_RideInstance);
 
 	svr.PutText(this->name.get());
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
@@ -673,6 +674,7 @@ void RideInstance::Save(Saver &svr)
 	svr.PutLong(this->excitement_rating);
 	svr.PutLong(this->intensity_rating);
 	svr.PutLong(this->nausea_rating);
+	svr.EndPattern();
 }
 
 /** Default constructor of the rides manager. */
@@ -722,11 +724,11 @@ void RidesManager::OnNewDay()
 	}
 }
 
-static const uint32 CURRENT_VERSION_RIDS = 1;   ///< Currently supported version of the RIDS block.
+static const uint32 CURRENT_VERSION_RIDS = 1;   ///< Currently supported version of the RIDS Pattern.
 
 void RidesManager::Load(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("RIDS");
+	uint32 version = ldr.OpenPattern("RIDS");
 	if (version == 1) {
 		uint16 allocated_ride_count = ldr.GetWord();
 		for (uint16 i = 0; i < allocated_ride_count; i++) {
@@ -763,14 +765,15 @@ void RidesManager::Load(Loader &ldr)
 			this->instances[i]->Load(ldr);
 		}
 	} else if (version != 0) {
-		ldr.version_mismatch("RIDS", version, CURRENT_VERSION_RIDS);
+		ldr.version_mismatch(version, CURRENT_VERSION_RIDS);
 	}
-	ldr.CloseBlock();
+	ldr.ClosePattern();
 }
 
 void RidesManager::Save(Saver &svr)
 {
-	svr.StartBlock("RIDS", CURRENT_VERSION_RIDS);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("RIDS", CURRENT_VERSION_RIDS);
 	int count = 0;
 	uint16 allocated_ride_indexes[MAX_NUMBER_OF_RIDE_INSTANCES];
 	for (uint16 i = 0; i < lengthof(this->instances); i++) {
@@ -785,7 +788,7 @@ void RidesManager::Save(Saver &svr)
 		svr.PutText(_language.GetText(r->GetRideType()->GetString(r->GetRideType()->GetTypeName())));
 		r->Save(svr);
 	}
-	svr.EndBlock();
+	svr.EndPattern();
 }
 
 /**

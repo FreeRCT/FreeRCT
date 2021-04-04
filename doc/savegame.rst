@@ -34,26 +34,25 @@ This file documents the file format used by FreeRCT for saving games.
 The file starts with a file header to identify the file as being a save game.
 After the file header come data patterns of game elements that are stored.
 
-All data in the file is organized in **patterns**. Each pattern starts by
-specifying a version number followed by the pattern's data layout as
-detailed below. A pattern can contain other nested patterns. A pattern
-which is not nested in any other pattern is called a **block**.
+All data in the file is organized in **patterns**. Each pattern starts with a
+magic string (4 bytes) and a version number (4 bytes), followed by the pattern's
+data layout as detailed below. A pattern can contain other nested patterns. A
+pattern which is not nested in any other pattern is called a **block**.
 
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       ?     10-     File header
-   ?       ?     10-     Current date block.
-   ?       ?     10-     Current basic world block.
-   ?       ?     10-     Current financial data.
-   ?       ?     10-     Current weather block.
-   ?       ?     10-     Rides block.
-   ?       ?     10-     Scenery block.
-   ?       ?     10-     Guests block.
-   ?       ?     10-     Staff block.
-   ?       ?     10-     Inbox block.
-   ?       ?     10-     Current random number block.
-   ?                     Total length of the save file.
+   0       ?     10-     `File header`_.
+   ?       ?     10-     Current date_ block.
+   ?       ?     10-     Current basic world_ block.
+   ?       ?     10-     Current finances_ block.
+   ?       ?     10-     Current weather_ block.
+   ?       ?     10-     Rides_ block.
+   ?       ?     10-     Scenery_ block.
+   ?       ?     10-     Guests_ block.
+   ?       ?     10-     Staff_ block.
+   ?       ?     10-     Inbox_ block.
+   ?       ?     10-     Current random_ number block.
 ======  ======  =======  ======================================================
 
 
@@ -70,7 +69,6 @@ Offset  Length  Description
    0       4    "FCTS".
    4       4    Version number of the file.
    8       4    "STCF"
-  12            Total size.
 ======  ======  ======================================================
 
 Version history
@@ -84,6 +82,38 @@ Nested patterns
 ---------------
 Miscellaneous data layouts which are reused in multiple places.
 
+Finance history
+~~~~~~~~~~~~~~~
+A single section in the finance manager history.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "fina".
+   4       4      1-     Version number.
+   8       8      1-     Construction costs of rides.
+  16       8      1-     Running cost of rides.
+  24       8      1-     Land purchase costs.
+  32       8      1-     Landscaping costs.
+  40       8      1-     Income from entrance tickets.
+  48       8      1-     Income from ride tickets.
+  56       8      1-     Income from non-food shop sales.
+  64       8      1-     Stock costs from non-food shops.
+  72       8      1-     Income from food shop sales.
+  80       8      1-     Stock costs from food shops.
+  88       8      1-     Wages of staff payments.
+  96       8      1-     Marketing costs.
+ 104       8      1-     Research costs.
+ 112       8      1-     Loan interest.
+ 116       4      1-     "anif".
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- 1 (20210402) Initial version.
+
+
 Voxel object
 ~~~~~~~~~~~~
 Basic information for a moveable object.
@@ -91,11 +121,12 @@ Basic information for a moveable object.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       4      1-     Merged x coordinate.
-   8       4      1-     Merged y coordinate.
-  12       4      1-     Merged z coordinate.
-  16                     Total size.
+   0       4      1-     "vxoj".
+   4       4      1-     Version number.
+   8       4      1-     Merged x coordinate.
+  12       4      1-     Merged y coordinate.
+  16       4      1-     Merged z coordinate.
+  20       4      1-     "joxv".
 ======  ======  =======  ======================================================
 
 Version history
@@ -111,16 +142,17 @@ Basic information for a person.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       ?      1-     Voxel object data.
+   0       4      1-     "prsn".
+   4       4      1-     Version number.
+   8       ?      1-     `Voxel object`_ data.
    ?       1      1-     Person type.
    ?       2      1-     Offset with respect to center of path/tile.
    ?       ?      1-     Name characters.
-   ?       ?      1-     Recolour information.
+   ?       ?      1-     Recolouring_ information.
    ?       2      1-     Current walk information (animation), in compressed format.
    ?       2      1-     Current displayed frame of the animation.
    ?       2      1-     Remaining displayed time of the current frame.
-   ?                     Total size.
+   ?       4      1-     "nsrp".
 ======  ======  =======  ======================================================
 
 Version history
@@ -136,8 +168,9 @@ A single guest.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   ?       ?      1-     Person data.
+   0       4      1-     "gues".
+   4       4      1-     Version number.
+   ?       ?      1-     Person_ data.
    ?       1      1-     Current activity.
    ?       2      1-     Current happiness.
    ?       2      1-     Sum of happiness for calculations once guest goes home.
@@ -162,7 +195,7 @@ Offset  Length  Version  Description
    ?       4      2-     Maximum ride intensity.
    ?       4      2-     Maximum ride nausea.
    ?       4      2-     Minimum ride excitement.
-                         Total size.
+   ?       4      1-     "seug".
 ======  ======  =======  ======================================================
 
 Version history
@@ -179,14 +212,15 @@ Basic information for a single ride instance.
 ======  ======  =======  ===========================================================
 Offset  Length  Version  Description
 ======  ======  =======  ===========================================================
-   0       4      1-     Version number.
-   4       ?      1-     Ride name characters.
+   0       4      1-     "ride".
+   4       4      1-     Version number.
+   8       ?      1-     Ride name characters.
    ?       2      1-     Ride state and flags.
    ?       2      1-     Ride entrance type ID.
    ?       2      1-     Ride exit type ID.
-   ?       ?      1-     Ride recolour information.
-   ?       ?      1-     Entrance recolour information.
-   ?       ?      1-     Exit recolour information.
+   ?       ?      1-     Ride recolouring_ information.
+   ?       ?      1-     Entrance recolouring_ information.
+   ?       ?      1-     Exit recolouring_ information.
    ?       ?      1-     Every sold item's price (8 byte each).
    ?       ?      1-     Every sold item's count (8 byte each).
    ?       8      1-     Total profit of the ride.
@@ -201,7 +235,7 @@ Offset  Length  Version  Description
    ?       4      1-     Excitement rating.
    ?       4      1-     Intensity rating.
    ?       4      1-     Nausea rating.
-                         Total size.
+   ?       4      1-     "edir".
 ======  ======  =======  ===========================================================
 
 Version history
@@ -217,12 +251,13 @@ One piece of a coaster car.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       ?      1-     Voxel object data.
+   0       4      1-     "dpcc".
+   4       4      1-     Version number.
+   8       ?      1-     `Voxel object`_ data.
    ?       1      1-     Current car pitch.
    ?       1      1-     Current car roll.
    ?       1      1-     Current car yaw.
-                         Total size.
+   ?       4      1-     "ccpd".
 ======  ======  =======  ======================================================
 
 Version history
@@ -238,12 +273,13 @@ One car of a coaster train.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       ?      1-     The front Display Coaster Car.
+   0       4      1-     "cstc".
+   4       4      1-     Version number.
+   8       ?      1-     The front Display Coaster Car.
    ?       ?      1-     The back Display Coaster Car.
    ?       4      1-     Number of guests in the car.
    ?      4*?     1-     The ID of every guest in the car.
-                         Total size.
+   ?       4      1-     "ctsc".
 ======  ======  =======  ======================================================
 
 Version history
@@ -259,14 +295,15 @@ One train of a coaster.
 ======  ======  =======  ========================================================
 Offset  Length  Version  Description
 ======  ======  =======  ========================================================
-   0       4      1-     Version number.
-   4       ?      1-     The data of every car in the train.
+   0       4      1-     "cstt".
+   4       4      1-     Version number.
+   8       ?      1-     The data of every car in the train.
                          The number of cars is stored in the coaster instance.
    ?       4      1-     The train's position along the track.
    ?       4      1-     The current speed.
    ?       1      1-     The train's current station policy.
    ?       4      1-     The number of milliseconds left to wait in the station.
-                         Total size.
+   ?       4      1-     "ttsc".
 ======  ======  =======  ========================================================
 
 Version history
@@ -275,9 +312,12 @@ Version history
 - 1 (20210402) Initial version.
 
 
-Coaster stations
-~~~~~~~~~~~~~~~~
+Coaster station
+~~~~~~~~~~~~~~~
 One station of a coaster.
+
+This data layout is not a pattern in itself, but rather embedded in the Coaster Instance pattern.
+It uses the Coaster Instance pattern's version number.
 
 ======  ======  ========================  ============================================================
 Offset  Length  Coaster Instance Version  Description
@@ -293,7 +333,6 @@ Offset  Length  Coaster Instance Version  Description
   17       4      1-                      Station start position.
   21       4      1-                      Number of voxels occupied by the station.
   25       ?      1-                      For each voxel: The x, y, and z coordinate (2 bytes each).
-   ?                                      Total size.
 ======  ======  ========================  ============================================================
 
 Version history
@@ -306,6 +345,9 @@ Coaster intensity statistics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A single coaster intensity statistics data point.
 
+This data layout is not a pattern in itself, but rather embedded in the Coaster Instance pattern.
+It uses the Coaster Instance pattern's version number.
+
 ======  ======  ========================  ======================================================
 Offset  Length  Coaster Instance Version  Description
 ======  ======  ========================  ======================================================
@@ -315,7 +357,6 @@ Offset  Length  Coaster Instance Version  Description
    9       4      1-                      Average train speed.
   13       4      1-                      Average vertical G force.
   17       4      1-                      Average horizontal G force.
-  21                                      Total size.
 ======  ======  ========================  ======================================================
 
 Version history
@@ -331,9 +372,10 @@ A coaster instance.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       ?      1-     Ride instance data.
-   0       4      1-     Number of positioned track pieces.
+   0       4      1-     "csti".
+   4       4      1-     Version number.
+   8       ?      1-     `Ride instance`_ data.
+   ?       4      1-     Number of positioned track pieces.
    ?       4      1-     Total length of the roller coaster (in 1/256 pixels).
    ?       2      1-     Number of placed track pieces.
    ?       ?      1-     Contents of "number" placed track pieces.
@@ -343,10 +385,10 @@ Offset  Length  Version  Description
    ?       4      1-     Maximum idle duration in milliseconds.
    ?       4      1-     Minimum idle duration in milliseconds.
    ?       4      1-     Number of stations.
-   ?       ?      1-     Each station's data.
+   ?       ?      1-     Each station's `coaster station`_ data.
    ?       4      1-     Number of intensity statistics data points.
-   ?       ?      1-     Each intensity statistics data point.
-                         Total size.
+   ?       ?      1-     Each `coaster intensity statistics`_ data point.
+   ?       4      1-     "itsc".
 ======  ======  =======  ======================================================
 
 Version history
@@ -362,8 +404,9 @@ Basic information for a single fixed ride instance.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       ?      1-     Ride instance data.
+   0       4      1-     "fxri".
+   4       4      1-     Version number.
+   8       ?      1-     `Ride instance`_ data.
    ?       1      1-     Ride orientation.
    ?       2      1-     X coordinate of the ride base position.
    ?       2      1-     Y coordinate of the ride base position.
@@ -373,8 +416,8 @@ Offset  Length  Version  Description
    ?       4      1-     Maximum idle duration.
    ?       4      1-     Time left in the current working phase.
    ?       1      1-     1 if the ride is working; otherwise 0.
-   ?       ?      1-     Onride guests data.
-                         Total size.
+   ?       ?      1-     `Onride guests`_ data.
+   ?       4      1-     "irxf".
 ======  ======  =======  ======================================================
 
 Version history
@@ -390,11 +433,12 @@ Holds data about all the guests on a ride.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       2      1-     The size of a batch.
-   6       2      1-     The number of batches.
-   8       ?      1-     Every batch's onride guests batch data.
-   ?                     Total size.
+   0       4      1-     "onrg".
+   4       4      1-     Version number.
+   8       2      1-     The size of a batch.
+  10       2      1-     The number of batches.
+  12       ?      1-     Every batch's `onride guests batch`_ data.
+   ?       4      1-     "grno".
 ======  ======  =======  ======================================================
 
 Version history
@@ -410,12 +454,13 @@ Holds data about one batch of guests on a ride.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       1      1-     The batch's state.
-   5       4      1-     The remaining running time.
-   9       2      1-     The batch's entry information.
-  11       ?      1-     The onride guests data for each guest.
-   ?                     Total size.
+   0       4      1-     "gstb".
+   4       4      1-     Version number.
+   8       1      1-     The batch's state.
+   9       4      1-     The remaining running time.
+  13       2      1-     The batch's entry information.
+  15       ?      1-     The `onride guests data`_ for each guest.
+   ?       4      1-     "btsg".
 ======  ======  =======  ======================================================
 
 Version history
@@ -431,10 +476,11 @@ Holds data about one individual guest on a ride.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       4      1-     The guest's ID.
-   8       1      1-     The guest's entry information.
-   9                     Total size.
+   0       4      1-     "gstd".
+   4       4      1-     Version number.
+   8       4      1-     The guest's ID.
+  12       1      1-     The guest's entry information.
+  13       4      1-     "dtsg".
 ======  ======  =======  ======================================================
 
 Version history
@@ -450,9 +496,10 @@ Information for a single shop instance.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       ?      1-     The fixes ride instance data.
-   ?                     Total size.
+   0       4      1-     "shop".
+   4       4      1-     Version number.
+   8       ?      1-     The `fixed ride instance`_ data.
+   ?       4      1-     "pohs".
 ======  ======  =======  ======================================================
 
 Version history
@@ -468,15 +515,16 @@ Information for a single instance of a gentle or thrill ride.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       ?      1-     The fixes ride instance data.
+   0       4      1-     "gtri".
+   4       4      1-     Version number.
+   8       ?      1-     The `fixed ride instance`_ data.
    ?       2      1-     The entrance's x coordinate.
    ?       2      1-     The entrance's y coordinate.
    ?       2      1-     The entrance's z coordinate.
    ?       2      1-     The exit's x coordinate.
    ?       2      1-     The exit's y coordinate.
    ?       2      1-     The exit's z coordinate.
-   ?                     Total size.
+   ?       4      1-     "irtg".
 ======  ======  =======  ======================================================
 
 Version history
@@ -492,14 +540,15 @@ Information for a single scenery item instance.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       2      1-     X base coordinate.
-   6       2      1-     Y base coordinate.
-   8       2      1-     Z base coordinate.
-  10       1      1-     The item's orientation.
-  11       4      1-     The time in the animation.
-  15       4      1-     The time since the item was last watered.
-  19                     Total size.
+   0       4      1-     "scni".
+   4       4      1-     Version number.
+   8       2      1-     X base coordinate.
+  10       2      1-     Y base coordinate.
+  12       2      1-     Z base coordinate.
+  14       1      1-     The item's orientation.
+  15       4      1-     The time in the animation.
+  19       4      1-     The time since the item was last watered.
+  23       4      1-     "incs".
 ======  ======  =======  ======================================================
 
 Version history
@@ -515,12 +564,13 @@ Information for a single message in the player's inbox.
 ======  ======  =======  ============================================================================================================
 Offset  Length  Version  Description
 ======  ======  =======  ============================================================================================================
-   0       4      1-     Version number.
-   4       2      1-     The message string ID.
-   6       4      1-     The first data item.
-  10       4      1-     The second data item.
-  14       4      1-     The timestamp in compressed date format (see the Date block for information on this format).
-  18                     Total size.
+   0       4      1-     "mssg".
+   4       4      1-     Version number.
+   8       2      1-     The message string ID.
+  10       4      1-     The first data item.
+  14       4      1-     The second data item.
+  18       4      1-     The timestamp in compressed date format (see the Date block for information on this format).
+  22       4      1-     "gssm".
 ======  ======  =======  ============================================================================================================
 
 Version history
@@ -536,12 +586,13 @@ Represents a recolouring specification.
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
 ======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       1      1-     The palette index of the first colour.
-   5       1      1-     The palette index of the second colour.
-   6       1      1-     The palette index of the third colour.
-   7       1      1-     The palette index of the fourth colour.
-   8                     Total size.
+   0       4      1-     "rcol".
+   4       4      1-     Version number.
+   8       1      1-     The palette index of the first colour.
+   9       1      1-     The palette index of the second colour.
+  10       1      1-     The palette index of the third colour.
+  11       1      1-     The palette index of the fourth colour.
+  12       4      1-     "locr".
 ======  ======  =======  ======================================================
 
 Version history
@@ -554,16 +605,17 @@ Voxel
 ~~~~~
 Represents a single voxel.
 
-======  ======  =======  ======================================================
+======  ======  =======  ===============================================================
 Offset  Length  Version  Description
-======  ======  =======  ======================================================
-   0       4      1-     Version number.
-   4       4      1-     Ground type.
-   8       1      1-     Instance type.
-   9      0/2     1-     Instance data (skipped for voxels without a ride instance).
+======  ======  =======  ===============================================================
+   0       4      1-     "voxl".
+   4       4      1-     Version number.
+   8       4      1-     Ground type.
+  12       1      1-     Instance type.
+  13      0/2     1-     Instance data (skipped for voxels without a ride instance).
    ?       2      1-     Fence bits.
-   ?                     Total size.
-======  ======  =======  ======================================================
+   ?       4      1-     "lxov".
+======  ======  =======  ===============================================================
 
 Version history
 ...............
@@ -583,9 +635,8 @@ Offset  Length  Version  Description
    8       2      1-     Base height.
   10       2      1-     Stack height.
   12       1      1-     Owner type.
-  13       ?      1-     Every voxel's data pattern.
+  13       ?      1-     Every `voxel`_'s data pattern.
    ?       4      1-     "KTSV"
-   ?                     Total size.
 ======  ======  =======  ======================================================
 
 Version history
@@ -610,7 +661,6 @@ Offset  Length  Version  Description
    4       4      1-     Version number of the date block.
    8       4      1-     Current date, in compressed format.
   12       4      1-     "ETAD"
-  16                     Total size.
 ======  ======  =======  ======================================================
 
 where compressed format is an unsigned 32 bit number, with
@@ -637,7 +687,6 @@ Offset  Length  Version  Description
    4       4      1-     Version number of the random number block.
    8       4      1-     Current random number.
   12       4      1-     "DNAR".
-  16                     Total size.
 ======  ======  =======  ======================================================
 
 Version history
@@ -660,7 +709,6 @@ Offset  Length  Version  Description
   16       4      1-     Next weather type.
   20       4      1-     Speed of change in the weather.
   24       4      1-     "RHTW"
-  28                     Total size.
 ======  ======  =======  ======================================================
 
 Version history
@@ -685,7 +733,7 @@ Offset  Length  Version  Description
   16       4      1-     Lowest 'free' index for next new guest.
   20       4      1-     Number of active guests.
   24       ?      1-     Contents of "number" active guests. Each guest is stored as
-                         his unique ID (2 bytes) followed by the Guest data pattern.
+                         his unique ID (2 bytes) followed by the `Guest`_ data pattern.
    ?       4      1-     "STSG"
 ======  ======  =======  ==============================================================
 
@@ -728,31 +776,8 @@ Offset  Length  Version  Description
    8       1      1-     Number of available history sections.
    9       1      1-     Index into the current financial data bock.
   10       8      1-     Current cash.
-  18     ?*112           'number available' history sections, see below.
+  18       ?      1-     Each `finance history`_ section's data pattern.
   12       4      1-     "ANIF".
-  16                     Total size.
-======  ======  =======  ======================================================
-
-A history section is structured as follows:
-
-======  ======  =======  ======================================================
-Offset  Length  Version  Description
-======  ======  =======  ======================================================
-   0       8      1-     Construction costs of rides.
-   8       8      1-     Running cost of rides.
-  16       8      1-     Land purchase costs.
-  24       8      1-     Landscaping costs.
-  32       8      1-     Income from entrance tickets.
-  40       8      1-     Income from ride tickets.
-  48       8      1-     Income from non-food shop sales.
-  56       8      1-     Stock costs from non-food shops.
-  64       8      1-     Income from food shop sales.
-  72       8      1-     Stock costs from food shops.
-  80       8      1-     Wages of staff payments.
-  88       8      1-     Marketing costs.
-  96       8      1-     Research costs.
- 104       8      1-     Loan interest.
- 112                     Total length.
 ======  ======  =======  ======================================================
 
 Version history
@@ -771,7 +796,7 @@ Offset  Length  Version  Description
    0       4      1-     "INBX".
    4       4      1-     Version number of the staff block.
    8       4      1-     Number of messages.
-  12       ?      1-     Every message's data pattern.
+  12       ?      1-     Every `message`_'s data pattern.
    ?       4      1-     "XBNI"
 ======  ======  =======  ==============================================================
 
@@ -798,7 +823,7 @@ Offset  Length  Version  Description
   12       ?      2-     Every border fence override rule. One rule consists of the x and
                          y coordinates (2 bytes each) followed by the tile edge (1 byte).
    ?       4      1-     "DLRW"
-   ?       ?      1-     Voxel stack patterns.
+   ?       ?      1-     `Voxel stack`_ patterns.
 ======  ======  =======  ====================================================================
 
 The voxel stack blocks store each voxel stack of the world, starting at
@@ -822,7 +847,7 @@ Offset  Length  Version  Description
    0       4      1-     "SCNY".
    4       4      1-     Version number of the staff block.
    8       4      1-     Number of scenery items.
-  12       ?      1-     Every item's type index followed by its scenery instance data pattern.
+  12       ?      1-     Every item's type index followed by its `scenery instance`_ data pattern.
    ?       4      1-     "YNCS"
 ======  ======  =======  =========================================================================
 
@@ -843,7 +868,7 @@ Offset  Length  Version  Description
    4       4      1-     Version number of the rides block.
    8       2      1-     Number of rides.
   10       ?      1-     Every ride's content, consisting of the ride type kind (1 byte), the ride type name
-                         characters, and the data pattern of the ride instance's most derived class.
+                         characters, and the data pattern of the `ride instance`_'s most derived class.
    ?       4      1-     "SDIR"
 ======  ======  =======  ======================================================================================
 

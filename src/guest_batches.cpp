@@ -42,18 +42,20 @@ static const uint32 CURRENT_VERSION_OnRideGuests = 1;   ///< Currently supported
 
 void GuestData::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_GuestData) ldr.version_mismatch("GuestData", version, CURRENT_VERSION_GuestData);
+	const uint32 version = ldr.OpenPattern("gstd");
+	if (version != CURRENT_VERSION_GuestData) ldr.version_mismatch(version, CURRENT_VERSION_GuestData);
 
 	this->guest = ldr.GetLong();
 	this->entry = static_cast<TileEdge>(ldr.GetByte());
+	ldr.ClosePattern();
 }
 
 void GuestData::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION_GuestData);
+	svr.StartPattern("gstd", CURRENT_VERSION_GuestData);
 	svr.PutLong(this->guest);
 	svr.PutByte(this->entry);
+	svr.EndPattern();
 }
 
 /**
@@ -127,22 +129,24 @@ void GuestBatch::OnAnimate(int delay)
 
 void GuestBatch::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_GuestBatch) ldr.version_mismatch("GuestBatch", version, CURRENT_VERSION_GuestBatch);
+	const uint32 version = ldr.OpenPattern("gstb");
+	if (version != CURRENT_VERSION_GuestBatch) ldr.version_mismatch(version, CURRENT_VERSION_GuestBatch);
 
 	this->state = static_cast<BatchState>(ldr.GetByte());
 	this->remaining = ldr.GetLong();
 	this->gate = ldr.GetWord();
 	for (GuestData &g : this->guests) g.Load(ldr);
+	ldr.ClosePattern();
 }
 
 void GuestBatch::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION_GuestBatch);
+	svr.StartPattern("gstb", CURRENT_VERSION_GuestBatch);
 	svr.PutByte(this->state);
 	svr.PutLong(this->remaining);
 	svr.PutWord(this->gate);
 	for (GuestData &g : this->guests) g.Save(svr);
+	svr.EndPattern();
 }
 
 /**
@@ -207,19 +211,21 @@ void OnRideGuests::OnAnimate(int delay)
 
 void OnRideGuests::Load(Loader &ldr)
 {
-	const uint32 version = ldr.GetLong();
-	if (version != CURRENT_VERSION_OnRideGuests) ldr.version_mismatch("OnRideGuests", version, CURRENT_VERSION_OnRideGuests);
+	const uint32 version = ldr.OpenPattern("onrg");
+	if (version != CURRENT_VERSION_OnRideGuests) ldr.version_mismatch(version, CURRENT_VERSION_OnRideGuests);
 
 	this->batch_size = ldr.GetWord();
 	this->num_batches = ldr.GetWord();
 	this->Configure(this->batch_size, this->num_batches);
 	for (GuestBatch &b : this->batches) b.Load(ldr);
+	ldr.ClosePattern();
 }
 
 void OnRideGuests::Save(Saver &svr)
 {
-	svr.PutLong(CURRENT_VERSION_OnRideGuests);
+	svr.StartPattern("onrg", CURRENT_VERSION_OnRideGuests);
 	svr.PutWord(this->batch_size);
 	svr.PutWord(this->num_batches);
 	for (GuestBatch &b : this->batches) b.Save(svr);
+	svr.EndPattern();
 }
