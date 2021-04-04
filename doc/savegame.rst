@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: 2021-04-03
+:Version: 2021-04-04
 
 .. contents::
    :depth: 4
@@ -34,10 +34,16 @@ This file documents the file format used by FreeRCT for saving games.
 The file starts with a file header to identify the file as being a save game.
 After the file header come data patterns of game elements that are stored.
 
-All data in the file is organized in **patterns**. Each pattern starts with a
+All data in the file is organized in **patterns**. Every pattern starts with a
 magic string (4 bytes) and a version number (4 bytes), followed by the pattern's
-data layout as detailed below. A pattern can contain other nested patterns. A
-pattern which is not nested in any other pattern is called a **block**.
+data layout as detailed below. The pattern is terminated by the magic string in
+reverse.
+
+A pattern can contain other nested patterns. A pattern which is not
+nested in any other pattern is called a **block**.
+
+By convention, the magic strings of blocks consist of four uppercase characters, and
+the magic strings of all other patterns consist of four lowercase characters.
 
 ======  ======  =======  ======================================================
 Offset  Length  Version  Description
@@ -623,29 +629,6 @@ Version history
 - 1 (20210402) Initial version.
 
 
-Voxel Stack
-~~~~~~~~~~~
-Represents a voxel stack.
-
-======  ======  =======  ======================================================
-Offset  Length  Version  Description
-======  ======  =======  ======================================================
-   0       4      1-     "VSTK".
-   4       4      1-     Version number.
-   8       2      1-     Base height.
-  10       2      1-     Stack height.
-  12       1      1-     Owner type.
-  13       ?      1-     Every `voxel`_'s data pattern.
-   ?       4      1-     "KTSV"
-======  ======  =======  ======================================================
-
-Version history
-...............
-
-- (older versions are documented in the file "savegame_history.rst").
-- 3 (20150428) Fences near the lowest corner of a steep slope moved from top voxel to base voxel.
-
-
 Blocks
 ------
 Top-level data layouts which are present once in every savegame file.
@@ -835,6 +818,32 @@ Version history
 
 - (older versions are documented in the file "savegame_history.rst").
 - 2 (20210402) Added border fence override rules.
+
+
+Voxel Stack
+~~~~~~~~~~~
+Represents a voxel stack.
+
+This pattern is different from all other blocks in that
+it is typically present multiple times in the file.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "VSTK".
+   4       4      1-     Version number.
+   8       2      1-     Base height.
+  10       2      1-     Stack height.
+  12       1      1-     Owner type.
+  13       ?      1-     Every `voxel`_'s data pattern.
+   ?       4      1-     "KTSV"
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- (older versions are documented in the file "savegame_history.rst").
+- 3 (20150428) Fences near the lowest corner of a steep slope moved from top voxel to base voxel.
 
 
 Scenery
