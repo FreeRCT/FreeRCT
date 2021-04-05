@@ -166,17 +166,23 @@ void Recolouring::AssignRandomColours()
 	}
 }
 
+static const uint32 CURRENT_VERSION_Recolouring = 1;   ///< Currently supported version of %Recolouring.
+
 /**
  * Load recolour information.
  * ldr Input stream to load from.
  */
 void Recolouring::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("rcol");
+	if (version != CURRENT_VERSION_Recolouring) ldr.version_mismatch(version, CURRENT_VERSION_Recolouring);
+
 	assert(MAX_RECOLOUR == 4); // Check that we are compatible with other saves.
 	for (int i = 0; i < MAX_RECOLOUR; i++) {
 		uint8 val = ldr.GetByte();
 		this->entries[i].AssignDest((ColourRange)val);
 	}
+	ldr.ClosePattern();
 }
 
 /**
@@ -185,12 +191,14 @@ void Recolouring::Load(Loader &ldr)
  */
 void Recolouring::Save(Saver &svr)
 {
+	svr.StartPattern("rcol", CURRENT_VERSION_Recolouring);
 	assert(MAX_RECOLOUR == 4); // Check that we are compatible with other saves.
 	for (int i = 0; i < MAX_RECOLOUR; i++) {
 		const RecolourEntry &entry = this->entries[i];
 		uint8 val = (entry.source == COL_RANGE_INVALID) ? COL_RANGE_INVALID : entry.dest;
 		svr.PutByte(val);
 	}
+	svr.EndPattern();
 }
 
 /**

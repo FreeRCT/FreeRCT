@@ -410,12 +410,17 @@ static const WalkInformation *DecodeWalk(uint16 number)
 	NOT_REACHED();
 }
 
+static const uint32 CURRENT_VERSION_Person = 1;   ///< Currently supported version of %Person.
+static const uint32 CURRENT_VERSION_Guest  = 2;   ///< Currently supported version of %Guest.
+
 /**
  * Load a person from the save game.
  * @param ldr Input stream to read.
  */
 void Person::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("prsn");
+	if (version != CURRENT_VERSION_Person) ldr.version_mismatch(version, CURRENT_VERSION_Person);
 	this->VoxelObject::Load(ldr);
 
 	this->type = (PersonType)ldr.GetByte();
@@ -438,6 +443,7 @@ void Person::Load(Loader &ldr)
 
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	this->MarkDirty();
+	ldr.ClosePattern();
 }
 
 /**
@@ -446,6 +452,7 @@ void Person::Load(Loader &ldr)
  */
 void Person::Save(Saver &svr)
 {
+	svr.StartPattern("prsn", CURRENT_VERSION_Person);
 	this->VoxelObject::Save(svr);
 
 	svr.PutByte(this->type);
@@ -457,6 +464,7 @@ void Person::Save(Saver &svr)
 	svr.PutWord(EncodeWalk(this->walk));
 	svr.PutWord(this->frame_index);
 	svr.PutWord((uint16)this->frame_time);
+	svr.EndPattern();
 }
 
 /**
@@ -1187,6 +1195,17 @@ Guest::~Guest()
 {
 }
 
+/** Initialize this guest's ride preferences with random values. */
+void Guest::InitRidePreferences()
+{
+	Random r;
+	this->preferred_ride_intensity = r.Uniform(800) + 10;
+	this->min_ride_intensity       = r.Uniform(this->preferred_ride_intensity - 5);
+	this->max_ride_intensity       = r.Uniform(this->min_ride_intensity) + this->preferred_ride_intensity + 5;
+	this->max_ride_nausea          = r.Uniform(this->max_ride_intensity) + this->min_ride_intensity;
+	this->min_ride_excitement      = r.Uniform(this->preferred_ride_intensity);
+}
+
 void Guest::Activate(const Point16 &start, PersonType person_type)
 {
 	this->activity = GA_ENTER_PARK;
@@ -1211,6 +1230,7 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 	this->nausea = 0;
 	this->souvenirs = 0;
 	this->ride = nullptr;
+	this->InitRidePreferences();
 }
 
 void Guest::DeActivate(AnimateResult ar)
@@ -1232,6 +1252,8 @@ void Guest::DeActivate(AnimateResult ar)
  */
 void Guest::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("gues");
+	if (version < 1 || version > CURRENT_VERSION_Guest) ldr.version_mismatch(version, CURRENT_VERSION_Guest);
 	this->Person::Load(ldr);
 
 	this->activity = static_cast<GuestActivity>(ldr.GetByte());
@@ -1257,7 +1279,18 @@ void Guest::Load(Loader &ldr)
 	this->waste = ldr.GetByte();
 	this->nausea = ldr.GetByte();
 
+	if (version > 1) {
+		this->preferred_ride_intensity = ldr.GetLong();
+		this->min_ride_intensity = ldr.GetLong();
+		this->max_ride_intensity = ldr.GetLong();
+		this->max_ride_nausea = ldr.GetLong();
+		this->min_ride_excitement = ldr.GetLong();
+	} else {
+		this->InitRidePreferences();
+	}
+
 	if (this->activity == GA_ON_RIDE) this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	ldr.ClosePattern();
 }
 
 /**
@@ -1266,6 +1299,7 @@ void Guest::Load(Loader &ldr)
  */
 void Guest::Save(Saver &svr)
 {
+	svr.StartPattern("gues", CURRENT_VERSION_Guest);
 	this->Person::Save(svr);
 
 	svr.PutByte(this->activity);
@@ -1290,6 +1324,13 @@ void Guest::Save(Saver &svr)
 	svr.PutByte(this->stomach_level);
 	svr.PutByte(this->waste);
 	svr.PutByte(this->nausea);
+
+	svr.PutLong(this->preferred_ride_intensity);
+	svr.PutLong(this->min_ride_intensity);
+	svr.PutLong(this->max_ride_intensity);
+	svr.PutLong(this->max_ride_nausea);
+	svr.PutLong(this->min_ride_excitement);
+	svr.EndPattern();
 }
 
 AnimateResult Guest::OnAnimate(int delay)

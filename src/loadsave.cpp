@@ -7,6 +7,8 @@
 
 /** @file loadsave.cpp Savegame loading and saving code. */
 
+#include <cstdarg>
+
 #include "stdafx.h"
 #include "dates.h"
 #include "random.h"
@@ -18,44 +20,66 @@
 #include "person.h"
 #include "people.h"
 
+/** Whether savegame files should automatically be resaved after loading. */
+bool _automatically_resave_files = false;
+
+/**
+ * Constructor.
+ * @param fmt Error message (may use printf-style placeholders).
+ */
+LoadingError::LoadingError(const char *fmt, ...)
+{
+	char buffer[1024];
+	va_list va;
+	va_start(va, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, va);
+	va_end(va);
+	this->message = buffer;
+}
+
+/**
+ * Retrieve the description of the error.
+ * @return The error message.
+ */
+const char* LoadingError::what() const noexcept
+{
+	return this->message.c_str();
+}
+
 /**
  * Constructor of the loader class.
  * @param fp Input file stream. Use \c nullptr for initialization to default.
  */
 Loader::Loader(FILE *fp)
 {
-	this->fail_msg = nullptr;
-	this->blk_name = nullptr;
 	this->fp = fp;
 	this->cache_count = 0;
 }
 
 /**
- * Test whether a block with the given name is being opened.
- * @param name Name of the expected block.
- * @param may_fail Whether it is allowed not to find the expected block.
- * @return Version number of the found block, \c 0 for default initialization, #UINT32_MAX for failing to find the block (only if \a may_fail was set).
- * @note If the block was not found, bytes already read of the block name are pushed back onto the stream.
+ * Test whether a pattern with the given name is being opened.
+ * @param name Name of the expected pattern.
+ * @param may_fail Whether it is allowed not to find the expected pattern.
+ * @return Version number of the found pattern, \c 0 for default initialization, #UINT32_MAX for failing to find the pattern (only if \a may_fail was set).
+ * @note If the pattern was not found, bytes already read of the pattern name are pushed back onto the stream.
  */
-uint32 Loader::OpenBlock(const char *name, bool may_fail)
+uint32 Loader::OpenPattern(const char *name, bool may_fail)
 {
 	assert(strlen(name) == 4);
+	this->pattern_names.push_back(name);
+	if (this->fp == nullptr) return 0;
 
-	if (this->fp == nullptr || this->IsFail()) return 0;
-
-	assert(this->blk_name == nullptr);
-	this->blk_name = name;
 	int i = 0;
 	while (i < 4) {
 		uint8 val = this->GetByte();
-		if (val != this->blk_name[i]) {
+		if (val != name[i]) {
 			this->PutByte(val);
 			while (i > 0) {
 				i--;
-				this->PutByte(this->blk_name[i]);
+				this->PutByte(name[i]);
 			}
 			if (may_fail) return UINT32_MAX;
-			this->SetFailMessage("Missing block name");
+			throw LoadingError("Missing pattern name for %s", name);
 			return 0;
 		}
 		i++;
@@ -63,23 +87,24 @@ uint32 Loader::OpenBlock(const char *name, bool may_fail)
 
 	uint32 version = this->GetLong();
 	if (version == 0 || version == UINT32_MAX) {
-		this->SetFailMessage("Incorrect version number");
+		throw LoadingError("Invalid version number for %s: %u", name, version);
 		return 0;
 	}
 	return version;
 }
 
-/** Test whether the current block is closed. */
-void Loader::CloseBlock()
+/** Test whether the current pattern is closed. */
+void Loader::ClosePattern()
 {
-	if (this->fp == nullptr || this->IsFail()) return;
-
-	assert(this->blk_name != nullptr);
-	if (this->GetByte() != this->blk_name[3] || this->GetByte() != this->blk_name[2] ||
-			this->GetByte() != this->blk_name[1] || this->GetByte() != this->blk_name[0]) {
-		this->SetFailMessage("CloseBlock got unexpected data");
+	if (this->fp == nullptr) return;
+	assert(!this->pattern_names.empty());
+	const std::string &blk_name = this->pattern_names.back();
+	for (int i = 0; i < blk_name.size(); i++) {
+		if (this->GetByte() != blk_name.at(3 - i)) {
+			throw LoadingError("ClosePattern (%s) got unexpected data", blk_name.c_str());
+		}
 	}
-	this->blk_name = nullptr;
+	this->pattern_names.pop_back();
 }
 
 /**
@@ -88,7 +113,7 @@ void Loader::CloseBlock()
  */
 uint8 Loader::GetByte()
 {
-	if (this->fp == nullptr || this->IsFail()) return 0;
+	if (this->fp == nullptr) return 0;
 	
 	if (this->cache_count > 0) {
 		this->cache_count--;
@@ -96,8 +121,7 @@ uint8 Loader::GetByte()
 	}
 	int k = getc(this->fp);
 	if (k == EOF) {
-		this->SetFailMessage("EOF encountered");
-		return 0;
+		throw LoadingError("EOF encountered");
 	}
 	return k;
 }
@@ -108,7 +132,6 @@ uint8 Loader::GetByte()
  */
 void Loader::PutByte(uint8 val)
 {
-	if (this->IsFail()) return;
 	assert(this->cache_count < (int)lengthof(this->cache));
 	this->cache[this->cache_count] = val;
 	this->cache_count++;
@@ -174,34 +197,16 @@ uint8 *Loader::GetText()
 }
 
 /**
- * Denote loading as being failed.
- * @param fail_msg Message to explain what failed. Caller must preserve the message text.
- * @note Message is mostly for internal and debugging use.
+ * Can be called while loading to notify the %Loader that loading failed
+ * because the current pattern has an unsupported version number.
+ * @param saved_version Version in the savegame.
+ * @param current_version Most recent currently supported version.
  */
-void Loader::SetFailMessage(const char *fail_msg)
+void Loader::version_mismatch(uint saved_version, uint current_version)
 {
-	fprintf(stderr, "ERROR while loading: %s\n", fail_msg);
-	if (this->IsFail()) return; // Do not overwrite the first message.
-	this->fail_msg = fail_msg;
-}
-
-/**
- * Get the failure message of the loader.
- * @return Message why loading failed.
- * @note Message is mostly for internal and debugging use.
- */
-const char *Loader::GetFailMessage() const
-{
-	return this->fail_msg;
-}
-
-/**
- * Has loading failed?
- * @return Whether loading has failed.
- */
-bool Loader::IsFail() const
-{
-	return this->fail_msg != nullptr;
+	assert(!this->pattern_names.empty());
+	throw LoadingError("Version mismatch in %s pattern: Saved version is %u, supported version is %u",
+			this->pattern_names.back().c_str(), saved_version, current_version);
 }
 
 /**
@@ -211,30 +216,38 @@ bool Loader::IsFail() const
 Saver::Saver(FILE *fp)
 {
 	this->fp = fp;
-	this->blk_name = nullptr;
+}
+
+/** Checks that no patterns are currently open. */
+void Saver::CheckNoOpenPattern() const
+{
+	if (!this->pattern_names.empty()) {
+		throw LoadingError("Saver still has %d open pattern(s) (last is %s)",
+				static_cast<int>(this->pattern_names.size()), this->pattern_names.back().c_str());
+	}
 }
 
 /**
- * Write the start of a block to the output.
- * @param name Name of the block to write.
- * @param version Version number of the block.
+ * Write the start of a pattern to the output.
+ * @param name Name of the pattern to write.
+ * @param version Version number of the pattern.
  */
-void Saver::StartBlock(const char *name, uint32 version)
+void Saver::StartPattern(const char *name, uint32 version)
 {
 	assert(strlen(name) == 4);
-	assert(this->blk_name == nullptr);
-	this->blk_name = name;
-	for (int i = 0; i < 4; i++) this->PutByte(name[i]);
 	assert(version != 0 && version != UINT32_MAX);
+	for (int i = 0; i < 4; i++) this->PutByte(name[i]);
 	this->PutLong(version);
+	this->pattern_names.push_back(name);
 }
 
-/** Write the end of the block to the output. */
-void Saver::EndBlock()
+/** Write the end of the pattern to the output. */
+void Saver::EndPattern()
 {
-	assert(this->blk_name != nullptr);
-	for (int i = 3; i >= 0; i--) this->PutByte(this->blk_name[i]);
-	this->blk_name = nullptr;
+	assert(!this->pattern_names.empty());
+	const char *blk_name = this->pattern_names.back().c_str();
+	for (int i = 3; i >= 0; i--) this->PutByte(blk_name[i]);
+	this->pattern_names.pop_back();
 }
 
 /**
@@ -312,6 +325,10 @@ void Saver::PutText(const uint8 *str, int length)
 	assert(count == 0);
 }
 
+/* When making any changes to saveloading code, don't forget to update the file 'doc/savegame.rst'! */
+
+static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version of the FCTS pattern.
+
 /**
  * Load the game elements from the input stream.
  * @param ldr Input stream to load from.
@@ -319,24 +336,20 @@ void Saver::PutText(const uint8 *str, int length)
  */
 static void LoadElements(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("FCTS");
-	if (version > 9) ldr.SetFailMessage("Bad file header");
-	ldr.CloseBlock();
-
-	Loader reset_loader(nullptr);
+	uint32 version = ldr.OpenPattern("FCTS");
+	if (version != 0 && version != CURRENT_VERSION_FCTS) ldr.version_mismatch(version, CURRENT_VERSION_FCTS);
+	ldr.ClosePattern();
 
 	LoadDate(ldr);
-	_world.Load((version >= 3) ? ldr : reset_loader);
+	_world.Load(ldr);
+	_finances_manager.Load(ldr);
+	_weather.Load(ldr);
+	_rides_manager.Load(ldr);
+	_scenery.Load(ldr);
+	_guests.Load(ldr);
+	_staff.Load(ldr);
+	_inbox.Load(ldr);
 	Random::Load(ldr);
-	_finances_manager.Load((version >= 2) ? ldr : reset_loader);
-	_weather.Load((version >= 4) ? ldr : reset_loader);
-	_rides_manager.Load((version >= 6) ? ldr : reset_loader);
-	_scenery.Load((version >= 9) ? ldr : reset_loader);
-	_guests.Load((version >= 5) ? ldr : reset_loader);
-	_staff.Load((version >= 7) ? ldr : reset_loader);
-	_inbox.Load((version >= 8) ? ldr : reset_loader);
-
-	if (reset_loader.IsFail()) ldr.SetFailMessage(reset_loader.GetFailMessage());
 }
 
 /**
@@ -346,12 +359,11 @@ static void LoadElements(Loader &ldr)
  */
 static void SaveElements(Saver &svr)
 {
-	svr.StartBlock("FCTS", 9);
-	svr.EndBlock();
+	svr.StartPattern("FCTS", CURRENT_VERSION_FCTS);
+	svr.EndPattern();
 
 	SaveDate(svr);
 	_world.Save(svr);
-	Random::Save(svr);
 	_finances_manager.Save(svr);
 	_weather.Save(svr);
 	_rides_manager.Save(svr);
@@ -359,6 +371,9 @@ static void SaveElements(Saver &svr)
 	_guests.Save(svr);
 	_staff.Save(svr);
 	_inbox.Save(svr);
+	Random::Save(svr);
+
+	svr.CheckNoOpenPattern();
 }
 
 /**
@@ -368,22 +383,34 @@ static void SaveElements(Saver &svr)
  */
 bool LoadGameFile(const char *fname)
 {
-	FILE *fp;
+	try {
+		FILE *fp = nullptr;
+		if (fname != nullptr) {
+			fp = fopen(fname, "rb");
+			if (fp == nullptr) throw LoadingError("Cannot open file '%s' for reading", fname);
+		}
 
-	if (fname == nullptr) {
-		fp = nullptr;
-	} else {
-		fp = fopen(fname, "rb");
-		if (fp == nullptr) return false;
+		Loader ldr(fp);
+		LoadElements(ldr);
+
+		if (fp != nullptr) {
+			fclose(fp);
+			if (_automatically_resave_files) SaveGameFile(fname);
+		}
+		return true;
+	} catch (const std::exception &e) {
+		if (fname != nullptr) {
+			printf("ERROR: Loading '%s' failed: %s\n", fname, e.what());
+			LoadGameFile(nullptr);
+			return false;
+		}
+
+		printf("FATAL ERROR: The reset loader failed to default-initialize the game!\n");
+		printf("This should not happen. Please consider submiting a bug report.\n");
+		printf("Error message: %s\n", e.what());
+		printf("FreeRCT will terminate now.\n");
+		::exit(1);
 	}
-	Loader ldr(fp);
-	LoadElements(ldr);
-	if (fp != nullptr) fclose(fp);
-	if (!ldr.IsFail()) return true;
-
-	Loader reset(nullptr);
-	LoadElements(reset); // Loading failed, initialize everything to default.
-	return false;
 }
 
 /**

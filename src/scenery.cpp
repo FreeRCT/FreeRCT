@@ -257,24 +257,32 @@ bool SceneryInstance::NeedsWatering() const
 	return this->type->watering_interval > 0 && this->last_watered > this->type->watering_interval;
 }
 
+static const uint32 CURRENT_VERSION_SceneryInstance = 1;   ///< Currently supported version of %SceneryInstance.
+
 void SceneryInstance::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("scni");
+	if (version != CURRENT_VERSION_SceneryInstance) ldr.version_mismatch(version, CURRENT_VERSION_SceneryInstance);
+
 	this->vox_pos.x = ldr.GetWord();
 	this->vox_pos.y = ldr.GetWord();
 	this->vox_pos.z = ldr.GetWord();
 	this->orientation = ldr.GetByte();
 	this->animtime = ldr.GetLong();
 	this->last_watered = ldr.GetLong();
+	ldr.ClosePattern();
 }
 
 void SceneryInstance::Save(Saver &svr) const
 {
+	svr.StartPattern("scni", CURRENT_VERSION_SceneryInstance);
 	svr.PutWord(this->vox_pos.x);
 	svr.PutWord(this->vox_pos.y);
 	svr.PutWord(this->vox_pos.z);
 	svr.PutByte(this->orientation);
 	svr.PutLong(this->animtime);
 	svr.PutLong(this->last_watered);
+	svr.EndPattern();
 }
 
 /** Default constructor. */
@@ -416,29 +424,37 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 	return nullptr;
 }
 
+static const uint32 CURRENT_VERSION_SceneryInstance_SCNY = 1;   ///< Currently supported version of the SCNY Pattern.
+
 void SceneryManager::Load(Loader &ldr)
 {
 	this->Clear();
-	const uint32 version = ldr.OpenBlock("SCNY");
-	if (version == 1) {
-		for (long l = ldr.GetLong(); l > 0; l--) {
-			SceneryInstance *i = new SceneryInstance(this->scenery_item_types[ldr.GetWord()].get());
-			i->Load(ldr);
-			this->all_items[i->vox_pos] = std::unique_ptr<SceneryInstance>(i);
-		}
-	} else if (version != 0) {
-		ldr.SetFailMessage("Incorrect version of scenery block.");
+	const uint32 version = ldr.OpenPattern("SCNY");
+	switch (version) {
+		case 0:
+			break;
+		case 1:
+			for (long l = ldr.GetLong(); l > 0; l--) {
+				SceneryInstance *i = new SceneryInstance(this->scenery_item_types[ldr.GetWord()].get());
+				i->Load(ldr);
+				this->all_items[i->vox_pos] = std::unique_ptr<SceneryInstance>(i);
+			}
+			break;
+
+		default:
+			ldr.version_mismatch(version, CURRENT_VERSION_SceneryInstance_SCNY);
 	}
-	ldr.CloseBlock();
+	ldr.ClosePattern();
 }
 
 void SceneryManager::Save(Saver &svr) const
 {
-	svr.StartBlock("SCNY", 1);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("SCNY", CURRENT_VERSION_SceneryInstance_SCNY);
 	svr.PutLong(this->all_items.size());
 	for (const auto &pair : this->all_items) {
 		svr.PutWord(this->GetSceneryTypeIndex(pair.second->type));
 		pair.second->Save(svr);
 	}
-	svr.EndBlock();
+	svr.EndPattern();
 }

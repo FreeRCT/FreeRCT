@@ -287,7 +287,7 @@ public:
 
 	void ClearVoxel();
 	void Save(Saver &svr) const;
-	void Load(Loader &ldr, uint32 version);
+	void Load(Loader &ldr);
 };
 
 /** Base class for (moving) objects that are stored at a voxel position for easy retrieval during drawing. */

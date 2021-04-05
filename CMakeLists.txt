@@ -61,6 +61,7 @@ IF(NOT MSVC)
 	     "data_format"
 		 "manual"
 		 "savegame"
+		 "savegame_history"
 	)
 
 	# Warning: assumes rst2html exists
