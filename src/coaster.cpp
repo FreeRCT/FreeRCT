@@ -282,8 +282,15 @@ void DisplayCoasterCar::PreRemove()
 	this->MarkDirty();
 }
 
+static const uint32 CURRENT_VERSION_DisplayCoasterCar = 1;   ///< Currently supported version of %DisplayCoasterCar.
+static const uint32 CURRENT_VERSION_CoasterCar        = 1;   ///< Currently supported version of %CoasterCar.
+static const uint32 CURRENT_VERSION_CoasterTrain      = 1;   ///< Currently supported version of %CoasterTrain.
+static const uint32 CURRENT_VERSION_CoasterInstance   = 1;   ///< Currently supported version of %CoasterInstance.
+
 void DisplayCoasterCar::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("dpcc");
+	if (version != CURRENT_VERSION_DisplayCoasterCar) ldr.version_mismatch(version, CURRENT_VERSION_DisplayCoasterCar);
 	this->VoxelObject::Load(ldr);
 
 	this->pitch = ldr.GetByte();
@@ -295,21 +302,27 @@ void DisplayCoasterCar::Load(Loader &ldr)
 	if (v != nullptr) {
 		this->AddSelf(v);
 	} else {
-		ldr.SetFailMessage("Invalid world coordinates for coaster car.");
+		throw LoadingError("Invalid world coordinates for coaster car.");
 	}
+	ldr.ClosePattern();
 }
 
 void DisplayCoasterCar::Save(Saver &svr)
 {
+	svr.StartPattern("dpcc", CURRENT_VERSION_DisplayCoasterCar);
 	this->VoxelObject::Save(svr);
 
 	svr.PutByte(this->pitch);
 	svr.PutByte(this->roll);
 	svr.PutByte(this->yaw);
+	svr.EndPattern();
 }
 
 void CoasterCar::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("cstc");
+	if (version != CURRENT_VERSION_CoasterCar) ldr.version_mismatch(version, CURRENT_VERSION_CoasterCar);
+
 	this->front.Load(ldr);
 	this->back.Load(ldr);
 	const long nr_guests = ldr.GetLong();
@@ -318,14 +331,17 @@ void CoasterCar::Load(Loader &ldr)
 		const int32 id = ldr.GetLong();
 		this->guests[i] = id < 0 ? nullptr : _guests.Get(id);
 	}
+	ldr.ClosePattern();
 }
 
 void CoasterCar::Save(Saver &svr)
 {
+	svr.StartPattern("cstc", CURRENT_VERSION_CoasterCar);
 	this->front.Save(svr);
 	this->back.Save(svr);
 	svr.PutLong(this->guests.size());
 	for (Guest *g : this->guests) svr.PutLong(g == nullptr ? -1l : g->id);
+	svr.EndPattern();
 }
 
 /** Car is about to be removed from the train, clean up if necessary. */
@@ -652,6 +668,9 @@ void CoasterTrain::OnAnimate(int delay)
 
 void CoasterTrain::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("cstt");
+	if (version != CURRENT_VERSION_CoasterTrain) ldr.version_mismatch(version, CURRENT_VERSION_CoasterTrain);
+
 	for (std::vector<CoasterCar>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
 		it->Load(ldr);
 	}
@@ -660,10 +679,13 @@ void CoasterTrain::Load(Loader &ldr)
 	this->speed = (int32)ldr.GetLong();
 	this->station_policy = static_cast<TrainStationPolicy>(ldr.GetByte());
 	this->time_left_waiting = ldr.GetLong();
+	ldr.ClosePattern();
 }
 
 void CoasterTrain::Save(Saver &svr)
 {
+	svr.StartPattern("cstt", CURRENT_VERSION_CoasterTrain);
+
 	for (std::vector<CoasterCar>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
 		it->Save(svr);
 	}
@@ -672,6 +694,7 @@ void CoasterTrain::Save(Saver &svr)
 	svr.PutLong((uint32)this->speed);
 	svr.PutByte(this->station_policy);
 	svr.PutLong(this->time_left_waiting);
+	svr.EndPattern();
 }
 
 /** Default constructor for a station of length 0 with no entrance or exit. */
@@ -1694,6 +1717,8 @@ void CoasterInstance::RecalculateRatings()
 
 void CoasterInstance::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("csti");
+	if (version != CURRENT_VERSION_CoasterInstance) ldr.version_mismatch(version, CURRENT_VERSION_CoasterInstance);
 	this->RideInstance::Load(ldr);
 
 	this->capacity = (int)ldr.GetLong();
@@ -1703,7 +1728,7 @@ void CoasterInstance::Load(Loader &ldr)
 
 	uint saved_pieces = ldr.GetWord();
 	if (saved_pieces == 0) {
-		ldr.SetFailMessage("Invalid number of track pieces.");
+		throw LoadingError("Invalid number of track pieces (%u).", saved_pieces);
 	}
 
 	for (uint i = 0; i < saved_pieces; i++) {
@@ -1715,7 +1740,7 @@ void CoasterInstance::Load(Loader &ldr)
 			this->pieces[i].Load(ldr);
 			this->PlaceTrackPieceInWorld(this->pieces[i]);
 		} else {
-			ldr.SetFailMessage("Invalid track piece.");
+			throw LoadingError("Invalid track piece.");
 		}
 	}
 
@@ -1762,10 +1787,12 @@ void CoasterInstance::Load(Loader &ldr)
 	}
 
 	this->InsertStationsIntoWorld();
+	ldr.ClosePattern();
 }
 
 void CoasterInstance::Save(Saver &svr)
 {
+	svr.StartPattern("csti", CURRENT_VERSION_CoasterInstance);
 	this->RideInstance::Save(svr);
 
 	svr.PutLong((uint32)this->capacity);
@@ -1829,4 +1856,5 @@ void CoasterInstance::Save(Saver &svr)
 		svr.PutLong(pair.second.vertical_g);
 		svr.PutLong(pair.second.horizontal_g);
 	}
+	svr.EndPattern();
 }

@@ -149,24 +149,31 @@ void Weather::OnNewDay()
 	if (this->change == 0) this->change = (this->next - this->current > 0) ? 1 : -1;
 }
 
+static const uint32 CURRENT_VERSION_WTHR = 1;   ///< Currently supported version of the WTHR Pattern.
+
 /**
  * Load weather data from the save game.
  * @param ldr Input stream to load from.
  */
 void Weather::Load(Loader &ldr)
 {
-	uint32 version = ldr.OpenBlock("WTHR");
-	if (version == 1) {
-		this->temperature = ldr.GetLong();
-		this->current = ldr.GetLong();
-		this->next = ldr.GetLong();
-		this->change = ldr.GetLong();
-	} else if (version != 0) {
-		ldr.SetFailMessage("Incorrect version of weather block.");
-	}
-	ldr.CloseBlock();
+	uint32 version = ldr.OpenPattern("WTHR");
+	switch (version) {
+		case 0:
+			this->Initialize();
+			break;
 
-	if (version == 0 || ldr.IsFail()) this->Initialize();
+		case 1:
+			this->temperature = ldr.GetLong();
+			this->current = ldr.GetLong();
+			this->next = ldr.GetLong();
+			this->change = ldr.GetLong();
+			break;
+
+		default:
+			ldr.version_mismatch(version, CURRENT_VERSION_WTHR);
+	}
+	ldr.ClosePattern();
 }
 
 /**
@@ -175,12 +182,13 @@ void Weather::Load(Loader &ldr)
  */
 void Weather::Save(Saver &svr)
 {
-	svr.StartBlock("WTHR", 1);
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("WTHR", CURRENT_VERSION_WTHR);
 	svr.PutLong(this->temperature);
 	svr.PutLong(this->current);
 	svr.PutLong(this->next);
 	svr.PutLong(this->change);
-	svr.EndBlock();
+	svr.EndPattern();
 }
 
 /**

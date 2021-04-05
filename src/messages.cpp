@@ -146,21 +146,30 @@ void Message::OnClick() const
 	}
 }
 
+static const uint32 CURRENT_VERSION_INBX = 1;     ///< Currently supported version of the INBX Pattern.
+static const uint32 CURRENT_VERSION_Message = 1;  ///< Currently supported version of the %Message Pattern.
+
 void Message::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("mssg");
+	if (version != CURRENT_VERSION_Message) ldr.version_mismatch(version, CURRENT_VERSION_Message);
+
 	this->message = ldr.GetWord();
 	this->data1 = ldr.GetLong();
 	this->data2 = ldr.GetLong();
 	this->timestamp = Date(CompressedDate(ldr.GetLong()));
 	this->InitMessageDataTypes();
+	ldr.ClosePattern();
 }
 
 void Message::Save(Saver &svr) const
 {
+	svr.StartPattern("mssg", CURRENT_VERSION_Message);
 	svr.PutWord(this->message);
 	svr.PutLong(this->data1);
 	svr.PutLong(this->data2);
 	svr.PutLong(this->timestamp.Compress());
+	svr.EndPattern();
 }
 
 /** Reset the inbox to a clean state. */
@@ -247,19 +256,33 @@ void Inbox::NotifyGuestDeletion(const uint16 guest)
 void Inbox::Load(Loader &ldr)
 {
 	this->Clear();
-	for (long i = ldr.GetLong(); i > 0; i--) {
-		Message *m = new Message;
-		m->Load(ldr);
-		this->messages.push_back(std::unique_ptr<Message>(m));
+	const uint32 version = ldr.OpenPattern("INBX");
+	switch (version) {
+		case 0:
+			break;
+		case 1:
+			for (long i = ldr.GetLong(); i > 0; i--) {
+				Message *m = new Message;
+				m->Load(ldr);
+				this->messages.push_back(std::unique_ptr<Message>(m));
+			}
+			break;
+
+		default:
+			ldr.version_mismatch(version, CURRENT_VERSION_INBX);
 	}
+	ldr.ClosePattern();
 }
 
 void Inbox::Save(Saver &svr) const
 {
+	svr.CheckNoOpenPattern();
+	svr.StartPattern("INBX", CURRENT_VERSION_INBX);
 	svr.PutLong(this->messages.size());
 	for (const auto &m : this->messages) {
 		m->Save(svr);
 	}
+	svr.EndPattern();
 }
 
 Inbox _inbox;

@@ -387,8 +387,12 @@ void GentleThrillRideInstance::RecalculateRatings()
 	this->excitement_rating += scenery * t->excitement_increase_scenery;
 }
 
+static const uint32 CURRENT_VERSION_GentleThrillRideInstance = 1;   ///< Currently supported version of %GentleThrillRideInstance.
+
 void GentleThrillRideInstance::Load(Loader &ldr)
 {
+	const uint32 version = ldr.OpenPattern("gtri");
+	if (version != CURRENT_VERSION_GentleThrillRideInstance) ldr.version_mismatch(version, CURRENT_VERSION_GentleThrillRideInstance);
 	this->FixedRideInstance::Load(ldr);
 
 	XYZPoint16 pos;
@@ -400,10 +404,12 @@ void GentleThrillRideInstance::Load(Loader &ldr)
 	pos.y = ldr.GetWord();
 	pos.z = ldr.GetWord();
 	SetExitPos(pos);
+	ldr.ClosePattern();
 }
 
 void GentleThrillRideInstance::Save(Saver &svr)
 {
+	svr.StartPattern("gtri", CURRENT_VERSION_GentleThrillRideInstance);
 	this->FixedRideInstance::Save(svr);
 	svr.PutWord(this->entrance_pos.x);
 	svr.PutWord(this->entrance_pos.y);
@@ -411,4 +417,5 @@ void GentleThrillRideInstance::Save(Saver &svr)
 	svr.PutWord(this->exit_pos.x);
 	svr.PutWord(this->exit_pos.y);
 	svr.PutWord(this->exit_pos.z);
+	svr.EndPattern();
 }

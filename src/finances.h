@@ -42,7 +42,7 @@ public:
 	void Reset();
 	Money GetTotal() const;
 
-	void Load(Loader &ldr, uint32 version);
+	void Load(Loader &ldr);
 	void Save(Saver &svr);
 };
 

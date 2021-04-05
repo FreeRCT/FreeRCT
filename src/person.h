@@ -177,6 +177,8 @@ public:
 	void Activate(const Point16 &start, PersonType person_type) override;
 	void DeActivate(AnimateResult ar) override;
 
+	void InitRidePreferences();
+
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
@@ -220,6 +222,12 @@ public:
 	uint8 stomach_level; ///< Amount of food/drink in the stomach.
 	uint8 waste;         ///< Amount of food/drink waste that should be disposed.
 	uint8 nausea;        ///< Amount of nausea of the guest.
+
+	uint32 preferred_ride_intensity;   ///< Favourite ride intensity rating.
+	uint32 min_ride_intensity;         ///< Lowest tolerated ride intensity rating.
+	uint32 max_ride_intensity;         ///< Highest tolerated ride intensity rating.
+	uint32 max_ride_nausea;            ///< Highest tolerated ride nausea rating.
+	uint32 min_ride_excitement;        ///< Lowest tolerated ride excitement rating.
 
 protected:
 	void DecideMoveDirection() override;
