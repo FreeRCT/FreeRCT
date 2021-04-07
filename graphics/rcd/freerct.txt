@@ -705,10 +705,10 @@ file("freerct.rcd") {
 
 		nr_frames: 10;
 		sheet {
-			x_base: 0; y_base: 1 * 48; x_step: 24; y_step: 48;
+			x_base: 0; y_base: 1 * 24; x_step: 16; y_step: 24;
 			file: "../sprites/persons/64_guest.png";
 			recolour: "../sprites/persons/64_guest_mask.png";
-			x_offset: -12; y_offset: -48+8; width: 24; height: 48;
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -727,10 +727,10 @@ file("freerct.rcd") {
 
 		nr_frames: 10;
 		sheet {
-			x_base: 0; y_base: 0 * 48; x_step: 24; y_step: 48;
+			x_base: 0; y_base: 0 * 24; x_step: 16; y_step: 24;
 			file: "../sprites/persons/64_guest.png";
 			recolour: "../sprites/persons/64_guest_mask.png";
-			x_offset: -12; y_offset: -48+8; width: 24; height: 48;
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -749,10 +749,10 @@ file("freerct.rcd") {
 
 		nr_frames: 10;
 		sheet {
-			x_base: 0; y_base: 3 * 48; x_step: 24; y_step: 48;
+			x_base: 0; y_base: 3 * 24; x_step: 16; y_step: 24;
 			file: "../sprites/persons/64_guest.png";
 			recolour: "../sprites/persons/64_guest_mask.png";
-			x_offset: -12; y_offset: -48+8; width: 24; height: 48;
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -771,10 +771,10 @@ file("freerct.rcd") {
 
 		nr_frames: 10;
 		sheet {
-			x_base: 0; y_base: 2 * 48; x_step: 24; y_step: 48;
+			x_base: 0; y_base: 2 * 24; x_step: 16; y_step: 24;
 			file: "../sprites/persons/64_guest.png";
 			recolour: "../sprites/persons/64_guest_mask.png";
-			x_offset: -12; y_offset: -48+8; width: 24; height: 48;
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
