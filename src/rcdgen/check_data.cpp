@@ -1304,7 +1304,7 @@ static std::shared_ptr<ANSPBlock> ConvertANSPNode(std::shared_ptr<NodeGroup> ng)
 			}
 		}
 
-		const int nr_sprites = vals.GetNumber("nr_sprites");
+		const int nr_sprites = vals.GetNumber("nr_frames");
 		for (int i = 0; i < nr_sprites; i++) {
 			blk->frames.push_back(std::dynamic_pointer_cast<SpriteBlock>(sprites->GetSubNode(0, i, "ANSP sprite", ng->pos)));
 		}
