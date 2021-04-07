@@ -246,6 +246,7 @@ RideInstance::RideInstance(const RideType *rt)
 	this->time_since_last_maintenance = 0;
 	this->maintenance_interval = 30 * 60 * 1000;  // Half an hour by default.
 	this->broken = false;
+	this->mechanic_pending = false;
 	this->time_since_last_long_queue_message = 0;
 	this->excitement_rating = RATING_NOT_YET_CALCULATED;
 	this->intensity_rating = RATING_NOT_YET_CALCULATED;
