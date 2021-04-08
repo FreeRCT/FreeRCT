@@ -126,7 +126,7 @@ void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) con
 void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 {
 	const int text_w = rect.width - rect.height - 3 * MESSAGE_PADDING;
-	_video.FillRectangle(rect, TEXT_BLACK);
+	_video.FillRectangle(rect, 0xff);
 
 	uint8 colour;
 	switch (msg->category) {

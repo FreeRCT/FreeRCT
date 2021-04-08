@@ -1016,8 +1016,7 @@ AnimateResult Person::OnAnimate(int delay)
 		case WLM_MAXIMAL: y_limit = 255;                break;
 	}
 
-	uint16 index = this->frame_index;
-	const AnimationFrame *frame = &this->frames[index];
+	const AnimationFrame *frame = &this->frames[this->frame_index];
 	if (this->IsQueuingGuest() && this->IsQueuingGuestNearby(this->vox_pos, this->pix_pos, true)) {
 		/* Freeze in place if we are too close to the person queuing in front of us. */
 		this->frame_time += delay;
@@ -1041,10 +1040,9 @@ AnimateResult Person::OnAnimate(int delay)
 
 	if (!reached) {
 		/* Not reached the end, do the next frame. */
-		index++;
-		if (this->frame_count <= index) index = 0;
-		this->frame_index = index;
-		this->frame_time = this->frames[index].duration;
+		this->frame_index++;
+		this->frame_index %= this->frame_count;
+		this->frame_time = this->frames[this->frame_index].duration;
 
 		this->pix_pos.z = GetZHeight(this->vox_pos, this->pix_pos.x, this->pix_pos.y);
 		return OAR_OK;
