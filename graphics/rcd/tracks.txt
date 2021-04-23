@@ -450,6 +450,7 @@ file("tracks.rcd") {
 		num_passengers: 4;
 		num_entrances: 2;
 
+		// Car sprites.
 		(car_p{vert(0..15)}r0y{hor(0..15)}) : sheet {
 			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64; y_count: 16;
@@ -529,6 +530,14 @@ file("tracks.rcd") {
 			file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 			x_base: 0; y_base: 15360; x_step: 64; y_step: 64; y_count: 16;
 			x_offset: -32; y_offset: -39; width: 64; height: 64;
+		}
+
+		// Guest overlay sprites.
+		guest_sheet : sheet {
+			file:     "../sprites/tracks/cars/64_guests_overlay.png";
+			recolour: "../sprites/tracks/cars/64_guests_mask.png";
+			x_base: 0; y_base: 0; x_step: 64; y_step: 64; x_offset: -32; y_offset: -39;
+			width: 64; height: 64; x_count: 16; y_count: 256*4; crop: 1;
 		}
 	}
 

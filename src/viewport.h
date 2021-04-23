@@ -63,8 +63,9 @@ enum SpriteOrder {
 	SO_RIDE_FRONT      = (11 << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
 	SO_PLATFORM_FRONT  = (12 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
 	SO_PERSON          = (13 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
-	SO_FENCE_FRONT     = (14 << CS_LENGTH),             ///< Draw fence on the front edges
-	SO_CURSOR          = (15 << CS_LENGTH),             ///< Draw cursor sprites.
+	SO_PERSON_OVERLAY  = (14 << CS_LENGTH) | CS_PERSON, ///< Draw overlays over person sprites.
+	SO_FENCE_FRONT     = (15 << CS_LENGTH),             ///< Draw fence on the front edges
+	SO_CURSOR          = (16 << CS_LENGTH),             ///< Draw cursor sprites.
 };
 
 /** Part of a ground tile to select. */

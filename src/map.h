@@ -300,6 +300,7 @@ public:
 	virtual ~VoxelObject();
 
 	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const = 0;
+	virtual std::vector<std::pair<const ImageData*, const Recolouring*>> GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const;
 
 	/**
 	 * Add itself to the voxel objects chain.

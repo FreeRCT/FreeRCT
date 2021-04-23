@@ -16,6 +16,7 @@
 #include "map.h"
 #include "messages.h"
 #include "people.h"
+#include "sprite_data.h"
 #include "viewport.h"
 
 #include "generated/coasters_strings.cpp"
@@ -54,7 +55,7 @@ CarType::CarType()
  */
 bool CarType::Load(RcdFileReader *rcdfile, const ImageMap &sprites)
 {
-	if (rcdfile->version != 2 || rcdfile->size != 2 + 2 + 4 + 4 + 2 + 2 + 16384) return false;
+	if (rcdfile->version != 3 || rcdfile->size < 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3) return false;
 
 	this->tile_width = rcdfile->GetUInt16();
 	if (this->tile_width != 64) return false; // Do not allow anything else than 64 pixels tile width.
@@ -74,6 +75,19 @@ bool CarType::Load(RcdFileReader *rcdfile, const ImageMap &sprites)
 
 	for (uint i = 0; i < 4096; i++) {
 		if (!LoadSpriteFromFile(rcdfile, sprites, &this->cars[i])) return false;
+	}
+
+	if (this->cars[0] == nullptr) return false;
+	const int64 nr_overlays = 4096 * this->num_passengers;
+	if (rcdfile->size != 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3 + 4 * nr_overlays) return false;
+	this->guest_overlays.reset(new ImageData*[nr_overlays]);
+	for (int64 i = 0; i < nr_overlays; i++) {
+		if (!LoadSpriteFromFile(rcdfile, sprites, &this->guest_overlays[i])) return false;
+	}
+
+	for (int i = 0; i < 3; i++) {
+		uint32 recolour = rcdfile->GetUInt32();
+		this->recolours.Set(i, RecolourEntry(recolour));
 	}
 	return true;
 }
@@ -227,12 +241,27 @@ bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites)
 
 DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff) // Mark everything as invalid.
 {
+	this->owning_car = nullptr;
 }
 
 const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
 {
-	*recolour = nullptr;
+	*recolour = &this->owning_car->owning_train->coaster->recolours;
 	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);
+}
+
+std::vector<std::pair<const ImageData*, const Recolouring*>> DisplayCoasterCar::GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const
+{
+	std::vector<std::pair<const ImageData*, const Recolouring*>> result;
+	if (this->owning_car == nullptr) return result;
+	for (int i = 0; i < this->car_type->num_passengers; i++) {
+		if (this->owning_car->guests[i] != nullptr) {
+			result.push_back(std::make_pair(
+					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),
+					&this->owning_car->guests[i]->recolour));
+		}
+	}
+	return result;
 }
 
 /**
@@ -374,8 +403,10 @@ void CoasterTrain::SetLength(const int length)
 	this->cars.clear();
 	this->cars.resize(length);
 	for (CoasterCar &car : this->cars) {
+		car.owning_train = this;
 		car.front.car_type = this->coaster->car_type;
 		car.back.car_type = this->coaster->car_type;
+		car.front.owning_car = car.back.owning_car = &car;
 		car.guests.resize(car.front.car_type->num_passengers, nullptr);
 	}
 }
@@ -810,7 +841,6 @@ void CoasterInstance::CloseRide()
 		train.station_policy = TSP_IN_STATION_BACK;
 		train.cur_piece = this->pieces;
 		train.cars.resize(0);
-		train.OnAnimate(0);
 	}
 	RideInstance::CloseRide();
 	this->RecalculateRatings();
@@ -1345,7 +1375,6 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 		} else {
 			train.SetLength(0);
 		}
-		train.OnAnimate(0);
 	}
 }
 

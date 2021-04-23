@@ -53,13 +53,28 @@ public:
 		return this->cars[(uint)(pitch & 0xf) | ((uint)(roll & 0xf) << 4) | ((uint)(yaw & 0xf) << 8)];
 	}
 
-	ImageData *cars[4096];   ///< Images of the car, in all possible orientation (if available).
+	/**
+	 * Retrieve a guest overlay sprite at a given \a pitch, \a roll, and \a yaw orientation.
+	 * @param pitch Required pitch of the car.
+	 * @param roll Required roll of the car.
+	 * @param yaw Required yaw of the car.
+	 * @param slot Seat number of the guest to overlay.
+	 * @return The overlay in the requested orientation, if available.
+	 */
+	const ImageData *GetGuestOverlay(uint pitch, uint roll, uint yaw, uint slot) const
+	{
+		return this->guest_overlays[slot * 16u*16u*16u + ((uint)(pitch & 0xf) | ((uint)(roll & 0xf) << 4) | ((uint)(yaw & 0xf) << 8))];
+	}
+
+	ImageData *cars[4096];                        ///< Images of the car, in all possible orientations.
+	std::unique_ptr<ImageData*[]> guest_overlays; ///< Images for the guest overlays, in all possible orientations.
 	uint16 tile_width;       ///< Tile width of the images.
 	uint16 z_height;         ///< Change in z-height of the images.
 	uint32 car_length;       ///< Length of a car in 1/256 pixel.
 	uint32 inter_car_length; ///< Length between two car in 1/256 pixel.
 	uint16 num_passengers;   ///< Number of passenger of a car.
 	uint16 num_entrances;    ///< Number of entrance rows of a car.
+	Recolouring recolours;   ///< Sprite recolour map.
 };
 
 CarType *GetNewCarType();
@@ -110,6 +125,9 @@ public:
 	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
 };
 
+class CoasterCar;
+class CoasterTrain;
+
 /**
  * Displayed car in a train.
  * Note that #yaw decides validness of the data.
@@ -118,7 +136,8 @@ class DisplayCoasterCar : public VoxelObject {
 public:
 	DisplayCoasterCar();
 
-	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
+	const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
+	std::vector<std::pair<const ImageData*, const Recolouring*>> GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const override;
 
 	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
 	void PreRemove();
@@ -130,6 +149,8 @@ public:
 	uint8 pitch;             ///< Pitch of the car.
 	uint8 roll;              ///< Roll of the car.
 	uint8 yaw;               ///< Yaw of the car (\c 0xff means all data is invalid).
+
+	const CoasterCar *owning_car;  ///< Pointer to the owning car.
 };
 
 /** Coaster car drawn at the front and the back position. */
@@ -138,6 +159,7 @@ public:
 	DisplayCoasterCar front;     ///< %Voxel image displayed at the front of the car.
 	DisplayCoasterCar back;      ///< %Voxel image displayed at the end of the car.
 	std::vector<Guest*> guests;  ///< Guests currently in the car.
+	CoasterTrain *owning_train;  ///< Pointer to the owning train.
 
 	void PreRemove();
 

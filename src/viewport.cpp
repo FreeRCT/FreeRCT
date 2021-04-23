@@ -682,9 +682,17 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
 			            north_point.y + this->north_offsets[this->orient].y + y_off);
+
 			DrawData dd;
 			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr, pos, recolour);
 			this->draw_images.insert(dd);
+
+			for (auto &pair : vo->GetOverlays(this->sprites, this->orient)) {
+				if (pair.first != nullptr) {
+					dd.Set(slice, voxel_pos.z, SO_PERSON_OVERLAY, pair.first, pos, pair.second);
+					this->draw_images.insert(dd);
+				}
+			}
 		}
 		vo = vo->next_object;
 	}

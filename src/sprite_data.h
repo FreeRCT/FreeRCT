@@ -10,6 +10,9 @@
 #ifndef SPRITE_DATA_H
 #define SPRITE_DATA_H
 
+#include <map>
+#include <memory>
+
 static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in image data.
 
 class RcdFileReader;

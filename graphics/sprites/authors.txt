@@ -14,3 +14,4 @@ gentle_thrill_rides/ship_swing
 gentle_thrill_rides/spooky_manor
 persons
 scenery/objects
+tracks/cars/<guest-related sprites>

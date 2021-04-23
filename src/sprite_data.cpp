@@ -15,7 +15,7 @@
 
 #include <vector>
 
-static const uint32 MAX_IMAGE_COUNT = 10000; ///< Maximum number of images that can be loaded (arbitrary number).
+static const uint32 MAX_IMAGE_COUNT = 20000;  ///< Maximum number of images that can be loaded (arbitrary number).
 
 static std::vector<ImageData> _sprites;  ///< Available sprites to the program.
 static uint32 _sprites_loaded;           ///< Total number of sprites loaded.

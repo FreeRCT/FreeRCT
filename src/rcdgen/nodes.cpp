@@ -1839,23 +1839,25 @@ int RCSTBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-CARSBlock::CARSBlock() : GameBlock("CARS", 2)
+CARSBlock::CARSBlock() : GameBlock("CARS", 3)
 {
 }
 
 int CARSBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 2 + 2 + 4 + 4 + 2 + 2 + 16 * 16 * 16 * 4);
+	fb->StartSave(this->blk_name, this->version, 2 + 2 + 4 + 4 + 2 + 2 + 16 * 16 * 16 * 4 * (1 + this->num_passengers) + 4 * 3);
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt16(this->z_height);
 	fb->SaveUInt32(this->length);
 	fb->SaveUInt32(this->inter_length);
 	fb->SaveUInt16(this->num_passengers);
 	fb->SaveUInt16(this->num_entrances);
-	for (auto index : this->sprites) {
-		fb->SaveUInt32(index->Write(fw));
-	}
+	for (auto &index : this->sprites) fb->SaveUInt32(index->Write(fw));
+	for (uint32 index = 0; index < this->num_passengers * 16*16*16; index++) fb->SaveUInt32(this->guest_overlays[index]->Write(fw));
+	fb->SaveUInt32(this->recol[0].Encode());
+	fb->SaveUInt32(this->recol[1].Encode());
+	fb->SaveUInt32(this->recol[2].Encode());
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
