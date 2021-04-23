@@ -29,6 +29,8 @@ static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about eac
 static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests queuing for a ride.
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
+const Money Mechanic::SALARY(150000);  ///< Monthly salary of a mechanic.
+
 /**
  * Construct a recolour mapping of this person type.
  * @return The constructed recolouring.
@@ -410,8 +412,9 @@ static const WalkInformation *DecodeWalk(uint16 number)
 	NOT_REACHED();
 }
 
-static const uint32 CURRENT_VERSION_Person = 1;   ///< Currently supported version of %Person.
-static const uint32 CURRENT_VERSION_Guest  = 2;   ///< Currently supported version of %Guest.
+static const uint32 CURRENT_VERSION_Person   = 1;   ///< Currently supported version of %Person.
+static const uint32 CURRENT_VERSION_Guest    = 2;   ///< Currently supported version of %Guest.
+static const uint32 CURRENT_VERSION_Mechanic = 1;   ///< Currently supported version of %Mechanic.
 
 /**
  * Load a person from the save game.
@@ -1645,4 +1648,77 @@ void Guest::BuyItem(RideInstance *ri)
 		}
 	}
 	this->ChangeHappiness(-10);
+}
+
+/* Constructor. */
+Mechanic::Mechanic()
+{
+	this->ride = nullptr;
+}
+
+/* Destructor. */
+Mechanic::~Mechanic()
+{
+	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
+}
+
+void Mechanic::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("mchc");
+	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
+	this->Person::Load(ldr);
+
+	const uint16 ride_index = ldr.GetWord();
+	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+
+	ldr.ClosePattern();
+}
+
+void Mechanic::Save(Saver &svr)
+{
+	svr.StartPattern("mchc", CURRENT_VERSION_Mechanic);
+	this->Person::Save(svr);
+	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
+	svr.EndPattern();
+}
+
+/**
+ * Order this mechanic to inspect a ride.
+ * @param ri Ride to inspect.
+ */
+void Mechanic::Assign(RideInstance *ri)
+{
+	assert(this->ride == nullptr);
+	this->ride = ri;
+}
+
+/**
+ * Notify the mechanic of removal of a ride.
+ * @param ri Ride being deleted.
+ */
+void Mechanic::NotifyRideDeletion(const RideInstance *ri)
+{
+	if (ri == this->ride) this->ride = nullptr;
+}
+
+bool Mechanic::DailyUpdate()
+{
+	/* Nothing to do currently. */
+	return true;
+}
+
+void Mechanic::DecideMoveDirection()
+{
+	NOCOM  // move towards our ride, if any; otherwise randomly
+}
+
+AnimateResult Mechanic::EdgeOfWorldOnAnimate()
+{
+	return OAR_CONTINUE;
+}
+
+AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
+{
+	if (ri != this->ride) return OAR_CONTINUE;
+	NOCOM  // display a working animation, then call this->ride->MechanicArrived();
 }

@@ -242,4 +242,26 @@ protected:
 	void AddItem(ItemType it);
 };
 
+/** A mechanic who can repair and inspect rides. */
+class Mechanic : public Person {
+public:
+	static const Money SALARY;
+
+	Mechanic();
+	~Mechanic();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void Assign(RideInstance *ri);
+	void NotifyRideDeletion(const RideInstance *ri);
+
+	bool DailyUpdate() override;
+	void DecideMoveDirection() override;
+	AnimateResult EdgeOfWorldOnAnimate() override;
+	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
+
+	RideInstance *ride;   ///< Ride we're intending to inspect, if any.
+};
+
 #endif

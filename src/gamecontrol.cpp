@@ -34,6 +34,7 @@ void OnNewYear()
 void OnNewMonth()
 {
 	_finances_manager.AdvanceMonth();
+	_staff.OnNewMonth();
 	_rides_manager.OnNewMonth();
 }
 
