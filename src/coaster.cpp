@@ -841,6 +841,7 @@ void CoasterInstance::CloseRide()
 		train.station_policy = TSP_IN_STATION_BACK;
 		train.cur_piece = this->pieces;
 		train.cars.resize(0);
+		train.OnAnimate(0);
 	}
 	RideInstance::CloseRide();
 	this->RecalculateRatings();
@@ -1375,6 +1376,7 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 		} else {
 			train.SetLength(0);
 		}
+		train.OnAnimate(0);
 	}
 }
 
