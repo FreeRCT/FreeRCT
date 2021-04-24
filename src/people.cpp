@@ -392,8 +392,8 @@ void Staff::RequestMechanic(RideInstance *ride)
 Mechanic *Staff::HireMechanic()
 {
 	Mechanic *m = new Mechanic;
-	// NOCOM place the mechanic somewhere
 	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+	m->Activate(Point16(9, 2) /* NOCOM */, PERSON_MECHANIC);
 	return m;
 }
 
@@ -435,10 +435,19 @@ void Staff::DoTick()
 {
 	/* Assign one mechanic request to the nearest available mechanic, if any. */
 	if (!this->mechanic_requests.empty() && !this->mechanics.empty()) {
+		const EdgeCoordinate destination = this->mechanic_requests.front()->GetMechanicEntrance();
 		Mechanic *best = nullptr;
+		uint32 distance = 0;
 		for (auto &m : this->mechanics) {
-			if (m->ride == nullptr) {  // NOCOM check if we're closer than the other one
-				best = m.get();
+			if (m->ride == nullptr) {
+				/* \todo The actual walking-time would be a better indicator than the absolute distance to determine which mechanic is closest. */
+				const uint32 d = std::abs(destination.coords.x - m->vox_pos.x) +
+						std::abs(destination.coords.y - m->vox_pos.y) +
+						std::abs(destination.coords.z - m->vox_pos.z);
+				if (best == nullptr || d < distance) {
+					best = m.get();
+					distance = d;
+				}
 			}
 		}
 		if (best != nullptr) {
@@ -452,6 +461,7 @@ void Staff::DoTick()
 void Staff::OnNewDay()
 {
 	/* Nothing to do currently. */
+	if (this->mechanics.empty()) this->HireMechanic();  // NOCOM
 }
 
 /** A new month arrived. */

@@ -1709,7 +1709,8 @@ bool Mechanic::DailyUpdate()
 
 void Mechanic::DecideMoveDirection()
 {
-	NOCOM  // move towards our ride, if any; otherwise randomly
+	// NOCOM  // move towards our ride, if any; otherwise randomly
+	this->StartAnimation(_walk_path_tile[this->rnd.Uniform(3)][this->rnd.Uniform(this->vox_pos.y > 3 ? 3 : 2)]);
 }
 
 AnimateResult Mechanic::EdgeOfWorldOnAnimate()
@@ -1717,8 +1718,34 @@ AnimateResult Mechanic::EdgeOfWorldOnAnimate()
 	return OAR_CONTINUE;
 }
 
-AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
+/** Motionless "walk" when a mechanic repairs a ride. */
+static const WalkInformation _mechanic_repair[] = {
+	{ANIM_MECHANIC_REPAIR, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}
+};
+
+AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
 {
-	if (ri != this->ride) return OAR_CONTINUE;
-	NOCOM  // display a working animation, then call this->ride->MechanicArrived();
+	if (ri != this->ride) return OAR_CONTINUE;  // Not our destination ride.
+
+	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
+	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return OAR_CONTINUE;  // Approaching from the wrong direction.
+
+	XYZPoint32 expected_location = this->vox_pos;
+	switch (exit_edge) {
+		case EDGE_NE: expected_location.x--; break;
+		case EDGE_SW: expected_location.x++; break;
+		case EDGE_NW: expected_location.y--; break;
+		case EDGE_SE: expected_location.y++; break;
+		default: NOT_REACHED();
+	}
+	if (destination.coords != expected_location) return OAR_CONTINUE;  // Not the correct location.
+
+	if (this->walk == _mechanic_repair) {
+		this->ride->MechanicArrived();
+		this->ride = nullptr;
+		return OAR_CONTINUE;
+	} else {
+		this->StartAnimation(_mechanic_repair);
+		return OAR_OK;
+	}
 }

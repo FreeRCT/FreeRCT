@@ -943,10 +943,10 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 	NOT_REACHED();
 }
 
-std::pair<XYZPoint16, TileEdge> CoasterInstance::GetMechanicEntrance() const
+EdgeCoordinate CoasterInstance::GetMechanicEntrance() const
 {
 	for (const CoasterStation &s : this->stations) {  // Pick the first exit there is.
-		if (s.exit != XYZPoint16::invalid()) return std::make_pair(s.exit, static_cast<TileEdge>(this->EntranceExitRotation(s.exit, &s)));
+		if (s.exit != XYZPoint16::invalid()) return EdgeCoordinate {s.exit, static_cast<TileEdge>(this->EntranceExitRotation(s.exit, &s))};
 	}
 	NOT_REACHED();
 }
