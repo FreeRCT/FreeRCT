@@ -2634,6 +2634,23 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 	rb->num_passengers = vals.GetNumber("num_passengers");
 	rb->num_entrances  = vals.GetNumber("num_entrances");
 
+	{
+		std::vector<std::shared_ptr<Recolouring>> recolours = GetTypedData<Recolouring>(vals, "recolour", 3);
+		int i = 0;
+		for (auto &rc : recolours) {
+			rb->recol[i++] = *rc;
+		}
+	}
+
+	std::shared_ptr<ValueInformation> guest_sheet_node = vals.FindValue("guest_sheet");
+	auto guest_sheet = std::dynamic_pointer_cast<SheetBlock>(guest_sheet_node->node_value);
+	if (guest_sheet == nullptr) {
+		fprintf(stderr, "Error at %s: Field \"guest_sheet\" of node \"CARS\" is not a spritesheet node.\n", guest_sheet_node->pos.ToString());
+		exit(1);
+	}
+	guest_sheet_node->node_value = nullptr;
+	rb->guest_overlays.reset(new std::shared_ptr<SpriteBlock>[rb->num_passengers * 16*16*16]);
+
 	char buffer[32];
 	for (int yaw = 0; yaw < 16; yaw++) {
 		for (int roll = 0; roll < 16; roll++) {
@@ -2641,6 +2658,19 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 				int index = pitch + roll * 16 + yaw *16*16;
 				sprintf(buffer, "car_p%dr%dy%d", pitch, roll, yaw);
 				rb->sprites[index] = vals.GetSprite(buffer);
+
+				for (int slot = 0; slot < rb->num_passengers; slot++) {
+					const long idx = slot * 16*16*16 + index;
+					rb->guest_overlays[idx].reset(new SpriteBlock);
+					const char *error = rb->guest_overlays[idx]->sprite_image.CopySprite(
+							guest_sheet->GetSheet(), guest_sheet->x_offset, guest_sheet->y_offset,
+							yaw * guest_sheet->x_step, (pitch + roll * 16 + slot * 16*16) * guest_sheet->y_step,
+							guest_sheet->width, guest_sheet->height, guest_sheet->crop);
+					if (error != nullptr) {
+						fprintf(stderr, "Error at %s: Failed to copy guest overlay #%i at p%dr%dy%d: %s\n", ng->pos.ToString(), slot, pitch, roll, yaw, error);
+						exit(1);
+					}
+				}
 			}
 		}
 	}
