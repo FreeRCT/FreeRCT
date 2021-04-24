@@ -21,18 +21,18 @@ import javax.imageio.ImageIO;
  *    java GenerateSpritesheet src_dir output_file idOff_se se idOff_ne ne idOff_nw nw idOff_sw sw f x y w h TIMA
  *
  * The last parameter declares which indexing algorithm to use. The indexing algorithm decides at which coordinates
- * in the resulting spritesheet each input image should be located. Available indexing algorithms are:
- * - TIMA: Arranges the individual images in the way expected by the TIMA and FSET node generators.
- * - PLAIN: Just put one sprite after the other, without considering rotations or other fancy processing.
+ * in the resulting spritesheet each input image should be located. See below for available indexing algorithms.
  *
  * Before running the program the first time you need to run
  *    javac GenerateSpritesheet.java
  */
 
 public class GenerateSpritesheet {
-	private static enum IndexingAlgorithm {
+	public static enum IndexingAlgorithm {
+		/** Arranges the individual images in the way expected by the TIMA and FSET node generators. */
 		TIMA,
-		PLAIN
+		/** Just put one sprite after the other, without considering rotations or other fancy processing. */
+		PLAIN,
 	}
 
 	public static void main(String[] args) throws Exception {
