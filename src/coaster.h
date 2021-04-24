@@ -48,9 +48,9 @@ public:
 	 * @param yaw Required yaw of the car.
 	 * @return Image of the car in the requested orientation, if available.
 	 */
-	const ImageData *GetCar(int pitch, int roll, int yaw) const
+	const ImageData *GetCar(uint pitch, uint roll, uint yaw) const
 	{
-		return this->cars[(uint)(pitch & 0xf) | ((uint)(roll & 0xf) << 4) | ((uint)(yaw & 0xf) << 8)];
+		return this->cars[(pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8)];
 	}
 
 	/**
@@ -63,7 +63,7 @@ public:
 	 */
 	const ImageData *GetGuestOverlay(uint pitch, uint roll, uint yaw, uint slot) const
 	{
-		return this->guest_overlays[slot * 16u*16u*16u + ((uint)(pitch & 0xf) | ((uint)(roll & 0xf) << 4) | ((uint)(yaw & 0xf) << 8))];
+		return this->guest_overlays[slot * 16u*16u*16u + ((pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8))];
 	}
 
 	ImageData *cars[4096];                        ///< Images of the car, in all possible orientations.
@@ -137,7 +137,7 @@ public:
 	DisplayCoasterCar();
 
 	const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
-	std::vector<std::pair<const ImageData*, const Recolouring*>> GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const override;
+	VoxelObject::Overlays GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const override;
 
 	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
 	void PreRemove();

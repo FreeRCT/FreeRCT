@@ -299,8 +299,15 @@ public:
 
 	virtual ~VoxelObject();
 
+	/** Holds data about an overlay to draw on top of this object's sprite. */
+	struct Overlay {
+		const ImageData   *sprite;    ///< Sprite to draw.
+		const Recolouring *recolour;  ///< Recolouring specification to use (can be \c nullptr).
+	};
+	typedef std::vector<Overlay> Overlays;
+
 	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const = 0;
-	virtual std::vector<std::pair<const ImageData*, const Recolouring*>> GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const;
+	virtual Overlays GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const;
 
 	/**
 	 * Add itself to the voxel objects chain.

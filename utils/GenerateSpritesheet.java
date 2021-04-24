@@ -16,17 +16,27 @@ import javax.imageio.ImageIO;
  * The images are called "PREFIX0000.png" through "PREFIX9999.png", where `PREFIX` may be different for each of the four rotations
  * (let's call the prefixes `se`,`ne`,`nw`,`sw` in this order). The number of the
  * animation's starting frame is `idOff_<p>` for each of the four prefixes <p>.
+ *
  * To generate the spritesheet and save it as `output_file`, run
- *    java GenerateSpritesheet src_dir output_file idOff_se se idOff_ne ne idOff_nw nw idOff_sw sw f x y w h true
- * The last, optional parameter can be set to `false` to disable intelligent calculation of frame indices
- * (useful when (ab)using this tool to generate spritesheets for a different purpose than the one stated above).
+ *    java GenerateSpritesheet src_dir output_file idOff_se se idOff_ne ne idOff_nw nw idOff_sw sw f x y w h TIMA
+ *
+ * The last parameter declares which indexing algorithm to use. The indexing algorithm decides at which coordinates
+ * in the resulting spritesheet each input image should be located. Available indexing algorithms are:
+ * - TIMA: Arranges the individual images in the way expected by the TIMA and FSET node generators.
+ * - PLAIN: Just put one sprite after the other, without considering rotations or other fancy processing.
+ *
  * Before running the program the first time you need to run
  *    javac GenerateSpritesheet.java
  */
 
 public class GenerateSpritesheet {
+	private static enum IndexingAlgorithm {
+		TIMA,
+		PLAIN
+	}
+
 	public static void main(String[] args) throws Exception {
-		System.out.println("Usage: java GenerateSpritesheet src_dir output_file idOff_se se idOff_ne ne idOff_nw nw idOff_sw sw nr_frames x y w h [cleverindex=true]");
+		System.out.println("Usage: java GenerateSpritesheet src_dir output_file idOff_se se idOff_ne ne idOff_nw nw idOff_sw sw nr_frames x y w h indexer");
 		int arg_index = 0;
 		final String src = args[arg_index++];
 		final String result = args[arg_index++];
@@ -41,7 +51,7 @@ public class GenerateSpritesheet {
 		final int sprites_y = Integer.valueOf(args[arg_index++]);
 		final int sprite_w = Integer.valueOf(args[arg_index++]);
 		final int sprite_h = Integer.valueOf(args[arg_index++]);
-		final boolean cleverindex = (arg_index >= args.length) || Boolean.parseBoolean(args[arg_index]);
+		final IndexingAlgorithm indexer = IndexingAlgorithm.valueOf(args[arg_index++]);
 
 		BufferedImage out = new BufferedImage(frames * sprite_w * sprites_x, sprite_h * sprites_y * 4, BufferedImage.TYPE_INT_ARGB);
 		for (int f = 0; f < frames; ++f)
@@ -50,19 +60,25 @@ public class GenerateSpritesheet {
 		for (int y = 0; y < sprites_y; ++y)
 		{
 			int tileIndex = Integer.MIN_VALUE;
-			if (cleverindex) {
-				switch (v) {
-					case 0:
-					case 1:
-						tileIndex = x * sprites_y + sprites_y - y - 1;
-						break;
-					case 2:
-					case 3:
-						tileIndex = y + sprites_y * (sprites_x - x - 1);
-						break;
-				}
-			} else {
-				tileIndex = y * sprites_x + x;
+			switch (indexer) {
+				case TIMA:
+					switch (v) {
+						case 0:
+						case 1:
+							tileIndex = x * sprites_y + sprites_y - y - 1;
+							break;
+						case 2:
+						case 3:
+							tileIndex = y + sprites_y * (sprites_x - x - 1);
+							break;
+					}
+					break;
+				case PLAIN:
+					tileIndex = y * sprites_x + x;
+					break;
+				default:
+					System.out.println("Invalid indexing algorithm " + indexer);
+					System.exit(1);
 			}
 			final int imageID = idOff[v] + f + frames * tileIndex;
 			String filename = "" + imageID;

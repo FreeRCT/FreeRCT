@@ -250,15 +250,15 @@ const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, View
 	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);
 }
 
-std::vector<std::pair<const ImageData*, const Recolouring*>> DisplayCoasterCar::GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const
+VoxelObject::Overlays DisplayCoasterCar::GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const
 {
-	std::vector<std::pair<const ImageData*, const Recolouring*>> result;
+	Overlays result;
 	if (this->owning_car == nullptr) return result;
 	for (int i = 0; i < this->car_type->num_passengers; i++) {
 		if (this->owning_car->guests[i] != nullptr) {
-			result.push_back(std::make_pair(
+			result.push_back(Overlay {
 					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),
-					&this->owning_car->guests[i]->recolour));
+					&this->owning_car->guests[i]->recolour});
 		}
 	}
 	return result;
@@ -406,7 +406,8 @@ void CoasterTrain::SetLength(const int length)
 		car.owning_train = this;
 		car.front.car_type = this->coaster->car_type;
 		car.back.car_type = this->coaster->car_type;
-		car.front.owning_car = car.back.owning_car = &car;
+		car.front.owning_car = &car;
+		car.back.owning_car = &car;
 		car.guests.resize(car.front.car_type->num_passengers, nullptr);
 	}
 }
