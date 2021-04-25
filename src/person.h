@@ -157,7 +157,7 @@ protected:
 	virtual void ActionAnimationCallback() = 0;
 
 	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride, RideInstance **our_ride);
-	virtual RideVisitDesire WantToVisit(const RideInstance *ri) = 0;
+	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
 	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
 };
@@ -240,7 +240,7 @@ public:
 protected:
 	void DecideMoveDirection() override;
 	uint8 GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_mode);
-	RideVisitDesire WantToVisit(const RideInstance *ri) override;
+	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	const WalkInformation *WalkForActivity(const WalkInformation **walks, uint8 walk_count, uint8 exits);
@@ -267,7 +267,7 @@ public:
 	void DecideMoveDirection() override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
-	RideVisitDesire WantToVisit(const RideInstance *ri) override;
+	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	void ActionAnimationCallback() override;
 
 	RideInstance *ride;   ///< Ride we're intending to inspect, if any.

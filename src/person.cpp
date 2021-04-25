@@ -518,32 +518,40 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 	if (PathExistsAtBottomEdge(cur_pos, exit_edge)) return RVD_NO_RIDE; // Found a path.
 
 	RideInstance *ri = RideExistsAtBottom(cur_pos, exit_edge);
-	if (ri != nullptr && this->type == PERSON_MECHANIC) return RVD_MUST_VISIT;
-	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
+	if (ri == nullptr) return RVD_NO_VISIT;  // No ride here.
 
-	if (ri == *our_ride) { // Guest decided before that this shop/ride should be visited.
-		*seen_wanted_ride = true;
-		return RVD_MUST_VISIT;
+	if (this->type != PERSON_MECHANIC) {  // Some limitations that apply to guests but not to mechanics.
+		Point16 dxy = _tile_dxy[exit_edge];
+		if (!ri->CanBeVisited(cur_pos + XYZPoint16(dxy.x, dxy.y, 0), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
+
+		/* Check whether the queue is so long that someone is queuing near the tile edge. */
+		XYZPoint32 tile_edge_pix_pos(128, 128, 0);
+		switch (original_exit_edge) {
+			case EDGE_NE: tile_edge_pix_pos.x = 0; break;
+			case EDGE_NW: tile_edge_pix_pos.y = 0; break;
+			case EDGE_SW: tile_edge_pix_pos.x = 255; break;
+			case EDGE_SE: tile_edge_pix_pos.y = 255; break;
+			default: NOT_REACHED();
+		}
+		if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) {
+			ri->NotifyLongQueue();
+			return RVD_NO_VISIT;
+		}
+
+		if (ri == *our_ride) { // Guest decided before that this shop/ride should be visited.
+			*seen_wanted_ride = true;
+			return RVD_MUST_VISIT;
+		}
 	}
 
-	Point16 dxy = _tile_dxy[exit_edge];
-	if (!ri->CanBeVisited(cur_pos + XYZPoint16(dxy.x, dxy.y, 0), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
-
-	/* Check whether the queue is so long that someone is queuing near the tile edge. */
-	XYZPoint32 tile_edge_pix_pos(128, 128, 0);
-	switch (original_exit_edge) {
-		case EDGE_NE: tile_edge_pix_pos.x = 0; break;
-		case EDGE_NW: tile_edge_pix_pos.y = 0; break;
-		case EDGE_SW: tile_edge_pix_pos.x = 255; break;
-		case EDGE_SE: tile_edge_pix_pos.y = 255; break;
+	switch (exit_edge) {
+		case EDGE_NE: cur_pos.x--; break;
+		case EDGE_SW: cur_pos.x++; break;
+		case EDGE_NW: cur_pos.y--; break;
+		case EDGE_SE: cur_pos.y++; break;
 		default: NOT_REACHED();
 	}
-	if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) {
-		ri->NotifyLongQueue();
-		return RVD_NO_VISIT;
-	}
-
-	RideVisitDesire rvd = this->WantToVisit(ri);
+	RideVisitDesire rvd = this->WantToVisit(ri, cur_pos, exit_edge);
 	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && *our_ride == nullptr) {
 		/* Decided to want to visit one ride, and no wanted ride yet. */
 		// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
@@ -1181,9 +1189,11 @@ AnimateResult Person::OnAnimate(int delay)
 }
 
 /**
- * @fn RideVisitDesire Person::WantToVisit(const RideInstance *ri)
+ * @fn RideVisitDesire Person::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
  * How much does the person desire to visit the given ride?
  * @param ri Ride that can be visited.
+ * @param ride_pos Position of the ride.
+ * @param exit_edge Edge through which the ride could be visited.
  * @return Desire of the person to visit the ride.
  */
 
@@ -1543,7 +1553,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 	}
 }
 
-RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
+RideVisitDesire Guest::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 		if (ri->GetSaleItemPrice(i) > this->cash) continue;
@@ -1701,6 +1711,12 @@ void Mechanic::Save(Saver &svr)
 	svr.EndPattern();
 }
 
+bool Mechanic::DailyUpdate()
+{
+	/* Nothing to do currently. */
+	return true;
+}
+
 /**
  * Order this mechanic to inspect a ride.
  * @param ri Ride to inspect.
@@ -1720,16 +1736,37 @@ void Mechanic::NotifyRideDeletion(const RideInstance *ri)
 	if (ri == this->ride) this->ride = nullptr;
 }
 
-bool Mechanic::DailyUpdate()
+RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
 {
-	/* Nothing to do currently. */
-	return true;
+	if (ri != this->ride) return RVD_NO_VISIT;  // Not our destination ride.
+
+	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
+	if (destination.coords                  != ride_pos                          ) return RVD_NO_VISIT;  // Wrong location.
+	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return RVD_NO_VISIT;  // Wrong direction.
+
+	return RVD_MUST_VISIT;  // All checks passed, we may enter the ride here.
 }
 
-RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri)
+AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
 {
-	// NOCOM check if we're approaching from the right direction and the right place
-	return (ri == this->ride) ? RVD_MUST_VISIT : RVD_NO_VISIT;
+	if (!this->WantToVisit(ri, this->vox_pos, exit_edge)) {
+		/* Not our destination ride, or approaching at the wrong place. */
+		return OAR_CONTINUE;
+	}
+
+	this->StartAnimation(_mechanic_repair[exit_edge]);
+	return OAR_ANIMATING;
+}
+
+void Mechanic::ActionAnimationCallback()
+{
+	this->ride->MechanicArrived();
+	this->ride = nullptr;
+}
+
+AnimateResult Mechanic::EdgeOfWorldOnAnimate()
+{
+	return OAR_CONTINUE;
 }
 
 void Mechanic::DecideMoveDirection()
@@ -1804,27 +1841,4 @@ void Mechanic::DecideMoveDirection()
 		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
 	}
 	this->StartAnimation(new_walk);
-}
-
-AnimateResult Mechanic::EdgeOfWorldOnAnimate()
-{
-	return OAR_CONTINUE;
-}
-
-AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
-{
-	if (ri != this->ride) return OAR_CONTINUE;  // Not our destination ride.
-
-	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
-	if (destination.coords                  != this->vox_pos                     ) return OAR_CONTINUE;  // Not the correct location.
-	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return OAR_CONTINUE;  // Approaching from the wrong direction.
-
-	this->StartAnimation(_mechanic_repair[exit_edge]);
-	return OAR_ANIMATING;
-}
-
-void Mechanic::ActionAnimationCallback()
-{
-	this->ride->MechanicArrived();
-	this->ride = nullptr;
 }
