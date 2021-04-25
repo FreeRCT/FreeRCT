@@ -1117,9 +1117,9 @@ void WindowManager::UpdateWindows()
 	BaseWidget *tt = nullptr;
 	Point32 tooltip_offset;
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
-		tt = w->FindTooltipWidget(GetMousePosition());
-		if (tt != nullptr) {
-			tooltip_offset = w->rect.base;
+		if (tt == nullptr) {
+			tt = w->FindTooltipWidget(GetMousePosition());
+			if (tt != nullptr) tooltip_offset = w->rect.base;
 		}
 		force_repaint |= w->wtype == WC_MAIN_MENU;  // Ensure a smooth animation in the main menu.
 	}
