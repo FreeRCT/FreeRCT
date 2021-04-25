@@ -393,7 +393,7 @@ Mechanic *Staff::HireMechanic()
 {
 	Mechanic *m = new Mechanic;
 	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
-	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the playe to decide where to put the new mechanic.
+	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the player to decide where to put the new mechanic.
 	return m;
 }
 
@@ -467,5 +467,6 @@ void Staff::OnNewDay()
 /** A new month arrived. */
 void Staff::OnNewMonth()
 {
+	/* Pay the wages for all employees. */
 	_finances_manager.PayStaffWages(Mechanic::SALARY * static_cast<int64>(this->mechanics.size()));
 }

@@ -363,7 +363,7 @@ static const WalkInformation *_center_path_tile[4][4] = {
 	{_center_nw_ne, _center_nw_se, _center_nw_sw, _center_nw_nw},
 };
 
-/** Motionless "walk" when a mechanic repairs a ride. */
+/** Motionless "walks" when a mechanic repairs a ride. */
 static const WalkInformation _mechanic_repair[4][4] = {
 	{{ANIM_MECHANIC_REPAIR_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 	{{ANIM_MECHANIC_REPAIR_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
@@ -527,8 +527,8 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 		/* Check whether the queue is so long that someone is queuing near the tile edge. */
 		XYZPoint32 tile_edge_pix_pos(128, 128, 0);
 		switch (original_exit_edge) {
-			case EDGE_NE: tile_edge_pix_pos.x = 0; break;
-			case EDGE_NW: tile_edge_pix_pos.y = 0; break;
+			case EDGE_NE: tile_edge_pix_pos.x =   0; break;
+			case EDGE_NW: tile_edge_pix_pos.y =   0; break;
 			case EDGE_SW: tile_edge_pix_pos.x = 255; break;
 			case EDGE_SE: tile_edge_pix_pos.y = 255; break;
 			default: NOT_REACHED();
@@ -538,7 +538,7 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 			return RVD_NO_VISIT;
 		}
 
-		if (ri == *our_ride) { // Guest decided before that this shop/ride should be visited.
+		if (ri == *our_ride) {  // Guest decided before that this shop/ride should be visited.
 			*seen_wanted_ride = true;
 			return RVD_MUST_VISIT;
 		}
@@ -1760,6 +1760,8 @@ AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit
 
 void Mechanic::ActionAnimationCallback()
 {
+	if (this->ride == nullptr) return;  // The ride was deleted while we were inspecting it.
+
 	this->ride->MechanicArrived();
 	this->ride = nullptr;
 }
@@ -1772,6 +1774,7 @@ AnimateResult Mechanic::EdgeOfWorldOnAnimate()
 void Mechanic::DecideMoveDirection()
 {
 	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
+	/* \todo Walk purposefully towards our assigned ride, if any. */
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);

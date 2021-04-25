@@ -270,7 +270,7 @@ public:
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	void ActionAnimationCallback() override;
 
-	RideInstance *ride;   ///< Ride we're intending to inspect, if any.
+	RideInstance *ride;  ///< The ride we're intending to inspect, if any.
 };
 
 #endif
