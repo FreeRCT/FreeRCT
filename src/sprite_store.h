@@ -236,9 +236,12 @@ enum AnimationType {
 	ANIM_WALK_NW = 4, ///< Walk in north-west direction.
 
 	ANIM_MECHANIC_REPAIR = 5, ///< Animation when a mechanic repairs a ride.
+	ANIM_HANDYMAN_WATER  = 6, ///< Animation when a handyman waters the flowerbeds.
+	ANIM_HANDYMAN_SWEEP  = 7, ///< Animation when a handyman sweeps the paths.
+	ANIM_HANDYMAN_EMPTY  = 8, ///< Animation when a handyman empties a bin.
 
 	ANIM_BEGIN = ANIM_WALK_NE,         ///< First animation.
-	ANIM_LAST  = ANIM_MECHANIC_REPAIR, ///< Last animation.
+	ANIM_LAST  = ANIM_HANDYMAN_EMPTY,  ///< Last animation.
 	ANIM_INVALID = 0xFF,               ///< Invalid animation.
 };
 DECLARE_POSTFIX_INCREMENT(AnimationType)

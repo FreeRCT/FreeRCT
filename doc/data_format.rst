@@ -1401,7 +1401,7 @@ Offset                      Length                 Version  Field name          
   24                            2                     1-     num_passengers                    Number of passengers that can be carried.
   26                            2                     1-     num_entrances                     Number of rows for entering/exiting the car.
   28                          16384                   1-     car_p\ **P**\ r\ **R**\ y\ **Y**  4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
- 16412                        16384*num_passengers    3-                                       num_passengers sets of 4096 guest overlay sprites each.
+ 16412                       16384*num_passengers     3-                                       num_passengers sets of 4096 guest overlay sprites each.
 16412+16384*num_passengers      4                     3-                                       First recolouring specification.
 16416+16384*num_passengers      4                     3-                                       Second recolouring specification.
 16420+16384*num_passengers      4                     3-                                       Third recolouring specification.
@@ -1871,7 +1871,7 @@ Animation sequences
 ~~~~~~~~~~~~~~~~~~~
 
 Animation sequences (without the sprites) are defined using the 'ANIM' block.
-FreeRCT can read blocks with version 2.
+FreeRCT can read blocks with version 3.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -1890,10 +1890,18 @@ Offset  Length  Description
 The animation type defines what the animation really shows. Currently, the
 following animations exist:
 
-- Walk in north-east direction (1). May be looped.
-- Walk in south-east direction (2). May be looped.
-- Walk in south-west direction (3). May be looped.
-- Walk in north-west direction (4). May be looped.
+==  =====================  =====================================  =============
+ID  Version                Description                            May be looped
+==  =====================  =====================================  =============
+1   1-                     Walk in north-east direction.          yes
+2   1-                     Walk in south-east direction.          yes
+3   1-                     Walk in south-west direction.          yes
+4   1-                     Walk in north-west direction.          yes
+5   3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride.             no
+6   3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds.      no
+7   3- (ANIM) / 2- (ANSP)  Handyman sweeping a path.              no
+8   3- (ANIM) / 2- (ANSP)  Handyman emptying a bin.               no
+==  =====================  =====================================  =============
 
 Finally the actual frames of the animation are listed, prefixed by how
 many frames to expect. The animation type decides whether or not an animation
@@ -1923,10 +1931,11 @@ Version history
 - 1 (20120418) Initial version.
 - 2 (20120527) Removed tile width from 'ANIM' and sprite and frame number from the frame data.
   The sprite moved to the 'ANSP' block.
+- 3 (20210425) Added more animation types.
 
 Animation sprites
 ~~~~~~~~~~~~~~~~~
-FreeRCT can read blocks with version 1.
+FreeRCT can read blocks with version 2.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -1947,6 +1956,7 @@ Version history
 ...............
 
 - 1 (20120527) Initial version.
+- 2 (20210425) Added more animation types.
 
 
 Obsolete blocks

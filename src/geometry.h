@@ -165,8 +165,8 @@ typedef XYZPoint<int16> XYZPoint16; ///< 16 bit 3D point.
  * @param q Second point to compare.
  * @return Points are logically equal (same x, y, and z position).
  */
-template <typename CT>
-inline bool operator==(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
+template <typename CT1, typename CT2>
+inline bool operator==(const XYZPoint<CT1> &p, const XYZPoint<CT2> &q)
 {
 	return p.x == q.x && p.y == q.y && p.z == q.z;
 }
@@ -177,8 +177,8 @@ inline bool operator==(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
  * @param q Second point to compare.
  * @return Points are logically inequal (x, y, or z position is different).
  */
-template <typename CT>
-inline bool operator!=(const XYZPoint<CT> &p, const XYZPoint<CT> &q)
+template <typename CT1, typename CT2>
+inline bool operator!=(const XYZPoint<CT1> &p, const XYZPoint<CT2> &q)
 {
 	return !(p == q);
 }

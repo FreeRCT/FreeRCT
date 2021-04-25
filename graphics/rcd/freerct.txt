@@ -944,6 +944,24 @@ file("freerct.rcd") {
 		}
 	}
 
+	// Repair
+	ANIM {
+		person_type: mechanic;
+		anim_type: mechanic_repair;
+
+		frame_data { duration: 4000; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: mechanic;
+		anim_type: mechanic_repair;
+
+		sprite {
+			x_base: 0; y_base: 0;  width: 10; height: 27;
+			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		}
+	}
+
 	// Security guard - person type graphics.
 	PRSG {
 		person_graphics {

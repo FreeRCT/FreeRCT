@@ -1233,6 +1233,10 @@ static const Symbol _anim_symbols[] = {
 	{"walk_se",      2}, // Walk in south-east direction.
 	{"walk_sw",      3}, // Walk in south-west direction.
 	{"walk_nw",      4}, // Walk in north-west direction.
+	{"mechanic_repair", 5}, // Mechanic repairing a ride.
+	{"handyman_water" , 6}, // Handyman watering the flowerbeds.
+	{"handyman_sweep" , 7}, // Handyman sweeping the paths.
+	{"handyman_empty" , 8}, // Handyman emptying a bin.
 	{nullptr, 0}
 };
 

@@ -363,6 +363,11 @@ static const WalkInformation *_center_path_tile[4][4] = {
 	{_center_nw_ne, _center_nw_se, _center_nw_sw, _center_nw_nw},
 };
 
+/** Motionless "walk" when a mechanic repairs a ride. */
+static const WalkInformation _mechanic_repair[] = {
+	{ANIM_MECHANIC_REPAIR, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}
+};
+
 /**
  * Encode a walk into a number for serialization.
  * @param wi Walk to encode.
@@ -495,9 +500,10 @@ TileEdge Person::GetCurrentEdge() const
  * @param cur_pos Coordinate of the current voxel.
  * @param exit_edge Exit edge being examined.
  * @param seen_wanted_ride [inout] Whether the wanted ride is seen.
- * @return Desire of the guest to visit the indicated edge.
+ * @param our_ride [inout] Pointer to the ride instance we want to visit.
+ * @return Desire of the person to visit the indicated edge.
  */
-RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride)
+RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride, RideInstance **our_ride)
 {
 	if (current_edge == exit_edge) return RVD_NO_VISIT; // Skip incoming edge (may get added later if no other options exist).
 
@@ -509,9 +515,10 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 	if (PathExistsAtBottomEdge(cur_pos, exit_edge)) return RVD_NO_RIDE; // Found a path.
 
 	RideInstance *ri = RideExistsAtBottom(cur_pos, exit_edge);
+	if (ri != nullptr && this->type == PERSON_MECHANIC) return RVD_MUST_VISIT;
 	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
 
-	if (ri == this->ride) { // Guest decided before that this shop/ride should be visited.
+	if (ri == *our_ride) { // Guest decided before that this shop/ride should be visited.
 		*seen_wanted_ride = true;
 		return RVD_MUST_VISIT;
 	}
@@ -534,10 +541,10 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 	}
 
 	RideVisitDesire rvd = this->WantToVisit(ri);
-	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
+	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && *our_ride == nullptr) {
 		/* Decided to want to visit one ride, and no wanted ride yet. */
 		// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
-		this->ride = ri;
+		*our_ride = ri;
 		*seen_wanted_ride = true;
 		return RVD_MUST_VISIT;
 	}
@@ -622,7 +629,7 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 			continue;
 		}
 
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, seen_wanted_ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, seen_wanted_ride, &this->ride);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break; // A path is one of the options.
@@ -744,6 +751,11 @@ static int GetDesiredEdgeIndex(TileEdge desired_edge, uint8 exits)
 	}
 	return -1;
 }
+
+/**
+ * @fn void Person::ActionAnimationCallback()
+ * Callback when an action animation finished playing.
+ */
 
 /**
  * @fn Person::DecideMoveDirection()
@@ -1029,7 +1041,10 @@ AnimateResult Person::OnAnimate(int delay)
 	this->pix_pos.y += frame->dy;
 
 	bool reached = false; // Set to true when we are beyond the limit!
-	if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
+	if (this->walk->limit_type == WLM_INVALID) {
+		this->ActionAnimationCallback();
+		reached = true;
+	} else if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
 		if (frame->dx > 0) reached |= this->pix_pos.x > x_limit;
 		if (frame->dx < 0) reached |= this->pix_pos.x < x_limit;
 
@@ -1102,13 +1117,15 @@ AnimateResult Person::OnAnimate(int delay)
 	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 	if (v != nullptr) {
 		bool move_on = true;
+		bool freeze_animation = false;
 		SmallRideInstance instance = v->GetInstance();
 		if (instance >= SRI_FULL_RIDES) {
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
 			AnimateResult ar = this->VisitRideOnAnimate(ri, exit_edge);
-			if (ar != OAR_CONTINUE && ar != OAR_HALT) return ar;
-			move_on = (ar != OAR_HALT);
+			if (ar != OAR_CONTINUE && ar != OAR_HALT && ar != OAR_ANIMATING) return ar;
+			move_on = (ar == OAR_CONTINUE);
+			freeze_animation = (ar == OAR_HALT);
 
 			/* Ride is could not be visited, fall-through to reversing movement. */
 
@@ -1137,7 +1154,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 		if (move_on) {
 			this->DecideMoveDirection();
-		} else {
+		} else if (freeze_animation) {
 			/* Freeze the animation until we may continue. */
 			this->frame_time += delay;
 		}
@@ -1159,14 +1176,11 @@ AnimateResult Person::OnAnimate(int delay)
 }
 
 /**
+ * @fn RideVisitDesire Person::WantToVisit(const RideInstance *ri)
  * How much does the person desire to visit the given ride?
  * @param ri Ride that can be visited.
  * @return Desire of the person to visit the ride.
  */
-RideVisitDesire Person::WantToVisit(const RideInstance *ri)
-{
-	return RVD_NO_VISIT;
-}
 
 /**
  * @fn bool Person::DailyUpdate()
@@ -1707,10 +1721,84 @@ bool Mechanic::DailyUpdate()
 	return true;
 }
 
+RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri)
+{
+	// NOCOM check if we're approaching from the right direction and the right place
+	return (ri == this->ride) ? RVD_MUST_VISIT : RVD_NO_VISIT;
+}
+
 void Mechanic::DecideMoveDirection()
 {
-	// NOCOM  // move towards our ride, if any; otherwise randomly
-	this->StartAnimation(_walk_path_tile[this->rnd.Uniform(3)][this->rnd.Uniform(this->vox_pos.y > 3 ? 3 : 2)]);
+	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
+
+	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
+	const Voxel *v = vs->Get(this->vox_pos.z);
+	assert(HasValidPath(v));
+	const TileEdge start_edge = this->GetCurrentEdge();
+
+	uint8 exits = GetPathExits(v);
+	uint8 bot_exits = exits & 0x0F; // Exits at the bottom of the voxel.
+	uint8 top_exits = (exits >> 4) & 0x0F; // Exits at the top of the voxel.
+	uint8 found_ride = 0;
+
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		int extra_z;  // Decide z position of the exit.
+		if (GB(bot_exits, exit_edge, 1) != 0) {
+			extra_z = 0;
+		} else if (GB(top_exits, exit_edge, 1) != 0) {
+			extra_z = 1;
+		} else {
+			continue;
+		}
+
+		bool b;
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, &b, &this->ride);
+		switch (rvd) {
+			case RVD_NO_RIDE:
+				break;
+
+			case RVD_NO_VISIT:
+				SB(bot_exits, exit_edge, 1, 0);
+				SB(top_exits, exit_edge, 1, 0);
+				break;
+
+			case RVD_MUST_VISIT:
+				SB(found_ride, exit_edge, 1, 1);
+				break;
+
+			default: NOT_REACHED();
+		}
+	}
+	bot_exits |= top_exits;
+	if (found_ride != 0) bot_exits &= found_ride;
+
+	exits = (found_ride << 4) | bot_exits;
+	exits &= this->GetInparkDirections();  // Don't leave the park.
+
+	/* Decide which direction to go. */
+	SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
+	uint8 walk_count = 0;
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		if (GB(exits, exit_edge, 1) == 0) continue;
+		walk_count++;
+	}
+	if (walk_count == 0) SB(exits, start_edge, 1, 1);  // No exits: Add 'return' as option.
+
+	const WalkInformation *walks[4]; // Walks that can be done at this tile.
+	walk_count = 0;
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		if (GB(exits, exit_edge, 1) != 0) {
+			walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
+		}
+	}
+
+	const WalkInformation *new_walk;
+	if (walk_count == 1) {
+		new_walk = walks[0];
+	} else {
+		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
+	}
+	this->StartAnimation(new_walk);
 }
 
 AnimateResult Mechanic::EdgeOfWorldOnAnimate()
@@ -1718,34 +1806,20 @@ AnimateResult Mechanic::EdgeOfWorldOnAnimate()
 	return OAR_CONTINUE;
 }
 
-/** Motionless "walk" when a mechanic repairs a ride. */
-static const WalkInformation _mechanic_repair[] = {
-	{ANIM_MECHANIC_REPAIR, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}
-};
-
 AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
 {
 	if (ri != this->ride) return OAR_CONTINUE;  // Not our destination ride.
 
 	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
+	if (destination.coords                  != this->vox_pos                     ) return OAR_CONTINUE;  // Not the correct location.
 	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return OAR_CONTINUE;  // Approaching from the wrong direction.
 
-	XYZPoint32 expected_location = this->vox_pos;
-	switch (exit_edge) {
-		case EDGE_NE: expected_location.x--; break;
-		case EDGE_SW: expected_location.x++; break;
-		case EDGE_NW: expected_location.y--; break;
-		case EDGE_SE: expected_location.y++; break;
-		default: NOT_REACHED();
-	}
-	if (destination.coords != expected_location) return OAR_CONTINUE;  // Not the correct location.
+	this->StartAnimation(_mechanic_repair);
+	return OAR_ANIMATING;
+}
 
-	if (this->walk == _mechanic_repair) {
-		this->ride->MechanicArrived();
-		this->ride = nullptr;
-		return OAR_CONTINUE;
-	} else {
-		this->StartAnimation(_mechanic_repair);
-		return OAR_OK;
-	}
+void Mechanic::ActionAnimationCallback()
+{
+	this->ride->MechanicArrived();
+	this->ride = nullptr;
 }
