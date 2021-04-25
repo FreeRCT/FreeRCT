@@ -155,6 +155,17 @@ VoxelObject::~VoxelObject()
  * @return Sprite to display for the voxel object.
  */
 
+/**
+ * Get the overlay sprite(s) to draw for the voxel object.
+ * @param sprites Sprites at the right size for drawing.
+ * @param orient Direction of view.
+ * @return Sprites to overlay for the voxel object, with their respective recolourings.
+ */
+VoxelObject::Overlays VoxelObject::GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const
+{
+	return {};
+}
+
 /** Mark the voxel containing the voxel object as dirty, so it is repainted. */
 void VoxelObject::MarkDirty()
 {

@@ -1072,7 +1072,10 @@ public:
 	int inter_length;   ///< Length between two cars.
 	int num_passengers; ///< Number of passengers in a car.
 	int num_entrances;  ///< Number of entrances to/from a car.
-	std::array<std::shared_ptr<SpriteBlock>, 16*16*16> sprites; ///< Car sprites.
+	std::array<std::shared_ptr<SpriteBlock>, 16*16*16> sprites;      ///< Car sprites.
+	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> guest_overlays;  ///< Guest overlay sprites.
+	uint64 nr_guest_overlays;                                        ///< Number of guest overlay sprites.
+	Recolouring recol[3];                                            ///< Recolour definitions of the car.
 };
 
 /** Node block containing a bitmask. */
