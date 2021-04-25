@@ -364,8 +364,11 @@ static const WalkInformation *_center_path_tile[4][4] = {
 };
 
 /** Motionless "walk" when a mechanic repairs a ride. */
-static const WalkInformation _mechanic_repair[] = {
-	{ANIM_MECHANIC_REPAIR, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}
+static const WalkInformation _mechanic_repair[4][4] = {
+	{{ANIM_MECHANIC_REPAIR_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_MECHANIC_REPAIR_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_MECHANIC_REPAIR_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_MECHANIC_REPAIR_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 };
 
 /**
@@ -1042,8 +1045,10 @@ AnimateResult Person::OnAnimate(int delay)
 
 	bool reached = false; // Set to true when we are beyond the limit!
 	if (this->walk->limit_type == WLM_INVALID) {
-		this->ActionAnimationCallback();
-		reached = true;
+		if (this->frame_index + 1 >= this->frame_count) {
+			reached = true;
+			this->ActionAnimationCallback();
+		}
 	} else if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
 		if (frame->dx > 0) reached |= this->pix_pos.x > x_limit;
 		if (frame->dx < 0) reached |= this->pix_pos.x < x_limit;
@@ -1814,7 +1819,7 @@ AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit
 	if (destination.coords                  != this->vox_pos                     ) return OAR_CONTINUE;  // Not the correct location.
 	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return OAR_CONTINUE;  // Approaching from the wrong direction.
 
-	this->StartAnimation(_mechanic_repair);
+	this->StartAnimation(_mechanic_repair[exit_edge]);
 	return OAR_ANIMATING;
 }
 

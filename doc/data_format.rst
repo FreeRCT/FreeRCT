@@ -1890,18 +1890,30 @@ Offset  Length  Description
 The animation type defines what the animation really shows. Currently, the
 following animations exist:
 
-==  =====================  =====================================  =============
-ID  Version                Description                            May be looped
-==  =====================  =====================================  =============
-1   1-                     Walk in north-east direction.          yes
-2   1-                     Walk in south-east direction.          yes
-3   1-                     Walk in south-west direction.          yes
-4   1-                     Walk in north-west direction.          yes
-5   3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride.             no
-6   3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds.      no
-7   3- (ANIM) / 2- (ANSP)  Handyman sweeping a path.              no
-8   3- (ANIM) / 2- (ANSP)  Handyman emptying a bin.               no
-==  =====================  =====================================  =============
+==  =====================  ======================================================  =============
+ID  Version                Description                                             May be looped
+==  =====================  ======================================================  =============
+ 1  1-                     Walk in north-east direction.                               yes
+ 2  1-                     Walk in south-east direction.                               yes
+ 3  1-                     Walk in south-west direction.                               yes
+ 4  1-                     Walk in north-west direction.                               yes
+ 5  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        north-east view.           no
+ 6  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        south-east view.           no
+ 7  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        south-west view.           no
+ 8  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        north-west view.           no
+ 9  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, north-east view.           no
+10  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, south-east view.           no
+11  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, south-west view.           no
+12  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, north-west view.           no
+13  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         north-east view.           no
+14  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         south-east view.           no
+15  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         south-west view.           no
+16  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         north-west view.           no
+17  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          north-east view.           no
+18  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          south-east view.           no
+19  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          south-west view.           no
+20  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          north-west view.           no
+==  =====================  ======================================================  =============
 
 Finally the actual frames of the animation are listed, prefixed by how
 many frames to expect. The animation type decides whether or not an animation

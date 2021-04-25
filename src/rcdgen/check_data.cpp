@@ -1233,10 +1233,22 @@ static const Symbol _anim_symbols[] = {
 	{"walk_se",      2}, // Walk in south-east direction.
 	{"walk_sw",      3}, // Walk in south-west direction.
 	{"walk_nw",      4}, // Walk in north-west direction.
-	{"mechanic_repair", 5}, // Mechanic repairing a ride.
-	{"handyman_water" , 6}, // Handyman watering the flowerbeds.
-	{"handyman_sweep" , 7}, // Handyman sweeping the paths.
-	{"handyman_empty" , 8}, // Handyman emptying a bin.
+	{"mechanic_repair_ne",  5}, // Mechanic repairing a ride, NE view.
+	{"mechanic_repair_se",  6}, // Mechanic repairing a ride, SE view.
+	{"mechanic_repair_sw",  7}, // Mechanic repairing a ride, SW view.
+	{"mechanic_repair_nw",  8}, // Mechanic repairing a ride, NW view.
+	{"handyman_water_ne" ,  9}, // Handyman watering the flowerbeds, NE view.
+	{"handyman_water_se" , 10}, // Handyman watering the flowerbeds, SE view.
+	{"handyman_water_sw" , 11}, // Handyman watering the flowerbeds, SW view.
+	{"handyman_water_nw" , 12}, // Handyman watering the flowerbeds, NE view.
+	{"handyman_sweep_ne" , 13}, // Handyman sweeping the paths, NE view.
+	{"handyman_sweep_se" , 14}, // Handyman sweeping the paths, SE view.
+	{"handyman_sweep_sw" , 15}, // Handyman sweeping the paths, SW view.
+	{"handyman_sweep_nw" , 16}, // Handyman sweeping the paths, NW view.
+	{"handyman_empty_ne" , 17}, // Handyman emptying a bin, NE view.
+	{"handyman_empty_se" , 18}, // Handyman emptying a bin, SE view.
+	{"handyman_empty_sw" , 19}, // Handyman emptying a bin, SW view.
+	{"handyman_empty_nw" , 20}, // Handyman emptying a bin, NW view.
 	{nullptr, 0}
 };
 

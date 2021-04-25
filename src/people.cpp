@@ -393,7 +393,7 @@ Mechanic *Staff::HireMechanic()
 {
 	Mechanic *m = new Mechanic;
 	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
-	m->Activate(Point16(9, 2) /* NOCOM */, PERSON_MECHANIC);
+	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the playe to decide where to put the new mechanic.
 	return m;
 }
 
@@ -460,8 +460,8 @@ void Staff::DoTick()
 /** A new day arrived. */
 void Staff::OnNewDay()
 {
-	/* Nothing to do currently. */
-	if (this->mechanics.empty()) this->HireMechanic();  // NOCOM
+	/* Place a mechanic for free if there isn't one yet. */
+	if (this->mechanics.empty()) this->HireMechanic();  // \todo Add a GUI to hire and fire staff.
 }
 
 /** A new month arrived. */
