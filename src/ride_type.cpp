@@ -366,7 +366,7 @@ bool RideInstance::IsExitLocation(const XYZPoint16& pos) const
 }
 
 /**
- * \fn std::pair<XYZPoint16, TileEdge> RideInstance::GetMechanicEntrance() const
+ * \fn EdgeCoordinate RideInstance::GetMechanicEntrance() const
  * The voxel and edge at which a mechanic interacts with the ride for maintenance and repairs.
  */
 

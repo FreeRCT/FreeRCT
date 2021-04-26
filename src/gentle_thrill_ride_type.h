@@ -63,7 +63,7 @@ public:
 	void SetExitPos(const XYZPoint16& pos);
 	void RemoveFromWorld() override;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;
-	std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const override;
+	EdgeCoordinate GetMechanicEntrance() const override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;

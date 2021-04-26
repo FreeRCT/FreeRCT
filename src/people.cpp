@@ -17,6 +17,7 @@
 #include "person.h"
 #include "people.h"
 #include "gamelevel.h"
+#include "finances.h"
 
 Guests _guests; ///< %Guests in the world/park.
 Staff _staff;   ///< %Staff in the world/park.
@@ -325,10 +326,11 @@ Staff::~Staff()
 /** Remove all staff and reset all variables. */
 void Staff::Uninitialize()
 {
+	this->mechanics.clear();
 	this->mechanic_requests.clear();
 }
 
-static const uint32 CURRENT_VERSION_STAF = 1;   ///< Currently supported version of the STAF Pattern.
+static const uint32 CURRENT_VERSION_STAF = 2;   ///< Currently supported version of the STAF Pattern.
 
 /**
  * Load staff from the save game.
@@ -341,8 +343,16 @@ void Staff::Load(Loader &ldr)
 		case 0:
 			break;
 		case 1:
+		case 2:
 			for (uint i = ldr.GetLong(); i > 0; i--) {
 				this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
+			}
+			if (version > 1) {
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Mechanic *m = new Mechanic;
+					m->Load(ldr);
+					this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+				}
 			}
 			break;
 		default:
@@ -361,6 +371,8 @@ void Staff::Save(Saver &svr)
 	svr.StartPattern("STAF", CURRENT_VERSION_STAF);
 	svr.PutLong(this->mechanic_requests.size());
 	for (RideInstance *ride : this->mechanic_requests) svr.PutWord(ride->GetIndex());
+	svr.PutLong(this->mechanics.size());
+	for (auto &m : this->mechanics) m->Save(svr);
 	svr.EndPattern();
 }
 
@@ -374,11 +386,39 @@ void Staff::RequestMechanic(RideInstance *ride)
 }
 
 /**
+ * Hire a new mechanic.
+ * @return The new mechanic.
+ */
+Mechanic *Staff::HireMechanic()
+{
+	Mechanic *m = new Mechanic;
+	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the player to decide where to put the new mechanic.
+	return m;
+}
+
+/**
+ * Dismiss a mechanic from the staff.
+ * @param m Mechanic to dismiss.
+ * @note Invalidates the pointer.
+ */
+void Staff::Dismiss(Mechanic* m)
+{
+	for (auto it = this->mechanics.begin(); it != this->mechanics.end(); it++) {
+		if (it->get() == m) {
+			this->mechanics.erase(it);  // This deletes the mechanic.
+			return;
+		}
+	}
+	NOT_REACHED();
+}
+
+/**
  * Notification that the ride is being removed.
  * @param ri Ride being removed.
  */
 void Staff::NotifyRideDeletion(const RideInstance *ri) {
-	/* \todo Forward this to the mechanics. */
+	for (auto &m : this->mechanics) m->NotifyRideDeletion(ri);
 }
 
 /**
@@ -387,24 +427,46 @@ void Staff::NotifyRideDeletion(const RideInstance *ri) {
  */
 void Staff::OnAnimate(const int delay)
 {
-	/* \todo Forward this to the staff. */
+	for (auto &m : this->mechanics) m->OnAnimate(delay);
 }
 
 /** A new frame arrived. */
 void Staff::DoTick()
 {
-	/* \todo Assign mechanic requests to available mechanics. */
+	/* Assign one mechanic request to the nearest available mechanic, if any. */
+	if (!this->mechanic_requests.empty() && !this->mechanics.empty()) {
+		const EdgeCoordinate destination = this->mechanic_requests.front()->GetMechanicEntrance();
+		Mechanic *best = nullptr;
+		uint32 distance = 0;
+		for (auto &m : this->mechanics) {
+			if (m->ride == nullptr) {
+				/* \todo The actual walking-time would be a better indicator than the absolute distance to determine which mechanic is closest. */
+				const uint32 d = std::abs(destination.coords.x - m->vox_pos.x) +
+						std::abs(destination.coords.y - m->vox_pos.y) +
+						std::abs(destination.coords.z - m->vox_pos.z);
+				if (best == nullptr || d < distance) {
+					best = m.get();
+					distance = d;
+				}
+			}
+		}
+		if (best != nullptr) {
+			best->Assign(this->mechanic_requests.front());
+			this->mechanic_requests.pop_front();
+		}
+	}
 }
 
 /** A new day arrived. */
 void Staff::OnNewDay()
 {
-	/* As long as mechanics are not implemented, we magically repair or inspect a ride occasionally. */
-	if (!this->mechanic_requests.empty()) {
-		Random rnd;
-		if (rnd.Uniform(7) > 2) return;
-		printf("Magically repairing %s.\n", this->mechanic_requests.front()->name.get());
-		this->mechanic_requests.front()->MechanicArrived();
-		this->mechanic_requests.erase(this->mechanic_requests.begin());
-	}
+	/* Place a mechanic for free if there isn't one yet. */
+	if (this->mechanics.empty()) this->HireMechanic();  // \todo Add a GUI to hire and fire staff.
+}
+
+/** A new month arrived. */
+void Staff::OnNewMonth()
+{
+	/* Pay the wages for all employees. */
+	_finances_manager.PayStaffWages(Mechanic::SALARY * static_cast<int64>(this->mechanics.size()));
 }

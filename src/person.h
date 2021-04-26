@@ -74,7 +74,8 @@ struct WalkInformation {
 enum AnimateResult {
 	OAR_CONTINUE,   ///< No result yet, continue the routine.
 	OAR_OK,         ///< All OK, keep running.
-	OAR_HALT,       ///< The person must stay where it is.
+	OAR_HALT,       ///< The person must stay where it is. Freeze the current animation.
+	OAR_ANIMATING,  ///< The person stays where it is and displays a new animation.
 	OAR_REMOVE,     ///< Remove person from the person-list, and de-activate.
 	OAR_DEACTIVATE, ///< Person is already removed from the person-list, only de-activate.
 };
@@ -153,8 +154,10 @@ protected:
 
 	virtual void DecideMoveDirection() = 0;
 	void StartAnimation(const WalkInformation *walk);
+	virtual void ActionAnimationCallback() = 0;
 
-	virtual RideVisitDesire WantToVisit(const RideInstance *ri);
+	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride, RideInstance **our_ride);
+	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
 	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
 };
@@ -195,6 +198,11 @@ public:
 	AnimateResult OnAnimate(int delay) override;
 	bool DailyUpdate() override;
 
+	void ActionAnimationCallback() override
+	{
+		NOT_REACHED();  // Guests don't have action animations.
+	}
+
 	void ChangeHappiness(int16 amount);
 	ItemType SelectItem(const RideInstance *ri);
 	void BuyItem(RideInstance *ri);
@@ -231,15 +239,38 @@ public:
 
 protected:
 	void DecideMoveDirection() override;
-	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride);
 	uint8 GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_wanted_ride, bool *queue_mode);
-	RideVisitDesire WantToVisit(const RideInstance *ri) override;
+	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	const WalkInformation *WalkForActivity(const WalkInformation **walks, uint8 walk_count, uint8 exits);
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
 	void AddItem(ItemType it);
+};
+
+/** A mechanic who can repair and inspect rides. */
+class Mechanic : public Person {
+public:
+	static const Money SALARY;
+
+	Mechanic();
+	~Mechanic();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void Assign(RideInstance *ri);
+	void NotifyRideDeletion(const RideInstance *ri);
+
+	bool DailyUpdate() override;
+	void DecideMoveDirection() override;
+	AnimateResult EdgeOfWorldOnAnimate() override;
+	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
+	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
+	void ActionAnimationCallback() override;
+
+	RideInstance *ride;  ///< The ride we're intending to inspect, if any.
 };
 
 #endif

@@ -280,7 +280,7 @@ public:
 	bool IsEntranceLocation(const XYZPoint16& pos) const override;
 	bool IsExitLocation(const XYZPoint16& pos) const override;
 	int EntranceExitRotation(const XYZPoint16& vox, const CoasterStation *station) const;
-	std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const override;
+	EdgeCoordinate GetMechanicEntrance() const override;
 
 	SmallRideInstance GetRideNumber() const;
 	uint16 GetInstanceData(const TrackVoxel *tv) const;

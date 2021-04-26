@@ -511,7 +511,7 @@ int PRSGBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-ANIMBlock::ANIMBlock() : GameBlock("ANIM", 2)
+ANIMBlock::ANIMBlock() : GameBlock("ANIM", 3)
 {
 }
 
@@ -532,7 +532,7 @@ int ANIMBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-ANSPBlock::ANSPBlock() : GameBlock("ANSP", 1)
+ANSPBlock::ANSPBlock() : GameBlock("ANSP", 2)
 {
 }
 

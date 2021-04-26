@@ -29,6 +29,8 @@ static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about eac
 static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests queuing for a ride.
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
+const Money Mechanic::SALARY(150000);  ///< Monthly salary of a mechanic.
+
 /**
  * Construct a recolour mapping of this person type.
  * @return The constructed recolouring.
@@ -361,6 +363,14 @@ static const WalkInformation *_center_path_tile[4][4] = {
 	{_center_nw_ne, _center_nw_se, _center_nw_sw, _center_nw_nw},
 };
 
+/** Motionless "walks" when a mechanic repairs a ride. */
+static const WalkInformation _mechanic_repair[4][4] = {
+	{{ANIM_MECHANIC_REPAIR_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_MECHANIC_REPAIR_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_MECHANIC_REPAIR_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_MECHANIC_REPAIR_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
 /**
  * Encode a walk into a number for serialization.
  * @param wi Walk to encode.
@@ -410,8 +420,9 @@ static const WalkInformation *DecodeWalk(uint16 number)
 	NOT_REACHED();
 }
 
-static const uint32 CURRENT_VERSION_Person = 1;   ///< Currently supported version of %Person.
-static const uint32 CURRENT_VERSION_Guest  = 2;   ///< Currently supported version of %Guest.
+static const uint32 CURRENT_VERSION_Person   = 1;   ///< Currently supported version of %Person.
+static const uint32 CURRENT_VERSION_Guest    = 2;   ///< Currently supported version of %Guest.
+static const uint32 CURRENT_VERSION_Mechanic = 1;   ///< Currently supported version of %Mechanic.
 
 /**
  * Load a person from the save game.
@@ -492,9 +503,10 @@ TileEdge Person::GetCurrentEdge() const
  * @param cur_pos Coordinate of the current voxel.
  * @param exit_edge Exit edge being examined.
  * @param seen_wanted_ride [inout] Whether the wanted ride is seen.
- * @return Desire of the guest to visit the indicated edge.
+ * @param our_ride [inout] Pointer to the ride instance we want to visit.
+ * @return Desire of the person to visit the indicated edge.
  */
-RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride)
+RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride, RideInstance **our_ride)
 {
 	if (current_edge == exit_edge) return RVD_NO_VISIT; // Skip incoming edge (may get added later if no other options exist).
 
@@ -506,35 +518,44 @@ RideVisitDesire Guest::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_p
 	if (PathExistsAtBottomEdge(cur_pos, exit_edge)) return RVD_NO_RIDE; // Found a path.
 
 	RideInstance *ri = RideExistsAtBottom(cur_pos, exit_edge);
-	if (ri == nullptr || ri->state != RIS_OPEN) return RVD_NO_VISIT; // No ride, or a closed one.
+	if (ri == nullptr) return RVD_NO_VISIT;  // No ride here.
 
-	if (ri == this->ride) { // Guest decided before that this shop/ride should be visited.
-		*seen_wanted_ride = true;
-		return RVD_MUST_VISIT;
+	if (this->type != PERSON_MECHANIC) {  // Some limitations that apply to guests but not to mechanics.
+		Point16 dxy = _tile_dxy[exit_edge];
+		if (!ri->CanBeVisited(cur_pos + XYZPoint16(dxy.x, dxy.y, 0), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
+
+		/* Check whether the queue is so long that someone is queuing near the tile edge. */
+		XYZPoint32 tile_edge_pix_pos(128, 128, 0);
+		switch (original_exit_edge) {
+			case EDGE_NE: tile_edge_pix_pos.x =   0; break;
+			case EDGE_NW: tile_edge_pix_pos.y =   0; break;
+			case EDGE_SW: tile_edge_pix_pos.x = 255; break;
+			case EDGE_SE: tile_edge_pix_pos.y = 255; break;
+			default: NOT_REACHED();
+		}
+		if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) {
+			ri->NotifyLongQueue();
+			return RVD_NO_VISIT;
+		}
+
+		if (ri == *our_ride) {  // Guest decided before that this shop/ride should be visited.
+			*seen_wanted_ride = true;
+			return RVD_MUST_VISIT;
+		}
 	}
 
-	Point16 dxy = _tile_dxy[exit_edge];
-	if (!ri->CanBeVisited(cur_pos + XYZPoint16(dxy.x, dxy.y, 0), exit_edge)) return RVD_NO_VISIT; // Ride cannot be entered here.
-
-	/* Check whether the queue is so long that someone is queuing near the tile edge. */
-	XYZPoint32 tile_edge_pix_pos(128, 128, 0);
-	switch (original_exit_edge) {
-		case EDGE_NE: tile_edge_pix_pos.x = 0; break;
-		case EDGE_NW: tile_edge_pix_pos.y = 0; break;
-		case EDGE_SW: tile_edge_pix_pos.x = 255; break;
-		case EDGE_SE: tile_edge_pix_pos.y = 255; break;
+	switch (exit_edge) {
+		case EDGE_NE: cur_pos.x--; break;
+		case EDGE_SW: cur_pos.x++; break;
+		case EDGE_NW: cur_pos.y--; break;
+		case EDGE_SE: cur_pos.y++; break;
 		default: NOT_REACHED();
 	}
-	if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) {
-		ri->NotifyLongQueue();
-		return RVD_NO_VISIT;
-	}
-
-	RideVisitDesire rvd = this->WantToVisit(ri);
-	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
+	RideVisitDesire rvd = this->WantToVisit(ri, cur_pos, exit_edge);
+	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && *our_ride == nullptr) {
 		/* Decided to want to visit one ride, and no wanted ride yet. */
 		// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
-		this->ride = ri;
+		*our_ride = ri;
 		*seen_wanted_ride = true;
 		return RVD_MUST_VISIT;
 	}
@@ -619,7 +640,7 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 			continue;
 		}
 
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, seen_wanted_ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, seen_wanted_ride, &this->ride);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break; // A path is one of the options.
@@ -741,6 +762,11 @@ static int GetDesiredEdgeIndex(TileEdge desired_edge, uint8 exits)
 	}
 	return -1;
 }
+
+/**
+ * @fn void Person::ActionAnimationCallback()
+ * Callback when an action animation finished playing.
+ */
 
 /**
  * @fn Person::DecideMoveDirection()
@@ -1026,7 +1052,12 @@ AnimateResult Person::OnAnimate(int delay)
 	this->pix_pos.y += frame->dy;
 
 	bool reached = false; // Set to true when we are beyond the limit!
-	if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
+	if (this->walk->limit_type == WLM_INVALID) {
+		if (this->frame_index + 1 >= this->frame_count) {
+			reached = true;
+			this->ActionAnimationCallback();
+		}
+	} else if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
 		if (frame->dx > 0) reached |= this->pix_pos.x > x_limit;
 		if (frame->dx < 0) reached |= this->pix_pos.x < x_limit;
 
@@ -1099,13 +1130,15 @@ AnimateResult Person::OnAnimate(int delay)
 	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 	if (v != nullptr) {
 		bool move_on = true;
+		bool freeze_animation = false;
 		SmallRideInstance instance = v->GetInstance();
 		if (instance >= SRI_FULL_RIDES) {
 			assert(exit_edge != INVALID_EDGE);
 			RideInstance *ri = _rides_manager.GetRideInstance(instance);
 			AnimateResult ar = this->VisitRideOnAnimate(ri, exit_edge);
-			if (ar != OAR_CONTINUE && ar != OAR_HALT) return ar;
-			move_on = (ar != OAR_HALT);
+			if (ar != OAR_CONTINUE && ar != OAR_HALT && ar != OAR_ANIMATING) return ar;
+			move_on = (ar == OAR_CONTINUE);
+			freeze_animation = (ar == OAR_HALT);
 
 			/* Ride is could not be visited, fall-through to reversing movement. */
 
@@ -1134,7 +1167,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 		if (move_on) {
 			this->DecideMoveDirection();
-		} else {
+		} else if (freeze_animation) {
 			/* Freeze the animation until we may continue. */
 			this->frame_time += delay;
 		}
@@ -1156,14 +1189,13 @@ AnimateResult Person::OnAnimate(int delay)
 }
 
 /**
+ * @fn RideVisitDesire Person::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
  * How much does the person desire to visit the given ride?
  * @param ri Ride that can be visited.
+ * @param ride_pos Position of the ride.
+ * @param exit_edge Edge through which the ride could be visited.
  * @return Desire of the person to visit the ride.
  */
-RideVisitDesire Person::WantToVisit(const RideInstance *ri)
-{
-	return RVD_NO_VISIT;
-}
 
 /**
  * @fn bool Person::DailyUpdate()
@@ -1521,7 +1553,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 	}
 }
 
-RideVisitDesire Guest::WantToVisit(const RideInstance *ri)
+RideVisitDesire Guest::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 		if (ri->GetSaleItemPrice(i) > this->cash) continue;
@@ -1645,4 +1677,171 @@ void Guest::BuyItem(RideInstance *ri)
 		}
 	}
 	this->ChangeHappiness(-10);
+}
+
+/* Constructor. */
+Mechanic::Mechanic()
+{
+	this->ride = nullptr;
+}
+
+/* Destructor. */
+Mechanic::~Mechanic()
+{
+	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
+}
+
+void Mechanic::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("mchc");
+	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
+	this->Person::Load(ldr);
+
+	const uint16 ride_index = ldr.GetWord();
+	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+
+	ldr.ClosePattern();
+}
+
+void Mechanic::Save(Saver &svr)
+{
+	svr.StartPattern("mchc", CURRENT_VERSION_Mechanic);
+	this->Person::Save(svr);
+	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
+	svr.EndPattern();
+}
+
+bool Mechanic::DailyUpdate()
+{
+	/* Nothing to do currently. */
+	return true;
+}
+
+/**
+ * Order this mechanic to inspect a ride.
+ * @param ri Ride to inspect.
+ */
+void Mechanic::Assign(RideInstance *ri)
+{
+	assert(this->ride == nullptr);
+	this->ride = ri;
+}
+
+/**
+ * Notify the mechanic of removal of a ride.
+ * @param ri Ride being deleted.
+ */
+void Mechanic::NotifyRideDeletion(const RideInstance *ri)
+{
+	if (ri == this->ride) this->ride = nullptr;
+}
+
+RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
+{
+	if (ri != this->ride) return RVD_NO_VISIT;  // Not our destination ride.
+
+	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
+	if (destination.coords                  != ride_pos                          ) return RVD_NO_VISIT;  // Wrong location.
+	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return RVD_NO_VISIT;  // Wrong direction.
+
+	return RVD_MUST_VISIT;  // All checks passed, we may enter the ride here.
+}
+
+AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
+{
+	if (!this->WantToVisit(ri, this->vox_pos, exit_edge)) {
+		/* Not our destination ride, or approaching at the wrong place. */
+		return OAR_CONTINUE;
+	}
+
+	this->StartAnimation(_mechanic_repair[exit_edge]);
+	return OAR_ANIMATING;
+}
+
+void Mechanic::ActionAnimationCallback()
+{
+	if (this->ride == nullptr) return;  // The ride was deleted while we were inspecting it.
+
+	this->ride->MechanicArrived();
+	this->ride = nullptr;
+}
+
+AnimateResult Mechanic::EdgeOfWorldOnAnimate()
+{
+	return OAR_CONTINUE;
+}
+
+void Mechanic::DecideMoveDirection()
+{
+	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
+	/* \todo Walk purposefully towards our assigned ride, if any. */
+
+	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
+	const Voxel *v = vs->Get(this->vox_pos.z);
+	assert(HasValidPath(v));
+	const TileEdge start_edge = this->GetCurrentEdge();
+
+	uint8 exits = GetPathExits(v);
+	uint8 bot_exits = exits & 0x0F; // Exits at the bottom of the voxel.
+	uint8 top_exits = (exits >> 4) & 0x0F; // Exits at the top of the voxel.
+	uint8 found_ride = 0;
+
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		int extra_z;  // Decide z position of the exit.
+		if (GB(bot_exits, exit_edge, 1) != 0) {
+			extra_z = 0;
+		} else if (GB(top_exits, exit_edge, 1) != 0) {
+			extra_z = 1;
+		} else {
+			continue;
+		}
+
+		bool b;
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, &b, &this->ride);
+		switch (rvd) {
+			case RVD_NO_RIDE:
+				break;
+
+			case RVD_NO_VISIT:
+				SB(bot_exits, exit_edge, 1, 0);
+				SB(top_exits, exit_edge, 1, 0);
+				break;
+
+			case RVD_MUST_VISIT:
+				SB(found_ride, exit_edge, 1, 1);
+				break;
+
+			default: NOT_REACHED();
+		}
+	}
+	bot_exits |= top_exits;
+	if (found_ride != 0) bot_exits &= found_ride;
+
+	exits = (found_ride << 4) | bot_exits;
+	exits &= this->GetInparkDirections();  // Don't leave the park.
+
+	/* Decide which direction to go. */
+	SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
+	uint8 walk_count = 0;
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		if (GB(exits, exit_edge, 1) == 0) continue;
+		walk_count++;
+	}
+	if (walk_count == 0) SB(exits, start_edge, 1, 1);  // No exits: Add 'return' as option.
+
+	const WalkInformation *walks[4]; // Walks that can be done at this tile.
+	walk_count = 0;
+	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
+		if (GB(exits, exit_edge, 1) != 0) {
+			walks[walk_count++] = _walk_path_tile[start_edge][exit_edge];
+		}
+	}
+
+	const WalkInformation *new_walk;
+	if (walk_count == 1) {
+		new_walk = walks[0];
+	} else {
+		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
+	}
+	this->StartAnimation(new_walk);
 }

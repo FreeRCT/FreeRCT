@@ -192,11 +192,11 @@ RideEntryResult ShopInstance::EnterRide(int guest, const XYZPoint16 &vox, TileEd
 	return RER_REFUSED;
 }
 
-std::pair<XYZPoint16, TileEdge> ShopInstance::GetMechanicEntrance() const
+EdgeCoordinate ShopInstance::GetMechanicEntrance() const
 {
 	const int dirs = this->GetEntranceDirections(this->vox_pos);
 	for (int edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if ((dirs & (1 << edge)) != 0) return std::make_pair(this->vox_pos, static_cast<TileEdge>(edge));
+		if ((dirs & (1 << edge)) != 0) return EdgeCoordinate {this->vox_pos, static_cast<TileEdge>(edge)};
 	}
 	NOT_REACHED();
 }

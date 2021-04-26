@@ -235,9 +235,29 @@ enum AnimationType {
 	ANIM_WALK_SW = 3, ///< Walk in south-west direction.
 	ANIM_WALK_NW = 4, ///< Walk in north-west direction.
 
-	ANIM_BEGIN = ANIM_WALK_NE, ///< First animation.
-	ANIM_LAST  = ANIM_WALK_NW, ///< Last animation.
-	ANIM_INVALID = 0xFF,       ///< Invalid animation.
+	ANIM_MECHANIC_REPAIR_NE =  5,  ///< Animation when a mechanic repairs a ride, NE view.
+	ANIM_MECHANIC_REPAIR_SE =  6,  ///< Animation when a mechanic repairs a ride, SE view.
+	ANIM_MECHANIC_REPAIR_SW =  7,  ///< Animation when a mechanic repairs a ride, SW view.
+	ANIM_MECHANIC_REPAIR_NW =  8,  ///< Animation when a mechanic repairs a ride, NW view.
+
+	ANIM_HANDYMAN_WATER_NE  =  9,  ///< Animation when a handyman waters the flowerbeds, NE view.
+	ANIM_HANDYMAN_WATER_SE  = 10,  ///< Animation when a handyman waters the flowerbeds, SE view.
+	ANIM_HANDYMAN_WATER_SW  = 11,  ///< Animation when a handyman waters the flowerbeds, SW view.
+	ANIM_HANDYMAN_WATER_NW  = 12,  ///< Animation when a handyman waters the flowerbeds, NE view.
+
+	ANIM_HANDYMAN_SWEEP_NE  = 13,  ///< Animation when a handyman sweeps the paths, NE view.
+	ANIM_HANDYMAN_SWEEP_SE  = 14,  ///< Animation when a handyman sweeps the paths, SE view.
+	ANIM_HANDYMAN_SWEEP_SW  = 15,  ///< Animation when a handyman sweeps the paths, SW view.
+	ANIM_HANDYMAN_SWEEP_NW  = 16,  ///< Animation when a handyman sweeps the paths, NE view.
+
+	ANIM_HANDYMAN_EMPTY_NE  = 17,  ///< Animation when a handyman empties a bin, NE view.
+	ANIM_HANDYMAN_EMPTY_SE  = 18,  ///< Animation when a handyman empties a bin, SE view.
+	ANIM_HANDYMAN_EMPTY_SW  = 19,  ///< Animation when a handyman empties a bin, SW view.
+	ANIM_HANDYMAN_EMPTY_NW  = 20,  ///< Animation when a handyman empties a bin, NW view.
+
+	ANIM_BEGIN = ANIM_WALK_NE,            ///< First animation.
+	ANIM_LAST  = ANIM_HANDYMAN_EMPTY_NW,  ///< Last animation.
+	ANIM_INVALID = 0xFF,                  ///< Invalid animation.
 };
 DECLARE_POSTFIX_INCREMENT(AnimationType)
 
@@ -625,9 +645,13 @@ public:
 	 */
 	const ImageData *GetAnimationSprite(AnimationType anim_type, uint16 frame_index, PersonType pers_type, ViewOrientation view) const
 	{
-		/* anim_type = 1..4, normalize with -1, subtract orientation,
-		 * add 4 + mod 4 to get the normalized animation, +1 to get the real animation. */
-		anim_type = (AnimationType)(1 + (4 + (anim_type - 1) - view) % 4);
+		int anim_type_base = anim_type - ANIM_BEGIN;
+		anim_type_base /= 4;
+		anim_type_base *= 4;
+		anim_type_base += ANIM_BEGIN;
+		const int anim_type_off = (anim_type - anim_type_base - view) & 3;
+		anim_type = AnimationType(anim_type_base + anim_type_off);
+		assert(anim_type >= ANIM_BEGIN && anim_type <= ANIM_LAST);
 
 		for (auto iter = this->animations.find(anim_type); iter != this->animations.end(); ++iter) {
 			const AnimationSprites *asp = iter->second;

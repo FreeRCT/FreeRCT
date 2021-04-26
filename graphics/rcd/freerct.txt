@@ -706,8 +706,8 @@ file("freerct.rcd") {
 		nr_frames: 10;
 		sheet {
 			x_base: 0; y_base: 1 * 24; x_step: 16; y_step: 24;
-			file: "../sprites/persons/64_guest.png";
-			recolour: "../sprites/persons/64_guest_mask.png";
+			file: "../sprites/persons/guest/64_guest.png";
+			recolour: "../sprites/persons/guest/64_guest_mask.png";
 			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
@@ -728,8 +728,8 @@ file("freerct.rcd") {
 		nr_frames: 10;
 		sheet {
 			x_base: 0; y_base: 0 * 24; x_step: 16; y_step: 24;
-			file: "../sprites/persons/64_guest.png";
-			recolour: "../sprites/persons/64_guest_mask.png";
+			file: "../sprites/persons/guest/64_guest.png";
+			recolour: "../sprites/persons/guest/64_guest_mask.png";
 			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
@@ -750,8 +750,8 @@ file("freerct.rcd") {
 		nr_frames: 10;
 		sheet {
 			x_base: 0; y_base: 3 * 24; x_step: 16; y_step: 24;
-			file: "../sprites/persons/64_guest.png";
-			recolour: "../sprites/persons/64_guest_mask.png";
+			file: "../sprites/persons/guest/64_guest.png";
+			recolour: "../sprites/persons/guest/64_guest_mask.png";
 			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
@@ -772,8 +772,8 @@ file("freerct.rcd") {
 		nr_frames: 10;
 		sheet {
 			x_base: 0; y_base: 2 * 24; x_step: 16; y_step: 24;
-			file: "../sprites/persons/64_guest.png";
-			recolour: "../sprites/persons/64_guest_mask.png";
+			file: "../sprites/persons/guest/64_guest.png";
+			recolour: "../sprites/persons/guest/64_guest_mask.png";
 			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
@@ -865,10 +865,6 @@ file("freerct.rcd") {
 	PRSG {
 		person_graphics {
 			person_type: mechanic;
-			recolour {
-				original: grey;
-				replace: bitset(grey);
-			}
 		}
 	}
 
@@ -877,16 +873,19 @@ file("freerct.rcd") {
 		person_type: mechanic;
 		anim_type: walk_ne;
 
-		frame_data { duration: 40; change_x: -4; change_y: 0; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: -8; change_y: 0; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: mechanic;
 		anim_type: walk_ne;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 1 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/mechanic/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -895,16 +894,19 @@ file("freerct.rcd") {
 		person_type: mechanic;
 		anim_type: walk_se;
 
-		frame_data { duration: 40; change_x: 0; change_y: 4; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 0; change_y: 8; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: mechanic;
 		anim_type: walk_se;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 0 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/mechanic/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -913,16 +915,19 @@ file("freerct.rcd") {
 		person_type: mechanic;
 		anim_type: walk_sw;
 
-		frame_data { duration: 40; change_x: 4; change_y: 0; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 8; change_y: 0; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: mechanic;
 		anim_type: walk_sw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 3 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/mechanic/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -931,16 +936,103 @@ file("freerct.rcd") {
 		person_type: mechanic;
 		anim_type: walk_nw;
 
-		frame_data { duration: 40; change_x: 0; change_y: -4; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 0; change_y: -8; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: mechanic;
 		anim_type: walk_nw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 2 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/mechanic/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
+		}
+	}
+
+	// NE repairing.
+	ANIM {
+		person_type: mechanic;
+		anim_type: mechanic_repair_ne;
+
+		nr_frames: 45;
+		frame_data { duration: 100; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: mechanic;
+		anim_type: mechanic_repair_ne;
+
+		nr_frames: 45;
+		sheet {
+			x_base: 0; y_base: 1 * 24; x_step: 24; y_step: 24;
+			file: "../sprites/persons/mechanic/64_repair.png";
+			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
+		}
+	}
+
+	// SE repairing.
+	ANIM {
+		person_type: mechanic;
+		anim_type: mechanic_repair_se;
+
+		nr_frames: 45;
+		frame_data { duration: 100; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: mechanic;
+		anim_type: mechanic_repair_se;
+
+		nr_frames: 45;
+		sheet {
+			x_base: 0; y_base: 0 * 24; x_step: 24; y_step: 24;
+			file: "../sprites/persons/mechanic/64_repair.png";
+			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
+		}
+	}
+
+	// SW repairing.
+	ANIM {
+		person_type: mechanic;
+		anim_type: mechanic_repair_sw;
+
+		nr_frames: 45;
+		frame_data { duration: 100; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: mechanic;
+		anim_type: mechanic_repair_sw;
+
+		nr_frames: 45;
+		sheet {
+			x_base: 0; y_base: 3 * 24; x_step: 24; y_step: 24;
+			file: "../sprites/persons/mechanic/64_repair.png";
+			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
+		}
+	}
+
+	// NW repairing.
+	ANIM {
+		person_type: mechanic;
+		anim_type: mechanic_repair_nw;
+
+		nr_frames: 45;
+		frame_data { duration: 100; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: mechanic;
+		anim_type: mechanic_repair_nw;
+
+		nr_frames: 45;
+		sheet {
+			x_base: 0; y_base: 2 * 24; x_step: 24; y_step: 24;
+			file: "../sprites/persons/mechanic/64_repair.png";
+			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
 		}
 	}
 

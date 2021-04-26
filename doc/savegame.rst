@@ -211,6 +211,26 @@ Version history
 - 2 (20210402) Added ride rating preferences.
 
 
+Mechanic
+~~~~~~~~
+A single mechanic.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "mchc".
+   4       4      1-     Version number.
+   ?       ?      1-     Person_ data.
+   ?       2      1-     Ride index.
+   ?       4      1-     "chcm".
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- 1 (20210423) Initial version.
+
+
 Ride Instance
 ~~~~~~~~~~~~~
 Basic information for a single ride instance.
@@ -737,6 +757,8 @@ Offset  Length  Version  Description
    4       4      1-     Version number of the staff block.
    8       4      1-     Number of pending mechanic requests.
   12       ?      1-     Every mechanic requests's ride ID (2 bytes each).
+   ?       4      2-     Number of mechanics.
+   ?       ?      2-     The data of every Mechanic_.
    ?       4      1-     "FATS"
 ======  ======  =======  ==============================================================
 
@@ -744,6 +766,7 @@ Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (20210423) Added mechanics.
 
 
 Finances

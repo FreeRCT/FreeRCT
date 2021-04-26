@@ -129,15 +129,20 @@ public:
 	void RequestMechanic(RideInstance *ride);
 	void NotifyRideDeletion(const RideInstance *);
 
+	Mechanic *HireMechanic();
+	void Dismiss(Mechanic* m);
+
 	void OnAnimate(int delay);
 	void DoTick();
 	void OnNewDay();
+	void OnNewMonth();
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
 private:
-	std::list<RideInstance*> mechanic_requests;  ///< Rides in need of a mechanic.
+	std::list<RideInstance*> mechanic_requests;      ///< Rides in need of a mechanic.
+	std::list<std::unique_ptr<Mechanic>> mechanics;  ///< All mechanics in the park.
 };
 
 extern Guests _guests;

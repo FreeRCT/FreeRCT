@@ -199,7 +199,7 @@ public:
 	void SetExitType(int type);
 	virtual bool IsEntranceLocation(const XYZPoint16& pos) const;
 	virtual bool IsExitLocation(const XYZPoint16& pos) const;
-	virtual std::pair<XYZPoint16, TileEdge> GetMechanicEntrance() const = 0;
+	virtual EdgeCoordinate GetMechanicEntrance() const = 0;
 
 	virtual void Load(Loader &ldr);
 	virtual void Save(Saver &svr);
