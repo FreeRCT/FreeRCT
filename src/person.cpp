@@ -1701,7 +1701,7 @@ StaffMember::StaffMember()
 /* Destructor. */
 StaffMember::~StaffMember()
 {
-	/* Nothing to do currently. */
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_GUEST_COUNT, 0);
 }
 
 void StaffMember::Load(Loader &ldr)
@@ -1859,7 +1859,6 @@ Mechanic::Mechanic()
 /* Destructor. */
 Mechanic::~Mechanic()
 {
-	NotifyChange(WC_PERSON_INFO, this->id, CHG_GUEST_COUNT, 0);
 	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
 }
 
