@@ -120,10 +120,12 @@ strings {
 		STAFF_NAME_HANDYMAN:    "Handyman %d";
 		STAFF_NAME_GUARD:       "Guard %d";
 		STAFF_NAME_ENTERTAINER: "Entertainer %d";
-		STAFF_CATEGORY_MECHANICS:    "Mechanics";
-		STAFF_CATEGORY_HANDYMEN:     "Handymen";
-		STAFF_CATEGORY_GUARDS:       "Guards";
-		STAFF_CATEGORY_ENTERTAINERS: "Entertainers";
+		STAFF_CATEGORY_MECHANICS:    "Mechanics (%1%)";
+		STAFF_CATEGORY_HANDYMEN:     "Handymen (%1%)";
+		STAFF_CATEGORY_GUARDS:       "Guards (%1%)";
+		STAFF_CATEGORY_ENTERTAINERS: "Entertainers (%1%)";
+		STAFF_TITLE_NAME:            "Name";
+		STAFF_TITLE_STATUS:          "Status";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:            "Paths";

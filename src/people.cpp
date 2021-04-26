@@ -529,6 +529,41 @@ uint16 Staff::CountEntertainers() const
 }
 
 /**
+ * Returns the number of currently employed staff of a given type in the park.
+ * @param t Type of staff (use \c PERSON_ANY for all).
+ * @return Number of staff.
+ */
+uint16 Staff::Count(const PersonType t) const
+{
+	switch (t) {
+		case PERSON_MECHANIC:    return this->CountMechanics();
+		case PERSON_HANDYMAN:    return this->CountHandymen();
+		case PERSON_GUARD:       return this->CountGuards();
+		case PERSON_ENTERTAINER: return this->CountEntertainers();
+
+		case PERSON_ANY: return (this->CountMechanics() + this->CountHandymen() + this->CountGuards() + this->CountEntertainers());
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Get a staff member of given type.
+ * @param t Type of staff.
+ * @param list_index The index of this person in its respective category.
+ * @return The person.
+ */
+StaffMember *Staff::Get(const PersonType t, const uint list_index) const
+{
+	switch (t) {
+		case PERSON_MECHANIC:    { auto it = this->mechanics.begin();    std::advance(it, list_index); return it->get(); }
+		case PERSON_HANDYMAN:    { auto it = this->handymen.begin();     std::advance(it, list_index); return it->get(); }
+		case PERSON_GUARD:       { auto it = this->guards.begin();       std::advance(it, list_index); return it->get(); }
+		case PERSON_ENTERTAINER: { auto it = this->entertainers.begin(); std::advance(it, list_index); return it->get(); }
+		default: NOT_REACHED();
+	}
+}
+
+/**
  * Dismiss a staff member from the staff.
  * @param person Person to dismiss.
  * @note Invalidates the pointer.
@@ -540,6 +575,30 @@ void Staff::Dismiss(const StaffMember *person)
 			for (auto it = this->mechanics.begin(); it != this->mechanics.end(); it++) {
 				if (it->get() == person) {
 					this->mechanics.erase(it);  // This deletes the mechanic.
+					return;
+				}
+			}
+			break;
+		case PERSON_HANDYMAN:
+			for (auto it = this->handymen.begin(); it != this->handymen.end(); it++) {
+				if (it->get() == person) {
+					this->handymen.erase(it);  // This deletes the handyman.
+					return;
+				}
+			}
+			break;
+		case PERSON_GUARD:
+			for (auto it = this->guards.begin(); it != this->guards.end(); it++) {
+				if (it->get() == person) {
+					this->guards.erase(it);  // This deletes the guard.
+					return;
+				}
+			}
+			break;
+		case PERSON_ENTERTAINER:
+			for (auto it = this->entertainers.begin(); it != this->entertainers.end(); it++) {
+				if (it->get() == person) {
+					this->entertainers.erase(it);  // This deletes the entertainer.
 					return;
 				}
 			}

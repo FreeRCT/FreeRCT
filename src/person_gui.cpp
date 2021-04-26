@@ -162,7 +162,6 @@ public:
 
 private:
 	const StaffMember *person;       ///< The person getting looked at by this window.
-	mutable char text_buffer[1024];  ///< Buffer for custom strings.
 };
 
 /**
@@ -187,12 +186,7 @@ void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case SIW_STATUS: {
-			if (this->person->ride == nullptr) {
-				_str_params.SetStrID(1, this->person->status);
-			} else {
-				snprintf(text_buffer, lengthof(text_buffer), reinterpret_cast<const char*>(_language.GetText(this->person->status)), this->person->ride->name.get());
-				_str_params.SetUint8(1, reinterpret_cast<uint8*>(text_buffer));
-			}
+			_str_params.SetUint8(1, this->person->GetStatus());
 			break;
 		}
 
@@ -202,15 +196,21 @@ void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 void StaffInfoWindow::OnClick(WidgetNumber number, const Point16 &pos)
 {
-	if (number == SIW_DISMISS) {
-		_staff.Dismiss(this->person);
-		delete this;
-	}
+	if (number == SIW_DISMISS) _staff.Dismiss(this->person);  // This also deletes this window.
 }
 
 void StaffInfoWindow::OnChange(ChangeCode code, uint32 parameter)
 {
-	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
+	switch (code) {
+		case CHG_DISPLAY_OLD:
+			this->MarkDirty();
+			break;
+		case CHG_GUEST_COUNT:  // This signifies that our person was deleted. Close the window.
+			delete this;
+			break;
+		default:
+			break;
+	}
 }
 
 /**

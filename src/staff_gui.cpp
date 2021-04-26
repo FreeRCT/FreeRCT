@@ -11,6 +11,7 @@
 #include "window.h"
 #include "person.h"
 #include "people.h"
+#include "sprite_data.h"
 
 /**
  * Widget numbers of the staff GUI.
@@ -34,29 +35,29 @@ enum StaffWidgets {
 static const WidgetPart _staff_select_gui_parts[] = {
 	Intermediate(0, 1),
 		Intermediate(1, 0),
-			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_STAFF_MANAGEMENT_TITLE, GUI_TITLEBAR_TIP),
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
+			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_STAFF_MANAGEMENT_TITLE, GUI_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 		EndContainer(),
 		/* Staff types bar. */
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 			Intermediate(3, 1),
 				Intermediate(1, 0),
-					Widget(WT_LEFT_FILLER_TAB, INVALID_WIDGET_INDEX,  COL_RANGE_BLUE),
-					Widget(WT_TEXT_TAB, STAFF_CATEGORY_MECHANICS,     COL_RANGE_BLUE), SetData(GUI_STAFF_CATEGORY_MECHANICS,    STR_NULL),
-					Widget(WT_TEXT_TAB, STAFF_CATEGORY_HANDYMEN,      COL_RANGE_BLUE), SetData(GUI_STAFF_CATEGORY_HANDYMEN,     STR_NULL),
-					Widget(WT_TEXT_TAB, STAFF_CATEGORY_GUARDS,        COL_RANGE_BLUE), SetData(GUI_STAFF_CATEGORY_GUARDS,       STR_NULL),
-					Widget(WT_TEXT_TAB, STAFF_CATEGORY_ENTERTAINERS,  COL_RANGE_BLUE), SetData(GUI_STAFF_CATEGORY_ENTERTAINERS, STR_NULL),
-					Widget(WT_RIGHT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetFill(1,0), SetResize(1, 0),
+					Widget(WT_LEFT_FILLER_TAB, INVALID_WIDGET_INDEX,  COL_RANGE_GREY),
+					Widget(WT_TEXT_TAB, STAFF_CATEGORY_MECHANICS,     COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_MECHANICS,    STR_NULL),
+					Widget(WT_TEXT_TAB, STAFF_CATEGORY_HANDYMEN,      COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_HANDYMEN,     STR_NULL),
+					Widget(WT_TEXT_TAB, STAFF_CATEGORY_GUARDS,        COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_GUARDS,       STR_NULL),
+					Widget(WT_TEXT_TAB, STAFF_CATEGORY_ENTERTAINERS,  COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_ENTERTAINERS, STR_NULL),
+					Widget(WT_RIGHT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetFill(1,0), SetResize(1, 0),
 				EndContainer(),
 				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
-					Widget(WT_RIGHT_TEXT,      INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_STAFF_SALARY, STR_NULL),
-					Widget(WT_LEFT_TEXT,       STAFF_SALARY,         COL_RANGE_BLUE), SetData(STR_ARG1, STR_NULL),
-					Widget(WT_TEXT_PUSHBUTTON, STAFF_HIRE,           COL_RANGE_BLUE), SetData(GUI_STAFF_HIRE, STR_NULL),
+					Widget(WT_CENTERED_TEXT,   INVALID_WIDGET_INDEX,  COL_RANGE_GREY), SetData(GUI_STAFF_SALARY, STR_NULL),
+					Widget(WT_LEFT_TEXT,       STAFF_SALARY,          COL_RANGE_GREY), SetData(STR_ARG1,         STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, STAFF_HIRE,            COL_RANGE_GREY), SetData(GUI_STAFF_HIRE,   STR_NULL),
 				/* List of staff. */
-				Widget(WT_TAB_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
+				Widget(WT_TAB_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 					Intermediate(1, 2),
-						Widget(WT_EMPTY, STAFF_GUI_LIST, COL_RANGE_BLUE), SetFill(1, 1), SetResize(1, 1), SetMinimalSize(100, 200),
-						Widget(WT_VERT_SCROLLBAR, STAFF_GUI_SCROLL_LIST, COL_RANGE_BLUE),
+						Widget(WT_EMPTY, STAFF_GUI_LIST, COL_RANGE_GREY), SetFill(1, 1), SetResize(1, 1), SetMinimalSize(450, 200),
+						Widget(WT_VERT_SCROLLBAR, STAFF_GUI_SCROLL_LIST, COL_RANGE_GREY),
 	EndContainer(),
 };
 
@@ -91,7 +92,7 @@ StaffManagementGui::StaffManagementGui() : GuiWindow(WC_STAFF, ALL_WINDOWS_OF_TY
 void StaffManagementGui::SelectTab(const PersonType p)
 {
 	this->selected = p;
-	this->GetWidget<ScrollbarWidget>(STAFF_GUI_SCROLL_LIST)->SetItemCount(std::min<uint16>(1u, _staff.CountMechanics()));
+	this->GetWidget<ScrollbarWidget>(STAFF_GUI_SCROLL_LIST)->SetItemCount(std::min<uint16>(1u, _staff.Count(this->selected)));
 
 	this->SetWidgetPressed(STAFF_CATEGORY_MECHANICS,    p == PERSON_MECHANIC);
 	this->SetWidgetPressed(STAFF_CATEGORY_HANDYMEN,     p == PERSON_HANDYMAN);
@@ -111,6 +112,13 @@ void StaffManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 				default: break;
 			}
 			break;
+
+		case STAFF_CATEGORY_MECHANICS:    _str_params.SetNumber(1, _staff.CountMechanics());    break;
+		case STAFF_CATEGORY_HANDYMEN:     _str_params.SetNumber(1, _staff.CountHandymen());     break;
+		case STAFF_CATEGORY_GUARDS:       _str_params.SetNumber(1, _staff.CountGuards());       break;
+		case STAFF_CATEGORY_ENTERTAINERS: _str_params.SetNumber(1, _staff.CountEntertainers()); break;
+
+		default: break;
 	}
 }
 
@@ -141,6 +149,21 @@ void StaffManagementGui::OnClick(const WidgetNumber number, const Point16 &pos)
 		case STAFF_CATEGORY_GUARDS:       this->SelectTab(PERSON_GUARD);       break;
 		case STAFF_CATEGORY_ENTERTAINERS: this->SelectTab(PERSON_ENTERTAINER); break;
 
+		case STAFF_GUI_LIST: {
+			const int index = pos.y / GetTextHeight() - 1;
+			if (index < 0) break;
+			const int first_index = this->GetWidget<ScrollbarWidget>(STAFF_GUI_SCROLL_LIST)->GetStart();
+			if (index < first_index || index + first_index >= _staff.Count(this->selected)) break;
+
+			StaffMember *m = _staff.Get(this->selected, index - first_index);
+			if (pos.x > this->GetWidget<BaseWidget>(STAFF_GUI_LIST)->pos.width * 4 / 5) {
+				_staff.Dismiss(m);
+			} else {
+				ShowPersonInfoGui(m);
+			}
+			break;
+		}
+
 		default:
 			break;
 	}
@@ -150,7 +173,32 @@ void StaffManagementGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget
 {
 	if (wid_num != STAFF_GUI_LIST) return GuiWindow::DrawWidget(wid_num, wid);
 
-	// NOCOM
+	int x = this->GetWidgetScreenX(wid);
+	int y = this->GetWidgetScreenY(wid);
+	const uint first_index = this->GetWidget<ScrollbarWidget>(STAFF_GUI_SCROLL_LIST)->GetStart();
+	const uint last_index  = std::min<uint>(_staff.Count(this->selected), first_index + wid->pos.height / GetTextHeight() - 1);
+
+	const int w = wid->pos.width;
+	const int column1x = x + 2;
+	const int column2x = x + w * 2 / 5;
+	const int column3x = x + w * 4 / 5;
+
+	DrawString(GUI_STAFF_TITLE_NAME,   TEXT_WHITE, column1x, y, column2x  - column1x, ALG_LEFT, true);
+	DrawString(GUI_STAFF_TITLE_STATUS, TEXT_WHITE, column2x, y, column3x  - column2x, ALG_LEFT, true);
+	DrawString(GUI_STAFF_DISMISS,      TEXT_WHITE, column3x, y, x + w - 2 - column3x, ALG_RIGHT, true);
+
+	static Recolouring rc;  // Never modified.
+	for (uint i = first_index; i < last_index; i++) {
+		y += GetTextHeight();
+		StaffMember *person = _staff.Get(this->selected, i);
+
+		_str_params.SetUint8(1, person->GetName());
+		DrawString(STR_ARG1, TEXT_BLACK, column1x + 2, y, w, ALG_LEFT);
+		_str_params.SetUint8(1, person->GetStatus());
+		DrawString(STR_ARG1, TEXT_BLACK, column2x + 2, y, w, ALG_LEFT);
+
+		_video.BlitImage({x + w - _gui_sprites.close_sprite->width - 2, y}, _gui_sprites.close_sprite, rc, GS_NORMAL);
+	}
 }
 
 /** Open a window to view and manage the park's staff. */

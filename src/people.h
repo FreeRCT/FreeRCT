@@ -134,7 +134,9 @@ public:
 	uint16 CountHandymen()     const;
 	uint16 CountGuards()       const;
 	uint16 CountEntertainers() const;
+	uint16 Count(PersonType t) const;
 
+	StaffMember *Get(PersonType t, uint list_index) const;
 	void Dismiss(const StaffMember* m);
 
 	void OnAnimate(int delay);

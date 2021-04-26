@@ -266,6 +266,12 @@ public:
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 
+	const uint8 *GetStatus() const;
+
+protected:
+	void SetStatus(StringID s);
+
+private:
 	StringID status;  ///< What we're doing right now.
 };
 
@@ -283,7 +289,6 @@ public:
 	void Assign(RideInstance *ri);
 	void NotifyRideDeletion(const RideInstance *ri);
 
-	void DecideMoveDirection() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	void ActionAnimationCallback() override;

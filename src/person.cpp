@@ -1721,6 +1721,32 @@ void StaffMember::Save(Saver &svr)
 	svr.EndPattern();
 }
 
+/**
+ * Create this staff member's current status string.
+ * @return The status string.
+ */
+const uint8 *StaffMember::GetStatus() const
+{
+	static char text_buffer[1024];
+	const char *text = reinterpret_cast<const char*>(_language.GetText(this->status));
+	if (this->ride == nullptr) {
+		snprintf(text_buffer, lengthof(text_buffer), "%s", text);
+	} else {
+		snprintf(text_buffer, lengthof(text_buffer), text, this->ride->name.get());
+	}
+	return reinterpret_cast<const uint8*>(text_buffer);
+}
+
+/**
+ * Change this staff member's current status.
+ * @param s New status.
+ */
+void StaffMember::SetStatus(StringID s)
+{
+	this->status = s;
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
+}
+
 bool StaffMember::DailyUpdate()
 {
 	/* Nothing to do currently. */
@@ -1752,8 +1778,7 @@ void StaffMember::DecideMoveDirection()
 {
 	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
 	/* \todo Mechanics should walk purposefully towards their assigned ride, if any. */
-	this->status = GUI_PERSON_STATUS_WANDER;
-	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
+	this->SetStatus(this->ride != nullptr ? GUI_PERSON_STATUS_HEADING_TO_RIDE : GUI_PERSON_STATUS_WANDER);
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);
@@ -1834,6 +1859,7 @@ Mechanic::Mechanic()
 /* Destructor. */
 Mechanic::~Mechanic()
 {
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_GUEST_COUNT, 0);
 	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
 }
 
@@ -1867,6 +1893,7 @@ void Mechanic::Assign(RideInstance *ri)
 {
 	assert(this->ride == nullptr);
 	this->ride = ri;
+	this->SetStatus(GUI_PERSON_STATUS_HEADING_TO_RIDE);
 }
 
 /**
@@ -1896,9 +1923,8 @@ AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit
 		return OAR_CONTINUE;
 	}
 
-	this->status = ri->broken ? GUI_PERSON_STATUS_REPAIRING : GUI_PERSON_STATUS_INSPECTING;
+	this->SetStatus(ri->broken ? GUI_PERSON_STATUS_REPAIRING : GUI_PERSON_STATUS_INSPECTING);
 	this->StartAnimation(_mechanic_repair[exit_edge]);
-	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 	return OAR_ANIMATING;
 }
 
@@ -1908,15 +1934,6 @@ void Mechanic::ActionAnimationCallback()
 
 	this->ride->MechanicArrived();
 	this->ride = nullptr;
-}
-
-void Mechanic::DecideMoveDirection()
-{
-	StaffMember::DecideMoveDirection();  // Handles all the logic.
-	if (this->ride != nullptr) {
-		NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
-		this->status = GUI_PERSON_STATUS_HEADING_TO_RIDE;
-	}
 }
 
 /* Constructor. */
