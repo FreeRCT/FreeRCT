@@ -77,7 +77,7 @@ private:
  * Constructor of the guest info window.
  * @param guest #Guest to view.
  */
-GuestInfoWindow::GuestInfoWindow(const Guest *guest) : GuiWindow(WC_GUEST_INFO, guest->id)
+GuestInfoWindow::GuestInfoWindow(const Guest *guest) : GuiWindow(WC_PERSON_INFO, guest->id)
 {
 	this->guest = guest;
 	this->SetupWidgetTree(_guest_info_gui_parts, lengthof(_guest_info_gui_parts));
@@ -169,7 +169,7 @@ private:
  * Constructor of the staff info window.
  * @param person #StaffMember to view.
  */
-StaffInfoWindow::StaffInfoWindow(const StaffMember *person) : GuiWindow(WC_GUEST_INFO, person->id)
+StaffInfoWindow::StaffInfoWindow(const StaffMember *person) : GuiWindow(WC_PERSON_INFO, person->id)
 {
 	this->person = person;
 	this->SetupWidgetTree(_staff_info_gui_parts, lengthof(_guest_info_gui_parts));
@@ -179,7 +179,7 @@ void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case SIW_TITLEBAR:
-			_str_params.SetStrID(1, this->person->GetDisplayType());
+			_str_params.SetUint8(1, this->person->GetName());
 			break;
 
 		case SIW_SALARY:
@@ -219,7 +219,7 @@ void StaffInfoWindow::OnChange(ChangeCode code, uint32 parameter)
  */
 void ShowPersonInfoGui(const Person *person)
 {
-	if (HighlightWindowByType(WC_GUEST_INFO, person->id) != nullptr) return;
+	if (HighlightWindowByType(WC_PERSON_INFO, person->id) != nullptr) return;
 
 	switch (person->type) {
 		case PERSON_GUEST:

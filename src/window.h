@@ -45,7 +45,7 @@ enum WindowTypes {
 	WC_BOTTOM_TOOLBAR,  ///< Bottom toolbar.
 	WC_QUIT,            ///< Quit program window.
 	WC_ERROR_MESSAGE,   ///< Error message window.
-	WC_GUEST_INFO,      ///< Person window.
+	WC_PERSON_INFO,     ///< Person window.
 	WC_COASTER_MANAGER, ///< Roller coaster manager window.
 	WC_COASTER_BUILD,   ///< Roller coaster build/edit window.
 	WC_COASTER_REMOVE,  ///< Roller coaster remove window.
@@ -60,6 +60,7 @@ enum WindowTypes {
 	WC_SCENERY,         ///< Scenery window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.
+	WC_STAFF,           ///< Staff management window.
 	WC_INBOX,           ///< Inbox window.
 	WC_SETTING,         ///< Setting window.
 	WC_DROPDOWN,        ///< Dropdown window.
@@ -484,6 +485,7 @@ void ShowMainDisplay(const XYZPoint32 &view_pos);
 void ShowToolbar();
 void ShowBottomToolbar();
 void ShowPersonInfoGui(const Person *person);
+void ShowStaffManagementGui();
 void ShowPathBuildGui();
 void ShowRideSelectGui();
 bool ShowRideManagementGui(uint16 ride);

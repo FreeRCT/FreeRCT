@@ -323,12 +323,14 @@ Staff::~Staff()
 	/* Nothing to do currently. */
 }
 
+static const uint16 STAFF_BASE_ID = std::numeric_limits<uint16>::max();  // Counting staff IDs backwards to avoid conflicts with %Guests.
+
 /** Remove all staff and reset all variables. */
 void Staff::Uninitialize()
 {
 	this->mechanics.clear();  // Do this first, it may generate new requests.
 	this->mechanic_requests.clear();
-	this->last_person_id = std::numeric_limits<uint16>::max();  // Counting staff IDs backwards to avoid conflicts with %Guests.
+	this->last_person_id = STAFF_BASE_ID;
 }
 
 static const uint32 CURRENT_VERSION_STAF = 3;   ///< Currently supported version of the STAF Pattern.
@@ -402,9 +404,23 @@ Mechanic *Staff::HireMechanic()
 {
 	Mechanic *m = new Mechanic;
 	m->id = this->GenerateID();
-	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
 	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the player to decide where to put the new mechanic.
+	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+
+	char buffer[1024];
+	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_MECHANIC)), STAFF_BASE_ID - m->id);
+	m->SetName(reinterpret_cast<uint8*>(buffer));
+
 	return m;
+}
+
+/**
+ * Returns the number of currently employed mechanics in the park.
+ * @return Number of mechanics.
+ */
+uint16 Staff::CountMechanics() const
+{
+	return this->mechanics.size();
 }
 
 /**
@@ -476,8 +492,7 @@ void Staff::DoTick()
 /** A new day arrived. */
 void Staff::OnNewDay()
 {
-	/* Place a mechanic for free if there isn't one yet. */
-	if (this->mechanics.empty()) this->HireMechanic();  // \todo Add a GUI to hire and fire staff.
+	/* Nothing to do currently. */
 }
 
 /** A new month arrived. */

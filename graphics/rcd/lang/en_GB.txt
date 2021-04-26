@@ -58,6 +58,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modify landscape";
 		TOOLBAR_GUI_FINANCES:             "Finances";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Manage Company Finances";
+		TOOLBAR_GUI_STAFF:                "Staff";
+		TOOLBAR_GUI_TOOLTIP_STAFF:        "Hire and dismiss staff";
 		TOOLBAR_GUI_INBOX:                "Inbox";
 		TOOLBAR_GUI_TOOLTIP_INBOX:        "View all your messages";
 
@@ -110,12 +112,18 @@ strings {
 		ITEM_WRAPPER:  "Wrapper";
 
 		// Staff window.
+		STAFF_MANAGEMENT_TITLE: "Staff";
 		STAFF_SALARY:           "Monthly salary:";
 		STAFF_DISMISS:          "Dismiss";
-		STAFF_TYPE_MECHANIC:    "Mechanic";
-		STAFF_TYPE_HANDYMAN:    "Handyman";
-		STAFF_TYPE_GUARD:       "Guard";
-		STAFF_TYPE_ENTERTAINER: "Entertainer";
+		STAFF_HIRE:             "Hire";
+		STAFF_NAME_MECHANIC:    "Mechanic %d";
+		STAFF_NAME_HANDYMAN:    "Handyman %d";
+		STAFF_NAME_GUARD:       "Guard %d";
+		STAFF_NAME_ENTERTAINER: "Entertainer %d";
+		STAFF_CATEGORY_MECHANICS:    "Mechanics";
+		STAFF_CATEGORY_HANDYMEN:     "Handymen";
+		STAFF_CATEGORY_GUARDS:       "Guards";
+		STAFF_CATEGORY_ENTERTAINERS: "Entertainers";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:            "Paths";

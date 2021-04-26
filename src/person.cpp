@@ -107,7 +107,6 @@ Person::Person() : VoxelObject(), rnd()
 
 Person::~Person()
 {
-	delete[] this->name;
 }
 
 const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
@@ -124,11 +123,9 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
  */
 void Person::SetName(const uint8 *name)
 {
-	assert(this->IsGuest());
-
 	int len = strlen((char *)name);
-	this->name = new uint8[len + 1];
-	strcpy((char *)this->name, (char *)name); // Already know name has \0, because of strlen.
+	this->name.reset(new uint8[len + 1]);
+	strcpy((char *)this->name.get(), (char *)name); // Already know name has \0, because of strlen.
 }
 
 /**
@@ -140,8 +137,7 @@ const uint8 *Person::GetName() const
 {
 	static uint8 buffer[16];
 
-	assert(this->IsGuest());
-	if (this->name != nullptr) return this->name;
+	if (this->name.get() != nullptr) return this->name.get();
 	sprintf((char *)buffer, "Guest %u", this->id);
 	return buffer;
 }
@@ -182,7 +178,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
-	this->name = nullptr;
+	this->name.reset();
 
 	/* Set up the person sprite recolouring table. */
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
@@ -444,7 +440,7 @@ void Person::Load(Loader &ldr)
 
 	this->type = (PersonType)ldr.GetByte();
 	this->offset = ldr.GetWord();
-	this->name = ldr.GetText();
+	this->name.reset(ldr.GetText());
 
 	if (version > 1) {
 		const uint16 ride_index = ldr.GetWord();
@@ -481,7 +477,7 @@ void Person::Save(Saver &svr)
 
 	svr.PutByte(this->type);
 	svr.PutWord(this->offset);
-	svr.PutText(this->name);
+	svr.PutText(this->name.get());
 	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
 
 	this->recolour.Save(svr);
@@ -961,8 +957,7 @@ void Person::DeActivate(AnimateResult ar)
 
 	_inbox.NotifyGuestDeletion(this->id);
 	this->type = PERSON_INVALID;
-	delete[] this->name;
-	this->name = nullptr;
+	this->name.reset();
 }
 
 
@@ -1280,7 +1275,7 @@ void Guest::DeActivate(AnimateResult ar)
 {
 	if (this->IsActive()) {
 		/* Close possible Guest Info window */
-		Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
+		Window *wi = GetWindowByType(WC_PERSON_INFO, this->id);
 		delete wi;
 
 		/// \todo Evaluate Guest::total_happiness against scenario requirements for evaluating the park value.
@@ -1429,7 +1424,7 @@ void Guest::ChangeHappiness(int16 amount)
 	int16 old_happiness = this->happiness;
 	this->happiness = Clamp(this->happiness + amount, 0, 100);
 	if (amount > 0) this->total_happiness = std::min(1000, this->total_happiness + this->happiness - old_happiness);
-	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 }
 
 /**
@@ -1732,12 +1727,6 @@ bool StaffMember::DailyUpdate()
  * @return The salary.
  */
 
-/**
- * @fn StringID StaffMember::GetDisplayType() const
- * Get the type of this person to display in the user interface.
- * @return The type string.
- */
-
 RideVisitDesire StaffMember::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
 {
 	return RVD_NO_VISIT;
@@ -1758,6 +1747,7 @@ void StaffMember::DecideMoveDirection()
 	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
 	/* \todo Mechanics should walk purposefully towards their assigned ride, if any. */
 	this->status = GUI_PERSON_STATUS_WANDER;
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);
@@ -1901,6 +1891,7 @@ AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit
 
 	this->status = ri->broken ? GUI_PERSON_STATUS_REPAIRING : GUI_PERSON_STATUS_INSPECTING;
 	this->StartAnimation(_mechanic_repair[exit_edge]);
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 	return OAR_ANIMATING;
 }
 
@@ -1915,5 +1906,8 @@ void Mechanic::ActionAnimationCallback()
 void Mechanic::DecideMoveDirection()
 {
 	StaffMember::DecideMoveDirection();  // Handles all the logic.
-	if (this->ride != nullptr) this->status = GUI_PERSON_STATUS_HEADING_TO_RIDE;
+	if (this->ride != nullptr) {
+		NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
+		this->status = GUI_PERSON_STATUS_HEADING_TO_RIDE;
+	}
 }

@@ -130,6 +130,8 @@ public:
 	void NotifyRideDeletion(const RideInstance *);
 
 	Mechanic *HireMechanic();
+	uint16 CountMechanics() const;
+
 	void Dismiss(const StaffMember* m);
 
 	void OnAnimate(int delay);

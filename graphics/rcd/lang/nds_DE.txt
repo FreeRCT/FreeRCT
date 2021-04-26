@@ -58,6 +58,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "De Form vun de Landskupp bewarken";
 		TOOLBAR_GUI_FINANCES:             "Geld";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "De Firmen-Finanzen besörgen";
+		TOOLBAR_GUI_STAFF:                "Personaal";
+		TOOLBAR_GUI_TOOLTIP_STAFF:        "Personaal anhüren un kündigen";
 		TOOLBAR_GUI_INBOX:                "Narichtens";
 		TOOLBAR_GUI_TOOLTIP_INBOX:        "All diene Narichtens ankieken";
 
@@ -110,12 +112,18 @@ strings {
 		ITEM_WRAPPER:  "Verpacken";
 
 		// Staff window.
+		STAFF_MANAGEMENT_TITLE: "Personaal";
 		STAFF_SALARY:           "Gehalt pro Maant:";
 		STAFF_DISMISS:          "Kündigen";
-		STAFF_TYPE_MECHANIC:    "Mechaniker";
-		STAFF_TYPE_HANDYMAN:    "Hülpsarbeider";
-		STAFF_TYPE_GUARD:       "Uppasser";
-		STAFF_TYPE_ENTERTAINER: "Bespaaßer";
+		STAFF_HIRE:             "Anhüren";
+		STAFF_NAME_MECHANIC:    "Mechaniker %d";
+		STAFF_NAME_HANDYMAN:    "Hülpsarbeider %d";
+		STAFF_NAME_GUARD:       "Uppasser %d";
+		STAFF_NAME_ENTERTAINER: "Bespaaßer %d";
+		STAFF_CATEGORY_MECHANICS:    "Mechanikers";
+		STAFF_CATEGORY_HANDYMEN:     "Hülpsarbeiders";
+		STAFF_CATEGORY_GUARDS:       "Uppassers";
+		STAFF_CATEGORY_ENTERTAINERS: "Bespaaßers";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:            "Wege";

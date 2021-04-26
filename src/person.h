@@ -148,7 +148,7 @@ public:
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
-	uint8 *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
+	std::unique_ptr<uint8[]> name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
 
 	TileEdge GetCurrentEdge() const;
 	uint8 GetInparkDirections();
@@ -259,7 +259,6 @@ public:
 	void Save(Saver &svr);
 
 	virtual const Money &GetSalary() const = 0;
-	virtual StringID GetDisplayType() const = 0;
 
 	bool DailyUpdate() override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
@@ -292,10 +291,6 @@ public:
 	const Money &GetSalary() const override
 	{
 		return SALARY;
-	}
-	StringID GetDisplayType() const override
-	{
-		return GUI_STAFF_TYPE_MECHANIC;
 	}
 };
 
