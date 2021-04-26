@@ -1867,11 +1867,13 @@ void Mechanic::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("mchc");
 	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
-	this->StaffMember::Load(ldr);
 
 	if (version == 1) {
+		this->Person::Load(ldr);
 		const uint16 ride_index = ldr.GetWord();
 		if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+	} else {
+		this->StaffMember::Load(ldr);
 	}
 
 	ldr.ClosePattern();

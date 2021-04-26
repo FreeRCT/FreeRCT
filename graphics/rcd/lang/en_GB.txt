@@ -113,7 +113,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Staff";
-		STAFF_SALARY:           "Monthly salary:";
+		STAFF_SALARY:           "Monthly salary: %1%";
 		STAFF_DISMISS:          "Dismiss";
 		STAFF_HIRE:             "Hire";
 		STAFF_NAME_MECHANIC:    "Mechanic %d";

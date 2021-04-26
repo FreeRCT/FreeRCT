@@ -144,9 +144,7 @@ static const WidgetPart _staff_info_gui_parts[] = {
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 			Intermediate(3, 1), SetPadding(2, 2, 2, 2),
 			Widget(WT_CENTERED_TEXT, SIW_STATUS, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
-			Intermediate(1, 2), SetPadding(2, 2, 2, 2),
-				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_STAFF_SALARY, STR_NULL),
-				Widget(WT_RIGHT_TEXT, SIW_SALARY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+			Widget(WT_LEFT_TEXT, SIW_SALARY, COL_RANGE_DARK_RED), SetData(GUI_STAFF_SALARY, STR_NULL),
 			Widget(WT_TEXT_PUSHBUTTON, SIW_DISMISS, COL_RANGE_DARK_RED), SetData(GUI_STAFF_DISMISS, STR_NULL),
 	EndContainer(),
 };
@@ -161,7 +159,7 @@ public:
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
 
 private:
-	const StaffMember *person;       ///< The person getting looked at by this window.
+	const StaffMember *person;  ///< The person getting looked at by this window.
 };
 
 /**

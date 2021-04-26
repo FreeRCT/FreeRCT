@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: 2021-04-04
+:Version: 2021-04-26
 
 .. contents::
    :depth: 4

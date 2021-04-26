@@ -144,7 +144,7 @@ public:
 	uint16 frame_index;           ///< Currently displayed frame of #frames.
 	int16 frame_time;             ///< Remaining display time of this frame.
 	Recolouring recolour;         ///< Person recolouring.
-	RideInstance *ride;  ///< The ride we're intending to interact with, if any.
+	RideInstance *ride;           ///< The ride we're intending to interact with, if any.
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
@@ -351,8 +351,8 @@ public:
 
 /**
  * A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths.
+ * @todo Implement watering flowerbeds.
  * @todo Litter bins and dirty paths are not implemented yet.
- * NOCOM Implement watering.
  */
 class Handyman : public StaffMember {
 public:

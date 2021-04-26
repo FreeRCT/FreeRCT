@@ -49,10 +49,9 @@ static const WidgetPart _staff_select_gui_parts[] = {
 					Widget(WT_TEXT_TAB, STAFF_CATEGORY_ENTERTAINERS,  COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_ENTERTAINERS, STR_NULL),
 					Widget(WT_RIGHT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetFill(1,0), SetResize(1, 0),
 				EndContainer(),
-				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
-					Widget(WT_CENTERED_TEXT,   INVALID_WIDGET_INDEX,  COL_RANGE_GREY), SetData(GUI_STAFF_SALARY, STR_NULL),
-					Widget(WT_LEFT_TEXT,       STAFF_SALARY,          COL_RANGE_GREY), SetData(STR_ARG1,         STR_NULL),
-					Widget(WT_TEXT_PUSHBUTTON, STAFF_HIRE,            COL_RANGE_GREY), SetData(GUI_STAFF_HIRE,   STR_NULL),
+				Intermediate(1, 2), SetPadding(2, 2, 2, 2),
+					Widget(WT_LEFT_TEXT,       STAFF_SALARY,  COL_RANGE_GREY), SetData(GUI_STAFF_SALARY, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, STAFF_HIRE,    COL_RANGE_GREY), SetData(GUI_STAFF_HIRE,   STR_NULL),
 				/* List of staff. */
 				Widget(WT_TAB_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 					Intermediate(1, 2),

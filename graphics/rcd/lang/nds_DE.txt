@@ -93,7 +93,7 @@ strings {
 		PERSON_STATUS_INSPECTING:      "Kiekt %s na";
 		PERSON_STATUS_REPAIRING:       "Repareert %s";
 		PERSON_STATUS_WATERING:        "Gütt de Blomenbedden";
-		PERSON_STATUS_EMPTYING:        "Maakt de Mülltüünen leeg";
+		PERSON_STATUS_EMPTYING:        "Maakt de Mülltünnen leeg";
 		PERSON_STATUS_SWEEPING:        "Fegt de Wegen";
 
 		// Guest info gui strings.
@@ -113,7 +113,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Personaal";
-		STAFF_SALARY:           "Gehalt pro Maant:";
+		STAFF_SALARY:           "Gehalt pro Maant: %1%";
 		STAFF_DISMISS:          "Kündigen";
 		STAFF_HIRE:             "Anhüren";
 		STAFF_NAME_MECHANIC:    "Mechaniker %d";
