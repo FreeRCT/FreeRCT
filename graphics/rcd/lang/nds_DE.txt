@@ -85,6 +85,15 @@ strings {
 		ERROR_MESSAGE_OCCUPIED:       "Daar staht een anner Ding im Weg!";
 		ERROR_MESSAGE_PAUSED:         "Nich verlöövt as dat Speel anhollt is.";
 
+		// Person status strings.
+		PERSON_STATUS_WANDER:          "Löppt";
+		PERSON_STATUS_HEADING_TO_RIDE: "Gaht to %s";
+		PERSON_STATUS_INSPECTING:      "Kiekt %s na";
+		PERSON_STATUS_REPAIRING:       "Repareert %s";
+		PERSON_STATUS_WATERING:        "Gütt de Blomenbedden";
+		PERSON_STATUS_EMPTYING:        "Maakt de Mülltüünen leeg";
+		PERSON_STATUS_SWEEPING:        "Fegt de Wegen";
+
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Baargeld";
 		GUEST_INFO_MONEY_SPENT: "Geld utgeven";
@@ -99,6 +108,14 @@ strings {
 		ITEM_MAP:      "Kaart";
 		ITEM_UMBRELLA: "Schirm";
 		ITEM_WRAPPER:  "Verpacken";
+
+		// Staff window.
+		STAFF_SALARY:           "Gehalt pro Maant:";
+		STAFF_DISMISS:          "Kündigen";
+		STAFF_TYPE_MECHANIC:    "Mechaniker";
+		STAFF_TYPE_HANDYMAN:    "Hülpsarbeider";
+		STAFF_TYPE_GUARD:       "Uppasser";
+		STAFF_TYPE_ENTERTAINER: "Bespaaßer";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:            "Wege";

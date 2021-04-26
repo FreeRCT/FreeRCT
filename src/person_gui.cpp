@@ -14,6 +14,7 @@
 #include "sprite_store.h"
 #include "ride_type.h"
 #include "person.h"
+#include "people.h"
 
 /** Widgets of the guest info window. */
 enum GuestInfoWidgets {
@@ -129,8 +130,88 @@ void GuestInfoWindow::OnChange(ChangeCode code, uint32 parameter)
 enum StaffInfoWidgets {
 	SIW_TITLEBAR,     ///< Title bar widget.
 	SIW_STATUS,       ///< Status text.
+	SIW_SALARY,       ///< Salary text.
 	SIW_DISMISS,      ///< Dismiss button.
 };
+
+/** Widget parts of the #StaffInfoWindow. */
+static const WidgetPart _staff_info_gui_parts[] = {
+	Intermediate(0, 1),
+		Intermediate(1, 0),
+			Widget(WT_TITLEBAR, SIW_TITLEBAR, COL_RANGE_DARK_RED), SetData(STR_ARG1, GUI_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(3, 1), SetPadding(2, 2, 2, 2),
+			Widget(WT_CENTERED_TEXT, SIW_STATUS, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+			Intermediate(1, 2), SetPadding(2, 2, 2, 2),
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_STAFF_SALARY, STR_NULL),
+				Widget(WT_RIGHT_TEXT, SIW_SALARY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+			Widget(WT_TEXT_PUSHBUTTON, SIW_DISMISS, COL_RANGE_DARK_RED), SetData(GUI_STAFF_DISMISS, STR_NULL),
+	EndContainer(),
+};
+
+/** GUI window for interacting with a staff member. */
+class StaffInfoWindow : public GuiWindow {
+public:
+	StaffInfoWindow(const StaffMember *person);
+
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
+
+private:
+	const StaffMember *person;       ///< The person getting looked at by this window.
+	mutable char text_buffer[1024];  ///< Buffer for custom strings.
+};
+
+/**
+ * Constructor of the staff info window.
+ * @param person #StaffMember to view.
+ */
+StaffInfoWindow::StaffInfoWindow(const StaffMember *person) : GuiWindow(WC_GUEST_INFO, person->id)
+{
+	this->person = person;
+	this->SetupWidgetTree(_staff_info_gui_parts, lengthof(_guest_info_gui_parts));
+}
+
+void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+{
+	switch (wid_num) {
+		case SIW_TITLEBAR:
+			_str_params.SetStrID(1, this->person->GetDisplayType());
+			break;
+
+		case SIW_SALARY:
+			_str_params.SetMoney(1, this->person->GetSalary());
+			break;
+
+		case SIW_STATUS: {
+			if (this->person->ride == nullptr) {
+				_str_params.SetStrID(1, this->person->status);
+			} else {
+				snprintf(text_buffer, lengthof(text_buffer), reinterpret_cast<const char*>(_language.GetText(this->person->status)), this->person->ride->name.get());
+				_str_params.SetUint8(1, reinterpret_cast<uint8*>(text_buffer));
+			}
+			break;
+		}
+
+		default: break;
+	}
+}
+
+void StaffInfoWindow::OnClick(WidgetNumber number, const Point16 &pos)
+{
+	if (number == SIW_DISMISS) {
+		_staff.Dismiss(this->person);
+		delete this;
+	}
+}
+
+void StaffInfoWindow::OnChange(ChangeCode code, uint32 parameter)
+{
+	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
+}
 
 /**
  * Open a window to view a given person's info.
@@ -149,7 +230,7 @@ void ShowPersonInfoGui(const Person *person)
 		case PERSON_HANDYMAN:
 		case PERSON_GUARD:
 		case PERSON_ENTERTAINER:
-			// new StaffInfoWindow(static_cast<const StaffMember*>(person)); // NOCOM
+			new StaffInfoWindow(static_cast<const StaffMember*>(person));
 			break;
 
 		default: NOT_REACHED();

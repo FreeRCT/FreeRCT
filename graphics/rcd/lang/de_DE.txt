@@ -85,6 +85,15 @@ strings {
 		ERROR_MESSAGE_OCCUPIED:       "Ein anderes Objekt ist im Weg!";
 		ERROR_MESSAGE_PAUSED:         "Nicht erlaubt während das Spiel angehalten ist.";
 
+		// Person status strings.
+		PERSON_STATUS_WANDER:          "Umherwandern";
+		PERSON_STATUS_HEADING_TO_RIDE: "Geht zu %s";
+		PERSON_STATUS_INSPECTING:      "Wartet %s";
+		PERSON_STATUS_REPAIRING:       "Repariert %s";
+		PERSON_STATUS_WATERING:        "Gießt die Blumenbeete";
+		PERSON_STATUS_EMPTYING:        "Leert die Mülleimer";
+		PERSON_STATUS_SWEEPING:        "Fegt die Wege";
+
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Verfügbares Geld";
 		GUEST_INFO_MONEY_SPENT: "Ausgegebenes Geld";
@@ -99,6 +108,14 @@ strings {
 		ITEM_MAP:      "Parkkarte";
 		ITEM_UMBRELLA: "Regenschirm";
 		ITEM_WRAPPER:  "Verpackung";
+
+		// Staff window.
+		STAFF_SALARY:           "Monatsgehalt:";
+		STAFF_DISMISS:          "Entlassen";
+		STAFF_TYPE_MECHANIC:    "Mechaniker";
+		STAFF_TYPE_HANDYMAN:    "Hilfskraft";
+		STAFF_TYPE_GUARD:       "Aufseher";
+		STAFF_TYPE_ENTERTAINER: "Entertainer";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:          "Wege";

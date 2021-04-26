@@ -969,7 +969,7 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 1 * 24; x_step: 24; y_step: 24;
 			file: "../sprites/persons/mechanic/64_repair.png";
-			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
+			x_offset: -12; y_offset: -24+4; width: 24; height: 24;
 		}
 	}
 
@@ -990,7 +990,7 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 0 * 24; x_step: 24; y_step: 24;
 			file: "../sprites/persons/mechanic/64_repair.png";
-			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
+			x_offset: -12; y_offset: -24+4; width: 24; height: 24;
 		}
 	}
 
@@ -1011,7 +1011,7 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 3 * 24; x_step: 24; y_step: 24;
 			file: "../sprites/persons/mechanic/64_repair.png";
-			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
+			x_offset: -12; y_offset: -24+4; width: 24; height: 24;
 		}
 	}
 
@@ -1032,7 +1032,7 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 2 * 24; x_step: 24; y_step: 24;
 			file: "../sprites/persons/mechanic/64_repair.png";
-			x_offset: -8; y_offset: -24+4; width: 24; height: 24;
+			x_offset: -12; y_offset: -24+4; width: 24; height: 24;
 		}
 	}
 

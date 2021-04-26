@@ -144,6 +144,7 @@ public:
 	uint16 frame_index;           ///< Currently displayed frame of #frames.
 	int16 frame_time;             ///< Remaining display time of this frame.
 	Recolouring recolour;         ///< Person recolouring.
+	RideInstance *ride;  ///< The ride we're intending to interact with, if any.
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
@@ -156,7 +157,7 @@ protected:
 	void StartAnimation(const WalkInformation *walk);
 	virtual void ActionAnimationCallback() = 0;
 
-	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride, RideInstance **our_ride);
+	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride);
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
 	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
@@ -214,7 +215,6 @@ public:
 	uint16 total_happiness; ///< Sum of all good experiences (for evaluating the day after getting home, values are 0-1000).
 	Money cash;             ///< Amount of money carried by the guest (should be non-negative).
 	Money cash_spent;       ///< Amount of money spent by the guest (should be non-negative).
-	RideInstance *ride;     ///< Ride that the guest wants to visit or is visiting \c nullptr there is no favorite ride.
 
 	/* Possessions of the guest. */
 	bool has_map;        ///< Whether guest has a park map.
@@ -258,6 +258,9 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
+	virtual const Money &GetSalary() const = 0;
+	virtual StringID GetDisplayType() const = 0;
+
 	bool DailyUpdate() override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	void DecideMoveDirection() override;
@@ -286,7 +289,14 @@ public:
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	void ActionAnimationCallback() override;
 
-	RideInstance *ride;  ///< The ride we're intending to inspect, if any.
+	const Money &GetSalary() const override
+	{
+		return SALARY;
+	}
+	StringID GetDisplayType() const override
+	{
+		return GUI_STAFF_TYPE_MECHANIC;
+	}
 };
 
 #endif

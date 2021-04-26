@@ -87,9 +87,9 @@ strings {
 
 		// Person status strings.
 		PERSON_STATUS_WANDER:          "Wandering";
-		PERSON_STATUS_HEADING_TO_RIDE: "Heading to %1%";
-		PERSON_STATUS_INSPECTING:      "Inspecting %1%";
-		PERSON_STATUS_REPAIRING:       "Repairing %1%";
+		PERSON_STATUS_HEADING_TO_RIDE: "Heading to %s";
+		PERSON_STATUS_INSPECTING:      "Inspecting %s";
+		PERSON_STATUS_REPAIRING:       "Repairing %s";
 		PERSON_STATUS_WATERING:        "Watering the flowerbeds";
 		PERSON_STATUS_EMPTYING:        "Emptying the bins";
 		PERSON_STATUS_SWEEPING:        "Sweeping the paths";
@@ -108,6 +108,14 @@ strings {
 		ITEM_MAP:      "Map";
 		ITEM_UMBRELLA: "Umbrella";
 		ITEM_WRAPPER:  "Wrapper";
+
+		// Staff window.
+		STAFF_SALARY:           "Monthly salary:";
+		STAFF_DISMISS:          "Dismiss";
+		STAFF_TYPE_MECHANIC:    "Mechanic";
+		STAFF_TYPE_HANDYMAN:    "Handyman";
+		STAFF_TYPE_GUARD:       "Guard";
+		STAFF_TYPE_ENTERTAINER: "Entertainer";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:            "Paths";

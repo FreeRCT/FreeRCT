@@ -343,21 +343,15 @@ void Staff::Load(Loader &ldr)
 	switch (version) {
 		case 0:
 			break;
-		case 1:
-		case 2:
 		case 3:
-			if (version > 2) {
-				this->last_person_id = ldr.GetWord();
-			}
+			this->last_person_id = ldr.GetWord();
 			for (uint i = ldr.GetLong(); i > 0; i--) {
 				this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
 			}
-			if (version > 1) {
-				for (uint i = ldr.GetLong(); i > 0; i--) {
-					Mechanic *m = new Mechanic;
-					m->Load(ldr);
-					this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
-				}
+			for (uint i = ldr.GetLong(); i > 0; i--) {
+				Mechanic *m = new Mechanic;
+				m->Load(ldr);
+				this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
 			}
 			break;
 		default:
@@ -414,17 +408,23 @@ Mechanic *Staff::HireMechanic()
 }
 
 /**
- * Dismiss a mechanic from the staff.
- * @param m Mechanic to dismiss.
+ * Dismiss a staff member from the staff.
+ * @param person Person to dismiss.
  * @note Invalidates the pointer.
  */
-void Staff::Dismiss(Mechanic* m)
+void Staff::Dismiss(const StaffMember *person)
 {
-	for (auto it = this->mechanics.begin(); it != this->mechanics.end(); it++) {
-		if (it->get() == m) {
-			this->mechanics.erase(it);  // This deletes the mechanic.
-			return;
-		}
+	switch (person->type) {
+		case PERSON_MECHANIC:
+			for (auto it = this->mechanics.begin(); it != this->mechanics.end(); it++) {
+				if (it->get() == person) {
+					this->mechanics.erase(it);  // This deletes the mechanic.
+					return;
+				}
+			}
+			break;
+
+		default: NOT_REACHED();
 	}
 	NOT_REACHED();
 }

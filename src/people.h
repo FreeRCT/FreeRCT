@@ -130,7 +130,7 @@ public:
 	void NotifyRideDeletion(const RideInstance *);
 
 	Mechanic *HireMechanic();
-	void Dismiss(Mechanic* m);
+	void Dismiss(const StaffMember* m);
 
 	void OnAnimate(int delay);
 	void DoTick();

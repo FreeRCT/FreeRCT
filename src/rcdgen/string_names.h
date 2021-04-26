@@ -116,6 +116,14 @@ static const char *_gui_string_names[] = {
 	"ITEM_UMBRELLA",
 	"ITEM_WRAPPER",
 
+	/* Staff window. */
+	"STAFF_SALARY",
+	"STAFF_DISMISS",
+	"STAFF_TYPE_MECHANIC",
+	"STAFF_TYPE_HANDYMAN",
+	"STAFF_TYPE_GUARD",
+	"STAFF_TYPE_ENTERTAINER",
+
 	/* Path GUI strings. */
 	"PATH_GUI_TITLE",
 	"PATH_GUI_LONG",
