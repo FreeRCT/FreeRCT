@@ -406,7 +406,7 @@ bool LoadGameFile(const char *fname)
 		}
 
 		printf("FATAL ERROR: The reset loader failed to default-initialize the game!\n");
-		printf("This should not happen. Please consider submiting a bug report.\n");
+		printf("This should not happen. Please consider submitting a bug report.\n");
 		printf("Error message: %s\n", e.what());
 		printf("FreeRCT will terminate now.\n");
 		::exit(1);

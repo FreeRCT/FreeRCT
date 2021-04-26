@@ -294,4 +294,90 @@ public:
 	}
 };
 
+/**
+ * A guard who walks around the park to stop guests from smashing up park property.
+ * @todo Vandalism is not implemented yet, so the guards don't actually have a function currently.
+ */
+class Guard : public StaffMember {
+public:
+	static const Money SALARY;
+
+	Guard();
+	~Guard();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void ActionAnimationCallback() override
+	{
+		NOT_REACHED();  // Guards don't have action animations.
+	}
+
+	const Money &GetSalary() const override
+	{
+		return SALARY;
+	}
+};
+
+/**
+ * An entertainer who walks around the park to make guests more cheerful and patient.
+ * @todo Happiness and impatience are not implemented yet, so the entertainers don't actually have a function currently.
+ */
+class Entertainer : public StaffMember {
+public:
+	static const Money SALARY;
+
+	Entertainer();
+	~Entertainer();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void ActionAnimationCallback() override
+	{
+		NOT_REACHED();  // Entertainers don't have action animations.
+	}
+
+	const Money &GetSalary() const override
+	{
+		return SALARY;
+	}
+};
+
+/**
+ * A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths.
+ * @todo Litter bins and dirty paths are not implemented yet.
+ * NOCOM Implement watering.
+ */
+class Handyman : public StaffMember {
+public:
+	static const Money SALARY;
+
+	/** What a handyman is doing right now. */
+	enum Activity {
+		ACTIVITY_NONE,      ///< Wandering around.
+		ACTIVITY_WATER,     ///< Watering a flowerbed.
+		ACTIVITY_SWEEP,     ///< Sweeping the path.
+		ACTIVITY_EMPTY_NE,  ///< Emptying the bin on the north-east edge of the current tile.
+		ACTIVITY_EMPTY_SE,  ///< Emptying the bin on the south-east edge of the current tile.
+		ACTIVITY_EMPTY_SW,  ///< Emptying the bin on the south-west edge of the current tile.
+		ACTIVITY_EMPTY_NW,  ///< Emptying the bin on the north-west edge of the current tile.
+	};
+
+	Handyman();
+	~Handyman();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void ActionAnimationCallback() override;
+
+	const Money &GetSalary() const override
+	{
+		return SALARY;
+	}
+
+	Activity activity;  ///< What we're doing right now.
+};
+
 #endif

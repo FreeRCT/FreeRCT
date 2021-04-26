@@ -104,8 +104,11 @@ void StaffManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 	switch (wid_num) {
 		case STAFF_SALARY:
 			switch (this->selected) {
-				case PERSON_MECHANIC: _str_params.SetMoney(1, Mechanic::SALARY); break;
-				default: _str_params.SetMoney(1, 0); break;  // NOCOM
+				case PERSON_MECHANIC:    _str_params.SetMoney(1, Mechanic::SALARY);    break;
+				case PERSON_HANDYMAN:    _str_params.SetMoney(1, Handyman::SALARY);    break;
+				case PERSON_GUARD:       _str_params.SetMoney(1, Guard::SALARY);       break;
+				case PERSON_ENTERTAINER: _str_params.SetMoney(1, Entertainer::SALARY); break;
+				default: break;
 			}
 			break;
 	}
@@ -119,8 +122,17 @@ void StaffManagementGui::OnClick(const WidgetNumber number, const Point16 &pos)
 				case PERSON_MECHANIC:
 					_staff.HireMechanic();
 					break;
+				case PERSON_HANDYMAN:
+					_staff.HireHandyman();
+					break;
+				case PERSON_GUARD:
+					_staff.HireGuard();
+					break;
+				case PERSON_ENTERTAINER:
+					_staff.HireEntertainer();
+					break;
 				default:
-					NOT_REACHED();  // \todo Allow hiring other staff types.
+					NOT_REACHED();
 			}
 			break;
 

@@ -29,7 +29,10 @@ static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about eac
 static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests queuing for a ride.
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
-const Money Mechanic::SALARY(150000);  ///< Monthly salary of a mechanic.
+const Money Mechanic::SALARY   (150000);  ///< Monthly salary of a mechanic.
+const Money Handyman::SALARY   (120000);  ///< Monthly salary of a handyman.
+const Money Guard::SALARY      (100000);  ///< Monthly salary of a guard.
+const Money Entertainer::SALARY(100000);  ///< Monthly salary of a entertainer.
 
 /**
  * Construct a recolour mapping of this person type.
@@ -427,6 +430,9 @@ static const uint32 CURRENT_VERSION_Person      = 2;   ///< Currently supported 
 static const uint32 CURRENT_VERSION_Guest       = 3;   ///< Currently supported version of %Guest.
 static const uint32 CURRENT_VERSION_StaffMember = 1;   ///< Currently supported version of %StaffMember.
 static const uint32 CURRENT_VERSION_Mechanic    = 2;   ///< Currently supported version of %Mechanic.
+static const uint32 CURRENT_VERSION_Handyman    = 1;   ///< Currently supported version of %Handyman.
+static const uint32 CURRENT_VERSION_Guard       = 1;   ///< Currently supported version of %Guard.
+static const uint32 CURRENT_VERSION_Entertainer = 1;   ///< Currently supported version of %Entertainer.
 
 /**
  * Load a person from the save game.
@@ -1822,7 +1828,7 @@ void StaffMember::DecideMoveDirection()
 /* Constructor. */
 Mechanic::Mechanic()
 {
-	this->ride = nullptr;
+	/* Nothing to do currently. */
 }
 
 /* Destructor. */
@@ -1849,6 +1855,7 @@ void Mechanic::Save(Saver &svr)
 {
 	svr.StartPattern("mchc", CURRENT_VERSION_Mechanic);
 	this->StaffMember::Save(svr);
+	/* No specific data to save currently. */
 	svr.EndPattern();
 }
 
@@ -1910,4 +1917,99 @@ void Mechanic::DecideMoveDirection()
 		NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 		this->status = GUI_PERSON_STATUS_HEADING_TO_RIDE;
 	}
+}
+
+/* Constructor. */
+Guard::Guard()
+{
+	/* Nothing to do currently. */
+}
+
+/* Destructor. */
+Guard::~Guard()
+{
+	/* Nothing to do currently. */
+}
+
+void Guard::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("gard");
+	if (version < 1 || version > CURRENT_VERSION_Guard) ldr.version_mismatch(version, CURRENT_VERSION_Guard);
+	this->StaffMember::Load(ldr);
+	/* No specific data to load currently. */
+	ldr.ClosePattern();
+}
+
+void Guard::Save(Saver &svr)
+{
+	svr.StartPattern("gard", CURRENT_VERSION_Guard);
+	this->StaffMember::Save(svr);
+	/* No specific data to save currently. */
+	svr.EndPattern();
+}
+
+/* Constructor. */
+Entertainer::Entertainer()
+{
+	/* Nothing to do currently. */
+}
+
+/* Destructor. */
+Entertainer::~Entertainer()
+{
+	/* Nothing to do currently. */
+}
+
+void Entertainer::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("etai");
+	if (version < 1 || version > CURRENT_VERSION_Entertainer) ldr.version_mismatch(version, CURRENT_VERSION_Entertainer);
+	this->StaffMember::Load(ldr);
+	/* No specific data to load currently. */
+	ldr.ClosePattern();
+}
+
+void Entertainer::Save(Saver &svr)
+{
+	svr.StartPattern("etai", CURRENT_VERSION_Entertainer);
+	this->StaffMember::Save(svr);
+	/* No specific data to save currently. */
+	svr.EndPattern();
+}
+
+/* Constructor. */
+Handyman::Handyman()
+{
+	/* Nothing to do currently. */
+}
+
+/* Destructor. */
+Handyman::~Handyman()
+{
+	/* Nothing to do currently. */
+}
+
+void Handyman::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("hndy");
+	if (version < 1 || version > CURRENT_VERSION_Handyman) ldr.version_mismatch(version, CURRENT_VERSION_Handyman);
+	this->StaffMember::Load(ldr);
+	this->activity = static_cast<Activity>(ldr.GetByte());
+	ldr.ClosePattern();
+}
+
+void Handyman::Save(Saver &svr)
+{
+	svr.StartPattern("hndy", CURRENT_VERSION_Handyman);
+	this->StaffMember::Save(svr);
+	svr.PutByte(static_cast<uint8>(this->activity));
+	svr.EndPattern();
+}
+
+void Handyman::ActionAnimationCallback()
+{
+	switch (this->activity) {
+		default: NOT_REACHED();
+	}
+	this->activity = ACTIVITY_NONE;
 }
