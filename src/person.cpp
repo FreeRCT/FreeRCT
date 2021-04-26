@@ -400,6 +400,11 @@ static uint16 EncodeWalk(const WalkInformation *wi)
 			}
 		}
 	}
+	for (int i = 0; i < 4; i++) {
+		if (wi == _mechanic_repair[i]) {
+			return (2 << 12) | i;
+		}
+	}
 	NOT_REACHED();
 }
 
@@ -416,13 +421,15 @@ static const WalkInformation *DecodeWalk(uint16 number)
 	int c = (number >> 12) & 0xF;
 	if (c == 0) return &_walk_path_tile[i][j][k];
 	if (c == 1) return &_center_path_tile[i][j][k];
+	if (c == 2) return _mechanic_repair[k];
 
 	NOT_REACHED();
 }
 
-static const uint32 CURRENT_VERSION_Person   = 1;   ///< Currently supported version of %Person.
-static const uint32 CURRENT_VERSION_Guest    = 2;   ///< Currently supported version of %Guest.
-static const uint32 CURRENT_VERSION_Mechanic = 1;   ///< Currently supported version of %Mechanic.
+static const uint32 CURRENT_VERSION_Person      = 1;   ///< Currently supported version of %Person.
+static const uint32 CURRENT_VERSION_Guest       = 2;   ///< Currently supported version of %Guest.
+static const uint32 CURRENT_VERSION_StaffMember = 1;   ///< Currently supported version of %StaffMember.
+static const uint32 CURRENT_VERSION_Mechanic    = 1;   ///< Currently supported version of %Mechanic.
 
 /**
  * Load a person from the save game.
@@ -538,7 +545,7 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 			return RVD_NO_VISIT;
 		}
 
-		if (ri == *our_ride) {  // Guest decided before that this shop/ride should be visited.
+		if (our_ride != nullptr && ri == *our_ride) {  // Guest decided before that this shop/ride should be visited.
 			*seen_wanted_ride = true;
 			return RVD_MUST_VISIT;
 		}
@@ -1680,101 +1687,60 @@ void Guest::BuyItem(RideInstance *ri)
 }
 
 /* Constructor. */
-Mechanic::Mechanic()
+StaffMember::StaffMember()
 {
-	this->ride = nullptr;
+	this->status = GUI_PERSON_STATUS_WANDER;
 }
 
 /* Destructor. */
-Mechanic::~Mechanic()
+StaffMember::~StaffMember()
 {
-	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
+	/* Nothing to do currently. */
 }
 
-void Mechanic::Load(Loader &ldr)
+void StaffMember::Load(Loader &ldr)
 {
-	const uint32 version = ldr.OpenPattern("mchc");
-	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
+	const uint32 version = ldr.OpenPattern("stfm");
+	if (version < 1 || version > CURRENT_VERSION_StaffMember) ldr.version_mismatch(version, CURRENT_VERSION_StaffMember);
 	this->Person::Load(ldr);
-
-	const uint16 ride_index = ldr.GetWord();
-	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
-
+	this->status = GUI_PERSON_STATUS_WANDER + ldr.GetWord();
 	ldr.ClosePattern();
 }
 
-void Mechanic::Save(Saver &svr)
+void StaffMember::Save(Saver &svr)
 {
-	svr.StartPattern("mchc", CURRENT_VERSION_Mechanic);
+	svr.StartPattern("stfm", CURRENT_VERSION_StaffMember);
 	this->Person::Save(svr);
-	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
+	svr.PutWord(this->status - GUI_PERSON_STATUS_WANDER);
 	svr.EndPattern();
 }
 
-bool Mechanic::DailyUpdate()
+bool StaffMember::DailyUpdate()
 {
 	/* Nothing to do currently. */
 	return true;
 }
 
-/**
- * Order this mechanic to inspect a ride.
- * @param ri Ride to inspect.
- */
-void Mechanic::Assign(RideInstance *ri)
+RideVisitDesire StaffMember::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
 {
-	assert(this->ride == nullptr);
-	this->ride = ri;
+	return RVD_NO_VISIT;
 }
 
-/**
- * Notify the mechanic of removal of a ride.
- * @param ri Ride being deleted.
- */
-void Mechanic::NotifyRideDeletion(const RideInstance *ri)
-{
-	if (ri == this->ride) this->ride = nullptr;
-}
-
-RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
-{
-	if (ri != this->ride) return RVD_NO_VISIT;  // Not our destination ride.
-
-	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
-	if (destination.coords                  != ride_pos                          ) return RVD_NO_VISIT;  // Wrong location.
-	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return RVD_NO_VISIT;  // Wrong direction.
-
-	return RVD_MUST_VISIT;  // All checks passed, we may enter the ride here.
-}
-
-AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
-{
-	if (!this->WantToVisit(ri, this->vox_pos, exit_edge)) {
-		/* Not our destination ride, or approaching at the wrong place. */
-		return OAR_CONTINUE;
-	}
-
-	this->StartAnimation(_mechanic_repair[exit_edge]);
-	return OAR_ANIMATING;
-}
-
-void Mechanic::ActionAnimationCallback()
-{
-	if (this->ride == nullptr) return;  // The ride was deleted while we were inspecting it.
-
-	this->ride->MechanicArrived();
-	this->ride = nullptr;
-}
-
-AnimateResult Mechanic::EdgeOfWorldOnAnimate()
+AnimateResult StaffMember::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
 {
 	return OAR_CONTINUE;
 }
 
-void Mechanic::DecideMoveDirection()
+AnimateResult StaffMember::EdgeOfWorldOnAnimate()
+{
+	return OAR_CONTINUE;
+}
+
+void StaffMember::DecideMoveDirection()
 {
 	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
-	/* \todo Walk purposefully towards our assigned ride, if any. */
+	/* \todo Mechanics should walk purposefully towards their assigned ride, if any. */
+	this->status = GUI_PERSON_STATUS_WANDER;
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);
@@ -1797,7 +1763,8 @@ void Mechanic::DecideMoveDirection()
 		}
 
 		bool b;
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, &b, &this->ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, &b,
+				this->type == PERSON_MECHANIC ? &static_cast<Mechanic*>(this)->ride : nullptr);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break;
@@ -1844,4 +1811,92 @@ void Mechanic::DecideMoveDirection()
 		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
 	}
 	this->StartAnimation(new_walk);
+}
+
+/* Constructor. */
+Mechanic::Mechanic()
+{
+	this->ride = nullptr;
+}
+
+/* Destructor. */
+Mechanic::~Mechanic()
+{
+	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
+}
+
+void Mechanic::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("mchc");
+	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
+	this->StaffMember::Load(ldr);
+
+	const uint16 ride_index = ldr.GetWord();
+	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+
+	ldr.ClosePattern();
+}
+
+void Mechanic::Save(Saver &svr)
+{
+	svr.StartPattern("mchc", CURRENT_VERSION_Mechanic);
+	this->StaffMember::Save(svr);
+	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
+	svr.EndPattern();
+}
+
+/**
+ * Order this mechanic to inspect a ride.
+ * @param ri Ride to inspect.
+ */
+void Mechanic::Assign(RideInstance *ri)
+{
+	assert(this->ride == nullptr);
+	this->ride = ri;
+}
+
+/**
+ * Notify the mechanic of removal of a ride.
+ * @param ri Ride being deleted.
+ */
+void Mechanic::NotifyRideDeletion(const RideInstance *ri)
+{
+	if (ri == this->ride) this->ride = nullptr;
+}
+
+RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
+{
+	if (ri != this->ride) return RVD_NO_VISIT;  // Not our destination ride.
+
+	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
+	if (destination.coords                  != ride_pos                          ) return RVD_NO_VISIT;  // Wrong location.
+	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return RVD_NO_VISIT;  // Wrong direction.
+
+	return RVD_MUST_VISIT;  // All checks passed, we may enter the ride here.
+}
+
+AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
+{
+	if (!this->WantToVisit(ri, this->vox_pos, exit_edge)) {
+		/* Not our destination ride, or approaching at the wrong place. */
+		return OAR_CONTINUE;
+	}
+
+	this->status = ri->broken ? GUI_PERSON_STATUS_REPAIRING : GUI_PERSON_STATUS_INSPECTING;
+	this->StartAnimation(_mechanic_repair[exit_edge]);
+	return OAR_ANIMATING;
+}
+
+void Mechanic::ActionAnimationCallback()
+{
+	if (this->ride == nullptr) return;  // The ride was deleted while we were inspecting it.
+
+	this->ride->MechanicArrived();
+	this->ride = nullptr;
+}
+
+void Mechanic::DecideMoveDirection()
+{
+	StaffMember::DecideMoveDirection();  // Handles all the logic.
+	if (this->ride != nullptr) this->status = GUI_PERSON_STATUS_HEADING_TO_RIDE;
 }

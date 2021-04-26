@@ -141,6 +141,9 @@ public:
 	void Save(Saver &svr);
 
 private:
+	uint16 GenerateID();
+
+	uint16 last_person_id;                           ///< ID of the last staff member hired.
 	std::list<RideInstance*> mechanic_requests;      ///< Rides in need of a mechanic.
 	std::list<std::unique_ptr<Mechanic>> mechanics;  ///< All mechanics in the park.
 };

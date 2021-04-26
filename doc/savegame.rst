@@ -755,8 +755,9 @@ Offset  Length  Version  Description
 ======  ======  =======  ==============================================================
    0       4      1-     "STAF".
    4       4      1-     Version number of the staff block.
-   8       4      1-     Number of pending mechanic requests.
-  12       ?      1-     Every mechanic requests's ride ID (2 bytes each).
+   8       2      3-     Last unique staff member ID.
+  10       4      1-     Number of pending mechanic requests.
+  14       ?      1-     Every mechanic requests's ride ID (2 bytes each).
    ?       4      2-     Number of mechanics.
    ?       ?      2-     The data of every Mechanic_.
    ?       4      1-     "FATS"
@@ -767,6 +768,7 @@ Version history
 
 - 1 (20210402) Initial version.
 - 2 (20210423) Added mechanics.
+- 3 (20210426) Added staff IDs and NOCOM.
 
 
 Finances

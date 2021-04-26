@@ -85,6 +85,15 @@ strings {
 		ERROR_MESSAGE_OCCUPIED:       "Something is in the way!";
 		ERROR_MESSAGE_PAUSED:         "Not allowed while the game is paused.";
 
+		// Person status strings.
+		PERSON_STATUS_WANDER:          "Wandering";
+		PERSON_STATUS_HEADING_TO_RIDE: "Heading to %1%";
+		PERSON_STATUS_INSPECTING:      "Inspecting %1%";
+		PERSON_STATUS_REPAIRING:       "Repairing %1%";
+		PERSON_STATUS_WATERING:        "Watering the flowerbeds";
+		PERSON_STATUS_EMPTYING:        "Emptying the bins";
+		PERSON_STATUS_SWEEPING:        "Sweeping the paths";
+
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Available cash";
 		GUEST_INFO_MONEY_SPENT: "Cash spent";

@@ -129,7 +129,7 @@ void Message::OnClick() const
 		case MDT_NONE:
 			break;
 		case MDT_GUEST:
-			ShowGuestInfoGui(_guests.Get(this->data1));
+			ShowPersonInfoGui(_guests.Get(this->data1));
 			break;
 		case MDT_RIDE_INSTANCE:
 			ShowRideManagementGui(this->data1);
@@ -154,7 +154,7 @@ void Message::Load(Loader &ldr)
 	const uint32 version = ldr.OpenPattern("mssg");
 	if (version != CURRENT_VERSION_Message) ldr.version_mismatch(version, CURRENT_VERSION_Message);
 
-	this->message = ldr.GetWord();
+	this->message = GUI_INBOX_TITLE + ldr.GetWord();
 	this->data1 = ldr.GetLong();
 	this->data2 = ldr.GetLong();
 	this->timestamp = Date(CompressedDate(ldr.GetLong()));
@@ -165,7 +165,7 @@ void Message::Load(Loader &ldr)
 void Message::Save(Saver &svr) const
 {
 	svr.StartPattern("mssg", CURRENT_VERSION_Message);
-	svr.PutWord(this->message);
+	svr.PutWord(this->message - GUI_INBOX_TITLE);
 	svr.PutLong(this->data1);
 	svr.PutLong(this->data2);
 	svr.PutLong(this->timestamp.Compress());

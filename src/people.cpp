@@ -326,11 +326,12 @@ Staff::~Staff()
 /** Remove all staff and reset all variables. */
 void Staff::Uninitialize()
 {
-	this->mechanics.clear();
+	this->mechanics.clear();  // Do this first, it may generate new requests.
 	this->mechanic_requests.clear();
+	this->last_person_id = std::numeric_limits<uint16>::max();  // Counting staff IDs backwards to avoid conflicts with %Guests.
 }
 
-static const uint32 CURRENT_VERSION_STAF = 2;   ///< Currently supported version of the STAF Pattern.
+static const uint32 CURRENT_VERSION_STAF = 3;   ///< Currently supported version of the STAF Pattern.
 
 /**
  * Load staff from the save game.
@@ -344,6 +345,10 @@ void Staff::Load(Loader &ldr)
 			break;
 		case 1:
 		case 2:
+		case 3:
+			if (version > 2) {
+				this->last_person_id = ldr.GetWord();
+			}
 			for (uint i = ldr.GetLong(); i > 0; i--) {
 				this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
 			}
@@ -369,11 +374,21 @@ void Staff::Save(Saver &svr)
 {
 	svr.CheckNoOpenPattern();
 	svr.StartPattern("STAF", CURRENT_VERSION_STAF);
+	svr.PutWord(this->last_person_id);
 	svr.PutLong(this->mechanic_requests.size());
 	for (RideInstance *ride : this->mechanic_requests) svr.PutWord(ride->GetIndex());
 	svr.PutLong(this->mechanics.size());
 	for (auto &m : this->mechanics) m->Save(svr);
 	svr.EndPattern();
+}
+
+/**
+ * Generates a unique ID for a newly hired staff member.
+ * @return The ID to use.
+ */
+uint16 Staff::GenerateID()
+{
+	return --last_person_id;
 }
 
 /**
@@ -392,6 +407,7 @@ void Staff::RequestMechanic(RideInstance *ride)
 Mechanic *Staff::HireMechanic()
 {
 	Mechanic *m = new Mechanic;
+	m->id = this->GenerateID();
 	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
 	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the player to decide where to put the new mechanic.
 	return m;

@@ -93,6 +93,15 @@ static const char *_gui_string_names[] = {
 	"ERROR_MESSAGE_UNOWNED_LAND",
 	"ERROR_MESSAGE_PAUSED",
 
+	/* Person status strings. Do not change the order. */
+	"PERSON_STATUS_WANDER",
+	"PERSON_STATUS_HEADING_TO_RIDE",
+	"PERSON_STATUS_INSPECTING",
+	"PERSON_STATUS_REPAIRING",
+	"PERSON_STATUS_WATERING",
+	"PERSON_STATUS_EMPTYING",
+	"PERSON_STATUS_SWEEPING",
+
 	/* Guest info window. */
 	"GUEST_INFO_MONEY",
 	"GUEST_INFO_MONEY_SPENT",
@@ -231,7 +240,7 @@ static const char *_gui_string_names[] = {
 	"FINANCES_LOAN_INTEREST_TEXT",
 	"FINANCES_TOTAL_TEXT",
 
-	/* Messages and inbox. */
+	/* Messages and inbox. Do not change the order. */
 	"INBOX_TITLE",
 	"MESSAGE_NEW_RIDE",          ///< A new ride type is now available for purchase (Data1: Ride Type ID).
 	"MESSAGE_SCENARIO_WON",      ///< Congrats message when the player wins the scenario.

@@ -1193,7 +1193,7 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 				break;
 
 			case CS_PERSON:
-				ShowGuestInfoGui(fdata.person);
+				ShowPersonInfoGui(fdata.person);
 				return WMME_NONE;
 
 			default: break;

@@ -125,17 +125,33 @@ void GuestInfoWindow::OnChange(ChangeCode code, uint32 parameter)
 	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }
 
+/** Widgets of the staff info window. */
+enum StaffInfoWidgets {
+	SIW_TITLEBAR,     ///< Title bar widget.
+	SIW_STATUS,       ///< Status text.
+	SIW_DISMISS,      ///< Dismiss button.
+};
+
 /**
- * Open a window to view a given guest's info.
+ * Open a window to view a given person's info.
  * @param person #Person to view.
  */
-void ShowGuestInfoGui(const Person *person)
+void ShowPersonInfoGui(const Person *person)
 {
 	if (HighlightWindowByType(WC_GUEST_INFO, person->id) != nullptr) return;
 
-	const Guest *guest = dynamic_cast<const Guest *>(person);
+	switch (person->type) {
+		case PERSON_GUEST:
+			new GuestInfoWindow(static_cast<const Guest*>(person));
+			break;
 
-	if (guest != nullptr) {
-		new GuestInfoWindow(guest);
+		case PERSON_MECHANIC:
+		case PERSON_HANDYMAN:
+		case PERSON_GUARD:
+		case PERSON_ENTERTAINER:
+			// new StaffInfoWindow(static_cast<const StaffMember*>(person)); // NOCOM
+			break;
+
+		default: NOT_REACHED();
 	}
 }

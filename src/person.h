@@ -249,8 +249,26 @@ protected:
 	void AddItem(ItemType it);
 };
 
+/** A staff member: Mechanics, handymen, guards, entertainers. */
+class StaffMember : public Person {
+public:
+	StaffMember();
+	~StaffMember();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	bool DailyUpdate() override;
+	AnimateResult EdgeOfWorldOnAnimate() override;
+	void DecideMoveDirection() override;
+	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
+	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
+
+	StringID status;  ///< What we're doing right now.
+};
+
 /** A mechanic who can repair and inspect rides. */
-class Mechanic : public Person {
+class Mechanic : public StaffMember {
 public:
 	static const Money SALARY;
 
@@ -263,9 +281,7 @@ public:
 	void Assign(RideInstance *ri);
 	void NotifyRideDeletion(const RideInstance *ri);
 
-	bool DailyUpdate() override;
 	void DecideMoveDirection() override;
-	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	void ActionAnimationCallback() override;

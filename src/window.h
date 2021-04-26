@@ -483,7 +483,7 @@ void ShowMainMenu();
 void ShowMainDisplay(const XYZPoint32 &view_pos);
 void ShowToolbar();
 void ShowBottomToolbar();
-void ShowGuestInfoGui(const Person *person);
+void ShowPersonInfoGui(const Person *person);
 void ShowPathBuildGui();
 void ShowRideSelectGui();
 bool ShowRideManagementGui(uint16 ride);
