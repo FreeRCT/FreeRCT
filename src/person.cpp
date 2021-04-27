@@ -2099,6 +2099,7 @@ void Handyman::DecideMoveDirection()
 
 		SceneryInstance *item = _scenery.GetItem(pos);
 		if (item->ShouldBeWatered()) {
+			/* \todo Ignore items that another handyman is already watering. */
 			possible_edges.insert(edge);
 			nr_possible_edges++;
 		}
@@ -2109,7 +2110,7 @@ void Handyman::DecideMoveDirection()
 
 		this->activity = HandymanActivity::HEADING_TO_WATERING;
 		this->SetStatus(GUI_PERSON_STATUS_WATERING);
-		this->StartAnimation(_walk_path_tile[start_edge][*it]);
+		this->StartAnimation(_center_path_tile[start_edge][*it]);
 		return;
 	}
 
@@ -2141,7 +2142,7 @@ void Handyman::DecideMoveDirection()
 	}
 
 	/* No path nearby? Walk at random through the surrounding flowers in the hope of catching sight of one. */
-	/* The check for scenery items also covers other necessities such as flat land, same ground height, etc. */
+	/* The check for scenery items also guarantees other necessities such as flat land, same ground height, etc. */
 	/* \todo Make the handymen less short-sighted and allow them to look for reachable paths several tiles away. */
 	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
 		XYZPoint16 pos = this->vox_pos;
@@ -2164,7 +2165,7 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	/* Okay, now the poor handymen is really lost. Probably the player deleted some flowers. */
+	/* Okay, now the poor handymen is really lost. Probably the player deleted some flowers or paths. */
 	/* \todo When the ability to walk on pathless lands is implemented for guests, allow that here as well. */
 	NOT_REACHED();
 }
