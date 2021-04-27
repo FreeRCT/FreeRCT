@@ -336,14 +336,14 @@ public:
 class Handyman : public StaffMember {
 public:
 	/** What a handyman is doing right now. */
-	enum Activity {
-		ACTIVITY_NONE,      ///< Wandering around.
-		ACTIVITY_WATER,     ///< Watering a flowerbed.
-		ACTIVITY_SWEEP,     ///< Sweeping the path.
-		ACTIVITY_EMPTY_NE,  ///< Emptying the bin on the north-east edge of the current tile.
-		ACTIVITY_EMPTY_SE,  ///< Emptying the bin on the south-east edge of the current tile.
-		ACTIVITY_EMPTY_SW,  ///< Emptying the bin on the south-west edge of the current tile.
-		ACTIVITY_EMPTY_NW,  ///< Emptying the bin on the north-west edge of the current tile.
+	enum class HandymanActivity {
+		WANDER,    ///< Wandering around.
+		WATER,     ///< Watering a flowerbed.
+		SWEEP,     ///< Sweeping the path.
+		EMPTY_NE,  ///< Emptying the bin on the north-east edge of the current tile.
+		EMPTY_SE,  ///< Emptying the bin on the south-east edge of the current tile.
+		EMPTY_SW,  ///< Emptying the bin on the south-west edge of the current tile.
+		EMPTY_NW,  ///< Emptying the bin on the north-west edge of the current tile.
 	};
 
 	Handyman();
@@ -354,7 +354,7 @@ public:
 
 	void ActionAnimationCallback() override;
 
-	Activity activity;  ///< What we're doing right now.
+	HandymanActivity activity;  ///< What the handyman is doing right now.
 };
 
 #endif

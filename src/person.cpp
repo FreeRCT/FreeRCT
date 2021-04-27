@@ -112,6 +112,7 @@ Person::Person() : VoxelObject(), rnd()
 
 Person::~Person()
 {
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_PERSON_DELETED, 0);
 }
 
 const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
@@ -1703,7 +1704,7 @@ StaffMember::StaffMember()
 /* Destructor. */
 StaffMember::~StaffMember()
 {
-	NotifyChange(WC_PERSON_INFO, this->id, CHG_GUEST_COUNT, 0);
+	/* Nothing to do currently. */
 }
 
 void StaffMember::Load(Loader &ldr)
@@ -1994,7 +1995,7 @@ void Entertainer::Save(Saver &svr)
 /* Constructor. */
 Handyman::Handyman()
 {
-	/* Nothing to do currently. */
+	this->activity = HandymanActivity::WANDER;
 }
 
 /* Destructor. */
@@ -2008,7 +2009,7 @@ void Handyman::Load(Loader &ldr)
 	const uint32 version = ldr.OpenPattern("hndy");
 	if (version < 1 || version > CURRENT_VERSION_Handyman) ldr.version_mismatch(version, CURRENT_VERSION_Handyman);
 	this->StaffMember::Load(ldr);
-	this->activity = static_cast<Activity>(ldr.GetByte());
+	this->activity = static_cast<HandymanActivity>(ldr.GetByte());
 	ldr.ClosePattern();
 }
 
@@ -2025,5 +2026,5 @@ void Handyman::ActionAnimationCallback()
 	switch (this->activity) {
 		default: NOT_REACHED();
 	}
-	this->activity = ACTIVITY_NONE;
+	this->activity = HandymanActivity::WANDER;
 }

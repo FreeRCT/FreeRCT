@@ -203,7 +203,7 @@ void StaffInfoWindow::OnChange(ChangeCode code, uint32 parameter)
 		case CHG_DISPLAY_OLD:
 			this->MarkDirty();
 			break;
-		case CHG_GUEST_COUNT:  // This signifies that our person was deleted. Close the window.
+		case CHG_PERSON_DELETED:
 			delete this;
 			break;
 		default:

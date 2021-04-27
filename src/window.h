@@ -77,6 +77,7 @@ enum ChangeCode {
 	CHG_DROPDOWN_RESULT,  ///< The selection of a dropdown window.
 	CHG_GUEST_COUNT,      ///< Number of guests in the park has changed.
 	CHG_RESOLUTION_CHANGED,  ///< The size of the FreeRCT window was changed.
+	CHG_PERSON_DELETED,      ///< A person has been deleted from the world.
 };
 
 /** Various state flags of the %Window. */
