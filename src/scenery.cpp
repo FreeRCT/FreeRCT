@@ -310,6 +310,7 @@ bool SceneryManager::AddSceneryType(SceneryType *type)
 /**
  * Retrieve the index of a scenery type.
  * @param type Type to query.
+ * @return The unique index.
  */
 uint16 SceneryManager::GetSceneryTypeIndex(const SceneryType *type) const
 {
@@ -319,6 +320,16 @@ uint16 SceneryManager::GetSceneryTypeIndex(const SceneryType *type) const
 		}
 	}
 	NOT_REACHED();
+}
+
+/**
+ * Retrieve the scenery type with a given index.
+ * @param index Index to query.
+ * @return The type (\c nullptr for invalid indices).
+ */
+const SceneryType *SceneryManager::GetType(const uint16 index) const
+{
+	return this->scenery_item_types[index].get();
 }
 
 /**
