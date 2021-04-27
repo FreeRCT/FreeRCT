@@ -348,30 +348,38 @@ void Staff::Load(Loader &ldr)
 	switch (version) {
 		case 0:
 			break;
+		case 1:
+		case 2:
 		case 3:
-			this->last_person_id = ldr.GetWord();
+			if (version >= 3){
+				this->last_person_id = ldr.GetWord();
+			}
 			for (uint i = ldr.GetLong(); i > 0; i--) {
 				this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
 			}
-			for (uint i = ldr.GetLong(); i > 0; i--) {
-				Mechanic *m = new Mechanic;
-				m->Load(ldr);
-				this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+			if (version >= 2) {
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Mechanic *m = new Mechanic;
+					m->Load(ldr);
+					this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+				}
 			}
-			for (uint i = ldr.GetLong(); i > 0; i--) {
-				Handyman *m = new Handyman;
-				m->Load(ldr);
-				this->handymen.push_back(std::unique_ptr<Handyman>(m));
-			}
-			for (uint i = ldr.GetLong(); i > 0; i--) {
-				Guard *m = new Guard;
-				m->Load(ldr);
-				this->guards.push_back(std::unique_ptr<Guard>(m));
-			}
-			for (uint i = ldr.GetLong(); i > 0; i--) {
-				Entertainer *m = new Entertainer;
-				m->Load(ldr);
-				this->entertainers.push_back(std::unique_ptr<Entertainer>(m));
+			if (version >= 3) {
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Handyman *m = new Handyman;
+					m->Load(ldr);
+					this->handymen.push_back(std::unique_ptr<Handyman>(m));
+				}
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Guard *m = new Guard;
+					m->Load(ldr);
+					this->guards.push_back(std::unique_ptr<Guard>(m));
+				}
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Entertainer *m = new Entertainer;
+					m->Load(ldr);
+					this->entertainers.push_back(std::unique_ptr<Entertainer>(m));
+				}
 			}
 			break;
 		default:
