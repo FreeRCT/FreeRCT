@@ -28,6 +28,7 @@ SceneryType::SceneryType()
 	this->return_cost = Money();
 	this->return_cost_dry = Money();
 	this->watering_interval = 0;
+	this->min_watering_interval = 0;
 	this->symmetric = true;
 	this->main_animation = nullptr;
 	this->dry_animation = nullptr;
@@ -43,12 +44,12 @@ SceneryType::SceneryType()
  */
 bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 1 || rcd_file->size < 2) return false;
+	if (rcd_file->version != 2 || rcd_file->size < 2) return false;
 
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (rcd_file->size != 48 + (this->width_x * this->width_y)) return false;
+	if (rcd_file->size != 52 + (this->width_x * this->width_y)) return false;
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; x++) {
@@ -58,6 +59,7 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	}
 
 	this->watering_interval = rcd_file->GetUInt32();
+	this->min_watering_interval = rcd_file->GetUInt32();
 	this->main_animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	this->dry_animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	for (int i = 0; i < 4; i++) {
@@ -230,7 +232,7 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
 	sprites[3] = nullptr;
 	if (voxel_number == INVALID_VOXEL_DATA) return;
 	const XYZPoint16 unrotated_pos = UnorientatedOffset(this->orientation, vox.x - this->vox_pos.x, vox.y - this->vox_pos.y);
-	const TimedAnimation *anim = (this->NeedsWatering() ? this->type->dry_animation : this->type->main_animation);
+	const TimedAnimation *anim = (this->IsDry() ? this->type->dry_animation : this->type->main_animation);
 	sprites[1] = anim->views[anim->GetFrame(this->animtime, true)]
 			->sprites[(this->orientation + 4 - orient) & 3]
 					[unrotated_pos.x * this->type->width_y + unrotated_pos.y];
@@ -244,7 +246,7 @@ void SceneryInstance::OnAnimate(const int delay)
 {
 	if (this->type->watering_interval > 0) this->last_watered += delay;
 	this->animtime += delay;
-	this->animtime %= (this->NeedsWatering() ? this->type->dry_animation : this->type->main_animation)->GetTotalDuration();
+	this->animtime %= (this->IsDry() ? this->type->dry_animation : this->type->main_animation)->GetTotalDuration();
 	this->MarkDirty();  // Ensure the animation is updated.
 }
 
@@ -252,9 +254,18 @@ void SceneryInstance::OnAnimate(const int delay)
  * Whether this item is dried up for lack of watering.
  * @return The item is dry.
  */
-bool SceneryInstance::NeedsWatering() const
+bool SceneryInstance::IsDry() const
 {
 	return this->type->watering_interval > 0 && this->last_watered > this->type->watering_interval;
+}
+
+/**
+ * Whether this item should be watered by a handyman soon.
+ * @return The item needs watering soon.
+ */
+bool SceneryInstance::ShouldBeWatered() const
+{
+	return this->type->watering_interval > 0 && this->last_watered > this->type->min_watering_interval;
 }
 
 static const uint32 CURRENT_VERSION_SceneryInstance = 1;   ///< Currently supported version of %SceneryInstance.

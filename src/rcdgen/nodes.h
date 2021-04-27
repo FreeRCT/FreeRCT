@@ -729,6 +729,7 @@ public:
 	int32 return_cost;                ///< Cost when removing this item.
 	int32 return_cost_dry;            ///< Cost when removing this item when dry.
 	uint32 watering_interval;         ///< How often this item needs to be watered.
+	uint32 min_watering_interval;     ///< How frequently this item may at most be watered.
 
 	std::shared_ptr<TIMABlock> main_animation;  ///< Main image.
 	std::shared_ptr<TIMABlock> dry_animation;   ///< Dry image.

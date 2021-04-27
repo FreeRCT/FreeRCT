@@ -2098,7 +2098,7 @@ void Handyman::DecideMoveDirection()
 		if (type->watering_interval <= 0) continue;  // Some item that never needs watering.
 
 		SceneryInstance *item = _scenery.GetItem(pos);
-		if (item->NeedsWatering()) {
+		if (item->ShouldBeWatered()) {
 			possible_edges.insert(edge);
 			nr_possible_edges++;
 		}
@@ -2174,7 +2174,7 @@ void Handyman::ActionAnimationCallback()
 	switch (this->activity) {
 		case HandymanActivity::WATER: {
 			SceneryInstance *item = _scenery.GetItem(this->vox_pos);
-			if (item != nullptr && item->NeedsWatering()) item->last_watered = 0;
+			if (item != nullptr) item->last_watered = 0;
 			break;
 		}
 
