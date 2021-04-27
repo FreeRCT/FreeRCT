@@ -66,6 +66,8 @@ static const char *_gui_string_names[] = {
 	"TOOLBAR_GUI_TOOLTIP_TERRAFORM",
 	"TOOLBAR_GUI_FINANCES",
 	"TOOLBAR_GUI_TOOLTIP_FINANCES",
+	"TOOLBAR_GUI_STAFF",
+	"TOOLBAR_GUI_TOOLTIP_STAFF",
 	"TOOLBAR_GUI_INBOX",
 	"TOOLBAR_GUI_TOOLTIP_INBOX",
 
@@ -93,6 +95,15 @@ static const char *_gui_string_names[] = {
 	"ERROR_MESSAGE_UNOWNED_LAND",
 	"ERROR_MESSAGE_PAUSED",
 
+	/* Person status strings. Do not change the order. */
+	"PERSON_STATUS_WANDER",
+	"PERSON_STATUS_HEADING_TO_RIDE",
+	"PERSON_STATUS_INSPECTING",
+	"PERSON_STATUS_REPAIRING",
+	"PERSON_STATUS_WATERING",
+	"PERSON_STATUS_EMPTYING",
+	"PERSON_STATUS_SWEEPING",
+
 	/* Guest info window. */
 	"GUEST_INFO_MONEY",
 	"GUEST_INFO_MONEY_SPENT",
@@ -106,6 +117,22 @@ static const char *_gui_string_names[] = {
 	"ITEM_MAP",
 	"ITEM_UMBRELLA",
 	"ITEM_WRAPPER",
+
+	/* Staff window. */
+	"STAFF_MANAGEMENT_TITLE",
+	"STAFF_SALARY",
+	"STAFF_DISMISS",
+	"STAFF_HIRE",
+	"STAFF_TITLE_NAME",
+	"STAFF_TITLE_STATUS",
+	"STAFF_NAME_MECHANIC",
+	"STAFF_NAME_HANDYMAN",
+	"STAFF_NAME_GUARD",
+	"STAFF_NAME_ENTERTAINER",
+	"STAFF_CATEGORY_MECHANICS",
+	"STAFF_CATEGORY_HANDYMEN",
+	"STAFF_CATEGORY_GUARDS",
+	"STAFF_CATEGORY_ENTERTAINERS",
 
 	/* Path GUI strings. */
 	"PATH_GUI_TITLE",
@@ -231,7 +258,7 @@ static const char *_gui_string_names[] = {
 	"FINANCES_LOAN_INTEREST_TEXT",
 	"FINANCES_TOTAL_TEXT",
 
-	/* Messages and inbox. */
+	/* Messages and inbox. Do not change the order. */
 	"INBOX_TITLE",
 	"MESSAGE_NEW_RIDE",          ///< A new ride type is now available for purchase (Data1: Ride Type ID).
 	"MESSAGE_SCENARIO_WON",      ///< Congrats message when the player wins the scenario.

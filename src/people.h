@@ -116,10 +116,7 @@ private:
 	Guest *GetFree();
 };
 
-/**
- * All the staff (handymen, mechanics, entertainers, guards) in the park.
- * @todo This is just a stub currently.
- */
+/** All the staff (handymen, mechanics, entertainers, guards) in the park. */
 class Staff {
 public:
 	Staff();
@@ -129,8 +126,18 @@ public:
 	void RequestMechanic(RideInstance *ride);
 	void NotifyRideDeletion(const RideInstance *);
 
-	Mechanic *HireMechanic();
-	void Dismiss(Mechanic* m);
+	Mechanic    *HireMechanic();
+	Handyman    *HireHandyman();
+	Guard       *HireGuard();
+	Entertainer *HireEntertainer();
+	uint16 CountMechanics()    const;
+	uint16 CountHandymen()     const;
+	uint16 CountGuards()       const;
+	uint16 CountEntertainers() const;
+	uint16 Count(PersonType t) const;
+
+	StaffMember *Get(PersonType t, uint list_index) const;
+	void Dismiss(const StaffMember* m);
 
 	void OnAnimate(int delay);
 	void DoTick();
@@ -141,8 +148,14 @@ public:
 	void Save(Saver &svr);
 
 private:
-	std::list<RideInstance*> mechanic_requests;      ///< Rides in need of a mechanic.
-	std::list<std::unique_ptr<Mechanic>> mechanics;  ///< All mechanics in the park.
+	uint16 GenerateID();
+
+	uint16 last_person_id;                                 ///< ID of the last staff member hired.
+	std::list<RideInstance*> mechanic_requests;            ///< Rides in need of a mechanic.
+	std::list<std::unique_ptr<Mechanic>>    mechanics;     ///< All mechanics    in the park.
+	std::list<std::unique_ptr<Handyman>>    handymen;      ///< All handymen     in the park.
+	std::list<std::unique_ptr<Guard>>       guards;        ///< All guards       in the park.
+	std::list<std::unique_ptr<Entertainer>> entertainers;  ///< All entertainers in the park.
 };
 
 extern Guests _guests;

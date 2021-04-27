@@ -29,7 +29,12 @@ static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about eac
 static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests queuing for a ride.
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
-const Money Mechanic::SALARY(150000);  ///< Monthly salary of a mechanic.
+const std::map<PersonType, Money> StaffMember::SALARY = {
+	{PERSON_MECHANIC,    Money(150000)},  ///< Monthly salary of a mechanic.
+	{PERSON_HANDYMAN,    Money(120000)},  ///< Monthly salary of a handyman.
+	{PERSON_GUARD,       Money(100000)},  ///< Monthly salary of a guard.
+	{PERSON_ENTERTAINER, Money(100000)},  ///< Monthly salary of a entertainer.
+};
 
 /**
  * Construct a recolour mapping of this person type.
@@ -100,13 +105,14 @@ Person::Person() : VoxelObject(), rnd()
 {
 	this->type = PERSON_INVALID;
 	this->name = nullptr;
+	this->ride = nullptr;
 
 	this->offset = this->rnd.Uniform(100);
 }
 
 Person::~Person()
 {
-	delete[] this->name;
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_PERSON_DELETED, 0);
 }
 
 const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
@@ -123,11 +129,9 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
  */
 void Person::SetName(const uint8 *name)
 {
-	assert(this->IsGuest());
-
 	int len = strlen((char *)name);
-	this->name = new uint8[len + 1];
-	strcpy((char *)this->name, (char *)name); // Already know name has \0, because of strlen.
+	this->name.reset(new uint8[len + 1]);
+	strcpy((char *)this->name.get(), (char *)name); // Already know name has \0, because of strlen.
 }
 
 /**
@@ -139,8 +143,7 @@ const uint8 *Person::GetName() const
 {
 	static uint8 buffer[16];
 
-	assert(this->IsGuest());
-	if (this->name != nullptr) return this->name;
+	if (this->name.get() != nullptr) return this->name.get();
 	sprintf((char *)buffer, "Guest %u", this->id);
 	return buffer;
 }
@@ -181,7 +184,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
-	this->name = nullptr;
+	this->name.reset();
 
 	/* Set up the person sprite recolouring table. */
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
@@ -400,6 +403,11 @@ static uint16 EncodeWalk(const WalkInformation *wi)
 			}
 		}
 	}
+	for (int i = 0; i < 4; i++) {
+		if (wi == _mechanic_repair[i]) {
+			return (2 << 12) | i;
+		}
+	}
 	NOT_REACHED();
 }
 
@@ -416,13 +424,18 @@ static const WalkInformation *DecodeWalk(uint16 number)
 	int c = (number >> 12) & 0xF;
 	if (c == 0) return &_walk_path_tile[i][j][k];
 	if (c == 1) return &_center_path_tile[i][j][k];
+	if (c == 2) return _mechanic_repair[k];
 
 	NOT_REACHED();
 }
 
-static const uint32 CURRENT_VERSION_Person   = 1;   ///< Currently supported version of %Person.
-static const uint32 CURRENT_VERSION_Guest    = 2;   ///< Currently supported version of %Guest.
-static const uint32 CURRENT_VERSION_Mechanic = 1;   ///< Currently supported version of %Mechanic.
+static const uint32 CURRENT_VERSION_Person      = 2;   ///< Currently supported version of %Person.
+static const uint32 CURRENT_VERSION_Guest       = 3;   ///< Currently supported version of %Guest.
+static const uint32 CURRENT_VERSION_StaffMember = 1;   ///< Currently supported version of %StaffMember.
+static const uint32 CURRENT_VERSION_Mechanic    = 2;   ///< Currently supported version of %Mechanic.
+static const uint32 CURRENT_VERSION_Handyman    = 1;   ///< Currently supported version of %Handyman.
+static const uint32 CURRENT_VERSION_Guard       = 1;   ///< Currently supported version of %Guard.
+static const uint32 CURRENT_VERSION_Entertainer = 1;   ///< Currently supported version of %Entertainer.
 
 /**
  * Load a person from the save game.
@@ -431,12 +444,17 @@ static const uint32 CURRENT_VERSION_Mechanic = 1;   ///< Currently supported ver
 void Person::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("prsn");
-	if (version != CURRENT_VERSION_Person) ldr.version_mismatch(version, CURRENT_VERSION_Person);
+	if (version < 1 || version > CURRENT_VERSION_Person) ldr.version_mismatch(version, CURRENT_VERSION_Person);
 	this->VoxelObject::Load(ldr);
 
 	this->type = (PersonType)ldr.GetByte();
 	this->offset = ldr.GetWord();
-	this->name = ldr.GetText();
+	this->name.reset(ldr.GetText());
+
+	if (version > 1) {
+		const uint16 ride_index = ldr.GetWord();
+		if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+	}
 
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
 	this->recolour = person_type_data.graphics.MakeRecolouring();
@@ -468,7 +486,8 @@ void Person::Save(Saver &svr)
 
 	svr.PutByte(this->type);
 	svr.PutWord(this->offset);
-	svr.PutText(this->name);
+	svr.PutText(this->name.get());
+	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
 
 	this->recolour.Save(svr);
 
@@ -503,10 +522,9 @@ TileEdge Person::GetCurrentEdge() const
  * @param cur_pos Coordinate of the current voxel.
  * @param exit_edge Exit edge being examined.
  * @param seen_wanted_ride [inout] Whether the wanted ride is seen.
- * @param our_ride [inout] Pointer to the ride instance we want to visit.
  * @return Desire of the person to visit the indicated edge.
  */
-RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride, RideInstance **our_ride)
+RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride)
 {
 	if (current_edge == exit_edge) return RVD_NO_VISIT; // Skip incoming edge (may get added later if no other options exist).
 
@@ -538,7 +556,7 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 			return RVD_NO_VISIT;
 		}
 
-		if (ri == *our_ride) {  // Guest decided before that this shop/ride should be visited.
+		if (ri == this->ride) {  // Guest decided before that this shop/ride should be visited.
 			*seen_wanted_ride = true;
 			return RVD_MUST_VISIT;
 		}
@@ -552,10 +570,10 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 		default: NOT_REACHED();
 	}
 	RideVisitDesire rvd = this->WantToVisit(ri, cur_pos, exit_edge);
-	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && *our_ride == nullptr) {
+	if ((rvd == RVD_MAY_VISIT || rvd == RVD_MUST_VISIT) && this->ride == nullptr) {
 		/* Decided to want to visit one ride, and no wanted ride yet. */
 		// \todo Add a timeout so a guest gets bored waiting for the ride at some point.
-		*our_ride = ri;
+		this->ride = ri;
 		*seen_wanted_ride = true;
 		return RVD_MUST_VISIT;
 	}
@@ -640,7 +658,7 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 			continue;
 		}
 
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, seen_wanted_ride, &this->ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, seen_wanted_ride);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break; // A path is one of the options.
@@ -948,8 +966,7 @@ void Person::DeActivate(AnimateResult ar)
 
 	_inbox.NotifyGuestDeletion(this->id);
 	this->type = PERSON_INVALID;
-	delete[] this->name;
-	this->name = nullptr;
+	this->name.reset();
 }
 
 
@@ -1267,7 +1284,7 @@ void Guest::DeActivate(AnimateResult ar)
 {
 	if (this->IsActive()) {
 		/* Close possible Guest Info window */
-		Window *wi = GetWindowByType(WC_GUEST_INFO, this->id);
+		Window *wi = GetWindowByType(WC_PERSON_INFO, this->id);
 		delete wi;
 
 		/// \todo Evaluate Guest::total_happiness against scenario requirements for evaluating the park value.
@@ -1292,8 +1309,10 @@ void Guest::Load(Loader &ldr)
 	this->cash = static_cast<Money>(ldr.GetLongLong());
 	this->cash_spent = static_cast<Money>(ldr.GetLongLong());
 
-	uint16 ride_index = ldr.GetWord();
-	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+	if (version < 3) {
+		uint16 ride_index = ldr.GetWord();
+		if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+	}
 
 	this->has_map = ldr.GetByte();
 	this->has_umbrella = ldr.GetByte();
@@ -1337,9 +1356,6 @@ void Guest::Save(Saver &svr)
 	svr.PutWord(this->total_happiness);
 	svr.PutLongLong(static_cast<uint64>(this->cash));
 	svr.PutLongLong(static_cast<uint64>(this->cash_spent));
-
-	uint16 ride_index = (this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE;
-	svr.PutWord(ride_index);
 
 	svr.PutByte(this->has_map);
 	svr.PutByte(this->has_umbrella);
@@ -1417,7 +1433,7 @@ void Guest::ChangeHappiness(int16 amount)
 	int16 old_happiness = this->happiness;
 	this->happiness = Clamp(this->happiness + amount, 0, 100);
 	if (amount > 0) this->total_happiness = std::min(1000, this->total_happiness + this->happiness - old_happiness);
-	NotifyChange(WC_GUEST_INFO, this->id, CHG_DISPLAY_OLD, 0);
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 }
 
 /**
@@ -1680,101 +1696,86 @@ void Guest::BuyItem(RideInstance *ri)
 }
 
 /* Constructor. */
-Mechanic::Mechanic()
+StaffMember::StaffMember()
 {
-	this->ride = nullptr;
+	this->status = GUI_PERSON_STATUS_WANDER;
 }
 
 /* Destructor. */
-Mechanic::~Mechanic()
+StaffMember::~StaffMember()
 {
-	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
+	/* Nothing to do currently. */
 }
 
-void Mechanic::Load(Loader &ldr)
+void StaffMember::Load(Loader &ldr)
 {
-	const uint32 version = ldr.OpenPattern("mchc");
-	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
+	const uint32 version = ldr.OpenPattern("stfm");
+	if (version < 1 || version > CURRENT_VERSION_StaffMember) ldr.version_mismatch(version, CURRENT_VERSION_StaffMember);
 	this->Person::Load(ldr);
-
-	const uint16 ride_index = ldr.GetWord();
-	if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
-
+	this->status = GUI_PERSON_STATUS_WANDER + ldr.GetWord();
 	ldr.ClosePattern();
 }
 
-void Mechanic::Save(Saver &svr)
+void StaffMember::Save(Saver &svr)
 {
-	svr.StartPattern("mchc", CURRENT_VERSION_Mechanic);
+	svr.StartPattern("stfm", CURRENT_VERSION_StaffMember);
 	this->Person::Save(svr);
-	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
+	svr.PutWord(this->status - GUI_PERSON_STATUS_WANDER);
 	svr.EndPattern();
 }
 
-bool Mechanic::DailyUpdate()
+/**
+ * Create this staff member's current status string.
+ * @return The status string.
+ */
+const uint8 *StaffMember::GetStatus() const
+{
+	static char text_buffer[1024];
+	const char *text = reinterpret_cast<const char*>(_language.GetText(this->status));
+	if (this->ride == nullptr) {
+		snprintf(text_buffer, lengthof(text_buffer), "%s", text);
+	} else {
+		snprintf(text_buffer, lengthof(text_buffer), text, this->ride->name.get());
+	}
+	return reinterpret_cast<const uint8*>(text_buffer);
+}
+
+/**
+ * Change this staff member's current status.
+ * @param s New status.
+ */
+void StaffMember::SetStatus(StringID s)
+{
+	this->status = s;
+	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
+}
+
+bool StaffMember::DailyUpdate()
 {
 	/* Nothing to do currently. */
 	return true;
 }
 
-/**
- * Order this mechanic to inspect a ride.
- * @param ri Ride to inspect.
- */
-void Mechanic::Assign(RideInstance *ri)
+RideVisitDesire StaffMember::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
 {
-	assert(this->ride == nullptr);
-	this->ride = ri;
+	return RVD_NO_VISIT;
 }
 
-/**
- * Notify the mechanic of removal of a ride.
- * @param ri Ride being deleted.
- */
-void Mechanic::NotifyRideDeletion(const RideInstance *ri)
-{
-	if (ri == this->ride) this->ride = nullptr;
-}
-
-RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
-{
-	if (ri != this->ride) return RVD_NO_VISIT;  // Not our destination ride.
-
-	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
-	if (destination.coords                  != ride_pos                          ) return RVD_NO_VISIT;  // Wrong location.
-	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return RVD_NO_VISIT;  // Wrong direction.
-
-	return RVD_MUST_VISIT;  // All checks passed, we may enter the ride here.
-}
-
-AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
-{
-	if (!this->WantToVisit(ri, this->vox_pos, exit_edge)) {
-		/* Not our destination ride, or approaching at the wrong place. */
-		return OAR_CONTINUE;
-	}
-
-	this->StartAnimation(_mechanic_repair[exit_edge]);
-	return OAR_ANIMATING;
-}
-
-void Mechanic::ActionAnimationCallback()
-{
-	if (this->ride == nullptr) return;  // The ride was deleted while we were inspecting it.
-
-	this->ride->MechanicArrived();
-	this->ride = nullptr;
-}
-
-AnimateResult Mechanic::EdgeOfWorldOnAnimate()
+AnimateResult StaffMember::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
 {
 	return OAR_CONTINUE;
 }
 
-void Mechanic::DecideMoveDirection()
+AnimateResult StaffMember::EdgeOfWorldOnAnimate()
+{
+	return OAR_CONTINUE;
+}
+
+void StaffMember::DecideMoveDirection()
 {
 	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
-	/* \todo Walk purposefully towards our assigned ride, if any. */
+	/* \todo Mechanics should walk purposefully towards their assigned ride, if any. */
+	this->SetStatus(this->ride != nullptr ? GUI_PERSON_STATUS_HEADING_TO_RIDE : GUI_PERSON_STATUS_WANDER);
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);
@@ -1797,7 +1798,7 @@ void Mechanic::DecideMoveDirection()
 		}
 
 		bool b;
-		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, &b, &this->ride);
+		RideVisitDesire rvd = ComputeExitDesire(start_edge, this->vox_pos + XYZPoint16(0, 0, extra_z), exit_edge, &b);
 		switch (rvd) {
 			case RVD_NO_RIDE:
 				break;
@@ -1844,4 +1845,186 @@ void Mechanic::DecideMoveDirection()
 		new_walk = walks[this->rnd.Uniform(walk_count - 1)];
 	}
 	this->StartAnimation(new_walk);
+}
+
+/* Constructor. */
+Mechanic::Mechanic()
+{
+	/* Nothing to do currently. */
+}
+
+/* Destructor. */
+Mechanic::~Mechanic()
+{
+	if (this->ride != nullptr) _staff.RequestMechanic(this->ride);
+}
+
+void Mechanic::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("mchc");
+	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
+
+	if (version == 1) {
+		this->Person::Load(ldr);
+		const uint16 ride_index = ldr.GetWord();
+		if (ride_index != INVALID_RIDE_INSTANCE) this->ride = _rides_manager.GetRideInstance(ride_index);
+	} else {
+		this->StaffMember::Load(ldr);
+	}
+
+	ldr.ClosePattern();
+}
+
+void Mechanic::Save(Saver &svr)
+{
+	svr.StartPattern("mchc", CURRENT_VERSION_Mechanic);
+	this->StaffMember::Save(svr);
+	/* No specific data to save currently. */
+	svr.EndPattern();
+}
+
+/**
+ * Order this mechanic to inspect a ride.
+ * @param ri Ride to inspect.
+ */
+void Mechanic::Assign(RideInstance *ri)
+{
+	assert(this->ride == nullptr);
+	this->ride = ri;
+	this->SetStatus(GUI_PERSON_STATUS_HEADING_TO_RIDE);
+}
+
+/**
+ * Notify the mechanic of removal of a ride.
+ * @param ri Ride being deleted.
+ */
+void Mechanic::NotifyRideDeletion(const RideInstance *ri)
+{
+	if (ri == this->ride) this->ride = nullptr;
+}
+
+RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
+{
+	if (ri != this->ride) return RVD_NO_VISIT;  // Not our destination ride.
+
+	const EdgeCoordinate destination = this->ride->GetMechanicEntrance();
+	if (destination.coords                  != ride_pos                          ) return RVD_NO_VISIT;  // Wrong location.
+	if (static_cast<int>(exit_edge + 2) % 4 != static_cast<int>(destination.edge)) return RVD_NO_VISIT;  // Wrong direction.
+
+	return RVD_MUST_VISIT;  // All checks passed, we may enter the ride here.
+}
+
+AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
+{
+	if (!this->WantToVisit(ri, this->vox_pos, exit_edge)) {
+		/* Not our destination ride, or approaching at the wrong place. */
+		return OAR_CONTINUE;
+	}
+
+	this->SetStatus(ri->broken ? GUI_PERSON_STATUS_REPAIRING : GUI_PERSON_STATUS_INSPECTING);
+	this->StartAnimation(_mechanic_repair[exit_edge]);
+	return OAR_ANIMATING;
+}
+
+void Mechanic::ActionAnimationCallback()
+{
+	if (this->ride == nullptr) return;  // The ride was deleted while we were inspecting it.
+
+	this->ride->MechanicArrived();
+	this->ride = nullptr;
+}
+
+/* Constructor. */
+Guard::Guard()
+{
+	/* Nothing to do currently. */
+}
+
+/* Destructor. */
+Guard::~Guard()
+{
+	/* Nothing to do currently. */
+}
+
+void Guard::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("gard");
+	if (version < 1 || version > CURRENT_VERSION_Guard) ldr.version_mismatch(version, CURRENT_VERSION_Guard);
+	this->StaffMember::Load(ldr);
+	/* No specific data to load currently. */
+	ldr.ClosePattern();
+}
+
+void Guard::Save(Saver &svr)
+{
+	svr.StartPattern("gard", CURRENT_VERSION_Guard);
+	this->StaffMember::Save(svr);
+	/* No specific data to save currently. */
+	svr.EndPattern();
+}
+
+/* Constructor. */
+Entertainer::Entertainer()
+{
+	/* Nothing to do currently. */
+}
+
+/* Destructor. */
+Entertainer::~Entertainer()
+{
+	/* Nothing to do currently. */
+}
+
+void Entertainer::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("etai");
+	if (version < 1 || version > CURRENT_VERSION_Entertainer) ldr.version_mismatch(version, CURRENT_VERSION_Entertainer);
+	this->StaffMember::Load(ldr);
+	/* No specific data to load currently. */
+	ldr.ClosePattern();
+}
+
+void Entertainer::Save(Saver &svr)
+{
+	svr.StartPattern("etai", CURRENT_VERSION_Entertainer);
+	this->StaffMember::Save(svr);
+	/* No specific data to save currently. */
+	svr.EndPattern();
+}
+
+/* Constructor. */
+Handyman::Handyman()
+{
+	this->activity = HandymanActivity::WANDER;
+}
+
+/* Destructor. */
+Handyman::~Handyman()
+{
+	/* Nothing to do currently. */
+}
+
+void Handyman::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("hndy");
+	if (version < 1 || version > CURRENT_VERSION_Handyman) ldr.version_mismatch(version, CURRENT_VERSION_Handyman);
+	this->StaffMember::Load(ldr);
+	this->activity = static_cast<HandymanActivity>(ldr.GetByte());
+	ldr.ClosePattern();
+}
+
+void Handyman::Save(Saver &svr)
+{
+	svr.StartPattern("hndy", CURRENT_VERSION_Handyman);
+	this->StaffMember::Save(svr);
+	svr.PutByte(static_cast<uint8>(this->activity));
+	svr.EndPattern();
+}
+
+void Handyman::ActionAnimationCallback()
+{
+	switch (this->activity) {
+		default: NOT_REACHED();
+	}
+	this->activity = HandymanActivity::WANDER;
 }

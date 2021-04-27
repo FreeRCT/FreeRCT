@@ -45,7 +45,7 @@ enum WindowTypes {
 	WC_BOTTOM_TOOLBAR,  ///< Bottom toolbar.
 	WC_QUIT,            ///< Quit program window.
 	WC_ERROR_MESSAGE,   ///< Error message window.
-	WC_GUEST_INFO,      ///< Person window.
+	WC_PERSON_INFO,     ///< Person window.
 	WC_COASTER_MANAGER, ///< Roller coaster manager window.
 	WC_COASTER_BUILD,   ///< Roller coaster build/edit window.
 	WC_COASTER_REMOVE,  ///< Roller coaster remove window.
@@ -60,6 +60,7 @@ enum WindowTypes {
 	WC_SCENERY,         ///< Scenery window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.
+	WC_STAFF,           ///< Staff management window.
 	WC_INBOX,           ///< Inbox window.
 	WC_SETTING,         ///< Setting window.
 	WC_DROPDOWN,        ///< Dropdown window.
@@ -76,6 +77,7 @@ enum ChangeCode {
 	CHG_DROPDOWN_RESULT,  ///< The selection of a dropdown window.
 	CHG_GUEST_COUNT,      ///< Number of guests in the park has changed.
 	CHG_RESOLUTION_CHANGED,  ///< The size of the FreeRCT window was changed.
+	CHG_PERSON_DELETED,      ///< A person has been deleted from the world.
 };
 
 /** Various state flags of the %Window. */
@@ -483,7 +485,8 @@ void ShowMainMenu();
 void ShowMainDisplay(const XYZPoint32 &view_pos);
 void ShowToolbar();
 void ShowBottomToolbar();
-void ShowGuestInfoGui(const Person *person);
+void ShowPersonInfoGui(const Person *person);
+void ShowStaffManagementGui();
 void ShowPathBuildGui();
 void ShowRideSelectGui();
 bool ShowRideManagementGui(uint16 ride);

@@ -58,6 +58,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Verändert das Relief der Landschaft";
 		TOOLBAR_GUI_FINANCES:             "Finanzen";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Verwaltet das Firmenvermögen";
+		TOOLBAR_GUI_STAFF:                "Personal";
+		TOOLBAR_GUI_TOOLTIP_STAFF:        "Personal einstellen und entlassen";
 		TOOLBAR_GUI_INBOX:                "Posteingang";
 		TOOLBAR_GUI_TOOLTIP_INBOX:        "Alle Nachrichten betrachten";
 
@@ -85,6 +87,15 @@ strings {
 		ERROR_MESSAGE_OCCUPIED:       "Ein anderes Objekt ist im Weg!";
 		ERROR_MESSAGE_PAUSED:         "Nicht erlaubt während das Spiel angehalten ist.";
 
+		// Person status strings.
+		PERSON_STATUS_WANDER:          "Umherwandern";
+		PERSON_STATUS_HEADING_TO_RIDE: "Geht zu %s";
+		PERSON_STATUS_INSPECTING:      "Wartet %s";
+		PERSON_STATUS_REPAIRING:       "Repariert %s";
+		PERSON_STATUS_WATERING:        "Gießt die Blumenbeete";
+		PERSON_STATUS_EMPTYING:        "Leert die Mülleimer";
+		PERSON_STATUS_SWEEPING:        "Fegt die Wege";
+
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Verfügbares Geld";
 		GUEST_INFO_MONEY_SPENT: "Ausgegebenes Geld";
@@ -99,6 +110,22 @@ strings {
 		ITEM_MAP:      "Parkkarte";
 		ITEM_UMBRELLA: "Regenschirm";
 		ITEM_WRAPPER:  "Verpackung";
+
+		// Staff window.
+		STAFF_MANAGEMENT_TITLE: "Personal";
+		STAFF_SALARY:           "Monatsgehalt: %1%";
+		STAFF_DISMISS:          "Entlassen";
+		STAFF_HIRE:             "Einstellen";
+		STAFF_NAME_MECHANIC:    "Mechaniker %d";
+		STAFF_NAME_HANDYMAN:    "Hilfskraft %d";
+		STAFF_NAME_GUARD:       "Aufseher %d";
+		STAFF_NAME_ENTERTAINER: "Entertainer %d";
+		STAFF_CATEGORY_MECHANICS:    "Mechaniker (%1%)";
+		STAFF_CATEGORY_HANDYMEN:     "Hilfskräfte (%1%)";
+		STAFF_CATEGORY_GUARDS:       "Aufseher (%1%)";
+		STAFF_CATEGORY_ENTERTAINERS: "Entertainer (%1%)";
+		STAFF_TITLE_NAME:            "Name";
+		STAFF_TITLE_STATUS:          "Zustand";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:          "Wege";

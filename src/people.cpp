@@ -323,14 +323,20 @@ Staff::~Staff()
 	/* Nothing to do currently. */
 }
 
+static const uint16 STAFF_BASE_ID = std::numeric_limits<uint16>::max();  // Counting staff IDs backwards to avoid conflicts with %Guests.
+
 /** Remove all staff and reset all variables. */
 void Staff::Uninitialize()
 {
-	this->mechanics.clear();
+	this->mechanics.clear();  // Do this first, it may generate new requests.
+	this->handymen.clear();
+	this->guards.clear();
+	this->entertainers.clear();
 	this->mechanic_requests.clear();
+	this->last_person_id = STAFF_BASE_ID;
 }
 
-static const uint32 CURRENT_VERSION_STAF = 2;   ///< Currently supported version of the STAF Pattern.
+static const uint32 CURRENT_VERSION_STAF = 3;   ///< Currently supported version of the STAF Pattern.
 
 /**
  * Load staff from the save game.
@@ -344,14 +350,35 @@ void Staff::Load(Loader &ldr)
 			break;
 		case 1:
 		case 2:
+		case 3:
+			if (version >= 3){
+				this->last_person_id = ldr.GetWord();
+			}
 			for (uint i = ldr.GetLong(); i > 0; i--) {
 				this->mechanic_requests.push_back(_rides_manager.GetRideInstance(ldr.GetWord()));
 			}
-			if (version > 1) {
+			if (version >= 2) {
 				for (uint i = ldr.GetLong(); i > 0; i--) {
 					Mechanic *m = new Mechanic;
 					m->Load(ldr);
 					this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+				}
+			}
+			if (version >= 3) {
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Handyman *m = new Handyman;
+					m->Load(ldr);
+					this->handymen.push_back(std::unique_ptr<Handyman>(m));
+				}
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Guard *m = new Guard;
+					m->Load(ldr);
+					this->guards.push_back(std::unique_ptr<Guard>(m));
+				}
+				for (uint i = ldr.GetLong(); i > 0; i--) {
+					Entertainer *m = new Entertainer;
+					m->Load(ldr);
+					this->entertainers.push_back(std::unique_ptr<Entertainer>(m));
 				}
 			}
 			break;
@@ -369,11 +396,27 @@ void Staff::Save(Saver &svr)
 {
 	svr.CheckNoOpenPattern();
 	svr.StartPattern("STAF", CURRENT_VERSION_STAF);
+	svr.PutWord(this->last_person_id);
 	svr.PutLong(this->mechanic_requests.size());
 	for (RideInstance *ride : this->mechanic_requests) svr.PutWord(ride->GetIndex());
 	svr.PutLong(this->mechanics.size());
 	for (auto &m : this->mechanics) m->Save(svr);
+	svr.PutLong(this->handymen.size());
+	for (auto &m : this->handymen) m->Save(svr);
+	svr.PutLong(this->guards.size());
+	for (auto &m : this->guards) m->Save(svr);
+	svr.PutLong(this->entertainers.size());
+	for (auto &m : this->entertainers) m->Save(svr);
 	svr.EndPattern();
+}
+
+/**
+ * Generates a unique ID for a newly hired staff member.
+ * @return The ID to use.
+ */
+uint16 Staff::GenerateID()
+{
+	return --last_person_id;
 }
 
 /**
@@ -392,23 +435,184 @@ void Staff::RequestMechanic(RideInstance *ride)
 Mechanic *Staff::HireMechanic()
 {
 	Mechanic *m = new Mechanic;
-	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+	m->id = this->GenerateID();
 	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the player to decide where to put the new mechanic.
+	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
+
+	char buffer[1024];
+	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_MECHANIC)), STAFF_BASE_ID - m->id);
+	m->SetName(reinterpret_cast<uint8*>(buffer));
+
 	return m;
 }
 
 /**
- * Dismiss a mechanic from the staff.
- * @param m Mechanic to dismiss.
+ * Hire a new handyman.
+ * @return The new handyman.
+ */
+Handyman *Staff::HireHandyman()
+{
+	Handyman *m = new Handyman;
+	m->id = this->GenerateID();
+	m->Activate(Point16(9, 2), PERSON_HANDYMAN);  // \todo Allow the player to decide where to put the new handyman.
+	this->handymen.push_back(std::unique_ptr<Handyman>(m));
+
+	char buffer[1024];
+	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_HANDYMAN)), STAFF_BASE_ID - m->id);
+	m->SetName(reinterpret_cast<uint8*>(buffer));
+
+	return m;
+}
+
+/**
+ * Hire a new security guard.
+ * @return The new guard.
+ */
+Guard *Staff::HireGuard()
+{
+	Guard *m = new Guard;
+	m->id = this->GenerateID();
+	m->Activate(Point16(9, 2), PERSON_GUARD);  // \todo Allow the player to decide where to put the new guard.
+	this->guards.push_back(std::unique_ptr<Guard>(m));
+
+	char buffer[1024];
+	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_GUARD)), STAFF_BASE_ID - m->id);
+	m->SetName(reinterpret_cast<uint8*>(buffer));
+
+	return m;
+}
+
+/**
+ * Hire a new entertainer.
+ * @return The new entertainer.
+ */
+Entertainer *Staff::HireEntertainer()
+{
+	Entertainer *m = new Entertainer;
+	m->id = this->GenerateID();
+	m->Activate(Point16(9, 2), PERSON_ENTERTAINER);  // \todo Allow the player to decide where to put the new entertainer.
+	this->entertainers.push_back(std::unique_ptr<Entertainer>(m));
+
+	char buffer[1024];
+	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_ENTERTAINER)), STAFF_BASE_ID - m->id);
+	m->SetName(reinterpret_cast<uint8*>(buffer));
+
+	return m;
+}
+
+/**
+ * Returns the number of currently employed mechanics in the park.
+ * @return Number of mechanics.
+ */
+uint16 Staff::CountMechanics() const
+{
+	return this->mechanics.size();
+}
+
+/**
+ * Returns the number of currently employed handymen in the park.
+ * @return Number of handymen.
+ */
+uint16 Staff::CountHandymen() const
+{
+	return this->handymen.size();
+}
+
+/**
+ * Returns the number of currently employed guards in the park.
+ * @return Number of guards.
+ */
+uint16 Staff::CountGuards() const
+{
+	return this->guards.size();
+}
+
+/**
+ * Returns the number of currently employed entertainers in the park.
+ * @return Number of entertainers.
+ */
+uint16 Staff::CountEntertainers() const
+{
+	return this->entertainers.size();
+}
+
+/**
+ * Returns the number of currently employed staff of a given type in the park.
+ * @param t Type of staff (use \c PERSON_ANY for all).
+ * @return Number of staff.
+ */
+uint16 Staff::Count(const PersonType t) const
+{
+	switch (t) {
+		case PERSON_MECHANIC:    return this->CountMechanics();
+		case PERSON_HANDYMAN:    return this->CountHandymen();
+		case PERSON_GUARD:       return this->CountGuards();
+		case PERSON_ENTERTAINER: return this->CountEntertainers();
+
+		case PERSON_ANY: return (this->CountMechanics() + this->CountHandymen() + this->CountGuards() + this->CountEntertainers());
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Get a staff member of given type.
+ * @param t Type of staff.
+ * @param list_index The index of this person in its respective category.
+ * @return The person.
+ */
+StaffMember *Staff::Get(const PersonType t, const uint list_index) const
+{
+	switch (t) {
+		case PERSON_MECHANIC:    { auto it = this->mechanics.begin();    std::advance(it, list_index); return it->get(); }
+		case PERSON_HANDYMAN:    { auto it = this->handymen.begin();     std::advance(it, list_index); return it->get(); }
+		case PERSON_GUARD:       { auto it = this->guards.begin();       std::advance(it, list_index); return it->get(); }
+		case PERSON_ENTERTAINER: { auto it = this->entertainers.begin(); std::advance(it, list_index); return it->get(); }
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Dismiss a staff member from the staff.
+ * @param person Person to dismiss.
  * @note Invalidates the pointer.
  */
-void Staff::Dismiss(Mechanic* m)
+void Staff::Dismiss(const StaffMember *person)
 {
-	for (auto it = this->mechanics.begin(); it != this->mechanics.end(); it++) {
-		if (it->get() == m) {
-			this->mechanics.erase(it);  // This deletes the mechanic.
-			return;
-		}
+	switch (person->type) {
+		case PERSON_MECHANIC:
+			for (auto it = this->mechanics.begin(); it != this->mechanics.end(); it++) {
+				if (it->get() == person) {
+					this->mechanics.erase(it);  // This deletes the mechanic.
+					return;
+				}
+			}
+			break;
+		case PERSON_HANDYMAN:
+			for (auto it = this->handymen.begin(); it != this->handymen.end(); it++) {
+				if (it->get() == person) {
+					this->handymen.erase(it);  // This deletes the handyman.
+					return;
+				}
+			}
+			break;
+		case PERSON_GUARD:
+			for (auto it = this->guards.begin(); it != this->guards.end(); it++) {
+				if (it->get() == person) {
+					this->guards.erase(it);  // This deletes the guard.
+					return;
+				}
+			}
+			break;
+		case PERSON_ENTERTAINER:
+			for (auto it = this->entertainers.begin(); it != this->entertainers.end(); it++) {
+				if (it->get() == person) {
+					this->entertainers.erase(it);  // This deletes the entertainer.
+					return;
+				}
+			}
+			break;
+
+		default: NOT_REACHED();
 	}
 	NOT_REACHED();
 }
@@ -427,7 +631,10 @@ void Staff::NotifyRideDeletion(const RideInstance *ri) {
  */
 void Staff::OnAnimate(const int delay)
 {
-	for (auto &m : this->mechanics) m->OnAnimate(delay);
+	for (auto &m : this->mechanics   ) m->OnAnimate(delay);
+	for (auto &m : this->handymen    ) m->OnAnimate(delay);
+	for (auto &m : this->guards      ) m->OnAnimate(delay);
+	for (auto &m : this->entertainers) m->OnAnimate(delay);
 }
 
 /** A new frame arrived. */
@@ -460,13 +667,14 @@ void Staff::DoTick()
 /** A new day arrived. */
 void Staff::OnNewDay()
 {
-	/* Place a mechanic for free if there isn't one yet. */
-	if (this->mechanics.empty()) this->HireMechanic();  // \todo Add a GUI to hire and fire staff.
+	/* Nothing to do currently. */
 }
 
 /** A new month arrived. */
 void Staff::OnNewMonth()
 {
 	/* Pay the wages for all employees. */
-	_finances_manager.PayStaffWages(Mechanic::SALARY * static_cast<int64>(this->mechanics.size()));
+	for (PersonType t : {PERSON_MECHANIC, PERSON_HANDYMAN, PERSON_GUARD, PERSON_ENTERTAINER}) {
+		_finances_manager.PayStaffWages(StaffMember::SALARY.at(t) * static_cast<int64>(this->Count(t)));
+	}
 }

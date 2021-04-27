@@ -144,10 +144,11 @@ public:
 	uint16 frame_index;           ///< Currently displayed frame of #frames.
 	int16 frame_time;             ///< Remaining display time of this frame.
 	Recolouring recolour;         ///< Person recolouring.
+	RideInstance *ride;           ///< The ride we're intending to interact with, if any.
 
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
-	uint8 *name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
+	std::unique_ptr<uint8[]> name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
 
 	TileEdge GetCurrentEdge() const;
 	uint8 GetInparkDirections();
@@ -156,7 +157,7 @@ protected:
 	void StartAnimation(const WalkInformation *walk);
 	virtual void ActionAnimationCallback() = 0;
 
-	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride, RideInstance **our_ride);
+	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride);
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
 	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
@@ -214,7 +215,6 @@ public:
 	uint16 total_happiness; ///< Sum of all good experiences (for evaluating the day after getting home, values are 0-1000).
 	Money cash;             ///< Amount of money carried by the guest (should be non-negative).
 	Money cash_spent;       ///< Amount of money spent by the guest (should be non-negative).
-	RideInstance *ride;     ///< Ride that the guest wants to visit or is visiting \c nullptr there is no favorite ride.
 
 	/* Possessions of the guest. */
 	bool has_map;        ///< Whether guest has a park map.
@@ -249,11 +249,35 @@ protected:
 	void AddItem(ItemType it);
 };
 
-/** A mechanic who can repair and inspect rides. */
-class Mechanic : public Person {
+/** A staff member: Mechanics, handymen, guards, entertainers. */
+class StaffMember : public Person {
 public:
-	static const Money SALARY;
+	StaffMember();
+	~StaffMember();
 
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	bool DailyUpdate() override;
+	AnimateResult EdgeOfWorldOnAnimate() override;
+	void DecideMoveDirection() override;
+	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
+	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
+
+	const uint8 *GetStatus() const;
+
+	static const std::map<PersonType, Money> SALARY;   ///< The monthly salary for each staff member.
+
+protected:
+	void SetStatus(StringID s);
+
+private:
+	StringID status;  ///< What we're doing right now.
+};
+
+/** A mechanic who can repair and inspect rides. */
+class Mechanic : public StaffMember {
+public:
 	Mechanic();
 	~Mechanic();
 
@@ -263,14 +287,74 @@ public:
 	void Assign(RideInstance *ri);
 	void NotifyRideDeletion(const RideInstance *ri);
 
-	bool DailyUpdate() override;
-	void DecideMoveDirection() override;
-	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	void ActionAnimationCallback() override;
+};
 
-	RideInstance *ride;  ///< The ride we're intending to inspect, if any.
+/**
+ * A guard who walks around the park to stop guests from smashing up park property.
+ * @todo Vandalism is not implemented yet, so the guards don't actually have a function currently.
+ */
+class Guard : public StaffMember {
+public:
+	Guard();
+	~Guard();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void ActionAnimationCallback() override
+	{
+		NOT_REACHED();  // Guards don't have action animations.
+	}
+};
+
+/**
+ * An entertainer who walks around the park to make guests more cheerful and patient.
+ * @todo Happiness and impatience are not implemented yet, so the entertainers don't actually have a function currently.
+ */
+class Entertainer : public StaffMember {
+public:
+	Entertainer();
+	~Entertainer();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void ActionAnimationCallback() override
+	{
+		NOT_REACHED();  // Entertainers don't have action animations.
+	}
+};
+
+/**
+ * A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths.
+ * @todo Implement watering flowerbeds.
+ * @todo Litter bins and dirty paths are not implemented yet.
+ */
+class Handyman : public StaffMember {
+public:
+	/** What a handyman is doing right now. */
+	enum class HandymanActivity {
+		WANDER,    ///< Wandering around.
+		WATER,     ///< Watering a flowerbed.
+		SWEEP,     ///< Sweeping the path.
+		EMPTY_NE,  ///< Emptying the bin on the north-east edge of the current tile.
+		EMPTY_SE,  ///< Emptying the bin on the south-east edge of the current tile.
+		EMPTY_SW,  ///< Emptying the bin on the south-west edge of the current tile.
+		EMPTY_NW,  ///< Emptying the bin on the north-west edge of the current tile.
+	};
+
+	Handyman();
+	~Handyman();
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr);
+
+	void ActionAnimationCallback() override;
+
+	HandymanActivity activity;  ///< What the handyman is doing right now.
 };
 
 #endif

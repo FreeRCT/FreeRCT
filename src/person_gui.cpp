@@ -14,6 +14,7 @@
 #include "sprite_store.h"
 #include "ride_type.h"
 #include "person.h"
+#include "people.h"
 
 /** Widgets of the guest info window. */
 enum GuestInfoWidgets {
@@ -76,7 +77,7 @@ private:
  * Constructor of the guest info window.
  * @param guest #Guest to view.
  */
-GuestInfoWindow::GuestInfoWindow(const Guest *guest) : GuiWindow(WC_GUEST_INFO, guest->id)
+GuestInfoWindow::GuestInfoWindow(const Guest *guest) : GuiWindow(WC_PERSON_INFO, guest->id)
 {
 	this->guest = guest;
 	this->SetupWidgetTree(_guest_info_gui_parts, lengthof(_guest_info_gui_parts));
@@ -125,17 +126,111 @@ void GuestInfoWindow::OnChange(ChangeCode code, uint32 parameter)
 	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }
 
+/** Widgets of the staff info window. */
+enum StaffInfoWidgets {
+	SIW_TITLEBAR,     ///< Title bar widget.
+	SIW_STATUS,       ///< Status text.
+	SIW_SALARY,       ///< Salary text.
+	SIW_DISMISS,      ///< Dismiss button.
+};
+
+/** Widget parts of the #StaffInfoWindow. */
+static const WidgetPart _staff_info_gui_parts[] = {
+	Intermediate(0, 1),
+		Intermediate(1, 0),
+			Widget(WT_TITLEBAR, SIW_TITLEBAR, COL_RANGE_DARK_RED), SetData(STR_ARG1, GUI_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+			Intermediate(3, 1), SetPadding(2, 2, 2, 2),
+			Widget(WT_CENTERED_TEXT, SIW_STATUS, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+			Widget(WT_LEFT_TEXT, SIW_SALARY, COL_RANGE_DARK_RED), SetData(GUI_STAFF_SALARY, STR_NULL),
+			Widget(WT_TEXT_PUSHBUTTON, SIW_DISMISS, COL_RANGE_DARK_RED), SetData(GUI_STAFF_DISMISS, STR_NULL),
+	EndContainer(),
+};
+
+/** GUI window for interacting with a staff member. */
+class StaffInfoWindow : public GuiWindow {
+public:
+	StaffInfoWindow(const StaffMember *person);
+
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
+
+private:
+	const StaffMember *person;  ///< The person getting looked at by this window.
+};
+
 /**
- * Open a window to view a given guest's info.
+ * Constructor of the staff info window.
+ * @param person #StaffMember to view.
+ */
+StaffInfoWindow::StaffInfoWindow(const StaffMember *person) : GuiWindow(WC_PERSON_INFO, person->id)
+{
+	this->person = person;
+	this->SetupWidgetTree(_staff_info_gui_parts, lengthof(_guest_info_gui_parts));
+}
+
+void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+{
+	switch (wid_num) {
+		case SIW_TITLEBAR:
+			_str_params.SetUint8(1, this->person->GetName());
+			break;
+
+		case SIW_SALARY:
+			_str_params.SetMoney(1, StaffMember::SALARY.at(this->person->type));
+			break;
+
+		case SIW_STATUS: {
+			_str_params.SetUint8(1, this->person->GetStatus());
+			break;
+		}
+
+		default: break;
+	}
+}
+
+void StaffInfoWindow::OnClick(WidgetNumber number, const Point16 &pos)
+{
+	if (number == SIW_DISMISS) _staff.Dismiss(this->person);  // This also deletes this window.
+}
+
+void StaffInfoWindow::OnChange(ChangeCode code, uint32 parameter)
+{
+	switch (code) {
+		case CHG_DISPLAY_OLD:
+			this->MarkDirty();
+			break;
+		case CHG_PERSON_DELETED:
+			delete this;
+			break;
+		default:
+			break;
+	}
+}
+
+/**
+ * Open a window to view a given person's info.
  * @param person #Person to view.
  */
-void ShowGuestInfoGui(const Person *person)
+void ShowPersonInfoGui(const Person *person)
 {
-	if (HighlightWindowByType(WC_GUEST_INFO, person->id) != nullptr) return;
+	if (HighlightWindowByType(WC_PERSON_INFO, person->id) != nullptr) return;
 
-	const Guest *guest = dynamic_cast<const Guest *>(person);
+	switch (person->type) {
+		case PERSON_GUEST:
+			new GuestInfoWindow(static_cast<const Guest*>(person));
+			break;
 
-	if (guest != nullptr) {
-		new GuestInfoWindow(guest);
+		case PERSON_MECHANIC:
+		case PERSON_HANDYMAN:
+		case PERSON_GUARD:
+		case PERSON_ENTERTAINER:
+			new StaffInfoWindow(static_cast<const StaffMember*>(person));
+			break;
+
+		default: NOT_REACHED();
 	}
 }

@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: 2021-04-04
+:Version: 2021-04-26
 
 .. contents::
    :depth: 4
@@ -154,6 +154,7 @@ Offset  Length  Version  Description
    ?       1      1-     Person type.
    ?       2      1-     Offset with respect to center of path/tile.
    ?       ?      1-     Name characters.
+   ?       2      2-     Ride index.
    ?       ?      1-     Recolouring_ information.
    ?       2      1-     Current walk information (animation), in compressed format.
    ?       2      1-     Current displayed frame of the animation.
@@ -165,6 +166,7 @@ Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (20210426) Moved ride index of guests and mechanics to Person.
 
 
 Guest
@@ -182,7 +184,7 @@ Offset  Length  Version  Description
    ?       2      1-     Sum of happiness for calculations once guest goes home.
    ?       8      1-     Cash on hand.
    ?       8      1-     Cash spent.
-   ?       2      1-     Ride index.
+   ?       2      1-2    Ride index.
    ?       1      1-     Whether or not the guest has a map.
    ?       1      1-     Whether or not the guest has an umbrella.
    ?       1      1-     Whether or not the guest has a food/drink wrapper.
@@ -209,6 +211,27 @@ Version history
 
 - 1 (20210402) Initial version.
 - 2 (20210402) Added ride rating preferences.
+- 3 (20210426) Moved ride index to Person data.
+
+
+Staff member
+~~~~~~~~~~~~
+A single staff member.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "stfm".
+   4       4      1-     Version number.
+   ?       ?      1-     Person_ data.
+   ?       2      1-     The person's current status.
+   ?       4      1-     "mfts".
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- 1 (20210426) Initial version.
 
 
 Mechanic
@@ -220,8 +243,9 @@ Offset  Length  Version  Description
 ======  ======  =======  ======================================================
    0       4      1-     "mchc".
    4       4      1-     Version number.
-   ?       ?      1-     Person_ data.
-   ?       2      1-     Ride index.
+   ?       ?      1-1    Person_ data.
+   ?       ?      2-     `Staff Member`_ data.
+   ?       2      1-1    Ride index.
    ?       4      1-     "chcm".
 ======  ======  =======  ======================================================
 
@@ -229,6 +253,65 @@ Version history
 ...............
 
 - 1 (20210423) Initial version.
+- 2 (20210426) Added Staff Member pattern, and moved ride index to Person data.
+
+
+Handyman
+~~~~~~~~
+A single handyman.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "hndy".
+   4       4      1-     Version number.
+   ?       ?      1-     `Staff Member`_ data.
+   ?       1      1-     Current activity.
+   ?       4      1-     "ydnh".
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- 1 (20210426) Initial version.
+
+
+Guard
+~~~~~
+A single security guard.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "gard".
+   4       4      1-     Version number.
+   ?       ?      1-     `Staff Member`_ data.
+   ?       4      1-     "drag".
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- 1 (20210426) Initial version.
+
+
+Entertainer
+~~~~~~~~~~~
+A single entertainer.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "etai".
+   4       4      1-     Version number.
+   ?       ?      1-     `Staff Member`_ data.
+   ?       4      1-     "iate".
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- 1 (20210426) Initial version.
 
 
 Ride Instance
@@ -755,10 +838,17 @@ Offset  Length  Version  Description
 ======  ======  =======  ==============================================================
    0       4      1-     "STAF".
    4       4      1-     Version number of the staff block.
-   8       4      1-     Number of pending mechanic requests.
-  12       ?      1-     Every mechanic requests's ride ID (2 bytes each).
+   8       2      3-     Last unique staff member ID.
+  10       4      1-     Number of pending mechanic requests.
+  14       ?      1-     Every mechanic requests's ride ID (2 bytes each).
    ?       4      2-     Number of mechanics.
    ?       ?      2-     The data of every Mechanic_.
+   ?       4      3-     Number of handymen.
+   ?       ?      3-     The data of every Handyman_.
+   ?       4      3-     Number of guards.
+   ?       ?      3-     The data of every Guard_.
+   ?       4      3-     Number of entertainers.
+   ?       ?      3-     The data of every Entertainer_.
    ?       4      1-     "FATS"
 ======  ======  =======  ==============================================================
 
@@ -767,6 +857,7 @@ Version history
 
 - 1 (20210402) Initial version.
 - 2 (20210423) Added mechanics.
+- 3 (20210426) Added staff IDs, guards, entertainers, and handymen.
 
 
 Finances
