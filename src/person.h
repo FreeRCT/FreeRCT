@@ -258,8 +258,6 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	virtual const Money &GetSalary() const = 0;
-
 	bool DailyUpdate() override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	void DecideMoveDirection() override;
@@ -267,6 +265,8 @@ public:
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 
 	const uint8 *GetStatus() const;
+
+	static const std::map<PersonType, Money> SALARY;   ///< The monthly salary for each staff member.
 
 protected:
 	void SetStatus(StringID s);
@@ -278,8 +278,6 @@ private:
 /** A mechanic who can repair and inspect rides. */
 class Mechanic : public StaffMember {
 public:
-	static const Money SALARY;
-
 	Mechanic();
 	~Mechanic();
 
@@ -292,11 +290,6 @@ public:
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	void ActionAnimationCallback() override;
-
-	const Money &GetSalary() const override
-	{
-		return SALARY;
-	}
 };
 
 /**
@@ -305,8 +298,6 @@ public:
  */
 class Guard : public StaffMember {
 public:
-	static const Money SALARY;
-
 	Guard();
 	~Guard();
 
@@ -317,11 +308,6 @@ public:
 	{
 		NOT_REACHED();  // Guards don't have action animations.
 	}
-
-	const Money &GetSalary() const override
-	{
-		return SALARY;
-	}
 };
 
 /**
@@ -330,8 +316,6 @@ public:
  */
 class Entertainer : public StaffMember {
 public:
-	static const Money SALARY;
-
 	Entertainer();
 	~Entertainer();
 
@@ -342,11 +326,6 @@ public:
 	{
 		NOT_REACHED();  // Entertainers don't have action animations.
 	}
-
-	const Money &GetSalary() const override
-	{
-		return SALARY;
-	}
 };
 
 /**
@@ -356,8 +335,6 @@ public:
  */
 class Handyman : public StaffMember {
 public:
-	static const Money SALARY;
-
 	/** What a handyman is doing right now. */
 	enum Activity {
 		ACTIVITY_NONE,      ///< Wandering around.
@@ -376,11 +353,6 @@ public:
 	void Save(Saver &svr);
 
 	void ActionAnimationCallback() override;
-
-	const Money &GetSalary() const override
-	{
-		return SALARY;
-	}
 
 	Activity activity;  ///< What we're doing right now.
 };

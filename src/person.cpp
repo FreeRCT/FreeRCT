@@ -29,10 +29,12 @@ static PersonTypeData _person_type_datas[PERSON_TYPE_COUNT]; ///< Data about eac
 static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests queuing for a ride.
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
-const Money Mechanic::SALARY   (150000);  ///< Monthly salary of a mechanic.
-const Money Handyman::SALARY   (120000);  ///< Monthly salary of a handyman.
-const Money Guard::SALARY      (100000);  ///< Monthly salary of a guard.
-const Money Entertainer::SALARY(100000);  ///< Monthly salary of a entertainer.
+const std::map<PersonType, Money> StaffMember::SALARY = {
+	{PERSON_MECHANIC,    Money(150000)},  ///< Monthly salary of a mechanic.
+	{PERSON_HANDYMAN,    Money(120000)},  ///< Monthly salary of a handyman.
+	{PERSON_GUARD,       Money(100000)},  ///< Monthly salary of a guard.
+	{PERSON_ENTERTAINER, Money(100000)},  ///< Monthly salary of a entertainer.
+};
 
 /**
  * Construct a recolour mapping of this person type.
@@ -1752,12 +1754,6 @@ bool StaffMember::DailyUpdate()
 	/* Nothing to do currently. */
 	return true;
 }
-
-/**
- * @fn const Money &StaffMember::GetSalary() const
- * Get this staff member's monthly salary.
- * @return The salary.
- */
 
 RideVisitDesire StaffMember::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
 {

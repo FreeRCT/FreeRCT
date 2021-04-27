@@ -79,6 +79,7 @@ public:
  */
 StaffManagementGui::StaffManagementGui() : GuiWindow(WC_STAFF, ALL_WINDOWS_OF_TYPE)
 {
+	this->selected = PERSON_MECHANIC;  // Needs to be initialized, will be overwritten later.
 	this->SetupWidgetTree(_staff_select_gui_parts, lengthof(_staff_select_gui_parts));
 	this->SetScrolledWidget(STAFF_GUI_LIST, STAFF_GUI_SCROLL_LIST);
 	this->SelectTab(PERSON_MECHANIC);
@@ -103,13 +104,7 @@ void StaffManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case STAFF_SALARY:
-			switch (this->selected) {
-				case PERSON_MECHANIC:    _str_params.SetMoney(1, Mechanic::SALARY);    break;
-				case PERSON_HANDYMAN:    _str_params.SetMoney(1, Handyman::SALARY);    break;
-				case PERSON_GUARD:       _str_params.SetMoney(1, Guard::SALARY);       break;
-				case PERSON_ENTERTAINER: _str_params.SetMoney(1, Entertainer::SALARY); break;
-				default: break;
-			}
+			_str_params.SetMoney(1, StaffMember::SALARY.at(this->selected));
 			break;
 
 		case STAFF_CATEGORY_MECHANICS:    _str_params.SetNumber(1, _staff.CountMechanics());    break;

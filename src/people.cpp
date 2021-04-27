@@ -674,8 +674,7 @@ void Staff::OnNewDay()
 void Staff::OnNewMonth()
 {
 	/* Pay the wages for all employees. */
-	_finances_manager.PayStaffWages(Mechanic::SALARY    * static_cast<int64>(this->mechanics.size()));
-	_finances_manager.PayStaffWages(Handyman::SALARY    * static_cast<int64>(this->handymen.size()));
-	_finances_manager.PayStaffWages(Guard::SALARY       * static_cast<int64>(this->guards.size()));
-	_finances_manager.PayStaffWages(Entertainer::SALARY * static_cast<int64>(this->entertainers.size()));
+	for (PersonType t : {PERSON_MECHANIC, PERSON_HANDYMAN, PERSON_GUARD, PERSON_ENTERTAINER}) {
+		_finances_manager.PayStaffWages(StaffMember::SALARY.at(t) * static_cast<int64>(this->Count(t)));
+	}
 }

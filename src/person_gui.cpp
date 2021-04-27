@@ -180,7 +180,7 @@ void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case SIW_SALARY:
-			_str_params.SetMoney(1, this->person->GetSalary());
+			_str_params.SetMoney(1, StaffMember::SALARY.at(this->person->type));
 			break;
 
 		case SIW_STATUS: {
