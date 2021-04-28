@@ -23,6 +23,7 @@ file("scenery.rcd") {
 		return_cost:         -100;
 		return_cost_dry:      100;
 		watering_interval: 200000;
+		min_watering_interval: 180000;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -63,6 +64,7 @@ file("scenery.rcd") {
 		return_cost:         -100;
 		return_cost_dry:      100;
 		watering_interval: 200000;
+		min_watering_interval: 180000;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
@@ -103,6 +105,7 @@ file("scenery.rcd") {
 		return_cost:         -100;
 		return_cost_dry:      100;
 		watering_interval: 200000;
+		min_watering_interval: 180000;
 
 		symmetric: 1;
 		main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {

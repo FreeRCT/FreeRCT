@@ -2182,9 +2182,11 @@ static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
 	block->watering_interval = vals.GetNumber("watering_interval");
 
 	if (block->watering_interval > 0) {
+		block->min_watering_interval = vals.GetNumber("min_watering_interval");
 		block->dry_animation = vals.GetTimedAnimation("dry_animation");
 		block->return_cost_dry = vals.GetNumber("return_cost_dry");
 	} else {
+		block->min_watering_interval = 0;
 		block->dry_animation = block->main_animation;
 		block->return_cost_dry = block->return_cost;
 	}

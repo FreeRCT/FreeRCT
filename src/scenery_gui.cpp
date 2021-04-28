@@ -299,7 +299,7 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 				if (i->type->category == SCC_SCENARIO && _game_mode_mgr.InPlayMode()) {
 					BestErrorMessageReason::ShowActionErrorMessage(BestErrorMessageReason::ACT_REMOVE, GUI_ERROR_MESSAGE_UNREMOVABLE);
 				} else {
-					const Money &cost = i->NeedsWatering() ? i->type->return_cost_dry : i->type->return_cost;
+					const Money &cost = i->IsDry() ? i->type->return_cost_dry : i->type->return_cost;
 					if (BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_REMOVE, cost)) {
 						_finances_manager.PayLandscaping(cost);
 						_scenery.RemoveItem(i->vox_pos);

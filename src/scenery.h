@@ -50,6 +50,7 @@ public:
 	Money return_cost;         ///< Amount of money returned or consumed when removing this item.
 	Money return_cost_dry;     ///< Amount of money returned or consumed when removing this item when it's dry.
 	uint32 watering_interval;  ///< How often in milliseconds this item needs watering (\c 0 means never).
+	uint32 min_watering_interval;  ///< This item may not be watered more often than once in this many milliseconds (only valid if #watering_interval is valid).
 
 	bool symmetric;                        ///< Whether this item is perfectly symmetric and can therefore not be rotated.
 	const TimedAnimation *main_animation;  ///< Graphics for this scenery item.
@@ -77,7 +78,8 @@ public:
 	StringID CanPlace() const;
 	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const;
 	void OnAnimate(int delay);
-	bool NeedsWatering() const;
+	bool IsDry() const;
+	bool ShouldBeWatered() const;
 	void MarkDirty();
 
 	void InsertIntoWorld();
@@ -90,7 +92,7 @@ public:
 	XYZPoint16 vox_pos;        ///< Position of the item's base voxel.
 	uint8 orientation;         ///< Orientation of the item.
 	uint32 animtime;           ///< Time in the animation, in milliseconds.
-	uint32 last_watered;       ///< Time since the item was last watered, in milliseconds. Only valid if the #type needs watering.
+	uint32 time_since_watered; ///< Time since the item was last watered, in milliseconds. Only valid if the #type needs watering.
 };
 
 /** All the scenery items in the world. */
@@ -100,6 +102,7 @@ public:
 
 	bool AddSceneryType(SceneryType *type);
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
+	const SceneryType *GetType(uint16 index) const;
 	std::vector<const SceneryType*> GetAllTypes(SceneryCategory cat) const;
 
 	void OnAnimate(int delay);

@@ -19,6 +19,7 @@
 #include "map.h"
 #include "messages.h"
 #include "path_finding.h"
+#include "scenery.h"
 #include "viewport.h"
 #include "weather.h"
 
@@ -159,7 +160,9 @@ const uint8 *Person::GetName() const
 static int16 GetZHeight(const XYZPoint16 &vox, int16 x_pos, int16 y_pos)
 {
 	const Voxel *v = _world.GetVoxel(vox);
-	if (v && HasValidPath(v)) {
+	assert(v != nullptr);
+
+	if (HasValidPath(v)) {
 		uint8 slope = GetImplodedPathSlope(v);
 		if (slope < PATH_FLAT_COUNT) return 0;
 		switch (slope) {
@@ -170,6 +173,12 @@ static int16 GetZHeight(const XYZPoint16 &vox, int16 x_pos, int16 y_pos)
 			default: NOT_REACHED();
 		}
 	}
+
+	if (v->GetGroundType() != GTP_INVALID && v->GetGroundSlope() == SL_FLAT) {
+		/* No path, but the land is flat. */
+		return 0;
+	}
+
 	NOT_REACHED(); /// \todo No path here!
 }
 
@@ -374,60 +383,180 @@ static const WalkInformation _mechanic_repair[4][4] = {
 	{{ANIM_MECHANIC_REPAIR_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 };
 
-/**
- * Encode a walk into a number for serialization.
- * @param wi Walk to encode.
- * @return The encoded walk.
- */
-static uint16 EncodeWalk(const WalkInformation *wi)
-{
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			int k = 0;
-			const WalkInformation *wij = _walk_path_tile[i][j];
-			while (wij->anim_type != ANIM_INVALID) {
-				if (wi == wij) return (0 << 12) | (i << 8) | (j << 4) | k;
-				k++;
-				wij++;
+/** Motionless "walks" when a handyman waters the flowerbeds. */
+static const WalkInformation _handyman_water[4][4] = {
+	{{ANIM_HANDYMAN_WATER_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_WATER_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_WATER_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_WATER_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
+/** Encodes and decodes walk information for use in savegames. */
+struct WalkEncoder {
+	/**
+	 * Encodes a given walk.
+	 * @param wi Walk to encode.
+	 * @return The encoded walk.
+	 */
+	static uint16 Encode(const WalkInformation *const wi)
+	{
+		WalkEncoder encoder;
+
+		for (int i = 0; i < 4; i++) {
+			if (wi == _mechanic_repair[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(0);
+				encoder.SetLowerParam(i);
+				return encoder.value;
 			}
 		}
-	}
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			int k = 0;
-			const WalkInformation *wij = _center_path_tile[i][j];
-			while (wij->anim_type != ANIM_INVALID) {
-				if (wi == wij) return (1 << 12) | (i << 8) | (j << 4) | k;
-				k++;
-				wij++;
+		for (int i = 0; i < 4; i++) {
+			if (wi == _handyman_water[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(1);
+				encoder.SetLowerParam(i);
+				return encoder.value;
 			}
 		}
+
+		for (uint8 subtype = 0; subtype < 4; subtype++) {
+			for (uint8 upper_param = 0; upper_param < 4; upper_param++) {
+				const WalkInformation *walk = _center_path_tile[subtype][upper_param];
+				uint8 lower_param = 0;
+				while (walk->anim_type != ANIM_INVALID) {
+					if (walk == wi) {
+						encoder.SetType(1);
+						encoder.SetSubtype(subtype);
+						encoder.SetUpperParam(upper_param);
+						encoder.SetLowerParam(lower_param);
+						return encoder.value;
+					}
+					lower_param++;
+					walk++;
+				}
+
+				walk = _walk_path_tile[subtype][upper_param];
+				lower_param = 0;
+				while (walk->anim_type != ANIM_INVALID) {
+					if (walk == wi) {
+						encoder.SetType(0);
+						encoder.SetSubtype(subtype);
+						encoder.SetUpperParam(upper_param);
+						encoder.SetLowerParam(lower_param);
+						return encoder.value;
+					}
+					lower_param++;
+					walk++;
+				}
+			}
+		}
+
+		NOT_REACHED();
 	}
-	for (int i = 0; i < 4; i++) {
-		if (wi == _mechanic_repair[i]) {
-			return (2 << 12) | i;
+
+	/**
+	 * Decodes a given walk.
+	 * @param code Encoded walk
+	 * @return The decoded walk.
+	 */
+	static const WalkInformation *Decode(const uint16 code)
+	{
+		const WalkEncoder decoder(code);
+		switch (decoder.GetType()) {
+			case 0: return &_walk_path_tile  [decoder.GetSubtype()][decoder.GetUpperParam()][decoder.GetLowerParam()];
+			case 1: return &_center_path_tile[decoder.GetSubtype()][decoder.GetUpperParam()][decoder.GetLowerParam()];
+			case 2:
+				switch (decoder.GetSubtype()) {
+					case 0: return _mechanic_repair[decoder.GetLowerParam()];
+					case 1: return _handyman_water [decoder.GetLowerParam()];
+					default: NOT_REACHED();
+				}
+			default: NOT_REACHED();
 		}
 	}
-	NOT_REACHED();
-}
 
-/**
- * Decode a walk number back to a walk.
- * @param number Value to decode.
- * @return The walk encoded by the number.
- */
-static const WalkInformation *DecodeWalk(uint16 number)
-{
-	int k = number & 0xF;
-	int j = (number >> 4) & 0xF;
-	int i = (number >> 8) & 0xF;
-	int c = (number >> 12) & 0xF;
-	if (c == 0) return &_walk_path_tile[i][j][k];
-	if (c == 1) return &_center_path_tile[i][j][k];
-	if (c == 2) return _mechanic_repair[k];
+private:
+	/**
+	 * Retrieve the "type" field of this encoded walk.
+	 * @return The type in (0..15).
+	 */
+	uint8 GetType() const
+	{
+		return (value >> 12) & 0xF;
+	}
 
-	NOT_REACHED();
-}
+	/**
+	 * Retrieve the "subtype" field of this encoded walk.
+	 * @return The subtype in (0..15).
+	 */
+	uint8 GetSubtype() const
+	{
+		return (value >> 8) & 0xF;
+	}
+
+	/**
+	 * Retrieve the "upper parameter" field of this encoded walk.
+	 * @return The upper parameter in (0..15).
+	 */
+	uint8 GetUpperParam() const
+	{
+		return (value >> 4) & 0xF;
+	}
+
+	/**
+	 * Retrieve the "lower parameter" field of this encoded walk.
+	 * @return The lower parameter in (0..15).
+	 */
+	uint8 GetLowerParam() const
+	{
+		return value & 0xF;
+	}
+
+	/**
+	 * Set the "type" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetType(const uint8 val)
+	{
+		value &= 0x0FFF;
+		value |= (val << 12);
+	}
+
+	/**
+	 * Set the "subtype" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetSubtype(const uint8 val)
+	{
+		value &= 0xF0FF;
+		value |= (val << 8);
+	}
+
+	/**
+	 * Set the "upper parameter" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetUpperParam(const uint8 val)
+	{
+		value &= 0xFF0F;
+		value |= (val << 4);
+	}
+
+	/**
+	 * Set the "lower parameter" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetLowerParam(const uint8 val)
+	{
+		value &= 0xFFF0;
+		value |= val;
+	}
+
+	/** Private constructor. */
+	WalkEncoder(uint16 v = 0) : value(v) {}
+
+	uint16 value;  ///< Encoded value to store in savegames.
+};
 
 static const uint32 CURRENT_VERSION_Person      = 2;   ///< Currently supported version of %Person.
 static const uint32 CURRENT_VERSION_Guest       = 3;   ///< Currently supported version of %Guest.
@@ -460,7 +589,7 @@ void Person::Load(Loader &ldr)
 	this->recolour = person_type_data.graphics.MakeRecolouring();
 	this->recolour.Load(ldr);
 
-	this->walk = DecodeWalk(ldr.GetWord());
+	this->walk = WalkEncoder::Decode(ldr.GetWord());
 	this->frame_index = ldr.GetWord();
 	this->frame_time = (int16)ldr.GetWord();
 
@@ -491,7 +620,7 @@ void Person::Save(Saver &svr)
 
 	this->recolour.Save(svr);
 
-	svr.PutWord(EncodeWalk(this->walk));
+	svr.PutWord(WalkEncoder::Encode(this->walk));
 	svr.PutWord(this->frame_index);
 	svr.PutWord((uint16)this->frame_time);
 	svr.EndPattern();
@@ -514,6 +643,15 @@ TileEdge Person::GetCurrentEdge() const
 	} else {
 		return (this->pix_pos.y < 128) ? EDGE_NW : EDGE_SE;
 	}
+}
+
+/**
+ * Checks whether this person is in the process of deliberately walking from a path onto pathless land.
+ * @return The person wants to leave the path.
+ */
+bool Person::IsLeavingPath() const
+{
+	return false;
 }
 
 /**
@@ -1159,7 +1297,7 @@ AnimateResult Person::OnAnimate(int delay)
 
 			/* Ride is could not be visited, fall-through to reversing movement. */
 
-		} else if (HasValidPath(v)) {
+		} else if (HasValidPath(v) || this->IsLeavingPath()) {
 			this->AddSelf(v);
 			this->DecideMoveDirection();
 			return OAR_OK;
@@ -2021,9 +2159,128 @@ void Handyman::Save(Saver &svr)
 	svr.EndPattern();
 }
 
+bool Handyman::IsLeavingPath() const
+{
+	switch (this->activity) {
+		case HandymanActivity::HEADING_TO_WATERING:
+		case HandymanActivity::LOOKING_FOR_PATH:
+			return true;
+		default:
+			return StaffMember::IsLeavingPath();
+	}
+}
+
+void Handyman::DecideMoveDirection()
+{
+	const TileEdge start_edge = this->GetCurrentEdge();
+
+	if (this->activity == HandymanActivity::HEADING_TO_WATERING) {
+		/* The handyman previously decided to water flowers at the current location. */
+		this->activity = HandymanActivity::WATER;
+		this->StartAnimation(_handyman_water[(start_edge + 2) % 4]);
+		return;
+	}
+
+	/* Check if a flowerbed in need of watering is nearby. */
+	std::set<TileEdge> possible_edges;
+	uint8 nr_possible_edges = 0;
+	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
+		XYZPoint16 pos = this->vox_pos;
+		pos.x += _tile_dxy[edge].x;
+		pos.y += _tile_dxy[edge].y;
+		if (!IsVoxelstackInsideWorld(pos.x, pos.y)) continue;
+
+		const Voxel *voxel = _world.GetVoxel(pos);
+		if (voxel == nullptr) continue;
+
+		if (voxel->instance != SRI_SCENERY || voxel->instance_data == INVALID_VOXEL_DATA) continue;  // No flowers here.
+		if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) continue;                                 // Not our responsibility.
+
+		const SceneryType *type = _scenery.GetType(voxel->instance_data);
+		if (type->watering_interval <= 0) continue;  // Some item that never needs watering.
+
+		SceneryInstance *item = _scenery.GetItem(pos);
+		if (item->ShouldBeWatered()) {
+			/* \todo Ignore items that another handyman is already watering. */
+			possible_edges.insert(edge);
+			nr_possible_edges++;
+		}
+	}
+	if (nr_possible_edges > 0) {
+		auto it = possible_edges.begin();
+		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
+
+		this->activity = HandymanActivity::HEADING_TO_WATERING;
+		this->SetStatus(GUI_PERSON_STATUS_WATERING);
+		this->StartAnimation(_center_path_tile[start_edge][*it]);
+		return;
+	}
+
+	if (HasValidPath(_world.GetVoxel(this->vox_pos))) return StaffMember::DecideMoveDirection();
+	/* After he finished watering flowers, the handyman needs to find back onto a path before he can start doing other work again. */
+	this->activity = HandymanActivity::LOOKING_FOR_PATH;
+
+	/* First check if we can step back onto an adjacent path. */
+	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
+		XYZPoint16 pos = this->vox_pos;
+		pos.x += _tile_dxy[edge].x;
+		pos.y += _tile_dxy[edge].y;
+		if (!IsVoxelstackInsideWorld(pos.x, pos.y)) continue;
+
+		const Voxel *voxel = _world.GetVoxel(pos);
+		if (voxel == nullptr) continue;
+		if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) continue;
+
+		if (HasValidPath(voxel)) {
+			possible_edges.insert(edge);
+			nr_possible_edges++;
+		}
+	}
+	if (nr_possible_edges > 0) {
+		auto it = possible_edges.begin();
+		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
+		this->StartAnimation(_walk_path_tile[start_edge][*it]);
+		return;
+	}
+
+	/* No path nearby? Walk at random through the surrounding flowers in the hope of catching sight of one. */
+	/* The check for scenery items also guarantees other necessities such as flat land, same ground height, etc. */
+	/* \todo Make the handymen less short-sighted and allow them to look for reachable paths several tiles away. */
+	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
+		XYZPoint16 pos = this->vox_pos;
+		pos.x += _tile_dxy[edge].x;
+		pos.y += _tile_dxy[edge].y;
+		if (!IsVoxelstackInsideWorld(pos.x, pos.y)) continue;
+
+		const Voxel *voxel = _world.GetVoxel(pos);
+		if (voxel == nullptr) continue;
+		if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) continue;
+		if (voxel->instance != SRI_SCENERY || voxel->instance_data == INVALID_VOXEL_DATA) continue;
+
+		possible_edges.insert(edge);
+		nr_possible_edges++;
+	}
+	if (nr_possible_edges > 0) {
+		auto it = possible_edges.begin();
+		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
+		this->StartAnimation(_walk_path_tile[start_edge][*it]);
+		return;
+	}
+
+	/* Okay, now the poor handymen is really lost. Probably the player deleted some flowers or paths. */
+	/* \todo When the ability to walk on pathless lands is implemented for guests, allow that here as well. */
+	NOT_REACHED();
+}
+
 void Handyman::ActionAnimationCallback()
 {
 	switch (this->activity) {
+		case HandymanActivity::WATER: {
+			SceneryInstance *item = _scenery.GetItem(this->vox_pos);
+			if (item != nullptr) item->time_since_watered = 0;
+			break;
+		}
+
 		default: NOT_REACHED();
 	}
 	this->activity = HandymanActivity::WANDER;

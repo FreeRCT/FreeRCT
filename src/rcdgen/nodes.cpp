@@ -1103,14 +1103,14 @@ int FGTRBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SCNYBlock::SCNYBlock() : GameBlock("SCNY", 1)
+SCNYBlock::SCNYBlock() : GameBlock("SCNY", 2)
 {
 }
 
 int SCNYBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 60 - 12 + (this->width_x * this->width_y));
+	fb->StartSave(this->blk_name, this->version, 64 - 12 + (this->width_x * this->width_y));
 	fb->SaveUInt8(this->width_x);
 	fb->SaveUInt8(this->width_y);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -1119,6 +1119,7 @@ int SCNYBlock::Write(FileWriter *fw)
 		}
 	}
 	fb->SaveUInt32(this->watering_interval);
+	fb->SaveUInt32(this->min_watering_interval);
 	fb->SaveUInt32(this->main_animation->Write(fw));
 	fb->SaveUInt32(this->dry_animation->Write(fw));
 	for (auto& preview : this->previews) fb->SaveUInt32(preview->Write(fw));

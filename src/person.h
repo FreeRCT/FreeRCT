@@ -161,6 +161,7 @@ protected:
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
 	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
+	virtual bool IsLeavingPath() const;
 };
 
 /** Activities of the guest. */
@@ -344,6 +345,8 @@ public:
 		EMPTY_SE,  ///< Emptying the bin on the south-east edge of the current tile.
 		EMPTY_SW,  ///< Emptying the bin on the south-west edge of the current tile.
 		EMPTY_NW,  ///< Emptying the bin on the north-west edge of the current tile.
+		HEADING_TO_WATERING,  ///< Currently walking to a flowerbed in need of watering.
+		LOOKING_FOR_PATH,     ///< Trying to get back onto a path.
 	};
 
 	Handyman();
@@ -352,7 +355,9 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
+	void DecideMoveDirection() override;
 	void ActionAnimationCallback() override;
+	bool IsLeavingPath() const override;
 
 	HandymanActivity activity;  ///< What the handyman is doing right now.
 };
