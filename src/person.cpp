@@ -391,70 +391,172 @@ static const WalkInformation _handyman_water[4][4] = {
 	{{ANIM_HANDYMAN_WATER_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 };
 
-/**
- * Encode a walk into a number for serialization.
- * @param wi Walk to encode.
- * @return The encoded walk.
- */
-static uint16 EncodeWalk(const WalkInformation *wi)
-{
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			int k = 0;
-			const WalkInformation *wij = _walk_path_tile[i][j];
-			while (wij->anim_type != ANIM_INVALID) {
-				if (wi == wij) return (0 << 12) | (i << 8) | (j << 4) | k;
-				k++;
-				wij++;
+/** Encodes and decodes walk information for use in savegames. */
+struct WalkEncoder {
+	/**
+	 * Encodes a given walk.
+	 * @param wi Walk to encode.
+	 * @return The encoded walk.
+	 */
+	static uint16 Encode(const WalkInformation *const wi)
+	{
+		WalkEncoder encoder;
+
+		for (int i = 0; i < 4; i++) {
+			if (wi == _mechanic_repair[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(0);
+				encoder.SetLowerParam(i);
+				return encoder.value;
 			}
 		}
-	}
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			int k = 0;
-			const WalkInformation *wij = _center_path_tile[i][j];
-			while (wij->anim_type != ANIM_INVALID) {
-				if (wi == wij) return (1 << 12) | (i << 8) | (j << 4) | k;
-				k++;
-				wij++;
+		for (int i = 0; i < 4; i++) {
+			if (wi == _handyman_water[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(1);
+				encoder.SetLowerParam(i);
+				return encoder.value;
 			}
 		}
-	}
-	for (int i = 0; i < 4; i++) {
-		if (wi == _mechanic_repair[i]) {
-			return (2 << 12) | i;
-		}
-	}
-	for (int i = 0; i < 4; i++) {
-		if (wi == _handyman_water[i]) {
-			return (2 << 12) | (1 << 8) | i;
-		}
-	}
-	NOT_REACHED();
-}
 
-/**
- * Decode a walk number back to a walk.
- * @param number Value to decode.
- * @return The walk encoded by the number.
- */
-static const WalkInformation *DecodeWalk(uint16 number)
-{
-	int k = number & 0xF;
-	int j = (number >> 4) & 0xF;
-	int i = (number >> 8) & 0xF;
-	int c = (number >> 12) & 0xF;
-	if (c == 0) return &_walk_path_tile[i][j][k];
-	if (c == 1) return &_center_path_tile[i][j][k];
-	if (c == 2) {
-		switch (i) {
-			case 0: return _mechanic_repair[k];
-			case 1: return _handyman_water [k];
+		for (uint8 subtype = 0; subtype < 4; subtype++) {
+			for (uint8 upper_param = 0; upper_param < 4; upper_param++) {
+				const WalkInformation *walk = _center_path_tile[subtype][upper_param];
+				uint8 lower_param = 0;
+				while (walk->anim_type != ANIM_INVALID) {
+					if (walk == wi) {
+						encoder.SetType(1);
+						encoder.SetSubtype(subtype);
+						encoder.SetUpperParam(upper_param);
+						encoder.SetLowerParam(lower_param);
+						return encoder.value;
+					}
+					lower_param++;
+					walk++;
+				}
+
+				walk = _walk_path_tile[subtype][upper_param];
+				lower_param = 0;
+				while (walk->anim_type != ANIM_INVALID) {
+					if (walk == wi) {
+						encoder.SetType(0);
+						encoder.SetSubtype(subtype);
+						encoder.SetUpperParam(upper_param);
+						encoder.SetLowerParam(lower_param);
+						return encoder.value;
+					}
+					lower_param++;
+					walk++;
+				}
+			}
+		}
+
+		NOT_REACHED();
+	}
+
+	/**
+	 * Decodes a given walk.
+	 * @param code Encoded walk
+	 * @return The decoded walk.
+	 */
+	static const WalkInformation *Decode(const uint16 code)
+	{
+		const WalkEncoder decoder(code);
+		switch (decoder.GetType()) {
+			case 0: return &_walk_path_tile  [decoder.GetSubtype()][decoder.GetUpperParam()][decoder.GetLowerParam()];
+			case 1: return &_center_path_tile[decoder.GetSubtype()][decoder.GetUpperParam()][decoder.GetLowerParam()];
+			case 2:
+				switch (decoder.GetSubtype()) {
+					case 0: return _mechanic_repair[decoder.GetLowerParam()];
+					case 1: return _handyman_water [decoder.GetLowerParam()];
+					default: NOT_REACHED();
+				}
+			default: NOT_REACHED();
 		}
 	}
 
-	NOT_REACHED();
-}
+private:
+	/**
+	 * Retrieve the "type" field of this encoded walk.
+	 * @return The type in (0..15).
+	 */
+	uint8 GetType() const
+	{
+		return (value >> 12) & 0xF;
+	}
+
+	/**
+	 * Retrieve the "subtype" field of this encoded walk.
+	 * @return The subtype in (0..15).
+	 */
+	uint8 GetSubtype() const
+	{
+		return (value >> 8) & 0xF;
+	}
+
+	/**
+	 * Retrieve the "upper parameter" field of this encoded walk.
+	 * @return The upper parameter in (0..15).
+	 */
+	uint8 GetUpperParam() const
+	{
+		return (value >> 4) & 0xF;
+	}
+
+	/**
+	 * Retrieve the "lower parameter" field of this encoded walk.
+	 * @return The lower parameter in (0..15).
+	 */
+	uint8 GetLowerParam() const
+	{
+		return value & 0xF;
+	}
+
+	/**
+	 * Set the "type" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetType(const uint8 val)
+	{
+		value &= 0x0FFF;
+		value |= (val << 12);
+	}
+
+	/**
+	 * Set the "subtype" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetSubtype(const uint8 val)
+	{
+		value &= 0xF0FF;
+		value |= (val << 8);
+	}
+
+	/**
+	 * Set the "upper parameter" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetUpperParam(const uint8 val)
+	{
+		value &= 0xFF0F;
+		value |= (val << 4);
+	}
+
+	/**
+	 * Set the "lower parameter" field of this encoded walk.
+	 * @param val Value for this field in (0..15).
+	 */
+	void SetLowerParam(const uint8 val)
+	{
+		value &= 0xFFF0;
+		value |= val;
+	}
+
+	/** Private constructor. */
+	WalkEncoder(uint16 v = 0) : value(v) {}
+
+	uint16 value;  ///< Encoded value to store in savegames.
+};
 
 static const uint32 CURRENT_VERSION_Person      = 2;   ///< Currently supported version of %Person.
 static const uint32 CURRENT_VERSION_Guest       = 3;   ///< Currently supported version of %Guest.
@@ -487,7 +589,7 @@ void Person::Load(Loader &ldr)
 	this->recolour = person_type_data.graphics.MakeRecolouring();
 	this->recolour.Load(ldr);
 
-	this->walk = DecodeWalk(ldr.GetWord());
+	this->walk = WalkEncoder::Decode(ldr.GetWord());
 	this->frame_index = ldr.GetWord();
 	this->frame_time = (int16)ldr.GetWord();
 
@@ -518,7 +620,7 @@ void Person::Save(Saver &svr)
 
 	this->recolour.Save(svr);
 
-	svr.PutWord(EncodeWalk(this->walk));
+	svr.PutWord(WalkEncoder::Encode(this->walk));
 	svr.PutWord(this->frame_index);
 	svr.PutWord((uint16)this->frame_time);
 	svr.EndPattern();
@@ -2175,7 +2277,7 @@ void Handyman::ActionAnimationCallback()
 	switch (this->activity) {
 		case HandymanActivity::WATER: {
 			SceneryInstance *item = _scenery.GetItem(this->vox_pos);
-			if (item != nullptr) item->last_watered = 0;
+			if (item != nullptr) item->time_since_watered = 0;
 			break;
 		}
 

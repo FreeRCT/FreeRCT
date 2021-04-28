@@ -92,7 +92,7 @@ public:
 	XYZPoint16 vox_pos;        ///< Position of the item's base voxel.
 	uint8 orientation;         ///< Orientation of the item.
 	uint32 animtime;           ///< Time in the animation, in milliseconds.
-	uint32 last_watered;       ///< Time since the item was last watered, in milliseconds. Only valid if the #type needs watering.
+	uint32 time_since_watered; ///< Time since the item was last watered, in milliseconds. Only valid if the #type needs watering.
 };
 
 /** All the scenery items in the world. */

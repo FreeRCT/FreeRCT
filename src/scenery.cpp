@@ -90,7 +90,7 @@ SceneryInstance::SceneryInstance(const SceneryType *t)
 	this->vox_pos = XYZPoint16::invalid();
 	this->orientation = 0;
 	this->animtime = 0;
-	this->last_watered = 0;
+	this->time_since_watered = 0;
 }
 
 /** Destructor. */
@@ -175,7 +175,7 @@ void SceneryInstance::InsertIntoWorld()
 			}
 		}
 	}
-	this->last_watered = 0;
+	this->time_since_watered = 0;
 	this->animtime = 0;
 	this->MarkDirty();
 }
@@ -244,7 +244,7 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
  */
 void SceneryInstance::OnAnimate(const int delay)
 {
-	if (this->type->watering_interval > 0) this->last_watered += delay;
+	if (this->type->watering_interval > 0) this->time_since_watered += delay;
 	this->animtime += delay;
 	this->animtime %= (this->IsDry() ? this->type->dry_animation : this->type->main_animation)->GetTotalDuration();
 	this->MarkDirty();  // Ensure the animation is updated.
@@ -256,7 +256,7 @@ void SceneryInstance::OnAnimate(const int delay)
  */
 bool SceneryInstance::IsDry() const
 {
-	return this->type->watering_interval > 0 && this->last_watered > this->type->watering_interval;
+	return this->type->watering_interval > 0 && this->time_since_watered > this->type->watering_interval;
 }
 
 /**
@@ -265,7 +265,7 @@ bool SceneryInstance::IsDry() const
  */
 bool SceneryInstance::ShouldBeWatered() const
 {
-	return this->type->watering_interval > 0 && this->last_watered > this->type->min_watering_interval;
+	return this->type->watering_interval > 0 && this->time_since_watered > this->type->min_watering_interval;
 }
 
 static const uint32 CURRENT_VERSION_SceneryInstance = 1;   ///< Currently supported version of %SceneryInstance.
@@ -280,7 +280,7 @@ void SceneryInstance::Load(Loader &ldr)
 	this->vox_pos.z = ldr.GetWord();
 	this->orientation = ldr.GetByte();
 	this->animtime = ldr.GetLong();
-	this->last_watered = ldr.GetLong();
+	this->time_since_watered = ldr.GetLong();
 	ldr.ClosePattern();
 }
 
@@ -292,7 +292,7 @@ void SceneryInstance::Save(Saver &svr) const
 	svr.PutWord(this->vox_pos.z);
 	svr.PutByte(this->orientation);
 	svr.PutLong(this->animtime);
-	svr.PutLong(this->last_watered);
+	svr.PutLong(this->time_since_watered);
 	svr.EndPattern();
 }
 
