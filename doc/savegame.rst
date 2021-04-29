@@ -666,6 +666,31 @@ Version history
 - 1 (20210402) Initial version.
 
 
+Path Object
+~~~~~~~~~~~
+Information for a path object instance. This covers user-placed objects such as benches and lamps as well as litter and vomit.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "pobj".
+   4       4      1-     Version number.
+   8       2      1-     In-voxel X offset.
+  10       2      1-     In-voxel Y offset.
+  12       2      1-     In-voxel Z offset.
+  14       1      1-     State bitset.
+  15      16      1-     Data attributes.
+  31       4      1-     "jbop".
+======  ======  =======  ======================================================
+
+The object's type index and voxel coordinate are saved by the parent pattern.
+
+Version history
+...............
+
+- 1 (20210429) Initial version.
+
+
 Message
 ~~~~~~~
 Information for a single message in the player's inbox.
@@ -817,8 +842,18 @@ Offset  Length  Version  Description
   12       2      1-     Frame counter.
   14       2      1-     Next guest (index) to animate.
   16       4      1-     Lowest 'free' index for next new guest.
-  20       4      1-     Number of active guests.
-  24       ?      1-     Contents of "number" active guests. Each guest is stored as
+  20       2      2-     State of the hunger    complaint counter.
+  22       2      2-     State of the thirst    complaint counter.
+  24       2      2-     State of the waste     complaint counter.
+  26       2      2-     State of the litter    complaint counter.
+  28       2      2-     State of the vandalism complaint counter.
+  30       4      2-     Time since the last hunger    complaint notification.
+  34       4      2-     Time since the last thirst    complaint notification.
+  38       4      2-     Time since the last waste     complaint notification.
+  42       4      2-     Time since the last litter    complaint notification.
+  46       4      2-     Time since the last vandalism complaint notification.
+  50       4      1-     Number of active guests.
+  54       ?      1-     Contents of "number" active guests. Each guest is stored as
                          his unique ID (2 bytes) followed by the `Guest`_ data pattern.
    ?       4      1-     "STSG"
 ======  ======  =======  ==============================================================
@@ -827,6 +862,7 @@ Version history
 ...............
 
 - 1 (20150823) Initial version.
+- 2 (20210429) Added guest complaint counters.
 
 
 Staff
@@ -962,22 +998,29 @@ Version history
 
 Scenery
 ~~~~~~~
-All placed scenery instances in the world.
+All placed scenery instances and path objects in the world.
 
-======  ======  =======  =========================================================================
+======  ======  =======  =======================================================================================
 Offset  Length  Version  Description
-======  ======  =======  =========================================================================
+======  ======  =======  =======================================================================================
    0       4      1-     "SCNY".
    4       4      1-     Version number of the staff block.
    8       4      1-     Number of scenery items.
-  12       ?      1-     Every item's type index followed by its `scenery instance`_ data pattern.
+  12       ?      1-     Every item's type index (2 bytes) followed by its `scenery instance`_ data pattern.
+   ?       4      2-     Number of user-placed path objects.
+   ?       ?      2-     Every user-placed path object's data, consisting of the voxel coordinate
+                         (3× 2 bytes), the item's type index (1 byte), and its `path object`_ data pattern.
+   ?       4      2-     Number of litter and vomit objects.
+   ?       ?      2-     Every litter and vomit object's data, consisting of the voxel coordinate
+                         (3× 2 bytes), the item's type index (1 byte), and its `path object`_ data pattern.
    ?       4      1-     "YNCS"
-======  ======  =======  =========================================================================
+======  ======  =======  =======================================================================================
 
 Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (20210429) Added path objects.
 
 
 Rides
