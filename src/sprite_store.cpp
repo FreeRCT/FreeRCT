@@ -788,7 +788,7 @@ bool Animation::Load(RcdFileReader *rcd_file)
 	const uint BASE_LENGTH = 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (rcd_file->version != 3 || length < BASE_LENGTH) return false;
+	if (rcd_file->version != 4 || length < BASE_LENGTH) return false;
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
 	if (this->person_type == PERSON_INVALID) return false;
 
@@ -843,7 +843,7 @@ bool AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (rcd_file->version != 2 || length < BASE_LENGTH) return false;
+	if (rcd_file->version != 3 || length < BASE_LENGTH) return false;
 	this->width = rcd_file->GetUInt16();
 
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());

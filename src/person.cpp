@@ -375,6 +375,14 @@ static const WalkInformation *_center_path_tile[4][4] = {
 	{_center_nw_ne, _center_nw_se, _center_nw_sw, _center_nw_nw},
 };
 
+/** Motionless "walks" when a guest sits on a bench. */
+static const WalkInformation _guest_bench[4][4] = {
+	{{ANIM_GUEST_BENCH_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_GUEST_BENCH_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_GUEST_BENCH_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_GUEST_BENCH_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
 /** Motionless "walks" when a mechanic repairs a ride. */
 static const WalkInformation _mechanic_repair[4][4] = {
 	{{ANIM_MECHANIC_REPAIR_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
@@ -434,6 +442,14 @@ struct WalkEncoder {
 				return encoder.value;
 			}
 		}
+		for (int i = 0; i < 4; i++) {
+			if (wi == _guest_bench[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(3);
+				encoder.SetLowerParam(i);
+				return encoder.value;
+			}
+		}
 
 		for (uint8 subtype = 0; subtype < 4; subtype++) {
 			for (uint8 upper_param = 0; upper_param < 4; upper_param++) {
@@ -486,6 +502,7 @@ struct WalkEncoder {
 					case 0: return _mechanic_repair[decoder.GetLowerParam()];
 					case 1: return _handyman_water [decoder.GetLowerParam()];
 					case 2: return _handyman_sweep [decoder.GetLowerParam()];
+					case 3: return _guest_bench    [decoder.GetLowerParam()];
 					default: NOT_REACHED();
 				}
 			default: NOT_REACHED();
@@ -957,6 +974,8 @@ void Guest::DecideMoveDirection()
 		this->activity = GA_WANDER;
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
 	}
+
+	// NOCOM consider sitting down on a bench
 
 	/* Find feasible exits and shops. */
 	uint8 exits, shops;
@@ -1626,13 +1645,32 @@ bool Guest::DailyUpdate()
 
 	int16 happiness_change = 0;
 	if (!eating) {
-		if (this->has_wrapper && this->rnd.Success1024(25)) {
+		if (this->has_wrapper && this->activity != GA_ON_RIDE && this->rnd.Success1024(25)) {
 			_scenery.AddLitter(this->vox_pos, this->pix_pos);
 			this->has_wrapper = false;
 		}
 		if (this->hunger_level > 200) happiness_change--;
 	}
 	if (this->waste > 170) happiness_change -= 2;
+
+	if (this->nausea > 110) {
+		happiness_change -= 8;
+		if (this->activity != GA_ON_RIDE && this->rnd.Success1024(4 * this->nausea)) {
+			_scenery.AddVomit(this->vox_pos, this->pix_pos);
+			this->nausea /= 2;
+			this->stomach_level /= 2;
+			happiness_change -= 20;
+		}
+	}
+
+	if (this->activity == GA_ON_RIDE) {
+		assert(this->ride != nullptr);
+		happiness_change += this->rnd.Uniform(this->ride->excitement_rating) / 100;
+		this->nausea = std::min(255, this->rnd.Uniform(this->ride->nausea_rating * this->ride->intensity_rating) / 10000 + this->nausea);
+	} else if (this->activity == GA_RESTING) {
+		happiness_change += 2;
+		if (this->nausea > 20) this->nausea -= 3;
+	}
 
 	switch (_weather.GetWeatherType()) {
 		case WTP_SUNNY:
@@ -2201,12 +2239,24 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	const bool is_on_path = HasValidPath(_world.GetVoxel(this->vox_pos));
+	const Voxel *vx = _world.GetVoxel(this->vox_pos);
+	const bool is_on_path = HasValidPath(vx);
 	if (is_on_path && _scenery.CountLitterAndVomit(this->vox_pos) > 0) {
-		this->SetStatus(GUI_PERSON_STATUS_SWEEPING);
-		this->activity = HandymanActivity::SWEEP;
-		this->StartAnimation(_handyman_sweep[(start_edge + 2) % 4]);
-		return;
+		bool found_other_handyman = false;
+		for (VoxelObject *o = vx->voxel_objects; o != nullptr; o = o->next_object) {
+			if (Handyman *h = dynamic_cast<Handyman*>(o)) {
+				if (h->activity == HandymanActivity::SWEEP) {
+					found_other_handyman = true;
+					break;
+				}
+			}
+		}
+		if (!found_other_handyman) {
+			this->SetStatus(GUI_PERSON_STATUS_SWEEPING);
+			this->activity = HandymanActivity::SWEEP;
+			this->StartAnimation(_handyman_sweep[(start_edge + 2) % 4]);
+			return;
+		}
 	}
 
 	/* Check if a flowerbed in need of watering is nearby. */
@@ -2229,9 +2279,19 @@ void Handyman::DecideMoveDirection()
 
 		SceneryInstance *item = _scenery.GetItem(pos);
 		if (item->ShouldBeWatered()) {
-			/* \todo Ignore items that another handyman is already watering. */
-			possible_edges.insert(edge);
-			nr_possible_edges++;
+			bool found_other_handyman = false;
+			for (VoxelObject *o = voxel->voxel_objects; o != nullptr; o = o->next_object) {
+				if (Handyman *h = dynamic_cast<Handyman*>(o)) {
+					if (h->activity == HandymanActivity::WATER) {
+						found_other_handyman = true;
+						break;
+					}
+				}
+			}
+			if (!found_other_handyman) {
+				possible_edges.insert(edge);
+				nr_possible_edges++;
+			}
 		}
 	}
 	if (nr_possible_edges > 0) {

@@ -103,6 +103,7 @@ strings {
 		GUEST_INFO_HUNGER:      "Hunger";
 		GUEST_INFO_THIRST:      "Thirst";
 		GUEST_INFO_WASTE:       "Waste";
+		GUEST_INFO_NAUSEA:      "Nausea";
 		GUEST_INFO_ITEMS:       "Items held";
 
 		// Items for guests gui strings.

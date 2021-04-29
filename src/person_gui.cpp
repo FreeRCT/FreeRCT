@@ -26,6 +26,7 @@ enum GuestInfoWidgets {
 	GIW_HUNGER_LEVEL, ///< Amount of hunger.
 	GIW_THIRST_LEVEL, ///< Amount of thirst.
 	GIW_WASTE_LEVEL,  ///< Amount of food/drink waste.
+	GIW_NAUSEA,       ///< Nausea level.
 };
 
 /** Widget parts of the #GuestInfoWindow. */
@@ -36,7 +37,7 @@ static const WidgetPart _guest_info_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(7, 2), SetPadding(2, 2, 2, 2),
+			Intermediate(8, 2), SetPadding(2, 2, 2, 2),
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_MONEY, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GIW_MONEY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
@@ -54,6 +55,9 @@ static const WidgetPart _guest_info_gui_parts[] = {
 
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_WASTE, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GIW_WASTE_LEVEL, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
+
+				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_NAUSEA, STR_NULL),
+				Widget(WT_RIGHT_TEXT, GIW_NAUSEA, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_ITEMS, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GIW_ITEMS, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
@@ -96,6 +100,10 @@ void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 		case GIW_MONEY_SPENT:
 			_str_params.SetMoney(1, this->guest->cash_spent);
+			break;
+
+		case GIW_NAUSEA:
+			_str_params.SetNumber(1, this->guest->nausea);
 			break;
 
 		case GIW_HAPPINESS:

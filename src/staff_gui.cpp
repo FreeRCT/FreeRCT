@@ -43,8 +43,8 @@ static const WidgetPart _staff_select_gui_parts[] = {
 			Intermediate(3, 1),
 				Intermediate(1, 0),
 					Widget(WT_LEFT_FILLER_TAB, INVALID_WIDGET_INDEX,  COL_RANGE_GREY),
-					Widget(WT_TEXT_TAB, STAFF_CATEGORY_MECHANICS,     COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_MECHANICS,    STR_NULL),
 					Widget(WT_TEXT_TAB, STAFF_CATEGORY_HANDYMEN,      COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_HANDYMEN,     STR_NULL),
+					Widget(WT_TEXT_TAB, STAFF_CATEGORY_MECHANICS,     COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_MECHANICS,    STR_NULL),
 					Widget(WT_TEXT_TAB, STAFF_CATEGORY_GUARDS,        COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_GUARDS,       STR_NULL),
 					Widget(WT_TEXT_TAB, STAFF_CATEGORY_ENTERTAINERS,  COL_RANGE_GREY), SetData(GUI_STAFF_CATEGORY_ENTERTAINERS, STR_NULL),
 					Widget(WT_RIGHT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetFill(1,0), SetResize(1, 0),
@@ -82,7 +82,7 @@ StaffManagementGui::StaffManagementGui() : GuiWindow(WC_STAFF, ALL_WINDOWS_OF_TY
 	this->selected = PERSON_MECHANIC;  // Needs to be initialized, will be overwritten later.
 	this->SetupWidgetTree(_staff_select_gui_parts, lengthof(_staff_select_gui_parts));
 	this->SetScrolledWidget(STAFF_GUI_LIST, STAFF_GUI_SCROLL_LIST);
-	this->SelectTab(PERSON_MECHANIC);
+	this->SelectTab(PERSON_HANDYMAN);
 }
 
 /**

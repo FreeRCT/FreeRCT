@@ -171,6 +171,7 @@ enum GuestActivity {
 	GA_QUEUING,    ///< Guest is queuing for a ride.
 	GA_ON_RIDE,    ///< Guest is on the ride.
 	GA_GO_HOME,    ///< Find a way to home.
+	GA_RESTING,    ///< Sitting on a bench.
 };
 
 /** %Guests walking around in the world. */

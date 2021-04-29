@@ -1249,6 +1249,10 @@ static const Symbol _anim_symbols[] = {
 	{"handyman_empty_se" , 18}, // Handyman emptying a bin, SE view.
 	{"handyman_empty_sw" , 19}, // Handyman emptying a bin, SW view.
 	{"handyman_empty_nw" , 20}, // Handyman emptying a bin, NW view.
+	{"guest_bench_ne"    , 21}, // Guest sitting on a bench, NE view.
+	{"guest_bench_se"    , 22}, // Guest sitting on a bench, SE view.
+	{"guest_bench_sw"    , 23}, // Guest sitting on a bench, SW view.
+	{"guest_bench_nw"    , 24}, // Guest sitting on a bench, NW view.
 	{nullptr, 0}
 };
 

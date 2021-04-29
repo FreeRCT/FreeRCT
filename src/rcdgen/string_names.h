@@ -111,6 +111,7 @@ static const char *_gui_string_names[] = {
 	"GUEST_INFO_HUNGER",
 	"GUEST_INFO_THIRST",
 	"GUEST_INFO_WASTE",
+	"GUEST_INFO_NAUSEA",
 	"GUEST_INFO_ITEMS",
 
 	"ITEM_NONE",

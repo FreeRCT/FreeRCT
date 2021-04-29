@@ -255,6 +255,11 @@ enum AnimationType {
 	ANIM_HANDYMAN_EMPTY_SW  = 19,  ///< Animation when a handyman empties a bin, SW view.
 	ANIM_HANDYMAN_EMPTY_NW  = 20,  ///< Animation when a handyman empties a bin, NW view.
 
+	ANIM_GUEST_BENCH_NE     = 21,  ///< Animation when a guest sits on a bench, NE view.
+	ANIM_GUEST_BENCH_SE     = 22,  ///< Animation when a guest sits on a bench, SE view.
+	ANIM_GUEST_BENCH_SW     = 23,  ///< Animation when a guest sits on a bench, SW view.
+	ANIM_GUEST_BENCH_NW     = 24,  ///< Animation when a guest sits on a bench, NW view.
+
 	ANIM_BEGIN = ANIM_WALK_NE,            ///< First animation.
 	ANIM_LAST  = ANIM_HANDYMAN_EMPTY_NW,  ///< Last animation.
 	ANIM_INVALID = 0xFF,                  ///< Invalid animation.
