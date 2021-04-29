@@ -1626,9 +1626,8 @@ bool Guest::DailyUpdate()
 
 	int16 happiness_change = 0;
 	if (!eating) {
-		if (this->has_wrapper && this->rnd.Success1024(/*25*/1000)) { // NOCOM
+		if (this->has_wrapper && this->rnd.Success1024(25)) {
 			_scenery.AddLitter(this->vox_pos);
-			printf("NOCOM %2dx%2dx%2d\n",vox_pos.x,vox_pos.y,vox_pos.z);
 			this->has_wrapper = false;
 		}
 		if (this->hunger_level > 200) happiness_change--;

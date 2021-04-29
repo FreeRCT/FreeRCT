@@ -953,6 +953,90 @@ file("freerct.rcd") {
 		}
 	}
 
+	// NE sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_ne;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_ne;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 1 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
+	// SE sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_se;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_se;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 0 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
+	// SW sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_sw;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_sw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 3 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
+	// NW sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_nw;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_nw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 2 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
 	// Mechanic - person type graphics.
 	PRSG {
 		person_graphics {
