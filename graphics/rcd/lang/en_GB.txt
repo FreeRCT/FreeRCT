@@ -267,6 +267,7 @@ strings {
 		MESSAGE_COMPLAIN_THIRSTY: "Many guests are thirsty and don’t know where they may buy something to drink.";
 		MESSAGE_COMPLAIN_TOILET:  "Many guests are in need of a toilet and don’t know where to find one.";
 		MESSAGE_COMPLAIN_LITTER:  "The guests complain about the littered paths in the park.";
+		MESSAGE_COMPLAIN_VANDALISM: "The guests complain about the numerous vandalised objects in the park.";
 		MESSAGE_CHEAP_FEE:        "The guests declare that the entrance fee is surprisingly cheap.";
 		MESSAGE_AWARD_WON:        "The park has won an award: %1%";
 		MESSAGE_NEGATIVE_AWARD:   "The park has received a negative award: %1%";

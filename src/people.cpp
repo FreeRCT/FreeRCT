@@ -12,6 +12,7 @@
 #include "dates.h"
 #include "math_func.h"
 #include "geometry.h"
+#include "messages.h"
 #include "person_type.h"
 #include "ride_type.h"
 #include "person.h"
@@ -21,6 +22,13 @@
 
 Guests _guests; ///< %Guests in the world/park.
 Staff _staff;   ///< %Staff in the world/park.
+
+static const uint32 COMPLAINT_TIMEOUT  = 8 * 60 * 1000;  ///< Time in milliseconds between two complaint notifications of the same type.
+static const uint16 COMPLAINT_THRESHOLD_HUNGER    = 80;  ///< After how many hunger    complaints a notification is sent.
+static const uint16 COMPLAINT_THRESHOLD_THIRST    = 80;  ///< After how many thirst    complaints a notification is sent.
+static const uint16 COMPLAINT_THRESHOLD_WASTE     = 30;  ///< After how many waste     complaints a notification is sent.
+static const uint16 COMPLAINT_THRESHOLD_LITTER    = 25;  ///< After how many litter    complaints a notification is sent.
+static const uint16 COMPLAINT_THRESHOLD_VANDALISM = 15;  ///< After how many vandalism complaints a notification is sent.
 
 /**
  * Guest block constructor. Fills the id of the persons with an incrementing number.
@@ -75,6 +83,17 @@ Guests::Guests() : block(0), rnd()
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
 	this->next_daily_index = 0;
+
+	this->complaint_counter_hunger       = 0;
+	this->complaint_counter_thirst       = 0;
+	this->complaint_counter_waste        = 0;
+	this->complaint_counter_litter       = 0;
+	this->complaint_counter_vandalism    = 0;
+	this->time_since_complaint_hunger    = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_thirst    = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_waste     = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_litter    = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_vandalism = COMPLAINT_TIMEOUT;
 }
 
 Guests::~Guests()
@@ -95,9 +114,20 @@ void Guests::Uninitialize()
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
 	this->next_daily_index = 0;
+
+	this->complaint_counter_hunger       = 0;
+	this->complaint_counter_thirst       = 0;
+	this->complaint_counter_waste        = 0;
+	this->complaint_counter_litter       = 0;
+	this->complaint_counter_vandalism    = 0;
+	this->time_since_complaint_hunger    = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_thirst    = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_waste     = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_litter    = COMPLAINT_TIMEOUT;
+	this->time_since_complaint_vandalism = COMPLAINT_TIMEOUT;
 }
 
-static const uint32 CURRENT_VERSION_GSTS = 1;   ///< Currently supported version of the GSTS Pattern.
+static const uint32 CURRENT_VERSION_GSTS = 2;   ///< Currently supported version of the GSTS Pattern.
 
 /**
  * Load guests from the save game.
@@ -110,11 +140,26 @@ void Guests::Load(Loader &ldr)
 		case 0:
 			break;
 		case 1:
+		case 2:
 			this->start_voxel.x = ldr.GetWord();
 			this->start_voxel.y = ldr.GetWord();
 			this->daily_frac = ldr.GetWord();
 			this->next_daily_index = ldr.GetWord();
 			this->free_idx = ldr.GetLong();
+
+			if (version > 1) {
+				this->complaint_counter_hunger       = ldr.GetWord();
+				this->complaint_counter_thirst       = ldr.GetWord();
+				this->complaint_counter_waste        = ldr.GetWord();
+				this->complaint_counter_litter       = ldr.GetWord();
+				this->complaint_counter_vandalism    = ldr.GetWord();
+				this->time_since_complaint_hunger    = ldr.GetLong();
+				this->time_since_complaint_thirst    = ldr.GetLong();
+				this->time_since_complaint_waste     = ldr.GetLong();
+				this->time_since_complaint_litter    = ldr.GetLong();
+				this->time_since_complaint_vandalism = ldr.GetLong();
+			}
+
 			for (long i = ldr.GetLong(); i > 0; i--) {
 				Guest *g = this->block.Get(ldr.GetWord());
 				g->Load(ldr);
@@ -140,6 +185,18 @@ void Guests::Save(Saver &svr)
 	svr.PutWord(this->daily_frac);
 	svr.PutWord(this->next_daily_index);
 	svr.PutLong(this->free_idx);
+
+	svr.PutWord(this->complaint_counter_hunger);
+	svr.PutWord(this->complaint_counter_thirst);
+	svr.PutWord(this->complaint_counter_waste);
+	svr.PutWord(this->complaint_counter_litter);
+	svr.PutWord(this->complaint_counter_vandalism);
+	svr.PutLong(this->time_since_complaint_hunger);
+	svr.PutLong(this->time_since_complaint_thirst);
+	svr.PutLong(this->time_since_complaint_waste);
+	svr.PutLong(this->time_since_complaint_litter);
+	svr.PutLong(this->time_since_complaint_vandalism);
+
 	svr.PutLong(this->CountActiveGuests());
 	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *g = this->block.Get(i);
@@ -214,6 +271,12 @@ uint Guests::CountGuestsInPark()
  */
 void Guests::OnAnimate(int delay)
 {
+	this->time_since_complaint_hunger    += delay;
+	this->time_since_complaint_thirst    += delay;
+	this->time_since_complaint_waste     += delay;
+	this->time_since_complaint_litter    += delay;
+	this->time_since_complaint_vandalism += delay;
+
 	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *p = this->block.Get(i);
 		if (!p->IsActive()) continue;
@@ -277,6 +340,61 @@ void Guests::NotifyRideDeletion(const RideInstance *ri) {
 		if (!p->IsActive()) continue;
 
 		p->NotifyRideDeletion(ri);
+	}
+}
+
+/** A guest complains that he is hungry and can't buy food. May send a message to the player. */
+void Guests::ComplainHunger()
+{
+	this->complaint_counter_hunger++;
+	if (this->time_since_complaint_hunger > COMPLAINT_TIMEOUT && this->complaint_counter_hunger >= COMPLAINT_THRESHOLD_HUNGER) {
+		this->complaint_counter_hunger = 0;
+		this->time_since_complaint_hunger = 0;
+		_inbox.SendMessage(new Message(GUI_MESSAGE_COMPLAIN_HUNGRY));
+	}
+}
+
+/** A guest complains that he is thirsty and can't buy a drink. May send a message to the player. */
+void Guests::ComplainThirst()
+{
+	this->complaint_counter_thirst++;
+	if (this->time_since_complaint_thirst > COMPLAINT_TIMEOUT && this->complaint_counter_thirst >= COMPLAINT_THRESHOLD_THIRST) {
+		this->complaint_counter_thirst = 0;
+		this->time_since_complaint_thirst = 0;
+		_inbox.SendMessage(new Message(GUI_MESSAGE_COMPLAIN_THIRSTY));
+	}
+}
+
+/** A guest complains that he needs a toilet and can't find one. May send a message to the player. */
+void Guests::ComplainWaste()
+{
+	this->complaint_counter_waste++;
+	if (this->time_since_complaint_waste > COMPLAINT_TIMEOUT && this->complaint_counter_waste >= COMPLAINT_THRESHOLD_WASTE) {
+		this->complaint_counter_waste = 0;
+		this->time_since_complaint_waste = 0;
+		_inbox.SendMessage(new Message(GUI_MESSAGE_COMPLAIN_TOILET));
+	}
+}
+
+/** A guest complains that the paths are very dirty. May send a message to the player. */
+void Guests::ComplainLitter()
+{
+	this->complaint_counter_litter++;
+	if (this->time_since_complaint_litter > COMPLAINT_TIMEOUT && this->complaint_counter_litter >= COMPLAINT_THRESHOLD_LITTER) {
+		this->complaint_counter_litter = 0;
+		this->time_since_complaint_litter = 0;
+		_inbox.SendMessage(new Message(GUI_MESSAGE_COMPLAIN_LITTER));
+	}
+}
+
+/** A guest complains that many path objects are demolished. May send a message to the player. */
+void Guests::ComplainVandalism()
+{
+	this->complaint_counter_vandalism++;
+	if (this->time_since_complaint_vandalism > COMPLAINT_TIMEOUT && this->complaint_counter_vandalism >= COMPLAINT_THRESHOLD_VANDALISM) {
+		this->complaint_counter_vandalism = 0;
+		this->time_since_complaint_vandalism = 0;
+		_inbox.SendMessage(new Message(GUI_MESSAGE_COMPLAIN_VANDALISM));
 	}
 }
 

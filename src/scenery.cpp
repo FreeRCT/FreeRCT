@@ -715,6 +715,24 @@ uint SceneryManager::CountLitterAndVomit(const XYZPoint16 &pos) const
 }
 
 /**
+ * Count the amount of vandalised items on a path.
+ * @return The amount of vandalised items.
+ */
+uint8 SceneryManager::CountDemolishedItems(const XYZPoint16 &pos) const
+{
+	auto it = this->all_path_objects.find(pos);
+	if (it == this->all_path_objects.end()) return 0;
+
+	uint result = 0;
+	for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+		if (it->second->GetExistsOnTileEdge(e) && it->second->GetDemolishedOnTileEdge(e)) {
+			result++;
+		}
+	}
+	return result;
+}
+
+/**
  * Add some litter to a path.
  * @param pos Coordinate of the path.
  * @param offset Offset of the item inside the voxel.

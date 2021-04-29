@@ -100,6 +100,12 @@ public:
 
 	void NotifyRideDeletion(const RideInstance *);
 
+	void ComplainHunger();
+	void ComplainThirst();
+	void ComplainWaste();
+	void ComplainLitter();
+	void ComplainVandalism();
+
 	Point16 start_voxel;  ///< Entry x/y coordinate of the voxel stack at the edge (negative X/Y coordinate means invalid).
 
 private:
@@ -108,6 +114,17 @@ private:
 	Random rnd;           ///< Random number generator for creating new guests.
 	int daily_frac;       ///< Frame counter.
 	int next_daily_index; ///< Index of the next guest to give daily service.
+
+	uint16 complaint_counter_hunger;        ///< Counter for complaints about lack of food.
+	uint16 complaint_counter_thirst;        ///< Counter for complaints about lack of drink.
+	uint16 complaint_counter_waste;         ///< Counter for complaints about lack of toilets.
+	uint16 complaint_counter_litter;        ///< Counter for complaints about dirty paths.
+	uint16 complaint_counter_vandalism;     ///< Counter for complaints about demolished objects.
+	uint32 time_since_complaint_hunger;     ///< Time in milliseconds since the last complaint about .
+	uint32 time_since_complaint_thirst;     ///< Time in milliseconds since the last complaint about .
+	uint32 time_since_complaint_waste;      ///< Time in milliseconds since the last complaint about .
+	uint32 time_since_complaint_litter;     ///< Time in milliseconds since the last complaint about .
+	uint32 time_since_complaint_vandalism;  ///< Time in milliseconds since the last complaint about .
 
 	bool FindNextFreeGuest();
 	bool FindNextFreeGuest() const;

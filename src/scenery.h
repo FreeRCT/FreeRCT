@@ -157,6 +157,8 @@ public:
 		XYZPoint16 offset;        ///< Image offset inside the voxel.
 	};
 	std::vector<PathObjectSprite> GetSprites(uint8 orientation) const;
+	bool GetExistsOnTileEdge(TileEdge e) const;
+	bool GetDemolishedOnTileEdge(TileEdge e) const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
@@ -167,9 +169,7 @@ public:
 	XYZPoint16 pix_pos;  ///< Position of the object inside the voxel (0..255). Only valid for litter and vomit.
 
 private:
-	bool GetExistsOnTileEdge(TileEdge e) const;
 	void SetExistsOnTileEdge(TileEdge e, bool b);
-	bool GetDemolishedOnTileEdge(TileEdge e) const;
 	void SetDemolishedOnTileEdge(TileEdge e, bool d);
 
 	uint32 data[4];      ///< #type-specific instance data for each edge.
@@ -193,10 +193,11 @@ public:
 	void RemoveItem(const XYZPoint16 &pos);
 	SceneryInstance *GetItem(const XYZPoint16 &pos);
 
-	void AddLitter(const XYZPoint16 &pos, const XYZPoint16 &offset);
-	void AddVomit (const XYZPoint16 &pos, const XYZPoint16 &offset);
-	void RemoveLitterAndVomit(const XYZPoint16 &pos);
-	uint CountLitterAndVomit (const XYZPoint16 &pos) const;
+	void  AddLitter(const XYZPoint16 &pos, const XYZPoint16 &offset);
+	void  AddVomit (const XYZPoint16 &pos, const XYZPoint16 &offset);
+	void  RemoveLitterAndVomit(const XYZPoint16 &pos);
+	uint  CountLitterAndVomit (const XYZPoint16 &pos) const;
+	uint8 CountDemolishedItems(const XYZPoint16 &pos) const;
 
 	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation) const;
 

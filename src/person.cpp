@@ -1569,6 +1569,9 @@ AnimateResult Guest::EdgeOfWorldOnAnimate()
 		return OAR_DEACTIVATE;
 	}
 
+	for (uint  i = _scenery.CountLitterAndVomit (this->vox_pos); i > 0; i--) _guests.ComplainLitter   ();
+	for (uint8 i = _scenery.CountDemolishedItems(this->vox_pos); i > 0; i--) _guests.ComplainVandalism();
+
 	return OAR_CONTINUE;
 }
 
@@ -1649,9 +1652,19 @@ bool Guest::DailyUpdate()
 			_scenery.AddLitter(this->vox_pos, this->pix_pos);
 			this->has_wrapper = false;
 		}
-		if (this->hunger_level > 200) happiness_change--;
+		if (this->hunger_level > 200) {
+			happiness_change--;
+			_guests.ComplainHunger();
+		}
+		if (this->thirst_level > 200) {
+			happiness_change--;
+			_guests.ComplainThirst();
+		}
 	}
-	if (this->waste > 170) happiness_change -= 2;
+	if (this->waste > 170) {
+		happiness_change -= 2;
+		_guests.ComplainWaste();
+	}
 
 	if (this->nausea > 110) {
 		happiness_change -= 8;
