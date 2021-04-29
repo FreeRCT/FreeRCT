@@ -1679,7 +1679,7 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 9.
+FreeRCT can read blocks with version 10.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
@@ -1743,8 +1743,19 @@ Offset  Length  Version  Field name          Description
  216       4      9-     message_guest       Inbox: Guest Window button.
  220       4      9-     message_ride        Inbox: Ride Instance Window button.
  224       4      9-     message_ride_type   Inbox: Ride Select GUI button.
- 228       4      2-     texts               Text of the guis (reference to a TEXT block).
- 232                                         Total length.
+ 228       4     10-     toolbar_main        Toolbar: Main menu GUI button.
+ 232       4     10-     toolbar_speed       Toolbar: Speed menu GUI button.
+ 236       4     10-     toolbar_path        Toolbar: Path build GUI button.
+ 240       4     10-     toolbar_ride        Toolbar: Ride Select GUI button.
+ 244       4     10-     toolbar_fence       Toolbar: Fence build GUI button.
+ 248       4     10-     toolbar_scenery     Toolbar: Scenery GUI button.
+ 252       4     10-     toolbar_terrain     Toolbar: Terraform GUI button.
+ 256       4     10-     toolbar_staff       Toolbar: Staff GUI button.
+ 260       4     10-     toolbar_inbox       Toolbar: Inbox GUI button.
+ 264       4     10-     toolbar_finances    Toolbar: Finances GUI button.
+ 268       4     10-     toolbar_objects     Toolbar: Path objects GUI button.
+ 272       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 276                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1759,7 +1770,7 @@ Version history
 - 7 (20131215) Added weather sprites.
 - 8 (20140914) Added thunder storm sprite, and red/orange/green and red/green lights.
 - 9 (20210316) Added message button sprites.
-
+- 10 (20210429) Added toolbar button sprites.
 
 
 Main menu sprites

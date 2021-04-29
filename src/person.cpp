@@ -975,6 +975,7 @@ void Guest::DecideMoveDirection()
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
 	}
 
+	// NOCOM consider throwing litter into a bin
 	// NOCOM consider sitting down on a bench
 
 	/* Find feasible exits and shops. */
@@ -2271,6 +2272,8 @@ void Handyman::DecideMoveDirection()
 			return;
 		}
 	}
+
+	// NOCOM consider emptying a bin
 
 	/* Check if a flowerbed in need of watering is nearby. */
 	std::set<TileEdge> possible_edges;
