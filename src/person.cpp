@@ -1627,7 +1627,7 @@ bool Guest::DailyUpdate()
 	int16 happiness_change = 0;
 	if (!eating) {
 		if (this->has_wrapper && this->rnd.Success1024(25)) {
-			_scenery.AddLitter(this->vox_pos);
+			_scenery.AddLitter(this->vox_pos, this->pix_pos);
 			this->has_wrapper = false;
 		}
 		if (this->hunger_level > 200) happiness_change--;
@@ -2203,6 +2203,7 @@ void Handyman::DecideMoveDirection()
 
 	const bool is_on_path = HasValidPath(_world.GetVoxel(this->vox_pos));
 	if (is_on_path && _scenery.CountLitterAndVomit(this->vox_pos) > 0) {
+		this->SetStatus(GUI_PERSON_STATUS_SWEEPING);
 		this->activity = HandymanActivity::SWEEP;
 		this->StartAnimation(_handyman_sweep[(start_edge + 2) % 4]);
 		return;

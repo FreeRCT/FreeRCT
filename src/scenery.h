@@ -117,8 +117,8 @@ public:
 
 	static const uint8 INVALID_PATH_OBJECT = 0;  ///< ID that denotes an invalid path object.
 
-	static const uint8 BIN_MAX_CAPACITY  = 8;  ///< How much litter fits into the bin.
-	static const uint8 BIN_FULL_CAPACITY = 7;  ///< The bin should be emptied when it contains this much litter.
+	static const uint8  BIN_MAX_CAPACITY  = 8;       ///< How much litter fits into the bin.
+	static const uint8  BIN_FULL_CAPACITY = 7;       ///< The bin should be emptied when it contains this much litter.
 	static const uint16 NO_GUEST_ON_BENCH = 0xFFFF;  ///< Denotes absence of a guest on a bench.
 
 private:
@@ -140,29 +140,40 @@ private:
  * 2 bytes the ID of the guest sitting on the right half of the bench. The ID #PathObjectType::NO_GUEST_ON_BENCH denotes absence of a guest.
  * For litter bins, #data denotes the filling state of the bin in the range (0 .. #PathObjectType::BIN_CAPACITY).
  *
- * Litter and vomit do not use the #data attribute. Their #state attribute denotes their
- * sprite type in range (0 .. #PathDecoration::[flat|ramp]_[litter|vomit]_count).
+ * For litter and vomit, the #state attribute denotes the sprite type in range (0 .. #PathDecoration::[flat|ramp]_[litter|vomit]_count).
  * \c 0xFF denotes that it has not been initialized yet.
+ * The first #data attribute denotes the slope direction in (#EDGE_BEGIN, #EDGE_COUNT-1) or #INVALID_EDGE for flat tiles.
  */
 class PathObjectInstance {
 public:
-	explicit PathObjectInstance(const PathObjectType *t);
+	explicit PathObjectInstance(const PathObjectType *t, const XYZPoint16 &pos, const XYZPoint16 &offset);
 
-	bool GetExistsOnTileEdge(TileEdge e) const;
-	void SetExistsOnTileEdge(TileEdge e, bool b);
-	bool GetDemolishedOnTileEdge(TileEdge e) const;
-	void SetDemolishedOnTileEdge(TileEdge e, bool d);
+	void RecomputeExistenceState();
+	void Demolish(TileEdge e);
 
-	void RecomputeExistenceState(const XYZPoint16 &pos);
+	/** Holds data about a path object to draw. */
+	struct PathObjectSprite {
+		const ImageData *sprite;  ///< Sprite to draw.
+		XYZPoint16 offset;        ///< Image offset inside the voxel.
+	};
+	std::vector<PathObjectSprite> GetSprites(uint8 orientation) const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
 
 	const PathObjectType *type;  ///< Type of item.
 
+	XYZPoint16 vox_pos;  ///< Base position of this item.
+	XYZPoint16 pix_pos;  ///< Position of the object inside the voxel (0..255). Only valid for litter and vomit.
+
 private:
-	uint32 data[4];  ///< #type-specific instance data for each edge.
-	uint8 state;     ///< Presence and demolishing states.
+	bool GetExistsOnTileEdge(TileEdge e) const;
+	void SetExistsOnTileEdge(TileEdge e, bool b);
+	bool GetDemolishedOnTileEdge(TileEdge e) const;
+	void SetDemolishedOnTileEdge(TileEdge e, bool d);
+
+	uint32 data[4];      ///< #type-specific instance data for each edge.
+	uint8 state;         ///< Presence and demolishing states.
 };
 
 /** All the scenery items in the world. */
@@ -182,10 +193,12 @@ public:
 	void RemoveItem(const XYZPoint16 &pos);
 	SceneryInstance *GetItem(const XYZPoint16 &pos);
 
-	void AddLitter(const XYZPoint16 &pos);
-	void AddVomit (const XYZPoint16 &pos);
+	void AddLitter(const XYZPoint16 &pos, const XYZPoint16 &offset);
+	void AddVomit (const XYZPoint16 &pos, const XYZPoint16 &offset);
 	void RemoveLitterAndVomit(const XYZPoint16 &pos);
 	uint CountLitterAndVomit (const XYZPoint16 &pos) const;
+
+	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation) const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
