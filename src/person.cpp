@@ -391,6 +391,14 @@ static const WalkInformation _handyman_water[4][4] = {
 	{{ANIM_HANDYMAN_WATER_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 };
 
+/** Motionless "walks" when a handyman sweeps the paths. */
+static const WalkInformation _handyman_sweep[4][4] = {
+	{{ANIM_HANDYMAN_SWEEP_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_SWEEP_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_SWEEP_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_SWEEP_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
 /** Encodes and decodes walk information for use in savegames. */
 struct WalkEncoder {
 	/**
@@ -414,6 +422,14 @@ struct WalkEncoder {
 			if (wi == _handyman_water[i]) {
 				encoder.SetType(2);
 				encoder.SetSubtype(1);
+				encoder.SetLowerParam(i);
+				return encoder.value;
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			if (wi == _handyman_sweep[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(2);
 				encoder.SetLowerParam(i);
 				return encoder.value;
 			}
@@ -469,6 +485,7 @@ struct WalkEncoder {
 				switch (decoder.GetSubtype()) {
 					case 0: return _mechanic_repair[decoder.GetLowerParam()];
 					case 1: return _handyman_water [decoder.GetLowerParam()];
+					case 2: return _handyman_sweep [decoder.GetLowerParam()];
 					default: NOT_REACHED();
 				}
 			default: NOT_REACHED();
@@ -1578,7 +1595,7 @@ void Guest::ChangeHappiness(int16 amount)
  * Daily ponderings of a guest.
  * @return If \c false, de-activate the guest.
  * @todo Make going home a bit more random.
- * @todo Implement dropping litter (Guest::has_wrapper) to the path, and also drop the wrapper when passing a non-empty litter bin.
+ * @todo Implement dropping litter when passing a non-empty litter bin.
  * @todo Implement nausea (Guest::nausea).
  * @todo Implement energy (for tiredness of guests).
  */
@@ -1609,7 +1626,11 @@ bool Guest::DailyUpdate()
 
 	int16 happiness_change = 0;
 	if (!eating) {
-		if (this->has_wrapper && this->rnd.Success1024(25)) this->has_wrapper = false; // XXX Drop litter.
+		if (this->has_wrapper && this->rnd.Success1024(/*25*/1000)) { // NOCOM
+			_scenery.AddLitter(this->vox_pos);
+			printf("NOCOM %2dx%2dx%2d\n",vox_pos.x,vox_pos.y,vox_pos.z);
+			this->has_wrapper = false;
+		}
 		if (this->hunger_level > 200) happiness_change--;
 	}
 	if (this->waste > 170) happiness_change -= 2;
@@ -2181,6 +2202,13 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
+	const bool is_on_path = HasValidPath(_world.GetVoxel(this->vox_pos));
+	if (is_on_path && _scenery.CountLitterAndVomit(this->vox_pos) > 0) {
+		this->activity = HandymanActivity::SWEEP;
+		this->StartAnimation(_handyman_sweep[(start_edge + 2) % 4]);
+		return;
+	}
+
 	/* Check if a flowerbed in need of watering is nearby. */
 	std::set<TileEdge> possible_edges;
 	uint8 nr_possible_edges = 0;
@@ -2216,7 +2244,7 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	if (HasValidPath(_world.GetVoxel(this->vox_pos))) return StaffMember::DecideMoveDirection();
+	if (is_on_path) return StaffMember::DecideMoveDirection();
 	/* After he finished watering flowers, the handyman needs to find back onto a path before he can start doing other work again. */
 	this->activity = HandymanActivity::LOOKING_FOR_PATH;
 
@@ -2280,6 +2308,10 @@ void Handyman::ActionAnimationCallback()
 			if (item != nullptr) item->time_since_watered = 0;
 			break;
 		}
+
+		case HandymanActivity::SWEEP:
+			_scenery.RemoveLitterAndVomit(this->vox_pos);
+			break;
 
 		default: NOT_REACHED();
 	}

@@ -331,7 +331,6 @@ public:
 
 /**
  * A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths.
- * @todo Implement watering flowerbeds.
  * @todo Litter bins and dirty paths are not implemented yet.
  */
 class Handyman : public StaffMember {
