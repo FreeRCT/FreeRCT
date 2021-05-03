@@ -120,11 +120,11 @@ private:
 	uint16 complaint_counter_waste;         ///< Counter for complaints about lack of toilets.
 	uint16 complaint_counter_litter;        ///< Counter for complaints about dirty paths.
 	uint16 complaint_counter_vandalism;     ///< Counter for complaints about demolished objects.
-	uint32 time_since_complaint_hunger;     ///< Time in milliseconds since the last complaint about .
-	uint32 time_since_complaint_thirst;     ///< Time in milliseconds since the last complaint about .
-	uint32 time_since_complaint_waste;      ///< Time in milliseconds since the last complaint about .
-	uint32 time_since_complaint_litter;     ///< Time in milliseconds since the last complaint about .
-	uint32 time_since_complaint_vandalism;  ///< Time in milliseconds since the last complaint about .
+	uint32 time_since_complaint_hunger;     ///< Time in milliseconds since the last complaint about lack of food.
+	uint32 time_since_complaint_thirst;     ///< Time in milliseconds since the last complaint about lack of drink.
+	uint32 time_since_complaint_waste;      ///< Time in milliseconds since the last complaint about lack of toilets.
+	uint32 time_since_complaint_litter;     ///< Time in milliseconds since the last complaint about dirty paths.
+	uint32 time_since_complaint_vandalism;  ///< Time in milliseconds since the last complaint about demolished objects.
 
 	bool FindNextFreeGuest();
 	bool FindNextFreeGuest() const;

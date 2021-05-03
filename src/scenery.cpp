@@ -32,7 +32,7 @@ const PathObjectType PathObjectType::LITTERBIN(5, false, true,  Money(600), &_sp
  * @param cost Cost to buy this item (\c 0 means the user can't buy it).
  * @param p Previews for the scenery placement window.
  */
-PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost, ImageData *const* p)
+PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost, ImageData const*const* p)
 {
 	this->type_id            = id;
 	this->ignore_edges       = ign;
@@ -85,25 +85,26 @@ void PathObjectInstance::RecomputeExistenceState()
 	assert(path_slope_imploded < PATH_COUNT && path_slope_imploded > PATH_EMPTY);  // Path should be either flat or a ramp.
 	const bool is_ramp = (path_slope_imploded >= PATH_FLAT_COUNT);
 
-	if (this->state == 0xFF && this->type->ignore_edges) {
-		const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
-		uint8 count;
-		if (is_ramp) {
-			this->data[0] = path_slope_imploded - PATH_FLAT_COUNT;
-			count = (this->type == &PathObjectType::LITTER ? pdec.ramp_litter_count : pdec.ramp_vomit_count)[this->data[0]];
-		} else {
-			this->data[0] = INVALID_EDGE;
-			count = (this->type == &PathObjectType::LITTER ? pdec.flat_litter_count : pdec.flat_vomit_count);
-		}
+	if (this->type->ignore_edges) {
+		if (this->state == 0xFF) {
+			const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
+			uint8 count;
+			if (is_ramp) {
+				this->data[0] = path_slope_imploded - PATH_FLAT_COUNT;
+				count = (this->type == &PathObjectType::LITTER ? pdec.ramp_litter_count : pdec.ramp_vomit_count)[this->data[0]];
+			} else {
+				this->data[0] = INVALID_EDGE;
+				count = (this->type == &PathObjectType::LITTER ? pdec.flat_litter_count : pdec.flat_vomit_count);
+			}
 
-		assert(count > 0);
-		if (count > 1) {
-			Random r;
-			this->state = r.Uniform(count - 1);
-		} else {
-			this->state = 0;
+			assert(count > 0);
+			if (count > 1) {
+				Random r;
+				this->state = r.Uniform(count - 1);
+			} else {
+				this->state = 0;
+			}
 		}
-
 		return;
 	}
 
@@ -180,7 +181,7 @@ void PathObjectInstance::Demolish(const TileEdge e)
 			_scenery.AddLitter(this->vox_pos, offset);
 		}
 	} else if (this->type == &PathObjectType::BENCH) {
-		// NOCOM expel the guests from the bench
+		/* \todo Expel the guests from the bench. */
 		this->data[e] = PathObjectType::NO_GUEST_ON_BENCH | (PathObjectType::NO_GUEST_ON_BENCH << 16);
 	}
 }
@@ -312,7 +313,7 @@ void PathObjectInstance::Load(Loader &ldr)
 void PathObjectInstance::Save(Saver &svr) const
 {
 	svr.StartPattern("pobj", CURRENT_VERSION_PathObjectInstance);
-	/* #vox_pos is saved by #SceneryManager::Save. */
+	/* #type and #vox_pos are saved by #SceneryManager::Save. */
 	svr.PutWord(this->pix_pos.x);
 	svr.PutWord(this->pix_pos.y);
 	svr.PutWord(this->pix_pos.z);
@@ -720,10 +721,10 @@ uint SceneryManager::CountLitterAndVomit(const XYZPoint16 &pos) const
  */
 uint8 SceneryManager::CountDemolishedItems(const XYZPoint16 &pos) const
 {
-	auto it = this->all_path_objects.find(pos);
+	const auto it = this->all_path_objects.find(pos);
 	if (it == this->all_path_objects.end()) return 0;
 
-	uint result = 0;
+	uint8 result = 0;
 	for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
 		if (it->second->GetExistsOnTileEdge(e) && it->second->GetDemolishedOnTileEdge(e)) {
 			result++;

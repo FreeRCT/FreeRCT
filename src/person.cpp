@@ -407,6 +407,14 @@ static const WalkInformation _handyman_sweep[4][4] = {
 	{{ANIM_HANDYMAN_SWEEP_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 };
 
+/** Motionless "walks" when a handyman empties a litter bin. */
+static const WalkInformation _handyman_empty[4][4] = {
+	{{ANIM_HANDYMAN_EMPTY_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_EMPTY_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_EMPTY_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_EMPTY_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
 /** Encodes and decodes walk information for use in savegames. */
 struct WalkEncoder {
 	/**
@@ -446,6 +454,14 @@ struct WalkEncoder {
 			if (wi == _guest_bench[i]) {
 				encoder.SetType(2);
 				encoder.SetSubtype(3);
+				encoder.SetLowerParam(i);
+				return encoder.value;
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			if (wi == _handyman_sweep[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(4);
 				encoder.SetLowerParam(i);
 				return encoder.value;
 			}
@@ -503,6 +519,7 @@ struct WalkEncoder {
 					case 1: return _handyman_water [decoder.GetLowerParam()];
 					case 2: return _handyman_sweep [decoder.GetLowerParam()];
 					case 3: return _guest_bench    [decoder.GetLowerParam()];
+					case 4: return _handyman_empty [decoder.GetLowerParam()];
 					default: NOT_REACHED();
 				}
 			default: NOT_REACHED();
@@ -975,8 +992,8 @@ void Guest::DecideMoveDirection()
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
 	}
 
-	// NOCOM consider throwing litter into a bin
-	// NOCOM consider sitting down on a bench
+	/* \todo Consider throwing litter into a bin if the guest has litter and a non-full bin is nearby. */
+	/* \todo Consider sitting down on a bench if the guest is nauseous and a free bench is nearby. */
 
 	/* Find feasible exits and shops. */
 	uint8 exits, shops;
@@ -1619,7 +1636,6 @@ void Guest::ChangeHappiness(int16 amount)
  * @return If \c false, de-activate the guest.
  * @todo Make going home a bit more random.
  * @todo Implement dropping litter when passing a non-empty litter bin.
- * @todo Implement nausea (Guest::nausea).
  * @todo Implement energy (for tiredness of guests).
  */
 bool Guest::DailyUpdate()
@@ -2273,7 +2289,7 @@ void Handyman::DecideMoveDirection()
 		}
 	}
 
-	// NOCOM consider emptying a bin
+	/* \todo Consider emptying a bin if an overflowing one is nearby. */
 
 	/* Check if a flowerbed in need of watering is nearby. */
 	std::set<TileEdge> possible_edges;
@@ -2320,7 +2336,10 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	if (is_on_path) return StaffMember::DecideMoveDirection();
+	if (is_on_path) {
+		this->activity = HandymanActivity::WANDER;
+		return StaffMember::DecideMoveDirection();
+	}
 	/* After he finished watering flowers, the handyman needs to find back onto a path before he can start doing other work again. */
 	this->activity = HandymanActivity::LOOKING_FOR_PATH;
 

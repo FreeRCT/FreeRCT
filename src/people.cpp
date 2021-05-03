@@ -314,6 +314,13 @@ void Guests::DoTick()
  */
 void Guests::OnNewDay()
 {
+	/* Gradually decrease complaint levels to prevent accumulation over very long times. */
+	if (this->complaint_counter_hunger    > 0) this->complaint_counter_hunger    --;
+	if (this->complaint_counter_thirst    > 0) this->complaint_counter_thirst    --;
+	if (this->complaint_counter_waste     > 0) this->complaint_counter_waste     --;
+	if (this->complaint_counter_litter    > 0) this->complaint_counter_litter    --;
+	if (this->complaint_counter_vandalism > 0) this->complaint_counter_vandalism --;
+
 	/* Try adding a new guest to the park. */
 	if (this->CountActiveGuests() >= _scenario.max_guests) return;
 	if (!this->rnd.Success1024(_scenario.GetSpawnProbability(512))) return;

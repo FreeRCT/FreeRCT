@@ -122,7 +122,7 @@ public:
 	static const uint16 NO_GUEST_ON_BENCH = 0xFFFF;  ///< Denotes absence of a guest on a bench.
 
 private:
-	PathObjectType(uint8 id, bool ign, bool slope, const Money &cost, ImageData *const* p);
+	PathObjectType(uint8 id, bool ign, bool slope, const Money &cost, ImageData const*const* p);
 
 	static std::map<uint8, PathObjectType*> all_types;  ///< All path object types with their IDs.
 };
@@ -142,7 +142,7 @@ private:
  *
  * For litter and vomit, the #state attribute denotes the sprite type in range (0 .. #PathDecoration::[flat|ramp]_[litter|vomit]_count).
  * \c 0xFF denotes that it has not been initialized yet.
- * The first #data attribute denotes the slope direction in (#EDGE_BEGIN, #EDGE_COUNT-1) or #INVALID_EDGE for flat tiles.
+ * The first #data attribute denotes the slope direction in (#EDGE_BEGIN, #EDGE_COUNT-1), or #INVALID_EDGE for flat tiles.
  */
 class PathObjectInstance {
 public:
@@ -208,8 +208,9 @@ public:
 
 private:
 	std::unique_ptr<SceneryType> scenery_item_types[MAX_NUMBER_OF_SCENERY_TYPES];     ///< All available scenery types.
-	std::map<XYZPoint16, std::unique_ptr<SceneryInstance>> all_items;                 ///< All scenery items in the world, with their base voxel as key.
-	std::map<XYZPoint16, std::unique_ptr<PathObjectInstance>> all_path_objects;       ///< All user-buyable path objects in the world, with their base voxel as key.
+
+	std::map     <XYZPoint16, std::unique_ptr<SceneryInstance   >> all_items       ;  ///< All scenery items                 in the world, with their base voxel as key.
+	std::map     <XYZPoint16, std::unique_ptr<PathObjectInstance>> all_path_objects;  ///< All     user-buyable path objects in the world, with their base voxel as key.
 	std::multimap<XYZPoint16, std::unique_ptr<PathObjectInstance>> litter_and_vomit;  ///< All non-user-buyable path objects in the world, with their base voxel as key.
 };
 
