@@ -1587,8 +1587,8 @@ AnimateResult Guest::EdgeOfWorldOnAnimate()
 		return OAR_DEACTIVATE;
 	}
 
-	for (uint  i = _scenery.CountLitterAndVomit (this->vox_pos); i > 0; i--) _guests.ComplainLitter   ();
-	for (uint8 i = _scenery.CountDemolishedItems(this->vox_pos); i > 0; i--) _guests.ComplainVandalism();
+	for (uint  i = _scenery.CountLitterAndVomit (this->vox_pos); i > 0; i--) _guests.Complain(Guests::COMPLAINT_LITTER);
+	for (uint8 i = _scenery.CountDemolishedItems(this->vox_pos); i > 0; i--) _guests.Complain(Guests::COMPLAINT_VANDALISM);
 
 	return OAR_CONTINUE;
 }
@@ -1671,16 +1671,16 @@ bool Guest::DailyUpdate()
 		}
 		if (this->hunger_level > 200) {
 			happiness_change--;
-			_guests.ComplainHunger();
+			_guests.Complain(Guests::COMPLAINT_HUNGER);
 		}
 		if (this->thirst_level > 200) {
 			happiness_change--;
-			_guests.ComplainThirst();
+			_guests.Complain(Guests::COMPLAINT_THIRST);
 		}
 	}
 	if (this->waste > 170) {
 		happiness_change -= 2;
-		_guests.ComplainWaste();
+		_guests.Complain(Guests::COMPLAINT_WASTE);
 	}
 
 	if (this->nausea > 110) {
