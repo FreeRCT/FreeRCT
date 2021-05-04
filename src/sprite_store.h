@@ -18,6 +18,7 @@
 #include "language.h"
 #include "track_piece.h"
 #include "weather.h"
+#include "gui_sprites.h"
 #include <map>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
@@ -528,17 +529,7 @@ struct GuiSprites {
 	ImageData *message_ride;                ///< Inbox button ride instance window sprite.
 	ImageData *message_ride_type;           ///< Inbox button ride select gui sprite.
 
-	ImageData *toolbar_main;                ///< Toolbar button main menu gui sprite.
-	ImageData *toolbar_speed;               ///< Toolbar button speed menu gui sprite.
-	ImageData *toolbar_path;                ///< Toolbar button path build gui sprite.
-	ImageData *toolbar_ride;                ///< Toolbar button ride select gui sprite.
-	ImageData *toolbar_fence;               ///< Toolbar button fence build gui sprite.
-	ImageData *toolbar_scenery;             ///< Toolbar button scenery build gui sprite.
-	ImageData *toolbar_terrain;             ///< Toolbar button terraform gui sprite.
-	ImageData *toolbar_staff;               ///< Toolbar button staff gui sprite.
-	ImageData *toolbar_inbox;               ///< Toolbar button inbox gui sprite.
-	ImageData *toolbar_finances;            ///< Toolbar button finances gui sprite.
-	ImageData *toolbar_objects;             ///< Toolbar button path objects gui sprite.
+	ImageData *toolbar_images[SPR_GUI_TOOLBAR_END - SPR_GUI_TOOLBAR_BEGIN];  ///< Toolbar button sprites.
 
 	ImageData *mainmenu_logo;               ///< Main menu: FreeeRCT logo.
 	ImageData *mainmenu_splash;             ///< Main menu: Splash screen.

@@ -24,22 +24,24 @@ enum GuiSpritesTable {
 	SPR_GUI_MESSAGE_RIDE,      ///< Inbox button ride instance window sprite.
 	SPR_GUI_MESSAGE_RIDE_TYPE, ///< Inbox button ride select gui sprite.
 
-	SPR_GUI_TOOLBAR_MAIN,      ///< Toolbar button main menu gui sprite.
-	SPR_GUI_TOOLBAR_SPEED,     ///< Toolbar button speed menu gui sprite.
-	SPR_GUI_TOOLBAR_PATH,      ///< Toolbar button path build gui sprite.
-	SPR_GUI_TOOLBAR_RIDE,      ///< Toolbar button ride select gui sprite.
-	SPR_GUI_TOOLBAR_FENCE,     ///< Toolbar button fence build gui sprite.
-	SPR_GUI_TOOLBAR_SCENERY,   ///< Toolbar button scenery build gui sprite.
-	SPR_GUI_TOOLBAR_TERRAIN,   ///< Toolbar button terraform gui sprite.
-	SPR_GUI_TOOLBAR_STAFF,     ///< Toolbar button staff gui sprite.
-	SPR_GUI_TOOLBAR_INBOX,     ///< Toolbar button inbox gui sprite.
-	SPR_GUI_TOOLBAR_FINANCES,  ///< Toolbar button finances gui sprite.
-	SPR_GUI_TOOLBAR_OBJECTS,   ///< Toolbar button path objects gui sprite.
+	SPR_GUI_TOOLBAR_BEGIN,                         ///< Begin of toolbar sprites.
+	SPR_GUI_TOOLBAR_MAIN = SPR_GUI_TOOLBAR_BEGIN,  ///< Toolbar button main menu gui sprite.
+	SPR_GUI_TOOLBAR_SPEED,                         ///< Toolbar button speed menu gui sprite.
+	SPR_GUI_TOOLBAR_PATH,                          ///< Toolbar button path build gui sprite.
+	SPR_GUI_TOOLBAR_RIDE,                          ///< Toolbar button ride select gui sprite.
+	SPR_GUI_TOOLBAR_FENCE,                         ///< Toolbar button fence build gui sprite.
+	SPR_GUI_TOOLBAR_SCENERY,                       ///< Toolbar button scenery build gui sprite.
+	SPR_GUI_TOOLBAR_TERRAIN,                       ///< Toolbar button terraform gui sprite.
+	SPR_GUI_TOOLBAR_STAFF,                         ///< Toolbar button staff gui sprite.
+	SPR_GUI_TOOLBAR_INBOX,                         ///< Toolbar button inbox gui sprite.
+	SPR_GUI_TOOLBAR_FINANCES,                      ///< Toolbar button finances gui sprite.
+	SPR_GUI_TOOLBAR_OBJECTS,                       ///< Toolbar button path objects gui sprite.
+	SPR_GUI_TOOLBAR_END,                           ///< End of toolbar sprites.
 
-	SPR_GUI_TRIANGLE_LEFT,  ///< Triangular arrow to the left.
-	SPR_GUI_TRIANGLE_RIGHT, ///< Triangular arrow to the right.
-	SPR_GUI_TRIANGLE_UP,    ///< Upward triangular arrow.
-	SPR_GUI_TRIANGLE_DOWN,  ///< Downward triangular arrow.
+	SPR_GUI_TRIANGLE_LEFT = SPR_GUI_TOOLBAR_END,   ///< Triangular arrow to the left.
+	SPR_GUI_TRIANGLE_RIGHT,                        ///< Triangular arrow to the right.
+	SPR_GUI_TRIANGLE_UP,                           ///< Upward triangular arrow.
+	SPR_GUI_TRIANGLE_DOWN,                         ///< Downward triangular arrow.
 
 	SPR_GUI_HAS_PLATFORM, ///< Selection of track pieces with a platform.
 	SPR_GUI_NO_PLATFORM,  ///< Selection of track pieces without a platform.

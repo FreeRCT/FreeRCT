@@ -25,7 +25,6 @@
 #include "shop_type.h"
 #include "gentle_thrill_ride_type.h"
 #include "coaster.h"
-#include "gui_sprites.h"
 #include "scenery.h"
 #include "string_func.h"
 
@@ -1157,7 +1156,7 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	 */
 	if (rcd_file->version != 10 || rcd_file->size !=
 			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 +
-			4 + 4 * 5 + 4 * 11) {
+			4 + 4 * 5 + 4 * lengthof(this->toolbar_images)) {
 		return false;
 	}
 
@@ -1211,17 +1210,7 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride_type)) return false;
 
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_main)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_speed)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_path)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_ride)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_fence)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_scenery)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_terrain)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_staff)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_inbox)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_finances)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->toolbar_objects)) return false;
+	for (ImageData *& t : this->toolbar_images) if (!LoadSpriteFromFile(rcd_file, sprites, &t)) return false;
 
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
 	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
@@ -1297,17 +1286,7 @@ void GuiSprites::Clear()
 	this->message_ride = nullptr;
 	this->message_guest = nullptr;
 	this->message_ride_type = nullptr;
-	this->toolbar_main = nullptr;
-	this->toolbar_speed = nullptr;
-	this->toolbar_path = nullptr;
-	this->toolbar_fence = nullptr;
-	this->toolbar_ride = nullptr;
-	this->toolbar_scenery = nullptr;
-	this->toolbar_inbox = nullptr;
-	this->toolbar_staff = nullptr;
-	this->toolbar_finances = nullptr;
-	this->toolbar_objects = nullptr;
-	this->toolbar_terrain = nullptr;
+	for (ImageData *& t : this->toolbar_images) t = nullptr;
 	for (uint i = 0; i < TC_END; i++) this->compass[i] = nullptr;
 	for (uint i = 0; i < WTP_COUNT; i++) this->weather[i] = nullptr;
 	for (uint i = 0; i < 4; i++) this->lights_rog[i] = nullptr;
@@ -1860,6 +1839,7 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END)   return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
 	if (number >= SPR_GUI_BEND_START   && number < SPR_GUI_BEND_END) return _gui_sprites.bend_select[number - SPR_GUI_BEND_START];
 	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END) return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
+	if (number >= SPR_GUI_TOOLBAR_BEGIN && number < SPR_GUI_TOOLBAR_END) return _gui_sprites.toolbar_images[number - SPR_GUI_TOOLBAR_BEGIN];
 
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
 		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
@@ -1884,17 +1864,6 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_MESSAGE_GUEST:      return _gui_sprites.message_guest;
 		case SPR_GUI_MESSAGE_RIDE:       return _gui_sprites.message_ride;
 		case SPR_GUI_MESSAGE_RIDE_TYPE:  return _gui_sprites.message_ride_type;
-		case SPR_GUI_TOOLBAR_MAIN:      return _gui_sprites.toolbar_main;
-		case SPR_GUI_TOOLBAR_SPEED:     return _gui_sprites.toolbar_speed;
-		case SPR_GUI_TOOLBAR_SCENERY:   return _gui_sprites.toolbar_scenery;
-		case SPR_GUI_TOOLBAR_PATH:      return _gui_sprites.toolbar_path;
-		case SPR_GUI_TOOLBAR_FENCE:     return _gui_sprites.toolbar_fence;
-		case SPR_GUI_TOOLBAR_RIDE:      return _gui_sprites.toolbar_ride;
-		case SPR_GUI_TOOLBAR_TERRAIN:   return _gui_sprites.toolbar_terrain;
-		case SPR_GUI_TOOLBAR_STAFF:     return _gui_sprites.toolbar_staff;
-		case SPR_GUI_TOOLBAR_INBOX:     return _gui_sprites.toolbar_inbox;
-		case SPR_GUI_TOOLBAR_OBJECTS:  return _gui_sprites.toolbar_objects;
-		case SPR_GUI_TOOLBAR_FINANCES:  return _gui_sprites.toolbar_finances;
 		default:                     return nullptr;
 	}
 }
