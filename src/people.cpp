@@ -24,20 +24,22 @@ Guests _guests; ///< %Guests in the world/park.
 Staff _staff;   ///< %Staff in the world/park.
 
 static const uint32 COMPLAINT_TIMEOUT = 8 * 60 * 1000;  ///< Time in milliseconds between two complaint notifications of the same type.
-static const uint16 COMPLAINT_THRESHOLD[Guests::COMPLAINT_COUNT] = {  // Indexed by %Guests::ComplaintType.
+static const uint16 COMPLAINT_THRESHOLD[] = {  // Indexed by %Guests::ComplaintType.
 		80,  ///< After how many hunger    complaints a notification is sent.
 		80,  ///< After how many thirst    complaints a notification is sent.
 		30,  ///< After how many waste     complaints a notification is sent.
 		25,  ///< After how many litter    complaints a notification is sent.
 		15,  ///< After how many vandalism complaints a notification is sent.
 };
-static const StringID COMPLAINT_MESSAGES[Guests::COMPLAINT_COUNT] = {  // Indexed by %Guests::ComplaintType.
+static const StringID COMPLAINT_MESSAGES[] = {  // Indexed by %Guests::ComplaintType.
 		GUI_MESSAGE_COMPLAIN_HUNGRY,     ///< Message for complaints about lack of food.
 		GUI_MESSAGE_COMPLAIN_THIRSTY,    ///< Message for complaints about lack of drink.
 		GUI_MESSAGE_COMPLAIN_TOILET,     ///< Message for complaints about lack of toilets.
 		GUI_MESSAGE_COMPLAIN_LITTER,     ///< Message for complaints about dirty paths.
 		GUI_MESSAGE_COMPLAIN_VANDALISM,  ///< Message for complaints about demolished objects.
 };
+assert_compile(lengthof(COMPLAINT_THRESHOLD) == Guests::COMPLAINT_COUNT);
+assert_compile(lengthof(COMPLAINT_MESSAGES ) == Guests::COMPLAINT_COUNT);
 
 /** Constructor. */
 Guests::Complaint::Complaint()
