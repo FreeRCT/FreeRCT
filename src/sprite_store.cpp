@@ -1864,6 +1864,9 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_MESSAGE_GUEST:      return _gui_sprites.message_guest;
 		case SPR_GUI_MESSAGE_RIDE:       return _gui_sprites.message_ride;
 		case SPR_GUI_MESSAGE_RIDE_TYPE:  return _gui_sprites.message_ride_type;
+		case SPR_GUI_BENCH:              return this->store.path_decoration.bench    [0];
+		case SPR_GUI_BIN:                return this->store.path_decoration.litterbin[0];
+		case SPR_GUI_LAMP:               return this->store.path_decoration.lamp_post[0];
 		default:                     return nullptr;
 	}
 }

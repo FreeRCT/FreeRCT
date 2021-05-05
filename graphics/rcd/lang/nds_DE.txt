@@ -54,6 +54,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_FENCE:        "Schütten in dienem Park bauen";
 		TOOLBAR_GUI_SCENERY:              "Landskupp-Dingen";
 		TOOLBAR_GUI_TOOLTIP_SCENERY:      "Landskupp-Dingen in dienem Park bauen";
+		TOOLBAR_GUI_PATH_OBJECTS:         "Weg-Dingen";
+		TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Dingen langs de Wegen in dienem Park bauen";
 		TOOLBAR_GUI_TERRAFORM:            "Landskupp-Form";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "De Form vun de Landskupp bewarken";
 		TOOLBAR_GUI_FINANCES:             "Geld";
@@ -223,6 +225,12 @@ strings {
 		SCENERY_CATEGORY_TREES:      "Bomen";
 		SCENERY_CATEGORY_FLOWERBEDS: "Blomenbedden";
 		SCENERY_CATEGORY_FOUNTAINS:  "Springbrunnens";
+
+		// Path objects gui strings.
+		PATH_OBJECTS_TITLE: "Weg-Dingen";
+		PATH_OBJECTS_BENCH: "Banken bauen";
+		PATH_OBJECTS_BIN:   "Mülltünnen bauen";
+		PATH_OBJECTS_LAMP:  "Lampen bauen";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Landskupp bewarken";

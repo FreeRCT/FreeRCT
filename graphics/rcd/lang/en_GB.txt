@@ -54,6 +54,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_FENCE:        "Build fences in your park";
 		TOOLBAR_GUI_SCENERY:              "Scenery";
 		TOOLBAR_GUI_TOOLTIP_SCENERY:      "Build scenery items in your park";
+		TOOLBAR_GUI_PATH_OBJECTS:         "Path Objects";
+		TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Build path objects in your parl";
 		TOOLBAR_GUI_TERRAFORM:            "Landscaping";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modify landscape";
 		TOOLBAR_GUI_FINANCES:             "Finances";
@@ -223,6 +225,12 @@ strings {
 		SCENERY_CATEGORY_TREES:      "Trees";
 		SCENERY_CATEGORY_FLOWERBEDS: "Flowerbeds";
 		SCENERY_CATEGORY_FOUNTAINS:  "Fountains";
+
+		// Path objects gui strings.
+		PATH_OBJECTS_TITLE: "Path Objects";
+		PATH_OBJECTS_BENCH: "Place benches";
+		PATH_OBJECTS_BIN:   "Place litter bins";
+		PATH_OBJECTS_LAMP:  "Place lamps";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Modify landscape";

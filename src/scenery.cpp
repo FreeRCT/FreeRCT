@@ -76,13 +76,18 @@ PathObjectInstance::PathObjectInstance(const PathObjectType *t, const XYZPoint16
 	this->RecomputeExistenceState();
 }
 
+PathObjectInstance::~PathObjectInstance()
+{
+	if (_scenery.temp_path_object == this) _scenery.temp_path_object = nullptr;
+}
+
 /** Recompute at which of the path edges this item should exist. */
 void PathObjectInstance::RecomputeExistenceState()
 {
 	const Voxel *voxel = _world.GetVoxel(this->vox_pos);
 	assert(voxel != nullptr && HasValidPath(voxel));
 	const PathSprites path_slope_imploded = GetImplodedPathSlope(voxel);
-	assert(path_slope_imploded < PATH_COUNT && path_slope_imploded > PATH_EMPTY);  // Path should be either flat or a ramp.
+	assert(path_slope_imploded < PATH_COUNT && path_slope_imploded >= PATH_EMPTY);  // Path should be either flat or a ramp.
 	const bool is_ramp = (path_slope_imploded >= PATH_FLAT_COUNT);
 
 	if (this->type->ignore_edges) {
@@ -605,6 +610,7 @@ void SceneryInstance::Save(Saver &svr) const
 SceneryManager::SceneryManager()
 {
 	this->temp_item = nullptr;
+	this->temp_path_object = nullptr;
 }
 
 /**
@@ -668,6 +674,7 @@ std::vector<const SceneryType*> SceneryManager::GetAllTypes(SceneryCategory cat)
 void SceneryManager::Clear()
 {
 	this->temp_item = nullptr;
+	this->temp_path_object = nullptr;
 	while (!this->all_items.empty()) this->RemoveItem(this->all_items.begin()->first);
 	this->all_path_objects.clear();
 	this->litter_and_vomit.clear();
@@ -734,6 +741,16 @@ uint8 SceneryManager::CountDemolishedItems(const XYZPoint16 &pos) const
 }
 
 /**
+ * Build a path object to a path. This replaces any other object previously present there.
+ * @param pos Coordinate of the path.
+ * @param type Object to place.
+ */
+void SceneryManager::SetPathObjectInstance(const XYZPoint16 &pos, const PathObjectType *type)
+{
+	all_path_objects[pos].reset(new PathObjectInstance(type, pos, XYZPoint16(/* Offset is ignored for user-placeable types. */)));
+}
+
+/**
  * Add some litter to a path.
  * @param pos Coordinate of the path.
  * @param offset Offset of the item inside the voxel.
@@ -783,6 +800,12 @@ std::vector<PathObjectInstance::PathObjectSprite> SceneryManager::DrawPathObject
 	auto it = this->all_path_objects.find(pos);
 	if (it != this->all_path_objects.end()) {
 		for (const PathObjectInstance::PathObjectSprite &image : it->second->GetSprites(orientation)) {
+			result.push_back(image);
+		}
+	}
+
+	if (this->temp_path_object != nullptr && this->temp_path_object->vox_pos == pos) {
+		for (const PathObjectInstance::PathObjectSprite &image : this->temp_path_object->GetSprites(orientation)) {
 			result.push_back(image);
 		}
 	}

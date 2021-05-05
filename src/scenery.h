@@ -147,6 +147,7 @@ private:
 class PathObjectInstance {
 public:
 	explicit PathObjectInstance(const PathObjectType *t, const XYZPoint16 &pos, const XYZPoint16 &offset);
+	~PathObjectInstance();
 
 	void RecomputeExistenceState();
 	void Demolish(TileEdge e);
@@ -193,6 +194,7 @@ public:
 	void RemoveItem(const XYZPoint16 &pos);
 	SceneryInstance *GetItem(const XYZPoint16 &pos);
 
+	void  SetPathObjectInstance(const XYZPoint16 &pos, const PathObjectType *type);
 	void  AddLitter(const XYZPoint16 &pos, const XYZPoint16 &offset);
 	void  AddVomit (const XYZPoint16 &pos, const XYZPoint16 &offset);
 	void  RemoveLitterAndVomit(const XYZPoint16 &pos);
@@ -204,7 +206,8 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
 
-	SceneryInstance *temp_item;  ///< An item that is currently being placed (not owned).
+	SceneryInstance    *temp_item;         ///< A scenery item that is currently being placed (not owned).
+	PathObjectInstance *temp_path_object;  ///< A path object type that is currently being placed (not owned).
 
 private:
 	std::unique_ptr<SceneryType> scenery_item_types[MAX_NUMBER_OF_SCENERY_TYPES];     ///< All available scenery types.
