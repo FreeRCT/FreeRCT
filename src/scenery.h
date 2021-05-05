@@ -95,6 +95,87 @@ public:
 	uint32 time_since_watered; ///< Time since the item was last watered, in milliseconds. Only valid if the #type needs watering.
 };
 
+/** A type of path object, e.g. benches, litter. */
+class PathObjectType {
+public:
+	ImageData const*const* previews;  ///< Pointers to the previews for the scenery placement window.
+	Money buy_cost;                   ///< Cost of buying this item (\c 0 indicates it can't be bought).
+	uint8 type_id;                    ///< Unique type ID for saveloading.
+	bool ignore_edges;                ///< This item lives in the middle of a path rather than on the edges.
+	bool can_exist_on_slope;          ///< This item can exist on a sloping path edge (ignored for types that #ignore_edges).
+
+	static const PathObjectType *Get(uint8 id);
+
+	/* User-buyable path object types. */
+	static const PathObjectType BENCH;      ///< A bench on which two people can sit.
+	static const PathObjectType LITTERBIN;  ///< A bin into which guests can throw litter.
+	static const PathObjectType LAMP;       ///< A decorative (but functionless) street lamp.
+
+	/* Non-user-buyable path object types. */
+	static const PathObjectType LITTER;  ///< Litter thrown on the ground by guests.
+	static const PathObjectType VOMIT ;  ///< What guests leave on the ground after visiting nauseating rides.
+
+	static const uint8 INVALID_PATH_OBJECT = 0;  ///< ID that denotes an invalid path object.
+
+	static const uint8  BIN_MAX_CAPACITY  = 8;       ///< How much litter fits into the bin.
+	static const uint8  BIN_FULL_CAPACITY = 7;       ///< The bin should be emptied when it contains this much litter.
+	static const uint16 NO_GUEST_ON_BENCH = 0xFFFF;  ///< Denotes absence of a guest on a bench.
+
+private:
+	PathObjectType(uint8 id, bool ign, bool slope, const Money &cost, ImageData const*const* p);
+
+	static std::map<uint8, PathObjectType*> all_types;  ///< All path object types with their IDs.
+};
+
+/**
+ * An actual path object in the world.
+ *
+ * For items that are placed near path edges (such as benches), an instance of this class corresponds
+ * to the 4 items on the four edges of a voxel. In this case, the #state attribute denotes the visibility
+ * and demolishing state of each of these four items:
+ * The lowest four bits of the #state attribute denote whether the item is visible on the NE,SE,SW,NW edge of the tile respectively.
+ * The upper four bits of the #state attribute denote whether the item on the respective edge is demolished.
+ * Additional #type-specific data is stored in the #data attributes.
+ * For benches, the lower 2 bytes denote the ID of the guest sitting on the left half of the bench and the other
+ * 2 bytes the ID of the guest sitting on the right half of the bench. The ID #PathObjectType::NO_GUEST_ON_BENCH denotes absence of a guest.
+ * For litter bins, #data denotes the filling state of the bin in the range (0 .. #PathObjectType::BIN_CAPACITY).
+ *
+ * For litter and vomit, the #state attribute denotes the sprite type in range (0 .. #PathDecoration::[flat|ramp]_[litter|vomit]_count).
+ * \c 0xFF denotes that it has not been initialized yet.
+ * The first #data attribute denotes the slope direction in (#EDGE_BEGIN, #EDGE_COUNT-1), or #INVALID_EDGE for flat tiles.
+ */
+class PathObjectInstance {
+public:
+	explicit PathObjectInstance(const PathObjectType *t, const XYZPoint16 &pos, const XYZPoint16 &offset);
+
+	void RecomputeExistenceState();
+	void Demolish(TileEdge e);
+
+	/** Holds data about a path object to draw. */
+	struct PathObjectSprite {
+		const ImageData *sprite;  ///< Sprite to draw.
+		XYZPoint16 offset;        ///< Image offset inside the voxel.
+	};
+	std::vector<PathObjectSprite> GetSprites(uint8 orientation) const;
+	bool GetExistsOnTileEdge(TileEdge e) const;
+	bool GetDemolishedOnTileEdge(TileEdge e) const;
+
+	void Load(Loader &ldr);
+	void Save(Saver &svr) const;
+
+	const PathObjectType *type;  ///< Type of item.
+
+	XYZPoint16 vox_pos;  ///< Base position of this item.
+	XYZPoint16 pix_pos;  ///< Position of the object inside the voxel (0..255). Only valid for litter and vomit.
+
+private:
+	void SetExistsOnTileEdge(TileEdge e, bool b);
+	void SetDemolishedOnTileEdge(TileEdge e, bool d);
+
+	uint32 data[4];      ///< #type-specific instance data for each edge.
+	uint8 state;         ///< Presence and demolishing states.
+};
+
 /** All the scenery items in the world. */
 class SceneryManager {
 public:
@@ -112,14 +193,25 @@ public:
 	void RemoveItem(const XYZPoint16 &pos);
 	SceneryInstance *GetItem(const XYZPoint16 &pos);
 
+	void  AddLitter(const XYZPoint16 &pos, const XYZPoint16 &offset);
+	void  AddVomit (const XYZPoint16 &pos, const XYZPoint16 &offset);
+	void  RemoveLitterAndVomit(const XYZPoint16 &pos);
+	uint  CountLitterAndVomit (const XYZPoint16 &pos) const;
+	uint8 CountDemolishedItems(const XYZPoint16 &pos) const;
+
+	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation) const;
+
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
 
 	SceneryInstance *temp_item;  ///< An item that is currently being placed (not owned).
 
 private:
-	std::unique_ptr<SceneryType> scenery_item_types[MAX_NUMBER_OF_SCENERY_TYPES];  ///< All available scenery types.
-	std::map<XYZPoint16, std::unique_ptr<SceneryInstance>> all_items;              ///< All scenery items in the world, with their base voxel as key.
+	std::unique_ptr<SceneryType> scenery_item_types[MAX_NUMBER_OF_SCENERY_TYPES];     ///< All available scenery types.
+
+	std::map     <XYZPoint16, std::unique_ptr<SceneryInstance   >> all_items       ;  ///< All scenery items                 in the world, with their base voxel as key.
+	std::map     <XYZPoint16, std::unique_ptr<PathObjectInstance>> all_path_objects;  ///< All     user-buyable path objects in the world, with their base voxel as key.
+	std::multimap<XYZPoint16, std::unique_ptr<PathObjectInstance>> litter_and_vomit;  ///< All non-user-buyable path objects in the world, with their base voxel as key.
 };
 
 extern SceneryManager _scenery;

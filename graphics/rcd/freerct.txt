@@ -953,6 +953,90 @@ file("freerct.rcd") {
 		}
 	}
 
+	// NE sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_ne;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_ne;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 1 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
+	// SE sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_se;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_se;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 0 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
+	// SW sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_sw;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_sw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 3 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
+	// NW sweeping.
+	ANIM {
+		person_type: handyman;
+		anim_type: handyman_sweep_nw;
+
+		nr_frames: 32;
+		frame_data { duration: 150; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: handyman;
+		anim_type: handyman_sweep_nw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 2 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/handyman/64_sweep.png";
+			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+		}
+	}
+
 	// Mechanic - person type graphics.
 	PRSG {
 		person_graphics {
@@ -1132,10 +1216,6 @@ file("freerct.rcd") {
 	PRSG {
 		person_graphics {
 			person_type: guard;
-			recolour {
-				original: grey;
-				replace: bitset(grey);
-			}
 		}
 	}
 
@@ -1144,16 +1224,19 @@ file("freerct.rcd") {
 		person_type: guard;
 		anim_type: walk_ne;
 
-		frame_data { duration: 40; change_x: -4; change_y: 0; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: -8; change_y: 0; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: guard;
 		anim_type: walk_ne;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 1 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/guard/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -1162,16 +1245,19 @@ file("freerct.rcd") {
 		person_type: guard;
 		anim_type: walk_se;
 
-		frame_data { duration: 40; change_x: 0; change_y: 4; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 0; change_y: 8; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: guard;
 		anim_type: walk_se;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 0 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/guard/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -1180,16 +1266,19 @@ file("freerct.rcd") {
 		person_type: guard;
 		anim_type: walk_sw;
 
-		frame_data { duration: 40; change_x: 4; change_y: 0; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 8; change_y: 0; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: guard;
 		anim_type: walk_sw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 3 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/guard/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -1198,16 +1287,19 @@ file("freerct.rcd") {
 		person_type: guard;
 		anim_type: walk_nw;
 
-		frame_data { duration: 40; change_x: 0; change_y: -4; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 0; change_y: -8; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: guard;
 		anim_type: walk_nw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 2 * 24; x_step: 16; y_step: 24;
+			file: "../sprites/persons/guard/64_walk.png";
+			x_offset: -8; y_offset: -24+4; width: 16; height: 24;
 		}
 	}
 
@@ -1215,10 +1307,6 @@ file("freerct.rcd") {
 	PRSG {
 		person_graphics {
 			person_type: entertainer;
-			recolour {
-				original: grey;
-				replace: bitset(grey);
-			}
 		}
 	}
 
@@ -1227,16 +1315,19 @@ file("freerct.rcd") {
 		person_type: entertainer;
 		anim_type: walk_ne;
 
-		frame_data { duration: 40; change_x: -4; change_y: 0; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: -8; change_y: 0; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: entertainer;
 		anim_type: walk_ne;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 1 * 33; x_step: 22; y_step: 33;
+			file: "../sprites/persons/entertainer/64_walk.png";
+			x_offset: -11; y_offset: -33+3; width: 22; height: 33;
 		}
 	}
 
@@ -1245,16 +1336,19 @@ file("freerct.rcd") {
 		person_type: entertainer;
 		anim_type: walk_se;
 
-		frame_data { duration: 40; change_x: 0; change_y: 4; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 0; change_y: 8; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: entertainer;
 		anim_type: walk_se;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 0 * 33; x_step: 22; y_step: 33;
+			file: "../sprites/persons/entertainer/64_walk.png";
+			x_offset: -11; y_offset: -33+3; width: 22; height: 33;
 		}
 	}
 
@@ -1263,16 +1357,19 @@ file("freerct.rcd") {
 		person_type: entertainer;
 		anim_type: walk_sw;
 
-		frame_data { duration: 40; change_x: 4; change_y: 0; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 8; change_y: 0; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: entertainer;
 		anim_type: walk_sw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 3 * 33; x_step: 22; y_step: 33;
+			file: "../sprites/persons/entertainer/64_walk.png";
+			x_offset: -11; y_offset: -33+3; width: 22; height: 33;
 		}
 	}
 
@@ -1281,16 +1378,19 @@ file("freerct.rcd") {
 		person_type: entertainer;
 		anim_type: walk_nw;
 
-		frame_data { duration: 40; change_x: 0; change_y: -4; }
+		nr_frames: 10;
+		frame_data { duration: 80; change_x: 0; change_y: -8; }
 	}
 	ANSP {
 		tile_width: 64;
 		person_type: entertainer;
 		anim_type: walk_nw;
 
-		sprite {
-			x_base: 0; y_base: 0;  width: 10; height: 27;
-			x_offset: -5; y_offset: -27; file: "../sprites/gui/pillar.png";
+		nr_frames: 10;
+		sheet {
+			x_base: 0; y_base: 2 * 33; x_step: 22; y_step: 33;
+			file: "../sprites/persons/entertainer/64_walk.png";
+			x_offset: -11; y_offset: -33+3; width: 22; height: 33;
 		}
 	}
 

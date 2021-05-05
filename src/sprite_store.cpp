@@ -25,7 +25,6 @@
 #include "shop_type.h"
 #include "gentle_thrill_ride_type.h"
 #include "coaster.h"
-#include "gui_sprites.h"
 #include "scenery.h"
 #include "string_func.h"
 
@@ -788,7 +787,7 @@ bool Animation::Load(RcdFileReader *rcd_file)
 	const uint BASE_LENGTH = 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (rcd_file->version != 3 || length < BASE_LENGTH) return false;
+	if (rcd_file->version != 4 || length < BASE_LENGTH) return false;
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
 	if (this->person_type == PERSON_INVALID) return false;
 
@@ -843,7 +842,7 @@ bool AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (rcd_file->version != 2 || length < BASE_LENGTH) return false;
+	if (rcd_file->version != 3 || length < BASE_LENGTH) return false;
 	this->width = rcd_file->GetUInt16();
 
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
@@ -1155,7 +1154,11 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->version != 9 || rcd_file->size != (lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 + 4 + 4 * 5) return false;
+	if (rcd_file->version != 10 || rcd_file->size !=
+			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 +
+			4 + 4 * 5 + 4 * lengthof(this->toolbar_images)) {
+		return false;
+	}
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
@@ -1206,6 +1209,8 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_guest)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride_type)) return false;
+
+	for (ImageData *& t : this->toolbar_images) if (!LoadSpriteFromFile(rcd_file, sprites, &t)) return false;
 
 	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
 	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
@@ -1281,6 +1286,7 @@ void GuiSprites::Clear()
 	this->message_ride = nullptr;
 	this->message_guest = nullptr;
 	this->message_ride_type = nullptr;
+	for (ImageData *& t : this->toolbar_images) t = nullptr;
 	for (uint i = 0; i < TC_END; i++) this->compass[i] = nullptr;
 	for (uint i = 0; i < WTP_COUNT; i++) this->weather[i] = nullptr;
 	for (uint i = 0; i < 4; i++) this->lights_rog[i] = nullptr;
@@ -1833,6 +1839,7 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number >= SPR_GUI_SLOPES_START && number < SPR_GUI_SLOPES_END)   return _gui_sprites.slope_select[number - SPR_GUI_SLOPES_START];
 	if (number >= SPR_GUI_BEND_START   && number < SPR_GUI_BEND_END) return _gui_sprites.bend_select[number - SPR_GUI_BEND_START];
 	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END) return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
+	if (number >= SPR_GUI_TOOLBAR_BEGIN && number < SPR_GUI_TOOLBAR_END) return _gui_sprites.toolbar_images[number - SPR_GUI_TOOLBAR_BEGIN];
 
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
 		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);

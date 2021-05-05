@@ -375,6 +375,14 @@ static const WalkInformation *_center_path_tile[4][4] = {
 	{_center_nw_ne, _center_nw_se, _center_nw_sw, _center_nw_nw},
 };
 
+/** Motionless "walks" when a guest sits on a bench. */
+static const WalkInformation _guest_bench[4][4] = {
+	{{ANIM_GUEST_BENCH_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_GUEST_BENCH_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_GUEST_BENCH_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_GUEST_BENCH_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
 /** Motionless "walks" when a mechanic repairs a ride. */
 static const WalkInformation _mechanic_repair[4][4] = {
 	{{ANIM_MECHANIC_REPAIR_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
@@ -389,6 +397,22 @@ static const WalkInformation _handyman_water[4][4] = {
 	{{ANIM_HANDYMAN_WATER_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 	{{ANIM_HANDYMAN_WATER_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 	{{ANIM_HANDYMAN_WATER_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
+/** Motionless "walks" when a handyman sweeps the paths. */
+static const WalkInformation _handyman_sweep[4][4] = {
+	{{ANIM_HANDYMAN_SWEEP_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_SWEEP_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_SWEEP_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_SWEEP_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+};
+
+/** Motionless "walks" when a handyman empties a litter bin. */
+static const WalkInformation _handyman_empty[4][4] = {
+	{{ANIM_HANDYMAN_EMPTY_NE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_EMPTY_SE, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_EMPTY_SW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
+	{{ANIM_HANDYMAN_EMPTY_NW, WLM_INVALID}, {ANIM_INVALID, WLM_INVALID}},
 };
 
 /** Encodes and decodes walk information for use in savegames. */
@@ -414,6 +438,30 @@ struct WalkEncoder {
 			if (wi == _handyman_water[i]) {
 				encoder.SetType(2);
 				encoder.SetSubtype(1);
+				encoder.SetLowerParam(i);
+				return encoder.value;
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			if (wi == _handyman_sweep[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(2);
+				encoder.SetLowerParam(i);
+				return encoder.value;
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			if (wi == _guest_bench[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(3);
+				encoder.SetLowerParam(i);
+				return encoder.value;
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			if (wi == _handyman_sweep[i]) {
+				encoder.SetType(2);
+				encoder.SetSubtype(4);
 				encoder.SetLowerParam(i);
 				return encoder.value;
 			}
@@ -469,6 +517,9 @@ struct WalkEncoder {
 				switch (decoder.GetSubtype()) {
 					case 0: return _mechanic_repair[decoder.GetLowerParam()];
 					case 1: return _handyman_water [decoder.GetLowerParam()];
+					case 2: return _handyman_sweep [decoder.GetLowerParam()];
+					case 3: return _guest_bench    [decoder.GetLowerParam()];
+					case 4: return _handyman_empty [decoder.GetLowerParam()];
 					default: NOT_REACHED();
 				}
 			default: NOT_REACHED();
@@ -940,6 +991,9 @@ void Guest::DecideMoveDirection()
 		this->activity = GA_WANDER;
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
 	}
+
+	/* \todo Consider throwing litter into a bin if the guest has litter and a non-full bin is nearby. */
+	/* \todo Consider sitting down on a bench if the guest is nauseous and a free bench is nearby. */
 
 	/* Find feasible exits and shops. */
 	uint8 exits, shops;
@@ -1533,6 +1587,9 @@ AnimateResult Guest::EdgeOfWorldOnAnimate()
 		return OAR_DEACTIVATE;
 	}
 
+	for (uint  i = _scenery.CountLitterAndVomit (this->vox_pos); i > 0; i--) _guests.Complain(Guests::COMPLAINT_LITTER);
+	for (uint8 i = _scenery.CountDemolishedItems(this->vox_pos); i > 0; i--) _guests.Complain(Guests::COMPLAINT_VANDALISM);
+
 	return OAR_CONTINUE;
 }
 
@@ -1578,8 +1635,7 @@ void Guest::ChangeHappiness(int16 amount)
  * Daily ponderings of a guest.
  * @return If \c false, de-activate the guest.
  * @todo Make going home a bit more random.
- * @todo Implement dropping litter (Guest::has_wrapper) to the path, and also drop the wrapper when passing a non-empty litter bin.
- * @todo Implement nausea (Guest::nausea).
+ * @todo Implement dropping litter when passing a non-empty litter bin.
  * @todo Implement energy (for tiredness of guests).
  */
 bool Guest::DailyUpdate()
@@ -1609,10 +1665,42 @@ bool Guest::DailyUpdate()
 
 	int16 happiness_change = 0;
 	if (!eating) {
-		if (this->has_wrapper && this->rnd.Success1024(25)) this->has_wrapper = false; // XXX Drop litter.
-		if (this->hunger_level > 200) happiness_change--;
+		if (this->has_wrapper && this->activity != GA_ON_RIDE && this->rnd.Success1024(25)) {
+			_scenery.AddLitter(this->vox_pos, this->pix_pos);
+			this->has_wrapper = false;
+		}
+		if (this->hunger_level > 200) {
+			happiness_change--;
+			_guests.Complain(Guests::COMPLAINT_HUNGER);
+		}
+		if (this->thirst_level > 200) {
+			happiness_change--;
+			_guests.Complain(Guests::COMPLAINT_THIRST);
+		}
 	}
-	if (this->waste > 170) happiness_change -= 2;
+	if (this->waste > 170) {
+		happiness_change -= 2;
+		_guests.Complain(Guests::COMPLAINT_WASTE);
+	}
+
+	if (this->nausea > 110) {
+		happiness_change -= 8;
+		if (this->activity != GA_ON_RIDE && this->rnd.Success1024(4 * this->nausea)) {
+			_scenery.AddVomit(this->vox_pos, this->pix_pos);
+			this->nausea /= 2;
+			this->stomach_level /= 2;
+			happiness_change -= 20;
+		}
+	}
+
+	if (this->activity == GA_ON_RIDE) {
+		assert(this->ride != nullptr);
+		happiness_change += this->rnd.Uniform(this->ride->excitement_rating) / 100;
+		this->nausea = std::min(255, this->rnd.Uniform(this->ride->nausea_rating * this->ride->intensity_rating) / 10000 + this->nausea);
+	} else if (this->activity == GA_RESTING) {
+		happiness_change += 2;
+		if (this->nausea > 20) this->nausea -= 3;
+	}
 
 	switch (_weather.GetWeatherType()) {
 		case WTP_SUNNY:
@@ -2181,6 +2269,28 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
+	const Voxel *vx = _world.GetVoxel(this->vox_pos);
+	const bool is_on_path = HasValidPath(vx);
+	if (is_on_path && _scenery.CountLitterAndVomit(this->vox_pos) > 0) {
+		bool found_other_handyman = false;
+		for (VoxelObject *o = vx->voxel_objects; o != nullptr; o = o->next_object) {
+			if (Handyman *h = dynamic_cast<Handyman*>(o)) {
+				if (h->activity == HandymanActivity::SWEEP) {
+					found_other_handyman = true;
+					break;
+				}
+			}
+		}
+		if (!found_other_handyman) {
+			this->SetStatus(GUI_PERSON_STATUS_SWEEPING);
+			this->activity = HandymanActivity::SWEEP;
+			this->StartAnimation(_handyman_sweep[(start_edge + 2) % 4]);
+			return;
+		}
+	}
+
+	/* \todo Consider emptying a bin if an overflowing one is nearby. */
+
 	/* Check if a flowerbed in need of watering is nearby. */
 	std::set<TileEdge> possible_edges;
 	uint8 nr_possible_edges = 0;
@@ -2201,9 +2311,19 @@ void Handyman::DecideMoveDirection()
 
 		SceneryInstance *item = _scenery.GetItem(pos);
 		if (item->ShouldBeWatered()) {
-			/* \todo Ignore items that another handyman is already watering. */
-			possible_edges.insert(edge);
-			nr_possible_edges++;
+			bool found_other_handyman = false;
+			for (VoxelObject *o = voxel->voxel_objects; o != nullptr; o = o->next_object) {
+				if (Handyman *h = dynamic_cast<Handyman*>(o)) {
+					if (h->activity == HandymanActivity::WATER) {
+						found_other_handyman = true;
+						break;
+					}
+				}
+			}
+			if (!found_other_handyman) {
+				possible_edges.insert(edge);
+				nr_possible_edges++;
+			}
 		}
 	}
 	if (nr_possible_edges > 0) {
@@ -2216,7 +2336,10 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	if (HasValidPath(_world.GetVoxel(this->vox_pos))) return StaffMember::DecideMoveDirection();
+	if (is_on_path) {
+		this->activity = HandymanActivity::WANDER;
+		return StaffMember::DecideMoveDirection();
+	}
 	/* After he finished watering flowers, the handyman needs to find back onto a path before he can start doing other work again. */
 	this->activity = HandymanActivity::LOOKING_FOR_PATH;
 
@@ -2280,6 +2403,10 @@ void Handyman::ActionAnimationCallback()
 			if (item != nullptr) item->time_since_watered = 0;
 			break;
 		}
+
+		case HandymanActivity::SWEEP:
+			_scenery.RemoveLitterAndVomit(this->vox_pos);
+			break;
 
 		default: NOT_REACHED();
 	}

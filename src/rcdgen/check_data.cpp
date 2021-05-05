@@ -1249,6 +1249,10 @@ static const Symbol _anim_symbols[] = {
 	{"handyman_empty_se" , 18}, // Handyman emptying a bin, SE view.
 	{"handyman_empty_sw" , 19}, // Handyman emptying a bin, SW view.
 	{"handyman_empty_nw" , 20}, // Handyman emptying a bin, NW view.
+	{"guest_bench_ne"    , 21}, // Guest sitting on a bench, NE view.
+	{"guest_bench_se"    , 22}, // Guest sitting on a bench, SE view.
+	{"guest_bench_sw"    , 23}, // Guest sitting on a bench, SW view.
+	{"guest_bench_nw"    , 24}, // Guest sitting on a bench, NW view.
 	{nullptr, 0}
 };
 
@@ -2289,6 +2293,18 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->message_guest = vals.GetSprite("message_guest");
 	gb->message_ride = vals.GetSprite("message_ride");
 	gb->message_ride_type = vals.GetSprite("message_ride_type");
+
+	gb->toolbar_main = vals.GetSprite("toolbar_main");
+	gb->toolbar_speed = vals.GetSprite("toolbar_speed");
+	gb->toolbar_path = vals.GetSprite("toolbar_path");
+	gb->toolbar_ride = vals.GetSprite("toolbar_ride");
+	gb->toolbar_fence = vals.GetSprite("toolbar_fence");
+	gb->toolbar_scenery = vals.GetSprite("toolbar_scenery");
+	gb->toolbar_terrain = vals.GetSprite("toolbar_terrain");
+	gb->toolbar_staff = vals.GetSprite("toolbar_staff");
+	gb->toolbar_inbox = vals.GetSprite("toolbar_inbox");
+	gb->toolbar_finances = vals.GetSprite("toolbar_finances");
+	gb->toolbar_objects = vals.GetSprite("toolbar_objects");
 
 	LoadNamedSprites(weather_names, lengthof(gb->weather), vals, gb->weather);
 	LoadNamedSprites(light_rog_names, lengthof(gb->rog_lights), vals, gb->rog_lights);

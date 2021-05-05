@@ -103,6 +103,7 @@ strings {
 		GUEST_INFO_HUNGER:      "Hunger";
 		GUEST_INFO_THIRST:      "Dörst";
 		GUEST_INFO_WASTE:       "Maal mutten";
+		GUEST_INFO_NAUSEA:      "Övelheid";
 		GUEST_INFO_ITEMS:       "Hollt Dingen";
 
 		// Items for guests gui strings.
@@ -266,6 +267,7 @@ strings {
 		MESSAGE_COMPLAIN_THIRSTY: "Mennig Gasten hebben Dörst un weten nich, waar se wat to drinken kopen könen.";
 		MESSAGE_COMPLAIN_TOILET:  "Mennig Gasten bruken een Klo un weten nich, waar se eens finnen könen.";
 		MESSAGE_COMPLAIN_LITTER:  "De Gasten sünd vergrellt um de dreckigen Wegen im Park.";
+		MESSAGE_COMPLAIN_VANDALISM: "De Gasten sünd vergrellt um de mennig kaputtslagen Dingen im Park.";
 		MESSAGE_CHEAP_FEE:        "De Gasten finnen, dat de Park-Intree temelk billig is.";
 		MESSAGE_AWARD_WON:        "De Park hett eenen Pries wunnen: %1%";
 		MESSAGE_NEGATIVE_AWARD:   "De Park hett eenen Malus-Pries kregen: %1%";

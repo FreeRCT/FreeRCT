@@ -18,6 +18,7 @@
 #include "language.h"
 #include "track_piece.h"
 #include "weather.h"
+#include "gui_sprites.h"
 #include <map>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
@@ -254,6 +255,11 @@ enum AnimationType {
 	ANIM_HANDYMAN_EMPTY_SE  = 18,  ///< Animation when a handyman empties a bin, SE view.
 	ANIM_HANDYMAN_EMPTY_SW  = 19,  ///< Animation when a handyman empties a bin, SW view.
 	ANIM_HANDYMAN_EMPTY_NW  = 20,  ///< Animation when a handyman empties a bin, NW view.
+
+	ANIM_GUEST_BENCH_NE     = 21,  ///< Animation when a guest sits on a bench, NE view.
+	ANIM_GUEST_BENCH_SE     = 22,  ///< Animation when a guest sits on a bench, SE view.
+	ANIM_GUEST_BENCH_SW     = 23,  ///< Animation when a guest sits on a bench, SW view.
+	ANIM_GUEST_BENCH_NW     = 24,  ///< Animation when a guest sits on a bench, NW view.
 
 	ANIM_BEGIN = ANIM_WALK_NE,            ///< First animation.
 	ANIM_LAST  = ANIM_HANDYMAN_EMPTY_NW,  ///< Last animation.
@@ -516,11 +522,15 @@ struct GuiSprites {
 	ImageData *weather[WTP_COUNT];          ///< Weather sprites.
 	ImageData *lights_rog[4];               ///< Red/orange/green light. @see LightRedOrangeGreen
 	ImageData *lights_rg[3];                ///< Red/green light. @see LightRedGreen
+
 	ImageData *message_goto;                ///< Inbox button go to location sprite.
 	ImageData *message_park;                ///< Inbox button park management sprite.
 	ImageData *message_guest;               ///< Inbox button guest window sprite.
 	ImageData *message_ride;                ///< Inbox button ride instance window sprite.
 	ImageData *message_ride_type;           ///< Inbox button ride select gui sprite.
+
+	ImageData *toolbar_images[SPR_GUI_TOOLBAR_END - SPR_GUI_TOOLBAR_BEGIN];  ///< Toolbar button sprites.
+
 	ImageData *mainmenu_logo;               ///< Main menu: FreeeRCT logo.
 	ImageData *mainmenu_splash;             ///< Main menu: Splash screen.
 	ImageData *mainmenu_new;                ///< Main menu: New Game button.

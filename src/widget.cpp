@@ -426,6 +426,16 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			return;
 		}
 
+		case WT_IMAGE_DROPDOWN_BUTTON: {
+			const Rectangle16 rect1 = _sprite_manager.GetTableSpriteSize(this->value);
+			const Rectangle16 rect2 = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
+			this->value_width  = std::max(rect1.width,  rect2.width );
+			this->value_height = std::max(rect1.height, rect2.height);
+			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
+			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
+			return;
+		}
+
 		case WT_DROPDOWN_BUTTON: {
 			const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
 			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
@@ -481,6 +491,7 @@ void DataWidget::Draw(const GuiWindow *w)
 		case WT_TEXT_PUSHBUTTON:
 		case WT_IMAGE_PUSHBUTTON:
 		case WT_DROPDOWN_BUTTON:
+		case WT_IMAGE_DROPDOWN_BUTTON:
 			bsd = &_gui_sprites.button;
 			pressed = this->IsPressed() ? 1 : 0;
 			break;
@@ -531,6 +542,22 @@ void DataWidget::Draw(const GuiWindow *w)
 			yoffset -= rect.base.y;
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
 			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata, rc, GS_NORMAL);
+			break;
+		}
+
+		case WT_IMAGE_DROPDOWN_BUTTON: {
+			const Rectangle16 rect = _sprite_manager.GetTableSpriteSize(this->value);
+			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
+			yoffset -= rect.base.y;
+			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
+			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata, rc, GS_NORMAL);
+
+			const Rectangle16 imgrect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
+			imgdata = _sprite_manager.GetTableSprite(SPR_GUI_TRIANGLE_DOWN);
+			if (imgdata != nullptr) {
+				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
+				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata, rc, GS_NORMAL);
+			}
 			break;
 		}
 
@@ -1596,6 +1623,7 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 					case WT_TEXT_PUSHBUTTON:
 					case WT_IMAGE_PUSHBUTTON:
 					case WT_DROPDOWN_BUTTON:
+					case WT_IMAGE_DROPDOWN_BUTTON:
 					case WT_TITLEBAR:
 					case WT_LEFT_TEXT:
 					case WT_CENTERED_TEXT:

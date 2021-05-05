@@ -111,6 +111,7 @@ static const char *_gui_string_names[] = {
 	"GUEST_INFO_HUNGER",
 	"GUEST_INFO_THIRST",
 	"GUEST_INFO_WASTE",
+	"GUEST_INFO_NAUSEA",
 	"GUEST_INFO_ITEMS",
 
 	"ITEM_NONE",
@@ -277,6 +278,7 @@ static const char *_gui_string_names[] = {
 	"MESSAGE_CHEAP_FEE",         ///< The entrance fee is very cheap.
 	"MESSAGE_AWARD_WON",         ///< The park has won an award.
 	"MESSAGE_NEGATIVE_AWARD",    ///< The park has received a negative award.
+	"MESSAGE_COMPLAIN_VANDALISM",  ///< Lots of park objects are demolished.
 
 	/* Coaster construction window. */
 	"COASTER_BUILD_LEFT_BEND_TOOLTIP",

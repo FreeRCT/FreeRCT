@@ -1,5 +1,5 @@
 :Author: Alberth
-:Version: 2021-04-27
+:Version: 2021-05-03
 
 .. contents::
    :depth: 3
@@ -1679,7 +1679,7 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 9.
+FreeRCT can read blocks with version 10.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
@@ -1743,8 +1743,19 @@ Offset  Length  Version  Field name          Description
  216       4      9-     message_guest       Inbox: Guest Window button.
  220       4      9-     message_ride        Inbox: Ride Instance Window button.
  224       4      9-     message_ride_type   Inbox: Ride Select GUI button.
- 228       4      2-     texts               Text of the guis (reference to a TEXT block).
- 232                                         Total length.
+ 228       4     10-     toolbar_main        Toolbar: Main menu GUI button.
+ 232       4     10-     toolbar_speed       Toolbar: Speed menu GUI button.
+ 236       4     10-     toolbar_path        Toolbar: Path build GUI button.
+ 240       4     10-     toolbar_ride        Toolbar: Ride Select GUI button.
+ 244       4     10-     toolbar_fence       Toolbar: Fence build GUI button.
+ 248       4     10-     toolbar_scenery     Toolbar: Scenery GUI button.
+ 252       4     10-     toolbar_terrain     Toolbar: Terraform GUI button.
+ 256       4     10-     toolbar_staff       Toolbar: Staff GUI button.
+ 260       4     10-     toolbar_inbox       Toolbar: Inbox GUI button.
+ 264       4     10-     toolbar_finances    Toolbar: Finances GUI button.
+ 268       4     10-     toolbar_objects     Toolbar: Path objects GUI button.
+ 272       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 276                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1759,7 +1770,7 @@ Version history
 - 7 (20131215) Added weather sprites.
 - 8 (20140914) Added thunder storm sprite, and red/orange/green and red/green lights.
 - 9 (20210316) Added message button sprites.
-
+- 10 (20210429) Added toolbar button sprites.
 
 
 Main menu sprites
@@ -1873,7 +1884,7 @@ Animation sequences
 ~~~~~~~~~~~~~~~~~~~
 
 Animation sequences (without the sprites) are defined using the 'ANIM' block.
-FreeRCT can read blocks with version 3.
+FreeRCT can read blocks with version 4.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -1892,30 +1903,34 @@ Offset  Length  Description
 The animation type defines what the animation really shows. Currently, the
 following animations exist:
 
-==  =====================  ======================================================  =============
-ID  Version                Description                                             May be looped
-==  =====================  ======================================================  =============
- 1  1-                     Walk in north-east direction.                               yes
- 2  1-                     Walk in south-east direction.                               yes
- 3  1-                     Walk in south-west direction.                               yes
- 4  1-                     Walk in north-west direction.                               yes
- 5  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        north-east view.           no
- 6  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        south-east view.           no
- 7  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        south-west view.           no
- 8  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        north-west view.           no
- 9  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, north-east view.           no
-10  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, south-east view.           no
-11  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, south-west view.           no
-12  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, north-west view.           no
-13  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         north-east view.           no
-14  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         south-east view.           no
-15  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         south-west view.           no
-16  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         north-west view.           no
-17  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          north-east view.           no
-18  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          south-east view.           no
-19  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          south-west view.           no
-20  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          north-west view.           no
-==  =====================  ======================================================  =============
+==  =====================  ======================================================  =============  ============  ============
+ID  Version                Description                                             May be looped  ANIM Version  ANSP Version
+==  =====================  ======================================================  =============  ============  ============
+ 1  1-                     Walk in north-east direction.                               yes             1-            1-
+ 2  1-                     Walk in south-east direction.                               yes             1-            1-
+ 3  1-                     Walk in south-west direction.                               yes             1-            1-
+ 4  1-                     Walk in north-west direction.                               yes             1-            1-
+ 5  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        north-east view.           no             3-            2-
+ 6  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        south-east view.           no             3-            2-
+ 7  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        south-west view.           no             3-            2-
+ 8  3- (ANIM) / 2- (ANSP)  Mechanic repairing a ride,        north-west view.           no             3-            2-
+ 9  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, north-east view.           no             3-            2-
+10  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, south-east view.           no             3-            2-
+11  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, south-west view.           no             3-            2-
+12  3- (ANIM) / 2- (ANSP)  Handyman watering the flowerbeds, north-west view.           no             3-            2-
+13  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         north-east view.           no             3-            2-
+14  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         south-east view.           no             3-            2-
+15  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         south-west view.           no             3-            2-
+16  3- (ANIM) / 2- (ANSP)  Handyman sweeping a path,         north-west view.           no             3-            2-
+17  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          north-east view.           no             3-            2-
+18  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          south-east view.           no             3-            2-
+19  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          south-west view.           no             3-            2-
+20  3- (ANIM) / 2- (ANSP)  Handyman emptying a bin,          north-west view.           no             3-            2-
+21  3- (ANIM) / 2- (ANSP)  Guest sitting on a bench,         north-east view.           no             4-            3-
+22  3- (ANIM) / 2- (ANSP)  Guest sitting on a bench,         south-east view.           no             4-            3-
+23  3- (ANIM) / 2- (ANSP)  Guest sitting on a bench,         south-west view.           no             4-            3-
+24  3- (ANIM) / 2- (ANSP)  Guest sitting on a bench,         north-west view.           no             4-            3-
+==  =====================  ======================================================  =============  ============  ============
 
 Finally the actual frames of the animation are listed, prefixed by how
 many frames to expect. The animation type decides whether or not an animation
@@ -1946,10 +1961,11 @@ Version history
 - 2 (20120527) Removed tile width from 'ANIM' and sprite and frame number from the frame data.
   The sprite moved to the 'ANSP' block.
 - 3 (20210425) Added more animation types.
+- 4 (20210429) Added more animation types.
 
 Animation sprites
 ~~~~~~~~~~~~~~~~~
-FreeRCT can read blocks with version 2.
+FreeRCT can read blocks with version 3.
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -1971,6 +1987,7 @@ Version history
 
 - 1 (20120527) Initial version.
 - 2 (20210425) Added more animation types.
+- 3 (20210429) Added more animation types.
 
 
 Obsolete blocks

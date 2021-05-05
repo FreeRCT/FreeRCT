@@ -12,6 +12,7 @@
 #include "dates.h"
 #include "math_func.h"
 #include "geometry.h"
+#include "messages.h"
 #include "person_type.h"
 #include "ride_type.h"
 #include "person.h"
@@ -21,6 +22,31 @@
 
 Guests _guests; ///< %Guests in the world/park.
 Staff _staff;   ///< %Staff in the world/park.
+
+static const uint32 COMPLAINT_TIMEOUT = 8 * 60 * 1000;  ///< Time in milliseconds between two complaint notifications of the same type.
+static const uint16 COMPLAINT_THRESHOLD[] = {  // Indexed by %Guests::ComplaintType.
+		80,  ///< After how many hunger    complaints a notification is sent.
+		80,  ///< After how many thirst    complaints a notification is sent.
+		30,  ///< After how many waste     complaints a notification is sent.
+		25,  ///< After how many litter    complaints a notification is sent.
+		15,  ///< After how many vandalism complaints a notification is sent.
+};
+static const StringID COMPLAINT_MESSAGES[] = {  // Indexed by %Guests::ComplaintType.
+		GUI_MESSAGE_COMPLAIN_HUNGRY,     ///< Message for complaints about lack of food.
+		GUI_MESSAGE_COMPLAIN_THIRSTY,    ///< Message for complaints about lack of drink.
+		GUI_MESSAGE_COMPLAIN_TOILET,     ///< Message for complaints about lack of toilets.
+		GUI_MESSAGE_COMPLAIN_LITTER,     ///< Message for complaints about dirty paths.
+		GUI_MESSAGE_COMPLAIN_VANDALISM,  ///< Message for complaints about demolished objects.
+};
+assert_compile(lengthof(COMPLAINT_THRESHOLD) == Guests::COMPLAINT_COUNT);
+assert_compile(lengthof(COMPLAINT_MESSAGES ) == Guests::COMPLAINT_COUNT);
+
+/** Constructor. */
+Guests::Complaint::Complaint()
+{
+	this->counter = 0;
+	this->time_since_message = COMPLAINT_TIMEOUT;
+}
 
 /**
  * Guest block constructor. Fills the id of the persons with an incrementing number.
@@ -75,6 +101,8 @@ Guests::Guests() : block(0), rnd()
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
 	this->next_daily_index = 0;
+
+	for (Complaint &c : this->complaints) c = Complaint();
 }
 
 Guests::~Guests()
@@ -95,9 +123,11 @@ void Guests::Uninitialize()
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
 	this->next_daily_index = 0;
+
+	for (Complaint &c : this->complaints) c = Complaint();
 }
 
-static const uint32 CURRENT_VERSION_GSTS = 1;   ///< Currently supported version of the GSTS Pattern.
+static const uint32 CURRENT_VERSION_GSTS = 2;   ///< Currently supported version of the GSTS Pattern.
 
 /**
  * Load guests from the save game.
@@ -110,11 +140,18 @@ void Guests::Load(Loader &ldr)
 		case 0:
 			break;
 		case 1:
+		case 2:
 			this->start_voxel.x = ldr.GetWord();
 			this->start_voxel.y = ldr.GetWord();
 			this->daily_frac = ldr.GetWord();
 			this->next_daily_index = ldr.GetWord();
 			this->free_idx = ldr.GetLong();
+
+			if (version > 1) {
+				for (Complaint &c : this->complaints) c.counter = ldr.GetWord();
+				for (Complaint &c : this->complaints) c.time_since_message = ldr.GetLong();
+			}
+
 			for (long i = ldr.GetLong(); i > 0; i--) {
 				Guest *g = this->block.Get(ldr.GetWord());
 				g->Load(ldr);
@@ -140,6 +177,10 @@ void Guests::Save(Saver &svr)
 	svr.PutWord(this->daily_frac);
 	svr.PutWord(this->next_daily_index);
 	svr.PutLong(this->free_idx);
+
+	for (const Complaint &c : this->complaints) svr.PutWord(c.counter);
+	for (const Complaint &c : this->complaints) svr.PutLong(c.time_since_message);
+
 	svr.PutLong(this->CountActiveGuests());
 	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *g = this->block.Get(i);
@@ -214,6 +255,8 @@ uint Guests::CountGuestsInPark()
  */
 void Guests::OnAnimate(int delay)
 {
+	for (Complaint &c : this->complaints) c.time_since_message += delay;
+
 	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
 		Guest *p = this->block.Get(i);
 		if (!p->IsActive()) continue;
@@ -251,6 +294,11 @@ void Guests::DoTick()
  */
 void Guests::OnNewDay()
 {
+	/* Gradually decrease complaint levels to prevent accumulation over very long times. */
+	for (Complaint &c : this->complaints) {
+		if (c.counter > 0) c.counter--;
+	}
+
 	/* Try adding a new guest to the park. */
 	if (this->CountActiveGuests() >= _scenario.max_guests) return;
 	if (!this->rnd.Success1024(_scenario.GetSpawnProbability(512))) return;
@@ -277,6 +325,23 @@ void Guests::NotifyRideDeletion(const RideInstance *ri) {
 		if (!p->IsActive()) continue;
 
 		p->NotifyRideDeletion(ri);
+	}
+}
+
+/**
+ * A guest complains about something.
+ * May send a message to the player.
+ * @param type Subject of the complaint.
+ */
+void Guests::Complain(const ComplaintType type)
+{
+	assert(type < COMPLAINT_COUNT);
+	Complaint &c = this->complaints[type];
+	c.counter++;
+	if (c.time_since_message > COMPLAINT_TIMEOUT && c.counter >= COMPLAINT_THRESHOLD[type]) {
+		c.counter = 0;
+		c.time_since_message = 0;
+		_inbox.SendMessage(new Message(COMPLAINT_MESSAGES[type]));
 	}
 }
 

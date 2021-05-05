@@ -103,6 +103,7 @@ strings {
 		GUEST_INFO_HUNGER:      "Hunger";
 		GUEST_INFO_THIRST:      "Durst";
 		GUEST_INFO_WASTE:       "Müll";
+		GUEST_INFO_NAUSEA:      "Übelkeit";
 		GUEST_INFO_ITEMS:       "Inventar";
 
 		// Items for guests gui strings.
@@ -266,6 +267,7 @@ strings {
 		MESSAGE_COMPLAIN_THIRSTY: "Viele Gäste sind durstig und wissen nicht, wo sie etwas zu trinken kaufen können.";
 		MESSAGE_COMPLAIN_TOILET:  "Viele Gäste benötigen eine Toilette und wissen nicht, wo eine zu finden ist.";
 		MESSAGE_COMPLAIN_LITTER:  "Die Gäste beschweren sich über die verschmutzten Wege im Park.";
+		MESSAGE_COMPLAIN_VANDALISM: "Die Gäste beschweren sich über die vielen beschädigten Gegenstände im Park.";
 		MESSAGE_CHEAP_FEE:        "Die Gäste äußern sich, dass der Eintrittspreis überraschend günstig ist.";
 		MESSAGE_AWARD_WON:        "Der Park hat einen Preis gewonnen: %1%";
 		MESSAGE_NEGATIVE_AWARD:   "Der Park hat einen Maluspreis erhalten: %1%";

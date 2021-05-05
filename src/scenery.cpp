@@ -13,9 +13,314 @@
 #include "gamecontrol.h"
 #include "generated/scenery_strings.h"
 #include "generated/scenery_strings.cpp"
+#include "random.h"
 #include "viewport.h"
 
 SceneryManager _scenery;
+
+std::map<uint8, PathObjectType*> PathObjectType::all_types;
+
+/* Predefined path object types. */
+const PathObjectType PathObjectType::LITTER   (1, true,  true,  Money(  0), nullptr);
+const PathObjectType PathObjectType::VOMIT    (2, true,  true,  Money(  0), nullptr);
+const PathObjectType PathObjectType::LAMP     (3, false, true,  Money(400), &_sprite_manager.GetSprites(64)->path_decoration.lamp_post[0]);
+const PathObjectType PathObjectType::BENCH    (4, false, false, Money(500), &_sprite_manager.GetSprites(64)->path_decoration.bench    [0]);
+const PathObjectType PathObjectType::LITTERBIN(5, false, true,  Money(600), &_sprite_manager.GetSprites(64)->path_decoration.litterbin[0]);
+
+/**
+ * Private constructor.
+ * @param cost Cost to buy this item (\c 0 means the user can't buy it).
+ * @param p Previews for the scenery placement window.
+ */
+PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost, ImageData const*const* p)
+{
+	this->type_id            = id;
+	this->ignore_edges       = ign;
+	this->can_exist_on_slope = slope;
+	this->buy_cost           = cost;
+	this->previews           = p;
+
+	assert(this->type_id != INVALID_PATH_OBJECT && all_types.count(this->type_id) == 0);
+	all_types[this->type_id] = this;
+}
+
+/**
+ * Retrieve a path object type by its ID.
+ * @param id The type ID.
+ * @return The type.
+ */
+const PathObjectType *PathObjectType::Get(uint8 id)
+{
+	return all_types.at(id);
+}
+
+/**
+ * Construct a new path object instance.
+ * @param t Type of path object.
+ * @param pos Voxel coordinate of the instance.
+ * @param offset Offset of the item inside the voxel.
+ */
+PathObjectInstance::PathObjectInstance(const PathObjectType *t, const XYZPoint16 &pos, const XYZPoint16 &offset)
+{
+	this->type = t;
+	this->state = this->type->ignore_edges ? 0xFF : 0;
+	this->vox_pos = pos;
+	this->pix_pos = offset;
+
+	if (this->type == &PathObjectType::BENCH) {
+		std::fill_n(this->data, lengthof(this->data), PathObjectType::NO_GUEST_ON_BENCH | (PathObjectType::NO_GUEST_ON_BENCH << 16));
+	} else {
+		std::fill_n(this->data, lengthof(this->data), 0);
+	}
+
+	this->RecomputeExistenceState();
+}
+
+/** Recompute at which of the path edges this item should exist. */
+void PathObjectInstance::RecomputeExistenceState()
+{
+	const Voxel *voxel = _world.GetVoxel(this->vox_pos);
+	assert(voxel != nullptr && HasValidPath(voxel));
+	const PathSprites path_slope_imploded = GetImplodedPathSlope(voxel);
+	assert(path_slope_imploded < PATH_COUNT && path_slope_imploded > PATH_EMPTY);  // Path should be either flat or a ramp.
+	const bool is_ramp = (path_slope_imploded >= PATH_FLAT_COUNT);
+
+	if (this->type->ignore_edges) {
+		if (this->state == 0xFF) {
+			const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
+			uint8 count;
+			if (is_ramp) {
+				this->data[0] = path_slope_imploded - PATH_FLAT_COUNT;
+				count = (this->type == &PathObjectType::LITTER ? pdec.ramp_litter_count : pdec.ramp_vomit_count)[this->data[0]];
+			} else {
+				this->data[0] = INVALID_EDGE;
+				count = (this->type == &PathObjectType::LITTER ? pdec.flat_litter_count : pdec.flat_vomit_count);
+			}
+
+			assert(count > 0);
+			if (count > 1) {
+				Random r;
+				this->state = r.Uniform(count - 1);
+			} else {
+				this->state = 0;
+			}
+		}
+		return;
+	}
+
+	if (is_ramp) {
+		if (this->type->can_exist_on_slope) {
+			switch (path_slope_imploded) {
+				case PATH_RAMP_NE:
+				case PATH_RAMP_SW:
+					this->SetExistsOnTileEdge(EDGE_NE, false);
+					this->SetExistsOnTileEdge(EDGE_SW, false);
+					this->SetExistsOnTileEdge(EDGE_SE, true );
+					this->SetExistsOnTileEdge(EDGE_NW, true );
+					break;
+				case PATH_RAMP_SE:
+				case PATH_RAMP_NW:
+					this->SetExistsOnTileEdge(EDGE_NE, true);
+					this->SetExistsOnTileEdge(EDGE_SW, true);
+					this->SetExistsOnTileEdge(EDGE_SE, false);
+					this->SetExistsOnTileEdge(EDGE_NW, false);
+					break;
+				default: NOT_REACHED();
+			}
+		} else {
+			for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) this->SetExistsOnTileEdge(e, false);
+		}
+	} else {
+		const uint8 path_edges_bitset = _path_expand[path_slope_imploded] & PATHMASK_EDGES;
+		this->SetExistsOnTileEdge(EDGE_NE, (path_edges_bitset & PATHMASK_NE) == 0);
+		this->SetExistsOnTileEdge(EDGE_SE, (path_edges_bitset & PATHMASK_SE) == 0);
+		this->SetExistsOnTileEdge(EDGE_SW, (path_edges_bitset & PATHMASK_SW) == 0);
+		this->SetExistsOnTileEdge(EDGE_NW, (path_edges_bitset & PATHMASK_NW) == 0);
+	}
+}
+
+/**
+ * Demolish this path object.
+ * @param e Edge of the tile on which the item to demolish is located.
+ */
+void PathObjectInstance::Demolish(const TileEdge e)
+{
+	assert(!this->type->ignore_edges);
+	assert(this->GetExistsOnTileEdge(e));
+	assert(!this->GetDemolishedOnTileEdge(e));
+
+	this->SetDemolishedOnTileEdge(e, true);
+
+	if (this->type == &PathObjectType::LITTERBIN) {
+		XYZPoint16 offset;
+		if (GetImplodedPathSlope(_world.GetVoxel(this->vox_pos)) >= PATH_FLAT_COUNT) offset.z = 128;
+		Random r;
+
+		/* Spread the bin's contents all over the path in front of the bin. */
+		for (; this->data[e] > 0; this->data[e]--) {
+			switch (e) {
+				case EDGE_NE:
+					offset.x =   0 + r.Uniform(32);
+					offset.y = 128 + r.Uniform(64) - 32;
+					break;
+				case EDGE_SE:
+					offset.y = 255 - r.Uniform(32);
+					offset.x = 128 + r.Uniform(64) - 32;
+					break;
+				case EDGE_SW:
+					offset.x = 255 - r.Uniform(32);
+					offset.y = 128 + r.Uniform(64) - 32;
+					break;
+				case EDGE_NW:
+					offset.y =   0 + r.Uniform(32);
+					offset.x = 128 + r.Uniform(64) - 32;
+					break;
+
+				default: NOT_REACHED();
+			}
+			_scenery.AddLitter(this->vox_pos, offset);
+		}
+	} else if (this->type == &PathObjectType::BENCH) {
+		/* \todo Expel the guests from the bench. */
+		this->data[e] = PathObjectType::NO_GUEST_ON_BENCH | (PathObjectType::NO_GUEST_ON_BENCH << 16);
+	}
+}
+
+/**
+ * Get all sprites that should be drawn for this object.
+ * @param orientation Viewport orientation.
+ * @return All sprites to draw.
+ */
+std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites(const uint8 orientation) const
+{
+	const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
+
+	if (this->type->ignore_edges) {
+		switch (this->data[0]) {
+			case INVALID_EDGE:
+				return {{(this->type == &PathObjectType::LITTER ? pdec.flat_litter : pdec.flat_vomit)[this->state], this->pix_pos}};
+
+			case EDGE_NE:
+			case EDGE_SE:
+			case EDGE_SW:
+			case EDGE_NW:
+				return {{(this->type == &PathObjectType::LITTER ? pdec.ramp_litter : pdec.ramp_vomit)[this->data[0]][this->state], this->pix_pos}};
+
+			default: NOT_REACHED();
+		}
+	} else {
+		std::vector<PathObjectSprite> result;
+		XYZPoint16 offset;
+		if (GetImplodedPathSlope(_world.GetVoxel(this->vox_pos)) >= PATH_FLAT_COUNT) offset.z = 128;
+
+		for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+			if (!this->GetExistsOnTileEdge(e)) continue;
+
+			const uint8 orient = (e - orientation) & 3;
+			switch (e) {
+				case EDGE_NE: offset.x =   0; offset.y = 128; break;
+				case EDGE_SE: offset.x = 128; offset.y = 255; break;
+				case EDGE_SW: offset.x = 255; offset.y = 128; break;
+				case EDGE_NW: offset.x = 128; offset.y =   0; break;
+				default: NOT_REACHED();
+			}
+
+			if (this->GetDemolishedOnTileEdge(e)) {
+				if (this->type == &PathObjectType::BENCH) {
+					result.push_back({pdec.demolished_bench[orient], offset});
+				} else if (this->type == &PathObjectType::LAMP) {
+					result.push_back({pdec.demolished_lamp[orient], offset});
+				} else if (this->type == &PathObjectType::LITTERBIN) {
+					result.push_back({pdec.demolished_bin[orient], offset});
+				} else {
+					NOT_REACHED();
+				}
+			} else {
+				if (this->type == &PathObjectType::BENCH) {
+					result.push_back({pdec.bench[orient], offset});
+				} else if (this->type == &PathObjectType::LAMP) {
+					result.push_back({pdec.lamp_post[orient], offset});
+				} else if (this->type == &PathObjectType::LITTERBIN) {
+					if (this->data[e] < PathObjectType::BIN_FULL_CAPACITY) {
+						result.push_back({pdec.litterbin[orient], offset});
+					} else {
+						result.push_back({pdec.overflow_bin[orient], offset});
+					}
+				} else {
+					NOT_REACHED();
+				}
+			}
+		}
+
+		return result;
+	}
+}
+
+/**
+ * Check whether this item exists on a specific edge of its voxel.
+ * @param e Edge to query,
+ * @return An item exists there.
+ */
+bool PathObjectInstance::GetExistsOnTileEdge(TileEdge e) const
+{
+	return GB(this->state, e, 1);
+}
+
+/**
+ * Set whether this item should exist on a specific edge of its voxel.
+ * @param e Edge to query,
+ * @param b The item should exist there.
+ */
+void PathObjectInstance::SetExistsOnTileEdge(TileEdge e, bool b)
+{
+	SB(this->state, e, 1, b ? 1 : 0);
+}
+
+/**
+ * Check whether this item is demolished on a specific edge of its voxel.
+ * @param e Edge to query,
+ * @return The item there is demolished.
+ */
+bool PathObjectInstance::GetDemolishedOnTileEdge(TileEdge e) const
+{
+	return GB(this->state, e + 4, 1);
+}
+
+/**
+ * Set whether this item should be demolished on a specific edge of its voxel.
+ * @param e Edge to query,
+ * @param d The item is demolished there.
+ */
+void PathObjectInstance::SetDemolishedOnTileEdge(TileEdge e, bool d)
+{
+	SB(this->state, e + 4, 1, d ? 1 : 0);
+}
+
+static const uint32 CURRENT_VERSION_PathObjectInstance = 1;   ///< Currently supported version of %PathObjectInstance.
+
+void PathObjectInstance::Load(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("pobj");
+	if (version != CURRENT_VERSION_PathObjectInstance) ldr.version_mismatch(version, CURRENT_VERSION_PathObjectInstance);
+	this->pix_pos.x = ldr.GetWord();
+	this->pix_pos.y = ldr.GetWord();
+	this->pix_pos.z = ldr.GetWord();
+	this->state = ldr.GetByte();
+	for (uint8 i = 0; i < 4; i++) this->data[i] = ldr.GetLong();
+	ldr.ClosePattern();
+}
+
+void PathObjectInstance::Save(Saver &svr) const
+{
+	svr.StartPattern("pobj", CURRENT_VERSION_PathObjectInstance);
+	/* #type and #vox_pos are saved by #SceneryManager::Save. */
+	svr.PutWord(this->pix_pos.x);
+	svr.PutWord(this->pix_pos.y);
+	svr.PutWord(this->pix_pos.z);
+	svr.PutByte(this->state);
+	for (uint8 i = 0; i < 4; i++) svr.PutLong(this->data[i]);
+	svr.EndPattern();
+}
 
 /** Default constructor. */
 SceneryType::SceneryType()
@@ -364,6 +669,8 @@ void SceneryManager::Clear()
 {
 	this->temp_item = nullptr;
 	while (!this->all_items.empty()) this->RemoveItem(this->all_items.begin()->first);
+	this->all_path_objects.clear();
+	this->litter_and_vomit.clear();
 }
 
 /**
@@ -397,6 +704,90 @@ void SceneryManager::RemoveItem(const XYZPoint16 &pos)
 	auto it = this->all_items.find(pos);
 	assert(it != this->all_items.end());
 	this->all_items.erase(it);  // This deletes the instance.
+}
+
+/**
+ * Count the amount of litter and vomit on a path.
+ * @return The amount of dirt (\c 0 if the path is clean).
+ */
+uint SceneryManager::CountLitterAndVomit(const XYZPoint16 &pos) const
+{
+	return this->litter_and_vomit.count(pos);
+}
+
+/**
+ * Count the amount of vandalised items on a path.
+ * @return The amount of vandalised items.
+ */
+uint8 SceneryManager::CountDemolishedItems(const XYZPoint16 &pos) const
+{
+	const auto it = this->all_path_objects.find(pos);
+	if (it == this->all_path_objects.end()) return 0;
+
+	uint8 result = 0;
+	for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+		if (it->second->GetExistsOnTileEdge(e) && it->second->GetDemolishedOnTileEdge(e)) {
+			result++;
+		}
+	}
+	return result;
+}
+
+/**
+ * Add some litter to a path.
+ * @param pos Coordinate of the path.
+ * @param offset Offset of the item inside the voxel.
+ */
+void SceneryManager::AddLitter(const XYZPoint16 &pos, const XYZPoint16 &offset)
+{
+	this->litter_and_vomit.emplace(pos, std::unique_ptr<PathObjectInstance>(new PathObjectInstance(&PathObjectType::LITTER, pos, offset)));
+}
+
+/**
+ * Add some vomit to a path.
+ * @param pos Coordinate of the path.
+ * @param offset Offset of the item inside the voxel.
+ */
+void SceneryManager::AddVomit(const XYZPoint16 &pos, const XYZPoint16 &offset)
+{
+	this->litter_and_vomit.emplace(pos, std::unique_ptr<PathObjectInstance>(new PathObjectInstance(&PathObjectType::VOMIT, pos, offset)));
+}
+
+/**
+ * Remove all litter and vomit from a path.
+ * @param pos Coordinate of the path.
+ */
+void SceneryManager::RemoveLitterAndVomit(const XYZPoint16 &pos)
+{
+	this->litter_and_vomit.erase(pos);
+}
+
+/**
+ * Get all path objects that should be drawn at a given path.
+ * @param pos Coordinate of the path.
+ * @param orientation Viewport orientation.
+ * @return All path objects to draw.
+ */
+std::vector<PathObjectInstance::PathObjectSprite> SceneryManager::DrawPathObjects(const XYZPoint16 &pos, const uint8 orientation) const
+{
+	std::vector<PathObjectInstance::PathObjectSprite> result;
+
+	for (const auto &pair : this->litter_and_vomit) {
+		if (pair.first == pos) {
+			for (const PathObjectInstance::PathObjectSprite &image : pair.second->GetSprites(orientation)) {
+				result.push_back(image);
+			}
+		}
+	}
+
+	auto it = this->all_path_objects.find(pos);
+	if (it != this->all_path_objects.end()) {
+		for (const PathObjectInstance::PathObjectSprite &image : it->second->GetSprites(orientation)) {
+			result.push_back(image);
+		}
+	}
+
+	return result;
 }
 
 /**
@@ -446,7 +837,7 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 	return nullptr;
 }
 
-static const uint32 CURRENT_VERSION_SceneryInstance_SCNY = 1;   ///< Currently supported version of the SCNY Pattern.
+static const uint32 CURRENT_VERSION_SceneryInstance_SCNY = 2;   ///< Currently supported version of the SCNY Pattern.
 
 void SceneryManager::Load(Loader &ldr)
 {
@@ -456,10 +847,31 @@ void SceneryManager::Load(Loader &ldr)
 		case 0:
 			break;
 		case 1:
+		case 2:
 			for (long l = ldr.GetLong(); l > 0; l--) {
 				SceneryInstance *i = new SceneryInstance(this->scenery_item_types[ldr.GetWord()].get());
 				i->Load(ldr);
 				this->all_items[i->vox_pos] = std::unique_ptr<SceneryInstance>(i);
+			}
+			if (version > 1) {
+				for (long l = ldr.GetLong(); l > 0; l--) {
+					XYZPoint16 pos;
+					pos.x = ldr.GetWord();
+					pos.y = ldr.GetWord();
+					pos.z = ldr.GetWord();
+					PathObjectInstance *i = new PathObjectInstance(PathObjectType::Get(ldr.GetByte()), pos, pos /* will be overwritten by #Load() */);
+					i->Load(ldr);
+					this->all_path_objects[pos] = std::unique_ptr<PathObjectInstance>(i);
+				}
+				for (long l = ldr.GetLong(); l > 0; l--) {
+					XYZPoint16 pos;
+					pos.x = ldr.GetWord();
+					pos.y = ldr.GetWord();
+					pos.z = ldr.GetWord();
+					PathObjectInstance *i = new PathObjectInstance(PathObjectType::Get(ldr.GetByte()), pos, pos);
+					i->Load(ldr);
+					this->litter_and_vomit.emplace(pos, std::unique_ptr<PathObjectInstance>(i));
+				}
 			}
 			break;
 
@@ -473,10 +885,30 @@ void SceneryManager::Save(Saver &svr) const
 {
 	svr.CheckNoOpenPattern();
 	svr.StartPattern("SCNY", CURRENT_VERSION_SceneryInstance_SCNY);
+
 	svr.PutLong(this->all_items.size());
 	for (const auto &pair : this->all_items) {
 		svr.PutWord(this->GetSceneryTypeIndex(pair.second->type));
 		pair.second->Save(svr);
 	}
+
+	svr.PutLong(this->all_path_objects.size());
+	for (const auto &pair : this->all_path_objects) {
+		svr.PutWord(pair.first.x);
+		svr.PutWord(pair.first.y);
+		svr.PutWord(pair.first.z);
+		svr.PutByte(pair.second->type->type_id);
+		pair.second->Save(svr);
+	}
+
+	svr.PutLong(this->litter_and_vomit.size());
+	for (const auto &pair : this->litter_and_vomit) {
+		svr.PutWord(pair.first.x);
+		svr.PutWord(pair.first.y);
+		svr.PutWord(pair.first.z);
+		svr.PutByte(pair.second->type->type_id);
+		pair.second->Save(svr);
+	}
+
 	svr.EndPattern();
 }

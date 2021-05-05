@@ -100,6 +100,19 @@ public:
 
 	void NotifyRideDeletion(const RideInstance *);
 
+	/** All the things guests like to complain about. */
+	enum ComplaintType {
+		COMPLAINT_HUNGER,     ///< A guest is hungry and doesn't know where to buy food.
+		COMPLAINT_THIRST,     ///< A guest is thirsty and doesn't know where to buy a drink.
+		COMPLAINT_WASTE,      ///< A guest needs a toilet and doesn't know where to find one.
+		COMPLAINT_LITTER,     ///< The paths are very dirty.
+		COMPLAINT_VANDALISM,  ///< Many park objects are demolished.
+
+		COMPLAINT_COUNT       ///< Number of complaint types.
+	};
+
+	void Complain(ComplaintType t);
+
 	Point16 start_voxel;  ///< Entry x/y coordinate of the voxel stack at the edge (negative X/Y coordinate means invalid).
 
 private:
@@ -108,6 +121,15 @@ private:
 	Random rnd;           ///< Random number generator for creating new guests.
 	int daily_frac;       ///< Frame counter.
 	int next_daily_index; ///< Index of the next guest to give daily service.
+
+	/** Holds statistics about guest complaints of a specific type. */
+	struct Complaint {
+		Complaint();
+
+		uint16 counter;             ///< Counter for the number of complaints.
+		uint32 time_since_message;  ///< Time in milliseconds since a message was last sent to the player.
+	};
+	Complaint complaints[COMPLAINT_COUNT];  ///< Statistics about all complaint types.
 
 	bool FindNextFreeGuest();
 	bool FindNextFreeGuest() const;

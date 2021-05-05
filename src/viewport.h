@@ -49,23 +49,24 @@ DECLARE_ENUM_AS_BIT_SET(ClickableSprite)
  * @see PixelFinder, Viewport::ComputeCursorPosition
  */
 enum SpriteOrder {
-	SO_NONE            = 0,                             ///< No drawing.
-	SO_FOUNDATION      = (1  << CS_LENGTH),             ///< Draw foundation sprites.
-	SO_GROUND          = (2  << CS_LENGTH) | CS_GROUND, ///< Draw ground sprites.
-	SO_GROUND_EDGE     = (3  << CS_LENGTH) | CS_GROUND_EDGE, ///< Used for ground edge detection
-	SO_FENCE_BACK      = (4  << CS_LENGTH),             ///< Draw fence on the back edges
-	SO_SUPPORT         = (5  << CS_LENGTH),             ///< Draw support sprites.
-	SO_PLATFORM        = (6  << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
-	SO_PATH            = (7  << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
-	SO_PLATFORM_BACK   = (8  << CS_LENGTH) | CS_RIDE,   ///< Background behind the ride (platform background).
-	SO_RIDE            = (9  << CS_LENGTH) | CS_RIDE,   ///< Draw ride sprites.
-	SO_RIDE_CARS       = (10 << CS_LENGTH) | CS_RIDE,   ///< Cars at a ride.
-	SO_RIDE_FRONT      = (11 << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
-	SO_PLATFORM_FRONT  = (12 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
-	SO_PERSON          = (13 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
-	SO_PERSON_OVERLAY  = (14 << CS_LENGTH) | CS_PERSON, ///< Draw overlays over person sprites.
-	SO_FENCE_FRONT     = (15 << CS_LENGTH),             ///< Draw fence on the front edges
-	SO_CURSOR          = (16 << CS_LENGTH),             ///< Draw cursor sprites.
+	SO_NONE            =   0,                           ///< No drawing.
+	SO_FOUNDATION      = ( 1 << CS_LENGTH),             ///< Draw foundation sprites.
+	SO_GROUND          = ( 2 << CS_LENGTH) | CS_GROUND, ///< Draw ground sprites.
+	SO_GROUND_EDGE     = ( 3 << CS_LENGTH) | CS_GROUND_EDGE, ///< Used for ground edge detection.
+	SO_FENCE_BACK      = ( 4 << CS_LENGTH),             ///< Draw fence on the back edges
+	SO_SUPPORT         = ( 5 << CS_LENGTH),             ///< Draw support sprites.
+	SO_PLATFORM        = ( 6 << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
+	SO_PATH            = ( 7 << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
+	SO_PATH_OBJECTS    = ( 8 << CS_LENGTH) | CS_PATH,   ///< Draw path object sprites.
+	SO_PLATFORM_BACK   = ( 9 << CS_LENGTH) | CS_RIDE,   ///< Background behind the ride (platform background).
+	SO_RIDE            = (10 << CS_LENGTH) | CS_RIDE,   ///< Draw ride sprites.
+	SO_RIDE_CARS       = (11 << CS_LENGTH) | CS_RIDE,   ///< Cars at a ride.
+	SO_RIDE_FRONT      = (12 << CS_LENGTH) | CS_RIDE,   ///< Ride sprite to draw after drawing the cars.
+	SO_PLATFORM_FRONT  = (13 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
+	SO_PERSON          = (14 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
+	SO_PERSON_OVERLAY  = (15 << CS_LENGTH) | CS_PERSON, ///< Draw overlays over person sprites.
+	SO_FENCE_FRONT     = (16 << CS_LENGTH),             ///< Draw fence on the front edges.
+	SO_CURSOR          = (17 << CS_LENGTH),             ///< Draw cursor sprites.
 };
 
 /** Part of a ground tile to select. */

@@ -160,7 +160,7 @@ void GuiWindow::ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items,
 	delete w;
 
 	DataWidget *wid = this->GetWidget<DataWidget>(widnum);
-	assert(wid->wtype == WT_DROPDOWN_BUTTON);
+	assert(wid->wtype == WT_DROPDOWN_BUTTON || wid->wtype == WT_IMAGE_DROPDOWN_BUTTON);
 	if (colour == COL_RANGE_INVALID) colour = wid->colour;
 
 	/* Calculate top-left position of window */
@@ -285,7 +285,7 @@ void GuiWindow::ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, 
 	delete w;
 
 	DataWidget *wid = this->GetWidget<DataWidget>(widnum);
-	assert(wid->wtype == WT_DROPDOWN_BUTTON);
+	assert(wid->wtype == WT_DROPDOWN_BUTTON || wid->wtype == WT_IMAGE_DROPDOWN_BUTTON);
 	if (colour == COL_RANGE_INVALID) colour = wid->colour;
 
 	/* Calculate top-left position of window */

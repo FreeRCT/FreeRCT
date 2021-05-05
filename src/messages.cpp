@@ -58,6 +58,7 @@ void Message::InitMessageDataTypes()
 		case GUI_MESSAGE_COMPLAIN_THIRSTY:
 		case GUI_MESSAGE_COMPLAIN_TOILET:
 		case GUI_MESSAGE_COMPLAIN_LITTER:
+		case GUI_MESSAGE_COMPLAIN_VANDALISM:
 		case GUI_MESSAGE_NEGATIVE_AWARD:
 			this->category = MSC_BAD;
 			this->data_type = MDT_NONE;

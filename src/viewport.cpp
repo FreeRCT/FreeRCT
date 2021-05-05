@@ -507,10 +507,21 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	if (this->selector != nullptr) highlight = this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data);
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		platform_shape = _path_rotation[GetImplodedPathSlope(instance_data)][this->orient];
+
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_PATH, this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient),
 				north_point, nullptr, highlight);
 		this->draw_images.insert(dd);
+
+		for (const PathObjectInstance::PathObjectSprite &image : _scenery.DrawPathObjects(voxel_pos, this->orient)) {
+			const int x_off = ComputeX(image.offset.x, image.offset.y);
+			const int y_off = ComputeY(image.offset.x, image.offset.y, image.offset.z);
+			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
+			            north_point.y + this->north_offsets[this->orient].y + y_off);
+
+			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos);
+			this->draw_images.insert(dd);
+		}
 	} else if (sri >= SRI_FULL_RIDES || sri == SRI_SCENERY) { // A normal ride, or a scenery item.
 		DrawData dd[4];
 		int count = DrawRideOrScenery(slice, voxel_pos, north_point, this->orient, sri, instance_data, dd, &platform_shape);

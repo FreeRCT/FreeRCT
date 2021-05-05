@@ -889,6 +889,17 @@ public:
 	std::shared_ptr<SpriteBlock> message_guest;      ///< Inbox: Guest Window button.
 	std::shared_ptr<SpriteBlock> message_ride;       ///< Inbox: Ride Instance Window button.
 	std::shared_ptr<SpriteBlock> message_ride_type;  ///< Inbox: Ride Select GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_main;      ///< Toolbar: Main menu GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_speed;     ///< Toolbar: Speed menu GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_path;      ///< Toolbar: Path build GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_ride;      ///< Toolbar: Ride select GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_fence;     ///< Toolbar: Fence build GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_scenery;   ///< Toolbar: Scenery GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_terrain;   ///< Toolbar: Terraform GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_staff;     ///< Toolbar: Staff GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_inbox;     ///< Toolbar: Inbox GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_finances;  ///< Toolbar: Finances GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_objects;   ///< Toolbar: Path objects GUI button.
 	std::shared_ptr<SpriteBlock> weather[5];      ///< Weather sprites (sunny -> thunder).
 	std::shared_ptr<SpriteBlock> rog_lights[4];   ///< Red/orange/green lights (red, orange, green, none).
 	std::shared_ptr<SpriteBlock> rg_lights[3];    ///< Red/green lights (red, green, none).
