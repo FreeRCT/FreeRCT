@@ -992,9 +992,6 @@ void Guest::DecideMoveDirection()
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
 	}
 
-	/* \todo Consider throwing litter into a bin if the guest has litter and a non-full bin is nearby. */
-	/* \todo Consider sitting down on a bench if the guest is nauseous and a free bench is nearby. */
-
 	/* Find feasible exits and shops. */
 	uint8 exits, shops;
 	bool queue_path;
@@ -1030,6 +1027,34 @@ void Guest::DecideMoveDirection()
 		uint8 exits_viable = this->GetInparkDirections();
 		exits &= exits_viable;
 		shops &= exits_viable;
+	}
+
+	if (this->activity == GA_WANDER) {
+		/* Consider interacting with a nearby path object. */
+		const PathObjectInstance *obj = _scenery.GetPathObject(this->vox_pos);
+		if (obj != nullptr) {
+			if (obj->type == &PathObjectType::LITTERBIN && this->has_wrapper) {
+				for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+					if (obj->GetExistsOnTileEdge(e) && !obj->GetDemolishedOnTileEdge(e) && obj->GetFreeBinCapacity(e) > 0) {
+						SB(exits, e, 1, 1);
+					}
+				}
+			} else if (obj->type == &PathObjectType::BENCH && this->nausea > 40) {
+				for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+					if (obj->GetExistsOnTileEdge(e) && !obj->GetDemolishedOnTileEdge(e) &&
+							(obj->GetLeftGuest(e) == PathObjectType::NO_GUEST_ON_BENCH ||
+							obj->GetRightGuest(e) == PathObjectType::NO_GUEST_ON_BENCH)) {
+						SB(exits, e, 1, 1);
+					}
+				}
+			} else if (this->happiness < 40) {
+				for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+					if (obj->GetExistsOnTileEdge(e) && !obj->GetDemolishedOnTileEdge(e)) {
+						SB(exits, e, 1, 1);
+					}
+				}
+			}
+		}
 	}
 
 	/* Decide which direction to go. */
@@ -1219,6 +1244,16 @@ bool Person::IsQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& p
 }
 
 /**
+ * The person is standing in front of a path object.
+ * @param obj Object to interact with.
+ * @return Result code of the visit.
+ */
+AnimateResult Person::InteractWithPathObject(PathObjectInstance *obj)
+{
+	return OAR_CONTINUE;
+}
+
+/**
  * Update the animation of a person.
  * @param delay Amount of milliseconds since the last update.
  * @return Whether to keep the person active or how to deactivate him/her.
@@ -1374,6 +1409,16 @@ AnimateResult Person::OnAnimate(int delay)
 		if (dz != 0) { this->vox_pos.z -= dz; this->pix_pos.z = (dz > 0) ? 255 : 0; }
 
 		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
+
+		/* Check if there's a path object to interact with here. */
+		PathObjectInstance *obj = _scenery.GetPathObject(this->vox_pos);
+		if (obj != nullptr && obj->GetExistsOnTileEdge(exit_edge) && !obj->GetDemolishedOnTileEdge(exit_edge)) {
+			AnimateResult ar = this->InteractWithPathObject(obj);
+			if (ar != OAR_CONTINUE && ar != OAR_HALT && ar != OAR_ANIMATING) return ar;
+			move_on = (ar == OAR_CONTINUE);
+			freeze_animation = (ar == OAR_HALT);
+		}
+
 		if (move_on) {
 			this->DecideMoveDirection();
 		} else if (freeze_animation) {
@@ -1617,6 +1662,32 @@ AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
 	return OAR_CONTINUE;
 }
 
+AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
+{
+	const TileEdge edge = this->GetCurrentEdge();
+	if (obj->type == &PathObjectType::LITTERBIN && this->has_wrapper && obj->GetFreeBinCapacity(edge) > 0) {
+		/* Throw litter in the bin, then keep walking */
+		obj->AddItemToBin(edge);
+		this->has_wrapper = false;
+	} else if (obj->type == &PathObjectType::BENCH && this->nausea > 40 &&
+			(obj->GetLeftGuest(edge) == PathObjectType::NO_GUEST_ON_BENCH ||
+			obj->GetRightGuest(edge) == PathObjectType::NO_GUEST_ON_BENCH)) {
+		/* Sit down and remain there for a while. */
+		if (obj->GetRightGuest(edge) == PathObjectType::NO_GUEST_ON_BENCH) {
+			obj->SetRightGuest(edge, this->id);
+		} else {
+			obj->SetLeftGuest(edge, this->id);
+		}
+		this->activity = GA_RESTING;
+		this->StartAnimation(_guest_bench[edge]);
+		return OAR_OK;
+	} else if (this->happiness < 40) {
+		/* Smash something up, then keep walking. */
+		obj->Demolish(edge);
+	}
+	return OAR_CONTINUE;
+}
+
 /**
  * Update the happiness of the guest.
  * @param amount Amount of change.
@@ -1635,7 +1706,6 @@ void Guest::ChangeHappiness(int16 amount)
  * Daily ponderings of a guest.
  * @return If \c false, de-activate the guest.
  * @todo Make going home a bit more random.
- * @todo Implement dropping litter when passing a non-empty litter bin.
  * @todo Implement energy (for tiredness of guests).
  */
 bool Guest::DailyUpdate()
@@ -2289,11 +2359,39 @@ void Handyman::DecideMoveDirection()
 		}
 	}
 
-	/* \todo Consider emptying a bin if an overflowing one is nearby. */
-
-	/* Check if a flowerbed in need of watering is nearby. */
+	/* Consider emptying a bin if an overflowing one is nearby. */
 	std::set<TileEdge> possible_edges;
 	uint8 nr_possible_edges = 0;
+	const PathObjectInstance *obj = _scenery.GetPathObject(this->vox_pos);
+	if (obj != nullptr) {
+		if (obj->type == &PathObjectType::LITTERBIN) {
+			for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+				if (obj->GetExistsOnTileEdge(e) && !obj->GetDemolishedOnTileEdge(e) && obj->BinNeedsEmptying(e)) {
+					bool found_other_handyman = false;
+					for (VoxelObject *o = vx->voxel_objects; o != nullptr; o = o->next_object) {
+						if (Handyman *h = dynamic_cast<Handyman*>(o)) {
+							if (h->activity == static_cast<Handyman::HandymanActivity>(static_cast<int>(HandymanActivity::EMPTY_NE) + e)) {
+								found_other_handyman = true;
+								break;
+							}
+						}
+					}
+					if (!found_other_handyman) {
+						possible_edges.insert(e);
+						nr_possible_edges++;
+					}
+				}
+			}
+		}
+	}
+	if (nr_possible_edges > 0) {
+		auto it = possible_edges.begin();
+		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
+		this->StartAnimation(_center_path_tile[start_edge][*it]);
+		return;
+	}
+
+	/* Check if a flowerbed in need of watering is nearby. */
 	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
 		XYZPoint16 pos = this->vox_pos;
 		pos.x += _tile_dxy[edge].x;
@@ -2395,6 +2493,18 @@ void Handyman::DecideMoveDirection()
 	NOT_REACHED();
 }
 
+AnimateResult Handyman::InteractWithPathObject(PathObjectInstance *obj)
+{
+	const TileEdge edge = this->GetCurrentEdge();
+	if (obj->type == &PathObjectType::LITTERBIN && obj->BinNeedsEmptying(edge)) {
+		this->activity = static_cast<Handyman::HandymanActivity>(static_cast<int>(HandymanActivity::EMPTY_NE) + edge);
+		this->SetStatus(GUI_PERSON_STATUS_EMPTYING);
+		this->StartAnimation(_handyman_empty[edge]);
+		return OAR_OK;
+	}
+	return OAR_CONTINUE;
+}
+
 void Handyman::ActionAnimationCallback()
 {
 	switch (this->activity) {
@@ -2407,6 +2517,19 @@ void Handyman::ActionAnimationCallback()
 		case HandymanActivity::SWEEP:
 			_scenery.RemoveLitterAndVomit(this->vox_pos);
 			break;
+
+		case HandymanActivity::EMPTY_NE:
+		case HandymanActivity::EMPTY_SE:
+		case HandymanActivity::EMPTY_SW:
+		case HandymanActivity::EMPTY_NW: {
+			const TileEdge edge = this->GetCurrentEdge();
+			PathObjectInstance *obj = _scenery.GetPathObject(this->vox_pos);
+			if (obj != nullptr && obj->type == &PathObjectType::LITTERBIN &&
+					obj->GetExistsOnTileEdge(edge) && !obj->GetDemolishedOnTileEdge(edge)) {
+				obj->EmptyBin(edge);
+			}
+			break;
+		}
 
 		default: NOT_REACHED();
 	}

@@ -161,6 +161,15 @@ public:
 	bool GetExistsOnTileEdge(TileEdge e) const;
 	bool GetDemolishedOnTileEdge(TileEdge e) const;
 
+	uint   GetFreeBinCapacity(TileEdge e) const;
+	bool   BinNeedsEmptying  (TileEdge e) const;
+	uint16 GetLeftGuest      (TileEdge e) const;
+	uint16 GetRightGuest     (TileEdge e) const;
+	void   AddItemToBin      (TileEdge e);
+	void   EmptyBin          (TileEdge e);
+	void   SetLeftGuest      (TileEdge e, uint16 id);
+	void   SetRightGuest     (TileEdge e, uint16 id);
+
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
 
@@ -200,6 +209,7 @@ public:
 	void  RemoveLitterAndVomit(const XYZPoint16 &pos);
 	uint  CountLitterAndVomit (const XYZPoint16 &pos) const;
 	uint8 CountDemolishedItems(const XYZPoint16 &pos) const;
+	PathObjectInstance *GetPathObject(const XYZPoint16 &pos);
 
 	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation) const;
 

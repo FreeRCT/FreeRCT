@@ -301,6 +301,92 @@ void PathObjectInstance::SetDemolishedOnTileEdge(TileEdge e, bool d)
 	SB(this->state, e + 4, 1, d ? 1 : 0);
 }
 
+/**
+ * Get the free bin capacity of the bin on a given edge.
+ * @param e Edge to query,
+ * @return The free capacity (\c 0 for full bins).
+ * @pre This item is a bin, and a non-demolished bin exists on this edge.
+ */
+uint PathObjectInstance::GetFreeBinCapacity(TileEdge e) const
+{
+	assert(this->data[e] <= PathObjectType::BIN_MAX_CAPACITY);
+	return PathObjectType::BIN_MAX_CAPACITY - this->data[e];
+}
+
+/**
+ * Check whether the bin on a given edge is so full that it should be emptied.
+ * @param e Edge to query,
+ * @return The bin needs emptying
+ * @pre This item is a bin, and a non-demolished bin exists on this edge.
+ */
+bool PathObjectInstance::BinNeedsEmptying(TileEdge e) const
+{
+	return this->data[e] >= PathObjectType::BIN_FULL_CAPACITY;
+}
+
+/**
+ * Get the guest sitting on the left half of the bench on a given edge.
+ * @param e Edge to query,
+ * @return The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH if the seat is free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+uint16 PathObjectInstance::GetLeftGuest(TileEdge e) const
+{
+	return this->data[e] & 0xFFFF;
+}
+
+/**
+ * Get the guest sitting on the left half of the bench on a given edge.
+ * @param e Edge to query,
+ * @return The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH if the seat is free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+uint16 PathObjectInstance::GetRightGuest(TileEdge e) const
+{
+	return this->data[e] >> 16;
+}
+
+/**
+ * Throw a piece of litter into the bin on a given edge.
+ * @param e Edge to query,
+ * @pre This item is a bin, and a non-demolished bin that still has free capacity exists on this edge.
+ */
+void PathObjectInstance::AddItemToBin(TileEdge e) {
+	this->data[e]++;
+}
+
+/**
+ * Empty the bin on a given edge.
+ * @param e Edge to query,
+ * @pre This item is a bin, and a non-demolished bin exists on this edge.
+ */
+void PathObjectInstance::EmptyBin(TileEdge e) {
+	this->data[e] = 0;
+}
+
+/**
+ * Set the guest sitting on the left half of the bench on a given edge.
+ * @param e Edge to query,
+ * @param id The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH to mark the seat as free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+void PathObjectInstance::SetLeftGuest(TileEdge e, uint16 id) {
+	this->data[e] &= 0xFFFF0000;
+	this->data[e] |= id;
+}
+
+/**
+ * Set the guest sitting on the right half of the bench on a given edge.
+ * @param e Edge to query,
+ * @param id The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH to mark the seat as free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+void PathObjectInstance::SetRightGuest(TileEdge e, uint16 id) {
+	this->data[e] &= 0x0000FFFF;
+	this->data[e] |= (id << 16);
+}
+
+
 static const uint32 CURRENT_VERSION_PathObjectInstance = 1;   ///< Currently supported version of %PathObjectInstance.
 
 void PathObjectInstance::Load(Loader &ldr)
@@ -747,7 +833,18 @@ uint8 SceneryManager::CountDemolishedItems(const XYZPoint16 &pos) const
  */
 void SceneryManager::SetPathObjectInstance(const XYZPoint16 &pos, const PathObjectType *type)
 {
-	all_path_objects[pos].reset(new PathObjectInstance(type, pos, XYZPoint16(/* Offset is ignored for user-placeable types. */)));
+	this->all_path_objects[pos].reset(new PathObjectInstance(type, pos, XYZPoint16(/* Offset is ignored for user-placeable types. */)));
+}
+
+/**
+ * Get the path object at a given path.
+ * @param pos Coordinate of the path.
+ * @return The object there (may be \c nullptr).
+ */
+PathObjectInstance *SceneryManager::GetPathObject(const XYZPoint16 &pos)
+{
+	auto it = this->all_path_objects.find(pos);
+	return it == this->all_path_objects.end() ? nullptr : it->second.get();
 }
 
 /**

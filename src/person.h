@@ -15,6 +15,7 @@
 #include "money.h"
 #include "ride_type.h"
 
+class PathObjectInstance;
 struct WalkInformation;
 class RideInstance;
 
@@ -161,6 +162,7 @@ protected:
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
 	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
+	virtual AnimateResult InteractWithPathObject(PathObjectInstance *obj);
 	virtual bool IsLeavingPath() const;
 };
 
@@ -245,6 +247,7 @@ protected:
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
+	AnimateResult InteractWithPathObject(PathObjectInstance *obj) override;
 	const WalkInformation *WalkForActivity(const WalkInformation **walks, uint8 walk_count, uint8 exits);
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
@@ -358,6 +361,7 @@ public:
 	void DecideMoveDirection() override;
 	void ActionAnimationCallback() override;
 	bool IsLeavingPath() const override;
+	AnimateResult InteractWithPathObject(PathObjectInstance *obj) override;
 
 	HandymanActivity activity;  ///< What the handyman is doing right now.
 };
