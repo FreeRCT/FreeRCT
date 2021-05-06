@@ -21,24 +21,25 @@ SceneryManager _scenery;
 std::map<uint8, PathObjectType*> PathObjectType::all_types;
 
 /* Predefined path object types. */
-const PathObjectType PathObjectType::LITTER   (1, true,  true,  Money(  0), nullptr);
-const PathObjectType PathObjectType::VOMIT    (2, true,  true,  Money(  0), nullptr);
-const PathObjectType PathObjectType::LAMP     (3, false, true,  Money(400), &_sprite_manager.GetSprites(64)->path_decoration.lamp_post[0]);
-const PathObjectType PathObjectType::BENCH    (4, false, false, Money(500), &_sprite_manager.GetSprites(64)->path_decoration.bench    [0]);
-const PathObjectType PathObjectType::LITTERBIN(5, false, true,  Money(600), &_sprite_manager.GetSprites(64)->path_decoration.litterbin[0]);
+const PathObjectType PathObjectType::LITTER   (1, true,  true,  Money(  0));
+const PathObjectType PathObjectType::VOMIT    (2, true,  true,  Money(  0));
+const PathObjectType PathObjectType::LAMP     (3, false, true,  Money(400));
+const PathObjectType PathObjectType::BENCH    (4, false, false, Money(500));
+const PathObjectType PathObjectType::LITTERBIN(5, false, true,  Money(600));
 
 /**
  * Private constructor.
+ * @param id Unique ID of this type.
+ * @param ign This item type ignores edges.
+ * @param slope This item type can exist on slopes.
  * @param cost Cost to buy this item (\c 0 means the user can't buy it).
- * @param p Previews for the scenery placement window.
  */
-PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost, ImageData const*const* p)
+PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost)
 {
 	this->type_id            = id;
 	this->ignore_edges       = ign;
 	this->can_exist_on_slope = slope;
 	this->buy_cost           = cost;
-	this->previews           = p;
 
 	assert(this->type_id != INVALID_PATH_OBJECT && all_types.count(this->type_id) == 0);
 	all_types[this->type_id] = this;

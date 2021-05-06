@@ -98,7 +98,6 @@ public:
 /** A type of path object, e.g. benches, litter. */
 class PathObjectType {
 public:
-	ImageData const*const* previews;  ///< Pointers to the previews for the scenery placement window.
 	Money buy_cost;                   ///< Cost of buying this item (\c 0 indicates it can't be bought).
 	uint8 type_id;                    ///< Unique type ID for saveloading.
 	bool ignore_edges;                ///< This item lives in the middle of a path rather than on the edges.
@@ -122,7 +121,7 @@ public:
 	static const uint16 NO_GUEST_ON_BENCH = 0xFFFF;  ///< Denotes absence of a guest on a bench.
 
 private:
-	PathObjectType(uint8 id, bool ign, bool slope, const Money &cost, ImageData const*const* p);
+	PathObjectType(uint8 id, bool ign, bool slope, const Money &cost);
 
 	static std::map<uint8, PathObjectType*> all_types;  ///< All path object types with their IDs.
 };
