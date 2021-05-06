@@ -1676,7 +1676,7 @@ AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
 {
 	const TileEdge edge = this->GetCurrentEdge();
 	if (obj->type == &PathObjectType::LITTERBIN && this->has_wrapper && obj->GetFreeBinCapacity(edge) > 0) {
-		/* Throw litter in the bin, then keep walking */
+		/* Throw litter in the bin, then keep walking. */
 		obj->AddItemToBin(edge);
 		this->has_wrapper = false;
 	} else if (obj->type == &PathObjectType::BENCH && this->nausea > 40 &&

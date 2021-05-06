@@ -55,7 +55,7 @@ strings {
 		TOOLBAR_GUI_SCENERY:              "Scenery";
 		TOOLBAR_GUI_TOOLTIP_SCENERY:      "Build scenery items in your park";
 		TOOLBAR_GUI_PATH_OBJECTS:         "Path Objects";
-		TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Build path objects in your parl";
+		TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Build path objects in your park";
 		TOOLBAR_GUI_TERRAFORM:            "Landscaping";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Modify landscape";
 		TOOLBAR_GUI_FINANCES:             "Finances";

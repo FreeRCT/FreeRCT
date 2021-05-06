@@ -33,7 +33,7 @@ public:
 	void SetType(const PathObjectType *t);
 
 private:
-	RideMouseMode path_object_sel;               ///< Mouse selector for building path objects.
+	RideMouseMode path_object_sel;               ///< Mouse selector for building path objects. The logic is the same as for rides.
 	const PathObjectType *type;                  ///< Type currently being placed (or \c nullptr).
 	std::unique_ptr<PathObjectInstance> object;  ///< Item being placed.
 };
@@ -81,20 +81,17 @@ PathObjectGui::PathObjectGui() : GuiWindow(WC_PATH_OBJECTS, ALL_WINDOWS_OF_TYPE)
 
 PathObjectGui::~PathObjectGui()
 {
-	SetSelector(nullptr);
+	this->SetSelector(nullptr);
 }
 
 /**
  * Sets what kind of path object type is currently being placed.
+ * Setting \c nullptr or the same type that is currently being placed unselects all types.
  * @param t Type to select.
  */
 void PathObjectGui::SetType(const PathObjectType *t)
 {
-	if (this->type == t) {
-		this->type = nullptr;
-	} else {
-		this->type = t;
-	}
+	this->type = (t == this->type) ? nullptr : t;
 
 	this->GetWidget<LeafWidget>(POBJ_BUTTON_BENCH)->SetPressed(this->type == &PathObjectType::BENCH);
 	this->GetWidget<LeafWidget>(POBJ_BUTTON_BIN  )->SetPressed(this->type == &PathObjectType::LITTERBIN);
@@ -103,7 +100,7 @@ void PathObjectGui::SetType(const PathObjectType *t)
 	if (this->type == nullptr) {
 		this->SetSelector(nullptr);
 	} else {
-		SetSelector(&this->path_object_sel);
+		this->SetSelector(&this->path_object_sel);
 	}
 	this->path_object_sel.SetSize(0, 0);
 	this->MarkDirty();

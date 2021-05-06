@@ -492,9 +492,13 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
-				if (PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge])) obj->RecomputeExistenceState();
+				PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge]);
+				if (obj != nullptr) obj->RecomputeExistenceState();
 			}
-			if (PathObjectInstance *obj = _scenery.GetPathObject(voxel_pos)) obj->RecomputeExistenceState();
+			{
+				PathObjectInstance *obj = _scenery.GetPathObject(voxel_pos);
+				if (obj != nullptr) obj->RecomputeExistenceState();
+			}
 			return slope;
 
 		case PAS_QUEUE_PATH:
@@ -521,9 +525,13 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
-				if (PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge])) obj->RecomputeExistenceState();
+				PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge]);
+				if (obj != nullptr) obj->RecomputeExistenceState();
 			}
-			if (PathObjectInstance *obj = _scenery.GetPathObject(voxel_pos)) obj->RecomputeExistenceState();
+			{
+				PathObjectInstance *obj = _scenery.GetPathObject(voxel_pos);
+				if (obj != nullptr) obj->RecomputeExistenceState();
+			}
 			return slope;
 
 		default: NOT_REACHED();
