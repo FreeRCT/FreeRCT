@@ -1695,6 +1695,22 @@ AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
 		return OAR_OK;
 	} else if (this->happiness < 40) {
 		/* Smash something up, then keep walking. */
+		for (int8 dx = -2; dx <= 2; dx++) {
+			for (int8 dy = -2; dy <= 2; dy++) {
+				if (!IsVoxelstackInsideWorld(this->vox_pos.x + dx, this->vox_pos.y + dy)) continue;
+				for (int8 dz = -1; dz <= 1; dz++) {
+					const Voxel *vx = _world.GetVoxel(XYZPoint16(this->vox_pos.x + dx, this->vox_pos.y + dy, this->vox_pos.z + dz));
+					if (vx == nullptr) continue;
+					for (VoxelObject *o = vx->voxel_objects; o != nullptr; o = o->next_object) {
+						if (dynamic_cast<Guard*>(o) != nullptr) {
+							/* A security guard is nearby, so no vandalism just yet. */
+							return OAR_CONTINUE;
+						}
+					}
+				}
+			}
+		}
+
 		obj->Demolish(edge);
 	}
 	return OAR_CONTINUE;
