@@ -971,8 +971,9 @@ static int GetDesiredEdgeIndex(TileEdge desired_edge, uint8 exits)
 }
 
 /**
- * @fn void Person::ActionAnimationCallback()
+ * @fn AnimateResult Person::ActionAnimationCallback()
  * Callback when an action animation finished playing.
+ * @return Result code of the visit.
  */
 
 /**
@@ -1299,7 +1300,8 @@ AnimateResult Person::OnAnimate(int delay)
 	if (this->walk->limit_type == WLM_INVALID) {
 		if (this->frame_index + 1 >= this->frame_count) {
 			reached = true;
-			this->ActionAnimationCallback();
+			AnimateResult ar = this->ActionAnimationCallback();
+			if (ar != OAR_CONTINUE) return ar;
 		}
 	} else if ((this->walk->limit_type & (1 << WLM_END_LIMIT)) == WLM_X_COND) {
 		if (frame->dx > 0) reached |= this->pix_pos.x > x_limit;
@@ -1662,6 +1664,14 @@ AnimateResult Guest::VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge)
 	return OAR_CONTINUE;
 }
 
+/** Pixel positions of guests sitting on a bench. */
+static XYZPoint16 _bench_pix_pos[4 /* TileEdge */][2 /* Left = 0, Right = 1 */] = {
+	{XYZPoint16(  0, 160, 0), XYZPoint16(  0,  96, 0)},
+	{XYZPoint16(160, 255, 0), XYZPoint16( 96, 255, 0)},
+	{XYZPoint16(255,  96, 0), XYZPoint16(255, 160, 0)},
+	{XYZPoint16( 96,   0, 0), XYZPoint16(160,   0, 0)},
+};
+
 AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
 {
 	const TileEdge edge = this->GetCurrentEdge();
@@ -1675,8 +1685,10 @@ AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
 		/* Sit down and remain there for a while. */
 		if (obj->GetRightGuest(edge) == PathObjectType::NO_GUEST_ON_BENCH) {
 			obj->SetRightGuest(edge, this->id);
+			this->pix_pos = _bench_pix_pos[edge][1];
 		} else {
 			obj->SetLeftGuest(edge, this->id);
+			this->pix_pos = _bench_pix_pos[edge][0];
 		}
 		this->activity = GA_RESTING;
 		this->StartAnimation(_guest_bench[edge]);
@@ -1685,6 +1697,21 @@ AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
 		/* Smash something up, then keep walking. */
 		obj->Demolish(edge);
 	}
+	return OAR_CONTINUE;
+}
+
+AnimateResult Guest::ActionAnimationCallback()
+{
+	assert(this->activity == GA_RESTING);
+
+	if (this->food > 0 || this->drink > 0 || this->rnd.Uniform(255) > this->nausea) {
+		/* Remain sitting while eating, drinking, or nauseous. */
+		this->StartAnimation(_guest_bench[this->GetCurrentEdge()]);
+		return OAR_OK;
+	}
+
+	/* Get up and keep walking. */
+	this->activity == GA_WANDER;
 	return OAR_CONTINUE;
 }
 
@@ -2222,12 +2249,14 @@ AnimateResult Mechanic::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit
 	return OAR_ANIMATING;
 }
 
-void Mechanic::ActionAnimationCallback()
+AnimateResult Mechanic::ActionAnimationCallback()
 {
-	if (this->ride == nullptr) return;  // The ride was deleted while we were inspecting it.
+	if (this->ride == nullptr) return OAR_CONTINUE;  // The ride was deleted while we were inspecting it.
 
 	this->ride->MechanicArrived();
 	this->ride = nullptr;
+
+	return OAR_CONTINUE;
 }
 
 /* Constructor. */
@@ -2505,7 +2534,7 @@ AnimateResult Handyman::InteractWithPathObject(PathObjectInstance *obj)
 	return OAR_CONTINUE;
 }
 
-void Handyman::ActionAnimationCallback()
+AnimateResult Handyman::ActionAnimationCallback()
 {
 	switch (this->activity) {
 		case HandymanActivity::WATER: {
@@ -2534,4 +2563,5 @@ void Handyman::ActionAnimationCallback()
 		default: NOT_REACHED();
 	}
 	this->activity = HandymanActivity::WANDER;
+	return OAR_CONTINUE;
 }

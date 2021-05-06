@@ -778,6 +778,94 @@ file("freerct.rcd") {
 		}
 	}
 
+	// NE sitting on bench.
+	ANIM {
+		person_type: guest;
+		anim_type: guest_bench_ne;
+
+		nr_frames: 1;
+		frame_data { duration: 1500; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: guest;
+		anim_type: guest_bench_ne;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 1 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/guest/64_bench.png";
+			recolour: "../sprites/persons/guest/64_bench_mask.png";
+			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+		}
+	}
+
+	// SE sitting on bench.
+	ANIM {
+		person_type: guest;
+		anim_type: guest_bench_se;
+
+		nr_frames: 1;
+		frame_data { duration: 1500; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: guest;
+		anim_type: guest_bench_se;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 0 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/guest/64_bench.png";
+			recolour: "../sprites/persons/guest/64_bench_mask.png";
+			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+		}
+	}
+
+	// SW sitting on bench.
+	ANIM {
+		person_type: guest;
+		anim_type: guest_bench_sw;
+
+		nr_frames: 1;
+		frame_data { duration: 1500; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: guest;
+		anim_type: guest_bench_sw;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 3 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/guest/64_bench.png";
+			recolour: "../sprites/persons/guest/64_bench_mask.png";
+			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+		}
+	}
+
+	// NW sitting on bench.
+	ANIM {
+		person_type: guest;
+		anim_type: guest_bench_nw;
+
+		nr_frames: 1;
+		frame_data { duration: 1500; change_x: 0; change_y: 0; }
+	}
+	ANSP {
+		tile_width: 64;
+		person_type: guest;
+		anim_type: guest_bench_nw;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 2 * 38; x_step: 38; y_step: 38;
+			file: "../sprites/persons/guest/64_bench.png";
+			recolour: "../sprites/persons/guest/64_bench_mask.png";
+			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+		}
+	}
+
 	// Handyman - person type graphics.
 	PRSG {
 		person_graphics {

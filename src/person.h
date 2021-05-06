@@ -156,7 +156,7 @@ protected:
 
 	virtual void DecideMoveDirection() = 0;
 	void StartAnimation(const WalkInformation *walk);
-	virtual void ActionAnimationCallback() = 0;
+	virtual AnimateResult ActionAnimationCallback() = 0;
 
 	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride);
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
@@ -202,11 +202,7 @@ public:
 
 	AnimateResult OnAnimate(int delay) override;
 	bool DailyUpdate() override;
-
-	void ActionAnimationCallback() override
-	{
-		NOT_REACHED();  // Guests don't have action animations.
-	}
+	AnimateResult ActionAnimationCallback() override;
 
 	void ChangeHappiness(int16 amount);
 	ItemType SelectItem(const RideInstance *ri);
@@ -294,7 +290,7 @@ public:
 
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
-	void ActionAnimationCallback() override;
+	AnimateResult ActionAnimationCallback() override;
 };
 
 /**
@@ -309,7 +305,7 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	void ActionAnimationCallback() override
+	AnimateResult ActionAnimationCallback() override
 	{
 		NOT_REACHED();  // Guards don't have action animations.
 	}
@@ -327,7 +323,7 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	void ActionAnimationCallback() override
+	AnimateResult ActionAnimationCallback() override
 	{
 		NOT_REACHED();  // Entertainers don't have action animations.
 	}
@@ -359,7 +355,7 @@ public:
 	void Save(Saver &svr);
 
 	void DecideMoveDirection() override;
-	void ActionAnimationCallback() override;
+	AnimateResult ActionAnimationCallback() override;
 	bool IsLeavingPath() const override;
 	AnimateResult InteractWithPathObject(PathObjectInstance *obj) override;
 

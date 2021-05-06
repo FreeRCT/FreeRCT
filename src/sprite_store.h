@@ -262,7 +262,7 @@ enum AnimationType {
 	ANIM_GUEST_BENCH_NW     = 24,  ///< Animation when a guest sits on a bench, NW view.
 
 	ANIM_BEGIN = ANIM_WALK_NE,            ///< First animation.
-	ANIM_LAST  = ANIM_HANDYMAN_EMPTY_NW,  ///< Last animation.
+	ANIM_LAST  = ANIM_GUEST_BENCH_NW,     ///< Last animation.
 	ANIM_INVALID = 0xFF,                  ///< Invalid animation.
 };
 DECLARE_POSTFIX_INCREMENT(AnimationType)
