@@ -154,8 +154,11 @@ public:
 
 	/** Holds data about a path object to draw. */
 	struct PathObjectSprite {
+		PathObjectSprite(const ImageData *s, XYZPoint16 off);
+
 		const ImageData *sprite;  ///< Sprite to draw.
 		XYZPoint16 offset;        ///< Image offset inside the voxel.
+		bool semi_transparent;    ///< Draw this item semi-transparent.
 	};
 	std::vector<PathObjectSprite> GetSprites(uint8 orientation) const;
 	bool GetExistsOnTileEdge(TileEdge e) const;

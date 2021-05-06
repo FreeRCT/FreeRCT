@@ -55,6 +55,18 @@ const PathObjectType *PathObjectType::Get(uint8 id)
 }
 
 /**
+ * PathObjectSprite constructor.
+ * @param s Sprite to draw.
+ * @param off Pixel offset.
+ */
+PathObjectInstance::PathObjectSprite::PathObjectSprite(const ImageData *s, XYZPoint16 off)
+{
+	this->sprite = s;
+	this->offset = off;
+	this->semi_transparent = false;
+}
+
+/**
  * Construct a new path object instance.
  * @param t Type of path object.
  * @param pos Voxel coordinate of the instance.
@@ -208,13 +220,15 @@ std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites
 	if (this->type->ignore_edges) {
 		switch (this->data[0]) {
 			case INVALID_EDGE:
-				return {{(this->type == &PathObjectType::LITTER ? pdec.flat_litter : pdec.flat_vomit)[this->state], this->pix_pos}};
+				return {PathObjectInstance::PathObjectSprite((
+						this->type == &PathObjectType::LITTER ? pdec.flat_litter : pdec.flat_vomit)[this->state], this->pix_pos)};
 
 			case EDGE_NE:
 			case EDGE_SE:
 			case EDGE_SW:
 			case EDGE_NW:
-				return {{(this->type == &PathObjectType::LITTER ? pdec.ramp_litter : pdec.ramp_vomit)[this->data[0]][this->state], this->pix_pos}};
+				return {PathObjectInstance::PathObjectSprite((
+						this->type == &PathObjectType::LITTER ? pdec.ramp_litter : pdec.ramp_vomit)[this->data[0]][this->state], this->pix_pos)};
 
 			default: NOT_REACHED();
 		}
@@ -237,24 +251,24 @@ std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites
 
 			if (this->GetDemolishedOnTileEdge(e)) {
 				if (this->type == &PathObjectType::BENCH) {
-					result.push_back({pdec.demolished_bench[orient], offset});
+					result.emplace_back(pdec.demolished_bench[orient], offset);
 				} else if (this->type == &PathObjectType::LAMP) {
-					result.push_back({pdec.demolished_lamp[orient], offset});
+					result.emplace_back(pdec.demolished_lamp[orient], offset);
 				} else if (this->type == &PathObjectType::LITTERBIN) {
-					result.push_back({pdec.demolished_bin[orient], offset});
+					result.emplace_back(pdec.demolished_bin[orient], offset);
 				} else {
 					NOT_REACHED();
 				}
 			} else {
 				if (this->type == &PathObjectType::BENCH) {
-					result.push_back({pdec.bench[orient], offset});
+					result.emplace_back(pdec.bench[orient], offset);
 				} else if (this->type == &PathObjectType::LAMP) {
-					result.push_back({pdec.lamp_post[orient], offset});
+					result.emplace_back(pdec.lamp_post[orient], offset);
 				} else if (this->type == &PathObjectType::LITTERBIN) {
 					if (this->data[e] < PathObjectType::BIN_FULL_CAPACITY) {
-						result.push_back({pdec.litterbin[orient], offset});
+						result.emplace_back(pdec.litterbin[orient], offset);
 					} else {
-						result.push_back({pdec.overflow_bin[orient], offset});
+						result.emplace_back(pdec.overflow_bin[orient], offset);
 					}
 				} else {
 					NOT_REACHED();
@@ -911,7 +925,8 @@ std::vector<PathObjectInstance::PathObjectSprite> SceneryManager::DrawPathObject
 	}
 
 	if (this->temp_path_object != nullptr && this->temp_path_object->vox_pos == pos) {
-		for (const PathObjectInstance::PathObjectSprite &image : this->temp_path_object->GetSprites(orientation)) {
+		for (PathObjectInstance::PathObjectSprite image : this->temp_path_object->GetSprites(orientation)) {
+			image.semi_transparent = true;
 			result.push_back(image);
 		}
 	}
