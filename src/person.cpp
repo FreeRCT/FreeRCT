@@ -1336,6 +1336,7 @@ AnimateResult Person::OnAnimate(int delay)
 	int dy = 0;
 	int dz = 0;
 	TileEdge exit_edge = INVALID_EDGE;
+	PathObjectInstance *path_object_to_interact_with = _scenery.GetPathObject(this->vox_pos);
 
 	this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
 	if (this->pix_pos.x < 0) {
@@ -1366,6 +1367,7 @@ AnimateResult Person::OnAnimate(int delay)
 	AnimateResult ar = this->EdgeOfWorldOnAnimate();
 	if (ar != OAR_CONTINUE) return ar;
 
+	if (path_object_to_interact_with != nullptr && !path_object_to_interact_with->GetExistsOnTileEdge(exit_edge)) path_object_to_interact_with = nullptr;
 	/* Handle raising of z position. */
 	if (this->pix_pos.z > 128) {
 		dz++;
@@ -1374,34 +1376,36 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 	/* At bottom of the voxel. */
 	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
-	if (v != nullptr) {
+	if (v != nullptr || path_object_to_interact_with != nullptr) {
 		bool move_on = true;
 		bool freeze_animation = false;
-		SmallRideInstance instance = v->GetInstance();
-		if (instance >= SRI_FULL_RIDES) {
-			assert(exit_edge != INVALID_EDGE);
-			RideInstance *ri = _rides_manager.GetRideInstance(instance);
-			AnimateResult ar = this->VisitRideOnAnimate(ri, exit_edge);
-			if (ar != OAR_CONTINUE && ar != OAR_HALT && ar != OAR_ANIMATING) return ar;
-			move_on = (ar == OAR_CONTINUE);
-			freeze_animation = (ar == OAR_HALT);
+		if (path_object_to_interact_with == nullptr) {
+			SmallRideInstance instance = v->GetInstance();
+			if (instance >= SRI_FULL_RIDES) {
+				assert(exit_edge != INVALID_EDGE);
+				RideInstance *ri = _rides_manager.GetRideInstance(instance);
+				AnimateResult ar = this->VisitRideOnAnimate(ri, exit_edge);
+				if (ar != OAR_CONTINUE && ar != OAR_HALT && ar != OAR_ANIMATING) return ar;
+				move_on = (ar == OAR_CONTINUE);
+				freeze_animation = (ar == OAR_HALT);
 
-			/* Ride is could not be visited, fall-through to reversing movement. */
+				/* Ride is could not be visited, fall-through to reversing movement. */
 
-		} else if (HasValidPath(v) || this->IsLeavingPath()) {
-			this->AddSelf(v);
-			this->DecideMoveDirection();
-			return OAR_OK;
-
-		} else if (this->vox_pos.z > 0) { // Maybe a path below this voxel?
-			dz--;
-			this->vox_pos.z--;
-			this->pix_pos.z = 255;
-			Voxel *w = _world.GetCreateVoxel(this->vox_pos, false);
-			if (w != nullptr && HasValidPath(w)) {
-				this->AddSelf(w);
+			} else if (HasValidPath(v) || this->IsLeavingPath()) {
+				this->AddSelf(v);
 				this->DecideMoveDirection();
 				return OAR_OK;
+
+			} else if (this->vox_pos.z > 0) { // Maybe a path below this voxel?
+				dz--;
+				this->vox_pos.z--;
+				this->pix_pos.z = 255;
+				Voxel *w = _world.GetCreateVoxel(this->vox_pos, false);
+				if (w != nullptr && HasValidPath(w)) {
+					this->AddSelf(w);
+					this->DecideMoveDirection();
+					return OAR_OK;
+				}
 			}
 		}
 
@@ -1413,9 +1417,8 @@ AnimateResult Person::OnAnimate(int delay)
 		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
 
 		/* Check if there's a path object to interact with here. */
-		PathObjectInstance *obj = _scenery.GetPathObject(this->vox_pos);
-		if (obj != nullptr && obj->GetExistsOnTileEdge(exit_edge) && !obj->GetDemolishedOnTileEdge(exit_edge)) {
-			AnimateResult ar = this->InteractWithPathObject(obj);
+		if (path_object_to_interact_with != nullptr) {
+			AnimateResult ar = this->InteractWithPathObject(path_object_to_interact_with);
 			if (ar != OAR_CONTINUE && ar != OAR_HALT && ar != OAR_ANIMATING) return ar;
 			move_on = (ar == OAR_CONTINUE);
 			freeze_animation = (ar == OAR_HALT);
@@ -1675,6 +1678,8 @@ static XYZPoint16 _bench_pix_pos[4 /* TileEdge */][2 /* Left = 0, Right = 1 */] 
 AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
 {
 	const TileEdge edge = this->GetCurrentEdge();
+	if (obj->GetDemolishedOnTileEdge(edge)) return OAR_CONTINUE;
+
 	if (obj->type == &PathObjectType::LITTERBIN && this->has_wrapper && obj->GetFreeBinCapacity(edge) > 0) {
 		/* Throw litter in the bin, then keep walking. */
 		obj->AddItemToBin(edge);
@@ -1719,14 +1724,24 @@ AnimateResult Guest::InteractWithPathObject(PathObjectInstance *obj)
 AnimateResult Guest::ActionAnimationCallback()
 {
 	assert(this->activity == GA_RESTING);
+	const TileEdge edge = this->GetCurrentEdge();
 
 	if (this->food > 0 || this->drink > 0 || this->rnd.Uniform(255) > this->nausea) {
 		/* Remain sitting while eating, drinking, or nauseous. */
-		this->StartAnimation(_guest_bench[this->GetCurrentEdge()]);
+		this->StartAnimation(_guest_bench[edge]);
 		return OAR_OK;
 	}
 
 	/* Get up and keep walking. */
+	PathObjectInstance *obj = _scenery.GetPathObject(this->vox_pos);
+	assert(obj != nullptr && obj->type == &PathObjectType::BENCH);
+	if (obj->GetLeftGuest(edge) == this->id) {
+		obj->SetLeftGuest(edge, PathObjectType::NO_GUEST_ON_BENCH);
+	} else {
+		assert(obj->GetRightGuest(edge) == this->id);
+		obj->SetRightGuest(edge, PathObjectType::NO_GUEST_ON_BENCH);
+	}
+
 	this->activity = GA_WANDER;
 	return OAR_CONTINUE;
 }
@@ -2541,7 +2556,7 @@ void Handyman::DecideMoveDirection()
 AnimateResult Handyman::InteractWithPathObject(PathObjectInstance *obj)
 {
 	const TileEdge edge = this->GetCurrentEdge();
-	if (obj->type == &PathObjectType::LITTERBIN && obj->BinNeedsEmptying(edge)) {
+	if (obj->type == &PathObjectType::LITTERBIN && !obj->GetDemolishedOnTileEdge(edge) && obj->BinNeedsEmptying(edge)) {
 		this->activity = static_cast<Handyman::HandymanActivity>(static_cast<int>(HandymanActivity::EMPTY_NE) + edge);
 		this->SetStatus(GUI_PERSON_STATUS_EMPTYING);
 		this->StartAnimation(_handyman_empty[edge]);

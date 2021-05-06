@@ -93,6 +93,7 @@ PathObjectInstance::PathObjectInstance(const PathObjectType *t, const XYZPoint16
 PathObjectInstance::~PathObjectInstance()
 {
 	if (_scenery.temp_path_object == this) _scenery.temp_path_object = nullptr;
+	/* \todo If this item is a bench, expel the guests from the bench. */
 }
 
 /** Recompute at which of the path edges this item should exist. */
