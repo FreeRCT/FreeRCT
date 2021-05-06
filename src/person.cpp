@@ -1727,7 +1727,7 @@ AnimateResult Guest::ActionAnimationCallback()
 	}
 
 	/* Get up and keep walking. */
-	this->activity == GA_WANDER;
+	this->activity = GA_WANDER;
 	return OAR_CONTINUE;
 }
 
