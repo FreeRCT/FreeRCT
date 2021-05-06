@@ -293,10 +293,7 @@ public:
 	AnimateResult ActionAnimationCallback() override;
 };
 
-/**
- * A guard who walks around the park to stop guests from smashing up park property.
- * @todo Vandalism is not implemented yet, so the guards don't actually have a function currently.
- */
+/** A guard who walks around the park to stop guests from smashing up park property. */
 class Guard : public StaffMember {
 public:
 	Guard();
@@ -329,10 +326,7 @@ public:
 	}
 };
 
-/**
- * A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths.
- * @todo Litter bins and dirty paths are not implemented yet.
- */
+/** A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths. */
 class Handyman : public StaffMember {
 public:
 	/** What a handyman is doing right now. */

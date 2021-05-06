@@ -73,6 +73,7 @@ PathObjectInstance::PathObjectInstance(const PathObjectType *t, const XYZPoint16
 		std::fill_n(this->data, lengthof(this->data), 0);
 	}
 
+	assert(_world.GetVoxel(this->vox_pos) != nullptr && HasValidPath(_world.GetVoxel(this->vox_pos)));
 	this->RecomputeExistenceState();
 }
 
@@ -85,7 +86,11 @@ PathObjectInstance::~PathObjectInstance()
 void PathObjectInstance::RecomputeExistenceState()
 {
 	const Voxel *voxel = _world.GetVoxel(this->vox_pos);
-	assert(voxel != nullptr && HasValidPath(voxel));
+	if (voxel == nullptr || !HasValidPath(voxel)) {
+		/* The path was deleted under the object. Delete it now. */
+		_scenery.SetPathObjectInstance(this->vox_pos, nullptr);
+		return;
+	}
 	const PathSprites path_slope_imploded = GetImplodedPathSlope(voxel);
 	assert(path_slope_imploded < PATH_COUNT && path_slope_imploded >= PATH_EMPTY);  // Path should be either flat or a ramp.
 	const bool is_ramp = (path_slope_imploded >= PATH_FLAT_COUNT);
@@ -829,11 +834,15 @@ uint8 SceneryManager::CountDemolishedItems(const XYZPoint16 &pos) const
 /**
  * Build a path object to a path. This replaces any other object previously present there.
  * @param pos Coordinate of the path.
- * @param type Object to place.
+ * @param type Object to place (may be \c nullptr to delete item without replacing them).
  */
 void SceneryManager::SetPathObjectInstance(const XYZPoint16 &pos, const PathObjectType *type)
 {
-	this->all_path_objects[pos].reset(new PathObjectInstance(type, pos, XYZPoint16(/* Offset is ignored for user-placeable types. */)));
+	if (type == nullptr) {
+		this->all_path_objects.erase(pos);
+	} else {
+		this->all_path_objects[pos].reset(new PathObjectInstance(type, pos, XYZPoint16(/* Offset is ignored for user-placeable types. */)));
+	}
 }
 
 /**

@@ -11,6 +11,7 @@
 #include "path.h"
 #include "map.h"
 #include "ride_type.h"
+#include "scenery.h"
 #include "viewport.h"
 
 /** Imploded path tile sprite number to use for an 'up' slope from a given edge. */
@@ -491,7 +492,9 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
+				if (PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge])) obj->RecomputeExistenceState();
 			}
+			if (PathObjectInstance *obj = _scenery.GetPathObject(voxel_pos)) obj->RecomputeExistenceState();
 			return slope;
 
 		case PAS_QUEUE_PATH:
@@ -518,7 +521,9 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
+				if (PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge])) obj->RecomputeExistenceState();
 			}
+			if (PathObjectInstance *obj = _scenery.GetPathObject(voxel_pos)) obj->RecomputeExistenceState();
 			return slope;
 
 		default: NOT_REACHED();
