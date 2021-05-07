@@ -21,24 +21,25 @@ SceneryManager _scenery;
 std::map<uint8, PathObjectType*> PathObjectType::all_types;
 
 /* Predefined path object types. */
-const PathObjectType PathObjectType::LITTER   (1, true,  true,  Money(  0), nullptr);
-const PathObjectType PathObjectType::VOMIT    (2, true,  true,  Money(  0), nullptr);
-const PathObjectType PathObjectType::LAMP     (3, false, true,  Money(400), &_sprite_manager.GetSprites(64)->path_decoration.lamp_post[0]);
-const PathObjectType PathObjectType::BENCH    (4, false, false, Money(500), &_sprite_manager.GetSprites(64)->path_decoration.bench    [0]);
-const PathObjectType PathObjectType::LITTERBIN(5, false, true,  Money(600), &_sprite_manager.GetSprites(64)->path_decoration.litterbin[0]);
+const PathObjectType PathObjectType::LITTER   (1, true,  true,  Money(  0));
+const PathObjectType PathObjectType::VOMIT    (2, true,  true,  Money(  0));
+const PathObjectType PathObjectType::LAMP     (3, false, true,  Money(400));
+const PathObjectType PathObjectType::BENCH    (4, false, false, Money(500));
+const PathObjectType PathObjectType::LITTERBIN(5, false, true,  Money(600));
 
 /**
  * Private constructor.
+ * @param id Unique ID of this type.
+ * @param ign This item type ignores edges.
+ * @param slope This item type can exist on slopes.
  * @param cost Cost to buy this item (\c 0 means the user can't buy it).
- * @param p Previews for the scenery placement window.
  */
-PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost, ImageData const*const* p)
+PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost)
 {
 	this->type_id            = id;
 	this->ignore_edges       = ign;
 	this->can_exist_on_slope = slope;
 	this->buy_cost           = cost;
-	this->previews           = p;
 
 	assert(this->type_id != INVALID_PATH_OBJECT && all_types.count(this->type_id) == 0);
 	all_types[this->type_id] = this;
@@ -52,6 +53,18 @@ PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope,
 const PathObjectType *PathObjectType::Get(uint8 id)
 {
 	return all_types.at(id);
+}
+
+/**
+ * PathObjectSprite constructor.
+ * @param s Sprite to draw.
+ * @param off Pixel offset.
+ */
+PathObjectInstance::PathObjectSprite::PathObjectSprite(const ImageData *s, XYZPoint16 off)
+{
+	this->sprite = s;
+	this->offset = off;
+	this->semi_transparent = false;
 }
 
 /**
@@ -73,16 +86,27 @@ PathObjectInstance::PathObjectInstance(const PathObjectType *t, const XYZPoint16
 		std::fill_n(this->data, lengthof(this->data), 0);
 	}
 
+	assert(_world.GetVoxel(this->vox_pos) != nullptr && HasValidPath(_world.GetVoxel(this->vox_pos)));
 	this->RecomputeExistenceState();
+}
+
+PathObjectInstance::~PathObjectInstance()
+{
+	if (_scenery.temp_path_object == this) _scenery.temp_path_object = nullptr;
+	/* \todo If this item is a bench, expel the guests from the bench. */
 }
 
 /** Recompute at which of the path edges this item should exist. */
 void PathObjectInstance::RecomputeExistenceState()
 {
 	const Voxel *voxel = _world.GetVoxel(this->vox_pos);
-	assert(voxel != nullptr && HasValidPath(voxel));
+	if (voxel == nullptr || !HasValidPath(voxel)) {
+		/* The path was deleted under the object. Delete it now. */
+		_scenery.SetPathObjectInstance(this->vox_pos, nullptr);
+		return;
+	}
 	const PathSprites path_slope_imploded = GetImplodedPathSlope(voxel);
-	assert(path_slope_imploded < PATH_COUNT && path_slope_imploded > PATH_EMPTY);  // Path should be either flat or a ramp.
+	assert(path_slope_imploded < PATH_COUNT && path_slope_imploded >= PATH_EMPTY);  // Path should be either flat or a ramp.
 	const bool is_ramp = (path_slope_imploded >= PATH_FLAT_COUNT);
 
 	if (this->type->ignore_edges) {
@@ -198,13 +222,15 @@ std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites
 	if (this->type->ignore_edges) {
 		switch (this->data[0]) {
 			case INVALID_EDGE:
-				return {{(this->type == &PathObjectType::LITTER ? pdec.flat_litter : pdec.flat_vomit)[this->state], this->pix_pos}};
+				return {PathObjectInstance::PathObjectSprite((
+						this->type == &PathObjectType::LITTER ? pdec.flat_litter : pdec.flat_vomit)[this->state], this->pix_pos)};
 
 			case EDGE_NE:
 			case EDGE_SE:
 			case EDGE_SW:
 			case EDGE_NW:
-				return {{(this->type == &PathObjectType::LITTER ? pdec.ramp_litter : pdec.ramp_vomit)[this->data[0]][this->state], this->pix_pos}};
+				return {PathObjectInstance::PathObjectSprite((
+						this->type == &PathObjectType::LITTER ? pdec.ramp_litter : pdec.ramp_vomit)[this->data[0]][this->state], this->pix_pos)};
 
 			default: NOT_REACHED();
 		}
@@ -227,24 +253,24 @@ std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites
 
 			if (this->GetDemolishedOnTileEdge(e)) {
 				if (this->type == &PathObjectType::BENCH) {
-					result.push_back({pdec.demolished_bench[orient], offset});
+					result.emplace_back(pdec.demolished_bench[orient], offset);
 				} else if (this->type == &PathObjectType::LAMP) {
-					result.push_back({pdec.demolished_lamp[orient], offset});
+					result.emplace_back(pdec.demolished_lamp[orient], offset);
 				} else if (this->type == &PathObjectType::LITTERBIN) {
-					result.push_back({pdec.demolished_bin[orient], offset});
+					result.emplace_back(pdec.demolished_bin[orient], offset);
 				} else {
 					NOT_REACHED();
 				}
 			} else {
 				if (this->type == &PathObjectType::BENCH) {
-					result.push_back({pdec.bench[orient], offset});
+					result.emplace_back(pdec.bench[orient], offset);
 				} else if (this->type == &PathObjectType::LAMP) {
-					result.push_back({pdec.lamp_post[orient], offset});
+					result.emplace_back(pdec.lamp_post[orient], offset);
 				} else if (this->type == &PathObjectType::LITTERBIN) {
 					if (this->data[e] < PathObjectType::BIN_FULL_CAPACITY) {
-						result.push_back({pdec.litterbin[orient], offset});
+						result.emplace_back(pdec.litterbin[orient], offset);
 					} else {
-						result.push_back({pdec.overflow_bin[orient], offset});
+						result.emplace_back(pdec.overflow_bin[orient], offset);
 					}
 				} else {
 					NOT_REACHED();
@@ -295,6 +321,92 @@ void PathObjectInstance::SetDemolishedOnTileEdge(TileEdge e, bool d)
 {
 	SB(this->state, e + 4, 1, d ? 1 : 0);
 }
+
+/**
+ * Get the free bin capacity of the bin on a given edge.
+ * @param e Edge to query,
+ * @return The free capacity (\c 0 for full bins).
+ * @pre This item is a bin, and a non-demolished bin exists on this edge.
+ */
+uint PathObjectInstance::GetFreeBinCapacity(TileEdge e) const
+{
+	assert(this->data[e] <= PathObjectType::BIN_MAX_CAPACITY);
+	return PathObjectType::BIN_MAX_CAPACITY - this->data[e];
+}
+
+/**
+ * Check whether the bin on a given edge is so full that it should be emptied.
+ * @param e Edge to query,
+ * @return The bin needs emptying
+ * @pre This item is a bin, and a non-demolished bin exists on this edge.
+ */
+bool PathObjectInstance::BinNeedsEmptying(TileEdge e) const
+{
+	return this->data[e] >= PathObjectType::BIN_FULL_CAPACITY;
+}
+
+/**
+ * Get the guest sitting on the left half of the bench on a given edge.
+ * @param e Edge to query,
+ * @return The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH if the seat is free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+uint16 PathObjectInstance::GetLeftGuest(TileEdge e) const
+{
+	return this->data[e] & 0xFFFF;
+}
+
+/**
+ * Get the guest sitting on the left half of the bench on a given edge.
+ * @param e Edge to query,
+ * @return The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH if the seat is free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+uint16 PathObjectInstance::GetRightGuest(TileEdge e) const
+{
+	return this->data[e] >> 16;
+}
+
+/**
+ * Throw a piece of litter into the bin on a given edge.
+ * @param e Edge to query,
+ * @pre This item is a bin, and a non-demolished bin that still has free capacity exists on this edge.
+ */
+void PathObjectInstance::AddItemToBin(TileEdge e) {
+	this->data[e]++;
+}
+
+/**
+ * Empty the bin on a given edge.
+ * @param e Edge to query,
+ * @pre This item is a bin, and a non-demolished bin exists on this edge.
+ */
+void PathObjectInstance::EmptyBin(TileEdge e) {
+	this->data[e] = 0;
+}
+
+/**
+ * Set the guest sitting on the left half of the bench on a given edge.
+ * @param e Edge to query,
+ * @param id The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH to mark the seat as free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+void PathObjectInstance::SetLeftGuest(TileEdge e, uint16 id) {
+	this->data[e] &= 0xFFFF0000;
+	this->data[e] |= id;
+}
+
+/**
+ * Set the guest sitting on the right half of the bench on a given edge.
+ * @param e Edge to query,
+ * @param id The guest's ID (#PathObjectType::NO_GUEST_ON_BENCH to mark the seat as free).
+ * @pre This item is a bench, and a non-demolished bench exists on this edge.
+ */
+void PathObjectInstance::SetRightGuest(TileEdge e, uint16 id) {
+	this->data[e] &= 0x0000FFFF;
+	this->data[e] |= (id << 16);
+}
+
 
 static const uint32 CURRENT_VERSION_PathObjectInstance = 1;   ///< Currently supported version of %PathObjectInstance.
 
@@ -605,6 +717,7 @@ void SceneryInstance::Save(Saver &svr) const
 SceneryManager::SceneryManager()
 {
 	this->temp_item = nullptr;
+	this->temp_path_object = nullptr;
 }
 
 /**
@@ -668,6 +781,7 @@ std::vector<const SceneryType*> SceneryManager::GetAllTypes(SceneryCategory cat)
 void SceneryManager::Clear()
 {
 	this->temp_item = nullptr;
+	this->temp_path_object = nullptr;
 	while (!this->all_items.empty()) this->RemoveItem(this->all_items.begin()->first);
 	this->all_path_objects.clear();
 	this->litter_and_vomit.clear();
@@ -734,6 +848,31 @@ uint8 SceneryManager::CountDemolishedItems(const XYZPoint16 &pos) const
 }
 
 /**
+ * Build a path object to a path. This replaces any other object previously present there.
+ * @param pos Coordinate of the path.
+ * @param type Object to place (may be \c nullptr to delete item without replacing them).
+ */
+void SceneryManager::SetPathObjectInstance(const XYZPoint16 &pos, const PathObjectType *type)
+{
+	if (type == nullptr) {
+		this->all_path_objects.erase(pos);
+	} else {
+		this->all_path_objects[pos].reset(new PathObjectInstance(type, pos, XYZPoint16(/* Offset is ignored for user-placeable types. */)));
+	}
+}
+
+/**
+ * Get the path object at a given path.
+ * @param pos Coordinate of the path.
+ * @return The object there (may be \c nullptr).
+ */
+PathObjectInstance *SceneryManager::GetPathObject(const XYZPoint16 &pos)
+{
+	auto it = this->all_path_objects.find(pos);
+	return it == this->all_path_objects.end() ? nullptr : it->second.get();
+}
+
+/**
  * Add some litter to a path.
  * @param pos Coordinate of the path.
  * @param offset Offset of the item inside the voxel.
@@ -783,6 +922,13 @@ std::vector<PathObjectInstance::PathObjectSprite> SceneryManager::DrawPathObject
 	auto it = this->all_path_objects.find(pos);
 	if (it != this->all_path_objects.end()) {
 		for (const PathObjectInstance::PathObjectSprite &image : it->second->GetSprites(orientation)) {
+			result.push_back(image);
+		}
+	}
+
+	if (this->temp_path_object != nullptr && this->temp_path_object->vox_pos == pos) {
+		for (PathObjectInstance::PathObjectSprite image : this->temp_path_object->GetSprites(orientation)) {
+			image.semi_transparent = true;
 			result.push_back(image);
 		}
 	}

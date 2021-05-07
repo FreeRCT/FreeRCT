@@ -98,7 +98,6 @@ public:
 /** A type of path object, e.g. benches, litter. */
 class PathObjectType {
 public:
-	ImageData const*const* previews;  ///< Pointers to the previews for the scenery placement window.
 	Money buy_cost;                   ///< Cost of buying this item (\c 0 indicates it can't be bought).
 	uint8 type_id;                    ///< Unique type ID for saveloading.
 	bool ignore_edges;                ///< This item lives in the middle of a path rather than on the edges.
@@ -122,7 +121,7 @@ public:
 	static const uint16 NO_GUEST_ON_BENCH = 0xFFFF;  ///< Denotes absence of a guest on a bench.
 
 private:
-	PathObjectType(uint8 id, bool ign, bool slope, const Money &cost, ImageData const*const* p);
+	PathObjectType(uint8 id, bool ign, bool slope, const Money &cost);
 
 	static std::map<uint8, PathObjectType*> all_types;  ///< All path object types with their IDs.
 };
@@ -147,18 +146,31 @@ private:
 class PathObjectInstance {
 public:
 	explicit PathObjectInstance(const PathObjectType *t, const XYZPoint16 &pos, const XYZPoint16 &offset);
+	~PathObjectInstance();
 
 	void RecomputeExistenceState();
 	void Demolish(TileEdge e);
 
 	/** Holds data about a path object to draw. */
 	struct PathObjectSprite {
+		PathObjectSprite(const ImageData *s, XYZPoint16 off);
+
 		const ImageData *sprite;  ///< Sprite to draw.
 		XYZPoint16 offset;        ///< Image offset inside the voxel.
+		bool semi_transparent;    ///< Draw this item semi-transparent.
 	};
 	std::vector<PathObjectSprite> GetSprites(uint8 orientation) const;
 	bool GetExistsOnTileEdge(TileEdge e) const;
 	bool GetDemolishedOnTileEdge(TileEdge e) const;
+
+	uint   GetFreeBinCapacity(TileEdge e) const;
+	bool   BinNeedsEmptying  (TileEdge e) const;
+	uint16 GetLeftGuest      (TileEdge e) const;
+	uint16 GetRightGuest     (TileEdge e) const;
+	void   AddItemToBin      (TileEdge e);
+	void   EmptyBin          (TileEdge e);
+	void   SetLeftGuest      (TileEdge e, uint16 id);
+	void   SetRightGuest     (TileEdge e, uint16 id);
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
@@ -193,18 +205,21 @@ public:
 	void RemoveItem(const XYZPoint16 &pos);
 	SceneryInstance *GetItem(const XYZPoint16 &pos);
 
+	void  SetPathObjectInstance(const XYZPoint16 &pos, const PathObjectType *type);
 	void  AddLitter(const XYZPoint16 &pos, const XYZPoint16 &offset);
 	void  AddVomit (const XYZPoint16 &pos, const XYZPoint16 &offset);
 	void  RemoveLitterAndVomit(const XYZPoint16 &pos);
 	uint  CountLitterAndVomit (const XYZPoint16 &pos) const;
 	uint8 CountDemolishedItems(const XYZPoint16 &pos) const;
+	PathObjectInstance *GetPathObject(const XYZPoint16 &pos);
 
 	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation) const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;
 
-	SceneryInstance *temp_item;  ///< An item that is currently being placed (not owned).
+	SceneryInstance    *temp_item;         ///< A scenery item that is currently being placed (not owned).
+	PathObjectInstance *temp_path_object;  ///< A path object type that is currently being placed (not owned).
 
 private:
 	std::unique_ptr<SceneryType> scenery_item_types[MAX_NUMBER_OF_SCENERY_TYPES];     ///< All available scenery types.

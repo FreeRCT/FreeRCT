@@ -24,6 +24,10 @@ enum GuiSpritesTable {
 	SPR_GUI_MESSAGE_RIDE,      ///< Inbox button ride instance window sprite.
 	SPR_GUI_MESSAGE_RIDE_TYPE, ///< Inbox button ride select gui sprite.
 
+	SPR_GUI_BENCH,  ///< Bench icon.
+	SPR_GUI_BIN,    ///< Bin icon.
+	SPR_GUI_LAMP,   ///< Lamp icon.
+
 	SPR_GUI_TOOLBAR_BEGIN,                         ///< Begin of toolbar sprites.
 	SPR_GUI_TOOLBAR_MAIN = SPR_GUI_TOOLBAR_BEGIN,  ///< Toolbar button main menu gui sprite.
 	SPR_GUI_TOOLBAR_SPEED,                         ///< Toolbar button speed menu gui sprite.

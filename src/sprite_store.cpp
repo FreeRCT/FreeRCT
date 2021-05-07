@@ -804,7 +804,7 @@ bool Animation::Load(RcdFileReader *rcd_file)
 		AnimationFrame *frame = this->frames + i;
 
 		frame->duration = rcd_file->GetUInt16();
-		if (frame->duration == 0 || frame->duration >= 1000) return false; // Arbitrary sanity limit.
+		if (frame->duration == 0 || frame->duration >= 5000) return false; // Arbitrary sanity limit.
 
 		frame->dx = rcd_file->GetInt16();
 		if (frame->dx < -100 || frame->dx > 100) return false; // Arbitrary sanity limit.
@@ -1864,6 +1864,9 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_MESSAGE_GUEST:      return _gui_sprites.message_guest;
 		case SPR_GUI_MESSAGE_RIDE:       return _gui_sprites.message_ride;
 		case SPR_GUI_MESSAGE_RIDE_TYPE:  return _gui_sprites.message_ride_type;
+		case SPR_GUI_BENCH:              return this->store.path_decoration.bench    [0];
+		case SPR_GUI_BIN:                return this->store.path_decoration.litterbin[0];
+		case SPR_GUI_LAMP:               return this->store.path_decoration.lamp_post[0];
 		default:                     return nullptr;
 	}
 }

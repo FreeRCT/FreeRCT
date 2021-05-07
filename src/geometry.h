@@ -93,7 +93,7 @@ inline bool operator==(const Point<CT> &p, const Point<CT> &q)
  */
 template <typename CT>
 struct XYZPoint {
-	XYZPoint() = default;
+	XYZPoint() : XYZPoint(0, 0, 0) {}
 
 	/**
 	 * Constructor for creating a point at a given coordinate.

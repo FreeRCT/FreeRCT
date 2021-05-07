@@ -519,7 +519,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
 			            north_point.y + this->north_offsets[this->orient].y + y_off);
 
-			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos);
+			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos, nullptr, image.semi_transparent);
 			this->draw_images.insert(dd);
 		}
 	} else if (sri >= SRI_FULL_RIDES || sri == SRI_SCENERY) { // A normal ride, or a scenery item.

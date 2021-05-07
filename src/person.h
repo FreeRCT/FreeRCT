@@ -15,6 +15,7 @@
 #include "money.h"
 #include "ride_type.h"
 
+class PathObjectInstance;
 struct WalkInformation;
 class RideInstance;
 
@@ -155,12 +156,13 @@ protected:
 
 	virtual void DecideMoveDirection() = 0;
 	void StartAnimation(const WalkInformation *walk);
-	virtual void ActionAnimationCallback() = 0;
+	virtual AnimateResult ActionAnimationCallback() = 0;
 
 	RideVisitDesire ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_pos, TileEdge exit_edge, bool *seen_wanted_ride);
 	virtual RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) = 0;
 	virtual AnimateResult EdgeOfWorldOnAnimate() = 0;
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
+	virtual AnimateResult InteractWithPathObject(PathObjectInstance *obj);
 	virtual bool IsLeavingPath() const;
 };
 
@@ -200,11 +202,7 @@ public:
 
 	AnimateResult OnAnimate(int delay) override;
 	bool DailyUpdate() override;
-
-	void ActionAnimationCallback() override
-	{
-		NOT_REACHED();  // Guests don't have action animations.
-	}
+	AnimateResult ActionAnimationCallback() override;
 
 	void ChangeHappiness(int16 amount);
 	ItemType SelectItem(const RideInstance *ri);
@@ -245,6 +243,7 @@ protected:
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	AnimateResult EdgeOfWorldOnAnimate() override;
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
+	AnimateResult InteractWithPathObject(PathObjectInstance *obj) override;
 	const WalkInformation *WalkForActivity(const WalkInformation **walks, uint8 walk_count, uint8 exits);
 
 	RideVisitDesire NeedForItem(enum ItemType it, bool use_random);
@@ -291,13 +290,10 @@ public:
 
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
-	void ActionAnimationCallback() override;
+	AnimateResult ActionAnimationCallback() override;
 };
 
-/**
- * A guard who walks around the park to stop guests from smashing up park property.
- * @todo Vandalism is not implemented yet, so the guards don't actually have a function currently.
- */
+/** A guard who walks around the park to stop guests from smashing up park property. */
 class Guard : public StaffMember {
 public:
 	Guard();
@@ -306,7 +302,7 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	void ActionAnimationCallback() override
+	AnimateResult ActionAnimationCallback() override
 	{
 		NOT_REACHED();  // Guards don't have action animations.
 	}
@@ -324,16 +320,13 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	void ActionAnimationCallback() override
+	AnimateResult ActionAnimationCallback() override
 	{
 		NOT_REACHED();  // Entertainers don't have action animations.
 	}
 };
 
-/**
- * A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths.
- * @todo Litter bins and dirty paths are not implemented yet.
- */
+/** A handyman who walks around the park and waters the flowerbeds, empties the litter bins and sweeps the paths. */
 class Handyman : public StaffMember {
 public:
 	/** What a handyman is doing right now. */
@@ -356,8 +349,9 @@ public:
 	void Save(Saver &svr);
 
 	void DecideMoveDirection() override;
-	void ActionAnimationCallback() override;
+	AnimateResult ActionAnimationCallback() override;
 	bool IsLeavingPath() const override;
+	AnimateResult InteractWithPathObject(PathObjectInstance *obj) override;
 
 	HandymanActivity activity;  ///< What the handyman is doing right now.
 };

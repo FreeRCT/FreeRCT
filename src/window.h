@@ -58,6 +58,7 @@ enum WindowTypes {
 	WC_GENTLE_THRILL_RIDE_REMOVE,  ///< Gentle/Thrill ride remove window.
 	WC_FENCE,           ///< Fence window.
 	WC_SCENERY,         ///< Scenery window.
+	WC_PATH_OBJECTS,    ///< Path objects window.
 	WC_TERRAFORM,       ///< Terraform window.
 	WC_FINANCES,        ///< Finance management window.
 	WC_STAFF,           ///< Staff management window.
@@ -494,6 +495,7 @@ void ShowShopManagementGui(uint16 ri);
 void ShowGentleThrillRideManagementGui(uint16 ri);
 void ShowFenceGui();
 void ShowSceneryGui();
+void ShowPathObjectsGui();
 void ShowTerraformGui();
 void ShowFinancesGui();
 void ShowCoasterManagementGui(RideInstance *coaster);
