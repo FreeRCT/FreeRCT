@@ -251,7 +251,7 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 	if (v == nullptr || v->IsEmpty()) return;
 
 	uint16 instance = v->GetInstance();
-	if (instance >= SRI_FULL_RIDES) { // A ride needs the entire voxel.
+	if (instance >= SRI_FULL_RIDES || instance == SRI_SCENERY) { // Rides and scenery items need the entire voxel.
 		std::fill_n(bounds, 4, height);
 		return;
 	}
@@ -287,6 +287,23 @@ static void SetUpperBoundary(const Voxel *v, uint8 height, uint8 *bounds)
 			std::fill_n(bounds, 4, height);
 			break;
 	}
+}
+
+/**
+ * Set a lower boundary of the height of each tile corner based on the contents of a voxel.
+ * @param v %Voxel to examine.
+ * @param height Height of the voxel.
+ * @param bounds [inout] Updated constraints.
+ * @note Length of the \a bounds array should be 4.
+ */
+static void SetLowerBoundary(const Voxel *v, uint8 height, uint8 *bounds)
+{
+	if (v == nullptr || v->IsEmpty()) return;
+	if (v->GetInstance() == SRI_SCENERY) {  // Scenery items need the entire voxel.
+		std::fill_n(bounds, 4, height);
+		return;
+	}
+	/* \todo Implement underground paths and rides. */
 }
 
 /**
@@ -465,7 +482,21 @@ bool TerrainChanges::ModifyWorld(int direction)
 			for (uint i = 0; i < 4; i++) {
 				if (current[i] > max_above[i]) return false;
 			}
-		} /* else: Moving downwards always works, since there is nothing underground yet. */
+		} else if (direction < 0) {
+			/* Moving downwards, compute lower bound on corner heights. */
+			uint8 max_below[4];
+			std::fill_n(max_below, lengthof(max_below), gd.height >= 3 ? gd.height - 3 : 0);
+
+			const VoxelStack *vs = _world.GetStack(pos.x, pos.y);
+			for (int i = std::min<int>(2, gd.height); i >= 0; i--) {
+				SetLowerBoundary(vs->Get(gd.height - i), gd.height - i, max_below);
+			}
+
+			/* Check boundaries. */
+			for (uint i = 0; i < 4; i++) {
+				if (current[i] < max_below[i]) return false;
+			}
+		}
 	}
 
 	/* Second iteration: Change the ground of the tiles. */
