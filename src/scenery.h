@@ -183,6 +183,7 @@ public:
 private:
 	void SetExistsOnTileEdge(TileEdge e, bool b);
 	void SetDemolishedOnTileEdge(TileEdge e, bool d);
+	void RemoveGuestsFromBench(TileEdge e);
 
 	uint32 data[4];      ///< #type-specific instance data for each edge.
 	uint8 state;         ///< Presence and demolishing states.

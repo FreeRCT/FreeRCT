@@ -13,6 +13,8 @@
 #include "gamecontrol.h"
 #include "generated/scenery_strings.h"
 #include "generated/scenery_strings.cpp"
+#include "person.h"
+#include "people.h"
 #include "random.h"
 #include "viewport.h"
 
@@ -93,7 +95,11 @@ PathObjectInstance::PathObjectInstance(const PathObjectType *t, const XYZPoint16
 PathObjectInstance::~PathObjectInstance()
 {
 	if (_scenery.temp_path_object == this) _scenery.temp_path_object = nullptr;
-	/* \todo If this item is a bench, expel the guests from the bench. */
+	if (this->type == &PathObjectType::BENCH) {
+		for (TileEdge e = EDGE_BEGIN; e != EDGE_COUNT; e++) {
+			this->RemoveGuestsFromBench(e);
+		}
+	}
 }
 
 /** Recompute at which of the path edges this item should exist. */
@@ -204,9 +210,28 @@ void PathObjectInstance::Demolish(const TileEdge e)
 			}
 			_scenery.AddLitter(this->vox_pos, offset);
 		}
-	} else if (this->type == &PathObjectType::BENCH) {
-		/* \todo Expel the guests from the bench. */
-		this->data[e] = PathObjectType::NO_GUEST_ON_BENCH | (PathObjectType::NO_GUEST_ON_BENCH << 16);
+	}
+}
+
+/**
+ * Remove all guests from this bench.
+ * @param e Edge of the bench.
+ * @pre This item is a bench.
+ */
+void PathObjectInstance::RemoveGuestsFromBench(const TileEdge e)
+{
+	if (!this->GetExistsOnTileEdge(e)) return;
+
+	uint16 id = this->GetLeftGuest(e);
+	if (id != PathObjectType::NO_GUEST_ON_BENCH) {
+		_guests.Get(id)->ExpelFromBench();
+		this->SetLeftGuest(e, PathObjectType::NO_GUEST_ON_BENCH);
+	}
+
+	id = this->GetRightGuest(e);
+	if (id != PathObjectType::NO_GUEST_ON_BENCH) {
+		_guests.Get(id)->ExpelFromBench();
+		this->SetRightGuest(e, PathObjectType::NO_GUEST_ON_BENCH);
 	}
 }
 
@@ -299,6 +324,7 @@ bool PathObjectInstance::GetExistsOnTileEdge(TileEdge e) const
  */
 void PathObjectInstance::SetExistsOnTileEdge(TileEdge e, bool b)
 {
+	if (!b && this->type == &PathObjectType::BENCH) this->RemoveGuestsFromBench(e);
 	SB(this->state, e, 1, b ? 1 : 0);
 }
 
@@ -319,6 +345,7 @@ bool PathObjectInstance::GetDemolishedOnTileEdge(TileEdge e) const
  */
 void PathObjectInstance::SetDemolishedOnTileEdge(TileEdge e, bool d)
 {
+	if (d && this->type == &PathObjectType::BENCH) this->RemoveGuestsFromBench(e);
 	SB(this->state, e + 4, 1, d ? 1 : 0);
 }
 
@@ -783,8 +810,9 @@ void SceneryManager::Clear()
 	this->temp_item = nullptr;
 	this->temp_path_object = nullptr;
 	while (!this->all_items.empty()) this->RemoveItem(this->all_items.begin()->first);
-	this->all_path_objects.clear();
-	this->litter_and_vomit.clear();
+	/* Do not use std::map::clear(), it may result in a heap-use-after-free. */
+	while (!this->litter_and_vomit.empty()) this->litter_and_vomit.erase(this->litter_and_vomit.begin());
+	while (!this->all_path_objects.empty()) this->all_path_objects.erase(this->all_path_objects.begin());
 }
 
 /**

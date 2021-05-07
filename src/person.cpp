@@ -1746,6 +1746,15 @@ AnimateResult Guest::ActionAnimationCallback()
 	return OAR_CONTINUE;
 }
 
+/** Inform this guest that the bench he is sitting on has just been deleted. */
+void Guest::ExpelFromBench()
+{
+	assert(this->activity == GA_RESTING);
+	this->activity = GA_WANDER;
+	this->ChangeHappiness(-10);
+	this->DecideMoveDirection();
+}
+
 /**
  * Update the happiness of the guest.
  * @param amount Amount of change.
