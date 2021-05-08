@@ -2137,7 +2137,6 @@ AnimateResult StaffMember::EdgeOfWorldOnAnimate()
 void StaffMember::DecideMoveDirection()
 {
 	/* \todo Lots of shared code with Guest::DecideMoveDirection and Guest::GetExitDirections. */
-	/* \todo Mechanics should walk purposefully towards their assigned ride, if any. */
 	this->SetStatus(this->ride != nullptr ? GUI_PERSON_STATUS_HEADING_TO_RIDE : GUI_PERSON_STATUS_WANDER);
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
@@ -2264,6 +2263,39 @@ void Mechanic::Assign(RideInstance *ri)
 void Mechanic::NotifyRideDeletion(const RideInstance *ri)
 {
 	if (ri == this->ride) this->ride = nullptr;
+}
+
+void Mechanic::DecideMoveDirection()
+{
+	if (this->ride == nullptr) return StaffMember::DecideMoveDirection();
+
+	EdgeCoordinate destination = this->ride->GetMechanicEntrance();
+	destination.coords.x += _tile_dxy[destination.edge].x;
+	destination.coords.y += _tile_dxy[destination.edge].y;
+
+	PathSearcher ps(this->vox_pos);
+	ps.AddStart(destination.coords);
+	destination.coords.z--;
+	ps.AddStart(destination.coords);  // In case the path leading to the mechanic entrance is sloping upwards.
+
+	if (!ps.Search()) {
+		/* Could not find a path from our position to the destination ride, probably because no such path exists. */
+		_staff.RequestMechanic(this->ride);
+		this->ride = nullptr;
+		return StaffMember::DecideMoveDirection();
+	}
+
+	this->SetStatus(GUI_PERSON_STATUS_HEADING_TO_RIDE);
+	const WalkedPosition *dest = ps.dest_pos;
+	const WalkedPosition *prev = dest->prev_pos;
+
+	if (prev == nullptr) {
+		/* Already at destination. Entering the ride is handled by the parent class method. */
+		return StaffMember::DecideMoveDirection();
+	}
+
+	const TileEdge edge = GetAdjacentEdge(dest->cur_vox.x, dest->cur_vox.y, prev->cur_vox.x, prev->cur_vox.y);
+	this->StartAnimation(_walk_path_tile[this->GetCurrentEdge()][edge]);
 }
 
 RideVisitDesire Mechanic::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)

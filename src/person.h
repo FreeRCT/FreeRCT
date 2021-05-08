@@ -286,6 +286,7 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
+	void DecideMoveDirection() override;
 	void Assign(RideInstance *ri);
 	void NotifyRideDeletion(const RideInstance *ri);
 
