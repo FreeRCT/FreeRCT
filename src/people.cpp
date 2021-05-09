@@ -15,6 +15,7 @@
 #include "messages.h"
 #include "person_type.h"
 #include "ride_type.h"
+#include "path_finding.h"
 #include "person.h"
 #include "people.h"
 #include "gamelevel.h"
@@ -707,19 +708,28 @@ void Staff::DoTick()
 {
 	/* Assign one mechanic request to the nearest available mechanic, if any. */
 	if (!this->mechanic_requests.empty() && !this->mechanics.empty()) {
-		const EdgeCoordinate destination = this->mechanic_requests.front()->GetMechanicEntrance();
+		EdgeCoordinate destination = this->mechanic_requests.front()->GetMechanicEntrance();
+		destination.coords.x += _tile_dxy[destination.edge].x;
+		destination.coords.y += _tile_dxy[destination.edge].y;
+
 		Mechanic *best = nullptr;
 		uint32 distance = 0;
 		for (auto &m : this->mechanics) {
-			if (m->ride == nullptr) {
-				/* \todo The actual walking-time would be a better indicator than the absolute distance to determine which mechanic is closest. */
-				const uint32 d = std::abs(destination.coords.x - m->vox_pos.x) +
-						std::abs(destination.coords.y - m->vox_pos.y) +
-						std::abs(destination.coords.z - m->vox_pos.z);
-				if (best == nullptr || d < distance) {
-					best = m.get();
-					distance = d;
-				}
+			if (m->ride != nullptr) continue;
+
+			PathSearcher ps(m->vox_pos);
+			XYZPoint16 p(destination.coords);
+			ps.AddStart(p);
+			p.z--;
+			ps.AddStart(p);  // In case the path leading to the mechanic entrance is sloping upwards.
+
+			if (!ps.Search()) continue;  // No path exists.
+			uint32 d = 0;
+			for (const WalkedPosition *it = ps.dest_pos; it->prev_pos != nullptr; it = it->prev_pos) d++;
+
+			if (best == nullptr || d < distance) {
+				best = m.get();
+				distance = d;
 			}
 		}
 		if (best != nullptr) {

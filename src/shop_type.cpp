@@ -128,7 +128,7 @@ const StringID *ShopType::GetInstanceNames() const
  */
 ShopInstance::ShopInstance(const ShopType *type) : FixedRideInstance(type)
 {
-	/* Nothing to do currently. */
+	this->maintenance_interval = 0;  // Shops don't break down.
 }
 
 ShopInstance::~ShopInstance()
