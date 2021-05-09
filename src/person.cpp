@@ -315,6 +315,7 @@ void Person::UpdateZPosition()
 			} else {  // Like for voxels with a lowered west corner.
 				this->pix_pos.z = 255 - (std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y));
 			}
+			return;
 		case ISL_BOTTOM_STEEP_WEST:
 			if (this->pix_pos.x >= this->pix_pos.y) {  // Wrong part, move up.
 				this->RemoveSelf(v);
@@ -358,7 +359,7 @@ void Person::UpdateZPosition()
 			}
 			return;
 		case ISL_TOP_STEEP_EAST:
-			if (this->pix_pos.x < this->pix_pos.y) {  // Wrong part, move down.
+			if (this->pix_pos.x > this->pix_pos.y) {  // Wrong part, move down.
 				this->RemoveSelf(v);
 				this->vox_pos.z--;
 				v = _world.GetCreateVoxel(this->vox_pos, false);
