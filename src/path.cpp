@@ -362,6 +362,8 @@ uint8 SetPathEdge(uint8 slope, TileEdge edge, bool connect)
  */
 static int GetQuePathEdgeConnectCount(uint8 impl_slope)
 {
+	if (impl_slope >= PATH_FLAT_COUNT) return 0;  // Since ramps can have at most 2 connections it is always safe to connect them.
+
 	uint8 exp_edges = _path_expand[impl_slope] & PATHMASK_EDGES;
 	if (exp_edges == 0) return 0;
 	if (exp_edges == PATHMASK_NE || exp_edges == PATHMASK_SE || exp_edges == PATHMASK_SW || exp_edges == PATHMASK_NW) return 1;
