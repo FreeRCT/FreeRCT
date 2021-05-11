@@ -107,6 +107,7 @@ Person::Person() : VoxelObject(), rnd()
 	this->type = PERSON_INVALID;
 	this->name = nullptr;
 	this->ride = nullptr;
+	this->status = GUI_PERSON_STATUS_WANDER;
 
 	this->offset = this->rnd.Uniform(100);
 }
@@ -149,37 +150,245 @@ const uint8 *Person::GetName() const
 	return buffer;
 }
 
-/**
- * Compute the height of the path in the given voxel, at the given x/y position.
- * @param vox Coordinates of the voxel.
- * @param x_pos X position in the voxel.
- * @param y_pos Y position in the voxel.
- * @return Z height of the path in the voxel at the give position.
- * @todo Make it work at sloped surface too, in case the person ends up at path-less land.
- */
-static int16 GetZHeight(const XYZPoint16 &vox, int16 x_pos, int16 y_pos)
+/** Recompute the height of the person. */
+void Person::UpdateZPosition()
 {
-	const Voxel *v = _world.GetVoxel(vox);
+	Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 	assert(v != nullptr);
 
 	if (HasValidPath(v)) {
 		uint8 slope = GetImplodedPathSlope(v);
-		if (slope < PATH_FLAT_COUNT) return 0;
+		if (slope < PATH_FLAT_COUNT) {
+			this->pix_pos.z = 0;
+			return;
+		}
 		switch (slope) {
-			case PATH_RAMP_NE: return x_pos;
-			case PATH_RAMP_NW: return y_pos;
-			case PATH_RAMP_SE: return 255 - y_pos;
-			case PATH_RAMP_SW: return 255 - x_pos;
+			case PATH_RAMP_NE: this->pix_pos.z =       this->pix_pos.x; return;
+			case PATH_RAMP_NW: this->pix_pos.z =       this->pix_pos.y; return;
+			case PATH_RAMP_SE: this->pix_pos.z = 255 - this->pix_pos.y; return;
+			case PATH_RAMP_SW: this->pix_pos.z = 255 - this->pix_pos.x; return;
 			default: NOT_REACHED();
 		}
 	}
+	/* No path here. */
 
-	if (v->GetGroundType() != GTP_INVALID && v->GetGroundSlope() == SL_FLAT) {
-		/* No path, but the land is flat. */
-		return 0;
+	if (v->GetGroundType() == GTP_INVALID) {
+		/* The person ended up above or below the ground. Fall down or teleport upwards. */
+		const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
+		const int base_z = vs->base + vs->GetTopGroundOffset();
+		assert(base_z != this->vox_pos.z);
+
+		this->RemoveSelf(v);
+		this->vox_pos.z = base_z;
+		this->pix_pos.z = 0;
+		v = _world.GetCreateVoxel(this->vox_pos, false);
+		assert(v != nullptr);
+		assert(v->GetGroundType() != GTP_INVALID);
+		this->AddSelf(v);
+		if (HasValidPath(v)) return this->UpdateZPosition();  // Ended up on a path.
+		/* Fall through to slope detection. */
 	}
 
-	NOT_REACHED(); /// \todo No path here!
+	/* Pathless land. Discover on which part of the slope the person is standing. */
+
+	switch (v->GetGroundSlope()) {
+		/* Flat land. */
+		case ISL_FLAT: this->pix_pos.z = 0; return;
+
+		/* Ramps. */
+		case ISL_SOUTH_WEST: this->pix_pos.z =       this->pix_pos.x; return;
+		case ISL_EAST_SOUTH: this->pix_pos.z =       this->pix_pos.y; return;
+		case ISL_NORTH_WEST: this->pix_pos.z = 255 - this->pix_pos.y; return;
+		case ISL_NORTH_EAST: this->pix_pos.z = 255 - this->pix_pos.x; return;
+
+		/* One corner up. The voxel is split into a flat and a raised triangle. */
+		case ISL_NORTH:
+			if (this->pix_pos.x + this->pix_pos.y >= 255) {  // Flat triangle.
+				this->pix_pos.z = 0;
+			} else {  // Raised triangle.
+				this->pix_pos.z = 255 - (this->pix_pos.x + this->pix_pos.y);
+			}
+			return;
+		case ISL_SOUTH:
+			if (this->pix_pos.x + this->pix_pos.y <= 255) {  // Flat triangle.
+				this->pix_pos.z = 0;
+			} else {  // Raised triangle.
+				this->pix_pos.z = (this->pix_pos.x + this->pix_pos.y) - 255;
+			}
+			return;
+		case ISL_WEST:
+			if (this->pix_pos.x <= this->pix_pos.y) {  // Flat triangle.
+				this->pix_pos.z = 0;
+			} else {  // Raised triangle.
+				this->pix_pos.z = std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y);
+			}
+			return;
+		case ISL_EAST:
+			if (this->pix_pos.x >= this->pix_pos.y) {  // Flat triangle.
+				this->pix_pos.z = 0;
+			} else {  // Raised triangle.
+				this->pix_pos.z = std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y);
+			}
+			return;
+
+		/* Two opposite corners up. The voxel consists of two triangles raised in opposite directions. */
+		case ISL_NORTH_SOUTH:
+			if (this->pix_pos.x + this->pix_pos.y <= 255) {  // Like the raised triangle of a TSB_NORTH slope.
+				this->pix_pos.z = 255 - (this->pix_pos.x + this->pix_pos.y);
+			} else {  // Like the raised triangle of a TSB_SOUTH slope.
+				this->pix_pos.z = (this->pix_pos.x + this->pix_pos.y) - 255;
+			}
+			return;
+		case ISL_EAST_WEST:  // Like the raised triangles of a TSB_WEST or TSB_EAST slope.
+			this->pix_pos.z = std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y);
+			return;
+
+		/* One corner down. The voxel is split into a flat and a lowered triangle, similar to the 'one corner up' case. */
+		case ISL_NORTH_EAST_WEST:  // South corner down.
+			if (this->pix_pos.x + this->pix_pos.y <= 255) {  // Flat triangle.
+				this->pix_pos.z = 255;
+			} else {  // Lowered triangle.
+				this->pix_pos.z = 255 - ((this->pix_pos.x + this->pix_pos.y) - 255);
+			}
+			return;
+		case ISL_EAST_SOUTH_WEST:  // North corner down.
+			if (this->pix_pos.x + this->pix_pos.y >= 255) {  // Flat triangle.
+				this->pix_pos.z = 255;
+			} else {  // Lowered triangle.
+				this->pix_pos.z = this->pix_pos.x + this->pix_pos.y;
+			}
+			return;
+		case ISL_NORTH_EAST_SOUTH:  // West corner down.
+			if (this->pix_pos.x <= this->pix_pos.y) {  // Flat triangle.
+				this->pix_pos.z = 255;
+			} else {  // Lowered triangle.
+				this->pix_pos.z = 255 - (std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y));
+			}
+			return;
+		case ISL_NORTH_SOUTH_WEST:  // East corner down.
+			if (this->pix_pos.x >= this->pix_pos.y) {  // Flat triangle.
+				this->pix_pos.z = 255;
+			} else {  // Lowered triangle.
+				this->pix_pos.z = 255 - (std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y));
+			}
+			return;
+
+		/* Imploded slopes below. We additionally need to check if the person is in the correct half of the slope. */
+		case ISL_BOTTOM_STEEP_NORTH:
+			if (this->pix_pos.x + this->pix_pos.y <= 255) {  // Wrong part, move up.
+				this->RemoveSelf(v);
+				this->vox_pos.z++;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_TOP_STEEP_NORTH);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a lowered south corner.
+				this->pix_pos.z = 255 - ((this->pix_pos.x + this->pix_pos.y) - 255);
+			}
+			return;
+		case ISL_BOTTOM_STEEP_SOUTH:
+			if (this->pix_pos.x + this->pix_pos.y >= 255) {  // Wrong part, move up.
+				this->RemoveSelf(v);
+				this->vox_pos.z++;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_TOP_STEEP_SOUTH);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a lowered north corner.
+				this->pix_pos.z = this->pix_pos.x + this->pix_pos.y;
+			}
+			return;
+		case ISL_BOTTOM_STEEP_EAST:
+			if (this->pix_pos.x <= this->pix_pos.y) {  // Wrong part, move up.
+				this->RemoveSelf(v);
+				this->vox_pos.z++;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_TOP_STEEP_EAST);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a lowered west corner.
+				this->pix_pos.z = 255 - (std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y));
+			}
+			return;
+		case ISL_BOTTOM_STEEP_WEST:
+			if (this->pix_pos.x >= this->pix_pos.y) {  // Wrong part, move up.
+				this->RemoveSelf(v);
+				this->vox_pos.z++;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_TOP_STEEP_WEST);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a lowered east corner.
+				this->pix_pos.z = 255 - (std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y));
+			}
+			return;
+		case ISL_TOP_STEEP_NORTH:
+			if (this->pix_pos.x + this->pix_pos.y > 255) {  // Wrong part, move down.
+				this->RemoveSelf(v);
+				this->vox_pos.z--;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_BOTTOM_STEEP_NORTH);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a raised north corner.
+				this->pix_pos.z = 255 - (this->pix_pos.x + this->pix_pos.y);
+			}
+			return;
+		case ISL_TOP_STEEP_SOUTH:
+			if (this->pix_pos.x + this->pix_pos.y < 255) {  // Wrong part, move down.
+				this->RemoveSelf(v);
+				this->vox_pos.z--;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_BOTTOM_STEEP_SOUTH);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a raised south corner.
+				this->pix_pos.z = (this->pix_pos.x + this->pix_pos.y) - 255;
+			}
+			return;
+		case ISL_TOP_STEEP_EAST:
+			if (this->pix_pos.x > this->pix_pos.y) {  // Wrong part, move down.
+				this->RemoveSelf(v);
+				this->vox_pos.z--;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_BOTTOM_STEEP_EAST);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a raised east corner.
+				this->pix_pos.z = std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y);
+			}
+			return;
+		case ISL_TOP_STEEP_WEST:
+			if (this->pix_pos.x < this->pix_pos.y) {  // Wrong part, move down.
+				this->RemoveSelf(v);
+				this->vox_pos.z--;
+				v = _world.GetCreateVoxel(this->vox_pos, false);
+				assert(v != nullptr);
+				assert(v->GetGroundType() != GTP_INVALID);
+				assert(v->GetGroundSlope() == ISL_BOTTOM_STEEP_WEST);
+				this->AddSelf(v);
+				this->UpdateZPosition();
+			} else {  // Like for voxels with a raised west corner.
+				this->pix_pos.z = std::max(this->pix_pos.x, this->pix_pos.y) - std::min(this->pix_pos.x, this->pix_pos.y);
+			}
+			return;
+
+		default: NOT_REACHED();
+	}
 }
 
 /**
@@ -194,6 +403,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 
 	this->type = person_type;
 	this->name.reset();
+	this->SetStatus(GUI_PERSON_STATUS_WANDER);
 
 	/* Set up the person sprite recolouring table. */
 	const PersonTypeData &person_type_data = GetPersonTypeData(this->type);
@@ -218,7 +428,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 		this->pix_pos.x = 128 - this->offset;
 		this->pix_pos.y = 255;
 	}
-	this->pix_pos.z = GetZHeight(this->vox_pos, this->pix_pos.x, this->pix_pos.y);
+	this->UpdateZPosition();
 
 	this->DecideMoveDirection();
 }
@@ -609,9 +819,9 @@ private:
 	uint16 value;  ///< Encoded value to store in savegames.
 };
 
-static const uint32 CURRENT_VERSION_Person      = 2;   ///< Currently supported version of %Person.
+static const uint32 CURRENT_VERSION_Person      = 3;   ///< Currently supported version of %Person.
 static const uint32 CURRENT_VERSION_Guest       = 3;   ///< Currently supported version of %Guest.
-static const uint32 CURRENT_VERSION_StaffMember = 1;   ///< Currently supported version of %StaffMember.
+static const uint32 CURRENT_VERSION_StaffMember = 2;   ///< Currently supported version of %StaffMember.
 static const uint32 CURRENT_VERSION_Mechanic    = 2;   ///< Currently supported version of %Mechanic.
 static const uint32 CURRENT_VERSION_Handyman    = 1;   ///< Currently supported version of %Handyman.
 static const uint32 CURRENT_VERSION_Guard       = 1;   ///< Currently supported version of %Guard.
@@ -644,6 +854,8 @@ void Person::Load(Loader &ldr)
 	this->frame_index = ldr.GetWord();
 	this->frame_time = (int16)ldr.GetWord();
 
+	if (version >= 3) this->status = GUI_PERSON_STATUS_WANDER + ldr.GetWord();
+
 	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
 	assert(anim != nullptr && anim->frame_count != 0);
 
@@ -674,6 +886,7 @@ void Person::Save(Saver &svr)
 	svr.PutWord(WalkEncoder::Encode(this->walk));
 	svr.PutWord(this->frame_index);
 	svr.PutWord((uint16)this->frame_time);
+	svr.PutWord(this->status - GUI_PERSON_STATUS_WANDER);
 	svr.EndPattern();
 }
 
@@ -808,6 +1021,7 @@ void Guest::ExitRide(RideInstance *ri, TileEdge entry)
 	this->vox_pos.z = exit_pos.z >> 8; this->pix_pos.z = exit_pos.z & 0xff;
 	this->activity = GA_WANDER;
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	this->UpdateZPosition();
 	this->DecideMoveDirection();
 }
 
@@ -1092,6 +1306,7 @@ void Guest::DecideMoveDirection()
 	}
 
 	this->StartAnimation(new_walk);
+	this->SetStatus(this->ride != nullptr ? GUI_PERSON_STATUS_HEADING_TO_RIDE : GUI_PERSON_STATUS_WANDER);
 }
 
 /**
@@ -1321,7 +1536,7 @@ AnimateResult Person::OnAnimate(int delay)
 		this->frame_index %= this->frame_count;
 		this->frame_time = this->frames[this->frame_index].duration;
 
-		this->pix_pos.z = GetZHeight(this->vox_pos, this->pix_pos.x, this->pix_pos.y);
+		this->UpdateZPosition();
 		return OAR_OK;
 	}
 
@@ -1444,7 +1659,8 @@ AnimateResult Person::OnAnimate(int delay)
 		this->DecideMoveDirection();
 		return OAR_OK;
 	}
-	return OAR_DEACTIVATE; // We are truly lost now.
+
+	NOT_REACHED(); // We are truly lost now.
 }
 
 /**
@@ -2061,7 +2277,7 @@ void Guest::BuyItem(RideInstance *ri)
 /* Constructor. */
 StaffMember::StaffMember()
 {
-	this->status = GUI_PERSON_STATUS_WANDER;
+	/* Nothing to do currently. */
 }
 
 /* Destructor. */
@@ -2075,7 +2291,7 @@ void StaffMember::Load(Loader &ldr)
 	const uint32 version = ldr.OpenPattern("stfm");
 	if (version < 1 || version > CURRENT_VERSION_StaffMember) ldr.version_mismatch(version, CURRENT_VERSION_StaffMember);
 	this->Person::Load(ldr);
-	this->status = GUI_PERSON_STATUS_WANDER + ldr.GetWord();
+	if (version < 2) this->status = GUI_PERSON_STATUS_WANDER + ldr.GetWord();
 	ldr.ClosePattern();
 }
 
@@ -2083,15 +2299,14 @@ void StaffMember::Save(Saver &svr)
 {
 	svr.StartPattern("stfm", CURRENT_VERSION_StaffMember);
 	this->Person::Save(svr);
-	svr.PutWord(this->status - GUI_PERSON_STATUS_WANDER);
 	svr.EndPattern();
 }
 
 /**
- * Create this staff member's current status string.
+ * Create this person's current status string.
  * @return The status string.
  */
-const uint8 *StaffMember::GetStatus() const
+const uint8 *Person::GetStatus() const
 {
 	static char text_buffer[1024];
 	const char *text = reinterpret_cast<const char*>(_language.GetText(this->status));
@@ -2104,10 +2319,10 @@ const uint8 *StaffMember::GetStatus() const
 }
 
 /**
- * Change this staff member's current status.
+ * Change this person's current status.
  * @param s New status.
  */
-void StaffMember::SetStatus(StringID s)
+void Person::SetStatus(StringID s)
 {
 	this->status = s;
 	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);

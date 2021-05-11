@@ -159,6 +159,7 @@ Offset  Length  Version  Description
    ?       2      1-     Current walk information (animation), in compressed format.
    ?       2      1-     Current displayed frame of the animation.
    ?       2      1-     Remaining displayed time of the current frame.
+   ?       2      3-     The person's current status.
    ?       4      1-     "nsrp".
 ======  ======  =======  ======================================================
 
@@ -167,6 +168,7 @@ Version history
 
 - 1 (20210402) Initial version.
 - 2 (20210426) Moved ride index of guests and mechanics to Person.
+- 3 (20210509) Moved status of staff members to Person.
 
 
 Guest
@@ -224,7 +226,7 @@ Offset  Length  Version  Description
    0       4      1-     "stfm".
    4       4      1-     Version number.
    ?       ?      1-     Person_ data.
-   ?       2      1-     The person's current status.
+           2      1-1    The person's current status.
    ?       4      1-     "mfts".
 ======  ======  =======  ======================================================
 
@@ -232,6 +234,7 @@ Version history
 ...............
 
 - 1 (20210426) Initial version.
+- 2 (20210509) Moved status of staff members to Person.
 
 
 Mechanic

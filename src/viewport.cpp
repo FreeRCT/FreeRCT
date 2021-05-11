@@ -684,7 +684,10 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Add voxel objects (persons, ride cars, etc). */
+	/* Sprites on the bottom part of a steep slope need to be drawn at a higher Z layer to prevent the top slope part obscuring them. */
 	const VoxelObject *vo = (voxel == nullptr) ? nullptr : voxel->voxel_objects;
+	const uint32 people_z_pos = (voxel == nullptr || voxel->GetGroundType() == GTP_INVALID ||
+			!IsImplodedSteepSlope(voxel->GetGroundSlope()) || IsImplodedSteepSlopeTop(voxel->GetGroundSlope())) ? voxel_pos.z : (voxel_pos.z + 1);
 	while (vo != nullptr) {
 		const Recolouring *recolour;
 		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &recolour);
@@ -695,12 +698,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			            north_point.y + this->north_offsets[this->orient].y + y_off);
 
 			DrawData dd;
-			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr, pos, recolour);
+			dd.Set(slice, people_z_pos, SO_PERSON, anim_spr, pos, recolour);
 			this->draw_images.insert(dd);
 
 			for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->sprites, this->orient)) {
 				if (overlay.sprite != nullptr) {
-					dd.Set(slice, voxel_pos.z, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
+					dd.Set(slice, people_z_pos, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
 					this->draw_images.insert(dd);
 				}
 			}

@@ -19,6 +19,7 @@
 /** Widgets of the guest info window. */
 enum GuestInfoWidgets {
 	GIW_TITLEBAR,     ///< Title bar widget.
+	GIW_STATUS,       ///< Status text.
 	GIW_MONEY,        ///< Current amount of money.
 	GIW_MONEY_SPENT,  ///< Total amount of money spent.
 	GIW_HAPPINESS,    ///< Happiness level.
@@ -37,6 +38,8 @@ static const WidgetPart _guest_info_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+		Intermediate(2, 1),
+			Widget(WT_CENTERED_TEXT, GIW_STATUS, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 			Intermediate(8, 2), SetPadding(2, 2, 2, 2),
 				Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_GUEST_INFO_MONEY, STR_NULL),
 				Widget(WT_RIGHT_TEXT, GIW_MONEY, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
@@ -92,6 +95,10 @@ void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	switch (wid_num) {
 		case GIW_TITLEBAR:
 			_str_params.SetUint8(1, (uint8 *)this->guest->GetName());
+			break;
+
+		case GIW_STATUS:
+			_str_params.SetUint8(1, this->guest->GetStatus());
 			break;
 
 		case GIW_MONEY:

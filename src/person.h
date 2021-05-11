@@ -134,6 +134,7 @@ public:
 
 	void SetName(const uint8 *name);
 	const uint8 *GetName() const;
+	const uint8 *GetStatus() const;
 
 	uint16 id;       ///< Unique id of the person.
 	PersonType type; ///< Type of person.
@@ -150,6 +151,7 @@ public:
 protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
 	std::unique_ptr<uint8[]> name; ///< Name of the person. \c nullptr means it has a default name (like "Guest XYZ").
+	StringID status;  ///< What the person is doing right now, for display in the GUI.
 
 	TileEdge GetCurrentEdge() const;
 	uint8 GetInparkDirections();
@@ -164,6 +166,8 @@ protected:
 	virtual AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) = 0;
 	virtual AnimateResult InteractWithPathObject(PathObjectInstance *obj);
 	virtual bool IsLeavingPath() const;
+	void UpdateZPosition();
+	void SetStatus(StringID s);
 };
 
 /** Activities of the guest. */
@@ -266,15 +270,7 @@ public:
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 
-	const uint8 *GetStatus() const;
-
 	static const std::map<PersonType, Money> SALARY;   ///< The monthly salary for each staff member.
-
-protected:
-	void SetStatus(StringID s);
-
-private:
-	StringID status;  ///< What we're doing right now.
 };
 
 /** A mechanic who can repair and inspect rides. */
