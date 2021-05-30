@@ -20,6 +20,7 @@
 #include "people.h"
 #include "gamelevel.h"
 #include "finances.h"
+#include <limits>
 
 Guests _guests; ///< %Guests in the world/park.
 Staff _staff;   ///< %Staff in the world/park.
