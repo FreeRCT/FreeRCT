@@ -1530,13 +1530,12 @@ AnimateResult Person::OnAnimate(int delay)
 		if (x_limit >= 0) this->pix_pos.x += sign(x_limit - this->pix_pos.x); // Also slowly move the other axis in the right direction.
 	}
 
+	this->UpdateZPosition();
 	if (!reached) {
 		/* Not reached the end, do the next frame. */
 		this->frame_index++;
 		this->frame_index %= this->frame_count;
 		this->frame_time = this->frames[this->frame_index].duration;
-
-		this->UpdateZPosition();
 		return OAR_OK;
 	}
 
@@ -1553,7 +1552,9 @@ AnimateResult Person::OnAnimate(int delay)
 	TileEdge exit_edge = INVALID_EDGE;
 	PathObjectInstance *path_object_to_interact_with = _scenery.GetPathObject(this->vox_pos);
 
-	this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	const XYZPoint16 former_vox_pos = this->vox_pos;
+	Voxel *former_voxel = _world.GetCreateVoxel(this->vox_pos, false);
+	this->RemoveSelf(former_voxel);
 	if (this->pix_pos.x < 0) {
 		dx--;
 		this->vox_pos.x--;
@@ -1621,6 +1622,10 @@ AnimateResult Person::OnAnimate(int delay)
 					this->DecideMoveDirection();
 					return OAR_OK;
 				}
+				/* Fall through to reversing movement. */
+			} else {
+				this->DecideMoveDirectionOnPathlessLand(former_voxel, former_vox_pos, exit_edge, dx, dy, dz);
+				return OAR_OK;
 			}
 		}
 
@@ -1660,7 +1665,85 @@ AnimateResult Person::OnAnimate(int delay)
 		return OAR_OK;
 	}
 
-	NOT_REACHED(); // We are truly lost now.
+	/* The person is walking at random over pathless land. */
+	this->DecideMoveDirectionOnPathlessLand(former_voxel, former_vox_pos, exit_edge, dx, dy, dz);
+	return OAR_OK;
+}
+
+/**
+ * The person is walking on pathless land, decide whether the curren movement is allowed and where to go next.
+ * @param former_voxel The voxel from which the person comes.
+ * @param former_vox_pos The coordinates from which the person comes.
+ * @param exit_edge The edge over which the person left the voxel.es.
+ * @param dx The X coordinate change between the initial and the current position.
+ * @param dy The Y coordinate change between the initial and the current position.
+ * @param dz The Z coordinate change between the initial and the current position.
+ * @pre The person is located (but not yet added to) in the destination voxel, or somewhere below or above it.
+ */
+void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoint16 &former_vox_pos,
+		const TileEdge exit_edge, const int dx, const int dy, const int dz)
+{
+	const XYZPoint16 init_pos = this->vox_pos;
+	Voxel *new_voxel = _world.GetCreateVoxel(this->vox_pos, true);
+	this->AddSelf(new_voxel);
+	this->UpdateZPosition();
+	new_voxel = _world.GetCreateVoxel(this->vox_pos, false);
+
+	assert(former_voxel->GetGroundType() != GTP_INVALID);
+	assert(new_voxel != nullptr && new_voxel->GetGroundType() != GTP_INVALID);
+	TileSlope old_voxel_slope = ExpandTileSlope(former_voxel->GetGroundSlope());
+	TileSlope new_voxel_slope = ExpandTileSlope(   new_voxel->GetGroundSlope());
+	/* Convert the bottom part of steep slopes to a format that is easier to handle here. */
+	auto convert_slope = [](TileSlope &slope) {
+		if ((slope & TSB_STEEP) == 0 || (slope & TSB_TOP) != 0) return;
+		const uint8 raised_corner_bit = (slope & ~TSB_STEEP);
+		slope = SL_FLAT;
+		if (raised_corner_bit != TSB_NORTH) slope |= TSB_SOUTH;
+		if (raised_corner_bit != TSB_SOUTH) slope |= TSB_NORTH;
+		if (raised_corner_bit != TSB_WEST) slope |= TSB_EAST;
+		if (raised_corner_bit != TSB_EAST) slope |= TSB_WEST;
+	};
+	convert_slope(old_voxel_slope);
+	convert_slope(new_voxel_slope);
+
+	uint16 left_height_1, left_height_2, right_height_1, right_height_2;
+	switch (exit_edge) {
+		case EDGE_NE:
+			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
+			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
+			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
+			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
+			break;
+		case EDGE_SE:
+			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
+			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
+			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
+			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
+			break;
+		case EDGE_SW:
+			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
+			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
+			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
+			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
+			break;
+		case EDGE_NW:
+			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
+			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
+			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
+			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
+			break;
+		default: NOT_REACHED();
+	}
+	if (left_height_1 != left_height_2 || right_height_1 != right_height_2) {
+		/* Climbing up or falling down a cliff? Better go back instead. */
+		this->RemoveSelf(new_voxel);
+		this->vox_pos = init_pos;
+		if (dx != 0) { this->vox_pos.x -= dx; this->pix_pos.x = (dx > 0) ? 255 : 0; }
+		if (dy != 0) { this->vox_pos.y -= dy; this->pix_pos.y = (dy > 0) ? 255 : 0; }
+		if (dz != 0) { this->vox_pos.z -= dz; this->pix_pos.z = (dz > 0) ? 255 : 0; }
+		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	}
+	this->DecideMoveDirection();
 }
 
 /**
