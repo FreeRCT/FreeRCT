@@ -1681,14 +1681,14 @@ AnimateResult Person::OnAnimate(int delay)
 }
 
 /**
- * The person is walking on pathless land, decide whether the curren movement is allowed and where to go next.
+ * The person is walking on pathless land, decide whether the current movement is allowed and where to go next.
  * @param former_voxel The voxel from which the person comes.
  * @param former_vox_pos The coordinates from which the person comes.
- * @param exit_edge The edge over which the person left the voxel.es.
+ * @param exit_edge The edge over which the person left the voxel.
  * @param dx The X coordinate change between the initial and the current position.
  * @param dy The Y coordinate change between the initial and the current position.
  * @param dz The Z coordinate change between the initial and the current position.
- * @pre The person is located (but not yet added to) in the destination voxel, or somewhere below or above it.
+ * @pre The person is located in (but not yet added to) the destination voxel, or somewhere below or above it.
  */
 void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel,
                                                const XYZPoint16 &former_vox_pos,
@@ -2903,7 +2903,7 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	/* Okay, now the poor handymen is really lost. Probably the player deleted some flowers or paths. Use the parent class's handling of pathless land. */
+	/* Use the parent class's handling of pathless land. */
 	return StaffMember::DecideMoveDirection();
 }
 
