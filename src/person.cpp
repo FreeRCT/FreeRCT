@@ -1554,7 +1554,6 @@ AnimateResult Person::OnAnimate(int delay)
 
 	const XYZPoint16 former_vox_pos = this->vox_pos;
 	Voxel *former_voxel = _world.GetCreateVoxel(this->vox_pos, false);
-	this->RemoveSelf(former_voxel);
 	if (this->pix_pos.x < 0) {
 		dx--;
 		this->vox_pos.x--;
@@ -1579,6 +1578,13 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 	assert(this->pix_pos.x >= 0 && this->pix_pos.x < 256);
 	assert(this->pix_pos.y >= 0 && this->pix_pos.y < 256);
+
+	if (exit_edge == INVALID_EDGE) {
+		/* Nothing actually changed. */
+		this->DecideMoveDirection();
+		return OAR_OK;
+	}
+	this->RemoveSelf(former_voxel);
 
 	AnimateResult ar = this->EdgeOfWorldOnAnimate();
 	if (ar != OAR_CONTINUE) return ar;
@@ -1620,6 +1626,10 @@ AnimateResult Person::OnAnimate(int delay)
 				if (w != nullptr && HasValidPath(w)) {
 					this->AddSelf(w);
 					this->DecideMoveDirection();
+					return OAR_OK;
+				}
+				if (!HasValidPath(former_voxel)) {
+					this->DecideMoveDirectionOnPathlessLand(former_voxel, former_vox_pos, exit_edge, dx, dy, dz);
 					return OAR_OK;
 				}
 				/* Fall through to reversing movement. */
@@ -1680,8 +1690,12 @@ AnimateResult Person::OnAnimate(int delay)
  * @param dz The Z coordinate change between the initial and the current position.
  * @pre The person is located (but not yet added to) in the destination voxel, or somewhere below or above it.
  */
-void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoint16 &former_vox_pos,
-		const TileEdge exit_edge, const int dx, const int dy, const int dz)
+void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel,
+                                               const XYZPoint16 &former_vox_pos,
+                                               const TileEdge exit_edge,
+                                               const int dx,
+                                               const int dy,
+                                               const int dz)
 {
 	const XYZPoint16 init_pos = this->vox_pos;
 	Voxel *new_voxel = _world.GetCreateVoxel(this->vox_pos, true);
@@ -1700,8 +1714,8 @@ void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoi
 		slope = SL_FLAT;
 		if (raised_corner_bit != TSB_NORTH) slope |= TSB_SOUTH;
 		if (raised_corner_bit != TSB_SOUTH) slope |= TSB_NORTH;
-		if (raised_corner_bit != TSB_WEST) slope |= TSB_EAST;
-		if (raised_corner_bit != TSB_EAST) slope |= TSB_WEST;
+		if (raised_corner_bit != TSB_WEST ) slope |= TSB_EAST;
+		if (raised_corner_bit != TSB_EAST ) slope |= TSB_WEST;
 	};
 	convert_slope(old_voxel_slope);
 	convert_slope(new_voxel_slope);
@@ -2439,10 +2453,10 @@ void StaffMember::DecideMoveDirection()
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);
-	assert(HasValidPath(v));
+	const bool is_on_path = HasValidPath(v);
 	const TileEdge start_edge = this->GetCurrentEdge();
 
-	uint8 exits = GetPathExits(v);
+	uint8 exits = (is_on_path ? GetPathExits(v) : 0xF);
 	uint8 bot_exits = exits & 0x0F; // Exits at the bottom of the voxel.
 	uint8 top_exits = (exits >> 4) & 0x0F; // Exits at the top of the voxel.
 	uint8 found_ride = 0;
@@ -2464,8 +2478,10 @@ void StaffMember::DecideMoveDirection()
 				break;
 
 			case RVD_NO_VISIT:
-				SB(bot_exits, exit_edge, 1, 0);
-				SB(top_exits, exit_edge, 1, 0);
+				if (is_on_path) {
+					SB(bot_exits, exit_edge, 1, 0);
+					SB(top_exits, exit_edge, 1, 0);
+				}
 				break;
 
 			case RVD_MUST_VISIT:
@@ -2887,9 +2903,8 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	/* Okay, now the poor handymen is really lost. Probably the player deleted some flowers or paths. */
-	/* \todo When the ability to walk on pathless lands is implemented for guests, allow that here as well. */
-	NOT_REACHED();
+	/* Okay, now the poor handymen is really lost. Probably the player deleted some flowers or paths. Use the parent class's handling of pathless land. */
+	return StaffMember::DecideMoveDirection();
 }
 
 AnimateResult Handyman::InteractWithPathObject(PathObjectInstance *obj)

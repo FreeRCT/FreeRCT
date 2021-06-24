@@ -157,7 +157,12 @@ protected:
 	uint8 GetInparkDirections();
 
 	virtual void DecideMoveDirection() = 0;
-	void DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoint16 &former_vox_pos, const TileEdge exit_edge, const int dx, const int dy, const int dz);
+	void DecideMoveDirectionOnPathlessLand(Voxel *former_voxel,
+	                                       const XYZPoint16 &former_vox_pos,
+	                                       const TileEdge exit_edge,
+	                                       const int dx,
+	                                       const int dy,
+	                                       const int dz);
 	void StartAnimation(const WalkInformation *walk);
 	virtual AnimateResult ActionAnimationCallback() = 0;
 
