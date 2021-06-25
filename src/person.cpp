@@ -2845,61 +2845,6 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	if (is_on_path) {
-		this->activity = HandymanActivity::WANDER;
-		return StaffMember::DecideMoveDirection();
-	}
-	/* After he finished watering flowers, the handyman needs to find back onto a path before he can start doing other work again. */
-	this->activity = HandymanActivity::LOOKING_FOR_PATH;
-
-	/* First check if we can step back onto an adjacent path. */
-	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
-		XYZPoint16 pos = this->vox_pos;
-		pos.x += _tile_dxy[edge].x;
-		pos.y += _tile_dxy[edge].y;
-		if (!IsVoxelstackInsideWorld(pos.x, pos.y)) continue;
-
-		const Voxel *voxel = _world.GetVoxel(pos);
-		if (voxel == nullptr) continue;
-		if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) continue;
-
-		if (HasValidPath(voxel)) {
-			possible_edges.insert(edge);
-			nr_possible_edges++;
-		}
-	}
-	if (nr_possible_edges > 0) {
-		auto it = possible_edges.begin();
-		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
-		this->StartAnimation(_walk_path_tile[start_edge][*it]);
-		return;
-	}
-
-	/* No path nearby? Walk at random through the surrounding flowers in the hope of catching sight of one. */
-	/* The check for scenery items also guarantees other necessities such as flat land, same ground height, etc. */
-	/* \todo Make the handymen less short-sighted and allow them to look for reachable paths several tiles away. */
-	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
-		XYZPoint16 pos = this->vox_pos;
-		pos.x += _tile_dxy[edge].x;
-		pos.y += _tile_dxy[edge].y;
-		if (!IsVoxelstackInsideWorld(pos.x, pos.y)) continue;
-
-		const Voxel *voxel = _world.GetVoxel(pos);
-		if (voxel == nullptr) continue;
-		if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) continue;
-		if (voxel->instance != SRI_SCENERY || voxel->instance_data == INVALID_VOXEL_DATA) continue;
-
-		possible_edges.insert(edge);
-		nr_possible_edges++;
-	}
-	if (nr_possible_edges > 0) {
-		auto it = possible_edges.begin();
-		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
-		this->StartAnimation(_walk_path_tile[start_edge][*it]);
-		return;
-	}
-
-	/* Use the parent class's handling of pathless land. */
 	return StaffMember::DecideMoveDirection();
 }
 
