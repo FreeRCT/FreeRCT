@@ -1690,12 +1690,8 @@ AnimateResult Person::OnAnimate(int delay)
  * @param dz The Z coordinate change between the initial and the current position.
  * @pre The person is located in (but not yet added to) the destination voxel, or somewhere below or above it.
  */
-void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel,
-                                               const XYZPoint16 &former_vox_pos,
-                                               const TileEdge exit_edge,
-                                               const int dx,
-                                               const int dy,
-                                               const int dz)
+void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoint16 &former_vox_pos,
+		const TileEdge exit_edge, const int dx, const int dy, const int dz)
 {
 	const XYZPoint16 init_pos = this->vox_pos;
 	Voxel *new_voxel = _world.GetCreateVoxel(this->vox_pos, true);
@@ -1711,40 +1707,21 @@ void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel,
 	auto convert_slope = [](TileSlope &slope) {
 		if ((slope & TSB_STEEP) == 0 || (slope & TSB_TOP) != 0) return;
 		const TileSlope raised_corner_bit = (slope & ~TSB_STEEP);
-		slope = TSB_MASK_ALL ^ raised_corner_bit;
+		if (raised_corner_bit != TSB_NORTH) slope |= TSB_SOUTH;
+		if (raised_corner_bit != TSB_SOUTH) slope |= TSB_NORTH;
+		if (raised_corner_bit != TSB_WEST ) slope |= TSB_EAST;
+		if (raised_corner_bit != TSB_EAST ) slope |= TSB_WEST;
 	};
 	convert_slope(old_voxel_slope);
 	convert_slope(new_voxel_slope);
 
-	uint16 left_height_1, left_height_2, right_height_1, right_height_2;
-	switch (exit_edge) {
-		case EDGE_NE:
-			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
-			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
-			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
-			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
-			break;
-		case EDGE_SE:
-			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
-			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
-			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
-			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
-			break;
-		case EDGE_SW:
-			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
-			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
-			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
-			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
-			break;
-		case EDGE_NW:
-			left_height_1  = former_vox_pos.z + ((old_voxel_slope & TSB_WEST ) == 0 ? 0 : 1);
-			right_height_1 = former_vox_pos.z + ((old_voxel_slope & TSB_NORTH) == 0 ? 0 : 1);
-			left_height_2  =  this->vox_pos.z + ((new_voxel_slope & TSB_SOUTH) == 0 ? 0 : 1);
-			right_height_2 =  this->vox_pos.z + ((new_voxel_slope & TSB_EAST ) == 0 ? 0 : 1);
-			break;
-		default: NOT_REACHED();
+	uint16 node_heights[4];
+	for (uint8 i = 0; i < 4; i++) {
+		const uint8 bitshift = (exit_edge + i) % 4;
+		node_heights[i] = (i < 2 ? former_vox_pos : this->vox_pos).z + (((i < 2 ? old_voxel_slope : new_voxel_slope) & (1 << bitshift)) >> bitshift);
 	}
-	if (left_height_1 != left_height_2 || right_height_1 != right_height_2) {
+
+	if (node_heights[0] != node_heights[3] || node_heights[1] != node_heights[2]) {
 		/* Climbing up or falling down a cliff? Better go back instead. */
 		this->RemoveSelf(new_voxel);
 		this->vox_pos = init_pos;
