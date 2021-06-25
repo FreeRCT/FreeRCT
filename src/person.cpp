@@ -1706,19 +1706,14 @@ void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoi
 	/* Convert the bottom part of steep slopes to a format that is easier to handle here. */
 	auto convert_slope = [](TileSlope &slope) {
 		if ((slope & TSB_STEEP) == 0 || (slope & TSB_TOP) != 0) return;
-		const TileSlope raised_corner_bit = (slope & ~TSB_STEEP);
-		if (raised_corner_bit != TSB_NORTH) slope |= TSB_SOUTH;
-		if (raised_corner_bit != TSB_SOUTH) slope |= TSB_NORTH;
-		if (raised_corner_bit != TSB_WEST ) slope |= TSB_EAST;
-		if (raised_corner_bit != TSB_EAST ) slope |= TSB_WEST;
+		slope = (TSB_MASK_ALL ^ static_cast<TileSlope>(ROL(static_cast<uint8>(slope & ~TSB_STEEP), 4, 2))) & TSB_MASK_ALL;
 	};
 	convert_slope(old_voxel_slope);
 	convert_slope(new_voxel_slope);
 
 	uint16 node_heights[4];
 	for (uint8 i = 0; i < 4; i++) {
-		const uint8 bitshift = (exit_edge + i) % 4;
-		node_heights[i] = (i < 2 ? former_vox_pos : this->vox_pos).z + (((i < 2 ? old_voxel_slope : new_voxel_slope) & (1 << bitshift)) >> bitshift);
+		node_heights[i] = (i < 2 ? former_vox_pos : this->vox_pos).z + (((i < 2 ? old_voxel_slope : new_voxel_slope) >> ((exit_edge + i) % 4)) & 1);
 	}
 
 	if (node_heights[0] != node_heights[3] || node_heights[1] != node_heights[2]) {
