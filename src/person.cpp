@@ -1710,12 +1710,8 @@ void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel,
 	/* Convert the bottom part of steep slopes to a format that is easier to handle here. */
 	auto convert_slope = [](TileSlope &slope) {
 		if ((slope & TSB_STEEP) == 0 || (slope & TSB_TOP) != 0) return;
-		const uint8 raised_corner_bit = (slope & ~TSB_STEEP);
-		slope = SL_FLAT;
-		if (raised_corner_bit != TSB_NORTH) slope |= TSB_SOUTH;
-		if (raised_corner_bit != TSB_SOUTH) slope |= TSB_NORTH;
-		if (raised_corner_bit != TSB_WEST ) slope |= TSB_EAST;
-		if (raised_corner_bit != TSB_EAST ) slope |= TSB_WEST;
+		const TileSlope raised_corner_bit = (slope & ~TSB_STEEP);
+		slope = TSB_MASK_ALL ^ raised_corner_bit;
 	};
 	convert_slope(old_voxel_slope);
 	convert_slope(new_voxel_slope);
