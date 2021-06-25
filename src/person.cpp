@@ -1530,13 +1530,12 @@ AnimateResult Person::OnAnimate(int delay)
 		if (x_limit >= 0) this->pix_pos.x += sign(x_limit - this->pix_pos.x); // Also slowly move the other axis in the right direction.
 	}
 
+	this->UpdateZPosition();
 	if (!reached) {
 		/* Not reached the end, do the next frame. */
 		this->frame_index++;
 		this->frame_index %= this->frame_count;
 		this->frame_time = this->frames[this->frame_index].duration;
-
-		this->UpdateZPosition();
 		return OAR_OK;
 	}
 
@@ -1553,7 +1552,8 @@ AnimateResult Person::OnAnimate(int delay)
 	TileEdge exit_edge = INVALID_EDGE;
 	PathObjectInstance *path_object_to_interact_with = _scenery.GetPathObject(this->vox_pos);
 
-	this->RemoveSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	const XYZPoint16 former_vox_pos = this->vox_pos;
+	Voxel *former_voxel = _world.GetCreateVoxel(this->vox_pos, false);
 	if (this->pix_pos.x < 0) {
 		dx--;
 		this->vox_pos.x--;
@@ -1578,6 +1578,13 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 	assert(this->pix_pos.x >= 0 && this->pix_pos.x < 256);
 	assert(this->pix_pos.y >= 0 && this->pix_pos.y < 256);
+
+	if (exit_edge == INVALID_EDGE) {
+		/* Nothing actually changed. */
+		this->DecideMoveDirection();
+		return OAR_OK;
+	}
+	this->RemoveSelf(former_voxel);
 
 	AnimateResult ar = this->EdgeOfWorldOnAnimate();
 	if (ar != OAR_CONTINUE) return ar;
@@ -1621,6 +1628,14 @@ AnimateResult Person::OnAnimate(int delay)
 					this->DecideMoveDirection();
 					return OAR_OK;
 				}
+				if (!HasValidPath(former_voxel)) {
+					this->DecideMoveDirectionOnPathlessLand(former_voxel, former_vox_pos, exit_edge, dx, dy, dz);
+					return OAR_OK;
+				}
+				/* Fall through to reversing movement. */
+			} else {
+				this->DecideMoveDirectionOnPathlessLand(former_voxel, former_vox_pos, exit_edge, dx, dy, dz);
+				return OAR_OK;
 			}
 		}
 
@@ -1660,7 +1675,57 @@ AnimateResult Person::OnAnimate(int delay)
 		return OAR_OK;
 	}
 
-	NOT_REACHED(); // We are truly lost now.
+	/* The person is walking at random over pathless land. */
+	this->DecideMoveDirectionOnPathlessLand(former_voxel, former_vox_pos, exit_edge, dx, dy, dz);
+	return OAR_OK;
+}
+
+/**
+ * The person is walking on pathless land, decide whether the current movement is allowed and where to go next.
+ * @param former_voxel The voxel from which the person comes.
+ * @param former_vox_pos The coordinates from which the person comes.
+ * @param exit_edge The edge over which the person left the voxel.
+ * @param dx The X coordinate change between the initial and the current position.
+ * @param dy The Y coordinate change between the initial and the current position.
+ * @param dz The Z coordinate change between the initial and the current position.
+ * @pre The person is located in (but not yet added to) the destination voxel, or somewhere below or above it.
+ */
+void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoint16 &former_vox_pos,
+		const TileEdge exit_edge, const int dx, const int dy, const int dz)
+{
+	const XYZPoint16 init_pos = this->vox_pos;
+	Voxel *new_voxel = _world.GetCreateVoxel(this->vox_pos, true);
+	this->AddSelf(new_voxel);
+	this->UpdateZPosition();
+	new_voxel = _world.GetCreateVoxel(this->vox_pos, false);
+
+	assert(former_voxel->GetGroundType() != GTP_INVALID);
+	assert(new_voxel != nullptr && new_voxel->GetGroundType() != GTP_INVALID);
+	TileSlope old_voxel_slope = ExpandTileSlope(former_voxel->GetGroundSlope());
+	TileSlope new_voxel_slope = ExpandTileSlope(   new_voxel->GetGroundSlope());
+	/* Convert the bottom part of steep slopes to a format that is easier to handle here. */
+	auto convert_slope = [](TileSlope &slope) {
+		if ((slope & TSB_STEEP) == 0 || (slope & TSB_TOP) != 0) return;
+		slope = (TSB_MASK_ALL ^ static_cast<TileSlope>(ROL(static_cast<uint8>(slope & ~TSB_STEEP), 4, 2))) & TSB_MASK_ALL;
+	};
+	convert_slope(old_voxel_slope);
+	convert_slope(new_voxel_slope);
+
+	uint16 node_heights[4];
+	for (uint8 i = 0; i < 4; i++) {
+		node_heights[i] = (i < 2 ? former_vox_pos : this->vox_pos).z + (((i < 2 ? old_voxel_slope : new_voxel_slope) >> ((exit_edge + i) % 4)) & 1);
+	}
+
+	if (node_heights[0] != node_heights[3] || node_heights[1] != node_heights[2]) {
+		/* Climbing up or falling down a cliff? Better go back instead. */
+		this->RemoveSelf(new_voxel);
+		this->vox_pos = init_pos;
+		if (dx != 0) { this->vox_pos.x -= dx; this->pix_pos.x = (dx > 0) ? 255 : 0; }
+		if (dy != 0) { this->vox_pos.y -= dy; this->pix_pos.y = (dy > 0) ? 255 : 0; }
+		if (dz != 0) { this->vox_pos.z -= dz; this->pix_pos.z = (dz > 0) ? 255 : 0; }
+		this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	}
+	this->DecideMoveDirection();
 }
 
 /**
@@ -2356,10 +2421,10 @@ void StaffMember::DecideMoveDirection()
 
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);
-	assert(HasValidPath(v));
+	const bool is_on_path = HasValidPath(v);
 	const TileEdge start_edge = this->GetCurrentEdge();
 
-	uint8 exits = GetPathExits(v);
+	uint8 exits = (is_on_path ? GetPathExits(v) : 0xF);
 	uint8 bot_exits = exits & 0x0F; // Exits at the bottom of the voxel.
 	uint8 top_exits = (exits >> 4) & 0x0F; // Exits at the top of the voxel.
 	uint8 found_ride = 0;
@@ -2381,8 +2446,10 @@ void StaffMember::DecideMoveDirection()
 				break;
 
 			case RVD_NO_VISIT:
-				SB(bot_exits, exit_edge, 1, 0);
-				SB(top_exits, exit_edge, 1, 0);
+				if (is_on_path) {
+					SB(bot_exits, exit_edge, 1, 0);
+					SB(top_exits, exit_edge, 1, 0);
+				}
 				break;
 
 			case RVD_MUST_VISIT:
@@ -2750,63 +2817,7 @@ void Handyman::DecideMoveDirection()
 		return;
 	}
 
-	if (is_on_path) {
-		this->activity = HandymanActivity::WANDER;
-		return StaffMember::DecideMoveDirection();
-	}
-	/* After he finished watering flowers, the handyman needs to find back onto a path before he can start doing other work again. */
-	this->activity = HandymanActivity::LOOKING_FOR_PATH;
-
-	/* First check if we can step back onto an adjacent path. */
-	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
-		XYZPoint16 pos = this->vox_pos;
-		pos.x += _tile_dxy[edge].x;
-		pos.y += _tile_dxy[edge].y;
-		if (!IsVoxelstackInsideWorld(pos.x, pos.y)) continue;
-
-		const Voxel *voxel = _world.GetVoxel(pos);
-		if (voxel == nullptr) continue;
-		if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) continue;
-
-		if (HasValidPath(voxel)) {
-			possible_edges.insert(edge);
-			nr_possible_edges++;
-		}
-	}
-	if (nr_possible_edges > 0) {
-		auto it = possible_edges.begin();
-		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
-		this->StartAnimation(_walk_path_tile[start_edge][*it]);
-		return;
-	}
-
-	/* No path nearby? Walk at random through the surrounding flowers in the hope of catching sight of one. */
-	/* The check for scenery items also guarantees other necessities such as flat land, same ground height, etc. */
-	/* \todo Make the handymen less short-sighted and allow them to look for reachable paths several tiles away. */
-	for (TileEdge edge = EDGE_BEGIN; edge != EDGE_COUNT; edge++) {
-		XYZPoint16 pos = this->vox_pos;
-		pos.x += _tile_dxy[edge].x;
-		pos.y += _tile_dxy[edge].y;
-		if (!IsVoxelstackInsideWorld(pos.x, pos.y)) continue;
-
-		const Voxel *voxel = _world.GetVoxel(pos);
-		if (voxel == nullptr) continue;
-		if (_world.GetTileOwner(pos.x, pos.y) != OWN_PARK) continue;
-		if (voxel->instance != SRI_SCENERY || voxel->instance_data == INVALID_VOXEL_DATA) continue;
-
-		possible_edges.insert(edge);
-		nr_possible_edges++;
-	}
-	if (nr_possible_edges > 0) {
-		auto it = possible_edges.begin();
-		if (nr_possible_edges > 1) std::advance(it, rnd.Uniform(nr_possible_edges - 1));
-		this->StartAnimation(_walk_path_tile[start_edge][*it]);
-		return;
-	}
-
-	/* Okay, now the poor handymen is really lost. Probably the player deleted some flowers or paths. */
-	/* \todo When the ability to walk on pathless lands is implemented for guests, allow that here as well. */
-	NOT_REACHED();
+	return StaffMember::DecideMoveDirection();
 }
 
 AnimateResult Handyman::InteractWithPathObject(PathObjectInstance *obj)

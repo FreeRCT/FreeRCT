@@ -71,6 +71,7 @@ enum TileSlope {
 	TSB_NORTHWEST = TSB_NORTH | TSB_WEST, ///< Both north and west corners are raised.
 	TSB_SOUTHEAST = TSB_SOUTH | TSB_EAST, ///< Both south and east corners are raised.
 	TSB_SOUTHWEST = TSB_SOUTH | TSB_WEST, ///< Both south and west corners are raised.
+	TSB_MASK_ALL  = TSB_NORTH | TSB_SOUTH | TSB_WEST | TSB_EAST,  ///< Bitmask for all four slope corners.
 
 	TS_TOP_OFFSET = 4, ///< Offset of imploded steep top-slopes relative to their base slope.
 
