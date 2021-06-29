@@ -79,7 +79,7 @@ static std::set<std::string> ListDirectory(const std::string& path) {
 		std::string result = filename.substr(root_.size() + 1);
 
 		// Paths should not contain any windows line separators.
-		boost::replace_all(result, "\\", "/");
+		for (size_t i = 0; i < result.size(); i++) if (result.at(i) == '\\') result.at(i) = '/';
 		results.insert(result);
 	} while (_findnext(hFile, &c_file) == 0);
 
