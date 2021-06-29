@@ -478,6 +478,11 @@ void GuiWindow::OnDraw(MouseModeSelector *selector)
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video.DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
 }
 
+bool GuiWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return this->tree->OnKeyEvent(key_code, symbol) || Window::OnKeyEvent(key_code, symbol);
+}
+
 void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
 {
 	this->mouse_pos = pos;

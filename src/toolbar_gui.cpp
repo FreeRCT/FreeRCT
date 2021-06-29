@@ -207,7 +207,8 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							break;
 						case DDM_SAVE:
 							/* \todo Provide option to enter the filename for saving. */
-							_game_control.SaveGame("saved.fct");
+							// _game_control.SaveGame("saved.fct");  // NOCOM
+							ShowSaveGameGui();
 							/* \todo Provide feedback on the save. */
 							break;
 						case DDM_MENU:

@@ -10,7 +10,8 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include "enum_type.h"
+#include <memory>
+#include "window_constants.h"
 #include "geometry.h"
 #include "language.h"
 #include "gui_graphics.h"
@@ -34,6 +35,7 @@ enum WidgetType {
 	WT_LEFT_TEXT,        ///< Text label with left-aligned text.
 	WT_CENTERED_TEXT,    ///< Text label with centred text.
 	WT_RIGHT_TEXT,       ///< Text label with right-aligned text.
+	WT_TEXT_INPUT,       ///< Box into which the user can enter custom text.
 	WT_PANEL,            ///< Panel.
 	WT_TEXT_BUTTON,      ///< Button with text (bi-stable).
 	WT_IMAGE_BUTTON,     ///< Button with a sprite (bi-stable).
@@ -82,6 +84,7 @@ public:
 	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void AutoRaiseButtons(const Point32 &base);
+	virtual bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol);
 
 	void MarkDirty(const Point32 &base) const;
 
@@ -211,6 +214,31 @@ public:
 };
 
 /**
+ * Text input widget.
+ * Implements #WT_TEXT_INPUT.
+ * @ingroup widget_group
+ */
+class TextInputWidget : public LeafWidget {
+public:
+	TextInputWidget(WidgetType wtype);
+
+	const uint8 *GetText() const;
+	void SetText(uint8 *text);
+	void SetCursorPos(size_t pos);
+
+	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
+	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
+	void Draw(const GuiWindow *w) override;
+
+private:
+	std::unique_ptr<uint8[]> buffer;  ///< Currently held text.
+	size_t text_length;               ///< Number of characters in the text.
+	size_t cursor_pos;                ///< Position of the cursor in the text.
+	int value_width;                  ///< Width of the image or the string.
+	int value_height;                 ///< Height of the image or the string.
+};
+
+/**
  * Components of the scroll bar.
  * @ingroup widget_group
  */
@@ -273,6 +301,7 @@ public:
 	void Draw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
+	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
 
 	BaseWidget *child; ///< Child widget displayed on top of the background widget.
 };
@@ -314,6 +343,7 @@ public:
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
 	BaseWidget *FindTooltipWidget(const Point16 &pt) override;
+	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
