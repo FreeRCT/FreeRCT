@@ -697,10 +697,10 @@ void TextInputWidget::Draw(const GuiWindow *w)
 	} else if (this->cursor_pos == this->text_length) {
 		cursor_offset = this->value_width;
 	} else {
-		uint8 text[this->cursor_pos + 1];
-		strncpy(reinterpret_cast<char*>(text), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-		text[lengthof(text) - 1] = '\0';
-		_video.GetTextSize(text, &cursor_offset, nullptr);
+		std::unique_ptr<uint8[]> text(new uint8[this->cursor_pos + 1]);
+		strncpy(reinterpret_cast<char*>(text.get()), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
+		text[this->cursor_pos] = '\0';
+		_video.GetTextSize(text.get(), &cursor_offset, nullptr);
 	}
 
 	r.base.x += TEXT_INPUT_MARGIN;
