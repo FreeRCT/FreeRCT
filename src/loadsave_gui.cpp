@@ -11,6 +11,110 @@
 #include "window.h"
 #include "gamecontrol.h"
 
+#include <cerrno>
+#ifdef _WIN32
+#ifdef _MSC_VER
+#include <cstdio>
+#else
+#include <cstdint>
+#endif
+#endif
+#include <cstdlib>
+#include <cstring>
+
+#include <sys/stat.h>
+#ifdef _WIN32
+#include <dos.h>
+#include <windows.h>
+#ifdef _MSC_VER
+#include <corecrt_io.h>
+#define S_ISDIR(x) ((x & _S_IFDIR) ? 1 : 0)
+#endif
+#else  // not _WIN32
+#include <fcntl.h>
+#include <glob.h>
+#include <sys/mman.h>
+#include <sys/statvfs.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+/**
+ * List all files in a directory.
+ * Code copied from Widelands (https://github.com/widelands/widelands/tree/master/src/io/filesystem/disk_filesystem.cc) with gratitude
+ * (with some minor changes to make it compile here).
+ * @param path Directory path.
+ * @return All files in the directory.
+ */
+static std::set<std::string> ListDirectory(const std::string& path) {
+	const std::string directory_ = ".";
+	const std::string root_ = directory_;
+
+#ifdef _WIN32
+	std::string buf;
+	struct _finddata_t c_file;
+	intptr_t hFile;
+
+	if (path.size())
+		buf = directory_ + '\\' + path + "\\*";
+	else
+		buf = directory_ + "\\*";
+
+	std::set<std::string> results;
+
+	hFile = _findfirst(buf.c_str(), &c_file);
+	if (hFile == -1)
+		return results;
+
+	std::string realpath = path;
+
+	if (!realpath.empty()) {
+		realpath.append("\\");
+	}
+	do {
+		if ((strcmp(c_file.name, ".") == 0) || (strcmp(c_file.name, "..") == 0)) {
+			continue;
+		}
+		const std::string filename = realpath + c_file.name;
+		std::string result = filename.substr(root_.size() + 1);
+
+		// Paths should not contain any windows line separators.
+		boost::replace_all(result, "\\", "/");
+		results.insert(result);
+	} while (_findnext(hFile, &c_file) == 0);
+
+	_findclose(hFile);
+
+	return results;
+#else
+	std::string buf;
+	glob_t gl;
+	int32_t ofs;
+
+	if (!path.empty()) {
+		buf = directory_ + '/' + path + "/*";
+		ofs = directory_.length() + 1;
+	} else {
+		buf = directory_ + "/*";
+		ofs = directory_.length() + 1;
+	}
+	std::set<std::string> results;
+
+	if (glob(buf.c_str(), 0, nullptr, &gl)) {
+		return results;
+	}
+
+	for (size_t i = 0; i < gl.gl_pathc; ++i) {
+		const std::string filename(&gl.gl_pathv[i][ofs]);
+		results.insert(filename.substr(root_.size() + 1));
+	}
+
+	globfree(&gl);
+
+	return results;
+#endif
+}
+
 /**
  * %Game loading/saving gui.
  * @ingroup gui_group
@@ -29,7 +133,8 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 
 private:
-	const Type type;
+	const Type type;                  ///< Type of this window.
+	std::set<std::string> all_files;  ///< All files in the working directory.
 };
 
 /**
@@ -47,6 +152,7 @@ enum LoadSaveWidgets {
 
 static const uint ITEM_COUNT   =  8;  ///< Number of files to display in the list.
 static const uint ITEM_HEIGHT  = 20;  ///< Height of one item in the list.
+static const uint ITEM_SPACING =  4;  ///< Spacing in the list.
 
 /**
  * Widget parts of the saving GUI.
@@ -66,7 +172,7 @@ static const WidgetPart _loadsave_gui_parts[] = {
 				Widget(WT_VERT_SCROLLBAR, LSW_SCROLLBAR, COL_RANGE_BLUE),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 			Intermediate(2, 1),
-				Widget(WT_TEXT_INPUT, LSW_TEXTFIELD, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_CANCEL /* NOCOM */, STR_NULL),
+				Widget(WT_TEXT_INPUT, LSW_TEXTFIELD, COL_RANGE_BLUE),
 				Intermediate(1, 2),
 					Widget(WT_TEXT_PUSHBUTTON, LSW_CANCEL, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_CANCEL, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, LSW_OK,     COL_RANGE_BLUE), SetData(STR_ARG1,            STR_NULL),
@@ -76,6 +182,11 @@ static const WidgetPart _loadsave_gui_parts[] = {
 
 LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE), type(t)
 {
+	/* Get all .fct files in the directory. */
+	for (const std::string& name : ListDirectory(".")) {
+		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) this->all_files.insert(name);
+	}
+
 	this->SetupWidgetTree(_loadsave_gui_parts, lengthof(_loadsave_gui_parts));
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
 }
@@ -99,9 +210,20 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			delete this;
 			break;
 
-		case LSW_LIST:
-			// NOCOM
+		case LSW_LIST: {
+			const int index = pos.y / (ITEM_HEIGHT + ITEM_SPACING);
+			if (index < 0) break;
+
+			const int first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
+			if (index < first_index || index + first_index >= static_cast<int>(this->all_files.size())) break;
+
+			auto selected = this->all_files.begin();
+			std::advance(selected, index);
+			uint8 *buffer = new uint8[selected->size() + 1];
+			strcpy(reinterpret_cast<char*>(buffer), selected->c_str());
+			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(buffer);
 			break;
+		}
 
 		case LSW_OK:
 			switch (this->type) {
@@ -113,8 +235,11 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 					if (filename_length < 5 || strcmp(filename + filename_length - 4, ".fct") != 0) {
 						strcpy(final_filename + filename_length, ".fct");
 					}
-					// NOCOM check if file final_filename exists already
 					printf("NOCOM saving as '%s'\n", final_filename);
+					if (this->all_files.count(final_filename)) {
+						// NOCOM show confirmation dialogue
+						printf("NOCOM Overwriting %s\n", final_filename);
+					}
 					_game_control.SaveGame(final_filename);
 					delete this;
 					break;
@@ -133,7 +258,16 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 {
 	if (wid_num != LSW_LIST) return GuiWindow::DrawWidget(wid_num, wid);
 
-	// NOCOM
+	int x = this->GetWidgetScreenX(wid) + ITEM_SPACING;
+	int y = this->GetWidgetScreenY(wid);
+	const size_t first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
+	const size_t last_index = std::min<size_t>(this->all_files.size(), first_index + ITEM_COUNT);
+	auto iterator = this->all_files.begin();
+	std::advance(iterator, first_index);
+
+	for (size_t i = first_index; i < last_index; i++, iterator++, y += ITEM_HEIGHT + ITEM_SPACING) {
+		_video.BlitText(reinterpret_cast<const uint8*>(iterator->c_str()), _palette[TEXT_WHITE], x, y, wid->pos.width - 2 * ITEM_SPACING, ALG_LEFT);
+	}
 }
 
 /**
