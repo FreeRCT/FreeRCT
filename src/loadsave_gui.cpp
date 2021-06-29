@@ -11,6 +11,7 @@
 #include "window.h"
 #include "gamecontrol.h"
 
+/* Includes and definitions needed by ListDirectory. This can probably be shortened, but it would need testing on all platforms. */
 #include <cerrno>
 #ifdef _WIN32
 #ifdef _MSC_VER
@@ -21,7 +22,6 @@
 #endif
 #include <cstdlib>
 #include <cstring>
-
 #include <sys/stat.h>
 #ifdef _WIN32
 #include <dos.h>
@@ -116,7 +116,7 @@ static std::set<std::string> ListDirectory(const std::string& path) {
 }
 
 /**
- * %Game loading/saving gui.
+ * Game loading/saving gui.
  * @ingroup gui_group
  */
 class LoadSaveGui : public GuiWindow {
@@ -208,6 +208,7 @@ void LoadSaveGui::SetWidgetStringParameters(const WidgetNumber wid_num) const
 /**
  * Turn the current value of the text input box into a valid .fct filename.
  * @return The filename to use.
+ * @todo Check that the filename is actually valid.
  */
 std::string LoadSaveGui::FinalFilename() const
 {

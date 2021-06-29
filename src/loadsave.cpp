@@ -417,6 +417,7 @@ bool LoadGameFile(const char *fname)
  * Save the current game state to file.
  * @param fname Name of the file to write.
  * @return Whether saving was successful.
+ * @todo Show an error message if this fails.
  */
 bool SaveGameFile(const char *fname)
 {

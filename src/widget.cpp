@@ -598,6 +598,8 @@ void DataWidget::Draw(const GuiWindow *w)
 	if (bsd != nullptr && this->IsShaded()) OverlayShaded(border_rect);
 }
 
+static const int TEXT_INPUT_MARGIN = 2;  ///< Margin around a text input field.
+
 TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype)
 {
 	this->text_length = 0;
@@ -681,7 +683,6 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 	return LeafWidget::OnKeyEvent(key_code, symbol);
 }
 
-static const int TEXT_INPUT_MARGIN = 2;  ///< Margin around a text input field.
 void TextInputWidget::Draw(const GuiWindow *w)
 {
 	Rectangle32 r = this->pos;
@@ -1521,7 +1522,7 @@ BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
 
 bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 {
-	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
 		if (this->childs[idx]->OnKeyEvent(key_code, symbol)) return true;
 	}
 	return BaseWidget::OnKeyEvent(key_code, symbol);
