@@ -225,30 +225,30 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			break;
 		}
 
-		case LSW_OK:
+		case LSW_OK: {
+			const char *filename = reinterpret_cast<const char*>(this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText());
+			const size_t filename_length = strlen(filename);
+			char final_filename[filename_length + 5];
+			strcpy(final_filename, filename);
+			if (filename_length < 5 || strcmp(filename + filename_length - 4, ".fct") != 0) {
+				strcpy(final_filename + filename_length, ".fct");
+			}
+
 			switch (this->type) {
-				case SAVE: {
-					const char *filename = reinterpret_cast<const char*>(this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText());
-					const size_t filename_length = strlen(filename);
-					char final_filename[filename_length + 5];
-					strcpy(final_filename, filename);
-					if (filename_length < 5 || strcmp(filename + filename_length - 4, ".fct") != 0) {
-						strcpy(final_filename + filename_length, ".fct");
-					}
-					printf("NOCOM saving as '%s'\n", final_filename);
+				case SAVE:
 					if (this->all_files.count(final_filename)) {
 						// NOCOM show confirmation dialogue
-						printf("NOCOM Overwriting %s\n", final_filename);
 					}
 					_game_control.SaveGame(final_filename);
-					delete this;
 					break;
-				}
 				case LOAD:
-					// NOCOM
+					if (!this->all_files.count(final_filename)) return;  // The file does not exist.
+					_game_control.LoadGame(final_filename);
 					break;
 			}
+			delete this;
 			break;
+		}
 
 		default: break;
 	}
@@ -268,6 +268,16 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 	for (size_t i = first_index; i < last_index; i++, iterator++, y += ITEM_HEIGHT + ITEM_SPACING) {
 		_video.BlitText(reinterpret_cast<const uint8*>(iterator->c_str()), _palette[TEXT_WHITE], x, y, wid->pos.width - 2 * ITEM_SPACING, ALG_LEFT);
 	}
+}
+
+/**
+ * Open the GUI to load a game.
+ * @ingroup gui_group
+ */
+void ShowLoadGameGui()
+{
+	if (HighlightWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE) != nullptr) return;
+	new LoadSaveGui(LoadSaveGui::LOAD);
 }
 
 /**

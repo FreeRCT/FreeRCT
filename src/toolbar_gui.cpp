@@ -206,10 +206,7 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							_game_mode_mgr.SetGameMode(_game_mode_mgr.InEditorMode() ? GM_PLAY : GM_EDITOR);
 							break;
 						case DDM_SAVE:
-							/* \todo Provide option to enter the filename for saving. */
-							// _game_control.SaveGame("saved.fct");  // NOCOM
 							ShowSaveGameGui();
-							/* \todo Provide feedback on the save. */
 							break;
 						case DDM_MENU:
 							ShowQuitProgram(true);
