@@ -133,6 +133,8 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 
 private:
+	std::string FinalFilename() const;
+
 	const Type type;                  ///< Type of this window.
 	std::set<std::string> all_files;  ///< All files in the working directory.
 };
@@ -152,7 +154,7 @@ enum LoadSaveWidgets {
 
 static const uint ITEM_COUNT   =  8;  ///< Number of files to display in the list.
 static const uint ITEM_HEIGHT  = 20;  ///< Height of one item in the list.
-static const uint ITEM_SPACING =  4;  ///< Spacing in the list.
+static const uint ITEM_SPACING =  2;  ///< Spacing in the list.
 
 /**
  * Widget parts of the saving GUI.
@@ -203,6 +205,17 @@ void LoadSaveGui::SetWidgetStringParameters(const WidgetNumber wid_num) const
 	}
 }
 
+/**
+ * Turn the current value of the text input box into a valid .fct filename.
+ * @return The filename to use.
+ */
+std::string LoadSaveGui::FinalFilename() const
+{
+	std::string result(reinterpret_cast<const char*>(this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText()));
+	if (result.size() < 5 || result.compare(result.size() - 4, 4, ".fct")) result += ".fct";
+	return result;
+}
+
 void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 {
 	switch (number) {
@@ -226,24 +239,17 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 		}
 
 		case LSW_OK: {
-			const char *filename = reinterpret_cast<const char*>(this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText());
-			const size_t filename_length = strlen(filename);
-			char final_filename[filename_length + 5];
-			strcpy(final_filename, filename);
-			if (filename_length < 5 || strcmp(filename + filename_length - 4, ".fct") != 0) {
-				strcpy(final_filename + filename_length, ".fct");
-			}
-
+			const std::string filename = this->FinalFilename();
 			switch (this->type) {
 				case SAVE:
-					if (this->all_files.count(final_filename)) {
-						// NOCOM show confirmation dialogue
+					if (this->all_files.count(filename)) {
+						/* \todo Show a confirmation dialogue to ask the user whether the file should be overwritten. */
 					}
-					_game_control.SaveGame(final_filename);
+					_game_control.SaveGame(filename.c_str());
 					break;
 				case LOAD:
-					if (!this->all_files.count(final_filename)) return;  // The file does not exist.
-					_game_control.LoadGame(final_filename);
+					if (!this->all_files.count(filename)) return;  // The file does not exist.
+					_game_control.LoadGame(filename.c_str());
 					break;
 			}
 			delete this;
@@ -258,15 +264,21 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 {
 	if (wid_num != LSW_LIST) return GuiWindow::DrawWidget(wid_num, wid);
 
-	int x = this->GetWidgetScreenX(wid) + ITEM_SPACING;
+	int x = this->GetWidgetScreenX(wid) + 2 * ITEM_SPACING;
 	int y = this->GetWidgetScreenY(wid);
+	const int w = wid->pos.width - 4 * ITEM_SPACING;
 	const size_t first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
 	const size_t last_index = std::min<size_t>(this->all_files.size(), first_index + ITEM_COUNT);
 	auto iterator = this->all_files.begin();
 	std::advance(iterator, first_index);
+	const std::string selected_filename = this->FinalFilename();
 
 	for (size_t i = first_index; i < last_index; i++, iterator++, y += ITEM_HEIGHT + ITEM_SPACING) {
-		_video.BlitText(reinterpret_cast<const uint8*>(iterator->c_str()), _palette[TEXT_WHITE], x, y, wid->pos.width - 2 * ITEM_SPACING, ALG_LEFT);
+		if (selected_filename == *iterator) {
+			_video.FillRectangle(Rectangle32(x - ITEM_SPACING, y, w + 2 * ITEM_SPACING, ITEM_HEIGHT),
+					_palette[COL_SERIES_START + COL_RANGE_BLUE * COL_SERIES_LENGTH + 1]);
+		}
+		_video.BlitText(reinterpret_cast<const uint8*>(iterator->c_str()), _palette[TEXT_WHITE], x, y, w, ALG_LEFT);
 	}
 }
 
