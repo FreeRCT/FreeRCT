@@ -349,6 +349,11 @@ static const char *_gui_string_names[] = {
 	"SETTING_LANGUAGE_TOOLTIP",
 	"SETTING_RESOLUTION",
 	"SETTING_RESOLUTION_TOOLTIP",
+
+	/* Loading/saving window. */
+	"LOADSAVE_LOAD",
+	"LOADSAVE_SAVE",
+	"LOADSAVE_CANCEL",
 };
 
 /** String names of the shops. */

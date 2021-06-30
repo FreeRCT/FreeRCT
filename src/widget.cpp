@@ -59,6 +59,7 @@ BaseWidget::BaseWidget(WidgetType wtype)
 		case WT_LEFT_TEXT:
 		case WT_CENTERED_TEXT:
 		case WT_RIGHT_TEXT:
+		case WT_TEXT_INPUT:
 			this->fill_x = 1;
 			break;
 
@@ -234,6 +235,17 @@ BaseWidget *BaseWidget::GetWidgetByPosition(const Point16 &pt)
  */
 void BaseWidget::AutoRaiseButtons(const Point32 &base)
 {
+}
+
+/**
+ * Process input from the keyboard.
+ * @param key_code Kind of input.
+ * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
+ * @return Key event has been processed.
+ */
+bool BaseWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return false;
 }
 
 /**
@@ -584,6 +596,135 @@ void DataWidget::Draw(const GuiWindow *w)
 	}
 	if (this->number > 0) w->DrawWidget(this->number, this);
 	if (bsd != nullptr && this->IsShaded()) OverlayShaded(border_rect);
+}
+
+static const int TEXT_INPUT_MARGIN = 2;  ///< Margin around a text input field.
+
+TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype)
+{
+	this->text_length = 0;
+	this->cursor_pos = 0;
+	this->SetText(new uint8[1]{'\0'});
+}
+
+/**
+ * Move the cursor.
+ * @param pos New cursor position.
+ */
+void TextInputWidget::SetCursorPos(const size_t pos)
+{
+	assert(pos <= this->text_length);
+	this->cursor_pos = pos;
+}
+
+/**
+ * Retrieve the currently held text. Do not modify the returned pointer.
+ * @return The text.
+ */
+const uint8 *TextInputWidget::GetText() const
+{
+	return this->buffer.get();
+}
+
+/**
+ * Change the currently held text. Takes ownership of the pointer.
+ * @param text New text.
+ */
+void TextInputWidget::SetText(uint8 *text)
+{
+	this->buffer.reset(text);
+	this->text_length = strlen(reinterpret_cast<const char*>(text));
+	this->cursor_pos = std::min(this->cursor_pos, this->text_length);
+}
+
+bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	switch (key_code) {
+		case WMKC_CURSOR_LEFT:
+			if (this->cursor_pos > 0) this->cursor_pos--;
+			return true;
+		case WMKC_CURSOR_RIGHT:
+			if (this->cursor_pos < this->text_length) this->cursor_pos++;
+			return true;
+
+		case WMKC_BACKSPACE:
+			if (this->cursor_pos > 0) {
+				uint8* newtext = new uint8[this->text_length];
+				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos - 1);
+				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos - 1, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
+				this->cursor_pos--;
+				this->SetText(newtext);
+			}
+			return true;
+		case WMKC_DELETE:
+			if (this->cursor_pos < this->text_length) {
+				uint8* newtext = new uint8[this->text_length];
+				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
+				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos + 1);
+				this->SetText(newtext);
+			}
+			return true;
+
+		case WMKC_SYMBOL: {
+			const size_t off = strlen(reinterpret_cast<const char*>(symbol));
+			if (off == 0) break;
+
+			uint8* newtext = new uint8[this->text_length + off + 1];
+			strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
+			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(symbol));
+			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos + off, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
+			this->SetText(newtext);
+			this->cursor_pos += off;
+			return true;
+		}
+
+		default: break;
+	}
+	return LeafWidget::OnKeyEvent(key_code, symbol);
+}
+
+void TextInputWidget::Draw(const GuiWindow *w)
+{
+	Rectangle32 r = this->pos;
+	r.base += w->rect.base;
+	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + 2]);
+
+	/* Update text dimensions. */
+	_video.GetTextSize(this->GetText(), &this->value_width, &this->value_height);
+	int cursor_offset;
+	if (this->cursor_pos == 0) {
+		cursor_offset = 0;
+	} else if (this->cursor_pos == this->text_length) {
+		cursor_offset = this->value_width;
+	} else {
+		std::unique_ptr<uint8[]> text(new uint8[this->cursor_pos + 1]);
+		strncpy(reinterpret_cast<char*>(text.get()), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
+		text[this->cursor_pos] = '\0';
+		_video.GetTextSize(text.get(), &cursor_offset, nullptr);
+	}
+
+	r.base.x += TEXT_INPUT_MARGIN;
+	r.base.y += TEXT_INPUT_MARGIN;
+	r.width -= 2 * TEXT_INPUT_MARGIN;
+	r.height -= 2 * TEXT_INPUT_MARGIN;
+	if (this->text_length > 0) {
+		_video.BlitText(this->GetText(), _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
+				r.base.x, r.base.y, r.width, ALG_LEFT);
+	}
+	_video.DrawLine(Point16(r.base.x + cursor_offset, r.base.y), Point16(r.base.x + cursor_offset, r.base.y + r.height),
+			_palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 1]);
+}
+
+void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
+{
+	if (!w->initialized) this->SetWidget(wid_array);
+	this->min_x = this->smallest_x;
+	this->min_y = this->smallest_y;
+
+	_video.GetTextSize(this->GetText(), &this->value_width, &this->value_height);
+	this->InitMinimalSize(this->value_width, this->value_height, 0, 0);
+
+	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
 /**
@@ -1033,6 +1174,11 @@ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 	return nullptr;
 }
 
+bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	return (this->child != nullptr && this->child->OnKeyEvent(key_code, symbol)) || LeafWidget::OnKeyEvent(key_code, symbol);
+}
+
 void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
 {
 	if (this->child != nullptr) this->child->AutoRaiseButtons(base);
@@ -1374,6 +1520,14 @@ BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
 	return w == nullptr ? nullptr : w->FindTooltipWidget(pt);
 }
 
+bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+{
+	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
+		if (this->childs[idx]->OnKeyEvent(key_code, symbol)) return true;
+	}
+	return BaseWidget::OnKeyEvent(key_code, symbol);
+}
+
 BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	BaseWidget *res = nullptr;
@@ -1629,6 +1783,10 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 					case WT_CENTERED_TEXT:
 					case WT_RIGHT_TEXT:
 						*dest = new DataWidget(parts->data.new_widget.wtype);
+						break;
+
+					case WT_TEXT_INPUT:
+						*dest = new TextInputWidget(parts->data.new_widget.wtype);
 						break;
 
 					case WT_RADIOBUTTON:

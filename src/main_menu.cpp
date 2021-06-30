@@ -74,9 +74,7 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 		_game_control.NewGame();
 		delete this;
 	} else if (this->load_game_rect.IsPointInside(_window_manager.GetMousePosition())) {
-		/* \todo Provide option to select the file to load. */
-		_game_control.LoadGame("saved.fct");
-		delete this;
+		ShowLoadGameGui();
 	} else if (this->quit_rect.IsPointInside(_window_manager.GetMousePosition())) {
 		_game_control.QuitGame();
 	} else if (this->settings_rect.IsPointInside(_window_manager.GetMousePosition())) {
