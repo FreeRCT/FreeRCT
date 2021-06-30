@@ -10,6 +10,7 @@
 #ifndef LOADSAVE_H
 #define LOADSAVE_H
 
+#include <set>
 #include <vector>
 
 /** An error that occurs while loading a savegame. */
@@ -74,5 +75,7 @@ bool LoadGameFile(const char *fname);
 bool SaveGameFile(const char *fname);
 
 extern bool _automatically_resave_files;
+
+std::set<std::string> ListDirectory(const std::string& path);
 
 #endif
