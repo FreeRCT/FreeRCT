@@ -28,18 +28,30 @@ Building is as simple as
         $ make       # Let make do the heavy work.
 
 
+CMake accepts the following options:
+
+================= ======= ==========================================================================
+Name              Default Explanation
+================= ======= ==========================================================================
+OVERRIDE_VCS      OFF     Override the lack of a VCS checkout.
+ASAN              OFF     Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html).
+USERDATA_PREFIX   '.'     Directory where user data such as savegames is stored.
+================= ======= ==========================================================================
+
 -  **src** directory contains the source code of the FreeRCT program itself.
 -  **src/rcdgen** directory contains the source code of the *rcdgen* program, that builds RCD files from source (which are read by *freerct*).
 - **graphics/rcd** directory contains the source files of the RCD data files, except the graphics.
 - **graphics/sprites** directory contains all the graphics of the game.
 - **bin** directory contains the actual *freerct* executable along with some other files required to actually run the program.
+- **data** directory contains miscellaneous assets loaded by FreeRCT at runtime.
+- **utils** directory contains miscellaneous utility programs and scripts that may make developers' lives easier.
 
 The *cmake/make* commands above will generate the *rcdgen* program, the rcd files and build the 'freerct' program in the src directory.
 
 Config file
 -----------
 
-Finally, you need a 'freerct.cfg' INI format file next to the 'freerct' program in the **bin** directory, containing the path to the font file you want to use. It looks like
+Finally, you can optionally create a 'freerct.cfg' INI format file next to the 'freerct' program in the **bin** directory, containing the settings to use. All entries are optional. It looks like
 
 ::
 
@@ -47,9 +59,15 @@ Finally, you need a 'freerct.cfg' INI format file next to the 'freerct' program 
         medium-size = 12
         medium-path = /usr/share/fonts/gnu-free/FreeSans.ttf
 
-This means the medium sized font is 12 points high, and its source font definition file is at the indicated path. Make sure you use a path that actually exists.
+        [language]
+        language = nds_DE
 
-The actual file is not that critical, as long as it contains the ASCII characters, in the font-size you mention in the file.
+        [saveloading]
+        auto-resave = false
+
+This means the medium sized font is 12 points high, and its source font definition file is at the indicated path. Make sure you use a path that actually exists. The language is set to Low German by this example, and automatic resaving of savegame files is disabled.
+
+The actual font file is not that critical, as long as it contains the ASCII characters, in the font-size you mention in the file.
 
 Running the program
 -------------------
@@ -67,6 +85,6 @@ or
 
         $ make run
 
-which should open a window containing a piece of greenly coloured flat world, and a toolbar near the left top (see also the pictures in the blog).
+which should open a window containing the main menu (see also the pictures in the blog).
 
 Pressing 'q' quits the program.

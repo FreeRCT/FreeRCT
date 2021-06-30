@@ -134,6 +134,9 @@ int freerct_main(int argc, char **argv)
 		}
 	} while (opt_id != -1);
 
+	/* Create the data directory on startup if it did not exist yet. */
+	MakeDirectory(freerct_userdata_prefix());
+
 	ConfigFile cfg_file;
 
 	/* Load RCD files. */
@@ -148,7 +151,14 @@ int freerct_main(int argc, char **argv)
 		return 1;
 	}
 
-	cfg_file.Load("freerct.cfg");
+	{
+		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
+		std::string path = freerct_userdata_prefix();
+		path += dr->dir_sep;
+		path += "freerct.cfg";
+		cfg_file.Load(path.c_str());
+	}
+
 	const char *font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
 	/* Use default values if no font has been set. */
@@ -190,9 +200,6 @@ int freerct_main(int argc, char **argv)
 			}
 		}
 	}
-
-	/* Create the data directory on startup if it did not exist yet. */
-	MakeDirectory(freerct_userdata_prefix());
 
 	/* Initialize video. */
 	std::string err = _video.Initialize(font_path, font_size);
