@@ -65,7 +65,7 @@ static const WidgetPart _loadsave_gui_parts[] = {
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 			Intermediate(1, 2),
-				Widget(WT_EMPTY,          LSW_LIST,      COL_RANGE_BLUE),
+				Widget(WT_EMPTY, LSW_LIST, COL_RANGE_BLUE),
 						SetFill(0, ITEM_HEIGHT), SetResize(0, ITEM_HEIGHT), SetMinimalSize(300, ITEM_COUNT * ITEM_HEIGHT),
 				Widget(WT_VERT_SCROLLBAR, LSW_SCROLLBAR, COL_RANGE_BLUE),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
@@ -121,7 +121,7 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			break;
 
 		case LSW_LIST: {
-			const int index = pos.y / (ITEM_HEIGHT + ITEM_SPACING);
+			const int index = pos.y / ITEM_HEIGHT;
 			if (index < 0) break;
 
 			const int first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
@@ -170,7 +170,7 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 	std::advance(iterator, first_index);
 	const std::string selected_filename = this->FinalFilename();
 
-	for (size_t i = first_index; i < last_index; i++, iterator++, y += ITEM_HEIGHT + ITEM_SPACING) {
+	for (size_t i = first_index; i < last_index; i++, iterator++, y += ITEM_HEIGHT) {
 		if (selected_filename == *iterator) {
 			_video.FillRectangle(Rectangle32(x - ITEM_SPACING, y, w + 2 * ITEM_SPACING, ITEM_HEIGHT),
 					_palette[COL_SERIES_START + COL_RANGE_BLUE * COL_SERIES_LENGTH + 1]);
