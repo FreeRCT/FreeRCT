@@ -69,6 +69,18 @@ This means the medium sized font is 12 points high, and its source font definiti
 
 The actual font file is not that critical, as long as it contains the ASCII characters, in the font-size you mention in the file.
 
+All supported options are:
+
+================= ================= ==================================== ==========================================================================
+Section           Name              Default value                        Explanation
+================= ================= ==================================== ==========================================================================
+font              medium-path       <installdir>/data/font/Ubuntu-L.tff  Default font file.
+font              medium-size       15                                   Default font size.
+language          language          system language                      The language to use. Use ``--help`` for a list of supported languages.
+saveloading       auto-resave       false                                If ``true``, automatically resave all savegames directly after loading.
+================= ================= ==================================== ==========================================================================
+
+
 Running the program
 -------------------
 

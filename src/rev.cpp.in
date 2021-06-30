@@ -57,8 +57,10 @@ const char *freerct_userdata_prefix()
 
 	/* While the USERDATA_PREFIX is expanded at compile-time, home directory expansion has to be performed at runtime to allow shipping binaries. */
 	std::string substitute;
-	size_t pos;
-	while ((pos = _freerct_userdata_prefix.find('~')) != std::string::npos) {
+	for (;;) {
+		const size_t pos = _freerct_userdata_prefix.find('~');
+		if (pos == std::string::npos) break;
+
 		if (substitute.empty()) {
 			for (auto& var : {"HOME", "USERPROFILE", "HOMEPATH", "APPDATA"}) {
 				const char *environment_variable = getenv(var);
@@ -72,7 +74,9 @@ const char *freerct_userdata_prefix()
 				NOT_REACHED();
 			}
 		}
+
 		_freerct_userdata_prefix = _freerct_userdata_prefix.replace(pos, 1, substitute);
 	}
+
 	return _freerct_userdata_prefix.c_str();
 }

@@ -85,9 +85,19 @@ static void PrintVersion()
 	printf("Installation directory: %s\n",   _freerct_install_prefix);
 	printf("User data directory   : %s\n\n", freerct_userdata_prefix());
 
-	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n");
+	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n\n");
 
-	printf("\nFreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2. FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>\n");
+	printf(
+		"FreeRCT is free software; you can redistribute it and/or\n"
+		"modify it under the terms of the GNU General Public\n"
+		"License as published by the Free Software Foundation,\n"
+		"version 2. FreeRCT is distributed in the hope that it\n"
+		"will be useful, but WITHOUT ANY WARRANTY; without even\n"
+		"the implied warranty of MERCHANTABILITY or FITNESS FOR A\n"
+		"PARTICULAR PURPOSE. See the GNU General Public License\n"
+		"for more details. You should have received a copy of the\n"
+		"GNU General Public License along with FreeRCT. If not,\n"
+		"see <http://www.gnu.org/licenses/>\n");
 }
 
 /**

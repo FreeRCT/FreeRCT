@@ -146,20 +146,19 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 
 		case LSW_OK: {
 			const std::string filename = this->FinalFilename();
+			std::string path = freerct_userdata_prefix();
+			path += this->dir_sep;
+			path += filename;
 			switch (this->type) {
-				case SAVE: {
+				case SAVE:
 					if (this->all_files.count(filename)) {
 						/* \todo Show a confirmation dialogue to ask the user whether the file should be overwritten. */
 					}
-					std::string path = freerct_userdata_prefix();
-					path += this->dir_sep;
-					path += filename;
 					_game_control.SaveGame(path.c_str());
 					break;
-				}
 				case LOAD:
 					if (!this->all_files.count(filename)) return;  // The file does not exist.
-					_game_control.LoadGame(filename.c_str());
+					_game_control.LoadGame(path.c_str());
 					break;
 			}
 			delete this;
