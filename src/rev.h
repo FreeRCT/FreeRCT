@@ -14,5 +14,6 @@ extern const char _freerct_revision[];
 extern const char _freerct_build_date[];
 
 extern const char _freerct_install_prefix[];
+extern const char *freerct_userdata_prefix();
 
 #endif /* REV_H */

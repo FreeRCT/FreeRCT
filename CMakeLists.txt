@@ -14,6 +14,7 @@ set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
 option(OVERRIDE_VCS "Override the lack of a VCS checkout")
+option(USERDATA_PREFIX ".")
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
 
 # Create the directories that the binaries and data files go into

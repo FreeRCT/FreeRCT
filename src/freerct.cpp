@@ -21,6 +21,7 @@
 #include "fileio.h"
 #include "gamecontrol.h"
 #include "string_func.h"
+#include "rev.h"
 
 GameControl _game_control; ///< Game controller.
 
@@ -43,6 +44,7 @@ void error(const char *str, ...)
 /** Command-line options of the program. */
 static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
+	GETOPT_NOVAL('v', "--version"),
 	GETOPT_VALUE('l', "--load"),
 	GETOPT_VALUE('a', "--language"),
 	GETOPT_NOVAL('r', "--resave"),
@@ -55,6 +57,7 @@ static void PrintUsage()
 	printf("Usage: freerct [options]\n");
 	printf("Options:\n");
 	printf("  -h, --help           Display this help text and exit.\n");
+	printf("  -v, --version        Display version and build info and exit.\n");
 	printf("  -l, --load [file]    Load game from specified file.\n");
 	printf("  -r, --resave         Automatically resave games after loading.\n");
 	printf("  -a, --language lang  Use the specified language.\n");
@@ -70,6 +73,21 @@ static void PrintUsage()
 		printf(" %s", _lang_names[i]);
 	}
 	printf("\n");
+}
+
+/** Output command-line version info. */
+static void PrintVersion()
+{
+	printf("FreeRCT\n\n");
+
+	printf("Version               : %s\n",   _freerct_revision);
+	printf("Build ID              : %s\n",   _freerct_build_date);
+	printf("Installation directory: %s\n",   _freerct_install_prefix);
+	printf("User data directory   : %s\n\n", freerct_userdata_prefix());
+
+	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n");
+
+	printf("\nFreeRCT is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2. FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>\n");
 }
 
 /**
@@ -90,6 +108,9 @@ int freerct_main(int argc, char **argv)
 		switch (opt_id) {
 			case 'h':
 				PrintUsage();
+				return 0;
+			case 'v':
+				PrintVersion();
 				return 0;
 			case 'a':
 				preferred_language = StrDup(opt_data.opt);
@@ -114,8 +135,6 @@ int freerct_main(int argc, char **argv)
 	} while (opt_id != -1);
 
 	ConfigFile cfg_file;
-
-	ChangeWorkingDirectoryToExecutable(argv[0]);
 
 	/* Load RCD files. */
 	InitImageStorage();
@@ -171,6 +190,9 @@ int freerct_main(int argc, char **argv)
 			}
 		}
 	}
+
+	/* Create the data directory on startup if it did not exist yet. */
+	MakeDirectory(freerct_userdata_prefix());
 
 	/* Initialize video. */
 	std::string err = _video.Initialize(font_path, font_size);

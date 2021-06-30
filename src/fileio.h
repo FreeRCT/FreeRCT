@@ -78,7 +78,7 @@ bool PathIsDirectory(const char *path);
 
 DirectoryReader *MakeDirectoryReader();
 
-bool ChangeWorkingDirectoryToExecutable(const char *exe);
+void MakeDirectory(const char *path);
 
 std::string FindDataFile(const char *name);
 

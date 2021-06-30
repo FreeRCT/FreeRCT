@@ -273,28 +273,20 @@ bool RcdFileReader::GetBlob(void *address, size_t length)
 }
 
 /**
- * Attempts to change the working directory to one in which the executable resides in.
- * @param exe "Path" to the executable (from argv[0]).
- * @return If the working directory was changed successfully.
+ * Create a directory and all its parents if it did not exist yet.
+ * @param path Path of the directory.
+ * @todo At the time of writing (2021-06-30) this is needed and tested only on Linux. Before using it anywhere else, test this on all platforms (especially Windows).
  */
-bool ChangeWorkingDirectoryToExecutable(const char *exe)
+void MakeDirectory(const char *path)
 {
-	DirectoryReader *dirread = MakeDirectoryReader();
-	const char dir_sep = dirread->dir_sep;
-	delete dirread;
-
-	bool success = false;
-	char *s = const_cast<char *>(strrchr(exe, dir_sep));
-	if (s != NULL) {
-		*s = '\0';
-		if (chdir(exe) != 0) {
-			fprintf(stderr, "Directory with the binary does not exist?");
-		} else {
-			success = true;
-		}
-		*s = dir_sep;
-	}
-	return success;
+	if (PathIsDirectory(path)) return;
+#ifdef _WIN32
+	if (CreateDirectory(path, NULL)) return;
+#else
+	if (mkdir(path, 0x1FF) == 0) return;
+#endif
+	fprintf(stderr, "Failed creating directory '%s'\n", path);
+	NOT_REACHED();
 }
 
 /**
