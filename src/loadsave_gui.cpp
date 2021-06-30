@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "window.h"
 #include "gamecontrol.h"
+#include "fileio.h"
 
 /**
  * Game loading/saving gui.
@@ -81,9 +82,16 @@ static const WidgetPart _loadsave_gui_parts[] = {
 LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE), type(t)
 {
 	/* Get all .fct files in the directory. */
-	for (const std::string& name : ListDirectory(".")) {
-		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) this->all_files.insert(name);
+	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
+	dr->OpenPath(".");
+	std::string dir_sep;
+	dir_sep += dr->dir_sep;
+	const char *str;
+	while ((str = dr->NextEntry()) != nullptr) {
+		std::string name(str);
+		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) this->all_files.insert(name.substr(name.find_last_of(dir_sep) + 1));
 	}
+	dr->ClosePath();
 
 	this->SetupWidgetTree(_loadsave_gui_parts, lengthof(_loadsave_gui_parts));
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
