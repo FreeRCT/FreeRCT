@@ -341,6 +341,11 @@ strings {
 		SETTING_LANGUAGE_TOOLTIP:   "De Spraak vun de Speel ännern";
 		SETTING_RESOLUTION:         "Uplösen ännern";
 		SETTING_RESOLUTION_TOOLTIP: "De Grött vun de Speelfenster ännern";
+
+		// Loading/saving window.
+		LOADSAVE_LOAD:   "Laden";
+		LOADSAVE_SAVE:   "Sekern";
+		LOADSAVE_CANCEL: "Ofbreken";
 	}
 
 	stringtexts("ice-cream-stall") {

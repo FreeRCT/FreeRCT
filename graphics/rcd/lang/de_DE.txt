@@ -341,6 +341,11 @@ strings {
 		SETTING_LANGUAGE_TOOLTIP:   "Ändert die Sprache des Spieles";
 		SETTING_RESOLUTION:         "Auflösung wechseln";
 		SETTING_RESOLUTION_TOOLTIP: "Ändert die grafische Auflösung des Spiels";
+
+		// Loading/saving window.
+		LOADSAVE_LOAD:   "Laden";
+		LOADSAVE_SAVE:   "Speichern";
+		LOADSAVE_CANCEL: "Abbrechen";
 	}
 
 	stringtexts("ice-cream-stall") {
