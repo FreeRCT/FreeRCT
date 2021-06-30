@@ -14,6 +14,7 @@
 #include "stdafx.h"
 #include "fileio.h"
 #include "string_func.h"
+#include "rev.h"
 #ifdef LINUX
 	#include "unix/fileio_unix.h"
 	#include <dirent.h>
@@ -294,4 +295,20 @@ bool ChangeWorkingDirectoryToExecutable(const char *exe)
 		*s = dir_sep;
 	}
 	return success;
+}
+
+/**
+ * Locate a data file.
+ * @param name Relative path of the file.
+ * @return Actual path to the file.
+ */
+std::string FindDataFile(const char *name)
+{
+	for (std::string path : {"..", _freerct_install_prefix}) {
+		path += '/';
+		path += name;
+		if (PathIsFile(path.c_str())) return path;
+	}
+	fprintf(stderr, "Data file %s is missing, the installation seems to be broken!\n", name);
+	NOT_REACHED();
 }

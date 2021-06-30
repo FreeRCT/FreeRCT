@@ -37,3 +37,6 @@ const char _freerct_revision[] = "${VERSION_STRING}";
  * updates when they are actually changed themselves.
  */
 const char _freerct_build_date[] = __DATE__ " " __TIME__;
+
+/** The location where all FreeRCT assets are installed if "make install" was called. */
+const char _freerct_install_prefix[] = "${CMAKE_INSTALL_PREFIX}/share/freerct";

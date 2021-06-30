@@ -133,7 +133,11 @@ int freerct_main(int argc, char **argv)
 	const char *font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
 	/* Use default values if no font has been set. */
-	if (font_path == nullptr) font_path = "../utils/font/Ubuntu-L.ttf";
+	std::string font_path_fallback;
+	if (font_path == nullptr) {
+		font_path_fallback = FindDataFile("data/font/Ubuntu-L.ttf");
+		font_path = font_path_fallback.c_str();
+	}
 	if (font_size < 1) font_size = 15;
 	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
 

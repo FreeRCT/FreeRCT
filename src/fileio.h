@@ -80,4 +80,6 @@ DirectoryReader *MakeDirectoryReader();
 
 bool ChangeWorkingDirectoryToExecutable(const char *exe);
 
+std::string FindDataFile(const char *name);
+
 #endif

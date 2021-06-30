@@ -21,6 +21,7 @@
 #include "viewport.h"
 #include "weather.h"
 #include "freerct.h"
+#include "fileio.h"
 
 GameModeManager _game_mode_mgr; ///< Game mode manager object.
 
@@ -143,7 +144,7 @@ void GameControl::RunAction()
 
 		case GCA_MENU:
 			this->main_menu = true;
-			this->Initialize("../utils/mainmenu/savegame.fct");
+			this->Initialize(FindDataFile("data/mainmenu/savegame.fct").c_str());
 			::ShowMainMenu();
 			break;
 

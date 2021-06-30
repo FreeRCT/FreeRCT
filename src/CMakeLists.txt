@@ -180,3 +180,5 @@ ELSEIF(WIN32)
 ELSE()
 	message(FATAL_ERROR "Unsupported platform")
 ENDIF()
+
+INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION bin)
