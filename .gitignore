@@ -8,6 +8,7 @@
 /bin
 /CMakeDoxyfile.in
 /CMakeDoxygenDefaults.cmake
+/install_manifest.txt
 
 # /doc/
 /doc/html

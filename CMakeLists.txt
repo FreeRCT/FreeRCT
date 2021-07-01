@@ -15,6 +15,12 @@ set(CMAKE_USE_RELATIVE_PATHS ON)
 
 option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
+# FreeRCT expands the '~' to the user home directory at runtime.
+IF(WIN32)
+	option(USERDATA_PREFIX "~/.freerct")
+ELSE()
+	option(USERDATA_PREFIX "~/.config/freerct")
+ENDIF()
 
 # Create the directories that the binaries and data files go into
 set(FRCT_BINARY_DIR "${CMAKE_BINARY_DIR}/bin")

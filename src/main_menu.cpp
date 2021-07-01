@@ -13,6 +13,7 @@
 #include "sprite_store.h"
 #include "viewport.h"
 #include "window.h"
+#include "fileio.h"
 
 /**
  * The main menu.
@@ -48,7 +49,7 @@ MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetSize(_video.GetXSize(),_video.GetYSize());
 	this->animstart = this->last_time = SDL_GetTicks();
-	this->camera_positions.Load("../utils/mainmenu/camera");
+	this->camera_positions.Load(FindDataFile("data/mainmenu/camera").c_str());
 	this->nr_cameras = this->camera_positions.GetNum("camera", "nr_cameras");
 	this->time_in_camera = 0;
 	this->current_camera_id = 0;

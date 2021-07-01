@@ -21,6 +21,7 @@
 #include "fileio.h"
 #include "gamecontrol.h"
 #include "string_func.h"
+#include "rev.h"
 
 GameControl _game_control; ///< Game controller.
 
@@ -43,6 +44,7 @@ void error(const char *str, ...)
 /** Command-line options of the program. */
 static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
+	GETOPT_NOVAL('v', "--version"),
 	GETOPT_VALUE('l', "--load"),
 	GETOPT_VALUE('a', "--language"),
 	GETOPT_NOVAL('r', "--resave"),
@@ -55,6 +57,7 @@ static void PrintUsage()
 	printf("Usage: freerct [options]\n");
 	printf("Options:\n");
 	printf("  -h, --help           Display this help text and exit.\n");
+	printf("  -v, --version        Display version and build info and exit.\n");
 	printf("  -l, --load [file]    Load game from specified file.\n");
 	printf("  -r, --resave         Automatically resave games after loading.\n");
 	printf("  -a, --language lang  Use the specified language.\n");
@@ -70,6 +73,31 @@ static void PrintUsage()
 		printf(" %s", _lang_names[i]);
 	}
 	printf("\n");
+}
+
+/** Output command-line version info. */
+static void PrintVersion()
+{
+	printf("FreeRCT\n\n");
+
+	printf("Version               : %s\n",   _freerct_revision);
+	printf("Build ID              : %s\n",   _freerct_build_date);
+	printf("Installation directory: %s\n",   _freerct_install_prefix);
+	printf("User data directory   : %s\n\n", freerct_userdata_prefix());
+
+	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n\n");
+
+	printf(
+		"FreeRCT is free software; you can redistribute it and/or\n"
+		"modify it under the terms of the GNU General Public\n"
+		"License as published by the Free Software Foundation,\n"
+		"version 2. FreeRCT is distributed in the hope that it\n"
+		"will be useful, but WITHOUT ANY WARRANTY; without even\n"
+		"the implied warranty of MERCHANTABILITY or FITNESS FOR A\n"
+		"PARTICULAR PURPOSE. See the GNU General Public License\n"
+		"for more details. You should have received a copy of the\n"
+		"GNU General Public License along with FreeRCT. If not,\n"
+		"see <http://www.gnu.org/licenses/>\n");
 }
 
 /**
@@ -90,6 +118,9 @@ int freerct_main(int argc, char **argv)
 		switch (opt_id) {
 			case 'h':
 				PrintUsage();
+				return 0;
+			case 'v':
+				PrintVersion();
 				return 0;
 			case 'a':
 				preferred_language = StrDup(opt_data.opt);
@@ -113,9 +144,10 @@ int freerct_main(int argc, char **argv)
 		}
 	} while (opt_id != -1);
 
-	ConfigFile cfg_file;
+	/* Create the data directory on startup if it did not exist yet. */
+	MakeDirectory(freerct_userdata_prefix());
 
-	ChangeWorkingDirectoryToExecutable(argv[0]);
+	ConfigFile cfg_file;
 
 	/* Load RCD files. */
 	InitImageStorage();
@@ -129,11 +161,22 @@ int freerct_main(int argc, char **argv)
 		return 1;
 	}
 
-	cfg_file.Load("freerct.cfg");
+	{
+		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
+		std::string path = freerct_userdata_prefix();
+		path += dr->dir_sep;
+		path += "freerct.cfg";
+		cfg_file.Load(path.c_str());
+	}
+
 	const char *font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
 	/* Use default values if no font has been set. */
-	if (font_path == nullptr) font_path = "../utils/font/Ubuntu-L.ttf";
+	std::string font_path_fallback;
+	if (font_path == nullptr) {
+		font_path_fallback = FindDataFile("data/font/Ubuntu-L.ttf");
+		font_path = font_path_fallback.c_str();
+	}
 	if (font_size < 1) font_size = 15;
 	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
 
