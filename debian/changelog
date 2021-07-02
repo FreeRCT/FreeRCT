@@ -1,3 +1,9 @@
+freerct (1:0.1~bzr5) UNRELEASED; urgency=medium
+
+  * Made everything work again after years of disuse.
+
+ -- Benedikt Straub (Noordfrees) <benedikt-straub@web.de>  Thu, 01 Jul 2021 20:25:20 +0200
+
 freerct (0.0.0.831) precise; urgency=low
 
   * Rev 831

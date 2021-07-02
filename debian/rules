@@ -4,18 +4,18 @@
 
 override_dh_auto_configure:
 	
-	#mkdir -p ${CURDIR}/debian/azpazeta
-	#cp -rv build/* ${CURDIR}/debian/azpazeta/
-	#dh_auto_configure
+
 override_dh_auto_build:
+	cmake -DOVERRIDE_VCS=ON -DVERSION_STRING="${DEB_VERSION}" -DCMAKE_INSTALL_PREFIX='/usr' -DUSERDATA_PREFIX='~/.config/freerct' .
 	make
+
 override_dh_auto_install:
-	mkdir -p ${CURDIR}/debian/freerct/opt/freerct/bin
-	mkdir -p ${CURDIR}/debian/freerct/opt/freerct/graphics/rcd
+	mkdir -p ${CURDIR}/debian/freerct/usr/bin
+	mkdir -p ${CURDIR}/debian/freerct/usr/share/freerct
 	mkdir -p ${CURDIR}/debian/freerct/usr/share/applications
 	mkdir -p ${CURDIR}/debian/freerct/usr/share/pixmaps
 	cp debian/freerct.desktop ${CURDIR}/debian/freerct/usr/share/applications/
 	cp graphics/sprites/logo/logo.png ${CURDIR}/debian/freerct/usr/share/pixmaps/
-	cp src/freerct ${CURDIR}/debian/freerct/opt/freerct/bin/
-	cp debian/freerct.cfg ${CURDIR}/debian/freerct/opt/freerct/bin/
-	cp -r graphics/rcd/*.rcd ${CURDIR}/debian/freerct/opt/freerct/graphics/rcd/
+	cp bin/freerct ${CURDIR}/debian/freerct/usr/bin/
+	cp bin/rcd/*.rcd ${CURDIR}/debian/freerct/usr/share/freerct
+	cp -r data ${CURDIR}/debian/freerct/usr/share/freerct/data

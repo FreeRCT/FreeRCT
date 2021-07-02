@@ -5,11 +5,13 @@ Source: http://code.google.com/p/freerct
 
 Files: *
 Copyright:
- 2011-2013 The FreeRCT team, and all contributors.
+ 2011-2021 The FreeRCT team, and all contributors.
 License: GPL-2.0
 
 Files: debian/*
-Copyright: 2013 Adrian Arroyo Calle <adrian.arroyocalle@gmail.com>
+Copyright:
+ 2013 Adrian Arroyo Calle <adrian.arroyocalle@gmail.com>
+ 2021 Benedikt Straub <benedikt-straub@web.de>
 License: GPL-2.0+
 
 License: GPL-2.0

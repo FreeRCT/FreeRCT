@@ -128,12 +128,20 @@ IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 	                OUTPUT_VARIABLE VERSION_STRING
 	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 	)
-	string(STRIP "${VERSION_STRING}" VERSION_STRING) # Newline
+	string(STRIP "0.1~git${VERSION_STRING}" VERSION_STRING) # Newline
+ELSEIF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.bzr")
+	execute_process(COMMAND bzr revno
+	                OUTPUT_VARIABLE VERSION_STRING
+	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	)
+	string(STRIP "0.1~brz${VERSION_STRING}" VERSION_STRING) # Newline
 ELSE()
 	# Only do this if you really want to
 	IF(OVERRIDE_VCS)
 		message(WARNING "WARNING: No VCS checkout detected but overridden by user")
-		set(VERSION_STRING "0.0.0-norev")
+		if (NOT DEFINED VERSION_STRING)
+			set(VERSION_STRING "0.0.0-norev")
+		ENDIF()
 	ELSE()
 		message(FATAL_ERROR "No VCS checkout detected. Enable the OVERRIDE_VCS option if this is intended. This is not recommended.")
 	ENDIF()

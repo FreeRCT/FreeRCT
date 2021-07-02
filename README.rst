@@ -23,20 +23,31 @@ Building is as simple as
 ::
 
         $ git clone https://github.com/FreeRCT/FreeRCT.git
-        $ cd FreeRCT # Go into the downloaded source directory.
-        $ cmake .    # Checks libraries are where they're supposed to be and replaces some strings
-        $ make       # Let make do the heavy work.
+        $ cd FreeRCT    # Go into the downloaded source directory.
+        $ cmake .       # Checks libraries are where they're supposed to be and replaces some strings.
+        $ make          # Let make do the heavy work.
+        $ make install  # Optional step to install the program on the system. May require root privileges.
 
 
 CMake accepts the following options:
 
-================= ======= ==========================================================================
-Name              Default Explanation
-================= ======= ==========================================================================
-OVERRIDE_VCS      OFF     Override the lack of a VCS checkout.
-ASAN              OFF     Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html).
-USERDATA_PREFIX   '.'     Directory where user data such as savegames is stored.
-================= ======= ==========================================================================
+======================= ============================= ================================================================================
+Name                    Default value                 Explanation
+======================= ============================= ================================================================================
+OVERRIDE_VCS            OFF                           Override the lack of a VCS checkout. Supported VCSs are git and bzr.
+VERSION_STRING          '0.0.0-norev'                 If OVERRIDE_VCS is enabled, use this string as the build version.
+ASAN                    OFF                           Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html).
+CMAKE_INSTALL_PREFIX    '/usr'                        Directory where 'make install' installes 
+USERDATA_PREFIX         '~/.freerct' (Windows) or     Directory where user data such as savegames is stored.
+                        '~/.config/freerct' (other)
+======================= ============================= ================================================================================
+
+Note that CMake options are prefixed with '-D', so the full call is e.g.
+
+::
+
+        $ cmake -DASAN=ON -DCMAKE_INSTALL_PREFIX='~/.local' .
+
 
 -  **src** directory contains the source code of the FreeRCT program itself.
 -  **src/rcdgen** directory contains the source code of the *rcdgen* program, that builds RCD files from source (which are read by *freerct*).

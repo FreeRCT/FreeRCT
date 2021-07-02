@@ -14,6 +14,13 @@
 /doc/html
 /doc/*.html
 
+# /debian/
+/debian/.debhelper/
+/debian/debhelper-build-stamp
+/debian/files
+/debian/freerct/
+/debian/freerct.substvars
+
 # /graphics/rcd/
 /graphics/rcd/*.rcd
 /graphics/rcd/*.log
