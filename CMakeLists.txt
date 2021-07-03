@@ -13,7 +13,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
-option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
 if (NOT DEFINED USERDATA_PREFIX)
 	# FreeRCT expands the '~' to the user home directory at runtime.

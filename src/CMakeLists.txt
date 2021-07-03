@@ -122,28 +122,21 @@ IF(SDL2_TTF_FOUND)
 ENDIF()
 
 # Determine version string
-find_package(Git)
-IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
-	execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always
-	                OUTPUT_VARIABLE VERSION_STRING
-	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-	)
-	string(STRIP "0.1~git${VERSION_STRING}" VERSION_STRING) # Newline
-ELSEIF(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.bzr")
-	execute_process(COMMAND bzr revno
-	                OUTPUT_VARIABLE VERSION_STRING
-	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-	)
-	string(STRIP "0.1~brz${VERSION_STRING}" VERSION_STRING) # Newline
-ELSE()
-	# Only do this if you really want to
-	IF(OVERRIDE_VCS)
-		message(WARNING "WARNING: No VCS checkout detected but overridden by user")
-		if (NOT DEFINED VERSION_STRING)
-			set(VERSION_STRING "0.0.0-norev")
-		ENDIF()
+if (NOT DEFINED VERSION_STRING)
+	find_package(Git)
+	IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+			            OUTPUT_VARIABLE VERSION_STRING_1
+			            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		)
+		execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always
+			            OUTPUT_VARIABLE VERSION_STRING_2
+			            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		)
+		string(STRIP "0.1~git${VERSION_STRING_1}-${VERSION_STRING_2}" VERSION_STRING)
 	ELSE()
-		message(FATAL_ERROR "No VCS checkout detected. Enable the OVERRIDE_VCS option if this is intended. This is not recommended.")
+		message(WARNING "WARNING: No VCS checkout detected and no custom version specified")
+		set(VERSION_STRING "0.0.0-revdetect-broken")
 	ENDIF()
 ENDIF()
 
