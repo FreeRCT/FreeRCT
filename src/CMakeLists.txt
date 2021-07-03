@@ -133,6 +133,9 @@ if (NOT DEFINED VERSION_STRING)
 			            OUTPUT_VARIABLE VERSION_STRING_2
 			            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 		)
+		# Need to strip newlines from the strings:
+		string(STRIP "${VERSION_STRING_1}" VERSION_STRING_1)
+		string(STRIP "${VERSION_STRING_2}" VERSION_STRING_2)
 		string(STRIP "0.1~git${VERSION_STRING_1}-${VERSION_STRING_2}" VERSION_STRING)
 	ELSE()
 		message(WARNING "WARNING: No VCS checkout detected and no custom version specified")
