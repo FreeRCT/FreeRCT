@@ -38,9 +38,9 @@ Name                    Default value                 Explanation
 VERSION_STRING          -                             Use this string as the build version. If not specified, the version is detected
                                                       automatically from git. If this also fails, the version defaults to '0.0.0-revdetect-broken'.
 ASAN                    OFF                           Use AddressSanitizer (see below).
-CMAKE_INSTALL_PREFIX    '/usr'                        Directory where 'make install' installes 
+CMAKE_INSTALL_PREFIX    '/usr'                        Directory where 'make install' installs.
 USERDATA_PREFIX         '~/.freerct' (Windows) or     Directory where user data such as savegames is stored.
-                        '~/.config/freerct' (other)   Note that in the USERDATA_PREFIX variable expansion of the '~' character to the
+                        '~/.config/freerct' (other)   Note that '~' character expansion in the USERDATA_PREFIX variable to the
                                                       user home directory is performed by FreeRCT at runtime and should NOT be done by
                                                       shell expansion to ensure that the executable can be used by multiple users.
 ======================= ============================= ================================================================================================
