@@ -13,13 +13,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
-option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
-# FreeRCT expands the '~' to the user home directory at runtime.
-IF(WIN32)
-	option(USERDATA_PREFIX "~/.freerct")
-ELSE()
-	option(USERDATA_PREFIX "~/.config/freerct")
+if (NOT DEFINED USERDATA_PREFIX)
+	# FreeRCT expands the '~' to the user home directory at runtime.
+	IF(WIN32)
+		set(USERDATA_PREFIX "~/.freerct")
+	ELSE()
+		set(USERDATA_PREFIX "~/.config/freerct")
+	ENDIF()
 ENDIF()
 
 # Create the directories that the binaries and data files go into

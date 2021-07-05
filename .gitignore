@@ -1,5 +1,6 @@
 
 # /
+/build
 /doxygen_warnings.txt
 /Makefile
 /CMakeFiles
@@ -13,6 +14,13 @@
 # /doc/
 /doc/html
 /doc/*.html
+
+# /debian/
+/debian/.debhelper/
+/debian/debhelper-build-stamp
+/debian/files
+/debian/freerct/
+/debian/freerct.substvars
 
 # /graphics/rcd/
 /graphics/rcd/*.rcd
