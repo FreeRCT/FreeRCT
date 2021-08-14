@@ -1,33 +1,31 @@
 const ALL_PAGES = [
-	/* Syntax: document name (minus the .html); Label in the menu bar; Open in new tab; Dropdown entries in the same format (or ``null`` if it's not a dropdown). */
-	['index'      , 'FreeRCT Home', false, null],
-	['download'   , 'Download'    , false, null],
-	['manual'     , 'Manual'      , false, null],
-	['screenshots', 'Screenshots' , false, null],
-	['development', 'Development' , false, [
-		['https://github.com/FreeRCT/FreeRCT'       , 'Git Repository', true],
-		['https://github.com/FreeRCT/FreeRCT/issues', 'Issue Tracker' , true],
-	]],
+	{link: 'index'      , label: 'FreeRCT Home'},
+	{link: 'download'   , label: 'Download'    },
+	{link: 'manual'     , label: 'Manual'      },
+	{link: 'screenshots', label: 'Screenshots' },
+	{link: 'development', label: 'Development', dropdown: [
+		{link: 'https://github.com/FreeRCT/FreeRCT'       , absolute: true, label: 'Git Repository', newTab: true},
+		{link: 'https://github.com/FreeRCT/FreeRCT/issues', absolute: true, label: 'Issue Tracker' , newTab: true},
+	]},
 ];
 
 function makeHref(id) {
-	const isAbsolute = id[0].startsWith('http');
-	var hrefTag = '<a href="' + id[0]
-	if (!isAbsolute) hrefTag += '.html';
+	var hrefTag = '<a href="' + id.link;
+	if (!id.absolute) hrefTag += '.html';
 	hrefTag += '"';
 
-	if (!isAbsolute &&
-		(document.URL.search('/docs/' + id[0] + '.html') >= 0 ||
-			document.URL.search('/FreeRCT/' + id[0] + '.html') >= 0 ||
-			(id[0] == 'index' && document.URL.endsWith('FreeRCT/')))) {
+	if (!id.absolute &&
+		(document.URL.search('/docs/' + id.link + '.html') >= 0 ||
+			document.URL.search('/FreeRCT/' + id.link + '.html') >= 0 ||
+			(id.link == 'index' && document.URL.endsWith('FreeRCT/')))) {
 		hrefTag += ' class="menubar_active"';
 	}
 
-	if (id[2]) {
+	if (id.newTab) {
 		hrefTag += ' target="_blank"';
 	}
 
-	hrefTag += '>' + id[1] + '</a>';
+	hrefTag += '>' + id.label + '</a>';
 	return hrefTag;
 }
 
@@ -47,6 +45,10 @@ function readjustMenuBarY() {
 }
 document.body.onscroll = readjustMenuBarY;
 
+function dropdownMouse(dd, inside) {
+	dd.style = inside ? 'background-color: #003000' : '';
+}
+
 document.write('<link rel="icon" href="images/logo.png">');
 
 document.write('<a class="pictorial_link" href=index.html>');
@@ -58,14 +60,14 @@ document.write('<ul id="menubar_ul">');
 	document.write('<p style="margin-right:298px"></p>');
 
 	ALL_PAGES.forEach(function(id) {
-		if (id[3] == null) {
+		if (id.dropdown == null) {
 			document.write('<li>');
 			document.write(makeHref(id));
 		} else {
-			document.write('<li class="dropdown">');
+			document.write('<li class="dropdown" onmouseover="dropdownMouse(this, true)" onmouseout="dropdownMouse(this, false)">');
 			document.write(makeHref(id));
 			document.write('<div class="dropdown-content">');
-				id[3].forEach(function(entry) {
+				id.dropdown.forEach(function(entry) {
 					document.write(makeHref(entry));
 				});
 			document.write('</div>');
