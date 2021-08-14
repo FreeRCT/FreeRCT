@@ -16,6 +16,7 @@ ul {
 
 li {
 	float: left;
+	width: 10%;
 	margin: 0 0 0 2%
 }
 
@@ -24,11 +25,16 @@ li a {
 	color: #eeeeee;
 	text-align: center;
 	padding: 14px 16px;
+	width: 100%;
 	text-decoration: none;
 }
 
 li a:hover {
-	background-color: 003000;
+	background-color: #003000;
+}
+
+.pictorial_link:hover {
+	background-color: transparent;
 }
 
 .menubar_active {

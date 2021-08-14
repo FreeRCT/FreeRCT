@@ -7,9 +7,9 @@ const ALL_PAGES = [
 	['development', 'Development' ]
 ];
 
-document.write('<ul> <link rel="stylesheet" href="menubar.css"> <li><img src="images/logo.png" height="256" width="auto"></img></li>');
+document.write('<ul> <link rel="stylesheet" href="menubar.css"> <li style="width:auto"><a class="pictorial_link" href=index.html><img src="images/logo.png" height="256" width="auto"></img></a></li>');
 ALL_PAGES.forEach(function(id) {
-	document.write('<li><a id="menubar_"' + id[0] + ' href="' + id[0] + '.html"');
+	document.write('<li><a href="' + id[0] + '.html"');
 	if (document.URL.search('/docs/' + id[0] + '.html') >= 0) {
 		document.write(' class="menubar_active"');
 	}
