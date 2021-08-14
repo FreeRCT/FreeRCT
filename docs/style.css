@@ -3,6 +3,7 @@
 body {
   background-color: #add8f6;
   text-align: justify;
+  z-index: 1;
 }
 h1 {
   text-align: center;
