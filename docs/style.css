@@ -20,6 +20,14 @@ h1 { font-size: 26 }
 h2 { font-size: 22 }
 h3 { font-size: 18 }
 
+.linkified_header {
+	font-size: inherit;
+	text-align: inherit;
+	text-shadow: inherit;
+	text-decoration: inherit;
+	color: inherit;
+}
+
 /* News page. */
 
 .news {
