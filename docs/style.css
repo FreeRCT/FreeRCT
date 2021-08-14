@@ -4,6 +4,10 @@
 
 body {
   background-color: #add8f6;
+  text-align: justify;
+}
+h1 {
+  text-align: center;
 }
 
 /* Slideshow container */
