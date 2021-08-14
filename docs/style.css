@@ -1,15 +1,49 @@
+/* General definitions. */
+
 * {
 	box-sizing:border-box;
 	text-align: justify;
 	z-index: 1;
+	color: #001000;
+	font-size: 16;
 }
 
 body {
 	background-color: #add8f6;
 }
-h1 {
+h1,h2,h3 {
 	text-align: center;
+	color: #006000;
+	text-shadow: 1px 1px #001000;
 }
+h1 { font-size: 26 }
+h2 { font-size: 22 }
+h3 { font-size: 18 }
+
+/* News page. */
+
+.news {
+	border-style: inset;
+	border-color: #396878;
+	border-radius: 5px;
+	overflow: auto;
+	padding: 8px;
+}
+
+.news_count {
+	font-style: italic;
+	font-size: 16;
+	text-shadow: none
+}
+
+.news_timestamp {
+	font-style: italic;
+	font-size: 12;
+	color: #002000;
+	text-align: right;
+}
+
+/* Slideshow stuff. */
 
 .slideshow-container {
 	max-width: 1000px;

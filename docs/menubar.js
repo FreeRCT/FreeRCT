@@ -1,5 +1,6 @@
 const ALL_PAGES = [
 	{link: 'index'      , label: 'FreeRCT Home'},
+	{link: 'news'       , label: 'News'        },
 	{link: 'download'   , label: 'Download'    },
 	{link: 'manual'     , label: 'Manual'      },
 	{link: 'screenshots', label: 'Screenshots' },
