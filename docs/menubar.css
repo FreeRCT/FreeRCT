@@ -7,7 +7,6 @@ ul {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
-	overflow: hidden;
 	background-image: url("images/menubar.png");
 	background-repeat: repeat-x;
 	background-position: right center;
@@ -24,7 +23,7 @@ ul {
 li {
 	position: relative;
 	float: left;
-	width: 180px;
+	min-width: 180px;
 	margin: 0 0 0 10px
 }
 
