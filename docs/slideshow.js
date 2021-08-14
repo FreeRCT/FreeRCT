@@ -1,5 +1,3 @@
-// Based heavily on code from https://www.w3schools.com
-
 var slideIndex = 0;
 showSlidesAuto();
 
