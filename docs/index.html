@@ -1,16 +1,17 @@
+<!-- Based heavily on code from https://www.w3schools.com -->
 <html>
 	<head>
 		<title>FreeRCT</title>
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
+		<object data="menubar.html" width="100%" height="256px"></object>
 
-		<h1>FreeRCT</h1>
 		<h2>Welcome to the FreeRCT homepage!</h2>
 
-		<!-- Slideshow container / based heavily on code from https://www.w3schools.com/howto/howto_js_slideshow.asp -->
+		<!-- Slideshow container -->
 		<div>
-			<div style="float:right; margin: 0px 10% 0px 10%">
+			<div style="float:right; margin: 0px 10% 0px 5%; max-width:45%">
 				<div class="slideshow-container">
 					<!-- 10 images -->
 					<div class="mySlides fade">
@@ -73,10 +74,13 @@
 					<span class="dot" onclick="currentSlide(10)"></span>
 				</div>
 			</div>
-			<div>
+			<div style="width:40%">
+				<p>
 				FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.
 				The game is still in an early alpha state, but it is already playable and offers a variety of features.
+				</p><p>
 				This website is still under development.
+				</p>
 			</div>
 		</div>
 		<script src="slideshow.js"></script>

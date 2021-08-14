@@ -1,4 +1,4 @@
-// Based heavily on code from https://www.w3schools.com/howto/howto_js_slideshow.asp
+// Based heavily on code from https://www.w3schools.com
 
 var slideIndex = 0;
 showSlidesAuto();
