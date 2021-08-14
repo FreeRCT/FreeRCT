@@ -7,7 +7,7 @@ const ALL_PAGES = [
 	['development', 'Development' , false, [
 		['https://github.com/FreeRCT/FreeRCT'       , 'Git Repository', true],
 		['https://github.com/FreeRCT/FreeRCT/issues', 'Issue Tracker' , true],
-	]]
+	]],
 ];
 
 function makeHref(id) {
@@ -31,14 +31,31 @@ function makeHref(id) {
 	return hrefTag;
 }
 
+const MENU_BAR_MAX_HEIGHT = 256;
+const MENU_BAR_BAR_HEIGHT = 50;
+const MENU_BAR_MAX_Y = (MENU_BAR_MAX_HEIGHT - MENU_BAR_BAR_HEIGHT) / 2;
+function readjustMenuBarY() {
+	const scroll = document.body.scrollTop / 2;
+	const newBarY = Math.min(MENU_BAR_MAX_Y, Math.max(0, scroll));
+	const newLogoH = MENU_BAR_MAX_HEIGHT - newBarY * (MENU_BAR_MAX_HEIGHT - MENU_BAR_BAR_HEIGHT) / MENU_BAR_MAX_Y;
+	const newLogoHalfspace = (MENU_BAR_MAX_HEIGHT - newLogoH) / 2;
+
+	document.getElementById('menubar_ul').style.top = -newBarY;
+	var logo = document.getElementById('menubar_logo');
+	logo.height = newLogoH;
+	logo.style = 'margin-left:' + newLogoHalfspace + ';margin-right:' + newLogoHalfspace; 
+}
+document.body.onscroll = readjustMenuBarY;
+
 document.write('<link rel="icon" href="images/logo.png">');
-document.write('<ul>');
+
+document.write('<a class="pictorial_link" href=index.html>');
+	document.write('<img id="menubar_logo" src="images/logo.png" height="256" width="auto"></img>');
+document.write('</a>');
+
+document.write('<ul id="menubar_ul">');
 	document.write('<link rel="stylesheet" href="menubar.css">');
-	document.write('<li style="width:auto">');
-		document.write('<a class="pictorial_link" href=index.html>');
-			document.write('<img src="images/logo.png" height="256" width="auto"></img>');
-		document.write('</a>');
-	document.write('</li>');
+	document.write('<p style="margin-right:298px"></p>');
 
 	ALL_PAGES.forEach(function(id) {
 		if (id[3] == null) {
@@ -56,4 +73,5 @@ document.write('<ul>');
 		document.write('</li>');
 	});
 document.write('</ul>');
-document.write('<p style="margin-bottom:280px;"></p>');
+document.write('<script>readjustMenuBarY();</script>');
+document.write('<p style="margin-bottom:280px"></p>');
