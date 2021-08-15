@@ -74,6 +74,15 @@ a:active {
 
 /* Slideshow stuff. */
 
+.slideshow-main {
+	float: right;
+	margin: 0px 10% 0px 5%;
+	width: 45%;
+	padding: 0 0 12px 0;
+	border: 5px ridge #396878;
+	border-radius: 5px;
+}
+
 .slideshow-container {
 	max-width: 1000px;
 	width: 100%;
@@ -98,34 +107,33 @@ a:active {
 	position: absolute;
 	top: 50%;
 	width: auto;
-	margin-top: -22px;
-	padding: 16px;
-	color: white;
+	padding: 64px 32px;
+	margin-top: -10%;
+	color: #eeeeee;
 	font-weight: bold;
-	font-size: 18px;
-	transition: 0.6s ease;
-	border-radius: 0 3px 3px 0;
+	font-size: 32px;
+	border-radius: 0 12px 12px 0;
 	user-select: none;
+	transition: 0.5s ease;
+	opacity: 0.4;
 }
-
 .next {
 	right: 0;
-	border-radius: 3px 0 0 3px;
+	border-radius: 12px 0 0 12px;
 }
-
 .prev:hover, .next:hover {
-	background-color: rgba(0,0,0,0.8);
+	opacity: 0.8;
+	background-color: #001000;
 }
 
-.text {
-	color: #dddddd;
-	background-color: rgba(0,0,0,0.8);
+.slideshow_text {
 	font-size: 15px;
 	padding: 8px 12px;
 	position: absolute;
-	bottom: 8px;
+	bottom: -36px;
 	width: 100%;
 	text-align: center;
+	border-top: 2px solid #396878;
 }
 
 .slideshow_dot {
