@@ -125,6 +125,16 @@ ul li a .tooltip_corner::after {
 }
 .pictorial_link:active { background-color: initial; }
 
+#menubar_top_canvas {
+	/* TODO need better image */
+	background: url("images/queuepaths.png") repeat-x bottom left;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	filter: grayscale(80%);
+}
+
 .menubar_active {
 	background-color: var(--green-medium);
 }

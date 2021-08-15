@@ -64,6 +64,10 @@ function readjustMenuBarY() {
 	const newLogoH = logoMaxH - (alwaysCollapse ? 0 : ((logoMaxH - MENU_BAR_BAR_HEIGHT) * newBarY / menuBarMaxY));
 	const newLogoHalfspace = (logoMaxH - newLogoH) / 2;
 
+	var canvas = document.getElementById('menubar_top_canvas');
+	canvas.style.height = menuBarMaxY - newBarY;
+	// canvas.style.left = menuSpacer + 'px';
+
 	document.getElementById('menubar_ul').style.top = (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2 - newBarY;
 	document.getElementById('menubar_spacer_menu').style.marginRight = menuSpacer;
 	document.getElementById('menubar_spacer_bottom').style.marginBottom = bottomSpacer;
@@ -86,8 +90,9 @@ function dropdownMouse(dd, inside) {
 }
 
 document.write('<link rel="icon" href="images/logo.png">');
+document.write('<div id="menubar_top_canvas"></div>');
 
-document.write('<a class="pictorial_link" href=index.html>');
+document.write('<a class="pictorial_link" href=#top>');
 	document.write('<img id="menubar_logo" src="images/logo.png" height=auto width=auto></img>');
 document.write('</a>');
 
