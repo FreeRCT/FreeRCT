@@ -19,6 +19,27 @@ h1,h2,h3 {
 h1 { font-size: 26 }
 h2 { font-size: 22 }
 h3 { font-size: 18 }
+tt {
+	color: #eeeeee;
+	background-color: rgba(0,48,0,0.5);
+	padding: 1px 4px;
+}
+
+a { position:relative }
+a[href*="://"]::after {
+	content: "\2bb3";
+	text-shadow: 1px 1px #eeeeee;
+	position: absolute;
+	bottom: 25%;
+	font-size: 75%;
+}
+p a:link { color: #0000f0 }
+p a:visited { color: #009000 }
+a:active {
+	color: #eeeeee;
+	background-color: #009000;
+	text-decoration: none;
+}
 
 .linkified_header {
 	font-size: inherit;

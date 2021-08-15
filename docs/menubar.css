@@ -105,6 +105,7 @@ li a .tooltiptext::after {
 	width: auto;
 	height: 256;
 }
+.pictorial_link:active { background-color: initial; }
 
 .menubar_active {
 	background-color: #006000;
