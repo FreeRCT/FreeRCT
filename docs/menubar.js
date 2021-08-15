@@ -11,7 +11,7 @@ const ALL_PAGES = [
 ];
 
 var _all_links_created = [];
-function makeHref(id) {
+function makeHref(id, tooltiptype) {
 	const unique_id = (id.unique_id ? id.unique_id : id.link);
 	const unique_id_name = 'menubar_entry_' + unique_id;
 	_all_links_created.push({id: unique_id_name, link: unique_id});
@@ -31,7 +31,7 @@ function makeHref(id) {
 		hrefTag += ' target="_blank"';
 	}
 
-	hrefTag += '>' + id.label + '<span class="tooltiptext">' + id.label + '</span></a>';
+	hrefTag += '>' + id.label + '<span class="' + tooltiptype + '">' + id.label + '</span></a>';
 	return hrefTag;
 }
 
@@ -62,7 +62,7 @@ function readjustMenuBarY() {
 	const newLogoH = logoMaxH - (alwaysCollapse ? 0 : ((logoMaxH - MENU_BAR_BAR_HEIGHT) * newBarY / menuBarMaxY));
 	const newLogoHalfspace = (logoMaxH - newLogoH) / 2;
 
-	document.getElementById('menubar_ul').style.top = -newBarY;
+	document.getElementById('menubar_ul').style.top = (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2 - newBarY;
 	document.getElementById('menubar_spacer_menu').style.marginRight = menuSpacer;
 	document.getElementById('menubar_spacer_bottom').style.marginBottom = bottomSpacer;
 	logo.style.height = newLogoH;
@@ -96,13 +96,13 @@ document.write('<ul id="menubar_ul">');
 	ALL_PAGES.forEach(function(id) {
 		if (id.dropdown == null) {
 			document.write('<li>');
-			document.write(makeHref(id));
+			document.write(makeHref(id, 'tooltip_bottom'));
 		} else {
 			document.write('<li class="dropdown" onmouseover="dropdownMouse(this, true)" onmouseout="dropdownMouse(this, false)">');
-			document.write(makeHref(id));
+			document.write(makeHref(id, 'tooltip_corner'));
 			document.write('<div class="dropdown-content">');
 				id.dropdown.forEach(function(entry) {
-					document.write(makeHref(entry));
+					document.write(makeHref(entry, 'tooltip_left'));
 				});
 			document.write('</div>');
 		}
