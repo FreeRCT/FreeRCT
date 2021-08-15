@@ -7,9 +7,9 @@
 	--green-dark:   #003000;
 	--green-medium: #006000;
 	--green-light:  #009000;
-	--blue-dark:    #396878;
+	--blue-light:   #396878;
 	--blue-medium:  #0000f0;
-	--blue-light:   #000b2a;
+	--blue-dark:    #000b2a;
 }
 
 * {
@@ -45,8 +45,8 @@ a[href*="://"]::after {
 	bottom: 25%;
 	font-size: 75%;
 }
-a:link { color: var(--blue-medium) }
-a:visited { color: var(--green-light) }
+a:not(.linkified_header):link { color: var(--blue-medium) }
+a:not(.linkified_header):visited { color: var(--green-light) }
 a:active {
 	color: var(--text-light);
 	background-color: var(--green-light);
@@ -58,14 +58,37 @@ a:active {
 	text-align: inherit;
 	text-shadow: inherit;
 	text-decoration: inherit;
+	background-color: inherit;
 	color: inherit;
+}
+
+table, th, td {
+	border: 2px ridge var(--green-light);
+	border-collapse: collapse;
+}
+table {
+	margin-left: auto;
+	margin-right: auto;
+}
+th, td {
+	padding: 8px;
+}
+th, .table_release {
+	font-weight: bold;
+	background-color: var(--blue-dark);
+	color: var(--text-light);
+}
+.invalid {
+	color: var(--blue-light);
+	font-style: italic;
+	cursor: not-allowed;
 }
 
 /* News page. */
 
 .news {
 	border-style: inset;
-	border-color: var(--blue-dark);
+	border-color: var(--blue-light);
 	border-radius: 5px;
 	overflow: auto;
 	padding: 8px;
@@ -91,7 +114,7 @@ a:active {
 	margin: 0px 10% 0px 5%;
 	width: 45%;
 	padding: 0 0 12px 0;
-	border: 5px ridge var(--blue-dark);
+	border: 5px ridge var(--blue-light);
 	border-radius: 5px;
 }
 
@@ -145,7 +168,7 @@ a:active {
 	bottom: -36px;
 	width: 100%;
 	text-align: center;
-	border-top: 2px solid var(--blue-dark);
+	border-top: 2px solid var(--blue-light);
 }
 
 .slideshow_dot {
@@ -153,14 +176,14 @@ a:active {
 	height: 15px;
 	width: 15px;
 	margin: 0 2px;
-	background-color: var(--blue-dark);
+	background-color: var(--blue-light);
 	border-radius: 50%;
 	display: inline-block;
 	transition: background-color 0.6s ease;
 }
 
 .slideshow_dot_active, .slideshow_dot:hover {
-	background-color: var(--blue-light);
+	background-color: var(--blue-dark);
 }
 
 .fade {
