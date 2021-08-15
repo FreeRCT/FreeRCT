@@ -13,7 +13,6 @@ ul {
 	text-transform: uppercase;
 	font-family: Sans-Serif;
 	font-weight: normal;
-	font-size: 16px;
 	display: flex;
 	justify-content: left;
 	align-items: center;
@@ -29,11 +28,13 @@ li {
 
 li a, dropbtn {
 	display: inline-block;
-	color: #eeeeee;
 	text-align: center;
 	padding: 14px 16px;
 	width: 100%;
 	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center center;
+	overflow: hidden;
 }
 
 li a:hover, .dropdown:hover .dropbtn {
@@ -42,6 +43,36 @@ li a:hover, .dropdown:hover .dropbtn {
 
 li.dropdown {
 	display: inline-block;
+}
+
+li a .tooltiptext {
+	visibility: hidden;
+	overflow: visible;
+	text-transform: none;
+	font-size: 14px;
+	padding: 8px;
+	background-color: #006000;
+	color: #eeeeee;
+	border-radius: 12px;
+	text-align: center;
+	position: absolute;
+	top: 105%;
+	left: 50%;
+	width: 160px;
+	margin-left: -80px;
+	opacity: 0;
+	transition: opacity 0.5s;
+	z-index: 300;
+}
+li a .tooltiptext::after {
+	content: "";
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -8px;
+	border-width: 8px;
+	border-style: solid;
+	border-color: transparent transparent #006000 transparent;
 }
 
 .dropdown:hover .dropdown-content {
@@ -82,13 +113,18 @@ li.dropdown {
 /* Make the buttons narrower on small screens. This rule must come last to overwrite the ones above. */
 @media screen and (max-width: 1440px) {
 	ul { height: 204px; }
-	li a { font-size: 14px }
 	li { width: 150px }
 	.pictorial_link { max-height: 128 }
 }
 @media screen and (max-width: 1110px) {
 	ul { height: 50px; }
-	li a { font-size: 12px }
 	li { width: 130px }
 	.pictorial_link { max-height: 64 }
+}
+@media screen and (max-width: 915px) {
+	li { width: 50px }
+	li a:hover .tooltiptext {
+		visibility: visible;
+		opacity: 1;
+	}
 }

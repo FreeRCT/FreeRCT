@@ -5,13 +5,18 @@ const ALL_PAGES = [
 	{link: 'manual'     , label: 'Manual'      },
 	{link: 'screenshots', label: 'Screenshots' },
 	{link: 'development', label: 'Development', dropdown: [
-		{link: 'https://github.com/FreeRCT/FreeRCT'       , absolute: true, label: 'Git Repository', newTab: true},
-		{link: 'https://github.com/FreeRCT/FreeRCT/issues', absolute: true, label: 'Issue Tracker' , newTab: true},
+		{link: 'https://github.com/FreeRCT/FreeRCT'       , unique_id: 'github', absolute: true, label: 'Git Repository', newTab: true},
+		{link: 'https://github.com/FreeRCT/FreeRCT/issues', unique_id: 'issues', absolute: true, label: 'Issue Tracker' , newTab: true},
 	]},
 ];
 
+var _all_links_created = [];
 function makeHref(id) {
-	var hrefTag = '<a href="' + id.link;
+	const unique_id = (id.unique_id ? id.unique_id : id.link);
+	const unique_id_name = 'menubar_entry_' + unique_id;
+	_all_links_created.push({id: unique_id_name, link: unique_id});
+
+	var hrefTag = '<a id="' + unique_id_name + '" href="' + id.link;
 	if (!id.absolute) hrefTag += '.html';
 	hrefTag += '"';
 
@@ -26,27 +31,27 @@ function makeHref(id) {
 		hrefTag += ' target="_blank"';
 	}
 
-	hrefTag += '>' + id.label + '</a>';
+	hrefTag += '>' + id.label + '<span class="tooltiptext">' + id.label + '</span></a>';
 	return hrefTag;
 }
 
 const MENU_BAR_BAR_HEIGHT = 50;
 function readjustMenuBarY() {
-	var totalMenuH = 408, logoMaxH = 256, menuSpacer = 298, bottomSpacer = 280, alwaysCollapse = false;
+	var totalMenuH = 408, logoMaxH = 256, menuSpacer = 298, bottomSpacer = 280, fontSize = 16, alwaysCollapse = false, replaceTextWithImages = false;
 	if (window.matchMedia("(max-width: 1110px)").matches) {
 		totalMenuH = 50;
 		alwaysCollapse = true;
 		logoMaxH = 50;
 		menuSpacer = 70;
 		bottomSpacer = 60;
-		if (window.matchMedia("(max-width: 915px)").matches) {
-			// TODO
-		}
+		fontSize = 12;
+		replaceTextWithImages = window.matchMedia("(max-width: 915px)").matches;
 	} else if (window.matchMedia("(max-width: 1440px)").matches) {
 		totalMenuH = 204;
 		logoMaxH = 128;
 		menuSpacer = 149;
 		bottomSpacer = 140;
+		fontSize = 14;
 	}
 	const menuBarMaxY = alwaysCollapse ? 0 : (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2;
 
@@ -56,7 +61,6 @@ function readjustMenuBarY() {
 
 	const newLogoH = logoMaxH - (alwaysCollapse ? 0 : ((logoMaxH - MENU_BAR_BAR_HEIGHT) * newBarY / menuBarMaxY));
 	const newLogoHalfspace = (logoMaxH - newLogoH) / 2;
-	// console.log("NOCOM: scroll @ " + scroll + ", barY " + newBarY + ", logo Max H " + logoMaxH + ", newLogoH " + newLogoH + ", newLogoHalfspace " + newLogoHalfspace);
 
 	document.getElementById('menubar_ul').style.top = -newBarY;
 	document.getElementById('menubar_spacer_menu').style.marginRight = menuSpacer;
@@ -64,6 +68,13 @@ function readjustMenuBarY() {
 	logo.style.height = newLogoH;
 	logo.style.marginLeft = newLogoHalfspace;
 	logo.style.marginRight = newLogoHalfspace;
+	_all_links_created.forEach(function(id) {
+		var element = document.getElementById(id.id);
+		element.style.backgroundImage = replaceTextWithImages ? 'url(images/menu/' + id.link + '.png)' : 'none';
+		element.style.color = replaceTextWithImages ? 'transparent' : '#eeeeee';
+		element.style.fontSize = replaceTextWithImages ? '0' : (fontSize + 'px');
+		element.style.minHeight = replaceTextWithImages ? '50px' : '0';
+	});
 }
 document.body.onscroll = readjustMenuBarY;
 document.body.onresize = readjustMenuBarY;
