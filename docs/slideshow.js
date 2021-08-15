@@ -1,4 +1,5 @@
 var slideIndex = 0;
+
 var timeoutVar = null;
 showSlidesAuto();
 
@@ -14,20 +15,23 @@ function currentSlide(n) {
 
 function showSlides(n) {
 	var i;
-	var slides = document.getElementsByClassName("mySlides");
+	var images = document.getElementsByClassName("slideshow_image");
+	var texts = document.getElementsByClassName("slideshow_text");
 	var dots = document.getElementsByClassName("slideshow_dot");
-	if (n > slides.length) slideIndex = 1;
-	if (n < 1) slideIndex = slides.length;
+	if (n > images.length) slideIndex = 1;
+	if (n < 1) slideIndex = images.length;
 
-	for (i = 0; i < slides.length; i++) slides[i].style.display = "none";
+	for (i = 0; i < images.length; i++) {
+		images[i].style.opacity = (i + 1 == slideIndex) ? 1 : 0;
+		texts[i].style.opacity = (i + 1 == slideIndex) ? 1 : 0;
+	}
 	for (i = 0; i < dots.length; i++) dots[i].className = dots[i].className.replace(" slideshow_dot_active", "");
-	slides[slideIndex-1].style.display = "block";
 	dots[slideIndex-1].className += " slideshow_dot_active";
 
-	if (timeoutVar != null) clearTimeout(timeoutVar);
-	timeoutVar = setTimeout(showSlidesAuto, 5000);
+	if (timeoutVar) clearTimeout(timeoutVar);
+	timeoutVar = [setTimeout(showSlidesAuto, 5000)];
 }
 
 function showSlidesAuto() {
 	plusSlides(1);
-} 
+}

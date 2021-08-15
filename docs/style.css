@@ -109,7 +109,7 @@ th, .table_release {
 
 /* Slideshow stuff. */
 
-.slideshow-main {
+.slideshow_main {
 	float: right;
 	margin: 0px 10% 0px 5%;
 	width: 45%;
@@ -118,26 +118,31 @@ th, .table_release {
 	border-radius: 5px;
 }
 
-.slideshow-container {
+.slideshow_container {
 	max-width: 1000px;
 	width: 100%;
 	position: relative;
 	margin: auto;
 }
 
-.mySlides {
-	display: none;
-	text-align: center;
+.slideshow_slide {
 	height: 500;
 	width: 100%;
+	position: absolute;
+	top: 0;
 }
-.mySlides img {
+.slideshow_first_slide {
+	position: relative;
+}
+.slideshow_image {
 	width: 100%;
 	max-width: 100%;
 	max-height: 100%;
+	opacity: 0;
+	transition: opacity 1.5s;
 }
 
-.prev, .next {
+.slideshow_prev, .slideshow_next {
 	cursor: pointer;
 	position: absolute;
 	top: 50%;
@@ -152,11 +157,11 @@ th, .table_release {
 	transition: 0.5s ease;
 	opacity: 0.4;
 }
-.next {
+.slideshow_next {
 	right: 0;
 	border-radius: 12px 0 0 12px;
 }
-.prev:hover, .next:hover {
+.slideshow_prev:hover, .slideshow_next:hover {
 	opacity: 0.8;
 	background-color: var(--text-dark);
 }
@@ -185,20 +190,3 @@ th, .table_release {
 .slideshow_dot_active, .slideshow_dot:hover {
 	background-color: var(--blue-dark);
 }
-
-.fade {
-	-webkit-animation-name: fade;
-	-webkit-animation-duration: 1.0s;
-	animation-name: fade;
-	animation-duration: 1.0s;
-}
-
-@-webkit-keyframes fade {
-	from {opacity: .4}
-	to {opacity: 1}
-}
-
-@keyframes fade {
-	from {opacity: .4}
-	to {opacity: 1}
-} 
