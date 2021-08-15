@@ -23,7 +23,7 @@ function createScreenshotGallery() {
 		document.write('<h2 id="' + section.slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">' + section.label + '</h2>');
 		ALL_IMAGES.forEach(function(img) {
 			if (img.section == section.slug) {
-				document.write('<img class="screenshot_gallery_image" src="images/' + img.image + '.png" height=auto width=auto></img>');
+				document.write('<img class="screenshot_gallery_image" loading=lazy src="images/' + img.image + '.png" height=auto width=auto></img>');
 			}
 		});
 	});
