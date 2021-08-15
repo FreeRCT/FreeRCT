@@ -1,16 +1,38 @@
-const ALL_SLIDES = [
-	{image: '20150609-freerct', caption: 'FreeRCT …'},
-	{image: '20121209-freerct', caption: '… aims to be a free and open source game …'},
-	{image: 'closeup', caption: '… which captures the look, …'},
-	{image: 'make_a_path', caption: '… feel, …'},
-	{image: 'find_the_differences', caption: '… and gameplay …'},
-	{image: 'path_finding2', caption: '… of the popular games …'},
-	{image: 'crowded', caption: '… RollerCoaster Tycoon 1 and 2.'},
-	{image: 'queuepaths', caption: 'The game is still in an early alpha state, …'},
-	{image: 'ice_creams_recoloured', caption: '… but it is already playable …'},
-	{image: 'weather', caption: '… and offers a variety of features.'},
+const ALL_SCREENSHOT_SECTIONS = [
+	{slug: '0_1', label: 'FreeRCT 0.1'},
+	{slug: 'test', label: 'Test Images'},
+];
+const ALL_IMAGES = [
+	{image: '20150609-freerct'     , slideshow: true, section: '0_1' , caption: 'FreeRCT …'},
+	{image: '20121209-freerct'     , slideshow: true, section: '0_1' , caption: '… aims to be a free and open source game …'},
+	{image: 'closeup'              , slideshow: true, section: 'test', caption: '… which captures the look, …'},
+	{image: 'make_a_path'          , slideshow: true, section: 'test', caption: '… feel, …'},
+	{image: 'find_the_differences' , slideshow: true, section: 'test', caption: '… and gameplay …'},
+	{image: 'path_finding2'        , slideshow: true, section: 'test', caption: '… of the popular games …'},
+	{image: 'crowded'              , slideshow: true, section: '0_1' , caption: '… RollerCoaster Tycoon 1 and 2.'},
+	{image: 'queuepaths'           , slideshow: true, section: 'test', caption: 'The game is still in an early alpha state, …'},
+	{image: 'ice_creams_recoloured', slideshow: true, section: '0_1' , caption: '… but it is already playable …'},
+	{image: 'weather'              , slideshow: true, section: '0_1' , caption: '… and offers a variety of features.'},
 ];
 
+// Gallery code below.
+
+function createScreenshotGallery() {
+	// TODO proper alignment…
+	ALL_SCREENSHOT_SECTIONS.forEach(function(section) {
+		document.write('<h2 id="' + section.slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">' + section.label + '</h2>');
+		ALL_IMAGES.forEach(function(img) {
+			if (img.section == section.slug) {
+				document.write('<img class="screenshot_gallery_image" src="images/' + img.image + '.png" height=auto width=auto></img>');
+			}
+		});
+	});
+}
+
+// Slideshow code below.
+
+var ALL_SLIDES = [];
+ALL_IMAGES.forEach(function(s) { if (s.slideshow) ALL_SLIDES.push(s); });
 var slideIndex = 0;
 var timeoutVar = null;
 

@@ -10,6 +10,9 @@ const ALL_PAGES = [
 	]},
 ];
 
+const MENU_BAR_BAR_HEIGHT = 50;
+const DESIRED_PADDING_BELOW_MENU_BAR = MENU_BAR_BAR_HEIGHT + 8;
+
 var _all_links_created = [];
 function makeHref(id, tooltiptype) {
 	const unique_id = (id.unique_id ? id.unique_id : id.link);
@@ -35,7 +38,6 @@ function makeHref(id, tooltiptype) {
 	return hrefTag;
 }
 
-const MENU_BAR_BAR_HEIGHT = 50;
 function readjustMenuBarY() {
 	var totalMenuH = 408, logoMaxH = 256, menuSpacer = 298, bottomSpacer = 280, fontSize = 16, alwaysCollapse = false, replaceTextWithImages = false;
 	if (window.matchMedia("(max-width: 1110px)").matches) {

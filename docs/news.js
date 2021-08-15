@@ -14,7 +14,7 @@ const NEWS = [
 ].sort(function(a, b) { return a.date == b.date ? 0 : a.date < b.date ? 1 : -1; });
 
 function printNews(n, margin) {
-	document.write('<p id="' + n.slug + '" style="margin-bottom:' + margin + 'px"></p><div class="news">');
+	document.write('<p id="' + n.slug + '" style="padding-top:' + margin + 'px"></p><div class="news">');
 		document.write('<h3><a href="news.html#' + n.slug + '" class="linkified_header">');
 			document.write(n.title);
 		document.write('</a></h3>');
@@ -39,5 +39,5 @@ function printAllNews() {
 			document.write(' news items');
 		}
 	document.write('</h2>');
-	printLatestNews(NaN, MENU_BAR_BAR_HEIGHT);
+	printLatestNews(NaN, DESIRED_PADDING_BELOW_MENU_BAR);
 }
