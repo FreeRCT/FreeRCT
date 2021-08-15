@@ -6,12 +6,6 @@ const NEWS = [
 		body: "<p>Development on the new FreeRCT website has started today. You're looking at the result right now.</p><p>The site is still heavily under development, please be patient until we're done.</p>",
 	},
 	{
-		date: new Date(2021, 8, 14, 14, 0, 0, 0),
-		slug: 'test_nocom',
-		title: 'Test',
-		body: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.",
-	},
-	{
 		date: new Date(2021, 8, 14, 22, 0, 0, 0),
 		slug: 'freerct_0_1_coming_soon',
 		title: 'FreeRCT 0.1 Coming Soon',

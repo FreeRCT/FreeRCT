@@ -19,14 +19,14 @@ ul {
 	z-index: 100;
 }
 
-li {
+ul li {
 	position: relative;
 	float: left;
 	width: 180px;
 	margin: 0 0 0 10px
 }
 
-li a, dropbtn {
+ul li a, dropbtn {
 	display: inline-block;
 	text-align: center;
 	padding: 14px 16px;
@@ -36,22 +36,22 @@ li a, dropbtn {
 	background-position: center center;
 }
 
-li a:hover, .dropdown:hover .dropbtn {
-	background-color: #003000;
+ul li a:hover, .dropdown:hover .dropbtn {
+	background-color: var(--green-dark);
 }
 
-li.dropdown {
+ul li.dropdown {
 	display: inline-block;
 }
 
-li a .tooltip_bottom, li a .tooltip_left, li a .tooltip_corner {
+ul li a .tooltip_bottom, ul li a .tooltip_left, ul li a .tooltip_corner {
 	visibility: hidden;
 	overflow: visible;
 	text-transform: none;
 	font-size: 14px;
 	padding: 8px;
-	background-color: #006000;
-	color: #eeeeee;
+	background-color: var(--green-medium);
+	color: var(--text-light);
 	border-radius: 8px;
 	text-align: center;
 	position: absolute;
@@ -62,15 +62,15 @@ li a .tooltip_bottom, li a .tooltip_left, li a .tooltip_corner {
 	opacity: 0;
 	transition: opacity 0.5s;
 }
-li a .tooltip_left {
+ul li a .tooltip_left {
 	left: -170%;
 	top: 10px;
 }
-li a .tooltip_corner {
+ul li a .tooltip_corner {
 	left: -180%;
 }
 
-li a .tooltip_bottom::after, li a .tooltip_corner::after, li a .tooltip_left::after {
+ul li a .tooltip_bottom::after, ul li a .tooltip_corner::after, ul li a .tooltip_left::after {
 	content: "";
 	position: absolute;
 	bottom: 100%;
@@ -78,19 +78,19 @@ li a .tooltip_bottom::after, li a .tooltip_corner::after, li a .tooltip_left::af
 	margin-left: -8px;
 	border-width: 8px;
 	border-style: solid;
-	border-color: transparent transparent #006000 transparent;
+	border-color: transparent transparent var(--green-medium) transparent;
 }
-li a .tooltip_left::after {
+ul li a .tooltip_left::after {
 	bottom: 25%;
 	left: 105%;
 	border-style: solid;
-	border-color: transparent transparent transparent #006000;
+	border-color: transparent transparent transparent var(--green-medium);
 }
-li a .tooltip_corner::after {
+ul li a .tooltip_corner::after {
 	bottom: 70%;
 	left: 98%;
 	border-style: solid;
-	border-color: #006000 #006000 transparent transparent;
+	border-color: var(--green-medium) var(--green-medium) transparent transparent;
 }
 
 .dropdown:hover .dropdown-content {
@@ -98,13 +98,13 @@ li a .tooltip_corner::after {
 }
 
 .dropdown-content a:hover {
-	background-color: #003000;
+	background-color: var(--green-dark);
 }
 
 .dropdown-content {
 	display: none;
 	position: absolute;
-	background-color: #009000;
+	background-color: var(--green-light);
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 	width: 100%;
 	z-index: 200;
@@ -126,23 +126,23 @@ li a .tooltip_corner::after {
 .pictorial_link:active { background-color: initial; }
 
 .menubar_active {
-	background-color: #006000;
+	background-color: var(--green-medium);
 }
 
 /* Make the buttons narrower on small screens. This rule must come last to overwrite the ones above. */
 @media screen and (max-width: 1440px) {
-	li { width: 150px }
+	ul li { width: 150px }
 	.pictorial_link { max-height: 128 }
 }
 @media screen and (max-width: 1110px) {
-	li { width: 130px }
+	ul li { width: 130px }
 	.pictorial_link { max-height: 64 }
 }
 @media screen and (max-width: 915px) {
-	li { width: 50px }
-	li a:hover .tooltip_bottom, li a:hover .tooltip_corner, li a:hover .tooltip_left {
+	ul li { width: 50px }
+	ul li a:hover .tooltip_bottom, li a:hover .tooltip_corner, li a:hover .tooltip_left {
 		visibility: visible;
 		opacity: 1;
 	}
-	li a, dropbtn { padding: 24px; }
+	ul li a, dropbtn { padding: 24px; }
 }

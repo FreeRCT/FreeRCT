@@ -71,7 +71,7 @@ function readjustMenuBarY() {
 	_all_links_created.forEach(function(id) {
 		var element = document.getElementById(id.id);
 		element.style.backgroundImage = replaceTextWithImages ? 'url(images/menu/' + id.link + '.png)' : 'none';
-		element.style.color = replaceTextWithImages ? 'transparent' : '#eeeeee';
+		element.style.color = replaceTextWithImages ? 'transparent' : 'var(--text-light)';
 		element.style.fontSize = replaceTextWithImages ? '0' : (fontSize + 'px');
 		element.style.minHeight = replaceTextWithImages ? '50px' : '0';
 	});
@@ -80,7 +80,7 @@ document.body.onscroll = readjustMenuBarY;
 document.body.onresize = readjustMenuBarY;
 
 function dropdownMouse(dd, inside) {
-	dd.style = inside ? 'background-color: #003000' : '';
+	dd.style = inside ? 'background-color: var(--green-dark)' : '';
 }
 
 document.write('<link rel="icon" href="images/logo.png">');

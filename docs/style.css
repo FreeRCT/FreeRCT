@@ -1,26 +1,38 @@
 /* General definitions. */
 
+:root {
+	--bg-blue:      #add8f6;
+	--text-light:   #eeeeee;
+	--text-dark:    #001000;
+	--green-dark:   #003000;
+	--green-medium: #006000;
+	--green-light:  #009000;
+	--blue-dark:    #396878;
+	--blue-medium:  #0000f0;
+	--blue-light:   #000b2a;
+}
+
 * {
 	box-sizing:border-box;
 	text-align: justify;
 	z-index: 1;
-	color: #001000;
+	color: var(--text-dark);
 	font-size: 16;
 }
 
 body {
-	background-color: #add8f6;
+	background-color: var(--bg-blue);
 }
 h1,h2,h3 {
 	text-align: center;
-	color: #006000;
-	text-shadow: 1px 1px #001000;
+	color: var(--green-medium);
+	text-shadow: 1px 1px var(--text-dark);
 }
 h1 { font-size: 26 }
 h2 { font-size: 22 }
 h3 { font-size: 18 }
 tt {
-	color: #eeeeee;
+	color: var(--text-light);
 	background-color: rgba(0,48,0,0.5);
 	padding: 1px 4px;
 }
@@ -28,16 +40,16 @@ tt {
 a { position:relative }
 a[href*="://"]::after {
 	content: "\2bb3";
-	text-shadow: 1px 1px #eeeeee;
+	text-shadow: 1px 1px var(--text-light);
 	position: absolute;
 	bottom: 25%;
 	font-size: 75%;
 }
-p a:link { color: #0000f0 }
-p a:visited { color: #009000 }
+a:link { color: var(--blue-medium) }
+a:visited { color: var(--green-light) }
 a:active {
-	color: #eeeeee;
-	background-color: #009000;
+	color: var(--text-light);
+	background-color: var(--green-light);
 	text-decoration: none;
 }
 
@@ -53,7 +65,7 @@ a:active {
 
 .news {
 	border-style: inset;
-	border-color: #396878;
+	border-color: var(--blue-dark);
 	border-radius: 5px;
 	overflow: auto;
 	padding: 8px;
@@ -68,7 +80,7 @@ a:active {
 .news_timestamp {
 	font-style: italic;
 	font-size: 12;
-	color: #002000;
+	color: var(--text-dark);
 	text-align: right;
 }
 
@@ -79,7 +91,7 @@ a:active {
 	margin: 0px 10% 0px 5%;
 	width: 45%;
 	padding: 0 0 12px 0;
-	border: 5px ridge #396878;
+	border: 5px ridge var(--blue-dark);
 	border-radius: 5px;
 }
 
@@ -109,7 +121,7 @@ a:active {
 	width: auto;
 	padding: 64px 32px;
 	margin-top: -10%;
-	color: #eeeeee;
+	color: var(--text-light);
 	font-weight: bold;
 	font-size: 32px;
 	border-radius: 0 12px 12px 0;
@@ -123,7 +135,7 @@ a:active {
 }
 .prev:hover, .next:hover {
 	opacity: 0.8;
-	background-color: #001000;
+	background-color: var(--text-dark);
 }
 
 .slideshow_text {
@@ -133,7 +145,7 @@ a:active {
 	bottom: -36px;
 	width: 100%;
 	text-align: center;
-	border-top: 2px solid #396878;
+	border-top: 2px solid var(--blue-dark);
 }
 
 .slideshow_dot {
@@ -141,14 +153,14 @@ a:active {
 	height: 15px;
 	width: 15px;
 	margin: 0 2px;
-	background-color: #396878;
+	background-color: var(--blue-dark);
 	border-radius: 50%;
 	display: inline-block;
 	transition: background-color 0.6s ease;
 }
 
 .slideshow_dot_active, .slideshow_dot:hover {
-	background-color: #000B2A;
+	background-color: var(--blue-light);
 }
 
 .fade {
