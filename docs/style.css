@@ -39,6 +39,11 @@ tt {
 }
 strong {
 	color: var(--blue-dark);
+	font-weight: bold;
+}
+emp {
+	color: var(--blue-dark);
+	font-style: oblique;
 }
 
 a { position:relative }

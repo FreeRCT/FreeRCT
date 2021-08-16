@@ -95,7 +95,7 @@ function readjustMenuBarY() {
 
 document.body.onscroll = readjustMenuBarY;
 document.body.onresize = readjustMenuBarY;
-document.body.onload = readjustMenuBarY;
+document.body.onload   = readjustMenuBarY;
 
 function dropdownMouse(dd, inside) {
 	dd.style = inside ? 'background-color: var(--green-dark)' : '';
