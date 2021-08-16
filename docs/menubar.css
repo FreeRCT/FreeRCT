@@ -12,7 +12,7 @@
 	background-position: right center;
 	font-variant: small-caps;
 	font-family: Sans-Serif;
-	font-weight: normal;
+	font-weight: bold;
 	display: flex;
 	justify-content: left;
 	align-items: center;
@@ -23,7 +23,7 @@
 	position: relative;
 	float: left;
 	width: 180px;
-	margin: 0 0 0 10px
+	transform: scaleX(0.8);
 }
 
 #menubar_ul .menubar_li a {
@@ -139,17 +139,30 @@
 	background-color: var(--green-medium);
 }
 
-/* Make the buttons narrower on small screens. This rule must come last to overwrite the ones above. */
-@media screen and (max-width: 1440px) {
+/* Make the buttons narrower on small screens. These rules must come last to overwrite the ones above. */
+#menubar_ul { --menubar-width-type: "wide"; }
+
+@media screen and (max-width: 1380px) {
+	#menubar_ul { --menubar-width-type: "normal"; }
+
 	#menubar_ul .menubar_li { width: 150px }
 	.pictorial_link { max-height: 128 }
 }
-@media screen and (max-width: 1110px) {
+
+@media screen and (max-width: 1060px) {
+	#menubar_ul { --menubar-width-type: "narrow"; }
+
 	#menubar_ul .menubar_li { width: 130px }
 	.pictorial_link { max-height: 64 }
 }
-@media screen and (max-width: 915px) {
-	#menubar_ul .menubar_li { width: 50px }
+
+@media screen and (max-width: 850px) {
+	#menubar_ul { --menubar-width-type: "mobile"; }
+
+	#menubar_ul .menubar_li {
+		width: 50px;
+		transform: none;
+	}
 	#menubar_ul .menubar_li a:hover .tooltip_bottom, #menubar_ul .menubar_li a:hover .tooltip_corner, #menubar_ul .menubar_li a:hover .tooltip_left {
 		visibility: visible;
 		opacity: 1;

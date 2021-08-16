@@ -39,36 +39,46 @@ function makeHref(id, tooltiptype) {
 }
 
 function readjustMenuBarY() {
-	var totalMenuH = 408, logoMaxH = 256, menuSpacer = 298, bottomSpacer = 280, fontSize = 16, alwaysCollapse = false, replaceTextWithImages = false;
-	if (window.matchMedia("(max-width: 1110px)").matches) {
-		totalMenuH = 50;
-		alwaysCollapse = true;
-		logoMaxH = 50;
-		menuSpacer = 70;
-		bottomSpacer = 60;
-		fontSize = 12;
-		replaceTextWithImages = window.matchMedia("(max-width: 915px)").matches;
-	} else if (window.matchMedia("(max-width: 1440px)").matches) {
-		totalMenuH = 204;
-		logoMaxH = 128;
-		menuSpacer = 149;
+	var ul = document.getElementById('menubar_ul');
+	var logo = document.getElementById('menubar_logo');
+	var canvas = document.getElementById('menubar_top_canvas');
+
+	const widthType = getComputedStyle(ul).getPropertyValue('--menubar-width-type');
+	var
+		totalMenuH            =   408,
+		logoMaxH              =   256,
+		menuSpacer            =   298,
+		bottomSpacer          =   280,
+		fontSize              =    16,
+		alwaysCollapse        = false,
+		replaceTextWithImages = false;
+	if (widthType == '"normal"') {
+		totalMenuH   = 204;
+		logoMaxH     = 128;
+		menuSpacer   = 149;
 		bottomSpacer = 140;
-		fontSize = 14;
+		fontSize     =  14;
+	} else if (widthType != '"wide"') {
+		totalMenuH     =   50;
+		logoMaxH       =   50;
+		menuSpacer     =   70;
+		bottomSpacer   =   60;
+		fontSize       =   12;
+		alwaysCollapse = true;
+		replaceTextWithImages = (widthType == '"mobile"');
 	}
+
 	const menuBarMaxY = alwaysCollapse ? 0 : (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2;
 
 	const scroll = document.body.scrollTop / 1.2;
 	const newBarY = Math.min(menuBarMaxY, Math.max(0, scroll));
-	var logo = document.getElementById('menubar_logo');
 
 	const newLogoH = logoMaxH - (alwaysCollapse ? 0 : ((logoMaxH - MENU_BAR_BAR_HEIGHT) * newBarY / menuBarMaxY));
 	const newLogoHalfspace = (logoMaxH - newLogoH) / 2;
 
-	var canvas = document.getElementById('menubar_top_canvas');
 	canvas.style.height = menuBarMaxY - newBarY;
-	// canvas.style.left = menuSpacer + 'px';
 
-	document.getElementById('menubar_ul').style.top = (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2 - newBarY;
+	ul.style.top = (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2 - newBarY;
 	document.getElementById('menubar_spacer_menu').style.marginRight = menuSpacer;
 	document.getElementById('menubar_spacer_bottom').style.marginBottom = bottomSpacer;
 	logo.style.height = newLogoH;
@@ -82,8 +92,10 @@ function readjustMenuBarY() {
 		element.style.minHeight = replaceTextWithImages ? '50px' : '0';
 	});
 }
+
 document.body.onscroll = readjustMenuBarY;
 document.body.onresize = readjustMenuBarY;
+document.body.onload = readjustMenuBarY;
 
 function dropdownMouse(dd, inside) {
 	dd.style = inside ? 'background-color: var(--green-dark)' : '';
@@ -117,5 +129,4 @@ document.write('<ul id="menubar_ul">');
 	});
 document.write('</ul>');
 document.write('<p id="menubar_spacer_bottom"></p>');
-
 document.write('<script>readjustMenuBarY();</script>');  // Need to call this last
