@@ -36,7 +36,7 @@
 	background-position: center center;
 }
 
-#menubar_ul .menubar_li a:hover, .menubar_dropdown:hover .dropbtn {
+#menubar_ul .menubar_li a:hover, .menubar_dropdown:hover {
 	background-color: var(--green-dark);
 }
 
@@ -150,9 +150,9 @@
 }
 @media screen and (max-width: 915px) {
 	#menubar_ul .menubar_li { width: 50px }
-	#menubar_ul .menubar_li a:hover .tooltip_bottom, .menubar_li a:hover .tooltip_corner, .menubar_li a:hover .tooltip_left {
+	#menubar_ul .menubar_li a:hover .tooltip_bottom, #menubar_ul .menubar_li a:hover .tooltip_corner, #menubar_ul .menubar_li a:hover .tooltip_left {
 		visibility: visible;
 		opacity: 1;
 	}
-	#menubar_ul .menubar_li a, dropbtn { padding: 24px; }
+	#menubar_ul .menubar_li a { padding: 24px; }
 }
