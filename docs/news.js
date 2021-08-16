@@ -9,7 +9,7 @@ const NEWS = [
 		date: new Date(2021, 8, 14, 22, 0, 0, 0),
 		slug: 'freerct_0_1_coming_soon',
 		title: 'FreeRCT 0.1 Coming Soon',
-		body: "<p>The FreeRCT project is making great progress. Expect the release of the <strong>first release 0.1</strong> sometime soon!</p>",
+		body: "<p>The FreeRCT project is making great progress. Expect the release of the <strong>first version 0.1</strong> sometime soon!</p>",
 	},
 ].sort(function(a, b) { return a.date == b.date ? 0 : a.date < b.date ? 1 : -1; });
 

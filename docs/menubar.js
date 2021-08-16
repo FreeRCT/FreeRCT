@@ -102,12 +102,12 @@ document.write('<ul id="menubar_ul">');
 
 	ALL_PAGES.forEach(function(id) {
 		if (id.dropdown == null) {
-			document.write('<li>');
+			document.write('<li class="menubar_li">');
 			document.write(makeHref(id, 'tooltip_bottom'));
 		} else {
-			document.write('<li class="dropdown" onmouseover="dropdownMouse(this, true)" onmouseout="dropdownMouse(this, false)">');
+			document.write('<li class="menubar_li menubar_dropdown" onmouseover="dropdownMouse(this, true)" onmouseout="dropdownMouse(this, false)">');
 			document.write(makeHref(id, 'tooltip_corner'));
-			document.write('<div class="dropdown-content">');
+			document.write('<div class="menubar_dropdown_content">');
 				id.dropdown.forEach(function(entry) {
 					document.write(makeHref(entry, 'tooltip_left'));
 				});

@@ -1,4 +1,4 @@
-ul {
+#menubar_ul {
 	position: fixed;
 	width: 100%;
 	height: 50px;
@@ -10,7 +10,7 @@ ul {
 	background-image: url("images/menubar.png");
 	background-repeat: repeat-x;
 	background-position: right center;
-	text-transform: uppercase;
+	font-variant: small-caps;
 	font-family: Sans-Serif;
 	font-weight: normal;
 	display: flex;
@@ -19,14 +19,14 @@ ul {
 	z-index: 100;
 }
 
-ul li {
+#menubar_ul .menubar_li {
 	position: relative;
 	float: left;
 	width: 180px;
 	margin: 0 0 0 10px
 }
 
-ul li a, dropbtn {
+#menubar_ul .menubar_li a {
 	display: inline-block;
 	text-align: center;
 	padding: 14px 16px;
@@ -36,15 +36,15 @@ ul li a, dropbtn {
 	background-position: center center;
 }
 
-ul li a:hover, .dropdown:hover .dropbtn {
+#menubar_ul .menubar_li a:hover, .menubar_dropdown:hover .dropbtn {
 	background-color: var(--green-dark);
 }
 
-ul li.dropdown {
+#menubar_ul .menubar_li.menubar_dropdown {
 	display: inline-block;
 }
 
-ul li a .tooltip_bottom, ul li a .tooltip_left, ul li a .tooltip_corner {
+#menubar_ul .menubar_li a .tooltip_bottom, #menubar_ul .menubar_li a .tooltip_left, #menubar_ul .menubar_li a .tooltip_corner {
 	visibility: hidden;
 	overflow: visible;
 	text-transform: none;
@@ -62,15 +62,15 @@ ul li a .tooltip_bottom, ul li a .tooltip_left, ul li a .tooltip_corner {
 	opacity: 0;
 	transition: opacity 0.5s;
 }
-ul li a .tooltip_left {
+#menubar_ul .menubar_li a .tooltip_left {
 	left: -170%;
 	top: 10px;
 }
-ul li a .tooltip_corner {
+#menubar_ul .menubar_li a .tooltip_corner {
 	left: -180%;
 }
 
-ul li a .tooltip_bottom::after, ul li a .tooltip_corner::after, ul li a .tooltip_left::after {
+#menubar_ul .menubar_li a .tooltip_bottom::after, #menubar_ul .menubar_li a .tooltip_corner::after, #menubar_ul .menubar_li a .tooltip_left::after {
 	content: "";
 	position: absolute;
 	bottom: 100%;
@@ -80,28 +80,28 @@ ul li a .tooltip_bottom::after, ul li a .tooltip_corner::after, ul li a .tooltip
 	border-style: solid;
 	border-color: transparent transparent var(--green-medium) transparent;
 }
-ul li a .tooltip_left::after {
+#menubar_ul .menubar_li a .tooltip_left::after {
 	bottom: 25%;
 	left: 105%;
 	border-style: solid;
 	border-color: transparent transparent transparent var(--green-medium);
 }
-ul li a .tooltip_corner::after {
+#menubar_ul .menubar_li a .tooltip_corner::after {
 	bottom: 70%;
 	left: 98%;
 	border-style: solid;
 	border-color: var(--green-medium) var(--green-medium) transparent transparent;
 }
 
-.dropdown:hover .dropdown-content {
+.menubar_dropdown:hover .menubar_dropdown_content {
 	display: block;
 }
 
-.dropdown-content a:hover {
+.menubar_dropdown_content a:hover {
 	background-color: var(--green-dark);
 }
 
-.dropdown-content {
+.menubar_dropdown_content {
 	display: none;
 	position: absolute;
 	background-color: var(--green-light);
@@ -110,8 +110,8 @@ ul li a .tooltip_corner::after {
 	z-index: 200;
 }
 
-.dropdown-content a {
-	text-align: left;
+.menubar_dropdown_content a {
+	text-align: left !important;
 	display: block;
 }
 
@@ -141,18 +141,18 @@ ul li a .tooltip_corner::after {
 
 /* Make the buttons narrower on small screens. This rule must come last to overwrite the ones above. */
 @media screen and (max-width: 1440px) {
-	ul li { width: 150px }
+	#menubar_ul .menubar_li { width: 150px }
 	.pictorial_link { max-height: 128 }
 }
 @media screen and (max-width: 1110px) {
-	ul li { width: 130px }
+	#menubar_ul .menubar_li { width: 130px }
 	.pictorial_link { max-height: 64 }
 }
 @media screen and (max-width: 915px) {
-	ul li { width: 50px }
-	ul li a:hover .tooltip_bottom, li a:hover .tooltip_corner, li a:hover .tooltip_left {
+	#menubar_ul .menubar_li { width: 50px }
+	#menubar_ul .menubar_li a:hover .tooltip_bottom, .menubar_li a:hover .tooltip_corner, .menubar_li a:hover .tooltip_left {
 		visibility: visible;
 		opacity: 1;
 	}
-	ul li a, dropbtn { padding: 24px; }
+	#menubar_ul .menubar_li a, dropbtn { padding: 24px; }
 }

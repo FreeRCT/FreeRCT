@@ -13,7 +13,7 @@
 }
 
 * {
-	box-sizing:border-box;
+	box-sizing: border-box;
 	text-align: justify;
 	z-index: 1;
 	color: var(--text-dark);
@@ -27,6 +27,7 @@ h1,h2,h3 {
 	text-align: center;
 	color: var(--green-medium);
 	text-shadow: 1px 1px var(--text-dark);
+	font-variant: small-caps;
 }
 h1 { font-size: 26 }
 h2 { font-size: 22 }
@@ -36,14 +37,18 @@ tt {
 	background-color: rgba(0,48,0,0.5);
 	padding: 1px 4px;
 }
+strong {
+	color: var(--blue-dark);
+}
 
 a { position:relative }
-a[href*="://"]::after {
+a[href*="://"]::after {  /* External links only */
 	content: "\2bb3";
-	text-shadow: 1px 1px var(--text-light);
 	position: absolute;
 	bottom: 25%;
 	font-size: 75%;
+	text-shadow: 1px 1px var(--text-light);
+	font-weight: bold;
 }
 a:not(.linkified_header):link { color: var(--blue-medium) }
 a:not(.linkified_header):visited { color: var(--green-light) }
@@ -58,6 +63,7 @@ a:active {
 	text-align: inherit;
 	text-shadow: inherit;
 	text-decoration: inherit;
+	font-variant: inherit;
 	background-color: inherit;
 	color: inherit;
 }
@@ -105,6 +111,8 @@ th, .table_release {
 	font-size: 12;
 	color: var(--text-dark);
 	text-align: right;
+	font-weight: lighter;
+	font-variant: small-caps;
 }
 
 /* Screenshot gallery. */

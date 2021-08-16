@@ -20,7 +20,10 @@ const ALL_IMAGES = [  // TODO need more and better images
 function createScreenshotGallery() {
 	// TODO proper alignment…
 	ALL_SCREENSHOT_SECTIONS.forEach(function(section) {
-		document.write('<h2 id="' + section.slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">' + section.label + '</h2>');
+		document.write('<h2 id="' + section.slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">');
+			document.write('<a href="screenshots.html#' + section.slug + '" class="linkified_header">');
+				document.write(section.label);
+		document.write('</a></h2>');
 		ALL_IMAGES.forEach(function(img) {
 			if (img.section == section.slug) {
 				document.write('<img class="screenshot_gallery_image" loading=lazy src="images/' + img.image + '.png" height=auto width=auto></img>');
