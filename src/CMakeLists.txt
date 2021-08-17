@@ -143,6 +143,7 @@ if (NOT DEFINED VERSION_STRING)
 	ENDIF()
 ENDIF()
 
+set(VERSION_STRING "${VERSION_STRING}" PARENT_SCOPE)
 message(STATUS "Version string: ${VERSION_STRING}")
 message(STATUS "Generating src/rev.cpp")
 configure_file("${CMAKE_SOURCE_DIR}/src/rev.cpp.in" "${CMAKE_SOURCE_DIR}/src/rev.cpp")

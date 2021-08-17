@@ -62,6 +62,16 @@ jobs:
         cmake --build . -j $(nproc)
         echo "::endgroup::"
 
+        echo "::group::Package"
+        cpack
+        echo "::endgroup::"
+
+    - name: Upload package
+      uses: actions/upload-artifact@v2
+      with:
+        name: FreeRCT Debian/Ubuntu Package (${{ matrix.compiler }})
+        path: ${{ github.workspace }}/build/bundles/*  # NOCOM
+
   macos:
     name: Mac OS
 
@@ -120,6 +130,16 @@ jobs:
         echo "Running on $(sysctl -n hw.logicalcpu) cores"
         cmake --build . -j $(sysctl -n hw.logicalcpu)
         echo "::endgroup::"
+
+        echo "::group::Package"
+        cpack
+        echo "::endgroup::"
+
+    - name: Upload package
+      uses: actions/upload-artifact@v2
+      with:
+        name: FreeRCT MacOS Bundle
+        path: ${{ github.workspace }}/build/bundles/*  # NOCOM
 
   windows:
     name: Windows
@@ -185,3 +205,13 @@ jobs:
         echo "::group::Build"
         cmake --build .
         echo "::endgroup::"
+
+        echo "::group::Package"
+        cpack
+        echo "::endgroup::"
+
+    - name: Upload package
+      uses: actions/upload-artifact@v2
+      with:
+        name: FreeRCT Windows ${{ matrix.arch }} Installer
+        path: ${{ github.workspace }}/build/bundles/*  # NOCOM

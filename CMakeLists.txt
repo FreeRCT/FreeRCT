@@ -14,6 +14,7 @@ set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
+# option(INSTALL_FHS "Use an FHS directory structure for CPack packaging")
 if (NOT DEFINED USERDATA_PREFIX)
 	# FreeRCT expands the '~' to the user home directory at runtime.
 	IF(WIN32)
@@ -80,3 +81,7 @@ IF(NOT MSVC)
 	ENDFOREACH()
 
 ENDIF()
+
+# All the files in cpack/ are based largely on OpenTTD's packaging setup
+# (https://github.com/OpenTTD/OpenTTD/commit/b7643b1d36cb41eb6712042761c13b9819fcbe74)
+include(cpack/InstallAndPackage.cmake)
