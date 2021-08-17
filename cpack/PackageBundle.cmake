@@ -10,8 +10,9 @@ install(
     "
         include(BundleUtilities)
         set(BU_CHMOD_BUNDLE_ITEMS TRUE)
-        FILE(GLOB BUNDLE_FILE_NAME ${CPACK_OUTPUT_FILE_PREFIX}/${CPACK_PACKAGE_FILE_NAME}*)
-        fixup_bundle(\"\${BUNDLE_FILE_NAME}\"  \"\" \"\")
+        FILE(GLOB BUNDLE_FILE_NAME ${CMAKE_BINARY_DIR}/${CPACK_OUTPUT_FILE_PREFIX}/${CPACK_PACKAGE_FILE_NAME}*)
+        message(STATUS \"NOCOM: \${BUNDLE_FILE_NAME}\")
+        fixup_bundle(\"\${BUNDLE_FILE_NAME}\" \"\" \"\")
     "
     DESTINATION .
     COMPONENT Runtime)
