@@ -66,11 +66,16 @@ jobs:
         cpack
         echo "::endgroup::"
 
-    - name: Upload package
+    - name: Upload package (DEB)
       uses: actions/upload-artifact@v2
       with:
         name: 'FreeRCT Debian+Ubuntu Package (${{ matrix.compiler }})'
         path: ${{ github.workspace }}/build/bundles/*.deb*
+    - name: Upload package (TXZ)
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'FreeRCT Tarball (${{ matrix.compiler }})'
+        path: ${{ github.workspace }}/build/bundles/*.tar.xz*
 
   macos:
     name: Mac OS
@@ -131,15 +136,7 @@ jobs:
         cmake --build . -j $(sysctl -n hw.logicalcpu)
         echo "::endgroup::"
 
-        echo "::group::Package"
-        cpack
-        echo "::endgroup::"
-
-    - name: Upload package
-      uses: actions/upload-artifact@v2
-      with:
-        name: 'FreeRCT MacOS Bundle'
-        path: ${{ github.workspace }}/build/bundles/*  # NOCOM
+      # TODO implement packaging for MacOS
 
   windows:
     name: Windows
