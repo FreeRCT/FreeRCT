@@ -46,8 +46,10 @@ static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
 	GETOPT_NOVAL('v', "--version"),
 	GETOPT_VALUE('l', "--load"),
-	GETOPT_VALUE('a', "--language"),
 	GETOPT_NOVAL('r', "--resave"),
+	GETOPT_VALUE('a', "--language"),
+	GETOPT_VALUE('i', "--installdir"),
+	GETOPT_VALUE('u', "--userdatadir"),
 	GETOPT_END()
 };
 
@@ -56,11 +58,13 @@ static void PrintUsage()
 {
 	printf("Usage: freerct [options]\n");
 	printf("Options:\n");
-	printf("  -h, --help           Display this help text and exit.\n");
-	printf("  -v, --version        Display version and build info and exit.\n");
-	printf("  -l, --load [file]    Load game from specified file.\n");
-	printf("  -r, --resave         Automatically resave games after loading.\n");
-	printf("  -a, --language lang  Use the specified language.\n");
+	printf("  -h, --help             Display this help text and exit.\n");
+	printf("  -v, --version          Display version and build info and exit.\n");
+	printf("  -l, --load [file]      Load game from specified file.\n");
+	printf("  -r, --resave           Automatically resave games after loading.\n");
+	printf("  -a, --language lang    Use the specified language.\n");
+	printf("  -i, --installdir dir   Use the specified installation directory.\n");
+	printf("  -u, --userdatadir dir  Use the specified user data directory.\n");
 
 	printf("\nValid languages are:\n   ");
 	int length = 0;
@@ -80,10 +84,10 @@ static void PrintVersion()
 {
 	printf("FreeRCT\n\n");
 
-	printf("Version               : %s\n",   _freerct_revision);
-	printf("Build ID              : %s\n",   _freerct_build_date);
-	printf("Installation directory: %s\n",   _freerct_install_prefix);
-	printf("User data directory   : %s\n\n", freerct_userdata_prefix());
+	printf("Version                : %s\n",   _freerct_revision);
+	printf("Build ID               : %s\n",   _freerct_build_date);
+	printf("Installation directory : %s\n",   freerct_install_prefix());
+	printf("User data directory    : %s\n\n", freerct_userdata_prefix());
 
 	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n\n");
 
@@ -122,6 +126,12 @@ int freerct_main(int argc, char **argv)
 			case 'v':
 				PrintVersion();
 				return 0;
+			case 'i':
+				OverrideInstallPrefix(opt_data.opt);
+				break;
+			case 'u':
+				OverrideUserdataPrefix(opt_data.opt);
+				break;
 			case 'a':
 				preferred_language = StrDup(opt_data.opt);
 				break;
