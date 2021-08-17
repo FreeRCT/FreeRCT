@@ -69,8 +69,13 @@ jobs:
     - name: Upload package
       uses: actions/upload-artifact@v2
       with:
-        name: FreeRCT Debian+Ubuntu Package (${{ matrix.compiler }})
-        path: ${{ github.workspace }}/build/bundles/*  # NOCOM
+        name: 'FreeRCT Debian+Ubuntu Package (${{ matrix.compiler }})'
+        path: ${{ github.workspace }}/build/bundles/*.deb
+    - name: Upload checksum
+      uses: actions/upload-artifact@v2
+      with:
+        name: '[Checksum] FreeRCT Debian+Ubuntu Package (${{ matrix.compiler }})'
+        path: ${{ github.workspace }}/build/bundles/*.deb.sha*
 
   macos:
     name: Mac OS
@@ -138,8 +143,13 @@ jobs:
     - name: Upload package
       uses: actions/upload-artifact@v2
       with:
-        name: FreeRCT MacOS Bundle
+        name: 'FreeRCT MacOS Bundle'
         path: ${{ github.workspace }}/build/bundles/*  # NOCOM
+    - name: Upload checksum
+      uses: actions/upload-artifact@v2
+      with:
+        name: '[Checksum] FreeRCT MacOS Bundle'
+        path: ${{ github.workspace }}/build/bundles/*.sha*  # NOCOM
 
   windows:
     name: Windows
@@ -213,5 +223,10 @@ jobs:
     - name: Upload package
       uses: actions/upload-artifact@v2
       with:
-        name: FreeRCT Windows ${{ matrix.arch }} Installer
-        path: ${{ github.workspace }}/build/bundles/*  # NOCOM
+        name: 'FreeRCT Windows ${{ matrix.arch }} Installer'
+        path: ${{ github.workspace }}/build/bundles/*.exe
+    - name: Upload checksum
+      uses: actions/upload-artifact@v2
+      with:
+        name: '[Checksum] FreeRCT Windows ${{ matrix.arch }} Installer'
+        path: ${{ github.workspace }}/build/bundles/*.exe.sha*
