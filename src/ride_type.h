@@ -277,6 +277,7 @@ public:
 		if (number >= lengthof(this->ride_types)) return nullptr;
 		return this->ride_types[number];
 	}
+	uint16 FindRideType(const RideType *) const;
 
 	const RideType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];  ///< Loaded types of rides.
 	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.

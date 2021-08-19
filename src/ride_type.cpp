@@ -725,35 +725,34 @@ void RidesManager::OnNewDay()
 	}
 }
 
-static const uint32 CURRENT_VERSION_RIDS = 1;   ///< Currently supported version of the RIDS Pattern.
+static const uint32 CURRENT_VERSION_RIDS = 2;   ///< Currently supported version of the RIDS Pattern.
 
 void RidesManager::Load(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("RIDS");
-	if (version == 1) {
+
+	if (version >= 1 && version <= CURRENT_VERSION_RIDS) {
 		uint16 allocated_ride_count = ldr.GetWord();
 		for (uint16 i = 0; i < allocated_ride_count; i++) {
 			const RideType *ride_type = nullptr;
 			RideTypeKind ride_kind = static_cast<RideTypeKind>(ldr.GetByte());
-			const uint8 *ride_type_name = ldr.GetText();
-			bool found = false;
 
-			if (ride_type_name != nullptr) {
+			if (version >= 2) {
+				ride_type = this->GetRideType(ldr.GetWord());
+			} else {
+				std::unique_ptr<uint8[]> ride_type_name(ldr.GetText());
+				if (ride_type_name.get() == nullptr) throw LoadingError("Invalid ride type name.");
+
 				for (uint j = 0; j < lengthof(this->ride_types); j++) {
 					ride_type = this->ride_types[j];
-					const uint8 *tmp_name = _language.GetText(ride_type->GetString(ride_type->GetTypeName()));
+					if (ride_type == nullptr) continue;
 
-					if (ride_kind == ride_type->kind && StrEqual(tmp_name, ride_type_name)) {
-						found = true;
-						break;
-					}
+					const uint8 *tmp_name = _language.GetText(ride_type->GetString(ride_type->GetTypeName()));
+					if (ride_kind == ride_type->kind && StrEqual(tmp_name, ride_type_name.get())) break;
 				}
-				delete[] ride_type_name;
-			} else {
-				throw LoadingError("Invalid ride type name.");
 			}
 
-			if (ride_type == nullptr || !found) {
+			if (ride_type == nullptr || ride_type->kind != ride_kind) {
 				throw LoadingError("Unknown/invalid ride type.");
 			}
 
@@ -786,7 +785,7 @@ void RidesManager::Save(Saver &svr)
 	for (uint16 i = 0; i < count; i++) {
 		RideInstance *r = this->instances[allocated_ride_indexes[i]];
 		svr.PutByte(static_cast<uint8>(r->GetKind()));
-		svr.PutText(_language.GetText(r->GetRideType()->GetString(r->GetRideType()->GetTypeName())));
+		svr.PutWord(this->FindRideType(r->GetRideType()));
 		r->Save(svr);
 	}
 	svr.EndPattern();
@@ -891,6 +890,21 @@ RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
 	assert(this->instances[num] == nullptr);
 	this->instances[num] = type->CreateInstance();
 	return this->instances[num];
+}
+
+/**
+ * Get the requested ride type's ID.
+ * @param r Ride to look up.
+ * @return The ride's index.
+ */
+uint16 RidesManager::FindRideType(const RideType *r) const
+{
+	for (uint i = 0; i < lengthof(this->ride_types); i++) {
+		if (this->ride_types[i] == r) {
+			return i;
+		}
+	}
+	NOT_REACHED();
 }
 
 /**
