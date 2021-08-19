@@ -43,29 +43,30 @@ function readjustMenuBarY() {
 	var logo = document.getElementById('menubar_logo');
 	var canvas = document.getElementById('menubar_top_canvas');
 
-	const widthType = getComputedStyle(ul).getPropertyValue('--menubar-width-type');
-	var
-		totalMenuH            =   408,
-		logoMaxH              =   256,
-		menuSpacer            =   298,
-		bottomSpacer          =   280,
-		fontSize              =    16,
-		alwaysCollapse        = false,
-		replaceTextWithImages = false;
-	if (widthType == '"normal"') {
-		totalMenuH   = 204;
-		logoMaxH     = 128;
-		menuSpacer   = 149;
-		bottomSpacer = 140;
-		fontSize     =  14;
-	} else if (widthType != '"wide"') {
+	var totalMenuH            =   408;
+	var logoMaxH              =   256;
+	var menuSpacer            =   298;
+	var bottomSpacer          =   280;
+	var fontSize              =    16;
+	var alwaysCollapse        = false;
+	var replaceTextWithImages = false;
+	// Keep the `max-width` constants in sync with the constants in menubar.css!!!
+	if (window.matchMedia("(max-width: 1060px)").matches) {
 		totalMenuH     =   50;
 		logoMaxH       =   50;
 		menuSpacer     =   70;
 		bottomSpacer   =   60;
 		fontSize       =   12;
 		alwaysCollapse = true;
-		replaceTextWithImages = (widthType == '"mobile"');
+		if (window.matchMedia("(max-width: 850px)").matches) {
+			replaceTextWithImages = true;
+		}
+	} else if (window.matchMedia("(max-width: 1380px)").matches) {
+		totalMenuH   = 204;
+		logoMaxH     = 128;
+		menuSpacer   = 149;
+		bottomSpacer = 140;
+		fontSize     =  14;
 	}
 
 	const menuBarMaxY = alwaysCollapse ? 0 : (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2;

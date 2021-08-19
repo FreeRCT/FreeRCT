@@ -140,25 +140,19 @@
 }
 
 /* Make the buttons narrower on small screens. These rules must come last to overwrite the ones above. */
-#menubar_ul { --menubar-width-type: "wide"; }
+/* Keep the `max-width` constants in sync with the constants in menubar.js!!! */
 
 @media screen and (max-width: 1380px) {
-	#menubar_ul { --menubar-width-type: "normal"; }
-
 	#menubar_ul .menubar_li { width: 150px }
 	.pictorial_link { max-height: 128 }
 }
 
 @media screen and (max-width: 1060px) {
-	#menubar_ul { --menubar-width-type: "narrow"; }
-
 	#menubar_ul .menubar_li { width: 130px }
 	.pictorial_link { max-height: 64 }
 }
 
 @media screen and (max-width: 850px) {
-	#menubar_ul { --menubar-width-type: "mobile"; }
-
 	#menubar_ul .menubar_li {
 		width: 50px;
 		transform: none;
