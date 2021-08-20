@@ -46,19 +46,20 @@
 			          <pre><code>
 mkdir build
 cd build
-cmake ..
+cmake ..        # See below for optional arguments.
 make
-make install
+make install    # Optional but recommended step.
 			          </code></pre>
 			</li><li> You need to have CMake and Make installed in order to do run these commands.
-			          CMake will check that all required libraries are installed;
-			          if this fails, install the libraries it complains about,
+			          CMake will check that all required libraries are installed.
+			          If this fails, you need to install the libraries it complains about,
 			          and retry until all dependencies are found.
-			</li><li> You can now start FreeRCT via <tt>freerct</tt>, <tt>./build/bin/freerct</tt>, or <tt>make run</tt>.
+			</li><li> You can now start FreeRCT via <tt>freerct</tt> if you used <tt>make install</tt>;
+			          otherwise use <tt>./build/bin/freerct</tt> or <tt>make run</tt>.
 			</li>
 		</ol> <p>
 			You can pass the following arguments to CMake:
-		</p><p>
+		</p>
 		<p style="text-align:center"> <table>
 			<tr>
 				<th>Option</th>
@@ -106,6 +107,9 @@ make install
 			</tr>
 			<tr><td class="force_justify" style="min-width:250px"><tt>~/.config/freerct</tt> (other)</td></tr>
 		</table> </p>
+		<p>
+			Start FreeRCT with the <tt>--help</tt> switch to list the available command-line options.
+		</p>
 
 		<h2>How To Play</h2>
 		<p>
