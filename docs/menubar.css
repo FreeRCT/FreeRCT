@@ -126,13 +126,14 @@
 .pictorial_link:active { background-color: initial; }
 
 #menubar_top_canvas {
-	/* TODO need better image */
-	background: url("images/queuepaths.png") repeat-x bottom left;
+	background-image: url("images/header.png");
+	background-repeat: repeat-x;
+	background-position: left calc(50% - 30px);
 	width: 100%;
 	position: fixed;
 	top: 0;
 	left: 0;
-	filter: grayscale(80%);
+	filter: saturate(50%);
 }
 
 .menubar_active {
@@ -142,17 +143,16 @@
 /* Make the buttons narrower on small screens. These rules must come last to overwrite the ones above. */
 /* Keep the `max-width` constants in sync with the constants in menubar.js!!! */
 
-@media screen and (max-width: 1380px) {
+@media screen and (max-width: 1480px) {
 	#menubar_ul .menubar_li { width: 150px }
-	.pictorial_link { max-height: 128 }
+	.pictorial_link { max-height: 192 }
 }
 
-@media screen and (max-width: 1060px) {
-	#menubar_ul .menubar_li { width: 130px }
+@media screen and (max-width: 1130px) {
 	.pictorial_link { max-height: 64 }
 }
 
-@media screen and (max-width: 850px) {
+@media screen and (max-width: 990px) {
 	#menubar_ul .menubar_li {
 		width: 50px;
 		transform: none;

@@ -43,30 +43,30 @@ function readjustMenuBarY() {
 	var logo = document.getElementById('menubar_logo');
 	var canvas = document.getElementById('menubar_top_canvas');
 
-	var totalMenuH            =   408;
-	var logoMaxH              =   256;
-	var menuSpacer            =   298;
-	var bottomSpacer          =   280;
+	var totalMenuH            =   510;
+	var logoMaxH              =   320;
+	var menuSpacer            =   372.5;
+	var bottomSpacer          =   350;
 	var fontSize              =    16;
 	var alwaysCollapse        = false;
 	var replaceTextWithImages = false;
 	// Keep the `max-width` constants in sync with the constants in menubar.css!!!
-	if (window.matchMedia("(max-width: 1060px)").matches) {
+	if (window.matchMedia("(max-width: 1130px)").matches) {
 		totalMenuH     =   50;
 		logoMaxH       =   50;
 		menuSpacer     =   70;
 		bottomSpacer   =   60;
-		fontSize       =   12;
+		fontSize       =   14;
 		alwaysCollapse = true;
-		if (window.matchMedia("(max-width: 850px)").matches) {
+		if (window.matchMedia("(max-width: 990px)").matches) {
 			replaceTextWithImages = true;
 		}
-	} else if (window.matchMedia("(max-width: 1380px)").matches) {
-		totalMenuH   = 204;
-		logoMaxH     = 128;
-		menuSpacer   = 149;
-		bottomSpacer = 140;
-		fontSize     =  14;
+	} else if (window.matchMedia("(max-width: 1480px)").matches) {
+		totalMenuH   = 306;
+		logoMaxH     = 192;
+		menuSpacer   = 223.5;
+		bottomSpacer = 210;
+		fontSize     =  15;
 	}
 
 	const menuBarMaxY = alwaysCollapse ? 0 : (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2;

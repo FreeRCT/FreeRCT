@@ -3,16 +3,16 @@ const ALL_SCREENSHOT_SECTIONS = [
 	{slug: 'test', label: 'Test Images'},  // TODO delete
 ];
 const ALL_IMAGES = [  // TODO need more and better images
-	{image: '20150609-freerct'     , slideshow: true, section: '0_1' , caption: 'FreeRCT …'},
-	{image: '20121209-freerct'     , slideshow: true, section: '0_1' , caption: '… aims to be a free and open source game …'},
-	{image: 'closeup'              , slideshow: true, section: 'test', caption: '… which captures the look, …'},
-	{image: 'make_a_path'          , slideshow: true, section: 'test', caption: '… feel, …'},
-	{image: 'find_the_differences' , slideshow: true, section: 'test', caption: '… and gameplay …'},
-	{image: 'path_finding2'        , slideshow: true, section: 'test', caption: '… of the popular games …'},
-	{image: 'crowded'              , slideshow: true, section: '0_1' , caption: '… RollerCoaster Tycoon 1 and 2.'},
-	{image: 'queuepaths'           , slideshow: true, section: 'test', caption: 'The game is still in an early alpha state, …'},
-	{image: 'ice_creams_recoloured', slideshow: true, section: '0_1' , caption: '… but it is already playable …'},
-	{image: 'weather'              , slideshow: true, section: '0_1' , caption: '… and offers a variety of features.'},
+	{image: 'OLD/20150609-freerct'     , slideshow: true, section: '0_1' , caption: 'FreeRCT …'},
+	{image: 'OLD/20121209-freerct'     , slideshow: true, section: '0_1' , caption: '… aims to be a free and open source game …'},
+	{image: 'OLD/closeup'              , slideshow: true, section: 'test', caption: '… which captures the look, …'},
+	{image: 'OLD/make_a_path'          , slideshow: true, section: 'test', caption: '… feel, …'},
+	{image: 'OLD/find_the_differences' , slideshow: true, section: 'test', caption: '… and gameplay …'},
+	{image: 'OLD/path_finding2'        , slideshow: true, section: 'test', caption: '… of the popular games …'},
+	{image: 'OLD/crowded'              , slideshow: true, section: '0_1' , caption: '… RollerCoaster Tycoon 1 and 2.'},
+	{image: 'OLD/queuepaths'           , slideshow: true, section: 'test', caption: 'The game is still in an early alpha state, …'},
+	{image: 'OLD/ice_creams_recoloured', slideshow: true, section: '0_1' , caption: '… but it is already playable …'},
+	{image: 'OLD/weather'              , slideshow: true, section: '0_1' , caption: '… and offers a variety of features.'},
 ];
 
 // Gallery code below.
