@@ -78,7 +78,11 @@ make install
 				<td class="codefield">-DASAN</td>
 				<td class="codefield">OFF</td>
 				<td>
-					Use AddressSanitizer.
+					Use AddressSanitizer (ASan).
+					ASan is a library that detects invalid memory accesses at runtime and
+					terminates the program with a full backtrace upon detecting one. This makes
+					it a useful and recommended tool for developers and everyone who wants to
+					assist with discovering bugs. End-users should leave this option disabled.
 				</td>
 			</tr>
 			<tr>

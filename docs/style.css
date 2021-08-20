@@ -72,7 +72,7 @@ a[href*="://"]::after {  /* External links only. */
 a:not(.linkified_header):link { color: var(--blue-medium) }
 a:not(.linkified_header):visited { color: var(--green-light) }
 a:active {
-	color: var(--text-light);
+	color: var(--text-light) !important;
 	background-color: var(--green-light);
 	text-decoration: none;
 }
