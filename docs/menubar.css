@@ -119,7 +119,6 @@
 	position: fixed;
 	top: 0;
 	width: auto;
-	height: 256;
 }
 .pictorial_link:active { background-color: initial; }
 
@@ -143,11 +142,9 @@
 
 @media screen and (max-width: 1480px) {
 	#menubar_ul .menubar_li { width: 150px }
-	.pictorial_link { max-height: 192 }
 }
 
 @media screen and (max-width: 1130px) {
-	.pictorial_link { max-height: 64 }
 }
 
 @media screen and (max-width: 990px) {
