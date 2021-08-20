@@ -11,26 +11,24 @@
 		<h1>Download</h1>
 
 		<h2>Releases</h2>
-		<p style="text-align:center">
-			 <table>
-				<tr>
-					<th>Version</th>
-					<th>Release Date</th>
-					<th>Windows</th>
-					<th>MacOS</th>
-					<th>Debian/Ubuntu</th>
-					<th>Source Code</th>
-				</tr>
-				<tr>
-					<td class="table_release">0.1</td>
-					<td>To be announced</td>
-					<td class="invalid">N/A</td>
-					<td class="invalid">N/A</td>
-					<td class="invalid">N/A</td>
-					<td class="invalid">N/A</td>
-				</tr>
-			</table>
-		</p><p>
+		<p style="text-align:center"> <table>
+			<tr>
+				<th>Version</th>
+				<th>Release Date</th>
+				<th>Windows</th>
+				<th>MacOS</th>
+				<th>Debian/Ubuntu</th>
+				<th>Source Code</th>
+			</tr>
+			<tr>
+				<td class="table_release">0.1</td>
+				<td>To be announced</td>
+				<td class="invalid">N/A</td>
+				<td class="invalid">N/A</td>
+				<td class="invalid">N/A</td>
+				<td class="invalid">N/A</td>
+			</tr>
+		</table> </p> <p>
 			When FreeRCT 0.1 is released, links to the installers and instructions how to use them will be provided here.
 		</p>
 
@@ -40,18 +38,70 @@
 		</p>
 
 		<h2>Compiling From Source</h2>
-		<p> <ol>
+		<ol>
 			<li>      Check out the commit you wish to build in Git,
 			          or download and extract a ZIP/tarball of the latest development version from
 			          <a target="_blank" href="https://github.com/FreeRCT/FreeRCT">GitHub</a>.
-			</li><li> <tt>cd</tt> into the source directory. Call <tt>cmake .</tt> and then <tt>make</tt>.
+			</li><li> <tt>cd</tt> into the downloaded <tt>FreeRCT</tt> directory and call:
+			          <pre><code>
+mkdir build
+cd build
+cmake ..
+make
+make install
+			          </code></pre>
 			</li><li> You need to have CMake and Make installed in order to do run these commands.
 			          CMake will check that all required libraries are installed;
 			          if this fails, install the libraries it complains about,
 			          and retry until all dependencies are found.
-			</li><li> You can run FreeRCT via <tt>./bin/freerct</tt> or <tt>make run</tt>.
+			</li><li> You can now start FreeRCT via <tt>freerct</tt>, <tt>./build/bin/freerct</tt>, or <tt>make run</tt>.
 			</li>
-		</ol> </p>
+		</ol> <p>
+			You can pass the following arguments to CMake:
+		</p><p>
+		<p style="text-align:center"> <table>
+			<tr>
+				<th>Option</th>
+				<th>Default Value</th>
+				<th>Explanation</th>
+			</tr>
+			<tr>
+				<td class="codefield">-DVERSION_STRING</td>
+				<td class="invalid">N/A</td>
+				<td>
+					Use the specified string as the build version.
+					If not specified, the version is detected automatically from Git.
+					If this also fails, the version defaults to <tt>0.0.0-revdetect-broken</tt>.
+			</tr>
+			<tr>
+				</td>
+				<td class="codefield">-DASAN</td>
+				<td class="codefield">OFF</td>
+				<td>
+					Use AddressSanitizer.
+				</td>
+			</tr>
+			<tr>
+				</td>
+				<td class="codefield">-DCMAKE_INSTALL_PREFIX</td>
+				<td class="codefield">/usr</td>
+				<td>
+					Directory where <tt>make install</tt> installs.
+				</td>
+			</tr>
+			<tr>
+				<td rowspan="2" class="codefield">-DUSERDATA_PREFIX</td>
+				<td class="force_justify"><tt>~/.freerct</tt> (Windows)</td>
+				<td rowspan="2">
+					Directory where user data such as savegames is stored.
+					Note that <tt>~</tt> character expansion in the <tt>USERDATA_PREFIX</tt>
+					variable to the user home directory is performed by FreeRCT at runtime
+					and should <strong>not</strong> be done by shell expansion
+					to ensure that the executable can be used by multiple users.
+				</td>
+			</tr>
+			<tr><td class="force_justify" style="min-width:250px"><tt>~/.config/freerct</tt> (other)</td></tr>
+		</table> </p>
 
 		<h2>How To Play</h2>
 		<p>

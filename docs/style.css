@@ -32,11 +32,7 @@ h1,h2,h3 {
 h1 { font-size: 26 }
 h2 { font-size: 22 }
 h3 { font-size: 18 }
-tt {
-	color: var(--text-light);
-	background-color: rgba(0,48,0,0.5);
-	padding: 1px 4px;
-}
+
 strong {
 	color: var(--blue-dark);
 	font-weight: bold;
@@ -46,8 +42,26 @@ emp {
 	font-style: oblique;
 }
 
+tt, pre code, .codefield {
+	color: var(--text-light);
+	background-color: rgba(0, 48, 0, 0.5);
+	padding: 1px 4px;
+	font-family: monospace;
+}
+pre code {
+	display: block;
+	border: 2px inset var(--blue-dark);
+	padding-left: 32px;
+}
+
+.force_justify:after {
+	content: '';
+	display: inline-block;
+	width: 100%;
+}
+
 a { position:relative }
-a[href*="://"]::after {  /* External links only */
+a[href*="://"]::after {  /* External links only. */
 	content: "\2bb3";
 	position: absolute;
 	bottom: 25%;
@@ -80,6 +94,7 @@ table, th, td {
 table {
 	margin-left: auto;
 	margin-right: auto;
+	max-width: 75em;
 }
 th, td {
 	padding: 8px;
