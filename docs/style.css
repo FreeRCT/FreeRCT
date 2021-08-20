@@ -42,7 +42,7 @@ emp {
 	font-style: oblique;
 }
 
-tt, pre code, .codefield {
+tt, pre code, .codefield, .toc {
 	color: var(--text-light);
 	background-color: rgba(0, 48, 0, 0.5);
 	padding: 1px 4px;
@@ -52,6 +52,19 @@ pre code {
 	display: block;
 	border: 2px inset var(--blue-dark);
 	padding-left: 32px;
+}
+
+.toc {
+	font-family: sans-serif;
+	float: right;
+	margin: 0px 5% 0px 10%;
+	text-align: center;
+	border: 5px ridge var(--blue-light);
+	width: 20%;
+	height: 50%;
+}
+.toc * {
+	color: var(--text-light);
 }
 
 .force_justify:after {

@@ -12,6 +12,18 @@
 
 		<!-- TODO Add a table of contents. -->
 
+		<!--
+		<div class="toc">
+			<h1>ToC</h1>
+			<ol>
+				     <li> AAA
+				</li><li> BBB
+				</li><li> CCC
+				</li>
+			</ol>
+		</div>
+		-->
+
 		<p>
 			In FreeRCT, you are the manager of a pleasure park. You build everything that your guests need to be happy:
 			most importantly, rollercoasters and other rides, but also food stalls, footpaths, flowerbeds,
@@ -122,7 +134,7 @@
 					The large empty space in the middle of the info panel is where any <emp>messages</emp> you receive are previewed.
 				</p>
 
-		<h2>Building Basic Infrastructure</h2>
+		<h2>Building Basic Park Infrastructure</h2>
 			<h3>Footpaths</h3>
 				<p>
 					Your guests will move only on footpaths. To build footpaths, click on the 
@@ -234,9 +246,6 @@
 
 
 		<h2>Rides</h2>
-			<!-- TODO -->
-			<p style="text-align: center"><emp>This section is still under construction.</emp></p>
-
 			<p>
 				Rides are the most important aspect of your park. So let's see how to build and manage them.
 			</p>
@@ -373,7 +382,22 @@
 					ride through the ride's <em>exit</em>. For coasters with multiple stations,
 					the mechanic always picks the first station's exit.
 				</p><p>
-					<!-- TODO -->
+					Guests base their decision on whether to enter a ride on the ride's
+					Excitement, Intensity, and Nausea ratings. Ratings are measured on a scale
+					from 0 (boring / dull / not nauseating) to 10 (extremely exciting /
+					incredibly intense / extremely nauseating); in rare cases higher ratings
+					are possible. High Excitement ratings and low Nausea ratings are desirable;
+					which Intensity rating is acceptable depends on each guest's individual
+					preference, though very high ratings are tolerated only by very few guests.
+				</p><p>
+					When guests become hungry or thirsty, they buy food or drink from shops.
+					Guests will also need to visit a toilet eventually.
+					The information kiosk sells park maps, which aid guests in finding their way
+					around the park, and umbrellas, which guests will be glad of in bad weather.
+				</p><p>
+					When guests visit a ride, they become nauseous; the more so the higher the
+					ride's Nausea rating is. Nauseous guests throw up on the footpaths unless
+					they find a First Aid booth or sit on a bench until it subsides.
 				</p>
 
 		<h2>Park Administration</h2>
