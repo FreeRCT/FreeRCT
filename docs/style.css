@@ -148,11 +148,26 @@ th, .table_release {
 	font-variant: small-caps;
 }
 
-/* Screenshot gallery. */
+/* Screenshots. */
 
-.screenshot_gallery_image {
+.screenshot_gallery_image, .manual_screenshot {
 	border: 5px ridge var(--blue-light);
 	border-radius: 5px;
+	margin: 5px;
+}
+
+.manual_screenshot {
+	width: 40em;
+	float: right;
+	clear: both;
+	position: relative;
+}
+.manual_screenshot img {
+	border-bottom: 2px solid var(--blue-light);
+	width: 100%;
+}
+.manual_screenshot p {
+	text-align: center;
 	margin: 5px;
 }
 
