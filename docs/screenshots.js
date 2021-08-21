@@ -17,25 +17,93 @@ const ALL_IMAGES = [  // TODO need more and better images
 
 // Gallery code below.
 
+var currentGalleryPopup = null;
+
 function createScreenshotGallery() {
-	// TODO proper alignment…
-	ALL_SCREENSHOT_SECTIONS.forEach(function(section) {
+	ALL_SCREENSHOT_SECTIONS.forEach((section) => {
 		document.write('<h2 id="' + section.slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">');
 			document.write('<a href="screenshots.html#' + section.slug + '" class="linkified_header">');
 				document.write(section.label);
-		document.write('</a></h2>');
-		ALL_IMAGES.forEach(function(img) {
-			if (img.section == section.slug) {
-				document.write('<img class="screenshot_gallery_image" loading=lazy src="images/' + img.image + '.png" height=auto width=auto></img>');
-			}
-		});
+		document.write('</a></h2><div class="screenshot_gallery">');
+		var all_images_in_section = [];
+		ALL_IMAGES.forEach((img) => { if (img.section == section.slug) all_images_in_section.push(img); });
+
+		for (var i = 0; i < all_images_in_section.length; i++) {
+			const img = all_images_in_section[i];
+			document.write('<img class="screenshot_gallery_image" loading=lazy src="images/' + img.image +
+			               '.png" height="auto" width="auto" onclick="screenshot_image_clicked(event.currentTarget)"></img>');
+			document.write('<div class="screenshot_gallery_popup_outer_wrapper"><div class="screenshot_gallery_popup_inner_wrapper">');
+				document.write('<div class="screenshot_gallery_popup_prev" onclick="gallery_next(-1)">&#10094;</div>');
+				document.write('<div class="screenshot_gallery_popup_next" onclick="gallery_next(+1)">&#10095;</div>');
+				document.write('<div class="screenshot_gallery_popup_close" onclick="hide_screenshot_images()">&#128937;</div>');
+				document.write('<img class="screenshot_gallery_popup_image" src="images/' + img.image +
+					           '.png" height="auto" width="auto" onclick="event.stopPropagation()"></img>');
+			document.write('</div></div>');
+		}
+		document.write('</div>');
 	});
+	hide_screenshot_images();
 }
+
+function screenshot_image_clicked(element) {
+	hide_screenshot_images();
+
+	while (element.className != 'screenshot_gallery_image' && element.className != 'screenshot_gallery_popup_outer_wrapper') {
+		element = element.parentNode;
+		if (element == null) return;
+	}
+	if (element.className == 'screenshot_gallery_image') element = element.nextSibling;
+	element.style.display = 'initial';
+	currentGalleryPopup = element;
+
+	event.stopPropagation();
+}
+
+function gallery_next(delta) {
+	var element = currentGalleryPopup;
+	while (element.className != 'screenshot_gallery') {
+		element = element.parentNode;
+		if (!element) return;
+	}
+
+	var all = element.getElementsByClassName(currentGalleryPopup.className);
+	for (var i = 0; i < all.length; i++) {
+		if (all[i] == currentGalleryPopup) {
+			i += delta;
+			while (i < 0) i += all.length;
+			i %= all.length;
+			screenshot_image_clicked(all[i]);
+			return;
+		}
+	}
+}
+
+function gallery_key_event() {
+	if (currentGalleryPopup != null) {
+		if (event.key == 'Escape') {
+			hide_screenshot_images();
+		} else if (event.key == 'ArrowLeft') {
+			gallery_next(-1);
+		} else if (event.key == 'ArrowRight') {
+			gallery_next(+1);
+		}
+	}
+}
+
+function hide_screenshot_images() {
+	var items = document.getElementsByClassName("screenshot_gallery_popup_outer_wrapper");
+	for (var i = 0; i < items.length; i++) {
+		items[i].style.display = 'none';
+	}
+	currentGalleryPopup = null;
+}
+document.body.onclick = hide_screenshot_images;
+document.body.onkeydown = gallery_key_event;
 
 // Slideshow code below.
 
 var ALL_SLIDES = [];
-ALL_IMAGES.forEach(function(s) { if (s.slideshow) ALL_SLIDES.push(s); });
+ALL_IMAGES.forEach((s) => { if (s.slideshow) ALL_SLIDES.push(s); });
 var slideIndex = 0;
 var timeoutVar = null;
 
@@ -73,7 +141,7 @@ function showSlidesAuto() {
 function createSlideshow() {
 	document.write('<div class="slideshow_main">');
 		document.write('<div class="slideshow_container">');
-			ALL_SLIDES.forEach(function(slide) {
+			ALL_SLIDES.forEach((slide) => {
 				document.write('<div class="slideshow_slide');
 				if (slide == ALL_SLIDES[0]) document.write(' slideshow_first_slide');
 				document.write('"><img class="slideshow_image" src="images/' + slide.image + '.png"></img>');

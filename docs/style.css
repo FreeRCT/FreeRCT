@@ -159,10 +159,41 @@ th, .table_release {
 
 /* Screenshots and the manual. */
 
-.screenshot_gallery_image, .manual_screenshot {
+.screenshot_gallery, .screenshot_gallery_image, .screenshot_gallery_popup_image, .manual_screenshot {
 	border: var(--border-blue-thick);
 	border-radius: 5px;
 	margin: 5px;
+}
+
+.screenshot_gallery {
+	background-color: var(--bg-overlay);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	align-content: center;
+	justify-content: space-around;
+}
+
+.screenshot_gallery_image {
+	max-width: 30%;
+}
+
+.screenshot_gallery_popup_outer_wrapper {
+	position: fixed;
+	z-index: 500;
+	width: 100%;
+	height: 100%;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: var(--bg-overlay);
+}
+
+.screenshot_gallery_popup_inner_wrapper {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 .manual_section {
@@ -179,16 +210,15 @@ th, .table_release {
 }
 
 .manual_margin {
-	flex: 0 0 30%;
+	flex: 0 0 35%;
 	background-color: var(--bg-overlay);
 	border: var(--border-blue-thick);
 	border-radius:  5px;
-	margin: 1% 0;
+	margin: 1% 1%;
 }
 
 .manual_body {
 	flex: auto;
-	margin: 0 1%;
 }
 
 .manual_screenshot {
@@ -240,7 +270,7 @@ th, .table_release {
 	transition: opacity 1.5s;
 }
 
-.slideshow_prev, .slideshow_next {
+.slideshow_prev, .slideshow_next, .screenshot_gallery_popup_prev, .screenshot_gallery_popup_next, .screenshot_gallery_popup_close {
 	cursor: pointer;
 	position: absolute;
 	top: 50%;
@@ -259,9 +289,35 @@ th, .table_release {
 	right: 0;
 	border-radius: 12px 0 0 12px;
 }
-.slideshow_prev:hover, .slideshow_next:hover {
+
+.screenshot_gallery_popup_next {
+	right: initial;
+	left: 100%;
+}
+.screenshot_gallery_popup_prev {
+	left: initial;
+	right: 100%;
+}
+.screenshot_gallery_popup_prev, .screenshot_gallery_popup_next {
+	border-radius: 12px;
+	margin: 0;
+	top: 50%;
+	transform: translate(0, -50%);
+}
+.screenshot_gallery_popup_close {
+	margin: -54px;
+	padding: 0;
+	left: initial;
+	right: 0;
+	top: 0;
+}
+
+.slideshow_prev:hover, .slideshow_next:hover, .screenshot_gallery_popup_prev:hover, .screenshot_gallery_popup_next:hover {
 	opacity: 0.8;
 	background-color: var(--text-dark);
+}
+.screenshot_gallery_popup_close:hover {
+	opacity: 0.8;
 }
 
 .slideshow_text {

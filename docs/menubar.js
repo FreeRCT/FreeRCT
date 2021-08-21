@@ -85,7 +85,7 @@ function readjustMenuBarY() {
 	logo.style.height = newLogoH;
 	logo.style.marginLeft = newLogoHalfspace;
 	logo.style.marginRight = newLogoHalfspace;
-	_all_links_created.forEach(function(id) {
+	_all_links_created.forEach((id) => {
 		var element = document.getElementById(id.id);
 		element.style.backgroundImage = replaceTextWithImages ? 'url(images/menu/' + id.link + '.png)' : 'none';
 		element.style.color = replaceTextWithImages ? 'transparent' : 'var(--text-light)';
@@ -113,7 +113,7 @@ document.write('<ul id="menubar_ul">');
 	document.write('<link rel="stylesheet" href="menubar.css">');
 	document.write('<p id="menubar_spacer_menu"></p>');
 
-	ALL_PAGES.forEach(function(id) {
+	ALL_PAGES.forEach((id) => {
 		if (id.dropdown == null) {
 			document.write('<li class="menubar_li">');
 			document.write(makeHref(id, 'tooltip_bottom'));
@@ -121,7 +121,7 @@ document.write('<ul id="menubar_ul">');
 			document.write('<li class="menubar_li menubar_dropdown" onmouseover="dropdownMouse(this, true)" onmouseout="dropdownMouse(this, false)">');
 			document.write(makeHref(id, 'tooltip_corner'));
 			document.write('<div class="menubar_dropdown_content">');
-				id.dropdown.forEach(function(entry) {
+				id.dropdown.forEach((entry) => {
 					document.write(makeHref(entry, 'tooltip_left'));
 				});
 			document.write('</div>');
