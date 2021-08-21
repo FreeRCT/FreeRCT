@@ -10,6 +10,8 @@
 	--blue-light:   #396878;
 	--blue-medium:  #0000f0;
 	--blue-dark:    #000b2a;
+	--bg-overlay:   rgba(0, 48, 0, 0.5);
+	--border-blue-thick: 5px ridge var(--blue-light);
 }
 
 * {
@@ -18,6 +20,9 @@
 	z-index: 1;
 	color: var(--text-dark);
 	font-size: 16;
+
+	/* Debugging option, uncomment to enable. */
+	/* border: 2px ridge red; */
 }
 
 body {
@@ -44,7 +49,7 @@ emp {
 
 tt, pre code, .codefield, .toc {
 	color: var(--text-light);
-	background-color: rgba(0, 48, 0, 0.5);
+	background-color: var(--bg-overlay);
 	padding: 1px 4px;
 	font-family: monospace;
 }
@@ -59,7 +64,7 @@ pre code {
 	float: right;
 	margin: 0px 5% 0px 10%;
 	text-align: center;
-	border: 5px ridge var(--blue-light);
+	border: var(--border-blue-thick);
 	width: 20%;
 	height: 50%;
 }
@@ -148,19 +153,54 @@ th, .table_release {
 	font-variant: small-caps;
 }
 
-/* Screenshots. */
+/* Screenshots and the manual. */
 
 .screenshot_gallery_image, .manual_screenshot {
-	border: 5px ridge var(--blue-light);
+	border: var(--border-blue-thick);
 	border-radius: 5px;
 	margin: 5px;
 }
 
+.manual_section {
+	clear: both;
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: flex-start;
+	/* border: 2px ridge red;  /* NOCOM */
+}
+
+.manual_body, .manual_margin {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	/* border: 2px dotted green;  /* NOCOM */
+}
+
+.manual_margin {
+	flex: 0 0 30%;
+	background-color: var(--bg-overlay);
+	border-left:   var(--border-blue-thick);
+	border-right:  var(--border-blue-thick);
+}
+.manual_margin_first {
+	border-top:    var(--border-blue-thick);
+	border-top-left-radius:  5px;
+	border-top-right-radius: 5px;
+}
+.manual_margin_last {
+	border-bottom: var(--border-blue-thick);
+	border-bottom-left-radius:  5px;
+	border-bottom-right-radius: 5px;
+}
+
+.manual_body {
+	flex: auto;
+	margin: 0 1%;
+}
+
 .manual_screenshot {
-	width: 40em;
 	float: right;
 	clear: both;
-	position: relative;
 }
 .manual_screenshot img {
 	border-bottom: 2px solid var(--blue-light);
@@ -169,6 +209,7 @@ th, .table_release {
 .manual_screenshot p {
 	text-align: center;
 	margin: 5px;
+	color: var(--text-light);
 }
 
 /* Slideshow stuff. */
@@ -178,7 +219,7 @@ th, .table_release {
 	margin: 0px 10% 0px 5%;
 	width: 45%;
 	padding: 0 0 12px 0;
-	border: 5px ridge var(--blue-light);
+	border: var(--border-blue-thick);
 	border-radius: 5px;
 }
 
