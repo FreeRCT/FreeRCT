@@ -55,10 +55,14 @@ tt, pre code, .codefield, .toc {
 	padding: 1px 4px;
 	font-family: monospace;
 }
-pre code {
+pre code, .hljs {
 	display: block;
 	border: 2px inset var(--blue-dark);
 	padding-left: 32px;
+}
+.hljs-comment {
+	color: var(--blue-dark);
+	background-color: initial;
 }
 
 .toc {
