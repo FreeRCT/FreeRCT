@@ -3,16 +3,16 @@ const ALL_SCREENSHOT_SECTIONS = [
 	{slug: 'test', label: 'Test Images'},  // TODO delete
 ];
 const ALL_IMAGES = [  // TODO need more and better images
-	{image: 'OLD/20150609-freerct'     , slideshow: true, section: '0_1' , caption: 'FreeRCT …'},
-	{image: 'OLD/20121209-freerct'     , slideshow: true, section: '0_1' , caption: '… aims to be a free and open source game …'},
-	{image: 'OLD/closeup'              , slideshow: true, section: 'test', caption: '… which captures the look, …'},
-	{image: 'OLD/make_a_path'          , slideshow: true, section: 'test', caption: '… feel, …'},
-	{image: 'OLD/find_the_differences' , slideshow: true, section: 'test', caption: '… and gameplay …'},
-	{image: 'OLD/path_finding2'        , slideshow: true, section: 'test', caption: '… of the popular games …'},
-	{image: 'OLD/crowded'              , slideshow: true, section: '0_1' , caption: '… RollerCoaster Tycoon 1 and 2.'},
-	{image: 'OLD/queuepaths'           , slideshow: true, section: 'test', caption: 'The game is still in an early alpha state, …'},
-	{image: 'OLD/ice_creams_recoloured', slideshow: true, section: '0_1' , caption: '… but it is already playable …'},
-	{image: 'OLD/weather'              , slideshow: true, section: '0_1' , caption: '… and offers a variety of features.'},
+	{section: '0_1', image: '0_1/mainview', caption: 'FreeRCT aims to be a free and open source game …'},
+	{section: '0_1', image: '0_1/mainmenu', caption: '… which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.'},
+	{section: '0_1', image: '0_1/newpark' , caption: 'The game is still in an early alpha state, …'},
+	{section: '0_1', image: '0_1/persons' , caption: '… but it is already playable and offers a variety of features.'},
+
+	{section: 'test', image: 'test_TO_BE_DELETED/20150609-freerct'     },
+	{section: 'test', image: 'test_TO_BE_DELETED/20121209-freerct'     },
+	{section: 'test', image: 'test_TO_BE_DELETED/crowded'              },
+	{section: 'test', image: 'test_TO_BE_DELETED/ice_creams_recoloured'},
+	{section: 'test', image: 'test_TO_BE_DELETED/weather'              },
 ];
 
 // Gallery code below.
@@ -30,13 +30,13 @@ function createScreenshotGallery() {
 
 		for (var i = 0; i < all_images_in_section.length; i++) {
 			const img = all_images_in_section[i];
-			document.write('<img class="screenshot_gallery_image" loading=lazy src="images/' + img.image +
+			document.write('<img class="screenshot_gallery_image" loading=lazy src="images/screenshots/' + img.image +
 			               '.png" height="auto" width="auto" onclick="screenshot_image_clicked(event.currentTarget)"></img>');
 			document.write('<div class="screenshot_gallery_popup_outer_wrapper"><div class="screenshot_gallery_popup_inner_wrapper">');
 				document.write('<div class="screenshot_gallery_popup_prev" onclick="gallery_next(-1)">&#10094;</div>');
 				document.write('<div class="screenshot_gallery_popup_next" onclick="gallery_next(+1)">&#10095;</div>');
 				document.write('<div class="screenshot_gallery_popup_close" onclick="hide_screenshot_images()">&#128937;</div>');
-				document.write('<img class="screenshot_gallery_popup_image" src="images/' + img.image +
+				document.write('<img class="screenshot_gallery_popup_image" src="images/screenshots/' + img.image +
 					           '.png" height="auto" width="auto" onclick="event.stopPropagation()"></img>');
 			document.write('</div></div>');
 		}
@@ -103,7 +103,7 @@ document.body.onkeydown = gallery_key_event;
 // Slideshow code below.
 
 var ALL_SLIDES = [];
-ALL_IMAGES.forEach((s) => { if (s.slideshow) ALL_SLIDES.push(s); });
+ALL_IMAGES.forEach((s) => { if (s.caption != null) ALL_SLIDES.push(s); });
 var slideIndex = 0;
 var timeoutVar = null;
 
@@ -143,9 +143,9 @@ function createSlideshow() {
 		document.write('<div class="slideshow_container">');
 			ALL_SLIDES.forEach((slide) => {
 				document.write('<div class="slideshow_slide');
-				if (slide == ALL_SLIDES[0]) document.write(' slideshow_first_slide');
-				document.write('"><img class="slideshow_image" src="images/' + slide.image + '.png"></img>');
-				document.write('<div class="slideshow_text">' + slide.caption + '</div>');
+					if (slide == ALL_SLIDES[0]) document.write(' slideshow_first_slide');
+					document.write('"><img class="slideshow_image" src="images/screenshots/' + slide.image + '.png"></img>');
+					document.write('<div class="slideshow_text"><p>' + slide.caption + '</p></div>');
 				document.write('</div>');
 			});
 		document.write('<a class="slideshow_prev" onclick="plusSlides(-1)">&#10094;</a>');

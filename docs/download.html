@@ -3,19 +3,20 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="style.css">
-		<title>FreeRCT | Download</title>
+		<title>FreeRCT | Get It!</title>
 	</head>
 	<body>
 		<script src="menubar.js"></script>
 
-		<h1>Download</h1>
+		<h1>Get It!</h1>
 
 		<h2>Releases</h2>
 		<p style="text-align:center"> <table>
 			<tr>
 				<th>Version</th>
 				<th>Release Date</th>
-				<th>Windows</th>
+				<th>Windows (64 bit)</th>
+				<th>Windows (32 bit)</th>
 				<th>MacOS</th>
 				<th>Debian/Ubuntu</th>
 				<th>Source Code</th>
@@ -27,9 +28,11 @@
 				<td class="invalid">N/A</td>
 				<td class="invalid">N/A</td>
 				<td class="invalid">N/A</td>
+				<td class="invalid">N/A</td>
 			</tr>
 		</table> </p> <p>
 			When FreeRCT 0.1 is released, links to the installers and instructions how to use them will be provided here.
+			<!-- TODO: Each installer should also provide a checksum so the user can check that the download is valid. -->
 		</p>
 
 		<h2>Daily Builds</h2>
@@ -42,79 +45,118 @@
 			<li>      Check out the commit you wish to build in Git,
 			          or download and extract a ZIP/tarball of the latest development version from
 			          <a target="_blank" href="https://github.com/FreeRCT/FreeRCT">GitHub</a>.
-			</li><li> <tt>cd</tt> into the downloaded <tt>FreeRCT</tt> directory and call:
-			          <pre><code>
-mkdir build
-cd build
-cmake ..        # See below for optional arguments.
-make
-make install    # Optional but recommended step.
-			          </code></pre>
-			</li><li> You need to have CMake and Make installed in order to do run these commands.
+			</li><li> You need to have CMake and Make installed in order to do compile FreeRCT.
 			          CMake will check that all required libraries are installed.
 			          If this fails, you need to install the libraries it complains about,
 			          and retry until all dependencies are found.
+			</li><li> <tt>cd</tt> into the downloaded <tt>FreeRCT</tt> directory and call:
+			          <pre><code class="highlight-console">
+# Construct build directory and enter it:
+mkdir build
+cd build
+
+# Generate Makefile, some build options – all of them optional – are
+#   -DCMAKE_INSTALL_PREFIX=/usr/local   # Set install directory, default is '/usr'.
+#   -DASAN=ON                           # Link with ASan memory checker.
+#   -DUSERDATAPREFIX="~/freerct_data"   # FreeRCT expands the '~' to the user home directory at runtime.
+#   -DVERSION_STRING="0.0-alpha"        # Set custom version string.
+# Further details can be found in the README file in the root source directory.
+cmake ..
+
+# Compile and install:
+make
+make install  # Can be skipped.
+			          </code></pre>
 			</li><li> You can now start FreeRCT via <tt>freerct</tt> if you used <tt>make install</tt>;
 			          otherwise use <tt>./build/bin/freerct</tt> or <tt>make run</tt>.
 			</li>
-		</ol> <p>
-			You can pass the following arguments to CMake:
-		</p>
-		<p style="text-align:center"> <table>
-			<tr>
-				<th>Option</th>
-				<th>Default Value</th>
-				<th>Explanation</th>
-			</tr>
-			<tr>
-				<td class="codefield">-DVERSION_STRING</td>
-				<td class="invalid">N/A</td>
-				<td>
-					Use the specified string as the build version.
-					If not specified, the version is detected automatically from Git.
-					If this also fails, the version defaults to <tt>0.0.0-revdetect-broken</tt>.
-			</tr>
-			<tr>
-				</td>
-				<td class="codefield">-DASAN</td>
-				<td class="codefield">OFF</td>
-				<td>
-					Use AddressSanitizer (ASan).
-					ASan is a library that detects invalid memory accesses at runtime and
-					terminates the program with a full backtrace upon detecting one. This makes
-					it a useful and recommended tool for developers and everyone who wants to
-					assist with discovering bugs. End-users should leave this option disabled.
-				</td>
-			</tr>
-			<tr>
-				</td>
-				<td class="codefield">-DCMAKE_INSTALL_PREFIX</td>
-				<td class="codefield">/usr</td>
-				<td>
-					Directory where <tt>make install</tt> installs.
-				</td>
-			</tr>
-			<tr>
-				<td rowspan="2" class="codefield">-DUSERDATA_PREFIX</td>
-				<td class="force_justify"><tt>~/.freerct</tt> (Windows)</td>
-				<td rowspan="2">
-					Directory where user data such as savegames is stored.
-					Note that <tt>~</tt> character expansion in the <tt>USERDATA_PREFIX</tt>
-					variable to the user home directory is performed by FreeRCT at runtime
-					and should <strong>not</strong> be done by shell expansion
-					to ensure that the executable can be used by multiple users.
-				</td>
-			</tr>
-			<tr><td class="force_justify" style="min-width:250px"><tt>~/.config/freerct</tt> (other)</td></tr>
-		</table> </p>
-		<p>
-			Start FreeRCT with the <tt>--help</tt> switch to list the available command-line options.
-		</p>
+		</ol>
 
 		<h2>How To Play</h2>
 		<p>
+			Just start the installed binary or type <tt>freerct</tt>.
+			If you compiled FreeRCT yourself and skipped the <tt>make install</tt> step,
+			use <tt>./build/bin/freerct</tt> or <tt>make run</tt>.
+		</p><p>
 			After installation, see the <a href="manual.html">online manual</a> for information how to use FreeRCT.
-		</p>
+		</p><p>
+			Available command-line options are:
+		</p><p style="text-align:center"> <table>
+			<tr>
+				<th>Short Option</th>
+				<th>Long Option</th>
+				<th>Explanation</th>
+			</tr>
+			<tr>
+				<td class="codefield">-h</td>
+				<td class="codefield">--help</td>
+				<td>Display all available arguments.</td>
+			</tr>
+			<tr>
+				<td class="codefield">-v</td>
+				<td class="codefield">--version</td>
+				<td>Display the build version and configuration.</td>
+			</tr>
+			<tr>
+				<td class="codefield">-l FILE</td>
+				<td class="codefield">--load FILE</td>
+				<td>Directly load the specified savegame file.</td>
+			</tr>
+			<tr>
+				<td class="codefield">-r</td>
+				<td class="codefield">--resave</td>
+				<td>Immediately save every savegame file again after loading.</td>
+			</tr>
+			<tr>
+				<td class="codefield">-a LANG</td>
+				<td class="codefield">--language LANG</td>
+				<td>Start FreeRCT in the specified language. See below for supported languages.</td>
+			</tr>
+		</table></p>
+		<p>
+			FreeRCT is currently available in the following languages:
+		</p><p style="text-align:center"> <table>
+			<tr>
+				<th>Language Code</th>
+				<th>Name</th>
+			</tr>
+			<tr>
+				<td class="codefield">da_DK</td>
+				<td>Danish (Denmark)</td>
+			</tr>
+			<tr>
+				<td class="codefield">de_DE</td>
+				<td>German (Germany)</td>
+			</tr>
+			<tr>
+				<td class="codefield">en_GB</td>
+				<td>English (United Kingdom)</td>
+			</tr>
+			<tr>
+				<td class="codefield">en_US</td>
+				<td>English (United States)</td>
+			</tr>
+			<tr>
+				<td class="codefield">es_ES</td>
+				<td>Spanish (Spain)</td>
+			</tr>
+			<tr>
+				<td class="codefield">fr_FR</td>
+				<td>French (France)</td>
+			</tr>
+			<tr>
+				<td class="codefield">nds_DE</td>
+				<td>Low German (Germany)</td>
+			</tr>
+			<tr>
+				<td class="codefield">nl_NL</td>
+				<td>Dutch (Netherlands)</td>
+			</tr>
+			<tr>
+				<td class="codefield">sv_SE</td>
+				<td>Swedish (Sweden)</td>
+			</tr>
+		</table>
 
 	</body>
 </html>

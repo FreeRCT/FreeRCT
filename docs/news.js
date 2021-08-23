@@ -20,7 +20,7 @@ function printNews(n, margin) {
 		document.write('</a></h3>');
 		document.write(n.body);
 		document.write('<p class="news_timestamp">~ ');
-			document.write(n.date.toString());
+			document.write(n.date.toDateString());
 		document.write('</p>');
 	document.write('</div>');
 }

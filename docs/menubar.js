@@ -1,10 +1,10 @@
 const ALL_PAGES = [
 	{link: 'index'      , label: 'FreeRCT Home'},
-	{link: 'news'       , label: 'News'        },
-	{link: 'download'   , label: 'Download'    },
+	{link: 'download'   , label: 'Get It!'     },
 	{link: 'manual'     , label: 'Manual'      },
 	{link: 'screenshots', label: 'Screenshots' },
-	{link: 'development', label: 'Development', dropdown: [
+	{link: 'news'       , label: 'News Archive'},
+	{link: 'contribute' , label: 'Contribute', dropdown: [
 		{link: 'https://github.com/FreeRCT/FreeRCT'       , unique_id: 'github', absolute: true, label: 'Git Repository', newTab: true},
 		{link: 'https://github.com/FreeRCT/FreeRCT/issues', unique_id: 'issues', absolute: true, label: 'Issue Tracker' , newTab: true},
 	]},
@@ -51,7 +51,7 @@ function readjustMenuBarY() {
 	var alwaysCollapse        = false;
 	var replaceTextWithImages = false;
 	// Keep the `max-width` constants in sync with the constants in menubar.css!!!
-	if (window.matchMedia("(max-width: 1130px)").matches) {
+	if (window.matchMedia("(max-width: 1150px)").matches) {
 		totalMenuH     =   50;
 		logoMaxH       =   50;
 		menuSpacer     =   70;
@@ -101,6 +101,10 @@ document.body.onload   = readjustMenuBarY;
 function dropdownMouse(dd, inside) {
 	dd.style = inside ? 'background-color: var(--green-dark)' : '';
 }
+
+document.write('<link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.2.0/styles/default.min.css">');
+document.write('<script src="https://unpkg.com/@highlightjs/cdn-assets@11.2.0/highlight.min.js"></script>');
+document.write('<script>hljs.highlightAll();</script>');
 
 document.write('<link rel="icon" href="images/logo.png">');
 document.write('<div id="menubar_top_canvas"></div>');
