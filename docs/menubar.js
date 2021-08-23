@@ -145,10 +145,6 @@ function copyrightfooter() {
 	document.write('<script>readjustMenuBarY();</script>');  // Need to call this last
 }
 
-document.write('<link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.2.0/styles/default.min.css">');
-document.write('<script src="https://unpkg.com/@highlightjs/cdn-assets@11.2.0/highlight.min.js"></script>');
-document.write('<script>hljs.highlightAll();</script>');
-
 document.write('<link rel="icon" href="images/logo.png">');
 document.write('<div id="menubar_top_canvas"></div>');
 

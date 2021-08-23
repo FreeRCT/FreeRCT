@@ -1,6 +1,6 @@
 const ALL_SCREENSHOT_SECTIONS = [
 	{slug: '0_1', label: 'FreeRCT 0.1'},
-	{slug: 'test', label: 'Test Images <em>(to be deleted)</em>'},  // TODO delete
+	{slug: 'test', label: 'Test Images <emp>(to be deleted)</emp>'},  // TODO delete
 ];
 const ALL_IMAGES = [
 	{section: '0_1', image: '0_1/mainview', caption: 'FreeRCT aims to be a free and open source game …'},

@@ -50,22 +50,22 @@
 			          If this fails, you need to install the libraries it complains about,
 			          and retry until all dependencies are found.
 			</li><li> <tt>cd</tt> into the downloaded <tt>FreeRCT</tt> directory and call:
-			          <pre><code class="highlight-bash">
-# Construct build directory and enter it:
+			          <pre><code>
+<emp># Construct build directory and enter it:</emp>
 mkdir build
 cd build
 
-# Generate Makefile, some build options – all of them optional – are
-#   -DCMAKE_INSTALL_PREFIX=/usr/local   # Set install directory, default is '/usr'.
-#   -DASAN=ON                           # Link with ASan memory checker.
-#   -DUSERDATAPREFIX="~/freerct_data"   # FreeRCT expands the '~' to the user home directory at runtime.
-#   -DVERSION_STRING="0.0-alpha"        # Set custom version string.
-# Further details can be found in the README file in the root source directory.
+<emp># Generate Makefile, some build options – all of them optional – are </emp>
+<emp>#   -DCMAKE_INSTALL_PREFIX=/usr/local   # Set install directory, default is '/usr'. </emp>
+<emp>#   -DASAN=ON                           # Link with ASan memory checker. </emp>
+<emp>#   -DUSERDATAPREFIX="~/freerct_data"   # FreeRCT expands the '~' to the user home directory at runtime. </emp>
+<emp>#   -DVERSION_STRING="0.0-alpha"        # Set custom version string. </emp>
+<emp># Further details can be found in the README file in the root source directory. </emp>
 cmake ..
 
-# Compile and install:
+<emp># Compile and install: </emp>
 make
-make install  # Can be skipped.
+make install  <emp># Can be skipped. </emp>
 			          </code></pre>
 			</li><li> You can now start FreeRCT via <tt>freerct</tt> if you used <tt>make install</tt>;
 			          otherwise use <tt>./build/bin/freerct</tt> or <tt>make run</tt>.
