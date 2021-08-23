@@ -244,13 +244,13 @@ th, .table_release {
 	float: right;
 	margin: 0px 10% 0px 5%;
 	width: 45%;
+	max-width: 800px;
 	padding: 0 0 12px 0;
 	border: var(--border-blue-thick);
 	border-radius: 5px;
 }
 
 .slideshow_container {
-	max-width: 1000px;
 	width: 100%;
 	position: relative;
 	margin: auto;
