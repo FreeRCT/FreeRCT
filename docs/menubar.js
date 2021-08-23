@@ -15,11 +15,16 @@ const DESIRED_PADDING_BELOW_MENU_BAR = MENU_BAR_BAR_HEIGHT + 8;
 
 var _all_links_created = {menubar: []};
 
-function create_linkified_tag(tag, doc, slug, text) {
+function create_linkified_header(tag, doc, slug, text) {
 	document.write('<' + tag + ' id="' + slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">');
 		document.write('<a href="' + doc + '.html#' + slug + '" class="linkified_header">');
 		document.write(text);
 	document.write('</a></' + tag + '>');
+
+	register_linkified_header(tag, doc, slug, text);
+}
+
+function register_linkified_header(tag, doc, slug, text) {
 	if (!_all_links_created[doc]) _all_links_created[doc] = [];
 	_all_links_created[doc].push({tag: tag, slug: slug, text: text});
 }

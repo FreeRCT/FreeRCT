@@ -23,6 +23,8 @@ function printNews(n, margin) {
 			document.write(n.date.toDateString());
 		document.write('</p>');
 	document.write('</div>');
+
+	register_linkified_header('h1', 'news', n.slug, n.title);
 }
 
 function printLatestNews(howMany, margin) {

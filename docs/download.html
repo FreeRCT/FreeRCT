@@ -10,7 +10,7 @@
 
 		<h1>Get It!</h1>
 
-		<h2>Releases</h2>
+		<script>create_linkified_header('h2', 'download', 'releases', 'Releases')</script>
 		<p style="text-align:center"> <table>
 			<tr>
 				<th>Version</th>
@@ -35,12 +35,12 @@
 			<!-- TODO: Each installer should also provide a checksum so the user can check that the download is valid. -->
 		</p>
 
-		<h2>Daily Builds</h2>
+		<script>create_linkified_header('h2', 'download', 'daily', 'Daily Builds')</script>
 		<p>
 			There are no daily builds yet. When FreeRCT daily build integration has been set up, links to the installers and instructions how to use them will be provided here.
 		</p>
 
-		<h2>Compiling From Source</h2>
+		<script>create_linkified_header('h2', 'download', 'compile', 'Compiling From Source')</script>
 		<ol>
 			<li>      Check out the commit you wish to build in Git,
 			          or download and extract a ZIP/tarball of the latest development version from
@@ -72,7 +72,7 @@ make install  # Can be skipped.
 			</li>
 		</ol>
 
-		<h2>How To Play</h2>
+		<script>create_linkified_header('h2', 'download', 'play', 'How To Play')</script>
 		<p>
 			Just start the installed binary or type <tt>freerct</tt>.
 			If you compiled FreeRCT yourself and skipped the <tt>make install</tt> step,
@@ -158,5 +158,6 @@ make install  # Can be skipped.
 			</tr>
 		</table>
 
+		<script>create_toc('download')</script>
 	</body>
 </html>

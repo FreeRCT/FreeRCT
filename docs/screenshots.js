@@ -1,6 +1,6 @@
 const ALL_SCREENSHOT_SECTIONS = [
 	{slug: '0_1', label: 'FreeRCT 0.1'},
-	{slug: 'test', label: 'Test Images <br><em>(to be deleted)</em>'},  // TODO delete
+	{slug: 'test', label: 'Test Images <em>(to be deleted)</em>'},  // TODO delete
 ];
 const ALL_IMAGES = [  // TODO need more and better images
 	{section: '0_1', image: '0_1/mainview', caption: 'FreeRCT aims to be a free and open source game …'},
@@ -21,7 +21,7 @@ var currentGalleryPopup = null;
 
 function createScreenshotGallery() {
 	ALL_SCREENSHOT_SECTIONS.forEach((section) => {
-		create_linkified_tag('h2', 'screenshots', section.slug, section.label);
+		create_linkified_header('h2', 'screenshots', section.slug, section.label);
 		document.write('<div class="screenshot_gallery">');
 
 		var all_images_in_section = [];
