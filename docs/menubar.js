@@ -68,6 +68,7 @@ function readjustMenuBarY() {
 	var logo = document.getElementById('menubar_logo');
 	var canvas = document.getElementById('menubar_top_canvas');
 	var toc = document.getElementsByClassName("toc");
+	var footer = document.getElementById('menubar_footer');
 
 	var totalMenuH            =   510;
 	var logoMaxH              =   320;
@@ -123,6 +124,12 @@ function readjustMenuBarY() {
 		element.style.fontSize = replaceTextWithImages ? '0' : (fontSize + 'px');
 		element.style.minHeight = replaceTextWithImages ? '50px' : '0';
 	});
+
+	if (footer) {
+		document.getElementById('footer_spacer').style.marginBottom = footer.clientHeight + 30;
+		footer.style.opacity = Math.max(0.1, Math.min(1.0,
+				1.0 - (document.body.scrollHeight - (window.innerHeight + window.pageYOffset)) / (footer.clientHeight * 2.0)));
+	}
 }
 
 document.body.onscroll = readjustMenuBarY;
@@ -131,6 +138,11 @@ document.body.onload   = readjustMenuBarY;
 
 function dropdownMouse(dd, inside) {
 	dd.style = inside ? 'background-color: var(--green-dark)' : '';
+}
+
+function copyrightfooter() {
+	document.write('<p id="footer_spacer"></p><footer id="menubar_footer">© 2021 by the FreeRCT Development Team</footer>');
+	document.write('<script>readjustMenuBarY();</script>');  // Need to call this last
 }
 
 document.write('<link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.2.0/styles/default.min.css">');

@@ -2,7 +2,7 @@ const ALL_SCREENSHOT_SECTIONS = [
 	{slug: '0_1', label: 'FreeRCT 0.1'},
 	{slug: 'test', label: 'Test Images <em>(to be deleted)</em>'},  // TODO delete
 ];
-const ALL_IMAGES = [  // TODO need more and better images
+const ALL_IMAGES = [
 	{section: '0_1', image: '0_1/mainview', caption: 'FreeRCT aims to be a free and open source game …'},
 	{section: '0_1', image: '0_1/mainmenu', caption: '… which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.'},
 	{section: '0_1', image: '0_1/newpark' , caption: 'The game is still in an early alpha state, …'},
