@@ -13,11 +13,21 @@ const ALL_PAGES = [
 const MENU_BAR_BAR_HEIGHT = 50;
 const DESIRED_PADDING_BELOW_MENU_BAR = MENU_BAR_BAR_HEIGHT + 8;
 
-var _all_links_created = [];
+var _all_links_created = {menubar: []};
+
+function create_linkified_tag(tag, doc, slug, text) {
+	document.write('<' + tag + ' id="' + slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">');
+		document.write('<a href="' + doc + '.html#' + slug + '" class="linkified_header">');
+		document.write(text);
+	document.write('</a></' + tag + '>');
+	if (!_all_links_created[doc]) _all_links_created[doc] = [];
+	_all_links_created[doc].push({tag: tag, slug: slug, text: text});
+}
+
 function makeHref(id, tooltiptype) {
 	const unique_id = (id.unique_id ? id.unique_id : id.link);
 	const unique_id_name = 'menubar_entry_' + unique_id;
-	_all_links_created.push({id: unique_id_name, link: unique_id});
+	_all_links_created['menubar'].push({id: unique_id_name, link: unique_id});
 
 	var hrefTag = '<a id="' + unique_id_name + '" href="' + id.link;
 	if (!id.absolute) hrefTag += '.html';
@@ -38,10 +48,21 @@ function makeHref(id, tooltiptype) {
 	return hrefTag;
 }
 
+function create_toc(doc) {
+	document.write('<div class="toc"><h1><a href="' + doc + '.html#" class="linkified_header">ToC</a></h1><ul>');
+		_all_links_created[doc].forEach((section) => {
+			document.write('<li style="margin-left:' + (section.tag.substring(1) * 20 - 60) + 'px"><a href="' + doc + '.html#' + section.slug + '" class="linkified_header">');
+				document.write(section.text);
+			document.write('</a></li>');
+		});
+	document.write('</ul></div>');
+}
+
 function readjustMenuBarY() {
 	var ul = document.getElementById('menubar_ul');
 	var logo = document.getElementById('menubar_logo');
 	var canvas = document.getElementById('menubar_top_canvas');
+	var toc = document.getElementsByClassName("toc");
 
 	var totalMenuH            =   510;
 	var logoMaxH              =   320;
@@ -79,13 +100,18 @@ function readjustMenuBarY() {
 
 	canvas.style.height = menuBarMaxY - newBarY;
 
-	ul.style.top = (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2 - newBarY;
+	const topPos = (totalMenuH - MENU_BAR_BAR_HEIGHT) / 2 - newBarY;
+	ul.style.top = topPos;
+	for (i = 0; i < toc.length; i++) {
+		toc[i].style.top = topPos + MENU_BAR_BAR_HEIGHT;
+	}
+
 	document.getElementById('menubar_spacer_menu').style.marginRight = menuSpacer;
 	document.getElementById('menubar_spacer_bottom').style.marginBottom = bottomSpacer;
 	logo.style.height = newLogoH;
 	logo.style.marginLeft = newLogoHalfspace;
 	logo.style.marginRight = newLogoHalfspace;
-	_all_links_created.forEach((id) => {
+	_all_links_created['menubar'].forEach((id) => {
 		var element = document.getElementById(id.id);
 		element.style.backgroundImage = replaceTextWithImages ? 'url(images/menu/' + id.link + '.png)' : 'none';
 		element.style.color = replaceTextWithImages ? 'transparent' : 'var(--text-light)';

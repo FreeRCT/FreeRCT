@@ -21,10 +21,9 @@ var currentGalleryPopup = null;
 
 function createScreenshotGallery() {
 	ALL_SCREENSHOT_SECTIONS.forEach((section) => {
-		document.write('<h2 id="' + section.slug + '" style="padding-top:' + DESIRED_PADDING_BELOW_MENU_BAR + 'px">');
-			document.write('<a href="screenshots.html#' + section.slug + '" class="linkified_header">');
-				document.write(section.label);
-		document.write('</a></h2><div class="screenshot_gallery">');
+		create_linkified_tag('h2', 'screenshots', section.slug, section.label);
+		document.write('<div class="screenshot_gallery">');
+
 		var all_images_in_section = [];
 		ALL_IMAGES.forEach((img) => { if (img.section == section.slug) all_images_in_section.push(img); });
 

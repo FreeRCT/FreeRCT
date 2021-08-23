@@ -60,16 +60,22 @@ pre code {
 }
 
 .toc {
+	position: fixed;
+	right: 0;
 	font-family: sans-serif;
-	float: right;
-	margin: 0px 5% 0px 10%;
-	text-align: center;
+	margin: 0;
+	padding: 0 1%;
 	border: var(--border-blue-thick);
-	width: 20%;
-	height: 50%;
 }
 .toc * {
 	color: var(--text-light);
+}
+.toc li {
+	display: none;
+}
+
+.toc:hover li {
+	display: inherit;
 }
 
 .force_justify:after {
