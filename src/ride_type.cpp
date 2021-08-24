@@ -683,14 +683,10 @@ RidesManager::RidesManager()
 {
 	std::fill_n(this->ride_types, lengthof(this->ride_types), nullptr);
 	std::fill_n(this->instances, lengthof(this->instances), nullptr);
-	std::fill_n(this->entrances, lengthof(this->entrances), nullptr);
-	std::fill_n(this->exits, lengthof(this->exits), nullptr);
 }
 
 RidesManager::~RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->entrances); i++) delete this->entrances[i];
-	for (uint i = 0; i < lengthof(this->exits); i++) delete this->exits[i];
 	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
 	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
 }
@@ -852,14 +848,8 @@ bool RidesManager::AddRideType(RideType *type)
  */
 bool RidesManager::AddRideEntranceExitType(RideEntranceExitType *type)
 {
-	const RideEntranceExitType **array = type->is_entrance ? this->entrances : this->exits;
-	for (uint i = 0; i < MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS; i++) {
-		if (array[i] == nullptr) {
-			array[i] = type;
-			return true;
-		}
-	}
-	return false;
+	(type->is_entrance ? this->entrances : this->exits).emplace_back(std::unique_ptr<RideEntranceExitType>(type));
+	return true;
 }
 
 /**

@@ -754,13 +754,8 @@ SceneryManager::SceneryManager()
  */
 bool SceneryManager::AddSceneryType(SceneryType *type)
 {
-	for (uint i = 0; i < MAX_NUMBER_OF_SCENERY_TYPES; i++) {
-		if (this->scenery_item_types[i].get() == nullptr) {
-			this->scenery_item_types[i].reset(type);
-			return true;
-		}
-	}
-	return false;
+	this->scenery_item_types.push_back(std::unique_ptr<SceneryType>(type));
+	return true;
 }
 
 /**
@@ -770,7 +765,7 @@ bool SceneryManager::AddSceneryType(SceneryType *type)
  */
 uint16 SceneryManager::GetSceneryTypeIndex(const SceneryType *type) const
 {
-	for (uint i = 0; i < MAX_NUMBER_OF_SCENERY_TYPES; i++) {
+	for (uint i = 0; i < this->scenery_item_types.size(); i++) {
 		if (this->scenery_item_types[i].get() == type) {
 			return i;
 		}
@@ -796,9 +791,9 @@ const SceneryType *SceneryManager::GetType(const uint16 index) const
 std::vector<const SceneryType*> SceneryManager::GetAllTypes(SceneryCategory cat) const
 {
 	std::vector<const SceneryType*> result;
-	for (uint i = 0; i < MAX_NUMBER_OF_SCENERY_TYPES; i++) {
-		if (this->scenery_item_types[i].get() != nullptr && this->scenery_item_types[i]->category == cat) {
-			result.push_back(this->scenery_item_types[i].get());
+	for (const auto &item_type : this->scenery_item_types) {
+		if (item_type->category == cat) {
+			result.push_back(item_type.get());
 		}
 	}
 	return result;

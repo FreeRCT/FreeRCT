@@ -10,6 +10,9 @@
 #ifndef RIDE_TYPE_H
 #define RIDE_TYPE_H
 
+#include <memory>
+#include <vector>
+
 #include "palette.h"
 #include "money.h"
 #include "random.h"
@@ -18,7 +21,6 @@ static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of type
 static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
 static const int MAX_RIDE_INSTANCE_NAME_LENGTH = 64; ///< Maximum number of characters in ride instance name.
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
-static const int MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS = 32; ///< Maximal number of types of ride entrances or exits.
 
 static const int MAX_RIDE_RECOLOURS = 3;  ///< Maximum number of entries in a RideInstance's recolour map.
 
@@ -281,8 +283,8 @@ public:
 
 	const RideType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];  ///< Loaded types of rides.
 	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
-	const RideEntranceExitType* entrances[MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS]; ///< Available ride entrance types.
-	const RideEntranceExitType* exits[MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS];     ///< Available ride exit types.
+	std::vector<std::unique_ptr<const RideEntranceExitType>> entrances;    ///< Available ride entrance types.
+	std::vector<std::unique_ptr<const RideEntranceExitType>> exits;        ///< Available ride exit types.
 };
 
 RideInstance *RideExistsAtBottom(XYZPoint16 pos, TileEdge edge);
