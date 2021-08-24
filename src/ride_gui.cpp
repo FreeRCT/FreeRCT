@@ -112,10 +112,7 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 
 	/* Initialize counts of ride kinds */
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = 0;
-	for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
-		const RideType *ride_type = _rides_manager.GetRideType(i);
-		if (ride_type == nullptr) continue;
-
+	for (const auto &ride_type : _rides_manager.ride_types) {
 		assert(ride_type->kind >= 0 && ride_type->kind < lengthof(this->ride_types));
 		this->ride_types[ride_type->kind]++;
 	}
@@ -138,10 +135,7 @@ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 			wid->resize_y = GetTextHeight();
 			wid->min_y = 5 * wid->resize_y;
 
-			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
-				const RideType *ride_type = _rides_manager.GetRideType(i);
-				if (ride_type == nullptr) continue;
-
+			for (const auto &ride_type : _rides_manager.ride_types) {
 				int width, height;
 				GetTextSize(ride_type->GetString(ride_type->GetTypeName()), &width, &height);
 				if (width > wid->min_x) wid->min_x = width;
@@ -150,10 +144,7 @@ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 
 		case RSEL_DESC: {
 			int max_height = 0;
-			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
-				const RideType *ride_type = _rides_manager.GetRideType(i);
-				if (ride_type == nullptr) continue;
-
+			for (const auto &ride_type : _rides_manager.ride_types) {
 				int width, height;
 				GetMultilineTextSize(ride_type->GetString(ride_type->GetTypeDescription()), wid->min_x, &width, &height);
 				if (height > max_height) max_height = height;
@@ -173,7 +164,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			int lines = sb->GetVisibleCount();
 			int start = sb->GetStart();
 			int counter = 0;
-			for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES && lines > 0; i++) {
+			for (int i = 0; i < _rides_manager.ride_types.size() && lines > 0; i++) {
 				const RideType *ride_type = _rides_manager.GetRideType(i);
 				if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 				if (counter >= start) {
@@ -281,7 +272,7 @@ void RideSelectGui::SetNewRide(int number)
 	this->current_ride = -1;
 	number = std::min(number, this->ride_types[this->current_kind] - 1);
 	if (this->ride_types[this->current_kind] > 0) {
-		for (int i = 0; i < MAX_NUMBER_OF_RIDE_TYPES; i++) {
+		for (int i = 0; i < _rides_manager.ride_types.size(); i++) {
 			const RideType *ride_type = _rides_manager.GetRideType(i);
 			if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 			if (number-- > 0) continue;

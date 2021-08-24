@@ -754,7 +754,7 @@ SceneryManager::SceneryManager()
  */
 bool SceneryManager::AddSceneryType(SceneryType *type)
 {
-	this->scenery_item_types.push_back(std::unique_ptr<SceneryType>(type));
+	this->scenery_item_types.emplace_back(std::unique_ptr<SceneryType>(type));
 	return true;
 }
 

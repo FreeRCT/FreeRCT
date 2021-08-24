@@ -681,13 +681,11 @@ void RideInstance::Save(Saver &svr)
 /** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
-	std::fill_n(this->ride_types, lengthof(this->ride_types), nullptr);
 	std::fill_n(this->instances, lengthof(this->instances), nullptr);
 }
 
 RidesManager::~RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->ride_types); i++) delete this->ride_types[i];
 	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
 }
 
@@ -739,12 +737,12 @@ void RidesManager::Load(Loader &ldr)
 				std::unique_ptr<uint8[]> ride_type_name(ldr.GetText());
 				if (ride_type_name.get() == nullptr) throw LoadingError("Invalid ride type name.");
 
-				for (uint j = 0; j < lengthof(this->ride_types); j++) {
-					ride_type = this->ride_types[j];
-					if (ride_type == nullptr) continue;
-
-					const uint8 *tmp_name = _language.GetText(ride_type->GetString(ride_type->GetTypeName()));
-					if (ride_kind == ride_type->kind && StrEqual(tmp_name, ride_type_name.get())) break;
+				for (const auto &rt : _rides_manager.ride_types) {
+					const uint8 *tmp_name = _language.GetText(rt->GetString(rt->GetTypeName()));
+					if (ride_kind == rt->kind && StrEqual(tmp_name, ride_type_name.get())) {
+						ride_type = rt.get();
+						break;
+					}
 				}
 			}
 
@@ -832,13 +830,8 @@ uint16 RideInstance::GetIndex() const
  */
 bool RidesManager::AddRideType(RideType *type)
 {
-	for (uint i = 0; i < lengthof(this->ride_types); i++) {
-		if (this->ride_types[i] == nullptr) {
-			this->ride_types[i] = type;
-			return true;
-		}
-	}
-	return false;
+	this->ride_types.emplace_back(std::unique_ptr<RideType>(type));
+	return true;
 }
 
 /**
@@ -889,8 +882,8 @@ RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
  */
 uint16 RidesManager::FindRideType(const RideType *r) const
 {
-	for (uint i = 0; i < lengthof(this->ride_types); i++) {
-		if (this->ride_types[i] == r) {
+	for (uint i = 0; i < this->ride_types.size(); i++) {
+		if (this->ride_types[i].get() == r) {
 			return i;
 		}
 	}
