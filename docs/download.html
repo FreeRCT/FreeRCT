@@ -55,10 +55,10 @@
 mkdir build
 cd build
 
-<emp># Generate Makefile, some build options – all of them optional – are </emp>
+<emp># Generate Makefile. Some build options – all of them optional – are: </emp>
 <emp>#   -DCMAKE_INSTALL_PREFIX=/usr/local   # Set install directory, default is '/usr'. </emp>
 <emp>#   -DASAN=ON                           # Link with ASan memory checker. </emp>
-<emp>#   -DUSERDATAPREFIX="~/freerct_data"   # FreeRCT expands the '~' to the user home directory at runtime. </emp>
+<emp>#   -DUSERDATAPREFIX='~/.freerct'       # FreeRCT expands the '~' to the user home directory at runtime. </emp>
 <emp>#   -DVERSION_STRING="0.0-alpha"        # Set custom version string. </emp>
 <emp># Further details can be found in the README file in the root source directory. </emp>
 cmake ..

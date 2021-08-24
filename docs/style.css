@@ -61,6 +61,10 @@ pre code {
 	padding-left: 32px;
 }
 
+.ttlist li {
+	margin: 4px 0;
+}
+
 .toc {
 	position: fixed;
 	right: 0;

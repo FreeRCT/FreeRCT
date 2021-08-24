@@ -47,6 +47,17 @@
 			Enhancing translations for an existing language as well as adding a new language
 			is as easy as opening/creating the respective file for your language
 			and editing the strings therein.
+		</p><p>
+			When you add a new language, it additionally needs to be added to the list of all
+			languages in all of the following files:
+			<ul class="ttlist">
+				<li><tt>src/language.cpp</tt></li>
+				<li><tt>src/language.h</tt></li>
+				<li><tt>src/rcdgen/nodes.cpp</tt></li>
+				<li><tt>src/rcdgen/nodes.h</tt></li>
+			</ul>
+			Search for the string <tt>NDS_DE</tt> therein to find the section where the language code needs to be added.
+			The lists of languages should be kept in alphabetical order.
 		</p>
 
 		<script>create_linkified_header('h2', 'contribute', 'testing', 'Testing')</script>
@@ -55,10 +66,19 @@
 			Just check out the latest development version with Git, compile, and run.
 			Report any bugs you encounter on the
 			<a target="_blank" href="https://github.com/FreeRCT/FreeRCT/issues">issue tracker</a>
-			(you need a GitHub account for this). You can also test
+			(you need a GitHub account for this).
+		</p><p>
+			The issue tracker will often contain reports of bugs with no known way to reproduce.
+			Such bugs are usually hard to fix. If you look for a sequence of steps that reliably
+			triggers such a bug, fixing it will become much easier for the developers.
+		</p><p>
+			You can also test
 			<a target="_blank" href="https://github.com/FreeRCT/FreeRCT/pulls">open PRs</a>.
 			In this case, bugs should be reported in the PR, not on the issue tracker.
 			The PR description will tell you what to watch out for specifically.
+			Currently the only way to test a PR is to <a href="download.html#compile">compile it yourself</a>.
+			Soon, installable binaries will be provided automatically for all PRs;
+			this site will then be updated with instructions where to get and how to install.
 		</p><p>
 			New screenshots for the website's <a href="screenshots.html">screenshots section</a>
 			are also always appreciated.

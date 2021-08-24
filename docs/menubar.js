@@ -1,13 +1,13 @@
 const ALL_PAGES = [
 	{link: 'index'      , label: 'FreeRCT Home'},
+	{link: 'screenshots', label: 'Screenshots' },
 	{link: 'download'   , label: 'Get It!'     },
 	{link: 'manual'     , label: 'Manual'      },
-	{link: 'screenshots', label: 'Screenshots' },
-	{link: 'news'       , label: 'News Archive'},
 	{link: 'contribute' , label: 'Contribute', dropdown: [
 		{link: 'https://github.com/FreeRCT/FreeRCT'       , unique_id: 'github', absolute: true, label: 'Git Repository', newTab: true},
 		{link: 'https://github.com/FreeRCT/FreeRCT/issues', unique_id: 'issues', absolute: true, label: 'Issue Tracker' , newTab: true},
 	]},
+	{link: 'news'       , label: 'News Archive'},
 ];
 
 const MENU_BAR_BAR_HEIGHT = 50;
