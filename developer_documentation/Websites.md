@@ -5,7 +5,7 @@ Links related to the project itself.
   * [Blog](http://freerct.blogspot.com/)
   * [Twitter](http://twitter.com/#!/FreeRCT)
   * [Facebook](http://www.facebook.com/freerct)
-  * [FreeRCT portal](http://www.freerct.org/)
+  * [FreeRCT portal](https://freerct.github.io/FreeRCT/)
 
 # Links #
 Below a list of websites that seem to contain useful information about related games.
