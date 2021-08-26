@@ -11,6 +11,7 @@
 #include "math_func.h"
 #include "sprite_store.h"
 #include "sprite_data.h"
+#include "string_func.h"
 #include "widget.h"
 #include "window.h"
 #include "video.h"
@@ -638,31 +639,18 @@ void TextInputWidget::SetText(uint8 *text)
 	this->MarkDirty(this->cached_window_base);
 }
 
-/**
- * Check whether a character is an extended UTF-8 character.
- * @param c Character to check.
- * @return The character is extended.
- */
-static inline bool IsUtf8Extended(uint8 c) {
-	return (c & 0xc0) == 0x80;
-}
-
 bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 {
 	switch (key_code) {
 		case WMKC_CURSOR_LEFT:
 			if (this->cursor_pos > 0) {
-				do {
-					this->cursor_pos--;
-				} while (this->cursor_pos > 0 && IsUtf8Extended(this->buffer[this->cursor_pos]));
+				this->cursor_pos = GetPrevChar(this->buffer.get(), this->cursor_pos);
 				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 		case WMKC_CURSOR_RIGHT:
 			if (this->cursor_pos < this->text_length) {
-				do {
-					this->cursor_pos++;
-				} while (this->cursor_pos < this->text_length && IsUtf8Extended(this->buffer[this->cursor_pos]));
+				this->cursor_pos = GetNextChar(this->buffer.get(), this->cursor_pos);
 				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
@@ -677,15 +665,8 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 
 		case WMKC_BACKSPACE:
 			if (this->cursor_pos > 0) {
-				uint8 nr_chars_to_delete = 1;
-				for (unsigned i = this->cursor_pos - 1; i > 0; i--) {
-					if (IsUtf8Extended(this->buffer[i])) {
-						nr_chars_to_delete++;
-					} else {
-						break;
-					}
-				}
-
+				uint8 nr_chars_to_delete = this->cursor_pos - GetPrevChar(this->buffer.get(), this->cursor_pos);
+				if (nr_chars_to_delete == 0) return true;
 				uint8 *newtext = new uint8[this->text_length + 1 - nr_chars_to_delete];
 				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos - nr_chars_to_delete);
 				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos - nr_chars_to_delete, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
@@ -695,15 +676,8 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 			return true;
 		case WMKC_DELETE:
 			if (this->cursor_pos < this->text_length) {
-				uint8 nr_chars_to_delete = 1;
-				for (unsigned i = this->cursor_pos + 1; i < this->text_length; i++) {
-					if (IsUtf8Extended(this->buffer[i])) {
-						nr_chars_to_delete++;
-					} else {
-						break;
-					}
-				}
-
+				uint8 nr_chars_to_delete = GetNextChar(this->buffer.get(), this->cursor_pos) - this->cursor_pos;
+				if (nr_chars_to_delete == 0) return true;
 				uint8 *newtext = new uint8[this->text_length + 1 - nr_chars_to_delete];
 				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
 				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos + nr_chars_to_delete);
