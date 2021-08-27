@@ -236,6 +236,7 @@ private:
 	size_t cursor_pos;                ///< Position of the cursor in the text.
 	int value_width;                  ///< Width of the image or the string.
 	int value_height;                 ///< Height of the image or the string.
+	Point32 cached_window_base;       ///< This widget's last window base position.
 };
 
 /**

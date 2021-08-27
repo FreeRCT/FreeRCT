@@ -361,6 +361,8 @@ bool VideoSystem::HandleEvent()
 				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT, nullptr);
 				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT, nullptr);
 				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN, nullptr);
+				case SDLK_HOME:      return HandleKeyInput(WMKC_CURSOR_HOME, nullptr);
+				case SDLK_END:       return HandleKeyInput(WMKC_CURSOR_END, nullptr);
 				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL, nullptr);
 				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE, nullptr);
 				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE, nullptr);

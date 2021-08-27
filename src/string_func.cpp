@@ -178,6 +178,37 @@ int EncodeUtf8Char(uint32 codepoint, uint8 *dest)
 }
 
 /**
+ * Find the previous character in the given string, skipping over multi-byte characters.
+ * @param data String to work with.
+ * @param pos Index in the string to start searching from.
+ * @return The previous character's index.
+ */
+size_t GetPrevChar(const uint8 *data, size_t pos)
+{
+	if (pos == 0) return 0;
+	do {
+		pos--;
+	} while (pos > 0 && (data[pos] & 0xc0) == 0x80);
+	return pos;
+}
+
+/**
+ * Find the next character in the given string, skipping over multi-byte characters.
+ * @param data String to work with.
+ * @param pos Index in the string to start searching from.
+ * @return The next character's index.
+ */
+size_t GetNextChar(const uint8 *data, size_t pos)
+{
+	const size_t length = StrBytesLength(data);
+	if (pos >= length) return length;
+	do {
+		pos++;
+	} while (pos < length && (data[pos] & 0xc0) == 0x80);
+	return pos;
+}
+
+/**
  * Are the two strings equal?
  * @param s1 First string to compare.
  * @param s2 Second string to compare.
