@@ -100,6 +100,8 @@ enum WmKeyCode {
 	WMKC_CURSOR_LEFT,  ///< Left arrow key is pressed.
 	WMKC_CURSOR_RIGHT, ///< Right arrow key is pressed.
 	WMKC_CURSOR_DOWN,  ///< Down arrow key is pressed.
+	WMKC_CURSOR_HOME,  ///< Home key is pressed.
+	WMKC_CURSOR_END,   ///< End key is pressed.
 	WMKC_BACKSPACE,    ///< Backspace is pressed.
 	WMKC_DELETE,       ///< Delete is pressed.
 	WMKC_CANCEL,       ///< Cancel is pressed.

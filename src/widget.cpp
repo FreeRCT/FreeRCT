@@ -11,6 +11,7 @@
 #include "math_func.h"
 #include "sprite_store.h"
 #include "sprite_data.h"
+#include "string_func.h"
 #include "widget.h"
 #include "window.h"
 #include "video.h"
@@ -635,32 +636,51 @@ void TextInputWidget::SetText(uint8 *text)
 	this->buffer.reset(text);
 	this->text_length = strlen(reinterpret_cast<const char*>(text));
 	this->cursor_pos = std::min(this->cursor_pos, this->text_length);
+	this->MarkDirty(this->cached_window_base);
 }
 
 bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 {
 	switch (key_code) {
 		case WMKC_CURSOR_LEFT:
-			if (this->cursor_pos > 0) this->cursor_pos--;
+			if (this->cursor_pos > 0) {
+				this->cursor_pos = GetPrevChar(this->buffer.get(), this->cursor_pos);
+				this->MarkDirty(this->cached_window_base);
+			}
 			return true;
 		case WMKC_CURSOR_RIGHT:
-			if (this->cursor_pos < this->text_length) this->cursor_pos++;
+			if (this->cursor_pos < this->text_length) {
+				this->cursor_pos = GetNextChar(this->buffer.get(), this->cursor_pos);
+				this->MarkDirty(this->cached_window_base);
+			}
+			return true;
+		case WMKC_CURSOR_HOME:
+			this->cursor_pos = 0;
+			this->MarkDirty(this->cached_window_base);
+			return true;
+		case WMKC_CURSOR_END:
+			this->cursor_pos = this->text_length;
+			this->MarkDirty(this->cached_window_base);
 			return true;
 
 		case WMKC_BACKSPACE:
 			if (this->cursor_pos > 0) {
-				uint8* newtext = new uint8[this->text_length];
-				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos - 1);
-				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos - 1, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
-				this->cursor_pos--;
+				uint8 nr_chars_to_delete = this->cursor_pos - GetPrevChar(this->buffer.get(), this->cursor_pos);
+				if (nr_chars_to_delete == 0) return true;
+				uint8 *newtext = new uint8[this->text_length + 1 - nr_chars_to_delete];
+				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos - nr_chars_to_delete);
+				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos - nr_chars_to_delete, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
+				this->cursor_pos -= nr_chars_to_delete;
 				this->SetText(newtext);
 			}
 			return true;
 		case WMKC_DELETE:
 			if (this->cursor_pos < this->text_length) {
-				uint8* newtext = new uint8[this->text_length];
+				uint8 nr_chars_to_delete = GetNextChar(this->buffer.get(), this->cursor_pos) - this->cursor_pos;
+				if (nr_chars_to_delete == 0) return true;
+				uint8 *newtext = new uint8[this->text_length + 1 - nr_chars_to_delete];
 				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos + 1);
+				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos + nr_chars_to_delete);
 				this->SetText(newtext);
 			}
 			return true;
@@ -669,7 +689,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 			const size_t off = strlen(reinterpret_cast<const char*>(symbol));
 			if (off == 0) break;
 
-			uint8* newtext = new uint8[this->text_length + off + 1];
+			uint8 *newtext = new uint8[this->text_length + off + 1];
 			strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
 			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(symbol));
 			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos + off, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
@@ -685,6 +705,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 
 void TextInputWidget::Draw(const GuiWindow *w)
 {
+	this->cached_window_base = w->rect.base;
 	Rectangle32 r = this->pos;
 	r.base += w->rect.base;
 	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + 2]);
