@@ -681,12 +681,10 @@ void RideInstance::Save(Saver &svr)
 /** Default constructor of the rides manager. */
 RidesManager::RidesManager()
 {
-	std::fill_n(this->instances, lengthof(this->instances), nullptr);
 }
 
 RidesManager::~RidesManager()
 {
-	for (uint i = 0; i < lengthof(this->instances); i++) delete this->instances[i];
 }
 
 /**
@@ -695,31 +693,31 @@ RidesManager::~RidesManager()
  */
 void RidesManager::OnAnimate(int delay)
 {
-	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
-		this->instances[i]->OnAnimate(delay);
+	for (auto &pair : this->instances) {
+		if (pair.second->state == RIS_ALLOCATED) continue;
+		pair.second->OnAnimate(delay);
 	}
 }
 
 /** A new month has started; perform monthly payments. */
 void RidesManager::OnNewMonth()
 {
-	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
-		this->instances[i]->OnNewMonth();
+	for (auto &pair : this->instances) {
+		if (pair.second->state == RIS_ALLOCATED) continue;
+		pair.second->OnNewMonth();
 	}
 }
 
 /** A new day has started; break rides randomly. */
 void RidesManager::OnNewDay()
 {
-	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
-		this->instances[i]->OnNewDay();
+	for (auto &pair : this->instances) {
+		if (pair.second->state == RIS_ALLOCATED) continue;
+		pair.second->OnNewDay();
 	}
 }
 
-static const uint32 CURRENT_VERSION_RIDS = 2;   ///< Currently supported version of the RIDS Pattern.
+static const uint32 CURRENT_VERSION_RIDS = 3;   ///< Currently supported version of the RIDS Pattern.
 
 void RidesManager::Load(Loader &ldr)
 {
@@ -729,6 +727,8 @@ void RidesManager::Load(Loader &ldr)
 		uint16 allocated_ride_count = ldr.GetWord();
 		for (uint16 i = 0; i < allocated_ride_count; i++) {
 			const RideType *ride_type = nullptr;
+			const uint16 index = (version >= 3) ? (ldr.GetWord() + SRI_FULL_RIDES) : INVALID_RIDE_INSTANCE;
+
 			RideTypeKind ride_kind = static_cast<RideTypeKind>(ldr.GetByte());
 
 			if (version >= 2) {
@@ -750,13 +750,8 @@ void RidesManager::Load(Loader &ldr)
 				throw LoadingError("Unknown/invalid ride type.");
 			}
 
-			uint16 instance = this->GetFreeInstance(ride_type);
-			if (instance == INVALID_RIDE_INSTANCE) {
-				throw LoadingError("Invalid ride instance.");
-			}
-
-			this->instances[i] = this->CreateInstance(ride_type, instance);
-			this->instances[i]->Load(ldr);
+			RideInstance *r = this->CreateInstance(ride_type, index != INVALID_RIDE_INSTANCE ? index : this->GetFreeInstance(ride_type));
+			r->Load(ldr);
 		}
 	} else if (version != 0) {
 		ldr.version_mismatch(version, CURRENT_VERSION_RIDS);
@@ -768,20 +763,23 @@ void RidesManager::Save(Saver &svr)
 {
 	svr.CheckNoOpenPattern();
 	svr.StartPattern("RIDS", CURRENT_VERSION_RIDS);
-	int count = 0;
-	uint16 allocated_ride_indexes[MAX_NUMBER_OF_RIDE_INSTANCES];
-	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
-		allocated_ride_indexes[count] = i;
-		count++;
+
+	std::set<uint16> allocated_ride_indexes;
+	for (const auto &pair : this->instances) {
+		if (pair.second->state != RIS_ALLOCATED) {
+			allocated_ride_indexes.insert(pair.first);
+		}
 	}
-	svr.PutWord(count);
-	for (uint16 i = 0; i < count; i++) {
-		RideInstance *r = this->instances[allocated_ride_indexes[i]];
+	svr.PutWord(allocated_ride_indexes.size());
+
+	for (size_t index : allocated_ride_indexes) {
+		svr.PutWord(index);
+		RideInstance *r = this->instances.at(index).get();
 		svr.PutByte(static_cast<uint8>(r->GetKind()));
 		svr.PutWord(this->FindRideType(r->GetRideType()));
 		r->Save(svr);
 	}
+
 	svr.EndPattern();
 }
 
@@ -793,9 +791,8 @@ void RidesManager::Save(Saver &svr)
 RideInstance *RidesManager::GetRideInstance(uint16 num)
 {
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
-	num -= SRI_FULL_RIDES;
-	if (num >= lengthof(this->instances)) return nullptr;
-	return this->instances[num];
+	const auto it = this->instances.find(num - SRI_FULL_RIDES);
+	return (it == this->instances.end()) ? nullptr : it->second.get();
 }
 
 /**
@@ -806,9 +803,8 @@ RideInstance *RidesManager::GetRideInstance(uint16 num)
 const RideInstance *RidesManager::GetRideInstance(uint16 num) const
 {
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
-	num -= SRI_FULL_RIDES;
-	if (num >= lengthof(this->instances)) return nullptr;
-	return this->instances[num];
+	const auto it = this->instances.find(num - SRI_FULL_RIDES);
+	return (it == this->instances.end()) ? nullptr : it->second.get();
 }
 
 /**
@@ -817,8 +813,10 @@ const RideInstance *RidesManager::GetRideInstance(uint16 num) const
  */
 uint16 RideInstance::GetIndex() const
 {
-	for (uint i = 0; i < lengthof(_rides_manager.instances); i++) {
-		if (_rides_manager.instances[i] == this) return i + SRI_FULL_RIDES;
+	for (auto &pair : _rides_manager.instances) {
+		if (pair.second.get() == this) {
+			return pair.first + SRI_FULL_RIDES;
+		}
 	}
 	NOT_REACHED();
 }
@@ -852,11 +850,9 @@ bool RidesManager::AddRideEntranceExitType(RideEntranceExitType *type)
  */
 uint16 RidesManager::GetFreeInstance(const RideType *type)
 {
-	uint16 idx;
-	for (idx = 0; idx < lengthof(this->instances); idx++) {
-		if (this->instances[idx] == nullptr) break;
-	}
-	return (idx < lengthof(this->instances) && type->CanMakeInstance()) ? idx + SRI_FULL_RIDES : INVALID_RIDE_INSTANCE;
+	if (!type->CanMakeInstance()) return INVALID_RIDE_INSTANCE;
+	if (this->instances.empty()) return SRI_FULL_RIDES;
+	return this->instances.rbegin()->first + 1 + SRI_FULL_RIDES;  // In a non-empty map, rbegin() always holds the highest key.
 }
 
 /**
@@ -869,10 +865,9 @@ RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
 {
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
-	assert(num < lengthof(this->instances));
-	assert(this->instances[num] == nullptr);
-	this->instances[num] = type->CreateInstance();
-	return this->instances[num];
+	assert(this->instances.count(num) == 0);
+	this->instances.emplace(num, std::unique_ptr<RideInstance>(type->CreateInstance()));
+	return this->instances.at(num).get();
 }
 
 /**
@@ -897,9 +892,9 @@ uint16 RidesManager::FindRideType(const RideType *r) const
  */
 RideInstance *RidesManager::FindRideByName(const uint8 *name)
 {
-	for (uint16 i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] == nullptr || this->instances[i]->state == RIS_ALLOCATED) continue;
-		if (StrEqual(name, this->instances[i]->name.get())) return this->instances[i];
+	for (auto &pair : this->instances) {
+		if (pair.second->state == RIS_ALLOCATED) continue;
+		if (StrEqual(name, pair.second->name.get())) return pair.second.get();
 	}
 	return nullptr;
 }
@@ -969,21 +964,19 @@ void RidesManager::DeleteInstance(uint16 num)
 {
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
-	assert(num < lengthof(this->instances));
-	this->instances[num]->RemoveAllPeople();
+	auto it = this->instances.find(num);
+	assert(it != this->instances.end());
+	it->second->RemoveAllPeople();
 	_inbox.NotifyRideDeletion(num + SRI_FULL_RIDES);
-	_guests.NotifyRideDeletion(this->instances[num]);
-	_staff.NotifyRideDeletion(this->instances[num]);
-	this->instances[num]->RemoveFromWorld();
-	delete this->instances[num];
-	this->instances[num] = nullptr;
+	_guests.NotifyRideDeletion(it->second.get());
+	_staff.NotifyRideDeletion(it->second.get());
+	it->second->RemoveFromWorld();
+	this->instances.erase(it);  // Deletes the instance.
 }
 
 void RidesManager::DeleteAllRideInstances()
 {
-	for (uint i = 0; i < lengthof(this->instances); i++) {
-		if (this->instances[i] != nullptr) this->DeleteInstance(this->instances[i]->GetIndex());
-	}
+	while (!this->instances.empty()) this->DeleteInstance(this->instances.begin()->first + SRI_FULL_RIDES);
 }
 
 /**

@@ -17,7 +17,6 @@
 #include "money.h"
 #include "random.h"
 
-static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
 static const int MAX_RIDE_INSTANCE_NAME_LENGTH = 64; ///< Maximum number of characters in ride instance name.
 static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
 
@@ -281,7 +280,7 @@ public:
 	uint16 FindRideType(const RideType *) const;
 
 	std::vector<std::unique_ptr<const RideType>> ride_types;             ///< Loaded types of rides.
-	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES];               ///< Rides available in the park.
+	std::map<uint16, std::unique_ptr<RideInstance>> instances;           ///< Rides available in the park.
 	std::vector<std::unique_ptr<const RideEntranceExitType>> entrances;  ///< Available ride entrance types.
 	std::vector<std::unique_ptr<const RideEntranceExitType>> exits;      ///< Available ride exit types.
 };
