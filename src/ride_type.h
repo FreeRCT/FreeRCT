@@ -100,7 +100,7 @@ static const uint32 RATING_NOT_YET_CALCULATED = 0xffffffff;  ///< Excitement/int
 class RideType {
 public:
 	RideType(RideTypeKind rtk);
-	virtual ~RideType();
+	virtual ~RideType() = default;
 
 	virtual bool CanMakeInstance() const;
 	virtual RideInstance *CreateInstance() const = 0;
@@ -244,9 +244,6 @@ void SetRideRatingStringParam(uint32 rating);
 /** Storage of available ride types. */
 class RidesManager {
 public:
-	RidesManager();
-	~RidesManager();
-
 	RideInstance *GetRideInstance(uint16 num);
 	const RideInstance *GetRideInstance(uint16 num) const;
 	RideInstance *FindRideByName(const uint8 *name);

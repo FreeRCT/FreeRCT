@@ -524,7 +524,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 
 		case CIW_CHOOSE_ENTRANCE: {
 			DropdownList itemlist;
-			for (auto &eetype : _rides_manager.entrances) {
+			for (const auto &eetype : _rides_manager.entrances) {
 				_str_params.SetUint8(1, _language.GetText(eetype->name));
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
@@ -533,7 +533,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		}
 		case CIW_CHOOSE_EXIT: {
 			DropdownList itemlist;
-			for (auto &eetype : _rides_manager.exits) {
+			for (const auto &eetype : _rides_manager.exits) {
 				_str_params.SetUint8(1, _language.GetText(eetype->name));
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}

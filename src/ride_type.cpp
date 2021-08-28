@@ -108,10 +108,6 @@ RideType::RideType(RideTypeKind rtk) : kind(rtk)
 	this->SetupStrings(nullptr, 0, 0, 0, 0, 0);
 }
 
-RideType::~RideType()
-{
-}
-
 /**
  * Are all resources available for building an instance of this type?
  * For example, are all sprites available? Default implementation always allows building an instance.
@@ -678,15 +674,6 @@ void RideInstance::Save(Saver &svr)
 	svr.EndPattern();
 }
 
-/** Default constructor of the rides manager. */
-RidesManager::RidesManager()
-{
-}
-
-RidesManager::~RidesManager()
-{
-}
-
 /**
  * Some time has passed, update the state of the rides.
  * @param delay Number of milliseconds that passed.
@@ -813,7 +800,7 @@ const RideInstance *RidesManager::GetRideInstance(uint16 num) const
  */
 uint16 RideInstance::GetIndex() const
 {
-	for (auto &pair : _rides_manager.instances) {
+	for (const auto &pair : _rides_manager.instances) {
 		if (pair.second.get() == this) {
 			return pair.first + SRI_FULL_RIDES;
 		}
