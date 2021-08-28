@@ -65,26 +65,6 @@ const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
 	{18 + 4, 17 + 4, 16 + 4, 15 + 4},
 };
 
-/** Default constructor of a in-memory RCD block. */
-RcdBlock::RcdBlock()
-{
-	this->next = nullptr;
-}
-
-RcdBlock::~RcdBlock()
-{
-}
-
-TextData::TextData() : RcdBlock()
-{
-}
-
-TextData::~TextData()
-{
-	delete[] this->strings;
-	delete[] this->text_data;
-}
-
 /**
  * Check an UTF-8 string.
  * @param rcd_file Input file.
@@ -184,17 +164,17 @@ bool TextData::Load(RcdFileReader *rcd_file)
 	}
 	assert (length == 0);
 
-	this->strings = new TextString[used_strings];
+	this->strings.reset(new TextString[used_strings]);
 	this->string_count = used_strings;
-	this->text_data = new uint8[used_size];
+	this->text_data.reset(new uint8[used_size]);
 	if (this->strings == nullptr || this->text_data == nullptr) return false;
 
-	memcpy(this->text_data, buffer, used_size);
+	memcpy(this->text_data.get(), buffer, used_size);
 	for (uint i = 0; i < used_strings; i++) {
-		this->strings[i].name = (strings[i].name == nullptr) ? nullptr : (char *)this->text_data + ((uint8 *)(strings[i].name) - buffer);
+		this->strings[i].name = (strings[i].name == nullptr) ? nullptr : (char *)this->text_data.get() + ((uint8 *)(strings[i].name) - buffer);
 		for (uint lng = 0; lng < LANGUAGE_COUNT; lng++) {
 			this->strings[i].languages[lng] = (strings[i].languages[lng] == nullptr)
-					? nullptr : this->text_data + (strings[i].languages[lng] - buffer);
+					? nullptr : this->text_data.get() + (strings[i].languages[lng] - buffer);
 		}
 	}
 	return true;
@@ -752,12 +732,6 @@ Animation::Animation() : RcdBlock()
 	this->frames = nullptr;
 }
 
-/** %Animation destructor. */
-Animation::~Animation()
-{
-	delete[] this->frames;
-}
-
 /**
  * Decode a read value to the internal representation of a person type.
  * @param pt Value read from the file.
@@ -797,11 +771,11 @@ bool Animation::Load(RcdFileReader *rcd_file)
 
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 6) return false;
-	this->frames = new AnimationFrame[this->frame_count];
+	this->frames.reset(new AnimationFrame[this->frame_count]);
 	if (this->frames == nullptr || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {
-		AnimationFrame *frame = this->frames + i;
+		AnimationFrame *frame = this->frames.get() + i;
 
 		frame->duration = rcd_file->GetUInt16();
 		if (frame->duration == 0 || frame->duration >= 5000) return false; // Arbitrary sanity limit.
@@ -823,12 +797,6 @@ AnimationSprites::AnimationSprites() : RcdBlock()
 	this->person_type = PERSON_INVALID;
 	this->anim_type = ANIM_INVALID;
 	this->sprites = nullptr;
-}
-
-/** Animation sprites destructor. */
-AnimationSprites::~AnimationSprites()
-{
-	delete[] this->sprites;
 }
 
 /**
@@ -854,7 +822,7 @@ bool AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	this->frame_count = rcd_file->GetUInt16();
 	if (length != BASE_LENGTH + this->frame_count * 4) return false;
-	this->sprites = new ImageData *[this->frame_count];
+	this->sprites.reset(new ImageData *[this->frame_count]);
 	if (this->sprites == nullptr || this->frame_count == 0) return false;
 
 	for (uint i = 0; i < this->frame_count; i++) {
@@ -1314,21 +1282,7 @@ bool GuiSprites::HasSufficientGraphics() const
  */
 SpriteStorage::SpriteStorage(uint16 _size) : size(_size)
 {
-	this->Clear();
 	for (uint8 i = 0; i < FENCE_TYPE_COUNT; i++) this->fence[i] = nullptr;
-}
-
-SpriteStorage::~SpriteStorage()
-{
-	this->Clear();
-}
-
-/** Clear all data from the storage. */
-void SpriteStorage::Clear()
-{
-	this->animations.clear(); // Animation sprites objects are managed by the RCD blocks.
-	for (auto& pair : frame_sets) delete pair.second;
-	for (auto& pair : timed_animations) delete pair.second;
 }
 
 /**
@@ -1378,19 +1332,12 @@ void SpriteStorage::AddFence(Fence *fnc)
 SpriteManager::SpriteManager() : store(64)
 {
 	_gui_sprites.Clear();
-	this->blocks = nullptr;
 }
 
 /** Sprite manager destructor. */
 SpriteManager::~SpriteManager()
 {
 	_gui_sprites.Clear();
-	this->animations.clear(); // Blocks get deleted through the 'this->blocks' below.
-	while (this->blocks != nullptr) {
-		RcdBlock *next_block = this->blocks->next;
-		delete this->blocks;
-		this->blocks = next_block;
-	}
 	/* Sprite stores will be deleted soon as well. */
 }
 
@@ -1456,13 +1403,12 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "FENC") == 0) {
-			Fence *block = new Fence;
+			std::shared_ptr<Fence> block = std::make_shared<Fence>();
 			if (!block->Load(&rcd_file, sprites)) {
-				delete block;
 				return "Fence block loading failed.";
 			}
 			this->AddBlock(block);
-			this->store.AddFence(block);
+			this->store.AddFence(block.get());
 			continue;
 		}
 
@@ -1517,33 +1463,29 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "ANIM") == 0) {
-			Animation *anim = new Animation;
+			std::shared_ptr<Animation> anim = std::make_shared<Animation>();
 			if (!anim->Load(&rcd_file)) {
-				delete anim;
 				return "Animation failed to load.";
 			}
 			if (anim->person_type == PERSON_INVALID || anim->anim_type == ANIM_INVALID) {
-				delete anim;
 				return "Unknown animation.";
 			}
 			this->AddBlock(anim);
-			this->AddAnimation(anim);
+			this->AddAnimation(anim.get());
 			this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "ANSP") == 0) {
-			AnimationSprites *an_spr = new AnimationSprites;
+			std::shared_ptr<AnimationSprites> an_spr = std::make_shared<AnimationSprites>();
 			if (!an_spr->Load(&rcd_file, sprites)) {
-				delete an_spr;
 				return "Animation sprites failed to load.";
 			}
 			if (an_spr->person_type == PERSON_INVALID || an_spr->anim_type == ANIM_INVALID) {
-				delete an_spr;
 				return "Unknown animation.";
 			}
 			this->AddBlock(an_spr);
-			this->store.AddAnimationSprites(an_spr);
+			this->store.AddAnimationSprites(an_spr.get());
 			continue;
 		}
 
@@ -1553,15 +1495,13 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "TEXT") == 0) {
-			TextData *txt = new TextData;
+			std::shared_ptr<TextData> txt = std::make_shared<TextData>();
 			if (!txt->Load(&rcd_file)) {
-				delete txt;
 				return "Text block failed to load.";
 			}
 			this->AddBlock(txt);
 
-			std::pair<uint, TextData *> p(blk_num, txt);
-			texts.insert(p);
+			texts.insert(std::make_pair(blk_num, txt.get()));
 			continue;
 		}
 
@@ -1576,22 +1516,20 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "FSET") == 0) {
-			FrameSet *fset = new FrameSet;
+			std::unique_ptr<FrameSet> fset(new FrameSet);
 			if (!fset->Load(&rcd_file, sprites)) {
-				delete fset;
 				return "Frame set failed to load.";
 			}
-			this->store.frame_sets[ImageSetKey(filename, blk_num)] = fset;
+			this->store.frame_sets[ImageSetKey(filename, blk_num)] = std::move(fset);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TIMA") == 0) {
-			TimedAnimation *anim = new TimedAnimation;
+			std::unique_ptr<TimedAnimation> anim(new TimedAnimation);
 			if (!anim->Load(&rcd_file, sprites)) {
-				delete anim;
 				return "Timed animation failed to load.";
 			}
-			this->store.timed_animations[ImageSetKey(filename, blk_num)] = anim;
+			this->store.timed_animations[ImageSetKey(filename, blk_num)] = std::move(anim);
 			continue;
 		}
 
@@ -1693,10 +1631,9 @@ void SpriteManager::LoadRcdFiles()
  * Add a RCD data block to the list of managed blocks.
  * @param block New block to add.
  */
-void SpriteManager::AddBlock(RcdBlock *block)
+void SpriteManager::AddBlock(std::shared_ptr<RcdBlock> block)
 {
-	block->next = this->blocks;
-	this->blocks = block;
+	this->blocks.push_back(block);
 }
 
 /**
@@ -1907,7 +1844,7 @@ const Fence *SpriteManager::GetFence(FenceType fence_type) const
 const FrameSet *SpriteManager::GetFrameSet(const ImageSetKey &key) const
 {
 	auto it = this->store.frame_sets.find(key);
-	return it == this->store.frame_sets.end() ? nullptr : it->second;
+	return it == this->store.frame_sets.end() ? nullptr : it->second.get();
 }
 
 /**
@@ -1918,7 +1855,7 @@ const FrameSet *SpriteManager::GetFrameSet(const ImageSetKey &key) const
 const TimedAnimation *SpriteManager::GetTimedAnimation(const ImageSetKey &key) const
 {
 	auto it = this->store.timed_animations.find(key);
-	return it == this->store.timed_animations.end() ? nullptr : it->second;
+	return it == this->store.timed_animations.end() ? nullptr : it->second.get();
 }
 
 /**

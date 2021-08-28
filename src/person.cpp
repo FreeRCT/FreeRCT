@@ -859,7 +859,7 @@ void Person::Load(Loader &ldr)
 	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
 	assert(anim != nullptr && anim->frame_count != 0);
 
-	this->frames = anim->frames;
+	this->frames = anim->frames.get();
 	this->frame_count = anim->frame_count;
 
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
@@ -1377,7 +1377,7 @@ void Person::StartAnimation(const WalkInformation *walk)
 	assert(anim != nullptr && anim->frame_count != 0);
 
 	this->walk = walk;
-	this->frames = anim->frames;
+	this->frames = anim->frames.get();
 	this->frame_count = anim->frame_count;
 	this->frame_index = 0;
 	this->frame_time = this->frames[this->frame_index].duration;

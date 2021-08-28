@@ -32,10 +32,8 @@ class ImageData;
  */
 class RcdBlock {
 public:
-	RcdBlock();
-	virtual ~RcdBlock();
-
-	RcdBlock *next; ///< Pointer to next block.
+	RcdBlock() = default;
+	virtual ~RcdBlock() = default;
 };
 
 typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data blocks.
@@ -43,14 +41,11 @@ typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data bl
 /** Texts of objects. */
 class TextData : public RcdBlock {
 public:
-	TextData();
-	~TextData();
-
 	bool Load(RcdFileReader *rcd_file);
 
 	uint string_count;   ///< Number of strings in #strings.
-	TextString *strings; ///< Strings of the text.
-	uint8 *text_data;    ///< Text data (UTF-8) itself.
+	std::unique_ptr<TextString[]> strings; ///< Strings of the text.
+	std::unique_ptr<uint8[]> text_data;    ///< Text data (UTF-8) itself.
 };
 
 typedef std::map<uint32, TextData *> TextMap; ///< Map of loaded text blocks.
@@ -188,7 +183,7 @@ public:
 	std::unique_ptr<ImageData*[]> sprites[4]; ///< Sprites for the ne,se,sw,nw orientations.
 };
 typedef std::pair<std::string, int> ImageSetKey;         ///< Pair of <RCD file name, RCD block number>.
-typedef std::map<ImageSetKey, FrameSet *> FrameSetsMap;  ///< Map of available frame sets.
+typedef std::map<ImageSetKey, std::unique_ptr<FrameSet>> FrameSetsMap;  ///< Map of available frame sets.
 
 /**
  * Timed animations.
@@ -208,7 +203,7 @@ public:
 	std::unique_ptr<int[]> durations;   ///< Duration of each frame in milliseconds.
 	std::unique_ptr<const FrameSet*[]> views; ///< Each frame's set of sprites.
 };
-typedef std::map<ImageSetKey, TimedAnimation *> TimedAnimationsMap; ///< Map of available timed animations.
+typedef std::map<ImageSetKey, std::unique_ptr<TimedAnimation>> TimedAnimationsMap;  ///< Map of available timed animations.
 
 /**
  * Displayed object.
@@ -271,7 +266,6 @@ DECLARE_POSTFIX_INCREMENT(AnimationType)
 class Animation : public RcdBlock {
 public:
 	Animation();
-	~Animation();
 
 	bool Load(RcdFileReader *rcd_file);
 
@@ -279,7 +273,7 @@ public:
 	uint8 person_type;       ///< Type of persons supported by this animation.
 	AnimationType anim_type; ///< Animation ID.
 
-	AnimationFrame *frames;  ///< Frames of the animation.
+	std::unique_ptr<AnimationFrame[]> frames;  ///< Frames of the animation.
 };
 
 typedef std::multimap<AnimationType, Animation *> AnimationsMap; ///< Multi-map of available animations.
@@ -288,7 +282,6 @@ typedef std::multimap<AnimationType, Animation *> AnimationsMap; ///< Multi-map 
 class AnimationSprites: public RcdBlock {
 public:
 	AnimationSprites();
-	~AnimationSprites();
 
 	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
@@ -297,7 +290,7 @@ public:
 	AnimationType anim_type; ///< Animation ID.
 	uint16 frame_count;      ///< Number of frames.
 
-	ImageData **sprites;     ///< Sprites of the animation.
+	std::unique_ptr<ImageData*[]> sprites;     ///< Sprites of the animation.
 };
 
 typedef std::multimap<AnimationType, AnimationSprites *> AnimationSpritesMap; ///< Multi-map of available animation sprites.
@@ -551,7 +544,6 @@ struct GuiSprites {
 class SpriteStorage {
 public:
 	SpriteStorage(uint16 size);
-	~SpriteStorage();
 
 	void RemoveAnimations(AnimationType anim_type, PersonType pers_type);
 	void AddAnimationSprites(AnimationSprites *an_spr);
@@ -702,7 +694,7 @@ public:
 	~SpriteManager();
 
 	void LoadRcdFiles();
-	void AddBlock(RcdBlock *block);
+	void AddBlock(std::shared_ptr<RcdBlock> block);
 
 	const SpriteStorage *GetSprites(uint16 size) const;
 	void AddAnimation(Animation *anim);
@@ -719,7 +711,7 @@ protected:
 	const char *Load(const char *fname);
 	SpriteStorage *GetSpriteStore(uint16 width);
 
-	RcdBlock *blocks;         ///< List of loaded RCD data blocks.
+	std::vector<std::shared_ptr<RcdBlock>> blocks;  ///< List of loaded RCD data blocks.
 
 	SpriteStorage store;      ///< Sprite storage of size 64.
 	AnimationsMap animations; ///< Available animations.
