@@ -145,7 +145,9 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	}
 	/* Setup a track voxel list for fast access in the type. */
 	for (const auto &piece : this->pieces) {
-		this->voxels.insert(this->voxels.end(), piece->track_voxels.begin(), piece->track_voxels.end());
+		for (const auto &tv : piece->track_voxels) {
+			this->voxels.push_back(tv.get());
+		}
 	}
 	return true;
 }
@@ -1258,7 +1260,7 @@ void CoasterInstance::PlaceTrackPieceInWorld(const PositionedTrackPiece &placed)
 		Voxel *vx = _world.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
-		vx->SetInstanceData(this->GetInstanceData(tvx));
+		vx->SetInstanceData(this->GetInstanceData(tvx.get()));
 	}
 }
 
@@ -1534,7 +1536,7 @@ void CoasterInstance::UpdateStations()
 			}
 			current_station->direction = piece.piece->GetStartDirection();
 			current_station->length += 256;
-			for (const TrackVoxel *track : piece.piece->track_voxels) {
+			for (const auto &track : piece.piece->track_voxels) {
 				current_station->locations.emplace_back(piece.base_voxel + track->dxyz);
 			}
 		} else if (current_station.get() != nullptr) {

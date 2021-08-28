@@ -295,7 +295,6 @@ private:
 class BackgroundWidget : public LeafWidget {
 public:
 	BackgroundWidget(WidgetType wtype);
-	~BackgroundWidget();
 
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void SetSmallestSizePosition(const Rectangle16 &rect) override;
@@ -304,7 +303,7 @@ public:
 	void AutoRaiseButtons(const Point32 &base) override;
 	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
 
-	BaseWidget *child; ///< Child widget displayed on top of the background widget.
+	std::unique_ptr<BaseWidget> child; ///< Child widget displayed on top of the background widget.
 };
 
 /**
@@ -336,7 +335,6 @@ struct RowColData {
 class IntermediateWidget : public BaseWidget {
 public:
 	IntermediateWidget(uint8 num_rows, uint8 num_cols);
-	~IntermediateWidget();
 
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void SetSmallestSizePosition(const Rectangle16 &rect) override;
@@ -349,9 +347,9 @@ public:
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
 
-	BaseWidget **childs; ///< Grid of child widget pointers.
-	RowColData *rows;    ///< Row data.
-	RowColData *columns; ///< Column data.
+	std::unique_ptr<std::unique_ptr<BaseWidget>[]> childs; ///< Grid of child widget pointers.
+	std::unique_ptr<RowColData[]> rows;    ///< Row data.
+	std::unique_ptr<RowColData[]> columns; ///< Column data.
 	uint8 num_rows;      ///< Number of rows.
 	uint8 num_cols;      ///< Number of columns.
 	uint8 flags;         ///< Equal size flags.
