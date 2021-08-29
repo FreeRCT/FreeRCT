@@ -127,12 +127,12 @@ void Voxel::Save(Saver &svr) const
 /**
  * Make a new array of voxels, and initialize it.
  * @param height Desired height of the new voxel array.
- * @return New and initialized to 'empty' voxels. Caller should delete[] the memory after use.
+ * @return New and initialized to 'empty' voxels.
  */
-static Voxel *MakeNewVoxels(int height)
+static std::unique_ptr<Voxel[]> MakeNewVoxels(int height)
 {
 	assert(height > 0);
-	Voxel *voxels = new Voxel[height]();
+	std::unique_ptr<Voxel[]> voxels(new Voxel[height]());
 	for (int i = 0; i < height; i++) voxels[i].ClearVoxel();
 	return voxels;
 }
@@ -217,17 +217,10 @@ VoxelStack::VoxelStack()
 	this->height = 0;
 }
 
-/** Destructor. */
-VoxelStack::~VoxelStack()
-{
-	delete[] this->voxels;
-}
-
 /** Remove the stack. */
 void VoxelStack::Clear()
 {
-	delete[] this->voxels;
-	this->voxels = nullptr;
+	this->voxels.reset();
 	this->base = 0;
 	this->height = 0;
 	this->owner = OWN_NONE;
@@ -246,12 +239,11 @@ bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 	/* Make sure the voxels live between 0 and WORLD_Z_SIZE. */
 	if (new_base < 0 || new_base + (int)new_height > WORLD_Z_SIZE) return false;
 
-	Voxel *new_voxels = MakeNewVoxels(new_height);
+	std::unique_ptr<Voxel[]> new_voxels = MakeNewVoxels(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
-	CopyStackData(new_voxels + (this->base - new_base), this->voxels, this->height, true);
+	CopyStackData(new_voxels.get() + (this->base - new_base), this->voxels.get(), this->height, true);
 
-	delete[] this->voxels;
-	this->voxels = new_voxels;
+	this->voxels = std::move(new_voxels);
 	this->height = new_height;
 	this->base = new_base;
 	return true;
@@ -411,8 +403,8 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 	assert(new_base >= 0);
 
 	/* Make a new stack. Copy new surface, then copy the persons. */
-	Voxel *new_voxels = MakeNewVoxels(new_height);
-	CopyStackData(new_voxels + (vs->base + vs_first) - new_base, vs->voxels + vs_first, vs_last - vs_first + 1, false);
+	std::unique_ptr<Voxel[]> new_voxels = MakeNewVoxels(new_height);
+	CopyStackData(new_voxels.get() + (vs->base + vs_first) - new_base, vs->voxels.get() + vs_first, vs_last - vs_first + 1, false);
 	int i = (this->base + old_first) - new_base;
 	while (old_first <= old_last) {
 		CopyVoxelObjectList(&new_voxels[i], &this->voxels[old_first]);
@@ -422,8 +414,7 @@ void VoxelStack::MoveStack(VoxelStack *vs)
 
 	this->base = new_base;
 	this->height = new_height;
-	delete[] this->voxels;
-	this->voxels = new_voxels;
+	this->voxels = std::move(new_voxels);
 }
 
 /**
@@ -470,7 +461,6 @@ void VoxelStack::Load(Loader &ldr)
 			this->base = base;
 			this->height = height;
 			this->owner = (TileOwner)owner;
-			delete[] this->voxels;
 			this->voxels = (height > 0) ? MakeNewVoxels(height) : nullptr;
 			for (uint i = 0; i < height; i++) this->voxels[i].Load(ldr);
 

@@ -524,7 +524,6 @@ enum TileOwner {
 class VoxelStack {
 public:
 	VoxelStack();
-	~VoxelStack();
 
 	void Clear();
 	const Voxel *Get(int16 z) const;
@@ -538,7 +537,7 @@ public:
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr);
 
-	Voxel *voxels;   ///< %Voxel array at this stack.
+	std::unique_ptr<Voxel[]> voxels;  ///< %Voxel array at this stack.
 	int16 base;      ///< Height of the bottom voxel.
 	uint16 height;   ///< Number of voxels in the stack.
 	TileOwner owner; ///< Ownership of the base tile of this voxel stack.
