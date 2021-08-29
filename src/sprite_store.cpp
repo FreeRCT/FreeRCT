@@ -1506,12 +1506,11 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "SHOP") == 0) {
-			ShopType *shop_type = new ShopType;
+			std::unique_ptr<ShopType> shop_type(new ShopType);
 			if (!shop_type->Load(&rcd_file, sprites, texts)) {
-				delete shop_type;
 				return "Shop type failed to load.";
 			}
-			_rides_manager.AddRideType(shop_type);
+			_rides_manager.AddRideType(std::move(shop_type));
 			continue;
 		}
 
@@ -1534,38 +1533,29 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "SCNY") == 0) {
-			SceneryType *s = new SceneryType;
+			std::unique_ptr<SceneryType> s(new SceneryType);
 			if (!s->Load(&rcd_file, sprites, texts)) {
-				delete s;
 				return "Scenery type failed to load.";
 			}
-			if (!_scenery.AddSceneryType(s)) {
-				delete s;
-				return "No space for scenery type left.";
-			}
+			_scenery.AddSceneryType(s);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "RIEE") == 0) {
-			RideEntranceExitType *e = new RideEntranceExitType;
+			std::unique_ptr<RideEntranceExitType> e(new RideEntranceExitType);
 			if (!e->Load(&rcd_file, sprites, texts)) {
-				delete e;
 				return "Entrance/Exit failed to load.";
 			}
-			if (!_rides_manager.AddRideEntranceExitType(e)) {
-				delete e;
-				return "No space for entrance/exit left.";
-			}
+			_rides_manager.AddRideEntranceExitType(e);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "FGTR") == 0) {
-			GentleThrillRideType *ride_type = new GentleThrillRideType;
+			std::unique_ptr<GentleThrillRideType> ride_type(new GentleThrillRideType);
 			if (!ride_type->Load(&rcd_file, sprites, texts)) {
-				delete ride_type;
 				return "Gentle/Thrill ride type failed to load.";
 			}
-			_rides_manager.AddRideType(ride_type);
+			_rides_manager.AddRideType(std::move(ride_type));
 			continue;
 		}
 
@@ -1579,12 +1569,11 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "RCST") == 0) {
-			CoasterType *ct = new CoasterType;
+			std::unique_ptr<CoasterType> ct(new CoasterType);
 			if (!ct->Load(&rcd_file, texts, track_pieces)) {
-				delete ct;
 				return "Coaster type failed to load.";
 			}
-			_rides_manager.AddRideType(ct);
+			_rides_manager.AddRideType(std::move(ct));
 			continue;
 		}
 

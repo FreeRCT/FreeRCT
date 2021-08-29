@@ -233,7 +233,6 @@ static const int COASTER_INTENSITY_STATISTICS_SAMPLING_PRECISION = 0x8000;  ///<
 class CoasterInstance : public RideInstance {
 public:
 	CoasterInstance(const CoasterType *rt, const CarType *car_type);
-	~CoasterInstance();
 
 	bool IsAccessible();
 
@@ -308,7 +307,7 @@ public:
 		/* This was already done during construction – nothing left to do here. */
 	}
 
-	PositionedTrackPiece *pieces; ///< Positioned track pieces.
+	std::unique_ptr<PositionedTrackPiece[]> pieces; ///< Positioned track pieces.
 	int capacity;                 ///< Number of entries in the #pieces.
 	uint32 coaster_length;        ///< Total length of the roller coaster track (in 1/256 pixels).
 	int number_of_trains;         ///< Current number of trains.

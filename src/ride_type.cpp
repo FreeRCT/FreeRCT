@@ -811,23 +811,21 @@ uint16 RideInstance::GetIndex() const
 /**
  * Add a new ride type to the manager.
  * @param type New ride type to add.
- * @return \c true if the addition was successful, else \c false.
+ * @note Takes ownership of the pointer and clears the passed smart pointer.
  */
-bool RidesManager::AddRideType(RideType *type)
+void RidesManager::AddRideType(std::unique_ptr<RideType> type)
 {
-	this->ride_types.emplace_back(std::unique_ptr<RideType>(type));
-	return true;
+	this->ride_types.emplace_back(std::move(type));
 }
 
 /**
  * Add a new ride entrance or exit type to the manager.
  * @param type New ride entrance/exit type to add.
- * @return \c true if the addition was successful, else \c false.
+ * @note Takes ownership of the pointer and clears the passed smart pointer.
  */
-bool RidesManager::AddRideEntranceExitType(RideEntranceExitType *type)
+void RidesManager::AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type)
 {
-	(type->is_entrance ? this->entrances : this->exits).emplace_back(std::unique_ptr<RideEntranceExitType>(type));
-	return true;
+	(type->is_entrance ? this->entrances : this->exits).emplace_back(std::move(type));
 }
 
 /**
