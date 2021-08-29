@@ -694,7 +694,7 @@ public:
 	~SpriteManager();
 
 	void LoadRcdFiles();
-	void AddBlock(std::shared_ptr<RcdBlock> block);
+	void AddBlock(std::unique_ptr<RcdBlock> block);
 
 	const SpriteStorage *GetSprites(uint16 size) const;
 	void AddAnimation(Animation *anim);
@@ -711,7 +711,7 @@ protected:
 	const char *Load(const char *fname);
 	SpriteStorage *GetSpriteStore(uint16 width);
 
-	std::vector<std::shared_ptr<RcdBlock>> blocks;  ///< List of loaded RCD data blocks.
+	std::vector<std::unique_ptr<RcdBlock>> blocks;  ///< List of loaded RCD data blocks.
 
 	SpriteStorage store;      ///< Sprite storage of size 64.
 	AnimationsMap animations; ///< Available animations.

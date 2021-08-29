@@ -1403,12 +1403,12 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "FENC") == 0) {
-			std::shared_ptr<Fence> block = std::make_shared<Fence>();
+			std::unique_ptr<Fence> block(new Fence);
 			if (!block->Load(&rcd_file, sprites)) {
 				return "Fence block loading failed.";
 			}
-			this->AddBlock(block);
 			this->store.AddFence(block.get());
+			this->AddBlock(std::move(block));
 			continue;
 		}
 
@@ -1463,29 +1463,29 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "ANIM") == 0) {
-			std::shared_ptr<Animation> anim = std::make_shared<Animation>();
+			std::unique_ptr<Animation> anim(new Animation);
 			if (!anim->Load(&rcd_file)) {
 				return "Animation failed to load.";
 			}
 			if (anim->person_type == PERSON_INVALID || anim->anim_type == ANIM_INVALID) {
 				return "Unknown animation.";
 			}
-			this->AddBlock(anim);
 			this->AddAnimation(anim.get());
 			this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
+			this->AddBlock(std::move(anim));
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "ANSP") == 0) {
-			std::shared_ptr<AnimationSprites> an_spr = std::make_shared<AnimationSprites>();
+			std::unique_ptr<AnimationSprites> an_spr (new AnimationSprites);
 			if (!an_spr->Load(&rcd_file, sprites)) {
 				return "Animation sprites failed to load.";
 			}
 			if (an_spr->person_type == PERSON_INVALID || an_spr->anim_type == ANIM_INVALID) {
 				return "Unknown animation.";
 			}
-			this->AddBlock(an_spr);
 			this->store.AddAnimationSprites(an_spr.get());
+			this->AddBlock(std::move(an_spr));
 			continue;
 		}
 
@@ -1495,13 +1495,12 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "TEXT") == 0) {
-			std::shared_ptr<TextData> txt = std::make_shared<TextData>();
+			std::unique_ptr<TextData> txt(new TextData);
 			if (!txt->Load(&rcd_file)) {
 				return "Text block failed to load.";
 			}
-			this->AddBlock(txt);
-
 			texts.insert(std::make_pair(blk_num, txt.get()));
+			this->AddBlock(std::move(txt));
 			continue;
 		}
 
@@ -1619,10 +1618,11 @@ void SpriteManager::LoadRcdFiles()
 /**
  * Add a RCD data block to the list of managed blocks.
  * @param block New block to add.
+ * @note Takes ownership of the pointer and clears the passed smart pointer.
  */
-void SpriteManager::AddBlock(std::shared_ptr<RcdBlock> block)
+inline void SpriteManager::AddBlock(std::unique_ptr<RcdBlock> block)
 {
-	this->blocks.push_back(block);
+	this->blocks.push_back(std::move(block));
 }
 
 /**
