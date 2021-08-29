@@ -366,10 +366,10 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 	const uint8 *dec_sep  = _language.GetText(GUI_MONEY_DECIMAL_SEPARATOR);
 	size_t dec_sep_len  = StrBytesLength(dec_sep);
 
-	char *buf = new char[size];
+	std::unique_ptr<char[]> buf(new char[size]);
 
 	/* Convert double into a numeric string (with '.' as the decimal separator). */
-	uint len = snprintf(buf, size, "%.2f", amt);
+	uint len = snprintf(buf.get(), size, "%.2f", amt);
 
 	/* Compute the offset of where we should begin counting for thousand separators. */
 	uint comma_start = (len - 3) % 3;
@@ -411,7 +411,6 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 
 	assert((size_t)j < size);
 	dest[j] = '\0';
-	delete[] buf;
 }
 
 /**

@@ -179,21 +179,20 @@ uint8 *Loader::GetText()
 	uint32 length = this->GetLong();
 	if (length == 0) return nullptr;
 
-	uint32 *cpoints = new uint32[length];
+	std::unique_ptr<uint32[]> cpoints(new uint32[length]);
 
 	for (uint32 i = 0; i < length; i++) cpoints[i] = this->GetLong();
 
 	size_t enc_length = 0;
 	for (uint32 i = 0; i < length; i++) enc_length += EncodeUtf8Char(cpoints[i], nullptr);
-	uint8 *txt = new uint8[enc_length + 1];
-	uint8 *p = txt;
+	std::unique_ptr<uint8[]> txt(new uint8[enc_length + 1]);
+	uint8 *p = txt.get();
 	for (uint32 i = 0; i < length; i++) {
 		size_t len = EncodeUtf8Char(cpoints[i], p);
 		p += len;
 	}
 	txt[enc_length] = '\0';
-	delete[] cpoints;
-	return txt;
+	return txt.release();
 }
 
 /**

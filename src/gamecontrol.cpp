@@ -99,15 +99,15 @@ GameControl::~GameControl()
 }
 
 /** Initialize the game controller. */
-void GameControl::Initialize(const char *fname)
+void GameControl::Initialize(const std::string &fname)
 {
 	this->speed = GSP_1;
 	this->running = true;
 
-	if (fname == nullptr) {
+	if (fname.empty()) {
 		this->MainMenu();
 	} else {
-		this->LoadGame(fname);
+		this->LoadGame(fname.c_str());
 	}
 
 	this->RunAction();
@@ -144,7 +144,7 @@ void GameControl::RunAction()
 
 		case GCA_MENU:
 			this->main_menu = true;
-			this->Initialize(FindDataFile("data/mainmenu/savegame.fct").c_str());
+			this->Initialize(FindDataFile("data/mainmenu/savegame.fct"));
 			::ShowMainMenu();
 			break;
 
