@@ -169,8 +169,8 @@ protected:
 	void ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour = COL_RANGE_INVALID);
 
 private:
-	BaseWidget *tree;     ///< Tree of widgets.
-	BaseWidget **widgets; ///< Array of widgets with a non-negative index (use #GetWidget to get the widgets from this array).
+	std::unique_ptr<BaseWidget> tree;     ///< Tree of widgets.
+	std::unique_ptr<BaseWidget*[]>widgets; ///< Array of widgets with a non-negative index (use #GetWidget to get the widgets from this array).
 	uint16 num_widgets;   ///< Number of widgets in #widgets.
 };
 

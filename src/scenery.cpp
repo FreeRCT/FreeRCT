@@ -750,12 +750,11 @@ SceneryManager::SceneryManager()
 /**
  * Register a new scenery type.
  * @param type Scenery type to add.
- * @note Takes ownership of the pointer.
+ * @note Takes ownership of the pointer and clears the passed smart pointer.
  */
-bool SceneryManager::AddSceneryType(SceneryType *type)
+void SceneryManager::AddSceneryType(std::unique_ptr<SceneryType> &type)
 {
-	this->scenery_item_types.emplace_back(std::unique_ptr<SceneryType>(type));
-	return true;
+	this->scenery_item_types.emplace_back(std::move(type));
 }
 
 /**

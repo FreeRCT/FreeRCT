@@ -248,8 +248,8 @@ public:
 	const RideInstance *GetRideInstance(uint16 num) const;
 	RideInstance *FindRideByName(const uint8 *name);
 
-	bool AddRideType(RideType *type);
-	bool AddRideEntranceExitType(RideEntranceExitType *type);
+	void AddRideType(std::unique_ptr<RideType> type);
+	void AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type);
 
 	uint16 GetFreeInstance(const RideType *type);
 	RideInstance *CreateInstance(const RideType *type, uint16 num);

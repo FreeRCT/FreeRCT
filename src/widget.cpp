@@ -1108,11 +1108,6 @@ BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype)
 	this->child = nullptr;
 }
 
-BackgroundWidget::~BackgroundWidget()
-{
-	delete this->child;
-}
-
 /**
  * Compute smallest size of the widget.
  * @param w %Window owning the widget.
@@ -1253,29 +1248,17 @@ void IntermediateWidget::ClaimMemory()
 	assert(this->num_cols > 0 && this->num_rows > 0);
 	assert(this->childs == nullptr);
 
-	this->childs = new BaseWidget *[this->num_rows * this->num_cols];
+	this->childs.reset(new std::unique_ptr<BaseWidget>[this->num_rows * this->num_cols]);
 	assert(this->childs != nullptr);
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 		this->childs[idx] = nullptr;
 	}
 
-	this->rows = new RowColData[this->num_rows];
+	this->rows.reset(new RowColData[this->num_rows]);
 	assert(this->rows != nullptr);
 
-	this->columns = new RowColData[this->num_cols];
+	this->columns.reset(new RowColData[this->num_cols]);
 	assert(this->columns != nullptr);
-}
-
-IntermediateWidget::~IntermediateWidget()
-{
-	if (this->childs != nullptr) {
-		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
-			delete this->childs[idx];
-		}
-		delete[] this->childs;
-	}
-	delete[] this->rows;
-	delete[] this->columns;
 }
 
 /**
@@ -1288,7 +1271,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 {
 	assert(x < this->num_cols && y < this->num_rows);
 	assert(this->childs[y * (uint16)this->num_cols + x] == nullptr);
-	this->childs[y * (uint16)this->num_cols + x] = w;
+	this->childs[y * (uint16)this->num_cols + x].reset(w);
 }
 
 /**
@@ -1313,7 +1296,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	/* Step 2: Process child widgets. */
 	for (uint8 y = 0; y < this->num_rows; y++) {
 		for (uint8 x = 0; x < this->num_cols; x++) {
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			bw->SetupMinimalSize(w, wid_array);
 			this->rows[y].Merge(bw->min_y, bw->fill_y, bw->resize_y);
 			this->columns[x].Merge(bw->min_x, bw->fill_x, bw->resize_x);
@@ -1342,7 +1325,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	for (uint8 y = 0; y < this->num_rows; y++) {
 		/* Initialize the child_tmp_minsize array with current minsize of each child widget in the row. */
 		for (uint8 x = 0; x < this->num_cols; x++) {
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			child_tmp_minsize[x] = bw->min_y;
 		}
 		/* Try to find a consistent minimal vertical size for all children. Due to a fill size > 1, this may be
@@ -1356,7 +1339,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			for (uint8 x = 0; x < this->num_cols; x++) {
 				if (child_tmp_minsize[x] == cur_minsize) continue;
 
-				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 				if (bw->fill_y <= 1) continue; // 0 does not play, 1 will always work
 
 				/* Increment minimal size if y fill steps. */
@@ -1400,7 +1383,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	for (uint8 x = 0; x < this->num_cols; x++) {
 		/* Initialize the child_tmp_minsize array with current minsize of each child widget in the column. */
 		for (uint8 y = 0; y < this->num_rows; y++) {
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			child_tmp_minsize[y] = bw->min_x;
 		}
 		/*
@@ -1415,7 +1398,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			for (uint8 y = 0; y < this->num_rows; y++) {
 				if (child_tmp_minsize[y] == cur_minsize) continue;
 
-				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 				if (bw->fill_x <= 1) continue; // 0 does not play, 1 will always work
 
 				/* Increment minimal size if y fill steps. */
@@ -1518,7 +1501,7 @@ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 		uint16 left = rect.base.x;
 		for (uint8 x = 0; x < this->num_cols; x++) {
 			left += (x == 0) ? this->paddings[PAD_LEFT] : this->paddings[PAD_HORIZONTAL];
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			Rectangle16 rect2(left, top, this->columns[x].min_size, this->rows[y].min_size);
 			bw->SetSmallestSizePosition(rect2);
 
@@ -2035,7 +2018,9 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
 		if (remaining > 0 && parts->type == WPT_END_CON) {
 			used = 1;
 		} else {
-			used = MakeWidgetSubTree(parts, remaining, &bg->child, biggest);
+			BaseWidget *pointer;
+			used = MakeWidgetSubTree(parts, remaining, &pointer, biggest);
+			bg->child.reset(pointer);
 		}
 		total_used += used;
 	} else if ((*dest)->wtype == WT_GRID) {

@@ -54,7 +54,7 @@ public:
 		if (this->next_action != GCA_NONE) this->RunAction();
 	}
 
-	void Initialize(const char *fname);
+	void Initialize(const std::string &fname);
 	void Uninitialize();
 
 	void MainMenu();

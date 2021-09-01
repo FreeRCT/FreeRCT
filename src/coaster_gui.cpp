@@ -801,12 +801,12 @@ void TrackPieceMouseMode::SetTrackPiece(const XYZPoint16 &pos, ConstTrackPiecePt
 		this->area.base.y += pos.y;
 		this->InitTileData();
 
-		for (const TrackVoxel *tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
+		for (const auto &tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
 
 		this->SetupRideInfoSpace();
-		for (const TrackVoxel *tv : this->pos_piece.piece->track_voxels) {
+		for (const auto &tv : this->pos_piece.piece->track_voxels) {
 			XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
-			this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv));
+			this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()));
 		}
 
 		this->MarkDirty();

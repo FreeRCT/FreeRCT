@@ -160,7 +160,6 @@ public:
 class TrackPiece {
 public:
 	TrackPiece();
-	~TrackPiece();
 
 	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 	Rectangle16 GetArea() const;
@@ -171,15 +170,15 @@ public:
 	int8 speed;               ///< If non-zero, the minimal speed of cars at the track.
 	uint16 track_flags;       ///< Flags of the track piece.
 	Money cost;               ///< Cost of this track piece.
-	std::vector<TrackVoxel *> track_voxels; ///< Track voxels of this piece.
+	std::vector<std::unique_ptr<TrackVoxel>> track_voxels; ///< Track voxels of this piece.
 
 	uint32 piece_length;      ///< Length of the track piece for the cars, in 1/256 pixel.
-	TrackCurve *car_xpos;     ///< X position of cars over this track piece.
-	TrackCurve *car_ypos;     ///< Y position of cars over this track piece.
-	TrackCurve *car_zpos;     ///< Z position of cars over this track piece.
-	TrackCurve *car_pitch;    ///< Pitch of cars over this track piece, may be \c nullptr.
-	TrackCurve *car_roll;     ///< Roll of cars over this track piece.
-	TrackCurve *car_yaw;      ///< Yaw of cars over this track piece, may be \c null.
+	std::unique_ptr<TrackCurve> car_xpos;     ///< X position of cars over this track piece.
+	std::unique_ptr<TrackCurve> car_ypos;     ///< Y position of cars over this track piece.
+	std::unique_ptr<TrackCurve> car_zpos;     ///< Z position of cars over this track piece.
+	std::unique_ptr<TrackCurve> car_pitch;    ///< Pitch of cars over this track piece, may be \c nullptr.
+	std::unique_ptr<TrackCurve> car_roll;     ///< Roll of cars over this track piece.
+	std::unique_ptr<TrackCurve> car_yaw;      ///< Yaw of cars over this track piece, may be \c null.
 
 	void RemoveFromWorld(uint16 ride_index, XYZPoint16 base_voxel) const;
 
@@ -198,7 +197,7 @@ public:
 	 */
 	inline bool HasPlatform() const
 	{
-		return std::any_of(this->track_voxels.cbegin(), this->track_voxels.cend(), [](TrackVoxel *tv){ return tv->HasPlatform(); });
+		return std::any_of(this->track_voxels.cbegin(), this->track_voxels.cend(), [](const std::unique_ptr<TrackVoxel> &tv){ return tv->HasPlatform(); });
 	}
 
 	/**

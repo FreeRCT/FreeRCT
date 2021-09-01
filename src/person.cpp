@@ -859,7 +859,7 @@ void Person::Load(Loader &ldr)
 	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
 	assert(anim != nullptr && anim->frame_count != 0);
 
-	this->frames = anim->frames;
+	this->frames = anim->frames.get();
 	this->frame_count = anim->frame_count;
 
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
@@ -1106,7 +1106,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 			if (vs->owner == OWN_PARK) {
 				if (_world.GetStack(x + 1, y)->owner != OWN_PARK || _world.GetStack(x, y + 1)->owner != OWN_PARK) {
 					int offset = vs->GetBaseGroundOffset();
-					const Voxel *v = vs->voxels + offset;
+					const Voxel *v = vs->voxels[offset].get();
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & ((1 << EDGE_SE) | (1 << EDGE_SW))) != 0) {
 						ps.AddStart(XYZPoint16(x, y, vs->base + offset));
@@ -1116,7 +1116,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 				vs = _world.GetStack(x + 1, y);
 				if (vs->owner == OWN_PARK) {
 					int offset = vs->GetBaseGroundOffset();
-					const Voxel *v = vs->voxels + offset;
+					const Voxel *v = vs->voxels[offset].get();
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & (1 << EDGE_NE)) != 0) {
 						ps.AddStart(XYZPoint16(x + 1, y, vs->base + offset));
@@ -1126,7 +1126,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 				vs = _world.GetStack(x, y + 1);
 				if (vs->owner == OWN_PARK) {
 					int offset = vs->GetBaseGroundOffset();
-					const Voxel *v = vs->voxels + offset;
+					const Voxel *v = vs->voxels[offset].get();
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & (1 << EDGE_NW)) != 0) {
 						ps.AddStart(XYZPoint16(x, y + 1, vs->base + offset));
@@ -1377,7 +1377,7 @@ void Person::StartAnimation(const WalkInformation *walk)
 	assert(anim != nullptr && anim->frame_count != 0);
 
 	this->walk = walk;
-	this->frames = anim->frames;
+	this->frames = anim->frames.get();
 	this->frame_count = anim->frame_count;
 	this->frame_index = 0;
 	this->frame_time = this->frames[this->frame_index].duration;

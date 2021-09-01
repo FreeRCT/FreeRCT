@@ -111,7 +111,7 @@ void ClippedRectangle::ValidateAddress()
 {
 	if (this->address == nullptr) {
 		this->pitch = _video.GetXSize();
-		this->address = _video.mem + this->absx + this->absy * this->pitch;
+		this->address = _video.mem.get() + this->absx + this->absy * this->pitch;
 	}
 }
 
@@ -190,7 +190,6 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 
 	if (TTF_Init() != 0) {
 		SDL_Quit();
-		delete[] this->mem;
 		std::string err = "TTF font initialization failed: ";
 		err += TTF_GetError();
 		return err;
@@ -206,7 +205,6 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 		err += TTF_GetError();
 		TTF_Quit();
 		SDL_Quit();
-		delete[] this->mem;
 		return err;
 	}
 
@@ -234,8 +232,6 @@ bool VideoSystem::SetResolution(const Point32 &res)
 
 	/* Destroy old window, if it exists. */
 	if (this->initialized) {
-		delete[] this->mem;
-		this->mem = nullptr;
 		SDL_DestroyTexture(this->texture);
 		this->texture = nullptr;
 	}
@@ -251,7 +247,7 @@ bool VideoSystem::SetResolution(const Point32 &res)
 		return false;
 	}
 
-	this->mem = new uint32[this->vid_width * this->vid_height];
+	this->mem.reset(new uint32[this->vid_width * this->vid_height]);
 	if (this->mem == nullptr) {
 		SDL_Quit();
 		fprintf(stderr, "Failed to obtain window display storage.\n");
@@ -469,7 +465,6 @@ void VideoSystem::Shutdown()
 		TTF_CloseFont(this->font);
 		TTF_Quit();
 		SDL_Quit();
-		delete[] this->mem;
 		this->initialized = false;
 		this->dirty = false;
 	}
@@ -481,7 +476,7 @@ void VideoSystem::Shutdown()
  */
 void VideoSystem::FinishRepaint()
 {
-	SDL_UpdateTexture(this->texture, nullptr, this->mem, this->GetXSize() * sizeof(uint32)); // Upload memory to the GPU.
+	SDL_UpdateTexture(this->texture, nullptr, this->mem.get(), this->GetXSize() * sizeof(uint32)); // Upload memory to the GPU.
 	SDL_RenderClear(this->renderer);
 	SDL_RenderCopy(this->renderer, this->texture, nullptr, nullptr);
 	SDL_RenderPresent(this->renderer);
@@ -607,7 +602,7 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 	uint32 *line_base = cr.address + x_base + cr.pitch * y_base;
 	ShiftFunc sf = GetGradientShiftFunc(shift);
 	int32 ypos = y_base;
-	const uint8 *src = spr->data + 2; // Skip the length word.
+	const uint8 *src = spr->data.get() + 2; // Skip the length word.
 	for (int yoff = 0; yoff < spr->height; yoff++) {
 		int32 xpos = x_base;
 		uint32 *src_base = line_base;

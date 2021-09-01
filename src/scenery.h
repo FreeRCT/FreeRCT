@@ -193,7 +193,7 @@ class SceneryManager {
 public:
 	SceneryManager();
 
-	bool AddSceneryType(SceneryType *type);
+	void AddSceneryType(std::unique_ptr<SceneryType> &type);
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
 	const SceneryType *GetType(uint16 index) const;
 	std::vector<const SceneryType*> GetAllTypes(SceneryCategory cat) const;
