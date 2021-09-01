@@ -145,8 +145,6 @@ int freerct_main(int argc, char **argv)
 	/* Create the data directory on startup if it did not exist yet. */
 	MakeDirectory(freerct_userdata_prefix());
 
-	ConfigFile cfg_file;
-
 	/* Load RCD files. */
 	InitImageStorage();
 	_rcd_collection.ScanDirectories();
@@ -159,24 +157,19 @@ int freerct_main(int argc, char **argv)
 		return 1;
 	}
 
-	{
-		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
-		std::string path = freerct_userdata_prefix();
-		path += dr->dir_sep;
-		path += "freerct.cfg";
-		cfg_file.Load(path.c_str());
-	}
+	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
+	std::string cfg_file_path = freerct_userdata_prefix();
+	cfg_file_path += dr->dir_sep;
+	cfg_file_path += "freerct.cfg";
+	ConfigFile cfg_file(cfg_file_path);
 
-	const char *font_path = cfg_file.GetValue("font", "medium-path");
+	std::string font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
-	/* Use default values if no font has been set. */
-	std::string font_path_fallback;
-	if (font_path == nullptr) {
-		font_path_fallback = FindDataFile("data/font/Ubuntu-L.ttf");
-		font_path = font_path_fallback.c_str();
-	}
-	if (font_size < 1) font_size = 15;
 	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
+
+	/* Use default values if no font has been set. */
+	if (font_path.empty()) font_path = FindDataFile("data/font/Ubuntu-L.ttf");
+	if (font_size < 1) font_size = 15;
 
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
 	bool language_set = false;
@@ -193,12 +186,12 @@ int freerct_main(int argc, char **argv)
 		}
 	}
 	if (!language_set) {
-		const char *language = cfg_file.GetValue("language", "language");  // The pointer is owned by cfg_file.
-		if (language != nullptr) {
-			int index = GetLanguageIndex(language);
+		preferred_language = cfg_file.GetValue("language", "language");  // The pointer is owned by cfg_file.
+		if (!preferred_language.empty()) {
+			int index = GetLanguageIndex(preferred_language.c_str());
 			if (index < 0) {
-				fprintf(stderr, "The language '%s' set in the configuration file (freerct.cfg) is not known.\n", language);
-				const char *similar = GetSimilarLanguage(language);
+				fprintf(stderr, "The language '%s' set in the configuration file (freerct.cfg) is not known.\n", preferred_language.c_str());
+				const char *similar = GetSimilarLanguage(preferred_language);
 				if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
 				fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
 			} else {
@@ -208,7 +201,7 @@ int freerct_main(int argc, char **argv)
 	}
 
 	/* Initialize video. */
-	std::string err = _video.Initialize(font_path, font_size);
+	std::string err = _video.Initialize(font_path.c_str(), font_size);
 	if (!err.empty()) {
 		fprintf(stderr, "Failed to initialize window or the font (%s), aborting\n", err.c_str());
 		return 1;

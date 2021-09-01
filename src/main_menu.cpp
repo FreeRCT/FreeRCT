@@ -45,11 +45,10 @@ private:
 
 bool MainMenuGui::is_splash_screen = true;
 
-MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE)
+MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE), camera_positions(FindDataFile("data/mainmenu/camera"))
 {
 	this->SetSize(_video.GetXSize(),_video.GetYSize());
 	this->animstart = this->last_time = SDL_GetTicks();
-	this->camera_positions.Load(FindDataFile("data/mainmenu/camera").c_str());
 	this->nr_cameras = this->camera_positions.GetNum("camera", "nr_cameras");
 	this->time_in_camera = 0;
 	this->current_camera_id = 0;

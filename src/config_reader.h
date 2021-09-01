@@ -10,7 +10,9 @@
 #ifndef CONFIG_READER_H
 #define CONFIG_READER_H
 
-#include <forward_list>
+#include <map>
+#include <memory>
+#include <string>
 
 /**
  * Item in a configuration file (a key/value pair).
@@ -18,20 +20,12 @@
  */
 class ConfigItem {
 public:
-	ConfigItem(const char *key, const char *value);
-	~ConfigItem();
+	explicit ConfigItem(const std::string &value);
 
 	int GetNum() const;
 
-	const char *key;   ///< Key text.
-	const char *value; ///< Value text.
+	std::string value; ///< Value text.
 };
-
-/**
- * A list of items.
- * @ingroup fileio_group
- */
-typedef std::forward_list<ConfigItem *> ConfigItemList;
 
 /**
  * Section in a configuration file (a set of related items).
@@ -39,20 +33,9 @@ typedef std::forward_list<ConfigItem *> ConfigItemList;
  */
 class ConfigSection {
 public:
-	ConfigSection(const char *sect_name);
-	~ConfigSection();
-
-	const ConfigItem *GetItem(const char *key) const;
-
-	const char *sect_name; ///< Name of the section.
-	ConfigItemList items;  ///< Items of the section.
+	const ConfigItem *GetItem(const std::string &key) const;
+	std::map<std::string, std::unique_ptr<ConfigItem>> items;  ///< Items of the section.
 };
-
-/**
- * A list of sections.
- * @ingroup fileio_group
- */
-typedef std::forward_list<ConfigSection *> ConfigSectionList;
 
 /**
  * A configuration file.
@@ -60,18 +43,13 @@ typedef std::forward_list<ConfigSection *> ConfigSectionList;
  */
 class ConfigFile {
 public:
-	ConfigFile();
-	~ConfigFile();
+	explicit ConfigFile(const std::string &fname);
 
-	void Clear();
-	bool Load(const char *fname);
-	bool LoadFromDirectoryList(const char **dir_list, const char *fname);
+	const ConfigSection *GetSection(const std::string &name) const;
+	std::string GetValue(const std::string &sect_name, const std::string &key) const;
+	int GetNum(const std::string &sect_name, const std::string &key) const;
 
-	const ConfigSection *GetSection(const char *name) const;
-	const char *GetValue(const char *sect_name, const char *key) const;
-	int GetNum(const char *sect_name, const char *key) const;
-
-	ConfigSectionList sections; ///< Sections of the configuration file.
+	std::map<std::string, std::unique_ptr<ConfigSection>> sections; ///< Sections of the configuration file.
 };
 
 #endif
