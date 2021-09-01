@@ -14,17 +14,26 @@
 #include <memory>
 #include <string>
 
+class ConfigSection;
+class ConfigFile;
+
 /**
  * Item in a configuration file (a key/value pair).
  * @ingroup fileio_group
  */
 class ConfigItem {
 public:
-	explicit ConfigItem(const std::string &value);
+	explicit ConfigItem(const ConfigSection &section, const std::string &key, const std::string &value);
+	~ConfigItem();
 
 	int GetNum() const;
+	const std::string &GetString() const;
 
-	std::string value; ///< Value text.
+private:
+	const ConfigSection &section;  ///< Section backlink.
+	const std::string key;         ///< Key text.
+	const std::string value;       ///< Value text.
+	mutable bool used;             ///< Whether this value has ever been read from.
 };
 
 /**
@@ -33,7 +42,17 @@ public:
  */
 class ConfigSection {
 public:
+	explicit ConfigSection(const ConfigFile &file, const std::string &name);
+	~ConfigSection();
+
 	const ConfigItem *GetItem(const std::string &key) const;
+
+	const ConfigFile &file;  ///< Config file backlink.
+	const std::string name;  ///< Section name.
+
+private:
+	friend class ConfigFile;
+	mutable bool used;                                         ///< Whether this section has ever been accessed.
 	std::map<std::string, std::unique_ptr<ConfigItem>> items;  ///< Items of the section.
 };
 
@@ -49,7 +68,8 @@ public:
 	std::string GetValue(const std::string &sect_name, const std::string &key) const;
 	int GetNum(const std::string &sect_name, const std::string &key) const;
 
-	std::map<std::string, std::unique_ptr<ConfigSection>> sections; ///< Sections of the configuration file.
+	const std::string filename;                                      ///< Name of the config file.
+	std::map<std::string, std::unique_ptr<ConfigSection>> sections;  ///< Sections of the configuration file.
 };
 
 #endif

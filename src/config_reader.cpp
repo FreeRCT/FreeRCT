@@ -14,11 +14,31 @@
 
 /**
  * Construct a key/value item.
+ * @param section The section this value belongs to.
+ * @param key Key text.
  * @param value Value text.
  */
-ConfigItem::ConfigItem(const std::string &value)
+ConfigItem::ConfigItem(const ConfigSection &section, const std::string &key, const std::string &value) : section(section), key(key), value(value)
 {
-	this->value = value;
+	this->used = false;
+}
+
+/** Destructor. */
+ConfigItem::~ConfigItem() {
+	if (!this->used) {
+		printf("WARNING: Config file '%s', key '%s'='%s' in section '%s' not used (perhaps the name is misspelled?)\n",
+				this->section.file.filename.c_str(), this->key.c_str(), this->value.c_str(), this->section.name.c_str());
+	}
+}
+
+/**
+ * Get the value of the item, as a string.
+ * @return The item value.
+ */
+const std::string &ConfigItem::GetString() const
+{
+	this->used = true;
+	return this->value;
 }
 
 /**
@@ -27,6 +47,7 @@ ConfigItem::ConfigItem(const std::string &value)
  */
 int ConfigItem::GetNum() const
 {
+	this->used = true;
 	try {
 		size_t position;
 		const int result = stoi(this->value, &position);
@@ -39,12 +60,33 @@ int ConfigItem::GetNum() const
 }
 
 /**
+ * Construct a section.
+ * @param file The config file this section belongs to.
+ * @param name Section name.
+ */
+ConfigSection::ConfigSection(const ConfigFile &file, const std::string &name) : file(file), name(name)
+{
+	this->used = false;
+}
+
+/** Destructor. */
+ConfigSection::~ConfigSection() {
+	if (!this->used) {
+		printf("WARNING: Config file '%s', section '%s' not used (perhaps the name is misspelled?)\n",
+				this->file.filename.c_str(), this->name.c_str());
+		/* If a section is unused, suppress warnings about all keys therein. */
+		for (auto &pair : this->items) pair.second->GetString();
+	}
+}
+
+/**
  * Get an item from a section if it exists.
  * @param key Value of the key to look for (case sensitive).
  * @return The associated item if it exists, else \c nullptr.
  */
 const ConfigItem *ConfigSection::GetItem(const std::string &key) const
 {
+	this->used = true;
 	const auto it = this->items.find(key);
 	return it == this->items.end() ? nullptr : it->second.get();
 }
@@ -78,7 +120,7 @@ static char *StripWhitespace(char *first, char *last = nullptr)
  * @todo [easy] Eliminate duplicate config sections.
  * @todo [easy] Strip whitespace around section names.
  */
-ConfigFile::ConfigFile(const std::string &fname)
+ConfigFile::ConfigFile(const std::string &fname) : filename(fname)
 {
 	ConfigSection *current_sect = nullptr;
 
@@ -91,7 +133,7 @@ ConfigFile::ConfigFile(const std::string &fname)
 		if (line == nullptr) break;
 
 		while (*line != '\0' && isspace(*line)) line++;
-		if (*line == '\0' || *line == ';') continue; // Silently skip empty lines or comment lines.
+		if (*line == '\0' || *line == ';' || *line == '#') continue; // Silently skip empty lines or comment lines.
 
 		if (*line == '[') {
 			/* New section. */
@@ -100,7 +142,8 @@ ConfigFile::ConfigFile(const std::string &fname)
 			if (*line2 == ']') {
 				*line2 = '\0';
 				const std::string sect_name(StripWhitespace(line + 1, line2));
-				if (this->sections.count(sect_name) == 0) this->sections.emplace(sect_name, std::unique_ptr<ConfigSection>(new ConfigSection));
+				if (this->sections.count(sect_name) == 0) this->sections.emplace(sect_name,
+						std::unique_ptr<ConfigSection>(new ConfigSection(*this, sect_name)));
 				current_sect = this->sections.at(sect_name).get();
 			}
 			continue;
@@ -120,7 +163,7 @@ ConfigFile::ConfigFile(const std::string &fname)
 			/* No value. */
 			key = StripWhitespace(line, line2);
 		}
-		current_sect->items.emplace(key, std::unique_ptr<ConfigItem>(new ConfigItem(value)));
+		current_sect->items.emplace(key, std::unique_ptr<ConfigItem>(new ConfigItem(*current_sect, key, value)));
 	}
 	fclose(fp);
 }
@@ -149,7 +192,7 @@ std::string ConfigFile::GetValue(const std::string &sect_name, const std::string
 
 	const ConfigItem *item = sect->GetItem(key);
 	if (item == nullptr) return std::string();
-	return item->value;
+	return item->GetString();
 }
 
 /**
