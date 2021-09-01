@@ -373,7 +373,7 @@ static void SetXFoundations(int xpos, int ypos)
 	uint8 first_west  = 0;
 	if (first != nullptr) {
 		for (uint i = 0; i < first->height; i++) {
-			const Voxel *v = &first->voxels[i];
+			const Voxel *v = first->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
@@ -387,7 +387,7 @@ static void SetXFoundations(int xpos, int ypos)
 	uint8 second_east  = 0;
 	if (second != nullptr) {
 		for (uint i = 0; i < second->height; i++) {
-			const Voxel *v = &second->voxels[i];
+			const Voxel *v = second->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);
@@ -418,7 +418,7 @@ static void SetYFoundations(int xpos, int ypos)
 	uint8 first_east  = 0;
 	if (first != nullptr) {
 		for (uint i = 0; i < first->height; i++) {
-			const Voxel *v = &first->voxels[i];
+			const Voxel *v = first->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
@@ -432,7 +432,7 @@ static void SetYFoundations(int xpos, int ypos)
 	uint8 second_west  = 0;
 	if (second != nullptr) {
 		for (uint i = 0; i < second->height; i++) {
-			const Voxel *v = &second->voxels[i];
+			const Voxel *v = second->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);

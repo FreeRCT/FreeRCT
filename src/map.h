@@ -64,6 +64,12 @@ public:
 	uint8 instance;       ///< Ride instances that uses this voxel.
 	uint16 instance_data; ///< %Voxel data of the #instance stored here.
 
+	/** Constructor */
+	explicit Voxel()
+	{
+		this->ClearVoxel();
+	}
+
 	/**
 	 * Get the ride instance at this voxel.
 	 * @return Ride instance at this voxel.
@@ -529,15 +535,13 @@ public:
 	const Voxel *Get(int16 z) const;
 	Voxel *GetCreate(int16 z, bool create);
 
-	void MoveStack(VoxelStack *old_stack);
-
 	int GetTopGroundOffset() const;
 	int GetBaseGroundOffset() const;
 
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr);
 
-	std::unique_ptr<Voxel[]> voxels;  ///< %Voxel array at this stack.
+	std::vector<std::unique_ptr<Voxel>> voxels;  ///< %Voxel array at this stack.
 	int16 base;      ///< Height of the bottom voxel.
 	uint16 height;   ///< Number of voxels in the stack.
 	TileOwner owner; ///< Ownership of the base tile of this voxel stack.
@@ -560,17 +564,6 @@ public:
 	const VoxelStack *GetStack(uint16 x, uint16 y) const;
 	uint8 GetTopGroundHeight(uint16 x, uint16 y) const;
 	uint8 GetBaseGroundHeight(uint16 x, uint16 y) const;
-
-	/**
-	 * Move a voxel stack to this world. May destroy the original stack in the process.
-	 * @param x X coordinate of the stack.
-	 * @param y Y coordinate of the stack.
-	 * @param old_stack Source stack.
-	 */
-	void MoveStack(uint16 x, uint16 y, VoxelStack *old_stack)
-	{
-		this->GetModifyStack(x, y)->MoveStack(old_stack);
-	}
 
 	/**
 	 * Get a voxel in the world by voxel coordinate.

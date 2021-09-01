@@ -24,49 +24,6 @@
  */
 VoxelWorld _world;
 
-/**
- * Move the list animated voxel objects to the destination.
- * @param dest Destination of the voxel object list.
- * @param src Source voxel objects.
- */
-static inline void CopyVoxelObjectList(Voxel *dest, Voxel *src)
-{
-	dest->voxel_objects = src->voxel_objects;
-	src->voxel_objects = nullptr;
-}
-
-/**
- * Copy a voxel.
- * @param dest Destination address.
- * @param src Source address.
- * @param copy_voxel_objects Copy/move the voxel objects too.
- */
-static inline void CopyVoxel(Voxel *dest, Voxel *src, bool copy_voxel_objects)
-{
-	dest->instance = src->instance;
-	dest->instance_data = src->instance_data;
-	dest->ground = src->ground;
-	dest->fences = src->fences;
-	if (copy_voxel_objects) CopyVoxelObjectList(dest, src);
-}
-
-/**
- * Copy a stack of voxels.
- * @param dest Destination address.
- * @param src Source address.
- * @param count Number of voxels to copy.
- * @param copy_voxel_objects Copy the voxel object list too.
- */
-static void CopyStackData(Voxel *dest, Voxel *src, int count, bool copy_voxel_objects)
-{
-	while (count > 0) {
-		CopyVoxel(dest, src, copy_voxel_objects);
-		dest++;
-		src++;
-		count--;
-	}
-}
-
 /** Make the voxel empty. */
 void Voxel::ClearVoxel()
 {
@@ -75,6 +32,7 @@ void Voxel::ClearVoxel()
 	this->SetGrowth(0);
 	this->SetFences(ALL_INVALID_FENCES);
 	this->ClearInstances();
+	this->voxel_objects = nullptr;
 }
 
 static const uint32 CURRENT_VERSION_VSTK  = 3;   ///< Currently supported version of the VSTK pattern.
@@ -122,19 +80,6 @@ void Voxel::Save(Saver &svr) const
 	}
 	svr.PutWord(this->fences);
 	svr.EndPattern();
-}
-
-/**
- * Make a new array of voxels, and initialize it.
- * @param height Desired height of the new voxel array.
- * @return New and initialized to 'empty' voxels.
- */
-static std::unique_ptr<Voxel[]> MakeNewVoxels(int height)
-{
-	assert(height > 0);
-	std::unique_ptr<Voxel[]> voxels(new Voxel[height]());
-	for (int i = 0; i < height; i++) voxels[i].ClearVoxel();
-	return voxels;
 }
 
 VoxelObject::~VoxelObject()
@@ -212,7 +157,6 @@ void VoxelObject::Save(Saver &svr)
 /** Default constructor. */
 VoxelStack::VoxelStack()
 {
-	this->voxels = nullptr;
 	this->base = 0;
 	this->height = 0;
 }
@@ -220,7 +164,7 @@ VoxelStack::VoxelStack()
 /** Remove the stack. */
 void VoxelStack::Clear()
 {
-	this->voxels.reset();
+	this->voxels.clear();
 	this->base = 0;
 	this->height = 0;
 	this->owner = OWN_NONE;
@@ -232,18 +176,16 @@ void VoxelStack::Clear()
  * @param new_height New number of voxels in the stack.
  * @return New stack could be created.
  * @note The old stack must fit in the new stack.
- * @todo If contents of a voxel is cleared, it might be released from the stack. Currently that is never done.
  */
 bool VoxelStack::MakeVoxelStack(int16 new_base, uint16 new_height)
 {
 	/* Make sure the voxels live between 0 and WORLD_Z_SIZE. */
 	if (new_base < 0 || new_base + (int)new_height > WORLD_Z_SIZE) return false;
 
-	std::unique_ptr<Voxel[]> new_voxels = MakeNewVoxels(new_height);
 	assert(this->height == 0 || (this->base >= new_base && this->base + this->height <= new_base + new_height));
-	CopyStackData(new_voxels.get() + (this->base - new_base), this->voxels.get(), this->height, true);
 
-	this->voxels = std::move(new_voxels);
+	for (int i = new_base; i < this->base; i++) this->voxels.insert(this->voxels.begin(), std::unique_ptr<Voxel>(new Voxel));
+	for (size_t i = new_height - this->voxels.size(); i > 0; i--) this->voxels.push_back(std::unique_ptr<Voxel>(new Voxel));
 	this->height = new_height;
 	this->base = new_base;
 	return true;
@@ -263,7 +205,7 @@ const Voxel *VoxelStack::Get(int16 z) const
 	assert(z >= this->base);
 	z -= this->base;
 	assert((uint16)z < this->height);
-	return &this->voxels[(uint16)z];
+	return this->voxels[z].get();
 }
 
 /**
@@ -287,7 +229,7 @@ Voxel *VoxelStack::GetCreate(int16 z, bool create)
 	assert(z >= this->base);
 	z -= this->base;
 	assert((uint16)z < this->height);
-	return &this->voxels[(uint16)z];
+	return this->voxels[z].get();
 }
 
 /** Default constructor of the voxel world. */
@@ -364,67 +306,13 @@ void VoxelWorld::MakeFlatWorld(int16 z)
 }
 
 /**
- * Move a voxel stack to this world. May destroy the original stack in the process.
- * @param vs Source stack.
- */
-void VoxelStack::MoveStack(VoxelStack *vs)
-{
-	/* Clean up the stack a bit before copying it, and get lowest and highest non-empty voxel. */
-	int vs_first = 0;
-	int vs_last = 0;
-	for (int i = 0; i < (int)vs->height; i++) {
-		Voxel *v = &vs->voxels[i];
-		assert(!v->HasVoxelObjects()); // There should be no voxel objects in the stack being moved.
-
-		if (!v->IsEmpty()) {
-			vs_last = i;
-		} else {
-			if (vs_first == i) vs_first++;
-		}
-	}
-
-	/* There should be at least one surface voxel. */
-	assert(vs_first <= vs_last);
-
-	/* Examine current stack with respect to persons. */
-	int old_first = 0;
-	int old_last = 0;
-	for (int i = 0; i < (int)this->height; i++) {
-		const Voxel *v = &this->voxels[i];
-		if (v->HasVoxelObjects()) {
-			old_last = i;
-		} else {
-			if (old_first == i) old_first++;
-		}
-	}
-
-	int new_base = std::min(vs->base + vs_first, this->base + old_first);
-	int new_height = std::max(vs->base + vs_last, this->base + old_last) - new_base + 1;
-	assert(new_base >= 0);
-
-	/* Make a new stack. Copy new surface, then copy the persons. */
-	std::unique_ptr<Voxel[]> new_voxels = MakeNewVoxels(new_height);
-	CopyStackData(new_voxels.get() + (vs->base + vs_first) - new_base, vs->voxels.get() + vs_first, vs_last - vs_first + 1, false);
-	int i = (this->base + old_first) - new_base;
-	while (old_first <= old_last) {
-		CopyVoxelObjectList(&new_voxels[i], &this->voxels[old_first]);
-		i++;
-		old_first++;
-	}
-
-	this->base = new_base;
-	this->height = new_height;
-	this->voxels = std::move(new_voxels);
-}
-
-/**
  * Get the offset of the base of ground in the voxel stack (for steep slopes the bottom voxel).
  * @return Index in the voxel array for the base voxel containing the ground.
  */
 int VoxelStack::GetBaseGroundOffset() const
 {
 	for (int i = this->height - 1; i >= 0; i--) {
-		const Voxel &v = this->voxels[i];
+		const Voxel &v = *this->voxels[i];
 		if (v.GetGroundType() != GTP_INVALID && !IsImplodedSteepSlopeTop(v.GetGroundSlope())) return i;
 	}
 	NOT_REACHED();
@@ -437,7 +325,7 @@ int VoxelStack::GetBaseGroundOffset() const
 int VoxelStack::GetTopGroundOffset() const
 {
 	for (int i = this->height - 1; i >= 0; i--) {
-		const Voxel &v = this->voxels[i];
+		const Voxel &v = *this->voxels[i];
 		if (v.GetGroundType() != GTP_INVALID) return i;
 	}
 	NOT_REACHED();
@@ -461,8 +349,11 @@ void VoxelStack::Load(Loader &ldr)
 			this->base = base;
 			this->height = height;
 			this->owner = (TileOwner)owner;
-			this->voxels = (height > 0) ? MakeNewVoxels(height) : nullptr;
-			for (uint i = 0; i < height; i++) this->voxels[i].Load(ldr);
+			this->voxels.resize(height);
+			for (uint i = 0; i < height; i++) {
+				this->voxels[i].reset(new Voxel);
+				this->voxels[i]->Load(ldr);
+			}
 
 			/* In version 3 of VSTK, the fences of the lowest corner of steep slopes have moved from the top voxel to the base voxel. */
 			if (version < 3) {
@@ -475,21 +366,21 @@ void VoxelStack::Load(Loader &ldr)
 				};
 
 				for (uint i = 0; i < height; i++) {
-					if (this->voxels[i].GetGroundType() == GTP_INVALID) continue;
-					if (!IsImplodedSteepSlopeTop(this->voxels[i].GetGroundSlope())) continue;
-					uint16 mask = low_fences_mask[this->voxels[i].GetGroundSlope() - ISL_TOP_STEEP_NORTH];
+					if (this->voxels[i]->GetGroundType() == GTP_INVALID) continue;
+					if (!IsImplodedSteepSlopeTop(this->voxels[i]->GetGroundSlope())) continue;
+					uint16 mask = low_fences_mask[this->voxels[i]->GetGroundSlope() - ISL_TOP_STEEP_NORTH];
 
 					/* Take out the fences of the top voxel that should be in the base voxel.
 					 * Make the low fences in the high voxel invalid. */
-					uint16 fences = this->voxels[i].GetFences();
+					uint16 fences = this->voxels[i]->GetFences();
 					uint16 lower_fences = fences & mask;
 					uint16 high_invalid = ALL_INVALID_FENCES & mask;
 					mask ^= 0xffff;
-					this->voxels[i].SetFences(high_invalid | (fences & mask));
+					this->voxels[i]->SetFences(high_invalid | (fences & mask));
 
 					/* Fix low fences. */
-					fences = this->voxels[i + 1].GetFences();
-					this->voxels[i + 1].SetFences(lower_fences | (fences & mask));
+					fences = this->voxels[i + 1]->GetFences();
+					this->voxels[i + 1]->SetFences(lower_fences | (fences & mask));
 
 					break; // Only one steep ground slope in a voxel stack at most.
 				}
@@ -510,7 +401,7 @@ void VoxelStack::Save(Saver &svr) const
 	svr.PutWord(this->base);
 	svr.PutWord(this->height);
 	svr.PutByte(this->owner);
-	for (uint i = 0; i < this->height; i++) this->voxels[i].Save(svr);
+	for (uint i = 0; i < this->height; i++) this->voxels[i]->Save(svr);
 	svr.EndPattern();
 }
 
