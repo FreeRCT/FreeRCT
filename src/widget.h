@@ -84,7 +84,7 @@ public:
 	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void AutoRaiseButtons(const Point32 &base);
-	virtual bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol);
+	virtual bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol);
 
 	void MarkDirty(const Point32 &base) const;
 
@@ -222,17 +222,16 @@ class TextInputWidget : public LeafWidget {
 public:
 	TextInputWidget(WidgetType wtype);
 
-	const uint8 *GetText() const;
-	void SetText(uint8 *text);
+	const std::string &GetText() const;
+	void SetText(const std::string &text);
 	void SetCursorPos(size_t pos);
 
-	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
+	bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void Draw(const GuiWindow *w) override;
 
 private:
-	std::unique_ptr<uint8[]> buffer;  ///< Currently held text.
-	size_t text_length;               ///< Number of characters in the text.
+	std::string buffer;               ///< Currently held text.
 	size_t cursor_pos;                ///< Position of the cursor in the text.
 	int value_width;                  ///< Width of the image or the string.
 	int value_height;                 ///< Height of the image or the string.
@@ -301,7 +300,7 @@ public:
 	void Draw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
-	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
+	bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
 
 	std::unique_ptr<BaseWidget> child; ///< Child widget displayed on top of the background widget.
 };
@@ -342,7 +341,7 @@ public:
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
 	BaseWidget *FindTooltipWidget(const Point16 &pt) override;
-	bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
+	bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();

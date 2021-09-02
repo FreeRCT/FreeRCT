@@ -1153,7 +1153,7 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
-bool Viewport::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool Viewport::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	if (key_code == WMKC_SYMBOL) {
 		if (symbol[0] == 'q') {

@@ -183,7 +183,7 @@ int EncodeUtf8Char(uint32 codepoint, uint8 *dest)
  * @param pos Index in the string to start searching from.
  * @return The previous character's index.
  */
-size_t GetPrevChar(const uint8 *data, size_t pos)
+size_t GetPrevChar(const std::string &data, size_t pos)
 {
 	if (pos == 0) return 0;
 	do {
@@ -198,9 +198,9 @@ size_t GetPrevChar(const uint8 *data, size_t pos)
  * @param pos Index in the string to start searching from.
  * @return The next character's index.
  */
-size_t GetNextChar(const uint8 *data, size_t pos)
+size_t GetNextChar(const std::string &data, size_t pos)
 {
-	const size_t length = StrBytesLength(data);
+	const size_t length = data.size();
 	if (pos >= length) return length;
 	do {
 		pos++;

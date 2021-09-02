@@ -156,6 +156,12 @@ public:
 	void DrawRectangle(const Rectangle32 &rect, uint32 colour);
 	void FillRectangle(const Rectangle32 &rect, uint32 colour);
 
+	// NOCOM get rid
+	inline void GetTextSize(const std::string &text, int *width, int *height)
+	{
+		return GetTextSize(reinterpret_cast<const uint8*>(text.c_str()), width, height);
+	}
+
 	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
 	std::set<Point32> resolutions; ///< Set (for automatic sorting) of available resolutions.
 

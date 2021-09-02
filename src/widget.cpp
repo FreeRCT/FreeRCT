@@ -244,7 +244,7 @@ void BaseWidget::AutoRaiseButtons(const Point32 &base)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool BaseWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool BaseWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	return false;
 }
@@ -603,9 +603,8 @@ static const int TEXT_INPUT_MARGIN = 2;  ///< Margin around a text input field.
 
 TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype)
 {
-	this->text_length = 0;
 	this->cursor_pos = 0;
-	this->SetText(new uint8[1]{'\0'});
+	this->SetText("");
 }
 
 /**
@@ -614,7 +613,7 @@ TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype)
  */
 void TextInputWidget::SetCursorPos(const size_t pos)
 {
-	assert(pos <= this->text_length);
+	assert(pos <= this->buffer.size());
 	this->cursor_pos = pos;
 }
 
@@ -622,35 +621,34 @@ void TextInputWidget::SetCursorPos(const size_t pos)
  * Retrieve the currently held text. Do not modify the returned pointer.
  * @return The text.
  */
-const uint8 *TextInputWidget::GetText() const
+const std::string &TextInputWidget::GetText() const
 {
-	return this->buffer.get();
+	return this->buffer;
 }
 
 /**
- * Change the currently held text. Takes ownership of the pointer.
+ * Change the currently held text.
  * @param text New text.
  */
-void TextInputWidget::SetText(uint8 *text)
+void TextInputWidget::SetText(const std::string &text)
 {
-	this->buffer.reset(text);
-	this->text_length = strlen(reinterpret_cast<const char*>(text));
-	this->cursor_pos = std::min(this->cursor_pos, this->text_length);
+	this->buffer = text;
+	this->cursor_pos = std::min(this->cursor_pos, this->buffer.size());
 	this->MarkDirty(this->cached_window_base);
 }
 
-bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	switch (key_code) {
 		case WMKC_CURSOR_LEFT:
 			if (this->cursor_pos > 0) {
-				this->cursor_pos = GetPrevChar(this->buffer.get(), this->cursor_pos);
+				this->cursor_pos = GetPrevChar(this->buffer, this->cursor_pos);
 				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 		case WMKC_CURSOR_RIGHT:
-			if (this->cursor_pos < this->text_length) {
-				this->cursor_pos = GetNextChar(this->buffer.get(), this->cursor_pos);
+			if (this->cursor_pos < this->buffer.size()) {
+				this->cursor_pos = GetNextChar(this->buffer, this->cursor_pos);
 				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
@@ -659,42 +657,36 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 			this->MarkDirty(this->cached_window_base);
 			return true;
 		case WMKC_CURSOR_END:
-			this->cursor_pos = this->text_length;
+			this->cursor_pos = this->buffer.size();
 			this->MarkDirty(this->cached_window_base);
 			return true;
 
 		case WMKC_BACKSPACE:
 			if (this->cursor_pos > 0) {
-				uint8 nr_chars_to_delete = this->cursor_pos - GetPrevChar(this->buffer.get(), this->cursor_pos);
+				uint8 nr_chars_to_delete = this->cursor_pos - GetPrevChar(this->buffer, this->cursor_pos);
 				if (nr_chars_to_delete == 0) return true;
-				uint8 *newtext = new uint8[this->text_length + 1 - nr_chars_to_delete];
-				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos - nr_chars_to_delete);
-				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos - nr_chars_to_delete, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
+
 				this->cursor_pos -= nr_chars_to_delete;
-				this->SetText(newtext);
+				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
+				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 		case WMKC_DELETE:
-			if (this->cursor_pos < this->text_length) {
-				uint8 nr_chars_to_delete = GetNextChar(this->buffer.get(), this->cursor_pos) - this->cursor_pos;
+			if (this->cursor_pos < this->buffer.size()) {
+				uint8 nr_chars_to_delete = GetNextChar(this->buffer, this->cursor_pos) - this->cursor_pos;
 				if (nr_chars_to_delete == 0) return true;
-				uint8 *newtext = new uint8[this->text_length + 1 - nr_chars_to_delete];
-				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos + nr_chars_to_delete);
-				this->SetText(newtext);
+
+				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
+				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 
 		case WMKC_SYMBOL: {
-			const size_t off = strlen(reinterpret_cast<const char*>(symbol));
-			if (off == 0) break;
+			if (symbol.empty()) break;
 
-			uint8 *newtext = new uint8[this->text_length + off + 1];
-			strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(symbol));
-			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos + off, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
-			this->SetText(newtext);
-			this->cursor_pos += off;
+			this->buffer.insert(this->cursor_pos, symbol);
+			this->cursor_pos += symbol.size();
+			this->MarkDirty(this->cached_window_base);
 			return true;
 		}
 
@@ -711,25 +703,22 @@ void TextInputWidget::Draw(const GuiWindow *w)
 	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + 2]);
 
 	/* Update text dimensions. */
-	_video.GetTextSize(this->GetText(), &this->value_width, &this->value_height);
+	_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
 	int cursor_offset;
 	if (this->cursor_pos == 0) {
 		cursor_offset = 0;
-	} else if (this->cursor_pos == this->text_length) {
+	} else if (this->cursor_pos == this->buffer.size()) {
 		cursor_offset = this->value_width;
 	} else {
-		std::unique_ptr<uint8[]> text(new uint8[this->cursor_pos + 1]);
-		strncpy(reinterpret_cast<char*>(text.get()), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-		text[this->cursor_pos] = '\0';
-		_video.GetTextSize(text.get(), &cursor_offset, nullptr);
+		_video.GetTextSize(this->buffer.substr(0, this->cursor_pos), &cursor_offset, nullptr);
 	}
 
 	r.base.x += TEXT_INPUT_MARGIN;
 	r.base.y += TEXT_INPUT_MARGIN;
 	r.width -= 2 * TEXT_INPUT_MARGIN;
 	r.height -= 2 * TEXT_INPUT_MARGIN;
-	if (this->text_length > 0) {
-		_video.BlitText(this->GetText(), _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
+	if (!this->buffer.empty()) {
+		_video.BlitText(reinterpret_cast<const uint8*>(this->buffer.c_str()) /* NOCOM */, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
 				r.base.x, r.base.y, r.width, ALG_LEFT);
 	}
 	_video.DrawLine(Point16(r.base.x + cursor_offset, r.base.y), Point16(r.base.x + cursor_offset, r.base.y + r.height),
@@ -742,7 +731,7 @@ void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	this->min_x = this->smallest_x;
 	this->min_y = this->smallest_y;
 
-	_video.GetTextSize(this->GetText(), &this->value_width, &this->value_height);
+	_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
 	this->InitMinimalSize(this->value_width, this->value_height, 0, 0);
 
 	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
@@ -1190,7 +1179,7 @@ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 	return nullptr;
 }
 
-bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	return (this->child != nullptr && this->child->OnKeyEvent(key_code, symbol)) || LeafWidget::OnKeyEvent(key_code, symbol);
 }
@@ -1524,7 +1513,7 @@ BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
 	return w == nullptr ? nullptr : w->FindTooltipWidget(pt);
 }
 
-bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
 		if (this->childs[idx]->OnKeyEvent(key_code, symbol)) return true;

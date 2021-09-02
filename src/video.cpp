@@ -333,7 +333,7 @@ static void UpdateMousePosition(int16 x, int16 y)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Game-ending event has happened.
  */
-static bool HandleKeyInput(WmKeyCode key_code, const uint8 *symbol)
+static bool HandleKeyInput(WmKeyCode key_code, const std::string &symbol = std::string())
 {
 	return _window_manager.KeyEvent(key_code, symbol);
 }
@@ -349,23 +349,23 @@ bool VideoSystem::HandleEvent()
 
 	switch (event.type) {
 		case SDL_TEXTINPUT:
-			return HandleKeyInput(WMKC_SYMBOL, (const uint8 *)event.text.text);
+			return HandleKeyInput(WMKC_SYMBOL, event.text.text);
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-				case SDLK_UP:        return HandleKeyInput(WMKC_CURSOR_UP, nullptr);
-				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT, nullptr);
-				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT, nullptr);
-				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN, nullptr);
-				case SDLK_HOME:      return HandleKeyInput(WMKC_CURSOR_HOME, nullptr);
-				case SDLK_END:       return HandleKeyInput(WMKC_CURSOR_END, nullptr);
-				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL, nullptr);
-				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE, nullptr);
-				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE, nullptr);
+				case SDLK_UP:        return HandleKeyInput(WMKC_CURSOR_UP);
+				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT);
+				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT);
+				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN);
+				case SDLK_HOME:      return HandleKeyInput(WMKC_CURSOR_HOME);
+				case SDLK_END:       return HandleKeyInput(WMKC_CURSOR_END);
+				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL);
+				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE);
+				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE);
 
 				case SDLK_RETURN:
 				case SDLK_RETURN2:
-				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM, nullptr);
+				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM);
 
 				default:             return false;
 			}

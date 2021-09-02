@@ -117,7 +117,7 @@ void LoadSaveGui::SetWidgetStringParameters(const WidgetNumber wid_num) const
  */
 std::string LoadSaveGui::FinalFilename() const
 {
-	std::string result(reinterpret_cast<const char*>(this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText()));
+	std::string result = this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText();
 	if (result.size() < 5 || result.compare(result.size() - 4, 4, ".fct")) result += ".fct";
 	return result;
 }
@@ -138,9 +138,7 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 
 			auto selected = this->all_files.begin();
 			std::advance(selected, index);
-			uint8 *buffer = new uint8[selected->size() + 1];
-			strcpy(reinterpret_cast<char*>(buffer), selected->c_str());
-			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(buffer);
+			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(*selected);
 			break;
 		}
 
