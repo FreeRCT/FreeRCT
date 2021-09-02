@@ -136,7 +136,7 @@ VideoSystem::~VideoSystem()
  * @param font_size Size of the font.
  * @return Error message if initialization failed, else an empty text.
  */
-std::string VideoSystem::Initialize(const char *font_name, int font_size)
+std::string VideoSystem::Initialize(const std::string &font_name, int font_size)
 {
 	if (this->initialized) return "";
 
@@ -195,7 +195,7 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 		return err;
 	}
 
-	this->font = TTF_OpenFont(font_name, font_size);
+	this->font = TTF_OpenFont(font_name.c_str(), font_size);
 	if (this->font == nullptr) {
 		std::string err = "TTF Opening font \"";
 		err += font_name;

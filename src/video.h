@@ -57,7 +57,7 @@ public:
 	VideoSystem();
 	~VideoSystem();
 
-	std::string Initialize(const char *font_name, int font_size);
+	std::string Initialize(const std::string &font_name, int font_size);
 	bool SetResolution(const Point32 &res);
 	void GetResolutions();
 	void MainLoop();

@@ -58,19 +58,19 @@ static void PrintUsage()
 	printf("Options:\n");
 	printf("  -h, --help           Display this help text and exit.\n");
 	printf("  -v, --version        Display version and build info and exit.\n");
-	printf("  -l, --load [file]    Load game from specified file.\n");
+	printf("  -l, --load FILE      Load game from specified file.\n");
 	printf("  -r, --resave         Automatically resave games after loading.\n");
-	printf("  -a, --language lang  Use the specified language.\n");
+	printf("  -a, --language LANG  Use the specified language.\n");
 
 	printf("\nValid languages are:\n   ");
 	int length = 0;
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
-		length += strlen(_lang_names[i]) + 1;
+		length += _lang_names[i].size() + 1;
 		if (length > 50) {  // Linewrap after an arbitrary number of characters.
 			printf("\n   ");
-			length = strlen(_lang_names[i]);
+			length = _lang_names[i].size();
 		}
-		printf(" %s", _lang_names[i]);
+		printf(" %s", _lang_names[i].c_str());
 	}
 	printf("\n");
 }
@@ -174,11 +174,11 @@ int freerct_main(int argc, char **argv)
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
 	bool language_set = false;
 	if (!preferred_language.empty()) {
-		int index = GetLanguageIndex(preferred_language.c_str());
+		int index = GetLanguageIndex(preferred_language);
 		if (index < 0) {
 			fprintf(stderr, "The language '%s' set on the command line is not known.\n", preferred_language.c_str());
-			const char *similar = GetSimilarLanguage(preferred_language);
-			if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
+			preferred_language = GetSimilarLanguage(preferred_language);
+			if (!preferred_language.empty()) fprintf(stderr, "Did you perhaps mean '%s'?\n", preferred_language.c_str());
 			fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
 		} else {
 			_current_language = index;
@@ -188,11 +188,11 @@ int freerct_main(int argc, char **argv)
 	if (!language_set) {
 		preferred_language = cfg_file.GetValue("language", "language");  // The pointer is owned by cfg_file.
 		if (!preferred_language.empty()) {
-			int index = GetLanguageIndex(preferred_language.c_str());
+			int index = GetLanguageIndex(preferred_language);
 			if (index < 0) {
 				fprintf(stderr, "The language '%s' set in the configuration file (freerct.cfg) is not known.\n", preferred_language.c_str());
-				const char *similar = GetSimilarLanguage(preferred_language);
-				if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
+				preferred_language = GetSimilarLanguage(preferred_language);
+				if (!preferred_language.empty()) fprintf(stderr, "Did you perhaps mean '%s'?\n", preferred_language.c_str());
 				fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
 			} else {
 				_current_language = index;
@@ -201,7 +201,7 @@ int freerct_main(int argc, char **argv)
 	}
 
 	/* Initialize video. */
-	std::string err = _video.Initialize(font_path.c_str(), font_size);
+	std::string err = _video.Initialize(font_path, font_size);
 	if (!err.empty()) {
 		fprintf(stderr, "Failed to initialize window or the font (%s), aborting\n", err.c_str());
 		return 1;

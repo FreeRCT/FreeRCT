@@ -39,7 +39,7 @@ void TextString::Clear()
 }
 
 /** Known languages. */
-const char * const _lang_names[] = {
+const std::string _lang_names[] = {
 	"da_DK", // Danish.
 	"de_DE", // German.
 	"en_GB", // English (Also the default language).
@@ -58,14 +58,14 @@ assert_compile(lengthof(_lang_names) == LANGUAGE_COUNT); ///< Ensure number of l
  * @param lang_name Name of the language.
  * @return Index of the language with the provided name, or \c -1 if not recognized.
  */
-int GetLanguageIndex(const char *lang_name)
+int GetLanguageIndex(const std::string &lang_name)
 {
 	int start = 0; // Exclusive lower bound.
 	int end = LANGUAGE_COUNT; // Exclusive upper bound.
 
 	while (start + 1 < end) {
 		int middle = (start + end) / 2;
-		int cmp = strcmp(_lang_names[middle], lang_name);
+		int cmp = _lang_names[middle].compare(lang_name);
 		if (cmp == 0) return middle; // Jack pot.
 		if (cmp < 0) {
 			start = middle;
@@ -73,37 +73,36 @@ int GetLanguageIndex(const char *lang_name)
 			end = middle;
 		}
 	}
-	if (!strcmp(_lang_names[start], lang_name)) return start;
+	if (_lang_names[start] == lang_name) return start;
 	return -1;
 }
 
 /**
  * Get the name of a given language index.
  * @param index Index of the language.
- * @return Name of the language, or \c nullptr if the index is invalid.
+ * @return Name of the language, or \c "" if the index is invalid.
  */
-const char *GetLanguageName(const int index)
+std::string GetLanguageName(const int index)
 {
-	if (index < 0 || index >= LANGUAGE_COUNT) return nullptr;
+	if (index < 0 || index >= LANGUAGE_COUNT) return std::string();
 	return _lang_names[index];
 }
 
 /**
  * Try to find a language whose name is similar to the provided name.
  * @param lang_name Name to compare to.
- * @return Most similar language name, or \c nullptr if no language has a similar name.
+ * @return Most similar language name, or \c "" if no language has a similar name.
  */
-const char *GetSimilarLanguage(const std::string& lang_name)
+std::string GetSimilarLanguage(const std::string& lang_name)
 {
-	const char *best_match = nullptr;
+	std::string best_match;
 	double score = 1.5;  // Arbitrary treshold to suppress random matches.
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
-		const std::string name(_lang_names[i]);
-		const int common_length = std::min(name.size(), lang_name.size());
-		double s = common_length - std::max<int>(name.size(), lang_name.size());
+		const int common_length = std::min(_lang_names[i].size(), lang_name.size());
+		double s = common_length - std::max<int>(_lang_names[i].size(), lang_name.size());
 		for (int j = 0; j < common_length; ++j) {
 			const char c1 = lang_name.at(j);
-			const char c2 = name.at(j);
+			const char c2 = _lang_names[i].at(j);
 			if (c1 == c2) {
 				s++;
 			} else if (c1 >= 'a' && c1 <= 'z' && c1 + 'A' - 'a' == c2) {

@@ -177,9 +177,9 @@ private:
 	uint first_free; ///< 'First' string index that is not allocated yet.
 };
 
-int GetLanguageIndex(const char *lang_name);
-const char *GetLanguageName(int index);
-const char *GetSimilarLanguage(const std::string&);
+int GetLanguageIndex(const std::string &lang_name);
+std::string GetLanguageName(int index);
+std::string GetSimilarLanguage(const std::string&);
 void InitLanguage();
 void UninitLanguage();
 
@@ -188,7 +188,7 @@ void GetTextSize(StringID num, int *width, int *height);
 
 extern Language _language;
 extern StringParameters _str_params;
-extern const char * const _lang_names[];
+extern const std::string _lang_names[];
 
 void DrawText(StringID num, uint8 *buffer, uint length, StringParameters *params = &_str_params);
 
