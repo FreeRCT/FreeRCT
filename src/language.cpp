@@ -283,7 +283,7 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 		this->registered[number] = nullptr;
 		for (uint i = 0; i < td.string_count; i++) {
 			const TextString *ts = td.strings.get() + i;
-			if (ts->name == *str) {
+			if (strcmp(ts->name, *str) == 0) {
 				this->registered[number] = ts;
 				break;
 			}

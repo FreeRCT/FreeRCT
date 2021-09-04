@@ -782,6 +782,7 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
  */
 void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
+	if (text.empty()) return;
 	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
 	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, text.c_str(), col);
 	if (surf == nullptr) {
