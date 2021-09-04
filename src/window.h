@@ -27,9 +27,9 @@ class MouseModeSelector;
 /** An item in a dropdown list. */
 class DropdownItem {
 public:
-	DropdownItem(StringID strid);
+	explicit DropdownItem(StringID strid);
 
-	uint8 str[128]; ///< Item, as a string (arbitary length).
+	const std::string str;  ///< Item, as a string.
 };
 
 /** A dropdown list is a collection of #DropdownItem items. */

@@ -725,9 +725,9 @@ void VideoSystem::BlitImages(const Point32 &pt, const ImageData *spr, uint16 num
  * @param width [out] Resulting width.
  * @param height [out] Resulting height.
  */
-void VideoSystem::GetTextSize(const uint8 *text, int *width, int *height)
+void VideoSystem::GetTextSize(const std::string &text, int *width, int *height)
 {
-	if (TTF_SizeUTF8(this->font, (const char *)text, width, height) != 0) {
+	if (TTF_SizeUTF8(this->font, text.c_str(), width, height) != 0) {
 		*width = 0;
 		*height = 0;
 	}
@@ -747,9 +747,9 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 		this->digit_size.x = 0;
 		this->digit_size.y = 0;
 
-		uint8 buffer[2];
+		char buffer[2];
 		buffer[1] = '\0';
-		for (uint8 i = '0'; i <= '9'; i++) {
+		for (char i = '0'; i <= '9'; i++) {
 			buffer[0] = i;
 			int w, h;
 			this->GetTextSize(buffer, &w, &h);
@@ -780,10 +780,10 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
  * @param width Available width of the text (in pixels).
  * @param align Horizontal alignment of the string.
  */
-void VideoSystem::BlitText(const uint8 *text, uint32 colour, int xpos, int ypos, int width, Alignment align)
+void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
 	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
-	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, (const char *)text, col);
+	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, text.c_str(), col);
 	if (surf == nullptr) {
 		fprintf(stderr, "Rendering text failed (%s)\n", TTF_GetError());
 		return;

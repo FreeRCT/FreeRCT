@@ -718,7 +718,7 @@ void TextInputWidget::Draw(const GuiWindow *w)
 	r.width -= 2 * TEXT_INPUT_MARGIN;
 	r.height -= 2 * TEXT_INPUT_MARGIN;
 	if (!this->buffer.empty()) {
-		_video.BlitText(reinterpret_cast<const uint8*>(this->buffer.c_str()) /* NOCOM */, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
+		_video.BlitText(this->buffer, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
 				r.base.x, r.base.y, r.width, ALG_LEFT);
 	}
 	_video.DrawLine(Point16(r.base.x + cursor_offset, r.base.y), Point16(r.base.x + cursor_offset, r.base.y + r.height),

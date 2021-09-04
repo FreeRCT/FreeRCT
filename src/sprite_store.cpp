@@ -74,13 +74,13 @@ const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
  * @param[out] used_size Length of the used part of the buffer, only updated on successful reading of the string.
  * @return Reading the string was a success.
  */
-static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, uint8 *buffer, size_t buf_length, size_t *used_size)
+static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, char *buffer, size_t buf_length, size_t *used_size)
 {
 	if (buf_length < *used_size + expected_length) return false;
 	rcd_file->GetBlob(buffer + *used_size, expected_length);
 
 	int real_size = expected_length;
-	uint8 *start = buffer + *used_size;
+	char *start = buffer + *used_size;
 
 	for (;;) {
 		uint32 code_point;
@@ -103,7 +103,7 @@ static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, uint8 
  */
 bool TextData::Load(RcdFileReader *rcd_file)
 {
-	uint8 buffer[64*1024]; // Arbitrary sized block of temporary memory to store the text data.
+	char buffer[64*1024]; // Arbitrary sized block of temporary memory to store the text data.
 	size_t used_size = 0;
 	uint32 length = rcd_file->size;
 	if (rcd_file->version != 2) return false;
@@ -124,7 +124,7 @@ bool TextData::Load(RcdFileReader *rcd_file)
 		int trs_length = str_length - (ident_length + 2 + 1);
 
 		/* Read string name. */
-		strings[used_strings].name = (char *)buffer + used_size;
+		strings[used_strings].name = buffer + used_size;
 		if (!ReadUtf8Text(rcd_file, ident_length, buffer, lengthof(buffer), &used_size)) return false;
 		length -= ident_length;
 
@@ -138,7 +138,7 @@ bool TextData::Load(RcdFileReader *rcd_file)
 			if (lang_length + 2 + 1 >= tr_length) return false;
 			int text_length = tr_length - (lang_length + 2 + 1);
 
-			uint8 lang_buffer[1000]; // Arbitrary sized block to store the language name or a single string.
+			char lang_buffer[1000]; // Arbitrary sized block to store the language name or a single string.
 			size_t used = 0;
 
 			/* Read translation language string. */
@@ -166,15 +166,15 @@ bool TextData::Load(RcdFileReader *rcd_file)
 
 	this->strings.reset(new TextString[used_strings]);
 	this->string_count = used_strings;
-	this->text_data.reset(new uint8[used_size]);
+	this->text_data.reset(new char[used_size]);
 	if (this->strings == nullptr || this->text_data == nullptr) return false;
 
 	memcpy(this->text_data.get(), buffer, used_size);
 	for (uint i = 0; i < used_strings; i++) {
-		this->strings[i].name = (strings[i].name == nullptr) ? nullptr : (char *)this->text_data.get() + ((uint8 *)(strings[i].name) - buffer);
+		this->strings[i].name = (strings[i].name == nullptr) ? nullptr : (this->text_data.get() + (strings[i].name - buffer));
 		for (uint lng = 0; lng < LANGUAGE_COUNT; lng++) {
 			this->strings[i].languages[lng] = (strings[i].languages[lng] == nullptr)
-					? nullptr : this->text_data.get() + (strings[i].languages[lng] - buffer);
+					? nullptr : (this->text_data.get() + (strings[i].languages[lng] - buffer));
 		}
 	}
 	return true;

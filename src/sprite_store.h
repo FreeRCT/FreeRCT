@@ -45,7 +45,7 @@ public:
 
 	uint string_count;   ///< Number of strings in #strings.
 	std::unique_ptr<TextString[]> strings; ///< Strings of the text.
-	std::unique_ptr<uint8[]> text_data;    ///< Text data (UTF-8) itself.
+	std::unique_ptr<char[]> text_data;     ///< Text data (UTF-8) itself.
 };
 
 typedef std::map<uint32, TextData *> TextMap; ///< Map of loaded text blocks.

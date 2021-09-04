@@ -51,7 +51,7 @@ void CoasterRemoveWindow::OnClick(WidgetNumber number, const Point16 &pos)
 
 void CoasterRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	if (wid_num == ERW_MESSAGE) _str_params.SetUint8(1, (uint8 *)this->ci->name.get());
+	if (wid_num == ERW_MESSAGE) _str_params.SetText(1, this->ci->name);
 }
 
 /**
@@ -366,7 +366,7 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 {
 	switch (wid_num) {
 		case CIW_TITLEBAR:
-			_str_params.SetUint8(1, (uint8 *)this->ci->name.get());
+			_str_params.SetText(1, this->ci->name);
 			break;
 
 		case CIW_MONTHLY_COST:
@@ -403,9 +403,9 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 			if (this->ci->broken) {
 				_str_params.SetStrID(1, GUI_RIDE_MANAGER_BROKEN_DOWN);
 			} else {
-				snprintf(text_buffer, lengthof(text_buffer), reinterpret_cast<const char*>(_language.GetText(GUI_RIDE_MANAGER_RELIABILITY)),
+				snprintf(text_buffer, lengthof(text_buffer), _language.GetText(GUI_RIDE_MANAGER_RELIABILITY).c_str(),
 						this->ci->reliability / 100.0);
-				_str_params.SetUint8(1, reinterpret_cast<uint8*>(text_buffer));
+				_str_params.SetText(1, text_buffer);
 			}
 			break;
 
@@ -525,7 +525,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CIW_CHOOSE_ENTRANCE: {
 			DropdownList itemlist;
 			for (const auto &eetype : _rides_manager.entrances) {
-				_str_params.SetUint8(1, _language.GetText(eetype->name));
+				_str_params.SetText(1, _language.GetText(eetype->name));
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(widget, itemlist, this->ci->entrance_type, COL_RANGE_DARK_RED);
@@ -534,7 +534,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 &pos)
 		case CIW_CHOOSE_EXIT: {
 			DropdownList itemlist;
 			for (const auto &eetype : _rides_manager.exits) {
-				_str_params.SetUint8(1, _language.GetText(eetype->name));
+				_str_params.SetText(1, _language.GetText(eetype->name));
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(widget, itemlist, this->ci->exit_type, COL_RANGE_DARK_RED);
@@ -1018,7 +1018,7 @@ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case CCW_TITLEBAR:
-			_str_params.SetUint8(1, (uint8 *)this->ci->name.get());
+			_str_params.SetText(1, this->ci->name);
 			break;
 	}
 }

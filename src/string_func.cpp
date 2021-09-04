@@ -95,7 +95,7 @@ size_t StrBytesLength(const uint8 *str)
  * @param[out] codepoint If decoding was successful, the value of the decoded character.
  * @return Number of bytes read to decode the character, or \c 0 if reading failed.
  */
-int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint)
+int DecodeUtf8Char(const char *data, size_t length, uint32 *codepoint)
 {
 	if (length < 1) return 0;
 	uint32 value = *data;
@@ -124,7 +124,7 @@ int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint)
 
 	if (length < static_cast<size_t>(size)) return 0;
 	for (int n = 1; n < size; n++) {
-		uint8 val = *data;
+		char val = *data;
 		data++;
 		if ((val & 0xC0) != 0x80) return 0;
 		value = (value << 6) | (val & 0x3F);
@@ -141,7 +141,7 @@ int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint)
  * @return Length of the encoded character in bytes.
  * @note It is recommended to use this function for measuring required output size (by making \a dest a \c nullptr), before writing the encoded string.
  */
-int EncodeUtf8Char(uint32 codepoint, uint8 *dest)
+int EncodeUtf8Char(uint32 codepoint, char *dest)
 {
 	if (codepoint < 0x7F + 1) {
 		/* 7 bits, U+0000 .. U+007F, 1 byte: 0xxx.xxxx */

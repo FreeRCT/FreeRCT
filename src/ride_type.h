@@ -17,8 +17,7 @@
 #include "money.h"
 #include "random.h"
 
-static const int MAX_RIDE_INSTANCE_NAME_LENGTH = 64; ///< Maximum number of characters in ride instance name.
-static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
+static const uint16 INVALID_RIDE_INSTANCE = 0xFFFF; ///< Value representing 'no ride instance found'.
 
 static const int MAX_RIDE_RECOLOURS = 3;  ///< Maximum number of entries in a RideInstance's recolour map.
 
@@ -206,7 +205,7 @@ public:
 
 	uint16 GetIndex() const;
 
-	std::unique_ptr<uint8[]> name;  ///< Name of the ride, if it is instantiated.
+	std::string name;               ///< Name of the ride, if it is instantiated.
 	uint8 state;                    ///< State of the instance. @see RideInstanceState
 	uint8 flags;                    ///< Flags of the instance. @see RideInstanceFlags
 	Recolouring recolours;          ///< Recolour map of the instance.
@@ -246,7 +245,7 @@ class RidesManager {
 public:
 	RideInstance *GetRideInstance(uint16 num);
 	const RideInstance *GetRideInstance(uint16 num) const;
-	RideInstance *FindRideByName(const uint8 *name);
+	RideInstance *FindRideByName(const std::string &name);
 
 	void AddRideType(std::unique_ptr<RideType> type);
 	void AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type);

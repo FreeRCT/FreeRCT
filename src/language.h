@@ -30,7 +30,6 @@ extern int _current_language;
  */
 enum StringTable {
 	STR_NULL = 0, ///< \c nullptr string.
-	STR_EMPTY,    ///< Empty string.
 	STR_ARG1,     ///< Argument 1 \c "%1%".
 
 	STR_GUI_START, ///< Start of the GUI strings.
@@ -104,16 +103,17 @@ public:
 	 * Get the string in the currently selected language.
 	 * @return Text of this string in the currently selected language.
 	 */
-	const uint8 *GetString() const
+	std::string GetString() const
 	{
-		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return (uint8 *)"<out of bounds>";
+		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return "<out of bounds>";
 		if (this->languages[_current_language] != nullptr) return this->languages[_current_language];
-		if (this->languages[LANG_EN_GB] != nullptr) return this->languages[LANG_EN_GB];
-		return (uint8 *)"<no-text>";
+		if (this->languages[LANG_EN_GB       ] != nullptr) return this->languages[LANG_EN_GB];
+		return "<no-text>";
 	}
 
-	const char *name;                       ///< Name of the string.
-	const uint8 *languages[LANGUAGE_COUNT]; ///< The string in all languages.
+	/* Memory is not owned. */
+	const char* name;                       ///< Name of the string.
+	const char* languages[LANGUAGE_COUNT];  ///< The string in all languages.
 };
 
 /** Types of parameters for string parameters. */
@@ -124,7 +124,7 @@ enum StringParamType {
 	SPT_MONEY,  ///< Parameter is an amount of money.
 	SPT_DATE,   ///< Parameter is a date.
 	SPT_TEMPERATURE, ///< Parameter is a temperature.
-	SPT_UINT8,  ///< Parameter is a C text string.
+	SPT_TEXT,  ///< Parameter is a text string.
 };
 
 /** Data of one string parameter. */
@@ -132,10 +132,10 @@ struct StringParameterData {
 	uint8 parm_type; ///< Type of the parameter. @see StringParamType
 	union {
 		StringID str;      ///< String number.
-		const uint8 *text; ///< C text pointer. Memory  is not managed!
 		uint32 dmy;        ///< Day/month/year.
 		int64 number;      ///< Signed number, temperature, or money amount.
 	} u; ///< Data of the parameter.
+	std::string text;  ///< Text content (note: unions can't contain std::string).
 };
 
 /** All string parameters. */
@@ -148,12 +148,13 @@ struct StringParameters {
 	void SetMoney(int num, const Money &amount);
 	void SetDate(int num, const Date &date);
 	void SetTemperature(int num, int value);
-	void SetUint8(int num, const uint8 *text);
+	void SetText(int num, const std::string &text);
+	void ReserveCapacity(int num);
 
 	void Clear();
 
 	bool set_mode; ///< When not in set-mode, all parameters are cleared on first use of a Set function.
-	StringParameterData parms[16]; ///< Parameters of the string, arbitrary limit.
+	std::vector<StringParameterData> parms; ///< Parameters of the string.
 };
 
 /**
@@ -168,8 +169,8 @@ public:
 
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base = STR_GENERIC_END);
 
-	const uint8 *GetText(StringID number);
-	const uint8 *GetLanguageName(int lang_index);
+	std::string GetText(StringID number);
+	std::string GetLanguageName(int lang_index);
 
 private:
 	/** Registered strings. Entries may be \c nullptr for unregistered or non-existing strings. */
@@ -190,9 +191,9 @@ extern Language _language;
 extern StringParameters _str_params;
 extern const std::string _lang_names[];
 
-void DrawText(StringID num, uint8 *buffer, uint length, StringParameters *params = &_str_params);
+std::string DrawText(StringID num, StringParameters *params = &_str_params) __attribute__((warn_unused_result));  // NOCOM
 
-const uint8 *GetDateString(const Date &d, const char *format = "%02d-%s-%02d");
+std::string GetDateString(const Date &d, const char *format = "%02d-%s-%02d");
 Point32 GetMaxDateSize();
 Point32 GetMoneyStringSize(const Money &amount);
 

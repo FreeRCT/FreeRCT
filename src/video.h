@@ -149,18 +149,12 @@ public:
 		return this->font_height;
 	}
 
-	void GetTextSize(const uint8 *text, int *width, int *height);
+	void GetTextSize(const std::string &text, int *width, int *height);
 	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
-	void BlitText(const uint8 *text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
+	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
 	void DrawLine(const Point16 &start, const Point16 &end, uint32 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint32 colour);
 	void FillRectangle(const Rectangle32 &rect, uint32 colour);
-
-	// NOCOM get rid
-	inline void GetTextSize(const std::string &text, int *width, int *height)
-	{
-		return GetTextSize(reinterpret_cast<const uint8*>(text.c_str()), width, height);
-	}
 
 	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
 	std::set<Point32> resolutions; ///< Set (for automatic sorting) of available resolutions.

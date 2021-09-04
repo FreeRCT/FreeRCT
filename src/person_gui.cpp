@@ -94,11 +94,11 @@ void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case GIW_TITLEBAR:
-			_str_params.SetUint8(1, (uint8 *)this->guest->GetName());
+			_str_params.SetText(1, this->guest->GetName());
 			break;
 
 		case GIW_STATUS:
-			_str_params.SetUint8(1, this->guest->GetStatus());
+			_str_params.SetText(1, this->guest->GetStatus());
 			break;
 
 		case GIW_MONEY:
@@ -191,7 +191,7 @@ void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
 		case SIW_TITLEBAR:
-			_str_params.SetUint8(1, this->person->GetName());
+			_str_params.SetText(1, this->person->GetName());
 			break;
 
 		case SIW_SALARY:
@@ -199,7 +199,7 @@ void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case SIW_STATUS: {
-			_str_params.SetUint8(1, this->person->GetStatus());
+			_str_params.SetText(1, this->person->GetStatus());
 			break;
 		}
 
