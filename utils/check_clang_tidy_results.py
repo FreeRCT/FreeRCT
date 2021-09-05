@@ -7,7 +7,10 @@ import re
 import sys
 
 SUPPRESSED_CHECKS = {
+    '[cppcoreguidelines-pro-bounds-pointer-arithmetic]',
+    '[cppcoreguidelines-pro-type-union-access]',
     '[llvmlibc-callee-namespace]',
+    '[llvmlibc-implementation-in-namespace]',
     '[modernize-use-trailing-return-type]',
 }
 

@@ -42,7 +42,7 @@ jobs:
       run: |
         echo "::group::CMake"
         mkdir build
-        cd build
+        pushd build
         cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
         echo "::endgroup::"
 
@@ -53,11 +53,11 @@ jobs:
 
         echo "::group::clang-tidy"
         python3 ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* | tee clang-tidy.log
+        popd
         echo "::endgroup::"
 
-        echo "::group::Results"
-        ../utils/check_clang_tidy_results.py clang-tidy.log   || true  # TODO Let this check fail on errors once we've cleaned up all hits.
-        echo "::endgroup::"
+    - name: Results
+      run: ../utils/check_clang_tidy_results.py clang-tidy.log   || true  # TODO Let this check fail on errors once we've cleaned up all hits.
 
   linux:
     name: Linux
