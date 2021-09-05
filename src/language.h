@@ -191,7 +191,7 @@ extern Language _language;
 extern StringParameters _str_params;
 extern const std::string _lang_names[];
 
-std::string DrawText(StringID num, StringParameters *params = &_str_params) __attribute__((warn_unused_result));  // NOCOM
+std::string DrawText(StringID num, StringParameters *params = &_str_params);
 
 std::string GetDateString(const Date &d, const char *format = "%02d-%s-%02d");
 Point32 GetMaxDateSize();
