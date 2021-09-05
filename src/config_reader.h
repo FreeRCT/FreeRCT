@@ -45,6 +45,7 @@ public:
 	explicit ConfigSection(const ConfigFile &file, const std::string &name);
 	~ConfigSection();
 
+	bool HasItem(const std::string &key) const;
 	const ConfigItem *GetItem(const std::string &key) const;
 
 	const ConfigFile &file;  ///< Config file backlink.
@@ -65,6 +66,8 @@ public:
 	explicit ConfigFile(const std::string &fname);
 
 	const ConfigSection *GetSection(const std::string &name) const;
+
+	bool HasValue(const std::string &sect_name, const std::string &key) const;
 	std::string GetValue(const std::string &sect_name, const std::string &key) const;
 	int GetNum(const std::string &sect_name, const std::string &key) const;
 

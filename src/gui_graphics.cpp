@@ -217,7 +217,7 @@ static char *GetSingleLine(char *text, int max_width, int *width)
  */
 void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height)
 {
-	/* \todo This design is ugly. Fix the utility function GetSingleLine to work on std::string with a srart index instead of mutable char* . */
+	/* \todo This design is ugly. Fix the utility function GetSingleLine() to work on std::string with a start index instead of mutable char*. */
 	const std::string buffer = DrawText(strid);
 	std::unique_ptr<char[]> mutable_buffer(new char[buffer.size() + 1]);
 	strcpy(mutable_buffer.get(), buffer.c_str());

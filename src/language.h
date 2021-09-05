@@ -107,7 +107,7 @@ public:
 	{
 		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return "<out of bounds>";
 		if (this->languages[_current_language] != nullptr) return this->languages[_current_language];
-		if (this->languages[LANG_EN_GB       ] != nullptr) return this->languages[LANG_EN_GB];
+		if (this->languages[LANG_EN_GB] != nullptr) return this->languages[LANG_EN_GB];
 		return "<no-text>";
 	}
 
@@ -149,7 +149,7 @@ struct StringParameters {
 	void SetDate(int num, const Date &date);
 	void SetTemperature(int num, int value);
 	void SetText(int num, const std::string &text);
-	void ReserveCapacity(int num);
+	void ReserveCapacity(int num_params);
 
 	void Clear();
 

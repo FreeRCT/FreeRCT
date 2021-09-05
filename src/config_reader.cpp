@@ -80,6 +80,16 @@ ConfigSection::~ConfigSection() {
 }
 
 /**
+ * Check if this section contains an element with the specified key.
+ * @param key Value of the key to look for (case sensitive).
+ * @return An item with this key exists.
+ */
+bool ConfigSection::HasItem(const std::string &key) const
+{
+	return this->items.count(key) > 0;
+}
+
+/**
  * Get an item from a section if it exists.
  * @param key Value of the key to look for (case sensitive).
  * @return The associated item if it exists, else \c nullptr.
@@ -142,8 +152,9 @@ ConfigFile::ConfigFile(const std::string &fname) : filename(fname)
 			if (*line2 == ']') {
 				*line2 = '\0';
 				const std::string sect_name(StripWhitespace(line + 1, line2));
-				if (this->sections.count(sect_name) == 0) this->sections.emplace(sect_name,
-						std::unique_ptr<ConfigSection>(new ConfigSection(*this, sect_name)));
+				if (this->sections.count(sect_name) == 0) {
+					this->sections.emplace(sect_name, std::unique_ptr<ConfigSection>(new ConfigSection(*this, sect_name)));
+				}
 				current_sect = this->sections.at(sect_name).get();
 			}
 			continue;
@@ -169,6 +180,18 @@ ConfigFile::ConfigFile(const std::string &fname) : filename(fname)
 }
 
 /**
+ * Check if a section in this config file contains an element with the specified key.
+ * @param sect_name The section in which to look for the key (case sensitive).
+ * @param key Value of the key to look for (case sensitive).
+ * @return An item with this key exists in this section.
+ */
+bool ConfigFile::HasValue(const std::string &sect_name, const std::string &key) const
+{
+	ConfigSection *s = this->GetSection(sect_name);
+	return s != nullptr && s->HasItem(key);
+}
+
+/**
  * Get a section from the configuration file.
  * @param sect_name Name of the section (case sensitive).
  * @return The section with the give name if it exists, else \c nullptr.
@@ -183,7 +206,7 @@ const ConfigSection *ConfigFile::GetSection(const std::string &sect_name) const
  * Get an item value from the configuration file.
  * @param sect_name Name of the section (case sensitive).
  * @param key Name of the key (case sensitive).
- * @return The associated value if it exists, else \c nullptr.
+ * @return The associated value if it exists, else \c "".
  */
 std::string ConfigFile::GetValue(const std::string &sect_name, const std::string &key) const
 {

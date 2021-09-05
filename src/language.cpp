@@ -129,13 +129,14 @@ StringParameters::StringParameters()
 
 /**
  * Ensure that this Parameters object can hold at least a certain number of parameters.
- * @param num Minimum number of parameters.
+ * @param num_params Minimum number of parameters.
+ * @note Only call this function if you actually need at least \c 1 parameter.
  */
-void StringParameters::ReserveCapacity(const int num)
+void StringParameters::ReserveCapacity(const int num_params)
 {
-	assert(num > 0);
+	assert(num_params > 0 && num_params < 20);  // Arbitrary upper bound.
 	if (!this->set_mode) this->Clear();
-	if (this->parms.size() < num) this->parms.resize(num);
+	if (this->parms.size() < num_params) this->parms.resize(num_params);
 }
 
 /**
