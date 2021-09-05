@@ -435,7 +435,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 			n = n * 10 + *ptr - '0';
 			ptr++;
 		}
-		if (params != nullptr && n >= 1 && n <= (int)lengthof(params->parms)) {
+		if (params != nullptr && n >= 1 && n <= params->parms.size()) {
 			/* Expand parameter 'n-1'. */
 			switch (params->parms[n - 1].parm_type) {
 				case SPT_NONE:
