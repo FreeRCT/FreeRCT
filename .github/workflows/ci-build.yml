@@ -46,8 +46,13 @@ jobs:
         cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
         echo "::endgroup::"
 
+        echo "::group::Compile"
+        echo "Running on $(nproc) cores"
+        cmake --build . -j $(nproc)
+        echo "::endgroup::"
+
         echo "::group::clang-tidy"
-        python3 ../utils/run-clang-tidy.py -checks=* | tee clang-tidy.log
+        python3 ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* | tee clang-tidy.log
         echo "::endgroup::"
 
         echo "::group::Results"
@@ -61,8 +66,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - compiler: clang
-          cxxcompiler: clang++
         - compiler: gcc
           cxxcompiler: g++
 

@@ -36,7 +36,7 @@
 #
 # 3. Run the tool from the 'build' directory with:
 #
-#        python3 ../utils/run-clang-tidy.py -checks=* > clang-tidy.log
+#        python3 ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* > clang-tidy.log
 #
 #    Results will then be in 'clang-tidy.log'
 #

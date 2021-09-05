@@ -6,8 +6,12 @@
 import re
 import sys
 
-CHECK_REGEX = re.compile(r'.*\[([A-Za-z0-9.-]+)\]$')
+SUPPRESSED_CHECKS = {
+    '[llvmlibc-callee-namespace]',
+    '[modernize-use-trailing-return-type]',
+}
 
+CHECK_REGEX = re.compile(r'.*\[([A-Za-z0-9.-]+)\]$')
 
 def main():
     """Checks whether clang-tidy warnings that were previously cleaned have
@@ -32,7 +36,14 @@ def main():
     with open(log_file) as checkme:
         contents = checkme.readlines()
         for line in contents:
-            if CHECK_REGEX.match(line):
+            if 'clang-analyzer-alpha' in line:
+                continue
+            check_suppressed = False
+            for check in SUPPRESSED_CHECKS:
+                if check in line:
+                    check_suppressed = True
+                    break
+            if not check_suppressed and CHECK_REGEX.match(line):
                 print(line.strip())
                 errors = errors + 1
 
