@@ -145,7 +145,7 @@ bool TextData::Load(RcdFileReader *rcd_file)
 			if (!ReadUtf8Text(rcd_file, lang_length, lang_buffer, lengthof(lang_buffer), &used)) return false;
 			length -= lang_length;
 
-			int lang_idx = GetLanguageIndex((char *)lang_buffer);
+			int lang_idx = GetLanguageIndex(lang_buffer);
 			/* Read translation text. */
 			if (lang_idx >= 0) {
 				strings[used_strings].languages[lang_idx] = buffer + used_size;
