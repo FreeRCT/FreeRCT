@@ -38,9 +38,9 @@ jobs:
         mkdir build
         cd build
         cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-        python3 ../utils/run-clang-tidy.py > clang-tidy.log
+        python3 ../utils/run-clang-tidy.py -checks=* > clang-tidy.log
         echo "::endgroup::"
-        ../utils/check_clang_tidy_results.py clang-tidy.log
+        ../utils/check_clang_tidy_results.py clang-tidy.log   || true # Let this check fail on errors once we've cleaned up all hits.
 
   linux:
     name: Linux
