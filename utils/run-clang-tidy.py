@@ -26,28 +26,27 @@
 #
 #    If you wish to use the autofix, you'll need the clang-tools package too.
 #
-# 2. Run compile.sh to create the build directory. You can abort this pretty quick.
+# 2. Run the following commands:
 #
-# 3. Run the following commands:
-#
+#        mkdir build
 #        cd build
 #        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 #
 #    This will give you a file 'build/compile_commands.json'
 #
-# 4. Run the tool from the 'build' directory with:
+# 3. Run the tool from the 'build' directory with:
 #
-#        python ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* > ../clang-tidy.log
+#        python3 ../utils/run-clang-tidy.py -checks=* > clang-tidy.log
 #
 #    Results will then be in 'clang-tidy.log'
 #
-# 5. You can pick which warnings you want with the checks parameter.
+# 4. You can pick which warnings you want with the checks parameter.
 #
-# 6. For seeing only warnings that were cleared previously, run from the main directory:
+# 5. For seeing only warnings that were cleared previously, run:
 #
 #        utils/check_clang_tidy_results.py clang-tidy.log
 #
-# 7. Documentation is available at:
+# 6. Documentation is available at:
 #
 #        https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
 #
