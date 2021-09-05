@@ -52,12 +52,12 @@ jobs:
         echo "::endgroup::"
 
         echo "::group::clang-tidy"
-        python3 ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* | tee clang-tidy.log
+        python3 ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* | tee ../clang-tidy.log
         popd
         echo "::endgroup::"
 
     - name: Results
-      run: ../utils/check_clang_tidy_results.py clang-tidy.log   || true  # TODO Let this check fail on errors once we've cleaned up all hits.
+      run: ./utils/check_clang_tidy_results.py clang-tidy.log   || true  # TODO Let this check fail on errors once we've cleaned up all hits.
 
   linux:
     name: Linux
