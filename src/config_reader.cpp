@@ -187,7 +187,7 @@ ConfigFile::ConfigFile(const std::string &fname) : filename(fname)
  */
 bool ConfigFile::HasValue(const std::string &sect_name, const std::string &key) const
 {
-	ConfigSection *s = this->GetSection(sect_name);
+	const ConfigSection *s = this->GetSection(sect_name);
 	return s != nullptr && s->HasItem(key);
 }
 
