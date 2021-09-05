@@ -7,6 +7,41 @@ on:
     - master
 
 jobs:
+  clang-tidy:
+    name: Clang-Tidy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install dependencies
+      run: |
+        echo "::group::Update apt"
+        sudo apt-get update
+        echo "::endgroup::"
+
+        echo "::group::Install dependencies"
+        sudo apt-get install -y --no-install-recommends \
+          libpng-dev \
+          libsdl2-dev \
+          libsdl2-ttf-dev \
+          zlib1g-dev \
+          clang-tidy \
+          # EOF
+        echo "::endgroup::"
+      env:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Check
+      run: |
+        echo "::group::Run clang-tidy"
+        export CC=/usr/bin/clang
+        export CXX=/usr/bin/clang++
+        mkdir build
+        cd build
+        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+        python3 ../utils/run-clang-tidy.py > clang-tidy.log
+        echo "::endgroup::"
+        ../utils/check_clang_tidy_results.py clang-tidy.log
+
   linux:
     name: Linux
 
