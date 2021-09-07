@@ -496,6 +496,18 @@ void Staff::RequestMechanic(RideInstance *ride)
 }
 
 /**
+ * Generate the name for a newly hired staff member.
+ * @oaram m Staff member to name.
+ * @param text Base text for the name.
+ */
+static void NameNewStaff(StaffMember *m, StringID text)
+{
+	static char buffer[1024];
+	snprintf(buffer, lengthof(buffer), _language.GetText(text).c_str(), STAFF_BASE_ID - m->id);
+	m->SetName(buffer);
+}
+
+/**
  * Hire a new mechanic.
  * @return The new mechanic.
  */
@@ -505,11 +517,7 @@ Mechanic *Staff::HireMechanic()
 	m->id = this->GenerateID();
 	m->Activate(Point16(9, 2), PERSON_MECHANIC);  // \todo Allow the player to decide where to put the new mechanic.
 	this->mechanics.push_back(std::unique_ptr<Mechanic>(m));
-
-	char buffer[1024];
-	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_MECHANIC)), STAFF_BASE_ID - m->id);
-	m->SetName(reinterpret_cast<uint8*>(buffer));
-
+	NameNewStaff(m, GUI_STAFF_NAME_MECHANIC);
 	return m;
 }
 
@@ -523,11 +531,7 @@ Handyman *Staff::HireHandyman()
 	m->id = this->GenerateID();
 	m->Activate(Point16(9, 2), PERSON_HANDYMAN);  // \todo Allow the player to decide where to put the new handyman.
 	this->handymen.push_back(std::unique_ptr<Handyman>(m));
-
-	char buffer[1024];
-	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_HANDYMAN)), STAFF_BASE_ID - m->id);
-	m->SetName(reinterpret_cast<uint8*>(buffer));
-
+	NameNewStaff(m, GUI_STAFF_NAME_HANDYMAN);
 	return m;
 }
 
@@ -541,11 +545,7 @@ Guard *Staff::HireGuard()
 	m->id = this->GenerateID();
 	m->Activate(Point16(9, 2), PERSON_GUARD);  // \todo Allow the player to decide where to put the new guard.
 	this->guards.push_back(std::unique_ptr<Guard>(m));
-
-	char buffer[1024];
-	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_GUARD)), STAFF_BASE_ID - m->id);
-	m->SetName(reinterpret_cast<uint8*>(buffer));
-
+	NameNewStaff(m, GUI_STAFF_NAME_GUARD);
 	return m;
 }
 
@@ -559,11 +559,7 @@ Entertainer *Staff::HireEntertainer()
 	m->id = this->GenerateID();
 	m->Activate(Point16(9, 2), PERSON_ENTERTAINER);  // \todo Allow the player to decide where to put the new entertainer.
 	this->entertainers.push_back(std::unique_ptr<Entertainer>(m));
-
-	char buffer[1024];
-	snprintf(buffer, lengthof(buffer), reinterpret_cast<const char*>(_language.GetText(GUI_STAFF_NAME_ENTERTAINER)), STAFF_BASE_ID - m->id);
-	m->SetName(reinterpret_cast<uint8*>(buffer));
-
+	NameNewStaff(m, GUI_STAFF_NAME_ENTERTAINER);
 	return m;
 }
 

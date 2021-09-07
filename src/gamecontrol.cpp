@@ -338,7 +338,6 @@ bool BestErrorMessageReason::CheckActionAllowed(const CheckActionType type, cons
 
 /** Assigns every error message a priority, to decide which one should be shown when multiple are applicable. */
 static const std::map<StringID, int> ERROR_MESSAGE_REASON_PRIORITIES = {
-	{STR_EMPTY,                        0},
 	{STR_NULL,                         1},
 	{GUI_ERROR_MESSAGE_BAD_LOCATION,  10},
 	{GUI_ERROR_MESSAGE_UNOWNED_LAND,  20},

@@ -105,7 +105,6 @@ bool LoadPRSG(RcdFileReader *rcd_file)
 Person::Person() : VoxelObject(), rnd()
 {
 	this->type = PERSON_INVALID;
-	this->name = nullptr;
 	this->ride = nullptr;
 	this->status = GUI_PERSON_STATUS_WANDER;
 
@@ -125,28 +124,24 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
 }
 
 /**
- * Set the name of a guest.
- * @param name New name of the guest.
- * @note Currently unused.
+ * Set the name of a person.
+ * @param name New name of the person.
  */
-void Person::SetName(const uint8 *name)
+void Person::SetName(const std::string &name)
 {
-	int len = strlen((char *)name);
-	this->name.reset(new uint8[len + 1]);
-	strcpy((char *)this->name.get(), (char *)name); // Already know name has \0, because of strlen.
+	this->name = name;
 }
 
 /**
  * Query the name of the person.
- * The name is returned in memory owned by the person. Do not free this data. It may change on each call.
- * @return Static buffer containing the name of the person.
+ * @return The name of the person.
  */
-const uint8 *Person::GetName() const
+std::string Person::GetName() const
 {
-	static uint8 buffer[16];
+	if (!this->name.empty()) return this->name;
 
-	if (this->name.get() != nullptr) return this->name.get();
-	sprintf((char *)buffer, "Guest %u", this->id);
+	static char buffer[16];
+	sprintf(buffer, "Guest %u", this->id);  // \todo Use a translatable string for this.
 	return buffer;
 }
 
@@ -402,7 +397,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
-	this->name.reset();
+	this->name.clear();
 	this->SetStatus(GUI_PERSON_STATUS_WANDER);
 
 	/* Set up the person sprite recolouring table. */
@@ -839,7 +834,7 @@ void Person::Load(Loader &ldr)
 
 	this->type = (PersonType)ldr.GetByte();
 	this->offset = ldr.GetWord();
-	this->name.reset(ldr.GetText());
+	this->name = ldr.GetText();
 
 	if (version > 1) {
 		const uint16 ride_index = ldr.GetWord();
@@ -878,7 +873,7 @@ void Person::Save(Saver &svr)
 
 	svr.PutByte(this->type);
 	svr.PutWord(this->offset);
-	svr.PutText(this->name.get());
+	svr.PutText(this->name);
 	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
 
 	this->recolour.Save(svr);
@@ -1399,7 +1394,7 @@ void Person::DeActivate(AnimateResult ar)
 
 	_inbox.NotifyGuestDeletion(this->id);
 	this->type = PERSON_INVALID;
-	this->name.reset();
+	this->name.clear();
 }
 
 
@@ -2371,16 +2366,14 @@ void StaffMember::Save(Saver &svr)
  * Create this person's current status string.
  * @return The status string.
  */
-const uint8 *Person::GetStatus() const
+std::string Person::GetStatus() const
 {
+	const std::string text = _language.GetText(this->status);
+	if (this->ride == nullptr) return text;
+
 	static char text_buffer[1024];
-	const char *text = reinterpret_cast<const char*>(_language.GetText(this->status));
-	if (this->ride == nullptr) {
-		snprintf(text_buffer, lengthof(text_buffer), "%s", text);
-	} else {
-		snprintf(text_buffer, lengthof(text_buffer), text, this->ride->name.get());
-	}
-	return reinterpret_cast<const uint8*>(text_buffer);
+	snprintf(text_buffer, lengthof(text_buffer), text.c_str(), this->ride->name.c_str());
+	return text_buffer;
 }
 
 /**

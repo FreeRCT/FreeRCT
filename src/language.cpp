@@ -39,7 +39,7 @@ void TextString::Clear()
 }
 
 /** Known languages. */
-const char * const _lang_names[] = {
+const std::string _lang_names[] = {
 	"da_DK", // Danish.
 	"de_DE", // German.
 	"en_GB", // English (Also the default language).
@@ -58,14 +58,14 @@ assert_compile(lengthof(_lang_names) == LANGUAGE_COUNT); ///< Ensure number of l
  * @param lang_name Name of the language.
  * @return Index of the language with the provided name, or \c -1 if not recognized.
  */
-int GetLanguageIndex(const char *lang_name)
+int GetLanguageIndex(const std::string &lang_name)
 {
 	int start = 0; // Exclusive lower bound.
 	int end = LANGUAGE_COUNT; // Exclusive upper bound.
 
 	while (start + 1 < end) {
 		int middle = (start + end) / 2;
-		int cmp = strcmp(_lang_names[middle], lang_name);
+		int cmp = _lang_names[middle].compare(lang_name);
 		if (cmp == 0) return middle; // Jack pot.
 		if (cmp < 0) {
 			start = middle;
@@ -73,37 +73,36 @@ int GetLanguageIndex(const char *lang_name)
 			end = middle;
 		}
 	}
-	if (!strcmp(_lang_names[start], lang_name)) return start;
+	if (_lang_names[start] == lang_name) return start;
 	return -1;
 }
 
 /**
  * Get the name of a given language index.
  * @param index Index of the language.
- * @return Name of the language, or \c nullptr if the index is invalid.
+ * @return Name of the language, or \c "" if the index is invalid.
  */
-const char *GetLanguageName(const int index)
+std::string GetLanguageName(const int index)
 {
-	if (index < 0 || index >= LANGUAGE_COUNT) return nullptr;
+	if (index < 0 || index >= LANGUAGE_COUNT) return std::string();
 	return _lang_names[index];
 }
 
 /**
  * Try to find a language whose name is similar to the provided name.
  * @param lang_name Name to compare to.
- * @return Most similar language name, or \c nullptr if no language has a similar name.
+ * @return Most similar language name, or \c "" if no language has a similar name.
  */
-const char *GetSimilarLanguage(const std::string& lang_name)
+std::string GetSimilarLanguage(const std::string& lang_name)
 {
-	const char *best_match = nullptr;
+	std::string best_match;
 	double score = 1.5;  // Arbitrary treshold to suppress random matches.
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
-		const std::string name(_lang_names[i]);
-		const int common_length = std::min(name.size(), lang_name.size());
-		double s = common_length - std::max<int>(name.size(), lang_name.size());
+		const int common_length = std::min(_lang_names[i].size(), lang_name.size());
+		double s = common_length - std::max<int>(_lang_names[i].size(), lang_name.size());
 		for (int j = 0; j < common_length; ++j) {
 			const char c1 = lang_name.at(j);
-			const char c2 = name.at(j);
+			const char c2 = _lang_names[i].at(j);
 			if (c1 == c2) {
 				s++;
 			} else if (c1 >= 'a' && c1 <= 'z' && c1 + 'A' - 'a' == c2) {
@@ -129,13 +128,25 @@ StringParameters::StringParameters()
 }
 
 /**
+ * Ensure that this Parameters object can hold at least a certain number of parameters.
+ * @param num_params Minimum number of parameters.
+ * @note Only call this function if you actually need at least \c 1 parameter.
+ */
+void StringParameters::ReserveCapacity(const int num_params)
+{
+	assert(num_params > 0 && num_params < 20);  // Arbitrary upper bound.
+	if (!this->set_mode) this->Clear();
+	if (this->parms.size() < num_params) this->parms.resize(num_params);
+}
+
+/**
  * Mark string parameter \a num as 'unused'.
  * @param num Number of the parameter to set (1-based).
  */
 void StringParameters::SetNone(int num)
 {
+	this->ReserveCapacity(num);
 	num--;
-	assert(num >= 0 && (uint)num < lengthof(this->parms));
 	this->parms[num].parm_type = SPT_NONE;
 }
 
@@ -146,10 +157,8 @@ void StringParameters::SetNone(int num)
  */
 void StringParameters::SetStrID(int num, StringID strid)
 {
-	if (!this->set_mode) this->Clear();
-
+	this->ReserveCapacity(num);
 	num--;
-	assert(num >= 0 && (uint)num < lengthof(this->parms));
 	this->parms[num].parm_type = SPT_STRID;
 	this->parms[num].u.str = strid;
 }
@@ -161,10 +170,8 @@ void StringParameters::SetStrID(int num, StringID strid)
  */
 void StringParameters::SetNumber(int num, int64 number)
 {
-	if (!this->set_mode) this->Clear();
-
+	this->ReserveCapacity(num);
 	num--;
-	assert(num >= 0 && (uint)num < lengthof(this->parms));
 	this->parms[num].parm_type = SPT_NUMBER;
 	this->parms[num].u.number = number;
 }
@@ -176,10 +183,8 @@ void StringParameters::SetNumber(int num, int64 number)
  */
 void StringParameters::SetMoney(int num, const Money &amount)
 {
-	if (!this->set_mode) this->Clear();
-
+	this->ReserveCapacity(num);
 	num--;
-	assert(num >= 0 && (uint)num < lengthof(this->parms));
 	this->parms[num].parm_type = SPT_MONEY;
 	this->parms[num].u.number = (int64)amount;
 }
@@ -191,10 +196,8 @@ void StringParameters::SetMoney(int num, const Money &amount)
  */
 void StringParameters::SetTemperature(int num, int value)
 {
-	if (!this->set_mode) this->Clear();
-
+	this->ReserveCapacity(num);
 	num--;
-	assert(num >= 0 && (uint)num < lengthof(this->parms));
 	this->parms[num].parm_type = SPT_TEMPERATURE;
 	this->parms[num].u.number = value;
 }
@@ -206,33 +209,29 @@ void StringParameters::SetTemperature(int num, int value)
  */
 void StringParameters::SetDate(int num, const Date &date)
 {
-	if (!this->set_mode) this->Clear();
-
+	this->ReserveCapacity(num);
 	num--;
-	assert(num >= 0 && (uint)num < lengthof(this->parms));
 	this->parms[num].parm_type = SPT_DATE;
 	this->parms[num].u.dmy = date.Compress();
 }
 
 /**
- * Mark string parameter \a num to contain a C-style UTF-8 string.
+ * Mark string parameter \a num to contain a UTF-8 string.
  * @param num Number of the parameter to set (1-based).
- * @param text UTF-8 string. Is not released after use.
+ * @param text UTF-8 string.
  */
-void StringParameters::SetUint8(int num, const uint8 *text)
+void StringParameters::SetText(int num, const std::string &text)
 {
-	if (!this->set_mode) this->Clear();
-
+	this->ReserveCapacity(num);
 	num--;
-	assert(num >= 0 && (uint)num < lengthof(this->parms));
-	this->parms[num].parm_type = SPT_UINT8;
-	this->parms[num].u.text = text;
+	this->parms[num].parm_type = SPT_TEXT;
+	this->parms[num].text = text;
 }
 
 /** Clear all data from the parameters. Does not free memory. */
 void StringParameters::Clear()
 {
-	for (uint i = 0; i < lengthof(this->parms); i++) this->SetNone(i + 1);
+	this->parms.clear();
 	this->set_mode = true;
 }
 
@@ -285,7 +284,7 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 		this->registered[number] = nullptr;
 		for (uint i = 0; i < td.string_count; i++) {
 			const TextString *ts = td.strings.get() + i;
-			if (!strcmp(*str, ts->name)) {
+			if (strcmp(ts->name, *str) == 0) {
 				this->registered[number] = ts;
 				break;
 			}
@@ -301,23 +300,22 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
  * @param number string number to get.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
  */
-const uint8 *Language::GetText(StringID number)
+std::string Language::GetText(StringID number)
 {
-	static const uint8 *default_strings[] = {
-		nullptr,              // STR_NULL
-		(const uint8 *)"",    // STR_EMPTY
-		(const uint8 *)"%1%", // STR_ARG1
+	static const std::string default_strings[] = {
+		"",     // STR_NULL
+		"%1%",  // STR_ARG1
 	};
 
 	if (number < lengthof(default_strings)) return default_strings[number];
 
 	if (number < lengthof(this->registered) && this->registered[number] != nullptr) {
-		const uint8 *text = this->registered[number]->GetString();
-		if (*text == '\0') return (const uint8 *)"<empty text>";
+		const std::string &text = this->registered[number]->GetString();
+		if (text.empty()) return "<empty text>";
 		return text;
 	}
 
-	return (const uint8 *)"<Invalid string>";
+	return "<Invalid string>";
 }
 
 /**
@@ -325,28 +323,10 @@ const uint8 *Language::GetText(StringID number)
  * @param lang_index The language to look in.
  * @return The language name.
  */
-const uint8 *Language::GetLanguageName(int lang_index)
+std::string Language::GetLanguageName(int lang_index)
 {
 	assert(lang_index < LANGUAGE_COUNT);
 	return this->registered[GUI_LANGUAGE_NAME]->languages[lang_index];
-}
-
-/**
- * Copy a source string to the destination, if it fits.
- * @param dest [out] Destination address.
- * @param last Last byte of the destination (not written).
- * @param src Source string.
- * @return Updated destination.
- */
-static uint8 *CopyString(uint8 *dest, const uint8 *last, const uint8 *src)
-{
-	if (src == nullptr) return dest;
-	while (*src != '\0' && dest < last) {
-		*dest = *src;
-		dest++;
-		src++;
-	}
-	return dest;
 }
 
 /**
@@ -355,16 +335,16 @@ static uint8 *CopyString(uint8 *dest, const uint8 *last, const uint8 *src)
  * @param size The size of the provided buffer.
  * @param amt The double value to be converted.
  */
-static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
+static void MoneyStrFmt(char *dest, size_t size, double amt)
 {
-	const uint8 *curr_sym = _language.GetText(GUI_MONEY_CURRENCY_SYMBOL);
-	size_t curr_sym_len = StrBytesLength(curr_sym);
+	const std::string curr_sym = _language.GetText(GUI_MONEY_CURRENCY_SYMBOL);
+	size_t curr_sym_len = curr_sym.size();
 
-	const uint8 *tho_sep  = _language.GetText(GUI_MONEY_THOUSANDS_SEPARATOR);
-	size_t tho_sep_len  = StrBytesLength(tho_sep);
+	const std::string tho_sep  = _language.GetText(GUI_MONEY_THOUSANDS_SEPARATOR);
+	size_t tho_sep_len  = tho_sep.size();
 
-	const uint8 *dec_sep  = _language.GetText(GUI_MONEY_DECIMAL_SEPARATOR);
-	size_t dec_sep_len  = StrBytesLength(dec_sep);
+	const std::string dec_sep  = _language.GetText(GUI_MONEY_DECIMAL_SEPARATOR);
+	size_t dec_sep_len  = dec_sep.size();
 
 	std::unique_ptr<char[]> buf(new char[size]);
 
@@ -390,18 +370,18 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 	}
 
 	/* Copy currency symbol next */
-	SafeStrncpy(dest + j, curr_sym, curr_sym_len + 1);
+	strncpy(dest + j, curr_sym.c_str(), curr_sym_len + 1);
 	j += curr_sym_len;
 	dest[j++] = buf[curpos++];
 
 	for (uint i = curpos; i < len && j + max_append_size < size; i++) {
 		if (len - i > 3 && (int)(i - comma_start) % 3 == 0) {
-			SafeStrncpy(dest + j, tho_sep, tho_sep_len + 1);
+			strncpy(dest + j, tho_sep.c_str(), tho_sep_len + 1);
 			j += tho_sep_len;
 			dest[j++] = buf[i];
 
 		} else if (buf[i] == '.') { // Decimal separator produced by 'snprintf'.
-			SafeStrncpy(dest + j, dec_sep, dec_sep_len + 1);
+			strncpy(dest + j, dec_sep.c_str(), dec_sep_len + 1);
 			j += dec_sep_len;
 
 		} else {
@@ -415,46 +395,39 @@ static void MoneyStrFmt(uint8 *dest, size_t size, double amt)
 
 /**
  * Convert a temperature in 1/10 degrees Celcius to text.
- * @param dest [out] A provided buffer to write the output into.
- * @param size The size of the provided buffer.
  * @param temp Temperature in 1/10 degrees Celcius to convert.
+ * @return Formatted text.
  */
-static void TemperatureStrFormat(uint8 *dest, size_t size, int temp)
+static std::string TemperatureStrFormat(int temp)
 {
-	static const uint8 SUFFIX[] = {' ', 0xE2, 0x84, 0x83, 0}; // " " + degrees Celcius, U+2103
-
 	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10; // Round to degrees Celcius.
-	int len = snprintf((char *)dest, size, "%d", temp);
-	dest += len;
-	size -= len;
-	if (size >= lengthof(SUFFIX)) StrECpy(dest, dest + size, SUFFIX);
+	static char buffer[64];
+	int len = snprintf(buffer, lengthof(buffer), "%d \u2103", temp);  // " " + degrees Celcius, U+2103
+	return buffer;
 }
 
 /**
  * Draw the string into the supplied buffer.
  * @param strid String number to 'draw'.
- * @param buffer [out] Destination buffer.
- * @param length Length of \a buffer in bytes.
  * @param params String parameter values for the "%n%" patterns.
+ * @return The formatted text.
  */
-void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *params)
+std::string DrawText(StringID strid, StringParameters *params)
 {
-	static uint8 textbuf[64];
+	static char textbuf[64];
+	std::string buffer;
 
-	const uint8 *txt = _language.GetText(strid);
-	const uint8 *last = buffer + ((int)length - 1);
-	const uint8 *ptr = txt;
+	const std::string txt = _language.GetText(strid);
+	const char *ptr = txt.c_str();
 	for (;;) {
-		while (*ptr != '\0' && *ptr != '%' && buffer < last) {
-			*buffer = *ptr;
-			buffer++;
+		while (*ptr != '\0' && *ptr != '%') {
+			buffer.push_back(*ptr);
 			ptr++;
 		}
-		if (*ptr == '\0' || buffer >= last) break;
+		if (*ptr == '\0') break;
 		ptr++;
 		if (*ptr == '%') {
-			*buffer = '%';
-			buffer++;
+			buffer.push_back(*ptr);
 			ptr++;
 			continue;
 		}
@@ -463,41 +436,38 @@ void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *para
 			n = n * 10 + *ptr - '0';
 			ptr++;
 		}
-		if (params != nullptr && n >= 1 && n <= (int)lengthof(params->parms)) {
+		if (params != nullptr && n >= 1 && n <= params->parms.size()) {
 			/* Expand parameter 'n-1'. */
 			switch (params->parms[n - 1].parm_type) {
 				case SPT_NONE:
-					buffer = CopyString(buffer, last, (uint8 *)"NONE");
+					buffer += "NONE";
 					break;
 
 				case SPT_STRID:
-					buffer = CopyString(buffer, last, _language.GetText(params->parms[n - 1].u.str));
+					buffer += _language.GetText(params->parms[n - 1].u.str);
 					break;
 
-				case SPT_UINT8:
-					buffer = CopyString(buffer, last, params->parms[n - 1].u.text);
+				case SPT_TEXT:
+					buffer += params->parms[n - 1].text;
 					break;
 
 				case SPT_NUMBER:
-					snprintf((char *)textbuf, lengthof(textbuf), "%lld", params->parms[n - 1].u.number);
-					buffer = CopyString(buffer, last, textbuf);
+					snprintf(textbuf, lengthof(textbuf), "%lld", params->parms[n - 1].u.number);
+					buffer += textbuf;
 					break;
 
 				case SPT_MONEY:
 					MoneyStrFmt(textbuf, lengthof(textbuf), params->parms[n - 1].u.number / 100.0);
-					buffer = CopyString(buffer, last, textbuf);
+					buffer += textbuf;
 					break;
 
 				case SPT_TEMPERATURE:
-					TemperatureStrFormat(textbuf, lengthof(textbuf), params->parms[n - 1].u.number);
-					buffer = CopyString(buffer, last, textbuf);
+					buffer += TemperatureStrFormat(params->parms[n - 1].u.number);
 					break;
 
-				case SPT_DATE: {
-					Date d(params->parms[n - 1].u.dmy);
-					buffer = CopyString(buffer, last, GetDateString(d));
+				case SPT_DATE:
+					buffer += GetDateString(Date(params->parms[n - 1].u.dmy));
 					break;
-				}
 
 				default: NOT_REACHED();
 			}
@@ -506,8 +476,8 @@ void DrawText(StringID strid, uint8 *buffer, uint length, StringParameters *para
 		if (*ptr == '\0') break;
 		ptr++;
 	}
-	*buffer = '\0';
 	if (params != nullptr) params->set_mode = false; // Clean parameters on next Set.
+	return buffer;
 }
 
 /**
@@ -545,9 +515,7 @@ StringID GetMonthName(int month)
  */
 void GetTextSize(StringID strid, int *width, int *height)
 {
-	static uint8 buffer[1024]; // Arbitrary max size.
-	DrawText(strid, buffer, lengthof(buffer));
-	_video.GetTextSize(buffer, width, height);
+	_video.GetTextSize(DrawText(strid), width, height);
 }
 
 /**
@@ -557,11 +525,11 @@ void GetTextSize(StringID strid, int *width, int *height)
  * @return The formatted string.
  * @todo Allow variable number of format parameters, e.g. "mm-yy".
  */
-const uint8 *GetDateString(const Date &d, const char *format)
+std::string GetDateString(const Date &d, const char *format)
 {
-	static uint8 textbuf[64];
-	const uint8 *month = _language.GetText(GetMonthName(d.month));
-	snprintf((char *)textbuf, lengthof(textbuf), format, d.day, month, d.year);
+	static char textbuf[64];
+	const std::string &month = _language.GetText(GetMonthName(d.month));
+	snprintf(textbuf, lengthof(textbuf), format, d.day, month.c_str(), d.year);
 	return textbuf;
 }
 
@@ -593,7 +561,7 @@ Point32 GetMaxDateSize()
  */
 Point32 GetMoneyStringSize(const Money &amount)
 {
-	uint8 textbuf[64];
+	char textbuf[64];
 	MoneyStrFmt(textbuf, lengthof(textbuf), (int64)amount / 100.0);
 	Point32 p;
 	_video.GetTextSize(textbuf, &p.x, &p.y);
