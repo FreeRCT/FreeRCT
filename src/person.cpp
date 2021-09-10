@@ -31,10 +31,10 @@ static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests 
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
 const std::map<PersonType, Money> StaffMember::SALARY = {
-	{PERSON_MECHANIC,    Money(150000)},  ///< Monthly salary of a mechanic.
-	{PERSON_HANDYMAN,    Money(120000)},  ///< Monthly salary of a handyman.
-	{PERSON_GUARD,       Money(100000)},  ///< Monthly salary of a guard.
-	{PERSON_ENTERTAINER, Money(100000)},  ///< Monthly salary of a entertainer.
+	{PERSON_MECHANIC,    Money(80000)},  ///< Monthly salary of a mechanic.
+	{PERSON_HANDYMAN,    Money(50000)},  ///< Monthly salary of a handyman.
+	{PERSON_GUARD,       Money(60000)},  ///< Monthly salary of a guard.
+	{PERSON_ENTERTAINER, Money(60000)},  ///< Monthly salary of a entertainer.
 };
 
 /**
