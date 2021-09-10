@@ -11,6 +11,7 @@
 #include "map.h"
 #include "viewport.h"
 #include "terraform.h"
+#include "finances.h"
 #include "gamecontrol.h"
 #include "math_func.h"
 #include "memory.h"
@@ -454,6 +455,7 @@ static void SetYFoundations(int xpos, int ypos)
 bool TerrainChanges::ModifyWorld(int direction)
 {
 	/* First iteration: Check that the world can be safely changed (no collisions with other game elements.) */
+	Money total_cost(0);
 	for (auto &iter : this->changes) {
 		const Point16 &pos = iter.first;
 		const GroundData &gd = iter.second;
@@ -466,6 +468,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		for (uint8 i = TC_NORTH; i < TC_END; i++) {
 			if ((gd.modified & (1 << i)) == 0) continue; // Corner was not changed.
 			current[i] += direction;
+			total_cost += TERRAFORM_UNIT_COST;
 		}
 
 		if (direction > 0) {
@@ -498,6 +501,9 @@ bool TerrainChanges::ModifyWorld(int direction)
 			}
 		}
 	}
+
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, total_cost)) return false;
+	_finances_manager.PayLandscaping(total_cost);
 
 	/* Second iteration: Change the ground of the tiles. */
 	for (auto &iter : this->changes) {

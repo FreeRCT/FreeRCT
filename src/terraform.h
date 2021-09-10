@@ -12,6 +12,8 @@
 
 #include <map>
 
+static const Money TERRAFORM_UNIT_COST(40);  ///< The cost for applying one elemental unit of terraforming modifications.
+
 /**
  * Ground data + modification storage.
  * @ingroup map_group
