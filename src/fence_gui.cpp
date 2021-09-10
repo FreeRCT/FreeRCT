@@ -213,7 +213,7 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 
 	/* Does this edge contain two connected paths or a connected path and ride entrance/exit? */
 	uint16 instance_data = v->GetInstanceData();
-	if (HasValidPath(instance_data)) {
+	if (HasValidPath(v)) {
 		uint8 slope = GetImplodedPathSlope(instance_data);
 		slope = _path_expand[slope];
 
