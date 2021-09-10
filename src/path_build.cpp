@@ -30,6 +30,15 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, true);
 	const bool is_elevated = (av->GetGroundType() == GTP_INVALID);
+	const Money *cost;
+	if (is_elevated) {
+		cost = (path_spr >= PATH_FLAT_COUNT) ? &PATH_CONSTRUCT_COST_ELEVATED_RAMP : &PATH_CONSTRUCT_COST_ELEVATED_FLAT;
+	} else {
+		cost = (path_spr >= PATH_FLAT_COUNT) ? &PATH_CONSTRUCT_COST_RAMP : &PATH_CONSTRUCT_COST_FLAT;
+	}
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, *cost)) return;
+	_finances_manager.PayRideConstruct(*cost);
+
 	av->SetInstance(SRI_PATH);
 	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
@@ -44,10 +53,6 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 		av->ClearVoxel();
 		av->SetInstance(SRI_PATH);
 		av->SetInstanceData(PATH_INVALID);
-
-		_finances_manager.PayRideConstruct(is_elevated ? PATH_CONSTRUCT_COST_ELEVATED_RAMP : PATH_CONSTRUCT_COST_RAMP);
-	} else {
-		_finances_manager.PayRideConstruct(is_elevated ? PATH_CONSTRUCT_COST_ELEVATED_FLAT : PATH_CONSTRUCT_COST_FLAT);
 	}
 
 	MarkVoxelDirty(voxel_pos);
@@ -90,6 +95,8 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
  */
 static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uint8 path_spr)
 {
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, PATH_CONSTRUCT_COST_CHANGE)) return;
+
 	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, false);
