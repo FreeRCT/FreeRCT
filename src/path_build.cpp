@@ -12,6 +12,7 @@
 #include "viewport.h"
 #include "path_build.h"
 #include "map.h"
+#include "finances.h"
 #include "gamecontrol.h"
 #include "window.h"
 #include "math_func.h"
@@ -28,6 +29,7 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, true);
+	const bool is_elevated = (av->GetGroundType() == GTP_INVALID);
 	av->SetInstance(SRI_PATH);
 	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
@@ -42,6 +44,10 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 		av->ClearVoxel();
 		av->SetInstance(SRI_PATH);
 		av->SetInstanceData(PATH_INVALID);
+
+		_finances_manager.PayRideConstruct(is_elevated ? PATH_CONSTRUCT_COST_ELEVATED_RAMP : PATH_CONSTRUCT_COST_RAMP);
+	} else {
+		_finances_manager.PayRideConstruct(is_elevated ? PATH_CONSTRUCT_COST_ELEVATED_FLAT : PATH_CONSTRUCT_COST_FLAT);
 	}
 
 	MarkVoxelDirty(voxel_pos);
@@ -72,6 +78,8 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
 		av->SetInstance(SRI_FREE);
 		av->SetInstanceData(0);
 	}
+
+	_finances_manager.PayRideConstruct(PATH_CONSTRUCT_COST_RETURN);
 }
 
 /**
@@ -93,6 +101,8 @@ static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, ui
 
 	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, _sprite_manager.GetPathStatus(path_type));
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
+
+	_finances_manager.PayRideConstruct(PATH_CONSTRUCT_COST_CHANGE);
 
 	MarkVoxelDirty(voxel_pos);
 }
