@@ -80,6 +80,7 @@ strings {
 		ERROR_MESSAGE_SPRITE:         "Failed to draw sprite";
 		ERROR_MESSAGE_HEADING_BUILD:  "This can not be placed here…";
 		ERROR_MESSAGE_HEADING_REMOVE: "This can not be removed…";
+		ERROR_MESSAGE_HEADING_COST:   "Expected cost:";
 		ERROR_MESSAGE_UNREMOVABLE:    "This object can not be removed.";
 		ERROR_MESSAGE_UNOWNED_LAND:   "You do not own the land!";
 		ERROR_MESSAGE_EXPENSIVE:      "You need at least %1%.";

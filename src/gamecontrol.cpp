@@ -90,6 +90,7 @@ GameControl::GameControl()
 	this->speed = GSP_1;
 	this->running = false;
 	this->main_menu = false;
+	this->action_test_mode = false;
 	this->next_action = GCA_NONE;
 	this->fname = "";
 }

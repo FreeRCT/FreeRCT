@@ -367,7 +367,22 @@ bool VideoSystem::HandleEvent()
 				case SDLK_RETURN2:
 				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM);
 
+				case SDLK_LSHIFT:
+				case SDLK_RSHIFT:
+					_game_control.action_test_mode = true;
+					return true;
+
 				default:             return false;
+			}
+
+		case SDL_KEYUP:
+			switch (event.key.keysym.sym) {
+				case SDLK_LSHIFT:
+				case SDLK_RSHIFT:
+					_game_control.action_test_mode = false;
+					return true;
+
+				default: return false;
 			}
 
 		case SDL_MOUSEMOTION:

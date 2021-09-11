@@ -80,6 +80,7 @@ strings {
 		ERROR_MESSAGE_SPRITE:         "Sprite konnte nicht gezeichnet werden (Failed to draw sprite).";
 		ERROR_MESSAGE_HEADING_BUILD:  "Das kann hier nicht gebaut werden …";
 		ERROR_MESSAGE_HEADING_REMOVE: "Das kann nicht entfernt werden …";
+		ERROR_MESSAGE_HEADING_COST:   "Zu erwartende Kosten:";
 		ERROR_MESSAGE_UNREMOVABLE:    "Unentfernbares Objekt!";
 		ERROR_MESSAGE_UNOWNED_LAND:   "Gelände gehört dem Park nicht!";
 		ERROR_MESSAGE_EXPENSIVE:      "%1% benötigt.";

@@ -12,7 +12,7 @@
 
 #include <map>
 
-static const Money TERRAFORM_UNIT_COST(40);  ///< The cost for applying one elemental unit of terraforming modifications.
+const Money &GetTerraformUnitCost();
 
 /**
  * Ground data + modification storage.
