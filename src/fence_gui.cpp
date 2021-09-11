@@ -14,6 +14,7 @@
 #include "window.h"
 #include "viewport.h"
 #include "language.h"
+#include "finances.h"
 #include "gamecontrol.h"
 #include "gui_sprites.h"
 #include "sprite_data.h"
@@ -266,14 +267,36 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 
 void FenceGui::SelectorMouseButtonEvent(uint8 state)
 {
-	if (!IsLeftClick(state)) return;
+	if ((state & (MB_LEFT | MB_RIGHT)) == 0) return;  // No buttons pressed.
 	if (this->fence_sel.area.width != 1 || this->fence_sel.area.height != 1) return;
 	if (this->fence_edge == INVALID_EDGE) return;
 	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->fence_base.x, this->fence_base.y) != OWN_PARK) return;
 
 	VoxelStack *vs = _world.GetModifyStack(this->fence_base.x, this->fence_base.y);
 	uint16 fences = GetGroundFencesFromMap(vs, this->fence_base.z);
-	fences = SetFenceType(fences, this->fence_edge, this->fence_type);
+
+	Money cost;
+	if ((state & MB_RIGHT) != 0) {  // Remove a fence.
+		const FenceType f = GetFenceType(fences, this->fence_edge);
+		if (f < FENCE_TYPE_BUILDABLE_BEGIN || f >= FENCE_TYPE_COUNT) return;
+
+		cost = GetFenceCostRemove(f);
+		if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_REMOVE, cost)) return;
+
+		fences = SetFenceType(fences, this->fence_edge, FENCE_TYPE_INVALID);
+	} else {  // Build a fence.
+		cost = GetFenceCostBuild(this->fence_type);
+		if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, cost)) return;
+
+		fences = SetFenceType(fences, this->fence_edge, this->fence_type);
+	}
+
+	if (_game_control.action_test_mode) {
+		ShowCostOrReturnEstimate(cost);
+		return;
+	}
+	_finances_manager.PayLandscaping(cost);
+
 	AddGroundFencesToMap(fences, vs, this->fence_base.z);
 	MarkVoxelDirty(this->fence_base);
 }
