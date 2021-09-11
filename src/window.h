@@ -405,5 +405,6 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, bool narrow);
 
 static const uint32 DEFAULT_ERROR_MESSAGE_TIMEOUT = 8000;   ///< Number of ticks after which an error message auto-closes by default.
 void ShowErrorMessage(StringID str1, StringID str2, const std::function<void()> &string_params, uint32 timeout = DEFAULT_ERROR_MESSAGE_TIMEOUT);
+void ShowCostOrReturnEstimate(const Money &cost);
 
 #endif

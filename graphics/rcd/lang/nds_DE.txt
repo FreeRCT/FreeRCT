@@ -80,6 +80,8 @@ strings {
 		ERROR_MESSAGE_SPRITE:         "Kunn Sprite-Billers nich teken!";
 		ERROR_MESSAGE_HEADING_BUILD:  "Dat kann hier nich baut worden …";
 		ERROR_MESSAGE_HEADING_REMOVE: "Dat kann nich ofrieten worden …";
+		ERROR_MESSAGE_HEADING_COST:   "Kosten to Verwachten:";
+		ERROR_MESSAGE_HEADING_RETURN: "Weergeven to Verwachten:";
 		ERROR_MESSAGE_UNREMOVABLE:    "Deeses Ding kann man nich wegmaken!";
 		ERROR_MESSAGE_UNOWNED_LAND:   "Dat Land höört nich to de Park!";
 		ERROR_MESSAGE_EXPENSIVE:      "Du bruukst tominnst %1%.";
