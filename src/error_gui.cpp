@@ -45,7 +45,7 @@ ErrorMessageWindow::ErrorMessageWindow(const StringID str1, const StringID str2,
 	const WidgetPart _error_message_gui_parts[] = {
 		Intermediate(0, 1),
 			Intermediate(1, 0),
-				Widget(WT_TITLEBAR, EMW_TITLEBAR, COL_RANGE_RED), SetData(GUI_TERRAFORM_TITLE, GUI_TITLEBAR_TIP),
+				Widget(WT_TITLEBAR, EMW_TITLEBAR, COL_RANGE_RED), SetData(GUI_ERROR_MESSAGE_CAPTION, GUI_TITLEBAR_TIP),
 				Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
 			EndContainer(),
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),

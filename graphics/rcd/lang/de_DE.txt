@@ -81,6 +81,7 @@ strings {
 		ERROR_MESSAGE_HEADING_BUILD:  "Das kann hier nicht gebaut werden …";
 		ERROR_MESSAGE_HEADING_REMOVE: "Das kann nicht entfernt werden …";
 		ERROR_MESSAGE_HEADING_COST:   "Zu erwartende Kosten:";
+		ERROR_MESSAGE_HEADING_RETURN: "Zu erwartende Erstattung:";
 		ERROR_MESSAGE_UNREMOVABLE:    "Unentfernbares Objekt!";
 		ERROR_MESSAGE_UNOWNED_LAND:   "Gelände gehört dem Park nicht!";
 		ERROR_MESSAGE_EXPENSIVE:      "%1% benötigt.";
