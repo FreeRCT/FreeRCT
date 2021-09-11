@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "language.h"
 #include "window.h"
+#include "money.h"
 
 /** Widgets of the error message window. */
 enum ErrorMessageWidgets {
@@ -97,4 +98,15 @@ void ShowErrorMessage(const StringID str1, const StringID str2, const std::funct
 		delete w;
 	} while (w != nullptr);
 	new ErrorMessageWindow(str1, str2, string_params, timeout);
+}
+
+/**
+ * Open a message window to display a cost estimate.
+ * @param cost Cost to display (negative indicates a refund).
+ */
+void ShowCostOrReturnEstimate(const Money &cost)
+{
+	const bool is_refund = (cost < 0);
+	ShowErrorMessage(is_refund ? GUI_ERROR_MESSAGE_HEADING_RETURN : GUI_ERROR_MESSAGE_HEADING_COST,
+			STR_ARG1, [cost, is_refund]() { _str_params.SetMoney(1, is_refund ? -cost : cost); });
 }

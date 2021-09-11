@@ -38,7 +38,7 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 	}
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, *cost)) return;
 	if (_game_control.action_test_mode) {
-		ShowErrorMessage(GUI_ERROR_MESSAGE_HEADING_COST, STR_ARG1, [cost]() { _str_params.SetMoney(1, *cost); });
+		ShowCostOrReturnEstimate(*cost);
 		return;
 	}
 	_finances_manager.PayRideConstruct(*cost);
@@ -72,7 +72,7 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr)
 {
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, PATH_CONSTRUCT_COST_RETURN)) return;
 	if (_game_control.action_test_mode) {
-		ShowErrorMessage(GUI_ERROR_MESSAGE_HEADING_RETURN, STR_ARG1, []() { _str_params.SetMoney(1, -PATH_CONSTRUCT_COST_RETURN); });
+		ShowCostOrReturnEstimate(PATH_CONSTRUCT_COST_RETURN);
 		return;
 	}
 
@@ -107,7 +107,7 @@ static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, ui
 {
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, PATH_CONSTRUCT_COST_CHANGE)) return;
 	if (_game_control.action_test_mode) {
-		ShowErrorMessage(GUI_ERROR_MESSAGE_HEADING_COST, STR_ARG1, []() { _str_params.SetMoney(1, PATH_CONSTRUCT_COST_CHANGE); });
+		ShowCostOrReturnEstimate(PATH_CONSTRUCT_COST_CHANGE);
 		return;
 	}
 

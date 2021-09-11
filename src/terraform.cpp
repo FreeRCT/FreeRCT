@@ -515,7 +515,7 @@ bool TerrainChanges::ModifyWorld(const int direction)
 
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, total_cost)) return false;
 	if (_game_control.action_test_mode) {
-		ShowErrorMessage(GUI_ERROR_MESSAGE_HEADING_COST, STR_ARG1, [total_cost]() { _str_params.SetMoney(1, total_cost); });
+		ShowCostOrReturnEstimate(total_cost);
 		return true;
 	}
 	_finances_manager.PayLandscaping(total_cost);

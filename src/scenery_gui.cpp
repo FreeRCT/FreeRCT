@@ -301,6 +301,10 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 				} else {
 					const Money &cost = i->IsDry() ? i->type->return_cost_dry : i->type->return_cost;
 					if (BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_REMOVE, cost)) {
+						if (_game_control.action_test_mode) {
+							ShowCostOrReturnEstimate(cost);
+							return;
+						}
 						_finances_manager.PayLandscaping(cost);
 						_scenery.RemoveItem(i->vox_pos);
 					}
@@ -317,10 +321,15 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 		this->build_forbidden_reason.ShowErrorMessage();
 		return;
 	}
-	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->selected_type->buy_cost)) return;
+	const Money &cost = this->selected_type->buy_cost;
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, cost)) return;
+	if (_game_control.action_test_mode) {
+		ShowCostOrReturnEstimate(cost);
+		return;
+	}
 
 	this->instance->RemoveFromWorld();  // The scenery manager will want to re-insert it, so we must unlink it first.
-	_finances_manager.PayLandscaping(this->selected_type->buy_cost);
+	_finances_manager.PayLandscaping(cost);
 	_scenery.AddItem(this->instance.release());
 
 	this->SetType(this->selected_type);  // Prepare to place another instance.
