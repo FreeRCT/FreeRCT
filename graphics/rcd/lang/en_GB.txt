@@ -219,6 +219,9 @@ strings {
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";
+		FENCE_TYPE_WOOD:       "Wooden fence";
+		FENCE_TYPE_HEDGE:      "Conifer Hedge";
+		FENCE_TYPE_BRICK:      "Brick wall";
 
 		// Scenery gui strings.
 		SCENERY_TITLE:               "Scenery";

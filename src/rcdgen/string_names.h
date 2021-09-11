@@ -227,6 +227,9 @@ static const char *_gui_string_names[] = {
 
 	/* Fence window. */
 	"FENCE_TITLE",
+	"FENCE_TYPE_WOOD",
+	"FENCE_TYPE_HEDGE",
+	"FENCE_TYPE_BRICK",
 
 	/* Scenery window. */
 	"SCENERY_TITLE",

@@ -10,6 +10,8 @@
 #ifndef FENCE_H
 #define FENCE_H
 
+class Money;
+
 /**
  * Available fence sprites.
  */
@@ -46,6 +48,9 @@ enum FenceType {
 	FENCE_TYPE_COUNT,           ///< Number of fence types.
 	FENCE_TYPE_INVALID = 0xF,   ///< Value representing an invalid/non-existing fence type
 };
+
+const Money &GetFenceCostBuild(FenceType);
+const Money &GetFenceCostRemove(FenceType);
 
 /** %Fence data with #FENCE_TYPE_INVALID at all four edges. */
 static const uint16 ALL_INVALID_FENCES = FENCE_TYPE_INVALID | (FENCE_TYPE_INVALID << 4) | (FENCE_TYPE_INVALID << 8) | (FENCE_TYPE_INVALID << 12);
