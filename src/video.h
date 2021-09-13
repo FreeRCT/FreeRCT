@@ -10,6 +10,7 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
+#include <memory>
 #include <set>
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -56,7 +57,7 @@ public:
 	VideoSystem();
 	~VideoSystem();
 
-	std::string Initialize(const char *font_name, int font_size);
+	std::string Initialize(const std::string &font_name, int font_size);
 	bool SetResolution(const Point32 &res);
 	void GetResolutions();
 	void MainLoop();
@@ -148,9 +149,9 @@ public:
 		return this->font_height;
 	}
 
-	void GetTextSize(const uint8 *text, int *width, int *height);
+	void GetTextSize(const std::string &text, int *width, int *height);
 	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
-	void BlitText(const uint8 *text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
+	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
 	void DrawLine(const Point16 &start, const Point16 &end, uint32 colour);
 	void DrawRectangle(const Rectangle32 &rect, uint32 colour);
 	void FillRectangle(const Rectangle32 &rect, uint32 colour);
@@ -169,7 +170,7 @@ private:
 	SDL_Window *window;         ///< %Window of the application.
 	SDL_Renderer *renderer;     ///< GPU renderer to the application window.
 	SDL_Texture *texture;       ///< GPU Texture storage of the application window.
-	uint32 *mem;                ///< Memory used for blitting the application display.
+	std::unique_ptr<uint32[]> mem;  ///< Memory used for blitting the application display.
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
 	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
 

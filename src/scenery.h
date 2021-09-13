@@ -21,7 +21,6 @@
 #include "money.h"
 #include "sprite_store.h"
 
-static const int MAX_NUMBER_OF_SCENERY_TYPES = 128;  ///< Maximal number of scenery types (limit is uint16 in the map).
 static const uint16 INVALID_VOXEL_DATA = 0xffff;     ///< Voxel instance data value that indicates that no scenery item should be drawn.
 
 /** Available categories of scenery types. */
@@ -194,7 +193,7 @@ class SceneryManager {
 public:
 	SceneryManager();
 
-	bool AddSceneryType(SceneryType *type);
+	void AddSceneryType(std::unique_ptr<SceneryType> &type);
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
 	const SceneryType *GetType(uint16 index) const;
 	std::vector<const SceneryType*> GetAllTypes(SceneryCategory cat) const;
@@ -223,7 +222,7 @@ public:
 	PathObjectInstance *temp_path_object;  ///< A path object type that is currently being placed (not owned).
 
 private:
-	std::unique_ptr<SceneryType> scenery_item_types[MAX_NUMBER_OF_SCENERY_TYPES];     ///< All available scenery types.
+	std::vector<std::unique_ptr<SceneryType>> scenery_item_types;  ///< All available scenery types.
 
 	std::map     <XYZPoint16, std::unique_ptr<SceneryInstance   >> all_items       ;  ///< All scenery items                 in the world, with their base voxel as key.
 	std::map     <XYZPoint16, std::unique_ptr<PathObjectInstance>> all_path_objects;  ///< All     user-buyable path objects in the world, with their base voxel as key.

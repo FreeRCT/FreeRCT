@@ -10,15 +10,14 @@
 #ifndef RIDE_TYPE_H
 #define RIDE_TYPE_H
 
+#include <memory>
+#include <vector>
+
 #include "palette.h"
 #include "money.h"
 #include "random.h"
 
-static const int MAX_NUMBER_OF_RIDE_TYPES      = 64; ///< Maximal number of types of rides.
-static const int MAX_NUMBER_OF_RIDE_INSTANCES  = 64; ///< Maximal number of ride instances (limit is uint16 in the map).
-static const int MAX_RIDE_INSTANCE_NAME_LENGTH = 64; ///< Maximum number of characters in ride instance name.
-static const uint16 INVALID_RIDE_INSTANCE      = 0xFFFF; ///< Value representing 'no ride instance found'.
-static const int MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS = 32; ///< Maximal number of types of ride entrances or exits.
+static const uint16 INVALID_RIDE_INSTANCE = 0xFFFF; ///< Value representing 'no ride instance found'.
 
 static const int MAX_RIDE_RECOLOURS = 3;  ///< Maximum number of entries in a RideInstance's recolour map.
 
@@ -100,7 +99,7 @@ static const uint32 RATING_NOT_YET_CALCULATED = 0xffffffff;  ///< Excitement/int
 class RideType {
 public:
 	RideType(RideTypeKind rtk);
-	virtual ~RideType();
+	virtual ~RideType() = default;
 
 	virtual bool CanMakeInstance() const;
 	virtual RideInstance *CreateInstance() const = 0;
@@ -206,7 +205,7 @@ public:
 
 	uint16 GetIndex() const;
 
-	std::unique_ptr<uint8[]> name;  ///< Name of the ride, if it is instantiated.
+	std::string name;               ///< Name of the ride, if it is instantiated.
 	uint8 state;                    ///< State of the instance. @see RideInstanceState
 	uint8 flags;                    ///< Flags of the instance. @see RideInstanceFlags
 	Recolouring recolours;          ///< Recolour map of the instance.
@@ -244,15 +243,12 @@ void SetRideRatingStringParam(uint32 rating);
 /** Storage of available ride types. */
 class RidesManager {
 public:
-	RidesManager();
-	~RidesManager();
-
 	RideInstance *GetRideInstance(uint16 num);
 	const RideInstance *GetRideInstance(uint16 num) const;
-	RideInstance *FindRideByName(const uint8 *name);
+	RideInstance *FindRideByName(const std::string &name);
 
-	bool AddRideType(RideType *type);
-	bool AddRideEntranceExitType(RideEntranceExitType *type);
+	void AddRideType(std::unique_ptr<RideType> type);
+	void AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type);
 
 	uint16 GetFreeInstance(const RideType *type);
 	RideInstance *CreateInstance(const RideType *type, uint16 num);
@@ -274,15 +270,15 @@ public:
 	 */
 	const RideType *GetRideType(uint16 number) const
 	{
-		if (number >= lengthof(this->ride_types)) return nullptr;
-		return this->ride_types[number];
+		if (number >= this->ride_types.size()) return nullptr;
+		return this->ride_types[number].get();
 	}
 	uint16 FindRideType(const RideType *) const;
 
-	const RideType *ride_types[MAX_NUMBER_OF_RIDE_TYPES];  ///< Loaded types of rides.
-	RideInstance *instances[MAX_NUMBER_OF_RIDE_INSTANCES]; ///< Rides available in the park.
-	const RideEntranceExitType* entrances[MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS]; ///< Available ride entrance types.
-	const RideEntranceExitType* exits[MAX_NUMBER_OF_RIDE_ENTRANCES_EXITS];     ///< Available ride exit types.
+	std::vector<std::unique_ptr<const RideType>> ride_types;             ///< Loaded types of rides.
+	std::map<uint16, std::unique_ptr<RideInstance>> instances;           ///< Rides available in the park.
+	std::vector<std::unique_ptr<const RideEntranceExitType>> entrances;  ///< Available ride entrance types.
+	std::vector<std::unique_ptr<const RideEntranceExitType>> exits;      ///< Available ride exit types.
 };
 
 RideInstance *RideExistsAtBottom(XYZPoint16 pos, TileEdge edge);

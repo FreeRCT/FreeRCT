@@ -31,10 +31,10 @@ static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests 
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
 const std::map<PersonType, Money> StaffMember::SALARY = {
-	{PERSON_MECHANIC,    Money(150000)},  ///< Monthly salary of a mechanic.
-	{PERSON_HANDYMAN,    Money(120000)},  ///< Monthly salary of a handyman.
-	{PERSON_GUARD,       Money(100000)},  ///< Monthly salary of a guard.
-	{PERSON_ENTERTAINER, Money(100000)},  ///< Monthly salary of a entertainer.
+	{PERSON_MECHANIC,    Money(80000)},  ///< Monthly salary of a mechanic.
+	{PERSON_HANDYMAN,    Money(50000)},  ///< Monthly salary of a handyman.
+	{PERSON_GUARD,       Money(60000)},  ///< Monthly salary of a guard.
+	{PERSON_ENTERTAINER, Money(60000)},  ///< Monthly salary of a entertainer.
 };
 
 /**
@@ -105,7 +105,6 @@ bool LoadPRSG(RcdFileReader *rcd_file)
 Person::Person() : VoxelObject(), rnd()
 {
 	this->type = PERSON_INVALID;
-	this->name = nullptr;
 	this->ride = nullptr;
 	this->status = GUI_PERSON_STATUS_WANDER;
 
@@ -125,28 +124,24 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
 }
 
 /**
- * Set the name of a guest.
- * @param name New name of the guest.
- * @note Currently unused.
+ * Set the name of a person.
+ * @param name New name of the person.
  */
-void Person::SetName(const uint8 *name)
+void Person::SetName(const std::string &name)
 {
-	int len = strlen((char *)name);
-	this->name.reset(new uint8[len + 1]);
-	strcpy((char *)this->name.get(), (char *)name); // Already know name has \0, because of strlen.
+	this->name = name;
 }
 
 /**
  * Query the name of the person.
- * The name is returned in memory owned by the person. Do not free this data. It may change on each call.
- * @return Static buffer containing the name of the person.
+ * @return The name of the person.
  */
-const uint8 *Person::GetName() const
+std::string Person::GetName() const
 {
-	static uint8 buffer[16];
+	if (!this->name.empty()) return this->name;
 
-	if (this->name.get() != nullptr) return this->name.get();
-	sprintf((char *)buffer, "Guest %u", this->id);
+	static char buffer[16];
+	sprintf(buffer, "Guest %u", this->id);  // \todo Use a translatable string for this.
 	return buffer;
 }
 
@@ -402,7 +397,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
-	this->name.reset();
+	this->name.clear();
 	this->SetStatus(GUI_PERSON_STATUS_WANDER);
 
 	/* Set up the person sprite recolouring table. */
@@ -839,7 +834,7 @@ void Person::Load(Loader &ldr)
 
 	this->type = (PersonType)ldr.GetByte();
 	this->offset = ldr.GetWord();
-	this->name.reset(ldr.GetText());
+	this->name = ldr.GetText();
 
 	if (version > 1) {
 		const uint16 ride_index = ldr.GetWord();
@@ -859,7 +854,7 @@ void Person::Load(Loader &ldr)
 	const Animation *anim = _sprite_manager.GetAnimation(walk->anim_type, this->type);
 	assert(anim != nullptr && anim->frame_count != 0);
 
-	this->frames = anim->frames;
+	this->frames = anim->frames.get();
 	this->frame_count = anim->frame_count;
 
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
@@ -878,7 +873,7 @@ void Person::Save(Saver &svr)
 
 	svr.PutByte(this->type);
 	svr.PutWord(this->offset);
-	svr.PutText(this->name.get());
+	svr.PutText(this->name);
 	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
 
 	this->recolour.Save(svr);
@@ -1106,7 +1101,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 			if (vs->owner == OWN_PARK) {
 				if (_world.GetStack(x + 1, y)->owner != OWN_PARK || _world.GetStack(x, y + 1)->owner != OWN_PARK) {
 					int offset = vs->GetBaseGroundOffset();
-					const Voxel *v = vs->voxels + offset;
+					const Voxel *v = vs->voxels[offset].get();
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & ((1 << EDGE_SE) | (1 << EDGE_SW))) != 0) {
 						ps.AddStart(XYZPoint16(x, y, vs->base + offset));
@@ -1116,7 +1111,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 				vs = _world.GetStack(x + 1, y);
 				if (vs->owner == OWN_PARK) {
 					int offset = vs->GetBaseGroundOffset();
-					const Voxel *v = vs->voxels + offset;
+					const Voxel *v = vs->voxels[offset].get();
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & (1 << EDGE_NE)) != 0) {
 						ps.AddStart(XYZPoint16(x + 1, y, vs->base + offset));
@@ -1126,7 +1121,7 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 				vs = _world.GetStack(x, y + 1);
 				if (vs->owner == OWN_PARK) {
 					int offset = vs->GetBaseGroundOffset();
-					const Voxel *v = vs->voxels + offset;
+					const Voxel *v = vs->voxels[offset].get();
 					if (HasValidPath(v) && GetImplodedPathSlope(v) < PATH_FLAT_COUNT &&
 							(GetPathExits(v) & (1 << EDGE_NW)) != 0) {
 						ps.AddStart(XYZPoint16(x, y + 1, vs->base + offset));
@@ -1377,7 +1372,7 @@ void Person::StartAnimation(const WalkInformation *walk)
 	assert(anim != nullptr && anim->frame_count != 0);
 
 	this->walk = walk;
-	this->frames = anim->frames;
+	this->frames = anim->frames.get();
 	this->frame_count = anim->frame_count;
 	this->frame_index = 0;
 	this->frame_time = this->frames[this->frame_index].duration;
@@ -1399,7 +1394,7 @@ void Person::DeActivate(AnimateResult ar)
 
 	_inbox.NotifyGuestDeletion(this->id);
 	this->type = PERSON_INVALID;
-	this->name.reset();
+	this->name.clear();
 }
 
 
@@ -2371,16 +2366,14 @@ void StaffMember::Save(Saver &svr)
  * Create this person's current status string.
  * @return The status string.
  */
-const uint8 *Person::GetStatus() const
+std::string Person::GetStatus() const
 {
+	const std::string text = _language.GetText(this->status);
+	if (this->ride == nullptr) return text;
+
 	static char text_buffer[1024];
-	const char *text = reinterpret_cast<const char*>(_language.GetText(this->status));
-	if (this->ride == nullptr) {
-		snprintf(text_buffer, lengthof(text_buffer), "%s", text);
-	} else {
-		snprintf(text_buffer, lengthof(text_buffer), text, this->ride->name.get());
-	}
-	return reinterpret_cast<const uint8*>(text_buffer);
+	snprintf(text_buffer, lengthof(text_buffer), text.c_str(), this->ride->name.c_str());
+	return text_buffer;
 }
 
 /**

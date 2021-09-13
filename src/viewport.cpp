@@ -352,7 +352,7 @@ void VoxelCollector::Collect()
 				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
 
 				int count = zpos - stack->base;
-				const Voxel *voxel = (count >= 0 && count < stack->height) ? &stack->voxels[count] : nullptr;
+				const Voxel *voxel = (count >= 0 && count < stack->height) ? stack->voxels[count].get() : nullptr;
 				this->CollectVoxel(voxel, XYZPoint16(xpos, ypos, zpos), north_x, north_y);
 			}
 		}
@@ -425,7 +425,7 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, const X
 void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypos)
 {
 	for (uint i = 0; i < stack->height; i++) {
-		const Voxel *v = &stack->voxels[i];
+		const Voxel *v = stack->voxels[i].get();
 		if (v->GetGroundType() == GTP_INVALID) continue;
 		if (v->GetInstance() == SRI_FREE) {
 			this->ground_height = stack->base + i;
@@ -1153,7 +1153,7 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
-bool Viewport::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool Viewport::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	if (key_code == WMKC_SYMBOL) {
 		if (symbol[0] == 'q') {

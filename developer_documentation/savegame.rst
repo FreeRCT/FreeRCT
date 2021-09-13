@@ -1038,8 +1038,11 @@ Offset  Length  Version  Description
    8       2      1-     Number of rides.
            ?      1-1    Every ride's content, consisting of the ride type kind (1 byte), the ride type name
                          characters, and the data pattern of the `ride instance`_'s most derived class.
-  10       ?      2-     Every ride's content, consisting of the ride type kind (1 byte), the ride type
+           ?      2-2    Every ride's content, consisting of the ride type kind (1 byte), the ride type
                          index (2 bytes), and the data pattern of the `ride instance`_'s most derived class.
+  10       ?      3-     Every ride's content, consisting of the unique ride instance index (2 bytes),
+                         the ride type kind (1 byte), the ride type index (2 bytes),
+                         and the data pattern of the `ride instance`_'s most derived class.
    ?       4      1-     "SDIR"
 ======  ======  =======  ======================================================================================
 
@@ -1048,6 +1051,7 @@ Version history
 
 - 1 (20210402) Initial version.
 - 2 (20210819) Replace ride type name with ride type index.
+- 3 (20210827) Assign every ride instance a unique index.
 
 
 .. vim: spell

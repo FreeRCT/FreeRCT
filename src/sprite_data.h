@@ -10,6 +10,8 @@
 #ifndef SPRITE_DATA_H
 #define SPRITE_DATA_H
 
+#include <memory>
+
 static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in image data.
 
 class RcdFileReader;
@@ -26,7 +28,6 @@ enum ImageFlags {
 class ImageData {
 public:
 	ImageData();
-	~ImageData();
 
 	bool Load8bpp(RcdFileReader *rcd_file, size_t length);
 	bool Load32bpp(RcdFileReader *rcd_file, size_t length);
@@ -47,8 +48,8 @@ public:
 	uint16 height; ///< Height of the image.
 	int16 xoffset; ///< Horizontal offset of the image.
 	int16 yoffset; ///< Vertical offset of the image.
-	uint32 *table; ///< The jump table. For missing entries, #INVALID_JUMP is used.
-	uint8 *data;   ///< The image data itself.
+	std::unique_ptr<uint32[]> table;  ///< The jump table. For missing entries, #INVALID_JUMP is used.
+	std::unique_ptr<uint8 []> data ;  ///< The image data itself.
 };
 
 ImageData *LoadImage(RcdFileReader *rcd_file);

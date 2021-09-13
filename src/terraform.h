@@ -12,6 +12,8 @@
 
 #include <map>
 
+const Money &GetTerraformUnitCost();
+
 /**
  * Ground data + modification storage.
  * @ingroup map_group

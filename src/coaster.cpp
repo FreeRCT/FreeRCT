@@ -145,7 +145,9 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	}
 	/* Setup a track voxel list for fast access in the type. */
 	for (const auto &piece : this->pieces) {
-		this->voxels.insert(this->voxels.end(), piece->track_voxels.begin(), piece->track_voxels.end());
+		for (const auto &tv : piece->track_voxels) {
+			this->voxels.push_back(tv.get());
+		}
 	}
 	return true;
 }
@@ -454,7 +456,7 @@ void CoasterTrain::OnAnimate(int delay)
 		this->back_position += this->speed * delay;
 		if (this->back_position >= this->coaster->coaster_length) {
 			this->back_position -= this->coaster->coaster_length;
-			this->cur_piece = this->coaster->pieces;
+			this->cur_piece = this->coaster->pieces.get();
 		}
 		while (this->cur_piece->distance_base + this->cur_piece->piece->piece_length < this->back_position) this->cur_piece++;
 	} else {
@@ -463,7 +465,7 @@ void CoasterTrain::OnAnimate(int delay)
 			this->back_position = this->back_position + this->coaster->coaster_length - change;
 			/* Update the track piece as well. There is no simple way to get
 			 * the last piece, so moving from the front will have to do. */
-			this->cur_piece = this->coaster->pieces;
+			this->cur_piece = this->coaster->pieces.get();
 			while (this->cur_piece->distance_base + this->cur_piece->piece->piece_length < this->back_position) this->cur_piece++;
 		} else {
 			this->back_position -= change;
@@ -477,7 +479,7 @@ void CoasterTrain::OnAnimate(int delay)
 		CoasterCar &car = this->cars[i];
 		if (position >= this->coaster->coaster_length) {
 			position -= this->coaster->coaster_length;
-			ptp = this->coaster->pieces;
+			ptp = this->coaster->pieces.get();
 		}
 		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
 
@@ -490,7 +492,7 @@ void CoasterTrain::OnAnimate(int delay)
 		position += car_length / 2;
 		if (position >= this->coaster->coaster_length) {
 			position -= this->coaster->coaster_length;
-			ptp = this->coaster->pieces;
+			ptp = this->coaster->pieces.get();
 		}
 		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
 		uint roll = static_cast<uint>(ptp->piece->car_roll->GetValue(position - ptp->distance_base) + 0.5) & 0xf;
@@ -499,7 +501,7 @@ void CoasterTrain::OnAnimate(int delay)
 		position += car_length / 2;
 		if (position >= this->coaster->coaster_length) {
 			position -= this->coaster->coaster_length;
-			ptp = this->coaster->pieces;
+			ptp = this->coaster->pieces.get();
 		}
 		while (ptp->distance_base + ptp->piece->piece_length < position) ptp++;
 		int32 xpos_front = ptp->piece->car_xpos->GetValue(position - ptp->distance_base) + (ptp->base_voxel.x << 8);
@@ -646,7 +648,7 @@ void CoasterTrain::OnAnimate(int delay)
 		indexed_car_position += (car_length + this->coaster->car_type->inter_car_length);
 		if (indexed_car_position >= this->coaster->coaster_length) {
 			indexed_car_position -= this->coaster->coaster_length;
-			indexed_car_piece = this->coaster->pieces;
+			indexed_car_piece = this->coaster->pieces.get();
 		}
 		while (indexed_car_piece->distance_base + indexed_car_piece->piece->piece_length < indexed_car_position) {
 			indexed_car_piece++;
@@ -746,25 +748,20 @@ CoasterStation::CoasterStation()
  */
 CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *car_type) : RideInstance(ct)
 {
-	this->pieces = new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]();
+	this->pieces.reset(new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]());
 	this->capacity = MAX_PLACED_TRACK_PIECES;
 	this->number_of_trains = 0;
 	this->cars_per_train = 0;
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
 		train.coaster = this;
-		train.cur_piece = this->pieces;
+		train.cur_piece = this->pieces.get();
 	}
 	this->car_type = car_type;
 	this->temp_entrance_pos = XYZPoint16::invalid();
 	this->temp_exit_pos = XYZPoint16::invalid();
 	this->max_idle_duration = 30000;
 	this->min_idle_duration = 5000;
-}
-
-CoasterInstance::~CoasterInstance()
-{
-	delete[] this->pieces;
 }
 
 const Recolouring *CoasterInstance::GetRecolours(const XYZPoint16 &pos) const
@@ -840,7 +837,7 @@ void CoasterInstance::CloseRide()
 		train.back_position = 0;
 		train.speed = 0;
 		train.station_policy = TSP_IN_STATION_BACK;
-		train.cur_piece = this->pieces;
+		train.cur_piece = this->pieces.get();
 		train.cars.resize(0);
 		train.OnAnimate(0);
 	}
@@ -1149,7 +1146,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 	/* First step, move all non-null track pieces to the start of the array. */
 	int count = 0;
 	for (int i = 0; i < this->capacity; i++) {
-		PositionedTrackPiece *ptp = this->pieces + i;
+		PositionedTrackPiece *ptp = this->pieces.get() + i;
 		if (ptp->piece == nullptr) continue;
 		if (i == count) {
 			count++;
@@ -1164,7 +1161,7 @@ bool CoasterInstance::MakePositionedPiecesLooping(bool *modified)
 	/* Second step, find a loop from start to end. */
 	if (count < 2) return false; // 0 or 1 positioned pieces won't ever make a loop.
 
-	PositionedTrackPiece *ptp = this->pieces;
+	PositionedTrackPiece *ptp = this->pieces.get();
 	uint32 distance = 0;
 	if (ptp->distance_base != distance) {
 		if (modified != nullptr) *modified = true;
@@ -1258,7 +1255,7 @@ void CoasterInstance::PlaceTrackPieceInWorld(const PositionedTrackPiece &placed)
 		Voxel *vx = _world.GetCreateVoxel(placed.base_voxel + tvx->dxyz, true);
 		// assert(vx->CanPlaceInstance()): Checked by this->CanBePlaced().
 		vx->SetInstance(ride_number);
-		vx->SetInstanceData(this->GetInstanceData(tvx));
+		vx->SetInstanceData(this->GetInstanceData(tvx.get()));
 	}
 }
 
@@ -1355,7 +1352,7 @@ void CoasterInstance::SetNumberOfCars(const int number_cars)
 void CoasterInstance::SetNumberOfTrains(const int number_trains)
 {
 	this->number_of_trains = number_trains;
-	PositionedTrackPiece *location = this->pieces;
+	PositionedTrackPiece *location = this->pieces.get();
 	uint32 back_position = 0;
 	uint32 back_position_in_piece = 0;
 	const uint32 train_length = 256 * (this->GetTrainLength(this->cars_per_train) + this->GetTrainSpacing());
@@ -1534,7 +1531,7 @@ void CoasterInstance::UpdateStations()
 			}
 			current_station->direction = piece.piece->GetStartDirection();
 			current_station->length += 256;
-			for (const TrackVoxel *track : piece.piece->track_voxels) {
+			for (const auto &track : piece.piece->track_voxels) {
 				current_station->locations.emplace_back(piece.base_voxel + track->dxyz);
 			}
 		} else if (current_station.get() != nullptr) {

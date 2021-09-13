@@ -17,8 +17,10 @@ uint8 *StrECpy(uint8 *dest, uint8 *end, const uint8 *src);
 
 size_t StrBytesLength(const uint8 *txt);
 
-int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint);
-int EncodeUtf8Char(uint32 codepoint, uint8 *dest = nullptr);
+int DecodeUtf8Char(const char *data, size_t length, uint32 *codepoint);
+int EncodeUtf8Char(uint32 codepoint, char *dest = nullptr);
+size_t GetPrevChar(const std::string &data, size_t pos);
+size_t GetNextChar(const std::string &data, size_t pos);
 
 bool StrEqual(const uint8 *s1, const uint8 *s2);
 bool StrEndsWith(const char *str, const char *end, bool case_sensitive);

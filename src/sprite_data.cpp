@@ -28,12 +28,6 @@ ImageData::ImageData()
 	this->data = nullptr;
 }
 
-ImageData::~ImageData()
-{
-	delete[] this->table;
-	delete[] this->data;
-}
-
 /**
  * Load image data from the RCD file.
  * @param rcd_file File to load from.
@@ -59,8 +53,8 @@ bool ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 	if (length <= jmp_table) return false; // You need at least place for the jump table.
 	length -= jmp_table;
 
-	this->table = new uint32[jmp_table / 4];
-	this->data  = new uint8[length];
+	this->table.reset(new uint32[jmp_table / 4]);
+	this->data.reset(new uint8[length]);
 	if (this->table == nullptr || this->data == nullptr) return false;
 
 	/* Load jump table, adjusting the entries while loading. */
@@ -75,7 +69,7 @@ bool ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 		this->table[i] = dest;
 	}
 
-	rcd_file->GetBlob(this->data, length); // Load the image data.
+	rcd_file->GetBlob(this->data.get(), length); // Load the image data.
 
 	/* Verify the image data. */
 	for (uint i = 0; i < this->height; i++) {
@@ -121,14 +115,14 @@ bool ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 	if (length > 2000 * 1200) return false; // Another arbitrary limit.
 
 	/* Allocate and load the image data. */
-	this->data = new uint8[length];
+	this->data.reset(new uint8[length]);
 	if (this->data == nullptr) return false;
-	rcd_file->GetBlob(this->data, length);
+	rcd_file->GetBlob(this->data.get(), length);
 
 	/* Verify the data. */
-	uint8 *abs_end = this->data + length;
+	uint8 *abs_end = this->data.get() + length;
 	int line_count = 0;
-	const uint8 *ptr = this->data;
+	const uint8 *ptr = this->data.get();
 	bool finished = false;
 	while (ptr < abs_end && !finished) {
 		line_count++;
@@ -210,7 +204,7 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
 		return _palette[0];
 	} else {
 		/* 32bpp image. */
-		const uint8 *ptr = this->data;
+		const uint8 *ptr = this->data.get();
 		while (yoffset > 0) {
 			uint16 length = ptr[0] | (ptr[1] << 8);
 			ptr += length;

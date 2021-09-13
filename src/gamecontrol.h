@@ -54,7 +54,7 @@ public:
 		if (this->next_action != GCA_NONE) this->RunAction();
 	}
 
-	void Initialize(const char *fname);
+	void Initialize(const std::string &fname);
 	void Uninitialize();
 
 	void MainMenu();
@@ -67,6 +67,8 @@ public:
 	bool main_menu;  ///< Indicates whether the main menu is currently open.
 
 	GameSpeed speed;  ///< Speed of the game.
+
+	bool action_test_mode;  ///< Don't perform any actions, only check what they would cost.
 
 private:
 	void RunAction();

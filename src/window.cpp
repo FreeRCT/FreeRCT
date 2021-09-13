@@ -278,7 +278,7 @@ void Window::OnMouseLeaveEvent()
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool Window::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool Window::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	return false;
 }
@@ -353,9 +353,6 @@ GuiWindow::~GuiWindow()
 	 * as release may cause a MarkDirty call.
 	 */
 	assert(this->selector == nullptr);
-
-	delete this->tree;
-	delete[] this->widgets;
 }
 
 /**
@@ -392,7 +389,7 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 
 void GuiWindow::ResetSize()
 {
-	this->tree->SetupMinimalSize(this, this->widgets);
+	this->tree->SetupMinimalSize(this, this->widgets.get());
 	this->rect = Rectangle32(this->rect.base.x, this->rect.base.y, this->tree->min_x, this->tree->min_y);
 
 	Rectangle16 min_rect(0, 0, this->tree->min_x, this->tree->min_y);
@@ -410,11 +407,11 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	assert(this->tree == nullptr && this->widgets == nullptr);
 
 	int16 biggest;
-	this->tree = MakeWidgetTree(parts, length, &biggest);
+	this->tree.reset(MakeWidgetTree(parts, length, &biggest));
 
 	if (biggest >= 0) {
 		this->num_widgets = biggest + 1;
-		this->widgets = new BaseWidget *[biggest + 1];
+		this->widgets.reset(new BaseWidget *[biggest + 1]);
 		for (int16 i = 0; i <= biggest; i++) this->widgets[i] = nullptr;
 	}
 	this->ResetSize();
@@ -478,7 +475,7 @@ void GuiWindow::OnDraw(MouseModeSelector *selector)
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video.DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
 }
 
-bool GuiWindow::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool GuiWindow::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	return this->tree->OnKeyEvent(key_code, symbol) || Window::OnKeyEvent(key_code, symbol);
 }
@@ -1103,7 +1100,7 @@ void WindowManager::MouseWheelEvent(int direction)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool WindowManager::KeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool WindowManager::KeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
 		if (w->OnKeyEvent(key_code, symbol)) return true;

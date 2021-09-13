@@ -111,7 +111,7 @@ void ClippedRectangle::ValidateAddress()
 {
 	if (this->address == nullptr) {
 		this->pitch = _video.GetXSize();
-		this->address = _video.mem + this->absx + this->absy * this->pitch;
+		this->address = _video.mem.get() + this->absx + this->absy * this->pitch;
 	}
 }
 
@@ -136,7 +136,7 @@ VideoSystem::~VideoSystem()
  * @param font_size Size of the font.
  * @return Error message if initialization failed, else an empty text.
  */
-std::string VideoSystem::Initialize(const char *font_name, int font_size)
+std::string VideoSystem::Initialize(const std::string &font_name, int font_size)
 {
 	if (this->initialized) return "";
 
@@ -190,13 +190,12 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 
 	if (TTF_Init() != 0) {
 		SDL_Quit();
-		delete[] this->mem;
 		std::string err = "TTF font initialization failed: ";
 		err += TTF_GetError();
 		return err;
 	}
 
-	this->font = TTF_OpenFont(font_name, font_size);
+	this->font = TTF_OpenFont(font_name.c_str(), font_size);
 	if (this->font == nullptr) {
 		std::string err = "TTF Opening font \"";
 		err += font_name;
@@ -206,7 +205,6 @@ std::string VideoSystem::Initialize(const char *font_name, int font_size)
 		err += TTF_GetError();
 		TTF_Quit();
 		SDL_Quit();
-		delete[] this->mem;
 		return err;
 	}
 
@@ -234,8 +232,6 @@ bool VideoSystem::SetResolution(const Point32 &res)
 
 	/* Destroy old window, if it exists. */
 	if (this->initialized) {
-		delete[] this->mem;
-		this->mem = nullptr;
 		SDL_DestroyTexture(this->texture);
 		this->texture = nullptr;
 	}
@@ -251,7 +247,7 @@ bool VideoSystem::SetResolution(const Point32 &res)
 		return false;
 	}
 
-	this->mem = new uint32[this->vid_width * this->vid_height];
+	this->mem.reset(new uint32[this->vid_width * this->vid_height]);
 	if (this->mem == nullptr) {
 		SDL_Quit();
 		fprintf(stderr, "Failed to obtain window display storage.\n");
@@ -337,7 +333,7 @@ static void UpdateMousePosition(int16 x, int16 y)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Game-ending event has happened.
  */
-static bool HandleKeyInput(WmKeyCode key_code, const uint8 *symbol)
+static bool HandleKeyInput(WmKeyCode key_code, const std::string &symbol = std::string())
 {
 	return _window_manager.KeyEvent(key_code, symbol);
 }
@@ -353,23 +349,40 @@ bool VideoSystem::HandleEvent()
 
 	switch (event.type) {
 		case SDL_TEXTINPUT:
-			return HandleKeyInput(WMKC_SYMBOL, (const uint8 *)event.text.text);
+			return HandleKeyInput(WMKC_SYMBOL, event.text.text);
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-				case SDLK_UP:        return HandleKeyInput(WMKC_CURSOR_UP, nullptr);
-				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT, nullptr);
-				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT, nullptr);
-				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN, nullptr);
-				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL, nullptr);
-				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE, nullptr);
-				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE, nullptr);
+				case SDLK_UP:        return HandleKeyInput(WMKC_CURSOR_UP);
+				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT);
+				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT);
+				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN);
+				case SDLK_HOME:      return HandleKeyInput(WMKC_CURSOR_HOME);
+				case SDLK_END:       return HandleKeyInput(WMKC_CURSOR_END);
+				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL);
+				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE);
+				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE);
 
 				case SDLK_RETURN:
 				case SDLK_RETURN2:
-				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM, nullptr);
+				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM);
+
+				case SDLK_LSHIFT:
+				case SDLK_RSHIFT:
+					_game_control.action_test_mode = true;
+					return true;
 
 				default:             return false;
+			}
+
+		case SDL_KEYUP:
+			switch (event.key.keysym.sym) {
+				case SDLK_LSHIFT:
+				case SDLK_RSHIFT:
+					_game_control.action_test_mode = false;
+					return true;
+
+				default: return false;
 			}
 
 		case SDL_MOUSEMOTION:
@@ -467,7 +480,6 @@ void VideoSystem::Shutdown()
 		TTF_CloseFont(this->font);
 		TTF_Quit();
 		SDL_Quit();
-		delete[] this->mem;
 		this->initialized = false;
 		this->dirty = false;
 	}
@@ -479,7 +491,7 @@ void VideoSystem::Shutdown()
  */
 void VideoSystem::FinishRepaint()
 {
-	SDL_UpdateTexture(this->texture, nullptr, this->mem, this->GetXSize() * sizeof(uint32)); // Upload memory to the GPU.
+	SDL_UpdateTexture(this->texture, nullptr, this->mem.get(), this->GetXSize() * sizeof(uint32)); // Upload memory to the GPU.
 	SDL_RenderClear(this->renderer);
 	SDL_RenderCopy(this->renderer, this->texture, nullptr, nullptr);
 	SDL_RenderPresent(this->renderer);
@@ -605,7 +617,7 @@ static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_ba
 	uint32 *line_base = cr.address + x_base + cr.pitch * y_base;
 	ShiftFunc sf = GetGradientShiftFunc(shift);
 	int32 ypos = y_base;
-	const uint8 *src = spr->data + 2; // Skip the length word.
+	const uint8 *src = spr->data.get() + 2; // Skip the length word.
 	for (int yoff = 0; yoff < spr->height; yoff++) {
 		int32 xpos = x_base;
 		uint32 *src_base = line_base;
@@ -728,9 +740,9 @@ void VideoSystem::BlitImages(const Point32 &pt, const ImageData *spr, uint16 num
  * @param width [out] Resulting width.
  * @param height [out] Resulting height.
  */
-void VideoSystem::GetTextSize(const uint8 *text, int *width, int *height)
+void VideoSystem::GetTextSize(const std::string &text, int *width, int *height)
 {
-	if (TTF_SizeUTF8(this->font, (const char *)text, width, height) != 0) {
+	if (TTF_SizeUTF8(this->font, text.c_str(), width, height) != 0) {
 		*width = 0;
 		*height = 0;
 	}
@@ -750,9 +762,9 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 		this->digit_size.x = 0;
 		this->digit_size.y = 0;
 
-		uint8 buffer[2];
+		char buffer[2];
 		buffer[1] = '\0';
-		for (uint8 i = '0'; i <= '9'; i++) {
+		for (char i = '0'; i <= '9'; i++) {
 			buffer[0] = i;
 			int w, h;
 			this->GetTextSize(buffer, &w, &h);
@@ -783,10 +795,11 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
  * @param width Available width of the text (in pixels).
  * @param align Horizontal alignment of the string.
  */
-void VideoSystem::BlitText(const uint8 *text, uint32 colour, int xpos, int ypos, int width, Alignment align)
+void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
+	if (text.empty()) return;
 	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
-	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, (const char *)text, col);
+	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, text.c_str(), col);
 	if (surf == nullptr) {
 		fprintf(stderr, "Rendering text failed (%s)\n", TTF_GetError());
 		return;

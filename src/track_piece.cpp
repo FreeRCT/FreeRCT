@@ -116,7 +116,7 @@ static CubicBezier LoadBezier(RcdFileReader *rcdfile)
  * @param length [inout] Length of the block that is not loaded yet.
  * @return Reading was a success (might have failed due to not enough data).
  */
-static bool LoadTrackCurve(RcdFileReader *rcdfile, TrackCurve **curve, uint32 *length)
+static bool LoadTrackCurve(RcdFileReader *rcdfile, std::unique_ptr<TrackCurve> *curve, uint32 *length)
 {
 #define ENSURE_LENGTH(x) do { if (*length < (x)) { *curve = nullptr; return false; } *length -= (x); } while(false)
 
@@ -130,7 +130,7 @@ static bool LoadTrackCurve(RcdFileReader *rcdfile, TrackCurve **curve, uint32 *l
 		case 1: { // Curve consisting of a fixed value.
 			ENSURE_LENGTH(2);
 			int value = rcdfile->GetInt16();
-			*curve = new ConstantTrackCurve(value);
+			curve->reset(new ConstantTrackCurve(value));
 			return true;
 		}
 
@@ -144,7 +144,7 @@ static bool LoadTrackCurve(RcdFileReader *rcdfile, TrackCurve **curve, uint32 *l
 				bezier->curve.push_back(LoadBezier(rcdfile));
 			}
 			bezier->curve.shrink_to_fit();
-			*curve = bezier;
+			curve->reset(bezier);
 			return true;
 		}
 
@@ -167,24 +167,13 @@ TrackPiece::TrackPiece()
 	this->car_yaw = nullptr;
 }
 
-TrackPiece::~TrackPiece()
-{
-	for (const auto &tv : this->track_voxels) delete tv;
-	delete this->car_xpos;
-	delete this->car_ypos;
-	delete this->car_zpos;
-	delete this->car_pitch;
-	delete this->car_roll;
-	delete this->car_yaw;
-}
-
 /**
  * Immediately remove a piece of this type from all voxels it occupies.
  * @param ride_index The index of the coaster that owns the piece.
  * @param base_voxel the piece's absolute coordinates.
  */
 void TrackPiece::RemoveFromWorld(const uint16 ride_index, const XYZPoint16 base_voxel) const {
-	for (const TrackVoxel *subpiece : this->track_voxels) {
+	for (const auto &subpiece : this->track_voxels) {
 		Voxel *voxel = _world.GetCreateVoxel(base_voxel + subpiece->dxyz, false);
 		assert(voxel);
 		if (voxel->instance != SRI_FREE) {
@@ -247,7 +236,7 @@ Rectangle16 TrackPiece::GetArea() const
 {
 	Rectangle16 rect;
 	rect.AddPoint(0, 0);
-	for (const TrackVoxel *tv : this->track_voxels) {
+	for (const auto &tv : this->track_voxels) {
 		rect.AddPoint(tv->dxyz.x, tv->dxyz.y);
 	}
 	return rect;
@@ -276,7 +265,7 @@ bool PositionedTrackPiece::IsOnWorld() const
 	if (!IsVoxelInsideWorld(this->GetEndXYZ())) return false;
 	XYZPoint16 base = this->base_voxel;
 	return std::all_of(this->piece->track_voxels.begin(), this->piece->track_voxels.end(),
-	                   [base](TrackVoxel * tv){ return IsVoxelInsideWorld(base + tv->dxyz); });
+	                   [base](const std::unique_ptr<TrackVoxel> &tv){ return IsVoxelInsideWorld(base + tv->dxyz); });
 }
 
 /**

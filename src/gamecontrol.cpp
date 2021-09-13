@@ -90,6 +90,7 @@ GameControl::GameControl()
 	this->speed = GSP_1;
 	this->running = false;
 	this->main_menu = false;
+	this->action_test_mode = false;
 	this->next_action = GCA_NONE;
 	this->fname = "";
 }
@@ -99,15 +100,15 @@ GameControl::~GameControl()
 }
 
 /** Initialize the game controller. */
-void GameControl::Initialize(const char *fname)
+void GameControl::Initialize(const std::string &fname)
 {
 	this->speed = GSP_1;
 	this->running = true;
 
-	if (fname == nullptr) {
+	if (fname.empty()) {
 		this->MainMenu();
 	} else {
-		this->LoadGame(fname);
+		this->LoadGame(fname.c_str());
 	}
 
 	this->RunAction();
@@ -144,7 +145,7 @@ void GameControl::RunAction()
 
 		case GCA_MENU:
 			this->main_menu = true;
-			this->Initialize(FindDataFile("data/mainmenu/savegame.fct").c_str());
+			this->Initialize(FindDataFile("data/mainmenu/savegame.fct"));
 			::ShowMainMenu();
 			break;
 
@@ -338,7 +339,6 @@ bool BestErrorMessageReason::CheckActionAllowed(const CheckActionType type, cons
 
 /** Assigns every error message a priority, to decide which one should be shown when multiple are applicable. */
 static const std::map<StringID, int> ERROR_MESSAGE_REASON_PRIORITIES = {
-	{STR_EMPTY,                        0},
 	{STR_NULL,                         1},
 	{GUI_ERROR_MESSAGE_BAD_LOCATION,  10},
 	{GUI_ERROR_MESSAGE_UNOWNED_LAND,  20},

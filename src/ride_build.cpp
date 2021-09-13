@@ -139,7 +139,7 @@ void RideBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 				const RideType *ride_type = this->instance->GetRideType();
 				_str_params.SetStrID(1, ride_type->GetString(ride_type->GetTypeName()));
 			} else {
-				_str_params.SetUint8(1, (uint8 *)"Unknown");
+				_str_params.SetText(1, "Unknown");
 			}
 			break;
 

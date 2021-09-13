@@ -172,28 +172,27 @@ uint64 Loader::GetLongLong()
 
 /**
  * Load a text from the save into memory.
- * @return Utf-8 encoded string. Caller must delete the memory after use.
+ * @return Utf-8 encoded string.
  */
-uint8 *Loader::GetText()
+std::string Loader::GetText()
 {
 	uint32 length = this->GetLong();
-	if (length == 0) return nullptr;
+	if (length == 0) return std::string();
 
-	uint32 *cpoints = new uint32[length];
+	std::unique_ptr<uint32[]> cpoints(new uint32[length]);
 
 	for (uint32 i = 0; i < length; i++) cpoints[i] = this->GetLong();
 
 	size_t enc_length = 0;
 	for (uint32 i = 0; i < length; i++) enc_length += EncodeUtf8Char(cpoints[i], nullptr);
-	uint8 *txt = new uint8[enc_length + 1];
-	uint8 *p = txt;
+	std::unique_ptr<char[]> txt(new char[enc_length + 1]);
+	char *p = txt.get();
 	for (uint32 i = 0; i < length; i++) {
 		size_t len = EncodeUtf8Char(cpoints[i], p);
 		p += len;
 	}
 	txt[enc_length] = '\0';
-	delete[] cpoints;
-	return txt;
+	return txt.get();
 }
 
 /**
@@ -294,13 +293,11 @@ void Saver::PutLongLong(uint64 val)
  * @param str String to save.
  * @param length Number of bytes in the string if specified, else negative.
  */
-void Saver::PutText(const uint8 *str, int length)
+void Saver::PutText(const std::string &str, int length)
 {
-	if (str == nullptr) str = (const uint8 *)"";
-
 	/* Get size of the string in code points. */
 	uint32 count = 0;
-	const uint8 *p = str;
+	const char *p = str.c_str();
 	size_t size = (length >= 0) ? static_cast<size_t>(length) : 4; // 4 is max utf-8 character length.
 	for (;;) {
 		uint32 cpoint;
@@ -313,11 +310,12 @@ void Saver::PutText(const uint8 *str, int length)
 
 	this->PutLong(count);
 	size = (length >= 0) ? static_cast<size_t>(length) : 4; // 4 is max utf-8 character length.
+	p = str.c_str();
 	while (count > 0) {
 		uint32 cpoint;
-		int len = DecodeUtf8Char(str, size, &cpoint);
+		int len = DecodeUtf8Char(p, size, &cpoint);
 		if (len == 0 || cpoint == 0) break;
-		str += len;
+		p += len;
 		if (length >= 0) size -= len;
 		this->PutLong(cpoint);
 		count--;

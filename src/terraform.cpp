@@ -11,9 +11,21 @@
 #include "map.h"
 #include "viewport.h"
 #include "terraform.h"
+#include "finances.h"
 #include "gamecontrol.h"
 #include "math_func.h"
 #include "memory.h"
+
+static const Money TERRAFORM_UNIT_COST(40);  ///< The cost for applying one elemental unit of terraforming modifications.
+
+/**
+ * How much it costs to apply one elemental unit of terraforming modifications.
+ * @return The cost.
+ */
+const Money &GetTerraformUnitCost()
+{
+	return TERRAFORM_UNIT_COST;
+}
 
 /**
  * Structure describing a corner at a voxel stack.
@@ -373,7 +385,7 @@ static void SetXFoundations(int xpos, int ypos)
 	uint8 first_west  = 0;
 	if (first != nullptr) {
 		for (uint i = 0; i < first->height; i++) {
-			const Voxel *v = &first->voxels[i];
+			const Voxel *v = first->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
@@ -387,7 +399,7 @@ static void SetXFoundations(int xpos, int ypos)
 	uint8 second_east  = 0;
 	if (second != nullptr) {
 		for (uint i = 0; i < second->height; i++) {
-			const Voxel *v = &second->voxels[i];
+			const Voxel *v = second->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);
@@ -418,7 +430,7 @@ static void SetYFoundations(int xpos, int ypos)
 	uint8 first_east  = 0;
 	if (first != nullptr) {
 		for (uint i = 0; i < first->height; i++) {
-			const Voxel *v = &first->voxels[i];
+			const Voxel *v = first->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), first->base + i, heights);
@@ -432,7 +444,7 @@ static void SetYFoundations(int xpos, int ypos)
 	uint8 second_west  = 0;
 	if (second != nullptr) {
 		for (uint i = 0; i < second->height; i++) {
-			const Voxel *v = &second->voxels[i];
+			const Voxel *v = second->voxels[i].get();
 			if (v->GetGroundType() == GTP_INVALID) continue;
 			uint8 heights[4];
 			ComputeCornerHeight(ExpandTileSlope(v->GetGroundSlope()), second->base + i, heights);
@@ -451,9 +463,10 @@ static void SetYFoundations(int xpos, int ypos)
  * @param direction Direction of change.
  * @return Whether the change could actually be performed (else nothing is changed).
  */
-bool TerrainChanges::ModifyWorld(int direction)
+bool TerrainChanges::ModifyWorld(const int direction)
 {
 	/* First iteration: Check that the world can be safely changed (no collisions with other game elements.) */
+	Money total_cost(0);
 	for (auto &iter : this->changes) {
 		const Point16 &pos = iter.first;
 		const GroundData &gd = iter.second;
@@ -466,6 +479,7 @@ bool TerrainChanges::ModifyWorld(int direction)
 		for (uint8 i = TC_NORTH; i < TC_END; i++) {
 			if ((gd.modified & (1 << i)) == 0) continue; // Corner was not changed.
 			current[i] += direction;
+			total_cost += GetTerraformUnitCost();
 		}
 
 		if (direction > 0) {
@@ -498,6 +512,13 @@ bool TerrainChanges::ModifyWorld(int direction)
 			}
 		}
 	}
+
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, total_cost)) return false;
+	if (_game_control.action_test_mode) {
+		ShowCostOrReturnEstimate(total_cost);
+		return true;
+	}
+	_finances_manager.PayLandscaping(total_cost);
 
 	/* Second iteration: Change the ground of the tiles. */
 	for (auto &iter : this->changes) {

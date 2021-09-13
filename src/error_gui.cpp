@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "language.h"
 #include "window.h"
+#include "money.h"
 
 /** Widgets of the error message window. */
 enum ErrorMessageWidgets {
@@ -45,7 +46,7 @@ ErrorMessageWindow::ErrorMessageWindow(const StringID str1, const StringID str2,
 	const WidgetPart _error_message_gui_parts[] = {
 		Intermediate(0, 1),
 			Intermediate(1, 0),
-				Widget(WT_TITLEBAR, EMW_TITLEBAR, COL_RANGE_RED), SetData(GUI_TERRAFORM_TITLE, GUI_TITLEBAR_TIP),
+				Widget(WT_TITLEBAR, EMW_TITLEBAR, COL_RANGE_RED), SetData(GUI_ERROR_MESSAGE_CAPTION, GUI_TITLEBAR_TIP),
 				Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
 			EndContainer(),
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),
@@ -97,4 +98,15 @@ void ShowErrorMessage(const StringID str1, const StringID str2, const std::funct
 		delete w;
 	} while (w != nullptr);
 	new ErrorMessageWindow(str1, str2, string_params, timeout);
+}
+
+/**
+ * Open a message window to display a cost estimate.
+ * @param cost Cost to display (negative indicates a refund).
+ */
+void ShowCostOrReturnEstimate(const Money &cost)
+{
+	const bool is_refund = (cost < 0);
+	ShowErrorMessage(is_refund ? GUI_ERROR_MESSAGE_HEADING_RETURN : GUI_ERROR_MESSAGE_HEADING_COST,
+			STR_ARG1, [cost, is_refund]() { _str_params.SetMoney(1, is_refund ? -cost : cost); });
 }

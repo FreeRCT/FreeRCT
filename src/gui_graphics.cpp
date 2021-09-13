@@ -144,9 +144,7 @@ void OverlayShaded(const Rectangle32 &rect)
  */
 void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment align, bool outline)
 {
-	uint8 buffer[1024]; // Arbitrary limit.
-
-	DrawText(strid, buffer, lengthof(buffer));
+	const std::string buffer = DrawText(strid);
 	/** \todo Reduce the naiviness of this. */
 	if (outline) {
 		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x + 1, y, width, align);
@@ -166,15 +164,15 @@ void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment
  * @param width [out]  Actual width of the text.
  * @return Pointer to the end of the line, points to either a NL or a NUL.
  */
-static uint8 *GetSingleLine(uint8 *text, int max_width, int *width)
+static char *GetSingleLine(char *text, int max_width, int *width)
 {
-	uint8 *start = text;
-	uint8 *best_pos = nullptr;
+	char *start = text;
+	char *best_pos = nullptr;
 	for (;;) {
-		uint8 *current = text;
+		char *current = text;
 		/* Proceed to the first white-space. */
 		while (*current != '\n' && *current != '\0' && *current != ' ') current++;
-		uint8 orig = *current;
+		char orig = *current;
 		*current = '\0';
 		int line_width, line_height;
 		_video.GetTextSize(start, &line_width, &line_height);
@@ -219,13 +217,14 @@ static uint8 *GetSingleLine(uint8 *text, int max_width, int *width)
  */
 void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height)
 {
-	uint8 buffer[1024]; // Arbitrary max size.
-	DrawText(strid, buffer, lengthof(buffer));
+	/* \todo This design is ugly. Fix the utility function GetSingleLine() to work on std::string with a start index instead of mutable char*. */
+	const std::string buffer = DrawText(strid);
+	std::unique_ptr<char[]> mutable_buffer(new char[buffer.size() + 1]);
+	strcpy(mutable_buffer.get(), buffer.c_str());
+	char *text = mutable_buffer.get();
 
 	*width = 0;
 	*height = 0;
-
-	uint8 *text = buffer;
 	for (;;) {
 		int line_width;
 		text = GetSingleLine(text, max_width, &line_width);
@@ -250,16 +249,17 @@ void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height
  */
 bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour)
 {
-	uint8 buffer[1024]; // Arbitrary max size.
-	DrawText(strid, buffer, lengthof(buffer));
+	const std::string buffer = DrawText(strid);
+	std::unique_ptr<char[]> mutable_buffer(new char[buffer.size() + 1]);
+	strcpy(mutable_buffer.get(), buffer.c_str());
+	char *text = mutable_buffer.get();
 
-	uint8 *text = buffer;
 	while (*text != '\0') {
 		if (max_height < _video.GetTextHeight()) return false;
 		max_height -= _video.GetTextHeight();
 
 		int line_width;
-		uint8 *end = GetSingleLine(text, max_width, &line_width);
+		char *end = GetSingleLine(text, max_width, &line_width);
 		if (*end == '\0') {
 			_video.BlitText(text, _palette[colour], x, y, max_width);
 			break;

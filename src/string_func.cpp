@@ -95,7 +95,7 @@ size_t StrBytesLength(const uint8 *str)
  * @param[out] codepoint If decoding was successful, the value of the decoded character.
  * @return Number of bytes read to decode the character, or \c 0 if reading failed.
  */
-int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint)
+int DecodeUtf8Char(const char *data, size_t length, uint32 *codepoint)
 {
 	if (length < 1) return 0;
 	uint32 value = *data;
@@ -124,7 +124,7 @@ int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint)
 
 	if (length < static_cast<size_t>(size)) return 0;
 	for (int n = 1; n < size; n++) {
-		uint8 val = *data;
+		char val = *data;
 		data++;
 		if ((val & 0xC0) != 0x80) return 0;
 		value = (value << 6) | (val & 0x3F);
@@ -141,7 +141,7 @@ int DecodeUtf8Char(const uint8 *data, size_t length, uint32 *codepoint)
  * @return Length of the encoded character in bytes.
  * @note It is recommended to use this function for measuring required output size (by making \a dest a \c nullptr), before writing the encoded string.
  */
-int EncodeUtf8Char(uint32 codepoint, uint8 *dest)
+int EncodeUtf8Char(uint32 codepoint, char *dest)
 {
 	if (codepoint < 0x7F + 1) {
 		/* 7 bits, U+0000 .. U+007F, 1 byte: 0xxx.xxxx */
@@ -175,6 +175,37 @@ int EncodeUtf8Char(uint32 codepoint, uint8 *dest)
 		dest[3] = 0x80 | (codepoint & 0x3F);
 	}
 	return 4;
+}
+
+/**
+ * Find the previous character in the given string, skipping over multi-byte characters.
+ * @param data String to work with.
+ * @param pos Index in the string to start searching from.
+ * @return The previous character's index.
+ */
+size_t GetPrevChar(const std::string &data, size_t pos)
+{
+	if (pos == 0) return 0;
+	do {
+		pos--;
+	} while (pos > 0 && (data[pos] & 0xc0) == 0x80);
+	return pos;
+}
+
+/**
+ * Find the next character in the given string, skipping over multi-byte characters.
+ * @param data String to work with.
+ * @param pos Index in the string to start searching from.
+ * @return The next character's index.
+ */
+size_t GetNextChar(const std::string &data, size_t pos)
+{
+	const size_t length = data.size();
+	if (pos >= length) return length;
+	do {
+		pos++;
+	} while (pos < length && (data[pos] & 0xc0) == 0x80);
+	return pos;
 }
 
 /**

@@ -11,6 +11,7 @@
 #include "math_func.h"
 #include "sprite_store.h"
 #include "sprite_data.h"
+#include "string_func.h"
 #include "widget.h"
 #include "window.h"
 #include "video.h"
@@ -243,7 +244,7 @@ void BaseWidget::AutoRaiseButtons(const Point32 &base)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool BaseWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool BaseWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	return false;
 }
@@ -602,9 +603,8 @@ static const int TEXT_INPUT_MARGIN = 2;  ///< Margin around a text input field.
 
 TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype)
 {
-	this->text_length = 0;
 	this->cursor_pos = 0;
-	this->SetText(new uint8[1]{'\0'});
+	this->SetText("");
 }
 
 /**
@@ -613,7 +613,7 @@ TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype)
  */
 void TextInputWidget::SetCursorPos(const size_t pos)
 {
-	assert(pos <= this->text_length);
+	assert(pos <= this->buffer.size());
 	this->cursor_pos = pos;
 }
 
@@ -621,60 +621,72 @@ void TextInputWidget::SetCursorPos(const size_t pos)
  * Retrieve the currently held text. Do not modify the returned pointer.
  * @return The text.
  */
-const uint8 *TextInputWidget::GetText() const
+const std::string &TextInputWidget::GetText() const
 {
-	return this->buffer.get();
+	return this->buffer;
 }
 
 /**
- * Change the currently held text. Takes ownership of the pointer.
+ * Change the currently held text.
  * @param text New text.
  */
-void TextInputWidget::SetText(uint8 *text)
+void TextInputWidget::SetText(const std::string &text)
 {
-	this->buffer.reset(text);
-	this->text_length = strlen(reinterpret_cast<const char*>(text));
-	this->cursor_pos = std::min(this->cursor_pos, this->text_length);
+	this->buffer = text;
+	this->cursor_pos = std::min(this->cursor_pos, this->buffer.size());
+	this->MarkDirty(this->cached_window_base);
 }
 
-bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	switch (key_code) {
 		case WMKC_CURSOR_LEFT:
-			if (this->cursor_pos > 0) this->cursor_pos--;
+			if (this->cursor_pos > 0) {
+				this->cursor_pos = GetPrevChar(this->buffer, this->cursor_pos);
+				this->MarkDirty(this->cached_window_base);
+			}
 			return true;
 		case WMKC_CURSOR_RIGHT:
-			if (this->cursor_pos < this->text_length) this->cursor_pos++;
+			if (this->cursor_pos < this->buffer.size()) {
+				this->cursor_pos = GetNextChar(this->buffer, this->cursor_pos);
+				this->MarkDirty(this->cached_window_base);
+			}
+			return true;
+		case WMKC_CURSOR_HOME:
+			this->cursor_pos = 0;
+			this->MarkDirty(this->cached_window_base);
+			return true;
+		case WMKC_CURSOR_END:
+			this->cursor_pos = this->buffer.size();
+			this->MarkDirty(this->cached_window_base);
 			return true;
 
 		case WMKC_BACKSPACE:
 			if (this->cursor_pos > 0) {
-				uint8* newtext = new uint8[this->text_length];
-				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos - 1);
-				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos - 1, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
-				this->cursor_pos--;
-				this->SetText(newtext);
+				uint8 nr_chars_to_delete = this->cursor_pos - GetPrevChar(this->buffer, this->cursor_pos);
+				if (nr_chars_to_delete == 0) return true;
+
+				this->cursor_pos -= nr_chars_to_delete;
+				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
+				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 		case WMKC_DELETE:
-			if (this->cursor_pos < this->text_length) {
-				uint8* newtext = new uint8[this->text_length];
-				strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-				strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos + 1);
-				this->SetText(newtext);
+			if (this->cursor_pos < this->buffer.size()) {
+				uint8 nr_chars_to_delete = GetNextChar(this->buffer, this->cursor_pos) - this->cursor_pos;
+				if (nr_chars_to_delete == 0) return true;
+
+				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
+				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 
 		case WMKC_SYMBOL: {
-			const size_t off = strlen(reinterpret_cast<const char*>(symbol));
-			if (off == 0) break;
+			if (symbol.empty()) break;
 
-			uint8* newtext = new uint8[this->text_length + off + 1];
-			strncpy(reinterpret_cast<char*>(newtext), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos, reinterpret_cast<const char*>(symbol));
-			strcpy (reinterpret_cast<char*>(newtext) + this->cursor_pos + off, reinterpret_cast<const char*>(this->GetText()) + this->cursor_pos);
-			this->SetText(newtext);
-			this->cursor_pos += off;
+			this->buffer.insert(this->cursor_pos, symbol);
+			this->cursor_pos += symbol.size();
+			this->MarkDirty(this->cached_window_base);
 			return true;
 		}
 
@@ -685,30 +697,28 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
 
 void TextInputWidget::Draw(const GuiWindow *w)
 {
+	this->cached_window_base = w->rect.base;
 	Rectangle32 r = this->pos;
 	r.base += w->rect.base;
 	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + 2]);
 
 	/* Update text dimensions. */
-	_video.GetTextSize(this->GetText(), &this->value_width, &this->value_height);
+	_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
 	int cursor_offset;
 	if (this->cursor_pos == 0) {
 		cursor_offset = 0;
-	} else if (this->cursor_pos == this->text_length) {
+	} else if (this->cursor_pos == this->buffer.size()) {
 		cursor_offset = this->value_width;
 	} else {
-		std::unique_ptr<uint8[]> text(new uint8[this->cursor_pos + 1]);
-		strncpy(reinterpret_cast<char*>(text.get()), reinterpret_cast<const char*>(this->GetText()), this->cursor_pos);
-		text[this->cursor_pos] = '\0';
-		_video.GetTextSize(text.get(), &cursor_offset, nullptr);
+		_video.GetTextSize(this->buffer.substr(0, this->cursor_pos), &cursor_offset, nullptr);
 	}
 
 	r.base.x += TEXT_INPUT_MARGIN;
 	r.base.y += TEXT_INPUT_MARGIN;
 	r.width -= 2 * TEXT_INPUT_MARGIN;
 	r.height -= 2 * TEXT_INPUT_MARGIN;
-	if (this->text_length > 0) {
-		_video.BlitText(this->GetText(), _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
+	if (!this->buffer.empty()) {
+		_video.BlitText(this->buffer, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
 				r.base.x, r.base.y, r.width, ALG_LEFT);
 	}
 	_video.DrawLine(Point16(r.base.x + cursor_offset, r.base.y), Point16(r.base.x + cursor_offset, r.base.y + r.height),
@@ -721,7 +731,7 @@ void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	this->min_x = this->smallest_x;
 	this->min_y = this->smallest_y;
 
-	_video.GetTextSize(this->GetText(), &this->value_width, &this->value_height);
+	_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
 	this->InitMinimalSize(this->value_width, this->value_height, 0, 0);
 
 	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
@@ -1087,11 +1097,6 @@ BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype)
 	this->child = nullptr;
 }
 
-BackgroundWidget::~BackgroundWidget()
-{
-	delete this->child;
-}
-
 /**
  * Compute smallest size of the widget.
  * @param w %Window owning the widget.
@@ -1174,7 +1179,7 @@ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 	return nullptr;
 }
 
-bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	return (this->child != nullptr && this->child->OnKeyEvent(key_code, symbol)) || LeafWidget::OnKeyEvent(key_code, symbol);
 }
@@ -1232,29 +1237,17 @@ void IntermediateWidget::ClaimMemory()
 	assert(this->num_cols > 0 && this->num_rows > 0);
 	assert(this->childs == nullptr);
 
-	this->childs = new BaseWidget *[this->num_rows * this->num_cols];
+	this->childs.reset(new std::unique_ptr<BaseWidget>[this->num_rows * this->num_cols]);
 	assert(this->childs != nullptr);
 	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
 		this->childs[idx] = nullptr;
 	}
 
-	this->rows = new RowColData[this->num_rows];
+	this->rows.reset(new RowColData[this->num_rows]);
 	assert(this->rows != nullptr);
 
-	this->columns = new RowColData[this->num_cols];
+	this->columns.reset(new RowColData[this->num_cols]);
 	assert(this->columns != nullptr);
-}
-
-IntermediateWidget::~IntermediateWidget()
-{
-	if (this->childs != nullptr) {
-		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
-			delete this->childs[idx];
-		}
-		delete[] this->childs;
-	}
-	delete[] this->rows;
-	delete[] this->columns;
 }
 
 /**
@@ -1267,7 +1260,7 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 {
 	assert(x < this->num_cols && y < this->num_rows);
 	assert(this->childs[y * (uint16)this->num_cols + x] == nullptr);
-	this->childs[y * (uint16)this->num_cols + x] = w;
+	this->childs[y * (uint16)this->num_cols + x].reset(w);
 }
 
 /**
@@ -1292,7 +1285,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	/* Step 2: Process child widgets. */
 	for (uint8 y = 0; y < this->num_rows; y++) {
 		for (uint8 x = 0; x < this->num_cols; x++) {
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			bw->SetupMinimalSize(w, wid_array);
 			this->rows[y].Merge(bw->min_y, bw->fill_y, bw->resize_y);
 			this->columns[x].Merge(bw->min_x, bw->fill_x, bw->resize_x);
@@ -1321,7 +1314,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	for (uint8 y = 0; y < this->num_rows; y++) {
 		/* Initialize the child_tmp_minsize array with current minsize of each child widget in the row. */
 		for (uint8 x = 0; x < this->num_cols; x++) {
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			child_tmp_minsize[x] = bw->min_y;
 		}
 		/* Try to find a consistent minimal vertical size for all children. Due to a fill size > 1, this may be
@@ -1335,7 +1328,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			for (uint8 x = 0; x < this->num_cols; x++) {
 				if (child_tmp_minsize[x] == cur_minsize) continue;
 
-				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 				if (bw->fill_y <= 1) continue; // 0 does not play, 1 will always work
 
 				/* Increment minimal size if y fill steps. */
@@ -1379,7 +1372,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	for (uint8 x = 0; x < this->num_cols; x++) {
 		/* Initialize the child_tmp_minsize array with current minsize of each child widget in the column. */
 		for (uint8 y = 0; y < this->num_rows; y++) {
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			child_tmp_minsize[y] = bw->min_x;
 		}
 		/*
@@ -1394,7 +1387,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			for (uint8 y = 0; y < this->num_rows; y++) {
 				if (child_tmp_minsize[y] == cur_minsize) continue;
 
-				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+				BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 				if (bw->fill_x <= 1) continue; // 0 does not play, 1 will always work
 
 				/* Increment minimal size if y fill steps. */
@@ -1497,7 +1490,7 @@ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 		uint16 left = rect.base.x;
 		for (uint8 x = 0; x < this->num_cols; x++) {
 			left += (x == 0) ? this->paddings[PAD_LEFT] : this->paddings[PAD_HORIZONTAL];
-			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x];
+			BaseWidget *bw = this->childs[y * (uint16)this->num_cols + x].get();
 			Rectangle16 rect2(left, top, this->columns[x].min_size, this->rows[y].min_size);
 			bw->SetSmallestSizePosition(rect2);
 
@@ -1520,7 +1513,7 @@ BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
 	return w == nullptr ? nullptr : w->FindTooltipWidget(pt);
 }
 
-bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 {
 	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
 		if (this->childs[idx]->OnKeyEvent(key_code, symbol)) return true;
@@ -2014,7 +2007,9 @@ static int MakeWidgetSubTree(const WidgetPart *parts, int remaining, BaseWidget 
 		if (remaining > 0 && parts->type == WPT_END_CON) {
 			used = 1;
 		} else {
-			used = MakeWidgetSubTree(parts, remaining, &bg->child, biggest);
+			BaseWidget *pointer;
+			used = MakeWidgetSubTree(parts, remaining, &pointer, biggest);
+			bg->child.reset(pointer);
 		}
 		total_used += used;
 	} else if ((*dest)->wtype == WT_GRID) {

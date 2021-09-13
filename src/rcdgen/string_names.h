@@ -88,6 +88,8 @@ static const char *_gui_string_names[] = {
 	"ERROR_MESSAGE_SPRITE",
 	"ERROR_MESSAGE_HEADING_BUILD",
 	"ERROR_MESSAGE_HEADING_REMOVE",
+	"ERROR_MESSAGE_HEADING_COST",
+	"ERROR_MESSAGE_HEADING_RETURN",
 	"ERROR_MESSAGE_BAD_LOCATION",
 	"ERROR_MESSAGE_SLOPE",
 	"ERROR_MESSAGE_UNDERGROUND",
@@ -225,6 +227,9 @@ static const char *_gui_string_names[] = {
 
 	/* Fence window. */
 	"FENCE_TITLE",
+	"FENCE_TYPE_WOOD",
+	"FENCE_TYPE_HEDGE",
+	"FENCE_TYPE_BRICK",
 
 	/* Scenery window. */
 	"SCENERY_TITLE",

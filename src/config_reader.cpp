@@ -14,20 +14,31 @@
 
 /**
  * Construct a key/value item.
+ * @param section The section this value belongs to.
  * @param key Key text.
  * @param value Value text.
- * @note Key and value texts get copied during construction.
  */
-ConfigItem::ConfigItem(const char *key, const char *value)
+ConfigItem::ConfigItem(const ConfigSection &section, const std::string &key, const std::string &value) : section(section), key(key), value(value)
 {
-	this->key = StrDup(key);
-	this->value = StrDup(value);
+	this->used = false;
 }
 
-ConfigItem::~ConfigItem()
+/** Destructor. */
+ConfigItem::~ConfigItem() {
+	if (!this->used) {
+		printf("WARNING: Config file '%s', key '%s'='%s' in section '%s' not used (perhaps the name is misspelled?)\n",
+				this->section.file.filename.c_str(), this->key.c_str(), this->value.c_str(), this->section.name.c_str());
+	}
+}
+
+/**
+ * Get the value of the item, as a string.
+ * @return The item value.
+ */
+const std::string &ConfigItem::GetString() const
 {
-	delete[] this->key;
-	delete[] this->value;
+	this->used = true;
+	return this->value;
 }
 
 /**
@@ -36,33 +47,46 @@ ConfigItem::~ConfigItem()
  */
 int ConfigItem::GetNum() const
 {
-	int val = 0;
-	int length = 0;
-	const char *p = this->value;
-
-	while (*p >= '0' && *p <= '9') {
-		val = val * 10 + (*p - '0');
-		length++;
-		p++;
+	this->used = true;
+	try {
+		size_t position;
+		const int result = stoi(this->value, &position);
+		if (position != this->value.size()) return -1;
+		return result;
+	} catch (...) {
+		/* Not a valid integer string. */
+		return -1;
 	}
-	if (*p != '\0' || length > 8) return -1; // Bad integer number
-	return val;
 }
 
 /**
- * Construct a named section.
- * @param sect_name Name of the new section.
- * @note Section name gets copied during construction.
+ * Construct a section.
+ * @param file The config file this section belongs to.
+ * @param name Section name.
  */
-ConfigSection::ConfigSection(const char *sect_name)
+ConfigSection::ConfigSection(const ConfigFile &file, const std::string &name) : file(file), name(name)
 {
-	this->sect_name = StrDup(sect_name);
-	this->items.clear();
+	this->used = false;
 }
 
-ConfigSection::~ConfigSection()
+/** Destructor. */
+ConfigSection::~ConfigSection() {
+	if (!this->used) {
+		printf("WARNING: Config file '%s', section '%s' not used (perhaps the name is misspelled?)\n",
+				this->file.filename.c_str(), this->name.c_str());
+		/* If a section is unused, suppress warnings about all keys therein. */
+		for (auto &pair : this->items) pair.second->GetString();
+	}
+}
+
+/**
+ * Check if this section contains an element with the specified key.
+ * @param key Value of the key to look for (case sensitive).
+ * @return An item with this key exists.
+ */
+bool ConfigSection::HasItem(const std::string &key) const
 {
-	delete[] this->sect_name;
+	return this->items.count(key) > 0;
 }
 
 /**
@@ -70,42 +94,11 @@ ConfigSection::~ConfigSection()
  * @param key Value of the key to look for (case sensitive).
  * @return The associated item if it exists, else \c nullptr.
  */
-const ConfigItem *ConfigSection::GetItem(const char *key) const
+const ConfigItem *ConfigSection::GetItem(const std::string &key) const
 {
-	for (const auto &iter : this->items) {
-		if (!strcmp(iter->key, key)) return iter;
-	}
-	return nullptr;
-}
-
-ConfigFile::ConfigFile()
-{
-	this->Clear();
-}
-
-ConfigFile::~ConfigFile()
-{
-	this->Clear();
-}
-
-/** Clean the config file. */
-void ConfigFile::Clear()
-{
-	for (const auto &sect : this->sections) {
-		for (const auto &item : sect->items) delete item;
-		delete sect;
-	}
-}
-
-/**
- * Is the given character a white space character?
- * @param k Provided character.
- * @return The provided character is a white space character.
- * @ingroup fileio_group
- */
-static bool IsSpace(char k)
-{
-	return k == ' ' || k == '\r' || k == '\n' || k == '\t';
+	this->used = true;
+	const auto it = this->items.find(key);
+	return it == this->items.end() ? nullptr : it->second.get();
 }
 
 /**
@@ -125,53 +118,32 @@ static char *StripWhitespace(char *first, char *last = nullptr)
 
 	assert(*last == '\0');
 
-	while (first < last && IsSpace(*first)) first++;
-	while (last > first + 1 && IsSpace(last[-1])) last--;
+	while (first < last && isspace(*first)) first++;
+	while (last > first + 1 && isspace(last[-1])) last--;
 	*last = '\0';
 	return first;
 }
 
 /**
- * Try to find the configuration file from the list of directories, and load it if found.
- * @param dir_list \c nullptr terminated list of directories to try.
- * @param fname Filename to look for.
- * @return Loading succeeded.
- */
-bool ConfigFile::LoadFromDirectoryList(const char **dir_list, const char *fname)
-{
-	while (*dir_list != nullptr) {
-		std::string fpath = std::string(*dir_list) + '/' + fname;
-		if (PathIsFile(fpath.c_str()) && this->Load(fpath.c_str())) {
-			return true;
-		}
-		dir_list++;
-	}
-	return false;
-}
-
-/**
  * Load a config file.
  * @param fname Filename to load.
- * @return Loading succeeded.
  * @todo [easy] Eliminate duplicate config sections.
  * @todo [easy] Strip whitespace around section names.
  */
-bool ConfigFile::Load(const char *fname)
+ConfigFile::ConfigFile(const std::string &fname) : filename(fname)
 {
 	ConfigSection *current_sect = nullptr;
 
-	this->Clear();
-
-	FILE *fp = fopen(fname, "rb");
-	if (fp == nullptr) return false;
+	FILE *fp = fopen(fname.c_str(), "rb");
+	if (fp == nullptr) return;
 
 	for (;;) {
 		char buffer[256];
 		char *line = fgets(buffer, lengthof(buffer), fp);
 		if (line == nullptr) break;
 
-		while (*line != '\0' && IsSpace(*line)) line++;
-		if (*line == '\0' || *line == ';') continue; // Silently skip empty lines or comment lines.
+		while (*line != '\0' && isspace(*line)) line++;
+		if (*line == '\0' || *line == ';' || *line == '#') continue; // Silently skip empty lines or comment lines.
 
 		if (*line == '[') {
 			/* New section. */
@@ -179,9 +151,11 @@ bool ConfigFile::Load(const char *fname)
 			while (*line2 != '\0' && *line2 != ']') line2++;
 			if (*line2 == ']') {
 				*line2 = '\0';
-				/* XXX Look for an existing config section? */
-				current_sect = new ConfigSection(StripWhitespace(line + 1, line2));
-				this->sections.push_front(current_sect);
+				const std::string sect_name(StripWhitespace(line + 1, line2));
+				if (this->sections.count(sect_name) == 0) {
+					this->sections.emplace(sect_name, std::unique_ptr<ConfigSection>(new ConfigSection(*this, sect_name)));
+				}
+				current_sect = this->sections.at(sect_name).get();
 			}
 			continue;
 		}
@@ -191,18 +165,30 @@ bool ConfigFile::Load(const char *fname)
 		/* Key/value line. */
 		char *line2 = line;
 		while (*line2 != '\0' && *line2 != '=') line2++;
-		ConfigItem *item;
+		std::string key, value;
 		if (*line2 == '=') {
 			*line2 = '\0';
-			item = new ConfigItem(StripWhitespace(line, line2), StripWhitespace(line2 + 1));
+			key = StripWhitespace(line, line2);
+			value = StripWhitespace(line2 + 1);
 		} else {
 			/* No value. */
-			item = new ConfigItem(StripWhitespace(line, line2), "");
+			key = StripWhitespace(line, line2);
 		}
-		current_sect->items.push_front(item);
+		current_sect->items.emplace(key, std::unique_ptr<ConfigItem>(new ConfigItem(*current_sect, key, value)));
 	}
 	fclose(fp);
-	return true;
+}
+
+/**
+ * Check if a section in this config file contains an element with the specified key.
+ * @param sect_name The section in which to look for the key (case sensitive).
+ * @param key Value of the key to look for (case sensitive).
+ * @return An item with this key exists in this section.
+ */
+bool ConfigFile::HasValue(const std::string &sect_name, const std::string &key) const
+{
+	const ConfigSection *s = this->GetSection(sect_name);
+	return s != nullptr && s->HasItem(key);
 }
 
 /**
@@ -210,28 +196,26 @@ bool ConfigFile::Load(const char *fname)
  * @param sect_name Name of the section (case sensitive).
  * @return The section with the give name if it exists, else \c nullptr.
  */
-const ConfigSection *ConfigFile::GetSection(const char *sect_name) const
+const ConfigSection *ConfigFile::GetSection(const std::string &sect_name) const
 {
-	for (const auto &iter : this->sections) {
-		if (!strcmp(iter->sect_name, sect_name)) return iter;
-	}
-	return nullptr;
+	const auto it = this->sections.find(sect_name);
+	return it == this->sections.end() ? nullptr : it->second.get();
 }
 
 /**
  * Get an item value from the configuration file.
  * @param sect_name Name of the section (case sensitive).
  * @param key Name of the key (case sensitive).
- * @return The associated value if it exists, else \c nullptr.
+ * @return The associated value if it exists, else \c "".
  */
-const char *ConfigFile::GetValue(const char *sect_name, const char *key) const
+std::string ConfigFile::GetValue(const std::string &sect_name, const std::string &key) const
 {
 	const ConfigSection *sect = this->GetSection(sect_name);
-	if (sect == nullptr) return nullptr;
+	if (sect == nullptr) return std::string();
 
 	const ConfigItem *item = sect->GetItem(key);
-	if (item == nullptr) return nullptr;
-	return item->value;
+	if (item == nullptr) return std::string();
+	return item->GetString();
 }
 
 /**
@@ -240,7 +224,7 @@ const char *ConfigFile::GetValue(const char *sect_name, const char *key) const
  * @param key Name of the key (case sensitive).
  * @return The associated number if it exists, else \c -1.
  */
-int ConfigFile::GetNum(const char *sect_name, const char *key) const
+int ConfigFile::GetNum(const std::string &sect_name, const std::string &key) const
 {
 	const ConfigSection *sect = this->GetSection(sect_name);
 	if (sect == nullptr) return -1;
