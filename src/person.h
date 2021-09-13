@@ -130,7 +130,7 @@ public:
 	}
 
 	bool IsQueuingGuest() const;
-	bool IsQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos, bool only_in_front);
+	const Person *GetQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos, bool only_in_front);
 
 	void SetName(const std::string &name);
 	std::string GetName() const;
@@ -152,6 +152,7 @@ protected:
 	Random rnd; ///< Random number generator for deciding how the person reacts.
 	std::string name; ///< Name of the person. \c "" means it has a default name (like "Guest XYZ").
 	StringID status;  ///< What the person is doing right now, for display in the GUI.
+	const Person *queuing_blocked_on;  ///< The person standing before this one in the queue, if this is a queuing guest.
 
 	TileEdge GetCurrentEdge() const;
 	uint8 GetInparkDirections();
