@@ -1259,13 +1259,14 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 		}
 	} else if (!_game_control.main_menu) {  // In-game controls on special keys.
 		switch (key_code) {
-			case WMKC_CURSOR_PAGEUP:
+			case WMKC_CURSOR_PAGEUP:  // PageUp to rotate counter-clockwise.
 				this->Rotate(1);
 				return true;
-			case WMKC_CURSOR_PAGEDOWN:
+			case WMKC_CURSOR_PAGEDOWN:  // PageDown to rotate clockwise.
 				this->Rotate(-1);
 				return true;
 
+			/* Arrow keys to move the viewport. */
 			case WMKC_CURSOR_LEFT:
 				this->MoveViewport(VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
 				return true;

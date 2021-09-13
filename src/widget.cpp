@@ -683,7 +683,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 			return true;
 
 		case WMKC_SYMBOL: {
-			if (symbol.empty()) break;
+			if (symbol.empty() || mod != WMKM_NONE) break;
 
 			this->buffer.insert(this->cursor_pos, symbol);
 			this->cursor_pos += symbol.size();
