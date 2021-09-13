@@ -1159,11 +1159,27 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 {
 	if (key_code == WMKC_SYMBOL) {
 		if (_game_control.main_menu) {  // Main menu controls.
-			if (symbol == "q" && (mod & WMKM_CTRL) != 0) {  // Ctrl+q to quit.
+			if (symbol == "q") {  // q to quit.
 				_game_control.QuitGame();
 				return true;
 			}
+			if (symbol == "n") {  // n to start a new game.
+				_game_control.NewGame();
+				return true;
+			}
+			if (symbol == "l") {  // l to load a saved game.
+				ShowLoadGameGui();
+				return true;
+			}
+			if (symbol == "o") {  // o to open the options menu.
+				ShowSettingGui();
+				return true;
+			}
 		} else {  // In-game controls.
+			if (symbol == "s" && (mod & WMKM_CTRL) != 0) {  // Ctrl+s to save the game.
+				ShowSaveGameGui();
+				return true;
+			}
 			if (symbol == "q" && (mod & WMKM_CTRL) != 0) {  // Ctrl+q to quit.
 				ShowQuitProgram(false);
 				return true;
@@ -1172,7 +1188,71 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 				ShowQuitProgram(true);
 				return true;
 			}
-			if (symbol == "1") {  // 1 to toggle underground view.
+			if (symbol == "o" && (mod & WMKM_CTRL) != 0) {  // Ctrl+o to open the options menu.
+				ShowSettingGui();
+				return true;
+			}
+
+			/* Alt+(0-4) to set the game speed */
+			if (symbol == "0" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_PAUSE;
+				return true;
+			}
+			if (symbol == "1" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_1;
+				return true;
+			}
+			if (symbol == "2" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_2;
+				return true;
+			}
+			if (symbol == "3" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_4;
+				return true;
+			}
+			if (symbol == "4" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_8;
+				return true;
+			}
+
+			if (symbol == "1") {  // 1 to open the terraform window.
+				ShowTerraformGui();
+				return true;
+			}
+			if (symbol == "2") {  // 2 to open the paths window.
+				ShowPathBuildGui();
+				return true;
+			}
+			if (symbol == "3") {  // 3 to open the fences window.
+				ShowFenceGui();
+				return true;
+			}
+			if (symbol == "4") {  // 4 to open the scenery window.
+				ShowSceneryGui();
+				return true;
+			}
+			if (symbol == "5") {  // 5 to open the path objects window.
+				ShowPathObjectsGui();
+				return true;
+			}
+			if (symbol == "6") {  // 6 to open the rides window.
+				ShowRideSelectGui();
+				return true;
+			}
+			if (symbol == "7") {  // 7 to open the staff window.
+				ShowStaffManagementGui();
+				return true;
+			}
+			if (symbol == "8") {  // 8 to open the inbox window.
+				ShowInboxGui();
+				return true;
+			}
+			if (symbol == "9") {  // 9 to open the finances window.
+				ShowFinancesGui();
+				return true;
+			}
+
+			if (symbol == "0") {  // 0 to toggle underground view.
 				this->ToggleUndergroundMode();
 				return true;
 			}

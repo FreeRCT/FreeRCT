@@ -94,6 +94,7 @@ static const WidgetPart _toolbar_widgets[] = {
 
 ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
+	this->closeable = false;
 	this->SetupWidgetTree(_toolbar_widgets, lengthof(_toolbar_widgets));
 }
 
@@ -307,6 +308,7 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 
 BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
+	this->closeable = false;
 	this->guest_count = _guests.CountGuestsInPark();
 	this->SetupWidgetTree(_bottom_toolbar_widgets, lengthof(_bottom_toolbar_widgets));
 }
@@ -476,6 +478,7 @@ public:
 
 	Point32 OnInitialPosition() override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 private:
 	bool back_to_main_menu;  ///< Just return to the main menu instead of quitting FreeRCT.
@@ -530,6 +533,15 @@ QuitProgramWindow::QuitProgramWindow(bool b) : GuiWindow(WC_QUIT, ALL_WINDOWS_OF
 	this->back_to_main_menu = b;
 	QUIT_PROGRAM_WIDGET_TREE(this->back_to_main_menu ? GUI_RETURN_CAPTION : GUI_QUIT_CAPTION, this->back_to_main_menu ? GUI_RETURN_MESSAGE : GUI_QUIT_MESSAGE);
 	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
+}
+
+bool QuitProgramWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (key_code == WMKC_CONFIRM) {
+		this->OnClick(QP_YES, Point16());
+		return true;
+	}
+	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
 }
 
 void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)

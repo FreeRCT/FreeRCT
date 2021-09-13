@@ -168,6 +168,8 @@ protected:
 	void ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour = COL_RANGE_INVALID);
 	void ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour = COL_RANGE_INVALID);
 
+	bool closeable;  ///< This window can be closed by the user.
+
 private:
 	std::unique_ptr<BaseWidget> tree;     ///< Tree of widgets.
 	std::unique_ptr<BaseWidget*[]>widgets; ///< Array of widgets with a non-negative index (use #GetWidget to get the widgets from this array).

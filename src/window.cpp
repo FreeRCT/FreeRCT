@@ -346,6 +346,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 	this->ride_type = nullptr;
 	this->initialized = false;
 	this->selector = nullptr;
+	this->closeable = true;
 }
 
 GuiWindow::~GuiWindow()
@@ -478,7 +479,12 @@ void GuiWindow::OnDraw(MouseModeSelector *selector)
 
 bool GuiWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
-	return this->tree->OnKeyEvent(key_code, mod, symbol) || Window::OnKeyEvent(key_code, mod, symbol);
+	if (this->tree->OnKeyEvent(key_code, mod, symbol)) return true;
+	if (this->closeable && (key_code == WMKC_DELETE || key_code == WMKC_BACKSPACE || key_code == WMKC_CANCEL)) {
+		delete this;
+		return true;
+	}
+	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
 void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
