@@ -24,8 +24,6 @@
 #include "gamecontrol.h"
 #include "weather.h"
 
-void ShowQuitProgram(bool back_to_main_menu);
-
 /**
  * Top toolbar.
  * @ingroup gui_group

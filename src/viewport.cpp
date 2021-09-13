@@ -1153,25 +1153,53 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
-bool Viewport::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
+static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 16;  ///< By how many pixels to move the viewport when the user presses an arrow key.
+
+bool Viewport::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
 {
 	if (key_code == WMKC_SYMBOL) {
-		if (symbol[0] == 'q') {
-			_game_control.QuitGame();
-			return true;
-		} else if (!_game_control.main_menu) {
-			if (symbol[0] == '1') {
+		if (_game_control.main_menu) {  // Main menu controls.
+			if (symbol == "q" && (mod & KMOD_CTRL) != 0) {  // Ctrl+q to quit.
+				_game_control.QuitGame();
+				return true;
+			}
+		} else {  // In-game controls.
+			if (symbol == "q" && (mod & KMOD_CTRL) != 0) {  // Ctrl+q to quit.
+				ShowQuitProgram(false);
+				return true;
+			}
+			if (symbol == "w" && (mod & KMOD_CTRL) != 0) {  // Ctrl+w to return to main menu.
+				ShowQuitProgram(true);
+				return true;
+			}
+			if (symbol == "1") {  // 1 to toggle underground view.
 				this->ToggleUndergroundMode();
 				return true;
 			}
 		}
-	} else if (!_game_control.main_menu) {
-		if (key_code == WMKC_CURSOR_LEFT) {
-			this->Rotate(-1);
-			return true;
-		} else if (key_code == WMKC_CURSOR_RIGHT) {
-			this->Rotate(1);
-			return true;
+	} else if (!_game_control.main_menu) {  // In-game controls on special keys.
+		switch (key_code) {
+			case WMKC_CURSOR_PAGEUP:
+				this->Rotate(-1);
+				return true;
+			case WMKC_CURSOR_PAGEDOWN:
+				this->Rotate(1);
+				return true;
+
+			case WMKC_CURSOR_LEFT:
+				this->MoveViewport(-VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
+				return true;
+			case WMKC_CURSOR_RIGHT:
+				this->MoveViewport(VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
+				return true;
+			case WMKC_CURSOR_UP:
+				this->MoveViewport(0, -VIEWPORT_SHIFT_ON_ARROW_KEY);
+				return true;
+			case WMKC_CURSOR_DOWN:
+				this->MoveViewport(0, VIEWPORT_SHIFT_ON_ARROW_KEY);
+				return true;
+
+			default: break;
 		}
 	}
 

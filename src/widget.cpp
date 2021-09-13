@@ -241,10 +241,11 @@ void BaseWidget::AutoRaiseButtons(const Point32 &base)
 /**
  * Process input from the keyboard.
  * @param key_code Kind of input.
+ * @param mod Bitmask of pressed modifiers.
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool BaseWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
+bool BaseWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
 {
 	return false;
 }
@@ -637,7 +638,7 @@ void TextInputWidget::SetText(const std::string &text)
 	this->MarkDirty(this->cached_window_base);
 }
 
-bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
+bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
 {
 	switch (key_code) {
 		case WMKC_CURSOR_LEFT:
@@ -692,7 +693,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
 
 		default: break;
 	}
-	return LeafWidget::OnKeyEvent(key_code, symbol);
+	return LeafWidget::OnKeyEvent(key_code, mod, symbol);
 }
 
 void TextInputWidget::Draw(const GuiWindow *w)
@@ -1179,9 +1180,9 @@ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 	return nullptr;
 }
 
-bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
+bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
 {
-	return (this->child != nullptr && this->child->OnKeyEvent(key_code, symbol)) || LeafWidget::OnKeyEvent(key_code, symbol);
+	return (this->child != nullptr && this->child->OnKeyEvent(key_code, mod, symbol)) || LeafWidget::OnKeyEvent(key_code, mod, symbol);
 }
 
 void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
@@ -1513,12 +1514,12 @@ BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
 	return w == nullptr ? nullptr : w->FindTooltipWidget(pt);
 }
 
-bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
+bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
 {
 	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
-		if (this->childs[idx]->OnKeyEvent(key_code, symbol)) return true;
+		if (this->childs[idx]->OnKeyEvent(key_code, mod, symbol)) return true;
 	}
-	return BaseWidget::OnKeyEvent(key_code, symbol);
+	return BaseWidget::OnKeyEvent(key_code, mod, symbol);
 }
 
 BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)

@@ -333,9 +333,9 @@ static void UpdateMousePosition(int16 x, int16 y)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Game-ending event has happened.
  */
-static bool HandleKeyInput(WmKeyCode key_code, const std::string &symbol = std::string())
+static inline bool HandleKeyInput(WmKeyCode key_code, uint16 mod, const std::string &symbol = std::string())
 {
-	return _window_manager.KeyEvent(key_code, symbol);
+	return _window_manager.KeyEvent(key_code, mod, symbol);
 }
 
 /**
@@ -349,30 +349,66 @@ bool VideoSystem::HandleEvent()
 
 	switch (event.type) {
 		case SDL_TEXTINPUT:
-			return HandleKeyInput(WMKC_SYMBOL, event.text.text);
+			return HandleKeyInput(WMKC_SYMBOL, KMOD_NONE, event.text.text);
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-				case SDLK_UP:        return HandleKeyInput(WMKC_CURSOR_UP);
-				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT);
-				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT);
-				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN);
-				case SDLK_HOME:      return HandleKeyInput(WMKC_CURSOR_HOME);
-				case SDLK_END:       return HandleKeyInput(WMKC_CURSOR_END);
-				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL);
-				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE);
-				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE);
+				case SDLK_UP:
+				case SDLK_KP_8:
+					return HandleKeyInput(WMKC_CURSOR_UP, event.key.keysym.mod);
+				case SDLK_LEFT:
+				case SDLK_KP_4:
+					return HandleKeyInput(WMKC_CURSOR_LEFT, event.key.keysym.mod);
+				case SDLK_RIGHT:
+				case SDLK_KP_6:
+					return HandleKeyInput(WMKC_CURSOR_RIGHT, event.key.keysym.mod);
+				case SDLK_DOWN:
+				case SDLK_KP_2:
+					return HandleKeyInput(WMKC_CURSOR_DOWN, event.key.keysym.mod);
+				case SDLK_PAGEUP:
+				case SDLK_KP_9:
+					return HandleKeyInput(WMKC_CURSOR_PAGEUP, event.key.keysym.mod);
+				case SDLK_PAGEDOWN:
+				case SDLK_KP_3:
+					return HandleKeyInput(WMKC_CURSOR_PAGEDOWN, event.key.keysym.mod);
+				case SDLK_HOME:
+				case SDLK_KP_7:
+					return HandleKeyInput(WMKC_CURSOR_HOME, event.key.keysym.mod);
+				case SDLK_END:
+				case SDLK_KP_1:
+					return HandleKeyInput(WMKC_CURSOR_END, event.key.keysym.mod);
+				case SDLK_ESCAPE:
+					return HandleKeyInput(WMKC_CANCEL, event.key.keysym.mod);
+				case SDLK_DELETE:
+				case SDLK_KP_PERIOD:
+					return HandleKeyInput(WMKC_DELETE, event.key.keysym.mod);
+				case SDLK_BACKSPACE:
+					return HandleKeyInput(WMKC_BACKSPACE, event.key.keysym.mod);
 
 				case SDLK_RETURN:
 				case SDLK_RETURN2:
-				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM);
+				case SDLK_KP_ENTER:
+					return HandleKeyInput(WMKC_CONFIRM, event.key.keysym.mod);
 
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
 					_game_control.action_test_mode = true;
 					return true;
 
-				default:             return false;
+				default:
+					/* Text input events with modifiers are not recognized as SDL_TEXTINPUT, so we need to convert them manually.
+					 * All keysyms that correspond to an ASCII character have the same integer value as this character;
+					 * all others are larger than the largest valid ASCII character (which is 0x7F).
+					 */
+					if (event.key.keysym.sym <= 0x7F) {
+						std::string text;
+						text.push_back(event.key.keysym.sym);
+						printf("NOCOM %9x -> %s\n", event.key.keysym.sym, text.c_str());
+						return HandleKeyInput(WMKC_SYMBOL, event.key.keysym.mod, text);
+					}
+
+					printf("NOCOM %9x -> (ignored)\n", event.key.keysym.sym);
+					return false;
 			}
 
 		case SDL_KEYUP:

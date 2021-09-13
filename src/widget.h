@@ -84,7 +84,7 @@ public:
 	virtual void Draw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void AutoRaiseButtons(const Point32 &base);
-	virtual bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol);
+	virtual bool OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol);
 
 	void MarkDirty(const Point32 &base) const;
 
@@ -226,7 +226,7 @@ public:
 	void SetText(const std::string &text);
 	void SetCursorPos(size_t pos);
 
-	bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
+	bool OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol) override;
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void Draw(const GuiWindow *w) override;
 
@@ -300,7 +300,7 @@ public:
 	void Draw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
-	bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
+	bool OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol) override;
 
 	std::unique_ptr<BaseWidget> child; ///< Child widget displayed on top of the background widget.
 };
@@ -341,7 +341,7 @@ public:
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
 	BaseWidget *FindTooltipWidget(const Point16 &pt) override;
-	bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
+	bool OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol) override;
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
