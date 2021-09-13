@@ -1153,7 +1153,7 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
-static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 16;  ///< By how many pixels to move the viewport when the user presses an arrow key.
+static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 64;  ///< By how many pixels to move the viewport when the user presses an arrow key.
 
 bool Viewport::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
 {
@@ -1180,23 +1180,23 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &sym
 	} else if (!_game_control.main_menu) {  // In-game controls on special keys.
 		switch (key_code) {
 			case WMKC_CURSOR_PAGEUP:
-				this->Rotate(-1);
+				this->Rotate(1);
 				return true;
 			case WMKC_CURSOR_PAGEDOWN:
-				this->Rotate(1);
+				this->Rotate(-1);
 				return true;
 
 			case WMKC_CURSOR_LEFT:
-				this->MoveViewport(-VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
-				return true;
-			case WMKC_CURSOR_RIGHT:
 				this->MoveViewport(VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
 				return true;
+			case WMKC_CURSOR_RIGHT:
+				this->MoveViewport(-VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
+				return true;
 			case WMKC_CURSOR_UP:
-				this->MoveViewport(0, -VIEWPORT_SHIFT_ON_ARROW_KEY);
+				this->MoveViewport(0, VIEWPORT_SHIFT_ON_ARROW_KEY);
 				return true;
 			case WMKC_CURSOR_DOWN:
-				this->MoveViewport(0, VIEWPORT_SHIFT_ON_ARROW_KEY);
+				this->MoveViewport(0, -VIEWPORT_SHIFT_ON_ARROW_KEY);
 				return true;
 
 			default: break;

@@ -403,11 +403,9 @@ bool VideoSystem::HandleEvent()
 					if (event.key.keysym.sym <= 0x7F) {
 						std::string text;
 						text.push_back(event.key.keysym.sym);
-						printf("NOCOM %9x -> %s\n", event.key.keysym.sym, text.c_str());
 						return HandleKeyInput(WMKC_SYMBOL, event.key.keysym.mod, text);
 					}
 
-					printf("NOCOM %9x -> (ignored)\n", event.key.keysym.sym);
 					return false;
 			}
 
