@@ -112,6 +112,19 @@ enum WmKeyCode {
 };
 
 /**
+ * Key modifiers of the window manager.
+ * @ingroup window_group
+ */
+enum WmKeyMod {
+	WMKM_NONE  = 0,       ///< No modifiers are pressed.
+	WMKM_SHIFT = 1 << 0,  ///< Shift key is pressed.
+	WMKM_CTRL  = 1 << 1,  ///< Ctrl key is pressed.
+	WMKM_ALT   = 1 << 2,  ///< Alt or GUI key is pressed. Some operating systems reserve one of these two keys for special actions;
+	                      ///< we therefore treat both modifiers the same to ensure every platform can use at least one of them.
+};
+DECLARE_ENUM_AS_BIT_SET(WmKeyMod)
+
+/**
  * Available mouse modes of the window manager.
  * @ingroup window_group
  */

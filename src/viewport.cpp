@@ -1155,20 +1155,20 @@ void Viewport::MoveViewport(int dx, int dy)
 
 static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 64;  ///< By how many pixels to move the viewport when the user presses an arrow key.
 
-bool Viewport::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
+bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	if (key_code == WMKC_SYMBOL) {
 		if (_game_control.main_menu) {  // Main menu controls.
-			if (symbol == "q" && (mod & KMOD_CTRL) != 0) {  // Ctrl+q to quit.
+			if (symbol == "q" && (mod & WMKM_CTRL) != 0) {  // Ctrl+q to quit.
 				_game_control.QuitGame();
 				return true;
 			}
 		} else {  // In-game controls.
-			if (symbol == "q" && (mod & KMOD_CTRL) != 0) {  // Ctrl+q to quit.
+			if (symbol == "q" && (mod & WMKM_CTRL) != 0) {  // Ctrl+q to quit.
 				ShowQuitProgram(false);
 				return true;
 			}
-			if (symbol == "w" && (mod & KMOD_CTRL) != 0) {  // Ctrl+w to return to main menu.
+			if (symbol == "w" && (mod & WMKM_CTRL) != 0) {  // Ctrl+w to return to main menu.
 				ShowQuitProgram(true);
 				return true;
 			}

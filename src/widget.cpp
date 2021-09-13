@@ -245,7 +245,7 @@ void BaseWidget::AutoRaiseButtons(const Point32 &base)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool BaseWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
+bool BaseWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	return false;
 }
@@ -638,7 +638,7 @@ void TextInputWidget::SetText(const std::string &text)
 	this->MarkDirty(this->cached_window_base);
 }
 
-bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
+bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	switch (key_code) {
 		case WMKC_CURSOR_LEFT:
@@ -1180,7 +1180,7 @@ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 	return nullptr;
 }
 
-bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
+bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	return (this->child != nullptr && this->child->OnKeyEvent(key_code, mod, symbol)) || LeafWidget::OnKeyEvent(key_code, mod, symbol);
 }
@@ -1514,7 +1514,7 @@ BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
 	return w == nullptr ? nullptr : w->FindTooltipWidget(pt);
 }
 
-bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, uint16 mod, const std::string &symbol)
+bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
 		if (this->childs[idx]->OnKeyEvent(key_code, mod, symbol)) return true;

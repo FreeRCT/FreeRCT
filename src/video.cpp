@@ -212,6 +212,7 @@ std::string VideoSystem::Initialize(const std::string &font_name, int font_size)
 	this->initialized = true;
 	this->dirty = true; // Ensure it gets painted.
 	this->missing_sprites = false;
+	this->modifier_state = WMKM_NONE;
 
 	this->digit_size.x = 0;
 	this->digit_size.y = 0;
@@ -333,7 +334,7 @@ static void UpdateMousePosition(int16 x, int16 y)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Game-ending event has happened.
  */
-static inline bool HandleKeyInput(WmKeyCode key_code, uint16 mod, const std::string &symbol = std::string())
+static inline bool HandleKeyInput(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol = std::string())
 {
 	return _window_manager.KeyEvent(key_code, mod, symbol);
 }
@@ -349,61 +350,74 @@ bool VideoSystem::HandleEvent()
 
 	switch (event.type) {
 		case SDL_TEXTINPUT:
-			return HandleKeyInput(WMKC_SYMBOL, KMOD_NONE, event.text.text);
+			if (this->modifier_state != WMKM_NONE) return false;  // Handled below by the SDL_KEYDOWN default clause.
+			return HandleKeyInput(WMKC_SYMBOL, this->modifier_state, event.text.text);
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 				case SDLK_UP:
 				case SDLK_KP_8:
-					return HandleKeyInput(WMKC_CURSOR_UP, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_UP, this->modifier_state);
 				case SDLK_LEFT:
 				case SDLK_KP_4:
-					return HandleKeyInput(WMKC_CURSOR_LEFT, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_LEFT, this->modifier_state);
 				case SDLK_RIGHT:
 				case SDLK_KP_6:
-					return HandleKeyInput(WMKC_CURSOR_RIGHT, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_RIGHT, this->modifier_state);
 				case SDLK_DOWN:
 				case SDLK_KP_2:
-					return HandleKeyInput(WMKC_CURSOR_DOWN, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_DOWN, this->modifier_state);
 				case SDLK_PAGEUP:
 				case SDLK_KP_9:
-					return HandleKeyInput(WMKC_CURSOR_PAGEUP, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_PAGEUP, this->modifier_state);
 				case SDLK_PAGEDOWN:
 				case SDLK_KP_3:
-					return HandleKeyInput(WMKC_CURSOR_PAGEDOWN, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_PAGEDOWN, this->modifier_state);
 				case SDLK_HOME:
 				case SDLK_KP_7:
-					return HandleKeyInput(WMKC_CURSOR_HOME, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_HOME, this->modifier_state);
 				case SDLK_END:
 				case SDLK_KP_1:
-					return HandleKeyInput(WMKC_CURSOR_END, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CURSOR_END, this->modifier_state);
 				case SDLK_ESCAPE:
-					return HandleKeyInput(WMKC_CANCEL, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CANCEL, this->modifier_state);
 				case SDLK_DELETE:
 				case SDLK_KP_PERIOD:
-					return HandleKeyInput(WMKC_DELETE, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_DELETE, this->modifier_state);
 				case SDLK_BACKSPACE:
-					return HandleKeyInput(WMKC_BACKSPACE, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_BACKSPACE, this->modifier_state);
 
 				case SDLK_RETURN:
 				case SDLK_RETURN2:
 				case SDLK_KP_ENTER:
-					return HandleKeyInput(WMKC_CONFIRM, event.key.keysym.mod);
+					return HandleKeyInput(WMKC_CONFIRM, this->modifier_state);
 
+				case SDLK_LCTRL:
+				case SDLK_RCTRL:
+					this->modifier_state |= WMKM_CTRL;
+					return true;
+				case SDLK_LALT:
+				case SDLK_RALT:
+				case SDLK_LGUI:
+				case SDLK_RGUI:
+					this->modifier_state |= WMKM_ALT;
+					return true;
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
+					this->modifier_state |= WMKM_SHIFT;
+
 					_game_control.action_test_mode = true;
 					return true;
 
 				default:
-					/* Text input events with modifiers are not recognized as SDL_TEXTINPUT, so we need to convert them manually.
+					/* Text input events with modifiers may or may not be recognized as SDL_TEXTINPUT, so we need to convert them manually.
 					 * All keysyms that correspond to an ASCII character have the same integer value as this character;
 					 * all others are larger than the largest valid ASCII character (which is 0x7F).
 					 */
-					if (event.key.keysym.sym <= 0x7F) {
+					if (this->modifier_state != WMKM_NONE && event.key.keysym.sym <= 0x7F) {
 						std::string text;
 						text.push_back(event.key.keysym.sym);
-						return HandleKeyInput(WMKC_SYMBOL, event.key.keysym.mod, text);
+						return HandleKeyInput(WMKC_SYMBOL, this->modifier_state, text);
 					}
 
 					return false;
@@ -411,8 +425,20 @@ bool VideoSystem::HandleEvent()
 
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
+				case SDLK_LCTRL:
+				case SDLK_RCTRL:
+					this->modifier_state &= ~WMKM_CTRL;
+					return true;
+				case SDLK_LALT:
+				case SDLK_RALT:
+				case SDLK_LGUI:
+				case SDLK_RGUI:
+					this->modifier_state &= ~WMKM_ALT;
+					return true;
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
+					this->modifier_state &= ~WMKM_SHIFT;
+
 					_game_control.action_test_mode = false;
 					return true;
 
