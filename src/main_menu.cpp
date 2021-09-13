@@ -63,6 +63,7 @@ MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE), camera_p
 MainMenuGui::~MainMenuGui()
 {
 	_game_control.main_menu = false;
+	is_splash_screen = false;
 }
 
 WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
