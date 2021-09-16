@@ -1468,6 +1468,20 @@ AnimateResult Person::InteractWithPathObject(PathObjectInstance *obj)
 }
 
 /**
+ * Detect whether a group of people queuing behind each other contains a cyclic dependency.
+ * @return This person has a cyclic queuing dependency.
+ */
+bool Person::HasCyclicQueuingDependency() const
+{
+	std::set<const Person *> iterated = {this};
+	for (const Person *it = this->queuing_blocked_on; it != nullptr; it = it->queuing_blocked_on) {
+		if (iterated.count(it) > 0) return true;
+		iterated.insert(it);
+	}
+	return false;
+}
+
+/**
  * Update the animation of a person.
  * @param delay Amount of milliseconds since the last update.
  * @return Whether to keep the person active or how to deactivate him/her.
@@ -1504,7 +1518,7 @@ AnimateResult Person::OnAnimate(int delay)
 	const AnimationFrame *frame = &this->frames[this->frame_index];
 	if (this->IsQueuingGuest()) {
 		this->queuing_blocked_on = this->GetQueuingGuestNearby(this->vox_pos, this->pix_pos, true);
-		if (this->queuing_blocked_on != nullptr && this->queuing_blocked_on->queuing_blocked_on != this) {
+		if (this->queuing_blocked_on != nullptr && !this->HasCyclicQueuingDependency()) {
 			/* Freeze in place if we are too close to the person queuing in front of us. */
 			this->frame_time += delay;
 			return OAR_OK;

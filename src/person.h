@@ -170,6 +170,7 @@ protected:
 	virtual bool IsLeavingPath() const;
 	void UpdateZPosition();
 	void SetStatus(StringID s);
+	bool HasCyclicQueuingDependency() const;
 };
 
 /** Activities of the guest. */
