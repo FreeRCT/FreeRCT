@@ -30,6 +30,7 @@ public:
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 protected:
 	int16 ride_types[RTK_RIDE_KIND_COUNT]; ///< Number of ride types for each kind.
@@ -193,6 +194,15 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			/// \todo Add picture of rides in RCD.
 			break;
 	}
+}
+
+bool RideSelectGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (key_code == WMKC_CONFIRM) {
+		this->OnClick(RSEL_SELECT, Point16());
+		return true;
+	}
+	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
 }
 
 void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
