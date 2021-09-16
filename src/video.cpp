@@ -357,46 +357,55 @@ bool VideoSystem::HandleEvent()
 			switch (event.key.keysym.sym) {
 				case SDLK_KP_8:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_UP:
 					return HandleKeyInput(WMKC_CURSOR_UP, this->modifier_state);
 
 				case SDLK_KP_4:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_LEFT:
 					return HandleKeyInput(WMKC_CURSOR_LEFT, this->modifier_state);
 
 				case SDLK_KP_6:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_RIGHT:
 					return HandleKeyInput(WMKC_CURSOR_RIGHT, this->modifier_state);
 
 				case SDLK_KP_2:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_DOWN:
 					return HandleKeyInput(WMKC_CURSOR_DOWN, this->modifier_state);
 
 				case SDLK_KP_9:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_PAGEUP:
 					return HandleKeyInput(WMKC_CURSOR_PAGEUP, this->modifier_state);
 
 				case SDLK_KP_3:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_PAGEDOWN:
 					return HandleKeyInput(WMKC_CURSOR_PAGEDOWN, this->modifier_state);
 
 				case SDLK_KP_7:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_HOME:
 					return HandleKeyInput(WMKC_CURSOR_HOME, this->modifier_state);
 
 				case SDLK_KP_1:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_END:
 					return HandleKeyInput(WMKC_CURSOR_END, this->modifier_state);
 
 				case SDLK_KP_PERIOD:
 					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
 				case SDLK_DELETE:
 					return HandleKeyInput(WMKC_DELETE, this->modifier_state);
 
@@ -426,7 +435,6 @@ bool VideoSystem::HandleEvent()
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
 					this->modifier_state |= WMKM_SHIFT;
-
 					_game_control.action_test_mode = true;
 					return true;
 
@@ -450,16 +458,17 @@ bool VideoSystem::HandleEvent()
 				case SDLK_RCTRL:
 					this->modifier_state &= ~WMKM_CTRL;
 					return true;
+
 				case SDLK_LALT:
 				case SDLK_RALT:
 				case SDLK_LGUI:
 				case SDLK_RGUI:
 					this->modifier_state &= ~WMKM_ALT;
 					return true;
+
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
 					this->modifier_state &= ~WMKM_SHIFT;
-
 					_game_control.action_test_mode = false;
 					return true;
 
