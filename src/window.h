@@ -70,7 +70,7 @@ public:
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
-	virtual bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol);
+	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
 
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);
@@ -100,7 +100,7 @@ public:
 	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	virtual void OnMouseLeaveEvent() override;
-	virtual bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
+	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
 	virtual void SelectorMouseButtonEvent(uint8 state);
 	virtual void SelectorMouseWheelEvent(int direction);
@@ -167,6 +167,8 @@ protected:
 	/* In dropdown.cpp */
 	void ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour = COL_RANGE_INVALID);
 	void ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour = COL_RANGE_INVALID);
+
+	bool closeable;  ///< This window can be closed by the user.
 
 private:
 	std::unique_ptr<BaseWidget> tree;     ///< Tree of widgets.
@@ -256,7 +258,7 @@ public:
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);
 	void MouseWheelEvent(int direction);
-	bool KeyEvent(WmKeyCode key_code, const std::string &symbol);
+	bool KeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
 	void Tick();
 
 	/**
@@ -384,6 +386,7 @@ void ShowToolbar();
 void ShowBottomToolbar();
 void ShowSaveGameGui();
 void ShowLoadGameGui();
+void ShowQuitProgram(bool back_to_main_menu);
 void ShowPersonInfoGui(const Person *person);
 void ShowStaffManagementGui();
 void ShowPathBuildGui();

@@ -29,6 +29,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 private:
 	std::string FinalFilename() const;
@@ -120,6 +121,15 @@ std::string LoadSaveGui::FinalFilename() const
 	std::string result = this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText();
 	if (result.size() < 5 || result.compare(result.size() - 4, 4, ".fct")) result += ".fct";
 	return result;
+}
+
+bool LoadSaveGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (key_code == WMKC_CONFIRM) {
+		this->OnClick(LSW_OK, Point16());
+		return true;
+	}
+	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
 }
 
 void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)

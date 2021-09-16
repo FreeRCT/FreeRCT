@@ -26,6 +26,7 @@ public:
 
 	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	void OnDraw(MouseModeSelector *selector) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 private:
 	uint32 animstart;              ///< SDL Time when the animation started.
@@ -63,6 +64,16 @@ MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE), camera_p
 MainMenuGui::~MainMenuGui()
 {
 	_game_control.main_menu = false;
+	is_splash_screen = false;
+}
+
+bool MainMenuGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (is_splash_screen) {
+		is_splash_screen = false;
+		return true;
+	}
+	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
 WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)

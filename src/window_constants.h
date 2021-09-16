@@ -100,6 +100,8 @@ enum WmKeyCode {
 	WMKC_CURSOR_LEFT,  ///< Left arrow key is pressed.
 	WMKC_CURSOR_RIGHT, ///< Right arrow key is pressed.
 	WMKC_CURSOR_DOWN,  ///< Down arrow key is pressed.
+	WMKC_CURSOR_PAGEUP,    ///< PageUp key is pressed.
+	WMKC_CURSOR_PAGEDOWN,  ///< PageDown key is pressed.
 	WMKC_CURSOR_HOME,  ///< Home key is pressed.
 	WMKC_CURSOR_END,   ///< End key is pressed.
 	WMKC_BACKSPACE,    ///< Backspace is pressed.
@@ -108,6 +110,19 @@ enum WmKeyCode {
 	WMKC_CONFIRM,      ///< Confirm is pressed.
 	WMKC_SYMBOL,       ///< A symbol is entered.
 };
+
+/**
+ * Key modifiers of the window manager.
+ * @ingroup window_group
+ */
+enum WmKeyMod {
+	WMKM_NONE  = 0,       ///< No modifiers are pressed.
+	WMKM_SHIFT = 1 << 0,  ///< Shift key is pressed.
+	WMKM_CTRL  = 1 << 1,  ///< Ctrl key is pressed.
+	WMKM_ALT   = 1 << 2,  ///< Alt or GUI key is pressed. Some operating systems reserve one of these two keys for special actions;
+	                      ///< we therefore treat both modifiers the same to ensure every platform can use at least one of them.
+};
+DECLARE_ENUM_AS_BIT_SET(WmKeyMod)
 
 /**
  * Available mouse modes of the window manager.
