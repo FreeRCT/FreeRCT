@@ -951,7 +951,7 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 			case EDGE_SE: tile_edge_pix_pos.y = 255; break;
 			default: NOT_REACHED();
 		}
-		if (this->GetQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false) != nullptr) {
+		if (!this->IsQueuingGuest() && this->GetQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false) != nullptr) {
 			ri->NotifyLongQueue();
 			return RVD_NO_VISIT;
 		}
