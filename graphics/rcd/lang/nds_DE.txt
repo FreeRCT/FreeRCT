@@ -268,6 +268,7 @@ strings {
 		FINANCES_CURRENT_LOAN:           "Stedenwies Börg";
 		FINANCES_LOAN_INTEREST:          "Börgtins";
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr";
+		FINANCES_CASH:                   "Geld";
 
 		// Messages and inbox.
 		INBOX_TITLE:              "Narichtens";
