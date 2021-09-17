@@ -149,6 +149,17 @@ const Finances &FinancesManager::GetFinances()
 	return this->finances[this->current];
 }
 
+/** A new day has arrived. */
+void FinancesManager::OnNewDay()
+{
+	if (this->loan > 0) {
+		/* Conversion from 1/10 % per year to absolute factor per day. */
+		double interest = _scenario.interest / 365000.0;
+		interest *= this->loan;
+		this->PayLoanInterest(std::round(interest));
+	}
+}
+
 /** Complete the current month and transition to new finances object. */
 void FinancesManager::AdvanceMonth()
 {

@@ -64,6 +64,7 @@ public:
 
 	const Finances &GetFinances();
 	void AdvanceMonth();
+	void OnNewDay();
 	void CashToStrParams();
 	void SetScenario(const Scenario &s);
 

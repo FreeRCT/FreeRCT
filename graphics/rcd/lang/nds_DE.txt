@@ -121,7 +121,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Personaal";
-		STAFF_SALARY:           "Gehalt pro Maant: %1%";
+		STAFF_SALARY:           "Gehalt pro Dag: %1%";
 		STAFF_DISMISS:          "Kündigen";
 		STAFF_HIRE:             "Anhüren";
 		STAFF_NAME_MECHANIC:    "Mechaniker %d";

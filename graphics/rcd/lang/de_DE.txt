@@ -121,7 +121,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Personal";
-		STAFF_SALARY:           "Monatsgehalt: %1%";
+		STAFF_SALARY:           "Tagesgehalt: %1%";
 		STAFF_DISMISS:          "Entlassen";
 		STAFF_HIRE:             "Einstellen";
 		STAFF_NAME_MECHANIC:    "Mechaniker %d";
@@ -268,6 +268,7 @@ strings {
 		FINANCES_CURRENT_LOAN:           "Aktuelles Darlehen";
 		FINANCES_LOAN_INTEREST:          "Darlehenszinssatz";
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr";
+		FINANCES_CASH:                   "Bargeld";
 
 		// Messages and inbox.
 		INBOX_TITLE:              "Posteingang";

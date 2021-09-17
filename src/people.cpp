@@ -739,14 +739,14 @@ void Staff::DoTick()
 /** A new day arrived. */
 void Staff::OnNewDay()
 {
-	/* Nothing to do currently. */
+	/* Pay the wages for all employees. */
+	for (PersonType t : {PERSON_MECHANIC, PERSON_HANDYMAN, PERSON_GUARD, PERSON_ENTERTAINER}) {
+		_finances_manager.PayStaffWages(StaffMember::SALARY.at(t) * static_cast<int64>(this->Count(t)));
+	}
 }
 
 /** A new month arrived. */
 void Staff::OnNewMonth()
 {
-	/* Pay the wages for all employees. */
-	for (PersonType t : {PERSON_MECHANIC, PERSON_HANDYMAN, PERSON_GUARD, PERSON_ENTERTAINER}) {
-		_finances_manager.PayStaffWages(StaffMember::SALARY.at(t) * static_cast<int64>(this->Count(t)));
-	}
+	/* Nothing to do currently. */
 }

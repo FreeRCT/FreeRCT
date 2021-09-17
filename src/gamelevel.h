@@ -27,7 +27,7 @@ struct Scenario {
 	Money initial_money;  ///< Initial amount of money of the player.
 	Money initial_loan;   ///< Initial loan of the player.
 	Money max_loan;       ///< Maximum loan the player can take.
-	uint8 interest;       ///< Annual interest rate in 0.1 percent over the current loan.
+	uint16 interest;      ///< Annual interest rate in 0.1 percent over the current loan.
 };
 
 extern Scenario _scenario;

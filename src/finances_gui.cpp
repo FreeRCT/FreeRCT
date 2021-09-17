@@ -51,6 +51,7 @@ enum FinancesWidgets {
 	FIN_RESEARCH_VALUE,
 	FIN_LOAN_INTEREST_VALUE,
 	FIN_TOTAL_VALUE,
+	FIN_CASH,            ///< Current cash text field.
 	FIN_MAX_LOAN,        ///< Maximum loan text field.
 	FIN_INTEREST,        ///< Annual loan interest text field.
 	FIN_CURRENT_LOAN,    ///< Current loan text field.
@@ -82,7 +83,9 @@ static const WidgetPart _finances_gui_parts[] = {
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 			Intermediate(1, 2), SetPadding(2, 2, 2, 2),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
-			Intermediate(3, 2), SetPadding(2, 2, 2, 2),
+			Intermediate(4, 2), SetPadding(2, 2, 2, 2),
+				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_CASH,          STR_NULL),
+				Widget(WT_RIGHT_TEXT, FIN_CASH,             COL_RANGE_GREY), SetData(STR_ARG1,                   STR_NULL),
 				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_MAX_LOAN,      STR_NULL),
 				Widget(WT_RIGHT_TEXT, FIN_MAX_LOAN,         COL_RANGE_GREY), SetData(STR_ARG1,                   STR_NULL),
 				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_LOAN_INTEREST, STR_NULL),
@@ -139,6 +142,7 @@ void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case FIN_LOAN_INTEREST_VALUE:     _str_params.SetMoney(1, f.loan_interest);  break;
 		case FIN_TOTAL_VALUE:             _str_params.SetMoney(1, f.GetTotal());     break;
 
+		case FIN_CASH:         _str_params.SetMoney(1, _finances_manager.GetCash()); break;
 		case FIN_CURRENT_LOAN: _str_params.SetMoney(1, _finances_manager.GetLoan()); break;
 		case FIN_MAX_LOAN:     _str_params.SetMoney(1, _scenario.max_loan         ); break;
 		case FIN_INTEREST: {
