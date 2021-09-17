@@ -46,6 +46,7 @@ void OnNewDay()
 	_guests.OnNewDay();
 	_staff.OnNewDay();
 	_weather.OnNewDay();
+	_finances_manager.OnNewDay();
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 

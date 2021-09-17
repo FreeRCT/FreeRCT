@@ -27,6 +27,9 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 		RESOLUTION:             "%1%x%2%";
 
+		DECREASE_BUTTON:          "-";
+		INCREASE_BUTTON:          "+";
+
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menu";
 		MAIN_MENU_QUIT:                     "Quit";
@@ -118,7 +121,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Staff";
-		STAFF_SALARY:           "Monthly salary: %1%";
+		STAFF_SALARY:           "Daily salary: %1%";
 		STAFF_DISMISS:          "Dismiss";
 		STAFF_HIRE:             "Hire";
 		STAFF_NAME_MECHANIC:    "Mechanic %d";
@@ -180,8 +183,6 @@ strings {
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Click to rotate the ride in clockwise direction";
 
 		// Generic ride manager window strings.
-		RIDE_MANAGER_DECREASE:          "-";
-		RIDE_MANAGER_INCREASE:          "+";
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Entrance fee:";
 		RIDE_MANAGER_RELIABILITY:       "Reliability: %.1f%%";
 		RIDE_MANAGER_BROKEN_DOWN:       "Broken down";
@@ -220,7 +221,7 @@ strings {
 		// Fence gui strings.
 		FENCE_TITLE:           "Build fences";
 		FENCE_TYPE_WOOD:       "Wooden fence";
-		FENCE_TYPE_HEDGE:      "Conifer Hedge";
+		FENCE_TYPE_HEDGE:      "Conifer hedge";
 		FENCE_TYPE_BRICK:      "Brick wall";
 
 		// Scenery gui strings.
@@ -263,6 +264,11 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Research";
 		FINANCES_LOAN_INTEREST_TEXT:     "Loan Interest";
 		FINANCES_TOTAL_TEXT:             "Total";
+		FINANCES_MAX_LOAN:               "Maximum Loan";
+		FINANCES_CURRENT_LOAN:           "Current Loan";
+		FINANCES_LOAN_INTEREST:          "Loan Interest";
+		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% per year";
+		FINANCES_CASH:                   "Cash";
 
 		// Messages and inbox.
 		INBOX_TITLE:              "Inbox";

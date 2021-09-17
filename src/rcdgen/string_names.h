@@ -32,6 +32,9 @@ static const char *_gui_string_names[] = {
 	"NUMBERED_INSTANCE_NAME",
 	"RESOLUTION",
 
+	"INCREASE_BUTTON",
+	"DECREASE_BUTTON",
+
 	/* Toolbar GUI and main menu strings. */
 	"TOOLBAR_GUI_DROPDOWN_MAIN",
 	/* Do not change the order of the strings between here… */
@@ -188,8 +191,6 @@ static const char *_gui_string_names[] = {
 	"RIDE_SELECT_ROT_NEG_TOOLTIP",
 
 	/* Generic ride manager window strings. */
-	"RIDE_MANAGER_INCREASE",
-	"RIDE_MANAGER_DECREASE",
 	"RIDE_MANAGER_ENTRANCE_FEE_TEXT",
 	"RIDE_MANAGER_BROKEN_DOWN",
 	"RIDE_MANAGER_RELIABILITY",
@@ -271,6 +272,11 @@ static const char *_gui_string_names[] = {
 	"FINANCES_RESEARCH_TEXT",
 	"FINANCES_LOAN_INTEREST_TEXT",
 	"FINANCES_TOTAL_TEXT",
+	"FINANCES_CASH",
+	"FINANCES_MAX_LOAN",
+	"FINANCES_CURRENT_LOAN",
+	"FINANCES_LOAN_INTEREST",
+	"FINANCES_LOAN_INTEREST_VALUE",
 
 	/* Messages and inbox. Do not change the order. */
 	"INBOX_TITLE",

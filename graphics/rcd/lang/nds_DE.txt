@@ -27,6 +27,9 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 		RESOLUTION:             "%1%×%2%";
 
+		DECREASE_BUTTON:          "-";
+		INCREASE_BUTTON:          "+";
+
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
 		MAIN_MENU_QUIT:                     "Verlaten";
@@ -118,7 +121,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Personaal";
-		STAFF_SALARY:           "Gehalt pro Maant: %1%";
+		STAFF_SALARY:           "Gehalt pro Dag: %1%";
 		STAFF_DISMISS:          "Kündigen";
 		STAFF_HIRE:             "Anhüren";
 		STAFF_NAME_MECHANIC:    "Mechaniker %d";
@@ -180,8 +183,6 @@ strings {
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klick, um de Bude na de Klockwiesersinn to dreihen";
 
 		// Generic ride manager window strings.
-		RIDE_MANAGER_DECREASE:          "-";
-		RIDE_MANAGER_INCREASE:          "+";
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Intree:";
 		RIDE_MANAGER_RELIABILITY:       "Toverlatigheid: %.1f%%";
 		RIDE_MANAGER_BROKEN_DOWN:       "Kaputt";
@@ -263,6 +264,11 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Forschung";
 		FINANCES_LOAN_INTEREST_TEXT:     "Börgtinsen";
 		FINANCES_TOTAL_TEXT:             "All tosamen";
+		FINANCES_MAX_LOAN:               "Hoogste Börg";
+		FINANCES_CURRENT_LOAN:           "Stedenwies Börg";
+		FINANCES_LOAN_INTEREST:          "Börgtins";
+		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr";
+		FINANCES_CASH:                   "Geld";
 
 		// Messages and inbox.
 		INBOX_TITLE:              "Narichtens";

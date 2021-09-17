@@ -27,6 +27,9 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 		RESOLUTION:             "%1%×%2%";
 
+		DECREASE_BUTTON:          "-";
+		INCREASE_BUTTON:          "+";
+
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
 		MAIN_MENU_QUIT:                     "Beenden";
@@ -118,7 +121,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Personal";
-		STAFF_SALARY:           "Monatsgehalt: %1%";
+		STAFF_SALARY:           "Tagesgehalt: %1%";
 		STAFF_DISMISS:          "Entlassen";
 		STAFF_HIRE:             "Einstellen";
 		STAFF_NAME_MECHANIC:    "Mechaniker %d";
@@ -180,8 +183,6 @@ strings {
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Attraktion im Uhrzeigersinn drehen";
 
 		// Generic ride manager window strings.
-		RIDE_MANAGER_DECREASE:          "-";
-		RIDE_MANAGER_INCREASE:          "+";
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Eintrittspreis:";
 		RIDE_MANAGER_RELIABILITY:       "Zuverlässigkeit: %.1f%%";
 		RIDE_MANAGER_BROKEN_DOWN:       "Defekt";
@@ -263,6 +264,11 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Forschung";
 		FINANCES_LOAN_INTEREST_TEXT:     "Darlehenszinsen";
 		FINANCES_TOTAL_TEXT:             "Gesamt";
+		FINANCES_MAX_LOAN:               "Darlehensmaximum";
+		FINANCES_CURRENT_LOAN:           "Aktuelles Darlehen";
+		FINANCES_LOAN_INTEREST:          "Darlehenszinssatz";
+		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr";
+		FINANCES_CASH:                   "Bargeld";
 
 		// Messages and inbox.
 		INBOX_TITLE:              "Posteingang";
