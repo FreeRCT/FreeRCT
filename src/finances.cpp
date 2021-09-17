@@ -156,7 +156,7 @@ void FinancesManager::OnNewDay()
 		/* Conversion from 1/10 % per year to absolute factor per day. */
 		double interest = _scenario.interest / 365000.0;
 		interest *= this->loan;
-		this->PayLoanInterest(std::round(interest));
+		this->PayLoanInterest(round(interest));
 	}
 }
 
