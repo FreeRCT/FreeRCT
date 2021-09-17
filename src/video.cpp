@@ -348,10 +348,11 @@ bool VideoSystem::HandleEvent()
 	SDL_Event event;
 	if (SDL_PollEvent(&event) != 1) return true;
 
+	const bool symbol_with_modifiers = (this->modifier_state & ~WMKM_SHIFT) != 0;
 	switch (event.type) {
 		case SDL_TEXTINPUT:
-			if (this->modifier_state != WMKM_NONE) return false;  // Handled below by the SDL_KEYDOWN default clause.
-			return HandleKeyInput(WMKC_SYMBOL, this->modifier_state, event.text.text);
+			if (symbol_with_modifiers) return false;  // Handled below by the SDL_KEYDOWN default clause.
+			return HandleKeyInput(WMKC_SYMBOL, WMKM_NONE, event.text.text);
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
@@ -440,10 +441,11 @@ bool VideoSystem::HandleEvent()
 
 				default:
 					/* Text input events with modifiers may or may not be recognized as SDL_TEXTINPUT, so we need to convert them manually.
+					 * Using Shift but no other modifiers is an exception as this simply generates uppercase SDL_TEXTINPUT.
 					 * All keysyms that correspond to an ASCII character have the same integer value as this character;
 					 * all others are larger than the largest valid ASCII character (which is 0x7F).
 					 */
-					if (this->modifier_state != WMKM_NONE && event.key.keysym.sym <= 0x7F) {
+					if (symbol_with_modifiers && event.key.keysym.sym <= 0x7F) {
 						std::string text;
 						text.push_back(event.key.keysym.sym);
 						return HandleKeyInput(WMKC_SYMBOL, this->modifier_state, text);
