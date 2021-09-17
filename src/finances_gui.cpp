@@ -184,7 +184,6 @@ void FinancesGui::OnClick(WidgetNumber widget, const Point16 &pos)
 	}
 }
 
-
 /** Open the finances window (or if it is already opened, highlight and raise it). */
 void ShowFinancesGui()
 {
