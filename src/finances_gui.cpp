@@ -15,6 +15,8 @@
 #include "finances.h"
 #include "gui_sprites.h"
 
+static const Money LOAN_STEP_SIZE = 100000;   ///< Amount of loan taken or paid back when clicking the loan buttons once.
+
 /**
   * GUI for viewing and managing financial information.
   * @ingroup gui_group
@@ -22,7 +24,11 @@
 class FinancesGui : public GuiWindow {
 public:
 	FinancesGui();
+
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void OnDraw(MouseModeSelector *selector) override;
+	void OnClick(WidgetNumber widget, const Point16 &pos) override;
+	void UpdateButtons();
 };
 
 /**
@@ -45,6 +51,11 @@ enum FinancesWidgets {
 	FIN_RESEARCH_VALUE,
 	FIN_LOAN_INTEREST_VALUE,
 	FIN_TOTAL_VALUE,
+	FIN_MAX_LOAN,        ///< Maximum loan text field.
+	FIN_INTEREST,        ///< Annual loan interest text field.
+	FIN_CURRENT_LOAN,    ///< Current loan text field.
+	FIN_INCREASE_LOAN,   ///< Increase loan button.
+	FIN_DECREASE_LOAN,   ///< Decrease loan button.
 };
 
 /**
@@ -68,6 +79,19 @@ static const WidgetPart _finances_gui_parts[] = {
 			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_TITLE, GUI_TITLEBAR_TIP),
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
+			Intermediate(1, 2), SetPadding(2, 2, 2, 2),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
+			Intermediate(3, 2), SetPadding(2, 2, 2, 2),
+				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_MAX_LOAN,      STR_NULL),
+				Widget(WT_RIGHT_TEXT, FIN_MAX_LOAN,         COL_RANGE_GREY), SetData(STR_ARG1,                   STR_NULL),
+				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_LOAN_INTEREST, STR_NULL),
+				Widget(WT_RIGHT_TEXT, FIN_INTEREST,         COL_RANGE_GREY), SetData(STR_ARG1,                   STR_NULL),
+				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_CURRENT_LOAN,  STR_NULL),
+				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_DECREASE_LOAN, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL),
+					Widget(WT_CENTERED_TEXT,   FIN_CURRENT_LOAN,  COL_RANGE_GREY), SetData(STR_ARG1,            STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_INCREASE_LOAN, COL_RANGE_GREY), SetData(GUI_INCREASE_BUTTON, STR_NULL),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 			Intermediate(15, 2), SetPadding(2, 2, 2, 2),
 				FINANCES_ROW(RIDE_CONSTRUCTION),
@@ -114,8 +138,48 @@ void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case FIN_RESEARCH_VALUE:          _str_params.SetMoney(1, f.research);       break;
 		case FIN_LOAN_INTEREST_VALUE:     _str_params.SetMoney(1, f.loan_interest);  break;
 		case FIN_TOTAL_VALUE:             _str_params.SetMoney(1, f.GetTotal());     break;
+
+		case FIN_CURRENT_LOAN: _str_params.SetMoney(1, _finances_manager.GetLoan()); break;
+		case FIN_MAX_LOAN:     _str_params.SetMoney(1, _scenario.max_loan         ); break;
+		case FIN_INTEREST: {
+			static char buffer[512];
+			snprintf(buffer, lengthof(buffer), _language.GetText(GUI_FINANCES_LOAN_INTEREST_VALUE).c_str(), _scenario.interest * 0.1f);
+			_str_params.SetText(1, buffer);
+			break;
+		}
+
+		default: break;
 	}
 }
+
+/** Recompute whether the loan buttons are enabled. */
+void FinancesGui::UpdateButtons()
+{
+	this->GetWidget<LeafWidget>(FIN_INCREASE_LOAN)->SetShaded(_finances_manager.GetLoan() >= _scenario.max_loan);
+	this->GetWidget<LeafWidget>(FIN_DECREASE_LOAN)->SetShaded(_finances_manager.GetLoan() <= 0 ||
+			_finances_manager.GetCash() < std::min(LOAN_STEP_SIZE, _finances_manager.GetLoan()));
+}
+
+void FinancesGui::OnDraw(MouseModeSelector *selector)
+{
+	this->UpdateButtons();
+	GuiWindow::OnDraw(selector);
+}
+
+void FinancesGui::OnClick(WidgetNumber widget, const Point16 &pos)
+{
+	switch (widget) {
+		case FIN_INCREASE_LOAN:
+			_finances_manager.TakeLoan(std::min(LOAN_STEP_SIZE, _scenario.max_loan - _finances_manager.GetLoan()));
+			break;
+		case FIN_DECREASE_LOAN:
+			_finances_manager.RepayLoan(std::min(LOAN_STEP_SIZE, std::min(_finances_manager.GetLoan(), _finances_manager.GetCash())));
+			break;
+
+		default: break;
+	}
+}
+
 
 /** Open the finances window (or if it is already opened, highlight and raise it). */
 void ShowFinancesGui()

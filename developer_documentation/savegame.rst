@@ -912,14 +912,16 @@ Offset  Length  Version  Description
    8       1      1-     Number of available history sections.
    9       1      1-     Index into the current financial data bock.
   10       8      1-     Current cash.
-  18       ?      1-     Each `finance history`_ section's data pattern.
-  12       4      1-     "ANIF".
+  18       8      2-     Current loan.
+  26       ?      1-     Each `finance history`_ section's data pattern.
+   ?       4      1-     "ANIF".
 ======  ======  =======  ======================================================
 
 Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (20210917) Added loans.
 
 
 Inbox

@@ -56,6 +56,7 @@ protected:
 	int num_used;                           ///< Number of %Finances objects that have history.
 	int current;                            ///< Index for the current month's %Finances object.
 	Money cash;                             ///< The user's current cash.
+	Money loan;                             ///< The user's current loan.
 
 public:
 	FinancesManager();
@@ -67,6 +68,8 @@ public:
 	void SetScenario(const Scenario &s);
 
 	void DoTransaction(const Money &income);
+	void TakeLoan(const Money &delta);
+	void RepayLoan(const Money &delta);
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -78,6 +81,15 @@ public:
 	inline const Money &GetCash()
 	{
 		return this->cash;
+	}
+
+	/**
+	 * The amount of money the player has currently loaned.
+	 * @return The loan.
+	 */
+	inline const Money &GetLoan()
+	{
+		return this->loan;
 	}
 
 	/**
