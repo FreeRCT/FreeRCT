@@ -89,8 +89,8 @@ void Minimap::UpdateButtons()
 	this->GetWidget<LeafWidget>(MM_ZOOM_IN )->SetShaded(this->zoom >= MAX_ZOOM);
 
 	for (ScrollbarWidget *s : {this->GetWidget<ScrollbarWidget>(MM_SCROLL_HORZ), this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)}) {
-		s->SetItemSize(1);
-		s->SetItemCount(this->zoom * (_world.GetXSize() + _world.GetYSize()));
+		s->SetItemSize(this->zoom);
+		s->SetItemCount(_world.GetXSize() + _world.GetYSize());
 	}
 }
 
@@ -102,21 +102,41 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	int baseY = this->GetWidgetScreenY(wid);
 
 	const ClippedRectangle old_clip = _video.GetClippedRectangle();
-	const ClippedRectangle new_clip(baseX, baseY, wid->pos.width, wid->pos.height);  // NOCOM clip to FreeRCT window borders
-	_video.SetClippedRectangle(new_clip);
+	const Rectangle32 new_clip(baseX, baseY, wid->pos.width, wid->pos.height);
+	Rectangle32 new_clip_adjusted(new_clip);
+	int adjustX = 0;
+	int adjustY = 0;
+	if (new_clip_adjusted.base.x < old_clip.absx) {
+		adjustX = new_clip_adjusted.base.x - old_clip.absx;
+		new_clip_adjusted.width += adjustX;
+		new_clip_adjusted.base.x = old_clip.absx;
+	}
+	if (new_clip_adjusted.base.y < old_clip.absy) {
+		adjustY = new_clip_adjusted.base.y - old_clip.absy;
+		new_clip_adjusted.height += adjustY;
+		new_clip_adjusted.base.y = old_clip.absy;
+	}
+	if (new_clip_adjusted.base.x + new_clip_adjusted.width >= old_clip.absx + old_clip.width) {
+		new_clip_adjusted.width = old_clip.absx + old_clip.width - new_clip_adjusted.base.x;
+	}
+	if (new_clip_adjusted.base.y + new_clip_adjusted.height >= old_clip.absy + old_clip.height) {
+		new_clip_adjusted.height = old_clip.absy + old_clip.height - new_clip_adjusted.base.y;
+	}
+	_video.SetClippedRectangle(ClippedRectangle(new_clip_adjusted.base.x, new_clip_adjusted.base.y, new_clip_adjusted.width, new_clip_adjusted.height));
 
 	const int required_size = this->zoom * (_world.GetXSize() + _world.GetYSize());
 	if (new_clip.height < required_size) {
-		baseY = -this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)->GetStart();
+		baseY = this->zoom * (1 - this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)->GetStart());
 	} else {
 		baseY = (new_clip.height - required_size) / 2;
 	}
 	if (new_clip.width < required_size) {
-		baseX = -this->GetWidget<ScrollbarWidget>(MM_SCROLL_HORZ)->GetStart();
+		baseX = -this->GetWidget<ScrollbarWidget>(MM_SCROLL_HORZ)->GetStart() * this->zoom;
 	} else {
 		baseX = (new_clip.width - required_size) / 2;
 	}
-	baseX += this->zoom * _world.GetXSize();
+	baseX += this->zoom * _world.GetXSize() + adjustX;
+	baseY += adjustY;
 
 	/* First pass: Find highest and lowest Z positions in the world, to adjust the colour ranges. */
 	int minZ = WORLD_Z_SIZE;
