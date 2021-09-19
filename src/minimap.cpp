@@ -101,11 +101,22 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	int baseX = this->GetWidgetScreenX(wid);
 	int baseY = this->GetWidgetScreenY(wid);
 
-	const ClippedRectangle clip = _video.GetClippedRectangle();
-	_video.SetClippedRectangle(ClippedRectangle(baseX, baseY, wid->pos.width, wid->pos.height));
+	const ClippedRectangle old_clip = _video.GetClippedRectangle();
+	const ClippedRectangle new_clip(baseX, baseY, wid->pos.width, wid->pos.height);  // NOCOM clip to FreeRCT window borders
+	_video.SetClippedRectangle(new_clip);
 
-	baseX = this->zoom * _world.GetXSize() - this->GetWidget<ScrollbarWidget>(MM_SCROLL_HORZ)->GetStart();
-	baseY =                                - this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)->GetStart();
+	const int required_size = this->zoom * (_world.GetXSize() + _world.GetYSize());
+	if (new_clip.height < required_size) {
+		baseY = -this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)->GetStart();
+	} else {
+		baseY = (new_clip.height - required_size) / 2;
+	}
+	if (new_clip.width < required_size) {
+		baseX = -this->GetWidget<ScrollbarWidget>(MM_SCROLL_HORZ)->GetStart();
+	} else {
+		baseX = (new_clip.width - required_size) / 2;
+	}
+	baseX += this->zoom * _world.GetXSize();
 
 	/* First pass: Find highest and lowest Z positions in the world, to adjust the colour ranges. */
 	int minZ = WORLD_Z_SIZE;
@@ -135,12 +146,22 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 			const GroundType g = vs->voxels[h]->GetGroundType();
 			h += vs->base;
 
-			_video.FillRectangle(Rectangle32(baseX + this->zoom * (y - x), baseY + this->zoom * (y + x), 2 * this->zoom, this->zoom),
+			_video.FillRectangle(Rectangle32(baseX + this->zoom * (y - x - 1), baseY + this->zoom * (y + x - 0.5f), 2 * this->zoom, this->zoom),
 					_palette[static_cast<int>(COL_SERIES_START + _ground_type_colour[g] * COL_SERIES_LENGTH + colour_base + colour_step * (h - minZ))]);
 		}
 	}
 
-	_video.SetClippedRectangle(clip);
+	/* Finally, add the viewport overlay. */
+	{
+		const Viewport *vp = _window_manager.GetViewport();
+		const float x = vp->view_pos.x / 256.0f;
+		const float y = vp->view_pos.y / 256.0f;
+		const float w = 2.f * this->zoom * vp->rect.width / vp->tile_width;
+		const float h = this->zoom * vp->rect.height / vp->tile_height;
+		_video.DrawRectangle(Rectangle32(baseX + this->zoom * (y - x) - w / 2, baseY + this->zoom * (y + x) - h / 2, w, h), _palette[TEXT_WHITE]);
+	}
+
+	_video.SetClippedRectangle(old_clip);
 }
 
 void Minimap::OnClick(WidgetNumber number, const Point16 &pos)
