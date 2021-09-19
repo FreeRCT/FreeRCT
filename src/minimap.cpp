@@ -30,6 +30,7 @@ public:
 
 private:
 	void UpdateButtons();
+	Point32 GetRenderingBase(const Rectangle32 &widget_pos) const;
 
 	int zoom;   ///< Size of a voxel in pixels on the minimap.
 };
@@ -66,9 +67,10 @@ static const WidgetPart _minimap_build_gui_parts[] = {
 					Widget(WT_HOR_SCROLLBAR, MM_SCROLL_HORZ, COL_RANGE_GREY),
 				Widget(WT_VERT_SCROLLBAR, MM_SCROLL_VERT, COL_RANGE_GREY),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
-			Intermediate(1, 2),
-				Widget(WT_TEXT_BUTTON, MM_ZOOM_OUT, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL),
-				Widget(WT_TEXT_BUTTON, MM_ZOOM_IN,  COL_RANGE_GREY), SetData(GUI_INCREASE_BUTTON, STR_NULL),
+			Intermediate(1, 3),
+				Widget(WT_TEXT_PUSHBUTTON, MM_ZOOM_OUT,          COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL),
+				Widget(WT_IMAGE_BUTTON,    INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(SPR_GUI_COMPASS_START + TC_NORTH, STR_NULL),
+				Widget(WT_TEXT_PUSHBUTTON, MM_ZOOM_IN,           COL_RANGE_GREY), SetData(GUI_INCREASE_BUTTON, STR_NULL),
 	EndContainer(),
 };
 
@@ -94,6 +96,29 @@ void Minimap::UpdateButtons()
 	}
 }
 
+/**
+ * Compute the pixel position of the (0|0) voxel on the minimap.
+ * @param widget_pos Position and size of the canvas widget.
+ * @return The pixel position, relative to the canvas's top-left corner.
+ */
+Point32 Minimap::GetRenderingBase(const Rectangle32 &widget_pos) const
+{
+	const int required_size = this->zoom * (_world.GetXSize() + _world.GetYSize());
+	Point32 base;
+	if (widget_pos.height < required_size) {
+		base.y = this->zoom * (1 - this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)->GetStart());
+	} else {
+		base.y = (widget_pos.height - required_size) / 2;
+	}
+	if (widget_pos.width < required_size) {
+		base.x = -this->GetWidget<ScrollbarWidget>(MM_SCROLL_HORZ)->GetStart() * this->zoom;
+	} else {
+		base.x = (widget_pos.width - required_size) / 2;
+	}
+	base.x += this->zoom * _world.GetXSize();
+	return base;
+}
+
 void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
 	if (wid_num != MM_MAIN) return GuiWindow::DrawWidget(wid_num, wid);
@@ -102,41 +127,34 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	int baseY = this->GetWidgetScreenY(wid);
 
 	const ClippedRectangle old_clip = _video.GetClippedRectangle();
-	const Rectangle32 new_clip(baseX, baseY, wid->pos.width, wid->pos.height);
-	Rectangle32 new_clip_adjusted(new_clip);
-	int adjustX = 0;
-	int adjustY = 0;
-	if (new_clip_adjusted.base.x < old_clip.absx) {
-		adjustX = new_clip_adjusted.base.x - old_clip.absx;
-		new_clip_adjusted.width += adjustX;
-		new_clip_adjusted.base.x = old_clip.absx;
-	}
-	if (new_clip_adjusted.base.y < old_clip.absy) {
-		adjustY = new_clip_adjusted.base.y - old_clip.absy;
-		new_clip_adjusted.height += adjustY;
-		new_clip_adjusted.base.y = old_clip.absy;
-	}
-	if (new_clip_adjusted.base.x + new_clip_adjusted.width >= old_clip.absx + old_clip.width) {
-		new_clip_adjusted.width = old_clip.absx + old_clip.width - new_clip_adjusted.base.x;
-	}
-	if (new_clip_adjusted.base.y + new_clip_adjusted.height >= old_clip.absy + old_clip.height) {
-		new_clip_adjusted.height = old_clip.absy + old_clip.height - new_clip_adjusted.base.y;
-	}
-	_video.SetClippedRectangle(ClippedRectangle(new_clip_adjusted.base.x, new_clip_adjusted.base.y, new_clip_adjusted.width, new_clip_adjusted.height));
+	{
+		const Rectangle32 new_clip(baseX, baseY, wid->pos.width, wid->pos.height);
+		Rectangle32 new_clip_adjusted(new_clip);
+		int adjustX = 0;
+		int adjustY = 0;
 
-	const int required_size = this->zoom * (_world.GetXSize() + _world.GetYSize());
-	if (new_clip.height < required_size) {
-		baseY = this->zoom * (1 - this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)->GetStart());
-	} else {
-		baseY = (new_clip.height - required_size) / 2;
+		if (new_clip_adjusted.base.x < old_clip.absx) {
+			adjustX = new_clip_adjusted.base.x - old_clip.absx;
+			new_clip_adjusted.width += adjustX;
+			new_clip_adjusted.base.x = old_clip.absx;
+		}
+		if (new_clip_adjusted.base.y < old_clip.absy) {
+			adjustY = new_clip_adjusted.base.y - old_clip.absy;
+			new_clip_adjusted.height += adjustY;
+			new_clip_adjusted.base.y = old_clip.absy;
+		}
+		if (new_clip_adjusted.base.x + new_clip_adjusted.width >= old_clip.absx + old_clip.width) {
+			new_clip_adjusted.width = old_clip.absx + old_clip.width - new_clip_adjusted.base.x;
+		}
+		if (new_clip_adjusted.base.y + new_clip_adjusted.height >= old_clip.absy + old_clip.height) {
+			new_clip_adjusted.height = old_clip.absy + old_clip.height - new_clip_adjusted.base.y;
+		}
+		_video.SetClippedRectangle(ClippedRectangle(new_clip_adjusted.base.x, new_clip_adjusted.base.y, new_clip_adjusted.width, new_clip_adjusted.height));
+
+		Point32 p = this->GetRenderingBase(new_clip);
+		baseX = p.x + adjustX;
+		baseY = p.y + adjustY;
 	}
-	if (new_clip.width < required_size) {
-		baseX = -this->GetWidget<ScrollbarWidget>(MM_SCROLL_HORZ)->GetStart() * this->zoom;
-	} else {
-		baseX = (new_clip.width - required_size) / 2;
-	}
-	baseX += this->zoom * _world.GetXSize() + adjustX;
-	baseY += adjustY;
 
 	/* First pass: Find highest and lowest Z positions in the world, to adjust the colour ranges. */
 	int minZ = WORLD_Z_SIZE;
@@ -184,7 +202,7 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	_video.SetClippedRectangle(old_clip);
 }
 
-void Minimap::OnClick(WidgetNumber number, const Point16 &pos)
+void Minimap::OnClick(WidgetNumber number, const Point16 &clicked_pos)
 {
 	switch (number) {
 		case MM_ZOOM_IN:
@@ -202,9 +220,17 @@ void Minimap::OnClick(WidgetNumber number, const Point16 &pos)
 			}
 			break;
 
-		case MM_MAIN:
-			// NOCOM
+		case MM_MAIN: {
+			const Point32 base = this->GetRenderingBase(this->GetWidget<BaseWidget>(MM_MAIN)->pos);
+			const float voxelX = (clicked_pos.y - base.y + base.x - clicked_pos.x) / (2.0f * this->zoom) + 0.25f;
+			const float voxelY = voxelX + 1.0f + (clicked_pos.x - base.x) / this->zoom;
+			if (voxelX >= 0 && voxelY >= 0 && voxelX < _world.GetXSize() && voxelY < _world.GetYSize()) {
+				Viewport *vp = _window_manager.GetViewport();
+				vp->view_pos.x = voxelX * 256;
+				vp->view_pos.y = voxelY * 256;
+			}
 			break;
+		}
 
 		default: break;
 	}
