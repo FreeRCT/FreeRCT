@@ -29,6 +29,8 @@ strings {
 
 		DECREASE_BUTTON:          "-";
 		INCREASE_BUTTON:          "+";
+		DROPDOWN_CHECKED:         "☑ %1%";
+		DROPDOWN_UNCHECKED:       "☐ %1%";
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
@@ -46,6 +48,10 @@ strings {
 		TOOLBAR_GUI_DROPDOWN_SPEED_2:       "2×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_4:       "4×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_8:       "8×";
+		TOOLBAR_GUI_DROPDOWN_VIEW:             "Sicht";
+		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Ankiekens-Instellens";
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Unner de Eer kieken";
+		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Lütt Kaart";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker";
@@ -246,6 +252,9 @@ strings {
 		TERRAFORM_SUB_TOOLTIP: "Grött vun de Kuntrei tum Bewarken minnern";
 		TERRAFORM_LEVEL_TEXT:  "Kuntrei tum Bewarken platt maken";
 		TERRAFORM_MOVE_TEXT:   "Kuntrei tum Bewarken verschuven as se is";
+
+		// Minimap gui strings.
+		MINIMAP_TITLE: "Lütt Kaart";
 
 		// Finances gui strings.
 		FINANCES_TITLE:                  "Finanzen besörgen";

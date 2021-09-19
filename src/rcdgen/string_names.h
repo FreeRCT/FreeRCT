@@ -34,6 +34,8 @@ static const char *_gui_string_names[] = {
 
 	"INCREASE_BUTTON",
 	"DECREASE_BUTTON",
+	"DROPDOWN_CHECKED",
+	"DROPDOWN_UNCHECKED",
 
 	/* Toolbar GUI and main menu strings. */
 	"TOOLBAR_GUI_DROPDOWN_MAIN",
@@ -48,6 +50,8 @@ static const char *_gui_string_names[] = {
 	"MAIN_MENU_LOAD",
 	"TOOLBAR_GUI_DROPDOWN_SPEED",
 	"TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP",
+	"TOOLBAR_GUI_DROPDOWN_VIEW",
+	"TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP",
 	/* Do not change the order of the strings between here… */
 	"TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE",
 	"TOOLBAR_GUI_DROPDOWN_SPEED_1",
@@ -57,6 +61,8 @@ static const char *_gui_string_names[] = {
 	/* …and here. */
 	"TOOLBAR_GUI_GAME_MODE_EDITOR",
 	"TOOLBAR_GUI_GAME_MODE_PLAY",
+	"TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND",
+	"TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP",
 	"TOOLBAR_GUI_PATHS",
 	"TOOLBAR_GUI_TOOLTIP_BUILD_PATHS",
 	"TOOLBAR_GUI_RIDE_SELECT",
@@ -254,6 +260,9 @@ static const char *_gui_string_names[] = {
 	"TERRAFORM_SUB_TOOLTIP",
 	"TERRAFORM_LEVEL_TEXT",
 	"TERRAFORM_MOVE_TEXT",
+
+	/* Minimap window. */
+	"MINIMAP_TITLE",
 
 	/* Finances window. */
 	"FINANCES_TITLE",

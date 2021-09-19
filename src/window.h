@@ -404,6 +404,7 @@ void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);
 void ShowSettingGui();
 void ShowInboxGui();
+void ShowMinimap();
 void DrawMessage(const Message *msg, const Rectangle32 &rect, bool narrow);
 
 static const uint32 DEFAULT_ERROR_MESSAGE_TIMEOUT = 8000;   ///< Number of ticks after which an error message auto-closes by default.

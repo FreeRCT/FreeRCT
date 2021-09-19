@@ -46,6 +46,7 @@ public:
 enum ToolbarGuiWidgets {
 	TB_DROPDOWN_MAIN,     ///< Main menu dropdown.
 	TB_DROPDOWN_SPEED,    ///< Game speed dropdown.
+	TB_DROPDOWN_VIEW,     ///< View options dropdown.
 	TB_GUI_PATHS,         ///< Build paths button.
 	TB_GUI_RIDE_SELECT,   ///< Select ride button.
 	TB_GUI_FENCE,         ///< Select fence button.
@@ -71,6 +72,15 @@ enum DropdownMain {
 };
 
 /**
+ * Entries in the view options dropdown.
+ * @ingroup gui_group
+ */
+enum DropdownView {
+	DDV_UNDERGROUND,  ///< Toggle underground view.
+	DDV_MINIMAP,      ///< Open the minimap.
+};
+
+/**
  * Widget parts of the toolbar GUI.
  * @ingroup gui_group
  */
@@ -78,6 +88,7 @@ static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_MAIN,  GUI_TOOLBAR_GUI_DROPDOWN_MAIN),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_SPEED,  COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_SPEED, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP),
+		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_VIEW,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_VIEW,  GUI_TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP),
 		Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(16, 16),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_TERRAFORM,    COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_TERRAIN, GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_PATHS,        COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_PATH,    GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
@@ -148,6 +159,18 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 			this->ShowDropdownMenu(number, itemlist, _game_control.speed);
 			break;
 		}
+		case TB_DROPDOWN_VIEW: {
+			DropdownList itemlist;
+			/* Keep the order consistent with the DropdownView ordering! */
+			/* DDV_UNDERGROUND */
+			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND);
+			itemlist.push_back(DropdownItem(_window_manager.GetViewport()->underground_mode ? GUI_DROPDOWN_CHECKED : GUI_DROPDOWN_UNCHECKED));
+			/* DDV_MINIMAP */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP));
+
+			this->ShowDropdownMenu(number, itemlist, -1);
+			break;
+		}
 
 		case TB_GUI_PATHS:
 			ShowPathBuildGui();
@@ -215,6 +238,17 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 					break;
 				case TB_DROPDOWN_SPEED:
 					_game_control.speed = static_cast<GameSpeed>(entry);
+					break;
+				case TB_DROPDOWN_VIEW:
+					switch (entry) {
+						case DDV_UNDERGROUND:
+							_window_manager.GetViewport()->ToggleUndergroundMode();
+							break;
+						case DDV_MINIMAP:
+							ShowMinimap();
+							break;
+						default: NOT_REACHED();
+					}
 					break;
 			}
 			break;

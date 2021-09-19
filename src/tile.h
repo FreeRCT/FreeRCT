@@ -25,6 +25,7 @@
 
 #include "enum_type.h"
 #include "geometry.h"
+#include "palette.h"
 
 /** Corners of a tile. */
 enum TileCorner {
@@ -227,6 +228,8 @@ enum GroundType {
 
 	GTP_INVALID = 0xF, ///< Invalid ground type.
 };
+
+extern const ColourRange _ground_type_colour[GTP_COUNT];
 
 /**
  * Types of foundations.

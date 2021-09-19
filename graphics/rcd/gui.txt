@@ -137,7 +137,7 @@ file("gui.rcd") {
 		}
 
 		(toolbar_main,    toolbar_speed,   toolbar_path,  toolbar_ride,   toolbar_fence, toolbar_scenery,
-		 toolbar_terrain, toolbar_staff, toolbar_inbox, toolbar_finances, toolbar_objects): sheet {
+		 toolbar_terrain, toolbar_staff, toolbar_inbox, toolbar_finances, toolbar_objects, toolbar_view): sheet {
 			x_base: 0; y_base: 0; x_step: 32; y_step: 0;
 			file: "../sprites/gui/toolbar.png";
 			x_offset: 0; y_offset: 0; width: 32; height: 32; crop: 0;
