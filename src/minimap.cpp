@@ -12,7 +12,7 @@
 #include "window.h"
 #include "viewport.h"
 #include "language.h"
-#include "finances.h"
+#include "ride_type.h"
 #include "gamecontrol.h"
 #include "gui_sprites.h"
 #include "sprite_data.h"
@@ -80,7 +80,7 @@ Minimap::Minimap() : GuiWindow(WC_MINIMAP, ALL_WINDOWS_OF_TYPE)
 	this->SetScrolledWidget(MM_MAIN, MM_SCROLL_HORZ);
 	this->SetScrolledWidget(MM_MAIN, MM_SCROLL_VERT);
 
-	this->zoom = 8;
+	this->zoom = 4;
 	this->UpdateButtons();
 }
 
@@ -125,6 +125,8 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 
 	int baseX = this->GetWidgetScreenX(wid);
 	int baseY = this->GetWidgetScreenY(wid);
+
+	_video.FillRectangle(Rectangle32(baseX, baseY, wid->pos.width, wid->pos.height), _palette[TEXT_BLACK]);
 
 	const ClippedRectangle old_clip = _video.GetClippedRectangle();
 	{
@@ -180,12 +182,30 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	for (int x = 0; x < _world.GetXSize(); x++) {
 		for (int y = 0; y < _world.GetYSize(); y++) {
 			const VoxelStack *vs = _world.GetStack(x, y);
-			int h = vs->GetTopGroundOffset();
-			const GroundType g = vs->voxels[h]->GetGroundType();
-			h += vs->base;
+			const int h = vs->GetTopGroundOffset();
 
-			_video.FillRectangle(Rectangle32(baseX + this->zoom * (y - x - 1), baseY + this->zoom * (y + x - 0.5f), 2 * this->zoom, this->zoom),
-					_palette[static_cast<int>(COL_SERIES_START + _ground_type_colour[g] * COL_SERIES_LENGTH + colour_base + colour_step * (h - minZ))]);
+			ColourRange col_range = _ground_type_colour[vs->voxels[h]->GetGroundType()];
+			for (int i = vs->voxels.size() - 1; i >= h; i--) {
+				const Voxel *v = vs->voxels[i].get();
+				if (v->instance == SRI_PATH && HasValidPath(v)) {
+					col_range = COL_RANGE_GREY;
+					break;
+				} else if (v->instance >= SRI_FULL_RIDES) {
+					switch (_rides_manager.GetRideInstance(v->instance)->GetKind()) {
+						case RTK_SHOP:    col_range = COL_RANGE_SEA_GREEN;  break;
+						case RTK_GENTLE:  col_range = COL_RANGE_PINK_BROWN; break;
+						case RTK_THRILL:  col_range = COL_RANGE_ORANGE;     break;
+						case RTK_WET:     col_range = COL_RANGE_BLUE;       break;
+						case RTK_COASTER: col_range = COL_RANGE_PURPLE;     break;
+						default: NOT_REACHED();
+					}
+					break;
+				}
+			}
+
+			const Rectangle32 r(baseX + this->zoom * (y - x - 1), baseY + this->zoom * (y + x - 0.5f), 2 * this->zoom, this->zoom);
+			_video.FillRectangle(r, _palette[static_cast<int>(COL_SERIES_START + col_range * COL_SERIES_LENGTH + colour_base + colour_step * (h + vs->base - minZ))]);
+			if (vs->owner != OWN_PARK) _video.FillRectangle(r, _palette[OVERLAY_DARKEN]);
 		}
 	}
 

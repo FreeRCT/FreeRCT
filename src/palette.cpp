@@ -244,14 +244,14 @@ ColourRange Recolouring::GetReplacementRange(ColourRange src) const
 
 /** 8 bpp colours mapped to 32 bpp. */
 const uint32 _palette[256] = {
-	MakeRGBA(  0,   0,   0, TRANSPARENT), //  0 COL_BACKGROUND (background behind world display)
+	MakeRGBA(  0,   0,   0, OPAQUE), //  0 COL_BACKGROUND (background behind world display)
 	MakeRGBA(255, 255, 255, OPAQUE), //  1 COL_HIGHLIGHT (full white to highlight window edge)
 	MakeRGBA(255, 255, 255, OPACITY_SEMI_TRANSPARENT), //  2 COL_SEMI_TRANSPARENT (semi-transparent white buy-ride colour)
 	MakeRGBA(220, 200, 100, OPAQUE), //  3 Background for tooltips.
 	MakeRGBA( 20,  20,  50, OPAQUE), //  4 Text colour for tooltips.
 	MakeRGBA(  0,   0,   0, OPAQUE), //  5 Border colour for tooltips.
 	MakeRGBA(130, 130, 130, OPAQUE), //  6 Grey text colour.
-	MakeRGBA(  0,   0,   0, OPAQUE), //  7 unused
+	MakeRGBA(  0,   0,   0,    127), //  7 Darkening overlay
 	MakeRGBA(  0,   0,   0, OPAQUE), //  8 unused
 	MakeRGBA(  0,   0,   0, OPAQUE), //  9 unused
 	MakeRGBA( 23,  35,  35, OPAQUE), //  10 Start of COL_RANGE_GREY.
