@@ -214,8 +214,9 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 		const Viewport *vp = _window_manager.GetViewport();
 		const float x = vp->view_pos.x / 256.0f;
 		const float y = vp->view_pos.y / 256.0f;
-		const float w = 2.f * this->zoom * vp->rect.width / vp->tile_width;
-		const float h = this->zoom * vp->rect.height / vp->tile_height;
+		float w = 2.f * this->zoom * vp->rect.width / vp->tile_width;
+		float h = static_cast<float>(this->zoom) * vp->rect.height / vp->tile_height;
+		if (vp->orientation % 2 == 1) std::swap(w, h);
 		_video.DrawRectangle(Rectangle32(baseX + this->zoom * (y - x) - w / 2, baseY + this->zoom * (y + x) - h / 2, w, h), _palette[TEXT_WHITE]);
 	}
 
