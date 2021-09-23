@@ -76,8 +76,8 @@ enum DropdownMain {
  * @ingroup gui_group
  */
 enum DropdownView {
-	DDV_UNDERGROUND,  ///< Toggle underground view.
 	DDV_MINIMAP,      ///< Open the minimap.
+	DDV_UNDERGROUND,  ///< Toggle underground view.
 };
 
 /**
@@ -162,11 +162,11 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 		case TB_DROPDOWN_VIEW: {
 			DropdownList itemlist;
 			/* Keep the order consistent with the DropdownView ordering! */
+			/* DDV_MINIMAP */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP));
 			/* DDV_UNDERGROUND */
 			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND);
 			itemlist.push_back(DropdownItem(_window_manager.GetViewport()->underground_mode ? GUI_DROPDOWN_CHECKED : GUI_DROPDOWN_UNCHECKED));
-			/* DDV_MINIMAP */
-			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP));
 
 			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
@@ -241,11 +241,11 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 					break;
 				case TB_DROPDOWN_VIEW:
 					switch (entry) {
-						case DDV_UNDERGROUND:
-							_window_manager.GetViewport()->ToggleUndergroundMode();
-							break;
 						case DDV_MINIMAP:
 							ShowMinimap();
+							break;
+						case DDV_UNDERGROUND:
+							_window_manager.GetViewport()->ToggleUndergroundMode();
 							break;
 						default: NOT_REACHED();
 					}

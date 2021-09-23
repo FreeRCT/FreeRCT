@@ -5,7 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file minimap.cpp %Park overview minimap Gui. */
+/** @file minimap.cpp Park overview %Minimap Gui. */
 
 #include "stdafx.h"
 #include "map.h"
@@ -43,9 +43,9 @@ static const int MAX_ZOOM = 16;  ///< Maximum size of a voxel in pixels on the m
  * @ingroup gui_group
  */
 enum MinimapWidgets {
-	MM_MAIN,      ///< Main view
-	MM_ZOOM_IN,   ///< Zoom in button.
-	MM_ZOOM_OUT,  ///< Zoom out button.
+	MM_MAIN,         ///< Main minimap view.
+	MM_ZOOM_IN,      ///< Zoom in button.
+	MM_ZOOM_OUT,     ///< Zoom out button.
 	MM_SCROLL_HORZ,  ///< Horizontal scrollbar.
 	MM_SCROLL_VERT,  ///< Vertical scrollbar.
 };
