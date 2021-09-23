@@ -42,6 +42,7 @@ enum WindowTypes {
 	WC_FINANCES,        ///< Finance management window.
 	WC_STAFF,           ///< Staff management window.
 	WC_INBOX,           ///< Inbox window.
+	WC_MINIMAP,         ///< Minimap window.
 	WC_SETTING,         ///< Setting window.
 	WC_LOADSAVE,        ///< Save/load game window.
 	WC_DROPDOWN,        ///< Dropdown window.

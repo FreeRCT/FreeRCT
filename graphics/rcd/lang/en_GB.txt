@@ -29,6 +29,8 @@ strings {
 
 		DECREASE_BUTTON:          "-";
 		INCREASE_BUTTON:          "+";
+		DROPDOWN_CHECKED:         "☑ %1%";
+		DROPDOWN_UNCHECKED:       "☐ %1%";
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menu";
@@ -46,6 +48,10 @@ strings {
 		TOOLBAR_GUI_DROPDOWN_SPEED_2:       "2×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_4:       "4×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_8:       "8×";
+		TOOLBAR_GUI_DROPDOWN_VIEW:             "View";
+		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Viewport options";
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Underground view";
+		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Minimap";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";
@@ -246,6 +252,9 @@ strings {
 		TERRAFORM_SUB_TOOLTIP: "Decrease size of the terraforming area";
 		TERRAFORM_LEVEL_TEXT:  "Level terraforming area";
 		TERRAFORM_MOVE_TEXT:   "Move terraform area as-is";
+
+		// Minimap gui strings.
+		MINIMAP_TITLE: "Minimap";
 
 		// Finances gui strings.
 		FINANCES_TITLE:                  "Manage Finances";

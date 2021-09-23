@@ -1252,8 +1252,12 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 				return true;
 			}
 
-			if (symbol == "0") {  // 0 to toggle underground view.
+			if (symbol == "u") {  // u to toggle underground view.
 				this->ToggleUndergroundMode();
+				return true;
+			}
+			if (symbol == "m") {  // m to open the minimap.
+				ShowMinimap();
 				return true;
 			}
 		}

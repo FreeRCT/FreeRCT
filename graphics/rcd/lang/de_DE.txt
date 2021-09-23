@@ -29,6 +29,8 @@ strings {
 
 		DECREASE_BUTTON:          "-";
 		INCREASE_BUTTON:          "+";
+		DROPDOWN_CHECKED:         "☑ %1%";
+		DROPDOWN_UNCHECKED:       "☐ %1%";
 
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
@@ -46,6 +48,10 @@ strings {
 		TOOLBAR_GUI_DROPDOWN_SPEED_2:       "2×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_4:       "4×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_8:       "8×";
+		TOOLBAR_GUI_DROPDOWN_VIEW:             "Ansicht";
+		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Ansichtseinstellungen";
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Untergrundsicht";
+		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Übersichtskarte";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spielen";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor";
@@ -246,6 +252,9 @@ strings {
 		TERRAFORM_SUB_TOOLTIP: "Verkleinert den zu verändernden Bereich";
 		TERRAFORM_LEVEL_TEXT:  "Gewählten Bereich einebnen";
 		TERRAFORM_MOVE_TEXT:   "Landschaft unverändert verschieben";
+
+		// Minimap gui strings.
+		MINIMAP_TITLE: "Übersichtskarte";
 
 		// Finances gui strings.
 		FINANCES_TITLE:                  "Finanzverwaltung";
