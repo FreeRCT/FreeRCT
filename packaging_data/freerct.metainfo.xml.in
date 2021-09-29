@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+	<id>@FREERCT_BASENAME@</id>
+	<name>FreeRCT</name>
+	<summary>Theme park strategy game</summary>
+	<description>
+		<p>FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.</p>
+		<p>The game is still in an early alpha state, but it is already playable and offers a variety of features.</p>
+	</description>-
+	<categories>
+		<category>Game</category>
+		<category>StrategyGame</category>
+	</categories>
+	<content_rating type="oars-1.1">
+		<content_attribute id="violence-cartoon">mild</content_attribute>
+	</content_rating>
+	<launchable type="desktop-id">@FREERCT_BASENAME@.desktop</launchable>
+	<screenshots>
+		<screenshot type="default">
+			<caption>A park in the game</caption>
+			<image>https://freerct.github.io/FreeRCT/images/screenshots/0_1/mainview.png</image>
+		</screenshot>
+		<screenshot>
+			<caption>The game's main menu</caption>
+			<image>https://freerct.github.io/FreeRCT/images/screenshots/0_1/mainmenu.png</image>
+		</screenshot>
+	</screenshots>
+	<url type="homepage">https://freerct.net</url>
+	<url type="bugtracker">https://github.com/FreeRCT/FreeRCT/issues</url>
+	<project_license>GPL-2.0</project_license>
+	<metadata_license>GFDL-1.2</metadata_license>
+</component>
