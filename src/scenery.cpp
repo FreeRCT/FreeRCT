@@ -688,10 +688,17 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
  */
 void SceneryInstance::OnAnimate(const int delay)
 {
+	const bool was_dry = this->IsDry();
+	const uint32 old_animtime = this->animtime;
+
 	if (this->type->watering_interval > 0) this->time_since_watered += delay;
+	const TimedAnimation *anim = (this->IsDry() ? this->type->dry_animation : this->type->main_animation);
 	this->animtime += delay;
-	this->animtime %= (this->IsDry() ? this->type->dry_animation : this->type->main_animation)->GetTotalDuration();
-	this->MarkDirty();  // Ensure the animation is updated.
+	this->animtime %= anim->GetTotalDuration();
+
+	if (this->IsDry() != was_dry || anim->GetFrame(old_animtime, true) != anim->GetFrame(this->animtime, true)) {
+		this->MarkDirty();  // Ensure the animation is updated.
+	}
 }
 
 /**
