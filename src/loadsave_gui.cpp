@@ -97,6 +97,7 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 
 	this->SetupWidgetTree(_loadsave_gui_parts, lengthof(_loadsave_gui_parts));
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
+	this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->SetItemCount(this->all_files.size());
 }
 
 void LoadSaveGui::SetWidgetStringParameters(const WidgetNumber wid_num) const
@@ -140,11 +141,8 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			break;
 
 		case LSW_LIST: {
-			const int index = pos.y / ITEM_HEIGHT;
-			if (index < 0) break;
-
-			const int first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
-			if (index < first_index || index + first_index >= static_cast<int>(this->all_files.size())) break;
+			const int index = pos.y / ITEM_HEIGHT + this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
+			if (index < 0 || index >= static_cast<int>(this->all_files.size())) break;
 
 			auto selected = this->all_files.begin();
 			std::advance(selected, index);
