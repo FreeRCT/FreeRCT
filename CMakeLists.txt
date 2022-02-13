@@ -40,6 +40,9 @@ add_subdirectory(graphics/rcd)
 message(STATUS "Building FreeRCT")
 add_subdirectory(src)
 
+message(STATUS "Installing packaging data")
+add_subdirectory(packaging_data)
+
 IF(NOT MSVC)
 	add_custom_target(run
 	                  COMMAND freerct
