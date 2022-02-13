@@ -1,5 +1,6 @@
 
 # /
+/.flatpak-builder/
 /build
 /doxygen_warnings.txt
 /Makefile
