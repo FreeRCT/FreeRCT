@@ -181,4 +181,6 @@ ELSE()
 	message(FATAL_ERROR "Unsupported platform")
 ENDIF()
 
-INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION bin)
+include(GNUInstallDirs)
+
+INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION "${CMAKE_INSTALL_BINDIR}")
