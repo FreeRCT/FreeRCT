@@ -215,7 +215,7 @@ int freerct_main(int argc, char **argv)
 
 	/* Loops until told not to. */
 #ifdef WEBASSEMBLY
-	emscripten_set_main_loop(VideoSystem::MainLoopCycle, 60 /* FPS */, 1 /* repeat forever */);
+	emscripten_set_main_loop(VideoSystem::MainLoopCycle, 0 /* set FPS automatically */, 1 /* repeat as endless loop */);
 #else
 	VideoSystem::MainLoop();
 #endif
