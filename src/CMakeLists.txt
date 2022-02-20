@@ -11,6 +11,32 @@ ENDIF()
 
 project(freerct)
 
+IF(WEBASSEMBLY)
+	message(STATUS "Configuring for WebAssembly (experimental)")
+
+	set(OVERRIDE_VCS ON)
+	set(CMAKE_INSTALL_PREFIX "wasm_static")
+	set(USERDATA_PREFIX "wasm_userdata")
+
+	set(CMAKE_C_COMPILER   "emcc")
+	set(CMAKE_CXX_COMPILER "em++")
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")
+
+	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_SDL=2 -s USE_SDL_TTF=2")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WASM_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WASM_FLAGS}")
+
+	add_custom_target(prepare_wasm_rcd ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${FRCT_BINARY_DIR}/rcd" "${CMAKE_INSTALL_PREFIX}/share/freerct")
+	add_custom_target(prepare_wasm_data ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/data" "${CMAKE_INSTALL_PREFIX}/share/freerct/data")
+
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${WASM_FLAGS} \
+			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
+			--preload-file ${CMAKE_INSTALL_PREFIX}")
+
+	FUNCTION(find_package)
+	ENDFUNCTION()
+ENDIF(WEBASSEMBLY)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
