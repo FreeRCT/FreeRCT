@@ -61,7 +61,9 @@ public:
 	std::string Initialize(const std::string &font_name, int font_size);
 	bool SetResolution(const Point32 &res);
 	void GetResolutions();
-	void MainLoop();
+	static void MainLoop();
+	static bool MainLoopCycle();
+	bool MainLoopDoCycle();
 	void Shutdown();
 
 	/**

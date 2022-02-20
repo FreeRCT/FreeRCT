@@ -533,36 +533,54 @@ bool VideoSystem::HandleEvent()
 /** Main loop. Loops until told not to. */
 void VideoSystem::MainLoop()
 {
+	while (_video.MainLoopDoCycle());
+}
+
+/**
+ * Perform one cycle of the main loop.
+ * @return `true` until the game is supposed to end.
+ */
+bool VideoSystem::MainLoopCycle()
+{
+	return _video.MainLoopDoCycle();
+}
+
+/**
+ * Perform one cycle of the main loop.
+ * @return `true` until the game is supposed to end.
+ */
+bool VideoSystem::MainLoopDoCycle()
+{
 	static const uint32 FRAME_DELAY = 30; // Number of milliseconds between two frames.
 
+	uint32 start = SDL_GetTicks();
+
+	OnNewFrame(FRAME_DELAY);
+
+	/* Handle input events until time for the next frame has arrived. */
 	for (;;) {
-		uint32 start = SDL_GetTicks();
-
-		OnNewFrame(FRAME_DELAY);
-
-		/* Handle input events until time for the next frame has arrived. */
-		for (;;) {
-			if (HandleEvent()) break;
-		}
-
-		/* If necessary, run the latest game control action. */
-		_game_control.DoNextAction();
-		if (!_game_control.running) break;
-
-		uint32 now = SDL_GetTicks();
-		if (now >= start) { // No wrap around.
-			now -= start;
-			if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
-		}
-
-		if (this->missing_sprites) {
-			printf("FATAL ERROR: FreeRCT is missing some sprites.\n");
-			printf("This should not happen. You are most likely using corrupt or incompatible RCD files.\n");
-			printf("Please ensure that your RCD files can be read by this version of FreeRCT.\n");
-			printf("The program will terminate now.\n");
-			exit(1);
-		}
+		if (HandleEvent()) break;
 	}
+
+	/* If necessary, run the latest game control action. */
+	_game_control.DoNextAction();
+	if (!_game_control.running) return false;
+
+	uint32 now = SDL_GetTicks();
+	if (now >= start) { // No wrap around.
+		now -= start;
+		if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
+	}
+
+	if (this->missing_sprites) {
+		printf("FATAL ERROR: FreeRCT is missing some sprites.\n");
+		printf("This should not happen. You are most likely using corrupt or incompatible RCD files.\n");
+		printf("Please ensure that your RCD files can be read by this version of FreeRCT.\n");
+		printf("The program will terminate now.\n");
+		exit(1);
+	}
+
+	return true;
 }
 
 /** Close down the video system. */
