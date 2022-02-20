@@ -85,7 +85,7 @@ static void PrintVersion()
 	printf("Installation directory: %s\n",   _freerct_install_prefix);
 	printf("User data directory   : %s\n\n", freerct_userdata_prefix());
 
-	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n\n");
+	printf("Homepage: https://freerct.net\n\n");
 
 	printf(
 		"FreeRCT is free software; you can redistribute it and/or\n"
