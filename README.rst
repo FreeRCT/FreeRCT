@@ -1,6 +1,7 @@
 FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.
 
-.. image:: docs/images/screenshots/0_1/mainview.png
+.. image:: freerct.png
+        :alt: mainview
 
 Building the program
 --------------------
@@ -20,7 +21,7 @@ The existence of these programs/libraries is checked by ``cmake``.
 
 Building is as simple as
 
-::
+.. code-block:: bash
 
         $ git clone https://github.com/FreeRCT/FreeRCT.git
         $ cd FreeRCT               # Go into the downloaded source directory.
@@ -43,6 +44,8 @@ USERDATA_PREFIX         '~/.freerct' (Windows) or     Directory where user data 
                         '~/.config/freerct' (other)   Note that '~' character expansion in the USERDATA_PREFIX variable to the
                                                       user home directory is performed by FreeRCT at runtime and should NOT be done by
                                                       shell expansion to ensure that the executable can be used by multiple users.
+WEBASSEMBLY             OFF                           Compile as a WebAssembly program that can be run in the browser using
+                                                      JavaScript (experimental feature). May override all other settings.
 ======================= ============================= ================================================================================================
 
 
@@ -83,7 +86,7 @@ Config file
 
 Finally, you can optionally create a 'freerct.cfg' INI format file next to the 'freerct' program in the **bin** directory, containing the settings to use. All entries are optional. It looks like
 
-::
+.. code-block:: ini
 
         [font]
         medium-size = 12
@@ -116,17 +119,27 @@ Running the program
 
 Now run the program
 
-::
+.. code-block:: bash
 
         $ cd bin
         $ ./freerct
 
 or
 
-::
+.. code-block:: bash
 
         $ make run
 
 which should open a window containing the main menu (see also the pictures in the blog).
 
 Pressing 'q' quits the program.
+
+Building Troubleshoot
+---------------------
+Linux
+#####
+All the CMake dependencies can be installed under Debian based systems(e.g. Ubuntu) using the following command:
+
+.. code-block:: bash
+
+        $ sudo apt install zlib1g-dev libpng-dev libsdl2-dev libsdl2-ttf-dev doxygen flex bison

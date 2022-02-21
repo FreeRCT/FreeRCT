@@ -212,6 +212,7 @@ std::string VideoSystem::Initialize(const std::string &font_name, int font_size)
 	this->initialized = true;
 	this->dirty = true; // Ensure it gets painted.
 	this->missing_sprites = false;
+	this->modifier_state = WMKM_NONE;
 
 	this->digit_size.x = 0;
 	this->digit_size.y = 0;
@@ -333,9 +334,9 @@ static void UpdateMousePosition(int16 x, int16 y)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Game-ending event has happened.
  */
-static bool HandleKeyInput(WmKeyCode key_code, const std::string &symbol = std::string())
+static inline bool HandleKeyInput(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol = std::string())
 {
-	return _window_manager.KeyEvent(key_code, symbol);
+	return _window_manager.KeyEvent(key_code, mod, symbol);
 }
 
 /**
@@ -347,38 +348,129 @@ bool VideoSystem::HandleEvent()
 	SDL_Event event;
 	if (SDL_PollEvent(&event) != 1) return true;
 
+	const bool symbol_with_modifiers = (this->modifier_state & ~WMKM_SHIFT) != 0;
 	switch (event.type) {
 		case SDL_TEXTINPUT:
-			return HandleKeyInput(WMKC_SYMBOL, event.text.text);
+			if (symbol_with_modifiers) return false;  // Handled below by the SDL_KEYDOWN default clause.
+			return HandleKeyInput(WMKC_SYMBOL, WMKM_NONE, event.text.text);
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-				case SDLK_UP:        return HandleKeyInput(WMKC_CURSOR_UP);
-				case SDLK_LEFT:      return HandleKeyInput(WMKC_CURSOR_LEFT);
-				case SDLK_RIGHT:     return HandleKeyInput(WMKC_CURSOR_RIGHT);
-				case SDLK_DOWN:      return HandleKeyInput(WMKC_CURSOR_DOWN);
-				case SDLK_HOME:      return HandleKeyInput(WMKC_CURSOR_HOME);
-				case SDLK_END:       return HandleKeyInput(WMKC_CURSOR_END);
-				case SDLK_ESCAPE:    return HandleKeyInput(WMKC_CANCEL);
-				case SDLK_DELETE:    return HandleKeyInput(WMKC_DELETE);
-				case SDLK_BACKSPACE: return HandleKeyInput(WMKC_BACKSPACE);
+				case SDLK_KP_8:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_UP:
+					return HandleKeyInput(WMKC_CURSOR_UP, this->modifier_state);
+
+				case SDLK_KP_4:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_LEFT:
+					return HandleKeyInput(WMKC_CURSOR_LEFT, this->modifier_state);
+
+				case SDLK_KP_6:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_RIGHT:
+					return HandleKeyInput(WMKC_CURSOR_RIGHT, this->modifier_state);
+
+				case SDLK_KP_2:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_DOWN:
+					return HandleKeyInput(WMKC_CURSOR_DOWN, this->modifier_state);
+
+				case SDLK_KP_9:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_PAGEUP:
+					return HandleKeyInput(WMKC_CURSOR_PAGEUP, this->modifier_state);
+
+				case SDLK_KP_3:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_PAGEDOWN:
+					return HandleKeyInput(WMKC_CURSOR_PAGEDOWN, this->modifier_state);
+
+				case SDLK_KP_7:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_HOME:
+					return HandleKeyInput(WMKC_CURSOR_HOME, this->modifier_state);
+
+				case SDLK_KP_1:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_END:
+					return HandleKeyInput(WMKC_CURSOR_END, this->modifier_state);
+
+				case SDLK_KP_PERIOD:
+					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
+					/* FALL-THROUGH */
+				case SDLK_DELETE:
+					return HandleKeyInput(WMKC_DELETE, this->modifier_state);
 
 				case SDLK_RETURN:
 				case SDLK_RETURN2:
-				case SDLK_KP_ENTER:  return HandleKeyInput(WMKC_CONFIRM);
+				case SDLK_KP_ENTER:
+					return HandleKeyInput(WMKC_CONFIRM, this->modifier_state);
+
+				case SDLK_ESCAPE:
+					return HandleKeyInput(WMKC_CANCEL, this->modifier_state);
+
+				case SDLK_BACKSPACE:
+					return HandleKeyInput(WMKC_BACKSPACE, this->modifier_state);
+
+				case SDLK_LCTRL:
+				case SDLK_RCTRL:
+					this->modifier_state |= WMKM_CTRL;
+					return true;
+
+				case SDLK_LALT:
+				case SDLK_RALT:
+				case SDLK_LGUI:
+				case SDLK_RGUI:
+					this->modifier_state |= WMKM_ALT;
+					return true;
 
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
+					this->modifier_state |= WMKM_SHIFT;
 					_game_control.action_test_mode = true;
 					return true;
 
-				default:             return false;
+				default:
+					/* Text input events with modifiers may or may not be recognized as SDL_TEXTINPUT, so we need to convert them manually.
+					 * Using Shift but no other modifiers is an exception as this simply generates uppercase SDL_TEXTINPUT.
+					 * All keysyms that correspond to an ASCII character have the same integer value as this character;
+					 * all others are larger than the largest valid ASCII character (which is 0x7F).
+					 */
+					if (symbol_with_modifiers && event.key.keysym.sym <= 0x7F) {
+						std::string text;
+						text.push_back(event.key.keysym.sym);
+						return HandleKeyInput(WMKC_SYMBOL, this->modifier_state, text);
+					}
+
+					return false;
 			}
 
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
+				case SDLK_LCTRL:
+				case SDLK_RCTRL:
+					this->modifier_state &= ~WMKM_CTRL;
+					return true;
+
+				case SDLK_LALT:
+				case SDLK_RALT:
+				case SDLK_LGUI:
+				case SDLK_RGUI:
+					this->modifier_state &= ~WMKM_ALT;
+					return true;
+
 				case SDLK_LSHIFT:
 				case SDLK_RSHIFT:
+					this->modifier_state &= ~WMKM_SHIFT;
 					_game_control.action_test_mode = false;
 					return true;
 
@@ -439,38 +531,56 @@ bool VideoSystem::HandleEvent()
 }
 
 /** Main loop. Loops until told not to. */
-void VideoSystem::MainLoop()
+/* static */ void VideoSystem::MainLoop()
+{
+	while (_video.MainLoopDoCycle());
+}
+
+/**
+ * Perform one cycle of the main loop.
+ * @return `true` until the game is supposed to end.
+ */
+/* static */ bool VideoSystem::MainLoopCycle()
+{
+	return _video.MainLoopDoCycle();
+}
+
+/**
+ * Perform one cycle of the main loop.
+ * @return `true` until the game is supposed to end.
+ */
+bool VideoSystem::MainLoopDoCycle()
 {
 	static const uint32 FRAME_DELAY = 30; // Number of milliseconds between two frames.
 
+	uint32 start = SDL_GetTicks();
+
+	OnNewFrame(FRAME_DELAY);
+
+	/* Handle input events until time for the next frame has arrived. */
 	for (;;) {
-		uint32 start = SDL_GetTicks();
-
-		OnNewFrame(FRAME_DELAY);
-
-		/* Handle input events until time for the next frame has arrived. */
-		for (;;) {
-			if (HandleEvent()) break;
-		}
-
-		/* If necessary, run the latest game control action. */
-		_game_control.DoNextAction();
-		if (!_game_control.running) break;
-
-		uint32 now = SDL_GetTicks();
-		if (now >= start) { // No wrap around.
-			now -= start;
-			if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
-		}
-
-		if (this->missing_sprites) {
-			printf("FATAL ERROR: FreeRCT is missing some sprites.\n");
-			printf("This should not happen. You are most likely using corrupt or incompatible RCD files.\n");
-			printf("Please ensure that your RCD files can be read by this version of FreeRCT.\n");
-			printf("The program will terminate now.\n");
-			exit(1);
-		}
+		if (HandleEvent()) break;
 	}
+
+	/* If necessary, run the latest game control action. */
+	_game_control.DoNextAction();
+	if (!_game_control.running) return false;
+
+	uint32 now = SDL_GetTicks();
+	if (now >= start) { // No wrap around.
+		now -= start;
+		if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
+	}
+
+	if (this->missing_sprites) {
+		printf("FATAL ERROR: FreeRCT is missing some sprites.\n");
+		printf("This should not happen. You are most likely using corrupt or incompatible RCD files.\n");
+		printf("Please ensure that your RCD files can be read by this version of FreeRCT.\n");
+		printf("The program will terminate now.\n");
+		exit(1);
+	}
+
+	return true;
 }
 
 /** Close down the video system. */

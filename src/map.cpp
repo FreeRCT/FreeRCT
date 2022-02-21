@@ -29,6 +29,7 @@ void Voxel::ClearVoxel()
 {
 	this->SetGroundType(GTP_INVALID);
 	this->SetFoundationType(FDT_INVALID);
+	this->SetGroundSlope(ISL_FLAT);
 	this->SetGrowth(0);
 	this->SetFences(ALL_INVALID_FENCES);
 	this->ClearInstances();

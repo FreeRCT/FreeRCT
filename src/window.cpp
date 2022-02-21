@@ -275,10 +275,11 @@ void Window::OnMouseLeaveEvent()
 /**
  * Process input from the keyboard.
  * @param key_code Kind of input.
+ * @param mod Bitmask of pressed modifiers.
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool Window::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
+bool Window::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	return false;
 }
@@ -345,6 +346,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 	this->ride_type = nullptr;
 	this->initialized = false;
 	this->selector = nullptr;
+	this->closeable = true;
 }
 
 GuiWindow::~GuiWindow()
@@ -475,9 +477,14 @@ void GuiWindow::OnDraw(MouseModeSelector *selector)
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video.DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
 }
 
-bool GuiWindow::OnKeyEvent(WmKeyCode key_code, const std::string &symbol)
+bool GuiWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
-	return this->tree->OnKeyEvent(key_code, symbol) || Window::OnKeyEvent(key_code, symbol);
+	if (this->tree->OnKeyEvent(key_code, mod, symbol)) return true;
+	if (this->closeable && (key_code == WMKC_DELETE || key_code == WMKC_BACKSPACE || key_code == WMKC_CANCEL)) {
+		delete this;
+		return true;
+	}
+	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
 void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
@@ -1097,13 +1104,14 @@ void WindowManager::MouseWheelEvent(int direction)
 /**
  * Process input from the keyboard.
  * @param key_code Kind of input.
+ * @param mod Bitmask of pressed modifiers.
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool WindowManager::KeyEvent(WmKeyCode key_code, const std::string &symbol)
+bool WindowManager::KeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
-		if (w->OnKeyEvent(key_code, symbol)) return true;
+		if (w->OnKeyEvent(key_code, mod, symbol)) return true;
 	}
 	return false;
 }

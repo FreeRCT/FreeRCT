@@ -1679,7 +1679,7 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 10.
+FreeRCT can read blocks with version 11.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
@@ -1754,8 +1754,9 @@ Offset  Length  Version  Field name          Description
  260       4     10-     toolbar_inbox       Toolbar: Inbox GUI button.
  264       4     10-     toolbar_finances    Toolbar: Finances GUI button.
  268       4     10-     toolbar_objects     Toolbar: Path objects GUI button.
- 272       4      2-     texts               Text of the guis (reference to a TEXT block).
- 276                                         Total length.
+ 272       4     10-     toolbar_view        Toolbar: View menu GUI button.
+ 276       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 280                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1771,6 +1772,7 @@ Version history
 - 8 (20140914) Added thunder storm sprite, and red/orange/green and red/green lights.
 - 9 (20210316) Added message button sprites.
 - 10 (20210429) Added toolbar button sprites.
+- 11 (20210918) Added toolbar view menu button sprite.
 
 
 Main menu sprites

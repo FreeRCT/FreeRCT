@@ -16,6 +16,7 @@
 #include <SDL_ttf.h>
 #include "geometry.h"
 #include "palette.h"
+#include "window_constants.h"
 
 class ImageData;
 
@@ -54,13 +55,16 @@ class VideoSystem {
 	friend class ClippedRectangle;
 
 public:
+	static void MainLoop();
+	static bool MainLoopCycle();
+
 	VideoSystem();
 	~VideoSystem();
 
 	std::string Initialize(const std::string &font_name, int font_size);
 	bool SetResolution(const Point32 &res);
 	void GetResolutions();
-	void MainLoop();
+	bool MainLoopDoCycle();
 	void Shutdown();
 
 	/**
@@ -173,6 +177,8 @@ private:
 	std::unique_ptr<uint32[]> mem;  ///< Memory used for blitting the application display.
 	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
 	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
+
+	WmKeyMod modifier_state;  ///< Bitmask of currently pressed modifiers.
 
 	bool HandleEvent();
 	void MarkDisplayClean();

@@ -24,8 +24,6 @@
 #include "gamecontrol.h"
 #include "weather.h"
 
-void ShowQuitProgram(bool back_to_main_menu);
-
 /**
  * Top toolbar.
  * @ingroup gui_group
@@ -48,6 +46,7 @@ public:
 enum ToolbarGuiWidgets {
 	TB_DROPDOWN_MAIN,     ///< Main menu dropdown.
 	TB_DROPDOWN_SPEED,    ///< Game speed dropdown.
+	TB_DROPDOWN_VIEW,     ///< View options dropdown.
 	TB_GUI_PATHS,         ///< Build paths button.
 	TB_GUI_RIDE_SELECT,   ///< Select ride button.
 	TB_GUI_FENCE,         ///< Select fence button.
@@ -73,6 +72,15 @@ enum DropdownMain {
 };
 
 /**
+ * Entries in the view options dropdown.
+ * @ingroup gui_group
+ */
+enum DropdownView {
+	DDV_MINIMAP,      ///< Open the minimap.
+	DDV_UNDERGROUND,  ///< Toggle underground view.
+};
+
+/**
  * Widget parts of the toolbar GUI.
  * @ingroup gui_group
  */
@@ -80,6 +88,7 @@ static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_MAIN,  GUI_TOOLBAR_GUI_DROPDOWN_MAIN),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_SPEED,  COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_SPEED, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP),
+		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_VIEW,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_VIEW,  GUI_TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP),
 		Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(16, 16),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_TERRAFORM,    COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_TERRAIN, GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_PATHS,        COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_PATH,    GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
@@ -96,6 +105,7 @@ static const WidgetPart _toolbar_widgets[] = {
 
 ToolbarWindow::ToolbarWindow() : GuiWindow(WC_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
+	this->closeable = false;
 	this->SetupWidgetTree(_toolbar_widgets, lengthof(_toolbar_widgets));
 }
 
@@ -147,6 +157,18 @@ void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(number, itemlist, _game_control.speed);
+			break;
+		}
+		case TB_DROPDOWN_VIEW: {
+			DropdownList itemlist;
+			/* Keep the order consistent with the DropdownView ordering! */
+			/* DDV_MINIMAP */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP));
+			/* DDV_UNDERGROUND */
+			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND);
+			itemlist.push_back(DropdownItem(_window_manager.GetViewport()->underground_mode ? GUI_DROPDOWN_CHECKED : GUI_DROPDOWN_UNCHECKED));
+
+			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
 		}
 
@@ -216,6 +238,17 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 					break;
 				case TB_DROPDOWN_SPEED:
 					_game_control.speed = static_cast<GameSpeed>(entry);
+					break;
+				case TB_DROPDOWN_VIEW:
+					switch (entry) {
+						case DDV_MINIMAP:
+							ShowMinimap();
+							break;
+						case DDV_UNDERGROUND:
+							_window_manager.GetViewport()->ToggleUndergroundMode();
+							break;
+						default: NOT_REACHED();
+					}
 					break;
 			}
 			break;
@@ -309,6 +342,7 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 
 BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
+	this->closeable = false;
 	this->guest_count = _guests.CountGuestsInPark();
 	this->SetupWidgetTree(_bottom_toolbar_widgets, lengthof(_bottom_toolbar_widgets));
 }
@@ -478,6 +512,7 @@ public:
 
 	Point32 OnInitialPosition() override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 private:
 	bool back_to_main_menu;  ///< Just return to the main menu instead of quitting FreeRCT.
@@ -532,6 +567,15 @@ QuitProgramWindow::QuitProgramWindow(bool b) : GuiWindow(WC_QUIT, ALL_WINDOWS_OF
 	this->back_to_main_menu = b;
 	QUIT_PROGRAM_WIDGET_TREE(this->back_to_main_menu ? GUI_RETURN_CAPTION : GUI_QUIT_CAPTION, this->back_to_main_menu ? GUI_RETURN_MESSAGE : GUI_QUIT_MESSAGE);
 	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
+}
+
+bool QuitProgramWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (key_code == WMKC_CONFIRM) {
+		this->OnClick(QP_YES, Point16());
+		return true;
+	}
+	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
 }
 
 void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)

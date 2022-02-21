@@ -10,6 +10,18 @@
 #include "stdafx.h"
 #include "tile.h"
 
+/** Minimap colours for the various ground types. */
+const ColourRange _ground_type_colour[GTP_COUNT] = {
+	COL_RANGE_LIGHT_GREEN,      ///< GTP_GRASS0
+	COL_RANGE_GREEN,            ///< GTP_GRASS1
+	COL_RANGE_DARK_GREEN,       ///< GTP_GRASS2
+	COL_RANGE_DARK_JADE_GREEN,  ///< GTP_GRASS3
+	COL_RANGE_PURPLE,           ///< GTP_UNDERGROUND
+	COL_RANGE_ORANGE_BROWN,     ///< GTP_DESERT
+	COL_RANGE_RED,              ///< GTP_CURSOR_TEST
+	COL_RANGE_YELLOW,           ///< GTP_CURSOR_EDGE_TEST
+};
+
 /** Tile corners adjacent to an edge. */
 const uint8 _corners_at_edge[EDGE_COUNT] = {
 	TSB_NORTHEAST, ///< EDGE_NE

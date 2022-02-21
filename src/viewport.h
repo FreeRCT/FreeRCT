@@ -124,7 +124,7 @@ public:
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
 
 protected:
-	bool OnKeyEvent(WmKeyCode key_code, const std::string &symbol) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	void OnMouseMoveEvent(const Point16 &pos) override;
 	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	void OnMouseWheelEvent(int direction) override;

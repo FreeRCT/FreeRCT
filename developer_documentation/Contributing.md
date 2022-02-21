@@ -50,3 +50,4 @@ All these topics are quite broad. The trick to make actual progress is not to tr
   * An issue in the issue tracker is the center of (mostly technical) communication about the subject.
     * When you have something concrete, find an existing issue or create a new one, and put the information and/or data in it.
 	* If you have made a fix for an issue or added a feature, make a Pull Request through GitHub, which will be reviewed and accepted when it is of good enough quality.
+  * Feature suggestions and changes can also be discussed in the [official forum](https://freerct.net/forum/).

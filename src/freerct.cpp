@@ -23,6 +23,10 @@
 #include "string_func.h"
 #include "rev.h"
 
+#ifdef WEBASSEMBLY
+#include <emscripten.h>
+#endif
+
 GameControl _game_control; ///< Game controller.
 
 /**
@@ -89,7 +93,7 @@ static void PrintVersion()
 	printf("Installation directory : %s\n",   freerct_install_prefix());
 	printf("User data directory    : %s\n\n", freerct_userdata_prefix());
 
-	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n\n");
+	printf("Homepage: https://freerct.net\n\n");
 
 	printf(
 		"FreeRCT is free software; you can redistribute it and/or\n"
@@ -220,7 +224,11 @@ int freerct_main(int argc, char **argv)
 	_game_control.Initialize(file_name);
 
 	/* Loops until told not to. */
-	_video.MainLoop();
+#ifdef WEBASSEMBLY
+	emscripten_set_main_loop(VideoSystem::MainLoopCycle, 0 /* set FPS automatically */, 1 /* repeat as endless loop */);
+#else
+	VideoSystem::MainLoop();
+#endif
 
 	_game_control.Uninitialize();
 

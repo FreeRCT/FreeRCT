@@ -14,9 +14,10 @@ set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
-# option(INSTALL_FHS "Use an FHS directory structure for CPack packaging")
-if (NOT DEFINED USERDATA_PREFIX)
-	# FreeRCT expands the '~' to the user home directory at runtime.
+option(WEBASSEMBLY "Compile as a WebAssembly program")
+
+# FreeRCT expands the '~' to the user home directory at runtime.
+IF(NOT USERDATA_PREFIX)
 	IF(WIN32)
 		set(USERDATA_PREFIX "~/.freerct")
 	ELSE()

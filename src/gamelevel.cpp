@@ -24,12 +24,13 @@ Scenario::Scenario()
  */
 void Scenario::SetDefaultScenario()
 {
-	this->spawn_lowest  = 500;
-	this->spawn_highest = 500;
-	this->max_guests    = 25;
-	this->inital_money  = 1000000;
-	this->lowest_money  = 0;
-	this->interest      = 0;
+	this->spawn_lowest  = 200;
+	this->spawn_highest = 600;
+	this->max_guests    = 3000;
+	this->initial_money = 1000000;
+	this->initial_loan  = this->initial_money;
+	this->max_loan      = 3000000;
+	this->interest      = 25;
 }
 
 /**
