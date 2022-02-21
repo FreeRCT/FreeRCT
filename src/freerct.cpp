@@ -23,6 +23,10 @@
 #include "string_func.h"
 #include "rev.h"
 
+#ifdef WEBASSEMBLY
+#include <emscripten.h>
+#endif
+
 GameControl _game_control; ///< Game controller.
 
 /**
@@ -210,7 +214,11 @@ int freerct_main(int argc, char **argv)
 	_game_control.Initialize(file_name);
 
 	/* Loops until told not to. */
-	_video.MainLoop();
+#ifdef WEBASSEMBLY
+	emscripten_set_main_loop(VideoSystem::MainLoopCycle, 0 /* set FPS automatically */, 1 /* repeat as endless loop */);
+#else
+	VideoSystem::MainLoop();
+#endif
 
 	_game_control.Uninitialize();
 

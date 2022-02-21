@@ -55,13 +55,16 @@ class VideoSystem {
 	friend class ClippedRectangle;
 
 public:
+	static void MainLoop();
+	static bool MainLoopCycle();
+
 	VideoSystem();
 	~VideoSystem();
 
 	std::string Initialize(const std::string &font_name, int font_size);
 	bool SetResolution(const Point32 &res);
 	void GetResolutions();
-	void MainLoop();
+	bool MainLoopDoCycle();
 	void Shutdown();
 
 	/**

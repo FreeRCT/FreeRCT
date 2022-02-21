@@ -37,6 +37,8 @@ Name              Default Explanation
 OVERRIDE_VCS      OFF     Override the lack of a VCS checkout.
 ASAN              OFF     Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html).
 USERDATA_PREFIX   '.'     Directory where user data such as savegames is stored.
+WEBASSEMBLY       OFF     Compile as a WebAssembly program that can be run in the browser using
+                          JavaScript (experimental feature). May override all other settings.
 ================= ======= ==========================================================================
 
 -  **src** directory contains the source code of the FreeRCT program itself.
