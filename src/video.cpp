@@ -531,7 +531,7 @@ bool VideoSystem::HandleEvent()
 }
 
 /** Main loop. Loops until told not to. */
-void VideoSystem::MainLoop()
+/* static */ void VideoSystem::MainLoop()
 {
 	while (_video.MainLoopDoCycle());
 }
@@ -540,7 +540,7 @@ void VideoSystem::MainLoop()
  * Perform one cycle of the main loop.
  * @return `true` until the game is supposed to end.
  */
-bool VideoSystem::MainLoopCycle()
+/* static */ bool VideoSystem::MainLoopCycle()
 {
 	return _video.MainLoopDoCycle();
 }
