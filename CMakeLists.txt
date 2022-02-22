@@ -16,6 +16,12 @@ set(CMAKE_USE_RELATIVE_PATHS ON)
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
 option(WEBASSEMBLY "Compile as a WebAssembly program")
 
+IF(NOT DEFINED FREERCT_BASENAME)
+	# Should always be a valid Appstream ID
+	# See https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-id-generic
+	set(FREERCT_BASENAME "net.freerct.FreeRCT")
+ENDIF()
+
 # FreeRCT expands the '~' to the user home directory at runtime.
 IF(NOT USERDATA_PREFIX)
 	IF(WIN32)
@@ -42,6 +48,9 @@ add_subdirectory(graphics/rcd)
 
 message(STATUS "Building FreeRCT")
 add_subdirectory(src)
+
+message(STATUS "Installing packaging data")
+add_subdirectory(packaging_data)
 
 IF(NOT MSVC)
 	add_custom_target(run
