@@ -13,15 +13,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
+option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
+option(WEBASSEMBLY "Compile as a WebAssembly program")
+
 IF(NOT DEFINED FREERCT_BASENAME)
 	# Should always be a valid Appstream ID
 	# See https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-id-generic
 	set(FREERCT_BASENAME "net.freerct.FreeRCT")
 ENDIF()
-
-option(OVERRIDE_VCS "Override the lack of a VCS checkout")
-option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
-option(WEBASSEMBLY "Compile as a WebAssembly program")
 
 # FreeRCT expands the '~' to the user home directory at runtime.
 IF(NOT USERDATA_PREFIX)
@@ -92,3 +91,7 @@ IF(NOT MSVC)
 	ENDFOREACH()
 
 ENDIF()
+
+# All the files in cpack/ are based largely on OpenTTD's packaging setup
+# (https://github.com/OpenTTD/OpenTTD/commit/b7643b1d36cb41eb6712042761c13b9819fcbe74)
+include(cpack/InstallAndPackage.cmake)

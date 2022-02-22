@@ -14,7 +14,6 @@ project(freerct)
 IF(WEBASSEMBLY)
 	message(STATUS "Configuring for WebAssembly (experimental)")
 
-	set(OVERRIDE_VCS ON)
 	set(CMAKE_INSTALL_PREFIX "wasm_static")
 	set(USERDATA_PREFIX "wasm_userdata")
 
@@ -148,23 +147,28 @@ IF(SDL2_TTF_FOUND)
 ENDIF()
 
 # Determine version string
-find_package(Git)
-IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
-	execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always
-	                OUTPUT_VARIABLE VERSION_STRING
-	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-	)
-	string(STRIP "${VERSION_STRING}" VERSION_STRING) # Newline
-ELSE()
-	# Only do this if you really want to
-	IF(OVERRIDE_VCS)
-		message(WARNING "WARNING: No VCS checkout detected but overridden by user")
-		set(VERSION_STRING "0.0.0-norev")
+if (NOT DEFINED VERSION_STRING)
+	find_package(Git)
+	IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+			            OUTPUT_VARIABLE VERSION_STRING_1
+			            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		)
+		execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always
+			            OUTPUT_VARIABLE VERSION_STRING_2
+			            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		)
+		# Need to strip newlines from the strings:
+		string(STRIP "${VERSION_STRING_1}" VERSION_STRING_1)
+		string(STRIP "${VERSION_STRING_2}" VERSION_STRING_2)
+		string(STRIP "0.1~git${VERSION_STRING_1}-${VERSION_STRING_2}" VERSION_STRING)
 	ELSE()
-		message(FATAL_ERROR "No VCS checkout detected. Enable the OVERRIDE_VCS option if this is intended. This is not recommended.")
+		message(WARNING "WARNING: No VCS checkout detected and no custom version specified")
+		set(VERSION_STRING "0.0.0-revdetect-broken")
 	ENDIF()
 ENDIF()
 
+set(VERSION_STRING "${VERSION_STRING}" PARENT_SCOPE)
 message(STATUS "Version string: ${VERSION_STRING}")
 message(STATUS "Generating src/rev.cpp")
 configure_file("${CMAKE_SOURCE_DIR}/src/rev.cpp.in" "${CMAKE_SOURCE_DIR}/src/rev.cpp")
@@ -208,5 +212,8 @@ ELSE()
 ENDIF()
 
 include(GNUInstallDirs)
-
-INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION "${CMAKE_INSTALL_BINDIR}")
+IF(WIN32)
+	INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct.exe DESTINATION "${CMAKE_INSTALL_BINDIR}")
+ELSE()
+	INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION "${CMAKE_INSTALL_BINDIR}")
+ENDIF()

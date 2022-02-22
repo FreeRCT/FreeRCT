@@ -39,10 +39,39 @@ const char _freerct_revision[] = "${VERSION_STRING}";
  */
 const char _freerct_build_date[] = __DATE__ " " __TIME__;
 
-/** The location where all FreeRCT assets are installed if "make install" was called. */
-const char _freerct_install_prefix[] = "${CMAKE_INSTALL_PREFIX}/share/freerct";
+static std::string _freerct_install_prefix("${CMAKE_INSTALL_PREFIX}/share/freerct");  ///< The location where all FreeRCT assets are installed.
+static std::string _freerct_userdata_prefix_base("${USERDATA_PREFIX}");               ///< The location where the user's savegames and other data is stored.
+static std::string _freerct_userdata_prefix_cache;                                    ///< Cache for the result of #freerct_userdata_prefix.
 
-static std::string _freerct_userdata_prefix; ///< Cache for the result of #freerct_userdata_prefix.
+/**
+ * Change the location where all FreeRCT assets are installed.
+ * This should be called only during startup.
+ * @param dir The path.
+ */
+void OverrideInstallPrefix(const char *dir)
+{
+	_freerct_install_prefix = dir;
+}
+
+/**
+ * Change the location where all FreeRCT assets are installed.
+ * This should be called only during startup.
+ * @param dir The path.
+ */
+void OverrideUserdataPrefix(const char *dir)
+{
+	_freerct_userdata_prefix_base = dir;
+	_freerct_userdata_prefix_cache.clear();
+}
+
+/**
+ * The location where all FreeRCT assets are installed if "make install" was called.
+ * @return The path.
+ */
+const char *freerct_install_prefix()
+{
+	return _freerct_install_prefix.c_str();
+}
 
 /**
  * The location where the user's savegames and other data is stored.
@@ -51,14 +80,14 @@ static std::string _freerct_userdata_prefix; ///< Cache for the result of #freer
  */
 const char *freerct_userdata_prefix()
 {
-	if (!_freerct_userdata_prefix.empty()) return _freerct_userdata_prefix.c_str();
+	if (!_freerct_userdata_prefix_cache.empty()) return _freerct_userdata_prefix_cache.c_str();
 
-	_freerct_userdata_prefix = "${USERDATA_PREFIX}";
+	_freerct_userdata_prefix_cache = _freerct_userdata_prefix_base;
 
 	/* While the USERDATA_PREFIX is expanded at compile-time, home directory expansion has to be performed at runtime to allow shipping binaries. */
 	std::string substitute;
 	for (;;) {
-		const size_t pos = _freerct_userdata_prefix.find('~');
+		const size_t pos = _freerct_userdata_prefix_cache.find('~');
 		if (pos == std::string::npos) break;
 
 		if (substitute.empty()) {
@@ -75,8 +104,8 @@ const char *freerct_userdata_prefix()
 			}
 		}
 
-		_freerct_userdata_prefix = _freerct_userdata_prefix.replace(pos, 1, substitute);
+		_freerct_userdata_prefix_cache = _freerct_userdata_prefix_cache.replace(pos, 1, substitute);
 	}
 
-	return _freerct_userdata_prefix.c_str();
+	return _freerct_userdata_prefix_cache.c_str();
 }

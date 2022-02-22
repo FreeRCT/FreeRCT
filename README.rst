@@ -24,22 +24,52 @@ Building is as simple as
 .. code-block:: bash
 
         $ git clone https://github.com/FreeRCT/FreeRCT.git
-        $ cd FreeRCT # Go into the downloaded source directory.
-        $ cmake .    # Checks libraries are where they're supposed to be and replaces some strings
-        $ make       # Let make do the heavy work.
+        $ cd FreeRCT               # Go into the downloaded source directory.
+        $ mkdir build && cd build  # Create and enter a build directory.
+        $ cmake ..                 # Checks libraries are where they're supposed to be and replaces some strings.
+        $ make                     # Let make do the heavy work.
+        $ make install             # Optional step to install the program on the system. May require root privileges.
 
 
 CMake accepts the following options:
 
-================= ======= ==========================================================================
-Name              Default Explanation
-================= ======= ==========================================================================
-OVERRIDE_VCS      OFF     Override the lack of a VCS checkout.
-ASAN              OFF     Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html).
-USERDATA_PREFIX   '.'     Directory where user data such as savegames is stored.
-WEBASSEMBLY       OFF     Compile as a WebAssembly program that can be run in the browser using
-                          JavaScript (experimental feature). May override all other settings.
-================= ======= ==========================================================================
+======================= ============================= ================================================================================================
+Name                    Default value                 Explanation
+======================= ============================= ================================================================================================
+VERSION_STRING          -                             Use this string as the build version. If not specified, the version is detected
+                                                      automatically from git. If this also fails, the version defaults to '0.0.0-revdetect-broken'.
+ASAN                    OFF                           Use AddressSanitizer (see below).
+CMAKE_INSTALL_PREFIX    '/usr'                        Directory where 'make install' installs.
+USERDATA_PREFIX         '~/.freerct' (Windows) or     Directory where user data such as savegames is stored.
+                        '~/.config/freerct' (other)   Note that '~' character expansion in the USERDATA_PREFIX variable to the
+                                                      user home directory is performed by FreeRCT at runtime and should NOT be done by
+                                                      shell expansion to ensure that the executable can be used by multiple users.
+WEBASSEMBLY             OFF                           Compile as a WebAssembly program that can be run in the browser using
+                                                      JavaScript (experimental feature). May override all other settings.
+======================= ============================= ================================================================================================
+
+
+Note that CMake options are prefixed with '-D', so the full call is e.g.
+
+::
+
+        $ cmake -DASAN=ON -DCMAKE_INSTALL_PREFIX='~/.local' ..
+        $ cmake -DASAN=OFF -DVERSION_STRING="0.1~abc123" -DCMAKE_INSTALL_PREFIX='/usr' -DUSERDATA_PREFIX='~/.config/freerct' ..
+
+
+You can use the switch ``-DASAN=ON`` to link AddressSanitizer (ASan) into the executable. ASan is
+a library that detects invalid memory accesses at runtime and terminates the program with a full
+backtrace upon detecting one. This makes it a useful and recommended tool for developers and
+everyone who wants to assist with discovering bugs. End-users should leave this option disabled.
+You might need to create a link to the symbolizer before using ASan for the first time, e.g.
+
+::
+
+        $ sudo ln -s /usr/bin/llvm-symbolizer-3.8 /usr/bin/llvm-symbolizer
+
+
+(the actual path may differ on your system.) See https://clang.llvm.org/docs/AddressSanitizer.html for more information on ASan.
+
 
 -  **src** directory contains the source code of the FreeRCT program itself.
 -  **src/rcdgen** directory contains the source code of the *rcdgen* program, that builds RCD files from source (which are read by *freerct*).
