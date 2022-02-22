@@ -32,6 +32,11 @@ static const char *_gui_string_names[] = {
 	"NUMBERED_INSTANCE_NAME",
 	"RESOLUTION",
 
+	"INCREASE_BUTTON",
+	"DECREASE_BUTTON",
+	"DROPDOWN_CHECKED",
+	"DROPDOWN_UNCHECKED",
+
 	/* Toolbar GUI and main menu strings. */
 	"TOOLBAR_GUI_DROPDOWN_MAIN",
 	/* Do not change the order of the strings between here… */
@@ -45,6 +50,8 @@ static const char *_gui_string_names[] = {
 	"MAIN_MENU_LOAD",
 	"TOOLBAR_GUI_DROPDOWN_SPEED",
 	"TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP",
+	"TOOLBAR_GUI_DROPDOWN_VIEW",
+	"TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP",
 	/* Do not change the order of the strings between here… */
 	"TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE",
 	"TOOLBAR_GUI_DROPDOWN_SPEED_1",
@@ -54,6 +61,8 @@ static const char *_gui_string_names[] = {
 	/* …and here. */
 	"TOOLBAR_GUI_GAME_MODE_EDITOR",
 	"TOOLBAR_GUI_GAME_MODE_PLAY",
+	"TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND",
+	"TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP",
 	"TOOLBAR_GUI_PATHS",
 	"TOOLBAR_GUI_TOOLTIP_BUILD_PATHS",
 	"TOOLBAR_GUI_RIDE_SELECT",
@@ -88,6 +97,8 @@ static const char *_gui_string_names[] = {
 	"ERROR_MESSAGE_SPRITE",
 	"ERROR_MESSAGE_HEADING_BUILD",
 	"ERROR_MESSAGE_HEADING_REMOVE",
+	"ERROR_MESSAGE_HEADING_COST",
+	"ERROR_MESSAGE_HEADING_RETURN",
 	"ERROR_MESSAGE_BAD_LOCATION",
 	"ERROR_MESSAGE_SLOPE",
 	"ERROR_MESSAGE_UNDERGROUND",
@@ -186,8 +197,6 @@ static const char *_gui_string_names[] = {
 	"RIDE_SELECT_ROT_NEG_TOOLTIP",
 
 	/* Generic ride manager window strings. */
-	"RIDE_MANAGER_INCREASE",
-	"RIDE_MANAGER_DECREASE",
 	"RIDE_MANAGER_ENTRANCE_FEE_TEXT",
 	"RIDE_MANAGER_BROKEN_DOWN",
 	"RIDE_MANAGER_RELIABILITY",
@@ -225,6 +234,9 @@ static const char *_gui_string_names[] = {
 
 	/* Fence window. */
 	"FENCE_TITLE",
+	"FENCE_TYPE_WOOD",
+	"FENCE_TYPE_HEDGE",
+	"FENCE_TYPE_BRICK",
 
 	/* Scenery window. */
 	"SCENERY_TITLE",
@@ -249,6 +261,9 @@ static const char *_gui_string_names[] = {
 	"TERRAFORM_LEVEL_TEXT",
 	"TERRAFORM_MOVE_TEXT",
 
+	/* Minimap window. */
+	"MINIMAP_TITLE",
+
 	/* Finances window. */
 	"FINANCES_TITLE",
 	"FINANCES_RIDE_CONSTRUCTION_TEXT",
@@ -266,6 +281,11 @@ static const char *_gui_string_names[] = {
 	"FINANCES_RESEARCH_TEXT",
 	"FINANCES_LOAN_INTEREST_TEXT",
 	"FINANCES_TOTAL_TEXT",
+	"FINANCES_CASH",
+	"FINANCES_MAX_LOAN",
+	"FINANCES_CURRENT_LOAN",
+	"FINANCES_LOAN_INTEREST",
+	"FINANCES_LOAN_INTEREST_VALUE",
 
 	/* Messages and inbox. Do not change the order. */
 	"INBOX_TITLE",

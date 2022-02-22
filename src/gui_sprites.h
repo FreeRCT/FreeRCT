@@ -40,6 +40,7 @@ enum GuiSpritesTable {
 	SPR_GUI_TOOLBAR_INBOX,                         ///< Toolbar button inbox gui sprite.
 	SPR_GUI_TOOLBAR_FINANCES,                      ///< Toolbar button finances gui sprite.
 	SPR_GUI_TOOLBAR_OBJECTS,                       ///< Toolbar button path objects gui sprite.
+	SPR_GUI_TOOLBAR_VIEW,                          ///< Toolbar button view menu gui sprite.
 	SPR_GUI_TOOLBAR_END,                           ///< End of toolbar sprites.
 
 	SPR_GUI_TRIANGLE_LEFT = SPR_GUI_TOOLBAR_END,   ///< Triangular arrow to the left.

@@ -23,6 +23,10 @@
 #include "string_func.h"
 #include "rev.h"
 
+#ifdef WEBASSEMBLY
+#include <emscripten.h>
+#endif
+
 GameControl _game_control; ///< Game controller.
 
 /**
@@ -46,8 +50,10 @@ static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
 	GETOPT_NOVAL('v', "--version"),
 	GETOPT_VALUE('l', "--load"),
-	GETOPT_VALUE('a', "--language"),
 	GETOPT_NOVAL('r', "--resave"),
+	GETOPT_VALUE('a', "--language"),
+	GETOPT_VALUE('i', "--installdir"),
+	GETOPT_VALUE('u', "--userdatadir"),
 	GETOPT_END()
 };
 
@@ -56,21 +62,23 @@ static void PrintUsage()
 {
 	printf("Usage: freerct [options]\n");
 	printf("Options:\n");
-	printf("  -h, --help           Display this help text and exit.\n");
-	printf("  -v, --version        Display version and build info and exit.\n");
-	printf("  -l, --load [file]    Load game from specified file.\n");
-	printf("  -r, --resave         Automatically resave games after loading.\n");
-	printf("  -a, --language lang  Use the specified language.\n");
+	printf("  -h, --help             Display this help text and exit.\n");
+	printf("  -v, --version          Display version and build info and exit.\n");
+	printf("  -l, --load FILE        Load game from specified file.\n");
+	printf("  -r, --resave           Automatically resave games after loading.\n");
+	printf("  -a, --language LANG    Use the specified language.\n");
+	printf("  -i, --installdir DIR   Use the specified installation directory.\n");
+	printf("  -u, --userdatadir DIR  Use the specified user data directory.\n");
 
 	printf("\nValid languages are:\n   ");
 	int length = 0;
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
-		length += strlen(_lang_names[i]) + 1;
+		length += _lang_names[i].size() + 1;
 		if (length > 50) {  // Linewrap after an arbitrary number of characters.
 			printf("\n   ");
-			length = strlen(_lang_names[i]);
+			length = _lang_names[i].size();
 		}
-		printf(" %s", _lang_names[i]);
+		printf(" %s", _lang_names[i].c_str());
 	}
 	printf("\n");
 }
@@ -80,12 +88,12 @@ static void PrintVersion()
 {
 	printf("FreeRCT\n\n");
 
-	printf("Version               : %s\n",   _freerct_revision);
-	printf("Build ID              : %s\n",   _freerct_build_date);
-	printf("Installation directory: %s\n",   _freerct_install_prefix);
-	printf("User data directory   : %s\n\n", freerct_userdata_prefix());
+	printf("Version                : %s\n",   _freerct_revision);
+	printf("Build ID               : %s\n",   _freerct_build_date);
+	printf("Installation directory : %s\n",   freerct_install_prefix());
+	printf("User data directory    : %s\n\n", freerct_userdata_prefix());
 
-	printf("Homepage: https://github.com/FreeRCT/FreeRCT\n\n");
+	printf("Homepage: https://freerct.net\n\n");
 
 	printf(
 		"FreeRCT is free software; you can redistribute it and/or\n"
@@ -122,6 +130,12 @@ int freerct_main(int argc, char **argv)
 			case 'v':
 				PrintVersion();
 				return 0;
+			case 'i':
+				OverrideInstallPrefix(opt_data.opt);
+				break;
+			case 'u':
+				OverrideUserdataPrefix(opt_data.opt);
+				break;
 			case 'a':
 				preferred_language = opt_data.opt;
 				break;
@@ -145,8 +159,6 @@ int freerct_main(int argc, char **argv)
 	/* Create the data directory on startup if it did not exist yet. */
 	MakeDirectory(freerct_userdata_prefix());
 
-	ConfigFile cfg_file;
-
 	/* Load RCD files. */
 	InitImageStorage();
 	_rcd_collection.ScanDirectories();
@@ -159,33 +171,28 @@ int freerct_main(int argc, char **argv)
 		return 1;
 	}
 
-	{
-		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
-		std::string path = freerct_userdata_prefix();
-		path += dr->dir_sep;
-		path += "freerct.cfg";
-		cfg_file.Load(path.c_str());
-	}
+	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
+	std::string cfg_file_path = freerct_userdata_prefix();
+	cfg_file_path += dr->dir_sep;
+	cfg_file_path += "freerct.cfg";
+	ConfigFile cfg_file(cfg_file_path);
 
-	const char *font_path = cfg_file.GetValue("font", "medium-path");
+	std::string font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
-	/* Use default values if no font has been set. */
-	std::string font_path_fallback;
-	if (font_path == nullptr) {
-		font_path_fallback = FindDataFile("data/font/Ubuntu-L.ttf");
-		font_path = font_path_fallback.c_str();
-	}
-	if (font_size < 1) font_size = 15;
 	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
+
+	/* Use default values if no font has been set. */
+	if (font_path.empty()) font_path = FindDataFile("data/font/Ubuntu-L.ttf");
+	if (font_size < 1) font_size = 15;
 
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
 	bool language_set = false;
 	if (!preferred_language.empty()) {
-		int index = GetLanguageIndex(preferred_language.c_str());
+		int index = GetLanguageIndex(preferred_language);
 		if (index < 0) {
 			fprintf(stderr, "The language '%s' set on the command line is not known.\n", preferred_language.c_str());
-			const char *similar = GetSimilarLanguage(preferred_language);
-			if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
+			preferred_language = GetSimilarLanguage(preferred_language);
+			if (!preferred_language.empty()) fprintf(stderr, "Did you perhaps mean '%s'?\n", preferred_language.c_str());
 			fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
 		} else {
 			_current_language = index;
@@ -193,13 +200,13 @@ int freerct_main(int argc, char **argv)
 		}
 	}
 	if (!language_set) {
-		const char *language = cfg_file.GetValue("language", "language");  // The pointer is owned by cfg_file.
-		if (language != nullptr) {
-			int index = GetLanguageIndex(language);
+		preferred_language = cfg_file.GetValue("language", "language");  // The pointer is owned by cfg_file.
+		if (!preferred_language.empty()) {
+			int index = GetLanguageIndex(preferred_language);
 			if (index < 0) {
-				fprintf(stderr, "The language '%s' set in the configuration file (freerct.cfg) is not known.\n", language);
-				const char *similar = GetSimilarLanguage(language);
-				if (similar != nullptr) fprintf(stderr, "Did you perhaps mean '%s'?\n", similar);
+				fprintf(stderr, "The language '%s' set in the configuration file (freerct.cfg) is not known.\n", preferred_language.c_str());
+				preferred_language = GetSimilarLanguage(preferred_language);
+				if (!preferred_language.empty()) fprintf(stderr, "Did you perhaps mean '%s'?\n", preferred_language.c_str());
 				fprintf(stderr, "Type 'freerct --help' for a list of all supported languages.\n");
 			} else {
 				_current_language = index;
@@ -217,7 +224,11 @@ int freerct_main(int argc, char **argv)
 	_game_control.Initialize(file_name);
 
 	/* Loops until told not to. */
-	_video.MainLoop();
+#ifdef WEBASSEMBLY
+	emscripten_set_main_loop(VideoSystem::MainLoopCycle, 0 /* set FPS automatically */, 1 /* repeat as endless loop */);
+#else
+	VideoSystem::MainLoop();
+#endif
 
 	_game_control.Uninitialize();
 

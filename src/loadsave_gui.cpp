@@ -29,6 +29,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 private:
 	std::string FinalFilename() const;
@@ -96,6 +97,7 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 
 	this->SetupWidgetTree(_loadsave_gui_parts, lengthof(_loadsave_gui_parts));
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
+	this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->SetItemCount(this->all_files.size());
 }
 
 void LoadSaveGui::SetWidgetStringParameters(const WidgetNumber wid_num) const
@@ -117,9 +119,18 @@ void LoadSaveGui::SetWidgetStringParameters(const WidgetNumber wid_num) const
  */
 std::string LoadSaveGui::FinalFilename() const
 {
-	std::string result(reinterpret_cast<const char*>(this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText()));
+	std::string result = this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->GetText();
 	if (result.size() < 5 || result.compare(result.size() - 4, 4, ".fct")) result += ".fct";
 	return result;
+}
+
+bool LoadSaveGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (key_code == WMKC_CONFIRM) {
+		this->OnClick(LSW_OK, Point16());
+		return true;
+	}
+	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
 }
 
 void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
@@ -130,17 +141,12 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			break;
 
 		case LSW_LIST: {
-			const int index = pos.y / ITEM_HEIGHT;
-			if (index < 0) break;
-
-			const int first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
-			if (index < first_index || index + first_index >= static_cast<int>(this->all_files.size())) break;
+			const int index = pos.y / ITEM_HEIGHT + this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
+			if (index < 0 || index >= static_cast<int>(this->all_files.size())) break;
 
 			auto selected = this->all_files.begin();
 			std::advance(selected, index);
-			uint8 *buffer = new uint8[selected->size() + 1];
-			strcpy(reinterpret_cast<char*>(buffer), selected->c_str());
-			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(buffer);
+			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(*selected);
 			break;
 		}
 
@@ -187,7 +193,7 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 			_video.FillRectangle(Rectangle32(x - ITEM_SPACING, y, w + 2 * ITEM_SPACING, ITEM_HEIGHT),
 					_palette[COL_SERIES_START + COL_RANGE_BLUE * COL_SERIES_LENGTH + 1]);
 		}
-		_video.BlitText(reinterpret_cast<const uint8*>(iterator->c_str()), _palette[TEXT_WHITE], x, y, w, ALG_LEFT);
+		_video.BlitText(*iterator, _palette[TEXT_WHITE], x, y, w, ALG_LEFT);
 	}
 }
 

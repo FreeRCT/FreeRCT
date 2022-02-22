@@ -85,7 +85,7 @@ void SettingWindow::OnClick(WidgetNumber number, const Point16 &pos)
 		case SW_LANGUAGE: {
 			DropdownList itemlist;
 			for (int i = 0; i < LANGUAGE_COUNT; i++) {
-				_str_params.SetUint8(1, _language.GetLanguageName(i));
+				_str_params.SetText(1, _language.GetLanguageName(i));
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(number, itemlist, _current_language);

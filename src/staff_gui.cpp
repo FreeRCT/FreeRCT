@@ -186,9 +186,9 @@ void StaffManagementGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget
 		y += GetTextHeight();
 		StaffMember *person = _staff.Get(this->selected, i);
 
-		_str_params.SetUint8(1, person->GetName());
+		_str_params.SetText(1, person->GetName());
 		DrawString(STR_ARG1, TEXT_BLACK, column1x + 2, y, w, ALG_LEFT);
-		_str_params.SetUint8(1, person->GetStatus());
+		_str_params.SetText(1, person->GetStatus());
 		DrawString(STR_ARG1, TEXT_BLACK, column2x + 2, y, w, ALG_LEFT);
 
 		_video.BlitImage({x + w - _gui_sprites.close_sprite->width - 2, y}, _gui_sprites.close_sprite, rc, GS_NORMAL);

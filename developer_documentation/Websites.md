@@ -1,11 +1,11 @@
 ## Recursive links ##
 Links related to the project itself.
 
+  * [Official FreeRCT website](https://freerct.net)
   * IRC: #freerct on oftc.net ([Webchat](http://webchat.oftc.net/?channels=#freerct))
   * [Blog](http://freerct.blogspot.com/)
   * [Twitter](http://twitter.com/#!/FreeRCT)
   * [Facebook](http://www.facebook.com/freerct)
-  * [FreeRCT portal](https://freerct.github.io/FreeRCT/)
 
 # Links #
 Below a list of websites that seem to contain useful information about related games.

@@ -46,6 +46,7 @@ void OnNewDay()
 	_guests.OnNewDay();
 	_staff.OnNewDay();
 	_weather.OnNewDay();
+	_finances_manager.OnNewDay();
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
@@ -90,6 +91,7 @@ GameControl::GameControl()
 	this->speed = GSP_1;
 	this->running = false;
 	this->main_menu = false;
+	this->action_test_mode = false;
 	this->next_action = GCA_NONE;
 	this->fname = "";
 }
@@ -338,7 +340,6 @@ bool BestErrorMessageReason::CheckActionAllowed(const CheckActionType type, cons
 
 /** Assigns every error message a priority, to decide which one should be shown when multiple are applicable. */
 static const std::map<StringID, int> ERROR_MESSAGE_REASON_PRIORITIES = {
-	{STR_EMPTY,                        0},
 	{STR_NULL,                         1},
 	{GUI_ERROR_MESSAGE_BAD_LOCATION,  10},
 	{GUI_ERROR_MESSAGE_UNOWNED_LAND,  20},

@@ -27,9 +27,9 @@ class MouseModeSelector;
 /** An item in a dropdown list. */
 class DropdownItem {
 public:
-	DropdownItem(StringID strid);
+	explicit DropdownItem(StringID strid);
 
-	uint8 str[128]; ///< Item, as a string (arbitary length).
+	const std::string str;  ///< Item, as a string.
 };
 
 /** A dropdown list is a collection of #DropdownItem items. */
@@ -70,7 +70,7 @@ public:
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
-	virtual bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol);
+	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
 
 	virtual void TimeoutCallback();
 	virtual void SetHighlight(bool value);
@@ -100,7 +100,7 @@ public:
 	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	virtual void OnMouseLeaveEvent() override;
-	virtual bool OnKeyEvent(WmKeyCode key_code, const uint8 *symbol) override;
+	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
 	virtual void SelectorMouseButtonEvent(uint8 state);
 	virtual void SelectorMouseWheelEvent(int direction);
@@ -167,6 +167,8 @@ protected:
 	/* In dropdown.cpp */
 	void ShowDropdownMenu(WidgetNumber widnum, const DropdownList &items, int selected_index, ColourRange colour = COL_RANGE_INVALID);
 	void ShowRecolourDropdown(WidgetNumber widnum, RecolourEntry *entry, ColourRange colour = COL_RANGE_INVALID);
+
+	bool closeable;  ///< This window can be closed by the user.
 
 private:
 	std::unique_ptr<BaseWidget> tree;     ///< Tree of widgets.
@@ -256,7 +258,7 @@ public:
 	void MouseMoveEvent(const Point16 &pos);
 	void MouseButtonEvent(MouseButtons button, bool pressed);
 	void MouseWheelEvent(int direction);
-	bool KeyEvent(WmKeyCode key_code, const uint8 *symbol);
+	bool KeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
 	void Tick();
 
 	/**
@@ -384,6 +386,7 @@ void ShowToolbar();
 void ShowBottomToolbar();
 void ShowSaveGameGui();
 void ShowLoadGameGui();
+void ShowQuitProgram(bool back_to_main_menu);
 void ShowPersonInfoGui(const Person *person);
 void ShowStaffManagementGui();
 void ShowPathBuildGui();
@@ -401,9 +404,11 @@ void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);
 void ShowSettingGui();
 void ShowInboxGui();
+void ShowMinimap();
 void DrawMessage(const Message *msg, const Rectangle32 &rect, bool narrow);
 
 static const uint32 DEFAULT_ERROR_MESSAGE_TIMEOUT = 8000;   ///< Number of ticks after which an error message auto-closes by default.
 void ShowErrorMessage(StringID str1, StringID str2, const std::function<void()> &string_params, uint32 timeout = DEFAULT_ERROR_MESSAGE_TIMEOUT);
+void ShowCostOrReturnEstimate(const Money &cost);
 
 #endif

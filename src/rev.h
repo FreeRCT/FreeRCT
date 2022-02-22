@@ -13,7 +13,10 @@
 extern const char _freerct_revision[];
 extern const char _freerct_build_date[];
 
-extern const char _freerct_install_prefix[];
-extern const char *freerct_userdata_prefix();
+const char *freerct_install_prefix();
+const char *freerct_userdata_prefix();
+
+void OverrideInstallPrefix(const char *dir);
+void OverrideUserdataPrefix(const char *dir);
 
 #endif /* REV_H */

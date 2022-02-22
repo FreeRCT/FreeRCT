@@ -26,6 +26,7 @@ public:
 
 	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	void OnDraw(MouseModeSelector *selector) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 private:
 	uint32 animstart;              ///< SDL Time when the animation started.
@@ -45,19 +46,34 @@ private:
 
 bool MainMenuGui::is_splash_screen = true;
 
-MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE)
+MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE), camera_positions(FindDataFile("data/mainmenu/camera"))
 {
 	this->SetSize(_video.GetXSize(),_video.GetYSize());
 	this->animstart = this->last_time = SDL_GetTicks();
-	this->camera_positions.Load(FindDataFile("data/mainmenu/camera").c_str());
 	this->nr_cameras = this->camera_positions.GetNum("camera", "nr_cameras");
 	this->time_in_camera = 0;
 	this->current_camera_id = 0;
+
+	/* Mark all expected config file entries as used. */
+	for (uint32 i = 0; i < this->nr_cameras; i++) {
+		const std::string section = std::to_string(i);
+		for (const std::string &key : {"x", "y", "z", "orientation", "duration"}) camera_positions.GetValue(section, key);
+	}
 }
 
 MainMenuGui::~MainMenuGui()
 {
 	_game_control.main_menu = false;
+	is_splash_screen = false;
+}
+
+bool MainMenuGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (is_splash_screen) {
+		is_splash_screen = false;
+		return true;
+	}
+	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
 WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
@@ -99,16 +115,16 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 	}
 
 	this->time_in_camera += (current_time - last_time);
-	if (this->time_in_camera > this->camera_positions.GetNum(std::to_string(this->current_camera_id).c_str(), "duration")) {
+	if (this->time_in_camera > this->camera_positions.GetNum(std::to_string(this->current_camera_id), "duration")) {
 		this->current_camera_id++;
 		this->current_camera_id %= this->nr_cameras;
 		this->time_in_camera = 0;
 		const std::string section = std::to_string(this->current_camera_id);
 		Viewport *vp = _window_manager.GetViewport();
-		vp->orientation = static_cast<ViewOrientation>(this->camera_positions.GetNum(section.c_str(), "orientation"));
-		vp->view_pos.x  =                              this->camera_positions.GetNum(section.c_str(), "x");
-		vp->view_pos.y  =                              this->camera_positions.GetNum(section.c_str(), "y");
-		vp->view_pos.z  =                              this->camera_positions.GetNum(section.c_str(), "z");
+		vp->orientation = static_cast<ViewOrientation>(this->camera_positions.GetNum(section, "orientation"));
+		vp->view_pos.x  =                              this->camera_positions.GetNum(section, "x");
+		vp->view_pos.y  =                              this->camera_positions.GetNum(section, "y");
+		vp->view_pos.z  =                              this->camera_positions.GetNum(section, "z");
 	}
 	this->last_time = current_time;
 

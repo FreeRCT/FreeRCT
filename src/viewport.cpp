@@ -1153,25 +1153,138 @@ void Viewport::MoveViewport(int dx, int dy)
 	}
 }
 
-bool Viewport::OnKeyEvent(WmKeyCode key_code, const uint8 *symbol)
+static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 64;  ///< By how many pixels to move the viewport when the user presses an arrow key.
+
+bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	if (key_code == WMKC_SYMBOL) {
-		if (symbol[0] == 'q') {
-			_game_control.QuitGame();
-			return true;
-		} else if (!_game_control.main_menu) {
-			if (symbol[0] == '1') {
+		if (_game_control.main_menu) {  // Main menu controls.
+			if (symbol == "q") {  // q to quit.
+				_game_control.QuitGame();
+				return true;
+			}
+			if (symbol == "n") {  // n to start a new game.
+				_game_control.NewGame();
+				return true;
+			}
+			if (symbol == "l") {  // l to load a saved game.
+				ShowLoadGameGui();
+				return true;
+			}
+			if (symbol == "o") {  // o to open the options menu.
+				ShowSettingGui();
+				return true;
+			}
+		} else {  // In-game controls.
+			if (symbol == "s" && (mod & WMKM_CTRL) != 0) {  // Ctrl+s to save the game.
+				ShowSaveGameGui();
+				return true;
+			}
+			if (symbol == "q" && (mod & WMKM_CTRL) != 0) {  // Ctrl+q to quit.
+				ShowQuitProgram(false);
+				return true;
+			}
+			if (symbol == "w" && (mod & WMKM_CTRL) != 0) {  // Ctrl+w to return to main menu.
+				ShowQuitProgram(true);
+				return true;
+			}
+			if (symbol == "o" && (mod & WMKM_CTRL) != 0) {  // Ctrl+o to open the options menu.
+				ShowSettingGui();
+				return true;
+			}
+
+			/* Alt+(0-4) to set the game speed */
+			if (symbol == "0" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_PAUSE;
+				return true;
+			}
+			if (symbol == "1" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_1;
+				return true;
+			}
+			if (symbol == "2" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_2;
+				return true;
+			}
+			if (symbol == "3" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_4;
+				return true;
+			}
+			if (symbol == "4" && (mod & WMKM_ALT) != 0) {
+				_game_control.speed = GSP_8;
+				return true;
+			}
+
+			if (symbol == "1") {  // 1 to open the terraform window.
+				ShowTerraformGui();
+				return true;
+			}
+			if (symbol == "2") {  // 2 to open the paths window.
+				ShowPathBuildGui();
+				return true;
+			}
+			if (symbol == "3") {  // 3 to open the fences window.
+				ShowFenceGui();
+				return true;
+			}
+			if (symbol == "4") {  // 4 to open the scenery window.
+				ShowSceneryGui();
+				return true;
+			}
+			if (symbol == "5") {  // 5 to open the path objects window.
+				ShowPathObjectsGui();
+				return true;
+			}
+			if (symbol == "6") {  // 6 to open the rides window.
+				ShowRideSelectGui();
+				return true;
+			}
+			if (symbol == "7") {  // 7 to open the staff window.
+				ShowStaffManagementGui();
+				return true;
+			}
+			if (symbol == "8") {  // 8 to open the inbox window.
+				ShowInboxGui();
+				return true;
+			}
+			if (symbol == "9") {  // 9 to open the finances window.
+				ShowFinancesGui();
+				return true;
+			}
+
+			if (symbol == "u") {  // u to toggle underground view.
 				this->ToggleUndergroundMode();
 				return true;
 			}
+			if (symbol == "m") {  // m to open the minimap.
+				ShowMinimap();
+				return true;
+			}
 		}
-	} else if (!_game_control.main_menu) {
-		if (key_code == WMKC_CURSOR_LEFT) {
-			this->Rotate(-1);
-			return true;
-		} else if (key_code == WMKC_CURSOR_RIGHT) {
-			this->Rotate(1);
-			return true;
+	} else if (!_game_control.main_menu) {  // In-game controls on special keys.
+		switch (key_code) {
+			case WMKC_CURSOR_PAGEUP:  // PageUp to rotate counter-clockwise.
+				this->Rotate(1);
+				return true;
+			case WMKC_CURSOR_PAGEDOWN:  // PageDown to rotate clockwise.
+				this->Rotate(-1);
+				return true;
+
+			/* Arrow keys to move the viewport. */
+			case WMKC_CURSOR_LEFT:
+				this->MoveViewport(VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
+				return true;
+			case WMKC_CURSOR_RIGHT:
+				this->MoveViewport(-VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
+				return true;
+			case WMKC_CURSOR_UP:
+				this->MoveViewport(0, VIEWPORT_SHIFT_ON_ARROW_KEY);
+				return true;
+			case WMKC_CURSOR_DOWN:
+				this->MoveViewport(0, -VIEWPORT_SHIFT_ON_ARROW_KEY);
+				return true;
+
+			default: break;
 		}
 	}
 

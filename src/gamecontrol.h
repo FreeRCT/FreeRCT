@@ -68,6 +68,8 @@ public:
 
 	GameSpeed speed;  ///< Speed of the game.
 
+	bool action_test_mode;  ///< Don't perform any actions, only check what they would cost.
+
 private:
 	void RunAction();
 	void NewLevel();

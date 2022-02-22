@@ -11,6 +11,31 @@ ENDIF()
 
 project(freerct)
 
+IF(WEBASSEMBLY)
+	message(STATUS "Configuring for WebAssembly (experimental)")
+
+	set(CMAKE_INSTALL_PREFIX "wasm_static")
+	set(USERDATA_PREFIX "wasm_userdata")
+
+	set(CMAKE_C_COMPILER   "emcc")
+	set(CMAKE_CXX_COMPILER "em++")
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")
+
+	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_SDL=2 -s USE_SDL_TTF=2")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WASM_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WASM_FLAGS}")
+
+	add_custom_target(prepare_wasm_rcd ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${FRCT_BINARY_DIR}/rcd" "${CMAKE_INSTALL_PREFIX}/share/freerct")
+	add_custom_target(prepare_wasm_data ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/data" "${CMAKE_INSTALL_PREFIX}/share/freerct/data")
+
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${WASM_FLAGS} \
+			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
+			--preload-file ${CMAKE_INSTALL_PREFIX}")
+
+	FUNCTION(find_package)
+	ENDFUNCTION()
+ENDIF(WEBASSEMBLY)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
@@ -122,23 +147,28 @@ IF(SDL2_TTF_FOUND)
 ENDIF()
 
 # Determine version string
-find_package(Git)
-IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
-	execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always
-	                OUTPUT_VARIABLE VERSION_STRING
-	                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-	)
-	string(STRIP "${VERSION_STRING}" VERSION_STRING) # Newline
-ELSE()
-	# Only do this if you really want to
-	IF(OVERRIDE_VCS)
-		message(WARNING "WARNING: No VCS checkout detected but overridden by user")
-		set(VERSION_STRING "0.0.0-norev")
+if (NOT DEFINED VERSION_STRING)
+	find_package(Git)
+	IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
+			            OUTPUT_VARIABLE VERSION_STRING_1
+			            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		)
+		execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always
+			            OUTPUT_VARIABLE VERSION_STRING_2
+			            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		)
+		# Need to strip newlines from the strings:
+		string(STRIP "${VERSION_STRING_1}" VERSION_STRING_1)
+		string(STRIP "${VERSION_STRING_2}" VERSION_STRING_2)
+		string(STRIP "0.1~git${VERSION_STRING_1}-${VERSION_STRING_2}" VERSION_STRING)
 	ELSE()
-		message(FATAL_ERROR "No VCS checkout detected. Enable the OVERRIDE_VCS option if this is intended. This is not recommended.")
+		message(WARNING "WARNING: No VCS checkout detected and no custom version specified")
+		set(VERSION_STRING "0.0.0-revdetect-broken")
 	ENDIF()
 ENDIF()
 
+set(VERSION_STRING "${VERSION_STRING}" PARENT_SCOPE)
 message(STATUS "Version string: ${VERSION_STRING}")
 message(STATUS "Generating src/rev.cpp")
 configure_file("${CMAKE_SOURCE_DIR}/src/rev.cpp.in" "${CMAKE_SOURCE_DIR}/src/rev.cpp")
@@ -181,4 +211,9 @@ ELSE()
 	message(FATAL_ERROR "Unsupported platform")
 ENDIF()
 
-INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION bin)
+include(GNUInstallDirs)
+IF(WIN32)
+	INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct.exe DESTINATION "${CMAKE_INSTALL_BINDIR}")
+ELSE()
+	INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION "${CMAKE_INSTALL_BINDIR}")
+ENDIF()

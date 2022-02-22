@@ -61,7 +61,7 @@ Money Finances::GetTotal() const
 	return income + expenses; // Expenses are already negative.
 }
 
-static const uint32 CURRENT_VERSION_FINA     = 1;   ///< Currently supported version of the FINA Pattern.
+static const uint32 CURRENT_VERSION_FINA     = 2;   ///< Currently supported version of the FINA Pattern.
 static const uint32 CURRENT_VERSION_Finances = 1;   ///< Currently supported version of the finances Pattern.
 
 /**
@@ -136,6 +136,7 @@ void FinancesManager::Reset()
 	this->current = 0;
 	this->finances[this->current].Reset();
 	this->cash = 0;
+	this->loan = 0;
 }
 
 /**
@@ -146,6 +147,17 @@ const Finances &FinancesManager::GetFinances()
 {
 	assert(this->current >= 0 && this->current < this->num_used);
 	return this->finances[this->current];
+}
+
+/** A new day has arrived. */
+void FinancesManager::OnNewDay()
+{
+	if (this->loan > 0) {
+		/* Conversion from 1/10 % per year to absolute factor per day. */
+		double interest = _scenario.interest / 365000.0;
+		interest *= this->loan;
+		this->PayLoanInterest(round(interest));
+	}
 }
 
 /** Complete the current month and transition to new finances object. */
@@ -163,12 +175,34 @@ void FinancesManager::CashToStrParams()
 }
 
 /**
+ * Take a loan.
+ * @param delta Amount of money to loan.
+ */
+void FinancesManager::TakeLoan(const Money &delta)
+{
+	this->loan += delta;
+	this->cash += delta;
+}
+
+/**
+ * Repay a loan.
+ * @param delta Amount of money to pay back.
+ */
+void FinancesManager::RepayLoan(const Money &delta)
+{
+	assert(this->loan >= delta && this->cash >= delta);
+	this->loan -= delta;
+	this->cash -= delta;
+}
+
+/**
  * Initialize finances with scenario configuration.
  * @param s %Scenario to use for initialization.
  */
 void FinancesManager::SetScenario(const Scenario &s)
 {
-	this->cash = s.inital_money;
+	this->cash = s.initial_money;
+	this->loan = s.initial_loan;
 }
 
 /**
@@ -197,19 +231,15 @@ void FinancesManager::Load(Loader &ldr)
 {
 	this->Reset(); // version == 0 already handled.
 
-	uint32 version = ldr.OpenPattern("FINA");
-	switch (version) {
-		case 0:
-			break;
-		case 1:
-			this->num_used = ldr.GetByte();
-			this->current = ldr.GetByte();
-			this->cash = ldr.GetLongLong();
-			for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr);
-			break;
-
-		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_FINA);
+	const uint32 version = ldr.OpenPattern("FINA");
+	if (version > CURRENT_VERSION_FINA) {
+		ldr.version_mismatch(version, CURRENT_VERSION_FINA);
+	} else if (version > 0) {
+		this->num_used = ldr.GetByte();
+		this->current = ldr.GetByte();
+		this->cash = ldr.GetLongLong();
+		this->loan = (version > 1) ? ldr.GetLongLong() : 0;
+		for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr);
 	}
 	ldr.ClosePattern();
 	this->NotifyGui();
@@ -226,6 +256,7 @@ void FinancesManager::Save(Saver &svr)
 	svr.PutByte(this->num_used);
 	svr.PutByte(this->current);
 	svr.PutLongLong(this->cash);
+	svr.PutLongLong(this->loan);
 	for (int i = 0; i < this->num_used; i++) this->finances[i].Save(svr);
 	svr.EndPattern();
 }

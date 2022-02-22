@@ -680,22 +680,32 @@ void CoasterTrain::OnAnimate(int delay)
 		} else if (front_is_in_station && !other_train_directly_in_front) {
 			this->station_policy = TSP_ENTERING_STATION;
 		} else {
+			bool is_inside_station = false;
 			if (this->station_policy == TSP_ENTERING_STATION) {
 				int station_index = 0;
 				for (const CoasterStation &s : this->coaster->stations) {
-					if (this->back_position >= s.back_position && this->back_position < s.back_position + 256 * s.length) break;
+					if (this->coaster->IsInStation(this->back_position, s)) {
+						is_inside_station = true;
+						break;
+					}
 					station_index++;
 				}
-				for (CoasterCar &car : this->cars) {
-					for (uint i = 0; i < car.guests.size(); i++) {
-						if (car.guests[i] != nullptr) {
-							car.guests[i]->ExitRide(this->coaster, static_cast<TileEdge>(station_index));
-							car.guests[i] = nullptr;
+				if (is_inside_station) {
+					for (CoasterCar &car : this->cars) {
+						for (uint i = 0; i < car.guests.size(); i++) {
+							if (car.guests[i] != nullptr) {
+								car.guests[i]->ExitRide(this->coaster, static_cast<TileEdge>(station_index));
+								car.guests[i] = nullptr;
+							}
 						}
 					}
 				}
+			} else {
+				is_inside_station = true;
 			}
-			this->station_policy = other_train_in_station_front ? TSP_IN_STATION_BACK : TSP_IN_STATION_FRONT;
+			if (is_inside_station) {
+				this->station_policy = other_train_in_station_front ? TSP_IN_STATION_BACK : TSP_IN_STATION_FRONT;
+			}
 		}
 	}
 }
@@ -939,9 +949,10 @@ RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, 
 		CoasterTrain *loading_train = nullptr;
 		for (CoasterTrain &t : this->trains) {
 			if (t.station_policy == TSP_IN_STATION_FRONT &&
-					t.back_position >= s.back_position &&
-					t.back_position < s.back_position + 256 * s.length &&
-					(loading_train == nullptr || loading_train->back_position < t.back_position)) {
+					this->IsInStation(t.back_position, s) &&
+					(loading_train == nullptr ||
+							this->PositionRelativeTo(loading_train->back_position, s.back_position) <
+							this->PositionRelativeTo(t.back_position, s.back_position))) {
 				loading_train = &t;
 			}
 		}
@@ -1509,6 +1520,41 @@ int CoasterInstance::EntranceExitRotation(const XYZPoint16& vox, const CoasterSt
 	NOT_REACHED();
 }
 
+/**
+ * Check if a given station instance matches with an existing station.
+ * If this is the case, the existing station's attributes are copied to the new station;
+ * otherwise the new station is unchanged.
+ * @param current_station Station to initialize.
+ */
+void CoasterInstance::InitializeStation(CoasterStation &current_station) const
+{
+	bool entrance_found = false;
+	bool exit_found = false;
+	for (const CoasterStation &old : this->stations) {
+		if (!entrance_found && old.entrance != XYZPoint16::invalid()) {
+			for (const XYZPoint16 &p : old.locations) {
+				if (std::abs(p.x - old.entrance.x) + std::abs(p.y - old.entrance.y) != 1) continue;
+				if (std::find(current_station.locations.begin(), current_station.locations.end(), p) != current_station.locations.end()) {
+					entrance_found = true;
+					current_station.entrance = old.entrance;
+					break;
+				}
+			}
+		}
+		if (!exit_found && old.exit != XYZPoint16::invalid()) {
+			for (const XYZPoint16 &p : old.locations) {
+				if (std::abs(p.x - old.exit.x) + std::abs(p.y - old.exit.y) != 1) continue;
+				if (std::find(current_station.locations.begin(), current_station.locations.end(), p) != current_station.locations.end()) {
+					exit_found = true;
+					current_station.exit = old.exit;
+					break;
+				}
+			}
+		}
+		if (entrance_found && exit_found) break;
+	}
+}
+
 /** Reinitialize the station information. This needs to be done after station pieces were added or deleted. */
 void CoasterInstance::UpdateStations()
 {
@@ -1535,30 +1581,7 @@ void CoasterInstance::UpdateStations()
 				current_station->locations.emplace_back(piece.base_voxel + track->dxyz);
 			}
 		} else if (current_station.get() != nullptr) {
-			bool entrance_found = false, exit_found = false;
-			for (CoasterStation &old : this->stations) {
-				if (!entrance_found && old.entrance != XYZPoint16::invalid()) {
-					for (const XYZPoint16 &p : old.locations) {
-						if (std::abs(p.x - old.entrance.x) + std::abs(p.y - old.entrance.y) != 1) continue;
-						if (std::find(current_station->locations.begin(), current_station->locations.end(), p) != current_station->locations.end()) {
-							entrance_found = true;
-							current_station->entrance = old.entrance;
-							break;
-						}
-					}
-				}
-				if (!exit_found && old.exit != XYZPoint16::invalid()) {
-					for (const XYZPoint16 &p : old.locations) {
-						if (std::abs(p.x - old.exit.x) + std::abs(p.y - old.exit.y) != 1) continue;
-						if (std::find(current_station->locations.begin(), current_station->locations.end(), p) != current_station->locations.end()) {
-							exit_found = true;
-							current_station->exit = old.exit;
-							break;
-						}
-					}
-				}
-				if (entrance_found && exit_found) break;
-			}
+			this->InitializeStation(*current_station);
 			result.emplace_back(*current_station);
 			current_station.reset();
 		}
@@ -1566,8 +1589,51 @@ void CoasterInstance::UpdateStations()
 		if (p < 0 || p == start_piece) break;
 	}
 
+	if (current_station != nullptr) {
+		this->InitializeStation(*current_station);
+		if (!result.empty() && result[0].back_position == 0) {
+			/* Merge the station at the end of the track with the one at the beginning of the track. */
+			assert(result[0].direction == current_station->direction);
+			result[0].back_position = current_station->back_position;
+			result[0].length += current_station->length;
+			if (result[0].entrance == XYZPoint16::invalid()) result[0].entrance = current_station->entrance;
+			if (result[0].exit     == XYZPoint16::invalid()) result[0].exit     = current_station->exit;
+			result[0].locations.insert(result[0].locations.begin(), current_station->locations.begin(), current_station->locations.end());
+		} else {
+			result.emplace_back(*current_station);
+		}
+	}
+
 	this->stations = result;
 	this->InsertStationsIntoWorld();
+}
+
+/**
+ * Check whether a position along the track lies within the given station.
+ * @param pos Position to check (in 1/256 pixels).
+ * @param s Station to check.
+ * @return The point lies in the station.
+ */
+bool CoasterInstance::IsInStation(uint32 pos, const CoasterStation &s) const
+{
+	if (pos >= s.back_position && pos < s.back_position + 256 * s.length) return true;
+	if (s.back_position + 256 * s.length > this->coaster_length) {
+		/* The station wraps around the beginning of the track. */
+		if (pos < s.back_position + 256 * s.length - this->coaster_length) return true;
+	}
+	return false;
+}
+
+/**
+ * Calculate the forward-travelling distance between two track positions.
+ * @param pos Position to reach (in 1/256 pixels).
+ * @param offset Position to start from (in 1/256 pixels).
+ * @return The forward-travelling distance (in 1/256 pixels).
+ */
+uint32 CoasterInstance::PositionRelativeTo(uint32 pos, const uint32 offset) const
+{
+	while (pos < offset) pos += this->coaster_length;
+	return pos - offset;
 }
 
 /**

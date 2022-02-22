@@ -10,6 +10,13 @@
 #ifndef PATH_BUILD_H
 #define PATH_BUILD_H
 
+static const Money PATH_CONSTRUCT_COST_FLAT         (1200);  ///< How much it costs to build a single section of flat path.
+static const Money PATH_CONSTRUCT_COST_RAMP         (1400);  ///< How much it costs to build a single section of ramped path.
+static const Money PATH_CONSTRUCT_COST_ELEVATED_FLAT(3200);  ///< How much it costs to build a single section of elevated flat path.
+static const Money PATH_CONSTRUCT_COST_ELEVATED_RAMP(3800);  ///< How much it costs to build a single section of elevated ramped path.
+static const Money PATH_CONSTRUCT_COST_CHANGE       ( 400);  ///< How much it costs to change the type of a single existing path segment.
+static const Money PATH_CONSTRUCT_COST_RETURN       (-800);  ///< How much it costs to delete a single path segment.
+
 bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge);
 bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only);
 bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only);

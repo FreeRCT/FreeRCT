@@ -112,6 +112,21 @@ jobs:
         cmake --build . -j $(nproc)
         echo "::endgroup::"
 
+        echo "::group::Package"
+        cpack
+        echo "::endgroup::"
+
+    - name: Upload package (DEB)
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'FreeRCT Debian+Ubuntu Package (${{ matrix.compiler }})'
+        path: ${{ github.workspace }}/build/bundles/*.deb*
+    - name: Upload package (TXZ)
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'FreeRCT Tarball (${{ matrix.compiler }})'
+        path: ${{ github.workspace }}/build/bundles/*.tar.xz*
+
   macos:
     name: Mac OS
 
@@ -170,6 +185,8 @@ jobs:
         echo "Running on $(sysctl -n hw.logicalcpu) cores"
         cmake --build . -j $(sysctl -n hw.logicalcpu)
         echo "::endgroup::"
+
+      # TODO implement packaging for MacOS
 
   windows:
     name: Windows
@@ -235,3 +252,18 @@ jobs:
         echo "::group::Build"
         cmake --build .
         echo "::endgroup::"
+
+        echo "::group::Package"
+        cpack
+        echo "::endgroup::"
+
+    - name: Upload package (EXE)
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'FreeRCT Windows ${{ matrix.arch }} Installer'
+        path: ${{ github.workspace }}/build/bundles/*.exe*
+    - name: Upload package (ZIP)
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'FreeRCT Windows ${{ matrix.arch }} Zip'
+        path: ${{ github.workspace }}/build/bundles/*.zip*

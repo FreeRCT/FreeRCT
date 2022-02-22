@@ -182,9 +182,15 @@ void PathObjectGui::SelectorMouseButtonEvent(uint8 state)
 {
 	if (!IsLeftClick(state)) return;
 	if (this->object == nullptr) return;
-	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->type->buy_cost)) return;
 
-	_finances_manager.PayLandscaping(this->type->buy_cost);
+	const Money &cost = this->type->buy_cost;
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, cost)) return;
+	if (_game_control.action_test_mode) {
+		ShowCostOrReturnEstimate(cost);
+		return;
+	}
+
+	_finances_manager.PayLandscaping(cost);
 	_scenery.SetPathObjectInstance(this->object->vox_pos, this->type);
 	this->object.reset();
 }

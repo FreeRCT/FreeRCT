@@ -14,12 +14,52 @@
 #include "window.h"
 #include "viewport.h"
 #include "language.h"
+#include "finances.h"
 #include "gamecontrol.h"
 #include "gui_sprites.h"
 #include "sprite_data.h"
 
 assert_compile(FENCE_TYPE_COUNT <= FENCE_TYPE_INVALID); ///< #FENCE_TYPE_INVALID should be the biggest value as it is tested below.
 assert_compile(FENCE_TYPE_INVALID <= 0xF); ///< Fence type for one side must fit in 4 bit.
+
+/** How much it costs to build a fence segment. */
+static const Money FENCE_COST_BUILD[] = {
+	Money( 300),  ///< FENCE_TYPE_WOODEN
+	Money( 600),  ///< FENCE_TYPE_CONIFER_HEDGE
+	Money(1100),  ///< FENCE_TYPE_BRICK_WALL
+};
+
+/** How much it costs to remove a fence segment. */
+static const Money FENCE_COST_REMOVE[] = {
+	Money(-100),  ///< FENCE_TYPE_WOODEN
+	Money(-200),  ///< FENCE_TYPE_CONIFER_HEDGE
+	Money(-400),  ///< FENCE_TYPE_BRICK_WALL
+};
+
+assert_compile(lengthof(FENCE_COST_BUILD) == FENCE_TYPE_COUNT - FENCE_TYPE_BUILDABLE_BEGIN);
+assert_compile(lengthof(FENCE_COST_BUILD) == lengthof(FENCE_COST_REMOVE));
+
+/**
+ * Check how much it costs to build a fence segment.
+ * @param t Fence type to check (must be buildable).
+ * @return The cost.
+ */
+const Money &GetFenceCostBuild(const FenceType t)
+{
+	assert(t >= FENCE_TYPE_BUILDABLE_BEGIN && t < FENCE_TYPE_COUNT);
+	return FENCE_COST_BUILD[t - FENCE_TYPE_BUILDABLE_BEGIN];
+}
+
+/**
+ * Check how much it costs to remove a fence segment.
+ * @param t Fence type to check (must be buildable).
+ * @return The cost.
+ */
+const Money &GetFenceCostRemove(const FenceType t)
+{
+	assert(t >= FENCE_TYPE_BUILDABLE_BEGIN && t < FENCE_TYPE_COUNT);
+	return FENCE_COST_REMOVE[t - FENCE_TYPE_BUILDABLE_BEGIN];
+}
 
 /**
  * %Fence build GUI.
@@ -32,7 +72,7 @@ public:
 
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
-	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(uint8 state) override;
@@ -46,12 +86,18 @@ private:
 };
 
 /**
- * Widget numbers of the fence build GUI.
+ * Widget numbers of the Fence build GUI.
  * @ingroup gui_group
  */
 enum FenceWidgets {
-	FENCE_GUI_LIST,         ///< List of fence types.
-	FENCE_GUI_SCROLL_LIST,  ///< Scrollbar of the list.
+	FENCE_TEXT_WOOD,                         ///< Wooden fence price text field.
+	FENCE_TEXT_HEDGE,                        ///< Hedge  fence price text field.
+	FENCE_TEXT_BRICK,                        ///< Brick  fence price text field.
+	/* Keep the ordering of the buttons intact! */
+	FENCE_BUTTON_FIRST,
+	FENCE_BUTTON_WOOD = FENCE_BUTTON_FIRST,  ///< Place wooden fence button.
+	FENCE_BUTTON_HEDGE,                      ///< Place hedge  fence button.
+	FENCE_BUTTON_BRICK,                      ///< Place brick  fence button.
 };
 
 /**
@@ -64,11 +110,14 @@ static const WidgetPart _fence_build_gui_parts[] = {
 			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetData(GUI_FENCE_TITLE, GUI_TITLEBAR_TIP),
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
 		EndContainer(),
-		/* List of fences. */
-		Intermediate(1, 2),
-			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
-				Widget(WT_EMPTY, FENCE_GUI_LIST, COL_RANGE_DARK_GREEN), SetFill(0, 1), SetResize(0, 1), SetMinimalSize(100, 100),
-			Widget(WT_VERT_SCROLLBAR, FENCE_GUI_SCROLL_LIST, COL_RANGE_DARK_GREEN),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN),
+			Intermediate(3, 2),
+				Widget(WT_TEXT_BUTTON, FENCE_BUTTON_WOOD,  COL_RANGE_DARK_GREEN), SetData(STR_NULL, GUI_FENCE_TYPE_WOOD ), SetMinimalSize(32, 32),
+				Widget(WT_LEFT_TEXT,   FENCE_TEXT_WOOD,    COL_RANGE_DARK_GREEN), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_TEXT_BUTTON, FENCE_BUTTON_HEDGE, COL_RANGE_DARK_GREEN), SetData(STR_NULL, GUI_FENCE_TYPE_HEDGE), SetMinimalSize(32, 32),
+				Widget(WT_LEFT_TEXT,   FENCE_TEXT_HEDGE,   COL_RANGE_DARK_GREEN), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_TEXT_BUTTON, FENCE_BUTTON_BRICK, COL_RANGE_DARK_GREEN), SetData(STR_NULL, GUI_FENCE_TYPE_BRICK), SetMinimalSize(32, 32),
+				Widget(WT_LEFT_TEXT,   FENCE_TEXT_BRICK,   COL_RANGE_DARK_GREEN), SetData(STR_ARG1, STR_NULL),
 		EndContainer(),
 	EndContainer(),
 };
@@ -76,7 +125,6 @@ static const WidgetPart _fence_build_gui_parts[] = {
 FenceGui::FenceGui() : GuiWindow(WC_FENCE, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_fence_build_gui_parts, lengthof(_fence_build_gui_parts));
-	this->SetScrolledWidget(FENCE_GUI_LIST, FENCE_GUI_SCROLL_LIST);
 
 	this->fence_type = FENCE_TYPE_INVALID;
 	this->fence_edge = INVALID_EDGE;
@@ -88,20 +136,20 @@ FenceGui::~FenceGui()
 	this->SetSelector(nullptr);
 }
 
-void FenceGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+void FenceGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
-		case FENCE_GUI_LIST:
-			wid->resize_y = GetTextHeight();
-			wid->min_y = 5 * wid->resize_y;
+		case FENCE_TEXT_WOOD:
+			_str_params.SetMoney(1, GetFenceCostBuild(FENCE_TYPE_WOODEN));
+			break;
+		case FENCE_TEXT_HEDGE:
+			_str_params.SetMoney(1, GetFenceCostBuild(FENCE_TYPE_CONIFER_HEDGE));
+			break;
+		case FENCE_TEXT_BRICK:
+			_str_params.SetMoney(1, GetFenceCostBuild(FENCE_TYPE_BRICK_WALL));
+			break;
 
-			for (uint8 i = (uint8)FENCE_TYPE_BUILDABLE_BEGIN; i < (uint8)FENCE_TYPE_COUNT; i++) {
-				const Fence *fence = _sprite_manager.GetFence((FenceType)i);
-				if (fence == nullptr) continue;
-
-				int width = fence->sprites[FENCE_NE_FLAT]->width;
-				if (width > wid->min_x) wid->min_x = width;
-			}
+		default:
 			break;
 	}
 }
@@ -109,64 +157,37 @@ void FenceGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 void FenceGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
 	switch (wid_num) {
-		case FENCE_GUI_LIST: {
-			Point32 rect;
-			int lines = -1; // computed later when we know sprite size
-			rect.x = this->GetWidgetScreenX(wid);
-			rect.y = this->GetWidgetScreenY(wid);
-			for (uint8 i = FENCE_TYPE_BUILDABLE_BEGIN; i < FENCE_TYPE_COUNT; i++) {
-				const Fence *fence = _sprite_manager.GetFence((FenceType)i);
-				if (fence == nullptr) continue;
+		case FENCE_BUTTON_WOOD:
+		case FENCE_BUTTON_HEDGE:
+		case FENCE_BUTTON_BRICK: {
+			const Fence *fence = _sprite_manager.GetFence(FenceType(FENCE_TYPE_BUILDABLE_BEGIN + wid_num - FENCE_BUTTON_FIRST));
+			if (fence == nullptr) break;
 
-				const ImageData *sprite = fence->sprites[FENCE_NE_FLAT];
-				if (lines == -1) {
-					lines = wid->pos.height / sprite->height; /// \todo Implement scrollbar position & size.
-				}
+			const ImageData *sprite = fence->sprites[FENCE_NE_FLAT];
+			if (sprite == nullptr) break;
 
-				if (lines <= 0) break;
-				lines--;
-
-				Recolouring recolouring;
-				_video.BlitImage({rect.x, rect.y - sprite->yoffset}, sprite, recolouring, GS_NORMAL);
-				rect.y += sprite->height;
-			}
-			break;
+			static Recolouring recolouring;
+			_video.BlitImage({this->GetWidgetScreenX(wid) - sprite->xoffset + (wid->pos.width - sprite->width) / 2,
+					this->GetWidgetScreenY(wid) - sprite->yoffset + (wid->pos.height - sprite->height) / 2}, sprite, recolouring, GS_NORMAL);
+			return;
 		}
 	}
+
+	return GuiWindow::DrawWidget(wid_num, wid);
 }
 
 void FenceGui::OnClick(WidgetNumber number, const Point16 &pos)
 {
 	switch (number) {
-		case FENCE_GUI_LIST: {
-			BaseWidget *wid = GetWidget<BaseWidget>(number);
-			Point16 mouse = _window_manager.GetMousePosition();
-			Point32 rect;
-			int lines = -1; // computed later when we know sprite size
-			rect.x = this->GetWidgetScreenX(wid);
-			rect.y = this->GetWidgetScreenY(wid);
-			for (uint8 i = FENCE_TYPE_BUILDABLE_BEGIN; i < FENCE_TYPE_COUNT; i++) {
-				const Fence *fence = _sprite_manager.GetFence((FenceType)i);
-				if (fence == nullptr) continue;
-
-				uint16 sprite_height = fence->sprites[FENCE_NE_FLAT]->height;
-				if (lines == -1) {
-					lines = wid->pos.height / sprite_height; /// \todo Implement scrollbar position & size.
-				}
-
-				if (lines <= 0) break;
-				lines--;
-
-				if (mouse.x >= rect.x && mouse.x <= rect.x + wid->pos.width &&
-						mouse.y >= rect.y && mouse.y <= rect.y + sprite_height) {
-					this->OnClickFence(fence);
-					return;
-				}
-
-				rect.y += sprite_height;
-			}
-			break;
-		}
+		case FENCE_BUTTON_WOOD:
+			OnClickFence(_sprite_manager.GetFence(FENCE_TYPE_WOODEN));
+			return;
+		case FENCE_BUTTON_HEDGE:
+			OnClickFence(_sprite_manager.GetFence(FENCE_TYPE_CONIFER_HEDGE));
+			return;
+		case FENCE_BUTTON_BRICK:
+			OnClickFence(_sprite_manager.GetFence(FENCE_TYPE_BRICK_WALL));
+			return;
 
 		default:
 			break;
@@ -181,6 +202,10 @@ void FenceGui::OnClickFence(const Fence *fence)
 {
 	FenceType clicked_type = (FenceType)fence->type;
 	assert(clicked_type != FENCE_TYPE_INVALID);
+
+	this->GetWidget<LeafWidget>(FENCE_BUTTON_WOOD )->SetPressed(clicked_type == FENCE_TYPE_WOODEN       );
+	this->GetWidget<LeafWidget>(FENCE_BUTTON_HEDGE)->SetPressed(clicked_type == FENCE_TYPE_CONIFER_HEDGE);
+	this->GetWidget<LeafWidget>(FENCE_BUTTON_BRICK)->SetPressed(clicked_type == FENCE_TYPE_BRICK_WALL   );
 
 	if (this->fence_type == FENCE_TYPE_INVALID) {
 		this->fence_sel.SetSize(1, 1);
@@ -213,7 +238,7 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 
 	/* Does this edge contain two connected paths or a connected path and ride entrance/exit? */
 	uint16 instance_data = v->GetInstanceData();
-	if (HasValidPath(instance_data)) {
+	if (HasValidPath(v)) {
 		uint8 slope = GetImplodedPathSlope(instance_data);
 		slope = _path_expand[slope];
 
@@ -242,14 +267,36 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 
 void FenceGui::SelectorMouseButtonEvent(uint8 state)
 {
-	if (!IsLeftClick(state)) return;
+	if ((state & (MB_LEFT | MB_RIGHT)) == 0) return;  // No buttons pressed.
 	if (this->fence_sel.area.width != 1 || this->fence_sel.area.height != 1) return;
 	if (this->fence_edge == INVALID_EDGE) return;
 	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->fence_base.x, this->fence_base.y) != OWN_PARK) return;
 
 	VoxelStack *vs = _world.GetModifyStack(this->fence_base.x, this->fence_base.y);
 	uint16 fences = GetGroundFencesFromMap(vs, this->fence_base.z);
-	fences = SetFenceType(fences, this->fence_edge, this->fence_type);
+
+	Money cost;
+	if ((state & MB_RIGHT) != 0) {  // Remove a fence.
+		const FenceType f = GetFenceType(fences, this->fence_edge);
+		if (f < FENCE_TYPE_BUILDABLE_BEGIN || f >= FENCE_TYPE_COUNT) return;
+
+		cost = GetFenceCostRemove(f);
+		if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_REMOVE, cost)) return;
+
+		fences = SetFenceType(fences, this->fence_edge, FENCE_TYPE_INVALID);
+	} else {  // Build a fence.
+		cost = GetFenceCostBuild(this->fence_type);
+		if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, cost)) return;
+
+		fences = SetFenceType(fences, this->fence_edge, this->fence_type);
+	}
+
+	if (_game_control.action_test_mode) {
+		ShowCostOrReturnEstimate(cost);
+		return;
+	}
+	_finances_manager.PayLandscaping(cost);
+
 	AddGroundFencesToMap(fences, vs, this->fence_base.z);
 	MarkVoxelDirty(this->fence_base);
 }

@@ -13,13 +13,22 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
-option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
+option(WEBASSEMBLY "Compile as a WebAssembly program")
+
+IF(NOT DEFINED FREERCT_BASENAME)
+	# Should always be a valid Appstream ID
+	# See https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-id-generic
+	set(FREERCT_BASENAME "net.freerct.FreeRCT")
+ENDIF()
+
 # FreeRCT expands the '~' to the user home directory at runtime.
-IF(WIN32)
-	option(USERDATA_PREFIX "~/.freerct")
-ELSE()
-	option(USERDATA_PREFIX "~/.config/freerct")
+IF(NOT USERDATA_PREFIX)
+	IF(WIN32)
+		set(USERDATA_PREFIX "~/.freerct")
+	ELSE()
+		set(USERDATA_PREFIX "~/.config/freerct")
+	ENDIF()
 ENDIF()
 
 # Create the directories that the binaries and data files go into
@@ -39,6 +48,9 @@ add_subdirectory(graphics/rcd)
 
 message(STATUS "Building FreeRCT")
 add_subdirectory(src)
+
+message(STATUS "Installing packaging data")
+add_subdirectory(packaging_data)
 
 IF(NOT MSVC)
 	add_custom_target(run
@@ -79,3 +91,7 @@ IF(NOT MSVC)
 	ENDFOREACH()
 
 ENDIF()
+
+# All the files in cpack/ are based largely on OpenTTD's packaging setup
+# (https://github.com/OpenTTD/OpenTTD/commit/b7643b1d36cb41eb6712042761c13b9819fcbe74)
+include(cpack/InstallAndPackage.cmake)

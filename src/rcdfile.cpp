@@ -67,20 +67,16 @@ void RcdFileCollection::AddFile(const RcdFileInfo &rcd)
 	}
 }
 
-/**
- * Paths to try looking for RCD files.
- * @todo Mke this configurable from cmake.
- */
-static const char *_rcd_paths[] = {
-	"rcd",
-	_freerct_install_prefix,
-	nullptr,
-};
-
 /** Scan directories, looking for RCD files to add. */
 void RcdFileCollection::ScanDirectories()
 {
 	DirectoryReader *reader = MakeDirectoryReader();
+
+	const char *_rcd_paths[] = {
+		"rcd",
+		freerct_install_prefix(),
+		nullptr,
+	};
 
 	const char **rcd_path = _rcd_paths;
 	while (*rcd_path != nullptr) {

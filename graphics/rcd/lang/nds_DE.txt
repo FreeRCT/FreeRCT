@@ -27,6 +27,11 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 		RESOLUTION:             "%1%×%2%";
 
+		DECREASE_BUTTON:          "-";
+		INCREASE_BUTTON:          "+";
+		DROPDOWN_CHECKED:         "☑ %1%";
+		DROPDOWN_UNCHECKED:       "☐ %1%";
+
 		// Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü";
 		MAIN_MENU_QUIT:                     "Verlaten";
@@ -43,6 +48,10 @@ strings {
 		TOOLBAR_GUI_DROPDOWN_SPEED_2:       "2×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_4:       "4×";
 		TOOLBAR_GUI_DROPDOWN_SPEED_8:       "8×";
+		TOOLBAR_GUI_DROPDOWN_VIEW:             "Sicht";
+		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Ankiekens-Instellens";
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Unner de Eer kieken";
+		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Lütt Kaart";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen";
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker";
@@ -80,6 +89,8 @@ strings {
 		ERROR_MESSAGE_SPRITE:         "Kunn Sprite-Billers nich teken!";
 		ERROR_MESSAGE_HEADING_BUILD:  "Dat kann hier nich baut worden …";
 		ERROR_MESSAGE_HEADING_REMOVE: "Dat kann nich ofrieten worden …";
+		ERROR_MESSAGE_HEADING_COST:   "Kosten to Verwachten:";
+		ERROR_MESSAGE_HEADING_RETURN: "Weergeven to Verwachten:";
 		ERROR_MESSAGE_UNREMOVABLE:    "Deeses Ding kann man nich wegmaken!";
 		ERROR_MESSAGE_UNOWNED_LAND:   "Dat Land höört nich to de Park!";
 		ERROR_MESSAGE_EXPENSIVE:      "Du bruukst tominnst %1%.";
@@ -116,7 +127,7 @@ strings {
 
 		// Staff window.
 		STAFF_MANAGEMENT_TITLE: "Personaal";
-		STAFF_SALARY:           "Gehalt pro Maant: %1%";
+		STAFF_SALARY:           "Gehalt pro Dag: %1%";
 		STAFF_DISMISS:          "Kündigen";
 		STAFF_HIRE:             "Anhüren";
 		STAFF_NAME_MECHANIC:    "Mechaniker %d";
@@ -178,8 +189,6 @@ strings {
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klick, um de Bude na de Klockwiesersinn to dreihen";
 
 		// Generic ride manager window strings.
-		RIDE_MANAGER_DECREASE:          "-";
-		RIDE_MANAGER_INCREASE:          "+";
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Intree:";
 		RIDE_MANAGER_RELIABILITY:       "Toverlatigheid: %.1f%%";
 		RIDE_MANAGER_BROKEN_DOWN:       "Kaputt";
@@ -217,6 +226,9 @@ strings {
 
 		// Fence gui strings.
 		FENCE_TITLE:           "Schütten bauen";
+		FENCE_TYPE_WOOD:       "Staketten";
+		FENCE_TYPE_HEDGE:      "Heeg";
+		FENCE_TYPE_BRICK:      "Backsteenmüür";
 
 		// Scenery gui strings.
 		SCENERY_TITLE:               "Landskupp-Dingen";
@@ -241,6 +253,9 @@ strings {
 		TERRAFORM_LEVEL_TEXT:  "Kuntrei tum Bewarken platt maken";
 		TERRAFORM_MOVE_TEXT:   "Kuntrei tum Bewarken verschuven as se is";
 
+		// Minimap gui strings.
+		MINIMAP_TITLE: "Lütt Kaart";
+
 		// Finances gui strings.
 		FINANCES_TITLE:                  "Finanzen besörgen";
 		FINANCES_RIDE_CONSTRUCTION_TEXT: "Buden bauen";
@@ -258,6 +273,11 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Forschung";
 		FINANCES_LOAN_INTEREST_TEXT:     "Börgtinsen";
 		FINANCES_TOTAL_TEXT:             "All tosamen";
+		FINANCES_MAX_LOAN:               "Hoogste Börg";
+		FINANCES_CURRENT_LOAN:           "Stedenwies Börg";
+		FINANCES_LOAN_INTEREST:          "Börgtins";
+		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr";
+		FINANCES_CASH:                   "Geld";
 
 		// Messages and inbox.
 		INBOX_TITLE:              "Narichtens";

@@ -34,7 +34,7 @@ public:
 	uint16 GetWord();
 	uint32 GetLong();
 	uint64 GetLongLong();
-	uint8 *GetText();
+	std::string GetText();
 
 	void version_mismatch(uint saved_version, uint current_version);
 
@@ -61,7 +61,7 @@ public:
 	void PutWord(uint16 val);
 	void PutLong(uint32 val);
 	void PutLongLong(uint64 val);
-	void PutText(const uint8 *str, int length = -1);
+	void PutText(const std::string &str, int length = -1);
 
 	void CheckNoOpenPattern() const;
 

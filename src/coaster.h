@@ -272,6 +272,9 @@ public:
 	int FindSuccessorPiece(const PositionedTrackPiece &placed);
 	int FindPredecessorPiece(const PositionedTrackPiece &placed);
 	void UpdateStations();
+	void InitializeStation(CoasterStation&) const;
+	bool IsInStation(uint32 pos, const CoasterStation&) const;
+	uint32 PositionRelativeTo(uint32 pos, uint32 offset) const;
 	bool CanPlaceEntranceOrExit(const XYZPoint16 &pos, bool entrance, const CoasterStation *station) const;
 	bool PlaceEntranceOrExit(const XYZPoint16 &pos, bool entrance, CoasterStation *station);
 	bool NeedsEntrance() const;

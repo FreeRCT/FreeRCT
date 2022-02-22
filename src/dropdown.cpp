@@ -17,9 +17,8 @@
  * @param strid StringID to store.
  * @pre String parameters must be set for this string.
  */
-DropdownItem::DropdownItem(StringID strid)
+DropdownItem::DropdownItem(StringID strid) : str(DrawText(strid))
 {
-	DrawText(strid, this->str, lengthof(this->str));
 }
 
 /**

@@ -1,6 +1,7 @@
 FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.
 
-.. image:: docs/images/screenshots/0_1/mainview.png
+.. image:: freerct.png
+        :alt: mainview
 
 Building the program
 --------------------
@@ -20,23 +21,55 @@ The existence of these programs/libraries is checked by ``cmake``.
 
 Building is as simple as
 
-::
+.. code-block:: bash
 
         $ git clone https://github.com/FreeRCT/FreeRCT.git
-        $ cd FreeRCT # Go into the downloaded source directory.
-        $ cmake .    # Checks libraries are where they're supposed to be and replaces some strings
-        $ make       # Let make do the heavy work.
+        $ cd FreeRCT               # Go into the downloaded source directory.
+        $ mkdir build && cd build  # Create and enter a build directory.
+        $ cmake ..                 # Checks libraries are where they're supposed to be and replaces some strings.
+        $ make                     # Let make do the heavy work.
+        $ make install             # Optional step to install the program on the system. May require root privileges.
 
 
 CMake accepts the following options:
 
-================= ======= ==========================================================================
-Name              Default Explanation
-================= ======= ==========================================================================
-OVERRIDE_VCS      OFF     Override the lack of a VCS checkout.
-ASAN              OFF     Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html).
-USERDATA_PREFIX   '.'     Directory where user data such as savegames is stored.
-================= ======= ==========================================================================
+======================= ============================= ================================================================================================
+Name                    Default value                 Explanation
+======================= ============================= ================================================================================================
+VERSION_STRING          -                             Use this string as the build version. If not specified, the version is detected
+                                                      automatically from git. If this also fails, the version defaults to '0.0.0-revdetect-broken'.
+ASAN                    OFF                           Use AddressSanitizer (see below).
+CMAKE_INSTALL_PREFIX    '/usr'                        Directory where 'make install' installs.
+USERDATA_PREFIX         '~/.freerct' (Windows) or     Directory where user data such as savegames is stored.
+                        '~/.config/freerct' (other)   Note that '~' character expansion in the USERDATA_PREFIX variable to the
+                                                      user home directory is performed by FreeRCT at runtime and should NOT be done by
+                                                      shell expansion to ensure that the executable can be used by multiple users.
+WEBASSEMBLY             OFF                           Compile as a WebAssembly program that can be run in the browser using
+                                                      JavaScript (experimental feature). May override all other settings.
+======================= ============================= ================================================================================================
+
+
+Note that CMake options are prefixed with '-D', so the full call is e.g.
+
+::
+
+        $ cmake -DASAN=ON -DCMAKE_INSTALL_PREFIX='~/.local' ..
+        $ cmake -DASAN=OFF -DVERSION_STRING="0.1~abc123" -DCMAKE_INSTALL_PREFIX='/usr' -DUSERDATA_PREFIX='~/.config/freerct' ..
+
+
+You can use the switch ``-DASAN=ON`` to link AddressSanitizer (ASan) into the executable. ASan is
+a library that detects invalid memory accesses at runtime and terminates the program with a full
+backtrace upon detecting one. This makes it a useful and recommended tool for developers and
+everyone who wants to assist with discovering bugs. End-users should leave this option disabled.
+You might need to create a link to the symbolizer before using ASan for the first time, e.g.
+
+::
+
+        $ sudo ln -s /usr/bin/llvm-symbolizer-3.8 /usr/bin/llvm-symbolizer
+
+
+(the actual path may differ on your system.) See https://clang.llvm.org/docs/AddressSanitizer.html for more information on ASan.
+
 
 -  **src** directory contains the source code of the FreeRCT program itself.
 -  **src/rcdgen** directory contains the source code of the *rcdgen* program, that builds RCD files from source (which are read by *freerct*).
@@ -53,7 +86,7 @@ Config file
 
 Finally, you can optionally create a 'freerct.cfg' INI format file next to the 'freerct' program in the **bin** directory, containing the settings to use. All entries are optional. It looks like
 
-::
+.. code-block:: ini
 
         [font]
         medium-size = 12
@@ -86,17 +119,27 @@ Running the program
 
 Now run the program
 
-::
+.. code-block:: bash
 
         $ cd bin
         $ ./freerct
 
 or
 
-::
+.. code-block:: bash
 
         $ make run
 
 which should open a window containing the main menu (see also the pictures in the blog).
 
 Pressing 'q' quits the program.
+
+Building Troubleshoot
+---------------------
+Linux
+#####
+All the CMake dependencies can be installed under Debian based systems(e.g. Ubuntu) using the following command:
+
+.. code-block:: bash
+
+        $ sudo apt install zlib1g-dev libpng-dev libsdl2-dev libsdl2-ttf-dev doxygen flex bison

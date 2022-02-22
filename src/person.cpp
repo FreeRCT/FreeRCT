@@ -31,10 +31,10 @@ static const int QUEUE_DISTANCE = 64;  // The pixel distance between two guests 
 assert_compile(256 % QUEUE_DISTANCE == 0);
 
 const std::map<PersonType, Money> StaffMember::SALARY = {
-	{PERSON_MECHANIC,    Money(150000)},  ///< Monthly salary of a mechanic.
-	{PERSON_HANDYMAN,    Money(120000)},  ///< Monthly salary of a handyman.
-	{PERSON_GUARD,       Money(100000)},  ///< Monthly salary of a guard.
-	{PERSON_ENTERTAINER, Money(100000)},  ///< Monthly salary of a entertainer.
+	{PERSON_MECHANIC,    Money(2700)},  ///< Daily salary of a mechanic.
+	{PERSON_HANDYMAN,    Money(1500)},  ///< Daily salary of a handyman.
+	{PERSON_GUARD,       Money(2000)},  ///< Daily salary of a guard.
+	{PERSON_ENTERTAINER, Money(2000)},  ///< Daily salary of a entertainer.
 };
 
 /**
@@ -105,7 +105,6 @@ bool LoadPRSG(RcdFileReader *rcd_file)
 Person::Person() : VoxelObject(), rnd()
 {
 	this->type = PERSON_INVALID;
-	this->name = nullptr;
 	this->ride = nullptr;
 	this->status = GUI_PERSON_STATUS_WANDER;
 
@@ -125,28 +124,24 @@ const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation
 }
 
 /**
- * Set the name of a guest.
- * @param name New name of the guest.
- * @note Currently unused.
+ * Set the name of a person.
+ * @param name New name of the person.
  */
-void Person::SetName(const uint8 *name)
+void Person::SetName(const std::string &name)
 {
-	int len = strlen((char *)name);
-	this->name.reset(new uint8[len + 1]);
-	strcpy((char *)this->name.get(), (char *)name); // Already know name has \0, because of strlen.
+	this->name = name;
 }
 
 /**
  * Query the name of the person.
- * The name is returned in memory owned by the person. Do not free this data. It may change on each call.
- * @return Static buffer containing the name of the person.
+ * @return The name of the person.
  */
-const uint8 *Person::GetName() const
+std::string Person::GetName() const
 {
-	static uint8 buffer[16];
+	if (!this->name.empty()) return this->name;
 
-	if (this->name.get() != nullptr) return this->name.get();
-	sprintf((char *)buffer, "Guest %u", this->id);
+	static char buffer[16];
+	sprintf(buffer, "Guest %u", this->id);  // \todo Use a translatable string for this.
 	return buffer;
 }
 
@@ -402,7 +397,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	assert(person_type != PERSON_INVALID);
 
 	this->type = person_type;
-	this->name.reset();
+	this->name.clear();
 	this->SetStatus(GUI_PERSON_STATUS_WANDER);
 
 	/* Set up the person sprite recolouring table. */
@@ -414,6 +409,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	this->vox_pos.y = start.y;
 	this->vox_pos.z = _world.GetBaseGroundHeight(start.x, start.y);
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
+	this->queuing_blocked_on = nullptr;
 
 	if (start.x == 0) {
 		this->pix_pos.x = 0;
@@ -837,9 +833,11 @@ void Person::Load(Loader &ldr)
 	if (version < 1 || version > CURRENT_VERSION_Person) ldr.version_mismatch(version, CURRENT_VERSION_Person);
 	this->VoxelObject::Load(ldr);
 
+	this->queuing_blocked_on = nullptr;  // Will be recalculated later in OnAnimate().
+
 	this->type = (PersonType)ldr.GetByte();
 	this->offset = ldr.GetWord();
-	this->name.reset(ldr.GetText());
+	this->name = ldr.GetText();
 
 	if (version > 1) {
 		const uint16 ride_index = ldr.GetWord();
@@ -878,7 +876,7 @@ void Person::Save(Saver &svr)
 
 	svr.PutByte(this->type);
 	svr.PutWord(this->offset);
-	svr.PutText(this->name.get());
+	svr.PutText(this->name);
 	svr.PutWord((this->ride != nullptr) ? this->ride->GetIndex() : INVALID_RIDE_INSTANCE);
 
 	this->recolour.Save(svr);
@@ -953,7 +951,7 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 			case EDGE_SE: tile_edge_pix_pos.y = 255; break;
 			default: NOT_REACHED();
 		}
-		if (this->IsQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false)) {
+		if (!this->IsQueuingGuest() && this->GetQueuingGuestNearby(original_cur_pos, tile_edge_pix_pos, false) != nullptr) {
 			ri->NotifyLongQueue();
 			return RVD_NO_VISIT;
 		}
@@ -1399,7 +1397,7 @@ void Person::DeActivate(AnimateResult ar)
 
 	_inbox.NotifyGuestDeletion(this->id);
 	this->type = PERSON_INVALID;
-	this->name.reset();
+	this->name.clear();
 }
 
 
@@ -1417,9 +1415,9 @@ bool Person::IsQueuingGuest() const
  * @param vox_pos Coordinates of the voxel in the world.
  * @param pix_pos Pixel position inside the voxel.
  * @param only_in_front Whether to consider only guests standing in front of this one.
- * @return Another queuing guest is close by.
+ * @return A queuing guest close by, or \c nullptr if there isn't one.
  */
-bool Person::IsQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos, const bool only_in_front)
+const Person *Person::GetQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos, const bool only_in_front)
 {
 	/*
 	 * To ensure that guests on a neighbouring tile are also considered, we also need to check
@@ -1446,17 +1444,17 @@ bool Person::IsQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& p
 
 				const XYZPoint32 coords = g->MergeCoordinates();
 				if (hypot(coords.x - merged_pos.x, coords.y - merged_pos.y) < QUEUE_DISTANCE) {
-					if (!only_in_front) return true;
+					if (!only_in_front) return g;
 					const AnimationFrame &frame = this->frames[this->frame_index];
-					if (frame.dx > 0 && coords.x > merged_pos.x) return true;
-					if (frame.dx < 0 && coords.x < merged_pos.x) return true;
-					if (frame.dy > 0 && coords.y > merged_pos.y) return true;
-					if (frame.dy < 0 && coords.y < merged_pos.y) return true;
+					if (frame.dx > 0 && coords.x > merged_pos.x) return g;
+					if (frame.dx < 0 && coords.x < merged_pos.x) return g;
+					if (frame.dy > 0 && coords.y > merged_pos.y) return g;
+					if (frame.dy < 0 && coords.y < merged_pos.y) return g;
 				}
 			}
 		}
 	}
-	return false;
+	return nullptr;
 }
 
 /**
@@ -1470,6 +1468,20 @@ AnimateResult Person::InteractWithPathObject(PathObjectInstance *obj)
 }
 
 /**
+ * Detect whether a group of people queuing behind each other contains a cyclic dependency.
+ * @return This person has a cyclic queuing dependency.
+ */
+bool Person::HasCyclicQueuingDependency() const
+{
+	std::set<const Person *> iterated = {this};
+	for (const Person *it = this->queuing_blocked_on; it != nullptr; it = it->queuing_blocked_on) {
+		if (iterated.count(it) > 0) return true;
+		iterated.insert(it);
+	}
+	return false;
+}
+
+/**
  * Update the animation of a person.
  * @param delay Amount of milliseconds since the last update.
  * @return Whether to keep the person active or how to deactivate him/her.
@@ -1477,6 +1489,7 @@ AnimateResult Person::InteractWithPathObject(PathObjectInstance *obj)
  */
 AnimateResult Person::OnAnimate(int delay)
 {
+	this->queuing_blocked_on = nullptr;
 	this->frame_time -= delay;
 	if (this->frame_time > 0) return OAR_OK;
 
@@ -1503,10 +1516,15 @@ AnimateResult Person::OnAnimate(int delay)
 	}
 
 	const AnimationFrame *frame = &this->frames[this->frame_index];
-	if (this->IsQueuingGuest() && this->IsQueuingGuestNearby(this->vox_pos, this->pix_pos, true)) {
-		/* Freeze in place if we are too close to the person queuing in front of us. */
-		this->frame_time += delay;
-		return OAR_OK;
+	if (this->IsQueuingGuest()) {
+		this->queuing_blocked_on = this->GetQueuingGuestNearby(this->vox_pos, this->pix_pos, true);
+		if (this->queuing_blocked_on != nullptr && !this->HasCyclicQueuingDependency()) {
+			/* Freeze in place if we are too close to the person queuing in front of us. */
+			this->frame_time += delay;
+			return OAR_OK;
+		}
+		/* Either there is no one in front of this person, or each person is waiting for the other one to make the first move. */
+		this->queuing_blocked_on = nullptr;
 	}
 	this->pix_pos.x += frame->dx;
 	this->pix_pos.y += frame->dy;
@@ -1768,12 +1786,11 @@ Guest::~Guest()
 /** Initialize this guest's ride preferences with random values. */
 void Guest::InitRidePreferences()
 {
-	Random r;
-	this->preferred_ride_intensity = r.Uniform(800) + 10;
-	this->min_ride_intensity       = r.Uniform(this->preferred_ride_intensity - 5);
-	this->max_ride_intensity       = r.Uniform(this->min_ride_intensity) + this->preferred_ride_intensity + 5;
-	this->max_ride_nausea          = r.Uniform(this->max_ride_intensity) + this->min_ride_intensity;
-	this->min_ride_excitement      = r.Uniform(this->preferred_ride_intensity);
+	this->preferred_ride_intensity = this->rnd.Uniform(800) + 10;
+	this->min_ride_intensity       = this->rnd.Uniform(this->preferred_ride_intensity - 5);
+	this->max_ride_intensity       = this->rnd.Uniform(this->min_ride_intensity) + this->preferred_ride_intensity + 5;
+	this->max_ride_nausea          = this->rnd.Uniform(this->max_ride_intensity) + this->min_ride_intensity;
+	this->min_ride_excitement      = this->rnd.Uniform(this->preferred_ride_intensity);
 }
 
 void Guest::Activate(const Point16 &start, PersonType person_type)
@@ -2371,16 +2388,14 @@ void StaffMember::Save(Saver &svr)
  * Create this person's current status string.
  * @return The status string.
  */
-const uint8 *Person::GetStatus() const
+std::string Person::GetStatus() const
 {
+	const std::string text = _language.GetText(this->status);
+	if (this->ride == nullptr) return text;
+
 	static char text_buffer[1024];
-	const char *text = reinterpret_cast<const char*>(_language.GetText(this->status));
-	if (this->ride == nullptr) {
-		snprintf(text_buffer, lengthof(text_buffer), "%s", text);
-	} else {
-		snprintf(text_buffer, lengthof(text_buffer), text, this->ride->name.get());
-	}
-	return reinterpret_cast<const uint8*>(text_buffer);
+	snprintf(text_buffer, lengthof(text_buffer), text.c_str(), this->ride->name.c_str());
+	return text_buffer;
 }
 
 /**

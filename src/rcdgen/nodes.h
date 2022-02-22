@@ -900,6 +900,7 @@ public:
 	std::shared_ptr<SpriteBlock> toolbar_inbox;     ///< Toolbar: Inbox GUI button.
 	std::shared_ptr<SpriteBlock> toolbar_finances;  ///< Toolbar: Finances GUI button.
 	std::shared_ptr<SpriteBlock> toolbar_objects;   ///< Toolbar: Path objects GUI button.
+	std::shared_ptr<SpriteBlock> toolbar_view;      ///< Toolbar: View menu GUI button.
 	std::shared_ptr<SpriteBlock> weather[5];      ///< Weather sprites (sunny -> thunder).
 	std::shared_ptr<SpriteBlock> rog_lights[4];   ///< Red/orange/green lights (red, orange, green, none).
 	std::shared_ptr<SpriteBlock> rg_lights[3];    ///< Red/green lights (red, green, none).

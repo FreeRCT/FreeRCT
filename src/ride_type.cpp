@@ -198,7 +198,7 @@ void SetRideRatingStringParam(const uint32 rating)
 	}
 
 	static char _text_buffer[1024];
-	const uint8 *str;
+	std::string str;
 
 	if (rating < 100) {
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_VERY_LOW);
@@ -214,8 +214,8 @@ void SetRideRatingStringParam(const uint32 rating)
 		str = _language.GetText(GUI_RIDE_MANAGER_RATING_EXTREME);
 	}
 
-	snprintf(_text_buffer, lengthof(_text_buffer), reinterpret_cast<const char*>(str), rating / 100.0);
-	_str_params.SetUint8(1, reinterpret_cast<uint8*>(_text_buffer));
+	snprintf(_text_buffer, lengthof(_text_buffer), str.c_str(), rating / 100.0);
+	_str_params.SetText(1, _text_buffer);
 }
 
 /**
@@ -224,7 +224,6 @@ void SetRideRatingStringParam(const uint32 rating)
  */
 RideInstance::RideInstance(const RideType *rt)
 {
-	this->name = nullptr;
 	this->type = rt;
 	this->state = RIS_ALLOCATED;
 	this->flags = 0;
@@ -619,7 +618,7 @@ void RideInstance::Load(Loader &ldr)
 	const uint32 version = ldr.OpenPattern("ride");
 	if (version != CURRENT_VERSION_RideInstance) ldr.version_mismatch(version, CURRENT_VERSION_RideInstance);
 
-	this->name.reset(ldr.GetText());
+	this->name = ldr.GetText();
 
 	uint16 state_and_flags = ldr.GetWord();
 	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
@@ -650,7 +649,7 @@ void RideInstance::Save(Saver &svr)
 {
 	svr.StartPattern("ride", CURRENT_VERSION_RideInstance);
 
-	svr.PutText(this->name.get());
+	svr.PutText(this->name);
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
 	svr.PutWord(this->entrance_type);
 	svr.PutWord(this->exit_type);
@@ -721,12 +720,12 @@ void RidesManager::Load(Loader &ldr)
 			if (version >= 2) {
 				ride_type = this->GetRideType(ldr.GetWord());
 			} else {
-				std::unique_ptr<uint8[]> ride_type_name(ldr.GetText());
-				if (ride_type_name.get() == nullptr) throw LoadingError("Invalid ride type name.");
+				const std::string ride_type_name = ldr.GetText();
+				if (ride_type_name.empty()) throw LoadingError("Invalid ride type name.");
 
 				for (const auto &rt : _rides_manager.ride_types) {
-					const uint8 *tmp_name = _language.GetText(rt->GetString(rt->GetTypeName()));
-					if (ride_kind == rt->kind && StrEqual(tmp_name, ride_type_name.get())) {
+					const std::string tmp_name = _language.GetText(rt->GetString(rt->GetTypeName()));
+					if (ride_kind == rt->kind && tmp_name == ride_type_name) {
 						ride_type = rt.get();
 						break;
 					}
@@ -875,11 +874,11 @@ uint16 RidesManager::FindRideType(const RideType *r) const
  * @param name Name of the ride to find.
  * @return The ride with the given name, or \c nullptr if no such ride exists.
  */
-RideInstance *RidesManager::FindRideByName(const uint8 *name)
+RideInstance *RidesManager::FindRideByName(const std::string &name)
 {
 	for (auto &pair : this->instances) {
 		if (pair.second->state == RIS_ALLOCATED) continue;
-		if (StrEqual(name, pair.second->name.get())) return pair.second.get();
+		if (name == pair.second->name) return pair.second.get();
 	}
 	return nullptr;
 }
@@ -906,17 +905,17 @@ void RidesManager::NewInstanceAdded(uint16 num)
 			idx = 0;
 		}
 
-		ri->name.reset(new uint8[MAX_RIDE_INSTANCE_NAME_LENGTH]);
+		ri->name.clear();
 		/* Construct a new name. */
 		if (shop_num == 1) {
-			DrawText(rt->GetString(names[idx]), ri->name.get(), MAX_RIDE_INSTANCE_NAME_LENGTH);
+			ri->name = DrawText(rt->GetString(names[idx]));
 		} else {
 			_str_params.SetStrID(1, rt->GetString(names[idx]));
 			_str_params.SetNumber(2, shop_num);
-			DrawText(GUI_NUMBERED_INSTANCE_NAME, ri->name.get(), MAX_RIDE_INSTANCE_NAME_LENGTH);
+			ri->name = DrawText(GUI_NUMBERED_INSTANCE_NAME);
 		}
 
-		if (this->FindRideByName(ri->name.get()) == nullptr) break;
+		if (this->FindRideByName(ri->name) == nullptr) break;
 
 		idx++;
 	}
