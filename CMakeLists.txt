@@ -13,6 +13,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
+IF(NOT DEFINED FREERCT_BASENAME)
+	# Should always be a valid Appstream ID
+	# See https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-id-generic
+	set(FREERCT_BASENAME "net.freerct.FreeRCT")
+ENDIF()
+
 option(OVERRIDE_VCS "Override the lack of a VCS checkout")
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
 option(WEBASSEMBLY "Compile as a WebAssembly program")
@@ -43,6 +49,9 @@ add_subdirectory(graphics/rcd)
 
 message(STATUS "Building FreeRCT")
 add_subdirectory(src)
+
+message(STATUS "Installing packaging data")
+add_subdirectory(packaging_data)
 
 IF(NOT MSVC)
 	add_custom_target(run

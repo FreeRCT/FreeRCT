@@ -1,0 +1,33 @@
+{
+	"app-id": "net.freerct.FreeRCT.Devel",
+	"runtime": "org.freedesktop.Platform",
+	"runtime-version": "21.08",
+	"sdk": "org.freedesktop.Sdk",
+	"finish-args": [
+		"--device=dri",
+		"--persist=OFF",
+		"--share=ipc",
+		"--socket=wayland",
+		"--socket=fallback-x11"
+	],
+	"modules": [
+		{
+			"name": "freerct",
+			"buildsystem": "cmake",
+			"config-opts": [
+				"-DFREERCT_BASENAME=net.freerct.FreeRCT.Devel"
+			],
+			"sources": [
+				{
+					"type": "dir",
+					"path": "..",
+					"skip": [
+						".flatpak-builder",
+						"build",
+						"debian"
+					]
+				}
+			]
+		}
+	]
+}
