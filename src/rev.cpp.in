@@ -40,7 +40,7 @@ const char _freerct_revision[] = "${VERSION_STRING}";
 const char _freerct_build_date[] = __DATE__ " " __TIME__;
 
 static std::string _freerct_install_prefix("${CMAKE_INSTALL_PREFIX}/share/freerct");  ///< The location where all FreeRCT assets are installed.
-static std::string _freerct_userdata_prefix_base("${USERDATA_PREFIX}");               ///< The location where the user's savegames and other data is stored.
+static std::string _freerct_userdata_prefix_override("${USERDATA_PREFIX}");           ///< A manually defined user data location.
 static std::string _freerct_userdata_prefix_cache;                                    ///< Cache for the result of #freerct_userdata_prefix.
 
 /**
@@ -60,7 +60,7 @@ void OverrideInstallPrefix(const char *dir)
  */
 void OverrideUserdataPrefix(const char *dir)
 {
-	_freerct_userdata_prefix_base = dir;
+	_freerct_userdata_prefix_override = dir;
 	_freerct_userdata_prefix_cache.clear();
 }
 
@@ -82,29 +82,34 @@ const char *freerct_userdata_prefix()
 {
 	if (!_freerct_userdata_prefix_cache.empty()) return _freerct_userdata_prefix_cache.c_str();
 
-	_freerct_userdata_prefix_cache = _freerct_userdata_prefix_base;
-
-	/* While the USERDATA_PREFIX is expanded at compile-time, home directory expansion has to be performed at runtime to allow shipping binaries. */
-	std::string substitute;
-	for (;;) {
-		const size_t pos = _freerct_userdata_prefix_cache.find('~');
-		if (pos == std::string::npos) break;
-
-		if (substitute.empty()) {
+	if (!_freerct_userdata_prefix_override.empty()) {  // The user manually set a location.
+		_freerct_userdata_prefix_cache = _freerct_userdata_prefix_override;
+	} else {  // Try to follow the XDG basedir specification.
+		const char *xdg_data_home = getenv("XDG_DATA_HOME");
+		if (xdg_data_home != nullptr && xdg_data_home[0] != '\0') {
+			_freerct_userdata_prefix_cache = xdg_data_home;
+			_freerct_userdata_prefix_cache += "/freerct";
+		} else {  // The XDG spec is not applicable, fall back to defaults.
+			_freerct_userdata_prefix_cache.clear();
+			/* Try to detect the home directory. */
 			for (auto& var : {"HOME", "USERPROFILE", "HOMEPATH", "APPDATA"}) {
 				const char *environment_variable = getenv(var);
 				if (environment_variable != nullptr && environment_variable[0] != '\0') {
-					substitute = environment_variable;
+					_freerct_userdata_prefix_cache = environment_variable;
 					break;
 				}
 			}
-			if (substitute.empty()) {
+			if (_freerct_userdata_prefix_cache.empty()) {
 				fprintf(stderr, "Unable to locate the user home directory. Set the HOME environment variable to fix the problem.\n");
 				NOT_REACHED();
 			}
+			/* Set a reasonable default path relative to the home directory. */
+#ifdef _WIN32
+			_freerct_userdata_prefix_cache += "\\.freerct";
+#else
+			_freerct_userdata_prefix_cache += "/.local/share/freerct";
+#endif
 		}
-
-		_freerct_userdata_prefix_cache = _freerct_userdata_prefix_cache.replace(pos, 1, substitute);
 	}
 
 	return _freerct_userdata_prefix_cache.c_str();
