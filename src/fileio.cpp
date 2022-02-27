@@ -27,20 +27,6 @@
 #include <sys/stat.h>
 
 /**
- * Base class implementation of a directory reader, never returning any content.
- * Derive a new class for your operating system with more functionality.
- * @param dir_sep Directory separator string of the operating system.
- */
-DirectoryReader::DirectoryReader(const char dir_sep) : dir_sep(dir_sep)
-{
-}
-
-/** Destructor. */
-DirectoryReader::~DirectoryReader()
-{
-}
-
-/**
  * @fn void DirectoryReader::OpenPath(const char *path)
  * Set up the directory reader object for reading a directory.
  * @param path Path to the directory.
@@ -286,7 +272,59 @@ void MakeDirectory(const char *path)
 	if (mkdir(path, 0x1FF) == 0) return;
 #endif
 	fprintf(stderr, "Failed creating directory '%s'\n", path);
-	NOT_REACHED();
+	exit(1);
+}
+
+/**
+ * Copy a file.
+ * @param src Source file.
+ * @param dest Destination file.
+ */
+void CopyBinaryFile(const char *src, const char *dest)
+{
+	FILE *in_file = nullptr;
+	in_file = fopen(src, "rb");
+	if (in_file == nullptr) {
+		fprintf(stderr, "Could not open file for reading: %s\n", src);
+		exit(1);
+	}
+
+	FILE *out_file = nullptr;
+	out_file = fopen(dest, "wb");
+	if (out_file == nullptr) {
+		fprintf(stderr, "Could not open file for writing: %s\n", dest);
+		exit(1);
+	}
+
+	for (;;) {
+		int byte = getc(in_file);
+		if (byte == EOF) break;
+		putc(byte, out_file);
+	}
+
+	fclose(in_file);
+	fclose(out_file);
+}
+
+/**
+ * Locate the user's home directory. Failure is a fatal error.
+ * @return User home directory.
+ */
+const std::string &GetUserHomeDirectory()
+{
+	static std::string homedir;
+	if (!homedir.empty()) return homedir;
+
+	for (auto& var : {"HOME", "USERPROFILE", "HOMEPATH", "APPDATA"}) {
+		const char *environment_variable = getenv(var);
+		if (environment_variable != nullptr && environment_variable[0] != '\0') {
+			homedir = environment_variable;
+			return homedir;
+		}
+	}
+
+	fprintf(stderr, "Unable to locate the user home directory. Set the HOME environment variable to fix the problem.\n");
+	exit(1);
 }
 
 /**
@@ -294,13 +332,13 @@ void MakeDirectory(const char *path)
  * @param name Relative path of the file.
  * @return Actual path to the file.
  */
-std::string FindDataFile(const char *name)
+std::string FindDataFile(const std::string &name)
 {
-	for (std::string path : {"..", freerct_install_prefix()}) {
-		path += '/';
+	for (std::string path : {std::string(".."), freerct_install_prefix()}) {
+		path += DIR_SEP;
 		path += name;
 		if (PathIsFile(path.c_str())) return path;
 	}
-	fprintf(stderr, "Data file %s is missing, the installation seems to be broken!\n", name);
-	NOT_REACHED();
+	fprintf(stderr, "Data file %s is missing, the installation seems to be broken!\n", name.c_str());
+	exit(1);
 }

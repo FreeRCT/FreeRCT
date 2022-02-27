@@ -90,8 +90,8 @@ static void PrintVersion()
 
 	printf("Version                : %s\n",   _freerct_revision);
 	printf("Build ID               : %s\n",   _freerct_build_date);
-	printf("Installation directory : %s\n",   freerct_install_prefix());
-	printf("User data directory    : %s\n\n", freerct_userdata_prefix());
+	printf("Installation directory : %s\n",   freerct_install_prefix().c_str());
+	printf("User data directory    : %s\n\n", freerct_userdata_prefix().c_str());
 
 	printf("Homepage: https://freerct.net\n\n");
 
@@ -106,6 +106,53 @@ static void PrintVersion()
 		"for more details. You should have received a copy of the\n"
 		"GNU General Public License along with FreeRCT. If not,\n"
 		"see <http://www.gnu.org/licenses/>\n");
+}
+
+/**
+ * Look for savegames and a config file in various locations we used before we implemented
+ * the XDG basedir specification, and move our findings to the new-style directories.
+ * Does not overwrite existing files.
+ * @todo Can be removed some time in the future (after v0.1) when nobody should have any unmigrated files anymore.
+ */
+static void MigrateOldFiles()
+{
+	const std::string &userdata = freerct_userdata_prefix();
+	const std::string &homedir = GetUserHomeDirectory();
+
+	for (const std::string &old_directory :
+			{homedir + "" + DIR_SEP + ".config" + DIR_SEP + "freerct",
+			homedir + DIR_SEP + ".local" + DIR_SEP + "share" + DIR_SEP + "freerct",
+			homedir + DIR_SEP + ".freerct"}) {
+		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
+		dr->OpenPath(old_directory.c_str());
+		for (;;) {
+			const char *filename = dr->NextEntry();
+			if (filename == nullptr) break;
+
+			std::string name(filename);
+			name = name.substr(name.find_last_of(DIR_SEP) + 1);
+
+			std::string destination;
+			if (name == "freerct.cfg") {
+				destination = userdata;
+				destination += DIR_SEP;
+				destination += name;
+			} else if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) {
+				destination = userdata;
+				destination += DIR_SEP;
+				destination += SAVEGAME_DIRECTORY;
+				destination += DIR_SEP;
+				destination += name;
+			} else {
+				continue;
+			}
+
+			if (PathIsFile(destination.c_str())) continue;  // Do not overwrite existing files.
+			printf("Migrating file from %s to %s\n", filename, destination.c_str());
+			CopyBinaryFile(filename, destination.c_str());
+		}
+		dr->ClosePath();
+	}
 }
 
 /**
@@ -156,8 +203,8 @@ int freerct_main(int argc, char **argv)
 		}
 	} while (opt_id != -1);
 
-	/* Create the data directory on startup if it did not exist yet. */
-	MakeDirectory(freerct_userdata_prefix());
+	/* Scan for savegames and config files in outdated locations. */
+	MigrateOldFiles();
 
 	/* Load RCD files. */
 	InitImageStorage();
@@ -171,18 +218,20 @@ int freerct_main(int argc, char **argv)
 		return 1;
 	}
 
-	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
 	std::string cfg_file_path = freerct_userdata_prefix();
-	cfg_file_path += dr->dir_sep;
+	cfg_file_path += DIR_SEP;
 	cfg_file_path += "freerct.cfg";
 	ConfigFile cfg_file(cfg_file_path);
+
+	/* Create the data directory on startup if it did not exist yet. */
+	MakeDirectory((freerct_userdata_prefix() + DIR_SEP + SAVEGAME_DIRECTORY).c_str());
 
 	std::string font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
 	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
 
 	/* Use default values if no font has been set. */
-	if (font_path.empty()) font_path = FindDataFile("data/font/Ubuntu-L.ttf");
+	if (font_path.empty()) font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "Ubuntu-L.ttf");
 	if (font_size < 1) font_size = 15;
 
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
