@@ -120,8 +120,6 @@ static void MigrateOldFiles()
 	const std::string &homedir = GetUserHomeDirectory();
 
 	for (const std::string &old_directory : {homedir + "/.config/freerct", homedir + "/.local/share/freerct", homedir + "/.freerct"}) {
-		if (old_directory == userdata) continue;
-
 		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
 		dr->OpenPath(old_directory.c_str());
 		const char *filename;
