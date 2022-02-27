@@ -79,7 +79,7 @@ bool PathIsDirectory(const char *path);
 DirectoryReader *MakeDirectoryReader();
 
 void MakeDirectory(const char *path);
-void CopyFile(const char *src, const char *dest);
+void CopyBinaryFile(const char *src, const char *dest);
 
 const std::string &GetUserHomeDirectory();
 

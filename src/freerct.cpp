@@ -143,7 +143,7 @@ static void MigrateOldFiles()
 
 			if (PathIsFile(destination.c_str())) continue;  // Do not overwrite existing files.
 			printf("Migrating file from %s to %s\n", filename, destination.c_str());
-			CopyFile(filename, destination.c_str());
+			CopyBinaryFile(filename, destination.c_str());
 		}
 		dr->ClosePath();
 	}

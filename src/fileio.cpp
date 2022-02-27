@@ -294,7 +294,7 @@ void MakeDirectory(const char *path)
  * @param src Source file.
  * @param dest Destination file.
  */
-void CopyFile(const char *src, const char *dest)
+void CopyBinaryFile(const char *src, const char *dest)
 {
 	FILE *in_file = nullptr;
 	in_file = fopen(src, "rb");
