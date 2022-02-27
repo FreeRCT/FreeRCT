@@ -9,6 +9,7 @@
 
 #include "rev.h"
 #include "stdafx.h"
+#include "fileio.h"
 
 /**
  * The text version of FreeRCT's revision.
@@ -90,19 +91,7 @@ const char *freerct_userdata_prefix()
 			_freerct_userdata_prefix_cache = xdg_data_home;
 			_freerct_userdata_prefix_cache += "/freerct";
 		} else {  // The XDG spec is not applicable, fall back to defaults.
-			_freerct_userdata_prefix_cache.clear();
-			/* Try to detect the home directory. */
-			for (auto& var : {"HOME", "USERPROFILE", "HOMEPATH", "APPDATA"}) {
-				const char *environment_variable = getenv(var);
-				if (environment_variable != nullptr && environment_variable[0] != '\0') {
-					_freerct_userdata_prefix_cache = environment_variable;
-					break;
-				}
-			}
-			if (_freerct_userdata_prefix_cache.empty()) {
-				fprintf(stderr, "Unable to locate the user home directory. Set the HOME environment variable to fix the problem.\n");
-				NOT_REACHED();
-			}
+			_freerct_userdata_prefix_cache = GetUserHomeDirectory();
 			/* Set a reasonable default path relative to the home directory. */
 #ifdef _WIN32
 			_freerct_userdata_prefix_cache += "\\.freerct";

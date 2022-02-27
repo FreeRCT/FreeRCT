@@ -290,6 +290,55 @@ void MakeDirectory(const char *path)
 }
 
 /**
+ * Copy a file.
+ * @param src Source file.
+ * @param dest Destination file.
+ */
+void CopyFile(const char *src, const char *dest)
+{
+	FILE *in_file = nullptr;
+	in_file = fopen(src, "rb");
+	if (in_file == nullptr) {
+		fprintf(stderr, "Could not open file for reading: %s\n", src);
+		NOT_REACHED();
+	}
+
+	FILE *out_file = nullptr;
+	out_file = fopen(dest, "wb");
+	if (out_file == nullptr) {
+		fprintf(stderr, "Could not open file for writing: %s\n", dest);
+		NOT_REACHED();
+	}
+
+	int byte;
+	while ((byte = getc(in_file)) != EOF) putc(byte, out_file);
+
+	fclose(in_file);
+	fclose(out_file);
+}
+
+/**
+ * Locate the user's home directory. Failure is a fatal error.
+ * @return User home directory.
+ */
+const std::string &GetUserHomeDirectory()
+{
+	static std::string homedir;
+	if (!homedir.empty()) return homedir;
+
+	for (auto& var : {"HOME", "USERPROFILE", "HOMEPATH", "APPDATA"}) {
+		const char *environment_variable = getenv(var);
+		if (environment_variable != nullptr && environment_variable[0] != '\0') {
+			homedir = environment_variable;
+			return homedir;
+		}
+	}
+
+	fprintf(stderr, "Unable to locate the user home directory. Set the HOME environment variable to fix the problem.\n");
+	NOT_REACHED();
+}
+
+/**
  * Locate a data file.
  * @param name Relative path of the file.
  * @return Actual path to the file.

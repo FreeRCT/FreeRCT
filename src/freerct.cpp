@@ -109,6 +109,49 @@ static void PrintVersion()
 }
 
 /**
+ * Look for savegames and a config file in various locations we used before we implemented
+ * the XDG basedir specification, and move our findings to the new-style directories.
+ * Does not overwrite existing files.
+ * @todo Can be removed some time in the future (after v0.1) when nobody should have any unmigrated files anymore.
+ */
+static void MigrateOldFiles()
+{
+	const std::string userdata = freerct_userdata_prefix();
+	const std::string &homedir = GetUserHomeDirectory();
+
+	for (const std::string &old_directory : {homedir + "/.config/freerct", homedir + "/.local/share/freerct", homedir + "/.freerct"}) {
+		if (old_directory == userdata) continue;
+
+		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
+		dr->OpenPath(old_directory.c_str());
+		const char *filename;
+		while ((filename = dr->NextEntry()) != nullptr) {
+			std::string name(filename);
+			name = name.substr(name.find_last_of(dr->dir_sep) + 1);
+			std::string destination;
+			if (name == "freerct.cfg") {
+				destination = userdata;
+				destination += dr->dir_sep;
+				destination += name;
+			} else if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) {
+				destination = userdata;
+				destination += dr->dir_sep;
+				destination += SAVEGAME_DIRECTORY;
+				destination += dr->dir_sep;
+				destination += name;
+			} else {
+				continue;
+			}
+
+			if (PathIsFile(destination.c_str())) continue;  // Do not overwrite existing files.
+			printf("Migrating file from %s to %s\n", filename, destination.c_str());
+			CopyFile(filename, destination.c_str());
+		}
+		dr->ClosePath();
+	}
+}
+
+/**
  * Main entry point of our FreeRCT game.
  * @param argc Argument count.
  * @param argv Argument vector.
@@ -155,6 +198,9 @@ int freerct_main(int argc, char **argv)
 				return 1;
 		}
 	} while (opt_id != -1);
+
+	/* Scan for savegames and config files in outdated locations. */
+	MigrateOldFiles();
 
 	/* Load RCD files. */
 	InitImageStorage();
