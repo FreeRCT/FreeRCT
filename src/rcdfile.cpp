@@ -74,7 +74,7 @@ void RcdFileCollection::ScanDirectories()
 
 	const std::string _rcd_paths[] = {
 		"rcd",
-		freerct_install_prefix() + "/rcd",
+		freerct_install_prefix() + DIR_SEP + "rcd",
 		"",
 	};
 

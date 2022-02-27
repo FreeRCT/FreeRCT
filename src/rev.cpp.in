@@ -79,20 +79,23 @@ const std::string &freerct_install_prefix()
  * @return The path.
  * @todo This is written for static paths and Linux-specific homedir detection. Not tested in more convoluted conditions.
  */
-const char *freerct_userdata_prefix()
+const std::string &freerct_userdata_prefix()
 {
-	if (!_freerct_userdata_prefix_cache.empty()) return _freerct_userdata_prefix_cache.c_str();
+	if (!_freerct_userdata_prefix_cache.empty()) return _freerct_userdata_prefix_cache;
 
-	if (!_freerct_userdata_prefix_override.empty()) {  // The user manually set a location.
+	if (!_freerct_userdata_prefix_override.empty()) {
+		/* The user manually set a location. */
 		_freerct_userdata_prefix_cache = _freerct_userdata_prefix_override;
-	} else {  // Try to follow the XDG basedir specification.
+	} else {
+		/* Try to follow the XDG basedir specification. */
 		const char *xdg_data_home = getenv("XDG_DATA_HOME");
 		if (xdg_data_home != nullptr && xdg_data_home[0] != '\0') {
 			_freerct_userdata_prefix_cache = xdg_data_home;
-			_freerct_userdata_prefix_cache += "/freerct";
-		} else {  // The XDG spec is not applicable, fall back to defaults.
+			_freerct_userdata_prefix_cache += DIR_SEP;
+			_freerct_userdata_prefix_cache += "freerct";
+		} else {
+			/* The XDG spec is not applicable, fall back to a reasonable default path. */
 			_freerct_userdata_prefix_cache = GetUserHomeDirectory();
-			/* Set a reasonable default path relative to the home directory. */
 #ifdef _WIN32
 			_freerct_userdata_prefix_cache += "\\.freerct";
 #else
@@ -101,5 +104,5 @@ const char *freerct_userdata_prefix()
 		}
 	}
 
-	return _freerct_userdata_prefix_cache.c_str();
+	return _freerct_userdata_prefix_cache;
 }

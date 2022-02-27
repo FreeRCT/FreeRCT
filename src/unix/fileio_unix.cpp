@@ -16,7 +16,9 @@
 #include <dirent.h>
 #include <unistd.h>
 
-UnixDirectoryReader::UnixDirectoryReader() : DirectoryReader('/')
+const char *DIR_SEP = "/";  ///< Directory separator character.
+
+UnixDirectoryReader::UnixDirectoryReader()
 {
 	this->dirfp = nullptr;
 }
@@ -49,7 +51,7 @@ const char *UnixDirectoryReader::NextEntry()
 
 const char *UnixDirectoryReader::MakePath(const char *directory, const char *fname)
 {
-	snprintf(this->fpath, MAX_PATH, "%s%c%s", directory, this->dir_sep, fname);
+	snprintf(this->fpath, MAX_PATH, "%s%s%s", directory, DIR_SEP, fname);
 	this->fpath[MAX_PATH - 1] = '\0'; // Better safe than sorry.
 	return this->fpath;
 }

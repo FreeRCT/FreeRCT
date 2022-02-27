@@ -36,7 +36,6 @@ private:
 
 	const Type type;                  ///< Type of this window.
 	std::set<std::string> all_files;  ///< All files in the working directory.
-	std::string dir_sep;              ///< Directory separator.
 };
 
 /**
@@ -86,12 +85,12 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 {
 	/* Get all .fct files in the directory. */
 	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
-	this->dir_sep = {dr->dir_sep};
-	dr->OpenPath((freerct_userdata_prefix() + this->dir_sep + SAVEGAME_DIRECTORY).c_str());
-	const char *str;
-	while ((str = dr->NextEntry()) != nullptr) {
+	dr->OpenPath((freerct_userdata_prefix() + DIR_SEP + SAVEGAME_DIRECTORY).c_str());
+	for (;;) {
+		const char *str = dr->NextEntry();
+		if (str == nullptr) break;
 		std::string name(str);
-		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) this->all_files.insert(name.substr(name.find_last_of(this->dir_sep) + 1));
+		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) this->all_files.insert(name.substr(name.find_last_of(DIR_SEP) + 1));
 	}
 	dr->ClosePath();
 
@@ -153,9 +152,9 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 		case LSW_OK: {
 			const std::string filename = this->FinalFilename();
 			std::string path = freerct_userdata_prefix();
-			path += this->dir_sep;
+			path += DIR_SEP;
 			path += SAVEGAME_DIRECTORY;
-			path += this->dir_sep;
+			path += DIR_SEP;
 			path += filename;
 			switch (this->type) {
 				case SAVE:
