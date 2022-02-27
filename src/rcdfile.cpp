@@ -72,15 +72,15 @@ void RcdFileCollection::ScanDirectories()
 {
 	DirectoryReader *reader = MakeDirectoryReader();
 
-	const char *_rcd_paths[] = {
+	const std::string _rcd_paths[] = {
 		"rcd",
-		freerct_install_prefix(),
-		nullptr,
+		freerct_install_prefix() + "/rcd",
+		"",
 	};
 
-	const char **rcd_path = _rcd_paths;
-	while (*rcd_path != nullptr) {
-		reader->OpenPath(*rcd_path);
+	const std::string *rcd_path = _rcd_paths;
+	while (!rcd_path->empty()) {
+		reader->OpenPath(rcd_path->c_str());
 		for (;;) {
 			const char *fname = reader->NextFile();
 			if (fname == nullptr) break;

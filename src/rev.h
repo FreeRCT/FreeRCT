@@ -10,10 +10,12 @@
 #ifndef REV_H
 #define REV_H
 
+#include <string>
+
 extern const char _freerct_revision[];
 extern const char _freerct_build_date[];
 
-const char *freerct_install_prefix();
+const std::string &freerct_install_prefix();
 const char *freerct_userdata_prefix();
 
 void OverrideInstallPrefix(const char *dir);

@@ -68,9 +68,9 @@ void OverrideUserdataPrefix(const char *dir)
  * The location where all FreeRCT assets are installed if "make install" was called.
  * @return The path.
  */
-const char *freerct_install_prefix()
+const std::string &freerct_install_prefix()
 {
-	return _freerct_install_prefix.c_str();
+	return _freerct_install_prefix;
 }
 
 /**

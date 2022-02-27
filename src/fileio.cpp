@@ -296,7 +296,7 @@ void MakeDirectory(const char *path)
  */
 std::string FindDataFile(const char *name)
 {
-	for (std::string path : {"..", freerct_install_prefix()}) {
+	for (std::string path : {std::string(".."), freerct_install_prefix()}) {
 		path += '/';
 		path += name;
 		if (PathIsFile(path.c_str())) return path;

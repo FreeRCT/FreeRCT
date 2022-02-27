@@ -90,7 +90,7 @@ static void PrintVersion()
 
 	printf("Version                : %s\n",   _freerct_revision);
 	printf("Build ID               : %s\n",   _freerct_build_date);
-	printf("Installation directory : %s\n",   freerct_install_prefix());
+	printf("Installation directory : %s\n",   freerct_install_prefix().c_str());
 	printf("User data directory    : %s\n\n", freerct_userdata_prefix());
 
 	printf("Homepage: https://freerct.net\n\n");
