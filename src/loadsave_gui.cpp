@@ -86,8 +86,8 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 {
 	/* Get all .fct files in the directory. */
 	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
-	dr->OpenPath(freerct_userdata_prefix());
-	this->dir_sep += dr->dir_sep;
+	this->dir_sep = {dr->dir_sep};
+	dr->OpenPath((freerct_userdata_prefix() + this->dir_sep + SAVEGAME_DIRECTORY).c_str());
 	const char *str;
 	while ((str = dr->NextEntry()) != nullptr) {
 		std::string name(str);
@@ -153,6 +153,8 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 		case LSW_OK: {
 			const std::string filename = this->FinalFilename();
 			std::string path = freerct_userdata_prefix();
+			path += this->dir_sep;
+			path += SAVEGAME_DIRECTORY;
 			path += this->dir_sep;
 			path += filename;
 			switch (this->type) {
