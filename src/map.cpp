@@ -706,8 +706,8 @@ void VoxelWorld::SetTileOwner(uint16 x, uint16 y, TileOwner owner)
  */
 void VoxelWorld::SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 height, TileOwner owner)
 {
-	for (uint16 ix = x; ix < x + width; ix++) {
-		for (uint16 iy = y; iy < y + height; iy++) {
+	for (unsigned ix = x; ix < x + width; ix++) {
+		for (unsigned iy = y; iy < y + height; iy++) {
 			this->GetModifyStack(ix, iy)->owner = owner;
 		}
 	}
