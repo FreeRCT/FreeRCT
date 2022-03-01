@@ -251,6 +251,16 @@ bool BaseWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string 
 }
 
 /**
+ * Process input from the mouse wheel.
+ * @param direction How far the wheel has been moved (sign indicates direction).
+ * @return Mouse wheel event has been processed.
+ */
+bool BaseWidget::OnMouseWheelEvent(int direction)
+{
+	return false;
+}
+
+/**
  * Denote the widget as being needed to redraw.
  * @param base %Window base coordinate.
  */
@@ -787,6 +797,8 @@ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 
 void ScrollbarWidget::Draw(const GuiWindow *w)
 {
+	this->cached_window_base = w->rect.base;
+
 	static Recolouring rc; // Only COL_RANGE_BROWN is modified each time.
 	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, this->colour));
 
@@ -930,6 +942,19 @@ void ScrollbarWidget::OnClick(const Point32 &base, const Point16 &pos)
 			/// \todo Implement clicking above at the slider.
 			break;
 	}
+}
+
+bool ScrollbarWidget::OnMouseWheelEvent(int direction)
+{
+	if (direction > 0 && this->start < direction) {
+		this->SetStart(0);
+	} else {
+		this->SetStart(this->start - direction);
+	}
+
+	this->MarkDirty(this->cached_window_base);
+	if (this->canvas != nullptr) this->canvas->MarkDirty(this->cached_window_base);
+	return true;
 }
 
 /**
@@ -1183,6 +1208,11 @@ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
 	return (this->child != nullptr && this->child->OnKeyEvent(key_code, mod, symbol)) || LeafWidget::OnKeyEvent(key_code, mod, symbol);
+}
+
+bool BackgroundWidget::OnMouseWheelEvent(int direction)
+{
+	return (this->child != nullptr && this->child->OnMouseWheelEvent(direction)) || LeafWidget::OnMouseWheelEvent(direction);
 }
 
 void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
@@ -1520,6 +1550,14 @@ bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std:
 		if (this->childs[idx]->OnKeyEvent(key_code, mod, symbol)) return true;
 	}
 	return BaseWidget::OnKeyEvent(key_code, mod, symbol);
+}
+
+bool IntermediateWidget::OnMouseWheelEvent(int direction)
+{
+	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
+		if (this->childs[idx]->OnMouseWheelEvent(direction)) return true;
+	}
+	return BaseWidget::OnMouseWheelEvent(direction);
 }
 
 BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)

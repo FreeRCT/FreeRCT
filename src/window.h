@@ -100,6 +100,7 @@ public:
 	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
 	virtual void OnMouseLeaveEvent() override;
+	virtual void OnMouseWheelEvent(int direction) override;
 	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
 	virtual void SelectorMouseButtonEvent(uint8 state);
