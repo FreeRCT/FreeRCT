@@ -492,6 +492,11 @@ void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
 	this->mouse_pos = pos;
 }
 
+void GuiWindow::OnMouseWheelEvent(int direction)
+{
+	this->tree->OnMouseWheelEvent(direction);
+}
+
 WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 {
 	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return WMME_NONE;
