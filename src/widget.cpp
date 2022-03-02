@@ -1270,7 +1270,7 @@ void IntermediateWidget::ClaimMemory()
 
 	this->childs.reset(new std::unique_ptr<BaseWidget>[this->num_rows * this->num_cols]);
 	assert(this->childs != nullptr);
-	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+	for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 		this->childs[idx] = nullptr;
 	}
 
@@ -1351,7 +1351,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 		/* Try to find a consistent minimal vertical size for all children. Due to a fill size > 1, this may be
 		 * bigger than the current minimal vertical size.
 		 */
-		uint16 cur_minsize = this->rows[y].min_size; // the target we are aiming for currently.
+		unsigned cur_minsize = this->rows[y].min_size; // the target we are aiming for currently.
 		bool consistent = false;
 		/* No overflow, and not insanely bigger (upper limit is arbitrary). */
 		while (cur_minsize >= this->rows[y].min_size && this->rows[y].min_size + 50 > cur_minsize) {
@@ -1410,7 +1410,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 		 * Try to find a consistent minimal horizontal size for all children. Due to a fill size > 1, this may be
 		 * bigger than the current minimal horizontal size.
 		 */
-		uint16 cur_minsize = this->columns[x].min_size; // the target we are aiming for currently.
+		unsigned cur_minsize = this->columns[x].min_size; // the target we are aiming for currently.
 		bool consistent = false;
 		/* No overflow, and not insanely bigger (upper limit is arbitrary). */
 		while (cur_minsize >= this->columns[x].min_size && this->columns[x].min_size + 50 > cur_minsize) {
@@ -1533,7 +1533,7 @@ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 
 void IntermediateWidget::Draw(const GuiWindow *w)
 {
-	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+	for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 		this->childs[idx]->Draw(w);
 	}
 }
@@ -1564,7 +1564,7 @@ BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	BaseWidget *res = nullptr;
 	if (this->pos.IsPointInside(pt)) {
-		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+		for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 			res = this->childs[idx]->GetWidgetByPosition(pt);
 			if (res != nullptr) break;
 		}
@@ -1574,7 +1574,7 @@ BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
 
 void IntermediateWidget::AutoRaiseButtons(const Point32 &base)
 {
-	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+	for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 		this->childs[idx]->AutoRaiseButtons(base);
 	}
 }
