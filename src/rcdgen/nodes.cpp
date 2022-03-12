@@ -988,23 +988,23 @@ int FSETBlock::Write(FileWriter *fw)
 	fb->SaveUInt16(this->tile_width);
 	fb->SaveUInt8(this->width_x);
 	fb->SaveUInt8(this->width_y);
-	for (int8 x = 0; x < this->width_x; ++x) {
-		for (int8 y = 0; y < this->width_y; ++y) {
+	for (int x = 0; x < this->width_x; ++x) {
+		for (int y = 0; y < this->width_y; ++y) {
 			fb->SaveUInt32(this->ne_views[x * this->width_y + y]->Write(fw));
 		}
 	}
-	for (int8 x = 0; x < this->width_x; ++x) {
-		for (int8 y = 0; y < this->width_y; ++y) {
+	for (int x = 0; x < this->width_x; ++x) {
+		for (int y = 0; y < this->width_y; ++y) {
 			fb->SaveUInt32(this->se_views[x * this->width_y + y]->Write(fw));
 		}
 	}
-	for (int8 x = 0; x < this->width_x; ++x) {
-		for (int8 y = 0; y < this->width_y; ++y) {
+	for (int x = 0; x < this->width_x; ++x) {
+		for (int y = 0; y < this->width_y; ++y) {
 			fb->SaveUInt32(this->sw_views[x * this->width_y + y]->Write(fw));
 		}
 	}
-	for (int8 x = 0; x < this->width_x; ++x) {
-		for (int8 y = 0; y < this->width_y; ++y) {
+	for (int x = 0; x < this->width_x; ++x) {
+		for (int y = 0; y < this->width_y; ++y) {
 			fb->SaveUInt32(this->nw_views[x * this->width_y + y]->Write(fw));
 		}
 	}
@@ -1027,8 +1027,8 @@ int TIMABlock::Write(FileWriter *fw)
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, 16 + (8 * this->frames) - 12);
 	fb->SaveUInt32(this->frames);
-	for (int8 f = 0; f < this->frames; f++) fb->SaveUInt32(this->durations[f]);
-	for (int8 f = 0; f < this->frames; f++) {
+	for (int f = 0; f < this->frames; ++f) fb->SaveUInt32(this->durations[f]);
+	for (int f = 0; f < this->frames; ++f) {
 		this->views[f]->unrotated_views_only_allowed = this->unrotated_views_only_allowed;
 		fb->SaveUInt32(this->views[f]->Write(fw));
 	}

@@ -251,6 +251,16 @@ bool BaseWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string 
 }
 
 /**
+ * Process input from the mouse wheel.
+ * @param direction How far the wheel has been moved (sign indicates direction).
+ * @return Mouse wheel event has been processed.
+ */
+bool BaseWidget::OnMouseWheelEvent(int direction)
+{
+	return false;
+}
+
+/**
  * Denote the widget as being needed to redraw.
  * @param base %Window base coordinate.
  */
@@ -787,6 +797,8 @@ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 
 void ScrollbarWidget::Draw(const GuiWindow *w)
 {
+	this->cached_window_base = w->rect.base;
+
 	static Recolouring rc; // Only COL_RANGE_BROWN is modified each time.
 	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, this->colour));
 
@@ -930,6 +942,19 @@ void ScrollbarWidget::OnClick(const Point32 &base, const Point16 &pos)
 			/// \todo Implement clicking above at the slider.
 			break;
 	}
+}
+
+bool ScrollbarWidget::OnMouseWheelEvent(int direction)
+{
+	if (direction > 0 && this->start < direction) {
+		this->SetStart(0);
+	} else {
+		this->SetStart(this->start - direction);
+	}
+
+	this->MarkDirty(this->cached_window_base);
+	if (this->canvas != nullptr) this->canvas->MarkDirty(this->cached_window_base);
+	return true;
 }
 
 /**
@@ -1185,6 +1210,11 @@ bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::s
 	return (this->child != nullptr && this->child->OnKeyEvent(key_code, mod, symbol)) || LeafWidget::OnKeyEvent(key_code, mod, symbol);
 }
 
+bool BackgroundWidget::OnMouseWheelEvent(int direction)
+{
+	return (this->child != nullptr && this->child->OnMouseWheelEvent(direction)) || LeafWidget::OnMouseWheelEvent(direction);
+}
+
 void BackgroundWidget::AutoRaiseButtons(const Point32 &base)
 {
 	if (this->child != nullptr) this->child->AutoRaiseButtons(base);
@@ -1240,7 +1270,7 @@ void IntermediateWidget::ClaimMemory()
 
 	this->childs.reset(new std::unique_ptr<BaseWidget>[this->num_rows * this->num_cols]);
 	assert(this->childs != nullptr);
-	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+	for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 		this->childs[idx] = nullptr;
 	}
 
@@ -1321,7 +1351,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 		/* Try to find a consistent minimal vertical size for all children. Due to a fill size > 1, this may be
 		 * bigger than the current minimal vertical size.
 		 */
-		uint16 cur_minsize = this->rows[y].min_size; // the target we are aiming for currently.
+		unsigned cur_minsize = this->rows[y].min_size; // the target we are aiming for currently.
 		bool consistent = false;
 		/* No overflow, and not insanely bigger (upper limit is arbitrary). */
 		while (cur_minsize >= this->rows[y].min_size && this->rows[y].min_size + 50 > cur_minsize) {
@@ -1380,7 +1410,7 @@ void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 		 * Try to find a consistent minimal horizontal size for all children. Due to a fill size > 1, this may be
 		 * bigger than the current minimal horizontal size.
 		 */
-		uint16 cur_minsize = this->columns[x].min_size; // the target we are aiming for currently.
+		unsigned cur_minsize = this->columns[x].min_size; // the target we are aiming for currently.
 		bool consistent = false;
 		/* No overflow, and not insanely bigger (upper limit is arbitrary). */
 		while (cur_minsize >= this->columns[x].min_size && this->columns[x].min_size + 50 > cur_minsize) {
@@ -1503,7 +1533,7 @@ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 
 void IntermediateWidget::Draw(const GuiWindow *w)
 {
-	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+	for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 		this->childs[idx]->Draw(w);
 	}
 }
@@ -1522,11 +1552,19 @@ bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std:
 	return BaseWidget::OnKeyEvent(key_code, mod, symbol);
 }
 
+bool IntermediateWidget::OnMouseWheelEvent(int direction)
+{
+	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
+		if (this->childs[idx]->OnMouseWheelEvent(direction)) return true;
+	}
+	return BaseWidget::OnMouseWheelEvent(direction);
+}
+
 BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
 {
 	BaseWidget *res = nullptr;
 	if (this->pos.IsPointInside(pt)) {
-		for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+		for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 			res = this->childs[idx]->GetWidgetByPosition(pt);
 			if (res != nullptr) break;
 		}
@@ -1536,7 +1574,7 @@ BaseWidget *IntermediateWidget::GetWidgetByPosition(const Point16 &pt)
 
 void IntermediateWidget::AutoRaiseButtons(const Point32 &base)
 {
-	for (uint16 idx = 0; idx < (uint16)this->num_rows * this->num_cols; idx++) {
+	for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 		this->childs[idx]->AutoRaiseButtons(base);
 	}
 }

@@ -22,15 +22,6 @@ IF(NOT DEFINED FREERCT_BASENAME)
 	set(FREERCT_BASENAME "net.freerct.FreeRCT")
 ENDIF()
 
-# FreeRCT expands the '~' to the user home directory at runtime.
-IF(NOT USERDATA_PREFIX)
-	IF(WIN32)
-		set(USERDATA_PREFIX "~/.freerct")
-	ELSE()
-		set(USERDATA_PREFIX "~/.config/freerct")
-	ENDIF()
-ENDIF()
-
 # Create the directories that the binaries and data files go into
 set(FRCT_BINARY_DIR "${CMAKE_BINARY_DIR}/bin")
 file(MAKE_DIRECTORY "${FRCT_BINARY_DIR}")

@@ -12,6 +12,8 @@
 
 #include <vector>
 
+static const std::string SAVEGAME_DIRECTORY("save");  ///< The directory where savegames are stored, relative to the user data directory.
+
 /** An error that occurs while loading a savegame. */
 struct LoadingError : public std::exception {
 	explicit LoadingError(const char *fmt, ...);

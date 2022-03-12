@@ -22,8 +22,8 @@
  */
 class DirectoryReader {
 public:
-	DirectoryReader(const char dir_sep);
-	virtual ~DirectoryReader();
+	DirectoryReader() = default;
+	virtual ~DirectoryReader() = default;
 
 	virtual void OpenPath(const char *path) = 0;
 	virtual const char *NextEntry() = 0;
@@ -34,9 +34,9 @@ public:
 
 	virtual bool EntryIsFile() = 0;
 	virtual bool EntryIsDirectory() = 0;
-
-	const char dir_sep; ///< Directory separator character.
 };
+
+extern const char *DIR_SEP;  ///< Directory separator character.
 
 /**
  * Class for reading an RCD file.
@@ -79,7 +79,10 @@ bool PathIsDirectory(const char *path);
 DirectoryReader *MakeDirectoryReader();
 
 void MakeDirectory(const char *path);
+void CopyBinaryFile(const char *src, const char *dest);
 
-std::string FindDataFile(const char *name);
+const std::string &GetUserHomeDirectory();
+
+std::string FindDataFile(const std::string &name);
 
 #endif

@@ -85,6 +85,7 @@ public:
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void AutoRaiseButtons(const Point32 &base);
 	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
+	virtual bool OnMouseWheelEvent(int direction);
 
 	void MarkDirty(const Point32 &base) const;
 
@@ -264,6 +265,7 @@ public:
 	void Draw(const GuiWindow *w) override;
 
 	void OnClick(const Point32 &base, const Point16 &pos);
+	bool OnMouseWheelEvent(int direction) override;
 
 	void SetItemSize(uint size);
 	void SetItemCount(uint count);
@@ -279,6 +281,7 @@ private:
 	uint start;               ///< Index of first visible item.
 	uint item_size;           ///< Size of an item if not \c 0, else use #canvas.
 	const BaseWidget *canvas; ///< %Widget being scrolled.
+	Point32 cached_window_base;  ///< This widget's last window base position.
 
 	int GetDecrementButtonSize() const;
 	int GetIncrementButtonSize() const;
@@ -301,6 +304,7 @@ public:
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
+	bool OnMouseWheelEvent(int direction) override;
 
 	std::unique_ptr<BaseWidget> child; ///< Child widget displayed on top of the background widget.
 };
@@ -342,6 +346,7 @@ public:
 	void AutoRaiseButtons(const Point32 &base) override;
 	BaseWidget *FindTooltipWidget(const Point16 &pt) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
+	bool OnMouseWheelEvent(int direction) override;
 
 	void AddChild(uint8 col, uint8 row, BaseWidget *sub);
 	void ClaimMemory();
