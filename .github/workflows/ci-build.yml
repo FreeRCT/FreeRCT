@@ -8,6 +8,58 @@ on:
     - release/*
 
 jobs:
+  clang-tidy:
+    name: Clang-Tidy
+
+    runs-on: ubuntu-20.04
+    env:
+      CC: clang
+      CXX: clang++
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        echo "::group::Update apt"
+        sudo apt-get update
+        echo "::endgroup::"
+
+        echo "::group::Install dependencies"
+        sudo apt-get install -y --no-install-recommends \
+          libpng-dev \
+          libsdl2-dev \
+          libsdl2-ttf-dev \
+          zlib1g-dev \
+          python-yaml \
+          clang-tidy \
+          # EOF
+        echo "::endgroup::"
+      env:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Check
+      run: |
+        echo "::group::CMake"
+        mkdir build
+        pushd build
+        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+        echo "::endgroup::"
+
+        echo "::group::Compile"
+        echo "Running on $(nproc) cores"
+        cmake --build . -j $(nproc)
+        echo "::endgroup::"
+
+        echo "::group::clang-tidy"
+        python3 ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* | tee ../clang-tidy.log
+        popd
+        echo "::endgroup::"
+
+    - name: Results
+      run: ./utils/check_clang_tidy_results.py clang-tidy.log   || true  # TODO Let this check fail on errors once we've cleaned up all hits.
+
   linux:
     name: Linux
 
