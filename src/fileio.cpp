@@ -260,19 +260,23 @@ bool RcdFileReader::GetBlob(void *address, size_t length)
 }
 
 /**
- * Create a directory and all its parents if it did not exist yet.
+ * Create a directory and all its parent directories if it did not exist yet.
  * @param path Path of the directory.
- * @todo At the time of writing (2021-06-30) this is needed and tested only on Linux. Before using it anywhere else, test this on all platforms (especially Windows).
+ * @todo At the time of writing (2021-06-30) this is tested only on Linux. Before using it anywhere else, test this on all platforms (especially Windows).
  */
-void MakeDirectory(const char *path)
+void MakeDirectory(const std::string &path)
 {
-	if (PathIsDirectory(path)) return;
+	if (PathIsDirectory(path.c_str())) return;
+
+	const size_t sep_pos = path.rfind(DIR_SEP);
+	if (sep_pos != std::string::npos) MakeDirectory(path.substr(0, sep_pos));
+
 #ifdef _WIN32
-	if (CreateDirectory(path, NULL)) return;
-	fprintf(stderr, "Failed creating directory '%s'\n", path);
+	if (CreateDirectory(path.c_str(), NULL)) return;
+	fprintf(stderr, "Failed creating directory '%s'\n", path.c_str());
 #else
-	if (mkdir(path, 0x1FF) == 0) return;
-	fprintf(stderr, "Failed creating directory '%s' (%s)\n", path, strerror(errno));
+	if (mkdir(path.c_str(), 0x1FF) == 0) return;
+	fprintf(stderr, "Failed creating directory '%s' (%s)\n", path.c_str(), strerror(errno));
 #endif
 	exit(1);
 }
