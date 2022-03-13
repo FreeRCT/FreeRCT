@@ -23,6 +23,7 @@ Charles Pigott  LordAro    Chief correctness officer
 Nicolas Reed    sgtbigman  General programming
 Benedikt Straub Noordfrees General programming
 Richard Wheeler Zephyris   Artist
+Stefan Hansson  Newbyte    Flatpak maintainer
 =============== ========== =========================
 
 Contributors
@@ -57,4 +58,5 @@ Olivier Herau   French
 fuchsylp        German
 Noordfrees      Low German, German
 arroyoc         Spanish
+Newbyte         Swedish
 =============== ==================
