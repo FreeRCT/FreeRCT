@@ -9,9 +9,6 @@
 project(FreeRCT)
 cmake_minimum_required(VERSION 2.8)
 
-# Uncomment and adjust this for release branches:
-# set(FREERCT_RELEASE "0.1")
-
 # Add a compiler flag VAR_NAME=FLAG. If VAR_NAME is already set, FLAG is appended.
 FUNCTION(add_flags VAR_NAME FLAG)
 	IF(${VAR_NAME})
@@ -40,11 +37,6 @@ IF(NOT DEFINED FREERCT_BASENAME)
 	# Should always be a valid Appstream ID
 	# See https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-id-generic
 	set(FREERCT_BASENAME "net.freerct.FreeRCT")
-ENDIF()
-
-IF(DEFINED FREERCT_RELEASE)
-	set(RELEASE ON)
-	set(VERSION_STRING "${FREERCT_RELEASE}")
 ENDIF()
 
 IF(DEBIAN_PACKAGING)
