@@ -5,7 +5,6 @@
 	"sdk": "org.freedesktop.Sdk",
 	"finish-args": [
 		"--device=dri",
-		"--persist=OFF",
 		"--share=ipc",
 		"--socket=wayland",
 		"--socket=fallback-x11"
