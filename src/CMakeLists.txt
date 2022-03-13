@@ -22,13 +22,12 @@ IF(WEBASSEMBLY)
 	set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
 	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_SDL=2 -s USE_SDL_TTF=2")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WASM_FLAGS}")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WASM_FLAGS}")
+	add_c_cpp_flags("${WASM_FLAGS}")
 
 	add_custom_target(prepare_wasm_rcd ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${FRCT_BINARY_DIR}/rcd" "${CMAKE_INSTALL_PREFIX}/share/freerct")
 	add_custom_target(prepare_wasm_data ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/data" "${CMAKE_INSTALL_PREFIX}/share/freerct/data")
 
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${WASM_FLAGS} \
+	add_flags(CMAKE_EXE_LINKER_FLAGS "${WASM_FLAGS} \
 			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
 			--preload-file ${CMAKE_INSTALL_PREFIX}")
 
@@ -174,14 +173,10 @@ message(STATUS "Generating src/rev.cpp")
 configure_file("${CMAKE_SOURCE_DIR}/src/rev.cpp.in" "${CMAKE_SOURCE_DIR}/src/rev.cpp")
 
 IF(ASAN)
-	set(CMAKE_C_FLAGS
-		"-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g"
-		CACHE STRING "Flags used by the C compiler during AddressSanitizer builds."
-		FORCE)
-	set(CMAKE_CXX_FLAGS
-		"-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g"
-		CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds."
-		FORCE)
+	if(RELEASE)
+		message(FATAL_ERROR "ASan should be used only in debug builds.")
+	ENDIF()
+	add_c_cpp_flags("-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g")
 ENDIF()
 
 # Compiler flags
@@ -189,17 +184,23 @@ ENDIF()
 IF(MSVC)
 	# "If /Zc:rvalueCast is specified, the compiler follows section 5.4 of the
 	# C++11 standard". We need C++11 for the way we use threads.
-	add_compile_options(/Zc:rvalueCast)
+	add_c_cpp_flags(/Zc:rvalueCast)
 
 	IF(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		# Enable multi-threaded compilation.
-		add_compile_options(/MP)
+		add_c_cpp_flags(/MP)
 	ENDIF()
 
-	add_compile_options(/W3)
+	add_c_cpp_flags(/W3)
 ELSE()
-	add_compile_options(-g)
-	add_compile_options(-Wall -Wextra -pedantic)
+	IF(RELEASE)
+		# O3 is prone to generating broken code on some compilers, O2 is safer.
+		add_definitions("-DNDEBUG")
+		add_c_cpp_flags("-O2 -s")
+	ELSE()
+		add_c_cpp_flags("-g")
+	ENDIF()
+	add_c_cpp_flags("-Wall -Wextra -pedantic")
 ENDIF()
 
 # Add platform define
@@ -213,7 +214,7 @@ ENDIF()
 
 include(GNUInstallDirs)
 IF(WIN32)
-	INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct.exe DESTINATION "${CMAKE_INSTALL_BINDIR}")
+	install(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct.exe DESTINATION "${CMAKE_INSTALL_BINDIR}")
 ELSE()
-	INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION "${CMAKE_INSTALL_BINDIR}")
+	install(PROGRAMS ${CMAKE_BINARY_DIR}/bin/freerct DESTINATION "${CMAKE_INSTALL_BINDIR}")
 ENDIF()
