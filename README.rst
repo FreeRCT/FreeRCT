@@ -40,8 +40,9 @@ VERSION_STRING          -                             Use this string as the bui
                                                       automatically from git. If this also fails, the version defaults to '0.0.0-revdetect-broken'.
 ASAN                    OFF                           Use AddressSanitizer (see below).
 CMAKE_INSTALL_PREFIX    '/usr' or '/usr/local'        Directory where 'make install' installs.
-DIST_PACKAGING          OFF                           If enabled, 'make install' uses a filesystem structure suited for packaging and system-wide
-                                                      installations. Otherwise, a structure optimised for user-local installations is used.
+DEBIAN_PACKAGING        OFF                           If enabled, 'make install' uses a filesystem structure suited for packaging and
+                                                      system-wide installations on Debian/Ubuntu-like systems. Otherwise, a structure
+                                                      optimised for user-local installations and Flatpak builds is used.
 RELEASE                 OFF                           Compile as a release build (works faster but is not suited for debugging).
 USERDATA_PREFIX         XDG basedir spec or           Default directory where user data such as savegames is stored.
                         '~/.freerct' or               If not set, the XDG basedir specification will be applied.

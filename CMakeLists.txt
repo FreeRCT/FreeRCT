@@ -32,7 +32,7 @@ set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
-option(DIST_PACKAGING "Package for system-wide installation")
+option(DEBIAN_PACKAGING "Package for system-wide Debian/Ubuntu installation")
 option(RELEASE "Compile as release build")
 option(WEBASSEMBLY "Compile as a WebAssembly program")
 
@@ -47,7 +47,7 @@ IF(DEFINED FREERCT_RELEASE)
 	set(VERSION_STRING "${FREERCT_RELEASE}")
 ENDIF()
 
-IF(DIST_PACKAGING)
+IF(DEBIAN_PACKAGING)
 	set(CMAKE_INSTALL_PREFIX "/usr")
 	set(CMAKE_INSTALL_DATAROOTDIR "share")
 	set(CMAKE_INSTALL_BINDIR "games")
