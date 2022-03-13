@@ -9,17 +9,51 @@
 project(FreeRCT)
 cmake_minimum_required(VERSION 2.8)
 
+# Uncomment and adjust this for release branches:
+# set(FREERCT_RELEASE "0.1")
+
+# Add a compiler flag VAR_NAME=FLAG. If VAR_NAME is already set, FLAG is appended.
+FUNCTION(add_flags VAR_NAME FLAG)
+	IF(${VAR_NAME})
+		set(${VAR_NAME} "${${VAR_NAME}} ${FLAG}" PARENT_SCOPE)
+	ELSE()
+		set(${VAR_NAME} "${FLAG}" PARENT_SCOPE)
+	ENDIF()
+ENDFUNCTION()
+
+# Add flags for both the C and C++ compilers.
+FUNCTION(add_c_cpp_flags FLAG)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}" PARENT_SCOPE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAG}" PARENT_SCOPE)
+ENDFUNCTION()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
 set(FREERCT_DONE_TOP_LEVEL_CMAKE ON)
 set(CMAKE_USE_RELATIVE_PATHS ON)
 
 option(ASAN "Use AddressSanitizer (https://clang.llvm.org/docs/AddressSanitizer.html)")
+option(DIST_PACKAGING "Package for system-wide installation")
+option(RELEASE "Compile as release build")
 option(WEBASSEMBLY "Compile as a WebAssembly program")
 
 IF(NOT DEFINED FREERCT_BASENAME)
 	# Should always be a valid Appstream ID
 	# See https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-id-generic
 	set(FREERCT_BASENAME "net.freerct.FreeRCT")
+ENDIF()
+
+IF(DEFINED FREERCT_RELEASE)
+	set(RELEASE ON)
+	set(VERSION_STRING "${FREERCT_RELEASE}")
+ENDIF()
+
+IF(DIST_PACKAGING)
+	set(CMAKE_INSTALL_PREFIX "/usr")
+	set(CMAKE_INSTALL_DATAROOTDIR "share")
+	set(CMAKE_INSTALL_BINDIR "games")
+	set(PACKAGING_DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/games/freerct")
+ELSE()
+	set(PACKAGING_DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/freerct")
 ENDIF()
 
 # Create the directories that the binaries and data files go into
@@ -82,6 +116,8 @@ IF(NOT MSVC)
 	ENDFOREACH()
 
 ENDIF()
+
+install(DIRECTORY data DESTINATION "${PACKAGING_DATA_DIR}")
 
 # All the files in cpack/ are based largely on OpenTTD's packaging setup
 # (https://github.com/OpenTTD/OpenTTD/commit/b7643b1d36cb41eb6712042761c13b9819fcbe74)

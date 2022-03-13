@@ -15,3 +15,10 @@ configure_file("freerct.desktop.in" "${CMAKE_CURRENT_BINARY_DIR}/freerct.desktop
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/freerct.metainfo.xml" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo" RENAME "${FREERCT_BASENAME}.metainfo.xml")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/freerct.desktop" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications" RENAME "${FREERCT_BASENAME}.desktop")
 install(FILES "../graphics/sprites/logo/logo_256.png" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps" RENAME "${FREERCT_BASENAME}.png")
+
+add_custom_target(changelog_gz ALL
+	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/debian_changelog.md" "${CMAKE_CURRENT_BINARY_DIR}/changelog.Debian"
+	COMMAND gzip -f -n -9 "${CMAKE_CURRENT_BINARY_DIR}/changelog.Debian"
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/changelog.Debian.gz DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/doc/freerct")
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/copyright" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/doc/freerct")

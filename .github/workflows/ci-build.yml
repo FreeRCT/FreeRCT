@@ -5,6 +5,7 @@ on:
   push:
     branches:
     - master
+    - release/*
 
 jobs:
   linux:
@@ -16,8 +17,16 @@ jobs:
         include:
         - compiler: clang
           cxxcompiler: clang++
+          release: ON
         - compiler: gcc
           cxxcompiler: g++
+          release: ON
+        - compiler: clang
+          cxxcompiler: clang++
+          release: OFF
+        - compiler: gcc
+          cxxcompiler: g++
+          release: OFF
 
     runs-on: ubuntu-20.04
     env:
@@ -54,7 +63,7 @@ jobs:
         cd build
 
         echo "::group::CMake"
-        cmake ..
+        cmake .. -DRELEASE=${{ matrix.release }} -DDIST_PACKAGING=ON
         echo "::endgroup::"
 
         echo "::group::Build"
@@ -86,6 +95,10 @@ jobs:
         include:
         - arch: x64
           full_arch: x86_64
+          release: ON
+        - arch: x64
+          full_arch: x86_64
+          release: OFF
 
     runs-on: macos-latest
     env:
@@ -128,6 +141,7 @@ jobs:
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.full_arch }} \
           -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-osx-dynamic \
           -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
+          -DRELEASE=${{ matrix.release }} -DDIST_PACKAGING=ON
           # EOF
         echo "::endgroup::"
 
@@ -145,6 +159,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86, x64]
+        release: [ON, OFF]
 
     runs-on: windows-latest
 
@@ -196,6 +211,7 @@ jobs:
           -GNinja \
           -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows \
           -DCMAKE_TOOLCHAIN_FILE="c:\vcpkg\scripts\buildsystems\vcpkg.cmake" \
+          -DRELEASE=${{ matrix.release }} -DDIST_PACKAGING=ON
           # EOF
         echo "::endgroup::"
 
