@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8)
 
 # Add a compiler flag VAR_NAME=FLAG. If VAR_NAME is already set, FLAG is appended.
 FUNCTION(add_flags VAR_NAME FLAG)
-	IF(${VAR_NAME})
+	IF(DEFINED ${VAR_NAME})
 		set(${VAR_NAME} "${${VAR_NAME}} ${FLAG}" PARENT_SCOPE)
 	ELSE()
 		set(${VAR_NAME} "${FLAG}" PARENT_SCOPE)
