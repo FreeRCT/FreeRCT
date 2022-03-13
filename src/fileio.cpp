@@ -18,6 +18,7 @@
 #ifdef LINUX
 	#include "unix/fileio_unix.h"
 	#include <dirent.h>
+	#include <errno.h>
 	#include <unistd.h>
 #elif WINDOWS
 	#include "windows/fileio_windows.h"
@@ -268,10 +269,11 @@ void MakeDirectory(const char *path)
 	if (PathIsDirectory(path)) return;
 #ifdef _WIN32
 	if (CreateDirectory(path, NULL)) return;
+	fprintf(stderr, "Failed creating directory '%s'\n", path);
 #else
 	if (mkdir(path, 0x1FF) == 0) return;
+	fprintf(stderr, "Failed creating directory '%s' (%s)\n", path, strerror(errno));
 #endif
-	fprintf(stderr, "Failed creating directory '%s'\n", path);
 	exit(1);
 }
 
