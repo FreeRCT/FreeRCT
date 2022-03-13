@@ -203,6 +203,9 @@ int freerct_main(int argc, char **argv)
 		}
 	} while (opt_id != -1);
 
+	/* Create the data directory on startup if it did not exist yet. */
+	MakeDirectory(freerct_userdata_prefix() + DIR_SEP + SAVEGAME_DIRECTORY);
+
 	/* Scan for savegames and config files in outdated locations. */
 	MigrateOldFiles();
 
@@ -222,9 +225,6 @@ int freerct_main(int argc, char **argv)
 	cfg_file_path += DIR_SEP;
 	cfg_file_path += "freerct.cfg";
 	ConfigFile cfg_file(cfg_file_path);
-
-	/* Create the data directory on startup if it did not exist yet. */
-	MakeDirectory((freerct_userdata_prefix() + DIR_SEP + SAVEGAME_DIRECTORY).c_str());
 
 	std::string font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");

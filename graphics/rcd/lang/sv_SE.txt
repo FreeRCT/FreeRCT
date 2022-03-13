@@ -27,37 +27,87 @@ strings {
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 		RESOLUTION:             "%1%x%2%";
 
+		DECREASE_BUTTON:          "-";
+		INCREASE_BUTTON:          "+";
+		DROPDOWN_CHECKED:         "☑ %1%";
+		DROPDOWN_UNCHECKED:       "☐ %1%";
+
 		// Toolbar gui strings.
+		TOOLBAR_GUI_DROPDOWN_MAIN:          "Meny";
 		MAIN_MENU_QUIT:     "Avsluta";
 		MAIN_MENU_SETTINGS: "Inställningar";
 		MAIN_MENU_MODE:     "Spela/Redigerare";
 		MAIN_MENU_LOAD:     "Ladda";
 		MAIN_MENU_SAVE:     "Spara";
+		MAIN_MENU_NEW_GAME:                 "Nytt spel";
+		MAIN_MENU_MENU:                     "Huvudmeny";
+		TOOLBAR_GUI_DROPDOWN_SPEED:         "Hastighet";
+		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Ändra spelets hastighet";
+		TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE:   "Pausa";
+		TOOLBAR_GUI_DROPDOWN_SPEED_1:       "1×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_2:       "2×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_4:       "4×";
+		TOOLBAR_GUI_DROPDOWN_SPEED_8:       "8×";
+		TOOLBAR_GUI_DROPDOWN_VIEW:             "Vy";
+		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Vyinställningar";
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Undergjordsvy";
+		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Karta";
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spela";
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Redigerare";
+		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelläge";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Redigeringsläge";
 		TOOLBAR_GUI_PATHS:                "Gångvägar";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bygg gångvägar och köer";
 		TOOLBAR_GUI_RIDE_SELECT:          "Köp åkattraktion";
 		TOOLBAR_GUI_TOOLTIP_RIDE_SELECT:  "Köp en ny åkakktraktion för din park";
 		TOOLBAR_GUI_FENCE:                "Bygg staket";
 		TOOLBAR_GUI_TOOLTIP_FENCE:        "Bygg staket i din park";
+		TOOLBAR_GUI_SCENERY:              "Dekorationer";
+		TOOLBAR_GUI_TOOLTIP_SCENERY:      "Bygg dekorationer i din park";
+		TOOLBAR_GUI_PATH_OBJECTS:         "Vägföremål";
+		TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Bygg vägföremål i din park";
 		TOOLBAR_GUI_TERRAFORM:            "Landskapsmåleri";
 		TOOLBAR_GUI_TOOLTIP_TERRAFORM:    "Ändra landskapet";
 		TOOLBAR_GUI_FINANCES:             "Ekonimi";
 		TOOLBAR_GUI_TOOLTIP_FINANCES:     "Hantera företagets ekonomi";
+		TOOLBAR_GUI_STAFF:                "Personal";
+		TOOLBAR_GUI_TOOLTIP_STAFF:        "Anställ och avskeda personal";
+		TOOLBAR_GUI_INBOX:                "Inkorg";
+		TOOLBAR_GUI_TOOLTIP_INBOX:        "Visa alla dina meddeladen";
 
 		BOTTOMBAR_GUESTCOUNT:             "%1% gäst(er)";
 
 		// Quit program strings.
-		QUIT_CAPTION: "Avsluta programmet?";
-		QUIT_MESSAGE: "Avsluta programmet?";
+		QUIT_CAPTION: "Avsluta?";
+		QUIT_MESSAGE: "Avsluta FreeRCT?";
+		RETURN_CAPTION: "Återvänd?";
+		RETURN_MESSAGE: "Återvänd till huvudmenyn?";
 		QUIT_NO:      "Nej";
 		QUIT_YES:     "Ja";
 
 		// Error message strings.
 		ERROR_MESSAGE_CAPTION: "Meddelande";
 		ERROR_MESSAGE_SPRITE:  "Misslyckades att rita en sprite";
+		ERROR_MESSAGE_HEADING_BUILD:  "Detta kan inte placeras här…";
+		ERROR_MESSAGE_HEADING_REMOVE: "Detta kan inte tas bort…";
+		ERROR_MESSAGE_HEADING_COST:   "Förväntad kostnad:";
+		ERROR_MESSAGE_HEADING_RETURN: "Förväntad avkastning:";
+		ERROR_MESSAGE_UNREMOVABLE:    "Det här föremålet kan inte tas bort.";
+		ERROR_MESSAGE_UNOWNED_LAND:   "Du äger inte marken!";
+		ERROR_MESSAGE_EXPENSIVE:      "Du behöver minst %1%.";
+		ERROR_MESSAGE_BAD_LOCATION:   "Olämplig plats.";
+		ERROR_MESSAGE_SLOPE:          "Kan inte byggas på en sluttning.";
+		ERROR_MESSAGE_UNDERGROUND:    "Kan inte byggas under jorden.";
+		ERROR_MESSAGE_OCCUPIED:       "Något är i vägen!";
+		ERROR_MESSAGE_PAUSED:         "Inte tillåtet medans spelet är pausat.";
+
+		// Person status strings.
+		PERSON_STATUS_WANDER:          "Strövar";
+		PERSON_STATUS_HEADING_TO_RIDE: "På väg till %s";
+		PERSON_STATUS_INSPECTING:      "Inspekterar %s";
+		PERSON_STATUS_REPAIRING:       "Reparerar %s";
+		PERSON_STATUS_WATERING:        "Vattnar blomsterrabatterna";
+		PERSON_STATUS_EMPTYING:        "Tömmer papperskorgarna";
+		PERSON_STATUS_SWEEPING:        "Sopar gångvägarna";
 
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:       "Tillgängliga pengar";
@@ -66,6 +116,7 @@ strings {
 		GUEST_INFO_HUNGER:      "Hunger";
 		GUEST_INFO_THIRST:      "Törst";
 		GUEST_INFO_WASTE:       "Sopor";
+		GUEST_INFO_NAUSEA:      "Illamående";
 		GUEST_INFO_ITEMS:       "Hållna föremål";
 
 		// Items for guests gui strings.
@@ -73,6 +124,22 @@ strings {
 		ITEM_MAP:      "Karta";
 		ITEM_UMBRELLA: "Paraply";
 		ITEM_WRAPPER:  "Matförpackning";
+
+		// Staff window.
+		STAFF_MANAGEMENT_TITLE: "Personal";
+		STAFF_SALARY:           "Daglig lön: %1%";
+		STAFF_DISMISS:          "Avskeda";
+		STAFF_HIRE:             "Anställ";
+		STAFF_NAME_MECHANIC:    "Mekaniker %d";
+		STAFF_NAME_HANDYMAN:    "Allt-i-allo %d";
+		STAFF_NAME_GUARD:       "Vakt %d";
+		STAFF_NAME_ENTERTAINER: "Underhållare %d";
+		STAFF_CATEGORY_MECHANICS:    "Mekaniker (%1%)";
+		STAFF_CATEGORY_HANDYMEN:     "Allt-i-allo (%1%)";
+		STAFF_CATEGORY_GUARDS:       "Vakter (%1%)";
+		STAFF_CATEGORY_ENTERTAINERS: "Underhållare (%1%)";
+		STAFF_TITLE_NAME:            "Namn";
+		STAFF_TITLE_STATUS:          "Status";
 
 		// Path gui strings.
 		PATH_GUI_TITLE:            "Vägar";
@@ -110,6 +177,8 @@ strings {
 		RIDE_SELECT_SHOPS_TOOLTIP:   "Klicka för att visa de tillgängliga butikstyperna";
 		RIDE_SELECT_GENTLE:          "Lugna åkattraktioner";
 		RIDE_SELECT_GENTLE_TOOLTIP:  "Klicka för att visa tillgängliga lugna åkattraktioner";
+		RIDE_SELECT_THRILL:          "Spännande åkattraktioner";
+		RIDE_SELECT_THRILL_TOOLTIP:  "Klicka för att visa tillgängliga spännande åkattraktioner";
 		RIDE_SELECT_WET:             "Våta åkattraktioner";
 		RIDE_SELECT_WET_TOOLTIP:     "Klicka för att visa tillgängliga våta åkattraktioner";
 		RIDE_SELECT_COASTER:         "Berg-och-dalbanor";
@@ -118,6 +187,25 @@ strings {
 		RIDE_SELECT_RIDE_TOOLTIP:    "Klicka för att välja den valda åkattraktionen";
 		RIDE_SELECT_ROT_POS_TOOLTIP: "Klicka för att rotera åkattraktionen motsols";
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klicka för att rotera åkattraktionen medsols";
+
+		// Generic ride manager window strings.
+		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Inträdesavgift:";
+		RIDE_MANAGER_RELIABILITY:       "Pålitlighet: %.1f%%";
+		RIDE_MANAGER_BROKEN_DOWN:       "Trasig";
+		RIDE_MANAGER_MAINTENANCE_TEXT:  "Underhållsintervall (minuter):";
+		RIDE_MANAGER_MAINTENANCE_NEVER: "Aldrig";
+		RIDE_MANAGER_MAX_IDLE_TEXT:     "Maximal väntetid (sekunder):";
+		RIDE_MANAGER_MIN_IDLE_TEXT:     "Minimum väntetid (sekunder):";
+		RIDE_MANAGER_EXCITEMENT:        "Spänningsnivå:";
+		RIDE_MANAGER_INTENSITY:         "Intensitetsnivå:";
+		RIDE_MANAGER_NAUSEA:            "Illamåendenivå:";
+		RIDE_MANAGER_RATING_VERY_LOW:   "%.2f (väldigt lågt)";
+		RIDE_MANAGER_RATING_LOW:        "%.2f (lågt)";
+		RIDE_MANAGER_RATING_MEDIUM:     "%.2f (medelmåttigt)";
+		RIDE_MANAGER_RATING_HIGH:       "%.2f (högt)";
+		RIDE_MANAGER_RATING_VERY_HIGH:  "%.2f (väldigt högt)";
+		RIDE_MANAGER_RATING_EXTREME:    "%.2f (extremt)";
+		RIDE_MANAGER_RATING_NOT_YET_CALCULATED: "???";
 
 		// Shop manager window strings.
 		SHOP_MANAGER_TITLE:              "Butik \"%1%\"";
@@ -129,8 +217,18 @@ strings {
 		SHOP_MANAGER_SHOP_COST_TEXT:     "Personalkostnad";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Total vinst";
 
+		// Gentle/thrill ride manager window strings.
+		GENTLE_THRILL_RIDES_MANAGER_TITLE:             "%1% \"%2%\"";
+		GENTLE_RIDES_MANAGER_TITLE:                    "Lugn åkattraktion";
+		THRILL_RIDES_MANAGER_TITLE:                    "Spännande åkattraktion";
+		GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Månadskostnad:";
+		GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT:       "Antal varv:";
+
 		// Fence gui strings.
 		FENCE_TITLE:           "Bygg staket";
+		FENCE_TYPE_WOOD:       "Trästaket";
+		FENCE_TYPE_HEDGE:      "Barrträdshäck";
+		FENCE_TYPE_BRICK:      "Tegelvägg";
 
 		// Terraform gui strings.
 		TERRAFORM_TITLE:       "Ändra landskapet";
@@ -140,6 +238,9 @@ strings {
 		TERRAFORM_SUB_TOOLTIP: "Minska storleken av terraformeringsytan";
 		TERRAFORM_LEVEL_TEXT:  "Jämna terraformeringsytan";
 		TERRAFORM_MOVE_TEXT:   "Flytta terraformeringsytan som den är";
+
+		// Minimap gui strings.
+		MINIMAP_TITLE: "Karta";
 
 		// Finances gui strings.
 		FINANCES_TITLE:                  "Hantera ekonomin";
@@ -158,6 +259,32 @@ strings {
 		FINANCES_RESEARCH_TEXT:          "Forskning";
 		FINANCES_LOAN_INTEREST_TEXT:     "Låneränta";
 		FINANCES_TOTAL_TEXT:             "Totalt";
+		FINANCES_MAX_LOAN:               "Maximalt lån";
+		FINANCES_CURRENT_LOAN:           "Nuvarande lån";
+		FINANCES_LOAN_INTEREST:          "Låneränta";
+		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% per år";
+		FINANCES_CASH:                   "Kassa";
+
+		// Messages and inbox.
+		INBOX_TITLE:              "Inkorg";
+		MESSAGE_NEW_RIDE:         "En ny åkattraktion är nu tillgänglig: %1%";
+		MESSAGE_SCENARIO_WON:     "Grattis, du har vunnit scenariot!";
+		MESSAGE_SCENARIO_LOST:    "Du har förlorat scenarios. Bättre lycka nästa gång.";
+		MESSAGE_BROKEN_DOWN:      "%1% har gått sönder.";
+		MESSAGE_REPAIRED:         "%1% har reparerats.";
+		MESSAGE_CRASH_NO_DEAD:    "%1% kraschade!";
+		MESSAGE_CRASH_WITH_DEAD:  "%2% gäst(er) dog när %1% kraschade!";
+		MESSAGE_BAD_RATING:       "Parkbetyget är kritiskt lågt. Parken kommer stängas om %1% vecka/veckor om betyget inte förbättras.";
+		MESSAGE_GUEST_LOST:       "%1% är vilse och kan inte hitta parkutgången.";
+		MESSAGE_COMPLAIN_QUEUE:   "Kön för %1% är väldigt lång.";
+		MESSAGE_COMPLAIN_HUNGRY:  "Många gäster är hungriga men vet inte var de kan köpa mat.";
+		MESSAGE_COMPLAIN_THIRSTY: "Många gäster är törstiga men vet inte var de kan köpa något att dricka.";
+		MESSAGE_COMPLAIN_TOILET:  "Många gäster behöver gå på toa men vet inte var de hittar en.";
+		MESSAGE_COMPLAIN_LITTER:  "Gästerna klagar på de nedskräpade gångvägarna i parken.";
+		MESSAGE_COMPLAIN_VANDALISM: "Gästerna klagar på de många vandaliserade föremålen i parken.";
+		MESSAGE_CHEAP_FEE:        "Gästerna i parken uppger att inträdesavgiften är förvånansvärt billig.";
+		MESSAGE_AWARD_WON:        "Parken har vunnit en utmärkelse: %1%";
+		MESSAGE_NEGATIVE_AWARD:   "Parken har fått en negativ utmärkelse: %1%";
 
 		// Coaster construction strings.
 		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Väljer spårbitar med en vänsterböj";
@@ -168,9 +295,21 @@ strings {
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Väljer spårbitar som slutar med en högerlutning";
 		COASTER_BUILD_BUY_TOOLTIP:        "Klicka för att köpa den valda spårbiten";
 
+		// Coaster management strings.
+		COASTER_MANAGER_NUMBER_TRAINS:  "Tåg: %1%";
+		COASTER_MANAGER_NUMBER_CARS:    "Vagnar: %1%";
+		COASTER_MANAGER_EDIT:           "Redigera spår";
+		COASTER_MANAGER_NO_GRAPHS_YET:  "Inga mätningar än";
+		COASTER_MANAGER_GRAPH_SPEED:          "Hastighet";
+		COASTER_MANAGER_GRAPH_VERT_G:         "Verikal G-kraft";
+		COASTER_MANAGER_GRAPH_HORZ_G:         "Horisontell G-kraft";
+		COASTER_MANAGER_GRAPH_TOOLTIP_SPEED:  "Visa hastighetsgraf";
+		COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Visa verikala G-kraft grafen";
+		COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: "Visa horisontella G-kraft grafen";
+
 		// Entity remove button strings.
 		ENTITY_REMOVE:         "Ta bort";
-		ENTITY_REMOVE_TOOLTIP: "Ta bort detta objekt?";
+		ENTITY_REMOVE_TOOLTIP: "Ta bort detta föremål?";
 
 		// Entity remove window strings.
 		ENTITY_REMOVE_CAPTION: "Ta bort";
@@ -178,8 +317,20 @@ strings {
 		ENTITY_REMOVE_YES:     "Ja";
 		ENTITY_REMOVE_NO:      "Nej";
 
+		// Ride entrance/exit placement buttons.
+		PLACE_ENTRANCE:          "Placera ingång";
+		PLACE_ENTRANCE_TOOLTIP:  "Placera åkattraktionens ingång";
+		PLACE_EXIT:              "Placera utgång";
+		PLACE_EXIT_TOOLTIP:      "Placera åkattraktionens utgång";
+		CHOOSE_ENTRANCE:         "Ingångens stil";
+		CHOOSE_ENTRANCE_TOOLTIP: "Ändra åkattraktionens ingångsstil";
+		CHOOSE_EXIT:             "Utgångens still";
+		CHOOSE_EXIT_TOOLTIP:     "Ändra åkattraktionens utgångsstil";
+
 		// Ride build window strings.
 		RIDE_BUILD_TITLEBAR_SHOP:         "Placera butik";
+		RIDE_BUILD_TITLEBAR_GENTLE:       "Placera lugn åkattraktion";
+		RIDE_BUILD_TITLEBAR_THRILL:       "Placera spännande åkattraktion";
 		RIDE_BUILD_ROTATE_TOOLTIP:        "Klicka för att rotera åkattraktionen";
 		RIDE_BUILD_DISPLAY_TOOLTIP:       "En bild av åkattraktionen du köper";
 		RIDE_BUILD_NAME_TEXT:             "Köper en %1%";
@@ -240,5 +391,74 @@ strings {
 		NAME_INSTANCE:    "Galen berg-och-dalbana";
 		NAME_TYPE:        "Enkel berg-och-dalbana";
 		DESCRIPTION_TYPE: "Enkel stålberg-och-dalbana";
+	}
+
+	stringtexts("entrance-generic") {
+		NAME: "Generisk ingång";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("exit-generic") {
+		NAME: "Generisk utgång";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("entrance-alt") {
+		NAME: "Alternativ ingång";
+		DESCRIPTION_RECOLOUR1: "Walls";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("exit-alt") {
+		NAME: "Alternativ utgång";
+		DESCRIPTION_RECOLOUR1: "Walls";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+
+	stringtexts("spooky-manor") {
+		NAME_INSTANCE1:        "Skräckplatsen";
+		NAME_INSTANCE2:        "Mörkrets gång";
+		NAME_TYPE:             "Den hemsökta herrgården";
+		DESCRIPTION_TYPE:      "En mörk och kuslig herrgård som förskräcker de gäster modiga nog att komma in";
+		DESCRIPTION_RECOLOUR1: "Väggar";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+	stringtexts("ship-swing") {
+		NAME_INSTANCE1:        "Kölhalaren";
+		NAME_INSTANCE2:        "Pirater ohoj";
+		NAME_TYPE:             "Gungande skepp";
+		DESCRIPTION_TYPE:      "Ett skäpp som gungar fram och tillbaka.";
+		DESCRIPTION_RECOLOUR1: "-";
+		DESCRIPTION_RECOLOUR2: "-";
+		DESCRIPTION_RECOLOUR3: "-";
+	}
+
+	stringtexts("park-entrance-generic") {
+		NAME: "Generisk parkingång";
+	}
+	stringtexts("flowers1") {
+		NAME: "Blomsterrabatter 1";
+	}
+	stringtexts("flowers2") {
+		NAME: "Blomsterrabatter 2";
+	}
+	stringtexts("flowers3") {
+		NAME: "Blomsterrabatter 3";
+	}
+	stringtexts("tree1") {
+		NAME: "Träd 1";
+	}
+	stringtexts("tree2") {
+		NAME: "Träd 2";
+	}
+	stringtexts("tree3") {
+		NAME: "Träd 3";
+	}
+	stringtexts("fountain1") {
+		NAME: "Fontän 1";
 	}
 }

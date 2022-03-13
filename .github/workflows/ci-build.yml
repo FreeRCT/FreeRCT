@@ -5,6 +5,7 @@ on:
   push:
     branches:
     - master
+    - release/*
 
 jobs:
   clang-tidy:
@@ -66,8 +67,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - compiler: clang
+          cxxcompiler: clang++
+          config: Release
         - compiler: gcc
           cxxcompiler: g++
+          config: Release
+        - compiler: clang
+          cxxcompiler: clang++
+          config: Debug
+        - compiler: gcc
+          cxxcompiler: g++
+          config: Debug
 
     runs-on: ubuntu-20.04
     env:
@@ -104,7 +115,8 @@ jobs:
         cd build
 
         echo "::group::CMake"
-        cmake ..
+        if [ ${{ matrix.config }} == Release ]; then rel="-DRELEASE=ON"; else rel=""; fi
+        cmake .. $rel -DDEBIAN_PACKAGING=ON
         echo "::endgroup::"
 
         echo "::group::Build"
@@ -119,12 +131,12 @@ jobs:
     - name: Upload package (DEB)
       uses: actions/upload-artifact@v2
       with:
-        name: 'FreeRCT Debian+Ubuntu Package (${{ matrix.compiler }})'
+        name: 'FreeRCT Debian+Ubuntu ${{ matrix.config }} Package (${{ matrix.compiler }})'
         path: ${{ github.workspace }}/build/bundles/*.deb*
     - name: Upload package (TXZ)
       uses: actions/upload-artifact@v2
       with:
-        name: 'FreeRCT Tarball (${{ matrix.compiler }})'
+        name: 'FreeRCT ${{ matrix.config }} Tarball (${{ matrix.compiler }})'
         path: ${{ github.workspace }}/build/bundles/*.tar.xz*
 
   macos:
@@ -136,6 +148,10 @@ jobs:
         include:
         - arch: x64
           full_arch: x86_64
+          config: Release
+        - arch: x64
+          full_arch: x86_64
+          config: Debug
 
     runs-on: macos-latest
     env:
@@ -174,10 +190,12 @@ jobs:
         cd build
 
         echo "::group::CMake"
+        if [ ${{ matrix.config }} == Release ]; then rel="-DRELEASE=ON"; else rel=""; fi
         cmake ${GITHUB_WORKSPACE} \
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.full_arch }} \
           -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-osx-dynamic \
           -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
+          $rel \
           # EOF
         echo "::endgroup::"
 
@@ -195,6 +213,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86, x64]
+        config: [Debug, Release]
 
     runs-on: windows-latest
 
@@ -242,10 +261,12 @@ jobs:
         cd build
 
         echo "::group::CMake"
+        if [ ${{ matrix.config }} == Release ]; then rel="-DRELEASE=ON"; else rel=""; fi
         cmake .. \
           -GNinja \
           -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows \
           -DCMAKE_TOOLCHAIN_FILE="c:\vcpkg\scripts\buildsystems\vcpkg.cmake" \
+          $rel \
           # EOF
         echo "::endgroup::"
 
@@ -260,10 +281,10 @@ jobs:
     - name: Upload package (EXE)
       uses: actions/upload-artifact@v2
       with:
-        name: 'FreeRCT Windows ${{ matrix.arch }} Installer'
+        name: 'FreeRCT Windows ${{ matrix.arch }} ${{ matrix.config }} Installer'
         path: ${{ github.workspace }}/build/bundles/*.exe*
     - name: Upload package (ZIP)
       uses: actions/upload-artifact@v2
       with:
-        name: 'FreeRCT Windows ${{ matrix.arch }} Zip'
+        name: 'FreeRCT Windows ${{ matrix.arch }} ${{ matrix.config }} Zip'
         path: ${{ github.workspace }}/build/bundles/*.zip*

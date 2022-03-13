@@ -40,9 +40,9 @@ const char _freerct_revision[] = "${VERSION_STRING}";
  */
 const char _freerct_build_date[] = __DATE__ " " __TIME__;
 
-static std::string _freerct_install_prefix("${CMAKE_INSTALL_PREFIX}/share/freerct");  ///< The location where all FreeRCT assets are installed.
-static std::string _freerct_userdata_prefix_override("${USERDATA_PREFIX}");           ///< A manually defined user data location.
-static std::string _freerct_userdata_prefix_cache;                                    ///< Cache for the result of #freerct_userdata_prefix.
+static std::string _freerct_install_prefix("${CMAKE_INSTALL_PREFIX}/${PACKAGING_DATA_DIR}");  ///< The location where all FreeRCT assets are installed.
+static std::string _freerct_userdata_prefix_override("${USERDATA_PREFIX}");                   ///< A manually defined user data location.
+static std::string _freerct_userdata_prefix_cache;                                            ///< Cache for the result of #freerct_userdata_prefix.
 
 /**
  * Change the location where all FreeRCT assets are installed.

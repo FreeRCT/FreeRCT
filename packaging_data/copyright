@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: freerct
+Source: https://freerct.net/
+
+Files: *
+Copyright: 2011-2022 by the FreeRCT Development Team
+License: GPL-2+
