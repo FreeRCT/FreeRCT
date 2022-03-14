@@ -25,6 +25,13 @@
 			<image>https://freerct.net/img/screenshots/appdata/mainmenu.png</image>
 		</screenshot>
 	</screenshots>
+	<releases>
+		<release version="0.1" date="2022-03-19">
+			<description>
+				<p>This is the first-ever release of FreeRCT!</p>
+			</description>
+		</release>
+	</releases>
 	<url type="homepage">https://freerct.net</url>
 	<url type="bugtracker">https://github.com/FreeRCT/FreeRCT/issues</url>
 	<project_license>GPL-2.0</project_license>
