@@ -204,7 +204,7 @@ void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			break;
 
 		case SCENERY_GUI_LIST: {
-			if (pos.y < TEXT_HEIGHT || pos.y > TEXT_HEIGHT + ITEM_HEIGHT) break;
+			if (pos.y < static_cast<int>(TEXT_HEIGHT) || pos.y > static_cast<int>(TEXT_HEIGHT + ITEM_HEIGHT)) break;
 			const int index = pos.x / ITEM_WIDTH;
 			if (index < 0) break;
 

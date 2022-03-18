@@ -68,7 +68,7 @@ static bool IsValidItemType(uint8 val)
  * @param texts Already loaded texts.
  * @return Loading was successful.
  */
-bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap & /* sprites */, const TextMap &texts)
 {
 	if (rcd_file->version != 6 || rcd_file->size != 40) return false;
 	this->width_x = this->width_y = 1;
@@ -201,7 +201,7 @@ EdgeCoordinate ShopInstance::GetMechanicEntrance() const
 	NOT_REACHED();
 }
 
-XYZPoint32 ShopInstance::GetExit(int guest, TileEdge entry_edge)
+XYZPoint32 ShopInstance::GetExit(int /* guest */, TileEdge entry_edge)
 {
 	/* Put the guest just outside the ride. */
 	Point16 dxy = _exit_dxy[(entry_edge + 2) % 4];

@@ -57,7 +57,7 @@ MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE), camera_p
 	/* Mark all expected config file entries as used. */
 	for (uint32 i = 0; i < this->nr_cameras; i++) {
 		const std::string section = std::to_string(i);
-		for (const std::string &key : {"x", "y", "z", "orientation", "duration"}) camera_positions.GetValue(section, key);
+		for (const char *key : {"x", "y", "z", "orientation", "duration"}) camera_positions.GetValue(section, key);
 	}
 }
 
@@ -103,7 +103,7 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 static const int    MAIN_MENU_BUTTON_SIZE  =    96;  ///< Size of the main menu buttons.
 static const int    MAIN_MENU_PADDING      =    24;  ///< Padding in the main menu.
 
-void MainMenuGui::OnDraw(MouseModeSelector *selector)
+void MainMenuGui::OnDraw(MouseModeSelector * /* selector */)
 {
 	static Recolouring rc;
 	const uint32 current_time = SDL_GetTicks();
@@ -115,7 +115,7 @@ void MainMenuGui::OnDraw(MouseModeSelector *selector)
 	}
 
 	this->time_in_camera += (current_time - last_time);
-	if (this->time_in_camera > this->camera_positions.GetNum(std::to_string(this->current_camera_id), "duration")) {
+	if (static_cast<int64_t>(this->time_in_camera) > this->camera_positions.GetNum(std::to_string(this->current_camera_id), "duration")) {
 		this->current_camera_id++;
 		this->current_camera_id %= this->nr_cameras;
 		this->time_in_camera = 0;

@@ -176,7 +176,7 @@ void FenceGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	return GuiWindow::DrawWidget(wid_num, wid);
 }
 
-void FenceGui::OnClick(WidgetNumber number, const Point16 &pos)
+void FenceGui::OnClick(WidgetNumber number, const Point16 & /* pos */)
 {
 	switch (number) {
 		case FENCE_BUTTON_WOOD:
@@ -214,7 +214,7 @@ void FenceGui::OnClickFence(const Fence *fence)
 	this->fence_type = clicked_type;
 }
 
-void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+void FenceGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 & /* pos */)
 {
 	if (this->fence_type == FENCE_TYPE_INVALID || this->selector == nullptr) return;
 

@@ -57,7 +57,7 @@ public:
 	 * @param [inout] instance_data Instance data that should be rendered.
 	 * @return Whether to highlight returned ride.
 	 */
-	virtual bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data)
+	virtual bool GetRide(const Voxel * /* voxel */, const XYZPoint16 & /* voxel_pos */, SmallRideInstance * /* sri */, uint16 * /* instance_data */)
 	{
 		return false;
 	}
@@ -72,7 +72,7 @@ public:
 	 * @return Fence data to draw, including highlighting.
 	 * @see GetFenceType, SetFenceType
 	 */
-	virtual uint32 GetFences(const Voxel *voxel, const XYZPoint16 &voxel_pos, uint32 fences)
+	virtual uint32 GetFences(const Voxel * /* voxel */, const XYZPoint16 & /* voxel_pos */, uint32 fences)
 	{
 		return fences;
 	}
@@ -194,7 +194,7 @@ public:
 		return CUR_TYPE_INVALID;
 	}
 
-	uint32 GetZRange(uint xpos, uint ypos) override
+	uint32 GetZRange(uint /* xpos */, uint /* ypos */) override
 	{
 		return 0;
 	}
@@ -431,7 +431,7 @@ public:
 	{
 	}
 
-	bool GetRide(const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
+	bool GetRide(const Voxel * /* voxel */, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
 	{
 		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
 		if (index == INVALID_TILE_INDEX) return false;
@@ -472,7 +472,7 @@ public:
 	{
 	}
 
-	uint32 GetFences(const Voxel *voxel, const XYZPoint16 &voxel_pos, uint32 fences) override
+	uint32 GetFences(const Voxel * /* voxel */, const XYZPoint16 &voxel_pos, uint32 fences) override
 	{
 		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
 		if (index == INVALID_TILE_INDEX) return fences;

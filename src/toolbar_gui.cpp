@@ -138,7 +138,7 @@ StringID GetSwitchGameModeString()
 	}
 }
 
-void ToolbarWindow::OnClick(WidgetNumber number, const Point16 &pos)
+void ToolbarWindow::OnClick(WidgetNumber number, const Point16 & /* pos */)
 {
 	switch (number) {
 		case TB_DROPDOWN_MAIN: {
@@ -259,11 +259,11 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 	}
 }
 
-void ToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+void ToolbarWindow::UpdateWidgetSize(WidgetNumber /* wid_num */, BaseWidget * /* wid */)
 {
 }
 
-void ToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void ToolbarWindow::SetWidgetStringParameters(WidgetNumber /* wid_num */) const
 {
 }
 
@@ -578,7 +578,7 @@ bool QuitProgramWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::
 	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
 }
 
-void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 &pos)
+void QuitProgramWindow::OnClick(WidgetNumber number, const Point16 & /* pos */)
 {
 	if (number == QP_YES) {
 		if (this->back_to_main_menu) {

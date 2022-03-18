@@ -103,7 +103,7 @@ void TerraformGui::SelectorMouseWheelEvent(int direction)
 	this->tiles_selector.InitTileData();
 }
 
-void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 & /* pos */)
 {
 	if (this->selector == nullptr) return;
 
@@ -162,7 +162,7 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	}
 }
 
-void TerraformGui::OnClick(WidgetNumber wid, const Point16 &pos)
+void TerraformGui::OnClick(WidgetNumber wid, const Point16 & /* pos */)
 {
 	switch (wid) {
 		case TERR_ADD:

@@ -170,7 +170,7 @@ void FinancesGui::OnDraw(MouseModeSelector *selector)
 	GuiWindow::OnDraw(selector);
 }
 
-void FinancesGui::OnClick(WidgetNumber widget, const Point16 &pos)
+void FinancesGui::OnClick(WidgetNumber widget, const Point16 & /* pos */)
 {
 	switch (widget) {
 		case FIN_INCREASE_LOAN:

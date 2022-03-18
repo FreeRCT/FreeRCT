@@ -99,7 +99,7 @@ void Loader::ClosePattern()
 	if (this->fp == nullptr) return;
 	assert(!this->pattern_names.empty());
 	const std::string &blk_name = this->pattern_names.back();
-	for (int i = 0; i < blk_name.size(); i++) {
+	for (int i = 0; i < static_cast<int>(blk_name.size()); ++i) {
 		if (this->GetByte() != blk_name.at(3 - i)) {
 			throw LoadingError("ClosePattern (%s) got unexpected data", blk_name.c_str());
 		}

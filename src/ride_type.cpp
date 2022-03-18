@@ -325,7 +325,7 @@ const RideType *RideInstance::GetRideType() const
  * @return Whether the ride can be visited.
  * @note Derived classes need to override this function and perform additional checks regarding the location's suitability.
  */
-bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
+bool RideInstance::CanBeVisited(const XYZPoint16 & /* vox */, TileEdge /* edge */) const
 {
 	return this->state == RIS_OPEN && !this->broken;
 }
@@ -335,7 +335,7 @@ bool RideInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
  * @param pos Position in the world.
  * @return Recoluring to use.
  */
-const Recolouring *RideInstance::GetRecolours(const XYZPoint16 &pos) const
+const Recolouring *RideInstance::GetRecolours(const XYZPoint16 & /* pos */) const
 {
 	return &this->recolours;
 }
@@ -345,7 +345,7 @@ const Recolouring *RideInstance::GetRecolours(const XYZPoint16 &pos) const
  * @param pos Absolute voxel in the world.
  * @return An entrance is located at the given location.
  */
-bool RideInstance::IsEntranceLocation(const XYZPoint16& pos) const
+bool RideInstance::IsEntranceLocation(const XYZPoint16 & /* pos */) const
 {
 	return false;
 }
@@ -355,7 +355,7 @@ bool RideInstance::IsEntranceLocation(const XYZPoint16& pos) const
  * @param pos Absolute voxel in the world.
  * @return An exit is located at the given location.
  */
-bool RideInstance::IsExitLocation(const XYZPoint16& pos) const
+bool RideInstance::IsExitLocation(const XYZPoint16 & /* pos */) const
 {
 	return false;
 }

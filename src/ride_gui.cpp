@@ -165,7 +165,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			int lines = sb->GetVisibleCount();
 			int start = sb->GetStart();
 			int counter = 0;
-			for (int i = 0; i < _rides_manager.ride_types.size() && lines > 0; i++) {
+			for (int i = 0; i < static_cast<int>(_rides_manager.ride_types.size()) && lines > 0; i++) {
 				const RideType *ride_type = _rides_manager.GetRideType(i);
 				if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 				if (counter >= start) {
@@ -282,7 +282,7 @@ void RideSelectGui::SetNewRide(int number)
 	this->current_ride = -1;
 	number = std::min(number, this->ride_types[this->current_kind] - 1);
 	if (this->ride_types[this->current_kind] > 0) {
-		for (int i = 0; i < _rides_manager.ride_types.size(); i++) {
+		for (unsigned i = 0; i < _rides_manager.ride_types.size(); i++) {
 			const RideType *ride_type = _rides_manager.GetRideType(i);
 			if (ride_type == nullptr || ride_type->kind != this->current_kind) continue;
 			if (number-- > 0) continue;

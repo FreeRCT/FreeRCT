@@ -136,7 +136,7 @@ void StringParameters::ReserveCapacity(const int num_params)
 {
 	assert(num_params > 0 && num_params < 20);  // Arbitrary upper bound.
 	if (!this->set_mode) this->Clear();
-	if (this->parms.size() < num_params) this->parms.resize(num_params);
+	if (static_cast<int>(this->parms.size()) < num_params) this->parms.resize(num_params);
 }
 
 /**
@@ -402,7 +402,7 @@ static std::string TemperatureStrFormat(int temp)
 {
 	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10; // Round to degrees Celcius.
 	static char buffer[64];
-	int len = snprintf(buffer, lengthof(buffer), "%d \u2103", temp);  // " " + degrees Celcius, U+2103
+	snprintf(buffer, lengthof(buffer), "%d \u2103", temp);  // " " + degrees Celcius, U+2103
 	return buffer;
 }
 
@@ -436,7 +436,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 			n = n * 10 + *ptr - '0';
 			ptr++;
 		}
-		if (params != nullptr && n >= 1 && n <= params->parms.size()) {
+		if (params != nullptr && n >= 1 && n <= static_cast<int>(params->parms.size())) {
 			/* Expand parameter 'n-1'. */
 			switch (params->parms[n - 1].parm_type) {
 				case SPT_NONE:

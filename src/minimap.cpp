@@ -103,7 +103,7 @@ void Minimap::UpdateButtons()
  */
 Point32 Minimap::GetRenderingBase(const Rectangle32 &widget_pos) const
 {
-	const int required_size = this->zoom * (_world.GetXSize() + _world.GetYSize());
+	const unsigned required_size = this->zoom * (_world.GetXSize() + _world.GetYSize());
 	Point32 base;
 	if (widget_pos.height < required_size) {
 		base.y = this->zoom * (1 - this->GetWidget<ScrollbarWidget>(MM_SCROLL_VERT)->GetStart());
