@@ -11,8 +11,11 @@ ENDIF()
 
 project(freerct)
 
+find_package(Git)
+
 IF(WEBASSEMBLY)
 	message(STATUS "Configuring for WebAssembly (experimental)")
+	add_definitions("-DWEBASSEMBLY")
 
 	set(CMAKE_INSTALL_PREFIX "wasm_static")
 	set(USERDATA_PREFIX "wasm_userdata")
@@ -24,8 +27,13 @@ IF(WEBASSEMBLY)
 	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_SDL=2 -s USE_SDL_TTF=2")
 	add_c_cpp_flags("${WASM_FLAGS}")
 
-	add_custom_target(prepare_wasm_rcd ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${FRCT_BINARY_DIR}/rcd" "${CMAKE_INSTALL_PREFIX}/share/freerct")
-	add_custom_target(prepare_wasm_data ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/data" "${CMAKE_INSTALL_PREFIX}/share/freerct/data")
+	add_custom_target(prepare_wasm_rcd ALL
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${FRCT_BINARY_DIR}/rcd" "${CMAKE_INSTALL_PREFIX}/${PACKAGING_DATA_DIR}/rcd"
+		DEPENDS rcd
+	)
+	add_custom_target(prepare_wasm_data ALL
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/data" "${CMAKE_INSTALL_PREFIX}/${PACKAGING_DATA_DIR}/data"
+	)
 
 	add_flags(CMAKE_EXE_LINKER_FLAGS "${WASM_FLAGS} \
 			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
@@ -147,7 +155,6 @@ ENDIF()
 
 # Determine version string
 if (NOT DEFINED VERSION_STRING)
-	find_package(Git)
 	IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
 			            OUTPUT_VARIABLE VERSION_STRING_1
@@ -210,6 +217,10 @@ ELSEIF(WIN32)
 	add_definitions("-DWINDOWS")
 ELSE()
 	message(FATAL_ERROR "Unsupported platform")
+ENDIF()
+
+IF(WEBASSEMBLY)
+	add_dependencies(freerct prepare_wasm_rcd prepare_wasm_data)
 ENDIF()
 
 include(GNUInstallDirs)
