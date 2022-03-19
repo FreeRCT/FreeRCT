@@ -288,7 +288,7 @@ void VideoSystem::MarkDisplayDirty()
  * @param rect %Rectangle which is out of date.
  * @todo Keep an administration of the rectangle(s??) to update, and update just that part.
  */
-void VideoSystem::MarkDisplayDirty(const Rectangle32 & /* rect */)
+void VideoSystem::MarkDisplayDirty([[maybe_unused]] const Rectangle32 &rect)
 {
 	this->dirty = true;
 }

@@ -383,7 +383,7 @@ int TimedAnimation::GetFrame(int time, const bool loop_around) const {
  * @param sprites Map of already loaded sprites.
  * @return Loading was successful.
  */
-bool TimedAnimation::Load(RcdFileReader *rcd_file, const ImageMap & /* sprites */)
+bool TimedAnimation::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites)
 {
 	if (rcd_file->version != 1 || rcd_file->size < 4) return false;
 

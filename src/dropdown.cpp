@@ -133,7 +133,7 @@ void DropdownMenuWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 	wid->min_y = this->size.height;
 }
 
-void DropdownMenuWindow::OnClick(WidgetNumber number, const Point16 & /* pos */)
+void DropdownMenuWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number != DD_ITEMS) return;
 
@@ -251,7 +251,7 @@ RecolourDropdownWindow::RecolourDropdownWindow(WindowTypes parent_type, WindowNu
 	}
 }
 
-void RecolourDropdownWindow::OnClick(WidgetNumber widget, const Point16 & /* pos */)
+void RecolourDropdownWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Point16 &pos)
 {
 	if (widget >= RD_BUTTON_00 && widget <= RD_BUTTON_17) {
 		if (GB(this->entry->dest_set, widget - RD_BUTTON_00, 1) == 0) return;

@@ -234,7 +234,7 @@ BaseWidget *BaseWidget::GetWidgetByPosition(const Point16 &pt)
  * Raise all push buttons in the tree.
  * @param base Base position of the window.
  */
-void BaseWidget::AutoRaiseButtons(const Point32 & /* base */)
+void BaseWidget::AutoRaiseButtons([[maybe_unused]] const Point32 &base)
 {
 }
 
@@ -245,7 +245,7 @@ void BaseWidget::AutoRaiseButtons(const Point32 & /* base */)
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool BaseWidget::OnKeyEvent(WmKeyCode /* key_code */, WmKeyMod /* mod */, const std::string & /* symbol */)
+bool BaseWidget::OnKeyEvent([[maybe_unused]] WmKeyCode key_code, [[maybe_unused]] WmKeyMod mod, [[maybe_unused]] const std::string &symbol)
 {
 	return false;
 }
@@ -255,7 +255,7 @@ bool BaseWidget::OnKeyEvent(WmKeyCode /* key_code */, WmKeyMod /* mod */, const 
  * @param direction How far the wheel has been moved (sign indicates direction).
  * @return Mouse wheel event has been processed.
  */
-bool BaseWidget::OnMouseWheelEvent(int /* direction */)
+bool BaseWidget::OnMouseWheelEvent([[maybe_unused]] int direction)
 {
 	return false;
 }

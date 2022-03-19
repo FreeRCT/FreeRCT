@@ -668,7 +668,7 @@ void SceneryInstance::MarkDirty()
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */
-void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], uint8 * /* platform */) const
+void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], [[maybe_unused]] uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[1] = nullptr;

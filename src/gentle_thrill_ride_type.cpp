@@ -204,7 +204,7 @@ EdgeCoordinate GentleThrillRideInstance::GetMechanicEntrance() const
 	return EdgeCoordinate {this->exit_pos, static_cast<TileEdge>(this->EntranceExitRotation(this->exit_pos))};
 }
 
-XYZPoint32 GentleThrillRideInstance::GetExit(int /* guest */, TileEdge /* entry_edge */)
+XYZPoint32 GentleThrillRideInstance::GetExit([[maybe_unused]] int guest, [[maybe_unused]] TileEdge entry_edge)
 {
 	const int direction = this->EntranceExitRotation(this->exit_pos);
 	XYZPoint32 p(this->exit_pos.x * 256, this->exit_pos.y * 256, this->vox_pos.z * 256);

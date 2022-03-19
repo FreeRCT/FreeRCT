@@ -175,7 +175,7 @@ RideInstance *CoasterType::CreateInstance() const
 	return new CoasterInstance(this, car_type);
 }
 
-const ImageData *CoasterType::GetView(uint8 /* orientation */) const
+const ImageData *CoasterType::GetView([[maybe_unused]] uint8 orientation) const
 {
 	return nullptr; // No preview available.
 }
@@ -246,13 +246,13 @@ DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff) // Mark everyt
 	this->owning_car = nullptr;
 }
 
-const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage * /* sprites */, ViewOrientation orient, const Recolouring **recolour) const
+const ImageData *DisplayCoasterCar::GetSprite([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
 {
 	*recolour = &this->owning_car->owning_train->coaster->recolours;
 	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);
 }
 
-VoxelObject::Overlays DisplayCoasterCar::GetOverlays(const SpriteStorage * /* sprites */, ViewOrientation orient) const
+VoxelObject::Overlays DisplayCoasterCar::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient) const
 {
 	Overlays result;
 	if (this->owning_car == nullptr) return result;
@@ -937,7 +937,7 @@ uint8 CoasterInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 	return SHF_ENTRANCE_NONE;
 }
 
-RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, TileEdge /* edge */)
+RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, [[maybe_unused]] TileEdge edge)
 {
 	Guest *guest = _guests.Get(guest_id);
 	if (guest->cash < GetSaleItemPrice(0)) return RER_REFUSED;
@@ -992,7 +992,7 @@ EdgeCoordinate CoasterInstance::GetMechanicEntrance() const
 }
 
 /* We here (mis-)use the TileEdge parameter as the index of the station at which the guest is getting off. */
-XYZPoint32 CoasterInstance::GetExit(int /* guest */, TileEdge station_index)
+XYZPoint32 CoasterInstance::GetExit([[maybe_unused]] int guest, TileEdge station_index)
 {
 	const CoasterStation &station = this->stations[static_cast<int>(station_index)];
 	const int direction = this->EntranceExitRotation(station.exit, &station);

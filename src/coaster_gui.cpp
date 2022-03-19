@@ -40,7 +40,7 @@ CoasterRemoveWindow::CoasterRemoveWindow(CoasterInstance *ci) : EntityRemoveWind
 	this->ci = ci;
 }
 
-void CoasterRemoveWindow::OnClick(WidgetNumber number, const Point16 & /* pos */)
+void CoasterRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
 		delete GetWindowByType(WC_COASTER_MANAGER, this->ci->GetIndex());
@@ -437,7 +437,7 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 	}
 }
 
-void CoasterInstanceWindow::OnClick(WidgetNumber widget, const Point16 & /* pos */)
+void CoasterInstanceWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Point16 &pos)
 {
 	switch (widget) {
 		case CIW_REMOVE:
@@ -1023,7 +1023,7 @@ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void CoasterBuildWindow::OnClick(WidgetNumber widget, const Point16 & /* pos */)
+void CoasterBuildWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Point16 &pos)
 {
 	switch (widget) {
 		case CCW_BANK_NONE:
@@ -1310,7 +1310,7 @@ void CoasterBuildWindow::SetupSelection()
 	this->piece_selector.pos_piece.piece = nullptr;
 }
 
-void CoasterBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 & /* pos */)
+void CoasterBuildWindow::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point16 &pos)
 {
 	if (this->selector == nullptr || this->piece_selector.pos_piece.piece == nullptr) return; // No active selector.
 	if (this->sel_piece == nullptr || this->cur_piece != nullptr) return; // No piece, or fixed position.

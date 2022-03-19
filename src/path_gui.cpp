@@ -250,7 +250,7 @@ void PathBuildGui::TryAddRemovePath(uint8 m_state)
 	}
 }
 
-void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 & /* pos */)
+void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point16 &pos)
 {
 	if (this->path_type == PAT_INVALID) return;
 
@@ -460,7 +460,7 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	}
 }
 
-void PathBuildGui::OnClick(WidgetNumber number, const Point16 & /* pos */)
+void PathBuildGui::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	switch (number) {
 		case PATH_GUI_SLOPE_DOWN:

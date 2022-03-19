@@ -103,7 +103,7 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 static const int    MAIN_MENU_BUTTON_SIZE  =    96;  ///< Size of the main menu buttons.
 static const int    MAIN_MENU_PADDING      =    24;  ///< Padding in the main menu.
 
-void MainMenuGui::OnDraw(MouseModeSelector * /* selector */)
+void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 {
 	static Recolouring rc;
 	const uint32 current_time = SDL_GetTicks();

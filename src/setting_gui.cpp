@@ -79,7 +79,7 @@ void SettingWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void SettingWindow::OnClick(WidgetNumber number, const Point16 & /* pos */)
+void SettingWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	switch (number) {
 		case SW_LANGUAGE: {

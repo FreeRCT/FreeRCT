@@ -165,7 +165,7 @@ void RideBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) co
 	}
 }
 
-void RideBuildWindow::OnClick(WidgetNumber wid_num, const Point16 & /* pos */)
+void RideBuildWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point16 &pos)
 {
 	switch (wid_num) {
 		case RBW_POS_ROTATE:
