@@ -172,7 +172,7 @@ TrackPiece::TrackPiece()
  * @param ride_index The index of the coaster that owns the piece.
  * @param base_voxel the piece's absolute coordinates.
  */
-void TrackPiece::RemoveFromWorld(const uint16 ride_index, const XYZPoint16 base_voxel) const {
+void TrackPiece::RemoveFromWorld([[maybe_unused]] const uint16 ride_index, const XYZPoint16 base_voxel) const {
 	for (const auto &subpiece : this->track_voxels) {
 		Voxel *voxel = _world.GetCreateVoxel(base_voxel + subpiece->dxyz, false);
 		assert(voxel);

@@ -378,7 +378,9 @@ void CoasterCar::Save(Saver &svr)
 /** Car is about to be removed from the train, clean up if necessary. */
 void CoasterCar::PreRemove()
 {
+#ifndef NDEBUG
 	for (Guest *g : this->guests) assert(g == nullptr);
+#endif
 	this->front.PreRemove();
 	this->back.PreRemove();
 }
@@ -1059,7 +1061,9 @@ void CoasterInstance::RemoveFromWorld()
 /** Immediately remove all entrances and exits of this ride from all voxels they currently occupy. */
 void CoasterInstance::RemoveStationsFromWorld()
 {
+#ifndef NDEBUG
 	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+#endif
 	for (CoasterStation &s : this->stations) {
 		for (const XYZPoint16 &p : {s.entrance, s.exit}) {
 			if (p != XYZPoint16::invalid()) {

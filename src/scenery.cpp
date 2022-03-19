@@ -628,7 +628,9 @@ void SceneryInstance::InsertIntoWorld()
 void SceneryInstance::RemoveFromWorld()
 {
 	this->MarkDirty();
+#ifndef NDEBUG
 	const uint16 voxel_data = _scenery.GetSceneryTypeIndex(this->type);
+#endif
 	const int8 wx = this->type->width_x;
 	const int8 wy = this->type->width_y;
 	for (int8 x = 0; x < wx; x++) {

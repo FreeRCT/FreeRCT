@@ -171,7 +171,7 @@ bool ShopInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
 }
 
-RideEntryResult ShopInstance::EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry)
+RideEntryResult ShopInstance::EnterRide(int guest, [[maybe_unused]] const XYZPoint16 &vox, TileEdge entry)
 {
 	assert(vox == this->vox_pos);
 	if (this->onride_guests.num_batches == 0) { // No onride guests, handle it all now.

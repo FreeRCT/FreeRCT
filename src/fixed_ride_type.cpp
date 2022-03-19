@@ -165,6 +165,7 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16  /* voxel_numbe
  */
 void FixedRideInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 {
+#ifndef NDEBUG
 	assert(this->state == RIS_ALLOCATED);
 	const int8 wx = this->GetFixedRideType()->width_x;
 	const int8 wy = this->GetFixedRideType()->width_y;
@@ -174,6 +175,7 @@ void FixedRideInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 			assert(_world.GetTileOwner(pos.x + location.x, pos.y + location.y) == OWN_PARK); // May only place it in your own park.
 		}
 	}
+#endif
 	this->orientation = orientation;
 	this->vox_pos = pos;
 }
@@ -217,7 +219,9 @@ void FixedRideInstance::InsertIntoWorld()
 
 void FixedRideInstance::RemoveFromWorld()
 {
+#ifndef NDEBUG
 	const uint16 index = this->GetIndex();
+#endif
 	const int8 wx = this->GetFixedRideType()->width_x;
 	const int8 wy = this->GetFixedRideType()->width_y;
 	for (int8 x = 0; x < wx; ++x) {

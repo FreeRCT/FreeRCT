@@ -372,7 +372,7 @@ void Guests::AddFree(Guest *g)
  */
 Guest *Guests::GetFree()
 {
-	bool b = this->FindNextFreeGuest();
+	[[maybe_unused]] bool b = this->FindNextFreeGuest();
 	assert(b);
 
 	Guest *g = this->block.Get(this->free_idx);
