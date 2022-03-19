@@ -9,6 +9,11 @@
 project(FreeRCT)
 cmake_minimum_required(VERSION 2.8)
 
+# FreeRCT release 0.1
+IF(NOT DEFINED VERSION_STRING)
+	set(VERSION_STRING "0.1")
+ENDIF()
+
 # Add a compiler flag VAR_NAME=FLAG. If VAR_NAME is already set, FLAG is appended.
 FUNCTION(add_flags VAR_NAME FLAG)
 	IF(DEFINED ${VAR_NAME})
