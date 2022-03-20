@@ -96,13 +96,13 @@ bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
  * Ride type base class constructor.
  * @param rtk Kind of ride.
  */
-RideType::RideType(RideTypeKind rtk) : kind(rtk)
+RideType::RideType(RideTypeKind rtk) : kind(rtk),
+	monthly_cost(12345),       // Arbitrary non-zero cost.
+	monthly_open_cost(12345),  // Arbitrary non-zero cost.
+	reliability_max(RELIABILITY_RANGE),
+	reliability_decrease_daily(0),
+	reliability_decrease_monthly(0)
 {
-	this->monthly_cost      = 12345; // Arbitrary non-zero cost.
-	this->monthly_open_cost = 12345; // Arbitrary non-zero cost.
-	this->reliability_max = RELIABILITY_RANGE;
-	this->reliability_decrease_daily = 0;
-	this->reliability_decrease_monthly = 0;
 	std::fill_n(this->item_type, NUMBER_ITEM_TYPES_SOLD, ITP_NOTHING);
 	std::fill_n(this->item_cost, NUMBER_ITEM_TYPES_SOLD, 12345); // Artbitary non-zero cost.
 	this->SetupStrings(nullptr, 0, 0, 0, 0, 0);
@@ -223,29 +223,31 @@ void SetRideRatingStringParam(const uint32 rating)
  * @param rt Type of the ride instance.
  */
 RideInstance::RideInstance(const RideType *rt)
+:
+	state(RIS_ALLOCATED),
+	flags(0),
+	recolours(rt->recolours),
+	max_reliability(rt->reliability_max),
+	reliability(max_reliability),
+	maintenance_interval(30 * 60 * 1000),  // Half an hour by default.
+	time_since_last_maintenance(0),
+	broken(false),
+	time_since_last_long_queue_message(0),
+	excitement_rating(RATING_NOT_YET_CALCULATED),
+	intensity_rating(RATING_NOT_YET_CALCULATED),
+	nausea_rating(RATING_NOT_YET_CALCULATED),
+	type(rt),
+	mechanic_pending(false)
 {
-	this->type = rt;
-	this->state = RIS_ALLOCATED;
-	this->flags = 0;
-	this->recolours = rt->recolours;
 	this->SetEntranceType(0);
 	this->SetExitType(0);
+
 	this->recolours.AssignRandomColours();
 	this->entrance_recolours.AssignRandomColours();
 	this->exit_recolours.AssignRandomColours();
+
 	std::fill_n(this->item_price, NUMBER_ITEM_TYPES_SOLD, 12345); // Arbitrary non-zero amount.
 	std::fill_n(this->item_count, NUMBER_ITEM_TYPES_SOLD, 0);
-
-	this->max_reliability = type->reliability_max;
-	this->reliability = this->max_reliability;
-	this->time_since_last_maintenance = 0;
-	this->maintenance_interval = 30 * 60 * 1000;  // Half an hour by default.
-	this->broken = false;
-	this->mechanic_pending = false;
-	this->time_since_last_long_queue_message = 0;
-	this->excitement_rating = RATING_NOT_YET_CALCULATED;
-	this->intensity_rating = RATING_NOT_YET_CALCULATED;
-	this->nausea_rating = RATING_NOT_YET_CALCULATED;
 }
 
 /**

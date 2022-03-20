@@ -48,11 +48,8 @@ static const MaskInformation *GetMask(const std::string &name)
 	exit(1);
 }
 
-ImageFile::ImageFile()
+ImageFile::ImageFile() : png_initialized(false), row_pointers(nullptr)
 {
-	this->png_initialized = false;
-	this->row_pointers = nullptr;
-	this->fname = "";
 }
 
 ImageFile::~ImageFile()

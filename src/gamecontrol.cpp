@@ -87,13 +87,14 @@ void OnNewFrame(const uint32 frame_delay)
 }
 
 GameControl::GameControl()
+:
+	running(false),
+	main_menu(false),
+	speed(GSP_1),
+	action_test_mode(false),
+	next_action(GCA_NONE),
+	fname("")
 {
-	this->speed = GSP_1;
-	this->running = false;
-	this->main_menu = false;
-	this->action_test_mode = false;
-	this->next_action = GCA_NONE;
-	this->fname = "";
 }
 
 GameControl::~GameControl()
@@ -260,9 +261,8 @@ void GameControl::ShutdownLevel()
 	_staff.Uninitialize();
 }
 
-GameModeManager::GameModeManager()
+GameModeManager::GameModeManager() : game_mode(GM_NONE)
 {
-	this->game_mode = GM_NONE;
 }
 
 GameModeManager::~GameModeManager()

@@ -48,12 +48,10 @@ const char* LoadingError::what() const noexcept
 
 /**
  * Constructor of the loader class.
- * @param fp Input file stream. Use \c nullptr for initialization to default.
+ * @param file Input file stream. Use \c nullptr for initialization to default.
  */
-Loader::Loader(FILE *fp)
+Loader::Loader(FILE *file) : fp(file), cache_count(0)
 {
-	this->fp = fp;
-	this->cache_count = 0;
 }
 
 /**
@@ -210,11 +208,10 @@ void Loader::version_mismatch(uint saved_version, uint current_version)
 
 /**
  * Constructor for the saver.
- * @param fp Output file stream to write to.
+ * @param file Output file stream to write to.
  */
-Saver::Saver(FILE *fp)
+Saver::Saver(FILE *file) : fp(file)
 {
-	this->fp = fp;
 }
 
 /** Checks that no patterns are currently open. */

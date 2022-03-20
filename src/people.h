@@ -116,9 +116,9 @@ public:
 	Point16 start_voxel;  ///< Entry x/y coordinate of the voxel stack at the edge (negative X/Y coordinate means invalid).
 
 private:
+	Random rnd;           ///< Random number generator for creating new guests.
 	GuestBlock block;     ///< The data of all actual guests.
 	uint free_idx;        ///< All guests less than this index are active.
-	Random rnd;           ///< Random number generator for creating new guests.
 	int daily_frac;       ///< Frame counter.
 	int next_daily_index; ///< Index of the next guest to give daily service.
 

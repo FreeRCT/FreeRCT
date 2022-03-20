@@ -17,13 +17,16 @@
 #include "math_func.h"
 #include "viewport.h"
 
-FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k)
+FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k),
+	width_x(0),
+	width_y(0),
+	default_idle_duration(0),
+	working_duration(0),
+	animation_idle(nullptr),
+	animation_starting(nullptr),
+	animation_working(nullptr),
+	animation_stopping(nullptr)
 {
-	this->width_x = this->width_y = this->default_idle_duration = this->working_duration = 0;
-	animation_idle = nullptr;
-	animation_starting = nullptr;
-	animation_working = nullptr;
-	animation_stopping = nullptr;
 }
 
 FixedRideType::~FixedRideType()
@@ -46,16 +49,16 @@ const ImageData *FixedRideType::GetView(uint8 orientation) const
  * Constructor of a fixed ride.
  * @param type Kind of fixed ride.
  */
-FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(type)
+FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(type),
+	orientation(0),
+	working_cycles(1),
+	max_idle_duration(type->default_idle_duration),
+	min_idle_duration(0),
+	is_working(false),
+	time_left_in_phase(0)
 {
-	this->orientation = 0;
 	const FixedRideType::RideCapacity capacity = type->GetRideCapacity();
 	this->onride_guests.Configure(capacity.guests_per_batch, capacity.number_of_batches);
-	this->is_working = false;
-	this->time_left_in_phase = 0;
-	this->working_cycles = 1;
-	this->max_idle_duration = type->default_idle_duration;
-	this->min_idle_duration = 0;
 }
 
 FixedRideInstance::~FixedRideInstance()

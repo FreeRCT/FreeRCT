@@ -147,12 +147,12 @@ const StringID *GentleThrillRideType::GetInstanceNames() const
  * Constructor of a gentle or thrill ride.
  * @param type Kind of ride.
  */
-GentleThrillRideInstance::GentleThrillRideInstance(const GentleThrillRideType *type) : FixedRideInstance(type)
+GentleThrillRideInstance::GentleThrillRideInstance(const GentleThrillRideType *type) : FixedRideInstance(type),
+	entrance_pos(XYZPoint16::invalid()),
+	exit_pos(XYZPoint16::invalid()),
+	temp_entrance_pos(XYZPoint16::invalid()),
+	temp_exit_pos(XYZPoint16::invalid())
 {
-	this->entrance_pos = XYZPoint16::invalid();
-	this->exit_pos = XYZPoint16::invalid();
-	this->temp_entrance_pos = XYZPoint16::invalid();
-	this->temp_exit_pos = XYZPoint16::invalid();
 	this->working_cycles = type->working_cycles_default;
 }
 

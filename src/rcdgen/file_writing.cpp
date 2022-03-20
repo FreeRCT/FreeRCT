@@ -10,10 +10,8 @@
 #include "../stdafx.h"
 #include "file_writing.h"
 
-FileBlock::FileBlock()
+FileBlock::FileBlock() : data(nullptr), length(0)
 {
-	this->data = nullptr;
-	this->length = 0;
 }
 
 FileBlock::~FileBlock()

@@ -18,9 +18,8 @@
 
 const char *DIR_SEP = "/";  ///< Directory separator character.
 
-UnixDirectoryReader::UnixDirectoryReader()
+UnixDirectoryReader::UnixDirectoryReader() : dirfp(nullptr)
 {
-	this->dirfp = nullptr;
 }
 
 UnixDirectoryReader::~UnixDirectoryReader()
