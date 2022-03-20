@@ -239,11 +239,13 @@ jobs:
     - name: Prepare vcpkg
       shell: bash
       run: |
-        vcpkg install --triplet=${{ matrix.arch }}-windows \
+        vcpkg install --triplet=${{ matrix.arch }}-windows-static \
           libpng \
           sdl2 \
           sdl2-ttf \
           zlib \
+          graphite2 \
+          harfbuzz \
           # EOF
 
     - name: Install MSVC problem matcher
@@ -264,7 +266,7 @@ jobs:
         if [ ${{ matrix.config }} == Release ]; then rel="-DRELEASE=ON"; else rel=""; fi
         cmake .. \
           -GNinja \
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows \
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows-static \
           -DCMAKE_TOOLCHAIN_FILE="c:\vcpkg\scripts\buildsystems\vcpkg.cmake" \
           $rel \
           # EOF

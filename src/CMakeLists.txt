@@ -145,6 +145,9 @@ IF(SDL2_TTF_FOUND)
 	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
 ENDIF()
 
+find_package(PNG REQUIRED)
+target_link_libraries(freerct PNG::PNG)
+
 # Determine version string
 if (NOT DEFINED VERSION_STRING)
 	find_package(Git)
@@ -192,6 +195,21 @@ IF(MSVC)
 	ENDIF()
 
 	add_c_cpp_flags(/W3)
+
+	# Enable static linking.
+	add_definitions(-DWIN32_LEAN_AND_MEAN -D__STDC_FORMAT_MACROS -DNOMINMAX)
+	target_link_libraries(freerct
+		version imm32 winmm
+		freetype harfbuzz graphite2 brotlidec-static brotlicommon-static brotlienc-static
+		ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid bz2 zlib
+	)
+	IF(RELEASE)
+		string(REPLACE "/MD" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+		add_c_cpp_flags("/MT /EHsc")
+	ELSE()
+		string(REPLACE "/MDd" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+		add_c_cpp_flags("/MTd /EHsc")
+	ENDIF()
 ELSE()
 	IF(RELEASE)
 		# O3 is prone to generating broken code on some compilers, O2 is safer.
