@@ -22,6 +22,7 @@
 #include "weather.h"
 #include "freerct.h"
 #include "fileio.h"
+#include "rev.h"
 
 GameModeManager _game_mode_mgr; ///< Game mode manager object.
 
@@ -34,6 +35,7 @@ void OnNewYear()
 /** Runs various procedures that have to be done monthly. */
 void OnNewMonth()
 {
+	Autosave();
 	_finances_manager.AdvanceMonth();
 	_staff.OnNewMonth();
 	_rides_manager.OnNewMonth();
@@ -84,6 +86,20 @@ void OnNewFrame(const uint32 frame_delay)
 		_rides_manager.OnAnimate(frame_delay);
 		_scenery.OnAnimate(frame_delay);
 	}
+}
+
+/** Create an automatic savegame called \c "autosave". */
+void Autosave()
+{
+	static std::string autosave_filename;
+	if (autosave_filename.empty()) {
+		autosave_filename = freerct_userdata_prefix();
+		autosave_filename += DIR_SEP;
+		autosave_filename += SAVEGAME_DIRECTORY;
+		autosave_filename += DIR_SEP;
+		autosave_filename += "autosave.fct";
+	}
+	_game_control.SaveGame(autosave_filename);
 }
 
 GameControl::GameControl()
