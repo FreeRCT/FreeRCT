@@ -68,7 +68,7 @@ static bool IsValidItemType(uint8 val)
  * @param texts Already loaded texts.
  * @return Loading was successful.
  */
-bool ShopType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+bool ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites, const TextMap &texts)
 {
 	if (rcd_file->version != 6 || rcd_file->size != 40) return false;
 	this->width_x = this->width_y = 1;
@@ -171,7 +171,7 @@ bool ShopInstance::CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const
 	return GB(this->GetEntranceDirections(vox), (edge + 2) % 4, 1) != 0;
 }
 
-RideEntryResult ShopInstance::EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry)
+RideEntryResult ShopInstance::EnterRide(int guest, [[maybe_unused]] const XYZPoint16 &vox, TileEdge entry)
 {
 	assert(vox == this->vox_pos);
 	if (this->onride_guests.num_batches == 0) { // No onride guests, handle it all now.
@@ -201,7 +201,7 @@ EdgeCoordinate ShopInstance::GetMechanicEntrance() const
 	NOT_REACHED();
 }
 
-XYZPoint32 ShopInstance::GetExit(int guest, TileEdge entry_edge)
+XYZPoint32 ShopInstance::GetExit([[maybe_unused]] int guest, TileEdge entry_edge)
 {
 	/* Put the guest just outside the ride. */
 	Point16 dxy = _exit_dxy[(entry_edge + 2) % 4];

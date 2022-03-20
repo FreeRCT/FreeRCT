@@ -111,11 +111,13 @@ static const AverageWeather _yearly_weather[12] = {
 
 Weather::Weather()
 {
+#ifndef NDEBUG
 	/* Verify that each month has the same amount of weather in total. */
 	int sum0 = _yearly_weather[0].TotalAmount();
 	for (int month = 1; month < 12; month++) {
 		assert(sum0 == _yearly_weather[month].TotalAmount());
 	}
+#endif
 }
 
 /** Initialize the weather for a new game. */

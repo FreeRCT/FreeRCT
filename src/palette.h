@@ -252,7 +252,7 @@ static inline uint8 ShiftGradientDay(uint8 col)
  * @param col Input colour.
  * @return Result colour.
  */
-static inline uint8 ShiftGradientTransparent(uint8 col)
+static inline uint8 ShiftGradientTransparent([[maybe_unused]] uint8 col)
 {
 	return 255; // Full white in every channel.
 }

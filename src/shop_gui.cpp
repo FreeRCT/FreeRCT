@@ -37,7 +37,7 @@ ShopRemoveWindow::ShopRemoveWindow(ShopInstance *si) : EntityRemoveWindow(WC_SHO
 	this->si = si;
 }
 
-void ShopRemoveWindow::OnClick(WidgetNumber number, const Point16 &pos)
+void ShopRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
 		delete GetWindowByType(WC_SHOP_MANAGER, this->si->GetIndex());
@@ -246,7 +246,7 @@ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void ShopManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
+void ShopManagerWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point16 &pos)
 {
 	switch (wid_num) {
 		case SMW_SHOP_OPEN:
@@ -278,7 +278,7 @@ void ShopManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
 	}
 }
 
-void ShopManagerWindow::OnChange(ChangeCode code, uint32 parameter)
+void ShopManagerWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }

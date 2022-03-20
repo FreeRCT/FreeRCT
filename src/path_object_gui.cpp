@@ -106,7 +106,7 @@ void PathObjectGui::SetType(const PathObjectType *t)
 	this->MarkDirty();
 }
 
-void PathObjectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
+void PathObjectGui::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point16 &pos)
 {
 	switch (wid_num) {
 		case POBJ_BUTTON_BENCH:

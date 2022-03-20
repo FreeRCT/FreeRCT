@@ -40,7 +40,7 @@ GentleThrillRideRemoveWindow::GentleThrillRideRemoveWindow(GentleThrillRideInsta
 	this->si = si;
 }
 
-void GentleThrillRideRemoveWindow::OnClick(WidgetNumber number, const Point16 &pos)
+void GentleThrillRideRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
 		delete GetWindowByType(WC_GENTLE_THRILL_RIDE_MANAGER, this->si->GetIndex());
@@ -355,7 +355,7 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 	}
 }
 
-void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, const Point16 &pos)
+void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point16 &pos)
 {
 	switch (wid_num) {
 		case GTRMW_RIDE_OPEN:

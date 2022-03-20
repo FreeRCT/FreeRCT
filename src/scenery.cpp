@@ -493,7 +493,7 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (rcd_file->size != 52 + (this->width_x * this->width_y)) return false;
+	if (rcd_file->size != static_cast<unsigned>(52 + (this->width_x * this->width_y))) return false;
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; x++) {
@@ -628,7 +628,9 @@ void SceneryInstance::InsertIntoWorld()
 void SceneryInstance::RemoveFromWorld()
 {
 	this->MarkDirty();
+#ifndef NDEBUG
 	const uint16 voxel_data = _scenery.GetSceneryTypeIndex(this->type);
+#endif
 	const int8 wx = this->type->width_x;
 	const int8 wy = this->type->width_y;
 	for (int8 x = 0; x < wx; x++) {
@@ -668,7 +670,7 @@ void SceneryInstance::MarkDirty()
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */
-void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], uint8 *platform) const
+void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], [[maybe_unused]] uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[1] = nullptr;

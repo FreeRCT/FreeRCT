@@ -175,7 +175,7 @@ RideInstance *CoasterType::CreateInstance() const
 	return new CoasterInstance(this, car_type);
 }
 
-const ImageData *CoasterType::GetView(uint8 orientation) const
+const ImageData *CoasterType::GetView([[maybe_unused]] uint8 orientation) const
 {
 	return nullptr; // No preview available.
 }
@@ -246,13 +246,13 @@ DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff) // Mark everyt
 	this->owning_car = nullptr;
 }
 
-const ImageData *DisplayCoasterCar::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+const ImageData *DisplayCoasterCar::GetSprite([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
 {
 	*recolour = &this->owning_car->owning_train->coaster->recolours;
 	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);
 }
 
-VoxelObject::Overlays DisplayCoasterCar::GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const
+VoxelObject::Overlays DisplayCoasterCar::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient) const
 {
 	Overlays result;
 	if (this->owning_car == nullptr) return result;
@@ -378,7 +378,9 @@ void CoasterCar::Save(Saver &svr)
 /** Car is about to be removed from the train, clean up if necessary. */
 void CoasterCar::PreRemove()
 {
+#ifndef NDEBUG
 	for (Guest *g : this->guests) assert(g == nullptr);
+#endif
 	this->front.PreRemove();
 	this->back.PreRemove();
 }
@@ -937,7 +939,7 @@ uint8 CoasterInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 	return SHF_ENTRANCE_NONE;
 }
 
-RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, TileEdge edge)
+RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, [[maybe_unused]] TileEdge edge)
 {
 	Guest *guest = _guests.Get(guest_id);
 	if (guest->cash < GetSaleItemPrice(0)) return RER_REFUSED;
@@ -992,7 +994,7 @@ EdgeCoordinate CoasterInstance::GetMechanicEntrance() const
 }
 
 /* We here (mis-)use the TileEdge parameter as the index of the station at which the guest is getting off. */
-XYZPoint32 CoasterInstance::GetExit(int guest, TileEdge station_index)
+XYZPoint32 CoasterInstance::GetExit([[maybe_unused]] int guest, TileEdge station_index)
 {
 	const CoasterStation &station = this->stations[static_cast<int>(station_index)];
 	const int direction = this->EntranceExitRotation(station.exit, &station);
@@ -1059,7 +1061,9 @@ void CoasterInstance::RemoveFromWorld()
 /** Immediately remove all entrances and exits of this ride from all voxels they currently occupy. */
 void CoasterInstance::RemoveStationsFromWorld()
 {
+#ifndef NDEBUG
 	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
+#endif
 	for (CoasterStation &s : this->stations) {
 		for (const XYZPoint16 &p : {s.entrance, s.exit}) {
 			if (p != XYZPoint16::invalid()) {
@@ -1372,7 +1376,7 @@ void CoasterInstance::SetNumberOfTrains(const int number_trains)
 		train.cur_piece = location;
 		train.back_position = back_position;
 		train.speed = 0;
-		train.station_policy = (i + 1 == number_trains) ? TSP_IN_STATION_FRONT : TSP_IN_STATION_BACK;
+		train.station_policy = (static_cast<int>(i) + 1 == number_trains) ? TSP_IN_STATION_FRONT : TSP_IN_STATION_BACK;
 		train.time_left_waiting = 0;
 		if (static_cast<int>(i) < number_trains) {
 			train.SetLength(this->cars_per_train);

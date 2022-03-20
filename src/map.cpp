@@ -107,7 +107,7 @@ VoxelObject::~VoxelObject()
  * @param orient Direction of view.
  * @return Sprites to overlay for the voxel object, with their respective recolourings.
  */
-VoxelObject::Overlays VoxelObject::GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const
+VoxelObject::Overlays VoxelObject::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, [[maybe_unused]] ViewOrientation orient) const
 {
 	return {};
 }

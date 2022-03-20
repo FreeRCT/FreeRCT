@@ -191,7 +191,7 @@ uint8 GentleThrillRideInstance::GetEntranceDirections(const XYZPoint16 &vox) con
 	return (vox == this->entrance_pos || vox == this->exit_pos) ? 1 << EntranceExitRotation(vox) : SHF_ENTRANCE_NONE;
 }
 
-RideEntryResult GentleThrillRideInstance::EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry)
+RideEntryResult GentleThrillRideInstance::EnterRide(int guest, [[maybe_unused]] const XYZPoint16 &vox, TileEdge entry)
 {
 	assert(vox == this->entrance_pos);
 	if (_guests.Get(guest)->cash < GetSaleItemPrice(0)) return RER_REFUSED;
@@ -204,7 +204,7 @@ EdgeCoordinate GentleThrillRideInstance::GetMechanicEntrance() const
 	return EdgeCoordinate {this->exit_pos, static_cast<TileEdge>(this->EntranceExitRotation(this->exit_pos))};
 }
 
-XYZPoint32 GentleThrillRideInstance::GetExit(int guest, TileEdge entry_edge)
+XYZPoint32 GentleThrillRideInstance::GetExit([[maybe_unused]] int guest, [[maybe_unused]] TileEdge entry_edge)
 {
 	const int direction = this->EntranceExitRotation(this->exit_pos);
 	XYZPoint32 p(this->exit_pos.x * 256, this->exit_pos.y * 256, this->vox_pos.z * 256);

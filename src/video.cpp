@@ -288,7 +288,7 @@ void VideoSystem::MarkDisplayDirty()
  * @param rect %Rectangle which is out of date.
  * @todo Keep an administration of the rectangle(s??) to update, and update just that part.
  */
-void VideoSystem::MarkDisplayDirty(const Rectangle32 &rect)
+void VideoSystem::MarkDisplayDirty([[maybe_unused]] const Rectangle32 &rect)
 {
 	this->dirty = true;
 }
@@ -453,6 +453,7 @@ bool VideoSystem::HandleEvent()
 
 					return false;
 			}
+			NOT_REACHED();
 
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
@@ -908,7 +909,7 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
 	if (text.empty()) return;
-	SDL_Color col = {0, 0, 0}; // Font colour does not matter as only the bitmap is used.
+	SDL_Color col = {0, 0, 0, 0}; // Font colour does not matter as only the bitmap is used.
 	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, text.c_str(), col);
 	if (surf == nullptr) {
 		fprintf(stderr, "Rendering text failed (%s)\n", TTF_GetError());

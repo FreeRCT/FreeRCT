@@ -151,7 +151,7 @@ protected:
 	 * @param xpos X position of the voxel stack.
 	 * @param ypos Y position of the voxel stack.
 	 */
-	virtual void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos)
+	virtual void SetupSupports([[maybe_unused]] const VoxelStack *stack, [[maybe_unused]] uint xpos, [[maybe_unused]] uint ypos)
 	{
 	}
 
@@ -397,7 +397,7 @@ void SpriteCollector::SetXYOffset(int16 xoffset, int16 yoffset)
  * @param tslope Slope of the tile.
  * @return Pointer to the cursor sprite, or \c nullptr if no cursor available.
  */
-const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, const XYZPoint16 &voxel_pos, uint8 tslope)
+const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, [[maybe_unused]] const XYZPoint16 &voxel_pos, uint8 tslope)
 {
 	switch (ctype) {
 		case CUR_TYPE_NORTH:
@@ -422,7 +422,7 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, const X
 	}
 }
 
-void SpriteCollector::SetupSupports(const VoxelStack *stack, uint xpos, uint ypos)
+void SpriteCollector::SetupSupports(const VoxelStack *stack, [[maybe_unused]] uint xpos, [[maybe_unused]] uint ypos)
 {
 	for (uint i = 0; i < stack->height; i++) {
 		const Voxel *v = stack->voxels[i].get();

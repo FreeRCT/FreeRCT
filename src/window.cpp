@@ -232,7 +232,7 @@ void Window::MarkDirty()
  * @param selector Mouse mode selector to render.
  * @note The window manager already locked the surface.
  */
-void Window::OnDraw(MouseModeSelector *selector)
+void Window::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 {
 }
 
@@ -240,7 +240,7 @@ void Window::OnDraw(MouseModeSelector *selector)
  * Mouse moved to new position.
  * @param pos New position.
  */
-void Window::OnMouseMoveEvent(const Point16 &pos)
+void Window::OnMouseMoveEvent([[maybe_unused]] const Point16 &pos)
 {
 }
 
@@ -249,7 +249,7 @@ void Window::OnMouseMoveEvent(const Point16 &pos)
  * @param state Updated state. @see MouseButtons
  * @return Action to perform as a result of the event (use #WMME_NONE if no special action needed).
  */
-WmMouseEvent Window::OnMouseButtonEvent(uint8 state)
+WmMouseEvent Window::OnMouseButtonEvent([[maybe_unused]] uint8 state)
 {
 	return WMME_NONE;
 }
@@ -258,7 +258,7 @@ WmMouseEvent Window::OnMouseButtonEvent(uint8 state)
  * Mousewheel rotated.
  * @param direction Direction of change (\c +1 or \c -1).
  */
-void Window::OnMouseWheelEvent(int direction)
+void Window::OnMouseWheelEvent([[maybe_unused]] int direction)
 {
 }
 
@@ -279,7 +279,7 @@ void Window::OnMouseLeaveEvent()
  * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
  * @return Key event has been processed.
  */
-bool Window::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+bool Window::OnKeyEvent([[maybe_unused]] WmKeyCode key_code, [[maybe_unused]] WmKeyMod mod, [[maybe_unused]] const std::string &symbol)
 {
 	return false;
 }
@@ -297,7 +297,7 @@ void Window::TimeoutCallback()
  * If enabled, the #timeout is used to automatically disable it again.
  * @param value New highlight value.
  */
-void Window::SetHighlight(bool value)
+void Window::SetHighlight([[maybe_unused]] bool value)
 {
 }
 
@@ -307,7 +307,7 @@ void Window::SetHighlight(bool value)
  * @param parameter Parameter of the \a code.
  * @note Meaning of number values are documented near this method in derived classes.
  */
-void Window::OnChange(ChangeCode code, uint32 parameter)
+void Window::OnChange([[maybe_unused]] ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 }
 
@@ -324,7 +324,7 @@ void Window::ResetSize()
  * @param pt Mouse cursor position.
  * @return The widget (may be \c nullptr).
  */
-BaseWidget *Window::FindTooltipWidget(Point16 pt)
+BaseWidget *Window::FindTooltipWidget([[maybe_unused]] Point16 pt)
 {
 	return nullptr;
 }
@@ -362,7 +362,7 @@ GuiWindow::~GuiWindow()
  * @param width Initial width of the new window.
  * @param height Initial height of the new window.
  */
-void GuiWindow::SetSize(uint width, uint height)
+void GuiWindow::SetSize([[maybe_unused]] uint width, [[maybe_unused]] uint height)
 {
 	// XXX Do nothing for now, in the future, this should cause a window resize.
 }
@@ -446,7 +446,7 @@ void GuiWindow::SetScrolledWidget(WidgetNumber scrolled, WidgetNumber scrollbar)
  * @param wid_num Widget number of the provided widget.
  * @param wid The widget itself.
  */
-void GuiWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
+void GuiWindow::UpdateWidgetSize([[maybe_unused]] WidgetNumber wid_num, [[maybe_unused]] BaseWidget *wid)
 {
 	/* Do nothing by default. */
 }
@@ -455,7 +455,7 @@ void GuiWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
  * Set string parameters of the data string of the widget.
  * @param wid_num Widget number of the widget.
  */
-void GuiWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
+void GuiWindow::SetWidgetStringParameters([[maybe_unused]] WidgetNumber wid_num) const
 {
 	/* Do nothing by default. */
 }
@@ -466,12 +466,12 @@ void GuiWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
  * @param wid_num Widget number of the widget being drawn.
  * @param wid The widget itself.
  */
-void GuiWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+void GuiWindow::DrawWidget([[maybe_unused]] WidgetNumber wid_num, [[maybe_unused]] const BaseWidget *wid) const
 {
 	/* Do nothing by default. */
 }
 
-void GuiWindow::OnDraw(MouseModeSelector *selector)
+void GuiWindow::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 {
 	this->tree->Draw(this);
 	if ((this->flags & WF_HIGHLIGHT) != 0) _video.DrawRectangle(this->rect, MakeRGBA(255, 255, 255, OPAQUE));
@@ -538,7 +538,7 @@ void GuiWindow::OnMouseLeaveEvent()
  * @param vp %Viewport where the mouse moved.
  * @param pos New position of the mouse in the viewport.
  */
-void GuiWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
+void GuiWindow::SelectorMouseMoveEvent([[maybe_unused]] Viewport *vp, [[maybe_unused]] const Point16 &pos)
 {
 }
 
@@ -546,7 +546,7 @@ void GuiWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
  * Mouse buttons changed state while the window has an active mouse selector.
  * @param state Previous and current state of the mouse buttons. @see MouseButtons
  */
-void GuiWindow::SelectorMouseButtonEvent(uint8 state)
+void GuiWindow::SelectorMouseButtonEvent([[maybe_unused]] uint8 state)
 {
 }
 
@@ -554,7 +554,7 @@ void GuiWindow::SelectorMouseButtonEvent(uint8 state)
  * Mouse wheel turned while the window has an active mouse selector.
  * @param direction Direction of turning (-1 or +1).
  */
-void GuiWindow::SelectorMouseWheelEvent(int direction)
+void GuiWindow::SelectorMouseWheelEvent([[maybe_unused]] int direction)
 {
 }
 
@@ -563,7 +563,7 @@ void GuiWindow::SelectorMouseWheelEvent(int direction)
  * @param widget %Widget number.
  * @param pos %Position in the \a widget.
  */
-void GuiWindow::OnClick(WidgetNumber widget, const Point16 &pos)
+void GuiWindow::OnClick([[maybe_unused]] WidgetNumber widget, [[maybe_unused]] const Point16 &pos)
 {
 }
 

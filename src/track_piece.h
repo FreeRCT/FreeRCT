@@ -91,7 +91,7 @@ class ConstantTrackCurve : public TrackCurve {
 public:
 	ConstantTrackCurve(int value);
 
-	double GetValue(uint32 distance) const override
+	double GetValue([[maybe_unused]] uint32 distance) const override
 	{
 		return this->value;
 	}

@@ -16,17 +16,18 @@
  */
 template <typename CT>
 struct Point {
-	Point() = default;
+	constexpr Point() = default;
 
 	/**
 	 * Parameterised constructor.
-	 * @param x X coordinate.
-	 * @param y Y coordinate.
+	 * @param init_x X coordinate.
+	 * @param init_y Y coordinate.
 	 */
-	Point(CT x, CT y)
+	constexpr Point(CT init_x, CT init_y)
+	:
+		x(init_x),
+		y(init_y)
 	{
-		this->x = x;
-		this->y = y;
 	}
 
 	/**
@@ -34,10 +35,11 @@ struct Point {
 	 * @param p %Point to copy.
 	 */
 	template<typename CT2>
-	Point(const Point<CT2> &p)
+	constexpr Point(const Point<CT2> &p)
+	:
+		x(p.x),
+		y(p.y)
 	{
-		this->x = p.x;
-		this->y = p.y;
 	}
 
 	typedef CT CoordType; ///< Type of the coordinate value.
@@ -219,12 +221,9 @@ inline XYZPoint<CT> operator+(XYZPoint<CT> p, const XYZPoint<CT> &q)
 template <typename PT, typename SZ>
 struct Rectangle {
 	/** Default constructor. */
-	Rectangle()
+	constexpr Rectangle()
+	: base(0, 0), width(0), height(0)
 	{
-		this->base.x = 0;
-		this->base.y = 0;
-		this->width  = 0;
-		this->height = 0;
 	}
 
 	/**
@@ -234,12 +233,9 @@ struct Rectangle {
 	 * @param w Width of the rectangle.
 	 * @param h Height of the rectangle.
 	 */
-	Rectangle(typename PT::CoordType x, typename PT::CoordType y, SZ w, SZ h)
+	constexpr Rectangle(typename PT::CoordType x, typename PT::CoordType y, SZ w, SZ h)
+	: base(x, y), width(w), height(h)
 	{
-		this->base.x = x;
-		this->base.y = y;
-		this->width  = w;
-		this->height = h;
 	}
 
 	/**
@@ -247,12 +243,9 @@ struct Rectangle {
 	 * @param rect %Rectangle to copy.
 	 */
 	template<typename PT2, typename SZ2>
-	Rectangle(const Rectangle<PT2, SZ2> &rect)
+	constexpr Rectangle(const Rectangle<PT2, SZ2> &rect)
+	: base(rect.base), width(rect.width), height(rect.height)
 	{
-		this->base.x = rect.base.x;
-		this->base.y = rect.base.y;
-		this->width  = rect.width;
-		this->height = rect.height;
 	}
 
 	/**
@@ -260,7 +253,8 @@ struct Rectangle {
 	 * @param rect %Rectangle to copy.
 	 * @return The assigned value.
 	 */
-	Rectangle &operator=(const Rectangle<PT, SZ> &rect)
+	template<typename PT2, typename SZ2>
+	Rectangle &operator=(const Rectangle<PT2, SZ2> &rect)
 	{
 		if (this != &rect) {
 			this->base.x = rect.base.x;

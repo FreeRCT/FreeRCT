@@ -43,7 +43,6 @@ public:
 private:
 	void PutByte(uint8 val);
 
-	const char *fail_msg; ///< If not \c nullptr, message of failure.
 	std::vector<std::string> pattern_names; ///< Stack of the currently loaded pattern.
 
 	FILE *fp;             ///< Data stream being loaded.

@@ -99,7 +99,7 @@ int FixedRideInstance::EntranceExitRotation(const XYZPoint16& vox) const
 	NOT_REACHED();  // Invalid entrance/exit location.
 }
 
-void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
+void FixedRideInstance::GetSprites(const XYZPoint16 &vox, [[maybe_unused]] uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[2] = nullptr;
@@ -165,6 +165,7 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, u
  */
 void FixedRideInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 {
+#ifndef NDEBUG
 	assert(this->state == RIS_ALLOCATED);
 	const int8 wx = this->GetFixedRideType()->width_x;
 	const int8 wy = this->GetFixedRideType()->width_y;
@@ -174,6 +175,7 @@ void FixedRideInstance::SetRide(uint8 orientation, const XYZPoint16 &pos)
 			assert(_world.GetTileOwner(pos.x + location.x, pos.y + location.y) == OWN_PARK); // May only place it in your own park.
 		}
 	}
+#endif
 	this->orientation = orientation;
 	this->vox_pos = pos;
 }
@@ -209,7 +211,7 @@ void FixedRideInstance::InsertIntoWorld()
 				Voxel *voxel = _world.GetCreateVoxel(p, true);
 				assert(voxel && voxel->GetInstance() == SRI_FREE);
 				voxel->SetInstance(index);
-				voxel->SetInstanceData(h == 0 ? GetEntranceDirections(p) : SHF_ENTRANCE_NONE);
+				voxel->SetInstanceData(h == 0 ? GetEntranceDirections(p) : static_cast<uint16>(SHF_ENTRANCE_NONE));
 			}
 		}
 	}
@@ -217,7 +219,9 @@ void FixedRideInstance::InsertIntoWorld()
 
 void FixedRideInstance::RemoveFromWorld()
 {
+#ifndef NDEBUG
 	const uint16 index = this->GetIndex();
+#endif
 	const int8 wx = this->GetFixedRideType()->width_x;
 	const int8 wy = this->GetFixedRideType()->width_y;
 	for (int8 x = 0; x < wx; ++x) {

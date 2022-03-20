@@ -136,7 +136,7 @@ void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void GuestInfoWindow::OnChange(ChangeCode code, uint32 parameter)
+void GuestInfoWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }
@@ -207,12 +207,12 @@ void StaffInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-void StaffInfoWindow::OnClick(WidgetNumber number, const Point16 &pos)
+void StaffInfoWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == SIW_DISMISS) _staff.Dismiss(this->person);  // This also deletes this window.
 }
 
-void StaffInfoWindow::OnChange(ChangeCode code, uint32 parameter)
+void StaffInfoWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	switch (code) {
 		case CHG_DISPLAY_OLD:

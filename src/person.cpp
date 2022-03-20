@@ -1462,7 +1462,7 @@ const Person *Person::GetQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZ
  * @param obj Object to interact with.
  * @return Result code of the visit.
  */
-AnimateResult Person::InteractWithPathObject(PathObjectInstance *obj)
+AnimateResult Person::InteractWithPathObject([[maybe_unused]] PathObjectInstance *obj)
 {
 	return OAR_CONTINUE;
 }
@@ -2230,7 +2230,7 @@ RideVisitDesire Guest::NeedForItem(ItemType it, bool use_random)
 	}
 }
 
-RideVisitDesire Guest::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
+RideVisitDesire Guest::WantToVisit(const RideInstance *ri, [[maybe_unused]] const XYZPoint16 &ride_pos, [[maybe_unused]] TileEdge exit_edge)
 {
 	for (int i = 0; i < NUMBER_ITEM_TYPES_SOLD; i++) {
 		if (ri->GetSaleItemPrice(i) > this->cash) continue;
@@ -2414,12 +2414,12 @@ bool StaffMember::DailyUpdate()
 	return true;
 }
 
-RideVisitDesire StaffMember::WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge)
+RideVisitDesire StaffMember::WantToVisit([[maybe_unused]] const RideInstance *ri, [[maybe_unused]] const XYZPoint16 &ride_pos, [[maybe_unused]] TileEdge exit_edge)
 {
 	return RVD_NO_VISIT;
 }
 
-AnimateResult StaffMember::VisitRideOnAnimate(RideInstance *ri, const TileEdge exit_edge)
+AnimateResult StaffMember::VisitRideOnAnimate([[maybe_unused]] RideInstance *ri, [[maybe_unused]] const TileEdge exit_edge)
 {
 	return OAR_CONTINUE;
 }
