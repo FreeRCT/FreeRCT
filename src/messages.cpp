@@ -15,12 +15,8 @@
 
 /** Default constructor, for loading only. */
 Message::Message()
+: category(MSC_INFO), message(STR_NULL), data_type(MDT_NONE), data1(0), data2(0)
 {
-	this->message = STR_NULL;
-	this->data1 = 0;
-	this->data2 = 0;
-	this->category = MSC_INFO;
-	this->data_type = MDT_NONE;
 }
 
 /**
@@ -30,11 +26,8 @@ Message::Message()
  * @param d2 Extra data as required by #str.
  */
 Message::Message(StringID str, uint32 d1, uint32 d2)
+: timestamp(_date), message(str), data1(d1), data2(d2)
 {
-	this->message = str;
-	this->data1 = d1;
-	this->data2 = d2;
-	this->timestamp = _date;
 	this->InitMessageDataTypes();
 }
 

@@ -73,9 +73,8 @@ static const WidgetPart _path_objects_build_gui_parts[] = {
 	EndContainer(),
 };
 
-PathObjectGui::PathObjectGui() : GuiWindow(WC_PATH_OBJECTS, ALL_WINDOWS_OF_TYPE)
+PathObjectGui::PathObjectGui() : GuiWindow(WC_PATH_OBJECTS, ALL_WINDOWS_OF_TYPE), type(nullptr)
 {
-	this->type = nullptr;
 	this->SetupWidgetTree(_path_objects_build_gui_parts, lengthof(_path_objects_build_gui_parts));
 }
 

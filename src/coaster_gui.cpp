@@ -22,7 +22,7 @@
 /** Window to prompt for removing a roller coaster. */
 class CoasterRemoveWindow : public EntityRemoveWindow  {
 public:
-	CoasterRemoveWindow(CoasterInstance *ci);
+	CoasterRemoveWindow(CoasterInstance *instance);
 
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
@@ -35,9 +35,8 @@ private:
  * Constructor of the roller coaster remove window.
  * @param ci Roller coaster instance to remove.
  */
-CoasterRemoveWindow::CoasterRemoveWindow(CoasterInstance *ci) : EntityRemoveWindow(WC_COASTER_REMOVE, ci->GetIndex())
+CoasterRemoveWindow::CoasterRemoveWindow(CoasterInstance *instance) : EntityRemoveWindow(WC_COASTER_REMOVE, instance->GetIndex()), ci(instance)
 {
-	this->ci = ci;
 }
 
 void CoasterRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
@@ -217,7 +216,7 @@ enum GraphMode {
 /** Window to display and setup a roller coaster. */
 class CoasterInstanceWindow : public GuiWindow {
 public:
-	CoasterInstanceWindow(CoasterInstance *ci);
+	CoasterInstanceWindow(CoasterInstance *instance);
 	~CoasterInstanceWindow();
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
@@ -246,9 +245,8 @@ private:
  * Constructor of the roller coaster instance window.
  * @param ci Roller coaster instance to display and control.
  */
-CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *ci) : GuiWindow(WC_COASTER_MANAGER, ci->GetIndex())
+CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *instance) : GuiWindow(WC_COASTER_MANAGER, instance->GetIndex()), ci(instance)
 {
-	this->ci = ci;
 	this->SetupWidgetTree(_coaster_instance_gui_parts, lengthof(_coaster_instance_gui_parts));
 	this->SetCoasterState();
 	this->UpdateRecolourButtons();
@@ -943,7 +941,7 @@ enum BoolSelect {
  */
 class CoasterBuildWindow : public GuiWindow {
 public:
-	CoasterBuildWindow(CoasterInstance *ci);
+	CoasterBuildWindow(CoasterInstance *instance);
 	~CoasterBuildWindow();
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
@@ -979,9 +977,8 @@ private:
  * Constructor of the roller coaster build window. The provided instance may be completely empty.
  * @param ci Coaster instance to build or modify.
  */
-CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *ci) : GuiWindow(WC_COASTER_BUILD, ci->GetIndex()), piece_selector(ci)
+CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *instance) : GuiWindow(WC_COASTER_BUILD, instance->GetIndex()), ci(instance), piece_selector(instance)
 {
-	this->ci = ci;
 	this->SetupWidgetTree(_coaster_construction_gui_parts, lengthof(_coaster_construction_gui_parts));
 
 	int first = this->ci->GetFirstPlacedTrackPiece();

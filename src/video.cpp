@@ -23,12 +23,8 @@ VideoSystem _video;  ///< Video sub-system.
 
 /** Default constructor of a clipped rectangle. */
 ClippedRectangle::ClippedRectangle()
+: absx(0), absy(0), width(0), height(0), address(nullptr), pitch(0)
 {
-	this->absx = 0;
-	this->absy = 0;
-	this->width = 0;
-	this->height = 0;
-	this->address = nullptr; this->pitch = 0;
 }
 
 /**
@@ -39,12 +35,8 @@ ClippedRectangle::ClippedRectangle()
  * @param h Height.
  */
 ClippedRectangle::ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h)
+: absx(x), absy(y), width(w), height(h), address(nullptr), pitch(0)
 {
-	this->absx = x;
-	this->absy = y;
-	this->width = w;
-	this->height = h;
-	this->address = nullptr; this->pitch = 0;
 }
 
 /**
@@ -119,9 +111,8 @@ void ClippedRectangle::ValidateAddress()
  * Default constructor, does nothing, never goes wrong.
  * Call #Initialize to initialize the system.
  */
-VideoSystem::VideoSystem()
+VideoSystem::VideoSystem() : initialized(false)
 {
-	this->initialized = false;
 }
 
 /** Destructor. */

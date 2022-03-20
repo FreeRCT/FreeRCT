@@ -60,12 +60,11 @@ bool operator<(const WalkedDistance &wd1, const WalkedDistance &wd2)
 
 /**
  * Constructor, find a path to (\a dest_x, \a dest_y, \a dest_z). Give starting points through PathSearcher::AddStart.
- * @param dest_vox Coordinate of the destination voxel.
+ * @param init_dest_vox Coordinate of the destination voxel.
  */
-PathSearcher::PathSearcher(const XYZPoint16 &dest_vox)
+PathSearcher::PathSearcher(const XYZPoint16 &init_dest_vox)
+: dest_vox(init_dest_vox), dest_pos(nullptr)
 {
-	this->dest_vox = dest_vox;
-	this->dest_pos = nullptr;
 }
 
 /**

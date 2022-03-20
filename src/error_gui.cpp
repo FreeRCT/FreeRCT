@@ -38,11 +38,8 @@ private:
  * @param str2 Second #StringID to show.
  */
 ErrorMessageWindow::ErrorMessageWindow(const StringID str1, const StringID str2, const std::function<void()> &string_params, const uint32 t)
-: GuiWindow(WC_ERROR_MESSAGE, str1)
+: GuiWindow(WC_ERROR_MESSAGE, str1), set_string_params(string_params), timeout_timer_running(false), timeout_duration(t)
 {
-	this->set_string_params = string_params;
-	this->timeout_duration = t;
-	this->timeout_timer_running = false;
 	const WidgetPart _error_message_gui_parts[] = {
 		Intermediate(0, 1),
 			Intermediate(1, 0),

@@ -94,7 +94,6 @@ bool CarType::Load(RcdFileReader *rcdfile, const ImageMap &sprites)
 
 CoasterType::CoasterType() : RideType(RTK_COASTER)
 {
-	this->voxels = {};
 }
 
 CoasterType::~CoasterType()
@@ -201,15 +200,10 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 
 /** Default constructor, no sprites available yet. */
 CoasterPlatform::CoasterPlatform()
+:
+	ne_sw_back(nullptr), ne_sw_front(nullptr), se_nw_back(nullptr), se_nw_front(nullptr),
+	sw_ne_back(nullptr), sw_ne_front(nullptr), nw_se_back(nullptr), nw_se_front(nullptr)
 {
-	this->ne_sw_back  = nullptr;
-	this->ne_sw_front = nullptr;
-	this->se_nw_back  = nullptr;
-	this->se_nw_front = nullptr;
-	this->sw_ne_back  = nullptr;
-	this->sw_ne_front = nullptr;
-	this->nw_se_back  = nullptr;
-	this->nw_se_front = nullptr;
 }
 
 /**
@@ -386,13 +380,14 @@ void CoasterCar::PreRemove()
 }
 
 CoasterTrain::CoasterTrain()
+:
+	coaster(nullptr), // Set later during CoasterInstance::CoasterInstance.
+	back_position(0),
+	speed(0),
+	cur_piece(nullptr), // Set later.
+	station_policy(TSP_IN_STATION_BACK),
+	time_left_waiting(0)
 {
-	this->coaster = nullptr; // Set later during CoasterInstance::CoasterInstance.
-	this->back_position = 0;
-	this->speed = 0;
-	this->station_policy = TSP_IN_STATION_BACK;
-	this->time_left_waiting = 0;
-	this->cur_piece = nullptr; // Set later.
 }
 
 /**
@@ -745,35 +740,36 @@ void CoasterTrain::Save(Saver &svr)
 
 /** Default constructor for a station of length 0 with no entrance or exit. */
 CoasterStation::CoasterStation()
+:
+	direction(INVALID_EDGE),
+	length(0),
+	back_position(0),
+	entrance(XYZPoint16::invalid()),
+	exit(XYZPoint16::invalid())
 {
-	this->direction = INVALID_EDGE;
-	this->length = 0;
-	this->back_position = 0;
-	this->entrance = XYZPoint16::invalid();
-	this->exit = XYZPoint16::invalid();
 }
 
 /**
  * Constructor of a roller coaster instance.
  * @param ct Coaster type being built.
- * @param car_type Kind of cars used for the coaster.
+ * @param init_car_type Kind of cars used for the coaster.
  */
-CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *car_type) : RideInstance(ct)
+CoasterInstance::CoasterInstance(const CoasterType *ct, const CarType *init_car_type) : RideInstance(ct),
+	pieces(new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]()),
+	capacity(MAX_PLACED_TRACK_PIECES),
+	number_of_trains(0),
+	cars_per_train(0),
+	car_type(init_car_type),
+	temp_entrance_pos(XYZPoint16::invalid()),
+	temp_exit_pos(XYZPoint16::invalid()),
+	max_idle_duration(30000),
+	min_idle_duration(5000)
 {
-	this->pieces.reset(new PositionedTrackPiece[MAX_PLACED_TRACK_PIECES]());
-	this->capacity = MAX_PLACED_TRACK_PIECES;
-	this->number_of_trains = 0;
-	this->cars_per_train = 0;
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
 		train.coaster = this;
 		train.cur_piece = this->pieces.get();
 	}
-	this->car_type = car_type;
-	this->temp_entrance_pos = XYZPoint16::invalid();
-	this->temp_exit_pos = XYZPoint16::invalid();
-	this->max_idle_duration = 30000;
-	this->min_idle_duration = 5000;
 }
 
 const Recolouring *CoasterInstance::GetRecolours(const XYZPoint16 &pos) const

@@ -77,9 +77,8 @@ public:
  * Constructor of the guest info window.
  * @param guest #Guest to view.
  */
-StaffManagementGui::StaffManagementGui() : GuiWindow(WC_STAFF, ALL_WINDOWS_OF_TYPE)
+StaffManagementGui::StaffManagementGui() : GuiWindow(WC_STAFF, ALL_WINDOWS_OF_TYPE), selected(PERSON_MECHANIC)
 {
-	this->selected = PERSON_MECHANIC;  // Needs to be initialized, will be overwritten later.
 	this->SetupWidgetTree(_staff_select_gui_parts, lengthof(_staff_select_gui_parts));
 	this->SetScrolledWidget(STAFF_GUI_LIST, STAFF_GUI_SCROLL_LIST);
 	this->SelectTab(PERSON_HANDYMAN);

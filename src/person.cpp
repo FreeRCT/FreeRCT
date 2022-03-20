@@ -102,13 +102,8 @@ bool LoadPRSG(RcdFileReader *rcd_file)
 	return true;
 }
 
-Person::Person() : VoxelObject(), rnd()
+Person::Person() : rnd(), type(PERSON_INVALID), offset(this->rnd.Uniform(100)), ride(nullptr), status(GUI_PERSON_STATUS_WANDER)
 {
-	this->type = PERSON_INVALID;
-	this->ride = nullptr;
-	this->status = GUI_PERSON_STATUS_WANDER;
-
-	this->offset = this->rnd.Uniform(100);
 }
 
 Person::~Person()
@@ -2687,9 +2682,8 @@ void Entertainer::Save(Saver &svr)
 }
 
 /* Constructor. */
-Handyman::Handyman()
+Handyman::Handyman() : activity(HandymanActivity::WANDER)
 {
-	this->activity = HandymanActivity::WANDER;
 }
 
 /* Destructor. */
