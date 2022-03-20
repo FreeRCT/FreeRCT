@@ -834,7 +834,7 @@ bool PathBuildGui::MoveSelection(bool move_forward)
 	return false;
 }
 
-void PathBuildGui::OnChange(ChangeCode code, uint32  /* parameter */)
+void PathBuildGui::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	switch (code) {
 		case CHG_VIEWPORT_ROTATED:

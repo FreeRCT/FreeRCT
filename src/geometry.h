@@ -222,10 +222,7 @@ template <typename PT, typename SZ>
 struct Rectangle {
 	/** Default constructor. */
 	constexpr Rectangle()
-	:
-		base  (0, 0),
-		width (0),
-		height(0)
+	: base(0, 0), width(0), height(0)
 	{
 	}
 
@@ -237,10 +234,7 @@ struct Rectangle {
 	 * @param h Height of the rectangle.
 	 */
 	constexpr Rectangle(typename PT::CoordType x, typename PT::CoordType y, SZ w, SZ h)
-	:
-		base  (x, y),
-		width (w),
-		height(h)
+	: base(x, y), width(w), height(h)
 	{
 	}
 
@@ -250,10 +244,7 @@ struct Rectangle {
 	 */
 	template<typename PT2, typename SZ2>
 	constexpr Rectangle(const Rectangle<PT2, SZ2> &rect)
-	:
-		base  (rect.base  ),
-		width (rect.width ),
-		height(rect.height)
+	: base(rect.base), width(rect.width), height(rect.height)
 	{
 	}
 

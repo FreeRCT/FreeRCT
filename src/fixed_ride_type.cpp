@@ -99,7 +99,7 @@ int FixedRideInstance::EntranceExitRotation(const XYZPoint16& vox) const
 	NOT_REACHED();  // Invalid entrance/exit location.
 }
 
-void FixedRideInstance::GetSprites(const XYZPoint16 &vox, uint16  /* voxel_number */, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
+void FixedRideInstance::GetSprites(const XYZPoint16 &vox, [[maybe_unused]] uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[2] = nullptr;
