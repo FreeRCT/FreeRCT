@@ -151,10 +151,7 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 
 		case LSW_OK: {
 			const std::string filename = this->FinalFilename();
-			std::string path = freerct_userdata_prefix();
-			path += DIR_SEP;
-			path += SAVEGAME_DIRECTORY;
-			path += DIR_SEP;
+			std::string path = SavegameDirectory();
 			path += filename;
 			switch (this->type) {
 				case SAVE:

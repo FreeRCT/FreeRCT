@@ -348,3 +348,19 @@ std::string FindDataFile(const std::string &name)
 	fprintf(stderr, "Data file %s is missing, the installation seems to be broken!\n", name.c_str());
 	exit(1);
 }
+
+/**
+ * Find the directory where the user's savegames are stored.
+ * @return The directory path, with trailing directory separator.
+ */
+const std::string &SavegameDirectory()
+{
+	static std::string dir;
+	if (dir.empty()) {
+		dir = freerct_userdata_prefix();
+		dir += DIR_SEP;
+		dir += SAVEGAME_DIRECTORY;
+		dir += DIR_SEP;
+	}
+	return dir;
+}

@@ -114,6 +114,8 @@ font              medium-path       <installdir>/data/font/Ubuntu-L.tff  Default
 font              medium-size       15                                   Default font size.
 language          language          system language                      The language to use. Use ``--help`` for a list of supported languages.
 saveloading       auto-resave       false                                If ``true``, automatically resave all savegames directly after loading.
+saveloading       max_autosaves     3                                    The maximum number of automatic monthly savegames to retain.
+                                                                         Setting this to 0 disables automatic saving.
 ================= ================= ==================================== ==========================================================================
 
 

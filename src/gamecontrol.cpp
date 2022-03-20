@@ -88,18 +88,36 @@ void OnNewFrame(const uint32 frame_delay)
 	}
 }
 
-/** Create an automatic savegame called \c "autosave". */
+int _max_autosaves(3);  ///< How many autosave files are retained at most. 0 disables autosave.
+
+/**
+ * Get the file path for an autosave with index #i.
+ * @param i Index number for the filename.
+ * @return The file path.
+ */
+static std::string AutosaveFilename(int i)
+{
+	std::string file = SavegameDirectory();
+	file += "autosave_";
+	file += std::to_string(i);
+	file += ".fct";
+	return file;
+}
+
+/** Create a new automatic savegame, and roll older autosaves. */
 void Autosave()
 {
-	static std::string autosave_filename;
-	if (autosave_filename.empty()) {
-		autosave_filename = freerct_userdata_prefix();
-		autosave_filename += DIR_SEP;
-		autosave_filename += SAVEGAME_DIRECTORY;
-		autosave_filename += DIR_SEP;
-		autosave_filename += "autosave.fct";
+	if (_max_autosaves < 1) return;
+
+	/* Roll old autosaves. */
+	for (int i = _max_autosaves - 1; i > 0; --i) {
+		std::string old_file = AutosaveFilename(i);
+		if (PathIsFile(old_file.c_str())) {
+			CopyBinaryFile(old_file.c_str(), AutosaveFilename(i + 1).c_str());
+		}
 	}
-	_game_control.SaveGame(autosave_filename);
+
+	_game_control.SaveGame(AutosaveFilename(1));
 }
 
 GameControl::GameControl()

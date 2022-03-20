@@ -18,6 +18,7 @@ void OnNewMonth();
 void OnNewYear();
 void OnNewFrame(uint32 frame_delay);
 void Autosave();
+extern int _max_autosaves;
 
 /** Actions that can be run to control the game. */
 enum GameControlAction {

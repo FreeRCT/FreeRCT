@@ -138,10 +138,7 @@ static void MigrateOldFiles()
 				destination += DIR_SEP;
 				destination += name;
 			} else if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) {
-				destination = userdata;
-				destination += DIR_SEP;
-				destination += SAVEGAME_DIRECTORY;
-				destination += DIR_SEP;
+				destination = SavegameDirectory();
 				destination += name;
 			} else {
 				continue;
@@ -204,7 +201,7 @@ int freerct_main(int argc, char **argv)
 	} while (opt_id != -1);
 
 	/* Create the data directory on startup if it did not exist yet. */
-	MakeDirectory(freerct_userdata_prefix() + DIR_SEP + SAVEGAME_DIRECTORY);
+	MakeDirectory(SavegameDirectory());
 
 	/* Scan for savegames and config files in outdated locations. */
 	MigrateOldFiles();
@@ -229,6 +226,11 @@ int freerct_main(int argc, char **argv)
 	std::string font_path = cfg_file.GetValue("font", "medium-path");
 	int font_size = cfg_file.GetNum("font", "medium-size");
 	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
+
+	{
+		int autosaves = cfg_file.GetNum("saveloading", "max_autosaves");
+		if (autosaves >= 0) _max_autosaves = autosaves;
+	}
 
 	/* Use default values if no font has been set. */
 	if (font_path.empty()) font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "Ubuntu-L.ttf");
