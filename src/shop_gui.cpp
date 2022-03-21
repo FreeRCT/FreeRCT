@@ -32,9 +32,8 @@ private:
  * Constructor of the shop remove window.
  * @param si Shop instance to remove.
  */
-ShopRemoveWindow::ShopRemoveWindow(ShopInstance *si) : EntityRemoveWindow(WC_SHOP_REMOVE, si->GetIndex())
+ShopRemoveWindow::ShopRemoveWindow(ShopInstance *instance) : EntityRemoveWindow(WC_SHOP_REMOVE, instance->GetIndex()), si(instance)
 {
-	this->si = si;
 }
 
 void ShopRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
@@ -167,9 +166,8 @@ private:
  * Constructor of the shop management window.
  * @param ri Shop to manage.
  */
-ShopManagerWindow::ShopManagerWindow(ShopInstance *ri) : GuiWindow(WC_SHOP_MANAGER, ri->GetIndex())
+ShopManagerWindow::ShopManagerWindow(ShopInstance *ri) : GuiWindow(WC_SHOP_MANAGER, ri->GetIndex()), shop(ri)
 {
-	this->shop = ri;
 	this->SetRideType(this->shop->GetShopType());
 	this->SetupWidgetTree(_shop_manager_gui_parts, lengthof(_shop_manager_gui_parts));
 	this->SetShopToggleButtons();

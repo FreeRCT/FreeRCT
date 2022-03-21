@@ -35,9 +35,9 @@ private:
  * Constructor of the gentle/thrill ride remove window.
  * @param si Gentle/Thrill ride instance to remove.
  */
-GentleThrillRideRemoveWindow::GentleThrillRideRemoveWindow(GentleThrillRideInstance *si) : EntityRemoveWindow(WC_GENTLE_THRILL_RIDE_REMOVE, si->GetIndex())
+GentleThrillRideRemoveWindow::GentleThrillRideRemoveWindow(GentleThrillRideInstance *instance)
+: EntityRemoveWindow(WC_GENTLE_THRILL_RIDE_REMOVE, instance->GetIndex()), si(instance)
 {
-	this->si = si;
 }
 
 void GentleThrillRideRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)

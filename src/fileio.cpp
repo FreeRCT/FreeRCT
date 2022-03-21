@@ -103,12 +103,9 @@ DirectoryReader *MakeDirectoryReader()
  * @param fname Name of the file to load.
  */
 RcdFileReader::RcdFileReader(const char *fname)
+: filename(fname), file_pos(0), file_size(0)
 {
-	this->filename = fname;
-	this->file_pos = 0;
-	this->file_size = 0;
 	this->name[4] = '\0';
-
 	this->fp = fopen(fname, "rb");
 	if (this->fp == nullptr) return;
 

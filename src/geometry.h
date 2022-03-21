@@ -95,19 +95,17 @@ inline bool operator==(const Point<CT> &p, const Point<CT> &q)
  */
 template <typename CT>
 struct XYZPoint {
-	XYZPoint() : XYZPoint(0, 0, 0) {}
+	constexpr XYZPoint() : XYZPoint(0, 0, 0) {}
 
 	/**
 	 * Constructor for creating a point at a given coordinate.
-	 * @param x X coordinate.
-	 * @param y Y coordinate.
-	 * @param z Z coordinate.
+	 * @param init_x X coordinate.
+	 * @param init_y Y coordinate.
+	 * @param init_z Z coordinate.
 	 */
-	XYZPoint(CT x, CT y, CT z)
+	constexpr XYZPoint(CT init_x, CT init_y, CT init_z)
+	: x(init_x), y(init_y), z(init_z)
 	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
 	}
 
 	/**

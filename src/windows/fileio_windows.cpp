@@ -17,9 +17,8 @@
 
 const char *DIR_SEP = "\\";  ///< Directory separator character.
 
-WindowsDirectoryReader::WindowsDirectoryReader()
+WindowsDirectoryReader::WindowsDirectoryReader() : hfind(INVALID_HANDLE_VALUE)
 {
-	hfind = INVALID_HANDLE_VALUE;
 }
 
 WindowsDirectoryReader::~WindowsDirectoryReader()

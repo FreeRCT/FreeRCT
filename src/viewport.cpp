@@ -714,14 +714,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 /**
  * Constructor of the finder data class.
- * @param allowed Bit-set of sprite types to look for. @see #ClickableSprite
- * @param select What to find of a ground tile.
+ * @param init_allowed Bit-set of sprite types to look for. @see #ClickableSprite
+ * @param init_select What to find of a ground tile.
  */
-FinderData::FinderData(ClickableSprite allowed, GroundTilePart select)
+FinderData::FinderData(ClickableSprite init_allowed, GroundTilePart init_select)
+: allowed(init_allowed), select(init_select)
 {
-	this->allowed = allowed;
-	this->select = select;
-
 	/*
 	 * CS_GROUND must not be allowed when looking for edge,
 	 * or the other way around.
@@ -735,18 +733,17 @@ FinderData::FinderData(ClickableSprite allowed, GroundTilePart select)
 /**
  * Constructor of the tile position finder.
  * @param vp %Viewport that needs the tile position.
- * @param fdata Finder data.
+ * @param init_fdata Finder data.
  */
-PixelFinder::PixelFinder(Viewport *vp, FinderData *fdata) : VoxelCollector(vp)
+PixelFinder::PixelFinder(Viewport *vp, FinderData *init_fdata) : VoxelCollector(vp),
+	allowed(init_fdata->allowed),
+	found(false),
+	pixel(_palette[0]), // 0 is transparent, and is not used in sprites.
+	fdata(init_fdata)
 {
-	this->allowed = fdata->allowed;
-	this->found = false;
-	this->pixel = _palette[0]; // 0 is transparent, and is not used in sprites.
-	this->fdata = fdata;
-
-	fdata->voxel_pos = XYZPoint16(0, 0, 0);
-	fdata->person = nullptr;
-	fdata->ride   = INVALID_RIDE_INSTANCE;
+	this->fdata->voxel_pos = XYZPoint16(0, 0, 0);
+	this->fdata->person = nullptr;
+	this->fdata->ride   = INVALID_RIDE_INSTANCE;
 }
 
 PixelFinder::~PixelFinder()
@@ -865,21 +862,19 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 
 /**
  * %Viewport constructor.
- * @param view_pos Pixel position of the center viewpoint of the main display.
+ * @param init_view_pos Pixel position of the center viewpoint of the main display.
  */
-Viewport::Viewport(const XYZPoint32 &view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE)
+Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE),
+	view_pos(init_view_pos),
+	tile_width(64),
+	tile_height(16),
+	orientation(VOR_NORTH),
+	mouse_pos(0, 0),
+	underground_mode(false)
 {
-	this->view_pos = view_pos;
-	this->tile_width  = 64;
-	this->tile_height = 16;
-	this->orientation = VOR_NORTH;
-
-	this->mouse_pos.x = 0;
-	this->mouse_pos.y = 0;
-	this->underground_mode = false;
-
 	uint16 width  = _video.GetXSize();
 	uint16 height = _video.GetYSize();
+
 	assert(width >= 120 && height >= 120); // Arbitrary lower limit as sanity check.
 
 	this->SetSize(width, height);

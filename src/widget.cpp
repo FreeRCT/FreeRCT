@@ -31,24 +31,20 @@
  * @param wtype %Widget type.
  */
 BaseWidget::BaseWidget(WidgetType wtype)
+:
+	wtype(wtype),
+	number(INVALID_WIDGET_INDEX),
+	smallest_x(0),
+	smallest_y(0),
+	min_x(0),
+	min_y(0),
+	pos(0, 0, 0, 0),
+	fill_x(0),
+	fill_y(0),
+	resize_x(0),
+	resize_y(0),
+	tooltip(STR_NULL)
 {
-	this->wtype = wtype;
-	this->number = INVALID_WIDGET_INDEX;
-	this->tooltip = STR_NULL;
-
-	this->min_x = 0;
-	this->min_y = 0;
-	this->smallest_x = 0;
-	this->smallest_y = 0;
-	this->pos.base.x = 0;
-	this->pos.base.y = 0;
-	this->pos.width  = 0;
-	this->pos.height = 0;
-
-	this->fill_x = 0;
-	this->fill_y = 0;
-	this->resize_x = 0;
-	this->resize_y = 0;
 	for (int i = 0; i < PAD_COUNT; i++) this->paddings[i] = 0;
 
 	switch (wtype) {
@@ -274,10 +270,8 @@ void BaseWidget::MarkDirty(const Point32 &base) const
  * Base class leaf widget constructor.
  * @param wtype %Widget type.
  */
-LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype)
+LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype), flags(0), colour(COL_RANGE_INVALID)
 {
-	this->flags = 0;
-	this->colour = COL_RANGE_INVALID;
 }
 
 /**
@@ -390,11 +384,8 @@ void LeafWidget::AutoRaiseButtons(const Point32 &base)
  * Data widget constructor.
  * @param wtype %Widget type.
  */
-DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype)
+DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype), value(0), value_width(0), value_height(0)
 {
-	this->value = 0;
-	this->value_width = 0;
-	this->value_height = 0;
 }
 
 /**
@@ -612,9 +603,8 @@ void DataWidget::Draw(const GuiWindow *w)
 
 static const int TEXT_INPUT_MARGIN = 2;  ///< Margin around a text input field.
 
-TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype)
+TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype), cursor_pos(0)
 {
-	this->cursor_pos = 0;
 	this->SetText("");
 }
 
@@ -752,12 +742,8 @@ void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
  * Scrollbar widget constructor.
  * @param wtype %Widget type.
  */
-ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype)
+ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype), item_count(0), start(0), item_size(0), canvas(nullptr)
 {
-	this->canvas = nullptr;
-	this->item_count = 0;
-	this->start = 0;
-	this->item_size = 0;
 }
 
 /**
@@ -1118,9 +1104,8 @@ void ScrollbarWidget::CalculateSliderPosition(int *start_edge, int *slider_lengt
  * Base class background widget constructor.
  * @param wtype %Widget type.
  */
-BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype)
+BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype), child(nullptr)
 {
-	this->child = nullptr;
 }
 
 /**
@@ -1247,15 +1232,14 @@ void RowColData::Merge(uint16 min_size, uint16 fill, uint16 resize)
  * @param num_cols Number of columns. Use \c 0 for 'manual' claiming.
  * @see FillWidget
  */
-IntermediateWidget::IntermediateWidget(uint8 num_rows, uint8 num_cols) : BaseWidget(WT_GRID)
+IntermediateWidget::IntermediateWidget(uint8 num_rows, uint8 num_cols) : BaseWidget(WT_GRID),
+	childs(nullptr),
+	rows(nullptr),
+	columns(nullptr),
+	num_rows(num_rows),
+	num_cols(num_cols),
+	flags(0)
 {
-	this->childs = nullptr;
-	this->rows = nullptr;
-	this->columns = nullptr;
-	this->num_rows = num_rows;
-	this->num_cols = num_cols;
-	this->flags = 0;
-
 	if (this->num_cols > 0 && this->num_rows > 0) this->ClaimMemory();
 }
 

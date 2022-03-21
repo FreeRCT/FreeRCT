@@ -37,12 +37,8 @@ const PathObjectType PathObjectType::LITTERBIN(5, false, true,  Money(600));
  * @param cost Cost to buy this item (\c 0 means the user can't buy it).
  */
 PathObjectType::PathObjectType(const uint8 id, const bool ign, const bool slope, const Money &cost)
+: buy_cost(cost), type_id(id), ignore_edges(ign), can_exist_on_slope(slope)
 {
-	this->type_id            = id;
-	this->ignore_edges       = ign;
-	this->can_exist_on_slope = slope;
-	this->buy_cost           = cost;
-
 	assert(this->type_id != INVALID_PATH_OBJECT && all_types.count(this->type_id) == 0);
 	all_types[this->type_id] = this;
 }
@@ -63,10 +59,11 @@ const PathObjectType *PathObjectType::Get(uint8 id)
  * @param off Pixel offset.
  */
 PathObjectInstance::PathObjectSprite::PathObjectSprite(const ImageData *s, XYZPoint16 off)
+:
+	sprite(s),
+	offset(off),
+	semi_transparent(false)
 {
-	this->sprite = s;
-	this->offset = off;
-	this->semi_transparent = false;
 }
 
 /**
@@ -76,12 +73,12 @@ PathObjectInstance::PathObjectSprite::PathObjectSprite(const ImageData *s, XYZPo
  * @param offset Offset of the item inside the voxel.
  */
 PathObjectInstance::PathObjectInstance(const PathObjectType *t, const XYZPoint16 &pos, const XYZPoint16 &offset)
+:
+	type(t),
+	vox_pos(pos),
+	pix_pos(offset),
+	state(this->type->ignore_edges ? 0xFF : 0)
 {
-	this->type = t;
-	this->state = this->type->ignore_edges ? 0xFF : 0;
-	this->vox_pos = pos;
-	this->pix_pos = offset;
-
 	if (this->type == &PathObjectType::BENCH) {
 		std::fill_n(this->data, lengthof(this->data), PathObjectType::NO_GUEST_ON_BENCH | (PathObjectType::NO_GUEST_ON_BENCH << 16));
 	} else {
@@ -463,19 +460,17 @@ void PathObjectInstance::Save(Saver &svr) const
 
 /** Default constructor. */
 SceneryType::SceneryType()
+:
+	category(SCC_SCENARIO),
+	name(STR_NULL),
+	width_x(0),
+	width_y(0),
+	watering_interval(0),
+	min_watering_interval(0),
+	symmetric(true),
+	main_animation(nullptr),
+	dry_animation(nullptr)
 {
-	this->category = SCC_SCENARIO;
-	this->name = STR_NULL;
-	this->width_x = 0;
-	this->width_y = 0;
-	this->buy_cost = Money();
-	this->return_cost = Money();
-	this->return_cost_dry = Money();
-	this->watering_interval = 0;
-	this->min_watering_interval = 0;
-	this->symmetric = true;
-	this->main_animation = nullptr;
-	this->dry_animation = nullptr;
 	std::fill_n(this->previews, lengthof(this->previews), nullptr);
 }
 
@@ -529,12 +524,13 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
  * @param t Type of scenery item.
  */
 SceneryInstance::SceneryInstance(const SceneryType *t)
+:
+	type(t),
+	vox_pos(XYZPoint16::invalid()),
+	orientation(0),
+	animtime(0),
+	time_since_watered(0)
 {
-	this->type = t;
-	this->vox_pos = XYZPoint16::invalid();
-	this->orientation = 0;
-	this->animtime = 0;
-	this->time_since_watered = 0;
 }
 
 /** Destructor. */
@@ -750,10 +746,8 @@ void SceneryInstance::Save(Saver &svr) const
 }
 
 /** Default constructor. */
-SceneryManager::SceneryManager()
+SceneryManager::SceneryManager() : temp_item(nullptr), temp_path_object(nullptr)
 {
-	this->temp_item = nullptr;
-	this->temp_path_object = nullptr;
 }
 
 /**

@@ -18,9 +18,8 @@
  * @param key Key text.
  * @param value Value text.
  */
-ConfigItem::ConfigItem(const ConfigSection &section, const std::string &key, const std::string &value) : section(section), key(key), value(value)
+ConfigItem::ConfigItem(const ConfigSection &section, const std::string &key, const std::string &value) : section(section), key(key), value(value), used(false)
 {
-	this->used = false;
 }
 
 /** Destructor. */
@@ -64,9 +63,8 @@ int ConfigItem::GetNum() const
  * @param file The config file this section belongs to.
  * @param name Section name.
  */
-ConfigSection::ConfigSection(const ConfigFile &file, const std::string &name) : file(file), name(name)
+ConfigSection::ConfigSection(const ConfigFile &file, const std::string &name) : file(file), name(name), used(false)
 {
-	this->used = false;
 }
 
 /** Destructor. */

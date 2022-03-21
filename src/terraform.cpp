@@ -115,17 +115,15 @@ bool GroundData::GetCornerModified(TileCorner corner) const
 
 /**
  * Terrain changes storage constructor.
- * @param base Base coordinate of the part of the world which is smoothly updated.
- * @param xsize Horizontal size of the world part.
- * @param ysize Vertical size of the world part.
+ * @param init_base Base coordinate of the part of the world which is smoothly updated.
+ * @param init_xsize Horizontal size of the world part.
+ * @param init_ysize Vertical size of the world part.
  */
-TerrainChanges::TerrainChanges(const Point16 &base, uint16 xsize, uint16 ysize)
+TerrainChanges::TerrainChanges(const Point16 &init_base, uint16 init_xsize, uint16 init_ysize)
+: base(init_base), xsize(init_xsize), ysize(init_ysize)
 {
-	assert(base.x >= 0 && base.y >= 0 && xsize > 0 && ysize > 0
-			&& base.x + xsize <= _world.GetXSize() && base.y + ysize <= _world.GetYSize());
-	this->base = base;
-	this->xsize = xsize;
-	this->ysize = ysize;
+	assert(this->base.x >= 0 && this->base.y >= 0 && this->xsize > 0 && this->ysize > 0
+			&& this->base.x + this->xsize <= _world.GetXSize() && this->base.y + this->ysize <= _world.GetYSize());
 }
 
 /** Destructor. */

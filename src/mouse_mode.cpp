@@ -16,11 +16,10 @@ MouseModeSelector::MouseModeSelector() : MouseModeSelector(CUR_TYPE_TILE)
 
 /**
  * Constructor of the mouse mode selector.
- * @param cur_cursor Cursor type to display at each tile with a cursor.
+ * @param init_cur_cursor Cursor type to display at each tile with a cursor.
  */
-MouseModeSelector::MouseModeSelector(CursorType cur_cursor)
+MouseModeSelector::MouseModeSelector(CursorType init_cur_cursor) : cur_cursor(init_cur_cursor)
 {
-	this->cur_cursor = cur_cursor;
 }
 
 MouseModeSelector::~MouseModeSelector()

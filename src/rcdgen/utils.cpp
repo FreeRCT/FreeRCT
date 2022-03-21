@@ -12,11 +12,8 @@
 #include "ast.h"
 #include "utils.h"
 
-ParameterizedNameRange::ParameterizedNameRange()
+ParameterizedNameRange::ParameterizedNameRange() : used(false), min_value(-1), max_value(-1)
 {
-	this->used = false;
-	this->min_value = -1;
-	this->max_value = -1;
 }
 
 /**

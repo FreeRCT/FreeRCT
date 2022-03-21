@@ -217,8 +217,8 @@ public:
 	Money item_price[NUMBER_ITEM_TYPES_SOLD]; ///< Selling price of each item type.
 	int64 item_count[NUMBER_ITEM_TYPES_SOLD]; ///< Number of items sold for each type.
 
-	int16 reliability;                   ///< Current reliability in 0..10000.
 	int16 max_reliability;               ///< Current maximum reliability in 0..10000.
+	int16 reliability;                   ///< Current reliability in 0..10000.
 	uint32 maintenance_interval;         ///< Desired number of milliseconds between maintenance operations (\c 0 means never).
 	uint32 time_since_last_maintenance;  ///< Number of milliseconds since the last maintenance operation.
 	bool broken;                         ///< The ride is currently broken down.

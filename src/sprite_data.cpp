@@ -20,12 +20,8 @@ static const uint32 MAX_IMAGE_COUNT = 20000;  ///< Maximum number of images that
 static std::vector<ImageData> _sprites;  ///< Available sprites to the program.
 static uint32 _sprites_loaded;           ///< Total number of sprites loaded.
 
-ImageData::ImageData()
+ImageData::ImageData() : width(0), height(0), table(nullptr), data(nullptr)
 {
-	this->width = 0;
-	this->height = 0;
-	this->table = nullptr;
-	this->data = nullptr;
 }
 
 /**

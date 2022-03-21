@@ -156,10 +156,8 @@ void VoxelObject::Save(Saver &svr)
 }
 
 /** Default constructor. */
-VoxelStack::VoxelStack()
+VoxelStack::VoxelStack() : base(0), height(0)
 {
-	this->base = 0;
-	this->height = 0;
 }
 
 /** Remove the stack. */
@@ -234,10 +232,8 @@ Voxel *VoxelStack::GetCreate(int16 z, bool create)
 }
 
 /** Default constructor of the voxel world. */
-VoxelWorld::VoxelWorld()
+VoxelWorld::VoxelWorld() : x_size(64), y_size(64)
 {
-	this->x_size = 64;
-	this->y_size = 64;
 }
 
 /**

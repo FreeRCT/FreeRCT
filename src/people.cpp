@@ -44,10 +44,8 @@ assert_compile(lengthof(COMPLAINT_THRESHOLD) == Guests::COMPLAINT_COUNT);
 assert_compile(lengthof(COMPLAINT_MESSAGES ) == Guests::COMPLAINT_COUNT);
 
 /** Constructor. */
-Guests::Complaint::Complaint()
+Guests::Complaint::Complaint() : counter(0), time_since_message(COMPLAINT_TIMEOUT)
 {
-	this->counter = 0;
-	this->time_since_message = COMPLAINT_TIMEOUT;
 }
 
 /**
@@ -96,15 +94,9 @@ static Point16 FindEdgeRoad()
 	return {-1, -1};
 }
 
-Guests::Guests() : block(0), rnd()
+Guests::Guests()
+: start_voxel(-1, -1), rnd(), block(0), free_idx(0), daily_frac(0), next_daily_index(0)
 {
-	this->free_idx = 0;
-	this->start_voxel.x = -1;
-	this->start_voxel.y = -1;
-	this->daily_frac = 0;
-	this->next_daily_index = 0;
-
-	for (Complaint &c : this->complaints) c = Complaint();
 }
 
 Guests::~Guests()

@@ -53,13 +53,9 @@ bool IsLeftClick(uint8 state)
  * @param wtype %Window type Type of window.
  * @param wnumber Number of the window within the \a wtype.
  */
-Window::Window(WindowTypes wtype, WindowNumber wnumber) : rect(0, 0, 0, 0), wtype(wtype), wnumber(wnumber)
+Window::Window(WindowTypes wtype, WindowNumber wnumber)
+: rect(0, 0, 0, 0), wtype(wtype), wnumber(wnumber), timeout(0), flags(0), higher(nullptr), lower(nullptr)
 {
-	this->timeout = 0;
-	this->higher = nullptr;
-	this->lower  = nullptr;
-	this->flags  = 0;
-
 	_window_manager.AddToStack(this); // Add to window stack.
 }
 
@@ -335,18 +331,17 @@ BaseWidget *Window::FindTooltipWidget([[maybe_unused]] Point16 pt)
  * @param wnumber Number of the window within the \a wtype.
  * @note Initialize the widget tree from the derived window class.
  */
-GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wnumber)
+GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wnumber),
+	initialized(false),
+	selector(nullptr),
+	mouse_pos(-1, -1),
+	ride_type(nullptr),
+	closeable(true),
+	tree(nullptr),
+	widgets(nullptr),
+	num_widgets(0)
 {
-	this->mouse_pos.x = -1;
-	this->mouse_pos.y = -1;
-	this->tree = nullptr;
-	this->widgets = nullptr;
-	this->num_widgets = 0;
-	this->SetHighlight(true);
-	this->ride_type = nullptr;
-	this->initialized = false;
-	this->selector = nullptr;
-	this->closeable = true;
+	SetHighlight(true);
 }
 
 GuiWindow::~GuiWindow()
@@ -705,19 +700,19 @@ BaseWidget *GuiWindow::FindTooltipWidget(Point16 pt)
  * @todo Move this to a separate InitWindowSystem?
  */
 WindowManager::WindowManager()
-{
-	this->top = nullptr;
-	this->bottom = nullptr;
+:
+	top(nullptr),
+	bottom(nullptr),
 
 	/* Mouse event handling. */
-	this->mouse_pos.x = -10000; // A very unlikely position for a window.
-	this->mouse_pos.y = -10000;
-	this->current_window = nullptr;
-	this->select_window = nullptr;
-	this->select_valid = true;
-	this->mouse_state = 0;
-	this->mouse_mode = WMMM_PASS_THROUGH;
-	this->tooltip_widget = nullptr;
+	mouse_pos(-10000, -10000), // A very unlikely position for a window.
+	current_window(nullptr),
+	select_window(nullptr),
+	select_valid(true),
+	mouse_state(0),
+	mouse_mode(WMMM_PASS_THROUGH),
+	tooltip_widget(nullptr)
+{
 }
 
 /** %Window manager destructor. */

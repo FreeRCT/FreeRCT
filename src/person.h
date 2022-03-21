@@ -136,6 +136,10 @@ public:
 	std::string GetName() const;
 	std::string GetStatus() const;
 
+protected:
+	Random rnd; ///< Random number generator for deciding how the person reacts.
+
+public:
 	uint16 id;       ///< Unique id of the person.
 	PersonType type; ///< Type of person.
 	int16 offset;    ///< Offset with respect to centre of paths walked on (0..100).
@@ -149,7 +153,6 @@ public:
 	RideInstance *ride;           ///< The ride we're intending to interact with, if any.
 
 protected:
-	Random rnd; ///< Random number generator for deciding how the person reacts.
 	std::string name; ///< Name of the person. \c "" means it has a default name (like "Guest XYZ").
 	StringID status;  ///< What the person is doing right now, for display in the GUI.
 	const Person *queuing_blocked_on;  ///< The person standing before this one in the queue, if this is a queuing guest.
