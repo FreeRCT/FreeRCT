@@ -22,6 +22,7 @@
 #include "weather.h"
 #include "freerct.h"
 #include "fileio.h"
+#include "rev.h"
 
 GameModeManager _game_mode_mgr; ///< Game mode manager object.
 
@@ -34,6 +35,7 @@ void OnNewYear()
 /** Runs various procedures that have to be done monthly. */
 void OnNewMonth()
 {
+	Autosave();
 	_finances_manager.AdvanceMonth();
 	_staff.OnNewMonth();
 	_rides_manager.OnNewMonth();
@@ -84,6 +86,38 @@ void OnNewFrame(const uint32 frame_delay)
 		_rides_manager.OnAnimate(frame_delay);
 		_scenery.OnAnimate(frame_delay);
 	}
+}
+
+int _max_autosaves(3);  ///< How many autosave files are retained at most. 0 disables autosave.
+
+/**
+ * Get the file path for an autosave with index #i.
+ * @param i Index number for the filename.
+ * @return The file path.
+ */
+static std::string AutosaveFilename(int i)
+{
+	std::string file = SavegameDirectory();
+	file += "autosave_";
+	file += std::to_string(i);
+	file += ".fct";
+	return file;
+}
+
+/** Create a new automatic savegame, and roll older autosaves. */
+void Autosave()
+{
+	if (_max_autosaves < 1) return;
+
+	/* Roll old autosaves. */
+	for (int i = _max_autosaves - 1; i > 0; --i) {
+		std::string old_file = AutosaveFilename(i);
+		if (PathIsFile(old_file.c_str())) {
+			CopyBinaryFile(old_file.c_str(), AutosaveFilename(i + 1).c_str());
+		}
+	}
+
+	_game_control.SaveGame(AutosaveFilename(1));
 }
 
 GameControl::GameControl()
