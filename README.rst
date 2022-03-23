@@ -6,7 +6,7 @@ FreeRCT aims to be a free and open source game which captures the look, feel and
 Building the program
 --------------------
 
-Currently only Linux is officially supported, although Windows *should* work. Let us know if it's broken.
+Currently only Linux is officially supported, although Windows and MacOS *should* work. Let us know if it's broken.
 
 Almost everything is written in C++, which means you need *g++* or *clang++* to compile it. FreeRCT uses C++11 features, so g++ 4.8+ or clang 3.3+ is recommended.
 In addition, you need:
@@ -18,6 +18,11 @@ In addition, you need:
 * *CMake* & *make* - Building the program.
 
 The existence of these programs/libraries is checked by ``cmake``.
+
+To install the dependencies on MacOS you can use Homebrew:
+.. code-block:: bash
+
+        $ brew install flex bison libpng sdl2 sdl2_ttf cmake make
 
 Building is as simple as
 
