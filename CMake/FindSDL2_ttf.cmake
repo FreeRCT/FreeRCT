@@ -74,12 +74,13 @@ SET(SDL2TTF_SEARCH_PATHS
         /opt/local # DarwinPorts
         /opt/csw # Blastwave
         /opt
+        /boot/system/lib # Haiku
 )
 
 FIND_PATH(SDL2TTF_INCLUDE_DIR SDL_ttf.h
         HINTS
         $ENV{SDL2TTFDIR}
-        PATH_SUFFIXES include/SDL2 include
+        PATH_SUFFIXES include/SDL2 include headers/SDL2 headers/x86/SDL2
         PATHS ${SDL2TTF_SEARCH_PATHS}
 )
 
