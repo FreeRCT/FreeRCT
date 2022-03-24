@@ -143,7 +143,7 @@ Building Troubleshoot
 ---------------------
 Linux
 #####
-All the CMake dependencies can be installed under Debian based systems(e.g. Ubuntu) using the following command:
+All the CMake dependencies can be installed under Debian based systems (e.g. Ubuntu) using the following command:
 
 .. code-block:: bash
 
