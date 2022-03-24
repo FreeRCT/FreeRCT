@@ -30,12 +30,12 @@ strings {
 		// Toolbar gui strings.
 		MAIN_MENU_QUIT:     "Afsluiten";
 		MAIN_MENU_SETTINGS: "Instellingen";
-		MAIN_MENU_MODE:     "Spelen/Bewerker";
+		MAIN_MENU_MODE:     "Spelen/Bewerken";
 		MAIN_MENU_LOAD:     "Laden";
 		MAIN_MENU_SAVE:     "Opslaan";
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelen";
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewerker";
+		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewerken";
 		TOOLBAR_GUI_PATHS:                "Paden";
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bouw paden en wachtrijen";
 		TOOLBAR_GUI_RIDE_SELECT:          "Koop een attractie";
@@ -49,16 +49,17 @@ strings {
 
 		// Quit program strings.
 		QUIT_CAPTION: "Programma sluiten?";
-		QUIT_MESSAGE: "Het programma sluiten?";
+		QUIT_MESSAGE: "FreeRCT sluiten?";
 		QUIT_NO:      "Nee";
 		QUIT_YES:     "Ja";
 
 		// Error message strings.
 		ERROR_MESSAGE_CAPTION: "Boodschap";
 		ERROR_MESSAGE_SPRITE:  "Het tekenen van de sprite is mislukt";
-
+		
 		// Guest info gui strings.
 		GUEST_INFO_MONEY:     "Geld op zak";
+		GUEST_INFO_MONEY_SPENT: "Geld uitgegeven";
 		GUEST_INFO_HAPPINESS: "Gelukkigheid";
 		GUEST_INFO_HUNGER:    "Honger";
 		GUEST_INFO_THIRST:    "Dorst";
@@ -88,10 +89,10 @@ strings {
 		PATH_GUI_FORWARD_TIP:  "Beweeg een tegel vooruit";
 		PATH_GUI_BACKWARD_TIP: "Beweeg een tegel terug";
 
-		PATH_GUI_NW_DIRECTION_TIP: "Bouw pad in noord-westelijke richting";
-		PATH_GUI_NE_DIRECTION_TIP: "Bouw pad in noord-oostelijke richting";
-		PATH_GUI_SW_DIRECTION_TIP: "Bouw pad in zuid-westelijke richting";
-		PATH_GUI_SE_DIRECTION_TIP: "Bouw pad in zuid-oostelijke richting";
+		PATH_GUI_NW_DIRECTION_TIP: "Bouw pad in noordwestelijke richting";
+		PATH_GUI_NE_DIRECTION_TIP: "Bouw pad in noordoostelijke richting";
+		PATH_GUI_SW_DIRECTION_TIP: "Bouw pad in zuidwestelijke richting";
+		PATH_GUI_SE_DIRECTION_TIP: "Bouw pad in zuidoostelijke richting";
 
 		PATH_GUI_NORMAL_PATH:      "Normale paden";
 		PATH_GUI_QUEUE_PATH:       "Wachtrijen";
@@ -107,6 +108,8 @@ strings {
 		RIDE_SELECT_SHOPS_TOOLTIP:   "Klik voor een weergave van beschikbare winkels";
 		RIDE_SELECT_GENTLE:          "Rustige attracties";
 		RIDE_SELECT_GENTLE_TOOLTIP:  "Klik voor een weergave van beschikbare rustige attracties";
+		RIDE_SELECT_THRILL:          "Spannende attracties";
+		RIDE_SELECT_THRILL_TOOLTIP:  "Klik voor een weergave van beschikbare spannende attracties";
 		RIDE_SELECT_WET:             "Water attracties";
 		RIDE_SELECT_WET_TOOLTIP:     "Klik voor een weergave van beschikbare water attracties";
 		RIDE_SELECT_COASTER:         "Achtbanen";
@@ -123,7 +126,7 @@ strings {
 		SHOP_MANAGER_ITEMS_SOLD_TEXT:    "Verkochte voorwerpen";
 		SHOP_MANAGER_ITEM_PROFIT_TEXT:   "Voorwerp winst";
 		SHOP_MANAGER_SELL_PROFIT_TEXT:   "Verkoop winst";
-		SHOP_MANAGER_SHOP_COST_TEXT:     "Personeels kosten";
+		SHOP_MANAGER_SHOP_COST_TEXT:     "Personeelskosten";
 		SHOP_MANAGER_TOTAL_PROFIT_TEXT:  "Totale winst";
 
 		// Fence gui strings.
@@ -142,15 +145,15 @@ strings {
 		FINANCES_TITLE:                  "Beheer financiën";
 		FINANCES_RIDE_CONSTRUCTION_TEXT: "Attractie bouw";
 		FINANCES_RIDE_RUNNING_TEXT:      "Attractie exploitatiekosten";
-		FINANCES_LAND_PURCHASE_TEXT:     "Gebied aanschaf";
+		FINANCES_LAND_PURCHASE_TEXT:     "Schaf nieuw gebied aan";
 		FINANCES_LANDSCAPING_TEXT:       "Terravorming";
-		FINANCES_PARK_TICKETS_TEXT:      "Park tickets";
-		FINANCES_RIDE_TICKETS_TEXT:      "Attractie tickets";
+		FINANCES_PARK_TICKETS_TEXT:      "Park toegangsbewijzen";
+		FINANCES_RIDE_TICKETS_TEXT:      "Attractie toegangsbewijzen";
 		FINANCES_SHOP_SALES_TEXT:        "Verkopen winkel";
 		FINANCES_SHOP_STOCK_TEXT:        "Winkel voorraden";
 		FINANCES_FOOD_SALES_TEXT:        "Verkopen eten/drinken";
 		FINANCES_FOOD_STOCK_TEXT:        "Eten/drinken voorraden";
-		FINANCES_STAFF_WAGES_TEXT:       "Personeels salaris";
+		FINANCES_STAFF_WAGES_TEXT:       "Personeelskosten";
 		FINANCES_MARKETING_TEXT:         "Marketing";
 		FINANCES_RESEARCH_TEXT:          "Onderzoek";
 		FINANCES_LOAN_INTEREST_TEXT:     "Lening rente";
@@ -161,9 +164,19 @@ strings {
 		COASTER_BUILD_NO_BEND_TOOLTIP:    "Selecteer een recht baanstuk";
 		COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Selecteer een baanstuk met een bocht naar rechts";
 		COASTER_BUILD_BANK_LEFT_TOOLTIP:  "Selecteer een baanstuk dat eindigt met een wenteling naar links";
-		COASTER_BUILD_BANK_NONE_TOOLTIP:  "Selecteer een baanstuk dat vlak eindigt";
+		COASTER_BUILD_BANK_NONE_TOOLTIP:  "Selecteer een baanstuk dat zonder wenteling eindigt";
 		COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selecteer een baanstuk dat eindigt met een wenteling naar rechts";
 		COASTER_BUILD_BUY_TOOLTIP:        "Klik om het geselecteerde baanstuk te kopen";
+
+		// Entity remove button strings.
+		ENTITY_REMOVE:         "Verwijder";
+		ENTITY_REMOVE_TOOLTIP: "Verwijder dit?";
+
+		// Entity remove window strings.
+		ENTITY_REMOVE_CAPTION: "Verwijder";
+		ENTITY_REMOVE_MESSAGE: "Verwijder %1%?";
+		ENTITY_REMOVE_YES:     "Ja";
+		ENTITY_REMOVE_NO:      "Nee";
 
 		// Money symbols.
 		MONEY_CURRENCY_SYMBOL:     "€";
@@ -171,43 +184,43 @@ strings {
 		MONEY_DECIMAL_SEPARATOR:   ",";
 
 		// Setting gui strings.
-		SETTING_TITLE:            "Instellingen";
-		SETTING_LANGUAGE:         "Wijzig taal";
-		SETTING_LANGUAGE_TOOLTIP: "Verander de taal van het spel";
+		SETTING_TITLE:              "Instellingen";
+		SETTING_LANGUAGE:           "Verander taal";
+		SETTING_LANGUAGE_TOOLTIP:   "Verander de taal van het spel";
 		SETTING_RESOLUTION:         "Verander de resolutie";
 		SETTING_RESOLUTION_TOOLTIP: "Verander de resolutie van het spel";
 	}
 
 	stringtexts("ice-cream-stall") {
-		NAME_INSTANCE1:        "Het ijs paleis";
+		NAME_INSTANCE1:        "Het IJs Paleis";
 		NAME_INSTANCE2:        "Koele drankjes";
-		NAME_TYPE:             "Ijskraampje";
-		DESCRIPTION_TYPE:      "Winkel voor zonnige drankjes en ijs";
-		DESCRIPTION_RECOLOUR1: "Beker kleur";
-		DESCRIPTION_RECOLOUR2: "Ijs kleur";
+		NAME_TYPE:             "IJskraampje";
+		DESCRIPTION_TYPE:      "Winkel voor drankjes en ijs";
+		DESCRIPTION_RECOLOUR1: "Kleur van de bekers";
+		DESCRIPTION_RECOLOUR2: "Kleur van het ijs";
 		DESCRIPTION_RECOLOUR3: "-";
-		NAME_ITEM1:             "Vanille ijs";
+		NAME_ITEM1:            "Vanille IJs";
 		NAME_ITEM2:            "Frisdrank";
 	}
 
 	stringtexts("snack-shop") {
-		NAME_INSTANCE1:   "De blije oppeuzelaar";
-		NAME_INSTANCE2:   "Pizza paleis";
-		NAME_TYPE:        "Snack kraampje";
-		DESCRIPTION_TYPE: "Winkel waar je lekkere koekjes kunt kopen";
+		NAME_INSTANCE1:        "De blije oppeuzelaar";
+		NAME_INSTANCE2:        "Pizza Paleis";
+		NAME_TYPE:             "Snack Kraampje";
+		DESCRIPTION_TYPE:      "Winkel waar je snacks kunt kopen";
 		DESCRIPTION_RECOLOUR1: "-";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
-		NAME_ITEM1:       "Koekjes";
-		NAME_ITEM2:       "Pizza";
+		NAME_ITEM1:            "Koekjes";
+		NAME_ITEM2:            "Pizza";
 	}
 
 	stringtexts("toilet") {
 		NAME_INSTANCE1:        "Toilet";
-		NAME_INSTANCE2:        "Badhuis";
+		NAME_INSTANCE2:        "Badkamer";
 		NAME_TYPE:             "Toilet";
 		DESCRIPTION_TYPE:      "Ga hierheen wanneer je nodig moet";
-		DESCRIPTION_RECOLOUR1: "Toilet kleur";
+		DESCRIPTION_RECOLOUR1: "Kleur van het toilet";
 		DESCRIPTION_RECOLOUR2: "-";
 		DESCRIPTION_RECOLOUR3: "-";
 		NAME_ITEM1:            "Toilet";
