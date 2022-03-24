@@ -19,11 +19,6 @@ In addition, you need:
 
 The existence of these programs/libraries is checked by ``cmake``.
 
-To install the dependencies on MacOS you can use Homebrew:
-.. code-block:: bash
-
-        $ brew install flex bison libpng sdl2 sdl2_ttf cmake make
-
 Building is as simple as
 
 .. code-block:: bash
@@ -153,3 +148,11 @@ All the CMake dependencies can be installed under Debian based systems(e.g. Ubun
 .. code-block:: bash
 
         $ sudo apt install zlib1g-dev libpng-dev libsdl2-dev libsdl2-ttf-dev doxygen flex bison
+
+MacOS
+#####
+
+To install the dependencies on MacOS you can use Homebrew:
+.. code-block:: bash
+
+        $ brew install flex bison libpng sdl2 sdl2_ttf cmake make
