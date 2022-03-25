@@ -39,7 +39,7 @@ Building for MacOS is done by doing
         $ mkdir build && cd build  # Create and enter a build directory.
         $ cmake ..                 # Checks libraries are where they're supposed to be and replaces some strings.
         $ make                     # Let make do the heavy work.
-        $ cpack -G Bundle          # Optional step to create a bundle (.app) and disk image (.dmg) that allows the program to be ran more easily.
+        $ cpack                    # Optional step to create a bundle (.app) and disk image (.dmg) that allows the program to be ran more easily.
 
 CMake accepts the following options:
 
