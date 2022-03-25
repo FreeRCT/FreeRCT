@@ -23,5 +23,5 @@
   <string>${VERSION_STRING}</string>
   <key>CFBundleVersion</key>
   <string>${VERSION_STRING}</string>
-</dict
+</dict>
 </plist>
