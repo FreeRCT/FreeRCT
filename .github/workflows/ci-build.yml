@@ -203,8 +203,15 @@ jobs:
         echo "Running on $(sysctl -n hw.logicalcpu) cores"
         cmake --build . -j $(sysctl -n hw.logicalcpu)
         echo "::endgroup::"
+        echo "::group::Package"
+        cpack
+        echo "::endgroup::"
 
-      # TODO implement packaging for MacOS
+    - name: Upload package (DMG)
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'FreeRCT MacOS ${{ matrix.arch }} ${{ matrix.config }} Bundle'
+        path: ${{ github.workspace }}/build/bundles/*.dmg*
 
   windows:
     name: Windows
