@@ -19,7 +19,7 @@ In addition, you need:
 
 The existence of these programs/libraries is checked by ``cmake``.
 
-Building is as simple as
+Building for Windows or Linux is as simple as
 
 .. code-block:: bash
 
@@ -30,6 +30,16 @@ Building is as simple as
         $ make                     # Let make do the heavy work.
         $ make install             # Optional step to install the program on the system. May require root privileges.
 
+Building for MacOS is done by doing
+
+.. code-block:: bash
+
+        $ git clone https://github.com/FreeRCT/FreeRCT.git
+        $ cd FreeRCT               # Go into the downloaded source directory.
+        $ mkdir build && cd build  # Create and enter a build directory.
+        $ cmake ..                 # Checks libraries are where they're supposed to be and replaces some strings.
+        $ make                     # Let make do the heavy work.
+        $ cpack -G Bundle          # Optional step to create a bundle (.app) and disk image (.dmg) that allows the program to be ran more easily.
 
 CMake accepts the following options:
 
