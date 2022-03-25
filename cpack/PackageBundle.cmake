@@ -3,6 +3,8 @@
 set(CPACK_BUNDLE_NAME "FreeRCT")
 set(CPACK_BUNDLE_ICON "${CMAKE_SOURCE_DIR}/graphics/sprites/logo/logo.png")
 set(CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist.in")
+# https://cmake.org/cmake/help/latest/cpack_gen/bundle.html#variable:CPACK_BUNDLE_STARTUP_COMMAND
+set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_CURRENT_BINARY_DIR}/bin/freerct")
 set(CPACK_DMG_FORMAT "UDBZ")
 
 configure_file("${CMAKE_SOURCE_DIR}/packaging_data/osx/Info.plist.in" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist.in")

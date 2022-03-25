@@ -8,7 +8,7 @@
   <key>CFBundleDisplayName</key>
   <string>${CPACK_BUNDLE_NAME}</string>
   <key>CFBundleExecutable</key>
-  <string>Resources/bin/freerct</string>
+  <string>FreeRCT</string>
   <key>CFBundleIconFile</key>
   <string>${CPACK_BUNDLE_NAME}.icns</string>
   <key>CFBundleIdentifier</key>
