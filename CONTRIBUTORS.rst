@@ -53,6 +53,7 @@ Name/Nick       Language
 =============== ==================
 Jacob Hellwing  Danish
 cheno4you       Dutch
+Flipp3rrr       Dutch
 veilleuxanthony English (US)
 Olivier Herau   French
 fuchsylp        German
