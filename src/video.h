@@ -56,7 +56,7 @@ class VideoSystem {
 
 public:
 	static void MainLoop();
-	static bool MainLoopCycle();
+	static void MainLoopCycle();
 
 	VideoSystem();
 	~VideoSystem();
