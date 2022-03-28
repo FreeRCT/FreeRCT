@@ -30,6 +30,7 @@ public:
 	RcdFileCollection();
 
 	void ScanDirectories();
+	void ScanDirectory(const char *dir, int recursion_depth);
 	void AddFile(const RcdFileInfo &rcd);
 
 	std::map<std::string, RcdFileInfo> rcdfiles; ///< Found unique RCD files, mapping of uri to the Rcd file information.

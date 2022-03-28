@@ -266,9 +266,8 @@ void MakeDirectory(std::string path)
 	if (path.empty() || PathIsDirectory(path.c_str())) return;
 
 	/* Strip trailing path separators. */
-	const size_t dir_sep_len = strlen(DIR_SEP);
-	while (path.size() >= dir_sep_len && path.compare(path.size() - dir_sep_len, dir_sep_len, DIR_SEP) == 0) {
-		for (size_t i = 0; i < dir_sep_len; ++i) {
+	while (StrEndsWith(path.c_str(), DIR_SEP, false)) {
+		for (size_t i = strlen(DIR_SEP); i > 0; --i) {
 			path.pop_back();
 		}
 	}
@@ -346,7 +345,7 @@ const std::string &GetUserHomeDirectory()
  */
 std::string FindDataFile(const std::string &name)
 {
-	for (std::string path : {std::string(".."), freerct_install_prefix()}) {
+	for (std::string path : {std::string("."), std::string(".."), std::string("..") + DIR_SEP + "..", freerct_install_prefix()}) {
 		path += DIR_SEP;
 		path += name;
 		if (PathIsFile(path.c_str())) return path;
