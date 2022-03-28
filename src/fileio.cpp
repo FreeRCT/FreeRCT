@@ -261,10 +261,19 @@ bool RcdFileReader::GetBlob(void *address, size_t length)
  * @param path Path of the directory.
  * @todo At the time of writing (2021-06-30) this is tested only on Linux. Before using it anywhere else, test this on all platforms (especially Windows).
  */
-void MakeDirectory(const std::string &path)
+void MakeDirectory(std::string path)
 {
-	if (PathIsDirectory(path.c_str())) return;
+	if (path.empty() || PathIsDirectory(path.c_str())) return;
 
+	/* Strip trailing path separators. */
+	const size_t dir_sep_len = strlen(DIR_SEP);
+	while (path.size() >= dir_sep_len && path.compare(path.size() - dir_sep_len, dir_sep_len, DIR_SEP) == 0) {
+		for (size_t i = 0; i < dir_sep_len; ++i) {
+			path.pop_back();
+		}
+	}
+
+	/* Recursively create parent directories. */
 	const size_t sep_pos = path.rfind(DIR_SEP);
 	if (sep_pos != std::string::npos) MakeDirectory(path.substr(0, sep_pos));
 
