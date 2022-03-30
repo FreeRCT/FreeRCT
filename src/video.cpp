@@ -19,6 +19,10 @@
 #include "window.h"
 #include "viewport.h"
 
+#ifdef WEBASSEMBLY
+#include <emscripten.h>
+#endif
+
 VideoSystem _video;  ///< Video sub-system.
 
 /** Default constructor of a clipped rectangle. */
@@ -522,6 +526,12 @@ bool VideoSystem::HandleEvent()
 	}
 }
 
+#ifdef WEBASSEMBLY
+/** Emscripten definitions to query the size of the canvas. */
+EM_JS(int, GetEmscriptenCanvasWidth , (), { return canvas.clientWidth ; });
+EM_JS(int, GetEmscriptenCanvasHeight, (), { return canvas.clientHeight; });
+#endif
+
 /** Main loop. Loops until told not to. */
 /* static */ void VideoSystem::MainLoop()
 {
@@ -530,11 +540,10 @@ bool VideoSystem::HandleEvent()
 
 /**
  * Perform one cycle of the main loop.
- * @return `true` until the game is supposed to end.
  */
-/* static */ bool VideoSystem::MainLoopCycle()
+/* static */ void VideoSystem::MainLoopCycle()
 {
-	return _video.MainLoopDoCycle();
+	_video.MainLoopDoCycle();
 }
 
 /**
@@ -553,6 +562,10 @@ bool VideoSystem::MainLoopDoCycle()
 	for (;;) {
 		if (HandleEvent()) break;
 	}
+
+#ifdef WEBASSEMBLY
+	this->SetResolution({GetEmscriptenCanvasWidth(), GetEmscriptenCanvasHeight()});
+#endif
 
 	/* If necessary, run the latest game control action. */
 	_game_control.DoNextAction();
