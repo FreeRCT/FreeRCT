@@ -12,6 +12,7 @@
 #include "fileio.h"
 #include "string_func.h"
 #include "rev.h"
+#include <memory>
 
 RcdFileCollection _rcd_collection; ///< Available RCD files.
 
@@ -70,27 +71,41 @@ void RcdFileCollection::AddFile(const RcdFileInfo &rcd)
 /** Scan directories, looking for RCD files to add. */
 void RcdFileCollection::ScanDirectories()
 {
-	DirectoryReader *reader = MakeDirectoryReader();
-
 	const std::string _rcd_paths[] = {
-		"rcd",
+		".",
 		freerct_install_prefix() + DIR_SEP + "rcd",
-		"",
 	};
+	for (const std::string &rcd_path : _rcd_paths) this->ScanDirectory(rcd_path.c_str(), 3);
+}
 
-	const std::string *rcd_path = _rcd_paths;
-	while (!rcd_path->empty()) {
-		reader->OpenPath(rcd_path->c_str());
-		for (;;) {
-			const char *fname = reader->NextFile();
-			if (fname == nullptr) break;
-			if (!StrEndsWith(fname, ".rcd", false)) continue;
-			this->ScanFileForMetaInfo(fname);
+/**
+ * Recursively scan a directory, looking for RCD files to add.
+ * @param dir Directory to scan.
+ * @param recursion_depth Remaining layers of recursion depth.
+ */
+void RcdFileCollection::ScanDirectory(const char *dir, int recursion_depth)
+{
+	std::unique_ptr<DirectoryReader> reader(MakeDirectoryReader());
+
+	reader->OpenPath(dir);
+	for (;;) {
+		const char *fname = reader->NextEntry();
+		if (fname == nullptr) break;
+
+		std::string filename(fname);
+		const size_t sep_pos = filename.rfind(DIR_SEP);
+		filename = filename.substr(sep_pos + strlen(DIR_SEP));
+		if (filename.empty() || filename == "." || filename == "..") continue;
+
+		if (reader->EntryIsDirectory()) {
+			if (recursion_depth > 0) this->ScanDirectory(fname, recursion_depth - 1);
+			continue;
 		}
-		reader->ClosePath();
-		rcd_path++;
+
+		if (!StrEndsWith(fname, ".rcd", false)) continue;
+		this->ScanFileForMetaInfo(fname);
 	}
-	delete reader;
+	reader->ClosePath();
 }
 
 /**

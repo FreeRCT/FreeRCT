@@ -261,10 +261,18 @@ bool RcdFileReader::GetBlob(void *address, size_t length)
  * @param path Path of the directory.
  * @todo At the time of writing (2021-06-30) this is tested only on Linux. Before using it anywhere else, test this on all platforms (especially Windows).
  */
-void MakeDirectory(const std::string &path)
+void MakeDirectory(std::string path)
 {
-	if (PathIsDirectory(path.c_str())) return;
+	if (path.empty() || PathIsDirectory(path.c_str())) return;
 
+	/* Strip trailing path separators. */
+	while (StrEndsWith(path.c_str(), DIR_SEP, false)) {
+		for (size_t i = strlen(DIR_SEP); i > 0; --i) {
+			path.pop_back();
+		}
+	}
+
+	/* Recursively create parent directories. */
 	const size_t sep_pos = path.rfind(DIR_SEP);
 	if (sep_pos != std::string::npos) MakeDirectory(path.substr(0, sep_pos));
 
@@ -337,7 +345,7 @@ const std::string &GetUserHomeDirectory()
  */
 std::string FindDataFile(const std::string &name)
 {
-	for (std::string path : {std::string(".."), freerct_install_prefix()}) {
+	for (std::string path : {std::string("."), std::string(".."), std::string("..") + DIR_SEP + "..", freerct_install_prefix()}) {
 		path += DIR_SEP;
 		path += name;
 		if (PathIsFile(path.c_str())) return path;

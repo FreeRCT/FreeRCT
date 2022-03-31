@@ -78,7 +78,7 @@ bool PathIsDirectory(const char *path);
 
 DirectoryReader *MakeDirectoryReader();
 
-void MakeDirectory(const std::string &path);
+void MakeDirectory(std::string path);
 void CopyBinaryFile(const char *src, const char *dest);
 
 const std::string &GetUserHomeDirectory();

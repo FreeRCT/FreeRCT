@@ -8,7 +8,7 @@ Building the program
 
 Currently only Linux is officially supported, although Windows and MacOS *should* work. Let us know if it's broken.
 
-Almost everything is written in C++, which means you need *g++* or *clang++* to compile it. FreeRCT uses C++11 features, so g++ 4.8+ or clang 3.3+ is recommended.
+Almost everything is written in C++, which means you need *g++* or *clang++* to compile it. FreeRCT uses C++17 features, so g++ 7+ or clang 6+ is recommended.
 In addition, you need:
 
 * *lex/flex* - Scanner generator for generating RCD input files. (optional)
@@ -126,8 +126,7 @@ Now run the program
 
 .. code-block:: bash
 
-        $ cd bin
-        $ ./freerct
+        $ ./bin/freerct
 
 or
 
@@ -138,6 +137,10 @@ or
 which should open a window containing the main menu (see also the pictures in the blog).
 
 Pressing 'q' quits the program.
+
+Use ``--help`` or ``-h`` to view available command-line options.
+
+A detailed manual for the game is available `online <https://freerct.net/manual>`_.
 
 Building Troubleshoot
 ---------------------
