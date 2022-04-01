@@ -10,13 +10,9 @@ set(CPACK_DMG_FORMAT "UDBZ")
 configure_file("${CMAKE_SOURCE_DIR}/packaging_data/osx/Info.plist.in" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist.in")
 set(CPACK_BUNDLE_PLIST_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/Info.plist.in")
 
-# Make standalone / https://cmake.org/cmake/help/latest/module/BundleUtilities.html
-# This won't work unless the executable is in /MacOS/ and not /Resources/
-
-#install(CODE
-#	"
-#		include(BundleUtilities)
-#		set(BU_CHMOD_BUNDLE_ITEMS TRUE)
-#		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/../MacOS/FreeRCT\"  \"\" \"\")
-#	"
-#)
+# Link libs, the wrong way (libpng sdl2 sdl2_ttf)
+# This only works when the libraries are installed by Homebrew and you're using an Intel Mac. It
+# also has versions hardcoded so it will break, and soon.
+target_link_libraries(/usr/local/Cellar/libpng/1.6.37/lib/libpng.a)
+target_link_libraries(/usr/local/Cellar/sdl2/2.0.20/lib/libSDL2.a)
+target_link_libraries(/usr/local/Cellar/sdl2_ttf/2.0.18_1/lib/libSDL2_ttf.a)
