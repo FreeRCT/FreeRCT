@@ -81,7 +81,7 @@ struct PreloadData {
 	std::string scenario_name;  ///< Name of the scenario.
 
 	/**
-	 * Sorting operator to allow using PreloadData in ordered SDL containers.
+	 * Sorting operator to allow using PreloadData in ordered STL containers.
 	 * @param pd Object to compare to.
 	 * @return This object should sort before the other object.
 	 */

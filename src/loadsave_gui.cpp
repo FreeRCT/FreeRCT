@@ -245,7 +245,7 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 			break;
 
 		case LSW_LIST_REV:
-			functor = [&x, &y, &w](const PreloadData &pd) {
+			functor = [&x, &y](const PreloadData &pd) {
 				static const Recolouring r;
 				const ImageData *imgdata = _sprite_manager.GetTableSprite(
 						pd.load_success ? pd.revision == _freerct_revision ? SPR_GUI_LOADSAVE_OK : SPR_GUI_LOADSAVE_WARN : SPR_GUI_LOADSAVE_ERR);
