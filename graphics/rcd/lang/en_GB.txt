@@ -11,6 +11,7 @@ strings {
 		TITLEBAR_TIP:  "Click at the title bar to raise the window, drag the title bar to move the window";
 		LANGUAGE_NAME: "English (UK)";
 
+		DATETIME_FORMAT: "%Y-%m-%d, %I:%M:%S %p";
 		MONTH_JANUARY:   "January";
 		MONTH_FEBRUARY:  "February";
 		MONTH_MARCH:     "March";
@@ -363,9 +364,12 @@ strings {
 		SETTING_RESOLUTION_TOOLTIP: "Change the screen resolution of the game";
 
 		// Loading/saving window.
-		LOADSAVE_LOAD:   "Load";
-		LOADSAVE_SAVE:   "Save";
-		LOADSAVE_CANCEL: "Cancel";
+		LOADSAVE_LOAD:        "Load";
+		LOADSAVE_SAVE:        "Save";
+		LOADSAVE_CANCEL:      "Cancel";
+		LOADSAVE_COLUMN_FILE: "Filename";
+		LOADSAVE_COLUMN_TIME: "Date Saved";
+		LOADSAVE_COLUMN_NAME: "Scenario";
 	}
 
 	stringtexts("ice-cream-stall") {

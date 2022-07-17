@@ -11,6 +11,7 @@ strings {
 		TITLEBAR_TIP:  "Click on the title bar to raise the window, drag the title bar to move the window";
 		LANGUAGE_NAME: "English (US)";
 
+		DATETIME_FORMAT: "%m/%d/%Y, %I:%M:%S %p";
 		MONTH_JANUARY:   "January";
 		MONTH_FEBRUARY:  "February";
 		MONTH_MARCH:     "March";

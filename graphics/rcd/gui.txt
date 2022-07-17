@@ -136,6 +136,12 @@ file("gui.rcd") {
 			x_offset: 0; y_offset: 0; width: 46; height: 46; crop: 0;
 		}
 
+		(loadsave_err, loadsave_warn, loadsave_ok): sheet {
+			x_base: 0; y_base: 0; x_step: 22; y_step: 0;
+			file: "../sprites/gui/icons.png";
+			x_offset: 0; y_offset: 0; width: 22; height: 22; crop: 0;
+		}
+
 		(toolbar_main,    toolbar_speed,   toolbar_path,  toolbar_ride,   toolbar_fence, toolbar_scenery,
 		 toolbar_terrain, toolbar_staff, toolbar_inbox, toolbar_finances, toolbar_objects, toolbar_view): sheet {
 			x_base: 0; y_base: 0; x_step: 32; y_step: 0;

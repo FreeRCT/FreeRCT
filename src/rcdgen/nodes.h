@@ -889,6 +889,9 @@ public:
 	std::shared_ptr<SpriteBlock> message_guest;      ///< Inbox: Guest Window button.
 	std::shared_ptr<SpriteBlock> message_ride;       ///< Inbox: Ride Instance Window button.
 	std::shared_ptr<SpriteBlock> message_ride_type;  ///< Inbox: Ride Select GUI button.
+	std::shared_ptr<SpriteBlock> loadsave_err;       ///< Loadsave icon for files with errors.
+	std::shared_ptr<SpriteBlock> loadsave_warn;      ///< Loadsave icon for files with warnings.
+	std::shared_ptr<SpriteBlock> loadsave_ok;        ///< Loadsave icon for files without warnings or errors.
 	std::shared_ptr<SpriteBlock> toolbar_main;      ///< Toolbar: Main menu GUI button.
 	std::shared_ptr<SpriteBlock> toolbar_speed;     ///< Toolbar: Speed menu GUI button.
 	std::shared_ptr<SpriteBlock> toolbar_path;      ///< Toolbar: Path build GUI button.

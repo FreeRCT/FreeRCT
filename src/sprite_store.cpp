@@ -1117,9 +1117,9 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->version != 11 || rcd_file->size !=
-			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT + 4 + 3 + 4 + 2) * 4 +
-			4 + 4 * 5 + 4 * lengthof(this->toolbar_images)) {
+	if (rcd_file->version != 12 || rcd_file->size !=
+			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT +
+			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images)) * 4) {
 		return false;
 	}
 
@@ -1172,6 +1172,10 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_guest)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride)) return false;
 	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride_type)) return false;
+
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_err)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_warn)) return false;
+	if (!LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_ok)) return false;
 
 	for (ImageData *& t : this->toolbar_images) if (!LoadSpriteFromFile(rcd_file, sprites, &t)) return false;
 
@@ -1249,6 +1253,9 @@ void GuiSprites::Clear()
 	this->message_ride = nullptr;
 	this->message_guest = nullptr;
 	this->message_ride_type = nullptr;
+	this->loadsave_err = nullptr;
+	this->loadsave_warn = nullptr;
+	this->loadsave_ok = nullptr;
 	for (ImageData *& t : this->toolbar_images) t = nullptr;
 	for (uint i = 0; i < TC_END; i++) this->compass[i] = nullptr;
 	for (uint i = 0; i < WTP_COUNT; i++) this->weather[i] = nullptr;
@@ -1785,6 +1792,9 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_MESSAGE_GUEST:      return _gui_sprites.message_guest;
 		case SPR_GUI_MESSAGE_RIDE:       return _gui_sprites.message_ride;
 		case SPR_GUI_MESSAGE_RIDE_TYPE:  return _gui_sprites.message_ride_type;
+		case SPR_GUI_LOADSAVE_ERR:       return _gui_sprites.loadsave_err;
+		case SPR_GUI_LOADSAVE_WARN:      return _gui_sprites.loadsave_warn;
+		case SPR_GUI_LOADSAVE_OK:        return _gui_sprites.loadsave_ok;
 		case SPR_GUI_BENCH:              return this->store.path_decoration.bench    [0];
 		case SPR_GUI_BIN:                return this->store.path_decoration.litterbin[0];
 		case SPR_GUI_LAMP:               return this->store.path_decoration.lamp_post[0];

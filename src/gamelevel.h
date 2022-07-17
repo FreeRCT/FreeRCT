@@ -24,6 +24,8 @@ struct Scenario {
 	uint16 spawn_highest; ///< Guest spawn probability at highest popularity (0..1024).
 	uint16 max_guests;    ///< Maximal number of guests.
 
+	std::string name;     ///< Title of the scenario.
+
 	Money initial_money;  ///< Initial amount of money of the player.
 	Money initial_loan;   ///< Initial loan of the player.
 	Money max_loan;       ///< Maximum loan the player can take.

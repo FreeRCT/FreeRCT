@@ -1743,20 +1743,23 @@ Offset  Length  Version  Field name          Description
  216       4      9-     message_guest       Inbox: Guest Window button.
  220       4      9-     message_ride        Inbox: Ride Instance Window button.
  224       4      9-     message_ride_type   Inbox: Ride Select GUI button.
- 228       4     10-     toolbar_main        Toolbar: Main menu GUI button.
- 232       4     10-     toolbar_speed       Toolbar: Speed menu GUI button.
- 236       4     10-     toolbar_path        Toolbar: Path build GUI button.
- 240       4     10-     toolbar_ride        Toolbar: Ride Select GUI button.
- 244       4     10-     toolbar_fence       Toolbar: Fence build GUI button.
- 248       4     10-     toolbar_scenery     Toolbar: Scenery GUI button.
- 252       4     10-     toolbar_terrain     Toolbar: Terraform GUI button.
- 256       4     10-     toolbar_staff       Toolbar: Staff GUI button.
- 260       4     10-     toolbar_inbox       Toolbar: Inbox GUI button.
- 264       4     10-     toolbar_finances    Toolbar: Finances GUI button.
- 268       4     10-     toolbar_objects     Toolbar: Path objects GUI button.
- 272       4     10-     toolbar_view        Toolbar: View menu GUI button.
- 276       4      2-     texts               Text of the guis (reference to a TEXT block).
- 280                                         Total length.
+ 224       4     12-     loadsave_err        Loadsave icon for files with errors.
+ 228       4     12-     loadsave_warn       Loadsave icon for files with warnings.
+ 232       4     12-     loadsave_ok         Loadsave icon for files without warnings or errors.
+ 236       4     10-     toolbar_main        Toolbar: Main menu GUI button.
+ 240       4     10-     toolbar_speed       Toolbar: Speed menu GUI button.
+ 244       4     10-     toolbar_path        Toolbar: Path build GUI button.
+ 248       4     10-     toolbar_ride        Toolbar: Ride Select GUI button.
+ 252       4     10-     toolbar_fence       Toolbar: Fence build GUI button.
+ 256       4     10-     toolbar_scenery     Toolbar: Scenery GUI button.
+ 260       4     10-     toolbar_terrain     Toolbar: Terraform GUI button.
+ 264       4     10-     toolbar_staff       Toolbar: Staff GUI button.
+ 268       4     10-     toolbar_inbox       Toolbar: Inbox GUI button.
+ 272       4     10-     toolbar_finances    Toolbar: Finances GUI button.
+ 276       4     10-     toolbar_objects     Toolbar: Path objects GUI button.
+ 280       4     11-     toolbar_view        Toolbar: View menu GUI button.
+ 284       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 288                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1773,6 +1776,7 @@ Version history
 - 9 (20210316) Added message button sprites.
 - 10 (20210429) Added toolbar button sprites.
 - 11 (20210918) Added toolbar view menu button sprite.
+- 12 (20220717) Added loadsave icon sprites.
 
 
 Main menu sprites

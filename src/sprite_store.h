@@ -522,6 +522,10 @@ struct GuiSprites {
 	ImageData *message_ride;                ///< Inbox button ride instance window sprite.
 	ImageData *message_ride_type;           ///< Inbox button ride select gui sprite.
 
+	ImageData *loadsave_err;                ///< Loadsave icon for files with errors.
+	ImageData *loadsave_warn;               ///< Loadsave icon for files with warnings.
+	ImageData *loadsave_ok;                 ///< Loadsave icon for files without warnings or errors.
+
 	ImageData *toolbar_images[SPR_GUI_TOOLBAR_END - SPR_GUI_TOOLBAR_BEGIN];  ///< Toolbar button sprites.
 
 	ImageData *mainmenu_logo;               ///< Main menu: FreeeRCT logo.

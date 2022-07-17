@@ -11,6 +11,7 @@ strings {
 		TITLEBAR_TIP:  "Klick de Titelbalken an, um dat Fenster na boven to halen; treck de Titelbalken, um dat Fenster to verschuven";
 		LANGUAGE_NAME: "Plattdüütsch";
 
+		DATETIME_FORMAT: "%d.%m.%Y, %H:%M:%S";
 		MONTH_JANUARY:   "Januar";
 		MONTH_FEBRUARY:  "Februar";
 		MONTH_MARCH:     "Määrt";
@@ -363,9 +364,12 @@ strings {
 		SETTING_RESOLUTION_TOOLTIP: "De Grött vun de Speelfenster ännern";
 
 		// Loading/saving window.
-		LOADSAVE_LOAD:   "Laden";
-		LOADSAVE_SAVE:   "Sekern";
-		LOADSAVE_CANCEL: "Ofbreken";
+		LOADSAVE_LOAD:        "Laden";
+		LOADSAVE_SAVE:        "Sekern";
+		LOADSAVE_CANCEL:      "Ofbreken";
+		LOADSAVE_COLUMN_FILE: "Dateinaam";
+		LOADSAVE_COLUMN_TIME: "Dag sekert";
+		LOADSAVE_COLUMN_NAME: "Rutfödderung";
 	}
 
 	stringtexts("ice-cream-stall") {

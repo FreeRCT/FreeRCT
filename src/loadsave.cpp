@@ -19,6 +19,9 @@
 #include "string_func.h"
 #include "person.h"
 #include "people.h"
+#include "fileio.h"
+#include "gamelevel.h"
+#include "rev.h"
 
 /** Whether savegame files should automatically be resaved after loading. */
 bool _automatically_resave_files = false;
@@ -322,7 +325,29 @@ void Saver::PutText(const std::string &str, int length)
 
 /* When making any changes to saveloading code, don't forget to update the file 'doc/savegame.rst'! */
 
-static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version of the FCTS pattern.
+static const uint32 CURRENT_VERSION_FCTS = 11;  ///< Currently supported version of the FCTS pattern.
+
+PreloadData Preload(Loader &ldr)
+{
+	uint32 version = ldr.OpenPattern("FCTS");
+	if (version != 0 && (version < 10 || version > CURRENT_VERSION_FCTS)) ldr.version_mismatch(version, CURRENT_VERSION_FCTS);
+
+	PreloadData result;
+
+	if (version >= 11) {
+		result.timestamp = ldr.GetLongLong();
+		result.revision = ldr.GetText();
+		result.scenario_name = ldr.GetText();
+	} else {
+		result.timestamp = 0;
+		result.revision = "?";
+		result.scenario_name = "?";
+	}
+
+	ldr.ClosePattern();
+	result.load_success = true;
+	return result;
+}
 
 /**
  * Load the game elements from the input stream.
@@ -331,10 +356,6 @@ static const uint32 CURRENT_VERSION_FCTS = 10;  ///< Currently supported version
  */
 static void LoadElements(Loader &ldr)
 {
-	uint32 version = ldr.OpenPattern("FCTS");
-	if (version != 0 && version != CURRENT_VERSION_FCTS) ldr.version_mismatch(version, CURRENT_VERSION_FCTS);
-	ldr.ClosePattern();
-
 	LoadDate(ldr);
 	_world.Load(ldr);
 	_finances_manager.Load(ldr);
@@ -355,6 +376,9 @@ static void LoadElements(Loader &ldr)
 static void SaveElements(Saver &svr)
 {
 	svr.StartPattern("FCTS", CURRENT_VERSION_FCTS);
+	svr.PutLongLong(std::time(nullptr));
+	svr.PutText(_freerct_revision);
+	svr.PutText(_scenario.name);
 	svr.EndPattern();
 
 	SaveDate(svr);
@@ -386,6 +410,7 @@ bool LoadGameFile(const char *fname)
 		}
 
 		Loader ldr(fp);
+		Preload(ldr);
 		LoadElements(ldr);
 
 		if (fp != nullptr) {
@@ -406,6 +431,32 @@ bool LoadGameFile(const char *fname)
 		printf("FreeRCT will terminate now.\n");
 		::exit(1);
 	}
+}
+
+/**
+ * Load basic data from a savegame file.
+ * @param fname Name of the file to load.
+ * @return Basic information about the savegame.
+ * @note Check the return value's #load_success attribute to see whether preloading was successful.
+ */
+PreloadData PreloadGameFile(const char *fname)
+{
+	PreloadData result;
+	if (fname == nullptr) return result;
+
+	try {
+		FILE *fp = fopen(fname, "rb");
+		if (fp == nullptr) return result;
+		Loader ldr(fp);
+		result = Preload(ldr);
+		fclose(fp);
+	} catch (...) {
+		result.load_success = false;
+	}
+
+	result.filename = fname;
+	result.filename = result.filename.substr(result.filename.find_last_of(DIR_SEP) + 1);
+	return result;
 }
 
 /**
