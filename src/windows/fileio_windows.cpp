@@ -47,7 +47,7 @@ const char *WindowsDirectoryReader::NextEntry()
 }
 
 const char *WindowsDirectoryReader::MakePath(const char *directory, const char *fname)
-{	
+{
 	snprintf(this->fpath, MAX_PATH, "%s%s%s", directory, DIR_SEP, fname);
 	this->fpath[MAX_PATH - 1] = '\0'; // Better safe than sorry.
 	return this->fpath;

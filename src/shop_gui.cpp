@@ -139,7 +139,7 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 						Widget(WT_RADIOBUTTON, SMW_SHOP_OPEN, COL_RANGE_GREEN),    SetPadding(0, 2, 0, 0),
 						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
 				EndContainer(),
-			
+
 			Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 				Widget(WT_TEXT_PUSHBUTTON, SMW_REMOVE, COL_RANGE_DARK_RED),
 						SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),

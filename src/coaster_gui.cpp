@@ -593,7 +593,7 @@ void CoasterInstanceWindow::ChooseEntranceExitClicked(const bool entrance)
 }
 
 /**
- * Update the coaster instance associated with this window to a new state that is determined by the 
+ * Update the coaster instance associated with this window to a new state that is determined by the
  * radio button clicked. If the radio button is not one of the ride state control radio buttons in this
  * window, an error will be raised.
  *

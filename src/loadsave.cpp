@@ -112,7 +112,7 @@ void Loader::ClosePattern()
 uint8 Loader::GetByte()
 {
 	if (this->fp == nullptr) return 0;
-	
+
 	if (this->cache_count > 0) {
 		this->cache_count--;
 		return this->cache[this->cache_count];

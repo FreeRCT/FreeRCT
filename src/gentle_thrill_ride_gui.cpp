@@ -226,7 +226,7 @@ GentleThrillRideManagerWindow::GentleThrillRideManagerWindow(GentleThrillRideIns
 	this->SetupWidgetTree(_gentle_thrill_ride_manager_gui_parts, lengthof(_gentle_thrill_ride_manager_gui_parts));
 	this->UpdateButtons();
 	this->UpdateRecolourButtons();
-	
+
 	SetSelector(nullptr);
 	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
 
