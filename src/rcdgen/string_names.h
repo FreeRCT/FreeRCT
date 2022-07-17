@@ -15,6 +15,7 @@ static const char *_gui_string_names[] = {
 	/* Generic GUI strings. */
 	"TITLEBAR_TIP",
 	"LANGUAGE_NAME",
+	"NOT_AVAILABLE",
 
 	"DATETIME_FORMAT",
 	"MONTH_JANUARY",

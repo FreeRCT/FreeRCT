@@ -327,6 +327,11 @@ void Saver::PutText(const std::string &str, int length)
 
 static const uint32 CURRENT_VERSION_FCTS = 11;  ///< Currently supported version of the FCTS pattern.
 
+/**
+ * Load basic information from the start of a savegame file.
+ * @param ldr Input stream to load from.
+ * @return Basic information.
+ */
 PreloadData Preload(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("FCTS");
@@ -341,7 +346,7 @@ PreloadData Preload(Loader &ldr)
 	} else {
 		result.timestamp = 0;
 		result.revision = "?";
-		result.scenario_name = "?";
+		result.scenario_name = _language.GetText(GUI_NOT_AVAILABLE);
 	}
 
 	ldr.ClosePattern();
@@ -418,7 +423,7 @@ bool LoadGameFile(const char *fname)
 			if (_automatically_resave_files) SaveGameFile(fname);
 		}
 		return true;
-	} catch (const std::exception &e) {
+	} catch (const LoadingError &e) {
 		if (fname != nullptr) {
 			printf("ERROR: Loading '%s' failed: %s\n", fname, e.what());
 			LoadGameFile(nullptr);
@@ -450,7 +455,7 @@ PreloadData PreloadGameFile(const char *fname)
 		Loader ldr(fp);
 		result = Preload(ldr);
 		fclose(fp);
-	} catch (...) {
+	} catch (const LoadingError&) {
 		result.load_success = false;
 	}
 

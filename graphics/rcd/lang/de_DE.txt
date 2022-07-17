@@ -10,6 +10,7 @@ strings {
 	stringtexts("gui") {
 		TITLEBAR_TIP:  "Ein Klick auf die Titelleiste holt das Fenster in den Vordergrund, ziehen der Titelleiste verschiebt das Fenster";
 		LANGUAGE_NAME: "Deutsch";
+		NOT_AVAILABLE: "k.A.";
 
 		DATETIME_FORMAT: "%d.%m.%Y, %H:%M:%S";
 		MONTH_JANUARY:   "Januar";

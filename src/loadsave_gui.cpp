@@ -233,7 +233,11 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 			functor = [&x, &y, &w](const PreloadData &pd) {
 				if (!pd.load_success) return;
 				static char buffer[256];
-				std::strftime(buffer, sizeof(buffer), _language.GetText(GUI_DATETIME_FORMAT).c_str(), std::localtime(&pd.timestamp));
+				if (pd.timestamp > 0) {
+					std::strftime(buffer, sizeof(buffer), _language.GetText(GUI_DATETIME_FORMAT).c_str(), std::localtime(&pd.timestamp));
+				} else {
+					strcpy(buffer, _language.GetText(GUI_NOT_AVAILABLE).c_str());
+				}
 				_video.BlitText(buffer, _palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
 			};
 			break;

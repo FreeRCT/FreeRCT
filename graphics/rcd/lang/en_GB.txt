@@ -10,6 +10,7 @@ strings {
 	stringtexts("gui") {
 		TITLEBAR_TIP:  "Click at the title bar to raise the window, drag the title bar to move the window";
 		LANGUAGE_NAME: "English (UK)";
+		NOT_AVAILABLE: "n/a";
 
 		DATETIME_FORMAT: "%Y-%m-%d, %I:%M:%S %p";
 		MONTH_JANUARY:   "January";
