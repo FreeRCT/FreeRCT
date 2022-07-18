@@ -64,7 +64,8 @@ Offset  Length  Version  Description
 
 File header
 -----------
-The file header consists of 3 parts. Current version number is 10.
+The file header contains basic information that should be accessible before loading the savegame.
+Current version number is 11.
 
 Header Layout
 ~~~~~~~~~~~~~
@@ -74,7 +75,10 @@ Offset  Length  Description
 ======  ======  ======================================================
    0       4    "FCTS".
    4       4    Version number of the file.
-   8       4    "STCF"
+   8       8    UNIX timestamp when the savegame was created.
+  16       ?    Version string with which the savegame was created.
+   ?       ?    Name of the scenario.
+   ?       4    "STCF"
 ======  ======  ======================================================
 
 Version history
@@ -82,6 +86,7 @@ Version history
 
 - (older versions are documented in the file "savegame_history.rst").
 - 10 (20210402) Refactored handling of versions.
+- 11 (20220717) Added scenario data and savefile information.
 
 
 Nested patterns

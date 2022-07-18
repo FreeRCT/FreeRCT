@@ -12,6 +12,7 @@
 #include "gamecontrol.h"
 #include "fileio.h"
 #include "rev.h"
+#include "sprite_store.h"
 
 /**
  * Game loading/saving gui.
@@ -35,7 +36,7 @@ private:
 	std::string FinalFilename() const;
 
 	const Type type;                  ///< Type of this window.
-	std::set<std::string> all_files;  ///< All files in the working directory.
+	std::set<PreloadData> all_files;  ///< All files in the working directory.
 };
 
 /**
@@ -44,7 +45,11 @@ private:
  */
 enum LoadSaveWidgets {
 	LSW_TITLEBAR,   ///< Window title bar.
-	LSW_LIST,       ///< List of all files.
+	LSW_LIST,       ///< List of all files - wrapper.
+	LSW_LIST_FILE,  ///< List of all files - filename column.
+	LSW_LIST_TIME,  ///< List of all files - timestamp column.
+	LSW_LIST_NAME,  ///< List of all files - scenario name column.
+	LSW_LIST_REV,   ///< List of all files - revision compatibility column.
 	LSW_SCROLLBAR,  ///< Scrollbar for the list.
 	LSW_TEXTFIELD,  ///< Text field for the filename.
 	LSW_OK,         ///< Confirmation button.
@@ -52,7 +57,7 @@ enum LoadSaveWidgets {
 };
 
 static const uint ITEM_COUNT   =  8;  ///< Number of files to display in the list.
-static const uint ITEM_HEIGHT  = 20;  ///< Height of one item in the list.
+static const uint ITEM_HEIGHT  = 26;  ///< Height of one item in the list.
 static const uint ITEM_SPACING =  2;  ///< Spacing in the list.
 
 /**
@@ -68,8 +73,20 @@ static const WidgetPart _loadsave_gui_parts[] = {
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 			Intermediate(1, 2),
-				Widget(WT_EMPTY, LSW_LIST, COL_RANGE_BLUE),
-						SetFill(0, ITEM_HEIGHT), SetResize(0, ITEM_HEIGHT), SetMinimalSize(300, ITEM_COUNT * ITEM_HEIGHT),
+				Widget(WT_PANEL, LSW_LIST, COL_RANGE_BLUE),
+					Intermediate(2, 4),
+						Widget(WT_TEXT_PUSHBUTTON, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_FILE, STR_NULL),
+						Widget(WT_TEXT_PUSHBUTTON, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_TIME, STR_NULL),
+						Widget(WT_TEXT_PUSHBUTTON, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_NAME, STR_NULL),
+						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
+						Widget(WT_EMPTY, LSW_LIST_FILE, COL_RANGE_BLUE),
+							SetFill(0, ITEM_HEIGHT), SetResize(0, ITEM_HEIGHT), SetMinimalSize(200, ITEM_COUNT * ITEM_HEIGHT),
+						Widget(WT_EMPTY, LSW_LIST_TIME, COL_RANGE_BLUE),
+							SetFill(0, ITEM_HEIGHT), SetResize(0, ITEM_HEIGHT), SetMinimalSize(200, ITEM_COUNT * ITEM_HEIGHT),
+						Widget(WT_EMPTY, LSW_LIST_NAME, COL_RANGE_BLUE),
+							SetFill(0, ITEM_HEIGHT), SetResize(0, ITEM_HEIGHT), SetMinimalSize(200, ITEM_COUNT * ITEM_HEIGHT),
+						Widget(WT_EMPTY, LSW_LIST_REV , COL_RANGE_BLUE),
+							SetFill(0, ITEM_HEIGHT), SetResize(0, ITEM_HEIGHT), SetMinimalSize(ITEM_HEIGHT + 2 * ITEM_SPACING, ITEM_COUNT * ITEM_HEIGHT),
 				Widget(WT_VERT_SCROLLBAR, LSW_SCROLLBAR, COL_RANGE_BLUE),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 			Intermediate(2, 1),
@@ -90,7 +107,9 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 		const char *str = dr->NextEntry();
 		if (str == nullptr) break;
 		std::string name(str);
-		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) this->all_files.insert(name.substr(name.find_last_of(DIR_SEP) + 1));
+		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) {
+			this->all_files.insert(PreloadGameFile(name.c_str()));
+		}
 	}
 	dr->ClosePath();
 
@@ -139,13 +158,17 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			delete this;
 			break;
 
+		case LSW_LIST_FILE:
+		case LSW_LIST_TIME:
+		case LSW_LIST_NAME:
+		case LSW_LIST_REV:
 		case LSW_LIST: {
 			const int index = pos.y / ITEM_HEIGHT + this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
 			if (index < 0 || index >= static_cast<int>(this->all_files.size())) break;
 
 			auto selected = this->all_files.begin();
 			std::advance(selected, index);
-			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(*selected);
+			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(selected->filename);
 			break;
 		}
 
@@ -153,15 +176,24 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			const std::string filename = this->FinalFilename();
 			std::string path = SavegameDirectory();
 			path += filename;
+
+			const PreloadData *existing_file = nullptr;
+			for (const PreloadData &pd : this->all_files) {
+				if (pd.filename == filename) {
+					existing_file = &pd;
+					break;
+				}
+			}
+
 			switch (this->type) {
 				case SAVE:
-					if (this->all_files.count(filename)) {
+					if (existing_file != nullptr) {
 						/* \todo Show a confirmation dialogue to ask the user whether the file should be overwritten. */
 					}
 					_game_control.SaveGame(path.c_str());
 					break;
 				case LOAD:
-					if (!this->all_files.count(filename)) return;  // The file does not exist.
+					if (existing_file == nullptr || !existing_file->load_success) return;  // The file does not exist or is invalid.
 					_game_control.LoadGame(path.c_str());
 					break;
 			}
@@ -175,10 +207,12 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 
 void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) const
 {
-	if (wid_num != LSW_LIST) return GuiWindow::DrawWidget(wid_num, wid);
+	if (wid_num != LSW_LIST_FILE && wid_num != LSW_LIST_NAME && wid_num != LSW_LIST_TIME && wid_num != LSW_LIST_REV) {
+		return GuiWindow::DrawWidget(wid_num, wid);
+	}
 
 	int x = this->GetWidgetScreenX(wid) + 2 * ITEM_SPACING;
-	int y = this->GetWidgetScreenY(wid);
+	int y = this->GetWidgetScreenY(wid) + 2 * ITEM_SPACING;
 	const int w = wid->pos.width - 4 * ITEM_SPACING;
 	const size_t first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
 	const size_t last_index = std::min<size_t>(this->all_files.size(), first_index + ITEM_COUNT);
@@ -186,12 +220,55 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 	std::advance(iterator, first_index);
 	const std::string selected_filename = this->FinalFilename();
 
+	std::function<void(const PreloadData&)> functor;
+
+	switch (wid_num) {
+		case LSW_LIST_FILE:
+			functor = [&x, &y, &w](const PreloadData &pd) {
+				_video.BlitText(pd.filename, _palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
+			};
+			break;
+
+		case LSW_LIST_TIME:
+			functor = [&x, &y, &w](const PreloadData &pd) {
+				if (!pd.load_success) return;
+				static char buffer[256];
+				if (pd.timestamp > 0) {
+					std::strftime(buffer, sizeof(buffer), _language.GetText(GUI_DATETIME_FORMAT).c_str(), std::localtime(&pd.timestamp));
+				} else {
+					strcpy(buffer, _language.GetText(GUI_NOT_AVAILABLE).c_str());
+				}
+				_video.BlitText(buffer, _palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
+			};
+			break;
+
+		case LSW_LIST_NAME:
+			functor = [&x, &y, &w](const PreloadData &pd) {
+				_video.BlitText(pd.load_success ? pd.scenario_name : "", _palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
+			};
+			break;
+
+		case LSW_LIST_REV:
+			functor = [&x, &y](const PreloadData &pd) {
+				static const Recolouring r;
+				const ImageData *imgdata = _sprite_manager.GetTableSprite(
+						pd.load_success ? pd.revision == _freerct_revision ? SPR_GUI_LOADSAVE_OK : SPR_GUI_LOADSAVE_WARN : SPR_GUI_LOADSAVE_ERR);
+				if (imgdata != nullptr) _video.BlitImage(Point32(x - ITEM_SPACING / 2, y - ITEM_SPACING / 2), imgdata, r, GS_NORMAL);
+			};
+			break;
+
+		default:
+			NOT_REACHED();
+	}
+
 	for (size_t i = first_index; i < last_index; i++, iterator++, y += ITEM_HEIGHT) {
-		if (selected_filename == *iterator) {
-			_video.FillRectangle(Rectangle32(x - ITEM_SPACING, y, w + 2 * ITEM_SPACING, ITEM_HEIGHT),
-					_palette[COL_SERIES_START + COL_RANGE_BLUE * COL_SERIES_LENGTH + 1]);
+		if (selected_filename == iterator->filename) {
+			int sx = x - 2 * ITEM_SPACING;
+			int sw = w + 4 * ITEM_SPACING;
+			if (wid_num == LSW_LIST_REV) sw -= ITEM_SPACING;
+			_video.FillRectangle(Rectangle32(sx, y - 2 * ITEM_SPACING, sw, ITEM_HEIGHT), _palette[COL_SERIES_START + COL_RANGE_BLUE * COL_SERIES_LENGTH + 1]);
 		}
-		_video.BlitText(*iterator, _palette[TEXT_WHITE], x, y, w, ALG_LEFT);
+		functor(*iterator);
 	}
 }
 

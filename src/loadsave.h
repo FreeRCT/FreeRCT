@@ -10,6 +10,7 @@
 #ifndef LOADSAVE_H
 #define LOADSAVE_H
 
+#include <ctime>
 #include <vector>
 
 static const std::string SAVEGAME_DIRECTORY("save");  ///< The directory where savegames are stored, relative to the user data directory.
@@ -71,8 +72,28 @@ private:
 	std::vector<std::string> pattern_names; ///< Stack of the current pattern names.
 };
 
+/** Holds basic data about a savegame file. */
+struct PreloadData {
+	bool load_success = false;  ///< Whether the header was loaded correctly. If this is \c false, all other data fields are invalid.
+	std::string filename;       ///< Name of the savegame file, without file path, with file extension.
+	time_t timestamp = 0;       ///< Timestamp when the savegame was created.
+	std::string revision;       ///< Program version with which the savegame was created.
+	std::string scenario_name;  ///< Name of the scenario.
+
+	/**
+	 * Sorting operator to allow using PreloadData in ordered STL containers.
+	 * @param pd Object to compare to.
+	 * @return This object should sort before the other object.
+	 */
+	inline bool operator<(const PreloadData &pd) const
+	{
+		return this->filename < pd.filename;
+	}
+};
+
 bool LoadGameFile(const char *fname);
 bool SaveGameFile(const char *fname);
+PreloadData PreloadGameFile(const char *fname);
 
 extern bool _automatically_resave_files;
 

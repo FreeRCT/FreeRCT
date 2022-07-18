@@ -15,7 +15,9 @@ static const char *_gui_string_names[] = {
 	/* Generic GUI strings. */
 	"TITLEBAR_TIP",
 	"LANGUAGE_NAME",
+	"NOT_AVAILABLE",
 
+	"DATETIME_FORMAT",
 	"MONTH_JANUARY",
 	"MONTH_FEBRUARY",
 	"MONTH_MARCH",
@@ -374,6 +376,9 @@ static const char *_gui_string_names[] = {
 	"LOADSAVE_LOAD",
 	"LOADSAVE_SAVE",
 	"LOADSAVE_CANCEL",
+	"LOADSAVE_COLUMN_FILE",
+	"LOADSAVE_COLUMN_TIME",
+	"LOADSAVE_COLUMN_NAME",
 };
 
 /** String names of the shops. */

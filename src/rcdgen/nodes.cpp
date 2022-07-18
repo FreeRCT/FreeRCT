@@ -1249,14 +1249,14 @@ int BDIRBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-GSLPBlock::GSLPBlock() : GameBlock("GSLP", 11)
+GSLPBlock::GSLPBlock() : GameBlock("GSLP", 12)
 {
 }
 
 int GSLPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 280 - 12);
+	fb->StartSave(this->blk_name, this->version, 292 - 12);
 	fb->SaveUInt32(this->vert_down->Write(fw));
 	fb->SaveUInt32(this->steep_down->Write(fw));
 	fb->SaveUInt32(this->gentle_down->Write(fw));
@@ -1307,6 +1307,9 @@ int GSLPBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->message_guest->Write(fw));
 	fb->SaveUInt32(this->message_ride->Write(fw));
 	fb->SaveUInt32(this->message_ride_type->Write(fw));
+	fb->SaveUInt32(this->loadsave_err->Write(fw));
+	fb->SaveUInt32(this->loadsave_warn->Write(fw));
+	fb->SaveUInt32(this->loadsave_ok->Write(fw));
 	fb->SaveUInt32(this->toolbar_main->Write(fw));
 	fb->SaveUInt32(this->toolbar_speed->Write(fw));
 	fb->SaveUInt32(this->toolbar_path->Write(fw));

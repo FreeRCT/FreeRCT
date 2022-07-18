@@ -2294,6 +2294,10 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->message_ride = vals.GetSprite("message_ride");
 	gb->message_ride_type = vals.GetSprite("message_ride_type");
 
+	gb->loadsave_err = vals.GetSprite("loadsave_err");
+	gb->loadsave_warn = vals.GetSprite("loadsave_warn");
+	gb->loadsave_ok = vals.GetSprite("loadsave_ok");
+
 	gb->toolbar_main = vals.GetSprite("toolbar_main");
 	gb->toolbar_speed = vals.GetSprite("toolbar_speed");
 	gb->toolbar_path = vals.GetSprite("toolbar_path");

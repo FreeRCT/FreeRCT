@@ -21,9 +21,11 @@ Scenario::Scenario()
 /**
  * Default scenario settings.
  * Default settings are useful for debugging, and unlikely to be of use for a 'real' game.
+ * @todo Remove when real scenarios are implemented.
  */
 void Scenario::SetDefaultScenario()
 {
+	this->name = "Default";
 	this->spawn_lowest  = 200;
 	this->spawn_highest = 600;
 	this->max_guests    = 3000;
