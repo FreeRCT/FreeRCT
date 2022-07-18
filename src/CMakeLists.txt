@@ -153,11 +153,13 @@ IF(SDL2_TTF_FOUND)
 	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
 ENDIF()
 
-find_package(PNG REQUIRED)
-target_link_libraries(freerct PNG::PNG)
+IF(NOT WEBASSEMBLY)
+	find_package(PNG REQUIRED)
+	target_link_libraries(freerct PNG::PNG)
+ENDIF(NOT WEBASSEMBLY)
 
 # Determine version string
-if (NOT DEFINED VERSION_STRING)
+IF(NOT DEFINED VERSION_STRING)
 	IF(GIT_FOUND AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
 		execute_process(COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
 			            OUTPUT_VARIABLE VERSION_STRING_1

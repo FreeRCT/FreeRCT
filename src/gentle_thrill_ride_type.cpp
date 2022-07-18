@@ -48,7 +48,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
 	if (static_cast<int>(rcd_file->size) != 111 + (this->width_x * this->width_y)) return false;
-	
+
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
 		for (int8 y = 0; y < this->width_y; ++y) {
@@ -366,7 +366,7 @@ void GentleThrillRideInstance::RecalculateRatings()
 	this->intensity_rating = t->intensity_base;
 	this->nausea_rating = t->nausea_base;
 	this->excitement_rating = t->excitement_base + this->working_cycles * t->excitement_increase_cycle;
-	
+
 	if (t->excitement_increase_scenery == 0) return;
 	int scenery = 0;
 	for (int x = -t->width_x; x < 2 * t->width_x; x++) {
