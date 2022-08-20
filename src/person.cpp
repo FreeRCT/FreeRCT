@@ -16,6 +16,8 @@
 #include "person.h"
 #include "people.h"
 #include "fileio.h"
+#include "finances.h"
+#include "gameobserver.h"
 #include "map.h"
 #include "messages.h"
 #include "path_finding.h"
@@ -1192,12 +1194,24 @@ void Guest::DecideMoveDirection()
 	const VoxelStack *vs = _world.GetStack(this->vox_pos.x, this->vox_pos.y);
 	const Voxel *v = vs->Get(this->vox_pos.z);
 	TileEdge start_edge = this->GetCurrentEdge(); // Edge the person is currently.
+	bool allow_return = false;
 
 	if (this->activity == GA_ENTER_PARK && vs->owner == OWN_PARK) {
-		// \todo Pay the park fee, go home if insufficient monies.
-		NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_GUEST_COUNT, 1);
-		this->activity = GA_WANDER;
+		if (!_game_observer.park_open || this->cash < _game_observer.entrance_fee) {
+			this->activity = GA_GO_HOME;
+			allow_return = true;
+		} else {
+			this->cash_spent += _game_observer.entrance_fee;
+			this->cash       -= _game_observer.entrance_fee;
+			_finances_manager.EarnParkTickets(_game_observer.entrance_fee);
+
+			NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_GUEST_COUNT, 1);
+			this->activity = GA_WANDER;
+		}
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
+	} else if (!_game_observer.park_open && this->activity != GA_GO_HOME) {
+		this->activity = GA_GO_HOME;
+		allow_return = true;
 	}
 
 	/* Find feasible exits and shops. */
@@ -1266,7 +1280,7 @@ void Guest::DecideMoveDirection()
 	}
 
 	/* Decide which direction to go. */
-	SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
+	if (!allow_return) SB(exits, start_edge, 1, 0); // Drop 'return' option until we find there are no other directions.
 	uint8 walk_count = 0;
 	uint8 shop_count = 0;
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
@@ -1275,7 +1289,7 @@ void Guest::DecideMoveDirection()
 		if (GB(shops, exit_edge, 1) != 0) shop_count++;
 	}
 	/* No exits, or all normal shops: Add 'return' as option. */
-	if (walk_count == 0 || (walk_count == shop_count && this->ride == nullptr)) SB(exits, start_edge, 1, 1);
+	if (allow_return || walk_count == 0 || (walk_count == shop_count && this->ride == nullptr)) SB(exits, start_edge, 1, 1);
 
 	const WalkInformation *walks[4]; // Walks that can be done at this tile.
 	walk_count = 0;
@@ -1299,7 +1313,9 @@ void Guest::DecideMoveDirection()
 	}
 
 	this->StartAnimation(new_walk);
-	this->SetStatus(this->ride != nullptr ? GUI_PERSON_STATUS_HEADING_TO_RIDE : GUI_PERSON_STATUS_WANDER);
+	this->SetStatus(this->activity == GA_GO_HOME ? GUI_PERSON_STATUS_GOING_HOME :
+			this->ride != nullptr ? GUI_PERSON_STATUS_HEADING_TO_RIDE :
+			GUI_PERSON_STATUS_WANDER);
 }
 
 /**

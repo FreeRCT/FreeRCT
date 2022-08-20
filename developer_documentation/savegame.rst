@@ -53,6 +53,7 @@ Offset  Length  Version  Description
    ?       ?     10-     Current basic world_ block.
    ?       ?     10-     Current finances_ block.
    ?       ?     10-     Current weather_ block.
+   ?       ?     12-     `Game observer`_ block.
    ?       ?     10-     Rides_ block.
    ?       ?     10-     Scenery_ block.
    ?       ?     10-     Guests_ block.
@@ -65,21 +66,22 @@ Offset  Length  Version  Description
 File header
 -----------
 The file header contains basic information that should be accessible before loading the savegame.
-Current version number is 11.
+Current version number is 12.
 
 Header Layout
 ~~~~~~~~~~~~~
 
-======  ======  ======================================================
-Offset  Length  Description
-======  ======  ======================================================
-   0       4    "FCTS".
-   4       4    Version number of the file.
-   8       8    UNIX timestamp when the savegame was created.
-  16       ?    Version string with which the savegame was created.
-   ?       ?    Name of the scenario.
-   ?       4    "STCF"
-======  ======  ======================================================
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "FCTS".
+   4       4      1-     Version number of the file.
+   8       8      11-    UNIX timestamp when the savegame was created.
+  16       ?      11-    Version string with which the savegame was created.
+           ?     11-11   Name of the scenario.
+   ?       ?      12-    Scenario_ data.
+   ?       4      1-     "STCF"
+======  ======  =======  ======================================================
 
 Version history
 ...............
@@ -87,11 +89,143 @@ Version history
 - (older versions are documented in the file "savegame_history.rst").
 - 10 (20210402) Refactored handling of versions.
 - 11 (20220717) Added scenario data and savefile information.
+- 12 (20220820) Added game observer data and extracted scenario data.
 
 
 Nested patterns
 ---------------
 Miscellaneous data layouts which are reused in multiple places.
+
+Scenario
+~~~~~~~~
+Stores the scenario parameters.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "SCNO".
+   4       4      1-     Version number.
+   8       ?      1-     Name of the scenario.
+   ?       ?      1-     The scenario's `objective container`_.
+   ?       2      1-     Lowest guest spawn probability.
+   ?       2      1-     Highest guest spawn probability.
+   ?       4      1-     Maximum guest count.
+   ?       4      1-     Initial amount of money.
+   ?       4      1-     Initial loan.
+   ?       4      1-     Maximum loan.
+   ?       2      1-     Interest rate.
+   ?       4      1-     "ONCS"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20220820) Initial version.
+
+
+Abstract objective
+~~~~~~~~~~~~~~~~~~
+Stores data common to all objective types.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "OJAO".
+   4       4      1-     Version number.
+   8       1      1-     Whether the objective is currently fulfilled (1 or 0).
+   9       4      1-     The objective's drop policy in days.
+  13       4      1-     The objective's current drop policy counter.
+  17       4      1-     "OAJO"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20220820) Initial version.
+
+
+Objective container
+~~~~~~~~~~~~~~~~~~~
+An objective that groups one or more other objectives.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "OJCN".
+   4       4      1-     Version number.
+   8      21      1-     The `abstract objective`_ data.
+  29       1      1-     The timeout policy.
+  30       4      1-     The timeout date in compressed date format.
+  34       4      1-     Number of sub-objectives.
+  38       ?      1-     For each sub-objective, the objective's type (1 byte) followed
+                         by the objective pattern for this type of objective.
+   ?       4      1-     "NCJO"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20220820) Initial version.
+
+
+Empty objective
+~~~~~~~~~~~~~~~
+An empty objective.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "OJ00".
+   4       4      1-     Version number.
+   8      21      1-     The `abstract objective`_ data.
+  29       4      1-     "00JO"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20220820) Initial version.
+
+
+Guests objective
+~~~~~~~~~~~~~~~~
+An objective to achieve a certain number of guests.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "OJGU".
+   4       4      1-     Version number.
+   8      21      1-     The `abstract objective`_ data.
+  29       4      1-     The guest count to achieve.
+  33       4      1-     "UGJO"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20220820) Initial version.
+
+
+Rating objective
+~~~~~~~~~~~~~~~~
+An objective to achieve a certain park rating.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "OJRT".
+   4       4      1-     Version number.
+   8      21      1-     The `abstract objective`_ data.
+  29       2      1-     The rating to achieve.
+  31       4      1-     "TRJO"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20220820) Initial version.
+
 
 Finance history
 ~~~~~~~~~~~~~~~
@@ -834,6 +968,35 @@ Version history
 ...............
 
 - 1 (20150505) Initial version.
+
+
+Game observer
+~~~~~~~~~~~~~
+Stores game observer related data.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "GOBS".
+   4       4      1-     Version number of the game observer block.
+   8       1      1-     Won-lost state (0 for running, 1 for won, 2 for lost).
+   9       1      1-     Whether the park is open (1 or 0).
+  10       ?      1-     Park name.
+   ?       4      1-     Park entrance fee.
+   ?       2      1-     Current park rating.
+   ?       4      1-     Current number of guests.
+   ?       4      1-     Highest-ever number of guests.
+   ?       4      1-     Number `R` of data points in the park rating history.
+   ?     N*2      1-     Every data point in the park rating history (most recent first).
+   ?       4      1-     Number `G` of data points in the guest count history.
+   ?     G*4      1-     Every data point in the guest count history (most recent first).
+   ?       4      1-     "SBOG"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20220820) Initial version.
 
 
 Guests

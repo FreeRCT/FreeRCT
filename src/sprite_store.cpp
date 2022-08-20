@@ -1117,7 +1117,7 @@ bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->version != 12 || rcd_file->size !=
+	if (rcd_file->version != 13 || rcd_file->size !=
 			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT +
 			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images)) * 4) {
 		return false;

@@ -12,6 +12,8 @@
 
 #include <list>
 
+#include "person.h"
+
 static const int GUEST_BLOCK_SIZE = 512; ///< Number of guests in a block.
 
 /** A block of guests. */

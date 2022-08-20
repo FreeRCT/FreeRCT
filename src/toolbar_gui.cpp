@@ -23,6 +23,7 @@
 #include "viewport.h"
 #include "gamecontrol.h"
 #include "weather.h"
+#include "gameobserver.h"
 
 /**
  * Top toolbar.
@@ -56,6 +57,7 @@ enum ToolbarGuiWidgets {
 	TB_GUI_FINANCES,      ///< Finances button.
 	TB_GUI_STAFF,         ///< Staff button.
 	TB_GUI_INBOX,         ///< Inbox button.
+	TB_GUI_PARK,          ///< Park management button.
 };
 
 /**
@@ -97,6 +99,7 @@ static const WidgetPart _toolbar_widgets[] = {
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_PATH_OBJECTS, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_OBJECTS, GUI_TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_RIDE_SELECT,  COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_RIDE,    GUI_TOOLBAR_GUI_TOOLTIP_RIDE_SELECT),
 		Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(16, 16),
+		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_PARK,        COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_PARK,     GUI_TOOLBAR_GUI_TOOLTIP_PARK),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_STAFF,       COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_STAFF,    GUI_TOOLBAR_GUI_TOOLTIP_STAFF),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_INBOX,       COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_INBOX,    GUI_TOOLBAR_GUI_TOOLTIP_INBOX),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_FINANCES,    COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_FINANCES, GUI_TOOLBAR_GUI_TOOLTIP_FINANCES),
@@ -200,6 +203,10 @@ void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 			ShowFinancesGui();
 			break;
 
+		case TB_GUI_PARK:
+			ShowParkManagementGui();
+			break;
+
 		case TB_GUI_STAFF:
 			ShowStaffManagementGui();
 			break;
@@ -290,9 +297,6 @@ public:
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(const WidgetNumber wid_num, const Point16 &pos) override;
-
-private:
-	int32 guest_count; ///< Number of guests in the park.
 };
 
 /**
@@ -343,7 +347,6 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 BottomToolbarWindow::BottomToolbarWindow() : GuiWindow(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE)
 {
 	this->closeable = false;
-	this->guest_count = _guests.CountGuestsInPark();
 	this->SetupWidgetTree(_bottom_toolbar_widgets, lengthof(_bottom_toolbar_widgets));
 }
 
@@ -371,7 +374,7 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case BTB_GUESTCOUNT:
-			_str_params.SetNumber(1, this->guest_count);
+			_str_params.SetNumber(1, _game_observer.current_guest_count);
 			break;
 	}
 }
@@ -388,31 +391,16 @@ void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos
 	}
 }
 
-void BottomToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
+void BottomToolbarWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	switch (code) {
 		case CHG_DISPLAY_OLD:
+		case CHG_GUEST_COUNT:
 			this->MarkDirty();
 			break;
 
 		case CHG_RESOLUTION_CHANGED:
 			this->ResetSize();
-			break;
-
-		case CHG_GUEST_COUNT:
-			/* Parameter decides meaning.
-			 * - 0 means a guest left.
-			 * - 1 means a guest entered.
-			 * - otherwise, recount.
-			 */
-			if (parameter == 0) {
-				this->guest_count = std::max(0, this->guest_count - 1);
-			} else if (parameter == 1) {
-				this->guest_count++;
-			} else {
-				this->guest_count = _guests.CountGuestsInPark();
-			}
-			this->MarkDirty();
 			break;
 
 		default:

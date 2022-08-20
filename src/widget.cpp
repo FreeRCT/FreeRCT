@@ -34,6 +34,7 @@ BaseWidget::BaseWidget(WidgetType wtype)
 :
 	wtype(wtype),
 	number(INVALID_WIDGET_INDEX),
+	visible(true),
 	smallest_x(0),
 	smallest_y(0),
 	min_x(0),
@@ -138,25 +139,34 @@ void BaseWidget::SetWidget(BaseWidget **wid_array)
 void BaseWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
-	this->min_x = this->smallest_x;
-	this->min_y = this->smallest_y;
+	if (this->visible) {
+		this->min_x = this->smallest_x;
+		this->min_y = this->smallest_y;
 
-	switch (this->wtype) {
-		case WT_EMPTY:
-			/* Do nothing (all variables are already set while converting from widget parts). */
-			break;
+		switch (this->wtype) {
+			case WT_EMPTY:
+				/* Do nothing (all variables are already set while converting from widget parts). */
+				break;
 
-		case WT_RESIZEBOX:
-			this->min_x = std::max((uint16)10, this->min_x);
-			this->min_y = std::max((uint16)10, this->min_y);
-			this->fill_x = 0;
-			this->fill_y = 1;
-			this->resize_x = 0;
-			this->resize_y = 0;
-			break;
+			case WT_RESIZEBOX:
+				this->min_x = std::max((uint16)10, this->min_x);
+				this->min_y = std::max((uint16)10, this->min_y);
+				this->fill_x = 0;
+				this->fill_y = 1;
+				this->resize_x = 0;
+				this->resize_y = 0;
+				break;
 
-		default:
-			NOT_REACHED();
+			default:
+				NOT_REACHED();
+		}
+	} else {
+		this->min_x = 0;
+		this->min_y = 0;
+		this->fill_x = 0;
+		this->fill_y = 0;
+		this->resize_x = 0;
+		this->resize_y = 0;
 	}
 
 	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
@@ -206,13 +216,35 @@ void BaseWidget::DrawTooltip(Point32 p)
 }
 
 /**
- * Draw the widget.
+ * Update the widget's drawing information and actually draw the widget.
  * @param w %Window being drawn.
  */
 void BaseWidget::Draw(const GuiWindow *w)
 {
+	this->cached_window_base = w->rect.base;
+	if (this->visible) this->DoDraw(w);  // Polymorphic function call.
+}
+
+/**
+ * Draw the widget.
+ * @param w %Window being drawn.
+ */
+void BaseWidget::DoDraw(const GuiWindow *w)
+{
 	/* Nothing to do for WT_EMPTY */
 	if (this->number != INVALID_WIDGET_INDEX) w->DrawWidget(this->number, this);
+}
+
+/**
+ * Change this widget's visibility state and update its window.
+ * @param w The window this widget belongs to.
+ * @param v The widget should be visible.
+ */
+void BaseWidget::SetVisible(GuiWindow *w, const bool v)
+{
+	this->visible = v;
+	w->ResetSize();
+	this->MarkDirty(this->cached_window_base);
 }
 
 /**
@@ -283,6 +315,16 @@ LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype), flags(0), colour(C
 void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
+	if (!this->visible) {
+		this->min_x = 0;
+		this->min_y = 0;
+		this->fill_x = 0;
+		this->fill_y = 0;
+		this->resize_x = 0;
+		this->resize_y = 0;
+		return;
+	}
+
 	this->min_x = this->smallest_x;
 	this->min_y = this->smallest_y;
 
@@ -323,7 +365,7 @@ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	}
 }
 
-void LeafWidget::Draw(const GuiWindow *w)
+void LeafWidget::DoDraw(const GuiWindow *w)
 {
 	int left   = w->GetWidgetScreenX(this) + this->paddings[PAD_LEFT];
 	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
@@ -396,87 +438,104 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype), value(0), value_wi
 void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
-	this->min_x = this->smallest_x;
-	this->min_y = this->smallest_y;
+	if (this->visible) {
+		this->min_x = this->smallest_x;
+		this->min_y = this->smallest_y;
 
-	const BorderSpriteData *bsd = nullptr;
-	uint8 pressable = 0; // Add extra space for a pressable widget.
-	switch (this->wtype) {
-		case WT_TITLEBAR:
-			bsd = &_gui_sprites.titlebar;
-			break;
+		const BorderSpriteData *bsd = nullptr;
+		uint8 pressable = 0; // Add extra space for a pressable widget.
+		switch (this->wtype) {
+			case WT_TITLEBAR:
+				bsd = &_gui_sprites.titlebar;
+				break;
 
-		case WT_LEFT_TEXT:
-		case WT_CENTERED_TEXT:
-		case WT_RIGHT_TEXT:
-			break;
+			case WT_LEFT_TEXT:
+			case WT_CENTERED_TEXT:
+			case WT_RIGHT_TEXT:
+				break;
 
-		case WT_TEXT_BUTTON:
-		case WT_TEXT_PUSHBUTTON:
-			bsd = &_gui_sprites.button;
-			pressable = 1;
-			break;
+			case WT_TEXT_BUTTON:
+			case WT_TEXT_PUSHBUTTON:
+				bsd = &_gui_sprites.button;
+				pressable = 1;
+				break;
 
-		case WT_TEXT_TAB:
-			bsd = &_gui_sprites.tab_tabbar;
-			pressable = 1;
-			break;
+			case WT_TEXT_TAB:
+				bsd = &_gui_sprites.tab_tabbar;
+				pressable = 1;
+				break;
 
-		case WT_IMAGE_TAB: {
-			const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(this->value);
-			this->value_width = rect.width;
-			this->value_height = rect.height;
-			this->InitMinimalSize(&_gui_sprites.tab_tabbar, this->value_width + 1, this->value_height + 1);
-			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
-			return;
+			case WT_IMAGE_TAB: {
+				const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(this->value);
+				this->value_width = rect.width;
+				this->value_height = rect.height;
+				this->InitMinimalSize(&_gui_sprites.tab_tabbar, this->value_width + 1, this->value_height + 1);
+				if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
+				return;
+			}
+
+			case WT_IMAGE_BUTTON:
+			case WT_IMAGE_PUSHBUTTON: {
+				const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(this->value);
+				this->value_width = rect.width;
+				this->value_height = rect.height;
+				this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
+				if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
+				return;
+			}
+
+			case WT_IMAGE_DROPDOWN_BUTTON: {
+				const Rectangle16 rect1 = _sprite_manager.GetTableSpriteSize(this->value);
+				const Rectangle16 rect2 = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
+				this->value_width  = std::max(rect1.width,  rect2.width );
+				this->value_height = std::max(rect1.height, rect2.height);
+				this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
+				if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
+				return;
+			}
+
+			case WT_DROPDOWN_BUTTON: {
+				const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
+				if (this->number >= 0) w->SetWidgetStringParameters(this->number);
+				GetTextSize(w->TranslateStringNumber(this->value), &this->value_width, &this->value_height);
+				this->value_width += rect.width;
+				this->value_height = std::max(this->value_height, (int)rect.height);
+				this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
+				if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
+				return;
+			}
+
+			default:
+				NOT_REACHED();
 		}
 
-		case WT_IMAGE_BUTTON:
-		case WT_IMAGE_PUSHBUTTON: {
-			const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(this->value);
-			this->value_width = rect.width;
-			this->value_height = rect.height;
-			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
-			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
-			return;
-		}
-
-		case WT_IMAGE_DROPDOWN_BUTTON: {
-			const Rectangle16 rect1 = _sprite_manager.GetTableSpriteSize(this->value);
-			const Rectangle16 rect2 = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
-			this->value_width  = std::max(rect1.width,  rect2.width );
-			this->value_height = std::max(rect1.height, rect2.height);
-			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
-			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
-			return;
-		}
-
-		case WT_DROPDOWN_BUTTON: {
-			const Rectangle16 &rect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
-			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-			GetTextSize(w->TranslateStringNumber(this->value), &this->value_width, &this->value_height);
-			this->value_width += rect.width;
-			this->value_height = std::max(this->value_height, (int)rect.height);
-			this->InitMinimalSize(&_gui_sprites.button, this->value_width + 1, this->value_height + 1);
-			if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
-			return;
-		}
-
-		default:
-			NOT_REACHED();
-	}
-
-	if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-	if (this->value == STR_NULL) {
+		if (this->number >= 0) w->SetWidgetStringParameters(this->number);
 		this->value_width = 0;
 		this->value_height = 0;
+		if (this->value != STR_NULL) {
+			std::string rendered_text = DrawText(w->TranslateStringNumber(this->value));
+			for (;;) {
+				int w, h;
+				const size_t pos = rendered_text.find('\n');
+				_video.GetTextSize(rendered_text.substr(0, pos), &w, &h);
+				this->value_width = std::max(this->value_width, w);
+				this->value_height += h;
+				if (pos == std::string::npos) break;
+				rendered_text.erase(0, pos + 1);
+			}
+		}
+		if (bsd != nullptr) {
+			this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
+		} else {
+			this->InitMinimalSize(this->value_width + pressable, this->value_height + pressable, 0, 0);
+		}
 	} else {
-		GetTextSize(w->TranslateStringNumber(this->value), &this->value_width, &this->value_height);
-	}
-	if (bsd != nullptr) {
-		this->InitMinimalSize(bsd, this->value_width + pressable, this->value_height + pressable);
-	} else {
-		this->InitMinimalSize(this->value_width + pressable, this->value_height + pressable, 0, 0);
+		this->min_x = 0;
+		this->min_y = 0;
+		this->fill_x = 0;
+		this->fill_y = 0;
+		this->resize_x = 0;
+		this->resize_y = 0;
 	}
 
 	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
@@ -487,7 +546,7 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
  * @param w Window that the widget belongs to.
  * @todo Fix the hard-coded colour of the text.
  */
-void DataWidget::Draw(const GuiWindow *w)
+void DataWidget::DoDraw(const GuiWindow *w)
 {
 	const BorderSpriteData *bsd = nullptr;
 	uint8 pressed = 0;
@@ -594,7 +653,15 @@ void DataWidget::Draw(const GuiWindow *w)
 
 		default:
 			if (this->number >= 0) w->SetWidgetStringParameters(this->number);
-			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left, align, this->wtype == WT_TITLEBAR);
+			if (this->value != STR_NULL) {
+				std::string rendered_text = DrawText(w->TranslateStringNumber(this->value));
+				for (int y = yoffset + pressed - GetTextHeight(); y += GetTextHeight();) {
+					const size_t pos = rendered_text.find('\n');
+					DrawString(rendered_text.substr(0, pos), TEXT_WHITE, left + pressed, y, right - left, align, this->wtype == WT_TITLEBAR);
+					if (pos == std::string::npos) break;
+					rendered_text.erase(0, pos + 1);
+				}
+			}
 			break;
 	}
 	if (this->number > 0) w->DrawWidget(this->number, this);
@@ -636,6 +703,7 @@ void TextInputWidget::SetText(const std::string &text)
 	this->buffer = text;
 	this->cursor_pos = std::min(this->cursor_pos, this->buffer.size());
 	this->MarkDirty(this->cached_window_base);
+	if (this->text_changed) this->text_changed();
 }
 
 bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
@@ -670,6 +738,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 				this->cursor_pos -= nr_chars_to_delete;
 				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
 				this->MarkDirty(this->cached_window_base);
+				if (this->text_changed) this->text_changed();
 			}
 			return true;
 		case WMKC_DELETE:
@@ -679,6 +748,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 
 				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
 				this->MarkDirty(this->cached_window_base);
+				if (this->text_changed) this->text_changed();
 			}
 			return true;
 
@@ -688,6 +758,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 			this->buffer.insert(this->cursor_pos, symbol);
 			this->cursor_pos += symbol.size();
 			this->MarkDirty(this->cached_window_base);
+			if (this->text_changed) this->text_changed();
 			return true;
 		}
 
@@ -696,9 +767,8 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 	return LeafWidget::OnKeyEvent(key_code, mod, symbol);
 }
 
-void TextInputWidget::Draw(const GuiWindow *w)
+void TextInputWidget::DoDraw(const GuiWindow *w)
 {
-	this->cached_window_base = w->rect.base;
 	Rectangle32 r = this->pos;
 	r.base += w->rect.base;
 	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + 2]);
@@ -729,11 +799,20 @@ void TextInputWidget::Draw(const GuiWindow *w)
 void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
-	this->min_x = this->smallest_x;
-	this->min_y = this->smallest_y;
+	if (this->visible) {
+		this->min_x = this->smallest_x;
+		this->min_y = this->smallest_y;
 
-	_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
-	this->InitMinimalSize(this->value_width, this->value_height, 0, 0);
+		_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
+		this->InitMinimalSize(this->value_width, this->value_height, 0, 0);
+	} else {
+		this->min_x = 0;
+		this->min_y = 0;
+		this->fill_x = 0;
+		this->fill_y = 0;
+		this->resize_x = 0;
+		this->resize_y = 0;
+	}
 
 	if (this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
@@ -764,7 +843,14 @@ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
 
-	if (this->wtype == WT_HOR_SCROLLBAR) {
+	if (!this->visible) {
+		this->min_x = 0;
+		this->min_y = 0;
+		this->fill_x = 0;
+		this->fill_y = 0;
+		this->resize_x = 0;
+		this->resize_y = 0;
+	} else if (this->wtype == WT_HOR_SCROLLBAR) {
 		this->min_x = _gui_sprites.hor_scroll.min_length_all;
 		this->min_y = _gui_sprites.hor_scroll.height;
 		this->fill_x = _gui_sprites.hor_scroll.stepsize_bar;
@@ -781,10 +867,8 @@ void ScrollbarWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 	}
 }
 
-void ScrollbarWidget::Draw(const GuiWindow *w)
+void ScrollbarWidget::DoDraw(const GuiWindow *w)
 {
-	this->cached_window_base = w->rect.base;
-
 	static Recolouring rc; // Only COL_RANGE_BROWN is modified each time.
 	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, this->colour));
 
@@ -1116,20 +1200,29 @@ BackgroundWidget::BackgroundWidget(WidgetType wtype) : LeafWidget(wtype), child(
 void BackgroundWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
-	this->min_x = this->smallest_x;
-	this->min_y = this->smallest_y;
+	if (this->visible) {
+		this->min_x = this->smallest_x;
+		this->min_y = this->smallest_y;
 
-	if (this->child != nullptr) {
-		this->child->SetupMinimalSize(w, wid_array);
-		this->min_x = this->child->min_x;
-		this->min_y = this->child->min_y;
-		this->fill_x = this->child->fill_x;
-		this->fill_y = this->child->fill_y;
-		this->resize_x = this->child->resize_x;
-		this->resize_y = this->child->resize_y;
+		if (this->child != nullptr) {
+			this->child->SetupMinimalSize(w, wid_array);
+			this->min_x = this->child->min_x;
+			this->min_y = this->child->min_y;
+			this->fill_x = this->child->fill_x;
+			this->fill_y = this->child->fill_y;
+			this->resize_x = this->child->resize_x;
+			this->resize_y = this->child->resize_y;
+		}
+		const BorderSpriteData *bsd = (this->wtype == WT_PANEL) ? &_gui_sprites.panel : &_gui_sprites.tabbar_panel;
+		this->InitMinimalSize(bsd, this->min_x, this->min_y);
+	} else {
+		this->min_x = 0;
+		this->min_y = 0;
+		this->fill_x = 0;
+		this->fill_y = 0;
+		this->resize_x = 0;
+		this->resize_y = 0;
 	}
-	const BorderSpriteData *bsd = (this->wtype == WT_PANEL) ? &_gui_sprites.panel : &_gui_sprites.tabbar_panel;
-	this->InitMinimalSize(bsd, this->min_x, this->min_y);
 	if (this->child == nullptr && this->number >= 0) w->UpdateWidgetSize(this->number, this);
 }
 
@@ -1157,7 +1250,7 @@ void BackgroundWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 	}
 }
 
-void BackgroundWidget::Draw(const GuiWindow *w)
+void BackgroundWidget::DoDraw(const GuiWindow *w)
 {
 	int left   = w->GetWidgetScreenX(this) + this->paddings[PAD_LEFT];
 	int top    = w->GetWidgetScreenY(this) + this->paddings[PAD_TOP];
@@ -1286,6 +1379,16 @@ void IntermediateWidget::AddChild(uint8 x, uint8 y, BaseWidget *w)
 void IntermediateWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
 	if (!w->initialized) this->SetWidget(wid_array);
+	if (!this->visible) {
+		this->min_x = 0;
+		this->min_y = 0;
+		this->fill_x = 0;
+		this->fill_y = 0;
+		this->resize_x = 0;
+		this->resize_y = 0;
+		return;
+	}
+
 	this->min_x = this->smallest_x;
 	this->min_y = this->smallest_y;
 
@@ -1515,7 +1618,7 @@ void IntermediateWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 	}
 }
 
-void IntermediateWidget::Draw(const GuiWindow *w)
+void IntermediateWidget::DoDraw(const GuiWindow *w)
 {
 	for (unsigned idx = 0; idx < static_cast<unsigned>(this->num_rows) * this->num_cols; idx++) {
 		this->childs[idx]->Draw(w);

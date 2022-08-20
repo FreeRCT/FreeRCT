@@ -26,6 +26,14 @@ strings {
 		MONTH_NOVEMBER:  "November";
 		MONTH_DECEMBER:  "Dezember";
 
+		OBJECTIVE_TIMEOUT_BEFORE:  "Die Aufgabe muss bis spätestens %1% erfüllt werden.";
+		OBJECTIVE_TIMEOUT_EXACT:   "Die Aufgabe muss am %1% erfüllt sein.";
+		OBJECTIVE_TIMEOUT_NONE:    "Die Aufgabe kann jederzeit erfüllt werden.";
+		OBJECTIVE_STRICT:          "Die Aufgabe muss ständig erfüllt sein!";
+		OBJECTIVETEXT_NONE:        "Hab Spaß!";
+		OBJECTIVETEXT_GUESTS:      "Erreiche mindestens %1% Besucher im Park.";
+		OBJECTIVETEXT_PARK_RATING: "Die Parkbewertung muss mindestens %1% betragen.";
+
 		NUMBERED_INSTANCE_NAME: "%1% #%2%";
 		RESOLUTION:             "%1%×%2%";
 
@@ -75,6 +83,8 @@ strings {
 		TOOLBAR_GUI_TOOLTIP_STAFF:        "Personal einstellen und entlassen";
 		TOOLBAR_GUI_INBOX:                "Posteingang";
 		TOOLBAR_GUI_TOOLTIP_INBOX:        "Alle Nachrichten betrachten";
+		TOOLBAR_GUI_PARK:                 "Parkverwaltung";
+		TOOLBAR_GUI_TOOLTIP_PARK:         "Verwaltet die Details des Parks";
 
 		BOTTOMBAR_GUESTCOUNT:             "%1% Besucher";
 
@@ -105,6 +115,7 @@ strings {
 		// Person status strings.
 		PERSON_STATUS_WANDER:          "Umherwandern";
 		PERSON_STATUS_HEADING_TO_RIDE: "Geht zu %s";
+		PERSON_STATUS_GOING_HOME:      "Geht nach Hause";
 		PERSON_STATUS_INSPECTING:      "Wartet %s";
 		PERSON_STATUS_REPAIRING:       "Repariert %s";
 		PERSON_STATUS_WATERING:        "Gießt die Blumenbeete";
@@ -255,6 +266,22 @@ strings {
 		TERRAFORM_LEVEL_TEXT:  "Gewählten Bereich einebnen";
 		TERRAFORM_MOVE_TEXT:   "Landschaft unverändert verschieben";
 
+		// Park management gui strings.
+		PARK_MANAGEMENT_TAB_GENERAL:           "Allgemein";
+		PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP:   "Allgemeine Parkeinstellungen ändern";
+		PARK_MANAGEMENT_TAB_GUESTS:            "Besucher";
+		PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP:    "Anzahl der Parkbesucher im Laufe der Zeit anzeigen";
+		PARK_MANAGEMENT_TAB_RATING:            "Bewertung";
+		PARK_MANAGEMENT_TAB_RATING_TOOLTIP:    "Die Parkbewertung im Laufe der Zeit anzeigen";
+		PARK_MANAGEMENT_TAB_OBJECTIVE:         "Ziel";
+		PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: "Das Ziel des Szenarios anzeigen";
+		PARK_MANAGEMENT_TAB_AWARDS:            "Auszeichnungen";
+		PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP:    "Dem Park verliehene Auszeichnungen anzeigen";
+		PARK_MANAGEMENT_RATING:                "Parkbewertung: %1%";
+		PARK_MANAGEMENT_NO_AWARDS:             "Der Park hat in letzter Zeit keine Auszeichnungen erhalten.";
+		PARK_MANAGEMENT_PARKNAME:              "Parkname:";
+		PARK_MANAGEMENT_ENTRANCE_FEE:          "Eintrittspreis:";
+
 		// Minimap gui strings.
 		MINIMAP_TITLE: "Übersichtskarte";
 
@@ -299,8 +326,8 @@ strings {
 		MESSAGE_COMPLAIN_LITTER:  "Die Gäste beschweren sich über die verschmutzten Wege im Park.";
 		MESSAGE_COMPLAIN_VANDALISM: "Die Gäste beschweren sich über die vielen beschädigten Gegenstände im Park.";
 		MESSAGE_CHEAP_FEE:        "Die Gäste äußern sich, dass der Eintrittspreis überraschend günstig ist.";
-		MESSAGE_AWARD_WON:        "Der Park hat einen Preis gewonnen: %1%";
-		MESSAGE_NEGATIVE_AWARD:   "Der Park hat einen Maluspreis erhalten: %1%";
+		MESSAGE_AWARD_WON:        "Der Park hat eine Auszeichnung gewonnen: %1%";
+		MESSAGE_NEGATIVE_AWARD:   "Der Park hat eine Malusauszeichnung erhalten: %1%";
 
 		// Coaster construction strings.
 		COASTER_BUILD_LEFT_BEND_TOOLTIP:  "Wählt Streckenteile mit Linkskurve aus";
