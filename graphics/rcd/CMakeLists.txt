@@ -27,7 +27,7 @@ list(APPEND RCDFILES
 )
 
 # Get lang files
-file(GLOB LANGFILES "${FP}/lang/*.txt")
+file(GLOB LANGFILES "${FP}/lang/*.yml")
 
 list(LENGTH RCDFILES RCDFILES_LENGTH)
 math(EXPR RCDFILES_LENGTH_DIV_2 "${RCDFILES_LENGTH} / 2 - 1")
