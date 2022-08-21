@@ -12,6 +12,9 @@
 
 static const int TICK_COUNT_PER_DAY = 300; ///< Number of ticks in a day (stored in #Date::frac).
 
+static const int FIRST_MONTH = 3; ///< First month in the year that the park is open, 1-based.
+static const int LAST_MONTH = 10;  ///< Last month in the year that the park is open, 1-based.
+
 typedef uint32 CompressedDate; ///< Compressed date for easy transfer/storage.
 
 /** Bits and sizes of the compressed date format. */
@@ -35,6 +38,7 @@ public:
 	Date(CompressedDate cd);
 	Date(const Date &d);
 	Date &operator=(const Date &d);
+	bool operator<(const Date &d) const;
 	~Date()
 	{
 	}
@@ -58,5 +62,6 @@ void SaveDate(Saver &svr);
 
 extern Date _date;
 extern const int _days_per_month[13];
+int DaysInParkYear();
 
 #endif

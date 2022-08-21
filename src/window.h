@@ -400,6 +400,7 @@ void ShowSceneryGui();
 void ShowPathObjectsGui();
 void ShowTerraformGui();
 void ShowFinancesGui();
+void ShowParkManagementGui();
 void ShowCoasterManagementGui(RideInstance *coaster);
 void ShowCoasterBuildGui(CoasterInstance *coaster);
 void ShowRideBuildGui(RideInstance *instance);

@@ -32,6 +32,16 @@ strings:
 		MONTH_NOVEMBER:  "November"
 		MONTH_DECEMBER:  "Dezember"
 
+		OBJECTIVE_TIMEOUT_BEFORE:  "Deese Upgaav mutt vör %1% daankregen worden.";
+		OBJECTIVE_TIMEOUT_EXACT:   "Deese Upgaav mutt um %1% daankregen sien.";
+		OBJECTIVE_TIMEOUT_NONE:    "Deese Upgaav kann to elkeen Tied daankregen worden.";
+		OBJECTIVE_STRICT:          "Deese Upgaav mutt alltiedens daankregen sien!";
+		OBJECTIVETEXT_NONE:        "Hebb Spaaß!";
+		OBJECTIVETEXT_GUESTS:
+			one:   "Hebb tominnst %1% Gast im Park.";
+			other: "Hebb tominnst %1% Gasten im Park.";
+		OBJECTIVETEXT_PARK_RATING: "De Parkbeweerten mutt tominnst %1% sien.";
+
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%×%2%"
 
@@ -81,6 +91,8 @@ strings:
 		TOOLBAR_GUI_TOOLTIP_STAFF:        "Personaal anhüren un kündigen"
 		TOOLBAR_GUI_INBOX:                "Narichtens"
 		TOOLBAR_GUI_TOOLTIP_INBOX:        "All diene Narichtens ankieken"
+		TOOLBAR_GUI_PARK:                 "Parkverwalten";
+		TOOLBAR_GUI_TOOLTIP_PARK:         "De Details vun de Park besörgen";
 
 		BOTTOMBAR_GUESTCOUNT:
 			one:   "%1% Gast"
@@ -113,6 +125,7 @@ strings:
 		# Person status strings.
 		PERSON_STATUS_WANDER:          "Löppt"
 		PERSON_STATUS_HEADING_TO_RIDE: "Gaht to %s"
+		PERSON_STATUS_GOING_HOME:      "Gaht na Huus";
 		PERSON_STATUS_INSPECTING:      "Kiekt %s na"
 		PERSON_STATUS_REPAIRING:       "Repareert %s"
 		PERSON_STATUS_WATERING:        "Gütt de Blomenbedden"
@@ -262,6 +275,22 @@ strings:
 		TERRAFORM_SUB_TOOLTIP: "Grött vun de Kuntrei tum Bewarken minnern"
 		TERRAFORM_LEVEL_TEXT:  "Kuntrei tum Bewarken platt maken"
 		TERRAFORM_MOVE_TEXT:   "Kuntrei tum Bewarken verschuven as se is"
+
+		# Park management gui strings.
+		PARK_MANAGEMENT_TAB_GENERAL:           "Allgemeen";
+		PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP:   "Allgemeene Park-Instellens besörgen";
+		PARK_MANAGEMENT_TAB_GUESTS:            "Gasten";
+		PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP:    "De Tahl vun Gasten im Park över Tied wiesen";
+		PARK_MANAGEMENT_TAB_RATING:            "Beweerten";
+		PARK_MANAGEMENT_TAB_RATING_TOOLTIP:    "De Parkbeweerten över Tied wiesen";
+		PARK_MANAGEMENT_TAB_OBJECTIVE:         "Upgaav";
+		PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: "De Rutfödderungs-Upgaav wiesen";
+		PARK_MANAGEMENT_TAB_AWARDS:            "Priesen";
+		PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP:    "Priesen wiesen, wat de Park kregen hett";
+		PARK_MANAGEMENT_RATING:                "Parkbeweerten: %1%";
+		PARK_MANAGEMENT_NO_AWARDS:             "De Park hett in de lesten Tied keene Priesen kregen.";
+		PARK_MANAGEMENT_PARKNAME:              "Parknaam:";
+		PARK_MANAGEMENT_ENTRANCE_FEE:          "Intree:";
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Lütt Kaart"

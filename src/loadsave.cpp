@@ -21,6 +21,7 @@
 #include "people.h"
 #include "fileio.h"
 #include "gamelevel.h"
+#include "gameobserver.h"
 #include "rev.h"
 
 /** Whether savegame files should automatically be resaved after loading. */
@@ -325,7 +326,7 @@ void Saver::PutText(const std::string &str, int length)
 
 /* When making any changes to saveloading code, don't forget to update the file 'doc/savegame.rst'! */
 
-static const uint32 CURRENT_VERSION_FCTS = 11;  ///< Currently supported version of the FCTS pattern.
+static const uint32 CURRENT_VERSION_FCTS = 12;  ///< Currently supported version of the FCTS pattern.
 
 /**
  * Load basic information from the start of a savegame file.
@@ -338,15 +339,21 @@ PreloadData Preload(Loader &ldr)
 	if (version != 0 && (version < 10 || version > CURRENT_VERSION_FCTS)) ldr.version_mismatch(version, CURRENT_VERSION_FCTS);
 
 	PreloadData result;
+	result.scenario.reset(new Scenario);
+	result.fcts_version = version;
 
 	if (version >= 11) {
 		result.timestamp = ldr.GetLongLong();
 		result.revision = ldr.GetText();
-		result.scenario_name = ldr.GetText();
+		if (version >= 12) {
+			result.scenario->Load(ldr);
+		} else {
+			result.scenario->name = ldr.GetText();
+		}
 	} else {
 		result.timestamp = 0;
 		result.revision = "?";
-		result.scenario_name = _language.GetSgText(GUI_NOT_AVAILABLE);
+		result.scenario->name = _language.GetSgText(GUI_NOT_AVAILABLE);
 	}
 
 	ldr.ClosePattern();
@@ -357,14 +364,21 @@ PreloadData Preload(Loader &ldr)
 /**
  * Load the game elements from the input stream.
  * @param ldr Input stream to load from.
+ * @param preload Result of the preload step.
  * @note Order of loading should be the same as in #SaveElements.
  */
-static void LoadElements(Loader &ldr)
+static void LoadElements(Loader &ldr, const PreloadData &preload)
 {
+	_scenario = *preload.scenario;
 	LoadDate(ldr);
 	_world.Load(ldr);
 	_finances_manager.Load(ldr);
 	_weather.Load(ldr);
+	if (preload.fcts_version >= 12) {
+		_game_observer.Load(ldr);
+	} else {
+		_game_observer.Initialize();
+	}
 	_rides_manager.Load(ldr);
 	_scenery.Load(ldr);
 	_guests.Load(ldr);
@@ -383,13 +397,14 @@ static void SaveElements(Saver &svr)
 	svr.StartPattern("FCTS", CURRENT_VERSION_FCTS);
 	svr.PutLongLong(std::time(nullptr));
 	svr.PutText(_freerct_revision);
-	svr.PutText(_scenario.name);
+	_scenario.Save(svr);
 	svr.EndPattern();
 
 	SaveDate(svr);
 	_world.Save(svr);
 	_finances_manager.Save(svr);
 	_weather.Save(svr);
+	_game_observer.Save(svr);
 	_rides_manager.Save(svr);
 	_scenery.Save(svr);
 	_guests.Save(svr);
@@ -415,8 +430,8 @@ bool LoadGameFile(const char *fname)
 		}
 
 		Loader ldr(fp);
-		Preload(ldr);
-		LoadElements(ldr);
+		PreloadData pd = Preload(ldr);
+		LoadElements(ldr, pd);
 
 		if (fp != nullptr) {
 			fclose(fp);

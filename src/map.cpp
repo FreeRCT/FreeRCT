@@ -720,6 +720,19 @@ void VoxelWorld::SetTileOwnerGlobally(TileOwner owner)
 	SetTileOwnerRect(0, 0, this->GetXSize(), this->GetYSize(), owner);
 }
 
+/**
+ * Find the park entrance location.
+ * If the park has multiple entrances, an arbitrary one is returned.
+ * If the park has no entrance at all, the invalid point is returned.
+ * @return Park entrance coordinate.
+ */
+XYZPoint16 VoxelWorld::GetParkEntrance() const
+{
+	if (this->edges_without_border_fence.empty()) return XYZPoint16::invalid();
+	const Point16 &p = this->edges_without_border_fence.begin()->first;
+	return XYZPoint16(p.x, p.y, this->GetBaseGroundHeight(p.x, p.y));
+}
+
 static const uint32 CURRENT_VERSION_WRLD = 2;   ///< Currently supported version of the WRLD Pattern.
 
 /**

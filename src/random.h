@@ -18,6 +18,7 @@ public:
 	uint16 Uniform(uint16 incl_upper);
 	uint16 Exponential(uint16 mean);
 
+	static void Initialize();
 	static void Load(Loader &ldr);
 	static void Save(Saver &svr);
 

@@ -9,6 +9,7 @@
 
 #include "stdafx.h"
 #include "gamecontrol.h"
+#include "gameobserver.h"
 #include "finances.h"
 #include "messages.h"
 #include "sprite_store.h"
@@ -49,6 +50,7 @@ void OnNewDay()
 	_staff.OnNewDay();
 	_weather.OnNewDay();
 	_finances_manager.OnNewDay();
+	_game_observer.OnNewDay();
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
@@ -81,6 +83,7 @@ void OnNewFrame(const uint32 frame_delay)
 		_guests.DoTick();
 		_staff.DoTick();
 		DateOnTick();
+		_game_observer.DoTick();
 		_guests.OnAnimate(frame_delay);
 		_staff.OnAnimate(frame_delay);
 		_rides_manager.OnAnimate(frame_delay);
@@ -237,11 +240,15 @@ void GameControl::QuitGame()
 /** Initialize all game data structures for playing a new game. */
 void GameControl::NewLevel()
 {
+	Random::Initialize();
+	_scenario.SetDefaultScenario();  // \todo load a scenario.
+
 	/// \todo We blindly assume game data structures are all clean.
 	_world.SetWorldSize(20, 21);
 	_world.MakeFlatWorld(8);
 	_world.SetTileOwnerGlobally(OWN_NONE);
 	_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);
+	_world.SetTileOwnerRect(9, 1,  1,  1, OWN_PARK);
 	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
 
 	std::vector<const SceneryType*> park_entrance_types = _scenery.GetAllTypes(SCC_SCENARIO);
@@ -249,7 +256,7 @@ void GameControl::NewLevel()
 		_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
 	} else {
 		/* Assemble a park entrance and some paths. This assumes that the entrance parts are the first three scenario scenery items loaded. */
-		_world.AddEdgesWithoutBorderFence(Point16(9, 1), EDGE_SE);
+		_world.AddEdgesWithoutBorderFence(Point16(9, 0), EDGE_SE);
 		for (int i = 0; i < 3; i++) {
 			SceneryInstance *item = new SceneryInstance(park_entrance_types[i]);
 			item->orientation = 0;
@@ -267,6 +274,7 @@ void GameControl::NewLevel()
 	_finances_manager.SetScenario(_scenario);
 	_date.Initialize();
 	_weather.Initialize();
+	_game_observer.Initialize();
 }
 
 /** Initialize common game settings and view. */
@@ -291,6 +299,7 @@ void GameControl::ShutdownLevel()
 	_window_manager.CloseAllWindows();
 	_rides_manager.DeleteAllRideInstances();
 	_scenery.Clear();
+	_game_observer.Uninitialize();
 	_guests.Uninitialize();
 	_staff.Uninitialize();
 }

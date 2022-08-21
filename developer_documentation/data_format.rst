@@ -1765,8 +1765,9 @@ Offset  Length  Version  Field name          Description
  276       4     10-     toolbar_finances    Toolbar: Finances GUI button.
  280       4     10-     toolbar_objects     Toolbar: Path objects GUI button.
  284       4     11-     toolbar_view        Toolbar: View menu GUI button.
- 288       4      2-     texts               Text of the guis (reference to a TEXT block).
- 292                                         Total length.
+ 288       4     13-     toolbar_park        Toolbar: Park management GUI button.
+ 292       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 296                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1784,6 +1785,7 @@ Version history
 - 10 (20210429) Added toolbar button sprites.
 - 11 (20210918) Added toolbar view menu button sprite.
 - 12 (20220717) Added loadsave icon sprites.
+- 13 (20220820) Added toolbar park management button sprite.
 
 
 Main menu sprites

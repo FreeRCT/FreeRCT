@@ -459,11 +459,11 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const 
 			this->SetCoasterState();
 			break;
 		case CIW_ENTRANCE_FEE_INCREASE:
-			this->ci->item_price[0] += ENTRANCE_FEE_STEP_SIZE;
+			this->ci->item_price[0] += RIDE_ENTRANCE_FEE_STEP_SIZE;
 			this->SetCoasterState();
 			break;
 		case CIW_ENTRANCE_FEE_DECREASE:
-			this->ci->item_price[0] = std::max<int>(0, this->ci->item_price[0] - ENTRANCE_FEE_STEP_SIZE);
+			this->ci->item_price[0] = std::max<int>(0, this->ci->item_price[0] - RIDE_ENTRANCE_FEE_STEP_SIZE);
 			this->SetCoasterState();
 			break;
 		case CIW_MAX_IDLE_INCREASE:

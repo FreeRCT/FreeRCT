@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "window.h"
 #include "gamecontrol.h"
+#include "gamelevel.h"
 #include "fileio.h"
 #include "rev.h"
 #include "sprite_store.h"
@@ -244,7 +245,7 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 
 		case LSW_LIST_NAME:
 			functor = [&x, &y, &w](const PreloadData &pd) {
-				_video.BlitText(pd.load_success ? pd.scenario_name : "", _palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
+				_video.BlitText(pd.load_success ? pd.scenario->name : "", _palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
 			};
 			break;
 

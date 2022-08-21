@@ -401,11 +401,11 @@ void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, [[maybe_unused
 		}
 
 		case GTRMW_ENTRANCE_FEE_INCREASE:
-			this->ride->item_price[0] += ENTRANCE_FEE_STEP_SIZE;
+			this->ride->item_price[0] += RIDE_ENTRANCE_FEE_STEP_SIZE;
 			this->UpdateButtons();
 			break;
 		case GTRMW_ENTRANCE_FEE_DECREASE:
-			this->ride->item_price[0] = std::max<int>(0, this->ride->item_price[0] - ENTRANCE_FEE_STEP_SIZE);
+			this->ride->item_price[0] = std::max<int>(0, this->ride->item_price[0] - RIDE_ENTRANCE_FEE_STEP_SIZE);
 			this->UpdateButtons();
 			break;
 		case GTRMW_CYCLES_INCREASE:
