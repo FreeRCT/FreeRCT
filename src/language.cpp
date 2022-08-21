@@ -12,10 +12,10 @@
 #include "fileio.h"
 #include "sprite_store.h"
 #include "video.h"
-#include "string_func.h"
 #include "math_func.h"
 #include "dates.h"
 #include "money.h"
+#include "generated/lang_meta_strings.h"
 
 assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many GUI strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
@@ -40,20 +40,25 @@ void TextString::Clear()
 
 /**
  * Get the string in the currently selected language.
- * @param plural The plural form index (should be \c 0 for non-pluralized strings).
+ * @param amount The amount for which to return the appropriate plural form.
  * @return Text of this string in the currently selected language.
  */
-std::string TextString::GetString(const uint plural) const
+std::string TextString::GetString(int64 amount) const
 {
 	if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) {
 		return "<out of bounds>";
 	}
+
+	uint plural = _language.GetPluralFormIndex(_current_language, amount);
 	if (plural < this->languages[_current_language].size() && this->languages[_current_language].at(plural) != nullptr) {
 		return this->languages[_current_language].at(plural);
 	}
+
+	plural = _language.GetPluralFormIndex(LANG_EN_GB, amount);
 	if (plural < this->languages[LANG_EN_GB].size() && this->languages[LANG_EN_GB].at(plural) != nullptr) {
 		return this->languages[LANG_EN_GB].at(plural);
 	}
+
 	return "<no-text>";
 }
 
@@ -318,11 +323,11 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 /**
  * Get the correct plural form for string number \a number.
  * @param number string number to get.
- * @param plural Plural form index.
+ * @param amount The amount for which to return the appropriate plural form.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
  * @note For the lookup which plural form to use for a given amount, use #GetPluralFormIndex.
  */
-std::string Language::GetPlText(StringID number, uint plural)
+std::string Language::GetPlural(StringID number, int64 amount)
 {
 	static const std::string default_strings[] = {
 		"",     // STR_NULL
@@ -332,7 +337,7 @@ std::string Language::GetPlText(StringID number, uint plural)
 	if (number < lengthof(default_strings)) return default_strings[number];
 
 	if (number < lengthof(this->registered) && this->registered[number] != nullptr) {
-		const std::string &text = this->registered[number]->GetString(plural);
+		const std::string &text = this->registered[number]->GetString(amount);
 		if (text.empty()) return "<empty text>";
 		return text;
 	}
@@ -347,29 +352,21 @@ std::string Language::GetPlText(StringID number, uint plural)
  */
 std::string Language::GetSgText(StringID number)
 {
-	return this->GetPlText(number, 0);
-}
-
-/**
- * Get the correct plural form for string number \a number.
- * @param number string number to get.
- * @param amount The amount for which to return the appropriate plural form.
- * @return String corresponding to the number (not owned by the caller, so don't free it).
- */
-std::string Language::GetPlural(StringID number, int64 amount)
-{
-	return this->GetPlText(number, this->GetPluralFormIndex(amount));
+	return this->GetPlural(number, 1);
 }
 
 /**
  * Look up the correct plural form for an amount.
+ * @param lang_index The language to look in.
  * @param amount The amount to look up.
  * @return Index of the correct plural form.
  */
-uint Language::GetPluralFormIndex(int64 amount)
+uint Language::GetPluralFormIndex(int lang_index, int64 amount)
 {
-	// NOCOM
-	return amount == 1 ? 0 : 1;
+	if (this->plural_forms[lang_index] == nullptr) {
+		this->plural_forms[lang_index] = ParseEvaluateableExpression(this->registered[LANG_META_rule]->languages[lang_index].at(0));
+	}
+	return this->plural_forms[lang_index]->Eval(amount);
 }
 
 /**
@@ -471,7 +468,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 	static char textbuf[64];
 	std::string buffer;
 
-	const std::string txt = _language.GetPlText(strid, params == nullptr ? 0 : _language.GetPluralFormIndex(params->pluralize_amount));
+	const std::string txt = _language.GetPlural(strid, params == nullptr ? 1 : params->pluralize_amount);
 	const char *ptr = txt.c_str();
 	for (;;) {
 		while (*ptr != '\0' && *ptr != '%') {

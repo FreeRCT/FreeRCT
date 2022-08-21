@@ -2322,9 +2322,14 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->neg_3d = vals.GetSprite("neg_3d");
 	gb->close_button = vals.GetSprite("close_button");
 	gb->terraform_dot = vals.GetSprite("terraform_dot");
+
 	gb->gui_text = std::make_shared<StringBundle>();
 	gb->gui_text->Fill(vals.GetStrings("texts"), ng->pos);
 	gb->gui_text->CheckTranslations(_gui_string_names, lengthof(_gui_string_names), ng->pos);
+
+	gb->meta_text = std::make_shared<StringBundle>();
+	gb->meta_text->Fill(vals.GetStrings("meta"), ng->pos);
+	gb->meta_text->CheckTranslations(_lang_meta_string_names, lengthof(_lang_meta_string_names), ng->pos);
 
 	vals.VerifyUsage();
 	return gb;
@@ -2911,6 +2916,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _gui_string_names;
 		length = lengthof(_gui_string_names);
 		nice_name = "Gui";
+	} else if (strcmp(prefix, "LANG_META") == 0) {
+		names = _lang_meta_string_names;
+		length = lengthof(_lang_meta_string_names);
+		nice_name = "LangMeta";
 	} else if (strcmp(prefix, "SHOPS") == 0) {
 		names = _shops_string_names;
 		length = lengthof(_shops_string_names);
@@ -2981,6 +2990,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *code)
 		length = lengthof(_gui_string_names);
 		nice_name = "Gui";
 		lower_name = "gui";
+	} else if (strcmp(prefix, "LANG_META") == 0) {
+		names = _lang_meta_string_names;
+		length = lengthof(_lang_meta_string_names);
+		nice_name = "LangMeta";
+		lower_name = "lang_meta";
 	} else if (strcmp(prefix, "SHOPS") == 0) {
 		names = _shops_string_names;
 		length = lengthof(_shops_string_names);

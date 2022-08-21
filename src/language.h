@@ -11,6 +11,7 @@
 #define LANGUAGE_H
 
 #include "geometry.h"
+#include "string_func.h"
 
 class TextData;
 class Money;
@@ -32,7 +33,9 @@ enum StringTable {
 	STR_NULL = 0, ///< \c nullptr string.
 	STR_ARG1,     ///< Argument 1 \c "%1%".
 
-	STR_GUI_START, ///< Start of the GUI strings.
+	STR_LANG_META_START, ///< Start of the language meta strings.
+
+	STR_GUI_START = STR_LANG_META_START + 8, ///< Start of the GUI strings.
 
 	/* After the GUI strings come the other registered strings. */
 
@@ -99,7 +102,7 @@ public:
 
 	void Clear();
 
-	std::string GetString(uint plural) const;
+	std::string GetString(int64 amount) const;
 
 	/* Memory is not owned. */
 	const char* name;                                    ///< Name of the string.
@@ -161,15 +164,16 @@ public:
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base = STR_GENERIC_END);
 
 	std::string GetSgText(StringID number);
-	std::string GetPlText(StringID number, uint plural_index);
 	std::string GetPlural(StringID number, int64 amount);
 	std::string GetLanguageName(int lang_index);
-	uint GetPluralFormIndex(int64 amount);
+	uint GetPluralFormIndex(int lang_index, int64 amount);
 
 private:
 	/** Registered strings. Entries may be \c nullptr for unregistered or non-existing strings. */
 	const TextString *registered[2048]; // Arbitrary size.
 	uint first_free; ///< 'First' string index that is not allocated yet.
+
+	std::unique_ptr<EvaluateableExpression> plural_forms[LANGUAGE_COUNT];
 };
 
 int GetLanguageIndex(const std::string &lang_name);

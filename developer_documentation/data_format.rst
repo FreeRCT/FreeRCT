@@ -1686,7 +1686,10 @@ Gui Sprites
 Several elements come with different slopes, and the user needs to select the
 right one. Similarly, there are rotation sprites and texts that are displayed
 in the gui.
-FreeRCT can read blocks with version 11.
+
+Additionally stores all the strings related to the GUI and language meta information.
+
+FreeRCT can read blocks with version 14.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
@@ -1767,7 +1770,8 @@ Offset  Length  Version  Field name          Description
  284       4     11-     toolbar_view        Toolbar: View menu GUI button.
  288       4     13-     toolbar_park        Toolbar: Park management GUI button.
  292       4      2-     texts               Text of the guis (reference to a TEXT block).
- 296                                         Total length.
+ 296       4     14-     texts               Language meta texts (reference to a TEXT block).
+ 300                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1786,6 +1790,7 @@ Version history
 - 11 (20210918) Added toolbar view menu button sprite.
 - 12 (20220717) Added loadsave icon sprites.
 - 13 (20220820) Added toolbar park management button sprite.
+- 14 (20220821) Added language meta texts.
 
 
 Main menu sprites

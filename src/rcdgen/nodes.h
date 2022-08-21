@@ -917,6 +917,7 @@ public:
 	std::shared_ptr<SpriteBlock> mini_button;     ///< Minimise button.
 	std::shared_ptr<SpriteBlock> terraform_dot;   ///< Terraform dot.
 	std::shared_ptr<StringBundle> gui_text;       ///< Text of the GUIs (reference to a TEXT block).
+	std::shared_ptr<StringBundle> meta_text;      ///< Text of the language meta information (reference to a TEXT block).
 };
 
 /** MENU Game block. */
