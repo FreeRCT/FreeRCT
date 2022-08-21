@@ -346,7 +346,7 @@ PreloadData Preload(Loader &ldr)
 	} else {
 		result.timestamp = 0;
 		result.revision = "?";
-		result.scenario_name = _language.GetText(GUI_NOT_AVAILABLE);
+		result.scenario_name = _language.GetSgText(GUI_NOT_AVAILABLE);
 	}
 
 	ldr.ClosePattern();

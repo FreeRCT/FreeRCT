@@ -147,7 +147,7 @@ void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case FIN_MAX_LOAN:     _str_params.SetMoney(1, _scenario.max_loan         ); break;
 		case FIN_INTEREST: {
 			static char buffer[512];
-			snprintf(buffer, lengthof(buffer), _language.GetText(GUI_FINANCES_LOAN_INTEREST_VALUE).c_str(), _scenario.interest * 0.1f);
+			snprintf(buffer, lengthof(buffer), _language.GetSgText(GUI_FINANCES_LOAN_INTEREST_VALUE).c_str(), _scenario.interest * 0.1f);
 			_str_params.SetText(1, buffer);
 			break;
 		}

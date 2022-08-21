@@ -145,6 +145,7 @@ struct StringParameters {
 
 	bool set_mode; ///< When not in set-mode, all parameters are cleared on first use of a Set function.
 	std::vector<StringParameterData> parms; ///< Parameters of the string.
+	int64 pluralize_amount;                 ///< Amount to use for plural forms.
 };
 
 /**
@@ -159,8 +160,11 @@ public:
 
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base = STR_GENERIC_END);
 
-	std::string GetText(StringID number);
+	std::string GetSgText(StringID number);
+	std::string GetPlText(StringID number, uint plural_index);
+	std::string GetPlural(StringID number, int64 amount);
 	std::string GetLanguageName(int lang_index);
+	uint GetPluralFormIndex(int64 amount);
 
 private:
 	/** Registered strings. Entries may be \c nullptr for unregistered or non-existing strings. */

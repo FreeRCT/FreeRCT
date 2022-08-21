@@ -372,6 +372,7 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 		case BTB_GUESTCOUNT:
 			_str_params.SetNumber(1, this->guest_count);
+			_str_params.pluralize_amount = this->guest_count;
 			break;
 	}
 }

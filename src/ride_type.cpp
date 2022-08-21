@@ -201,17 +201,17 @@ void SetRideRatingStringParam(const uint32 rating)
 	std::string str;
 
 	if (rating < 100) {
-		str = _language.GetText(GUI_RIDE_MANAGER_RATING_VERY_LOW);
+		str = _language.GetSgText(GUI_RIDE_MANAGER_RATING_VERY_LOW);
 	} else if (rating < 250) {
-		str = _language.GetText(GUI_RIDE_MANAGER_RATING_LOW);
+		str = _language.GetSgText(GUI_RIDE_MANAGER_RATING_LOW);
 	} else if (rating < 500) {
-		str = _language.GetText(GUI_RIDE_MANAGER_RATING_MEDIUM);
+		str = _language.GetSgText(GUI_RIDE_MANAGER_RATING_MEDIUM);
 	} else if (rating < 750) {
-		str = _language.GetText(GUI_RIDE_MANAGER_RATING_HIGH);
+		str = _language.GetSgText(GUI_RIDE_MANAGER_RATING_HIGH);
 	} else if (rating < 1050) {
-		str = _language.GetText(GUI_RIDE_MANAGER_RATING_VERY_HIGH);
+		str = _language.GetSgText(GUI_RIDE_MANAGER_RATING_VERY_HIGH);
 	} else {
-		str = _language.GetText(GUI_RIDE_MANAGER_RATING_EXTREME);
+		str = _language.GetSgText(GUI_RIDE_MANAGER_RATING_EXTREME);
 	}
 
 	snprintf(_text_buffer, lengthof(_text_buffer), str.c_str(), rating / 100.0);
@@ -726,7 +726,7 @@ void RidesManager::Load(Loader &ldr)
 				if (ride_type_name.empty()) throw LoadingError("Invalid ride type name.");
 
 				for (const auto &rt : _rides_manager.ride_types) {
-					const std::string tmp_name = _language.GetText(rt->GetString(rt->GetTypeName()));
+					const std::string tmp_name = _language.GetSgText(rt->GetString(rt->GetTypeName()));
 					if (ride_kind == rt->kind && tmp_name == ride_type_name) {
 						ride_type = rt.get();
 						break;

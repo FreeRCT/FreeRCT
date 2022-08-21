@@ -86,7 +86,7 @@ void Message::InitMessageDataTypes()
 			return;
 
 		default:
-			printf("ERROR: Invalid message string %d ('%s')\n", this->message, _language.GetText(this->message).c_str());
+			printf("ERROR: Invalid message string %d ('%s')\n", this->message, _language.GetSgText(this->message).c_str());
 			NOT_REACHED();
 	}
 }
@@ -100,6 +100,7 @@ void Message::SetStringParameters() const
 			break;
 		case MDT_PARK:
 			_str_params.SetNumber(1, this->data1);
+			_str_params.pluralize_amount = this->data1;
 			break;
 		case MDT_GUEST:
 			_str_params.SetText(1, _guests.Get(this->data1)->GetName());
@@ -110,6 +111,7 @@ void Message::SetStringParameters() const
 		case MDT_RIDE_INSTANCE:
 			_str_params.SetText(1, _rides_manager.GetRideInstance(this->data1)->name);
 			_str_params.SetNumber(2, this->data2);
+			_str_params.pluralize_amount = this->data2;
 			break;
 		default:
 			NOT_REACHED();

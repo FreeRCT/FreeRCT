@@ -2385,7 +2385,7 @@ void StaffMember::Save(Saver &svr)
  */
 std::string Person::GetStatus() const
 {
-	const std::string text = _language.GetText(this->status);
+	const std::string text = _language.GetSgText(this->status);
 	if (this->ride == nullptr) return text;
 
 	static char text_buffer[1024];

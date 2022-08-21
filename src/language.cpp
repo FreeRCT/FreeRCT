@@ -252,6 +252,7 @@ void StringParameters::Clear()
 {
 	this->parms.clear();
 	this->set_mode = true;
+	this->pluralize_amount = 1;
 }
 
 Language::Language()
@@ -315,11 +316,13 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 }
 
 /**
- * Get string number \a number.
+ * Get the correct plural form for string number \a number.
  * @param number string number to get.
+ * @param plural Plural form index.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
+ * @note For the lookup which plural form to use for a given amount, use #GetPluralFormIndex.
  */
-std::string Language::GetText(StringID number)
+std::string Language::GetPlText(StringID number, uint plural)
 {
 	static const std::string default_strings[] = {
 		"",     // STR_NULL
@@ -329,12 +332,44 @@ std::string Language::GetText(StringID number)
 	if (number < lengthof(default_strings)) return default_strings[number];
 
 	if (number < lengthof(this->registered) && this->registered[number] != nullptr) {
-		const std::string &text = this->registered[number]->GetString(0 /* NOCOM */);
+		const std::string &text = this->registered[number]->GetString(plural);
 		if (text.empty()) return "<empty text>";
 		return text;
 	}
 
 	return "<Invalid string>";
+}
+
+/**
+ * Get the singular form for string number \a number.
+ * @param number string number to get.
+ * @return String corresponding to the number (not owned by the caller, so don't free it).
+ */
+std::string Language::GetSgText(StringID number)
+{
+	return this->GetPlText(number, 0);
+}
+
+/**
+ * Get the correct plural form for string number \a number.
+ * @param number string number to get.
+ * @param amount The amount for which to return the appropriate plural form.
+ * @return String corresponding to the number (not owned by the caller, so don't free it).
+ */
+std::string Language::GetPlural(StringID number, int64 amount)
+{
+	return this->GetPlText(number, this->GetPluralFormIndex(amount));
+}
+
+/**
+ * Look up the correct plural form for an amount.
+ * @param amount The amount to look up.
+ * @return Index of the correct plural form.
+ */
+uint Language::GetPluralFormIndex(int64 amount)
+{
+	// NOCOM
+	return amount == 1 ? 0 : 1;
 }
 
 /**
@@ -356,13 +391,13 @@ std::string Language::GetLanguageName(int lang_index)
  */
 static void MoneyStrFmt(char *dest, size_t size, double amt)
 {
-	const std::string curr_sym = _language.GetText(GUI_MONEY_CURRENCY_SYMBOL);
+	const std::string curr_sym = _language.GetSgText(GUI_MONEY_CURRENCY_SYMBOL);
 	size_t curr_sym_len = curr_sym.size();
 
-	const std::string tho_sep  = _language.GetText(GUI_MONEY_THOUSANDS_SEPARATOR);
+	const std::string tho_sep  = _language.GetSgText(GUI_MONEY_THOUSANDS_SEPARATOR);
 	size_t tho_sep_len  = tho_sep.size();
 
-	const std::string dec_sep  = _language.GetText(GUI_MONEY_DECIMAL_SEPARATOR);
+	const std::string dec_sep  = _language.GetSgText(GUI_MONEY_DECIMAL_SEPARATOR);
 	size_t dec_sep_len  = dec_sep.size();
 
 	std::unique_ptr<char[]> buf(new char[size]);
@@ -436,7 +471,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 	static char textbuf[64];
 	std::string buffer;
 
-	const std::string txt = _language.GetText(strid);
+	const std::string txt = _language.GetPlText(strid, params == nullptr ? 0 : _language.GetPluralFormIndex(params->pluralize_amount));
 	const char *ptr = txt.c_str();
 	for (;;) {
 		while (*ptr != '\0' && *ptr != '%') {
@@ -463,7 +498,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 					break;
 
 				case SPT_STRID:
-					buffer += _language.GetText(params->parms[n - 1].u.str);
+					buffer += _language.GetSgText(params->parms[n - 1].u.str);
 					break;
 
 				case SPT_TEXT:
@@ -547,7 +582,7 @@ void GetTextSize(StringID strid, int *width, int *height)
 std::string GetDateString(const Date &d, const char *format)
 {
 	static char textbuf[64];
-	const std::string &month = _language.GetText(GetMonthName(d.month));
+	const std::string &month = _language.GetSgText(GetMonthName(d.month));
 	snprintf(textbuf, lengthof(textbuf), format, d.day, month.c_str(), d.year);
 	return textbuf;
 }
