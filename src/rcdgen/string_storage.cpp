@@ -201,22 +201,6 @@ void StringsStorage::ReadFromYAML(const char *filename)
 			if (plurals_map.count(linekey) > 0) SYNTAX_ERROR("Duplicate plural form %s.%s.%s", bundle_key.c_str(), key_in_bundle.c_str(), linekey.c_str());
 			plurals_map.emplace(linekey, pair_to_emplace);
 		}
-
-		/* const std::string &bundle_key = sanitized_key.at(0);
-		const std::string &key_in_bundle = sanitized_key.at(1);
-		StringBundle &bundle = this->bundles[bundle_key];
-		Position errorpos(filename, line_number);
-
-		StringNode str_node;
-		str_node.name = key_in_bundle;
-		str_node.text = value;
-		str_node.text_pos = errorpos;
-		str_node.key = bundle_key;
-		str_node.lang_index = lang_idx;
-
-		std::shared_ptr<StringsNode> strings_node = std::make_shared<StringsNode>();
-		strings_node->Add(str_node, errorpos);
-		bundle.Fill(strings_node, errorpos); */
 	}
 #undef SYNTAX_ERROR
 
