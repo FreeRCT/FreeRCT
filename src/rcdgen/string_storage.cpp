@@ -37,7 +37,7 @@ const StringBundle *StringsStorage::GetBundle(const std::string &key)
  */
 void StringsStorage::ReadFromYAML(const char *filename)
 {
-	std::fstream stream(filename, stream.in);
+	std::fstream stream(filename, std::fstream::in);
 	if (!stream.is_open()) {
 		fprintf(stderr, "Failed to read from %s\n", filename);
 		exit(1);
