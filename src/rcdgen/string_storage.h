@@ -13,12 +13,8 @@
 /** Storage of translation strings for future use. */
 class StringsStorage {
 public:
-	StringsStorage();
-
-	void AddStrings(std::shared_ptr<StringsNode> strs, const Position &pos);
-	void AddToBundle(std::shared_ptr<StringsNode> strs, const Position &pos);
+	void ReadFromYAML(const char *filename);
 	const StringBundle *GetBundle(const std::string &key);
-
 	std::map<std::string, StringBundle> bundles; ///< Available bundles, ordered by key.
 };
 

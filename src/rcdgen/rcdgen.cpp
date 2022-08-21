@@ -9,9 +9,11 @@
 
 #include "../stdafx.h"
 #include "../getoptdata.h"
+#include "../string_func.h"
 #include "scanner_funcs.h"
 #include "ast.h"
 #include "nodes.h"
+#include "string_storage.h"
 #include "file_writing.h"
 #include <cstdarg>
 
@@ -127,8 +129,18 @@ int main(int argc, char *argv[])
 
 	int num_files = std::max(1, opt_data.numleft);
 	for (int i = 0; i < num_files; i++) {
+		assert(i < opt_data.numleft);
+		if (StrEndsWith(opt_data.argv[i], ".yml", false) || StrEndsWith(opt_data.argv[i], ".yaml", false)) {
+			/* Translations. Update the strings storage and proceed with the next file. */
+			_strings_storage.ReadFromYAML(opt_data.argv[i]);
+			continue;
+		} else if (!StrEndsWith(opt_data.argv[i], ".txt", false)) {
+			fprintf(stderr, "Unrecognized file extension for file (supported are .txt and .yml): '%s'\n", opt_data.argv[i]);
+			exit(1);
+		}
+
 		/* Phase 1: Parse the input file. */
-		std::shared_ptr<NamedValueList> nvs = LoadFile((i < opt_data.numleft) ? opt_data.argv[i] : nullptr);
+		std::shared_ptr<NamedValueList> nvs = LoadFile(opt_data.argv[i]);
 
 		/* Phase 2: Check and simplify the loaded input. */
 		FileNodeList *file_nodes = CheckTree(nvs);

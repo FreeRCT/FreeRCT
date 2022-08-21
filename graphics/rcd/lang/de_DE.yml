@@ -5,14 +5,16 @@
 #
 
 strings:
-	plurals:
-		nplurals: 2
-		key_0: one
-		key_1: other
-	lang: "de_DE"
+	meta:
+		nplurals: "2"
+		plural_0: "one"
+		plural_1: "other"
+		rule: "(n==1)?0:1"
+		lang: "de_DE"
 
 	gui:
-		TITLEBAR_TIP:  "Ein Klick auf die Titelleiste holt das Fenster in den Vordergrund, ziehen der Titelleiste verschiebt das Fenster"
+		TITLEBAR_TIP:  "Ein Klick auf die Titelleiste holt das Fenster in den Vordergrund, \
+						Ziehen der Titelleiste verschiebt das Fenster"
 		LANGUAGE_NAME: "Deutsch"
 		NOT_AVAILABLE: "k.A."
 

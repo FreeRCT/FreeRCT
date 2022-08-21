@@ -2952,9 +2952,8 @@ FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values)
 		}
 		auto strs = std::dynamic_pointer_cast<StringsNode>(vi->node_value);
 		if (strs != nullptr) {
-			_strings_storage.AddStrings(strs, vi->pos);
-			vi->used = true;
-			continue;
+			printf("NOCOM Adding strings to strings storage SHOULDN'T HAPPEN ANY MORE!!! Remove this codepath\n");
+			exit(1);
 		}
 		fprintf(stderr, "Error at %s: Node is neither a file node nor a strings node\n", vi->pos.ToString());
 		exit(1);

@@ -5,11 +5,12 @@
 #
 
 strings:
-	plurals:
-		nplurals: 2
-		key_0: one
-		key_1: other
-	lang: "es_ES"
+	meta:
+		nplurals: "2"
+		plural_0: "one"
+		plural_1: "other"
+		rule: "(n==1)?0:1"
+		lang: "es_ES"
 
 	gui:
 		LANGUAGE_NAME: "Español"

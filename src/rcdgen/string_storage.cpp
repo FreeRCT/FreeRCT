@@ -7,98 +7,16 @@
 
 /** @file string_storage.cpp Code of the translation storage. */
 
+#include <fstream>
+#include <set>
+#include <string>
+
 #include "../stdafx.h"
 #include "ast.h"
 #include "nodes.h"
 #include "string_storage.h"
 
 StringsStorage _strings_storage; ///< Storage of all (translated) strings by key.
-
-StringsStorage::StringsStorage()
-{
-}
-
-/**
- * Examine the still available strings, and decide whether it needs to be split on key.
- * @param strs Strings to examine.
- * @return Whether there are at least two keys in the collection, and it needs to be split.
- */
-static bool NeedsSplit(std::shared_ptr<StringsNode> strs)
-{
-	std::string key;
-	int num_keys = 0;
-	for (auto &str : strs->strings) {
-		if (num_keys == 0) {
-			key = str.key;
-			num_keys++;
-			continue;
-		}
-		if (str.key == key) continue;
-		return true;
-	}
-	return false;
-}
-
-/**
- * Add a collection of strings to the storage.
- * @param strs String collection to add.
- * @param pos Position of the collection.
- */
-void StringsStorage::AddStrings(std::shared_ptr<StringsNode> strs, const Position &pos)
-{
-	/* Split the strings into lists with the same key, and push them into a bundle. */
-	while (strs->strings.size() > 0) {
-		if (!NeedsSplit(strs)) {
-			this->AddToBundle(strs, pos);
-			break;
-		}
-		auto new_strs = std::make_shared<StringsNode>();
-		std::string new_key = "";
-		std::list<StringNode>::iterator iter = strs->strings.begin();
-		while (iter != strs->strings.end()) {
-			if (new_key == "") {
-				if (iter->key != "") {
-					new_key = iter->key;
-					new_strs->Add(*iter, pos);
-					std::list<StringNode>::iterator iter2 = iter; iter++;
-					strs->strings.erase(iter2);
-					continue;
-				}
-				iter++;
-				continue;
-			}
-			if (new_key == iter->key) {
-				new_strs->Add(*iter, pos);
-				std::list<StringNode>::iterator iter2 = iter; iter++;
-				strs->strings.erase(iter2);
-				continue;
-			}
-			iter++;
-		}
-		this->AddToBundle(new_strs, pos);
-	}
-}
-
-/**
- * Add strings belonging to one bundle to storage.
- * @param strs Strings to add
- * @param pos Position of the collection.
- */
-void StringsStorage::AddToBundle(std::shared_ptr<StringsNode> strs, const Position &pos)
-{
-	std::string strs_key = strs->GetKey();
-	if (strs_key == "") {
-		fprintf(stderr, "Error at %s: \"strings\" node does not have a key.\n", pos.ToString());
-		exit(1);
-	}
-	auto iter = this->bundles.find(strs_key);
-	if (iter == this->bundles.end()) {
-		std::pair<std::string, StringBundle> p(strs_key, StringBundle());
-		iter = this->bundles.insert(p).first;
-	}
-	StringBundle &sb = iter->second;
-	sb.Fill(strs, pos);
-}
 
 /**
  * Retrieve the stored bundle of string by key name.
@@ -110,4 +28,273 @@ const StringBundle *StringsStorage::GetBundle(const std::string &key)
 	auto iter = this->bundles.find(key);
 	if (iter == this->bundles.end()) return nullptr;
 	return &iter->second;
+}
+
+/**
+ * Parse the provided YAML file and store its translations.
+ * @param filename File to read from.
+ */
+void StringsStorage::ReadFromYAML(const char *filename)
+{
+	std::fstream stream(filename, stream.in);
+	if (!stream.is_open()) {
+		fprintf(stderr, "Failed to read from %s\n", filename);
+		exit(1);
+	}
+
+	using PluralForm = std::pair<std::string, Position>;
+	using PluralizedString = std::map<std::string, PluralForm>;
+	using BundleContent = std::map<std::string, PluralizedString>;
+	std::map<std::string, BundleContent> results;
+
+	std::vector<std::string> nesting;
+	std::string line;
+	int32 line_number = 0;
+
+#define SYNTAX_ERROR_L(line, msg, ...) do {  \
+	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line, ##__VA_ARGS__);  \
+	exit(1);  \
+} while (false)
+#define SYNTAX_ERROR(...) SYNTAX_ERROR_L(line_number, __VA_ARGS__)
+
+	while (stream.peek() != EOF) {
+		++line_number;
+		std::getline(stream, line);
+		uint32 nr_chars = line.size();
+		int pos = 0;
+
+		/* Skip over leading whitespace and count how deeply the string is nested. */
+		uint32 nesting_depth = 0;
+		for (bool endloop = false; !endloop && pos < nr_chars; ++pos) {
+			switch (line[pos]) {
+				case ' ':
+					++nesting_depth;
+					break;
+				case '\t':
+					nesting_depth += 8;
+					break;
+				default:
+					--pos;
+					endloop = true;
+					break;
+			}
+		}
+
+		if (pos >= nr_chars || line[pos] == '#') continue;  // Empty or whitespace-only line or comment.
+
+		/* Read the YAML key in this line. */
+		std::string linekey;
+		for (;; ++pos) {
+			if (pos >= nr_chars) SYNTAX_ERROR("Unterminated line after identifier");
+			if (line[pos] == '_' || line[pos] == '-' ||
+					(line[pos] >= 'A' && line[pos] <= 'Z') ||
+					(line[pos] >= 'a' && line[pos] <= 'z') ||
+					(line[pos] >= '0' && line[pos] <= '9')) {
+				linekey += line[pos];
+				continue;
+			}
+			if (line[pos] != ':') SYNTAX_ERROR("Invalid identifier character '%c'", line[pos]);
+			if (linekey.empty()) SYNTAX_ERROR("Empty identifier");
+			++pos;
+			break;
+		}
+
+		/* Skip over whitespace. */
+		for (; pos < nr_chars && (line[pos] == ' ' || line[pos] == '\t'); ++pos);
+
+		if (pos >= nr_chars || line[pos] == '#')  {
+			/* No value in this line. Store the key. */
+			nesting.resize(nesting_depth + 1);
+			nesting.back() = linekey;
+			continue;
+		}
+
+		if (nesting.empty()) SYNTAX_ERROR("Top-level values are forbidden");
+		if (nesting.at(0) != "strings") SYNTAX_ERROR("All strings must be in the 'strings' namespace");
+
+		std::string value;
+		if (line[pos] != '\"' && (line[pos] != '\'')) {
+			/* Parse the line verbatim and trim it. */
+			value = line.substr(pos);
+			while (!value.empty() && (value.back() == ' ' || value.back() == '\t')) value.pop_back();
+		} else {
+			/* Parse a quoted value. */
+			const char delimiter = line[pos];
+			++pos;
+			for (;; ++pos) {
+				if (pos >= nr_chars) SYNTAX_ERROR("Unterminated line in quoted value");
+				if (line[pos] == delimiter) break;  // End of quoted string.
+				if (line[pos] != '\\') {
+					value.push_back(line[pos]);
+					continue;
+				}
+
+				/* Backslash-escaped character. */
+				++pos;
+				if (pos < nr_chars) {
+					switch (line[pos]) {
+						case 'n':
+							value.push_back('\n');
+							break;
+						case 't':
+							value.push_back('\t');
+							break;
+						case ' ':
+							value.push_back(' ');
+							break;
+						case '\"':
+							value.push_back('\"');
+							break;
+						case '\'':
+							value.push_back('\'');
+							break;
+						default:
+							SYNTAX_ERROR("Invalid escape character '%c'", line[pos]);
+					}
+					continue;
+				}
+
+				/* The backslash escapes a line break. Load the next line and continue reading (discarding leading whitespace). */
+				if (stream.peek() == EOF) SYNTAX_ERROR("Unterminated string at end of file");
+				++line_number;
+				std::getline(stream, line);
+				nr_chars = line.size();
+				pos = 0;
+				for (; pos < nr_chars && (line[pos] == ' ' || line[pos] == '\t'); ++pos);
+				--pos;
+			}
+		}
+
+		/* Extract the actual key inheritance chain. */
+		std::vector<std::string> sanitized_key;
+		size_t sanitized_key_len = 0;
+		nesting_depth = std::min<size_t>(nesting_depth, nesting.size());
+		for (size_t i = 1; i < nesting_depth; ++i) {
+			if (!nesting.at(i).empty()) {
+				sanitized_key.push_back(nesting.at(i));
+				++sanitized_key_len;
+			}
+		}
+		if (sanitized_key_len == 0) SYNTAX_ERROR("Key not nested deply enough");
+		if (sanitized_key_len > 2) SYNTAX_ERROR("Key nested too deply");
+		sanitized_key.push_back(linekey);
+
+		std::string &bundle_key = sanitized_key.at(0);
+		std::string &key_in_bundle = sanitized_key.at(1);
+		std::pair<std::string, Position> pair_to_emplace(value, Position(filename, line_number));
+
+		PluralizedString &plurals_map = results[bundle_key][key_in_bundle];
+		if (sanitized_key_len == 1) {
+			/* Ordinary string. */
+			if (!plurals_map.empty()) SYNTAX_ERROR("Duplicate key %s.%s", bundle_key.c_str(), key_in_bundle.c_str());
+			plurals_map.emplace(std::string(), pair_to_emplace);
+		} else {
+			/* Plural form. */
+			if (plurals_map.count(linekey) > 0) SYNTAX_ERROR("Duplicate plural form %s.%s.%s", bundle_key.c_str(), key_in_bundle.c_str(), linekey.c_str());
+			plurals_map.emplace(linekey, pair_to_emplace);
+		}
+
+		/* const std::string &bundle_key = sanitized_key.at(0);
+		const std::string &key_in_bundle = sanitized_key.at(1);
+		StringBundle &bundle = this->bundles[bundle_key];
+		Position errorpos(filename, line_number);
+
+		StringNode str_node;
+		str_node.name = key_in_bundle;
+		str_node.text = value;
+		str_node.text_pos = errorpos;
+		str_node.key = bundle_key;
+		str_node.lang_index = lang_idx;
+
+		std::shared_ptr<StringsNode> strings_node = std::make_shared<StringsNode>();
+		strings_node->Add(str_node, errorpos);
+		bundle.Fill(strings_node, errorpos); */
+	}
+#undef SYNTAX_ERROR
+
+	stream.close();
+
+	/* Now parse the meta info for language index and plural forms.  */
+	if (results.count("meta") == 0) SYNTAX_ERROR_L(0, "Bundle 'meta' missing");
+	const BundleContent &metamap = results.at("meta");
+
+	auto extract_singular_meta_string = [&metamap, filename](std::string key) {
+		const auto meta_key = metamap.find(key);
+		if (meta_key == metamap.end()) SYNTAX_ERROR_L(0, "Key 'meta'.'%s' missing", key.c_str());
+		const PluralizedString &meta_key_str = meta_key->second;
+		if (meta_key_str.size() != 1 || !meta_key_str.begin()->first.empty()) SYNTAX_ERROR_L(0, "'meta'.'%s' may not be pluralized", key.c_str());
+		return meta_key_str.begin()->second;
+	};
+
+	const PluralForm &lang_name = extract_singular_meta_string("lang");
+	const int lang_idx = GetLanguageIndex(lang_name.first.c_str(), lang_name.second);
+	if (lang_idx < 0) SYNTAX_ERROR_L(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
+
+	extract_singular_meta_string("rule");  // Just to check that it exists.
+
+	const PluralForm &nplurals_str = extract_singular_meta_string("nplurals");
+	int nplurals;
+	try {
+		nplurals = stoi(nplurals_str.first);
+	} catch (const std::exception&) {
+		SYNTAX_ERROR_L(nplurals_str.second.line, "nplurals '%s' is not a number", nplurals_str.first.c_str());
+	}
+	if (nplurals < 1) SYNTAX_ERROR_L(nplurals_str.second.line, "nplurals %d must be >= 1", nplurals);
+
+	std::vector<std::string> plural_names(nplurals);
+	std::map<std::string, int> plural_name_to_index;
+	for (int p = 0; p < nplurals; ++p) {
+		const PluralForm &plural_name = extract_singular_meta_string(std::string("plural_") + std::to_string(p));
+		if (plural_name.first.empty()) SYNTAX_ERROR_L(plural_name.second.line, "Empty plural name");
+		if (plural_name_to_index.count(plural_name.first) > 0) {
+			SYNTAX_ERROR_L(plural_name.second.line, "Duplicate plural name '%s'", plural_name.first.c_str());
+		}
+		plural_names.at(p) = plural_name.first;
+		plural_name_to_index.emplace(plural_name.first, p);
+	}
+
+	/* Finally, fill in the string storage with the parsed data. */
+	for (const std::pair<std::string, BundleContent> &bundle : results) {
+		StringBundle &stringbundle = this->bundles[bundle.first];
+		std::shared_ptr<StringsNode> strings_node = std::make_shared<StringsNode>();
+
+		for (const std::pair<std::string, PluralizedString> &contained_string : bundle.second) {
+			/* Verify that all plural forms match. */
+			const int found_nplurals = contained_string.second.size();
+			if (found_nplurals != 1 && found_nplurals != nplurals) {
+				SYNTAX_ERROR_L(contained_string.second.begin()->second.second.line,
+						"Wrong number of plural forms (expected %d, got %d)", nplurals, found_nplurals);
+			}
+			if (found_nplurals == 1) {
+				if (!contained_string.second.begin()->first.empty() &&
+						!(nplurals == 1 && contained_string.second.begin()->first == plural_names.at(0))) {
+					SYNTAX_ERROR_L(contained_string.second.begin()->second.second.line, "Plural form for non-pluralized string");
+				}
+			} else {
+				std::vector<bool> present(nplurals);
+				for (const std::pair<std::string, PluralForm> &found_plural_forms : contained_string.second) {
+					const auto plural_index = plural_name_to_index.find(found_plural_forms.first);
+					if (plural_index == plural_name_to_index.end()) {
+						SYNTAX_ERROR_L(found_plural_forms.second.second.line, "Invalid plural name '%s'", found_plural_forms.first.c_str());
+					}
+					if (present.at(plural_index->second)) {
+						SYNTAX_ERROR_L(found_plural_forms.second.second.line, "Duplicate plural key '%s'", found_plural_forms.first.c_str());
+					}
+					present.at(plural_index->second) = true;
+				}
+			}
+
+			/* Store the string in a form that can be parsed by the RCD generator. */
+			// NOCOM plural forms
+			const PluralForm &insertme = contained_string.second.begin()->second;
+			StringNode str_node;
+			str_node.name = contained_string.first;
+			str_node.text = insertme.first;
+			str_node.text_pos = insertme.second;
+			str_node.key = bundle.first;
+			str_node.lang_index = lang_idx;
+			strings_node->Add(str_node, insertme.second);
+		}
+		stringbundle.Fill(strings_node, Position(filename, 0));
+	}
 }

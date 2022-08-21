@@ -5,14 +5,16 @@
 #
 
 strings:
-	plurals:
-		nplurals: 2
-		key_0: one
-		key_1: other
-	lang: "nds_DE"
+	meta:
+		nplurals: "2"
+		plural_0: "one"
+		plural_1: "other"
+		rule: "(n==1)?0:1"
+		lang: "nds_DE"
 
 	gui:
-		TITLEBAR_TIP:  "Klick de Titelbalken an, um dat Fenster na boven to halen treck de Titelbalken, um dat Fenster to verschuven"
+		TITLEBAR_TIP:  "Klick de Titelbalken an, um dat Fenster na boven to halen;\
+						\ treck de Titelbalken, um dat Fenster to verschuven"
 		LANGUAGE_NAME: "Plattdüütsch"
 		NOT_AVAILABLE: "k.A."
 
