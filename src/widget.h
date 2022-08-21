@@ -10,6 +10,7 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
+#include <functional>
 #include <memory>
 #include "window_constants.h"
 #include "geometry.h"
@@ -81,22 +82,26 @@ public:
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array);
 	virtual void SetSmallestSizePosition(const Rectangle16 &rect);
-	virtual void Draw(const GuiWindow *w);
+	void Draw(const GuiWindow *w);
+	virtual void DoDraw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void AutoRaiseButtons(const Point32 &base);
 	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
 	virtual bool OnMouseWheelEvent(int direction);
+	void SetVisible(GuiWindow *w, bool v);
 
 	void MarkDirty(const Point32 &base) const;
 
 	WidgetType wtype;    ///< Widget type.
 	WidgetNumber number; ///< Widget number.
 
+	bool visible;              ///< Whether this panel is visible.
 	uint16 smallest_x;         ///< Original horizontal size.
 	uint16 smallest_y;         ///< Original vertical size.
 	uint16 min_x;              ///< Minimal horizontal size.
 	uint16 min_y;              ///< Minimal vertical size.
 	Rectangle16 pos;           ///< Current position and size (relative to window top-left edge).
+	Point32 cached_window_base; ///< This widget's last window base position.
 	uint16 fill_x;             ///< Horizontal fill step.
 	uint16 fill_y;             ///< Vertical fill step.
 	uint16 resize_x;           ///< Horizontal resize step.
@@ -135,7 +140,7 @@ public:
 	LeafWidget(WidgetType wtype);
 
 	virtual void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
-	virtual void Draw(const GuiWindow *w) override;
+	virtual void DoDraw(const GuiWindow *w) override;
 	virtual void AutoRaiseButtons(const Point32 &base) override;
 
 	/**
@@ -207,7 +212,7 @@ public:
 	DataWidget(WidgetType wtype);
 
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
-	void Draw(const GuiWindow *w) override;
+	void DoDraw(const GuiWindow *w) override;
 
 	uint16 value;     ///< String number or sprite id.
 	int value_width;  ///< Width of the image or the string.
@@ -229,14 +234,15 @@ public:
 
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
-	void Draw(const GuiWindow *w) override;
+	void DoDraw(const GuiWindow *w) override;
+
+	std::function<void()> text_changed;  ///< Called when the text has been modified.
 
 private:
 	std::string buffer;               ///< Currently held text.
 	size_t cursor_pos;                ///< Position of the cursor in the text.
 	int value_width;                  ///< Width of the image or the string.
 	int value_height;                 ///< Height of the image or the string.
-	Point32 cached_window_base;       ///< This widget's last window base position.
 };
 
 /**
@@ -262,7 +268,7 @@ public:
 	void SetScrolled(const BaseWidget *canvas);
 
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
-	void Draw(const GuiWindow *w) override;
+	void DoDraw(const GuiWindow *w) override;
 
 	void OnClick(const Point32 &base, const Point16 &pos);
 	bool OnMouseWheelEvent(int direction) override;
@@ -281,7 +287,6 @@ private:
 	uint start;               ///< Index of first visible item.
 	uint item_size;           ///< Size of an item if not \c 0, else use #canvas.
 	const BaseWidget *canvas; ///< %Widget being scrolled.
-	Point32 cached_window_base;  ///< This widget's last window base position.
 
 	int GetDecrementButtonSize() const;
 	int GetIncrementButtonSize() const;
@@ -300,7 +305,7 @@ public:
 
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void SetSmallestSizePosition(const Rectangle16 &rect) override;
-	void Draw(const GuiWindow *w) override;
+	void DoDraw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
@@ -341,7 +346,7 @@ public:
 
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void SetSmallestSizePosition(const Rectangle16 &rect) override;
-	void Draw(const GuiWindow *w) override;
+	void DoDraw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
 	BaseWidget *FindTooltipWidget(const Point16 &pt) override;

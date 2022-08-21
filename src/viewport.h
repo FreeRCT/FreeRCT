@@ -132,4 +132,14 @@ protected:
 
 void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
 
+/**
+ * Convert a voxel coordinate to the pixel coordinate of its top-left corner.
+ * @param voxel The voxel coordinate.
+ * @return The pixel coordinate.
+ */
+inline XYZPoint32 VoxelToPixel(const XYZPoint16 &voxel)
+{
+	return XYZPoint32(voxel.x * 256, voxel.y * 256, voxel.z * 256);
+}
+
 #endif

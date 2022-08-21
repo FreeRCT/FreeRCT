@@ -14,6 +14,14 @@
 
 uint32 Random::seed = 0;
 
+/** Reinitialize the random number generator. */
+void Random::Initialize()
+{
+	seed = time(nullptr);
+	/* Shuffle it a bit with modular arithmetic to ensure seeds are not limited to a small range. */
+	seed = static_cast<uint64>(seed) * seed % 0x100000000;
+}
+
 /**
  * See whether we are lucky.
  * @param upper Upper bound on the value (exclusive), between \c 0 and \c 1024.
@@ -74,10 +82,6 @@ uint16 Random::Uniform(uint16 incl_upper)
  */
 uint32 Random::DrawNumber()
 {
-	if (seed == 0) {
-		seed = time(nullptr);
-	}
-
 	seed = 1664525UL * seed + 1013904223UL;
 	return seed;
 }

@@ -14,21 +14,30 @@
 assert_compile(TICK_COUNT_PER_DAY < (1 << CDB_FRAC_LENGTH)); ///< Day length should stay within the fraction limit.
 
 const int _days_per_month[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}; ///< Numbers of days in each 1-based month (in a non-leap year).
-static const int FIRST_MONTH = 3; ///< First month in the year that the park is open, 1-based.
-static const int LAST_MONTH = 9;  ///< Last month in the year that the park is open, 1-based.
 
 Date _date; ///< %Date in the program.
+
+/**
+ * How many days in the year the park is open.
+ * @return Days per year.
+ */
+int DaysInParkYear()
+{
+	int d = 0;
+	for (int m = FIRST_MONTH; m <= LAST_MONTH; ++m) d += _days_per_month[m];
+	return d;
+}
 
 /**
  * Constructor for a specific date.
  * @param pday Day of the month (1-based).
  * @param pmonth Month (1-based).
- * @param pyear Year (1-based).
+ * @param pyear Year (1-based, although a hypothetical year 0 is also valid).
  * @param pfrac Day fraction (0-based).
  */
 Date::Date(int pday, int pmonth, int pyear, int pfrac) : day(pday), month(pmonth), year(pyear), frac(pfrac)
 {
-	assert(pyear > 0 && pyear < (1 << CDB_YEAR_LENGTH));
+	assert(pyear >= 0 && pyear < (1 << CDB_YEAR_LENGTH));
 	assert(pmonth > 0 && pmonth < 13);
 	assert(pday > 0 && pday <= _days_per_month[pmonth]);
 	assert(pfrac >= 0 && pfrac < TICK_COUNT_PER_DAY);
@@ -58,7 +67,7 @@ Date::Date(CompressedDate cd)
 	int pday   = (cd >> CDB_DAY_START)   & ((1 << CDB_DAY_LENGTH)   - 1);
 	int pfrac  = (cd >> CDB_FRAC_START)  & ((1 << CDB_FRAC_LENGTH)  - 1);
 
-	assert(pyear > 0 && pyear < (1 << CDB_YEAR_LENGTH));
+	assert(pyear >= 0 && pyear < (1 << CDB_YEAR_LENGTH));
 	assert(pmonth > 0 && pmonth < 13);
 	assert(pday > 0 && pday <= _days_per_month[pmonth]);
 	assert(pfrac >= 0 && pfrac < TICK_COUNT_PER_DAY);
@@ -158,6 +167,19 @@ void DateOnTick()
 	OnNewDay();
 	if (newmonth) OnNewMonth();
 	if (newyear)  OnNewYear();
+}
+
+/**
+ * Compare two dates.
+ * @param d Date to compare.
+ * @return This date is earlier than the argument.
+ */
+bool Date::operator<(const Date &d) const
+{
+	if (this->year != d.year) return this->year < d.year;
+	if (this->month != d.month) return this->month < d.month;
+	if (this->day != d.day) return this->day < d.day;
+	return this->frac < d.frac;
 }
 
 static const uint32 CURRENT_VERSION_DATE = 1;   ///< Currently supported version of the DATE Pattern.

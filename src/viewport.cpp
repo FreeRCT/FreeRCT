@@ -1234,15 +1234,19 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 				ShowRideSelectGui();
 				return true;
 			}
-			if (symbol == "7") {  // 7 to open the staff window.
+			if (symbol == "7") {  // 7 to open the park management window.
+				ShowParkManagementGui();
+				return true;
+			}
+			if (symbol == "8") {  // 8 to open the staff window.
 				ShowStaffManagementGui();
 				return true;
 			}
-			if (symbol == "8") {  // 8 to open the inbox window.
+			if (symbol == "9") {  // 9 to open the inbox window.
 				ShowInboxGui();
 				return true;
 			}
-			if (symbol == "9") {  // 9 to open the finances window.
+			if (symbol == "0") {  // 0 to open the finances window.
 				ShowFinancesGui();
 				return true;
 			}

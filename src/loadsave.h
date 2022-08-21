@@ -11,7 +11,10 @@
 #define LOADSAVE_H
 
 #include <ctime>
+#include <memory>
 #include <vector>
+
+struct Scenario;
 
 static const std::string SAVEGAME_DIRECTORY("save");  ///< The directory where savegames are stored, relative to the user data directory.
 
@@ -74,11 +77,12 @@ private:
 
 /** Holds basic data about a savegame file. */
 struct PreloadData {
+	int fcts_version;           ///< Version number of the FCTS block.
 	bool load_success = false;  ///< Whether the header was loaded correctly. If this is \c false, all other data fields are invalid.
 	std::string filename;       ///< Name of the savegame file, without file path, with file extension.
 	time_t timestamp = 0;       ///< Timestamp when the savegame was created.
 	std::string revision;       ///< Program version with which the savegame was created.
-	std::string scenario_name;  ///< Name of the scenario.
+	std::unique_ptr<Scenario> scenario;  ///< Scenario parameters.
 
 	/**
 	 * Sorting operator to allow using PreloadData in ordered STL containers.

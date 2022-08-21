@@ -625,6 +625,8 @@ public:
 	void UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 height);
 	void AddEdgesWithoutBorderFence(const Point16& p, TileEdge e);
 
+	XYZPoint16 GetParkEntrance() const;
+
 	void Save(Saver &svr) const;
 	void Load(Loader &ldr);
 

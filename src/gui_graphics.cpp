@@ -134,6 +134,28 @@ void OverlayShaded(const Rectangle32 &rect)
 
 /**
  * Draw a string to the screen.
+ * @param buffer String to draw.
+ * @param colour Colour of the text.
+ * @param x X position at the screen.
+ * @param y Y position at the screen.
+ * @param width Maximal width of the text.
+ * @param align Horizontal alignment of the string.
+ * @param outline Whether to make the string "bold" (default false).
+ */
+void DrawString(const std::string &buffer, uint8 colour, int x, int y, int width, Alignment align, bool outline)
+{
+	/** \todo Reduce the naiviness of this. */
+	if (outline) {
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x + 1, y, width, align);
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x, y + 1, width, align);
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x - 1, y, width, align);
+		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x, y - 1, width, align);
+	}
+	_video.BlitText(buffer, _palette[colour], x, y, width, align);
+}
+
+/**
+ * Draw a string to the screen.
  * @param strid String to draw.
  * @param colour Colour of the text.
  * @param x X position at the screen.
@@ -144,15 +166,7 @@ void OverlayShaded(const Rectangle32 &rect)
  */
 void DrawString(StringID strid, uint8 colour, int x, int y, int width, Alignment align, bool outline)
 {
-	const std::string buffer = DrawText(strid);
-	/** \todo Reduce the naiviness of this. */
-	if (outline) {
-		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x + 1, y, width, align);
-		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x, y + 1, width, align);
-		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x - 1, y, width, align);
-		_video.BlitText(buffer, MakeRGBA(0, 0, 0, OPAQUE), x, y - 1, width, align);
-	}
-	_video.BlitText(buffer, _palette[colour], x, y, width, align);
+	DrawString(DrawText(strid), colour, x, y, width, align, outline);
 }
 
 /**
