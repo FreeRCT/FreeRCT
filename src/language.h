@@ -174,7 +174,9 @@ private:
 	const TextString *registered[2048]; // Arbitrary size.
 	uint first_free; ///< 'First' string index that is not allocated yet.
 
-	std::unique_ptr<EvaluateableExpression> plural_forms[LANGUAGE_COUNT];
+	std::unique_ptr<EvaluateableExpression> plural_forms[LANGUAGE_COUNT];  ///< Compiled expression for every language's plural rule.
+	int nplurals                                        [LANGUAGE_COUNT];  ///< Number of plural forms in each language.
+	int singular_form_index                             [LANGUAGE_COUNT];  ///< The plural form index for amount 1, cached for performance.
 };
 
 int GetLanguageIndex(const std::string &lang_name);

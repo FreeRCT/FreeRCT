@@ -269,6 +269,8 @@ Language::Language()
 void Language::Clear()
 {
 	std::fill_n(this->registered, lengthof(this->registered), nullptr);
+	std::fill_n(this->nplurals, lengthof(this->nplurals), 0);
+	std::fill_n(this->singular_form_index, lengthof(this->singular_form_index), -1);
 	this->first_free = GUI_STRING_TABLE_END;
 }
 
@@ -363,7 +365,18 @@ std::string Language::GetSgText(StringID number)
  */
 uint Language::GetPluralFormIndex(int lang_index, int64 amount)
 {
-	return this->plural_forms[lang_index]->Eval(amount);
+	if (amount == 1 && this->singular_form_index[lang_index] != -1) return this->singular_form_index[lang_index];
+
+	int result = this->plural_forms[lang_index]->Eval(amount);
+
+	if (result < 0 || result >= this->nplurals[lang_index]) {
+		fprintf(stderr, "FATAL ERROR: Invalid plural form %d in language %s with %d plural forms for input %lld\n",
+			result, _lang_names[lang_index].c_str(), this->nplurals[lang_index], amount);
+		exit(1);
+	}
+
+	if (amount == 1) this->singular_form_index[lang_index] = result;
+	return result;
 }
 
 /**
@@ -407,13 +420,13 @@ void Language::InitMetaInfo()
 		this->plural_forms[lang_index] = ParseEvaluateableExpression(rule->languages[lang_index].at(0));
 		assert(this->plural_forms[lang_index] != nullptr);
 
-		const int n = std::stoi(nplurals->languages[lang_index].at(0));
+		this->nplurals[lang_index] = std::stoi(nplurals->languages[lang_index].at(0));
 		for (const TextString *txt : this->registered) {
 			if (txt == nullptr) continue;
 			const int size = txt->languages[lang_index].size();
-			if (size > 1 && size != n) {
+			if (size > 1 && size != this->nplurals[lang_index]) {
 				fprintf(stderr, "Language %s has %d plurals, but string '%s' has %d.\n",
-						_lang_names[lang_index].c_str(), n, txt->name, size);
+						_lang_names[lang_index].c_str(), this->nplurals[lang_index], txt->name, size);
 				exit(1);
 			}
 		}
