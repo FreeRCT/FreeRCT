@@ -162,6 +162,7 @@ public:
 	void Clear();
 
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base = STR_GENERIC_END);
+	void InitMetaInfo();
 
 	std::string GetSgText(StringID number);
 	std::string GetPlural(StringID number, int64 amount);

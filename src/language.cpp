@@ -363,9 +363,6 @@ std::string Language::GetSgText(StringID number)
  */
 uint Language::GetPluralFormIndex(int lang_index, int64 amount)
 {
-	if (this->plural_forms[lang_index] == nullptr) {
-		this->plural_forms[lang_index] = ParseEvaluateableExpression(this->registered[LANG_META_rule]->languages[lang_index].at(0));
-	}
 	return this->plural_forms[lang_index]->Eval(amount);
 }
 
@@ -378,6 +375,49 @@ std::string Language::GetLanguageName(int lang_index)
 {
 	assert(lang_index < LANGUAGE_COUNT);
 	return this->registered[GUI_LANGUAGE_NAME]->languages[lang_index].at(0);
+}
+
+/**
+ * Check that all meta info is present and sane,
+ * and that all pluralized strings match their language's specifications,
+ * and cache meta info for later access.
+ */
+void Language::InitMetaInfo()
+{
+	const TextString *nplurals = this->registered[LANG_META_nplurals];
+	const TextString *rule = this->registered[LANG_META_rule];
+	if (nplurals == nullptr) {
+		fprintf(stderr, "Missing nplurals rules!\n");
+		exit(1);
+	}
+	if (rule == nullptr) {
+		fprintf(stderr, "Missing plural forms rules!\n");
+		exit(1);
+	}
+	for (int lang_index = 0; lang_index < LANGUAGE_COUNT; ++lang_index) {
+		if (nplurals->languages[lang_index].size() != 1) {
+			fprintf(stderr, "Language %s must have exactly one nplurals rule.\n", _lang_names[lang_index].c_str());
+			exit(1);
+		}
+		if (rule->languages[lang_index].size() != 1) {
+			fprintf(stderr, "Language %s must have exactly one plural forms rule.\n", _lang_names[lang_index].c_str());
+			exit(1);
+		}
+
+		this->plural_forms[lang_index] = ParseEvaluateableExpression(rule->languages[lang_index].at(0));
+		assert(this->plural_forms[lang_index] != nullptr);
+
+		const int n = std::stoi(nplurals->languages[lang_index].at(0));
+		for (const TextString *txt : this->registered) {
+			if (txt == nullptr) continue;
+			const int size = txt->languages[lang_index].size();
+			if (size > 1 && size != n) {
+				fprintf(stderr, "Language %s has %d plurals, but string '%s' has %d.\n",
+						_lang_names[lang_index].c_str(), n, txt->name, size);
+				exit(1);
+			}
+		}
+	}
 }
 
 /**
@@ -666,6 +706,7 @@ void InitLanguage()
 		const char *environment_variable = getenv(var);
 		if (environment_variable != nullptr && TrySetLanguage(environment_variable)) break;
 	}
+	_language.InitMetaInfo();
 }
 
 /** Clean up the language. */
