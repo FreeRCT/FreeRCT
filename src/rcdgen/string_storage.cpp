@@ -52,10 +52,14 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	std::string line;
 	int32 line_number = 0;
 
-#define SYNTAX_ERROR_VL(line, msg, ...) do { fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line, __VA_ARGS__); exit(1); } while (false)
-#define SYNTAX_ERROR_L(line, msg) do { fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line); exit(1); } while (false)
-#define SYNTAX_ERROR_V(...) SYNTAX_ERROR_VL(line_number, __VA_ARGS__)
-#define SYNTAX_ERROR(msg) SYNTAX_ERROR_L(line_number, msg)
+#define SYNTAX_ERROR_V(line, msg, ...) do {  \
+	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line, __VA_ARGS__);  \
+	exit(1);  \
+} while (false)
+#define SYNTAX_ERROR(line, msg) do {  \
+	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line);  \
+	exit(1);  \
+} while (false)
 
 	while (stream.peek() != EOF) {
 		++line_number;
@@ -85,7 +89,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 		/* Read the YAML key in this line. */
 		std::string linekey;
 		for (;; ++pos) {
-			if (pos >= nr_chars) SYNTAX_ERROR("Unterminated line after identifier");
+			if (pos >= nr_chars) SYNTAX_ERROR(line_number, "Unterminated line after identifier");
 			if (line[pos] == '_' || line[pos] == '-' ||
 					(line[pos] >= 'A' && line[pos] <= 'Z') ||
 					(line[pos] >= 'a' && line[pos] <= 'z') ||
@@ -93,8 +97,8 @@ void StringsStorage::ReadFromYAML(const char *filename)
 				linekey += line[pos];
 				continue;
 			}
-			if (line[pos] != ':') SYNTAX_ERROR_V("Invalid identifier character '%c'", line[pos]);
-			if (linekey.empty()) SYNTAX_ERROR("Empty identifier");
+			if (line[pos] != ':') SYNTAX_ERROR_V(line_number, "Invalid identifier character '%c'", line[pos]);
+			if (linekey.empty()) SYNTAX_ERROR(line_number, "Empty identifier");
 			++pos;
 			break;
 		}
@@ -109,8 +113,8 @@ void StringsStorage::ReadFromYAML(const char *filename)
 			continue;
 		}
 
-		if (nesting.empty()) SYNTAX_ERROR("Top-level values are forbidden");
-		if (nesting.at(0) != "strings") SYNTAX_ERROR("All strings must be in the 'strings' namespace");
+		if (nesting.empty()) SYNTAX_ERROR(line_number, "Top-level values are forbidden");
+		if (nesting.at(0) != "strings") SYNTAX_ERROR(line_number, "All strings must be in the 'strings' namespace");
 
 		std::string value;
 		if (line[pos] != '\"' && (line[pos] != '\'')) {
@@ -122,7 +126,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 			const char delimiter = line[pos];
 			++pos;
 			for (;; ++pos) {
-				if (pos >= nr_chars) SYNTAX_ERROR("Unterminated line in quoted value");
+				if (pos >= nr_chars) SYNTAX_ERROR(line_number, "Unterminated line in quoted value");
 				if (line[pos] == delimiter) break;  // End of quoted string.
 				if (line[pos] != '\\') {
 					value.push_back(line[pos]);
@@ -149,13 +153,13 @@ void StringsStorage::ReadFromYAML(const char *filename)
 							value.push_back('\'');
 							break;
 						default:
-							SYNTAX_ERROR_V("Invalid escape character '%c'", line[pos]);
+							SYNTAX_ERROR_V(line_number, "Invalid escape character '%c'", line[pos]);
 					}
 					continue;
 				}
 
 				/* The backslash escapes a line break. Load the next line and continue reading (discarding leading whitespace). */
-				if (stream.peek() == EOF) SYNTAX_ERROR("Unterminated string at end of file");
+				if (stream.peek() == EOF) SYNTAX_ERROR(line_number, "Unterminated string at end of file");
 				++line_number;
 				std::getline(stream, line);
 				nr_chars = line.size();
@@ -168,7 +172,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 			++pos;
 			for (; pos < nr_chars; ++pos) {
 				if (line[pos] == '#') break;
-				if (line[pos] != ' ' && line[pos] != '\t') SYNTAX_ERROR("Additional data after end of string");
+				if (line[pos] != ' ' && line[pos] != '\t') SYNTAX_ERROR(line_number, "Additional data after end of string");
 			}
 		}
 
@@ -182,8 +186,8 @@ void StringsStorage::ReadFromYAML(const char *filename)
 				++sanitized_key_len;
 			}
 		}
-		if (sanitized_key_len == 0) SYNTAX_ERROR("Key not nested deply enough");
-		if (sanitized_key_len > 2) SYNTAX_ERROR("Key nested too deply");
+		if (sanitized_key_len == 0) SYNTAX_ERROR(line_number, "Key not nested deply enough");
+		if (sanitized_key_len > 2) SYNTAX_ERROR(line_number, "Key nested too deply");
 		sanitized_key.push_back(linekey);
 
 		std::string &bundle_key = sanitized_key.at(0);
@@ -193,34 +197,34 @@ void StringsStorage::ReadFromYAML(const char *filename)
 		PluralizedString &plurals_map = results[bundle_key][key_in_bundle];
 		if (sanitized_key_len == 1) {
 			/* Ordinary string. */
-			if (!plurals_map.empty()) SYNTAX_ERROR_V("Duplicate key %s.%s", bundle_key.c_str(), key_in_bundle.c_str());
+			if (!plurals_map.empty()) SYNTAX_ERROR_V(line_number, "Duplicate key %s.%s", bundle_key.c_str(), key_in_bundle.c_str());
 			plurals_map.emplace(std::string(), pair_to_emplace);
 		} else {
 			/* Plural form. */
-			if (plurals_map.count(linekey) > 0) SYNTAX_ERROR_V("Duplicate plural form %s.%s.%s", bundle_key.c_str(), key_in_bundle.c_str(), linekey.c_str());
+			if (plurals_map.count(linekey) > 0) {
+				SYNTAX_ERROR_V(line_number, "Duplicate plural form %s.%s.%s", bundle_key.c_str(), key_in_bundle.c_str(), linekey.c_str());
+			}
 			plurals_map.emplace(linekey, pair_to_emplace);
 		}
 	}
-#undef SYNTAX_ERROR_V
-#undef SYNTAX_ERROR
 
 	stream.close();
 
 	/* Now parse the meta info for language index and plural forms.  */
-	if (results.count("meta") == 0) SYNTAX_ERROR_L(0, "Bundle 'meta' missing");
+	if (results.count("meta") == 0) SYNTAX_ERROR(0, "Bundle 'meta' missing");
 	const BundleContent &metamap = results.at("meta");
 
 	auto extract_singular_meta_string = [&metamap, filename](std::string key) {
 		const auto meta_key = metamap.find(key);
-		if (meta_key == metamap.end()) SYNTAX_ERROR_VL(0, "Key 'meta'.'%s' missing", key.c_str());
+		if (meta_key == metamap.end()) SYNTAX_ERROR_V(0, "Key 'meta'.'%s' missing", key.c_str());
 		const PluralizedString &meta_key_str = meta_key->second;
-		if (meta_key_str.size() != 1 || !meta_key_str.begin()->first.empty()) SYNTAX_ERROR_VL(0, "'meta'.'%s' may not be pluralized", key.c_str());
+		if (meta_key_str.size() != 1 || !meta_key_str.begin()->first.empty()) SYNTAX_ERROR_V(0, "'meta'.'%s' may not be pluralized", key.c_str());
 		return meta_key_str.begin()->second;
 	};
 
 	const PluralForm &lang_name = extract_singular_meta_string("lang");
 	const int lang_idx = GetLanguageIndex(lang_name.first.c_str(), lang_name.second);
-	if (lang_idx < 0) SYNTAX_ERROR_VL(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
+	if (lang_idx < 0) SYNTAX_ERROR_V(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
 
 	ParseEvaluateableExpression(extract_singular_meta_string("rule").first);  // Just to check that the rule exists and the syntax is valid.
 
@@ -229,17 +233,17 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	try {
 		nplurals = stoi(nplurals_str.first);
 	} catch (const std::exception&) {
-		SYNTAX_ERROR_VL(nplurals_str.second.line, "nplurals '%s' is not a number", nplurals_str.first.c_str());
+		SYNTAX_ERROR_V(nplurals_str.second.line, "nplurals '%s' is not a number", nplurals_str.first.c_str());
 	}
-	if (nplurals < 1) SYNTAX_ERROR_VL(nplurals_str.second.line, "nplurals %d must be >= 1", nplurals);
+	if (nplurals < 1) SYNTAX_ERROR_V(nplurals_str.second.line, "nplurals %d must be >= 1", nplurals);
 
 	std::vector<std::string> plural_names(nplurals);
 	std::map<std::string, int> plural_name_to_index;
 	for (int p = 0; p < nplurals; ++p) {
 		const PluralForm &plural_name = extract_singular_meta_string(std::string("plural_") + std::to_string(p));
-		if (plural_name.first.empty()) SYNTAX_ERROR_L(plural_name.second.line, "Empty plural name");
+		if (plural_name.first.empty()) SYNTAX_ERROR(plural_name.second.line, "Empty plural name");
 		if (plural_name_to_index.count(plural_name.first) > 0) {
-			SYNTAX_ERROR_VL(plural_name.second.line, "Duplicate plural name '%s'", plural_name.first.c_str());
+			SYNTAX_ERROR_V(plural_name.second.line, "Duplicate plural name '%s'", plural_name.first.c_str());
 		}
 		plural_names.at(p) = plural_name.first;
 		plural_name_to_index.emplace(plural_name.first, p);
@@ -254,23 +258,23 @@ void StringsStorage::ReadFromYAML(const char *filename)
 			/* Verify that all plural forms match. */
 			const int found_nplurals = contained_string.second.size();
 			if (found_nplurals != 1 && found_nplurals != nplurals) {
-				SYNTAX_ERROR_VL(contained_string.second.begin()->second.second.line,
+				SYNTAX_ERROR_V(contained_string.second.begin()->second.second.line,
 						"Wrong number of plural forms (expected %d, got %d)", nplurals, found_nplurals);
 			}
 			if (found_nplurals == 1) {
 				if (!contained_string.second.begin()->first.empty() &&
 						!(nplurals == 1 && contained_string.second.begin()->first == plural_names.at(0))) {
-					SYNTAX_ERROR_L(contained_string.second.begin()->second.second.line, "Plural form for non-pluralized string");
+					SYNTAX_ERROR(contained_string.second.begin()->second.second.line, "Plural form for non-pluralized string");
 				}
 			} else {
 				std::vector<bool> present(nplurals);
 				for (const std::pair<std::string, PluralForm> &found_plural_forms : contained_string.second) {
 					const auto plural_index = plural_name_to_index.find(found_plural_forms.first);
 					if (plural_index == plural_name_to_index.end()) {
-						SYNTAX_ERROR_VL(found_plural_forms.second.second.line, "Invalid plural name '%s'", found_plural_forms.first.c_str());
+						SYNTAX_ERROR_V(found_plural_forms.second.second.line, "Invalid plural name '%s'", found_plural_forms.first.c_str());
 					}
 					if (present.at(plural_index->second)) {
-						SYNTAX_ERROR_VL(found_plural_forms.second.second.line, "Duplicate plural key '%s'", found_plural_forms.first.c_str());
+						SYNTAX_ERROR_V(found_plural_forms.second.second.line, "Duplicate plural key '%s'", found_plural_forms.first.c_str());
 					}
 					present.at(plural_index->second) = true;
 				}
