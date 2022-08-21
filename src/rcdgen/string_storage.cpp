@@ -163,6 +163,13 @@ void StringsStorage::ReadFromYAML(const char *filename)
 				for (; pos < nr_chars && (line[pos] == ' ' || line[pos] == '\t'); ++pos);
 				--pos;
 			}
+
+			/* Check that the line ends after the closing quote. */
+			++pos;
+			for (; pos < nr_chars; ++pos) {
+				if (line[pos] == '#') break;
+				if (line[pos] != ' ' && line[pos] != '\t') SYNTAX_ERROR("Additional data after end of string");
+			}
 		}
 
 		/* Extract the actual key inheritance chain. */

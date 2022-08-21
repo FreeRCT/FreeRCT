@@ -31,15 +31,15 @@ strings:
 		MONTH_NOVEMBER:  "November"
 		MONTH_DECEMBER:  "December"
 
-		OBJECTIVE_TIMEOUT_BEFORE:  "This objective must be met before %1%.";
-		OBJECTIVE_TIMEOUT_EXACT:   "This objective must be met at %1%.";
-		OBJECTIVE_TIMEOUT_NONE:    "This objective can be met at any time.";
-		OBJECTIVE_STRICT:          "This objective must be met at all times!";
-		OBJECTIVETEXT_NONE:        "Have fun!";
+		OBJECTIVE_TIMEOUT_BEFORE:  "This objective must be met before %1%."
+		OBJECTIVE_TIMEOUT_EXACT:   "This objective must be met at %1%."
+		OBJECTIVE_TIMEOUT_NONE:    "This objective can be met at any time."
+		OBJECTIVE_STRICT:          "This objective must be met at all times!"
+		OBJECTIVETEXT_NONE:        "Have fun!"
 		OBJECTIVETEXT_GUESTS:
-			one:   "Have at least %1% guest in your park.";
-			other: "Have at least %1% guests in your park.";
-		OBJECTIVETEXT_PARK_RATING: "Achieve a park rating of at least %1%.";
+			one:   "Have at least %1% guest in your park."
+			other: "Have at least %1% guests in your park."
+		OBJECTIVETEXT_PARK_RATING: "Achieve a park rating of at least %1%."
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%x%2%"
@@ -90,8 +90,8 @@ strings:
 		TOOLBAR_GUI_TOOLTIP_STAFF:        "Hire and dismiss staff"
 		TOOLBAR_GUI_INBOX:                "Inbox"
 		TOOLBAR_GUI_TOOLTIP_INBOX:        "View all your messages"
-		TOOLBAR_GUI_PARK:                 "Park Management";
-		TOOLBAR_GUI_TOOLTIP_PARK:         "Manage your park's details";
+		TOOLBAR_GUI_PARK:                 "Park Management"
+		TOOLBAR_GUI_TOOLTIP_PARK:         "Manage your park's details"
 
 		BOTTOMBAR_GUESTCOUNT:
 			one:   "%1% guest"
@@ -124,7 +124,7 @@ strings:
 		# Person status strings.
 		PERSON_STATUS_WANDER:          "Wandering"
 		PERSON_STATUS_HEADING_TO_RIDE: "Heading to %s"
-		PERSON_STATUS_GOING_HOME:      "Going home";
+		PERSON_STATUS_GOING_HOME:      "Going home"
 		PERSON_STATUS_INSPECTING:      "Inspecting %s"
 		PERSON_STATUS_REPAIRING:       "Repairing %s"
 		PERSON_STATUS_WATERING:        "Watering the flowerbeds"
@@ -276,20 +276,20 @@ strings:
 		TERRAFORM_MOVE_TEXT:   "Move terraform area as-is"
 
 		# Park management gui strings.
-		PARK_MANAGEMENT_TAB_GENERAL:           "General";
-		PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP:   "Manage general park settings";
-		PARK_MANAGEMENT_TAB_GUESTS:            "Guests";
-		PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP:    "Show number of guests in the park over time";
-		PARK_MANAGEMENT_TAB_RATING:            "Rating";
-		PARK_MANAGEMENT_TAB_RATING_TOOLTIP:    "Show the park rating over time";
-		PARK_MANAGEMENT_TAB_OBJECTIVE:         "Objective";
-		PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: "View the scenario objective";
-		PARK_MANAGEMENT_TAB_AWARDS:            "Awards";
-		PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP:    "View awards your park has received";
-		PARK_MANAGEMENT_RATING:                "Park Rating: %1%";
-		PARK_MANAGEMENT_NO_AWARDS:             "The park did not receive any awards recently.";
-		PARK_MANAGEMENT_PARKNAME:              "Park name:";
-		PARK_MANAGEMENT_ENTRANCE_FEE:          "Entrance fee:";
+		PARK_MANAGEMENT_TAB_GENERAL:           "General"
+		PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP:   "Manage general park settings"
+		PARK_MANAGEMENT_TAB_GUESTS:            "Guests"
+		PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP:    "Show number of guests in the park over time"
+		PARK_MANAGEMENT_TAB_RATING:            "Rating"
+		PARK_MANAGEMENT_TAB_RATING_TOOLTIP:    "Show the park rating over time"
+		PARK_MANAGEMENT_TAB_OBJECTIVE:         "Objective"
+		PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: "View the scenario objective"
+		PARK_MANAGEMENT_TAB_AWARDS:            "Awards"
+		PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP:    "View awards your park has received"
+		PARK_MANAGEMENT_RATING:                "Park Rating: %1%"
+		PARK_MANAGEMENT_NO_AWARDS:             "The park did not receive any awards recently."
+		PARK_MANAGEMENT_PARKNAME:              "Park name:"
+		PARK_MANAGEMENT_ENTRANCE_FEE:          "Entrance fee:"
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Minimap"
