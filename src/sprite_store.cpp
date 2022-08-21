@@ -159,9 +159,16 @@ bool TextData::Load(RcdFileReader *rcd_file)
 			int lang_idx = GetLanguageIndex(lang_buffer);
 			/* Read translation text. */
 			if (lang_idx >= 0) {
-				strings[used_strings].languages[lang_idx] = buffer + used_size;
+				const char *split = buffer + used_size;
 				if (!ReadUtf8Text(rcd_file, text_length, buffer, lengthof(buffer), plural_forms - 1, &used_size)) return false;
-				// NOCOM separate the plural forms
+				/* Split the string into plural forms. */
+				std::vector<const char*> &vector = strings[used_strings].languages[lang_idx];
+				vector.resize(plural_forms, nullptr);
+				vector.at(0) = split++;
+				for (int i = 1; i < plural_forms; ++i) {
+					for (; *split != 0; ++split);
+					vector.at(i) = split++;
+				}
 			} else {
 				/* Illegal language, read into a dummy buffer. */
 				used = 0;
@@ -185,8 +192,11 @@ bool TextData::Load(RcdFileReader *rcd_file)
 	for (uint i = 0; i < used_strings; i++) {
 		this->strings[i].name = (strings[i].name == nullptr) ? nullptr : (this->text_data.get() + (strings[i].name - buffer));
 		for (uint lng = 0; lng < LANGUAGE_COUNT; lng++) {
-			this->strings[i].languages[lng] = (strings[i].languages[lng] == nullptr)
-					? nullptr : (this->text_data.get() + (strings[i].languages[lng] - buffer));
+			if (strings[i].languages[lng].empty() || strings[i].languages[lng].at(0) == nullptr) {
+				this->strings[i].languages[lng] = {nullptr};
+			} else {
+				this->strings[i].languages[lng] = {(this->text_data.get() + (strings[i].languages[lng].at(0) - buffer))};
+			}
 		}
 	}
 	return true;

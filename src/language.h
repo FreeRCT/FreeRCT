@@ -99,21 +99,11 @@ public:
 
 	void Clear();
 
-	/**
-	 * Get the string in the currently selected language.
-	 * @return Text of this string in the currently selected language.
-	 */
-	std::string GetString() const
-	{
-		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return "<out of bounds>";
-		if (this->languages[_current_language] != nullptr) return this->languages[_current_language];
-		if (this->languages[LANG_EN_GB] != nullptr) return this->languages[LANG_EN_GB];
-		return "<no-text>";
-	}
+	std::string GetString(uint plural) const;
 
 	/* Memory is not owned. */
-	const char* name;                       ///< Name of the string.
-	const char* languages[LANGUAGE_COUNT];  ///< The string in all languages.
+	const char* name;                                    ///< Name of the string.
+	std::vector<const char*> languages[LANGUAGE_COUNT];  ///< The string in all languages, indexed by plural form.
 };
 
 /** Types of parameters for string parameters. */

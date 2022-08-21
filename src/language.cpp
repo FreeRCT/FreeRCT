@@ -35,7 +35,26 @@ TextString::TextString()
 void TextString::Clear()
 {
 	this->name = nullptr;
-	std::fill_n(this->languages, lengthof(this->languages), nullptr);
+	std::fill_n(this->languages, lengthof(this->languages), std::vector<const char*>());
+}
+
+/**
+ * Get the string in the currently selected language.
+ * @param plural The plural form index (should be \c 0 for non-pluralized strings).
+ * @return Text of this string in the currently selected language.
+ */
+std::string TextString::GetString(const uint plural) const
+{
+	if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) {
+		return "<out of bounds>";
+	}
+	if (plural < this->languages[_current_language].size() && this->languages[_current_language].at(plural) != nullptr) {
+		return this->languages[_current_language].at(plural);
+	}
+	if (plural < this->languages[LANG_EN_GB].size() && this->languages[LANG_EN_GB].at(plural) != nullptr) {
+		return this->languages[LANG_EN_GB].at(plural);
+	}
+	return "<no-text>";
 }
 
 /** Known languages. */
@@ -310,7 +329,7 @@ std::string Language::GetText(StringID number)
 	if (number < lengthof(default_strings)) return default_strings[number];
 
 	if (number < lengthof(this->registered) && this->registered[number] != nullptr) {
-		const std::string &text = this->registered[number]->GetString();
+		const std::string &text = this->registered[number]->GetString(0 /* NOCOM */);
 		if (text.empty()) return "<empty text>";
 		return text;
 	}
@@ -326,7 +345,7 @@ std::string Language::GetText(StringID number)
 std::string Language::GetLanguageName(int lang_index)
 {
 	assert(lang_index < LANGUAGE_COUNT);
-	return this->registered[GUI_LANGUAGE_NAME]->languages[lang_index];
+	return this->registered[GUI_LANGUAGE_NAME]->languages[lang_index].at(0);
 }
 
 /**
