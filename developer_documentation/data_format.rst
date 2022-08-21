@@ -255,7 +255,7 @@ What remains is a collection of names that are attached to text (the game
 queries text by name), where the latter may exist in several languages. All
 text is assumed to be UTF-8 encoded, and 0-terminated.
 
-FreeRCT can read version 2 text blocks, which look like
+FreeRCT can read version 3 text blocks, which look like
 
 ======  ======  ==========================================================
 Offset  Length  Description
@@ -271,27 +271,33 @@ Offset  Length  Description
 
 A string has the following structure.
 
-======  ======  ==========================================================
+======  ======  ============================================================================
 Offset  Length  Description
-======  ======  ==========================================================
+======  ======  ============================================================================
    0       2    Length of the entire string, including these length bytes.
    2       1    Length of the identification name of the string (incl 0).
    3       ?    Identification name itself (0 terminated)
    ?       ?    First translation.
    ?       ?    Second translation.
   ...     ...
-======  ======  ==========================================================
+======  ======  ============================================================================
 
 A translation has the following structure.
 
-======  ======  ==========================================================
+======  ======  ============================================================================
 Offset  Length  Description
-======  ======  ==========================================================
+======  ======  ============================================================================
    0       2    Length of this translation (including these length bytes).
    2       1    Length of the language name (incl 0).
    3       ?    Language name itself (0 terminated).
-   ?       ?    Text of the string in the indicated language (incl 0).
-======  ======  ==========================================================
+   ?       1    Number of plural forms of this string in the indicated language.
+   ?       ?    Text of the string's first plural form in this language (incl 0).
+   ?       ?    Text of the string's second plural form in this language (incl 0).
+  ...     ...
+======  ======  ============================================================================
+
+For non-pluralized strings, only the first plural form is written;
+otherwise as many plural forms as the language has.
 
 The languages use one of the following tags (currently ``name of language -
 name of country area`` but that may change in the future).
@@ -326,6 +332,7 @@ Version history
 - 1 (20120714) Initial version.
 - _ (20121215) Added string parameters.
 - 2 (20131204) Dropped the default language, ``en_GB`` now has that role.
+- 3 (20220821) Added plural forms.
 
 
 Game blocks

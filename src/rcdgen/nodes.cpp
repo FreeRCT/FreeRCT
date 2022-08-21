@@ -783,7 +783,8 @@ int TextNode::GetSize() const
 	int length = 2 + 1 + this->name.size() + 1;
 	for (int i = 0; i < LNG_COUNT; i++) {
 		if (this->pos[i].line < 0) continue;
-		length += 2 + (1 + strlen(_languages[i]) + 1) + this->texts[i].size() + 1;
+		length += 2 + (1 + strlen(_languages[i]) + 1) + 1;
+		for (const std::string &text : this->texts[i]) length += text.size() + 1;
 	}
 	return length;
 }
@@ -806,15 +807,21 @@ void TextNode::Write(FileBlock *fb) const
 	for (int i = 0; i < LNG_COUNT; i++) {
 		if (this->pos[i].line < 0) continue;
 		int lname_length = strlen(_languages[i]);
-		int lng_size = 2 + (1 + lname_length + 1) + this->texts[i].size() + 1;
+		int lng_size = 2 + (1 + lname_length + 1) + 1;
+		for (const std::string &str : this->texts[i]) lng_size += str.size() + 1;
+
 		fb->SaveUInt16(lng_size);
 		fb->SaveUInt8(lname_length + 1);
 		fb->SaveBytes((uint8 *)_languages[i], lname_length);
 		fb->SaveUInt8(0);
-		length -= 2 + 1 + lname_length + 1;
-		fb->SaveBytes((uint8 *)this->texts[i].c_str(), this->texts[i].size());
-		fb->SaveUInt8(0);
-		length -= this->texts[i].size() + 1;
+		fb->SaveUInt8(this->texts[i].size());
+		length -= 2 + 1 + lname_length + 1 + 1;
+
+		for (const std::string &str : this->texts[i]) {
+			fb->SaveBytes((uint8 *)str.c_str(), str.size());
+			fb->SaveUInt8(0);
+			length -= str.size() + 1;
+		}
 	}
 	assert(this->pos[LNG_EN_GB].line >= 0 && length == 0);
 }
@@ -833,7 +840,7 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 		fprintf(stderr, "Error at %s: Bundle gets key \"%s\" but already has key \"%s\".\n", pos.ToString(), this->key.c_str(), strs_key.c_str());
 		exit(1);
 	}
-	for (auto &str : strs->strings) {
+	for (StringNode &str : strs->strings) {
 		if (str.lang_index < 0) {
 			fprintf(stderr, "Error at %s: String does not have a language.\n", str.text_pos.ToString());
 			exit(1);
@@ -939,7 +946,7 @@ int StringBundle::Write(FileWriter *fw)
 	int length = 0;
 	for (const auto &iter : this->texts) length += iter.second.GetSize();
 
-	fb->StartSave("TEXT", 2, length);
+	fb->StartSave("TEXT", 3, length);
 	for (const auto &iter : this->texts) iter.second.Write(fb);
 	fb->CheckEndSave();
 

@@ -550,7 +550,7 @@ public:
 	virtual ~StringNode() = default;
 
 	std::string name;  ///< Name of the string.
-	std::string text;  ///< Text of the string named #name.
+	std::vector<std::string> text;  ///< Text of the string named #name, indexed by plural form.
 	Position text_pos; ///< Position of the text.
 	std::string key;   ///< Key of the bundle containing this string (if provided).
 	int lang_index;    ///< Language of the #text, negative if not defined. @see Languages
@@ -581,9 +581,9 @@ public:
 	int GetSize() const;
 	void Write(FileBlock *fb) const;
 
-	const std::string name;       ///< Name of the text node (used as key).
-	std::string texts[LNG_COUNT]; ///< Text of the text node, in each language.
-	Position pos[LNG_COUNT];      ///< Positions defining the text (negative lines means undefined).
+	const std::string name;                     ///< Name of the text node (used as key).
+	std::vector<std::string> texts[LNG_COUNT];  ///< Text of the text node, in each language, indexed by plural form.
+	Position pos[LNG_COUNT];                    ///< Positions defining the text (negative lines means undefined).
 };
 
 /** Collection of translated strings for a game object. */

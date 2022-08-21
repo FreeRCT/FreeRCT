@@ -230,7 +230,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	const int lang_idx = GetLanguageIndex(lang_name.first.c_str(), lang_name.second);
 	if (lang_idx < 0) SYNTAX_ERROR_L(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
 
-	extract_singular_meta_string("rule");  // Just to check that it exists.
+	extract_singular_meta_string("rule");  // Just to check that it exists. NOCOM verify that the rule is valid?
 
 	const PluralForm &nplurals_str = extract_singular_meta_string("nplurals");
 	int nplurals;
@@ -285,15 +285,17 @@ void StringsStorage::ReadFromYAML(const char *filename)
 			}
 
 			/* Store the string in a form that can be parsed by the RCD generator. */
-			// NOCOM plural forms
-			const PluralForm &insertme = contained_string.second.begin()->second;
 			StringNode str_node;
 			str_node.name = contained_string.first;
-			str_node.text = insertme.first;
-			str_node.text_pos = insertme.second;
 			str_node.key = bundle.first;
 			str_node.lang_index = lang_idx;
-			strings_node->Add(str_node, insertme.second);
+			str_node.text.resize(contained_string.second.size());
+			for (const std::pair<std::string, PluralForm> &form : contained_string.second) {
+				int pl_index = form.first.empty() ? 0 : plural_name_to_index.at(form.first);
+				str_node.text.at(pl_index) = form.second.first;
+				str_node.text_pos = form.second.second;
+			}
+			strings_node->Add(str_node, str_node.text_pos);
 		}
 		stringbundle.Fill(strings_node, Position(filename, 0));
 	}
