@@ -52,14 +52,8 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	std::string line;
 	int32 line_number = 0;
 
-#define SYNTAX_ERROR_VL(line, msg, ...) do {  \
-	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line, __VA_ARGS__);  \
-	exit(1);  \
-} while (false)
-#define SYNTAX_ERROR_L(line, msg) do {  \
-	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line);  \
-	exit(1);  \
-} while (false)
+#define SYNTAX_ERROR_VL(line, msg, ...) do { fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line, __VA_ARGS__); exit(1); } while (false)
+#define SYNTAX_ERROR_L(line, msg) do { fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line); exit(1); } while (false)
 #define SYNTAX_ERROR_V(...) SYNTAX_ERROR_VL(line_number, __VA_ARGS__)
 #define SYNTAX_ERROR(msg) SYNTAX_ERROR_L(line_number, msg)
 
