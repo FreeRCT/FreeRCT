@@ -12,6 +12,7 @@
 #include <string>
 
 #include "../stdafx.h"
+#include "../string_func.h"
 #include "ast.h"
 #include "nodes.h"
 #include "string_storage.h"
@@ -237,7 +238,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	const int lang_idx = GetLanguageIndex(lang_name.first.c_str(), lang_name.second);
 	if (lang_idx < 0) SYNTAX_ERROR_L(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
 
-	extract_singular_meta_string("rule");  // Just to check that it exists. NOCOM verify that the rule is valid?
+	ParseEvaluateableExpression(extract_singular_meta_string("rule").first);  // Just to check that the rule exists and the syntax is valid.
 
 	const PluralForm &nplurals_str = extract_singular_meta_string("nplurals");
 	int nplurals;
