@@ -52,11 +52,16 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	std::string line;
 	int32 line_number = 0;
 
-#define SYNTAX_ERROR_L(line, msg, ...) do {  \
-	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line, ##__VA_ARGS__);  \
+#define SYNTAX_ERROR_VL(line, msg, ...) do {  \
+	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line, __VA_ARGS__);  \
 	exit(1);  \
 } while (false)
-#define SYNTAX_ERROR(...) SYNTAX_ERROR_L(line_number, __VA_ARGS__)
+#define SYNTAX_ERROR_L(line, msg) do {  \
+	fprintf(stderr, "YAML syntax error at %s:%d: " msg "\n", filename, line);  \
+	exit(1);  \
+} while (false)
+#define SYNTAX_ERROR_V(...) SYNTAX_ERROR_VL(line_number, __VA_ARGS__)
+#define SYNTAX_ERROR(msg) SYNTAX_ERROR_L(line_number, msg)
 
 	while (stream.peek() != EOF) {
 		++line_number;
@@ -94,7 +99,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 				linekey += line[pos];
 				continue;
 			}
-			if (line[pos] != ':') SYNTAX_ERROR("Invalid identifier character '%c'", line[pos]);
+			if (line[pos] != ':') SYNTAX_ERROR_V("Invalid identifier character '%c'", line[pos]);
 			if (linekey.empty()) SYNTAX_ERROR("Empty identifier");
 			++pos;
 			break;
@@ -150,7 +155,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 							value.push_back('\'');
 							break;
 						default:
-							SYNTAX_ERROR("Invalid escape character '%c'", line[pos]);
+							SYNTAX_ERROR_V("Invalid escape character '%c'", line[pos]);
 					}
 					continue;
 				}
@@ -194,14 +199,15 @@ void StringsStorage::ReadFromYAML(const char *filename)
 		PluralizedString &plurals_map = results[bundle_key][key_in_bundle];
 		if (sanitized_key_len == 1) {
 			/* Ordinary string. */
-			if (!plurals_map.empty()) SYNTAX_ERROR("Duplicate key %s.%s", bundle_key.c_str(), key_in_bundle.c_str());
+			if (!plurals_map.empty()) SYNTAX_ERROR_V("Duplicate key %s.%s", bundle_key.c_str(), key_in_bundle.c_str());
 			plurals_map.emplace(std::string(), pair_to_emplace);
 		} else {
 			/* Plural form. */
-			if (plurals_map.count(linekey) > 0) SYNTAX_ERROR("Duplicate plural form %s.%s.%s", bundle_key.c_str(), key_in_bundle.c_str(), linekey.c_str());
+			if (plurals_map.count(linekey) > 0) SYNTAX_ERROR_V("Duplicate plural form %s.%s.%s", bundle_key.c_str(), key_in_bundle.c_str(), linekey.c_str());
 			plurals_map.emplace(linekey, pair_to_emplace);
 		}
 	}
+#undef SYNTAX_ERROR_V
 #undef SYNTAX_ERROR
 
 	stream.close();
@@ -212,15 +218,15 @@ void StringsStorage::ReadFromYAML(const char *filename)
 
 	auto extract_singular_meta_string = [&metamap, filename](std::string key) {
 		const auto meta_key = metamap.find(key);
-		if (meta_key == metamap.end()) SYNTAX_ERROR_L(0, "Key 'meta'.'%s' missing", key.c_str());
+		if (meta_key == metamap.end()) SYNTAX_ERROR_VL(0, "Key 'meta'.'%s' missing", key.c_str());
 		const PluralizedString &meta_key_str = meta_key->second;
-		if (meta_key_str.size() != 1 || !meta_key_str.begin()->first.empty()) SYNTAX_ERROR_L(0, "'meta'.'%s' may not be pluralized", key.c_str());
+		if (meta_key_str.size() != 1 || !meta_key_str.begin()->first.empty()) SYNTAX_ERROR_VL(0, "'meta'.'%s' may not be pluralized", key.c_str());
 		return meta_key_str.begin()->second;
 	};
 
 	const PluralForm &lang_name = extract_singular_meta_string("lang");
 	const int lang_idx = GetLanguageIndex(lang_name.first.c_str(), lang_name.second);
-	if (lang_idx < 0) SYNTAX_ERROR_L(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
+	if (lang_idx < 0) SYNTAX_ERROR_VL(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
 
 	ParseEvaluateableExpression(extract_singular_meta_string("rule").first);  // Just to check that the rule exists and the syntax is valid.
 
@@ -229,9 +235,9 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	try {
 		nplurals = stoi(nplurals_str.first);
 	} catch (const std::exception&) {
-		SYNTAX_ERROR_L(nplurals_str.second.line, "nplurals '%s' is not a number", nplurals_str.first.c_str());
+		SYNTAX_ERROR_VL(nplurals_str.second.line, "nplurals '%s' is not a number", nplurals_str.first.c_str());
 	}
-	if (nplurals < 1) SYNTAX_ERROR_L(nplurals_str.second.line, "nplurals %d must be >= 1", nplurals);
+	if (nplurals < 1) SYNTAX_ERROR_VL(nplurals_str.second.line, "nplurals %d must be >= 1", nplurals);
 
 	std::vector<std::string> plural_names(nplurals);
 	std::map<std::string, int> plural_name_to_index;
@@ -239,7 +245,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 		const PluralForm &plural_name = extract_singular_meta_string(std::string("plural_") + std::to_string(p));
 		if (plural_name.first.empty()) SYNTAX_ERROR_L(plural_name.second.line, "Empty plural name");
 		if (plural_name_to_index.count(plural_name.first) > 0) {
-			SYNTAX_ERROR_L(plural_name.second.line, "Duplicate plural name '%s'", plural_name.first.c_str());
+			SYNTAX_ERROR_VL(plural_name.second.line, "Duplicate plural name '%s'", plural_name.first.c_str());
 		}
 		plural_names.at(p) = plural_name.first;
 		plural_name_to_index.emplace(plural_name.first, p);
@@ -254,7 +260,7 @@ void StringsStorage::ReadFromYAML(const char *filename)
 			/* Verify that all plural forms match. */
 			const int found_nplurals = contained_string.second.size();
 			if (found_nplurals != 1 && found_nplurals != nplurals) {
-				SYNTAX_ERROR_L(contained_string.second.begin()->second.second.line,
+				SYNTAX_ERROR_VL(contained_string.second.begin()->second.second.line,
 						"Wrong number of plural forms (expected %d, got %d)", nplurals, found_nplurals);
 			}
 			if (found_nplurals == 1) {
@@ -267,10 +273,10 @@ void StringsStorage::ReadFromYAML(const char *filename)
 				for (const std::pair<std::string, PluralForm> &found_plural_forms : contained_string.second) {
 					const auto plural_index = plural_name_to_index.find(found_plural_forms.first);
 					if (plural_index == plural_name_to_index.end()) {
-						SYNTAX_ERROR_L(found_plural_forms.second.second.line, "Invalid plural name '%s'", found_plural_forms.first.c_str());
+						SYNTAX_ERROR_VL(found_plural_forms.second.second.line, "Invalid plural name '%s'", found_plural_forms.first.c_str());
 					}
 					if (present.at(plural_index->second)) {
-						SYNTAX_ERROR_L(found_plural_forms.second.second.line, "Duplicate plural key '%s'", found_plural_forms.first.c_str());
+						SYNTAX_ERROR_VL(found_plural_forms.second.second.line, "Duplicate plural key '%s'", found_plural_forms.first.c_str());
 					}
 					present.at(plural_index->second) = true;
 				}

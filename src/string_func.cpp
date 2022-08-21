@@ -256,7 +256,7 @@ namespace EvaluateableExpressionImpl {
 struct AbstractExpression;
 using Stack = std::vector<std::unique_ptr<AbstractExpression>>;
 
-#define ERROR(msg, ...) do { printf("Impossible operation: " msg "\n", ##__VA_ARGS__); exit(1); } while (false)
+#define ERROR(msg) do { printf("Impossible operation: " msg "\n"); exit(1); } while (false)
 
 /** A piece of an expression. */
 struct AbstractExpression : public EvaluateableExpression {
@@ -503,7 +503,6 @@ struct BinaryOr : public BinaryOperator {
 };
 
 #undef ERROR
-#define ERROR(msg, ...) do { printf("Expression reducing error: " msg "\n", ##__VA_ARGS__); exit(1); } while (false)
 
 /**
  * Reduce the expressions on the stack until no further reduction is possible.
@@ -542,8 +541,8 @@ static void Reduce(Stack &stack)
 	}
 }
 
-#undef ERROR
-#define ERROR(msg, ...) do { printf("Expression parsing error ['%s']: " msg "\n", input.c_str(), ##__VA_ARGS__); exit(1); } while (false)
+#define ERROR_V(msg, ...) do { printf("Expression parsing error ['%s']: " msg "\n", input.c_str(), __VA_ARGS__); exit(1); } while (false)
+#define ERROR(msg) do { printf("Expression parsing error ['%s']: " msg "\n", input.c_str()); exit(1); } while (false)
 
 /**
  * Parse the string representation of an expression.
@@ -607,7 +606,7 @@ static std::unique_ptr<AbstractExpression> Parse(const std::string &input)
 		if (input[pos] == '=') {
 			/* Should be an equals sign. */
 			if (pos + 1 >= in_len) ERROR("End of expression after '='");
-			if (input[pos + 1] != '=') ERROR("Invalid token '%c' after '='", input[pos + 1]);
+			if (input[pos + 1] != '=') ERROR_V("Invalid token '%c' after '='", input[pos + 1]);
 			stack.emplace_back(new BinaryEq);
 			pos += 2;
 			continue;
@@ -616,7 +615,7 @@ static std::unique_ptr<AbstractExpression> Parse(const std::string &input)
 		if (input[pos] == '&') {
 			/* Should be an and sign. */
 			if (pos + 1 >= in_len) ERROR("End of expression after '&'");
-			if (input[pos + 1] != '&') ERROR("Invalid token '%c' after '&'", input[pos + 1]);
+			if (input[pos + 1] != '&') ERROR_V("Invalid token '%c' after '&'", input[pos + 1]);
 			stack.emplace_back(new BinaryAnd);
 			pos += 2;
 			continue;
@@ -625,7 +624,7 @@ static std::unique_ptr<AbstractExpression> Parse(const std::string &input)
 		if (input[pos] == '|') {
 			/* Should be an or sign. */
 			if (pos + 1 >= in_len) ERROR("End of expression after '|'");
-			if (input[pos + 1] != '|') ERROR("Invalid token '%c' after '|'", input[pos + 1]);
+			if (input[pos + 1] != '|') ERROR_V("Invalid token '%c' after '|'", input[pos + 1]);
 			stack.emplace_back(new BinaryOr);
 			pos += 2;
 			continue;
@@ -716,13 +715,13 @@ static std::unique_ptr<AbstractExpression> Parse(const std::string &input)
 			continue;
 		}
 
-		ERROR("Unrecognized token '%c'", input[pos]);
+		ERROR_V("Unrecognized token '%c'", input[pos]);
 	}
 
 	Reduce(stack);
 
 	if (stack.empty()) ERROR("Empty expression");
-	if (stack.size() > 1) ERROR("Multiple (%d) unconnected expressions", static_cast<int>(stack.size()));
+	if (stack.size() > 1) ERROR_V("Multiple (%d) unconnected expressions", static_cast<int>(stack.size()));
 	return std::move(stack.at(0));
 }
 
