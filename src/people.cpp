@@ -19,6 +19,7 @@
 #include "person.h"
 #include "people.h"
 #include "gamelevel.h"
+#include "gameobserver.h"
 #include "finances.h"
 #include <limits>
 
@@ -46,18 +47,6 @@ assert_compile(lengthof(COMPLAINT_MESSAGES ) == Guests::COMPLAINT_COUNT);
 /** Constructor. */
 Guests::Complaint::Complaint() : counter(0), time_since_message(COMPLAINT_TIMEOUT)
 {
-}
-
-/**
- * Guest block constructor. Fills the id of the persons with an incrementing number.
- * @param base_id Id number of the first person in this block.
- */
-GuestBlock::GuestBlock(uint16 base_id)
-{
-	for (uint i = 0; i < lengthof(this->guests); i++) {
-		this->guests[i].id = base_id;
-		base_id++;
-	}
 }
 
 /**
@@ -95,28 +84,18 @@ static Point16 FindEdgeRoad()
 }
 
 Guests::Guests()
-: start_voxel(-1, -1), rnd(), block(0), free_idx(0), daily_frac(0), next_daily_index(0)
-{
-}
-
-Guests::~Guests()
+: start_voxel(-1, -1), rnd(), daily_frac(0), next_guest_id(0)
 {
 }
 
 /** Deactivate all guests and reset variables. */
 void Guests::Uninitialize()
 {
-	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
-		Guest *g = this->block.Get(i);
-		if (g->IsActive()) {
-			g->DeActivate(OAR_REMOVE);
-			this->AddFree(g);
-		}
-	}
+	this->guests.clear();
+	this->next_guest_id = 0;
 	this->start_voxel.x = -1;
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
-	this->next_daily_index = 0;
 
 	for (Complaint &c : this->complaints) c = Complaint();
 }
@@ -138,8 +117,8 @@ void Guests::Load(Loader &ldr)
 			this->start_voxel.x = ldr.GetWord();
 			this->start_voxel.y = ldr.GetWord();
 			this->daily_frac = ldr.GetWord();
-			this->next_daily_index = ldr.GetWord();
-			this->free_idx = ldr.GetLong();
+			ldr.GetWord();  // Next daily index, currently unused.
+			this->next_guest_id = ldr.GetLong();
 
 			if (version > 1) {
 				for (Complaint &c : this->complaints) c.counter = ldr.GetWord();
@@ -147,7 +126,8 @@ void Guests::Load(Loader &ldr)
 			}
 
 			for (long i = ldr.GetLong(); i > 0; i--) {
-				Guest *g = this->block.Get(ldr.GetWord());
+				const uint32 id = ldr.GetWord();
+				Guest *g = this->GetCreate(id);
 				g->Load(ldr);
 			}
 			break;
@@ -169,76 +149,31 @@ void Guests::Save(Saver &svr)
 	svr.PutWord(this->start_voxel.x);
 	svr.PutWord(this->start_voxel.y);
 	svr.PutWord(this->daily_frac);
-	svr.PutWord(this->next_daily_index);
-	svr.PutLong(this->free_idx);
+	svr.PutWord(0);  // Next daily index, currently unused.
+	svr.PutLong(this->next_guest_id);
 
 	for (const Complaint &c : this->complaints) svr.PutWord(c.counter);
 	for (const Complaint &c : this->complaints) svr.PutLong(c.time_since_message);
 
 	svr.PutLong(this->CountActiveGuests());
-	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
-		Guest *g = this->block.Get(i);
-		if (g->IsActive()) {
-			svr.PutWord(g->id);
-			g->Save(svr);
-		}
+	for (const auto &pair : this->guests) {
+		svr.PutWord(pair.first);
+		pair.second->Save(svr);
 	}
 	svr.EndPattern();
-}
-
-/**
- * Update #free_idx to the next free guest (if available).
- * @return Whether a free guest was found.
- */
-bool Guests::FindNextFreeGuest()
-{
-	while (this->free_idx < GUEST_BLOCK_SIZE) {
-		Guest *g = this->block.Get(this->free_idx);
-		if (!g->IsActive()) return true;
-		this->free_idx++;
-	}
-	return false;
-}
-
-/**
- * Update #free_idx to the next free guest (if available).
- * @return Whether a free guest was found.
- */
-bool Guests::FindNextFreeGuest() const
-{
-	uint idx = this->free_idx;
-	while (idx < GUEST_BLOCK_SIZE) {
-		const Guest *g = this->block.Get(idx);
-		if (!g->IsActive()) return true;
-		idx++;
-	}
-	return false;
-}
-
-/**
- * Count the number of active guests.
- * @return The number of active guests.
- */
-uint Guests::CountActiveGuests()
-{
-	uint count = this->free_idx;
-	for (uint i = this->free_idx; i < GUEST_BLOCK_SIZE; i++) {
-		Guest *g = this->block.Get(i);
-		if (g->IsActive()) count++;
-	}
-	return count;
 }
 
 /**
  * Count the number of guests in the park.
  * @return The number of guests in the park.
  */
-uint Guests::CountGuestsInPark()
+uint32 Guests::CountGuestsInPark()
 {
-	uint count = 0;
-	for (uint i = 0; i < GUEST_BLOCK_SIZE; i++) {
-		Guest *g = this->block.Get(i);
-		if (g->IsActive() && g->IsInPark()) count++;
+	uint32 count = 0;
+	for (const auto &pair : this->guests) {
+		if (pair.second->IsInPark()) {
+			++count;
+		}
 	}
 	return count;
 }
@@ -251,14 +186,13 @@ void Guests::OnAnimate(int delay)
 {
 	for (Complaint &c : this->complaints) c.time_since_message += delay;
 
-	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
-		Guest *p = this->block.Get(i);
-		if (!p->IsActive()) continue;
-
-		AnimateResult ar = p->OnAnimate(delay);
+	for (auto it = this->guests.begin(); it != this->guests.end();) {
+		AnimateResult ar = it->second->OnAnimate(delay);
 		if (ar != OAR_OK) {
-			p->DeActivate(ar);
-			this->AddFree(p);
+			it->second->DeActivate(ar);
+			it = this->guests.erase(it);
+		} else {
+			++it;
 		}
 	}
 }
@@ -266,19 +200,19 @@ void Guests::OnAnimate(int delay)
 /** A new frame arrived, perform the daily call for some of the guests. */
 void Guests::DoTick()
 {
-	this->daily_frac++;
-	int end_index = std::min(this->daily_frac * GUEST_BLOCK_SIZE / TICK_COUNT_PER_DAY, GUEST_BLOCK_SIZE);
-	while (this->next_daily_index < end_index) {
-		Guest *p = this->block.Get(this->next_daily_index);
-		if (p->IsActive() && !p->DailyUpdate()) {
-			p->DeActivate(OAR_REMOVE);
-			this->AddFree(p);
+	this->daily_frac = (this->daily_frac + 1) % TICK_COUNT_PER_DAY;
+
+	for (auto it = this->guests.begin(); it != this->guests.end();) {
+		if (it->first % TICK_COUNT_PER_DAY != this->daily_frac) {
+			++it;
+			continue;
 		}
-		this->next_daily_index++;
-	}
-	if (this->next_daily_index >= GUEST_BLOCK_SIZE) {
-		this->daily_frac = 0;
-		this->next_daily_index = 0;
+		if (it->second->IsActive() && !it->second->DailyUpdate()) {
+			it->second->DeActivate(OAR_REMOVE);
+			it = this->guests.erase(it);
+			continue;
+		}
+		++it;
 	}
 }
 
@@ -295,7 +229,7 @@ void Guests::OnNewDay()
 
 	/* Try adding a new guest to the park. */
 	if (this->CountActiveGuests() >= _scenario.max_guests) return;
-	if (!this->rnd.Success1024(_scenario.GetSpawnProbability(512))) return;
+	if (!this->rnd.Success1024(_scenario.GetSpawnProbability(_game_observer.current_park_rating))) return;
 
 	if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) {
 		/* New guest, but no road. */
@@ -303,10 +237,32 @@ void Guests::OnNewDay()
 		if (!IsGoodEdgeRoad(this->start_voxel.x, this->start_voxel.y)) return;
 	}
 
-	if (!this->HasFreeGuests()) return; // No more quests available.
 	/* New guest! */
-	Guest *g = this->GetFree();
+	Guest *g = this->GetCreate(this->next_guest_id);
 	g->Activate(this->start_voxel, PERSON_GUEST);
+	++this->next_guest_id;
+}
+
+/**
+ * Get a guest by his unique index.
+ * If a guest with this index does not exist yet, memory will be
+ * allocated for it, but the person will not be initialized.
+ * @param idx Index of the person.
+ * @return The requested person.
+ */
+Guest *Guests::GetCreate(int idx)
+{
+	/* This is such an ugly design. But savegames load the guest
+	 * pointers before loading the guests, so we need to allocate
+	 * the memory far in advance to avoid breaking savegames.
+	 */
+	assert(idx >= 0);
+	this->next_guest_id = std::max<int32>(idx + 1, this->next_guest_id);
+	const auto it = this->guests.find(idx);
+	if (it != this->guests.end()) return it->second.get();
+	Guest *g = this->guests.emplace(idx, new Guest).first->second.get();
+	g->id = idx;
+	return g;
 }
 
 /**
@@ -314,11 +270,8 @@ void Guests::OnNewDay()
  * @param ri Ride being removed.
  */
 void Guests::NotifyRideDeletion(const RideInstance *ri) {
-	for (int i = 0; i < GUEST_BLOCK_SIZE; i++) {
-		Guest *p = this->block.Get(i);
-		if (!p->IsActive()) continue;
-
-		p->NotifyRideDeletion(ri);
+	for (auto &pair : this->guests) {
+		pair.second->NotifyRideDeletion(ri);
 	}
 }
 
@@ -337,42 +290,6 @@ void Guests::Complain(const ComplaintType type)
 		c.time_since_message = 0;
 		_inbox.SendMessage(new Message(COMPLAINT_MESSAGES[type]));
 	}
-}
-
-/**
- * Return whether there are still non-active guests.
- * @return \c true if there are non-active guests, else \c false.
- */
-bool Guests::HasFreeGuests() const
-{
-	return this->FindNextFreeGuest();
-}
-
-/**
- * Add a guest to the non-active list.
- * @param g %Guest to add.
- */
-void Guests::AddFree(Guest *g)
-{
-	this->free_idx = std::min(this->block.Index(g), this->free_idx);
-}
-
-/**
- * Get a non-active guest.
- * @return A non-active guest.
- * @pre #HasFreeGuests() should hold.
- */
-Guest *Guests::GetFree()
-{
-#ifndef NDEBUG
-	assert(this->FindNextFreeGuest());
-#else
-	this->FindNextFreeGuest();
-#endif
-
-	Guest *g = this->block.Get(this->free_idx);
-	this->free_idx++;
-	return g;
 }
 
 Staff::Staff()

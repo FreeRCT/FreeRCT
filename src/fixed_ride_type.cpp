@@ -190,8 +190,7 @@ void FixedRideInstance::RemoveAllPeople()
 
 		for (GuestData &gd : gb.guests) {
 			if (!gd.IsEmpty()) {
-				Guest *g = _guests.Get(gd.guest);
-				g->ExitRide(this, gd.entry);
+				_guests.GetExisting(gd.guest)->ExitRide(this, gd.entry);
 
 				gd.Clear();
 			}
@@ -281,7 +280,7 @@ void FixedRideInstance::OnAnimate(const int delay)
 		bool is_empty = true;
 		for (GuestData &gd : gb.guests) {
 			if (!gd.IsEmpty()) {
-				_guests.Get(gd.guest)->ExitRide(this, gd.entry);
+				_guests.GetExisting(gd.guest)->ExitRide(this, gd.entry);
 				gd.Clear();
 				/* Kick out only one guest at a time so they appear to be walking out in a nice, ordered line. */
 				is_empty = false;

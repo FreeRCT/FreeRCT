@@ -102,7 +102,7 @@ void Message::SetStringParameters() const
 			_str_params.SetNumber(1, this->data1);
 			break;
 		case MDT_GUEST:
-			_str_params.SetText(1, _guests.Get(this->data1)->GetName());
+			_str_params.SetText(1, _guests.GetExisting(this->data1)->GetName());
 			break;
 		case MDT_RIDE_TYPE:
 			_str_params.SetStrID(1, _rides_manager.GetRideType(this->data1)->GetTypeName());
@@ -123,7 +123,7 @@ void Message::OnClick() const
 		case MDT_NONE:
 			break;
 		case MDT_GUEST:
-			ShowPersonInfoGui(_guests.Get(this->data1));
+			ShowPersonInfoGui(_guests.GetExisting(this->data1));
 			break;
 		case MDT_RIDE_INSTANCE:
 			ShowRideManagementGui(this->data1);

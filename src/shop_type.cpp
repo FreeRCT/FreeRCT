@@ -175,8 +175,7 @@ RideEntryResult ShopInstance::EnterRide(int guest, [[maybe_unused]] const XYZPoi
 {
 	assert(vox == this->vox_pos);
 	if (this->onride_guests.num_batches == 0) { // No onride guests, handle it all now.
-		Guest *g = _guests.Get(guest);
-		g->ExitRide(this, entry);
+		_guests.GetExisting(guest)->ExitRide(this, entry);
 		return RER_DONE;
 	}
 
