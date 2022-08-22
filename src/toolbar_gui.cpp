@@ -374,8 +374,7 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case BTB_GUESTCOUNT:
-			_str_params.SetNumber(1, _game_observer.current_guest_count);
-			_str_params.pluralize_amount = _game_observer.current_guest_count;
+			_str_params.SetNumberAndPlural(1, _game_observer.current_guest_count);
 			break;
 	}
 }

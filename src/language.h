@@ -102,7 +102,7 @@ public:
 
 	void Clear();
 
-	std::string GetString(int64 amount) const;
+	std::string GetString(int64 count) const;
 
 	/* Memory is not owned. */
 	const char* name;                                    ///< Name of the string.
@@ -138,6 +138,7 @@ struct StringParameters {
 	void SetNone(int num);
 	void SetStrID(int num, StringID strid);
 	void SetNumber(int num, int64 number);
+	void SetNumberAndPlural(int num, int64 number);
 	void SetMoney(int num, const Money &amount);
 	void SetDate(int num, const Date &date);
 	void SetTemperature(int num, int value);
@@ -148,7 +149,7 @@ struct StringParameters {
 
 	bool set_mode; ///< When not in set-mode, all parameters are cleared on first use of a Set function.
 	std::vector<StringParameterData> parms; ///< Parameters of the string.
-	int64 pluralize_amount;                 ///< Amount to use for plural forms.
+	int64 pluralize_count;                  ///< Value to use for selecting the plural form.
 };
 
 /**
@@ -165,9 +166,9 @@ public:
 	void InitMetaInfo();
 
 	std::string GetSgText(StringID number);
-	std::string GetPlural(StringID number, int64 amount);
+	std::string GetPlural(StringID number, int64 count);
 	std::string GetLanguageName(int lang_index);
-	uint GetPluralFormIndex(int lang_index, int64 amount);
+	uint GetPluralFormIndex(int lang_index, int64 count);
 
 private:
 	/** Registered strings. Entries may be \c nullptr for unregistered or non-existing strings. */
@@ -176,7 +177,7 @@ private:
 
 	std::unique_ptr<EvaluateableExpression> plural_forms[LANGUAGE_COUNT];  ///< Compiled expression for every language's plural rule.
 	int nplurals                                        [LANGUAGE_COUNT];  ///< Number of plural forms in each language.
-	int singular_form_index                             [LANGUAGE_COUNT];  ///< The plural form index for amount 1, cached for performance.
+	int singular_form_index                             [LANGUAGE_COUNT];  ///< The plural form index for count 1, cached for performance.
 };
 
 int GetLanguageIndex(const std::string &lang_name);

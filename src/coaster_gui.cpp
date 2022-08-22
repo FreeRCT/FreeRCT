@@ -427,12 +427,10 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 			break;
 
 		case CIW_NUMBER_TRAINS:
-			_str_params.SetNumber(1, this->ci->number_of_trains);
-			_str_params.pluralize_amount = this->ci->number_of_trains;
+			_str_params.SetNumberAndPlural(1, this->ci->number_of_trains);
 			break;
 		case CIW_NUMBER_CARS:
-			_str_params.SetNumber(1, this->ci->cars_per_train);
-			_str_params.pluralize_amount = this->ci->cars_per_train;
+			_str_params.SetNumberAndPlural(1, this->ci->cars_per_train);
 			break;
 	}
 }

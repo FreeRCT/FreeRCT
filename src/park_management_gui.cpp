@@ -184,8 +184,7 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case PM_GUESTS_TEXT:
-			_str_params.SetNumber(1, _game_observer.current_guest_count);
-			_str_params.pluralize_amount = _game_observer.current_guest_count;
+			_str_params.SetNumberAndPlural(1, _game_observer.current_guest_count);
 			break;
 
 		case PM_RATING_TEXT:

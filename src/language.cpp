@@ -40,21 +40,21 @@ void TextString::Clear()
 
 /**
  * Get the string in the currently selected language.
- * @param amount The amount for which to return the appropriate plural form.
+ * @param count The value to use for selecting the appropriate plural form.
  * @return Text of this string in the currently selected language.
  */
-std::string TextString::GetString(int64 amount) const
+std::string TextString::GetString(int64 count) const
 {
 	if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) {
 		return "<out of bounds>";
 	}
 
-	uint plural = _language.GetPluralFormIndex(_current_language, amount);
+	uint plural = _language.GetPluralFormIndex(_current_language, count);
 	if (plural < this->languages[_current_language].size() && this->languages[_current_language].at(plural) != nullptr) {
 		return this->languages[_current_language].at(plural);
 	}
 
-	plural = _language.GetPluralFormIndex(LANG_EN_GB, amount);
+	plural = _language.GetPluralFormIndex(LANG_EN_GB, count);
 	if (plural < this->languages[LANG_EN_GB].size() && this->languages[LANG_EN_GB].at(plural) != nullptr) {
 		return this->languages[LANG_EN_GB].at(plural);
 	}
@@ -201,6 +201,17 @@ void StringParameters::SetNumber(int num, int64 number)
 }
 
 /**
+ * Mark string parameter \a num to contain a number, and use this number to determine the string's plural form.
+ * @param num Number of the parameter to set (1-based).
+ * @param number Number value of the parameter.
+ */
+void StringParameters::SetNumberAndPlural(int num, int64 number)
+{
+	this->SetNumber(num, number);
+	this->pluralize_count = number;
+}
+
+/**
  * Mark string parameter \a num to contain an amount of money.
  * @param num Number of the parameter to set (1-based).
  * @param amount Amount of money to output.
@@ -257,7 +268,7 @@ void StringParameters::Clear()
 {
 	this->parms.clear();
 	this->set_mode = true;
-	this->pluralize_amount = 1;
+	this->pluralize_count = 1;
 }
 
 Language::Language()
@@ -325,11 +336,11 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
 /**
  * Get the correct plural form for string number \a number.
  * @param number string number to get.
- * @param amount The amount for which to return the appropriate plural form.
+ * @param count The value to use for selecting the appropriate plural form.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
- * @note For the lookup which plural form to use for a given amount, use #GetPluralFormIndex.
+ * @note For the lookup which plural form to use for a given count, use #GetPluralFormIndex.
  */
-std::string Language::GetPlural(StringID number, int64 amount)
+std::string Language::GetPlural(StringID number, int64 count)
 {
 	static const std::string default_strings[] = {
 		"",     // STR_NULL
@@ -339,7 +350,7 @@ std::string Language::GetPlural(StringID number, int64 amount)
 	if (number < lengthof(default_strings)) return default_strings[number];
 
 	if (number < lengthof(this->registered) && this->registered[number] != nullptr) {
-		const std::string &text = this->registered[number]->GetString(amount);
+		const std::string &text = this->registered[number]->GetString(count);
 		if (text.empty()) return "<empty text>";
 		return text;
 	}
@@ -358,24 +369,24 @@ std::string Language::GetSgText(StringID number)
 }
 
 /**
- * Look up the correct plural form for an amount.
+ * Look up the correct plural form for an count.
  * @param lang_index The language to look in.
- * @param amount The amount to look up.
+ * @param count The value to look up.
  * @return Index of the correct plural form.
  */
-uint Language::GetPluralFormIndex(int lang_index, int64 amount)
+uint Language::GetPluralFormIndex(int lang_index, int64 count)
 {
-	if (amount == 1 && this->singular_form_index[lang_index] != -1) return this->singular_form_index[lang_index];
+	if (count == 1 && this->singular_form_index[lang_index] != -1) return this->singular_form_index[lang_index];
 
-	int result = this->plural_forms[lang_index]->Eval(amount);
+	int result = this->plural_forms[lang_index]->Eval(count);
 
 	if (result < 0 || result >= this->nplurals[lang_index]) {
 		fprintf(stderr, "FATAL ERROR: Invalid plural form %d in language %s with %d plural forms for input %lld\n",
-			result, _lang_names[lang_index].c_str(), this->nplurals[lang_index], amount);
+			result, _lang_names[lang_index].c_str(), this->nplurals[lang_index], count);
 		exit(1);
 	}
 
-	if (amount == 1) this->singular_form_index[lang_index] = result;
+	if (count == 1) this->singular_form_index[lang_index] = result;
 	return result;
 }
 
@@ -521,7 +532,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 	static char textbuf[64];
 	std::string buffer;
 
-	const std::string txt = _language.GetPlural(strid, params == nullptr ? 1 : params->pluralize_amount);
+	const std::string txt = _language.GetPlural(strid, params == nullptr ? 1 : params->pluralize_count);
 	const char *ptr = txt.c_str();
 	for (;;) {
 		while (*ptr != '\0' && *ptr != '%') {
