@@ -282,7 +282,7 @@ strings:
 		MESSAGE_CRASH_NO_DEAD:    "%1% kraschade!"
 		MESSAGE_CRASH_WITH_DEAD:
 			one:   "%2% gäst dog när %1% kraschade!"
-			other: "%2% gäst(er) dog när %1% kraschade!"
+			other: "%2% gäster dog när %1% kraschade!"
 		MESSAGE_BAD_RATING:
 			one:   "Parkbetyget är kritiskt lågt. Parken kommer stängas om %1% vecka om betyget inte förbättras."
 			other: "Parkbetyget är kritiskt lågt. Parken kommer stängas om %1% veckor om betyget inte förbättras."
