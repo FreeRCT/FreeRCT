@@ -83,8 +83,12 @@ static Point16 FindEdgeRoad()
 	return {-1, -1};
 }
 
+constexpr int GUEST_BLOCK_SIZE = 64;  ///< Number of guests to batch-allocate.
+
+#define FOR_EACH_ACTIVE_GUEST(block, g) for (auto &block : this->guests) for (Guest *g = block.get(); g < block.get() + GUEST_BLOCK_SIZE; ++g) if (g->IsActive())
+
 Guests::Guests()
-: start_voxel(-1, -1), rnd(), daily_frac(0), next_guest_id(0)
+: start_voxel(-1, -1), rnd(), daily_frac(0)
 {
 }
 
@@ -92,7 +96,8 @@ Guests::Guests()
 void Guests::Uninitialize()
 {
 	this->guests.clear();
-	this->next_guest_id = 0;
+	this->free_guest_indices.clear();
+
 	this->start_voxel.x = -1;
 	this->start_voxel.y = -1;
 	this->daily_frac = 0;
@@ -118,7 +123,7 @@ void Guests::Load(Loader &ldr)
 			this->start_voxel.y = ldr.GetWord();
 			this->daily_frac = ldr.GetWord();
 			ldr.GetWord();  // Next daily index, currently unused.
-			this->next_guest_id = ldr.GetLong();
+			ldr.GetLong();  // Next guest ID, currently unused.
 
 			if (version > 1) {
 				for (Complaint &c : this->complaints) c.counter = ldr.GetWord();
@@ -150,28 +155,39 @@ void Guests::Save(Saver &svr)
 	svr.PutWord(this->start_voxel.y);
 	svr.PutWord(this->daily_frac);
 	svr.PutWord(0);  // Next daily index, currently unused.
-	svr.PutLong(this->next_guest_id);
+	svr.PutLong(0);  // Next guest ID, currently unused.
 
 	for (const Complaint &c : this->complaints) svr.PutWord(c.counter);
 	for (const Complaint &c : this->complaints) svr.PutLong(c.time_since_message);
 
 	svr.PutLong(this->CountActiveGuests());
-	for (const auto &pair : this->guests) {
-		svr.PutWord(pair.first);
-		pair.second->Save(svr);
+	FOR_EACH_ACTIVE_GUEST(block, g) {
+		svr.PutWord(g->id);
+		g->Save(svr);
 	}
 	svr.EndPattern();
 }
 
 /**
- * Count the number of guests in the park.
- * @return The number of guests in the park.
+ * Count the number of active guests in the world.
+ * @return The number of active guests in the world.
  */
-uint32 Guests::CountGuestsInPark()
+uint32 Guests::CountActiveGuests() const
 {
 	uint32 count = 0;
-	for (const auto &pair : this->guests) {
-		if (pair.second->IsInPark()) {
+	FOR_EACH_ACTIVE_GUEST(block, g) ++count;
+	return count;
+}
+
+/**
+ * Count the number of active guests in the park.
+ * @return The number of active guests in the park.
+ */
+uint32 Guests::CountGuestsInPark() const
+{
+	uint32 count = 0;
+	FOR_EACH_ACTIVE_GUEST(block, g) {
+		if (g->IsInPark()) {
 			++count;
 		}
 	}
@@ -186,14 +202,9 @@ void Guests::OnAnimate(int delay)
 {
 	for (Complaint &c : this->complaints) c.time_since_message += delay;
 
-	for (auto it = this->guests.begin(); it != this->guests.end();) {
-		AnimateResult ar = it->second->OnAnimate(delay);
-		if (ar != OAR_OK) {
-			it->second->DeActivate(ar);
-			it = this->guests.erase(it);
-		} else {
-			++it;
-		}
+	FOR_EACH_ACTIVE_GUEST(block, g) {
+		AnimateResult ar = g->OnAnimate(delay);
+		if (ar != OAR_OK) g->DeActivate(ar);
 	}
 }
 
@@ -202,17 +213,9 @@ void Guests::DoTick()
 {
 	this->daily_frac = (this->daily_frac + 1) % TICK_COUNT_PER_DAY;
 
-	for (auto it = this->guests.begin(); it != this->guests.end();) {
-		if (it->first % TICK_COUNT_PER_DAY != this->daily_frac) {
-			++it;
-			continue;
-		}
-		if (it->second->IsActive() && !it->second->DailyUpdate()) {
-			it->second->DeActivate(OAR_REMOVE);
-			it = this->guests.erase(it);
-			continue;
-		}
-		++it;
+	FOR_EACH_ACTIVE_GUEST(block, g) {
+		if (g->id % TICK_COUNT_PER_DAY != this->daily_frac) continue;
+		if (!g->DailyUpdate()) g->DeActivate(OAR_REMOVE);
 	}
 }
 
@@ -238,9 +241,16 @@ void Guests::OnNewDay()
 	}
 
 	/* New guest! */
-	Guest *g = this->GetCreate(this->next_guest_id);
+	Guest *g;
+	if (this->free_guest_indices.empty()) {
+		/* All guest slots filled to capacity, preallocate more memory. */
+		g = this->GetCreate(this->guests.size() * GUEST_BLOCK_SIZE);
+	} else {
+		/* Use an arbitrary free slot. */
+		g = this->GetCreate(this->free_guest_indices.back());
+		this->free_guest_indices.pop_back();
+	}
 	g->Activate(this->start_voxel, PERSON_GUEST);
-	++this->next_guest_id;
 }
 
 /**
@@ -252,17 +262,53 @@ void Guests::OnNewDay()
  */
 Guest *Guests::GetCreate(int idx)
 {
-	/* This is such an ugly design. But savegames load the guest
-	 * pointers before loading the guests, so we need to allocate
-	 * the memory far in advance to avoid breaking savegames.
-	 */
 	assert(idx >= 0);
-	this->next_guest_id = std::max<int32>(idx + 1, this->next_guest_id);
-	const auto it = this->guests.find(idx);
-	if (it != this->guests.end()) return it->second.get();
-	Guest *g = this->guests.emplace(idx, new Guest).first->second.get();
-	g->id = idx;
-	return g;
+	int block_index = idx / GUEST_BLOCK_SIZE;
+
+	/* Check if enough space has been preallocated. */
+	for (int i = this->guests.size(); i <= block_index; ++i) {
+		this->guests.emplace_back();
+		this->guests.back().reset(new Guest[GUEST_BLOCK_SIZE]);
+		for (int j = 0; j < GUEST_BLOCK_SIZE; ++j) {
+			int id = i * GUEST_BLOCK_SIZE + j;
+			this->guests.back().get()[j].id = id;
+			if (id != idx) this->free_guest_indices.push_back(id);
+		}
+	}
+
+	return this->GetExisting(idx);
+}
+
+/**
+ * Get an existing guest by his unique index.
+ * @param idx Index of the person.
+ * @return The requested person.
+ */
+Guest *Guests::GetExisting(int idx)
+{
+	assert(idx >= 0 && idx < static_cast<int>(GUEST_BLOCK_SIZE * this->guests.size()));
+	return this->guests.at(idx / GUEST_BLOCK_SIZE).get() + (idx % GUEST_BLOCK_SIZE);
+}
+
+/**
+ * Get an existing guest by his unique index.
+ * @param idx Index of the person.
+ * @return The requested person.
+ */
+const Guest *Guests::GetExisting(int idx) const
+{
+	assert(idx >= 0 && idx < static_cast<int>(GUEST_BLOCK_SIZE * this->guests.size()));
+	return this->guests.at(idx / GUEST_BLOCK_SIZE).get() + (idx % GUEST_BLOCK_SIZE);
+}
+
+/**
+ * A previously active guest was deactivated.
+ * @param idx Index of the deactivated guest.
+ */
+void Guests::NotifyGuestDeactivation(int idx)
+{
+	assert(idx >= 0 && idx < static_cast<int>(GUEST_BLOCK_SIZE * this->guests.size()));
+	this->free_guest_indices.push_back(idx);
 }
 
 /**
@@ -270,9 +316,7 @@ Guest *Guests::GetCreate(int idx)
  * @param ri Ride being removed.
  */
 void Guests::NotifyRideDeletion(const RideInstance *ri) {
-	for (auto &pair : this->guests) {
-		pair.second->NotifyRideDeletion(ri);
-	}
+	FOR_EACH_ACTIVE_GUEST(block, g) g->NotifyRideDeletion(ri);
 }
 
 /**

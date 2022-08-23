@@ -28,33 +28,14 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	uint32 CountActiveGuests() const
-	{
-		return this->guests.size();
-	}
-	uint32 CountGuestsInPark();
+	uint32 CountActiveGuests() const;
+	uint32 CountGuestsInPark() const;
 
-	/**
-	 * Get an existing guest by his unique index.
-	 * @param idx Index of the person.
-	 * @return The requested person.
-	 */
-	inline Guest *GetExisting(int idx)
-	{
-		return this->guests.at(idx).get();
-	}
-
-	/**
-	 * Get an existing guest by his unique index.
-	 * @param idx Index of the person.
-	 * @return The requested person.
-	 */
-	inline const Guest *GetExisting(int idx) const
-	{
-		return this->guests.at(idx).get();
-	}
+	Guest *GetExisting(int idx);
+	const Guest *GetExisting(int idx) const;
 
 	Guest *GetCreate(int idx);
+	void NotifyGuestDeactivation(int idx);
 
 	void OnAnimate(int delay);
 	void DoTick();
@@ -90,8 +71,8 @@ private:
 	};
 	Complaint complaints[COMPLAINT_COUNT];  ///< Statistics about all complaint types.
 
-	std::map<uint32, std::unique_ptr<Guest>> guests;  ///< All active guests.
-	uint32 next_guest_id;                             ///< ID of the next created guest.
+	std::vector<std::unique_ptr<Guest[]>> guests;  ///< All guest slots.
+	std::vector<int> free_guest_indices;           ///< Unused indices in %guests.
 };
 
 /** All the staff (handymen, mechanics, entertainers, guards) in the park. */
