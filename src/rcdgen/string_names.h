@@ -10,13 +10,6 @@
 #ifndef STRING_NAMES_H
 #define STRING_NAMES_H
 
-/** String names of the language meta info. */
-static const char *_lang_meta_string_names[] = {
-	"lang",
-	"nplurals",
-	"rule",
-};
-
 /** String names defined in the GUI. */
 static const char *_gui_string_names[] = {
 	/* Generic GUI strings. */

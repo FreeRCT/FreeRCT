@@ -150,7 +150,6 @@ file("gui.rcd") {
 		}
 
 		texts: strings { key: "gui"; }
-		meta: strings { key: "meta"; }
 	}
 
 	// Check boxes.

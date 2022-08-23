@@ -11,6 +11,7 @@
 #define LANGUAGE_H
 
 #include "geometry.h"
+#include "language_definitions.h"
 #include "string_func.h"
 
 class TextData;
@@ -33,9 +34,7 @@ enum StringTable {
 	STR_NULL = 0, ///< \c nullptr string.
 	STR_ARG1,     ///< Argument 1 \c "%1%".
 
-	STR_LANG_META_START, ///< Start of the language meta strings.
-
-	STR_GUI_START = STR_LANG_META_START + 8, ///< Start of the GUI strings.
+	STR_GUI_START,  ///< Start of the GUI strings.
 
 	/* After the GUI strings come the other registered strings. */
 
@@ -77,37 +76,6 @@ enum StringTable {
 #include "generated/coasters_strings.h"
 
 typedef uint16 StringID; ///< Type of a string value.
-
-/** Languages known by the program. */
-enum Languages {
-	LANG_DA_DK, ///< Danish.
-	LANG_DE_DE, ///< German.
-	LANG_EN_GB, ///< British English.
-	LANG_EN_US, ///< English (US).
-	LANG_ES_ES, ///< Spanish.
-	LANG_FR_FR, ///< French.
-	LANG_NDS_DE, ///< Low German.
-	LANG_NL_NL, ///< Dutch.
-	LANG_SV_SE, ///< Swedish.
-
-	LANGUAGE_COUNT, ///< Number of available languages.
-};
-
-/**
- * A string with its name and its translations. Memory of the text is not owned by the class.
- */
-class TextString {
-public:
-	TextString();
-
-	void Clear();
-
-	std::string GetString(int64 count) const;
-
-	/* Memory is not owned. */
-	const char* name;                                    ///< Name of the string.
-	std::vector<const char*> languages[LANGUAGE_COUNT];  ///< The string in all languages, indexed by plural form.
-};
 
 /** Types of parameters for string parameters. */
 enum StringParamType {
@@ -152,35 +120,45 @@ struct StringParameters {
 	int64 pluralize_count;                  ///< Value to use for selecting the plural form.
 };
 
-/**
- * Class for retrieving language strings.
- * @todo Implement me.
- */
-class Language {
+/** A string in one language with all its plural forms. */
+using PluralizedString = std::vector<const char*>;
+
+/** Contains all strings and the meta-information for one specific language. */
+class LanguageBundle {
 public:
-	Language();
+	LanguageBundle();
+	void Clear();
+	void InitMetaInfo(int index);
+
+	const char *GetSgText(StringID number) const;
+	const char *GetPlural(StringID number, int64 count) const;
+
+	std::vector<PluralizedString> values;  ///< Every known string with all its plural forms, indexed by #StringID.
+	                                       ///< Strings without a translation are \c nullptr. Memory is not owned.
+	const LanguageDefinition *metadata;    ///< This language's metadata.
+};
+
+/** Class for retrieving language strings. */
+class LanguageManager {
+public:
+	LanguageManager();
 
 	void Clear();
 
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base = STR_GENERIC_END);
 	void InitMetaInfo();
 
-	std::string GetSgText(StringID number);
-	std::string GetPlural(StringID number, int64 count);
-	std::string GetLanguageName(int lang_index);
-	uint GetPluralFormIndex(int lang_index, int64 count);
+	std::string GetSgText(StringID number) const;
+	std::string GetPlural(StringID number, int64 count) const;
+	std::string GetLanguageName(int lang_index) const;
+	const char *GetStringName(StringID number) const;
 
 private:
-	/** Registered strings. Entries may be \c nullptr for unregistered or non-existing strings. */
-	const TextString *registered[2048]; // Arbitrary size.
-	uint first_free; ///< 'First' string index that is not allocated yet.
-
-	std::unique_ptr<EvaluateableExpression> plural_forms[LANGUAGE_COUNT];  ///< Compiled expression for every language's plural rule.
-	int nplurals                                        [LANGUAGE_COUNT];  ///< Number of plural forms in each language.
-	int singular_form_index                             [LANGUAGE_COUNT];  ///< The plural form index for count 1, cached for performance.
+	LanguageBundle languages[LANGUAGE_COUNT];  ///< All registered languages.
+	std::vector<const char*> string_names;     ///< Names of every string, indexed by #StringID. Memory is not owned.
+	uint16 free_index;                         ///< Next free index for string storage.
 };
 
-int GetLanguageIndex(const std::string &lang_name);
 std::string GetLanguageName(int index);
 std::string GetSimilarLanguage(const std::string&);
 void InitLanguage();
@@ -189,9 +167,8 @@ void UninitLanguage();
 StringID GetMonthName(int month = 0);
 void GetTextSize(StringID num, int *width, int *height);
 
-extern Language _language;
+extern LanguageManager _language;
 extern StringParameters _str_params;
-extern const std::string _lang_names[];
 
 std::string DrawText(StringID num, StringParameters *params = &_str_params);
 

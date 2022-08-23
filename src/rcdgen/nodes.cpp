@@ -641,19 +641,6 @@ int SUPPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-/** Names of the known languages. */
-static const char *_languages[] = {
-	"da_DK", // LNG_DA_DK
-	"de_DE", // LNG_DE_DE
-	"en_GB", // LNG_EN_GB (default)
-	"en_US", // LNG_EN_US
-	"es_ES", // LNG_ES_ES
-	"fr_FR", // LNG_FR_FR
-	"nds_DE", // LNG_NDS_DE
-	"nl_NL", // LNG_NL_NL
-	"sv_SE", // LNG_SV_SE
-};
-
 /**
  * Get the index of a language from its name.
  * @param lname Name of the language.
@@ -662,10 +649,8 @@ static const char *_languages[] = {
  */
 int GetLanguageIndex(const char *lname, const Position &pos)
 {
-	assert(LNG_COUNT == sizeof(_languages) / sizeof(char *));
-	for (int i = 0; i < LNG_COUNT; i++) {
-		if (strcmp(_languages[i], lname) == 0) return i;
-	}
+	int i = GetLanguageIndex(lname);
+	if (i >= 0) return i;
 	fprintf(stderr, "Error at %s: Language \"%s\" is not known\n", pos.ToString(), lname);
 	exit(1);
 }
@@ -756,7 +741,7 @@ std::string StringsNode::GetKey() const
  */
 TextNode::TextNode(const std::string &name) : name(name)
 {
-	for (int i = 0; i < LNG_COUNT; i++) this->pos[i] = Position("", -1);
+	for (int i = 0; i < LANGUAGE_COUNT; i++) this->pos[i] = Position("", -1);
 }
 
 /**
@@ -766,7 +751,7 @@ TextNode::TextNode(const std::string &name) : name(name)
 void TextNode::MergeStorage(const TextNode &storage)
 {
 	assert(this->name == storage.name);
-	for (int i = 0; i < LNG_COUNT; i++) {
+	for (int i = 0; i < LANGUAGE_COUNT; i++) {
 		if (this->pos[i].line < 0 && storage.pos[i].line >= 0) {
 			this->pos[i] = storage.pos[i];
 			this->texts[i] = storage.texts[i];
@@ -781,9 +766,9 @@ void TextNode::MergeStorage(const TextNode &storage)
 int TextNode::GetSize() const
 {
 	int length = 2 + 1 + this->name.size() + 1;
-	for (int i = 0; i < LNG_COUNT; i++) {
+	for (int i = 0; i < LANGUAGE_COUNT; i++) {
 		if (this->pos[i].line < 0) continue;
-		length += 2 + (1 + strlen(_languages[i]) + 1) + 1;
+		length += 2 + (1 + strlen(_all_languages[i].name) + 1) + 1;
 		for (const std::string &text : this->texts[i]) length += text.size() + 1;
 	}
 	return length;
@@ -804,15 +789,15 @@ void TextNode::Write(FileBlock *fb) const
 	fb->SaveBytes((uint8 *)this->name.c_str(), this->name.size());
 	fb->SaveUInt8(0);
 	length -= 1 + this->name.size() + 1;
-	for (int i = 0; i < LNG_COUNT; i++) {
+	for (int i = 0; i < LANGUAGE_COUNT; i++) {
 		if (this->pos[i].line < 0) continue;
-		int lname_length = strlen(_languages[i]);
+		int lname_length = strlen(_all_languages[i].name);
 		int lng_size = 2 + (1 + lname_length + 1) + 1;
 		for (const std::string &str : this->texts[i]) lng_size += str.size() + 1;
 
 		fb->SaveUInt16(lng_size);
 		fb->SaveUInt8(lname_length + 1);
-		fb->SaveBytes((uint8 *)_languages[i], lname_length);
+		fb->SaveBytes((uint8 *)_all_languages[i].name, lname_length);
 		fb->SaveUInt8(0);
 		fb->SaveUInt8(this->texts[i].size());
 		length -= 2 + 1 + lname_length + 1 + 1;
@@ -823,7 +808,7 @@ void TextNode::Write(FileBlock *fb) const
 			length -= str.size() + 1;
 		}
 	}
-	assert(this->pos[LNG_EN_GB].line >= 0 && length == 0);
+	assert(this->pos[SOURCE_LANGUAGE].line >= 0 && length == 0);
 }
 
 /**
@@ -855,7 +840,7 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 		TextNode &tn = iter->second;
 		if (tn.pos[str.lang_index].line >= 0) { // String with same name and same language already exists.
 			fprintf(stderr, "Error at %s: ", str.text_pos.ToString());
-			fprintf(stderr, "Text for language %s already defined at %s.\n", _languages[str.lang_index], tn.pos[str.lang_index].ToString());
+			fprintf(stderr, "Text for language %s already defined at %s.\n", _all_languages[str.lang_index].name, tn.pos[str.lang_index].ToString());
 			exit(1);
 		}
 		tn.texts[str.lang_index] = str.text;
@@ -896,6 +881,7 @@ void StringBundle::CheckTranslations(const char *names[], int name_count, const 
 
 	/* Check that the bundle has no extra strings. */
 	for (const auto &text : this->texts) {
+		if (_strings_storage.keys_to_ignore.count(text.first) > 0) continue;
 		bool found = false;
 		for (int i = 0; i < name_count; i++) {
 			if (names[i] == text.first) {
@@ -915,22 +901,22 @@ void StringBundle::CheckTranslations(const char *names[], int name_count, const 
 	}
 
 	/* Check that all strings have a British English text, and count the missing translations. */
-	std::array<int, LNG_COUNT> missing_count{{}};
+	std::array<int, LANGUAGE_COUNT> missing_count{{}};
 
 	for (const auto &iter : this->texts) {
-		if (iter.second.pos[LNG_EN_GB].line < 0) {
+		if (iter.second.pos[SOURCE_LANGUAGE].line < 0) {
 			fprintf(stderr, "Error at %s: String \"%s\" has no British English language text\n", pos.ToString(), iter.first.c_str());
 			exit(1);
 		}
-		for (int i = 0; i < LNG_COUNT; i++) {
+		for (int i = 0; i < LANGUAGE_COUNT; i++) {
 			if (iter.second.pos[i].line < 0) missing_count[i]++;
 		}
 	}
 
 	for (uint i = 0; i < missing_count.size(); i++) {
-		if (i == LNG_EN_GB) continue; // There are no "missing" British English strings.
+		if (i == SOURCE_LANGUAGE) continue; // There are no "missing" British English strings.
 		if (missing_count[i] > 0) {
-			printf("Language %s has %i missing translations in %s\n", _languages[i], missing_count[i], pos.filename.c_str());
+			printf("Language %s has %i missing translations in %s\n", _all_languages[i].name, missing_count[i], pos.filename.c_str());
 		}
 	}
 }
@@ -1256,14 +1242,14 @@ int BDIRBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-GSLPBlock::GSLPBlock() : GameBlock("GSLP", 14)
+GSLPBlock::GSLPBlock() : GameBlock("GSLP", 13)
 {
 }
 
 int GSLPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 300 - 12);
+	fb->StartSave(this->blk_name, this->version, 296 - 12);
 	fb->SaveUInt32(this->vert_down->Write(fw));
 	fb->SaveUInt32(this->steep_down->Write(fw));
 	fb->SaveUInt32(this->gentle_down->Write(fw));
@@ -1331,7 +1317,6 @@ int GSLPBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->toolbar_view->Write(fw));
 	fb->SaveUInt32(this->toolbar_park->Write(fw));
 	fb->SaveUInt32(this->gui_text->Write(fw));
-	fb->SaveUInt32(this->meta_text->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

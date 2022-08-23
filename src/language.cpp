@@ -15,91 +15,14 @@
 #include "math_func.h"
 #include "dates.h"
 #include "money.h"
-#include "generated/lang_meta_strings.h"
 
 assert_compile((int)GUI_STRING_TABLE_END < STR_END_FREE_SPACE); ///< Ensure there are not too many GUI strings.
 assert_compile((int)SHOPS_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
 assert_compile((int)GENTLE_THRILL_RIDES_STRING_TABLE_END < STR_GENERIC_END);  ///< Ensure there are not too many shops strings.
 
-Language _language;                 ///< Language strings.
-StringParameters _str_params;       ///< Default string parameters.
-int _current_language = LANG_EN_GB; ///< Index of the current translation.
-
-/** Default constructor of a #TextString object. */
-TextString::TextString()
-{
-	this->Clear();
-}
-
-/** Drop all strings. Since the text is not owned by the class, no need to free the memory. */
-void TextString::Clear()
-{
-	this->name = nullptr;
-	std::fill_n(this->languages, lengthof(this->languages), std::vector<const char*>());
-}
-
-/**
- * Get the string in the currently selected language.
- * @param count The value to use for selecting the appropriate plural form.
- * @return Text of this string in the currently selected language.
- */
-std::string TextString::GetString(int64 count) const
-{
-	if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) {
-		return "<out of bounds>";
-	}
-
-	uint plural = _language.GetPluralFormIndex(_current_language, count);
-	if (plural < this->languages[_current_language].size() && this->languages[_current_language].at(plural) != nullptr) {
-		return this->languages[_current_language].at(plural);
-	}
-
-	plural = _language.GetPluralFormIndex(LANG_EN_GB, count);
-	if (plural < this->languages[LANG_EN_GB].size() && this->languages[LANG_EN_GB].at(plural) != nullptr) {
-		return this->languages[LANG_EN_GB].at(plural);
-	}
-
-	return "<no-text>";
-}
-
-/** Known languages. */
-const std::string _lang_names[] = {
-	"da_DK", // Danish.
-	"de_DE", // German.
-	"en_GB", // English (Also the default language).
-	"en_US", // English (US).
-	"es_ES", // Spanish.
-	"fr_FR", // French.
-	"nds_DE", // Low German.
-	"nl_NL", // Dutch.
-	"sv_SE", // Swedish (Sweden)
-};
-
-assert_compile(lengthof(_lang_names) == LANGUAGE_COUNT); ///< Ensure number of language matches with array sizes.
-
-/**
- * Get the index number of a given language.
- * @param lang_name Name of the language.
- * @return Index of the language with the provided name, or \c -1 if not recognized.
- */
-int GetLanguageIndex(const std::string &lang_name)
-{
-	int start = 0; // Exclusive lower bound.
-	int end = LANGUAGE_COUNT; // Exclusive upper bound.
-
-	while (start + 1 < end) {
-		int middle = (start + end) / 2;
-		int cmp = _lang_names[middle].compare(lang_name);
-		if (cmp == 0) return middle; // Jack pot.
-		if (cmp < 0) {
-			start = middle;
-		} else {
-			end = middle;
-		}
-	}
-	if (_lang_names[start] == lang_name) return start;
-	return -1;
-}
+LanguageManager _language;                ///< Language manager.
+StringParameters _str_params;             ///< Default string parameters.
+int _current_language = SOURCE_LANGUAGE;  ///< Index of the current translation.
 
 /**
  * Get the name of a given language index.
@@ -109,7 +32,7 @@ int GetLanguageIndex(const std::string &lang_name)
 std::string GetLanguageName(const int index)
 {
 	if (index < 0 || index >= LANGUAGE_COUNT) return std::string();
-	return _lang_names[index];
+	return _all_languages[index].name;
 }
 
 /**
@@ -122,11 +45,11 @@ std::string GetSimilarLanguage(const std::string& lang_name)
 	std::string best_match;
 	double score = 1.5;  // Arbitrary treshold to suppress random matches.
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
-		const int common_length = std::min(_lang_names[i].size(), lang_name.size());
-		double s = common_length - std::max<int>(_lang_names[i].size(), lang_name.size());
+		const int common_length = std::min(strlen(_all_languages[i].name), lang_name.size());
+		double s = common_length - std::max<int>(strlen(_all_languages[i].name), lang_name.size());
 		for (int j = 0; j < common_length; ++j) {
 			const char c1 = lang_name.at(j);
-			const char c2 = _lang_names[i].at(j);
+			const char c2 = _all_languages[i].name[j];
 			if (c1 == c2) {
 				s++;
 			} else if (c1 >= 'a' && c1 <= 'z' && c1 + 'A' - 'a' == c2) {
@@ -140,7 +63,7 @@ std::string GetSimilarLanguage(const std::string& lang_name)
 		s *= 10.0 / common_length;  // Ensure that the name's length does not influence scoring.
 		if (s > score) {
 			score = s;
-			best_match = _lang_names[i];
+			best_match = _all_languages[i].name;
 		}
 	}
 	return best_match;
@@ -271,18 +194,51 @@ void StringParameters::Clear()
 	this->pluralize_count = 1;
 }
 
-Language::Language()
+LanguageBundle::LanguageBundle()
 {
 	this->Clear();
 }
 
 /** Clear all loaded data. */
-void Language::Clear()
+void LanguageBundle::Clear()
 {
-	std::fill_n(this->registered, lengthof(this->registered), nullptr);
-	std::fill_n(this->nplurals, lengthof(this->nplurals), 0);
-	std::fill_n(this->singular_form_index, lengthof(this->singular_form_index), -1);
-	this->first_free = GUI_STRING_TABLE_END;
+	this->values.clear();
+	this->metadata = nullptr;
+}
+
+/**
+ * Get the correct plural form for string number \a number.
+ * @param number string number to get.
+ * @param count The value to use for selecting the appropriate plural form.
+ * @return String corresponding to the number (not owned by the caller, so don't free it).
+ */
+const char *LanguageBundle::GetPlural(StringID number, int64 count) const
+{
+	if (number >= this->values.size() || this->values.at(number).empty()) return nullptr;
+	int plural = this->metadata->PluralRule(count);
+	return this->values.at(number).at(plural);
+}
+
+/**
+ * Get the singular form for string number \a number.
+ * @param number string number to get.
+ * @return String corresponding to the number (not owned by the caller, so don't free it).
+ */
+const char *LanguageBundle::GetSgText(StringID number) const
+{
+	return this->GetPlural(number, 1);
+}
+
+LanguageManager::LanguageManager()
+{
+	this->Clear();
+}
+
+/** Clear all loaded data. */
+void LanguageManager::Clear()
+{
+	for (LanguageBundle &l : this->languages) l.Clear();
+	this->free_index = GUI_STRING_TABLE_END;
 }
 
 /**
@@ -292,44 +248,40 @@ void Language::Clear()
  * @param base Base address of the strings.
  * @return Base offset for the registered strings. Add the index value of the \a names table to get the real string number.
  */
-uint16 Language::RegisterStrings(const TextData &td, const char * const names[], uint16 base)
+uint16 LanguageManager::RegisterStrings(const TextData &td, const char * const names[], uint16 base)
 {
-	/* Count the number of strings. */
-	uint num_strings = 0;
-	const char * const *str = names;
-	while (*str != nullptr) {
-		num_strings++;
-		str++;
-	}
-
 	if (base == STR_GENERIC_END) {
-		/* Check for enough free space, and assign a block. */
-		if (this->first_free + num_strings >= STR_END_FREE_SPACE) {
+		base = this->free_index;
+		this->free_index += td.string_count;
+		if (this->free_index >= STR_END_FREE_SPACE) {
 			fprintf(stderr, "Not enough space to store strings.\n");
 			exit(1);
 		}
-		base = this->first_free;
-		this->first_free += num_strings;
 	} else {
-		/* Pre-defined strings should be completely below the free space. */
-		assert(base + num_strings >= base && base + num_strings <= this->first_free);
+		assert(base + td.string_count < this->free_index);
 	}
 
-	/* Copy strings in the expected order. */
-	uint16 number = base;
-	str = names;
-	while (*str != nullptr) {
-		this->registered[number] = nullptr;
-		for (uint i = 0; i < td.string_count; i++) {
-			const TextString *ts = td.strings.get() + i;
-			if (strcmp(ts->name, *str) == 0) {
-				this->registered[number] = ts;
+	const size_t old_size = this->string_names.size();
+	if (base + td.string_count > old_size) {
+		this->string_names.resize(base + td.string_count);
+		for (LanguageBundle &l : this->languages) {
+			assert(l.values.size() == old_size);
+			l.values.resize(base + td.string_count);
+		}
+	}
+
+	/* This would be much easier if names and text strings were in the same order. */
+	for (uint i = 0; i < td.string_count; ++i) {
+		assert(names[i] != nullptr && *names[i] != '\0');
+		this->string_names.at(base + i) = names[i];
+		for (uint j = 0; j < td.string_count; ++j) {
+			if (strcmp(names[i], td.strings[j].name) == 0) {
+				for (int l = 0; l < LANGUAGE_COUNT; ++l) this->languages[l].values.at(base + i) = td.strings[j].languages[l];
 				break;
 			}
 		}
-		number++;
-		str++;
 	}
+
 	return base;
 }
 
@@ -338,9 +290,8 @@ uint16 Language::RegisterStrings(const TextData &td, const char * const names[],
  * @param number string number to get.
  * @param count The value to use for selecting the appropriate plural form.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
- * @note For the lookup which plural form to use for a given count, use #GetPluralFormIndex.
  */
-std::string Language::GetPlural(StringID number, int64 count)
+std::string LanguageManager::GetPlural(StringID number, int64 count) const
 {
 	static const std::string default_strings[] = {
 		"",     // STR_NULL
@@ -349,10 +300,12 @@ std::string Language::GetPlural(StringID number, int64 count)
 
 	if (number < lengthof(default_strings)) return default_strings[number];
 
-	if (number < lengthof(this->registered) && this->registered[number] != nullptr) {
-		const std::string &text = this->registered[number]->GetString(count);
-		if (text.empty()) return "<empty text>";
-		return text;
+	const char *str = languages[_current_language].GetPlural(number, count);
+	if (str != nullptr) return *str != '\0' ? str : "<empty translation>";
+
+	if (_current_language != SOURCE_LANGUAGE) {
+		str = languages[SOURCE_LANGUAGE].GetPlural(number, count);
+		if (str != nullptr) return *str != '\0' ? str : "<empty string>";
 	}
 
 	return "<Invalid string>";
@@ -363,31 +316,9 @@ std::string Language::GetPlural(StringID number, int64 count)
  * @param number string number to get.
  * @return String corresponding to the number (not owned by the caller, so don't free it).
  */
-std::string Language::GetSgText(StringID number)
+std::string LanguageManager::GetSgText(StringID number) const
 {
 	return this->GetPlural(number, 1);
-}
-
-/**
- * Look up the correct plural form for an count.
- * @param lang_index The language to look in.
- * @param count The value to look up.
- * @return Index of the correct plural form.
- */
-uint Language::GetPluralFormIndex(int lang_index, int64 count)
-{
-	if (count == 1 && this->singular_form_index[lang_index] != -1) return this->singular_form_index[lang_index];
-
-	int result = this->plural_forms[lang_index]->Eval(count);
-
-	if (result < 0 || result >= this->nplurals[lang_index]) {
-		fprintf(stderr, "FATAL ERROR: Invalid plural form %d in language %s with %d plural forms for input %lld\n",
-			result, _lang_names[lang_index].c_str(), this->nplurals[lang_index], count);
-		exit(1);
-	}
-
-	if (count == 1) this->singular_form_index[lang_index] = result;
-	return result;
 }
 
 /**
@@ -395,10 +326,14 @@ uint Language::GetPluralFormIndex(int lang_index, int64 count)
  * @param lang_index The language to look in.
  * @return The language name.
  */
-std::string Language::GetLanguageName(int lang_index)
+std::string LanguageManager::GetLanguageName(int lang_index) const
 {
-	assert(lang_index < LANGUAGE_COUNT);
-	return this->registered[GUI_LANGUAGE_NAME]->languages[lang_index].at(0);
+	return this->languages[lang_index].GetSgText(GUI_LANGUAGE_NAME);
+}
+
+const char *LanguageManager::GetStringName(StringID number) const
+{
+	return this->string_names.at(number);
 }
 
 /**
@@ -406,40 +341,33 @@ std::string Language::GetLanguageName(int lang_index)
  * and that all pluralized strings match their language's specifications,
  * and cache meta info for later access.
  */
-void Language::InitMetaInfo()
+void LanguageManager::InitMetaInfo()
 {
-	const TextString *nplurals = this->registered[LANG_META_nplurals];
-	const TextString *rule = this->registered[LANG_META_rule];
-	if (nplurals == nullptr) {
-		fprintf(stderr, "Missing nplurals rules!\n");
-		exit(1);
-	}
-	if (rule == nullptr) {
-		fprintf(stderr, "Missing plural forms rules!\n");
-		exit(1);
-	}
-	for (int lang_index = 0; lang_index < LANGUAGE_COUNT; ++lang_index) {
-		if (nplurals->languages[lang_index].size() != 1) {
-			fprintf(stderr, "Language %s must have exactly one nplurals rule.\n", _lang_names[lang_index].c_str());
+	for (int i = 0; i < LANGUAGE_COUNT; ++i) this->languages[i].InitMetaInfo(i);
+}
+
+/**
+ * Check that all meta info is present and sane,
+ * and that all pluralized strings match their language's specifications,
+ * and cache meta info for later access.
+ * @param index Language index of this language.
+ */
+void LanguageBundle::InitMetaInfo(int index)
+{
+	this->metadata = &_all_languages[index];
+
+	const uint32 nrstrings = this->values.size();
+	for (uint32 i = 0; i < nrstrings; ++i) {
+		int size = this->values.at(i).size();
+		if (_language.GetStringName(i) == nullptr && size != 0) {
+			fprintf(stderr, "Language %s has a string at undefined index %u.\n",
+					this->metadata->name, i);
 			exit(1);
 		}
-		if (rule->languages[lang_index].size() != 1) {
-			fprintf(stderr, "Language %s must have exactly one plural forms rule.\n", _lang_names[lang_index].c_str());
+		if (size > 1 && size != this->metadata->nplurals) {
+			fprintf(stderr, "Language %s has %d plurals, but string '%s' has %d.\n",
+					this->metadata->name, this->metadata->nplurals, _language.GetStringName(i), size);
 			exit(1);
-		}
-
-		this->plural_forms[lang_index] = ParseEvaluateableExpression(rule->languages[lang_index].at(0));
-		assert(this->plural_forms[lang_index] != nullptr);
-
-		this->nplurals[lang_index] = std::stoi(nplurals->languages[lang_index].at(0));
-		for (const TextString *txt : this->registered) {
-			if (txt == nullptr) continue;
-			const int size = txt->languages[lang_index].size();
-			if (size > 1 && size != this->nplurals[lang_index]) {
-				fprintf(stderr, "Language %s has %d plurals, but string '%s' has %d.\n",
-						_lang_names[lang_index].c_str(), this->nplurals[lang_index], txt->name, size);
-				exit(1);
-			}
 		}
 	}
 }

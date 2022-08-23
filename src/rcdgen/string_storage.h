@@ -16,6 +16,7 @@ public:
 	void ReadFromYAML(const char *filename);
 	const StringBundle *GetBundle(const std::string &key);
 	std::map<std::string, StringBundle> bundles; ///< Available bundles, ordered by key.
+	std::set<std::string> keys_to_ignore;        ///< String keys used for internal purposes only which need not be written to the RCD file.
 };
 
 extern StringsStorage _strings_storage;

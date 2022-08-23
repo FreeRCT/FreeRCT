@@ -9,7 +9,6 @@ strings:
 		nplurals: "2"
 		plural_0: "one"
 		plural_1: "other"
-		rule: "(n==1)?0:1"
 		lang: "es_ES"
 
 	gui:

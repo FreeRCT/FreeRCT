@@ -28,16 +28,4 @@ size_t GetNextChar(const std::string &data, size_t pos);
 bool StrEqual(const uint8 *s1, const uint8 *s2);
 bool StrEndsWith(const char *str, const char *end, bool case_sensitive);
 
-/** A mathematical expression with a placeholder in it. */
-struct EvaluateableExpression {
-	virtual ~EvaluateableExpression() = default;
-	/**
-	 * Compute the value of this expression.
-	 * @param n Value to substitute for the placeholder.
-	 * @return Expression value.
-	 */
-	virtual int Eval(int n) const = 0;
-};
-std::unique_ptr<EvaluateableExpression> ParseEvaluateableExpression(const std::string &input);
-
 #endif

@@ -226,8 +226,6 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	const int lang_idx = GetLanguageIndex(lang_name.first.c_str(), lang_name.second);
 	if (lang_idx < 0) SYNTAX_ERROR_V(lang_name.second.line, "Unrecognized language '%s'", lang_name.first.c_str());
 
-	ParseEvaluateableExpression(extract_singular_meta_string("rule").first);  // Just to check that the rule exists and the syntax is valid.
-
 	const PluralForm &nplurals_str = extract_singular_meta_string("nplurals");
 	int nplurals;
 	try {
@@ -235,12 +233,18 @@ void StringsStorage::ReadFromYAML(const char *filename)
 	} catch (const std::exception&) {
 		SYNTAX_ERROR_V(nplurals_str.second.line, "nplurals '%s' is not a number", nplurals_str.first.c_str());
 	}
-	if (nplurals < 1) SYNTAX_ERROR_V(nplurals_str.second.line, "nplurals %d must be >= 1", nplurals);
+	if (nplurals != _all_languages[lang_idx].nplurals) {
+		SYNTAX_ERROR_V(nplurals_str.second.line, "Language should have %d plurals, but found %d",
+				_all_languages[lang_idx].nplurals, nplurals);
+	}
 
 	std::vector<std::string> plural_names(nplurals);
 	std::map<std::string, int> plural_name_to_index;
 	for (int p = 0; p < nplurals; ++p) {
-		const PluralForm &plural_name = extract_singular_meta_string(std::string("plural_") + std::to_string(p));
+		std::string key = "plural_";
+		key += std::to_string(p);
+		this->keys_to_ignore.insert(key);
+		const PluralForm &plural_name = extract_singular_meta_string(key);
 		if (plural_name.first.empty()) SYNTAX_ERROR(plural_name.second.line, "Empty plural name");
 		if (plural_name_to_index.count(plural_name.first) > 0) {
 			SYNTAX_ERROR_V(plural_name.second.line, "Duplicate plural name '%s'", plural_name.first.c_str());

@@ -41,6 +41,12 @@ typedef std::map<uint32, ImageData *> ImageMap; ///< Map of loaded image data bl
 /** Texts of objects. */
 class TextData : public RcdBlock {
 public:
+	/** Groups translations of one string in all languages. Memory is not owned. */
+	struct TextString {
+		PluralizedString languages[LANGUAGE_COUNT];  ///< The string in all languages.
+		const char *name;                            ///< Name of this string.
+	};
+
 	bool Load(RcdFileReader *rcd_file);
 
 	uint string_count;   ///< Number of strings in #strings.

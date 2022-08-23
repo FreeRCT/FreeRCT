@@ -17,6 +17,7 @@
 #include <memory>
 #include <array>
 #include "image.h"
+#include "../language_definitions.h"
 
 class FileWriter;
 class FileBlock;
@@ -526,21 +527,6 @@ public:
 	std::array<std::shared_ptr<SpriteBlock>, SPP_COUNT> sprites; ///< Support sprites.
 };
 
-/** Known languages. */
-enum Languages {
-	LNG_DA_DK, ///< da_DK language.
-	LNG_DE_DE, ///< de_DE language.
-	LNG_EN_GB, ///< en_GB language (default).
-	LNG_EN_US, ///< en_US language.
-	LNG_ES_ES, ///< es_ES language.
-	LNG_FR_FR, ///< fr_FR language.
-	LNG_NDS_DE, ///< nds_DE language.
-	LNG_NL_NL, ///< nl_NL language.
-	LNG_SV_SE, ///< sv_SE language.
-
-	LNG_COUNT, ///< Number of known languages.
-};
-
 int GetLanguageIndex(const char *lname, const Position &pos);
 
 /** Storage of a single string (name + text + language if present). */
@@ -582,8 +568,8 @@ public:
 	void Write(FileBlock *fb) const;
 
 	const std::string name;                     ///< Name of the text node (used as key).
-	std::vector<std::string> texts[LNG_COUNT];  ///< Text of the text node, in each language, indexed by plural form.
-	Position pos[LNG_COUNT];                    ///< Positions defining the text (negative lines means undefined).
+	std::vector<std::string> texts[LANGUAGE_COUNT];  ///< Text of the text node, in each language, indexed by plural form.
+	Position pos[LANGUAGE_COUNT];                    ///< Positions defining the text (negative lines means undefined).
 };
 
 /** Collection of translated strings for a game object. */
@@ -917,7 +903,6 @@ public:
 	std::shared_ptr<SpriteBlock> mini_button;     ///< Minimise button.
 	std::shared_ptr<SpriteBlock> terraform_dot;   ///< Terraform dot.
 	std::shared_ptr<StringBundle> gui_text;       ///< Text of the GUIs (reference to a TEXT block).
-	std::shared_ptr<StringBundle> meta_text;      ///< Text of the language meta information (reference to a TEXT block).
 };
 
 /** MENU Game block. */

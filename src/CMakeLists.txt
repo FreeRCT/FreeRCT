@@ -54,12 +54,6 @@ file(GLOB freerct_SRCS
      "${CMAKE_SOURCE_DIR}/src/*.h"
 )
 
-set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/lang_meta_strings")
-add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix LANG_META --base STR_LANG_META_START
-				   DEPENDS rcdgen
-                   COMMENT "Generating LANG_META string files"
-)
 set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings")
 add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
                    COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix COASTERS --base STR_GENERIC_COASTER_START
@@ -116,7 +110,6 @@ set(freerct_SRCS ${freerct_SRCS}
     "${CMAKE_SOURCE_DIR}/src/rev.cpp"
     "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h"
-    "${CMAKE_SOURCE_DIR}/src/generated/lang_meta_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.h"
     "${CMAKE_SOURCE_DIR}/src/generated/entrance_exit_strings.h"
@@ -127,8 +120,6 @@ set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.cpp" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/lang_meta_strings.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/lang_meta_strings.h" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h" GENERATED)
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.cpp" GENERATED)
