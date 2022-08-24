@@ -1833,6 +1833,8 @@ void Guest::Activate(const Point16 &start, PersonType person_type)
 
 void Guest::DeActivate(AnimateResult ar)
 {
+	_guests.NotifyGuestDeactivation(this->id);
+
 	if (this->IsActive()) {
 		/* Close possible Guest Info window */
 		Window *wi = GetWindowByType(WC_PERSON_INFO, this->id);

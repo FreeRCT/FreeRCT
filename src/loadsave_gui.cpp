@@ -15,6 +15,36 @@
 #include "rev.h"
 #include "sprite_store.h"
 
+/** Sorting order for a list of savegames. */
+using SortBy = bool(*)(const PreloadData&, const PreloadData&);
+
+/** Sort by timestamp. */
+static bool SortByTimestamp(const PreloadData &a, const PreloadData &b) {
+	return a.timestamp > b.timestamp;
+}
+
+/** Sort alphabetically by filename. */
+static bool SortByFilename(const PreloadData &a, const PreloadData &b) {
+	return a.filename < b.filename;
+}
+
+/** Sort alphabetically by scenario name, with the filename as tie-breaker. */
+static bool SortByScenario(const PreloadData &a, const PreloadData &b) {
+	std::string name1 = a.scenario != nullptr ? a.scenario->name : "";
+	std::string name2 = b.scenario != nullptr ? b.scenario->name : "";
+	return name1 != name2 ? name1 < name2 : a.filename < b.filename;
+}
+
+/** Sort by revision compatibility, with the timestamp as tie-breaker. */
+static bool SortByCompatibility(const PreloadData &a, const PreloadData &b) {
+	int val1 = a.load_success ? a.revision == _freerct_revision ? 0 : 1 : 2;
+	int val2 = b.load_success ? b.revision == _freerct_revision ? 0 : 1 : 2;
+	/* \todo The revision would be a better tie-breaker, with timestamp as secondary breaker.
+	 * But revisions have to be compared semantically, not just lexicographically, to handle cases like "git99" → "git100".
+	 */
+	return val1 != val2 ? val1 < val2 : a.timestamp > b.timestamp;
+}
+
 /**
  * Game loading/saving gui.
  * @ingroup gui_group
@@ -32,12 +62,14 @@ public:
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
+	void Sort(SortBy sort);
 
 private:
 	std::string FinalFilename() const;
 
-	const Type type;                  ///< Type of this window.
-	std::set<PreloadData> all_files;  ///< All files in the working directory.
+	const Type type;                     ///< Type of this window.
+	std::vector<PreloadData> all_files;  ///< All files in the working directory.
+	SortBy current_sort;                 ///< Current sorting order.
 };
 
 /**
@@ -52,6 +84,10 @@ enum LoadSaveWidgets {
 	LSW_LIST_NAME,  ///< List of all files - scenario name column.
 	LSW_LIST_REV,   ///< List of all files - revision compatibility column.
 	LSW_SCROLLBAR,  ///< Scrollbar for the list.
+	LSW_SORT_FILE,  ///< Sort by filename button.
+	LSW_SORT_TIME,  ///< Sort by time button.
+	LSW_SORT_NAME,  ///< Sort by scenario name button.
+	LSW_SORT_REV,   ///< Sort by revision compatibility button.
 	LSW_TEXTFIELD,  ///< Text field for the filename.
 	LSW_OK,         ///< Confirmation button.
 	LSW_CANCEL,     ///< Cancel button.
@@ -76,10 +112,10 @@ static const WidgetPart _loadsave_gui_parts[] = {
 			Intermediate(1, 2),
 				Widget(WT_PANEL, LSW_LIST, COL_RANGE_BLUE),
 					Intermediate(2, 4),
-						Widget(WT_TEXT_PUSHBUTTON, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_FILE, STR_NULL),
-						Widget(WT_TEXT_PUSHBUTTON, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_TIME, STR_NULL),
-						Widget(WT_TEXT_PUSHBUTTON, INVALID_WIDGET_INDEX, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_NAME, STR_NULL),
-						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
+						Widget(WT_TEXT_BUTTON, LSW_SORT_FILE, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_FILE, STR_NULL),
+						Widget(WT_TEXT_BUTTON, LSW_SORT_TIME, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_TIME, STR_NULL),
+						Widget(WT_TEXT_BUTTON, LSW_SORT_NAME, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_COLUMN_NAME, STR_NULL),
+						Widget(WT_TEXT_BUTTON, LSW_SORT_REV , COL_RANGE_BLUE),
 						Widget(WT_EMPTY, LSW_LIST_FILE, COL_RANGE_BLUE),
 							SetFill(0, ITEM_HEIGHT), SetResize(0, ITEM_HEIGHT), SetMinimalSize(200, ITEM_COUNT * ITEM_HEIGHT),
 						Widget(WT_EMPTY, LSW_LIST_TIME, COL_RANGE_BLUE),
@@ -99,7 +135,7 @@ static const WidgetPart _loadsave_gui_parts[] = {
 	EndContainer(),
 };
 
-LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE), type(t)
+LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE), type(t), current_sort(nullptr)
 {
 	/* Get all .fct files in the directory. */
 	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
@@ -109,7 +145,7 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 		if (str == nullptr) break;
 		std::string name(str);
 		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) {
-			this->all_files.insert(PreloadGameFile(name.c_str()));
+			this->all_files.push_back(PreloadGameFile(name.c_str()));
 		}
 	}
 	dr->ClosePath();
@@ -117,6 +153,28 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 	this->SetupWidgetTree(_loadsave_gui_parts, lengthof(_loadsave_gui_parts));
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
 	this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->SetItemCount(this->all_files.size());
+	this->Sort(SortByTimestamp);
+}
+
+/**
+ * Sort the list of savegames. If the sort criterium is the same that already applies, reverse the order.
+ * @param sort Sorting comparison functor to use.
+ */
+void LoadSaveGui::Sort(SortBy sort)
+{
+	if (sort == this->current_sort) {
+		/* Already sorted, just invert the order. */
+		std::reverse(this->all_files.begin(), this->all_files.end());
+		return;
+	}
+
+	this->current_sort = sort;
+	std::sort(this->all_files.begin(), this->all_files.end(), sort);
+
+	this->SetWidgetPressed(LSW_SORT_FILE, this->current_sort == &SortByFilename);
+	this->SetWidgetPressed(LSW_SORT_TIME, this->current_sort == &SortByTimestamp);
+	this->SetWidgetPressed(LSW_SORT_NAME, this->current_sort == &SortByScenario);
+	this->SetWidgetPressed(LSW_SORT_REV, this->current_sort == &SortByCompatibility);
 }
 
 void LoadSaveGui::SetWidgetStringParameters(const WidgetNumber wid_num) const
@@ -159,6 +217,23 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			delete this;
 			break;
 
+		case LSW_SORT_FILE:
+			this->Sort(SortByFilename);
+			this->MarkDirty();
+			break;
+		case LSW_SORT_TIME:
+			this->Sort(SortByTimestamp);
+			this->MarkDirty();
+			break;
+		case LSW_SORT_NAME:
+			this->Sort(SortByScenario);
+			this->MarkDirty();
+			break;
+		case LSW_SORT_REV:
+			this->Sort(SortByCompatibility);
+			this->MarkDirty();
+			break;
+
 		case LSW_LIST_FILE:
 		case LSW_LIST_TIME:
 		case LSW_LIST_NAME:
@@ -167,9 +242,7 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			const int index = pos.y / ITEM_HEIGHT + this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
 			if (index < 0 || index >= static_cast<int>(this->all_files.size())) break;
 
-			auto selected = this->all_files.begin();
-			std::advance(selected, index);
-			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(selected->filename);
+			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(this->all_files.at(index).filename);
 			break;
 		}
 
@@ -217,8 +290,6 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 	const int w = wid->pos.width - 4 * ITEM_SPACING;
 	const size_t first_index = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->GetStart();
 	const size_t last_index = std::min<size_t>(this->all_files.size(), first_index + ITEM_COUNT);
-	auto iterator = this->all_files.begin();
-	std::advance(iterator, first_index);
 	const std::string selected_filename = this->FinalFilename();
 
 	std::function<void(const PreloadData&)> functor;
@@ -262,14 +333,14 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 			NOT_REACHED();
 	}
 
-	for (size_t i = first_index; i < last_index; i++, iterator++, y += ITEM_HEIGHT) {
-		if (selected_filename == iterator->filename) {
+	for (size_t i = first_index; i < last_index; i++, y += ITEM_HEIGHT) {
+		if (selected_filename == this->all_files[i].filename) {
 			int sx = x - 2 * ITEM_SPACING;
 			int sw = w + 4 * ITEM_SPACING;
 			if (wid_num == LSW_LIST_REV) sw -= ITEM_SPACING;
 			_video.FillRectangle(Rectangle32(sx, y - 2 * ITEM_SPACING, sw, ITEM_HEIGHT), _palette[COL_SERIES_START + COL_RANGE_BLUE * COL_SERIES_LENGTH + 1]);
 		}
-		functor(*iterator);
+		functor(this->all_files[i]);
 	}
 }
 
