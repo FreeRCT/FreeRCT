@@ -354,7 +354,7 @@ void CoasterCar::Load(Loader &ldr)
 	this->guests.resize(nr_guests);
 	for (int i = 0; i < nr_guests; i++) {
 		const int32 id = ldr.GetLong();
-		this->guests[i] = id < 0 ? nullptr : _guests.Get(id);
+		this->guests[i] = id < 0 ? nullptr : _guests.GetCreate(id);
 	}
 	ldr.ClosePattern();
 }
@@ -937,7 +937,7 @@ uint8 CoasterInstance::GetEntranceDirections(const XYZPoint16 &vox) const
 
 RideEntryResult CoasterInstance::EnterRide(int guest_id, const XYZPoint16 &vox, [[maybe_unused]] TileEdge edge)
 {
-	Guest *guest = _guests.Get(guest_id);
+	Guest *guest = _guests.GetExisting(guest_id);
 	if (guest->cash < GetSaleItemPrice(0)) return RER_REFUSED;
 	Random r;
 	for (const CoasterStation &s : this->stations) {

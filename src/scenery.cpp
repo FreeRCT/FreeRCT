@@ -221,13 +221,13 @@ void PathObjectInstance::RemoveGuestsFromBench(const TileEdge e)
 
 	uint16 id = this->GetLeftGuest(e);
 	if (id != PathObjectType::NO_GUEST_ON_BENCH) {
-		_guests.Get(id)->ExpelFromBench();
+		_guests.GetExisting(id)->ExpelFromBench();
 		this->SetLeftGuest(e, PathObjectType::NO_GUEST_ON_BENCH);
 	}
 
 	id = this->GetRightGuest(e);
 	if (id != PathObjectType::NO_GUEST_ON_BENCH) {
-		_guests.Get(id)->ExpelFromBench();
+		_guests.GetExisting(id)->ExpelFromBench();
 		this->SetRightGuest(e, PathObjectType::NO_GUEST_ON_BENCH);
 	}
 }
