@@ -708,6 +708,7 @@ void TextInputWidget::SetText(const std::string &text)
 
 bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
+	if (!this->visible) return false;
 	switch (key_code) {
 		case WMKC_CURSOR_LEFT:
 			if (this->cursor_pos > 0) {
@@ -1016,6 +1017,8 @@ void ScrollbarWidget::OnClick(const Point32 &base, const Point16 &pos)
 
 bool ScrollbarWidget::OnMouseWheelEvent(int direction)
 {
+	if (!this->visible) return false;
+
 	if (direction > 0 && this->start < static_cast<unsigned>(direction)) {
 		this->SetStart(0);
 	} else {
@@ -1285,11 +1288,13 @@ BaseWidget *BackgroundWidget::GetWidgetByPosition(const Point16 &pt)
 
 bool BackgroundWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
+	if (!this->visible) return false;
 	return (this->child != nullptr && this->child->OnKeyEvent(key_code, mod, symbol)) || LeafWidget::OnKeyEvent(key_code, mod, symbol);
 }
 
 bool BackgroundWidget::OnMouseWheelEvent(int direction)
 {
+	if (!this->visible) return false;
 	return (this->child != nullptr && this->child->OnMouseWheelEvent(direction)) || LeafWidget::OnMouseWheelEvent(direction);
 }
 
@@ -1633,6 +1638,7 @@ BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
 
 bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
+	if (!this->visible) return false;
 	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
 		if (this->childs[idx]->OnKeyEvent(key_code, mod, symbol)) return true;
 	}
@@ -1641,6 +1647,7 @@ bool IntermediateWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std:
 
 bool IntermediateWidget::OnMouseWheelEvent(int direction)
 {
+	if (!this->visible) return false;
 	for (uint16 idx = 0; idx < static_cast<uint16>(this->num_rows * this->num_cols); idx++) {
 		if (this->childs[idx]->OnMouseWheelEvent(direction)) return true;
 	}
