@@ -174,6 +174,9 @@ std::string YAMLParser::ParseValue()
 				case '\'':
 					value.push_back('\'');
 					break;
+				case '\\':
+					value.push_back('\\');
+					break;
 				default:
 					SyntaxError(this->line_number, "invalid escape character");
 			}

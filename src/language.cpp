@@ -270,15 +270,19 @@ uint16 LanguageManager::RegisterStrings(const TextData &td, const char * const n
 		}
 	}
 
-	/* This would be much easier if names and text strings were in the same order. */
+	/* Names and text strings are not in the same order. */
+	std::map<std::string, uint> name_textstring_lookup;
+	for (uint i = 0; i < td.string_count; ++i) {
+		name_textstring_lookup[td.strings[i].name] = i;
+	}
 	for (uint i = 0; i < td.string_count; ++i) {
 		assert(names[i] != nullptr && *names[i] != '\0');
 		this->string_names.at(base + i) = names[i];
-		for (uint j = 0; j < td.string_count; ++j) {
-			if (strcmp(names[i], td.strings[j].name) == 0) {
-				for (int l = 0; l < LANGUAGE_COUNT; ++l) this->languages[l].values.at(base + i) = td.strings[j].languages[l];
-				break;
-			}
+
+		const uint text_index = name_textstring_lookup.at(names[i]);
+		for (int l = 0; l < LANGUAGE_COUNT; ++l) {
+			this->languages[l].values.at(base + i) = td.strings[text_index].languages[l];
+			this->languages[l].values.at(base + i).shrink_to_fit();
 		}
 	}
 
@@ -300,15 +304,15 @@ std::string LanguageManager::GetPlural(StringID number, int64 count) const
 
 	if (number < lengthof(default_strings)) return default_strings[number];
 
-	const char *str = languages[_current_language].GetPlural(number, count);
-	if (str != nullptr) return *str != '\0' ? str : "<empty translation>";
-
 	if (_current_language != SOURCE_LANGUAGE) {
-		str = languages[SOURCE_LANGUAGE].GetPlural(number, count);
-		if (str != nullptr) return *str != '\0' ? str : "<empty string>";
+		const char *str = languages[_current_language].GetPlural(number, count);
+		if (str != nullptr) return *str != '\0' ? str : "<empty translation>";
 	}
 
-	return "<Invalid string>";
+	const char *str = languages[SOURCE_LANGUAGE].GetPlural(number, count);
+	if (str != nullptr) return *str != '\0' ? str : "<empty string>";
+
+	return "<invalid string>";
 }
 
 /**
@@ -331,6 +335,11 @@ std::string LanguageManager::GetLanguageName(int lang_index) const
 	return this->languages[lang_index].GetSgText(GUI_LANGUAGE_NAME);
 }
 
+/**
+ * Look up the name of a string.
+ * @param number Number of the string to look up.
+ * @return The string's name.
+ */
 const char *LanguageManager::GetStringName(StringID number) const
 {
 	return this->string_names.at(number);

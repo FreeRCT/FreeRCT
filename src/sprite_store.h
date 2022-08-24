@@ -43,8 +43,8 @@ class TextData : public RcdBlock {
 public:
 	/** Groups translations of one string in all languages. Memory is not owned. */
 	struct TextString {
-		PluralizedString languages[LANGUAGE_COUNT];  ///< The string in all languages.
-		const char *name;                            ///< Name of this string.
+		std::vector<const char*> languages[LANGUAGE_COUNT];  ///< The string in all languages.
+		const char *name;                                    ///< Name of this string.
 	};
 
 	bool Load(RcdFileReader *rcd_file);
