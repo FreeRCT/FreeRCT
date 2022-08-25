@@ -63,7 +63,7 @@ void GameObserver::Win()
 	assert(this->won_lost == SCENARIO_RUNNING);
 	this->won_lost = SCENARIO_WON;
 	_inbox.SendMessage(new Message(GUI_MESSAGE_SCENARIO_WON));
-	ShowParkManagementGui();
+	ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
 	/* \todo Record the player's name and other data for the highscores. */
 }
 
@@ -74,7 +74,7 @@ void GameObserver::Lose()
 	this->won_lost = SCENARIO_LOST;
 	_inbox.SendMessage(new Message(GUI_MESSAGE_SCENARIO_LOST));
 	this->SetParkOpen(false);
-	ShowParkManagementGui();
+	ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
 }
 
 /**

@@ -1235,7 +1235,7 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 				return true;
 			}
 			if (symbol == "7") {  // 7 to open the park management window.
-				ShowParkManagementGui();
+				ShowParkManagementGui(PARK_MANAGEMENT_TAB_GENERAL);
 				return true;
 			}
 			if (symbol == "8") {  // 8 to open the staff window.
