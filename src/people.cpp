@@ -459,7 +459,7 @@ void Staff::RequestMechanic(RideInstance *ride)
 static void NameNewStaff(StaffMember *m, StringID text)
 {
 	static char buffer[1024];
-	snprintf(buffer, lengthof(buffer), _language.GetText(text).c_str(), STAFF_BASE_ID - m->id);
+	snprintf(buffer, lengthof(buffer), _language.GetSgText(text).c_str(), STAFF_BASE_ID - m->id);
 	m->SetName(buffer);
 }
 

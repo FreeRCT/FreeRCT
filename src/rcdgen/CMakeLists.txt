@@ -33,7 +33,9 @@ set(rcdgen_SRCS ${rcdgen_SRCS}
 
     # Files in parent directory
     "${CMAKE_SOURCE_DIR}/src/getoptdata.cpp"
+    "${CMAKE_SOURCE_DIR}/src/language_definitions.cpp"
     "${CMAKE_SOURCE_DIR}/src/stdafx.h"
+    "${CMAKE_SOURCE_DIR}/src/string_func.cpp"
 )
 
 add_executable(rcdgen ${rcdgen_SRCS})

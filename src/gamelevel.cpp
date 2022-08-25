@@ -97,7 +97,7 @@ std::string ObjectiveNone::ToString() const
 
 std::string ObjectiveGuests::ToString() const
 {
-	_str_params.SetNumber(1, this->nr_guests);
+	_str_params.SetNumberAndPlural(1, this->nr_guests);
 	return DrawText(GUI_OBJECTIVETEXT_GUESTS);
 }
 

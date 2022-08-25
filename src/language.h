@@ -11,6 +11,8 @@
 #define LANGUAGE_H
 
 #include "geometry.h"
+#include "language_definitions.h"
+#include "string_func.h"
 
 class TextData;
 class Money;
@@ -32,7 +34,7 @@ enum StringTable {
 	STR_NULL = 0, ///< \c nullptr string.
 	STR_ARG1,     ///< Argument 1 \c "%1%".
 
-	STR_GUI_START, ///< Start of the GUI strings.
+	STR_GUI_START,  ///< Start of the GUI strings.
 
 	/* After the GUI strings come the other registered strings. */
 
@@ -75,47 +77,6 @@ enum StringTable {
 
 typedef uint16 StringID; ///< Type of a string value.
 
-/** Languages known by the program. */
-enum Languages {
-	LANG_DA_DK, ///< Danish.
-	LANG_DE_DE, ///< German.
-	LANG_EN_GB, ///< British English.
-	LANG_EN_US, ///< English (US).
-	LANG_ES_ES, ///< Spanish.
-	LANG_FR_FR, ///< French.
-	LANG_NDS_DE, ///< Low German.
-	LANG_NL_NL, ///< Dutch.
-	LANG_SV_SE, ///< Swedish.
-
-	LANGUAGE_COUNT, ///< Number of available languages.
-};
-
-/**
- * A string with its name and its translations. Memory of the text is not owned by the class.
- */
-class TextString {
-public:
-	TextString();
-
-	void Clear();
-
-	/**
-	 * Get the string in the currently selected language.
-	 * @return Text of this string in the currently selected language.
-	 */
-	std::string GetString() const
-	{
-		if (_current_language < 0 || _current_language >= LANGUAGE_COUNT) return "<out of bounds>";
-		if (this->languages[_current_language] != nullptr) return this->languages[_current_language];
-		if (this->languages[LANG_EN_GB] != nullptr) return this->languages[LANG_EN_GB];
-		return "<no-text>";
-	}
-
-	/* Memory is not owned. */
-	const char* name;                       ///< Name of the string.
-	const char* languages[LANGUAGE_COUNT];  ///< The string in all languages.
-};
-
 /** Types of parameters for string parameters. */
 enum StringParamType {
 	SPT_NONE,   ///< Parameter contains nothing (and should not be used thus).
@@ -145,6 +106,7 @@ struct StringParameters {
 	void SetNone(int num);
 	void SetStrID(int num, StringID strid);
 	void SetNumber(int num, int64 number);
+	void SetNumberAndPlural(int num, int64 number);
 	void SetMoney(int num, const Money &amount);
 	void SetDate(int num, const Date &date);
 	void SetTemperature(int num, int value);
@@ -155,30 +117,48 @@ struct StringParameters {
 
 	bool set_mode; ///< When not in set-mode, all parameters are cleared on first use of a Set function.
 	std::vector<StringParameterData> parms; ///< Parameters of the string.
+	int64 pluralize_count;                  ///< Value to use for selecting the plural form.
 };
 
-/**
- * Class for retrieving language strings.
- * @todo Implement me.
- */
-class Language {
+/** A string in one language with all its plural forms. */
+using PluralizedString = std::vector<const char*>;
+
+/** Contains all strings and the meta-information for one specific language. */
+class LanguageBundle {
 public:
-	Language();
+	LanguageBundle();
+	void Clear();
+	void InitMetaInfo(int index);
+
+	const char *GetSgText(StringID number) const;
+	const char *GetPlural(StringID number, int64 count) const;
+
+	std::vector<PluralizedString> values;  ///< Every known string with all its plural forms, indexed by #StringID.
+	                                       ///< Strings without a translation are \c nullptr. Memory is not owned.
+	const LanguageDefinition *metadata;    ///< This language's metadata.
+};
+
+/** Class for retrieving language strings. */
+class LanguageManager {
+public:
+	LanguageManager();
 
 	void Clear();
 
 	uint16 RegisterStrings(const TextData &td, const char * const names[], uint16 base = STR_GENERIC_END);
+	void InitMetaInfo();
 
-	std::string GetText(StringID number);
-	std::string GetLanguageName(int lang_index);
+	std::string GetSgText(StringID number) const;
+	std::string GetPlural(StringID number, int64 count) const;
+	std::string GetLanguageName(int lang_index) const;
+	const char *GetStringName(StringID number) const;
 
 private:
-	/** Registered strings. Entries may be \c nullptr for unregistered or non-existing strings. */
-	const TextString *registered[2048]; // Arbitrary size.
-	uint first_free; ///< 'First' string index that is not allocated yet.
+	LanguageBundle languages[LANGUAGE_COUNT];  ///< All registered languages.
+	std::vector<const char*> string_names;     ///< Names of every string, indexed by #StringID. Memory is not owned.
+	uint16 free_index;                         ///< Next free index for string storage.
 };
 
-int GetLanguageIndex(const std::string &lang_name);
 std::string GetLanguageName(int index);
 std::string GetSimilarLanguage(const std::string&);
 void InitLanguage();
@@ -187,9 +167,8 @@ void UninitLanguage();
 StringID GetMonthName(int month = 0);
 void GetTextSize(StringID num, int *width, int *height);
 
-extern Language _language;
+extern LanguageManager _language;
 extern StringParameters _str_params;
-extern const std::string _lang_names[];
 
 std::string DrawText(StringID num, StringParameters *params = &_str_params);
 

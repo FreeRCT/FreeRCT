@@ -73,12 +73,12 @@ static void PrintUsage()
 	printf("\nValid languages are:\n   ");
 	int length = 0;
 	for (int i = 0; i < LANGUAGE_COUNT; ++i) {
-		length += _lang_names[i].size() + 1;
+		length += strlen(_all_languages[i].name) + 1;
 		if (length > 50) {  // Linewrap after an arbitrary number of characters.
 			printf("\n   ");
-			length = _lang_names[i].size();
+			length = strlen(_all_languages[i].name);
 		}
-		printf(" %s", _lang_names[i].c_str());
+		printf(" %s", _all_languages[i].name);
 	}
 	printf("\n");
 }

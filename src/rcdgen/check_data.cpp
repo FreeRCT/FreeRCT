@@ -2322,6 +2322,7 @@ static std::shared_ptr<GSLPBlock> ConvertGSLPNode(std::shared_ptr<NodeGroup> ng)
 	gb->neg_3d = vals.GetSprite("neg_3d");
 	gb->close_button = vals.GetSprite("close_button");
 	gb->terraform_dot = vals.GetSprite("terraform_dot");
+
 	gb->gui_text = std::make_shared<StringBundle>();
 	gb->gui_text->Fill(vals.GetStrings("texts"), ng->pos);
 	gb->gui_text->CheckTranslations(_gui_string_names, lengthof(_gui_string_names), ng->pos);
@@ -2438,66 +2439,6 @@ static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup
 
 	vals.VerifyUsage();
 	return strs;
-}
-
-/**
- * Convert a 'string' node.
- * @param ng Generic tree of nodes to convert.
- * @return The created 'string' node.
- */
-static std::shared_ptr<StringNode> ConvertStringNode(std::shared_ptr<NodeGroup> ng)
-{
-	ExpandNoExpression(ng->exprs, ng->pos, "string");
-	auto tn = std::make_shared<StringNode>();
-	Values vals("string", ng->pos);
-	vals.PrepareNamedValues(ng->values, true, false);
-
-	tn->name = vals.GetString("name");
-	std::shared_ptr<ValueInformation> vi = vals.FindValue("text");
-	tn->text = vi->GetString(ng->pos, "string");
-	tn->text_pos = vi->pos;
-	if (vals.HasValue("lang")) {
-		vi = vals.FindValue("lang");
-		tn->lang_index = GetLanguageIndex(vi->GetString(ng->pos, "string").c_str(), vi->pos);
-	} else {
-		tn->lang_index = -1;
-	}
-
-	vals.VerifyUsage();
-	return tn;
-}
-
-/**
- * Convert the compact 'text: "...";' notation for string into a #StringsNode.
- * @param ng Generic tree of nodes to convert.
- * @return The created 'strings' node.
- */
-static std::shared_ptr<StringsNode> ConvertStringTextsNode(std::shared_ptr<NodeGroup> ng)
-{
-	std::shared_ptr<Expression> argument;
-	ExpandExpressions(ng->exprs, &argument, 1, ng->pos, "stringtexts");
-	std::string key = GetString(argument, 0, "file");
-
-	auto tn = std::make_shared<StringsNode>();
-	Values vals("stringtexts", ng->pos);
-	vals.PrepareNamedValues(ng->values, true, false);
-
-	for (int i = 0; i < vals.named_count; i++) {
-		std::shared_ptr<ValueInformation> vi = vals.named_values[i];
-		if (vi->used) continue;
-
-		tn->strings.emplace_back();
-		auto &str = tn->strings.back();
-		str.name = vi->name;
-		str.text = vi->GetString(ng->pos, "stringtexts");
-		str.text_pos = vi->pos;
-		str.key = key;
-
-		vi->used = true;
-	}
-
-	vals.VerifyUsage();
-	return tn;
 }
 
 /** Symbols of a 'track_voxel' node. */
@@ -2885,9 +2826,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "splines") return ConvertSplinesNode(ng);
 	if (ng->name == "sprite") return ConvertSpriteNode(ng);
 	if (ng->name == "spritefiles") return ConvertSpriteFilesNode(ng);
-	if (ng->name == "string") return ConvertStringNode(ng);
 	if (ng->name == "strings") return ConvertStringsNode(ng);
-	if (ng->name == "stringtexts") return ConvertStringTextsNode(ng);
 	if (ng->name == "track_piece") return ConvertTrackPieceNode(ng);
 	if (ng->name == "track_voxel") return ConvertTrackVoxel(ng);
 
@@ -2945,20 +2884,13 @@ FileNodeList *CheckTree(std::shared_ptr<NamedValueList> values)
 		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
 		if (vi->used) continue;
 		auto fn = std::dynamic_pointer_cast<FileNode>(vi->node_value);
-		if (fn != nullptr) {
-			file_nodes->files.push_back(fn);
-			vi->node_value = nullptr;
-			vi->used = true;
-			continue;
+		if (fn == nullptr) {
+			fprintf(stderr, "Error at %s: not a file node\n", vi->pos.ToString());
+			exit(1);
 		}
-		auto strs = std::dynamic_pointer_cast<StringsNode>(vi->node_value);
-		if (strs != nullptr) {
-			_strings_storage.AddStrings(strs, vi->pos);
-			vi->used = true;
-			continue;
-		}
-		fprintf(stderr, "Error at %s: Node is neither a file node nor a strings node\n", vi->pos.ToString());
-		exit(1);
+		file_nodes->files.push_back(fn);
+		vi->node_value = nullptr;
+		vi->used = true;
 	}
 	vals.VerifyUsage();
 	return file_nodes;

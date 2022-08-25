@@ -401,7 +401,7 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 			if (this->ci->broken) {
 				_str_params.SetStrID(1, GUI_RIDE_MANAGER_BROKEN_DOWN);
 			} else {
-				snprintf(text_buffer, lengthof(text_buffer), _language.GetText(GUI_RIDE_MANAGER_RELIABILITY).c_str(),
+				snprintf(text_buffer, lengthof(text_buffer), _language.GetSgText(GUI_RIDE_MANAGER_RELIABILITY).c_str(),
 						this->ci->reliability / 100.0);
 				_str_params.SetText(1, text_buffer);
 			}
@@ -427,10 +427,10 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 			break;
 
 		case CIW_NUMBER_TRAINS:
-			_str_params.SetNumber(1, this->ci->number_of_trains);
+			_str_params.SetNumberAndPlural(1, this->ci->number_of_trains);
 			break;
 		case CIW_NUMBER_CARS:
-			_str_params.SetNumber(1, this->ci->cars_per_train);
+			_str_params.SetNumberAndPlural(1, this->ci->cars_per_train);
 			break;
 	}
 }
@@ -523,7 +523,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const 
 		case CIW_CHOOSE_ENTRANCE: {
 			DropdownList itemlist;
 			for (const auto &eetype : _rides_manager.entrances) {
-				_str_params.SetText(1, _language.GetText(eetype->name));
+				_str_params.SetText(1, _language.GetSgText(eetype->name));
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(widget, itemlist, this->ci->entrance_type, COL_RANGE_DARK_RED);
@@ -532,7 +532,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const 
 		case CIW_CHOOSE_EXIT: {
 			DropdownList itemlist;
 			for (const auto &eetype : _rides_manager.exits) {
-				_str_params.SetText(1, _language.GetText(eetype->name));
+				_str_params.SetText(1, _language.GetSgText(eetype->name));
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(widget, itemlist, this->ci->exit_type, COL_RANGE_DARK_RED);

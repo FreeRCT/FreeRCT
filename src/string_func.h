@@ -10,6 +10,9 @@
 #ifndef STRING_FUNC_H
 #define STRING_FUNC_H
 
+#include <memory>
+#include <string>
+
 char *SafeStrncpy(char *dest, const char *src, int size);
 uint8 *SafeStrncpy(uint8 *dest, const uint8 *src, int size);
 char *StrDup(const char *src);
