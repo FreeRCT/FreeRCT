@@ -294,6 +294,7 @@ public:
 
 	Point32 OnInitialPosition() override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void SetTooltipStringParameters(BaseWidget *tooltip_widget) const override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
@@ -334,7 +335,7 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 					Intermediate(3, 1),
 						Widget(WT_CENTERED_TEXT, BTB_CASH, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL),
 						Widget(WT_CENTERED_TEXT, BTB_GUESTCOUNT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL),
-						Widget(WT_EMPTY, BTB_PARK_RATING, COL_RANGE_ORANGE_BROWN), SetFill(1, 1),
+						Widget(WT_EMPTY, BTB_PARK_RATING, COL_RANGE_ORANGE_BROWN), SetData(STR_NULL, GUI_PARK_MANAGEMENT_RATING), SetFill(1, 1),
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
 					Widget(WT_EMPTY, BTB_MESSAGE, COL_RANGE_ORANGE_BROWN), SetFill(1, 0), SetMinimalSize(300, BOTTOM_BAR_HEIGHT),
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
@@ -361,6 +362,14 @@ Point32 BottomToolbarWindow::OnInitialPosition()
 	pt.x = BOTTOM_BAR_POSITION_X;
 	pt.y = _video.GetYSize() - BOTTOM_BAR_HEIGHT;
 	return pt;
+}
+
+void BottomToolbarWindow::SetTooltipStringParameters(BaseWidget *tooltip_widget) const
+{
+	GuiWindow::SetTooltipStringParameters(tooltip_widget);
+	if (tooltip_widget == this->GetWidget<BaseWidget>(BTB_PARK_RATING)) {
+		_str_params.SetNumber(1, _game_observer.current_park_rating);
+	}
 }
 
 void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const

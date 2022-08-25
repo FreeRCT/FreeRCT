@@ -78,6 +78,7 @@ public:
 	virtual void ResetSize();
 
 	virtual BaseWidget *FindTooltipWidget(Point16 pt);
+	virtual void SetTooltipStringParameters(BaseWidget *tooltip_widget) const;
 };
 
 /**

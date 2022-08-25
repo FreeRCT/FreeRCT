@@ -185,10 +185,10 @@ void BaseWidget::SetSmallestSizePosition(const Rectangle16 &rect)
 
 /**
  * Find the widget for which a tooltip should be shown.
- * @param pt Mouse cursor position.
+ * @param pt Mouse cursor position relative to the widget.
  * @return The widget (may be \c nullptr).
  */
-BaseWidget *BaseWidget::FindTooltipWidget(const Point16 &pt)
+BaseWidget *BaseWidget::FindTooltipWidget(Point16 pt)
 {
 	return (this->tooltip != STR_NULL && this->pos.IsPointInside(pt)) ? this : nullptr;
 }
@@ -1630,7 +1630,7 @@ void IntermediateWidget::DoDraw(const GuiWindow *w)
 	}
 }
 
-BaseWidget *IntermediateWidget::FindTooltipWidget(const Point16 &pt)
+BaseWidget *IntermediateWidget::FindTooltipWidget(Point16 pt)
 {
 	BaseWidget *w = this->GetWidgetByPosition(pt);
 	return w == nullptr ? nullptr : w->FindTooltipWidget(pt);
@@ -1984,8 +1984,7 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 
 			case WPT_DATA: {
 				if (*dest == nullptr) break;
-				LeafWidget *lw = dynamic_cast<LeafWidget *>(*dest);
-				if (lw != nullptr) lw->tooltip = parts->data.dat.tip;
+				(*dest)->tooltip = parts->data.dat.tip;
 				DataWidget *bw = dynamic_cast<DataWidget *>(*dest);
 				if (bw != nullptr) bw->value = parts->data.dat.value;
 				break;
