@@ -469,6 +469,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 	static char textbuf[64];
 	std::string buffer;
 
+	if (!params->set_mode) params->Clear();
 	const std::string txt = _language.GetPlural(strid, params == nullptr ? 1 : params->pluralize_count);
 	const char *ptr = txt.c_str();
 	for (;;) {

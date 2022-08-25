@@ -40,6 +40,7 @@ class Message {
 public:
 	explicit Message();
 	explicit Message(StringID str, uint32 d1 = 0, uint32 d2 = 0);
+	Message(const Message&) = delete;
 
 	void SetStringParameters() const;
 	void OnClick() const;
@@ -52,6 +53,7 @@ public:
 	StringID message;           ///< Message content.
 	MessageDataType data_type;  ///< Type of the extra data.
 	uint32 data1, data2;        ///< Extra data the message may refer to (the meaning depends on #data_type).
+	uint32 *data_for_plural;    ///< The data variable to use for message pluralization (may be \c nullptr).
 
 private:
 	void InitMessageDataTypes();

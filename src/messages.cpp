@@ -15,7 +15,7 @@
 
 /** Default constructor, for loading only. */
 Message::Message()
-: category(MSC_INFO), message(STR_NULL), data_type(MDT_NONE), data1(0), data2(0)
+: category(MSC_INFO), message(STR_NULL), data_type(MDT_NONE), data1(0), data2(0), data_for_plural(nullptr)
 {
 }
 
@@ -26,7 +26,7 @@ Message::Message()
  * @param d2 Extra data as required by #str.
  */
 Message::Message(StringID str, uint32 d1, uint32 d2)
-: timestamp(_date), message(str), data1(d1), data2(d2)
+: timestamp(_date), message(str), data1(d1), data2(d2), data_for_plural(nullptr)
 {
 	this->InitMessageDataTypes();
 }
@@ -60,6 +60,7 @@ void Message::InitMessageDataTypes()
 		case GUI_MESSAGE_BAD_RATING:
 			this->category = MSC_BAD;
 			this->data_type = MDT_PARK;
+			this->data_for_plural = &this->data1;
 			return;
 
 		case GUI_MESSAGE_GUEST_LOST:
@@ -73,6 +74,8 @@ void Message::InitMessageDataTypes()
 			return;
 
 		case GUI_MESSAGE_CRASH_WITH_DEAD:
+			this->data_for_plural = &this->data2;
+			/* FALL-THROUGH */
 		case GUI_MESSAGE_CRASH_NO_DEAD:
 			this->category = MSC_BAD;
 			this->data_type = MDT_RIDE_INSTANCE;
@@ -94,12 +97,13 @@ void Message::InitMessageDataTypes()
 /** Set the string parameters for this message. */
 void Message::SetStringParameters() const
 {
+	if (this->data_for_plural != nullptr) _str_params.pluralize_count = *this->data_for_plural;
 	switch (this->data_type) {
 		case MDT_NONE:
 		case MDT_GOTO:
 			break;
 		case MDT_PARK:
-			_str_params.SetNumberAndPlural(1, this->data1);
+			_str_params.SetNumber(1, this->data1);
 			break;
 		case MDT_GUEST:
 			_str_params.SetText(1, _guests.GetExisting(this->data1)->GetName());
@@ -109,7 +113,7 @@ void Message::SetStringParameters() const
 			break;
 		case MDT_RIDE_INSTANCE:
 			_str_params.SetText(1, _rides_manager.GetRideInstance(this->data1)->name);
-			_str_params.SetNumberAndPlural(2, this->data2);
+			_str_params.SetNumber(2, this->data2);
 			break;
 		default:
 			NOT_REACHED();
