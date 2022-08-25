@@ -162,7 +162,7 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 	if (imgdata != nullptr) {
 		_video.BlitImage(Point32(
 				rect.base.x + rect.width - rect.height,
-				rect.base.y + (static_cast<int>(imgdata->height) - static_cast<int>(rect.height)) / 2),
+				rect.base.y + (static_cast<int>(rect.height) - static_cast<int>(imgdata->height)) / 2),
 			imgdata, rc, GS_NORMAL);
 	}
 }
