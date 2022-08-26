@@ -396,16 +396,18 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos)
 {
 	switch (wid_num) {
-		case BTB_MESSAGE: {
-			if (_inbox.display_message == nullptr) break;
-			BaseWidget *w = this->GetWidget<BaseWidget>(wid_num);
-			if (pos.x < w->pos.width - w->pos.height) {
-				_inbox.DismissDisplayMessage();
+		case BTB_MESSAGE:
+			if (_inbox.display_message == nullptr) {
+				ShowInboxGui();
 			} else {
-				_inbox.display_message->OnClick();
+				BaseWidget *w = this->GetWidget<BaseWidget>(wid_num);
+				if (pos.x < w->pos.width - w->pos.height) {
+					_inbox.DismissDisplayMessage();
+				} else {
+					_inbox.display_message->OnClick();
+				}
 			}
 			break;
-		}
 
 		case BTB_CASH:
 			ShowFinancesGui();
@@ -424,7 +426,6 @@ void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos
 	}
 
 	return GuiWindow::OnClick(wid_num, pos);
-
 }
 
 void BottomToolbarWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
