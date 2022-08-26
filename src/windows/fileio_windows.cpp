@@ -72,6 +72,16 @@ bool WindowsDirectoryReader::EntryIsDirectory()
 }
 
 /**
+ * Delete the given file.
+ * @param path Path to delete.
+ */
+void RemoveFile(const char *path)
+{
+	if (!PathIsFile(path)) return;
+	DeleteFile(path);
+}
+
+/**
  * Test whether the given path points to a normal file.
  * @param path Path to investigate.
  * @return Whether the given path points to a normal file.

@@ -489,9 +489,15 @@ bool SaveGameFile(const char *fname)
 {
 	FILE *fp = fopen(fname, "wb");
 	if (fp == nullptr) return false;
+
 	Saver svr(fp);
 	SaveElements(svr);
 	fclose(fp);
+
+#ifdef WEBASSEMBLY
+	printf("WEBASSEMBLY: Game saved to %s\n", fname);
+#endif
+
 	return true;
 }
 

@@ -412,9 +412,13 @@ strings:
 		LOADSAVE_LOAD:        "Laden"
 		LOADSAVE_SAVE:        "Sekern"
 		LOADSAVE_CANCEL:      "Ofbreken"
+		LOADSAVE_DELETE:      "Wegdoon"
 		LOADSAVE_COLUMN_FILE: "Dateinaam"
 		LOADSAVE_COLUMN_TIME: "Dag sekert"
 		LOADSAVE_COLUMN_NAME: "Rutfödderung"
+		LOADSAVE_CONFIRM_TITLE:     "Würrelk?"
+		LOADSAVE_CONFIRM_OVERWRITE: "Willst du deeses sekert Speel würrelk överschrieven?"
+		LOADSAVE_CONFIRM_DELETE:    "Willst du deeses sekert Speel würrelk wegdoon?"
 
 	ice-cream-stall:
 		NAME_INSTANCE1:        "De Ies-Palast"
