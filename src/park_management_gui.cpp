@@ -39,9 +39,9 @@ public:
 /**
  * Widget numbers of the park management GUI.
  * @ingroup gui_group
+ * @note The tabbutton constants must be in sync with the #ParkManagementGuiTabs.
  */
 enum ParkManagementWidgets {
-	/* The tabbutton constants must be in sync with #ParkManagementGuiTabs. */
 	PM_TABBUTTON_GENERAL = 0,  ///< General settings tab button.
 	PM_TABBUTTON_GUESTS,       ///< Guests graph tab button.
 	PM_TABBUTTON_RATING,       ///< Park rating graph tab button.

@@ -422,10 +422,9 @@ void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos
 			break;
 
 		default:
+			GuiWindow::OnClick(wid_num, pos);
 			break;
 	}
-
-	return GuiWindow::OnClick(wid_num, pos);
 }
 
 void BottomToolbarWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)

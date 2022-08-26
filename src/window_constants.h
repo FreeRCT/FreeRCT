@@ -135,7 +135,10 @@ enum WmMouseModes {
 	WMMM_MOVE_WINDOW,  ///< Move the current window.
 };
 
-/** Tabs of the park management GUI. */
+/**
+ * Tabs of the park management GUI.
+ * @note These constants must be in sync with their #ParkManagementWidgets counterparts.
+ */
 enum ParkManagementGuiTabs {
 	PARK_MANAGEMENT_TAB_GENERAL = 0,  ///< General settings tab button.
 	PARK_MANAGEMENT_TAB_GUESTS,       ///< Guests graph tab button.
