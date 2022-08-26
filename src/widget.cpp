@@ -437,6 +437,7 @@ DataWidget::DataWidget(WidgetType wtype) : LeafWidget(wtype), value(0), value_wi
  */
 void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 {
+	_str_params.Clear();
 	if (!w->initialized) this->SetWidget(wid_array);
 	if (this->visible) {
 		this->min_x = this->smallest_x;
@@ -548,6 +549,7 @@ void DataWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
  */
 void DataWidget::DoDraw(const GuiWindow *w)
 {
+	_str_params.Clear();
 	const BorderSpriteData *bsd = nullptr;
 	uint8 pressed = 0;
 	switch (this->wtype) {
