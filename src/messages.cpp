@@ -97,10 +97,10 @@ void Message::InitMessageDataTypes()
 /** Set the string parameters for this message. */
 void Message::SetStringParameters() const
 {
+	_str_params.Clear();
 	switch (this->data_type) {
 		case MDT_NONE:
 		case MDT_GOTO:
-			_str_params.Clear();
 			break;
 		case MDT_PARK:
 			_str_params.SetNumber(1, this->data1);
