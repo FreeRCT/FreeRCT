@@ -412,9 +412,13 @@ strings:
 		LOADSAVE_LOAD:        "Laden"
 		LOADSAVE_SAVE:        "Speichern"
 		LOADSAVE_CANCEL:      "Abbrechen"
+		LOADSAVE_DELETE:      "Löschen"
 		LOADSAVE_COLUMN_FILE: "Dateiname"
 		LOADSAVE_COLUMN_TIME: "Speicherdatum"
 		LOADSAVE_COLUMN_NAME: "Szenario"
+		LOADSAVE_CONFIRM_TITLE:     "Bestätigen"
+		LOADSAVE_CONFIRM_OVERWRITE: "Willst du diesen Spielstand wirklich überschreiben?"
+		LOADSAVE_CONFIRM_DELETE:    "Willst du diesen Spielstand wirklich löschen?"
 
 	ice-cream-stall:
 		NAME_INSTANCE1:        "Der Eis-Palast"

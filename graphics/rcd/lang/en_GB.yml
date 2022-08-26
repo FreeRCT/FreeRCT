@@ -411,9 +411,13 @@ strings:
 		LOADSAVE_LOAD:        "Load"
 		LOADSAVE_SAVE:        "Save"
 		LOADSAVE_CANCEL:      "Cancel"
+		LOADSAVE_DELETE:      "Delete"
 		LOADSAVE_COLUMN_FILE: "Filename"
 		LOADSAVE_COLUMN_TIME: "Date Saved"
 		LOADSAVE_COLUMN_NAME: "Scenario"
+		LOADSAVE_CONFIRM_TITLE:     "Confirm"
+		LOADSAVE_CONFIRM_OVERWRITE: "Are you sure you want to overwrite this saved game?"
+		LOADSAVE_CONFIRM_DELETE:    "Are you sure you want to delete this saved game?"
 
 	ice-cream-stall:
 		NAME_INSTANCE1:        "The ice palace"

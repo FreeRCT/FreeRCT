@@ -46,6 +46,55 @@ static bool SortByCompatibility(const PreloadData &a, const PreloadData &b) {
 }
 
 /**
+ * Widget numbers of the loadsave confirmation window.
+ * @ingroup gui_group
+ */
+enum LoadsaveConfirmationWidgets {
+	LSC_MESSAGE, ///< Displayed message.
+	LSC_YES,     ///< 'yes' button.
+	LSC_NO,      ///< 'no' button.
+};
+
+/**
+ * Widget parts of the loadsave confirmation window.
+ * @ingroup gui_group
+ */
+static const WidgetPart _loadsave_confirmation_gui_parts[] = {
+	Intermediate(0, 1),
+		Intermediate(1, 0),
+			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(GUI_LOADSAVE_CONFIRM_TITLE, GUI_TITLEBAR_TIP),
+			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED),
+		EndContainer(),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED),
+			Intermediate(2,0),
+				Widget(WT_CENTERED_TEXT, LSC_MESSAGE, COL_RANGE_RED),
+						SetData(STR_ARG1, STR_NULL), SetPadding(5, 5, 5, 5),
+			EndContainer(),
+			Intermediate(1, 5), SetPadding(0, 0, 3, 0),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
+				Widget(WT_TEXT_PUSHBUTTON, LSC_NO, COL_RANGE_YELLOW), SetData(GUI_QUIT_NO, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
+				Widget(WT_TEXT_PUSHBUTTON, LSC_YES, COL_RANGE_YELLOW), SetData(GUI_QUIT_YES, STR_NULL),
+				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
+			EndContainer(),
+};
+
+/** %Window to ask confirmation for deleting or overwriting a file. */
+class LoadsaveConfirmationWindow : public GuiWindow {
+public:
+	LoadsaveConfirmationWindow(const std::string &filepath, bool is_save_window);
+
+	Point32 OnInitialPosition() override;
+	void OnClick(WidgetNumber number, const Point16 &pos) override;
+	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
+	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+
+private:
+	std::string filepath;  ///< File to operate on.
+	bool is_save_window;   ///< Save the game to the file instead of just deleting the file.
+};
+
+/**
  * Game loading/saving gui.
  * @ingroup gui_group
  */
@@ -63,9 +112,11 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	void Sort(SortBy sort);
+	void FileDeleted(std::string path);
 
 private:
 	std::string FinalFilename() const;
+	int GetSelectedFileIndex() const;
 
 	const Type type;                     ///< Type of this window.
 	std::vector<PreloadData> all_files;  ///< All files in the working directory.
@@ -90,6 +141,7 @@ enum LoadSaveWidgets {
 	LSW_SORT_REV,   ///< Sort by revision compatibility button.
 	LSW_TEXTFIELD,  ///< Text field for the filename.
 	LSW_OK,         ///< Confirmation button.
+	LSW_DELETE,     ///< Delete savegame button.
 	LSW_CANCEL,     ///< Cancel button.
 };
 
@@ -128,8 +180,9 @@ static const WidgetPart _loadsave_gui_parts[] = {
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_BLUE),
 			Intermediate(2, 1),
 				Widget(WT_TEXT_INPUT, LSW_TEXTFIELD, COL_RANGE_BLUE),
-				Intermediate(1, 2),
+				Intermediate(1, 3),
 					Widget(WT_TEXT_PUSHBUTTON, LSW_CANCEL, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_CANCEL, STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, LSW_DELETE, COL_RANGE_BLUE), SetData(GUI_LOADSAVE_DELETE, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, LSW_OK,     COL_RANGE_BLUE), SetData(STR_ARG1,            STR_NULL),
 
 	EndContainer(),
@@ -154,6 +207,22 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
 	this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->SetItemCount(this->all_files.size());
 	this->Sort(SortByTimestamp);
+}
+
+/**
+ * A savegame file was deleted, update the list of files.
+ */
+void LoadSaveGui::FileDeleted(std::string path)
+{
+	if (path.compare(0, SavegameDirectory().size(), SavegameDirectory()) != 0) return;
+	path.erase(0, SavegameDirectory().size());
+	for (auto it = this->all_files.begin(); it != this->all_files.end(); ++it) {
+		if (it->filename == path) {
+			this->all_files.erase(it);
+			this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->SetItemCount(this->all_files.size());
+			return;
+		}
+	}
 }
 
 /**
@@ -201,11 +270,67 @@ std::string LoadSaveGui::FinalFilename() const
 	return result;
 }
 
+/**
+ * Find out which index, if any, in %all_files is currently selected.
+ * @return The selected index or \c -1 for no selection.
+ */
+int LoadSaveGui::GetSelectedFileIndex() const
+{
+	const std::string filename = this->FinalFilename();
+	for (uint i = 0; i < this->all_files.size(); ++i) {
+		if (this->all_files[i].filename == filename) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 bool LoadSaveGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
-	if (key_code == WMKC_CONFIRM) {
-		this->OnClick(LSW_OK, Point16());
-		return true;
+	switch (key_code) {
+		case WMKC_CONFIRM:
+			this->OnClick(LSW_OK, Point16());
+			return true;
+
+		case WMKC_CURSOR_DOWN:
+		case WMKC_CURSOR_UP:
+		case WMKC_CURSOR_PAGEDOWN:
+		case WMKC_CURSOR_PAGEUP: {
+			if (this->all_files.empty()) return false;
+
+			ScrollbarWidget *scrollbar = this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR);
+			const int old_index = this->GetSelectedFileIndex();
+			int new_index = old_index;
+			const int delta = (key_code == WMKC_CURSOR_PAGEUP || key_code == WMKC_CURSOR_PAGEDOWN) ? scrollbar->GetVisibleCount() : 1;
+			if (key_code == WMKC_CURSOR_UP || key_code == WMKC_CURSOR_PAGEUP) {
+				if (old_index < 0) {
+					new_index = this->all_files.size() - 1;
+				} else {
+					new_index = std::max(0, old_index - delta);
+				}
+			} else {
+				if (old_index < 0) {
+					new_index = 0;
+				} else {
+					new_index = std::min<int>(old_index + delta, this->all_files.size() - 1);
+				}
+			}
+			if (new_index == old_index) return false;
+
+			this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetText(this->all_files[new_index].filename);
+
+			if (static_cast<int>(scrollbar->GetStart()) > new_index) {
+				scrollbar->SetStart(new_index);
+			} else if (static_cast<int>(scrollbar->GetStart() + scrollbar->GetVisibleCount()) < new_index + 1) {
+				scrollbar->SetStart(new_index + 1 - scrollbar->GetVisibleCount());
+			}
+
+			this->MarkDirty();
+			return true;
+		}
+
+		default:
+			break;
 	}
 	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
 }
@@ -246,28 +371,31 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			break;
 		}
 
-		case LSW_OK: {
-			const std::string filename = this->FinalFilename();
+		case LSW_DELETE: {
+			const int sel = this->GetSelectedFileIndex();
+			if (sel < 0) break;
 			std::string path = SavegameDirectory();
-			path += filename;
+			path += this->FinalFilename();
+			new LoadsaveConfirmationWindow(path, false);
+			break;
+		}
 
-			const PreloadData *existing_file = nullptr;
-			for (const PreloadData &pd : this->all_files) {
-				if (pd.filename == filename) {
-					existing_file = &pd;
-					break;
-				}
-			}
+		case LSW_OK: {
+			std::string path = SavegameDirectory();
+			path += this->FinalFilename();
+			const int sel = this->GetSelectedFileIndex();
 
 			switch (this->type) {
 				case SAVE:
-					if (existing_file != nullptr) {
-						/* \todo Show a confirmation dialogue to ask the user whether the file should be overwritten. */
+					if (sel >= 0) {
+						new LoadsaveConfirmationWindow(path, true);
+						return;
+					} else {
+						_game_control.SaveGame(path.c_str());
 					}
-					_game_control.SaveGame(path.c_str());
 					break;
 				case LOAD:
-					if (existing_file == nullptr || !existing_file->load_success) return;  // The file does not exist or is invalid.
+					if (sel < 0 || !this->all_files.at(sel).load_success) return;  // The file does not exist or is invalid.
 					_game_control.LoadGame(path.c_str());
 					break;
 			}
@@ -342,6 +470,61 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 		}
 		functor(this->all_files[i]);
 	}
+}
+
+/**
+ * Constructor.
+ * @param filepath File to work on.
+ * @param is_save_window Save the game to this file instead of just deleting the file.
+ */
+LoadsaveConfirmationWindow::LoadsaveConfirmationWindow(const std::string &filepath, bool is_save_window)
+: GuiWindow(WC_LOADSAVE_CONFIRM, ALL_WINDOWS_OF_TYPE), filepath(filepath), is_save_window(is_save_window)
+{
+	this->SetupWidgetTree(_loadsave_confirmation_gui_parts, lengthof(_loadsave_confirmation_gui_parts));
+}
+
+void LoadsaveConfirmationWindow::SetWidgetStringParameters(const WidgetNumber wid_num) const
+{
+	switch (wid_num) {
+		case LSC_MESSAGE:
+			_str_params.SetStrID(1, this->is_save_window ? GUI_LOADSAVE_CONFIRM_OVERWRITE : GUI_LOADSAVE_CONFIRM_DELETE);
+			break;
+
+		default: break;
+	}
+}
+
+Point32 LoadsaveConfirmationWindow::OnInitialPosition()
+{
+	Point32 pt;
+	pt.x = (_video.GetXSize() - this->rect.width ) / 2;
+	pt.y = (_video.GetYSize() - this->rect.height) / 2;
+	return pt;
+}
+
+bool LoadsaveConfirmationWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
+{
+	if (key_code == WMKC_CONFIRM) {
+		this->OnClick(LSC_YES, Point16());
+		return true;
+	}
+	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
+}
+
+void LoadsaveConfirmationWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
+{
+	if (number == LSC_YES) {
+		if (this->is_save_window) {
+			_game_control.SaveGame(this->filepath.c_str());
+			delete GetWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE);
+		} else {
+			RemoveFile(this->filepath.c_str());
+			static_cast<LoadSaveGui*>(GetWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE))->FileDeleted(this->filepath);
+		}
+	} else if (number != LSC_NO) {
+		return;
+	}
+	delete this;
 }
 
 /**

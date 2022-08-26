@@ -80,6 +80,7 @@ DirectoryReader *MakeDirectoryReader();
 
 void MakeDirectory(std::string path);
 void CopyBinaryFile(const char *src, const char *dest);
+void RemoveFile(const char *path);
 
 const std::string &GetUserHomeDirectory();
 
