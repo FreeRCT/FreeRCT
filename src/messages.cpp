@@ -97,10 +97,10 @@ void Message::InitMessageDataTypes()
 /** Set the string parameters for this message. */
 void Message::SetStringParameters() const
 {
-	if (this->data_for_plural != nullptr) _str_params.pluralize_count = *this->data_for_plural;
 	switch (this->data_type) {
 		case MDT_NONE:
 		case MDT_GOTO:
+			_str_params.Clear();
 			break;
 		case MDT_PARK:
 			_str_params.SetNumber(1, this->data1);
@@ -118,6 +118,7 @@ void Message::SetStringParameters() const
 		default:
 			NOT_REACHED();
 	}
+	if (this->data_for_plural != nullptr) _str_params.pluralize_count = *this->data_for_plural;
 }
 
 /** The user clicked this message's button. */

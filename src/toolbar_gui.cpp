@@ -317,7 +317,7 @@ enum BottomToolbarGuiWidgets {
 	BTB_DATE,           ///< Status panel containing date.
 };
 
-static const uint32 BOTTOM_BAR_HEIGHT = 55;     ///< Minimum Y-coord size of the bottom toolbar (BTB) panel.
+static const uint32 BOTTOM_BAR_HEIGHT = 50;     ///< Minimum Y-coord size of the bottom toolbar (BTB) panel.
 static const uint32 BOTTOM_BAR_POSITION_X = 75; ///< Separation of the toolbar from the edge of the window.
 
 /**

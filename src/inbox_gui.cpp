@@ -32,7 +32,7 @@ public:
 
 static const int IBX_NR_ROWS = 5;      ///< Number of message rows in the inbox window.
 static const int BUTTON_WIDTH = 400;   ///< Pixel width of a message row.
-static const int BUTTON_HEIGHT = 50;   ///< Pixel height of a message row.
+static const int BUTTON_HEIGHT = 65;   ///< Pixel height of a message row.
 static const int MESSAGE_PADDING = 2;  ///< Padding inside a message row.
 
 /**
@@ -126,6 +126,7 @@ void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) con
 void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 {
 	const int text_w = rect.width - rect.height - 3 * MESSAGE_PADDING;
+	const int text_y = (narrow ? MESSAGE_PADDING : GetTextHeight()) + MESSAGE_PADDING;
 	_video.FillRectangle(rect, 0xff);
 
 	uint8 colour;
@@ -140,7 +141,7 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 	colour += COL_SERIES_START + COL_SERIES_LENGTH / 2;
 
 	msg->SetStringParameters();
-	DrawString(msg->message, colour, rect.base.x + MESSAGE_PADDING, rect.base.y + rect.height / (narrow ? 5 : 2), text_w);
+	DrawMultilineString(msg->message, rect.base.x + MESSAGE_PADDING, rect.base.y + text_y, text_w, rect.height - text_y - MESSAGE_PADDING, colour);
 
 	if (!narrow) {
 		_str_params.SetDate(1, msg->timestamp);
