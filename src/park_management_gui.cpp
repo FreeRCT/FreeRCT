@@ -27,7 +27,7 @@
  */
 class ParkManagementGui : public GuiWindow {
 public:
-	ParkManagementGui();
+	explicit ParkManagementGui(ParkManagementGuiTabs tab);
 
 	void SelectTab(WidgetNumber widget);
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
@@ -39,6 +39,7 @@ public:
 /**
  * Widget numbers of the park management GUI.
  * @ingroup gui_group
+ * @note The tabbutton constants must be in sync with the #ParkManagementGuiTabs.
  */
 enum ParkManagementWidgets {
 	PM_TABBUTTON_GENERAL = 0,  ///< General settings tab button.
@@ -144,10 +145,10 @@ static const WidgetPart _pm_build_gui_parts[] = {
 	EndContainer(),
 };
 
-ParkManagementGui::ParkManagementGui() : GuiWindow(WC_PARK_MANAGEMENT, ALL_WINDOWS_OF_TYPE)
+ParkManagementGui::ParkManagementGui(ParkManagementGuiTabs tab) : GuiWindow(WC_PARK_MANAGEMENT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_pm_build_gui_parts, lengthof(_pm_build_gui_parts));
-	this->SelectTab(PM_TABBUTTON_OBJECTIVE);
+	this->SelectTab(tab);
 
 	TextInputWidget *txt = this->GetWidget<TextInputWidget>(PM_PARKNAME);
 	txt->SetText(_game_observer.park_name);
@@ -333,10 +334,11 @@ void ParkManagementGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) 
 
 /**
  * Open the park management GUI.
+ * @param tab Tab to show. Ignored if the GUI was already open.
  * @ingroup gui_group
  */
-void ShowParkManagementGui()
+void ShowParkManagementGui(ParkManagementGuiTabs tab)
 {
 	if (HighlightWindowByType(WC_PARK_MANAGEMENT, ALL_WINDOWS_OF_TYPE) != nullptr) return;
-	new ParkManagementGui;
+	new ParkManagementGui(tab);
 }

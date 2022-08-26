@@ -136,6 +136,18 @@ enum WmMouseModes {
 	WMMM_MOVE_WINDOW,  ///< Move the current window.
 };
 
+/**
+ * Tabs of the park management GUI.
+ * @note These constants must be in sync with their #ParkManagementWidgets counterparts.
+ */
+enum ParkManagementGuiTabs {
+	PARK_MANAGEMENT_TAB_GENERAL = 0,  ///< General settings tab button.
+	PARK_MANAGEMENT_TAB_GUESTS,       ///< Guests graph tab button.
+	PARK_MANAGEMENT_TAB_RATING,       ///< Park rating graph tab button.
+	PARK_MANAGEMENT_TAB_OBJECTIVE,    ///< Objective tab button.
+	PARK_MANAGEMENT_TAB_AWARDS,       ///< Awards tab button.
+};
+
 typedef uint32 WindowNumber; ///< Type of a window number.
 
 static const WindowNumber ALL_WINDOWS_OF_TYPE = UINT32_MAX; ///< Window number parameter meaning 'all windows of the window type'.

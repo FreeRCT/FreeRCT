@@ -109,7 +109,7 @@ public:
 	uint8 paddings[PAD_COUNT]; ///< Padding.
 	StringID tooltip;          ///< Tool-tip of the widget.
 
-	virtual BaseWidget *FindTooltipWidget(const Point16 &pt);
+	virtual BaseWidget *FindTooltipWidget(Point16 pt);
 	void DrawTooltip(Point32 p);
 
 protected:
@@ -349,7 +349,7 @@ public:
 	void DoDraw(const GuiWindow *w) override;
 	BaseWidget *GetWidgetByPosition(const Point16 &pt) override;
 	void AutoRaiseButtons(const Point32 &base) override;
-	BaseWidget *FindTooltipWidget(const Point16 &pt) override;
+	BaseWidget *FindTooltipWidget(Point16 pt) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	bool OnMouseWheelEvent(int direction) override;
 

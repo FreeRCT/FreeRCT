@@ -326,6 +326,14 @@ BaseWidget *Window::FindTooltipWidget([[maybe_unused]] Point16 pt)
 }
 
 /**
+ * Set string parameters of the tooltip string of the widget.
+ * @param tooltip_widget The widget whose tooltip is being drawn.
+ */
+void Window::SetTooltipStringParameters([[maybe_unused]] BaseWidget *tooltip_widget) const
+{
+}
+
+/**
  * Gui window constructor.
  * @param wtype %Window type (for finding a window in the stack).
  * @param wnumber Number of the window within the \a wtype.
@@ -690,8 +698,7 @@ void GuiWindow::SetHighlight(bool value)
 BaseWidget *GuiWindow::FindTooltipWidget(Point16 pt)
 {
 	if (this->tree == nullptr) return nullptr;
-	pt.x -= this->rect.base.x;
-	pt.y -= this->rect.base.y;
+	pt -= this->rect.base;
 	return this->tree->FindTooltipWidget(pt);
 }
 
@@ -1125,11 +1132,11 @@ void WindowManager::UpdateWindows()
 {
 	bool force_repaint = false;
 	BaseWidget *tt = nullptr;
-	Point32 tooltip_offset;
+	Window *tooltip_window = nullptr;
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
 		if (tt == nullptr) {
 			tt = w->FindTooltipWidget(GetMousePosition());
-			if (tt != nullptr) tooltip_offset = w->rect.base;
+			if (tt != nullptr) tooltip_window = w;
 		}
 		force_repaint |= w->wtype == WC_MAIN_MENU;  // Ensure a smooth animation in the main menu.
 	}
@@ -1147,7 +1154,10 @@ void WindowManager::UpdateWindows()
 	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw(selector);
 	this->tooltip_widget = tt;
 
-	if (this->tooltip_widget != nullptr) this->tooltip_widget->DrawTooltip(tooltip_offset);
+	if (this->tooltip_widget != nullptr) {
+		tooltip_window->SetTooltipStringParameters(this->tooltip_widget);
+		this->tooltip_widget->DrawTooltip(tooltip_window->rect.base);
+	}
 
 	_video.FinishRepaint();
 }

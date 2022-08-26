@@ -15,6 +15,7 @@
 #include "finances.h"
 #include "dates.h"
 #include "math_func.h"
+#include "sprite_data.h"
 #include "sprite_store.h"
 #include "gui_sprites.h"
 #include "messages.h"
@@ -204,7 +205,7 @@ void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 			break;
 
 		case TB_GUI_PARK:
-			ShowParkManagementGui();
+			ShowParkManagementGui(PARK_MANAGEMENT_TAB_GENERAL);
 			break;
 
 		case TB_GUI_STAFF:
@@ -293,6 +294,7 @@ public:
 
 	Point32 OnInitialPosition() override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
+	void SetTooltipStringParameters(BaseWidget *tooltip_widget) const override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
@@ -305,16 +307,17 @@ public:
  */
 enum BottomToolbarGuiWidgets {
 	BTB_EMPTY,          ///< Empty widget defining the width of the status bar.
-	BTB_STATUS,         ///< Status panel containing cash and rating readout.
+	BTB_CASH,           ///< Status panel containing the park's current cash.
 	BTB_WEATHER,        ///< Weather sprite.
 	BTB_TEMPERATURE,    ///< Temperature in the park.
 	BTB_MESSAGE,        ///< A preview of the last message.
 	BTB_VIEW_DIRECTION, ///< Status panel containing viewing direction.
 	BTB_GUESTCOUNT,     ///< Display of number of guests in the park.
+	BTB_PARK_RATING,    ///< Display of the park rating.
 	BTB_DATE,           ///< Status panel containing date.
 };
 
-static const uint32 BOTTOM_BAR_HEIGHT = 35;     ///< Minimum Y-coord size of the bottom toolbar (BTB) panel.
+static const uint32 BOTTOM_BAR_HEIGHT = 50;     ///< Minimum Y-coord size of the bottom toolbar (BTB) panel.
 static const uint32 BOTTOM_BAR_POSITION_X = 75; ///< Separation of the toolbar from the edge of the window.
 
 /**
@@ -327,19 +330,22 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 	Intermediate(0, 1),
 		Widget(WT_EMPTY, BTB_EMPTY, COL_RANGE_INVALID),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
-			Intermediate(1, 0), SetPadding(0, 3, 0, 3),
-				Intermediate(3, 1),
-					Widget(WT_LEFT_TEXT, BTB_STATUS, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetFill(0, 0),
-					Widget(WT_LEFT_TEXT, BTB_GUESTCOUNT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL), SetFill(0, 0),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
-				Widget(WT_EMPTY, BTB_WEATHER, COL_RANGE_ORANGE_BROWN), SetPadding(3, 3, 3, 3), SetFill(0, 1),
-				Widget(WT_RIGHT_TEXT, BTB_TEMPERATURE, COL_RANGE_ORANGE_BROWN), SetFill(0, 0), SetData(STR_ARG1, STR_NULL),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(1, 0),
-				Widget(WT_EMPTY, BTB_MESSAGE, COL_RANGE_ORANGE_BROWN), SetFill(1, 0), SetMinimalSize(300, BOTTOM_BAR_HEIGHT),
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(1, 0),
-				Widget(WT_EMPTY, BTB_VIEW_DIRECTION, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(0, 0),
-				Widget(WT_RIGHT_TEXT, BTB_DATE, COL_RANGE_ORANGE_BROWN), SetPadding(3, 0, 30, 0), SetData(STR_ARG1, STR_NULL),
-						SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(0, 0),
+			Intermediate(1, 0),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
+					Intermediate(3, 1),
+						Widget(WT_CENTERED_TEXT, BTB_CASH, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL),
+						Widget(WT_CENTERED_TEXT, BTB_GUESTCOUNT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL),
+						Widget(WT_EMPTY, BTB_PARK_RATING, COL_RANGE_ORANGE_BROWN), SetData(STR_NULL, GUI_PARK_MANAGEMENT_RATING), SetFill(1, 1),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
+					Widget(WT_EMPTY, BTB_MESSAGE, COL_RANGE_ORANGE_BROWN), SetFill(1, 0), SetMinimalSize(300, BOTTOM_BAR_HEIGHT),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
+					Intermediate(1, 2),
+						Widget(WT_EMPTY, BTB_VIEW_DIRECTION, COL_RANGE_ORANGE_BROWN), SetMinimalSize(1, BOTTOM_BAR_HEIGHT), SetFill(1, 1),
+						Intermediate(2, 1),
+							Widget(WT_RIGHT_TEXT, BTB_DATE, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetFill(0, 0),
+							Intermediate(1, 2),
+								Widget(WT_RIGHT_TEXT, BTB_TEMPERATURE, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetFill(1, 0),
+								Widget(WT_EMPTY, BTB_WEATHER, COL_RANGE_ORANGE_BROWN), SetFill(1, 1),
 			EndContainer(),
 	EndContainer(),
 };
@@ -358,10 +364,18 @@ Point32 BottomToolbarWindow::OnInitialPosition()
 	return pt;
 }
 
+void BottomToolbarWindow::SetTooltipStringParameters(BaseWidget *tooltip_widget) const
+{
+	GuiWindow::SetTooltipStringParameters(tooltip_widget);
+	if (tooltip_widget == this->GetWidget<BaseWidget>(BTB_PARK_RATING)) {
+		_str_params.SetNumber(1, _game_observer.current_park_rating);
+	}
+}
+
 void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
 	switch (wid_num) {
-		case BTB_STATUS:
+		case BTB_CASH:
 			_finances_manager.CashToStrParams();
 			break;
 
@@ -381,13 +395,35 @@ void BottomToolbarWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos)
 {
-	if (wid_num != BTB_MESSAGE || _inbox.display_message == nullptr) return GuiWindow::OnClick(wid_num, pos);
+	switch (wid_num) {
+		case BTB_MESSAGE:
+			if (_inbox.display_message == nullptr) {
+				ShowInboxGui();
+			} else {
+				BaseWidget *w = this->GetWidget<BaseWidget>(wid_num);
+				if (pos.x < w->pos.width - w->pos.height) {
+					_inbox.DismissDisplayMessage();
+				} else {
+					_inbox.display_message->OnClick();
+				}
+			}
+			break;
 
-	BaseWidget *w = this->GetWidget<BaseWidget>(wid_num);
-	if (pos.x < w->pos.width - w->pos.height) {
-		_inbox.DismissDisplayMessage();
-	} else {
-		_inbox.display_message->OnClick();
+		case BTB_CASH:
+			ShowFinancesGui();
+			break;
+
+		case BTB_PARK_RATING:
+			ShowParkManagementGui(PARK_MANAGEMENT_TAB_RATING);
+			break;
+
+		case BTB_GUESTCOUNT:
+			ShowParkManagementGui(PARK_MANAGEMENT_TAB_GUESTS);
+			break;
+
+		default:
+			GuiWindow::OnClick(wid_num, pos);
+			break;
 	}
 }
 
@@ -417,7 +453,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 	Point32 p(0, 0);
 
 	switch (wid_num) {
-		case BTB_STATUS:
+		case BTB_CASH:
 			p = GetMoneyStringSize(LARGE_MONEY_AMOUNT);
 			break;
 
@@ -465,7 +501,10 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 			Viewport *vp = _window_manager.GetViewport();
 			int dir = (vp == nullptr) ? 0 : vp->orientation;
 			const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
-			if (img != nullptr) _video.BlitImage({GetWidgetScreenX(wid), GetWidgetScreenY(wid)}, img, recolour, GS_NORMAL);
+			if (img != nullptr) {
+				_video.BlitImage({GetWidgetScreenX(wid) + (wid->pos.width - img->width) / 2,
+						GetWidgetScreenY(wid) + (wid->pos.height - img->height) / 2}, img, recolour, GS_NORMAL);
+			}
 			break;
 		}
 
@@ -473,6 +512,19 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 			int spr = SPR_GUI_WEATHER_START + _weather.GetWeatherType();
 			const ImageData *img = _sprite_manager.GetTableSprite(spr);
 			if (img != nullptr) _video.BlitImage({GetWidgetScreenX(wid), GetWidgetScreenY(wid)}, img, recolour, GS_NORMAL);
+			break;
+		}
+
+		case BTB_PARK_RATING: {
+			const int x = this->GetWidgetScreenX(wid) + 3;
+			const int y = this->GetWidgetScreenY(wid) + 3;
+			const int w = wid->pos.width  - 7;
+			const int h = wid->pos.height - 7;
+			const int col = 255 * _game_observer.current_park_rating / MAX_PARK_RATING;
+			assert(col >= 0 && col <= 255);
+			_video.FillRectangle(Rectangle32(x, y, w * _game_observer.current_park_rating / MAX_PARK_RATING, h),
+					0xff | (col << 16) | ((255 - col) << 24));
+			_video.DrawRectangle(Rectangle32(x, y, w, h), 0xff);
 			break;
 		}
 

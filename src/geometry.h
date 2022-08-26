@@ -57,6 +57,19 @@ struct Point {
 		return *this;
 	}
 
+	/**
+	 * Subtract a 2D point from this one.
+	 * @param q Second point to subtract.
+	 * @return Both dimensions subtracted from each other.
+	 */
+	template<typename CT2>
+	inline Point<CT> &operator-=(const Point<CT2> &q)
+	{
+		this->x -= q.x;
+		this->y -= q.y;
+		return *this;
+	}
+
 	CT x; ///< X coordinate.
 	CT y; ///< Y coordinate.
 };
