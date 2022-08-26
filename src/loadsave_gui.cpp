@@ -211,6 +211,7 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 
 /**
  * A savegame file was deleted, update the list of files.
+ * @param path Path of the deleted savegame.
  */
 void LoadSaveGui::FileDeleted(std::string path)
 {
