@@ -494,6 +494,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "-"
 		DESCRIPTION_RECOLOUR2: "-"
 		DESCRIPTION_RECOLOUR3: "-"
+	spiral-slide:
+		NAME_INSTANCE1:        "Round & Round"
+		NAME_INSTANCE2:        "Dizziness"
+		NAME_TYPE:             "Spiral Slide"
+		DESCRIPTION_TYPE:      "A slide in the shape of a spiral built around a tower encasing the stairwell."
+		DESCRIPTION_RECOLOUR1: "Walls 1"
+		DESCRIPTION_RECOLOUR2: "Walls 2"
+		DESCRIPTION_RECOLOUR3: "Slide"
 
 	park-entrance-generic:
 		NAME: "Generic Park Entrance"
