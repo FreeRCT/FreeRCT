@@ -118,7 +118,7 @@ void Guests::Load(Loader &ldr)
 		case 0:
 			break;
 		case 1:
-		case 2:
+		case 2: {
 			this->start_voxel.x = ldr.GetWord();
 			this->start_voxel.y = ldr.GetWord();
 			this->daily_frac = ldr.GetWord();
@@ -130,12 +130,24 @@ void Guests::Load(Loader &ldr)
 				for (Complaint &c : this->complaints) c.time_since_message = ldr.GetLong();
 			}
 
+			std::set<uint32> active_indices;
 			for (long i = ldr.GetLong(); i > 0; i--) {
 				const uint32 id = ldr.GetWord();
+				active_indices.insert(id);
 				Guest *g = this->GetCreate(id);
 				g->Load(ldr);
 			}
+
+			for (auto it = this->free_guest_indices.begin(); it != free_guest_indices.end();) {
+				if (active_indices.count(*it) > 0) {
+					it = this->free_guest_indices.erase(it);
+				} else {
+					++it;
+				}
+			}
+
 			break;
+		}
 
 		default:
 			ldr.version_mismatch(version, CURRENT_VERSION_GSTS);
