@@ -495,6 +495,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "-"
 		DESCRIPTION_RECOLOUR2: "-"
 		DESCRIPTION_RECOLOUR3: "-"
+	spiral-slide:
+		NAME_INSTANCE1:        "Rund rund rum"
+		NAME_INSTANCE2:        "Dusigheid"
+		NAME_TYPE:             "Runde Rutsche"
+		DESCRIPTION_TYPE:      "Eene runde Rutsche, wat sik um eenen Toorn slingert, in wat de Treppen sünd."
+		DESCRIPTION_RECOLOUR1: "Wanden 1"
+		DESCRIPTION_RECOLOUR2: "Wanden 2"
+		DESCRIPTION_RECOLOUR3: "Rutsche"
 
 	park-entrance-generic:
 		NAME: "Normaaler Parkingang"

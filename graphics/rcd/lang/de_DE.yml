@@ -495,6 +495,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "-"
 		DESCRIPTION_RECOLOUR2: "-"
 		DESCRIPTION_RECOLOUR3: "-"
+	spiral-slide:
+		NAME_INSTANCE1:        "Ringsherum"
+		NAME_INSTANCE2:        "Schwindelgefühl"
+		NAME_TYPE:             "Spiral-Rutschbahn"
+		DESCRIPTION_TYPE:      "Eine spiralförmige Rutschbahn, die sich um einen zentralen Turm windet, der die Treppen umschließt."
+		DESCRIPTION_RECOLOUR1: "Wände 1"
+		DESCRIPTION_RECOLOUR2: "Wände 2"
+		DESCRIPTION_RECOLOUR3: "Rutschbahn"
 
 	park-entrance-generic:
 		NAME: "Standard-Parkeingang"
