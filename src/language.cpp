@@ -385,28 +385,39 @@ void LanguageBundle::InitMetaInfo(int index)
  */
 static std::string MoneyStrFmt(int64 money)
 {
-	std::string result;
+	std::string result = _language.GetSgText(GUI_MONEY_CURRENCY_SYMBOL);
 	if (money < 0) {
-		result += "\u2212";  // U+2212 Unicode Minus sign.
+		result += u8"\u2212";  // U+2212 Unicode Minus sign.
 		money *= -1;
 	}
 
 	const std::string tho_sep  = _language.GetSgText(GUI_MONEY_THOUSANDS_SEPARATOR);
 
-	std::string before_thousands = std::to_string(money / 100);
-	int nr_digits = before_thousands.size();
+	const int cents = money % 100;
+	money /= 100;
 
-	result += _language.GetSgText(GUI_MONEY_CURRENCY_SYMBOL);
+	/* Split string into groups of thousands. */
+	int tgroups = 0;
+	int64 temp_money = money;
+	for (; temp_money >= 1000; ++tgroups, temp_money /= 1000);
+	result += std::to_string(temp_money);
+	for (; tgroups > 0; --tgroups) {
+		result += tho_sep;
 
-	for (int d = 0; d < nr_digits; ++d) {
-		result += before_thousands.at(d);
-		if (d > 0 && d + 1 < nr_digits && (nr_digits - d) % 3 == 1) result += tho_sep;
+		temp_money = money;
+		for (int i = tgroups; i > 1; --i, temp_money /= 1000);
+		temp_money %= 1000;
+		if (temp_money < 100) {
+			result += '0';
+			if (temp_money < 10) result += '0';
+		}
+		result += std::to_string(temp_money);
 	}
 
-	money %= 100;
+	/* Write the cents. This should always be exactly two digits. */
 	result += _language.GetSgText(GUI_MONEY_DECIMAL_SEPARATOR);
-	result += '0' + (money / 10);
-	result += '0' + (money % 10);
+	result += '0' + (cents / 10);
+	result += '0' + (cents % 10);
 
 	return result;
 }
@@ -419,7 +430,7 @@ static std::string MoneyStrFmt(int64 money)
 static inline std::string TemperatureStrFormat(int temp)
 {
 	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10;  // Round to degrees Celsius.
-	return Format("%d \u2103", temp);  // U+2103 Unicode Degrees Celsius sign.
+	return Format(u8"%d \u2103", temp);  // U+2103 Unicode Degrees Celsius sign.
 }
 
 /**
