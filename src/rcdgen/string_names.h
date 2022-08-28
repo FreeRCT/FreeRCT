@@ -18,6 +18,7 @@ static const char *_gui_string_names[] = {
 	"NOT_AVAILABLE",
 
 	"DATETIME_FORMAT",
+	"DATE_FORMAT",
 	"MONTH_JANUARY",
 	"MONTH_FEBRUARY",
 	"MONTH_MARCH",

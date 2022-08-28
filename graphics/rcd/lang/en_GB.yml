@@ -17,6 +17,7 @@ strings:
 		NOT_AVAILABLE: "n/a"
 
 		DATETIME_FORMAT: "%Y-%m-%d, %I:%M:%S %p"
+		DATE_FORMAT:     "%2% %1%, Year %3%"
 		MONTH_JANUARY:   "January"
 		MONTH_FEBRUARY:  "February"
 		MONTH_MARCH:     "March"

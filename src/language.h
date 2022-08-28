@@ -172,7 +172,7 @@ extern StringParameters _str_params;
 
 std::string DrawText(StringID num, StringParameters *params = &_str_params);
 
-std::string GetDateString(const Date &d, const char *format = "%02d-%s-%02d");
+std::string GetDateString(const Date &d);
 Point32 GetMaxDateSize();
 Point32 GetMoneyStringSize(const Money &amount);
 

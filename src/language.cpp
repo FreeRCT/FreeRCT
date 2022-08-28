@@ -499,8 +499,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 					break;
 
 				case SPT_NUMBER:
-					snprintf(textbuf, lengthof(textbuf), "%lld", params->parms[n - 1].u.number);
-					buffer += textbuf;
+					buffer += std::to_string(params->parms[n - 1].u.number);
 					break;
 
 				case SPT_MONEY:
@@ -568,16 +567,16 @@ void GetTextSize(StringID strid, int *width, int *height)
 /**
  * Convert the date to a Unicode string.
  * @param d %Date to format.
- * @param format C-Style format code.
  * @return The formatted string.
  * @todo Allow variable number of format parameters, e.g. "mm-yy".
  */
-std::string GetDateString(const Date &d, const char *format)
+std::string GetDateString(const Date &d)
 {
-	static char textbuf[64];
-	const std::string &month = _language.GetSgText(GetMonthName(d.month));
-	snprintf(textbuf, lengthof(textbuf), format, d.day, month.c_str(), d.year);
-	return textbuf;
+	static StringParameters p;
+	p.SetNumber(1, d.day);
+	p.SetStrID(2, GetMonthName(d.month));
+	p.SetNumber(3, d.year);
+	return DrawText(GUI_DATE_FORMAT, &p);
 }
 
 /**
