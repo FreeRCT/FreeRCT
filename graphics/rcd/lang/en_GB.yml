@@ -17,6 +17,7 @@ strings:
 		NOT_AVAILABLE: "n/a"
 
 		DATETIME_FORMAT: "%Y-%m-%d, %I:%M:%S %p"
+		DATE_FORMAT:     "%2% %1%, Year %3%"
 		MONTH_JANUARY:   "January"
 		MONTH_FEBRUARY:  "February"
 		MONTH_MARCH:     "March"
@@ -42,6 +43,7 @@ strings:
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%x%2%"
+		GUEST_NAME:             "Guest %1%"
 
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"

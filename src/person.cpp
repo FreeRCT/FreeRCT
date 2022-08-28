@@ -137,9 +137,9 @@ std::string Person::GetName() const
 {
 	if (!this->name.empty()) return this->name;
 
-	static char buffer[16];
-	sprintf(buffer, "Guest %u", this->id);  // \todo Use a translatable string for this.
-	return buffer;
+	static StringParameters p;
+	p.SetNumber(1, this->id);
+	return DrawText(GUI_GUEST_NAME, &p);
 }
 
 /** Recompute the height of the person. */
@@ -2406,9 +2406,7 @@ std::string Person::GetStatus() const
 	const std::string text = _language.GetSgText(this->status);
 	if (this->ride == nullptr) return text;
 
-	static char text_buffer[1024];
-	snprintf(text_buffer, lengthof(text_buffer), text.c_str(), this->ride->name.c_str());
-	return text_buffer;
+	return Format(text, this->ride->name.c_str());
 }
 
 /**

@@ -197,7 +197,6 @@ void SetRideRatingStringParam(const uint32 rating)
 		return;
 	}
 
-	static char _text_buffer[1024];
 	std::string str;
 
 	if (rating < 100) {
@@ -214,8 +213,7 @@ void SetRideRatingStringParam(const uint32 rating)
 		str = _language.GetSgText(GUI_RIDE_MANAGER_RATING_EXTREME);
 	}
 
-	snprintf(_text_buffer, lengthof(_text_buffer), str.c_str(), rating / 100.0);
-	_str_params.SetText(1, _text_buffer);
+	_str_params.SetText(1, Format(str, rating / 100.0));
 }
 
 /**

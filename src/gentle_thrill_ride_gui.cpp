@@ -205,7 +205,6 @@ public:
 
 private:
 	GentleThrillRideInstance *ride;  ///< Gentle/Thrill ride instance getting managed by this window.
-	mutable char text_buffer[1024];  ///< Buffer for custom strings.
 
 	void UpdateButtons();
 	void UpdateRecolourButtons();
@@ -308,9 +307,7 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 			if (this->ride->broken) {
 				_str_params.SetStrID(1, GUI_RIDE_MANAGER_BROKEN_DOWN);
 			} else {
-				snprintf(text_buffer, lengthof(text_buffer), _language.GetSgText(GUI_RIDE_MANAGER_RELIABILITY).c_str(),
-						this->ride->reliability / 100.0);
-				_str_params.SetText(1, text_buffer);
+				_str_params.SetText(1, Format(GUI_RIDE_MANAGER_RELIABILITY, this->ride->reliability / 100.0));
 			}
 			break;
 

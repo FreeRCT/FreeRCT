@@ -172,8 +172,36 @@ extern StringParameters _str_params;
 
 std::string DrawText(StringID num, StringParameters *params = &_str_params);
 
-std::string GetDateString(const Date &d, const char *format = "%02d-%s-%02d");
+std::string GetDateString(const Date &d);
 Point32 GetMaxDateSize();
 Point32 GetMoneyStringSize(const Money &amount);
+
+/**
+ * Convenience wrapper around the snprintf function.
+ * @param format Format string with printf-style placeholders.
+ * @param args Formatting arguments.
+ * @return Formatted text.
+ * @note When possible, use #DrawText instead.
+ */
+template<typename... Args>
+std::string Format(const std::string &format, Args... args)
+{
+	static char buffer[2048];
+	snprintf(buffer, lengthof(buffer), format.c_str(), args...);
+	return buffer;
+}
+
+/**
+ * Convenience wrapper around the snprintf function.
+ * @param format #StringID of the translatable string with printf-style placeholders.
+ * @param args Formatting arguments.
+ * @return Formatted text.
+ * @note When possible, use #DrawText instead.
+ */
+template<typename... Args>
+std::string Format(StringID format, Args... args)
+{
+	return Format(_language.GetSgText(format), args...);
+}
 
 #endif

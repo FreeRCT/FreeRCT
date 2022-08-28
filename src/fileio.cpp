@@ -278,12 +278,11 @@ void MakeDirectory(std::string path)
 
 #ifdef _WIN32
 	if (CreateDirectory(path.c_str(), NULL)) return;
-	fprintf(stderr, "Failed creating directory '%s'\n", path.c_str());
+	error("Failed creating directory '%s'\n", path.c_str());
 #else
 	if (mkdir(path.c_str(), 0x1FF) == 0) return;
-	fprintf(stderr, "Failed creating directory '%s' (%s)\n", path.c_str(), strerror(errno));
+	error("Failed creating directory '%s' (%s)\n", path.c_str(), strerror(errno));
 #endif
-	exit(1);
 }
 
 /**
@@ -296,15 +295,13 @@ void CopyBinaryFile(const char *src, const char *dest)
 	FILE *in_file = nullptr;
 	in_file = fopen(src, "rb");
 	if (in_file == nullptr) {
-		fprintf(stderr, "Could not open file for reading: %s\n", src);
-		exit(1);
+		error("Could not open file for reading: %s\n", src);
 	}
 
 	FILE *out_file = nullptr;
 	out_file = fopen(dest, "wb");
 	if (out_file == nullptr) {
-		fprintf(stderr, "Could not open file for writing: %s\n", dest);
-		exit(1);
+		error("Could not open file for writing: %s\n", dest);
 	}
 
 	for (;;) {
@@ -334,8 +331,7 @@ const std::string &GetUserHomeDirectory()
 		}
 	}
 
-	fprintf(stderr, "Unable to locate the user home directory. Set the HOME environment variable to fix the problem.\n");
-	exit(1);
+	error("Unable to locate the user home directory. Set the HOME environment variable to fix the problem.\n");
 }
 
 /**
@@ -350,8 +346,7 @@ std::string FindDataFile(const std::string &name)
 		path += name;
 		if (PathIsFile(path.c_str())) return path;
 	}
-	fprintf(stderr, "Data file %s is missing, the installation seems to be broken!\n", name.c_str());
-	exit(1);
+	error("Data file %s is missing, the installation seems to be broken!\n", name.c_str());
 }
 
 /**

@@ -254,8 +254,7 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
 ImageData *LoadImage(RcdFileReader *rcd_file)
 {
 	if (_sprites_loaded >= MAX_IMAGE_COUNT) {
-		fprintf(stderr, "Attempt to load too many sprites! MAX_IMAGE_COUNT needs to be increased.\n");
-		exit(1);
+		error("Attempt to load too many sprites! MAX_IMAGE_COUNT needs to be increased.\n");
 	}
 	bool is_8bpp = strcmp(rcd_file->name, "8PXL") == 0;
 	if (rcd_file->version != (is_8bpp ? 2 : 1)) return nullptr;

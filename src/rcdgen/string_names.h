@@ -18,6 +18,7 @@ static const char *_gui_string_names[] = {
 	"NOT_AVAILABLE",
 
 	"DATETIME_FORMAT",
+	"DATE_FORMAT",
 	"MONTH_JANUARY",
 	"MONTH_FEBRUARY",
 	"MONTH_MARCH",
@@ -41,6 +42,7 @@ static const char *_gui_string_names[] = {
 
 	"NUMBERED_INSTANCE_NAME",
 	"RESOLUTION",
+	"GUEST_NAME",
 
 	"INCREASE_BUTTON",
 	"DECREASE_BUTTON",

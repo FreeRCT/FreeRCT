@@ -18,6 +18,7 @@ strings:
 		NOT_AVAILABLE: "k.A."
 
 		DATETIME_FORMAT: "%d.%m.%Y, %H:%M:%S"
+		DATE_FORMAT:     "%1%. %2%, Jahr %3%"
 		MONTH_JANUARY:   "Januar"
 		MONTH_FEBRUARY:  "Februar"
 		MONTH_MARCH:     "Määrt"
@@ -43,6 +44,7 @@ strings:
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%×%2%"
+		GUEST_NAME:             "Gast %1%"
 
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"

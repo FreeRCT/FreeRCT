@@ -254,8 +254,7 @@ uint16 LanguageManager::RegisterStrings(const TextData &td, const char * const n
 		base = this->free_index;
 		this->free_index += td.string_count;
 		if (this->free_index >= STR_END_FREE_SPACE) {
-			fprintf(stderr, "Not enough space to store strings.\n");
-			exit(1);
+			error("Not enough space to store strings.\n");
 		}
 	} else {
 		assert(base + td.string_count < this->free_index);
@@ -369,80 +368,58 @@ void LanguageBundle::InitMetaInfo(int index)
 	for (uint32 i = 0; i < nrstrings; ++i) {
 		int size = this->values.at(i).size();
 		if (_language.GetStringName(i) == nullptr && size != 0) {
-			fprintf(stderr, "Language %s has a string at undefined index %u.\n",
+			error("Language %s has a string at undefined index %u.\n",
 					this->metadata->name, i);
-			exit(1);
 		}
 		if (size > 1 && size != this->metadata->nplurals) {
-			fprintf(stderr, "Language %s has %d plurals, but string '%s' has %d.\n",
+			error("Language %s has %d plurals, but string '%s' has %d.\n",
 					this->metadata->name, this->metadata->nplurals, _language.GetStringName(i), size);
-			exit(1);
 		}
 	}
 }
 
 /**
- * Converts a double value into a utf-8 string with the appropriate separators.
- * @param dest [out] A provided buffer to write the output into.
- * @param size The size of the provided buffer.
- * @param amt The double value to be converted.
+ * Converts a money value into a utf-8 string with the appropriate separators.
+ * @param money The value in cents to be converted.
+ * @return Formatted money string.
  */
-static void MoneyStrFmt(char *dest, size_t size, double amt)
+static std::string MoneyStrFmt(int64 money)
 {
-	const std::string curr_sym = _language.GetSgText(GUI_MONEY_CURRENCY_SYMBOL);
-	size_t curr_sym_len = curr_sym.size();
+	std::string result = _language.GetSgText(GUI_MONEY_CURRENCY_SYMBOL);
+	if (money < 0) {
+		result += u8"\u2212";  // U+2212 Unicode Minus sign.
+		money *= -1;
+	}
 
 	const std::string tho_sep  = _language.GetSgText(GUI_MONEY_THOUSANDS_SEPARATOR);
-	size_t tho_sep_len  = tho_sep.size();
 
-	const std::string dec_sep  = _language.GetSgText(GUI_MONEY_DECIMAL_SEPARATOR);
-	size_t dec_sep_len  = dec_sep.size();
+	const int cents = money % 100;
+	money /= 100;
 
-	std::unique_ptr<char[]> buf(new char[size]);
+	/* Split string into groups of thousands. */
+	int tgroups = 0;
+	int64 temp_money = money;
+	for (; temp_money >= 1000; ++tgroups, temp_money /= 1000);
+	result += std::to_string(temp_money);
+	for (; tgroups > 0; --tgroups) {
+		result += tho_sep;
 
-	/* Convert double into a numeric string (with '.' as the decimal separator). */
-	uint len = snprintf(buf.get(), size, "%.2f", amt);
-
-	/* Compute the offset of where we should begin counting for thousand separators. */
-	uint comma_start = (len - 3) % 3;
-
-	/* What is the max number of characters we might append in a single loop?
-	 * This is used to prevent a potential buffer overflow. */
-	/* max_append_size = 'a "special" symbol plus a single digit [0-9]'. */
-	int max_append_size = std::max(std::max(curr_sym_len, tho_sep_len), dec_sep_len) + 1;
-
-	uint j = 0;
-	uint curpos = 0;
-
-	/* Also has the added bonus of 'removing' the
-	 * automagically included '-' symbol by snprintf */
-	if (amt < 0) {
-		dest[j++] = '-';
-		curpos++;
-	}
-
-	/* Copy currency symbol next */
-	strncpy(dest + j, curr_sym.c_str(), curr_sym_len + 1);
-	j += curr_sym_len;
-	dest[j++] = buf[curpos++];
-
-	for (uint i = curpos; i < len && j + max_append_size < size; i++) {
-		if (len - i > 3 && (int)(i - comma_start) % 3 == 0) {
-			strncpy(dest + j, tho_sep.c_str(), tho_sep_len + 1);
-			j += tho_sep_len;
-			dest[j++] = buf[i];
-
-		} else if (buf[i] == '.') { // Decimal separator produced by 'snprintf'.
-			strncpy(dest + j, dec_sep.c_str(), dec_sep_len + 1);
-			j += dec_sep_len;
-
-		} else {
-			dest[j++] = buf[i];
+		temp_money = money;
+		for (int i = tgroups; i > 1; --i, temp_money /= 1000);
+		temp_money %= 1000;
+		if (temp_money < 100) {
+			result += '0';
+			if (temp_money < 10) result += '0';
 		}
+		result += std::to_string(temp_money);
 	}
 
-	assert((size_t)j < size);
-	dest[j] = '\0';
+	/* Write the cents. This should always be exactly two digits. */
+	result += _language.GetSgText(GUI_MONEY_DECIMAL_SEPARATOR);
+	result += '0' + (cents / 10);
+	result += '0' + (cents % 10);
+
+	return result;
 }
 
 /**
@@ -450,12 +427,10 @@ static void MoneyStrFmt(char *dest, size_t size, double amt)
  * @param temp Temperature in 1/10 degrees Celcius to convert.
  * @return Formatted text.
  */
-static std::string TemperatureStrFormat(int temp)
+static inline std::string TemperatureStrFormat(int temp)
 {
-	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10; // Round to degrees Celcius.
-	static char buffer[64];
-	snprintf(buffer, lengthof(buffer), "%d \u2103", temp);  // " " + degrees Celcius, U+2103
-	return buffer;
+	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10;  // Round to degrees Celsius.
+	return Format(u8"%d \u2103", temp);  // U+2103 Unicode Degrees Celsius sign.
 }
 
 /**
@@ -466,7 +441,6 @@ static std::string TemperatureStrFormat(int temp)
  */
 std::string DrawText(StringID strid, StringParameters *params)
 {
-	static char textbuf[64];
 	std::string buffer;
 
 	const std::string txt = _language.GetPlural(strid, params == nullptr ? 1 : params->pluralize_count);
@@ -504,13 +478,11 @@ std::string DrawText(StringID strid, StringParameters *params)
 					break;
 
 				case SPT_NUMBER:
-					snprintf(textbuf, lengthof(textbuf), "%lld", params->parms[n - 1].u.number);
-					buffer += textbuf;
+					buffer += std::to_string(params->parms[n - 1].u.number);
 					break;
 
 				case SPT_MONEY:
-					MoneyStrFmt(textbuf, lengthof(textbuf), params->parms[n - 1].u.number / 100.0);
-					buffer += textbuf;
+					buffer += MoneyStrFmt(params->parms[n - 1].u.number);
 					break;
 
 				case SPT_TEMPERATURE:
@@ -573,16 +545,16 @@ void GetTextSize(StringID strid, int *width, int *height)
 /**
  * Convert the date to a Unicode string.
  * @param d %Date to format.
- * @param format C-Style format code.
  * @return The formatted string.
  * @todo Allow variable number of format parameters, e.g. "mm-yy".
  */
-std::string GetDateString(const Date &d, const char *format)
+std::string GetDateString(const Date &d)
 {
-	static char textbuf[64];
-	const std::string &month = _language.GetSgText(GetMonthName(d.month));
-	snprintf(textbuf, lengthof(textbuf), format, d.day, month.c_str(), d.year);
-	return textbuf;
+	static StringParameters p;
+	p.SetNumber(1, d.day);
+	p.SetStrID(2, GetMonthName(d.month));
+	p.SetNumber(3, d.year);
+	return DrawText(GUI_DATE_FORMAT, &p);
 }
 
 /**
@@ -613,10 +585,8 @@ Point32 GetMaxDateSize()
  */
 Point32 GetMoneyStringSize(const Money &amount)
 {
-	char textbuf[64];
-	MoneyStrFmt(textbuf, lengthof(textbuf), (int64)amount / 100.0);
 	Point32 p;
-	_video.GetTextSize(textbuf, &p.x, &p.y);
+	_video.GetTextSize(MoneyStrFmt(amount), &p.x, &p.y);
 	return p;
 }
 
