@@ -14,5 +14,6 @@ gentle_thrill_rides/spiral_slide
 gentle_thrill_rides/ship_swing
 gentle_thrill_rides/spooky_manor
 persons
+ride_shops/atm
 scenery/objects
 tracks/cars/<guest-related sprites>

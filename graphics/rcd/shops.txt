@@ -106,4 +106,37 @@ file("shops.rcd") {
 
 		texts: strings { key: "toilet"; }
 	}
+
+	// ATM.
+	SHOP {
+		height: 3;
+
+		images: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			(se_0_0, ne_0_0, nw_0_0, sw_0_0): spritefiles {
+				x_base: 0; y_base: 0;
+				file: "../sprites/ride_shops/atm/64_idle_000{seq(1..4,1)}.png";
+				recolour: "../sprites/ride_shops/atm/64_mask_000{seq(1..4,1)}.png";
+				x_offset: -32; y_offset: 32-88; width: 64; height: 88;
+			}
+		}
+
+		recolour {
+			original: grey;
+			replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+			                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+		}
+
+		flags: bitset(se_entrance, sw_entrance, ne_entrance, nw_entrance);
+		cost_item1: 0;
+		cost_item2: 0;
+		cost_ownership: 0;
+		cost_opened: 2500;
+		type_item1: money;
+		type_item2: 0;
+
+		texts: strings { key: "atm"; }
+	}
 }
