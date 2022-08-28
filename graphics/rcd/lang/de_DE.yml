@@ -453,6 +453,17 @@ strings:
 		NAME_ITEM1:            "Toilet"
 		NAME_ITEM2:            ""
 
+	atm:
+		NAME_INSTANCE1:        "Bankautomat"
+		NAME_INSTANCE2:        "Bankomat"
+		NAME_TYPE:             "Geldautomat"
+		DESCRIPTION_TYPE:      "Erlaubt es Gästen, die knapp bei Kasse sind, mehr Geld abzuheben."
+		DESCRIPTION_RECOLOUR1: "Wände"
+		DESCRIPTION_RECOLOUR2: "-"
+		DESCRIPTION_RECOLOUR3: "-"
+		NAME_ITEM1:            "Bargeld"
+		NAME_ITEM2:            ""
+
 	basic-coaster:
 		NAME_INSTANCE:    "Verrückte Achterbahn"
 		NAME_TYPE:        "Standard-Achterbahn"

@@ -453,6 +453,17 @@ strings:
 		NAME_ITEM1:            "Oftritt"
 		NAME_ITEM2:            ""
 
+	atm:
+		NAME_INSTANCE1:        "Bankautomaat"
+		NAME_INSTANCE2:        "Bankomaat"
+		NAME_TYPE:             "Geldautomaat"
+		DESCRIPTION_TYPE:      "Verlöövt Gastens, wat pleite sünd, mehr Geld oftohalen."
+		DESCRIPTION_RECOLOUR1: "Wanden"
+		DESCRIPTION_RECOLOUR2: "-"
+		DESCRIPTION_RECOLOUR3: "-"
+		NAME_ITEM1:            "Baargeld"
+		NAME_ITEM2:            ""
+
 	basic-coaster:
 		NAME_INSTANCE:    "Malle Rull"
 		NAME_TYPE:        "Normaale Achterbahn"

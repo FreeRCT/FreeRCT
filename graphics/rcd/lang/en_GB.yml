@@ -452,6 +452,17 @@ strings:
 		NAME_ITEM1:            "Toilet"
 		NAME_ITEM2:            ""
 
+	atm:
+		NAME_INSTANCE1:        "Cashpoint"
+		NAME_INSTANCE2:        "Cash Machine"
+		NAME_TYPE:             "ATM"
+		DESCRIPTION_TYPE:      "Allows guests to withdraw more money when they run out."
+		DESCRIPTION_RECOLOUR1: "Walls"
+		DESCRIPTION_RECOLOUR2: "-"
+		DESCRIPTION_RECOLOUR3: "-"
+		NAME_ITEM1:            "Cash"
+		NAME_ITEM2:            ""
+
 	basic-coaster:
 		NAME_INSTANCE:    "Crazy roller"
 		NAME_TYPE:        "Basic rollercoaster"

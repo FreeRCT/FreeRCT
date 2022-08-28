@@ -208,10 +208,10 @@ file("gentle_thrill_rides.rcd") {
 		category: "gentle";
 		ride_width_x: 2;
 		ride_width_y: 2;
-		height_0_0: 5;
-		height_1_0: 5;
-		height_0_1: 5;
-		height_1_1: 5;
+		height_0_0: 10;
+		height_1_0: 10;
+		height_0_1: 10;
+		height_1_1: 10;
 
 		preview_se: sprite {
 			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
