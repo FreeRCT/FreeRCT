@@ -379,67 +379,36 @@ void LanguageBundle::InitMetaInfo(int index)
 }
 
 /**
- * Converts a double value into a utf-8 string with the appropriate separators.
- * @param dest [out] A provided buffer to write the output into.
- * @param size The size of the provided buffer.
- * @param amt The double value to be converted.
+ * Converts a money value into a utf-8 string with the appropriate separators.
+ * @param money The value in cents to be converted.
+ * @return Formatted money string.
  */
-static void MoneyStrFmt(char *dest, size_t size, double amt)
+static std::string MoneyStrFmt(int64 money)
 {
-	const std::string curr_sym = _language.GetSgText(GUI_MONEY_CURRENCY_SYMBOL);
-	size_t curr_sym_len = curr_sym.size();
+	std::string result;
+	if (money < 0) {
+		result += "\u2212";  // U+2212 Unicode Minus sign.
+		money *= -1;
+	}
 
 	const std::string tho_sep  = _language.GetSgText(GUI_MONEY_THOUSANDS_SEPARATOR);
-	size_t tho_sep_len  = tho_sep.size();
 
-	const std::string dec_sep  = _language.GetSgText(GUI_MONEY_DECIMAL_SEPARATOR);
-	size_t dec_sep_len  = dec_sep.size();
+	std::string before_thousands = std::to_string(money / 100);
+	int nr_digits = before_thousands.size();
 
-	std::unique_ptr<char[]> buf(new char[size]);
+	result += _language.GetSgText(GUI_MONEY_CURRENCY_SYMBOL);
 
-	/* Convert double into a numeric string (with '.' as the decimal separator). */
-	uint len = snprintf(buf.get(), size, "%.2f", amt);
-
-	/* Compute the offset of where we should begin counting for thousand separators. */
-	uint comma_start = (len - 3) % 3;
-
-	/* What is the max number of characters we might append in a single loop?
-	 * This is used to prevent a potential buffer overflow. */
-	/* max_append_size = 'a "special" symbol plus a single digit [0-9]'. */
-	int max_append_size = std::max(std::max(curr_sym_len, tho_sep_len), dec_sep_len) + 1;
-
-	uint j = 0;
-	uint curpos = 0;
-
-	/* Also has the added bonus of 'removing' the
-	 * automagically included '-' symbol by snprintf */
-	if (amt < 0) {
-		dest[j++] = '-';
-		curpos++;
+	for (int d = 0; d < nr_digits; ++d) {
+		result += before_thousands.at(d);
+		if (d > 0 && d + 1 < nr_digits && (nr_digits - d) % 3 == 1) result += tho_sep;
 	}
 
-	/* Copy currency symbol next */
-	strncpy(dest + j, curr_sym.c_str(), curr_sym_len + 1);
-	j += curr_sym_len;
-	dest[j++] = buf[curpos++];
+	money %= 100;
+	result += _language.GetSgText(GUI_MONEY_DECIMAL_SEPARATOR);
+	result += '0' + (money / 10);
+	result += '0' + (money % 10);
 
-	for (uint i = curpos; i < len && j + max_append_size < size; i++) {
-		if (len - i > 3 && (int)(i - comma_start) % 3 == 0) {
-			strncpy(dest + j, tho_sep.c_str(), tho_sep_len + 1);
-			j += tho_sep_len;
-			dest[j++] = buf[i];
-
-		} else if (buf[i] == '.') { // Decimal separator produced by 'snprintf'.
-			strncpy(dest + j, dec_sep.c_str(), dec_sep_len + 1);
-			j += dec_sep_len;
-
-		} else {
-			dest[j++] = buf[i];
-		}
-	}
-
-	assert((size_t)j < size);
-	dest[j] = '\0';
+	return result;
 }
 
 /**
@@ -450,7 +419,7 @@ static void MoneyStrFmt(char *dest, size_t size, double amt)
 static inline std::string TemperatureStrFormat(int temp)
 {
 	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10;  // Round to degrees Celsius.
-	return Format("%d \u2103", temp);
+	return Format("%d \u2103", temp);  // U+2103 Unicode Degrees Celsius sign.
 }
 
 /**
@@ -461,7 +430,6 @@ static inline std::string TemperatureStrFormat(int temp)
  */
 std::string DrawText(StringID strid, StringParameters *params)
 {
-	static char textbuf[64];
 	std::string buffer;
 
 	const std::string txt = _language.GetPlural(strid, params == nullptr ? 1 : params->pluralize_count);
@@ -503,8 +471,7 @@ std::string DrawText(StringID strid, StringParameters *params)
 					break;
 
 				case SPT_MONEY:
-					MoneyStrFmt(textbuf, lengthof(textbuf), params->parms[n - 1].u.number / 100.0);
-					buffer += textbuf;
+					buffer += MoneyStrFmt(params->parms[n - 1].u.number);
 					break;
 
 				case SPT_TEMPERATURE:
@@ -607,10 +574,8 @@ Point32 GetMaxDateSize()
  */
 Point32 GetMoneyStringSize(const Money &amount)
 {
-	char textbuf[64];
-	MoneyStrFmt(textbuf, lengthof(textbuf), (int64)amount / 100.0);
 	Point32 p;
-	_video.GetTextSize(textbuf, &p.x, &p.y);
+	_video.GetTextSize(MoneyStrFmt(amount), &p.x, &p.y);
 	return p;
 }
 
