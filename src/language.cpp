@@ -254,8 +254,7 @@ uint16 LanguageManager::RegisterStrings(const TextData &td, const char * const n
 		base = this->free_index;
 		this->free_index += td.string_count;
 		if (this->free_index >= STR_END_FREE_SPACE) {
-			fprintf(stderr, "Not enough space to store strings.\n");
-			exit(1);
+			error("Not enough space to store strings.\n");
 		}
 	} else {
 		assert(base + td.string_count < this->free_index);
@@ -369,14 +368,12 @@ void LanguageBundle::InitMetaInfo(int index)
 	for (uint32 i = 0; i < nrstrings; ++i) {
 		int size = this->values.at(i).size();
 		if (_language.GetStringName(i) == nullptr && size != 0) {
-			fprintf(stderr, "Language %s has a string at undefined index %u.\n",
+			error("Language %s has a string at undefined index %u.\n",
 					this->metadata->name, i);
-			exit(1);
 		}
 		if (size > 1 && size != this->metadata->nplurals) {
-			fprintf(stderr, "Language %s has %d plurals, but string '%s' has %d.\n",
+			error("Language %s has %d plurals, but string '%s' has %d.\n",
 					this->metadata->name, this->metadata->nplurals, _language.GetStringName(i), size);
-			exit(1);
 		}
 	}
 }

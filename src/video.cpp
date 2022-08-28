@@ -578,11 +578,10 @@ bool VideoSystem::MainLoopDoCycle()
 	}
 
 	if (this->missing_sprites) {
-		printf("FATAL ERROR: FreeRCT is missing some sprites.\n");
-		printf("This should not happen. You are most likely using corrupt or incompatible RCD files.\n");
-		printf("Please ensure that your RCD files can be read by this version of FreeRCT.\n");
-		printf("The program will terminate now.\n");
-		exit(1);
+		error("FATAL ERROR: FreeRCT is missing some sprites.\n"
+				"This should not happen. You are most likely using corrupt or incompatible RCD files.\n"
+				"Please ensure that your RCD files can be read by this version of FreeRCT.\n"
+				"The program will terminate now.\n");
 	}
 
 	return true;
