@@ -43,6 +43,7 @@ strings:
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%×%2%"
+		GUEST_NAME:             "Besucher %1%"
 
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"

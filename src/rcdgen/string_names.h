@@ -41,6 +41,7 @@ static const char *_gui_string_names[] = {
 
 	"NUMBERED_INSTANCE_NAME",
 	"RESOLUTION",
+	"GUEST_NAME",
 
 	"INCREASE_BUTTON",
 	"DECREASE_BUTTON",
