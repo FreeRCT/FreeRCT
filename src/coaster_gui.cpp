@@ -233,7 +233,6 @@ public:
 
 private:
 	CoasterInstance *ci;             ///< Roller coaster instance to display and control.
-	mutable char text_buffer[1024];  ///< Buffer for custom strings.
 
 	void ChooseEntranceExitClicked(bool entrance);
 	RideMouseMode entrance_exit_placement;
@@ -401,9 +400,7 @@ void CoasterInstanceWindow::SetWidgetStringParameters(WidgetNumber wid_num) cons
 			if (this->ci->broken) {
 				_str_params.SetStrID(1, GUI_RIDE_MANAGER_BROKEN_DOWN);
 			} else {
-				snprintf(text_buffer, lengthof(text_buffer), _language.GetSgText(GUI_RIDE_MANAGER_RELIABILITY).c_str(),
-						this->ci->reliability / 100.0);
-				_str_params.SetText(1, text_buffer);
+				_str_params.SetText(1, Format(GUI_RIDE_MANAGER_RELIABILITY, this->ci->reliability / 100.0));
 			}
 			break;
 

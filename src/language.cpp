@@ -447,12 +447,10 @@ static void MoneyStrFmt(char *dest, size_t size, double amt)
  * @param temp Temperature in 1/10 degrees Celcius to convert.
  * @return Formatted text.
  */
-static std::string TemperatureStrFormat(int temp)
+static inline std::string TemperatureStrFormat(int temp)
 {
-	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10; // Round to degrees Celcius.
-	static char buffer[64];
-	snprintf(buffer, lengthof(buffer), "%d \u2103", temp);  // " " + degrees Celcius, U+2103
-	return buffer;
+	temp = ((temp < 0) ? temp - 5 : temp + 5) / 10;  // Round to degrees Celsius.
+	return Format("%d \u2103", temp);
 }
 
 /**
