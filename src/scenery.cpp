@@ -483,12 +483,15 @@ SceneryType::SceneryType()
  */
 bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 2 || rcd_file->size < 2) return false;
+	int length = rcd_file->size;
+	if (rcd_file->version != 3 || length <= 2) return false;
 
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (rcd_file->size != static_cast<unsigned>(52 + (this->width_x * this->width_y))) return false;
+
+	length -= 52 + (this->width_x * this->width_y);
+	if (length < 0) return false;
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; x++) {
@@ -516,6 +519,9 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	TextData *text_data;
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
 	this->name = _language.RegisterStrings(*text_data, _scenery_strings_table);
+
+	this->internal_name = rcd_file->GetText();
+	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
 	return true;
 }
 

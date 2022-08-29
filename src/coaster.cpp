@@ -109,9 +109,10 @@ CoasterType::~CoasterType()
  */
 bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
-	uint32 length = rcd_file->size;
-	if (rcd_file->version != 6 || length < 2 + 1 + 1 + 1 + 4 + 2 + 6) return false;
+	int length = rcd_file->size;
 	length -= 2 + 1 + 1 + 1 + 4 + 2 + 6;
+	if (rcd_file->version != 7 || length <= 0) return false;
+
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
 	this->max_number_trains = rcd_file->GetUInt8();
@@ -132,7 +133,8 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	this->SetupStrings(text_data, base, STR_GENERIC_COASTER_START, COASTERS_STRING_TABLE_END, COASTERS_NAME_TYPE, COASTERS_DESCRIPTION_TYPE);
 
 	int piece_count = rcd_file->GetUInt16();
-	if (length != 4u * piece_count) return false;
+	length -= 4 * piece_count;
+	if (length < 0) return false;
 
 	this->pieces.resize(piece_count);
 	for (auto &piece : this->pieces) {
@@ -148,6 +150,9 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 			this->voxels.push_back(tv.get());
 		}
 	}
+
+	this->internal_name = rcd_file->GetText();
+	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
 	return true;
 }
 

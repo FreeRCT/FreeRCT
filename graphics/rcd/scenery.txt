@@ -13,6 +13,7 @@ file("scenery.rcd") {
 
 	// Flowerbed 1
 	SCNY {
+		internal_name: "flowerbed1";
 		texts: strings { key: "flowers1"; }
 
 		category:               2;
@@ -54,6 +55,7 @@ file("scenery.rcd") {
 
 	// Flowerbed 2
 	SCNY {
+		internal_name: "flowerbed2";
 		texts: strings { key: "flowers2"; }
 
 		category:               2;
@@ -95,6 +97,7 @@ file("scenery.rcd") {
 
 	// Flowerbed 3
 	SCNY {
+		internal_name: "flowerbed3";
 		texts: strings { key: "flowers3"; }
 
 		category:               2;
@@ -136,6 +139,7 @@ file("scenery.rcd") {
 
 	// Tree 1
 	SCNY {
+		internal_name: "tree1";
 		texts: strings { key: "tree1"; }
 
 		category:          1;
@@ -165,6 +169,7 @@ file("scenery.rcd") {
 
 	// Tree 2
 	SCNY {
+		internal_name: "tree2";
 		texts: strings { key: "tree2"; }
 
 		category:          1;
@@ -194,6 +199,7 @@ file("scenery.rcd") {
 
 	// Tree 3
 	SCNY {
+		internal_name: "tree3";
 		texts: strings { key: "tree3"; }
 
 		category:          1;
@@ -223,6 +229,7 @@ file("scenery.rcd") {
 
 	// Fountain 1
 	SCNY {
+		internal_name: "fountain1";
 		texts: strings { key: "fountain1"; }
 
 		category:          3;
@@ -258,6 +265,7 @@ file("scenery.rcd") {
 
 	// Generic Park Entrance (consists of three parts)
 	SCNY {
+		internal_name: "park_entrance_stone_arch_l";
 		texts: strings { key: "park-entrance-generic"; }
 
 		category:          0;
@@ -292,6 +300,7 @@ file("scenery.rcd") {
 		}
 	}
 	SCNY {
+		internal_name: "park_entrance_stone_arch_m";
 		texts: strings { key: "park-entrance-generic"; }
 
 		category:          0;
@@ -326,6 +335,7 @@ file("scenery.rcd") {
 		}
 	}
 	SCNY {
+		internal_name: "park_entrance_stone_arch_r";
 		texts: strings { key: "park-entrance-generic"; }
 
 		category:          0;

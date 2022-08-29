@@ -75,6 +75,7 @@ public:
 	RideEntranceExitType();
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
+	std::string internal_name;       ///< Unique internal name of the entrance/exit type.
 	bool is_entrance;                ///< Whether this is an entrance type or exit type.
 	StringID name;                   ///< Name of the entrance or exit type.
 	StringID recolour_description_1; ///< First recolouring description.
@@ -122,6 +123,15 @@ public:
 	virtual const ImageData *GetView(uint8 orientation) const = 0;
 	virtual const StringID *GetInstanceNames() const = 0;
 
+	/**
+	 * Get the ride type's unique internal name.
+	 * @return The internal name.
+	 */
+	const std::string &InternalName() const
+	{
+		return this->internal_name;
+	}
+
 protected:
 	TextData *text;           ///< Strings of the ride type.
 	StringID str_base;        ///< Base offset of the string in the ride type.
@@ -129,6 +139,7 @@ protected:
 	StringID str_end;         ///< One beyond the last string in the ride type.
 	StringID str_name;        ///< String with the name of the ride type.
 	StringID str_description; ///< String with the description of the ride type.
+	std::string internal_name;  ///< Unique internal name of the ride type.
 };
 
 /** State of a ride instance. */

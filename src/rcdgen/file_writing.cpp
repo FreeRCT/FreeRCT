@@ -105,13 +105,23 @@ void FileBlock::SaveInt32(int32 d)
  * @param data Start address of the data.
  * @param size Length of the data.
  */
-void FileBlock::SaveBytes(uint8 *data, int size)
+void FileBlock::SaveBytes(const uint8 *data, int size)
 {
 	while (size > 0) {
 		this->SaveUInt8(*data);
 		data++;
 		size--;
 	}
+}
+
+/**
+ * Save a nul-terminated string.
+ * @param text Text to save.
+ */
+void FileBlock::SaveText(const std::string &text)
+{
+	this->SaveBytes(reinterpret_cast<const uint8*>(text.c_str()), text.size());
+	this->SaveUInt8('\0');
 }
 
 /** Check that all data has been written. */

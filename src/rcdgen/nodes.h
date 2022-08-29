@@ -628,6 +628,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
+	std::string internal_name;                ///< The type's internal name.
 	bool is_entrance;                         ///< True if this is an entrance, false if it's an exit.
 	int tile_width;                           ///< Zoom-width of a tile of the surface.
 	std::shared_ptr<StringBundle> texts;      ///< The entrance/exit's strings.
@@ -646,6 +647,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
+	std::string internal_name;  ///< The ride's internal name.
 	int height;           ///< Height of the shop in voxels.
 	int flags;            ///< Byte with flags of the shop.
 	Recolouring recol[3]; ///< Recolour definitions of the shop.
@@ -666,6 +668,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
+	std::string internal_name;  ///< The ride's internal name.
 	bool is_thrill_ride;  ///< True for thrill rides, false for gentle rides.
 	int8 ride_width_x;    ///< The number of voxels the ride occupies in x direction.
 	int8 ride_width_y;    ///< The number of voxels the ride occupies in y direction.
@@ -706,6 +709,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
+	std::string internal_name;  ///< The ride's internal name.
 	int8 category;                    ///< Item type category.
 	int8 width_x;                     ///< The number of voxels the item occupies in x direction.
 	int8 width_y;                     ///< The number of voxels the item occupies in y direction.
@@ -1048,6 +1052,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
+	std::string internal_name;  ///< The ride's internal name.
 	int coaster_type;  ///< Type of roller coaster.
 	int platform_type; ///< Type of platform.
 	int number_trains; ///< Maximum number of trains at the roller coaster.

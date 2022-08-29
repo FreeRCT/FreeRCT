@@ -65,7 +65,9 @@ RideEntranceExitType::RideEntranceExitType()
  */
 bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 51) return false;
+	int length = rcd_file->size;
+	length -= 51;
+	if (rcd_file->version != 2 || length <= 0) return false;
 	this->is_entrance = rcd_file->GetUInt8() > 0;
 
 	TextData *text_data;
@@ -89,6 +91,9 @@ bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 		uint32 recolour = rcd_file->GetUInt32();
 		this->recolours.Set(i, RecolourEntry(recolour));
 	}
+
+	this->internal_name = rcd_file->GetText();
+	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
 	return true;
 }
 

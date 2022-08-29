@@ -39,6 +39,7 @@ public:
 
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
+	std::string internal_name; ///< Unique internal name of the scenery item type.
 	SceneryCategory category;  ///< Category of scenery.
 	StringID name;             ///< Name of this item type.
 	uint8 width_x;             ///< Number of voxels in x direction occupied by this item.

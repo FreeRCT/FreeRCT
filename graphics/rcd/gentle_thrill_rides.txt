@@ -13,6 +13,7 @@ file("gentle_thrill_rides.rcd") {
 
 	// Spooky Manor
 	FGTR {
+		internal_name: "spooky_manor";
 		category: "gentle";
 		ride_width_x: 3;
 		ride_width_y: 4;
@@ -108,6 +109,7 @@ file("gentle_thrill_rides.rcd") {
 
 	// Ship Swing
 	FGTR {
+		internal_name: "ship_swing";
 		category: "thrill";
 		ride_width_x: 5;
 		ride_width_y: 2;
@@ -205,6 +207,7 @@ file("gentle_thrill_rides.rcd") {
 
 	// Spiral Slide
 	FGTR {
+		internal_name: "spiral_slide";
 		category: "gentle";
 		ride_width_x: 2;
 		ride_width_y: 2;

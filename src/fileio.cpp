@@ -201,6 +201,22 @@ int32 RcdFileReader::GetInt32()
 }
 
 /**
+ * Read a nul-terminated string of unknown length.
+ * @return Loaded string.
+ * @pre File must be open, data must be available.
+ */
+std::string RcdFileReader::GetText()
+{
+	std::string result;
+	for (;;) {
+		char c = this->GetUInt8();
+		if (c == '\0') break;
+		result += c;
+	}
+	return result;
+}
+
+/**
  * Check whether the file header makes sense, and has the right version.
  * @param hdr_name Header name (should be 4 chars long).
  * @param version Header version.

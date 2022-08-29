@@ -12,6 +12,7 @@ file("tracks.rcd") {
 	}
 
 	RCST {
+		internal_name: "basic_steel_coaster";
 		coaster_type: 1; // Simple coaster tracks.
 		platform_type: 1; // Wooden platforms.
 		max_number_trains: 3;
