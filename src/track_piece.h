@@ -24,7 +24,7 @@ struct TrackVoxel {
 	TrackVoxel();
 	~TrackVoxel();
 
-	bool Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 
 	/**
 	 * Does the track piece have a platform?
@@ -161,7 +161,7 @@ class TrackPiece {
 public:
 	TrackPiece();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 	Rectangle16 GetArea() const;
 
 	uint8 entry_connect;      ///< Entry connection code

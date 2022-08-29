@@ -13,7 +13,6 @@
 
 #include "stdafx.h"
 #include "fileio.h"
-#include "string_func.h"
 #include "rev.h"
 #ifdef LINUX
 	#include "unix/fileio_unix.h"
@@ -26,6 +25,29 @@
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
+
+/**
+ * Constructor.
+ * @param fmt Error message (may use printf-style placeholders).
+ */
+LoadingError::LoadingError(const char *fmt, ...)
+{
+	char buffer[1024];
+	va_list va;
+	va_start(va, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, va);
+	va_end(va);
+	this->message = buffer;
+}
+
+/**
+ * Retrieve the description of the error.
+ * @return The error message.
+ */
+const char* LoadingError::what() const noexcept
+{
+	return this->message.c_str();
+}
 
 /**
  * @fn void DirectoryReader::OpenPath(const char *path)
@@ -124,6 +146,16 @@ RcdFileReader::RcdFileReader(const char *fname)
 RcdFileReader::~RcdFileReader()
 {
 	if (this->fp != nullptr) fclose(fp);
+}
+
+/**
+ * Check whether the version of the current block is supported by this revision of FreeRCT, and throw an exception if this is not the case.
+ * @param current_version The currently supported version.
+ * @pre Must be inside a block.
+ */
+void RcdFileReader::CheckVersion(uint32 current_version)
+{
+	if (this->version != current_version) this->Error("Version mismatch: Found version %u, supported version is %u", this->version, current_version);
 }
 
 /**

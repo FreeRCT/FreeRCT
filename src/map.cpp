@@ -60,7 +60,7 @@ void Voxel::Load(Loader &ldr)
 
 		if (version >= 2) this->fences = ldr.GetWord();
 	} else {
-		ldr.version_mismatch(version, CURRENT_VERSION_Voxel);
+		ldr.VersionMismatch(version, CURRENT_VERSION_Voxel);
 	}
 	ldr.ClosePattern();
 }
@@ -127,7 +127,7 @@ static const uint32 CURRENT_VERSION_VoxelObject = 1;   ///< Currently supported 
 void VoxelObject::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("vxoj");
-	if (version != CURRENT_VERSION_VoxelObject) ldr.version_mismatch(version, CURRENT_VERSION_VoxelObject);
+	if (version != CURRENT_VERSION_VoxelObject) ldr.VersionMismatch(version, CURRENT_VERSION_VoxelObject);
 
 	uint32 x = ldr.GetLong();
 	uint32 y = ldr.GetLong();
@@ -757,7 +757,7 @@ void VoxelWorld::Load(Loader &ldr)
 			}
 		}
 	} else if (version != 0) {
-		ldr.version_mismatch(version, CURRENT_VERSION_WRLD);
+		ldr.VersionMismatch(version, CURRENT_VERSION_WRLD);
 	}
 	if (xsize >= WORLD_X_SIZE || ysize >= WORLD_Y_SIZE) {
 		throw LoadingError("World size out of bounds (%u × %u)", xsize, ysize);

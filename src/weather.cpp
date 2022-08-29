@@ -173,7 +173,7 @@ void Weather::Load(Loader &ldr)
 			break;
 
 		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_WTHR);
+			ldr.VersionMismatch(version, CURRENT_VERSION_WTHR);
 	}
 	ldr.ClosePattern();
 }

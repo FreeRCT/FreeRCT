@@ -150,7 +150,7 @@ void Guests::Load(Loader &ldr)
 		}
 
 		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_GSTS);
+			ldr.VersionMismatch(version, CURRENT_VERSION_GSTS);
 	}
 	ldr.ClosePattern();
 }
@@ -418,7 +418,7 @@ void Staff::Load(Loader &ldr)
 			}
 			break;
 		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_STAF);
+			ldr.VersionMismatch(version, CURRENT_VERSION_STAF);
 	}
 	ldr.ClosePattern();
 }

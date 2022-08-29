@@ -96,7 +96,7 @@ void Random::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("RAND");
 	/* Do nothing if version == 0, as any number in seed is fine. */
-	if (version > CURRENT_VERSION_RAND) ldr.version_mismatch(version, CURRENT_VERSION_RAND);
+	if (version > CURRENT_VERSION_RAND) ldr.VersionMismatch(version, CURRENT_VERSION_RAND);
 	if (version > 0) Random::seed = ldr.GetLong();
 	ldr.ClosePattern();
 }

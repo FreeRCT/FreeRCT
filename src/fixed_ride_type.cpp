@@ -332,7 +332,7 @@ static const uint32 CURRENT_VERSION_FixedRideInstance = 1;   ///< Currently supp
 void FixedRideInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("fxri");
-	if (version != CURRENT_VERSION_FixedRideInstance) ldr.version_mismatch(version, CURRENT_VERSION_FixedRideInstance);
+	if (version != CURRENT_VERSION_FixedRideInstance) ldr.VersionMismatch(version, CURRENT_VERSION_FixedRideInstance);
 	this->RideInstance::Load(ldr);
 
 	this->orientation = ldr.GetByte();

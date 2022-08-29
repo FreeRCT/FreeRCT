@@ -180,6 +180,45 @@ void NORETURN error(const char *str, ...) WARN_FORMAT(1, 2);
 /** Macro for reporting reaching an 'impossible' position in the code. */
 #define NOT_REACHED() error("NOT_REACHED triggered at line %i of %s\n", __LINE__, __FILE__)
 
+/* Macros for disabling GCC warnings. */
+#if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
+#define GCC_DIAG_DO_PRAGMA(x) _Pragma(#x)
+#define GCC_DIAG_PRAGMA(x) GCC_DIAG_DO_PRAGMA(GCC diagnostic x)
+#define GCC_DIAG_OFF(x)                                                                            \
+	GCC_DIAG_PRAGMA(push)                                                                           \
+	GCC_DIAG_PRAGMA(ignored x)
+#define GCC_DIAG_ON(x) GCC_DIAG_PRAGMA(pop)
+#else
+#define GCC_DIAG_OFF(x)
+#define GCC_DIAG_ON(x)
+#endif
+
+/* Macros for disabling Clang warnings. */
+#ifdef __clang__
+#define CLANG_DIAG_DO_PRAGMA(x) _Pragma(#x)
+#define CLANG_DIAG_PRAGMA(x) CLANG_DIAG_DO_PRAGMA(clang diagnostic x)
+#define CLANG_DIAG_OFF(x)                                                                          \
+	CLANG_DIAG_PRAGMA(push)                                                                         \
+	CLANG_DIAG_PRAGMA(ignored x)
+#define CLANG_DIAG_ON(x) CLANG_DIAG_PRAGMA(pop)
+#else
+#define CLANG_DIAG_OFF(x)
+#define CLANG_DIAG_ON(x)
+#define CLANG_DIAG_PRAGMA(x)
+#endif
+
+/**
+ * Macro to disable a compiler warning.
+ * @param x Warning to disable.
+ */
+#define DIAG_OFF(x) GCC_DIAG_OFF(x) CLANG_DIAG_OFF(x)
+
+/**
+ * Macro to re-enable a previously disabled compiler warning.
+ * @param x Warning to enable.
+ */
+#define DIAG_ON(x) GCC_DIAG_ON(x) CLANG_DIAG_ON(x)
+
 #include "loadsave.h"
 
 #endif

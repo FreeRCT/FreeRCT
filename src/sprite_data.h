@@ -29,8 +29,8 @@ class ImageData {
 public:
 	ImageData();
 
-	bool Load8bpp(RcdFileReader *rcd_file, size_t length);
-	bool Load32bpp(RcdFileReader *rcd_file, size_t length);
+	void Load8bpp(RcdFileReader *rcd_file, size_t length);
+	void Load32bpp(RcdFileReader *rcd_file, size_t length);
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
 

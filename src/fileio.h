@@ -10,6 +10,18 @@
 #ifndef FILEIO_H
 #define FILEIO_H
 
+#include "string_func.h"
+
+/** An error that occurs while loading a data file. */
+struct LoadingError : public std::exception {
+	explicit LoadingError(const char *fmt, ...);
+
+	const char* what() const noexcept override;
+
+private:
+	std::string message;
+};
+
 /**
  * Base class for reading the contents of a directory.
  * Intended use:
@@ -62,6 +74,20 @@ public:
 	std::string GetText();
 
 	size_t GetRemaining();
+
+	/**
+	 * An error occurred during loading.
+	 * @param fmt Format message.
+	 * @param args Format arguments.
+	 * @pre Must be inside a block.
+	 */
+	template<typename... Args>
+	void Error(const char *fmt, Args... args)
+	{
+		throw LoadingError("Error while loading '%s' block from %s: %s", this->name, this->filename.c_str(), Format(fmt, args...).c_str());
+	}
+
+	void CheckVersion(uint32 current_version);
 
 	std::string filename;  ///< Name of the RCD file.
 	char name[5];   ///< Name of the last found block (with #ReadBlockHeader).

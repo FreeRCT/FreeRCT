@@ -19,36 +19,12 @@
 #include "string_func.h"
 #include "person.h"
 #include "people.h"
-#include "fileio.h"
 #include "gamelevel.h"
 #include "gameobserver.h"
 #include "rev.h"
 
 /** Whether savegame files should automatically be resaved after loading. */
 bool _automatically_resave_files = false;
-
-/**
- * Constructor.
- * @param fmt Error message (may use printf-style placeholders).
- */
-LoadingError::LoadingError(const char *fmt, ...)
-{
-	char buffer[1024];
-	va_list va;
-	va_start(va, fmt);
-	vsnprintf(buffer, sizeof(buffer), fmt, va);
-	va_end(va);
-	this->message = buffer;
-}
-
-/**
- * Retrieve the description of the error.
- * @return The error message.
- */
-const char* LoadingError::what() const noexcept
-{
-	return this->message.c_str();
-}
 
 /**
  * Constructor of the loader class.
@@ -203,7 +179,7 @@ std::string Loader::GetText()
  * @param saved_version Version in the savegame.
  * @param current_version Most recent currently supported version.
  */
-void Loader::version_mismatch(uint saved_version, uint current_version)
+void Loader::VersionMismatch(uint saved_version, uint current_version)
 {
 	assert(!this->pattern_names.empty());
 	throw LoadingError("Version mismatch in %s pattern: Saved version is %u, supported version is %u",
@@ -336,7 +312,7 @@ static const uint32 CURRENT_VERSION_FCTS = 12;  ///< Currently supported version
 PreloadData Preload(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("FCTS");
-	if (version != 0 && (version < 10 || version > CURRENT_VERSION_FCTS)) ldr.version_mismatch(version, CURRENT_VERSION_FCTS);
+	if (version != 0 && (version < 10 || version > CURRENT_VERSION_FCTS)) ldr.VersionMismatch(version, CURRENT_VERSION_FCTS);
 
 	PreloadData result;
 	result.scenario.reset(new Scenario);

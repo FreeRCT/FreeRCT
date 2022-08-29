@@ -47,7 +47,7 @@ public:
 		const char *name;                                    ///< Name of this string.
 	};
 
-	bool Load(RcdFileReader *rcd_file);
+	void Load(RcdFileReader *rcd_file);
 
 	uint string_count;   ///< Number of strings in #strings.
 	std::unique_ptr<TextString[]> strings; ///< Strings of the text.
@@ -89,7 +89,7 @@ public:
 	Fence();
 	~Fence();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	uint8 type;    ///< Type of fence. (@see FenceType)
 	uint16 width;  ///< Width of a tile.
@@ -181,7 +181,7 @@ public:
 	FrameSet();
 	~FrameSet();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	uint16 width;   ///< Width of a tile.
 	uint16 width_x; ///< The number of voxels in x direction.
@@ -200,7 +200,7 @@ public:
 	TimedAnimation();
 	~TimedAnimation();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	int GetTotalDuration() const;
 	int GetFrame(int time, bool loop_around) const;
@@ -273,7 +273,7 @@ class Animation : public RcdBlock {
 public:
 	Animation();
 
-	bool Load(RcdFileReader *rcd_file);
+	void Load(RcdFileReader *rcd_file);
 
 	uint16 frame_count;      ///< Number of frames.
 	uint8 person_type;       ///< Type of persons supported by this animation.
@@ -289,7 +289,7 @@ class AnimationSprites: public RcdBlock {
 public:
 	AnimationSprites();
 
-	bool Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	uint16 width;            ///< Width of the tile.
 	uint8 person_type;       ///< Type of persons supported by this animation.
@@ -474,12 +474,12 @@ struct GuiSprites {
 	GuiSprites();
 
 	void Clear();
-	bool LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts);
-	bool LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts);
+	void LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	bool HasSufficientGraphics() const;
 
@@ -718,7 +718,7 @@ public:
 	PathStatus GetPathStatus(PathType path_type);
 
 protected:
-	const char *Load(const char *fname);
+	void Load(const char *fname);
 	SpriteStorage *GetSpriteStore(uint16 width);
 
 	std::vector<std::unique_ptr<RcdBlock>> blocks;  ///< List of loaded RCD data blocks.
@@ -727,21 +727,21 @@ protected:
 	AnimationsMap animations; ///< Available animations.
 
 private:
-	bool LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites);
-	bool LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	void SetSpriteSize(uint16 start, uint16 end, Rectangle16 &rect);
 };
 
-bool LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageData **spr);
-bool LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **txt);
+void LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageData **spr);
+void LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **txt);
 Rectangle16 GetSpriteSize(const ImageData *imd);
 
 extern SpriteManager _sprite_manager;

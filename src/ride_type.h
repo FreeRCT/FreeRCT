@@ -73,7 +73,7 @@ enum ItemType {
 class RideEntranceExitType {
 public:
 	RideEntranceExitType();
-	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
+	void Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
 	std::string internal_name;       ///< Unique internal name of the entrance/exit type.
 	bool is_entrance;                ///< Whether this is an entrance type or exit type.
@@ -258,8 +258,8 @@ public:
 	const RideInstance *GetRideInstance(uint16 num) const;
 	RideInstance *FindRideByName(const std::string &name);
 
-	bool AddRideType(std::unique_ptr<RideType> type);
-	bool AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type);
+	void AddRideType(std::unique_ptr<RideType> type);
+	void AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type);
 
 	uint16 GetFreeInstance(const RideType *type);
 	RideInstance *CreateInstance(const RideType *type, uint16 num);

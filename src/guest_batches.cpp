@@ -43,7 +43,7 @@ static const uint32 CURRENT_VERSION_OnRideGuests = 1;   ///< Currently supported
 void GuestData::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("gstd");
-	if (version != CURRENT_VERSION_GuestData) ldr.version_mismatch(version, CURRENT_VERSION_GuestData);
+	if (version != CURRENT_VERSION_GuestData) ldr.VersionMismatch(version, CURRENT_VERSION_GuestData);
 
 	this->guest = ldr.GetLong();
 	this->entry = static_cast<TileEdge>(ldr.GetByte());
@@ -130,7 +130,7 @@ void GuestBatch::OnAnimate(int delay)
 void GuestBatch::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("gstb");
-	if (version != CURRENT_VERSION_GuestBatch) ldr.version_mismatch(version, CURRENT_VERSION_GuestBatch);
+	if (version != CURRENT_VERSION_GuestBatch) ldr.VersionMismatch(version, CURRENT_VERSION_GuestBatch);
 
 	this->state = static_cast<BatchState>(ldr.GetByte());
 	this->remaining = ldr.GetLong();
@@ -212,7 +212,7 @@ void OnRideGuests::OnAnimate(int delay)
 void OnRideGuests::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("onrg");
-	if (version != CURRENT_VERSION_OnRideGuests) ldr.version_mismatch(version, CURRENT_VERSION_OnRideGuests);
+	if (version != CURRENT_VERSION_OnRideGuests) ldr.VersionMismatch(version, CURRENT_VERSION_OnRideGuests);
 
 	this->batch_size = ldr.GetWord();
 	this->num_batches = ldr.GetWord();

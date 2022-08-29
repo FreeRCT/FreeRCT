@@ -28,4 +28,21 @@ size_t GetNextChar(const std::string &data, size_t pos);
 bool StrEqual(const uint8 *s1, const uint8 *s2);
 bool StrEndsWith(const char *str, const char *end, bool case_sensitive);
 
+/**
+ * Convenience wrapper around the snprintf function.
+ * @param format Format string with printf-style placeholders.
+ * @param args Formatting arguments.
+ * @return Formatted text.
+ * @note When possible, use #DrawText instead.
+ */
+DIAG_OFF("-Wformat-security")
+template<typename... Args>
+std::string Format(const std::string &format, Args... args)
+{
+	static char buffer[2048];
+	snprintf(buffer, lengthof(buffer), format.c_str(), args...);
+	return buffer;
+}
+DIAG_ON("-Wformat-security")
+
 #endif

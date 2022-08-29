@@ -58,6 +58,6 @@ inline const PersonTypeData &GetPersonTypeData(PersonType pt)
 	return ModifyPersonTypeData(pt);
 }
 
-bool LoadPRSG(RcdFileReader *rcd_file);
+void LoadPRSG(RcdFileReader *rcd_file);
 
 #endif

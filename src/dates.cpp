@@ -199,7 +199,7 @@ void LoadDate(Loader &ldr)
 			_date = Date(ldr.GetLong());
 			break;
 		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_DATE);
+			ldr.VersionMismatch(version, CURRENT_VERSION_DATE);
 	}
 	ldr.ClosePattern();
 }
