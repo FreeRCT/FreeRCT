@@ -284,7 +284,9 @@ public:
 		if (number >= this->ride_types.size()) return nullptr;
 		return this->ride_types[number].get();
 	}
-	uint16 FindRideType(const RideType *) const;
+	const RideType *GetRideType(const std::string &internal_name) const;
+	int GetEntranceIndex(const std::string &internal_name) const;
+	int GetExitIndex(const std::string &internal_name) const;
 
 	std::vector<std::unique_ptr<const RideType>> ride_types;             ///< Loaded types of rides.
 	std::map<uint16, std::unique_ptr<RideInstance>> instances;           ///< Rides available in the park.

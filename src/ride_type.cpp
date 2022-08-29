@@ -616,20 +616,20 @@ void RideInstance::NotifyLongQueue()
 	}
 }
 
-static const uint32 CURRENT_VERSION_RideInstance = 1;   ///< Currently supported version of %RideInstance.
+static const uint32 CURRENT_VERSION_RideInstance = 2;   ///< Currently supported version of %RideInstance.
 
 void RideInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("ride");
-	if (version != CURRENT_VERSION_RideInstance) ldr.version_mismatch(version, CURRENT_VERSION_RideInstance);
+	if (version < 1 || version > CURRENT_VERSION_RideInstance) ldr.version_mismatch(version, CURRENT_VERSION_RideInstance);
 
 	this->name = ldr.GetText();
 
 	uint16 state_and_flags = ldr.GetWord();
 	this->state = static_cast<RideInstanceState>(state_and_flags >> 8);
 	this->flags = state_and_flags & 0xff;
-	this->SetEntranceType(ldr.GetWord());
-	this->SetExitType(ldr.GetWord());
+	this->SetEntranceType(version >= 2 ? _rides_manager.GetEntranceIndex(ldr.GetText()) : ldr.GetWord());
+	this->SetExitType(version >= 2 ? _rides_manager.GetExitIndex(ldr.GetText()) : ldr.GetWord());
 	this->recolours.Load(ldr);
 	this->entrance_recolours.Load(ldr);
 	this->exit_recolours.Load(ldr);
@@ -656,8 +656,8 @@ void RideInstance::Save(Saver &svr)
 
 	svr.PutText(this->name);
 	svr.PutWord((static_cast<uint16>(this->state) << 8) | this->flags);
-	svr.PutWord(this->entrance_type);
-	svr.PutWord(this->exit_type);
+	svr.PutText(_rides_manager.entrances[this->entrance_type]->internal_name);
+	svr.PutText(_rides_manager.exits[this->exit_type]->internal_name);
 	this->recolours.Save(svr);
 	this->entrance_recolours.Save(svr);
 	this->exit_recolours.Save(svr);
@@ -708,7 +708,7 @@ void RidesManager::OnNewDay()
 	}
 }
 
-static const uint32 CURRENT_VERSION_RIDS = 3;   ///< Currently supported version of the RIDS Pattern.
+static const uint32 CURRENT_VERSION_RIDS = 4;   ///< Currently supported version of the RIDS Pattern.
 
 void RidesManager::Load(Loader &ldr)
 {
@@ -722,7 +722,9 @@ void RidesManager::Load(Loader &ldr)
 
 			RideTypeKind ride_kind = static_cast<RideTypeKind>(ldr.GetByte());
 
-			if (version >= 2) {
+			if (version >= 4) {
+				ride_type = this->GetRideType(ldr.GetText());
+			} else if (version >= 2) {
 				ride_type = this->GetRideType(ldr.GetWord());
 			} else {
 				const std::string ride_type_name = ldr.GetText();
@@ -767,7 +769,7 @@ void RidesManager::Save(Saver &svr)
 		svr.PutWord(index);
 		RideInstance *r = this->instances.at(index).get();
 		svr.PutByte(static_cast<uint8>(r->GetKind()));
-		svr.PutWord(this->FindRideType(r->GetRideType()));
+		svr.PutText(r->GetRideType()->InternalName());
 		r->Save(svr);
 	}
 
@@ -860,18 +862,36 @@ RideInstance *RidesManager::CreateInstance(const RideType *type, uint16 num)
 }
 
 /**
- * Get the requested ride type's ID.
- * @param r Ride to look up.
- * @return The ride's index.
+ * Retrieve the ride type with a given internal name.
+ * @param internal_name Internal name of the type.
+ * @return The type (\c nullptr for invalid names).
  */
-uint16 RidesManager::FindRideType(const RideType *r) const
+const RideType *RidesManager::GetRideType(const std::string &internal_name) const
 {
-	for (uint i = 0; i < this->ride_types.size(); i++) {
-		if (this->ride_types[i].get() == r) {
-			return i;
-		}
-	}
-	NOT_REACHED();
+	for (const auto &t : this->ride_types) if (t->InternalName() == internal_name) return t.get();
+	return nullptr;
+}
+
+/**
+ * Retrieve the index of the ride entrance type with a given internal name.
+ * @param internal_name Internal name of the type.
+ * @return Index of the type (\c -1 for invalid names).
+ */
+int RidesManager::GetEntranceIndex(const std::string &internal_name) const
+{
+	for (size_t i = 0; i < this->entrances.size(); ++i) if (this->entrances.at(i)->internal_name == internal_name) return i;
+	return -1;
+}
+
+/**
+ * Retrieve the index of the ride exit type with a given internal name.
+ * @param internal_name Internal name of the type.
+ * @return Index of the type (\c -1 for invalid names).
+ */
+int RidesManager::GetExitIndex(const std::string &internal_name) const
+{
+	for (size_t i = 0; i < this->exits.size(); ++i) if (this->exits.at(i)->internal_name == internal_name) return i;
+	return -1;
 }
 
 /**

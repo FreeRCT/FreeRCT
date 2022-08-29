@@ -792,6 +792,17 @@ const SceneryType *SceneryManager::GetType(const uint16 index) const
 }
 
 /**
+ * Retrieve the scenery type with a given internal name.
+ * @param internal_name Internal name of the type.
+ * @return The type (\c nullptr for invalid names).
+ */
+const SceneryType *SceneryManager::GetType(const std::string &internal_name) const
+{
+	for (const auto &t : this->scenery_item_types) if (t->internal_name == internal_name) return t.get();
+	return nullptr;
+}
+
+/**
  * Returns all scenery types with the given category.
  * @param cat Category of interest.
  * @return All types in the category.
@@ -1014,7 +1025,7 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 	return nullptr;
 }
 
-static const uint32 CURRENT_VERSION_SceneryInstance_SCNY = 2;   ///< Currently supported version of the SCNY Pattern.
+static const uint32 CURRENT_VERSION_SceneryInstance_SCNY = 3;   ///< Currently supported version of the SCNY Pattern.
 
 void SceneryManager::Load(Loader &ldr)
 {
@@ -1025,8 +1036,9 @@ void SceneryManager::Load(Loader &ldr)
 			break;
 		case 1:
 		case 2:
+		case 3:
 			for (long l = ldr.GetLong(); l > 0; l--) {
-				SceneryInstance *i = new SceneryInstance(this->scenery_item_types[ldr.GetWord()].get());
+				SceneryInstance *i = new SceneryInstance(version >= 3 ? this->GetType(ldr.GetText()) : this->scenery_item_types[ldr.GetWord()].get());
 				i->Load(ldr);
 				this->all_items[i->vox_pos] = std::unique_ptr<SceneryInstance>(i);
 			}
@@ -1065,7 +1077,7 @@ void SceneryManager::Save(Saver &svr) const
 
 	svr.PutLong(this->all_items.size());
 	for (const auto &pair : this->all_items) {
-		svr.PutWord(this->GetSceneryTypeIndex(pair.second->type));
+		svr.PutText(pair.second->type->internal_name);
 		pair.second->Save(svr);
 	}
 

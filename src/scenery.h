@@ -197,6 +197,7 @@ public:
 	void AddSceneryType(std::unique_ptr<SceneryType> &type);
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
 	const SceneryType *GetType(uint16 index) const;
+	const SceneryType *GetType(const std::string &internal_name) const;
 	std::vector<const SceneryType*> GetAllTypes(SceneryCategory cat) const;
 
 	void OnAnimate(int delay);
