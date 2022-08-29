@@ -7,8 +7,6 @@
 
 /** @file loadsave.cpp Savegame loading and saving code. */
 
-#include <cstdarg>
-
 #include "stdafx.h"
 #include "dates.h"
 #include "random.h"

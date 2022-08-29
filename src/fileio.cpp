@@ -11,6 +11,7 @@
  * @defgroup fileio_group File IO
  */
 
+#include <cstdarg>
 #include "stdafx.h"
 #include "fileio.h"
 #include "rev.h"
