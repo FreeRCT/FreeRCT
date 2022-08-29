@@ -1533,7 +1533,9 @@ const char *SpriteManager::Load(const char *filename)
 			if (!shop_type->Load(&rcd_file, sprites, texts)) {
 				return "Shop type failed to load.";
 			}
-			_rides_manager.AddRideType(std::move(shop_type));
+			if (!_rides_manager.AddRideType(std::move(shop_type))) {
+				return "Shop type could not be added.";
+			}
 			continue;
 		}
 
@@ -1560,7 +1562,9 @@ const char *SpriteManager::Load(const char *filename)
 			if (!s->Load(&rcd_file, sprites, texts)) {
 				return "Scenery type failed to load.";
 			}
-			_scenery.AddSceneryType(s);
+			if (!_scenery.AddSceneryType(s)) {
+				return "Scenery type could not be added.";
+			}
 			continue;
 		}
 
@@ -1569,7 +1573,9 @@ const char *SpriteManager::Load(const char *filename)
 			if (!e->Load(&rcd_file, sprites, texts)) {
 				return "Entrance/Exit failed to load.";
 			}
-			_rides_manager.AddRideEntranceExitType(e);
+			if (!_rides_manager.AddRideEntranceExitType(e)) {
+				return "Entrance/Exit could not be added.";
+			}
 			continue;
 		}
 
@@ -1578,7 +1584,9 @@ const char *SpriteManager::Load(const char *filename)
 			if (!ride_type->Load(&rcd_file, sprites, texts)) {
 				return "Gentle/Thrill ride type failed to load.";
 			}
-			_rides_manager.AddRideType(std::move(ride_type));
+			if (!_rides_manager.AddRideType(std::move(ride_type))) {
+				return "Gentle/Thrill type could not be added.";
+			}
 			continue;
 		}
 
@@ -1596,7 +1604,9 @@ const char *SpriteManager::Load(const char *filename)
 			if (!ct->Load(&rcd_file, texts, track_pieces)) {
 				return "Coaster type failed to load.";
 			}
-			_rides_manager.AddRideType(std::move(ct));
+			if (!_rides_manager.AddRideType(std::move(ct))) {
+				return "Coaster type could not be added.";
+			}
 			continue;
 		}
 

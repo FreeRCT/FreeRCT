@@ -70,7 +70,10 @@ static bool IsValidItemType(uint8 val)
  */
 bool ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 6 || rcd_file->size != 40) return false;
+	int length = rcd_file->size;
+	length -= 40;
+	if (rcd_file->version != 7 || length <= 0) return false;
+
 	this->width_x = this->width_y = 1;
 	this->heights.reset(new int8[1]);
 	this->heights[0] = rcd_file->GetUInt8();
@@ -105,6 +108,9 @@ bool ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
 	StringID base = _language.RegisterStrings(*text_data, _shops_strings_table);
 	this->SetupStrings(text_data, base, STR_GENERIC_SHOP_START, SHOPS_STRING_TABLE_END, SHOPS_NAME_TYPE, SHOPS_DESCRIPTION_TYPE);
+
+	this->internal_name = rcd_file->GetText();
+	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
 	return true;
 }
 

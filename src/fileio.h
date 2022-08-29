@@ -59,6 +59,7 @@ public:
 	int8  GetInt8();
 	int16 GetInt16();
 	int32 GetInt32();
+	std::string GetText();
 
 	size_t GetRemaining();
 

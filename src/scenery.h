@@ -39,6 +39,7 @@ public:
 
 	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
+	std::string internal_name; ///< Unique internal name of the scenery item type.
 	SceneryCategory category;  ///< Category of scenery.
 	StringID name;             ///< Name of this item type.
 	uint8 width_x;             ///< Number of voxels in x direction occupied by this item.
@@ -193,9 +194,10 @@ class SceneryManager {
 public:
 	SceneryManager();
 
-	void AddSceneryType(std::unique_ptr<SceneryType> &type);
+	bool AddSceneryType(std::unique_ptr<SceneryType> &type);
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
 	const SceneryType *GetType(uint16 index) const;
+	const SceneryType *GetType(const std::string &internal_name) const;
 	std::vector<const SceneryType*> GetAllTypes(SceneryCategory cat) const;
 
 	void OnAnimate(int delay);

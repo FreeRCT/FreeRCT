@@ -25,7 +25,8 @@ public:
 	void SaveInt16(int16 d);
 	void SaveUInt32(uint32 d);
 	void SaveInt32(int32 d);
-	void SaveBytes(uint8 *data, int size);
+	void SaveBytes(const uint8 *data, int size);
+	void SaveText(const std::string &text);
 	void CheckEndSave();
 
 	void Write(FILE *fp);

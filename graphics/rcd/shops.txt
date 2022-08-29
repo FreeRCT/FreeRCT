@@ -13,6 +13,7 @@ file("shops.rcd") {
 
 	// Snack shop.
 	SHOP {
+		internal_name: "snack_shop";
 		height: 2;
 
 		images: FSET {
@@ -39,6 +40,7 @@ file("shops.rcd") {
 
 	// Ice cream stall.
 	SHOP {
+		internal_name: "ice_cream_stall";
 		height: 3;
 
 		images: FSET {
@@ -76,6 +78,7 @@ file("shops.rcd") {
 
 	// Toilet.
 	SHOP {
+		internal_name: "toilet";
 		height: 2;
 
 		images: FSET {
@@ -109,6 +112,7 @@ file("shops.rcd") {
 
 	// ATM.
 	SHOP {
+		internal_name: "atm";
 		height: 3;
 
 		images: FSET {

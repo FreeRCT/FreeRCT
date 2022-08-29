@@ -939,14 +939,14 @@ int StringBundle::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SHOPBlock::SHOPBlock() : GameBlock("SHOP", 6)
+SHOPBlock::SHOPBlock() : GameBlock("SHOP", 7)
 {
 }
 
 int SHOPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 52 - 12);
+	fb->StartSave(this->blk_name, this->version, 52 + this->internal_name.size() + 1 - 12);
 	fb->SaveUInt8(this->height);
 	fb->SaveUInt8(this->flags);
 	fb->SaveUInt32(this->views->Write(fw));
@@ -960,6 +960,7 @@ int SHOPBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->item_type[0]);
 	fb->SaveUInt8(this->item_type[1]);
 	fb->SaveUInt32(this->shop_text->Write(fw));
+	fb->SaveText(this->internal_name);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
@@ -1029,14 +1030,14 @@ int TIMABlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-RIEEBlock::RIEEBlock() : GameBlock("RIEE", 1)
+RIEEBlock::RIEEBlock() : GameBlock("RIEE", 2)
 {
 }
 
 int RIEEBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 63 - 12);
+	fb->StartSave(this->blk_name, this->version, 63 + this->internal_name.size() + 1 - 12);
 	fb->SaveUInt8(this->is_entrance ? 1 : 0);
 	fb->SaveUInt32(this->texts->Write(fw));
 	fb->SaveUInt16(this->tile_width);
@@ -1045,18 +1046,19 @@ int RIEEBlock::Write(FileWriter *fw)
 	for (std::shared_ptr<SpriteBlock>& v : this->sw_views) fb->SaveUInt32(v->Write(fw));
 	for (std::shared_ptr<SpriteBlock>& v : this->nw_views) fb->SaveUInt32(v->Write(fw));
 	for (Recolouring& r : this->recol) fb->SaveUInt32(r.Encode());
+	fb->SaveText(this->internal_name);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
 
-FGTRBlock::FGTRBlock() : GameBlock("FGTR", 4)
+FGTRBlock::FGTRBlock() : GameBlock("FGTR", 5)
 {
 }
 
 int FGTRBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 123 + (this->ride_width_x * this->ride_width_y) - 12);
+	fb->StartSave(this->blk_name, this->version, 123 + (this->ride_width_x * this->ride_width_y) + this->internal_name.size() + 1 - 12);
 	fb->SaveUInt8(this->is_thrill_ride ? 1 : 0);
 	fb->SaveUInt8(this->ride_width_x);
 	fb->SaveUInt8(this->ride_width_y);
@@ -1092,18 +1094,19 @@ int FGTRBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->excitement_increase_cycle);
 	fb->SaveUInt32(this->excitement_increase_scenery);
 	fb->SaveUInt32(this->ride_text->Write(fw));
+	fb->SaveText(this->internal_name);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
 
-SCNYBlock::SCNYBlock() : GameBlock("SCNY", 2)
+SCNYBlock::SCNYBlock() : GameBlock("SCNY", 3)
 {
 }
 
 int SCNYBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 64 - 12 + (this->width_x * this->width_y));
+	fb->StartSave(this->blk_name, this->version, 64 - 12 + (this->width_x * this->width_y) + this->internal_name.size() + 1);
 	fb->SaveUInt8(this->width_x);
 	fb->SaveUInt8(this->width_y);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -1122,6 +1125,7 @@ int SCNYBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->symmetric ? 1 : 0);
 	fb->SaveUInt8(this->category);
 	fb->SaveUInt32(this->texts->Write(fw));
+	fb->SaveText(this->internal_name);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
@@ -1818,7 +1822,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 	}
 }
 
-RCSTBlock::RCSTBlock() : GameBlock("RCST", 6)
+RCSTBlock::RCSTBlock() : GameBlock("RCST", 7)
 {
 }
 
@@ -1832,7 +1836,7 @@ int RCSTBlock::Write(FileWriter *fw)
 
 	/* Write the data. */
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 29 - 12 + 4 * 4 * this->track_blocks.size());
+	fb->StartSave(this->blk_name, this->version, 29 - 12 + 4 * 4 * this->track_blocks.size() + this->internal_name.size() + 1);
 	fb->SaveUInt16(this->coaster_type);
 	fb->SaveUInt8(this->platform_type);
 	fb->SaveUInt8(this->number_trains);
@@ -1845,6 +1849,7 @@ int RCSTBlock::Write(FileWriter *fw)
 	for (auto iter : this->track_blocks) {
 		iter->Write(connections, fw, fb);
 	}
+	fb->SaveText(this->internal_name);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

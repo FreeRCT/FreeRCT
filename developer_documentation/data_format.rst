@@ -543,7 +543,7 @@ Version history
 
 Shops/stalls
 ~~~~~~~~~~~~
-One tile objects, selling useful things to guests. FreeRCT can read block version 6.
+One tile objects, selling useful things to guests. FreeRCT can read block version 7.
 
 ======  ======  =======  ===================================================================================
 Offset  Length  Version  Description
@@ -570,7 +570,8 @@ Offset  Length  Version  Description
   46       1      4-     Item type of the first item.
   47       1      4-     Item type of the second item.
   48       4      3-     Text of the shop (reference to a TEXT block).
-  52                     Total length.
+  52       ?      7-     Characters of the ride's internal name, nul-terminated.
+   ?                     Total length.
 ======  ======  =======  ===================================================================================
 
 Shop flags:
@@ -604,6 +605,7 @@ Version history
 - 4 (20121005) Added items to sell, and costs to pay.
 - 5 (20141010) Added more items.
 - 6 (20210131) Use an FSET block instead of saving the sprites directly.
+- 7 (20220829) Added internal name.
 
 
 Frame Sets
@@ -659,7 +661,7 @@ Version history
 
 Rides entrances and exits
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-An entrance or exit for a ride. FreeRCT can read block version 1.
+An entrance or exit for a ride. FreeRCT can read block version 2.
 
 ===========  =======  =======  ==================================================================
 Offset       Length   Version  Description
@@ -681,18 +683,20 @@ Offset       Length   Version  Description
   51          4        1-      First recolouring specification.
   55          4        1-      Second recolouring specification.
   59          4        1-      Third recolouring specification.
-  63                           Total length.
+  63          ?        2-      Characters of the type's internal name, nul-terminated.
+   ?                           Total length.
 ===========  =======  =======  ==================================================================
 
 Version history
 ...............
 
 - 1 (20210206) Initial version.
+- 2 (20220829) Added internal name.
 
 
 Gentle and thrill rides
 ~~~~~~~~~~~~~~~~~~~~~~~
-Gentle and thrill rides consisting of a single building. FreeRCT can read block version 3.
+Gentle and thrill rides consisting of a single building. FreeRCT can read block version 5.
 
 =========  ======  =======  ========================================================================================
 Offset     Length  Version  Description
@@ -735,7 +739,8 @@ Offset     Length  Version  Description
  111+s      4       4-      Absolute excitement rating increase per working cycle (must be >= 0).
  115+s      4       4-      Absolute excitement rating increase per nearby scenery item (must be >= 0).
  119+s      4       1-      Text of the ride (reference to a TEXT block).
- 123+s                      Total length.
+ 123+s      ?       5-      Characters of the ride's internal name, nul-terminated.
+    ?                       Total length.
 =========  ======  =======  ========================================================================================
 
 The duration of the ride's working phase needs to be at least as long as the sum of the durations of all
@@ -761,11 +766,12 @@ Version history
 - 2 (20210201) Added timing of phases and ride capacity.
 - 3 (20210227) Added minimum and maximum number of working cycles and reliability parameters.
 - 4 (20210317) Added excitement, intensity, nausea parameters.
+- 5 (20220829) Added internal name.
 
 
 Scenery items
 ~~~~~~~~~~~~~
-A scenery item, such as trees or flower beds. FreeRCT can read block version 1.
+A scenery item, such as trees or flower beds. FreeRCT can read block version 3.
 
 ===============  =======  =======  =========================================================================================================
 Offset           Length   Version  Description
@@ -791,7 +797,8 @@ Offset           Length   Version  Description
   58+s            1        1-      Whether this item is considered symmetric (1 for true, 0 for false). Symmetric items can't be rotated.
   59+s            1        1-      Item type category.
   60+s            4        1-      Text of the item (reference to a TEXT block).
-  64+s                             Total length.
+  64+s            ?        3-      Characters of the item's internal name, nul-terminated.
+    ?                              Total length.
 ===============  =======  =======  =========================================================================================================
 
 Valid scenery categories are:
@@ -806,6 +813,7 @@ Version history
 
 - 1 (20210320) Initial version.
 - 2 (20210427) Added minimum watering interval.
+- 3 (20220829) Added internal name.
 
 
 Build direction arrows
@@ -1218,7 +1226,7 @@ Version history
 Roller coaster tracks
 ~~~~~~~~~~~~~~~~~~~~~
 A ``RCST`` block contains all information of a single type of roller coaster.
-It currently contains track piece definitions only. FreeRCT supports version 6
+It currently contains track piece definitions only. FreeRCT supports version 7
 of the ``RCST`` block.
 
 ======  ======  =======  =============================  ========================================================================
@@ -1237,7 +1245,8 @@ Offset  Length  Version  Field name                     Description
   23       4      3-     texts                          Texts of the coaster.
   27       2      1-     <derived>                      Number of track piece definitions (called 'n').
   29      4*n     1-                                    The track piece definitions (references to ``TRCK``).
-29+4*n                                                  Total length of the ``RCST`` block.
+29+4*n     ?      7-     internal_name                  Characters of the ride's internal name, nul-terminated.
+   ?                                                    Total length of the ``RCST`` block.
 ======  ======  =======  =============================  ========================================================================
 
 Currently defined coaster types:
@@ -1260,6 +1269,7 @@ Version history
 - 4 (20131117) Moved platform bits from track piece to track voxel.
 - 5 (20131227) Added ``number_of_trains`` and ``number_of_cars`` fields.
 - 6 (20210227) Added reliability parameters.
+- 7 (20220829) Added internal name.
 
 Track pieces
 ~~~~~~~~~~~~

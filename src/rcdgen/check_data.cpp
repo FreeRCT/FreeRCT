@@ -1849,6 +1849,7 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("SHOP", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true, _shop_symbols);
 
+	sb->internal_name = vals.GetString("internal_name");
 	sb->height = vals.GetNumber("height");
 	sb->flags = vals.GetNumber("flags");
 	sb->views = vals.GetFrameSet("images");
@@ -2036,6 +2037,7 @@ static std::shared_ptr<RIEEBlock> ConvertRIEENode(std::shared_ptr<NodeGroup> ng)
 	Values vals("RIEE", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
+	block->internal_name = vals.GetString("internal_name");
 	const std::string type = vals.GetString("type");
 	if (type == "exit") {
 		block->is_entrance = false;
@@ -2083,6 +2085,7 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("FGTR", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
+	block->internal_name = vals.GetString("internal_name");
 	const std::string category = vals.GetString("category");
 	if (category == "gentle") {
 		block->is_thrill_ride = false;
@@ -2156,6 +2159,7 @@ static std::shared_ptr<SCNYBlock> ConvertSCNYNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("SCNY", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
+	block->internal_name = vals.GetString("internal_name");
 	block->symmetric = vals.GetNumber("symmetric") > 0;
 	block->category = vals.GetNumber("category");
 	block->width_x = vals.GetNumber("width_x");
@@ -2580,6 +2584,7 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("RCST", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
+	rb->internal_name = vals.GetString("internal_name");
 	rb->coaster_type = vals.GetNumber("coaster_type");
 	rb->platform_type = vals.GetNumber("platform_type");
 	rb->number_trains = vals.GetNumber("max_number_trains");

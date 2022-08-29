@@ -483,12 +483,15 @@ SceneryType::SceneryType()
  */
 bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	if (rcd_file->version != 2 || rcd_file->size < 2) return false;
+	int length = rcd_file->size;
+	if (rcd_file->version != 3 || length <= 2) return false;
 
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) return false;
-	if (rcd_file->size != static_cast<unsigned>(52 + (this->width_x * this->width_y))) return false;
+
+	length -= 52 + (this->width_x * this->width_y);
+	if (length < 0) return false;
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; x++) {
@@ -516,6 +519,9 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	TextData *text_data;
 	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
 	this->name = _language.RegisterStrings(*text_data, _scenery_strings_table);
+
+	this->internal_name = rcd_file->GetText();
+	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
 	return true;
 }
 
@@ -753,11 +759,14 @@ SceneryManager::SceneryManager() : temp_item(nullptr), temp_path_object(nullptr)
 /**
  * Register a new scenery type.
  * @param type Scenery type to add.
- * @note Takes ownership of the pointer and clears the passed smart pointer.
+ * @return Insertion was successful.
+ * @note On success, takes ownership of the pointer and clears the passed smart pointer.
  */
-void SceneryManager::AddSceneryType(std::unique_ptr<SceneryType> &type)
+bool SceneryManager::AddSceneryType(std::unique_ptr<SceneryType> &type)
 {
+	if (type->internal_name.empty() || this->GetType(type->internal_name) != nullptr) return false;
 	this->scenery_item_types.emplace_back(std::move(type));
+	return true;
 }
 
 /**
@@ -783,6 +792,17 @@ uint16 SceneryManager::GetSceneryTypeIndex(const SceneryType *type) const
 const SceneryType *SceneryManager::GetType(const uint16 index) const
 {
 	return this->scenery_item_types[index].get();
+}
+
+/**
+ * Retrieve the scenery type with a given internal name.
+ * @param internal_name Internal name of the type.
+ * @return The type (\c nullptr for invalid names).
+ */
+const SceneryType *SceneryManager::GetType(const std::string &internal_name) const
+{
+	for (const auto &t : this->scenery_item_types) if (t->internal_name == internal_name) return t.get();
+	return nullptr;
 }
 
 /**
@@ -1008,7 +1028,7 @@ SceneryInstance *SceneryManager::GetItem(const XYZPoint16 &pos)
 	return nullptr;
 }
 
-static const uint32 CURRENT_VERSION_SceneryInstance_SCNY = 2;   ///< Currently supported version of the SCNY Pattern.
+static const uint32 CURRENT_VERSION_SceneryInstance_SCNY = 3;   ///< Currently supported version of the SCNY Pattern.
 
 void SceneryManager::Load(Loader &ldr)
 {
@@ -1019,8 +1039,9 @@ void SceneryManager::Load(Loader &ldr)
 			break;
 		case 1:
 		case 2:
+		case 3:
 			for (long l = ldr.GetLong(); l > 0; l--) {
-				SceneryInstance *i = new SceneryInstance(this->scenery_item_types[ldr.GetWord()].get());
+				SceneryInstance *i = new SceneryInstance(version >= 3 ? this->GetType(ldr.GetText()) : this->scenery_item_types[ldr.GetWord()].get());
 				i->Load(ldr);
 				this->all_items[i->vox_pos] = std::unique_ptr<SceneryInstance>(i);
 			}
@@ -1059,7 +1080,7 @@ void SceneryManager::Save(Saver &svr) const
 
 	svr.PutLong(this->all_items.size());
 	for (const auto &pair : this->all_items) {
-		svr.PutWord(this->GetSceneryTypeIndex(pair.second->type));
+		svr.PutText(pair.second->type->internal_name);
 		pair.second->Save(svr);
 	}
 

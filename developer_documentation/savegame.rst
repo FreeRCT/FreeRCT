@@ -467,8 +467,10 @@ Offset  Length  Version  Description
    4       4      1-     Version number.
    8       ?      1-     Ride name characters.
    ?       2      1-     Ride state and flags.
-   ?       2      1-     Ride entrance type ID.
-   ?       2      1-     Ride exit type ID.
+           2      1-1    Ride entrance type ID.
+           2      1-1    Ride exit type ID.
+   ?       2      2-     Ride entrance type internal name.
+   ?       2      2-     Ride exit type internal name.
    ?       ?      1-     Ride recolouring_ information.
    ?       ?      1-     Entrance recolouring_ information.
    ?       ?      1-     Exit recolouring_ information.
@@ -493,6 +495,7 @@ Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (20220829) Use internal name for entrances and exits.
 
 
 Display Coaster Car
@@ -1173,13 +1176,14 @@ Scenery
 ~~~~~~~
 All placed scenery instances and path objects in the world.
 
-======  ======  =======  =======================================================================================
+======  ======  =======  ========================================================================================================
 Offset  Length  Version  Description
-======  ======  =======  =======================================================================================
+======  ======  =======  ========================================================================================================
    0       4      1-     "SCNY".
    4       4      1-     Version number of the staff block.
    8       4      1-     Number of scenery items.
-  12       ?      1-     Every item's type index (2 bytes) followed by its `scenery instance`_ data pattern.
+           ?      1-2    Every item's type index (2 bytes) followed by its `scenery instance`_ data pattern.
+  12       ?      3-     Every item's internal name followed by its `scenery instance`_ data pattern.
    ?       4      2-     Number of user-placed path objects.
    ?       ?      2-     Every user-placed path object's data, consisting of the voxel coordinate
                          (3× 2 bytes), the item's type index (1 byte), and its `path object`_ data pattern.
@@ -1187,13 +1191,14 @@ Offset  Length  Version  Description
    ?       ?      2-     Every litter and vomit object's data, consisting of the voxel coordinate
                          (3× 2 bytes), the item's type index (1 byte), and its `path object`_ data pattern.
    ?       4      1-     "YNCS"
-======  ======  =======  =======================================================================================
+======  ======  =======  ========================================================================================================
 
 Version history
 ...............
 
 - 1 (20210402) Initial version.
 - 2 (20210429) Added path objects.
+- 3 (20220829) Use internal name.
 
 
 Rides
@@ -1210,8 +1215,11 @@ Offset  Length  Version  Description
                          characters, and the data pattern of the `ride instance`_'s most derived class.
            ?      2-2    Every ride's content, consisting of the ride type kind (1 byte), the ride type
                          index (2 bytes), and the data pattern of the `ride instance`_'s most derived class.
-  10       ?      3-     Every ride's content, consisting of the unique ride instance index (2 bytes),
+           ?      3-3    Every ride's content, consisting of the unique ride instance index (2 bytes),
                          the ride type kind (1 byte), the ride type index (2 bytes),
+                         and the data pattern of the `ride instance`_'s most derived class.
+  10       ?      4-     Every ride's content, consisting of the unique ride instance index (2 bytes),
+                         the ride type kind (1 byte), the ride type's internal name,
                          and the data pattern of the `ride instance`_'s most derived class.
    ?       4      1-     "SDIR"
 ======  ======  =======  ======================================================================================
@@ -1222,6 +1230,7 @@ Version history
 - 1 (20210402) Initial version.
 - 2 (20210819) Replace ride type name with ride type index.
 - 3 (20210827) Assign every ride instance a unique index.
+- 4 (20220829) Use internal name.
 
 
 .. vim: spell

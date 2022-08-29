@@ -13,6 +13,7 @@ file("entrance_exit.rcd") {
 
 	// Generic entrance
 	RIEE {
+		internal_name: "generic_entrance";
 		type: "entrance";
 		tile_width: 64;
 		ne_fg: sprite {
@@ -52,6 +53,7 @@ file("entrance_exit.rcd") {
 
 	// Generic exit
 	RIEE {
+		internal_name: "generic_exit";
 		type: "exit";
 		tile_width: 64;
 		ne_fg: sprite {
@@ -91,6 +93,7 @@ file("entrance_exit.rcd") {
 
 	// Alternative entrance
 	RIEE {
+		internal_name: "alternative_entrance";
 		type: "entrance";
 		tile_width: 64;
 		ne_fg: sprite {
@@ -142,6 +145,7 @@ file("entrance_exit.rcd") {
 
 	// Alternative exit
 	RIEE {
+		internal_name: "alternative_exit";
 		type: "exit";
 		tile_width: 64;
 		ne_fg: sprite {
