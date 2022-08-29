@@ -759,11 +759,14 @@ SceneryManager::SceneryManager() : temp_item(nullptr), temp_path_object(nullptr)
 /**
  * Register a new scenery type.
  * @param type Scenery type to add.
- * @note Takes ownership of the pointer and clears the passed smart pointer.
+ * @return Insertion was successful.
+ * @note On success, takes ownership of the pointer and clears the passed smart pointer.
  */
-void SceneryManager::AddSceneryType(std::unique_ptr<SceneryType> &type)
+bool SceneryManager::AddSceneryType(std::unique_ptr<SceneryType> &type)
 {
+	if (type->internal_name.empty() || this->GetType(type->internal_name) != nullptr) return false;
 	this->scenery_item_types.emplace_back(std::move(type));
+	return true;
 }
 
 /**

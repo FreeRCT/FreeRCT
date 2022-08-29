@@ -740,7 +740,8 @@ void RidesManager::Load(Loader &ldr)
 			}
 
 			if (ride_type == nullptr || ride_type->kind != ride_kind) {
-				throw LoadingError("Unknown/invalid ride type.");
+				throw LoadingError("Unknown/invalid ride type (found '%s' of kind %d, expected kind %d).",
+						ride_type == nullptr ? "nullptr" : ride_type->InternalName().c_str(), ride_type->kind, ride_kind);
 			}
 
 			RideInstance *r = this->CreateInstance(ride_type, index != INVALID_RIDE_INSTANCE ? index : this->GetFreeInstance(ride_type));
@@ -817,21 +818,27 @@ uint16 RideInstance::GetIndex() const
 /**
  * Add a new ride type to the manager.
  * @param type New ride type to add.
- * @note Takes ownership of the pointer and clears the passed smart pointer.
+ * @return Insertion was successful.
+ * @note On success, takes ownership of the pointer and clears the passed smart pointer.
  */
-void RidesManager::AddRideType(std::unique_ptr<RideType> type)
+bool RidesManager::AddRideType(std::unique_ptr<RideType> type)
 {
+	if (type->InternalName().empty() || this->GetRideType(type->InternalName()) != nullptr) return false;
 	this->ride_types.emplace_back(std::move(type));
+	return true;
 }
 
 /**
  * Add a new ride entrance or exit type to the manager.
  * @param type New ride entrance/exit type to add.
- * @note Takes ownership of the pointer and clears the passed smart pointer.
+ * @return Insertion was successful.
+ * @note On success, takes ownership of the pointer and clears the passed smart pointer.
  */
-void RidesManager::AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type)
+bool RidesManager::AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type)
 {
+	if (type->internal_name.empty() || (type->is_entrance ? this->GetEntranceIndex(type->internal_name) : this->GetExitIndex(type->internal_name)) >= 0) return false;
 	(type->is_entrance ? this->entrances : this->exits).emplace_back(std::move(type));
+	return true;
 }
 
 /**

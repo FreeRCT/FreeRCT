@@ -2037,6 +2037,7 @@ static std::shared_ptr<RIEEBlock> ConvertRIEENode(std::shared_ptr<NodeGroup> ng)
 	Values vals("RIEE", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
+	block->internal_name = vals.GetString("internal_name");
 	const std::string type = vals.GetString("type");
 	if (type == "exit") {
 		block->is_entrance = false;
