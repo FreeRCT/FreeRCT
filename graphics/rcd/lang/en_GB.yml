@@ -515,6 +515,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "Walls 1"
 		DESCRIPTION_RECOLOUR2: "Walls 2"
 		DESCRIPTION_RECOLOUR3: "Slide"
+	top-spin:
+		NAME_INSTANCE1:        "Head-Over-Heels"
+		NAME_INSTANCE2:        "Over the Top"
+		NAME_TYPE:             "Top Spin"
+		DESCRIPTION_TYPE:      "A gondola rotating around its axis while being swung back and forth."
+		DESCRIPTION_RECOLOUR1: "Gondola 1"
+		DESCRIPTION_RECOLOUR2: "Gondola 2"
+		DESCRIPTION_RECOLOUR3: "Constraints"
 
 	park-entrance-generic:
 		NAME: "Generic Park Entrance"

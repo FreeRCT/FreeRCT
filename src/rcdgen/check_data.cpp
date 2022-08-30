@@ -1894,10 +1894,14 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
 	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
 
+	std::shared_ptr<SpriteBlock> empty_image_block;
+	if (vals.HasValue("empty_voxels")) empty_image_block = vals.GetSprite("empty_voxels");
+
 	for (int x = 0; x < block->width_x; ++x) {
 		for (int y = 0; y < block->width_y; ++y) {
 			std::string key = "ne_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->ne_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+			block->ne_views[x * block->width_y + y] =
+					(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 		}
 	}
 	if (vals.HasValue("unrotated_views_only") && vals.GetNumber("unrotated_views_only") > 0) {
@@ -1911,19 +1915,22 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 		for (int x = 0; x < block->width_x; ++x) {
 			for (int y = 0; y < block->width_y; ++y) {
 				std::string key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-				block->se_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+				block->se_views[x * block->width_y + y] =
+						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 			}
 		}
 		for (int x = 0; x < block->width_x; ++x) {
 			for (int y = 0; y < block->width_y; ++y) {
 				std::string key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-				block->sw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+				block->sw_views[x * block->width_y + y] =
+						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 			}
 		}
 		for (int x = 0; x < block->width_x; ++x) {
 			for (int y = 0; y < block->width_y; ++y) {
 				std::string key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-				block->nw_views[x * block->width_y + y] = vals.GetSprite(key.c_str());
+				block->nw_views[x * block->width_y + y] =
+						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 			}
 		}
 	}

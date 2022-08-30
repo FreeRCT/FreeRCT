@@ -516,6 +516,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "Wanden 1"
 		DESCRIPTION_RECOLOUR2: "Wanden 2"
 		DESCRIPTION_RECOLOUR3: "Rutsche"
+	top-spin:
+		NAME_INSTANCE1:        "Kopp na unnern"
+		NAME_INSTANCE2:        "Överslaan"
+		NAME_TYPE:             "Top-Spinner"
+		DESCRIPTION_TYPE:      "Eene Gondel, wat sik um hör Ass dreiht, as se na vörn un achtern swungen word."
+		DESCRIPTION_RECOLOUR1: "Gondel 1"
+		DESCRIPTION_RECOLOUR2: "Gondel 2"
+		DESCRIPTION_RECOLOUR3: "Haltern"
 
 	park-entrance-generic:
 		NAME: "Normaaler Parkingang"

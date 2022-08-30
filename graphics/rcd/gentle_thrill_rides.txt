@@ -264,10 +264,8 @@ file("gentle_thrill_rides.rcd") {
 				recolour: "../sprites/gentle_thrill_rides/spiral_slide/64_idle_mask.png";
 				x_offset: -64; y_offset: 32-186; width: 128; height: 186;
 			}
-			(ne_1_1, nw_1_1, se_0_0, sw_1_1, ne_1_0, nw_1_0, se_1_0, sw_0_0, ne_0_0, nw_0_1, se_0_1, sw_0_1): sheet {
-				x_base: 0; y_base: 0; x_step: 0; y_step: 0;
-				file: "../sprites/empty.png"; crop: 0;
-				x_offset: 0; y_offset: 0; width: 0; height: 0;
+			empty_voxels: sprite {
+				x_base: 0; y_base: 0; file: "../sprites/empty.png"; x_offset: 0; y_offset: 0; width: 0; height: 0;
 			}
 		}
 
@@ -307,5 +305,109 @@ file("gentle_thrill_rides.rcd") {
 		excitement_increase_scenery: 6;
 
 		texts: strings { key: "spiral-slide"; }
+	}
+
+	// Top Spin
+	FGTR {
+		internal_name: "top_spin";
+		category: "thrill";
+		ride_width_x: 3;
+		ride_width_y: 3;
+		height_0_0: 10;
+		height_0_1: 10;
+		height_0_2: 10;
+		height_1_0: 10;
+		height_1_1: 10;
+		height_1_2: 10;
+		height_2_0: 10;
+		height_2_1: 10;
+		height_2_2: 10;
+
+		preview_se: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/top_spin/preview_nw_se.png";
+		}
+		preview_sw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/top_spin/preview_ne_sw.png";
+		}
+		preview_ne: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/top_spin/preview_ne_sw.png";
+		}
+		preview_nw: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+			file: "../sprites/gentle_thrill_rides/top_spin/preview_nw_se.png";
+		}
+
+		animation_starting: TIMA { frames: 0; }
+		animation_working:  TIMA { frames: 0; }  // NOCOM
+		animation_stopping: TIMA { frames: 0; }
+		animation_idle: FSET {
+			tile_width: 64;
+			width_x: 3;
+			width_y: 3;
+			(se_{vert(0..2)}_{hor(0..2)}): sheet {
+				x_base: 128; y_base: 0*3*128; x_step: -64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(ne_{hor(0..2)}_{vert(0..2)}): sheet {
+				x_base: 0; y_base: 1*3*128; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(nw_{vert(0..2)}_{hor(0..2)}): sheet {
+				x_base: 128; y_base: 2*3*128; x_step: -64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+			(sw_{hor(0..2)}_{vert(0..2)}): sheet {
+				x_base: 0; y_base: 3*3*128; x_step: 64; y_step: 128;
+				file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+				recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+				x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+			}
+		}
+
+		recolour {
+			original: grey;
+			replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+			                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+		}
+		recolour {
+			original: grey;
+			replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+			                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+		}
+		recolour {
+			original: grey;
+			replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+			                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+		}
+
+		entrance_fee: 200;
+		cost_ownership: 2000;
+		cost_opened: 7000;
+		guests_per_batch: 12;
+		number_of_batches: 1;
+		idle_duration: 30000;
+		working_duration: 10000;
+		working_cycles_min: 2;
+		working_cycles_max: 7;
+		working_cycles_default: 4;
+		reliability_max: 9600;
+		reliability_decrease_daily: 70;
+		reliability_decrease_monthly: 40;
+		intensity_base: 581;
+		nausea_base: 692;
+		excitement_base: 324;
+		excitement_increase_cycle: 12;
+		excitement_increase_scenery: 2;
+
+		texts: strings { key: "top-spin"; }
 	}
 }

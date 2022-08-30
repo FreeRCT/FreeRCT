@@ -516,6 +516,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "Wände 1"
 		DESCRIPTION_RECOLOUR2: "Wände 2"
 		DESCRIPTION_RECOLOUR3: "Rutschbahn"
+	top-spin:
+		NAME_INSTANCE1:        "Kopfüber"
+		NAME_INSTANCE2:        "Überschlag"
+		NAME_TYPE:             "Top Spin"
+		DESCRIPTION_TYPE:      "Eine Gondel, die sich um ihre Achse dreht, während sie vor- und zurückgeschwungen wird."
+		DESCRIPTION_RECOLOUR1: "Gondel 1"
+		DESCRIPTION_RECOLOUR2: "Gondel 2"
+		DESCRIPTION_RECOLOUR3: "Halterung"
 
 	park-entrance-generic:
 		NAME: "Standard-Parkeingang"
