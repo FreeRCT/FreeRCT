@@ -216,7 +216,7 @@ public class GenerateSpritesheet {
 						write.println("\t\tfile: \"" + out_path + "\";");
 						write.println("\t\trecolour: \"" + mask_path + "\";");
 						write.println("\t\tx_offset: -32;");
-						write.println("\t\ty_offset: 32-" + sprite_h + ";");
+						write.println("\t\ty_offset: 32 - " + sprite_h + ";");
 						write.println("\t\twidth: " + sprite_w + ";");
 						write.println("\t\theight: " + sprite_h + ";");
 					write.println("\t}");
@@ -228,7 +228,7 @@ public class GenerateSpritesheet {
 						write.println("\t\tfile: \"" + out_path + "\";");
 						write.println("\t\trecolour: \"" + mask_path + "\";");
 						write.println("\t\tx_offset: -32;");
-						write.println("\t\ty_offset: 32-" + sprite_h + ";");
+						write.println("\t\ty_offset: 32 - " + sprite_h + ";");
 						write.println("\t\twidth: " + sprite_w + ";");
 						write.println("\t\theight: " + sprite_h + ";");
 					write.println("\t}");
@@ -240,11 +240,11 @@ public class GenerateSpritesheet {
 						write.println("\t\tfile: \"" + out_path + "\";");
 						write.println("\t\trecolour: \"" + mask_path + "\";");
 						write.println("\t\tx_offset: -32;");
-						write.println("\t\ty_offset: 32-" + sprite_h + ";");
+						write.println("\t\ty_offset: 32 - " + sprite_h + ";");
 						write.println("\t\twidth: " + sprite_w + ";");
 						write.println("\t\theight: " + sprite_h + ";");
 					write.println("\t}");
-						write.println("\t\t(ne_{hor(0.." + (sprites_y - 1) + ")}_{vert(0.." + (sprites_x - 1) + ")}): sheet {");
+					write.println("\t(ne_{hor(0.." + (sprites_y - 1) + ")}_{vert(0.." + (sprites_x - 1) + ")}): sheet {");
 						write.println("\t\tx_base: " + f + " * " + sprites_x + " * " + sprite_w + ";");
 						write.println("\t\ty_base: 3 * " + sprites_y + " * " + sprite_h + ";");
 						write.println("\t\tx_step: " + sprite_w + ";");
@@ -252,7 +252,7 @@ public class GenerateSpritesheet {
 						write.println("\t\tfile: \"" + out_path + "\";");
 						write.println("\t\trecolour: \"" + mask_path + "\";");
 						write.println("\t\tx_offset: -32;");
-						write.println("\t\ty_offset: 32-" + sprite_h + ";");
+						write.println("\t\ty_offset: 32 - " + sprite_h + ";");
 						write.println("\t\twidth: " + sprite_w + ";");
 						write.println("\t\theight: " + sprite_h + ";");
 					write.println("\t}");
