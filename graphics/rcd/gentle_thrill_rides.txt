@@ -401,16 +401,16 @@ file("gentle_thrill_rides.rcd") {
 			                pink_brown, blue, jade_green, purple, red, sea_green, grey);
 		}
 
-		entrance_fee: 200;
+		entrance_fee: 220;
 		cost_ownership: 2000;
 		cost_opened: 7000;
-		guests_per_batch: 12;
+		guests_per_batch: 8;
 		number_of_batches: 1;
 		idle_duration: 30000;
 		working_duration: 12800;
 		working_cycles_min: 2;
-		working_cycles_max: 7;
-		working_cycles_default: 4;
+		working_cycles_max: 6;
+		working_cycles_default: 3;
 		reliability_max: 9600;
 		reliability_decrease_daily: 70;
 		reliability_decrease_monthly: 40;
