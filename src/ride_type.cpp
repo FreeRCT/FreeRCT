@@ -740,8 +740,11 @@ void RidesManager::Load(Loader &ldr)
 			}
 
 			if (ride_type == nullptr || ride_type->kind != ride_kind) {
-				throw LoadingError("Unknown/invalid ride type (found '%s' of kind %d, expected kind %d).",
-						ride_type == nullptr ? "nullptr" : ride_type->InternalName().c_str(), ride_type->kind, ride_kind);
+				throw LoadingError("Ride type of kind %d not found.", ride_kind);
+			}
+			if (ride_type->kind != ride_kind) {
+				throw LoadingError("Incorrect ride type (found '%s' of kind %d, expected kind %d).",
+						ride_type->InternalName().c_str(), ride_type->kind, ride_kind);
 			}
 
 			RideInstance *r = this->CreateInstance(ride_type, index != INVALID_RIDE_INSTANCE ? index : this->GetFreeInstance(ride_type));
