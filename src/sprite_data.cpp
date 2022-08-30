@@ -32,7 +32,7 @@ ImageData::ImageData() : width(0), height(0), table(nullptr), data(nullptr)
  */
 void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 {
-	if (length < 8) rcd_file->Error("Length too short for header"); // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
+	rcd_file->CheckMinLength(length, 8, "8bpp header"); // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
 	this->xoffset = rcd_file->GetInt16();
@@ -79,9 +79,9 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 			xpos += (rel_pos & 127) + count;
 			offset += 2 + count;
 			if ((rel_pos & 128) == 0) {
-				if (xpos >= this->width || offset >= length) rcd_file->Error("X coordinate out of inclusive bounds");
+				if (xpos >= this->width || offset >= length) rcd_file->Error("X coordinate out of exclusive bounds");
 			} else {
-				if (xpos > this->width || offset > length) rcd_file->Error("X coordinate out of exclusive bounds");
+				if (xpos > this->width || offset > length) rcd_file->Error("X coordinate out of inclusive bounds");
 				break;
 			}
 		}
@@ -95,7 +95,7 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
  */
 void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 {
-	if (length < 8) rcd_file->Error("Length too short for header"); // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
+	rcd_file->CheckMinLength(length, 8, "32bpp header");  // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
 	this->xoffset = rcd_file->GetInt16();

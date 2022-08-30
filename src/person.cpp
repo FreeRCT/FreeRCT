@@ -70,11 +70,11 @@ void LoadPRSG(RcdFileReader *rcd_file)
 {
 	rcd_file->CheckVersion(2);
 	uint32 length = rcd_file->size;
-	if (length < 1) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, 1, "header");
 	uint8 count = rcd_file->GetUInt8();
 	length--;
 
-	if (length != 13 * count) rcd_file->Error("Wrong length");
+	rcd_file->CheckExactLength(length, 13 * count, "graphics");
 	while (count > 0) {
 		uint8 ps = rcd_file->GetUInt8();
 		uint32 rc1 = rcd_file->GetUInt32();

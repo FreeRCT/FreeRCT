@@ -72,7 +72,7 @@ void ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 	rcd_file->CheckVersion(7);
 	int length = rcd_file->size;
 	length -= 40;
-	if (length <= 0) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->width_x = this->width_y = 1;
 	this->heights.reset(new int8[1]);
@@ -112,7 +112,7 @@ void ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 	this->SetupStrings(text_data, base, STR_GENERIC_SHOP_START, SHOPS_STRING_TABLE_END, SHOPS_NAME_TYPE, SHOPS_DESCRIPTION_TYPE);
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) rcd_file->Error("Trailing bytes at end of block");
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 FixedRideType::RideCapacity ShopType::GetRideCapacity() const

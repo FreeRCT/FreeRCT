@@ -117,11 +117,11 @@ void TextData::Load(RcdFileReader *rcd_file)
 	while (length > 0) {
 		if (used_strings >= lengthof(strings)) rcd_file->Error("Too many text strings");
 
-		if (length < 3) rcd_file->Error("Length too short for string header");
+		rcd_file->CheckMinLength(length, 3, "string header");
 		uint16 str_length   = rcd_file->GetUInt16();
 		uint8  ident_length = rcd_file->GetUInt8();
 
-		if (static_cast<uint32>(str_length) > length) rcd_file->Error("String does not fit into block");
+		if (static_cast<uint32>(str_length) > length) rcd_file->Error("String does not fit in the block");
 		length -= 3;
 
 		if (ident_length + 2 + 1 >= str_length) rcd_file->Error("No space for translations");
@@ -133,7 +133,7 @@ void TextData::Load(RcdFileReader *rcd_file)
 		length -= ident_length;
 
 		while (trs_length > 0) {
-			if (length < 3) rcd_file->Error("Length too short for translation header");
+			rcd_file->CheckMinLength(length, 3, "translation header");
 			uint16 tr_length   = rcd_file->GetUInt16();
 			uint8  lang_length = rcd_file->GetUInt8();
 			length -= 3;
@@ -259,7 +259,7 @@ bool SurfaceData::HasAllSprites() const
 void SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(6);
-	if (rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES, "header");
 
 	uint16 gt = rcd_file->GetUInt16(); // Ground type bytes.
 	uint8 type = GTP_INVALID;
@@ -277,7 +277,7 @@ void SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr || type >= GTP_COUNT) rcd_file->Error("String storage not found");
+	if (ss == nullptr || type >= GTP_COUNT) rcd_file->Error("Sprite storage not found");
 	SurfaceData *sd = &ss->surface[type];
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
 		LoadSpriteFromFile(rcd_file, sprites, &sd->surface[sprnum]);
@@ -292,13 +292,13 @@ void SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 void SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(2);
-	if (rcd_file->size != 2 + 2 + 4 * NUM_SLOPE_SPRITES) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 4 * NUM_SLOPE_SPRITES, "header");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) rcd_file->Error("String storage not found");
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	SurfaceData *ts = &ss->tile_select;
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
 		LoadSpriteFromFile(rcd_file, sprites, &ts->surface[sprnum]);
@@ -330,12 +330,12 @@ FrameSet::~FrameSet()
 void FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size < 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(rcd_file->size, 4, "header");
 
 	this->width = rcd_file->GetUInt16();
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
-	if (static_cast<int>(rcd_file->size) != 4 + 16 * this->width_x * this->width_y) rcd_file->Error("Wrong length");
+	rcd_file->CheckExactLength(rcd_file->size, 4 + 16 * this->width_x * this->width_y, "frame");
 	for (int i = 0; i < 4; ++i) {
 		this->sprites[i].reset(new ImageData*[this->width_x * this->width_y]);
 		for (int x = 0; x < this->width_x; ++x) {
@@ -392,10 +392,10 @@ int TimedAnimation::GetFrame(int time, const bool loop_around) const {
 void TimedAnimation::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size < 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(rcd_file->size, 4, "header");
 
 	this->frames = rcd_file->GetUInt32();
-	if (static_cast<int>(rcd_file->size) != 4 + 8 * this->frames) rcd_file->Error("Wrong length");
+	rcd_file->CheckExactLength(rcd_file->size, 4 + 8 * this->frames, "timed animation");
 	this->durations.reset(new int[this->frames]);
 	this->views.reset(new const FrameSet*[this->frames]);
 	for (int f = 0; f < this->frames; ++f) this->durations[f] = rcd_file->GetUInt32();
@@ -412,7 +412,7 @@ void TimedAnimation::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageM
 void Fence::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(2);
-	if (rcd_file->size != 2 + 2 + 4 * FENCE_COUNT) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 4 * FENCE_COUNT, "header");
 
 	this->width  = rcd_file->GetUInt16();
 	this->type = rcd_file->GetUInt16();
@@ -436,7 +436,7 @@ Path::Path() : status(PAS_UNUSED)
 void SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(3);
-	if (rcd_file->size != 2 + 2 + 2 + 4 * PATH_COUNT) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 4 * PATH_COUNT, "header");
 
 	uint16 type = rcd_file->GetUInt16();
 	PathType pt = PAT_INVALID;
@@ -452,7 +452,7 @@ void SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) rcd_file->Error("String storage not found");
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	Path *path = &ss->path_sprites[pt];
 	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
 		LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum]);
@@ -501,11 +501,11 @@ void SpriteManager::LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
 	/* Size is 2 byte tile width, 7 groups of sprites at the edges, 2 kinds of (flat+4 ramp) 4 type sprites. */
-	if (rcd_file->size != 2 + 7*4*4 + 2*(1+4)*4*4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 7*4*4 + 2*(1+4)*4*4, "header");
 
 	uint16 width = rcd_file->GetUInt16();
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) rcd_file->Error("String storage not found");
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	PathDecoration *pdec = &ss->path_decoration;
 
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
@@ -581,13 +581,13 @@ TileCorners::TileCorners()
 void SpriteManager::LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(2);
-	if (rcd_file->size != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES, "header");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) rcd_file->Error("String storage not found");
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	TileCorners *tc = &ss->tile_corners;
 	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
 		for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
@@ -609,7 +609,7 @@ Foundation::Foundation()
 void SpriteManager::LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size != 2 + 2 + 2 + 4 * 6) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 4 * 6, "header");
 
 	uint16 tp = rcd_file->GetUInt16();
 	uint16 type = FDT_INVALID;
@@ -622,7 +622,7 @@ void SpriteManager::LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites)
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr || type >= FDT_COUNT) rcd_file->Error("String storage not found");
+	if (ss == nullptr || type >= FDT_COUNT) rcd_file->Error("Sprite storage not found");
 	Foundation *fn = &ss->foundation[type];
 	for (uint sprnum = 0; sprnum < lengthof(fn->sprites); sprnum++) {
 		LoadSpriteFromFile(rcd_file, sprites, &fn->sprites[sprnum]);
@@ -643,7 +643,7 @@ Platform::Platform()
 void SpriteManager::LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(2);
-	if (rcd_file->size != 2 + 2 + 2 + 2 * 4 + 12 * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 2 * 4 + 12 * 4, "header");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
@@ -651,7 +651,7 @@ void SpriteManager::LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites)
 	if (type != 16) rcd_file->Error("Invalid platform type"); // Only accept type 16 'wood'.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) rcd_file->Error("String storage not found");
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	Platform *plat = &ss->platform;
 	LoadSpriteFromFile(rcd_file, sprites, &plat->flat[0]);
 	LoadSpriteFromFile(rcd_file, sprites, &plat->flat[1]);
@@ -679,7 +679,7 @@ Support::Support()
 void SpriteManager::LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size != 2 + 2 + 2 + SSP_COUNT * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + SSP_COUNT * 4, "header");
 
 	uint16 type = rcd_file->GetUInt16();
 	if (type != 16) rcd_file->Error("Invalid support type");  // Only accept type 16 'wood'.
@@ -687,7 +687,7 @@ void SpriteManager::LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites)
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) rcd_file->Error("String storage not found");
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	Support *supp = &ss->support;
 	for (uint sprnum = 0; sprnum < lengthof(supp->sprites); sprnum++) {
 		LoadSpriteFromFile(rcd_file, sprites, &supp->sprites[sprnum]);
@@ -707,12 +707,12 @@ DisplayedObject::DisplayedObject()
 void SpriteManager::LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size != 2 + 4 * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 4 * 4, "header");
 
 	uint16 width = rcd_file->GetUInt16();
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) rcd_file->Error("String storage not found");
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	DisplayedObject *dob = &ss->build_arrows;
 	for (uint sprnum = 0; sprnum < lengthof(dob->sprites); sprnum++) {
 		LoadSpriteFromFile(rcd_file, sprites, &dob->sprites[sprnum]);
@@ -757,7 +757,7 @@ void Animation::Load(RcdFileReader *rcd_file)
 	const uint BASE_LENGTH = 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (length < BASE_LENGTH) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, BASE_LENGTH, "header");
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
 	if (this->person_type == PERSON_INVALID) rcd_file->Error("Invalid person type");
 
@@ -766,7 +766,7 @@ void Animation::Load(RcdFileReader *rcd_file)
 	this->anim_type = (AnimationType)at;
 
 	this->frame_count = rcd_file->GetUInt16();
-	if (length != BASE_LENGTH + this->frame_count * 6) rcd_file->Error("Wrong length");
+	rcd_file->CheckExactLength(length, BASE_LENGTH + this->frame_count * 6, "frames");
 	this->frames.reset(new AnimationFrame[this->frame_count]);
 	if (this->frames == nullptr || this->frame_count == 0) rcd_file->Error("Zero frames");
 
@@ -805,7 +805,7 @@ void AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (length < BASE_LENGTH) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, BASE_LENGTH, "header");
 	this->width = rcd_file->GetUInt16();
 
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
@@ -816,7 +816,7 @@ void AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	this->anim_type = (AnimationType)at;
 
 	this->frame_count = rcd_file->GetUInt16();
-	if (length != BASE_LENGTH + this->frame_count * 4) rcd_file->Error("Wrong length");
+	rcd_file->CheckExactLength(length, BASE_LENGTH + this->frame_count * 4, "frames");
 	this->sprites.reset(new ImageData *[this->frame_count]);
 	if (this->sprites == nullptr || this->frame_count == 0) rcd_file->Error("Zero frames");
 
@@ -861,7 +861,7 @@ bool BorderSpriteData::IsLoaded() const
 void GuiSprites::LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(2);
-	if (rcd_file->size != 2 + 8 * 1 + WBS_COUNT * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 8 * 1 + WBS_COUNT * 4, "header");
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
@@ -928,7 +928,7 @@ bool CheckableWidgetSpriteData::IsLoaded() const
 void GuiSprites::LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size != 2 + WCS_COUNT * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + WCS_COUNT * 4, "header");
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
@@ -985,7 +985,7 @@ bool SliderSpriteData::IsLoaded() const
 void GuiSprites::LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size != 3 * 1 + 2 + WSS_COUNT * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 3 * 1 + 2 + WSS_COUNT * 4, "header");
 
 	uint8 min_length = rcd_file->GetUInt8();
 	uint8 stepsize = rcd_file->GetUInt8();
@@ -1051,7 +1051,7 @@ bool ScrollbarSpriteData::IsLoaded() const
 void GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size != 4 * 1 + 2 + WLS_COUNT * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 4 * 1 + 2 + WLS_COUNT * 4, "header");
 
 	uint8 min_length_bar = rcd_file->GetUInt8();
 	uint8 stepsize_back = rcd_file->GetUInt8();
@@ -1112,11 +1112,10 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->size !=
+	rcd_file->CheckExactLength(rcd_file->size,
 			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT +
-			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images)) * 4) {
-		rcd_file->Error("Length too short for header");
-	}
+			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images)) * 4,
+			"header");
 
 	for (uint i = 0; i < lengthof(indices); i++) {
 		LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]]);
@@ -1186,7 +1185,7 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 void GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(1);
-	if (rcd_file->size != 40 - 12) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 40 - 12, "header");
 
 	this->mainmenu_splash_duration = rcd_file->GetUInt32();
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_logo);

@@ -43,14 +43,14 @@ void GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 {
 	rcd_file->CheckVersion(5);
 	int length = rcd_file->size;
-	if (length < 3) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, 3, "header");
 
 	this->kind = rcd_file->GetUInt8() ? RTK_THRILL : RTK_GENTLE;
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) rcd_file->Error("Dimension is zero");
 	length -= 111 + (this->width_x * this->width_y);
-	if (length <= 0) rcd_file->Error("Length too short for extended header");
+	rcd_file->CheckMinLength(length, 0, "extended header");
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -142,7 +142,7 @@ void GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 			GENTLE_THRILL_RIDES_NAME_TYPE, GENTLE_THRILL_RIDES_DESCRIPTION_TYPE);
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) rcd_file->Error("Trailing bytes at end of block");
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 FixedRideType::RideCapacity GentleThrillRideType::GetRideCapacity() const

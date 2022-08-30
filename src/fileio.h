@@ -88,6 +88,8 @@ public:
 	}
 
 	void CheckVersion(uint32 current_version);
+	void CheckMinLength(int length, int required, const char *what);
+	void CheckExactLength(int length, int required, const char *what);
 
 	std::string filename;  ///< Name of the RCD file.
 	char name[5];   ///< Name of the last found block (with #ReadBlockHeader).

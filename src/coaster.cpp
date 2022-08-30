@@ -55,7 +55,9 @@ CarType::CarType()
 void CarType::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(3);
-	if (rcd_file->size < 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3) rcd_file->Error("Length too short for header");
+	int length = rcd_file->size;
+	length -= 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3;
+	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->tile_width = rcd_file->GetUInt16();
 	if (this->tile_width != 64) rcd_file->Error("Unsupported tile width %d", this->tile_width);  // Do not allow anything else than 64 pixels tile width.
@@ -81,7 +83,7 @@ void CarType::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	if (this->cars[0] == nullptr) rcd_file->Error("No car type");
 	const int64 nr_overlays = 4096 * this->num_passengers;
-	if (rcd_file->size != 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3 + 4 * nr_overlays) rcd_file->Error("Length too short for extended header");
+	rcd_file->CheckExactLength(length, 4 * nr_overlays, "guest overlays");
 	this->guest_overlays.reset(new ImageData*[nr_overlays]);
 	for (int64 i = 0; i < nr_overlays; i++) {
 		LoadSpriteFromFile(rcd_file, sprites, &this->guest_overlays[i]);
@@ -112,7 +114,7 @@ void CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	rcd_file->CheckVersion(7);
 	int length = rcd_file->size;
 	length -= 2 + 1 + 1 + 1 + 4 + 2 + 6;
-	if (length <= 0) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
@@ -135,7 +137,7 @@ void CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 
 	int piece_count = rcd_file->GetUInt16();
 	length -= 4 * piece_count;
-	if (length < 0) rcd_file->Error("Length too short for pieces");
+	rcd_file->CheckMinLength(length, 0, "pieces");
 
 	this->pieces.resize(piece_count);
 	for (auto &piece : this->pieces) {
@@ -153,7 +155,7 @@ void CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	}
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) rcd_file->Error("Trailing bytes at end of block");
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 /**
@@ -219,7 +221,7 @@ CoasterPlatform::CoasterPlatform()
 void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(2);
-	if (rcd_file->size != 2 + 1 + 8 * 4) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 1 + 8 * 4, "header");
 
 	uint16 width = rcd_file->GetUInt16();
 	if (width != 64) rcd_file->Error("Wrong width");

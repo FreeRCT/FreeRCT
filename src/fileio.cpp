@@ -160,6 +160,32 @@ void RcdFileReader::CheckVersion(uint32 current_version)
 }
 
 /**
+ * Check whether the remaining length of the block is greater than or equal to a given minimum length, and throw an exception if this is not the case.
+ * @param length Remaining length in the block.
+ * @param required Required minimum length.
+ * @param what Error description if the check fails.
+ * @pre Must be inside a block.
+ */
+void RcdFileReader::CheckMinLength(int length, int required, const char *what)
+{
+	if (length < required) this->Error("Length too short for %s (at least %d bytes missing)", what, required - length);
+}
+
+/**
+ * Check whether the remaining length of the block is equal to a given expected length, and throw an exception if this is not the case.
+ * @param length Remaining length in the block.
+ * @param required Expected remaining length.
+ * @param what Error description if the check fails.
+ * @pre Must be inside a block.
+ */
+void RcdFileReader::CheckExactLength(int length, int required, const char *what)
+{
+	if (length < required) this->Error("Length mismatch at %s (%d bytes missing)", what, required - length);
+	if (length > required) this->Error("Length mismatch at %s (%d trailing bytes)", what, length - required);
+}
+
+
+/**
  * Get length of data not yet read.
  * @return Count of remaining data.
  */

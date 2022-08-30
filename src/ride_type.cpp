@@ -67,7 +67,7 @@ void RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	rcd_file->CheckVersion(2);
 	int length = rcd_file->size;
 	length -= 51;
-	if (length <= 0) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, 0, "header");
 	this->is_entrance = rcd_file->GetUInt8() > 0;
 
 	TextData *text_data;
@@ -93,7 +93,7 @@ void RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	}
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) rcd_file->Error("Trailing bytes at end of block");
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 /**

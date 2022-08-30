@@ -484,14 +484,14 @@ void SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 {
 	rcd_file->CheckVersion(3);
 	int length = rcd_file->size;
-	if (length <= 2) rcd_file->Error("Length too short for header");
+	rcd_file->CheckMinLength(length, 2, "header");
 
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
 	if (this->width_x < 1 || this->width_y < 1) rcd_file->Error("Width is zero");
 
 	length -= 52 + (this->width_x * this->width_y);
-	if (length < 0) rcd_file->Error("Length too short for extended header");
+	rcd_file->CheckMinLength(length, 0, "extended header");
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; x++) {
@@ -521,7 +521,7 @@ void SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	this->name = _language.RegisterStrings(*text_data, _scenery_strings_table);
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) rcd_file->Error("Trailing bytes at end of block");
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 /**

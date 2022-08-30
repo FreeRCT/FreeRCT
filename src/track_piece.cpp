@@ -32,7 +32,7 @@ TrackVoxel::~TrackVoxel()
  */
 void TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
-	if (length != 4 * 4 + 4 * 4 + 3 + 1) rcd_file->Error("Length too short for header");
+	rcd_file->CheckExactLength(length, 4 * 4 + 4 * 4 + 3 + 1, "track voxel");
 	for (uint i = 0; i < 4; i++) {
 		LoadSpriteFromFile(rcd_file, sprites, &this->back[i]);
 	}
@@ -113,9 +113,9 @@ static CubicBezier LoadBezier(RcdFileReader *rcd_file)
  * @param curve [out] The loaded track curve, may be \c nullptr (which indicates a not supplied track curve).
  * @param length [inout] Length of the block that is not loaded yet.
  */
-static void LoadTrackCurve(RcdFileReader *rcd_file, std::unique_ptr<TrackCurve> *curve, uint32 *length)
+static void LoadTrackCurve(RcdFileReader *rcd_file, std::unique_ptr<TrackCurve> *curve, int *length)
 {
-#define ENSURE_LENGTH(x) do { if (*length < (x)) { *curve = nullptr; rcd_file->Error("Length too short for curve"); } *length -= (x); } while(false)
+#define ENSURE_LENGTH(x) do { *length -= (x); rcd_file->CheckMinLength(*length, 0, "curve"); } while(false)
 
 	ENSURE_LENGTH(1);
 	uint8 type = rcd_file->GetUInt8();
@@ -187,9 +187,9 @@ void TrackPiece::RemoveFromWorld([[maybe_unused]] const uint16 ride_index, const
 void TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
 	rcd_file->CheckVersion(5);
-	uint32 length = rcd_file->size;
-	if (length < 2 + 3 + 1 + 2 + 4 + 2) rcd_file->Error("Length too short for header");
+	int length = rcd_file->size;
 	length -= 2 + 3 + 1 + 2 + 4 + 2;
+	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->entry_connect = rcd_file->GetUInt8();
 	this->exit_connect  = rcd_file->GetUInt8();
@@ -201,15 +201,15 @@ void TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	this->cost = rcd_file->GetUInt32();
 	uint16 voxel_count = rcd_file->GetUInt16();
 
-	if (length < 36u * voxel_count) rcd_file->Error("Length too short for voxels");
 	length -= 36u * voxel_count;
+	rcd_file->CheckMinLength(length, 0, "voxels");
 
 	for (uint16 i = 0; i < voxel_count; i++) {
 		this->track_voxels.emplace_back(new TrackVoxel);
 		this->track_voxels.back()->Load(rcd_file, 36, sprites);
 	}
-	if (length < 4u) rcd_file->Error("Length too short for pieces");
 	length -= 4;
+	rcd_file->CheckMinLength(length, 0, "pieces");
 	this->piece_length = rcd_file->GetUInt32();
 
 	LoadTrackCurve(rcd_file, &this->car_xpos,  &length);
@@ -221,7 +221,7 @@ void TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	if (this->car_xpos == nullptr || this->car_ypos == nullptr || this->car_zpos == nullptr || this->car_roll == nullptr) {
 		rcd_file->Error("Car sprites missing");
 	}
-	if (length != 0) rcd_file->Error("Trailing bytes at end of block");
+	rcd_file->CheckExactLength(length, 0, "end of block");
 }
 
 /**
