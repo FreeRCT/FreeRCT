@@ -7,6 +7,7 @@
 
 import java.awt.image.*;
 import java.io.*;
+import java.util.*;
 import javax.imageio.ImageIO;
 
 /**
@@ -18,7 +19,8 @@ import javax.imageio.ImageIO;
  * animation's starting frame is `idOff_<p>` for each of the four prefixes <p>.
  *
  * To generate the spritesheet and save it as `output_file`, run
- *    java GenerateSpritesheet src_dir output_file idOff_se se idOff_ne ne idOff_nw nw idOff_sw sw f x y w h TIMA
+ *    java GenerateSpritesheet --src_dir src_dir --output_file output_file --se idOff_se se --ne idOff_ne ne --nw idOff_nw nw --sw idOff_sw sw \
+ *                             --frames f --x_sprites x --y_sprites y --width w --height h --indexer TIMA
  *
  * The last parameter declares which indexing algorithm to use. The indexing algorithm decides at which coordinates
  * in the resulting spritesheet each input image should be located. See below for available indexing algorithms.
@@ -36,25 +38,117 @@ public class GenerateSpritesheet {
 	}
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("Usage: java GenerateSpritesheet src_dir output_file idOff_se se idOff_ne ne idOff_nw nw idOff_sw sw nr_frames x y w h indexer");
-		int arg_index = 0;
-		final String src = args[arg_index++];
-		final String result = args[arg_index++];
-		final String[] prefixes = new String[4];
-		final int[] idOff = new int[4];
-		for (int i = 0; i < prefixes.length; ++i) {
-			idOff[i] = Integer.valueOf(args[arg_index++]);
-			prefixes[i] = args[arg_index++];
-		}
-		final int frames = Integer.valueOf(args[arg_index++]);
-		final int sprites_x = Integer.valueOf(args[arg_index++]);
-		final int sprites_y = Integer.valueOf(args[arg_index++]);
-		final int sprite_w = Integer.valueOf(args[arg_index++]);
-		final int sprite_h = Integer.valueOf(args[arg_index++]);
-		final IndexingAlgorithm indexer = IndexingAlgorithm.valueOf(args[arg_index++]);
+		System.out.println("Usage: java GenerateSpritesheet ARGS...");
+		System.out.println("Args:");
+		System.out.println("  -s --src_dir DIR         Directory for input files.");
+		System.out.println("  -o --output_file FILE    Output file path and name.");
+		System.out.println("     --se OFF PREFIX       Offset and prefix for the south-east views.");
+		System.out.println("     --sw OFF PREFIX       Offset and prefix for the south-west views.");
+		System.out.println("     --nw OFF PREFIX       Offset and prefix for the north-west views.");
+		System.out.println("     --ne OFF PREFIX       Offset and prefix for the north-east views.");
+		System.out.println("  -f --frames N            Number of animation frames to include in the output.");
+		System.out.println("  -p --padding N           Number of animation frames including skipped frames (defaults to the value for -f).");
+		System.out.println("  -x --x_sprites N         Number of sprites in X direction.");
+		System.out.println("  -y --y_sprites N         Number of sprites in Y direction.");
+		System.out.println("  -w --width W             Frame width in pixels.");
+		System.out.println("  -h --height H            Frame height in pixels.");
+		System.out.println("  -i --indexer I           Indexing algorithm:");
+		System.out.println("                             TIMA    Generates a layout for use in FSET and TIMA blocks.");
+		System.out.println("                             PLAIN   Just puts one sprite after the other.");
+		System.out.println("  -c --code                Emit rcdgen code.");
 
-		BufferedImage out = new BufferedImage(frames * sprite_w * sprites_x, sprite_h * sprites_y * 4, BufferedImage.TYPE_INT_ARGB);
-		for (int f = 0; f < frames; ++f)
+		String src = null;
+		File result = null;
+		final String[] prefixes = new String[] { null, null, null, null };
+		final Integer[] idOff = new Integer[] { null, null, null, null };
+		Integer sprites_x = null;
+		Integer sprites_y = null;
+		Integer sprite_w = null;
+		Integer sprite_h = null;
+		Integer frames_to_render = null;
+		Integer frames_with_skip = null;
+		IndexingAlgorithm indexer = null;
+		boolean emitCode = false;
+
+		for (int i = 0; i < args.length; ++i) {
+			switch (args[i].toLowerCase()) {
+				case "-s":
+				case "--src_dir":
+					src = args[++i];
+					break;
+				case "-o":
+				case "--output_file":
+					result = new File(args[++i]);
+					break;
+				case "-c":
+				case "--code":
+					emitCode = true;
+					break;
+				case "-i":
+				case "--indexer":
+					indexer = IndexingAlgorithm.valueOf(args[++i]);
+					break;
+				case "-x":
+				case "--x_sprites":
+					sprites_x = Integer.valueOf(args[++i]);
+					break;
+				case "-y":
+				case "--y_sprites":
+					sprites_y = Integer.valueOf(args[++i]);
+					break;
+				case "-w":
+				case "--width":
+					sprite_w = Integer.valueOf(args[++i]);
+					if (sprite_w != 64) throw new IllegalArgumentException("Width should be 64");
+					break;
+				case "-h":
+				case "--height":
+					sprite_h = Integer.valueOf(args[++i]);
+					break;
+				case "-f":
+				case "--frames":
+					frames_to_render = Integer.valueOf(args[++i]);
+					break;
+				case "-p":
+				case "--padding":
+					frames_with_skip = Integer.valueOf(args[++i]);
+					break;
+				case "--se":
+					idOff[0] = Integer.valueOf(args[++i]);
+					prefixes[0] = args[++i];
+					break;
+				case "--ne":
+					idOff[1] = Integer.valueOf(args[++i]);
+					prefixes[1] = args[++i];
+					break;
+				case "--nw":
+					idOff[2] = Integer.valueOf(args[++i]);
+					prefixes[2] = args[++i];
+					break;
+				case "--sw":
+					idOff[3] = Integer.valueOf(args[++i]);
+					prefixes[3] = args[++i];
+					break;
+				default:
+					System.out.println("Invalid argument: " + args[i]);
+					System.exit(1);
+			}
+		}
+
+		if (src == null) throw new IllegalArgumentException("Missing argument -s");
+		if (result == null) throw new IllegalArgumentException("Missing argument -o");
+		if (sprites_x == null) throw new IllegalArgumentException("Missing argument -x");
+		if (sprites_y == null) throw new IllegalArgumentException("Missing argument -y");
+		if (sprite_w == null) throw new IllegalArgumentException("Missing argument -w");
+		if (sprite_h == null) throw new IllegalArgumentException("Missing argument -h");
+		if (frames_to_render == null) throw new IllegalArgumentException("Missing argument -f");
+		if (indexer == null) throw new IllegalArgumentException("Missing argument -i");
+		for (String s : prefixes) if (s == null) throw new IllegalArgumentException("Missing prefix argument");
+		for (Integer i : idOff) if (i == null) throw new IllegalArgumentException("Missing offset argument");
+		if (frames_with_skip == null) frames_with_skip = frames_to_render;
+
+		BufferedImage out = new BufferedImage(frames_to_render * sprite_w * sprites_x, sprite_h * sprites_y * 4, BufferedImage.TYPE_INT_ARGB);
+		for (int f = 0; f < frames_to_render; ++f)
 		for (int v = 0; v < 4; ++v)
 		for (int x = 0; x < sprites_x; ++x)
 		for (int y = 0; y < sprites_y; ++y)
@@ -80,7 +174,7 @@ public class GenerateSpritesheet {
 					System.out.println("Invalid indexing algorithm " + indexer);
 					System.exit(1);
 			}
-			final int imageID = idOff[v] + f + frames * tileIndex;
+			final int imageID = idOff[v] + f + frames_with_skip * tileIndex;
 			String filename = "" + imageID;
 			while (filename.length() < 4) filename = "0" + filename;
 			filename = prefixes[v] + filename + ".png";
@@ -96,7 +190,52 @@ public class GenerateSpritesheet {
 			for (int j = 0; j < sprite_h; ++j)
 			out.setRGB(xpos + i, ypos + j, in.getRGB(i, j));
 		}
-		ImageIO.write(out, "png", new File(result));
+		ImageIO.write(out, "png", result);
 		System.out.println("Success!");
+		if (emitCode) {
+			System.out.println("");
+			ArrayList<String> paths = new ArrayList<>();
+			for (File f = result; !f.getName().equals("sprites"); f = f.getParentFile()) paths.add(0, f.getName());
+			String out_path = "../sprites";
+			for (String f : paths) out_path += "/" + f;
+			String mask_path = new File(out_path).getParent() + "/" + result.getName().substring(0, 2) + "_mask" + result.getName().substring(2);
+
+			for (int f = 0; f < frames_to_render; ++f) System.out.print(
+				"frame_" + f + ":FSET{" +
+					"width_x:" + sprites_x + ";" +
+					"width_y:" + sprites_y + ";" +
+					"tile_width:64;" +
+					"(se_{vert(0.." + (sprites_x - 1) + ")}_{hor(0.." + (sprites_y - 1) + ")}):sheet{" +
+						"x_base:" + f + "*" + sprites_x + "*" + sprite_w + ";y_base:0*" + sprites_y + "*" + sprite_h + "+" + sprite_h + "*2;" +
+						"x_step:" + sprite_w + ";y_step:-" + sprite_h + ";" +
+						"file:\"" + out_path + "\";" +
+						"recolour:\"" + mask_path + "\";" +
+						"x_offset:-32;y_offset:32-" + sprite_h + ";width:" + sprite_w + ";height:" + sprite_h + ";" +
+					"}" +
+					"(sw_{hor(0.." + (sprites_y - 1) + ")}_{vert(0.." + (sprites_x - 1) + ")}):sheet{" +
+						"x_base:" + f + "*" + sprites_x + "*" + sprite_w + ";y_base:1*" + sprites_y + "*" + sprite_h + ";" +
+						"x_step:" + sprite_w + ";y_step:" + sprite_h + ";" +
+						"file:\"" + out_path + "\";" +
+						"recolour:\"" + mask_path + "\";" +
+						"x_offset:-32;y_offset:32-" + sprite_h + ";width:" + sprite_w + ";height:" + sprite_h + ";" +
+					"}" +
+					"(nw_{vert(0.." + (sprites_x - 1) + ")}_{hor(0.." + (sprites_y - 1) + ")}):sheet{" +
+						"x_base:" + f + "*" + sprites_x + "*" + sprite_w + ";y_base:2*" + sprites_y + "*" + sprite_h + "+" + sprite_h + "*2;" +
+						"x_step:" + sprite_w + ";y_step:-" + sprite_h + ";" +
+						"file:\"" + out_path + "\";" +
+						"recolour:\"" + mask_path + "\";" +
+						"x_offset:-32;y_offset:32-" + sprite_h + ";width:" + sprite_w + ";height:" + sprite_h + ";" +
+					"}" +
+						"(ne_{hor(0.." + (sprites_y - 1) + ")}_{vert(0.." + (sprites_x - 1) + ")}):sheet{" +
+						"x_base:" + f + "*" + sprites_x + "*" + sprite_w + ";y_base:3*" + sprites_y + "*" + sprite_h + ";" +
+						"x_step:" + sprite_w + ";y_step:" + sprite_h + ";" +
+						"file:\"" + out_path + "\";" +
+						"recolour:\"" + mask_path + "\";" +
+						"x_offset:-32;y_offset:32-" + sprite_h + ";width:" + sprite_w + ";height:" + sprite_h + ";" +
+					"}" +
+				"}"
+			);
+			System.out.println();
+		}
 	}
 }
