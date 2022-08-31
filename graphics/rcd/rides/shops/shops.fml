@@ -11,8 +11,8 @@ file("shops.rcd") {
 		description: "FreeRCT baseset shops.";
 	}
 
-	#include "snack_shop.fms"
-	#include "ice_cream_stall.fms"
-	#include "toilet.fms"
-	#include "atm.fms"
+#include "snack_shop.fms"
+#include "ice_cream_stall.fms"
+#include "toilet.fms"
+#include "atm.fms"
 }
