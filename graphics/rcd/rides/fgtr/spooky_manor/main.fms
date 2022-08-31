@@ -1,0 +1,95 @@
+// Spooky Manor
+FGTR {
+	internal_name: "spooky_manor";
+	category: "gentle";
+	ride_width_x: 3;
+	ride_width_y: 4;
+	height_0_0: 5;
+	height_1_0: 3;
+	height_2_0: 3;
+	height_3_0: 5;
+	height_0_1: 3;
+	height_1_1: 2;
+	height_2_1: 2;
+	height_3_1: 3;
+	height_0_2: 5;
+	height_1_2: 3;
+	height_2_2: 3;
+	height_3_2: 5;
+
+	preview_se: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spooky_manor/preview_se.png";
+	}
+	preview_sw: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spooky_manor/preview_sw.png";
+	}
+	preview_ne: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spooky_manor/preview_ne.png";
+	}
+	preview_nw: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spooky_manor/preview_nw.png";
+	}
+
+	animation_starting: TIMA { frames: 0; }
+	animation_working:  TIMA { frames: 0; }
+	animation_stopping: TIMA { frames: 0; }
+	animation_idle: FSET {
+		tile_width: 64;
+		width_x: 3;
+		width_y: 4;
+		(se_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+		}
+		(nw_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+		}
+		(ne_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+		}
+		(sw_{vert(0..2)}_{hor(0..3)}): sheet {
+			x_base: 0; y_base: 0; x_step: 64; y_step: 128;
+			file: "../sprites/gentle_thrill_rides/spooky_manor/64_spritesheet.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spooky_manor/64_mask_spritesheet.png";
+			x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+		}
+	}
+
+	recolour {
+		original: green_brown;
+		replace: bitset(dark_purple, grey, green_brown, orange_brown, dark_red, dark_green, pink_brown, brown);
+	}
+
+	entrance_fee: 50;
+	cost_ownership: 100;
+	cost_opened: 3000;
+	guests_per_batch: 4;
+	number_of_batches: 6;
+	idle_duration: 30000;
+	working_duration: 30000;
+	working_cycles_min: 1;
+	working_cycles_max: 1;
+	working_cycles_default: 1;
+	reliability_max: 10000;
+	reliability_decrease_daily: 50;
+	reliability_decrease_monthly: 5;
+	intensity_base: 21;
+	nausea_base: 49;
+	excitement_base: 197;
+	excitement_increase_cycle: 0;
+	excitement_increase_scenery: 1;
+
+	texts: strings { key: "spooky-manor"; }
+}

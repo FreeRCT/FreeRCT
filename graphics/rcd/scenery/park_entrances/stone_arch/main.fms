@@ -1,0 +1,5 @@
+// Generic Park Entrance (consists of three parts)
+
+#include "l.fms"
+#include "m.fms"
+#include "r.fms"

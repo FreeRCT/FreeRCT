@@ -1,0 +1,35 @@
+// Fountain 1
+SCNY {
+	internal_name: "fountain1";
+	texts: strings { key: "fountain1"; }
+
+	category:          3;
+	width_x:           1;
+	width_y:           2;
+	height_0_0:        4;
+	height_1_0:        3;
+	buy_cost:      10000;
+	return_cost:   -2000;
+	watering_interval: 0;
+
+	symmetric: 0;
+	main_animation: TIMA {
+		frames: 30;
+		fps: 10;
+		tile_width: 64;
+		sheet: sheet {
+			x_count: 1;
+			y_count: 2;
+			width: 64; x_step: 64;
+			height: 72; y_step: 72;
+			x_offset: -32; x_base: 0;
+			y_offset: 32-72; y_base: 0;
+			file: "../sprites/scenery/objects/64_fountain1.png"; crop: 0;
+		}
+	}
+	(preview_ne, preview_nw, preview_sw, preview_se): sheet {
+		x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
+		file: "../sprites/scenery/objects/64_fountain1_preview.png";
+		x_step: 64; y_step: 0;
+	}
+}

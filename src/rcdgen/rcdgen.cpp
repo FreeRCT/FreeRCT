@@ -134,8 +134,14 @@ int main(int argc, char *argv[])
 			/* Translations. Update the strings storage and proceed with the next file. */
 			_strings_storage.ReadFromYAML(opt_data.argv[i]);
 			continue;
-		} else if (!StrEndsWith(opt_data.argv[i], ".txt", false)) {
-			fprintf(stderr, "Unrecognized file extension for file (supported are .txt and .yml): '%s'\n", opt_data.argv[i]);
+		} else if (!StrEndsWith(opt_data.argv[i], ".fpp", false)) {
+			if (StrEndsWith(opt_data.argv[i], ".fml", false)) {
+				fprintf(stderr, "FML files must be preprocessed into FPP files before they can be used to generate RCD files.\n");
+			} else if (StrEndsWith(opt_data.argv[i], ".fms", false)) {
+				fprintf(stderr, "Do not compile FMS files directly. They are meant to be #included in an FML file.\n");
+			} else {
+				fprintf(stderr, "Unrecognized file extension for file (supported are .fpp and .yml): '%s'\n", opt_data.argv[i]);
+			}
 			exit(1);
 		}
 

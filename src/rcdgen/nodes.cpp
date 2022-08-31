@@ -270,9 +270,7 @@ SheetBlock::SheetBlock(const Position &pos) : pos(pos)
 
 SheetBlock::~SheetBlock()
 {
-	delete this->imf;
 	delete this->img_sheet;
-	delete this->rmf;
 	delete this->rim;
 }
 
@@ -284,22 +282,22 @@ Image *SheetBlock::GetSheet()
 {
 	if (this->img_sheet != nullptr) return this->img_sheet;
 
-	this->imf = new ImageFile;
-	const char *err = this->imf->LoadFile(this->file);
+	this->imf.reset();
+	const char *err = ImageFile::LoadFile(this->file, this->imf);
 	if (err != nullptr) {
 		fprintf(stderr, "Error at %s, loading of the sheet-image failed: %s\n", this->pos.ToString(), err);
 		exit(1);
 	}
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
 	if (this->imf->Is8bpp()) {
-		this->img_sheet = new Image8bpp(this->imf, bmd);
+		this->img_sheet = new Image8bpp(this->imf.get(), bmd);
 		if (this->recolour != "") fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
 	} else {
-		Image32bpp *im = new Image32bpp(this->imf, bmd);
+		Image32bpp *im = new Image32bpp(this->imf.get(), bmd);
 		this->img_sheet = im;
 		if (this->recolour != "") {
-			this->rmf = new ImageFile;
-			const char *err = this->rmf->LoadFile(this->recolour);
+			this->rmf.reset();
+			const char *err = ImageFile::LoadFile(this->recolour, this->rmf);
 			if (err != nullptr) {
 				fprintf(stderr, "Error at %s, loading of the recolour file failed: %s\n", this->pos.ToString(), err);
 				exit(1);
@@ -308,7 +306,7 @@ Image *SheetBlock::GetSheet()
 				fprintf(stderr, "Error at %s, recolour file must be an 8bpp image.\n", this->pos.ToString());
 				exit(1);
 			}
-			this->rim = new Image8bpp(this->rmf, nullptr);
+			this->rim = new Image8bpp(this->rmf.get(), nullptr);
 			im->SetRecolourImage(this->rim);
 		}
 	}
@@ -345,31 +343,29 @@ report_error:
 		exit(1);
 	}
 
-	ImageFile *imf = nullptr;
-	ImageFile *rmf = nullptr;
+	std::shared_ptr<const ImageFile> imf;
+	std::shared_ptr<const ImageFile> rmf;
 	Image *img = nullptr;
 	Image8bpp *rim = nullptr;
 
-	imf = new ImageFile;
-	err = imf->LoadFile(this->file.MakeFilename(col));
+	err = ImageFile::LoadFile(this->file.MakeFilename(col), imf);
 	if (err != nullptr) goto report_error;
 
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
 	if (imf->Is8bpp()) {
-		img = new Image8bpp(imf, bmd);
+		img = new Image8bpp(imf.get(), bmd);
 		if (this->recolour.length >= 0) fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
 	} else {
-		Image32bpp *im32 = new Image32bpp(imf, bmd);
+		Image32bpp *im32 = new Image32bpp(imf.get(), bmd);
 		img = im32;
 		if (this->recolour.length >= 0) {
-			rmf = new ImageFile;
-			err = rmf->LoadFile(this->recolour.MakeFilename(col));
+			err = ImageFile::LoadFile(this->recolour.MakeFilename(col), rmf);
 			if (err != nullptr) goto report_error;
 			if (!rmf->Is8bpp()) {
 				err = "Recolour file is not an 8bpp image.\n";
 				goto report_error;
 			}
-			rim = new Image8bpp(rmf, nullptr);
+			rim = new Image8bpp(rmf.get(), nullptr);
 			im32->SetRecolourImage(rim);
 		}
 	}
@@ -378,8 +374,6 @@ report_error:
 	err = spr_blk->sprite_image.CopySprite(img, this->xoffset, this->yoffset, this->xbase, this->ybase, this->width, this->height, this->crop);
 	if (err != nullptr) goto report_error;
 
-	delete imf;
-	delete rmf;
 	delete img;
 	delete rim;
 	return spr_blk;

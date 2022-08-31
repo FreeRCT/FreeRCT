@@ -1,0 +1,26 @@
+// Snack shop.
+SHOP {
+	internal_name: "snack_shop";
+	height: 2;
+
+	images: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		(se_0_0, sw_0_0, nw_0_0, ne_0_0): spritefiles {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/template/64_0000{seq(1..4, 1)}.png";
+			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+
+	flags: bitset(ne_entrance);
+	cost_item1: 50;
+	cost_item2: 150;
+	cost_ownership: 0;
+	cost_opened: 500;
+	type_item1: non_salt_food;
+	type_item2: salt_food;
+
+	texts: strings { key: "snack-shop"; }
+}

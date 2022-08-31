@@ -10,6 +10,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <memory>
 #include <png.h>
 
 /** Bitmask description. */
@@ -25,11 +26,10 @@ struct MaskInformation;
 /** A PNG image file. */
 class ImageFile {
 public:
-	ImageFile();
+	static const char *LoadFile(const std::string &fname, std::shared_ptr<const ImageFile> &result);
+
 	~ImageFile();
 
-	void Clear();
-	const char *LoadFile(const std::string &fname);
 	int GetWidth() const;
 	int GetHeight() const;
 	bool Is8bpp() const;
@@ -43,6 +43,10 @@ public:
 	std::string fname; ///< Name of the loaded file.
 
 private:
+	ImageFile();
+	void Clear();
+	const char *LoadFile(const std::string &fname);
+
 	png_structp png_ptr; ///< Png image data.
 	png_infop info_ptr;  ///< Png information.
 	png_infop end_info;  ///< Png end information.

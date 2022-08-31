@@ -1,0 +1,33 @@
+// Toilet.
+SHOP {
+	internal_name: "toilet";
+	height: 2;
+
+	images: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		(se_0_0, sw_0_0, nw_0_0, ne_0_0): spritefiles {
+			x_base: 1; y_base: 0;
+			file: "../sprites/ride_shops/toilet/64_000{seq(1..4,1)}.png";
+			recolour: "../sprites/ride_shops/toilet/64p_000{seq(1..4,1)}.png";
+			x_offset: -33; y_offset: -33; width: 64; height: 64;
+		}
+	}
+
+	recolour {
+		original: grey;
+		replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+		                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+	}
+
+	flags: bitset(se_entrance);
+	cost_item1: 100;
+	cost_item2: 0;
+	cost_ownership: 0;
+	cost_opened: 50;
+	type_item1: toilet;
+	type_item2: 0;
+
+	texts: strings { key: "toilet"; }
+}

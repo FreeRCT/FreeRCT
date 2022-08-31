@@ -1,0 +1,41 @@
+// Flowerbed 1
+SCNY {
+	internal_name: "flowerbed1";
+	texts: strings { key: "flowers1"; }
+
+	category:               2;
+	width_x:                1;
+	width_y:                1;
+	height_0_0:             1;
+	buy_cost:             500;
+	return_cost:         -100;
+	return_cost_dry:      100;
+	watering_interval: 200000;
+	min_watering_interval: 180000;
+
+	symmetric: 1;
+	main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		unrotated_views_only: 1;
+		ne_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+			file: "../sprites/scenery/objects/64_flowers1.png";
+		}
+	}}
+	dry_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		unrotated_views_only: 1;
+		ne_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-42; width: 64; height: 42;
+			file: "../sprites/scenery/objects/64_flowers_dry.png";
+		}
+	}}
+	preview_ne: sprite {
+		x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 42;
+		file: "../sprites/scenery/objects/64_flowers1.png";
+	}
+}

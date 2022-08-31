@@ -1,0 +1,39 @@
+// Top Spin
+FGTR {
+	internal_name: "top_spin";
+	category: "thrill";
+	ride_width_x: 3;
+	ride_width_y: 3;
+	height_0_0: 10;
+	height_0_1: 10;
+	height_0_2: 10;
+	height_1_0: 10;
+	height_1_1: 10;
+	height_1_2: 10;
+	height_2_0: 10;
+	height_2_1: 10;
+	height_2_2: 10;
+
+	entrance_fee: 220;
+	cost_ownership: 2000;
+	cost_opened: 7000;
+	guests_per_batch: 8;
+	number_of_batches: 1;
+	idle_duration: 30000;
+	working_duration: 12800;
+	working_cycles_min: 2;
+	working_cycles_max: 6;
+	working_cycles_default: 3;
+	reliability_max: 9600;
+	reliability_decrease_daily: 70;
+	reliability_decrease_monthly: 40;
+	intensity_base: 581;
+	nausea_base: 692;
+	excitement_base: 324;
+	excitement_increase_cycle: 12;
+	excitement_increase_scenery: 2;
+
+	texts: strings { key: "top-spin"; }
+
+#include "anim.fms"
+}

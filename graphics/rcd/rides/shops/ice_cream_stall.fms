@@ -1,0 +1,37 @@
+// Ice cream stall.
+SHOP {
+	internal_name: "ice_cream_stall";
+	height: 3;
+
+	images: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		(se_0_0, sw_0_0, nw_0_0, ne_0_0): spritefiles {
+			x_base: 0; y_base: 0;
+			file: "../sprites/ride_shops/ice_cream_stall/64_000{seq(1..4,1)}.png";
+			recolour: "../sprites/ride_shops/ice_cream_stall/64p_000{seq(1..4,1)}.png";
+			x_offset: -32; y_offset: -97; width: 64; height: 128;
+		}
+	}
+
+	recolour {
+		original: grey;
+		replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+		                pink_brown, blue, jade_green, purple, red, sea_green);
+	}
+	recolour {
+		original: grey;
+		replace: bitset(yellow, jade_green, purple, green);
+	}
+
+	flags: bitset(ne_entrance);
+	cost_item1: 500;
+	cost_item2: 350;
+	cost_ownership: 0;
+	cost_opened: 500;
+	type_item1: ice_cream;
+	type_item2: drink;
+
+	texts: strings { key: "ice-cream-stall"; }
+}

@@ -1,0 +1,29 @@
+// Tree 1
+SCNY {
+	internal_name: "tree1";
+	texts: strings { key: "tree1"; }
+
+	category:          1;
+	width_x:           1;
+	width_y:           1;
+	height_0_0:        6;
+	buy_cost:       1000;
+	return_cost:     400;
+	watering_interval: 0;
+
+	symmetric: 1;
+	main_animation: TIMA { frames: 1; duration_0: 1; frame_0: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		unrotated_views_only: 1;
+		ne_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-104; width: 64; height: 104;
+			file: "../sprites/scenery/objects/64_tree1.png";
+		}
+	}}
+	preview_ne: sprite {
+		x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 39; height: 64;
+		file: "../sprites/scenery/objects/64_tree1_preview.png";
+	}
+}
