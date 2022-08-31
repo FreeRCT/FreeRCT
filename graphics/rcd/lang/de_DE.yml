@@ -524,6 +524,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "Gondel 1"
 		DESCRIPTION_RECOLOUR2: "Gondel 2"
 		DESCRIPTION_RECOLOUR3: "Halterung"
+	chair-swing:
+		NAME_INSTANCE1:        "Von der Kette gelassen"
+		NAME_INSTANCE2:        "Schwingungen"
+		NAME_TYPE:             "Kettenkarussell"
+		DESCRIPTION_TYPE:      "Acht Stühle an langen Ketten, die an einer sich schnell drehenden Scheibe befestigt sind."
+		DESCRIPTION_RECOLOUR1: "Konstruktion"
+		DESCRIPTION_RECOLOUR2: "Dach"
+		DESCRIPTION_RECOLOUR3: "Basis"
 
 	park-entrance-generic:
 		NAME: "Standard-Parkeingang"

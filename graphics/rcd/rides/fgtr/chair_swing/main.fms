@@ -1,0 +1,39 @@
+// Chair Swing
+FGTR {
+	internal_name: "chair_swing";
+	category: "thrill";
+	ride_width_x: 3;
+	ride_width_y: 3;
+	height_0_0: 10;
+	height_0_1: 10;
+	height_0_2: 10;
+	height_1_0: 10;
+	height_1_1: 10;
+	height_1_2: 10;
+	height_2_0: 10;
+	height_2_1: 10;
+	height_2_2: 10;
+
+	entrance_fee: 120;
+	cost_ownership: 2000;
+	cost_opened: 7000;
+	guests_per_batch: 8;
+	number_of_batches: 1;
+	idle_duration: 30000;
+	working_duration: 5000;
+	working_cycles_min: 4;
+	working_cycles_max: 14;
+	working_cycles_default: 8;
+	reliability_max: 9600;
+	reliability_decrease_daily: 70;
+	reliability_decrease_monthly: 40;
+	intensity_base: 387;
+	nausea_base: 297;
+	excitement_base: 211;
+	excitement_increase_cycle: 17;
+	excitement_increase_scenery: 4;
+
+	texts: strings { key: "chair-swing"; }
+
+#include "anim.fms"
+}

@@ -523,6 +523,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "Gondola 1"
 		DESCRIPTION_RECOLOUR2: "Gondola 2"
 		DESCRIPTION_RECOLOUR3: "Constraints"
+	chair-swing:
+		NAME_INSTANCE1:        "Unchained"
+		NAME_INSTANCE2:        "Swinging"
+		NAME_TYPE:             "Chair Swing"
+		DESCRIPTION_TYPE:      "Eight chairs suspended on long chains fastened to a spinning disk."
+		DESCRIPTION_RECOLOUR1: "Construction"
+		DESCRIPTION_RECOLOUR2: "Roof"
+		DESCRIPTION_RECOLOUR3: "Base"
 
 	park-entrance-generic:
 		NAME: "Generic Park Entrance"
