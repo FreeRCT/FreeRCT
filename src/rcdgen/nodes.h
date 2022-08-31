@@ -152,11 +152,11 @@ public:
 	int height;   ///< Height of a sprite.
 	bool crop;    ///< Crop sprite.
 
-	ImageFile *imf;   ///< Loaded image file.
-	Image *img_sheet; ///< Sheet of images.
-	std::shared_ptr<BitMask> mask; ///< Bit mask to apply first (if available).
-	ImageFile *rmf;   ///< Loaded recolour file.
-	Image8bpp *rim;   ///< Recolour image.
+	std::shared_ptr<const ImageFile> imf;  ///< Loaded image file.
+	Image *img_sheet;                      ///< Sheet of images.
+	std::shared_ptr<BitMask> mask;         ///< Bit mask to apply first (if available).
+	std::shared_ptr<const ImageFile> rmf;  ///< Loaded recolour file.
+	Image8bpp *rim;                        ///< Recolour image.
 };
 
 /** A 'spritefiles' block. */

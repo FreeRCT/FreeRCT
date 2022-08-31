@@ -8,6 +8,7 @@
 /** @file image.cpp %Image loading, cutting, and saving the sprites. */
 
 #include "../stdafx.h"
+#include <map>
 #include <vector>
 #include "image.h"
 
@@ -66,6 +67,30 @@ void ImageFile::Clear()
 	this->row_pointers = nullptr;
 	this->png_initialized = false;
 	this->fname = "";
+}
+
+/**
+ * Load a .png file from the disk.
+ * @param fname Name of the .png file to load.
+ * @param result [out] Will become a pointer to the loaded image on success.
+ * @return An error message if loading failed, or \c nullptr if loading succeeded.
+ */
+const char *ImageFile::LoadFile(const std::string &fname, std::shared_ptr<const ImageFile> &result)
+{
+	static std::map<std::string, std::shared_ptr<const ImageFile>> cache;
+	const auto it = cache.find(fname);
+	if (it != cache.end()) {
+		result = it->second;
+		return nullptr;
+	}
+
+	std::shared_ptr<ImageFile> file(new ImageFile);
+	const char *err = file->LoadFile(fname);
+	if (err != nullptr) return err;
+
+	result = file;
+	cache.emplace(fname, file);
+	return nullptr;
 }
 
 /**

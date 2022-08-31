@@ -1615,34 +1615,34 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 			}
 		}
 
-		ImageFile imf;
-		const char *err = imf.LoadFile(file);
+		std::shared_ptr<const ImageFile> imf;
+		const char *err = ImageFile::LoadFile(file, imf);
 		if (err != nullptr) {
 			fprintf(stderr, "Error at %s, loading of the sprite for \"%s\" failed: %s\n", ng->pos.ToString(), ng->name.c_str(), err);
 			exit(1);
 		}
 
 		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
-		if (imf.Is8bpp()) {
-			Image8bpp img(&imf, bmd);
+		if (imf->Is8bpp()) {
+			Image8bpp img(imf.get(), bmd);
 			if (recolour != "") fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", ng->pos.ToString());
 			err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 		} else {
-			Image32bpp img(&imf, bmd);
+			Image32bpp img(imf.get(), bmd);
 			if (recolour == "") {
 				err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 			} else {
-				ImageFile rmf;
-				err = rmf.LoadFile(recolour);
+				std::shared_ptr<const ImageFile> rmf;
+				err = ImageFile::LoadFile(recolour, rmf);
 				if (err != nullptr) {
 					fprintf(stderr, "Error at %s, loading of the recolour file failed: %s\n", ng->pos.ToString(), err);
 					exit(1);
 				}
-				if (!rmf.Is8bpp()) {
+				if (!rmf->Is8bpp()) {
 					fprintf(stderr, "Error at %s, recolour file must be an 8bpp image.\n", ng->pos.ToString());
 					exit(1);
 				}
-				Image8bpp rim(&rmf, nullptr);
+				Image8bpp rim(rmf.get(), nullptr);
 				img.SetRecolourImage(&rim);
 				err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 			}
