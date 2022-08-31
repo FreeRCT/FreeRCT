@@ -11,5 +11,5 @@ file("coasters.rcd") {
 		description: "FreeRCT baseset simple roller coaster.";
 	}
 
-	#include "basic_steel_coaster.fms"
+#include "basic_steel_coaster.fms"
 }

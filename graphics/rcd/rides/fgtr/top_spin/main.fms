@@ -35,5 +35,5 @@ FGTR {
 
 	texts: strings { key: "top-spin"; }
 
-	#include "anim.fms"
+#include "anim.fms"
 }

@@ -11,8 +11,8 @@ file("fgtr.rcd") {
 		description: "FreeRCT baseset fixed gentle and thrill rides.";
 	}
 
-	#include "spiral_slide/main.fms"
-	#include "ship_swing/main.fms"
-	#include "spooky_manor/main.fms"
-	#include "top_spin/main.fms"
+#include "spiral_slide/main.fms"
+#include "ship_swing/main.fms"
+#include "spooky_manor/main.fms"
+#include "top_spin/main.fms"
 }

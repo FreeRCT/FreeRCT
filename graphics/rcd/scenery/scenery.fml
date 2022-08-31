@@ -11,8 +11,8 @@ file("scenery.rcd") {
 		description: "FreeRCT baseset scenery item types.";
 	}
 
-	#include "flowerbeds/main.fms"
-	#include "trees/main.fms"
-	#include "fountains/main.fms"
-	#include "park_entrances/main.fms"
+#include "flowerbeds/main.fms"
+#include "trees/main.fms"
+#include "fountains/main.fms"
+#include "park_entrances/main.fms"
 }

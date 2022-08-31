@@ -11,6 +11,6 @@ file("entrance_exit.rcd") {
 		description: "FreeRCT baseset ride entrances and exits.";
 	}
 
-	#include "generic/main.fms"
-	#include "alternative/main.fms"
+#include "generic/main.fms"
+#include "alternative/main.fms"
 }
