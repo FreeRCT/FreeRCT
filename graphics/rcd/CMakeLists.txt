@@ -21,18 +21,25 @@ file(GLOB_RECURSE RCDFILES RELATIVE "${FP}" "*.fml")
 file(GLOB LANGFILES "${FP}/lang/*.yml")
 
 FOREACH(SRCFILE ${RCDFILES})
+	get_filename_component(SRC_FILE_PATH "${SRCFILE}" DIRECTORY)
 	get_filename_component(SRC_FILE_NAME "${SRCFILE}" NAME)
 	string(REPLACE ".fml" ".rcd" OUTFILE ${SRC_FILE_NAME})
 	string(REPLACE ".fml" ".fpp" PREPROCESSED_FILE ${SRC_FILE_NAME})
 
+	IF(NOT "${SRC_FILE_PATH}" STREQUAL "")
+		file(GLOB_RECURSE DEPENDENCIES RELATIVE "${FP}" "*.fms")
+		list(FILTER DEPENDENCIES INCLUDE REGEX "${SRC_FILE_PATH}/.*")
+	ELSE()
+		set(DEPENDENCIES "")
+	ENDIF()
+
 	set(OUT_DIR "${FRCT_BINARY_DIR}/rcd")
 
 	# First, use the C preprocessor to process #include directives and macros.
-	# TODO Allow the RCD generator to parse "# line file flags" directives for nicer error messages, then disable -P.
 	add_custom_command(OUTPUT "${OUT_DIR}/${PREPROCESSED_FILE}"
-			COMMAND cpp -P -undef "${FP}/${SRCFILE}" "${OUT_DIR}/${PREPROCESSED_FILE}"
+			COMMAND cpp "${FP}/${SRCFILE}" "${OUT_DIR}/${PREPROCESSED_FILE}"
 			COMMENT "Preprocessing ${SRCFILE}"
-			DEPENDS ${SRCFILE}
+			DEPENDS ${SRCFILE} ${DEPENDENCIES}
 			WORKING_DIRECTORY "${FP}"
 	)
 

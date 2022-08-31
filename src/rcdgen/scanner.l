@@ -16,6 +16,9 @@ int string_line; ///< Starting line of the string.
 %x in_string
 %x in_comment
 %x in_line_comment
+%x in_set_line_file_line
+%x in_set_line_file_file
+%x in_set_line_file_end
 
 %option noyywrap
 
@@ -126,6 +129,25 @@ int string_line; ///< Starting line of the string.
 <in_line_comment>\n {
 	BEGIN(INITIAL);
 	line++;
+}
+
+# {
+	BEGIN(in_set_line_file_line);
+}
+
+<in_set_line_file_line>[0-9]+ {
+	BEGIN(in_set_line_file_file);
+	line = atol(yytext);
+	yylval.chars.line = yylval.line = line;
+}
+
+<in_set_line_file_file>\".*\" {
+	BEGIN(in_set_line_file_end);
+	filename = yytext;
+}
+
+<in_set_line_file_end>[ \t0-9]*\n {
+	BEGIN(INITIAL);
 }
 
 [ \t\r] {
