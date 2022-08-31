@@ -10,9 +10,7 @@ gui/buttons_8bpp.png
 paths/path/litter3.png
 
 Benedikt Straub:
-gentle_thrill_rides/spiral_slide
-gentle_thrill_rides/ship_swing
-gentle_thrill_rides/spooky_manor
+gentle_thrill_rides
 persons
 ride_shops/atm
 scenery/objects
