@@ -1,0 +1,68 @@
+/* Animations for the Top Spin. */
+
+recolour {
+	original: grey;
+	replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+	                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+}
+recolour {
+	original: grey;
+	replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+	                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+}
+recolour {
+	original: grey;
+	replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+	                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+}
+
+preview_se: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/top_spin/preview_nw_se.png";
+}
+preview_sw: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/top_spin/preview_ne_sw.png";
+}
+preview_ne: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/top_spin/preview_ne_sw.png";
+}
+preview_nw: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/top_spin/preview_nw_se.png";
+}
+
+animation_idle: FSET {
+	tile_width: 64;
+	width_x: 3;
+	width_y: 3;
+	(se_{vert(0..2)}_{hor(0..2)}): sheet {
+		x_base: 128; y_base: 0*3*128; x_step: -64; y_step: 128;
+		file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+		recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+		x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+	}
+	(ne_{hor(0..2)}_{vert(0..2)}): sheet {
+		x_base: 0; y_base: 1*3*128; x_step: 64; y_step: 128;
+		file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+		recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+		x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+	}
+	(nw_{vert(0..2)}_{hor(0..2)}): sheet {
+		x_base: 128; y_base: 2*3*128; x_step: -64; y_step: 128;
+		file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+		recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+		x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+	}
+	(sw_{hor(0..2)}_{vert(0..2)}): sheet {
+		x_base: 0; y_base: 3*3*128; x_step: 64; y_step: 128;
+		file: "../sprites/gentle_thrill_rides/top_spin/64_idle.png"; crop: 0;
+		recolour: "../sprites/gentle_thrill_rides/top_spin/64_mask_idle.png";
+		x_offset: -32; y_offset: 32-128; width: 64; height: 128;
+	}
+}
+
+#include "anim_starting.fms"
+#include "anim_working.fms"
+#include "anim_stopping.fms"

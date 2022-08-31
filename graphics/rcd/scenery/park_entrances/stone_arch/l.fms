@@ -1,0 +1,35 @@
+SCNY {
+	internal_name: "park_entrance_stone_arch_l";
+	texts: strings { key: "park-entrance-generic"; }
+
+	category:          0;
+	width_x:           1;
+	width_y:           1;
+	height_0_0:        8;
+	buy_cost:          0;
+	return_cost:       0;
+	watering_interval: 0;
+
+	symmetric: 0;
+	main_animation: TIMA {
+		frames: 1;
+		fps: 10;
+		frame_0: FSET {
+			tile_width: 64;
+			width_x: 1;
+			width_y: 1;
+			(ne_0_0 | nw_0_0 | sw_0_0 | se_0_0): sheet {
+				width: 64; x_step: 0;
+				height: 160; y_step: 160;
+				x_offset: -32; x_base: 0;
+				y_offset: 32-160; y_base: 0;
+				file: "../sprites/scenery/objects/64_park_entrance_generic.png"; crop: 0;
+			}
+		}
+	}
+	(preview_ne, preview_sw, preview_se, preview_nw): sheet {
+		x_base: 0; y_base: 0; x_offset: 0; y_offset: 0; width: 64; height: 64;
+		file: "../sprites/scenery/objects/64_park_entrance_generic_preview.png";
+		x_step: 64; y_step: 0;
+	}
+}

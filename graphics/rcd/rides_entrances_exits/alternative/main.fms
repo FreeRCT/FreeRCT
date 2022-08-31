@@ -1,0 +1,4 @@
+/* Alternative entrance/exit set. */
+
+#include "entrance.fms"
+#include "exit.fms"

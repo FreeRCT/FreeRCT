@@ -1,0 +1,5 @@
+/* Flower beds. */
+
+#include "flowerbed1.fms"
+#include "flowerbed2.fms"
+#include "flowerbed3.fms"

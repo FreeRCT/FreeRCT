@@ -1,0 +1,101 @@
+// Spiral Slide
+FGTR {
+	internal_name: "spiral_slide";
+	category: "gentle";
+	ride_width_x: 2;
+	ride_width_y: 2;
+	height_0_0: 10;
+	height_1_0: 10;
+	height_0_1: 10;
+	height_1_1: 10;
+
+	preview_se: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spiral_slide/preview_se.png";
+	}
+	preview_sw: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spiral_slide/preview_sw.png";
+	}
+	preview_ne: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spiral_slide/preview_ne.png";
+	}
+	preview_nw: sprite {
+		x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+		file: "../sprites/gentle_thrill_rides/spiral_slide/preview_nw.png";
+	}
+
+	animation_starting: TIMA { frames: 0; }
+	animation_working:  TIMA { frames: 0; }
+	animation_stopping: TIMA { frames: 0; }
+	animation_idle: FSET {
+		tile_width: 64;
+		width_x: 2;
+		width_y: 2;
+		se_1_1: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/gentle_thrill_rides/spiral_slide/64_idle.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spiral_slide/64_idle_mask.png";
+			x_offset: -64; y_offset: 32-186; width: 128; height: 186;
+		}
+		nw_0_0: sprite {
+			x_base: 2*128; y_base: 0;
+			file: "../sprites/gentle_thrill_rides/spiral_slide/64_idle.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spiral_slide/64_idle_mask.png";
+			x_offset: -64; y_offset: 32-186; width: 128; height: 186;
+		}
+		ne_0_1: sprite {
+			x_base: 3*128; y_base: 0;
+			file: "../sprites/gentle_thrill_rides/spiral_slide/64_idle.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spiral_slide/64_idle_mask.png";
+			x_offset: -64; y_offset: 32-186; width: 128; height: 186;
+		}
+		sw_1_0: sprite {
+			x_base: 1*128; y_base: 0;
+			file: "../sprites/gentle_thrill_rides/spiral_slide/64_idle.png"; crop: 0;
+			recolour: "../sprites/gentle_thrill_rides/spiral_slide/64_idle_mask.png";
+			x_offset: -64; y_offset: 32-186; width: 128; height: 186;
+		}
+		empty_voxels: sprite {
+			x_base: 0; y_base: 0; file: "../sprites/empty.png"; x_offset: 0; y_offset: 0; width: 0; height: 0;
+		}
+	}
+
+	recolour {
+		original: grey;
+		replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+		                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+	}
+	recolour {
+		original: grey;
+		replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+		                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+	}
+	recolour {
+		original: grey;
+		replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+		                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+	}
+
+	entrance_fee: 20;
+	cost_ownership: 50;
+	cost_opened: 800;
+	guests_per_batch: 1;
+	number_of_batches: 1;
+	idle_duration: 100;
+	working_duration: 5000;
+	working_cycles_min: 1;
+	working_cycles_max: 1;
+	working_cycles_default: 1;
+	reliability_max: 10000;
+	reliability_decrease_daily: 3;
+	reliability_decrease_monthly: 1;
+	intensity_base: 115;
+	nausea_base: 218;
+	excitement_base: 46;
+	excitement_increase_cycle: 0;
+	excitement_increase_scenery: 6;
+
+	texts: strings { key: "spiral-slide"; }
+}

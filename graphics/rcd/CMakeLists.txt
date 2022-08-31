@@ -14,42 +14,41 @@ project(rcd_files)
 # Make declaring the list shorter/nicer
 set(FP "${CMAKE_SOURCE_DIR}/graphics/rcd")
 
-#    Output file       Source file
-list(APPEND RCDFILES
-     "freerct.rcd"              "${FP}/freerct.txt"
-     "path_8bpp64.rcd"          "${FP}/paths.txt"
-     "entrance_exit.rcd"        "${FP}/entrance_exit.txt"
-     "shops.rcd"                "${FP}/shops.txt"
-     "gentle_thrill_rides.rcd"  "${FP}/gentle_thrill_rides.txt"
-     "gui.rcd"                  "${FP}/gui.txt"
-     "scenery.rcd"              "${FP}/scenery.txt"
-     "tracks.rcd"               "${FP}/tracks.txt"
-)
+# Get FreeRCT Markup Language files
+file(GLOB_RECURSE RCDFILES RELATIVE "${FP}" "*.fml")
 
 # Get lang files
 file(GLOB LANGFILES "${FP}/lang/*.yml")
 
-list(LENGTH RCDFILES RCDFILES_LENGTH)
-math(EXPR RCDFILES_LENGTH_DIV_2 "${RCDFILES_LENGTH} / 2 - 1")
-
-FOREACH(RCDFILE RANGE ${RCDFILES_LENGTH_DIV_2})
-	math(EXPR INDEX_1 "${RCDFILE} * 2")
-	math(EXPR INDEX_2 "${INDEX_1} + 1")
-	list(GET RCDFILES ${INDEX_1} OUTFILE)
-	list(GET RCDFILES ${INDEX_2} SRCFILE)
+FOREACH(SRCFILE ${RCDFILES})
+	get_filename_component(SRC_FILE_NAME "${SRCFILE}" NAME)
+	string(REPLACE ".fml" ".rcd" OUTFILE ${SRC_FILE_NAME})
+	string(REPLACE ".fml" ".fpp" PREPROCESSED_FILE ${SRC_FILE_NAME})
 
 	set(OUT_DIR "${FRCT_BINARY_DIR}/rcd")
-	add_custom_command(OUTPUT "${OUT_DIR}/${OUTFILE}" "${FP}/${OUTFILE}"
-	                   COMMAND rcdgen ${LANGFILES} ${SRCFILE}
-	                   COMMAND ${CMAKE_COMMAND} -E copy ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}
-	                   COMMENT "Generating rcd files from ${SRCFILE}"
-	                   DEPENDS ${SRCFILE} ${LANGFILES} rcdgen
-	                   WORKING_DIRECTORY "${FP}"
+
+	# First, use the C preprocessor to process #include directives and macros.
+	# TODO Allow the RCD generator to parse "# line file flags" directives for nicer error messages, then disable -P.
+	add_custom_command(OUTPUT "${OUT_DIR}/${PREPROCESSED_FILE}"
+			COMMAND cpp -P -undef "${FP}/${SRCFILE}" "${OUT_DIR}/${PREPROCESSED_FILE}"
+			COMMENT "Preprocessing ${SRCFILE}"
+			DEPENDS ${SRCFILE}
+			WORKING_DIRECTORY "${FP}"
+	)
+
+	# Then generate the actual RCD file.
+	add_custom_command(OUTPUT "${OUT_DIR}/${OUTFILE}"
+			COMMAND rcdgen ${LANGFILES} "${OUT_DIR}/${PREPROCESSED_FILE}"
+			COMMAND ${CMAKE_COMMAND} -E rename ${FP}/${OUTFILE} ${OUT_DIR}/${OUTFILE}
+			COMMENT "Generating RCD file from ${PREPROCESSED_FILE}"
+			DEPENDS "${OUT_DIR}/${PREPROCESSED_FILE}" ${LANGFILES} rcdgen
+			WORKING_DIRECTORY "${FP}"
 	)
 
 	list(APPEND OUTFILES "${OUT_DIR}/${OUTFILE}")
+	set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${OUT_DIR}/${PREPROCESSED_FILE}")
 	set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${OUT_DIR}/${OUTFILE}")
-ENDFOREACH(RCDFILE)
+ENDFOREACH()
 
 add_custom_target(rcd ALL DEPENDS ${OUTFILES})
 
