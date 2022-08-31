@@ -65,16 +65,16 @@ PersonTypeData &ModifyPersonTypeData(PersonType pt)
 /**
  * Load graphics settings of person types from an RCD file.
  * @param rcd_file RCD file to read, pointing at the start of the PRSG block data (behind the header information).
- * @return Loading was a success.
  */
-bool LoadPRSG(RcdFileReader *rcd_file)
+void LoadPRSG(RcdFileReader *rcd_file)
 {
+	rcd_file->CheckVersion(2);
 	uint32 length = rcd_file->size;
-	if (rcd_file->version < 1 || rcd_file->version > 2 || length < 1) return false;
+	rcd_file->CheckMinLength(length, 1, "header");
 	uint8 count = rcd_file->GetUInt8();
 	length--;
 
-	if (length != 13 * count) return false;
+	rcd_file->CheckExactLength(length, 13 * count, "graphics");
 	while (count > 0) {
 		uint8 ps = rcd_file->GetUInt8();
 		uint32 rc1 = rcd_file->GetUInt32();
@@ -101,7 +101,6 @@ bool LoadPRSG(RcdFileReader *rcd_file)
 		}
 		count--;
 	}
-	return true;
 }
 
 Person::Person() : rnd(), type(PERSON_INVALID), offset(this->rnd.Uniform(100)), ride(nullptr), status(GUI_PERSON_STATUS_WANDER)
@@ -827,7 +826,7 @@ static const uint32 CURRENT_VERSION_Entertainer = 1;   ///< Currently supported 
 void Person::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("prsn");
-	if (version < 1 || version > CURRENT_VERSION_Person) ldr.version_mismatch(version, CURRENT_VERSION_Person);
+	if (version < 1 || version > CURRENT_VERSION_Person) ldr.VersionMismatch(version, CURRENT_VERSION_Person);
 	this->VoxelObject::Load(ldr);
 
 	this->queuing_blocked_on = nullptr;  // Will be recalculated later in OnAnimate().
@@ -1853,7 +1852,7 @@ void Guest::DeActivate(AnimateResult ar)
 void Guest::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("gues");
-	if (version < 1 || version > CURRENT_VERSION_Guest) ldr.version_mismatch(version, CURRENT_VERSION_Guest);
+	if (version < 1 || version > CURRENT_VERSION_Guest) ldr.VersionMismatch(version, CURRENT_VERSION_Guest);
 	this->Person::Load(ldr);
 
 	this->activity = static_cast<GuestActivity>(ldr.GetByte());
@@ -2384,7 +2383,7 @@ StaffMember::~StaffMember()
 void StaffMember::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("stfm");
-	if (version < 1 || version > CURRENT_VERSION_StaffMember) ldr.version_mismatch(version, CURRENT_VERSION_StaffMember);
+	if (version < 1 || version > CURRENT_VERSION_StaffMember) ldr.VersionMismatch(version, CURRENT_VERSION_StaffMember);
 	this->Person::Load(ldr);
 	if (version < 2) this->status = GUI_PERSON_STATUS_WANDER + ldr.GetWord();
 	ldr.ClosePattern();
@@ -2532,7 +2531,7 @@ Mechanic::~Mechanic()
 void Mechanic::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("mchc");
-	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.version_mismatch(version, CURRENT_VERSION_Mechanic);
+	if (version < 1 || version > CURRENT_VERSION_Mechanic) ldr.VersionMismatch(version, CURRENT_VERSION_Mechanic);
 
 	if (version == 1) {
 		this->Person::Load(ldr);
@@ -2654,7 +2653,7 @@ Guard::~Guard()
 void Guard::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("gard");
-	if (version < 1 || version > CURRENT_VERSION_Guard) ldr.version_mismatch(version, CURRENT_VERSION_Guard);
+	if (version < 1 || version > CURRENT_VERSION_Guard) ldr.VersionMismatch(version, CURRENT_VERSION_Guard);
 	this->StaffMember::Load(ldr);
 	/* No specific data to load currently. */
 	ldr.ClosePattern();
@@ -2683,7 +2682,7 @@ Entertainer::~Entertainer()
 void Entertainer::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("etai");
-	if (version < 1 || version > CURRENT_VERSION_Entertainer) ldr.version_mismatch(version, CURRENT_VERSION_Entertainer);
+	if (version < 1 || version > CURRENT_VERSION_Entertainer) ldr.VersionMismatch(version, CURRENT_VERSION_Entertainer);
 	this->StaffMember::Load(ldr);
 	/* No specific data to load currently. */
 	ldr.ClosePattern();
@@ -2711,7 +2710,7 @@ Handyman::~Handyman()
 void Handyman::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("hndy");
-	if (version < 1 || version > CURRENT_VERSION_Handyman) ldr.version_mismatch(version, CURRENT_VERSION_Handyman);
+	if (version < 1 || version > CURRENT_VERSION_Handyman) ldr.VersionMismatch(version, CURRENT_VERSION_Handyman);
 	this->StaffMember::Load(ldr);
 	this->activity = static_cast<HandymanActivity>(ldr.GetByte());
 	ldr.ClosePattern();

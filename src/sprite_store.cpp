@@ -73,11 +73,10 @@ const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4] = {
  * @param buf_length Length of the buffer
  * @param expected_null Number of \c NUL bytes expected to occur within the string.
  * @param[out] used_size Length of the used part of the buffer, only updated on successful reading of the string.
- * @return Reading the string was a success.
  */
-static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, char *buffer, size_t buf_length, int expected_null, size_t *used_size)
+static void ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, char *buffer, size_t buf_length, int expected_null, size_t *used_size)
 {
-	if (buf_length < *used_size + expected_length) return false;
+	if (buf_length < *used_size + expected_length) rcd_file->Error("UTF8 text overflows buffer");
 	rcd_file->GetBlob(buffer + *used_size, expected_length);
 
 	int real_size = expected_length;
@@ -86,7 +85,7 @@ static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, char *
 	for (;;) {
 		uint32 code_point;
 		int sz = DecodeUtf8Char(start, real_size, &code_point);
-		if (sz == 0 || sz > real_size) return false;
+		if (sz == 0 || sz > real_size) rcd_file->Error("UTF8: Invalid character bounds");
 		real_size -= sz;
 		start += sz;
 		if (code_point == 0) {
@@ -97,70 +96,68 @@ static bool ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, char *
 			}
 		}
 	}
-	if (real_size != 0 || expected_null != 0) return false;
+	if (real_size != 0 || expected_null != 0) rcd_file->Error("UTF8: Wrong string length");
 
 	*used_size += expected_length;
-	return true;
 }
 
 /**
  * Load a TEXT data block into the object.
  * @param rcd_file Input file.
- * @return Load was successful.
  */
-bool TextData::Load(RcdFileReader *rcd_file)
+void TextData::Load(RcdFileReader *rcd_file)
 {
+	rcd_file->CheckVersion(3);
 	char buffer[64*1024]; // Arbitrary sized block of temporary memory to store the text data.
 	size_t used_size = 0;
 	uint32 length = rcd_file->size;
-	if (rcd_file->version != 3) return false;
 
 	TextString strings[MAX_NUM_TEXT_STRINGS];
 	uint used_strings = 0;
 	while (length > 0) {
-		if (used_strings >= lengthof(strings)) return false; // Too many text strings.
+		if (used_strings >= lengthof(strings)) rcd_file->Error("Too many text strings");
 
-		if (length < 3) return false;
+		rcd_file->CheckMinLength(length, 3, "string header");
 		uint16 str_length   = rcd_file->GetUInt16();
 		uint8  ident_length = rcd_file->GetUInt8();
 
-		if (static_cast<uint32>(str_length) > length) return false; // String does not fit in the block.
+		if (static_cast<uint32>(str_length) > length) rcd_file->Error("String does not fit in the block");
 		length -= 3;
 
-		if (ident_length + 2 + 1 >= str_length) return false; // No space for translations.
+		if (ident_length + 2 + 1 >= str_length) rcd_file->Error("No space for translations");
 		int trs_length = str_length - (ident_length + 2 + 1);
 
 		/* Read string name. */
 		strings[used_strings].name = buffer + used_size;
-		if (!ReadUtf8Text(rcd_file, ident_length, buffer, lengthof(buffer), 0, &used_size)) return false;
+		ReadUtf8Text(rcd_file, ident_length, buffer, lengthof(buffer), 0, &used_size);
 		length -= ident_length;
 
 		while (trs_length > 0) {
-			if (length < 3) return false;
+			rcd_file->CheckMinLength(length, 3, "translation header");
 			uint16 tr_length   = rcd_file->GetUInt16();
 			uint8  lang_length = rcd_file->GetUInt8();
 			length -= 3;
 
-			if (tr_length > trs_length) return false;
-			if (lang_length + 2 + 1 + 1 >= tr_length) return false;
+			if (tr_length > trs_length) rcd_file->Error("Translation lengths mismatch");
+			if (lang_length + 2 + 1 + 1 >= tr_length) rcd_file->Error("Trailing bytes after translation");
 			int text_length = tr_length - (lang_length + 2 + 1 + 1);
 
 			char lang_buffer[1000]; // Arbitrary sized block to store the language name or a single string.
 			size_t used = 0;
 
 			/* Read translation language string. */
-			if (!ReadUtf8Text(rcd_file, lang_length, lang_buffer, lengthof(lang_buffer), 0, &used)) return false;
+			ReadUtf8Text(rcd_file, lang_length, lang_buffer, lengthof(lang_buffer), 0, &used);
 			length -= lang_length;
 
 			int plural_forms = rcd_file->GetUInt8();
 			length -= 1;
-			if (plural_forms < 1) return false;
+			if (plural_forms < 1) rcd_file->Error("Zero plural forms");
 
 			int lang_idx = GetLanguageIndex(lang_buffer);
 			/* Read translation text. */
 			if (lang_idx >= 0) {
 				const char *split = buffer + used_size;
-				if (!ReadUtf8Text(rcd_file, text_length, buffer, lengthof(buffer), plural_forms - 1, &used_size)) return false;
+				ReadUtf8Text(rcd_file, text_length, buffer, lengthof(buffer), plural_forms - 1, &used_size);
 				/* Split the string into plural forms. */
 				std::vector<const char*> &vector = strings[used_strings].languages[lang_idx];
 				vector.resize(plural_forms, nullptr);
@@ -172,7 +169,7 @@ bool TextData::Load(RcdFileReader *rcd_file)
 			} else {
 				/* Illegal language, read into a dummy buffer. */
 				used = 0;
-				if (!ReadUtf8Text(rcd_file, text_length, lang_buffer, lengthof(lang_buffer), plural_forms - 1, &used)) return false;
+				ReadUtf8Text(rcd_file, text_length, lang_buffer, lengthof(lang_buffer), plural_forms - 1, &used);
 			}
 			length -= text_length;
 
@@ -186,7 +183,7 @@ bool TextData::Load(RcdFileReader *rcd_file)
 	this->strings.reset(new TextString[used_strings]);
 	this->string_count = used_strings;
 	this->text_data.reset(new char[used_size]);
-	if (this->strings == nullptr || this->text_data == nullptr) return false;
+	if (this->strings == nullptr || this->text_data == nullptr) rcd_file->Error("Out of heap memory");
 
 	memcpy(this->text_data.get(), buffer, used_size);
 	for (uint i = 0; i < used_strings; i++) {
@@ -199,7 +196,6 @@ bool TextData::Load(RcdFileReader *rcd_file)
 			}
 		}
 	}
-	return true;
 }
 
 /**
@@ -207,19 +203,17 @@ bool TextData::Load(RcdFileReader *rcd_file)
  * @param rcd_file File to load from.
  * @param sprites Sprites already loaded from this file.
  * @param [out] spr Pointer to write the loaded sprite to.
- * @return Loading was successful.
  */
-bool LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageData **spr)
+void LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageData **spr)
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
 		*spr = nullptr;
-		return true;
+		return;
 	}
 	const auto iter = sprites.find(val);
-	if (iter == sprites.end()) return false;
+	if (iter == sprites.end()) rcd_file->Error("Sprite block reference not found");
 	*spr = iter->second;
-	return true;
 }
 
 /**
@@ -227,19 +221,17 @@ bool LoadSpriteFromFile(RcdFileReader *rcd_file, const ImageMap &sprites, ImageD
  * @param rcd_file File to load from.
  * @param texts Texts already loaded from this file.
  * @param [out] txt Pointer to write the loaded text data reference to.
- * @return Loading was successful.
  */
-bool LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **txt)
+void LoadTextFromFile(RcdFileReader *rcd_file, const TextMap &texts, TextData **txt)
 {
 	uint32 val = rcd_file->GetUInt32();
 	if (val == 0) {
 		*txt = nullptr;
-		return true;
+		return;
 	}
 	const auto iter = texts.find(val);
-	if (iter == texts.end()) return false;
+	if (iter == texts.end()) rcd_file->Error("Text block reference not found");
 	*txt = iter->second;
-	return true;
 }
 
 SurfaceData::SurfaceData()
@@ -263,11 +255,11 @@ bool SurfaceData::HasAllSprites() const
  * Load a surface game block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 6 || rcd_file->size != 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
+	rcd_file->CheckVersion(6);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 4 * NUM_SLOPE_SPRITES, "header");
 
 	uint16 gt = rcd_file->GetUInt16(); // Ground type bytes.
 	uint8 type = GTP_INVALID;
@@ -279,40 +271,38 @@ bool SpriteManager::LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites)
 	if (gt == 32) type = GTP_DESERT;
 	if (gt == 48) type = GTP_CURSOR_TEST;
 	if (gt == 49) type = GTP_CURSOR_EDGE_TEST;
-	if (type == GTP_INVALID) return false; // Unknown type of ground.
+	if (type == GTP_INVALID) rcd_file->Error("Invalid ground type");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr || type >= GTP_COUNT) return false;
+	if (ss == nullptr || type >= GTP_COUNT) rcd_file->Error("Sprite storage not found");
 	SurfaceData *sd = &ss->surface[type];
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &sd->surface[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &sd->surface[sprnum]);
 	}
-	return true;
 }
 
 /**
  * Load a tile selection block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * NUM_SLOPE_SPRITES) return false;
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 4 * NUM_SLOPE_SPRITES, "header");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) return false;
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	SurfaceData *ts = &ss->tile_select;
 	for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &ts->surface[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &ts->surface[sprnum]);
 	}
-	return true;
 }
 
 Fence::Fence() : RcdBlock(), type(FENCE_TYPE_INVALID), width(0)
@@ -336,28 +326,27 @@ FrameSet::~FrameSet()
  * Load a frame set block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+void FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size < 4) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckMinLength(rcd_file->size, 4, "header");
 
 	this->width = rcd_file->GetUInt16();
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
-	if (static_cast<int>(rcd_file->size) != 4 + 16 * this->width_x * this->width_y) return false;
+	rcd_file->CheckExactLength(rcd_file->size, 4 + 16 * this->width_x * this->width_y, "frame");
 	for (int i = 0; i < 4; ++i) {
 		this->sprites[i].reset(new ImageData*[this->width_x * this->width_y]);
 		for (int x = 0; x < this->width_x; ++x) {
 			for (int y = 0; y < this->width_y; ++y) {
 				ImageData *view;
-				if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+				LoadSpriteFromFile(rcd_file, sprites, &view);
 				if (this->width != 64) continue; /// \todo Widths other than 64.
 				this->sprites[i][x * this->width_y + y] = view;
 			}
 		}
 	}
-	return true;
 }
 
 TimedAnimation::TimedAnimation() : frames(0)
@@ -399,41 +388,39 @@ int TimedAnimation::GetFrame(int time, const bool loop_around) const {
  * Load a frame set block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool TimedAnimation::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites)
+void TimedAnimation::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size < 4) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckMinLength(rcd_file->size, 4, "header");
 
 	this->frames = rcd_file->GetUInt32();
-	if (static_cast<int>(rcd_file->size) != 4 + 8 * this->frames) return false;
+	rcd_file->CheckExactLength(rcd_file->size, 4 + 8 * this->frames, "timed animation");
 	this->durations.reset(new int[this->frames]);
 	this->views.reset(new const FrameSet*[this->frames]);
 	for (int f = 0; f < this->frames; ++f) this->durations[f] = rcd_file->GetUInt32();
 	for (int f = 0; f < this->frames; ++f) {
 		this->views[f] = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	}
-	return true;
 }
 
 /**
  * Load a fence sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool Fence::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+void Fence::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * FENCE_COUNT) return false;
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 4 * FENCE_COUNT, "header");
 
 	this->width  = rcd_file->GetUInt16();
 	this->type = rcd_file->GetUInt16();
-	if (this->type >= FENCE_TYPE_COUNT) return false; // Unknown fence type.
+	if (this->type >= FENCE_TYPE_COUNT) rcd_file->Error("Unknown fence type");
 
 	for (uint sprnum = 0; sprnum < FENCE_COUNT; sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->sprites[sprnum]);
 	}
-	return true;
 }
 
 Path::Path() : status(PAS_UNUSED)
@@ -445,11 +432,11 @@ Path::Path() : status(PAS_UNUSED)
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 3 || rcd_file->size != 2 + 2 + 2 + 4 * PATH_COUNT) return false;
+	rcd_file->CheckVersion(3);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 4 * PATH_COUNT, "header");
 
 	uint16 type = rcd_file->GetUInt16();
 	PathType pt = PAT_INVALID;
@@ -458,20 +445,19 @@ bool SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 		case  8: pt = PAT_TILED; break;
 		case 12: pt = PAT_ASPHALT; break;
 		case 16: pt = PAT_CONCRETE; break;
-		default: return false; // Unknown type of path.
+		default: rcd_file->Error("Invalid path type");
 	}
 
 	uint16 width = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) return false;
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	Path *path = &ss->path_sprites[pt];
 	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum]);
 	}
 	path->status = ((type & 0x8000) != 0) ? PAS_QUEUE_PATH : PAS_NORMAL_PATH;
-	return true;
 }
 
 PathDecoration::PathDecoration()
@@ -510,55 +496,55 @@ PathDecoration::PathDecoration()
  * Load a path decoration sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
+	rcd_file->CheckVersion(1);
 	/* Size is 2 byte tile width, 7 groups of sprites at the edges, 2 kinds of (flat+4 ramp) 4 type sprites. */
-	if (rcd_file->version != 1 || rcd_file->size != 2 + 7*4*4 + 2*(1+4)*4*4) return false;
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 7*4*4 + 2*(1+4)*4*4, "header");
 
 	uint16 width = rcd_file->GetUInt16();
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) return false;
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	PathDecoration *pdec = &ss->path_decoration;
 
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->litterbin[edge])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->litterbin[edge]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->overflow_bin[edge])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->overflow_bin[edge]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_bin[edge])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_bin[edge]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->lamp_post[edge])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->lamp_post[edge]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_lamp[edge])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_lamp[edge]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->bench[edge])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->bench[edge]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_bench[edge])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->demolished_bench[edge]);
 	}
 
 	for (int tp = 0; tp < 4; tp++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->flat_litter[tp])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->flat_litter[tp]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		for (int tp = 0; tp < 4; tp++) {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_litter[edge][tp])) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_litter[edge][tp]);
 		}
 	}
 
 	for (int tp = 0; tp < 4; tp++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->flat_vomit[tp])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &pdec->flat_vomit[tp]);
 	}
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		for (int tp = 0; tp < 4; tp++) {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_vomit[edge][tp])) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_vomit[edge][tp]);
 		}
 	}
 
@@ -576,8 +562,6 @@ bool SpriteManager::LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites)
 		while (count < 4 && pdec->ramp_vomit[edge][count] != nullptr) count++;
 		pdec->ramp_vomit_count[edge] = count;
 	}
-
-	return true;
 }
 
 TileCorners::TileCorners()
@@ -593,24 +577,23 @@ TileCorners::TileCorners()
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadTCOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES) return false;
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 4 * VOR_NUM_ORIENT * NUM_SLOPE_SPRITES, "header");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) return false;
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	TileCorners *tc = &ss->tile_corners;
 	for (uint v = 0; v < VOR_NUM_ORIENT; v++) {
 		for (uint sprnum = 0; sprnum < NUM_SLOPE_SPRITES; sprnum++) {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &tc->sprites[v][sprnum])) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &tc->sprites[v][sprnum]);
 		}
 	}
-	return true;
 }
 
 Foundation::Foundation()
@@ -622,29 +605,28 @@ Foundation::Foundation()
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadFUND(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + 4 * 6) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 4 * 6, "header");
 
 	uint16 tp = rcd_file->GetUInt16();
 	uint16 type = FDT_INVALID;
 	if (tp == 16) type = FDT_GROUND;
 	if (tp == 32) type = FDT_WOOD;
 	if (tp == 48) type = FDT_BRICK;
-	if (type == FDT_INVALID) return false;
+	if (type == FDT_INVALID) rcd_file->Error("Invalid foundation type");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr || type >= FDT_COUNT) return false;
+	if (ss == nullptr || type >= FDT_COUNT) rcd_file->Error("Sprite storage not found");
 	Foundation *fn = &ss->foundation[type];
 	for (uint sprnum = 0; sprnum < lengthof(fn->sprites); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &fn->sprites[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &fn->sprites[sprnum]);
 	}
-	return true;
 }
 
 Platform::Platform()
@@ -657,32 +639,31 @@ Platform::Platform()
  * Load a platform sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadPLAT(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 2 || rcd_file->size != 2 + 2 + 2 + 2 * 4 + 12 * 4) return false;
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + 2 * 4 + 12 * 4, "header");
 
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 	uint16 type = rcd_file->GetUInt16();
-	if (type != 16) return false; // Only accept type 16 'wood'.
+	if (type != 16) rcd_file->Error("Invalid platform type"); // Only accept type 16 'wood'.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) return false;
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	Platform *plat = &ss->platform;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &plat->flat[0])) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &plat->flat[1])) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &plat->flat[0]);
+	LoadSpriteFromFile(rcd_file, sprites, &plat->flat[1]);
 	for (uint sprnum = 0; sprnum < lengthof(plat->ramp); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &plat->ramp[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &plat->ramp[sprnum]);
 	}
 	for (uint sprnum = 0; sprnum < lengthof(plat->right_ramp); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &plat->right_ramp[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &plat->right_ramp[sprnum]);
 	}
 	for (uint sprnum = 0; sprnum < lengthof(plat->left_ramp); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &plat->left_ramp[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &plat->left_ramp[sprnum]);
 	}
-	return true;
 }
 
 Support::Support()
@@ -694,24 +675,23 @@ Support::Support()
  * Load a support sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadSUPP(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 2 + 2 + 2 + SSP_COUNT * 4) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 2 + 2 + SSP_COUNT * 4, "header");
 
 	uint16 type = rcd_file->GetUInt16();
-	if (type != 16) return false; // Only accept type 16 'wood'.
+	if (type != 16) rcd_file->Error("Invalid support type");  // Only accept type 16 'wood'.
 	uint16 width  = rcd_file->GetUInt16();
 	rcd_file->GetUInt16(); /// \todo Remove height from RCD block.
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) return false;
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	Support *supp = &ss->support;
 	for (uint sprnum = 0; sprnum < lengthof(supp->sprites); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &supp->sprites[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &supp->sprites[sprnum]);
 	}
-	return true;
 }
 
 DisplayedObject::DisplayedObject()
@@ -723,21 +703,20 @@ DisplayedObject::DisplayedObject()
  * Load a displayed object block.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool SpriteManager::LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites)
+void SpriteManager::LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 2 + 4 * 4) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 4 * 4, "header");
 
 	uint16 width = rcd_file->GetUInt16();
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
-	if (ss == nullptr) return false;
+	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
 	DisplayedObject *dob = &ss->build_arrows;
 	for (uint sprnum = 0; sprnum < lengthof(dob->sprites); sprnum++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &dob->sprites[sprnum])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &dob->sprites[sprnum]);
 	}
-	return true;
 }
 
 /** %Animation default constructor. */
@@ -771,39 +750,38 @@ static PersonType DecodePersonType(uint8 pt)
 /**
  * Load an animation.
  * @param rcd_file RCD file used for loading.
- * @return Loading was successful.
  */
-bool Animation::Load(RcdFileReader *rcd_file)
+void Animation::Load(RcdFileReader *rcd_file)
 {
+	rcd_file->CheckVersion(4);
 	const uint BASE_LENGTH = 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (rcd_file->version != 4 || length < BASE_LENGTH) return false;
+	rcd_file->CheckMinLength(length, BASE_LENGTH, "header");
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
-	if (this->person_type == PERSON_INVALID) return false;
+	if (this->person_type == PERSON_INVALID) rcd_file->Error("Invalid person type");
 
 	uint16 at = rcd_file->GetUInt16();
-	if (at < ANIM_BEGIN || at > ANIM_LAST) return false;
+	if (at < ANIM_BEGIN || at > ANIM_LAST) rcd_file->Error("Invalid anim type");
 	this->anim_type = (AnimationType)at;
 
 	this->frame_count = rcd_file->GetUInt16();
-	if (length != BASE_LENGTH + this->frame_count * 6) return false;
+	rcd_file->CheckExactLength(length, BASE_LENGTH + this->frame_count * 6, "frames");
 	this->frames.reset(new AnimationFrame[this->frame_count]);
-	if (this->frames == nullptr || this->frame_count == 0) return false;
+	if (this->frames == nullptr || this->frame_count == 0) rcd_file->Error("Zero frames");
 
 	for (uint i = 0; i < this->frame_count; i++) {
 		AnimationFrame *frame = this->frames.get() + i;
 
 		frame->duration = rcd_file->GetUInt16();
-		if (frame->duration == 0 || frame->duration >= 5000) return false; // Arbitrary sanity limit.
+		if (frame->duration == 0 || frame->duration >= 5000) rcd_file->Error("Invalid duration");  // Arbitrary sanity limit.
 
 		frame->dx = rcd_file->GetInt16();
-		if (frame->dx < -100 || frame->dx > 100) return false; // Arbitrary sanity limit.
+		if (frame->dx < -100 || frame->dx > 100) rcd_file->Error("Invalid X step");  // Arbitrary sanity limit.
 
 		frame->dy = rcd_file->GetInt16();
-		if (frame->dy < -100 || frame->dy > 100) return false; // Arbitrary sanity limit.
+		if (frame->dy < -100 || frame->dy > 100) rcd_file->Error("Invalid Y step");  // Arbitrary sanity limit.
 	}
-	return true;
 }
 
 /** Animation sprites default constructor. */
@@ -820,32 +798,31 @@ AnimationSprites::AnimationSprites() : RcdBlock(),
  * Load the sprites of an animation.
  * @param rcd_file RCD file used for loading.
  * @param sprites Map of already loaded sprites.
- * @return Loading was successful.
  */
-bool AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+void AnimationSprites::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
+	rcd_file->CheckVersion(3);
 	const uint BASE_LENGTH = 2 + 1 + 2 + 2;
 
 	size_t length = rcd_file->size;
-	if (rcd_file->version != 3 || length < BASE_LENGTH) return false;
+	rcd_file->CheckMinLength(length, BASE_LENGTH, "header");
 	this->width = rcd_file->GetUInt16();
 
 	this->person_type = DecodePersonType(rcd_file->GetUInt8());
-	if (this->person_type == PERSON_INVALID) return false;
+	if (this->person_type == PERSON_INVALID) rcd_file->Error("Invalid person type");
 
 	uint16 at = rcd_file->GetUInt16();
-	if (at < ANIM_BEGIN || at > ANIM_LAST) return false;
+	if (at < ANIM_BEGIN || at > ANIM_LAST) rcd_file->Error("Invalid animation type");
 	this->anim_type = (AnimationType)at;
 
 	this->frame_count = rcd_file->GetUInt16();
-	if (length != BASE_LENGTH + this->frame_count * 4) return false;
+	rcd_file->CheckExactLength(length, BASE_LENGTH + this->frame_count * 4, "frames");
 	this->sprites.reset(new ImageData *[this->frame_count]);
-	if (this->sprites == nullptr || this->frame_count == 0) return false;
+	if (this->sprites == nullptr || this->frame_count == 0) rcd_file->Error("Zero frames");
 
 	for (uint i = 0; i < this->frame_count; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->sprites[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->sprites[i]);
 	}
-	return true;
 }
 
 /** Clear the border sprite data. */
@@ -880,11 +857,11 @@ bool BorderSpriteData::IsLoaded() const
  * Load sprites of a GUI widget border.
  * @param rcd_file RCD file being loaded.
  * @param sprites Sprites loaded from this file.
- * @return Load was successful.
  */
-bool GuiSprites::LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites)
+void GuiSprites::LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 2 || rcd_file->size != 2 + 8 * 1 + WBS_COUNT * 4) return false;
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 8 * 1 + WBS_COUNT * 4, "header");
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
@@ -901,7 +878,7 @@ bool GuiSprites::LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 		case 8: sprdata = &this->button;       pressed = true;  break;
 		case 9: sprdata = &this->panel;        pressed = false; break;
 		default:
-			return false;
+			rcd_file->Error("Invalid widget type");
 	}
 
 	sprdata->border_top    = rcd_file->GetUInt8();
@@ -915,12 +892,11 @@ bool GuiSprites::LoadGBOR(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	for (uint sprnum = 0; sprnum < WBS_COUNT; sprnum++) {
 		if (pressed) {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->pressed[sprnum])) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &sprdata->pressed[sprnum]);
 		} else {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->normal[sprnum])) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &sprdata->normal[sprnum]);
 		}
 	}
-	return true;
 }
 
 /** Completely clear the data of the checkable sprites. */
@@ -947,12 +923,12 @@ bool CheckableWidgetSpriteData::IsLoaded() const
  * Load checkbox and radio button GUI sprites.
  * @param rcd_file RCD file being loaded.
  * @param sprites Sprites loaded from this file.
- * @return Load was successful.
  * @todo Load width and height from the RCD file too.
  */
-bool GuiSprites::LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites)
+void GuiSprites::LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 2 + WCS_COUNT * 4) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + WCS_COUNT * 4, "header");
 
 	/* Select sprites to save to. */
 	uint16 tp = rcd_file->GetUInt16(); // Widget type.
@@ -961,14 +937,14 @@ bool GuiSprites::LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites)
 		case 96:  sprdata = &this->checkbox; break;
 		case 112: sprdata = &this->radio_button; break;
 		default:
-			return false;
+			rcd_file->Error("Invalid widget type");
 	}
 
 	sprdata->width = 0;
 	sprdata->height = 0;
 	for (uint sprnum = 0; sprnum < WCS_COUNT; sprnum++) {
 		ImageData *spr;
-		if (!LoadSpriteFromFile(rcd_file, sprites, &spr)) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &spr);
 		sprdata->sprites[sprnum] = spr;
 
 		if (spr != nullptr) {
@@ -976,7 +952,6 @@ bool GuiSprites::LoadGCHK(RcdFileReader *rcd_file, const ImageMap &sprites)
 			sprdata->height = std::max(sprdata->height, spr->height);
 		}
 	}
-	return true;
 }
 
 /** Clear sprite data of a slider bar. */
@@ -1005,12 +980,12 @@ bool SliderSpriteData::IsLoaded() const
  * Load slider bar sprite data.
  * @param rcd_file RCD file being loaded.
  * @param sprites Sprites loaded from this file.
- * @return Load was successful.
  * @todo Move widget_type further to the top in the RCD file block.
  */
-bool GuiSprites::LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites)
+void GuiSprites::LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 3 * 1 + 2 + WSS_COUNT * 4) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckExactLength(rcd_file->size, 3 * 1 + 2 + WSS_COUNT * 4, "header");
 
 	uint8 min_length = rcd_file->GetUInt8();
 	uint8 stepsize = rcd_file->GetUInt8();
@@ -1026,7 +1001,7 @@ bool GuiSprites::LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites)
 		case 144: sprdata = &this->vert_slider; shaded = false; break;
 		case 145: sprdata = &this->vert_slider; shaded = true;  break;
 		default:
-			return false;
+			rcd_file->Error("Invalid widget type");
 	}
 
 	sprdata->min_bar_length = min_length;
@@ -1035,12 +1010,11 @@ bool GuiSprites::LoadGSLI(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	for (uint sprnum = 0; sprnum < WSS_COUNT; sprnum++) {
 		if (shaded) {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->shaded[sprnum])) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &sprdata->shaded[sprnum]);
 		} else {
-			if (!LoadSpriteFromFile(rcd_file, sprites, &sprdata->normal[sprnum])) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &sprdata->normal[sprnum]);
 		}
 	}
-	return true;
 }
 
 /** Clear the scrollbar sprite data. */
@@ -1071,13 +1045,13 @@ bool ScrollbarSpriteData::IsLoaded() const
  * Load scroll bar sprite data.
  * @param rcd_file RCD file being loaded.
  * @param sprites Sprites loaded from this file.
- * @return Load was successful.
  * @todo Move widget_type further to the top in the RCD file block.
  * @todo Add width of the scrollbar in the RCD file block.
  */
-bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
+void GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 4 * 1 + 2 + WLS_COUNT * 4) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckExactLength(rcd_file->size, 4 * 1 + 2 + WLS_COUNT * 4, "header");
 
 	uint8 min_length_bar = rcd_file->GetUInt8();
 	uint8 stepsize_back = rcd_file->GetUInt8();
@@ -1095,7 +1069,7 @@ bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
 		case 176: sprdata = &this->vert_scroll; shaded = false; vertical = true;  break;
 		case 177: sprdata = &this->vert_scroll; shaded = true;  vertical = true;  break;
 		default:
-			return false;
+			rcd_file->Error("Invalid widget type");
 	}
 
 	sprdata->min_length_all = min_length_bar;
@@ -1107,7 +1081,7 @@ bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
 	uint16 max_height = 0;
 	for (uint sprnum = 0; sprnum < WLS_COUNT; sprnum++) {
 		ImageData *spr;
-		if (!LoadSpriteFromFile(rcd_file, sprites, &spr)) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &spr);
 
 		if (shaded) {
 			sprdata->shaded[sprnum] = spr;
@@ -1122,7 +1096,6 @@ bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
 	}
 
 	sprdata->height = (vertical) ? max_width : max_height;
-	return true;
 }
 
 /**
@@ -1130,101 +1103,97 @@ bool GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
  * @param rcd_file RCD file being loaded.
  * @param sprites Sprites loaded from this file.
  * @param texts Texts loaded from this file.
- * @return Load was successful.
  */
-bool GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
+	rcd_file->CheckVersion(13);
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
 	 * 4 entries with rotation sprites, 2 button sprites, one entry with a text block.
 	 */
-	if (rcd_file->version != 13 || rcd_file->size !=
+	rcd_file->CheckExactLength(rcd_file->size,
 			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT +
-			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images)) * 4) {
-		return false;
-	}
+			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images)) * 4,
+			"header");
 
 	for (uint i = 0; i < lengthof(indices); i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->slope_select[indices[i]]);
 	}
 	for (uint i = 0; i < TBN_COUNT; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->bend_select[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->bend_select[i]);
 	}
 	for (uint i = 0; i < TPB_COUNT; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->bank_select[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->bank_select[i]);
 	}
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_left)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_right)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_up)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->triangle_down)) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_left);
+	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_right);
+	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_up);
+	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_down);
 	for (uint i = 0; i < 2; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->platform_select[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->platform_select[i]);
 	}
 	for (uint i = 0; i < 2; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->power_select[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->power_select[i]);
 	}
 
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->disabled)) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &this->disabled);
 
 	for (uint i = 0; i < TC_END; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->compass[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->compass[i]);
 	}
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->bulldozer)) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &this->bulldozer);
 	for (uint i = 0; i < WTP_COUNT; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->weather[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->weather[i]);
 	}
 	for (uint i = 0; i < 4; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->lights_rog[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->lights_rog[i]);
 	}
 	for (uint i = 0; i < 3; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->lights_rg[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->lights_rg[i]);
 	}
 
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_pos)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_neg)) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_pos);
+	LoadSpriteFromFile(rcd_file, sprites, &this->rot_2d_neg);
+	LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_pos);
+	LoadSpriteFromFile(rcd_file, sprites, &this->rot_3d_neg);
 
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->close_sprite)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->dot_sprite)) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &this->close_sprite);
+	LoadSpriteFromFile(rcd_file, sprites, &this->dot_sprite);
 
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_goto)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_park)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_guest)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->message_ride_type)) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &this->message_goto);
+	LoadSpriteFromFile(rcd_file, sprites, &this->message_park);
+	LoadSpriteFromFile(rcd_file, sprites, &this->message_guest);
+	LoadSpriteFromFile(rcd_file, sprites, &this->message_ride);
+	LoadSpriteFromFile(rcd_file, sprites, &this->message_ride_type);
 
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_err)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_warn)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_ok)) return false;
+	LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_err);
+	LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_warn);
+	LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_ok);
 
-	for (ImageData *& t : this->toolbar_images) if (!LoadSpriteFromFile(rcd_file, sprites, &t)) return false;
+	for (ImageData *& t : this->toolbar_images) LoadSpriteFromFile(rcd_file, sprites, &t);
 
-	if (!LoadTextFromFile(rcd_file, texts, &this->text)) return false;
+	LoadTextFromFile(rcd_file, texts, &this->text);
 	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
-	return true;
 }
 
 /**
  * Load main menu sprites.
  * @param rcd_file RCD file being loaded.
  * @param sprites Sprites loaded from this file.
- * @return Load was successful.
  */
-bool GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
+void GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcd_file->version != 1 || rcd_file->size != 40 - 12) return false;
+	rcd_file->CheckVersion(1);
+	rcd_file->CheckExactLength(rcd_file->size, 40 - 12, "header");
 
 	this->mainmenu_splash_duration = rcd_file->GetUInt32();
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_logo)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_splash)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_new)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_load)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_settings)) return false;
-	if (!LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_quit)) return false;
-
-	return true;
+	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_logo);
+	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_splash);
+	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_new);
+	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_load);
+	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_settings);
+	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_quit);
 }
 
 /** Default constructor. */
@@ -1368,14 +1337,13 @@ SpriteManager::~SpriteManager()
 /**
  * Load sprites from the disk.
  * @param filename Name of the RCD file to load.
- * @return Error message if load failed, else \c nullptr.
  * @todo Try to re-use already loaded blocks.
  * @todo Code will use last loaded surface as grass.
  */
-const char *SpriteManager::Load(const char *filename)
+void SpriteManager::Load(const char *filename)
 {
 	RcdFileReader rcd_file(filename);
-	if (!rcd_file.CheckFileHeader("RCDF", 2)) return "Bad header";
+	if (!rcd_file.CheckFileHeader("RCDF", 2)) throw LoadingError("Bad header");
 
 	ImageMap sprites; // Sprites loaded from this file.
 	TextMap  texts;   // Texts loaded from this file.
@@ -1383,18 +1351,18 @@ const char *SpriteManager::Load(const char *filename)
 
 	/* Load blocks. */
 	for (uint blk_num = 1;; blk_num++) {
-		if (!rcd_file.ReadBlockHeader()) return nullptr; // End reached.
+		if (!rcd_file.ReadBlockHeader()) return; // End reached.
 
 		/* Skip meta blocks. */
 		if (strcmp(rcd_file.name, "INFO") == 0) {
-			if (!rcd_file.SkipBytes(rcd_file.size)) return "Invalid INFO block.";
+			if (!rcd_file.SkipBytes(rcd_file.size)) throw LoadingError("Invalid INFO block.");
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "8PXL") == 0 || strcmp(rcd_file.name, "32PX") == 0) {
 			ImageData *imd = LoadImage(&rcd_file);
 			if (imd == nullptr) {
-				return "Image data loading failed";
+				throw LoadingError("Image data loading failed.");
 			}
 			std::pair<uint, ImageData *> p(blk_num, imd);
 			sprites.insert(p);
@@ -1402,97 +1370,93 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "SURF") == 0) {
-			if (!this->LoadSURF(&rcd_file, sprites)) return "Surface block loading failed.";
+			this->LoadSURF(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TSEL") == 0) {
-			if (!this->LoadTSEL(&rcd_file, sprites)) return "Tile-selection block loading failed.";
+			this->LoadTSEL(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "PATH") == 0) {
-			if (!this->LoadPATH(&rcd_file, sprites)) return "Path-sprites block loading failed.";
+			this->LoadPATH(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "PDEC") == 0) {
-			if (!this->LoadPDEC(&rcd_file, sprites)) return "Path decoration block loading failed.";
+			this->LoadPDEC(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TCOR") == 0) {
-			if (!this->LoadTCOR(&rcd_file, sprites)) return "Tile-corners block loading failed.";
+			this->LoadTCOR(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "FENC") == 0) {
 			std::unique_ptr<Fence> block(new Fence);
-			if (!block->Load(&rcd_file, sprites)) {
-				return "Fence block loading failed.";
-			}
+			block->Load(&rcd_file, sprites);
 			this->store.AddFence(block.get());
 			this->AddBlock(std::move(block));
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "FUND") == 0) {
-			if (!this->LoadFUND(&rcd_file, sprites)) return "Foundation block loading failed.";
+			this->LoadFUND(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "PLAT") == 0) {
-			if (!this->LoadPLAT(&rcd_file, sprites)) return "Platform block loading failed.";
+			this->LoadPLAT(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "SUPP") == 0) {
-			if (!this->LoadSUPP(&rcd_file, sprites)) return "Support block loading failed.";
+			this->LoadSUPP(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "BDIR") == 0) {
-			if (!this->LoadBDIR(&rcd_file, sprites)) return "Build arrows block loading failed.";
+			this->LoadBDIR(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GCHK") == 0) {
-			if (!_gui_sprites.LoadGCHK(&rcd_file, sprites)) return "Loading Checkable GUI sprites failed.";
+			_gui_sprites.LoadGCHK(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GBOR") == 0) {
-			if (!_gui_sprites.LoadGBOR(&rcd_file, sprites)) return "Loading Border GUI sprites failed.";
+			_gui_sprites.LoadGBOR(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GSLI") == 0) {
-			if (!_gui_sprites.LoadGSLI(&rcd_file, sprites)) return "Loading Slider bar GUI sprites failed.";
+			_gui_sprites.LoadGSLI(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GSCL") == 0) {
-			if (!_gui_sprites.LoadGSCL(&rcd_file, sprites)) return "Loading Scrollbar GUI sprites failed.";
+			_gui_sprites.LoadGSCL(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "GSLP") == 0) {
-			if (!_gui_sprites.LoadGSLP(&rcd_file, sprites, texts)) return "Loading slope selection GUI sprites failed.";
+			_gui_sprites.LoadGSLP(&rcd_file, sprites, texts);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "MENU") == 0) {
-			if (!_gui_sprites.LoadMENU(&rcd_file, sprites)) return "Loading main menu sprites failed.";
+			_gui_sprites.LoadMENU(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "ANIM") == 0) {
 			std::unique_ptr<Animation> anim(new Animation);
-			if (!anim->Load(&rcd_file)) {
-				return "Animation failed to load.";
-			}
+			anim->Load(&rcd_file);
 			if (anim->person_type == PERSON_INVALID || anim->anim_type == ANIM_INVALID) {
-				return "Unknown animation.";
+				throw LoadingError("ANIM: Unknown animation.");
 			}
 			this->AddAnimation(anim.get());
 			this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
@@ -1501,12 +1465,10 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "ANSP") == 0) {
-			std::unique_ptr<AnimationSprites> an_spr (new AnimationSprites);
-			if (!an_spr->Load(&rcd_file, sprites)) {
-				return "Animation sprites failed to load.";
-			}
+			std::unique_ptr<AnimationSprites> an_spr(new AnimationSprites);
+			an_spr->Load(&rcd_file, sprites);
 			if (an_spr->person_type == PERSON_INVALID || an_spr->anim_type == ANIM_INVALID) {
-				return "Unknown animation.";
+				throw LoadingError("ANSP: Unknown animation.");
 			}
 			this->store.AddAnimationSprites(an_spr.get());
 			this->AddBlock(std::move(an_spr));
@@ -1514,15 +1476,13 @@ const char *SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "PRSG") == 0) {
-			if (!LoadPRSG(&rcd_file)) return "Graphics Person type data failed to load.";
+			LoadPRSG(&rcd_file);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TEXT") == 0) {
 			std::unique_ptr<TextData> txt(new TextData);
-			if (!txt->Load(&rcd_file)) {
-				return "Text block failed to load.";
-			}
+			txt->Load(&rcd_file);
 			texts.insert(std::make_pair(blk_num, txt.get()));
 			this->AddBlock(std::move(txt));
 			continue;
@@ -1530,101 +1490,75 @@ const char *SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "SHOP") == 0) {
 			std::unique_ptr<ShopType> shop_type(new ShopType);
-			if (!shop_type->Load(&rcd_file, sprites, texts)) {
-				return "Shop type failed to load.";
-			}
-			if (!_rides_manager.AddRideType(std::move(shop_type))) {
-				return "Shop type could not be added.";
-			}
+			shop_type->Load(&rcd_file, sprites, texts);
+			_rides_manager.AddRideType(std::move(shop_type));
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "FSET") == 0) {
 			std::unique_ptr<FrameSet> fset(new FrameSet);
-			if (!fset->Load(&rcd_file, sprites)) {
-				return "Frame set failed to load.";
-			}
+			fset->Load(&rcd_file, sprites);
 			this->store.frame_sets[ImageSetKey(filename, blk_num)] = std::move(fset);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TIMA") == 0) {
 			std::unique_ptr<TimedAnimation> anim(new TimedAnimation);
-			if (!anim->Load(&rcd_file, sprites)) {
-				return "Timed animation failed to load.";
-			}
+			anim->Load(&rcd_file, sprites);
 			this->store.timed_animations[ImageSetKey(filename, blk_num)] = std::move(anim);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "SCNY") == 0) {
 			std::unique_ptr<SceneryType> s(new SceneryType);
-			if (!s->Load(&rcd_file, sprites, texts)) {
-				return "Scenery type failed to load.";
-			}
-			if (!_scenery.AddSceneryType(s)) {
-				return "Scenery type could not be added.";
-			}
+			s->Load(&rcd_file, sprites, texts);
+			_scenery.AddSceneryType(s);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "RIEE") == 0) {
 			std::unique_ptr<RideEntranceExitType> e(new RideEntranceExitType);
-			if (!e->Load(&rcd_file, sprites, texts)) {
-				return "Entrance/Exit failed to load.";
-			}
-			if (!_rides_manager.AddRideEntranceExitType(e)) {
-				return "Entrance/Exit could not be added.";
-			}
+			e->Load(&rcd_file, sprites, texts);
+			_rides_manager.AddRideEntranceExitType(e);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "FGTR") == 0) {
 			std::unique_ptr<GentleThrillRideType> ride_type(new GentleThrillRideType);
-			if (!ride_type->Load(&rcd_file, sprites, texts)) {
-				return "Gentle/Thrill ride type failed to load.";
-			}
-			if (!_rides_manager.AddRideType(std::move(ride_type))) {
-				return "Gentle/Thrill type could not be added.";
-			}
+			ride_type->Load(&rcd_file, sprites, texts);
+			_rides_manager.AddRideType(std::move(ride_type));
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TRCK") == 0) {
 			auto tp = std::make_shared<TrackPiece>();
-			if (!tp->Load(&rcd_file, sprites)) {
-				return "Track piece failed to load.";
-			}
+			tp->Load(&rcd_file, sprites);
 			track_pieces.insert({blk_num, tp});
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "RCST") == 0) {
 			std::unique_ptr<CoasterType> ct(new CoasterType);
-			if (!ct->Load(&rcd_file, texts, track_pieces)) {
-				return "Coaster type failed to load.";
-			}
-			if (!_rides_manager.AddRideType(std::move(ct))) {
-				return "Coaster type could not be added.";
-			}
+			ct->Load(&rcd_file, texts, track_pieces);
+			_rides_manager.AddRideType(std::move(ct));
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "CSPL") == 0) {
-			if (!LoadCoasterPlatform(&rcd_file, sprites)) return "Coaster platform failed to load.";
+			LoadCoasterPlatform(&rcd_file, sprites);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "CARS") == 0) {
 			CarType *ct = GetNewCarType();
-			if (ct == nullptr) return "No room to store a car type.";
-			if (!ct->Load(&rcd_file, sprites)) return "Car type failed to load.";
+			if (ct == nullptr) throw LoadingError("No room to store a car type.");
+			ct->Load(&rcd_file, sprites);
 			continue;
 		}
 
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", rcd_file.name, rcd_file.version);
-		if (!rcd_file.SkipBytes(rcd_file.size)) return "Error skipping unknown block.";
+		if (!rcd_file.SkipBytes(rcd_file.size)) throw LoadingError("Error skipping unknown block.");
 	}
 }
 
@@ -1644,8 +1578,11 @@ void SpriteManager::LoadRcdFiles()
 {
 	for (auto &entry : _rcd_collection.rcdfiles) {
 		const char *fname = entry.second.path.c_str();
-		const char *mesg = this->Load(fname);
-		if (mesg != nullptr) fprintf(stderr, "Error while reading \"%s\": %s\n", fname, mesg);
+		try {
+			this->Load(fname);
+		} catch (const LoadingError &e) {
+			fprintf(stderr, "Error while reading \"%s\": %s\n", fname, e.what());
+		}
 	}
 }
 

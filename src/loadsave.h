@@ -13,20 +13,11 @@
 #include <ctime>
 #include <memory>
 #include <vector>
+#include "fileio.h"
 
 struct Scenario;
 
 static const std::string SAVEGAME_DIRECTORY("save");  ///< The directory where savegames are stored, relative to the user data directory.
-
-/** An error that occurs while loading a savegame. */
-struct LoadingError : public std::exception {
-	explicit LoadingError(const char *fmt, ...);
-
-	const char* what() const noexcept override;
-
-private:
-	std::string message;
-};
 
 /** Class for loading a save game. */
 class Loader {
@@ -42,7 +33,7 @@ public:
 	uint64 GetLongLong();
 	std::string GetText();
 
-	void version_mismatch(uint saved_version, uint current_version);
+	void VersionMismatch(uint saved_version, uint current_version);
 
 private:
 	void PutByte(uint8 val);

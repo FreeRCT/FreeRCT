@@ -49,47 +49,50 @@ CarType::CarType()
 
 /**
  * Load the data of a CARS block from file.
- * @param rcdfile Data file being loaded.
+ * @param rcd_file Data file being loaded.
  * @param sprites Already loaded sprites.
- * @return Loading was a success.
  */
-bool CarType::Load(RcdFileReader *rcdfile, const ImageMap &sprites)
+void CarType::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcdfile->version != 3 || rcdfile->size < 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3) return false;
+	rcd_file->CheckVersion(3);
+	int length = rcd_file->size;
+	length -= 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3;
+	rcd_file->CheckMinLength(length, 0, "header");
 
-	this->tile_width = rcdfile->GetUInt16();
-	if (this->tile_width != 64) return false; // Do not allow anything else than 64 pixels tile width.
+	this->tile_width = rcd_file->GetUInt16();
+	if (this->tile_width != 64) rcd_file->Error("Unsupported tile width %d", this->tile_width);  // Do not allow anything else than 64 pixels tile width.
 
-	this->z_height = rcdfile->GetUInt16();
-	if (this->z_height != this->tile_width / 4) return false;
+	this->z_height = rcd_file->GetUInt16();
+	if (this->z_height != this->tile_width / 4) rcd_file->Error("Wrong Z height");
 
-	this->car_length = rcdfile->GetUInt32();
-	if (this->car_length > 65535) return false; // Assumption is that a car fits in a single tile, at least some of the time.
+	this->car_length = rcd_file->GetUInt32();
+	if (this->car_length > 65535) rcd_file->Error("Car too long");  // Assumption is that a car fits in a single tile, at least some of the time.
 
-	this->inter_car_length = rcdfile->GetUInt32();
-	this->num_passengers = rcdfile->GetUInt16();
-	this->num_entrances = rcdfile->GetUInt16();
-	if (this->num_entrances == 0 || this->num_entrances > 4) return false; // Seems like a nice arbitrary upper limit on the number of rows of a car.
+	this->inter_car_length = rcd_file->GetUInt32();
+	this->num_passengers = rcd_file->GetUInt16();
+	this->num_entrances = rcd_file->GetUInt16();
+	if (this->num_entrances == 0 || this->num_entrances > 4) {
+		rcd_file->Error("Invalid number of entrances");  // Seems like a nice arbitrary upper limit on the number of rows of a car.
+	}
 	uint16 pass_per_row = this->num_passengers / this->num_entrances;
-	if (this->num_passengers != pass_per_row * this->num_entrances) return false;
+	if (this->num_passengers != pass_per_row * this->num_entrances) rcd_file->Error("Passenger counts don't match up");
 
 	for (uint i = 0; i < 4096; i++) {
-		if (!LoadSpriteFromFile(rcdfile, sprites, &this->cars[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->cars[i]);
 	}
 
-	if (this->cars[0] == nullptr) return false;
+	if (this->cars[0] == nullptr) rcd_file->Error("No car type");
 	const int64 nr_overlays = 4096 * this->num_passengers;
-	if (rcdfile->size != 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3 + 4 * nr_overlays) return false;
+	rcd_file->CheckExactLength(length, 4 * nr_overlays, "guest overlays");
 	this->guest_overlays.reset(new ImageData*[nr_overlays]);
 	for (int64 i = 0; i < nr_overlays; i++) {
-		if (!LoadSpriteFromFile(rcdfile, sprites, &this->guest_overlays[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->guest_overlays[i]);
 	}
 
 	for (int i = 0; i < 3; i++) {
-		uint32 recolour = rcdfile->GetUInt32();
+		uint32 recolour = rcd_file->GetUInt32();
 		this->recolours.Set(i, RecolourEntry(recolour));
 	}
-	return true;
 }
 
 CoasterType::CoasterType() : RideType(RTK_COASTER)
@@ -105,13 +108,13 @@ CoasterType::~CoasterType()
  * @param rcd_file Data file being loaded.
  * @param texts Already loaded text blocks.
  * @param piece_map Already loaded track pieces.
- * @return Loading was successful.
  */
-bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map)
+void CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map)
 {
+	rcd_file->CheckVersion(7);
 	int length = rcd_file->size;
 	length -= 2 + 1 + 1 + 1 + 4 + 2 + 6;
-	if (rcd_file->version != 7 || length <= 0) return false;
+	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->coaster_kind = rcd_file->GetUInt16();
 	this->platform_type = rcd_file->GetUInt8();
@@ -120,28 +123,28 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	this->reliability_max = rcd_file->GetUInt16();
 	this->reliability_decrease_daily = rcd_file->GetUInt16();
 	this->reliability_decrease_monthly = rcd_file->GetUInt16();
-	if (this->coaster_kind == 0 || this->coaster_kind >= CST_COUNT) return false;
-	if (this->platform_type == 0 || this->platform_type >= CPT_COUNT) return false;
+	if (this->coaster_kind == 0 || this->coaster_kind >= CST_COUNT) rcd_file->Error("Invalid coaster kind");
+	if (this->platform_type == 0 || this->platform_type >= CPT_COUNT) rcd_file->Error("Invalid platform type");
 
 	this->item_type[0] = ITP_RIDE;
 	this->item_cost[0] = 100;  // Entrance fee. \todo Read this from the RCD file.
 	this->item_cost[1] = 0;    // Unused.
 
 	TextData *text_data;
-	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	LoadTextFromFile(rcd_file, texts, &text_data);
 	StringID base = _language.RegisterStrings(*text_data, _coasters_strings_table);
 	this->SetupStrings(text_data, base, STR_GENERIC_COASTER_START, COASTERS_STRING_TABLE_END, COASTERS_NAME_TYPE, COASTERS_DESCRIPTION_TYPE);
 
 	int piece_count = rcd_file->GetUInt16();
 	length -= 4 * piece_count;
-	if (length < 0) return false;
+	rcd_file->CheckMinLength(length, 0, "pieces");
 
 	this->pieces.resize(piece_count);
 	for (auto &piece : this->pieces) {
 		uint32 val = rcd_file->GetUInt32();
-		if (val == 0) return false; // We don't expect missing track pieces (they should not be included at all).
+		if (val == 0) rcd_file->Error("Empty track piece");  // We don't expect missing track pieces (they should not be included at all).
 		auto iter = piece_map.find(val);
-		if (iter == piece_map.end()) return false;
+		if (iter == piece_map.end()) rcd_file->Error("Track piece not found");
 		piece = (*iter).second;
 	}
 	/* Setup a track voxel list for fast access in the type. */
@@ -152,8 +155,7 @@ bool CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	}
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
-	return true;
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 /**
@@ -213,31 +215,31 @@ CoasterPlatform::CoasterPlatform()
 
 /**
  * Load a coaster platform (CSPL) block.
- * @param rcdfile Data file being loaded.
+ * @param rcd_file Data file being loaded.
  * @param sprites Sprites already loaded from the RCD file.
- * @return Loading the CSPL block succeeded.
  */
-bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites)
+void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	if (rcdfile->version != 2 || rcdfile->size != 2 + 1 + 8 * 4) return false;
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckExactLength(rcd_file->size, 2 + 1 + 8 * 4, "header");
 
-	uint16 width = rcdfile->GetUInt16();
-	uint8 type = rcdfile->GetUInt8();
-	if (width != 64 || type >= CPT_COUNT) return false;
+	uint16 width = rcd_file->GetUInt16();
+	if (width != 64) rcd_file->Error("Wrong width");
+	uint8 type = rcd_file->GetUInt8();
+	if (type >= CPT_COUNT) rcd_file->Error("Unknown type");
 
 	CoasterPlatform &platform = _coaster_platforms[type];
 	platform.tile_width = width;
 	platform.type = static_cast<CoasterPlatformType>(type);
 
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.ne_sw_back))  return false;
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.ne_sw_front)) return false;
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.se_nw_back))  return false;
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.se_nw_front)) return false;
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.sw_ne_back))  return false;
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.sw_ne_front)) return false;
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.nw_se_back))  return false;
-	if (!LoadSpriteFromFile(rcdfile, sprites, &platform.nw_se_front)) return false;
-	return true;
+	LoadSpriteFromFile(rcd_file, sprites, &platform.ne_sw_back);
+	LoadSpriteFromFile(rcd_file, sprites, &platform.ne_sw_front);
+	LoadSpriteFromFile(rcd_file, sprites, &platform.se_nw_back);
+	LoadSpriteFromFile(rcd_file, sprites, &platform.se_nw_front);
+	LoadSpriteFromFile(rcd_file, sprites, &platform.sw_ne_back);
+	LoadSpriteFromFile(rcd_file, sprites, &platform.sw_ne_front);
+	LoadSpriteFromFile(rcd_file, sprites, &platform.nw_se_back);
+	LoadSpriteFromFile(rcd_file, sprites, &platform.nw_se_front);
 }
 
 DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff) // Mark everything as invalid.
@@ -320,7 +322,7 @@ static const uint32 CURRENT_VERSION_CoasterInstance   = 1;   ///< Currently supp
 void DisplayCoasterCar::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("dpcc");
-	if (version != CURRENT_VERSION_DisplayCoasterCar) ldr.version_mismatch(version, CURRENT_VERSION_DisplayCoasterCar);
+	if (version != CURRENT_VERSION_DisplayCoasterCar) ldr.VersionMismatch(version, CURRENT_VERSION_DisplayCoasterCar);
 	this->VoxelObject::Load(ldr);
 
 	this->pitch = ldr.GetByte();
@@ -351,7 +353,7 @@ void DisplayCoasterCar::Save(Saver &svr)
 void CoasterCar::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("cstc");
-	if (version != CURRENT_VERSION_CoasterCar) ldr.version_mismatch(version, CURRENT_VERSION_CoasterCar);
+	if (version != CURRENT_VERSION_CoasterCar) ldr.VersionMismatch(version, CURRENT_VERSION_CoasterCar);
 
 	this->front.Load(ldr);
 	this->back.Load(ldr);
@@ -715,7 +717,7 @@ void CoasterTrain::OnAnimate(int delay)
 void CoasterTrain::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("cstt");
-	if (version != CURRENT_VERSION_CoasterTrain) ldr.version_mismatch(version, CURRENT_VERSION_CoasterTrain);
+	if (version != CURRENT_VERSION_CoasterTrain) ldr.VersionMismatch(version, CURRENT_VERSION_CoasterTrain);
 
 	for (std::vector<CoasterCar>::iterator it = this->cars.begin(); it != this->cars.end(); ++it) {
 		it->Load(ldr);
@@ -1818,7 +1820,7 @@ void CoasterInstance::RecalculateRatings()
 void CoasterInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("csti");
-	if (version != CURRENT_VERSION_CoasterInstance) ldr.version_mismatch(version, CURRENT_VERSION_CoasterInstance);
+	if (version != CURRENT_VERSION_CoasterInstance) ldr.VersionMismatch(version, CURRENT_VERSION_CoasterInstance);
 	this->RideInstance::Load(ldr);
 
 	this->capacity = (int)ldr.GetLong();

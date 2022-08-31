@@ -192,7 +192,7 @@ void Scenario::Load(Loader &ldr)
 			break;
 
 		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_SCNO);
+			ldr.VersionMismatch(version, CURRENT_VERSION_SCNO);
 	}
 	ldr.ClosePattern();
 }
@@ -255,7 +255,7 @@ static std::shared_ptr<AbstractObjective> LoadObjective(Loader &ldr)
 void AbstractObjective::Load(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("OJAO");
-	if (version > CURRENT_VERSION_OJAO) ldr.version_mismatch(version, CURRENT_VERSION_OJAO);
+	if (version > CURRENT_VERSION_OJAO) ldr.VersionMismatch(version, CURRENT_VERSION_OJAO);
 	this->is_fulfilled = ldr.GetByte();
 	this->drop_policy.days_after_drop = ldr.GetLong();
 	this->drop_policy.drop_counter = ldr.GetLong();
@@ -278,7 +278,7 @@ void AbstractObjective::Save(Saver &svr)
 void ScenarioObjective::Load(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("OJCN");
-	if (version > CURRENT_VERSION_OJCN) ldr.version_mismatch(version, CURRENT_VERSION_OJCN);
+	if (version > CURRENT_VERSION_OJCN) ldr.VersionMismatch(version, CURRENT_VERSION_OJCN);
 	AbstractObjective::Load(ldr);
 
 	this->timeout_policy = static_cast<ObjectiveTimeoutPolicy>(ldr.GetByte());
@@ -309,7 +309,7 @@ void ScenarioObjective::Save(Saver &svr)
 void ObjectiveNone::Load(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("OJ00");
-	if (version > CURRENT_VERSION_OJ00) ldr.version_mismatch(version, CURRENT_VERSION_OJ00);
+	if (version > CURRENT_VERSION_OJ00) ldr.VersionMismatch(version, CURRENT_VERSION_OJ00);
 	AbstractObjective::Load(ldr);
 	ldr.ClosePattern();
 }
@@ -324,7 +324,7 @@ void ObjectiveNone::Save(Saver &svr)
 void ObjectiveGuests::Load(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("OJGU");
-	if (version > CURRENT_VERSION_OJGU) ldr.version_mismatch(version, CURRENT_VERSION_OJGU);
+	if (version > CURRENT_VERSION_OJGU) ldr.VersionMismatch(version, CURRENT_VERSION_OJGU);
 	AbstractObjective::Load(ldr);
 	this->nr_guests = ldr.GetLong();
 	ldr.ClosePattern();
@@ -341,7 +341,7 @@ void ObjectiveGuests::Save(Saver &svr)
 void ObjectiveParkRating::Load(Loader &ldr)
 {
 	uint32 version = ldr.OpenPattern("OJRT");
-	if (version > CURRENT_VERSION_OJRT) ldr.version_mismatch(version, CURRENT_VERSION_OJRT);
+	if (version > CURRENT_VERSION_OJRT) ldr.VersionMismatch(version, CURRENT_VERSION_OJRT);
 	AbstractObjective::Load(ldr);
 	this->rating = ldr.GetWord();
 	ldr.ClosePattern();

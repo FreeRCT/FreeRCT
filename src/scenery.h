@@ -37,7 +37,7 @@ class SceneryType {
 public:
 	SceneryType();
 
-	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
+	void Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
 	std::string internal_name; ///< Unique internal name of the scenery item type.
 	SceneryCategory category;  ///< Category of scenery.
@@ -194,7 +194,7 @@ class SceneryManager {
 public:
 	SceneryManager();
 
-	bool AddSceneryType(std::unique_ptr<SceneryType> &type);
+	void AddSceneryType(std::unique_ptr<SceneryType> &type);
 	uint16 GetSceneryTypeIndex(const SceneryType *type) const;
 	const SceneryType *GetType(uint16 index) const;
 	const SceneryType *GetType(const std::string &internal_name) const;

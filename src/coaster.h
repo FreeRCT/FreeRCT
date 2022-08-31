@@ -39,7 +39,7 @@ class CarType {
 public:
 	CarType();
 
-	bool Load(RcdFileReader *rcdfile, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 	/**
 	 * Retrieve an image of the car at a given \a pitch, \a roll, and \a yaw orientation.
@@ -89,7 +89,7 @@ public:
 	const ImageData *GetView(uint8 orientation) const override;
 	const StringID *GetInstanceNames() const override;
 
-	bool Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map);
+	void Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map);
 
 	int GetTrackVoxelIndex(const TrackVoxel *tvx) const;
 
@@ -325,6 +325,6 @@ public:
 	std::map<uint32, CoasterIntensityStatistics> intensity_statistics;  ///< Intensity along the track.
 };
 
-bool LoadCoasterPlatform(RcdFileReader *rcdfile, const ImageMap &sprites);
+void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites);
 
 #endif

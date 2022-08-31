@@ -11,9 +11,9 @@
  * @defgroup fileio_group File IO
  */
 
+#include <cstdarg>
 #include "stdafx.h"
 #include "fileio.h"
-#include "string_func.h"
 #include "rev.h"
 #ifdef LINUX
 	#include "unix/fileio_unix.h"
@@ -26,6 +26,29 @@
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
+
+/**
+ * Constructor.
+ * @param fmt Error message (may use printf-style placeholders).
+ */
+LoadingError::LoadingError(const char *fmt, ...)
+{
+	char buffer[1024];
+	va_list va;
+	va_start(va, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, va);
+	va_end(va);
+	this->message = buffer;
+}
+
+/**
+ * Retrieve the description of the error.
+ * @return The error message.
+ */
+const char* LoadingError::what() const noexcept
+{
+	return this->message.c_str();
+}
 
 /**
  * @fn void DirectoryReader::OpenPath(const char *path)
@@ -125,6 +148,42 @@ RcdFileReader::~RcdFileReader()
 {
 	if (this->fp != nullptr) fclose(fp);
 }
+
+/**
+ * Check whether the version of the current block is supported by this revision of FreeRCT, and throw an exception if this is not the case.
+ * @param current_version The currently supported version.
+ * @pre Must be inside a block.
+ */
+void RcdFileReader::CheckVersion(uint32 current_version)
+{
+	if (this->version != current_version) this->Error("Version mismatch: Found version %u, supported version is %u", this->version, current_version);
+}
+
+/**
+ * Check whether the remaining length of the block is greater than or equal to a given minimum length, and throw an exception if this is not the case.
+ * @param length Remaining length in the block.
+ * @param required Required minimum length.
+ * @param what Error description if the check fails.
+ * @pre Must be inside a block.
+ */
+void RcdFileReader::CheckMinLength(int length, int required, const char *what)
+{
+	if (length < required) this->Error("Length too short for %s (at least %d bytes missing)", what, required - length);
+}
+
+/**
+ * Check whether the remaining length of the block is equal to a given expected length, and throw an exception if this is not the case.
+ * @param length Remaining length in the block.
+ * @param required Expected remaining length.
+ * @param what Error description if the check fails.
+ * @pre Must be inside a block.
+ */
+void RcdFileReader::CheckExactLength(int length, int required, const char *what)
+{
+	if (length < required) this->Error("Length mismatch at %s (%d bytes missing)", what, required - length);
+	if (length > required) this->Error("Length mismatch at %s (%d trailing bytes)", what, length - required);
+}
+
 
 /**
  * Get length of data not yet read.

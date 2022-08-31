@@ -151,7 +151,7 @@ static const uint32 CURRENT_VERSION_Message = 1;  ///< Currently supported versi
 void Message::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("mssg");
-	if (version != CURRENT_VERSION_Message) ldr.version_mismatch(version, CURRENT_VERSION_Message);
+	if (version != CURRENT_VERSION_Message) ldr.VersionMismatch(version, CURRENT_VERSION_Message);
 
 	this->message = GUI_INBOX_TITLE + ldr.GetWord();
 	this->data1 = ldr.GetLong();
@@ -268,7 +268,7 @@ void Inbox::Load(Loader &ldr)
 			break;
 
 		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_INBX);
+			ldr.VersionMismatch(version, CURRENT_VERSION_INBX);
 	}
 	ldr.ClosePattern();
 }

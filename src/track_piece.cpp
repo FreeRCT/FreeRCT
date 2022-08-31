@@ -29,22 +29,20 @@ TrackVoxel::~TrackVoxel()
  * @param rcd_file Data file being loaded.
  * @param length Length of the voxel (according to the file).
  * @param sprites Already loaded sprite blocks.
- * @return Loading was successful.
  */
-bool TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+void TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
 {
-	if (length != 4 * 4 + 4 * 4 + 3 + 1) return false;
+	rcd_file->CheckExactLength(length, 4 * 4 + 4 * 4 + 3 + 1, "track voxel");
 	for (uint i = 0; i < 4; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->back[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->back[i]);
 	}
 	for (uint i = 0; i < 4; i++) {
-		if (!LoadSpriteFromFile(rcd_file, sprites, &this->front[i])) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &this->front[i]);
 	}
 	this->dxyz.x = rcd_file->GetInt8();
 	this->dxyz.y = rcd_file->GetInt8();
 	this->dxyz.z = rcd_file->GetInt8();
 	this->flags = rcd_file->GetUInt8();
-	return true;
 }
 
 TrackCurve::TrackCurve()
@@ -89,17 +87,17 @@ BezierTrackCurve::BezierTrackCurve()
 
 /**
  * Load the data of a Bezier spline into a #BezierTrackCurve.
- * @param rcdfile Data file to load from. Caller must ensure there is enough data available at the stream.
+ * @param rcd_file Data file to load from. Caller must ensure there is enough data available at the stream.
  * @return The Loaded Bezier spline.
  */
-static CubicBezier LoadBezier(RcdFileReader *rcdfile)
+static CubicBezier LoadBezier(RcdFileReader *rcd_file)
 {
-	uint32 start = rcdfile->GetUInt32();
-	uint32 last = rcdfile->GetUInt32();
-	int16 a = rcdfile->GetInt16();
-	int16 b = rcdfile->GetInt16();
-	int16 c = rcdfile->GetInt16();
-	int16 d = rcdfile->GetInt16();
+	uint32 start = rcd_file->GetUInt32();
+	uint32 last = rcd_file->GetUInt32();
+	int16 a = rcd_file->GetInt16();
+	int16 b = rcd_file->GetInt16();
+	int16 c = rcd_file->GetInt16();
+	int16 d = rcd_file->GetInt16();
 	return CubicBezier(start, last, a, b, c, d);
 }
 
@@ -111,47 +109,45 @@ static CubicBezier LoadBezier(RcdFileReader *rcdfile)
 
 /**
  * Load a track curve.
- * @param rcdfile Data file being loaded.
+ * @param rcd_file Data file being loaded.
  * @param curve [out] The loaded track curve, may be \c nullptr (which indicates a not supplied track curve).
  * @param length [inout] Length of the block that is not loaded yet.
- * @return Reading was a success (might have failed due to not enough data).
  */
-static bool LoadTrackCurve(RcdFileReader *rcdfile, std::unique_ptr<TrackCurve> *curve, uint32 *length)
+static void LoadTrackCurve(RcdFileReader *rcd_file, std::unique_ptr<TrackCurve> *curve, int *length)
 {
-#define ENSURE_LENGTH(x) do { if (*length < (x)) { *curve = nullptr; return false; } *length -= (x); } while(false)
+#define ENSURE_LENGTH(x) do { *length -= (x); rcd_file->CheckMinLength(*length, 0, "curve"); } while(false)
 
 	ENSURE_LENGTH(1);
-	uint8 type = rcdfile->GetUInt8();
+	uint8 type = rcd_file->GetUInt8();
 	switch (type) {
 		case 0: // No track curve available.
 			*curve = nullptr;
-			return true;
+			return;
 
 		case 1: { // Curve consisting of a fixed value.
 			ENSURE_LENGTH(2);
-			int value = rcdfile->GetInt16();
+			int value = rcd_file->GetInt16();
 			curve->reset(new ConstantTrackCurve(value));
-			return true;
+			return;
 		}
 
 		case 2: {
 			ENSURE_LENGTH(1);
-			int count = rcdfile->GetUInt8();
+			int count = rcd_file->GetUInt8();
 			ENSURE_LENGTH(count * 16u);
 			BezierTrackCurve *bezier = new BezierTrackCurve();
 			bezier->curve.reserve(count);
 			for (; count > 0; count--) {
-				bezier->curve.push_back(LoadBezier(rcdfile));
+				bezier->curve.push_back(LoadBezier(rcd_file));
 			}
 			bezier->curve.shrink_to_fit();
 			curve->reset(bezier);
-			return true;
+			return;
 		}
 
 		default: // Error.
-			fprintf(stderr, "Unexpected curve type %u.\n", type);
 			*curve = nullptr;
-			return false;
+			rcd_file->Error("Unexpected curve type %u.", type);
 	}
 #undef ENSURE_LENGTH
 }
@@ -187,13 +183,13 @@ void TrackPiece::RemoveFromWorld([[maybe_unused]] const uint16 ride_index, const
  * Load a track piece.
  * @param rcd_file Data file being loaded.
  * @param sprites Already loaded sprite blocks.
- * @return Loading was successful.
  */
-bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+void TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	uint32 length = rcd_file->size;
-	if (rcd_file->version != 5 || length < 2 + 3 + 1 + 2 + 4 + 2) return false;
+	rcd_file->CheckVersion(5);
+	int length = rcd_file->size;
 	length -= 2 + 3 + 1 + 2 + 4 + 2;
+	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->entry_connect = rcd_file->GetUInt8();
 	this->exit_connect  = rcd_file->GetUInt8();
@@ -205,26 +201,27 @@ bool TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	this->cost = rcd_file->GetUInt32();
 	uint16 voxel_count = rcd_file->GetUInt16();
 
-	if (length < 36u * voxel_count) return false;
 	length -= 36u * voxel_count;
+	rcd_file->CheckMinLength(length, 0, "voxels");
 
 	for (uint16 i = 0; i < voxel_count; i++) {
 		this->track_voxels.emplace_back(new TrackVoxel);
-		if (!this->track_voxels.back()->Load(rcd_file, 36, sprites)) return false;
+		this->track_voxels.back()->Load(rcd_file, 36, sprites);
 	}
-	if (length < 4u) return false;
 	length -= 4;
+	rcd_file->CheckMinLength(length, 0, "pieces");
 	this->piece_length = rcd_file->GetUInt32();
 
-	bool ok = true;
-	ok = ok && LoadTrackCurve(rcd_file, &this->car_xpos,  &length);
-	ok = ok && LoadTrackCurve(rcd_file, &this->car_ypos,  &length);
-	ok = ok && LoadTrackCurve(rcd_file, &this->car_zpos,  &length);
-	ok = ok && LoadTrackCurve(rcd_file, &this->car_pitch, &length);
-	ok = ok && LoadTrackCurve(rcd_file, &this->car_roll,  &length);
-	ok = ok && LoadTrackCurve(rcd_file, &this->car_yaw,   &length);
-	if (!ok || this->car_xpos == nullptr || this->car_ypos == nullptr || this->car_zpos == nullptr || this->car_roll == nullptr) return false;
-	return length == 0;
+	LoadTrackCurve(rcd_file, &this->car_xpos,  &length);
+	LoadTrackCurve(rcd_file, &this->car_ypos,  &length);
+	LoadTrackCurve(rcd_file, &this->car_zpos,  &length);
+	LoadTrackCurve(rcd_file, &this->car_pitch, &length);
+	LoadTrackCurve(rcd_file, &this->car_roll,  &length);
+	LoadTrackCurve(rcd_file, &this->car_yaw,   &length);
+	if (this->car_xpos == nullptr || this->car_ypos == nullptr || this->car_zpos == nullptr || this->car_roll == nullptr) {
+		rcd_file->Error("Car sprites missing");
+	}
+	rcd_file->CheckExactLength(length, 0, "end of block");
 }
 
 /**
@@ -321,7 +318,7 @@ static const uint32 CURRENT_VERSION_PositionedTrackPiece = 1;   ///< Currently s
 void PositionedTrackPiece::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("pstp");
-	if (version != CURRENT_VERSION_PositionedTrackPiece) ldr.version_mismatch(version, CURRENT_VERSION_PositionedTrackPiece);
+	if (version != CURRENT_VERSION_PositionedTrackPiece) ldr.VersionMismatch(version, CURRENT_VERSION_PositionedTrackPiece);
 
 	uint16 x = ldr.GetWord();
 	uint16 y = ldr.GetWord();

@@ -20,7 +20,7 @@ public:
 	GentleThrillRideType();
 	~GentleThrillRideType();
 
-	bool Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
+	void Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 	FixedRideType::RideCapacity GetRideCapacity() const override;
 
 	const StringID *GetInstanceNames() const override;

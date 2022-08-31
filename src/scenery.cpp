@@ -437,7 +437,7 @@ static const uint32 CURRENT_VERSION_PathObjectInstance = 1;   ///< Currently sup
 void PathObjectInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("pobj");
-	if (version != CURRENT_VERSION_PathObjectInstance) ldr.version_mismatch(version, CURRENT_VERSION_PathObjectInstance);
+	if (version != CURRENT_VERSION_PathObjectInstance) ldr.VersionMismatch(version, CURRENT_VERSION_PathObjectInstance);
 	this->pix_pos.x = ldr.GetWord();
 	this->pix_pos.y = ldr.GetWord();
 	this->pix_pos.z = ldr.GetWord();
@@ -479,19 +479,19 @@ SceneryType::SceneryType()
  * @param rcd_file Rcd file being loaded.
  * @param sprites Already loaded sprites.
  * @param texts Already loaded texts.
- * @return Loading was successful.
  */
-bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+void SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
+	rcd_file->CheckVersion(3);
 	int length = rcd_file->size;
-	if (rcd_file->version != 3 || length <= 2) return false;
+	rcd_file->CheckMinLength(length, 2, "header");
 
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
-	if (this->width_x < 1 || this->width_y < 1) return false;
+	if (this->width_x < 1 || this->width_y < 1) rcd_file->Error("Width is zero");
 
 	length -= 52 + (this->width_x * this->width_y);
-	if (length < 0) return false;
+	rcd_file->CheckMinLength(length, 0, "extended header");
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; x++) {
@@ -506,7 +506,7 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	this->dry_animation = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	for (int i = 0; i < 4; i++) {
 		ImageData *view;
-		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &view);
 		this->previews[i] = view;
 	}
 
@@ -517,12 +517,11 @@ bool SceneryType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const T
 	this->category = static_cast<SceneryCategory>(rcd_file->GetUInt8());
 
 	TextData *text_data;
-	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	LoadTextFromFile(rcd_file, texts, &text_data);
 	this->name = _language.RegisterStrings(*text_data, _scenery_strings_table);
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
-	return true;
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 /**
@@ -728,7 +727,7 @@ static const uint32 CURRENT_VERSION_SceneryInstance = 1;   ///< Currently suppor
 void SceneryInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("scni");
-	if (version != CURRENT_VERSION_SceneryInstance) ldr.version_mismatch(version, CURRENT_VERSION_SceneryInstance);
+	if (version != CURRENT_VERSION_SceneryInstance) ldr.VersionMismatch(version, CURRENT_VERSION_SceneryInstance);
 
 	this->vox_pos.x = ldr.GetWord();
 	this->vox_pos.y = ldr.GetWord();
@@ -759,14 +758,14 @@ SceneryManager::SceneryManager() : temp_item(nullptr), temp_path_object(nullptr)
 /**
  * Register a new scenery type.
  * @param type Scenery type to add.
- * @return Insertion was successful.
  * @note On success, takes ownership of the pointer and clears the passed smart pointer.
  */
-bool SceneryManager::AddSceneryType(std::unique_ptr<SceneryType> &type)
+void SceneryManager::AddSceneryType(std::unique_ptr<SceneryType> &type)
 {
-	if (type->internal_name.empty() || this->GetType(type->internal_name) != nullptr) return false;
+	if (type->internal_name.empty() || this->GetType(type->internal_name) != nullptr) {
+		throw LoadingError("Invalid or duplicate scenery name '%s'", type->internal_name.c_str());
+	}
 	this->scenery_item_types.emplace_back(std::move(type));
-	return true;
 }
 
 /**
@@ -1068,7 +1067,7 @@ void SceneryManager::Load(Loader &ldr)
 			break;
 
 		default:
-			ldr.version_mismatch(version, CURRENT_VERSION_SceneryInstance_SCNY);
+			ldr.VersionMismatch(version, CURRENT_VERSION_SceneryInstance_SCNY);
 	}
 	ldr.ClosePattern();
 }

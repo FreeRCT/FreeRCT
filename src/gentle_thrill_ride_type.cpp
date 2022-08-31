@@ -37,20 +37,20 @@ RideInstance *GentleThrillRideType::CreateInstance() const
  * @param rcd_file Rcd file being loaded.
  * @param sprites Already loaded sprites.
  * @param texts Already loaded texts.
- * @return Loading was successful.
  * @todo #GentleThrillRideType::Load and #ShopType::Load share a lot of similar code. Pull it out into a common function in #FixedRideType.
  */
-bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+void GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
+	rcd_file->CheckVersion(5);
 	int length = rcd_file->size;
-	if (rcd_file->version != 5 || length < 3) return false;
+	rcd_file->CheckMinLength(length, 3, "header");
 
 	this->kind = rcd_file->GetUInt8() ? RTK_THRILL : RTK_GENTLE;
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
-	if (this->width_x < 1 || this->width_y < 1) return false;
+	if (this->width_x < 1 || this->width_y < 1) rcd_file->Error("Dimension is zero");
 	length -= 111 + (this->width_x * this->width_y);
-	if (length <= 0) return false;
+	rcd_file->CheckMinLength(length, 0, "extended header");
 
 	this->heights.reset(new int8[this->width_x * this->width_y]);
 	for (int8 x = 0; x < this->width_x; ++x) {
@@ -65,7 +65,7 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	animation_stopping = _sprite_manager.GetTimedAnimation(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	for (int i = 0; i < 4; i++) {
 		ImageData *view;
-		if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+		LoadSpriteFromFile(rcd_file, sprites, &view);
 		this->previews[i] = view;
 	}
 
@@ -87,24 +87,32 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	if (animation_idle == nullptr || animation_starting == nullptr ||
 			animation_working == nullptr || animation_stopping == nullptr ||
 			animation_idle->width_x != this->width_x || animation_idle->width_y != this->width_y) {
-		return false;
+		rcd_file->Error("Idle animation does not fit");
 	}
 	int working_animation_min_length = 0;
 	for (int i = 0; i < animation_starting->frames; ++i) {
-		if (animation_starting->views[i]->width_x != this->width_x || animation_starting->views[i]->width_y != this->width_y) return false;
+		if (animation_starting->views[i]->width_x != this->width_x || animation_starting->views[i]->width_y != this->width_y) {
+			rcd_file->Error("Starting animation does not fit");
+		}
 		working_animation_min_length += animation_starting->durations[i];
 	}
 	for (int i = 0; i < animation_working->frames; ++i) {
-		if (animation_working->views[i]->width_x != this->width_x || animation_working->views[i]->width_y != this->width_y) return false;
+		if (animation_working->views[i]->width_x != this->width_x || animation_working->views[i]->width_y != this->width_y) {
+			rcd_file->Error("Working animation does not fit");
+		}
 		working_animation_min_length += animation_working->durations[i];
 	}
 	for (int i = 0; i < animation_stopping->frames; ++i) {
-		if (animation_stopping->views[i]->width_x != this->width_x || animation_stopping->views[i]->width_y != this->width_y) return false;
+		if (animation_stopping->views[i]->width_x != this->width_x || animation_stopping->views[i]->width_y != this->width_y) {
+			rcd_file->Error("Stopping animation does not fit");
+		}
 		working_animation_min_length += animation_stopping->durations[i];
 	}
-	if (working_animation_min_length > this->working_duration) return false;
-	if (capacity.number_of_batches < 1 || capacity.guests_per_batch < 1) return false;
-	if (capacity.number_of_batches > 1 && working_animation_min_length != 0) return false;
+	if (working_animation_min_length > this->working_duration) rcd_file->Error("Too long working animation");
+	if (capacity.number_of_batches < 1 || capacity.guests_per_batch < 1) rcd_file->Error("Too low guest capacity");
+	if (capacity.number_of_batches > 1 && working_animation_min_length != 0) {
+		rcd_file->Error("Fixed rides with multiple guest batches can not have a working animation");
+	}
 
 	this->working_cycles_min = rcd_file->GetUInt16();
 	this->working_cycles_max = rcd_file->GetUInt16();
@@ -118,24 +126,23 @@ bool GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->excitement_increase_cycle = rcd_file->GetUInt32();
 	this->excitement_increase_scenery = rcd_file->GetUInt32();
 
-	if (this->working_cycles_min < 1) return false;
-	if (this->working_cycles_max < this->working_cycles_min) return false;
-	if (this->working_cycles_default < this->working_cycles_min) return false;
-	if (this->working_cycles_default > this->working_cycles_max) return false;
-	if (this->reliability_max < 0 || this->reliability_max > RELIABILITY_RANGE) return false;
-	if (this->reliability_decrease_daily < 0 || this->reliability_decrease_daily > RELIABILITY_RANGE) return false;
-	if (this->reliability_decrease_monthly < 0 || this->reliability_decrease_monthly > RELIABILITY_RANGE) return false;
+	if (this->working_cycles_min < 1) rcd_file->Error("Zero working cycles");
+	if (this->working_cycles_max < this->working_cycles_min) rcd_file->Error("Impossible working cycle limits");
+	if (this->working_cycles_default < this->working_cycles_min) rcd_file->Error("Too few default working cycles");
+	if (this->working_cycles_default > this->working_cycles_max) rcd_file->Error("Too many default working cycles");
+	if (this->reliability_max < 0 || this->reliability_max > RELIABILITY_RANGE) rcd_file->Error("Reliability out of range");
+	if (this->reliability_decrease_daily < 0 || this->reliability_decrease_daily > RELIABILITY_RANGE) rcd_file->Error("Daily reliability decrease out of range");
+	if (this->reliability_decrease_monthly < 0 || this->reliability_decrease_monthly > RELIABILITY_RANGE) rcd_file->Error("Monthly reliability decrease out of range");
 
 	TextData *text_data;
-	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	LoadTextFromFile(rcd_file, texts, &text_data);
 	StringID base = _language.RegisterStrings(*text_data, _gentle_thrill_rides_strings_table);
 	this->SetupStrings(text_data, base,
 			STR_GENERIC_GENTLE_THRILL_RIDES_START, GENTLE_THRILL_RIDES_STRING_TABLE_END,
 			GENTLE_THRILL_RIDES_NAME_TYPE, GENTLE_THRILL_RIDES_DESCRIPTION_TYPE);
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
-	return true;
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 FixedRideType::RideCapacity GentleThrillRideType::GetRideCapacity() const
@@ -398,7 +405,7 @@ static const uint32 CURRENT_VERSION_GentleThrillRideInstance = 1;   ///< Current
 void GentleThrillRideInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("gtri");
-	if (version != CURRENT_VERSION_GentleThrillRideInstance) ldr.version_mismatch(version, CURRENT_VERSION_GentleThrillRideInstance);
+	if (version != CURRENT_VERSION_GentleThrillRideInstance) ldr.VersionMismatch(version, CURRENT_VERSION_GentleThrillRideInstance);
 	this->FixedRideInstance::Load(ldr);
 
 	XYZPoint16 pos;

@@ -89,7 +89,7 @@ void Finances::Load(Loader &ldr)
 		research       = ldr.GetLongLong();
 		loan_interest  = ldr.GetLongLong();
 	} else {
-		ldr.version_mismatch(version, CURRENT_VERSION_Finances);
+		ldr.VersionMismatch(version, CURRENT_VERSION_Finances);
 	}
 	ldr.ClosePattern();
 }
@@ -233,7 +233,7 @@ void FinancesManager::Load(Loader &ldr)
 
 	const uint32 version = ldr.OpenPattern("FINA");
 	if (version > CURRENT_VERSION_FINA) {
-		ldr.version_mismatch(version, CURRENT_VERSION_FINA);
+		ldr.VersionMismatch(version, CURRENT_VERSION_FINA);
 	} else if (version > 0) {
 		this->num_used = ldr.GetByte();
 		this->current = ldr.GetByte();

@@ -61,17 +61,17 @@ RideEntranceExitType::RideEntranceExitType()
  * @param rcd_file Rcd file being loaded.
  * @param sprites Already loaded sprites.
  * @param texts Already loaded texts.
- * @return Loading was successful.
  */
-bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+void RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
+	rcd_file->CheckVersion(2);
 	int length = rcd_file->size;
 	length -= 51;
-	if (rcd_file->version != 2 || length <= 0) return false;
+	rcd_file->CheckMinLength(length, 0, "header");
 	this->is_entrance = rcd_file->GetUInt8() > 0;
 
 	TextData *text_data;
-	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	LoadTextFromFile(rcd_file, texts, &text_data);
 	StringID base = _language.RegisterStrings(*text_data, _entrance_exit_strings_table);
 	this->name = base + (ENTRANCE_EXIT_NAME - STR_GENERIC_ENTRANCE_EXIT_START);
 	this->recolour_description_1 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR1 - STR_GENERIC_ENTRANCE_EXIT_START);
@@ -82,7 +82,7 @@ bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 2; j++) {
 			ImageData *view;
-			if (!LoadSpriteFromFile(rcd_file, sprites, &view)) return false;
+			LoadSpriteFromFile(rcd_file, sprites, &view);
 			if (width != 64) continue; /// \todo Widths other than 64.
 			this->images[i][j] = view;
 		}
@@ -93,8 +93,7 @@ bool RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	}
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
-	return true;
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 /**
@@ -621,7 +620,7 @@ static const uint32 CURRENT_VERSION_RideInstance = 2;   ///< Currently supported
 void RideInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("ride");
-	if (version < 1 || version > CURRENT_VERSION_RideInstance) ldr.version_mismatch(version, CURRENT_VERSION_RideInstance);
+	if (version < 1 || version > CURRENT_VERSION_RideInstance) ldr.VersionMismatch(version, CURRENT_VERSION_RideInstance);
 
 	this->name = ldr.GetText();
 
@@ -751,7 +750,7 @@ void RidesManager::Load(Loader &ldr)
 			r->Load(ldr);
 		}
 	} else if (version != 0) {
-		ldr.version_mismatch(version, CURRENT_VERSION_RIDS);
+		ldr.VersionMismatch(version, CURRENT_VERSION_RIDS);
 	}
 	ldr.ClosePattern();
 }
@@ -821,27 +820,27 @@ uint16 RideInstance::GetIndex() const
 /**
  * Add a new ride type to the manager.
  * @param type New ride type to add.
- * @return Insertion was successful.
  * @note On success, takes ownership of the pointer and clears the passed smart pointer.
  */
-bool RidesManager::AddRideType(std::unique_ptr<RideType> type)
+void RidesManager::AddRideType(std::unique_ptr<RideType> type)
 {
-	if (type->InternalName().empty() || this->GetRideType(type->InternalName()) != nullptr) return false;
+	if (type->InternalName().empty() || this->GetRideType(type->InternalName()) != nullptr) {
+		throw LoadingError("Invalid or duplicate ride name '%s'", type->InternalName().c_str());
+	}
 	this->ride_types.emplace_back(std::move(type));
-	return true;
 }
 
 /**
  * Add a new ride entrance or exit type to the manager.
  * @param type New ride entrance/exit type to add.
- * @return Insertion was successful.
  * @note On success, takes ownership of the pointer and clears the passed smart pointer.
  */
-bool RidesManager::AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type)
+void RidesManager::AddRideEntranceExitType(std::unique_ptr<RideEntranceExitType> &type)
 {
-	if (type->internal_name.empty() || (type->is_entrance ? this->GetEntranceIndex(type->internal_name) : this->GetExitIndex(type->internal_name)) >= 0) return false;
+	if (type->internal_name.empty() || (type->is_entrance ? this->GetEntranceIndex(type->internal_name) : this->GetExitIndex(type->internal_name)) >= 0) {
+		throw LoadingError("Invalid or duplicate %s name '%s'", type->is_entrance ? "entrance" : "exit", type->internal_name.c_str());
+	}
 	(type->is_entrance ? this->entrances : this->exits).emplace_back(std::move(type));
-	return true;
 }
 
 /**

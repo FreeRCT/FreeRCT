@@ -28,30 +28,29 @@ ImageData::ImageData() : width(0), height(0), table(nullptr), data(nullptr)
  * Load image data from the RCD file.
  * @param rcd_file File to load from.
  * @param length Length of the image data block.
- * @return Load was successful.
  * @pre File pointer is at first byte of the block.
  */
-bool ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
+void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 {
-	if (length < 8) return false; // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
+	rcd_file->CheckMinLength(length, 8, "8bpp header"); // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
 	this->xoffset = rcd_file->GetInt16();
 	this->yoffset = rcd_file->GetInt16();
 
 	/* Check against some arbitrary limits that look sufficient at this time. */
-	if (this->width == 0 || this->width > 300 || this->height == 0 || this->height > 500) return false;
+	if (this->width == 0 || this->width > 300 || this->height == 0 || this->height > 500) rcd_file->Error("Size out of bounds");
 
 	length -= 8;
-	if (length > 100 * 1024) return false; // Another arbitrary limit.
+	if (length > 100 * 1024) rcd_file->Error("Data too long"); // Another arbitrary limit.
 
 	size_t jmp_table = 4 * this->height;
-	if (length <= jmp_table) return false; // You need at least place for the jump table.
+	if (length <= jmp_table) rcd_file->Error("Jump table too short"); // You need at least place for the jump table.
 	length -= jmp_table;
 
 	this->table.reset(new uint32[jmp_table / 4]);
 	this->data.reset(new uint8[length]);
-	if (this->table == nullptr || this->data == nullptr) return false;
+	if (this->table == nullptr || this->data == nullptr) rcd_file->Error("Out of memory");
 
 	/* Load jump table, adjusting the entries while loading. */
 	for (uint i = 0; i < this->height; i++) {
@@ -61,7 +60,7 @@ bool ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 			continue;
 		}
 		dest -= jmp_table;
-		if (dest >= length) return false;
+		if (dest >= length) rcd_file->Error("Jump destination out of bounds");
 		this->table[i] = dest;
 	}
 
@@ -74,45 +73,43 @@ bool ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 
 		uint32 xpos = 0;
 		for (;;) {
-			if (offset + 2 >= length) return false;
+			if (offset + 2 >= length) rcd_file->Error("Offset out of bounds");
 			uint8 rel_pos = this->data[offset];
 			uint8 count = this->data[offset + 1];
 			xpos += (rel_pos & 127) + count;
 			offset += 2 + count;
 			if ((rel_pos & 128) == 0) {
-				if (xpos >= this->width || offset >= length) return false;
+				if (xpos >= this->width || offset >= length) rcd_file->Error("X coordinate out of exclusive bounds");
 			} else {
-				if (xpos > this->width || offset > length) return false;
+				if (xpos > this->width || offset > length) rcd_file->Error("X coordinate out of inclusive bounds");
 				break;
 			}
 		}
 	}
-	return true;
 }
 
 /**
  * Load a 32bpp image.
  * @param rcd_file Input stream to read from.
  * @param length Length of the 32bpp block.
- * @return Exeit code, \0 means ok, every other number indicates an error.
  */
-bool ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
+void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 {
-	if (length < 8) return false; // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
+	rcd_file->CheckMinLength(length, 8, "32bpp header");  // 2 bytes width, 2 bytes height, 2 bytes x-offset, and 2 bytes y-offset
 	this->width  = rcd_file->GetUInt16();
 	this->height = rcd_file->GetUInt16();
 	this->xoffset = rcd_file->GetInt16();
 	this->yoffset = rcd_file->GetInt16();
 
 	/* Check against some arbitrary limits that look sufficient at this time. */
-	if (this->width == 0 || this->width > 2000 || this->height == 0 || this->height > 1200) return false;
+	if (this->width == 0 || this->width > 2000 || this->height == 0 || this->height > 1200) rcd_file->Error("Size out of bounds");
 
 	length -= 8;
-	if (length > 2000 * 1200) return false; // Another arbitrary limit.
+	if (length > 2000 * 1200) rcd_file->Error("Data too long"); // Another arbitrary limit.
 
 	/* Allocate and load the image data. */
 	this->data.reset(new uint8[length]);
-	if (this->data == nullptr) return false;
+	if (this->data == nullptr) rcd_file->Error("Out of memory");
 	rcd_file->GetBlob(this->data.get(), length);
 
 	/* Verify the data. */
@@ -131,7 +128,7 @@ bool ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 			end = abs_end;
 		} else {
 			end = ptr + line_length;
-			if (end > abs_end) return false;
+			if (end > abs_end) rcd_file->Error("End out of bounds");
 		}
 		ptr += 2;
 
@@ -152,13 +149,12 @@ bool ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 				case 3: ptr += 1 + 1 + (mode & 0x3F); break;
 			}
 		}
-		if (xpos > this->width) return false;
-		if (!finished_line) return false;
-		if (ptr != end) return false;
+		if (xpos > this->width) rcd_file->Error("X coordinate out of bounds");
+		if (!finished_line) rcd_file->Error("Incomplete line");
+		if (ptr != end) rcd_file->Error("Trailing bytes at end of line");
 	}
-	if (line_count != this->height) return false;
-	if (ptr != abs_end) return false;
-	return true;
+	if (line_count != this->height) rcd_file->Error("Line count mismatch");
+	if (ptr != abs_end) rcd_file->Error("Trailing bytes at end of file");
 }
 
 /**
@@ -257,16 +253,21 @@ ImageData *LoadImage(RcdFileReader *rcd_file)
 		error("Attempt to load too many sprites! MAX_IMAGE_COUNT needs to be increased.\n");
 	}
 	bool is_8bpp = strcmp(rcd_file->name, "8PXL") == 0;
-	if (rcd_file->version != (is_8bpp ? 2 : 1)) return nullptr;
+	rcd_file->CheckVersion(is_8bpp ? 2 : 1);
 
 	_sprites.emplace_back();
 	_sprites_loaded++;
 	ImageData *imd = &_sprites.back();
-	bool loaded = is_8bpp ? imd->Load8bpp(rcd_file, rcd_file->size) : imd->Load32bpp(rcd_file, rcd_file->size);
-	if (!loaded) {
+	try {
+		if (is_8bpp) {
+			imd->Load8bpp(rcd_file, rcd_file->size);
+		} else {
+			imd->Load32bpp(rcd_file, rcd_file->size);
+		}
+	} catch (...) {
 		_sprites.pop_back();
 		_sprites_loaded--;
-		return nullptr;
+		throw;
 	}
 	imd->flags = is_8bpp ? (1 << IFG_IS_8BPP) : 0;
 	return imd;

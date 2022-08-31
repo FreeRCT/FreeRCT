@@ -66,13 +66,13 @@ static bool IsValidItemType(uint8 val)
  * @param rcd_file Rcd file being loaded.
  * @param sprites Already loaded sprites.
  * @param texts Already loaded texts.
- * @return Loading was successful.
  */
-bool ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites, const TextMap &texts)
+void ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites, const TextMap &texts)
 {
+	rcd_file->CheckVersion(7);
 	int length = rcd_file->size;
 	length -= 40;
-	if (rcd_file->version != 7 || length <= 0) return false;
+	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->width_x = this->width_y = 1;
 	this->heights.reset(new int8[1]);
@@ -80,7 +80,9 @@ bool ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 	this->flags = rcd_file->GetUInt8() & 0xF;
 
 	animation_idle = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
-	if (animation_idle == nullptr || animation_idle->width_x != this->width_x || animation_idle->width_y != this->width_y) return false;
+	if (animation_idle == nullptr || animation_idle->width_x != this->width_x || animation_idle->width_y != this->width_y) {
+		rcd_file->Error("Idle animation does not fit");
+	}
 	for (int i = 0; i < 4; i++) {
 		previews[i] = animation_idle->sprites[i][0];
 	}
@@ -96,22 +98,21 @@ bool ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 	this->monthly_cost = rcd_file->GetInt32();
 	this->monthly_open_cost = rcd_file->GetInt32();
 
-	uint8 val = rcd_file->GetUInt8();
-	if (!IsValidItemType(val)) return false;
+	uint val = rcd_file->GetUInt8();
+	if (!IsValidItemType(val)) rcd_file->Error("Invalid 1st item type %u", val);
 	this->item_type[0] = (ItemType)val;
 
 	val = rcd_file->GetUInt8();
-	if (!IsValidItemType(val)) return false;
+	if (!IsValidItemType(val)) rcd_file->Error("Invalid 2nd item type %u", val);
 	this->item_type[1] = (ItemType)val;
 
 	TextData *text_data;
-	if (!LoadTextFromFile(rcd_file, texts, &text_data)) return false;
+	LoadTextFromFile(rcd_file, texts, &text_data);
 	StringID base = _language.RegisterStrings(*text_data, _shops_strings_table);
 	this->SetupStrings(text_data, base, STR_GENERIC_SHOP_START, SHOPS_STRING_TABLE_END, SHOPS_NAME_TYPE, SHOPS_DESCRIPTION_TYPE);
 
 	this->internal_name = rcd_file->GetText();
-	if (length != static_cast<int>(this->internal_name.size() + 1)) return false;
-	return true;
+	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
 }
 
 FixedRideType::RideCapacity ShopType::GetRideCapacity() const
@@ -219,7 +220,7 @@ static const uint32 CURRENT_VERSION_ShopInstance = 1;   ///< Currently supported
 void ShopInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("shop");
-	if (version != CURRENT_VERSION_ShopInstance) ldr.version_mismatch(version, CURRENT_VERSION_ShopInstance);
+	if (version != CURRENT_VERSION_ShopInstance) ldr.VersionMismatch(version, CURRENT_VERSION_ShopInstance);
 	this->FixedRideInstance::Load(ldr);
 	AddRemovePathEdges(this->vox_pos, PATH_EMPTY, this->GetEntranceDirections(this->vox_pos), PAS_QUEUE_PATH);
 	ldr.ClosePattern();
