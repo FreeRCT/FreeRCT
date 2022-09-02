@@ -7,21 +7,37 @@
 
 /** @file video.cpp Graphics system handling. */
 
+#include <GL/glew.h>  // This include must come first!
+
 #include "video.h"
 #include "gamecontrol.h"
 #include "rev.h"
 #include "sprite_data.h"
 #include "window.h"
+
 #include <fstream>
 #include <sstream>
 #include <thread>
 #include <vector>
 
+#ifdef WEBASSEMBLY
+#include <emscripten.h>
+#endif
+
+#if __has_include(<freetype2/ft2build.h>)
+#include <freetype2/ft2build.h>
+#elif __has_include(<freetype2/freetype/ft2build.h>)
+#include <freetype2/freetype/ft2build.h>
+#else
+#error "Freetype not found"
+#endif
+#include FT_FREETYPE_H
+
 /** Helper struct for the #TextRenderer representing a font glyph. */
 struct FontGlyph {
 	GLuint texture_id;
-	glm::ivec2 size;
-	glm::ivec2 bearing;
+	Point16 size;
+	Point16 bearing;
 	GLuint advance;
 };
 
@@ -95,8 +111,8 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 
         FontGlyph glyph = {
             texture,
-            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            Point16(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+            Point16(face->glyph->bitmap_left, face->glyph->bitmap_top),
             static_cast<GLuint>(face->glyph->advance.x)
         };
         this->characters.emplace(c, glyph);
@@ -115,12 +131,10 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
  * @param colour Colour in which to draw the text.
  * @param scale Scaling factor for the text size.
  */
-void TextRenderer::Draw(const std::string &text, float x, float y, const glm::vec3 &colour, float scale)
+void TextRenderer::Draw(const std::string &text, float x, float y, const XYZPointF &colour, float scale)
 {
     glUseProgram(this->shader);
-	glUniform3fv(glGetUniformLocation(this->shader, "text_colour"), 1, &colour[0]);
-	auto mat = glm::ortho(0.0f, _video.Width(), 0.0f, _video.Height());
-	glUniformMatrix4fv(glGetUniformLocation(this->shader, "projection"), 1, GL_FALSE, &mat[0][0]);
+	glUniform3fv(glGetUniformLocation(this->shader, "text_colour"), 1, &colour.x);
 
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(this->vao);
@@ -158,7 +172,7 @@ void TextRenderer::Draw(const std::string &text, float x, float y, const glm::ve
  * @param text Text to estimate.
  * @param scale Scaling factor for the text size.
  */
-glm::vec2 TextRenderer::EstimateBounds(const std::string &text, float scale) const
+PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
 {
 	float x = 0;
 	float width = 0;
@@ -173,10 +187,16 @@ glm::vec2 TextRenderer::EstimateBounds(const std::string &text, float scale) con
         height = std::max(height, ypos + h);
         x += (fg.advance >> 6) * scale;
     }
-    return glm::vec2(width, height);
+    return PointF(width, height);
 }
 
 /* Graphics framework implementation. */
+
+#ifdef WEBASSEMBLY
+/** Emscripten definitions to query the size of the canvas. */
+EM_JS(int, GetEmscriptenCanvasWidth , (), { return canvas.clientWidth ; });
+EM_JS(int, GetEmscriptenCanvasHeight, (), { return canvas.clientHeight; });
+#endif
 
 /**
  * Called by OpenGL when the window size changes.
@@ -300,7 +320,7 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glPointSize(1.0f);
+	// glPointSize(1.0f);  // NOCOM Wasm doesn't like this
 	glDisable(GL_POINT_SMOOTH);
 	glGetError();  // Clear error messages.
 
@@ -556,9 +576,9 @@ void VideoSystem::PopClip()
  * Draw an image to the screen.
  * @param img Image to draw.
  * @param pos Where to draw the image's centre.
- * @param col RGBA colour to overlay over the image.
+ * @param col WXYZ colour to overlay over the image.
  */
-void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const glm::vec4 &col)
+void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const WXYZPointF &col)
 {
 	this->EnsureImageLoaded(img);
 	this->DoDrawImage(this->image_textures.at(img),
@@ -570,13 +590,13 @@ void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const glm:
  * Tile an image across an area.
  * @param img Image to draw.
  * @param rect Rectangle to fill.
- * @param col RGBA colour to overlay over the image.
+ * @param col WXYZ colour to overlay over the image.
  */
-void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, const glm::vec4 &col)
+void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, const WXYZPointF &col)
 {
 	this->EnsureImageLoaded(img);
 	this->DoDrawImage(this->image_textures.at(img), rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, col,
-			glm::vec4(0.0f, 0.0f, static_cast<float>(rect.width) / img->width, static_cast<float>(rect.height) / img->height));
+			WXYZPointF(0.0f, 0.0f, static_cast<float>(rect.width) / img->width, static_cast<float>(rect.height) / img->height));
 }
 
 /**
@@ -613,7 +633,7 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 	if (width != nullptr) *width = 0;
 	if (height != nullptr) *height = 0;
 	for (; smallest <= biggest; ++smallest) {
-		glm::vec2 vec = _text_renderer.EstimateBounds(std::to_string(smallest));
+		PointF vec = _text_renderer.EstimateBounds(std::to_string(smallest));
 		if (width != nullptr) *width = std::max<int>(*width, vec.x);
 		if (height != nullptr) *height = std::max<int>(*height, vec.y);
 	}
@@ -628,7 +648,7 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 void VideoSystem::GetTextSize(const std::string &text, int *width, int *height)
 {
 	if (width == nullptr && height == nullptr) return;
-	glm::vec2 vec = _text_renderer.EstimateBounds(text);
+	PointF vec = _text_renderer.EstimateBounds(text);
 	if (width != nullptr) *width = vec.x;
 	if (height != nullptr) *height = vec.y;
 }
@@ -646,7 +666,7 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
 {
 	float x = xpos;
 	if (align != ALG_LEFT) {
-		glm::vec2 vec = _text_renderer.EstimateBounds(text);
+		PointF vec = _text_renderer.EstimateBounds(text);
 		if (align == ALG_RIGHT) {
 			x += width - vec.x;
 		} else {
@@ -664,19 +684,19 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
  * @param y1 Upper left destination Y coordinate of the image, in window space.
  * @param x2 Lower right destination X coordinate of the image, in window space.
  * @param y2 Lower right destination Y coordinate of the image, in window space.
- * @param col RGBA colour to overlay over the image.
+ * @param col WXYZ colour to overlay over the image.
  * @param tex Texture coordinate rectangle to clip, in GL space.
  */
-void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2, const glm::vec4 &col, const glm::vec4 &tex)
+void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2, const WXYZPointF &col, const WXYZPointF &tex)
 {
 	CoordsToGL(&x1, &y1);
 	CoordsToGL(&x2, &y2);
 	float vertices[] = {
 		// positions  // coluors                  // texture coords
-		x2, y1, 0.0f, col.r, col.g, col.b, col.a, tex.z, tex.w, // top right
-		x2, y2, 0.0f, col.r, col.g, col.b, col.a, tex.z, tex.y, // bottom right
-		x1, y2, 0.0f, col.r, col.g, col.b, col.a, tex.x, tex.y, // bottom left
-		x1, y1, 0.0f, col.r, col.g, col.b, col.a, tex.x, tex.w  // top left
+		x2, y1, 0.0f, col.w, col.x, col.y, col.z, tex.z, tex.w, // top right
+		x2, y2, 0.0f, col.w, col.x, col.y, col.z, tex.z, tex.y, // bottom right
+		x1, y2, 0.0f, col.w, col.x, col.y, col.z, tex.x, tex.y, // bottom left
+		x1, y1, 0.0f, col.w, col.x, col.y, col.z, tex.x, tex.w  // top left
 	};
 	GLuint indices[] = {
 		0, 1, 3, // first triangle
@@ -704,7 +724,7 @@ void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, floa
  * NOCOM document
  * @param 
  */
-void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, const glm::vec4 &col) {
+void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &col) {
 	struct PerVertexData {
 		float gl_x;
 		float gl_y;
@@ -720,10 +740,10 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
 		back.gl_x = p.x;
 		back.gl_y = p.y;
 		this->CoordsToGL(&back.gl_x, &back.gl_y);
-		back.r = col.r;
-		back.g = col.g;
-		back.b = col.b;
-		back.alpha = col.a;
+		back.r = col.w;
+		back.g = col.x;
+		back.b = col.y;
+		back.alpha = col.z;
 	}
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
@@ -745,10 +765,10 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
  * NOCOM document
  * @param 
  */
-void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const glm::vec4& col) {
+void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF& col) {
 	float vertices[] = {
-		x1, y1, 0.0f, col.a, col.r, col.g, col.b,
-		x2, y2, 0.0f, col.a, col.r, col.g, col.b,
+		x1, y1, 0.0f, col.w, col.x, col.y, col.z,
+		x2, y2, 0.0f, col.w, col.x, col.y, col.z,
 	};
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
@@ -770,13 +790,13 @@ void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const glm::ve
  * NOCOM document
  * @param 
  */
-void VideoSystem::FillPlainColour(float x, float y, float w, float h, const glm::vec4 &col) {
+void VideoSystem::FillPlainColour(float x, float y, float w, float h, const WXYZPointF &col) {
 	float vertices[] = {
 		// positions        // colours
-		x + w, y    , 0.0f, col.a, col.r, col.g, col.b,
-		x + w, y + h, 0.0f, col.a, col.r, col.g, col.b,
-		x    , y    , 0.0f, col.a, col.r, col.g, col.b,
-		x    , y + h, 0.0f, col.a, col.r, col.g, col.b,
+		x + w, y    , 0.0f, col.z, col.w, col.x, col.y,
+		x + w, y + h, 0.0f, col.z, col.w, col.x, col.y,
+		x    , y    , 0.0f, col.z, col.w, col.x, col.y,
+		x    , y + h, 0.0f, col.z, col.w, col.x, col.y,
 	};
 	GLuint indices[] = {
 		0, 1, 2,

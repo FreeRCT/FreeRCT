@@ -7,6 +7,7 @@
 
 /** @file freerct.cpp Main program. */
 
+#include <cstdarg>
 #include "stdafx.h"
 #include "freerct.h"
 #include "video.h"

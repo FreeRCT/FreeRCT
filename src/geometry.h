@@ -76,6 +76,8 @@ struct Point {
 
 typedef Point<int32> Point32; ///< 32 bit 2D point.
 typedef Point<int16> Point16; ///< 16 bit 2D point.
+typedef Point<uint8> PointU8; ///< 8 bit unsigned 2D point.
+typedef Point<float> PointF;  ///< Floating-point 2D point.
 
 /**
  * Test for point order.
@@ -171,6 +173,57 @@ struct XYZPoint {
 
 typedef XYZPoint<int32> XYZPoint32; ///< 32 bit 3D point.
 typedef XYZPoint<int16> XYZPoint16; ///< 16 bit 3D point.
+typedef XYZPoint<uint8> XYZPointU8; ///< 8 bit unsigned 3D point.
+typedef XYZPoint<float> XYZPointF;  ///< Floating-point 3D point.
+
+/**
+ * Generic 4D point template.
+ * @tparam CT Type of the coordinates.
+ */
+template <typename CT>
+struct WXYZPoint {
+	constexpr WXYZPoint() : WXYZPoint(0, 0, 0, 0) {}
+
+	/**
+	 * Constructor for creating a point at a given coordinate.
+	 * @param init_x X coordinate.
+	 * @param init_y Y coordinate.
+	 * @param init_z Z coordinate.
+	 */
+	constexpr WXYZPoint(CT init_w, CT init_x, CT init_y, CT init_z)
+	: w(init_w), x(init_x), y(init_y), z(init_z)
+	{
+	}
+
+	/**
+	 * Conversion operator between points of various byte lengths.
+	 * @return An equal point with a different template specialisation.
+	 */
+	template <typename C>
+	inline operator WXYZPoint<C>() const
+	{
+		return WXYZPoint<C>(w, x, y, z);
+	}
+
+	/**
+	 * A special "invalid" constant.
+	 * @return A point denoting invalid coordinates.
+	 */
+	static inline WXYZPoint invalid()
+	{
+		return WXYZPoint(-1, -1, -1, -1);
+	}
+
+	typedef CT CoordType; ///< Type of the coordinate value.
+
+	CT w; ///< W coordinate.
+	CT x; ///< X coordinate.
+	CT y; ///< Y coordinate.
+	CT z; ///< Z coordinate.
+};
+
+typedef WXYZPoint<uint8> WXYZPointU8; ///< 8 bit unsigned 4D point.
+typedef WXYZPoint<float> WXYZPointF;  ///< Floating-point 4D point.
 
 /**
  * Test for 3D point equality.

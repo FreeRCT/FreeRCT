@@ -13,16 +13,13 @@
 #include "stdafx.h"
 #include "geometry.h"
 #include "palette.h"
+
 #include <chrono>
 #include <map>
 #include <set>
 #include <string>
-#include <GL/glew.h>
+
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <freetype2/ft2build.h>
-#include FT_FREETYPE_H
 
 struct FontGlyph;
 class ImageData;
@@ -50,13 +47,13 @@ inline double Delta(const Realtime &start, const Realtime &end = Time())
 }
 
 /**
- * Convert a 32-bit integer RGBA colour to an OpenGL colour vector.
+ * Convert a 32-bit integer WXYZ colour to an OpenGL colour vector.
  * @param c Input colour.
  * @return OpenGL colour.
  */
-inline glm::vec4 HexToColourRGBA(uint32_t c)
+inline WXYZPointF HexToColourWXYZ(uint32_t c)
 {
-	return glm::vec4(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f,
+	return WXYZPointF(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f,
 			((c & 0xff000000) >> 24) / 255.f);
 }
 
@@ -65,9 +62,9 @@ inline glm::vec4 HexToColourRGBA(uint32_t c)
  * @param c Input colour.
  * @return OpenGL colour.
  */
-inline glm::vec3 HexToColourRGB(uint32_t c)
+inline XYZPointF HexToColourRGB(uint32_t c)
 {
-	return glm::vec3(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f);
+	return XYZPointF(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f);
 }
 
 /** Class responsible for rendering text. */
@@ -85,8 +82,8 @@ public:
 	}
 
 	void LoadFont(const std::string &font_path, GLuint font_size);
-	void Draw(const std::string &text, float x, float y, const glm::vec3 &colour, float scale = 1.0f);
-	glm::vec2 EstimateBounds(const std::string &text, float scale = 1.0f) const;
+	void Draw(const std::string &text, float x, float y, const XYZPointF &colour, float scale = 1.0f);
+	PointF EstimateBounds(const std::string &text, float scale = 1.0f) const;
 
 private:
 	std::map<GLchar, FontGlyph> characters;  ///< All character glyphs in the current font.
@@ -189,7 +186,7 @@ public:
 	 */
 	inline void DrawLine(const Point16 &start, const Point16 &end, uint32 colour)
 	{
-		this->DrawLine(start.x, start.y, end.x, end.y, HexToColourRGBA(colour));
+		this->DrawLine(start.x, start.y, end.x, end.y, HexToColourWXYZ(colour));
 	}
 
 	/**
@@ -199,7 +196,7 @@ public:
 	 */
 	inline void DrawRectangle(const Rectangle32 &rect, uint32 colour)
 	{
-		glm::vec4 col = HexToColourRGBA(colour);
+		WXYZPointF col = HexToColourWXYZ(colour);
 		this->DrawLine(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y, col);
 		this->DrawLine(rect.base.x, rect.base.y, rect.base.x, rect.base.y + rect.height, col);
 		this->DrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y, col);
@@ -213,15 +210,15 @@ public:
 	 */
 	inline void FillRectangle(const Rectangle32 &rect, uint32 colour)
 	{
-		this->FillPlainColour(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y + rect.height, HexToColourRGBA(colour));
+		this->FillPlainColour(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y + rect.height, HexToColourWXYZ(colour));
 	}
 
-	void FillPlainColour(float x, float y, float w, float h, const glm::vec4 &colour);
-	void DrawLine(float x1, float y1, float x2, float y2, const glm::vec4 &colour);
-	void DrawPlainColours(const std::vector<Point<float>> &points, const glm::vec4 &colour);
+	void FillPlainColour(float x, float y, float w, float h, const WXYZPointF &colour);
+	void DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF &colour);
+	void DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &colour);
 
-	void DrawImage(const ImageData *img, const Point32 &pos, const glm::vec4 &col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	void TileImage(const ImageData *img, const Rectangle32 &rect, const glm::vec4 &col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	void DrawImage(const ImageData *img, const Point32 &pos, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
+	void TileImage(const ImageData *img, const Rectangle32 &rect, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
 
 	void BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
 
@@ -275,7 +272,7 @@ private:
 
 	void EnsureImageLoaded(const ImageData *img);
 	void DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2,
-			const glm::vec4 &col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), const glm::vec4 &tex = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+			const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f), const WXYZPointF &tex = WXYZPointF(0.0f, 0.0f, 1.0f, 1.0f));
 
 	static void FramebufferSizeCallback(GLFWwindow *window, int w, int h);
 	static void MouseClickCallback(GLFWwindow *window, int button, int action, int mods);

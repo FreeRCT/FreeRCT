@@ -15,6 +15,7 @@
 #include "finances.h"
 #include "math_func.h"
 #include "window.h"
+#include <cmath>
 
 FinancesManager _finances_manager; ///< Storage and retrieval of park financial records.
 
