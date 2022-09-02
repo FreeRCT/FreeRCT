@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-01
+:Version: 2022-09-02
 
 .. contents::
    :depth: 3
@@ -667,7 +667,7 @@ Sprites
 .......
 The FSET contains one sprite for each of the (X×Y) voxels for each of the four orientations.
 
-The sprite for voxel (X,Y) at orientation O is named ``O_X_Y`` (where O is ``ne, se, sw, nw``).
+The sprite for voxel (X,Y) at orientation O is named ``O_Y_X`` (where O is ``ne, se, sw, nw``).
 
 If the optional boolean switch ``unrotated_views_only`` is set, only north-east sprites are used for all orientations;
 sprites for the other orientations may be omitted.
