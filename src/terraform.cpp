@@ -123,7 +123,7 @@ TerrainChanges::TerrainChanges(const Point16 &init_base, uint16 init_xsize, uint
 : base(init_base), xsize(init_xsize), ysize(init_ysize)
 {
 	assert(this->base.x >= 0 && this->base.y >= 0 && this->xsize > 0 && this->ysize > 0
-			&& this->base.x + this->xsize <= _world.GetXSize() && this->base.y + this->ysize <= _world.GetYSize());
+			&& this->base.x + this->xsize <= _world.Width() && this->base.y + this->ysize <= _world.Height());
 }
 
 /** Destructor. */
@@ -375,7 +375,7 @@ static void SetFoundations(VoxelStack *stack, uint8 my_first, uint8 my_second, u
 static void SetXFoundations(int xpos, int ypos)
 {
 	VoxelStack *first = (xpos < 0) ? nullptr : _world.GetModifyStack(xpos, ypos);
-	VoxelStack *second = (xpos + 1 == _world.GetXSize()) ? nullptr : _world.GetModifyStack(xpos + 1, ypos);
+	VoxelStack *second = (xpos + 1 == _world.Width()) ? nullptr : _world.GetModifyStack(xpos + 1, ypos);
 	assert(first != nullptr || second != nullptr);
 
 	/* Get ground height at all corners. */
@@ -420,7 +420,7 @@ static void SetXFoundations(int xpos, int ypos)
 static void SetYFoundations(int xpos, int ypos)
 {
 	VoxelStack *first = (ypos < 0) ? nullptr : _world.GetModifyStack(xpos, ypos);
-	VoxelStack *second = (ypos + 1 == _world.GetYSize()) ? nullptr : _world.GetModifyStack(xpos, ypos + 1);
+	VoxelStack *second = (ypos + 1 == _world.Height()) ? nullptr : _world.GetModifyStack(xpos, ypos + 1);
 	assert(first != nullptr || second != nullptr);
 
 	/* Get ground height at all corners. */
@@ -632,8 +632,8 @@ void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, bool level
 
 	if (dot_mode) { // Change entire world.
 		p = {0, 0};
-		w = _world.GetXSize();
-		h = _world.GetYSize();
+		w = _world.Width();
+		h = _world.Height();
 	} else { // Single tile mode.
 		p = voxel_pos;
 		w = 1;
@@ -663,15 +663,7 @@ void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, bool level
 			NOT_REACHED();
 	}
 
-	if (ok) {
-		ok = changes.ModifyWorld(direction);
-		if (!ok) return;
-
-		for (const auto &iter : changes.changes) {
-			const Point16 &pt = iter.first;
-			MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
-		}
-	}
+	if (ok) changes.ModifyWorld(direction);
 }
 
 /**
@@ -685,7 +677,7 @@ void ChangeAreaCursorMode(const Rectangle16 &orig_area, bool levelling, int dire
 	Point16 p;
 
 	Rectangle16 area(orig_area); // Restrict area to on-world.
-	area.RestrictTo(0, 0, _world.GetXSize(), _world.GetYSize());
+	area.RestrictTo(0, 0, _world.Width(), _world.Height());
 	if (area.width == 0 || area.height == 0) return;
 
 	TerrainChanges changes(area.base, area.width, area.height);
@@ -715,9 +707,4 @@ void ChangeAreaCursorMode(const Rectangle16 &orig_area, bool levelling, int dire
 	}
 
 	changes.ModifyWorld(direction);
-
-	for (const auto &iter : changes.changes) {
-		const Point16 &pt = iter.first;
-		MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
-	}
 }

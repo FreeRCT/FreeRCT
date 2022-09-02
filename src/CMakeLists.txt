@@ -24,7 +24,7 @@ IF(WEBASSEMBLY)
 	set(CMAKE_CXX_COMPILER "em++")
 	set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
-	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_SDL=2 -s USE_SDL_TTF=2")
+	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1")
 	add_c_cpp_flags("${WASM_FLAGS}")
 
 	add_custom_target(prepare_wasm_rcd ALL
@@ -140,22 +140,17 @@ ENDIF()
 add_dependencies(freerct rcd)
 
 # Library detection
-find_package(SDL2 REQUIRED)
-IF(SDL2_FOUND)
-	include_directories(${SDL2_INCLUDE_DIR})
-	target_link_libraries(freerct ${SDL2_LIBRARY})
-ENDIF()
-
-find_package(SDL2_ttf REQUIRED)
-# Legacy variable names
-IF(SDL2_TTF_FOUND)
-	include_directories(${SDL2TTF_INCLUDE_DIR})
-	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
-ENDIF()
 
 IF(NOT WEBASSEMBLY)
 	find_package(PNG REQUIRED)
 	target_link_libraries(freerct PNG::PNG)
+
+	find_package(OpenGL REQUIRED)
+	find_package(GLEW REQUIRED)
+	find_package(glfw3 REQUIRED)
+	find_package(Freetype REQUIRED)
+	include_directories(freerct ${GLEW_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
+	target_link_libraries(freerct glfw OpenGL::GL GLEW::GLEW ${FREETYPE_LIBRARIES})
 ENDIF(NOT WEBASSEMBLY)
 
 # Determine version string

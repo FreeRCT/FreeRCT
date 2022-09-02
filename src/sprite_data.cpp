@@ -242,6 +242,23 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
 	}
 }
 
+/** The image has been loaded. Fill in additional data structures. */
+void ImageData::PostLoad()
+{
+	this->rgba.reset(new uint8[this->width * this->height * 4]);
+	uint8 *pointer = this->rgba.get();
+	for (int x = 0; x < this->width; ++x) {
+		for (int y = 0; y < this->height; ++y) {
+			// printf("NOCOM %s [%3dx%3d] %3dx%3d\n", GB(this->flags, IFG_IS_8BPP, 1) ? " 8bpp" : "32bpp",width,height,x,y);
+			uint32 colour = this->GetPixel(x, y);
+			*pointer = (colour >> 24) & 0xff; ++pointer;
+			*pointer = (colour >> 16) & 0xff; ++pointer;
+			*pointer = (colour >>  8) & 0xff; ++pointer;
+			*pointer = (colour      ) & 0xff; ++pointer;
+		}
+	}
+}
+
 /**
  * Load 8bpp or 32bpp sprite block from the \a rcd_file.
  * @param rcd_file File being loaded.
@@ -264,12 +281,14 @@ ImageData *LoadImage(RcdFileReader *rcd_file)
 		} else {
 			imd->Load32bpp(rcd_file, rcd_file->size);
 		}
+
+		imd->flags = is_8bpp ? (1 << IFG_IS_8BPP) : 0;
+		imd->PostLoad();
 	} catch (...) {
 		_sprites.pop_back();
 		_sprites_loaded--;
 		throw;
 	}
-	imd->flags = is_8bpp ? (1 << IFG_IS_8BPP) : 0;
 	return imd;
 }
 

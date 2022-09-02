@@ -246,8 +246,6 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point
 	}
 
 	/* New fence, or moved fence. Update the mouse selector. */
-	this->fence_sel.MarkDirty();
-
 	this->fence_edge = edge; // Store new edge and base position.
 	this->fence_base = fdata.voxel_pos;
 
@@ -261,8 +259,6 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point
 	this->fence_sel.AddVoxel(fdata.voxel_pos);
 	this->fence_sel.SetupRideInfoSpace();
 	this->fence_sel.SetFenceData(fdata.voxel_pos, this->fence_type, edge);
-
-	this->fence_sel.MarkDirty();
 }
 
 void FenceGui::SelectorMouseButtonEvent(uint8 state)
@@ -298,7 +294,6 @@ void FenceGui::SelectorMouseButtonEvent(uint8 state)
 	_finances_manager.PayLandscaping(cost);
 
 	AddGroundFencesToMap(fences, vs, this->fence_base.z);
-	MarkVoxelDirty(this->fence_base);
 }
 
 /**

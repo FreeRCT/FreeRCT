@@ -62,8 +62,6 @@ public:
 	void SetPosition(Point32 pos);
 	virtual Point32 OnInitialPosition();
 
-	void MarkDirty();
-
 	virtual void OnDraw(MouseModeSelector *selector);
 	virtual void OnMouseMoveEvent(const Point16 &pos);
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
@@ -130,7 +128,6 @@ public:
 	}
 
 	inline void SetSelector(MouseModeSelector *selector);
-	inline void MarkWidgetDirty(WidgetNumber wnum);
 
 	bool initialized;            ///< Flag telling widgets whether the window has already been initialized.
 	MouseModeSelector *selector; ///< Currently active selector of this window. May be \c nullptr. Change through #SetSelector.
@@ -226,16 +223,6 @@ inline const BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum) const
 {
 	assert(wnum < this->num_widgets);
 	return this->widgets[wnum];
-}
-
-/**
- * Mark the specified widget as dirty (in need of repainting).
- * @param wnum %Widget to use.
- */
-inline void GuiWindow::MarkWidgetDirty(WidgetNumber wnum)
-{
-	BaseWidget *bw = this->GetWidget<BaseWidget>(wnum);
-	bw->MarkDirty(this->rect.base);
 }
 
 /**

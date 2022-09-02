@@ -278,12 +278,9 @@ void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
 	if (!IsLeftClick(state)) return;
 
 	/* Click with directional build, set or move the build position. */
-	this->ride_selector.MarkDirty();
-
 	this->ride_selector.SetSize(1, 1);
 	this->build_pos = this->mouse_pos;
 	this->ride_selector.SetPosition(this->mouse_pos.x, this->mouse_pos.y);
-	this->ride_selector.MarkDirty();
 	this->SetButtons();
 	this->SetupSelector();
 }
@@ -310,11 +307,8 @@ void PathBuildGui::SetupSelector()
 		/* Single tile mode or directional mode without build position, always follow the mouse. */
 		const Point16 &sel_base = this->ride_selector.area.base;
 		if (sel_base.x != this->mouse_pos.x || sel_base.y != this->mouse_pos.y) {
-			this->ride_selector.MarkDirty();
-
 			this->ride_selector.SetSize(1, 1);
 			this->ride_selector.SetPosition(this->mouse_pos.x, this->mouse_pos.y);
-			this->ride_selector.MarkDirty();
 		}
 		return;
 	}
@@ -323,11 +317,8 @@ void PathBuildGui::SetupSelector()
 	if (this->build_direction == INVALID_EDGE || this->sel_slope == TSL_INVALID) {
 		const Point16 &sel_base = this->ride_selector.area.base;
 		if (sel_base.x != this->build_pos.x || sel_base.y != this->build_pos.y) {
-			this->ride_selector.MarkDirty();
-
 			this->ride_selector.SetSize(1, 1);
 			this->ride_selector.SetPosition(this->build_pos.x, this->build_pos.y);
-			this->ride_selector.MarkDirty();
 		}
 		return;
 	}
@@ -353,8 +344,6 @@ void PathBuildGui::SetupSelector()
 		default: NOT_REACHED();
 	}
 
-	const Point16 &sel_base = this->ride_selector.area.base;
-	if (sel_base.x != add_pos.x || sel_base.y != add_pos.y) this->ride_selector.MarkDirty();
 	this->ride_selector.SetSize(1, 1);
 	this->ride_selector.SetPosition(add_pos.x, add_pos.y);
 	this->ride_selector.AddVoxel(add_pos);
@@ -365,7 +354,6 @@ void PathBuildGui::SetupSelector()
 	VoxelRideData &vrd = vtd.ride_info[add_pos.z - vtd.lowest];
 	vrd.sri = SRI_PATH;
 	vrd.instance_data = MakePathInstanceData(path_slope, this->path_type);
-	this->ride_selector.MarkDirty();
 }
 
 /**
@@ -789,8 +777,8 @@ bool PathBuildGui::MoveSelection(bool move_forward)
 
 	/* Test whether we can move in the indicated direction. */
 	Point16 dxy = _tile_dxy[edge];
-	if ((dxy.x < 0 && this->build_pos.x == 0) || (dxy.x > 0 && this->build_pos.x == _world.GetXSize() - 1)) return false;
-	if ((dxy.y < 0 && this->build_pos.y == 0) || (dxy.y > 0 && this->build_pos.y == _world.GetYSize() - 1)) return false;
+	if ((dxy.x < 0 && this->build_pos.x == 0) || (dxy.x > 0 && this->build_pos.x == _world.Width() - 1)) return false;
+	if ((dxy.y < 0 && this->build_pos.y == 0) || (dxy.y > 0 && this->build_pos.y == _world.Height() - 1)) return false;
 	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->build_pos.x + dxy.x, this->build_pos.y + dxy.y) != OWN_PARK) return false;
 
 	const Voxel *v_top, *v_bot;

@@ -491,7 +491,6 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, status != PAS_UNUSED);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
 				PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge]);
@@ -512,7 +511,6 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
 			}
@@ -524,7 +522,6 @@ uint8 AddRemovePathEdges(const XYZPoint16 &voxel_pos, uint8 slope, uint8 dirs, P
 					if (slope < PATH_FLAT_COUNT) slope = SetPathEdge(slope, edge, true);
 					if (ngb_voxel[edge] != nullptr) {
 						ngb_voxel[edge]->SetInstanceData(ngb_instance_data[edge]);
-						MarkVoxelDirty(ngb_pos[edge]);
 					}
 				}
 				PathObjectInstance *obj = _scenery.GetPathObject(ngb_pos[edge]);

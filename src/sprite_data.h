@@ -31,6 +31,7 @@ public:
 
 	void Load8bpp(RcdFileReader *rcd_file, size_t length);
 	void Load32bpp(RcdFileReader *rcd_file, size_t length);
+	void PostLoad();
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
 
@@ -50,6 +51,7 @@ public:
 	int16 yoffset; ///< Vertical offset of the image.
 	std::unique_ptr<uint32[]> table;  ///< The jump table. For missing entries, #INVALID_JUMP is used.
 	std::unique_ptr<uint8 []> data ;  ///< The image data itself.
+	std::unique_ptr<uint8 []> rgba ;  ///< A copy of the image with all pixel values calculated, in RGBA format.
 };
 
 ImageData *LoadImage(RcdFileReader *rcd_file);

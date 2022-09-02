@@ -112,13 +112,11 @@ void OverlayShaded(const Rectangle32 &rect)
 	if (img == nullptr) return;
 
 	Rectangle32 r(rect);
-	r.RestrictTo(0, 0, _video.GetXSize(), _video.GetYSize());
+	r.RestrictTo(0, 0, _video.Width(), _video.Height());
 	if (r.width == 0 || r.height == 0) return;
 
 	/* Set clipped area to the rectangle. */
-	ClippedRectangle cr(_video.GetClippedRectangle());
-	ClippedRectangle new_cr(cr, r.base.x, r.base.y, r.width, r.height);
-	_video.SetClippedRectangle(new_cr);
+	_video.PushClip(r);
 
 	/* Align the disabled sprite so it becomes a continuous pattern. */
 	int32 base_x = -(r.base.x % img->width);
@@ -129,7 +127,7 @@ void OverlayShaded(const Rectangle32 &rect)
 	static const Recolouring recolour; // Fixed recolouring mapping.
 	_video.BlitImages({base_x, base_y}, img, numx, numy, recolour);
 
-	_video.SetClippedRectangle(cr); // Restore clipped area.
+	_video.PopClip();
 }
 
 /**

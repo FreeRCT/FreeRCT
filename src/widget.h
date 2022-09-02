@@ -90,8 +90,6 @@ public:
 	virtual bool OnMouseWheelEvent(int direction);
 	void SetVisible(GuiWindow *w, bool v);
 
-	void MarkDirty(const Point32 &base) const;
-
 	WidgetType wtype;    ///< Widget type.
 	WidgetNumber number; ///< Widget number.
 

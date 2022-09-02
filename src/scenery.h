@@ -80,7 +80,6 @@ public:
 	void OnAnimate(int delay);
 	bool IsDry() const;
 	bool ShouldBeWatered() const;
-	void MarkDirty();
 
 	void InsertIntoWorld();
 	void RemoveFromWorld();

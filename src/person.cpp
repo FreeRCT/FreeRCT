@@ -410,7 +410,7 @@ void Person::Activate(const Point16 &start, PersonType person_type)
 	if (start.x == 0) {
 		this->pix_pos.x = 0;
 		this->pix_pos.y = 128 - this->offset;
-	} else if (start.x == _world.GetXSize() - 1) {
+	} else if (start.x == _world.Width() - 1) {
 		this->pix_pos.x = 255;
 		this->pix_pos.y = 128 + this->offset;
 	} else if (start.y == 0) {
@@ -857,7 +857,6 @@ void Person::Load(Loader &ldr)
 	this->frame_count = anim->frame_count;
 
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
-	this->MarkDirty();
 	ldr.ClosePattern();
 }
 
@@ -1094,8 +1093,8 @@ static TileEdge GetParkEntryDirection(const XYZPoint16 &pos)
 	PathSearcher ps(pos); // Current position is the destination.
 
 	/* Add path tiles with a connection to outside the park to the initial starting points. */
-	for (int x = 0; x < _world.GetXSize() - 1; x++) {
-		for (int y = 0; y < _world.GetYSize() - 1; y++) {
+	for (int x = 0; x < _world.Width() - 1; x++) {
+		for (int y = 0; y < _world.Height() - 1; y++) {
 			const VoxelStack *vs = _world.GetStack(x, y);
 			if (vs->owner == OWN_PARK) {
 				if (_world.GetStack(x + 1, y)->owner != OWN_PARK || _world.GetStack(x, y + 1)->owner != OWN_PARK) {
@@ -1327,8 +1326,8 @@ uint8 Person::GetInparkDirections()
 	for (TileEdge exit_edge = EDGE_BEGIN; exit_edge != EDGE_COUNT; exit_edge++) {
 		Point16 dxy = _tile_dxy[exit_edge];
 
-		if (this->vox_pos.x + dxy.x < 0 || this->vox_pos.x + dxy.x >= _world.GetXSize()) continue;
-		if (this->vox_pos.y + dxy.y < 0 || this->vox_pos.y + dxy.y >= _world.GetYSize()) continue;
+		if (this->vox_pos.x + dxy.x < 0 || this->vox_pos.x + dxy.x >= _world.Width()) continue;
+		if (this->vox_pos.y + dxy.y < 0 || this->vox_pos.y + dxy.y >= _world.Height()) continue;
 
 		if (_world.GetTileOwner(this->vox_pos.x + dxy.x, this->vox_pos.y + dxy.y) == OWN_PARK) {
 			SB(exits, exit_edge, 1, 1);
@@ -1389,7 +1388,6 @@ void Person::StartAnimation(const WalkInformation *walk)
 	this->frame_count = anim->frame_count;
 	this->frame_index = 0;
 	this->frame_time = this->frames[this->frame_index].duration;
-	this->MarkDirty();
 }
 
 /**
@@ -1502,8 +1500,6 @@ AnimateResult Person::OnAnimate(int delay)
 	this->queuing_blocked_on = nullptr;
 	this->frame_time -= delay;
 	if (this->frame_time > 0) return OAR_OK;
-
-	this->MarkDirty(); // Marks the entire voxel dirty, which should be big enough even after moving.
 
 	if (this->frames == nullptr || this->frame_count == 0) return OAR_REMOVE;
 

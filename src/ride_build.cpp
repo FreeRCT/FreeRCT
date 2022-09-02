@@ -170,12 +170,10 @@ void RideBuildWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point
 	switch (wid_num) {
 		case RBW_POS_ROTATE:
 			this->orientation = static_cast<TileEdge>((this->orientation + 3) & 3);
-			this->MarkWidgetDirty(RBW_DISPLAY_RIDE);
 			break;
 
 		case RBW_NEG_ROTATE:
 			this->orientation = static_cast<TileEdge>((this->orientation + 1) & 3);
-			this->MarkWidgetDirty(RBW_DISPLAY_RIDE);
 			break;
 	}
 }
@@ -328,9 +326,9 @@ RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos,
 		} else {
 			/* Since z gets smaller, we subtract dx and dy, thus the checks reverse. */
 			if (vox_pos.x < 0 && dx > 0) break;
-			if (vox_pos.x >= _world.GetXSize() && dx < 0) break;
+			if (vox_pos.x >= _world.Width() && dx < 0) break;
 			if (vox_pos.y < 0 && dy > 0) break;
-			if (vox_pos.y >= _world.GetYSize() && dy < 0) break;
+			if (vox_pos.y >= _world.Height() && dy < 0) break;
 		}
 		world_pos.x -= 128 * dx;
 		world_pos.y -= 128 * dy;
@@ -346,14 +344,11 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	/* Clean current display if needed. */
 	switch (this->ComputeFixedRideVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z), vp->orientation)) {
 		case RPR_FAIL:
-			this->selector.MarkDirty(); // Does not do anything with a zero-sized mouse selector.
 			this->selector.SetSize(0, 0);
 			return;
 
 		case RPR_SAMEPOS:
 		case RPR_CHANGED: {
-			this->selector.MarkDirty();
-
 			/// \todo Let the ride do this.
 			FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
 			assert(si != nullptr);
@@ -387,7 +382,6 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 					this->selector.SetRideData(pos, inst_number, si->GetEntranceDirections(pos));
 				}
 			}
-			this->selector.MarkDirty();
 			return;
 		}
 

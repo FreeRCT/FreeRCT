@@ -148,9 +148,9 @@ bool PathSearcher::Search()
 			/* There is an outgoing connection, is it also on the world? */
 			Point16 dxy = _tile_dxy[edge];
 			if (dxy.x < 0 && wp->cur_vox.x == 0) continue;
-			if (dxy.x > 0 && wp->cur_vox.x + 1 == _world.GetXSize()) continue;
+			if (dxy.x > 0 && wp->cur_vox.x + 1 == _world.Width()) continue;
 			if (dxy.y < 0 && wp->cur_vox.y == 0) continue;
-			if (dxy.y > 0 && wp->cur_vox.y + 1 == _world.GetYSize()) continue;
+			if (dxy.y > 0 && wp->cur_vox.y + 1 == _world.Height()) continue;
 
 			int extra_z = ((exits & (0x10 << edge)) != 0);
 			if (wp->cur_vox.z + extra_z < 0 || wp->cur_vox.z + extra_z >= WORLD_Z_SIZE) continue;

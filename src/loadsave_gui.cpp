@@ -326,7 +326,6 @@ bool LoadSaveGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string
 				scrollbar->SetStart(new_index + 1 - scrollbar->GetVisibleCount());
 			}
 
-			this->MarkDirty();
 			return true;
 		}
 
@@ -345,19 +344,15 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 
 		case LSW_SORT_FILE:
 			this->Sort(SortByFilename);
-			this->MarkDirty();
 			break;
 		case LSW_SORT_TIME:
 			this->Sort(SortByTimestamp);
-			this->MarkDirty();
 			break;
 		case LSW_SORT_NAME:
 			this->Sort(SortByScenario);
-			this->MarkDirty();
 			break;
 		case LSW_SORT_REV:
 			this->Sort(SortByCompatibility);
-			this->MarkDirty();
 			break;
 
 		case LSW_LIST_FILE:
@@ -498,8 +493,8 @@ void LoadsaveConfirmationWindow::SetWidgetStringParameters(const WidgetNumber wi
 Point32 LoadsaveConfirmationWindow::OnInitialPosition()
 {
 	Point32 pt;
-	pt.x = (_video.GetXSize() - this->rect.width ) / 2;
-	pt.y = (_video.GetYSize() - this->rect.height) / 2;
+	pt.x = (_video.Width() - this->rect.width ) / 2;
+	pt.y = (_video.Height() - this->rect.height) / 2;
 	return pt;
 }
 

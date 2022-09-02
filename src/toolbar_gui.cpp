@@ -360,7 +360,7 @@ Point32 BottomToolbarWindow::OnInitialPosition()
 {
 	static Point32 pt;
 	pt.x = BOTTOM_BAR_POSITION_X;
-	pt.y = _video.GetYSize() - BOTTOM_BAR_HEIGHT;
+	pt.y = _video.Height() - BOTTOM_BAR_HEIGHT;
 	return pt;
 }
 
@@ -430,11 +430,6 @@ void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos
 void BottomToolbarWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	switch (code) {
-		case CHG_DISPLAY_OLD:
-		case CHG_GUEST_COUNT:
-			this->MarkDirty();
-			break;
-
 		case CHG_RESOLUTION_CHANGED:
 			this->ResetSize();
 			break;
@@ -480,7 +475,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 			break;
 
 		case BTB_EMPTY:
-			p.x = _video.GetXSize() - (2 * BOTTOM_BAR_POSITION_X);
+			p.x = _video.Width() - (2 * BOTTOM_BAR_POSITION_X);
 			break;
 
 		case BTB_DATE:
@@ -593,8 +588,8 @@ const WidgetPart _quit_program_widgets[] = { \
 Point32 QuitProgramWindow::OnInitialPosition()
 {
 	Point32 pt;
-	pt.x = (_video.GetXSize() - this->rect.width ) / 2;
-	pt.y = (_video.GetYSize() - this->rect.height) / 2;
+	pt.x = (_video.Width() - this->rect.width ) / 2;
+	pt.y = (_video.Height() - this->rect.height) / 2;
 	return pt;
 }
 

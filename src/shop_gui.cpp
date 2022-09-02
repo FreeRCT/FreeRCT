@@ -154,7 +154,6 @@ public:
 	void UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
-	void OnChange(ChangeCode code, uint32 parameter) override;
 
 private:
 	ShopInstance *shop; ///< Shop instance getting managed by this window.
@@ -274,11 +273,6 @@ void ShopManagerWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Poi
 			ShowShopRemove(this->shop);
 			break;
 	}
-}
-
-void ShopManagerWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
-{
-	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }
 
 /**

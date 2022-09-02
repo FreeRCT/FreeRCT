@@ -152,10 +152,9 @@ ParkManagementGui::ParkManagementGui(ParkManagementGuiTabs tab) : GuiWindow(WC_P
 
 	TextInputWidget *txt = this->GetWidget<TextInputWidget>(PM_PARKNAME);
 	txt->SetText(_game_observer.park_name);
-	txt->text_changed = [this, txt]()
+	txt->text_changed = [txt]()
 	{
 		_game_observer.park_name = txt->GetText();
-		this->MarkDirty();
 	};
 
 	this->UpdateButtons();

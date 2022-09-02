@@ -74,7 +74,6 @@ public:
 	GuestInfoWindow(const Guest *guest);
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
-	void OnChange(ChangeCode code, uint32 parameter) override;
 
 private:
 	const Guest *guest; ///< The guest getting looked at by this window.
@@ -134,11 +133,6 @@ void GuestInfoWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 		default: break;
 	}
-}
-
-void GuestInfoWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
-{
-	if (code == CHG_DISPLAY_OLD) this->MarkDirty();
 }
 
 /** Widgets of the staff info window. */
@@ -215,9 +209,6 @@ void StaffInfoWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point1
 void StaffInfoWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	switch (code) {
-		case CHG_DISPLAY_OLD:
-			this->MarkDirty();
-			break;
 		case CHG_PERSON_DELETED:
 			delete this;
 			break;

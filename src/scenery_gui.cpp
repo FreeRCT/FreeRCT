@@ -177,7 +177,6 @@ void SceneryGui::SetType(const SceneryType *t)
 	_scenery.temp_item = nullptr;
 	this->build_forbidden_reason.Reset();
 	this->scenery_sel.SetSize(0, 0);
-	this->MarkDirty();
 }
 
 void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
@@ -190,7 +189,6 @@ void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			_scenery.temp_item = nullptr;
 			this->build_forbidden_reason.Reset();
 			this->scenery_sel.SetSize(0, 0);
-			this->MarkDirty();
 			break;
 
 		case SCENERY_CATEGORY_TREES:
@@ -230,7 +228,6 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 	const int8 dx = _orientation_signum_dx[vp->orientation];
 	const int8 dy = _orientation_signum_dy[vp->orientation];
-	scenery_sel.MarkDirty();
 	bool placed = false;
 	for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {
 		const int dz = (z - (vp->view_pos.z / 256)) / 2;
@@ -277,7 +274,6 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		this->instance->vox_pos = XYZPoint16::invalid();
 		scenery_sel.SetSize(0, 0);
 	}
-	scenery_sel.MarkDirty();
 }
 
 void SceneryGui::SelectorMouseButtonEvent(const uint8 state)

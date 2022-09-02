@@ -114,10 +114,8 @@ void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const P
 	int ysel = sel_rect.base.y + sel_rect.height / 2;
 	if (fdata.cursor == this->tiles_selector.cur_cursor && fdata.voxel_pos.x == xsel && fdata.voxel_pos.y == ysel) return;
 
-	this->tiles_selector.MarkDirty();
 	this->tiles_selector.cur_cursor = fdata.cursor; // Copy cursor and position.
 	this->tiles_selector.SetPosition(fdata.voxel_pos.x - sel_rect.width / 2, fdata.voxel_pos.y - sel_rect.height / 2);
-	this->tiles_selector.MarkDirty();
 }
 
 void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
@@ -201,8 +199,6 @@ void TerraformGui::Setlevelling(bool level)
 	this->SetWidgetChecked(TERR_MOVE, !this->level);
 	this->SetWidgetPressed(TERR_LEVEL, this->level);
 	this->SetWidgetPressed(TERR_MOVE, !this->level);
-	this->MarkWidgetDirty(TERR_LEVEL);
-	this->MarkWidgetDirty(TERR_MOVE);
 }
 
 /**
@@ -215,17 +211,12 @@ void TerraformGui::SetTerraformSize(int xs, int ys)
 	if (xs >= 0) this->xsize = xs;
 	if (ys >= 0) this->ysize = ys;
 
-	this->MarkWidgetDirty(TERR_DISPLAY);
-
-	if (this->selector != nullptr) this->selector->MarkDirty();
-
 	if (this->xsize == 0 && this->ysize == 0) {
 		this->tiles_selector.SetSize(1, 1);
 	} else {
 		this->tiles_selector.SetSize(this->xsize, this->ysize);
 	}
 	SetSelector(&this->tiles_selector);
-	if (this->selector != nullptr) this->selector->MarkDirty();
 }
 
 /** Increase the size of the terraform area. */

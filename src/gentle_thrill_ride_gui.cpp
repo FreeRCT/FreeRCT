@@ -487,7 +487,6 @@ void GentleThrillRideManagerWindow::ChooseEntranceExitClicked(const bool entranc
 	}
 
 	entrance_exit_placement.SetSize(0, 0);
-	entrance_exit_placement.MarkDirty();
 }
 
 void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
@@ -498,7 +497,6 @@ void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const P
 	const int dz = (this->ride->vox_pos.z - (vp->view_pos.z / 256)) / 2;
 	const XYZPoint16 location(world_pos.x / 256 + dz * dx, world_pos.y / 256 + dz * dy, this->ride->vox_pos.z);
 
-	entrance_exit_placement.MarkDirty();
 	entrance_exit_placement.SetPosition(location.x, location.y);
 	if (this->ride->CanPlaceEntranceOrExit(location, this->is_placing_entrance)) {
 		if (this->is_placing_entrance) {
@@ -518,7 +516,6 @@ void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const P
 		}
 		entrance_exit_placement.SetSize(0, 0);
 	}
-	entrance_exit_placement.MarkDirty();
 }
 
 void GentleThrillRideManagerWindow::SelectorMouseButtonEvent(const uint8 state)
@@ -550,9 +547,6 @@ void GentleThrillRideManagerWindow::SelectorMouseButtonEvent(const uint8 state)
 void GentleThrillRideManagerWindow::OnChange(const ChangeCode code, const uint32 parameter)
 {
 	switch (code) {
-		case CHG_DISPLAY_OLD:
-			this->MarkDirty();
-			break;
 		case CHG_DROPDOWN_RESULT:
 			switch ((parameter >> 16) & 0xFF) {
 				case GTRMW_CHOOSE_ENTRANCE:

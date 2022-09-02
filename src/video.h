@@ -5,102 +5,225 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file video.h Video handling. */
+/** @file video.h Graphics system handling. */
 
-#ifndef VIDEO_H
-#define VIDEO_H
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
 
-#include <memory>
-#include <set>
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include "stdafx.h"
 #include "geometry.h"
 #include "palette.h"
-#include "window_constants.h"
+#include <chrono>
+#include <map>
+#include <set>
+#include <string>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <freetype2/ft2build.h>
+#include FT_FREETYPE_H
 
+struct FontGlyph;
 class ImageData;
 
-/** Clipped rectangle. */
-class ClippedRectangle {
+using Realtime = std::chrono::high_resolution_clock::time_point;  ///< Represents a time point in real time.
+using Duration = std::chrono::duration<double, std::milli>;       ///< Difference between two time points with millisecond precision.
+
+/**
+ * Get the current real time.
+ * @return The time.
+ */
+inline Realtime Time()
+{
+	return std::chrono::high_resolution_clock::now();
+}
+
+/**
+ * Get the time difference between two time points in milliseconds.
+ * @return The time difference.
+ */
+inline double Delta(const Realtime &start, const Realtime &end = Time())
+{
+	Duration d = end - start;
+	return d.count();
+}
+
+/**
+ * Convert a 32-bit integer RGBA colour to an OpenGL colour vector.
+ * @param c Input colour.
+ * @return OpenGL colour.
+ */
+inline glm::vec4 HexToColourRGBA(uint32_t c)
+{
+	return glm::vec4(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f,
+			((c & 0xff000000) >> 24) / 255.f);
+}
+
+/**
+ * Convert a 24-bit integer RGB colour to an OpenGL colour vector.
+ * @param c Input colour.
+ * @return OpenGL colour.
+ */
+inline glm::vec3 HexToColourRGB(uint32_t c)
+{
+	return glm::vec3(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f);
+}
+
+/** Class responsible for rendering text. */
+class TextRenderer {
 public:
-	ClippedRectangle();
-	ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h);
-	ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 y, uint16 w, uint16 h);
+	void Initialize();
 
-	ClippedRectangle(const ClippedRectangle &cr);
-	ClippedRectangle &operator=(const ClippedRectangle &cr);
+	/**
+	 * Get the font size.
+	 * @return Size of the font.
+	 */
+	GLuint GetFontSize() const
+	{
+		return this->font_size;
+	}
 
-	void ValidateAddress();
+	void LoadFont(const std::string &font_path, GLuint font_size);
+	void Draw(const std::string &text, float x, float y, const glm::vec3 &colour, float scale = 1.0f);
+	glm::vec2 EstimateBounds(const std::string &text, float scale = 1.0f) const;
 
-	uint16 absx;     ///< Absolute X position in the screen of the top-left.
-	uint16 absy;     ///< Absolute Y position in the screen of the top-left.
-	uint16 width;    ///< Number of columns.
-	uint16 height;   ///< Number of rows.
-
-	uint32 *address; ///< Base address. @note Call #ValidateAddress prior to use.
-	int32 pitch;     ///< Pitch of a row in bytes. @note Call #ValidateAddress prior to use.
+private:
+	std::map<GLchar, FontGlyph> characters;  ///< All character glyphs in the current font.
+	GLuint font_size;                        ///< Current font size.
+	GLuint shader;                           ///< The font shader.
+	GLuint vao;                              ///< The OpenGL vertex array.
+	GLuint vbo;                              ///< The OpenGL vertex buffer.
 };
+
+extern TextRenderer _text_renderer;
 
 /** How to align text during drawing. */
 enum Alignment {
-	ALG_LEFT,   ///< Align to the left edge.
-	ALG_CENTER, ///< Centre the text.
-	ALG_RIGHT,  ///< Align to the right edge.
+	ALG_LEFT,    ///< Align to the left edge.
+	ALG_CENTER,  ///< Centre the text.
+	ALG_RIGHT,   ///< Align to the right edge.
 };
 
-/**
- * Class representing the video system.
- */
+/** Class providing the interface to the OpenGL rendering backend. */
 class VideoSystem {
-	friend class ClippedRectangle;
-
 public:
-	static void MainLoop();
+	void Initialize(const std::string &font, int font_size);
+
 	static void MainLoopCycle();
-
-	VideoSystem();
-	~VideoSystem();
-
-	std::string Initialize(const std::string &font_name, int font_size);
-	bool SetResolution(const Point32 &res);
-	void GetResolutions();
-	bool MainLoopDoCycle();
+	void MainLoop();
 	void Shutdown();
 
+	double FPS() const;
+
 	/**
-	 * Get horizontal size of the screen.
-	 * @return Number of pixels of the screen horizontally.
+	 * Get the current width of the window.
+	 * @return The width in pixels.
 	 */
-	uint16 GetXSize() const
+	float Width() const
 	{
-		assert(this->initialized);
-		return this->vid_width;
+		return this->width;
 	}
 
 	/**
-	 * Get vertical size of the screen.
-	 * @return Number of pixels of the screen vertically.
+	 * Get the current height of the window.
+	 * @return The height in pixels.
 	 */
-	uint16 GetYSize() const
+	float Height() const
 	{
-		assert(this->initialized);
-		return this->vid_height;
+		return this->height;
 	}
 
 	/**
-	 * Query whether the display needs to be repainted.
-	 * @return Display needs an update.
+	 * Get the current mouse position.
+	 * @return The mouse X coordinate.
 	 */
-	inline bool DisplayNeedsRepaint()
+	float MouseX() const
 	{
-		return this->dirty;
+		return this->mouse_x;
 	}
 
-	void MarkDisplayDirty();
-	void MarkDisplayDirty(const Rectangle32 &rect);
+	/**
+	 * Get the current mouse position.
+	 * @return The mouse Y coordinate.
+	 */
+	float MouseY() const
+	{
+		return this->mouse_y;
+	}
 
-	void SetClippedRectangle(const ClippedRectangle &cr);
-	ClippedRectangle GetClippedRectangle();
+	void SetResolution(const Point32 &res);
+
+	/**
+	 * List all available window resolutions.
+	 * @return The resolutions.
+	 */
+	const std::set<Point32> &Resolutions() const
+	{
+		return this->resolutions;
+	}
+
+	void CoordsToGL(float *x, float *y) const;
+	void CoordsToGL(double *x, double *y) const;
+
+	GLuint LoadShader(const std::string &name);
+
+	/**
+	 * Get the height of a line of text.
+	 * @return Height of the font.
+	 */
+	inline int GetTextHeight() const
+	{
+		return _text_renderer.GetFontSize();
+	}
+
+	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
+	void GetTextSize(const std::string &text, int *width, int *height);
+	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
+
+	/**
+	 * Draw a line from \a start to \a end using the specified \a colour.
+	 * @param start Starting point at the screen.
+	 * @param end End point at the screen.
+	 * @param colour Colour to use.
+	 */
+	inline void DrawLine(const Point16 &start, const Point16 &end, uint32 colour)
+	{
+		this->DrawLine(start.x, start.y, end.x, end.y, HexToColourRGBA(colour));
+	}
+
+	/**
+	 * Draw the outline of a rectangle at the screen.
+	 * @param rect %Rectangle to draw.
+	 * @param colour Colour to use.
+	 */
+	inline void DrawRectangle(const Rectangle32 &rect, uint32 colour)
+	{
+		glm::vec4 col = HexToColourRGBA(colour);
+		this->DrawLine(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y, col);
+		this->DrawLine(rect.base.x, rect.base.y, rect.base.x, rect.base.y + rect.height, col);
+		this->DrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y, col);
+		this->DrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x, rect.base.y + rect.height, col);
+	}
+
+	/**
+	 * Paint a rectangle at the screen.
+	 * @param rect %Rectangle to draw.
+	 * @param colour Colour to use.
+	 */
+	inline void FillRectangle(const Rectangle32 &rect, uint32 colour)
+	{
+		this->FillPlainColour(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y + rect.height, HexToColourRGBA(colour));
+	}
+
+	void FillPlainColour(float x, float y, float w, float h, const glm::vec4 &colour);
+	void DrawLine(float x1, float y1, float x2, float y2, const glm::vec4 &colour);
+	void DrawPlainColours(const std::vector<Point<float>> &points, const glm::vec4 &colour);
+
+	void DrawImage(const ImageData *img, const Point32 &pos, const glm::vec4 &col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	void TileImage(const ImageData *img, const Rectangle32 &rect, const glm::vec4 &col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	void BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
 
 	/**
 	 * Blit a row of sprites.
@@ -140,51 +263,50 @@ public:
 		this->BlitImages(img_base, spr, 1, 1, recolour, shift);
 	}
 
-	void BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
+	void PushClip(const Rectangle32 &rect);
+	void PopClip();
 
 	void FinishRepaint();
 
-	/**
-	 * Get the height of a line of text.
-	 * @return Height of the font.
-	 */
-	int GetTextHeight() const
-	{
-		return this->font_height;
-	}
-
-	void GetTextSize(const std::string &text, int *width, int *height);
-	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
-	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
-	void DrawLine(const Point16 &start, const Point16 &end, uint32 colour);
-	void DrawRectangle(const Rectangle32 &rect, uint32 colour);
-	void FillRectangle(const Rectangle32 &rect, uint32 colour);
-
-	bool missing_sprites; ///< Indicates that some sprites cannot be drawn.
-	std::set<Point32> resolutions; ///< Set (for automatic sorting) of available resolutions.
-
 private:
-	int vid_width;    ///< Width of the application window.
-	int vid_height;   ///< Height of the application window.
-	int font_height;  ///< Height of a line of text in pixels.
-	bool initialized; ///< Video system is initialized.
-	bool dirty;       ///< Video display needs being repainted.
+	bool MainLoopDoCycle();
 
-	TTF_Font *font;             ///< Opened text font.
-	SDL_Window *window;         ///< %Window of the application.
-	SDL_Renderer *renderer;     ///< GPU renderer to the application window.
-	SDL_Texture *texture;       ///< GPU Texture storage of the application window.
-	std::unique_ptr<uint32[]> mem;  ///< Memory used for blitting the application display.
-	ClippedRectangle blit_rect; ///< %Rectangle to blit in.
-	Point16 digit_size;         ///< Size of largest digit (initially a zero-size).
+	GLuint LoadShaders(const char *vp, const char *fp);
 
-	WmKeyMod modifier_state;  ///< Bitmask of currently pressed modifiers.
+	void EnsureImageLoaded(const ImageData *img);
+	void DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2,
+			const glm::vec4 &col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), const glm::vec4 &tex = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	bool HandleEvent();
-	void MarkDisplayClean();
+	static void FramebufferSizeCallback(GLFWwindow *window, int w, int h);
+	static void MouseClickCallback(GLFWwindow *window, int button, int action, int mods);
+	static void MouseMoveCallback(GLFWwindow *window, double x, double y);
+	static void ScrollCallback(GLFWwindow *window, double unused, double delta);
+
+	uint32_t width;   ///< Current window width in pixels.
+	uint32_t height;  ///< Current window height in pixels.
+	double mouse_x;   ///< Current mouse X position.
+	double mouse_y;   ///< Current mouse Y position.
+
+	std::set<Point32> resolutions;  ///< Available window resolutions.
+
+	Realtime last_frame;  ///< Time when the last frame started.
+	Realtime cur_frame;   ///< Time when the current frame started.
+
+	std::map<const ImageData*, GLuint> image_textures;  ///< Textures for all loaded images.
+
+	GLuint image_shader;   ///< Shader for images.
+	GLuint colour_shader;  ///< Shader for plain colours.
+	GLuint vao;            ///< The OpenGL vertex array.
+	GLuint vbo;            ///< The OpenGL vertex buffer.
+	GLuint ebo;            ///< The OpenGL element buffer.
+
+	std::vector<Rectangle32> clip;  ///< Current clipping area stack.
+
+	GLFWwindow *window;  ///< The GLFW window.
 };
 
+extern uint32 _icon_data[32][32];
+
 extern VideoSystem _video;
-extern const uint32 _icon_data[32][32];
 
 #endif
