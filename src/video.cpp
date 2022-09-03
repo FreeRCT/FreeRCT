@@ -416,7 +416,7 @@ void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int 
 
 		case GLFW_KEY_ENTER:
 		case GLFW_KEY_KP_ENTER:
-			key_code = WMKC_CANCEL;
+			key_code = WMKC_CONFIRM;
 			break;
 
 		default:
@@ -426,7 +426,7 @@ void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int 
 			 * all others are larger than the largest valid ASCII character (which is 0x7F).
 			 */
 			if ((mod_mask & ~WMKM_SHIFT) != 0 && key <= 0x7F) {
-				symbol += key;
+				symbol += tolower(key);
 				key_code = WMKC_SYMBOL;
 				break;
 			}
