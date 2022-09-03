@@ -60,9 +60,9 @@ void TextRenderer::Initialize()
 	glGenBuffers(1, &this->vbo);
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * /*4*/2, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, /*4*/2, GL_FLOAT, GL_FALSE, /*4*/2 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -79,11 +79,11 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
-	    error("TextRenderer::LoadFont: Could not init FreeType Library");
+		error("TextRenderer::LoadFont: Could not init FreeType Library");
 	}
 	FT_Face face;
 	if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-	    error("TextRenderer::LoadFont: Failed to load font '%s'", font_path.c_str());
+		error("TextRenderer::LoadFont: Failed to load font '%s'", font_path.c_str());
 	}
 
 	FT_Select_Charmap(face, FT_ENCODING_UNICODE);
@@ -93,43 +93,43 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 
 	/* Load all characters we may need. */
 	for (int c = 0; c < 128; ++c) TextData::_all_unicode_chars.insert(c);
-	for (char c : CHARACTER_NOT_FOUND) TextData::_all_unicode_chars.insert(c);
+	for (uint32 c : CHARACTER_NOT_FOUND) TextData::_all_unicode_chars.insert(c);
 	TextData::_all_unicode_chars.insert(BEARING_CHARACTER);
 
 	for (uint32 codepoint : TextData::_all_unicode_chars) {
-	    if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER) != 0) {
-	        char buffer[] = {0, 0, 0, 0, 0};
-	        EncodeUtf8Char(codepoint, buffer);
-	        printf("WARNING: Failed to load glyph U+%04x '%s'\n", codepoint, buffer);
-	        continue;
-	    }
+		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER) != 0) {
+			char buffer[] = {0, 0, 0, 0, 0};
+			EncodeUtf8Char(codepoint, buffer);
+			printf("WARNING: Failed to load glyph U+%04x '%s'\n", codepoint, buffer);
+			continue;
+		}
 
-	    GLuint texture;
-	    glGenTextures(1, &texture);
-	    glBindTexture(GL_TEXTURE_2D, texture);
-	    glTexImage2D(
-		        GL_TEXTURE_2D,
-		        0,
-		        GL_RED,
-		        face->glyph->bitmap.width,
-		        face->glyph->bitmap.rows,
-		        0,
-		        GL_RED,
-		        GL_UNSIGNED_BYTE,
-		        face->glyph->bitmap.buffer
-	    );
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RED,
+				face->glyph->bitmap.width,
+				face->glyph->bitmap.rows,
+				0,
+				GL_RED,
+				GL_UNSIGNED_BYTE,
+				face->glyph->bitmap.buffer
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	    FontGlyph glyph = {
-	        texture,
-	        Point16(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-	        Point16(face->glyph->bitmap_left, face->glyph->bitmap_top),
-	        static_cast<GLuint>(face->glyph->advance.x)
-	    };
-	    this->characters.emplace(codepoint, glyph);
+		FontGlyph glyph = {
+			texture,
+			Point16(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			Point16(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<GLuint>(face->glyph->advance.x)
+		};
+		this->characters.emplace(codepoint, glyph);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -191,67 +191,42 @@ const FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) c
  * @param colour Colour in which to draw the text.
  * @param scale Scaling factor for the text size.
  */
-void TextRenderer::Draw(const std::string &text, float x, float y, const XYZPointF &colour, float scale)
+void TextRenderer::Draw(const std::string &text, float x, float y, const WXYZPointF &colour, float scale)
 {
+	if (text.empty()) return;
 	glUseProgram(this->shader);
-	glUniform3fv(glGetUniformLocation(this->shader, "text_colour"), 1, &colour.x);
-
-	/* float window_w = 2.f / _video.Width();
-	float window_h = 2.f / _video.Height();
-	float projection[] = {
-			window_w, window_w, window_w,
-			0, 0, 0,
-			0, 0, 0,
-			0, 0, 0,
-
-			0, 0, 0,
-			window_h, window_h, window_h,
-			0, 0, 0,
-			0, 0, 0,
-
-			0, 0, 0,
-			0, 0, 0,
-			-1, -1, -1,
-			0, 0, 0,
-
-			-1, -1, -1,
-			-1, -1, -1,
-			0, 0, 0,
-			1, 1, 1,
-	};
-	glUniformMatrix4fv(glGetUniformLocation(this->shader, "projection"), 1, GL_FALSE, projection); */
+	glUniform4fv(glGetUniformLocation(this->shader, "text_colour"), 1, &colour.w);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(this->vao);
 
 	size_t text_length = text.size();
 	for (const char *c = text.c_str(); *c != '\0';) {
-	    const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
+		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
 
-	    GLfloat xpos = x + fg.bearing.x * scale;
-	    GLfloat ypos = y + (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
-	    GLfloat w = fg.size.x * scale;
-	    GLfloat h = fg.size.y * scale;
+		GLfloat x1 = x + fg.bearing.x * scale;
+		GLfloat y1 = y - (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
+		GLfloat x2 = x1 + fg.size.x * scale;
+		GLfloat y2 = y1 + fg.size.y * scale;
 
-		_video.CoordsToGL(&xpos, &ypos);
-		_video.CoordsToGL(&w, &h);
+		_video.CoordsToGL(&x1, &y1);
+		_video.CoordsToGL(&x2, &y2);
 
-	    GLfloat vertices[6][4] = {
-	        // Text position        // Texture position
-	        { xpos,     ypos - h,   0.f, 1.f },
-	        { xpos + w, ypos,       1.f, 0.f },
-	        { xpos,     ypos,       0.f, 0.f },
+		GLfloat vertices[6][4] = {
+			{ x1, y2,   0.f, 1.f },
+			{ x2, y1,   1.f, 0.f },
+			{ x1, y1,   0.f, 0.f },
 
-	        { xpos,     ypos - h,   0.f, 1.f },
-	        { xpos + w, ypos - h,   1.f, 1.f },
-	        { xpos + w, ypos,       1.f, 0.f }
-	    };
-	    glBindTexture(GL_TEXTURE_2D, fg.texture_id);
-	    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-	    glBindBuffer(GL_ARRAY_BUFFER, 0);
-	    glDrawArrays(GL_TRIANGLES, 0, 6);
-	    x += (fg.advance >> 6) * scale;
+			{ x1, y2,   0.f, 1.f },
+			{ x2, y2,   1.f, 1.f },
+			{ x2, y1,   1.f, 0.f }
+		};
+		glBindTexture(GL_TEXTURE_2D, fg.texture_id);
+		glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		x += (fg.advance >> 6) * scale;
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -262,21 +237,22 @@ void TextRenderer::Draw(const std::string &text, float x, float y, const XYZPoin
  * @param text Text to estimate.
  * @param scale Scaling factor for the text size.
  */
-PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
+PointF TextRenderer::EstimateBounds(std::string text, float scale) const
 {
 	float x = 0;
 	float width = 0;
 	float height = 0;
+	if (text.empty()) text += BEARING_CHARACTER;  // We want to guarantee a certain minimum size.
 	size_t text_length = text.size();
 	for (const char *c = text.c_str(); *c != '\0';) {
-	    const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
-	    GLfloat xpos = x + fg.bearing.x * scale;
-	    GLfloat ypos = (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
+		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
+		GLfloat xpos = x + fg.bearing.x * scale;
+		GLfloat ypos = (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
 		GLfloat w = fg.size.x * scale;
-	    GLfloat h = fg.size.y * scale;
-	    width = std::max(width, xpos + w);
-	    height = std::max(height, ypos + h);
-	    x += (fg.advance >> 6) * scale;
+		GLfloat h = fg.size.y * scale;
+		width = std::max(width, xpos + w);
+		height = std::max(height, ypos + h);
+		x += (fg.advance >> 6) * scale;
 	}
 	return PointF(width, height);
 }
@@ -931,7 +907,7 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
 		}
 	}
 
-	_text_renderer.Draw(text, x, ypos, HexToColourRGB(colour));  // NOCOM max width and alignment
+	_text_renderer.Draw(text, x, ypos, HexToColourRGBA(colour));  // NOCOM max width and alignment
 }
 
 /**

@@ -58,16 +58,6 @@ inline WXYZPointF HexToColourRGBA(uint32_t c)
 			(c & 0xff) / 255.f);
 }
 
-/**
- * Convert a 24-bit integer RGB colour to a colour vector.
- * @param c Input colour.
- * @return OpenGL colour.
- */
-inline XYZPointF HexToColourRGB(uint32_t c)
-{
-	return XYZPointF(((c & 0xff000000) >> 24) / 255.f, ((c & 0xff0000) >> 16) / 255.f, (c & 0xff00 >> 8) / 255.f);
-}
-
 /** Class responsible for rendering text. */
 class TextRenderer {
 public:
@@ -83,8 +73,8 @@ public:
 	}
 
 	void LoadFont(const std::string &font_path, GLuint font_size);
-	void Draw(const std::string &text, float x, float y, const XYZPointF &colour, float scale = 1.0f);
-	PointF EstimateBounds(const std::string &text, float scale = 1.0f) const;
+	void Draw(const std::string &text, float x, float y, const WXYZPointF &colour, float scale = 1.0f);
+	PointF EstimateBounds(std::string text, float scale = 1.0f) const;
 
 	const FontGlyph &GetFontGlyph(const char **text, size_t &length) const;
 
