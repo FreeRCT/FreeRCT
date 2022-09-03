@@ -232,24 +232,19 @@ void TextRenderer::Draw(const std::string &text, float x, float y, const XYZPoin
 	    GLfloat ypos = y + (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
 	    GLfloat w = fg.size.x * scale;
 	    GLfloat h = fg.size.y * scale;
-		GLfloat x0 = 0.0f;
-		GLfloat y0 = 0.0f;
-		GLfloat x1 = 1.0f;
-		GLfloat y1 = 1.0f;
 
 		_video.CoordsToGL(&xpos, &ypos);
 		_video.CoordsToGL(&w, &h);
-		// _video.CoordsToGL(&x0, &y0);
-		// _video.CoordsToGL(&x1, &y1);
 
 	    GLfloat vertices[6][4] = {
-	        { xpos,     ypos - h,   /*x0, y1*/ },
-	        { xpos + w, ypos,       /*x1, y0*/ },
-	        { xpos,     ypos,       /*x0, y0*/ },
+	        // Text position        // Texture position
+	        { xpos,     ypos - h,   0.f, 1.f },
+	        { xpos + w, ypos,       1.f, 0.f },
+	        { xpos,     ypos,       0.f, 0.f },
 
-	        { xpos,     ypos - h,   /*x0, y1*/ },
-	        { xpos + w, ypos - h,   /*x1, y1*/ },
-	        { xpos + w, ypos,       /*x1, y0*/ }
+	        { xpos,     ypos - h,   0.f, 1.f },
+	        { xpos + w, ypos - h,   1.f, 1.f },
+	        { xpos + w, ypos,       1.f, 0.f }
 	    };
 	    glBindTexture(GL_TEXTURE_2D, fg.texture_id);
 	    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);

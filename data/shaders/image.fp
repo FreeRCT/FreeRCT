@@ -1,13 +1,12 @@
 #version 330 core
-out vec4 frag_color;
-  
+out vec4 frag_colour;
+
 in vec4 v_overlay;
 in vec2 v_texel;
 
 uniform sampler2D tex;
 
 void main() {
-    frag_color = texture(tex, v_texel);
-    frag_color *= v_overlay;
+	frag_colour = texture(tex, v_texel);
+	frag_colour *= v_overlay;
 }
-

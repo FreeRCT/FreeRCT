@@ -263,16 +263,19 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour, GradientShift shift) const
 {
 	ShiftFunc sf = GetGradientShiftFunc(shift);
+
+	if (this->is_8bpp) {
+		uint8 pixel = this->recol[yoffset * this->width + xoffset];
+		if (recolour != nullptr) pixel = recolour->GetPalette(shift)[pixel];
+		return _palette[pixel];
+	}
+
 	const uint8 *rgba_base = &this->rgba[4 * (yoffset * this->width + xoffset)];
-	const uint8 *recol_base = &this->recol[(this->is_8bpp ? 1 : 2) * (yoffset * this->width + xoffset)];
+	const uint8 *recol_base = &this->recol[2 * (yoffset * this->width + xoffset)];
 
 	if (recol_base == nullptr || recolour == nullptr || recol_base[0] == 0) {
 		/* No recolouring, */
 		return sf(rgba_base[0] << 24) | sf(rgba_base[1] << 16) | sf(rgba_base[2] << 8) | sf(rgba_base[3]);
-	}
-
-	if (this->is_8bpp) {
-		return recolour->GetPalette(shift)[recol_base[0]];
 	}
 
 	const uint32 recoloured = recolour->GetRecolourTable(recol_base[0] - 1)[recol_base[1]];

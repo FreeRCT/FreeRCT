@@ -54,7 +54,7 @@ inline double Delta(const Realtime &start, const Realtime &end = Time())
  */
 inline WXYZPointF HexToColourRGBA(uint32_t c)
 {
-	return WXYZPointF(((c & 0xff000000) >> 24) / 255.f, ((c & 0xff0000) >> 16) / 255.f, (c & 0xff00 >> 8) / 255.f,
+	return WXYZPointF(((c & 0xff000000) >> 24) / 255.f, ((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f,
 			(c & 0xff) / 255.f);
 }
 
