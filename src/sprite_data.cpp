@@ -69,12 +69,19 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 	/* Verify the image data. */
 	this->rgba.reset(new uint8[this->width * this->height * 4]);
 	this->recol.reset(new uint8[this->width * this->height]);
+	uint8 *rgba_ptr = this->rgba.get();
+	uint8 *recol_ptr = this->recol.get();
 	for (uint i = 0; i < this->height; i++) {
 		uint32 offset = table[i];
 		if (offset == INVALID_JUMP) {
 			/* Whole line is transparent. */
-			for (int x = 0; x < 4 * this->width; ++x) this->rgba[this->width * i * 4 + x] = 0;
-			for (int x = 0; x < this->width; ++x) this->recol[this->width * i + x] = 0;
+			for (int x = 0; x < this->width; ++x) {
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(recol_ptr++) = 0;
+			}
 			continue;
 		}
 
@@ -83,15 +90,22 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 			if (offset + 2 >= length) rcd_file->Error("Offset out of bounds");
 			uint8 rel_pos = data[offset];
 			uint8 count = data[offset + 1];
+			for (int g = 0; g < (rel_pos & 127); ++g) {
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(recol_ptr++) = 0;
+			}
 			xpos += (rel_pos & 127) + count;
 			for (int dx = 0; dx < count; ++dx) {
 				uint8 pixel = data[offset + 2 + dx];
+				*(recol_ptr++) = pixel;
 				uint32 rgba = _palette[pixel];
-				this->recol[this->width * i + dx] = pixel;
-				this->rgba[4 * (this->width * i + dx) + 0] = (rgba >> 24) & 0xff;
-				this->rgba[4 * (this->width * i + dx) + 1] = (rgba >> 16) & 0xff;
-				this->rgba[4 * (this->width * i + dx) + 2] = (rgba >>  8) & 0xff;
-				this->rgba[4 * (this->width * i + dx) + 3] = (rgba      ) & 0xff;
+				*(rgba_ptr++) = (rgba >> 24) & 0xff;
+				*(rgba_ptr++) = (rgba >> 16) & 0xff;
+				*(rgba_ptr++) = (rgba >>  8) & 0xff;
+				*(rgba_ptr++) = (rgba      ) & 0xff;
 			}
 			offset += 2 + count;
 			if ((rel_pos & 128) == 0) {
@@ -101,7 +115,17 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 				break;
 			}
 		}
+
+		for (; xpos < this->width; ++xpos) {
+			*(rgba_ptr++) = 0;
+			*(rgba_ptr++) = 0;
+			*(rgba_ptr++) = 0;
+			*(rgba_ptr++) = 0;
+			*(recol_ptr++) = 0;
+		}
 	}
+	assert(recol_ptr - this->recol.get() == this->width * this->height);
+	assert(rgba_ptr - this->rgba.get() == this->width * this->height * 4);
 }
 
 /**
@@ -158,6 +182,14 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 		while (ptr < end && !finished_line) {
 			uint8 mode = *ptr++;
 			if (mode == 0) {
+				for (; xpos < this->width; ++xpos) {
+					*(rgba_ptr++) = 0;
+					*(rgba_ptr++) = 0;
+					*(rgba_ptr++) = 0;
+					*(rgba_ptr++) = 0;
+					*(recol_ptr++) = 0;
+					*(recol_ptr++) = 0;
+				}
 				finished_line = true;
 				break;
 			}
@@ -214,6 +246,8 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 		if (!finished_line) rcd_file->Error("Incomplete line");
 		if (ptr != end) rcd_file->Error("Trailing bytes at end of line");
 	}
+	assert(recol_ptr - this->recol.get() == this->width * this->height * 2);
+	assert(rgba_ptr - this->rgba.get() == this->width * this->height * 4);
 	if (line_count != this->height) rcd_file->Error("Line count mismatch");
 	if (ptr != abs_end) rcd_file->Error("Trailing bytes at end of file");
 }

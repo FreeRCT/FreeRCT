@@ -13,6 +13,7 @@
 #include "gamecontrol.h"
 #include "rev.h"
 #include "sprite_data.h"
+#include "sprite_store.h"
 #include "string_func.h"
 #include "window.h"
 
@@ -47,7 +48,8 @@ TextRenderer _text_renderer;  ///< The #TextRenderer singleton instance.
 
 /* Text renderer implementation. */
 
-constexpr char BEARING_CHARACTER = 'H';  ///< An aritrary ASCII character whose bearing to use as reference for text alignment.
+constexpr const char BEARING_CHARACTER = 'H';  ///< An arbitrary ASCII character whose bearing to use as reference for text alignment.
+constexpr const uint32 CHARACTER_NOT_FOUND[] = {0xFFFD, '?'};  ///< Characters that may represent a missing character glyph.
 
 /** Initialize the text renderer. */
 void TextRenderer::Initialize()
@@ -58,9 +60,9 @@ void TextRenderer::Initialize()
 	glGenBuffers(1, &this->vbo);
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * /*4*/2, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(0, /*4*/2, GL_FLOAT, GL_FALSE, /*4*/2 * sizeof(GLfloat), 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -72,31 +74,40 @@ void TextRenderer::Initialize()
  */
 void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 {
-    this->characters.clear();
-    this->font_size = font_size;
+	this->characters.clear();
+	this->font_size = font_size;
 
-    FT_Library ft;
-    if (FT_Init_FreeType(&ft)) {
-        error("TextRenderer::LoadFont: Could not init FreeType Library");
-    }
-    FT_Face face;
-    if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-        error("TextRenderer::LoadFont: Failed to load font '%s'", font_path.c_str());
-    }
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft)) {
+	    error("TextRenderer::LoadFont: Could not init FreeType Library");
+	}
+	FT_Face face;
+	if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
+	    error("TextRenderer::LoadFont: Failed to load font '%s'", font_path.c_str());
+	}
 
-    FT_Set_Pixel_Sizes(face, 0, font_size);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 
-    for (GLubyte c = 0; c < 128; ++c) {
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER) != 0) {
-            printf("WARNING: Failed to load Glyph %02x\n", c);
-            continue;
-        }
+	FT_Set_Pixel_Sizes(face, 0, font_size);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        GLuint texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(
+	/* Load all characters we may need. */
+	for (int c = 0; c < 128; ++c) TextData::_all_unicode_chars.insert(c);
+	for (char c : CHARACTER_NOT_FOUND) TextData::_all_unicode_chars.insert(c);
+	TextData::_all_unicode_chars.insert(BEARING_CHARACTER);
+
+	for (uint32 codepoint : TextData::_all_unicode_chars) {
+	    if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER) != 0) {
+	        char buffer[] = {0, 0, 0, 0, 0};
+	        EncodeUtf8Char(codepoint, buffer);
+	        printf("WARNING: Failed to load glyph U+%04x '%s'\n", codepoint, buffer);
+	        continue;
+	    }
+
+	    GLuint texture;
+	    glGenTextures(1, &texture);
+	    glBindTexture(GL_TEXTURE_2D, texture);
+	    glTexImage2D(
 		        GL_TEXTURE_2D,
 		        0,
 		        GL_RED,
@@ -106,24 +117,24 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 		        GL_RED,
 		        GL_UNSIGNED_BYTE,
 		        face->glyph->bitmap.buffer
-        );
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	    );
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        FontGlyph glyph = {
-            texture,
-            Point16(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            Point16(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            static_cast<GLuint>(face->glyph->advance.x)
-        };
-        this->characters.emplace(c, glyph);
-    }
+	    FontGlyph glyph = {
+	        texture,
+	        Point16(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+	        Point16(face->glyph->bitmap_left, face->glyph->bitmap_top),
+	        static_cast<GLuint>(face->glyph->advance.x)
+	    };
+	    this->characters.emplace(codepoint, glyph);
+	}
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    FT_Done_Face(face);
-    FT_Done_FreeType(ft);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
 
 	/* Check that we have at least a bearing character and a glyph for invalid characters. */
 	std::string sample_text = {BEARING_CHARACTER};
@@ -160,21 +171,16 @@ const FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) c
 	}
 
 	static const FontGlyph *default_glyph = nullptr;
-	if (default_glyph == nullptr) {
-		auto it = this->characters.find(0xFFFD);  // Unicode replacement character.
+	if (default_glyph != nullptr) return *default_glyph;
+	for (uint32 c : CHARACTER_NOT_FOUND) {
+		const auto it = this->characters.find(c);
 		if (it != this->characters.end()) {
 			default_glyph = &it->second;
-		} else {
-			it = this->characters.find('?');
-			if (it != this->characters.end()) {
-				default_glyph = &it->second;
-			} else {
-				error("The font is missing essential characters\n");
-			}
+			return *default_glyph;
 		}
 	}
 
-	return *default_glyph;
+	error("The font is missing essential characters\n");
 }
 
 /**
@@ -187,19 +193,19 @@ const FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) c
  */
 void TextRenderer::Draw(const std::string &text, float x, float y, const XYZPointF &colour, float scale)
 {
-    glUseProgram(this->shader);
+	glUseProgram(this->shader);
 	glUniform3fv(glGetUniformLocation(this->shader, "text_colour"), 1, &colour.x);
 
-	float window_w = 2.f / _video.Width();
+	/* float window_w = 2.f / _video.Width();
 	float window_h = 2.f / _video.Height();
 	float projection[] = {
-			window_w, window_w, window_w, // NOCOM {0.00333333341, 0.00333333341, 0.00333333341},
+			window_w, window_w, window_w,
 			0, 0, 0,
 			0, 0, 0,
 			0, 0, 0,
 
 			0, 0, 0,
-			window_h, window_h, window_h, // NOCOM {0.00249999994, 0.00249999994, 0.00249999994},
+			window_h, window_h, window_h,
 			0, 0, 0,
 			0, 0, 0,
 
@@ -213,38 +219,47 @@ void TextRenderer::Draw(const std::string &text, float x, float y, const XYZPoin
 			0, 0, 0,
 			1, 1, 1,
 	};
-	glUniformMatrix4fv(glGetUniformLocation(this->shader, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(this->shader, "projection"), 1, GL_FALSE, projection); */
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(this->vao);
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(this->vao);
 
-    size_t text_length = text.size();
-    for (const char *c = text.c_str(); *c != '\0';) {
-        const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
+	size_t text_length = text.size();
+	for (const char *c = text.c_str(); *c != '\0';) {
+	    const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
 
-        GLfloat xpos = x + fg.bearing.x * scale;
-        GLfloat ypos = y + (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
-        GLfloat w = fg.size.x * scale;
-        GLfloat h = fg.size.y * scale;
+	    GLfloat xpos = x + fg.bearing.x * scale;
+	    GLfloat ypos = y + (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
+	    GLfloat w = fg.size.x * scale;
+	    GLfloat h = fg.size.y * scale;
+		GLfloat x0 = 0.0f;
+		GLfloat y0 = 0.0f;
+		GLfloat x1 = 1.0f;
+		GLfloat y1 = 1.0f;
 
-        GLfloat vertices[6][4] = {
-            { xpos,     ypos - h,   0.0f, 1.0f },
-            { xpos + w, ypos,       1.0f, 0.0f },
-            { xpos,     ypos,       0.0f, 0.0f },
+		_video.CoordsToGL(&xpos, &ypos);
+		_video.CoordsToGL(&w, &h);
+		// _video.CoordsToGL(&x0, &y0);
+		// _video.CoordsToGL(&x1, &y1);
 
-            { xpos,     ypos - h,   0.0f, 1.0f },
-            { xpos + w, ypos - h,   1.0f, 1.0f },
-            { xpos + w, ypos,       1.0f, 0.0f }
-        };
-        glBindTexture(GL_TEXTURE_2D, fg.texture_id);
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        x += (fg.advance >> 6) * scale;
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+	    GLfloat vertices[6][4] = {
+	        { xpos,     ypos - h,   /*x0, y1*/ },
+	        { xpos + w, ypos,       /*x1, y0*/ },
+	        { xpos,     ypos,       /*x0, y0*/ },
+
+	        { xpos,     ypos - h,   /*x0, y1*/ },
+	        { xpos + w, ypos - h,   /*x1, y1*/ },
+	        { xpos + w, ypos,       /*x1, y0*/ }
+	    };
+	    glBindTexture(GL_TEXTURE_2D, fg.texture_id);
+	    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+	    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	    glDrawArrays(GL_TRIANGLES, 0, 6);
+	    x += (fg.advance >> 6) * scale;
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 /**
@@ -257,18 +272,18 @@ PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
 	float x = 0;
 	float width = 0;
 	float height = 0;
-    size_t text_length = text.size();
-    for (const char *c = text.c_str(); *c != '\0';) {
-        const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
-        GLfloat xpos = x + fg.bearing.x * scale;
-        GLfloat ypos = (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
+	size_t text_length = text.size();
+	for (const char *c = text.c_str(); *c != '\0';) {
+	    const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
+	    GLfloat xpos = x + fg.bearing.x * scale;
+	    GLfloat ypos = (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
 		GLfloat w = fg.size.x * scale;
-        GLfloat h = fg.size.y * scale;
-        width = std::max(width, xpos + w);
-        height = std::max(height, ypos + h);
-        x += (fg.advance >> 6) * scale;
-    }
-    return PointF(width, height);
+	    GLfloat h = fg.size.y * scale;
+	    width = std::max(width, xpos + w);
+	    height = std::max(height, ypos + h);
+	    x += (fg.advance >> 6) * scale;
+	}
+	return PointF(width, height);
 }
 
 /* Graphics framework implementation. */
@@ -290,9 +305,14 @@ void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int w, int h)
 	assert(window == _video.window);
 	assert(w >= 0);
 	assert(h >= 0);
+
 	glViewport(0, 0, w, h);
+
 	_video.width = w;
 	_video.height = h;
+
+	_window_manager.RepositionAllWindows(_video.width, _video.height);
+	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_RESOLUTION_CHANGED, 0);
 }
 
 /**
@@ -414,12 +434,12 @@ void VideoSystem::TextCallback(GLFWwindow *window, uint32 utf32)
 {
 	assert(window == _video.window);
 
-	/* Convert from UTF-32 to UTF-8. \todo We may need to invert the byte order for big endian systems. */
+	/* Convert from UTF-32 to UTF-8. \todo We may need to invert the byte order for big endian systems? */
 	std::string text;
-	text += (utf32 >> 24) & 0xff,
-	text += (utf32 >> 16) & 0xff,
-	text += (utf32 >>  8) & 0xff,
-	text += (utf32      ) & 0xff,
+	for (int i = 0; i < 4; ++i) {
+		text += utf32 & 0xff;
+		utf32 >>= 8;
+	}
 	text.erase(GetNextChar(text, 0));  // Erase unused trailing bytes.
 
 	_window_manager.KeyEvent(WMKC_SYMBOL, WMKM_NONE, text);
@@ -496,6 +516,7 @@ void VideoSystem::Shutdown()
  */
 void VideoSystem::Initialize(const std::string &font, int font_size)
 {
+	// glewExperimental = true; // NOCOM Needed in core profile?
 	if (!glfwInit()) error("Failed to initialize GLFW\n");
 
 	/* Create a window. */
@@ -518,7 +539,6 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	}
 
 	glfwMakeContextCurrent(this->window);
-	// glewExperimental = true; // NOCOM Needed in core profile?
 	if (glewInit() != GLEW_OK) error("Failed to initialize GLEW\n");
 	glViewport(0, 0, this->width, this->height);
 	glfwSetFramebufferSizeCallback(this->window, FramebufferSizeCallback);
@@ -528,7 +548,7 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	glfwSetMouseButtonCallback(this->window, MouseClickCallback);
 	glfwSetKeyCallback(this->window, KeyCallback);
 	glfwSetCharCallback(this->window, TextCallback);
-	GLFWimage img{32, 32, reinterpret_cast<unsigned char*>(_icon_data)};
+	GLFWimage img{WINDOW_ICON_WIDTH, WINDOW_ICON_HEIGHT, _icon_data.get()};
 	glfwSetWindowIcon(this->window, 1, &img);
 
 	/* Prepare the window. */
@@ -632,8 +652,6 @@ double VideoSystem::FPS() const
 void VideoSystem::SetResolution(const Point32 &res)
 {
 	glfwSetWindowSize(this->window, res.x, res.y);
-	_window_manager.RepositionAllWindows(this->width, this->height);
-	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_RESOLUTION_CHANGED, 0);
 }
 
 /**

@@ -16,6 +16,7 @@
 
 #include <chrono>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 
@@ -306,7 +307,9 @@ private:
 	GLFWwindow *window;  ///< The GLFW window.
 };
 
-extern uint32 _icon_data[32][32];
+constexpr int WINDOW_ICON_WIDTH  = 32;  ///< Width of the window/taskbar icon.
+constexpr int WINDOW_ICON_HEIGHT = 32;  ///< Height of the window/taskbar icon.
+extern std::unique_ptr<uint8[]> _icon_data;
 
 extern VideoSystem _video;
 

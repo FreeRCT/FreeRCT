@@ -35,6 +35,8 @@ static const int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a
 
 #include "generated/gui_strings.cpp"
 
+std::set<uint32> TextData::_all_unicode_chars;  ///< All unicode codepoints that have been found in a text so far.
+
 /**
  * Sprite indices of ground/surface sprites after rotation of the view.
  * @ingroup sprites_group
@@ -163,8 +165,17 @@ void TextData::Load(RcdFileReader *rcd_file)
 				vector.resize(plural_forms, nullptr);
 				vector.at(0) = split;
 				for (int i = 1; i < plural_forms; ++i) {
-					split += strlen(split) + 1;
+					int substring_length = strlen(split);
+					split += substring_length + 1;
 					vector.at(i) = split;
+
+					uint32 codepoint;
+					for (const char *c = split; *c != '\0';) {
+						int len = std::max(1, DecodeUtf8Char(c, substring_length, &codepoint));
+						c += len;
+						substring_length -= len;
+						TextData::_all_unicode_chars.insert(codepoint);
+					}
 				}
 			} else {
 				/* Illegal language, read into a dummy buffer. */

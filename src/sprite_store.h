@@ -20,6 +20,7 @@
 #include "weather.h"
 #include "gui_sprites.h"
 #include <map>
+#include <set>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
 
@@ -52,6 +53,8 @@ public:
 	uint string_count;   ///< Number of strings in #strings.
 	std::unique_ptr<TextString[]> strings; ///< Strings of the text.
 	std::unique_ptr<char[]> text_data;     ///< Text data (UTF-8) itself.
+
+	static std::set<uint32> _all_unicode_chars;  ///< All unicode codepoints that have been found in a text so far.
 };
 
 typedef std::map<uint32, TextData *> TextMap; ///< Map of loaded text blocks.
