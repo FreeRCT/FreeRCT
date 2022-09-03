@@ -61,29 +61,33 @@ inline WXYZPointF HexToColourRGBA(uint32_t c)
 /** Class responsible for rendering text. */
 class TextRenderer {
 public:
+	static constexpr const uint32 MAX_CODEPOINT = 0xFFFD;  ///< Highest unicode codepoint we can render (arbitrary limit).
+
 	void Initialize();
-
-	/**
-	 * Get the font size.
-	 * @return Size of the font.
-	 */
-	GLuint GetFontSize() const
-	{
-		return this->font_size;
-	}
-
 	void LoadFont(const std::string &font_path, GLuint font_size);
-	void Draw(const std::string &text, float x, float y, float max_width, const WXYZPointF &colour, float scale = 1.0f);
+
+	GLuint GetTextHeight() const;
 	PointF EstimateBounds(const std::string &text, float scale = 1.0f) const;
+
+	void Draw(const std::string &text, float x, float y, float max_width, const WXYZPointF &colour, float scale = 1.0f);
+
+private:
+	/** Helper struct representing a font glyph. */
+	struct FontGlyph {
+		GLuint texture_id;   ///< The OpenGL texture used to render this glyph.
+		Point16 size;        ///< Size of this glyph in pixels.
+		Point16 bearing;     ///< Alignment offset from the baseline.
+		GLuint advance;      ///< Horizontal spacing.
+		bool valid = false;  ///< If \c false, all data in this struct is invalid.
+	};
 
 	const FontGlyph &GetFontGlyph(const char **text, size_t &length) const;
 
-private:
-	std::map<uint32, FontGlyph> characters;  ///< All character glyphs in the current font by their unicode codepoint.
-	GLuint font_size;                        ///< Current font size.
-	GLuint shader;                           ///< The font shader.
-	GLuint vao;                              ///< The OpenGL vertex array.
-	GLuint vbo;                              ///< The OpenGL vertex buffer.
+	FontGlyph characters[MAX_CODEPOINT + 1];  ///< All character glyphs in the current font indexed by their unicode codepoint.
+	GLuint font_size;                         ///< Current font size.
+	GLuint shader;                            ///< The font shader.
+	GLuint vao;                               ///< The OpenGL vertex array.
+	GLuint vbo;                               ///< The OpenGL vertex buffer.
 };
 
 extern TextRenderer _text_renderer;
@@ -158,13 +162,9 @@ public:
 
 	GLuint LoadShader(const std::string &name);
 
-	/**
-	 * Get the height of a line of text.
-	 * @return Height of the font.
-	 */
-	inline int GetTextHeight() const
+	int GetTextHeight() const
 	{
-		return _text_renderer.GetFontSize();
+		return _text_renderer.GetTextHeight();
 	}
 
 	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);

@@ -17,6 +17,7 @@
 #include "string_func.h"
 #include "window.h"
 
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <thread>
@@ -35,21 +36,15 @@
 #endif
 #include FT_FREETYPE_H
 
-/** Helper struct for the #TextRenderer representing a font glyph. */
-struct FontGlyph {
-	GLuint texture_id;
-	Point16 size;
-	Point16 bearing;
-	GLuint advance;
-};
-
 VideoSystem _video;           ///< The #VideoSystem singleton instance.
 TextRenderer _text_renderer;  ///< The #TextRenderer singleton instance.
 
 /* Text renderer implementation. */
 
-constexpr const char BEARING_CHARACTER = 'H';  ///< An arbitrary ASCII character whose bearing to use as reference for text alignment.
+constexpr const uint32 BEARING_CHARACTER = 'H';                ///< An arbitrary ASCII character whose bearing to use as reference for text alignment.
 constexpr const uint32 CHARACTER_NOT_FOUND[] = {0xFFFD, '?'};  ///< Characters that may represent a missing character glyph.
+constexpr const float FONT_PADDING_V = 0.4f;                   ///< Total vertical padding around all text, relative to the font size.
+constexpr const float FONT_PADDING_H = 0.2f;                   ///< Total horizontal padding around all text, relative to the font size.
 
 /** Initialize the text renderer. */
 void TextRenderer::Initialize()
@@ -68,13 +63,26 @@ void TextRenderer::Initialize()
 }
 
 /**
+ * Find the next-highest codepoint that we want to be able to render, skipping over codepoints we don't care about,
+ * @param c Unicode codepoint from which to start searching.
+ * @return Next unicode codepoint to render or \c 0xffffffff if none.
+ */
+static uint32 NextCodepointToLoad(uint32 c)
+{
+	if (c < 0x303f) return c + 1;     // Lots of interesting characters in the lower ranges.
+	/* \todo When we get translations with non-latin character sets, these may need to be added here as well. */
+	c = std::max<uint32>(c, 0xFD3E);  // Start of the next moderately useful character block.
+	if (c < 0xfffd) return c + 1;     // Some more interesting characters in the high four-digit ranges.
+	return 0xffffffff;                // Nothing of interest in the very high ranges.
+}
+
+/**
  * Load a font. This font will be used for all subsequent rendering operations. Any previously loaded font will be forgotten.
  * @param font_path File path of the font file.
  * @param font_size Size of the font to load.
  */
 void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 {
-	this->characters.clear();
 	this->font_size = font_size;
 
 	FT_Library ft;
@@ -92,12 +100,9 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	/* Load all characters we may need. */
-	for (int c = 0; c < 128; ++c) TextData::_all_unicode_chars.insert(c);
-	for (uint32 c : CHARACTER_NOT_FOUND) TextData::_all_unicode_chars.insert(c);
-	TextData::_all_unicode_chars.insert(BEARING_CHARACTER);
-
-	for (uint32 codepoint : TextData::_all_unicode_chars) {
+	for (uint32 codepoint = 1; codepoint <= MAX_CODEPOINT; codepoint = NextCodepointToLoad(codepoint)) {
 		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER) != 0) {
+			this->characters[codepoint].valid = false;
 			char buffer[] = {0, 0, 0, 0, 0};
 			EncodeUtf8Char(codepoint, buffer);
 			printf("WARNING: Failed to load glyph U+%04x '%s'\n", codepoint, buffer);
@@ -123,13 +128,13 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		FontGlyph glyph = {
+		this->characters[codepoint] = {
 			texture,
 			Point16(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			Point16(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			static_cast<GLuint>(face->glyph->advance.x)
+			static_cast<GLuint>(face->glyph->advance.x),
+			true
 		};
-		this->characters.emplace(codepoint, glyph);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -151,7 +156,7 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
  * @param length [inout] Number of bytes left in the text. Will be decremented by the number of bytes by which the text is advanced.
  * @return Glyph to use.
  */
-const FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) const
+const TextRenderer::FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) const
 {
 	uint32 codepoint;
 	int bytes_read = length < 1 ? 0 : DecodeUtf8Char(*text, length, &codepoint);
@@ -165,17 +170,15 @@ const FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) c
 	} else {
 		*text += bytes_read;
 		length += bytes_read;
-		const auto it = this->characters.find(codepoint);
-		if (it != this->characters.end()) return it->second;
+		if (codepoint <= MAX_CODEPOINT && this->characters[codepoint].valid) return this->characters[codepoint];
 		/* Fall though to default glyph selection. */
 	}
 
 	static const FontGlyph *default_glyph = nullptr;
 	if (default_glyph != nullptr) return *default_glyph;
 	for (uint32 c : CHARACTER_NOT_FOUND) {
-		const auto it = this->characters.find(c);
-		if (it != this->characters.end()) {
-			default_glyph = &it->second;
+		if (c <= MAX_CODEPOINT && this->characters[c].valid) {
+			default_glyph = &this->characters[c];
 			return *default_glyph;
 		}
 	}
@@ -201,17 +204,24 @@ void TextRenderer::Draw(const std::string &text, float x, float y, float max_wid
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(this->vao);
 
+	y += 0.75f * FONT_PADDING_V * this->font_size * scale;
+	x += FONT_PADDING_H * 0.5f;
+	max_width -= FONT_PADDING_H;
+
 	size_t text_length = text.size();
 	for (const char *c = text.c_str(); *c != '\0';) {
 		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
 
 		GLfloat x1 = x + fg.bearing.x * scale;
-		GLfloat y1 = y - (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
+		GLfloat y1 = y - (fg.bearing.y - this->characters[BEARING_CHARACTER].bearing.y) * scale;
 		GLfloat x2 = x1 + fg.size.x * scale;
 		GLfloat y2 = y1 + fg.size.y * scale;
 
 		max_width -= x2 - x1;
 		if (max_width < 0) break;
+
+		/* Prevent fuzzy rendering. */
+		x1 = round(x1); y1 = round(y1); x2 = round(x2); y2 = round(y2);
 
 		_video.CoordsToGL(&x1, &y1);
 		_video.CoordsToGL(&x2, &y2);
@@ -245,19 +255,28 @@ PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
 {
 	float x = 0;
 	float width = 0;
-	float height = this->font_size;
+	float height = this->font_size * scale;
 	size_t text_length = text.size();
 	for (const char *c = text.c_str(); *c != '\0';) {
 		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
 		GLfloat xpos = x + fg.bearing.x * scale;
-		GLfloat ypos = (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
+		GLfloat ypos = (fg.bearing.y - this->characters[BEARING_CHARACTER].bearing.y) * scale;
 		GLfloat w = fg.size.x * scale;
 		GLfloat h = fg.size.y * scale;
 		width = std::max(width, xpos + w);
 		height = std::max(height, ypos + h);
 		x += (fg.advance >> 6) * scale;
 	}
-	return PointF(width, height);
+	return PointF(width + FONT_PADDING_H * this->font_size * scale, height + FONT_PADDING_V * this->font_size * scale);
+}
+
+/**
+ * Get the height of a line of text.
+ * @return Height of text.
+ */
+GLuint TextRenderer::GetTextHeight() const
+{
+	return this->font_size * (FONT_PADDING_V + 1.f);
 }
 
 /* Graphics framework implementation. */
@@ -281,7 +300,6 @@ void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int w, int h)
 	assert(h >= 0);
 
 	glViewport(0, 0, w, h);
-
 	_video.width = w;
 	_video.height = h;
 
