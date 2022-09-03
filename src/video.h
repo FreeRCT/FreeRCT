@@ -73,7 +73,7 @@ public:
 	}
 
 	void LoadFont(const std::string &font_path, GLuint font_size);
-	void Draw(const std::string &text, float x, float y, const WXYZPointF &colour, float scale = 1.0f);
+	void Draw(const std::string &text, float x, float y, float max_width, const WXYZPointF &colour, float scale = 1.0f);
 	PointF EstimateBounds(std::string text, float scale = 1.0f) const;
 
 	const FontGlyph &GetFontGlyph(const char **text, size_t &length) const;
@@ -210,7 +210,8 @@ public:
 	void DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF &colour);
 	void DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &colour);
 
-	void DrawImage(const ImageData *img, const Point32 &pos, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
+	void DrawImage(const ImageData *img, const Point32 &pos, const Recolouring &recolour,
+			GradientShift shift, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
 	void TileImage(const ImageData *img, const Rectangle32 &rect, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
 
 	void BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
@@ -263,7 +264,7 @@ private:
 
 	GLuint LoadShaders(const char *vp, const char *fp);
 
-	void EnsureImageLoaded(const ImageData *img);
+	GLuint GetImageTexture(const ImageData *img, const Recolouring &recolour, GradientShift shift);
 	void DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2,
 			const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f), const WXYZPointF &tex = WXYZPointF(0.0f, 0.0f, 1.0f, 1.0f));
 
@@ -284,7 +285,7 @@ private:
 	Realtime last_frame;  ///< Time when the last frame started.
 	Realtime cur_frame;   ///< Time when the current frame started.
 
-	std::map<const ImageData*, GLuint> image_textures;  ///< Textures for all loaded images.
+	std::map<std::pair<const ImageData*, RecolourData>, GLuint> image_textures;  ///< Textures for all loaded images.
 
 	GLuint image_shader;   ///< Shader for images.
 	GLuint colour_shader;  ///< Shader for plain colours.

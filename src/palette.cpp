@@ -13,6 +13,8 @@
 #include "palette.h"
 #include "random.h"
 
+const Recolouring _no_recolour;  ///< Apply no recolouring.
+
 /** Default constructor. */
 RecolourEntry::RecolourEntry() : source(COL_RANGE_INVALID), dest(COL_RANGE_INVALID), dest_set(0)
 {
@@ -240,6 +242,17 @@ ColourRange Recolouring::GetReplacementRange(ColourRange src) const
 		if (this->entries[i].source == src && this->entries[i].dest != COL_RANGE_INVALID) dest = this->entries[i].dest;
 	}
 	return dest;
+}
+
+/**
+ * Generate this recoloring's current condensed version.
+ * @return The condenses information.
+ */
+CondensedRecolouring Recolouring::ToCondensed() const
+{
+	CondensedRecolouring r;
+	for (const RecolourEntry &e : this->entries) r.emplace_back(e.source, e.dest);
+	return r;
 }
 
 /** 8 bpp colours mapped to 32 bpp. */

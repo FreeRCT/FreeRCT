@@ -262,8 +262,6 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
  */
 uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour, GradientShift shift) const
 {
-	ShiftFunc sf = GetGradientShiftFunc(shift);
-
 	if (this->is_8bpp) {
 		uint8 pixel = this->recol[yoffset * this->width + xoffset];
 		if (recolour != nullptr) pixel = recolour->GetPalette(shift)[pixel];
@@ -272,6 +270,7 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
 
 	const uint8 *rgba_base = &this->rgba[4 * (yoffset * this->width + xoffset)];
 	const uint8 *recol_base = &this->recol[2 * (yoffset * this->width + xoffset)];
+	ShiftFunc sf = GetGradientShiftFunc(shift);
 
 	if (recol_base == nullptr || recolour == nullptr || recol_base[0] == 0) {
 		/* No recolouring, */
@@ -280,6 +279,60 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
 
 	const uint32 recoloured = recolour->GetRecolourTable(recol_base[0] - 1)[recol_base[1]];
 	return MakeRGBA(sf(GetR(recoloured)), sf(GetG(recoloured)), sf(GetB(recoloured)), rgba_base[3]);
+}
+
+/**
+ * Get this image with a gradient shift and/or recolouring applied.
+ * @param shift Gradient shift to apply to the image.
+ * @param recolour Recolouring to apply to the image.
+ * @return The altered image's RGBA pixel values.
+ */
+const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &recolour) const
+{
+	RecolourData map_key(shift, recolour.ToCondensed());
+	const auto it = this->recoloured.find(map_key);
+	if (it != this->recoloured.end()) return it->second.get();
+
+	std::unique_ptr<uint8[]> result(new uint8[this->width * this->height * 4]);
+	uint8 *ptr = result.get();
+	const uint8 *recol_ptr = this->recol.get();
+
+	if (this->is_8bpp) {
+		for (int y = 0; y < this->height; ++y) {
+			for (int x = 0; x < this->width; ++x) {
+				uint32 pixel = _palette[recolour.GetPalette(shift)[*(recol_ptr++)]];
+				*(ptr++) = GetR(pixel);
+				*(ptr++) = GetG(pixel);
+				*(ptr++) = GetB(pixel);
+				*(ptr++) = GetA(pixel);
+			}
+		}
+	} else {
+		const uint8 *rgba_ptr = this->rgba.get();
+		ShiftFunc sf = GetGradientShiftFunc(shift);
+		for (int y = 0; y < this->height; ++y) {
+			for (int x = 0; x < this->width; ++x) {
+				if (recol_ptr[0] == 0) {
+					*(ptr++) = sf(*(rgba_ptr++));
+					*(ptr++) = sf(*(rgba_ptr++));
+					*(ptr++) = sf(*(rgba_ptr++));
+					*(ptr++) = *(rgba_ptr++);
+				} else {
+					const uint32 recoloured = recolour.GetRecolourTable(recol_ptr[0] - 1)[recol_ptr[1]];
+					*(ptr++) = sf(GetR(recoloured));
+					*(ptr++) = sf(GetG(recoloured));
+					*(ptr++) = sf(GetB(recoloured));
+					*(ptr++) = rgba_ptr[3];
+					rgba_ptr += 4;
+				}
+				recol_ptr += 2;
+			}
+		}
+	}
+
+	ptr = result.get();
+	this->recoloured.emplace(map_key, std::move(result));
+	return ptr;
 }
 
 /**

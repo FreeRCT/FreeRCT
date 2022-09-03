@@ -188,10 +188,11 @@ const FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) c
  * @param text Text to draw.
  * @param x Horizontal screen position where to draw the text.
  * @param y Vertical screen position where to draw the text.
+ * @param max_width Maximum available width.
  * @param colour Colour in which to draw the text.
  * @param scale Scaling factor for the text size.
  */
-void TextRenderer::Draw(const std::string &text, float x, float y, const WXYZPointF &colour, float scale)
+void TextRenderer::Draw(const std::string &text, float x, float y, float max_width, const WXYZPointF &colour, float scale)
 {
 	if (text.empty()) return;
 	glUseProgram(this->shader);
@@ -208,6 +209,9 @@ void TextRenderer::Draw(const std::string &text, float x, float y, const WXYZPoi
 		GLfloat y1 = y - (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
 		GLfloat x2 = x1 + fg.size.x * scale;
 		GLfloat y2 = y1 + fg.size.y * scale;
+
+		max_width -= x2 - x1;
+		if (max_width < 0) break;
 
 		_video.CoordsToGL(&x1, &y1);
 		_video.CoordsToGL(&x2, &y2);
@@ -498,7 +502,6 @@ void VideoSystem::Shutdown()
  */
 void VideoSystem::Initialize(const std::string &font, int font_size)
 {
-	// glewExperimental = true; // NOCOM Needed in core profile?
 	if (!glfwInit()) error("Failed to initialize GLFW\n");
 
 	/* Create a window. */
@@ -537,7 +540,6 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// glPointSize(1.0f);  // NOCOM Wasm doesn't like this
 	glDisable(GL_POINT_SMOOTH);
 	glGetError();  // Clear error messages.
 
@@ -614,7 +616,6 @@ bool VideoSystem::MainLoopDoCycle()
 void VideoSystem::FinishRepaint()
 {
 	glfwSwapBuffers(this->window);
-	// NOCOM what else?
 }
 
 /**
@@ -770,9 +771,14 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 /**
  * Create a texture for the given image if one did not exist yet.
  * @param img Image to load.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
+ * @return The image's texture.
  */
-void VideoSystem::EnsureImageLoaded(const ImageData *img) {
-	if (this->image_textures.count(img) > 0) return;
+GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &recolour, GradientShift shift) {
+	std::pair<const ImageData*, RecolourData> map_key(img, RecolourData(shift, recolour.ToCondensed()));
+	const auto it = this->image_textures.find(map_key);
+	if (it != this->image_textures.end()) return it->second;
 
 	GLuint t = 0;
 	glGenTextures(1, &t);
@@ -781,8 +787,9 @@ void VideoSystem::EnsureImageLoaded(const ImageData *img) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->rgba.get());
-	this->image_textures.emplace(img, t);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->GetRecoloured(shift, recolour));
+	this->image_textures.emplace(map_key, t);
+	return t;
 }
 
 /**
@@ -793,6 +800,7 @@ void VideoSystem::EnsureImageLoaded(const ImageData *img) {
 void VideoSystem::PushClip(const Rectangle32 &rect)
 {
 	this->clip.push_back(rect);
+	// NOCOM use it
 }
 
 /**
@@ -803,18 +811,20 @@ void VideoSystem::PopClip()
 {
 	assert(!this->clip.empty());
 	this->clip.pop_back();
+	// NOCOM restore prev
 }
 
 /**
  * Draw an image to the screen.
  * @param img Image to draw.
  * @param pos Where to draw the image's centre.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
  * @param col RGBA colour to overlay over the image.
  */
-void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const WXYZPointF &col)
+void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const Recolouring &recolour, GradientShift shift, const WXYZPointF &col)
 {
-	this->EnsureImageLoaded(img);
-	this->DoDrawImage(this->image_textures.at(img),
+	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
 			pos.x + img->xoffset             , pos.y + img->yoffset,
 			pos.x + img->xoffset + img->width, pos.y + img->yoffset + img->height, col);
 }
@@ -827,8 +837,8 @@ void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const WXYZ
  */
 void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, const WXYZPointF &col)
 {
-	this->EnsureImageLoaded(img);
-	this->DoDrawImage(this->image_textures.at(img), rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, col,
+	this->DoDrawImage(this->GetImageTexture(img, _no_recolour, GS_NORMAL),
+			rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, col,
 			WXYZPointF(0.0f, 0.0f, static_cast<float>(rect.width) / img->width, static_cast<float>(rect.height) / img->height));
 }
 
@@ -843,10 +853,9 @@ void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, const
  */
 void VideoSystem::BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
 {
-	// NOCOM consider recolour and gradient shift
 	for (uint16 x = 0; x < numx; ++x) {
 		for (uint16 y = 0; y < numy; ++y) {
-			this->DrawImage(spr, Point32(pt.x + x * spr->width, pt.y + y * spr->height));
+			this->DrawImage(spr, Point32(pt.x + x * spr->width, pt.y + y * spr->height), recolour, shift);
 		}
 	}
 }
@@ -907,7 +916,7 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
 		}
 	}
 
-	_text_renderer.Draw(text, x, ypos, HexToColourRGBA(colour));  // NOCOM max width and alignment
+	_text_renderer.Draw(text, x, ypos, width, HexToColourRGBA(colour));
 }
 
 /**

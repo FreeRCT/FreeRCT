@@ -10,7 +10,9 @@
 #ifndef SPRITE_DATA_H
 #define SPRITE_DATA_H
 
+#include <map>
 #include <memory>
+#include "palette.h"
 
 static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in image data.
 
@@ -28,6 +30,7 @@ public:
 	void Load32bpp(RcdFileReader *rcd_file, size_t length);
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
+	const uint8 *GetRecoloured(GradientShift shift, const Recolouring &recolour) const;
 
 	/**
 	 * Is the sprite just a single pixel?
@@ -44,8 +47,10 @@ public:
 	int16 xoffset; ///< Horizontal offset of the image.
 	int16 yoffset; ///< Vertical offset of the image.
 
-	std::unique_ptr<uint8[]> rgba;   ///< A copy of the image with all pixel values calculated, in RGBA format.
+	std::unique_ptr<uint8[]> rgba;   ///< All pixel values of the image in RGBA format.
 	std::unique_ptr<uint8[]> recol;  ///< The recolouring layer and table index of each pixel.
+
+	mutable std::map<RecolourData, std::unique_ptr<uint8[]>> recoloured;  ///< Copies of this image with various alterations.
 };
 
 ImageData *LoadImage(RcdFileReader *rcd_file);

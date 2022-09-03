@@ -314,6 +314,9 @@ struct RecolourEntry {
 	uint32 dest_set;    ///< Bit set of destination colour ranges to chose from.
 };
 
+/** Information of a sprite recolouring instantiation. */
+using CondensedRecolouring = std::vector<std::pair<ColourRange, ColourRange>>;
+
 /**
  * Sprite recolouring information.
  * All information of a sprite recolouring. The gradient colour shift is handled separately, as it changes often.
@@ -323,6 +326,7 @@ public:
 	Recolouring();
 	Recolouring(const Recolouring &sr);
 	Recolouring &operator=(const Recolouring &sr);
+	CondensedRecolouring ToCondensed() const;
 
 	void Reset();
 	void Set(int index, const RecolourEntry &entry);
@@ -365,5 +369,10 @@ private:
 	mutable uint8 colour_map[256]; ///< Colour map used last time.
 	mutable GradientShift shift;   ///< Gradient shift used last time, #GS_INVALID if the #colour_map is not valid.
 };
+
+extern const Recolouring _no_recolour;
+
+/** All information on how to alter the image. */
+using RecolourData = std::pair<GradientShift, CondensedRecolouring>;
 
 #endif
