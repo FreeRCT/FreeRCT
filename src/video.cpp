@@ -47,6 +47,8 @@ TextRenderer _text_renderer;  ///< The #TextRenderer singleton instance.
 
 /* Text renderer implementation. */
 
+constexpr char BEARING_CHARACTER = 'H';  ///< An aritrary ASCII character whose bearing to use as reference for text alignment.
+
 /** Initialize the text renderer. */
 void TextRenderer::Initialize()
 {
@@ -86,7 +88,7 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     for (GLubyte c = 0; c < 128; ++c) {
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+        if (FT_Load_Char(face, c, FT_LOAD_RENDER) != 0) {
             printf("WARNING: Failed to load Glyph %02x\n", c);
             continue;
         }
@@ -122,6 +124,57 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
     glBindTexture(GL_TEXTURE_2D, 0);
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
+
+	/* Check that we have at least a bearing character and a glyph for invalid characters. */
+	std::string sample_text = {BEARING_CHARACTER};
+	const char *c = sample_text.c_str();
+	size_t i = 1;
+	this->GetFontGlyph(&c, i);
+	this->GetFontGlyph(&c, i);
+}
+
+/**
+ * Look up the font glygh to use for a given character.
+ * If the current font does not have a matching glygh, a default value is returned.
+ * @param text [inout] Pointer to the UTF-8 encoded character. Will be advanced to the next character.
+ * @param length [inout] Number of bytes left in the text. Will be decremented by the number of bytes by which the text is advanced.
+ * @return Glyph to use.
+ */
+const FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) const
+{
+	uint32 codepoint;
+	int bytes_read = length < 1 ? 0 : DecodeUtf8Char(*text, length, &codepoint);
+
+	if (bytes_read < 1) {
+		if (length > 0) {
+			++*text;
+			++length;
+		}
+		/* Fall though to default glyph selection. */
+	} else {
+		*text += bytes_read;
+		length += bytes_read;
+		const auto it = this->characters.find(codepoint);
+		if (it != this->characters.end()) return it->second;
+		/* Fall though to default glyph selection. */
+	}
+
+	static const FontGlyph *default_glyph = nullptr;
+	if (default_glyph == nullptr) {
+		auto it = this->characters.find(0xFFFD);  // Unicode replacement character.
+		if (it != this->characters.end()) {
+			default_glyph = &it->second;
+		} else {
+			it = this->characters.find('?');
+			if (it != this->characters.end()) {
+				default_glyph = &it->second;
+			} else {
+				error("The font is missing essential characters\n");
+			}
+		}
+	}
+
+	return *default_glyph;
 }
 
 /**
@@ -137,17 +190,43 @@ void TextRenderer::Draw(const std::string &text, float x, float y, const XYZPoin
     glUseProgram(this->shader);
 	glUniform3fv(glGetUniformLocation(this->shader, "text_colour"), 1, &colour.x);
 
+	float window_w = 2.f / _video.Width();
+	float window_h = 2.f / _video.Height();
+	float projection[] = {
+			window_w, window_w, window_w, // NOCOM {0.00333333341, 0.00333333341, 0.00333333341},
+			0, 0, 0,
+			0, 0, 0,
+			0, 0, 0,
+
+			0, 0, 0,
+			window_h, window_h, window_h, // NOCOM {0.00249999994, 0.00249999994, 0.00249999994},
+			0, 0, 0,
+			0, 0, 0,
+
+			0, 0, 0,
+			0, 0, 0,
+			-1, -1, -1,
+			0, 0, 0,
+
+			-1, -1, -1,
+			-1, -1, -1,
+			0, 0, 0,
+			1, 1, 1,
+	};
+	glUniformMatrix4fv(glGetUniformLocation(this->shader, "projection"), 1, GL_FALSE, projection);
+
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(this->vao);
 
-    for (auto c = text.begin(); c != text.end(); ++c) {
-        const FontGlyph &fg = this->characters.at(*c);
+    size_t text_length = text.size();
+    for (const char *c = text.c_str(); *c != '\0';) {
+        const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
 
         GLfloat xpos = x + fg.bearing.x * scale;
-        GLfloat ypos = y + (fg.bearing.y - this->characters.at('H').bearing.y) * scale;
-
+        GLfloat ypos = y + (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
         GLfloat w = fg.size.x * scale;
         GLfloat h = fg.size.y * scale;
+
         GLfloat vertices[6][4] = {
             { xpos,     ypos - h,   0.0f, 1.0f },
             { xpos + w, ypos,       1.0f, 0.0f },
@@ -178,10 +257,11 @@ PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
 	float x = 0;
 	float width = 0;
 	float height = 0;
-    for (auto c = text.begin(); c != text.end(); c++) {
-        const FontGlyph &fg = this->characters.at(*c);
+    size_t text_length = text.size();
+    for (const char *c = text.c_str(); *c != '\0';) {
+        const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
         GLfloat xpos = x + fg.bearing.x * scale;
-        GLfloat ypos = (fg.bearing.y - this->characters.at('H').bearing.y) * scale;
+        GLfloat ypos = (fg.bearing.y - this->characters.at(BEARING_CHARACTER).bearing.y) * scale;
 		GLfloat w = fg.size.x * scale;
         GLfloat h = fg.size.y * scale;
         width = std::max(width, xpos + w);
@@ -519,7 +599,7 @@ bool VideoSystem::MainLoopDoCycle()
 	/* Progress the game. */
 	OnNewFrame(FRAME_DELAY);
 	_game_control.DoNextAction();
-	if (!_game_control.running) return false;
+	if (!_game_control.running || glfwWindowShouldClose(this->window)) return false;
 
 	/* Cap the FPS rate. */
 	double time = Delta(this->cur_frame);
@@ -735,8 +815,8 @@ void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const WXYZ
 {
 	this->EnsureImageLoaded(img);
 	this->DoDrawImage(this->image_textures.at(img),
-			pos.x - img->width / 2.0f - img->xoffset, pos.y - img->height / 2.0f - img->yoffset,
-			pos.x + img->width / 2.0f - img->xoffset, pos.y + img->height / 2.0f - img->yoffset, col);
+			pos.x + img->xoffset             , pos.y + img->yoffset,
+			pos.x + img->xoffset + img->width, pos.y + img->yoffset + img->height, col);
 }
 
 /**
@@ -842,8 +922,8 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
  */
 void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2, const WXYZPointF &col, const WXYZPointF &tex)
 {
-	CoordsToGL(&x1, &y1);
-	CoordsToGL(&x2, &y2);
+	this->CoordsToGL(&x1, &y1);
+	this->CoordsToGL(&x2, &y2);
 	float vertices[] = {
 		// positions  // coluors                  // texture coords
 		x2, y1, 0.0f, col.w, col.x, col.y, col.z, tex.z, tex.w, // top right
@@ -924,6 +1004,8 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
  * @param col RGBA colour to use.
  */
 void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF& col) {
+	this->CoordsToGL(&x1, &y1);
+	this->CoordsToGL(&x2, &y2);
 	float vertices[] = {
 		x1, y1, 0.0f, col.w, col.x, col.y, col.z,
 		x2, y2, 0.0f, col.w, col.x, col.y, col.z,
@@ -953,6 +1035,8 @@ void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPoi
  * @param col RGBA colour to use.
  */
 void VideoSystem::FillPlainColour(float x, float y, float w, float h, const WXYZPointF &col) {
+	this->CoordsToGL(&x, &y);
+	this->CoordsToGL(&w, &h);
 	float vertices[] = {
 		// positions        // colours
 		x + w, y    , 0.0f, col.z, col.w, col.x, col.y,

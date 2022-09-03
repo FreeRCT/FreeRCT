@@ -85,8 +85,10 @@ public:
 	void Draw(const std::string &text, float x, float y, const XYZPointF &colour, float scale = 1.0f);
 	PointF EstimateBounds(const std::string &text, float scale = 1.0f) const;
 
+	const FontGlyph &GetFontGlyph(const char **text, size_t &length) const;
+
 private:
-	std::map<GLchar, FontGlyph> characters;  ///< All character glyphs in the current font.
+	std::map<uint32, FontGlyph> characters;  ///< All character glyphs in the current font by their unicode codepoint.
 	GLuint font_size;                        ///< Current font size.
 	GLuint shader;                           ///< The font shader.
 	GLuint vao;                              ///< The OpenGL vertex array.

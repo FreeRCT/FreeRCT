@@ -73,7 +73,7 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 		uint32 offset = table[i];
 		if (offset == INVALID_JUMP) {
 			/* Whole line is transparent. */
-			for (int x = 0; x < 4 * this->width; ++x) this->rgba[this->width * i * 4 + x] = 255;
+			for (int x = 0; x < 4 * this->width; ++x) this->rgba[this->width * i * 4 + x] = 0;
 			for (int x = 0; x < this->width; ++x) this->recol[this->width * i + x] = 0;
 			continue;
 		}
@@ -163,7 +163,7 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 			}
 			xpos += mode & 0x3F;
 			switch (mode >> 6) {
-				case 0:
+				case 0:  // Fully opaque colour.
 					for (int i = mode & 0x3F; i > 0; --i) {
 						*(rgba_ptr++) = *(ptr++);
 						*(rgba_ptr++) = *(ptr++);
@@ -173,7 +173,7 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 						*(recol_ptr++) = 0;
 					}
 					break;
-				case 1: {
+				case 1: {  // Semi-transparent colour.
 					uint8 alpha = *(ptr++);
 					for (int i = mode & 0x3F; i > 0; --i) {
 						*(rgba_ptr++) = *(ptr++);
@@ -185,17 +185,17 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 					}
 					break;
 				}
-				case 2:
+				case 2:  // Fully transparent.
 					for (int i = mode & 0x3F; i > 0; --i) {
-						*(rgba_ptr++) = 255;
-						*(rgba_ptr++) = 255;
-						*(rgba_ptr++) = 255;
-						*(rgba_ptr++) = 255;
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
 						*(recol_ptr++) = 0;
 						*(recol_ptr++) = 0;
 					}
 					break;
-				case 3: {
+				case 3: {  // Recolour layer.
 					uint8 layer = *(ptr++);
 					uint8 alpha = *(ptr++);
 					for (int i = mode & 0x3F; i > 0; --i) {
