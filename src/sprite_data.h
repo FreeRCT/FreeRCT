@@ -16,11 +16,6 @@ static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in 
 
 class RcdFileReader;
 
-/** Flags of an image in #ImageData. */
-enum ImageFlags {
-	IFG_IS_8BPP = 0, ///< Bit number used for the image type.
-};
-
 /**
  * Image data of 8bpp images.
  * @ingroup sprites_group
@@ -31,7 +26,6 @@ public:
 
 	void Load8bpp(RcdFileReader *rcd_file, size_t length);
 	void Load32bpp(RcdFileReader *rcd_file, size_t length);
-	void PostLoad();
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
 
@@ -44,14 +38,14 @@ public:
 		return this->width == 1 && this->height == 1;
 	}
 
-	uint32 flags;  ///< Flags of the image. @see ImageFlags
+	bool is_8bpp;  ///< Whether this image is an 8bpp image.
 	uint16 width;  ///< Width of the image.
 	uint16 height; ///< Height of the image.
 	int16 xoffset; ///< Horizontal offset of the image.
 	int16 yoffset; ///< Vertical offset of the image.
-	std::unique_ptr<uint32[]> table;  ///< The jump table. For missing entries, #INVALID_JUMP is used.
-	std::unique_ptr<uint8 []> data ;  ///< The image data itself.
-	std::unique_ptr<uint8 []> rgba ;  ///< A copy of the image with all pixel values calculated, in RGBA format.
+
+	std::unique_ptr<uint8[]> rgba;   ///< A copy of the image with all pixel values calculated, in RGBA format.
+	std::unique_ptr<uint8[]> recol;  ///< The recolouring layer and table index of each pixel.
 };
 
 ImageData *LoadImage(RcdFileReader *rcd_file);

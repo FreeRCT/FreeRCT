@@ -418,18 +418,6 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 {
 	if (!glfwInit()) error("Failed to initialize GLFW\n");
 
-	/* Initialize basic rendering functionality. */
-	glGenVertexArrays(1, &this->vao);
-	glGenBuffers(1, &this->vbo);
-	glGenBuffers(1, &this->ebo);
-
-	this->colour_shader = this->LoadShader("colour");
-	this->image_shader = this->LoadShader("image");
-
-	/* Initialize the text renderer. */
-	_text_renderer.Initialize();
-	_text_renderer.LoadFont(font, font_size);
-
 	/* Create a window. */
 	glfwWindowHint(GLFW_SAMPLES, 4);  // 4x antialiasing.
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);  // Require OpenGL 3.3 or higher.
@@ -479,6 +467,19 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 		for (int i = 0; i < count; ++i) this->resolutions.emplace(modes[i].width, modes[i].height);
 	}
 
+	/* Initialize basic rendering functionality. */
+	glGenVertexArrays(1, &this->vao);
+	glGenBuffers(1, &this->vbo);
+	glGenBuffers(1, &this->ebo);
+
+	this->colour_shader = this->LoadShader("colour");
+	this->image_shader = this->LoadShader("image");
+
+	/* Initialize the text renderer. */
+	_text_renderer.Initialize();
+	_text_renderer.LoadFont(font, font_size);
+
+	/* Initialize remaining data structures. */
 	this->last_frame = std::chrono::high_resolution_clock::now();
 	this->cur_frame = this->last_frame;
 }
@@ -582,8 +583,12 @@ void VideoSystem::CoordsToGL(double *x, double *y) const {
  */
 GLuint VideoSystem::LoadShader(const std::string &name)
 {
-	std::string v = "shaders";
-	std::string f = "shaders";
+	std::string v = "data";
+	std::string f = "data";
+	v += DIR_SEP;
+	f += DIR_SEP;
+	v += "shaders";
+	f += "shaders";
 	v += DIR_SEP;
 	f += DIR_SEP;
 	v += name;
@@ -724,7 +729,7 @@ void VideoSystem::PopClip()
  * Draw an image to the screen.
  * @param img Image to draw.
  * @param pos Where to draw the image's centre.
- * @param col WXYZ colour to overlay over the image.
+ * @param col RGBA colour to overlay over the image.
  */
 void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const WXYZPointF &col)
 {
@@ -738,7 +743,7 @@ void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const WXYZ
  * Tile an image across an area.
  * @param img Image to draw.
  * @param rect Rectangle to fill.
- * @param col WXYZ colour to overlay over the image.
+ * @param col RGBA colour to overlay over the image.
  */
 void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, const WXYZPointF &col)
 {
@@ -832,7 +837,7 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
  * @param y1 Upper left destination Y coordinate of the image, in window space.
  * @param x2 Lower right destination X coordinate of the image, in window space.
  * @param y2 Lower right destination Y coordinate of the image, in window space.
- * @param col WXYZ colour to overlay over the image.
+ * @param col RGBA colour to overlay over the image.
  * @param tex Texture coordinate rectangle to clip, in GL space.
  */
 void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2, const WXYZPointF &col, const WXYZPointF &tex)
@@ -869,8 +874,9 @@ void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, floa
 }
 
 /**
- * NOCOM document
- * @param 
+ * Render triangles in a solid colour.
+ * @param points Vector of triangle coordinates.
+ * @param col RGBA colour to use.
  */
 void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &col) {
 	struct PerVertexData {
@@ -910,8 +916,12 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
 }
 
 /**
- * NOCOM document
- * @param 
+ * Draw a straight line on the screen.
+ * @param x1 X coordinate of the starting point.
+ * @param y1 Y coordinate of the starting point.
+ * @param x2 X coordinate of the end point.
+ * @param y2 Y coordinate of the end point.
+ * @param col RGBA colour to use.
  */
 void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF& col) {
 	float vertices[] = {
@@ -935,8 +945,12 @@ void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPoi
 }
 
 /**
- * NOCOM document
- * @param 
+ * Fill a rectangle in a solid colour.
+ * @param x X coordinate of the upper left corner.
+ * @param y Y coordinate of the upper left corner.
+ * @param w Width of the rectangle.
+ * @param h Height of the rectangle.
+ * @param col RGBA colour to use.
  */
 void VideoSystem::FillPlainColour(float x, float y, float w, float h, const WXYZPointF &col) {
 	float vertices[] = {
