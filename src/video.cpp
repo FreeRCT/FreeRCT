@@ -13,6 +13,7 @@
 #include "gamecontrol.h"
 #include "rev.h"
 #include "sprite_data.h"
+#include "string_func.h"
 #include "window.h"
 
 #include <fstream>
@@ -215,6 +216,136 @@ void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int w, int h)
 }
 
 /**
+ * Called by OpenGL when a key was pressed.
+ * @param window Window in which the event occurred.
+ * @param key Constant of the pressed key.
+ * @param scancode Scancode of the pressed key.
+ * @param action Whether the mouse button was pressed or released.
+ * @param mods Bitset of modifier keys.
+ */
+void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, int mods)
+{
+	assert(window == _video.window);
+	if (action == GLFW_RELEASE) return;
+
+	WmKeyMod mod_mask = WMKM_NONE;
+	if ((mods & GLFW_MOD_CONTROL) != 0) mod_mask |= WMKM_CTRL;
+	if ((mods & GLFW_MOD_SHIFT  ) != 0) mod_mask |= WMKM_SHIFT;
+	if ((mods & GLFW_MOD_ALT    ) != 0) mod_mask |= WMKM_ALT;
+
+#ifdef GLFW_MOD_NUM_LOCK
+	const bool numlock = (mods & GLFW_MOD_NUM_LOCK) != 0;
+#else
+	/* If GLFW doesn't provide num lock state querying, we have to assume it's always on so we don't get duplicate key presses. */
+	const bool numlock = true;
+#endif
+
+	WmKeyCode key_code;
+	switch (key) {
+		case GLFW_KEY_KP_6:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_RIGHT:
+			key_code = WMKC_CURSOR_RIGHT;
+			break;
+
+		case GLFW_KEY_KP_4:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_LEFT :
+			key_code = WMKC_CURSOR_LEFT;
+			break;
+
+		case GLFW_KEY_KP_2:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_DOWN :
+			key_code = WMKC_CURSOR_DOWN;
+			break;
+
+		case GLFW_KEY_KP_8:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_UP   :
+			key_code = WMKC_CURSOR_UP;
+			break;
+
+		case GLFW_KEY_KP_3:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_PAGE_DOWN:
+			key_code = WMKC_CURSOR_PAGEDOWN;
+			break;
+
+		case GLFW_KEY_KP_9:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_PAGE_UP  :
+			key_code = WMKC_CURSOR_PAGEUP;
+			break;
+
+		case GLFW_KEY_KP_7:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_HOME     :
+			key_code = WMKC_CURSOR_HOME;
+			break;
+
+		case GLFW_KEY_KP_1:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_END      :
+			key_code = WMKC_CURSOR_END;
+			break;
+
+		case GLFW_KEY_KP_DECIMAL:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_DELETE   :
+			key_code = WMKC_DELETE;
+			break;
+
+		case GLFW_KEY_BACKSPACE:
+			key_code = WMKC_BACKSPACE;
+			break;
+
+		case GLFW_KEY_ESCAPE:
+			key_code = WMKC_CANCEL;
+			break;
+
+		case GLFW_KEY_ENTER:
+		case GLFW_KEY_KP_ENTER:
+			key_code = WMKC_CANCEL;
+			break;
+
+		default:
+			return;
+	}
+
+	_window_manager.KeyEvent(key_code, mod_mask, std::string());
+}
+
+/**
+ * Called by OpenGL when text is entered.
+ * @param window Window in which the event occurred.
+ * @param utf32 The UTF-32 encoded character.
+ */
+void VideoSystem::TextCallback(GLFWwindow *window, uint32 utf32)
+{
+	assert(window == _video.window);
+
+	/* Convert from UTF-32 to UTF-8. \todo We may need to invert the byte order for big endian systems. */
+	std::string text;
+	text += (utf32 >> 24) & 0xff,
+	text += (utf32 >> 16) & 0xff,
+	text += (utf32 >>  8) & 0xff,
+	text += (utf32      ) & 0xff,
+	text.erase(GetNextChar(text, 0));  // Erase unused trailing bytes.
+
+	_window_manager.KeyEvent(WMKC_SYMBOL, WMKM_NONE, text);
+}
+
+/**
  * Called by OpenGL when the mouse was moved.
  * @param window Window in which the event occurred.
  * @param x New mouse position X coordinate.
@@ -229,20 +360,21 @@ void VideoSystem::MouseMoveCallback(GLFWwindow *window, double x, double y)
 	_video.mouse_x = x;
 	_video.mouse_y = y;
 
-	// NOCOM process the mouse move
+	/* NOCOM don't let the window manager cache the mouse pos. */
+	_window_manager.MouseMoveEvent(Point16(x, y));
 }
 
 /**
  * Called by OpenGL when the mouse wheel was moved.
  * @param window Window in which the event occurred.
- * @param unused Unused additional parameter passed by OpenGL.
- * @param delta Amount by which the wheel was moved.
+ * @param xdelta Amount by which the wheel was moved in the horizontal direction..
+ * @param ydelta Amount by which the wheel was moved in the vertical direction.
  */
-void VideoSystem::ScrollCallback(GLFWwindow *window, [[maybe_unused]] double unused, double delta)
+void VideoSystem::ScrollCallback(GLFWwindow *window, [[maybe_unused]] double xdelta, double ydelta)
 {
 	assert(window == _video.window);
-
-	// NOCOM process the scroll
+	if (abs(ydelta) < 0.01) return;
+	_window_manager.MouseWheelEvent((ydelta > 0) ? 1 : -1);
 }
 
 /**
@@ -252,10 +384,23 @@ void VideoSystem::ScrollCallback(GLFWwindow *window, [[maybe_unused]] double unu
  * @param action Whether the mouse button was pressed or released.
  * @param mods Bitset of modifier keys.
  */
-void VideoSystem::MouseClickCallback(GLFWwindow *window, int button, int action, int mods) {
+void VideoSystem::MouseClickCallback(GLFWwindow *window, int button, int action, [[maybe_unused]] int mods) {
 	assert(window == _video.window);
 
-	// NOCOM process the mouse click
+	switch (button) {
+		case GLFW_MOUSE_BUTTON_RIGHT:
+			glfwSetInputMode(window, GLFW_CURSOR, action == GLFW_PRESS ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+			_window_manager.MouseButtonEvent(MB_RIGHT, action == GLFW_PRESS);
+			break;
+		case GLFW_MOUSE_BUTTON_LEFT:
+			_window_manager.MouseButtonEvent(MB_LEFT, action == GLFW_PRESS);
+			break;
+		case GLFW_MOUSE_BUTTON_MIDDLE:
+			_window_manager.MouseButtonEvent(MB_MIDDLE, action == GLFW_PRESS);
+			break;
+		default:
+			break;
+	}
 }
 
 /** Shut down the video system. */
@@ -313,6 +458,8 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	glfwSetCursorPosCallback(this->window, MouseMoveCallback);
 	glfwSetScrollCallback(this->window, ScrollCallback);
 	glfwSetMouseButtonCallback(this->window, MouseClickCallback);
+	glfwSetKeyCallback(this->window, KeyCallback);
+	glfwSetCharCallback(this->window, TextCallback);
 	GLFWimage img{32, 32, reinterpret_cast<unsigned char*>(_icon_data)};
 	glfwSetWindowIcon(this->window, 1, &img);
 
@@ -358,16 +505,15 @@ bool VideoSystem::MainLoopDoCycle()
 	this->last_frame = this->cur_frame;
 	this->cur_frame = std::chrono::high_resolution_clock::now();
 
-	/* Update the window. */
 #ifdef WEBASSEMBLY
 	this->SetResolution({GetEmscriptenCanvasWidth(), GetEmscriptenCanvasHeight()});
 #endif
 
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	/* Handle input events until time for the next frame has arrived. */
-	// for (;;) if (HandleEvent()) break;  // NOCOM
+	/* Handle input events. */
 	glfwPollEvents();
+
+	/* Prepare for the next rendering step. */
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	/* Progress the game. */
 	OnNewFrame(FRAME_DELAY);
@@ -377,6 +523,8 @@ bool VideoSystem::MainLoopDoCycle()
 	/* Cap the FPS rate. */
 	double time = Delta(this->cur_frame);
 	if (time < FRAME_DELAY) std::this_thread::sleep_for(Duration(FRAME_DELAY - time));
+
+	return true;
 }
 
 /** Finish repainting, perform the final steps. */

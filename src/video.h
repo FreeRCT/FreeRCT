@@ -277,7 +277,9 @@ private:
 	static void FramebufferSizeCallback(GLFWwindow *window, int w, int h);
 	static void MouseClickCallback(GLFWwindow *window, int button, int action, int mods);
 	static void MouseMoveCallback(GLFWwindow *window, double x, double y);
-	static void ScrollCallback(GLFWwindow *window, double unused, double delta);
+	static void ScrollCallback(GLFWwindow *window, double xdelta, double ydelta);
+	static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+	static void TextCallback(GLFWwindow *window, uint32 codepoint);
 
 	uint32_t width;   ///< Current window width in pixels.
 	uint32_t height;  ///< Current window height in pixels.
