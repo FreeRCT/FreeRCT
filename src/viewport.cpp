@@ -955,6 +955,10 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
 	}
 
+#ifndef NDEBUG
+	_video.BlitText(Format("FPS: %2.1f", _video.FPS()), _palette[TEXT_WHITE], 0, 0, _video.Width(), ALG_RIGHT);
+#endif
+
 	_video.PopClip();
 }
 

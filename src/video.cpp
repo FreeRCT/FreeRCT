@@ -241,12 +241,11 @@ void TextRenderer::Draw(const std::string &text, float x, float y, float max_wid
  * @param text Text to estimate.
  * @param scale Scaling factor for the text size.
  */
-PointF TextRenderer::EstimateBounds(std::string text, float scale) const
+PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
 {
 	float x = 0;
 	float width = 0;
-	float height = 0;
-	if (text.empty()) text += BEARING_CHARACTER;  // We want to guarantee a certain minimum size.
+	float height = this->font_size;
 	size_t text_length = text.size();
 	for (const char *c = text.c_str(); *c != '\0';) {
 		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
@@ -625,7 +624,7 @@ void VideoSystem::FinishRepaint()
 double VideoSystem::FPS() const
 {
 	double time = Delta(this->last_frame, this->cur_frame);
-	return time > 0 ? (1.0 / time) : 0;
+	return time > 0 ? (1000.0 / time) : 0;
 }
 
 /**

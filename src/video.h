@@ -74,7 +74,7 @@ public:
 
 	void LoadFont(const std::string &font_path, GLuint font_size);
 	void Draw(const std::string &text, float x, float y, float max_width, const WXYZPointF &colour, float scale = 1.0f);
-	PointF EstimateBounds(std::string text, float scale = 1.0f) const;
+	PointF EstimateBounds(const std::string &text, float scale = 1.0f) const;
 
 	const FontGlyph &GetFontGlyph(const char **text, size_t &length) const;
 
