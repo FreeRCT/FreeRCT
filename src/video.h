@@ -48,24 +48,24 @@ inline double Delta(const Realtime &start, const Realtime &end = Time())
 }
 
 /**
- * Convert a 32-bit integer WXYZ colour to an OpenGL colour vector.
+ * Convert a 32-bit integer RGBA colour to a colour vector.
  * @param c Input colour.
  * @return OpenGL colour.
  */
-inline WXYZPointF HexToColourWXYZ(uint32_t c)
+inline WXYZPointF HexToColourRGBA(uint32_t c)
 {
-	return WXYZPointF(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f,
-			((c & 0xff000000) >> 24) / 255.f);
+	return WXYZPointF(((c & 0xff000000) >> 24) / 255.f, ((c & 0xff0000) >> 16) / 255.f, (c & 0xff00 >> 8) / 255.f,
+			(c & 0xff) / 255.f);
 }
 
 /**
- * Convert a 24-bit integer RGB colour to an OpenGL colour vector.
+ * Convert a 24-bit integer RGB colour to a colour vector.
  * @param c Input colour.
  * @return OpenGL colour.
  */
 inline XYZPointF HexToColourRGB(uint32_t c)
 {
-	return XYZPointF(((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f, (c & 0xff) / 255.f);
+	return XYZPointF(((c & 0xff000000) >> 24) / 255.f, ((c & 0xff0000) >> 16) / 255.f, (c & 0xff00 >> 8) / 255.f);
 }
 
 /** Class responsible for rendering text. */
@@ -189,7 +189,7 @@ public:
 	 */
 	inline void DrawLine(const Point16 &start, const Point16 &end, uint32 colour)
 	{
-		this->DrawLine(start.x, start.y, end.x, end.y, HexToColourWXYZ(colour));
+		this->DrawLine(start.x, start.y, end.x, end.y, HexToColourRGBA(colour));
 	}
 
 	/**
@@ -199,7 +199,7 @@ public:
 	 */
 	inline void DrawRectangle(const Rectangle32 &rect, uint32 colour)
 	{
-		WXYZPointF col = HexToColourWXYZ(colour);
+		WXYZPointF col = HexToColourRGBA(colour);
 		this->DrawLine(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y, col);
 		this->DrawLine(rect.base.x, rect.base.y, rect.base.x, rect.base.y + rect.height, col);
 		this->DrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y, col);
@@ -213,10 +213,10 @@ public:
 	 */
 	inline void FillRectangle(const Rectangle32 &rect, uint32 colour)
 	{
-		this->FillPlainColour(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y + rect.height, HexToColourWXYZ(colour));
+		this->FillPlainColour(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, HexToColourRGBA(colour));
 	}
 
-	void FillPlainColour(float x, float y, float w, float h, const WXYZPointF &colour);
+	void FillPlainColour(float x1, float y1, float x2, float y2, const WXYZPointF &colour);
 	void DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF &colour);
 	void DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &colour);
 

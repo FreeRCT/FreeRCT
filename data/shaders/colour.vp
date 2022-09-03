@@ -1,14 +1,12 @@
 #version 330 core
 
 layout (location = 0) in vec2 a_position;
-layout (location = 1) in float a_a;
-layout (location = 2) in float a_r;
-layout (location = 3) in vec2 a_gb;
+layout (location = 1) in vec4 a_rgba;
 
 out vec4 v_col;
 
 void main() {
 	gl_Position = vec4(a_position, 0.0, 1.0);
-	v_col = vec4(a_r, a_gb, a_a);
+	v_col = vec4(a_rgba);
 }
 

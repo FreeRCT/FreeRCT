@@ -341,6 +341,7 @@ void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int 
 #endif
 
 	WmKeyCode key_code;
+	std::string symbol;
 	switch (key) {
 		case GLFW_KEY_KP_6:
 			if (numlock) return;
@@ -419,10 +420,20 @@ void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int 
 			break;
 
 		default:
+			/* Text input events with modifiers may or may not be recognized as a text event, so we need to convert them
+			 * manually. Using Shift but no other modifiers is an exception as this simply generates uppercase text
+			 * input. All keysyms that correspond to an ASCII character have the same integer value as this character;
+			 * all others are larger than the largest valid ASCII character (which is 0x7F).
+			 */
+			if ((mod_mask & ~WMKM_SHIFT) != 0 && key <= 0x7F) {
+				symbol += key;
+				key_code = WMKC_SYMBOL;
+				break;
+			}
 			return;
 	}
 
-	_window_manager.KeyEvent(key_code, mod_mask, std::string());
+	_window_manager.KeyEvent(key_code, mod_mask, symbol);
 }
 
 /**
@@ -1046,21 +1057,21 @@ void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPoi
 
 /**
  * Fill a rectangle in a solid colour.
- * @param x X coordinate of the upper left corner.
- * @param y Y coordinate of the upper left corner.
- * @param w Width of the rectangle.
- * @param h Height of the rectangle.
+ * @param x1 X coordinate of the upper left corner.
+ * @param y1 Y coordinate of the upper left corner.
+ * @param x2 X coordinate of the lower right corner.
+ * @param y2 Y coordinate of the lower right corner.
  * @param col RGBA colour to use.
  */
-void VideoSystem::FillPlainColour(float x, float y, float w, float h, const WXYZPointF &col) {
-	this->CoordsToGL(&x, &y);
-	this->CoordsToGL(&w, &h);
+void VideoSystem::FillPlainColour(float x1, float y1, float x2, float y2, const WXYZPointF &col) {
+	this->CoordsToGL(&x1, &y1);
+	this->CoordsToGL(&x2, &y2);
 	float vertices[] = {
-		// positions        // colours
-		x + w, y    , 0.0f, col.z, col.w, col.x, col.y,
-		x + w, y + h, 0.0f, col.z, col.w, col.x, col.y,
-		x    , y    , 0.0f, col.z, col.w, col.x, col.y,
-		x    , y + h, 0.0f, col.z, col.w, col.x, col.y,
+		// positions  // colours
+		x2, y1, 0.0f, col.w, col.x, col.y, col.z,
+		x2, y2, 0.0f, col.w, col.x, col.y, col.z,
+		x1, y1, 0.0f, col.w, col.x, col.y, col.z,
+		x1, y2, 0.0f, col.w, col.x, col.y, col.z,
 	};
 	GLuint indices[] = {
 		0, 1, 2,
@@ -1073,12 +1084,8 @@ void VideoSystem::FillPlainColour(float x, float y, float w, float h, const WXYZ
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(3);
 	glUseProgram(this->colour_shader);
 	glBindVertexArray(this->vao);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
