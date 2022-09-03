@@ -515,7 +515,8 @@ void LoadsaveConfirmationWindow::OnClick(WidgetNumber number, [[maybe_unused]] c
 			delete GetWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE);
 		} else {
 			RemoveFile(this->filepath.c_str());
-			static_cast<LoadSaveGui*>(GetWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE))->FileDeleted(this->filepath);
+			Window *w = GetWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE);
+			if (w != nullptr) static_cast<LoadSaveGui*>(w)->FileDeleted(this->filepath);
 		}
 	} else if (number != LSC_NO) {
 		return;
