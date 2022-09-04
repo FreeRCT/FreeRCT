@@ -875,16 +875,16 @@ void ScrollbarWidget::DoDraw(const GuiWindow *w)
 	/* Draw middle underground. */
 	if (this->wtype == WT_HOR_SCROLLBAR) {
 		int others = imd[WLS_LEFT_BUTTON]->width + imd[WLS_LEFT_BED]->width + imd[WLS_RIGHT_BED]->width + imd[WLS_RIGHT_BUTTON]->width;
-		uint count = (others < this->pos.width)
-				? (this->pos.width - others) / scroll_sprites.stepsize_bar : 0;
-		_video.BlitHorizontal(pos.x, count, pos.y, imd[WLS_MIDDLE_BED], rc);
-		pos.x += count * scroll_sprites.stepsize_bar;
+		if (others < this->pos.width) {
+			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(pos.x, pos.y, this->pos.width - others, scroll_sprites.stepsize_bar), true, false, rc);
+			pos.x += this->pos.width - others;
+		}
 	} else {
 		int others = imd[WLS_LEFT_BUTTON]->height + imd[WLS_LEFT_BED]->height + imd[WLS_RIGHT_BED]->height + imd[WLS_RIGHT_BUTTON]->height;
-		uint count = (others < this->pos.height)
-				? (this->pos.height - others) / scroll_sprites.stepsize_bar : 0;
-		_video.BlitVertical(pos.y, count, pos.x, imd[WLS_MIDDLE_BED], rc);
-		pos.y += count * scroll_sprites.stepsize_bar;
+		if (others < this->pos.height) {
+			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(pos.x, pos.y, scroll_sprites.stepsize_bar, this->pos.height - others), false, true, rc);
+			pos.y += this->pos.height - others;
+		}
 	}
 
 	/* Draw bottom/right underground. */
@@ -917,13 +917,17 @@ void ScrollbarWidget::DoDraw(const GuiWindow *w)
 
 	/* Draw middle slider. */
 	if (this->wtype == WT_HOR_SCROLLBAR) {
-		uint count = (slider_length - imd[WLS_LEFT_SLIDER]->width - imd[WLS_RIGHT_SLIDER]->width) / scroll_sprites.stepsize_slider;
-		_video.BlitHorizontal(pos.x, count, pos.y, imd[WLS_MIDDLE_SLIDER], rc);
-		pos.x += count * scroll_sprites.stepsize_slider;
+		int others = slider_length - imd[WLS_LEFT_SLIDER]->width - imd[WLS_RIGHT_SLIDER]->width;
+		if (others > 0) {
+			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(pos.x, pos.y, this->pos.width - others, scroll_sprites.stepsize_slider), true, false, rc);
+			pos.x += this->pos.width - others;
+		}
 	} else {
-		uint count = (slider_length - imd[WLS_LEFT_SLIDER]->height - imd[WLS_RIGHT_SLIDER]->height) / scroll_sprites.stepsize_slider;
-		_video.BlitVertical(pos.y, count, pos.x, imd[WLS_MIDDLE_SLIDER], rc);
-		pos.y += count * scroll_sprites.stepsize_slider;
+		int others = slider_length - imd[WLS_LEFT_SLIDER]->height - imd[WLS_RIGHT_SLIDER]->height;
+		if (others > 0) {
+			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(pos.x, pos.y, scroll_sprites.stepsize_slider, this->pos.height - others), false, true, rc);
+			pos.y += this->pos.height - others;
+		}
 	}
 
 	/* Draw bottom/right slider. */

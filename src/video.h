@@ -209,49 +209,11 @@ public:
 	void DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF &colour);
 	void DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &colour);
 
-	void DrawImage(const ImageData *img, const Point32 &pos, const Recolouring &recolour,
-			GradientShift shift, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
-	void TileImage(const ImageData *img, const Rectangle32 &rect, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
-
-	void BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift = GS_NORMAL);
-
-	/**
-	 * Blit a row of sprites.
-	 * @param xmin Start X position.
-	 * @param numx Number of sprites to draw.
-	 * @param y Y position.
-	 * @param spr Sprite to draw.
-	 * @param recolour Sprite recolouring definition.
-	 */
-	inline void BlitHorizontal(int32 xmin, uint16 numx, int32 y, const ImageData *spr, const Recolouring &recolour)
-	{
-		this->BlitImages({xmin, y}, spr, numx, 1, recolour);
-	}
-
-	/**
-	 * Blit a column of sprites.
-	 * @param ymin Start Y position.
-	 * @param numy Number of sprites to draw.
-	 * @param x X position.
-	 * @param spr Sprite to draw.
-	 * @param recolour Sprite recolouring definition.
-	 */
-	inline void BlitVertical(int32 ymin, uint16 numy, int32 x, const ImageData *spr, const Recolouring &recolour)
-	{
-		this->BlitImages({x, ymin}, spr, 1, numy, recolour);
-	}
-
-	/**
-	 * Blit pixels from the \a spr relative to #blit_rect into the area.
-	 * @param img_base Coordinate of the sprite data.
-	 * @param spr The sprite to blit.
-	 * @param recolour Sprite recolouring definition.
-	 * @param shift Gradient shift.
-	 */
-	inline void BlitImage(const Point32 &img_base, const ImageData *spr, const Recolouring &recolour, GradientShift shift)
-	{
-		this->BlitImages(img_base, spr, 1, 1, recolour, shift);
-	}
+	void TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
+			const Recolouring &recolour = _no_recolour,
+			GradientShift shift = GS_NORMAL, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
+	void BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour = _no_recolour,
+			GradientShift shift = GS_NORMAL, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
 
 	void PushClip(const Rectangle32 &rect);
 	void PopClip();

@@ -852,13 +852,13 @@ GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &rec
 
 /**
  * Draw an image to the screen.
- * @param img Image to draw.
  * @param pos Where to draw the image's centre.
+ * @param img Image to draw.
  * @param recolour Sprite recolouring definition.
  * @param shift Gradient shift.
  * @param col RGBA colour to overlay over the image.
  */
-void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const Recolouring &recolour, GradientShift shift, const WXYZPointF &col)
+void VideoSystem::BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour, GradientShift shift, const WXYZPointF &col)
 {
 	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
 			pos.x + img->xoffset             , pos.y + img->yoffset,
@@ -869,31 +869,22 @@ void VideoSystem::DrawImage(const ImageData *img, const Point32 &pos, const Reco
  * Tile an image across an area.
  * @param img Image to draw.
  * @param rect Rectangle to fill.
- * @param col RGBA colour to overlay over the image.
- */
-void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, const WXYZPointF &col)
-{
-	this->DoDrawImage(this->GetImageTexture(img, _no_recolour, GS_NORMAL),
-			rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, col,
-			WXYZPointF(0.0f, 0.0f, static_cast<float>(rect.width) / img->width, static_cast<float>(rect.height) / img->height));
-}
-
-/**
- * Blit pixels from the \a spr relative to \a img_base into the area.
- * @param pt Base coordinates of the sprite data.
- * @param spr The sprite to blit.
- * @param numx Number of sprites to draw in horizontal direction.
- * @param numy Number of sprites to draw in vertical direction.
+ * @param tile_hor Tile the image horizontally. If \c false, stretch the image instead.
+ * @param tile_vert Tile the image vertically. If \c false, stretch the image instead.
  * @param recolour Sprite recolouring definition.
  * @param shift Gradient shift.
+ * @param col RGBA colour to overlay over the image.
+ * @note The image's offset is ignored.
  */
-void VideoSystem::BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
+void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
+		const Recolouring &recolour, GradientShift shift, const WXYZPointF &col)
 {
-	for (uint16 x = 0; x < numx; ++x) {
-		for (uint16 y = 0; y < numy; ++y) {
-			this->DrawImage(spr, Point32(pt.x + x * spr->width, pt.y + y * spr->height), recolour, shift);
-		}
-	}
+	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
+			rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, col,
+			WXYZPointF(0.0f, 0.0f,
+					tile_vert ? static_cast<float>(rect.height) / img->height : 1.0f,
+					tile_hor ? static_cast<float>(rect.width) / img->width : 1.0f
+				));
 }
 
 /**
