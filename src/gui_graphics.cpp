@@ -119,8 +119,8 @@ void OverlayShaded(const Rectangle32 &rect)
 	_video.PushClip(r);
 
 	/* Align the disabled sprite so it becomes a continuous pattern. */
-	int32 base_x = -(r.base.x % img->width);
-	int32 base_y = -(r.base.y % img->height);
+	int32 base_x = r.base.x- ( r.base.x % img->width);
+	int32 base_y = r.base.y - (r.base.y % img->height);
 	uint16 numx = (r.width + img->width - 1) / img->width;
 	uint16 numy = (r.height + img->height - 1) / img->height;
 

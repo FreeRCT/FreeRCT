@@ -589,7 +589,7 @@ public:
 	 * Get X voxel size of the world.
 	 * @return Length of the world in X direction.
 	 */
-	inline uint16 Width() const
+	inline uint16 GetXSize() const
 	{
 		return this->x_size;
 	}
@@ -598,7 +598,7 @@ public:
 	 * Get Y voxel size of the world.
 	 * @return Length of the world in Y direction.
 	 */
-	inline uint16 Height() const
+	inline uint16 GetYSize() const
 	{
 		return this->y_size;
 	}
@@ -610,8 +610,8 @@ public:
 	 */
 	inline bool VoxelExists(const XYZPoint16 &vox) const
 	{
-		if (vox.x < 0 || vox.x >= (int)this->Width()) return false;
-		if (vox.y < 0 || vox.y >= (int)this->Height()) return false;
+		if (vox.x < 0 || vox.x >= (int)this->GetXSize()) return false;
+		if (vox.y < 0 || vox.y >= (int)this->GetYSize()) return false;
 		const VoxelStack *vs = this->GetStack(vox.x, vox.y);
 		if (vox.z < vs->base || vox.z >= vs->base + (int)vs->height) return false;
 		return true;
@@ -660,7 +660,7 @@ extern VoxelWorld _world;
  */
 static inline bool IsVoxelstackInsideWorld(int x, int y)
 {
-	return x >= 0 && x < _world.Width() && y >= 0 && y < _world.Height();
+	return x >= 0 && x < _world.GetXSize() && y >= 0 && y < _world.GetYSize();
 }
 
 /**

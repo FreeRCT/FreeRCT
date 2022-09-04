@@ -69,8 +69,8 @@ static bool IsGoodEdgeRoad(int16 x, int16 y)
  */
 static Point16 FindEdgeRoad()
 {
-	int16 highest_x = _world.Width() - 1;
-	int16 highest_y = _world.Height() - 1;
+	int16 highest_x = _world.GetXSize() - 1;
+	int16 highest_y = _world.GetYSize() - 1;
 	for (int16 x = 1; x < highest_x; x++) {
 		if (IsGoodEdgeRoad(x, 0))         return {x, 0};
 		if (IsGoodEdgeRoad(x, highest_y)) return {x, highest_y};

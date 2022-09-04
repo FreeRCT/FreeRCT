@@ -323,9 +323,9 @@ void VoxelCollector::SetSelector(MouseModeSelector *selector)
  */
 void VoxelCollector::Collect()
 {
-	for (uint xpos = 0; xpos < _world.Width(); xpos++) {
+	for (uint xpos = 0; xpos < _world.GetXSize(); xpos++) {
 		int32 world_x = (xpos + ((this->orient == VOR_SOUTH || this->orient == VOR_WEST) ? 1 : 0)) * 256;
-		for (uint ypos = 0; ypos < _world.Height(); ypos++) {
+		for (uint ypos = 0; ypos < _world.GetYSize(); ypos++) {
 			int32 world_y = (ypos + ((this->orient == VOR_SOUTH || this->orient == VOR_EAST) ? 1 : 0)) * 256;
 			int32 north_x = ComputeX(world_x, world_y);
 			if (north_x + this->tile_width / 2 <= (int32)this->rect.base.x) continue; // Right of voxel column is at left of window.
@@ -1065,8 +1065,8 @@ void Viewport::MoveViewport(int dx, int dy)
 	if (dx == 0 && dy == 0) return;
 
 	Point32 new_xy = this->ComputeHorizontalTranslation(dx, dy);
-	int32 new_x = Clamp<int32>(new_xy.x, 0, _world.Width() * 256 - 1);
-	int32 new_y = Clamp<int32>(new_xy.y, 0, _world.Height() * 256 - 1);
+	int32 new_x = Clamp<int32>(new_xy.x, 0, _world.GetXSize() * 256 - 1);
+	int32 new_y = Clamp<int32>(new_xy.y, 0, _world.GetYSize() * 256 - 1);
 	if (new_x != this->view_pos.x || new_y != this->view_pos.y) {
 		this->view_pos.x = new_x;
 		this->view_pos.y = new_y;

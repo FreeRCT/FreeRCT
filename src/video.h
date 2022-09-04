@@ -158,7 +158,6 @@ public:
 	}
 
 	void CoordsToGL(float *x, float *y) const;
-	void CoordsToGL(double *x, double *y) const;
 
 	GLuint LoadShader(const std::string &name);
 
@@ -263,6 +262,7 @@ private:
 	bool MainLoopDoCycle();
 
 	GLuint LoadShaders(const char *vp, const char *fp);
+	void UpdateClip();
 
 	GLuint GetImageTexture(const ImageData *img, const Recolouring &recolour, GradientShift shift);
 	void DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2,

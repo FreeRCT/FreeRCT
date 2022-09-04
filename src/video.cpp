@@ -43,7 +43,7 @@ TextRenderer _text_renderer;  ///< The #TextRenderer singleton instance.
 
 constexpr const uint32 BEARING_CHARACTER = 'H';                ///< An arbitrary ASCII character whose bearing to use as reference for text alignment.
 constexpr const uint32 CHARACTER_NOT_FOUND[] = {0xFFFD, '?'};  ///< Characters that may represent a missing character glyph.
-constexpr const float FONT_PADDING_V = 0.4f;                   ///< Total vertical padding around all text, relative to the font size.
+constexpr const float FONT_PADDING_V = 0.3f;                   ///< Total vertical padding around all text, relative to the font size.
 constexpr const float FONT_PADDING_H = 0.2f;                   ///< Total horizontal padding around all text, relative to the font size.
 
 /** Initialize the text renderer. */
@@ -299,9 +299,9 @@ void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int w, int h)
 	assert(w >= 0);
 	assert(h >= 0);
 
-	glViewport(0, 0, w, h);
 	_video.width = w;
 	_video.height = h;
+	_video.UpdateClip();
 
 	_window_manager.RepositionAllWindows(_video.width, _video.height);
 	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_RESOLUTION_CHANGED, 0);
@@ -542,7 +542,7 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 
 	glfwMakeContextCurrent(this->window);
 	if (glewInit() != GLEW_OK) error("Failed to initialize GLEW\n");
-	glViewport(0, 0, this->width, this->height);
+	this->UpdateClip();
 	glfwSetFramebufferSizeCallback(this->window, FramebufferSizeCallback);
 	glfwSetInputMode(this->window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetCursorPosCallback(this->window, MouseMoveCallback);
@@ -655,13 +655,43 @@ void VideoSystem::SetResolution(const Point32 &res)
 }
 
 /**
- * Convert a coordinate from the window coordinate system to OpenGL's coordinate system.
- * @param x [inout] X coordinate.
- * @param y [inout] Y coordinate.
+ * Set the current clipping area.
+ * @param rect New clipping area.
+ * @see #PopClip
  */
-void VideoSystem::CoordsToGL(float *x, float *y) const {
-	*x = 2.0f * *x / this->width - 1.0f;
-	*y = 1.0f - 2.0f * *y / this->height;
+void VideoSystem::PushClip(const Rectangle32 &rect)
+{
+	this->clip.push_back(rect);
+	this->UpdateClip();
+}
+
+/**
+ * Restore the clipping area.
+ * @see #PushClip
+ */
+void VideoSystem::PopClip()
+{
+	assert(!this->clip.empty());
+	this->clip.pop_back();
+	this->UpdateClip();
+}
+
+/** Update the current clipping area. */
+void VideoSystem::UpdateClip()
+{
+	float x, y, w, h;
+	if (this->clip.empty()) {
+		x = 0;
+		y = 0;
+		w = this->width;
+		h = this->height;
+	} else {
+		w = this->clip.back().width;
+		h = this->clip.back().height;
+		x = this->clip.back().base.x;
+		y = this->height - h - this->clip.back().base.y;
+	}
+	glViewport(x, y, w, h);
 }
 
 /**
@@ -669,9 +699,20 @@ void VideoSystem::CoordsToGL(float *x, float *y) const {
  * @param x [inout] X coordinate.
  * @param y [inout] Y coordinate.
  */
-void VideoSystem::CoordsToGL(double *x, double *y) const {
-	*x = 2.0 * *x / this->width - 1.0;
-	*y = 1.0 - 2.0 * *y / this->height;
+void VideoSystem::CoordsToGL(float *x, float *y) const {
+	float w, h;
+	if (this->clip.empty()) {
+		w = this->width;
+		h = this->height;
+	} else {
+		w = this->clip.back().width;
+		h = this->clip.back().height;
+		*x -= this->clip.back().base.x;
+		*y -= this->clip.back().base.y;
+	}
+
+	*x = 2.0f * *x / w - 1.0f;
+	*y = 1.0f - 2.0f * *y / h;
 }
 
 /**
@@ -810,28 +851,6 @@ GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &rec
 }
 
 /**
- * Set the current clipping area.
- * @param rect New clipping area.
- * @see #PopClip
- */
-void VideoSystem::PushClip(const Rectangle32 &rect)
-{
-	this->clip.push_back(rect);
-	// NOCOM use it
-}
-
-/**
- * Restore the clipping area.
- * @see #PushClip
- */
-void VideoSystem::PopClip()
-{
-	assert(!this->clip.empty());
-	this->clip.pop_back();
-	// NOCOM restore prev
-}
-
-/**
  * Draw an image to the screen.
  * @param img Image to draw.
  * @param pos Where to draw the image's centre.
@@ -951,7 +970,7 @@ void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, floa
 	this->CoordsToGL(&x1, &y1);
 	this->CoordsToGL(&x2, &y2);
 	float vertices[] = {
-		// positions  // coluors                  // texture coords
+		// positions  // colours                  // texture coords
 		x2, y1, 0.0f, col.w, col.x, col.y, col.z, tex.z, tex.w, // top right
 		x2, y2, 0.0f, col.w, col.x, col.y, col.z, tex.z, tex.y, // bottom right
 		x1, y2, 0.0f, col.w, col.x, col.y, col.z, tex.x, tex.y, // bottom left
@@ -988,10 +1007,10 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
 	struct PerVertexData {
 		float gl_x;
 		float gl_y;
-		float alpha;
 		float r;
 		float g;
 		float b;
+		float alpha;
 	};
 	std::vector<PerVertexData> vertices;
 	for (const auto &p : points) {
@@ -1007,15 +1026,10 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
 	}
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(PerVertexData), &vertices.front(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(PerVertexData), (void*)offsetof(PerVertexData, gl_x));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(PerVertexData), (void*)offsetof(PerVertexData, alpha));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(PerVertexData), (void*)offsetof(PerVertexData, r));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(PerVertexData), (void*)offsetof(PerVertexData, g));
-	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 	glUseProgram(this->colour_shader);
 	glBindVertexArray(this->vao);
 	glDrawArrays(GL_POINTS, 0, vertices.size());
@@ -1041,12 +1055,8 @@ void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPoi
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(3);
 	glUseProgram(this->colour_shader);
 	glBindVertexArray(this->vao);
 	glDrawArrays(GL_LINES, 0, 2);

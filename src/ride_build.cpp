@@ -326,9 +326,9 @@ RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos,
 		} else {
 			/* Since z gets smaller, we subtract dx and dy, thus the checks reverse. */
 			if (vox_pos.x < 0 && dx > 0) break;
-			if (vox_pos.x >= _world.Width() && dx < 0) break;
+			if (vox_pos.x >= _world.GetXSize() && dx < 0) break;
 			if (vox_pos.y < 0 && dy > 0) break;
-			if (vox_pos.y >= _world.Height() && dy < 0) break;
+			if (vox_pos.y >= _world.GetYSize() && dy < 0) break;
 		}
 		world_pos.x -= 128 * dx;
 		world_pos.y -= 128 * dy;

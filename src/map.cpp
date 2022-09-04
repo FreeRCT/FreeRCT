@@ -636,8 +636,8 @@ void VoxelWorld::UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 
 	 */
 	uint16 x_min = x > 0 ? x-1 : x;
 	uint16 y_min = y > 0 ? y-1 : y;
-	uint16 x_max = std::min(_world.Width()-1, x + width + 1);
-	uint16 y_max = std::min(_world.Height()-1, y + height + 1);
+	uint16 x_max = std::min(_world.GetXSize()-1, x + width + 1);
+	uint16 y_max = std::min(_world.GetYSize()-1, y + height + 1);
 
 	for (uint16 ix = x_min; ix < x_max; ix++) {
 		for (uint16 iy = y_min; iy < y_max; iy++) {
@@ -658,7 +658,7 @@ void VoxelWorld::UpdateLandBorderFence(uint16 x, uint16 y, uint16 width, uint16 
 					if ((ix > 0 || pt.x >= 0) && (iy > 0 || pt.y >= 0)) {
 						uint16 nx = ix + pt.x;
 						uint16 ny = iy + pt.y;
-						if (nx < _world.Width() && ny < _world.Height() && _world.GetTileOwner(nx, ny) == OWN_PARK &&
+						if (nx < _world.GetXSize() && ny < _world.GetYSize() && _world.GetTileOwner(nx, ny) == OWN_PARK &&
 								this->edges_without_border_fence.count(std::make_pair(Point16(ix, iy), edge)) == 0) {
 							ftype = FENCE_TYPE_LAND_BORDER;
 						}
@@ -710,7 +710,7 @@ void VoxelWorld::SetTileOwnerRect(uint16 x, uint16 y, uint16 width, uint16 heigh
  */
 void VoxelWorld::SetTileOwnerGlobally(TileOwner owner)
 {
-	SetTileOwnerRect(0, 0, this->Width(), this->Height(), owner);
+	SetTileOwnerRect(0, 0, this->GetXSize(), this->GetYSize(), owner);
 }
 
 /**
@@ -778,8 +778,8 @@ void VoxelWorld::Save(Saver &svr) const
 	/* Save basic map information (rides are saved as part of the ride). */
 	svr.CheckNoOpenPattern();
 	svr.StartPattern("WRLD", CURRENT_VERSION_WRLD);
-	svr.PutWord(this->Width());
-	svr.PutWord(this->Height());
+	svr.PutWord(this->GetXSize());
+	svr.PutWord(this->GetYSize());
 	svr.PutWord(this->edges_without_border_fence.size());
 	for (const auto &pair : this->edges_without_border_fence) {
 		svr.PutWord(pair.first.x);
@@ -787,8 +787,8 @@ void VoxelWorld::Save(Saver &svr) const
 		svr.PutByte(pair.second);
 	}
 	svr.EndPattern();
-	for (uint16 x = 0; x < this->Width(); x++) {
-		for (uint16 y = 0; y < this->Height(); y++) {
+	for (uint16 x = 0; x < this->GetXSize(); x++) {
+		for (uint16 y = 0; y < this->GetYSize(); y++) {
 			const VoxelStack *vs = this->GetStack(x, y);
 			vs->Save(svr);
 		}

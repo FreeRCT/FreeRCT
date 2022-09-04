@@ -283,7 +283,7 @@ void GameControl::StartLevel()
 	_game_mode_mgr.SetGameMode(GM_PLAY);
 	this->speed = GSP_1;
 
-	XYZPoint32 view_pos(_world.Width() * 256 / 2, _world.Height() * 256 / 2, 8 * 256);
+	XYZPoint32 view_pos(_world.GetXSize() * 256 / 2, _world.GetYSize() * 256 / 2, 8 * 256);
 	ShowMainDisplay(view_pos);
 	if (!this->main_menu) {
 		ShowToolbar();

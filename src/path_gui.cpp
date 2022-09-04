@@ -777,8 +777,8 @@ bool PathBuildGui::MoveSelection(bool move_forward)
 
 	/* Test whether we can move in the indicated direction. */
 	Point16 dxy = _tile_dxy[edge];
-	if ((dxy.x < 0 && this->build_pos.x == 0) || (dxy.x > 0 && this->build_pos.x == _world.Width() - 1)) return false;
-	if ((dxy.y < 0 && this->build_pos.y == 0) || (dxy.y > 0 && this->build_pos.y == _world.Height() - 1)) return false;
+	if ((dxy.x < 0 && this->build_pos.x == 0) || (dxy.x > 0 && this->build_pos.x == _world.GetXSize() - 1)) return false;
+	if ((dxy.y < 0 && this->build_pos.y == 0) || (dxy.y > 0 && this->build_pos.y == _world.GetYSize() - 1)) return false;
 	if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(this->build_pos.x + dxy.x, this->build_pos.y + dxy.y) != OWN_PARK) return false;
 
 	const Voxel *v_top, *v_bot;
