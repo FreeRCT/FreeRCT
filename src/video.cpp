@@ -441,16 +441,9 @@ void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int 
 void VideoSystem::TextCallback(GLFWwindow *window, uint32 utf32)
 {
 	assert(window == _video.window);
-
-	/* Convert from UTF-32 to UTF-8. \todo We may need to invert the byte order for big endian systems? */
-	std::string text;
-	for (int i = 0; i < 4; ++i) {
-		text += utf32 & 0xff;
-		utf32 >>= 8;
-	}
-	text.erase(GetNextChar(text, 0));  // Erase unused trailing bytes.
-
-	_window_manager.KeyEvent(WMKC_SYMBOL, WMKM_NONE, text);
+	char buffer[] = {0, 0, 0, 0, 0};
+	EncodeUtf8Char(utf32, buffer);
+	_window_manager.KeyEvent(WMKC_SYMBOL, WMKM_NONE, buffer);
 }
 
 /**
