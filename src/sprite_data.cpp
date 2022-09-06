@@ -125,7 +125,7 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 		}
 	}
 	assert(recol_ptr - this->recol.get() == 1L * this->width * this->height);
-	assert(rgba_ptr - this->rgba.get() == 4L this->width * this->height);
+	assert(rgba_ptr - this->rgba.get() == 4L * this->width * this->height);
 }
 
 /**
