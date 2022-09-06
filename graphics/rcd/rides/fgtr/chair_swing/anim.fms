@@ -1,0 +1,39 @@
+/* Animations for the Chair Swing. */
+
+recolour {
+	original: grey;
+	replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+	                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+}
+recolour {
+	original: grey;
+	replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+	                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+}
+recolour {
+	original: grey;
+	replace: bitset(pink, orange, green_brown, orange_brown, yellow, light_green, green,
+	                pink_brown, blue, jade_green, purple, red, sea_green, grey);
+}
+
+preview_se: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/chair_swing/preview.png";
+}
+preview_sw: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/chair_swing/preview.png";
+}
+preview_ne: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/chair_swing/preview.png";
+}
+preview_nw: sprite {
+	x_base: 0; y_base: 0; x_offset: -32; y_offset: -32; width: 64; height: 64;
+	file: "../sprites/gentle_thrill_rides/chair_swing/preview.png";
+}
+
+#include "anim_idle.fms"
+#include "anim_starting.fms"
+#include "anim_working.fms"
+#include "anim_stopping.fms"

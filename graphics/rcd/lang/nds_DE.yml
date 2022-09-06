@@ -524,6 +524,14 @@ strings:
 		DESCRIPTION_RECOLOUR1: "Gondel 1"
 		DESCRIPTION_RECOLOUR2: "Gondel 2"
 		DESCRIPTION_RECOLOUR3: "Haltern"
+	chair-swing:
+		NAME_INSTANCE1:        "Vun de Kedd löss"
+		NAME_INSTANCE2:        "Swingens"
+		NAME_TYPE:             "Keddenkarussell"
+		DESCRIPTION_TYPE:      "Acht Stohlen an langen Kedden, wat an eener Schiev fastmaakt sünd, wat sik fell dreiht."
+		DESCRIPTION_RECOLOUR1: "Bau"
+		DESCRIPTION_RECOLOUR2: "Dack"
+		DESCRIPTION_RECOLOUR3: "Grund"
 
 	park-entrance-generic:
 		NAME: "Normaaler Parkingang"
