@@ -27,12 +27,12 @@
 #include <emscripten.h>
 #endif
 
-#if __has_include(<freetype2/ft2build.h>)
+#if __has_include(<ft2build.h>)
+#include <ft2build.h>
+#elif __has_include(<freetype2/ft2build.h>)
 #include <freetype2/ft2build.h>
 #elif __has_include(<freetype2/freetype/ft2build.h>)
 #include <freetype2/freetype/ft2build.h>
-#elif __has_include(<ft2build.h>)
-#include <ft2build.h>
 #else
 #error "Freetype not found"
 #endif
