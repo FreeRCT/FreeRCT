@@ -446,10 +446,9 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 
 		case LSW_LIST_REV:
 			functor = [&x, &y](const PreloadData &pd) {
-				static const Recolouring r;
 				const ImageData *imgdata = _sprite_manager.GetTableSprite(
 						pd.load_success ? pd.revision == _freerct_revision ? SPR_GUI_LOADSAVE_OK : SPR_GUI_LOADSAVE_WARN : SPR_GUI_LOADSAVE_ERR);
-				if (imgdata != nullptr) _video.BlitImage(Point32(x - ITEM_SPACING / 2, y - ITEM_SPACING / 2), imgdata, r, GS_NORMAL);
+				if (imgdata != nullptr) _video.BlitImage(Point32(x - ITEM_SPACING / 2, y - ITEM_SPACING / 2), imgdata);
 			};
 			break;
 

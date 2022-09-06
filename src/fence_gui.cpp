@@ -166,9 +166,8 @@ void FenceGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 			const ImageData *sprite = fence->sprites[FENCE_NE_FLAT];
 			if (sprite == nullptr) break;
 
-			static Recolouring recolouring;
 			_video.BlitImage({this->GetWidgetScreenX(wid) - sprite->xoffset + (wid->pos.width - sprite->width) / 2,
-					this->GetWidgetScreenY(wid) - sprite->yoffset + (wid->pos.height - sprite->height) / 2}, sprite, recolouring, GS_NORMAL);
+					this->GetWidgetScreenY(wid) - sprite->yoffset + (wid->pos.height - sprite->height) / 2}, sprite);
 			return;
 		}
 	}

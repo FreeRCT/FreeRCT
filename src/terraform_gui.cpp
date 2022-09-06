@@ -120,10 +120,8 @@ void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const P
 
 void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
-	Point32 base;
-	static const Recolouring recolour; // Not changed.
-
 	if (wid_num != TERR_DISPLAY) return;
+	Point32 base;
 
 	/* Draw the tile area, case of a null-area. */
 	if (this->xsize == 0 && this->ysize == 0) {
@@ -132,7 +130,7 @@ void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 
 		base.x = this->GetWidgetScreenX(wid) + (wid->pos.width - dot->width) / 2;
 		base.y = this->GetWidgetScreenY(wid) + (wid->pos.height - dot->height) / 2;
-		_video.BlitImage(base, dot, recolour, GS_NORMAL);
+		_video.BlitImage(base, dot);
 		return;
 	}
 

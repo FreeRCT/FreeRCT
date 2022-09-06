@@ -946,7 +946,6 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.SetSelector(selector);
 	collector.Collect();
-	static const Recolouring recolour;
 
 	_video.FillRectangle(this->rect, MakeRGBA(0, 0, 0, OPAQUE)); // Black background.
 
@@ -956,12 +955,13 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	GradientShift gs = static_cast<GradientShift>(GS_LIGHT - _weather.GetWeatherType());
 	for (const auto &iter : collector.draw_images) {
 		const DrawData &dd = iter;
-		const Recolouring &rec = (dd.recolour == nullptr) ? recolour : *dd.recolour;
+		const Recolouring &rec = (dd.recolour == nullptr) ? _no_recolour : *dd.recolour;
 		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
 	}
 
 	if (this->draw_fps) {
 		constexpr const int SPACING = 4;
+		/* FPS is only interesting for developers, no need to make this translatable. */
 		_video.BlitText(Format("FPS: %2.1f (avg. %2.1f)", _video.FPS(), _video.AvgFPS()),
 				_palette[TEXT_WHITE], SPACING, SPACING, _video.Width() - 2 * SPACING, ALG_RIGHT);
 	}

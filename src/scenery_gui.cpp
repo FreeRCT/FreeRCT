@@ -136,7 +136,6 @@ void SceneryGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) c
 
 	const uint first_index = this->GetWidget<ScrollbarWidget>(SCENERY_GUI_SCROLL_LIST)->GetStart();
 	const uint last_index = std::min<uint>(this->types.size(), first_index + ITEM_COUNT);
-	static Recolouring rc;  // Never modified.
 	const uint8 rotation = (this->orientation - _window_manager.GetViewport()->orientation) & 3;
 	for (uint i = first_index; i < last_index; i++) {
 		Rectangle32 r(x + ITEM_SPACING, y + TEXT_HEIGHT, ITEM_WIDTH - 2 * ITEM_SPACING, ITEM_HEIGHT);
@@ -145,8 +144,7 @@ void SceneryGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) c
 		if (t == this->selected_type) _video.FillRectangle(r, _palette[COL_SERIES_START + (COL_RANGE_DARK_GREEN + 1) * COL_SERIES_LENGTH - 1]);
 		_video.BlitImage(Point32(
 				x + (ITEM_WIDTH - t->previews[rotation]->width) / 2,
-				y + TEXT_HEIGHT + (ITEM_HEIGHT - t->previews[rotation]->height) / 2),
-			t->previews[rotation], rc, GS_NORMAL);
+				y + TEXT_HEIGHT + (ITEM_HEIGHT - t->previews[rotation]->height) / 2), t->previews[rotation]);
 		_video.DrawRectangle(r, _palette[COL_SERIES_START + COL_RANGE_DARK_GREEN * COL_SERIES_LENGTH]);
 
 		_str_params.SetMoney(1, t->buy_cost);

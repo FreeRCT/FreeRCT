@@ -158,9 +158,8 @@ void RideBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) co
 			const RideType *ride_type = this->instance->GetRideType();
 			if (ride_type->kind != RTK_SHOP && ride_type->kind != RTK_GENTLE && ride_type->kind != RTK_THRILL) return;
 
-			static const Recolouring recolour; // Never modified, display 'original' image in the GUI.
 			Point32 pt(this->GetWidgetScreenX(wid) + wid->pos.width / 2, this->GetWidgetScreenY(wid) + wid->pos.height - 40);
-			_video.BlitImage(pt, ride_type->GetView(this->orientation), recolour, GS_NORMAL);
+			_video.BlitImage(pt, ride_type->GetView(this->orientation));
 			break;
 	}
 }

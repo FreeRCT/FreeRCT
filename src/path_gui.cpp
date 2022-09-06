@@ -413,8 +413,6 @@ void PathBuildGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 
 void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
-	static Recolouring recolour; // Never changed.
-
 	switch (wid_num) {
 		case PATH_GUI_NORMAL_PATH0:
 		case PATH_GUI_NORMAL_PATH1:
@@ -426,7 +424,7 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
 					Point32 pt(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y);
-					_video.BlitImage(pt, img, recolour, GS_NORMAL);
+					_video.BlitImage(pt, img);
 				}
 			}
 			break;
@@ -441,7 +439,7 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
 					Point32 pt(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y);
-					_video.BlitImage(pt, img, recolour, GS_NORMAL);
+					_video.BlitImage(pt, img);
 				}
 			}
 			break;

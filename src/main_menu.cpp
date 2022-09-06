@@ -105,7 +105,6 @@ static const int    MAIN_MENU_PADDING      =    24;  ///< Padding in the main me
 
 void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 {
-	static Recolouring rc;
 	const Realtime current_time = Time();
 	double frametime = Delta(this->animstart, current_time);
 	if (is_splash_screen && frametime > 3 * _gui_sprites.mainmenu_splash_duration) {
@@ -140,12 +139,12 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 	this->quit_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
 	if (!is_splash_screen || frametime > 2 * _gui_sprites.mainmenu_splash_duration) {
-		_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 4), _gui_sprites.mainmenu_logo, rc, GS_NORMAL);
+		_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 4), _gui_sprites.mainmenu_logo);
 
-		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new,      rc, GS_NORMAL);
-		_video.BlitImage(this->load_game_rect.base, _gui_sprites.mainmenu_load,     rc, GS_NORMAL);
-		_video.BlitImage(this->settings_rect.base,  _gui_sprites.mainmenu_settings, rc, GS_NORMAL);
-		_video.BlitImage(this->quit_rect.base,      _gui_sprites.mainmenu_quit,     rc, GS_NORMAL);
+		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new);
+		_video.BlitImage(this->load_game_rect.base, _gui_sprites.mainmenu_load);
+		_video.BlitImage(this->settings_rect.base,  _gui_sprites.mainmenu_settings);
+		_video.BlitImage(this->quit_rect.base,      _gui_sprites.mainmenu_quit);
 
 		DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
 				this->new_game_rect.base.x,  this->new_game_rect.base.y  - MAIN_MENU_PADDING + this->new_game_rect.height,
@@ -163,7 +162,7 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 
 	if (is_splash_screen) {
 		if (frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
-			_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 2), _gui_sprites.mainmenu_splash, rc, GS_NORMAL);
+			_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 2), _gui_sprites.mainmenu_splash);
 			if (frametime > _gui_sprites.mainmenu_splash_duration) {
 				_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()),
 						0xff * (frametime - _gui_sprites.mainmenu_splash_duration) / _gui_sprites.mainmenu_splash_duration);

@@ -595,7 +595,6 @@ void DataWidget::DoDraw(const GuiWindow *w)
 	} else if (this->wtype == WT_RIGHT_TEXT) {
 		align = ALG_RIGHT;
 	}
-	static Recolouring rc; // Never modified
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	switch (this->wtype) {
 		case WT_IMAGE_TAB:
@@ -605,7 +604,7 @@ void DataWidget::DoDraw(const GuiWindow *w)
 			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
 			yoffset -= rect.base.y;
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata, rc, GS_NORMAL);
+			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata);
 			break;
 		}
 
@@ -614,13 +613,13 @@ void DataWidget::DoDraw(const GuiWindow *w)
 			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
 			yoffset -= rect.base.y;
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata, rc, GS_NORMAL);
+			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata);
 
 			const Rectangle16 imgrect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
 			imgdata = _sprite_manager.GetTableSprite(SPR_GUI_TRIANGLE_DOWN);
 			if (imgdata != nullptr) {
 				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
-				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata, rc, GS_NORMAL);
+				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata);
 			}
 			break;
 		}
@@ -634,7 +633,7 @@ void DataWidget::DoDraw(const GuiWindow *w)
 
 			if (imgdata != nullptr) {
 				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
-				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata, rc, GS_NORMAL);
+				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata);
 			}
 			/* Note: Reusing the same string parameters from above */
 			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left - imgrect.width, align);
