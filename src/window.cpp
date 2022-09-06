@@ -46,7 +46,7 @@ static uint GetWindowZPriority(WindowTypes wt);
  */
 bool IsLeftClick(uint8 state)
 {
-	return (state & (MB_LEFT | (MB_LEFT << MB_PREV_SHIFT))) == MB_LEFT;
+	return (state & MB_LEFT) == MB_LEFT;
 }
 
 /**

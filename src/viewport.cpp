@@ -1253,21 +1253,19 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 	}
 
 	/* Did the user click on something that has a window? */
-	if ((state & MB_CURRENT) != 0) {
-		FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
-		switch (this->ComputeCursorPosition(&fdata)) {
-			case CS_RIDE:
-				if (ShowRideManagementGui(fdata.ride)) return WMME_NONE;
-				break;
+	FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
+	switch (this->ComputeCursorPosition(&fdata)) {
+		case CS_RIDE:
+			if (ShowRideManagementGui(fdata.ride)) return WMME_NONE;
+			break;
 
-			case CS_PERSON:
-				ShowPersonInfoGui(fdata.person);
-				return WMME_NONE;
+		case CS_PERSON:
+			ShowPersonInfoGui(fdata.person);
+			return WMME_NONE;
 
-			default: break;
-		}
-
+		default: break;
 	}
+
 	return WMME_NONE;
 }
 
