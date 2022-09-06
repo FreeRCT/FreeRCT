@@ -905,7 +905,7 @@ void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, bool 
 		const Recolouring &recolour, GradientShift shift, uint32 col)
 {
 	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
-			rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, col,
+			rect.base.x, rect.base.y, rect.base.x + static_cast<float>(rect.width), rect.base.y + static_cast<float>(rect.height), col,
 			WXYZPointF(0.0f, 0.0f,
 					tile_vert ? static_cast<float>(rect.height) / img->height : 1.0f,
 					tile_hor ? static_cast<float>(rect.width) / img->width : 1.0f

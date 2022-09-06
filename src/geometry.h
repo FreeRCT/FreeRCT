@@ -76,7 +76,6 @@ struct Point {
 
 typedef Point<int32> Point32; ///< 32 bit 2D point.
 typedef Point<int16> Point16; ///< 16 bit 2D point.
-typedef Point<uint8> PointU8; ///< 8 bit unsigned 2D point.
 typedef Point<float> PointF;  ///< Floating-point 2D point.
 
 /**
@@ -173,7 +172,6 @@ struct XYZPoint {
 
 typedef XYZPoint<int32> XYZPoint32; ///< 32 bit 3D point.
 typedef XYZPoint<int16> XYZPoint16; ///< 16 bit 3D point.
-typedef XYZPoint<uint8> XYZPointU8; ///< 8 bit unsigned 3D point.
 typedef XYZPoint<float> XYZPointF;  ///< Floating-point 3D point.
 
 /**
@@ -222,7 +220,6 @@ struct WXYZPoint {
 	CT z; ///< Z coordinate.
 };
 
-typedef WXYZPoint<uint8> WXYZPointU8; ///< 8 bit unsigned 4D point.
 typedef WXYZPoint<float> WXYZPointF;  ///< Floating-point 4D point.
 
 /**
