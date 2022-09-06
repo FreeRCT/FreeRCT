@@ -376,8 +376,8 @@ int TimedAnimation::GetTotalDuration() const {
  */
 int TimedAnimation::GetFrame(int time, const bool loop_around) const {
 	const int total_length = GetTotalDuration();
-	if (total_length <= 0 || (!loop_around && time >= total_length)) return -1;
-	time %= total_length;
+	if (total_length <= 0 || (!loop_around && time > total_length)) return -1;
+	if (loop_around) time %= total_length;
 	for (int i = 0; i < frames; ++i) {
 		time -= durations[i];
 		if (time <= 0) return i;

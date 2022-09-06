@@ -15,10 +15,10 @@
 
 #include <vector>
 
-static const uint32 MAX_IMAGE_COUNT = 20000;  ///< Maximum number of images that can be loaded (arbitrary number).
+static const uint32 IMAGE_BATCH_SIZE = 1024;  ///< Number of images that are batch-preallocated (arbitrary number).
 
-static std::vector<ImageData> _sprites;  ///< Available sprites to the program.
-static uint32 _sprites_loaded;           ///< Total number of sprites loaded.
+static std::vector<std::unique_ptr<ImageData[]>> _sprites;  ///< Available sprites to the program.
+static uint32 _sprites_loaded;                              ///< Total number of sprites loaded.
 
 ImageData::ImageData() : is_8bpp(false), width(0), height(0)
 {
@@ -343,15 +343,15 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
  */
 ImageData *LoadImage(RcdFileReader *rcd_file)
 {
-	if (_sprites_loaded >= MAX_IMAGE_COUNT) {
-		error("Attempt to load too many sprites! MAX_IMAGE_COUNT needs to be increased.\n");
-	}
+	const uint32 batch_index = _sprites_loaded / IMAGE_BATCH_SIZE;
+	const uint32 index_in_batch = _sprites_loaded % IMAGE_BATCH_SIZE;
+	if (_sprites_loaded >= IMAGE_BATCH_SIZE * _sprites.size()) _sprites.emplace_back(new ImageData[IMAGE_BATCH_SIZE]);
+
 	bool is_8bpp = strcmp(rcd_file->name, "8PXL") == 0;
 	rcd_file->CheckVersion(is_8bpp ? 2 : 1);
 
-	_sprites.emplace_back();
 	_sprites_loaded++;
-	ImageData *imd = &_sprites.back();
+	ImageData *imd = &_sprites.at(batch_index)[index_in_batch];
 	try {
 		if (is_8bpp) {
 			imd->is_8bpp = true;
@@ -361,7 +361,6 @@ ImageData *LoadImage(RcdFileReader *rcd_file)
 			imd->Load32bpp(rcd_file, rcd_file->size);
 		}
 	} catch (...) {
-		_sprites.pop_back();
 		_sprites_loaded--;
 		throw;
 	}
@@ -371,7 +370,7 @@ ImageData *LoadImage(RcdFileReader *rcd_file)
 /** Initialize image storage. */
 void InitImageStorage()
 {
-	_sprites.reserve(MAX_IMAGE_COUNT);
+	/* Nothing to do currently. */
 }
 
 /** Clear all memory. */
