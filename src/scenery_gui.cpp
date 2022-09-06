@@ -279,8 +279,8 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 	if ((state & MB_RIGHT) != 0) {
 		Viewport *vp = _window_manager.GetViewport();
 		const Point32 world_pos = vp->ComputeHorizontalTranslation(
-				vp->rect.width  / 2 - _window_manager.GetMousePosition().x,
-				vp->rect.height / 2 - _window_manager.GetMousePosition().y);
+				vp->rect.width  / 2 - _video.MouseX(),
+				vp->rect.height / 2 - _video.MouseY());
 		const int8 dx = _orientation_signum_dx[vp->orientation];
 		const int8 dy = _orientation_signum_dy[vp->orientation];
 		for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {

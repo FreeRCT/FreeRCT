@@ -1237,7 +1237,7 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 	if (_window_manager.SelectorMouseMoveEvent(this, pos)) return;
 
 	/* Intercept RMB drag for moving the viewport. */
-	if ((_window_manager.GetMouseState() & MB_RIGHT) != 0) {
+	if ((_video.GetMouseDragging() & MB_RIGHT) != 0) {
 		this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
 	}
 }
@@ -1246,6 +1246,11 @@ WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
 {
 	if (_game_control.main_menu) return WMME_NONE;
 	if (_window_manager.SelectorMouseButtonEvent(state)) return WMME_NONE;
+
+	if (state == MB_RIGHT) {
+		_video.SetMouseDragging(MB_RIGHT, true);
+		return WMME_NONE;
+	}
 
 	/* Did the user click on something that has a window? */
 	if ((state & MB_CURRENT) != 0) {

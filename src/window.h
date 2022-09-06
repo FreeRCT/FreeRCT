@@ -57,6 +57,24 @@ public:
 	Window *higher; ///< %Window above this window (managed by #WindowManager).
 	Window *lower;  ///< %Window below this window (managed by #WindowManager).
 
+	/**
+	 * Get the current mouse position relative to this window's top-left corner.
+	 * @return The relative mouse X coordinate.
+	 */
+	inline float GetRelativeMouseX() const
+	{
+		return _video.MouseX() - this->rect.base.x;
+	}
+
+	/**
+	 * Get the current mouse position relative to this window's top-left corner.
+	 * @return The relative mouse Y coordinate.
+	 */
+	inline float GetRelativeMouseY() const
+	{
+		return _video.MouseY() - this->rect.base.y;
+	}
+
 	virtual void SetSize(uint width, uint height);
 	void SetPosition(int x, int y);
 	void SetPosition(Point32 pos);
@@ -96,9 +114,7 @@ public:
 	StringID TranslateStringNumber(StringID str_id) const;
 	virtual void ResetSize() override;
 
-	virtual void OnMouseMoveEvent(const Point16 &pos) override;
 	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
-	virtual void OnMouseLeaveEvent() override;
 	virtual void OnMouseWheelEvent(int direction) override;
 	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
@@ -135,7 +151,6 @@ public:
 	BaseWidget *FindTooltipWidget(Point16 pt) override;
 
 protected:
-	Point16 mouse_pos;         ///< Mouse position relative to the window (negative coordinates means 'out of window').
 	const RideType *ride_type; ///< Ride type being used by this window, for translating its strings. May be \c nullptr.
 
 	void SetupWidgetTree(const WidgetPart *parts, int length);
@@ -244,7 +259,7 @@ public:
 	void ResetAllWindows();
 	void RepositionAllWindows(uint new_width, uint new_height);
 
-	void MouseMoveEvent(const Point16 &pos);
+	void MouseMoveEvent();
 	void MouseButtonEvent(MouseButtons button, bool pressed);
 	void MouseWheelEvent(int direction);
 	bool KeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
@@ -297,25 +312,6 @@ public:
 	}
 
 	/**
-	 * Get last reported position of the mouse cursor (at the screen).
-	 * @return Last known position of the mouse at the screen.
-	 */
-	inline Point16 GetMousePosition() const
-	{
-		return this->mouse_pos;
-	}
-
-	/**
-	 * Get last reported state of the buttons (lower 4 bits).
-	 * @return Last reported state of the mouse buttons.
-	 * @see MouseButtons
-	 */
-	inline uint8 GetMouseState() const
-	{
-		return this->mouse_state;
-	}
-
-	/**
 	 * Retrieve the main world diaplay window.
 	 * @return The main display window, or \c nullptr if not available.
 	 */
@@ -334,17 +330,11 @@ private:
 	void UpdateCurrentWindow();
 	GuiWindow *GetSelector();
 
-	void StartWindowMove();
-
-	Point16 mouse_pos;        ///< Last reported mouse position.
 	Window *current_window;   ///< 'Current' window under the mouse.
 	GuiWindow *select_window; ///< Cache containing the highest window with active GuiWindow::selector field
 	                          ///< (\c nullptr if no such window exists). Only valid if #select_valid holds.
 	Viewport *viewport;       ///< Viewport window (\c nullptr if not available).
 	bool select_valid;        ///< State of the #select_window cache.
-	uint8 mouse_state;        ///< Last reported mouse button state (lower 4 bits).
-	uint8 mouse_mode;         ///< Mouse mode of the window manager. @see WmMouseModes
-	BaseWidget *tooltip_widget;   ///< The widget for which we are currently showing a tooltip.
 
 	Point16 move_offset;      ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
 };

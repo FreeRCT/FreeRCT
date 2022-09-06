@@ -460,14 +460,9 @@ void VideoSystem::TextCallback(GLFWwindow *window, uint32 utf32)
 void VideoSystem::MouseMoveCallback(GLFWwindow *window, double x, double y)
 {
 	assert(window == _video.window);
-	x = std::max(0.0, std::min<double>(x, _video.width));
-	y = std::max(0.0, std::min<double>(y, _video.height));
-
-	_video.mouse_x = x;
-	_video.mouse_y = y;
-
-	/* NOCOM don't let the window manager cache the mouse pos. */
-	_window_manager.MouseMoveEvent(Point16(x, y));
+	_video.mouse_x = std::max(0.0, std::min<double>(x, _video.width));
+	_video.mouse_y = std::max(0.0, std::min<double>(y, _video.height));
+	_window_manager.MouseMoveEvent();
 }
 
 /**
@@ -495,7 +490,6 @@ void VideoSystem::MouseClickCallback(GLFWwindow *window, int button, int action,
 
 	switch (button) {
 		case GLFW_MOUSE_BUTTON_RIGHT:
-			glfwSetInputMode(window, GLFW_CURSOR, action == GLFW_PRESS ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 			_window_manager.MouseButtonEvent(MB_RIGHT, action == GLFW_PRESS);
 			break;
 		case GLFW_MOUSE_BUTTON_LEFT:
@@ -507,6 +501,21 @@ void VideoSystem::MouseClickCallback(GLFWwindow *window, int button, int action,
 		default:
 			break;
 	}
+}
+
+/**
+ * Start or stop dragging the mouse.
+ * @param button The mouse button to update,
+ * @param dragging The mouse button that is being dragged.
+ */
+void VideoSystem::SetMouseDragging(MouseButtons button, bool dragging)
+{
+	if (dragging) {
+		this->mouse_dragging |= button;
+	} else {
+		this->mouse_dragging &= ~button;
+	}
+	glfwSetInputMode(window, GLFW_CURSOR, (this->mouse_dragging & MB_RIGHT) != MB_NONE ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 /** Shut down the video system. */
@@ -534,6 +543,7 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	this->height = 600;
 	this->mouse_x = this->width / 2;
 	this->mouse_y = this->height / 2;
+	this->mouse_dragging = MB_NONE;
 
 	std::string caption = "FreeRCT ";
 	caption += _freerct_revision;

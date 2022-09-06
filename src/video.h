@@ -13,6 +13,7 @@
 #include "stdafx.h"
 #include "geometry.h"
 #include "palette.h"
+#include "window_constants.h"
 
 #include <chrono>
 #include <map>
@@ -100,6 +101,17 @@ public:
 	double FPS() const;
 	double AvgFPS() const;
 
+	void SetMouseDragging(MouseButtons button, bool dragging);
+
+	/**
+	 * Get the mouse button currently being dragged.
+	 * @return The button, or #MB_NONE for none.
+	 */
+	MouseButtons GetMouseDragging() const
+	{
+		return this->mouse_dragging;
+	}
+
 	/**
 	 * Get the current width of the window.
 	 * @return The width in pixels.
@@ -134,6 +146,15 @@ public:
 	float MouseY() const
 	{
 		return this->mouse_y;
+	}
+
+	/**
+	 * Get the current mouse position.
+	 * @return The mouse coordinates.
+	 */
+	Point32 GetMousePosition() const
+	{
+		return Point32(this->MouseX(), this->MouseY());
 	}
 
 	void SetResolution(const Point32 &res);
@@ -230,6 +251,7 @@ private:
 	uint32_t height;  ///< Current window height in pixels.
 	double mouse_x;   ///< Current mouse X position.
 	double mouse_y;   ///< Current mouse Y position.
+	MouseButtons mouse_dragging;  ///< The mouse button being dragged, if any.
 
 	std::set<Point32> resolutions;  ///< Available window resolutions.
 

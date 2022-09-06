@@ -86,14 +86,14 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 
 	if (!IsLeftClick(state)) return WMME_NONE;
 
-	if (this->new_game_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	if (this->new_game_rect.IsPointInside(_video.GetMousePosition())) {
 		_game_control.NewGame();
 		delete this;
-	} else if (this->load_game_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	} else if (this->load_game_rect.IsPointInside(_video.GetMousePosition())) {
 		ShowLoadGameGui();
-	} else if (this->quit_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	} else if (this->quit_rect.IsPointInside(_video.GetMousePosition())) {
 		_game_control.QuitGame();
-	} else if (this->settings_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	} else if (this->settings_rect.IsPointInside(_video.GetMousePosition())) {
 		ShowSettingGui();
 	}
 

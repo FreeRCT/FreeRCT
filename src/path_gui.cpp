@@ -259,7 +259,7 @@ void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const P
 	if (this->mouse_at == CS_NONE || fdata.voxel_pos == this->mouse_pos) return;
 
 	this->mouse_pos = fdata.voxel_pos;
-	if (this->single_tile_mode) this->TryAddRemovePath(_window_manager.GetMouseState());
+	if (this->single_tile_mode) this->TryAddRemovePath(_video.GetMouseDragging());
 
 	this->SetButtons();
 	this->SetupSelector();

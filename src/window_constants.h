@@ -74,6 +74,7 @@ enum WindowFlags {
  * @ingroup window_group
  */
 enum MouseButtons {
+	MB_NONE   = 0, ///< No button down.
 	MB_LEFT   = 1, ///< Left button down.
 	MB_MIDDLE = 2, ///< Middle button down.
 	MB_RIGHT  = 4, ///< Right button down.
@@ -126,15 +127,6 @@ enum WmKeyMod {
 	                      ///< we therefore treat both modifiers the same to ensure every platform can use at least one of them.
 };
 DECLARE_ENUM_AS_BIT_SET(WmKeyMod)
-
-/**
- * Available mouse modes of the window manager.
- * @ingroup window_group
- */
-enum WmMouseModes {
-	WMMM_PASS_THROUGH, ///< No special mode, pass events on to the windows.
-	WMMM_MOVE_WINDOW,  ///< Move the current window.
-};
 
 /**
  * Tabs of the park management GUI.

@@ -106,12 +106,12 @@ void DropdownMenuWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 		const Rectangle32 r(this->rect.base.x, y, static_cast<uint>(wid->pos.width - 1), static_cast<uint>(GetTextHeight()));
 		uint32 highlight = 0;
 		if (it == this->selected_index) {
-			if (r.IsPointInside(_window_manager.GetMousePosition())) {
+			if (r.IsPointInside(_video.GetMousePosition())) {
 				highlight = 4;
 			} else {
 				highlight = 2;
 			}
-		} else if (r.IsPointInside(_window_manager.GetMousePosition())) {
+		} else if (r.IsPointInside(_video.GetMousePosition())) {
 			highlight = 6;
 		}
 		if (highlight != 0) {
@@ -137,7 +137,7 @@ void DropdownMenuWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Poi
 {
 	if (number != DD_ITEMS) return;
 
-	int index = this->mouse_pos.y / GetTextHeight();
+	int index = (_video.MouseY() - this->rect.base.y) / GetTextHeight();
 	if (index >= (int)this->items.size()) return;
 
 	int send = this->parent_btn << 16 | index;
