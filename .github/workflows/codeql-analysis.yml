@@ -39,6 +39,7 @@ jobs:
           libpng-dev \
           libglfw3-dev \
           libglew-dev \
+          libfreetype-dev \
           zlib1g-dev \
           # EOF
         echo "::endgroup::"

@@ -14,7 +14,7 @@ In addition, you need:
 * *lex/flex* - Scanner generator for generating RCD input files. (optional)
 * *yacc/bison* - Parser generator for generating RCD input files. (optional)
 * *libpng* - Making the RCD data files that contain the graphics and other data read by the program.
-* *GLFW3* & *GLEW* - Displaying graphics of the program.
+* *GLFW3* & *GLEW* & *Freetype* - Displaying graphics of the program.
 * *CMake* & *make* - Building the program.
 
 The existence of these programs/libraries is checked by ``cmake``.
@@ -150,7 +150,7 @@ All the CMake dependencies can be installed under Debian based systems (e.g. Ubu
 
 .. code-block:: bash
 
-        $ sudo apt install zlib1g-dev libpng-dev libglfw3-dev libglew-dev doxygen flex bison
+        $ sudo apt install zlib1g-dev libpng-dev libglfw3-dev libglew-dev libfreetype-dev doxygen flex bison
 
 MacOS
 #####
@@ -158,4 +158,4 @@ MacOS
 To install the dependencies on MacOS you can use Homebrew:
 .. code-block:: bash
 
-        $ brew install flex bison libpng glfw glew cmake make
+        $ brew install flex bison libpng glfw glew freetype cmake make

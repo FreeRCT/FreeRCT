@@ -31,6 +31,7 @@ jobs:
           libpng-dev \
           libglfw3-dev \
           libglew-dev \
+          libfreetype-dev \
           zlib1g-dev \
           python-yaml \
           clang-tidy \
@@ -100,6 +101,7 @@ jobs:
           libpng-dev \
           libglfw3-dev \
           libglew-dev \
+          libfreetype-dev \
           zlib1g-dev \
           # EOF
         echo "::endgroup::"
@@ -178,6 +180,7 @@ jobs:
           libpng \
           glfw3 \
           glew \
+          freetype \
           zlib \
           # EOF
 
@@ -243,6 +246,7 @@ jobs:
           libpng \
           glfw3 \
           glew \
+          freetype \
           zlib \
           graphite2 \
           harfbuzz \
