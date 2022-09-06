@@ -98,6 +98,7 @@ public:
 	void Shutdown();
 
 	double FPS() const;
+	double AvgFPS() const;
 
 	/**
 	 * Get the current width of the window.
@@ -232,8 +233,9 @@ private:
 
 	std::set<Point32> resolutions;  ///< Available window resolutions.
 
-	Realtime last_frame;  ///< Time when the last frame started.
-	Realtime cur_frame;   ///< Time when the current frame started.
+	Realtime last_frame;       ///< Time when the last frame started.
+	Realtime cur_frame;        ///< Time when the current frame started.
+	double average_frametime;  ///< Long-term average framerate in milliseconds per frame.
 
 	std::map<std::pair<const ImageData*, RecolourData>, GLuint> image_textures;  ///< Textures for all loaded images.
 

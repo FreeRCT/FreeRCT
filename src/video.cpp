@@ -586,6 +586,7 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	/* Initialize remaining data structures. */
 	this->last_frame = std::chrono::high_resolution_clock::now();
 	this->cur_frame = this->last_frame;
+	this->average_frametime = 1;
 }
 
 /** Run the main loop. */
@@ -606,9 +607,11 @@ void VideoSystem::MainLoopCycle()
  */
 bool VideoSystem::MainLoopDoCycle()
 {
-	static const uint32 FRAME_DELAY = 30;  // Minimum number of milliseconds between two frames.
+	constexpr uint32 FRAME_DELAY = 30;        ///< Minimum number of milliseconds between two frames.
+	constexpr double AVERAGE_FPS_STEPS = 15;  ///< Number of frame iterations in the average framerate computation.
 	this->last_frame = this->cur_frame;
 	this->cur_frame = std::chrono::high_resolution_clock::now();
+	this->average_frametime = ((this->average_frametime * AVERAGE_FPS_STEPS) + Delta(this->last_frame, this->cur_frame)) / (AVERAGE_FPS_STEPS + 1);
 
 #ifdef WEBASSEMBLY
 	this->SetResolution({GetEmscriptenCanvasWidth(), GetEmscriptenCanvasHeight()});
@@ -646,6 +649,15 @@ double VideoSystem::FPS() const
 {
 	double time = Delta(this->last_frame, this->cur_frame);
 	return time > 0 ? (1000.0 / time) : 0;
+}
+
+/**
+ * Calculate the average framerate.
+ * @return Frames per second.
+ */
+double VideoSystem::AvgFPS() const
+{
+	return 1000.0 / this->average_frametime;
 }
 
 /**

@@ -870,6 +870,11 @@ Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL
 	tile_height(16),
 	orientation(VOR_NORTH),
 	mouse_pos(0, 0),
+#ifndef NDEBUG
+	draw_fps(true),
+#else
+	draw_fps(false),
+#endif
 	underground_mode(false)
 {
 	uint16 width  = _video.Width();
@@ -955,9 +960,11 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
 	}
 
-#ifndef NDEBUG
-	_video.BlitText(Format("FPS: %2.1f", _video.FPS()), _palette[TEXT_WHITE], 0, 0, _video.Width(), ALG_RIGHT);
-#endif
+	if (this->draw_fps) {
+		constexpr const int SPACING = 4;
+		_video.BlitText(Format("FPS: %2.1f (avg. %2.1f)", _video.FPS(), _video.AvgFPS()),
+				_palette[TEXT_WHITE], SPACING, SPACING, _video.Width() - 2 * SPACING, ALG_RIGHT);
+	}
 
 	_video.PopClip();
 }
@@ -1077,7 +1084,12 @@ static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 64;  ///< By how many pixels to m
 
 bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
+	/* \todo Make all keybindings configurable by the user. */
 	if (key_code == WMKC_SYMBOL) {
+		if (symbol == "f") {  // f to toggle the FPS counter.
+			this->draw_fps = !this->draw_fps;
+			return true;
+		}
 		if (_game_control.main_menu) {  // Main menu controls.
 			if (symbol == "q") {  // q to quit.
 				_game_control.QuitGame();

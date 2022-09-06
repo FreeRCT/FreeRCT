@@ -119,6 +119,7 @@ public:
 	uint16 tile_height;          ///< Height of a tile.
 	ViewOrientation orientation; ///< Direction of view.
 	Point16 mouse_pos;           ///< Last known position of the mouse.
+	bool draw_fps;               ///< Whether to draw an FPS counter.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
 
