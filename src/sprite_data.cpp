@@ -124,8 +124,8 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 			*(recol_ptr++) = 0;
 		}
 	}
-	assert(recol_ptr - this->recol.get() == this->width * this->height);
-	assert(rgba_ptr - this->rgba.get() == this->width * this->height * 4);
+	assert(recol_ptr - this->recol.get() == 1L * this->width * this->height);
+	assert(rgba_ptr - this->rgba.get() == 4L this->width * this->height);
 }
 
 /**
@@ -246,8 +246,8 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 		if (!finished_line) rcd_file->Error("Incomplete line");
 		if (ptr != end) rcd_file->Error("Trailing bytes at end of line");
 	}
-	assert(recol_ptr - this->recol.get() == this->width * this->height * 2);
-	assert(rgba_ptr - this->rgba.get() == this->width * this->height * 4);
+	assert(recol_ptr - this->recol.get() == 2L * this->width * this->height);
+	assert(rgba_ptr - this->rgba.get() == 4L * this->width * this->height);
 	if (line_count != this->height) rcd_file->Error("Line count mismatch");
 	if (ptr != abs_end) rcd_file->Error("Trailing bytes at end of file");
 }
