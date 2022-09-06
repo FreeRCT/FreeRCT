@@ -203,7 +203,7 @@ IF(MSVC)
 	target_link_libraries(freerct
 		version imm32 winmm
 		harfbuzz graphite2 brotlidec-static brotlicommon-static brotlienc-static
-		ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid bz2 zlib
+		ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid zlib
 	)
 	IF(RELEASE)
 		string(REPLACE "/MD" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
