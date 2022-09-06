@@ -176,7 +176,7 @@ jobs:
       run: |
         vcpkg install --triplet=${{ matrix.arch }}-osx-dynamic \
           libpng \
-          glfw \
+          glfw3 \
           glew \
           zlib \
           # EOF
@@ -241,7 +241,7 @@ jobs:
       run: |
         vcpkg install --triplet=${{ matrix.arch }}-windows-static \
           libpng \
-          glfw \
+          glfw3 \
           glew \
           zlib \
           graphite2 \
