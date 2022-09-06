@@ -75,7 +75,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	FenceType fence_type;      ///< Currently selected fence type (#FENCE_TYPE_INVALID means no type selected).
 	XYZPoint16 fence_base;     ///< Voxel position (base of the ground) where fence has been placed (only valid if #fence_edge is valid).
@@ -260,7 +260,7 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point
 	this->fence_sel.SetFenceData(fdata.voxel_pos, this->fence_type, edge);
 }
 
-void FenceGui::SelectorMouseButtonEvent(uint8 state)
+void FenceGui::SelectorMouseButtonEvent(MouseButtons state)
 {
 	if ((state & (MB_LEFT | MB_RIGHT)) == 0) return;  // No buttons pressed.
 	if (this->fence_sel.area.width != 1 || this->fence_sel.area.height != 1) return;

@@ -224,7 +224,7 @@ public:
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	void SetGraphMode(GraphMode mode);
 	void SetCoasterState();
@@ -688,9 +688,9 @@ void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &
 	}
 }
 
-void CoasterInstanceWindow::SelectorMouseButtonEvent(const uint8 state)
+void CoasterInstanceWindow::SelectorMouseButtonEvent(const MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 	if (entrance_exit_placement.area.width != 1 || entrance_exit_placement.area.height != 1) return;
 
 	if (this->ci->PlaceEntranceOrExit(this->is_placing_entrance ? this->ci->temp_entrance_pos : this->ci->temp_exit_pos, this->is_placing_entrance, nullptr)) {
@@ -934,7 +934,7 @@ public:
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
@@ -1310,9 +1310,9 @@ void CoasterBuildWindow::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] c
 	this->piece_selector.SetTrackPiece(XYZPoint16(fdata.voxel_pos.x, fdata.voxel_pos.y, height), this->sel_piece);
 }
 
-void CoasterBuildWindow::SelectorMouseButtonEvent(uint8 state)
+void CoasterBuildWindow::SelectorMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 
 	this->BuildTrackPiece();
 	this->SetupSelection();

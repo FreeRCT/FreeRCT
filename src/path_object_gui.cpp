@@ -28,7 +28,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	void SetType(const PathObjectType *t);
 
@@ -173,9 +173,9 @@ void PathObjectGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	this->path_object_sel.SetSize(0, 0);
 }
 
-void PathObjectGui::SelectorMouseButtonEvent(uint8 state)
+void PathObjectGui::SelectorMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 	if (this->object == nullptr) return;
 
 	const Money &cost = this->type->buy_cost;

@@ -76,7 +76,7 @@ public:
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	RideMouseMode selector; ///< Mouse mode displaying the new ride.
 private:
@@ -388,9 +388,9 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	}
 }
 
-void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
+void RideBuildWindow::SelectorMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 
 	if (this->selector.area.width < 1 || this->selector.area.height < 1) {
 		this->build_forbidden_reason.ShowErrorMessage();

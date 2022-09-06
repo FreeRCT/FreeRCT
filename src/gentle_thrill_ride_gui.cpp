@@ -201,7 +201,7 @@ public:
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 private:
 	GentleThrillRideInstance *ride;  ///< Gentle/Thrill ride instance getting managed by this window.
@@ -518,9 +518,9 @@ void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const P
 	}
 }
 
-void GentleThrillRideManagerWindow::SelectorMouseButtonEvent(const uint8 state)
+void GentleThrillRideManagerWindow::SelectorMouseButtonEvent(const MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 	if (entrance_exit_placement.area.width != 1 || entrance_exit_placement.area.height != 1) return;
 
 	if (this->is_placing_entrance) {

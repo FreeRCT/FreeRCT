@@ -101,7 +101,7 @@ public:
 	double FPS() const;
 	double AvgFPS() const;
 
-	void SetMouseDragging(MouseButtons button, bool dragging);
+	void SetMouseDragging(MouseButtons button, bool dragging, bool hide_cursor);
 
 	/**
 	 * Get the mouse button currently being dragged.

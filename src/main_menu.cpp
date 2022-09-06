@@ -24,7 +24,7 @@ public:
 	MainMenuGui();
 	~MainMenuGui();
 
-	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
+	WmMouseEvent OnMouseButtonEvent(MouseButtons state) override;
 	void OnDraw(MouseModeSelector *selector) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
@@ -76,7 +76,7 @@ bool MainMenuGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string
 	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
-WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
+WmMouseEvent MainMenuGui::OnMouseButtonEvent(const MouseButtons state)
 {
 	if (is_splash_screen) {
 		is_splash_screen = false;
@@ -84,7 +84,7 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
 		return WMME_NONE;
 	}
 
-	if (!IsLeftClick(state)) return WMME_NONE;
+	if (state != MB_LEFT) return WMME_NONE;
 
 	if (this->new_game_rect.IsPointInside(_video.GetMousePosition())) {
 		_game_control.NewGame();

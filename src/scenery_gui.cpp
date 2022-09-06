@@ -33,7 +33,7 @@ public:
 	void SetType(const SceneryType *t);
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 private:
 	RideMouseMode scenery_sel;  ///< Mouse selector for building scenery items. The logic is the same as for rides.
@@ -274,7 +274,7 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	}
 }
 
-void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
+void SceneryGui::SelectorMouseButtonEvent(const MouseButtons state)
 {
 	if ((state & MB_RIGHT) != 0) {
 		Viewport *vp = _window_manager.GetViewport();
@@ -310,7 +310,7 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 	}
 
 	if (this->instance.get() == nullptr) return;
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 	if (scenery_sel.area.width < 1 || scenery_sel.area.height < 1) {
 		this->build_forbidden_reason.ShowErrorMessage();
 		return;

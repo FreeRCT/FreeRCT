@@ -32,7 +32,7 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 
 
@@ -265,17 +265,18 @@ void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const P
 	this->SetupSelector();
 }
 
-void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
+void PathBuildGui::SelectorMouseButtonEvent(MouseButtons state)
 {
 	if (this->ride_selector.area.width == 0 || this->path_type == PAT_INVALID) return;
 
 	if (this->single_tile_mode) {
+		_video.SetMouseDragging(state, true, false);
 		this->TryAddRemovePath(state);
 		return;
 	}
 	/* Directional build. */
 
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 
 	/* Click with directional build, set or move the build position. */
 	this->ride_selector.SetSize(1, 1);

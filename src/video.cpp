@@ -507,15 +507,17 @@ void VideoSystem::MouseClickCallback(GLFWwindow *window, int button, int action,
  * Start or stop dragging the mouse.
  * @param button The mouse button to update,
  * @param dragging The mouse button that is being dragged.
+ * @param hide_cursor Hide the mouse cursor while dragging.
  */
-void VideoSystem::SetMouseDragging(MouseButtons button, bool dragging)
+void VideoSystem::SetMouseDragging(MouseButtons button, bool dragging, bool hide_cursor)
 {
+	assert(!hide_cursor || dragging);  // Can't hide the cursor when not dragging.
 	if (dragging) {
 		this->mouse_dragging |= button;
 	} else {
 		this->mouse_dragging &= ~button;
 	}
-	glfwSetInputMode(window, GLFW_CURSOR, (this->mouse_dragging & MB_RIGHT) != MB_NONE ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+	glfwSetInputMode(window, GLFW_CURSOR, hide_cursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 /** Shut down the video system. */

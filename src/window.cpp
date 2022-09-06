@@ -39,17 +39,6 @@ WindowManager _window_manager;
 static uint GetWindowZPriority(WindowTypes wt);
 
 /**
- * Does the mouse button state express a left-click?
- * @param state Mouse button state (as given in #Window::OnMouseButtonEvent).
- * @return The state expresses a left button click down event.
- * @ingroup window_group
- */
-bool IsLeftClick(uint8 state)
-{
-	return (state & MB_LEFT) == MB_LEFT;
-}
-
-/**
  * %Window constructor. It automatically adds the window to the window stack.
  * @param wtype %Window type Type of window.
  * @param wnumber Number of the window within the \a wtype.
@@ -234,7 +223,7 @@ void Window::OnMouseMoveEvent([[maybe_unused]] const Point16 &pos)
  * @param state Updated state. @see MouseButtons
  * @return Action to perform as a result of the event (use #WMME_NONE if no special action needed).
  */
-WmMouseEvent Window::OnMouseButtonEvent([[maybe_unused]] uint8 state)
+WmMouseEvent Window::OnMouseButtonEvent([[maybe_unused]] MouseButtons state)
 {
 	return WMME_NONE;
 }
@@ -479,9 +468,9 @@ void GuiWindow::OnMouseWheelEvent(int direction)
 	this->tree->OnMouseWheelEvent(direction);
 }
 
-WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
+WmMouseEvent GuiWindow::OnMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state) || this->GetRelativeMouseX() < 0) return WMME_NONE;
+	if (state != MB_LEFT || this->GetRelativeMouseX() < 0) return WMME_NONE;
 
 	BaseWidget *bw = this->tree->GetWidgetByPosition(Point32(this->GetRelativeMouseX(), this->GetRelativeMouseY()));
 	if (bw == nullptr) return WMME_NONE;
@@ -521,7 +510,7 @@ void GuiWindow::SelectorMouseMoveEvent([[maybe_unused]] Viewport *vp, [[maybe_un
  * Mouse buttons changed state while the window has an active mouse selector.
  * @param state Previous and current state of the mouse buttons. @see MouseButtons
  */
-void GuiWindow::SelectorMouseButtonEvent([[maybe_unused]] uint8 state)
+void GuiWindow::SelectorMouseButtonEvent([[maybe_unused]] MouseButtons state)
 {
 }
 
@@ -917,8 +906,8 @@ void WindowManager::MouseMoveEvent()
 {
 	if (_video.GetMouseDragging() != MB_NONE) {
 		assert(this->current_window != nullptr);
-		if ((_video.GetMouseDragging() & MB_LEFT) != 0) {
-			assert(this->current_window->wtype != WC_MAINDISPLAY && this->current_window->wtype != WC_MAIN_MENU);  // Cannot move the main display!
+		assert(this->current_window->wtype != WC_MAIN_MENU);  // Cannot move the main display.
+		if ((_video.GetMouseDragging() & MB_LEFT) != 0 && this->current_window->wtype != WC_MAINDISPLAY) {
 			this->current_window->SetPosition(_video.MouseX() - this->move_offset.x, _video.MouseY() - this->move_offset.y);
 		} else {
 			this->current_window->OnMouseMoveEvent(Point16(this->current_window->GetRelativeMouseX(), this->current_window->GetRelativeMouseY()));
@@ -961,7 +950,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 
 	this->UpdateCurrentWindow();
 	if (this->current_window == nullptr) {
-		_video.SetMouseDragging(button, pressed);
+		_video.SetMouseDragging(button, pressed, false);
 		return;
 	}
 
@@ -975,7 +964,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 	if (button == MB_LEFT && pressed) this->RaiseWindow(this->current_window);
 
 	if ((_video.GetMouseDragging() & button) != MB_NONE) {
-		if (!pressed) _video.SetMouseDragging(button, false);
+		if (!pressed) _video.SetMouseDragging(button, false, false);
 	} else if (pressed) {
 		WmMouseEvent me = this->current_window->OnMouseButtonEvent(button);
 		switch (me) {
@@ -984,7 +973,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 
 			case WMME_MOVE_WINDOW:
 				if (this->current_window != nullptr && this->current_window->rect.IsPointInside(_video.GetMousePosition())) {
-					_video.SetMouseDragging(button, pressed);
+					_video.SetMouseDragging(button, pressed, false);
 					this->move_offset.x = this->current_window->GetRelativeMouseX();
 					this->move_offset.y = this->current_window->GetRelativeMouseY();
 				}

@@ -82,7 +82,7 @@ public:
 
 	virtual void OnDraw(MouseModeSelector *selector);
 	virtual void OnMouseMoveEvent(const Point16 &pos);
-	virtual WmMouseEvent OnMouseButtonEvent(uint8 state);
+	virtual WmMouseEvent OnMouseButtonEvent(MouseButtons state);
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
@@ -114,11 +114,11 @@ public:
 	StringID TranslateStringNumber(StringID str_id) const;
 	virtual void ResetSize() override;
 
-	virtual WmMouseEvent OnMouseButtonEvent(uint8 state) override;
+	virtual WmMouseEvent OnMouseButtonEvent(MouseButtons state) override;
 	virtual void OnMouseWheelEvent(int direction) override;
 	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
-	virtual void SelectorMouseButtonEvent(uint8 state);
+	virtual void SelectorMouseButtonEvent(MouseButtons state);
 	virtual void SelectorMouseWheelEvent(int direction);
 	virtual void TimeoutCallback() override;
 	virtual void SetHighlight(bool value) override;
@@ -286,7 +286,7 @@ public:
 	 * @param state Previous and current state of the mouse buttons. @see MouseButtons
 	 * @return Call could be forwarded.
 	 */
-	inline bool SelectorMouseButtonEvent(uint8 state)
+	inline bool SelectorMouseButtonEvent(MouseButtons state)
 	{
 		GuiWindow *gw = this->GetSelector();
 		if (gw != nullptr) {
@@ -349,8 +349,6 @@ inline void GuiWindow::SetSelector(MouseModeSelector *selector)
 {
 	_window_manager.SetSelector(this, selector);
 }
-
-bool IsLeftClick(uint8 state);
 
 Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber);
 Window *HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber);

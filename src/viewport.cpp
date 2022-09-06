@@ -1242,13 +1242,13 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 	}
 }
 
-WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
+WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state)
 {
 	if (_game_control.main_menu) return WMME_NONE;
 	if (_window_manager.SelectorMouseButtonEvent(state)) return WMME_NONE;
 
 	if (state == MB_RIGHT) {
-		_video.SetMouseDragging(MB_RIGHT, true);
+		_video.SetMouseDragging(MB_RIGHT, true, true);
 		return WMME_NONE;
 	}
 
