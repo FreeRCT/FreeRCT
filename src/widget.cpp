@@ -875,13 +875,17 @@ void ScrollbarWidget::DoDraw(const GuiWindow *w)
 	if (this->wtype == WT_HOR_SCROLLBAR) {
 		int others = imd[WLS_LEFT_BUTTON]->width + imd[WLS_LEFT_BED]->width + imd[WLS_RIGHT_BED]->width + imd[WLS_RIGHT_BUTTON]->width;
 		if (others < this->pos.width) {
-			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(pos.x, pos.y, this->pos.width - others, scroll_sprites.stepsize_bar), true, false, rc);
+			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_BED]->xoffset, pos.y + imd[WLS_MIDDLE_BED]->yoffset,
+					this->pos.width - others, imd[WLS_MIDDLE_BED]->height), true, false, rc);
 			pos.x += this->pos.width - others;
 		}
 	} else {
 		int others = imd[WLS_LEFT_BUTTON]->height + imd[WLS_LEFT_BED]->height + imd[WLS_RIGHT_BED]->height + imd[WLS_RIGHT_BUTTON]->height;
 		if (others < this->pos.height) {
-			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(pos.x, pos.y, scroll_sprites.stepsize_bar, this->pos.height - others), false, true, rc);
+			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_BED]->xoffset, pos.y + imd[WLS_MIDDLE_BED]->yoffset,
+					imd[WLS_MIDDLE_BED]->width, this->pos.height - others), false, true, rc);
 			pos.y += this->pos.height - others;
 		}
 	}
@@ -916,16 +920,20 @@ void ScrollbarWidget::DoDraw(const GuiWindow *w)
 
 	/* Draw middle slider. */
 	if (this->wtype == WT_HOR_SCROLLBAR) {
-		int others = slider_length - imd[WLS_LEFT_SLIDER]->width - imd[WLS_RIGHT_SLIDER]->width;
-		if (others > 0) {
-			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(pos.x, pos.y, this->pos.width - others, scroll_sprites.stepsize_slider), true, false, rc);
-			pos.x += this->pos.width - others;
+		int slider_size = slider_length - imd[WLS_LEFT_SLIDER]->width - imd[WLS_RIGHT_SLIDER]->width;
+		if (slider_size > 0) {
+			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_SLIDER]->xoffset, pos.y + imd[WLS_MIDDLE_SLIDER]->yoffset,
+					slider_size, imd[WLS_MIDDLE_SLIDER]->height), true, false, rc);
+			pos.x += slider_size;
 		}
 	} else {
-		int others = slider_length - imd[WLS_LEFT_SLIDER]->height - imd[WLS_RIGHT_SLIDER]->height;
-		if (others > 0) {
-			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(pos.x, pos.y, scroll_sprites.stepsize_slider, this->pos.height - others), false, true, rc);
-			pos.y += this->pos.height - others;
+		int slider_size = slider_length - imd[WLS_LEFT_SLIDER]->height - imd[WLS_RIGHT_SLIDER]->height;
+		if (slider_size > 0) {
+			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_SLIDER]->xoffset, pos.y + imd[WLS_MIDDLE_SLIDER]->yoffset,
+					imd[WLS_MIDDLE_SLIDER]->width, slider_size), false, true, rc);
+			pos.y += slider_size;
 		}
 	}
 
