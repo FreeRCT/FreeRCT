@@ -180,7 +180,7 @@ jobs:
           libpng \
           glfw3 \
           glew \
-          freetype \
+          freetype-gl \
           zlib \
           # EOF
 
@@ -246,7 +246,7 @@ jobs:
           libpng \
           glfw3 \
           glew \
-          freetype \
+          freetype-gl \
           zlib \
           graphite2 \
           harfbuzz \
