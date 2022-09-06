@@ -234,7 +234,7 @@ int freerct_main(int argc, char **argv)
 	}
 
 	/* Use default values if no font has been set. */
-	if (font_path.empty()) font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "Ubuntu-L.ttf");
+	if (font_path.empty()) font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "FreeSans.ttf");
 	if (font_size < 1) font_size = 15;
 
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */

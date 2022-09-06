@@ -71,6 +71,46 @@ static inline uint8 GetA(uint32 rgba)
 }
 
 /**
+ * Retrieve the redness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Redness of the examined pixel.
+ */
+static inline float FGetR(uint32 rgba)
+{
+	return GetR(rgba) / 255.f;
+}
+
+/**
+ * Retrieve the greenness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Greenness of the examined pixel.
+ */
+static inline float FGetG(uint32 rgba)
+{
+	return GetG(rgba) / 255.f;
+}
+
+/**
+ * Retrieve the blueness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Blueness of the examined pixel.
+ */
+static inline float FGetB(uint32 rgba)
+{
+	return GetB(rgba) / 255.f;
+}
+
+/**
+ * Retrieve the opaqueness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Opaqueness of the examined pixel.
+ */
+static inline float FGetA(uint32 rgba)
+{
+	return GetA(rgba) / 255.f;
+}
+
+/**
  * Set the opaqueness of the provided colour.
  * @param rgba Colour value to change.
  * @param opacity Opaqueness to set.

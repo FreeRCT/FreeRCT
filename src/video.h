@@ -47,17 +47,6 @@ inline double Delta(const Realtime &start, const Realtime &end = Time())
 	return d.count();
 }
 
-/**
- * Convert a 32-bit integer RGBA colour to a colour vector.
- * @param c Input colour.
- * @return OpenGL colour.
- */
-inline WXYZPointF HexToColourRGBA(uint32_t c)
-{
-	return WXYZPointF(((c & 0xff000000) >> 24) / 255.f, ((c & 0xff0000) >> 16) / 255.f, ((c & 0xff00) >> 8) / 255.f,
-			(c & 0xff) / 255.f);
-}
-
 /** Class responsible for rendering text. */
 class TextRenderer {
 public:
@@ -69,7 +58,7 @@ public:
 	GLuint GetTextHeight() const;
 	PointF EstimateBounds(const std::string &text, float scale = 1.0f) const;
 
-	void Draw(const std::string &text, float x, float y, float max_width, const WXYZPointF &colour, float scale = 1.0f);
+	void Draw(const std::string &text, float x, float y, float max_width, uint32 colour, float scale = 1.0f);
 
 private:
 	/** Helper struct representing a font glyph. */
@@ -178,21 +167,20 @@ public:
 	 */
 	inline void DrawLine(const Point16 &start, const Point16 &end, uint32 colour)
 	{
-		this->DrawLine(start.x, start.y, end.x, end.y, HexToColourRGBA(colour));
+		this->DoDrawLine(start.x, start.y, end.x, end.y, colour);
 	}
 
 	/**
 	 * Draw the outline of a rectangle at the screen.
 	 * @param rect %Rectangle to draw.
-	 * @param colour Colour to use.
+	 * @param col Colour to use.
 	 */
-	inline void DrawRectangle(const Rectangle32 &rect, uint32 colour)
+	inline void DrawRectangle(const Rectangle32 &rect, uint32 col)
 	{
-		WXYZPointF col = HexToColourRGBA(colour);
-		this->DrawLine(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y, col);
-		this->DrawLine(rect.base.x, rect.base.y, rect.base.x, rect.base.y + rect.height, col);
-		this->DrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y, col);
-		this->DrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x, rect.base.y + rect.height, col);
+		this->DoDrawLine(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y, col);
+		this->DoDrawLine(rect.base.x, rect.base.y, rect.base.x, rect.base.y + rect.height, col);
+		this->DoDrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y, col);
+		this->DoDrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x, rect.base.y + rect.height, col);
 	}
 
 	/**
@@ -202,18 +190,14 @@ public:
 	 */
 	inline void FillRectangle(const Rectangle32 &rect, uint32 colour)
 	{
-		this->FillPlainColour(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, HexToColourRGBA(colour));
+		this->DoFillPlainColour(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, colour);
 	}
-
-	void FillPlainColour(float x1, float y1, float x2, float y2, const WXYZPointF &colour);
-	void DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF &colour);
-	void DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &colour);
 
 	void TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
 			const Recolouring &recolour = _no_recolour,
-			GradientShift shift = GS_NORMAL, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
+			GradientShift shift = GS_NORMAL, uint32 col = 0xffffffff);
 	void BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour = _no_recolour,
-			GradientShift shift = GS_NORMAL, const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f));
+			GradientShift shift = GS_NORMAL, uint32 col = 0xffffffff);
 
 	void PushClip(const Rectangle32 &rect);
 	void PopClip();
@@ -228,7 +212,11 @@ private:
 
 	GLuint GetImageTexture(const ImageData *img, const Recolouring &recolour, GradientShift shift);
 	void DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2,
-			const WXYZPointF &col = WXYZPointF(1.0f, 1.0f, 1.0f, 1.0f), const WXYZPointF &tex = WXYZPointF(0.0f, 0.0f, 1.0f, 1.0f));
+			uint32 col = 0xffffffff, const WXYZPointF &tex = WXYZPointF(0.0f, 0.0f, 1.0f, 1.0f));
+
+	void DoDrawPlainColours(const std::vector<Point<float>> &points, uint32 colour);
+	void DoDrawLine(float x1, float y1, float x2, float y2, uint32 colour);
+	void DoFillPlainColour(float x1, float y1, float x2, float y2, uint32 colour);
 
 	static void FramebufferSizeCallback(GLFWwindow *window, int w, int h);
 	static void MouseClickCallback(GLFWwindow *window, int button, int action, int mods);

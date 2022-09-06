@@ -169,7 +169,7 @@ const TextRenderer::FontGlyph &TextRenderer::GetFontGlyph(const char **text, siz
 		/* Fall though to default glyph selection. */
 	} else {
 		*text += bytes_read;
-		length += bytes_read;
+		length -= bytes_read;
 		if (codepoint <= MAX_CODEPOINT && this->characters[codepoint].valid) return this->characters[codepoint];
 		/* Fall though to default glyph selection. */
 	}
@@ -195,11 +195,14 @@ const TextRenderer::FontGlyph &TextRenderer::GetFontGlyph(const char **text, siz
  * @param colour Colour in which to draw the text.
  * @param scale Scaling factor for the text size.
  */
-void TextRenderer::Draw(const std::string &text, float x, float y, float max_width, const WXYZPointF &colour, float scale)
+void TextRenderer::Draw(const std::string &text, float x, float y, float max_width, uint32 colour, float scale)
 {
 	if (text.empty()) return;
 	glUseProgram(this->shader);
-	glUniform4fv(glGetUniformLocation(this->shader, "text_colour"), 1, &colour.w);
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_r"), FGetR(colour));
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_g"), FGetG(colour));
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_b"), FGetB(colour));
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_a"), FGetA(colour));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(this->vao);
@@ -858,7 +861,7 @@ GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &rec
  * @param shift Gradient shift.
  * @param col RGBA colour to overlay over the image.
  */
-void VideoSystem::BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour, GradientShift shift, const WXYZPointF &col)
+void VideoSystem::BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour, GradientShift shift, uint32 col)
 {
 	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
 			pos.x + img->xoffset             , pos.y + img->yoffset,
@@ -877,7 +880,7 @@ void VideoSystem::BlitImage(const Point32 &pos, const ImageData *img, const Reco
  * @note The image's offset is ignored.
  */
 void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
-		const Recolouring &recolour, GradientShift shift, const WXYZPointF &col)
+		const Recolouring &recolour, GradientShift shift, uint32 col)
 {
 	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
 			rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, col,
@@ -943,7 +946,7 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
 		}
 	}
 
-	_text_renderer.Draw(text, x, ypos, width, HexToColourRGBA(colour));
+	_text_renderer.Draw(text, x, ypos, width, colour);
 }
 
 /**
@@ -956,16 +959,16 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
  * @param col RGBA colour to overlay over the image.
  * @param tex Texture coordinate rectangle to clip, in GL space.
  */
-void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2, const WXYZPointF &col, const WXYZPointF &tex)
+void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2, uint32 col, const WXYZPointF &tex)
 {
 	this->CoordsToGL(&x1, &y1);
 	this->CoordsToGL(&x2, &y2);
 	float vertices[] = {
-		// positions  // colours                  // texture coords
-		x2, y1, 0.0f, col.w, col.x, col.y, col.z, tex.z, tex.w, // top right
-		x2, y2, 0.0f, col.w, col.x, col.y, col.z, tex.z, tex.y, // bottom right
-		x1, y2, 0.0f, col.w, col.x, col.y, col.z, tex.x, tex.y, // bottom left
-		x1, y1, 0.0f, col.w, col.x, col.y, col.z, tex.x, tex.w  // top left
+		// positions  // colours                                      // texture coords
+		x2, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.z, tex.w, // top right
+		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.z, tex.y, // bottom right
+		x1, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.x, tex.y, // bottom left
+		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.x, tex.w  // top left
 	};
 	GLuint indices[] = {
 		0, 1, 3, // first triangle
@@ -994,7 +997,7 @@ void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, floa
  * @param points Vector of triangle coordinates.
  * @param col RGBA colour to use.
  */
-void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, const WXYZPointF &col) {
+void VideoSystem::DoDrawPlainColours(const std::vector<Point<float>> &points, uint32 col) {
 	struct PerVertexData {
 		float gl_x;
 		float gl_y;
@@ -1010,10 +1013,10 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
 		back.gl_x = p.x;
 		back.gl_y = p.y;
 		this->CoordsToGL(&back.gl_x, &back.gl_y);
-		back.r = col.w;
-		back.g = col.x;
-		back.b = col.y;
-		back.alpha = col.z;
+		back.r = FGetR(col);
+		back.g = FGetG(col);
+		back.b = FGetB(col);
+		back.alpha = FGetA(col);
 	}
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
@@ -1034,12 +1037,12 @@ void VideoSystem::DrawPlainColours(const std::vector<Point<float>> &points, cons
  * @param y2 Y coordinate of the end point.
  * @param col RGBA colour to use.
  */
-void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPointF& col) {
+void VideoSystem::DoDrawLine(float x1, float y1, float x2, float y2, uint32 col) {
 	this->CoordsToGL(&x1, &y1);
 	this->CoordsToGL(&x2, &y2);
 	float vertices[] = {
-		x1, y1, 0.0f, col.w, col.x, col.y, col.z,
-		x2, y2, 0.0f, col.w, col.x, col.y, col.z,
+		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
 	};
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
@@ -1061,15 +1064,15 @@ void VideoSystem::DrawLine(float x1, float y1, float x2, float y2, const WXYZPoi
  * @param y2 Y coordinate of the lower right corner.
  * @param col RGBA colour to use.
  */
-void VideoSystem::FillPlainColour(float x1, float y1, float x2, float y2, const WXYZPointF &col) {
+void VideoSystem::DoFillPlainColour(float x1, float y1, float x2, float y2, uint32 col) {
 	this->CoordsToGL(&x1, &y1);
 	this->CoordsToGL(&x2, &y2);
 	float vertices[] = {
 		// positions  // colours
-		x2, y1, 0.0f, col.w, col.x, col.y, col.z,
-		x2, y2, 0.0f, col.w, col.x, col.y, col.z,
-		x1, y1, 0.0f, col.w, col.x, col.y, col.z,
-		x1, y2, 0.0f, col.w, col.x, col.y, col.z,
+		x2, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x1, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
 	};
 	GLuint indices[] = {
 		0, 1, 2,
