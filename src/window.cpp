@@ -783,6 +783,7 @@ void WindowManager::RemoveFromStack(Window *w)
 	if (w == this->viewport) this->viewport = nullptr;
 
 	this->select_valid = false;
+	if (w == this->current_window) this->current_window = nullptr;
 
 	if (w->higher == nullptr) {
 		this->top = w->lower;
@@ -1023,13 +1024,9 @@ void WindowManager::UpdateWindows()
 {
 	BaseWidget *tooltip_widget = nullptr;
 	Window *tooltip_window = nullptr;
-	if (_video.GetMouseDragging() == MB_NONE) {
-		for (Window *w = this->top; w != nullptr; w = w->lower) {
-			if (tooltip_widget == nullptr) {
-				tooltip_widget = w->FindTooltipWidget(_video.GetMousePosition());
-				if (tooltip_widget != nullptr) tooltip_window = w;
-			}
-		}
+	if (_video.GetMouseDragging() == MB_NONE && this->current_window != nullptr) {
+		tooltip_widget = this->current_window->FindTooltipWidget(_video.GetMousePosition());
+		if (tooltip_widget != nullptr) tooltip_window = this->current_window;
 	}
 
 	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
