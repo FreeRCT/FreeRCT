@@ -51,7 +51,7 @@ constexpr const float FONT_PADDING_H = 0.2f;                   ///< Total horizo
 /** Initialize the text renderer. */
 void TextRenderer::Initialize()
 {
-	this->shader = _video.LoadShader("text");
+	this->shader = _video.ConfigureShader("text");
 	glUniform1i(glGetUniformLocation(this->shader, "text"), 0);
 	glGenVertexArrays(1, &this->vao);
 	glGenBuffers(1, &this->vbo);
@@ -147,8 +147,8 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 	std::string sample_text = {BEARING_CHARACTER};
 	const char *c = sample_text.c_str();
 	size_t i = 1;
-	this->GetFontGlyph(&c, i);
-	this->GetFontGlyph(&c, i);
+	this->GetFontGlyph(&c, i);  // Checks that the bearing character glyph exists.
+	this->GetFontGlyph(&c, i);  // Now i is 0, so this checks that an Invalid glyph is present.
 }
 
 /**
@@ -173,7 +173,8 @@ const TextRenderer::FontGlyph &TextRenderer::GetFontGlyph(const char **text, siz
 		*text += bytes_read;
 		length -= bytes_read;
 		if (codepoint <= MAX_CODEPOINT && this->characters[codepoint].valid) return this->characters[codepoint];
-		/* Fall though to default glyph selection. */
+
+		/* The codepoint is valid, but we don't have a glyph for it. Fall though to default glyph selection. */
 	}
 
 	static const FontGlyph *default_glyph = nullptr;
@@ -200,6 +201,7 @@ const TextRenderer::FontGlyph &TextRenderer::GetFontGlyph(const char **text, siz
 void TextRenderer::Draw(const std::string &text, float x, float y, float max_width, uint32 colour, float scale)
 {
 	if (text.empty()) return;
+
 	glUseProgram(this->shader);
 	glUniform1f(glGetUniformLocation(this->shader, "text_colour_r"), FGetR(colour));
 	glUniform1f(glGetUniformLocation(this->shader, "text_colour_g"), FGetG(colour));
@@ -209,6 +211,10 @@ void TextRenderer::Draw(const std::string &text, float x, float y, float max_wid
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(this->vao);
 
+	/* Insert some padding around the text.
+	 * Horizontal spacing is distributed equally on both sides of the text,
+	 * but we want more vertical spacing above than below.
+	 */
 	y += 0.75f * FONT_PADDING_V * this->font_size * scale;
 	x += FONT_PADDING_H * 0.5f;
 	max_width -= FONT_PADDING_H;
@@ -295,17 +301,17 @@ EM_JS(int, GetEmscriptenCanvasHeight, (), { return canvas.clientHeight; });
 /**
  * Called by OpenGL when the window size changes.
  * @param window Window whose size changed.
- * @param w New width.
- * @param h New height.
+ * @param new_w New width.
+ * @param new_h New height.
  */
-void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int w, int h)
+void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int new_w, int new_h)
 {
 	assert(window == _video.window);
-	assert(w >= 0);
-	assert(h >= 0);
+	assert(new_w >= 0);
+	assert(new_h >= 0);
 
-	_video.width = w;
-	_video.height = h;
+	_video.width = new_w;
+	_video.height = new_h;
 	_video.UpdateClip();
 
 	_window_manager.RepositionAllWindows(_video.width, _video.height);
@@ -313,7 +319,7 @@ void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int w, int h)
 }
 
 /**
- * Called by OpenGL when a key was pressed.
+ * Called by OpenGL when a key was pressed or released.
  * @param window Window in which the event occurred.
  * @param key Constant of the pressed key.
  * @param scancode Scancode of the pressed key.
@@ -323,7 +329,7 @@ void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int w, int h)
 void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, int mods)
 {
 	assert(window == _video.window);
-	if (action == GLFW_RELEASE) return;
+	if (action != GLFW_PRESS) return;
 
 	WmKeyMod mod_mask = WMKM_NONE;
 	if ((mods & GLFW_MOD_CONTROL) != 0) mod_mask |= WMKM_CTRL;
@@ -436,13 +442,13 @@ void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int 
 /**
  * Called by OpenGL when text is entered.
  * @param window Window in which the event occurred.
- * @param utf32 The UTF-32 encoded character.
+ * @param codepoint The unicode character.
  */
-void VideoSystem::TextCallback(GLFWwindow *window, uint32 utf32)
+void VideoSystem::TextCallback(GLFWwindow *window, uint32 codepoint)
 {
 	assert(window == _video.window);
 	char buffer[] = {0, 0, 0, 0, 0};
-	EncodeUtf8Char(utf32, buffer);
+	EncodeUtf8Char(codepoint, buffer);
 	_window_manager.KeyEvent(WMKC_SYMBOL, WMKM_NONE, buffer);
 }
 
@@ -552,6 +558,7 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 
 	glfwMakeContextCurrent(this->window);
 	if (glewInit() != GLEW_OK) error("Failed to initialize GLEW\n");
+
 	this->UpdateClip();
 	glfwSetFramebufferSizeCallback(this->window, FramebufferSizeCallback);
 	glfwSetInputMode(this->window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -583,8 +590,8 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	glGenBuffers(1, &this->vbo);
 	glGenBuffers(1, &this->ebo);
 
-	this->colour_shader = this->LoadShader("colour");
-	this->image_shader = this->LoadShader("image");
+	this->colour_shader = this->ConfigureShader("colour");
+	this->image_shader = this->ConfigureShader("image");
 
 	/* Initialize the text renderer. */
 	_text_renderer.Initialize();
@@ -603,7 +610,7 @@ void VideoSystem::MainLoop()
 }
 
 /** Perform one cycle of the main loop. */
-void VideoSystem::MainLoopCycle()
+/* static */ void VideoSystem::MainLoopCycle()
 {
 	_video.MainLoopDoCycle();
 }
@@ -683,6 +690,7 @@ void VideoSystem::SetResolution(const Point32 &res)
  */
 void VideoSystem::PushClip(const Rectangle32 &rect)
 {
+	assert(rect.width > 0 && rect.height > 0);
 	this->clip.push_back(rect);
 	this->UpdateClip();
 }
@@ -738,11 +746,11 @@ void VideoSystem::CoordsToGL(float *x, float *y) const {
 }
 
 /**
- * Load an OpenGL shader.
+ * Load and configure an OpenGL shader.
  * @param name Name of the shader.
- * @return Handle of the loaded shader.
+ * @return Handle of the created shader.
  */
-GLuint VideoSystem::LoadShader(const std::string &name)
+GLuint VideoSystem::ConfigureShader(const std::string &name)
 {
 	std::string v = "data";
 	std::string f = "data";
@@ -807,7 +815,7 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 	if (info_log_length > 0) {
 		std::vector<char> vertex_shader_error_message(info_log_length+1);
 		glGetShaderInfoLog(vertex_shader_id, info_log_length, NULL, &vertex_shader_error_message[0]);
-		error("Compile error in shader %s: %s\n", vp, &vertex_shader_error_message[0]);
+		error("Compile error in shader %s: %s\n", vp, vertex_shader_error_message.empty() ? "(unknown error)" : &vertex_shader_error_message[0]);
 	}
 
 	/* Compile Fragment Shader. */
@@ -821,7 +829,7 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 	if (info_log_length > 0) {
 		std::vector<char> fragment_shader_error_message(info_log_length+1);
 		glGetShaderInfoLog(fragment_shader_id, info_log_length, NULL, &fragment_shader_error_message[0]);
-		error("Compile error in shader %s: %s\n", fp, &fragment_shader_error_message[0]);
+		error("Compile error in shader %s: %s\n", fp, fragment_shader_error_message.empty() ? "(unknown error)" : &fragment_shader_error_message[0]);
 	}
 
 	/* Link the program. */
@@ -836,7 +844,7 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 	if (info_log_length > 0) {
 		std::vector<char> program_error_message(info_log_length+1);
 		glGetProgramInfoLog(program_id, info_log_length, NULL, &program_error_message[0]);
-		error("Linking error in shader pair %s/%s: %s\n", vp, fp, &program_error_message[0]);
+		error("Linking error in shader pair %s/%s: %s\n", vp, fp, program_error_message.empty() ? "(unknown error)" : &program_error_message[0]);
 	}
 
 	glDetachShader(program_id, vertex_shader_id);
@@ -1025,7 +1033,10 @@ void VideoSystem::DoDrawPlainColours(const std::vector<Point<float>> &points, ui
 		float b;
 		float alpha;
 	};
+	static_assert(sizeof(PerVertexData) == 6 * sizeof(float), "PerVertexData must be tightly packed.");
+
 	std::vector<PerVertexData> vertices;
+	vertices.reserve(points.size());
 	for (const auto &p : points) {
 		vertices.emplace_back();
 		PerVertexData& back = vertices.back();

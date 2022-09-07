@@ -170,7 +170,7 @@ public:
 
 	void CoordsToGL(float *x, float *y) const;
 
-	GLuint LoadShader(const std::string &name);
+	GLuint ConfigureShader(const std::string &name);
 
 	int GetTextHeight() const
 	{
@@ -240,7 +240,7 @@ private:
 	void DoDrawLine(float x1, float y1, float x2, float y2, uint32 colour);
 	void DoFillPlainColour(float x1, float y1, float x2, float y2, uint32 colour);
 
-	static void FramebufferSizeCallback(GLFWwindow *window, int w, int h);
+	static void FramebufferSizeCallback(GLFWwindow *window, int new_w, int new_h);
 	static void MouseClickCallback(GLFWwindow *window, int button, int action, int mods);
 	static void MouseMoveCallback(GLFWwindow *window, double x, double y);
 	static void ScrollCallback(GLFWwindow *window, double xdelta, double ydelta);
