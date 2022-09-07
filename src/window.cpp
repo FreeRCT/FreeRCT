@@ -955,7 +955,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 		return;
 	}
 
-	/* Close dropdown window if click is not inside it */
+	/* Close dropdown window if click is not inside it. */
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
 	if (pressed && w != nullptr && !w->rect.IsPointInside(_video.GetMousePosition())) {
 		delete w;

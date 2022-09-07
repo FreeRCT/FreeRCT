@@ -811,11 +811,11 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 
 	/* Check Vertex Shader. */
 	glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &result);
-	glGetShaderiv(vertex_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
-	if (info_log_length > 0) {
-		std::vector<char> vertex_shader_error_message(info_log_length+1);
+	if (result != GL_TRUE) {
+		glGetShaderiv(vertex_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		std::vector<char> vertex_shader_error_message(info_log_length + 1);
 		glGetShaderInfoLog(vertex_shader_id, info_log_length, NULL, &vertex_shader_error_message[0]);
-		error("Compile error in shader %s: %s\n", vp, vertex_shader_error_message.empty() ? "(unknown error)" : &vertex_shader_error_message[0]);
+		error("Compile error in shader %s: %s\n", vp, &vertex_shader_error_message[0]);
 	}
 
 	/* Compile Fragment Shader. */
@@ -825,11 +825,11 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 
 	/* Check Fragment Shader. */
 	glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &result);
-	glGetShaderiv(fragment_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
-	if (info_log_length > 0) {
-		std::vector<char> fragment_shader_error_message(info_log_length+1);
+	if (result != GL_TRUE) {
+		glGetShaderiv(fragment_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		std::vector<char> fragment_shader_error_message(info_log_length + 1);
 		glGetShaderInfoLog(fragment_shader_id, info_log_length, NULL, &fragment_shader_error_message[0]);
-		error("Compile error in shader %s: %s\n", fp, fragment_shader_error_message.empty() ? "(unknown error)" : &fragment_shader_error_message[0]);
+		error("Compile error in shader %s: %s\n", fp, &fragment_shader_error_message[0]);
 	}
 
 	/* Link the program. */
@@ -840,11 +840,11 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 
 	/* Check the program. */
 	glGetProgramiv(program_id, GL_LINK_STATUS, &result);
-	glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-	if (info_log_length > 0) {
-		std::vector<char> program_error_message(info_log_length+1);
+	if (result != GL_TRUE) {
+		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		std::vector<char> program_error_message(info_log_length + 1);
 		glGetProgramInfoLog(program_id, info_log_length, NULL, &program_error_message[0]);
-		error("Linking error in shader pair %s/%s: %s\n", vp, fp, program_error_message.empty() ? "(unknown error)" : &program_error_message[0]);
+		error("Linking error in shader pair %s/%s: %s\n", vp, fp, &program_error_message[0]);
 	}
 
 	glDetachShader(program_id, vertex_shader_id);
