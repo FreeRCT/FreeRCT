@@ -65,8 +65,10 @@ enum ParkManagementWidgets {
 	PM_ENTRANCE_FEE_INCREASE,  ///< Park entrance fee increase button.
 	PM_ENTRANCE_FEE_DECREASE,  ///< Park entrance fee decrease button.
 	PM_GOTO,                   ///< Go to park entrance button.
-	PM_OPEN_PARK,              ///< Open park button.
-	PM_CLOSE_PARK,             ///< Close park button.
+	PM_OPEN_PARK_PANEL,        ///< Open park button.
+	PM_CLOSE_PARK_PANEL,       ///< Close park button.
+	PM_OPEN_PARK_LIGHT,        ///< Open park light.
+	PM_CLOSE_PARK_LIGHT,       ///< Close park light.
 };
 
 /** Widgets of the tab bar. */
@@ -124,8 +126,10 @@ static const WidgetPart _pm_build_gui_parts[] = {
 									SetData(SPR_GUI_BUILDARROW_START + EDGE_SE, STR_NULL), SetFill(0, 0), SetResize(0, 0),
 							Widget(WT_RIGHT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetFill(1, 0), SetResize(1, 0),
 							Intermediate(2, 1),
-								Widget(WT_RADIOBUTTON, PM_CLOSE_PARK , COL_RANGE_RED  ), SetPadding(0, 2, 0, 0),
-								Widget(WT_RADIOBUTTON, PM_OPEN_PARK, COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
+								Widget(WT_PANEL, PM_CLOSE_PARK_PANEL, COL_RANGE_ORANGE_BROWN),
+									Widget(WT_RADIOBUTTON, PM_CLOSE_PARK_LIGHT, COL_RANGE_RED  ), SetPadding(0, 2, 0, 0),
+								Widget(WT_PANEL, PM_OPEN_PARK_PANEL, COL_RANGE_ORANGE_BROWN),
+									Widget(WT_RADIOBUTTON, PM_OPEN_PARK_LIGHT , COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
 					EndContainer(),
 				Widget(WT_TAB_PANEL, PM_TABPANEL_GUESTS, COL_RANGE_ORANGE_BROWN),
 					Intermediate(2, 1),
@@ -227,11 +231,13 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 			this->UpdateButtons();
 			break;
 
-		case PM_CLOSE_PARK:
+		case PM_CLOSE_PARK_PANEL:
+		case PM_CLOSE_PARK_LIGHT:
 			_game_observer.SetParkOpen(false);
 			this->UpdateButtons();
 			break;
-		case PM_OPEN_PARK:
+		case PM_OPEN_PARK_PANEL:
+		case PM_OPEN_PARK_LIGHT:
 			_game_observer.SetParkOpen(true);
 			this->UpdateButtons();
 			break;
@@ -251,10 +257,13 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 void ParkManagementGui::UpdateButtons()
 {
 	this->SetWidgetShaded(PM_ENTRANCE_FEE_DECREASE, _game_observer.entrance_fee <= 0);
-	this->SetWidgetChecked(PM_OPEN_PARK, _game_observer.park_open);
-	this->SetWidgetChecked(PM_CLOSE_PARK, !_game_observer.park_open);
-	this->SetWidgetShaded(PM_OPEN_PARK, _game_observer.won_lost == SCENARIO_LOST);
-	this->SetWidgetShaded(PM_CLOSE_PARK, _game_observer.won_lost == SCENARIO_LOST);
+
+	LeafWidget *o = this->GetWidget<LeafWidget>(PM_OPEN_PARK_LIGHT);
+	LeafWidget *c = this->GetWidget<LeafWidget>(PM_CLOSE_PARK_LIGHT);
+	o->shift = _game_observer.park_open ? GS_LIGHT : GS_NIGHT;
+	c->shift = !_game_observer.park_open ? GS_LIGHT : GS_NIGHT;
+	o->SetShaded(_game_observer.won_lost == SCENARIO_LOST);
+	c->SetShaded(_game_observer.won_lost == SCENARIO_LOST);
 }
 
 void ParkManagementGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const

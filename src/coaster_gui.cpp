@@ -69,9 +69,12 @@ enum CoasterInstanceWidgets {
 	CIW_TITLEBAR,            ///< Titlebar widget.
 	CIW_REMOVE,              ///< Remove button widget.
 	CIW_EDIT,                ///< Edit coaster widget.
-	CIW_CLOSE,               ///< Close coaster widget.
-	CIW_TEST,                ///< Test coaster widget.
-	CIW_OPEN,                ///< Open coaster widget.
+	CIW_OPEN_RIDE_PANEL,     ///< Open coaster button.
+	CIW_TEST_RIDE_PANEL,     ///< Test coaster button.
+	CIW_CLOSE_RIDE_PANEL,    ///< Close coaster button.
+	CIW_OPEN_RIDE_LIGHT,     ///< Open coaster light.
+	CIW_TEST_RIDE_LIGHT,     ///< Test coaster light.
+	CIW_CLOSE_RIDE_LIGHT,    ///< Close coaster light.
 	CIW_ENTRANCE_FEE,           ///< Entrance fee display.
 	CIW_ENTRANCE_FEE_DECREASE,  ///< Decrease entrance fee button.
 	CIW_ENTRANCE_FEE_INCREASE,  ///< Increase entrance fee button.
@@ -178,9 +181,12 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 					Intermediate(0, 1),
 						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
-						Widget(WT_RADIOBUTTON, CIW_CLOSE, COL_RANGE_RED), SetPadding(0, 2, 0, 0),
-						Widget(WT_RADIOBUTTON, CIW_TEST, COL_RANGE_YELLOW), SetPadding(0, 2, 0, 0),
-						Widget(WT_RADIOBUTTON, CIW_OPEN, COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
+						Widget(WT_PANEL, CIW_CLOSE_RIDE_PANEL, COL_RANGE_DARK_RED),
+							Widget(WT_RADIOBUTTON, CIW_CLOSE_RIDE_LIGHT, COL_RANGE_RED  ), SetPadding(0, 2, 0, 0),
+						Widget(WT_PANEL, CIW_TEST_RIDE_PANEL, COL_RANGE_DARK_RED),
+							Widget(WT_RADIOBUTTON, CIW_TEST_RIDE_LIGHT , COL_RANGE_YELLOW), SetPadding(0, 2, 0, 0),
+						Widget(WT_PANEL, CIW_OPEN_RIDE_PANEL, COL_RANGE_DARK_RED),
+							Widget(WT_RADIOBUTTON, CIW_OPEN_RIDE_LIGHT , COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
 						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
 					EndContainer(),
 
@@ -478,15 +484,18 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const 
 			this->SetCoasterState();
 			break;
 
-		case CIW_CLOSE:
+		case CIW_CLOSE_RIDE_PANEL:
+		case CIW_CLOSE_RIDE_LIGHT:
 			this->ci->CloseRide();
 			this->SetCoasterState();
 			break;
-		case CIW_TEST:
+		case CIW_TEST_RIDE_PANEL:
+		case CIW_TEST_RIDE_LIGHT:
 			this->ci->TestRide();
 			this->SetCoasterState();
 			break;
-		case CIW_OPEN:
+		case CIW_OPEN_RIDE_PANEL:
+		case CIW_OPEN_RIDE_LIGHT:
 			if (this->ci->CanOpenRide()) this->ci->OpenRide();
 			this->SetCoasterState();
 			break;
@@ -597,12 +606,12 @@ void CoasterInstanceWindow::ChooseEntranceExitClicked(const bool entrance)
  */
 void CoasterInstanceWindow::SetCoasterState()
 {
-	this->SetRadioChecked(CIW_CLOSE, this->ci->state == RIS_CLOSED);
-	this->SetRadioChecked(CIW_TEST, this->ci->state == RIS_TESTING);
-	this->SetRadioChecked(CIW_OPEN, this->ci->state == RIS_OPEN);
+	this->GetWidget<LeafWidget>(CIW_CLOSE_RIDE_LIGHT)->shift = this->ci->state == RIS_CLOSED ? GS_LIGHT : GS_NIGHT;
+	this->GetWidget<LeafWidget>(CIW_TEST_RIDE_LIGHT)->shift = this->ci->state == RIS_TESTING ? GS_LIGHT : GS_NIGHT;
+	this->GetWidget<LeafWidget>(CIW_OPEN_RIDE_LIGHT )->shift = this->ci->state == RIS_OPEN   ? GS_LIGHT : GS_NIGHT;
 
 	this->SetWidgetShaded(CIW_EDIT, this->ci->state != RIS_CLOSED);
-	this->SetWidgetShaded(CIW_OPEN, !this->ci->CanOpenRide());
+	this->SetWidgetShaded(CIW_OPEN_RIDE_LIGHT, !this->ci->CanOpenRide());
 	this->SetWidgetShaded(CIW_NUMBER_CARS, this->ci->state != RIS_CLOSED);
 	this->SetWidgetShaded(CIW_NUMBER_TRAINS, this->ci->state != RIS_CLOSED);
 	this->SetWidgetShaded(CIW_MAINTENANCE_DECREASE, this->ci->maintenance_interval <= 0);

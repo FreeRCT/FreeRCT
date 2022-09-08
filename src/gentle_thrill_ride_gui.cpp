@@ -84,8 +84,10 @@ enum GentleThrillRideManagerWidgets {
 	GTRMW_MAX_IDLE,
 	GTRMW_MAX_IDLE_DECREASE,
 	GTRMW_MAX_IDLE_INCREASE,
-	GTRMW_RIDE_OPEN,
-	GTRMW_RIDE_CLOSE,
+	GTRMW_OPEN_RIDE_PANEL,
+	GTRMW_CLOSE_RIDE_PANEL,
+	GTRMW_OPEN_RIDE_LIGHT,
+	GTRMW_CLOSE_RIDE_LIGHT,
 	GTRMW_RELIABILITY,
 	GTRMW_MAINTENANCE,
 	GTRMW_MAINTENANCE_DECREASE,
@@ -181,8 +183,10 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 					Intermediate(0, 1),
 						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
-						Widget(WT_RADIOBUTTON, GTRMW_RIDE_CLOSE, COL_RANGE_RED),   SetPadding(0, 2, 0, 0),
-						Widget(WT_RADIOBUTTON, GTRMW_RIDE_OPEN, COL_RANGE_GREEN),  SetPadding(0, 2, 0, 0),
+						Widget(WT_PANEL, GTRMW_CLOSE_RIDE_PANEL, COL_RANGE_DARK_RED),
+							Widget(WT_RADIOBUTTON, GTRMW_CLOSE_RIDE_LIGHT, COL_RANGE_RED  ), SetPadding(0, 2, 0, 0),
+						Widget(WT_PANEL, GTRMW_OPEN_RIDE_PANEL, COL_RANGE_DARK_RED),
+							Widget(WT_RADIOBUTTON, GTRMW_OPEN_RIDE_LIGHT , COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
 						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
 				EndContainer(),
 
@@ -265,9 +269,10 @@ void GentleThrillRideManagerWindow::UpdateRecolourButtons()
 /** Update all buttons of the window related to the ride's open/closed state. */
 void GentleThrillRideManagerWindow::UpdateButtons()
 {
-	this->SetWidgetChecked(GTRMW_RIDE_OPEN, this->ride->state == RIS_OPEN);
-	this->SetWidgetChecked(GTRMW_RIDE_CLOSE, this->ride->state == RIS_CLOSED);
-	this->SetWidgetShaded(GTRMW_RIDE_OPEN, !this->ride->CanOpenRide());
+	this->GetWidget<LeafWidget>(GTRMW_OPEN_RIDE_LIGHT )->shift = this->ride->state == RIS_OPEN   ? GS_LIGHT : GS_NIGHT;
+	this->GetWidget<LeafWidget>(GTRMW_CLOSE_RIDE_LIGHT)->shift = this->ride->state == RIS_CLOSED ? GS_LIGHT : GS_NIGHT;
+	this->SetWidgetShaded(GTRMW_OPEN_RIDE_LIGHT, !this->ride->CanOpenRide());
+
 	this->SetWidgetShaded(GTRMW_PLACE_ENTRANCE, this->ride->state != RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_PLACE_EXIT, this->ride->state != RIS_CLOSED);
 	this->SetWidgetShaded(GTRMW_MAINTENANCE_DECREASE, this->ride->maintenance_interval <= 0);
@@ -355,14 +360,16 @@ void GentleThrillRideManagerWindow::SetWidgetStringParameters(WidgetNumber wid_n
 void GentleThrillRideManagerWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point16 &pos)
 {
 	switch (wid_num) {
-		case GTRMW_RIDE_OPEN:
+		case GTRMW_OPEN_RIDE_LIGHT:
+		case GTRMW_OPEN_RIDE_PANEL:
 			if (this->ride->CanOpenRide()) {
 				this->ride->OpenRide();
 				this->UpdateButtons();
 			}
 			break;
 
-		case GTRMW_RIDE_CLOSE:
+		case GTRMW_CLOSE_RIDE_LIGHT:
+		case GTRMW_CLOSE_RIDE_PANEL:
 			if (this->ride->state != RIS_CLOSED) {
 				this->ride->CloseRide();
 				this->UpdateButtons();

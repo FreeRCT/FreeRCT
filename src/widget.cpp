@@ -291,7 +291,7 @@ bool BaseWidget::OnMouseWheelEvent([[maybe_unused]] int direction)
  * Base class leaf widget constructor.
  * @param wtype %Widget type.
  */
-LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype), flags(0), colour(COL_RANGE_INVALID)
+LeafWidget::LeafWidget(WidgetType wtype) : BaseWidget(wtype), flags(0), colour(COL_RANGE_INVALID), shift(GS_NORMAL)
 {
 }
 
@@ -371,7 +371,7 @@ void LeafWidget::DoDraw(const GuiWindow *w)
 		} else if ((this->flags & LWF_PRESSED) != 0) {
 			spr_num += WCS_EMPTY_PRESSED;
 		}
-		_video.BlitImage({left, top}, _gui_sprites.radio_button.sprites[spr_num], rc, GS_NORMAL);
+		_video.BlitImage({left, top}, _gui_sprites.radio_button.sprites[spr_num], rc, this->shift);
 		return;
 	}
 
