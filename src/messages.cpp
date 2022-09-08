@@ -217,7 +217,6 @@ void Inbox::DismissDisplayMessage()
 		found = (msg.get() == display_message);
 	}
 	if (!changed) this->display_message = nullptr;
-	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
 /**

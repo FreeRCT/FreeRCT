@@ -1202,8 +1202,6 @@ void Guest::DecideMoveDirection()
 			this->cash_spent += _game_observer.entrance_fee;
 			this->cash       -= _game_observer.entrance_fee;
 			_finances_manager.EarnParkTickets(_game_observer.entrance_fee);
-
-			NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_GUEST_COUNT, 1);
 			this->activity = GA_WANDER;
 		}
 		// Add some happiness?? (Somewhat useless as every guest enters the park. On the other hand, a nice point to configure difficulty level perhaps?)
@@ -2072,7 +2070,6 @@ void Guest::ChangeHappiness(int16 amount)
 	int16 old_happiness = this->happiness;
 	this->happiness = Clamp(this->happiness + amount, 0, 100);
 	if (amount > 0) this->total_happiness = std::min(1000, this->total_happiness + this->happiness - old_happiness);
-	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 }
 
 /**
@@ -2166,7 +2163,6 @@ bool Guest::DailyUpdate()
 
 	if (this->activity == GA_WANDER && this->happiness <= 10) {
 		this->activity = GA_GO_HOME; // Go home when bored.
-		NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_GUEST_COUNT, 0);
 	}
 	return true;
 }
@@ -2411,7 +2407,6 @@ std::string Person::GetStatus() const
 void Person::SetStatus(StringID s)
 {
 	this->status = s;
-	NotifyChange(WC_PERSON_INFO, this->id, CHG_DISPLAY_OLD, 0);
 }
 
 bool StaffMember::DailyUpdate()
