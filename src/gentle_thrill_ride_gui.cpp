@@ -67,45 +67,45 @@ void ShowGentleThrillRideRemove(GentleThrillRideInstance *si)
 
 /** Widgets of the gentle/thrill ride management window. */
 enum GentleThrillRideManagerWidgets {
-	GTRMW_TITLEBAR,
-	GTRMW_MONTHLY_COST,
-	GTRMW_EXCITEMENT_RATING,
-	GTRMW_INTENSITY_RATING,
-	GTRMW_NAUSEA_RATING,
-	GTRMW_ENTRANCE_FEE,
-	GTRMW_ENTRANCE_FEE_DECREASE,
-	GTRMW_ENTRANCE_FEE_INCREASE,
-	GTRMW_CYCLES,
-	GTRMW_CYCLES_DECREASE,
-	GTRMW_CYCLES_INCREASE,
-	GTRMW_MIN_IDLE,
-	GTRMW_MIN_IDLE_DECREASE,
-	GTRMW_MIN_IDLE_INCREASE,
-	GTRMW_MAX_IDLE,
-	GTRMW_MAX_IDLE_DECREASE,
-	GTRMW_MAX_IDLE_INCREASE,
-	GTRMW_OPEN_RIDE_PANEL,
-	GTRMW_CLOSE_RIDE_PANEL,
-	GTRMW_OPEN_RIDE_LIGHT,
-	GTRMW_CLOSE_RIDE_LIGHT,
-	GTRMW_RELIABILITY,
-	GTRMW_MAINTENANCE,
-	GTRMW_MAINTENANCE_DECREASE,
-	GTRMW_MAINTENANCE_INCREASE,
-	GTRMW_RECOLOUR1,
-	GTRMW_RECOLOUR2,
-	GTRMW_RECOLOUR3,
-	GTRMW_PLACE_ENTRANCE,
-	GTRMW_CHOOSE_ENTRANCE,
-	GTRMW_PLACE_EXIT,
-	GTRMW_CHOOSE_EXIT,
-	GTRMW_ENTRANCE_RECOLOUR1,
-	GTRMW_ENTRANCE_RECOLOUR2,
-	GTRMW_ENTRANCE_RECOLOUR3,
-	GTRMW_EXIT_RECOLOUR1,
-	GTRMW_EXIT_RECOLOUR2,
-	GTRMW_EXIT_RECOLOUR3,
-	GTRMW_REMOVE,
+	GTRMW_TITLEBAR,               ///< Window titlebar.
+	GTRMW_MONTHLY_COST,           ///< Ride monthly cost display.
+	GTRMW_EXCITEMENT_RATING,      ///< Ride excitement rating display.
+	GTRMW_INTENSITY_RATING,       ///< Ride intensity rating display.
+	GTRMW_NAUSEA_RATING,          ///< Ride nausea rating display.
+	GTRMW_ENTRANCE_FEE,           ///< Ride entrance fee display.
+	GTRMW_ENTRANCE_FEE_DECREASE,  ///< Ride entrance fee decrease button.
+	GTRMW_ENTRANCE_FEE_INCREASE,  ///< Ride entrance fee increase button.
+	GTRMW_CYCLES,                 ///< Number of working cycles display.
+	GTRMW_CYCLES_DECREASE,        ///< Number of working cycles decrease button.
+	GTRMW_CYCLES_INCREASE,        ///< Number of working cycles increase button.
+	GTRMW_MIN_IDLE,               ///< Minimum idle time display.
+	GTRMW_MIN_IDLE_DECREASE,      ///< Minimum idle time decrease button.
+	GTRMW_MIN_IDLE_INCREASE,      ///< Minimum idle time increase button.
+	GTRMW_MAX_IDLE,               ///< Maximum idle time display.
+	GTRMW_MAX_IDLE_DECREASE,      ///< Maximum idle time decrease button.
+	GTRMW_MAX_IDLE_INCREASE,      ///< Maximum idle time increase button.
+	GTRMW_OPEN_RIDE_PANEL,        ///< Open ride button.
+	GTRMW_CLOSE_RIDE_PANEL,       ///< Close ride button.
+	GTRMW_OPEN_RIDE_LIGHT,        ///< Open ride light.
+	GTRMW_CLOSE_RIDE_LIGHT,       ///< Close ride light.
+	GTRMW_RELIABILITY,            ///< Ride reliability display.
+	GTRMW_MAINTENANCE,            ///< Ride maintenance interval display.
+	GTRMW_MAINTENANCE_DECREASE,   ///< Ride maintenance interval decrease button.
+	GTRMW_MAINTENANCE_INCREASE,   ///< Ride maintenance interval increase button.
+	GTRMW_RECOLOUR1,              ///< First ride recolouring.
+	GTRMW_RECOLOUR2,              ///< Second ride recolouring.
+	GTRMW_RECOLOUR3,              ///< Third ride recolouring.
+	GTRMW_PLACE_ENTRANCE,         ///< Place entrance button.
+	GTRMW_CHOOSE_ENTRANCE,        ///< Choose entrance type button.
+	GTRMW_PLACE_EXIT,             ///< Place exit button.
+	GTRMW_CHOOSE_EXIT,            ///< Choose exit type button.
+	GTRMW_ENTRANCE_RECOLOUR1,     ///< First entrance recolouring.
+	GTRMW_ENTRANCE_RECOLOUR2,     ///< Second entrance recolouring.
+	GTRMW_ENTRANCE_RECOLOUR3,     ///< Third entrance recolouring.
+	GTRMW_EXIT_RECOLOUR1,         ///< First exit recolouring.
+	GTRMW_EXIT_RECOLOUR2,         ///< Second exit recolouring.
+	GTRMW_EXIT_RECOLOUR3,         ///< Third exit recolouring.
+	GTRMW_REMOVE,                 ///< Ride deletion button.
 };
 
 /** Widget parts of the #GentleThrillRideManagerWindow. */
