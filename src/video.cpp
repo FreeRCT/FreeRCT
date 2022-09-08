@@ -117,7 +117,7 @@ void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 		glTexImage2D(
 				GL_TEXTURE_2D,
 				0,
-				GL_RED,
+				GL_R8,
 				face->glyph->bitmap.width,
 				face->glyph->bitmap.rows,
 				0,
@@ -304,7 +304,7 @@ EM_JS(int, GetEmscriptenCanvasHeight, (), { return canvas.clientHeight; });
  * @param new_w New width.
  * @param new_h New height.
  */
-void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int new_w, int new_h)
+void VideoSystem::FramebufferSizeCallback([[maybe_unused]] GLFWwindow *window, int new_w, int new_h)
 {
 	assert(window == _video.window);
 	assert(new_w >= 0);
@@ -326,7 +326,7 @@ void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int new_w, int new
  * @param action Whether the mouse button was pressed or released.
  * @param mods Bitset of modifier keys.
  */
-void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, int mods)
+void VideoSystem::KeyCallback([[maybe_unused]] GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, int mods)
 {
 	assert(window == _video.window);
 	if (action != GLFW_PRESS) return;
@@ -444,7 +444,7 @@ void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int 
  * @param window Window in which the event occurred.
  * @param codepoint The unicode character.
  */
-void VideoSystem::TextCallback(GLFWwindow *window, uint32 codepoint)
+void VideoSystem::TextCallback([[maybe_unused]] GLFWwindow *window, uint32 codepoint)
 {
 	assert(window == _video.window);
 	char buffer[] = {0, 0, 0, 0, 0};
@@ -458,7 +458,7 @@ void VideoSystem::TextCallback(GLFWwindow *window, uint32 codepoint)
  * @param x New mouse position X coordinate.
  * @param y New mouse position Y coordinate.
  */
-void VideoSystem::MouseMoveCallback(GLFWwindow *window, double x, double y)
+void VideoSystem::MouseMoveCallback([[maybe_unused]] GLFWwindow *window, double x, double y)
 {
 	assert(window == _video.window);
 	_video.mouse_x = std::max(0.0, std::min<double>(x, _video.width));
@@ -472,7 +472,7 @@ void VideoSystem::MouseMoveCallback(GLFWwindow *window, double x, double y)
  * @param xdelta Amount by which the wheel was moved in the horizontal direction..
  * @param ydelta Amount by which the wheel was moved in the vertical direction.
  */
-void VideoSystem::ScrollCallback(GLFWwindow *window, [[maybe_unused]] double xdelta, double ydelta)
+void VideoSystem::ScrollCallback([[maybe_unused]] GLFWwindow *window, [[maybe_unused]] double xdelta, double ydelta)
 {
 	assert(window == _video.window);
 	if (abs(ydelta) < 0.01) return;
@@ -486,7 +486,7 @@ void VideoSystem::ScrollCallback(GLFWwindow *window, [[maybe_unused]] double xde
  * @param action Whether the mouse button was pressed or released.
  * @param mods Bitset of modifier keys.
  */
-void VideoSystem::MouseClickCallback(GLFWwindow *window, int button, int action, [[maybe_unused]] int mods) {
+void VideoSystem::MouseClickCallback([[maybe_unused]] GLFWwindow *window, int button, int action, [[maybe_unused]] int mods) {
 	assert(window == _video.window);
 
 	switch (button) {
@@ -561,7 +561,9 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 
 	this->UpdateClip();
 	glfwSetFramebufferSizeCallback(this->window, FramebufferSizeCallback);
+#ifndef WEBASSEMBLY
 	glfwSetInputMode(this->window, GLFW_STICKY_KEYS, GL_TRUE);
+#endif
 	glfwSetCursorPosCallback(this->window, MouseMoveCallback);
 	glfwSetScrollCallback(this->window, ScrollCallback);
 	glfwSetMouseButtonCallback(this->window, MouseClickCallback);
