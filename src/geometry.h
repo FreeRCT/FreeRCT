@@ -129,7 +129,7 @@ struct XYZPoint {
 	template <typename C>
 	inline operator XYZPoint<C>() const
 	{
-		return XYZPoint<C>(x, y, z);
+		return XYZPoint<C>(this->x, this->y, this->z);
 	}
 
 	/**
@@ -184,6 +184,7 @@ struct WXYZPoint {
 
 	/**
 	 * Constructor for creating a point at a given coordinate.
+	 * @param init_w W coordinate.
 	 * @param init_x X coordinate.
 	 * @param init_y Y coordinate.
 	 * @param init_z Z coordinate.
@@ -200,7 +201,7 @@ struct WXYZPoint {
 	template <typename C>
 	inline operator WXYZPoint<C>() const
 	{
-		return WXYZPoint<C>(w, x, y, z);
+		return WXYZPoint<C>(this->w, this->x, this->y, this->z);
 	}
 
 	/**
