@@ -158,13 +158,11 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 		case MDT_RIDE_TYPE:     sprite_to_draw = SPR_GUI_MESSAGE_RIDE_TYPE; break;
 		default: NOT_REACHED();
 	}
-	static Recolouring rc;  // Never modified.
 	const ImageData *imgdata = _sprite_manager.GetTableSprite(sprite_to_draw);
 	if (imgdata != nullptr) {
 		_video.BlitImage(Point32(
 				rect.base.x + rect.width - rect.height,
-				rect.base.y + (static_cast<int>(rect.height) - static_cast<int>(imgdata->height)) / 2),
-			imgdata, rc, GS_NORMAL);
+				rect.base.y + (static_cast<int>(rect.height) - static_cast<int>(imgdata->height)) / 2), imgdata);
 	}
 }
 

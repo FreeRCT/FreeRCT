@@ -76,7 +76,7 @@ public:
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	RideMouseMode selector; ///< Mouse mode displaying the new ride.
 private:
@@ -158,9 +158,8 @@ void RideBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) co
 			const RideType *ride_type = this->instance->GetRideType();
 			if (ride_type->kind != RTK_SHOP && ride_type->kind != RTK_GENTLE && ride_type->kind != RTK_THRILL) return;
 
-			static const Recolouring recolour; // Never modified, display 'original' image in the GUI.
 			Point32 pt(this->GetWidgetScreenX(wid) + wid->pos.width / 2, this->GetWidgetScreenY(wid) + wid->pos.height - 40);
-			_video.BlitImage(pt, ride_type->GetView(this->orientation), recolour, GS_NORMAL);
+			_video.BlitImage(pt, ride_type->GetView(this->orientation));
 			break;
 	}
 }
@@ -170,12 +169,10 @@ void RideBuildWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point
 	switch (wid_num) {
 		case RBW_POS_ROTATE:
 			this->orientation = static_cast<TileEdge>((this->orientation + 3) & 3);
-			this->MarkWidgetDirty(RBW_DISPLAY_RIDE);
 			break;
 
 		case RBW_NEG_ROTATE:
 			this->orientation = static_cast<TileEdge>((this->orientation + 1) & 3);
-			this->MarkWidgetDirty(RBW_DISPLAY_RIDE);
 			break;
 	}
 }
@@ -346,14 +343,11 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	/* Clean current display if needed. */
 	switch (this->ComputeFixedRideVoxel(XYZPoint32(wxy.x, wxy.y, vp->view_pos.z), vp->orientation)) {
 		case RPR_FAIL:
-			this->selector.MarkDirty(); // Does not do anything with a zero-sized mouse selector.
 			this->selector.SetSize(0, 0);
 			return;
 
 		case RPR_SAMEPOS:
 		case RPR_CHANGED: {
-			this->selector.MarkDirty();
-
 			/// \todo Let the ride do this.
 			FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
 			assert(si != nullptr);
@@ -387,7 +381,6 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 					this->selector.SetRideData(pos, inst_number, si->GetEntranceDirections(pos));
 				}
 			}
-			this->selector.MarkDirty();
 			return;
 		}
 
@@ -395,9 +388,9 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	}
 }
 
-void RideBuildWindow::SelectorMouseButtonEvent(uint8 state)
+void RideBuildWindow::SelectorMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 
 	if (this->selector.area.width < 1 || this->selector.area.height < 1) {
 		this->build_forbidden_reason.ShowErrorMessage();

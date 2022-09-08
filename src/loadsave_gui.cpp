@@ -326,7 +326,6 @@ bool LoadSaveGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string
 				scrollbar->SetStart(new_index + 1 - scrollbar->GetVisibleCount());
 			}
 
-			this->MarkDirty();
 			return true;
 		}
 
@@ -345,19 +344,15 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 
 		case LSW_SORT_FILE:
 			this->Sort(SortByFilename);
-			this->MarkDirty();
 			break;
 		case LSW_SORT_TIME:
 			this->Sort(SortByTimestamp);
-			this->MarkDirty();
 			break;
 		case LSW_SORT_NAME:
 			this->Sort(SortByScenario);
-			this->MarkDirty();
 			break;
 		case LSW_SORT_REV:
 			this->Sort(SortByCompatibility);
-			this->MarkDirty();
 			break;
 
 		case LSW_LIST_FILE:
@@ -451,10 +446,9 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 
 		case LSW_LIST_REV:
 			functor = [&x, &y](const PreloadData &pd) {
-				static const Recolouring r;
 				const ImageData *imgdata = _sprite_manager.GetTableSprite(
 						pd.load_success ? pd.revision == _freerct_revision ? SPR_GUI_LOADSAVE_OK : SPR_GUI_LOADSAVE_WARN : SPR_GUI_LOADSAVE_ERR);
-				if (imgdata != nullptr) _video.BlitImage(Point32(x - ITEM_SPACING / 2, y - ITEM_SPACING / 2), imgdata, r, GS_NORMAL);
+				if (imgdata != nullptr) _video.BlitImage(Point32(x - ITEM_SPACING / 2, y - ITEM_SPACING / 2), imgdata);
 			};
 			break;
 
@@ -498,8 +492,8 @@ void LoadsaveConfirmationWindow::SetWidgetStringParameters(const WidgetNumber wi
 Point32 LoadsaveConfirmationWindow::OnInitialPosition()
 {
 	Point32 pt;
-	pt.x = (_video.GetXSize() - this->rect.width ) / 2;
-	pt.y = (_video.GetYSize() - this->rect.height) / 2;
+	pt.x = (_video.Width() - this->rect.width ) / 2;
+	pt.y = (_video.Height() - this->rect.height) / 2;
 	return pt;
 }
 

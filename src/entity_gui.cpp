@@ -32,8 +32,8 @@ static const WidgetPart _entity_remove_widgets[] = {
 Point32 EntityRemoveWindow::OnInitialPosition()
 {
 	Point32 pt;
-	pt.x = (_video.GetXSize() - this->rect.width ) / 2;
-	pt.y = (_video.GetYSize() - this->rect.height) / 2;
+	pt.x = (_video.Width() - this->rect.width ) / 2;
+	pt.y = (_video.Height() - this->rect.height) / 2;
 	return pt;
 }
 

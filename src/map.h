@@ -396,7 +396,6 @@ public:
 		return XYZPoint16(p.x & 0xff, p.y & 0xff, p.z & 0xff);
 	}
 
-	void MarkDirty();
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 

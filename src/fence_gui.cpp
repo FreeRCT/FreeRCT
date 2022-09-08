@@ -75,7 +75,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	FenceType fence_type;      ///< Currently selected fence type (#FENCE_TYPE_INVALID means no type selected).
 	XYZPoint16 fence_base;     ///< Voxel position (base of the ground) where fence has been placed (only valid if #fence_edge is valid).
@@ -166,9 +166,8 @@ void FenceGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 			const ImageData *sprite = fence->sprites[FENCE_NE_FLAT];
 			if (sprite == nullptr) break;
 
-			static Recolouring recolouring;
 			_video.BlitImage({this->GetWidgetScreenX(wid) - sprite->xoffset + (wid->pos.width - sprite->width) / 2,
-					this->GetWidgetScreenY(wid) - sprite->yoffset + (wid->pos.height - sprite->height) / 2}, sprite, recolouring, GS_NORMAL);
+					this->GetWidgetScreenY(wid) - sprite->yoffset + (wid->pos.height - sprite->height) / 2}, sprite);
 			return;
 		}
 	}
@@ -246,8 +245,6 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point
 	}
 
 	/* New fence, or moved fence. Update the mouse selector. */
-	this->fence_sel.MarkDirty();
-
 	this->fence_edge = edge; // Store new edge and base position.
 	this->fence_base = fdata.voxel_pos;
 
@@ -261,11 +258,9 @@ void FenceGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point
 	this->fence_sel.AddVoxel(fdata.voxel_pos);
 	this->fence_sel.SetupRideInfoSpace();
 	this->fence_sel.SetFenceData(fdata.voxel_pos, this->fence_type, edge);
-
-	this->fence_sel.MarkDirty();
 }
 
-void FenceGui::SelectorMouseButtonEvent(uint8 state)
+void FenceGui::SelectorMouseButtonEvent(MouseButtons state)
 {
 	if ((state & (MB_LEFT | MB_RIGHT)) == 0) return;  // No buttons pressed.
 	if (this->fence_sel.area.width != 1 || this->fence_sel.area.height != 1) return;
@@ -298,7 +293,6 @@ void FenceGui::SelectorMouseButtonEvent(uint8 state)
 	_finances_manager.PayLandscaping(cost);
 
 	AddGroundFencesToMap(fences, vs, this->fence_base.z);
-	MarkVoxelDirty(this->fence_base);
 }
 
 /**

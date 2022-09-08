@@ -99,7 +99,6 @@ public:
 	Viewport(const XYZPoint32 &view_pos);
 	~Viewport();
 
-	void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
 	void OnDraw(MouseModeSelector *selector) override;
 
 	void Rotate(int direction);
@@ -120,17 +119,16 @@ public:
 	uint16 tile_height;          ///< Height of a tile.
 	ViewOrientation orientation; ///< Direction of view.
 	Point16 mouse_pos;           ///< Last known position of the mouse.
+	bool draw_fps;               ///< Whether to draw an FPS counter.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
 
 protected:
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	void OnMouseMoveEvent(const Point16 &pos) override;
-	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
+	WmMouseEvent OnMouseButtonEvent(MouseButtons state) override;
 	void OnMouseWheelEvent(int direction) override;
 };
-
-void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height = 0);
 
 /**
  * Convert a voxel coordinate to the pixel coordinate of its top-left corner.

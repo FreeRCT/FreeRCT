@@ -663,15 +663,7 @@ void ChangeTileCursorMode(const Point16 &voxel_pos, CursorType ctype, bool level
 			NOT_REACHED();
 	}
 
-	if (ok) {
-		ok = changes.ModifyWorld(direction);
-		if (!ok) return;
-
-		for (const auto &iter : changes.changes) {
-			const Point16 &pt = iter.first;
-			MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
-		}
-	}
+	if (ok) changes.ModifyWorld(direction);
 }
 
 /**
@@ -715,9 +707,4 @@ void ChangeAreaCursorMode(const Rectangle16 &orig_area, bool levelling, int dire
 	}
 
 	changes.ModifyWorld(direction);
-
-	for (const auto &iter : changes.changes) {
-		const Point16 &pt = iter.first;
-		MarkVoxelDirty(XYZPoint16(pt.x, pt.y, iter.second.height));
-	}
 }

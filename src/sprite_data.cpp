@@ -20,7 +20,7 @@ static const uint32 IMAGE_BATCH_SIZE = 1024;  ///< Number of images that are bat
 static std::vector<std::unique_ptr<ImageData[]>> _sprites;  ///< Available sprites to the program.
 static uint32 _sprites_loaded;                              ///< Total number of sprites loaded.
 
-ImageData::ImageData() : width(0), height(0), table(nullptr), data(nullptr)
+ImageData::ImageData() : is_8bpp(false), width(0), height(0)
 {
 }
 
@@ -48,35 +48,65 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 	if (length <= jmp_table) rcd_file->Error("Jump table too short"); // You need at least place for the jump table.
 	length -= jmp_table;
 
-	this->table.reset(new uint32[jmp_table / 4]);
-	this->data.reset(new uint8[length]);
-	if (this->table == nullptr || this->data == nullptr) rcd_file->Error("Out of memory");
+	std::unique_ptr<uint32[]> table(new uint32[jmp_table / 4]);
+	std::unique_ptr<uint8[]> data(new uint8[length]);
+	if (table == nullptr || data == nullptr) rcd_file->Error("Out of memory");
 
 	/* Load jump table, adjusting the entries while loading. */
 	for (uint i = 0; i < this->height; i++) {
 		uint32 dest = rcd_file->GetUInt32();
 		if (dest == 0) {
-			this->table[i] = INVALID_JUMP;
+			table[i] = INVALID_JUMP;
 			continue;
 		}
 		dest -= jmp_table;
 		if (dest >= length) rcd_file->Error("Jump destination out of bounds");
-		this->table[i] = dest;
+		table[i] = dest;
 	}
 
-	rcd_file->GetBlob(this->data.get(), length); // Load the image data.
+	rcd_file->GetBlob(data.get(), length); // Load the image data.
 
 	/* Verify the image data. */
+	this->rgba.reset(new uint8[this->width * this->height * 4]);
+	this->recol.reset(new uint8[this->width * this->height]);
+	uint8 *rgba_ptr = this->rgba.get();
+	uint8 *recol_ptr = this->recol.get();
 	for (uint i = 0; i < this->height; i++) {
-		uint32 offset = this->table[i];
-		if (offset == INVALID_JUMP) continue;
+		uint32 offset = table[i];
+		if (offset == INVALID_JUMP) {
+			/* Whole line is transparent. */
+			for (int x = 0; x < this->width; ++x) {
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(recol_ptr++) = 0;
+			}
+			continue;
+		}
 
 		uint32 xpos = 0;
 		for (;;) {
 			if (offset + 2 >= length) rcd_file->Error("Offset out of bounds");
-			uint8 rel_pos = this->data[offset];
-			uint8 count = this->data[offset + 1];
+			uint8 rel_pos = data[offset];
+			uint8 count = data[offset + 1];
+			for (int g = 0; g < (rel_pos & 127); ++g) {
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(rgba_ptr++) = 0;
+				*(recol_ptr++) = 0;
+			}
 			xpos += (rel_pos & 127) + count;
+			for (int dx = 0; dx < count; ++dx) {
+				uint8 pixel = data[offset + 2 + dx];
+				*(recol_ptr++) = pixel;
+				uint32 rgba = _palette[pixel];
+				*(rgba_ptr++) = (rgba >> 24) & 0xff;
+				*(rgba_ptr++) = (rgba >> 16) & 0xff;
+				*(rgba_ptr++) = (rgba >>  8) & 0xff;
+				*(rgba_ptr++) = (rgba      ) & 0xff;
+			}
 			offset += 2 + count;
 			if ((rel_pos & 128) == 0) {
 				if (xpos >= this->width || offset >= length) rcd_file->Error("X coordinate out of exclusive bounds");
@@ -85,7 +115,17 @@ void ImageData::Load8bpp(RcdFileReader *rcd_file, size_t length)
 				break;
 			}
 		}
+
+		for (; xpos < this->width; ++xpos) {
+			*(rgba_ptr++) = 0;
+			*(rgba_ptr++) = 0;
+			*(rgba_ptr++) = 0;
+			*(rgba_ptr++) = 0;
+			*(recol_ptr++) = 0;
+		}
 	}
+	assert(recol_ptr - this->recol.get() == 1L * this->width * this->height);
+	assert(rgba_ptr - this->rgba.get() == 4L * this->width * this->height);
 }
 
 /**
@@ -108,14 +148,18 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 	if (length > 2000 * 1200) rcd_file->Error("Data too long"); // Another arbitrary limit.
 
 	/* Allocate and load the image data. */
-	this->data.reset(new uint8[length]);
-	if (this->data == nullptr) rcd_file->Error("Out of memory");
-	rcd_file->GetBlob(this->data.get(), length);
+	std::unique_ptr<uint8[]> data(new uint8[length]);
+	if (data == nullptr) rcd_file->Error("Out of memory");
+	rcd_file->GetBlob(data.get(), length);
 
 	/* Verify the data. */
-	uint8 *abs_end = this->data.get() + length;
+	this->rgba.reset(new uint8[this->width * this->height * 4]);
+	this->recol.reset(new uint8[this->width * this->height * 2]);
+	uint8 *rgba_ptr = this->rgba.get();
+	uint8 *recol_ptr = this->recol.get();
+	uint8 *abs_end = data.get() + length;
 	int line_count = 0;
-	const uint8 *ptr = this->data.get();
+	const uint8 *ptr = data.get();
 	bool finished = false;
 	while (ptr < abs_end && !finished) {
 		line_count++;
@@ -138,21 +182,72 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
 		while (ptr < end && !finished_line) {
 			uint8 mode = *ptr++;
 			if (mode == 0) {
+				for (; xpos < this->width; ++xpos) {
+					*(rgba_ptr++) = 0;
+					*(rgba_ptr++) = 0;
+					*(rgba_ptr++) = 0;
+					*(rgba_ptr++) = 0;
+					*(recol_ptr++) = 0;
+					*(recol_ptr++) = 0;
+				}
 				finished_line = true;
 				break;
 			}
 			xpos += mode & 0x3F;
 			switch (mode >> 6) {
-				case 0: ptr += 3 * (mode & 0x3F); break;
-				case 1: ptr += 1 + 3 * (mode & 0x3F); break;
-				case 2: break;
-				case 3: ptr += 1 + 1 + (mode & 0x3F); break;
+				case 0:  // Fully opaque colour.
+					for (int i = mode & 0x3F; i > 0; --i) {
+						*(rgba_ptr++) = *(ptr++);
+						*(rgba_ptr++) = *(ptr++);
+						*(rgba_ptr++) = *(ptr++);
+						*(rgba_ptr++) = 255;
+						*(recol_ptr++) = 0;
+						*(recol_ptr++) = 0;
+					}
+					break;
+				case 1: {  // Semi-transparent colour.
+					uint8 alpha = *(ptr++);
+					for (int i = mode & 0x3F; i > 0; --i) {
+						*(rgba_ptr++) = *(ptr++);
+						*(rgba_ptr++) = *(ptr++);
+						*(rgba_ptr++) = *(ptr++);
+						*(rgba_ptr++) = alpha;
+						*(recol_ptr++) = 0;
+						*(recol_ptr++) = 0;
+					}
+					break;
+				}
+				case 2:  // Fully transparent.
+					for (int i = mode & 0x3F; i > 0; --i) {
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
+						*(recol_ptr++) = 0;
+						*(recol_ptr++) = 0;
+					}
+					break;
+				case 3: {  // Recolour layer.
+					uint8 layer = *(ptr++);
+					uint8 alpha = *(ptr++);
+					for (int i = mode & 0x3F; i > 0; --i) {
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = 0;
+						*(rgba_ptr++) = alpha;
+						*(recol_ptr++) = layer;
+						*(recol_ptr++) = *(ptr++);
+					}
+					break;
+				}
 			}
 		}
 		if (xpos > this->width) rcd_file->Error("X coordinate out of bounds");
 		if (!finished_line) rcd_file->Error("Incomplete line");
 		if (ptr != end) rcd_file->Error("Trailing bytes at end of line");
 	}
+	assert(recol_ptr - this->recol.get() == 2L * this->width * this->height);
+	assert(rgba_ptr - this->rgba.get() == 4L * this->width * this->height);
 	if (line_count != this->height) rcd_file->Error("Line count mismatch");
 	if (ptr != abs_end) rcd_file->Error("Trailing bytes at end of file");
 }
@@ -167,79 +262,78 @@ void ImageData::Load32bpp(RcdFileReader *rcd_file, size_t length)
  */
 uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour, GradientShift shift) const
 {
-	if (xoffset >= this->width) return _palette[0];
-	if (yoffset >= this->height) return _palette[0];
-
-	if (GB(this->flags, IFG_IS_8BPP, 1) != 0) {
-		/* 8bpp image. */
-		uint32 offset = this->table[yoffset];
-		if (offset == INVALID_JUMP) return _palette[0];
-
-		uint16 xpos = 0;
-		while (xpos <= xoffset) {
-			uint8 rel_pos = this->data[offset];
-			uint8 count = this->data[offset + 1];
-			xpos += (rel_pos & 127);
-			if (xpos > xoffset) return _palette[0];
-			if (xoffset - xpos < count) {
-				uint8 pixel = this->data[offset + 2 + xoffset - xpos];
-				if (recolour != nullptr) {
-					const uint8 *recolour_table = recolour->GetPalette(shift);
-					pixel = recolour_table[pixel];
-				}
-				return _palette[pixel];
-			}
-			xpos += count;
-			offset += 2 + count;
-			if ((rel_pos & 128) != 0) break;
-		}
-		return _palette[0];
-	} else {
-		/* 32bpp image. */
-		const uint8 *ptr = this->data.get();
-		while (yoffset > 0) {
-			uint16 length = ptr[0] | (ptr[1] << 8);
-			ptr += length;
-			yoffset--;
-		}
-		ptr += 2;
-		while (xoffset > 0) {
-			uint8 mode = *ptr++;
-			if (mode == 0) break;
-			if ((mode & 0x3F) < xoffset) {
-				xoffset -= mode & 0x3F;
-				switch (mode >> 6) {
-					case 0: ptr += 3 * (mode & 0x3F); break;
-					case 1: ptr += 1 + 3 * (mode & 0x3F); break;
-					case 2: ptr++; break;
-					case 3: ptr += 1 + 1 + (mode & 0x3F); break;
-				}
-			} else {
-				ShiftFunc sf = GetGradientShiftFunc(shift);
-				switch (mode >> 6) {
-					case 0:
-						ptr += 3 * xoffset;
-						return MakeRGBA(sf(ptr[0]), sf(ptr[1]), sf(ptr[2]), OPAQUE);
-					case 1: {
-						uint8 opacity = *ptr;
-						ptr += 1 + 3 * xoffset;
-						return MakeRGBA(sf(ptr[0]), sf(ptr[1]), sf(ptr[2]), opacity);
-					}
-					case 2:
-						return _palette[0]; // Arbitrary fully transparent.
-					case 3: {
-						uint8 opacity = ptr[1];
-						if (recolour == nullptr) return MakeRGBA(0, 0, 0, opacity); // Arbitrary colour with the correct opacity.
-						const uint32 *table = recolour->GetRecolourTable(ptr[0] - 1);
-						ptr += 2 + xoffset;
-						uint32 recoloured = table[*ptr];
-						return MakeRGBA(sf(GetR(recoloured)), sf(GetG(recoloured)), sf(GetB(recoloured)), opacity);
-					}
-				}
-			}
-		}
-		return _palette[0]; // Arbitrary fully transparent.
+	if (xoffset >= this->width || yoffset >= this->height) return 0;
+	if (this->is_8bpp) {
+		uint8 pixel = this->recol[yoffset * this->width + xoffset];
+		if (recolour != nullptr) pixel = recolour->GetPalette(shift)[pixel];
+		return _palette[pixel];
 	}
+
+	const uint8 *rgba_base = &this->rgba[4 * (yoffset * this->width + xoffset)];
+	const uint8 *recol_base = &this->recol[2 * (yoffset * this->width + xoffset)];
+	ShiftFunc sf = GetGradientShiftFunc(shift);
+
+	if (recol_base == nullptr || recolour == nullptr || recol_base[0] == 0) {
+		/* No recolouring, */
+		return sf(rgba_base[0] << 24) | sf(rgba_base[1] << 16) | sf(rgba_base[2] << 8) | sf(rgba_base[3]);
+	}
+
+	const uint32 recoloured = recolour->GetRecolourTable(recol_base[0] - 1)[recol_base[1]];
+	return MakeRGBA(sf(GetR(recoloured)), sf(GetG(recoloured)), sf(GetB(recoloured)), rgba_base[3]);
+}
+
+/**
+ * Get this image with a gradient shift and/or recolouring applied.
+ * @param shift Gradient shift to apply to the image.
+ * @param recolour Recolouring to apply to the image.
+ * @return The altered image's RGBA pixel values.
+ */
+const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &recolour) const
+{
+	RecolourData map_key(shift, recolour.ToCondensed());
+	const auto it = this->recoloured.find(map_key);
+	if (it != this->recoloured.end()) return it->second.get();
+
+	std::unique_ptr<uint8[]> result(new uint8[this->width * this->height * 4]);
+	uint8 *ptr = result.get();
+	const uint8 *recol_ptr = this->recol.get();
+
+	if (this->is_8bpp) {
+		for (int y = 0; y < this->height; ++y) {
+			for (int x = 0; x < this->width; ++x) {
+				uint32 pixel = _palette[recolour.GetPalette(shift)[*(recol_ptr++)]];
+				*(ptr++) = GetR(pixel);
+				*(ptr++) = GetG(pixel);
+				*(ptr++) = GetB(pixel);
+				*(ptr++) = GetA(pixel);
+			}
+		}
+	} else {
+		const uint8 *rgba_ptr = this->rgba.get();
+		ShiftFunc sf = GetGradientShiftFunc(shift);
+		for (int y = 0; y < this->height; ++y) {
+			for (int x = 0; x < this->width; ++x) {
+				if (recol_ptr[0] == 0) {
+					*(ptr++) = sf(*(rgba_ptr++));
+					*(ptr++) = sf(*(rgba_ptr++));
+					*(ptr++) = sf(*(rgba_ptr++));
+					*(ptr++) = *(rgba_ptr++);
+				} else {
+					const uint32 recoloured = recolour.GetRecolourTable(recol_ptr[0] - 1)[recol_ptr[1]];
+					*(ptr++) = sf(GetR(recoloured));
+					*(ptr++) = sf(GetG(recoloured));
+					*(ptr++) = sf(GetB(recoloured));
+					*(ptr++) = rgba_ptr[3];
+					rgba_ptr += 4;
+				}
+				recol_ptr += 2;
+			}
+		}
+	}
+
+	ptr = result.get();
+	this->recoloured.emplace(map_key, std::move(result));
+	return ptr;
 }
 
 /**
@@ -260,15 +354,16 @@ ImageData *LoadImage(RcdFileReader *rcd_file)
 	ImageData *imd = &_sprites.at(batch_index)[index_in_batch];
 	try {
 		if (is_8bpp) {
+			imd->is_8bpp = true;
 			imd->Load8bpp(rcd_file, rcd_file->size);
 		} else {
+			imd->is_8bpp = false;
 			imd->Load32bpp(rcd_file, rcd_file->size);
 		}
 	} catch (...) {
 		_sprites_loaded--;
 		throw;
 	}
-	imd->flags = is_8bpp ? (1 << IFG_IS_8BPP) : 0;
 	return imd;
 }
 

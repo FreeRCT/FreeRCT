@@ -206,8 +206,8 @@ void BaseWidget::DrawTooltip(Point32 p)
 	GetMultilineTextSize(this->tooltip, TOOLTIP_MAX_WIDTH, &inner_w, &inner_h);
 	const int outer_w = inner_w + 2 * TOOLTIP_BORDER_SPACING;
 	const int outer_h = inner_h + 2 * TOOLTIP_BORDER_SPACING;
-	const int x = std::max(0, std::min<int>(_video.GetXSize() - outer_w, p.x + this->pos.base.x));
-	const int y = std::max(0, std::min(_video.GetYSize() - outer_h, p.y + this->pos.base.y + this->pos.height));
+	const int x = std::max(0, std::min<int>(_video.Width() - outer_w, p.x + this->pos.base.x));
+	const int y = std::max(0, std::min<int>(_video.Height() - outer_h, p.y + this->pos.base.y + this->pos.height));
 
 	Rectangle32 r(x, y, outer_w, outer_h);
 	_video.FillRectangle(r, _palette[TEXT_TOOLTIP_BACKGROUND]);
@@ -244,7 +244,6 @@ void BaseWidget::SetVisible(GuiWindow *w, const bool v)
 {
 	this->visible = v;
 	w->ResetSize();
-	this->MarkDirty(this->cached_window_base);
 }
 
 /**
@@ -286,16 +285,6 @@ bool BaseWidget::OnKeyEvent([[maybe_unused]] WmKeyCode key_code, [[maybe_unused]
 bool BaseWidget::OnMouseWheelEvent([[maybe_unused]] int direction)
 {
 	return false;
-}
-
-/**
- * Denote the widget as being needed to redraw.
- * @param base %Window base coordinate.
- */
-void BaseWidget::MarkDirty(const Point32 &base) const
-{
-	Rectangle32 rect = Rectangle32(base.x + this->pos.base.x, base.y + this->pos.base.y, this->pos.width, this->pos.height);
-	_video.MarkDisplayDirty(rect);
 }
 
 /**
@@ -414,11 +403,10 @@ void LeafWidget::DoDraw(const GuiWindow *w)
 	}
 }
 
-void LeafWidget::AutoRaiseButtons(const Point32 &base)
+void LeafWidget::AutoRaiseButtons([[maybe_unused]] const Point32 &base)
 {
 	if ((this->wtype == WT_TEXT_PUSHBUTTON || this->wtype == WT_IMAGE_PUSHBUTTON) && this->IsPressed()) {
 		this->SetPressed(false);
-		this->MarkDirty(base);
 	}
 }
 
@@ -607,7 +595,6 @@ void DataWidget::DoDraw(const GuiWindow *w)
 	} else if (this->wtype == WT_RIGHT_TEXT) {
 		align = ALG_RIGHT;
 	}
-	static Recolouring rc; // Never modified
 	int yoffset = top + (bottom + 1 - top - this->value_height) / 2;
 	switch (this->wtype) {
 		case WT_IMAGE_TAB:
@@ -617,7 +604,7 @@ void DataWidget::DoDraw(const GuiWindow *w)
 			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
 			yoffset -= rect.base.y;
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata, rc, GS_NORMAL);
+			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata);
 			break;
 		}
 
@@ -626,13 +613,13 @@ void DataWidget::DoDraw(const GuiWindow *w)
 			int xoffset = left + (right + 1 - left - this->value_width) / 2 - rect.base.x;
 			yoffset -= rect.base.y;
 			const ImageData *imgdata = _sprite_manager.GetTableSprite(this->value);
-			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata, rc, GS_NORMAL);
+			if (imgdata != nullptr) _video.BlitImage({xoffset + pressed, yoffset + pressed}, imgdata);
 
 			const Rectangle16 imgrect = _sprite_manager.GetTableSpriteSize(SPR_GUI_TRIANGLE_DOWN);
 			imgdata = _sprite_manager.GetTableSprite(SPR_GUI_TRIANGLE_DOWN);
 			if (imgdata != nullptr) {
 				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
-				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata, rc, GS_NORMAL);
+				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata);
 			}
 			break;
 		}
@@ -646,7 +633,7 @@ void DataWidget::DoDraw(const GuiWindow *w)
 
 			if (imgdata != nullptr) {
 				int triangle_yoff = top + (bottom + 1 - top - imgrect.height) / 2 + pressed;
-				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata, rc, GS_NORMAL);
+				_video.BlitImage({right - imgrect.width + pressed, triangle_yoff}, imgdata);
 			}
 			/* Note: Reusing the same string parameters from above */
 			if (this->value != STR_NULL) DrawString(w->TranslateStringNumber(this->value), TEXT_WHITE, left + pressed, yoffset + pressed, right - left - imgrect.width, align);
@@ -704,7 +691,6 @@ void TextInputWidget::SetText(const std::string &text)
 {
 	this->buffer = text;
 	this->cursor_pos = std::min(this->cursor_pos, this->buffer.size());
-	this->MarkDirty(this->cached_window_base);
 	if (this->text_changed) this->text_changed();
 }
 
@@ -715,22 +701,18 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 		case WMKC_CURSOR_LEFT:
 			if (this->cursor_pos > 0) {
 				this->cursor_pos = GetPrevChar(this->buffer, this->cursor_pos);
-				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 		case WMKC_CURSOR_RIGHT:
 			if (this->cursor_pos < this->buffer.size()) {
 				this->cursor_pos = GetNextChar(this->buffer, this->cursor_pos);
-				this->MarkDirty(this->cached_window_base);
 			}
 			return true;
 		case WMKC_CURSOR_HOME:
 			this->cursor_pos = 0;
-			this->MarkDirty(this->cached_window_base);
 			return true;
 		case WMKC_CURSOR_END:
 			this->cursor_pos = this->buffer.size();
-			this->MarkDirty(this->cached_window_base);
 			return true;
 
 		case WMKC_BACKSPACE:
@@ -740,7 +722,6 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 
 				this->cursor_pos -= nr_chars_to_delete;
 				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
-				this->MarkDirty(this->cached_window_base);
 				if (this->text_changed) this->text_changed();
 			}
 			return true;
@@ -750,7 +731,6 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 				if (nr_chars_to_delete == 0) return true;
 
 				this->buffer.erase(this->cursor_pos, nr_chars_to_delete);
-				this->MarkDirty(this->cached_window_base);
 				if (this->text_changed) this->text_changed();
 			}
 			return true;
@@ -760,7 +740,6 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 
 			this->buffer.insert(this->cursor_pos, symbol);
 			this->cursor_pos += symbol.size();
-			this->MarkDirty(this->cached_window_base);
 			if (this->text_changed) this->text_changed();
 			return true;
 		}
@@ -895,16 +874,20 @@ void ScrollbarWidget::DoDraw(const GuiWindow *w)
 	/* Draw middle underground. */
 	if (this->wtype == WT_HOR_SCROLLBAR) {
 		int others = imd[WLS_LEFT_BUTTON]->width + imd[WLS_LEFT_BED]->width + imd[WLS_RIGHT_BED]->width + imd[WLS_RIGHT_BUTTON]->width;
-		uint count = (others < this->pos.width)
-				? (this->pos.width - others) / scroll_sprites.stepsize_bar : 0;
-		_video.BlitHorizontal(pos.x, count, pos.y, imd[WLS_MIDDLE_BED], rc);
-		pos.x += count * scroll_sprites.stepsize_bar;
+		if (others < this->pos.width) {
+			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_BED]->xoffset, pos.y + imd[WLS_MIDDLE_BED]->yoffset,
+					this->pos.width - others, imd[WLS_MIDDLE_BED]->height), true, false, rc);
+			pos.x += this->pos.width - others;
+		}
 	} else {
 		int others = imd[WLS_LEFT_BUTTON]->height + imd[WLS_LEFT_BED]->height + imd[WLS_RIGHT_BED]->height + imd[WLS_RIGHT_BUTTON]->height;
-		uint count = (others < this->pos.height)
-				? (this->pos.height - others) / scroll_sprites.stepsize_bar : 0;
-		_video.BlitVertical(pos.y, count, pos.x, imd[WLS_MIDDLE_BED], rc);
-		pos.y += count * scroll_sprites.stepsize_bar;
+		if (others < this->pos.height) {
+			_video.TileImage(imd[WLS_MIDDLE_BED], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_BED]->xoffset, pos.y + imd[WLS_MIDDLE_BED]->yoffset,
+					imd[WLS_MIDDLE_BED]->width, this->pos.height - others), false, true, rc);
+			pos.y += this->pos.height - others;
+		}
 	}
 
 	/* Draw bottom/right underground. */
@@ -937,13 +920,21 @@ void ScrollbarWidget::DoDraw(const GuiWindow *w)
 
 	/* Draw middle slider. */
 	if (this->wtype == WT_HOR_SCROLLBAR) {
-		uint count = (slider_length - imd[WLS_LEFT_SLIDER]->width - imd[WLS_RIGHT_SLIDER]->width) / scroll_sprites.stepsize_slider;
-		_video.BlitHorizontal(pos.x, count, pos.y, imd[WLS_MIDDLE_SLIDER], rc);
-		pos.x += count * scroll_sprites.stepsize_slider;
+		int slider_size = slider_length - imd[WLS_LEFT_SLIDER]->width - imd[WLS_RIGHT_SLIDER]->width;
+		if (slider_size > 0) {
+			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_SLIDER]->xoffset, pos.y + imd[WLS_MIDDLE_SLIDER]->yoffset,
+					slider_size, imd[WLS_MIDDLE_SLIDER]->height), true, false, rc);
+			pos.x += slider_size;
+		}
 	} else {
-		uint count = (slider_length - imd[WLS_LEFT_SLIDER]->height - imd[WLS_RIGHT_SLIDER]->height) / scroll_sprites.stepsize_slider;
-		_video.BlitVertical(pos.y, count, pos.x, imd[WLS_MIDDLE_SLIDER], rc);
-		pos.y += count * scroll_sprites.stepsize_slider;
+		int slider_size = slider_length - imd[WLS_LEFT_SLIDER]->height - imd[WLS_RIGHT_SLIDER]->height;
+		if (slider_size > 0) {
+			_video.TileImage(imd[WLS_MIDDLE_SLIDER], Rectangle32(
+					pos.x + imd[WLS_MIDDLE_SLIDER]->xoffset, pos.y + imd[WLS_MIDDLE_SLIDER]->yoffset,
+					imd[WLS_MIDDLE_SLIDER]->width, slider_size), false, true, rc);
+			pos.y += slider_size;
+		}
 	}
 
 	/* Draw bottom/right slider. */
@@ -982,33 +973,25 @@ ScrollbarComponent ScrollbarWidget::GetClickedComponent(const Point16 &pos)
  * @param base Base-coordinate of the window.
  * @param pos %Position of the click in the scrollbar.
  */
-void ScrollbarWidget::OnClick(const Point32 &base, const Point16 &pos)
+void ScrollbarWidget::OnClick([[maybe_unused]] const Point32 &base, const Point16 &pos)
 {
 	switch (this->GetClickedComponent(pos)) {
 		case SBC_INCREMENT_BUTTON:
 			this->SetStart(this->start + 1);
-			this->MarkDirty(base);
-			if (this->canvas != nullptr) this->canvas->MarkDirty(base);
 			break;
 
 		case SBC_DECREMENT_BUTTON:
 			if (this->start > 0) {
 				this->SetStart(this->start - 1);
-				this->MarkDirty(base);
-				if (this->canvas != nullptr) this->canvas->MarkDirty(base);
 			}
 			break;
 
 		case SBC_BEFORE_SLIDER:
 			this->SetStart(this->start - std::min(this->start, this->GetVisibleCount()));
-			this->MarkDirty(base);
-			this->canvas->MarkDirty(base);
 			break;
 
 		case SBC_AFTER_SLIDER:
 			this->SetStart(this->start + this->GetVisibleCount());
-			this->MarkDirty(base);
-			this->canvas->MarkDirty(base);
 			break;
 
 		default:
@@ -1027,8 +1010,6 @@ bool ScrollbarWidget::OnMouseWheelEvent(int direction)
 		this->SetStart(this->start - direction);
 	}
 
-	this->MarkDirty(this->cached_window_base);
-	if (this->canvas != nullptr) this->canvas->MarkDirty(this->cached_window_base);
 	return true;
 }
 

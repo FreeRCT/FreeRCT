@@ -7,7 +7,6 @@
 
 /** @file fixed_ride_type.cpp Implementation of the fixed rides. */
 
-#include <SDL_timer.h>
 #include "stdafx.h"
 #include "map.h"
 #include "fixed_ride_type.h"
@@ -256,7 +255,6 @@ void FixedRideInstance::OnAnimate(const int delay)
 	this->onride_guests.OnAnimate(delay); // Update remaining time of onride guests.
 
 	const FixedRideType* t = GetFixedRideType();
-	bool needs_update = this->is_working;
 	bool force_start = false;
 	if (this->state == RIS_OPEN && this->GetKind() != RTK_SHOP) {
 		this->time_left_in_phase -= delay;
@@ -264,7 +262,6 @@ void FixedRideInstance::OnAnimate(const int delay)
 			this->is_working = !this->is_working;
 			this->time_left_in_phase += (this->is_working ? (this->working_cycles * t->working_duration) : this->max_idle_duration);
 			force_start = this->is_working;
-			needs_update = true;
 		}
 	} else {
 		this->is_working = false;
@@ -313,16 +310,6 @@ void FixedRideInstance::OnAnimate(const int delay)
 			this->is_working = true;
 			this->time_left_in_phase = this->working_cycles * t->working_duration;
 			batch.Start(this->time_left_in_phase);
-			needs_update = true;
-		}
-	}
-
-	/* Update the view during the working phase to ensure smooth animations, as well as on phase switches. */
-	if (needs_update) {
-		for (int8 x = 0; x < t->width_x; ++x) {
-			for (int8 y = 0; y < t->width_y; ++y) {
-				MarkVoxelDirty(this->vox_pos + OrientatedOffset(this->orientation, x, y));
-			}
 		}
 	}
 }

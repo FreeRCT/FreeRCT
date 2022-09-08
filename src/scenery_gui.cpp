@@ -33,7 +33,7 @@ public:
 	void SetType(const SceneryType *t);
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 private:
 	RideMouseMode scenery_sel;  ///< Mouse selector for building scenery items. The logic is the same as for rides.
@@ -136,7 +136,6 @@ void SceneryGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) c
 
 	const uint first_index = this->GetWidget<ScrollbarWidget>(SCENERY_GUI_SCROLL_LIST)->GetStart();
 	const uint last_index = std::min<uint>(this->types.size(), first_index + ITEM_COUNT);
-	static Recolouring rc;  // Never modified.
 	const uint8 rotation = (this->orientation - _window_manager.GetViewport()->orientation) & 3;
 	for (uint i = first_index; i < last_index; i++) {
 		Rectangle32 r(x + ITEM_SPACING, y + TEXT_HEIGHT, ITEM_WIDTH - 2 * ITEM_SPACING, ITEM_HEIGHT);
@@ -145,8 +144,7 @@ void SceneryGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) c
 		if (t == this->selected_type) _video.FillRectangle(r, _palette[COL_SERIES_START + (COL_RANGE_DARK_GREEN + 1) * COL_SERIES_LENGTH - 1]);
 		_video.BlitImage(Point32(
 				x + (ITEM_WIDTH - t->previews[rotation]->width) / 2,
-				y + TEXT_HEIGHT + (ITEM_HEIGHT - t->previews[rotation]->height) / 2),
-			t->previews[rotation], rc, GS_NORMAL);
+				y + TEXT_HEIGHT + (ITEM_HEIGHT - t->previews[rotation]->height) / 2), t->previews[rotation]);
 		_video.DrawRectangle(r, _palette[COL_SERIES_START + COL_RANGE_DARK_GREEN * COL_SERIES_LENGTH]);
 
 		_str_params.SetMoney(1, t->buy_cost);
@@ -177,7 +175,6 @@ void SceneryGui::SetType(const SceneryType *t)
 	_scenery.temp_item = nullptr;
 	this->build_forbidden_reason.Reset();
 	this->scenery_sel.SetSize(0, 0);
-	this->MarkDirty();
 }
 
 void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
@@ -190,7 +187,6 @@ void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			_scenery.temp_item = nullptr;
 			this->build_forbidden_reason.Reset();
 			this->scenery_sel.SetSize(0, 0);
-			this->MarkDirty();
 			break;
 
 		case SCENERY_CATEGORY_TREES:
@@ -230,7 +226,6 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 	const int8 dx = _orientation_signum_dx[vp->orientation];
 	const int8 dy = _orientation_signum_dy[vp->orientation];
-	scenery_sel.MarkDirty();
 	bool placed = false;
 	for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {
 		const int dz = (z - (vp->view_pos.z / 256)) / 2;
@@ -277,16 +272,15 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		this->instance->vox_pos = XYZPoint16::invalid();
 		scenery_sel.SetSize(0, 0);
 	}
-	scenery_sel.MarkDirty();
 }
 
-void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
+void SceneryGui::SelectorMouseButtonEvent(const MouseButtons state)
 {
 	if ((state & MB_RIGHT) != 0) {
 		Viewport *vp = _window_manager.GetViewport();
 		const Point32 world_pos = vp->ComputeHorizontalTranslation(
-				vp->rect.width  / 2 - _window_manager.GetMousePosition().x,
-				vp->rect.height / 2 - _window_manager.GetMousePosition().y);
+				vp->rect.width  / 2 - _video.MouseX(),
+				vp->rect.height / 2 - _video.MouseY());
 		const int8 dx = _orientation_signum_dx[vp->orientation];
 		const int8 dy = _orientation_signum_dy[vp->orientation];
 		for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {
@@ -316,7 +310,7 @@ void SceneryGui::SelectorMouseButtonEvent(const uint8 state)
 	}
 
 	if (this->instance.get() == nullptr) return;
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 	if (scenery_sel.area.width < 1 || scenery_sel.area.height < 1) {
 		this->build_forbidden_reason.ShowErrorMessage();
 		return;

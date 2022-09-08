@@ -28,7 +28,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	void SetType(const PathObjectType *t);
 
@@ -102,7 +102,6 @@ void PathObjectGui::SetType(const PathObjectType *t)
 		this->SetSelector(&this->path_object_sel);
 	}
 	this->path_object_sel.SetSize(0, 0);
-	this->MarkDirty();
 }
 
 void PathObjectGui::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point16 &pos)
@@ -149,7 +148,6 @@ void PathObjectGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 	const int8 dx = _orientation_signum_dx[vp->orientation];
 	const int8 dy = _orientation_signum_dy[vp->orientation];
-	path_object_sel.MarkDirty();
 
 	for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {
 		const int dz = (z - (vp->view_pos.z / 256)) / 2;
@@ -169,17 +167,15 @@ void PathObjectGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		this->path_object_sel.SetPosition(location.x, location.y);
 		this->path_object_sel.SetSize(1, 1);
 		this->path_object_sel.SetupRideInfoSpace();
-		this->path_object_sel.MarkDirty();
 		return;
 	}
 
 	this->path_object_sel.SetSize(0, 0);
-	this->path_object_sel.MarkDirty();
 }
 
-void PathObjectGui::SelectorMouseButtonEvent(uint8 state)
+void PathObjectGui::SelectorMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 	if (this->object == nullptr) return;
 
 	const Money &cost = this->type->buy_cost;

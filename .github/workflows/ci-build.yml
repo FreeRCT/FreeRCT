@@ -29,8 +29,9 @@ jobs:
         echo "::group::Install dependencies"
         sudo apt-get install -y --no-install-recommends \
           libpng-dev \
-          libsdl2-dev \
-          libsdl2-ttf-dev \
+          libglfw3-dev \
+          libglew-dev \
+          libfreetype-dev \
           zlib1g-dev \
           python-yaml \
           clang-tidy \
@@ -98,8 +99,9 @@ jobs:
         echo "::group::Install dependencies"
         sudo apt-get install -y --no-install-recommends \
           libpng-dev \
-          libsdl2-dev \
-          libsdl2-ttf-dev \
+          libglfw3-dev \
+          libglew-dev \
+          libfreetype-dev \
           zlib1g-dev \
           # EOF
         echo "::endgroup::"
@@ -176,8 +178,9 @@ jobs:
       run: |
         vcpkg install --triplet=${{ matrix.arch }}-osx-dynamic \
           libpng \
-          sdl2 \
-          sdl2-ttf \
+          glfw3 \
+          glew \
+          freetype-gl \
           zlib \
           # EOF
 
@@ -241,8 +244,9 @@ jobs:
       run: |
         vcpkg install --triplet=${{ matrix.arch }}-windows-static \
           libpng \
-          sdl2 \
-          sdl2-ttf \
+          glfw3 \
+          glew \
+          freetype-gl \
           zlib \
           graphite2 \
           harfbuzz \

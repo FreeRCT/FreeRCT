@@ -86,7 +86,6 @@ void Voxel::Save(Saver &svr) const
 VoxelObject::~VoxelObject()
 {
 	if (this->added) {
-		this->MarkDirty();
 		Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 		this->RemoveSelf(v);
 	}
@@ -110,12 +109,6 @@ VoxelObject::~VoxelObject()
 VoxelObject::Overlays VoxelObject::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, [[maybe_unused]] ViewOrientation orient) const
 {
 	return {};
-}
-
-/** Mark the voxel containing the voxel object as dirty, so it is repainted. */
-void VoxelObject::MarkDirty()
-{
-	MarkVoxelDirty(this->vox_pos);
 }
 
 static const uint32 CURRENT_VERSION_VoxelObject = 1;   ///< Currently supported version of %VoxelObject.

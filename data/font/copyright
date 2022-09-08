@@ -1,102 +1,33 @@
-The font file "Ubuntu-L.ttf" has been obtained from the Ubuntu package "fonts-ubuntu" (see https://design.ubuntu.com/font/).
-It is subject to the conditions of the Ubuntu-Font-Licence-1.0 (see https://ubuntu.com/legal/font-licence).
+The font file "FreeSans.ttf" has been obtained from the Ubuntu package "fonts-freefont-ttf" (see savannah.gnu.org/projects/freefont/).
+It is subject to the conditions of the GNU General Public License 3 (see https://www.gnu.org/software/freefont/license.html).
 
-Copyright: 2010–2011 Canonical Ltd
 
--------------------------------
-UBUNTU FONT LICENCE Version 1.0
--------------------------------
+GNU FreeFont
+License
 
-PREAMBLE
-This licence allows the licensed fonts to be used, studied, modified and
-redistributed freely. The fonts, including any derivative works, can be
-bundled, embedded, and redistributed provided the terms of this licence
-are met. The fonts and derivatives, however, cannot be released under
-any other licence. The requirement for fonts to remain under this
-licence does not require any document created using the fonts or their
-derivatives to be published under this licence, as long as the primary
-purpose of the document is not to be a vehicle for the distribution of
-the fonts.
+Free UCS scalable fonts is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 
-DEFINITIONS
-"Font Software" refers to the set of files released by the Copyright
-Holder(s) under this licence and clearly marked as such. This may
-include source files, build scripts and documentation.
+The fonts are distributed in the hope that they will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-"Original Version" refers to the collection of Font Software components
-as received under this licence.
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-"Modified Version" refers to any derivative made by adding to, deleting,
-or substituting -- in part or in whole -- any of the components of the
-Original Version, by changing formats or by porting the Font Software to
-a new environment.
+As a special exception, if you create a document which uses this font, and embed this font or unaltered portions of this font into the document, this font does not by itself cause the resulting document to be covered by the GNU General Public License. This exception does not however invalidate any other reasons why the document might be covered by the GNU General Public License. If you modify this font, you may extend this exception to your version of the font, but you are not obligated to do so. If you do not wish to do so, delete this exception statement from your version.
 
-"Copyright Holder(s)" refers to all individuals and companies who have a
-copyright ownership of the Font Software.
+Clarification of exception, regarding intended use of embedded fonts
 
-"Substantially Changed" refers to Modified Versions which can be easily
-identified as dissimilar to the Font Software by users of the Font
-Software comparing the Original Version with the Modified Version.
+The exception to the GNU General Public License for the GNU FreeFont software exempts a user that embeds part or all of the GNU FreeFont software in a document, as well as subsequent users and distributors of the document, from complying with the GNU GPL under some circumstances.
 
-To "Propagate" a work means to do anything with it that, without
-permission, would make you directly or secondarily liable for
-infringement under applicable copyright law, except executing it on a
-computer or modifying a private copy. Propagation includes copying,
-distribution (with or without modification and with or without charging
-a redistribution fee), making available to the public, and in some
-countries other activities as well.
+Specifically, this exemption applies when the embedder has not modified the GNU FreeFont software before embedding it. This is true even though portions of the software become part of the document.
 
-PERMISSION & CONDITIONS
-This licence does not grant any rights under trademark law and all such
-rights are reserved.
+Therefore users of fonts released with this exception need not concern themselves with the license terms to:
 
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of the Font Software, to propagate the Font Software, subject to
-the below conditions:
+    Create a printable file using the fonts.
+    Publish such a file.
+    Redistribute such a file.
+    Publicly display such a file.
+    Print such a file or display it on the screen.
 
-1) Each copy of the Font Software must contain the above copyright
-notice and this licence. These can be included either as stand-alone
-text files, human-readable headers or in the appropriate machine-
-readable metadata fields within text or binary files as long as those
-fields can be easily viewed by the user.
+However anyone distributing the font software as software separately from the document, even if the way the font software was obtained was to extract it from a document, would have to comply with the GNU GPL.
 
-2) The font name complies with the following:
-(a) The Original Version must retain its name, unmodified.
-(b) Modified Versions which are Substantially Changed must be renamed to
-avoid use of the name of the Original Version or similar names entirely.
-(c) Modified Versions which are not Substantially Changed must be
-renamed to both (i) retain the name of the Original Version and (ii) add
-additional naming elements to distinguish the Modified Version from the
-Original Version. The name of such Modified Versions must be the name of
-the Original Version, with "derivative X" where X represents the name of
-the new work, appended to that name.
-
-3) The name(s) of the Copyright Holder(s) and any contributor to the
-Font Software shall not be used to promote, endorse or advertise any
-Modified Version, except (i) as required by this licence, (ii) to
-acknowledge the contribution(s) of the Copyright Holder(s) or (iii) with
-their explicit written permission.
-
-4) The Font Software, modified or unmodified, in part or in whole, must
-be distributed entirely under this licence, and must not be distributed
-under any other licence. The requirement for fonts to remain under this
-licence does not affect any document created using the Font Software,
-except any version of the Font Software extracted from a document
-created using the Font Software may only be distributed under this
-licence.
-
-TERMINATION
-This licence becomes null and void if any of the above conditions are
-not met.
-
-DISCLAIMER
-THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF
-COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
-COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
-DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER
-DEALINGS IN THE FONT SOFTWARE.
+A modified version of the GNU FreeFont software must comply with the GNU GPL. It may optionally carry the same exception as the GNU FreeFont software itself, and we recommend releasing modified versions that way. If it does, then users will likewise be permitted to embed the modified version in documents and be exempt from the GNU GPL requirements on those documents.
 

@@ -870,10 +870,15 @@ Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL
 	tile_height(16),
 	orientation(VOR_NORTH),
 	mouse_pos(0, 0),
+#ifndef NDEBUG
+	draw_fps(true),
+#else
+	draw_fps(false),
+#endif
 	underground_mode(false)
 {
-	uint16 width  = _video.GetXSize();
-	uint16 height = _video.GetYSize();
+	uint16 width  = _video.Width();
+	uint16 height = _video.Height();
 
 	assert(width >= 120 && height >= 120); // Arbitrary lower limit as sanity check.
 
@@ -900,7 +905,6 @@ void Viewport::SetUndergroundMode()
 {
 	if (!IsUndergroundModeAvailable()) return;
 	this->underground_mode = true;
-	this->MarkDirty();
 }
 
 /** Toggle the underground mode view on/off. */
@@ -908,7 +912,6 @@ void Viewport::ToggleUndergroundMode()
 {
 	if (this->underground_mode) {
 		this->underground_mode = false;
-		this->MarkDirty();
 	} else {
 		this->SetUndergroundMode();
 	}
@@ -943,96 +946,27 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
 	collector.SetSelector(selector);
 	collector.Collect();
-	static const Recolouring recolour;
 
 	_video.FillRectangle(this->rect, MakeRGBA(0, 0, 0, OPAQUE)); // Black background.
 
-	ClippedRectangle cr = _video.GetClippedRectangle();
 	assert(this->rect.base.x >= 0 && this->rect.base.y >= 0);
-	ClippedRectangle draw_rect(cr, this->rect.base.x, this->rect.base.y, this->rect.width, this->rect.height);
-	_video.SetClippedRectangle(draw_rect);
+	_video.PushClip(this->rect);
 
 	GradientShift gs = static_cast<GradientShift>(GS_LIGHT - _weather.GetWeatherType());
 	for (const auto &iter : collector.draw_images) {
 		const DrawData &dd = iter;
-		const Recolouring &rec = (dd.recolour == nullptr) ? recolour : *dd.recolour;
+		const Recolouring &rec = (dd.recolour == nullptr) ? _no_recolour : *dd.recolour;
 		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
 	}
 
-	_video.SetClippedRectangle(cr);
-}
-
-/**
- * Mark a voxel as in need of getting painted.
- * @param voxel_pos Position of the voxel.
- * @param height Number of voxels to mark above the specified coordinate (\c 0 means inspect the voxel itself).
- */
-void Viewport::MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
-{
-	if (height <= 0) {
-		const Voxel *v = _world.GetVoxel(voxel_pos);
-		if (v == nullptr) {
-			height = 1;
-		} else {
-			height = 1; // There are no steep slopes, so 1 covers paths already.
-			if (v->GetGroundType() != GTP_INVALID) {
-				if (IsImplodedSteepSlope(v->GetGroundSlope())) height = 2;
-			}
-			SmallRideInstance number = v->GetInstance();
-			if (number == SRI_SCENERY) {
-				const SceneryInstance *si = _scenery.GetItem(voxel_pos);
-				const XYZPoint16 pos = UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
-				height = si->type->GetHeight(pos.x, pos.y);
-			} else if (number >= SRI_FULL_RIDES) {  // A ride.
-				const RideInstance *ri = _rides_manager.GetRideInstance(number);
-				if (ri != nullptr) {
-					switch (ri->GetKind()) {
-						case RTK_SHOP:
-						case RTK_GENTLE:
-						case RTK_THRILL: {
-							const FixedRideInstance *si = static_cast<const FixedRideInstance *>(ri);
-							if (si->IsEntranceLocation(voxel_pos)) {
-								height = RideEntranceExitType::entrance_height;
-							} else if (si->IsExitLocation(voxel_pos)) {
-								height = RideEntranceExitType::exit_height;
-							} else {
-								const XYZPoint16 pos = UnorientatedOffset(si->orientation, voxel_pos.x - si->vox_pos.x, voxel_pos.y - si->vox_pos.y);
-								height = si->GetFixedRideType()->GetHeight(pos.x, pos.y);
-							}
-							break;
-						}
-
-						default:
-							break;
-					}
-				}
-			}
-		}
+	if (this->draw_fps) {
+		constexpr const int SPACING = 4;
+		/* FPS is only interesting for developers, no need to make this translatable. */
+		_video.BlitText(Format("FPS: %2.1f (avg. %2.1f)", _video.FPS(), _video.AvgFPS()),
+				_palette[TEXT_WHITE], SPACING, SPACING, _video.Width() - 2 * SPACING, ALG_RIGHT);
 	}
 
-	Rectangle32 rect;
-	const Point16 *pt;
-
-	int32 center_x = this->ComputeX(this->view_pos.x, this->view_pos.y) - this->rect.base.x - this->rect.width / 2;
-	int32 center_y = this->ComputeY(this->view_pos.x, this->view_pos.y, this->view_pos.z) - this->rect.base.y - this->rect.height / 2;
-
-	pt = &_corner_dxy[this->orientation];
-	rect.base.y = this->ComputeY((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256, (voxel_pos.z + height) * 256) - center_y;
-
-	pt = &_corner_dxy[RotateCounterClockwise(this->orientation)];
-	rect.base.x = this->ComputeX((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256) - center_x;
-
-	pt = &_corner_dxy[RotateClockwise(this->orientation)];
-	int32 d = this->ComputeX((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256) - center_x;
-	assert(d >= rect.base.x);
-	rect.width = d - rect.base.x + 1;
-
-	pt = &_corner_dxy[RotateClockwise(RotateClockwise(this->orientation))];
-	d = this->ComputeY((voxel_pos.x + pt->x) * 256, (voxel_pos.y + pt->y) * 256, voxel_pos.z * 256) - center_y;
-	assert(d >= rect.base.y);
-	rect.height = d - rect.base.y + 1;
-
-	_video.MarkDisplayDirty(rect);
+	_video.PopClip();
 }
 
 /**
@@ -1088,7 +1022,6 @@ void Viewport::Rotate(int direction)
 	this->orientation = (ViewOrientation)((this->orientation + VOR_NUM_ORIENT + ((direction > 0) ? 1 : -1)) % VOR_NUM_ORIENT);
 	Point16 pt = this->mouse_pos;
 	this->OnMouseMoveEvent(pt);
-	this->MarkDirty();
 
 	NotifyChange(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE, CHG_VIEWPORT_ROTATED, direction);
 }
@@ -1144,7 +1077,6 @@ void Viewport::MoveViewport(int dx, int dy)
 	if (new_x != this->view_pos.x || new_y != this->view_pos.y) {
 		this->view_pos.x = new_x;
 		this->view_pos.y = new_y;
-		this->MarkDirty();
 	}
 }
 
@@ -1152,7 +1084,12 @@ static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 64;  ///< By how many pixels to m
 
 bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
+	/* \todo Make all keybindings configurable by the user. */
 	if (key_code == WMKC_SYMBOL) {
+		if (symbol == "f") {  // f to toggle the FPS counter.
+			this->draw_fps = !this->draw_fps;
+			return true;
+		}
 		if (_game_control.main_menu) {  // Main menu controls.
 			if (symbol == "q") {  // q to quit.
 				_game_control.QuitGame();
@@ -1300,32 +1237,35 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 	if (_window_manager.SelectorMouseMoveEvent(this, pos)) return;
 
 	/* Intercept RMB drag for moving the viewport. */
-	if ((_window_manager.GetMouseState() & MB_RIGHT) != 0) {
+	if ((_video.GetMouseDragging() & MB_RIGHT) != 0) {
 		this->MoveViewport(pos.x - old_mouse_pos.x, pos.y - old_mouse_pos.y);
 	}
 }
 
-WmMouseEvent Viewport::OnMouseButtonEvent(uint8 state)
+WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state)
 {
 	if (_game_control.main_menu) return WMME_NONE;
 	if (_window_manager.SelectorMouseButtonEvent(state)) return WMME_NONE;
 
-	/* Did the user click on something that has a window? */
-	if ((state & MB_CURRENT) != 0) {
-		FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
-		switch (this->ComputeCursorPosition(&fdata)) {
-			case CS_RIDE:
-				if (ShowRideManagementGui(fdata.ride)) return WMME_NONE;
-				break;
-
-			case CS_PERSON:
-				ShowPersonInfoGui(fdata.person);
-				return WMME_NONE;
-
-			default: break;
-		}
-
+	if (state == MB_RIGHT) {
+		_video.SetMouseDragging(MB_RIGHT, true, true);
+		return WMME_NONE;
 	}
+
+	/* Did the user click on something that has a window? */
+	FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
+	switch (this->ComputeCursorPosition(&fdata)) {
+		case CS_RIDE:
+			if (ShowRideManagementGui(fdata.ride)) return WMME_NONE;
+			break;
+
+		case CS_PERSON:
+			ShowPersonInfoGui(fdata.person);
+			return WMME_NONE;
+
+		default: break;
+	}
+
 	return WMME_NONE;
 }
 
@@ -1333,17 +1273,6 @@ void Viewport::OnMouseWheelEvent(int direction)
 {
 	if (_game_control.main_menu) return;
 	_window_manager.SelectorMouseWheelEvent(direction);
-}
-
-/**
- * Mark a voxel as in need of getting painted.
- * @param voxel_pos Position of the voxel.
- * @param height Number of voxels to mark above the specified coordinate (\c 0 means inspect the voxel itself).
- */
-void MarkVoxelDirty(const XYZPoint16 &voxel_pos, int16 height)
-{
-	Viewport *vp = _window_manager.GetViewport();
-	if (vp != nullptr) vp->MarkVoxelDirty(voxel_pos, height);
 }
 
 /**

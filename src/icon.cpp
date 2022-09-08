@@ -10,8 +10,14 @@
 #include "stdafx.h"
 #include "video.h"
 
-/** Taskbar icon in numeric form. */
-const uint32 _icon_data[32][32] = {
+/**
+ * Generate the taskbar icon.
+ * @return The icon bytes.
+ */
+static std::unique_ptr<uint8[]> GenerateIcon() {
+	std::unique_ptr<uint8[]> icon(new uint8[WINDOW_ICON_WIDTH * WINDOW_ICON_HEIGHT * 4]);
+
+const uint32 colours[WINDOW_ICON_WIDTH][WINDOW_ICON_HEIGHT] = {
 	{0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x8e311434, 0x8c2f168c, 0x8d2f16c5, 0x8d2f16e6,
 	 0x8d2f17ee, 0x8d2f17ee, 0x8d2f16e6, 0x8d2f16c4, 0x8c2e168a, 0x8d2e1738, 0xff000001, 0x00000000,
@@ -141,3 +147,17 @@ const uint32 _icon_data[32][32] = {
 	 0x8d2e16e1, 0x8f3016ff, 0x922f15ff, 0x933016ff, 0x933016ff, 0x922f16ff, 0x8d2f16ff, 0x8d2f16f0,
 	 0x8d2f16b7, 0x8c301676, 0x8b2e1721, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
 };
+
+	const uint32 *in = *colours;
+	uint8 *out = icon.get();
+	for (int i = WINDOW_ICON_WIDTH * WINDOW_ICON_HEIGHT; i > 0; --i, ++in) {
+		*(out++) = (*in >> 24) & 0xff;
+		*(out++) = (*in >> 16) & 0xff;
+		*(out++) = (*in >>  8) & 0xff;
+		*(out++) = (*in      ) & 0xff;
+	}
+	return icon;
+}
+
+/** Taskbar icon in numeric form. */
+std::unique_ptr<uint8[]> _icon_data = GenerateIcon();

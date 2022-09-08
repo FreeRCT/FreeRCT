@@ -285,7 +285,6 @@ void DisplayCoasterCar::Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos
 
 	if (this->yaw != 0xff && change_voxel) {
 		/* Valid data, and changing voxel -> remove self from the old voxel. */
-		this->MarkDirty();
 		Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 		this->RemoveSelf(v);
 	}
@@ -298,8 +297,6 @@ void DisplayCoasterCar::Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos
 	this->yaw = yaw;
 
 	if (this->yaw != 0xff) {
-		this->MarkDirty(); // Voxel or orientation has changed, repaint the possibly new voxel.
-
 		if (change_voxel) { // With a really new voxel, also add self to the new voxel.
 			Voxel *v = _world.GetCreateVoxel(this->vox_pos, false);
 			this->AddSelf(v);
@@ -310,8 +307,7 @@ void DisplayCoasterCar::Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos
 /** Displayed car is about to be removed from the train, clean up if necessary. */
 void DisplayCoasterCar::PreRemove()
 {
-	if (this->yaw == 0xff) return;
-	this->MarkDirty();
+	/* Nothing to do currently. */
 }
 
 static const uint32 CURRENT_VERSION_DisplayCoasterCar = 1;   ///< Currently supported version of %DisplayCoasterCar.

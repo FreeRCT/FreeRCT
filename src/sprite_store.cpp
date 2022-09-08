@@ -163,7 +163,8 @@ void TextData::Load(RcdFileReader *rcd_file)
 				vector.resize(plural_forms, nullptr);
 				vector.at(0) = split;
 				for (int i = 1; i < plural_forms; ++i) {
-					split += strlen(split) + 1;
+					int substring_length = strlen(split);
+					split += substring_length + 1;
 					vector.at(i) = split;
 				}
 			} else {

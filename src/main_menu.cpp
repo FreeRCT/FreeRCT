@@ -24,13 +24,13 @@ public:
 	MainMenuGui();
 	~MainMenuGui();
 
-	WmMouseEvent OnMouseButtonEvent(uint8 state) override;
+	WmMouseEvent OnMouseButtonEvent(MouseButtons state) override;
 	void OnDraw(MouseModeSelector *selector) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
 private:
-	uint32 animstart;              ///< SDL Time when the animation started.
-	uint32 last_time;              ///< SDL Time when the menu was last redrawn.
+	Realtime animstart;            ///< Time when the animation started.
+	Realtime last_time;            ///< Time when the menu was last redrawn.
 	static bool is_splash_screen;  ///< Whether we're currently displaying the splash screen. Static because the splash screen should be shown only once.
 
 	ConfigFile camera_positions;   ///< Config file listing the camera positions for the savegame.
@@ -48,8 +48,8 @@ bool MainMenuGui::is_splash_screen = true;
 
 MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE), camera_positions(FindDataFile("data/mainmenu/camera"))
 {
-	this->SetSize(_video.GetXSize(),_video.GetYSize());
-	this->animstart = this->last_time = SDL_GetTicks();
+	this->SetSize(_video.Width(),_video.Height());
+	this->animstart = this->last_time = Time();
 	this->nr_cameras = this->camera_positions.GetNum("camera", "nr_cameras");
 	this->time_in_camera = 0;
 	this->current_camera_id = 0;
@@ -76,24 +76,24 @@ bool MainMenuGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string
 	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
-WmMouseEvent MainMenuGui::OnMouseButtonEvent(const uint8 state)
+WmMouseEvent MainMenuGui::OnMouseButtonEvent(const MouseButtons state)
 {
 	if (is_splash_screen) {
 		is_splash_screen = false;
-		this->animstart = SDL_GetTicks();
+		this->animstart = Time();
 		return WMME_NONE;
 	}
 
-	if (!IsLeftClick(state)) return WMME_NONE;
+	if (state != MB_LEFT) return WMME_NONE;
 
-	if (this->new_game_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	if (this->new_game_rect.IsPointInside(_video.GetMousePosition())) {
 		_game_control.NewGame();
 		delete this;
-	} else if (this->load_game_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	} else if (this->load_game_rect.IsPointInside(_video.GetMousePosition())) {
 		ShowLoadGameGui();
-	} else if (this->quit_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	} else if (this->quit_rect.IsPointInside(_video.GetMousePosition())) {
 		_game_control.QuitGame();
-	} else if (this->settings_rect.IsPointInside(_window_manager.GetMousePosition())) {
+	} else if (this->settings_rect.IsPointInside(_video.GetMousePosition())) {
 		ShowSettingGui();
 	}
 
@@ -105,16 +105,15 @@ static const int    MAIN_MENU_PADDING      =    24;  ///< Padding in the main me
 
 void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 {
-	static Recolouring rc;
-	const uint32 current_time = SDL_GetTicks();
-	uint32 frametime = current_time - this->animstart;
+	const Realtime current_time = Time();
+	double frametime = Delta(this->animstart, current_time);
 	if (is_splash_screen && frametime > 3 * _gui_sprites.mainmenu_splash_duration) {
 		is_splash_screen = false;
 		this->animstart = current_time;
 		frametime = 0;
 	}
 
-	this->time_in_camera += (current_time - last_time);
+	this->time_in_camera += Delta(last_time, current_time);
 	if (static_cast<int64_t>(this->time_in_camera) > this->camera_positions.GetNum(std::to_string(this->current_camera_id), "duration")) {
 		this->current_camera_id++;
 		this->current_camera_id %= this->nr_cameras;
@@ -129,23 +128,23 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 	this->last_time = current_time;
 
 	if (is_splash_screen && frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
-		_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()), 0xff);
+		_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()), 0xff);
 	}
 
-	const int button_x = (_video.GetXSize() - 7 * MAIN_MENU_BUTTON_SIZE) / 2;
-	const int button_y = _video.GetYSize() - MAIN_MENU_BUTTON_SIZE / 2;
+	const int button_x = (_video.Width() - 7 * MAIN_MENU_BUTTON_SIZE) / 2;
+	const int button_y = _video.Height() - MAIN_MENU_BUTTON_SIZE / 2;
 	this->new_game_rect  = Rectangle32(button_x + 0 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->load_game_rect = Rectangle32(button_x + 2 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->settings_rect  = Rectangle32(button_x + 4 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->quit_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
 	if (!is_splash_screen || frametime > 2 * _gui_sprites.mainmenu_splash_duration) {
-		_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 4), _gui_sprites.mainmenu_logo, rc, GS_NORMAL);
+		_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 4), _gui_sprites.mainmenu_logo);
 
-		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new,      rc, GS_NORMAL);
-		_video.BlitImage(this->load_game_rect.base, _gui_sprites.mainmenu_load,     rc, GS_NORMAL);
-		_video.BlitImage(this->settings_rect.base,  _gui_sprites.mainmenu_settings, rc, GS_NORMAL);
-		_video.BlitImage(this->quit_rect.base,      _gui_sprites.mainmenu_quit,     rc, GS_NORMAL);
+		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new);
+		_video.BlitImage(this->load_game_rect.base, _gui_sprites.mainmenu_load);
+		_video.BlitImage(this->settings_rect.base,  _gui_sprites.mainmenu_settings);
+		_video.BlitImage(this->quit_rect.base,      _gui_sprites.mainmenu_quit);
 
 		DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
 				this->new_game_rect.base.x,  this->new_game_rect.base.y  - MAIN_MENU_PADDING + this->new_game_rect.height,
@@ -163,13 +162,13 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 
 	if (is_splash_screen) {
 		if (frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
-			_video.BlitImage(Point32(_video.GetXSize() / 2, _video.GetYSize() / 2), _gui_sprites.mainmenu_splash, rc, GS_NORMAL);
+			_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 2), _gui_sprites.mainmenu_splash);
 			if (frametime > _gui_sprites.mainmenu_splash_duration) {
-				_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()),
+				_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()),
 						0xff * (frametime - _gui_sprites.mainmenu_splash_duration) / _gui_sprites.mainmenu_splash_duration);
 			}
 		} else {
-			_video.FillRectangle(Rectangle32(0, 0, _video.GetXSize(), _video.GetYSize()),
+			_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()),
 						0xff - 0xff * (frametime - 2 * _gui_sprites.mainmenu_splash_duration) / _gui_sprites.mainmenu_splash_duration);
 		}
 	}

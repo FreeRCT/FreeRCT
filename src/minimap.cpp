@@ -126,37 +126,13 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 	int baseX = this->GetWidgetScreenX(wid);
 	int baseY = this->GetWidgetScreenY(wid);
 
-	_video.FillRectangle(Rectangle32(baseX, baseY, wid->pos.width, wid->pos.height), _palette[TEXT_BLACK]);
+	Rectangle32 clip(baseX, baseY, wid->pos.width, wid->pos.height);
+	_video.FillRectangle(clip, _palette[TEXT_BLACK]);
+	_video.PushClip(clip);
 
-	const ClippedRectangle old_clip = _video.GetClippedRectangle();
-	{
-		const Rectangle32 new_clip(baseX, baseY, wid->pos.width, wid->pos.height);
-		Rectangle32 new_clip_adjusted(new_clip);
-		int adjustX = 0;
-		int adjustY = 0;
-
-		if (new_clip_adjusted.base.x < old_clip.absx) {
-			adjustX = new_clip_adjusted.base.x - old_clip.absx;
-			new_clip_adjusted.width += adjustX;
-			new_clip_adjusted.base.x = old_clip.absx;
-		}
-		if (new_clip_adjusted.base.y < old_clip.absy) {
-			adjustY = new_clip_adjusted.base.y - old_clip.absy;
-			new_clip_adjusted.height += adjustY;
-			new_clip_adjusted.base.y = old_clip.absy;
-		}
-		if (new_clip_adjusted.base.x + new_clip_adjusted.width >= old_clip.absx + old_clip.width) {
-			new_clip_adjusted.width = old_clip.absx + old_clip.width - new_clip_adjusted.base.x;
-		}
-		if (new_clip_adjusted.base.y + new_clip_adjusted.height >= old_clip.absy + old_clip.height) {
-			new_clip_adjusted.height = old_clip.absy + old_clip.height - new_clip_adjusted.base.y;
-		}
-		_video.SetClippedRectangle(ClippedRectangle(new_clip_adjusted.base.x, new_clip_adjusted.base.y, new_clip_adjusted.width, new_clip_adjusted.height));
-
-		Point32 p = this->GetRenderingBase(new_clip);
-		baseX = p.x + adjustX;
-		baseY = p.y + adjustY;
-	}
+	Point32 rb = this->GetRenderingBase(clip);
+	baseX += rb.x;
+	baseY += rb.y;
 
 	/* First pass: Find highest and lowest Z positions in the world, to adjust the colour ranges. */
 	int minZ = WORLD_Z_SIZE;
@@ -220,7 +196,7 @@ void Minimap::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 		_video.DrawRectangle(Rectangle32(baseX + this->zoom * (y - x) - w / 2, baseY + this->zoom * (y + x) - h / 2, w, h), _palette[TEXT_WHITE]);
 	}
 
-	_video.SetClippedRectangle(old_clip);
+	_video.PopClip();
 }
 
 void Minimap::OnClick(WidgetNumber number, const Point16 &clicked_pos)
@@ -230,14 +206,12 @@ void Minimap::OnClick(WidgetNumber number, const Point16 &clicked_pos)
 			if (this->zoom < MAX_ZOOM) {
 				this->zoom *= 2;
 				this->UpdateButtons();
-				this->MarkDirty();
 			}
 			break;
 		case MM_ZOOM_OUT:
 			if (this->zoom > MIN_ZOOM) {
 				this->zoom /= 2;
 				this->UpdateButtons();
-				this->MarkDirty();
 			}
 			break;
 

@@ -5,526 +5,292 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file video.cpp Video handling. */
+/** @file video.cpp Graphics system handling. */
 
-#include "stdafx.h"
+#include <GL/glew.h>  // This include must come first!
+
 #include "video.h"
-#include "sprite_data.h"
-#include "palette.h"
-#include "math_func.h"
-#include "bitmath.h"
-#include "rev.h"
-#include "freerct.h"
 #include "gamecontrol.h"
+#include "rev.h"
+#include "sprite_data.h"
+#include "sprite_store.h"
+#include "string_func.h"
 #include "window.h"
-#include "viewport.h"
+
+#include <cmath>
+#include <fstream>
+#include <sstream>
+#include <thread>
+#include <vector>
 
 #ifdef WEBASSEMBLY
 #include <emscripten.h>
 #endif
 
-VideoSystem _video;  ///< Video sub-system.
+#if __has_include(<ft2build.h>)
+#include <ft2build.h>
+#elif __has_include(<freetype2/ft2build.h>)
+#include <freetype2/ft2build.h>
+#elif __has_include(<freetype2/freetype/ft2build.h>)
+#include <freetype2/freetype/ft2build.h>
+#else
+#error "Freetype not found"
+#endif
+#include FT_FREETYPE_H
 
-/** Default constructor of a clipped rectangle. */
-ClippedRectangle::ClippedRectangle()
-: absx(0), absy(0), width(0), height(0), address(nullptr), pitch(0)
+VideoSystem _video;           ///< The #VideoSystem singleton instance.
+TextRenderer _text_renderer;  ///< The #TextRenderer singleton instance.
+
+/* Text renderer implementation. */
+
+constexpr const uint32 BEARING_CHARACTER = 'H';                ///< An arbitrary ASCII character whose bearing to use as reference for text alignment.
+constexpr const uint32 CHARACTER_NOT_FOUND[] = {0xFFFD, '?'};  ///< Characters that may represent a missing character glyph.
+constexpr const float FONT_PADDING_V = 0.3f;                   ///< Total vertical padding around all text, relative to the font size.
+constexpr const float FONT_PADDING_H = 0.2f;                   ///< Total horizontal padding around all text, relative to the font size.
+
+/** Initialize the text renderer. */
+void TextRenderer::Initialize()
 {
+	this->shader = _video.ConfigureShader("text");
+	glUniform1i(glGetUniformLocation(this->shader, "text"), 0);
+	glGenVertexArrays(1, &this->vao);
+	glGenBuffers(1, &this->vbo);
+	glBindVertexArray(this->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 /**
- * Construct a clipped rectangle from coordinates.
- * @param x Top-left x position.
- * @param y Top-left y position.
- * @param w Width.
- * @param h Height.
+ * Find the next-highest codepoint that we want to be able to render, skipping over codepoints we don't care about,
+ * @param c Unicode codepoint from which to start searching.
+ * @return Next unicode codepoint to render or \c 0xffffffff if none.
  */
-ClippedRectangle::ClippedRectangle(uint16 x, uint16 y, uint16 w, uint16 h)
-: absx(x), absy(y), width(w), height(h), address(nullptr), pitch(0)
+static uint32 NextCodepointToLoad(uint32 c)
 {
+	if (c < 0x303f) return c + 1;     // Lots of interesting characters in the lower ranges.
+	/* \todo When we get translations with non-latin character sets, these may need to be added here as well. */
+	c = std::max<uint32>(c, 0xFD3E);  // Start of the next moderately useful character block.
+	if (c < 0xfffd) return c + 1;     // Some more interesting characters in the high four-digit ranges.
+	return 0xffffffff;                // Nothing of interest in the very high ranges.
 }
 
 /**
- * Construct a clipped rectangle inside an existing one.
- * @param cr Existing rectangle.
- * @param x Top-left x position.
- * @param y Top-left y position.
- * @param w Width.
- * @param h Height.
- * @note %Rectangle is clipped to the old one.
+ * Load a font. This font will be used for all subsequent rendering operations. Any previously loaded font will be forgotten.
+ * @param font_path File path of the font file.
+ * @param font_size Size of the font to load.
  */
-ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr, uint16 x, uint16 y, uint16 w, uint16 h)
+void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
 {
-	if (x >= cr.width || y >= cr.height) {
-		this->absx = 0;
-		this->absy = 0;
-		this->width = 0;
-		this->height = 0;
-		this->address = nullptr; this->pitch = 0;
-		return;
+	this->font_size = font_size;
+
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft)) {
+		error("TextRenderer::LoadFont: Could not init FreeType Library");
 	}
-	if (x + w > cr.width)  w = cr.width - x;
-	if (y + h > cr.height) h = cr.height - y;
-
-	this->absx = cr.absx + x;
-	this->absy = cr.absy + y;
-	this->width = w;
-	this->height = h;
-	this->address = nullptr; this->pitch = 0;
-}
-
-/**
- * Copy constructor.
- * @param cr Existing clipped rectangle.
- */
-ClippedRectangle::ClippedRectangle(const ClippedRectangle &cr)
-{
-	this->absx = cr.absx;
-	this->absy = cr.absy;
-	this->width = cr.width;
-	this->height = cr.height;
-	this->address = cr.address; this->pitch = cr.pitch;
-}
-
-/**
- * Assignment operator override.
- * @param cr Existing clipped rectangle.
- * @return The assigned value.
- */
-ClippedRectangle &ClippedRectangle::operator=(const ClippedRectangle &cr)
-{
-	if (this != &cr) {
-		this->absx = cr.absx;
-		this->absy = cr.absy;
-		this->width = cr.width;
-		this->height = cr.height;
-		this->address = cr.address; this->pitch = cr.pitch;
-	}
-	return *this;
-}
-
-/** Initialize the #address if not done already. */
-void ClippedRectangle::ValidateAddress()
-{
-	if (this->address == nullptr) {
-		this->pitch = _video.GetXSize();
-		this->address = _video.mem.get() + this->absx + this->absy * this->pitch;
-	}
-}
-
-/**
- * Default constructor, does nothing, never goes wrong.
- * Call #Initialize to initialize the system.
- */
-VideoSystem::VideoSystem() : initialized(false)
-{
-}
-
-/** Destructor. */
-VideoSystem::~VideoSystem()
-{
-	if (this->initialized) this->Shutdown();
-}
-
-/**
- * Initialize the video system, preparing it for use.
- * @param font_name Name of the font file to load.
- * @param font_size Size of the font.
- * @return Error message if initialization failed, else an empty text.
- */
-std::string VideoSystem::Initialize(const std::string &font_name, int font_size)
-{
-	if (this->initialized) return "";
-
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		std::string err = "SDL video initialization failed: ";
-		err += SDL_GetError();
-		return err;
+	FT_Face face;
+	if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
+		error("TextRenderer::LoadFont: Failed to load font '%s'", font_path.c_str());
 	}
 
-	std::string caption = "FreeRCT ";
-	caption += _freerct_revision;
-	this->window = SDL_CreateWindow(caption.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
-	if (this->window == nullptr) {
-		std::string err = "SDL window creation failed: ";
-		err += SDL_GetError();
-		SDL_Quit();
-		return err;
-	}
+	FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 
-	this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
-	if (this->renderer == nullptr) {
-		std::string err = "SDL renderer creation failed: ";
-		err += SDL_GetError();
-		SDL_DestroyWindow(this->window);
-		SDL_Quit();
-		return err;
-	}
+	FT_Set_Pixel_Sizes(face, 0, font_size);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	this->GetResolutions();
-
-	this->SetResolution({800, 600}); // Allocates this->mem, return value is ignored.
-
-	/* SDL_CreateRGBSurfaceFrom() pretends to use a void* for the data,
-	 * but it's really treated as endian-specific uint32*.
-	 * But since the c++ compiler handles the endianness of _icon_data, it's ok. */
-	const uint32 rmask = 0xff000000;
-	const uint32 gmask = 0x00ff0000;
-	const uint32 bmask = 0x0000ff00;
-	const uint32 amask = 0x000000ff;
-	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void *)_icon_data, 32, 32, 4 * 8, 4 * 32,
-	                                             rmask, gmask, bmask, amask);
-
-	if (icon != nullptr) {
-		SDL_SetWindowIcon(this->window, icon);
-		SDL_FreeSurface(icon);
-	} else {
-		printf("Could not set window icon (%s)\n", SDL_GetError());
-	}
-
-	SDL_StartTextInput(); // Enable Unicode character input.
-
-	if (TTF_Init() != 0) {
-		SDL_Quit();
-		std::string err = "TTF font initialization failed: ";
-		err += TTF_GetError();
-		return err;
-	}
-
-	this->font = TTF_OpenFont(font_name.c_str(), font_size);
-	if (this->font == nullptr) {
-		std::string err = "TTF Opening font \"";
-		err += font_name;
-		err += "\" size ";
-		err += std::to_string(font_size);
-		err += " failed: ";
-		err += TTF_GetError();
-		TTF_Quit();
-		SDL_Quit();
-		return err;
-	}
-
-	this->font_height = TTF_FontLineSkip(this->font);
-	this->initialized = true;
-	this->dirty = true; // Ensure it gets painted.
-	this->missing_sprites = false;
-	this->modifier_state = WMKM_NONE;
-
-	this->digit_size.x = 0;
-	this->digit_size.y = 0;
-
-	return "";
-}
-
-
-/**
- * Change the resolution of the game window, including
- * reinitialising some screen-size related data structures.
- * @param res Resolution to set the screen to.
- * @return True if resolution was changed.
- */
-bool VideoSystem::SetResolution(const Point32 &res)
-{
-	if (this->initialized && this->GetXSize() == res.x && this->GetYSize() == res.y) return true;
-
-	/* Destroy old window, if it exists. */
-	if (this->initialized) {
-		SDL_DestroyTexture(this->texture);
-		this->texture = nullptr;
-	}
-
-	this->vid_width = res.x;
-	this->vid_height = res.y;
-	SDL_SetWindowSize(this->window, this->vid_width, this->vid_height);
-
-	this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, this->vid_width, this->vid_height);
-	if (this->texture == nullptr) {
-		SDL_Quit();
-		fprintf(stderr, "Could not create texture (%s)\n", SDL_GetError());
-		return false;
-	}
-
-	this->mem.reset(new uint32[this->vid_width * this->vid_height]);
-	if (this->mem == nullptr) {
-		SDL_Quit();
-		fprintf(stderr, "Failed to obtain window display storage.\n");
-		return false;
-	}
-
-	/* Update internal screen size data structures. */
-	this->blit_rect = ClippedRectangle(0, 0, this->vid_width, this->vid_height);
-	_window_manager.RepositionAllWindows(this->vid_width, this->vid_height);
-	this->MarkDisplayDirty();
-	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_RESOLUTION_CHANGED, 0);
-	return true;
-}
-
-/** Gets the available default resolutions that are supported by the graphics driver. */
-void VideoSystem::GetResolutions()
-{
-	int num_modes = SDL_GetNumDisplayModes(0); // \todo Support multiple displays?
-	SDL_DisplayMode mode;
-	for (int i = 0; i < num_modes; i++) {
-		if (SDL_GetDisplayMode(0, i, &mode) != 0) {
-			fprintf(stderr, "Could not query display mode (%s)\n", SDL_GetError());
+	/* Load all characters we may need. */
+	for (uint32 codepoint = 1; codepoint <= MAX_CODEPOINT; codepoint = NextCodepointToLoad(codepoint)) {
+		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER) != 0) {
+			this->characters[codepoint].valid = false;
+			char buffer[] = {0, 0, 0, 0, 0};
+			EncodeUtf8Char(codepoint, buffer);
+			printf("WARNING: Failed to load glyph U+%04x '%s'\n", codepoint, buffer);
 			continue;
 		}
-		this->resolutions.emplace(mode.w, mode.h);
+
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RED,
+				face->glyph->bitmap.width,
+				face->glyph->bitmap.rows,
+				0,
+				GL_RED,
+				GL_UNSIGNED_BYTE,
+				face->glyph->bitmap.buffer
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		this->characters[codepoint] = {
+			texture,
+			Point16(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			Point16(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<GLuint>(face->glyph->advance.x),
+			true
+		};
 	}
-}
 
-/** Mark the entire display as being out of date (it needs the be repainted). */
-void VideoSystem::MarkDisplayDirty()
-{
-	this->dirty = true;
-}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
 
-/**
- * Mark the stated area of the screen as being out of date.
- * @param rect %Rectangle which is out of date.
- * @todo Keep an administration of the rectangle(s??) to update, and update just that part.
- */
-void VideoSystem::MarkDisplayDirty([[maybe_unused]] const Rectangle32 &rect)
-{
-	this->dirty = true;
-}
-
-/** Mark the display as being up-to-date. */
-void VideoSystem::MarkDisplayClean()
-{
-	this->dirty = false;
+	/* Check that we have at least a bearing character and a glyph for invalid characters. */
+	std::string sample_text = {BEARING_CHARACTER};
+	const char *c = sample_text.c_str();
+	size_t i = 1;
+	this->GetFontGlyph(&c, i);  // Checks that the bearing character glyph exists.
+	this->GetFontGlyph(&c, i);  // Now i is 0, so this checks that an Invalid glyph is present.
 }
 
 /**
- * Set the clipped area.
- * @param cr New clipped blitting area.
+ * Look up the font glygh to use for a given character.
+ * If the current font does not have a matching glygh, a default value is returned.
+ * @param text [inout] Pointer to the UTF-8 encoded character. Will be advanced to the next character.
+ * @param length [inout] Number of bytes left in the text. Will be decremented by the number of bytes by which the text is advanced.
+ * @return Glyph to use.
  */
-void VideoSystem::SetClippedRectangle(const ClippedRectangle &cr)
+const TextRenderer::FontGlyph &TextRenderer::GetFontGlyph(const char **text, size_t &length) const
 {
-	this->blit_rect = cr;
-}
+	uint32 codepoint;
+	int bytes_read = length < 1 ? 0 : DecodeUtf8Char(*text, length, &codepoint);
 
-/**
- * Get the current clipped blitting area.
- * @return Current clipped area.
- */
-ClippedRectangle VideoSystem::GetClippedRectangle()
-{
-	this->blit_rect.ValidateAddress();
-	return this->blit_rect;
-}
+	if (bytes_read < 1) {
+		if (length > 0) {
+			++*text;
+			++length;
+		}
+		/* Fall though to default glyph selection. */
+	} else {
+		*text += bytes_read;
+		length -= bytes_read;
+		if (codepoint <= MAX_CODEPOINT && this->characters[codepoint].valid) return this->characters[codepoint];
 
-/**
- * Update the mouse position in the program.
- * @param x New x position of the mouse.
- * @param y New y position of the mouse.
- */
-static void UpdateMousePosition(int16 x, int16 y)
-{
-	_window_manager.MouseMoveEvent({x, y});
-}
-
-/**
- * Process input from the keyboard.
- * @param key_code Kind of input.
- * @param symbol Entered symbol, if \a key_code is #WMKC_SYMBOL. Utf-8 encoded.
- * @return Game-ending event has happened.
- */
-static inline bool HandleKeyInput(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol = std::string())
-{
-	return _window_manager.KeyEvent(key_code, mod, symbol);
-}
-
-/**
- * Handle an input event.
- * @return Game-ending event has happened.
- */
-bool VideoSystem::HandleEvent()
-{
-	SDL_Event event;
-	if (SDL_PollEvent(&event) != 1) return true;
-
-	const bool symbol_with_modifiers = (this->modifier_state & ~WMKM_SHIFT) != 0;
-	switch (event.type) {
-		case SDL_TEXTINPUT:
-			if (symbol_with_modifiers) return false;  // Handled below by the SDL_KEYDOWN default clause.
-			return HandleKeyInput(WMKC_SYMBOL, WMKM_NONE, event.text.text);
-
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym) {
-				case SDLK_KP_8:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_UP:
-					return HandleKeyInput(WMKC_CURSOR_UP, this->modifier_state);
-
-				case SDLK_KP_4:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_LEFT:
-					return HandleKeyInput(WMKC_CURSOR_LEFT, this->modifier_state);
-
-				case SDLK_KP_6:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_RIGHT:
-					return HandleKeyInput(WMKC_CURSOR_RIGHT, this->modifier_state);
-
-				case SDLK_KP_2:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_DOWN:
-					return HandleKeyInput(WMKC_CURSOR_DOWN, this->modifier_state);
-
-				case SDLK_KP_9:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_PAGEUP:
-					return HandleKeyInput(WMKC_CURSOR_PAGEUP, this->modifier_state);
-
-				case SDLK_KP_3:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_PAGEDOWN:
-					return HandleKeyInput(WMKC_CURSOR_PAGEDOWN, this->modifier_state);
-
-				case SDLK_KP_7:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_HOME:
-					return HandleKeyInput(WMKC_CURSOR_HOME, this->modifier_state);
-
-				case SDLK_KP_1:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_END:
-					return HandleKeyInput(WMKC_CURSOR_END, this->modifier_state);
-
-				case SDLK_KP_PERIOD:
-					if ((event.key.keysym.mod & KMOD_NUM) != 0) break;
-					/* FALL-THROUGH */
-				case SDLK_DELETE:
-					return HandleKeyInput(WMKC_DELETE, this->modifier_state);
-
-				case SDLK_RETURN:
-				case SDLK_RETURN2:
-				case SDLK_KP_ENTER:
-					return HandleKeyInput(WMKC_CONFIRM, this->modifier_state);
-
-				case SDLK_ESCAPE:
-					return HandleKeyInput(WMKC_CANCEL, this->modifier_state);
-
-				case SDLK_BACKSPACE:
-					return HandleKeyInput(WMKC_BACKSPACE, this->modifier_state);
-
-				case SDLK_LCTRL:
-				case SDLK_RCTRL:
-					this->modifier_state |= WMKM_CTRL;
-					return true;
-
-				case SDLK_LALT:
-				case SDLK_RALT:
-				case SDLK_LGUI:
-				case SDLK_RGUI:
-					this->modifier_state |= WMKM_ALT;
-					return true;
-
-				case SDLK_LSHIFT:
-				case SDLK_RSHIFT:
-					this->modifier_state |= WMKM_SHIFT;
-					_game_control.action_test_mode = true;
-					return true;
-
-				default:
-					/* Text input events with modifiers may or may not be recognized as SDL_TEXTINPUT, so we need to convert them manually.
-					 * Using Shift but no other modifiers is an exception as this simply generates uppercase SDL_TEXTINPUT.
-					 * All keysyms that correspond to an ASCII character have the same integer value as this character;
-					 * all others are larger than the largest valid ASCII character (which is 0x7F).
-					 */
-					if (symbol_with_modifiers && event.key.keysym.sym <= 0x7F) {
-						std::string text;
-						text.push_back(event.key.keysym.sym);
-						return HandleKeyInput(WMKC_SYMBOL, this->modifier_state, text);
-					}
-
-					return false;
-			}
-			NOT_REACHED();
-
-		case SDL_KEYUP:
-			switch (event.key.keysym.sym) {
-				case SDLK_LCTRL:
-				case SDLK_RCTRL:
-					this->modifier_state &= ~WMKM_CTRL;
-					return true;
-
-				case SDLK_LALT:
-				case SDLK_RALT:
-				case SDLK_LGUI:
-				case SDLK_RGUI:
-					this->modifier_state &= ~WMKM_ALT;
-					return true;
-
-				case SDLK_LSHIFT:
-				case SDLK_RSHIFT:
-					this->modifier_state &= ~WMKM_SHIFT;
-					_game_control.action_test_mode = false;
-					return true;
-
-				default: return false;
-			}
-
-		case SDL_MOUSEMOTION:
-			UpdateMousePosition(event.button.x, event.button.y);
-			return false;
-
-		case SDL_MOUSEWHEEL:
-			_window_manager.MouseWheelEvent((event.wheel.y > 0) ? 1 : -1);
-			return false;
-
-		case SDL_MOUSEBUTTONUP:
-		case SDL_MOUSEBUTTONDOWN:
-			switch (event.button.button) {
-				case SDL_BUTTON_LEFT:
-					UpdateMousePosition(event.button.x, event.button.y);
-					_window_manager.MouseButtonEvent(MB_LEFT, (event.type == SDL_MOUSEBUTTONDOWN));
-					break;
-
-				case SDL_BUTTON_MIDDLE:
-					UpdateMousePosition(event.button.x, event.button.y);
-					_window_manager.MouseButtonEvent(MB_MIDDLE, (event.type == SDL_MOUSEBUTTONDOWN));
-					break;
-
-				case SDL_BUTTON_RIGHT:
-					UpdateMousePosition(event.button.x, event.button.y);
-					_window_manager.MouseButtonEvent(MB_RIGHT, (event.type == SDL_MOUSEBUTTONDOWN));
-					break;
-
-				default:
-					break;
-			}
-			return false;
-
-		case SDL_USEREVENT:
-			return true;
-
-		case SDL_WINDOWEVENT:
-			if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				this->SetResolution({event.window.data1, event.window.data2});
-			}
-			if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
-				_video.MarkDisplayDirty();
-				_window_manager.UpdateWindows();
-			}
-			return false;
-
-		case SDL_QUIT:
-			_game_control.QuitGame();
-			return true;
-
-		default:
-			return false; // Ignore other events.
+		/* The codepoint is valid, but we don't have a glyph for it. Fall though to default glyph selection. */
 	}
+
+	static const FontGlyph *default_glyph = nullptr;
+	if (default_glyph != nullptr) return *default_glyph;
+	for (uint32 c : CHARACTER_NOT_FOUND) {
+		if (c <= MAX_CODEPOINT && this->characters[c].valid) {
+			default_glyph = &this->characters[c];
+			return *default_glyph;
+		}
+	}
+
+	error("The font is missing essential characters\n");
 }
+
+/**
+ * Render text to the screen.
+ * @param text Text to draw.
+ * @param x Horizontal screen position where to draw the text.
+ * @param y Vertical screen position where to draw the text.
+ * @param max_width Maximum available width.
+ * @param colour Colour in which to draw the text.
+ * @param scale Scaling factor for the text size.
+ */
+void TextRenderer::Draw(const std::string &text, float x, float y, float max_width, uint32 colour, float scale)
+{
+	if (text.empty()) return;
+
+	glUseProgram(this->shader);
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_r"), FGetR(colour));
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_g"), FGetG(colour));
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_b"), FGetB(colour));
+	glUniform1f(glGetUniformLocation(this->shader, "text_colour_a"), FGetA(colour));
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(this->vao);
+
+	/* Insert some padding around the text.
+	 * Horizontal spacing is distributed equally on both sides of the text,
+	 * but we want more vertical spacing above than below.
+	 */
+	y += 0.75f * FONT_PADDING_V * this->font_size * scale;
+	x += FONT_PADDING_H * 0.5f;
+	max_width -= FONT_PADDING_H;
+
+	size_t text_length = text.size();
+	for (const char *c = text.c_str(); *c != '\0';) {
+		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
+
+		GLfloat x1 = x + fg.bearing.x * scale;
+		GLfloat y1 = y - (fg.bearing.y - this->characters[BEARING_CHARACTER].bearing.y) * scale;
+		GLfloat x2 = x1 + fg.size.x * scale;
+		GLfloat y2 = y1 + fg.size.y * scale;
+
+		max_width -= x2 - x1;
+		if (max_width < 0) break;
+
+		/* Prevent fuzzy rendering. */
+		x1 = round(x1); y1 = round(y1); x2 = round(x2); y2 = round(y2);
+
+		_video.CoordsToGL(&x1, &y1);
+		_video.CoordsToGL(&x2, &y2);
+
+		GLfloat vertices[6][4] = {
+			{ x1, y2,   0.f, 1.f },
+			{ x2, y1,   1.f, 0.f },
+			{ x1, y1,   0.f, 0.f },
+
+			{ x1, y2,   0.f, 1.f },
+			{ x2, y2,   1.f, 1.f },
+			{ x2, y1,   1.f, 0.f }
+		};
+		glBindTexture(GL_TEXTURE_2D, fg.texture_id);
+		glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		x += (fg.advance >> 6) * scale;
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+/**
+ * Estimate the bounding rectangle of a string.
+ * @param text Text to estimate.
+ * @param scale Scaling factor for the text size.
+ */
+PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
+{
+	float x = 0;
+	float width = 0;
+	float height = this->font_size * scale;
+	size_t text_length = text.size();
+	for (const char *c = text.c_str(); *c != '\0';) {
+		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
+		GLfloat xpos = x + fg.bearing.x * scale;
+		GLfloat ypos = (fg.bearing.y - this->characters[BEARING_CHARACTER].bearing.y) * scale;
+		GLfloat w = fg.size.x * scale;
+		GLfloat h = fg.size.y * scale;
+		width = std::max(width, xpos + w);
+		height = std::max(height, ypos + h);
+		x += (fg.advance >> 6) * scale;
+	}
+	return PointF(width + FONT_PADDING_H * this->font_size * scale, height + FONT_PADDING_V * this->font_size * scale);
+}
+
+/**
+ * Get the height of a line of text.
+ * @return Height of text.
+ */
+GLuint TextRenderer::GetTextHeight() const
+{
+	return this->font_size * (FONT_PADDING_V + 1.f);
+}
+
+/* Graphics framework implementation. */
 
 #ifdef WEBASSEMBLY
 /** Emscripten definitions to query the size of the canvas. */
@@ -532,15 +298,318 @@ EM_JS(int, GetEmscriptenCanvasWidth , (), { return canvas.clientWidth ; });
 EM_JS(int, GetEmscriptenCanvasHeight, (), { return canvas.clientHeight; });
 #endif
 
-/** Main loop. Loops until told not to. */
-/* static */ void VideoSystem::MainLoop()
+/**
+ * Called by OpenGL when the window size changes.
+ * @param window Window whose size changed.
+ * @param new_w New width.
+ * @param new_h New height.
+ */
+void VideoSystem::FramebufferSizeCallback(GLFWwindow *window, int new_w, int new_h)
 {
-	while (_video.MainLoopDoCycle());
+	assert(window == _video.window);
+	assert(new_w >= 0);
+	assert(new_h >= 0);
+
+	_video.width = new_w;
+	_video.height = new_h;
+	_video.UpdateClip();
+
+	_window_manager.RepositionAllWindows(_video.width, _video.height);
+	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_RESOLUTION_CHANGED, 0);
 }
 
 /**
- * Perform one cycle of the main loop.
+ * Called by OpenGL when a key was pressed or released.
+ * @param window Window in which the event occurred.
+ * @param key Constant of the pressed key.
+ * @param scancode Scancode of the pressed key.
+ * @param action Whether the mouse button was pressed or released.
+ * @param mods Bitset of modifier keys.
  */
+void VideoSystem::KeyCallback(GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, int mods)
+{
+	assert(window == _video.window);
+	if (action != GLFW_PRESS) return;
+
+	WmKeyMod mod_mask = WMKM_NONE;
+	if ((mods & GLFW_MOD_CONTROL) != 0) mod_mask |= WMKM_CTRL;
+	if ((mods & GLFW_MOD_SHIFT  ) != 0) mod_mask |= WMKM_SHIFT;
+	if ((mods & GLFW_MOD_ALT    ) != 0) mod_mask |= WMKM_ALT;
+
+#ifdef GLFW_MOD_NUM_LOCK
+	const bool numlock = (mods & GLFW_MOD_NUM_LOCK) != 0;
+#else
+	/* If GLFW doesn't provide num lock state querying, we have to assume it's always on so we don't get duplicate key presses. */
+	const bool numlock = true;
+#endif
+
+	WmKeyCode key_code;
+	std::string symbol;
+	switch (key) {
+		case GLFW_KEY_KP_6:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_RIGHT:
+			key_code = WMKC_CURSOR_RIGHT;
+			break;
+
+		case GLFW_KEY_KP_4:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_LEFT :
+			key_code = WMKC_CURSOR_LEFT;
+			break;
+
+		case GLFW_KEY_KP_2:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_DOWN :
+			key_code = WMKC_CURSOR_DOWN;
+			break;
+
+		case GLFW_KEY_KP_8:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_UP   :
+			key_code = WMKC_CURSOR_UP;
+			break;
+
+		case GLFW_KEY_KP_3:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_PAGE_DOWN:
+			key_code = WMKC_CURSOR_PAGEDOWN;
+			break;
+
+		case GLFW_KEY_KP_9:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_PAGE_UP  :
+			key_code = WMKC_CURSOR_PAGEUP;
+			break;
+
+		case GLFW_KEY_KP_7:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_HOME     :
+			key_code = WMKC_CURSOR_HOME;
+			break;
+
+		case GLFW_KEY_KP_1:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_END      :
+			key_code = WMKC_CURSOR_END;
+			break;
+
+		case GLFW_KEY_KP_DECIMAL:
+			if (numlock) return;
+			/* FALL-THROUGH */
+		case GLFW_KEY_DELETE   :
+			key_code = WMKC_DELETE;
+			break;
+
+		case GLFW_KEY_BACKSPACE:
+			key_code = WMKC_BACKSPACE;
+			break;
+
+		case GLFW_KEY_ESCAPE:
+			key_code = WMKC_CANCEL;
+			break;
+
+		case GLFW_KEY_ENTER:
+		case GLFW_KEY_KP_ENTER:
+			key_code = WMKC_CONFIRM;
+			break;
+
+		default:
+			/* Text input events with modifiers may or may not be recognized as a text event, so we need to convert them
+			 * manually. Using Shift but no other modifiers is an exception as this simply generates uppercase text
+			 * input. All keysyms that correspond to an ASCII character have the same integer value as this character;
+			 * all others are larger than the largest valid ASCII character (which is 0x7F).
+			 */
+			if ((mod_mask & ~WMKM_SHIFT) != 0 && key <= 0x7F) {
+				symbol += tolower(key);
+				key_code = WMKC_SYMBOL;
+				break;
+			}
+			return;
+	}
+
+	_window_manager.KeyEvent(key_code, mod_mask, symbol);
+}
+
+/**
+ * Called by OpenGL when text is entered.
+ * @param window Window in which the event occurred.
+ * @param codepoint The unicode character.
+ */
+void VideoSystem::TextCallback(GLFWwindow *window, uint32 codepoint)
+{
+	assert(window == _video.window);
+	char buffer[] = {0, 0, 0, 0, 0};
+	EncodeUtf8Char(codepoint, buffer);
+	_window_manager.KeyEvent(WMKC_SYMBOL, WMKM_NONE, buffer);
+}
+
+/**
+ * Called by OpenGL when the mouse was moved.
+ * @param window Window in which the event occurred.
+ * @param x New mouse position X coordinate.
+ * @param y New mouse position Y coordinate.
+ */
+void VideoSystem::MouseMoveCallback(GLFWwindow *window, double x, double y)
+{
+	assert(window == _video.window);
+	_video.mouse_x = std::max(0.0, std::min<double>(x, _video.width));
+	_video.mouse_y = std::max(0.0, std::min<double>(y, _video.height));
+	_window_manager.MouseMoveEvent();
+}
+
+/**
+ * Called by OpenGL when the mouse wheel was moved.
+ * @param window Window in which the event occurred.
+ * @param xdelta Amount by which the wheel was moved in the horizontal direction..
+ * @param ydelta Amount by which the wheel was moved in the vertical direction.
+ */
+void VideoSystem::ScrollCallback(GLFWwindow *window, [[maybe_unused]] double xdelta, double ydelta)
+{
+	assert(window == _video.window);
+	if (abs(ydelta) < 0.01) return;
+	_window_manager.MouseWheelEvent((ydelta > 0) ? 1 : -1);
+}
+
+/**
+ * Called by OpenGL when a mouse click occurs.
+ * @param window Window in which the event occurred.
+ * @param button Mouse button constant.
+ * @param action Whether the mouse button was pressed or released.
+ * @param mods Bitset of modifier keys.
+ */
+void VideoSystem::MouseClickCallback(GLFWwindow *window, int button, int action, [[maybe_unused]] int mods) {
+	assert(window == _video.window);
+
+	switch (button) {
+		case GLFW_MOUSE_BUTTON_RIGHT:
+			_window_manager.MouseButtonEvent(MB_RIGHT, action == GLFW_PRESS);
+			break;
+		case GLFW_MOUSE_BUTTON_LEFT:
+			_window_manager.MouseButtonEvent(MB_LEFT, action == GLFW_PRESS);
+			break;
+		case GLFW_MOUSE_BUTTON_MIDDLE:
+			_window_manager.MouseButtonEvent(MB_MIDDLE, action == GLFW_PRESS);
+			break;
+		default:
+			break;
+	}
+}
+
+/**
+ * Start or stop dragging the mouse.
+ * @param button The mouse button to update,
+ * @param dragging The mouse button that is being dragged.
+ * @param hide_cursor Hide the mouse cursor while dragging.
+ */
+void VideoSystem::SetMouseDragging(MouseButtons button, bool dragging, bool hide_cursor)
+{
+	assert(!hide_cursor || dragging);  // Can't hide the cursor when not dragging.
+	if (dragging) {
+		this->mouse_dragging |= button;
+	} else {
+		this->mouse_dragging &= ~button;
+	}
+	glfwSetInputMode(window, GLFW_CURSOR, hide_cursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
+/** Shut down the video system. */
+void VideoSystem::Shutdown()
+{
+	glfwTerminate();
+}
+
+/**
+ * Initialize the graphics system.
+ * @param font Font file to load.
+ * @param font_size Size in which to load the font.
+ */
+void VideoSystem::Initialize(const std::string &font, int font_size)
+{
+	if (!glfwInit()) error("Failed to initialize GLFW\n");
+
+	/* Create a window. */
+	glfwWindowHint(GLFW_SAMPLES, 4);  // 4x antialiasing.
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);  // Require OpenGL 3.3 or higher.
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	this->width = 800;
+	this->height = 600;
+	this->mouse_x = this->width / 2;
+	this->mouse_y = this->height / 2;
+	this->mouse_dragging = MB_NONE;
+
+	std::string caption = "FreeRCT ";
+	caption += _freerct_revision;
+	this->window = glfwCreateWindow(this->width, this->height, caption.c_str(), NULL, NULL);
+	if (this->window == nullptr) {
+		glfwTerminate();
+		error("Failed to open GLFW window\n");
+	}
+
+	glfwMakeContextCurrent(this->window);
+	if (glewInit() != GLEW_OK) error("Failed to initialize GLEW\n");
+
+	this->UpdateClip();
+	glfwSetFramebufferSizeCallback(this->window, FramebufferSizeCallback);
+	glfwSetInputMode(this->window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetCursorPosCallback(this->window, MouseMoveCallback);
+	glfwSetScrollCallback(this->window, ScrollCallback);
+	glfwSetMouseButtonCallback(this->window, MouseClickCallback);
+	glfwSetKeyCallback(this->window, KeyCallback);
+	glfwSetCharCallback(this->window, TextCallback);
+	GLFWimage img{WINDOW_ICON_WIDTH, WINDOW_ICON_HEIGHT, _icon_data.get()};
+	glfwSetWindowIcon(this->window, 1, &img);
+
+	/* Prepare the window. */
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_POINT_SMOOTH);
+	glGetError();  // Clear error messages.
+
+	/* List available resolutions. */
+	{
+		GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+		int count;
+		const GLFWvidmode *modes = glfwGetVideoModes(monitor, &count);
+		for (int i = 0; i < count; ++i) this->resolutions.emplace(modes[i].width, modes[i].height);
+	}
+
+	/* Initialize basic rendering functionality. */
+	glGenVertexArrays(1, &this->vao);
+	glGenBuffers(1, &this->vbo);
+	glGenBuffers(1, &this->ebo);
+
+	this->colour_shader = this->ConfigureShader("colour");
+	this->image_shader = this->ConfigureShader("image");
+
+	/* Initialize the text renderer. */
+	_text_renderer.Initialize();
+	_text_renderer.LoadFont(font, font_size);
+
+	/* Initialize remaining data structures. */
+	this->last_frame = std::chrono::high_resolution_clock::now();
+	this->cur_frame = this->last_frame;
+	this->average_frametime = 1;
+}
+
+/** Run the main loop. */
+void VideoSystem::MainLoop()
+{
+	while (this->MainLoopDoCycle());
+}
+
+/** Perform one cycle of the main loop. */
 /* static */ void VideoSystem::MainLoopCycle()
 {
 	_video.MainLoopDoCycle();
@@ -548,318 +617,304 @@ EM_JS(int, GetEmscriptenCanvasHeight, (), { return canvas.clientHeight; });
 
 /**
  * Perform one cycle of the main loop.
- * @return `true` until the game is supposed to end.
+ * @return The game has not ended yet.
  */
 bool VideoSystem::MainLoopDoCycle()
 {
-	static const uint32 FRAME_DELAY = 30; // Number of milliseconds between two frames.
-
-	uint32 start = SDL_GetTicks();
-
-	OnNewFrame(FRAME_DELAY);
-
-	/* Handle input events until time for the next frame has arrived. */
-	for (;;) {
-		if (HandleEvent()) break;
-	}
+	constexpr uint32 FRAME_DELAY = 30;        ///< Minimum number of milliseconds between two frames.
+	constexpr double AVERAGE_FPS_STEPS = 15;  ///< Number of frame iterations in the average framerate computation.
+	this->last_frame = this->cur_frame;
+	this->cur_frame = std::chrono::high_resolution_clock::now();
+	this->average_frametime = ((this->average_frametime * AVERAGE_FPS_STEPS) + Delta(this->last_frame, this->cur_frame)) / (AVERAGE_FPS_STEPS + 1);
 
 #ifdef WEBASSEMBLY
 	this->SetResolution({GetEmscriptenCanvasWidth(), GetEmscriptenCanvasHeight()});
 #endif
 
-	/* If necessary, run the latest game control action. */
+	/* Handle input events. */
+	glfwPollEvents();
+
+	/* Prepare for the next rendering step. */
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	/* Progress the game. */
+	OnNewFrame(FRAME_DELAY);
 	_game_control.DoNextAction();
-	if (!_game_control.running) return false;
+	if (!_game_control.running || glfwWindowShouldClose(this->window)) return false;
 
-	uint32 now = SDL_GetTicks();
-	if (now >= start) { // No wrap around.
-		now -= start;
-		if (now < FRAME_DELAY) SDL_Delay(FRAME_DELAY - now); // Too early, wait until next frame.
-	}
-
-	if (this->missing_sprites) {
-		error("FATAL ERROR: FreeRCT is missing some sprites.\n"
-				"This should not happen. You are most likely using corrupt or incompatible RCD files.\n"
-				"Please ensure that your RCD files can be read by this version of FreeRCT.\n"
-				"The program will terminate now.\n");
-	}
+	/* Cap the FPS rate. */
+	double time = Delta(this->cur_frame);
+	if (time < FRAME_DELAY) std::this_thread::sleep_for(Duration(FRAME_DELAY - time));
 
 	return true;
 }
 
-/** Close down the video system. */
-void VideoSystem::Shutdown()
-{
-	if (this->initialized) {
-		TTF_CloseFont(this->font);
-		TTF_Quit();
-		SDL_Quit();
-		this->initialized = false;
-		this->dirty = false;
-	}
-}
-
-/**
- * Finish repainting, perform the final steps.
- * @todo Implement partial window repainting.
- */
+/** Finish repainting, perform the final steps. */
 void VideoSystem::FinishRepaint()
 {
-	SDL_UpdateTexture(this->texture, nullptr, this->mem.get(), this->GetXSize() * sizeof(uint32)); // Upload memory to the GPU.
-	SDL_RenderClear(this->renderer);
-	SDL_RenderCopy(this->renderer, this->texture, nullptr, nullptr);
-	SDL_RenderPresent(this->renderer);
-
-	MarkDisplayClean();
+	glfwSwapBuffers(this->window);
 }
 
 /**
- * Blit a pixel to an area of \a numx times \a numy sprites.
- * @param cr Clipped rectangle.
- * @param scr_base Base address of the screen array.
- * @param xmin Minimal x position.
- * @param ymin Minimal y position.
- * @param numx Number of horizontal count.
- * @param numy Number of vertical count.
- * @param width Width of an image.
- * @param height Height of an image.
- * @param colour Pixel value to blit.
- * @note Function does not handle alpha blending of the new pixel with the background.
+ * Calculate the current framerate.
+ * @return Frames per second.
  */
-static void BlitPixel(const ClippedRectangle &cr, uint32 *scr_base,
-		int32 xmin, int32 ymin, uint16 numx, uint16 numy, uint16 width, uint16 height, uint32 colour)
+double VideoSystem::FPS() const
 {
-	const int32 xend = xmin + numx * width;
-	const int32 yend = ymin + numy * height;
-	while (ymin < yend) {
-		if (ymin >= cr.height) return;
-
-		if (ymin >= 0) {
-			uint32 *scr = scr_base;
-			int32 x = xmin;
-			while (x < xend) {
-				if (x >= cr.width) break;
-				if (x >= 0) *scr = colour;
-
-				x += width;
-				scr += width;
-			}
-		}
-		ymin += height;
-		scr_base += height * cr.pitch;
-	}
+	double time = Delta(this->last_frame, this->cur_frame);
+	return time > 0 ? (1000.0 / time) : 0;
 }
 
 /**
- * Blend new pixel (\a r, \a g, \a b) with \a old_pixel.
- * @param r Red channel of the new pixel.
- * @param g Green channel of the new pixel.
- * @param b Blue channel of the new pixel.
- * @param old_pixel Previous plotted pixel.
- * @param opacity Opacity of the new pixel.
- * @return The resulting pixel colour (always fully opaque).
+ * Calculate the average framerate.
+ * @return Frames per second.
  */
-static uint32 BlendPixels(uint r, uint g, uint b, uint32 old_pixel, uint opacity)
+double VideoSystem::AvgFPS() const
 {
-	r = r * opacity + GetR(old_pixel) * (256 - opacity);
-	g = g * opacity + GetG(old_pixel) * (256 - opacity);
-	b = b * opacity + GetB(old_pixel) * (256 - opacity);
-
-	/* Opaque, but colour adjusted depending on the old pixel. */
-	return MakeRGBA(r >> 8, g >> 8, b >> 8, OPAQUE);
+	return 1000.0 / this->average_frametime;
 }
 
 /**
- * Blit 8bpp images to the screen.
- * @param cr Clipped rectangle to draw to.
- * @param x_base Base X coordinate of the sprite data.
- * @param y_base Base Y coordinate of the sprite data.
- * @param spr The sprite to blit.
- * @param numx Number of sprites to draw in horizontal direction.
- * @param numy Number of sprites to draw in vertical direction.
- * @param recoloured Shifted palette to use.
+ * Change the resolution of the game window.
+ * @param res Resolution to set the screen to.
  */
-static void Blit8bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const uint8 *recoloured)
+void VideoSystem::SetResolution(const Point32 &res)
 {
-	uint32 *line_base = cr.address + x_base + cr.pitch * y_base;
-	int32 ypos = y_base;
-	for (int yoff = 0; yoff < spr->height; yoff++) {
-		uint32 offset = spr->table[yoff];
-		if (offset != INVALID_JUMP) {
-			int32 xpos = x_base;
-			uint32 *src_base = line_base;
-			for (;;) {
-				uint8 rel_off = spr->data[offset];
-				uint8 count   = spr->data[offset + 1];
-				uint8 *pixels = &spr->data[offset + 2];
-				offset += 2 + count;
-
-				xpos += rel_off & 127;
-				src_base += rel_off & 127;
-				while (count > 0) {
-					uint32 colour = _palette[recoloured[*pixels]];
-					if (GetA(colour) != OPAQUE) {
-						colour =  BlendPixels(GetR(colour), GetG(colour), GetB(colour), *src_base, GetA(colour));
-					}
-					BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-					pixels++;
-					xpos++;
-					src_base++;
-					count--;
-				}
-				if ((rel_off & 128) != 0) break;
-			}
-		}
-		line_base += cr.pitch;
-		ypos++;
-	}
+	glfwSetWindowSize(this->window, res.x, res.y);
 }
 
 /**
- * Blit 32bpp images to the screen.
- * @param cr Clipped rectangle to draw to.
- * @param x_base Base X coordinate of the sprite data.
- * @param y_base Base Y coordinate of the sprite data.
- * @param spr The sprite to blit.
- * @param numx Number of sprites to draw in horizontal direction.
- * @param numy Number of sprites to draw in vertical direction.
- * @param recolour Sprite recolouring definition.
- * @param shift Gradient shift.
+ * Set the current clipping area.
+ * @param rect New clipping area.
+ * @see #PopClip
  */
-static void Blit32bppImages(const ClippedRectangle &cr, int32 x_base, int32 y_base, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
+void VideoSystem::PushClip(const Rectangle32 &rect)
 {
-	uint32 *line_base = cr.address + x_base + cr.pitch * y_base;
-	ShiftFunc sf = GetGradientShiftFunc(shift);
-	int32 ypos = y_base;
-	const uint8 *src = spr->data.get() + 2; // Skip the length word.
-	for (int yoff = 0; yoff < spr->height; yoff++) {
-		int32 xpos = x_base;
-		uint32 *src_base = line_base;
-		auto is_in_drawing_region = [&cr, &src_base]() {
-			return src_base >= cr.address && src_base < cr.address + cr.width * cr.height;
-		};
-		for (;;) {
-			uint8 mode = *src++;
-			if (mode == 0) break;
-			switch (mode >> 6) {
-				case 0: // Fully opaque pixels.
-					mode &= 0x3F;
-					if (shift == GS_SEMI_TRANSPARENT) {
-						src += 3 * mode;
-						for (; mode > 0; mode--) {
-							if (is_in_drawing_region()) {
-								uint32 ndest = BlendPixels(255, 255, 255, *src_base, OPACITY_SEMI_TRANSPARENT);
-								BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
-							}
-							xpos++;
-							src_base++;
-						}
-					} else {
-						for (; mode > 0; mode--) {
-							if (is_in_drawing_region()) {
-								uint32 colour = MakeRGBA(sf(src[0]), sf(src[1]), sf(src[2]), OPAQUE);
-								BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-							}
-							xpos++;
-							src_base++;
-							src += 3;
-						}
-					}
-					break;
-
-				case 1: { // Partial opaque pixels.
-					uint8 opacity = *src++;
-					if (shift == GS_SEMI_TRANSPARENT && opacity > OPACITY_SEMI_TRANSPARENT) opacity = OPACITY_SEMI_TRANSPARENT;
-					mode &= 0x3F;
-					for (; mode > 0; mode--) {
-						if (is_in_drawing_region()) {
-							uint32 ndest = BlendPixels(sf(src[0]), sf(src[1]), sf(src[2]), *src_base, opacity);
-							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, ndest);
-						}
-						xpos++;
-						src_base++;
-						src += 3;
-					}
-					break;
-				}
-				case 2: // Fully transparent pixels.
-					xpos += mode & 0x3F;
-					src_base += mode & 0x3F;
-					break;
-
-				case 3: { // Recoloured pixels.
-					uint8 layer = *src++;
-					const uint32 *table = recolour.GetRecolourTable(layer - 1);
-					uint8 opacity = *src++;
-					if (shift == GS_SEMI_TRANSPARENT && opacity > OPACITY_SEMI_TRANSPARENT) opacity = OPACITY_SEMI_TRANSPARENT;
-					mode &= 0x3F;
-					for (; mode > 0; mode--) {
-						uint32 colour = table[*src++];
-						if (is_in_drawing_region()) {
-							colour = BlendPixels(sf(GetR(colour)), sf(GetG(colour)), sf(GetB(colour)), *src_base, opacity);
-							BlitPixel(cr, src_base, xpos, ypos, numx, numy, spr->width, spr->height, colour);
-						}
-						xpos++;
-						src_base++;
-					}
-					break;
-				}
-			}
-		}
-		line_base += cr.pitch;
-		ypos++;
-		src += 2; // Skip the length word.
-	}
+	assert(rect.width > 0 && rect.height > 0);
+	this->clip.push_back(rect);
+	this->UpdateClip();
 }
 
 /**
- * Blit pixels from the \a spr relative to \a img_base into the area.
- * @param pt Base coordinates of the sprite data.
- * @param spr The sprite to blit.
- * @param numx Number of sprites to draw in horizontal direction.
- * @param numy Number of sprites to draw in vertical direction.
- * @param recolour Sprite recolouring definition.
- * @param shift Gradient shift.
+ * Restore the clipping area.
+ * @see #PushClip
  */
-void VideoSystem::BlitImages(const Point32 &pt, const ImageData *spr, uint16 numx, uint16 numy, const Recolouring &recolour, GradientShift shift)
+void VideoSystem::PopClip()
 {
-	this->blit_rect.ValidateAddress();
+	assert(!this->clip.empty());
+	this->clip.pop_back();
+	this->UpdateClip();
+}
 
-	int x_base = pt.x + spr->xoffset;
-	int y_base = pt.y + spr->yoffset;
-
-	/* Don't draw wildly outside the screen. */
-	while (numx > 0 && x_base + spr->width < 0) {
-		x_base += spr->width; numx--;
-	}
-	while (numx > 0 && x_base + (numx - 1) * spr->width >= this->blit_rect.width) numx--;
-	if (numx == 0) return;
-
-	while (numy > 0 && y_base + spr->height < 0) {
-		y_base += spr->height; numy--;
-	}
-	while (numy > 0 && y_base + (numy - 1) * spr->height >= this->blit_rect.height) numy--;
-	if (numy == 0) return;
-
-	if (GB(spr->flags, IFG_IS_8BPP, 1) != 0) {
-		Blit8bppImages(this->blit_rect, x_base, y_base, spr, numx, numy, recolour.GetPalette(shift));
+/** Update the current clipping area. */
+void VideoSystem::UpdateClip()
+{
+	float x, y, w, h;
+	if (this->clip.empty()) {
+		x = 0;
+		y = 0;
+		w = this->width;
+		h = this->height;
 	} else {
-		Blit32bppImages(this->blit_rect, x_base, y_base, spr, numx, numy, recolour, shift);
+		w = this->clip.back().width;
+		h = this->clip.back().height;
+		x = this->clip.back().base.x;
+		y = this->height - h - this->clip.back().base.y;
 	}
+	glViewport(x, y, w, h);
 }
 
 /**
- * Get the text-size of a string.
- * @param text Text to calculate.
- * @param width [out] Resulting width.
- * @param height [out] Resulting height.
+ * Convert a coordinate from the window coordinate system to OpenGL's coordinate system.
+ * @param x [inout] X coordinate.
+ * @param y [inout] Y coordinate.
  */
-void VideoSystem::GetTextSize(const std::string &text, int *width, int *height)
-{
-	if (TTF_SizeUTF8(this->font, text.c_str(), width, height) != 0) {
-		*width = 0;
-		*height = 0;
+void VideoSystem::CoordsToGL(float *x, float *y) const {
+	float w, h;
+	if (this->clip.empty()) {
+		w = this->width;
+		h = this->height;
+	} else {
+		w = this->clip.back().width;
+		h = this->clip.back().height;
+		*x -= this->clip.back().base.x;
+		*y -= this->clip.back().base.y;
 	}
+
+	*x = 2.0f * *x / w - 1.0f;
+	*y = 1.0f - 2.0f * *y / h;
+}
+
+/**
+ * Load and configure an OpenGL shader.
+ * @param name Name of the shader.
+ * @return Handle of the created shader.
+ */
+GLuint VideoSystem::ConfigureShader(const std::string &name)
+{
+	std::string v = "data";
+	std::string f = "data";
+	v += DIR_SEP;
+	f += DIR_SEP;
+	v += "shaders";
+	f += "shaders";
+	v += DIR_SEP;
+	f += DIR_SEP;
+	v += name;
+	f += name;
+	v += ".vp";
+	f += ".fp";
+	return this->LoadShaders(FindDataFile(v).c_str(), FindDataFile(f).c_str());
+}
+
+/**
+ * Load an OpenGL shader pair.
+ * @param vp Path to the vertext shader.
+ * @param fp Path to the fragment shader.
+ * @return Handle of the loaded shader pair.
+ */
+GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
+{
+	/* Create the shaders. */
+	GLuint vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
+
+	/* Read the Vertex Shader code from the file. */
+	std::string vertex_shader_code;
+	std::ifstream vertex_shader_stream(vp, std::ios::in);
+	if (vertex_shader_stream.is_open()) {
+		std::stringstream sstr;
+		sstr << vertex_shader_stream.rdbuf();
+		vertex_shader_code = sstr.str();
+		vertex_shader_stream.close();
+	} else {
+		error("ERROR: Unable to open shader '%s'!\n", vp);
+	}
+
+	/* Read the Fragment Shader code from the file. */
+	std::string fragment_shader_code;
+	std::ifstream fragment_shader_stream(fp, std::ios::in);
+	if (fragment_shader_stream.is_open()) {
+		std::stringstream sstr;
+		sstr << fragment_shader_stream.rdbuf();
+		fragment_shader_code = sstr.str();
+		fragment_shader_stream.close();
+	}
+
+	GLint result = GL_FALSE;
+	int info_log_length;
+
+	/* Compile Vertex Shader. */
+	char const* vertex_source_pointer = vertex_shader_code.c_str();
+	glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, NULL);
+	glCompileShader(vertex_shader_id);
+
+	/* Check Vertex Shader. */
+	glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &result);
+	if (result != GL_TRUE) {
+		glGetShaderiv(vertex_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		std::vector<char> vertex_shader_error_message(info_log_length + 1);
+		glGetShaderInfoLog(vertex_shader_id, info_log_length, NULL, &vertex_shader_error_message[0]);
+		error("Compile error in shader %s: %s\n", vp, &vertex_shader_error_message[0]);
+	}
+
+	/* Compile Fragment Shader. */
+	char const* FragmentSourcePointer = fragment_shader_code.c_str();
+	glShaderSource(fragment_shader_id, 1, &FragmentSourcePointer, NULL);
+	glCompileShader(fragment_shader_id);
+
+	/* Check Fragment Shader. */
+	glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &result);
+	if (result != GL_TRUE) {
+		glGetShaderiv(fragment_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		std::vector<char> fragment_shader_error_message(info_log_length + 1);
+		glGetShaderInfoLog(fragment_shader_id, info_log_length, NULL, &fragment_shader_error_message[0]);
+		error("Compile error in shader %s: %s\n", fp, &fragment_shader_error_message[0]);
+	}
+
+	/* Link the program. */
+	GLuint program_id = glCreateProgram();
+	glAttachShader(program_id, vertex_shader_id);
+	glAttachShader(program_id, fragment_shader_id);
+	glLinkProgram(program_id);
+
+	/* Check the program. */
+	glGetProgramiv(program_id, GL_LINK_STATUS, &result);
+	if (result != GL_TRUE) {
+		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+		std::vector<char> program_error_message(info_log_length + 1);
+		glGetProgramInfoLog(program_id, info_log_length, NULL, &program_error_message[0]);
+		error("Linking error in shader pair %s/%s: %s\n", vp, fp, &program_error_message[0]);
+	}
+
+	glDetachShader(program_id, vertex_shader_id);
+	glDetachShader(program_id, fragment_shader_id);
+
+	glDeleteShader(vertex_shader_id);
+	glDeleteShader(fragment_shader_id);
+
+	return program_id;
+}
+
+/**
+ * Create a texture for the given image if one did not exist yet.
+ * @param img Image to load.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
+ * @return The image's texture.
+ */
+GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &recolour, GradientShift shift) {
+	std::pair<const ImageData*, RecolourData> map_key(img, RecolourData(shift, recolour.ToCondensed()));
+	const auto it = this->image_textures.find(map_key);
+	if (it != this->image_textures.end()) return it->second;
+
+	GLuint t = 0;
+	glGenTextures(1, &t);
+	glBindTexture(GL_TEXTURE_2D, t);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->GetRecoloured(shift, recolour));
+	this->image_textures.emplace(map_key, t);
+	return t;
+}
+
+/**
+ * Draw an image to the screen.
+ * @param pos Where to draw the image's centre.
+ * @param img Image to draw.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
+ * @param col RGBA colour to overlay over the image.
+ */
+void VideoSystem::BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour, GradientShift shift, uint32 col)
+{
+	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
+			pos.x + img->xoffset             , pos.y + img->yoffset,
+			pos.x + img->xoffset + img->width, pos.y + img->yoffset + img->height, col);
+}
+
+/**
+ * Tile an image across an area.
+ * @param img Image to draw.
+ * @param rect Rectangle to fill.
+ * @param tile_hor Tile the image horizontally. If \c false, stretch the image instead.
+ * @param tile_vert Tile the image vertically. If \c false, stretch the image instead.
+ * @param recolour Sprite recolouring definition.
+ * @param shift Gradient shift.
+ * @param col RGBA colour to overlay over the image.
+ * @note The image's offset is ignored.
+ */
+void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
+		const Recolouring &recolour, GradientShift shift, uint32 col)
+{
+	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
+			rect.base.x, rect.base.y, rect.base.x + static_cast<float>(rect.width), rect.base.y + static_cast<float>(rect.height), col,
+			WXYZPointF(0.0f, 0.0f,
+					tile_vert ? static_cast<float>(rect.height) / img->height : 1.0f,
+					tile_hor ? static_cast<float>(rect.width) / img->width : 1.0f
+				));
 }
 
 /**
@@ -871,33 +926,30 @@ void VideoSystem::GetTextSize(const std::string &text, int *width, int *height)
  */
 void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height)
 {
+	if (width == nullptr && height == nullptr) return;
 	assert(smallest <= biggest);
-	if (this->digit_size.x == 0) { // First call, initialize the variable.
-		this->digit_size.x = 0;
-		this->digit_size.y = 0;
 
-		char buffer[2];
-		buffer[1] = '\0';
-		for (char i = '0'; i <= '9'; i++) {
-			buffer[0] = i;
-			int w, h;
-			this->GetTextSize(buffer, &w, &h);
-			if (w > this->digit_size.x) this->digit_size.x = w;
-			if (h > this->digit_size.y) this->digit_size.y = h;
-		}
+	if (width != nullptr) *width = 0;
+	if (height != nullptr) *height = 0;
+	for (; smallest <= biggest; ++smallest) {
+		PointF vec = _text_renderer.EstimateBounds(std::to_string(smallest));
+		if (width != nullptr) *width = std::max<int>(*width, vec.x);
+		if (height != nullptr) *height = std::max<int>(*height, vec.y);
 	}
+}
 
-	int digit_count = 1;
-	if (smallest < 0) digit_count++; // Add a 'digit' for the '-' sign.
-
-	int64 tmp = std::max(std::abs(smallest), std::abs(biggest));
-	while (tmp > 9) {
-		digit_count++;
-		tmp /= 10;
-	}
-
-	*width = digit_count * this->digit_size.x;
-	*height = this->digit_size.y;
+/**
+ * Get the text-size of a string.
+ * @param text Text to calculate.
+ * @param width [out] Resulting width.
+ * @param height [out] Resulting height.
+ */
+void VideoSystem::GetTextSize(const std::string &text, int *width, int *height)
+{
+	if (width == nullptr && height == nullptr) return;
+	PointF vec = _text_renderer.EstimateBounds(text);
+	if (width != nullptr) *width = vec.x;
+	if (height != nullptr) *height = vec.y;
 }
 
 /**
@@ -911,188 +963,161 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
  */
 void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
-	if (text.empty()) return;
-	SDL_Color col = {0, 0, 0, 0}; // Font colour does not matter as only the bitmap is used.
-	SDL_Surface *surf = TTF_RenderUTF8_Solid(this->font, text.c_str(), col);
-	if (surf == nullptr) {
-		fprintf(stderr, "Rendering text failed (%s)\n", TTF_GetError());
-		return;
-	}
-
-	if (surf->format->BitsPerPixel != 8 || surf->format->BytesPerPixel != 1) {
-		fprintf(stderr, "Rendering text failed (Wrong surface format)\n");
-		return;
-	}
-
-	int real_w = std::min(surf->w, width);
-	switch (align) {
-		case ALG_LEFT:
-			break;
-
-		case ALG_CENTER:
-			xpos += (width - real_w) / 2;
-			break;
-
-		case ALG_RIGHT:
-			xpos += width - real_w;
-			break;
-
-		default: NOT_REACHED();
-	}
-
-	this->blit_rect.ValidateAddress();
-
-	uint8 *src = ((uint8 *)surf->pixels);
-	uint32 *dest = this->blit_rect.address + xpos + ypos * this->blit_rect.pitch;
-	int h = surf->h;
-	if (ypos < 0) {
-		h += ypos;
-		src  -= ypos * surf->pitch;
-		dest -= ypos * this->blit_rect.pitch;
-		ypos = 0;
-	}
-	while (h > 0) {
-		if (ypos >= this->blit_rect.height) break;
-		uint8 *src2 = src;
-		uint32 *dest2 = dest;
-		int w = real_w;
-		int x = xpos;
-		if (x < 0) {
-			w += x;
-			if (w <= 0) break;
-			dest2 -= x;
-			src2 -= x;
-			x = 0;
+	float x = xpos;
+	if (align != ALG_LEFT) {
+		PointF vec = _text_renderer.EstimateBounds(text);
+		if (align == ALG_RIGHT) {
+			x += width - vec.x;
+		} else {
+			x += (width - vec.x) / 2.f;
 		}
-		while (w > 0) {
-			if (x >= this->blit_rect.width) break;
-			if (*src2 != 0) *dest2 = colour;
-			src2++;
-			dest2++;
-			x++;
-			w--;
-		}
-		ypos++;
-		src  += surf->pitch;
-		dest += this->blit_rect.pitch;
-		h--;
 	}
 
-	SDL_FreeSurface(surf);
+	_text_renderer.Draw(text, x, ypos, width, colour);
 }
 
 /**
- * Draw a line from \a start to \a end using the specified \a colour.
- * @param start Starting point at the screen.
- * @param end End point at the screen.
- * @param colour Colour to use.
+ * Draw an image on the screen.
+ * @param texture Texture ID to draw.
+ * @param x1 Upper left destination X coordinate of the image, in window space.
+ * @param y1 Upper left destination Y coordinate of the image, in window space.
+ * @param x2 Lower right destination X coordinate of the image, in window space.
+ * @param y2 Lower right destination Y coordinate of the image, in window space.
+ * @param col RGBA colour to overlay over the image.
+ * @param tex Texture coordinate rectangle to clip, in GL space.
  */
-void VideoSystem::DrawLine(const Point16 &start, const Point16 &end, uint32 colour)
+void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2, uint32 col, const WXYZPointF &tex)
 {
-	int16 dx, inc_x, dy, inc_y;
-	if (start.x > end.x) {
-		dx = start.x - end.x;
-		inc_x = -1;
-	} else {
-		dx = end.x - start.x;
-		inc_x = 1;
-	}
-	if (start.y > end.y) {
-		dy = start.y - end.y;
-		inc_y = -1;
-	} else {
-		dy = end.y - start.y;
-		inc_y = 1;
-	}
+	this->CoordsToGL(&x1, &y1);
+	this->CoordsToGL(&x2, &y2);
+	float vertices[] = {
+		// positions  // colours                                      // texture coords
+		x2, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.z, tex.w, // top right
+		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.z, tex.y, // bottom right
+		x1, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.x, tex.y, // bottom left
+		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.x, tex.w  // top left
+	};
+	GLuint indices[] = {
+		0, 1, 3, // first triangle
+		1, 2, 3  // second triangle
+	};
 
-	int16 step = std::min(dx, dy);
-	int16 pos_x = start.x;
-	int16 pos_y = start.y;
-	int16 sum_x = 0;
-	int16 sum_y = 0;
-
-	this->blit_rect.ValidateAddress();
-	uint32 *dest = this->blit_rect.address + pos_x + pos_y * this->blit_rect.pitch;
-
-	for (;;) {
-		/* Blit pixel. */
-		if (pos_x >= 0 && pos_x < this->blit_rect.width && pos_y >= 0 && pos_y < this->blit_rect.height) {
-			*dest = colour;
-		}
-		if (pos_x == end.x && pos_y == end.y) break;
-
-		sum_x += step;
-		sum_y += step;
-		if (sum_x >= dy) {
-			pos_x += inc_x;
-			dest += inc_x;
-			sum_x -= dy;
-		}
-		if (sum_y >= dx) {
-			pos_y += inc_y;
-			dest += inc_y * this->blit_rect.pitch;
-			sum_y -= dx;
-		}
-	}
+	glBindVertexArray(this->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUseProgram(this->image_shader);
+	glBindVertexArray(this->vao);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 /**
- * Draw a rectangle at the screen.
- * @param rect %Rectangle to draw.
- * @param colour Colour to use.
+ * Render triangles in a solid colour.
+ * @param points Vector of triangle coordinates.
+ * @param col RGBA colour to use.
  */
-void VideoSystem::DrawRectangle(const Rectangle32 &rect, uint32 colour)
-{
-	Point16 top_left    (static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y));
-	Point16 top_right   (static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y));
-	Point16 bottom_left (static_cast<int16>(rect.base.x),                  static_cast<int16>(rect.base.y + rect.height - 1));
-	Point16 bottom_right(static_cast<int16>(rect.base.x + rect.width - 1), static_cast<int16>(rect.base.y + rect.height - 1));
-	this->DrawLine(top_left, top_right, colour);
-	this->DrawLine(top_left, bottom_left, colour);
-	this->DrawLine(top_right, bottom_right, colour);
-	this->DrawLine(bottom_left, bottom_right, colour);
+void VideoSystem::DoDrawPlainColours(const std::vector<Point<float>> &points, uint32 col) {
+	struct PerVertexData {
+		float gl_x;
+		float gl_y;
+		float r;
+		float g;
+		float b;
+		float alpha;
+	};
+	static_assert(sizeof(PerVertexData) == 6 * sizeof(float), "PerVertexData must be tightly packed.");
+
+	std::vector<PerVertexData> vertices;
+	vertices.reserve(points.size());
+	for (const auto &p : points) {
+		vertices.emplace_back();
+		PerVertexData& back = vertices.back();
+		back.gl_x = p.x;
+		back.gl_y = p.y;
+		this->CoordsToGL(&back.gl_x, &back.gl_y);
+		back.r = FGetR(col);
+		back.g = FGetG(col);
+		back.b = FGetB(col);
+		back.alpha = FGetA(col);
+	}
+	glBindVertexArray(this->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glUseProgram(this->colour_shader);
+	glBindVertexArray(this->vao);
+	glDrawArrays(GL_POINTS, 0, vertices.size());
 }
 
 /**
- * Fill the rectangle with a single colour.
- * @param rect %Rectangle to fill.
- * @param colour Colour to fill with.
+ * Draw a straight line on the screen.
+ * @param x1 X coordinate of the starting point.
+ * @param y1 Y coordinate of the starting point.
+ * @param x2 X coordinate of the end point.
+ * @param y2 Y coordinate of the end point.
+ * @param col RGBA colour to use.
  */
-void VideoSystem::FillRectangle(const Rectangle32 &rect, uint32 colour)
-{
-	const uint alpha = colour & 0xff;
-	if (alpha == 0) return;
-	ClippedRectangle cr = this->GetClippedRectangle();
+void VideoSystem::DoDrawLine(float x1, float y1, float x2, float y2, uint32 col) {
+	this->CoordsToGL(&x1, &y1);
+	this->CoordsToGL(&x2, &y2);
+	float vertices[] = {
+		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+	};
+	glBindVertexArray(this->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glUseProgram(this->colour_shader);
+	glBindVertexArray(this->vao);
+	glDrawArrays(GL_LINES, 0, 2);
+}
 
-	int x = Clamp((int)rect.base.x, 0, (int)cr.width);
-	int w = Clamp((int)(rect.base.x + rect.width), 0, (int)cr.width);
-	int y = Clamp((int)rect.base.y, 0, (int)cr.height);
-	int h = Clamp((int)(rect.base.y + rect.height), 0, (int)cr.height);
-
-	w -= x;
-	h -= y;
-	if (w == 0 || h == 0) return;
-
-	uint32 *pixels_base = cr.address + x + y * cr.pitch;
-	while (h > 0) {
-		uint32 *pixels = pixels_base;
-		for (int i = 0; i < w; i++) {
-			if (alpha == 0xff) {
-				*pixels++ = colour;
-				continue;
-			}
-			int r = ((*pixels) & 0xff000000) >> 24;
-			int g = ((*pixels) & 0xff0000  ) >> 16;
-			int b = ((*pixels) & 0xff00    ) >>  8;
-			int a = ((*pixels) & 0xff      )      ;
-			r += ((colour & 0xff000000) - r) * alpha / 255;
-			g += ((colour & 0xff0000  ) - g) * alpha / 255;
-			b += ((colour & 0xff00    ) - b) * alpha / 255;
-			a += ((colour & 0xff      ) - a) * alpha / 255;
-			*pixels = (r << 24) | (g << 16) | (b << 8) | a;
-			pixels++;
-		}
-		pixels_base += cr.pitch;
-		h--;
-	}
+/**
+ * Fill a rectangle in a solid colour.
+ * @param x1 X coordinate of the upper left corner.
+ * @param y1 Y coordinate of the upper left corner.
+ * @param x2 X coordinate of the lower right corner.
+ * @param y2 Y coordinate of the lower right corner.
+ * @param col RGBA colour to use.
+ */
+void VideoSystem::DoFillPlainColour(float x1, float y1, float x2, float y2, uint32 col) {
+	this->CoordsToGL(&x1, &y1);
+	this->CoordsToGL(&x2, &y2);
+	float vertices[] = {
+		// positions  // colours
+		x2, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x1, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+	};
+	GLuint indices[] = {
+		0, 1, 2,
+		1, 2, 3,
+	};
+	glBindVertexArray(this->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glUseProgram(this->colour_shader);
+	glBindVertexArray(this->vao);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

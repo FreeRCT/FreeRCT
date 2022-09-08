@@ -857,7 +857,6 @@ void Person::Load(Loader &ldr)
 	this->frame_count = anim->frame_count;
 
 	this->AddSelf(_world.GetCreateVoxel(this->vox_pos, false));
-	this->MarkDirty();
 	ldr.ClosePattern();
 }
 
@@ -1389,7 +1388,6 @@ void Person::StartAnimation(const WalkInformation *walk)
 	this->frame_count = anim->frame_count;
 	this->frame_index = 0;
 	this->frame_time = this->frames[this->frame_index].duration;
-	this->MarkDirty();
 }
 
 /**
@@ -1502,8 +1500,6 @@ AnimateResult Person::OnAnimate(int delay)
 	this->queuing_blocked_on = nullptr;
 	this->frame_time -= delay;
 	if (this->frame_time > 0) return OAR_OK;
-
-	this->MarkDirty(); // Marks the entire voxel dirty, which should be big enough even after moving.
 
 	if (this->frames == nullptr || this->frame_count == 0) return OAR_REMOVE;
 

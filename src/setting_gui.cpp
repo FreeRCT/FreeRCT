@@ -73,8 +73,8 @@ void SettingWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case SW_RESOLUTION:
-			_str_params.SetNumber(1, _video.GetXSize());
-			_str_params.SetNumber(2, _video.GetYSize());
+			_str_params.SetNumber(1, _video.Width());
+			_str_params.SetNumber(2, _video.Height());
 			break;
 	}
 }
@@ -95,13 +95,13 @@ void SettingWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 		case SW_RESOLUTION: {
 			/* Get current resolution index. */
 			int index = 0;
-			auto iter = _video.resolutions.find({_video.GetXSize(), _video.GetYSize()});
-			if (iter != _video.resolutions.end()) {
-				index = std::distance(_video.resolutions.begin(), iter);
+			auto iter = _video.Resolutions().find(Point32(_video.Width(), _video.Height()));
+			if (iter != _video.Resolutions().end()) {
+				index = std::distance(_video.Resolutions().begin(), iter);
 			}
 
 			DropdownList itemlist;
-			for (const auto &res : _video.resolutions) {
+			for (const auto &res : _video.Resolutions()) {
 				_str_params.SetNumber(1, res.x);
 				_str_params.SetNumber(2, res.y);
 				itemlist.push_back(DropdownItem(GUI_RESOLUTION));
@@ -123,7 +123,7 @@ void SettingWindow::OnChange(ChangeCode code, uint32 parameter)
 
 		case SW_RESOLUTION: {
 			int index = 0;
-			for (const auto &it : _video.resolutions) {
+			for (const auto &it : _video.Resolutions()) {
 				if (index == (int)(parameter & 0xFF)) {
 					_video.SetResolution(it);
 					break;

@@ -27,11 +27,6 @@ MouseModeSelector::~MouseModeSelector()
 }
 
 /**
- * \fn MouseModeSelector::MarkDirty()
- * Mark all voxels changed by the selector as dirty, so they get redrawn.
- */
-
-/**
  * \fn CursorMouseMode MouseModeSelector::GetCursor(const XYZPoint16 &voxel_pos) const
  * Retrieve the cursor to display at the given voxel.
  * @param voxel_pos %Voxel to decorate with a cursor.

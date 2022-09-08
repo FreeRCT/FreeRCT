@@ -28,6 +28,7 @@
 #include "ride_type.h"
 #include "viewport.h"
 #include "mouse_mode.h"
+#include <cmath>
 
 /**
  * %Window manager.
@@ -36,17 +37,6 @@
 WindowManager _window_manager;
 
 static uint GetWindowZPriority(WindowTypes wt);
-
-/**
- * Does the mouse button state express a left-click?
- * @param state Mouse button state (as given in #Window::OnMouseButtonEvent).
- * @return The state expresses a left button click down event.
- * @ingroup window_group
- */
-bool IsLeftClick(uint8 state)
-{
-	return (state & (MB_LEFT | (MB_LEFT << MB_PREV_SHIFT))) == MB_LEFT;
-}
 
 /**
  * %Window constructor. It automatically adds the window to the window stack.
@@ -63,7 +53,6 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber)
 Window::~Window()
 {
 	_window_manager.RemoveFromStack(this);
-	this->MarkDirty();
 }
 
 /**
@@ -123,13 +112,11 @@ ComputeInitialPosition::ComputeInitialPosition()
 /**
  * Get distance of a position to the mouse.
  * @param pt Queried point.
- * @return Estimated distance.
- * @todo [easy] Estimate is pretty stupid, and can be improved. (Partly diagonal + partly horizontal or vertical suffices.)
+ * @return The distance.
  */
-static int GetDistanceToMouse(const Point32 &pt)
+static inline int GetDistanceToMouse(const Point32 &pt)
 {
-	Point16 mouse_pos = _window_manager.GetMousePosition();
-	return abs(mouse_pos.x - pt.x) + abs(mouse_pos.y - pt.y);
+	return hypot(_video.MouseX() - pt.x, _video.MouseY() - pt.y);
 }
 
 /**
@@ -177,7 +164,7 @@ Point32 ComputeInitialPosition::FindPosition(Window *new_w)
 
 	if (best.x == this->base_pos) {
 		this->base_pos += 10;
-		if (this->base_pos + 100 > _video.GetYSize()) this->base_pos = 10;
+		if (this->base_pos + 100 > _video.Height()) this->base_pos = 10;
 	}
 
 	return best;
@@ -193,8 +180,8 @@ bool ComputeInitialPosition::IsScreenEmpty(const Rectangle32 &rect)
 	uint new_prio = GetWindowZPriority(this->skip->wtype);
 
 	if (rect.base.x < 0 || rect.base.y < 0
-			|| rect.base.x + rect.width  > _video.GetXSize()
-			|| rect.base.y + rect.height > _video.GetYSize()) return false;
+			|| rect.base.x + rect.width  > _video.Width()
+			|| rect.base.y + rect.height > _video.Height()) return false;
 
 	for (Window *w = _window_manager.top; w != nullptr; w = w->lower) {
 		if (w == this->skip || new_prio > GetWindowZPriority(w->wtype)) continue;
@@ -212,15 +199,6 @@ Point32 Window::OnInitialPosition()
 	static ComputeInitialPosition compute_pos;
 
 	return compute_pos.FindPosition(this);
-}
-
-/**
- * Mark windows as being dirty (needing a repaint).
- * @todo Marking the whole display as needing a repaint is too crude.
- */
-void Window::MarkDirty()
-{
-	_video.MarkDisplayDirty(this->rect);
 }
 
 /**
@@ -245,7 +223,7 @@ void Window::OnMouseMoveEvent([[maybe_unused]] const Point16 &pos)
  * @param state Updated state. @see MouseButtons
  * @return Action to perform as a result of the event (use #WMME_NONE if no special action needed).
  */
-WmMouseEvent Window::OnMouseButtonEvent([[maybe_unused]] uint8 state)
+WmMouseEvent Window::OnMouseButtonEvent([[maybe_unused]] MouseButtons state)
 {
 	return WMME_NONE;
 }
@@ -342,7 +320,6 @@ void Window::SetTooltipStringParameters([[maybe_unused]] BaseWidget *tooltip_wid
 GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wnumber),
 	initialized(false),
 	selector(nullptr),
-	mouse_pos(-1, -1),
 	ride_type(nullptr),
 	closeable(true),
 	tree(nullptr),
@@ -354,9 +331,7 @@ GuiWindow::GuiWindow(WindowTypes wtype, WindowNumber wnumber) : Window(wtype, wn
 
 GuiWindow::~GuiWindow()
 {
-	/* The derived window should have released the selector before arriving here,
-	 * as release may cause a MarkDirty call.
-	 */
+	/* The derived window should have released the selector before arriving here. */
 	assert(this->selector == nullptr);
 }
 
@@ -424,8 +399,6 @@ void GuiWindow::SetupWidgetTree(const WidgetPart *parts, int length)
 	Point32 pt = this->OnInitialPosition();
 	this->SetPosition(pt.x, pt.y);
 	this->initialized = true;
-
-	this->MarkDirty();
 }
 
 /**
@@ -490,26 +463,21 @@ bool GuiWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &
 	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
-void GuiWindow::OnMouseMoveEvent(const Point16 &pos)
-{
-	this->mouse_pos = pos;
-}
-
 void GuiWindow::OnMouseWheelEvent(int direction)
 {
 	this->tree->OnMouseWheelEvent(direction);
 }
 
-WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
+WmMouseEvent GuiWindow::OnMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state) || this->mouse_pos.x < 0) return WMME_NONE;
+	if (state != MB_LEFT || this->GetRelativeMouseX() < 0) return WMME_NONE;
 
-	BaseWidget *bw = this->tree->GetWidgetByPosition(this->mouse_pos);
+	BaseWidget *bw = this->tree->GetWidgetByPosition(Point32(this->GetRelativeMouseX(), this->GetRelativeMouseY()));
 	if (bw == nullptr) return WMME_NONE;
 	if (bw->wtype == WT_TITLEBAR) return WMME_MOVE_WINDOW;
 	if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
 
-	Point16 widget_pos(static_cast<int16>(this->mouse_pos.x - bw->pos.base.x), static_cast<int16>(this->mouse_pos.y - bw->pos.base.y));
+	Point16 widget_pos(static_cast<int16>(this->GetRelativeMouseX() - bw->pos.base.x), static_cast<int16>(this->GetRelativeMouseY() - bw->pos.base.y));
 	LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
 	if (lw != nullptr) {
 		if (lw->IsShaded()) return WMME_NONE;
@@ -518,7 +486,6 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 			/* For mono-stable buttons, 'press' the button, and set a timeout for 'releasing' it again. */
 			lw->SetPressed(true);
 			this->timeout = 4;
-			lw->MarkDirty(this->rect.base);
 		}
 		ScrollbarWidget *sw = dynamic_cast<ScrollbarWidget *>(bw);
 		if (sw != nullptr) {
@@ -528,12 +495,6 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(uint8 state)
 	}
 	if (bw->number >= 0) this->OnClick(bw->number, widget_pos);
 	return WMME_NONE;
-}
-
-void GuiWindow::OnMouseLeaveEvent()
-{
-	this->mouse_pos.x = -1;
-	this->mouse_pos.y = -1;
 }
 
 /**
@@ -549,7 +510,7 @@ void GuiWindow::SelectorMouseMoveEvent([[maybe_unused]] Viewport *vp, [[maybe_un
  * Mouse buttons changed state while the window has an active mouse selector.
  * @param state Previous and current state of the mouse buttons. @see MouseButtons
  */
-void GuiWindow::SelectorMouseButtonEvent([[maybe_unused]] uint8 state)
+void GuiWindow::SelectorMouseButtonEvent([[maybe_unused]] MouseButtons state)
 {
 }
 
@@ -580,7 +541,6 @@ void GuiWindow::SetWidgetChecked(WidgetNumber widget, bool value)
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
 	if (lw->IsChecked() != value) {
 		lw->SetChecked(value);
-		lw->MarkDirty(this->rect.base);
 	}
 }
 
@@ -604,7 +564,6 @@ void GuiWindow::SetWidgetPressed(WidgetNumber widget, bool value)
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
 	if (lw->IsPressed() != value) {
 		lw->SetPressed(value);
-		lw->MarkDirty(this->rect.base);
 	}
 }
 
@@ -628,7 +587,6 @@ void GuiWindow::SetWidgetShaded(WidgetNumber widget, bool value)
 	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
 	if (lw->IsShaded() != value) {
 		lw->SetShaded(value);
-		lw->MarkDirty(this->rect.base);
 	}
 }
 
@@ -692,7 +650,6 @@ void GuiWindow::SetHighlight(bool value)
 	} else {
 		this->flags &= ~WF_HIGHLIGHT;
 	}
-	this->MarkDirty();
 }
 
 BaseWidget *GuiWindow::FindTooltipWidget(Point16 pt)
@@ -710,15 +667,9 @@ WindowManager::WindowManager()
 :
 	top(nullptr),
 	bottom(nullptr),
-
-	/* Mouse event handling. */
-	mouse_pos(-10000, -10000), // A very unlikely position for a window.
 	current_window(nullptr),
 	select_window(nullptr),
-	select_valid(true),
-	mouse_state(0),
-	mouse_mode(WMMM_PASS_THROUGH),
-	tooltip_widget(nullptr)
+	select_valid(true)
 {
 }
 
@@ -739,7 +690,6 @@ void WindowManager::ResetAllWindows()
 	for (Window *w = this->top; w != nullptr; w = w->lower) {
 		w->ResetSize(); /// \todo This call should preserve the window size as much as possible.
 	}
-	_video.MarkDisplayDirty();
 }
 
 /**
@@ -796,7 +746,6 @@ void WindowManager::AddToStack(Window *w)
 		this->viewport = static_cast<Viewport *>(w);
 	}
 
-	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
 	this->select_valid = false;
 
 	uint w_prio = GetWindowZPriority(w->wtype);
@@ -833,8 +782,8 @@ void WindowManager::RemoveFromStack(Window *w)
 
 	if (w == this->viewport) this->viewport = nullptr;
 
-	if (this->select_valid && this->select_window != nullptr) this->select_window->selector->MarkDirty();
 	this->select_valid = false;
+	if (w == this->current_window) this->current_window = nullptr;
 
 	if (w->higher == nullptr) {
 		this->top = w->lower;
@@ -861,7 +810,6 @@ void WindowManager::RaiseWindow(Window *w)
 	if (w != this->top && GetWindowZPriority(w->wtype) >= GetWindowZPriority(w->higher->wtype)) {
 		this->RemoveFromStack(w);
 		this->AddToStack(w);
-		w->MarkDirty();
 	}
 }
 
@@ -884,12 +832,9 @@ void WindowManager::SetSelector(GuiWindow *w, MouseModeSelector *selector)
 		if (selector != nullptr) this->select_valid = false;
 
 	} else if (this->select_window == w) { // Currently selected window changes its selector.
-		this->select_window->selector->MarkDirty();
 		this->select_window->selector = selector;
 		if (selector == nullptr) {
 			this->select_valid = false;
-		} else {
-			this->select_window->selector->MarkDirty();
 		}
 
 	} else if (w->selector != nullptr) { // A non-selected window changes its selector.
@@ -897,7 +842,6 @@ void WindowManager::SetSelector(GuiWindow *w, MouseModeSelector *selector)
 	} else {
 		w->selector = selector; // w may be above this->select_window, invalidate cache.
 
-		this->select_window->selector->MarkDirty();
 		this->select_valid = false;
 	}
 }
@@ -916,7 +860,6 @@ GuiWindow *WindowManager::GetSelector()
 		if (gw != nullptr && gw->selector != nullptr) {
 			this->select_window = gw;
 			this->select_valid = true;
-			this->select_window->selector->MarkDirty();
 			return this->select_window;
 		}
 		w = w->lower;
@@ -959,42 +902,24 @@ Window *WindowManager::FindWindowByPosition(const Point16 &pos) const
 
 /**
  * Mouse moved to new coordinates.
- * @param pos New position of the mouse.
  */
-void WindowManager::MouseMoveEvent(const Point16 &pos)
+void WindowManager::MouseMoveEvent()
 {
-	if (pos == this->mouse_pos) return;
-	this->mouse_pos = pos;
-
-	switch (this->mouse_mode) {
-		case WMMM_PASS_THROUGH: {
-			this->UpdateCurrentWindow();
-			if (this->current_window == nullptr) {
-				return;
-			}
-
-			/* Compute position relative to window origin. */
-			Point16 pos2;
-			pos2.x = pos.x - this->current_window->rect.base.x;
-			pos2.y = pos.y - this->current_window->rect.base.y;
-			this->current_window->OnMouseMoveEvent(pos2);
-			break;
+	if (_video.GetMouseDragging() != MB_NONE) {
+		assert(this->current_window != nullptr);
+		assert(this->current_window->wtype != WC_MAIN_MENU);  // Cannot move the main display.
+		if ((_video.GetMouseDragging() & MB_LEFT) != 0 && this->current_window->wtype != WC_MAINDISPLAY) {
+			this->current_window->SetPosition(_video.MouseX() - this->move_offset.x, _video.MouseY() - this->move_offset.y);
+		} else {
+			this->current_window->OnMouseMoveEvent(Point16(this->current_window->GetRelativeMouseX(), this->current_window->GetRelativeMouseY()));
 		}
+		return;
+	}
 
-		case WMMM_MOVE_WINDOW: {
-			if ((this->mouse_state & MB_LEFT) != MB_LEFT) {
-				this->mouse_mode = WMMM_PASS_THROUGH;
-				return;
-			}
-			this->current_window->MarkDirty();
-			assert(this->current_window->wtype != WC_MAINDISPLAY && this->current_window->wtype != WC_MAIN_MENU); // Cannot move the main display!
-			this->current_window->SetPosition(pos.x - this->move_offset.x, pos.y - this->move_offset.y);
-			this->current_window->MarkDirty();
-			break;
-		}
+	this->UpdateCurrentWindow();
 
-		default:
-			NOT_REACHED();
+	if (this->current_window != nullptr) {
+		this->current_window->OnMouseMoveEvent(Point16(this->current_window->GetRelativeMouseX(), this->current_window->GetRelativeMouseY()));
 	}
 }
 
@@ -1005,7 +930,7 @@ void WindowManager::MouseMoveEvent(const Point16 &pos)
  */
 void WindowManager::UpdateCurrentWindow()
 {
-	Window *w = this->FindWindowByPosition(this->mouse_pos);
+	Window *w = this->FindWindowByPosition(_video.GetMousePosition());
 	if (w == this->current_window) return;
 
 	/* Windows are different, send mouse leave/enter events. */
@@ -1016,26 +941,6 @@ void WindowManager::UpdateCurrentWindow()
 }
 
 /**
- * Initiate a window movement operation.
- */
-void WindowManager::StartWindowMove()
-{
-	if (this->current_window == nullptr) {
-		this->mouse_mode = WMMM_PASS_THROUGH;
-		return;
-	}
-
-	if (!this->current_window->rect.IsPointInside(this->mouse_pos)) {
-		this->mouse_mode = WMMM_PASS_THROUGH;
-		return;
-	}
-
-	this->move_offset.x = this->mouse_pos.x - this->current_window->rect.base.x;
-	this->move_offset.y = this->mouse_pos.y - this->current_window->rect.base.y;
-	this->mouse_mode = WMMM_MOVE_WINDOW;
-}
-
-/**
  * A mouse button was pressed or released.
  * @param button The button that changed state.
  * @param pressed The button was pressed (\c false means it was released instead).
@@ -1043,59 +948,46 @@ void WindowManager::StartWindowMove()
 void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 {
 	assert(button == MB_LEFT || button == MB_MIDDLE || button == MB_RIGHT);
-	uint8 newstate = this->mouse_state;
-	if (pressed) {
-		newstate |= button;
-	} else {
-		newstate &= ~button;
-	}
 
 	this->UpdateCurrentWindow();
 	if (this->current_window == nullptr) {
-		this->mouse_mode = WMMM_PASS_THROUGH;
-		this->mouse_state = newstate;
+		_video.SetMouseDragging(button, pressed, false);
 		return;
 	}
 
-	/* Close dropdown window if click is not inside it */
+	/* Close dropdown window if click is not inside it. */
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (pressed && w != nullptr && !w->rect.IsPointInside(this->mouse_pos)) {
+	if (pressed && w != nullptr && !w->rect.IsPointInside(_video.GetMousePosition())) {
 		delete w;
 		return; // Don't handle click any further.
 	}
 
 	if (button == MB_LEFT && pressed) this->RaiseWindow(this->current_window);
 
-	switch (this->mouse_mode) {
-		case WMMM_PASS_THROUGH:
-			if (newstate != this->mouse_state) {
-				WmMouseEvent me = this->current_window->OnMouseButtonEvent((this->mouse_state << 4) | newstate);
-				switch (me) {
-					case WMME_NONE:
-						break;
+	if ((_video.GetMouseDragging() & button) != MB_NONE) {
+		if (!pressed) _video.SetMouseDragging(button, false, false);
+	} else if (pressed) {
+		WmMouseEvent me = this->current_window->OnMouseButtonEvent(button);
+		switch (me) {
+			case WMME_NONE:
+				break;
 
-					case WMME_MOVE_WINDOW:
-						this->StartWindowMove();
-						break;
-
-					case WMME_CLOSE_WINDOW:
-						delete this->current_window;
-						break;
-
-					default:
-						NOT_REACHED();
+			case WMME_MOVE_WINDOW:
+				if (this->current_window != nullptr && this->current_window->rect.IsPointInside(_video.GetMousePosition())) {
+					_video.SetMouseDragging(button, pressed, false);
+					this->move_offset.x = this->current_window->GetRelativeMouseX();
+					this->move_offset.y = this->current_window->GetRelativeMouseY();
 				}
-			}
-			break;
+				break;
 
-		case WMMM_MOVE_WINDOW:
-			this->mouse_mode = WMMM_PASS_THROUGH; // Mouse clicks stop window movement.
-			break;
+			case WMME_CLOSE_WINDOW:
+				delete this->current_window;
+				break;
 
-		default:
-			NOT_REACHED();
+			default:
+				NOT_REACHED();
+		}
 	}
-	this->mouse_state = newstate;
 }
 
 /**
@@ -1130,33 +1022,26 @@ bool WindowManager::KeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string
  */
 void WindowManager::UpdateWindows()
 {
-	bool force_repaint = false;
-	BaseWidget *tt = nullptr;
+	BaseWidget *tooltip_widget = nullptr;
 	Window *tooltip_window = nullptr;
-	for (Window *w = this->top; w != nullptr; w = w->lower) {
-		if (tt == nullptr) {
-			tt = w->FindTooltipWidget(GetMousePosition());
-			if (tt != nullptr) tooltip_window = w;
-		}
-		force_repaint |= w->wtype == WC_MAIN_MENU;  // Ensure a smooth animation in the main menu.
+	if (_video.GetMouseDragging() == MB_NONE && this->current_window != nullptr) {
+		tooltip_widget = this->current_window->FindTooltipWidget(_video.GetMousePosition());
+		if (tooltip_widget != nullptr) tooltip_window = this->current_window;
 	}
-
-	if (!_video.DisplayNeedsRepaint() && this->tooltip_widget == tt && !force_repaint) return;
 
 	/* Until the entire background is covered by the main display, clean the entire display to ensure deleted
 	 * windows truly disappear (even if there is no other window behind it).
 	 */
-	Rectangle32 rect(0, 0, _video.GetXSize(), _video.GetYSize());
+	Rectangle32 rect(0, 0, _video.Width(), _video.Height());
 	_video.FillRectangle(rect, MakeRGBA(0, 0, 0, OPAQUE));
 
 	GuiWindow *sel_window = this->GetSelector();
 	MouseModeSelector *selector = (sel_window == nullptr) ? nullptr : sel_window->selector;
 	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw(selector);
-	this->tooltip_widget = tt;
 
-	if (this->tooltip_widget != nullptr) {
-		tooltip_window->SetTooltipStringParameters(this->tooltip_widget);
-		this->tooltip_widget->DrawTooltip(tooltip_window->rect.base);
+	if (tooltip_widget != nullptr) {
+		tooltip_window->SetTooltipStringParameters(tooltip_widget);
+		tooltip_widget->DrawTooltip(tooltip_window->rect.base);
 	}
 
 	_video.FinishRepaint();

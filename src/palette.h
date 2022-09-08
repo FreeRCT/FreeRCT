@@ -71,6 +71,46 @@ static inline uint8 GetA(uint32 rgba)
 }
 
 /**
+ * Retrieve the redness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Redness of the examined pixel.
+ */
+static inline float FGetR(uint32 rgba)
+{
+	return GetR(rgba) / 255.f;
+}
+
+/**
+ * Retrieve the greenness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Greenness of the examined pixel.
+ */
+static inline float FGetG(uint32 rgba)
+{
+	return GetG(rgba) / 255.f;
+}
+
+/**
+ * Retrieve the blueness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Blueness of the examined pixel.
+ */
+static inline float FGetB(uint32 rgba)
+{
+	return GetB(rgba) / 255.f;
+}
+
+/**
+ * Retrieve the opaqueness of the provided pixel value.
+ * @param rgba Pixel value to examine.
+ * @return Opaqueness of the examined pixel.
+ */
+static inline float FGetA(uint32 rgba)
+{
+	return GetA(rgba) / 255.f;
+}
+
+/**
  * Set the opaqueness of the provided colour.
  * @param rgba Colour value to change.
  * @param opacity Opaqueness to set.
@@ -314,6 +354,9 @@ struct RecolourEntry {
 	uint32 dest_set;    ///< Bit set of destination colour ranges to chose from.
 };
 
+/** Information of a sprite recolouring instantiation. */
+using CondensedRecolouring = std::vector<std::pair<ColourRange, ColourRange>>;
+
 /**
  * Sprite recolouring information.
  * All information of a sprite recolouring. The gradient colour shift is handled separately, as it changes often.
@@ -323,6 +366,7 @@ public:
 	Recolouring();
 	Recolouring(const Recolouring &sr);
 	Recolouring &operator=(const Recolouring &sr);
+	CondensedRecolouring ToCondensed() const;
 
 	void Reset();
 	void Set(int index, const RecolourEntry &entry);
@@ -365,5 +409,10 @@ private:
 	mutable uint8 colour_map[256]; ///< Colour map used last time.
 	mutable GradientShift shift;   ///< Gradient shift used last time, #GS_INVALID if the #colour_map is not valid.
 };
+
+extern const Recolouring _no_recolour;
+
+/** All information on how to alter the image. */
+using RecolourData = std::pair<GradientShift, CondensedRecolouring>;
 
 #endif

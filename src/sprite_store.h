@@ -20,6 +20,7 @@
 #include "weather.h"
 #include "gui_sprites.h"
 #include <map>
+#include <set>
 
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
 

@@ -224,7 +224,7 @@ public:
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	void SetGraphMode(GraphMode mode);
 	void SetCoasterState();
@@ -586,7 +586,6 @@ void CoasterInstanceWindow::ChooseEntranceExitClicked(const bool entrance)
 	}
 
 	entrance_exit_placement.SetSize(0, 0);
-	entrance_exit_placement.MarkDirty();
 }
 
 /**
@@ -623,15 +622,11 @@ void CoasterInstanceWindow::SetRadioChecked(WidgetNumber radio, bool checked)
 {
 	this->SetWidgetChecked(radio, checked);
 	this->SetWidgetPressed(radio, checked);
-	this->MarkWidgetDirty(radio);
 }
 
 void CoasterInstanceWindow::OnChange(const ChangeCode code, const uint32 parameter)
 {
 	switch (code) {
-		case CHG_DISPLAY_OLD:
-			this->MarkDirty();
-			break;
 		case CHG_DROPDOWN_RESULT:
 			switch ((parameter >> 16) & 0xFF) {
 				case CIW_CHOOSE_ENTRANCE:
@@ -664,7 +659,6 @@ void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &
 	const Point32 world_pos = vp->ComputeHorizontalTranslation(vp->rect.width / 2 - pos.x, vp->rect.height / 2 - pos.y);
 	const int8 dx = _orientation_signum_dx[vp->orientation];
 	const int8 dy = _orientation_signum_dy[vp->orientation];
-	entrance_exit_placement.MarkDirty();
 	bool placed = false;
 	for (int z = WORLD_Z_SIZE - 1; z >= 0; z--) {
 		const int dz = (z - (vp->view_pos.z / 256)) / 2;
@@ -692,12 +686,11 @@ void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &
 		}
 		entrance_exit_placement.SetSize(0, 0);
 	}
-	entrance_exit_placement.MarkDirty();
 }
 
-void CoasterInstanceWindow::SelectorMouseButtonEvent(const uint8 state)
+void CoasterInstanceWindow::SelectorMouseButtonEvent(const MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 	if (entrance_exit_placement.area.width != 1 || entrance_exit_placement.area.height != 1) return;
 
 	if (this->ci->PlaceEntranceOrExit(this->is_placing_entrance ? this->ci->temp_entrance_pos : this->ci->temp_exit_pos, this->is_placing_entrance, nullptr)) {
@@ -785,8 +778,6 @@ TrackPieceMouseMode::~TrackPieceMouseMode()
  */
 void TrackPieceMouseMode::SetTrackPiece(const XYZPoint16 &pos, ConstTrackPiecePtr &piece)
 {
-	if (this->pos_piece.piece != nullptr) this->MarkDirty(); // Mark current area.
-
 	this->pos_piece.piece = piece;
 	if (this->pos_piece.piece != nullptr) {
 		this->pos_piece.base_voxel = pos;
@@ -803,8 +794,6 @@ void TrackPieceMouseMode::SetTrackPiece(const XYZPoint16 &pos, ConstTrackPiecePt
 			XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
 			this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()));
 		}
-
-		this->MarkDirty();
 	}
 }
 
@@ -945,7 +934,7 @@ public:
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
@@ -1316,16 +1305,14 @@ void CoasterBuildWindow::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] c
 	int dy = fdata.voxel_pos.y - piece_base.y;
 	if (dx == 0 && dy == 0) return;
 
-	this->piece_selector.MarkDirty();
-
 	this->piece_selector.SetPosition(this->piece_selector.area.base.x + dx, this->piece_selector.area.base.y + dy);
 	uint8 height = _world.GetTopGroundHeight(fdata.voxel_pos.x, fdata.voxel_pos.y);
 	this->piece_selector.SetTrackPiece(XYZPoint16(fdata.voxel_pos.x, fdata.voxel_pos.y, height), this->sel_piece);
 }
 
-void CoasterBuildWindow::SelectorMouseButtonEvent(uint8 state)
+void CoasterBuildWindow::SelectorMouseButtonEvent(MouseButtons state)
 {
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 
 	this->BuildTrackPiece();
 	this->SetupSelection();

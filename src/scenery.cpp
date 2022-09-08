@@ -622,13 +622,11 @@ void SceneryInstance::InsertIntoWorld()
 	}
 	this->time_since_watered = 0;
 	this->animtime = 0;
-	this->MarkDirty();
 }
 
 /** Remove this item from the voxels it currently occupies. */
 void SceneryInstance::RemoveFromWorld()
 {
-	this->MarkDirty();
 #ifndef NDEBUG
 	const uint16 voxel_data = _scenery.GetSceneryTypeIndex(this->type);
 #endif
@@ -642,23 +640,12 @@ void SceneryInstance::RemoveFromWorld()
 			for (int16 h = 0; h < height; h++) {
 				const XYZPoint16 p = this->vox_pos + XYZPoint16(unrotated_pos.x, unrotated_pos.y, h);
 				Voxel *voxel = _world.GetCreateVoxel(p, false);
-				MarkVoxelDirty(p, 1);
 				if (voxel != nullptr && voxel->instance != SRI_FREE) {
 					assert(voxel->instance == SRI_SCENERY);
 					assert(voxel->instance_data == (h == 0 ? voxel_data : INVALID_VOXEL_DATA));
 					voxel->ClearInstances();
 				}
 			}
-		}
-	}
-}
-
-/** Mark the voxels occupied by this item as in need of repainting. */
-void SceneryInstance::MarkDirty()
-{
-	for (int8 x = 0; x < this->type->width_x; ++x) {
-		for (int8 y = 0; y < this->type->width_y; ++y) {
-			MarkVoxelDirty(this->vox_pos + OrientatedOffset(this->orientation, x, y), this->type->GetHeight(x, y));
 		}
 	}
 }
@@ -691,17 +678,10 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
  */
 void SceneryInstance::OnAnimate(const int delay)
 {
-	const bool was_dry = this->IsDry();
-	const uint32 old_animtime = this->animtime;
-
 	if (this->type->watering_interval > 0) this->time_since_watered += delay;
 	const TimedAnimation *anim = (this->IsDry() ? this->type->dry_animation : this->type->main_animation);
 	this->animtime += delay;
 	this->animtime %= anim->GetTotalDuration();
-
-	if (this->IsDry() != was_dry || anim->GetFrame(old_animtime, true) != anim->GetFrame(this->animtime, true)) {
-		this->MarkDirty();  // Ensure the animation is updated.
-	}
 }
 
 /**

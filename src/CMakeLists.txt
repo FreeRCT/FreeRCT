@@ -24,7 +24,7 @@ IF(WEBASSEMBLY)
 	set(CMAKE_CXX_COMPILER "em++")
 	set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
-	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_SDL=2 -s USE_SDL_TTF=2")
+	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_FREETYPE=1")
 	add_c_cpp_flags("${WASM_FLAGS}")
 
 	add_custom_target(prepare_wasm_rcd ALL
@@ -36,7 +36,7 @@ IF(WEBASSEMBLY)
 	)
 
 	add_flags(CMAKE_EXE_LINKER_FLAGS "${WASM_FLAGS} \
-			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
+			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s USE_GLFW=3 -s FULL_ES3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
 			--preload-file ${CMAKE_INSTALL_PREFIX}")
 
 	FUNCTION(find_package)
@@ -140,22 +140,15 @@ ENDIF()
 add_dependencies(freerct rcd)
 
 # Library detection
-find_package(SDL2 REQUIRED)
-IF(SDL2_FOUND)
-	include_directories(${SDL2_INCLUDE_DIR})
-	target_link_libraries(freerct ${SDL2_LIBRARY})
-ENDIF()
-
-find_package(SDL2_ttf REQUIRED)
-# Legacy variable names
-IF(SDL2_TTF_FOUND)
-	include_directories(${SDL2TTF_INCLUDE_DIR})
-	target_link_libraries(freerct ${SDL2TTF_LIBRARY})
-ENDIF()
 
 IF(NOT WEBASSEMBLY)
 	find_package(PNG REQUIRED)
-	target_link_libraries(freerct PNG::PNG)
+	find_package(OpenGL REQUIRED)
+	find_package(glfw3 3.3 REQUIRED)
+	find_package(GLEW REQUIRED)
+	find_package(Freetype REQUIRED)
+	include_directories(freerct ${GLEW_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
+	target_link_libraries(freerct PNG::PNG glfw OpenGL::GL GLEW::GLEW ${FREETYPE_LIBRARIES})
 ENDIF(NOT WEBASSEMBLY)
 
 # Determine version string
@@ -209,8 +202,8 @@ IF(MSVC)
 	add_definitions(-DWIN32_LEAN_AND_MEAN -D__STDC_FORMAT_MACROS -DNOMINMAX)
 	target_link_libraries(freerct
 		version imm32 winmm
-		freetype harfbuzz graphite2 brotlidec-static brotlicommon-static brotlienc-static
-		ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid bz2 zlib
+		harfbuzz graphite2 brotlidec-static brotlicommon-static brotlienc-static
+		ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid
 	)
 	IF(RELEASE)
 		string(REPLACE "/MD" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})

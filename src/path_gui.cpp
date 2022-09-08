@@ -32,7 +32,7 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 
-	void SelectorMouseButtonEvent(uint8 state) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 
 
@@ -259,31 +259,29 @@ void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const P
 	if (this->mouse_at == CS_NONE || fdata.voxel_pos == this->mouse_pos) return;
 
 	this->mouse_pos = fdata.voxel_pos;
-	if (this->single_tile_mode) this->TryAddRemovePath(_window_manager.GetMouseState());
+	if (this->single_tile_mode) this->TryAddRemovePath(_video.GetMouseDragging());
 
 	this->SetButtons();
 	this->SetupSelector();
 }
 
-void PathBuildGui::SelectorMouseButtonEvent(uint8 state)
+void PathBuildGui::SelectorMouseButtonEvent(MouseButtons state)
 {
 	if (this->ride_selector.area.width == 0 || this->path_type == PAT_INVALID) return;
 
 	if (this->single_tile_mode) {
+		_video.SetMouseDragging(state, true, false);
 		this->TryAddRemovePath(state);
 		return;
 	}
 	/* Directional build. */
 
-	if (!IsLeftClick(state)) return;
+	if (state != MB_LEFT) return;
 
 	/* Click with directional build, set or move the build position. */
-	this->ride_selector.MarkDirty();
-
 	this->ride_selector.SetSize(1, 1);
 	this->build_pos = this->mouse_pos;
 	this->ride_selector.SetPosition(this->mouse_pos.x, this->mouse_pos.y);
-	this->ride_selector.MarkDirty();
 	this->SetButtons();
 	this->SetupSelector();
 }
@@ -310,11 +308,8 @@ void PathBuildGui::SetupSelector()
 		/* Single tile mode or directional mode without build position, always follow the mouse. */
 		const Point16 &sel_base = this->ride_selector.area.base;
 		if (sel_base.x != this->mouse_pos.x || sel_base.y != this->mouse_pos.y) {
-			this->ride_selector.MarkDirty();
-
 			this->ride_selector.SetSize(1, 1);
 			this->ride_selector.SetPosition(this->mouse_pos.x, this->mouse_pos.y);
-			this->ride_selector.MarkDirty();
 		}
 		return;
 	}
@@ -323,11 +318,8 @@ void PathBuildGui::SetupSelector()
 	if (this->build_direction == INVALID_EDGE || this->sel_slope == TSL_INVALID) {
 		const Point16 &sel_base = this->ride_selector.area.base;
 		if (sel_base.x != this->build_pos.x || sel_base.y != this->build_pos.y) {
-			this->ride_selector.MarkDirty();
-
 			this->ride_selector.SetSize(1, 1);
 			this->ride_selector.SetPosition(this->build_pos.x, this->build_pos.y);
-			this->ride_selector.MarkDirty();
 		}
 		return;
 	}
@@ -353,8 +345,6 @@ void PathBuildGui::SetupSelector()
 		default: NOT_REACHED();
 	}
 
-	const Point16 &sel_base = this->ride_selector.area.base;
-	if (sel_base.x != add_pos.x || sel_base.y != add_pos.y) this->ride_selector.MarkDirty();
 	this->ride_selector.SetSize(1, 1);
 	this->ride_selector.SetPosition(add_pos.x, add_pos.y);
 	this->ride_selector.AddVoxel(add_pos);
@@ -365,7 +355,6 @@ void PathBuildGui::SetupSelector()
 	VoxelRideData &vrd = vtd.ride_info[add_pos.z - vtd.lowest];
 	vrd.sri = SRI_PATH;
 	vrd.instance_data = MakePathInstanceData(path_slope, this->path_type);
-	this->ride_selector.MarkDirty();
 }
 
 /**
@@ -425,8 +414,6 @@ void PathBuildGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 
 void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
-	static Recolouring recolour; // Never changed.
-
 	switch (wid_num) {
 		case PATH_GUI_NORMAL_PATH0:
 		case PATH_GUI_NORMAL_PATH1:
@@ -438,7 +425,7 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
 					Point32 pt(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y);
-					_video.BlitImage(pt, img, recolour, GS_NORMAL);
+					_video.BlitImage(pt, img);
 				}
 			}
 			break;
@@ -453,7 +440,7 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
 					Point32 pt(GetWidgetScreenX(wid) + dx - path_type_button_size.base.x, GetWidgetScreenY(wid) + dy - path_type_button_size.base.y);
-					_video.BlitImage(pt, img, recolour, GS_NORMAL);
+					_video.BlitImage(pt, img);
 				}
 			}
 			break;

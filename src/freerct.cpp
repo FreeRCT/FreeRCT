@@ -7,6 +7,7 @@
 
 /** @file freerct.cpp Main program. */
 
+#include <cstdarg>
 #include "stdafx.h"
 #include "freerct.h"
 #include "video.h"
@@ -233,7 +234,7 @@ int freerct_main(int argc, char **argv)
 	}
 
 	/* Use default values if no font has been set. */
-	if (font_path.empty()) font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "Ubuntu-L.ttf");
+	if (font_path.empty()) font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "FreeSans.ttf");
 	if (font_size < 1) font_size = 15;
 
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
@@ -266,11 +267,7 @@ int freerct_main(int argc, char **argv)
 	}
 
 	/* Initialize video. */
-	std::string err = _video.Initialize(font_path, font_size);
-	if (!err.empty()) {
-		fprintf(stderr, "Failed to initialize window or the font (%s), aborting\n", err.c_str());
-		return 1;
-	}
+	_video.Initialize(font_path, font_size);
 
 	_game_control.Initialize(file_name);
 
@@ -278,7 +275,7 @@ int freerct_main(int argc, char **argv)
 #ifdef WEBASSEMBLY
 	emscripten_set_main_loop(VideoSystem::MainLoopCycle, 0 /* set FPS automatically */, 1 /* repeat as endless loop */);
 #else
-	VideoSystem::MainLoop();
+	_video.MainLoop();
 #endif
 
 	_game_control.Uninitialize();

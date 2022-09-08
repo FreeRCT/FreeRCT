@@ -180,7 +180,6 @@ void StaffManagementGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget
 	DrawString(GUI_STAFF_TITLE_STATUS, TEXT_WHITE, column2x, y, column3x  - column2x, ALG_LEFT, true);
 	DrawString(GUI_STAFF_DISMISS,      TEXT_WHITE, column3x, y, x + w - 2 - column3x, ALG_RIGHT, true);
 
-	static Recolouring rc;  // Never modified.
 	for (uint i = first_index; i < last_index; i++) {
 		y += GetTextHeight();
 		StaffMember *person = _staff.Get(this->selected, i);
@@ -190,7 +189,7 @@ void StaffManagementGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget
 		_str_params.SetText(1, person->GetStatus());
 		DrawString(STR_ARG1, TEXT_BLACK, column2x + 2, y, w, ALG_LEFT);
 
-		_video.BlitImage({x + w - _gui_sprites.close_sprite->width - 2, y}, _gui_sprites.close_sprite, rc, GS_NORMAL);
+		_video.BlitImage({x + w - _gui_sprites.close_sprite->width - 2, y}, _gui_sprites.close_sprite);
 	}
 }
 

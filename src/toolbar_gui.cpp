@@ -317,7 +317,7 @@ enum BottomToolbarGuiWidgets {
 	BTB_DATE,           ///< Status panel containing date.
 };
 
-static const uint32 BOTTOM_BAR_HEIGHT = 50;     ///< Minimum Y-coord size of the bottom toolbar (BTB) panel.
+static const uint32 BOTTOM_BAR_HEIGHT = 55;     ///< Minimum Y-coord size of the bottom toolbar (BTB) panel.
 static const uint32 BOTTOM_BAR_POSITION_X = 75; ///< Separation of the toolbar from the edge of the window.
 
 /**
@@ -360,7 +360,7 @@ Point32 BottomToolbarWindow::OnInitialPosition()
 {
 	static Point32 pt;
 	pt.x = BOTTOM_BAR_POSITION_X;
-	pt.y = _video.GetYSize() - BOTTOM_BAR_HEIGHT;
+	pt.y = _video.Height() - BOTTOM_BAR_HEIGHT;
 	return pt;
 }
 
@@ -430,11 +430,6 @@ void BottomToolbarWindow::OnClick(const WidgetNumber wid_num, const Point16 &pos
 void BottomToolbarWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
 {
 	switch (code) {
-		case CHG_DISPLAY_OLD:
-		case CHG_GUEST_COUNT:
-			this->MarkDirty();
-			break;
-
 		case CHG_RESOLUTION_CHANGED:
 			this->ResetSize();
 			break;
@@ -480,7 +475,7 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 			break;
 
 		case BTB_EMPTY:
-			p.x = _video.GetXSize() - (2 * BOTTOM_BAR_POSITION_X);
+			p.x = _video.Width() - (2 * BOTTOM_BAR_POSITION_X);
 			break;
 
 		case BTB_DATE:
@@ -494,8 +489,6 @@ void BottomToolbarWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid
 
 void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 {
-	static Recolouring recolour; // Never changed.
-
 	switch (wid_num) {
 		case BTB_VIEW_DIRECTION: {
 			Viewport *vp = _window_manager.GetViewport();
@@ -503,7 +496,7 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 			const ImageData *img = _sprite_manager.GetTableSprite(SPR_GUI_COMPASS_START + dir);
 			if (img != nullptr) {
 				_video.BlitImage({GetWidgetScreenX(wid) + (wid->pos.width - img->width) / 2,
-						GetWidgetScreenY(wid) + (wid->pos.height - img->height) / 2}, img, recolour, GS_NORMAL);
+						GetWidgetScreenY(wid) + (wid->pos.height - img->height) / 2}, img);
 			}
 			break;
 		}
@@ -511,7 +504,7 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 		case BTB_WEATHER: {
 			int spr = SPR_GUI_WEATHER_START + _weather.GetWeatherType();
 			const ImageData *img = _sprite_manager.GetTableSprite(spr);
-			if (img != nullptr) _video.BlitImage({GetWidgetScreenX(wid), GetWidgetScreenY(wid)}, img, recolour, GS_NORMAL);
+			if (img != nullptr) _video.BlitImage({GetWidgetScreenX(wid), GetWidgetScreenY(wid)}, img);
 			break;
 		}
 
@@ -593,8 +586,8 @@ const WidgetPart _quit_program_widgets[] = { \
 Point32 QuitProgramWindow::OnInitialPosition()
 {
 	Point32 pt;
-	pt.x = (_video.GetXSize() - this->rect.width ) / 2;
-	pt.y = (_video.GetYSize() - this->rect.height) / 2;
+	pt.x = (_video.Width() - this->rect.width ) / 2;
+	pt.y = (_video.Height() - this->rect.height) / 2;
 	return pt;
 }
 
