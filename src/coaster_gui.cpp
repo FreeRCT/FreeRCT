@@ -1003,6 +1003,8 @@ CoasterBuildWindow::~CoasterBuildWindow()
 
 	if (!GetWindowByType(WC_COASTER_MANAGER, this->wnumber) && !this->ci->IsAccessible()) {
 		_rides_manager.DeleteInstance(this->ci->GetIndex());
+	} else {
+		ShowCoasterManagementGui(this->ci);
 	}
 }
 
