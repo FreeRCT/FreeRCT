@@ -966,7 +966,7 @@ void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
 
 	if ((_video.GetMouseDragging() & button) != MB_NONE) {
 		if (!pressed) _video.SetMouseDragging(button, false, false);
-	} else if (pressed) {
+	} else if (pressed && this->current_window != nullptr) {
 		WmMouseEvent me = this->current_window->OnMouseButtonEvent(button);
 		switch (me) {
 			case WMME_NONE:
