@@ -18,11 +18,11 @@ static const Money PATH_CONSTRUCT_COST_CHANGE       ( 400);  ///< How much it co
 static const Money PATH_CONSTRUCT_COST_RETURN       (-800);  ///< How much it costs to delete a single path segment.
 
 bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge);
-bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only);
-bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only);
-bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, bool test_only);
-bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only);
-bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only);
+bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only, bool pay);
+bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only, bool pay);
+bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, bool test_only, bool pay);
+bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only, bool pay);
+bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only, bool pay);
 uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge);
 uint8 GetPathAttachPoints(const XYZPoint16 &voxel_pos);
 

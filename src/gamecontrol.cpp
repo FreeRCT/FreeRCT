@@ -265,7 +265,7 @@ void GameControl::NewLevel()
 			_scenery.AddItem(item);
 		}
 		for (int i = 0; i < 6; i++) {
-			BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, false);
+			BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, false, false);
 		}
 	}
 

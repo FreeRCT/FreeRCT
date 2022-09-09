@@ -90,6 +90,29 @@ public:
 	uint16 ride;             ///< Found ride instance, if any.
 };
 
+/** A text string drifting over the viewport and fading out. */
+struct FloatawayText {
+	/**
+	 * Constructor.
+	 * @param text Text to show.
+	 * @param pos Pixel position in the world.
+	 * @param speed Pixel position change per tick.
+	 * @param col RGB colour of the text.
+	 * @param fade Alpha decrease per tick.
+	 */
+	FloatawayText(std::string text, XYZPoint32 pos, XYZPoint32 speed, uint32 colour, int fade)
+	: text(text), pos(pos), speed(speed), colour(colour), fade(fade)
+	{
+	}
+	FloatawayText(std::string text, XYZPoint32 pos, uint32 col);
+
+	std::string text;  ///< Text to display.
+	XYZPoint32 pos;    ///< Current pixel position.
+	XYZPoint32 speed;  ///< Pixel position change per tick.
+	uint32 colour;     ///< RGBA colour.
+	int fade;          ///< Opacity decrease per tick.
+};
+
 /**
  * Class for displaying parts of the world.
  * @ingroup viewport_group
@@ -109,10 +132,12 @@ public:
 	Point32 ComputeHorizontalTranslation(int dx, int dy);
 	int32 ComputeX(int32 xpos, int32 ypos);
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
+	Point32 ComputeScreenCoordinate(const XYZPoint32 &pixel) const;
 
 	bool IsUndergroundModeAvailable() const;
 	void SetUndergroundMode();
 	void ToggleUndergroundMode();
+	void AddFloatawayMoneyAmount(const Money &money, const XYZPoint16 &voxel);
 
 	XYZPoint32 view_pos;         ///< Position of the centre point of the viewport.
 	uint16 tile_width;           ///< Width of a tile.
@@ -122,6 +147,7 @@ public:
 	bool draw_fps;               ///< Whether to draw an FPS counter.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
+	std::vector<FloatawayText> floataway_texts;  ///< Currently active floataway texts.
 
 protected:
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;

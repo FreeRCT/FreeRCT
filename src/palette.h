@@ -118,7 +118,7 @@ static inline float FGetA(uint32 rgba)
  */
 static inline uint32 SetA(uint32 rgba, uint8 opacity)
 {
-	return rgba | opacity;
+	return (rgba & ~0xff) | opacity;
 }
 
 /** Names of colour ranges. */
