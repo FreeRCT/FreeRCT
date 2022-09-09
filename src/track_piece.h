@@ -275,7 +275,7 @@ public:
 	PositionedTrackPiece(const XYZPoint16 &vox_pos, ConstTrackPiecePtr piece);
 
 	bool IsOnWorld() const;
-	bool CanBePlaced() const;
+	StringID CanBePlaced() const;
 	bool CanBeSuccessor(const XYZPoint16 &vox, uint8 connect) const;
 	bool CanBeSuccessor(const PositionedTrackPiece &pred) const;
 

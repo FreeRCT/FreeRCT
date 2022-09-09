@@ -1262,7 +1262,7 @@ uint16 CoasterInstance::GetInstanceData(const TrackVoxel *tv) const
  */
 void CoasterInstance::PlaceTrackPieceInWorld(const PositionedTrackPiece &placed)
 {
-	assert(placed.CanBePlaced());
+	assert(placed.CanBePlaced() == STR_NULL);
 	SmallRideInstance ride_number = this->GetRideNumber();
 
 	for (const auto& tvx : placed.piece->track_voxels) {

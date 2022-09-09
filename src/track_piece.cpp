@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "sprite_store.h"
 #include "fileio.h"
+#include "gamecontrol.h"
 #include "track_piece.h"
 #include "map.h"
 
@@ -267,20 +268,21 @@ bool PositionedTrackPiece::IsOnWorld() const
 
 /**
  * Can this positioned track piece be placed in the world?
- * @return Positioned track piece can be placed.
+ * @return \c STR_NULL if the item can be placed here; otherwise the reason why it can't.
  * @pre Positioned track piece must have a piece.
  */
-bool PositionedTrackPiece::CanBePlaced() const
+StringID PositionedTrackPiece::CanBePlaced() const
 {
-	if (!this->IsOnWorld()) return false;
+	if (!this->IsOnWorld()) return GUI_ERROR_MESSAGE_BAD_LOCATION;
 	for (const auto &tvx : this->piece->track_voxels) {
 		/* Is the voxel above ground level? */
 		const XYZPoint16 part_pos = this->base_voxel + tvx->dxyz;
-		if (_world.GetBaseGroundHeight(part_pos.x, part_pos.y) > part_pos.z) return false;
+		if (_world.GetBaseGroundHeight(part_pos.x, part_pos.y) > part_pos.z) return GUI_ERROR_MESSAGE_UNDERGROUND;
 		const Voxel *vx = _world.GetVoxel(part_pos);
-		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
+		if (vx != nullptr && !vx->CanPlaceInstance()) return GUI_ERROR_MESSAGE_OCCUPIED;
+		if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(part_pos.x, part_pos.y) != OWN_PARK) return GUI_ERROR_MESSAGE_UNOWNED_LAND;
 	}
-	return true;
+	return STR_NULL;
 }
 
 /**

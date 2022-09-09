@@ -18,6 +18,8 @@
 #include "map.h"
 #include "gui_sprites.h"
 #include "entity_gui.h"
+#include "finances.h"
+#include "gamecontrol.h"
 
 /** Window to prompt for removing a roller coaster. */
 class CoasterRemoveWindow : public EntityRemoveWindow  {
@@ -1335,14 +1337,21 @@ void CoasterBuildWindow::BuildTrackPiece()
 	if (this->selector == nullptr || this->piece_selector.pos_piece.piece == nullptr) return; // No active selector.
 	if (this->sel_piece == nullptr) return; // No piece.
 
-	if (!this->piece_selector.pos_piece.CanBePlaced()) {
-		return; /// \todo Display error message.
+	/* Are we allowed to build here? */
+	StringID err = this->piece_selector.pos_piece.CanBePlaced();
+	if (err != STR_NULL) {
+		BestErrorMessageReason::ShowActionErrorMessage(BestErrorMessageReason::ACT_BUILD, err);
+		return;
 	}
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->piece_selector.pos_piece.piece->cost)) return;
 
 	/* Add the piece to the coaster instance. */
 	int ptp_index = this->ci->AddPositionedPiece(this->piece_selector.pos_piece);
 	if (ptp_index >= 0) {
 		this->ci->PlaceTrackPieceInWorld(this->piece_selector.pos_piece); // Add the piece to the world.
+
+		_finances_manager.PayRideConstruct(this->piece_selector.pos_piece.piece->cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(this->piece_selector.pos_piece.piece->cost, this->piece_selector.pos_piece.base_voxel);
 
 		/* Piece was added, change the setup for the next piece. */
 		this->cur_piece = &this->ci->pieces[ptp_index];
